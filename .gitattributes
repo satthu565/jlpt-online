@@ -1,0 +1,4 @@
+# Ký tự xuống dòng chuẩn LF cho mã nguồn.
+* text=auto eol=lf
+# Bản gốc để truy vết: giữ nguyên từng byte (nguon/MANIFEST.json lưu SHA256 của chúng).
+docs/multi-worker/nguon/** -text

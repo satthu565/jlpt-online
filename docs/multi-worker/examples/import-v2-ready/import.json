@@ -1,0 +1,471 @@
+{
+  "formatVersion": 2,
+  "packageId": "00000000-0000-4000-8000-000000000002",
+  "revision": 1,
+  "source": {
+    "name": "Fixture tự soạn kiểm tra định dạng, không phải đề JLPT thật",
+    "level": "N5",
+    "year": null,
+    "session": null,
+    "provenance": "self_authored",
+    "licenseRef": "self-authored-example",
+    "rightsStatus": "owner_confirmed"
+  },
+  "sourceFiles": [],
+  "exam": {
+    "title": "Gói mẫu 5 câu để kiểm tra import v2",
+    "slug": "import-v2-demo",
+    "kind": "practice",
+    "blueprintRef": {
+      "id": "synthetic-n5-v1",
+      "version": 1
+    },
+    "totalQuestions": 5,
+    "sections": [
+      {
+        "code": "language_vocab",
+        "title": "Từ vựng mẫu",
+        "durationSec": 30,
+        "groupIds": [
+          "g-vocab"
+        ],
+        "listeningTimeline": []
+      },
+      {
+        "code": "language_grammar_reading",
+        "title": "Ngữ pháp đọc mẫu",
+        "durationSec": 30,
+        "groupIds": [
+          "g-order",
+          "g-reading"
+        ],
+        "listeningTimeline": []
+      },
+      {
+        "code": "listening",
+        "title": "Nghe fixture",
+        "durationSec": 30,
+        "groupIds": [
+          "g-listening"
+        ],
+        "listeningTimeline": [
+          {
+            "groupId": "g-listening",
+            "mediaKey": "media/00d0ad3e26f73d387098dddab2d5f79b9f270d9a7be23a5ef15dec78ef9395f1.wav",
+            "startMs": 0,
+            "endMs": 2000,
+            "audioStartMs": 0,
+            "audioEndMs": 2000,
+            "gapAfterMs": 28000
+          }
+        ]
+      }
+    ]
+  },
+  "groups": [
+    {
+      "id": "g-vocab",
+      "sectionCode": "language_vocab",
+      "mondaiType": "kanji_reading",
+      "orderInSection": 1,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "下線のことばの読み方を選んでください。"
+        }
+      ],
+      "passage": [],
+      "mediaKeys": [],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-1",
+          "number": "1",
+          "skill": "kanji",
+          "stem": [
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "学校"
+                }
+              ]
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "がっこう"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "がこう"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "がっこ"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "がくこう"
+                }
+              ]
+            }
+          ],
+          "correctOption": 1,
+          "sourcePages": [],
+          "explanation": null
+        },
+        {
+          "id": "q-2",
+          "number": "2",
+          "skill": "vocabulary",
+          "stem": [
+            {
+              "t": "ruby",
+              "text": "水",
+              "rt": "みず"
+            },
+            {
+              "t": "text",
+              "text": "を飲みます。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "nước"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "lửa"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "đất"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "gió"
+                }
+              ]
+            }
+          ],
+          "correctOption": 1,
+          "sourcePages": [],
+          "explanation": null
+        }
+      ],
+      "transcript": null
+    },
+    {
+      "id": "g-order",
+      "sectionCode": "language_grammar_reading",
+      "mondaiType": "sentence_composition",
+      "orderInSection": 1,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "★に入るものを選んでください。"
+        }
+      ],
+      "passage": [],
+      "mediaKeys": [],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-3",
+          "number": "3",
+          "skill": "grammar",
+          "stem": [
+            {
+              "t": "text",
+              "text": "わたしは "
+            },
+            {
+              "t": "blank"
+            },
+            {
+              "t": "blank"
+            },
+            {
+              "t": "star"
+            },
+            {
+              "t": "blank"
+            },
+            {
+              "t": "text",
+              "text": "。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "毎日"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "日本語を"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "勉強"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "します"
+                }
+              ]
+            }
+          ],
+          "correctOption": 3,
+          "sourcePages": [],
+          "explanation": null
+        }
+      ],
+      "transcript": null
+    },
+    {
+      "id": "g-reading",
+      "sectionCode": "language_grammar_reading",
+      "mondaiType": "info_retrieval",
+      "orderInSection": 2,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "表を見て答えてください。"
+        }
+      ],
+      "passage": [
+        {
+          "type": "table",
+          "rows": [
+            [
+              [
+                {
+                  "t": "text",
+                  "text": "曜日"
+                }
+              ],
+              [
+                {
+                  "t": "text",
+                  "text": "開店"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "t": "text",
+                  "text": "月曜日"
+                }
+              ],
+              [
+                {
+                  "t": "text",
+                  "text": "9:00"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "type": "image",
+          "mediaKey": "media/f2fc1dd6c83d15d222b2bc9e60008c5e3b226b035a6ecd779f5b88c5d34a338d.png",
+          "alt": "Ảnh fixture 2×2 chỉ để kiểm tra đường dẫn",
+          "width": 2,
+          "height": 2
+        }
+      ],
+      "mediaKeys": [
+        "media/f2fc1dd6c83d15d222b2bc9e60008c5e3b226b035a6ecd779f5b88c5d34a338d.png"
+      ],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-4",
+          "number": "4",
+          "skill": "reading",
+          "stem": [
+            {
+              "t": "text",
+              "text": "月曜日は何時に開きますか。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "8:00"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "9:00"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "10:00"
+                }
+              ]
+            }
+          ],
+          "correctOption": 2,
+          "sourcePages": [],
+          "explanation": null
+        }
+      ],
+      "transcript": null
+    },
+    {
+      "id": "g-listening",
+      "sectionCode": "listening",
+      "mondaiType": "quick_response",
+      "orderInSection": 1,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "Đây chỉ là fixture âm báo, không phải bài nghe JLPT."
+        }
+      ],
+      "passage": [],
+      "mediaKeys": [
+        "media/00d0ad3e26f73d387098dddab2d5f79b9f270d9a7be23a5ef15dec78ef9395f1.wav"
+      ],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-5",
+          "number": "5",
+          "skill": "listening",
+          "stem": [
+            {
+              "t": "text",
+              "text": "Trong fixture này bạn nghe thấy âm nào?"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Âm báo"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Lời nói"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Không có âm"
+                }
+              ]
+            }
+          ],
+          "correctOption": 1,
+          "sourcePages": [],
+          "explanation": null
+        }
+      ],
+      "transcript": null
+    }
+  ],
+  "media": [
+    {
+      "path": "media/f2fc1dd6c83d15d222b2bc9e60008c5e3b226b035a6ecd779f5b88c5d34a338d.png",
+      "sha256": "f2fc1dd6c83d15d222b2bc9e60008c5e3b226b035a6ecd779f5b88c5d34a338d",
+      "mimeType": "image/png",
+      "durationMs": null,
+      "width": 2,
+      "height": 2
+    },
+    {
+      "path": "media/00d0ad3e26f73d387098dddab2d5f79b9f270d9a7be23a5ef15dec78ef9395f1.wav",
+      "sha256": "00d0ad3e26f73d387098dddab2d5f79b9f270d9a7be23a5ef15dec78ef9395f1",
+      "mimeType": "audio/wav",
+      "durationMs": 2000,
+      "width": null,
+      "height": null
+    }
+  ],
+  "issues": []
+}

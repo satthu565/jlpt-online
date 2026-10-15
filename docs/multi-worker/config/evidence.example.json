@@ -1,0 +1,16 @@
+{
+  "featureId": "PAY-04",
+  "taskId": "L04",
+  "status": "TODO",
+  "codeVerified": false,
+  "providerVerified": false,
+  "productionVerified": false,
+  "commitSha": null,
+  "baseSha": null,
+  "testFiles": [],
+  "runs": [],
+  "externalBlockers": [
+    "payment-provider"
+  ],
+  "note": "Schema example only. Populate with actual commands exit codes report artifacts and provider environment; do not mark pass from this template."
+}

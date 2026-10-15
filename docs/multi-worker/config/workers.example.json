@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "scope": "ALL_V1_V4",
+  "workerCount": 6,
+  "coordinatorInstances": 1,
+  "coordinator": {
+    "repo": "jlpt-coordinator (repo riêng, không nằm trong repo sản phẩm)",
+    "builtBefore": "day 0",
+    "spec": "DAC_TA_RUNNER.md"
+  },
+  "locks": {
+    "repo-root": "File cấu hình gốc của monorepo",
+    "dependency-lock": "pnpm-lock.yaml và package manifests; worker gửi yêu cầu thêm thư viện, coordinator gộp thành bước ngắn có khóa",
+    "schema-contract": "packages/schema, contracts/, api-client sinh tự động",
+    "db-migration": "Migration journal và schema DB",
+    "engine-contract": "API công khai của packages/exam-engine",
+    "ui-contract": "Component và token dùng chung trong packages/ui",
+    "ci-workflow": ".github/workflows",
+    "staging-deploy": "Môi trường staging dùng chung",
+    "heavy-load": "Cửa sổ chạy load test riêng",
+    "api-hardening": "Đợt sửa bảo mật chạm nhiều module API"
+  },
+  "cli": "gemini",
+  "authMode": "native-per-worker-login",
+  "credentialsEmbedded": false,
+  "limits": {
+    "activeWork": 6,
+    "activeReviews": 1,
+    "heavyBuilds": 2,
+    "browserSuites": 1,
+    "loadRuns": 1
+  },
+  "taskCatalog": "../tasks.json",
+  "inputMode": "PREPARED_IMPORT_V2_NO_OCR",
+  "stateStore": "SQLite WAL (implementation required)",
+  "productionAccess": false,
+  "quotaPolicy": "pause-only-affected-worker; checkpoint; never silently rotate identity",
+  "workers": [
+    {
+      "id": "W1",
+      "role": "Hợp đồng dữ liệu và logic thi",
+      "linuxUser": "jlpt-w1",
+      "repo": "/srv/jlpt-workers/w1/repo",
+      "home": "/home/jlpt-w1",
+      "nativeLogin": "operator-required",
+      "allowedRoots": [
+        "packages/schema/",
+        "packages/exam-engine/",
+        "packages/media-token/",
+        "packages/srs/",
+        "packages/api-client/",
+        "contracts/",
+        "fixtures/contracts/",
+        "apps/api/src/db/",
+        "docs/decisions/"
+      ],
+      "database": "jlpt_w1",
+      "redisCoreNamespace": "jlpt:w1:core:",
+      "redisCacheNamespace": "jlpt:w1:cache:",
+      "bullmqPrefix": "jlpt-w1",
+      "storageRoot": "/srv/jlpt-workers/w1/data",
+      "ports": {
+        "web": 3100,
+        "admin": 3101,
+        "api": 4100
+      },
+      "canReadOtherWorkerCredentials": false,
+      "canReadCoordinatorSecrets": false
+    },
+    {
+      "id": "W2",
+      "role": "API tài khoản nội dung và thi",
+      "linuxUser": "jlpt-w2",
+      "repo": "/srv/jlpt-workers/w2/repo",
+      "home": "/home/jlpt-w2",
+      "nativeLogin": "operator-required",
+      "allowedRoots": [
+        "apps/api/src/common/",
+        "apps/api/src/modules/auth/",
+        "apps/api/src/modules/user/",
+        "apps/api/src/modules/exam/",
+        "apps/api/src/modules/attempt/",
+        "apps/api/src/modules/question-bank/",
+        "apps/api/src/modules/import/",
+        "apps/api/src/modules/media/",
+        "apps/api/src/modules/review/",
+        "apps/api/src/modules/storage/",
+        "apps/api/src/modules/license/",
+        "apps/api/src/modules/blueprint/",
+        "apps/api/src/modules/audit/",
+        "apps/api/src/modules/notification/",
+        "apps/api/src/modules/community/",
+        "apps/api/src/modules/classroom/",
+        "apps/api/src/modules/scoring/",
+        "apps/api/src/modules/outbox/",
+        "apps/api/src/modules/email/",
+        "apps/api/src/modules/admin/",
+        "apps/api/src/modules/turnstile/",
+        "apps/api/src/main.ts",
+        "apps/api/src/app.module.ts",
+        "docs/decisions/"
+      ],
+      "database": "jlpt_w2",
+      "redisCoreNamespace": "jlpt:w2:core:",
+      "redisCacheNamespace": "jlpt:w2:cache:",
+      "bullmqPrefix": "jlpt-w2",
+      "storageRoot": "/srv/jlpt-workers/w2/data",
+      "ports": {
+        "web": 3200,
+        "admin": 3201,
+        "api": 4200
+      },
+      "canReadOtherWorkerCredentials": false,
+      "canReadCoordinatorSecrets": false
+    },
+    {
+      "id": "W3",
+      "role": "Giao diện học viên",
+      "linuxUser": "jlpt-w3",
+      "repo": "/srv/jlpt-workers/w3/repo",
+      "home": "/home/jlpt-w3",
+      "nativeLogin": "operator-required",
+      "allowedRoots": [
+        "apps/web/",
+        "packages/ui/",
+        "docs/decisions/"
+      ],
+      "database": "jlpt_w3",
+      "redisCoreNamespace": "jlpt:w3:core:",
+      "redisCacheNamespace": "jlpt:w3:cache:",
+      "bullmqPrefix": "jlpt-w3",
+      "storageRoot": "/srv/jlpt-workers/w3/data",
+      "ports": {
+        "web": 3300,
+        "admin": 3301,
+        "api": 4300
+      },
+      "canReadOtherWorkerCredentials": false,
+      "canReadCoordinatorSecrets": false
+    },
+    {
+      "id": "W4",
+      "role": "Quản trị báo cáo và thương mại",
+      "linuxUser": "jlpt-w4",
+      "repo": "/srv/jlpt-workers/w4/repo",
+      "home": "/home/jlpt-w4",
+      "nativeLogin": "operator-required",
+      "allowedRoots": [
+        "apps/admin/",
+        "apps/api/src/modules/payment/",
+        "apps/api/src/modules/entitlement/",
+        "apps/api/src/modules/reporting/",
+        "apps/api/src/modules/cms/",
+        "apps/api/src/modules/experiment/",
+        "docs/decisions/"
+      ],
+      "database": "jlpt_w4",
+      "redisCoreNamespace": "jlpt:w4:core:",
+      "redisCacheNamespace": "jlpt:w4:cache:",
+      "bullmqPrefix": "jlpt-w4",
+      "storageRoot": "/srv/jlpt-workers/w4/data",
+      "ports": {
+        "web": 3400,
+        "admin": 3401,
+        "api": 4400
+      },
+      "canReadOtherWorkerCredentials": false,
+      "canReadCoordinatorSecrets": false
+    },
+    {
+      "id": "W5",
+      "role": "Chuẩn nhập liệu dữ liệu và học thông minh",
+      "linuxUser": "jlpt-w5",
+      "repo": "/srv/jlpt-workers/w5/repo",
+      "home": "/home/jlpt-w5",
+      "nativeLogin": "operator-required",
+      "allowedRoots": [
+        "tools/import-data/",
+        "packages/content-tools/",
+        "apps/api/src/modules/ai/",
+        "apps/api/src/modules/vocab/",
+        "apps/api/src/modules/stats/",
+        "apps/api/src/modules/planner/",
+        "apps/api/src/modules/gamification/",
+        "apps/api/src/modules/learning/",
+        "fixtures/imports/",
+        "docs/import-format/",
+        "docs/decisions/"
+      ],
+      "database": "jlpt_w5",
+      "redisCoreNamespace": "jlpt:w5:core:",
+      "redisCacheNamespace": "jlpt:w5:cache:",
+      "bullmqPrefix": "jlpt-w5",
+      "storageRoot": "/srv/jlpt-workers/w5/data",
+      "ports": {
+        "web": 3500,
+        "admin": 3501,
+        "api": 4500
+      },
+      "canReadOtherWorkerCredentials": false,
+      "canReadCoordinatorSecrets": false
+    },
+    {
+      "id": "W6",
+      "role": "Hạ tầng CI và kiểm chứng",
+      "linuxUser": "jlpt-w6",
+      "repo": "/srv/jlpt-workers/w6/repo",
+      "home": "/home/jlpt-w6",
+      "nativeLogin": "operator-required",
+      "allowedRoots": [
+        "package.json",
+        "pnpm-workspace.yaml",
+        "pnpm-lock.yaml",
+        "turbo.json",
+        "infra/",
+        ".github/",
+        "tests/",
+        "packages/config/",
+        "apps/media-worker/",
+        "docs/runbooks/",
+        "docs/release/",
+        "docs/decisions/"
+      ],
+      "database": "jlpt_w6",
+      "redisCoreNamespace": "jlpt:w6:core:",
+      "redisCacheNamespace": "jlpt:w6:cache:",
+      "bullmqPrefix": "jlpt-w6",
+      "storageRoot": "/srv/jlpt-workers/w6/data",
+      "ports": {
+        "web": 3600,
+        "admin": 3601,
+        "api": 4600
+      },
+      "canReadOtherWorkerCredentials": false,
+      "canReadCoordinatorSecrets": false
+    }
+  ]
+}

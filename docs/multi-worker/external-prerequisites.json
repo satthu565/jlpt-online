@@ -1,0 +1,312 @@
+{
+  "schemaVersion": 2,
+  "items": [
+    {
+      "id": "repo-ci",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [
+        "F01"
+      ],
+      "blocksAcceptance": [],
+      "affectedTasks": [
+        "F01"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "coding-vps",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [
+        "F01"
+      ],
+      "blocksAcceptance": [],
+      "affectedTasks": [
+        "F01"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "coding-accounts",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [
+        "F01"
+      ],
+      "blocksAcceptance": [],
+      "affectedTasks": [
+        "F01"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "coordinator-runtime",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [
+        "F07"
+      ],
+      "blocksAcceptance": [],
+      "affectedTasks": [
+        "F07"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "hosting",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [
+        "C06"
+      ],
+      "blocksAcceptance": [
+        "V06"
+      ],
+      "affectedTasks": [
+        "C06",
+        "V06"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "google-oauth",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [],
+      "blocksAcceptance": [
+        "F03"
+      ],
+      "affectedTasks": [
+        "F03"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "email",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [],
+      "blocksAcceptance": [
+        "F03"
+      ],
+      "affectedTasks": [
+        "F03"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "jlpt-blueprints",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [],
+      "blocksAcceptance": [
+        "C01",
+        "N04"
+      ],
+      "affectedTasks": [
+        "C01",
+        "N04"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "sample-rights",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [],
+      "blocksAcceptance": [
+        "C05",
+        "N04",
+        "N05",
+        "V05"
+      ],
+      "affectedTasks": [
+        "C05",
+        "N04",
+        "N05",
+        "V05"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "prepared-import-data",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [],
+      "blocksAcceptance": [
+        "N04",
+        "V05"
+      ],
+      "affectedTasks": [
+        "N04",
+        "V05"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "ai-provider",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [],
+      "blocksAcceptance": [
+        "A05",
+        "V05"
+      ],
+      "affectedTasks": [
+        "A05",
+        "V05"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "dictionary",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [],
+      "blocksAcceptance": [
+        "N05",
+        "L05",
+        "V05"
+      ],
+      "affectedTasks": [
+        "N05",
+        "L05",
+        "V05"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "tts-provider",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [],
+      "blocksAcceptance": [
+        "L05",
+        "V05"
+      ],
+      "affectedTasks": [
+        "L05",
+        "V05"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "r2",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [],
+      "blocksAcceptance": [
+        "C02",
+        "C06"
+      ],
+      "affectedTasks": [
+        "C02",
+        "C06"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "cloudflare",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [],
+      "blocksAcceptance": [
+        "C06"
+      ],
+      "affectedTasks": [
+        "C06"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "payment-provider",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [],
+      "blocksAcceptance": [
+        "L04",
+        "V04"
+      ],
+      "affectedTasks": [
+        "L04",
+        "V04"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "billing-policy",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [],
+      "blocksAcceptance": [
+        "L04"
+      ],
+      "affectedTasks": [
+        "L04"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "privacy-policy",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [],
+      "blocksAcceptance": [
+        "A02"
+      ],
+      "affectedTasks": [
+        "A02"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "ai-budget",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [],
+      "blocksAcceptance": [
+        "A05"
+      ],
+      "affectedTasks": [
+        "A05"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    },
+    {
+      "id": "device-test",
+      "owner": "project-owner",
+      "status": "PENDING",
+      "evidence": [],
+      "blocksStart": [],
+      "blocksAcceptance": [
+        "V06",
+        "R03"
+      ],
+      "affectedTasks": [
+        "V06",
+        "R03"
+      ],
+      "definition": "QUYET_DINH_VA_DICH_VU.md"
+    }
+  ]
+}

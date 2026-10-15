@@ -1,0 +1,41 @@
+{
+  "snapshotDate": "15/10/2026",
+  "files": [
+    {
+      "path": "nguon/Bao_cao_day_du_tinh_nang_JLPT_Online.docx",
+      "sha256": "37f2e7172645de3c426ef6a111d028a7504cd7f8696b60909805f5638c3ad3fc",
+      "bytes": 65973,
+      "authority": "reference only; current execution rules are in the parent planning package"
+    },
+    {
+      "path": "nguon/Bao_cao_day_du_tinh_nang_JLPT_Online.pdf",
+      "sha256": "3e92db0783822d31a69b8cc2f220419744e933961ef8a16bea120c48319aeff1",
+      "bytes": 757718,
+      "authority": "reference only; current execution rules are in the parent planning package"
+    },
+    {
+      "path": "nguon/DANH_MUC_TINH_NANG_GOC.md",
+      "sha256": "d830174c80103e416007a44589bd5f08edef193b0b3f72985197762e5f881b79",
+      "bytes": 44991,
+      "authority": "reference only; current execution rules are in the parent planning package"
+    },
+    {
+      "path": "nguon/DE_XUAT_KY_THUAT.md",
+      "sha256": "ec990f3632392d63b8a61210d480f3d121c05e08764b0f7b6857d7549f50261e",
+      "bytes": 62684,
+      "authority": "reference only; current execution rules are in the parent planning package"
+    },
+    {
+      "path": "nguon/KE_HOACH_1_TUAN.md",
+      "sha256": "03971cbc31a2c5b0c48009012b5afbf21d1fd5b8462957be3cb9ba822bad223d",
+      "bytes": 52806,
+      "authority": "reference only; current execution rules are in the parent planning package"
+    },
+    {
+      "path": "nguon/KE_HOACH_TRIEN_KHAI.md",
+      "sha256": "3f4b48d38c28d18c1905fc587a0461870dd06fc071351b9a1bd6a323b121b5c0",
+      "bytes": 137672,
+      "authority": "reference only; current execution rules are in the parent planning package"
+    }
+  ]
+}
