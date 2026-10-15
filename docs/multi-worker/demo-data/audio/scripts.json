@@ -1,0 +1,30 @@
+[
+  {
+    "name": "g-task1",
+    "ssml": "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"ja-JP\"><voice name=\"Microsoft Haruka Desktop\">1ばん。男の人と 女の人が 話しています。男の人は 何を 買いますか。<break time=\"900ms\"/>すみません、パンと 牛乳を 買って きて ください。<break time=\"900ms\"/><prosody pitch=\"x-low\" rate=\"-5%\">パンと 牛乳ですね。たまごは？</prosody><break time=\"900ms\"/>たまごは まだ ありますから、いりません。あ、りんごも 三つ おねがいします。<break time=\"900ms\"/><prosody pitch=\"x-low\" rate=\"-5%\">わかりました。</prosody><break time=\"900ms\"/>男の人は 何を 買いますか。<break time=\"900ms\"/></voice></speak>"
+  },
+  {
+    "name": "g-task2",
+    "ssml": "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"ja-JP\"><voice name=\"Microsoft Haruka Desktop\">2ばん。先生が 学生に 話しています。学生は あした 何時に 学校に 来ますか。<break time=\"900ms\"/><prosody pitch=\"x-low\" rate=\"-5%\">あしたは 九時から テストが あります。テストの 前に きょうしつを じゅんびしますから、十五分 前に 来て ください。</prosody><break time=\"900ms\"/>学生は あした 何時に 学校に 来ますか。<break time=\"900ms\"/></voice></speak>"
+  },
+  {
+    "name": "g-point1",
+    "ssml": "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"ja-JP\"><voice name=\"Microsoft Haruka Desktop\">1ばん。女の人と 男の人が 話しています。女の人は きのうの ごご どこへ 行きましたか。<break time=\"900ms\"/><prosody pitch=\"x-low\" rate=\"-5%\">きのうは 何を しましたか。</prosody><break time=\"900ms\"/>ごぜんは 家で そうじを しました。ごごは 友だちと こうえんへ 行く つもりでしたが、雨が ふりましたから、えいがかんへ 行きました。<break time=\"900ms\"/>女の人は きのうの ごご どこへ 行きましたか。<break time=\"900ms\"/></voice></speak>"
+  },
+  {
+    "name": "g-point2",
+    "ssml": "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"ja-JP\"><voice name=\"Microsoft Haruka Desktop\">2ばん。男の人が 話しています。男の人の かぞくは 何人ですか。<break time=\"900ms\"/><prosody pitch=\"x-low\" rate=\"-5%\">わたしの かぞくは 父と 母と 姉と わたしです。姉は きょねん けっこんして、いまは 東京に すんでいます。</prosody><break time=\"900ms\"/>男の人の かぞくは 何人ですか。<break time=\"900ms\"/></voice></speak>"
+  },
+  {
+    "name": "g-quick1",
+    "ssml": "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"ja-JP\"><voice name=\"Microsoft Haruka Desktop\">1ばん。<break time=\"900ms\"/>すみません、いま 何時ですか。<break time=\"900ms\"/>1、はい、そうです。2、三時半です。3、三時間です。<break time=\"900ms\"/></voice></speak>"
+  },
+  {
+    "name": "g-quick2",
+    "ssml": "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"ja-JP\"><voice name=\"Microsoft Haruka Desktop\">2ばん。<break time=\"900ms\"/><prosody pitch=\"x-low\" rate=\"-5%\">いただきます。</prosody><break time=\"900ms\"/>1、どうぞ、めしあがって ください。2、ごちそうさまでした。3、いってらっしゃい。<break time=\"900ms\"/></voice></speak>"
+  },
+  {
+    "name": "g-quick3",
+    "ssml": "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"ja-JP\"><voice name=\"Microsoft Haruka Desktop\">3ばん。<break time=\"900ms\"/>この かさ、だれのですか。<break time=\"900ms\"/>1、あそこです。2、あおいです。3、わたしのです。<break time=\"900ms\"/></voice></speak>"
+  }
+]

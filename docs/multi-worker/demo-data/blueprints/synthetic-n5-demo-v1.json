@@ -1,0 +1,115 @@
+{
+  "id": "synthetic-n5-demo",
+  "level": "N5",
+  "version": 1,
+  "effectiveFrom": "2026-10",
+  "sourceRef": [],
+  "note": "Blueprint synthetic chỉ dùng cho đề demo tự soạn; số câu, thời gian và thang điểm không phải của JLPT chính thức.",
+  "sections": [
+    {
+      "code": "language_vocab",
+      "title": "言語知識（文字・語彙）",
+      "durationSec": 600,
+      "mondai": [
+        {
+          "type": "kanji_reading",
+          "skill": "kanji",
+          "questionCount": 4
+        },
+        {
+          "type": "orthography",
+          "skill": "vocabulary",
+          "questionCount": 3
+        },
+        {
+          "type": "contextual",
+          "skill": "vocabulary",
+          "questionCount": 3
+        },
+        {
+          "type": "paraphrase",
+          "skill": "vocabulary",
+          "questionCount": 2
+        }
+      ]
+    },
+    {
+      "code": "language_grammar_reading",
+      "title": "言語知識（文法）・読解",
+      "durationSec": 900,
+      "mondai": [
+        {
+          "type": "grammar_form",
+          "skill": "grammar",
+          "questionCount": 4
+        },
+        {
+          "type": "sentence_composition",
+          "skill": "grammar",
+          "questionCount": 2
+        },
+        {
+          "type": "comprehension_short",
+          "skill": "reading",
+          "questionCount": 2
+        },
+        {
+          "type": "info_retrieval",
+          "skill": "reading",
+          "questionCount": 2
+        }
+      ]
+    },
+    {
+      "code": "listening",
+      "title": "聴解",
+      "durationSec": 203,
+      "mondai": [
+        {
+          "type": "task_based",
+          "skill": "listening",
+          "questionCount": 2
+        },
+        {
+          "type": "point",
+          "skill": "listening",
+          "questionCount": 2
+        },
+        {
+          "type": "quick_response",
+          "skill": "listening",
+          "questionCount": 3
+        }
+      ]
+    }
+  ],
+  "scoring": {
+    "method": "linear_reference",
+    "rounding": "round",
+    "scoringSections": [
+      {
+        "code": "language",
+        "label": "言語知識（文字・語彙・文法）・読解",
+        "skills": [
+          "kanji",
+          "vocabulary",
+          "grammar",
+          "reading"
+        ],
+        "maxScaled": 120,
+        "minPass": 38
+      },
+      {
+        "code": "listening",
+        "label": "聴解",
+        "skills": [
+          "listening"
+        ],
+        "maxScaled": 60,
+        "minPass": 19
+      }
+    ],
+    "totalMax": 180,
+    "totalPass": 80
+  }
+}

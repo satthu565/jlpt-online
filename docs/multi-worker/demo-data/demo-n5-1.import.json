@@ -1,0 +1,2747 @@
+{
+  "formatVersion": 2,
+  "packageId": "6f1c2a10-5d3e-4b7a-9c21-0a0000000501",
+  "revision": 1,
+  "source": {
+    "name": "Đề demo tự soạn để thử sản phẩm, không phải đề JLPT thật",
+    "level": "N5",
+    "year": null,
+    "session": null,
+    "provenance": "self_authored",
+    "licenseRef": "self-authored-demo",
+    "rightsStatus": "owner_confirmed"
+  },
+  "sourceFiles": [],
+  "exam": {
+    "title": "Đề demo N5 số 1 (tự soạn)",
+    "slug": "demo-n5-1",
+    "kind": "practice",
+    "blueprintRef": {
+      "id": "synthetic-n5-demo",
+      "version": 1
+    },
+    "totalQuestions": 29,
+    "sections": [
+      {
+        "code": "language_vocab",
+        "title": "言語知識（文字・語彙）",
+        "durationSec": 600,
+        "groupIds": [
+          "g-kanji",
+          "g-ortho",
+          "g-context",
+          "g-paraphrase"
+        ],
+        "listeningTimeline": []
+      },
+      {
+        "code": "language_grammar_reading",
+        "title": "言語知識（文法）・読解",
+        "durationSec": 900,
+        "groupIds": [
+          "g-grammar",
+          "g-order",
+          "g-short",
+          "g-info"
+        ],
+        "listeningTimeline": []
+      },
+      {
+        "code": "listening",
+        "title": "聴解",
+        "durationSec": 203,
+        "groupIds": [
+          "g-task1",
+          "g-task2",
+          "g-point1",
+          "g-point2",
+          "g-quick1",
+          "g-quick2",
+          "g-quick3"
+        ],
+        "listeningTimeline": [
+          {
+            "groupId": "g-task1",
+            "mediaKey": "media/25e6d7d051a1487de1e86e7dcb1817c5117727d0018780f3f0534982f8f4c884.wav",
+            "startMs": 0,
+            "endMs": 31095,
+            "audioStartMs": 0,
+            "audioEndMs": 31095,
+            "gapAfterMs": 10000
+          },
+          {
+            "groupId": "g-task2",
+            "mediaKey": "media/cb49dba5bf5d7a3e3d572b0b48851d78dddd47f5801f697686042b6305705e48.wav",
+            "startMs": 41095,
+            "endMs": 62905,
+            "audioStartMs": 0,
+            "audioEndMs": 21810,
+            "gapAfterMs": 10000
+          },
+          {
+            "groupId": "g-point1",
+            "mediaKey": "media/4e30b8bed4dc317b18968e303c4e935304a17517ad12ad5aad7518763f140b48.wav",
+            "startMs": 72905,
+            "endMs": 100275,
+            "audioStartMs": 0,
+            "audioEndMs": 27370,
+            "gapAfterMs": 10000
+          },
+          {
+            "groupId": "g-point2",
+            "mediaKey": "media/ada1b11b3e0f435e63fa2a105c8fab61550131904308720232aae8a41226c688.wav",
+            "startMs": 110275,
+            "endMs": 130985,
+            "audioStartMs": 0,
+            "audioEndMs": 20710,
+            "gapAfterMs": 10000
+          },
+          {
+            "groupId": "g-quick1",
+            "mediaKey": "media/2625e033419b8e214ce19f3143a996e086ea720ef718c9c29fbaeb8b9d0914ca.wav",
+            "startMs": 140985,
+            "endMs": 156250,
+            "audioStartMs": 0,
+            "audioEndMs": 15265,
+            "gapAfterMs": 6000
+          },
+          {
+            "groupId": "g-quick2",
+            "mediaKey": "media/9455158967ac23876b47895552a6b7fdcb16c0eaa971e2b9beb1c34befcb562f.wav",
+            "startMs": 162250,
+            "endMs": 176725,
+            "audioStartMs": 0,
+            "audioEndMs": 14475,
+            "gapAfterMs": 6000
+          },
+          {
+            "groupId": "g-quick3",
+            "mediaKey": "media/66daec8109b6904b0c939467477e3c2a16cf099f4f269c2ed260e382f1a59ee7.wav",
+            "startMs": 182725,
+            "endMs": 196670,
+            "audioStartMs": 0,
+            "audioEndMs": 13945,
+            "gapAfterMs": 6000
+          }
+        ]
+      }
+    ]
+  },
+  "groups": [
+    {
+      "id": "g-kanji",
+      "sectionCode": "language_vocab",
+      "mondaiType": "kanji_reading",
+      "orderInSection": 1,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "＿＿の ことばは ひらがなで どう かきますか。"
+        }
+      ],
+      "passage": [],
+      "mediaKeys": [],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-01",
+          "number": "1",
+          "skill": "kanji",
+          "stem": [
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "山"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "に のぼります。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "やま"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "かわ"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "うみ"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "そら"
+                }
+              ]
+            }
+          ],
+          "correctOption": 1,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "山 đọc là やま (núi). かわ là sông, うみ là biển, そら là bầu trời."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q-02",
+          "number": "2",
+          "skill": "kanji",
+          "stem": [
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "先週"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": " デパートへ 行きました。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "せんしゅ"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "せんしゅう"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "ぜんしゅう"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "さきしゅう"
+                }
+              ]
+            }
+          ],
+          "correctOption": 2,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "先週 đọc là せんしゅう (tuần trước). Chú ý trường âm しゅう, không phải しゅ."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q-03",
+          "number": "3",
+          "skill": "kanji",
+          "stem": [
+            {
+              "t": "text",
+              "text": "この りんごは "
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "安い"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "です。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "たかい"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "あまい"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "やすい"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "ひくい"
+                }
+              ]
+            }
+          ],
+          "correctOption": 3,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "安い đọc là やすい (rẻ). たかい là đắt/cao, あまい là ngọt, ひくい là thấp."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q-04",
+          "number": "4",
+          "skill": "kanji",
+          "stem": [
+            {
+              "t": "text",
+              "text": "まいあさ "
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "七時"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "に おきます。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "ななじ"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "ひちじ"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "しちとき"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "しちじ"
+                }
+              ]
+            }
+          ],
+          "correctOption": 4,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "七時 đọc là しちじ (7 giờ). Khi nói giờ, 7 đọc là しち, không đọc なな."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "transcript": null
+    },
+    {
+      "id": "g-ortho",
+      "sectionCode": "language_vocab",
+      "mondaiType": "orthography",
+      "orderInSection": 2,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "＿＿の ことばは どう かきますか。"
+        }
+      ],
+      "passage": [],
+      "mediaKeys": [],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-05",
+          "number": "5",
+          "skill": "vocabulary",
+          "stem": [
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "みみ"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "が いたいです。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "目"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "耳"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "口"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "手"
+                }
+              ]
+            }
+          ],
+          "correctOption": 2,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "みみ là 耳 (tai). 目 là mắt (め), 口 là miệng (くち), 手 là tay (て)."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q-06",
+          "number": "6",
+          "skill": "vocabulary",
+          "stem": [
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "らいねん"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": " 日本へ 行きます。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "来月"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "来週"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "来年"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "今年"
+                }
+              ]
+            }
+          ],
+          "correctOption": 3,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "らいねん là 来年 (năm sau). 来月 = tháng sau, 来週 = tuần sau, 今年 = năm nay."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q-07",
+          "number": "7",
+          "skill": "vocabulary",
+          "stem": [
+            {
+              "t": "text",
+              "text": "わたしの へやは "
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "ひろい"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "です。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "広い"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "古い"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "長い"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "高い"
+                }
+              ]
+            }
+          ],
+          "correctOption": 1,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "ひろい là 広い (rộng). 古い = cũ, 長い = dài, 高い = cao/đắt."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "transcript": null
+    },
+    {
+      "id": "g-context",
+      "sectionCode": "language_vocab",
+      "mondaiType": "contextual",
+      "orderInSection": 3,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "（　）に なにを いれますか。いちばん いい ものを えらんで ください。"
+        }
+      ],
+      "passage": [],
+      "mediaKeys": [],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-08",
+          "number": "8",
+          "skill": "vocabulary",
+          "stem": [
+            {
+              "t": "text",
+              "text": "さむいですから、まどを（　）ください。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "あけて"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "しめて"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "つけて"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "けして"
+                }
+              ]
+            }
+          ],
+          "correctOption": 2,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Vì lạnh nên \"hãy đóng cửa sổ\": まどを しめて ください. あける là mở, つける/けす dùng cho đèn, máy."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q-09",
+          "number": "9",
+          "skill": "vocabulary",
+          "stem": [
+            {
+              "t": "text",
+              "text": "きのうは あたまが いたかったので、（　）を のみました。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "くすり"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "ごはん"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "せっけん"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "しゃしん"
+                }
+              ]
+            }
+          ],
+          "correctOption": 1,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Đau đầu nên uống thuốc: くすりを のむ. Tiếng Nhật dùng động từ のむ (uống) cho thuốc."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q-10",
+          "number": "10",
+          "skill": "vocabulary",
+          "stem": [
+            {
+              "t": "text",
+              "text": "この ほんは（　）ですから、だれも よみません。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "おもしろい"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "あたらしい"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "つまらない"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "やさしい"
+                }
+              ]
+            }
+          ],
+          "correctOption": 3,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Không ai đọc vì sách \"chán\": つまらない. Ba lựa chọn còn lại là lý do để đọc sách."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "transcript": null
+    },
+    {
+      "id": "g-paraphrase",
+      "sectionCode": "language_vocab",
+      "mondaiType": "paraphrase",
+      "orderInSection": 4,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "＿＿の ぶんと だいたい おなじ いみの ぶんが あります。いちばん いい ものを えらんで ください。"
+        }
+      ],
+      "passage": [],
+      "mediaKeys": [],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-11",
+          "number": "11",
+          "skill": "vocabulary",
+          "stem": [
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "きょうは いそがしくないです。"
+                }
+              ]
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "きょうは しごとが おおいです。"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "きょうは やすみでは ありません。"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "きょうは ひまです。"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "きょうは つかれました。"
+                }
+              ]
+            }
+          ],
+          "correctOption": 3,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "いそがしくない (không bận) gần nghĩa nhất với ひまです (rảnh)."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q-12",
+          "number": "12",
+          "skill": "vocabulary",
+          "stem": [
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "あには にほんごの せんせいです。"
+                }
+              ]
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "あには にほんごを ならって います。"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "あには にほんごを おしえて います。"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "あには にほんごが わかりません。"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "あには にほんへ いきます。"
+                }
+              ]
+            }
+          ],
+          "correctOption": 2,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Anh trai là giáo viên tiếng Nhật, tức là anh ấy dạy tiếng Nhật: おしえて います. ならう là học."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "transcript": null
+    },
+    {
+      "id": "g-grammar",
+      "sectionCode": "language_grammar_reading",
+      "mondaiType": "grammar_form",
+      "orderInSection": 1,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "（　）に なにを いれますか。いちばん いい ものを えらんで ください。"
+        }
+      ],
+      "passage": [],
+      "mediaKeys": [],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-13",
+          "number": "13",
+          "skill": "grammar",
+          "stem": [
+            {
+              "t": "text",
+              "text": "わたしは まいばん 10時（　）ねます。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "で"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "を"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "が"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "に"
+                }
+              ]
+            }
+          ],
+          "correctOption": 4,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Thời điểm cụ thể dùng trợ từ に: 10時に ねます (ngủ lúc 10 giờ)."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q-14",
+          "number": "14",
+          "skill": "grammar",
+          "stem": [
+            {
+              "t": "text",
+              "text": "きのうは あめが（　）。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "ふりました"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "ふります"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "ふって"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "ふる"
+                }
+              ]
+            }
+          ],
+          "correctOption": 1,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Có きのう (hôm qua) nên động từ chia quá khứ: ふりました."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q-15",
+          "number": "15",
+          "skill": "grammar",
+          "stem": [
+            {
+              "t": "text",
+              "text": "A「いっしょに ひるごはんを（　）か。」B「ええ、たべましょう。」"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "たべました"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "たべて"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "たべません"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "たべない"
+                }
+              ]
+            }
+          ],
+          "correctOption": 3,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "〜ませんか dùng để rủ rê: たべませんか (cùng ăn nhé?). B đồng ý bằng たべましょう."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q-16",
+          "number": "16",
+          "skill": "grammar",
+          "stem": [
+            {
+              "t": "text",
+              "text": "この へやは しずか（　）きれいです。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "くて"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "で"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "に"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "と"
+                }
+              ]
+            }
+          ],
+          "correctOption": 2,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Nối hai tính từ: tính từ đuôi な dùng で (しずかで きれい). くて dùng cho tính từ đuôi い."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "transcript": null
+    },
+    {
+      "id": "g-order",
+      "sectionCode": "language_grammar_reading",
+      "mondaiType": "sentence_composition",
+      "orderInSection": 2,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "★に 入る ものは どれですか。いちばん いい ものを えらんで ください。"
+        }
+      ],
+      "passage": [],
+      "mediaKeys": [],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-17",
+          "number": "17",
+          "skill": "grammar",
+          "stem": [
+            {
+              "t": "text",
+              "text": "つくえの "
+            },
+            {
+              "t": "blank"
+            },
+            {
+              "t": "blank"
+            },
+            {
+              "t": "star"
+            },
+            {
+              "t": "blank"
+            },
+            {
+              "t": "text",
+              "text": " あります。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "ほん"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "うえ"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "が"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "に"
+                }
+              ]
+            }
+          ],
+          "correctOption": 1,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Câu đúng: つくえの うえ に ほん が あります (Trên bàn có quyển sách). Ô ★ là ほん."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q-18",
+          "number": "18",
+          "skill": "grammar",
+          "stem": [
+            {
+              "t": "text",
+              "text": "きのう "
+            },
+            {
+              "t": "blank"
+            },
+            {
+              "t": "blank"
+            },
+            {
+              "t": "star"
+            },
+            {
+              "t": "blank"
+            },
+            {
+              "t": "text",
+              "text": " かいました。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "くつを"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "あかい"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "で"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "デパート"
+                }
+              ]
+            }
+          ],
+          "correctOption": 2,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Câu đúng: きのう デパート で あかい くつを かいました (Hôm qua mua giày đỏ ở bách hóa). Ô ★ là あかい."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "transcript": null
+    },
+    {
+      "id": "g-short",
+      "sectionCode": "language_grammar_reading",
+      "mondaiType": "comprehension_short",
+      "orderInSection": 3,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "つぎの ぶんしょうを よんで、しつもんに こたえて ください。"
+        }
+      ],
+      "passage": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "わたしは "
+            },
+            {
+              "t": "ruby",
+              "text": "毎週",
+              "rt": "まいしゅう"
+            },
+            {
+              "t": "text",
+              "text": " "
+            },
+            {
+              "t": "ruby",
+              "text": "土曜日",
+              "rt": "どようび"
+            },
+            {
+              "t": "text",
+              "text": "に 友だちと テニスを します。でも、"
+            },
+            {
+              "t": "ruby",
+              "text": "先週",
+              "rt": "せんしゅう"
+            },
+            {
+              "t": "text",
+              "text": "の 土曜日は 雨でしたから、テニスを しませんでした。"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "友だちの 家で いっしょに えいがを 見ました。とても おもしろかったです。"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "ruby",
+              "text": "来週",
+              "rt": "らいしゅう"
+            },
+            {
+              "t": "text",
+              "text": "は "
+            },
+            {
+              "t": "ruby",
+              "text": "天気",
+              "rt": "てんき"
+            },
+            {
+              "t": "text",
+              "text": "が いいと いいです。"
+            }
+          ]
+        }
+      ],
+      "mediaKeys": [],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-19",
+          "number": "19",
+          "skill": "reading",
+          "stem": [
+            {
+              "t": "text",
+              "text": "先週の 土曜日、「わたし」は 何を しましたか。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "テニスを しました。"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "友だちの 家で えいがを 見ました。"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "ひとりで 家に いました。"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "雨の 中で さんぽしました。"
+                }
+              ]
+            }
+          ],
+          "correctOption": 2,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Bài viết: thứ Bảy tuần trước trời mưa nên không chơi tennis, mà xem phim ở nhà bạn."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q-20",
+          "number": "20",
+          "skill": "reading",
+          "stem": [
+            {
+              "t": "text",
+              "text": "「わたし」は 来週 何を したいですか。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "えいがを 見たいです。"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "テニスを したいです。"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "友だちの 家へ 行きたいです。"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "雨の 日に 出かけたいです。"
+                }
+              ]
+            }
+          ],
+          "correctOption": 2,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Câu cuối \"来週は 天気が いいと いいです\" cho thấy người viết muốn trời đẹp để chơi tennis như mọi tuần."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "transcript": null
+    },
+    {
+      "id": "g-info",
+      "sectionCode": "language_grammar_reading",
+      "mondaiType": "info_retrieval",
+      "orderInSection": 4,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "右の ページを 見て、しつもんに こたえて ください。"
+        }
+      ],
+      "passage": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "さくら としょかん"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              [
+                {
+                  "t": "text",
+                  "text": "曜日"
+                }
+              ],
+              [
+                {
+                  "t": "text",
+                  "text": "時間"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "t": "text",
+                  "text": "月曜日"
+                }
+              ],
+              [
+                {
+                  "t": "text",
+                  "text": "やすみ"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "t": "text",
+                  "text": "火曜日〜金曜日"
+                }
+              ],
+              [
+                {
+                  "t": "text",
+                  "text": "9:00〜19:00"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "t": "text",
+                  "text": "土曜日・日曜日"
+                }
+              ],
+              [
+                {
+                  "t": "text",
+                  "text": "10:00〜17:00"
+                }
+              ]
+            ]
+          ]
+        }
+      ],
+      "mediaKeys": [],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-21",
+          "number": "21",
+          "skill": "reading",
+          "stem": [
+            {
+              "t": "text",
+              "text": "としょかんが 休みなのは 何曜日ですか。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "月曜日"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "火曜日"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "土曜日"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "日曜日"
+                }
+              ]
+            }
+          ],
+          "correctOption": 1,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Bảng ghi 月曜日: やすみ, nên thư viện nghỉ thứ Hai."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q-22",
+          "number": "22",
+          "skill": "reading",
+          "stem": [
+            {
+              "t": "text",
+              "text": "水曜日は 何時に しまりますか。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "9:00"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "10:00"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "17:00"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "19:00"
+                }
+              ]
+            }
+          ],
+          "correctOption": 4,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Thứ Tư thuộc 火〜金曜日, mở 9:00〜19:00, nên đóng cửa lúc 19:00."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "transcript": null
+    },
+    {
+      "id": "g-task1",
+      "sectionCode": "listening",
+      "mondaiType": "task_based",
+      "orderInSection": 1,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "もんだい1では、はじめに しつもんを きいて ください。それから はなしを きいて、いちばん いい ものを えらんで ください。"
+        }
+      ],
+      "passage": [],
+      "mediaKeys": [
+        "media/25e6d7d051a1487de1e86e7dcb1817c5117727d0018780f3f0534982f8f4c884.wav"
+      ],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-23",
+          "number": "23",
+          "skill": "listening",
+          "stem": [
+            {
+              "t": "text",
+              "text": "男の人は 何を 買いますか。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "パンと 牛乳"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "パンと 牛乳と りんご"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "牛乳と たまご"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "パンと たまごと りんご"
+                }
+              ]
+            }
+          ],
+          "correctOption": 2,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Người nữ nhờ mua bánh mì, sữa, và thêm 3 quả táo; trứng thì vẫn còn nên không cần."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "transcript": [
+        {
+          "t": "text",
+          "text": "1ばん。男の人と 女の人が 話しています。男の人は 何を 買いますか。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "すみません、パンと 牛乳を 買って きて ください。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "パンと 牛乳ですね。たまごは？"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "たまごは まだ ありますから、いりません。あ、りんごも 三つ おねがいします。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "わかりました。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "男の人は 何を 買いますか。"
+        }
+      ]
+    },
+    {
+      "id": "g-task2",
+      "sectionCode": "listening",
+      "mondaiType": "task_based",
+      "orderInSection": 2,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "もんだい1では、はじめに しつもんを きいて ください。それから はなしを きいて、いちばん いい ものを えらんで ください。"
+        }
+      ],
+      "passage": [],
+      "mediaKeys": [
+        "media/cb49dba5bf5d7a3e3d572b0b48851d78dddd47f5801f697686042b6305705e48.wav"
+      ],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-24",
+          "number": "24",
+          "skill": "listening",
+          "stem": [
+            {
+              "t": "text",
+              "text": "学生は あした 何時に 学校に 来ますか。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "8時"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "8時45分"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "9時"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "9時15分"
+                }
+              ]
+            }
+          ],
+          "correctOption": 2,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Bài thi bắt đầu lúc 9 giờ, thầy dặn đến sớm 15 phút, tức 8 giờ 45."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "transcript": [
+        {
+          "t": "text",
+          "text": "2ばん。先生が 学生に 話しています。学生は あした 何時に 学校に 来ますか。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "あしたは 九時から テストが あります。テストの 前に きょうしつを じゅんびしますから、十五分 前に 来て ください。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "学生は あした 何時に 学校に 来ますか。"
+        }
+      ]
+    },
+    {
+      "id": "g-point1",
+      "sectionCode": "listening",
+      "mondaiType": "point",
+      "orderInSection": 3,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "もんだい2では、はじめに しつもんを きいて ください。それから はなしを きいて、いちばん いい ものを えらんで ください。"
+        }
+      ],
+      "passage": [],
+      "mediaKeys": [
+        "media/4e30b8bed4dc317b18968e303c4e935304a17517ad12ad5aad7518763f140b48.wav"
+      ],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-25",
+          "number": "25",
+          "skill": "listening",
+          "stem": [
+            {
+              "t": "text",
+              "text": "女の人は きのうの ごご どこへ 行きましたか。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "家"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "こうえん"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "えいがかん"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "友だちの 家"
+                }
+              ]
+            }
+          ],
+          "correctOption": 3,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Định đi công viên nhưng trời mưa nên chiều hôm qua người nữ đi rạp chiếu phim."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "transcript": [
+        {
+          "t": "text",
+          "text": "1ばん。女の人と 男の人が 話しています。女の人は きのうの ごご どこへ 行きましたか。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "きのうは 何を しましたか。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "ごぜんは 家で そうじを しました。ごごは 友だちと こうえんへ 行く つもりでしたが、雨が ふりましたから、えいがかんへ 行きました。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "女の人は きのうの ごご どこへ 行きましたか。"
+        }
+      ]
+    },
+    {
+      "id": "g-point2",
+      "sectionCode": "listening",
+      "mondaiType": "point",
+      "orderInSection": 4,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "もんだい2では、はじめに しつもんを きいて ください。それから はなしを きいて、いちばん いい ものを えらんで ください。"
+        }
+      ],
+      "passage": [],
+      "mediaKeys": [
+        "media/ada1b11b3e0f435e63fa2a105c8fab61550131904308720232aae8a41226c688.wav"
+      ],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-26",
+          "number": "26",
+          "skill": "listening",
+          "stem": [
+            {
+              "t": "text",
+              "text": "男の人の かぞくは 何人ですか。"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "3人"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "4人"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "5人"
+                }
+              ]
+            },
+            {
+              "label": "4",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "6人"
+                }
+              ]
+            }
+          ],
+          "correctOption": 2,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Gia đình gồm bố, mẹ, chị gái và người nói: 4 người. Chị đã lấy chồng nhưng vẫn được kể trong gia đình."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "transcript": [
+        {
+          "t": "text",
+          "text": "2ばん。男の人が 話しています。男の人の かぞくは 何人ですか。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "わたしの かぞくは 父と 母と 姉と わたしです。姉は きょねん けっこんして、いまは 東京に すんでいます。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "男の人の かぞくは 何人ですか。"
+        }
+      ]
+    },
+    {
+      "id": "g-quick1",
+      "sectionCode": "listening",
+      "mondaiType": "quick_response",
+      "orderInSection": 5,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "もんだい3では、ぶんを きいて、1から3の 中から、いちばん いい ものを えらんで ください。"
+        }
+      ],
+      "passage": [],
+      "mediaKeys": [
+        "media/2625e033419b8e214ce19f3143a996e086ea720ef718c9c29fbaeb8b9d0914ca.wav"
+      ],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-27",
+          "number": "27",
+          "skill": "listening",
+          "stem": [
+            {
+              "t": "text",
+              "text": "（ぶんを きいて こたえて ください）"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "はい、そうです。"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "三時半です。"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "三時間です。"
+                }
+              ]
+            }
+          ],
+          "correctOption": 2,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Hỏi \"bây giờ mấy giờ\" thì trả lời giờ: 三時半です. 三時間 là khoảng thời gian 3 tiếng."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "transcript": [
+        {
+          "t": "text",
+          "text": "1ばん。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "すみません、いま 何時ですか。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "1、はい、そうです。2、三時半です。3、三時間です。"
+        }
+      ]
+    },
+    {
+      "id": "g-quick2",
+      "sectionCode": "listening",
+      "mondaiType": "quick_response",
+      "orderInSection": 6,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "もんだい3では、ぶんを きいて、1から3の 中から、いちばん いい ものを えらんで ください。"
+        }
+      ],
+      "passage": [],
+      "mediaKeys": [
+        "media/9455158967ac23876b47895552a6b7fdcb16c0eaa971e2b9beb1c34befcb562f.wav"
+      ],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-28",
+          "number": "28",
+          "skill": "listening",
+          "stem": [
+            {
+              "t": "text",
+              "text": "（ぶんを きいて こたえて ください）"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "どうぞ、めしあがって ください。"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "ごちそうさまでした。"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "いってらっしゃい。"
+                }
+              ]
+            }
+          ],
+          "correctOption": 1,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Khi khách nói いただきます trước bữa ăn, chủ nhà đáp どうぞ、めしあがって ください (xin mời dùng)."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "transcript": [
+        {
+          "t": "text",
+          "text": "2ばん。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "いただきます。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "1、どうぞ、めしあがって ください。2、ごちそうさまでした。3、いってらっしゃい。"
+        }
+      ]
+    },
+    {
+      "id": "g-quick3",
+      "sectionCode": "listening",
+      "mondaiType": "quick_response",
+      "orderInSection": 7,
+      "instructions": [
+        {
+          "t": "text",
+          "text": "もんだい3では、ぶんを きいて、1から3の 中から、いちばん いい ものを えらんで ください。"
+        }
+      ],
+      "passage": [],
+      "mediaKeys": [
+        "media/66daec8109b6904b0c939467477e3c2a16cf099f4f269c2ed260e382f1a59ee7.wav"
+      ],
+      "sourcePages": [],
+      "questions": [
+        {
+          "id": "q-29",
+          "number": "29",
+          "skill": "listening",
+          "stem": [
+            {
+              "t": "text",
+              "text": "（ぶんを きいて こたえて ください）"
+            }
+          ],
+          "options": [
+            {
+              "label": "1",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "あそこです。"
+                }
+              ]
+            },
+            {
+              "label": "2",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "あおいです。"
+                }
+              ]
+            },
+            {
+              "label": "3",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "わたしのです。"
+                }
+              ]
+            }
+          ],
+          "correctOption": 3,
+          "sourcePages": [],
+          "explanation": {
+            "locale": "vi",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "t": "text",
+                    "text": "Hỏi \"cái ô này của ai\" thì trả lời chủ sở hữu: わたしのです (của tôi)."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "transcript": [
+        {
+          "t": "text",
+          "text": "3ばん。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "この かさ、だれのですか。"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "1、あそこです。2、あおいです。3、わたしのです。"
+        }
+      ]
+    }
+  ],
+  "media": [
+    {
+      "path": "media/25e6d7d051a1487de1e86e7dcb1817c5117727d0018780f3f0534982f8f4c884.wav",
+      "sha256": "25e6d7d051a1487de1e86e7dcb1817c5117727d0018780f3f0534982f8f4c884",
+      "mimeType": "audio/wav",
+      "durationMs": 31095,
+      "width": null,
+      "height": null
+    },
+    {
+      "path": "media/cb49dba5bf5d7a3e3d572b0b48851d78dddd47f5801f697686042b6305705e48.wav",
+      "sha256": "cb49dba5bf5d7a3e3d572b0b48851d78dddd47f5801f697686042b6305705e48",
+      "mimeType": "audio/wav",
+      "durationMs": 21810,
+      "width": null,
+      "height": null
+    },
+    {
+      "path": "media/4e30b8bed4dc317b18968e303c4e935304a17517ad12ad5aad7518763f140b48.wav",
+      "sha256": "4e30b8bed4dc317b18968e303c4e935304a17517ad12ad5aad7518763f140b48",
+      "mimeType": "audio/wav",
+      "durationMs": 27370,
+      "width": null,
+      "height": null
+    },
+    {
+      "path": "media/ada1b11b3e0f435e63fa2a105c8fab61550131904308720232aae8a41226c688.wav",
+      "sha256": "ada1b11b3e0f435e63fa2a105c8fab61550131904308720232aae8a41226c688",
+      "mimeType": "audio/wav",
+      "durationMs": 20710,
+      "width": null,
+      "height": null
+    },
+    {
+      "path": "media/2625e033419b8e214ce19f3143a996e086ea720ef718c9c29fbaeb8b9d0914ca.wav",
+      "sha256": "2625e033419b8e214ce19f3143a996e086ea720ef718c9c29fbaeb8b9d0914ca",
+      "mimeType": "audio/wav",
+      "durationMs": 15265,
+      "width": null,
+      "height": null
+    },
+    {
+      "path": "media/9455158967ac23876b47895552a6b7fdcb16c0eaa971e2b9beb1c34befcb562f.wav",
+      "sha256": "9455158967ac23876b47895552a6b7fdcb16c0eaa971e2b9beb1c34befcb562f",
+      "mimeType": "audio/wav",
+      "durationMs": 14475,
+      "width": null,
+      "height": null
+    },
+    {
+      "path": "media/66daec8109b6904b0c939467477e3c2a16cf099f4f269c2ed260e382f1a59ee7.wav",
+      "sha256": "66daec8109b6904b0c939467477e3c2a16cf099f4f269c2ed260e382f1a59ee7",
+      "mimeType": "audio/wav",
+      "durationMs": 13945,
+      "width": null,
+      "height": null
+    }
+  ],
+  "issues": []
+}

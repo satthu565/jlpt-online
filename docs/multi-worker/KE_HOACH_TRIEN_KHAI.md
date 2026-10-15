@@ -245,6 +245,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - Coverage exam-engine >=90%.
   - Validate listening timeline đúng dạng import v2 (audioStartMs/audioEndMs).
   - Blueprint chính thức chỉ kích hoạt khi jlpt-blueprints được xác nhận; trước đó chỉ blueprint synthetic.
+  - Blueprint synthetic trong docs/multi-worker/demo-data/blueprints/ hợp lệ với validator blueprint và dùng được cho đề demo.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:exam-engine`
   - `pnpm test:media-token`
@@ -347,6 +348,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - Draft có vấn đề vẫn lưu nháp nhưng bị chặn publish.
   - Ready đủ media và không issue blocking.
   - Nhập lại packageId/revision/content hash không tạo trùng; sửa nội dung có revision mới.
+  - Gói demo docs/multi-worker/demo-data/demo-n5-1.zip đạt READY.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:import-contracts`
   - `pnpm test:import-validation`
@@ -554,6 +556,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - Validate trước import DB; transaction rollback không để dữ liệu dở.
   - PackageId/revision/content hash chống trùng và nhận diện conflict.
   - Editor!=reviewer; create version và outbox transaction consistent.
+  - Lệnh pnpm demo:seed nạp blueprint synthetic và gói trong docs/multi-worker/demo-data/ vào DB dev qua đúng luồng import→duyệt→publish (tài khoản editor/reviewer seed khác nhau), chạy lại không tạo trùng.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:import-jobs`
   - `pnpm test:publish`
@@ -890,7 +893,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Phụ thuộc: A01, A05. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: SCORE-12.
 - Phạm vi: Repair race/isolation/serialization, exports PDF/XLSX, privacy migration; audit all engine contracts.
-- Bàn giao: packages/schema/; packages/exam-engine/; packages/media-token/; packages/srs/; packages/api-client/; contracts/; fixtures/contracts/; apps/api/src/db/; docs/decisions/.
+- Bàn giao: package.json; packages/schema/; packages/exam-engine/; packages/media-token/; packages/srs/; packages/api-client/; contracts/; fixtures/contracts/; apps/api/src/db/; docs/decisions/.
 - Hợp đồng: API, DB.
 - Khóa tài nguyên: db-migration, engine-contract, schema-contract.
 - Điều kiện ngoài chặn bắt đầu: không.
@@ -915,7 +918,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Phụ thuộc: A02, A05. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Independent negative tests từ W6, auth roles tenant entitlements event embargo and data retention requests.
-- Bàn giao: apps/api/src/common/; apps/api/src/modules/auth/; apps/api/src/modules/user/; apps/api/src/modules/exam/; apps/api/src/modules/attempt/; apps/api/src/modules/question-bank/; apps/api/src/modules/import/; apps/api/src/modules/media/; apps/api/src/modules/review/; apps/api/src/modules/storage/; apps/api/src/modules/license/; apps/api/src/modules/blueprint/; apps/api/src/modules/audit/; apps/api/src/modules/notification/; apps/api/src/modules/community/; apps/api/src/modules/classroom/; apps/api/src/modules/scoring/; apps/api/src/modules/outbox/; apps/api/src/modules/email/; apps/api/src/modules/admin/; apps/api/src/modules/turnstile/; apps/api/src/main.ts; apps/api/src/app.module.ts; docs/decisions/.
+- Bàn giao: package.json; apps/api/package.json; apps/api/src/common/; apps/api/src/modules/auth/; apps/api/src/modules/user/; apps/api/src/modules/exam/; apps/api/src/modules/attempt/; apps/api/src/modules/question-bank/; apps/api/src/modules/import/; apps/api/src/modules/media/; apps/api/src/modules/review/; apps/api/src/modules/storage/; apps/api/src/modules/license/; apps/api/src/modules/blueprint/; apps/api/src/modules/audit/; apps/api/src/modules/notification/; apps/api/src/modules/community/; apps/api/src/modules/classroom/; apps/api/src/modules/scoring/; apps/api/src/modules/outbox/; apps/api/src/modules/email/; apps/api/src/modules/admin/; apps/api/src/modules/turnstile/; apps/api/src/main.ts; apps/api/src/app.module.ts; docs/decisions/.
 - Hợp đồng: API.
 - Khóa tài nguyên: api-hardening.
 - Điều kiện ngoài chặn bắt đầu: không.
@@ -1048,7 +1051,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Phụ thuộc: V01, V06. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Sửa mọi lỗi nghiệm thu thuộc363 yêu cầu ứng dụng hiện hành;12 yêu cầu chuẩn bị dữ liệu thủ công báo riêng, không dựng lại chức năng đọc PDF.
-- Bàn giao: packages/schema/; packages/exam-engine/; packages/media-token/; packages/srs/; packages/api-client/; contracts/; fixtures/contracts/; apps/api/src/db/; docs/decisions/.
+- Bàn giao: package.json; packages/schema/; packages/exam-engine/; packages/media-token/; packages/srs/; packages/api-client/; contracts/; fixtures/contracts/; apps/api/src/db/; docs/decisions/.
 - Hợp đồng: quy tắc chung.
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
 - Điều kiện ngoài chặn bắt đầu: không.
@@ -1073,7 +1076,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Phụ thuộc: V02, V06. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Sửa mọi lỗi nghiệm thu thuộc363 yêu cầu ứng dụng hiện hành;12 yêu cầu chuẩn bị dữ liệu thủ công báo riêng, không dựng lại chức năng đọc PDF.
-- Bàn giao: apps/api/src/common/; apps/api/src/modules/auth/; apps/api/src/modules/user/; apps/api/src/modules/exam/; apps/api/src/modules/attempt/; apps/api/src/modules/question-bank/; apps/api/src/modules/import/; apps/api/src/modules/media/; apps/api/src/modules/review/; apps/api/src/modules/storage/; apps/api/src/modules/license/; apps/api/src/modules/blueprint/; apps/api/src/modules/audit/; apps/api/src/modules/notification/; apps/api/src/modules/community/; apps/api/src/modules/classroom/; apps/api/src/modules/scoring/; apps/api/src/modules/outbox/; apps/api/src/modules/email/; apps/api/src/modules/admin/; apps/api/src/modules/turnstile/; apps/api/src/main.ts; apps/api/src/app.module.ts; docs/decisions/.
+- Bàn giao: package.json; apps/api/package.json; apps/api/src/common/; apps/api/src/modules/auth/; apps/api/src/modules/user/; apps/api/src/modules/exam/; apps/api/src/modules/attempt/; apps/api/src/modules/question-bank/; apps/api/src/modules/import/; apps/api/src/modules/media/; apps/api/src/modules/review/; apps/api/src/modules/storage/; apps/api/src/modules/license/; apps/api/src/modules/blueprint/; apps/api/src/modules/audit/; apps/api/src/modules/notification/; apps/api/src/modules/community/; apps/api/src/modules/classroom/; apps/api/src/modules/scoring/; apps/api/src/modules/outbox/; apps/api/src/modules/email/; apps/api/src/modules/admin/; apps/api/src/modules/turnstile/; apps/api/src/main.ts; apps/api/src/app.module.ts; docs/decisions/.
 - Hợp đồng: quy tắc chung.
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
 - Điều kiện ngoài chặn bắt đầu: không.
