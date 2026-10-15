@@ -5,6 +5,9 @@
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
+    "@jlpt/config#build": {
+      "outputs": []
+    },
     "lint": {},
     "typecheck": {
       "dependsOn": ["^build"]
