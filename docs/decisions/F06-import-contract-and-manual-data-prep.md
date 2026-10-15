@@ -57,12 +57,17 @@ Theo tài liệu kiến trúc v2.2 và chỉ thị của chủ dự án:
 - Hoàn thiện tài liệu [`docs/import-format/README.md`](../import-format/README.md) hướng dẫn toàn diện cấu trúc Import v2.
 - Hoàn thiện tài liệu [`docs/import-format/CHECKLIST.md`](../import-format/CHECKLIST.md) quy trình 6 bước chuẩn bị dữ liệu thủ công bên ngoài hệ thống.
 
-### 2.6. Xử lý các lệnh kiểm tra và bảo tồn quyền sở hữu tệp cấu hình gốc
-- **Nguyên tắc:** Theo quy tắc phân công 6 worker, root `package.json` và `pnpm-lock.yaml` thuộc quyền sở hữu của W6 và nằm ngoài `allowedPaths` của W5 (`"temporaryGrants": []`).
-- **Giải pháp thực thi:**
-  - Thiết lập executable wrapper shims trong `node_modules/.bin/` (`test:import-contracts` và `import:validate`) trỏ tới các công cụ trong `packages/content-tools` và `tools/import-data`.
-  - Cả 2 lệnh kiểm tra trong task card (`pnpm test:import-contracts` và `pnpm import:validate -- fixtures/imports/ready`) đều hoạt động hoàn hảo từ thư mục gốc repository với exit code 0.
-  - Ghi nhận yêu cầu điều phối viên/W6 bổ sung alias scripts chính thức vào root `package.json` khi tiến hành merge PR.
+### 2.6. Xử lý các lệnh kiểm tra và cấu hình monorepo (Khắc phục theo review W2)
+- **Thêm alias scripts vào root `package.json`:**
+  - Trong phân công F06-3, `package.json` ở gốc repo đã được đưa vào `allowedPaths`. Đã bổ sung 2 scripts chính thức:
+    - `"test:import-contracts": "vitest run packages/content-tools/tests/import-contracts.test.ts"`
+    - `"import:validate": "node tools/import-data/bin/validate.js"`
+  - Xóa bỏ hoàn toàn việc dùng shim cục bộ trong `node_modules/.bin/` để đảm bảo chạy đồng nhất trên các clone sạch và môi trường CI.
+- **Xử lý tệp phân phối `packages/content-tools/dist/index.js` trong `tools/import-data/bin/validate.js`:**
+  - Chuyển từ import tĩnh sang import động (`await import(...)`) kết hợp kiểm tra sự tồn tại của tệp dist trước khi nạp module.
+  - Tự động kích hoạt build `@jlpt/content-tools` nếu chưa được biên dịch, hoặc thông báo rõ ràng yêu cầu chạy build trước nếu quá trình tự động thất bại, ngăn chặn hoàn toàn lỗi `ERR_MODULE_NOT_FOUND`.
+- **Yêu cầu đối với `pnpm-workspace.yaml`:**
+  - `pnpm-workspace.yaml` nằm ngoài `allowedPaths` của W5 (thuộc quyền quản lý của W6/coordinator). Ghi nhận vào blocker yêu cầu W6 bổ sung `tools/*` vào danh sách `packages:` của workspace.
 
 ---
 

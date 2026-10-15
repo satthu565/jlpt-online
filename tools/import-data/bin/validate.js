@@ -2,12 +2,34 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { validatePackagePath } from '../../../packages/content-tools/dist/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const REPO_ROOT = path.resolve(__dirname, '../../..');
+const DIST_INDEX_PATH = path.join(REPO_ROOT, 'packages/content-tools/dist/index.js');
+
+async function loadValidator() {
+  if (!fs.existsSync(DIST_INDEX_PATH)) {
+    // Attempt automatic build if dist is missing
+    const buildProc = spawnSync('pnpm', ['--filter', '@jlpt/content-tools', 'build'], {
+      cwd: REPO_ROOT,
+      encoding: 'utf-8',
+    });
+    if (!fs.existsSync(DIST_INDEX_PATH)) {
+      console.error(
+        'Lỗi: Chưa biên dịch @jlpt/content-tools (không tìm thấy tệp packages/content-tools/dist/index.js).\n' +
+        'Vui lòng chạy "pnpm build" hoặc "pnpm --filter @jlpt/content-tools build" trước khi thực hiện kiểm tra gói.\n' +
+        (buildProc.stderr || buildProc.stdout || '')
+      );
+      return null;
+    }
+  }
+
+  const mod = await import(pathToFileURL(DIST_INDEX_PATH).href);
+  return mod.validatePackagePath;
+}
 
 function printUsage() {
   console.log(`
@@ -21,7 +43,7 @@ Ví dụ:
 `);
 }
 
-function main() {
+async function main() {
   const rawArgs = process.argv.slice(2).filter((arg) => arg !== '--');
   let packagePath = null;
   let mode = 'ready';
@@ -79,6 +101,10 @@ function main() {
 
   const stat = fs.statSync(resolvedPath);
   if (stat.isDirectory()) {
+    const validatePackagePath = await loadValidator();
+    if (!validatePackagePath) {
+      return 1;
+    }
     const result = validatePackagePath(resolvedPath, { mode });
     console.log(JSON.stringify(result, null, 2));
     return result.valid ? 0 : 1;
@@ -100,4 +126,11 @@ function main() {
   return proc.status ?? (proc.error ? 1 : 0);
 }
 
-process.exit(main());
+main()
+  .then((code) => {
+    process.exit(code);
+  })
+  .catch((err) => {
+    console.error('Lỗi thực thi:', err);
+    process.exit(1);
+  });
