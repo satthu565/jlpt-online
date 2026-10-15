@@ -586,7 +586,8 @@
         "Phiếu sai số lựa chọn bị từ chối",
         "Coverage exam-engine >=90%",
         "Validate listening timeline đúng dạng import v2 (audioStartMs/audioEndMs)",
-        "Blueprint chính thức chỉ kích hoạt khi jlpt-blueprints được xác nhận; trước đó chỉ blueprint synthetic"
+        "Blueprint chính thức chỉ kích hoạt khi jlpt-blueprints được xác nhận; trước đó chỉ blueprint synthetic",
+        "Blueprint synthetic trong docs/multi-worker/demo-data/blueprints/ hợp lệ với validator blueprint và dùng được cho đề demo"
       ],
       "checks": [
         "pnpm test:exam-engine",
@@ -875,7 +876,8 @@
         "Lỗi schema checksum đáp án timeline hoặc thiếu file có path cụ thể",
         "Draft có vấn đề vẫn lưu nháp nhưng bị chặn publish",
         "Ready đủ media và không issue blocking",
-        "Nhập lại packageId/revision/content hash không tạo trùng; sửa nội dung có revision mới"
+        "Nhập lại packageId/revision/content hash không tạo trùng; sửa nội dung có revision mới",
+        "Gói demo docs/multi-worker/demo-data/demo-n5-1.zip đạt READY"
       ],
       "checks": [
         "pnpm test:import-contracts",
@@ -2243,6 +2245,7 @@
       ],
       "scope": "Repair race/isolation/serialization, exports PDF/XLSX, privacy migration; audit all engine contracts.",
       "outputs": [
+        "package.json",
         "packages/schema/",
         "packages/exam-engine/",
         "packages/media-token/",
@@ -2296,6 +2299,8 @@
       "featureIds": [],
       "scope": "Independent negative tests từ W6, auth roles tenant entitlements event embargo and data retention requests.",
       "outputs": [
+        "package.json",
+        "apps/api/package.json",
         "apps/api/src/common/",
         "apps/api/src/modules/auth/",
         "apps/api/src/modules/user/",
@@ -2606,6 +2611,7 @@
       "featureIds": [],
       "scope": "Sửa mọi lỗi nghiệm thu thuộc363yêu cầu ứng dụng hiện hành;12yêu cầu chuẩn bị dữ liệu thủ công báo riêng, không dựng lại chức năng đọc PDF.",
       "outputs": [
+        "package.json",
         "packages/schema/",
         "packages/exam-engine/",
         "packages/media-token/",
@@ -2652,6 +2658,8 @@
       "featureIds": [],
       "scope": "Sửa mọi lỗi nghiệm thu thuộc363yêu cầu ứng dụng hiện hành;12yêu cầu chuẩn bị dữ liệu thủ công báo riêng, không dựng lại chức năng đọc PDF.",
       "outputs": [
+        "package.json",
+        "apps/api/package.json",
         "apps/api/src/common/",
         "apps/api/src/modules/auth/",
         "apps/api/src/modules/user/",
@@ -2905,7 +2913,8 @@
       "acceptance": [
         "Validate trước import DB; transaction rollback không để dữ liệu dở",
         "PackageId/revision/content hash chống trùng và nhận diện conflict",
-        "Editor!=reviewer; create version và outbox transaction consistent"
+        "Editor!=reviewer; create version và outbox transaction consistent",
+        "Lệnh pnpm demo:seed nạp blueprint synthetic và gói trong docs/multi-worker/demo-data/ vào DB dev qua đúng luồng import→duyệt→publish (tài khoản editor/reviewer seed khác nhau), chạy lại không tạo trùng"
       ],
       "checks": [
         "pnpm test:import-jobs",

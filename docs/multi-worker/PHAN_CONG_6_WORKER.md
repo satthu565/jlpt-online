@@ -19,7 +19,7 @@ Các worker là sáu phiên coding agent, không phải sáu VPS. Cùng một VP
 - `apps/api/src/main.ts`, app module registration, `common/` và worker entry do W2 quản lý. W4/W5 bàn giao module export/service/events, W2 đăng ký bằng một integration patch hoặc quyền tạm explicit.
 - Thư mục được phép sửa của mỗi worker ở `config/workers.example.json` (`allowedRoots`). Mọi `outputs` của task phải nằm trong thư mục của owner hoặc trong `temporaryGrants` của task; `tools/validate_plan.py` kiểm tra. `docs/decisions/` dùng chung, mỗi task một file.
 - Bằng chứng (lệnh, exit code, report) lưu ở kho evidence của coordinator/CI, không commit vào repo sản phẩm.
-- W6 viết test độc lập trong `tests/`; test nằm cạnh code do owner tính năng viết. Chỉ W6 giữ scripts root/CI. Các task V01/V02 có outputs rộng để diễn tả kiểm tra, nhưng không tự mở toàn bộ quyền; assignment thu hẹp theo diff thực tế.
+- W6 viết test độc lập trong `tests/`; test nằm cạnh code do owner tính năng viết. W6 giữ CI và cấu hình root; mỗi worker chỉ được thêm vào `scripts` của `package.json` gốc các lệnh `pnpm …` mà task của mình phải chạy (ủy quyền về package của mình, ví dụ `pnpm --filter @jlpt/api exec vitest run src/modules/import`), không sửa dependency hay script của worker khác. Các task V01/V02 có outputs rộng để diễn tả kiểm tra, nhưng không tự mở toàn bộ quyền; assignment thu hẹp theo diff thực tế.
 - W1 hỗ trợ `scoring` adapter của W2, W5 consumer analytics; API modules không đọc trực tiếp bảng miền khác ngoài public service/projected read model đã thỏa thuận.
 - W4 quản lý billing, W5 AI budget consumer, W2 quyền API; mọi consumer dùng `EntitlementService`, không nhân bản logic quota.
 
@@ -27,7 +27,7 @@ Các worker là sáu phiên coding agent, không phải sáu VPS. Cùng một VP
 
 Coordinator giữ khóa theo đúng danh sách `locks` trong `tasks.json`: `repo-root`, `dependency-lock`, `schema-contract`, `db-migration`, `engine-contract`, `ui-contract`, `ci-workflow`, `staging-deploy`, `heavy-load`, `api-hardening`. Tên khóa ngoài danh sách bị từ chối khi nạp catalog. Mặc định khóa suốt task nếu không có subtask commit boundary an toàn; có thể làm giảm song song, cần tách task lớn thay vì bỏ khóa. Khóa cần owner và assignment lease để tránh tiến trình cũ tiếp tục ghi khi task đã cấp lại.
 
-Chỉ task giữ `dependency-lock` được sửa lockfile. Task khác cần thêm thư viện thì ghi yêu cầu trong kết quả; coordinator gộp thành một bước ngắn có khóa thay vì để mỗi task giữ khóa suốt thời gian chạy. Lockfile không giải bằng chỉ lấy bản main rồi bỏ dependency của nhánh khác. Cập nhật package manifests đã merge, regenerate bằng phiên bản pnpm đã khóa, kiểm tra diff rồi frozen install/test lại. Migration journal cũng do một owner serialize.
+Chỉ task giữ `dependency-lock` được sửa lockfile. Task sửa bất kỳ `package.json` hoặc lockfile thì coordinator tự xin `dependency-lock` khi kiểm tra diff; khóa đang bận thì task chờ, không bị tính là lỗi. Lockfile không giải bằng chỉ lấy bản main rồi bỏ dependency của nhánh khác. Cập nhật package manifests đã merge, regenerate bằng phiên bản pnpm đã khóa, kiểm tra diff rồi frozen install/test lại. Migration journal cũng do một owner serialize.
 
 ## Bàn giao hợp đồng
 

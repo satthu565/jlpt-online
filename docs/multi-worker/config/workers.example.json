@@ -44,6 +44,7 @@
       "home": "/home/jlpt-w1",
       "nativeLogin": "operator-required",
       "allowedRoots": [
+        "package.json",
         "packages/schema/",
         "packages/exam-engine/",
         "packages/media-token/",
@@ -75,6 +76,8 @@
       "home": "/home/jlpt-w2",
       "nativeLogin": "operator-required",
       "allowedRoots": [
+        "package.json",
+        "apps/api/package.json",
         "apps/api/src/common/",
         "apps/api/src/modules/auth/",
         "apps/api/src/modules/user/",
@@ -121,6 +124,7 @@
       "home": "/home/jlpt-w3",
       "nativeLogin": "operator-required",
       "allowedRoots": [
+        "package.json",
         "apps/web/",
         "packages/ui/",
         "docs/decisions/"
@@ -146,6 +150,7 @@
       "home": "/home/jlpt-w4",
       "nativeLogin": "operator-required",
       "allowedRoots": [
+        "package.json",
         "apps/admin/",
         "apps/api/src/modules/payment/",
         "apps/api/src/modules/entitlement/",
@@ -175,6 +180,7 @@
       "home": "/home/jlpt-w5",
       "nativeLogin": "operator-required",
       "allowedRoots": [
+        "package.json",
         "tools/import-data/",
         "packages/content-tools/",
         "apps/api/src/modules/ai/",
