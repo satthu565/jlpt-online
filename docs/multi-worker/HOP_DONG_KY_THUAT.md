@@ -61,7 +61,8 @@ Các mục dưới đây là **hợp đồng**: tên, đường dẫn, kiểu d�
 │  ├─ runbooks/, release/   (W6)
 │  └─ multi-worker/   bản sao bộ tài liệu kế hoạch này
 ├─ .github/workflows/ ci.yml, release.yml, integration.yml (W6)
-└─ package.json, pnpm-workspace.yaml, pnpm-lock.yaml, turbo.json (W6)
+├─ package.json, pnpm-workspace.yaml, pnpm-lock.yaml, turbo.json (W6)
+└─ .gitignore, .gitattributes, .nvmrc, .npmrc, .editorconfig, README.md (W6)
 ```
 
 Coordinator điều phối sáu worker nằm ở repo riêng `jlpt-coordinator`, không nằm trong repo sản phẩm.

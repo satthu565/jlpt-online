@@ -100,7 +100,7 @@ OWNERS = {
     'W3': ('Giao diện học viên', ['apps/web/', 'packages/ui/', 'docs/decisions/']),
     'W4': ('Quản trị báo cáo và thương mại', ['apps/admin/', 'apps/api/src/modules/payment/', 'apps/api/src/modules/entitlement/', 'apps/api/src/modules/reporting/', 'apps/api/src/modules/cms/', 'apps/api/src/modules/experiment/', 'docs/decisions/']),
     'W5': ('Chuẩn nhập liệu dữ liệu và học thông minh', ['tools/import-data/', 'packages/content-tools/', 'apps/api/src/modules/ai/', 'apps/api/src/modules/vocab/', 'apps/api/src/modules/stats/', 'apps/api/src/modules/planner/', 'apps/api/src/modules/gamification/', 'apps/api/src/modules/learning/', 'fixtures/imports/', 'docs/import-format/', 'docs/decisions/']),
-    'W6': ('Hạ tầng CI và kiểm chứng', ['package.json', 'pnpm-workspace.yaml', 'pnpm-lock.yaml', 'turbo.json', 'infra/', '.github/', 'tests/', 'packages/config/', 'apps/media-worker/', 'docs/runbooks/', 'docs/release/', 'docs/decisions/']),
+    'W6': ('Hạ tầng CI và kiểm chứng', ['package.json', 'pnpm-workspace.yaml', 'pnpm-lock.yaml', 'turbo.json', '.gitignore', '.gitattributes', '.nvmrc', '.npmrc', '.editorconfig', 'README.md', 'infra/', '.github/', 'tests/', 'packages/config/', 'apps/media-worker/', 'docs/runbooks/', 'docs/release/', 'docs/decisions/']),
 }
 
 # Every exclusiveResources name a task may use. The coordinator refuses unknown names.
@@ -523,7 +523,8 @@ A1_TREE = '''### A1. Cấu trúc repo
 │  ├─ runbooks/, release/   (W6)
 │  └─ multi-worker/   bản sao bộ tài liệu kế hoạch này
 ├─ .github/workflows/ ci.yml, release.yml, integration.yml (W6)
-└─ package.json, pnpm-workspace.yaml, pnpm-lock.yaml, turbo.json (W6)
+├─ package.json, pnpm-workspace.yaml, pnpm-lock.yaml, turbo.json (W6)
+└─ .gitignore, .gitattributes, .nvmrc, .npmrc, .editorconfig, README.md (W6)
 ```
 
 Coordinator điều phối sáu worker nằm ở repo riêng `jlpt-coordinator`, không nằm trong repo sản phẩm.
