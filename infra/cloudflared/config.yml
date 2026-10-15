@@ -1,0 +1,12 @@
+# Cloudflare Tunnel Configuration Template (credentials injected via env/secrets)
+tunnel: <TUNNEL_ID>
+credentials-file: /etc/cloudflared/credentials.json
+
+ingress:
+  - hostname: exam.jlpt.example.com
+    service: http://web:3000
+  - hostname: admin.jlpt.example.com
+    service: http://admin:3001
+  - hostname: api.jlpt.example.com
+    service: http://api:4000
+  - service: http_status:404

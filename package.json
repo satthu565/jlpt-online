@@ -1,0 +1,23 @@
+{
+  "name": "jlpt-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@12.11.2",
+  "scripts": {
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "dev": "turbo run dev",
+    "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md}\""
+  },
+  "devDependencies": {
+    "@eslint/js": "9.21.0",
+    "eslint": "9.21.0",
+    "prettier": "3.5.3",
+    "turbo": "2.11.8",
+    "typescript": "5.8.2",
+    "typescript-eslint": "8.71.2",
+    "vitest": "5.0.4"
+  }
+}
