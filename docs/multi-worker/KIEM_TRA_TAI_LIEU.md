@@ -2,7 +2,7 @@
 
 Đây là kiểm tra tĩnh tài liệu và catalog, không chạy ứng dụng, model, provider hay runner mới.
 
-Kết quả: PASS. 375 mã nguồn:363yêu cầu ứng dụng và12yêu cầu chuẩn bị thủ công bên ngoài;45 gói việc,106 task V1 giữ truy vết,6 worker;kiểm tra 426 liên kết nội bộ.
+Kết quả: PASS. 375 mã nguồn:363yêu cầu ứng dụng và12yêu cầu chuẩn bị thủ công bên ngoài;45 gói việc,106 task V1 giữ truy vết,6 worker;kiểm tra 427 liên kết nội bộ.
 
 ## Kiểm tra
 
