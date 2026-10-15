@@ -95,11 +95,11 @@ def feature_record(f):
 
 TASKS = []
 OWNERS = {
-    'W1': ('Hợp đồng dữ liệu và logic thi', ['packages/schema/', 'packages/exam-engine/', 'packages/media-token/', 'packages/srs/', 'packages/api-client/', 'contracts/', 'fixtures/contracts/', 'apps/api/src/db/', 'docs/decisions/']),
-    'W2': ('API tài khoản nội dung và thi', ['apps/api/src/common/', 'apps/api/src/modules/auth/', 'apps/api/src/modules/user/', 'apps/api/src/modules/exam/', 'apps/api/src/modules/attempt/', 'apps/api/src/modules/question-bank/', 'apps/api/src/modules/import/', 'apps/api/src/modules/media/', 'apps/api/src/modules/review/', 'apps/api/src/modules/storage/', 'apps/api/src/modules/license/', 'apps/api/src/modules/blueprint/', 'apps/api/src/modules/audit/', 'apps/api/src/modules/notification/', 'apps/api/src/modules/community/', 'apps/api/src/modules/classroom/', 'apps/api/src/modules/scoring/', 'apps/api/src/modules/outbox/', 'apps/api/src/modules/email/', 'apps/api/src/modules/admin/', 'apps/api/src/modules/turnstile/', 'apps/api/src/main.ts', 'apps/api/src/app.module.ts', 'docs/decisions/']),
-    'W3': ('Giao diện học viên', ['apps/web/', 'packages/ui/', 'docs/decisions/']),
-    'W4': ('Quản trị báo cáo và thương mại', ['apps/admin/', 'apps/api/src/modules/payment/', 'apps/api/src/modules/entitlement/', 'apps/api/src/modules/reporting/', 'apps/api/src/modules/cms/', 'apps/api/src/modules/experiment/', 'docs/decisions/']),
-    'W5': ('Chuẩn nhập liệu dữ liệu và học thông minh', ['tools/import-data/', 'packages/content-tools/', 'apps/api/src/modules/ai/', 'apps/api/src/modules/vocab/', 'apps/api/src/modules/stats/', 'apps/api/src/modules/planner/', 'apps/api/src/modules/gamification/', 'apps/api/src/modules/learning/', 'fixtures/imports/', 'docs/import-format/', 'docs/decisions/']),
+    'W1': ('Hợp đồng dữ liệu và logic thi', ['package.json', 'packages/schema/', 'packages/exam-engine/', 'packages/media-token/', 'packages/srs/', 'packages/api-client/', 'contracts/', 'fixtures/contracts/', 'apps/api/src/db/', 'docs/decisions/']),
+    'W2': ('API tài khoản nội dung và thi', ['package.json', 'apps/api/package.json', 'apps/api/src/common/', 'apps/api/src/modules/auth/', 'apps/api/src/modules/user/', 'apps/api/src/modules/exam/', 'apps/api/src/modules/attempt/', 'apps/api/src/modules/question-bank/', 'apps/api/src/modules/import/', 'apps/api/src/modules/media/', 'apps/api/src/modules/review/', 'apps/api/src/modules/storage/', 'apps/api/src/modules/license/', 'apps/api/src/modules/blueprint/', 'apps/api/src/modules/audit/', 'apps/api/src/modules/notification/', 'apps/api/src/modules/community/', 'apps/api/src/modules/classroom/', 'apps/api/src/modules/scoring/', 'apps/api/src/modules/outbox/', 'apps/api/src/modules/email/', 'apps/api/src/modules/admin/', 'apps/api/src/modules/turnstile/', 'apps/api/src/main.ts', 'apps/api/src/app.module.ts', 'docs/decisions/']),
+    'W3': ('Giao diện học viên', ['package.json', 'apps/web/', 'packages/ui/', 'docs/decisions/']),
+    'W4': ('Quản trị báo cáo và thương mại', ['package.json', 'apps/admin/', 'apps/api/src/modules/payment/', 'apps/api/src/modules/entitlement/', 'apps/api/src/modules/reporting/', 'apps/api/src/modules/cms/', 'apps/api/src/modules/experiment/', 'docs/decisions/']),
+    'W5': ('Chuẩn nhập liệu dữ liệu và học thông minh', ['package.json', 'tools/import-data/', 'packages/content-tools/', 'apps/api/src/modules/ai/', 'apps/api/src/modules/vocab/', 'apps/api/src/modules/stats/', 'apps/api/src/modules/planner/', 'apps/api/src/modules/gamification/', 'apps/api/src/modules/learning/', 'fixtures/imports/', 'docs/import-format/', 'docs/decisions/']),
     'W6': ('Hạ tầng CI và kiểm chứng', ['package.json', 'pnpm-workspace.yaml', 'pnpm-lock.yaml', 'turbo.json', '.gitignore', '.gitattributes', '.nvmrc', '.npmrc', '.editorconfig', 'README.md', 'infra/', '.github/', 'tests/', 'packages/config/', 'apps/media-worker/', 'docs/runbooks/', 'docs/release/', 'docs/decisions/']),
 }
 
@@ -186,7 +186,7 @@ task('F08','W1',1,5,'Schema database và migration toàn bộ miền','F02',
 task('C01','W1',2,6,'Logic thời gian chấm điểm phiếu timeline và token','F08',
  'Hàm thuần, section lock, late sync, reference scoring, WebCrypto token và validate blueprint.',
  'packages/exam-engine/|packages/media-token/',
- 'Biên deadline grace late window có test|Score đúng nhưng luôn ghi tham khảo|Phiếu sai số lựa chọn bị từ chối|Coverage exam-engine >=90%|Validate listening timeline đúng dạng import v2 (audioStartMs/audioEndMs)|Blueprint chính thức chỉ kích hoạt khi jlpt-blueprints được xác nhận; trước đó chỉ blueprint synthetic',
+ 'Biên deadline grace late window có test|Score đúng nhưng luôn ghi tham khảo|Phiếu sai số lựa chọn bị từ chối|Coverage exam-engine >=90%|Validate listening timeline đúng dạng import v2 (audioStartMs/audioEndMs)|Blueprint chính thức chỉ kích hoạt khi jlpt-blueprints được xác nhận; trước đó chỉ blueprint synthetic|Blueprint synthetic trong docs/multi-worker/demo-data/blueprints/ hợp lệ với validator blueprint và dùng được cho đề demo',
  'pnpm test:exam-engine|pnpm test:media-token|pnpm test:coverage', 'SCORE:1-6,13 SYS:4,16',contracts='API DB',resources='engine-contract',external='jlpt-blueprints')
 task('C02','W2',2,6,'Lưu trữ media nguồn license và câu hỏi có phiên bản','F03 F08',
  'Storage local/R2, magic bytes range limits, immutable content versions, full CRUD question groups và license enforcement.',
@@ -206,7 +206,7 @@ task('C04','W4',2,6,'Admin ngân hàng câu hỏi editor RichText và blueprint'
 task('C05','W5',2,6,'Validator gói nhập kiểm tra dữ liệu và đóng gói','F06 F08',
  'Validate JSON Schema, đáp án, nhóm đọc/nghe, references, media/checksums, archive paths, issues và idempotency; không phân tích PDF hoặc gọi AI sửa ngầm.',
  'tools/import-data/|packages/content-tools/',
- 'Lỗi schema checksum đáp án timeline hoặc thiếu file có path cụ thể|Draft có vấn đề vẫn lưu nháp nhưng bị chặn publish|Ready đủ media và không issue blocking|Nhập lại packageId/revision/content hash không tạo trùng; sửa nội dung có revision mới',
+ 'Lỗi schema checksum đáp án timeline hoặc thiếu file có path cụ thể|Draft có vấn đề vẫn lưu nháp nhưng bị chặn publish|Ready đủ media và không issue blocking|Nhập lại packageId/revision/content hash không tạo trùng; sửa nội dung có revision mới|Gói demo docs/multi-worker/demo-data/demo-n5-1.zip đạt READY',
  'pnpm test:import-contracts|pnpm test:import-validation|pnpm import:validate -- fixtures/imports/ready', 'PDF:21-23,27',contracts='API DB',external='sample-rights')
 task('C06','W6',2,6,'Staging production profiles CDN backup và release','F01 F08',
  'Compose full small/large, R2/media Worker, Cloudflare Tunnel, WAL-G, GHCR deploy rollback; secrets qua operator.',
@@ -365,7 +365,7 @@ task('R06','W6',7,6,'Nghiệm thu phạm vi hiện hành và bàn giao toàn b�
 task('B01','W2',3,4,'API nhập gói chuẩn duyệt ghép đề và xuất bản','C02 C01 C05',
  'Upload import v2 ZIP->quarantine->schema/checksum/semantic validation->draft, admin review và immutable publishing; không executor đọc PDF và không callback trích xuất.',
  'apps/api/src/modules/import/|apps/api/src/modules/review/|apps/api/src/modules/exam/',
- 'Validate trước import DB; transaction rollback không để dữ liệu dở|PackageId/revision/content hash chống trùng và nhận diện conflict|Editor!=reviewer; create version và outbox transaction consistent',
+ 'Validate trước import DB; transaction rollback không để dữ liệu dở|PackageId/revision/content hash chống trùng và nhận diện conflict|Editor!=reviewer; create version và outbox transaction consistent|Lệnh pnpm demo:seed nạp blueprint synthetic và gói trong docs/multi-worker/demo-data/ vào DB dev qua đúng luồng import→duyệt→publish (tài khoản editor/reviewer seed khác nhau), chạy lại không tạo trùng',
  'pnpm test:import-jobs|pnpm test:publish',contracts='API EVENTS')
 # Make UI/vertical-slice dependency on the actual backend explicit.
 next(t for t in TASKS if t['id']=='N04')['dependencies'].append('B01')
