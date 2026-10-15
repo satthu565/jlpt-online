@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:jlpt:prepared-import:2",
+  "title": "Prepared JLPT import package version 2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "packageId", "revision", "source", "sourceFiles", "exam", "groups", "media", "issues"],
+  "properties": {
+    "formatVersion": {"const": 2},
+    "packageId": {"type": "string", "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"},
+    "revision": {"type": "integer", "minimum": 1},
+    "source": {"$ref": "#/$defs/source"},
+    "sourceFiles": {"type": "array", "items": {"$ref": "#/$defs/sourceFile"}},
+    "exam": {"$ref": "#/$defs/exam"},
+    "groups": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/group"}},
+    "media": {"type": "array", "items": {"$ref": "#/$defs/media"}},
+    "issues": {"type": "array", "items": {"$ref": "#/$defs/issue"}}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$"},
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "level", "year", "session", "provenance", "licenseRef", "rightsStatus"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "level": {"enum": ["N1", "N2", "N3", "N4", "N5"]},
+        "year": {"type": ["integer", "null"], "minimum": 1984, "maximum": 2200},
+        "session": {"enum": [7, 12, null]},
+        "provenance": {"enum": ["self_authored", "official_past_exam", "third_party"]},
+        "licenseRef": {"type": ["string", "null"], "minLength": 1},
+        "rightsStatus": {"enum": ["unverified", "owner_confirmed"]}
+      }
+    },
+    "sourceFile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "path", "sha256", "mimeType"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "path": {"type": "string", "pattern": "^sources/[0-9a-f]{64}\\.pdf$"},
+        "sha256": {"$ref": "#/$defs/hash"},
+        "mimeType": {"const": "application/pdf"}
+      }
+    },
+    "sourcePage": {
+      "type": "object", "additionalProperties": false, "required": ["sourceId", "page"],
+      "properties": {"sourceId": {"$ref": "#/$defs/id"}, "page": {"type": "integer", "minimum": 1}}
+    },
+    "sourcePages": {"type": "array", "items": {"$ref": "#/$defs/sourcePage"}},
+    "segment": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false, "required": ["t", "text"], "properties": {"t": {"const": "text"}, "text": {"type": "string", "minLength": 1, "pattern": "^[^\\r\\n]*$"}}},
+        {"type": "object", "additionalProperties": false, "required": ["t", "text", "rt"], "properties": {"t": {"const": "ruby"}, "text": {"type": "string", "minLength": 1}, "rt": {"type": "string", "minLength": 1}}},
+        {"type": "object", "additionalProperties": false, "required": ["t", "children"], "properties": {"t": {"enum": ["underline", "emphasis"]}, "children": {"$ref": "#/$defs/richText"}}},
+        {"type": "object", "additionalProperties": false, "required": ["t"], "properties": {"t": {"const": "blank"}, "label": {"type": "string"}}},
+        {"type": "object", "additionalProperties": false, "required": ["t"], "properties": {"t": {"enum": ["star", "br"]}}},
+        {"type": "object", "additionalProperties": false, "required": ["t", "mediaKey", "alt", "width", "height"], "properties": {"t": {"const": "image"}, "mediaKey": {"type": "string"}, "alt": {"type": "string"}, "width": {"type": "integer", "minimum": 1}, "height": {"type": "integer", "minimum": 1}}}
+      ]
+    },
+    "richText": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/segment"}},
+    "richBlock": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false, "required": ["type", "content"], "properties": {"type": {"const": "paragraph"}, "content": {"$ref": "#/$defs/richText"}}},
+        {"type": "object", "additionalProperties": false, "required": ["type", "mediaKey", "alt", "width", "height"], "properties": {"type": {"const": "image"}, "mediaKey": {"type": "string"}, "alt": {"type": "string"}, "width": {"type": "integer", "minimum": 1}, "height": {"type": "integer", "minimum": 1}}},
+        {"type": "object", "additionalProperties": false, "required": ["type", "rows"], "properties": {"type": {"const": "table"}, "rows": {"type": "array", "minItems": 1, "items": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/richText"}}}}}
+      ]
+    },
+    "explanation": {
+      "type": ["object", "null"], "additionalProperties": false, "required": ["locale", "blocks"],
+      "properties": {"locale": {"enum": ["vi", "ja", "en"]}, "blocks": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/richBlock"}}}
+    },
+    "question": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "number", "skill", "stem", "options", "correctOption", "sourcePages", "explanation"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "number": {"type": "string", "minLength": 1},
+        "skill": {"enum": ["kanji", "vocabulary", "grammar", "reading", "listening"]},
+        "stem": {"$ref": "#/$defs/richText"},
+        "options": {"type": "array", "minItems": 3, "maxItems": 4, "items": {
+          "type": "object", "additionalProperties": false, "required": ["label", "content"],
+          "properties": {"label": {"enum": ["1", "2", "3", "4"]}, "content": {"$ref": "#/$defs/richText"}}
+        }},
+        "correctOption": {"type": ["integer", "null"], "minimum": 1, "maximum": 4},
+        "sourcePages": {"$ref": "#/$defs/sourcePages"},
+        "explanation": {"$ref": "#/$defs/explanation"}
+      }
+    },
+    "group": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "sectionCode", "mondaiType", "orderInSection", "instructions", "passage", "mediaKeys", "sourcePages", "questions", "transcript"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "sectionCode": {"type": "string", "minLength": 1},
+        "mondaiType": {"enum": ["kanji_reading", "orthography", "word_formation", "contextual", "paraphrase", "usage", "grammar_form", "sentence_composition", "text_grammar", "comprehension_short", "comprehension_mid", "comprehension_long", "integrated_reading", "thematic", "info_retrieval", "task_based", "point", "summary", "utterance", "quick_response", "integrated_listening"]},
+        "orderInSection": {"type": "integer", "minimum": 1},
+        "instructions": {"$ref": "#/$defs/richText"},
+        "passage": {"type": "array", "items": {"$ref": "#/$defs/richBlock"}},
+        "mediaKeys": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "sourcePages": {"$ref": "#/$defs/sourcePages"},
+        "questions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/question"}},
+        "transcript": {"type": ["array", "null"], "items": {"$ref": "#/$defs/segment"}}
+      }
+    },
+    "timeline": {
+      "type": "object", "additionalProperties": false,
+      "required": ["groupId", "mediaKey", "startMs", "endMs", "audioStartMs", "audioEndMs", "gapAfterMs"],
+      "properties": {
+        "groupId": {"$ref": "#/$defs/id"}, "mediaKey": {"type": "string"},
+        "startMs": {"type": "integer", "minimum": 0}, "endMs": {"type": "integer", "minimum": 1},
+        "audioStartMs": {"type": "integer", "minimum": 0}, "audioEndMs": {"type": "integer", "minimum": 1},
+        "gapAfterMs": {"type": "integer", "minimum": 0}
+      }
+    },
+    "section": {
+      "type": "object", "additionalProperties": false,
+      "required": ["code", "title", "durationSec", "groupIds", "listeningTimeline"],
+      "properties": {
+        "code": {"enum": ["language_vocab", "language_grammar_reading", "language_reading", "listening"]},
+        "title": {"type": "string", "minLength": 1},
+        "durationSec": {"type": ["integer", "null"], "minimum": 1},
+        "groupIds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "listeningTimeline": {"type": "array", "items": {"$ref": "#/$defs/timeline"}}
+      }
+    },
+    "exam": {
+      "type": "object", "additionalProperties": false,
+      "required": ["title", "slug", "kind", "blueprintRef", "totalQuestions", "sections"],
+      "properties": {
+        "title": {"type": "string", "minLength": 1}, "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+        "kind": {"enum": ["original", "practice"]},
+        "blueprintRef": {"type": ["object", "null"], "additionalProperties": false, "required": ["id", "version"], "properties": {"id": {"$ref": "#/$defs/id"}, "version": {"type": "integer", "minimum": 1}}},
+        "totalQuestions": {"type": "integer", "minimum": 1},
+        "sections": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"$ref": "#/$defs/section"}}
+      }
+    },
+    "media": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256", "mimeType", "durationMs", "width", "height"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^media/[0-9a-f]{64}\\.(png|jpg|jpeg|webp|avif|mp3|m4a|wav)$"},
+        "sha256": {"$ref": "#/$defs/hash"},
+        "mimeType": {"enum": ["image/png", "image/jpeg", "image/webp", "image/avif", "audio/mpeg", "audio/mp4", "audio/wav"]},
+        "durationMs": {"type": ["integer", "null"], "minimum": 1},
+        "width": {"type": ["integer", "null"], "minimum": 1}, "height": {"type": ["integer", "null"], "minimum": 1}
+      }
+    },
+    "issue": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "severity", "path", "reason", "sourcePages"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "severity": {"enum": ["blocking", "warning"]},
+        "path": {"type": "string", "pattern": "^/"}, "reason": {"type": "string", "minLength": 1},
+        "sourcePages": {"$ref": "#/$defs/sourcePages"}
+      }
+    }
+  }
+}

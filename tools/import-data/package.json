@@ -1,0 +1,15 @@
+{
+  "name": "@jlpt/import-data",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "CLI kiểm tra và đóng gói dữ liệu import v2 cho đề thi JLPT",
+  "bin": {
+    "import-validate": "./bin/validate.js",
+    "import-pack": "./bin/pack.js"
+  },
+  "scripts": {
+    "validate": "node ./bin/validate.js",
+    "pack": "node ./bin/pack.js"
+  }
+}
