@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "examId": "0192f0c0-0000-7000-8000-000000000001",
+  "version": 1,
+  "level": "N5",
+  "title": "Đề thi thử JLPT N5 - Mẫu chuẩn",
+  "kind": "practice",
+  "totalQuestions": 2,
+  "sections": [
+    {
+      "index": 0,
+      "code": "language_vocab",
+      "title": "言語知識（文字・語彙）",
+      "durationSec": 1200,
+      "questionRange": [0, 0],
+      "groups": [
+        {
+          "groupId": "0192f0c0-0000-7000-8000-0000000000a1",
+          "mondaiType": "kanji_reading",
+          "instructions": [
+            {
+              "t": "text",
+              "text": "＿＿＿のことばはどうよみますか。１・２・３・４からいちばんいいものをひとつえらんでください。"
+            }
+          ],
+          "passage": null,
+          "media": [],
+          "questions": [
+            {
+              "index": 0,
+              "questionId": "0192f0c0-0000-7000-8000-0000000000b1",
+              "number": "1",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "この"
+                },
+                {
+                  "t": "underline",
+                  "children": [
+                    {
+                      "t": "text",
+                      "text": "地図"
+                    }
+                  ]
+                },
+                {
+                  "t": "text",
+                  "text": "を見てください。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "ちず"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "ちと"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "じず"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "じと"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "listeningTimeline": null
+    },
+    {
+      "index": 1,
+      "code": "listening",
+      "title": "聴解",
+      "durationSec": 1800,
+      "questionRange": [1, 1],
+      "groups": [
+        {
+          "groupId": "0192f0c0-0000-7000-8000-0000000000a2",
+          "mondaiType": "task_based",
+          "instructions": [
+            {
+              "t": "text",
+              "text": "問題１では、まず質問を聞いてください。それから話を聞いて、１から４の中から、いちばんいいものをひとつえらんでください。"
+            }
+          ],
+          "passage": null,
+          "media": [
+            "media/9f2c000000000000000000000000000000000000000000000000000000000001.mp3"
+          ],
+          "questions": [
+            {
+              "index": 1,
+              "questionId": "0192f0c0-0000-7000-8000-0000000000b2",
+              "number": "1",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "男の人と女の人が話しています。男の人はこれから何をしますか。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "本を買いに行きます"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "部屋をそうじします"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "手紙を書きます"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "電話をかけます"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "listeningTimeline": [
+        {
+          "groupId": "0192f0c0-0000-7000-8000-0000000000a2",
+          "mediaKey": "media/9f2c000000000000000000000000000000000000000000000000000000000001.mp3",
+          "startMs": 0,
+          "endMs": 42000,
+          "audioStartMs": 0,
+          "audioEndMs": 42000,
+          "gapAfterMs": 8000
+        }
+      ]
+    }
+  ]
+}

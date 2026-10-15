@@ -1,0 +1,50 @@
+[
+  {
+    "eventId": "not-a-uuid",
+    "schemaVersion": 1,
+    "topic": "attempt.submitted",
+    "occurredAt": "2026-10-15T10:00:00Z",
+    "actorId": "system",
+    "tenantId": null,
+    "aggregateId": "0192f0c0-0000-7000-8000-000000000010",
+    "aggregateVersion": 1,
+    "correlationId": "req_01",
+    "payload": {}
+  },
+  {
+    "eventId": "0192f0c0-0000-7000-8000-000000000001",
+    "schemaVersion": 2,
+    "topic": "attempt.submitted",
+    "occurredAt": "2026-10-15T10:00:00Z",
+    "actorId": "system",
+    "tenantId": null,
+    "aggregateId": "0192f0c0-0000-7000-8000-000000000010",
+    "aggregateVersion": 1,
+    "correlationId": "req_01",
+    "payload": {}
+  },
+  {
+    "eventId": "0192f0c0-0000-7000-8000-000000000001",
+    "schemaVersion": 1,
+    "topic": "unsupported.custom.topic",
+    "occurredAt": "2026-10-15T10:00:00Z",
+    "actorId": "system",
+    "tenantId": null,
+    "aggregateId": "0192f0c0-0000-7000-8000-000000000010",
+    "aggregateVersion": 1,
+    "correlationId": "req_01",
+    "payload": {}
+  },
+  {
+    "eventId": "0192f0c0-0000-7000-8000-000000000001",
+    "schemaVersion": 1,
+    "topic": "attempt.submitted",
+    "occurredAt": "not-a-datetime",
+    "actorId": "system",
+    "tenantId": null,
+    "aggregateId": "0192f0c0-0000-7000-8000-000000000010",
+    "aggregateVersion": 1,
+    "correlationId": "req_01",
+    "payload": {}
+  }
+]
