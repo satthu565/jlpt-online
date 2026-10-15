@@ -29,3 +29,7 @@ export function validatePackageManifest(manifest: unknown): ImportPackageValidat
     errors,
   };
 }
+
+export * from './types.js';
+export * from './schema.js';
+export * from './validator.js';
