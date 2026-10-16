@@ -1,5 +1,3 @@
-import type { RichBlock, RichText } from '@jlpt/schema';
-
 export type JlptLevel = 'N1' | 'N2' | 'N3' | 'N4' | 'N5';
 
 export type QuestionSkill = 'kanji' | 'vocabulary' | 'grammar' | 'reading' | 'listening';

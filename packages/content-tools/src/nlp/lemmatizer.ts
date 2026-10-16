@@ -8,13 +8,17 @@ export interface LemmaResult {
 }
 
 // Well-known irregular verbs and special words mapping
-const IRREGULAR_MAPPINGS: Record<string, { baseForm: string; pos: LemmaResult['partOfSpeech']; inflection: string }> = {
+const IRREGULAR_MAPPINGS: Record<
+  string,
+  { baseForm: string; pos: LemmaResult['partOfSpeech']; inflection: string }
+> = {
   // する / 為る
   する: { baseForm: 'する', pos: 'verb', inflection: 'dictionary' },
   します: { baseForm: 'する', pos: 'verb', inflection: 'polite' },
   しました: { baseForm: 'する', pos: 'verb', inflection: 'polite_past' },
   しません: { baseForm: 'する', pos: 'verb', inflection: 'polite_negative' },
   しませんでした: { baseForm: 'する', pos: 'verb', inflection: 'polite_negative_past' },
+  しましょう: { baseForm: 'する', pos: 'verb', inflection: 'polite_volitional' },
   して: { baseForm: 'する', pos: 'verb', inflection: 'te_form' },
   した: { baseForm: 'する', pos: 'verb', inflection: 'past' },
   しない: { baseForm: 'する', pos: 'verb', inflection: 'negative' },
@@ -34,6 +38,10 @@ const IRREGULAR_MAPPINGS: Record<string, { baseForm: string; pos: LemmaResult['p
   来ました: { baseForm: '来る', pos: 'verb', inflection: 'polite_past' },
   きません: { baseForm: 'くる', pos: 'verb', inflection: 'polite_negative' },
   来ません: { baseForm: '来る', pos: 'verb', inflection: 'polite_negative' },
+  きませんでした: { baseForm: 'くる', pos: 'verb', inflection: 'polite_negative_past' },
+  来ませんでした: { baseForm: '来る', pos: 'verb', inflection: 'polite_negative_past' },
+  きましよう: { baseForm: 'くる', pos: 'verb', inflection: 'polite_volitional' },
+  来ましょう: { baseForm: '来る', pos: 'verb', inflection: 'polite_volitional' },
   きて: { baseForm: 'くる', pos: 'verb', inflection: 'te_form' },
   来て: { baseForm: '来る', pos: 'verb', inflection: 'te_form' },
   きた: { baseForm: 'くる', pos: 'verb', inflection: 'past' },
@@ -46,12 +54,25 @@ const IRREGULAR_MAPPINGS: Record<string, { baseForm: string; pos: LemmaResult['p
   来よう: { baseForm: '来る', pos: 'verb', inflection: 'volitional' },
   くれば: { baseForm: 'くる', pos: 'verb', inflection: 'conditional' },
   来れば: { baseForm: '来る', pos: 'verb', inflection: 'conditional' },
+  こられる: { baseForm: 'くる', pos: 'verb', inflection: 'potential_passive' },
+  来られる: { baseForm: '来る', pos: 'verb', inflection: 'potential_passive' },
 
   // 行く (special onbin)
-  行った: { baseForm: '行く', pos: 'verb', inflection: 'past' },
+  行く: { baseForm: '行く', pos: 'verb', inflection: 'dictionary' },
+  いきます: { baseForm: '行く', pos: 'verb', inflection: 'polite' },
+  行きます: { baseForm: '行く', pos: 'verb', inflection: 'polite' },
+  いきました: { baseForm: '行く', pos: 'verb', inflection: 'polite_past' },
+  行きました: { baseForm: '行く', pos: 'verb', inflection: 'polite_past' },
+  いきません: { baseForm: '行く', pos: 'verb', inflection: 'polite_negative' },
+  行きません: { baseForm: '行く', pos: 'verb', inflection: 'polite_negative' },
+  いって: { baseForm: '行く', pos: 'verb', inflection: 'te_form' },
   行って: { baseForm: '行く', pos: 'verb', inflection: 'te_form' },
-  いった: { baseForm: 'いく', pos: 'verb', inflection: 'past' },
-  いって: { baseForm: 'いく', pos: 'verb', inflection: 'te_form' },
+  いった: { baseForm: '行く', pos: 'verb', inflection: 'past' },
+  行った: { baseForm: '行く', pos: 'verb', inflection: 'past' },
+  いかない: { baseForm: '行く', pos: 'verb', inflection: 'negative' },
+  行かない: { baseForm: '行く', pos: 'verb', inflection: 'negative' },
+  いかなかった: { baseForm: '行く', pos: 'verb', inflection: 'negative_past' },
+  行かなかった: { baseForm: '行く', pos: 'verb', inflection: 'negative_past' },
 
   // いい / よい (irregular adjective)
   いい: { baseForm: 'いい', pos: 'adjective', inflection: 'dictionary' },
@@ -60,11 +81,34 @@ const IRREGULAR_MAPPINGS: Record<string, { baseForm: string; pos: LemmaResult['p
   よかった: { baseForm: 'いい', pos: 'adjective', inflection: 'past' },
   よくなかった: { baseForm: 'いい', pos: 'adjective', inflection: 'negative_past' },
   よくて: { baseForm: 'いい', pos: 'adjective', inflection: 'te_form' },
-  よく: { baseForm: 'いい', pos: 'adjective', inflection: 'adverbial' },
+};
+
+const GODAN_I_TO_U: Record<string, string> = {
+  い: 'う',
+  き: 'く',
+  ぎ: 'ぐ',
+  し: 'す',
+  ち: 'つ',
+  に: 'ぬ',
+  び: 'ぶ',
+  み: 'む',
+  り: 'る',
+};
+
+const GODAN_A_TO_U: Record<string, string> = {
+  わ: 'う',
+  か: 'く',
+  が: 'ぐ',
+  さ: 'す',
+  た: 'つ',
+  な: 'ぬ',
+  ば: 'ぶ',
+  ま: 'む',
+  ら: 'る',
 };
 
 /**
- * Normalizes Japanese surface tokens into their dictionary base form (Feature DATA-02).
+ * Normalizes an inflected Japanese word into its dictionary base form.
  */
 export function lemmatize(surfaceText: string): LemmaResult {
   const surface = normalizeJapaneseTextNFC(surfaceText.trim());
@@ -72,9 +116,9 @@ export function lemmatize(surfaceText: string): LemmaResult {
     return { baseForm: '', surface: '', partOfSpeech: 'other' };
   }
 
-  // 1. Direct irregular match
+  // 1. Exact irregular match
   if (IRREGULAR_MAPPINGS[surface]) {
-    const ir = IRREGULAR_MAPPINGS[surface];
+    const ir = IRREGULAR_MAPPINGS[surface]!;
     return {
       baseForm: ir.baseForm,
       surface,
@@ -83,146 +127,84 @@ export function lemmatize(surfaceText: string): LemmaResult {
     };
   }
 
-  // 2. Compound suru verbs (e.g. 勉強します, 勉強して, 勉強した)
-  if (surface.length > 2 && (surface.endsWith('する') || surface.endsWith('します') || surface.endsWith('しました') || surface.endsWith('して') || surface.endsWith('した') || surface.endsWith('しない') || surface.endsWith('しなかった'))) {
-    for (const [suffix, { baseForm: sBase, inflection }] of Object.entries(IRREGULAR_MAPPINGS)) {
-      if (suffix.startsWith('し') || suffix === 'する') {
-        if (surface.endsWith(suffix) && surface.length > suffix.length) {
-          const stem = surface.slice(0, surface.length - suffix.length);
-          return {
-            baseForm: `${stem}${sBase}`,
-            surface,
-            partOfSpeech: 'verb',
-            inflection: `compound_${inflection}`,
-          };
-        }
-      }
-    }
-  }
-
-  // 3. Verb polite forms (〜ます, 〜ました, 〜ません, 〜ませんでした)
-  const politePatterns: Array<{ ending: string; inflection: string }> = [
-    { ending: 'ませんでした', inflection: 'polite_negative_past' },
-    { ending: 'ました', inflection: 'polite_past' },
-    { ending: 'ません', inflection: 'polite_negative' },
-    { ending: 'ましょう', inflection: 'polite_volitional' },
-    { ending: 'ます', inflection: 'polite' },
+  // 2. Compound suru verbs with 2+ Kanji prefix (e.g. 勉強する, 勉強します, 準備した)
+  const suruSuffixes = [
+    { suffix: 'しませんでした', inflection: 'compound_polite_negative_past' },
+    { suffix: 'しました', inflection: 'compound_polite_past' },
+    { suffix: 'しません', inflection: 'compound_polite_negative' },
+    { suffix: 'しましょう', inflection: 'compound_polite_volitional' },
+    { suffix: 'します', inflection: 'compound_polite' },
+    { suffix: 'しなかった', inflection: 'compound_negative_past' },
+    { suffix: 'しない', inflection: 'compound_negative' },
+    { suffix: 'して', inflection: 'compound_te_form' },
+    { suffix: 'した', inflection: 'compound_past' },
+    { suffix: 'する', inflection: 'compound_dictionary' },
   ];
 
-  for (const { ending, inflection } of politePatterns) {
-    if (surface.endsWith(ending) && surface.length > ending.length) {
-      const stem = surface.slice(0, surface.length - ending.length);
-      const lastChar = stem[stem.length - 1];
-
-      // Godan transformations:
-      // い -> う (買い -> 買う)
-      // き -> く (書き -> 書く)
-      // ぎ -> ぐ (泳ぎ -> 泳ぐ)
-      // し -> す (話し -> 話す)
-      // ち -> つ (立ち -> 立つ)
-      // に -> ぬ (死に -> 死ぬ)
-      // び -> ぶ (呼び -> 呼ぶ)
-      // み -> む (飲み -> 飲む)
-      // り -> る (取り -> 取る)
-      const godanMap: Record<string, string> = {
-        い: 'う',
-        き: 'く',
-        ぎ: 'ぐ',
-        し: 'す',
-        ち: 'つ',
-        に: 'ぬ',
-        び: 'ぶ',
-        み: 'む',
-        り: 'る',
-      };
-
-      if (godanMap[lastChar]) {
-        const base = stem.slice(0, -1) + godanMap[lastChar];
+  for (const { suffix, inflection } of suruSuffixes) {
+    if (surface.endsWith(suffix) && surface.length > suffix.length) {
+      const stem = surface.slice(0, surface.length - suffix.length);
+      // Only treat as compound suru verb if stem has at least 2 characters (e.g. 勉強, 準備, 案内, 参加)
+      // or all characters in stem are Kanji
+      const kanjiCount = (stem.match(/[\u4e00-\u9faf\u3400-\u4dbf]/g) ?? []).length;
+      if (kanjiCount >= 2 || (kanjiCount === stem.length && stem.length >= 2)) {
         return {
-          baseForm: base,
+          baseForm: `${stem}する`,
           surface,
           partOfSpeech: 'verb',
           inflection,
         };
       }
-
-      // Ichidan verb (stem + る) (e.g. 食べます -> 食べる, 見ます -> 見る)
-      return {
-        baseForm: `${stem}る`,
-        surface,
-        partOfSpeech: 'verb',
-        inflection,
-      };
     }
   }
 
-  // 4. Te-form and Ta-form (past)
-  // 〜て / 〜た, 〜で / 〜だ
-  const pastTePatterns: Array<{ teEnding: string; taEnding: string; replacement: string }> = [
-    { teEnding: 'って', taEnding: 'った', replacement: 'る' }, // 取って -> 取る, 買って -> 買う, 待って -> 待つ
-    { teEnding: 'んで', taEnding: 'んだ', replacement: 'む' }, // 飲んで -> 飲む, 呼んで -> 呼ぶ
-    { teEnding: 'いて', taEnding: 'いた', replacement: 'く' }, // 書いて -> 書く
-    { teEnding: 'いで', taEnding: 'いだ', replacement: 'ぐ' }, // 泳いで -> 泳ぐ
-    { teEnding: 'して', taEnding: 'した', replacement: 'す' }, // 話して -> 話す
-  ];
-
-  for (const { teEnding, taEnding, replacement } of pastTePatterns) {
-    if (surface.endsWith(teEnding) && surface.length > teEnding.length) {
-      const stem = surface.slice(0, surface.length - teEnding.length);
+  // 3. Length 5-6 endings:
+  // 〜ませんでした
+  if (surface.endsWith('ませんでした') && surface.length > 6) {
+    const stem = surface.slice(0, -6);
+    const lastChar = stem.charAt(stem.length - 1);
+    const mapped = lastChar ? GODAN_I_TO_U[lastChar] : undefined;
+    if (mapped) {
       return {
-        baseForm: `${stem}${replacement}`,
+        baseForm: stem.slice(0, -1) + mapped,
         surface,
         partOfSpeech: 'verb',
-        inflection: 'te_form',
+        inflection: 'polite_negative_past',
       };
     }
-    if (surface.endsWith(taEnding) && surface.length > taEnding.length) {
-      const stem = surface.slice(0, surface.length - taEnding.length);
-      return {
-        baseForm: `${stem}${replacement}`,
-        surface,
-        partOfSpeech: 'verb',
-        inflection: 'past',
-      };
-    }
-  }
-
-  // Ichidan te/ta: 食べて -> 食べる, 食べた -> 食べる
-  if ((surface.endsWith('て') || surface.endsWith('た')) && surface.length >= 2) {
-    const stem = surface.slice(0, -1);
-    const inflection = surface.endsWith('て') ? 'te_form' : 'past';
     return {
       baseForm: `${stem}る`,
       surface,
       partOfSpeech: 'verb',
-      inflection,
+      inflection: 'polite_negative_past',
     };
   }
 
-  // 5. Negative forms (〜ない, 〜なかった)
+  // 〜くなかった (I-adjective negative past: 高くなかった -> 高い)
+  if (surface.endsWith('くなかった') && surface.length > 5) {
+    const stem = surface.slice(0, -5);
+    return {
+      baseForm: `${stem}い`,
+      surface,
+      partOfSpeech: 'adjective',
+      inflection: 'negative_past',
+    };
+  }
+
+  // 4. Length 4 endings:
+  // 〜なかった (Verb negative past: 飲まなかった -> 飲む, 食べなかった -> 食べる)
   if (surface.endsWith('なかった') && surface.length > 4) {
     const stem = surface.slice(0, -4);
-    const lastChar = stem[stem.length - 1];
-    const aToU: Record<string, string> = {
-      わ: 'う',
-      か: 'く',
-      が: 'ぐ',
-      さ: 'す',
-      た: 'つ',
-      な: 'ぬ',
-      ば: 'ぶ',
-      ま: 'む',
-      ら: 'る',
-    };
-    if (aToU[lastChar]) {
+    const lastChar = stem.charAt(stem.length - 1);
+    const mapped = lastChar ? GODAN_A_TO_U[lastChar] : undefined;
+    if (mapped) {
       return {
-        baseForm: stem.slice(0, -1) + aToU[lastChar],
+        baseForm: stem.slice(0, -1) + mapped,
         surface,
         partOfSpeech: 'verb',
         inflection: 'negative_past',
       };
     }
-    // Ichidan
     return {
       baseForm: `${stem}る`,
       surface,
@@ -231,29 +213,138 @@ export function lemmatize(surfaceText: string): LemmaResult {
     };
   }
 
+  // 5. Length 3 endings:
+  // 〜ました (polite past: 登りました -> 登る, 食べました -> 食べる, 話しました -> 話す)
+  if (surface.endsWith('ました') && surface.length > 3) {
+    const stem = surface.slice(0, -3);
+    const lastChar = stem.charAt(stem.length - 1);
+    const mapped = lastChar ? GODAN_I_TO_U[lastChar] : undefined;
+    if (mapped) {
+      return {
+        baseForm: stem.slice(0, -1) + mapped,
+        surface,
+        partOfSpeech: 'verb',
+        inflection: 'polite_past',
+      };
+    }
+    return {
+      baseForm: `${stem}る`,
+      surface,
+      partOfSpeech: 'verb',
+      inflection: 'polite_past',
+    };
+  }
+
+  // 〜ません (polite negative)
+  if (surface.endsWith('ません') && surface.length > 3) {
+    const stem = surface.slice(0, -3);
+    const lastChar = stem.charAt(stem.length - 1);
+    const mapped = lastChar ? GODAN_I_TO_U[lastChar] : undefined;
+    if (mapped) {
+      return {
+        baseForm: stem.slice(0, -1) + mapped,
+        surface,
+        partOfSpeech: 'verb',
+        inflection: 'polite_negative',
+      };
+    }
+    return {
+      baseForm: `${stem}る`,
+      surface,
+      partOfSpeech: 'verb',
+      inflection: 'polite_negative',
+    };
+  }
+
+  // 〜ましょう (polite volitional)
+  if (surface.endsWith('ましょう') && surface.length > 4) {
+    const stem = surface.slice(0, -4);
+    const lastChar = stem.charAt(stem.length - 1);
+    const mapped = lastChar ? GODAN_I_TO_U[lastChar] : undefined;
+    if (mapped) {
+      return {
+        baseForm: stem.slice(0, -1) + mapped,
+        surface,
+        partOfSpeech: 'verb',
+        inflection: 'polite_volitional',
+      };
+    }
+    return {
+      baseForm: `${stem}る`,
+      surface,
+      partOfSpeech: 'verb',
+      inflection: 'polite_volitional',
+    };
+  }
+
+  // 〜くない (I-adjective negative: 高くない -> 高い)
+  if (surface.endsWith('くない') && surface.length > 3) {
+    const stem = surface.slice(0, -3);
+    return {
+      baseForm: `${stem}い`,
+      surface,
+      partOfSpeech: 'adjective',
+      inflection: 'negative',
+    };
+  }
+
+  // 〜かった (I-adjective past: 高かった -> 高い)
+  if (surface.endsWith('かった') && surface.length > 3) {
+    const stem = surface.slice(0, -3);
+    return {
+      baseForm: `${stem}い`,
+      surface,
+      partOfSpeech: 'adjective',
+      inflection: 'past',
+    };
+  }
+
+  // 〜だった (Na-adjective past: 静かだった -> 静か)
+  if (surface.endsWith('だった') && surface.length > 3) {
+    const stem = surface.slice(0, -3);
+    return {
+      baseForm: stem,
+      surface,
+      partOfSpeech: 'adjective',
+      inflection: 'past',
+    };
+  }
+
+  // 6. Length 2 endings:
+  // 〜ます (polite: 登ります -> 登る, 食べます -> 食べる, 話します -> 話す)
+  if (surface.endsWith('ます') && surface.length > 2) {
+    const stem = surface.slice(0, -2);
+    const lastChar = stem.charAt(stem.length - 1);
+    const mapped = lastChar ? GODAN_I_TO_U[lastChar] : undefined;
+    if (mapped) {
+      return {
+        baseForm: stem.slice(0, -1) + mapped,
+        surface,
+        partOfSpeech: 'verb',
+        inflection: 'polite',
+      };
+    }
+    return {
+      baseForm: `${stem}る`,
+      surface,
+      partOfSpeech: 'verb',
+      inflection: 'polite',
+    };
+  }
+
+  // 〜ない (Verb negative: 読まない -> 読む, 食べない -> 食べる)
   if (surface.endsWith('ない') && surface.length > 2) {
     const stem = surface.slice(0, -2);
-    const lastChar = stem[stem.length - 1];
-    const aToU: Record<string, string> = {
-      わ: 'う',
-      か: 'く',
-      が: 'ぐ',
-      さ: 'す',
-      た: 'つ',
-      な: 'ぬ',
-      ば: 'ぶ',
-      ま: 'む',
-      ら: 'る',
-    };
-    if (aToU[lastChar]) {
+    const lastChar = stem.charAt(stem.length - 1);
+    const mapped = lastChar ? GODAN_A_TO_U[lastChar] : undefined;
+    if (mapped) {
       return {
-        baseForm: stem.slice(0, -1) + aToU[lastChar],
+        baseForm: stem.slice(0, -1) + mapped,
         surface,
         partOfSpeech: 'verb',
         inflection: 'negative',
       };
     }
-    // Ichidan
     return {
       baseForm: `${stem}る`,
       surface,
@@ -262,29 +353,101 @@ export function lemmatize(surfaceText: string): LemmaResult {
     };
   }
 
-  // 6. I-adjectives inflections:
-  // 〜くない, 〜くなかった, 〜かった, 〜くて
-  const adjPatterns: Array<{ ending: string; inflection: string }> = [
-    { ending: 'くなかった', inflection: 'negative_past' },
-    { ending: 'くない', inflection: 'negative' },
-    { ending: 'かった', inflection: 'past' },
-    { ending: 'くて', inflection: 'te_form' },
-  ];
-
-  for (const { ending, inflection } of adjPatterns) {
-    if (surface.endsWith(ending) && surface.length > ending.length) {
-      const stem = surface.slice(0, surface.length - ending.length);
-      return {
-        baseForm: `${stem}い`,
-        surface,
-        partOfSpeech: 'adjective',
-        inflection,
-      };
-    }
+  // 〜くて (I-adjective te-form: 高くて -> 高い)
+  if (surface.endsWith('くて') && surface.length > 2) {
+    const stem = surface.slice(0, -2);
+    return {
+      baseForm: `${stem}い`,
+      surface,
+      partOfSpeech: 'adjective',
+      inflection: 'te_form',
+    };
   }
 
-  // 7. Na-adjectives inflections:
-  // 〜な, 〜だった
+  // Double consonant / onbin past and te forms:
+  // って / った (買う, 待つ, 取る)
+  if (
+    (surface.endsWith('って') || surface.endsWith('った')) &&
+    surface.length > 2
+  ) {
+    const stem = surface.slice(0, -2);
+    return {
+      baseForm: `${stem}る`,
+      surface,
+      partOfSpeech: 'verb',
+      inflection: surface.endsWith('って') ? 'te_form' : 'past',
+    };
+  }
+
+  // んで / んだ (飲む, 呼ぶ, 死ぬ)
+  if (
+    (surface.endsWith('んで') || surface.endsWith('んだ')) &&
+    surface.length > 2
+  ) {
+    const stem = surface.slice(0, -2);
+    return {
+      baseForm: `${stem}む`,
+      surface,
+      partOfSpeech: 'verb',
+      inflection: surface.endsWith('んで') ? 'te_form' : 'past',
+    };
+  }
+
+  // いて / いた (書く)
+  if (
+    (surface.endsWith('いて') || surface.endsWith('いた')) &&
+    surface.length > 2
+  ) {
+    const stem = surface.slice(0, -2);
+    return {
+      baseForm: `${stem}く`,
+      surface,
+      partOfSpeech: 'verb',
+      inflection: surface.endsWith('いて') ? 'te_form' : 'past',
+    };
+  }
+
+  // いで / いだ (泳ぐ)
+  if (
+    (surface.endsWith('いで') || surface.endsWith('いだ')) &&
+    surface.length > 2
+  ) {
+    const stem = surface.slice(0, -2);
+    return {
+      baseForm: `${stem}ぐ`,
+      surface,
+      partOfSpeech: 'verb',
+      inflection: surface.endsWith('いで') ? 'te_form' : 'past',
+    };
+  }
+
+  // して / した (話す)
+  if (
+    (surface.endsWith('して') || surface.endsWith('した')) &&
+    surface.length > 2
+  ) {
+    const stem = surface.slice(0, -2);
+    return {
+      baseForm: `${stem}す`,
+      surface,
+      partOfSpeech: 'verb',
+      inflection: surface.endsWith('して') ? 'te_form' : 'past',
+    };
+  }
+
+  // 7. Length 1 endings:
+  // 〜て / 〜た (Ichidan verb: 食べて -> 食べる, 食べた -> 食べる, 見て -> 見る)
+  if ((surface.endsWith('て') || surface.endsWith('た')) && surface.length >= 2) {
+    const stem = surface.slice(0, -1);
+    return {
+      baseForm: `${stem}る`,
+      surface,
+      partOfSpeech: 'verb',
+      inflection: surface.endsWith('て') ? 'te_form' : 'past',
+    };
+  }
+
+  // 〜な (Na-adjective: 静かな -> 静か)
   if (surface.endsWith('な') && surface.length > 2) {
     return {
       baseForm: surface.slice(0, -1),
@@ -293,20 +456,20 @@ export function lemmatize(surfaceText: string): LemmaResult {
       inflection: 'attributive',
     };
   }
-  if (surface.endsWith('だった') && surface.length > 3) {
-    return {
-      baseForm: surface.slice(0, -3),
-      surface,
-      partOfSpeech: 'adjective',
-      inflection: 'past',
-    };
-  }
 
   // Default: Already in base form
   let guessedPos: LemmaResult['partOfSpeech'] = 'noun';
   if (surface.endsWith('い') && surface.length >= 2) {
     guessedPos = 'adjective';
-  } else if (surface.endsWith('る') || surface.endsWith('う') || surface.endsWith('く') || surface.endsWith('す') || surface.endsWith('つ') || surface.endsWith('ぬ') || surface.endsWith('む')) {
+  } else if (
+    surface.endsWith('る') ||
+    surface.endsWith('う') ||
+    surface.endsWith('く') ||
+    surface.endsWith('す') ||
+    surface.endsWith('つ') ||
+    surface.endsWith('ぬ') ||
+    surface.endsWith('む')
+  ) {
     guessedPos = 'verb';
   }
 
@@ -317,3 +480,5 @@ export function lemmatize(surfaceText: string): LemmaResult {
     inflection: 'dictionary',
   };
 }
+
+export const lemmatizeJapaneseWord = lemmatize;

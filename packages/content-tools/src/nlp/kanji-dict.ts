@@ -1,4 +1,4 @@
-import type { KanjiInfo, JlptLevel } from './types.js';
+import type { KanjiInfo } from './types.js';
 
 export const KANJI_KNOWLEDGE_GROUPS = {
   HUMAN: 'human', // Con người & cơ thể (人, 子, 女, 男, 目, 耳, 手, 足, ...)
