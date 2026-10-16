@@ -25,11 +25,20 @@
     "test:db": "vitest run apps/api/src/db/db.test.ts",
     "test:auth": "vitest run apps/api/src/modules/auth/auth.test.ts",
     "test:authorization": "vitest run apps/api/src/common/guards/authorization.test.ts",
+    "test:content": "vitest run apps/api/src/modules/question-bank/ apps/api/src/modules/license/",
+    "test:upload": "vitest run apps/api/src/modules/media/",
+    "test:storage": "vitest run apps/api/src/modules/storage/",
     "test:exam-engine": "vitest run packages/exam-engine",
     "test:media-token": "vitest run packages/media-token",
     "test:coverage": "vitest run --coverage --coverage.include=\"packages/exam-engine/src/**\" --coverage.include=\"packages/media-token/src/**\" packages/exam-engine packages/media-token",
     "test:admin": "vitest run apps/admin",
-    "test:admin-auth": "vitest run apps/admin/tests/auth.test.ts apps/admin/tests/guard.test.ts"
+    "test:admin-auth": "vitest run apps/admin/tests/auth.test.ts apps/admin/tests/guard.test.ts",
+    "test:web": "pnpm --filter @jlpt/ui build && pnpm --filter @jlpt/web test",
+    "test:i18n": "pnpm --filter @jlpt/web test:i18n",
+    "test:a11y": "pnpm --filter @jlpt/ui build && pnpm --filter @jlpt/ui test:a11y && pnpm --filter @jlpt/web test:a11y",
+    "test:exam-ui": "pnpm --filter @jlpt/ui build && pnpm --filter @jlpt/web test:exam-ui",
+    "test:sync": "pnpm --filter @jlpt/web test:sync",
+    "test:rich-text": "pnpm --filter @jlpt/ui test:rich-text"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",
