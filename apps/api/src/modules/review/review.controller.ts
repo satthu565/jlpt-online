@@ -9,17 +9,71 @@ import {
   Patch,
   Post,
   Query,
+  UsePipes,
 } from '@nestjs/common';
 import { CurrentUser, CurrentGuestId } from '../../common/decorators/current-user.decorator.js';
 import { AllowGuest } from '../../common/decorators/allow-guest.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
 import { ReviewService, type CreateReportInput } from './review.service.js';
 import type { ExplanationDraft } from '@jlpt/schema';
+import {
+  ReviewDecisionSchema,
+  ReviewParamsSchema,
+  SubmitReviewSchema,
+  type ReviewDecisionDto,
+  type SubmitReviewDto,
+} from './review.types.js';
 
 @Controller()
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
+
+  // ---------------------------------------------------------------------------
+  // Content Review & Approval (B01)
+  // ---------------------------------------------------------------------------
+
+  @Roles('admin', 'editor', 'reviewer')
+  @Post('admin/reviews/submit')
+  @UsePipes(new ZodValidationPipe(SubmitReviewSchema))
+  async submitForReview(
+    @Body() dto: SubmitReviewDto,
+    @CurrentUser() user: AuthUserContext | { id?: string; userId?: string },
+  ) {
+    const userId = user.userId || (user as { id?: string }).id || '';
+    return this.reviewService.submitForReview(
+      dto.targetType,
+      dto.targetId,
+      dto.targetVersion,
+      userId,
+    );
+  }
+
+  @Roles('admin', 'editor', 'reviewer')
+  @Post('admin/reviews/:targetType/:targetId/v:version/decision')
+  async reviewDecision(
+    @Param('targetType') targetType: string,
+    @Param('targetId') targetId: string,
+    @Param('version') versionStr: string,
+    @Body(new ZodValidationPipe(ReviewDecisionSchema)) dto: ReviewDecisionDto,
+    @CurrentUser() user: AuthUserContext | { id?: string; userId?: string },
+  ) {
+    const validatedParams = ReviewParamsSchema.parse({
+      targetType,
+      targetId,
+      version: versionStr,
+    });
+
+    const userId = user.userId || (user as { id?: string }).id || '';
+    return this.reviewService.reviewDecision(
+      validatedParams.targetType,
+      validatedParams.targetId,
+      validatedParams.version,
+      dto,
+      userId,
+    );
+  }
 
   // ---------------------------------------------------------------------------
   // Explanation Management & Moderation (QB-08, EXPL-01..09, EXPL-13)

@@ -45,15 +45,32 @@ export function LibraryView({
         return false;
       }
 
-      // 5. User status filter (LIB-08)
+      // 5. User status filter (LIB-08, LIB-12, LIB-13)
       if (filters.userStatus !== 'ALL') {
-        const status = exam.userStatus || 'not_started';
-        if (status !== filters.userStatus) {
-          return false;
+        if (filters.userStatus === 'below_target') {
+          const isBelow =
+            exam.userStatus === 'below_target' ||
+            (exam.bestScore !== undefined &&
+              exam.bestScore !== null &&
+              exam.bestScore < (exam.targetScore ?? 90));
+          if (!isBelow) return false;
+        } else if (filters.userStatus === 'not_started') {
+          const isNotStarted = !exam.userStatus || exam.userStatus === 'not_started';
+          if (!isNotStarted) return false;
+        } else {
+          const status = exam.userStatus || 'not_started';
+          if (status !== filters.userStatus) {
+            return false;
+          }
         }
       }
 
-      // 6. Search query (LIB-06)
+      // 6. Favorites filter (LIB-11)
+      if (filters.onlyFavorites && !exam.isFavorite) {
+        return false;
+      }
+
+      // 7. Search query (LIB-06)
       if (filters.searchQuery.trim()) {
         const q = filters.searchQuery.toLowerCase().trim();
         const titleMatch = exam.title.toLowerCase().includes(q);
@@ -70,8 +87,60 @@ export function LibraryView({
     });
   }, [exams, filters]);
 
+  // Next recommendation (LIB-14)
+  const recommendedExam = useMemo(() => {
+    return (
+      exams.find((e) => e.isRecommendedNext) ||
+      exams.find((e) => !e.userStatus || e.userStatus === 'not_started') ||
+      exams[0]
+    );
+  }, [exams]);
+
   return (
     <div className={`jlpt-library-view space-y-6 ${className}`}>
+      {/* Next Recommendation Banner (LIB-14) */}
+      {recommendedExam && (
+        <section
+          data-testid="next-recommendation-banner"
+          aria-label="Đề xuất đề thi tiếp theo"
+          className="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-2xl p-5 text-white shadow-md relative overflow-hidden"
+        >
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="space-y-1.5 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider bg-blue-500/30 text-blue-200 px-2.5 py-0.5 rounded-full border border-blue-400/30">
+                  ★ Đề xuất tiếp theo (LIB-14)
+                </span>
+                <span className="text-xs font-mono bg-white/20 px-2 py-0.5 rounded text-white font-bold">
+                  {recommendedExam.level}
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-white leading-tight">
+                {recommendedExam.title}
+              </h3>
+              <p className="text-xs text-blue-100 max-w-xl">
+                Dựa trên tiến độ học tập của bạn, đề thi này giúp tối ưu hóa khả năng làm quen đề mới và lấp lỗ hổng kiến thức hiệu quả.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <a
+                href={`/phong-thi?examId=${recommendedExam.id}`}
+                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-white text-blue-900 hover:bg-blue-50 transition-colors shadow-sm"
+              >
+                Bắt đầu làm ngay
+              </a>
+              <a
+                href={`/de-thi/${recommendedExam.slug}`}
+                className="px-4 py-2.5 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-white transition-colors"
+              >
+                Xem chi tiết
+              </a>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Filters bar */}
       <LibraryFilters
         filters={filters}

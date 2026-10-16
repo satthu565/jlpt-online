@@ -46,7 +46,7 @@ export function resolveMigrationsDir(customDir?: string): string {
 // One key for the whole app: the api and worker containers start together and both migrate
 // on boot. Without serialisation both read an empty ledger and the slower one fails with
 // `relation "..." already exists` (seen in the staging drill after N02).
-const MIGRATION_LOCK_KEY = 727001;
+export const MIGRATION_ADVISORY_LOCK_ID = 72110115;
 let inProcess: Promise<unknown> = Promise.resolve();
 
 /**
@@ -73,12 +73,12 @@ async function runMigrationsLocked(
   // A session lock needs one connection; the postgres.js pool may hand out another per query.
   const conn = await client.rawClient.reserve();
   try {
-    await conn.unsafe(`SELECT pg_advisory_lock(${MIGRATION_LOCK_KEY})`);
+    await conn.unsafe(`SELECT pg_advisory_lock(${MIGRATION_ADVISORY_LOCK_ID})`);
     try {
       const locked: DbClientInstance = { ...client, query: (sqlQuery: string) => conn.unsafe(sqlQuery) };
       return await applyMigrations(locked, migrationsDir);
     } finally {
-      await conn.unsafe(`SELECT pg_advisory_unlock(${MIGRATION_LOCK_KEY})`);
+      await conn.unsafe(`SELECT pg_advisory_unlock(${MIGRATION_ADVISORY_LOCK_ID})`);
     }
   } finally {
     conn.release();
@@ -91,6 +91,7 @@ async function applyMigrations(
 ): Promise<MigrationResult> {
   const dir = resolveMigrationsDir(migrationsDir);
 
+  // The caller (runMigrationsLocked) holds the advisory lock on the connection this client uses.
   // Ensure migration ledger exists
   await client.query(`
     CREATE TABLE IF NOT EXISTS "__drizzle_migrations" (
@@ -189,6 +190,34 @@ export async function verifyRollbackCompatibility(
       table: 'outbox',
       query: `SELECT id, topic, payload FROM "outbox" LIMIT 1;`,
     },
+    {
+      table: 'tenant_plans',
+      query: `SELECT tenant_id, plan_code, status, total_seats, used_seats FROM "tenant_plans" LIMIT 1;`,
+    },
+    {
+      table: 'retention_policies',
+      query: `SELECT id, domain, retention_days, policy_approved FROM "retention_policies" LIMIT 1;`,
+    },
+    {
+      table: 'org_memberships',
+      query: `SELECT id, org_id, user_id, role FROM "org_memberships" LIMIT 1;`,
+    },
+    {
+      table: 'classes',
+      query: `SELECT id, org_id, teacher_id, name, level FROM "classes" LIMIT 1;`,
+    },
+    {
+      table: 'assignments',
+      query: `SELECT id, class_id, title, opens_at, due_at FROM "assignments" LIMIT 1;`,
+    },
+    {
+      table: 'exam_events',
+      query: `SELECT id, title, level, opens_at, starts_at, ends_at, result_release_at, capacity FROM "exam_events" LIMIT 1;`,
+    },
+    {
+      table: 'explanation_versions',
+      query: `SELECT id, question_id, version, ai_generated FROM "explanation_versions" LIMIT 1;`,
+    },
   ];
 
   for (const { table, query } of legacyReaderQueries) {
@@ -206,6 +235,7 @@ export async function verifyRollbackCompatibility(
       };
     }
   }
+
 
   // 2. Verify re-running migrations does not fail (idempotency check)
   try {

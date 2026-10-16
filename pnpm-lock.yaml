@@ -248,6 +248,9 @@ importers:
       '@jlpt/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@jlpt/content-tools':
+        specifier: workspace:*
+        version: link:../../packages/content-tools
       '@jlpt/exam-engine':
         specifier: workspace:*
         version: link:../../packages/exam-engine

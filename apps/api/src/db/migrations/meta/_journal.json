@@ -15,6 +15,13 @@
       "when": 1792110754507,
       "tag": "0001_curvy_invisible_woman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792110850000,
+      "tag": "0002_tenant_retention_community",
+      "breakpoints": true
     }
   ]
 }

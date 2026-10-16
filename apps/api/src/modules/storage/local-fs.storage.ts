@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { resolveRepoPath } from '../../common/utils/paths.js';
 import type {
   GetObjectResult,
   HeadObjectResult,
@@ -21,11 +22,8 @@ export class LocalFsStorage implements ObjectStorage {
   private readonly rootDir: string;
 
   constructor(customRoot?: string) {
-    const defaultRoot = process.env.STORAGE_LOCAL_ROOT || path.resolve(process.cwd(), '.data/storage');
+    const defaultRoot = process.env.STORAGE_LOCAL_ROOT || resolveRepoPath('.data/storage');
     this.rootDir = path.resolve(customRoot || defaultRoot);
-    if (!fs.existsSync(this.rootDir)) {
-      fs.mkdirSync(this.rootDir, { recursive: true });
-    }
   }
 
   public sanitizeKey(rawKey: string): string {

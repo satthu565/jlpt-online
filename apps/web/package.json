@@ -16,6 +16,8 @@
     "test:sync": "vitest run tests/exam-sync.test.ts",
     "test:e2e:exam": "vitest run tests/e2e-exam.test.tsx",
     "test:e2e:library": "vitest run tests/e2e-library.test.tsx",
+    "test:e2e:learning": "vitest run tests/e2e-learning.test.tsx",
+    "test:analytics": "vitest run tests/analytics.test.tsx",
     "test:e2e": "playwright test"
   },
   "dependencies": {
