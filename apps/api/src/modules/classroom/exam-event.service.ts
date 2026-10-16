@@ -229,7 +229,7 @@ export class ExamEventService {
   /**
    * GAME-06: Phòng chờ thi đồng loạt (đồng bộ giờ server, chưa lộ đề thi trước giờ)
    */
-  async getExamEventLobby(eventId: string, user: AuthUserContext) {
+  async getExamEventLobby(eventId: string, _user: AuthUserContext) {
     const [event] = await this.client.db
       .select()
       .from(schema.examEvents)

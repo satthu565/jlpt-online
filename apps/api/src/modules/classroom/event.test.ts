@@ -4,19 +4,21 @@ import { runMigrations } from '../../db/migrate.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
+import type { Role } from '@jlpt/schema';
 import { ExamEventService } from './exam-event.service.js';
 import { ExamEventController } from './exam-event.controller.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { AttemptService } from '../attempt/attempt.service.js';
 import { ScoringService } from '../scoring/scoring.service.js';
 import { TurnstileService } from '../turnstile/turnstile.service.js';
+import { eq } from 'drizzle-orm';
 
-function makeUser(id: string, role: 'student' | 'admin' = 'student'): AuthUserContext {
+function makeUser(id: string, role: Role = 'student'): AuthUserContext {
   return {
     userId: id,
     email: `${id}@test.jlpt.local`,
     name: `User ${id}`,
-    role: role as any,
+    role,
     sessionId: `session-${id}`,
     sessionToken: `token-${id}`,
     emailVerified: true,
@@ -32,10 +34,10 @@ describe('A02: Exam Event Tests (GAME-06, Acceptance 3: Event chưa kết thúc 
   let examEventService: ExamEventService;
   let examEventController: ExamEventController;
 
-  const student1 = makeUser('student-event-1');
-  const student2 = makeUser('student-event-2');
-  const student3 = makeUser('student-event-3');
-  const adminUser = makeUser('admin-event', 'admin');
+  const student1 = makeUser('018e0000-0000-7000-8000-000000000011');
+  const student2 = makeUser('018e0000-0000-7000-8000-000000000012');
+  const student3 = makeUser('018e0000-0000-7000-8000-000000000013');
+  const adminUser = makeUser('018e0000-0000-7000-8000-000000000014', 'admin');
 
   let examId: string;
 
@@ -43,8 +45,8 @@ describe('A02: Exam Event Tests (GAME-06, Acceptance 3: Event chưa kết thúc 
     dbClient = await createDbClient();
     await runMigrations(dbClient);
 
-    outboxService = new OutboxService(dbClient);
     scoringService = new ScoringService(dbClient);
+    outboxService = new OutboxService(dbClient, scoringService);
     turnstileService = new TurnstileService();
     attemptService = new AttemptService(
       dbClient,
@@ -77,24 +79,59 @@ describe('A02: Exam Event Tests (GAME-06, Acceptance 3: Event chưa kết thúc 
       publishedVersion: 1,
     });
 
+    const blueprintId = generateUuidV7();
+    await dbClient.db.insert(schema.blueprints).values({
+      id: blueprintId,
+      level: 'N1',
+      version: 1,
+      kind: 'synthetic',
+      status: 'active',
+      isOfficial: false,
+      isConfirmed: true,
+      confirmedBy: adminUser.userId,
+      confirmedAt: new Date(),
+      effectiveFrom: '2026-01-01',
+      sourceRef: {},
+      sections: [],
+      scoring: {},
+    });
+
     await dbClient.db.insert(schema.examVersions).values({
-      id: generateUuidV7(),
       examId,
       version: 1,
-      schemaVersion: '1.0.0',
-      contentHash: 'hash-n1',
-      totalItems: 5,
+      snapshotKey: `exams/${examId}/v1/snapshot.json`,
+      manifestKey: `exams/${examId}/v1/manifest.json`,
+      blueprintId,
+      blueprintVersion: 1,
+      scoring: {
+        method: 'linear_reference',
+        guestTrial: false,
+        scoringSections: [
+          { code: 'language_knowledge', label: 'Kiến thức ngôn ngữ', skills: ['vocabulary', 'grammar', 'reading'], maxScaled: 120, minPass: 38 },
+        ],
+      },
+      totalQuestions: 5,
       publishedAt: new Date(),
-      scoring: {},
+      publishedBy: adminUser.userId,
+    });
+
+    await dbClient.db.insert(schema.examSections).values({
+      id: generateUuidV7(),
+      examId,
+      code: 'language_vocab',
+      title: 'Kiến thức ngôn ngữ',
+      durationSec: 3600,
+      orderIndex: 0,
     });
 
     // Seed answer key for scoring and review
     await dbClient.db.insert(schema.examAnswerKeys).values({
-      id: generateUuidV7(),
       examId,
       version: 1,
       keys: [1, 2, 3, 4, 1],
-      sectionMap: { language_vocab: [0, 1, 2, 3, 4] },
+      skills: ['vocabulary', 'vocabulary', 'grammar', 'grammar', 'reading'],
+      mondaiTypes: ['kanji_reading', 'orthography', 'word_formation', 'context_reference', 'sentence_composition'],
+      sectionRanges: [[0, 4]],
     });
   });
 
@@ -145,12 +182,14 @@ describe('A02: Exam Event Tests (GAME-06, Acceptance 3: Event chưa kết thúc 
       const submitResult = await attemptService.submitAttempt(
         attemptInit.attemptId,
         {
-          submittedBy: 'user',
+          lease: attemptInit.lease,
+          seq: 1,
           answers: [1, 2, 3, 4, 1],
+          flags: [0, 0, 0, 0, 0],
         },
         student1,
       );
-      expect(submitResult.status).toBe('submitted');
+      expect(submitResult.result).toBeDefined();
 
       // 5. CRITICAL: Student 1 tries to view event results before resultReleaseAt -> 403 Forbidden with RESULTS_EMBARGOED
       await expect(
@@ -173,10 +212,16 @@ describe('A02: Exam Event Tests (GAME-06, Acceptance 3: Event chưa kết thúc 
       });
 
       // 7. Time passes: resultReleaseAt arrives!
-      // Update event resultReleaseAt to the past (e.g. 1 second ago)
+      // Update event timeline so endsAt <= resultReleaseAt <= now
+      const pastBase = Date.now() - 10000;
       await dbClient.db
         .update(schema.examEvents)
-        .set({ resultReleaseAt: new Date(Date.now() - 1000) })
+        .set({
+          opensAt: new Date(pastBase),
+          startsAt: new Date(pastBase + 1000),
+          endsAt: new Date(pastBase + 5000),
+          resultReleaseAt: new Date(pastBase + 6000),
+        })
         .where(eq(schema.examEvents.id, eventId));
 
       // 8. Now results are published and leaderboard is accessible
@@ -259,7 +304,7 @@ describe('A02: Exam Event Tests (GAME-06, Acceptance 3: Event chưa kết thúc 
       ).rejects.toMatchObject({
         response: {
           code: 'VALIDATION_ERROR',
-          message: expect.stringContaining('hết chỗ'),
+          message: expect.stringContaining('đủ số lượng'),
         },
       });
     });

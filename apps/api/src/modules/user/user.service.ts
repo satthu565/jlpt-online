@@ -329,7 +329,14 @@ export class UserService {
       'audit_logs',
     ]);
 
-    const requestId = generateUuidV7();
+    const [latestReq] = await this.client.db
+      .select({ id: schema.deletionRequests.id })
+      .from(schema.deletionRequests)
+      .where(eq(schema.deletionRequests.userId, userId))
+      .orderBy(desc(schema.deletionRequests.requestedAt))
+      .limit(1);
+
+    const requestId = latestReq?.id ?? generateUuidV7();
 
     await this.outboxService.emitEvent(
       'privacy.deletion.requested',

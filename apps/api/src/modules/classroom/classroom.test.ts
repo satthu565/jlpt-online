@@ -4,16 +4,18 @@ import { runMigrations } from '../../db/migrate.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
+import type { Role } from '@jlpt/schema';
 import { ClassroomService } from './classroom.service.js';
 import { ClassroomController } from './classroom.controller.js';
 import { OutboxService } from '../outbox/outbox.service.js';
+import { eq } from 'drizzle-orm';
 
-function makeUser(id: string, role: 'student' | 'teacher' | 'admin' = 'teacher', tenantId = 'org-a'): AuthUserContext {
+function makeUser(id: string, role: Role = 'student', tenantId = 'org-a'): AuthUserContext {
   return {
     userId: id,
     email: `${id}@test.jlpt.local`,
     name: `User ${id}`,
-    role: role as any,
+    role,
     sessionId: `session-${id}`,
     sessionToken: `token-${id}`,
     emailVerified: true,
@@ -27,11 +29,11 @@ describe('A02: Classroom & Teacher Module Tests (TEA-01..13, Acceptance 1 & 2)',
   let classroomService: ClassroomService;
   let classroomController: ClassroomController;
 
-  const teacherA = makeUser('teacher-a', 'teacher', 'org-a');
-  const teacherB = makeUser('teacher-b', 'teacher', 'org-b');
-  const student1 = makeUser('student-1', 'student', 'org-a');
-  const student2 = makeUser('student-2', 'student', 'org-b');
-  const adminUser = makeUser('admin-user', 'admin', 'system');
+  const teacherA = makeUser('018e0000-0000-7000-8000-000000000001', 'student', 'org-a');
+  const teacherB = makeUser('018e0000-0000-7000-8000-000000000002', 'student', 'org-b');
+  const student1 = makeUser('018e0000-0000-7000-8000-000000000003', 'student', 'org-a');
+  const student2 = makeUser('018e0000-0000-7000-8000-000000000004', 'student', 'org-b');
+  const adminUser = makeUser('018e0000-0000-7000-8000-000000000005', 'admin', 'system');
 
   let orgAId: string;
   let orgBId: string;
@@ -268,7 +270,7 @@ describe('A02: Classroom & Teacher Module Tests (TEA-01..13, Acceptance 1 & 2)',
     });
 
     it('Multi-use invitation correctly enforces maxUses quota', async () => {
-      const student3 = makeUser('student-3', 'student');
+      const student3 = makeUser('018e0000-0000-7000-8000-000000000006', 'student');
       await dbClient.db.insert(schema.users).values({
         id: student3.userId,
         email: student3.email,
@@ -328,7 +330,7 @@ describe('A02: Classroom & Teacher Module Tests (TEA-01..13, Acceptance 1 & 2)',
       expect(newClass.classId).toBeDefined();
 
       const list = await classroomController.listOrganizationClasses(orgAId, teacherA);
-      expect(list.items.some((c) => c.name === 'Lớp Luyện Nghe N3')).toBe(true);
+      expect(list.items.some((c: { name: string }) => c.name === 'Lớp Luyện Nghe N3')).toBe(true);
     });
   });
 
@@ -403,15 +405,38 @@ describe('A02: Classroom & Teacher Module Tests (TEA-01..13, Acceptance 1 & 2)',
         kind: 'practice',
         scoringMethod: 'scaled',
       });
+
+      const blueprintId = generateUuidV7();
+      await dbClient.db.insert(schema.blueprints).values({
+        id: blueprintId,
+        level: 'N2',
+        version: 1,
+        kind: 'synthetic',
+        status: 'active',
+        isOfficial: false,
+        isConfirmed: true,
+        confirmedBy: teacherA.userId,
+        confirmedAt: new Date(),
+        effectiveFrom: '2026-01-01',
+        sourceRef: {},
+        sections: [],
+        scoring: {},
+      });
+
       await dbClient.db.insert(schema.examVersions).values({
-        id: generateUuidV7(),
         examId,
         version: 1,
-        schemaVersion: '1.0.0',
-        contentHash: 'hash-test',
-        totalItems: 10,
+        snapshotKey: `exams/${examId}/v1/snapshot.json`,
+        manifestKey: `exams/${examId}/v1/manifest.json`,
+        blueprintId,
+        blueprintVersion: 1,
+        scoring: {
+          method: 'linear_reference',
+          guestTrial: false,
+        },
+        totalQuestions: 10,
         publishedAt: new Date(),
-        scoring: {},
+        publishedBy: teacherA.userId,
       });
 
       const attemptId = generateUuidV7();
@@ -477,7 +502,7 @@ describe('A02: Classroom & Teacher Module Tests (TEA-01..13, Acceptance 1 & 2)',
 
     it('TEA-11: Grade export sanitizes formula injection characters', async () => {
       // Seed user with formula injection payload
-      const evilUser = makeUser('student-evil', 'student');
+      const evilUser = makeUser('018e0000-0000-7000-8000-000000000007', 'student');
       await dbClient.db.insert(schema.users).values({
         id: evilUser.userId,
         email: '=cmd|"/C calc"!A0@evil.com',
@@ -500,8 +525,8 @@ describe('A02: Classroom & Teacher Module Tests (TEA-01..13, Acceptance 1 & 2)',
       const evilRow = exportResult.items.find((r) => r.userId === evilUser.userId);
       expect(evilRow).toBeDefined();
       // Verifies prefix quote added by sanitizeExportField
-      expect(evilRow?.name.startsWith("'")).toBe(true);
-      expect(evilRow?.email.startsWith("'")).toBe(true);
+      expect(String(evilRow?.name).startsWith("'")).toBe(true);
+      expect(String(evilRow?.email).startsWith("'")).toBe(true);
     });
   });
 });

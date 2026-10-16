@@ -4,15 +4,17 @@ import { runMigrations } from '../../db/migrate.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
+import type { Role } from '@jlpt/schema';
 import { CommunityService } from './community.service.js';
 import { CommunityController } from './community.controller.js';
+import { eq } from 'drizzle-orm';
 
-function makeUser(id: string, role: 'student' | 'moderator' | 'admin' = 'student'): AuthUserContext {
+function makeUser(id: string, role: Role = 'student'): AuthUserContext {
   return {
     userId: id,
     email: `${id}@test.jlpt.local`,
     name: `User ${id}`,
-    role: role as any,
+    role,
     sessionId: `session-${id}`,
     sessionToken: `token-${id}`,
     emailVerified: true,
@@ -24,10 +26,10 @@ describe('A02: Community Module Tests (GAME-07..09, Acceptance 4: Discussion ch�
   let communityService: CommunityService;
   let communityController: CommunityController;
 
-  const studentCompleted = makeUser('student-completed');
-  const studentNotCompleted = makeUser('student-not-completed');
-  const moderatorUser = makeUser('moderator-user', 'moderator');
-  const adminUser = makeUser('admin-user', 'admin');
+  const studentCompleted = makeUser('018e0000-0000-7000-8000-000000000021');
+  const studentNotCompleted = makeUser('018e0000-0000-7000-8000-000000000022');
+  const moderatorUser = makeUser('018e0000-0000-7000-8000-000000000023', 'moderator');
+  const adminUser = makeUser('018e0000-0000-7000-8000-000000000024', 'admin');
 
   let questionId: string;
   let examId: string;
@@ -54,14 +56,17 @@ describe('A02: Community Module Tests (GAME-07..09, Acceptance 4: Discussion ch�
     await dbClient.db.insert(schema.questionGroups).values({
       id: groupId,
       level: 'N2',
-      section: 'language_vocab',
+      sectionCode: 'language_vocab',
     });
 
     questionId = generateUuidV7();
     await dbClient.db.insert(schema.questions).values({
       id: questionId,
       groupId,
-      mondai: 1,
+      level: 'N2',
+      skill: 'vocabulary',
+      mondaiType: 'kanji_reading',
+      origin: 'synthetic',
     });
 
     examId = generateUuidV7();
@@ -75,21 +80,57 @@ describe('A02: Community Module Tests (GAME-07..09, Acceptance 4: Discussion ch�
       publishedVersion: 1,
     });
 
+    const blueprintId = generateUuidV7();
+    await dbClient.db.insert(schema.blueprints).values({
+      id: blueprintId,
+      level: 'N2',
+      version: 1,
+      kind: 'synthetic',
+      status: 'active',
+      isOfficial: false,
+      isConfirmed: true,
+      confirmedBy: adminUser.userId,
+      confirmedAt: new Date(),
+      effectiveFrom: '2026-01-01',
+      sourceRef: {},
+      sections: [],
+      scoring: {},
+    });
+
     await dbClient.db.insert(schema.examVersions).values({
-      id: generateUuidV7(),
       examId,
       version: 1,
-      schemaVersion: '1.0.0',
-      contentHash: 'hash-comm',
-      totalItems: 1,
+      snapshotKey: `exams/${examId}/v1/snapshot.json`,
+      manifestKey: `exams/${examId}/v1/manifest.json`,
+      blueprintId,
+      blueprintVersion: 1,
+      scoring: {
+        method: 'linear_reference',
+        guestTrial: false,
+        scoringSections: [
+          { code: 'language_knowledge', label: 'Kiến thức ngôn ngữ', skills: ['vocabulary', 'grammar', 'reading'], maxScaled: 120, minPass: 38 },
+        ],
+      },
+      totalQuestions: 1,
       publishedAt: new Date(),
-      scoring: {},
+      publishedBy: adminUser.userId,
+    });
+
+    const sectionId = generateUuidV7();
+    await dbClient.db.insert(schema.examSections).values({
+      id: sectionId,
+      examId,
+      code: 'language_vocab',
+      title: 'Kiến thức ngôn ngữ',
+      durationSec: 3600,
+      orderIndex: 0,
     });
 
     // Link question to examItems
     await dbClient.db.insert(schema.examItems).values({
       id: generateUuidV7(),
       examId,
+      sectionId,
       questionId,
       orderIndex: 0,
     });
@@ -158,7 +199,7 @@ describe('A02: Community Module Tests (GAME-07..09, Acceptance 4: Discussion ch�
       // 3. View discussion returns the comment
       const listAfter = await communityController.listQuestionDiscussions(questionId, studentCompleted);
       expect(listAfter.items).toHaveLength(1);
-      expect(listAfter.items[0]?.content).toContain('に従って');
+      expect(listAfter.items[0]?.content).toContain('にしたがって');
       expect(listAfter.items[0]?.authorId).toBe(studentCompleted.userId);
     });
 
