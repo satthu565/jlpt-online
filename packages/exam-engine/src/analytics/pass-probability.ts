@@ -26,7 +26,7 @@ export interface HistoricalExamAttemptRecord {
  * (N1, N2, N3: Language Knowledge 19/60, Reading 19/60, Listening 19/60).
  * (N4, N5: Language Knowledge & Reading combined 38/120, Listening 19/60).
  */
-export function getSectionMinPass(level: Level, skill: Skill): number {
+export function getSectionMinPass(_level: Level, _skill: Skill): number {
   return 19; // 19 / 60 scaled points minimum per section
 }
 
@@ -72,7 +72,7 @@ export function estimatePassProbability(
   // When score == passingThreshold, baseline prob is 50%
   const scoreDiff = predictedTotalScore - passingThreshold;
   const k = 0.08; // scale steepness
-  let rawProbability = 1 / (1 + Math.exp(-k * scoreDiff));
+  const rawProbability = 1 / (1 + Math.exp(-k * scoreDiff));
 
   // Section breakdown evaluation
   const skills: Skill[] = ['vocabulary', 'grammar', 'reading', 'listening'];

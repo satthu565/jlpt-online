@@ -19,6 +19,12 @@ describe('SRS Timezone Midnight (Acceptance 1)', () => {
     const alignedMidnight = alignIntervalToMidnight(baseDate, 1, 'Asia/Ho_Chi_Minh');
 
     expect(alignedMidnight.toISOString()).toBe('2026-10-15T17:00:00.000Z');
+
+    // Test getStartOfLocalDay & getEndOfLocalDay
+    const startOfDay = getStartOfLocalDay(baseDate, 'Asia/Ho_Chi_Minh');
+    const endOfDay = getEndOfLocalDay(baseDate, 'Asia/Ho_Chi_Minh');
+    expect(startOfDay.toISOString()).toBe('2026-10-14T17:00:00.000Z');
+    expect(endOfDay.toISOString()).toBe('2026-10-15T16:59:59.999Z');
   });
 
   it('correctly calculates local midnight in Asia/Tokyo (UTC+9)', () => {

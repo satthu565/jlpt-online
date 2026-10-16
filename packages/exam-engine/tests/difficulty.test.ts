@@ -4,7 +4,6 @@ import {
   validateItemQuality,
   assignDifficultyLabel,
   scoreToDifficultyScale,
-  DEFAULT_MIN_SAMPLE_SIZE,
 } from '../src/difficulty/index.js';
 
 describe('Empirical Difficulty & Psychometrics (QB-10, QB-19, QB-20, Acceptance 2)', () => {
