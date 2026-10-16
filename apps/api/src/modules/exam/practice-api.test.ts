@@ -26,9 +26,11 @@ import { QuestionBankModule } from '../question-bank/question-bank.module.js';
 import { ReviewModule } from '../review/review.module.js';
 import { NotificationModule } from '../notification/notification.module.js';
 import { QuestionBankService } from '../question-bank/question-bank.service.js';
+import { PracticeService } from './practice.service.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { FORBIDDEN_ANSWER_FIELDS } from '@jlpt/schema';
+import { eq } from 'drizzle-orm';
 
 @Module({
   imports: [
@@ -61,6 +63,7 @@ class TestPracticeAppModule {}
 describe('L02 Practice & Mix API, Scope and Usage Tracking', () => {
   let app: NestFastifyApplication;
   let qbService: QuestionBankService;
+  let practiceService: PracticeService;
   let studentId: string;
   let studentToken: string;
   let otherStudentId: string;
@@ -304,6 +307,7 @@ describe('L02 Practice & Mix API, Scope and Usage Tracking', () => {
     await app.getHttpAdapter().getInstance().ready();
 
     qbService = app.get(QuestionBankService);
+    practiceService = app.get(PracticeService);
   });
 
   afterAll(async () => {
@@ -570,6 +574,52 @@ describe('L02 Practice & Mix API, Scope and Usage Tracking', () => {
       expect(res.statusCode).toBe(403);
       const body = JSON.parse(res.body);
       expect(body.error?.code ?? body.code).toBe('LICENSE_RESTRICTION');
+    });
+
+    it('từ chối 403 LICENSE_RESTRICTION khi đề thi chứa câu hỏi có giấy phép đã bị thu hồi (revokedAt !== null) (P1 fix)', async () => {
+      const client = await getOrCreateDbClient();
+      await client.db
+        .update(schema.contentLicenses)
+        .set({ revokedAt: new Date() })
+        .where(eq(schema.contentLicenses.id, validLicenseId));
+
+      const res = await app.inject({
+        method: 'POST',
+        url: `/generated-exams/${validGenExamId}/shares`,
+        headers: { authorization: `Bearer ${studentToken}` },
+        payload: {},
+      });
+
+      expect(res.statusCode).toBe(403);
+      const body = JSON.parse(res.body);
+      expect(body.error?.code ?? body.code).toBe('LICENSE_RESTRICTION');
+
+      // Restore license
+      await client.db
+        .update(schema.contentLicenses)
+        .set({ revokedAt: null })
+        .where(eq(schema.contentLicenses.id, validLicenseId));
+    });
+
+    it('loadCandidateGroups loại trừ giấy phép bị thu hồi (revokedAt !== null) khỏi remixAllowed và displayAllowed (P1 fix)', async () => {
+      const client = await getOrCreateDbClient();
+      await client.db
+        .update(schema.contentLicenses)
+        .set({ revokedAt: new Date() })
+        .where(eq(schema.contentLicenses.id, validLicenseId));
+
+      const groups = await practiceService.loadCandidateGroups(studentId, 'N5');
+      const group1 = groups.find((g) => g.groupId === questionGroup1Id);
+      if (group1 && group1.license) {
+        expect(group1.license.remixAllowed).toBe(false);
+        expect(group1.license.displayAllowed).toBe(false);
+      }
+
+      // Restore license
+      await client.db
+        .update(schema.contentLicenses)
+        .set({ revokedAt: null })
+        .where(eq(schema.contentLicenses.id, validLicenseId));
     });
 
     it('cho phép chủ sở hữu tạo liên kết chia sẻ đề thi khi giấy phép hợp lệ', async () => {

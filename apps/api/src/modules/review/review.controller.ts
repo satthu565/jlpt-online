@@ -26,7 +26,7 @@ export class ReviewController {
   // ---------------------------------------------------------------------------
 
   @Roles('admin', 'editor')
-  @Post('explanations')
+  @Post('admin/explanations')
   @HttpCode(HttpStatus.CREATED)
   async createExplanation(
     @CurrentUser() user: AuthUserContext,
@@ -35,7 +35,8 @@ export class ReviewController {
     return this.reviewService.createExplanation(user.userId, body);
   }
 
-  @Get('explanations')
+  @Roles('admin', 'editor', 'reviewer')
+  @Get('admin/explanations')
   async listExplanations(
     @Query('questionId') questionId?: string,
     @Query('status') status?: string,
@@ -43,13 +44,14 @@ export class ReviewController {
     return this.reviewService.listExplanations({ questionId, status });
   }
 
-  @Get('explanations/:id')
+  @Roles('admin', 'editor', 'reviewer')
+  @Get('admin/explanations/:id')
   async getExplanation(@Param('id') id: string) {
     return this.reviewService.getExplanation(id);
   }
 
   @Roles('admin', 'editor')
-  @Patch('explanations/:id')
+  @Patch('admin/explanations/:id')
   async updateExplanation(
     @CurrentUser() user: AuthUserContext,
     @Param('id') id: string,
@@ -59,7 +61,7 @@ export class ReviewController {
   }
 
   @Roles('admin', 'reviewer', 'editor')
-  @Post('explanations/:id/reviews')
+  @Post('admin/explanations/:id/reviews')
   @HttpCode(HttpStatus.OK)
   async reviewExplanation(
     @CurrentUser() user: AuthUserContext,

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -146,12 +147,13 @@ export class ReviewService {
 
     const currentContent = exp.content as Record<string, unknown>;
     const mergedContent = { ...currentContent, ...rawDraft };
+    const validatedContent = ExplanationDraftSchema.parse(mergedContent);
 
     const [updated] = await this.dbClient.db
       .update(schema.explanationVersions)
       .set({
-        content: mergedContent,
-        locale: (rawDraft.language as string) || exp.locale,
+        content: validatedContent,
+        locale: validatedContent.language || exp.locale,
       })
       .where(eq(schema.explanationVersions.id, id))
       .returning();
@@ -239,12 +241,31 @@ export class ReviewService {
       });
     }
 
-    // Exam status check: in real mode, explanation is forbidden while exam is in progress
-    if (attempt.mode === 'real' && attempt.status === 'in_progress') {
-      throw new ForbiddenException({
-        code: 'FORBIDDEN',
-        message: 'Không thể xem lời giải trong khi đang làm bài thi thật.',
-      });
+    // Exam status check: in real mode, only allowed when submitted AND not embargoed
+    if (attempt.mode === 'real') {
+      if (attempt.status !== 'submitted') {
+        throw new ConflictException({
+          code: 'RESULTS_EMBARGOED',
+          message: 'Kết quả chưa được công bố.',
+        });
+      }
+
+      // Check event embargo if attempt is part of an exam event
+      const [eventAttempt] = await db
+        .select({
+          resultReleaseAt: schema.examEvents.resultReleaseAt,
+        })
+        .from(schema.eventAttempts)
+        .innerJoin(schema.examEvents, eq(schema.eventAttempts.eventId, schema.examEvents.id))
+        .where(eq(schema.eventAttempts.attemptId, attemptId))
+        .limit(1);
+
+      if (eventAttempt && new Date() < new Date(eventAttempt.resultReleaseAt)) {
+        throw new ConflictException({
+          code: 'RESULTS_EMBARGOED',
+          message: 'Kết quả chưa được công bố.',
+        });
+      }
     }
 
     // If practice mode and in_progress, question must have been answered
@@ -324,14 +345,18 @@ export class ReviewService {
         .where(eq(schema.contentLicenses.id, qInfo.licenseId))
         .limit(1);
 
-      if (lic?.terms) {
-        try {
-          const parsed = JSON.parse(lic.terms);
-          if (parsed.rights?.transcriptAllowed === false) {
-            transcriptAllowed = false;
+      if (lic) {
+        if (lic.revokedAt !== null || (lic.expiresAt && new Date(lic.expiresAt) <= new Date())) {
+          transcriptAllowed = false;
+        } else if (lic.terms) {
+          try {
+            const parsed = JSON.parse(lic.terms);
+            if (parsed.rights?.transcriptAllowed === false) {
+              transcriptAllowed = false;
+            }
+          } catch {
+            // ignore
           }
-        } catch {
-          // ignore
         }
       }
     }

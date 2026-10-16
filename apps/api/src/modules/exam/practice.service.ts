@@ -164,12 +164,17 @@ export class PracticeService {
         } catch {
           // ignore
         }
+        const isRevoked = lic.revokedAt !== null;
+        const isExpired = lic.expiresAt ? new Date(lic.expiresAt) <= new Date() : false;
+        const remixAllowed = (!isRevoked && !isExpired) ? (rights.remixAllowed ?? true) : false;
+        const displayAllowed = (!isRevoked && !isExpired) ? (rights.displayAllowed ?? true) : false;
+
         return [
           lic.id,
           {
             licenseId: lic.id,
-            remixAllowed: rights.remixAllowed ?? true,
-            displayAllowed: rights.displayAllowed ?? true,
+            remixAllowed,
+            displayAllowed,
             expiresAt: lic.expiresAt ? lic.expiresAt.toISOString() : undefined,
           },
         ];

@@ -27,6 +27,7 @@ import { ReviewModule } from './review.module.js';
 import { NotificationModule } from '../notification/notification.module.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
+import { eq } from 'drizzle-orm';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ describe('L02 Explanations, Audio Transcript Licensing & Moderation (EXPL-01..13
   let learnerId: string;
   let learnerToken: string;
 
+  let licAudioAllowedId: string;
   let questionWithAudioId: string;
   let questionRestrictedAudioId: string;
   let examId: string;
@@ -135,7 +137,7 @@ describe('L02 Explanations, Audio Transcript Licensing & Moderation (EXPL-01..13
     });
 
     // License A: Allows transcript
-    const licAudioAllowedId = generateUuidV7();
+    licAudioAllowedId = generateUuidV7();
     await client.db.insert(schema.contentLicenses).values({
       id: licAudioAllowedId,
       sourceId: srcId,
@@ -396,7 +398,7 @@ describe('L02 Explanations, Audio Transcript Licensing & Moderation (EXPL-01..13
 
       const res = await app.inject({
         method: 'POST',
-        url: '/explanations',
+        url: '/admin/explanations',
         headers: { authorization: `Bearer ${authorToken}` },
         payload: draftPayload,
       });
@@ -413,7 +415,7 @@ describe('L02 Explanations, Audio Transcript Licensing & Moderation (EXPL-01..13
     it('tạo bản nháp giải thích cho câu hỏi bài nghe bị hạn chế transcript', async () => {
       const res = await app.inject({
         method: 'POST',
-        url: '/explanations',
+        url: '/admin/explanations',
         headers: { authorization: `Bearer ${authorToken}` },
         payload: {
           questionId: questionRestrictedAudioId,
@@ -427,6 +429,48 @@ describe('L02 Explanations, Audio Transcript Licensing & Moderation (EXPL-01..13
       explanationRestrictedId = JSON.parse(res.body).id;
     });
 
+    it('từ chối 403 khi học viên cố gắng truy cập admin/explanations hoặc admin/explanations/:id (P0 fix)', async () => {
+      const listRes = await app.inject({
+        method: 'GET',
+        url: '/admin/explanations',
+        headers: { authorization: `Bearer ${learnerToken}` },
+      });
+      expect(listRes.statusCode).toBe(403);
+
+      const getRes = await app.inject({
+        method: 'GET',
+        url: `/admin/explanations/${explanationAllowedId}`,
+        headers: { authorization: `Bearer ${learnerToken}` },
+      });
+      expect(getRes.statusCode).toBe(403);
+    });
+
+    it('kiểm tra tính hợp lệ qua ExplanationDraftSchema khi cập nhật giải thích (P2 fix)', async () => {
+      // Invalid draft update: correctReason with invalid format
+      const invalidRes = await app.inject({
+        method: 'PATCH',
+        url: `/admin/explanations/${explanationAllowedId}`,
+        headers: { authorization: `Bearer ${authorToken}` },
+        payload: {
+          correctReason: 'not a valid rich text structure' as unknown as Record<string, unknown>,
+        },
+      });
+      expect(invalidRes.statusCode).toBe(400);
+
+      // Valid draft update
+      const validRes = await app.inject({
+        method: 'PATCH',
+        url: `/admin/explanations/${explanationAllowedId}`,
+        headers: { authorization: `Bearer ${authorToken}` },
+        payload: {
+          vocabTags: ['チケット (vé)', '先 (trước)', '映画 (phim)'],
+        },
+      });
+      expect(validRes.statusCode).toBe(200);
+      const updated = JSON.parse(validRes.body);
+      expect((updated.content as Record<string, unknown>).vocabTags).toContain('映画 (phim)');
+    });
+
     // =========================================================================
     // 2. Moderation & Separation of Duties (EXPL-13)
     // =========================================================================
@@ -434,7 +478,7 @@ describe('L02 Explanations, Audio Transcript Licensing & Moderation (EXPL-01..13
       it('từ chối 403 SELF_REVIEW_FORBIDDEN khi tác giả cố tình tự duyệt giải thích của chính mình', async () => {
         const res = await app.inject({
           method: 'POST',
-          url: `/explanations/${explanationAllowedId}/reviews`,
+          url: `/admin/explanations/${explanationAllowedId}/reviews`,
           headers: { authorization: `Bearer ${authorToken}` }, // Author attempts to review!
           payload: { decision: 'approved', comments: 'Tự duyệt bài của mình' },
         });
@@ -447,7 +491,7 @@ describe('L02 Explanations, Audio Transcript Licensing & Moderation (EXPL-01..13
       it('người kiểm duyệt khác tác giả (reviewerId != authorId) duyệt thành công giải thích', async () => {
         const res = await app.inject({
           method: 'POST',
-          url: `/explanations/${explanationAllowedId}/reviews`,
+          url: `/admin/explanations/${explanationAllowedId}/reviews`,
           headers: { authorization: `Bearer ${reviewerToken}` }, // Reviewer approves
           payload: { decision: 'approved', comments: 'Giải thích chi tiết, chính xác' },
         });
@@ -459,7 +503,7 @@ describe('L02 Explanations, Audio Transcript Licensing & Moderation (EXPL-01..13
         // Approve second explanation as well
         await app.inject({
           method: 'POST',
-          url: `/explanations/${explanationRestrictedId}/reviews`,
+          url: `/admin/explanations/${explanationRestrictedId}/reviews`,
           headers: { authorization: `Bearer ${reviewerToken}` },
           payload: { decision: 'approved' },
         });
@@ -514,6 +558,142 @@ describe('L02 Explanations, Audio Transcript Licensing & Moderation (EXPL-01..13
         expect(body.correctReason).toBeDefined();
         // Transcript MUST BE NULL due to license restriction!
         expect(body.transcript).toBeNull();
+      });
+
+      it('AUDIO-08: Lược bỏ transcript nếu giấy phép đã bị thu hồi (revokedAt !== null) (P2 fix)', async () => {
+        const client = await getOrCreateDbClient();
+        // Revoke license for Q0
+        await client.db
+          .update(schema.contentLicenses)
+          .set({ revokedAt: new Date() })
+          .where(eq(schema.contentLicenses.id, licAudioAllowedId));
+
+        const res = await app.inject({
+          method: 'GET',
+          url: `/attempts/${practiceAttemptId}/explanations/0`,
+          headers: { authorization: `Bearer ${learnerToken}` },
+        });
+
+        expect(res.statusCode).toBe(200);
+        const body = JSON.parse(res.body);
+        expect(body.hasExplanation).toBe(true);
+        expect(body.transcript).toBeNull();
+
+        // Restore license for other tests
+        await client.db
+          .update(schema.contentLicenses)
+          .set({ revokedAt: null })
+          .where(eq(schema.contentLicenses.id, licAudioAllowedId));
+      });
+    });
+
+    // =========================================================================
+    // Real Exam Embargo on Explanations (P1 fix)
+    // =========================================================================
+    describe('Real Exam Embargo on Explanations (P1 fix)', () => {
+      let realLearnerId: string;
+      let realLearnerToken: string;
+      let realAttemptId: string;
+      let realLease: string;
+
+      beforeAll(async () => {
+        const client = await getOrCreateDbClient();
+        realLearnerId = generateUuidV7();
+        realLearnerToken = 'tok_real_learner_' + Date.now();
+        await client.db.insert(schema.users).values({
+          id: realLearnerId,
+          email: `real_learner_${Date.now()}@example.com`,
+          role: 'student',
+          emailVerified: true,
+          locale: 'vi',
+        });
+        await client.db.insert(schema.sessions).values({
+          id: generateUuidV7(),
+          userId: realLearnerId,
+          token: realLearnerToken,
+          expiresAt: new Date(Date.now() + 86400000),
+        });
+      });
+
+      it('từ chối 409 RESULTS_EMBARGOED khi bài thi thật chưa nộp (status != submitted)', async () => {
+        const startRes = await app.inject({
+          method: 'POST',
+          url: '/attempts',
+          headers: { authorization: `Bearer ${realLearnerToken}` },
+          payload: { examId, mode: 'real' },
+        });
+        expect(startRes.statusCode).toBe(201);
+        const startBody = JSON.parse(startRes.body);
+        realAttemptId = startBody.attemptId;
+        realLease = startBody.lease;
+
+        const res = await app.inject({
+          method: 'GET',
+          url: `/attempts/${realAttemptId}/explanations/0`,
+          headers: { authorization: `Bearer ${realLearnerToken}` },
+        });
+
+        expect(res.statusCode).toBe(409);
+        const body = JSON.parse(res.body);
+        expect(body.error?.code ?? body.code).toBe('RESULTS_EMBARGOED');
+      });
+
+      it('từ chối 409 RESULTS_EMBARGOED khi bài thi thuộc sự kiện đang trong thời gian embargo kết quả', async () => {
+        const client = await getOrCreateDbClient();
+        const eventId = generateUuidV7();
+        await client.db.insert(schema.examEvents).values({
+          id: eventId,
+          title: 'Kỳ thi thử trực tuyến 2026',
+          level: 'N4',
+          opensAt: new Date(Date.now() - 3600000),
+          startsAt: new Date(Date.now() - 1800000),
+          endsAt: new Date(Date.now() + 1800000),
+          resultReleaseAt: new Date(Date.now() + 86400000), // Embargo 24h
+          capacity: 100,
+        });
+        await client.db.insert(schema.eventAttempts).values({
+          id: generateUuidV7(),
+          eventId,
+          attemptId: realAttemptId,
+          userId: realLearnerId,
+        });
+
+        // Submit the real attempt
+        await app.inject({
+          method: 'POST',
+          url: `/attempts/${realAttemptId}/sections/next`,
+          headers: { authorization: `Bearer ${realLearnerToken}` },
+          payload: { lease: realLease },
+        });
+        await app.inject({
+          method: 'PUT',
+          url: `/attempts/${realAttemptId}/sheet`,
+          headers: { authorization: `Bearer ${realLearnerToken}` },
+          payload: {
+            lease: realLease,
+            seq: 1,
+            answers: [3, 1],
+            flags: [0, 0],
+            changes: [],
+          },
+        });
+        await app.inject({
+          method: 'POST',
+          url: `/attempts/${realAttemptId}/submit`,
+          headers: { authorization: `Bearer ${realLearnerToken}` },
+          payload: { lease: realLease, autoSubmitted: false },
+        });
+
+        // Attempt is submitted, but event embargo is active!
+        const res = await app.inject({
+          method: 'GET',
+          url: `/attempts/${realAttemptId}/explanations/0`,
+          headers: { authorization: `Bearer ${realLearnerToken}` },
+        });
+
+        expect(res.statusCode).toBe(409);
+        const body = JSON.parse(res.body);
+        expect(body.error?.code ?? body.code).toBe('RESULTS_EMBARGOED');
       });
     });
 

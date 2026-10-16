@@ -220,13 +220,23 @@ export class NotificationService {
    * Determines if a given date/time falls within user's quiet hours for their timezone.
    */
   isInQuietHours(now: Date, quietHours: QuietHours, timezone: string): boolean {
-    // Format hour and minute in user's timezone
-    const formatter = new Intl.DateTimeFormat('en-US', {
-      timeZone: timezone,
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: false,
-    });
+    // Format hour and minute in user's timezone, with fallback for invalid timezone
+    let formatter: Intl.DateTimeFormat;
+    try {
+      formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false,
+      });
+    } catch {
+      formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false,
+      });
+    }
 
     const parts = formatter.formatToParts(now);
     const hourPart = parts.find((p) => p.type === 'hour')?.value ?? '0';

@@ -204,6 +204,17 @@ describe('L02 Notification Preferences, Quiet Hours & Idempotent Delivery (NOTI-
       expect(result.delivered).toBe(true);
       expect(emailService.getSentEmails().length).toBe(1);
     });
+
+    it('không gây sập RangeError khi timezone không hợp lệ và fallback an toàn (P2 fix)', () => {
+      const now = new Date('2026-10-16T14:30:00.000Z');
+      const quietHours = { start: '22:00', end: '07:00' };
+
+      // Passing an invalid timezone string must not throw RangeError
+      expect(() => {
+        const inQuiet = notiService.isInQuietHours(now, quietHours, 'Invalid/Timezone_Name');
+        expect(typeof inQuiet).toBe('boolean');
+      }).not.toThrow();
+    });
   });
 
   // ===========================================================================
