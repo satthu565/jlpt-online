@@ -49,7 +49,7 @@ export class ExamController {
   }
 
   @Post('admin/exams/:id/publish')
-  @Roles('admin', 'editor', 'reviewer')
+  @Roles('admin')
   async publishExam(
     @Param('id') id: string,
     @CurrentUser() user: { id?: string; userId?: string },
@@ -59,7 +59,7 @@ export class ExamController {
   }
 
   @Post('admin/exams/:id/unpublish')
-  @Roles('admin', 'editor', 'reviewer')
+  @Roles('admin')
   async unpublishExam(
     @Param('id') id: string,
     @Body('reason') reason: string,

@@ -321,20 +321,50 @@ export class ImportService {
           })
           .onConflictDoNothing();
 
+        const audioMediaKey = group.mediaKeys?.find((k: string) => k.endsWith('.wav') || k.endsWith('.mp3'));
+        const audioAsset = pkg.media.find(
+          (m: { path: string; sha256: string }) => m.path === audioMediaKey || group.mediaKeys?.includes(m.path),
+        );
+        const audioSha256 = audioAsset?.sha256 || null;
+
         await tx
           .insert(schema.questionGroupVersions)
           .values({
             groupId,
             version: 1,
             passage: (group.passage || []) as unknown,
-            audioSha256: null,
+            audioSha256,
             status: 'draft',
             createdAt: now,
           })
           .onConflictDoNothing();
 
-        // Record editor for separation of duties
+        // Record editor for separation of duties in-memory and persistent DB
         this.reviewService.recordEditor('group_version', groupId, 1, uploadedByUserId);
+
+        await tx
+          .insert(schema.importArtifacts)
+          .values({
+            id: generateUuidV7(),
+            jobId,
+            artifactType: 'group',
+            storageKey: groupId,
+            createdAt: now,
+          });
+
+        if (Array.isArray(group.mediaKeys)) {
+          for (const mk of group.mediaKeys) {
+            await tx
+              .insert(schema.importArtifacts)
+              .values({
+                id: generateUuidV7(),
+                jobId,
+                artifactType: 'group_media',
+                storageKey: `${groupId}:${mk}`,
+                createdAt: now,
+              });
+          }
+        }
 
         for (const q of group.questions) {
           const questionId = toDeterministicUuid(`${pkg.packageId}:q:${q.id || q.number}`);
@@ -364,6 +394,16 @@ export class ImportService {
             .onConflictDoNothing();
 
           this.reviewService.recordEditor('question_version', questionId, 1, uploadedByUserId);
+
+          await tx
+            .insert(schema.importArtifacts)
+            .values({
+              id: generateUuidV7(),
+              jobId,
+              artifactType: 'question',
+              storageKey: questionId,
+              createdAt: now,
+            });
 
           // Options
           for (const opt of q.options) {
@@ -413,6 +453,16 @@ export class ImportService {
           updatedAt: now,
         })
         .onConflictDoNothing();
+
+      await tx
+        .insert(schema.importArtifacts)
+        .values({
+          id: generateUuidV7(),
+          jobId,
+          artifactType: 'exam',
+          storageKey: examId,
+          createdAt: now,
+        });
 
       // Exam sections and items
       let sIdx = 0;

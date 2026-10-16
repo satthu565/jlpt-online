@@ -3,11 +3,19 @@ import {
   Controller,
   Param,
   Post,
+  UsePipes,
 } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe.js';
 import { ReviewService } from './review.service.js';
-import type { ReviewDecisionDto, ReviewTargetType, SubmitReviewDto } from './review.types.js';
+import {
+  ReviewDecisionSchema,
+  ReviewParamsSchema,
+  SubmitReviewSchema,
+  type ReviewDecisionDto,
+  type SubmitReviewDto,
+} from './review.types.js';
 
 @Controller('admin/reviews')
 @Roles('admin', 'editor', 'reviewer')
@@ -15,33 +23,41 @@ export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
   @Post('submit')
+  @UsePipes(new ZodValidationPipe(SubmitReviewSchema))
   async submitForReview(
     @Body() dto: SubmitReviewDto,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: { id?: string; userId?: string },
   ) {
+    const userId = user.userId || user.id || '';
     return this.reviewService.submitForReview(
       dto.targetType,
       dto.targetId,
       dto.targetVersion,
-      user.id,
+      userId,
     );
   }
 
   @Post(':targetType/:targetId/v:version/decision')
   async reviewDecision(
-    @Param('targetType') targetType: ReviewTargetType,
+    @Param('targetType') targetType: string,
     @Param('targetId') targetId: string,
     @Param('version') versionStr: string,
-    @Body() dto: ReviewDecisionDto,
-    @CurrentUser() user: { id: string },
+    @Body(new ZodValidationPipe(ReviewDecisionSchema)) dto: ReviewDecisionDto,
+    @CurrentUser() user: { id?: string; userId?: string },
   ) {
-    const version = parseInt(versionStr, 10);
-    return this.reviewService.reviewDecision(
+    const validatedParams = ReviewParamsSchema.parse({
       targetType,
       targetId,
-      version,
+      version: versionStr,
+    });
+
+    const userId = user.userId || user.id || '';
+    return this.reviewService.reviewDecision(
+      validatedParams.targetType,
+      validatedParams.targetId,
+      validatedParams.version,
       dto,
-      user.id,
+      userId,
     );
   }
 }

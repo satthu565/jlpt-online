@@ -359,5 +359,87 @@ describe('B01 Exam Module - Review Workflow, Publishing & Zero Answer Leaks', ()
       expect(detail.totalQuestions).toBe(29);
       expect(detail.publishedVersion).toBe(1);
     });
+
+    it('collects media keys and audioSha256 into examManifest.media and publicGroups.media', async () => {
+      const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
+      const zipBuffer = fs.readFileSync(zipPath);
+      await importService.processPackageImport(zipBuffer, 'demo-n5-1.zip', editorUserId);
+
+      const examRows = await dbClient.db
+        .select()
+        .from(schema.exams)
+        .where(eq(schema.exams.slug, 'demo-n5-1'));
+      const examId = examRows[0]!.id;
+
+      await reviewService.approveAllExamQuestions(examId, reviewerUserId, editorUserId);
+      const publishResult = await examService.publishExam(examId, publisherUserId);
+
+      // Verify exam manifest media
+      const manifestObj = await storageService.get(publishResult.manifestKey);
+      expect(manifestObj).not.toBeNull();
+      const manifest = JSON.parse(manifestObj!.data.toString('utf8'));
+      expect(Array.isArray(manifest.media)).toBe(true);
+      expect(manifest.media.length).toBeGreaterThan(0);
+      expect(manifest.media.some((m: string) => m.endsWith('.wav'))).toBe(true);
+
+      // Verify public groups media in snapshot
+      const snapshotObj = await storageService.get(publishResult.snapshotKey);
+      expect(snapshotObj).not.toBeNull();
+      const snapshot = JSON.parse(snapshotObj!.data.toString('utf8'));
+      const listeningSec = snapshot.sections.find((s: { code: string }) => s.code === 'listening');
+      expect(listeningSec).toBeDefined();
+      const groupsWithMedia = listeningSec.groups.filter((g: { media: string[] }) => g.media.length > 0);
+      expect(groupsWithMedia.length).toBeGreaterThan(0);
+    });
+
+    it('persists lastEditorId across in-memory cache wipes / server restart and prevents self-approval', async () => {
+      const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
+      const zipBuffer = fs.readFileSync(zipPath);
+      await importService.processPackageImport(zipBuffer, 'demo-n5-1.zip', editorUserId);
+
+      const groups = await dbClient.db.select().from(schema.questionGroups);
+      const testGroupId = groups[0]!.id;
+
+      // Simulate process restart by creating a fresh ReviewService instance with empty in-memory cache
+      const freshReviewService = new ReviewService(dbClient, outboxService);
+
+      // Verify getLastEditor retrieves editorUserId from database (content_reviews / import_artifacts)
+      const restoredEditor = await freshReviewService.getLastEditor('group_version', testGroupId, 1);
+      expect(restoredEditor).toBe(editorUserId);
+
+      // Verify self-approval is strictly forbidden even after cache wipe
+      await expect(
+        freshReviewService.reviewDecision(
+          'group_version',
+          testGroupId,
+          1,
+          { decision: 'approved', comments: 'Tự duyệt sau khi xóa bộ nhớ đệm' },
+          editorUserId,
+        ),
+      ).rejects.toThrow(/Người duyệt không được là người sửa cuối cùng/);
+
+      // Verify distinct reviewer can approve successfully
+      const approved = await freshReviewService.reviewDecision(
+        'group_version',
+        testGroupId,
+        1,
+        { decision: 'approved', comments: 'Duyệt hợp lệ sau khi khởi động lại' },
+        reviewerUserId,
+      );
+      expect(approved.status).toBe('approved');
+    });
+
+    it('strictly rejects review decision with BadRequestException when lastEditorId is completely unknown', async () => {
+      const unknownTargetId = '0192f000-0000-7000-8000-000000000099';
+      await expect(
+        reviewService.reviewDecision(
+          'group_version',
+          unknownTargetId,
+          1,
+          { decision: 'approved' },
+          reviewerUserId,
+        ),
+      ).rejects.toThrow(/Không thể xác định người biên tập/);
+    });
   });
 });

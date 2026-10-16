@@ -26,10 +26,36 @@ export async function runDemoSeed(
   client?: DbClientInstance,
   options?: { storageService?: StorageService },
 ): Promise<DemoSeedResult> {
-  const dbClient = client ?? (await createDbClient());
+  let dbClient = client;
   let closeOnExit = false;
-  if (!client) {
+
+  if (!dbClient) {
     closeOnExit = true;
+    if (process.env.PGLITE_DATA_DIR) {
+      console.log(`ℹ demo:seed sử dụng thư mục dữ liệu PGlite: ${process.env.PGLITE_DATA_DIR}`);
+      const { PGlite } = await import('@electric-sql/pglite');
+      const { drizzle } = await import('drizzle-orm/pglite');
+      const pglite = new PGlite(process.env.PGLITE_DATA_DIR);
+      const db = drizzle(pglite, { schema });
+      dbClient = {
+        db,
+        rawClient: pglite,
+        type: 'pglite',
+        close: async () => {
+          await pglite.close();
+        },
+        query: async (sqlQuery: string) => pglite.query(sqlQuery),
+      };
+    } else {
+      if (!process.env.DATABASE_URL) {
+        console.warn(
+          '⚠️ CẢNH BÁO: Chưa cấu hình DATABASE_URL hoặc PGLITE_DATA_DIR. demo:seed đang chạy với PGlite in-memory; ' +
+            'dữ liệu sẽ giải phóng khi tiến trình CLI kết thúc. Để kiểm tra tính idempotent qua các lần chạy CLI kế tiếp, ' +
+            'vui lòng thiết lập biến môi trường DATABASE_URL hoặc PGLITE_DATA_DIR.',
+        );
+      }
+      dbClient = await createDbClient();
+    }
   }
 
   try {
@@ -37,6 +63,9 @@ export async function runDemoSeed(
     await runMigrations(dbClient);
 
     // 2. Initialize domain services
+    if (!options?.storageService && !process.env.STORAGE_LOCAL_ROOT) {
+      process.env.STORAGE_LOCAL_ROOT = resolveRepoPath('node_modules/.cache/storage');
+    }
     const storageService = options?.storageService ?? new StorageService();
     const mediaService = new MediaService(dbClient, storageService);
     const outboxService = new OutboxService(dbClient);

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -37,7 +38,7 @@ export class ReviewService {
     const cached = this.targetLastEditors.get(key);
     if (cached) return cached;
 
-    // Search persistent content_reviews journal for prior recorded editor
+    // 1. Search persistent content_reviews journal for prior recorded editor (draft or earlier review)
     const logs = await this.dbClient.db
       .select()
       .from(schema.contentReviews)
@@ -54,6 +55,85 @@ export class ReviewService {
     if (logs.length > 0 && logs[0]?.lastEditorId) {
       this.targetLastEditors.set(key, logs[0].lastEditorId);
       return logs[0].lastEditorId;
+    }
+
+    // 2. Search persistent import_artifacts joined with import_jobs for direct origin
+    const artifactType =
+      targetType === 'group_version'
+        ? 'group'
+        : targetType === 'question_version'
+          ? 'question'
+          : 'exam';
+
+    const artifactRows = await this.dbClient.db
+      .select({
+        uploadedBy: schema.importJobs.uploadedBy,
+      })
+      .from(schema.importArtifacts)
+      .innerJoin(schema.importJobs, eq(schema.importArtifacts.jobId, schema.importJobs.id))
+      .where(
+        and(
+          eq(schema.importArtifacts.artifactType, artifactType),
+          eq(schema.importArtifacts.storageKey, targetId),
+        ),
+      )
+      .orderBy(desc(schema.importJobs.createdAt))
+      .limit(1);
+
+    if (artifactRows.length > 0 && artifactRows[0]?.uploadedBy) {
+      this.targetLastEditors.set(key, artifactRows[0].uploadedBy);
+      return artifactRows[0].uploadedBy;
+    }
+
+    // 3. Fallback for question_version: resolve parent group's editor
+    if (targetType === 'question_version') {
+      const q = await this.dbClient.db
+        .select()
+        .from(schema.questions)
+        .where(eq(schema.questions.id, targetId))
+        .limit(1);
+
+      if (q[0]?.groupId) {
+        const groupEditor = await this.getLastEditor('group_version', q[0].groupId, version);
+        if (groupEditor) {
+          this.targetLastEditors.set(key, groupEditor);
+          return groupEditor;
+        }
+      }
+    }
+
+    // 4. Fallback for group_version: find import job linked to this group's source (filter by source slug, NO global limit 1)
+    if (targetType === 'group_version') {
+      const grp = await this.dbClient.db
+        .select()
+        .from(schema.questionGroups)
+        .where(eq(schema.questionGroups.id, targetId))
+        .limit(1);
+
+      if (grp[0]?.sourceId) {
+        const src = await this.dbClient.db
+          .select()
+          .from(schema.examSources)
+          .where(eq(schema.examSources.id, grp[0].sourceId))
+          .limit(1);
+
+        if (src[0]?.slug) {
+          const jobs = await this.dbClient.db.select().from(schema.importJobs);
+          const matchingJob = jobs.find((j: typeof schema.importJobs.$inferSelect) => {
+            const errLog = j.errorLog as Record<string, unknown> | null;
+            return (
+              errLog &&
+              (errLog['packageId'] === src[0]!.slug ||
+                errLog['examSlug'] === src[0]!.slug ||
+                j.fileName.includes(src[0]!.slug))
+            );
+          });
+          if (matchingJob?.uploadedBy) {
+            this.targetLastEditors.set(key, matchingJob.uploadedBy);
+            return matchingJob.uploadedBy;
+          }
+        }
+      }
     }
 
     return null;
@@ -103,6 +183,8 @@ export class ReviewService {
         .where(eq(schema.questions.groupId, targetId));
 
       for (const q of qRows) {
+        this.recordEditor('question_version', q.id, version, editorId);
+
         await this.dbClient.db
           .update(schema.questionVersions)
           .set({ status: 'in_review' })
@@ -140,40 +222,20 @@ export class ReviewService {
     tx?: DbTx,
   ): Promise<{ id: string; status: string; reviewedAt: Date }> {
     // 1. Check editor != reviewer
-    let lastEditorId = await this.getLastEditor(targetType, targetId, version);
+    const lastEditorId = await this.getLastEditor(targetType, targetId, version);
 
-    // If still not found, check if questions belong to an import job or question creator
+    // If lastEditorId cannot be determined, strictly reject to preserve 4-eyes integrity
     if (!lastEditorId) {
-      if (targetType === 'group_version') {
-        const grp = await this.dbClient.db
-          .select()
-          .from(schema.questionGroups)
-          .where(eq(schema.questionGroups.id, targetId))
-          .limit(1);
-        if (grp[0]?.sourceId) {
-          // Check import jobs by source
-          const jobs = await this.dbClient.db
-            .select()
-            .from(schema.importJobs)
-            .orderBy(desc(schema.importJobs.createdAt))
-            .limit(1);
-          if (jobs[0]?.uploadedBy) {
-            lastEditorId = jobs[0].uploadedBy;
-          }
-        }
-      }
-    }
-
-    if (lastEditorId && lastEditorId === reviewerId) {
-      throw new ForbiddenException(
-        'Người duyệt không được là người sửa cuối cùng của nội dung này (tách biệt vai trò editor!=reviewer - Acceptance 3)',
+      throw new BadRequestException(
+        'Không thể xác định người biên tập (lastEditorId) của nội dung này; không thể kiểm duyệt (bảo đảm nguyên tắc 4-eyes)',
       );
     }
 
-    // Default lastEditorId if none found (fallback to a distinct placeholder or fail-safe)
-    const effectiveEditorId = lastEditorId || reviewerId;
+    // Strictly enforce 4-eyes separation of duties: editor != reviewer
     if (lastEditorId === reviewerId) {
-      throw new ForbiddenException('Editor và Reviewer không được là cùng một người');
+      throw new ForbiddenException(
+        'Người duyệt không được là người sửa cuối cùng của nội dung này (tách biệt vai trò editor!=reviewer - Acceptance 3)',
+      );
     }
 
     const reviewId = generateUuidV7();
@@ -187,7 +249,7 @@ export class ReviewService {
         targetId,
         targetVersion: version,
         reviewerId,
-        lastEditorId: effectiveEditorId,
+        lastEditorId,
         status: decisionDto.decision,
         comments: decisionDto.comments || null,
         reviewedAt: now,

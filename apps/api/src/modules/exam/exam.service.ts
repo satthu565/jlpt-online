@@ -367,6 +367,69 @@ export class ExamService {
           .orderBy(desc(schema.questionGroupVersions.version))
           .limit(1);
 
+        const groupMediaSet = new Set<string>();
+
+        if (gvRow[0]?.audioSha256) {
+          groupMediaSet.add(gvRow[0].audioSha256);
+          mediaSet.add(gvRow[0].audioSha256);
+
+          const assetRow = await this.dbClient.db
+            .select()
+            .from(schema.mediaAssets)
+            .where(eq(schema.mediaAssets.sha256, gvRow[0].audioSha256))
+            .limit(1);
+          if (assetRow[0]?.key) {
+            groupMediaSet.add(assetRow[0].key);
+            mediaSet.add(assetRow[0].key);
+          }
+        }
+
+        const groupMediaArtifacts = await this.dbClient.db
+          .select()
+          .from(schema.importArtifacts)
+          .where(eq(schema.importArtifacts.artifactType, 'group_media'));
+        for (const art of groupMediaArtifacts) {
+          if (art.storageKey.startsWith(`${gid}:`)) {
+            const mKey = art.storageKey.slice(gid.length + 1);
+            groupMediaSet.add(mKey);
+            mediaSet.add(mKey);
+          }
+        }
+
+        const extractMediaFromRichText = (richText?: unknown) => {
+          if (!Array.isArray(richText)) return;
+          for (const seg of richText) {
+            if (seg && typeof seg === 'object') {
+              const segObj = seg as Record<string, unknown>;
+              if (segObj['t'] === 'image' && typeof segObj['mediaKey'] === 'string' && segObj['mediaKey']) {
+                groupMediaSet.add(segObj['mediaKey']);
+                mediaSet.add(segObj['mediaKey']);
+              }
+            }
+          }
+        };
+
+        const passageBlocks = (gvRow[0]?.passage as unknown as RichBlock[]) || null;
+        if (Array.isArray(passageBlocks)) {
+          for (const block of passageBlocks) {
+            if (!block || typeof block !== 'object') continue;
+            if (block.type === 'image' && typeof block.mediaKey === 'string' && block.mediaKey) {
+              groupMediaSet.add(block.mediaKey);
+              mediaSet.add(block.mediaKey);
+            } else if (block.type === 'paragraph' && Array.isArray(block.content)) {
+              extractMediaFromRichText(block.content);
+            } else if (block.type === 'table' && Array.isArray(block.rows)) {
+              for (const row of block.rows) {
+                if (Array.isArray(row)) {
+                  for (const cell of row) {
+                    extractMediaFromRichText(cell);
+                  }
+                }
+              }
+            }
+          }
+        }
+
         const groupQuestions: PublicQuestion[] = [];
 
         for (const qid of qIds) {
@@ -378,6 +441,9 @@ export class ExamService {
             .orderBy(desc(schema.questionVersions.version))
             .limit(1);
 
+          // Extract media from stem
+          extractMediaFromRichText(qvRow[0]?.stem);
+
           const optRows = await this.dbClient.db
             .select()
             .from(schema.answerOptions)
@@ -388,6 +454,11 @@ export class ExamService {
               ),
             )
             .orderBy(schema.answerOptions.orderIndex);
+
+          // Extract media from option contents
+          for (const opt of optRows) {
+            extractMediaFromRichText(opt.content);
+          }
 
           // Get correct answer for answer key
           const correctRow = await this.dbClient.db
@@ -425,8 +496,8 @@ export class ExamService {
           groupId: gid,
           mondaiType: (firstQ?.mondaiType as MondaiType) || 'kanji_reading',
           instructions: [],
-          passage: (gvRow[0]?.passage as unknown as RichBlock[]) || null,
-          media: [],
+          passage: passageBlocks,
+          media: Array.from(groupMediaSet),
           questions: groupQuestions,
         });
       }
