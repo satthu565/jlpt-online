@@ -327,52 +327,94 @@ describe('Coordinator Pause/Checkpoint/Resume Drill & Audit (L06 Acceptance 3)',
   describe('2. Kiểm chứng hồ sơ bằng chứng diễn tập từ Coordinator (docs/release/coordinator-drill-evidence.md)', () => {
     const evidencePath = path.resolve(__dirname, '../../../docs/release/coordinator-drill-evidence.md');
 
-    it('xác nhận file bằng chứng do người vận hành xuất tồn tại và đọc được', () => {
+    it('xác nhận file bằng chứng do người vận hành xuất tồn tại và có tiêu đề đúng chuẩn', () => {
       expect(fs.existsSync(evidencePath)).toBe(true);
       const content = fs.readFileSync(evidencePath, 'utf8');
-      expect(content.length).toBeGreaterThan(500);
+      expect(content).toContain('# Bằng chứng diễn tập pause / checkpoint / resume của coordinator');
+      expect(content).toContain('cơ sở dữ liệu của coordinator');
+      expect(content).toContain('coordinator.sqlite');
     });
 
-    it('xác nhận đầy đủ bằng chứng diễn tập checkpoint/resume của các task thật (V03, N06, A03, V01, L06)', () => {
+    it('kiểm chứng các số liệu tổng hợp: 39 phiên ngắt, 16 task, 140 checkpoint và 16/16 hoàn thành không mất patch', () => {
       const content = fs.readFileSync(evidencePath, 'utf8');
 
-      // Verify mention of all real tasks
-      expect(content).toContain('V03');
-      expect(content).toContain('N06');
-      expect(content).toContain('A03');
-      expect(content).toContain('V01');
-      expect(content).toContain('L06');
-
-      // Verify Conventional Commit pattern for checkpoints
-      expect(content).toContain('chore(checkpoint):');
-      expect(content).toMatch(/chore\(checkpoint\): [A-Z0-9]+/);
-
-      // Verify merge PR references
-      expect(content).toContain('feat(V03)');
-      expect(content).toContain('feat(N06)');
-      expect(content).toContain('feat(A03)');
-      expect(content).toContain('feat(V01)');
+      // Summary metrics from operator audit
+      expect(content).toMatch(/Phiên bị ngắt vì coordinator tắt \(sự kiện `interrupted`\):\s*\*\*39\*\*/);
+      expect(content).toMatch(/trên\s*\*\*16\*\*\s*task/);
+      expect(content).toMatch(/Lần tạm dừng\/tiếp tục toàn bộ \(`pause`\/`resume`\):\s*\*\*16\*\*/);
+      expect(content).toMatch(/Checkpoint đã ghi[^:]*:\s*\*\*140\*\*/);
+      expect(content).toMatch(/\*\*20\*\*\s*checkpoint giữ thay đổi \*\*chưa commit\*\*/);
+      expect(content).toMatch(/Kết quả:\s*\*\*16\/16\*\*\s*task từng bị ngắt sau đó đã hoàn thành và merge qua PR/);
+      expect(content).toContain('không patch nào bị mất');
     });
 
-    it('xác thực tiêu chí Zero Patch Loss và đối chiếu mã băm SHA256 byte-for-byte', () => {
+    it('kiểm tra cấu trúc và tính toàn vẹn của bảng 16 task bị ngắt: 100% DONE và đủ số PR hợp lệ', () => {
       const content = fs.readFileSync(evidencePath, 'utf8');
 
-      // Verify zero patch loss criteria
-      expect(content).toMatch(/Zero Patch Loss/i);
-      expect(content).toContain('SHA256');
-      expect(content).toContain('100% Khớp');
-      expect(content).toMatch(/0% \(Zero patch loss\)/);
+      // Parse markdown table rows: | Task | Số lần bị ngắt | Kết quả | PR |
+      const rowRegex = /\|\s*([A-Z0-9]+)\s*\|\s*(\d+)\s*\|\s*([A-Z]+)\s*\|\s*(#[0-9]+)\s*\|/g;
+      const rows: Array<{ task: string; count: number; status: string; pr: string }> = [];
 
-      // Verify schema and coordinator architecture description without querying coordinator state
-      expect(content).toContain('CREATE TABLE IF NOT EXISTS checkpoints');
-      expect(content).toContain('commitLeftovers');
-      expect(content).toContain('prepareBranch');
+      let match: RegExpExecArray | null;
+      while ((match = rowRegex.exec(content)) !== null) {
+        rows.push({
+          task: match[1]!,
+          count: parseInt(match[2]!, 10),
+          status: match[3]!,
+          pr: match[4]!,
+        });
+      }
+
+      // Exactly 16 tasks tracked
+      expect(rows).toHaveLength(16);
+
+      // Verify task list
+      const expectedTasks = [
+        'A01', 'A02', 'A03', 'A04', 'A05', 'B01', 'C04', 'C06',
+        'L02', 'L04', 'L05', 'N02', 'N04', 'N05', 'N06', 'V03',
+      ];
+      expect(rows.map((r) => r.task)).toEqual(expectedTasks);
+
+      // All tasks reached DONE status without patch loss
+      expect(rows.every((r) => r.status === 'DONE')).toBe(true);
+
+      // Sum of interrupted occurrences across tasks must match the summary total of 39
+      const totalInterrupted = rows.reduce((sum, r) => sum + r.count, 0);
+      expect(totalInterrupted).toBe(39);
+
+      // Every task was resolved via a distinct valid pull request
+      const prs = rows.map((r) => r.pr);
+      expect(prs.every((pr) => /^#[0-9]+$/.test(pr))).toBe(true);
+      expect(prs).toContain('#33'); // N06
+      expect(prs).toContain('#38'); // V03
+      expect(prs).toContain('#35'); // A03
+      expect(prs).toContain('#23'); // L05
     });
 
-    it('tuân thủ cách ly quyền hạn: test không truy cập lịch sử git repository hay runtime coordinator', () => {
-      // Acceptance requirement: test của task không đọc lịch sử git hay trạng thái coordinator (worker không truy cập được coordinator)
-      // Confirmed: No execSync('git log ...') or active coordinator process queries are executed here.
-      expect(true).toBe(true);
+    it('kiểm chứng các cơ chế phục hồi và an toàn mã nguồn được xác nhận trong tài liệu', () => {
+      const content = fs.readFileSync(evidencePath, 'utf8');
+
+      // Key recovery mechanics
+      expect(content).toContain('SIGTERM');
+      expect(content).toContain('chore(checkpoint)');
+      expect(content).toContain('NEEDS_WORK');
+      expect(content).toContain('không tăng bộ đếm lần thử');
+      expect(content).toContain('tiếp tục từ checkpoint');
+      expect(content).toContain('coordinator events 500 | grep interrupted');
+    });
+
+    it('tuân thủ cách ly quyền hạn: test kiểm chứng qua file bằng chứng do người vận hành xuất mà không truy cập coordinator.sqlite hay lịch sử git repo dự án', () => {
+      // In accordance with L06 Acceptance 3:
+      // "test của task không đọc lịch sử git hay trạng thái coordinator (worker không truy cập được coordinator)"
+      // 1. Verify coordinator database is not accessible / not located in repo root or test directory
+      const repoDbPath = path.resolve(__dirname, '../../../coordinator.sqlite');
+      expect(fs.existsSync(repoDbPath)).toBe(false);
+
+      // 2. Verify evidence file is an independent markdown document provided by operator
+      expect(fs.existsSync(evidencePath)).toBe(true);
+      const stat = fs.statSync(evidencePath);
+      expect(stat.size).toBeGreaterThan(1000);
+      expect(stat.isFile()).toBe(true);
     });
   });
 });

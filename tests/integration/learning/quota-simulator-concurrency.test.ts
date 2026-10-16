@@ -1,27 +1,18 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { eq, and, sql, isNull } from 'drizzle-orm';
+import { eq, and, isNull } from 'drizzle-orm';
 import { createDbClient, type DbClientInstance } from '../../../apps/api/src/db/client.js';
 import { runMigrations } from '../../../apps/api/src/db/migrate.js';
 import * as schema from '../../../apps/api/src/db/schema.js';
 import { generateUuidV7 } from '../../../apps/api/src/common/utils/uuid.js';
 import { EntitlementService } from '../../../apps/api/src/modules/entitlement/entitlement.service.js';
 import { OutboxService } from '../../../apps/api/src/modules/outbox/outbox.service.js';
-
-class QuotaExceededError extends Error {
-  status: number;
-  constructor(message = 'Token/cost budget exhausted. Please upgrade your plan or wait for the next cycle.') {
-    super(message);
-    this.name = 'QuotaExceededError';
-    this.status = 429;
-  }
-}
-
-type TransactionDb = DbClientInstance['db'];
+import { QuotaSimulatorHelper, QuotaExceededError } from '../../fixtures/quota-simulator.ts';
 
 describe('Account Quota Simulator & Concurrency Limits (L06 Task Card Scope)', () => {
   let dbClient: DbClientInstance;
   let entitlementService: EntitlementService;
   let outboxService: OutboxService;
+  let quotaHelper: QuotaSimulatorHelper;
 
   let freeStudentId: string;
   let premiumStudentId: string;
@@ -32,6 +23,7 @@ describe('Account Quota Simulator & Concurrency Limits (L06 Task Card Scope)', (
 
     outboxService = new OutboxService(dbClient);
     entitlementService = new EntitlementService(dbClient, outboxService);
+    quotaHelper = new QuotaSimulatorHelper(dbClient, outboxService);
 
     // 1. Create Free Student User
     freeStudentId = generateUuidV7();
@@ -153,59 +145,12 @@ describe('Account Quota Simulator & Concurrency Limits (L06 Task Card Scope)', (
       });
     });
 
-    /**
-     * Simulates atomic token reservation under high concurrency using database transaction locking.
-     */
-    async function reserveTokensAtomically(
-      userId: string,
-      tokens: number,
-      budget: number,
-    ): Promise<{ reservationId: string }> {
-      return await dbClient.db.transaction(async (tx: TransactionDb) => {
-        // Query settled ledger tokens
-        const ledgerRows = await tx
-          .select({
-            total: sql<number>`coalesce(sum(${schema.usageLedger.tokensUsed}), 0)::int`,
-          })
-          .from(schema.usageLedger)
-          .where(eq(schema.usageLedger.userId, userId));
 
-        // Query active unsettled reservations
-        const activeResRows = await tx
-          .select({
-            total: sql<number>`coalesce(sum(${schema.usageReservations.estimatedTokens}), 0)::int`,
-          })
-          .from(schema.usageReservations)
-          .where(
-            and(
-              eq(schema.usageReservations.userId, userId),
-              isNull(schema.usageReservations.settledAt),
-            ),
-          );
-
-        const currentUsage =
-          Number(ledgerRows[0]?.total ?? 0) + Number(activeResRows[0]?.total ?? 0);
-
-        if (currentUsage + tokens > budget) {
-          throw new QuotaExceededError();
-        }
-
-        const reservationId = generateUuidV7();
-        await tx.insert(schema.usageReservations).values({
-          id: reservationId,
-          userId,
-          estimatedTokens: tokens,
-          reservedAt: new Date(),
-        });
-
-        return { reservationId };
-      });
-    }
 
     it('gửi đồng thời 10 yêu cầu giữ chỗ (250 tokens/request) với ngân sách 1,000 tokens: đúng 4 thành công, 6 bị chặn 429', async () => {
       const promises = Array.from({ length: 10 }, async () => {
         try {
-          const res = await reserveTokensAtomically(
+          const res = await quotaHelper.reserveTokensAtomically(
             concurrencyUserId,
             TOKENS_PER_REQUEST,
             SIMULATED_USER_BUDGET,
@@ -261,75 +206,20 @@ describe('Account Quota Simulator & Concurrency Limits (L06 Task Card Scope)', (
       expect(activeReservations.length).toBe(4);
       const [res1, res2, res3, res4] = activeReservations;
 
-      // 1. res1 & res2 succeed -> Settle reservation into usageLedger and emit outbox event
+      // 1. res1 & res2 succeed -> Settle reservation into usageLedger and emit outbox event via quotaHelper
       for (const res of [res1!, res2!]) {
-        const requestId = generateUuidV7();
-        await dbClient.db.transaction(async (tx: TransactionDb) => {
-          // Mark reservation settled
-          await tx
-            .update(schema.usageReservations)
-            .set({ settledAt: new Date() })
-            .where(eq(schema.usageReservations.id, res.id));
-
-          // Insert into aiRequests
-          await tx.insert(schema.aiRequests).values({
-            id: requestId,
-            userId: concurrencyUserId,
-            providerId: 'provider_sandbox_sim',
-            taskType: 'explain_question',
-            promptTokens: 100,
-            completionTokens: 150,
-            status: 'completed',
-          });
-
-          // Insert into usageLedger
-          await tx.insert(schema.usageLedger).values({
-            id: generateUuidV7(),
-            userId: concurrencyUserId,
-            aiRequestId: requestId,
-            tokensUsed: res.estimatedTokens,
-            costMicroUsd: 500,
-            recordedAt: new Date(),
-          });
-
-          // Emit outbox event
-          await outboxService.emitEvent(
-            'ai.request.settled',
-            requestId,
-            concurrencyUserId,
-            {
-              requestId,
-              userId: concurrencyUserId,
-              tokensUsed: res.estimatedTokens,
-              costMinor: 1,
-            },
-            tx,
-          );
+        await quotaHelper.settleReservation(concurrencyUserId, res.id, res.estimatedTokens, {
+          providerId: 'provider_sandbox_sim',
+          taskType: 'explain_question',
+          promptTokens: 100,
+          completionTokens: 150,
+          costMicroUsd: 500,
         });
       }
 
-      // 2. res3 & res4 fail (e.g. provider network timeout) -> Refund reservation and emit cancellation
+      // 2. res3 & res4 fail (e.g. provider network timeout) -> Refund reservation and emit cancellation via quotaHelper
       for (const res of [res3!, res4!]) {
-        const requestId = generateUuidV7();
-        await dbClient.db.transaction(async (tx: TransactionDb) => {
-          // Cancel reservation by setting settledAt and estimatedTokens = 0
-          await tx
-            .update(schema.usageReservations)
-            .set({ settledAt: new Date(), estimatedTokens: 0 })
-            .where(eq(schema.usageReservations.id, res.id));
-
-          // Emit cancellation outbox event
-          await outboxService.emitEvent(
-            'ai.request.cancelled',
-            requestId,
-            concurrencyUserId,
-            {
-              requestId,
-              userId: concurrencyUserId,
-            },
-            tx,
-          );
-        });
+        await quotaHelper.cancelReservation(concurrencyUserId, res.id);
       }
 
       // 3. Verify outbox events were recorded
@@ -347,14 +237,14 @@ describe('Account Quota Simulator & Concurrency Limits (L06 Task Card Scope)', (
 
       // 4. Verify that refunded tokens released quota:
       // Now 500 tokens were refunded, so 2 new requests (2 * 250 = 500) must succeed!
-      const nextRequest1 = await reserveTokensAtomically(
+      const nextRequest1 = await quotaHelper.reserveTokensAtomically(
         concurrencyUserId,
         TOKENS_PER_REQUEST,
         SIMULATED_USER_BUDGET,
       );
       expect(nextRequest1.reservationId).toBeDefined();
 
-      const nextRequest2 = await reserveTokensAtomically(
+      const nextRequest2 = await quotaHelper.reserveTokensAtomically(
         concurrencyUserId,
         TOKENS_PER_REQUEST,
         SIMULATED_USER_BUDGET,
@@ -363,7 +253,7 @@ describe('Account Quota Simulator & Concurrency Limits (L06 Task Card Scope)', (
 
       // The 3rd request must be rejected because budget is full again (500 settled + 500 reserved = 1000)
       await expect(
-        reserveTokensAtomically(concurrencyUserId, TOKENS_PER_REQUEST, SIMULATED_USER_BUDGET),
+        quotaHelper.reserveTokensAtomically(concurrencyUserId, TOKENS_PER_REQUEST, SIMULATED_USER_BUDGET),
       ).rejects.toThrow();
     });
   });
