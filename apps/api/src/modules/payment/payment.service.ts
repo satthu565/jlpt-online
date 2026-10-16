@@ -20,10 +20,45 @@ import type {
   PlanDto,
   RefundRequestDto,
   RevenueReportDto,
+  SubscriptionChangeResultDto,
   TransactionItemDto,
   UserSubscriptionDto,
 } from './payment.types.js';
 import type { PaymentTerm } from '@jlpt/schema';
+
+export const ALLOWED_REDIRECT_HOSTS = new Set([
+  'localhost',
+  '127.0.0.1',
+  'jlpt.local',
+  'app.jlpt.local',
+  'jlpt.vn',
+  'app.jlpt.vn',
+]);
+
+export function isValidReturnPath(returnPath: string): boolean {
+  if (!returnPath || typeof returnPath !== 'string') return false;
+  // Relative paths starting with '/' but not '//' (protocol-relative URLs)
+  if (returnPath.startsWith('/') && !returnPath.startsWith('//')) {
+    return true;
+  }
+  try {
+    const url = new URL(returnPath);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      return false;
+    }
+    const hostname = url.hostname.toLowerCase();
+    if (
+      ALLOWED_REDIRECT_HOSTS.has(hostname) ||
+      hostname.endsWith('.jlpt.vn') ||
+      hostname.endsWith('.jlpt.local')
+    ) {
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
 
 export const INITIAL_PLANS: PlanDto[] = [
   {
@@ -277,8 +312,8 @@ export class PaymentService {
     const db = this.dbClient.db;
 
     // Security check: Return path allowlisting to prevent Open Redirect
-    if (!input.returnPath.startsWith('/') && !input.returnPath.startsWith('http://localhost') && !input.returnPath.startsWith('https://')) {
-      throw new BadRequestException('returnPath không hợp lệ.');
+    if (!isValidReturnPath(input.returnPath)) {
+      throw new BadRequestException('returnPath không hợp lệ (vi phạm allowlist chuyển hướng).');
     }
 
     // Find plan and current active version
@@ -520,6 +555,7 @@ export class PaymentService {
               cancelAtPeriodEnd: false,
             });
           } else {
+            const oldPlanId = subRows[0]!.planId;
             await tx
               .update(schema.subscriptions)
               .set({
@@ -530,6 +566,17 @@ export class PaymentService {
                 cancelAtPeriodEnd: false,
               })
               .where(eq(schema.subscriptions.id, subRows[0]!.id));
+
+            if (oldPlanId !== planId) {
+              await tx.insert(schema.subscriptionChanges).values({
+                id: generateUuidV7(),
+                subscriptionId: subRows[0]!.id,
+                changeType: 'upgrade',
+                oldPlanId,
+                newPlanId: planId,
+                effectiveAt: now,
+              });
+            }
           }
 
           // Grant plan entitlements
@@ -776,7 +823,11 @@ export class PaymentService {
     return { renewed: true };
   }
 
-  async changeSubscriptionPlan(userId: string, newPlanId: string): Promise<{ updated: boolean }> {
+  async changeSubscriptionPlan(
+    userId: string,
+    newPlanId: string,
+    returnPath = '/dashboard',
+  ): Promise<SubscriptionChangeResultDto> {
     const db = this.dbClient.db;
     const now = new Date();
 
@@ -795,6 +846,11 @@ export class PaymentService {
       throw new BadRequestException('Bạn chưa có gói đang kích hoạt để đổi gói.');
     }
 
+    const sub = subRows[0]!;
+    if (sub.planId === newPlanId) {
+      throw new BadRequestException('Bạn đang sử dụng gói này.');
+    }
+
     const newPlanRows = await db
       .select()
       .from(schema.plans)
@@ -805,9 +861,63 @@ export class PaymentService {
       throw new BadRequestException(`Gói ${newPlanId} không hợp lệ.`);
     }
 
-    const sub = subRows[0]!;
-    const oldPlanId = sub.planId;
+    const newPlan = newPlanRows[0]!;
 
+    const oldPlanRows = await db
+      .select()
+      .from(schema.plans)
+      .where(eq(schema.plans.id, sub.planId))
+      .limit(1);
+
+    const oldPlan = oldPlanRows[0] ?? { price: 0, currency: 'VND' };
+
+    // Calculate proration fee
+    const totalPeriodMs = Math.max(1, sub.currentPeriodEnd.getTime() - sub.currentPeriodStart.getTime());
+    const remainingMs = Math.max(0, sub.currentPeriodEnd.getTime() - now.getTime());
+    const fractionRemaining = remainingMs / totalPeriodMs;
+    const unusedOldAmount = Math.round(oldPlan.price * fractionRemaining);
+    const prorationFee = Math.max(0, newPlan.price - unusedOldAmount);
+
+    if (prorationFee > 0) {
+      // Create checkout session / order for the proration fee
+      const orderId = generateUuidV7();
+      await db.insert(schema.orders).values({
+        id: orderId,
+        userId,
+        totalAmount: prorationFee,
+        currency: newPlan.currency,
+        status: 'created',
+        createdAt: now,
+      });
+
+      await db.insert(schema.orderLines).values({
+        id: generateUuidV7(),
+        orderId,
+        planId: newPlan.id,
+        amount: prorationFee,
+      });
+
+      const provider = this.providerRegistry.getProvider('payos');
+      const session = await provider?.createCheckoutSession({
+        orderId,
+        amountMinor: prorationFee,
+        currency: newPlan.currency,
+        description: `Nâng cấp gói lên ${newPlan.name}`,
+        returnUrl: `http://localhost:3000${returnPath}?upgradeOrderId=${orderId}`,
+        cancelUrl: `http://localhost:3000${returnPath}?upgradeCancelled=1`,
+      });
+
+      return {
+        updated: false,
+        requiresPayment: true,
+        orderId,
+        checkoutUrl: session?.checkoutUrl,
+        prorationMinor: prorationFee,
+      };
+    }
+
+    // If no additional cost (same price or downgrade), update plan immediately
+    const oldPlanId = sub.planId;
     await db.transaction(async (tx: typeof db) => {
       await tx
         .update(schema.subscriptions)
@@ -825,6 +935,13 @@ export class PaymentService {
         newPlanId,
         effectiveAt: now,
       });
+
+      await this.entitlementService.grantPlanEntitlements(
+        userId,
+        newPlanId,
+        sub.currentPeriodEnd,
+        tx,
+      );
 
       if (this.outboxService) {
         await this.outboxService.emitEvent(
@@ -914,7 +1031,7 @@ export class PaymentService {
       throw new BadRequestException('Chỉ có thể yêu cầu hoàn tiền cho đơn hàng đã thanh toán thành công.');
     }
 
-    // Check prior refunds
+    // Check prior refunds (including pending requested)
     const priorRefunds = await db
       .select({
         totalRefunded: sql<number>`coalesce(sum(${schema.refundRequests.amount}), 0)`,
@@ -923,7 +1040,7 @@ export class PaymentService {
       .where(
         and(
           eq(schema.refundRequests.orderId, order.id),
-          inArray(schema.refundRequests.status, ['approved', 'processing', 'refunded']),
+          inArray(schema.refundRequests.status, ['requested', 'approved', 'processing', 'refunded']),
         ),
       );
 
@@ -966,29 +1083,67 @@ export class PaymentService {
   async approveRefund(adminId: string, refundRequestId: string): Promise<{ approved: boolean; status: string }> {
     const db = this.dbClient.db;
 
-    const refundRows = await db
-      .select()
-      .from(schema.refundRequests)
-      .where(eq(schema.refundRequests.id, refundRequestId))
-      .limit(1);
+    // 1. Transaction with database lock to verify priorRefunded + refundReq.amount <= order.totalAmount
+    // and transition status to 'processing' before calling external provider
+    const lockResult = await db.transaction(async (tx: typeof db) => {
+      const refundRows = await tx
+        .select()
+        .from(schema.refundRequests)
+        .where(eq(schema.refundRequests.id, refundRequestId))
+        .for('update');
 
-    if (refundRows.length === 0) {
-      throw new NotFoundException('Không tìm thấy yêu cầu hoàn tiền.');
-    }
+      if (refundRows.length === 0) {
+        throw new NotFoundException('Không tìm thấy yêu cầu hoàn tiền.');
+      }
 
-    const refundReq = refundRows[0]!;
-    if (refundReq.status !== 'requested') {
-      throw new BadRequestException(`Yêu cầu hoàn tiền đang ở trạng thái ${refundReq.status}.`);
-    }
+      const refundReq = refundRows[0]!;
+      if (refundReq.status !== 'requested') {
+        throw new BadRequestException(`Yêu cầu hoàn tiền đang ở trạng thái ${refundReq.status}.`);
+      }
 
-    const orderRows = await db
-      .select()
-      .from(schema.orders)
-      .where(eq(schema.orders.id, refundReq.orderId))
-      .limit(1);
+      const orderRows = await tx
+        .select()
+        .from(schema.orders)
+        .where(eq(schema.orders.id, refundReq.orderId))
+        .for('update');
 
-    const order = orderRows[0]!;
+      if (orderRows.length === 0) {
+        throw new NotFoundException('Không tìm thấy đơn hàng tương ứng.');
+      }
 
+      const order = orderRows[0]!;
+
+      // Calculate already refunded or processing amount (excluding this request)
+      const prior = await tx
+        .select({
+          sum: sql<number>`coalesce(sum(${schema.refundRequests.amount}), 0)`,
+        })
+        .from(schema.refundRequests)
+        .where(
+          and(
+            eq(schema.refundRequests.orderId, order.id),
+            inArray(schema.refundRequests.status, ['approved', 'processing', 'refunded']),
+            sql`${schema.refundRequests.id} != ${refundReq.id}`,
+          ),
+        );
+
+      const priorRefunded = Number(prior[0]?.sum ?? 0);
+      if (priorRefunded + refundReq.amount > order.totalAmount) {
+        throw new BadRequestException('Tổng số tiền hoàn vượt quá giá trị đơn hàng.');
+      }
+
+      // Mark request as processing to prevent concurrent approval race
+      await tx
+        .update(schema.refundRequests)
+        .set({ status: 'processing' })
+        .where(eq(schema.refundRequests.id, refundReq.id));
+
+      return { refundReq, order };
+    });
+
+    const { refundReq, order } = lockResult;
+
+    // 2. Call payment provider outside lock
     const provider = this.providerRegistry.getProvider('payos');
     const providerRefund = await provider?.refundPayment({
       paymentRef: order.id,
@@ -1000,6 +1155,7 @@ export class PaymentService {
 
     const now = new Date();
 
+    // 3. Finalize in transaction
     await db.transaction(async (tx: typeof db) => {
       await tx.insert(schema.refundAttempts).values({
         id: generateUuidV7(),
@@ -1029,7 +1185,7 @@ export class PaymentService {
 
       const totalRefunded = Number(prior[0]?.sum ?? 0);
       if (totalRefunded >= order.totalAmount) {
-        // Full refund: mark order refunded and revoke subscription
+        // Full refund: mark order refunded, expire subscription, and revoke entitlement grants
         await tx
           .update(schema.orders)
           .set({ status: 'refunded' })
@@ -1039,6 +1195,12 @@ export class PaymentService {
           .update(schema.subscriptions)
           .set({ status: 'expired' })
           .where(eq(schema.subscriptions.userId, order.userId));
+
+        // Revoke entitlements in entitlement_grants
+        await tx
+          .update(schema.entitlementGrants)
+          .set({ expiresAt: now })
+          .where(eq(schema.entitlementGrants.userId, order.userId));
       }
 
       if (this.outboxService) {
@@ -1151,56 +1313,59 @@ export class PaymentService {
     const cleanCode = code.trim().toUpperCase();
     const now = new Date();
 
-    const couponRows = await db
-      .select()
-      .from(schema.coupons)
-      .where(eq(schema.coupons.code, cleanCode))
-      .limit(1);
+    return await db.transaction(async (tx: typeof db) => {
+      // 1. Lock coupon row FOR UPDATE to prevent race conditions exceeding maxRedemptions
+      const couponRows = await tx
+        .select()
+        .from(schema.coupons)
+        .where(eq(schema.coupons.code, cleanCode))
+        .for('update');
 
-    if (couponRows.length === 0) {
-      throw new BadRequestException(`Mã giảm giá ${cleanCode} không tồn tại.`);
-    }
+      if (couponRows.length === 0) {
+        throw new BadRequestException(`Mã giảm giá ${cleanCode} không tồn tại.`);
+      }
 
-    const coupon = couponRows[0]!;
-    if (coupon.validUntil && coupon.validUntil <= now) {
-      throw new BadRequestException('Mã giảm giá đã hết hạn sử dụng.');
-    }
+      const coupon = couponRows[0]!;
+      if (coupon.validUntil && coupon.validUntil <= now) {
+        throw new BadRequestException('Mã giảm giá đã hết hạn sử dụng.');
+      }
 
-    // Atomic count: active reservations + timesRedeemed
-    const activeReservations = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(schema.couponReservations)
-      .where(
-        and(
-          eq(schema.couponReservations.couponCode, cleanCode),
-          gt(schema.couponReservations.expiresAt, now),
-        ),
-      );
+      // 2. Atomic count: active reservations + timesRedeemed
+      const activeReservations = await tx
+        .select({ count: sql<number>`count(*)` })
+        .from(schema.couponReservations)
+        .where(
+          and(
+            eq(schema.couponReservations.couponCode, cleanCode),
+            gt(schema.couponReservations.expiresAt, now),
+          ),
+        );
 
-    const reservedCount = Number(activeReservations[0]?.count ?? 0);
-    if (coupon.timesRedeemed + reservedCount >= coupon.maxRedemptions) {
-      throw new BadRequestException('Mã giảm giá đã hết lượt sử dụng.');
-    }
+      const reservedCount = Number(activeReservations[0]?.count ?? 0);
+      if (coupon.timesRedeemed + reservedCount >= coupon.maxRedemptions) {
+        throw new BadRequestException('Mã giảm giá đã hết lượt sử dụng.');
+      }
 
-    // Calculate discount
-    let discount = 0;
-    if (coupon.discountPercent) {
-      discount = Math.round((orderAmount * coupon.discountPercent) / 100);
-    } else if (coupon.discountAmount) {
-      discount = Math.min(orderAmount, coupon.discountAmount);
-    }
+      // 3. Calculate discount
+      let discount = 0;
+      if (coupon.discountPercent) {
+        discount = Math.round((orderAmount * coupon.discountPercent) / 100);
+      } else if (coupon.discountAmount) {
+        discount = Math.min(orderAmount, coupon.discountAmount);
+      }
 
-    // Create reservation for 15 minutes TTL
-    const reservationExpiry = new Date(now.getTime() + 15 * 60 * 1000);
-    await db.insert(schema.couponReservations).values({
-      id: generateUuidV7(),
-      couponCode: cleanCode,
-      userId,
-      reservedAt: now,
-      expiresAt: reservationExpiry,
+      // 4. Create reservation for 15 minutes TTL
+      const reservationExpiry = new Date(now.getTime() + 15 * 60 * 1000);
+      await tx.insert(schema.couponReservations).values({
+        id: generateUuidV7(),
+        couponCode: cleanCode,
+        userId,
+        reservedAt: now,
+        expiresAt: reservationExpiry,
+      });
+
+      return discount;
     });
-
-    return discount;
   }
 
   async redeemCouponForOrder(orderId: string, userId: string, tx: typeof this.dbClient.db): Promise<void> {

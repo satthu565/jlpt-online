@@ -99,6 +99,7 @@ export class BillingManager {
       id: '0192a000-0000-7000-8000-000000000006',
       orderId: '0192a000-0000-7000-8000-000000000001',
       amount: 199000,
+      currency: 'VND',
       reason: 'Mua nhầm gói cần nâng cấp lên gói năm',
       status: 'requested',
       createdAt: '2026-10-15T12:00:00Z',
@@ -199,6 +200,11 @@ export class BillingManager {
     return [...this.refunds];
   }
 
+  addRefund(refund: AdminRefundItem): AdminRefundItem {
+    this.refunds.push(refund);
+    return refund;
+  }
+
   approveRefund(refundId: string): AdminRefundItem {
     const item = this.refunds.find((r) => r.id === refundId);
     if (!item) {
@@ -206,6 +212,11 @@ export class BillingManager {
     }
     if (item.status !== 'requested') {
       throw new Error(`Yêu cầu hoàn tiền đang ở trạng thái ${item.status}.`);
+    }
+
+    if (!item.currency) {
+      const order = this.payments.find((p) => p.orderId === item.orderId);
+      if (order) item.currency = order.currency;
     }
 
     item.status = 'refunded';
@@ -223,13 +234,27 @@ export class BillingManager {
   }
 
   getRevenueReport(currency = 'VND'): AdminRevenueReport {
+    const targetCurrency = currency.toUpperCase();
     const gross = this.payments
-      .filter((p) => p.status === 'paid' && p.currency.toUpperCase() === currency.toUpperCase())
+      .filter((p) => p.status === 'paid' && p.currency.toUpperCase() === targetCurrency)
       .reduce((sum, p) => sum + p.totalAmount, 0);
 
     const refunds = this.refunds
-      .filter((r) => r.status === 'refunded')
+      .filter((r) => {
+        if (r.status !== 'refunded') return false;
+        const refundCurr = (r.currency || this.payments.find((p) => p.orderId === r.orderId)?.currency || 'VND').toUpperCase();
+        return refundCurr === targetCurrency;
+      })
       .reduce((sum, r) => sum + r.amount, 0);
+
+    const paidOrdersForCurrency = this.payments.filter(
+      (p) => p.status === 'paid' && p.currency.toUpperCase() === targetCurrency,
+    ).length;
+    const refundedForCurrency = this.refunds.filter((r) => {
+      if (r.status !== 'refunded') return false;
+      const refundCurr = (r.currency || this.payments.find((p) => p.orderId === r.orderId)?.currency || 'VND').toUpperCase();
+      return refundCurr === targetCurrency;
+    }).length;
 
     return {
       grossMinor: gross,
@@ -241,8 +266,8 @@ export class BillingManager {
           grossMinor: gross,
           refundMinor: refunds,
           netMinor: gross - refunds,
-          orderCount: this.payments.filter((p) => p.status === 'paid').length,
-          refundCount: this.refunds.filter((r) => r.status === 'refunded').length,
+          orderCount: paidOrdersForCurrency,
+          refundCount: refundedForCurrency,
         },
       },
     };

@@ -202,6 +202,23 @@ describe('L04 Entitlement Module Tests (PAY-01, PAY-03, PAY-10, PAY-11)', () => 
         'Gói của tổ chức đang ở trạng thái suspended.',
       );
     });
+
+    it('lưu trữ trạng thái gói tổ chức và số ghế trong cơ sở dữ liệu bền vững qua khởi động lại server', async () => {
+      const tenantId = generateUuidV7();
+      await entitlementService.setTenantPlan(tenantId, {
+        planCode: 'enterprise_custom',
+        status: 'active',
+        totalSeats: 100,
+      });
+      await entitlementService.assignTenantSeat(tenantId);
+
+      // Giả lập khởi động lại server bằng một instance EntitlementService mới hoàn toàn dùng chung DB
+      const freshService = new EntitlementService(dbClient, outboxService);
+      const plan = await freshService.getTenantPlan(tenantId);
+      expect(plan.planCode).toBe('enterprise_custom');
+      expect(plan.totalSeats).toBe(100);
+      expect(plan.usedSeats).toBe(1);
+    });
   });
 
   describe('PAY-11 & Acceptance 3: Quota AI reserve/settle/refund nguyên tử', () => {

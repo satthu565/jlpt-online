@@ -6,11 +6,24 @@ import {
   Optional,
 } from '@nestjs/common';
 import { and, desc, eq, gt, gte, isNull, sql } from 'drizzle-orm';
+import { integer, jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { OutboxService } from '../outbox/outbox.service.js';
+
+export const tenantPlansTable = pgTable('tenant_plans', {
+  tenantId: text('tenant_id').primaryKey(),
+  planCode: text('plan_code').notNull(),
+  status: text('status').notNull(),
+  totalSeats: integer('total_seats').notNull(),
+  usedSeats: integer('used_seats').notNull(),
+  maxClasses: integer('max_classes').notNull(),
+  features: jsonb('features').notNull(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
 import type {
   AIQuotaRefundResult,
   AIQuotaReserveParams,
@@ -42,9 +55,6 @@ export const PREMIUM_TIER_LIMITS = {
 
 @Injectable()
 export class EntitlementService {
-  // In-memory tenant plans store for tenant state machine (tenant org plans)
-  private readonly tenantPlans = new Map<string, TenantPlanDetails>();
-
   constructor(
     @Inject(DB_CLIENT) private readonly dbClient: DbClientInstance,
     @Optional() private readonly outboxService?: OutboxService,
@@ -241,24 +251,80 @@ export class EntitlementService {
     });
   }
 
+  async ensureTenantPlansTable(): Promise<void> {
+    await this.dbClient.query(`
+      CREATE TABLE IF NOT EXISTS tenant_plans (
+        tenant_id TEXT PRIMARY KEY,
+        plan_code TEXT NOT NULL,
+        status TEXT NOT NULL,
+        total_seats INTEGER NOT NULL,
+        used_seats INTEGER NOT NULL,
+        max_classes INTEGER NOT NULL,
+        features JSONB NOT NULL DEFAULT '[]'::jsonb,
+        expires_at TIMESTAMPTZ,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
+  }
+
   /**
    * Tenant Plan State Machine (PAY-10): trial -> active -> suspended -> expired.
+   * Persisted in database according to DB contract.
    */
   async getTenantPlan(tenantId: string): Promise<TenantPlanDetails> {
-    let plan = this.tenantPlans.get(tenantId);
-    if (!plan) {
-      plan = {
-        tenantId,
-        planCode: 'organization_standard',
-        status: 'active',
-        totalSeats: 50,
-        usedSeats: 0,
-        maxClasses: 10,
-        features: ['unlimited_exams', 'teacher_dashboard', 'class_assignments'],
+    await this.ensureTenantPlansTable();
+    const db = this.dbClient.db;
+
+    const rows = await db
+      .select()
+      .from(tenantPlansTable)
+      .where(eq(tenantPlansTable.tenantId, tenantId))
+      .limit(1);
+
+    if (rows.length > 0) {
+      const row = rows[0]!;
+      return {
+        tenantId: row.tenantId,
+        planCode: row.planCode,
+        status: row.status as TenantPlanStatus,
+        totalSeats: row.totalSeats,
+        usedSeats: row.usedSeats,
+        maxClasses: row.maxClasses,
+        features: Array.isArray(row.features)
+          ? (row.features as string[])
+          : typeof row.features === 'string'
+          ? JSON.parse(row.features)
+          : [],
+        expiresAt: row.expiresAt ? new Date(row.expiresAt).toISOString() : null,
       };
-      this.tenantPlans.set(tenantId, plan);
     }
-    return plan;
+
+    const defaultPlan: TenantPlanDetails = {
+      tenantId,
+      planCode: 'organization_standard',
+      status: 'active',
+      totalSeats: 50,
+      usedSeats: 0,
+      maxClasses: 10,
+      features: ['unlimited_exams', 'teacher_dashboard', 'class_assignments'],
+      expiresAt: null,
+    };
+
+    await db
+      .insert(tenantPlansTable)
+      .values({
+        tenantId: defaultPlan.tenantId,
+        planCode: defaultPlan.planCode,
+        status: defaultPlan.status,
+        totalSeats: defaultPlan.totalSeats,
+        usedSeats: defaultPlan.usedSeats,
+        maxClasses: defaultPlan.maxClasses,
+        features: defaultPlan.features,
+        expiresAt: null,
+      })
+      .onConflictDoNothing();
+
+    return defaultPlan;
   }
 
   async setTenantPlan(
@@ -272,6 +338,7 @@ export class EntitlementService {
       expiresAt?: string | null;
     },
   ): Promise<TenantPlanDetails> {
+    await this.ensureTenantPlansTable();
     const current = await this.getTenantPlan(tenantId);
     const updated: TenantPlanDetails = {
       ...current,
@@ -295,33 +362,83 @@ export class EntitlementService {
       }
     }
 
-    this.tenantPlans.set(tenantId, updated);
+    const db = this.dbClient.db;
+    await db
+      .update(tenantPlansTable)
+      .set({
+        planCode: updated.planCode,
+        status: updated.status,
+        totalSeats: updated.totalSeats,
+        usedSeats: updated.usedSeats,
+        maxClasses: updated.maxClasses,
+        features: updated.features,
+        expiresAt: updated.expiresAt ? new Date(updated.expiresAt) : null,
+        updatedAt: new Date(),
+      })
+      .where(eq(tenantPlansTable.tenantId, tenantId));
+
     return updated;
   }
 
   async assignTenantSeat(tenantId: string): Promise<{ success: boolean; remainingSeats: number }> {
-    const plan = await this.getTenantPlan(tenantId);
+    await this.ensureTenantPlansTable();
+    const db = this.dbClient.db;
 
-    if (plan.status !== 'active' && plan.status !== 'trial') {
-      throw new BadRequestException(`Gói của tổ chức đang ở trạng thái ${plan.status}.`);
-    }
+    return await db.transaction(async (tx: typeof db) => {
+      const rows = await tx
+        .select()
+        .from(tenantPlansTable)
+        .where(eq(tenantPlansTable.tenantId, tenantId))
+        .for('update');
 
-    if (plan.usedSeats >= plan.totalSeats) {
-      throw new BadRequestException('Tổ chức đã dùng hết số lượng tài khoản (seats) được cấp.');
-    }
+      let plan: TenantPlanDetails;
+      if (rows.length > 0) {
+        const row = rows[0]!;
+        plan = {
+          tenantId: row.tenantId,
+          planCode: row.planCode,
+          status: row.status as TenantPlanStatus,
+          totalSeats: row.totalSeats,
+          usedSeats: row.usedSeats,
+          maxClasses: row.maxClasses,
+          features: Array.isArray(row.features)
+            ? (row.features as string[])
+            : typeof row.features === 'string'
+            ? JSON.parse(row.features)
+            : [],
+          expiresAt: row.expiresAt ? new Date(row.expiresAt).toISOString() : null,
+        };
+      } else {
+        plan = await this.getTenantPlan(tenantId);
+      }
 
-    plan.usedSeats += 1;
-    this.tenantPlans.set(tenantId, plan);
+      if (plan.status !== 'active' && plan.status !== 'trial') {
+        throw new BadRequestException(`Gói của tổ chức đang ở trạng thái ${plan.status}.`);
+      }
 
-    return {
-      success: true,
-      remainingSeats: plan.totalSeats - plan.usedSeats,
-    };
+      if (plan.usedSeats >= plan.totalSeats) {
+        throw new BadRequestException('Tổ chức đã dùng hết số lượng tài khoản (seats) được cấp.');
+      }
+
+      const newUsedSeats = plan.usedSeats + 1;
+      await tx
+        .update(tenantPlansTable)
+        .set({
+          usedSeats: newUsedSeats,
+          updatedAt: new Date(),
+        })
+        .where(eq(tenantPlansTable.tenantId, tenantId));
+
+      return {
+        success: true,
+        remainingSeats: plan.totalSeats - newUsedSeats,
+      };
+    });
   }
 
   /**
    * Atomic AI Quota Reservation (PAY-11, Acceptance 3).
-   * Checks limit, atomically reserves tokens in usage_reservations.
+   * Checks limit and atomically reserves tokens inside database transaction with row locking.
    */
   async reserveAIQuota(params: AIQuotaReserveParams): Promise<AIQuotaReserveResult> {
     const db = this.dbClient.db;
@@ -330,40 +447,9 @@ export class EntitlementService {
       throw new BadRequestException('estimatedTokens phải lớn hơn 0.');
     }
 
-    // Calculate current usage for the user
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
-
-    // Sum settled usage in current window
-    const ledgerRows = await db
-      .select({
-        totalTokens: sql<number>`coalesce(sum(${schema.usageLedger.tokensUsed}), 0)`,
-      })
-      .from(schema.usageLedger)
-      .where(
-        and(
-          eq(schema.usageLedger.userId, params.userId),
-          gte(schema.usageLedger.recordedAt, startOfMonth),
-        ),
-      );
-
-    const settledTokens = Number(ledgerRows[0]?.totalTokens ?? 0);
-
-    // Sum active reservations that have not settled yet
-    const pendingReservations = await db
-      .select({
-        totalReserved: sql<number>`coalesce(sum(${schema.usageReservations.estimatedTokens}), 0)`,
-      })
-      .from(schema.usageReservations)
-      .where(
-        and(
-          eq(schema.usageReservations.userId, params.userId),
-          isNull(schema.usageReservations.settledAt),
-        ),
-      );
-
-    const activeReservedTokens = Number(pendingReservations[0]?.totalReserved ?? 0);
 
     // Determine user allowance: check if user has active paid subscription
     const userEntitlements = await this.getUserEntitlements(params.userId);
@@ -372,30 +458,69 @@ export class EntitlementService {
       ? PREMIUM_TIER_LIMITS.MONTHLY_AI_TOKENS
       : FREE_TIER_LIMITS.DAILY_AI_TOKENS * 30;
 
-    if (settledTokens + activeReservedTokens + params.estimatedTokens > tokenLimit) {
-      throw new BadRequestException({
-        code: 'QUOTA_EXCEEDED',
-        message: 'Hạn mức token AI cho chu kỳ này đã vượt quá giới hạn.',
-        currentUsage: settledTokens + activeReservedTokens,
-        limit: tokenLimit,
+    return await db.transaction(async (tx: typeof db) => {
+      // Row-level lock on user to prevent race condition (TOCTOU)
+      await tx
+        .select({ id: schema.users.id })
+        .from(schema.users)
+        .where(eq(schema.users.id, params.userId))
+        .for('update');
+
+      // Sum settled usage in current window inside transaction
+      const ledgerRows = await tx
+        .select({
+          totalTokens: sql<number>`coalesce(sum(${schema.usageLedger.tokensUsed}), 0)`,
+        })
+        .from(schema.usageLedger)
+        .where(
+          and(
+            eq(schema.usageLedger.userId, params.userId),
+            gte(schema.usageLedger.recordedAt, startOfMonth),
+          ),
+        );
+
+      const settledTokens = Number(ledgerRows[0]?.totalTokens ?? 0);
+
+      // Sum active reservations that have not settled yet inside transaction
+      const pendingReservations = await tx
+        .select({
+          totalReserved: sql<number>`coalesce(sum(${schema.usageReservations.estimatedTokens}), 0)`,
+        })
+        .from(schema.usageReservations)
+        .where(
+          and(
+            eq(schema.usageReservations.userId, params.userId),
+            isNull(schema.usageReservations.settledAt),
+          ),
+        );
+
+      const activeReservedTokens = Number(pendingReservations[0]?.totalReserved ?? 0);
+
+      if (settledTokens + activeReservedTokens + params.estimatedTokens > tokenLimit) {
+        throw new BadRequestException({
+          code: 'QUOTA_EXCEEDED',
+          message: 'Hạn mức token AI cho chu kỳ này đã vượt quá giới hạn.',
+          currentUsage: settledTokens + activeReservedTokens,
+          limit: tokenLimit,
+        });
+      }
+
+      const reservationId = generateUuidV7();
+      const reservedAt = new Date();
+
+      await tx.insert(schema.usageReservations).values({
+        id: reservationId,
+        userId: params.userId,
+        estimatedTokens: params.estimatedTokens,
+        reservedAt,
       });
-    }
 
-    const reservationId = generateUuidV7();
-    const reservedAt = new Date();
-
-    await db.insert(schema.usageReservations).values({
-      id: reservationId,
-      userId: params.userId,
-      estimatedTokens: params.estimatedTokens,
-      reservedAt,
+      return {
+        reservationId,
+        estimatedTokens: params.estimatedTokens,
+        reservedAt: reservedAt.toISOString(),
+      };
     });
-
-    return {
-      reservationId,
-      estimatedTokens: params.estimatedTokens,
-      reservedAt: reservedAt.toISOString(),
-    };
   }
 
   /**

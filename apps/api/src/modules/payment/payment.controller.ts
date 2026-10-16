@@ -22,6 +22,7 @@ import type {
   PlanDto,
   RefundRequestDto,
   RevenueReportDto,
+  SubscriptionChangeResultDto,
   TransactionItemDto,
   UserSubscriptionDto,
 } from './payment.types.js';
@@ -96,8 +97,8 @@ export class PaymentController {
   @Post('me/subscription/change')
   async changeSubscriptionPlan(
     @CurrentUser() user: AuthUserContext | undefined,
-    @Body() body: { newPlanId: string },
-  ): Promise<{ updated: boolean }> {
+    @Body() body: { newPlanId: string; returnPath?: string },
+  ): Promise<SubscriptionChangeResultDto> {
     if (!user) {
       throw new UnauthorizedException({
         code: 'UNAUTHENTICATED',
@@ -105,7 +106,7 @@ export class PaymentController {
       });
     }
 
-    return this.paymentService.changeSubscriptionPlan(user.userId, body.newPlanId);
+    return this.paymentService.changeSubscriptionPlan(user.userId, body.newPlanId, body.returnPath);
   }
 
   @Post('me/subscription/cancel')

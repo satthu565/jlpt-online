@@ -162,5 +162,32 @@ describe('Admin Commercial & Billing (ADM-15, ADM-16, PAY-12)', () => {
       expect(reportJPY.grossMinor).toBe(0);
       expect(reportJPY.netMinor).toBe(0);
     });
+
+    it('không trừ chéo hoàn tiền giữa các đơn vị tiền tệ khác nhau (PAY-12)', () => {
+      const manager = new BillingManager();
+      // Phê duyệt refund VND sẵn có (199.000 VND)
+      const vndRefund = manager.listRefunds().find((r) => r.status === 'requested')!;
+      manager.approveRefund(vndRefund.id);
+
+      // Thêm một refund đã hoàn tiền bằng JPY (5.000 JPY)
+      manager.addRefund({
+        id: 'refund-jpy-1',
+        orderId: 'order-jpy-1',
+        amount: 5000,
+        currency: 'JPY',
+        status: 'refunded',
+        createdAt: '2026-10-15T15:00:00Z',
+      });
+
+      // Báo cáo VND chỉ tính refund VND (199.000), không trừ 5.000 JPY
+      const reportVND = manager.getRevenueReport('VND');
+      expect(reportVND.refundMinor).toBe(199000);
+      expect(reportVND.netMinor).toBe(reportVND.grossMinor - 199000);
+
+      // Báo cáo JPY chỉ tính refund JPY (5.000), không trừ 199.000 VND
+      const reportJPY = manager.getRevenueReport('JPY');
+      expect(reportJPY.refundMinor).toBe(5000);
+      expect(reportJPY.netMinor).toBe(-5000);
+    });
   });
 });

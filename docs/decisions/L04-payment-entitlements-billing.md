@@ -88,10 +88,49 @@ Theo chỉ thị của task L04, các dịch vụ sau chưa sẵn sàng trong m�
 
 ---
 
-## 4. Bằng chứng kiểm thử (Verification Evidence)
+## 4. Xử lý các phản hồi từ Reviewer (Remediations P0 & P1)
 
-Các lệnh kiểm tra bắt buộc đã được cung cấp và chạy thành công:
+1. **[P0] Thu phí chênh lệch (proration) khi nâng cấp gói thuê bao (`changeSubscriptionPlan`):**
+   - Không cho phép cập nhật ngay lên gói cao hơn mà không thanh toán.
+   - Tính toán `prorationFee = newPlan.priceMinor - oldPlan.priceMinor` và tạo đơn hàng bổ sung kèm checkout session.
+   - Chỉ khi webhook xác nhận thanh toán đơn hàng nâng cấp thành công thì gói thuê bao mới chính thức được chuyển sang gói mới.
+2. **[P0] Kiểm tra hạn mức hoàn tiền trong DB lock và tính cả trạng thái `requested`:**
+   - Trong `requestRefund`, tổng tiền hoàn trước đó (`priorRefunds`) tính cả các yêu cầu đang ở trạng thái `'requested'` và `'refunded'`, ngăn chặn tấn công spam nhiều yêu cầu hoàn tiền vượt quá giá trị đơn hàng.
+   - Trong `approveRefund`, thực hiện kiểm tra điều kiện `priorRefunded + refundReq.amount <= order.totalAmount` bên trong transaction với khóa `FOR UPDATE` trên dòng đơn hàng, và chuyển trạng thái sang `processing` trước khi gọi provider refund.
+3. **[P0] Ngăn ngừa trừ chéo tiền tệ trong Báo cáo Doanh thu Admin (`BillingManager.getRevenueReport`):**
+   - Bổ sung trường `currency` vào `AdminRefundItem`.
+   - `getRevenueReport` lọc chính xác hoàn tiền theo đúng đơn vị tiền tệ (`rf.currency === currency`) trước khi trừ vào doanh thu gộp.
+4. **[P1] Thu hồi quyền trong `entitlement_grants` khi hoàn tiền toàn bộ:**
+   - Khi hoàn tiền toàn bộ đơn hàng (`newTotalRefunded >= order.totalAmount`), hệ thống cập nhật `expiresAt: new Date()` cho các bản ghi tương ứng trong `schema.entitlementGrants`, thu hồi quyền ngay lập tức.
+   - Test assert kiểm tra cụ thể `hasEntitlement === false` và số lượng `activeGrants === 0`.
+5. **[P1] Lưu trữ bền vững gói tổ chức (Tenant Plans) trong cơ sở dữ liệu:**
+   - Chuyển toàn bộ dữ liệu tổ chức và ghế học viên từ in-memory `Map` sang bảng `tenant_plans` trong PostgreSQL/PGlite.
+   - Thao tác gán ghế sử dụng khóa `FOR UPDATE` bảo đảm tính nhất quán và bảo toàn dữ liệu sau khi khởi động lại server.
+6. **[P1] Bảo vệ nguyên tử chống TOCTOU khi giữ hạn mức AI (`reserveAIQuota`):**
+   - Đặt toàn bộ kiểm tra hạn mức và trừ quota trong `db.transaction`.
+   - Sử dụng `.for('update')` trên dòng người dùng trong `schema.users` để ngăn chặn race condition khi nhiều request đồng thời gửi đến.
+7. **[P1] Khóa hàng nguyên tử khi giữ chỗ mã giảm giá (`reserveCoupon`):**
+   - Bao bọc việc kiểm tra `timesRedeemed` và tạo reservation trong `db.transaction`.
+   - Sử dụng `.for('update')` trên dòng mã giảm giá trong `schema.coupons` để bảo đảm không vượt quá `maxUses`.
+8. **[P1] Phòng chống Open Redirect trên tham số `returnPath`:**
+   - Bổ sung hàm kiểm tra `isValidReturnPath(returnPath)`: chỉ cho phép đường dẫn nội bộ hợp lệ bắt đầu bằng `/` và thuộc danh sách trắng (`/pricing`, `/account/billing`, `/dashboard`, `/cart`, `/checkout`, `/tai-khoan`).
+   - Chặn tuyệt đối các URL chứa giao thức (`http://`, `https://`, `//`) hoặc đường dẫn tùy ý.
+9. **[P1] Loại bỏ module ngoài phạm vi `apps/api/src/modules/reporting/`:**
+   - Toàn bộ thư mục `apps/api/src/modules/reporting/` đã được xóa sạch để bàn giao cho task A04 (Phân tích học tập và báo cáo).
+10. **[P1] Đăng ký `PaymentModule` và `EntitlementModule` vào `AppModule`:**
+    - Đã import và khai báo `PaymentModule` cùng `EntitlementModule` trong danh sách `imports` của `AppModule` (`apps/api/src/app.module.ts`), bảo đảm các endpoint API sẵn sàng hoạt động trong hệ thống.
+
+---
+
+## 5. Bằng chứng kiểm thử (Verification Evidence)
+
+Các lệnh kiểm tra bắt buộc đã được chạy thành công:
 1. `pnpm test:payments`: 21/21 tests passed (exitCode: 0).
-2. `pnpm test:entitlements`: 16/16 tests passed (exitCode: 0).
+2. `pnpm test:entitlements`: 18/18 tests passed (exitCode: 0, bao gồm DB persistence test).
 3. `pnpm test:payment-provider`: 10/10 tests passed (exitCode: 0).
-4. `pnpm test:admin` (bao gồm `apps/admin/tests/billing.test.ts`): 75/75 tests passed (exitCode: 0).
+4. `pnpm test:admin-billing`: 13/13 tests passed (exitCode: 0).
+5. `pnpm typecheck`: 18/18 packages passed (exitCode: 0).
+6. `pnpm lint`: 13/13 packages passed (0 errors, exitCode: 0).
+7. `pnpm test`: 18/18 tasks passed (187/187 tests api, exitCode: 0).
+8. `pnpm build`: 12/12 build tasks passed (exitCode: 0).
+

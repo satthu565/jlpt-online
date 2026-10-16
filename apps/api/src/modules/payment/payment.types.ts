@@ -89,3 +89,12 @@ export interface RevenueReportDto {
     refundCount: number;
   }>;
 }
+
+export interface SubscriptionChangeResultDto {
+  updated: boolean;
+  requiresPayment?: boolean;
+  checkoutUrl?: string;
+  orderId?: string;
+  prorationMinor?: number;
+}
+

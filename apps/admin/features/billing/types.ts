@@ -42,6 +42,7 @@ export interface AdminRefundItem {
   id: string;
   orderId: string;
   amount: number;
+  currency?: string;
   reason?: string | null;
   status: 'requested' | 'approved' | 'rejected' | 'refunded';
   createdAt: string;

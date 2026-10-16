@@ -26,6 +26,9 @@ import { OriginGuard } from './common/guards/origin.guard.js';
 import { TotpGuard } from './common/guards/totp.guard.js';
 import { RateLimitGuard } from './common/guards/rate-limit.guard.js';
 
+import { PaymentModule } from './modules/payment/payment.module.js';
+import { EntitlementModule } from './modules/entitlement/entitlement.module.js';
+
 @Module({
   imports: [
     DatabaseModule,
@@ -43,6 +46,8 @@ import { RateLimitGuard } from './common/guards/rate-limit.guard.js';
     AuditModule,
     AdminModule,
     ExamModule,
+    PaymentModule,
+    EntitlementModule,
   ],
   controllers: [HealthController],
   providers: [

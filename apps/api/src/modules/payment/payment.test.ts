@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { eq } from 'drizzle-orm';
+import { and, eq, gt } from 'drizzle-orm';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
 import * as schema from '../../db/schema.js';
@@ -160,7 +160,16 @@ describe('L04 Payment & Commercial System (PAY-01..12, ADM-15, ADM-16)', () => {
           term: 'month',
           returnPath: 'javascript:alert(1)',
         }),
-      ).rejects.toThrow('returnPath không hợp lệ.');
+      ).rejects.toThrow('returnPath không hợp lệ');
+
+      // Chặn đường dẫn bên ngoài nguy hiểm (https://evil-attacker.com)
+      await expect(
+        paymentService.createCheckoutSession(testUserId, {
+          planId: 'premium_month',
+          term: 'month',
+          returnPath: 'https://evil-attacker.com/steal-token',
+        }),
+      ).rejects.toThrow('returnPath không hợp lệ');
     });
 
     it('áp dụng mã giảm giá phần trăm: giữ chỗ nguyên tử (reservation) và trừ giá đúng', async () => {
@@ -322,7 +331,7 @@ describe('L04 Payment & Commercial System (PAY-01..12, ADM-15, ADM-16)', () => {
       expect(sub.cancelAtPeriodEnd).toBe(false);
     });
 
-    it('chuyển đổi gói (change plan): nâng cấp sang gói mới và ghi nhận audit subscription_changes', async () => {
+    it('chuyển đổi gói (change plan): nâng cấp sang gói mới yêu cầu tính phí chênh lệch và chỉ kích hoạt sau khi thanh toán', async () => {
       const session = await paymentService.createCheckoutSession(testUserId, {
         planId: 'premium_month',
         term: 'month',
@@ -332,11 +341,24 @@ describe('L04 Payment & Commercial System (PAY-01..12, ADM-15, ADM-16)', () => {
       const signature = adapter.generateSignature(data);
       await paymentService.handleWebhook('payos', { code: '00', data, signature });
 
-      // Upgrade to yearly plan
+      // Request upgrade to yearly plan -> requires proration payment
       const changeRes = await paymentService.changeSubscriptionPlan(testUserId, 'premium_year');
-      expect(changeRes.updated).toBe(true);
+      expect(changeRes.updated).toBe(false);
+      expect(changeRes.requiresPayment).toBe(true);
+      expect(changeRes.prorationMinor).toBeGreaterThan(0);
+      expect(changeRes.orderId).toBeDefined();
 
-      const sub = await paymentService.getUserSubscription(testUserId);
+      // Subscription should NOT be upgraded before payment
+      let sub = await paymentService.getUserSubscription(testUserId);
+      expect(sub.planId).toBe('premium_month');
+
+      // Complete payment for upgrade order
+      const upgradeData = { orderId: changeRes.orderId!, amount: changeRes.prorationMinor!, code: '00', reference: 'REF_UPGRADE_1' };
+      const upgradeSig = adapter.generateSignature(upgradeData);
+      await paymentService.handleWebhook('payos', { code: '00', data: upgradeData, signature: upgradeSig });
+
+      // Subscription is now upgraded!
+      sub = await paymentService.getUserSubscription(testUserId);
       expect(sub.planId).toBe('premium_year');
 
       const changes = await dbClient.db.select().from(schema.subscriptionChanges);
@@ -441,6 +463,20 @@ describe('L04 Payment & Commercial System (PAY-01..12, ADM-15, ADM-16)', () => {
       const sub = await paymentService.getUserSubscription(testUserId);
       expect(sub.status).toBe('expired');
 
+      // Verify entitlements are revoked from entitlement_grants (Point 4)
+      const hasEntitlement = await entitlementService.hasEntitlement(testUserId, 'unlimited_exams');
+      expect(hasEntitlement).toBe(false);
+      const activeGrants = await dbClient.db
+        .select()
+        .from(schema.entitlementGrants)
+        .where(
+          and(
+            eq(schema.entitlementGrants.userId, testUserId),
+            gt(schema.entitlementGrants.expiresAt, new Date()),
+          ),
+        );
+      expect(activeGrants.length).toBe(0);
+
       // Verify outbox event emitted
       const outboxEvents = await dbClient.db
         .select()
@@ -484,18 +520,33 @@ describe('L04 Payment & Commercial System (PAY-01..12, ADM-15, ADM-16)', () => {
       const signature = adapter.generateSignature(data);
       await paymentService.handleWebhook('payos', { code: '00', data, signature });
 
-      // First full refund
+      // Partial refund request 1 (100,000 VND)
       const req1 = await paymentService.requestRefund(testUserId, {
         transactionId: session.orderId,
-        reason: 'Lần 1',
+        amountMinor: 100000,
+        reason: 'Lần 1 một phần',
       });
-      await paymentService.approveRefund(generateUuidV7(), req1.refundId);
+      expect(req1.status).toBe('requested');
 
-      // Second refund attempt on same order -> rejected
+      // Second partial refund request while req1 is still 'requested' -> must count req1 (Point 2)
+      // Max remaining is 199,000 - 100,000 = 99,000 VND. Requesting 150,000 should be capped at 99,000 VND.
+      const req2 = await paymentService.requestRefund(testUserId, {
+        transactionId: session.orderId,
+        amountMinor: 150000,
+        reason: 'Lần 2 cố vượt mức',
+      });
+      const req2Row = await dbClient.db
+        .select()
+        .from(schema.refundRequests)
+        .where(eq(schema.refundRequests.id, req2.refundId));
+      expect(req2Row[0]!.amount).toBe(99000);
+
+      // Third request when total requested reached 199,000 -> rejected
       await expect(
         paymentService.requestRefund(testUserId, {
           transactionId: session.orderId,
-          reason: 'Lần 2 đòi hoàn tiếp',
+          amountMinor: 10000,
+          reason: 'Lần 3 vượt quá',
         }),
       ).rejects.toThrow('Đơn hàng này đã được hoàn tiền đầy đủ trước đó.');
     });
