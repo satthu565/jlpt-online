@@ -52,7 +52,10 @@
     "test:difficulty": "vitest run packages/exam-engine/tests/difficulty.test.ts",
     "test:dedupe": "vitest run packages/exam-engine/tests/dedupe.test.ts",
     "test:e2e:exam": "vitest run -c apps/web/vitest.config.ts apps/web/tests/e2e-exam.test.tsx",
-    "test:e2e:library": "vitest run -c apps/web/vitest.config.ts apps/web/tests/e2e-library.test.tsx"
+    "test:e2e:library": "vitest run -c apps/web/vitest.config.ts apps/web/tests/e2e-library.test.tsx",
+    "test:practice-api": "vitest run apps/api/src/modules/exam/practice-api.test.ts",
+    "test:explanations": "vitest run apps/api/src/modules/review/explanations.test.ts",
+    "test:notifications": "vitest run apps/api/src/modules/notification/notifications.test.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",
