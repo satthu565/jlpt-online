@@ -1,7 +1,7 @@
 # Quyết định kỹ thuật L03: Giao diện luyện trộn, chữa bài và dashboard phân tích học viên
 
 - **Mã task**: L03
-- **Assignment**: L03-1
+- **Assignment**: L03-3 (kế thừa từ L03-1)
 - **Worker**: W3 (Giao diện học viên)
 - **Nhánh**: `task/L03`
 - **Các tính năng**: LIB-09, LIB-10, LIB-11, LIB-12, LIB-13, LIB-14, STAT-02, STAT-03, STAT-04, STAT-05, STAT-06, STAT-07, STAT-08, STAT-10, STAT-11, SCORE-15 (cùng hỗ trợ PRA-10..13, MIX-13..17, EXPL-01..12, AUDIO-08..09)
