@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { execSync } from 'node:child_process';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import fs from 'node:fs';
@@ -252,6 +253,18 @@ describe('Performance, Web Vitals, Bundle Budgets & Media Security (SYS-02, SYS-
   // =========================================================================
   describe('Bundle Budgets & Prerender Verification', () => {
     const nextDir = path.resolve(__dirname, '../.next');
+
+    beforeAll(() => {
+      const prerenderManifestPath = path.join(nextDir, 'prerender-manifest.json');
+      const staticChunksDir = path.join(nextDir, 'static/chunks');
+      if (!fs.existsSync(prerenderManifestPath) || !fs.existsSync(staticChunksDir)) {
+        execSync('pnpm run build', {
+          cwd: path.resolve(__dirname, '..'),
+          stdio: 'inherit',
+          env: { ...process.env, NODE_ENV: 'production' },
+        });
+      }
+    }, 60000);
 
     it('Next.js build artifacts exist (.next output)', () => {
       expect(fs.existsSync(nextDir)).toBe(true);
