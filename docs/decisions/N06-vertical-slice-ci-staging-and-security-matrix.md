@@ -106,6 +106,32 @@ Triển khai trong bộ kiểm thử chuyên dụng `tests/integration/security-
 
 ---
 
+### 2.5. Khắc phục Triệt để Lỗi Staging Container trong GitHub Actions CI (Lượt N06-11)
+- **Triệu chứng lỗi trong CI:** Bước `Run Core Vertical Slice E2E & Demo Package Flow (N06)` trong workflow `staging.yml` bị lỗi tại các dòng:
+  - `tests/e2e/core.test.ts:301`: `GET /attempts/undefined/review` -> 500 (mong đợi 409).
+  - `tests/e2e/core.test.ts:319`: `POST /attempts/undefined/sections/next` -> 400 (mong đợi 200).
+  - `tests/e2e/core.test.ts:461`: `POST /attempts/undefined/submit` -> 400 (mong đợi 200).
+  - `tests/e2e/core.test.ts:515`: `PUT /attempts/undefined/sheet` -> 400 (mong đợi 409).
+  - `tests/e2e/core.test.ts:532`: `GET /attempts/undefined/review` -> 500 (mong đợi 200).
+  - `tests/e2e/core.test.ts:571`: `GET /attempts/undefined/review` -> 500 (mong đợi 404).
+- **Phân tích nguyên nhân gốc (Root Cause):**
+  1. **Giới hạn kích thước body mặc định của Fastify (1MB):** `apps/api/src/main.ts` khởi tạo `FastifyAdapter` không kèm cấu hình `bodyLimit`. Khi `core.test.ts` gửi payload base64 của `demo-n5-1.zip` (~3.1MB), Fastify ngắt kết nối (EPIPE / 413) khiến đề thi không được nạp và `demoExamId` trở thành `undefined`.
+  2. **Thiếu bước Seed trên Staging Container:** Cơ sở dữ liệu PostgreSQL dựng trong Docker Compose của CI được migrate tự động qua Drizzle, nhưng chưa bao giờ được nạp tài khoản kiểm thử (`tests/fixtures/seed-sessions.sql`) và gói đề thi mẫu (`apps/api/src/modules/import/demo-seed.ts`).
+  3. **Thiếu file `demo-data` trong Container Runner:** `infra/docker/api.Dockerfile` chỉ copy source `apps/api` và `packages`, thiếu thư mục `docs/multi-worker/demo-data` và file gốc `pnpm-workspace.yaml`, khiến hàm `resolveRepoPath()` bên trong container không tìm thấy blueprint và file ZIP.
+  4. **Hiệu ứng domino của `demoExamId` và `activeAttemptId` undefined:** Khi `activeAttemptId` là `undefined`, URL gọi tới `/attempts/undefined/review` gây lỗi cú pháp UUID trong PostgreSQL (`invalid input syntax for type uuid: "undefined"`), dẫn tới HTTP 500; các body gọi tới endpoint quản lý phiên thiếu token `lease` vi phạm Zod schema validation dẫn tới HTTP 400.
+- **Biện pháp xử lý triệt để:**
+  1. Cập nhật `infra/docker/api.Dockerfile`:
+     - Thiết lập cấu hình `FastifyAdapter({ bodyLimit: 52428800 })` (50MB) trong quá trình build image API.
+     - Tích hợp logic truy vấn `tenantId` từ `org_memberships` vào `AuthService.getSession` để bảo đảm `TenantGuard` thực thi cách ly đa tổ chức chuẩn xác trên live container.
+     - Copy `docs/multi-worker/demo-data` và `pnpm-workspace.yaml` vào container runner với quyền `node:node`.
+  2. Cập nhật `.github/workflows/staging.yml`:
+     - Thêm bước `Seed Staging Database for N06` ngay sau khi các dịch vụ staging đạt trạng thái healthy, thực thi nạp dữ liệu session (`seed-sessions.sql`) vào postgres và khởi chạy `demo-seed.js` trong container api.
+  3. Cập nhật `tests/e2e/core.test.ts`:
+     - Bổ sung cơ chế fallback tra cứu đề thi trực tiếp qua slug `/api/v1/exams/demo-n5-1`.
+     - Thêm assertion kiểm tra tường minh `demoExamId` tại `beforeAll` của pha Thi để phát hiện sớm và đưa ra thông báo rõ ràng nếu dữ liệu chưa sẵn sàng.
+
+---
+
 ## 3. Trạng thái Kiểm chứng
 
 | Lệnh kiểm thử | Kết quả | Ghi chú |

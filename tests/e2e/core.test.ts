@@ -100,7 +100,14 @@ describe('Core Vertical Slice E2E: Demo Package flow (N06)', () => {
       const examsRes = await fetch(`${baseUrl}/api/v1/exams`);
       expect(examsRes.status).toBe(200);
       const examsData = (await examsRes.json()) as { items: Array<{ id: string; slug: string }> };
-      const found = examsData.items.find((x) => x.slug === 'demo-n5-1');
+      let found = examsData.items.find((x) => x.slug === 'demo-n5-1');
+      if (!found) {
+        const singleRes = await fetch(`${baseUrl}/api/v1/exams/demo-n5-1`);
+        if (singleRes.ok) {
+          const singleData = (await singleRes.json()) as { id: string; slug: string };
+          found = singleData;
+        }
+      }
       expect(found).toBeDefined();
       demoExamId = found!.id;
     });
@@ -222,6 +229,10 @@ describe('Core Vertical Slice E2E: Demo Package flow (N06)', () => {
   });
 
   describe('4. Thi Phase: Attempt Lifecycle, Lease, Section Deadlines & Submission', () => {
+    beforeAll(() => {
+      expect(demoExamId, 'demoExamId must be discovered or initialized before Thi phase').toBeDefined();
+    });
+
     it('rejects attempt creation for unverified student accounts (403 EMAIL_NOT_VERIFIED)', async () => {
       const res = await fetch(`${baseUrl}/api/v1/attempts`, {
         method: 'POST',
