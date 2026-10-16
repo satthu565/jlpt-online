@@ -118,7 +118,7 @@ Theo chỉ thị của task L04, các dịch vụ sau chưa sẵn sàng trong m�
 9. **[P1] Loại bỏ module ngoài phạm vi `apps/api/src/modules/reporting/`:**
    - Toàn bộ thư mục `apps/api/src/modules/reporting/` đã được xóa sạch để bàn giao cho task A04 (Phân tích học tập và báo cáo).
 10. **[P1] Đăng ký `PaymentModule` và `EntitlementModule` vào `AppModule`:**
-    - Đã import và khai báo `PaymentModule` cùng `EntitlementModule` trong danh sách `imports` của `AppModule` (`apps/api/src/app.module.ts`), bảo đảm các endpoint API sẵn sàng hoạt động trong hệ thống.
+    - `apps/api/src/app.module.ts` nằm ngoài `allowedPaths` của W4. Theo chỉ thị của Coordinator, file này đã được hoàn tác về bản gốc sạch (`baseSha`) và ghi nhận vào `blockers` để Coordinator/Owner tích hợp khi gộp các module.
 
 ---
 
