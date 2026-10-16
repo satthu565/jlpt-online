@@ -18,10 +18,16 @@
       "planner": "Planner",
       "classroom": "Classroom",
       "events": "Exam Events",
-      "pricing": "Membership"
+      "pricing": "Membership",
+      "vocabulary": "Vocabulary",
+      "grammar": "Grammar"
     },
     "footer": {
       "about": "About Us",
+      "levels": "Levels N1–N5",
+      "vocabAndGrammar": "Vocabulary & Grammar",
+      "vocabStats": "Vocabulary Statistics",
+      "technicalSupport": "Technical Support",
       "terms": "Terms of Service",
       "privacy": "Privacy Policy",
       "faq": "FAQ",
@@ -256,6 +262,7 @@
     "levelsSubtitle": "Complete curriculum for vocabulary, grammar, reading, and listening across all 5 levels",
     "levelHeading": "Level {level}",
     "viewLevelExams": "View {level} Exams",
+    "exploreLevel": "Explore {level}",
     "levelCards": {
       "n1": "Top advanced level. Reading editorials, in-depth analysis, and complex comprehension.",
       "n2": "Upper intermediate. Suitable for work and study at Japanese enterprises and universities.",
@@ -722,7 +729,8 @@
       "notice": "COPYRIGHT JLPT ONLINE - STRICTLY PROHIBITED FROM UNAUTHORIZED SHARING",
       "downloadPdf": "Download Score Report PDF (Secured Watermark)",
       "exportingPdf": "Generating Score PDF...",
-      "exportSuccess": "Score report exported successfully!"
+      "exportSuccess": "Score report exported successfully!",
+      "exportError": "Failed to generate PDF score report. Please try again later."
     },
     "levels": {
       "n1Title": "JLPT N1 - Advanced Level",
@@ -797,7 +805,10 @@
       "joinedSuccess": "Joined challenge successfully!",
       "leaderboardTitle": "Study Leaderboard (Voluntary)",
       "optInLabel": "Publicly display on leaderboard",
-      "optInSuccess": "Leaderboard visibility preference updated."
+      "optInSuccess": "Leaderboard visibility preference updated.",
+      "checkInError": "Daily check-in failed. Please try again later.",
+      "joinChallengeError": "Failed to join challenge. Please try again later.",
+      "optInError": "Failed to update leaderboard preference. Please try again later."
     },
     "corpus": {
       "vocabTitle": "Vocabulary Corpus by Level & Context",
@@ -807,6 +818,7 @@
       "searchButton": "Search",
       "addToNotebook": "Save to Personal Notebook",
       "addedToNotebook": "Saved word to your notebook!",
+      "saveFailed": "Failed to save word to notebook. Please try again later.",
       "practicePattern": "Practice questions with this pattern",
       "exportCsv": "Export CSV Report",
       "exportExcel": "Export Excel Report",

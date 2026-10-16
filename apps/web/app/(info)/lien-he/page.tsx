@@ -34,14 +34,13 @@ export default function ContactPage(): React.JSX.Element {
     try {
       setLoading(true);
 
-      // Submit contact form to API or simulate dispatch
       const res = await fetch('/api/v1/support/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, topic, message }),
-      }).catch(() => null);
+      });
 
-      if (res && !res.ok) {
+      if (!res.ok) {
         throw new Error('Gửi thông tin không thành công');
       }
 
@@ -50,11 +49,7 @@ export default function ContactPage(): React.JSX.Element {
       setEmail('');
       setMessage('');
     } catch {
-      // In tests/mock environments, set success for positive UX
-      setSuccess(true);
-      setName('');
-      setEmail('');
-      setMessage('');
+      setErrorMessage(t('seo.contact.errorNotice'));
     } finally {
       setLoading(false);
     }

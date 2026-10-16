@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { Button, WatermarkBadge } from '@jlpt/ui';
-import type { Result } from '@jlpt/schema';
+import type { Result, Level } from '@jlpt/schema';
+import { generateScoreReportPdf } from '@jlpt/exam-engine';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 
@@ -27,66 +28,72 @@ export function PdfScoreExportButton({
   const { user } = useAuth();
   const [exporting, setExporting] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleExportPdf = async () => {
     try {
       setExporting(true);
       setDownloadSuccess(false);
+      setErrorMessage(null);
 
-      // Construct security watermark payload (SYS-17)
+      // Construct security watermark payload & actor isolation (SYS-17 & SCORE-12)
       const candidateId = user?.id || 'CANDIDATE-ANONYMOUS';
       const exportTimestamp = new Date().toISOString();
-      const securityHash = `JLPT-SEC-${attemptId.slice(0, 8)}-${candidateId.slice(0, 6)}`;
+      const normalizedLevel = (level?.toUpperCase() as Level) || 'N3';
 
-      // Simulate generating secured PDF blob or printable layout
-      const printHtml = `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <meta charset="utf-8">
-            <title>JLPT Score Report - ${examTitle}</title>
-            <style>
-              body { font-family: sans-serif; padding: 40px; color: #1e293b; }
-              .header { border-bottom: 2px solid #0f172a; padding-bottom: 20px; margin-bottom: 24px; }
-              .score-box { background: #f8fafc; border: 1px solid #cbd5e1; padding: 20px; border-radius: 8px; margin: 20px 0; }
-              .watermark { margin-top: 40px; padding: 12px; border: 1px dashed #94a3b8; font-family: monospace; font-size: 11px; color: #64748b; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <h1>KẾT QUẢ ĐÁNH GIÁ NĂNG LỰC TIẾNG NHẬT JLPT</h1>
-              <p>Bài thi: <strong>${examTitle}</strong> (Cấp độ: ${level})</p>
-              <p>Mã lượt thi: <code>${attemptId}</code> | Thời điểm nộp: ${submittedAt || exportTimestamp}</p>
-            </div>
-            <div class="score-box">
-              <h2>Tổng điểm đạt được: ${result.scoring.total} / ${result.scoring.totalMax}</h2>
-              <p>Trạng thái: <strong>${result.scoring.passEstimate ? 'ĐỖ (PASS)' : 'CHƯA ĐẠT (FAIL)'}</strong> (Điểm chuẩn: ${result.scoring.totalPass})</p>
-              <p>Độ chính xác: ${result.accuracy}% | Thời gian làm bài: ${Math.round(result.durationSec / 60)} phút</p>
-            </div>
-            <div class="watermark">
-              🛡️ [BẢO HỘ BẢN QUYỀN JLPT ONLINE] ID: ${candidateId} | TIME: ${exportTimestamp} | HASH: ${securityHash}
-              <br>Nghiêm cấm sao chép, thương mại hóa hoặc phát tán tài liệu này ra bên ngoài hệ thống.
-            </div>
-          </body>
-        </html>
-      `;
+      const sections =
+        result?.scoring?.sections?.map((s) => ({
+          code: s.code,
+          name: s.label,
+          scaledScore: s.scaled,
+          maxScore: s.maxScaled,
+          passThreshold: s.minPass,
+          passed: s.passed,
+        })) || [];
 
-      if (typeof window !== 'undefined') {
-        const blob = new Blob([printHtml], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `jlpt-score-report-${level}-${attemptId.slice(0, 8)}.html`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+      // Generate official PDF using @jlpt/exam-engine with digital watermark & tamper-evident SHA-256
+      const pdfRes = generateScoreReportPdf({
+        data: {
+          attemptId: attemptId || 'att-anonymous',
+          userId: candidateId,
+          candidateName: user?.name || user?.email || 'Học viên JLPT',
+          candidateEmail: user?.email,
+          examTitle: examTitle || 'JLPT Standard Exam',
+          level: normalizedLevel,
+          examDate: submittedAt ? submittedAt.split('T')[0]! : exportTimestamp.split('T')[0]!,
+          durationSec: result?.durationSec || 3600,
+          scaledScore: result?.scoring?.total ?? 0,
+          maxScore: result?.scoring?.totalMax ?? 180,
+          passThreshold: result?.scoring?.totalPass ?? 100,
+          passed: result?.scoring?.passEstimate ?? false,
+          sections,
+          generatedAt: exportTimestamp,
+        },
+        requestingActor: {
+          userId: candidateId,
+        },
+      });
+
+      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        const blob = new Blob([pdfRes.buffer], { type: 'application/pdf' });
+        if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = pdfRes.filename || `jlpt-score-report-${level}-${attemptId.slice(0, 8)}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          if (typeof URL.revokeObjectURL === 'function') {
+            URL.revokeObjectURL(url);
+          }
+        }
       }
 
       setDownloadSuccess(true);
       setTimeout(() => setDownloadSuccess(false), 4000);
     } catch {
-      // Handled
+      setErrorMessage(t('seo.watermark.exportError') || 'Không thể tạo phiếu điểm PDF');
     } finally {
       setExporting(false);
     }
@@ -115,6 +122,15 @@ export function PdfScoreExportButton({
             className="text-xs font-semibold text-emerald-600 dark:text-emerald-400"
           >
             ✅ {t('seo.watermark.exportSuccess')}
+          </span>
+        )}
+
+        {errorMessage && (
+          <span
+            data-testid="pdf-export-error"
+            className="text-xs font-semibold text-rose-600 dark:text-rose-400"
+          >
+            ❌ {errorMessage}
           </span>
         )}
       </div>

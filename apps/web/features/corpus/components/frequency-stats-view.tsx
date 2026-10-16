@@ -78,6 +78,7 @@ export function FrequencyStatsView({
 
   const [generatingStudyList, setGeneratingStudyList] = useState(false);
   const [studyListNotice, setStudyListNotice] = useState<string | null>(null);
+  const [studyListError, setStudyListError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -103,12 +104,14 @@ export function FrequencyStatsView({
   const handleCreateStudyList = async () => {
     try {
       setGeneratingStudyList(true);
+      setStudyListNotice(null);
+      setStudyListError(null);
       const res = await client.createStudyList('jlpt-official', 'ALL', 50);
       setStudyListNotice(
         `Đã tạo thành công danh sách ôn tập gồm ${res.items?.length || 50} từ thường gặp nhất!`,
       );
     } catch {
-      setStudyListNotice('Đã tạo thành công danh sách ôn tập gồm 50 từ thường gặp nhất!');
+      setStudyListError('Không thể tạo danh sách ôn tập. Vui lòng thử lại sau.');
     } finally {
       setGeneratingStudyList(false);
     }
@@ -178,6 +181,12 @@ export function FrequencyStatsView({
         {studyListNotice && (
           <Alert variant="success" className="mt-4 text-xs" data-testid="study-list-notice">
             {studyListNotice}
+          </Alert>
+        )}
+
+        {studyListError && (
+          <Alert variant="error" className="mt-4 text-xs" data-testid="study-list-error">
+            {studyListError}
           </Alert>
         )}
       </Card>

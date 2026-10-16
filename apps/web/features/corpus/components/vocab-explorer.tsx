@@ -81,6 +81,7 @@ export function VocabExplorer({
 
   const [savingTerm, setSavingTerm] = useState<string | null>(null);
   const [saveSuccessNotice, setSaveSuccessNotice] = useState<string | null>(null);
+  const [saveErrorNotice, setSaveErrorNotice] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -118,12 +119,14 @@ export function VocabExplorer({
   const handleSaveToNotebook = async (item: VocabTermDto) => {
     try {
       setSavingTerm(item.term);
+      setSaveSuccessNotice(null);
+      setSaveErrorNotice(null);
       await client.addToNotebook('jlpt-official', item.term, item.reading, item.meaning);
       setSaveSuccessNotice(t('seo.corpus.addedToNotebook'));
       setTimeout(() => setSaveSuccessNotice(null), 3000);
     } catch {
-      setSaveSuccessNotice(t('seo.corpus.addedToNotebook'));
-      setTimeout(() => setSaveSuccessNotice(null), 3000);
+      setSaveErrorNotice(t('seo.corpus.saveFailed') || 'Không thể lưu từ vào sổ tay. Vui lòng thử lại sau.');
+      setTimeout(() => setSaveErrorNotice(null), 4000);
     } finally {
       setSavingTerm(null);
     }
@@ -170,6 +173,12 @@ export function VocabExplorer({
       {saveSuccessNotice && (
         <Alert variant="success" className="text-xs" data-testid="notebook-save-notice">
           {saveSuccessNotice}
+        </Alert>
+      )}
+
+      {saveErrorNotice && (
+        <Alert variant="error" className="text-xs" data-testid="notebook-save-error">
+          {saveErrorNotice}
         </Alert>
       )}
 

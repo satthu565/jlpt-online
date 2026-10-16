@@ -18,10 +18,16 @@
       "planner": "学習計画",
       "classroom": "クラス",
       "events": "模擬試験イベント",
-      "pricing": "プラン料金"
+      "pricing": "プラン料金",
+      "vocabulary": "語彙",
+      "grammar": "文法"
     },
     "footer": {
       "about": "当サイトについて",
+      "levels": "レベル N1–N5",
+      "vocabAndGrammar": "語彙・文法",
+      "vocabStats": "語彙統計",
+      "technicalSupport": "テクニカルサポート",
       "terms": "利用規約",
       "privacy": "プライバシーポリシー",
       "faq": "よくある質問",
@@ -256,6 +262,7 @@
     "levelsSubtitle": "文字・語彙、文法、読解、聴解を全5レベルで網羅",
     "levelHeading": "レベル {level}",
     "viewLevelExams": "{level} の問題を見る",
+    "exploreLevel": "{level} を確認する",
     "levelCards": {
       "n1": "最高難度。論説文や専門的な文章の読解、高度な議論の理解を目指します。",
       "n2": "中上級。日本企業での就労や大学進学に必要な日本語運用能力を養います。",
@@ -722,7 +729,8 @@
       "notice": "JLPT ONLINE 著作権保護 - 無断転載・再配布を禁じます",
       "downloadPdf": "成績証明書PDFをダウンロード（保護透かし付き）",
       "exportingPdf": "PDFを生成中...",
-      "exportSuccess": "成績証明書を出力しました！"
+      "exportSuccess": "成績証明書を出力しました！",
+      "exportError": "PDF成績証明書の生成に失敗しました。後でもう一度お試しください。"
     },
     "levels": {
       "n1Title": "JLPT N1 - 上級レベル",
@@ -797,7 +805,10 @@
       "joinedSuccess": "チャレンジに参加しました！",
       "leaderboardTitle": "学習ランキング (任意参加)",
       "optInLabel": "ランキングに公開表示する",
-      "optInSuccess": "ランキング表示設定を更新しました。"
+      "optInSuccess": "ランキング表示設定を更新しました。",
+      "checkInError": "出席チェックインに失敗しました。後でもう一度お試しください。",
+      "joinChallengeError": "チャレンジへの参加に失敗しました。後でもう一度お試しください。",
+      "optInError": "ランキング設定の更新に失敗しました。後でもう一度お試しください。"
     },
     "corpus": {
       "vocabTitle": "レベル別・文脈別 語彙コーパス",
@@ -807,6 +818,7 @@
       "searchButton": "検索",
       "addToNotebook": "マイ単語帳に追加",
       "addedToNotebook": "単語帳に追加しました！",
+      "saveFailed": "単語帳への保存に失敗しました。後でもう一度お試しください。",
       "practicePattern": "この文型を使った問題を解く",
       "exportCsv": "CSV形式で出力",
       "exportExcel": "Excel形式で出力",

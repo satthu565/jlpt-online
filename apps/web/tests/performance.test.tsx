@@ -9,6 +9,7 @@ import { reportWebVitals, type WebVitalMetric } from '../lib/web-vitals';
 import { setConsentStatus, hasAnalyticsConsent } from '../lib/consent';
 import { TTSAudioPlayer, WatermarkBadge } from '@jlpt/ui';
 import { PdfScoreExportButton } from '../features/results';
+import { generateScoreReportPdf } from '@jlpt/exam-engine';
 import { SAMPLE_EXAM_SUMMARIES } from '../features/exam/fixtures/exam-fixtures';
 import type { Result } from '@jlpt/schema';
 
@@ -191,6 +192,59 @@ describe('Performance, Web Vitals, Bundle Budgets & Media Security (SYS-02, SYS-
         expect(json).not.toContain('correctAnswer');
       }
     });
+
+    it('generates authentic application/pdf score report with tamper-evident watermark (SYS-17)', () => {
+      const pdf = generateScoreReportPdf({
+        data: {
+          attemptId: 'att-sys17-test-01',
+          userId: 'usr-student-sys17',
+          candidateName: 'Nguyễn Văn A',
+          examTitle: 'JLPT N3 Practice Exam',
+          level: 'N3',
+          examDate: '2026-10-16',
+          scaledScore: 125,
+          maxScore: 180,
+          passThreshold: 95,
+          passed: true,
+          sections: [
+            {
+              code: 'language',
+              name: '言語知識（文字・語彙・文法）',
+              scaledScore: 45,
+              maxScore: 60,
+              passThreshold: 19,
+              passed: true,
+            },
+            {
+              code: 'reading',
+              name: '読解',
+              scaledScore: 42,
+              maxScore: 60,
+              passThreshold: 19,
+              passed: true,
+            },
+            {
+              code: 'listening',
+              name: '聴解',
+              scaledScore: 38,
+              maxScore: 60,
+              passThreshold: 19,
+              passed: true,
+            },
+          ],
+        },
+        requestingActor: {
+          userId: 'usr-student-sys17',
+        },
+      });
+
+      expect(pdf.mimeType).toBe('application/pdf');
+      expect(pdf.filename).toMatch(/^jlpt-score-report-att-sys17-test-01\.pdf$/);
+      expect(pdf.buffer).toBeInstanceOf(Buffer);
+      expect(pdf.buffer.toString('utf8')).toContain('%PDF-1.4');
+      expect(pdf.buffer.toString('utf8')).toContain('VERIFICATION HASH:');
+      expect(pdf.checksumSha256).toBeDefined();
+    });
   });
 
   // =========================================================================
@@ -205,41 +259,40 @@ describe('Performance, Web Vitals, Bundle Budgets & Media Security (SYS-02, SYS-
 
     it('verifies static prerender manifest contains public SEO routes', () => {
       const prerenderManifestPath = path.join(nextDir, 'prerender-manifest.json');
-      if (fs.existsSync(prerenderManifestPath)) {
-        const manifest = JSON.parse(fs.readFileSync(prerenderManifestPath, 'utf8'));
-        const routes = Object.keys(manifest.routes || {});
+      expect(fs.existsSync(prerenderManifestPath)).toBe(true);
+      const manifest = JSON.parse(fs.readFileSync(prerenderManifestPath, 'utf8'));
+      const routes = Object.keys(manifest.routes || {});
 
-        // Public level routes must be prerendered statically
-        expect(routes).toContain('/n1');
-        expect(routes).toContain('/n2');
-        expect(routes).toContain('/n3');
-        expect(routes).toContain('/n4');
-        expect(routes).toContain('/n5');
+      // Public level routes must be prerendered statically
+      expect(routes).toContain('/n1');
+      expect(routes).toContain('/n2');
+      expect(routes).toContain('/n3');
+      expect(routes).toContain('/n4');
+      expect(routes).toContain('/n5');
 
-        // Level exams
-        expect(routes).toContain('/n1/de-thi');
-        expect(routes).toContain('/n3/de-thi');
+      // Level exams
+      expect(routes).toContain('/n1/de-thi');
+      expect(routes).toContain('/n3/de-thi');
 
-        // Info & Corpus
-        expect(routes).toContain('/tu-vung');
-        expect(routes).toContain('/ngu-phap');
-        expect(routes).toContain('/thong-ke-tu-vung');
-        expect(routes).toContain('/faq');
-        expect(routes).toContain('/dieu-khoan');
-        expect(routes).toContain('/chinh-sach');
-      }
+      // Info & Corpus
+      expect(routes).toContain('/tu-vung');
+      expect(routes).toContain('/ngu-phap');
+      expect(routes).toContain('/thong-ke-tu-vung');
+      expect(routes).toContain('/faq');
+      expect(routes).toContain('/dieu-khoan');
+      expect(routes).toContain('/chinh-sach');
     });
 
     it('verifies JavaScript chunk sizes meet initial bundle budget (< 350KB uncompressed / < 150KB gzip)', () => {
       const staticChunksDir = path.join(nextDir, 'static/chunks');
-      if (fs.existsSync(staticChunksDir)) {
-        const files = fs.readdirSync(staticChunksDir);
-        for (const file of files) {
-          if (file.endsWith('.js') && !file.includes('framework') && !file.includes('webpack')) {
-            const stats = fs.statSync(path.join(staticChunksDir, file));
-            // Uncompressed chunk size check: each individual page chunk should be reasonable (< 350KB)
-            expect(stats.size).toBeLessThan(350 * 1024);
-          }
+      expect(fs.existsSync(staticChunksDir)).toBe(true);
+      const files = fs.readdirSync(staticChunksDir);
+      expect(files.length).toBeGreaterThan(0);
+      for (const file of files) {
+        if (file.endsWith('.js') && !file.includes('framework') && !file.includes('webpack')) {
+          const stats = fs.statSync(path.join(staticChunksDir, file));
+          // Uncompressed chunk size check: each individual page chunk should be reasonable (< 350KB)
+          expect(stats.size).toBeLessThan(350 * 1024);
         }
       }
     });

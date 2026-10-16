@@ -31,6 +31,7 @@ export function GamificationDashboard({
   // Status & Feedback
   const [loadingCheckIn, setLoadingCheckIn] = useState(false);
   const [checkInNotice, setCheckInNotice] = useState<string | null>(null);
+  const [operationError, setOperationError] = useState<string | null>(null);
   const [shareDialogInfo, setShareDialogInfo] = useState<{
     isOpen: boolean;
     url: string;
@@ -150,15 +151,13 @@ export function GamificationDashboard({
   const handleCheckIn = async () => {
     try {
       setLoadingCheckIn(true);
+      setCheckInNotice(null);
+      setOperationError(null);
       const res = await client.recordActivity('check_in', 1);
       setStreak(res);
       setCheckInNotice(t('seo.gamification.checkInSuccess', { days: res.currentStreak }));
     } catch {
-      if (streak) {
-        const nextDays = streak.currentStreak + 1;
-        setStreak({ ...streak, currentStreak: nextDays, isActiveToday: true });
-        setCheckInNotice(t('seo.gamification.checkInSuccess', { days: nextDays }));
-      }
+      setOperationError(t('seo.gamification.checkInError') || 'Điểm danh học tập không thành công. Vui lòng thử lại sau.');
     } finally {
       setLoadingCheckIn(false);
     }
@@ -185,25 +184,24 @@ export function GamificationDashboard({
   // Handle Join Challenge
   const handleJoinChallenge = async (challengeId: string) => {
     try {
+      setOperationError(null);
       const updated = await client.joinChallenge(challengeId);
       setChallenges((prev) =>
         prev.map((c) => (c.id === challengeId ? { ...c, ...updated, joined: true } : c)),
       );
     } catch {
-      setChallenges((prev) =>
-        prev.map((c) => (c.id === challengeId ? { ...c, joined: true } : c)),
-      );
+      setOperationError(t('seo.gamification.joinChallengeError') || 'Tham gia thử thách không thành công. Vui lòng thử lại sau.');
     }
   };
 
   // Handle Leaderboard Opt-In
   const handleToggleOptIn = async () => {
-    const nextVal = !optIn;
-    setOptIn(nextVal);
+    setOperationError(null);
     try {
-      await client.setLeaderboardOptIn(nextVal);
+      await client.setLeaderboardOptIn(!optIn);
+      setOptIn(!optIn);
     } catch {
-      // Revert if API fails
+      setOperationError(t('seo.gamification.optInError') || 'Không thể cập nhật tùy chọn bảng xếp hạng. Vui lòng thử lại sau.');
     }
   };
 
@@ -250,6 +248,12 @@ export function GamificationDashboard({
         {checkInNotice && (
           <Alert variant="success" className="mt-4 text-xs" data-testid="checkin-notice">
             {checkInNotice}
+          </Alert>
+        )}
+
+        {operationError && (
+          <Alert variant="error" className="mt-4 text-xs" data-testid="gamification-error-notice">
+            {operationError}
           </Alert>
         )}
       </Card>

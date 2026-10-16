@@ -18,10 +18,16 @@
       "planner": "Kế hoạch",
       "classroom": "Lớp học",
       "events": "Sự kiện",
-      "pricing": "Gói thành viên"
+      "pricing": "Gói thành viên",
+      "vocabulary": "Từ vựng",
+      "grammar": "Ngữ pháp"
     },
     "footer": {
       "about": "Giới thiệu",
+      "levels": "Cấp độ N1–N5",
+      "vocabAndGrammar": "Từ vựng & Ngữ pháp",
+      "vocabStats": "Thống kê từ vựng",
+      "technicalSupport": "Hỗ trợ kỹ thuật",
       "terms": "Điều khoản sử dụng",
       "privacy": "Chính sách quyền riêng tư",
       "faq": "Câu hỏi thường gặp",
@@ -256,6 +262,7 @@
     "levelsSubtitle": "Lộ trình hoàn chỉnh từ vựng, ngữ pháp, đọc hiểu và nghe hiểu cho cả 5 cấp độ",
     "levelHeading": "Cấp độ {level}",
     "viewLevelExams": "Xem đề thi {level}",
+    "exploreLevel": "Khám phá {level}",
     "levelCards": {
       "n1": "Cấp độ cao cấp nhất. Đọc hiểu báo chí, phân tích chuyên sâu và thảo luận phức tạp.",
       "n2": "Trung cao cấp. Phục vụ học tập và làm việc tại các doanh nghiệp Nhật Bản.",
@@ -722,7 +729,8 @@
       "notice": "BẢN QUYỀN THUỘC JLPT ONLINE - NGHIÊM CẤM SAO CHÉP TRÁI PHÉP",
       "downloadPdf": "Tải phiếu điểm PDF (Đóng dấu bảo mật)",
       "exportingPdf": "Đang tạo phiếu điểm PDF...",
-      "exportSuccess": "Đã xuất phiếu điểm thành công!"
+      "exportSuccess": "Đã xuất phiếu điểm thành công!",
+      "exportError": "Không thể tạo phiếu điểm PDF. Vui lòng thử lại sau."
     },
     "levels": {
       "n1Title": "JLPT N1 - Cấp độ Cao cấp",
@@ -797,7 +805,10 @@
       "joinedSuccess": "Đã tham gia thử thách thành công!",
       "leaderboardTitle": "Bảng xếp hạng học tập (Tự nguyện)",
       "optInLabel": "Hiển thị công khai trên bảng xếp hạng",
-      "optInSuccess": "Đã cập nhật tùy chọn hiển thị bảng xếp hạng."
+      "optInSuccess": "Đã cập nhật tùy chọn hiển thị bảng xếp hạng.",
+      "checkInError": "Điểm danh học tập không thành công. Vui lòng thử lại sau.",
+      "joinChallengeError": "Tham gia thử thách không thành công. Vui lòng thử lại sau.",
+      "optInError": "Không thể cập nhật tùy chọn bảng xếp hạng. Vui lòng thử lại sau."
     },
     "corpus": {
       "vocabTitle": "Giới thiệu Từ vựng theo Cấp độ & Ngữ cảnh",
@@ -807,6 +818,7 @@
       "searchButton": "Tra cứu",
       "addToNotebook": "Lưu vào sổ tay cá nhân",
       "addedToNotebook": "Đã lưu từ vào sổ tay!",
+      "saveFailed": "Không thể lưu từ vào sổ tay. Vui lòng thử lại sau.",
       "practicePattern": "Luyện tập câu hỏi theo mẫu này",
       "exportCsv": "Xuất báo cáo CSV",
       "exportExcel": "Xuất báo cáo Excel",

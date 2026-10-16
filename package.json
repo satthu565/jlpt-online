@@ -48,7 +48,7 @@
     "test:web": "pnpm --filter @jlpt/ui build && pnpm --filter @jlpt/web test",
     "test:i18n": "pnpm --filter @jlpt/web test:i18n",
     "test:seo": "pnpm --filter @jlpt/ui build && pnpm --filter @jlpt/web test:seo",
-    "test:performance": "pnpm --filter @jlpt/ui build && pnpm --filter @jlpt/web test:performance",
+    "test:performance": "pnpm --filter @jlpt/schema build && pnpm --filter @jlpt/exam-engine build && pnpm --filter @jlpt/ui build && pnpm --filter @jlpt/web build && pnpm --filter @jlpt/web test:performance",
     "test:e2e:web-all": "pnpm --filter @jlpt/ui build && pnpm --filter @jlpt/web test:e2e:web-all",
     "test:a11y": "pnpm --filter @jlpt/ui build && pnpm --filter @jlpt/ui test:a11y && pnpm --filter @jlpt/web test:a11y",
     "test:exam-ui": "pnpm --filter @jlpt/ui build && pnpm --filter @jlpt/web test:exam-ui",

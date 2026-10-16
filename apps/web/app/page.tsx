@@ -136,7 +136,7 @@ export default function HomePage(): React.JSX.Element {
                 <CardFooter style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.375rem', width: '100%' }}>
                   <a href={`/${id}`} style={{ textDecoration: 'none', width: '100%' }}>
                     <Button variant="primary" size="sm" style={{ width: '100%' }}>
-                      Khám phá {level}
+                      {t('home.exploreLevel', { level })}
                     </Button>
                   </a>
                   <a href={`/${id}/de-thi`} style={{ textDecoration: 'none', width: '100%' }}>
