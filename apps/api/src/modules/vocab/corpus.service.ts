@@ -8,7 +8,7 @@ import { eq } from 'drizzle-orm';
 import {
   CorpusAggregator,
   type ExamPackageInput,
-} from '../../../../packages/content-tools/dist/index.js';
+} from '../../../../../packages/content-tools/dist/index.js';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import {

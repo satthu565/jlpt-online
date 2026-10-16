@@ -326,8 +326,7 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       expect(kanjiStats.byKnowledgeGroup['education']).toBeGreaterThan(0); // 学, 校
       expect(kanjiStats.byKnowledgeGroup['action']).toBeGreaterThan(0); // 行
 
-      // DATA-22: Kanji occurrence count
-      const getsu = kanjiStats.items.find((k) => k.kanji === '月');
+      const getsu = (kanjiStats.items as Array<{ kanji: string; count: number; knowledgeGroup: string; level: string }>).find((k) => k.kanji === '月');
       expect(getsu).toBeDefined();
       expect(getsu?.count).toBe(1);
       expect(getsu?.knowledgeGroup).toBe('time');
