@@ -4,12 +4,16 @@ import React from 'react';
 import type { FlatQuestionItem } from '../../exam/types';
 import { RichTextView, PassageView } from '@jlpt/ui';
 import { QuestionAudioPlayer } from '../../exam/components/audio-player';
+import type { LearnerExplanation } from '../../explanations/types';
+import { ExplanationView } from '../../explanations/components/explanation-view';
 
 export interface ReviewQuestionItemProps {
   question: FlatQuestionItem;
   userAnswer: number; // 0 = blank, 1..4 = selected
   correctAnswer: number; // 1..4
   isFlagged: boolean;
+  explanation?: LearnerExplanation;
+  hasLicensePermission?: boolean;
   className?: string;
 }
 
@@ -18,8 +22,11 @@ export function ReviewQuestionItem({
   userAnswer,
   correctAnswer,
   isFlagged,
+  explanation,
+  hasLicensePermission = false,
   className = '',
 }: ReviewQuestionItemProps): React.JSX.Element {
+  const [showExplanation, setShowExplanation] = React.useState(Boolean(explanation));
   const isCorrect = userAnswer === correctAnswer;
   const isBlank = userAnswer === 0;
 
@@ -172,6 +179,41 @@ export function ReviewQuestionItem({
             </div>
           );
         })}
+      </div>
+
+      {/* Explanation Section (EXPL-01..09) */}
+      <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+        <div className="flex items-center justify-between mb-2">
+          <button
+            type="button"
+            onClick={() => setShowExplanation((prev) => !prev)}
+            data-testid={`toggle-explanation-btn-${question.number}`}
+            className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5"
+          >
+            <span>{showExplanation ? '▼ Ẩn lời giải chi tiết' : '▶ Xem lời giải chi tiết (EXPL-01..09)'}</span>
+          </button>
+        </div>
+
+        {showExplanation && (
+          <div className="mt-3">
+            {explanation ? (
+              <ExplanationView
+                explanation={explanation}
+                questionNumber={question.number}
+                userAnswer={userAnswer}
+                correctAnswer={correctAnswer}
+                hasLicensePermission={hasLicensePermission}
+              />
+            ) : (
+              <div
+                data-testid="explanation-placeholder"
+                className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 text-xs text-slate-500 text-center"
+              >
+                Chưa có dữ liệu lời giải chi tiết cho câu hỏi này.
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </article>
   );
