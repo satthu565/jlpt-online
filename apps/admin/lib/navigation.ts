@@ -73,6 +73,18 @@ export const ALL_NAV_SECTIONS: NavSection[] = [
         href: '/imports',
         requiredRoles: ['admin', 'editor'],
       },
+      {
+        id: 'cms',
+        labelKey: 'nav.cms',
+        href: '/cms',
+        requiredRoles: ['admin', 'editor'],
+      },
+      {
+        id: 'vocab',
+        labelKey: 'nav.vocab',
+        href: '/vocab',
+        requiredRoles: ['admin', 'editor'],
+      },
     ],
   },
   {
@@ -97,6 +109,12 @@ export const ALL_NAV_SECTIONS: NavSection[] = [
         href: '/reports/content',
         requiredRoles: ['admin', 'reviewer', 'moderator'],
       },
+      {
+        id: 'aiModeration',
+        labelKey: 'nav.aiModeration',
+        href: '/moderation/ai',
+        requiredRoles: ['admin', 'moderator'],
+      },
     ],
   },
   {
@@ -107,6 +125,12 @@ export const ALL_NAV_SECTIONS: NavSection[] = [
         id: 'exams',
         labelKey: 'nav.exams',
         href: '/exams',
+        requiredRoles: ['admin', 'editor', 'reviewer'],
+      },
+      {
+        id: 'mixedExams',
+        labelKey: 'nav.mixedExams',
+        href: '/exams/mixed',
         requiredRoles: ['admin', 'editor', 'reviewer'],
       },
     ],
@@ -164,6 +188,12 @@ export const ALL_NAV_SECTIONS: NavSection[] = [
     titleKey: 'nav.sections.analytics',
     items: [
       {
+        id: 'reportsOverview',
+        labelKey: 'nav.reports',
+        href: '/reports',
+        requiredRoles: ['admin', 'billing_admin'],
+      },
+      {
         id: 'revenueReport',
         labelKey: 'nav.revenueReport',
         href: '/reports/revenue',
@@ -191,6 +221,18 @@ export const ALL_NAV_SECTIONS: NavSection[] = [
         id: 'experiments',
         labelKey: 'nav.experiments',
         href: '/experiments',
+        requiredRoles: ['admin'],
+      },
+      {
+        id: 'notifications',
+        labelKey: 'nav.notifications',
+        href: '/settings/notifications',
+        requiredRoles: ['admin'],
+      },
+      {
+        id: 'orgSettings',
+        labelKey: 'nav.orgSettings',
+        href: '/settings/org',
         requiredRoles: ['admin'],
       },
       {

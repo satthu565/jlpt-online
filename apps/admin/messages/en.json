@@ -24,6 +24,13 @@
     "users": "User Management",
     "auditLogs": "System Audit Logs",
     "experiments": "A/B Experiments",
+    "cms": "Article & CMS Management",
+    "vocab": "Vocabulary & Grammar",
+    "mixedExams": "Mixed Exams",
+    "reports": "System Analytics (15 Reports)",
+    "notifications": "Notification & Email Settings",
+    "aiModeration": "AI Moderation",
+    "orgSettings": "Organizations & Teachers",
     "settings": "System Settings",
     "sections": {
       "overview": "Overview",

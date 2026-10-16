@@ -76,7 +76,11 @@
     "test:classrooms": "vitest run apps/api/src/modules/classroom/classroom.test.ts",
     "test:events": "vitest run apps/api/src/modules/classroom/event.test.ts",
     "test:community": "vitest run apps/api/src/modules/community/community.test.ts",
-    "test:privacy": "vitest run apps/api/src/modules/user/privacy.test.ts"
+    "test:privacy": "vitest run apps/api/src/modules/user/privacy.test.ts",
+    "test:admin-full": "vitest run -c apps/admin/vitest.config.ts apps/admin",
+    "test:reporting": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/reporting/reporting.test.ts",
+    "test:cms": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/cms/cms.test.ts",
+    "test:experiments": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/experiment/experiment.test.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",
