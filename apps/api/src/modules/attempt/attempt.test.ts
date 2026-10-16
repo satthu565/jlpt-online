@@ -473,6 +473,9 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
         payload: { lease },
       });
 
+      if (res.statusCode !== 200) {
+        console.error('FAILED NEXT_SECTION:', res.statusCode, res.payload);
+      }
       expect(res.statusCode).toBe(200);
       const body = JSON.parse(res.payload);
       expect(body.sectionIndex).toBe(0);
