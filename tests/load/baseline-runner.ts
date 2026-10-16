@@ -147,7 +147,10 @@ async function runLoadBaseline() {
   console.log(`Executing ${targets.length} requests across ${concurrency} concurrent workers...`);
   const overallStart = performance.now();
 
-  async function worker() {
+  async function worker(workerId: number) {
+    // Realistic client IP per concurrent worker to reflect distributed traffic and respect per-IP protection
+    const clientIp = `198.51.100.${(workerId % 20) + 1}`;
+
     while (nextIndex < targets.length) {
       const idx = nextIndex++;
       const targetEndpoint = targets[idx]!;
@@ -158,14 +161,26 @@ async function runLoadBaseline() {
       let success = false;
 
       try {
-        const res = await fetch(url);
+        const res = await fetch(url, {
+          headers: {
+            'x-forwarded-for': clientIp,
+            'cf-connecting-ip': clientIp,
+            'user-agent': `JLPT-Load-Baseline-Worker/${workerId + 1}`,
+          },
+        });
         statusCode = res.status;
         success = res.ok;
-        // Consume body
-        await res.text();
-      } catch {
+        if (!res.ok) {
+          const errorBody = await res.text();
+          console.error(`[LoadRunner] Request failed (${res.status}) on ${targetEndpoint}: ${errorBody.slice(0, 150)}`);
+        } else {
+          // Consume body
+          await res.text();
+        }
+      } catch (fetchErr) {
         statusCode = 500;
         success = false;
+        console.error(`[LoadRunner] Network/Fetch error on ${targetEndpoint}:`, fetchErr);
       }
 
       const t1 = performance.now();
@@ -180,7 +195,7 @@ async function runLoadBaseline() {
 
   const workers = Array(concurrency)
     .fill(null)
-    .map(() => worker());
+    .map((_, i) => worker(i));
   await Promise.all(workers);
 
   const overallDurationSec = Number(((performance.now() - overallStart) / 1000).toFixed(3));

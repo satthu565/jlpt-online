@@ -9,11 +9,13 @@ import {
 import { Public } from '../../common/decorators/public.decorator.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
+import { RateLimit } from '../../common/decorators/rate-limit.decorator.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
 import { ExamService } from './exam.service.js';
 import type { Level, ExamKind, Session } from '@jlpt/schema';
 
 @Controller()
+@RateLimit({ limit: 1000, windowSec: 60, keyPrefix: 'exams' })
 export class ExamController {
   constructor(private readonly examService: ExamService) {}
 

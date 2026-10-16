@@ -63,6 +63,8 @@ services:
     environment:
       - APP_MODE=api
       - NODE_ENV=production
+      - APP_ENV=staging
+      - RATE_LIMIT_NAMESPACE=staging
       - PORT=4000
       - API_WORKERS=1
       - NODE_OPTIONS=--max-old-space-size=${API_MAX_OLD_SPACE:-384}
