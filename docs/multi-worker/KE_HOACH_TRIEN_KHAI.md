@@ -705,7 +705,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Phạm vi: Tích hợp APIs learning vào staging, replay events, provider network fail, concurrency limits và account quota simulator.
 - Bàn giao: tests/integration/learning/; tests/integration/billing/.
 - Hợp đồng: quy tắc chung.
-- Khóa tài nguyên: staging-deploy.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
 - Điều kiện ngoài chặn bắt đầu: không.
 - Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
 - Quyền ghi tạm ngoài thư mục của worker: không.
@@ -865,12 +865,12 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### A06 Tích hợp toàn bộ module và kiểm tra phạm vi hiện hành
 
 - Worker: **W6**. Ngày mục tiêu: 6. Ước lượng chưa đo: 6 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: L06, A02, A03, A04, A05. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: A02, A03, A04, A05. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Dựng staging đủ mọi route, worker background, providers, coverage by feature; generated smoke list không thay test thật.
 - Bàn giao: tests/e2e/full/.
 - Hợp đồng: quy tắc chung.
-- Khóa tài nguyên: staging-deploy.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
 - Điều kiện ngoài chặn bắt đầu: không.
 - Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
 - Quyền ghi tạm ngoài thư mục của worker: không.
@@ -966,7 +966,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### V04 Admin reconciliation vận hành và chứng từ provider
 
 - Worker: **W4**. Ngày mục tiêu: 6. Ước lượng chưa đo: 6 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: A04, A06. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: A04. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Đối soát payment refund, cost/corpus reports, full admin flows, backup restore UI chỉ gọi operator job được phép.
 - Bàn giao: apps/admin/; apps/api/src/modules/reporting/.
@@ -991,7 +991,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### V05 Đối chiếu dữ liệu nhập AI thật và học tập E2E
 
 - Worker: **W5**. Ngày mục tiêu: 6. Ước lượng chưa đo: 6 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: A05, A06. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: A05. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Kiểm thử gói do người chuẩn bị dữ liệu chuẩn bị, dữ liệu thiếu và sửa revision; actual learning AI/dictionary/TTS tests, statistical cold start và learning workflows.
 - Bàn giao: tools/import-data/; packages/content-tools/; apps/api/src/modules/ai/; apps/api/src/modules/learning/.
@@ -1017,7 +1017,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### V06 Full regression load accessibility security và restore
 
 - Worker: **W6**. Ngày mục tiêu: 6. Ước lượng chưa đo: 8 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: A06, V02, V03, V04, V05. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: L06, A06, V02, V03, V04, V05. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: SYS-10.
 - Phạm vi: Chromium WebKit Firefox; device operator, k6 stepped load, ZAP/CodeQL/deps, backup restore cold deploy rollback.
 - Bàn giao: tests/; infra/.

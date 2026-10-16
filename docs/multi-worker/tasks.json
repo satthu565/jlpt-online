@@ -1851,9 +1851,7 @@
         "pnpm test:integration:billing"
       ],
       "contracts": [],
-      "exclusiveResources": [
-        "staging-deploy"
-      ],
+      "exclusiveResources": [],
       "startPrerequisites": [],
       "acceptancePrerequisites": [],
       "temporaryGrants": [],
@@ -2199,7 +2197,6 @@
       "estimatedWorkerHours": 6,
       "title": "Tích hợp toàn bộ module và kiểm tra phạm vi hiện hành",
       "dependencies": [
-        "L06",
         "A02",
         "A03",
         "A04",
@@ -2221,9 +2218,7 @@
         "pnpm test:contracts"
       ],
       "contracts": [],
-      "exclusiveResources": [
-        "staging-deploy"
-      ],
+      "exclusiveResources": [],
       "startPrerequisites": [],
       "acceptancePrerequisites": [],
       "temporaryGrants": [],
@@ -2431,8 +2426,7 @@
       "estimatedWorkerHours": 6,
       "title": "Admin reconciliation vận hành và chứng từ provider",
       "dependencies": [
-        "A04",
-        "A06"
+        "A04"
       ],
       "featureIds": [],
       "scope": "Đối soát payment refund, cost/corpus reports, full admin flows, backup restore UI chỉ gọi operator job được phép.",
@@ -2474,8 +2468,7 @@
       "estimatedWorkerHours": 6,
       "title": "Đối chiếu dữ liệu nhập AI thật và học tập E2E",
       "dependencies": [
-        "A05",
-        "A06"
+        "A05"
       ],
       "featureIds": [],
       "scope": "Kiểm thử gói do agent ngoài chuẩn bị, dữ liệu thiếu và sửa revision; actual learning AI/dictionary/TTS tests, statistical cold start và learning workflows.",
@@ -2536,6 +2529,7 @@
       "estimatedWorkerHours": 8,
       "title": "Full regression load accessibility security và restore",
       "dependencies": [
+        "L06",
         "A06",
         "V02",
         "V03",

@@ -486,20 +486,11 @@
         "lateToDailyTargetHours": 0
       },
       {
-        "taskId": "V03",
-        "worker": "W3",
-        "plannedDay": 6,
-        "startHour": 126,
-        "finishHour": 133,
-        "targetByHour": 144,
-        "lateToDailyTargetHours": 0
-      },
-      {
         "taskId": "V04",
         "worker": "W4",
         "plannedDay": 6,
-        "startHour": 126,
-        "finishHour": 132,
+        "startHour": 120,
+        "finishHour": 126,
         "targetByHour": 144,
         "lateToDailyTargetHours": 0
       },
@@ -507,8 +498,17 @@
         "taskId": "V05",
         "worker": "W5",
         "plannedDay": 6,
+        "startHour": 120,
+        "finishHour": 126,
+        "targetByHour": 144,
+        "lateToDailyTargetHours": 0
+      },
+      {
+        "taskId": "V03",
+        "worker": "W3",
+        "plannedDay": 6,
         "startHour": 126,
-        "finishHour": 132,
+        "finishHour": 133,
         "targetByHour": 144,
         "lateToDailyTargetHours": 0
       },
