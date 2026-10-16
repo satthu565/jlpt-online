@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   AttemptModeSchema,
   AttemptStatusSchema,
+  MondaiTypeSchema,
   ResultFlagSchema,
   SkillSchema,
 } from './enums.js';
@@ -108,7 +109,29 @@ export const ResultScoringSchema = z.object({
   totalMax: z.number().int().nonnegative(),
   totalPass: z.number().int().nonnegative(),
   passEstimate: z.boolean(),
+  disclaimer: z.string().optional(),
 });
+
+export const ResultMondaiStatsSchema = z.object({
+  mondaiType: MondaiTypeSchema,
+  correct: z.number().int().nonnegative(),
+  total: z.number().int().nonnegative(),
+  wrong: z.number().int().nonnegative().optional(),
+  blank: z.number().int().nonnegative().optional(),
+  accuracy: z.number().min(0).max(100).optional(),
+});
+export type ResultMondaiStats = z.infer<typeof ResultMondaiStatsSchema>;
+
+export const ResultTargetEvaluationSchema = z.object({
+  targetScore: z.number().int().positive(),
+  actualScore: z.number().int().nonnegative(),
+  reached: z.boolean(),
+  margin: z.number().int(),
+  percentageOfTarget: z.number(),
+  passThreshold: z.number().int().nonnegative(),
+  passedStandard: z.boolean(),
+});
+export type ResultTargetEvaluation = z.infer<typeof ResultTargetEvaluationSchema>;
 
 export const ResultSchema = z.object({
   totals: ResultTotalsSchema,
@@ -116,6 +139,8 @@ export const ResultSchema = z.object({
   durationSec: z.number().int().nonnegative(),
   bySection: z.array(ResultSectionStatsSchema),
   bySkill: z.array(ResultSkillStatsSchema),
+  byMondai: z.array(ResultMondaiStatsSchema).optional(),
+  targetEvaluation: ResultTargetEvaluationSchema.optional(),
   scoring: ResultScoringSchema,
   flags: z.array(ResultFlagSchema),
 });

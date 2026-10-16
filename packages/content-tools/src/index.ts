@@ -33,3 +33,7 @@ export function validatePackageManifest(manifest: unknown): ImportPackageValidat
 export * from './types.js';
 export * from './schema.js';
 export * from './validator.js';
+export * from './zip.js';
+export * from './idempotency.js';
+export * from './blueprint-validator.js';
+export * from './issues.js';

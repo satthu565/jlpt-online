@@ -9,6 +9,7 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:import-contracts": "vitest run packages/content-tools/tests/import-contracts.test.ts",
+    "test:import-validation": "vitest run packages/content-tools/tests/import-validation.test.ts",
     "import:validate": "node tools/import-data/bin/validate.js",
     "dev": "turbo run dev",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md}\"",
@@ -21,11 +22,15 @@
     "db:seed:test": "vitest run apps/api/src/db/db.test.ts -t \"seeds fresh migrated database\"",
     "test:db": "vitest run apps/api/src/db/db.test.ts",
     "test:auth": "vitest run apps/api/src/modules/auth/auth.test.ts",
-    "test:authorization": "vitest run apps/api/src/common/guards/authorization.test.ts"
+    "test:authorization": "vitest run apps/api/src/common/guards/authorization.test.ts",
+    "test:exam-engine": "vitest run packages/exam-engine",
+    "test:media-token": "vitest run packages/media-token",
+    "test:coverage": "vitest run --coverage --coverage.include=\"packages/exam-engine/src/**\" --coverage.include=\"packages/media-token/src/**\" packages/exam-engine packages/media-token"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",
     "@eslint/js": "9.21.0",
+    "@vitest/coverage-v8": "5.0.4",
     "eslint": "9.21.0",
     "prettier": "3.5.3",
     "turbo": "2.11.8",
