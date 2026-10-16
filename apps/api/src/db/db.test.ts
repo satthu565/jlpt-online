@@ -1186,5 +1186,80 @@ describe('F08 Database Schema and Migrations', () => {
       }
     });
   });
+
+  describe('V01 Acceptance 3: Race tests, concurrent migration serialization, and privacy migration', () => {
+    it('concurrent migrations (5 parallel callers) are serialised and execute ledger once', async () => {
+      const client = await createDbClient();
+      try {
+        const results = await Promise.all([
+          runMigrations(client),
+          runMigrations(client),
+          runMigrations(client),
+          runMigrations(client),
+          runMigrations(client),
+        ]);
+        const appliedRuns = results.filter((r) => r.applied.length > 0);
+        const zeroAppliedRuns = results.filter((r) => r.applied.length === 0);
+        expect(appliedRuns.length).toBe(1);
+        expect(appliedRuns[0]!.applied.length).toBeGreaterThanOrEqual(4);
+        expect(zeroAppliedRuns.length).toBe(4);
+        for (const r of zeroAppliedRuns) {
+          expect(r.alreadyApplied.length).toBeGreaterThanOrEqual(4);
+        }
+      } finally {
+        await client.close();
+      }
+    });
+
+    it('enforces export_jobs status check constraint from migration 0003', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+        await seedDatabase(client, fixturesDir);
+
+        const userId = '0192f000-0000-7000-8000-000000000001';
+        // Invalid status: must fail
+        await expect(
+          client.query(`
+            INSERT INTO "export_jobs" (id, job_type, status, requested_by)
+            VALUES ('0192f000-0095-7000-8000-000000000001', 'score_report_pdf', 'illegal_status', '${userId}');
+          `),
+        ).rejects.toThrow();
+
+        // Valid status: succeeds
+        await client.query(`
+          INSERT INTO "export_jobs" (id, job_type, status, requested_by)
+          VALUES ('0192f000-0095-7000-8000-000000000002', 'score_report_pdf', 'completed', '${userId}');
+        `);
+      } finally {
+        await client.close();
+      }
+    });
+
+    it('creates and verifies privacy indices for data export, deletion requests, and report snapshots', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+        const indexRes = (await client.query(`
+          SELECT indexname FROM pg_indexes
+          WHERE schemaname = 'public'
+          AND indexname IN (
+            'data_export_jobs_user_status_idx',
+            'deletion_requests_user_status_idx',
+            'report_snapshots_name_period_idx',
+            'export_jobs_requested_by_status_idx'
+          );
+        `)) as { rows?: Array<{ indexname: string }> } | Array<{ indexname: string }>;
+        const rows = 'rows' in indexRes && Array.isArray(indexRes.rows) ? indexRes.rows : (indexRes as Array<{ indexname: string }>);
+        const names = rows.map((r) => r.indexname);
+        expect(names).toContain('data_export_jobs_user_status_idx');
+        expect(names).toContain('deletion_requests_user_status_idx');
+        expect(names).toContain('report_snapshots_name_period_idx');
+        expect(names).toContain('export_jobs_requested_by_status_idx');
+      } finally {
+        await client.close();
+      }
+    });
+  });
 });
 

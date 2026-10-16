@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { resolveRepoPath } from '../../common/utils/paths.js';
+import { resolveRepoPath, isSafeUploadPath } from '../../common/utils/paths.js';
 import type {
   GetObjectResult,
   HeadObjectResult,
@@ -27,23 +27,11 @@ export class LocalFsStorage implements ObjectStorage {
   }
 
   public sanitizeKey(rawKey: string): string {
-    if (
-      !rawKey ||
-      rawKey.includes('\0') ||
-      rawKey.includes('\\') ||
-      rawKey.startsWith('/') ||
-      rawKey.includes('..')
-    ) {
+    if (!isSafeUploadPath(rawKey)) {
       throw new StorageSecurityError(`Tấn công đường dẫn lưu trữ bị từ chối: ${rawKey}`);
     }
 
     const segments = rawKey.split('/').filter(Boolean);
-    for (const segment of segments) {
-      if (segment === '.' || segment === '..' || segment.trim() === '') {
-        throw new StorageSecurityError(`Đoạn đường dẫn không an toàn: ${rawKey}`);
-      }
-    }
-
     const resolved = path.resolve(this.rootDir, segments.join(path.sep));
     if (!resolved.startsWith(this.rootDir + path.sep) && resolved !== this.rootDir) {
       throw new StorageSecurityError(`Đường dẫn ngoài vùng lưu trữ: ${rawKey}`);

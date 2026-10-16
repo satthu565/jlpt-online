@@ -48,16 +48,20 @@ export function AdminAuthProvider({
   children,
   initialUser = null,
   initialToken = null,
+  initialLoading,
 }: {
   children: React.ReactNode;
   initialUser?: StaffUser | null;
   initialToken?: string | null;
+  initialLoading?: boolean;
 }): React.JSX.Element {
   const [user, setUserState] = useState<StaffUser | null>(initialUser);
   const [token, setToken] = useState<string | null>(initialToken);
   const [pendingSetupSecret, setPendingSetupSecret] = useState<string | null>(null);
   const [pendingRecoveryCodes, setPendingRecoveryCodes] = useState<string[] | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(
+    initialLoading !== undefined ? initialLoading : !initialUser,
+  );
   const [error, setError] = useState<string | null>(null);
   const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
   const [, startTransition] = useTransition();

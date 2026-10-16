@@ -9,6 +9,7 @@ import {
 import type { FastifyRequest } from 'fastify';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
+import { isSafeUploadPath } from '../../common/utils/paths.js';
 import { ImportService } from './import.service.js';
 
 interface MultipartRequest extends FastifyRequest {
@@ -43,6 +44,11 @@ export class ImportController {
       if (!part) {
         throw new BadRequestException('Không tìm thấy tệp tải lên trong multipart request');
       }
+      if (part.filename && !isSafeUploadPath(part.filename)) {
+        throw new BadRequestException(
+          `Đường dẫn gói tải lên không an toàn (unsafe upload path): ${part.filename}`,
+        );
+      }
       const buffer = await part.toBuffer();
       const userId = user.userId || user.id || 'importer';
       return this.importService.processPackageImport(
@@ -55,11 +61,17 @@ export class ImportController {
     // Base64 JSON body fallback
     const rawBody = req.body as { dataBase64?: string; fileName?: string } | undefined;
     if (rawBody && typeof rawBody === 'object' && typeof rawBody.dataBase64 === 'string') {
+      const fileName = rawBody.fileName || 'package.zip';
+      if (fileName && !isSafeUploadPath(fileName)) {
+        throw new BadRequestException(
+          `Đường dẫn gói tải lên không an toàn (unsafe upload path): ${fileName}`,
+        );
+      }
       const buf = Buffer.from(rawBody.dataBase64, 'base64');
       const userId = user.userId || user.id || 'importer';
       return this.importService.processPackageImport(
         buf,
-        rawBody.fileName || 'package.zip',
+        fileName,
         userId,
       );
     }

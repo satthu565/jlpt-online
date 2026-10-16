@@ -6,6 +6,7 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
+import { isSafeUploadPath } from '../../common/utils/paths.js';
 import type {
   GetObjectResult,
   HeadObjectResult,
@@ -56,21 +57,10 @@ export class R2Storage implements ObjectStorage {
   }
 
   public sanitizeKey(rawKey: string): string {
-    if (
-      !rawKey ||
-      rawKey.includes('\0') ||
-      rawKey.includes('\\') ||
-      rawKey.startsWith('/') ||
-      rawKey.includes('..')
-    ) {
+    if (!isSafeUploadPath(rawKey)) {
       throw new StorageSecurityError(`Tấn công đường dẫn lưu trữ R2 bị từ chối: ${rawKey}`);
     }
     const segments = rawKey.split('/').filter(Boolean);
-    for (const segment of segments) {
-      if (segment === '.' || segment === '..' || segment.trim() === '') {
-        throw new StorageSecurityError(`Đoạn đường dẫn R2 không an toàn: ${rawKey}`);
-      }
-    }
     return segments.join('/');
   }
 
