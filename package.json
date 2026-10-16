@@ -48,7 +48,11 @@
     "test:admin-users": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/users.test.ts",
     "test:srs": "vitest run packages/srs/tests",
     "test:difficulty": "vitest run packages/exam-engine/tests/difficulty.test.ts",
-    "test:dedupe": "vitest run packages/exam-engine/tests/dedupe.test.ts"
+    "test:dedupe": "vitest run packages/exam-engine/tests/dedupe.test.ts",
+    "test:payments": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/payment/payment.test.ts",
+    "test:entitlements": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/entitlement/entitlement.test.ts",
+    "test:payment-provider": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/payment/payment-provider.test.ts",
+    "test:admin-billing": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/billing.test.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",
