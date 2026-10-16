@@ -57,8 +57,8 @@ export class ExamSyncEngine {
     this.storage = options.storage;
     this.apiClient = options.apiClient;
 
-    this.answers = [...options.initialAnswers];
-    this.flags = [...options.initialFlags];
+    this.answers = options.initialAnswers ? [...options.initialAnswers] : [];
+    this.flags = options.initialFlags ? [...options.initialFlags] : [];
     this.timeSpentMs = options.initialTimeSpentMs ? [...options.initialTimeSpentMs] : new Array(this.answers.length).fill(0);
 
     this.currentSeq = options.initialSeq ?? 0;

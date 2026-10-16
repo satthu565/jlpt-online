@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { PublicExamSnapshot, AttemptMode } from '@jlpt/schema';
 import {
-  SAMPLE_N5_EXAM_SNAPSHOT,
+  ALL_SAMPLE_EXAMS,
   ExamPicker,
   InstructionsModal,
   ExamRoom,
@@ -17,12 +17,39 @@ export default function ExamRoomPage(): React.JSX.Element {
   const [isInstructionsOpen, setIsInstructionsOpen] = useState(false);
   const [isExamStarted, setIsExamStarted] = useState(false);
   const [examResult, setExamResult] = useState<unknown | null>(null);
+  const [currentAttemptId, setCurrentAttemptId] = useState<string>('0192f000-5000-7000-8000-000000000001');
 
-  const availableExams: PublicExamSnapshot[] = [SAMPLE_N5_EXAM_SNAPSHOT];
+  const availableExams: PublicExamSnapshot[] = ALL_SAMPLE_EXAMS;
 
   // Storage and API Client instances
   const storage = React.useMemo(() => createExamStorage(), []);
   const apiClient = React.useMemo(() => new ExamApiClient(), []);
+
+  // Preselect exam and mode from URL query parameters if present
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const examIdParam = searchParams.get('examId');
+      const attemptIdParam = searchParams.get('attemptId');
+      const modeParam = searchParams.get('mode') as AttemptMode | null;
+
+      if (attemptIdParam) {
+        setCurrentAttemptId(attemptIdParam);
+      }
+
+      if (modeParam === 'real' || modeParam === 'practice') {
+        setSelectedMode(modeParam);
+      }
+
+      if (examIdParam) {
+        const found = availableExams.find((e) => e.examId === examIdParam);
+        if (found) {
+          setSelectedExam(found);
+          setIsInstructionsOpen(true);
+        }
+      }
+    }
+  }, [availableExams]);
 
   const handleSelectExam = (exam: PublicExamSnapshot, mode: AttemptMode) => {
     setSelectedExam(exam);
@@ -60,13 +87,19 @@ export default function ExamRoomPage(): React.JSX.Element {
             Nộp bài thi thành công!
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
-            Bài làm của bạn đã được ghi nhận an toàn trên máy chủ. Kết quả chấm điểm đang được xử lý.
+            Bài làm của bạn đã được ghi nhận an toàn trên máy chủ và chấm điểm theo thang chuẩn JLPT.
           </p>
-          <div className="flex justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-4">
+            <a
+              href={`/ket-qua/${currentAttemptId}`}
+              className="px-6 py-2.5 rounded-xl font-semibold text-sm bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-all"
+            >
+              Xem lại bài làm &amp; Bảng điểm (Review)
+            </a>
             <button
               type="button"
               onClick={handleExit}
-              className="px-6 py-2.5 rounded-xl font-semibold text-sm bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-all"
+              className="px-6 py-2.5 rounded-xl font-semibold text-sm bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 shadow-sm transition-all"
             >
               Trở về danh sách đề thi
             </button>
@@ -81,7 +114,7 @@ export default function ExamRoomPage(): React.JSX.Element {
     return (
       <ExamRoom
         snapshot={selectedExam}
-        attemptId="00000000-0000-4000-8000-000000000099"
+        attemptId={currentAttemptId}
         lease="00000000-0000-4000-8000-000000000088"
         mode={selectedMode}
         serverNow={new Date().toISOString()}
@@ -101,7 +134,7 @@ export default function ExamRoomPage(): React.JSX.Element {
           Phòng thi trực tuyến JLPT
         </h1>
         <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-          Lựa chọn đề thi và chế độ làm bài chuẩn theo kỳ thi năng lực tiếng Nhật quốc tế.
+          Lựa chọn đề thi từ N1 đến N5 và chế độ làm bài chuẩn theo kỳ thi năng lực tiếng Nhật quốc tế.
         </p>
       </div>
 

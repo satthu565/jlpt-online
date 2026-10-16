@@ -1,0 +1,178 @@
+'use client';
+
+import React from 'react';
+import type { FlatQuestionItem } from '../../exam/types';
+import { RichTextView, PassageView } from '@jlpt/ui';
+import { QuestionAudioPlayer } from '../../exam/components/audio-player';
+
+export interface ReviewQuestionItemProps {
+  question: FlatQuestionItem;
+  userAnswer: number; // 0 = blank, 1..4 = selected
+  correctAnswer: number; // 1..4
+  isFlagged: boolean;
+  className?: string;
+}
+
+export function ReviewQuestionItem({
+  question,
+  userAnswer,
+  correctAnswer,
+  isFlagged,
+  className = '',
+}: ReviewQuestionItemProps): React.JSX.Element {
+  const isCorrect = userAnswer === correctAnswer;
+  const isBlank = userAnswer === 0;
+
+  // Find listening audio media key if in listening section (AUDIO-07)
+  const audioMediaKey = (question.media || []).find((m: string) =>
+    /\.(mp3|m4a|aac|ogg|wav)$/i.test(m),
+  );
+
+  // Illustration images in group media (AUDIO-03)
+  const imageMedia = (question.media || []).filter((m: string) =>
+    /\.(webp|jpg|jpeg|png|svg|gif)$/i.test(m),
+  );
+
+  return (
+    <article
+      id={`review-question-${question.globalIndex}`}
+      aria-label={`Chi tiết xem lại câu số ${question.number}`}
+      className={`jlpt-review-question-card bg-white dark:bg-slate-900 rounded-2xl border p-6 shadow-sm transition-all ${
+        isCorrect
+          ? 'border-emerald-200 dark:border-emerald-900/60'
+          : isBlank
+          ? 'border-slate-200 dark:border-slate-800'
+          : 'border-rose-200 dark:border-rose-900/60'
+      } ${className}`}
+    >
+      {/* Passage / Reading material if present */}
+      {question.passage && question.passage.length > 0 && (
+        <PassageView passage={question.passage} className="mb-6" />
+      )}
+
+      {/* Group instructions if present */}
+      {question.instructions && question.instructions.length > 0 && (
+        <div className="mb-4 text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
+          <span className="font-semibold text-slate-700 dark:text-slate-300 mr-2">Hướng dẫn:</span>
+          <RichTextView segments={question.instructions} />
+        </div>
+      )}
+
+      {/* Top row: Number, Correctness status, Audio player (AUDIO-07), Flag badge */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800 mb-5">
+        <div className="flex items-center gap-3">
+          <span className="text-xl font-bold font-mono text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg">
+            Câu {question.number}
+          </span>
+          <span className="text-xs text-slate-400 font-mono">
+            (Tổng hợp #{question.globalIndex + 1})
+          </span>
+
+          {/* Correctness badge (SCORE-07) */}
+          {isCorrect ? (
+            <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold flex items-center gap-1">
+              <span>✓</span> Làm đúng
+            </span>
+          ) : isBlank ? (
+            <span className="text-xs px-2.5 py-1 rounded-full bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 font-bold">
+              ○ Bỏ trống
+            </span>
+          ) : (
+            <span className="text-xs px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 font-bold flex items-center gap-1">
+              <span>✗</span> Làm sai
+            </span>
+          )}
+
+          {isFlagged && (
+            <span className="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 font-semibold">
+              🚩 Có gắn cờ
+            </span>
+          )}
+        </div>
+
+        {/* Audio Replay for Listening Question (AUDIO-07) */}
+        {audioMediaKey && (
+          <QuestionAudioPlayer
+            mediaKey={audioMediaKey}
+            label={`Nghe lại audio câu ${question.number}`}
+          />
+        )}
+      </div>
+
+      {/* Illustration image if available (AUDIO-03) */}
+      {imageMedia.length > 0 && (
+        <div className="jlpt-question-illustration my-4 text-center">
+          {imageMedia.map((imgSrc: string, idx: number) => (
+            <figure key={idx} className="inline-block my-2">
+              <img
+                src={`/${imgSrc}`}
+                alt={`Hình ảnh minh họa câu ${question.number}`}
+                className="max-h-64 max-w-full rounded-lg border border-slate-200 dark:border-slate-700 object-contain mx-auto shadow-sm"
+              />
+            </figure>
+          ))}
+        </div>
+      )}
+
+      {/* Stem */}
+      <div className="mb-6 text-lg font-japanese leading-relaxed text-slate-900 dark:text-slate-100">
+        <RichTextView segments={question.stem} />
+      </div>
+
+      {/* Options list with correct/selected highlighting (SCORE-07, SCORE-08) */}
+      <div className="space-y-3" role="group" aria-label={`Các phương án câu ${question.number}`}>
+        {question.options.map((opt, optIdx) => {
+          const optionValue = optIdx + 1;
+          const isUserChoice = userAnswer === optionValue;
+          const isTheCorrectOption = correctAnswer === optionValue;
+
+          // Determine styling
+          let containerClasses = 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 text-slate-800 dark:text-slate-200';
+          let labelClasses = 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300';
+
+          if (isTheCorrectOption) {
+            containerClasses = 'border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-100 ring-1 ring-emerald-500/30';
+            labelClasses = 'bg-emerald-600 text-white font-bold';
+          } else if (isUserChoice && !isTheCorrectOption) {
+            containerClasses = 'border-rose-500 bg-rose-50/70 dark:bg-rose-950/40 text-rose-950 dark:text-rose-100 ring-1 ring-rose-500/30';
+            labelClasses = 'bg-rose-600 text-white font-bold';
+          }
+
+          return (
+            <div
+              key={optIdx}
+              className={`w-full p-4 rounded-xl border flex items-start justify-between gap-4 transition-all ${containerClasses}`}
+            >
+              <div className="flex items-start gap-3 flex-1">
+                <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 ${labelClasses}`}>
+                  {opt.label}
+                </span>
+                <div className="flex-1 pt-1 font-japanese text-base leading-relaxed">
+                  <RichTextView segments={opt.content} />
+                </div>
+              </div>
+
+              {/* Status Tags */}
+              <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                {isTheCorrectOption && (
+                  <span className="text-xs px-2 py-0.5 rounded font-bold bg-emerald-600 text-white shadow-xs">
+                    Đáp án đúng
+                  </span>
+                )}
+                {isUserChoice && (
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded font-semibold ${
+                      isCorrect ? 'bg-emerald-200 text-emerald-900' : 'bg-rose-200 text-rose-900'
+                    }`}
+                  >
+                    Bạn đã chọn
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </article>
+  );
+}

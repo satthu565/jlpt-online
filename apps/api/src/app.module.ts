@@ -22,6 +22,8 @@ import { AttemptModule } from './modules/attempt/attempt.module.js';
 import { AuditModule } from './modules/audit/audit.module.js';
 import { AdminModule } from './modules/admin/admin.module.js';
 import { ExamModule } from './modules/exam/exam.module.js';
+import { ReviewModule } from './modules/review/review.module.js';
+import { NotificationModule } from './modules/notification/notification.module.js';
 import { OriginGuard } from './common/guards/origin.guard.js';
 import { TotpGuard } from './common/guards/totp.guard.js';
 import { RateLimitGuard } from './common/guards/rate-limit.guard.js';
@@ -43,6 +45,8 @@ import { RateLimitGuard } from './common/guards/rate-limit.guard.js';
     AuditModule,
     AdminModule,
     ExamModule,
+    ReviewModule,
+    NotificationModule,
   ],
   controllers: [HealthController],
   providers: [

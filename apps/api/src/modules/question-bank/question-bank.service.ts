@@ -1179,4 +1179,52 @@ export class QuestionBankService {
         );
     }
   }
+
+  /**
+   * QB-18: Track all generated / mixed exams that this question has appeared in.
+   */
+  async getQuestionExamUsage(questionId: string) {
+    const db = this.dbClient.db;
+    const items = await db
+      .select({
+        generatedExamId: schema.generatedExamItems.generatedExamId,
+        orderIndex: schema.generatedExamItems.orderIndex,
+        seed: schema.generatedExams.seed,
+        engineVersion: schema.generatedExams.engineVersion,
+        createdAt: schema.generatedExams.createdAt,
+        ownerId: schema.generatedExams.ownerId,
+        configJson: schema.generatedExams.configJson,
+      })
+      .from(schema.generatedExamItems)
+      .innerJoin(
+        schema.generatedExams,
+        eq(schema.generatedExamItems.generatedExamId, schema.generatedExams.id),
+      )
+      .where(eq(schema.generatedExamItems.questionId, questionId))
+      .orderBy(desc(schema.generatedExams.createdAt));
+
+    return {
+      questionId,
+      usageCount: items.length,
+      appearances: items.map(
+        (item: {
+          generatedExamId: string;
+          orderIndex: number;
+          seed: string;
+          engineVersion: string;
+          createdAt: Date;
+          ownerId: string;
+          configJson: unknown;
+        }) => ({
+          generatedExamId: item.generatedExamId,
+          orderIndex: item.orderIndex,
+          seed: item.seed,
+          engineVersion: item.engineVersion,
+          createdAt: item.createdAt,
+          ownerId: item.ownerId,
+          config: item.configJson,
+        }),
+      ),
+    };
+  }
 }

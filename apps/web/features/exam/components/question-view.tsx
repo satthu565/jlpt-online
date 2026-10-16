@@ -3,6 +3,7 @@
 import React from 'react';
 import type { FlatQuestionItem } from '../types';
 import { RichTextView, PassageView } from '@jlpt/ui';
+import type { JapaneseFontSize } from './exam-toolbar';
 
 export interface QuestionViewProps {
   question: FlatQuestionItem;
@@ -10,6 +11,8 @@ export interface QuestionViewProps {
   isFlagged: boolean;
   onSelectOption: (optionValue: number) => void;
   onToggleFlag: () => void;
+  fontSize?: JapaneseFontSize;
+  showKeyboardHints?: boolean;
   className?: string;
 }
 
@@ -19,6 +22,8 @@ export function QuestionView({
   isFlagged,
   onSelectOption,
   onToggleFlag,
+  fontSize = 'base',
+  showKeyboardHints = true,
   className = '',
 }: QuestionViewProps): React.JSX.Element {
   const handleOptionClick = (optionIndex: number) => {
@@ -30,6 +35,26 @@ export function QuestionView({
       onSelectOption(optionIndex);
     }
   };
+
+  // Font size mapping for Japanese text scaling (EXAM-23)
+  const stemFontSizeClass = {
+    sm: 'text-base',
+    base: 'text-lg',
+    lg: 'text-xl',
+    xl: 'text-2xl',
+  }[fontSize];
+
+  const optionFontSizeClass = {
+    sm: 'text-sm',
+    base: 'text-base',
+    lg: 'text-lg',
+    xl: 'text-xl',
+  }[fontSize];
+
+  // Illustration images in group media (AUDIO-03)
+  const imageMedia = (question.media || []).filter((m: string) =>
+    /\.(webp|jpg|jpeg|png|svg|gif)$/i.test(m),
+  );
 
   return (
     <article
@@ -71,7 +96,7 @@ export function QuestionView({
           onClick={onToggleFlag}
           disabled={question.isLocked}
           aria-pressed={isFlagged}
-          aria-label={isFlagged ? 'Bỏ đánh dấu xem lại câu này' : 'Đánh dấu xem lại câu này sau'}
+          aria-label={isFlagged ? 'Bỏ đánh dấu xem lại câu này (Phím F)' : 'Đánh dấu xem lại câu này sau (Phím F)'}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
             isFlagged
               ? 'bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700'
@@ -89,11 +114,30 @@ export function QuestionView({
             <line x1="4" y1="22" x2="4" y2="15" />
           </svg>
           <span>{isFlagged ? 'Đã đánh dấu' : 'Đánh dấu xem lại'}</span>
+          {showKeyboardHints && <kbd className="text-[10px] opacity-70 ml-1">F</kbd>}
         </button>
       </div>
 
-      {/* Question stem */}
-      <div className="mb-6 text-lg font-japanese leading-relaxed text-slate-900 dark:text-slate-100">
+      {/* Illustration image if available (AUDIO-02, AUDIO-03) */}
+      {imageMedia.length > 0 && (
+        <div className="jlpt-question-illustration my-4 text-center">
+          {imageMedia.map((imgSrc: string, idx: number) => (
+            <figure key={idx} className="inline-block my-2">
+              <img
+                src={`/${imgSrc}`}
+                alt={`Hình ảnh minh họa câu ${question.number}`}
+                className="max-h-64 max-w-full rounded-lg border border-slate-200 dark:border-slate-700 object-contain mx-auto shadow-sm"
+              />
+              <figcaption className="text-xs text-slate-500 mt-1">
+                Hình minh họa câu {question.number}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      )}
+
+      {/* Question stem with font scaling (EXAM-23) */}
+      <div className={`mb-6 ${stemFontSizeClass} font-japanese leading-relaxed text-slate-900 dark:text-slate-100`}>
         <RichTextView segments={question.stem} />
       </div>
 
@@ -111,26 +155,33 @@ export function QuestionView({
               aria-checked={isSelected}
               disabled={question.isLocked}
               onClick={() => handleOptionClick(optionValue)}
-              aria-label={`Lựa chọn ${opt.label}`}
+              aria-label={`Lựa chọn ${opt.label} (Phím ${optionValue})`}
               className={`w-full text-left p-4 rounded-xl border transition-all flex items-start gap-4 ${
                 isSelected
                   ? 'border-blue-600 dark:border-blue-500 bg-blue-50/70 dark:bg-blue-950/40 text-blue-950 dark:text-blue-100 shadow-sm ring-1 ring-blue-500/30'
                   : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 text-slate-800 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-800/30'
               } ${question.isLocked ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
             >
-              {/* Option label indicator (1, 2, 3, 4) */}
-              <span
-                className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
-                  isSelected
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                }`}
-              >
-                {opt.label}
-              </span>
+              {/* Option label indicator (1, 2, 3, 4) with keyboard hint (EXAM-24) */}
+              <div className="flex-shrink-0 flex flex-col items-center gap-1">
+                <span
+                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
+                    isSelected
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  {opt.label}
+                </span>
+                {showKeyboardHints && (
+                  <kbd className="text-[10px] text-slate-400 font-mono">
+                    [{optionValue}]
+                  </kbd>
+                )}
+              </div>
 
-              {/* Option rich text content */}
-              <div className="flex-1 pt-1 font-japanese text-base leading-relaxed">
+              {/* Option rich text content with font scaling (EXAM-23) */}
+              <div className={`flex-1 pt-1 font-japanese ${optionFontSizeClass} leading-relaxed`}>
                 <RichTextView segments={opt.content} />
               </div>
             </button>
@@ -140,7 +191,7 @@ export function QuestionView({
 
       {selectedOption > 0 && !question.isLocked && (
         <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
-          <span>Click vào phương án đang chọn để bỏ chọn.</span>
+          <span>Click vào phương án đang chọn hoặc phím số tương ứng để bỏ chọn.</span>
           <button
             type="button"
             onClick={() => onSelectOption(0)}

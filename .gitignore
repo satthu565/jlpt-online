@@ -33,3 +33,6 @@ pnpm-debug.log*
 # OS / Editor
 .DS_Store
 Thumbs.db
+
+# Local storage driver and test output (STORAGE_LOCAL_ROOT defaults to ./.data/storage)
+.data/

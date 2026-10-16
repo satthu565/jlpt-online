@@ -1,0 +1,550 @@
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { and, desc, eq } from 'drizzle-orm';
+import { DB_CLIENT } from '../../common/database/database.module.js';
+import type { DbClientInstance } from '../../db/client.js';
+import * as schema from '../../db/schema.js';
+import { generateUuidV7 } from '../../common/utils/uuid.js';
+import { EmailService } from '../email/email.service.js';
+
+export interface QuietHours {
+  start: string; // "HH:mm" e.g. "22:00"
+  end: string;   // "HH:mm" e.g. "07:00"
+}
+
+export interface UserNotificationPreferencesData {
+  version: number;
+  emailUpdates: boolean;
+  examReminders: boolean;
+  studyStreakAlerts: boolean;
+  typeSettings: Record<string, boolean>;
+  quietHours: QuietHours;
+  timezone: string;
+}
+
+export interface DispatchNotificationParams {
+  recipientId: string;
+  type: string;
+  channel?: 'email' | 'push' | 'in_app';
+  payload: Record<string, unknown>;
+  isCritical?: boolean;
+  dedupeKey?: string;
+  now?: Date;
+}
+
+export interface DispatchNotificationResult {
+  status: 'delivered' | 'deferred_quiet_hours' | 'opted_out' | 'duplicate_suppressed' | 'queued';
+  delivered: boolean;
+  jobId?: string;
+  scheduledFor?: string;
+  reason?: string;
+}
+
+@Injectable()
+export class NotificationService {
+  constructor(
+    @Inject(DB_CLIENT) private readonly dbClient: DbClientInstance,
+    private readonly emailService: EmailService,
+  ) {}
+
+  // ---------------------------------------------------------------------------
+  // Preferences Management (NOTI-10)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Retrieves notification preferences for a user with default fallbacks.
+   */
+  async getPreferences(userId: string): Promise<UserNotificationPreferencesData> {
+    const db = this.dbClient.db;
+
+    // Fetch user for timezone
+    const [user] = await db
+      .select({
+        timezone: schema.users.timezone,
+      })
+      .from(schema.users)
+      .where(eq(schema.users.id, userId))
+      .limit(1);
+
+    if (!user) {
+      throw new NotFoundException({
+        code: 'NOT_FOUND',
+        message: 'Không tìm thấy người dùng.',
+      });
+    }
+
+    // Fetch user profile metadata for quietHours
+    const [profile] = await db
+      .select({ metadata: schema.userProfiles.metadata })
+      .from(schema.userProfiles)
+      .where(eq(schema.userProfiles.userId, userId))
+      .limit(1);
+
+    const profileMeta = (profile?.metadata || {}) as Record<string, unknown>;
+    const quietHours: QuietHours = (profileMeta['quietHours'] as QuietHours) || {
+      start: '22:00',
+      end: '07:00',
+    };
+
+    // Fetch channel & type preferences
+    const prefs = await db
+      .select()
+      .from(schema.notificationPreferences)
+      .where(eq(schema.notificationPreferences.userId, userId));
+
+    const typeSettings: Record<string, boolean> = {
+      practice_reminder: true,
+      new_exam: true,
+      srs_due: true,
+      weekly_stats: true,
+      target_exam_reminder: true,
+      exam_result_released: true,
+      payment_status: true,
+    };
+
+    let emailUpdates = true;
+    let examReminders = true;
+    let studyStreakAlerts = true;
+
+    for (const p of prefs) {
+      if (p.channel === 'email' && p.notificationType === 'general_updates') {
+        emailUpdates = p.enabled;
+      }
+      if (p.notificationType === 'exam_reminders' || p.notificationType === 'target_exam_reminder') {
+        examReminders = p.enabled;
+      }
+      if (p.notificationType === 'study_streak' || p.notificationType === 'srs_due') {
+        studyStreakAlerts = p.enabled;
+      }
+      typeSettings[p.notificationType] = p.enabled;
+    }
+
+    return {
+      version: 1,
+      emailUpdates,
+      examReminders,
+      studyStreakAlerts,
+      typeSettings,
+      quietHours,
+      timezone: user.timezone || 'Asia/Ho_Chi_Minh',
+    };
+  }
+
+  /**
+   * Updates notification preferences. Idempotent upsert.
+   */
+  async updatePreferences(
+    userId: string,
+    update: Partial<UserNotificationPreferencesData>,
+  ): Promise<UserNotificationPreferencesData> {
+    const db = this.dbClient.db;
+
+    // 1. Update timezone if provided
+    if (update.timezone) {
+      await db
+        .update(schema.users)
+        .set({ timezone: update.timezone })
+        .where(eq(schema.users.id, userId));
+    }
+
+    // 2. Update quietHours in user_profiles
+    if (update.quietHours) {
+      const [existingProfile] = await db
+        .select({ metadata: schema.userProfiles.metadata })
+        .from(schema.userProfiles)
+        .where(eq(schema.userProfiles.userId, userId))
+        .limit(1);
+
+      const currentMeta = (existingProfile?.metadata || {}) as Record<string, unknown>;
+      const newMeta = { ...currentMeta, quietHours: update.quietHours };
+
+      await db
+        .insert(schema.userProfiles)
+        .values({
+          userId,
+          metadata: newMeta,
+        })
+        .onConflictDoUpdate({
+          target: [schema.userProfiles.userId],
+          set: { metadata: newMeta },
+        });
+    }
+
+    // 3. Upsert specific channel/type settings
+    const upsertSetting = async (channel: string, notificationType: string, enabled: boolean) => {
+      await db
+        .insert(schema.notificationPreferences)
+        .values({
+          userId,
+          channel,
+          notificationType,
+          enabled,
+        })
+        .onConflictDoUpdate({
+          target: [
+            schema.notificationPreferences.userId,
+            schema.notificationPreferences.channel,
+            schema.notificationPreferences.notificationType,
+          ],
+          set: { enabled },
+        });
+    };
+
+    if (update.emailUpdates !== undefined) {
+      await upsertSetting('email', 'general_updates', update.emailUpdates);
+    }
+    if (update.examReminders !== undefined) {
+      await upsertSetting('email', 'target_exam_reminder', update.examReminders);
+      await upsertSetting('email', 'new_exam', update.examReminders);
+      await upsertSetting('in_app', 'target_exam_reminder', update.examReminders);
+    }
+    if (update.studyStreakAlerts !== undefined) {
+      await upsertSetting('email', 'srs_due', update.studyStreakAlerts);
+      await upsertSetting('in_app', 'srs_due', update.studyStreakAlerts);
+    }
+
+    if (update.typeSettings) {
+      for (const [type, enabled] of Object.entries(update.typeSettings)) {
+        await upsertSetting('email', type, enabled);
+        await upsertSetting('in_app', type, enabled);
+      }
+    }
+
+    return this.getPreferences(userId);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Quiet Hours Calculation (Acceptance 3)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Determines if a given date/time falls within user's quiet hours for their timezone.
+   */
+  isInQuietHours(now: Date, quietHours: QuietHours, timezone: string): boolean {
+    // Format hour and minute in user's timezone, with fallback for invalid timezone
+    let formatter: Intl.DateTimeFormat;
+    try {
+      formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false,
+      });
+    } catch {
+      formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false,
+      });
+    }
+
+    const parts = formatter.formatToParts(now);
+    const hourPart = parts.find((p) => p.type === 'hour')?.value ?? '0';
+    const minutePart = parts.find((p) => p.type === 'minute')?.value ?? '0';
+
+    const currentMinuteOfDay = parseInt(hourPart, 10) * 60 + parseInt(minutePart, 10);
+
+    const [startH, startM] = quietHours.start.split(':').map((s) => parseInt(s, 10));
+    const [endH, endM] = quietHours.end.split(':').map((s) => parseInt(s, 10));
+
+    const startMinuteOfDay = (startH ?? 22) * 60 + (startM ?? 0);
+    const endMinuteOfDay = (endH ?? 7) * 60 + (endM ?? 0);
+
+    if (startMinuteOfDay < endMinuteOfDay) {
+      // Quiet hours do NOT span midnight (e.g. 01:00 to 06:00)
+      return currentMinuteOfDay >= startMinuteOfDay && currentMinuteOfDay < endMinuteOfDay;
+    } else {
+      // Quiet hours SPAN midnight (e.g. 22:00 to 07:00)
+      return currentMinuteOfDay >= startMinuteOfDay || currentMinuteOfDay < endMinuteOfDay;
+    }
+  }
+
+  /**
+   * Computes the Date timestamp when current quiet hours end in user's timezone.
+   */
+  getNextQuietHoursEnd(now: Date, quietHours: QuietHours, timezone: string): Date {
+    // Advance hour-by-hour until out of quiet hours
+    let testDate = new Date(now.getTime() + 15 * 60 * 1000);
+    for (let i = 0; i < 48; i++) {
+      if (!this.isInQuietHours(testDate, quietHours, timezone)) {
+        return testDate;
+      }
+      testDate = new Date(testDate.getTime() + 30 * 60 * 1000);
+    }
+    return new Date(now.getTime() + 8 * 3600 * 1000);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Notification Dispatch & Delivery (NOTI-03..NOTI-10)
+  // Acceptance 3: Thông báo opt-out quiet hours idempotent
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Dispatches a notification respecting opt-out preferences, quiet hours, and idempotency.
+   */
+  async dispatchNotification(params: DispatchNotificationParams): Promise<DispatchNotificationResult> {
+    const db = this.dbClient.db;
+    const now = params.now ?? new Date();
+    const channel = params.channel || 'email';
+
+    // 1. Check Opt-Out
+    const prefs = await this.getPreferences(params.recipientId);
+    if (params.type in prefs.typeSettings && prefs.typeSettings[params.type] === false) {
+      return {
+        status: 'opted_out',
+        delivered: false,
+        reason: `Người dùng đã tắt nhận thông báo loại ${params.type}`,
+      };
+    }
+    if (channel === 'email' && !prefs.emailUpdates && !params.isCritical) {
+      return {
+        status: 'opted_out',
+        delivered: false,
+        reason: 'Người dùng đã tắt nhận thông báo qua email.',
+      };
+    }
+
+    // 2. Check Idempotency (Deduplication)
+    if (params.dedupeKey) {
+      const existingJobs = await db
+        .select()
+        .from(schema.notificationJobs)
+        .where(
+          and(
+            eq(schema.notificationJobs.recipientId, params.recipientId),
+            eq(schema.notificationJobs.type, params.type),
+          ),
+        )
+        .orderBy(desc(schema.notificationJobs.scheduledFor))
+        .limit(10);
+
+      const isDuplicate = existingJobs.some((j: typeof schema.notificationJobs.$inferSelect) => {
+        const payload = j.payload as Record<string, unknown>;
+        return payload?.['dedupeKey'] === params.dedupeKey;
+      });
+
+      if (isDuplicate) {
+        return {
+          status: 'duplicate_suppressed',
+          delivered: false,
+          reason: 'Thông báo đã được lập lịch hoặc gửi trước đó với cùng dedupeKey.',
+        };
+      }
+    }
+
+    // 3. Check Quiet Hours (unless critical)
+    if (!params.isCritical && this.isInQuietHours(now, prefs.quietHours, prefs.timezone)) {
+      const nextEnd = this.getNextQuietHoursEnd(now, prefs.quietHours, prefs.timezone);
+      const jobId = generateUuidV7();
+
+      await db.insert(schema.notificationJobs).values({
+        id: jobId,
+        recipientId: params.recipientId,
+        type: params.type,
+        channel,
+        payload: { ...params.payload, dedupeKey: params.dedupeKey },
+        status: 'queued',
+        scheduledFor: nextEnd,
+      });
+
+      return {
+        status: 'deferred_quiet_hours',
+        delivered: false,
+        jobId,
+        scheduledFor: nextEnd.toISOString(),
+        reason: 'Đang trong khung giờ yên tĩnh của người dùng; đã hoãn lịch gửi.',
+      };
+    }
+
+    // 4. Immediate Delivery
+    const jobId = generateUuidV7();
+    await db.insert(schema.notificationJobs).values({
+      id: jobId,
+      recipientId: params.recipientId,
+      type: params.type,
+      channel,
+      payload: { ...params.payload, dedupeKey: params.dedupeKey },
+      status: 'queued',
+      scheduledFor: now,
+    });
+
+    // Execute delivery
+    try {
+      if (channel === 'email') {
+        const [recipient] = await db
+          .select({ email: schema.users.email, name: schema.users.name })
+          .from(schema.users)
+          .where(eq(schema.users.id, params.recipientId))
+          .limit(1);
+
+        if (recipient) {
+          const subject = (params.payload['subject'] as string) || `[JLPT Online] Thông báo ${params.type}`;
+          const message = (params.payload['message'] as string) || '';
+          await this.emailService.sendEmail({
+            to: recipient.email,
+            subject,
+            text: message,
+            html: `<p>${message}</p>`,
+          });
+        }
+      }
+
+      // Mark delivered in DB
+      await db.insert(schema.notificationDeliveries).values({
+        id: generateUuidV7(),
+        jobId,
+        status: 'delivered',
+        providerResponse: 'OK',
+        attemptedAt: now,
+      });
+
+      await db
+        .update(schema.notificationJobs)
+        .set({ status: 'delivered' })
+        .where(eq(schema.notificationJobs.id, jobId));
+
+      return {
+        status: 'delivered',
+        delivered: true,
+        jobId,
+      };
+    } catch (err: unknown) {
+      await db.insert(schema.notificationDeliveries).values({
+        id: generateUuidV7(),
+        jobId,
+        status: 'failed',
+        providerResponse: err instanceof Error ? err.message : String(err),
+        attemptedAt: now,
+      });
+
+      return {
+        status: 'queued',
+        delivered: false,
+        jobId,
+        reason: 'Lỗi gửi qua nhà cung cấp, giữ trạng thái queued để thử lại.',
+      };
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Concrete Notification Senders (NOTI-03..NOTI-09)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * NOTI-03: Nhắc tiếp tục bài luyện dang dở.
+   */
+  async sendPracticeReminder(userId: string, attemptId: string) {
+    return this.dispatchNotification({
+      recipientId: userId,
+      type: 'practice_reminder',
+      payload: {
+        attemptId,
+        subject: 'Bạn có bài luyện tập JLPT đang làm dở',
+        message: 'Hãy tiếp tục hoàn thành bài luyện tập để củng cố kiến thức nhé!',
+      },
+      dedupeKey: `practice_${attemptId}`,
+    });
+  }
+
+  /**
+   * NOTI-04: Thông báo có đề mới.
+   */
+  async sendNewExamNotification(userId: string, examId: string, examTitle: string) {
+    return this.dispatchNotification({
+      recipientId: userId,
+      type: 'new_exam',
+      payload: {
+        examId,
+        examTitle,
+        subject: `Có đề thi mới: ${examTitle}`,
+        message: `Hệ thống vừa cập nhật đề thi mới: ${examTitle}. Hãy vào thử sức ngay!`,
+      },
+      dedupeKey: `new_exam_${examId}_${userId}`,
+    });
+  }
+
+  /**
+   * NOTI-05: Nhắc ôn các từ đến hạn SRS.
+   */
+  async sendSrsDueNotification(userId: string, dueCount: number) {
+    const today = new Date().toISOString().slice(0, 10);
+    return this.dispatchNotification({
+      recipientId: userId,
+      type: 'srs_due',
+      payload: {
+        dueCount,
+        subject: `Bạn có ${dueCount} thẻ từ vựng cần ôn hôm nay`,
+        message: `Hôm nay bạn có ${dueCount} thẻ từ vựng/ngữ pháp đến hạn ôn tập SRS.`,
+      },
+      dedupeKey: `srs_due_${userId}_${today}`,
+    });
+  }
+
+  /**
+   * NOTI-06: Thống kê kết quả tuần.
+   */
+  async sendWeeklyStatsNotification(userId: string, stats: Record<string, unknown>) {
+    const week = new Date().toISOString().slice(0, 10);
+    return this.dispatchNotification({
+      recipientId: userId,
+      type: 'weekly_stats',
+      payload: {
+        stats,
+        subject: 'Báo cáo tiến độ học tập tuần qua của bạn',
+        message: 'Cùng xem lại thành tích luyện thi JLPT trong tuần vừa rồi nhé!',
+      },
+      dedupeKey: `weekly_stats_${userId}_${week}`,
+    });
+  }
+
+  /**
+   * NOTI-07: Nhắc lịch thi mục tiêu.
+   */
+  async sendTargetExamReminder(userId: string, daysLeft: number) {
+    const today = new Date().toISOString().slice(0, 10);
+    return this.dispatchNotification({
+      recipientId: userId,
+      type: 'target_exam_reminder',
+      payload: {
+        daysLeft,
+        subject: `Chỉ còn ${daysLeft} ngày đến kỳ thi JLPT!`,
+        message: `Thời gian đếm ngược: còn ${daysLeft} ngày đến ngày thi mục tiêu của bạn. Hãy giữ vững phong độ!`,
+      },
+      dedupeKey: `target_reminder_${userId}_${today}`,
+    });
+  }
+
+  /**
+   * NOTI-08: Thông báo kết quả thi thử đồng loạt.
+   */
+  async sendExamResultReleasedNotification(userId: string, eventId: string) {
+    return this.dispatchNotification({
+      recipientId: userId,
+      type: 'exam_result_released',
+      payload: {
+        eventId,
+        subject: 'Kết quả thi thử đồng loạt đã được công bố',
+        message: 'Điểm số và xếp hạng của đợt thi thử đồng loạt đã chính thức mở. Hãy vào xem chi tiết bài thi!',
+      },
+      dedupeKey: `result_released_${eventId}_${userId}`,
+    });
+  }
+
+  /**
+   * NOTI-09: Thông báo tình trạng thanh toán (giao dịch khẩn cấp, bypass quiet hours).
+   */
+  async sendPaymentStatusNotification(userId: string, orderId: string, status: string) {
+    return this.dispatchNotification({
+      recipientId: userId,
+      type: 'payment_status',
+      isCritical: true, // Critical transactional notification
+      payload: {
+        orderId,
+        paymentStatus: status,
+        subject: `Thông báo trạng thái đơn hàng #${orderId}`,
+        message: `Trạng thái thanh toán cho đơn hàng #${orderId}: ${status}.`,
+      },
+      dedupeKey: `payment_${orderId}_${status}`,
+    });
+  }
+}
