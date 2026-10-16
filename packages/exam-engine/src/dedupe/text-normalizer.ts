@@ -19,7 +19,7 @@ export function normalizeJapaneseText(text: string): string {
   // Strip Japanese punctuation and symbols
   // 、 。 「 」 『 』 （ ） 【 】 〔 〕 ［ ］ ・ … — 〜 ～
   normalized = normalized.replace(
-    /[[\]{}()（）「」『』【】〔〕［］〈〉《》！？\s\u3000.,!?:;'"\-–—_]/gu,
+    /[、。・…—〜～「」『』（）()【】〔〕［］〈〉《》！？\s\u3000.,!?:;'"\-–—_[\]{}]/gu,
     '',
   );
 
