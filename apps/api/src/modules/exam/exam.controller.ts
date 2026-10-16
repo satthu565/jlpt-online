@@ -1,6 +1,14 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { Public } from '../../common/decorators/public.decorator.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
 import { ExamService } from './exam.service.js';
 import type { Level, ExamKind, Session } from '@jlpt/schema';
@@ -9,8 +17,8 @@ import type { Level, ExamKind, Session } from '@jlpt/schema';
 export class ExamController {
   constructor(private readonly examService: ExamService) {}
 
-  @Get('exams')
   @Public()
+  @Get('exams')
   async listExams(
     @Query('level') level?: Level,
     @Query('year') year?: string,
@@ -26,8 +34,8 @@ export class ExamController {
     });
   }
 
-  @Get('exams/:slug')
   @Public()
+  @Get('exams/:slug')
   async getExamBySlug(@Param('slug') slug: string) {
     return this.examService.getExamBySlug(slug);
   }
@@ -38,5 +46,26 @@ export class ExamController {
     @Query('level') level?: Level,
   ) {
     return this.examService.getUserExamStatus(user.userId, level);
+  }
+
+  @Post('admin/exams/:id/publish')
+  @Roles('admin')
+  async publishExam(
+    @Param('id') id: string,
+    @CurrentUser() user: { id?: string; userId?: string },
+  ) {
+    const userId = user.userId || user.id || '';
+    return this.examService.publishExam(id, userId);
+  }
+
+  @Post('admin/exams/:id/unpublish')
+  @Roles('admin')
+  async unpublishExam(
+    @Param('id') id: string,
+    @Body('reason') reason: string,
+    @CurrentUser() user: { id?: string; userId?: string },
+  ) {
+    const userId = user.userId || user.id || '';
+    return this.examService.unpublishExam(id, userId, reason);
   }
 }
