@@ -6,6 +6,7 @@ import {
   BlueprintSchema,
   ExamAnswerKeySchema,
   type Blueprint,
+  RetentionViolationError,
 } from '@jlpt/schema';
 
 // We import database utilities directly from local module
@@ -19,7 +20,11 @@ import {
   runMigrations,
   seedDatabase,
   verifyRollbackCompatibility,
+  canPurgeDomain,
+  assertRetentionObligationNotViolated,
+  executeRetentionSafeDeletion,
 } from './index.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -664,4 +669,511 @@ describe('F08 Database Schema and Migrations', () => {
       expect(activated.isOfficial).toBe(false);
     });
   });
+
+  describe('A01 Acceptance 1: Tenant-scoped composite constraints and isolation', () => {
+    it('enforces composite unique constraint and valid role check on org_memberships', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+        await seedDatabase(client, fixturesDir);
+
+        const orgId = '0192f000-0010-7000-8000-000000000001';
+        const teacherId = '0192f000-0010-7000-8000-000000000002';
+        const adminId = '0192f000-0000-7000-8000-000000000001';
+
+        await client.query(
+          `INSERT INTO "organizations" (id, name, slug) VALUES ('${orgId}', 'JLPT Academy', 'jlpt-academy');`,
+        );
+        await client.query(
+          `INSERT INTO "users" (id, email, role) VALUES ('${teacherId}', 'teacher@jlpt.local', 'user') ON CONFLICT DO NOTHING;`,
+        );
+
+        // First membership: succeeds
+        await client.query(`
+          INSERT INTO "org_memberships" (id, org_id, user_id, role)
+          VALUES ('0192f000-0010-7000-8000-000000000003', '${orgId}', '${teacherId}', 'teacher');
+        `);
+
+        // Duplicate membership for same (org_id, user_id): must fail composite unique index
+        await expect(
+          client.query(`
+            INSERT INTO "org_memberships" (id, org_id, user_id, role)
+            VALUES ('0192f000-0010-7000-8000-000000000004', '${orgId}', '${teacherId}', 'member');
+          `),
+        ).rejects.toThrow();
+
+        // Invalid role: must fail check constraint
+        await expect(
+          client.query(`
+            INSERT INTO "org_memberships" (id, org_id, user_id, role)
+            VALUES ('0192f000-0010-7000-8000-000000000005', '${orgId}', '${adminId}', 'invalid_role');
+          `),
+        ).rejects.toThrow();
+      } finally {
+        await client.close();
+      }
+    });
+
+    it('enforces unique class name within tenant and valid JLPT level check', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+        await seedDatabase(client, fixturesDir);
+
+        const orgId = '0192f000-0020-7000-8000-000000000001';
+        const teacherId = '0192f000-0000-7000-8000-000000000001'; // admin
+
+        await client.query(`
+          INSERT INTO "organizations" (id, name, slug) VALUES ('${orgId}', 'Tokyo Institute', 'tokyo-inst');
+        `);
+
+        // First class in org: succeeds
+        await client.query(`
+          INSERT INTO "classes" (id, org_id, teacher_id, name, level)
+          VALUES ('0192f000-0020-7000-8000-000000000002', '${orgId}', '${teacherId}', 'Lớp N1 Cấp Tốc', 'N1');
+        `);
+
+        // Duplicate class name in SAME org: must fail composite unique index
+        await expect(
+          client.query(`
+            INSERT INTO "classes" (id, org_id, teacher_id, name, level)
+            VALUES ('0192f000-0020-7000-8000-000000000003', '${orgId}', '${teacherId}', 'Lớp N1 Cấp Tốc', 'N1');
+          `),
+        ).rejects.toThrow();
+
+        // Invalid JLPT level: must fail check constraint
+        await expect(
+          client.query(`
+            INSERT INTO "classes" (id, org_id, teacher_id, name, level)
+            VALUES ('0192f000-0020-7000-8000-000000000004', '${orgId}', '${teacherId}', 'Lớp N9', 'N9');
+          `),
+        ).rejects.toThrow();
+      } finally {
+        await client.close();
+      }
+    });
+
+    it('enforces composite unique constraint on class_memberships and valid status check', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+        await seedDatabase(client, fixturesDir);
+
+        const orgId = '0192f000-0030-7000-8000-000000000001';
+        const classId = '0192f000-0030-7000-8000-000000000002';
+        const studentId = '0192f000-0030-7000-8000-000000000003';
+        const teacherId = '0192f000-0000-7000-8000-000000000001';
+
+        await client.query(
+          `INSERT INTO "organizations" (id, name, slug) VALUES ('${orgId}', 'Kyoto Center', 'kyoto-ctr');`,
+        );
+        await client.query(
+          `INSERT INTO "classes" (id, org_id, teacher_id, name, level) VALUES ('${classId}', '${orgId}', '${teacherId}', 'Class 1', 'N2');`,
+        );
+        await client.query(
+          `INSERT INTO "users" (id, email, role) VALUES ('${studentId}', 'student@jlpt.local', 'student') ON CONFLICT DO NOTHING;`,
+        );
+
+
+        // First enrollment: succeeds
+        await client.query(`
+          INSERT INTO "class_memberships" (id, class_id, student_id, status)
+          VALUES ('0192f000-0030-7000-8000-000000000004', '${classId}', '${studentId}', 'active');
+        `);
+
+        // Duplicate enrollment for same (class_id, student_id): must fail
+        await expect(
+          client.query(`
+            INSERT INTO "class_memberships" (id, class_id, student_id, status)
+            VALUES ('0192f000-0030-7000-8000-000000000005', '${classId}', '${studentId}', 'active');
+          `),
+        ).rejects.toThrow();
+
+        // Invalid status: must fail check constraint
+        await expect(
+          client.query(`
+            INSERT INTO "class_memberships" (id, class_id, student_id, status)
+            VALUES ('0192f000-0030-7000-8000-000000000006', '${classId}', '${studentId}', 'invalid_status');
+          `),
+        ).rejects.toThrow();
+      } finally {
+        await client.close();
+      }
+    });
+
+    it('enforces CHECK (opens_at <= due_at) on assignments and unique assignment_learners', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+        await seedDatabase(client, fixturesDir);
+
+        const orgId = '0192f000-0040-7000-8000-000000000001';
+        const classId = '0192f000-0040-7000-8000-000000000002';
+        const teacherId = '0192f000-0000-7000-8000-000000000001';
+        const studentId = '0192f000-0040-7000-8000-000000000003';
+        const assignmentId = '0192f000-0040-7000-8000-000000000004';
+
+        await client.query(
+          `INSERT INTO "organizations" (id, name, slug) VALUES ('${orgId}', 'Osaka Center', 'osaka-ctr');`,
+        );
+        await client.query(
+          `INSERT INTO "classes" (id, org_id, teacher_id, name, level) VALUES ('${classId}', '${orgId}', '${teacherId}', 'Class Osaka', 'N3');`,
+        );
+        await client.query(
+          `INSERT INTO "users" (id, email, role) VALUES ('${studentId}', 'student_osaka@jlpt.local', 'student') ON CONFLICT DO NOTHING;`,
+        );
+
+
+        // Invalid assignment timeline: opens_at > due_at must fail
+        await expect(
+          client.query(`
+            INSERT INTO "assignments" (id, class_id, title, opens_at, due_at)
+            VALUES ('${assignmentId}', '${classId}', 'BTVN 1', '2026-11-10T00:00:00Z', '2026-11-05T00:00:00Z');
+          `),
+        ).rejects.toThrow();
+
+        // Valid assignment timeline: succeeds
+        await client.query(`
+          INSERT INTO "assignments" (id, class_id, title, opens_at, due_at)
+          VALUES ('${assignmentId}', '${classId}', 'BTVN 1', '2026-11-01T00:00:00Z', '2026-11-08T00:00:00Z');
+        `);
+
+        // First assignment_learner: succeeds
+        await client.query(`
+          INSERT INTO "assignment_learners" (id, assignment_id, learner_id, status)
+          VALUES ('0192f000-0040-7000-8000-000000000005', '${assignmentId}', '${studentId}', 'assigned');
+        `);
+
+        // Duplicate assignment_learner: must fail
+        await expect(
+          client.query(`
+            INSERT INTO "assignment_learners" (id, assignment_id, learner_id, status)
+            VALUES ('0192f000-0040-7000-8000-000000000006', '${assignmentId}', '${studentId}', 'assigned');
+          `),
+        ).rejects.toThrow();
+      } finally {
+        await client.close();
+      }
+    });
+
+    it('enforces tenant_plans state machine and seats constraints', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+
+        // Valid tenant plan
+        await client.query(`
+          INSERT INTO "tenant_plans" (tenant_id, plan_code, status, total_seats, used_seats, max_classes, features)
+          VALUES ('org_123', 'teacher_pro', 'active', 50, 10, 5, '["ai_feedback"]'::jsonb);
+        `);
+
+        // Query inserted tenant plan
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const res = (await client.query(`SELECT * FROM "tenant_plans" WHERE tenant_id = 'org_123';`)) as any;
+        const plan = (res.rows ?? res)[0];
+        expect(plan.plan_code).toBe('teacher_pro');
+        expect(plan.status).toBe('active');
+        expect(plan.total_seats).toBe(50);
+        expect(plan.used_seats).toBe(10);
+
+        // Invalid status: must fail check constraint
+        await expect(
+          client.query(`
+            INSERT INTO "tenant_plans" (tenant_id, plan_code, status, total_seats, used_seats, max_classes)
+            VALUES ('org_invalid', 'plan', 'banned_status', 10, 0, 1);
+          `),
+        ).rejects.toThrow();
+
+        // used_seats > total_seats: must fail check constraint
+        await expect(
+          client.query(`
+            INSERT INTO "tenant_plans" (tenant_id, plan_code, status, total_seats, used_seats, max_classes)
+            VALUES ('org_overflow', 'plan', 'active', 10, 15, 1);
+          `),
+        ).rejects.toThrow();
+      } finally {
+        await client.close();
+      }
+    });
+
+    it('enforces timeline constraints and duplicate registration checks on exam_events', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+        await seedDatabase(client, fixturesDir);
+
+        const eventId = '0192f000-0050-7000-8000-000000000001';
+        const userId = '0192f000-0000-7000-8000-000000000001';
+
+        // Invalid timeline: starts_at >= ends_at
+        await expect(
+          client.query(`
+            INSERT INTO "exam_events" (
+              id, title, level, opens_at, starts_at, ends_at, result_release_at, capacity
+            ) VALUES (
+              '${eventId}', 'Thi thử quốc gia', 'N1',
+              '2026-12-01T08:00:00Z', '2026-12-01T12:00:00Z', '2026-12-01T11:00:00Z', '2026-12-01T13:00:00Z', 100
+            );
+          `),
+        ).rejects.toThrow();
+
+        // Valid timeline: succeeds
+        await client.query(`
+          INSERT INTO "exam_events" (
+            id, title, level, opens_at, starts_at, ends_at, result_release_at, capacity
+          ) VALUES (
+            '${eventId}', 'Thi thử quốc gia', 'N1',
+            '2026-12-01T08:00:00Z', '2026-12-01T09:00:00Z', '2026-12-01T11:00:00Z', '2026-12-01T12:00:00Z', 100
+          );
+        `);
+
+        // First registration: succeeds
+        await client.query(`
+          INSERT INTO "event_registrations" (id, event_id, user_id)
+          VALUES ('0192f000-0050-7000-8000-000000000002', '${eventId}', '${userId}');
+        `);
+
+        // Duplicate registration for same event: must fail
+        await expect(
+          client.query(`
+            INSERT INTO "event_registrations" (id, event_id, user_id)
+            VALUES ('0192f000-0050-7000-8000-000000000003', '${eventId}', '${userId}');
+          `),
+        ).rejects.toThrow();
+
+        // Single result publication per event
+        await client.query(`
+          INSERT INTO "event_result_publications" (id, event_id, released_at, released_by)
+          VALUES ('0192f000-0050-7000-8000-000000000004', '${eventId}', now(), '${userId}');
+        `);
+
+        // Duplicate publication: must fail
+        await expect(
+          client.query(`
+            INSERT INTO "event_result_publications" (id, event_id, released_at, released_by)
+            VALUES ('0192f000-0050-7000-8000-000000000005', '${eventId}', now(), '${userId}');
+          `),
+        ).rejects.toThrow();
+      } finally {
+        await client.close();
+      }
+    });
+
+    it('enforces composite unique constraint on comment_reports', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+        await seedDatabase(client, fixturesDir);
+
+        const threadId = '0192f000-0060-7000-8000-000000000001';
+        const commentId = '0192f000-0060-7000-8000-000000000002';
+        const authorId = '0192f000-0000-7000-8000-000000000001';
+        const reporterId = '0192f000-0060-7000-8000-000000000003';
+
+        await client.query(`
+          INSERT INTO "users" (id, email, role) VALUES ('${reporterId}', 'reporter@jlpt.local', 'user') ON CONFLICT DO NOTHING;
+        `);
+        await client.query(`
+          INSERT INTO "discussion_threads" (id, target_type, target_id, author_id, title, content)
+          VALUES ('${threadId}', 'general', '0192f000-0060-7000-8000-000000000010', '${authorId}', 'Thảo luận', 'Nội dung');
+        `);
+        await client.query(`
+          INSERT INTO "comments" (id, thread_id, author_id, content)
+          VALUES ('${commentId}', '${threadId}', '${authorId}', 'Bình luận 1');
+        `);
+
+        // First report: succeeds
+        await client.query(`
+          INSERT INTO "comment_reports" (id, comment_id, reported_by, reason)
+          VALUES ('0192f000-0060-7000-8000-000000000004', '${commentId}', '${reporterId}', 'Spam');
+        `);
+
+        // Duplicate report from same reporter: must fail
+        await expect(
+          client.query(`
+            INSERT INTO "comment_reports" (id, comment_id, reported_by, reason)
+            VALUES ('0192f000-0060-7000-8000-000000000005', '${commentId}', '${reporterId}', 'Duplicate report');
+          `),
+        ).rejects.toThrow();
+      } finally {
+        await client.close();
+      }
+    });
+  });
+
+  describe('A01 Acceptance 2: Delete/export không phá nghĩa vụ retention chưa được phê duyệt', () => {
+    it('enforces retention_policies constraints: unique domain, retention_days > 0, approval rule', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+        await seedDatabase(client, fixturesDir);
+
+        const adminId = '0192f000-0000-7000-8000-000000000001';
+
+        // Duplicate domain: must fail
+        await expect(
+          client.query(`
+            INSERT INTO "retention_policies" (id, domain, retention_days, policy_approved, approved_by)
+            VALUES ('0192f000-0070-7000-8000-000000000001', 'billing', 365, true, '${adminId}');
+          `),
+        ).rejects.toThrow();
+
+        // retention_days <= 0: must fail check constraint
+        await expect(
+          client.query(`
+            INSERT INTO "retention_policies" (id, domain, retention_days, policy_approved)
+            VALUES ('0192f000-0070-7000-8000-000000000002', 'zero_days_domain', 0, false);
+          `),
+        ).rejects.toThrow();
+
+        // policy_approved = true without approved_by: must fail approval check
+        await expect(
+          client.query(`
+            INSERT INTO "retention_policies" (id, domain, retention_days, policy_approved, approved_by)
+            VALUES ('0192f000-0070-7000-8000-000000000003', 'approved_without_approver', 30, true, NULL);
+          `),
+        ).rejects.toThrow();
+      } finally {
+        await client.close();
+      }
+    });
+
+    it('canPurgeDomain returns canPurge: true for approved domain, false for unapproved', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+        await seedDatabase(client, fixturesDir);
+
+        const billingCheck = await canPurgeDomain(client, 'billing');
+        expect(billingCheck.canPurge).toBe(true);
+        expect(billingCheck.policyApproved).toBe(true);
+        expect(billingCheck.retentionDays).toBe(3650);
+
+        const unapprovedCheck = await canPurgeDomain(client, 'unapproved_sample');
+        expect(unapprovedCheck.canPurge).toBe(false);
+        expect(unapprovedCheck.policyApproved).toBe(false);
+        expect(unapprovedCheck.reason).toContain('chưa có chính sách lưu trữ');
+
+        const unknownCheck = await canPurgeDomain(client, 'unknown_domain');
+        expect(unknownCheck.canPurge).toBe(false);
+      } finally {
+        await client.close();
+      }
+    });
+
+    it('assertRetentionObligationNotViolated rejects purging data in unapproved domain', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+        await seedDatabase(client, fixturesDir);
+
+        await expect(assertRetentionObligationNotViolated(client, 'billing')).resolves.not.toThrow();
+        await expect(assertRetentionObligationNotViolated(client, 'unapproved_sample')).rejects.toThrow(
+          RetentionViolationError,
+        );
+      } finally {
+        await client.close();
+      }
+    });
+
+    it('executeRetentionSafeDeletion preserves unapproved ledger data and records audit request', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+        await seedDatabase(client, fixturesDir);
+
+        const userId = '0192f000-0000-7000-8000-000000000001';
+
+        // When requesting deletion across approved ('billing', 'audit_logs') and unapproved ('unapproved_sample') domains
+        const result = await executeRetentionSafeDeletion(client, userId, [
+          'billing',
+          'audit_logs',
+          'unapproved_sample',
+        ]);
+
+        expect(result.deletedDomains).toContain('billing');
+        expect(result.deletedDomains).toContain('audit_logs');
+        expect(result.preservedDomains).toContain('unapproved_sample');
+        expect(result.status).toBe('blocked_retention');
+        expect(result.notes).toContain('Bảo tồn các miền bắt buộc');
+
+        // Verify recorded deletion_requests entry
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const reqRows = (await client.query(`SELECT * FROM "deletion_requests" WHERE user_id = '${userId}';`)) as any;
+        const rows = reqRows.rows ?? reqRows;
+        expect(rows.length).toBeGreaterThan(0);
+        expect(rows[0].status).toBe('blocked_retention');
+      } finally {
+        await client.close();
+      }
+    });
+  });
+
+  describe('A01 Acceptance 3: AI generation labels and Versioning', () => {
+    it('explanation_versions preserves ai_generated label and enforces unique (question_id, version, locale)', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+        await seedDatabase(client, fixturesDir);
+
+        const adminId = '0192f000-0000-7000-8000-000000000001';
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const qRes = (await client.query(`SELECT id FROM "questions" LIMIT 1;`)) as any;
+        const questionId = (qRes.rows ?? qRes)[0].id;
+
+        // Insert AI generated explanation
+        const explId = '0192f000-0080-7000-8000-000000000001';
+        await client.query(`
+          INSERT INTO "explanation_versions" (
+            id, question_id, version, content, locale, author_id, ai_generated, status
+          ) VALUES (
+            '${explId}', '${questionId}', 2, '{"text":"Giải thích tự động bởi AI"}'::jsonb, 'vi', '${adminId}', true, 'draft'
+          );
+        `);
+
+        // Query inserted explanation: verify ai_generated is true
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const insertedRes = (await client.query(`SELECT ai_generated FROM "explanation_versions" WHERE id = '${explId}';`)) as any;
+        const inserted = (insertedRes.rows ?? insertedRes)[0];
+        expect(inserted.ai_generated).toBe(true);
+
+        // Duplicate (question_id, version, locale): must fail unique index
+        await expect(
+          client.query(`
+            INSERT INTO "explanation_versions" (
+              id, question_id, version, content, locale, author_id, ai_generated, status
+            ) VALUES (
+              '0192f000-0080-7000-8000-000000000002', '${questionId}', 2, '{"text":"Duplicate"}'::jsonb, 'vi', '${adminId}', false, 'draft'
+            );
+          `),
+        ).rejects.toThrow();
+      } finally {
+        await client.close();
+      }
+    });
+
+    it('ai_content_versions enforces valid approval_status check constraint', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+
+        // Invalid approval_status: must fail
+        await expect(
+          client.query(`
+            INSERT INTO "ai_content_versions" (id, generated_type, content, ai_generated, approval_status)
+            VALUES ('0192f000-0090-7000-8000-000000000001', 'hint', '{"hint":"test"}'::jsonb, true, 'invalid_status');
+          `),
+        ).rejects.toThrow();
+
+        // Valid approval_status: succeeds
+        await client.query(`
+          INSERT INTO "ai_content_versions" (id, generated_type, content, ai_generated, approval_status)
+          VALUES ('0192f000-0090-7000-8000-000000000002', 'hint', '{"hint":"test"}'::jsonb, true, 'approved');
+        `);
+      } finally {
+        await client.close();
+      }
+    });
+  });
 });
+

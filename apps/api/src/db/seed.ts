@@ -222,7 +222,46 @@ export async function seedDatabase(
     }
   }
 
-  // 5. Partitions creation (idempotent)
+  // 5. Seed Retention Policies (idempotent)
+  const defaultPolicies = [
+    {
+      id: '0192f000-0000-7000-8000-000000000011',
+      domain: 'billing',
+      retentionDays: 3650,
+      policyApproved: true,
+      approvedBy: adminId,
+    },
+    {
+      id: '0192f000-0000-7000-8000-000000000012',
+      domain: 'exam_attempts',
+      retentionDays: 1825,
+      policyApproved: true,
+      approvedBy: adminId,
+    },
+    {
+      id: '0192f000-0000-7000-8000-000000000013',
+      domain: 'audit_logs',
+      retentionDays: 730,
+      policyApproved: true,
+      approvedBy: adminId,
+    },
+    {
+      id: '0192f000-0000-7000-8000-000000000014',
+      domain: 'unapproved_sample',
+      retentionDays: 30,
+      policyApproved: false,
+      approvedBy: null,
+    },
+  ];
+
+  for (const pol of defaultPolicies) {
+    await client.db
+      .insert(schema.retentionPolicies)
+      .values(pol)
+      .onConflictDoNothing();
+  }
+
+  // 6. Partitions creation (idempotent)
   const partitions = await ensureAttemptEventsPartitions(client);
 
   return {
@@ -233,6 +272,7 @@ export async function seedDatabase(
     partitionsCreated: partitions.length,
   };
 }
+
 
 // Standalone runner CLI support
 if (process.argv[1] && process.argv[1].endsWith('seed.ts')) {

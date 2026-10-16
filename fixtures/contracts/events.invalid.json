@@ -46,5 +46,62 @@
     "aggregateVersion": 1,
     "correlationId": "req_01",
     "payload": {}
+  },
+  {
+    "eventId": "0192f0c0-0000-7000-8000-000000000005",
+    "schemaVersion": 1,
+    "topic": "attempt.submitted",
+    "occurredAt": "2026-10-15T10:00:00Z",
+    "actorId": "system",
+    "tenantId": null,
+    "aggregateId": "0192f0c0-0000-7000-8000-000000000010",
+    "aggregateVersion": 1,
+    "correlationId": "req_leak_01",
+    "payload": {
+      "attemptId": "0192f0c0-0000-7000-8000-000000000010",
+      "examId": "0192f0c0-0000-7000-8000-000000000001",
+      "examVersion": 1,
+      "score": 145,
+      "passed": true,
+      "correctOption": 2,
+      "answers": [1, 2, 3, 4]
+    }
+  },
+  {
+    "eventId": "0192f0c0-0000-7000-8000-000000000006",
+    "schemaVersion": 1,
+    "topic": "privacy.consent.changed",
+    "occurredAt": "2026-10-15T10:00:00Z",
+    "actorId": "system",
+    "tenantId": null,
+    "aggregateId": "0192f0c0-0000-7000-8000-000000000010",
+    "aggregateVersion": 1,
+    "correlationId": "req_leak_02",
+    "payload": {
+      "userId": "0192f0c0-0000-7000-8000-000000000099",
+      "email": "student@example.com",
+      "purpose": "analytics",
+      "granted": true
+    }
+  },
+  {
+    "eventId": "0192f0c0-0000-7000-8000-000000000007",
+    "schemaVersion": 1,
+    "topic": "payment.captured",
+    "occurredAt": "2026-10-15T10:00:00Z",
+    "actorId": "system",
+    "tenantId": null,
+    "aggregateId": "0192f0c0-0000-7000-8000-000000000020",
+    "aggregateVersion": 1,
+    "correlationId": "req_leak_03",
+    "payload": {
+      "orderId": "0192f0c0-0000-7000-8000-000000000020",
+      "provider": "payos",
+      "amountMinor": 299000,
+      "currency": "VND",
+      "userId": "0192f0c0-0000-7000-8000-000000000099",
+      "bearerToken": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+    }
   }
 ]
+

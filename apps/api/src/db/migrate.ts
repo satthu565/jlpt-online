@@ -43,9 +43,12 @@ export function resolveMigrationsDir(customDir?: string): string {
   return path.join(__dirname, 'migrations');
 }
 
+export const MIGRATION_ADVISORY_LOCK_ID = 72110115;
+
 /**
  * Executes database migrations on the target client.
  * Fully idempotent using __drizzle_migrations ledger.
+ * Uses PostgreSQL advisory locking to prevent concurrent migration races across multiple processes/containers.
  */
 export async function runMigrations(
   client: DbClientInstance,
@@ -53,63 +56,78 @@ export async function runMigrations(
 ): Promise<MigrationResult> {
   const dir = resolveMigrationsDir(migrationsDir);
 
-  // Ensure migration ledger exists
-  await client.query(`
-    CREATE TABLE IF NOT EXISTS "__drizzle_migrations" (
-      id SERIAL PRIMARY KEY,
-      name text NOT NULL UNIQUE,
-      applied_at timestamp with time zone DEFAULT now() NOT NULL
-    );
-  `);
-
-  // Query already applied migrations
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ledgerRows = (await client.query(`SELECT name FROM "__drizzle_migrations"`)) as any;
-  const appliedSet = new Set<string>();
-
-  const rows = ledgerRows.rows ?? ledgerRows;
-  if (Array.isArray(rows)) {
-    for (const r of rows) {
-      if (r && r.name) appliedSet.add(r.name);
-    }
+  // Acquire advisory lock
+  try {
+    await client.query(`SELECT pg_advisory_lock(${MIGRATION_ADVISORY_LOCK_ID});`);
+  } catch {
+    // If not supported by client, continue
   }
 
-  const files = fs
-    .readdirSync(dir)
-    .filter((f) => f.endsWith('.sql'))
-    .sort();
-
-  const applied: string[] = [];
-  const alreadyApplied: string[] = [];
-
-  for (const file of files) {
-    if (appliedSet.has(file)) {
-      alreadyApplied.push(file);
-      continue;
-    }
-
-    const filePath = path.join(dir, file);
-    const content = fs.readFileSync(filePath, 'utf8');
-
-    // Split statements on breakpoint or semicolons
-    const statements = content
-      .split('--> statement-breakpoint')
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
-
-    for (const stmt of statements) {
-      await client.query(stmt);
-    }
-
+  try {
+    // Ensure migration ledger exists
     await client.query(`
-      INSERT INTO "__drizzle_migrations" (name) VALUES ('${file}')
-      ON CONFLICT (name) DO NOTHING;
+      CREATE TABLE IF NOT EXISTS "__drizzle_migrations" (
+        id SERIAL PRIMARY KEY,
+        name text NOT NULL UNIQUE,
+        applied_at timestamp with time zone DEFAULT now() NOT NULL
+      );
     `);
 
-    applied.push(file);
-  }
+    // Query already applied migrations
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ledgerRows = (await client.query(`SELECT name FROM "__drizzle_migrations"`)) as any;
+    const appliedSet = new Set<string>();
 
-  return { applied, alreadyApplied };
+    const rows = ledgerRows.rows ?? ledgerRows;
+    if (Array.isArray(rows)) {
+      for (const r of rows) {
+        if (r && r.name) appliedSet.add(r.name);
+      }
+    }
+
+    const files = fs
+      .readdirSync(dir)
+      .filter((f) => f.endsWith('.sql'))
+      .sort();
+
+    const applied: string[] = [];
+    const alreadyApplied: string[] = [];
+
+    for (const file of files) {
+      if (appliedSet.has(file)) {
+        alreadyApplied.push(file);
+        continue;
+      }
+
+      const filePath = path.join(dir, file);
+      const content = fs.readFileSync(filePath, 'utf8');
+
+      // Split statements on breakpoint or semicolons
+      const statements = content
+        .split('--> statement-breakpoint')
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+
+      for (const stmt of statements) {
+        await client.query(stmt);
+      }
+
+      await client.query(`
+        INSERT INTO "__drizzle_migrations" (name) VALUES ('${file}')
+        ON CONFLICT (name) DO NOTHING;
+      `);
+
+      applied.push(file);
+    }
+
+    return { applied, alreadyApplied };
+  } finally {
+    try {
+      await client.query(`SELECT pg_advisory_unlock(${MIGRATION_ADVISORY_LOCK_ID});`);
+    } catch {
+      // Ignore unlock failure
+    }
+  }
 }
 
 /**
@@ -151,6 +169,34 @@ export async function verifyRollbackCompatibility(
       table: 'outbox',
       query: `SELECT id, topic, payload FROM "outbox" LIMIT 1;`,
     },
+    {
+      table: 'tenant_plans',
+      query: `SELECT tenant_id, plan_code, status, total_seats, used_seats FROM "tenant_plans" LIMIT 1;`,
+    },
+    {
+      table: 'retention_policies',
+      query: `SELECT id, domain, retention_days, policy_approved FROM "retention_policies" LIMIT 1;`,
+    },
+    {
+      table: 'org_memberships',
+      query: `SELECT id, org_id, user_id, role FROM "org_memberships" LIMIT 1;`,
+    },
+    {
+      table: 'classes',
+      query: `SELECT id, org_id, teacher_id, name, level FROM "classes" LIMIT 1;`,
+    },
+    {
+      table: 'assignments',
+      query: `SELECT id, class_id, title, opens_at, due_at FROM "assignments" LIMIT 1;`,
+    },
+    {
+      table: 'exam_events',
+      query: `SELECT id, title, level, opens_at, starts_at, ends_at, result_release_at, capacity FROM "exam_events" LIMIT 1;`,
+    },
+    {
+      table: 'explanation_versions',
+      query: `SELECT id, question_id, version, ai_generated FROM "explanation_versions" LIMIT 1;`,
+    },
   ];
 
   for (const { table, query } of legacyReaderQueries) {
@@ -168,6 +214,7 @@ export async function verifyRollbackCompatibility(
       };
     }
   }
+
 
   // 2. Verify re-running migrations does not fail (idempotency check)
   try {

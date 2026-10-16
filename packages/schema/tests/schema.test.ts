@@ -22,6 +22,16 @@ import {
   ActorContextSchema,
   ResourceVersionSchema,
   SourceRightsSchema,
+  assertNoEventLeak,
+  RetentionPolicySchema,
+  DeletionRequestSchema,
+  ExportJobSchema,
+  RetentionViolationError,
+  assertRetentionPolicyApproved,
+  evaluateDataDeletionEligibility,
+  assertNoRetentionViolationOnDelete,
+  sanitizeExportField,
+  AIContentReviewedPayloadSchema,
 } from '../src/index.js';
 
 describe('@jlpt/schema contracts test', () => {
@@ -408,4 +418,206 @@ describe('@jlpt/schema contracts test', () => {
       expect(SourceRightsSchema.parse(rights)).toMatchObject(rights);
     });
   });
+
+  describe('Acceptance 3: Public events không chứa answers hay PII', () => {
+    it('validates compliant event envelope without answers or PII', () => {
+      const validEvent = createEventEnvelope(
+        'attempt.submitted',
+        '0192f0c0-0000-7000-8000-000000000010',
+        '0192f0c0-0000-7000-8000-000000000099',
+        {
+          attemptId: '0192f0c0-0000-7000-8000-000000000010',
+          examId: '0192f0c0-0000-7000-8000-000000000001',
+          examVersion: 1,
+          score: 145,
+          passed: true,
+        },
+      );
+      expect(EventEnvelopeSchema.parse(validEvent)).toEqual(validEvent);
+      expect(() => assertNoEventLeak(validEvent)).not.toThrow();
+    });
+
+    it('strictly rejects event containing forbidden answer fields (answers, correctOption, answerKey)', () => {
+      const leakedAnswerEvent = {
+        eventId: '0192f0c0-0000-7000-8000-000000000001',
+        schemaVersion: 1,
+        topic: 'attempt.submitted',
+        occurredAt: '2026-10-15T10:00:00.000Z',
+        actorId: 'system',
+        tenantId: null,
+        aggregateId: '0192f0c0-0000-7000-8000-000000000010',
+        aggregateVersion: 1,
+        correlationId: 'req_01',
+        payload: {
+          attemptId: '0192f0c0-0000-7000-8000-000000000010',
+          answers: [1, 2, 3, 4],
+          correctOption: 2,
+        },
+      };
+
+      expect(() => EventEnvelopeSchema.parse(leakedAnswerEvent)).toThrow(/forbidden answer field/);
+      expect(() => assertNoEventLeak(leakedAnswerEvent)).toThrow(/forbidden answer field "answers"/);
+    });
+
+    it('strictly rejects event containing forbidden PII fields (email, password, bearerToken)', () => {
+      const leakedPiiEvent = {
+        eventId: '0192f0c0-0000-7000-8000-000000000001',
+        schemaVersion: 1,
+        topic: 'privacy.consent.changed',
+        occurredAt: '2026-10-15T10:00:00.000Z',
+        actorId: 'system',
+        tenantId: null,
+        aggregateId: '0192f0c0-0000-7000-8000-000000000010',
+        aggregateVersion: 1,
+        correlationId: 'req_01',
+        payload: {
+          userId: '0192f0c0-0000-7000-8000-000000000099',
+          email: 'student@example.com',
+          purpose: 'analytics',
+          granted: true,
+        },
+      };
+
+      expect(() => EventEnvelopeSchema.parse(leakedPiiEvent)).toThrow(/forbidden PII field/);
+      expect(() => assertNoEventLeak(leakedPiiEvent)).toThrow(/forbidden PII field "email"/);
+    });
+
+    it('strictly rejects event containing plain email string in nested payload value', () => {
+      const plainEmailEvent = {
+        eventId: '0192f0c0-0000-7000-8000-000000000001',
+        schemaVersion: 1,
+        topic: 'payment.failed',
+        occurredAt: '2026-10-15T10:00:00.000Z',
+        actorId: 'system',
+        tenantId: null,
+        aggregateId: '0192f0c0-0000-7000-8000-000000000010',
+        aggregateVersion: 1,
+        correlationId: 'req_01',
+        payload: {
+          orderId: '0192f0c0-0000-7000-8000-000000000020',
+          reason: 'Failed to contact learner@jlpt.example.org on invoice delivery',
+        },
+      };
+
+      // Email pattern detected in string
+      expect(() => assertNoEventLeak(plainEmailEvent)).toThrow(/plain email PII detected/);
+    });
+
+    it('createEventEnvelope throws immediately if leaked answer or PII is passed', () => {
+      expect(() =>
+        createEventEnvelope(
+          'attempt.submitted',
+          '0192f0c0-0000-7000-8000-000000000010',
+          'system',
+          {
+            score: 100,
+            answers: [1, 2],
+          },
+        ),
+      ).toThrow(/forbidden answer field "answers"/);
+    });
+  });
+
+  describe('Acceptance 2: Delete/export không phá nghĩa vụ retention chưa được phê duyệt', () => {
+    const approvedBillingPolicy = {
+      id: '0192f0c0-0000-7000-8000-0000000000a1',
+      domain: 'billing',
+      retentionDays: 3650,
+      policyApproved: true,
+      approvedBy: '0192f0c0-0000-7000-8000-000000000001',
+    };
+
+    const unapprovedSamplePolicy = {
+      id: '0192f0c0-0000-7000-8000-0000000000a2',
+      domain: 'unapproved_sample',
+      retentionDays: 30,
+      policyApproved: false,
+    };
+
+    it('validates RetentionPolicySchema', () => {
+      expect(RetentionPolicySchema.parse(approvedBillingPolicy)).toMatchObject(approvedBillingPolicy);
+      expect(RetentionPolicySchema.parse(unapprovedSamplePolicy)).toMatchObject(unapprovedSamplePolicy);
+    });
+
+    it('assertRetentionPolicyApproved succeeds for approved policy', () => {
+      expect(() => assertRetentionPolicyApproved(approvedBillingPolicy, 'billing')).not.toThrow();
+    });
+
+    it('assertRetentionPolicyApproved throws RetentionViolationError for unapproved policy', () => {
+      expect(() => assertRetentionPolicyApproved(unapprovedSamplePolicy, 'unapproved_sample')).toThrow(
+        RetentionViolationError,
+      );
+      expect(() => assertRetentionPolicyApproved(unapprovedSamplePolicy, 'unapproved_sample')).toThrow(
+        /chưa được phê duyệt/,
+      );
+    });
+
+    it('assertRetentionPolicyApproved throws RetentionViolationError if policy is missing', () => {
+      expect(() => assertRetentionPolicyApproved(null, 'unknown_domain')).toThrow(RetentionViolationError);
+    });
+
+    it('evaluateDataDeletionEligibility accurately evaluates domain deletion safety', () => {
+      const policies = [approvedBillingPolicy, unapprovedSamplePolicy];
+      expect(evaluateDataDeletionEligibility(policies, 'billing')).toEqual({ eligible: true });
+      const unapprovedCheck = evaluateDataDeletionEligibility(policies, 'unapproved_sample');
+      expect(unapprovedCheck.eligible).toBe(false);
+      expect(unapprovedCheck.reason).toContain('chưa có chính sách lưu trữ');
+    });
+
+    it('assertNoRetentionViolationOnDelete blocks multi-domain deletion containing unapproved retention obligations', () => {
+      const policies = [approvedBillingPolicy, unapprovedSamplePolicy];
+      expect(() =>
+        assertNoRetentionViolationOnDelete(policies, ['billing', 'unapproved_sample']),
+      ).toThrow(RetentionViolationError);
+
+      expect(() =>
+        assertNoRetentionViolationOnDelete(policies, ['billing']),
+      ).not.toThrow();
+    });
+
+    it('validates DeletionRequestSchema and ExportJobSchema', () => {
+      const delReq = {
+        id: '0192f0c0-0000-7000-8000-0000000000d1',
+        userId: '0192f0c0-0000-7000-8000-000000000099',
+        status: 'blocked_retention',
+        requestedAt: '2026-10-15T12:00:00.000Z',
+        metadata: { preservedDomains: ['billing'] },
+      };
+      expect(DeletionRequestSchema.parse(delReq)).toMatchObject(delReq);
+
+      const expJob = {
+        id: '0192f0c0-0000-7000-8000-0000000000e1',
+        userId: '0192f0c0-0000-7000-8000-000000000099',
+        status: 'completed',
+        downloadUrl: 'https://cdn.jlpt.example.com/exports/user-data.zip',
+        createdAt: '2026-10-15T12:00:00.000Z',
+      };
+      expect(ExportJobSchema.parse(expJob)).toMatchObject(expJob);
+    });
+
+    it('sanitizes export fields to prevent spreadsheet formula injection', () => {
+      expect(sanitizeExportField('=1+1')).toBe("'=1+1");
+      expect(sanitizeExportField('+SUM(A1:A10)')).toBe("'+SUM(A1:A10)");
+      expect(sanitizeExportField('-12345')).toBe("'-12345");
+      expect(sanitizeExportField('@cmd')).toBe("'@cmd");
+      expect(sanitizeExportField('Safe Text')).toBe('Safe Text');
+      expect(sanitizeExportField(12345)).toBe(12345);
+    });
+  });
+
+  describe('AI generation labels and moderation', () => {
+    it('validates AIContentReviewedPayloadSchema retains aiGenerated label', () => {
+      const payload = {
+        contentId: '0192f0c0-0000-7000-8000-0000000000c1',
+        decision: 'approve',
+        reviewerId: '0192f0c0-0000-7000-8000-000000000001',
+        aiGenerated: true,
+        contentType: 'explanation',
+      };
+      const parsed = AIContentReviewedPayloadSchema.parse(payload);
+      expect(parsed.aiGenerated).toBe(true);
+      expect(parsed.decision).toBe('approve');
+    });
+  });
 });
+
