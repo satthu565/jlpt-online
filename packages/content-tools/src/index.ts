@@ -37,3 +37,5 @@ export * from './zip.js';
 export * from './idempotency.js';
 export * from './blueprint-validator.js';
 export * from './issues.js';
+export * from './nlp/index.js';
+

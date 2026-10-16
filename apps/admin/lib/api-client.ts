@@ -337,8 +337,68 @@ export class AdminApiClient {
     });
   }
 
-  public async publishExam(id: string): Promise<{ success: boolean }> {
-    return this.request<{ success: boolean }>('POST', `/api/v1/admin/exams/${encodeURIComponent(id)}/publish`, {
+  public async updateQuestionGroup(id: string, data: unknown): Promise<{ updated: boolean }> {
+    return this.request<{ updated: boolean }>('PATCH', `/api/v1/admin/groups/${encodeURIComponent(id)}`, {
+      requiredRoles: ['editor', 'admin'],
+      body: data,
+    });
+  }
+
+  public async listBlueprints(): Promise<{ items: unknown[] }> {
+    return this.request<{ items: unknown[] }>('GET', '/api/v1/admin/blueprints', {
+      requiredRoles: ['editor', 'admin'],
+    });
+  }
+
+  public async createBlueprint(data: unknown): Promise<{ id: string }> {
+    return this.request<{ id: string }>('POST', '/api/v1/admin/blueprints', {
+      requiredRoles: ['editor', 'admin'],
+      body: data,
+    });
+  }
+
+  public async createBlueprintVersion(id: string, data: unknown): Promise<{ version: number }> {
+    return this.request<{ version: number }>('POST', `/api/v1/admin/blueprints/${encodeURIComponent(id)}/versions`, {
+      requiredRoles: ['editor', 'admin'],
+      body: data,
+    });
+  }
+
+  public async activateBlueprint(id: string, confirmation?: unknown): Promise<{ active: boolean }> {
+    return this.request<{ active: boolean }>('POST', `/api/v1/admin/blueprints/${encodeURIComponent(id)}/activate`, {
+      requiredRoles: ['admin'],
+      body: confirmation,
+    });
+  }
+
+  public async getExam(id: string): Promise<unknown> {
+    return this.request('GET', `/api/v1/admin/exams/${encodeURIComponent(id)}`, {
+      requiredRoles: ['editor', 'reviewer', 'admin'],
+    });
+  }
+
+  public async createExam(data: unknown): Promise<{ id: string }> {
+    return this.request<{ id: string }>('POST', '/api/v1/admin/exams', {
+      requiredRoles: ['editor', 'admin'],
+      body: data,
+    });
+  }
+
+  public async updateExam(id: string, data: unknown): Promise<{ updated: boolean }> {
+    return this.request<{ updated: boolean }>('PATCH', `/api/v1/admin/exams/${encodeURIComponent(id)}`, {
+      requiredRoles: ['editor', 'admin'],
+      body: data,
+    });
+  }
+
+  public async validateExam(id: string): Promise<{ valid: boolean; violations: string[] }> {
+    return this.request<{ valid: boolean; violations: string[] }>('POST', `/api/v1/admin/exams/${encodeURIComponent(id)}/validate`, {
+      requiredRoles: ['editor', 'admin'],
+    });
+  }
+
+  public async publishExam(id: string): Promise<{ success: boolean; version?: number }> {
+    return this.request<{ success: boolean; version?: number }>('POST', `/api/v1/admin/exams/${encodeURIComponent(id)}/publish`, {
       requiredRoles: ['admin'],
     });
   }
@@ -346,6 +406,31 @@ export class AdminApiClient {
   public async listUsers(): Promise<{ items: unknown[] }> {
     return this.request<{ items: unknown[] }>('GET', '/api/v1/admin/users', {
       requiredRoles: ['admin'],
+    });
+  }
+
+  public async getUserById(id: string): Promise<unknown> {
+    return this.request('GET', `/api/v1/admin/users/${encodeURIComponent(id)}`, {
+      requiredRoles: ['admin'],
+    });
+  }
+
+  public async updateUserRole(userId: string, newRole: Role): Promise<{ success: boolean }> {
+    // Client-side guard: Prevent editor from self-elevating to admin
+    if (this.user?.id === userId && newRole === 'admin' && this.user.role !== 'admin') {
+      throw new AdminClientGuardError('FORBIDDEN', 'Biên tập viên không thể tự nâng quyền lên Quản trị viên.', 403);
+    }
+
+    return this.request<{ success: boolean }>('PATCH', `/api/v1/admin/users/${encodeURIComponent(userId)}`, {
+      requiredRoles: ['admin'],
+      body: { roles: [newRole] },
+    });
+  }
+
+  public async setUserBlocked(userId: string, isBlocked: boolean, blockReason?: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>('PATCH', `/api/v1/admin/users/${encodeURIComponent(userId)}`, {
+      requiredRoles: ['admin'],
+      body: { isBlocked, blockReason },
     });
   }
 
@@ -381,8 +466,14 @@ export class AdminApiClient {
     if (path.includes('/audit-logs')) {
       return { items: [{ id: 'aud_01', action: 'update_role', user: 'admin@jlpt.local' }] } as T;
     }
-    if (path.includes('/reports/revenue')) {
-      return { totalRevenue: 154000000, currency: 'VND' } as T;
+    if (path.includes('/blueprints')) {
+      return { items: [{ id: 'bp_N1', level: 'N1', version: 1, status: 'active' }] } as T;
+    }
+    if (path.includes('/users')) {
+      return { items: [{ id: 'usr_01', email: 'user@jlpt.local', role: 'student' }] } as T;
+    }
+    if (path.includes('/validate')) {
+      return { valid: true, violations: [] } as T;
     }
     return { success: true } as T;
   }
