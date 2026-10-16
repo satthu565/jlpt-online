@@ -13,8 +13,7 @@ import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { ReviewService } from './review.service.js';
 import type { ReviewDecisionDto, SubmitReviewDto } from './review.types.js';
 
-@Controller('api/v1/admin/reviews')
-@UseGuards(AuthGuard, RolesGuard)
+@Controller('admin/reviews')
 @Roles('admin', 'editor', 'reviewer')
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}

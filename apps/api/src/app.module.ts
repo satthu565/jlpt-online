@@ -15,11 +15,19 @@ import { StorageModule } from './modules/storage/storage.module.js';
 import { MediaModule } from './modules/media/media.module.js';
 import { LicenseModule } from './modules/license/license.module.js';
 import { QuestionBankModule } from './modules/question-bank/question-bank.module.js';
+import { ScoringModule } from './modules/scoring/scoring.module.js';
 import { OutboxModule } from './modules/outbox/outbox.module.js';
 import { BlueprintModule } from './modules/blueprint/blueprint.module.js';
 import { ReviewModule } from './modules/review/review.module.js';
 import { ImportModule } from './modules/import/import.module.js';
+import { TurnstileModule } from './modules/turnstile/turnstile.module.js';
+import { AttemptModule } from './modules/attempt/attempt.module.js';
+import { AuditModule } from './modules/audit/audit.module.js';
+import { AdminModule } from './modules/admin/admin.module.js';
 import { ExamModule } from './modules/exam/exam.module.js';
+import { OriginGuard } from './common/guards/origin.guard.js';
+import { TotpGuard } from './common/guards/totp.guard.js';
+import { RateLimitGuard } from './common/guards/rate-limit.guard.js';
 
 @Module({
   imports: [
@@ -31,14 +39,23 @@ import { ExamModule } from './modules/exam/exam.module.js';
     MediaModule,
     LicenseModule,
     QuestionBankModule,
+    ScoringModule,
     OutboxModule,
     BlueprintModule,
     ReviewModule,
     ImportModule,
+    TurnstileModule,
+    AttemptModule,
+    AuditModule,
+    AdminModule,
     ExamModule,
   ],
   controllers: [HealthController],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: OriginGuard,
+    },
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
@@ -49,7 +66,15 @@ import { ExamModule } from './modules/exam/exam.module.js';
     },
     {
       provide: APP_GUARD,
+      useClass: TotpGuard,
+    },
+    {
+      provide: APP_GUARD,
       useClass: TenantGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RateLimitGuard,
     },
     {
       provide: APP_FILTER,

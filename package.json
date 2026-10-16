@@ -28,6 +28,9 @@
     "test:db": "vitest run apps/api/src/db/db.test.ts",
     "test:auth": "vitest run apps/api/src/modules/auth/auth.test.ts",
     "test:authorization": "vitest run apps/api/src/common/guards/authorization.test.ts",
+    "test:attempts": "vitest run apps/api/src/modules/attempt/attempt.test.ts",
+    "test:no-answer-leak": "vitest run apps/api/src/modules/attempt/no-answer-leak.test.ts",
+    "test:jobs": "vitest run apps/api/src/modules/outbox/jobs.test.ts",
     "test:content": "vitest run apps/api/src/modules/question-bank/ apps/api/src/modules/license/",
     "test:upload": "vitest run apps/api/src/modules/media/",
     "test:storage": "vitest run apps/api/src/modules/storage/",
@@ -45,7 +48,10 @@
     "test:sync": "pnpm --filter @jlpt/web test:sync",
     "test:rich-text": "pnpm --filter @jlpt/ui test:rich-text",
     "test:admin-content": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/content.test.ts",
-    "test:admin-users": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/users.test.ts"
+    "test:admin-users": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/users.test.ts",
+    "test:srs": "vitest run packages/srs/tests",
+    "test:difficulty": "vitest run packages/exam-engine/tests/difficulty.test.ts",
+    "test:dedupe": "vitest run packages/exam-engine/tests/dedupe.test.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",

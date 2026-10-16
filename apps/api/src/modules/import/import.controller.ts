@@ -14,8 +14,7 @@ import { AuthGuard } from '../../common/guards/auth.guard.js';
 import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { ImportService } from './import.service.js';
 
-@Controller('api/v1/admin/imports')
-@UseGuards(AuthGuard, RolesGuard)
+@Controller('admin/imports')
 @Roles('admin', 'editor', 'reviewer')
 export class ImportController {
   constructor(private readonly importService: ImportService) {}
@@ -50,16 +49,27 @@ export class ImportController {
       );
     }
 
+    // Base64 JSON body fallback
+    const rawBody = req.body as any;
+    if (rawBody && typeof rawBody === 'object' && typeof rawBody.dataBase64 === 'string') {
+      const buf = Buffer.from(rawBody.dataBase64, 'base64');
+      const userId = (user as any)?.userId || user?.id || 'importer';
+      return this.importService.processPackageImport(
+        buf,
+        rawBody.fileName || 'package.zip',
+        userId,
+      );
+    }
+
     // Binary body fallback
-    const rawBody = req.body;
     if (Buffer.isBuffer(rawBody)) {
       return this.importService.processPackageImport(
         rawBody,
         'package.zip',
-        user.id,
+        (user as any)?.userId || user?.id || 'importer',
       );
     }
 
-    throw new BadRequestException('Yêu cầu phải là multipart/form-data hoặc binary application/zip');
+    throw new BadRequestException('Yêu cầu phải là multipart/form-data, binary application/zip hoặc JSON { dataBase64 }');
   }
 }

@@ -6,6 +6,8 @@
 - Trạng thái: `DECIDED` / `READY_FOR_REVIEW`
 - Nhánh: `task/B01`
 - Base SHA: `02ca3302d9d12ed111787cae0aa9ff73161419ca`
+- Merged with `origin/main` (`c7b6c9c`) dưới khóa `dependency-lock` theo chỉ thị điều phối
+
 
 ---
 

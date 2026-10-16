@@ -5,6 +5,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { and, desc, eq, isNotNull, isNull } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
@@ -20,6 +21,8 @@ import {
   type ExamManifest,
   type ExamSummary,
   type Level,
+  type ExamKind,
+  type Session,
   type PublicExamSnapshot,
   type PublicOption,
   type PublicQuestion,
@@ -42,111 +45,184 @@ export class ExamService {
     private readonly blueprintService: BlueprintService,
   ) {}
 
+  private isExamGuestTrialEligible(exam: typeof schema.exams.$inferSelect, scoring?: Record<string, unknown>): boolean {
+    const descLower = (exam.description || '').toLowerCase();
+    const slugLower = exam.slug.toLowerCase();
+    const titleLower = exam.title.toLowerCase();
+
+    if (
+      descLower.includes('guest_trial') ||
+      descLower.includes('"guesttrial":true') ||
+      descLower.includes('"guesttrial": true') ||
+      slugLower.includes('trial') ||
+      slugLower.includes('guest') ||
+      titleLower.includes('làm thử') ||
+      titleLower.includes('thử nghiệm') ||
+      titleLower.includes('trial')
+    ) {
+      return true;
+    }
+
+    if (scoring && (scoring['guestTrial'] === true || scoring['guest_trial'] === true)) {
+      return true;
+    }
+
+    return false;
+  }
+
   /**
-   * Lists published exams for public discovery (A8).
+   * Public list of exams with filters and guestTrial indicator (A8).
    */
-  async listPublicExams(filters: ExamFilterQuery = {}): Promise<ExamSummary[]> {
+  async listExams(filters?: {
+    level?: Level;
+    year?: number;
+    session?: Session;
+    kind?: ExamKind;
+  }): Promise<{ items: ExamSummary[] }> {
+    const db = this.dbClient.db;
     const conditions = [
-      isNotNull(schema.exams.publishedVersion),
       isNull(schema.exams.deletedAt),
+      isNotNull(schema.exams.publishedVersion),
     ];
 
-    if (filters.level) {
+    if (filters?.level) {
       conditions.push(eq(schema.exams.level, filters.level));
     }
-    if (filters.year) {
+    if (filters?.year) {
       conditions.push(eq(schema.exams.year, filters.year));
     }
-    if (filters.session) {
+    if (filters?.session) {
       conditions.push(eq(schema.exams.session, filters.session));
     }
-    if (filters.kind) {
+    if (filters?.kind) {
       conditions.push(eq(schema.exams.kind, filters.kind));
     }
 
-    const rows = await this.dbClient.db
+    const examRows = await db
       .select()
       .from(schema.exams)
       .where(and(...conditions))
       .orderBy(desc(schema.exams.createdAt));
 
-    const result: ExamSummary[] = [];
-    for (const r of rows) {
-      const sections = await this.dbClient.db
+    const summaries: ExamSummary[] = [];
+
+    for (const e of examRows) {
+      const versionNum = e.publishedVersion ?? 1;
+
+      // Fetch version scoring
+      const [ev] = await db
         .select()
+        .from(schema.examVersions)
+        .where(and(eq(schema.examVersions.examId, e.id), eq(schema.examVersions.version, versionNum)))
+        .limit(1);
+
+      // Fetch sections
+      const sections = await db
+        .select({
+          title: schema.examSections.title,
+          durationSec: schema.examSections.durationSec,
+        })
         .from(schema.examSections)
-        .where(eq(schema.examSections.examId, r.id))
+        .where(eq(schema.examSections.examId, e.id))
         .orderBy(schema.examSections.orderIndex);
 
-      result.push({
-        id: r.id,
-        slug: r.slug,
-        level: r.level as Level,
-        title: r.title,
-        kind: r.kind as any,
-        year: r.year,
-        session: r.session as any,
-        totalQuestions: r.totalQuestions,
-        sections: sections.map((s: typeof schema.examSections.$inferSelect) => ({
-          title: s.title,
-          durationSec: s.durationSec,
-        })),
+      const guestTrial = this.isExamGuestTrialEligible(e, ev?.scoring as Record<string, unknown>);
+
+      summaries.push({
+        id: e.id,
+        slug: e.slug,
+        level: e.level as Level,
+        title: e.title,
+        kind: e.kind as ExamKind,
+        year: e.year,
+        session: (e.session as Session) || null,
+        totalQuestions: ev?.totalQuestions ?? e.totalQuestions,
+        sections,
         sourceLabel: null,
         licenseLabel: null,
-        guestTrial: false,
-        publishedVersion: r.publishedVersion!,
+        guestTrial,
+        publishedVersion: versionNum,
       });
     }
 
-    return result;
+    return { items: summaries };
   }
 
   /**
-   * Retrieves public exam details by slug (A8).
+   * Lists published exams for public discovery returning array (A8).
    */
-  async getPublicExamBySlug(slug: string): Promise<ExamDetailPublic> {
-    const rows = await this.dbClient.db
+  async listPublicExams(filters: ExamFilterQuery = {}): Promise<ExamSummary[]> {
+    const res = await this.listExams(filters);
+    return res.items;
+  }
+
+  /**
+   * Public exam detail by slug (A8).
+   */
+  async getExamBySlug(slug: string): Promise<ExamDetailPublic> {
+    const db = this.dbClient.db;
+
+    const [e] = await db
       .select()
       .from(schema.exams)
       .where(
         and(
           eq(schema.exams.slug, slug),
-          isNotNull(schema.exams.publishedVersion),
           isNull(schema.exams.deletedAt),
+          isNotNull(schema.exams.publishedVersion),
         ),
       )
       .limit(1);
 
-    if (rows.length === 0) {
-      throw new NotFoundException(`Đề thi không tồn tại hoặc chưa được xuất bản: ${slug}`);
+    if (!e) {
+      throw new NotFoundException({
+        code: 'NOT_FOUND',
+        message: `Không tìm thấy đề thi với slug ${slug}`,
+      });
     }
 
-    const r = rows[0]!;
-    const sections = await this.dbClient.db
+    const versionNum = e.publishedVersion ?? 1;
+
+    const [ev] = await db
       .select()
+      .from(schema.examVersions)
+      .where(and(eq(schema.examVersions.examId, e.id), eq(schema.examVersions.version, versionNum)))
+      .limit(1);
+
+    const sections = await db
+      .select({
+        title: schema.examSections.title,
+        durationSec: schema.examSections.durationSec,
+      })
       .from(schema.examSections)
-      .where(eq(schema.examSections.examId, r.id))
+      .where(eq(schema.examSections.examId, e.id))
       .orderBy(schema.examSections.orderIndex);
 
+    const guestTrial = this.isExamGuestTrialEligible(e, ev?.scoring as Record<string, unknown>);
+
     return {
-      id: r.id,
-      slug: r.slug,
-      level: r.level as Level,
-      title: r.title,
-      kind: r.kind as any,
-      year: r.year,
-      session: r.session as any,
-      totalQuestions: r.totalQuestions,
-      sections: sections.map((s: typeof schema.examSections.$inferSelect) => ({
-        title: s.title,
-        durationSec: s.durationSec,
-      })),
+      id: e.id,
+      slug: e.slug,
+      level: e.level as Level,
+      title: e.title,
+      kind: e.kind as ExamKind,
+      year: e.year,
+      session: (e.session as Session) || null,
+      totalQuestions: ev?.totalQuestions ?? e.totalQuestions,
+      sections,
       sourceLabel: null,
       licenseLabel: null,
-      guestTrial: false,
-      publishedVersion: r.publishedVersion!,
-      description: r.description,
+      guestTrial,
+      publishedVersion: versionNum,
+      description: e.description || '',
     };
+  }
+
+  /**
+   * Alias for getExamBySlug (A8).
+   */
+  async getPublicExamBySlug(slug: string): Promise<ExamDetailPublic> {
+    return this.getExamBySlug(slug);
   }
 
   /**
@@ -518,5 +594,49 @@ export class ExamService {
     });
 
     return { status: 'unpublished' };
+  }
+
+  /**
+   * User exam status summary (A8).
+   */
+  async getUserExamStatus(userId: string, level?: Level) {
+    const db = this.dbClient.db;
+
+    const conditions = [isNull(schema.exams.deletedAt)];
+    if (level) {
+      conditions.push(eq(schema.exams.level, level));
+    }
+
+    const allExams = await db
+      .select({ id: schema.exams.id })
+      .from(schema.exams)
+      .where(and(...conditions));
+
+    const userAttempts = await db
+      .select({
+        examId: schema.examAttempts.examId,
+        status: schema.examAttempts.status,
+      })
+      .from(schema.examAttempts)
+      .where(eq(schema.examAttempts.userId, userId));
+
+    const items = allExams.map((exam: typeof schema.exams.$inferSelect) => {
+      const attempts = userAttempts.filter((a: { examId: string; status: string }) => a.examId === exam.id);
+      let status: 'not_started' | 'in_progress' | 'completed' = 'not_started';
+
+      if (attempts.some((a: { status: string }) => a.status === 'submitted')) {
+        status = 'completed';
+      } else if (attempts.some((a: { status: string }) => a.status === 'in_progress')) {
+        status = 'in_progress';
+      }
+
+      return {
+        examId: exam.id,
+        status,
+        attempts: attempts.length,
+      };
+    });
+
+    return { items };
   }
 }

@@ -251,6 +251,12 @@ importers:
       '@jlpt/content-tools':
         specifier: workspace:*
         version: link:../../packages/content-tools
+      '@jlpt/exam-engine':
+        specifier: workspace:*
+        version: link:../../packages/exam-engine
+      '@jlpt/media-token':
+        specifier: workspace:*
+        version: link:../../packages/media-token
       '@jlpt/schema':
         specifier: workspace:*
         version: link:../../packages/schema

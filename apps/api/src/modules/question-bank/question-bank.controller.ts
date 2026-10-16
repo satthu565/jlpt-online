@@ -127,22 +127,6 @@ export class QuestionBankController {
     return this.qbService.searchQuestions(filters);
   }
 
-  @Roles('admin', 'editor')
-  @Post('admin/imports')
-  async importPackage(
-    @Body() body: { dataBase64: string; fileName?: string },
-    @CurrentUser() user: AuthUserContext,
-  ) {
-    if (!body || !body.dataBase64) {
-      throw new BadRequestException('Yêu cầu dataBase64 chứa tệp ZIP gói nhập');
-    }
-    const buf = Buffer.from(body.dataBase64, 'base64');
-    return this.qbService.importPackage(
-      buf,
-      body.fileName || 'package.zip',
-      user?.userId || 'importer',
-    );
-  }
 
   // ---------------------------------------------------------------------------
   // Public Route (Student preview: strictly no answer leaks)
