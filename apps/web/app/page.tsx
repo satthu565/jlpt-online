@@ -118,7 +118,7 @@ export default function HomePage(): React.JSX.Element {
                     </span>
                   </div>
                   <CardTitle as="h3" style={{ marginTop: '0.5rem' }}>
-                    Cấp độ {level}
+                    {t('home.levelHeading', { level })}
                   </CardTitle>
                 </CardHeader>
                 <CardContent style={{ flex: 1 }}>
@@ -127,7 +127,7 @@ export default function HomePage(): React.JSX.Element {
                 <CardFooter style={{ marginTop: 'auto' }}>
                   <a href={`/de-thi?level=${level}`} style={{ textDecoration: 'none', width: '100%' }}>
                     <Button variant="outline" size="sm" style={{ width: '100%' }}>
-                      Xem đề thi {level}
+                      {t('home.viewLevelExams', { level })}
                     </Button>
                   </a>
                 </CardFooter>
@@ -156,7 +156,7 @@ export default function HomePage(): React.JSX.Element {
             <Card>
               <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>⏱️</div>
               <CardTitle as="h3" style={{ marginBottom: '0.5rem' }}>
-                Phòng thi chuẩn format
+                {t('home.features.examEngineTitle')}
               </CardTitle>
               <CardContent>
                 <p style={{ margin: 0 }}>{t('home.features.examEngine')}</p>
@@ -166,7 +166,7 @@ export default function HomePage(): React.JSX.Element {
             <Card>
               <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🧠</div>
               <CardTitle as="h3" style={{ marginBottom: '0.5rem' }}>
-                Ôn tập thông minh SRS
+                {t('home.features.smartSRSTitle')}
               </CardTitle>
               <CardContent>
                 <p style={{ margin: 0 }}>{t('home.features.smartSRS')}</p>
@@ -176,7 +176,7 @@ export default function HomePage(): React.JSX.Element {
             <Card>
               <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>📊</div>
               <CardTitle as="h3" style={{ marginBottom: '0.5rem' }}>
-                Phân tích & Báo cáo
+                {t('home.features.analyticsTitle')}
               </CardTitle>
               <CardContent>
                 <p style={{ margin: 0 }}>{t('home.features.analytics')}</p>

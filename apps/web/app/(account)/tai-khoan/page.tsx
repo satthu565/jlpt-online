@@ -73,7 +73,7 @@ export default function AccountPage(): React.JSX.Element {
       await refreshUser();
       setFeedback({ type: 'success', message: t('account.profile.saveSuccess') });
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Lỗi khi cập nhật hồ sơ.';
+      const msg = err instanceof Error ? err.message : t('account.profile.saveError');
       setFeedback({ type: 'error', message: msg });
     } finally {
       setSaving(false);
@@ -87,7 +87,7 @@ export default function AccountPage(): React.JSX.Element {
       setFeedback({ type: 'success', message: t('account.sessions.revokeSuccess') });
       await loadSessions();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Không thể hủy phiên.';
+      const msg = err instanceof Error ? err.message : t('account.sessions.revokeError');
       setFeedback({ type: 'error', message: msg });
     }
   };
@@ -98,17 +98,17 @@ export default function AccountPage(): React.JSX.Element {
       setFeedback({ type: 'success', message: t('account.sessions.revokeAllSuccess') });
       await loadSessions();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Không thể đăng xuất các thiết bị khác.';
+      const msg = err instanceof Error ? err.message : t('account.sessions.revokeAllError');
       setFeedback({ type: 'error', message: msg });
     }
   };
 
   const levelOptions = [
-    { value: 'N1', label: 'JLPT N1 (Cao cấp)' },
-    { value: 'N2', label: 'JLPT N2 (Trung cao cấp)' },
-    { value: 'N3', label: 'JLPT N3 (Trung cấp)' },
-    { value: 'N4', label: 'JLPT N4 (Sơ cấp 2)' },
-    { value: 'N5', label: 'JLPT N5 (Sơ cấp 1)' },
+    { value: 'N1', label: t('account.profile.levelN1') },
+    { value: 'N2', label: t('account.profile.levelN2') },
+    { value: 'N3', label: t('account.profile.levelN3') },
+    { value: 'N4', label: t('account.profile.levelN4') },
+    { value: 'N5', label: t('account.profile.levelN5') },
   ];
 
   return (
@@ -142,7 +142,7 @@ export default function AccountPage(): React.JSX.Element {
       {/* Tabs */}
       <div
         role="tablist"
-        aria-label="Account Settings Tabs"
+        aria-label={t('account.tabs.ariaLabel')}
         style={{
           display: 'flex',
           gap: '0.5rem',
@@ -259,7 +259,7 @@ export default function AccountPage(): React.JSX.Element {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Nguyễn Văn A"
+                  placeholder={t('auth.register.namePlaceholder')}
                 />
 
                 {/* ACC-07: JLPT Target Level N1-N5 */}
@@ -335,7 +335,7 @@ export default function AccountPage(): React.JSX.Element {
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                            {item.userAgent || 'Trình duyệt Web'}
+                            {item.userAgent || t('account.sessions.defaultBrowser')}
                           </span>
                           {item.isCurrent && (
                             <Badge variant="success" size="sm">
@@ -353,7 +353,7 @@ export default function AccountPage(): React.JSX.Element {
                           variant="danger"
                           size="sm"
                           onClick={() => setSessionToRevoke(item.id)}
-                          aria-label={`Hủy phiên đăng nhập ${item.userAgent || item.id}`}
+                          aria-label={t('account.sessions.revokeAriaLabel', { device: item.userAgent || item.id })}
                         >
                           {t('account.sessions.revokeButton')}
                         </Button>
@@ -371,7 +371,8 @@ export default function AccountPage(): React.JSX.Element {
       <Modal
         isOpen={Boolean(sessionToRevoke)}
         onClose={() => setSessionToRevoke(null)}
-        title="Xác nhận hủy phiên"
+        title={t('account.sessions.confirmRevokeTitle')}
+        closeLabel={t('common.buttons.close')}
         footer={
           <>
             <Button variant="ghost" onClick={() => setSessionToRevoke(null)}>
@@ -386,7 +387,7 @@ export default function AccountPage(): React.JSX.Element {
           </>
         }
       >
-        <p>Bạn có chắc muốn đăng xuất khỏi thiết bị này? Thiết bị sẽ phải đăng nhập lại để tiếp tục sử dụng.</p>
+        <p>{t('account.sessions.confirmRevokeBody')}</p>
       </Modal>
     </div>
   );

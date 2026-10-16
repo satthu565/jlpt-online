@@ -1,15 +1,15 @@
 {
   "common": {
     "brand": "JLPT Online",
-    "tagline": "公式JLPT基準のオンライン日本語能力試験・学習プラットフォーム",
+    "tagline": "公式JLPT準拠 オンライン日本語能力試験・学習プラットフォーム",
     "nav": {
       "home": "ホーム",
-      "levels": "N1–N5レベル",
-      "exams": "模擬試験ライブラリ",
-      "practice": "練習問題",
-      "account": "マイページ",
+      "levels": "レベル N1–N5",
+      "exams": "問題ライブラリ",
+      "practice": "演習",
+      "account": "アカウント",
       "login": "ログイン",
-      "register": "新規登録",
+      "register": "会員登録",
       "logout": "ログアウト"
     },
     "footer": {
@@ -18,13 +18,13 @@
       "privacy": "プライバシーポリシー",
       "faq": "よくある質問",
       "contact": "お問い合わせ",
-      "copyright": "© JLPT Online. All rights reserved.",
-      "accessibilityNotice": "当サイトはWCAG 2.1 AAアクセシビリティ基準に準拠しています。"
+      "copyright": "Copyright © JLPT Online. All rights reserved.",
+      "accessibilityNotice": "WCAG 2.1 AAアクセシビリティ基準に準拠した設計です。"
     },
     "buttons": {
       "submit": "送信",
       "cancel": "キャンセル",
-      "save": "変更を保存",
+      "save": "保存",
       "edit": "編集",
       "delete": "削除",
       "close": "閉じる",
@@ -36,7 +36,7 @@
       "processing": "処理中..."
     },
     "status": {
-      "loading": "データを読み込み中...",
+      "loading": "読み込み中...",
       "saving": "保存中...",
       "error": "エラーが発生しました",
       "success": "正常に完了しました",
@@ -48,7 +48,7 @@
     "light": "ライト",
     "dark": "ダーク",
     "system": "システム",
-    "toggle": "ライト/ダークモード切替"
+    "toggle": "ライト/ダークモードの切り替え"
   },
   "locale": {
     "title": "言語",
@@ -67,7 +67,7 @@
   "auth": {
     "login": {
       "title": "アカウントログイン",
-      "subtitle": "JLPT Onlineへようこそ",
+      "subtitle": "JLPT Online へようこそ",
       "emailLabel": "メールアドレス",
       "emailPlaceholder": "user@example.com",
       "passwordLabel": "パスワード",
@@ -76,54 +76,60 @@
       "forgotPasswordLink": "パスワードをお忘れですか？",
       "submitButton": "ログイン",
       "submitting": "認証中...",
-      "noAccount": "アカウントをお持ちでない方",
-      "registerNow": "新規登録",
-      "orContinueWith": "または以下で続ける",
+      "noAccount": "アカウントをお持ちでないですか？",
+      "registerNow": "今すぐ無料登録",
+      "orContinueWith": "または他のアカウントでログイン",
       "googleSignIn": "Googleでログイン",
       "success": "ログインに成功しました！",
       "errors": {
         "invalidCredentials": "メールアドレスまたはパスワードが正しくありません。",
-        "unverifiedEmail": "メールアドレスが未確認です。受信トレイをご確認ください。",
-        "blocked": "アカウントがロックされています。サポートまでご連絡ください。",
-        "general": "ログインに失敗しました。時間をおいて再試行してください。"
+        "unverifiedEmail": "メールアドレスの認証が完了していません。受信箱をご確認ください。",
+        "blocked": "アカウントが停止されています。サポートにお問い合わせください。",
+        "general": "ログインに失敗しました。しばらく経ってから再度お試しください。"
       }
     },
     "register": {
-      "title": "新規アカウント登録",
-      "subtitle": "JLPT合格への第一歩を踏み出しましょう",
+      "title": "新規アカウント作成",
+      "subtitle": "JLPT合格に向けた学習をスタートしましょう",
       "nameLabel": "お名前",
       "namePlaceholder": "山田 太郎",
       "emailLabel": "メールアドレス",
       "emailPlaceholder": "user@example.com",
       "passwordLabel": "パスワード",
-      "passwordHint": "8文字以上（英数字を含む）",
+      "passwordHint": "英数字を含む8文字以上",
       "confirmPasswordLabel": "パスワード（確認）",
-      "termsAgree": "利用規約およびプライバシーポリシーに同意します",
-      "submitButton": "アカウント作成",
-      "submitting": "作成中...",
-      "haveAccount": "すでにアカウントをお持ちの方",
+      "termsAgree": "利用規約およびプライバシーポリシーに同意する",
+      "submitButton": "アカウントを作成",
+      "submitting": "アカウント作成中...",
+      "haveAccount": "すでにアカウントをお持ちですか？",
       "loginNow": "ログイン",
-      "success": "登録が完了しました！確認メールをお送りしましたので認証を行ってください。",
+      "success": "アカウントを作成しました！メール内のリンクから認証を完了してください。",
       "errors": {
         "emailExists": "このメールアドレスは既に登録されています。",
-        "weakPassword": "パスワードが短すぎるか安全ではありません。",
+        "weakPassword": "パスワードの強度が不足しています。",
         "passwordMismatch": "パスワードが一致しません。",
-        "termsRequired": "利用規約に同意いただく必要があります。",
-        "general": "登録に失敗しました。入力内容を確認してください。"
+        "termsRequired": "利用規約への同意が必要です。",
+        "general": "登録に失敗しました。入力内容をご確認ください。"
       }
     },
     "forgotPassword": {
       "title": "パスワード再設定",
-      "subtitle": "登録メールアドレスに再設定用リンクをお送りします",
-      "emailLabel": "登録済みのメールアドレス",
+      "subtitle": "登録済みのメールアドレスに再設定リンクを送信します",
+      "emailLabel": "登録メールアドレス",
       "submitButton": "再設定メールを送信",
       "submitting": "送信中...",
       "sentSuccess": "メールアドレスが登録されている場合、再設定のご案内を送信しました。",
-      "backToLogin": "ログイン画面へ戻る"
+      "backToLogin": "ログイン画面へ戻る",
+      "errors": {
+        "general": "再設定リクエストの送信に失敗しました。もう一度お試しください。"
+      }
     },
     "resetPassword": {
       "title": "新しいパスワードの設定",
       "subtitle": "安全な新しいパスワードを入力してください",
+      "tokenLabel": "認証トークン",
+      "tokenPlaceholder": "メールで受け取った認証トークンを入力",
+      "passwordHint": "8文字以上",
       "newPasswordLabel": "新しいパスワード",
       "confirmPasswordLabel": "新しいパスワード（確認）",
       "submitButton": "パスワードを更新",
@@ -133,7 +139,8 @@
       "errors": {
         "invalidToken": "認証トークンが無効または既に使用されています。",
         "tokenExpired": "認証トークンの有効期限が切れています（30分間有効）。",
-        "passwordMismatch": "パスワードが一致しません。"
+        "passwordMismatch": "パスワードが一致しません。",
+        "general": "パスワードの再設定に失敗しました。もう一度お試しください。"
       }
     },
     "verifyEmail": {
@@ -142,6 +149,7 @@
       "success": "おめでとうございます！メール認証が完了しました。",
       "loginButton": "ログインして学習を始める",
       "failed": "認証に失敗しました。トークンが無効または期限切れです。",
+      "missingToken": "リンクに認証トークンが含まれていません。",
       "resendButton": "認証メールを再送する"
     }
   },
@@ -149,6 +157,7 @@
     "title": "アカウント管理",
     "subtitle": "基本情報、目標レベル、ログインセッションの管理",
     "tabs": {
+      "ariaLabel": "アカウント設定タブ",
       "profile": "プロフィール",
       "sessions": "端末・セッション"
     },
@@ -161,25 +170,37 @@
       "targetLevel": "目標JLPTレベル",
       "targetLevelHint": "選択したレベルに合わせて模擬試験や推奨カリキュラムを提案します。",
       "selectLevel": "目標レベルを選択",
+      "levelN1": "JLPT N1（上級）",
+      "levelN2": "JLPT N2（中上級）",
+      "levelN3": "JLPT N3（中級）",
+      "levelN4": "JLPT N4（初級2）",
+      "levelN5": "JLPT N5（初級1）",
       "completedExams": "完了した試験回数",
       "completedExamsUnit": "回",
       "saveButton": "変更を保存",
       "saving": "保存中...",
-      "saveSuccess": "プロフィールを更新しました！"
+      "saveSuccess": "プロフィールを更新しました！",
+      "saveError": "プロフィールの更新に失敗しました。"
     },
     "sessions": {
       "title": "アクティブなログインセッション",
       "description": "現在アカウントに接続している端末およびブラウザの一覧です。",
       "currentDevice": "現在の端末",
       "otherDevices": "その他の端末",
+      "defaultBrowser": "ウェブブラウザ",
       "ipAddress": "IPアドレス",
       "userAgent": "ブラウザ・端末情報",
       "createdAt": "ログイン日時",
       "expiresAt": "有効期限",
       "revokeButton": "ログアウト",
+      "revokeAriaLabel": "セッションを終了: {device}",
+      "confirmRevokeTitle": "セッション終了の確認",
+      "confirmRevokeBody": "この端末からログアウトしてもよろしいですか？再度利用するには再ログインが必要になります。",
       "revokeAllOtherButton": "他のすべての端末からログアウト",
       "revokeSuccess": "セッションを終了しました。",
       "revokeAllSuccess": "他のすべての端末から正常にログアウトしました。",
+      "revokeError": "セッションの終了に失敗しました。",
+      "revokeAllError": "他の端末からのログアウトに失敗しました。",
       "empty": "他に接続中の端末はありません。"
     }
   },
@@ -190,6 +211,8 @@
     "viewLibrary": "模擬試験一覧を見る",
     "levelsTitle": "学習レベルを選択",
     "levelsSubtitle": "文字・語彙、文法、読解、聴解を全5レベルで網羅",
+    "levelHeading": "レベル {level}",
+    "viewLevelExams": "{level} の問題を見る",
     "levelCards": {
       "n1": "最高難度。論説文や専門的な文章の読解、高度な議論の理解を目指します。",
       "n2": "中上級。日本企業での就労や大学進学に必要な日本語運用能力を養います。",
@@ -198,8 +221,11 @@
       "n5": "初級1。ひらがな・カタカナ・基本漢字および基礎フレーズからスタート。"
     },
     "features": {
+      "examEngineTitle": "本番形式の試験室",
       "examEngine": "JLPT公式形式に完全準拠した試験ルームと精密タイマー。",
+      "smartSRSTitle": "スマートSRS復習",
       "smartSRS": "忘却曲線に基づいた間隔反復学習（SRS）で語彙と漢字を定着。",
+      "analyticsTitle": "分析とレポート",
       "analytics": "苦手分野を可視化し、合格に必要な最短ルートを示す成績分析。"
     }
   }

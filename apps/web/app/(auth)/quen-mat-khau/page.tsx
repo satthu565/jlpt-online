@@ -31,7 +31,7 @@ export default function ForgotPasswordPage(): React.JSX.Element {
       if (err instanceof Error) {
         setErrorMessage(err.message);
       } else {
-        setErrorMessage('Lỗi khi gửi yêu cầu khôi phục.');
+        setErrorMessage(t('auth.forgotPassword.errors.general'));
       }
     } finally {
       setLoading(false);
@@ -80,7 +80,7 @@ export default function ForgotPasswordPage(): React.JSX.Element {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="user@example.com"
+                placeholder={t('auth.login.emailPlaceholder')}
                 required
                 autoComplete="email"
               />

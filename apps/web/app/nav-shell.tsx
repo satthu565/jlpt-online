@@ -143,6 +143,7 @@ export function NavigationFooter(): React.JSX.Element {
       tagline={t('common.tagline')}
       links={footerLinks}
       copyright={t('common.footer.copyright')}
+      a11yNotice={t('common.footer.accessibilityNotice')}
       localeControl={
         <LocaleSwitcher
           currentLocale={locale}

@@ -60,7 +60,7 @@ export default function ResetPasswordPage(): React.JSX.Element {
       } else if (err instanceof Error) {
         setErrorMessage(err.message);
       } else {
-        setErrorMessage('Lỗi khi đặt lại mật khẩu.');
+        setErrorMessage(t('auth.resetPassword.errors.general'));
       }
     } finally {
       setLoading(false);
@@ -105,12 +105,12 @@ export default function ResetPasswordPage(): React.JSX.Element {
             <form onSubmit={handleSubmit} noValidate>
               {!token && (
                 <Input
-                  label="Mã xác thực (Token)"
+                  label={t('auth.resetPassword.tokenLabel')}
                   id="reset-token"
                   type="text"
                   value={token}
                   onChange={(e) => setToken(e.target.value)}
-                  placeholder="Nhập mã xác thực từ email"
+                  placeholder={t('auth.resetPassword.tokenPlaceholder')}
                   required
                 />
               )}
@@ -121,7 +121,7 @@ export default function ResetPasswordPage(): React.JSX.Element {
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                hint="Tối thiểu 8 ký tự"
+                hint={t('auth.resetPassword.passwordHint')}
                 required
                 autoComplete="new-password"
               />

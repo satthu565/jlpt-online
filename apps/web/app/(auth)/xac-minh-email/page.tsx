@@ -21,7 +21,7 @@ export default function VerifyEmailPage(): React.JSX.Element {
 
     if (!urlToken) {
       setLoading(false);
-      setError('Không tìm thấy mã xác minh trong đường dẫn liên kết.');
+      setError(t('auth.verifyEmail.missingToken'));
       return;
     }
 

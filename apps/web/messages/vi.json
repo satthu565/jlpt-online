@@ -119,11 +119,17 @@
       "submitButton": "Gửi email khôi phục",
       "submitting": "Đang gửi liên kết...",
       "sentSuccess": "Nếu email tồn tại trong hệ thống, hướng dẫn khôi phục đã được gửi vào hộp thư của bạn.",
-      "backToLogin": "Quay lại trang đăng nhập"
+      "backToLogin": "Quay lại trang đăng nhập",
+      "errors": {
+        "general": "Lỗi khi gửi yêu cầu khôi phục. Vui lòng thử lại."
+      }
     },
     "resetPassword": {
       "title": "Đặt lại mật khẩu mới",
       "subtitle": "Tạo mật khẩu an toàn mới cho tài khoản của bạn",
+      "tokenLabel": "Mã xác thực (Token)",
+      "tokenPlaceholder": "Nhập mã xác thực từ email",
+      "passwordHint": "Tối thiểu 8 ký tự",
       "newPasswordLabel": "Mật khẩu mới",
       "confirmPasswordLabel": "Xác nhận mật khẩu mới",
       "submitButton": "Cập nhật mật khẩu",
@@ -133,7 +139,8 @@
       "errors": {
         "invalidToken": "Mã xác thực không hợp lệ hoặc đã qua sử dụng.",
         "tokenExpired": "Mã xác thực đã hết hạn (chỉ có hiệu lực trong 30 phút).",
-        "passwordMismatch": "Hai mật khẩu không khớp nhau."
+        "passwordMismatch": "Hai mật khẩu không khớp nhau.",
+        "general": "Lỗi khi đặt lại mật khẩu. Vui lòng thử lại."
       }
     },
     "verifyEmail": {
@@ -142,6 +149,7 @@
       "success": "Chúc mừng! Email của bạn đã được xác minh thành công.",
       "loginButton": "Đăng nhập ngay để bắt đầu làm bài",
       "failed": "Xác minh thất bại. Mã kích hoạt không hợp lệ hoặc đã hết hạn.",
+      "missingToken": "Không tìm thấy mã xác minh trong đường dẫn liên kết.",
       "resendButton": "Yêu cầu gửi lại email xác minh"
     }
   },
@@ -149,6 +157,7 @@
     "title": "Quản lý tài khoản",
     "subtitle": "Xem thông tin cá nhân, trình độ ôn thi và các phiên hoạt động",
     "tabs": {
+      "ariaLabel": "Cài đặt tài khoản",
       "profile": "Hồ sơ cá nhân",
       "sessions": "Thiết bị & Phiên đăng nhập"
     },
@@ -161,25 +170,37 @@
       "targetLevel": "Trình độ JLPT mục tiêu",
       "targetLevelHint": "Hệ thống sẽ gợi ý đề thi và lộ trình phù hợp với cấp độ này.",
       "selectLevel": "Chọn cấp độ ôn luyện",
+      "levelN1": "JLPT N1 (Cao cấp)",
+      "levelN2": "JLPT N2 (Trung cao cấp)",
+      "levelN3": "JLPT N3 (Trung cấp)",
+      "levelN4": "JLPT N4 (Sơ cấp 2)",
+      "levelN5": "JLPT N5 (Sơ cấp 1)",
       "completedExams": "Số đề thi đã hoàn thành",
       "completedExamsUnit": "đề",
       "saveButton": "Lưu thay đổi",
       "saving": "Đang lưu...",
-      "saveSuccess": "Cập nhật hồ sơ thành công!"
+      "saveSuccess": "Cập nhật hồ sơ thành công!",
+      "saveError": "Lỗi khi cập nhật hồ sơ."
     },
     "sessions": {
       "title": "Các phiên đăng nhập hiện tại",
       "description": "Danh sách thiết bị và trình duyệt đang duy trì phiên làm việc của bạn.",
       "currentDevice": "Thiết bị này (Hiện tại)",
       "otherDevices": "Thiết bị khác",
+      "defaultBrowser": "Trình duyệt Web",
       "ipAddress": "Địa chỉ IP",
       "userAgent": "Trình duyệt",
       "createdAt": "Thời điểm đăng nhập",
       "expiresAt": "Thời hạn phiên",
       "revokeButton": "Đăng xuất",
+      "revokeAriaLabel": "Hủy phiên đăng nhập {device}",
+      "confirmRevokeTitle": "Xác nhận hủy phiên",
+      "confirmRevokeBody": "Bạn có chắc muốn đăng xuất khỏi thiết bị này? Thiết bị sẽ phải đăng nhập lại để tiếp tục sử dụng.",
       "revokeAllOtherButton": "Đăng xuất khỏi tất cả thiết bị khác",
       "revokeSuccess": "Đã hủy phiên đăng nhập thành công.",
       "revokeAllSuccess": "Đã đăng xuất khỏi tất cả các thiết bị khác.",
+      "revokeError": "Không thể hủy phiên đăng nhập.",
+      "revokeAllError": "Không thể đăng xuất các thiết bị khác.",
       "empty": "Không có phiên đăng nhập nào khác."
     }
   },
@@ -190,6 +211,8 @@
     "viewLibrary": "Khám phá kho đề thi",
     "levelsTitle": "Chọn cấp độ ôn luyện của bạn",
     "levelsSubtitle": "Lộ trình hoàn chỉnh từ vựng, ngữ pháp, đọc hiểu và nghe hiểu cho cả 5 cấp độ",
+    "levelHeading": "Cấp độ {level}",
+    "viewLevelExams": "Xem đề thi {level}",
     "levelCards": {
       "n1": "Cấp độ cao cấp nhất. Đọc hiểu báo chí, phân tích chuyên sâu và thảo luận phức tạp.",
       "n2": "Trung cao cấp. Phục vụ học tập và làm việc tại các doanh nghiệp Nhật Bản.",
@@ -198,8 +221,11 @@
       "n5": "Sơ cấp 1. Làm quen với Hiragana, Katakana, chữ Hán cơ bản và câu giao tiếp đơn giản."
     },
     "features": {
+      "examEngineTitle": "Phòng thi chuẩn format",
       "examEngine": "Phòng thi chuẩn format JLPT với đồng hồ đếm ngược đồng bộ.",
+      "smartSRSTitle": "Ôn tập thông minh SRS",
       "smartSRS": "Hệ thống lặp lại ngắt quãng (SRS) củng cố từ vựng và hán tự.",
+      "analyticsTitle": "Phân tích & Báo cáo",
       "analytics": "Báo cáo tiến độ trực quan, chỉ rõ điểm mạnh và phần kiến thức cần bổ sung."
     }
   }
