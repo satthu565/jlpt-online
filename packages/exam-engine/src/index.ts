@@ -5,3 +5,5 @@ export * from './listening.js';
 export * from './scoring.js';
 export * from './blueprint.js';
 export * from './mixing.js';
+export * from './mix/index.js';
+export * from './practice/index.js';
