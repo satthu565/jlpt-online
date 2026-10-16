@@ -11,7 +11,9 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:admin": "vitest run",
-    "test:admin-auth": "vitest run tests/auth.test.ts tests/guard.test.ts"
+    "test:admin-auth": "vitest run tests/auth.test.ts tests/guard.test.ts",
+    "test:admin-content": "vitest run tests/content.test.ts",
+    "test:admin-users": "vitest run tests/users.test.ts"
   },
   "dependencies": {
     "@jlpt/config": "workspace:*",
