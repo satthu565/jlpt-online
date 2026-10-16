@@ -22,7 +22,10 @@ export interface DemoSeedResult {
   message: string;
 }
 
-export async function runDemoSeed(client?: DbClientInstance): Promise<DemoSeedResult> {
+export async function runDemoSeed(
+  client?: DbClientInstance,
+  options?: { storageService?: StorageService },
+): Promise<DemoSeedResult> {
   const dbClient = client ?? (await createDbClient());
   let closeOnExit = false;
   if (!client) {
@@ -34,7 +37,7 @@ export async function runDemoSeed(client?: DbClientInstance): Promise<DemoSeedRe
     await runMigrations(dbClient);
 
     // 2. Initialize domain services
-    const storageService = new StorageService();
+    const storageService = options?.storageService ?? new StorageService();
     const mediaService = new MediaService(dbClient, storageService);
     const outboxService = new OutboxService(dbClient);
     const blueprintService = new BlueprintService(dbClient);

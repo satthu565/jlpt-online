@@ -24,9 +24,6 @@ export class LocalFsStorage implements ObjectStorage {
   constructor(customRoot?: string) {
     const defaultRoot = process.env.STORAGE_LOCAL_ROOT || resolveRepoPath('.data/storage');
     this.rootDir = path.resolve(customRoot || defaultRoot);
-    if (!fs.existsSync(this.rootDir)) {
-      fs.mkdirSync(this.rootDir, { recursive: true });
-    }
   }
 
   public sanitizeKey(rawKey: string): string {

@@ -1,4 +1,6 @@
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { beforeEach, afterEach, describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { resolveRepoPath } from '../../common/utils/paths.js';
@@ -6,6 +8,7 @@ import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
 import * as schema from '../../db/schema.js';
 import { StorageService } from '../storage/storage.service.js';
+import { LocalFsStorage } from '../storage/local-fs.storage.js';
 import { MediaService } from '../media/media.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { BlueprintService } from '../blueprint/blueprint.service.js';
@@ -15,6 +18,7 @@ import { ExamService } from './exam.service.js';
 import { assertNoAnswerLeak, PublicExamSnapshotSchema } from '@jlpt/schema';
 
 describe('B01 Exam Module - Review Workflow, Publishing & Zero Answer Leaks', () => {
+  let tempStorageDir: string;
   let dbClient: DbClientInstance;
   let storageService: StorageService;
   let mediaService: MediaService;
@@ -29,10 +33,16 @@ describe('B01 Exam Module - Review Workflow, Publishing & Zero Answer Leaks', ()
   const publisherUserId = '0192f000-0000-7000-8000-0000000000b1';
 
   beforeEach(async () => {
+    tempStorageDir = fs.mkdtempSync(path.join(os.tmpdir(), 'jlpt-publish-test-'));
+    process.env.STORAGE_LOCAL_ROOT = tempStorageDir;
+
     dbClient = await createDbClient();
     await runMigrations(dbClient);
 
+    const localStorage = new LocalFsStorage(tempStorageDir);
     storageService = new StorageService();
+    storageService.setStorageInstance(localStorage);
+
     mediaService = new MediaService(dbClient, storageService);
     outboxService = new OutboxService(dbClient);
     blueprintService = new BlueprintService(dbClient);
@@ -90,7 +100,13 @@ describe('B01 Exam Module - Review Workflow, Publishing & Zero Answer Leaks', ()
   });
 
   afterEach(async () => {
-    await dbClient.close();
+    if (dbClient) {
+      await dbClient.close();
+    }
+    delete process.env.STORAGE_LOCAL_ROOT;
+    if (tempStorageDir && fs.existsSync(tempStorageDir)) {
+      fs.rmSync(tempStorageDir, { recursive: true, force: true });
+    }
   });
 
   describe('Acceptance 3: Editor!=reviewer; create version và outbox transaction consistent', () => {

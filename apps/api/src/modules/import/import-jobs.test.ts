@@ -8,6 +8,7 @@ import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
 import * as schema from '../../db/schema.js';
 import { StorageService } from '../storage/storage.service.js';
+import { LocalFsStorage } from '../storage/local-fs.storage.js';
 import { MediaService } from '../media/media.service.js';
 import { OutboxService, type DbTx } from '../outbox/outbox.service.js';
 import { BlueprintService } from '../blueprint/blueprint.service.js';
@@ -50,6 +51,7 @@ with zipfile.ZipFile(out, 'w', compression=zipfile.ZIP_DEFLATED) as z:
 
 describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
   let dbClient: DbClientInstance;
+  let tempStorageDir: string;
   let storageService: StorageService;
   let mediaService: MediaService;
   let outboxService: OutboxService;
@@ -60,10 +62,16 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
   const testUserId = '0192f000-0000-7000-8000-0000000000e1';
 
   beforeEach(async () => {
+    tempStorageDir = fs.mkdtempSync(path.join(os.tmpdir(), 'jlpt-import-test-'));
+    process.env.STORAGE_LOCAL_ROOT = tempStorageDir;
+
     dbClient = await createDbClient();
     await runMigrations(dbClient);
 
+    const localStorage = new LocalFsStorage(tempStorageDir);
     storageService = new StorageService();
+    storageService.setStorageInstance(localStorage);
+
     mediaService = new MediaService(dbClient, storageService);
     outboxService = new OutboxService(dbClient);
     blueprintService = new BlueprintService(dbClient);
@@ -93,7 +101,13 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
   });
 
   afterEach(async () => {
-    await dbClient.close();
+    if (dbClient) {
+      await dbClient.close();
+    }
+    delete process.env.STORAGE_LOCAL_ROOT;
+    if (tempStorageDir && fs.existsSync(tempStorageDir)) {
+      fs.rmSync(tempStorageDir, { recursive: true, force: true });
+    }
   });
 
   describe('Acceptance 1: Validate trước import DB; transaction rollback không để dữ liệu dở', () => {
@@ -329,7 +343,7 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
   describe('Acceptance 4: Lệnh demo:seed nạp blueprint và gói qua đúng luồng import→duyệt→publish', () => {
     it('executes the full pipeline cleanly and repeated execution is idempotent without duplicates', async () => {
       // 1. First execution of runDemoSeed
-      const firstSeed = await runDemoSeed(dbClient);
+      const firstSeed = await runDemoSeed(dbClient, { storageService });
       expect(firstSeed.publishedVersion).toBe(1);
       expect(firstSeed.idempotent).toBe(false);
 
@@ -373,7 +387,7 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
       expect(topics).toContain('content.published');
 
       // 2. Second execution of runDemoSeed on same database (Acceptance 4: chạy lại không tạo trùng)
-      const secondSeed = await runDemoSeed(dbClient);
+      const secondSeed = await runDemoSeed(dbClient, { storageService });
       expect(secondSeed.idempotent).toBe(true);
       expect(secondSeed.examId).toBe(firstSeed.examId);
       expect(secondSeed.publishedVersion).toBe(1);

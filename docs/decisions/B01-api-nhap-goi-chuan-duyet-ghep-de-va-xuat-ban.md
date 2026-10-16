@@ -82,11 +82,13 @@ Theo chỉ thị của chủ dự án và quy tắc `AGENTS.md`:
   3. Kiểm tra tính idempotent: nếu đề `demo-n5-1` đã xuất bản, trả về `idempotent: true` và không tạo trùng.
   4. Thực thi luồng nạp qua Editor -> duyệt qua Reviewer -> xuất bản qua Publisher.
 
-### 2.7. Quản lý tệp cục bộ và tách biệt môi trường lưu trữ (.data/storage)
-- Tệp lưu trữ cục bộ sinh ra bởi `LocalFsStorage` trong môi trường phát triển và kiểm thử (`.data/storage/`) là tài nguyên runtime, không thuộc mã nguồn hay dữ liệu cố định của repo.
-- Đã hoàn tác và loại bỏ hoàn toàn các tệp `.data/storage/` khỏi git index/commit (`git rm -r .data/`), đảm bảo toàn bộ cây thay đổi của task B01 nằm 100% trong `allowedPaths`.
-- Đã cấu hình `.data/` vào `.git/info/exclude` của kho làm việc cục bộ để ngăn chặn `git add -A` vô tình ghi nhận lại các tệp lưu trữ khi chạy script dev/seed.
-- Đã ghi nhận kiến nghị blocker tới Coordinator / F01 để bổ sung `.data/` vào `.gitignore` chung của monorepo theo đúng thiết kế ban đầu trong `docs/multi-worker/TRUY_VET_TASK_V1.md`.
+### 2.7. Quản lý tệp cục bộ và tách biệt môi trường lưu trữ kiểm thử (.data/storage)
+- Tệp lưu trữ cục bộ sinh ra bởi `LocalFsStorage` trong môi trường phát triển (`.data/storage/`) là tài nguyên runtime, không thuộc mã nguồn hay dữ liệu cố định của repo.
+- Đã giải quyết triệt để vấn đề sinh file untracked `.data/storage/` khi chạy lệnh kiểm tra trên bản checkout sạch (`pnpm test:import-jobs`, `pnpm test:publish`):
+  1. Chuẩn hóa `publish.test.ts` và `import-jobs.test.ts` tuân thủ pattern cô lập như `media.test.ts` và `content.test.ts`: khởi tạo `tempStorageDir` trong `os.tmpdir()` (`fs.mkdtempSync`), gán biến môi trường `process.env.STORAGE_LOCAL_ROOT = tempStorageDir`, thiết lập instance `LocalFsStorage(tempStorageDir)` cho `StorageService`, và dọn dẹp triệt để trong `afterEach`.
+  2. Bổ sung hỗ trợ injection `storageService` tùy chọn trong `runDemoSeed` của `demo-seed.ts` để khi chạy trong test runner, toàn bộ snapshot và tệp tải lên đều được định tuyến vào thư mục tạm thời, không bao giờ ghi vào `.data/storage/` của cây git monorepo.
+  3. Kết quả: Chạy các bài kiểm tra `test:import-jobs`, `test:publish`, hoặc `pnpm test` trên bất kỳ bản checkout sạch nào đều không sinh ra bất kỳ tệp untracked nào trong thư mục làm việc của git.
+- Vẫn ghi nhận kiến nghị tới Coordinator / F01 để bổ sung `.data/` vào `.gitignore` chung của monorepo nhằm bảo vệ toàn diện khi chạy `pnpm demo:seed` ở môi trường dev.
 
 ### 2.8. Định vị đường dẫn monorepo tất định (Deterministic Repo Path Resolution)
 - Khi turbo và vitest chạy kiểm thử trong môi trường workspace con (`apps/api`), `process.cwd()` trỏ về thư mục con (`apps/api`) thay vì gốc repo. Việc sử dụng trực tiếp `path.resolve(process.cwd(), 'docs/multi-worker/...')` gây ra lỗi `ENOENT` khi điều phối viên chạy `pnpm test` sạch.
