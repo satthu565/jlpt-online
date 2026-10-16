@@ -1,0 +1,178 @@
+# JLPT Online - Production Docker Compose Definition
+# Contract A12 & B2: Images built in CI, pulled by tag. Never build on production server!
+# All internal communication occurs over private bridge network jlpt-internal.
+# Only web, admin, and api bind to 127.0.0.1 for Cloudflare Tunnel ingress.
+
+services:
+  web:
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_REPO:-jlpt}/jlpt-web:${IMAGE_TAG:?IMAGE_TAG required}
+    container_name: jlpt-prod-web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - NODE_OPTIONS=--max-old-space-size=${WEB_MAX_OLD_SPACE:-320}
+      - API_INTERNAL_URL=http://api:4000
+      - NEXT_PUBLIC_API_URL=${API_URL:-https://example.com/api/v1}
+      - NEXT_PUBLIC_MEDIA_URL=${MEDIA_URL:-https://media.example.com}
+    mem_limit: ${WEB_MEM_LIMIT:-448m}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:3000/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - jlpt-internal
+
+  admin:
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_REPO:-jlpt}/jlpt-admin:${IMAGE_TAG:?IMAGE_TAG required}
+    container_name: jlpt-prod-admin
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - NODE_OPTIONS=--max-old-space-size=${ADMIN_MAX_OLD_SPACE:-256}
+      - API_INTERNAL_URL=http://api:4000
+      - NEXT_PUBLIC_API_URL=${API_URL:-https://admin.example.com/api}
+    mem_limit: ${ADMIN_MEM_LIMIT:-320m}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:3000/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - jlpt-internal
+
+  api:
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_REPO:-jlpt}/jlpt-api:${IMAGE_TAG:?IMAGE_TAG required}
+    container_name: jlpt-prod-api
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:4000:4000"
+    environment:
+      - APP_MODE=api
+      - NODE_ENV=production
+      - PORT=4000
+      - API_WORKERS=${API_WORKERS:-1}
+      - NODE_OPTIONS=--max-old-space-size=${API_MAX_OLD_SPACE:-384}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-jlpt}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}@postgres:5432/${POSTGRES_DB:-jlpt_prod}
+      - REDIS_CORE_URL=redis://redis-core:6379
+      - REDIS_CACHE_URL=redis://redis-cache:6379
+      - WEB_INTERNAL_URL=http://web:3000
+      - AUTH_SECRET=${AUTH_SECRET:?AUTH_SECRET required}
+      - MEDIA_TOKEN_SECRET=${MEDIA_TOKEN_SECRET:?MEDIA_TOKEN_SECRET required}
+      - SENTRY_DSN=${SENTRY_DSN:-}
+    mem_limit: ${API_MEM_LIMIT:-512m}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:4000/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis-core:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+    networks:
+      - jlpt-internal
+
+  worker:
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_REPO:-jlpt}/jlpt-api:${IMAGE_TAG:?IMAGE_TAG required}
+    container_name: jlpt-prod-worker
+    restart: unless-stopped
+    environment:
+      - APP_MODE=worker
+      - NODE_ENV=production
+      - NODE_OPTIONS=--max-old-space-size=${WORKER_MAX_OLD_SPACE:-256}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-jlpt}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}@postgres:5432/${POSTGRES_DB:-jlpt_prod}
+      - REDIS_CORE_URL=redis://redis-core:6379
+      - REDIS_CACHE_URL=redis://redis-cache:6379
+      - AUTH_SECRET=${AUTH_SECRET:?AUTH_SECRET required}
+      - MEDIA_TOKEN_SECRET=${MEDIA_TOKEN_SECRET:?MEDIA_TOKEN_SECRET required}
+      - SENTRY_DSN=${SENTRY_DSN:-}
+    mem_limit: ${WORKER_MEM_LIMIT:-320m}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis-core:
+        condition: service_healthy
+    networks:
+      - jlpt-internal
+
+  postgres:
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_REPO:-jlpt}/jlpt-postgres:${IMAGE_TAG:-latest}
+    container_name: jlpt-prod-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-jlpt}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+      - POSTGRES_DB=${POSTGRES_DB:-jlpt_prod}
+      - WALG_S3_PREFIX=${WALG_S3_PREFIX:-}
+      - AWS_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY:-}
+      - AWS_ENDPOINT=${R2_ENDPOINT:-}
+      - AWS_S3_FORCE_PATH_STYLE=true
+    volumes:
+      - prod-postgres-data:/var/lib/postgresql/data
+    mem_limit: ${POSTGRES_MEM_LIMIT:-1024m}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-jlpt} -d ${POSTGRES_DB:-jlpt_prod}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - jlpt-internal
+
+  redis-core:
+    image: redis:7-alpine
+    container_name: jlpt-prod-redis-core
+    restart: unless-stopped
+    command: ["redis-server", "--maxmemory-policy", "noeviction", "--appendonly", "yes", "--appendfsync", "everysec", "--maxmemory", "${REDIS_CORE_MAXMEMORY:-128mb}"]
+    volumes:
+      - prod-redis-core-data:/data
+    mem_limit: ${REDIS_CORE_MEM_LIMIT:-160m}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - jlpt-internal
+
+  redis-cache:
+    image: redis:7-alpine
+    container_name: jlpt-prod-redis-cache
+    restart: unless-stopped
+    command: ["redis-server", "--maxmemory-policy", "allkeys-lru", "--save", "", "--appendonly", "no", "--maxmemory", "${REDIS_CACHE_MAXMEMORY:-64mb}"]
+    mem_limit: ${REDIS_CACHE_MEM_LIMIT:-96m}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - jlpt-internal
+
+networks:
+  jlpt-internal:
+    name: jlpt-internal
+    driver: bridge
+
+volumes:
+  prod-postgres-data:
+  prod-redis-core-data:

@@ -37,5 +37,11 @@ jobs:
       - name: Run test suite
         run: pnpm test
 
+      - name: Run media edge worker tests (Range 206 & signed cache check)
+        run: pnpm test:media-edge
+
+      - name: Run infrastructure and profiles verification gate
+        run: pnpm infra:check
+
       - name: Build applications and packages
         run: pnpm build

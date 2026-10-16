@@ -15,10 +15,15 @@ import { QuestionNavigation } from './question-navigation';
 import { QuestionPalette } from './question-palette';
 import { ExamProgressBar } from './exam-progress-bar';
 import { SyncStatusIndicator } from './sync-status-indicator';
+import { AudioPlayer } from './audio-player';
+import { ExamToolbar, type JapaneseFontSize } from './exam-toolbar';
 
 import { EarlySubmitModal } from './modals/early-submit-modal';
 import { SectionTransitionModal } from './modals/section-transition-modal';
 import { LeaseConflictModal } from './modals/lease-conflict-modal';
+import { SpeakerTestModal } from './modals/speaker-test-modal';
+import { ShortcutsHelpModal } from './modals/shortcuts-help-modal';
+import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts';
 
 export interface ExamRoomProps {
   snapshot: PublicExamSnapshot;
@@ -30,6 +35,10 @@ export interface ExamRoomProps {
   initialAnswers?: number[];
   initialFlags?: number[];
   initialDeadlines?: Record<number, string>;
+  sectionStartedAt?: string;
+  serverOffsetMs?: number;
+  initialZenMode?: boolean;
+  initialConflictModalOpen?: boolean;
   storage: ExamStorageAdapter;
   apiClient: ExamApiClient;
   onFinish?: (result?: unknown) => void;
@@ -47,6 +56,10 @@ export function ExamRoom({
   initialAnswers,
   initialFlags,
   initialDeadlines,
+  sectionStartedAt: initialSectionStartedAt,
+  serverOffsetMs = 0,
+  initialZenMode = false,
+  initialConflictModalOpen = false,
   storage,
   apiClient,
   onFinish,
@@ -73,10 +86,9 @@ export function ExamRoom({
     return locked;
   });
 
-  // Deadlines per section
+  // Deadlines and section started timestamps per section
   const [deadlines, setDeadlines] = useState<Record<number, string>>(() => {
     if (initialDeadlines) return { ...initialDeadlines };
-    // Default initial deadline based on current section duration if in 'real' mode
     if (mode === 'real') {
       const secDuration = snapshot.sections[initialSectionIndex]?.durationSec ?? 3600;
       const initialDeadline = new Date(Date.now() + secDuration * 1000).toISOString();
@@ -85,7 +97,28 @@ export function ExamRoom({
     return {};
   });
 
+  const [sectionStartTimes, setSectionStartTimes] = useState<Record<number, string>>(() => {
+    const initialTime = initialSectionStartedAt || new Date().toISOString();
+    return { [initialSectionIndex]: initialTime };
+  });
+
   const [serverNow, setServerNow] = useState<string>(initialServerNow);
+
+  // Ergonomics states: Japanese font size (EXAM-23) & Zen mode (EXAM-25)
+  const [fontSize, setFontSize] = useState<JapaneseFontSize>('base');
+  const [isZenMode, setIsZenMode] = useState<boolean>(initialZenMode);
+
+  // Modals state
+  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+  const [isTransitionModalOpen, setIsTransitionModalOpen] = useState(false);
+  const [isConflictModalOpen, setIsConflictModalOpen] = useState(initialConflictModalOpen);
+  const [isSpeakerTestOpen, setIsSpeakerTestOpen] = useState(false);
+  const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Sync state
+  const [syncState, setSyncState] = useState<SyncState>('saved');
 
   // Flattened questions
   const flatQuestions: FlatQuestionItem[] = useMemo(() => {
@@ -98,16 +131,6 @@ export function ExamRoom({
   const lastQuestionOfSection = currentSection ? currentSection.questionRange[1] : totalQuestions - 1;
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(firstQuestionOfSection);
-
-  // Modals state
-  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
-  const [isTransitionModalOpen, setIsTransitionModalOpen] = useState(false);
-  const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
-  // Sync state
-  const [syncState, setSyncState] = useState<SyncState>('saved');
 
   // Sync Engine Ref
   const engineRef = useRef<ExamSyncEngine | null>(null);
@@ -187,33 +210,44 @@ export function ExamRoom({
     }
   };
 
+  // Keyboard shortcuts integration (EXAM-24)
+  useKeyboardShortcuts({
+    onSelectOption: (val) => handleSelectOption(val),
+    onToggleFlag: () => handleToggleFlag(),
+    onPrev: () => handlePrevQuestion(),
+    onNext: () => handleNextQuestion(),
+    onToggleZen: () => setIsZenMode((prev) => !prev),
+    onOpenHelp: () => setIsShortcutsHelpOpen(true),
+    isEnabled: !isSubmitModalOpen && !isTransitionModalOpen && !isConflictModalOpen && !isSpeakerTestOpen,
+  });
+
   // Section transition handler (EXAM-06, EXAM-22)
   const handleConfirmSectionTransition = async () => {
     if (isTransitioning) return;
     setIsTransitioning(true);
 
     try {
-      // 1. Flush local changes first
       if (engineRef.current) {
         await engineRef.current.flush();
       }
 
-      // 2. Call nextSection API
       const res = await apiClient.nextSection(attemptId, { lease });
 
-      // 3. Lock previous section permanently
       setLockedSections((prev) => [...prev, currentSectionIndex]);
 
-      // 4. Update section & deadline
       const nextIdx = res.sectionIndex;
       setCurrentSectionIndex(nextIdx);
       setDeadlines((prev) => ({ ...prev, [nextIdx]: res.deadline }));
+      setSectionStartTimes((prev) => ({ ...prev, [nextIdx]: res.startedAt }));
       setServerNow(res.serverNow);
 
-      // 5. Jump to first question of next section
       const nextSectionMeta = snapshot.sections[nextIdx];
       if (nextSectionMeta) {
         setCurrentQuestionIndex(nextSectionMeta.questionRange[0]);
+        // If transitioning to listening section, prompt speaker test (EXAM-05)
+        if (nextSectionMeta.listeningTimeline && nextSectionMeta.listeningTimeline.length > 0) {
+          setIsSpeakerTestOpen(true);
+        }
       }
 
       setIsTransitionModalOpen(false);
@@ -241,7 +275,6 @@ export function ExamRoom({
         flags,
       });
 
-      // Clear local attempt on submission completion
       await storage.clearAttempt(attemptId);
 
       setIsSubmitModalOpen(false);
@@ -276,9 +309,15 @@ export function ExamRoom({
   const isLastSection = currentSectionIndex >= snapshot.sections.length - 1;
 
   const currentDeadline = deadlines[currentSectionIndex] || null;
+  const currentSectionStartTime = sectionStartTimes[currentSectionIndex] || null;
+  const hasListening = Boolean(currentSection?.listeningTimeline && currentSection.listeningTimeline.length > 0);
 
   return (
-    <div className={`jlpt-exam-room min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col ${className}`}>
+    <div
+      className={`jlpt-exam-room min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col ${
+        isZenMode ? 'jlpt-zen-mode' : ''
+      } ${className}`}
+    >
       {/* Top sticky bar: Exam title, Clock, Sync status, Submit button */}
       <header className="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-2.5">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
@@ -292,20 +331,17 @@ export function ExamRoom({
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Sync status indicator */}
             <SyncStatusIndicator
               syncState={syncState}
               onRetry={() => engineRef.current?.flush()}
             />
 
-            {/* Countdown clock */}
             <ExamClock
               deadline={currentDeadline}
               serverNow={serverNow}
               onExpire={handleTimerExpire}
             />
 
-            {/* Quick Submit button */}
             <button
               type="button"
               onClick={() => setIsSubmitModalOpen(true)}
@@ -318,26 +354,64 @@ export function ExamRoom({
         </div>
       </header>
 
-      {/* Section tabs header */}
-      <SectionHeader
-        sections={snapshot.sections}
-        currentSectionIndex={currentSectionIndex}
-        lockedSections={lockedSections}
-        onSelectSection={(idx) => {
-          if (!lockedSections.includes(idx)) {
-            setCurrentSectionIndex(idx);
-            const secMeta = snapshot.sections[idx];
-            if (secMeta) {
-              setCurrentQuestionIndex(secMeta.questionRange[0]);
+      {/* Section tabs header (hidden in Zen mode if compact) */}
+      {!isZenMode && (
+        <SectionHeader
+          sections={snapshot.sections}
+          currentSectionIndex={currentSectionIndex}
+          lockedSections={lockedSections}
+          onSelectSection={(idx) => {
+            if (!lockedSections.includes(idx)) {
+              setCurrentSectionIndex(idx);
+              const secMeta = snapshot.sections[idx];
+              if (secMeta) {
+                setCurrentQuestionIndex(secMeta.questionRange[0]);
+              }
             }
-          }
-        }}
-      />
+          }}
+        />
+      )}
+
+      {/* Exam Toolbar: Font scale (EXAM-23), Zen toggle (EXAM-25), Speaker test (EXAM-05), Shortcuts (EXAM-24) */}
+      <div className="max-w-7xl w-full mx-auto px-4 pt-3">
+        <ExamToolbar
+          fontSize={fontSize}
+          onFontSizeChange={(size) => setFontSize(size)}
+          isZenMode={isZenMode}
+          onToggleZenMode={() => setIsZenMode((prev) => !prev)}
+          onOpenShortcutsHelp={() => setIsShortcutsHelpOpen(true)}
+          onOpenSpeakerTest={() => setIsSpeakerTestOpen(true)}
+          hasListeningTimeline={hasListening}
+        />
+      </div>
+
+      {/* Listening Section Audio Player (AUDIO-01..06, AUDIO-10, Acceptance 2) */}
+      {hasListening && (
+        <div className="max-w-7xl w-full mx-auto px-4 pt-3">
+          <AudioPlayer
+            timeline={currentSection?.listeningTimeline || null}
+            sectionStartedAt={currentSectionStartTime}
+            serverOffsetMs={serverOffsetMs}
+            mode={mode}
+            activeGroupId={currentQ?.groupId || null}
+            isLocked={lockedSections.includes(currentSectionIndex)}
+            onItemChange={(itemIdx, grpId) => {
+              // Automatically navigate to group if appropriate
+              if (grpId) {
+                const qIdx = flatQuestions.findIndex((q) => q.groupId === grpId);
+                if (qIdx >= 0) {
+                  setCurrentQuestionIndex(qIdx);
+                }
+              }
+            }}
+          />
+        </div>
+      )}
 
       {/* Main exam content area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left column: Question view + Navigation */}
-        <div className="lg:col-span-8 flex flex-col justify-between">
+        <div className={`${isZenMode ? 'lg:col-span-12' : 'lg:col-span-8'} flex flex-col justify-between`}>
           <div>
             {currentQ ? (
               <QuestionView
@@ -346,13 +420,14 @@ export function ExamRoom({
                 isFlagged={Boolean(flags[currentQuestionIndex])}
                 onSelectOption={handleSelectOption}
                 onToggleFlag={handleToggleFlag}
+                fontSize={fontSize}
+                showKeyboardHints={true}
               />
             ) : (
               <div className="p-8 text-center text-slate-500">Đang tải câu hỏi...</div>
             )}
           </div>
 
-          {/* Navigation bar */}
           <QuestionNavigation
             currentIndex={currentQuestionIndex}
             totalQuestions={totalQuestions}
@@ -366,23 +441,25 @@ export function ExamRoom({
           />
         </div>
 
-        {/* Right column: Progress bar & Answer sheet palette */}
-        <div className="lg:col-span-4 space-y-4">
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
-            <ExamProgressBar
-              answeredCount={answeredCount}
-              totalQuestions={totalQuestions}
+        {/* Right column: Progress bar & Answer sheet palette (Hidden in Zen Mode to prevent distraction) */}
+        {!isZenMode && (
+          <div className="lg:col-span-4 space-y-4">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
+              <ExamProgressBar
+                answeredCount={answeredCount}
+                totalQuestions={totalQuestions}
+              />
+            </div>
+
+            <QuestionPalette
+              questions={flatQuestions}
+              currentIndex={currentQuestionIndex}
+              answers={answers}
+              flags={flags}
+              onSelectQuestion={handleJumpToQuestion}
             />
           </div>
-
-          <QuestionPalette
-            questions={flatQuestions}
-            currentIndex={currentQuestionIndex}
-            answers={answers}
-            flags={flags}
-            onSelectQuestion={handleJumpToQuestion}
-          />
-        </div>
+        )}
       </main>
 
       {/* Modals */}
@@ -412,6 +489,17 @@ export function ExamRoom({
           setIsConflictModalOpen(false);
           if (onExit) onExit();
         }}
+      />
+
+      <SpeakerTestModal
+        isOpen={isSpeakerTestOpen}
+        onClose={() => setIsSpeakerTestOpen(false)}
+        onConfirm={() => setIsSpeakerTestOpen(false)}
+      />
+
+      <ShortcutsHelpModal
+        isOpen={isShortcutsHelpOpen}
+        onClose={() => setIsShortcutsHelpOpen(false)}
       />
     </div>
   );
