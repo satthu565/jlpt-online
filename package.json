@@ -25,7 +25,9 @@
     "test:authorization": "vitest run apps/api/src/common/guards/authorization.test.ts",
     "test:exam-engine": "vitest run packages/exam-engine",
     "test:media-token": "vitest run packages/media-token",
-    "test:coverage": "vitest run --coverage --coverage.include=\"packages/exam-engine/src/**\" --coverage.include=\"packages/media-token/src/**\" packages/exam-engine packages/media-token"
+    "test:coverage": "vitest run --coverage --coverage.include=\"packages/exam-engine/src/**\" --coverage.include=\"packages/media-token/src/**\" packages/exam-engine packages/media-token",
+    "test:admin": "vitest run apps/admin",
+    "test:admin-auth": "vitest run apps/admin/tests/auth.test.ts apps/admin/tests/guard.test.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",
