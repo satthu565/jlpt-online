@@ -7,7 +7,7 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
+    "test": "VITEST_MAX_WORKERS=1 turbo run test",
     "test:import-contracts": "vitest run packages/content-tools/tests/import-contracts.test.ts",
     "test:import-validation": "vitest run packages/content-tools/tests/import-validation.test.ts",
     "import:validate": "node tools/import-data/bin/validate.js",
