@@ -76,7 +76,9 @@
     "test:classrooms": "vitest run apps/api/src/modules/classroom/classroom.test.ts",
     "test:events": "vitest run apps/api/src/modules/classroom/event.test.ts",
     "test:community": "vitest run apps/api/src/modules/community/community.test.ts",
-    "test:privacy": "vitest run apps/api/src/modules/user/privacy.test.ts"
+    "test:privacy": "vitest run apps/api/src/modules/user/privacy.test.ts",
+    "test:security": "vitest run --testTimeout=30000 --hookTimeout=30000 apps/api/src/common/guards/security-hardening.test.ts apps/api/src/common/guards/authorization.test.ts apps/api/src/modules/attempt/no-answer-leak.test.ts",
+    "test:api:all": "pnpm --filter @jlpt/api test"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",
