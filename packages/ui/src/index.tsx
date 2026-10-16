@@ -1,37 +1,22 @@
-import React from 'react';
-import type { RichTextSegment } from '@jlpt/schema';
+'use client';
 
-export interface RichTextViewProps {
-  segments: RichTextSegment[];
-  className?: string;
-}
+/**
+ * @jlpt/ui - Design System and Reusable Components
+ * Features: ACC-14, EXAM-26, SYS-01, SYS-14
+ */
 
-export function RichTextView({ segments, className }: RichTextViewProps): React.JSX.Element {
-  return (
-    <div className={className}>
-      {segments.map((seg, idx) => {
-        switch (seg.t) {
-          case 'text':
-            return <span key={idx}>{seg.text}</span>;
-          case 'ruby':
-            return (
-              <ruby key={idx}>
-                {seg.text}
-                <rt>{seg.rt}</rt>
-              </ruby>
-            );
-          case 'underline':
-            return <u key={idx}>{seg.text}</u>;
-          case 'blank':
-            return <span key={idx} className="inline-block border-b-2 border-current min-w-8 text-center">( )</span>;
-          case 'star':
-            return <span key={idx} className="font-bold text-amber-500">★</span>;
-          case 'br':
-            return <br key={idx} />;
-          case 'image':
-            return <img key={idx} src={seg.url} alt="media" className="inline max-h-48" />;
-        }
-      })}
-    </div>
-  );
-}
+export * from './tokens.js';
+export * from './theme-context.js';
+export * from './components/button.js';
+export * from './components/input.js';
+export * from './components/select.js';
+export * from './components/card.js';
+export * from './components/alert.js';
+export * from './components/badge.js';
+export * from './components/modal.js';
+export * from './components/skip-to-content.js';
+export * from './components/theme-toggle.js';
+export * from './components/locale-switcher.js';
+export * from './components/header.js';
+export * from './components/footer.js';
+export * from './components/rich-text-view.js';
