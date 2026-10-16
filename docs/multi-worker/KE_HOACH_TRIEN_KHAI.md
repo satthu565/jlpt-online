@@ -363,23 +363,23 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Worker: **W6**. Ngày mục tiêu: 2. Ước lượng chưa đo: 6 giờ worker; không gồm mọi vòng sửa/review.
 - Phụ thuộc: F01, F08. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: SYS-08, SYS-09, SYS-11, SYS-15, ADM-20.
-- Phạm vi: Compose full small/large, R2/media Worker, Cloudflare Tunnel, WAL-G, GHCR deploy rollback; secrets qua operator.
-- Bàn giao: infra/; apps/media-worker/; .github/workflows/release.yml.
+- Phạm vi: Compose full small/large, R2/media Worker, Cloudflare Tunnel, WAL-G, GHCR deploy rollback; secrets qua operator. Chưa có hosting: staging tạm dựng bằng docker compose (profile small) trong GitHub Actions; cùng script deploy lên staging thật khi có hosting.
+- Bàn giao: infra/; apps/media-worker/; .github/workflows/.
 - Hợp đồng: API.
 - Khóa tài nguyên: ci-workflow, staging-deploy.
-- Điều kiện ngoài chặn bắt đầu: hosting.
-- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): cloudflare, r2.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): cloudflare, r2, hosting.
 - Quyền ghi tạm ngoài thư mục của worker: không.
 - Nghiệm thu:
+  - Workflow staging tạm trong GitHub Actions dựng compose profile small từ image build một lần, chạy smoke và xanh trên PR.
   - Staging độc lập dữ liệu worker.
   - Signed media check trước cache; Range206 đúng.
-  - Backup PITR khôi phục staging có RPO/RTO đo.
+  - Backup PITR khôi phục trên staging tạm có RPO/RTO đo trong log CI.
   - Không build trên production.
+  - Lệnh cần Docker (deploy, restore) chạy trong CI, không chạy trên VPS coding vì worker không có Docker.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:media-edge`
   - `pnpm infra:check`
-  - `pnpm test:deploy`
-  - `pnpm test:restore`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -520,15 +520,15 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Worker: **W6**. Ngày mục tiêu: 3. Ước lượng chưa đo: 6 giờ worker; không gồm mọi vòng sửa/review.
 - Phụ thuộc: C06, N02, N03, N04. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: Triển khai vertical slice trên staging; test không lộ đáp án, isolation, recovery migration và load baseline.
+- Phạm vi: Triển khai vertical slice trên staging tạm trong CI (staging thật khi có hosting); test không lộ đáp án, isolation, recovery migration và load baseline.
 - Bàn giao: tests/integration/; tests/e2e/.
 - Hợp đồng: API.
 - Khóa tài nguyên: staging-deploy, heavy-load.
 - Điều kiện ngoài chặn bắt đầu: không.
-- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): hosting.
 - Quyền ghi tạm ngoài thư mục của worker: không.
 - Nghiệm thu:
-  - Chủ dự án chuẩn bị gói->validate->review->publish->thi->review chạy thật trên staging.
+  - Gói demo docs/multi-worker/demo-data: validate->review->publish->thi->review chạy thật trên staging tạm trong CI.
   - Cross-tenant/IDOR negative matrix pass.
   - Ghi actual load metrics; không suy ra sức chịu khi chưa đo.
 - Lệnh cần cung cấp và chạy:
@@ -1028,14 +1028,13 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Quyền ghi tạm ngoài thư mục của worker: không.
 - Nghiệm thu:
   - Record target and observed capacity separately.
-  - RPO<=5min RTO<=1h có timestamps.
+  - RPO<=5min RTO<=1h có timestamps từ job restore trong CI.
   - No P0/P1 accepted silently.
   - Load generator tách khỏi target; không đo sức chịu bằng VPS đang build.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:e2e:all-browsers`
   - `pnpm test:security`
   - `pnpm test:load`
-  - `pnpm test:restore`
   - `pnpm test:a11y`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
@@ -1176,7 +1175,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Hợp đồng: quy tắc chung.
 - Khóa tài nguyên: staging-deploy.
 - Điều kiện ngoài chặn bắt đầu: không.
-- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): hosting.
 - Quyền ghi tạm ngoài thư mục của worker: không.
 - Nghiệm thu:
   - 363 yêu cầu ứng dụng chỉ DONE khi đủ evidence;12 yêu cầu chuẩn bị bên ngoài báo riêng.
@@ -1186,6 +1185,5 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Lệnh cần cung cấp và chạy:
   - `pnpm features:verify`
   - `pnpm test:release`
-  - `pnpm test:restore`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.

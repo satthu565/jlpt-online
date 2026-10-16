@@ -12,7 +12,7 @@ Lịch bảy ngày giả định operator chuẩn bị sớm tài khoản và d�
 |coding-vps|VPS coding cho sáu worker và coordinator, tách khỏi staging/production|Chủ dự án/W6|F01|—|Benchmark CPU/RAM/disk/ports theo VAN_HANH_VPS_WORKER.md|
 |coding-accounts|Sáu native CLI login hợp lệ, quyền dùng và quota được xác nhận|Chủ dự án|F01|—|CLI smoke từng user, không log token|
 |coordinator-runtime|Coordinator ở repo riêng jlpt-coordinator, xây ở ngày 0 theo DAC_TA_RUNNER.md và qua đủ 12 tình huống kiểm thử|Chủ dự án/Claude|F07|—|Báo cáo test của coordinator; thiếu thì giao task thủ công cùng định dạng assignment|
-|hosting|Staging tách biệt và production khi được phép; nhà cung cấp hosting chưa chốt|Chủ dự án/W6|C06|V06|Benchmark CPU/RAM/disk và isolated target; ghi nhà cung cấp đã chọn vào docs/decisions|
+|hosting|Staging thật và production khi được phép; nhà cung cấp chưa chốt. Trước đó staging tạm chạy trong GitHub Actions|Chủ dự án/W6|—|C06 N06 V06 R06|Benchmark CPU/RAM/disk và isolated target; ghi nhà cung cấp đã chọn vào docs/decisions|
 |google-oauth|OAuth app, redirect URI, consent/test users, secret broker|Chủ dự án/W2|—|F03|Login/state/error path trên staging|
 |email|Resend/SMTP+domain SPF/DKIM/DMARC, Mailpit dev|Chủ dự án/W2|—|F03|Verification/reset email và deliverability test|
 |jlpt-blueprints|Nguồn chính thức cho N1–N5, source date, review con số|Chủ dự án/W1|—|C01, N04|Confirmed blueprint versions; chưa xác nhận không dùng làm thi chính thức|
