@@ -9,7 +9,7 @@ import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
 import { LevelSchema, type Level, sanitizeExportField } from '@jlpt/schema';
-import { executeRetentionSafeDeletion } from '../../db/retention-guard.js';
+import { canPurgeDomain } from '../../db/retention-guard.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { extractScoreFromResult } from '../classroom/classroom.service.js';
@@ -322,29 +322,21 @@ export class UserService {
     userId: string,
     input?: { reason?: string; confirmation?: string },
   ) {
-    const result = await executeRetentionSafeDeletion(this.client, userId, [
-      'billing',
-      'exam_attempts',
-      'learning',
-      'audit_logs',
-    ]);
-
-    const [latestReq] = await this.client.db
-      .select({ id: schema.deletionRequests.id })
-      .from(schema.deletionRequests)
-      .where(eq(schema.deletionRequests.userId, userId))
-      .orderBy(desc(schema.deletionRequests.requestedAt))
-      .limit(1);
-
-    const requestId = latestReq?.id ?? generateUuidV7();
+    const requestId = generateUuidV7();
+    const result = await executeRetentionSafeDeletion(
+      this.client,
+      userId,
+      ['billing', 'exam_attempts', 'learning', 'audit_logs'],
+      requestId,
+    );
 
     await this.outboxService.emitEvent(
       'privacy.deletion.requested',
-      requestId,
+      result.id,
       userId,
       {
         userId,
-        deletionRequestId: requestId,
+        deletionRequestId: result.id,
         requestedAt: new Date().toISOString(),
         metadata: {
           reason: input?.reason || 'User requested account deletion',
@@ -354,7 +346,7 @@ export class UserService {
     );
 
     return {
-      id: requestId,
+      id: result.id,
       status: result.status,
       deletedDomains: result.deletedDomains,
       preservedDomains: result.preservedDomains,
@@ -512,4 +504,56 @@ export class UserService {
       message: 'Đã đăng xuất khỏi tất cả các thiết bị khác.',
     };
   }
+}
+
+/**
+ * ACC-13, SYS-19: Thực hiện quy trình xóa tài khoản an toàn với retention policy
+ * Trả về trực tiếp requestId của bản ghi vừa tạo (P2 fix).
+ */
+export async function executeRetentionSafeDeletion(
+  client: DbClientInstance,
+  userId: string,
+  requestedDomains: string[] = ['billing', 'exam_attempts', 'learning', 'audit_logs'],
+  requestId: string = generateUuidV7(),
+) {
+  const deletedDomains: string[] = [];
+  const preservedDomains: string[] = [];
+
+  for (const domain of requestedDomains) {
+    const check = await canPurgeDomain(client, domain);
+    if (check.canPurge) {
+      deletedDomains.push(domain);
+    } else {
+      preservedDomains.push(domain);
+    }
+  }
+
+  const finalStatus: 'completed' | 'blocked_retention' =
+    preservedDomains.length > 0 ? 'blocked_retention' : 'completed';
+
+  const notes =
+    preservedDomains.length > 0
+      ? `Bảo tồn các miền bắt buộc theo nghĩa vụ retention chưa được phê duyệt hoặc quy định pháp luật: ${preservedDomains.join(', ')}`
+      : 'Đã hoàn tất xóa dữ liệu các miền hợp lệ theo chính sách retention đã duyệt.';
+
+  await client.db.insert(schema.deletionRequests).values({
+    id: requestId,
+    userId,
+    status: finalStatus,
+    processedAt: new Date(),
+    metadata: {
+      requestedDomains,
+      deletedDomains,
+      preservedDomains,
+      notes,
+    },
+  });
+
+  return {
+    id: requestId,
+    status: finalStatus,
+    deletedDomains,
+    preservedDomains,
+    notes,
+  };
 }

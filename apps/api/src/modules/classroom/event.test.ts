@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
+import { ensureAttemptEventsPartitions } from '../../db/partitions.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
@@ -44,6 +45,7 @@ describe('A02: Exam Event Tests (GAME-06, Acceptance 3: Event chưa kết thúc 
   beforeEach(async () => {
     dbClient = await createDbClient();
     await runMigrations(dbClient);
+    await ensureAttemptEventsPartitions(dbClient);
 
     scoringService = new ScoringService(dbClient);
     outboxService = new OutboxService(dbClient, scoringService);
@@ -381,6 +383,33 @@ describe('A02: Exam Event Tests (GAME-06, Acceptance 3: Event chưa kết thúc 
           code: 'EVENT_NOT_STARTED',
         },
       });
+    });
+
+    it('Resumes attempt when user calls startExamEventAttempt on an in-progress attempt instead of duplicating', async () => {
+      const now = Date.now();
+      const { eventId } = await examEventController.createExamEvent(adminUser, {
+        examId,
+        opensAt: new Date(now - 1000).toISOString(),
+        startsAt: new Date(now).toISOString(),
+        endsAt: new Date(now + 3600000).toISOString(),
+        resultReleaseAt: new Date(now + 7200000).toISOString(),
+        capacity: 10,
+        lateSyncWindowSec: 0,
+        rankingScope: 'national',
+        level: 'N1',
+      });
+
+      await examEventController.registerExamEvent(eventId, student1);
+
+      // Start attempt 1st time
+      const attempt1 = await examEventController.startExamEventAttempt(eventId, student1);
+      expect(attempt1.attemptId).toBeDefined();
+      expect(attempt1.status).toBe('in_progress');
+
+      // Call start attempt 2nd time while attempt 1 is in_progress -> should resume attempt1, NOT throw 500
+      const attempt2 = await examEventController.startExamEventAttempt(eventId, student1);
+      expect(attempt2.attemptId).toBe(attempt1.attemptId);
+      expect(attempt2.status).toBe('in_progress');
     });
   });
 });

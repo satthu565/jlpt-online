@@ -305,21 +305,42 @@ describe('A02: Classroom & Teacher Module Tests (TEA-01..13, Acceptance 1 & 2)',
   // Teacher Onboarding & Classes Management (TEA-01, TEA-02, TEA-12)
   // ---------------------------------------------------------------------------
   describe('Teacher Onboarding & Multi-Org Management (TEA-01, TEA-02, TEA-12)', () => {
-    it('TEA-01: Student can submit teacher application and get upgraded', async () => {
+    it('TEA-01: Student can submit teacher application (pending) and admin can approve', async () => {
       const result = await classroomController.submitTeacherApplication(student1, {
         intro: '5 năm kinh nghiệm giảng dạy tiếng Nhật N2/N1',
         organizationName: 'Alpha Academy',
       });
 
       expect(result.applicationId).toBeDefined();
-      expect(result.status).toBe('approved');
+      expect(result.status).toBe('pending');
 
-      // Verify user role upgraded
-      const [u] = await dbClient.db
+      // Verify user role NOT upgraded yet
+      const [uBefore] = await dbClient.db
         .select()
         .from(schema.users)
         .where(eq(schema.users.id, student1.userId));
-      expect(u?.role).toBe('teacher');
+      expect(uBefore?.role).toBe('student');
+
+      // Non-admin cannot approve
+      await expect(
+        classroomController.approveTeacherApplication(result.applicationId, teacherA),
+      ).rejects.toMatchObject({
+        response: {
+          code: 'FORBIDDEN',
+        },
+      });
+
+      // Admin approves
+      const approved = await classroomController.approveTeacherApplication(result.applicationId, adminUser);
+      expect(approved.status).toBe('approved');
+      expect(approved.userId).toBe(student1.userId);
+
+      // Verify user role upgraded
+      const [uAfter] = await dbClient.db
+        .select()
+        .from(schema.users)
+        .where(eq(schema.users.id, student1.userId));
+      expect(uAfter?.role).toBe('teacher');
     });
 
     it('TEA-02, TEA-12: Teacher can create classes in organizations they belong to', async () => {
@@ -500,7 +521,41 @@ describe('A02: Classroom & Teacher Module Tests (TEA-01..13, Acceptance 1 & 2)',
       expect(detail.title).toBe('Bài bổ trợ ngữ pháp');
     });
 
-    it('TEA-11: Grade export sanitizes formula injection characters', async () => {
+    it('TEA-04, TEA-10 & Acceptance 1: Rejects assignment creation with learnerIds outside the class (Org B learner)', async () => {
+      // student2 is in Class B (Org B), not Class A
+      await expect(
+        classroomController.createClassAssignment(classAId, teacherA, {
+          title: 'Bài tập độc hại',
+          learnerIds: [student2.userId],
+          opensAtUTC: new Date().toISOString(),
+          dueAtUTC: new Date(Date.now() + 86400000).toISOString(),
+        }),
+      ).rejects.toMatchObject({
+        response: {
+          code: 'INVALID_LEARNER',
+        },
+      });
+
+      // Also for supplement assignment
+      const validAssignment = await classroomController.createClassAssignment(classAId, teacherA, {
+        title: 'Bài tập hợp lệ',
+        opensAtUTC: new Date().toISOString(),
+        dueAtUTC: new Date(Date.now() + 86400000).toISOString(),
+      });
+
+      await expect(
+        classroomController.createSupplementAssignment(validAssignment.assignmentId, teacherA, {
+          title: 'Bài bổ trợ độc hại',
+          learnerIds: [student2.userId],
+        }),
+      ).rejects.toMatchObject({
+        response: {
+          code: 'INVALID_LEARNER',
+        },
+      });
+    });
+
+    it('TEA-11: Grade export sanitizes formula injection characters and calculates learner scores', async () => {
       // Seed user with formula injection payload
       const evilUser = makeUser('018e0000-0000-7000-8000-000000000007', 'student');
       await dbClient.db.insert(schema.users).values({
@@ -527,6 +582,9 @@ describe('A02: Classroom & Teacher Module Tests (TEA-01..13, Acceptance 1 & 2)',
       // Verifies prefix quote added by sanitizeExportField
       expect(String(evilRow?.name).startsWith("'")).toBe(true);
       expect(String(evilRow?.email).startsWith("'")).toBe(true);
+      // Verifies TEA-11 score aggregation fields
+      expect(evilRow).toHaveProperty('submittedAssignments');
+      expect(evilRow).toHaveProperty('averageScore');
     });
   });
 });

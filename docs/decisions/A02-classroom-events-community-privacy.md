@@ -1,7 +1,7 @@
 # Quyết định kỹ thuật A02: Lớp học thi sự kiện cộng đồng và quản lý tài khoản
 
 - **Task:** A02
-- **Assignment:** A02-2
+- **Assignment:** A02-4
 - **Worker:** W2 (API tài khoản nội dung và thi)
 - **Trạng thái:** HOÀN TẤT (Sẵn sàng REVIEW)
 - **Ngày:** 2026-10-16
@@ -66,6 +66,15 @@ Task A02 triển khai và kiểm chứng toàn bộ logic backend API, quy trìn
    - Loại bỏ hoàn toàn các ép kiểu lỏng lẻo `any` khỏi mã nguồn và toàn bộ các bộ test (`classroom.test.ts`, `event.test.ts`, `community.test.ts`, `privacy.test.ts`), thay bằng các enum và type chuẩn từ `@jlpt/schema` (`Role`, `Level`, v.v.).
    - Tuân thủ cấu hình TypeScript `strict: true` và ESLint rule `@typescript-eslint/no-explicit-any`.
 
+4. **Xử lý yêu cầu hoàn thiện từ Reviewer W4 (Assignment A02-4):**
+   - **[P0] Xác thực thành viên lớp học khi giao bài (Cross-Tenant Protection):** Trong `createClassAssignment` và `createSupplementAssignment`, xác thực toàn bộ `learnerIds` phải thuộc `classMemberships` có `status: 'active'` của chính lớp học đó. Bất kỳ ID học viên nào ngoài lớp (ví dụ học viên Org B) đều bị từ chối ngay với `BadRequestException` (`INVALID_LEARNER`), ngăn chặn triệt để nguy cơ giáo viên Org A đọc lén dữ liệu qua `listAssignmentSubmissions`.
+   - **[P0] Chặn thảo luận câu hỏi trong thời gian cấm vận (Embargo Protection):** Trong `assertQuestionCompleted`, loại trừ các lượt thi thuộc `examEvents` chưa công bố kết quả (`resultReleaseAt > NOW()`), ngăn chặn thí sinh nộp bài sớm xem và thảo luận làm rò rỉ đáp án khi sự kiện thi vẫn đang diễn ra.
+   - **[P1] Tiếp tục phiên thi sự kiện đang làm dở (Idempotent Event Attempt):** Trong `startExamEventAttempt`, khi người dùng đã có bài thi sự kiện đang làm dở (`status === 'in_progress'`), hàm gọi `attemptService.resumeAttempt` để tiếp tục làm bài và trả về thông tin phiên hiện tại kèm `attemptId`, tránh tạo mới và chèn bản ghi trùng lặp vi phạm `uniqueIndex('event_attempts_event_user_idx')`.
+   - **[P2] Lọc bình luận theo thread ở cấp cơ sở dữ liệu:** Trong `listQuestionDiscussions`, sử dụng trực tiếp `inArray(schema.comments.threadId, threadIds)` ở câu lệnh SQL query thay vì tải toàn bộ bình luận vào bộ nhớ để lọc bằng JavaScript.
+   - **[P2] Tổng hợp điểm số thực tế trong bảng điểm lớp học (TEA-11):** Trong `exportClassGrades`, truy vấn các lượt nộp bài qua `assignmentAttempts` và `examAttempts` để tính toán và xuất kèm `submittedAssignments` cùng `averageScore` thực tế của từng học viên.
+   - **[P2] Duyệt đơn giáo viên hai bước (Pending Onboarding TEA-01):** Trong `submitTeacherApplication`, lưu đơn đăng ký với trạng thái ban đầu `pending`. Bổ sung endpoint quản trị viên `@Post('teacher-applications/:id/approve')` (`approveTeacherApplication`) để admin duyệt và chính thức nâng quyền người dùng lên `teacher`.
+   - **[P2] Trả về trực tiếp requestId trong xóa tài khoản an toàn (Retention Compliance):** Cập nhật `executeRetentionSafeDeletion` để trả về trực tiếp `id` của bản ghi xóa dữ liệu vừa tạo, loại bỏ thao tác truy vấn lại bảng theo thời gian tạo trong `createDeletionRequest`.
+
 ---
 
 ## 3. Quản lý điều kiện bên ngoài (External Status)
@@ -83,12 +92,12 @@ Tất cả các lệnh kiểm tra theo hợp đồng task và các cổng chung 
 
 | Lệnh | Kết quả | Ghi chú |
 | :--- | :---: | :--- |
-| `pnpm test:classrooms` | **PASS** (exit code 0) | 15/15 tests passed |
-| `pnpm test:events` | **PASS** (exit code 0) | 6/6 tests passed |
-| `pnpm test:community` | **PASS** (exit code 0) | 5/5 tests passed |
+| `pnpm test:classrooms` | **PASS** (exit code 0) | 16/16 tests passed |
+| `pnpm test:events` | **PASS** (exit code 0) | 7/7 tests passed |
+| `pnpm test:community` | **PASS** (exit code 0) | 6/6 tests passed |
 | `pnpm test:privacy` | **PASS** (exit code 0) | 14/14 tests passed |
 | `pnpm install --frozen-lockfile` | **PASS** (exit code 0) | Lockfile đồng bộ, 0 drift |
 | `pnpm lint` | **PASS** (exit code 0) | 13/13 packages passed, 0 error |
 | `pnpm typecheck` | **PASS** (exit code 0) | 19/19 packages passed, strict TS |
-| `pnpm test` | **PASS** (exit code 0) | 19 packages, 27 files, 332 tests passed |
+| `pnpm test` | **PASS** (exit code 0) | 19 packages, 27 files, 335 tests passed |
 | `pnpm build` | **PASS** (exit code 0) | 12/12 build tasks passed |

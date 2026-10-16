@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
@@ -48,7 +48,7 @@ export class ClassroomService {
   // ---------------------------------------------------------------------------
 
   /**
-   * TEA-01: Học viên nộp đơn đăng ký làm giáo viên
+   * TEA-01: Học viên nộp đơn đăng ký làm giáo viên (trạng thái pending)
    */
   async submitTeacherApplication(userId: string, input: TeacherApplicationDto) {
     const applicationId = generateUuidV7();
@@ -56,22 +56,58 @@ export class ClassroomService {
     await this.client.db.insert(schema.teacherApplications).values({
       id: applicationId,
       userId,
-      status: 'approved',
+      status: 'pending',
       qualifications: {
         intro: input.intro,
         organizationName: input.organizationName || null,
       },
     });
 
-    // Update user role to teacher if currently student/user
+    return {
+      applicationId,
+      status: 'pending',
+    };
+  }
+
+  /**
+   * TEA-01: Quản trị viên duyệt đơn đăng ký giáo viên
+   */
+  async approveTeacherApplication(applicationId: string, adminUser: AuthUserContext) {
+    if (adminUser.role !== 'admin') {
+      throw new ForbiddenException({
+        code: 'FORBIDDEN',
+        message: 'Chỉ quản trị viên mới có quyền duyệt đơn đăng ký giáo viên.',
+      });
+    }
+
+    const [application] = await this.client.db
+      .select()
+      .from(schema.teacherApplications)
+      .where(eq(schema.teacherApplications.id, applicationId))
+      .limit(1);
+
+    if (!application) {
+      throw new NotFoundException({
+        code: 'NOT_FOUND',
+        message: 'Không tìm thấy đơn đăng ký giáo viên.',
+      });
+    }
+
+    await this.client.db
+      .update(schema.teacherApplications)
+      .set({ status: 'approved' })
+      .where(eq(schema.teacherApplications.id, applicationId));
+
+    // Update user role to teacher
     await this.client.db
       .update(schema.users)
       .set({ role: 'teacher', updatedAt: new Date() })
-      .where(eq(schema.users.id, userId));
+      .where(eq(schema.users.id, application.userId));
 
     return {
       applicationId,
       status: 'approved',
+      userId: application.userId,
     };
   }
 
@@ -490,6 +526,26 @@ export class ClassroomService {
           ),
         );
       targetLearnerIds = (activeMembers as Array<{ studentId: string }>).map((m) => m.studentId);
+    } else {
+      const activeMembers = await this.client.db
+        .select({ studentId: schema.classMemberships.studentId })
+        .from(schema.classMemberships)
+        .where(
+          and(
+            eq(schema.classMemberships.classId, classId),
+            eq(schema.classMemberships.status, 'active'),
+            inArray(schema.classMemberships.studentId, targetLearnerIds),
+          ),
+        );
+      const activeMemberIds = new Set((activeMembers as Array<{ studentId: string }>).map((m) => m.studentId));
+      for (const id of targetLearnerIds) {
+        if (!activeMemberIds.has(id)) {
+          throw new BadRequestException({
+            code: 'INVALID_LEARNER',
+            message: `Học viên ${id} không thuộc lớp học hoặc chưa được kích hoạt.`,
+          });
+        }
+      }
     }
 
     for (const learnerId of targetLearnerIds) {
@@ -716,6 +772,26 @@ export class ClassroomService {
       });
     }
 
+    const activeMembers = await this.client.db
+      .select({ studentId: schema.classMemberships.studentId })
+      .from(schema.classMemberships)
+      .where(
+        and(
+          eq(schema.classMemberships.classId, originalAssignment.classId),
+          eq(schema.classMemberships.status, 'active'),
+          inArray(schema.classMemberships.studentId, input.learnerIds),
+        ),
+      );
+    const activeMemberIds = new Set((activeMembers as Array<{ studentId: string }>).map((m) => m.studentId));
+    for (const id of input.learnerIds) {
+      if (!activeMemberIds.has(id)) {
+        throw new BadRequestException({
+          code: 'INVALID_LEARNER',
+          message: `Học viên ${id} không thuộc lớp học hoặc chưa được kích hoạt.`,
+        });
+      }
+    }
+
     const supplementId = generateUuidV7();
     const title = input.title || `Bài bổ trợ - ${originalAssignment.title}`;
     const now = new Date();
@@ -796,6 +872,41 @@ export class ClassroomService {
       .from(schema.assignments)
       .where(eq(schema.assignments.classId, classId));
 
+    const assignmentIds = (classAssignments as Array<{ id: string }>).map((a) => a.id);
+    const statsByLearner: Record<string, { totalScore: number; submittedCount: number }> = {};
+    if (assignmentIds.length > 0) {
+      const submissions = await this.client.db
+        .select({
+          learnerId: schema.assignmentAttempts.learnerId,
+          attemptResult: schema.examAttempts.result,
+        })
+        .from(schema.assignmentAttempts)
+        .innerJoin(
+          schema.examAttempts,
+          eq(schema.examAttempts.id, schema.assignmentAttempts.attemptId),
+        )
+        .where(
+          and(
+            inArray(schema.assignmentAttempts.assignmentId, assignmentIds),
+            isNotNull(schema.assignmentAttempts.submittedAt),
+          ),
+        );
+
+      interface SubRow {
+        learnerId: string;
+        attemptResult: unknown;
+      }
+      for (const sub of (submissions as SubRow[])) {
+        const score = extractScoreFromResult(sub.attemptResult);
+        const currentStats = statsByLearner[sub.learnerId] ?? { totalScore: 0, submittedCount: 0 };
+        if (!isNaN(score)) {
+          currentStats.totalScore += score;
+          currentStats.submittedCount += 1;
+        }
+        statsByLearner[sub.learnerId] = currentStats;
+      }
+    }
+
     interface MemberGradeRow {
       userId: string;
       name: string | null;
@@ -803,13 +914,19 @@ export class ClassroomService {
       status: string;
     }
 
-    const sanitizedRows = (members as MemberGradeRow[]).map((m: MemberGradeRow) => ({
-      userId: m.userId,
-      name: sanitizeExportField(m.name || ''),
-      email: sanitizeExportField(m.email),
-      status: sanitizeExportField(m.status),
-      totalAssignments: classAssignments.length,
-    }));
+    const sanitizedRows = (members as MemberGradeRow[]).map((m: MemberGradeRow) => {
+      const stats = statsByLearner[m.userId] || { totalScore: 0, submittedCount: 0 };
+      const averageScore = stats.submittedCount > 0 ? Math.round((stats.totalScore / stats.submittedCount) * 10) / 10 : 0;
+      return {
+        userId: m.userId,
+        name: sanitizeExportField(m.name || ''),
+        email: sanitizeExportField(m.email),
+        status: sanitizeExportField(m.status),
+        totalAssignments: classAssignments.length,
+        submittedAssignments: stats.submittedCount,
+        averageScore,
+      };
+    });
 
     return {
       className: sanitizeExportField(cls.name),

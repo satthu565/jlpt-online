@@ -323,12 +323,26 @@ export class ExamEventService {
         .where(eq(schema.examAttempts.id, existingEventAttempt.attemptId))
         .limit(1);
 
-      if (attempt && attempt.status === 'submitted') {
-        throw new ConflictException({
-          code: 'ATTEMPT_CLOSED',
-          message: 'Bạn đã hoàn thành bài thi sự kiện này.',
-        });
+      if (attempt) {
+        if (attempt.status === 'submitted') {
+          throw new ConflictException({
+            code: 'ATTEMPT_CLOSED',
+            message: 'Bạn đã hoàn thành bài thi sự kiện này.',
+          });
+        }
+        if (attempt.status === 'in_progress') {
+          const resumed = await this.attemptService.resumeAttempt(existingEventAttempt.attemptId, user);
+          return {
+            attemptId: existingEventAttempt.attemptId,
+            ...resumed,
+          };
+        }
       }
+
+      throw new ConflictException({
+        code: 'ATTEMPT_ALREADY_EXISTS',
+        message: 'Bạn đã có một lượt thi cho sự kiện này.',
+      });
     }
 
     // Find exam associated with matching level

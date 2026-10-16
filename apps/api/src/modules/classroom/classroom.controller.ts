@@ -40,6 +40,15 @@ export class ClassroomController {
     return this.classroomService.submitTeacherApplication(user.userId, body);
   }
 
+  @Post('teacher-applications/:id/approve')
+  @HttpCode(HttpStatus.OK)
+  async approveTeacherApplication(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthUserContext,
+  ) {
+    return this.classroomService.approveTeacherApplication(id, user);
+  }
+
   @Get('organizations')
   async listOrganizations(@CurrentUser() user: AuthUserContext) {
     return this.classroomService.listOrganizations(user);

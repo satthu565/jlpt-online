@@ -244,6 +244,155 @@ describe('A02: Community Module Tests (GAME-07..09, Acceptance 4: Discussion ch�
       const list = await communityController.listQuestionDiscussions(questionId, studentCompleted);
       expect(list.items.some((c) => c.id === commentId)).toBe(false);
     });
+
+    it('GAME-08, Acceptance 3 & 4: Blocks early-submit participant in an ongoing exam event before resultReleaseAt from accessing discussion', async () => {
+      // 1. Create a dedicated question and exam for an event
+      const eventQuestionId = generateUuidV7();
+      await dbClient.db.insert(schema.questions).values({
+        id: eventQuestionId,
+        level: 'N2',
+        skill: 'vocabulary',
+        mondaiType: 'kanji_reading',
+        origin: 'synthetic',
+      });
+
+      const eventExamId = generateUuidV7();
+      await dbClient.db.insert(schema.exams).values({
+        id: eventExamId,
+        slug: `exam-event-${eventExamId}`,
+        title: 'Đề thi sự kiện bí mật',
+        level: 'N2',
+        kind: 'real',
+        scoringMethod: 'scaled',
+      });
+
+      const blueprintId = generateUuidV7();
+      await dbClient.db.insert(schema.blueprints).values({
+        id: blueprintId,
+        level: 'N2',
+        version: 1,
+        kind: 'synthetic',
+        status: 'active',
+        isOfficial: false,
+        isConfirmed: true,
+        confirmedBy: adminUser.userId,
+        confirmedAt: new Date(),
+        effectiveFrom: '2026-01-01',
+        sourceRef: {},
+        sections: [],
+        scoring: {},
+      });
+
+      await dbClient.db.insert(schema.examVersions).values({
+        examId: eventExamId,
+        version: 1,
+        snapshotKey: `exams/${eventExamId}/v1/snapshot.json`,
+        manifestKey: `exams/${eventExamId}/v1/manifest.json`,
+        blueprintId,
+        blueprintVersion: 1,
+        scoring: {
+          method: 'linear_reference',
+          guestTrial: false,
+        },
+        totalQuestions: 1,
+        publishedAt: new Date(),
+        publishedBy: adminUser.userId,
+      });
+
+      const secId = generateUuidV7();
+      await dbClient.db.insert(schema.examSections).values({
+        id: secId,
+        examId: eventExamId,
+        code: 'language_knowledge',
+        title: 'Kiến thức ngôn ngữ',
+        durationSec: 3600,
+        orderIndex: 0,
+      });
+
+      await dbClient.db.insert(schema.examItems).values({
+        id: generateUuidV7(),
+        examId: eventExamId,
+        sectionId: secId,
+        questionId: eventQuestionId,
+        orderIndex: 0,
+      });
+
+      // 2. Create examEvent with resultReleaseAt in the future (+2 hours)
+      const eventId = generateUuidV7();
+      const now = Date.now();
+      await dbClient.db.insert(schema.examEvents).values({
+        id: eventId,
+        title: 'JLPT Grand Prix 2026',
+        level: 'N2',
+        opensAt: new Date(now - 3600000),
+        startsAt: new Date(now - 1800000),
+        endsAt: new Date(now + 3600000),
+        resultReleaseAt: new Date(now + 7200000), // embargoed!
+        capacity: 100,
+        registeredCount: 1,
+      });
+
+      // 3. User submits attempt early
+      const attemptId = generateUuidV7();
+      await dbClient.db.insert(schema.examAttempts).values({
+        id: attemptId,
+        userId: studentNotCompleted.userId,
+        examId: eventExamId,
+        examVersion: 1,
+        mode: 'real',
+        status: 'submitted',
+        leaseId: generateUuidV7(),
+        attemptMonth: '2026-10-01',
+        submittedAt: new Date(),
+        result: {
+          scoring: { total: 100 },
+        },
+      });
+
+      // Link attempt to eventAttempts
+      await dbClient.db.insert(schema.eventAttempts).values({
+        id: generateUuidV7(),
+        eventId,
+        attemptId,
+        userId: studentNotCompleted.userId,
+      });
+
+      // 4. User tries to view discussion while event results are EMBARGOED -> 403 Forbidden!
+      await expect(
+        communityController.listQuestionDiscussions(eventQuestionId, studentNotCompleted),
+      ).rejects.toMatchObject({
+        response: {
+          code: 'FORBIDDEN',
+        },
+      });
+
+      // User tries to post comment while embargoed -> 403 Forbidden!
+      await expect(
+        communityController.postQuestionComment(eventQuestionId, studentNotCompleted, {
+          content: 'Lộ đáp án sớm trong kỳ thi đang diễn ra!',
+        }),
+      ).rejects.toMatchObject({
+        response: {
+          code: 'FORBIDDEN',
+        },
+      });
+
+      // 5. Result release time arrives (set timeline to the past so opensAt <= startsAt < endsAt <= resultReleaseAt <= now)
+      const past = Date.now() - 10000;
+      await dbClient.db
+        .update(schema.examEvents)
+        .set({
+          opensAt: new Date(past - 4000),
+          startsAt: new Date(past - 3000),
+          endsAt: new Date(past - 2000),
+          resultReleaseAt: new Date(past - 1000),
+        })
+        .where(eq(schema.examEvents.id, eventId));
+
+      // Now discussion access is unlocked!
+      const unlockedList = await communityController.listQuestionDiscussions(eventQuestionId, studentNotCompleted);
+      expect(unlockedList.items).toBeDefined();
+    });
   });
 
   // ---------------------------------------------------------------------------

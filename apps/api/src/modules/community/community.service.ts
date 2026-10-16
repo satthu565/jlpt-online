@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, lte, or } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
@@ -89,6 +89,8 @@ export class CommunityService {
       return;
     }
 
+    const serverNow = new Date();
+
     const attempts = await this.client.db
       .select({ id: schema.examAttempts.id })
       .from(schema.examAttempts)
@@ -96,11 +98,23 @@ export class CommunityService {
         schema.examItems,
         eq(schema.examAttempts.examId, schema.examItems.examId),
       )
+      .leftJoin(
+        schema.eventAttempts,
+        eq(schema.eventAttempts.attemptId, schema.examAttempts.id),
+      )
+      .leftJoin(
+        schema.examEvents,
+        eq(schema.examEvents.id, schema.eventAttempts.eventId),
+      )
       .where(
         and(
           eq(schema.examAttempts.userId, user.userId),
           eq(schema.examAttempts.status, 'submitted'),
           eq(schema.examItems.questionId, questionId),
+          or(
+            isNull(schema.eventAttempts.id),
+            lte(schema.examEvents.resultReleaseAt, serverNow),
+          ),
         ),
       )
       .limit(1);
@@ -109,7 +123,7 @@ export class CommunityService {
       throw new ForbiddenException({
         code: 'FORBIDDEN',
         message:
-          'Bạn chỉ có thể xem và tham gia thảo luận sau khi đã hoàn thành một bài thi có chứa câu hỏi này.',
+          'Bạn chỉ có thể xem và tham gia thảo luận sau khi đã hoàn thành một bài thi có chứa câu hỏi này (và kết quả sự kiện thi đã được công bố).',
       });
     }
   }
@@ -138,7 +152,7 @@ export class CommunityService {
 
     const threadIds = (threads as ThreadRow[]).map((t: ThreadRow) => t.id);
 
-    // 2. Fetch comments with user info
+    // 2. Fetch comments with user info filtered by threadId in SQL (P2 fix)
     const allComments = await this.client.db
       .select({
         id: schema.comments.id,
@@ -151,7 +165,12 @@ export class CommunityService {
       })
       .from(schema.comments)
       .innerJoin(schema.users, eq(schema.users.id, schema.comments.authorId))
-      .where(isNull(schema.comments.deletedAt))
+      .where(
+        and(
+          inArray(schema.comments.threadId, threadIds),
+          isNull(schema.comments.deletedAt),
+        ),
+      )
       .orderBy(desc(schema.comments.createdAt));
 
     // 3. Filter out hidden/moderated comments
@@ -171,7 +190,7 @@ export class CommunityService {
     const hiddenSet = new Set((hiddenActions as HiddenActionRow[]).map((h: HiddenActionRow) => h.targetId));
 
     const visibleComments = (allComments as CommentWithAuthorRow[]).filter(
-      (c: CommentWithAuthorRow) => threadIds.includes(c.threadId) && !hiddenSet.has(c.id),
+      (c: CommentWithAuthorRow) => !hiddenSet.has(c.id),
     );
 
     const items = visibleComments.map((c: CommentWithAuthorRow) => ({
