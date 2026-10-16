@@ -20,6 +20,11 @@ import {
   Header,
   Footer,
   RichTextView,
+  CookieConsentBanner,
+  ShareDialog,
+  JsonLd,
+  TTSAudioPlayer,
+  WatermarkBadge,
 } from '../src/index.js';
 
 describe('@jlpt/ui component suite', () => {
@@ -210,4 +215,94 @@ describe('@jlpt/ui component suite', () => {
     expect(html).toContain('<u');
     expect(html).toContain('src="/sample.png"');
   });
+
+  it('renders CookieConsentBanner with accessible buttons and notice', () => {
+    const html = renderToString(
+      <CookieConsentBanner
+        isOpen
+        onAcceptAll={() => {}}
+        onRejectAnalytics={() => {}}
+        labels={{
+          title: 'Chính sách Cookie',
+          description: 'Chúng tôi sử dụng cookie để cải thiện trải nghiệm.',
+          acceptAll: 'Chấp nhận tất cả',
+          rejectAnalytics: 'Từ chối cookie phân tích',
+          customize: 'Tùy chỉnh',
+        }}
+      />,
+    );
+    expect(html).toContain('Chính sách Cookie');
+    expect(html).toContain('Chấp nhận tất cả');
+    expect(html).toContain('Từ chối cookie phân tích');
+    expect(html).toContain('data-testid="cookie-consent-banner"');
+  });
+
+  it('renders ShareDialog with URL copy input and social buttons', () => {
+    const html = renderToString(
+      <ShareDialog
+        isOpen
+        onClose={() => {}}
+        url="https://jlpt.vn/n3/de-thi"
+        title="Đề thi JLPT N3"
+        labels={{
+          dialogTitle: 'Chia sẻ đề thi',
+          copyLink: 'Sao chép liên kết',
+          copied: 'Đã sao chép!',
+          close: 'Đóng',
+        }}
+      />,
+    );
+    expect(html).toContain('Chia sẻ đề thi');
+    expect(html).toContain('https://jlpt.vn/n3/de-thi');
+    expect(html).toContain('Sao chép liên kết');
+  });
+
+  it('renders JsonLd script tag with valid escaped content', () => {
+    const html = renderToString(
+      <JsonLd
+        id="course-ld"
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'Course',
+          name: 'Khóa luyện thi JLPT N3',
+        }}
+      />,
+    );
+    expect(html).toContain('type="application/ld+json"');
+    expect(html).toContain('Khóa luyện thi JLPT N3');
+  });
+
+  it('renders TTSAudioPlayer and displays sandbox warning when in sandbox mode', () => {
+    const html = renderToString(
+      <TTSAudioPlayer
+        text="こんにちは"
+        status="SANDBOX"
+        isExternal={false}
+        labels={{
+          play: 'Phát âm',
+          pause: 'Tạm dừng',
+          loading: 'Đang tải...',
+          sandboxNotice: 'Đang sử dụng bộ phát âm dự phòng (Sandbox Fallback)',
+          errorNotice: 'Không thể phát âm thanh',
+        }}
+      />,
+    );
+    expect(html).toContain('Phát âm');
+    expect(html).toContain('data-testid="tts-sandbox-alert"');
+    expect(html).toContain('Đang sử dụng bộ phát âm dự phòng (Sandbox Fallback)');
+  });
+
+  it('renders WatermarkBadge with masked user ID and tamper-evident notice', () => {
+    const html = renderToString(
+      <WatermarkBadge
+        userId="user-998877665544"
+        timestamp="2026-10-16T12:00:00Z"
+      />,
+    );
+    expect(html).toContain('data-testid="security-watermark"');
+    expect(html).toContain('user...5544');
+    expect(html).toContain('2026-10-16T12:00:00Z');
+    expect(html).toContain('BẢN QUYỀN THUỘC JLPT ONLINE');
+  });
 });
+

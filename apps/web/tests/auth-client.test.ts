@@ -5,7 +5,7 @@ import {
   type User,
   type Session,
   type SessionItem,
-} from '../lib/auth-client.js';
+} from '../lib/auth-client';
 
 describe('AuthClient Integration with F03 API (ACC-01..12)', () => {
   it('signUpEmail calls POST /auth/sign-up/email and sets auth token', async () => {

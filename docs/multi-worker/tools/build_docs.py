@@ -244,7 +244,8 @@ task('N06','W6',3,6,'Tích hợp nội dung tới thi và kiểm thử lỗi n�
  'Triển khai vertical slice trên staging tạm trong CI (staging thật khi có hosting); test không lộ đáp án, isolation, recovery migration và load baseline.',
  'tests/integration/|tests/e2e/',
  'Gói demo docs/multi-worker/demo-data: validate->review->publish->thi->review chạy thật trên staging tạm trong CI|Cross-tenant/IDOR negative matrix pass|Ghi actual load metrics; không suy ra sức chịu khi chưa đo',
- 'pnpm test:e2e:core|pnpm test:security|pnpm test:load:baseline',contracts='API',resources='staging-deploy heavy-load',external='hosting')
+ 'pnpm test:e2e:core|pnpm test:security|pnpm test:load:baseline',contracts='API',resources='staging-deploy heavy-load',external='hosting',
+ grants='apps/api/src/modules/exam/ apps/api/src/modules/review/ apps/api/src/modules/import/')
 
 # Day 4. Learning, SRS, planner, commerce.
 task('L01','W1',4,6,'SRS độ khó dedupe và hợp đồng learning','N01 N05',

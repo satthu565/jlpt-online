@@ -7,7 +7,7 @@ import {
   DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
   type Locale,
-} from '../lib/i18n.js';
+} from '../lib/i18n';
 
 function extractLeafKeys(obj: Record<string, unknown>, prefix = ''): string[] {
   const keys: string[] = [];

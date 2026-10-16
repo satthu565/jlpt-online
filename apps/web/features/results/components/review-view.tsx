@@ -7,6 +7,9 @@ import { ScoreSummaryCard } from './score-summary-card';
 import { ScoreComparisonCard } from './score-comparison-card';
 import { ReviewPalette } from './review-palette';
 import { ReviewQuestionItem } from './review-question-item';
+import { PdfScoreExportButton } from './pdf-score-export-button';
+import { Button, ShareDialog } from '@jlpt/ui';
+import { AiChatAssistant } from '../../ai/components/ai-chat-assistant';
 
 export interface ReviewViewProps {
   reviewData: AttemptReviewData;
@@ -17,9 +20,10 @@ export function ReviewView({
   reviewData,
   className = '',
 }: ReviewViewProps): React.JSX.Element {
-  const { snapshot, answers, flags, correct, result, previousResult, mode, submittedAt } = reviewData;
+  const { snapshot, answers, flags, correct, result, previousResult, mode, submittedAt, attemptId } = reviewData;
 
   const [activeFilter, setActiveFilter] = useState<ReviewFilter>('all');
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   const flatQuestions = useMemo(() => {
     return flattenExamQuestions(snapshot);
@@ -68,6 +72,30 @@ export function ReviewView({
         previousResult={previousResult}
       />
 
+      {/* Action Bar: PDF Score Export & Share Link (SYS-17, SEO-08) */}
+      <div
+        data-testid="review-actions-bar"
+        className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+      >
+        <PdfScoreExportButton
+          result={result}
+          examTitle={snapshot.title}
+          level={snapshot.level}
+          attemptId={attemptId}
+          submittedAt={submittedAt}
+        />
+
+        <Button
+          type="button"
+          variant="outline"
+          size="md"
+          onClick={() => setShareModalOpen(true)}
+          data-testid="share-result-btn"
+        >
+          🔗 Chia sẻ kết quả thi
+        </Button>
+      </div>
+
       {/* 3. Main review section: Questions list + Sticky Palette */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Questions list (SCORE-07, SCORE-08) */}
@@ -102,6 +130,12 @@ export function ReviewView({
               Không có câu hỏi nào thỏa mãn bộ lọc &ldquo;{activeFilter}&rdquo;.
             </div>
           )}
+
+          {/* AI Study & Explanation Assistant with Transparency Labels */}
+          <AiChatAssistant
+            attemptId={attemptId}
+            contextTitle={`Giải đáp thắc mắc bài thi: ${snapshot.title} (${snapshot.level})`}
+          />
         </div>
 
         {/* Right column: Sticky review palette (SCORE-09) */}
@@ -117,6 +151,24 @@ export function ReviewView({
           />
         </div>
       </div>
+
+      {/* Share Dialog */}
+      <ShareDialog
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        url={`https://jlpt.vn/chia-se/ket-qua/${attemptId}`}
+        title={`Kết quả bài thi JLPT: ${snapshot.title} - Điểm: ${result.scoring.total}/${result.scoring.totalMax}`}
+        description="Chia sẻ bảng điểm và kết quả bài thi năng lực tiếng Nhật JLPT chuẩn quốc tế."
+        labels={{
+          dialogTitle: 'Chia sẻ kết quả bài thi',
+          copyLink: 'Sao chép liên kết',
+          copied: 'Đã sao chép liên kết!',
+          close: 'Đóng',
+          shareToTwitter: 'Twitter (X)',
+          shareToFacebook: 'Facebook',
+        }}
+      />
     </div>
   );
 }
+
