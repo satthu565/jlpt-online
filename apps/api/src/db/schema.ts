@@ -465,6 +465,12 @@ export const examAttempts = pgTable(
       .on(t.currentDeadline)
       .where(sql`status = 'in_progress'`),
     check('exam_attempts_user_or_guest_check', sql`user_id IS NOT NULL OR guest_id IS NOT NULL`),
+    check('exam_attempts_mode_check', sql`mode IN ('real', 'practice')`),
+    check('exam_attempts_status_check', sql`status IN ('in_progress', 'submitted')`),
+    check(
+      'exam_attempts_submitted_by_check',
+      sql`submitted_by IS NULL OR submitted_by IN ('user', 'auto_client', 'system')`,
+    ),
     foreignKey({
       columns: [t.examId, t.examVersion],
       foreignColumns: [examVersions.examId, examVersions.version],
@@ -714,7 +720,7 @@ export const cards = pgTable('cards', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
-export const cardSchedules = pgTable('cardSchedules', {
+export const cardSchedules = pgTable('card_schedules', {
   cardId: uuid('card_id').primaryKey().references(() => cards.id, { onDelete: 'cascade' }),
   dueAt: timestamp('due_at', { withTimezone: true }).notNull(),
   intervalDays: integer('interval_days').default(1).notNull(),

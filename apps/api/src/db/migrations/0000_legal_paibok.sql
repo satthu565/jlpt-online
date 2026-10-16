@@ -148,7 +148,7 @@ CREATE TABLE "attempt_events" (
 	"payload" jsonb DEFAULT '{}' NOT NULL,
 	"at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "attempt_events_attempt_month_id_pk" PRIMARY KEY("attempt_month","id")
-);
+) PARTITION BY RANGE ("attempt_month");
 --> statement-breakpoint
 CREATE TABLE "backup_jobs" (
 	"id" uuid PRIMARY KEY NOT NULL,
@@ -196,7 +196,7 @@ CREATE TABLE "card_reviews" (
 	"reviewed_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "cardSchedules" (
+CREATE TABLE "card_schedules" (
 	"card_id" uuid PRIMARY KEY NOT NULL,
 	"due_at" timestamp with time zone NOT NULL,
 	"interval_days" integer DEFAULT 1 NOT NULL,
@@ -1315,7 +1315,7 @@ ALTER TABLE "blueprint_versions" ADD CONSTRAINT "blueprint_versions_changed_by_u
 ALTER TABLE "blueprints" ADD CONSTRAINT "blueprints_confirmed_by_users_id_fk" FOREIGN KEY ("confirmed_by") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "card_reviews" ADD CONSTRAINT "card_reviews_card_id_cards_id_fk" FOREIGN KEY ("card_id") REFERENCES "public"."cards"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "card_reviews" ADD CONSTRAINT "card_reviews_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "cardSchedules" ADD CONSTRAINT "cardSchedules_card_id_cards_id_fk" FOREIGN KEY ("card_id") REFERENCES "public"."cards"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "card_schedules" ADD CONSTRAINT "card_schedules_card_id_cards_id_fk" FOREIGN KEY ("card_id") REFERENCES "public"."cards"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "cards" ADD CONSTRAINT "cards_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "cards" ADD CONSTRAINT "cards_notebook_item_id_notebook_items_id_fk" FOREIGN KEY ("notebook_item_id") REFERENCES "public"."notebook_items"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "challenge_enrollments" ADD CONSTRAINT "challenge_enrollments_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

@@ -15,6 +15,7 @@ import {
   createDbClient,
   ensureAttemptEventsPartitions,
   getPartitionMonths,
+  resolveMigrationsDir,
   runMigrations,
   seedDatabase,
   verifyRollbackCompatibility,
@@ -209,10 +210,75 @@ describe('F08 Database Schema and Migrations', () => {
       }
     });
 
-    it('creates and manages attempt_events partitions idempotently', async () => {
+    it('enforces CHECK (mode, status, submitted_by) on exam_attempts according to A10', async () => {
       const client = await createDbClient();
       try {
         await runMigrations(client);
+        await seedDatabase(client, fixturesDir);
+
+        const userId = '0192f000-0000-7000-8000-000000000001';
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const examsRes = (await client.query(`SELECT id FROM "exams" LIMIT 1;`)) as any;
+        const examId = (examsRes.rows ?? examsRes)[0].id;
+
+        // 1. Invalid mode: rejects
+        await expect(
+          client.query(`
+            INSERT INTO "exam_attempts" (
+              id, user_id, exam_id, exam_version, mode, status, lease_id, attempt_month
+            ) VALUES (
+              '0192f000-0aa1-7000-8000-000000000001', '${userId}', '${examId}', 1, 'invalid_mode', 'in_progress', '0192f000-0bb1-7000-8000-000000000001', '2026-10-01'
+            );
+          `),
+        ).rejects.toThrow();
+
+        // 2. Invalid status: rejects
+        await expect(
+          client.query(`
+            INSERT INTO "exam_attempts" (
+              id, user_id, exam_id, exam_version, mode, status, lease_id, attempt_month
+            ) VALUES (
+              '0192f000-0aa2-7000-8000-000000000002', '${userId}', '${examId}', 1, 'real', 'paused', '0192f000-0bb2-7000-8000-000000000002', '2026-10-01'
+            );
+          `),
+        ).rejects.toThrow();
+
+        // 3. Invalid submitted_by: rejects
+        await expect(
+          client.query(`
+            INSERT INTO "exam_attempts" (
+              id, user_id, exam_id, exam_version, mode, status, submitted_by, lease_id, attempt_month
+            ) VALUES (
+              '0192f000-0aa3-7000-8000-000000000003', '${userId}', '${examId}', 1, 'real', 'submitted', 'unauthorized_actor', '0192f000-0bb3-7000-8000-000000000003', '2026-10-01'
+            );
+          `),
+        ).rejects.toThrow();
+
+        // 4. Valid mode, status, submitted_by: succeeds
+        await client.query(`
+          INSERT INTO "exam_attempts" (
+            id, user_id, exam_id, exam_version, mode, status, submitted_by, lease_id, attempt_month
+          ) VALUES (
+            '0192f000-0aa4-7000-8000-000000000004', '${userId}', '${examId}', 1, 'practice', 'submitted', 'auto_client', '0192f000-0bb4-7000-8000-000000000004', '2026-10-01'
+          );
+        `);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const queryRes = (await client.query(`SELECT mode, status, submitted_by FROM "exam_attempts" WHERE id = '0192f000-0aa4-7000-8000-000000000004';`)) as any;
+        const inserted = (queryRes.rows ?? queryRes)[0];
+        expect(inserted.mode).toBe('practice');
+        expect(inserted.status).toBe('submitted');
+        expect(inserted.submitted_by).toBe('auto_client');
+      } finally {
+        await client.close();
+      }
+    });
+
+    it('creates and manages attempt_events partitions idempotently and routes inserts/queries correctly', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+        await seedDatabase(client, fixturesDir);
 
         const months = getPartitionMonths(new Date('2026-10-15T00:00:00Z'), 3);
         expect(months.length).toBe(3);
@@ -223,12 +289,98 @@ describe('F08 Database Schema and Migrations', () => {
         const created = await ensureAttemptEventsPartitions(client, months);
         expect(created.length).toBe(3);
 
-        // Calling again does not fail
+        // Calling again does not fail (idempotency)
         const createdAgain = await ensureAttemptEventsPartitions(client, months);
         expect(createdAgain.length).toBe(3);
+
+        // Create an attempt to satisfy FK attempt_id -> exam_attempts(id)
+        const userId = '0192f000-0000-7000-8000-000000000001';
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const examsRes = (await client.query(`SELECT id FROM "exams" LIMIT 1;`)) as any;
+        const examId = (examsRes.rows ?? examsRes)[0].id;
+        const attemptId = '0192f000-0ee1-7000-8000-000000000001';
+
+        await client.query(`
+          INSERT INTO "exam_attempts" (
+            id, user_id, exam_id, exam_version, mode, status, lease_id, attempt_month
+          ) VALUES (
+            '${attemptId}', '${userId}', '${examId}', 1, 'real', 'in_progress', '0192f000-0ee2-7000-8000-000000000002', '2026-10-01'
+          );
+        `);
+
+        // Insert event into October partition
+        const eventOct = '0192f000-0ee3-7000-8000-000000000003';
+        await client.query(`
+          INSERT INTO "attempt_events" (
+            id, attempt_month, attempt_id, seq, type, payload
+          ) VALUES (
+            '${eventOct}', '2026-10-15', '${attemptId}', 1, 'answers', '{"section": 0}'
+          );
+        `);
+
+        // Insert event into November partition
+        const eventNov = '0192f000-0ee4-7000-8000-000000000004';
+        await client.query(`
+          INSERT INTO "attempt_events" (
+            id, attempt_month, attempt_id, seq, type, payload
+          ) VALUES (
+            '${eventNov}', '2026-11-05', '${attemptId}', 2, 'answers', '{"section": 1}'
+          );
+        `);
+
+        // Query parent table: returns both events across partitions
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const parentRes = (await client.query(`SELECT id, attempt_month FROM "attempt_events" ORDER BY seq ASC;`)) as any;
+        const parentRows = parentRes.rows ?? parentRes;
+        expect(parentRows.length).toBe(2);
+        expect(parentRows[0].id).toBe(eventOct);
+        expect(parentRows[1].id).toBe(eventNov);
+
+        // Query individual partition tables: verify rows were routed into exact physical partitions
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const octPartitionRes = (await client.query(`SELECT id FROM "attempt_events_y2026m10";`)) as any;
+        const octRows = octPartitionRes.rows ?? octPartitionRes;
+        expect(octRows.length).toBe(1);
+        expect(octRows[0].id).toBe(eventOct);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const novPartitionRes = (await client.query(`SELECT id FROM "attempt_events_y2026m11";`)) as any;
+        const novRows = novPartitionRes.rows ?? novPartitionRes;
+        expect(novRows.length).toBe(1);
+        expect(novRows[0].id).toBe(eventNov);
       } finally {
         await client.close();
       }
+    });
+
+    it('verifies card_schedules table exists with snake_case naming', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const res = (await client.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'card_schedules';`)) as any;
+        const rows = res.rows ?? res;
+        const columns = rows.map((r: { column_name: string }) => r.column_name);
+        expect(columns).toContain('card_id');
+        expect(columns).toContain('due_at');
+        expect(columns).toContain('interval_days');
+        expect(columns).toContain('ease_factor');
+        expect(columns).toContain('repetitions');
+        expect(columns).toContain('state');
+      } finally {
+        await client.close();
+      }
+    });
+
+    it('resolves migrations directory gracefully with dist/ and repo fallbacks', () => {
+      const resolved = resolveMigrationsDir();
+      expect(fs.existsSync(resolved)).toBe(true);
+      expect(fs.existsSync(path.join(resolved, '0000_legal_paibok.sql'))).toBe(true);
+
+      // Even if called with non-existent dir, falls back to a valid migrations directory
+      const fallback = resolveMigrationsDir('/non/existent/path');
+      expect(fs.existsSync(fallback)).toBe(true);
+      expect(fs.existsSync(path.join(fallback, '0000_legal_paibok.sql'))).toBe(true);
     });
   });
 

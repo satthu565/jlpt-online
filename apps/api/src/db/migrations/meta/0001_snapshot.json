@@ -1493,8 +1493,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.cardSchedules": {
-      "name": "cardSchedules",
+    "public.card_schedules": {
+      "name": "card_schedules",
       "schema": "",
       "columns": {
         "card_id": {
@@ -1540,9 +1540,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "cardSchedules_card_id_cards_id_fk": {
-          "name": "cardSchedules_card_id_cards_id_fk",
-          "tableFrom": "cardSchedules",
+        "card_schedules_card_id_cards_id_fk": {
+          "name": "card_schedules_card_id_cards_id_fk",
+          "tableFrom": "card_schedules",
           "tableTo": "cards",
           "columnsFrom": [
             "card_id"
@@ -3818,6 +3818,18 @@
         "exam_attempts_user_or_guest_check": {
           "name": "exam_attempts_user_or_guest_check",
           "value": "user_id IS NOT NULL OR guest_id IS NOT NULL"
+        },
+        "exam_attempts_mode_check": {
+          "name": "exam_attempts_mode_check",
+          "value": "mode IN ('real', 'practice')"
+        },
+        "exam_attempts_status_check": {
+          "name": "exam_attempts_status_check",
+          "value": "status IN ('in_progress', 'submitted')"
+        },
+        "exam_attempts_submitted_by_check": {
+          "name": "exam_attempts_submitted_by_check",
+          "value": "submitted_by IS NULL OR submitted_by IN ('user', 'auto_client', 'system')"
         }
       },
       "isRLSEnabled": false

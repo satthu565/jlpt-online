@@ -1465,8 +1465,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.cardSchedules": {
-      "name": "cardSchedules",
+    "public.card_schedules": {
+      "name": "card_schedules",
       "schema": "",
       "columns": {
         "card_id": {
@@ -1512,9 +1512,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "cardSchedules_card_id_cards_id_fk": {
-          "name": "cardSchedules_card_id_cards_id_fk",
-          "tableFrom": "cardSchedules",
+        "card_schedules_card_id_cards_id_fk": {
+          "name": "card_schedules_card_id_cards_id_fk",
+          "tableFrom": "card_schedules",
           "tableTo": "cards",
           "columnsFrom": [
             "card_id"

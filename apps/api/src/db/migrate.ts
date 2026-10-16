@@ -18,13 +18,41 @@ export interface RollbackCompatibilityResult {
 }
 
 /**
+ * Resolves the directory containing SQL migration files.
+ * Provides fallback searching from dist/ or cwd when running built code.
+ */
+export function resolveMigrationsDir(customDir?: string): string {
+  if (customDir && fs.existsSync(customDir)) {
+    return customDir;
+  }
+  const candidates = [
+    customDir,
+    path.join(__dirname, 'migrations'),
+    path.resolve(__dirname, '../../src/db/migrations'),
+    path.resolve(__dirname, '../src/db/migrations'),
+    path.resolve(process.cwd(), 'apps/api/src/db/migrations'),
+    path.resolve(process.cwd(), 'src/db/migrations'),
+  ].filter(Boolean) as string[];
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  return path.join(__dirname, 'migrations');
+}
+
+/**
  * Executes database migrations on the target client.
  * Fully idempotent using __drizzle_migrations ledger.
  */
 export async function runMigrations(
   client: DbClientInstance,
-  migrationsDir: string = path.join(__dirname, 'migrations'),
+  migrationsDir?: string,
 ): Promise<MigrationResult> {
+  const dir = resolveMigrationsDir(migrationsDir);
+
   // Ensure migration ledger exists
   await client.query(`
     CREATE TABLE IF NOT EXISTS "__drizzle_migrations" (
@@ -47,7 +75,7 @@ export async function runMigrations(
   }
 
   const files = fs
-    .readdirSync(migrationsDir)
+    .readdirSync(dir)
     .filter((f) => f.endsWith('.sql'))
     .sort();
 
@@ -60,7 +88,7 @@ export async function runMigrations(
       continue;
     }
 
-    const filePath = path.join(migrationsDir, file);
+    const filePath = path.join(dir, file);
     const content = fs.readFileSync(filePath, 'utf8');
 
     // Split statements on breakpoint or semicolons
