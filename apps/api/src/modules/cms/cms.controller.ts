@@ -50,7 +50,7 @@ export class CmsController {
     }
     return this.cmsService.createArticle({
       ...dto,
-      authorId: user.id,
+      authorId: user.userId,
     });
   }
 
@@ -69,7 +69,7 @@ export class CmsController {
     }
     return this.cmsService.updateArticle(id, {
       ...dto,
-      authorId: user.id,
+      authorId: user.userId,
     });
   }
 
