@@ -19,6 +19,15 @@ export interface CouponDiscount {
   discountPercent?: number;
 }
 
+export interface CreateCheckoutSessionInput {
+  planId: string;
+  term: 'month' | 'quarter' | 'year';
+  quantity?: number;
+  couponCode?: string;
+  returnPath: string;
+  provider?: string;
+}
+
 export interface CheckoutSession {
   orderId: string;
   checkoutUrl: string;

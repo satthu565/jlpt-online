@@ -92,18 +92,23 @@ Task A03 hoàn thiện toàn bộ giao diện học viên (Web Frontend) cho cá
    - Trang `/su-kien` hiển thị rõ thông báo cấm vận kết quả thi trước mốc `resultReleaseAt`.
    - Trang `/thao-luan` khóa quyền xem và gửi bình luận đối với câu hỏi chưa hoàn thành (`!isCompleted`), ngăn chặn học viên xem lời giải trước khi làm bài.
 
+4. **Khắc phục lỗi Reviewer W4 chỉ ra trong phiên A03-4:**
+   - **[P0] Định dạng tiền tệ VND zero-decimal:** Đơn vị VND không có phần thập phân (zero-decimal). Các thành phần `PricingTable`, `CheckoutCard`, `CouponInput`, và `TransactionHistoryCard` đã được sửa để không chia 100 khi đơn vị tiền tệ là VND (`priceMinor.toLocaleString('vi-VN')₫`). Đồng bộ giá trị trong `SAMPLE_PLANS` và `mockPlans`/`mockTransactions` trong test fixture về chuẩn backend (199000 VND thay vì 19900000).
+   - **[P1] Tuân thủ hợp đồng PaymentCreateSchema:** Cập nhật `BillingClient.createCheckoutSession` nhận đầy đủ và bắt buộc các trường `planId`, `term` ('month' | 'quarter' | 'year'), `returnPath` và `couponCode`. Trang `/goi-thanh-vien` suy luận `term` từ chu kỳ gói (`month` | `quarter` | `year`) và truyền đúng URL `returnPath`, loại bỏ hoàn toàn mock fallback che giấu lỗi.
+   - **[P1] Khớp route API xuất dữ liệu & xóa tài khoản:** Sửa đường dẫn gọi API trong `apps/web/app/(account)/tai-khoan/page.tsx` từ `/data-exports` và `/deletion-request` thành `/me/data-exports` và `/me/deletion-request`, khớp hoàn toàn với `UserController` (@Controller('me')) và OpenAPI contract.
+
 ---
 
 ## 4. Kết quả kiểm thử và cổng chất lượng
 
 Mọi kiểm tra của task và các cổng chung của dự án đều vượt qua 100%:
 - `pnpm test:e2e:advanced`: 16/16 tests PASS.
-- `pnpm test:e2e:checkout`: 7/7 tests PASS.
+- `pnpm test:e2e:checkout`: 8/8 tests PASS (bổ sung test contract PaymentCreateSchema).
 - `pnpm test:a11y`: 26/26 tests PASS (13 @jlpt/ui + 13 @jlpt/web).
-- `pnpm test:web`: 12/12 test files, 150/150 tests PASS.
+- `pnpm test:web`: 12/12 test files, 151/151 tests PASS.
 - `pnpm test:i18n`: 8/8 tests PASS (vi, ja, en đồng bộ 100%, NFC verified).
 - `pnpm install --frozen-lockfile`: PASS (clean lockfile).
 - `pnpm lint`: PASS (13/13 packages, 0 error, 0 warning).
 - `pnpm typecheck`: PASS (19/19 packages, 0 error).
-- `pnpm test`: PASS (19/19 packages, 390/390 tests in api, full monorepo pass).
+- `pnpm test`: PASS (19/19 packages, full monorepo pass).
 - `pnpm build`: PASS (12/12 packages built successfully, all static/dynamic routes generated).

@@ -57,7 +57,7 @@ export function CouponInput({
             🏷️ {appliedCoupon.code}
           </span>
           <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>
-            ({t('billing.coupon.appliedDiscount', { amount: `${(appliedCoupon.discountMinor / 100).toLocaleString('vi-VN')}₫` })})
+            ({t('billing.coupon.appliedDiscount', { amount: `${appliedCoupon.discountMinor.toLocaleString('vi-VN')}₫` })})
           </span>
         </div>
         <Button

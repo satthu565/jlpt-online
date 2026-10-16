@@ -20,17 +20,21 @@ export function PricingTable({
 
   const formatPrice = (priceMinor: number, currency: string) => {
     if (priceMinor === 0) return t('billing.pricing.free');
-    const amount = priceMinor / 100;
     if (currency === 'VND') {
-      return `${amount.toLocaleString('vi-VN')}₫`;
+      return `${priceMinor.toLocaleString('vi-VN')}₫`;
     }
+    const amount = priceMinor / 100;
     return `${amount.toLocaleString()} ${currency}`;
   };
 
   const getPlanIntervalLabel = (interval: string) => {
     switch (interval) {
+      case 'month':
       case 'monthly':
         return t('billing.pricing.monthly');
+      case 'quarter':
+        return t('billing.pricing.quarterly');
+      case 'year':
       case 'yearly':
         return t('billing.pricing.yearly');
       case 'lifetime':
@@ -51,7 +55,7 @@ export function PricingTable({
     >
       {plans.map((plan) => {
         const isSelected = selectedPlanId === plan.id;
-        const isPopular = plan.interval === 'yearly';
+        const isPopular = plan.interval === 'yearly' || plan.interval === 'year';
 
         return (
           <Card

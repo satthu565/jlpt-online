@@ -24,8 +24,10 @@ export function CheckoutCard({
   const [error, setError] = useState<string | null>(null);
   const [createdSession, setCreatedSession] = useState<CheckoutSession | null>(null);
 
-  const originalPrice = plan.priceMinor / 100;
-  const discount = appliedCoupon ? appliedCoupon.discountMinor / 100 : 0;
+  const originalPrice = plan.currency === 'VND' ? plan.priceMinor : plan.priceMinor / 100;
+  const discount = appliedCoupon
+    ? (plan.currency === 'VND' ? appliedCoupon.discountMinor : appliedCoupon.discountMinor / 100)
+    : 0;
   const finalPrice = Math.max(0, originalPrice - discount);
 
   const handleCheckout = async () => {

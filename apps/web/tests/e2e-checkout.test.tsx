@@ -8,6 +8,7 @@ import { CouponInput } from '../features/billing/components/coupon-input';
 import { CheckoutCard } from '../features/billing/components/checkout-card';
 import { SubscriptionStatusCard } from '../features/billing/components/subscription-status-card';
 import { TransactionHistoryCard } from '../features/billing/components/transaction-history-card';
+import { BillingClient } from '../features/billing/services/billing-client';
 import type {
   Plan,
   UserSubscription,
@@ -28,7 +29,7 @@ describe('E2E Checkout Suite: Pricing, Coupons, Subscriptions & Refund Status (A
       id: 'plan-monthly',
       name: 'Gói Tháng',
       interval: 'monthly',
-      priceMinor: 19900000,
+      priceMinor: 199000,
       currency: 'VND',
       entitlements: ['all_exams', 'unlimited_mix'],
     },
@@ -36,7 +37,7 @@ describe('E2E Checkout Suite: Pricing, Coupons, Subscriptions & Refund Status (A
       id: 'plan-yearly',
       name: 'Gói Năm',
       interval: 'yearly',
-      priceMinor: 99900000,
+      priceMinor: 999000,
       currency: 'VND',
       entitlements: ['all_exams', 'unlimited_mix', 'ai_explanations'],
     },
@@ -44,7 +45,7 @@ describe('E2E Checkout Suite: Pricing, Coupons, Subscriptions & Refund Status (A
       id: 'plan-lifetime',
       name: 'Gói Trọn Đời',
       interval: 'lifetime',
-      priceMinor: 199900000,
+      priceMinor: 1999000,
       currency: 'VND',
       entitlements: ['all_exams', 'unlimited_mix', 'ai_explanations', 'srs_sync'],
     },
@@ -105,7 +106,7 @@ describe('E2E Checkout Suite: Pricing, Coupons, Subscriptions & Refund Status (A
           onRemoveCoupon={() => {}}
           appliedCoupon={{
             code: 'JLPT2026',
-            discountMinor: 20000000,
+            discountMinor: 200000,
             discountPercent: 20,
           }}
         />,
@@ -192,7 +193,7 @@ describe('E2E Checkout Suite: Pricing, Coupons, Subscriptions & Refund Status (A
     const mockTransactions: TransactionItem[] = [
       {
         orderId: 'ord-1001',
-        amountMinor: 99900000,
+        amountMinor: 999000,
         currency: 'VND',
         status: 'paid',
         createdAt: '2026-10-01T10:00:00.000Z',
@@ -200,7 +201,7 @@ describe('E2E Checkout Suite: Pricing, Coupons, Subscriptions & Refund Status (A
       },
       {
         orderId: 'ord-1002',
-        amountMinor: 19900000,
+        amountMinor: 199000,
         currency: 'VND',
         status: 'refunded',
         refundStatus: 'refunded',
@@ -209,7 +210,7 @@ describe('E2E Checkout Suite: Pricing, Coupons, Subscriptions & Refund Status (A
       },
       {
         orderId: 'ord-1003',
-        amountMinor: 19900000,
+        amountMinor: 199000,
         currency: 'VND',
         status: 'paid',
         refundStatus: 'requested',
@@ -239,6 +240,49 @@ describe('E2E Checkout Suite: Pricing, Coupons, Subscriptions & Refund Status (A
 
       // Requested transaction shows pending refund status badge
       expect(html).toContain('data-testid="tx-refund-status-ord-1003"');
+    });
+  });
+
+  // =========================================================================
+  // 6. BillingClient & PaymentCreateSchema Contract Compliance
+  // =========================================================================
+
+  describe('BillingClient & PaymentCreateSchema Contract Compliance', () => {
+    it('sends planId, term, returnPath and couponCode conforming to backend PaymentCreateSchema', async () => {
+      let capturedPayload: unknown = null;
+      const mockFetch: typeof fetch = async (_url, init) => {
+        capturedPayload = JSON.parse(init?.body as string);
+        return {
+          ok: true,
+          status: 200,
+          text: async () =>
+            JSON.stringify({
+              orderId: 'ord-test-123',
+              checkoutUrl: 'https://pay.payos.vn/test',
+              amountMinor: 199000,
+              currency: 'VND',
+            }),
+        } as unknown as Response;
+      };
+
+      const client = new BillingClient({ fetchFn: mockFetch });
+      const session = await client.createCheckoutSession({
+        planId: 'premium_month',
+        term: 'month',
+        quantity: 1,
+        couponCode: 'JLPT2026',
+        returnPath: '/goi-thanh-vien?checkout=completed',
+      });
+
+      expect(session.orderId).toBe('ord-test-123');
+      expect(session.amountMinor).toBe(199000);
+      expect(capturedPayload).toEqual({
+        planId: 'premium_month',
+        term: 'month',
+        quantity: 1,
+        couponCode: 'JLPT2026',
+        returnPath: '/goi-thanh-vien?checkout=completed',
+      });
     });
   });
 });

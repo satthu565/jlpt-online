@@ -542,7 +542,7 @@ export default function AccountPage(): React.JSX.Element {
         <div id="privacy-panel" role="tabpanel" aria-labelledby="privacy-tab">
           <PrivacySettings
             onExportData={async () => {
-              const url = `${(process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '')}/data-exports`;
+              const url = `${(process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '')}/me/data-exports`;
               const token = client.getAuthToken();
               const res = await fetch(url, {
                 method: 'POST',
@@ -555,7 +555,7 @@ export default function AccountPage(): React.JSX.Element {
               return res.json();
             }}
             onRequestDeletion={async () => {
-              const url = `${(process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '')}/deletion-request`;
+              const url = `${(process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '')}/me/deletion-request`;
               const token = client.getAuthToken();
               const res = await fetch(url, {
                 method: 'POST',

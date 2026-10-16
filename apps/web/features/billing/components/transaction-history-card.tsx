@@ -168,7 +168,9 @@ export function TransactionHistoryCard({
                         {new Date(tx.createdAt).toLocaleDateString()}
                       </td>
                       <td style={{ padding: '0.75rem', fontWeight: 600 }}>
-                        {(tx.amountMinor / 100).toLocaleString('vi-VN')}₫
+                        {tx.currency === 'VND'
+                          ? `${tx.amountMinor.toLocaleString('vi-VN')}₫`
+                          : `${(tx.amountMinor / 100).toLocaleString()} ${tx.currency}`}
                       </td>
                       <td style={{ padding: '0.75rem' }}>
                         {getOrderStatusBadge(tx)}
@@ -205,7 +207,9 @@ export function TransactionHistoryCard({
               <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9375rem' }}>
                 {t('billing.refund.modalDescription', {
                   orderId: activeTransactionForRefund.orderId,
-                  amount: `${(activeTransactionForRefund.amountMinor / 100).toLocaleString('vi-VN')}₫`,
+                  amount: activeTransactionForRefund.currency === 'VND'
+                    ? `${activeTransactionForRefund.amountMinor.toLocaleString('vi-VN')}₫`
+                    : `${(activeTransactionForRefund.amountMinor / 100).toLocaleString()} ${activeTransactionForRefund.currency}`,
                 })}
               </p>
 

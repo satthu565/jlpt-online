@@ -71,7 +71,10 @@ export class BillingClient {
 
   public async createCheckoutSession(data: {
     planId: string;
+    term: 'month' | 'quarter' | 'year';
+    quantity?: number;
     couponCode?: string;
+    returnPath: string;
     provider?: string;
   }): Promise<CheckoutSession> {
     return this.request<CheckoutSession>('POST', '/checkout-sessions', data);
