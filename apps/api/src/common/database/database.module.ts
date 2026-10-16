@@ -1,6 +1,7 @@
 import { Global, Module, OnModuleDestroy, Provider } from '@nestjs/common';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
+import { ensureAttemptEventsPartitions } from '../../db/partitions.js';
 
 export const DB_CLIENT = 'DB_CLIENT';
 
@@ -10,6 +11,7 @@ export async function getOrCreateDbClient(): Promise<DbClientInstance> {
   if (!cachedClient) {
     cachedClient = await createDbClient();
     await runMigrations(cachedClient);
+    await ensureAttemptEventsPartitions(cachedClient);
   }
   return cachedClient;
 }

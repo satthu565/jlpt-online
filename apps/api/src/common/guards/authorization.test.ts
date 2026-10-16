@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
+import { Controller, Get, Post, UseGuards } from '@nestjs/common';
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { NestFactory } from '@nestjs/core';
@@ -10,6 +11,11 @@ import { Roles } from '../decorators/roles.decorator.js';
 import { RolesGuard } from './roles.guard.js';
 import { AuthGuard } from './auth.guard.js';
 import { TenantGuard } from './tenant.guard.js';
+import { OriginGuard } from './origin.guard.js';
+import { TotpGuard } from './totp.guard.js';
+import { RateLimitGuard } from './rate-limit.guard.js';
+import { RateLimit } from '../decorators/rate-limit.decorator.js';
+import { RequireTotp } from '../decorators/require-totp.decorator.js';
 import { ApiExceptionFilter } from '../filters/api-exception.filter.js';
 import { PiiMaskingInterceptor } from '../interceptors/pii-masking.interceptor.js';
 import { maskPii, maskPiiString, maskEmail } from '../utils/pii.js';
@@ -17,6 +23,10 @@ import { DatabaseModule, getOrCreateDbClient } from '../database/database.module
 import { EmailModule } from '../../modules/email/email.module.js';
 import { AuthModule } from '../../modules/auth/auth.module.js';
 import { AuthService } from '../../modules/auth/auth.service.js';
+import { AuditModule } from '../../modules/audit/audit.module.js';
+import { AdminModule } from '../../modules/admin/admin.module.js';
+import { AuditService } from '../../modules/audit/audit.service.js';
+import { generateTotp } from '../utils/totp.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../utils/uuid.js';
 
@@ -49,6 +59,17 @@ class RbacTestController {
   tenantScoped() {
     return { ok: true, access: 'tenant' };
   }
+
+  @Post('state-change')
+  stateChange() {
+    return { ok: true, mutated: true };
+  }
+
+  @Get('limited-endpoint')
+  @RateLimit({ limit: 2, windowSec: 60, keyPrefix: 'test-limit' })
+  limitedEndpoint() {
+    return { ok: true };
+  }
 }
 
 @Controller('admin/test')
@@ -58,15 +79,25 @@ class AdminHostTestController {
   adminDashboard() {
     return { ok: true, access: 'admin_dashboard' };
   }
+
+  @Post('sensitive-action')
+  @Roles('admin')
+  @RequireTotp()
+  sensitiveAction() {
+    return { ok: true, action: 'sensitive_completed' };
+  }
 }
 
 @Module({
-  imports: [DatabaseModule, EmailModule, AuthModule],
+  imports: [DatabaseModule, EmailModule, AuthModule, AuditModule, AdminModule],
   controllers: [RbacTestController, AdminHostTestController],
   providers: [
+    { provide: APP_GUARD, useClass: OriginGuard },
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_GUARD, useClass: TotpGuard },
     { provide: APP_GUARD, useClass: TenantGuard },
+    { provide: APP_GUARD, useClass: RateLimitGuard },
     { provide: APP_FILTER, useClass: ApiExceptionFilter },
     { provide: APP_INTERCEPTOR, useClass: PiiMaskingInterceptor },
   ],
@@ -136,7 +167,7 @@ describe('F03 Authorization and PII Protection (SYS-06, SYS-07)', () => {
     app = await NestFactory.create<NestFastifyApplication>(
       TestAppModule,
       new FastifyAdapter(),
-      { logger: false },
+      { logger: ['error', 'warn'] },
     );
     app.setGlobalPrefix('api/v1');
     await app.init();
@@ -401,4 +432,176 @@ describe('F03 Authorization and PII Protection (SYS-06, SYS-07)', () => {
       expect(masked.nested.normalField).toBe('clean_data');
     });
   });
+
+  describe('Acceptance 4: TOTP Origin CSRF rate-limit audit có negative tests', () => {
+    const testTotpSecret = 'JBSWY3DPEHPK3PXP';
+
+    describe('TOTP 2FA Verification (Negative & Positive)', () => {
+      it('Negative: Admin endpoint yêu cầu TOTP từ chối khi không có mã TOTP (TWO_FACTOR_REQUIRED)', async () => {
+        const res = await app.inject({
+          method: 'POST',
+          url: '/api/v1/admin/test/sensitive-action',
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+            host: 'admin.jlpt.local',
+          },
+        });
+
+        expect(res.statusCode).toBe(403);
+        const body = JSON.parse(res.payload);
+        expect(body.error.code).toBe('TWO_FACTOR_REQUIRED');
+      });
+
+      it('Negative: Admin endpoint từ chối khi mã TOTP không hợp lệ (TWO_FACTOR_REQUIRED)', async () => {
+        const res = await app.inject({
+          method: 'POST',
+          url: '/api/v1/admin/test/sensitive-action',
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+            host: 'admin.jlpt.local',
+            'x-totp-code': '000000', // Invalid code
+          },
+        });
+
+        expect(res.statusCode).toBe(403);
+        const body = JSON.parse(res.payload);
+        expect(body.error.code).toBe('TWO_FACTOR_REQUIRED');
+      });
+
+      it('Positive: Admin endpoint chấp nhận khi gửi đúng mã TOTP chuẩn RFC 6238', async () => {
+        const validCode = generateTotp(testTotpSecret);
+
+        const res = await app.inject({
+          method: 'POST',
+          url: '/api/v1/admin/test/sensitive-action',
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+            host: 'admin.jlpt.local',
+            'x-totp-code': validCode,
+          },
+        });
+
+        expect(res.statusCode).toBe(201);
+        const body = JSON.parse(res.payload);
+        expect(body.action).toBe('sensitive_completed');
+      });
+    });
+
+    describe('Origin & CSRF Protection (Negative & Positive)', () => {
+      it('Negative: Request ghi bị từ chối 403 khi Origin không thuộc danh sách cho phép (CSRF attempt)', async () => {
+        const res = await app.inject({
+          method: 'POST',
+          url: '/api/v1/test-rbac/state-change',
+          headers: {
+            authorization: `Bearer ${studentToken}`,
+            origin: 'https://malicious-attacker.evil.com',
+          },
+        });
+
+        expect(res.statusCode).toBe(403);
+        const body = JSON.parse(res.payload);
+        expect(body.error.code).toBe('FORBIDDEN');
+        expect(body.error.message).toContain('Origin');
+      });
+
+      it('Positive: Request ghi thành công khi Origin khớp host máy chủ', async () => {
+        const res = await app.inject({
+          method: 'POST',
+          url: '/api/v1/test-rbac/state-change',
+          headers: {
+            authorization: `Bearer ${studentToken}`,
+            origin: 'http://localhost:3000',
+            host: 'localhost:3000',
+          },
+        });
+
+        expect(res.statusCode).toBe(201);
+        const body = JSON.parse(res.payload);
+        expect(body.mutated).toBe(true);
+      });
+    });
+
+    describe('Rate Limiting (SYS-12, Negative)', () => {
+      it('Negative: Vượt quá giới hạn gọi liên tiếp bị chặn 429 RATE_LIMITED', async () => {
+        // First 2 requests within limit
+        const res1 = await app.inject({
+          method: 'GET',
+          url: '/api/v1/test-rbac/limited-endpoint',
+          headers: { authorization: `Bearer ${studentToken}` },
+        });
+        expect(res1.statusCode).toBe(200);
+
+        const res2 = await app.inject({
+          method: 'GET',
+          url: '/api/v1/test-rbac/limited-endpoint',
+          headers: { authorization: `Bearer ${studentToken}` },
+        });
+        expect(res2.statusCode).toBe(200);
+
+        // 3rd request exceeds limit of 2
+        const res3 = await app.inject({
+          method: 'GET',
+          url: '/api/v1/test-rbac/limited-endpoint',
+          headers: { authorization: `Bearer ${studentToken}` },
+        });
+        expect(res3.statusCode).toBe(429);
+        const body = JSON.parse(res3.payload);
+        expect(body.error.code).toBe('RATE_LIMITED');
+      });
+    });
+
+    describe('Audit Logs (ADM-14, Negative & Positive)', () => {
+      it('Negative: Học viên thường bị từ chối 403 khi cố xem nhật ký thao tác quản trị', async () => {
+        const res = await app.inject({
+          method: 'GET',
+          url: '/api/v1/admin/audit-logs',
+          headers: {
+            authorization: `Bearer ${studentToken}`,
+            host: 'admin.jlpt.local',
+          },
+        });
+
+        expect(res.statusCode).toBe(403);
+        const body = JSON.parse(res.payload);
+        expect(body.error.code).toBe('FORBIDDEN');
+      });
+
+      it('Positive: Admin có thể xem nhật ký audit và các thao tác đã ghi nhận', async () => {
+        // Record an audit action first
+        const auditService = app.get(AuditService);
+        const client = await getOrCreateDbClient();
+        const [adminUser] = await client.db
+          .select()
+          .from(schema.users)
+          .where(eq(schema.users.role, 'admin'))
+          .limit(1);
+
+        await auditService.recordAction({
+          operatorId: adminUser!.id,
+          action: 'EXAM_PUBLISH',
+          targetResource: 'exam:0192f000-0000-7000-8000-000000000001',
+          details: { version: 1, note: 'Approved release' },
+        });
+
+        const validCode = generateTotp(testTotpSecret);
+
+        const res = await app.inject({
+          method: 'GET',
+          url: '/api/v1/admin/audit-logs',
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+            host: 'admin.jlpt.local',
+            'x-totp-code': validCode,
+          },
+        });
+
+        expect(res.statusCode).toBe(200);
+        const body = JSON.parse(res.payload);
+        expect(body.items).toBeDefined();
+        expect(Array.isArray(body.items)).toBe(true);
+        expect(body.items.some((i: { action?: string }) => i.action === 'EXAM_PUBLISH')).toBe(true);
+      });
+    });
+  });
 });
+
