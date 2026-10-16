@@ -158,12 +158,45 @@ export class UserService {
       });
     }
 
+    const trimmed = avatarUrl.trim();
+    if (
+      trimmed.includes('..') ||
+      trimmed.includes('\0') ||
+      trimmed.includes('\\') ||
+      /^(javascript|data|vbscript|file):/i.test(trimmed)
+    ) {
+      throw new BadRequestException({
+        code: 'VALIDATION_ERROR',
+        message: 'Đường dẫn ảnh đại diện không an toàn (unsafe avatar path).',
+      });
+    }
+
+    try {
+      const decoded = decodeURIComponent(trimmed);
+      if (
+        decoded.includes('..') ||
+        decoded.includes('\0') ||
+        decoded.includes('\\') ||
+        /^(javascript|data|vbscript|file):/i.test(decoded)
+      ) {
+        throw new BadRequestException({
+          code: 'VALIDATION_ERROR',
+          message: 'Đường dẫn ảnh đại diện không an toàn (unsafe avatar path).',
+        });
+      }
+    } catch {
+      throw new BadRequestException({
+        code: 'VALIDATION_ERROR',
+        message: 'Đường dẫn ảnh đại diện không hợp lệ.',
+      });
+    }
+
     await this.client.db
       .update(schema.users)
-      .set({ image: avatarUrl, updatedAt: new Date() })
+      .set({ image: trimmed, updatedAt: new Date() })
       .where(eq(schema.users.id, userId));
 
-    return { avatarUrl };
+    return { avatarUrl: trimmed };
   }
 
   /**
