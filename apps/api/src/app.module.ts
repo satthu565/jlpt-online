@@ -24,6 +24,7 @@ import { AdminModule } from './modules/admin/admin.module.js';
 import { ExamModule } from './modules/exam/exam.module.js';
 import { OriginGuard } from './common/guards/origin.guard.js';
 import { TotpGuard } from './common/guards/totp.guard.js';
+import { RateLimitGuard } from './common/guards/rate-limit.guard.js';
 
 @Module({
   imports: [

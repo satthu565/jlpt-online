@@ -24,14 +24,14 @@ export class ScoringService {
   /**
    * Loads or fetches cached exam answer key and scoring configuration.
    */
-  async getExamScoringData(examId: string, version: number): Promise<CachedExamScoringData> {
+  async getExamScoringData(examId: string, version: number, tx?: any): Promise<CachedExamScoringData> {
     const cacheKey = `${examId}:v${version}`;
     const cached = this.cache.get(cacheKey);
     if (cached) {
       return cached;
     }
 
-    const db = this.dbClient.db;
+    const db = tx || this.dbClient.db;
 
     // Fetch exam version for scoring config
     const [ev] = await db
@@ -101,8 +101,9 @@ export class ScoringService {
     version: number,
     answers: number[],
     options?: StandardExamResultOptions,
+    tx?: any,
   ): Promise<Result> {
-    const { answerKey, scoring } = await this.getExamScoringData(examId, version);
+    const { answerKey, scoring } = await this.getExamScoringData(examId, version, tx);
 
     const result = calculateStandardExamResult(answers, answerKey, scoring, options);
 

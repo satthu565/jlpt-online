@@ -113,6 +113,23 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
       expiresAt: new Date(Date.now() + 86400000),
     });
 
+    // 3b. Create Dedicated Resume Student
+    const resumeUserId = generateUuidV7();
+    const resumeUserToken = 'tok_resume_' + Date.now();
+    await client.db.insert(schema.users).values({
+      id: resumeUserId,
+      email: `resume_${Date.now()}@example.com`,
+      role: 'student',
+      emailVerified: true,
+    });
+    await client.db.insert(schema.sessions).values({
+      id: generateUuidV7(),
+      userId: resumeUserId,
+      token: resumeUserToken,
+      expiresAt: new Date(Date.now() + 86400000),
+    });
+    (globalThis as any).__resumeUserToken = resumeUserToken;
+
     // 4. Create Blueprint for testing
     const blueprintId = generateUuidV7();
     await client.db.insert(schema.blueprints).values({
@@ -277,7 +294,7 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
     app.setGlobalPrefix('api/v1');
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
-  });
+  }, 30000);
 
   afterAll(async () => {
     await app.close();
@@ -539,7 +556,9 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
         .select()
         .from(schema.attemptEvents)
         .where(eq(schema.attemptEvents.attemptId, attemptId));
-      const answerSeqs = events.filter((e) => e.type === 'answers').map((e) => e.seq);
+      const answerSeqs = events
+        .filter((e: typeof schema.attemptEvents.$inferSelect) => e.type === 'answers')
+        .map((e: typeof schema.attemptEvents.$inferSelect) => e.seq);
       expect(answerSeqs).toContain(1);
       expect(answerSeqs).toContain(2);
     });
@@ -620,7 +639,9 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
         .select()
         .from(schema.outbox)
         .where(eq(schema.outbox.topic, 'attempt.submitted'));
-      const forThisAttempt = outboxEvents.filter((e) => (e.payload as any).aggregateId === attemptId);
+      const forThisAttempt = outboxEvents.filter(
+        (e: typeof schema.outbox.$inferSelect) => (e.payload as Record<string, unknown>)?.['aggregateId'] === attemptId,
+      );
       expect(forThisAttempt.length).toBe(1);
     });
   });
@@ -708,20 +729,22 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
 
   describe('Resume and Lease Invalidation (EXAM-18, SYS-05)', () => {
     it('Vào lại bài thi (resume) cấp lease mới và vô hiệu hóa lease cũ', async () => {
+      const resumeToken = (globalThis as any).__resumeUserToken;
       // Create attempt
       const createRes = await app.inject({
         method: 'POST',
         url: '/api/v1/attempts',
-        headers: { authorization: `Bearer ${otherUserToken}`, 'content-type': 'application/json' },
+        headers: { authorization: `Bearer ${resumeToken}`, 'content-type': 'application/json' },
         payload: { examId: guestTrialExamId, mode: 'practice' },
       });
+      expect(createRes.statusCode).toBe(201);
       const { attemptId, lease: oldLease } = JSON.parse(createRes.payload);
 
       // Call resume
       const resumeRes = await app.inject({
         method: 'POST',
         url: `/api/v1/attempts/${attemptId}/resume`,
-        headers: { authorization: `Bearer ${otherUserToken}` },
+        headers: { authorization: `Bearer ${resumeToken}` },
       });
 
       expect(resumeRes.statusCode).toBe(200);
@@ -734,7 +757,7 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
       const oldLeaseRes = await app.inject({
         method: 'PUT',
         url: `/api/v1/attempts/${attemptId}/sheet`,
-        headers: { authorization: `Bearer ${otherUserToken}`, 'content-type': 'application/json' },
+        headers: { authorization: `Bearer ${resumeToken}`, 'content-type': 'application/json' },
         payload: {
           lease: oldLease,
           seq: 1,
@@ -752,7 +775,7 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
       const newLeaseRes = await app.inject({
         method: 'PUT',
         url: `/api/v1/attempts/${attemptId}/sheet`,
-        headers: { authorization: `Bearer ${otherUserToken}`, 'content-type': 'application/json' },
+        headers: { authorization: `Bearer ${resumeToken}`, 'content-type': 'application/json' },
         payload: {
           lease: newLease,
           seq: 1,

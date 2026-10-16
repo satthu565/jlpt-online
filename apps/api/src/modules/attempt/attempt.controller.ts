@@ -11,6 +11,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { AllowGuest } from '../../common/decorators/allow-guest.decorator.js';
 import { CurrentUser, CurrentGuestId } from '../../common/decorators/current-user.decorator.js';
@@ -54,6 +55,7 @@ export class AttemptController {
   }
 
   @Post('attempts/:id/sections/next')
+  @HttpCode(HttpStatus.OK)
   @AllowGuest()
   async nextSection(
     @Param('id') id: string,
@@ -66,6 +68,7 @@ export class AttemptController {
   }
 
   @Put('attempts/:id/sheet')
+  @HttpCode(HttpStatus.OK)
   @AllowGuest()
   async updateSheet(
     @Param('id') id: string,
@@ -73,11 +76,24 @@ export class AttemptController {
     @CurrentUser() user?: AuthUserContext,
     @CurrentGuestId() guestId?: string,
   ) {
-    const input = AnswerSheetUpdateInputSchema.parse(body);
-    return this.attemptService.updateSheet(id, input, user, guestId);
+    const parseResult = AnswerSheetUpdateInputSchema.safeParse(body);
+    if (!parseResult.success) {
+      const isOptionExceeded = parseResult.error.issues.some(
+        (issue) => issue.code === 'too_big' && (issue.path.includes('answers') || issue.path.includes('v')),
+      );
+      if (isOptionExceeded) {
+        throw new BadRequestException({
+          code: 'VALIDATION_ERROR',
+          message: 'Lựa chọn phương án vượt quá số phương án của câu hỏi.',
+        });
+      }
+      throw parseResult.error;
+    }
+    return this.attemptService.updateSheet(id, parseResult.data, user, guestId);
   }
 
   @Post('attempts/:id/submit')
+  @HttpCode(HttpStatus.OK)
   @AllowGuest()
   async submitAttempt(
     @Param('id') id: string,
@@ -90,6 +106,7 @@ export class AttemptController {
   }
 
   @Post('attempts/:id/resume')
+  @HttpCode(HttpStatus.OK)
   @AllowGuest()
   async resumeAttempt(
     @Param('id') id: string,
@@ -100,6 +117,7 @@ export class AttemptController {
   }
 
   @Post('attempts/:id/media-token')
+  @HttpCode(HttpStatus.OK)
   @AllowGuest()
   async getMediaToken(
     @Param('id') id: string,
@@ -130,6 +148,7 @@ export class AttemptController {
   }
 
   @Post('attempts/:id/check')
+  @HttpCode(HttpStatus.OK)
   @AllowGuest()
   async checkAnswer(
     @Param('id') id: string,
@@ -152,6 +171,7 @@ export class AttemptController {
   }
 
   @Post('auth/attach-guest')
+  @HttpCode(HttpStatus.OK)
   async attachGuest(
     @CurrentUser() user: AuthUserContext,
     @CurrentGuestId() cookieGuestId?: string,

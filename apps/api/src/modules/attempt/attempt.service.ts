@@ -44,7 +44,10 @@ import type {
   CheckAnswerResponse,
   AttemptSummary,
 } from '@jlpt/schema';
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
+
+type DbTx = Parameters<Parameters<PostgresJsDatabase<typeof schema>['transaction']>[0]>[0];
 
 @Injectable()
 export class AttemptService {
@@ -217,7 +220,8 @@ export class AttemptService {
       .where(eq(schema.examSections.examId, exam.id))
       .orderBy(schema.examSections.orderIndex);
 
-    const totalDurationSec = sections.reduce((acc, s) => acc + s.durationSec, 0) || 3600;
+    const totalDurationSec =
+      sections.reduce((acc: number, s: typeof schema.examSections.$inferSelect) => acc + s.durationSec, 0) || 3600;
 
     // 5. Generate Lease, Media Token, and Snapshot URL
     const attemptId = generateUuidV7();
@@ -244,7 +248,7 @@ export class AttemptService {
     const attemptMonth = `${now.getUTCFullYear()}-${monthPad}-01`;
 
     // 6. Insert attempt and initial answer sheet in a transaction
-    await db.transaction(async (tx) => {
+    await db.transaction(async (tx: DbTx) => {
       await tx.insert(schema.examAttempts).values({
         id: attemptId,
         userId: effectiveUserId,
@@ -359,7 +363,7 @@ export class AttemptService {
     ];
 
     // Transactionally update section and log event
-    await db.transaction(async (tx) => {
+    await db.transaction(async (tx: DbTx) => {
       await tx
         .update(schema.examAttempts)
         .set({
@@ -476,7 +480,7 @@ export class AttemptService {
     // 5. In DB Transaction:
     // - Insert changes into attempt_events (ON CONFLICT DO NOTHING for idempotent retries)
     // - Update sheet only if input.seq > sheet.lastSeq (out-of-order seq2 before seq1 handled correctly)
-    await db.transaction(async (tx) => {
+    await db.transaction(async (tx: DbTx) => {
       // Record answer event
       await tx
         .insert(schema.attemptEvents)
@@ -545,29 +549,17 @@ export class AttemptService {
       });
     }
 
-    // Save final answers if seq is higher
-    const [sheet] = await db
-      .select()
-      .from(schema.attemptAnswerSheets)
-      .where(eq(schema.attemptAnswerSheets.attemptId, attemptId));
-
-    if (sheet && input.seq > sheet.lastSeq) {
-      await db
-        .update(schema.attemptAnswerSheets)
-        .set({
-          answers: input.answers,
-          flags: input.flags,
-          timeSpentMs: input.timeSpentMs ?? sheet.timeSpentMs,
-          lastSeq: input.seq,
-          updatedAt: new Date(),
-        })
-        .where(eq(schema.attemptAnswerSheets.attemptId, attemptId));
-    }
-
     // Use atomic lock and score to ensure race condition with auto-submit job yields identical result
     await this.outboxService.lockAndScoreAttempt(
       attemptId,
       user ? 'user' : 'auto_client',
+      [],
+      {
+        seq: input.seq,
+        answers: input.answers,
+        flags: input.flags,
+        timeSpentMs: input.timeSpentMs,
+      },
     );
 
     // Fetch updated attempt result
@@ -601,7 +593,8 @@ export class AttemptService {
       .from(schema.examSections)
       .where(eq(schema.examSections.examId, attempt.examId))
       .orderBy(schema.examSections.orderIndex);
-    const totalDurationSec = sections.reduce((acc, s) => acc + s.durationSec, 0) || 3600;
+    const totalDurationSec =
+      sections.reduce((acc: number, s: typeof schema.examSections.$inferSelect) => acc + s.durationSec, 0) || 3600;
 
     const mediaTokenExp = generateAttemptTokenExp(totalDurationSec, Math.floor(now.getTime() / 1000));
     const mediaToken = await signMediaToken(
@@ -623,7 +616,7 @@ export class AttemptService {
     );
 
     // Update lease and log event
-    await db.transaction(async (tx) => {
+    await db.transaction(async (tx: DbTx) => {
       await tx
         .update(schema.examAttempts)
         .set({
@@ -852,8 +845,9 @@ export class AttemptService {
     const returnItems = hasNext ? items.slice(0, limit) : items;
     const nextCursor = hasNext && returnItems.length > 0 ? returnItems[returnItems.length - 1]!.id : null;
 
-    const formatted: AttemptSummary[] = returnItems.map((a) => {
-      const res = a.result as any;
+    const formatted: AttemptSummary[] = returnItems.map((a: typeof schema.examAttempts.$inferSelect) => {
+      const res = a.result as Record<string, unknown> | null;
+      const scoring = res?.['scoring'] as Record<string, unknown> | undefined;
       return {
         id: a.id,
         examId: a.examId,
@@ -862,8 +856,8 @@ export class AttemptService {
         status: a.status as any,
         startedAt: a.startedAt.toISOString(),
         submittedAt: a.submittedAt ? a.submittedAt.toISOString() : null,
-        score: res?.scoring?.total ?? null,
-        passed: res?.scoring?.passEstimate ?? null,
+        score: (scoring?.['total'] as number | undefined) ?? null,
+        passed: (scoring?.['passEstimate'] as boolean | undefined) ?? null,
       };
     });
 

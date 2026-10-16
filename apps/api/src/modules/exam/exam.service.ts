@@ -188,13 +188,13 @@ export class ExamService {
       .from(schema.examAttempts)
       .where(eq(schema.examAttempts.userId, userId));
 
-    const items = allExams.map((exam) => {
-      const attempts = userAttempts.filter((a) => a.examId === exam.id);
+    const items = allExams.map((exam: typeof schema.exams.$inferSelect) => {
+      const attempts = userAttempts.filter((a: { examId: string; status: string }) => a.examId === exam.id);
       let status: 'not_started' | 'in_progress' | 'completed' = 'not_started';
 
-      if (attempts.some((a) => a.status === 'submitted')) {
+      if (attempts.some((a: { status: string }) => a.status === 'submitted')) {
         status = 'completed';
-      } else if (attempts.some((a) => a.status === 'in_progress')) {
+      } else if (attempts.some((a: { status: string }) => a.status === 'in_progress')) {
         status = 'in_progress';
       }
 

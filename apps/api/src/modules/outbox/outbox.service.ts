@@ -137,6 +137,30 @@ export class OutboxService {
     return closedCount;
   }
 
+  private readonly attemptLocks = new Map<string, Promise<unknown>>();
+
+  private async withAttemptLock<T>(attemptId: string, fn: () => Promise<T>): Promise<T> {
+    while (this.attemptLocks.has(attemptId)) {
+      try {
+        await this.attemptLocks.get(attemptId);
+      } catch {
+        // ignore error and proceed
+      }
+    }
+    let resolveLock!: () => void;
+    const lockPromise = new Promise<void>((resolve) => {
+      resolveLock = resolve;
+    });
+    this.attemptLocks.set(attemptId, lockPromise);
+
+    try {
+      return await fn();
+    } finally {
+      this.attemptLocks.delete(attemptId);
+      resolveLock();
+    }
+  }
+
   /**
    * Shared atomic lock and score function used by both user submit and background closing jobs (EXAM-20, Acceptance 1).
    * Guarantees no race condition or double scoring.
@@ -145,84 +169,102 @@ export class OutboxService {
     attemptId: string,
     submittedBy: 'user' | 'auto_client' | 'system',
     additionalFlags: ('late_sync' | 'interrupted')[] = [],
+    finalSheet?: { seq: number; answers: number[]; flags: number[]; timeSpentMs?: number[] },
   ): Promise<boolean> {
-    const db = this.dbClient.db;
+    return this.withAttemptLock(attemptId, async () => {
+      const db = this.dbClient.db;
 
-    return await db.transaction(async (tx) => {
-      // 1. SELECT ... FOR UPDATE to lock attempt row
-      const [attempt] = await tx
-        .select()
-        .from(schema.examAttempts)
-        .where(eq(schema.examAttempts.id, attemptId))
-        .for('update');
+      return await db.transaction(async (tx: any) => {
+        // 1. SELECT ... FOR UPDATE to lock attempt row
+        const [attempt] = await tx
+          .select()
+          .from(schema.examAttempts)
+          .where(eq(schema.examAttempts.id, attemptId))
+          .for('update');
 
-      if (!attempt || attempt.status !== 'in_progress') {
-        // Already submitted or not found - nothing to do
-        return false;
-      }
+        if (!attempt || attempt.status !== 'in_progress') {
+          // Already submitted or not found - nothing to do
+          return false;
+        }
 
-      // 2. Fetch answer sheet
-      const [sheet] = await tx
-        .select()
-        .from(schema.attemptAnswerSheets)
-        .where(eq(schema.attemptAnswerSheets.attemptId, attemptId));
+        // 2. Fetch answer sheet and optionally apply finalSheet if seq is higher
+        const [sheet] = await tx
+          .select()
+          .from(schema.attemptAnswerSheets)
+          .where(eq(schema.attemptAnswerSheets.attemptId, attemptId));
 
-      const answers = sheet?.answers ?? [];
+        let answers = sheet?.answers ?? [];
 
-      // 3. Compute score
-      const mergedFlags = Array.from(new Set([...attempt.resultFlags, ...additionalFlags]));
-      const scoreResult = await this.scoringService.scoreAttempt(
-        attempt.examId,
-        attempt.examVersion,
-        answers,
-        {
-          flags: mergedFlags as any,
-          durationSec: Math.round(
-            (Date.now() - new Date(attempt.startedAt).getTime()) / 1000,
-          ),
-        },
-      );
+        if (sheet && finalSheet && finalSheet.seq > sheet.lastSeq) {
+          answers = finalSheet.answers;
+          await tx
+            .update(schema.attemptAnswerSheets)
+            .set({
+              answers: finalSheet.answers,
+              flags: finalSheet.flags,
+              timeSpentMs: finalSheet.timeSpentMs ?? sheet.timeSpentMs,
+              lastSeq: finalSheet.seq,
+              updatedAt: new Date(),
+            })
+            .where(eq(schema.attemptAnswerSheets.attemptId, attemptId));
+        }
 
-      const now = new Date();
+        // 3. Compute score passing tx
+        const mergedFlags = Array.from(new Set([...attempt.resultFlags, ...additionalFlags]));
+        const scoreResult = await this.scoringService.scoreAttempt(
+          attempt.examId,
+          attempt.examVersion,
+          answers,
+          {
+            flags: mergedFlags as any,
+            durationSec: Math.round(
+              (Date.now() - new Date(attempt.startedAt).getTime()) / 1000,
+            ),
+          },
+          tx,
+        );
 
-      // 4. Update attempt to submitted
-      await tx
-        .update(schema.examAttempts)
-        .set({
-          status: 'submitted',
-          submittedBy,
-          submittedAt: now,
-          result: scoreResult as unknown as Record<string, unknown>,
-          resultFlags: mergedFlags,
-          lastActivityAt: now,
-        })
-        .where(eq(schema.examAttempts.id, attemptId));
+        const now = new Date();
 
-      // 5. Emit attempt.submitted to outbox in same transaction (A10, A14)
-      await this.emitEvent(
-        'attempt.submitted',
-        attempt.id,
-        attempt.userId || attempt.guestId || 'system',
-        {
-          attemptId: attempt.id,
-          examId: attempt.examId,
-          examVersion: attempt.examVersion,
-          userId: attempt.userId,
-          score: scoreResult.scoring.total,
-          passed: scoreResult.scoring.passEstimate,
-        },
-        tx,
-      );
+        // 4. Update attempt to submitted
+        await tx
+          .update(schema.examAttempts)
+          .set({
+            status: 'submitted',
+            submittedBy,
+            submittedAt: now,
+            result: scoreResult as unknown as Record<string, unknown>,
+            resultFlags: mergedFlags,
+            lastActivityAt: now,
+          })
+          .where(eq(schema.examAttempts.id, attemptId));
 
-      // 6. Normalize user answers asynchronously/in-tx
-      await this.normalizeUserAnswers(attempt.id, attempt.examId, attempt.examVersion, answers, tx);
+        // 5. Emit attempt.submitted to outbox in same transaction (A10, A14)
+        await this.emitEvent(
+          'attempt.submitted',
+          attempt.id,
+          attempt.userId || attempt.guestId || 'system',
+          {
+            attemptId: attempt.id,
+            examId: attempt.examId,
+            examVersion: attempt.examVersion,
+            userId: attempt.userId,
+            score: scoreResult.scoring.total,
+            passed: scoreResult.scoring.passEstimate,
+          },
+          tx,
+        );
 
-      // 7. Update user stats
-      if (attempt.userId) {
-        await this.updateUserStats(attempt.userId, tx);
-      }
+        // 6. Normalize user answers asynchronously/in-tx
+        await this.normalizeUserAnswers(attempt.id, attempt.examId, attempt.examVersion, answers, tx);
 
-      return true;
+        // 7. Update user stats
+        if (attempt.userId) {
+          await this.updateUserStats(attempt.userId, tx);
+        }
+
+        return true;
+      });
     });
   }
 
@@ -239,7 +281,7 @@ export class OutboxService {
   ): Promise<number> {
     const db = (tx as typeof this.dbClient.db) || this.dbClient.db;
 
-    const scoringData = await this.scoringService.getExamScoringData(examId, version);
+    const scoringData = await this.scoringService.getExamScoringData(examId, version, tx);
     const answerKey = scoringData.answerKey;
 
     // Fetch exam items to obtain actual questionIds
@@ -268,7 +310,16 @@ export class OutboxService {
       const isCorrect = qVal === correctVal;
       const isFlagged = (flags[i] ?? 0) === 1;
 
-      const questionId = items[i]?.questionId ?? generateUuidV7();
+      const questionId = items[i]?.questionId;
+      if (!questionId) continue;
+
+      const [qRow] = await db
+        .select({ id: schema.questions.id })
+        .from(schema.questions)
+        .where(eq(schema.questions.id, questionId))
+        .limit(1);
+
+      if (!qRow) continue;
 
       await db
         .insert(schema.userAnswers)
