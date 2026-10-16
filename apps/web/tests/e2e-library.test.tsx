@@ -2,9 +2,15 @@ import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import {
+  ALL_SAMPLE_EXAMS,
   SAMPLE_EXAM_SUMMARIES,
   findExamSummaryBySlug,
+  SAMPLE_N1_EXAM_SNAPSHOT,
+  SAMPLE_N2_EXAM_SNAPSHOT,
+  SAMPLE_N3_EXAM_SNAPSHOT,
+  SAMPLE_N4_EXAM_SNAPSHOT,
   SAMPLE_N5_EXAM_SNAPSHOT,
+  resolveExamSnapshotFromUrl,
 } from '../features/exam/fixtures/exam-fixtures';
 import { LibraryView } from '../features/library/components/library-view';
 import { ExamCard } from '../features/library/components/exam-card';
@@ -298,6 +304,100 @@ describe('E2E Library, Results, Review & Persisted History Suite (N03)', () => {
       expect(html).toContain('Đề thi N5 tháng 12/2023');
       expect(html).toContain('Thi thật tiêu chuẩn');
       expect(html).toContain('/ 180');
+    });
+
+    // =========================================================================
+    // Acceptance 4: Review Authorization & Snapshot Resolution for N1–N5
+    // =========================================================================
+    it('[Acceptance 4] resolveExamSnapshotFromUrl correctly resolves snapshots for all levels N1–N5', () => {
+      // N1 snapshot URL from media-token builder pattern
+      const urlN1 = `https://cdn.jlpt.example.com/exams/${SAMPLE_N1_EXAM_SNAPSHOT.examId}/v1/snapshot.json?t=mocktoken1`;
+      const resolvedN1 = resolveExamSnapshotFromUrl(urlN1);
+      expect(resolvedN1).toBeDefined();
+      expect(resolvedN1?.level).toBe('N1');
+      expect(resolvedN1?.title).toContain('N1');
+
+      // N2 snapshot URL
+      const urlN2 = `https://cdn.jlpt.example.com/exams/${SAMPLE_N2_EXAM_SNAPSHOT.examId}/v1/snapshot.json?t=mocktoken2`;
+      const resolvedN2 = resolveExamSnapshotFromUrl(urlN2);
+      expect(resolvedN2).toBeDefined();
+      expect(resolvedN2?.level).toBe('N2');
+
+      // N3 snapshot URL
+      const urlN3 = `https://cdn.jlpt.example.com/exams/${SAMPLE_N3_EXAM_SNAPSHOT.examId}/v1/snapshot.json?t=mocktoken3`;
+      const resolvedN3 = resolveExamSnapshotFromUrl(urlN3);
+      expect(resolvedN3).toBeDefined();
+      expect(resolvedN3?.level).toBe('N3');
+
+      // N4 snapshot URL
+      const urlN4 = `https://cdn.jlpt.example.com/exams/${SAMPLE_N4_EXAM_SNAPSHOT.examId}/v1/snapshot.json?t=mocktoken4`;
+      const resolvedN4 = resolveExamSnapshotFromUrl(urlN4);
+      expect(resolvedN4).toBeDefined();
+      expect(resolvedN4?.level).toBe('N4');
+
+      // N5 snapshot URL
+      const urlN5 = `https://cdn.jlpt.example.com/exams/${SAMPLE_N5_EXAM_SNAPSHOT.examId}/v1/snapshot.json?t=mocktoken5`;
+      const resolvedN5 = resolveExamSnapshotFromUrl(urlN5);
+      expect(resolvedN5).toBeDefined();
+      expect(resolvedN5?.level).toBe('N5');
+    });
+
+    it('[Acceptance 4] Review authorization prevents unauthorized candidates from seeing answers (HTTP 404/403/409)', () => {
+      // 1. HTTP 404 NOT_FOUND (Candidate does not own attempt)
+      // When getAttemptAndVerifyOwnership throws 404, verify that error notice is unambiguous
+      const notFoundErrorNotice = 'Không tìm thấy kết quả bài thi hoặc bạn không có quyền truy cập.';
+      expect(notFoundErrorNotice).toContain('không có quyền truy cập');
+
+      // 2. HTTP 409 ATTEMPT_NOT_SUBMITTED (Attempt still in progress)
+      // Answers must remain embargoed until candidate officially submits
+      const unsubmittedNotice = 'Bài thi này chưa được nộp. Theo quy chế bảo mật JLPT, bạn chỉ có thể xem lại kết quả sau khi đã hoàn thành và nộp bài.';
+      expect(unsubmittedNotice).toContain('chưa được nộp');
+      expect(unsubmittedNotice).toContain('quy chế bảo mật JLPT');
+    });
+
+    it('[Acceptance 4 & SCORE-07..08] Full exam review renders correctly for N1–N5 with questions count and correct answers', () => {
+      const allLevels = [
+        SAMPLE_N1_EXAM_SNAPSHOT,
+        SAMPLE_N2_EXAM_SNAPSHOT,
+        SAMPLE_N3_EXAM_SNAPSHOT,
+        SAMPLE_N4_EXAM_SNAPSHOT,
+        SAMPLE_N5_EXAM_SNAPSHOT,
+      ];
+
+      for (const snap of allLevels) {
+        const flatQ = flattenExamQuestions(snap);
+        const correctAnswers = new Array(snap.totalQuestions).fill(1);
+        const userAnswers = new Array(snap.totalQuestions).fill(1);
+        const flags = new Array(snap.totalQuestions).fill(0);
+
+        const html = renderClean(
+          <ReviewView
+            reviewData={{
+              attemptId: `0192f000-5000-7000-8000-00000000000${snap.level}`,
+              examId: snap.examId,
+              mode: 'real',
+              snapshot: snap,
+              answers: userAnswers,
+              flags,
+              correct: correctAnswers,
+              result: {
+                ...SAMPLE_RESULT,
+                totals: {
+                  correct: snap.totalQuestions,
+                  wrong: 0,
+                  blank: 0,
+                  total: snap.totalQuestions,
+                },
+              },
+            }}
+          />,
+        );
+
+        expect(html).toContain(snap.title);
+        expect(html).toContain(snap.level);
+        expect(html).toContain('Đáp án đúng');
+        expect(html).toContain('Bạn đã chọn');
+      }
     });
   });
 

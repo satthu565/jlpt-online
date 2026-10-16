@@ -14,10 +14,27 @@ export interface AudioPlayerProps {
   isLocked?: boolean;
   onItemChange?: (itemIndex: number, groupId: string | null) => void;
   onError?: (err: Error) => void;
+  initialErrorMessage?: string | null;
   className?: string;
 }
 
 export type PlaybackRate = 0.75 | 1.0 | 1.25;
+
+/**
+ * Synchronizes audio element playback position if drifted beyond threshold (Acceptance 2, AUDIO-01/04)
+ */
+export function syncAudioDrift(
+  audio: { currentTime: number },
+  expectedSec: number,
+  thresholdSec = 2.0,
+): { synced: boolean; drift: number } {
+  const drift = Math.abs(audio.currentTime - expectedSec);
+  if (drift > thresholdSec) {
+    audio.currentTime = expectedSec;
+    return { synced: true, drift };
+  }
+  return { synced: false, drift };
+}
 
 export function AudioPlayer({
   timeline,
@@ -28,6 +45,7 @@ export function AudioPlayer({
   isLocked = false,
   onItemChange,
   onError,
+  initialErrorMessage,
   className = '',
 }: AudioPlayerProps): React.JSX.Element | null {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -43,13 +61,13 @@ export function AudioPlayer({
   // Status state
   const [playbackStatus, setPlaybackStatus] = useState<
     'before_start' | 'playing' | 'gap' | 'finished' | 'error' | 'paused'
-  >('before_start');
+  >(initialErrorMessage ? 'error' : 'before_start');
   const [currentItemIndex, setCurrentItemIndex] = useState<number>(initialIndex);
   const [currentMediaKey, setCurrentMediaKey] = useState<string | null>(
     initialIndex >= 0 && timeline && timeline[initialIndex] ? timeline[initialIndex].mediaKey : null,
   );
   const [playbackRate, setPlaybackRate] = useState<PlaybackRate>(1.0);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(initialErrorMessage ?? null);
   const [currentTimeSec, setCurrentTimeSec] = useState<number>(0);
   const [durationSec, setDurationSec] = useState<number>(0);
   const [retryCount, setRetryCount] = useState<number>(0);
@@ -112,12 +130,7 @@ export function AudioPlayer({
       // Audio sync check: if audio element drifted more than 2 seconds, re-sync (Acceptance 2)
       if (audioRef.current) {
         const expectedSec = position.audioOffsetMs / 1000;
-        const currentSec = audioRef.current.currentTime;
-        const drift = Math.abs(currentSec - expectedSec);
-
-        if (drift > 2.0) {
-          audioRef.current.currentTime = expectedSec;
-        }
+        syncAudioDrift(audioRef.current, expectedSec, 2.0);
 
         if (audioRef.current.paused && mode === 'real') {
           audioRef.current.play().catch(() => {

@@ -1,78 +1,56 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ExamApiClient } from '../../../features/exam/api/exam-api';
+import { ExamApiClient, ExamApiError } from '../../../features/exam/api/exam-api';
 import { HistoryView, type ExamHistoryItem } from '../../../features/results';
 import { ALL_SAMPLE_EXAMS } from '../../../features/exam/fixtures/exam-fixtures';
+import { Alert, Button, Card } from '@jlpt/ui';
 
 export default function ExamHistoryPage(): React.JSX.Element {
   const [historyItems, setHistoryItems] = useState<ExamHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<{ isAuthError: boolean; message: string } | null>(null);
+
+  const loadHistory = async () => {
+    const client = new ExamApiClient();
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await client.listMyAttempts();
+
+      const mapped: ExamHistoryItem[] = res.items.map((item) => {
+        const snapshot = ALL_SAMPLE_EXAMS.find((e) => e.examId === item.examId);
+        return {
+          ...item,
+          examTitle: snapshot?.title || `Đề thi JLPT (${item.examId.slice(0, 8)})`,
+          examLevel: snapshot?.level || 'N3',
+          accuracy: item.score !== null ? Math.min(100, Math.round((item.score / 180) * 100)) : undefined,
+        };
+      });
+
+      setHistoryItems(mapped);
+    } catch (err: unknown) {
+      if (
+        err instanceof ExamApiError &&
+        (err.status === 401 || err.status === 403 || err.code === 'UNAUTHORIZED' || err.code === 'FORBIDDEN')
+      ) {
+        setError({
+          isAuthError: true,
+          message: 'Vui lòng đăng nhập để xem lịch sử làm bài thi của bạn.',
+        });
+      } else {
+        setError({
+          isAuthError: false,
+          message: 'Không thể tải lịch sử làm bài thi. Vui lòng thử lại sau.',
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    let isMounted = true;
-    const client = new ExamApiClient();
-
-    async function loadHistory() {
-      try {
-        setLoading(true);
-        const res = await client.listMyAttempts();
-        if (!isMounted) return;
-
-        const mapped: ExamHistoryItem[] = res.items.map((item) => {
-          const snapshot = ALL_SAMPLE_EXAMS.find((e) => e.examId === item.examId);
-          return {
-            ...item,
-            examTitle: snapshot?.title || `Đề thi JLPT (${item.examId.slice(0, 8)})`,
-            examLevel: snapshot?.level || 'N3',
-            accuracy: item.score !== null ? Math.min(100, Math.round((item.score / 180) * 100)) : undefined,
-          };
-        });
-
-        setHistoryItems(mapped);
-      } catch {
-        if (!isMounted) return;
-        // Demo persisted history items (STAT-01, SCORE-11)
-        const demoItems: ExamHistoryItem[] = [
-          {
-            id: '0192f000-5000-7000-8000-000000000001',
-            examId: '0192f000-0000-7000-8000-000000000005',
-            examVersion: 1,
-            mode: 'real',
-            status: 'submitted',
-            startedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-            submittedAt: new Date(Date.now() - 86400000 * 2 + 3600000).toISOString(),
-            score: 135,
-            passed: true,
-            examTitle: 'Đề thi thử JLPT N5 Mẫu Chuẩn',
-            examLevel: 'N5',
-            accuracy: 75,
-          },
-          {
-            id: '0192f000-5000-7000-8000-000000000002',
-            examId: '0192f000-0000-7000-8000-000000000003',
-            examVersion: 1,
-            mode: 'practice',
-            status: 'submitted',
-            startedAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-            submittedAt: new Date(Date.now() - 86400000 * 5 + 4500000).toISOString(),
-            score: 95,
-            passed: true,
-            examTitle: 'Đề thi thử chuẩn cấu trúc JLPT N3 - Số 1',
-            examLevel: 'N3',
-            accuracy: 62,
-          },
-        ];
-        setHistoryItems(demoItems);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    }
-
     loadHistory();
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   return (
@@ -82,6 +60,31 @@ export default function ExamHistoryPage(): React.JSX.Element {
           <div className="animate-spin text-3xl mb-3">⏳</div>
           Đang tải lịch sử các lần thi...
         </div>
+      ) : error ? (
+        <Card className="p-8 text-center border border-slate-200 dark:border-slate-800">
+          <div className="text-4xl mb-3" role="img" aria-label="Lỗi tải lịch sử">
+            {error.isAuthError ? '🔑' : '⚠️'}
+          </div>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
+            {error.isAuthError ? 'Yêu cầu đăng nhập' : 'Không thể tải lịch sử'}
+          </h2>
+          <Alert variant={error.isAuthError ? 'info' : 'error'} className="mb-6 text-left max-w-md mx-auto">
+            {error.message}
+          </Alert>
+          <div className="flex justify-center gap-3">
+            {error.isAuthError ? (
+              <a href="/dang-nhap">
+                <Button variant="primary" size="md">
+                  Đăng nhập ngay
+                </Button>
+              </a>
+            ) : (
+              <Button variant="primary" size="md" onClick={() => loadHistory()}>
+                Thử lại
+              </Button>
+            )}
+          </div>
+        </Card>
       ) : (
         <HistoryView historyItems={historyItems} />
       )}

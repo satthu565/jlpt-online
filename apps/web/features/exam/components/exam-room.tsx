@@ -37,6 +37,8 @@ export interface ExamRoomProps {
   initialDeadlines?: Record<number, string>;
   sectionStartedAt?: string;
   serverOffsetMs?: number;
+  initialZenMode?: boolean;
+  initialConflictModalOpen?: boolean;
   storage: ExamStorageAdapter;
   apiClient: ExamApiClient;
   onFinish?: (result?: unknown) => void;
@@ -56,6 +58,8 @@ export function ExamRoom({
   initialDeadlines,
   sectionStartedAt: initialSectionStartedAt,
   serverOffsetMs = 0,
+  initialZenMode = false,
+  initialConflictModalOpen = false,
   storage,
   apiClient,
   onFinish,
@@ -102,12 +106,12 @@ export function ExamRoom({
 
   // Ergonomics states: Japanese font size (EXAM-23) & Zen mode (EXAM-25)
   const [fontSize, setFontSize] = useState<JapaneseFontSize>('base');
-  const [isZenMode, setIsZenMode] = useState<boolean>(false);
+  const [isZenMode, setIsZenMode] = useState<boolean>(initialZenMode);
 
   // Modals state
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
   const [isTransitionModalOpen, setIsTransitionModalOpen] = useState(false);
-  const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
+  const [isConflictModalOpen, setIsConflictModalOpen] = useState(initialConflictModalOpen);
   const [isSpeakerTestOpen, setIsSpeakerTestOpen] = useState(false);
   const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);

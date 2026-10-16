@@ -19,12 +19,12 @@ export function NavigationHeader(): React.JSX.Element {
     { label: t('common.nav.home'), href: '/' },
     { label: t('common.nav.levels'), href: '#levels' },
     { label: t('common.nav.exams'), href: '/de-thi' },
-    { label: 'Phòng thi', href: '/phong-thi' },
+    { label: t('common.nav.examRoom'), href: '/phong-thi' },
     { label: t('common.nav.practice'), href: '/luyen-tap' },
   ];
 
   if (user) {
-    navItems.push({ label: 'Lịch sử thi', href: '/lich-su' });
+    navItems.push({ label: t('common.nav.examHistory'), href: '/lich-su' });
     navItems.push({ label: t('common.nav.account'), href: '/tai-khoan' });
   }
 

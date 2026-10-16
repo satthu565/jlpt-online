@@ -4,8 +4,9 @@ import React, { use, useState, useEffect } from 'react';
 import { ExamApiClient, ExamApiError } from '../../../../features/exam/api/exam-api';
 import { ReviewView, type AttemptReviewData } from '../../../../features/results';
 import { SAMPLE_N5_EXAM_SNAPSHOT } from '../../../../features/exam/fixtures/sample-exam';
-import { ALL_SAMPLE_EXAMS } from '../../../../features/exam/fixtures/exam-fixtures';
+import { ALL_SAMPLE_EXAMS, resolveExamSnapshotFromUrl } from '../../../../features/exam/fixtures/exam-fixtures';
 import { Alert, Button, Card } from '@jlpt/ui';
+import type { PublicExamSnapshot } from '@jlpt/schema';
 
 export interface ResultReviewPageProps {
   params: Promise<{ id: string }>;
@@ -34,10 +35,21 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
         const reviewRes = await client.reviewAttempt(attemptId);
         if (!isMounted) return;
 
-        // Find corresponding snapshot
-        const snapshot =
-          ALL_SAMPLE_EXAMS.find((e) => e.examId === reviewRes.result?.totals?.total?.toString()) ||
-          SAMPLE_N5_EXAM_SNAPSHOT;
+        // Find corresponding snapshot from snapshotUrl (SCORE-07, SCORE-08)
+        let snapshot = resolveExamSnapshotFromUrl(reviewRes.snapshotUrl);
+        if (!snapshot && reviewRes.snapshotUrl) {
+          try {
+            const res = await fetch(reviewRes.snapshotUrl);
+            if (res.ok) {
+              snapshot = (await res.json()) as PublicExamSnapshot;
+            }
+          } catch {
+            // Ignore fetch failure
+          }
+        }
+        if (!snapshot) {
+          snapshot = SAMPLE_N5_EXAM_SNAPSHOT;
+        }
 
         setReviewData({
           attemptId,
@@ -61,6 +73,13 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
             });
             return;
           }
+          if (err.status === 404 || err.code === 'NOT_FOUND') {
+            setErrorInfo({
+              code: 'NOT_FOUND',
+              message: 'Không tìm thấy kết quả bài thi hoặc bạn không có quyền truy cập.',
+            });
+            return;
+          }
           if (err.status === 403 || err.status === 401 || err.code === 'FORBIDDEN') {
             setErrorInfo({
               code: 'FORBIDDEN',
@@ -68,133 +87,16 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
             });
             return;
           }
+          setErrorInfo({
+            code: err.code || 'API_ERROR',
+            message: err.message || 'Có lỗi xảy ra khi tải kết quả bài thi.',
+          });
+          return;
         }
 
-        // Mock/Fallback demonstration for test/demo environments
-        const fallbackSnapshot = SAMPLE_N5_EXAM_SNAPSHOT;
-        setReviewData({
-          attemptId,
-          examId: fallbackSnapshot.examId,
-          mode: 'real',
-          snapshot: fallbackSnapshot,
-          answers: [1, 1, 3, 2, 1],
-          flags: [0, 1, 0, 0, 0],
-          correct: [1, 1, 4, 1, 1],
-          result: {
-            totals: { correct: 3, wrong: 2, blank: 0, total: 5 },
-            accuracy: 60,
-            durationSec: 2100,
-            bySection: [
-              { code: 'language_vocab', correct: 2, total: 2 },
-              { code: 'language_grammar_reading', correct: 0, total: 2 },
-              { code: 'listening', correct: 1, total: 1 },
-            ],
-            bySkill: [
-              { skill: 'kanji', correct: 1, total: 1 },
-              { skill: 'vocabulary', correct: 1, total: 1 },
-              { skill: 'grammar', correct: 0, total: 1 },
-              { skill: 'reading', correct: 0, total: 1 },
-              { skill: 'listening', correct: 1, total: 1 },
-            ],
-            scoring: {
-              method: 'linear_reference',
-              sections: [
-                {
-                  code: 'language_vocab',
-                  label: 'Kiến thức ngôn ngữ (Từ vựng)',
-                  raw: 2,
-                  rawMax: 2,
-                  scaled: 60,
-                  maxScaled: 60,
-                  minPass: 19,
-                  passed: true,
-                },
-                {
-                  code: 'language_grammar_reading',
-                  label: 'Ngữ pháp & Đọc hiểu',
-                  raw: 0,
-                  rawMax: 2,
-                  scaled: 15,
-                  maxScaled: 60,
-                  minPass: 19,
-                  passed: false,
-                },
-                {
-                  code: 'listening',
-                  label: 'Nghe hiểu',
-                  raw: 1,
-                  rawMax: 1,
-                  scaled: 60,
-                  maxScaled: 60,
-                  minPass: 19,
-                  passed: true,
-                },
-              ],
-              total: 135,
-              totalMax: 180,
-              totalPass: 80,
-              passEstimate: true,
-            },
-            flags: [],
-          },
-          previousResult: {
-            totals: { correct: 2, wrong: 3, blank: 0, total: 5 },
-            accuracy: 40,
-            durationSec: 2300,
-            bySection: [
-              { code: 'language_vocab', correct: 1, total: 2 },
-              { code: 'language_grammar_reading', correct: 0, total: 2 },
-              { code: 'listening', correct: 1, total: 1 },
-            ],
-            bySkill: [
-              { skill: 'kanji', correct: 1, total: 1 },
-              { skill: 'vocabulary', correct: 0, total: 1 },
-              { skill: 'grammar', correct: 0, total: 1 },
-              { skill: 'reading', correct: 0, total: 1 },
-              { skill: 'listening', correct: 1, total: 1 },
-            ],
-            scoring: {
-              method: 'linear_reference',
-              sections: [
-                {
-                  code: 'language_vocab',
-                  label: 'Kiến thức ngôn ngữ (Từ vựng)',
-                  raw: 1,
-                  rawMax: 2,
-                  scaled: 30,
-                  maxScaled: 60,
-                  minPass: 19,
-                  passed: true,
-                },
-                {
-                  code: 'language_grammar_reading',
-                  label: 'Ngữ pháp & Đọc hiểu',
-                  raw: 0,
-                  rawMax: 2,
-                  scaled: 15,
-                  maxScaled: 60,
-                  minPass: 19,
-                  passed: false,
-                },
-                {
-                  code: 'listening',
-                  label: 'Nghe hiểu',
-                  raw: 1,
-                  rawMax: 1,
-                  scaled: 60,
-                  maxScaled: 60,
-                  minPass: 19,
-                  passed: true,
-                },
-              ],
-              total: 105,
-              totalMax: 180,
-              totalPass: 80,
-              passEstimate: true,
-            },
-            flags: [],
-          },
-          submittedAt: new Date().toISOString(),
+        setErrorInfo({
+          code: 'NOT_FOUND',
+          message: 'Không tìm thấy kết quả bài thi hoặc bạn không có quyền truy cập.',
         });
       } finally {
         if (isMounted) setLoading(false);

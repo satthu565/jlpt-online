@@ -1003,3 +1003,14 @@ export function findExamSnapshotByLevel(level: string): PublicExamSnapshot | und
 export function findExamSummaryBySlug(slug: string): ExamSummary | undefined {
   return SAMPLE_EXAM_SUMMARIES.find((e) => e.slug === slug);
 }
+
+export function resolveExamSnapshotFromUrl(snapshotUrl?: string | null): PublicExamSnapshot | undefined {
+  if (!snapshotUrl) return undefined;
+  const byIncludes = ALL_SAMPLE_EXAMS.find((e) => snapshotUrl.includes(e.examId));
+  if (byIncludes) return byIncludes;
+  const match = snapshotUrl.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+  if (match) {
+    return ALL_SAMPLE_EXAMS.find((e) => e.examId === match[0]);
+  }
+  return undefined;
+}
