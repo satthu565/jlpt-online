@@ -41,14 +41,19 @@ export class ReportingService {
    */
   async getAcquisitionReport(query?: ReportQueryDto): Promise<AcquisitionReportDto> {
     const { fromDate, toDate } = this.parseDateRange(query);
-    const userRows = await this.dbClient.db
+    const userRows = (await this.dbClient.db
       .select({
         id: schema.users.id,
         createdAt: schema.users.createdAt,
         role: schema.users.role,
         locale: schema.users.locale,
       })
-      .from(schema.users);
+      .from(schema.users)) as Array<{
+      id: string;
+      createdAt: Date;
+      role: string | null;
+      locale: string | null;
+    }>;
 
     const filtered = userRows.filter((u) => {
       const t = new Date(u.createdAt).getTime();
@@ -145,14 +150,19 @@ export class ReportingService {
    */
   async getExamCompletionReport(query?: ReportQueryDto): Promise<ExamCompletionReportDto> {
     const { fromDate, toDate } = this.parseDateRange(query);
-    const attempts = await this.dbClient.db
+    const attempts = (await this.dbClient.db
       .select({
         id: schema.examAttempts.id,
         startedAt: schema.examAttempts.startedAt,
         submittedAt: schema.examAttempts.submittedAt,
         status: schema.examAttempts.status,
       })
-      .from(schema.examAttempts);
+      .from(schema.examAttempts)) as Array<{
+      id: string;
+      startedAt: Date;
+      submittedAt: Date | null;
+      status: string;
+    }>;
 
     const filtered = attempts.filter((a) => {
       const t = new Date(a.startedAt).getTime();
@@ -271,21 +281,29 @@ export class ReportingService {
    * REPORT-06: Thống kê bộ đề phổ biến
    */
   async getPopularExamsReport(query?: ReportQueryDto): Promise<PopularExamsReportDto> {
-    const examList = await this.dbClient.db
+    const examList = (await this.dbClient.db
       .select({
         id: schema.exams.id,
         title: schema.exams.title,
         level: schema.exams.level,
       })
-      .from(schema.exams);
+      .from(schema.exams)) as Array<{
+      id: string;
+      title: string;
+      level: string;
+    }>;
 
-    const attempts = await this.dbClient.db
+    const attempts = (await this.dbClient.db
       .select({
         examId: schema.examAttempts.examId,
         submittedAt: schema.examAttempts.submittedAt,
         result: schema.examAttempts.result,
       })
-      .from(schema.examAttempts);
+      .from(schema.examAttempts)) as Array<{
+      examId: string;
+      submittedAt: Date | null;
+      result: unknown;
+    }>;
 
     const examStatsMap = new Map<
       string,
@@ -300,10 +318,16 @@ export class ReportingService {
       st.attempts++;
       if (a.submittedAt) {
         st.completions++;
-        const resObj = (a.result as any) ?? {};
-        const score = typeof resObj.score === 'number' ? resObj.score : (resObj.totalScore ?? 0);
+        const resObj =
+          a.result && typeof a.result === 'object' ? (a.result as Record<string, unknown>) : {};
+        const score =
+          typeof resObj['score'] === 'number'
+            ? resObj['score']
+            : typeof resObj['totalScore'] === 'number'
+              ? resObj['totalScore']
+              : 0;
         st.totalScore += score;
-        if (resObj.passed || resObj.isPass) st.passedCount++;
+        if (Boolean(resObj['passed']) || Boolean(resObj['isPass'])) st.passedCount++;
       }
     }
 
@@ -378,7 +402,7 @@ export class ReportingService {
     durations.sort((a, b) => a - b);
     const sum = durations.reduce((acc, d) => acc + d, 0);
     const avgDurationSeconds = Math.round(sum / durations.length);
-    const medianDurationSeconds = durations[Math.floor(durations.length / 2)];
+    const medianDurationSeconds = durations[Math.floor(durations.length / 2)] ?? 0;
 
     let c15 = 0;
     let c30 = 0;
@@ -520,17 +544,20 @@ export class ReportingService {
    * REPORT-09: Phân tích phễu đăng ký và bắt đầu làm đề
    */
   async getFunnelReport(query?: ReportQueryDto): Promise<FunnelReportDto> {
-    const totalUsers = await this.dbClient.db
+    const userCountRows = (await this.dbClient.db
       .select({ count: count() })
-      .from(schema.users)
-      .then((res) => Number(res[0]?.count ?? 0));
+      .from(schema.users)) as Array<{ count: number | string }>;
+    const totalUsers = Number(userCountRows[0]?.count ?? 0);
 
-    const events = await this.dbClient.db
+    const events = (await this.dbClient.db
       .select({
         userId: schema.analyticsEvents.userId,
         eventName: schema.analyticsEvents.eventName,
       })
-      .from(schema.analyticsEvents);
+      .from(schema.analyticsEvents)) as Array<{
+      userId: string | null;
+      eventName: string;
+    }>;
 
     const usersWhoBrowsed = new Set<string>();
     for (const e of events) {
@@ -539,12 +566,15 @@ export class ReportingService {
       }
     }
 
-    const attempts = await this.dbClient.db
+    const attempts = (await this.dbClient.db
       .select({
         userId: schema.examAttempts.userId,
         submittedAt: schema.examAttempts.submittedAt,
       })
-      .from(schema.examAttempts);
+      .from(schema.examAttempts)) as Array<{
+      userId: string | null;
+      submittedAt: Date | null;
+    }>;
 
     const usersWhoStarted = new Set<string>(
       attempts.filter((a) => Boolean(a.userId)).map((a) => a.userId!),
@@ -604,7 +634,7 @@ export class ReportingService {
    * REPORT-10: Thống kê kết quả kiểm duyệt gói dữ liệu nhập
    */
   async getContentReviewReport(query?: ReportQueryDto): Promise<ContentReviewReportDto> {
-    const jobs = await this.dbClient.db
+    const jobs = (await this.dbClient.db
       .select({
         id: schema.importJobs.id,
         status: schema.importJobs.status,
@@ -612,7 +642,13 @@ export class ReportingService {
         targetLevel: schema.importJobs.targetLevel,
         createdAt: schema.importJobs.createdAt,
       })
-      .from(schema.importJobs);
+      .from(schema.importJobs)) as Array<{
+      id: string;
+      status: string;
+      fileName: string | null;
+      targetLevel: string | null;
+      createdAt: Date;
+    }>;
 
     const byStatus = {
       pending: 0,
@@ -650,13 +686,17 @@ export class ReportingService {
    * Quyết định kiến trúc: KHÔNG có chỉ số nhận dạng PDF trong hệ thống.
    */
   async getContentIncidentsReport(query?: ReportQueryDto): Promise<ContentIncidentsReportDto> {
-    const reports = await this.dbClient.db
+    const reports = (await this.dbClient.db
       .select({
         id: schema.questionReports.id,
         issueType: schema.questionReports.issueType,
         status: schema.questionReports.status,
       })
-      .from(schema.questionReports);
+      .from(schema.questionReports)) as Array<{
+      id: string;
+      issueType: string;
+      status: string;
+    }>;
 
     const byIssueType: Record<string, number> = {
       wrong_answer: 0,
@@ -669,17 +709,17 @@ export class ReportingService {
     let audioIncidentsCount = 0;
     for (const r of reports) {
       const type = r.issueType in byIssueType ? r.issueType : 'other';
-      byIssueType[type]++;
+      byIssueType[type] = (byIssueType[type] ?? 0) + 1;
       if (type === 'audio_broken' || r.issueType.includes('audio')) {
         audioIncidentsCount++;
       }
     }
 
-    const failedJobs = await this.dbClient.db
+    const failedJobRows = (await this.dbClient.db
       .select({ count: count() })
       .from(schema.importJobs)
-      .where(eq(schema.importJobs.status, 'failed'))
-      .then((res) => Number(res[0]?.count ?? 0));
+      .where(eq(schema.importJobs.status, 'failed'))) as Array<{ count: number | string }>;
+    const failedJobs = Number(failedJobRows[0]?.count ?? 0);
 
     return {
       totalIncidents: reports.length + failedJobs,
@@ -696,26 +736,32 @@ export class ReportingService {
    * REPORT-12: Thống kê lượt sử dụng tính năng trộn đề
    */
   async getMixUsageReport(query?: ReportQueryDto): Promise<MixUsageReportDto> {
-    const mixedList = await this.dbClient.db
+    const mixedList = (await this.dbClient.db
       .select({
         id: schema.generatedExams.id,
         configJson: schema.generatedExams.configJson,
       })
-      .from(schema.generatedExams);
+      .from(schema.generatedExams)) as Array<{
+      id: string;
+      configJson: unknown;
+    }>;
 
     const byLevel: Record<string, number> = { N1: 0, N2: 0, N3: 0, N4: 0, N5: 0 };
     const byMode: Record<string, number> = {};
     let totalQuestions = 0;
 
     for (const m of mixedList) {
-      const cfg = (m.configJson as any) ?? {};
-      const lvl = cfg.level ?? 'N3';
+      const cfg =
+        m.configJson && typeof m.configJson === 'object'
+          ? (m.configJson as Record<string, unknown>)
+          : {};
+      const lvl = typeof cfg['level'] === 'string' ? cfg['level'] : 'N3';
       byLevel[lvl] = (byLevel[lvl] ?? 0) + 1;
 
-      const mode = cfg.mode ?? 'Random';
+      const mode = typeof cfg['mode'] === 'string' ? cfg['mode'] : 'Random';
       byMode[mode] = (byMode[mode] ?? 0) + 1;
 
-      totalQuestions += cfg.questionCount ?? 30;
+      totalQuestions += typeof cfg['questionCount'] === 'number' ? cfg['questionCount'] : 30;
     }
 
     const avgQuestionCount =
@@ -733,12 +779,12 @@ export class ReportingService {
    * REPORT-13: Báo cáo chuyển đổi Free → Premium
    */
   async getConversionReport(query?: ReportQueryDto): Promise<ConversionReportDto> {
-    const totalUsers = await this.dbClient.db
+    const userCountRows = (await this.dbClient.db
       .select({ count: count() })
-      .from(schema.users)
-      .then((res) => Number(res[0]?.count ?? 0));
+      .from(schema.users)) as Array<{ count: number | string }>;
+    const totalUsers = Number(userCountRows[0]?.count ?? 0);
 
-    const orders = await this.dbClient.db
+    const orders = (await this.dbClient.db
       .select({
         id: schema.orders.id,
         userId: schema.orders.userId,
@@ -746,14 +792,23 @@ export class ReportingService {
         currency: schema.orders.currency,
         status: schema.orders.status,
       })
-      .from(schema.orders);
+      .from(schema.orders)) as Array<{
+      id: string;
+      userId: string;
+      totalAmount: number | null;
+      currency: string;
+      status: string;
+    }>;
 
-    const refunds = await this.dbClient.db
+    const refunds = (await this.dbClient.db
       .select({
         amount: schema.refundRequests.amount,
         status: schema.refundRequests.status,
       })
-      .from(schema.refundRequests);
+      .from(schema.refundRequests)) as Array<{
+      amount: number | null;
+      status: string;
+    }>;
 
     const paidOrders = orders.filter((o) => o.status === 'paid');
     const paidUserIds = new Set<string>(paidOrders.map((o) => o.userId));
@@ -848,44 +903,59 @@ export class ReportingService {
   async getExperimentPerformanceReport(
     query?: ReportQueryDto,
   ): Promise<ExperimentPerformanceReportDto> {
-    const expDefs = await this.dbClient.db
+    const expDefs = (await this.dbClient.db
       .select({
         id: schema.experimentDefinitions.id,
         name: schema.experimentDefinitions.name,
         isActive: schema.experimentDefinitions.isActive,
         variants: schema.experimentDefinitions.variants,
       })
-      .from(schema.experimentDefinitions);
+      .from(schema.experimentDefinitions)) as Array<{
+      id: string;
+      name: string;
+      isActive: boolean;
+      variants: unknown;
+    }>;
 
-    const assignments = await this.dbClient.db
+    const assignments = (await this.dbClient.db
       .select({
         experimentId: schema.experimentAssignments.experimentId,
         variant: schema.experimentAssignments.variant,
         subjectId: schema.experimentAssignments.subjectId,
       })
-      .from(schema.experimentAssignments);
+      .from(schema.experimentAssignments)) as Array<{
+      experimentId: string;
+      variant: string;
+      subjectId: string;
+    }>;
 
-    const exposures = await this.dbClient.db
+    const exposures = (await this.dbClient.db
       .select({
         experimentId: schema.experimentExposures.experimentId,
         subjectId: schema.experimentExposures.subjectId,
       })
-      .from(schema.experimentExposures);
+      .from(schema.experimentExposures)) as Array<{
+      experimentId: string;
+      subjectId: string;
+    }>;
 
-    const events = await this.dbClient.db
+    const events = (await this.dbClient.db
       .select({
         eventName: schema.analyticsEvents.eventName,
         properties: schema.analyticsEvents.properties,
       })
-      .from(schema.analyticsEvents);
+      .from(schema.analyticsEvents)) as Array<{
+      eventName: string;
+      properties: unknown;
+    }>;
 
     const experiments = expDefs.map((exp) => {
       const expAssignments = assignments.filter((a) => a.experimentId === exp.id);
       const variantList = Array.isArray(exp.variants)
-        ? exp.variants
+        ? (exp.variants as Array<string | { key?: string }>)
         : [{ key: 'control' }, { key: 'variant_b' }];
 
-      const variantStats = variantList.map((v: any) => {
+      const variantStats = variantList.map((v) => {
         const vKey = typeof v === 'string' ? v : (v.key ?? 'control');
         const assignedSubjects = expAssignments
           .filter((a) => a.variant === vKey)
@@ -897,11 +967,14 @@ export class ReportingService {
 
         // Conversions
         const convCount = events.filter((ev) => {
-          const props = (ev.properties as any) ?? {};
+          const props =
+            ev.properties && typeof ev.properties === 'object'
+              ? (ev.properties as Record<string, unknown>)
+              : {};
           return (
             (ev.eventName === 'exam_finish' || ev.eventName === 'checkout_completed') &&
-            props.experimentId === exp.id &&
-            props.variant === vKey
+            props['experimentId'] === exp.id &&
+            props['variant'] === vKey
           );
         }).length;
 
@@ -943,41 +1016,48 @@ export class ReportingService {
    * ADM-01: Dashboard tổng quan hệ thống
    */
   async getDashboardOverview(): Promise<DashboardOverviewDto> {
-    const totalUsers = await this.dbClient.db
+    const userCountRows = (await this.dbClient.db
       .select({ count: count() })
-      .from(schema.users)
-      .then((res) => Number(res[0]?.count ?? 0));
+      .from(schema.users)) as Array<{ count: number | string }>;
+    const totalUsers = Number(userCountRows[0]?.count ?? 0);
 
-    const totalExams = await this.dbClient.db
+    const examCountRows = (await this.dbClient.db
       .select({ count: count() })
-      .from(schema.exams)
-      .then((res) => Number(res[0]?.count ?? 0));
+      .from(schema.exams)) as Array<{ count: number | string }>;
+    const totalExams = Number(examCountRows[0]?.count ?? 0);
 
-    const attempts = await this.dbClient.db
+    const attempts = (await this.dbClient.db
       .select({
         id: schema.examAttempts.id,
         submittedAt: schema.examAttempts.submittedAt,
         startedAt: schema.examAttempts.startedAt,
       })
-      .from(schema.examAttempts);
+      .from(schema.examAttempts)) as Array<{
+      id: string;
+      submittedAt: Date | null;
+      startedAt: Date;
+    }>;
 
     const completed = attempts.filter((a) => a.submittedAt !== null).length;
     const overallCompletionRate =
       attempts.length > 0 ? Math.round((completed / attempts.length) * 1000) / 10 : 0;
 
-    const openReportsCount = await this.dbClient.db
+    const reportCountRows = (await this.dbClient.db
       .select({ count: count() })
       .from(schema.questionReports)
-      .where(eq(schema.questionReports.status, 'open'))
-      .then((res) => Number(res[0]?.count ?? 0));
+      .where(eq(schema.questionReports.status, 'open'))) as Array<{ count: number | string }>;
+    const openReportsCount = Number(reportCountRows[0]?.count ?? 0);
 
-    const orders = await this.dbClient.db
+    const orders = (await this.dbClient.db
       .select({
         totalAmount: schema.orders.totalAmount,
         status: schema.orders.status,
       })
       .from(schema.orders)
-      .where(eq(schema.orders.status, 'paid'));
+      .where(eq(schema.orders.status, 'paid'))) as Array<{
+      totalAmount: number | null;
+      status: string;
+    }>;
 
     const grossRevenueVnd = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
 

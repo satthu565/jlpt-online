@@ -160,11 +160,11 @@ describe('A04 Reporting System (REPORT-01..15, ADM-01, ADM-17)', () => {
   it('REPORT-09: Phân tích phễu đăng ký và bắt đầu làm đề (Funnel Report)', async () => {
     const funnel = await service.getFunnelReport();
     expect(funnel.steps.length).toBe(4);
-    expect(funnel.steps[0].step).toBe('registration');
-    expect(funnel.steps[1].step).toBe('browse_exams');
-    expect(funnel.steps[2].step).toBe('start_attempt');
-    expect(funnel.steps[3].step).toBe('complete_attempt');
-    expect(funnel.steps[0].conversionFromPrevious).toBe(100);
+    expect(funnel.steps[0]!.step).toBe('registration');
+    expect(funnel.steps[1]!.step).toBe('browse_exams');
+    expect(funnel.steps[2]!.step).toBe('start_attempt');
+    expect(funnel.steps[3]!.step).toBe('complete_attempt');
+    expect(funnel.steps[0]!.conversionFromPrevious).toBe(100);
   });
 
   it('REPORT-10: Thống kê kết quả kiểm duyệt gói dữ liệu nhập', async () => {
