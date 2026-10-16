@@ -235,26 +235,39 @@ describe('Coordinator Pause/Checkpoint/Resume Drill & Audit (L06 Acceptance 3)',
   describe('2. Kiểm chứng bằng chứng thực tế từ Coordinator trong Git Log của Repository', () => {
     it('audit lịch sử git: xác thực các commit checkpoint có thật của các worker trước đó (V03, N06, A03, V01)', () => {
       const gitLogRaw = execSync(
-        'git log --all --grep="chore(checkpoint)" -n 10 --format="%H|%s|%an|%ad"',
+        'git log --grep="chore(checkpoint)" -n 25 --format="%H%x00%s%x00%b%x00%an%x00%ad%x01"',
         { encoding: 'utf8' },
       ).trim();
 
-      const lines = gitLogRaw.split('\n').filter(Boolean);
-      expect(lines.length).toBeGreaterThanOrEqual(4);
+      const records = gitLogRaw
+        .split('\x01')
+        .map((r) => r.trim())
+        .filter(Boolean)
+        .map((r) => {
+          const [sha, subject, body, author, date] = r.split('\x00');
+          return { sha, subject, body, author, date };
+        });
 
-      const parsedCommits = lines.map((line) => {
-        const [sha, subject, author, date] = line.split('|');
-        return { sha, subject, author, date };
-      });
+      expect(records.length).toBeGreaterThanOrEqual(4);
 
-      const checkpointCommits = parsedCommits.filter((c) => c.subject?.startsWith('chore(checkpoint):'));
-      expect(checkpointCommits.length).toBeGreaterThanOrEqual(4);
+      // Extract all checkpoint log lines across commits (both direct commits and squashed PR commits)
+      const checkpointEntries: string[] = [];
+      for (const rec of records) {
+        const fullText = `${rec.subject}\n${rec.body || ''}`;
+        const lines = fullText
+          .split('\n')
+          .map((l) => l.replace(/^[\s*-]+/, '').trim())
+          .filter((l) => l.startsWith('chore(checkpoint):'));
+        checkpointEntries.push(...lines);
+      }
+
+      expect(checkpointEntries.length).toBeGreaterThanOrEqual(4);
 
       // Verify presence of real checkpoint commits from previous worker sessions
-      const hasV03Checkpoint = checkpointCommits.some((c) => c.subject?.includes('V03'));
-      const hasN06Checkpoint = checkpointCommits.some((c) => c.subject?.includes('N06'));
-      const hasA03Checkpoint = checkpointCommits.some((c) => c.subject?.includes('A03'));
-      const hasV01Checkpoint = checkpointCommits.some((c) => c.subject?.includes('V01'));
+      const hasV03Checkpoint = checkpointEntries.some((l) => l.includes('V03'));
+      const hasN06Checkpoint = checkpointEntries.some((l) => l.includes('N06'));
+      const hasA03Checkpoint = checkpointEntries.some((l) => l.includes('A03'));
+      const hasV01Checkpoint = checkpointEntries.some((l) => l.includes('V01'));
 
       expect(hasV03Checkpoint).toBe(true);
       expect(hasN06Checkpoint).toBe(true);
@@ -262,13 +275,13 @@ describe('Coordinator Pause/Checkpoint/Resume Drill & Audit (L06 Acceptance 3)',
       expect(hasV01Checkpoint).toBe(true);
 
       // Verify Conventional Commit format: 'chore(checkpoint): <taskId> <reason>'
-      for (const commit of checkpointCommits) {
-        expect(commit.subject).toMatch(/^chore\(checkpoint\): [A-Z0-9]+ .+/);
+      for (const entry of checkpointEntries) {
+        expect(entry).toMatch(/^chore\(checkpoint\): [A-Z0-9]+ .+/);
       }
     });
 
     it('xác nhận sau mỗi checkpoint, task được resume và merge thành công vào main mà không thất thoát mã nguồn', () => {
-      const gitLogMain = execSync('git log origin/main -n 20 --format="%s"', { encoding: 'utf8' }).trim();
+      const gitLogMain = execSync('git log -n 30 --format="%s"', { encoding: 'utf8' }).trim();
 
       // Check that feature PR merges exist following checkpoints
       expect(gitLogMain).toContain('feat(N06)');
