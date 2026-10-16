@@ -8,7 +8,7 @@ import { eq } from 'drizzle-orm';
 import {
   CorpusAggregator,
   type ExamPackageInput,
-} from '../../../../../packages/content-tools/dist/index.js';
+} from '../../../../packages/content-tools/dist/index.js';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import {
@@ -192,14 +192,15 @@ export class CorpusService {
     // Save aggregate summary to corpusAggregates table
     const meta = agg.getMetadata();
     for (const [lvl, count] of Object.entries(meta.levels)) {
-      if (count > 0) {
+      const countNum = Number(count);
+      if (countNum > 0) {
         await this.dbClient.db.insert(corpusAggregates).values({
           id: generateUuidV7(),
           level: lvl,
           aggregateType: 'vocab_summary',
           payload: {
             datasetId,
-            tokenCount: count,
+            tokenCount: countNum,
             uniqueVocabCount: meta.uniqueVocabCount,
             source: meta.source,
           },

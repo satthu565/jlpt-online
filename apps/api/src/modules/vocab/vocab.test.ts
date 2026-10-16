@@ -278,7 +278,7 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       expect(grammarStats.totalCount).toBeGreaterThan(0);
 
       // DATA-19 & DATA-20: Pattern occurrence count
-      const pattern = grammarStats.items.find((i) => i.patternId === 'n5-te-wa-ikemasen');
+      const pattern = (grammarStats.items as Array<{ patternId: string; count: number; distinctExamsCount: number; examIds: string[] }>).find((i) => i.patternId === 'n5-te-wa-ikemasen');
       expect(pattern).toBeDefined();
       expect(pattern?.count).toBe(2);
       expect(pattern?.distinctExamsCount).toBe(2);
