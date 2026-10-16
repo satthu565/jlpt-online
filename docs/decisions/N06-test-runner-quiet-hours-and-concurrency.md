@@ -28,25 +28,26 @@ Trong quá trình thực hiện kiểm chứng toàn diện cho nhiệm vụ N06
 
 ## 2. Giải pháp Thực hiện
 
-### 2.1. Tiền tải môi trường kiểm thử (Preload Hook) qua `NODE_OPTIONS`
-- Tạo file preload `tests/fixtures/quiet-hours-patch.cjs` (nằm trong thư mục `tests/` thuộc quyền ghi của W6).
-- Hook này can thiệp an toàn vào `Intl.DateTimeFormat.prototype.formatToParts`:
-  - Khi múi giờ là `Asia/Saigon` hoặc `Asia/Ho_Chi_Minh`, và thời điểm đánh giá khớp với thời gian thực của đồng hồ hệ thống (sai lệch dưới 5 phút) trong khung giờ `00:00 - 04:00`, giờ đánh giá được chuyển dịch về `12:00` trưa.
-  - Các bài kiểm tra với mốc thời gian cố định (fixed dates) được giữ nguyên vẹn 100%, không bị ảnh hưởng.
-- Cấu hình preload hook trong script `test` và `test:notifications` tại root `package.json`:
-  ```json
-  "test": "NODE_OPTIONS=\"--require $(pwd)/tests/fixtures/quiet-hours-patch.cjs\" VITEST_MAX_WORKERS=1 turbo run test --concurrency=2"
-  ```
+### 2.1. Giải pháp Xử lý Múi giờ và Đồng bộ với Upstream
+- Ban đầu, file preload `tests/fixtures/quiet-hours-patch.cjs` được áp dụng tạm thời qua `NODE_OPTIONS` để bảo vệ test runner khi chạy vào ban đêm.
+- Sau khi `origin/main` chính thức merge commit `f06d89f` (`vi.useFakeTimers()` cố định mốc giờ 12:00 trưa bên trong `apps/api/src/modules/notification/notifications.test.ts`), giải pháp native từ upstream đã giải quyết dứt điểm nguyên nhân gốc.
+- W6 tiến hành dọn dẹp sạch sẽ:
+  - Loại bỏ preload hook `tests/fixtures/quiet-hours-patch.cjs`.
+  - Khôi phục script `"test": "turbo run test --concurrency=2"` và `"test:notifications": "vitest run apps/api/src/modules/notification/notifications.test.ts"` trong `package.json`, loại bỏ hoàn toàn `NODE_OPTIONS` và các biến môi trường không chuẩn.
 
 ### 2.2. Kiểm soát Concurrency và Phân bổ Bộ nhớ
-- Kết hợp `VITEST_MAX_WORKERS=1` vào lệnh `test` để đảm bảo Vitest chạy tuần tự từng file test trong mỗi package, giữ dung lượng RAM tiêu thụ ở mức an toàn (~600 MB).
-- Giữ vững cấu hình Turborepo concurrency ở mức 2 package đồng thời, ngăn chặn hoàn toàn hiện tượng OOM SIGKILL trên máy chủ dùng chung giữa 6 worker.
+- Cấu hình Turborepo concurrency giữ ở mức 2 package đồng thời (`--concurrency=2`), cân bằng tối ưu giữa thông lượng CI và giới hạn tài nguyên CPU/RAM.
 
 ---
 
-## 3. Kết quả Kiểm chứng
+## 3. Kết quả Kiểm chứng Toàn diện (Assignment N06-16)
 
-1. Toàn bộ 34 test files của `@jlpt/api` (452 tests): **PASS 100%**, không còn bất kỳ lỗi quiet hours hay SIGKILL nào.
-2. Bộ kiểm thử E2E Core (`pnpm test:e2e:core`): **PASS 15/15**.
-3. Ma trận An ninh (`pnpm test:security`): **PASS 80/80**.
-4. Đo lường Tải cơ sở (`pnpm test:load:baseline`): **PASS 250 requests, 100% success rate, throughput 584 req/s**.
+1. `pnpm install --frozen-lockfile`: **PASS (39ms, lockfile matches exactly)**
+2. `pnpm lint`: **PASS (13 packages, 0 errors)**
+3. `pnpm typecheck`: **PASS (19 packages/tasks, 0 errors)**
+4. `pnpm test`: **PASS (19 tasks, 100% test suites pass)**
+5. `pnpm build`: **PASS (12 packages/tasks, static & standalone builds successful)**
+6. `pnpm test:e2e:core`: **PASS (15/15 tests)**
+7. `pnpm test:security`: **PASS (4 suites, 80/80 tests)**
+8. `pnpm test:load:baseline`: **PASS (250 requests, 100% success rate, throughput ~470 req/s, latency p50 17.04ms, p95 43.02ms, ghi nhận tại docs/release/load-baseline-metrics.json)**
+
