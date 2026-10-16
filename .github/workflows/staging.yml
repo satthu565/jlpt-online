@@ -128,6 +128,14 @@ jobs:
         run: |
           pnpm test:e2e:core
 
+      - name: Run Full Staging Scope E2E Integration Suite (A06)
+        run: |
+          pnpm test:e2e:full
+
+      - name: Run Feature Implementation Verification Gate (A06)
+        run: |
+          pnpm features:verify
+
       - name: Run Security Negative Matrix (Cross-tenant, IDOR, RBAC, Lease) (N06)
         run: |
           pnpm test:security

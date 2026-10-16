@@ -43,5 +43,8 @@ jobs:
       - name: Run infrastructure and profiles verification gate
         run: pnpm infra:check
 
+      - name: Verify feature scope and implementation coverage (A06)
+        run: pnpm features:verify
+
       - name: Build applications and packages
         run: pnpm build

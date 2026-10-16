@@ -91,7 +91,9 @@
     "test:e2e:core": "vitest run -c tests/vitest.config.ts tests/e2e/core.test.ts",
     "test:security": "vitest run -c tests/vitest.config.ts --testTimeout=30000 --hookTimeout=30000 tests/integration/security-matrix.test.ts apps/api/src/common/guards/security-hardening.test.ts apps/api/src/common/guards/authorization.test.ts apps/api/src/modules/attempt/no-answer-leak.test.ts",
     "test:load:baseline": "node --no-warnings --experimental-strip-types tests/load/baseline-runner.ts",
-    "test:api:all": "pnpm --filter @jlpt/api test"
+    "test:api:all": "pnpm --filter @jlpt/api test",
+    "test:e2e:full": "vitest run -c tests/vitest.config.ts tests/e2e/full/ --fileParallelism=false --testTimeout=60000 --hookTimeout=60000",
+    "features:verify": "node --no-warnings --experimental-strip-types infra/features-verify.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",
