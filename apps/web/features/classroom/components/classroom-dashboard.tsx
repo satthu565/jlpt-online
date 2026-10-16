@@ -32,7 +32,7 @@ export interface ClassroomDashboardProps {
 }
 
 export function ClassroomDashboard({
-  organizations,
+  organizations: _organizations,
   classes,
   selectedClassId,
   onSelectClass,

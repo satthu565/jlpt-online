@@ -5,17 +5,19 @@ import { Card, CardHeader, CardTitle, CardContent, Button, Input, Modal, Alert, 
 import type { DiscussionComment } from '../types';
 import { useI18n } from '../../../lib/i18n';
 
+export type CommentReportReason = 'spam' | 'spoiler' | 'harassment' | 'wrong_answer' | 'other';
+
 export interface QuestionDiscussionsProps {
   questionId: string;
   isCompleted: boolean;
   comments: DiscussionComment[];
   onAddComment: (content: string, parentId?: string) => Promise<void>;
-  onReportComment: (commentId: string, reason: string, details?: string) => Promise<void>;
+  onReportComment: (commentId: string, reason: CommentReportReason, details?: string) => Promise<void>;
   onDeleteComment?: (commentId: string) => Promise<void>;
 }
 
 export function QuestionDiscussions({
-  questionId,
+  questionId: _questionId,
   isCompleted,
   comments,
   onAddComment,
@@ -27,7 +29,7 @@ export function QuestionDiscussions({
   const [commentText, setCommentText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [reportingCommentId, setReportingCommentId] = useState<string | null>(null);
-  const [reportReason, setReportReason] = useState('spoiler');
+  const [reportReason, setReportReason] = useState<CommentReportReason>('spoiler');
   const [reportDetail, setReportDetail] = useState('');
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -201,7 +203,7 @@ export function QuestionDiscussions({
                 <Select
                   id="report-reason-select"
                   value={reportReason}
-                  onChange={(e) => setReportReason(e.target.value)}
+                  onChange={(e) => setReportReason(e.target.value as CommentReportReason)}
                   options={[
                     { value: 'spoiler', label: t('community.discussions.reasonSpoiler') },
                     { value: 'wrong_answer', label: t('community.discussions.reasonWrongAnswer') },

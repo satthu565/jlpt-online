@@ -201,7 +201,7 @@ export default function NotebookPage(): React.JSX.Element {
       setActiveTab('quiz');
     } catch {
       // Generate sample quiz from items
-      const sampleQ = items.slice(0, 4).map((item, idx) => ({
+      const sampleQ = items.slice(0, 4).map((item) => ({
         id: `q-${item.id}`,
         stem: `Nghĩa đúng của từ/mẫu「${item.term}」là gì?`,
         options: [

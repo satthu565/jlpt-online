@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 
@@ -6,13 +6,12 @@ import { renderToString } from 'react-dom/server';
 import { SrsReviewRunner } from '../features/learning/components/srs-review-runner';
 import { SrsSyncManager } from '../features/learning/services/srs-sync-manager';
 import { LearningClient } from '../features/learning/services/learning-client';
-import type { DueFlashcard } from '../features/learning/types';
+import type { DueFlashcard, ReviewSubmission, ReviewResult } from '../features/learning/types';
 
 import { NotificationSettings } from '../features/account/notification-settings';
 import { PrivacySettings } from '../features/account/privacy-settings';
 
 import { PlannerDashboard } from '../features/planner/components/planner-dashboard';
-import { TodaySessionRunner } from '../features/planner/components/today-session-runner';
 import { ReplanModal } from '../features/planner/components/replan-modal';
 import type { StudyPlan, StudySession } from '../features/planner/types';
 
@@ -21,11 +20,11 @@ import { CohortPrivacyBadge } from '../features/classroom/components/cohort-priv
 import { CreateAssignmentModal } from '../features/classroom/components/create-assignment-modal';
 import { AssignmentProgressView } from '../features/classroom/components/assignment-progress-view';
 import { GradeExportModal } from '../features/classroom/components/grade-export-modal';
-import type { ClassRoom, ClassMember, ClassAssignment, AssignmentAnalytics } from '../features/classroom/types';
+import type { ClassRoom, ClassMember, ClassAssignment, AssignmentAnalytics, GradeExportResponse } from '../features/classroom/types';
 
 import { ExamEventLobby } from '../features/community/components/exam-event-lobby';
 import { QuestionDiscussions } from '../features/community/components/question-discussions';
-import type { EventLobbyInfo, DiscussionComment } from '../features/community/types';
+import type { EventLobbyInfo } from '../features/community/types';
 
 const renderClean = (element: React.JSX.Element): string =>
   renderToString(element)
@@ -65,9 +64,9 @@ describe('E2E Advanced Suite: SRS Sync, Notifications, Classroom & Community (A0
     });
 
     it('queues review submission locally with unique clientReviewId and idempotent payload', async () => {
-      let submittedPayload: any = null;
+      let submittedPayload: ReviewSubmission | undefined;
       const mockClient = {
-        submitReview: async (payload: any) => {
+        submitReview: async (payload: ReviewSubmission): Promise<ReviewResult> => {
           submittedPayload = payload;
           return {
             cardId: payload.cardId,
@@ -102,9 +101,10 @@ describe('E2E Advanced Suite: SRS Sync, Notifications, Classroom & Community (A0
       const res = await syncManager.processQueue();
       expect(res.synced).toBe(1);
       expect(submittedPayload).toBeDefined();
-      expect(submittedPayload.clientReviewId).toBe(clientReviewId);
-      expect(submittedPayload.cardId).toBe('card-101');
-      expect(submittedPayload.rating).toBe(3);
+      const payload = submittedPayload as ReviewSubmission;
+      expect(payload.clientReviewId).toBe(clientReviewId);
+      expect(payload.cardId).toBe('card-101');
+      expect(payload.rating).toBe(3);
 
       // Check snapshot updated
       const snapshot = syncManager.getSnapshot();
@@ -114,7 +114,7 @@ describe('E2E Advanced Suite: SRS Sync, Notifications, Classroom & Community (A0
 
     it('handles idempotent replay without errors when server returns isIdempotentReplay', async () => {
       const mockClient = {
-        submitReview: async (payload: any) => ({
+        submitReview: async (payload: ReviewSubmission): Promise<ReviewResult> => ({
           cardId: payload.cardId,
           nextDueAt: new Date().toISOString(),
           intervalDays: 3,
@@ -235,8 +235,8 @@ describe('E2E Advanced Suite: SRS Sync, Notifications, Classroom & Community (A0
           assignments={mockAssignments}
           isTeacher={true}
           onCreateAssignment={async () => {}}
-          onLoadAssignmentAnalytics={async () => ({} as any)}
-          onExportGrades={async () => ({} as any)}
+          onLoadAssignmentAnalytics={async () => ({} as unknown as AssignmentAnalytics)}
+          onExportGrades={async () => ({} as unknown as GradeExportResponse)}
         />,
       );
 
@@ -313,7 +313,7 @@ describe('E2E Advanced Suite: SRS Sync, Notifications, Classroom & Community (A0
           classId="cls-101"
           className="Lớp N3 K24"
           onClose={() => {}}
-          onExport={async () => ({} as any)}
+          onExport={async () => ({} as unknown as GradeExportResponse)}
         />,
       );
 

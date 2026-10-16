@@ -22,7 +22,7 @@ export function NotebookQuizView({
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [score, setScore] = useState(0);
-  const [history, setHistory] = useState<Array<{ questionId: string; selected: number; correct: boolean }>>([]);
+  const [_history, setHistory] = useState<Array<{ questionId: string; selected: number; correct: boolean }>>([]);
 
   const questions = quiz.questions || [];
   const currentQ: NotebookQuizQuestion | undefined = questions[currentIndex];

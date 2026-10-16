@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Button, Badge, Alert } from '@jlpt/ui';
-import type { StudyPlan, StudySession } from '../types';
+import { Card, CardHeader, CardContent, Button, Badge, Alert } from '@jlpt/ui';
+import type { StudyPlan, StudySession, CreateStudyPlanInput } from '../types';
 import { TodaySessionRunner } from './today-session-runner';
 import { ReplanModal } from './replan-modal';
 import { CreatePlanModal } from './create-plan-modal';
@@ -13,7 +13,7 @@ export interface PlannerDashboardProps {
   plan: StudyPlan | null;
   todaySession: StudySession | null;
   loading?: boolean;
-  onCreatePlan: (input: any) => Promise<void>;
+  onCreatePlan: (input: CreateStudyPlanInput) => Promise<void>;
   onCompleteSession: (sessionId: string, clientEventId: string, timeSpentSeconds: number) => Promise<void>;
   onReplan: (planId: string, reason?: string) => Promise<void>;
 }

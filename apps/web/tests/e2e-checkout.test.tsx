@@ -8,7 +8,14 @@ import { CouponInput } from '../features/billing/components/coupon-input';
 import { CheckoutCard } from '../features/billing/components/checkout-card';
 import { SubscriptionStatusCard } from '../features/billing/components/subscription-status-card';
 import { TransactionHistoryCard } from '../features/billing/components/transaction-history-card';
-import type { Plan, UserSubscription, TransactionItem } from '../features/billing/types';
+import type {
+  Plan,
+  UserSubscription,
+  TransactionItem,
+  CouponDiscount,
+  CheckoutSession,
+  RefundRequestResponse,
+} from '../features/billing/types';
 
 const renderClean = (element: React.JSX.Element): string =>
   renderToString(element)
@@ -80,7 +87,7 @@ describe('E2E Checkout Suite: Pricing, Coupons, Subscriptions & Refund Status (A
     it('renders coupon input field and apply button when no coupon applied', () => {
       const html = renderClean(
         <CouponInput
-          onApplyCoupon={async () => ({} as any)}
+          onApplyCoupon={async () => ({} as unknown as CouponDiscount)}
           onRemoveCoupon={() => {}}
           appliedCoupon={null}
         />,
@@ -94,7 +101,7 @@ describe('E2E Checkout Suite: Pricing, Coupons, Subscriptions & Refund Status (A
     it('renders applied coupon card with discount summary and remove button', () => {
       const html = renderClean(
         <CouponInput
-          onApplyCoupon={async () => ({} as any)}
+          onApplyCoupon={async () => ({} as unknown as CouponDiscount)}
           onRemoveCoupon={() => {}}
           appliedCoupon={{
             code: 'JLPT2026',
@@ -120,8 +127,8 @@ describe('E2E Checkout Suite: Pricing, Coupons, Subscriptions & Refund Status (A
       const html = renderClean(
         <CheckoutCard
           plan={mockPlans[1]!} // 999.000₫
-          onApplyCoupon={async () => ({} as any)}
-          onCheckout={async () => ({} as any)}
+          onApplyCoupon={async () => ({} as unknown as CouponDiscount)}
+          onCheckout={async () => ({} as unknown as CheckoutSession)}
         />,
       );
 
@@ -215,7 +222,7 @@ describe('E2E Checkout Suite: Pricing, Coupons, Subscriptions & Refund Status (A
       const html = renderClean(
         <TransactionHistoryCard
           transactions={mockTransactions}
-          onRequestRefund={async () => ({} as any)}
+          onRequestRefund={async () => ({} as unknown as RefundRequestResponse)}
         />,
       );
 

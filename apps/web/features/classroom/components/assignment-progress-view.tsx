@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, Button, Badge, Alert } from '@jlpt/ui';
-import type { AssignmentAnalytics, AssignmentSubmission } from '../types';
+import type { AssignmentAnalytics } from '../types';
 import { useI18n } from '../../../lib/i18n';
 
 export interface AssignmentProgressViewProps {

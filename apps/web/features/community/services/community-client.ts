@@ -103,6 +103,14 @@ export class CommunityClient {
     }>('GET', `/exam-events/${encodeURIComponent(id)}/results`);
   }
 
+  public async getEventLeaderboard(id: string): Promise<{
+    isEmbargoed: boolean;
+    resultReleaseAt?: string;
+    items?: LeaderboardRank[];
+  }> {
+    return this.getEventResults(id);
+  }
+
   // 2. Question Discussions (Gated to question completion)
   public async getQuestionDiscussions(questionId: string): Promise<{
     allowed: boolean;

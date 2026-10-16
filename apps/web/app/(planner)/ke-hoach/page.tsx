@@ -6,6 +6,7 @@ import {
   defaultPlannerClient,
   type StudyPlan,
   type StudySession,
+  type CreateStudyPlanInput,
 } from '../../../features/planner';
 import { useI18n } from '../../../lib/i18n';
 
@@ -79,7 +80,7 @@ export default function PlannerPage(): React.JSX.Element {
     loadPlannerData();
   }, []);
 
-  const handleCreatePlan = async (input: any) => {
+  const handleCreatePlan = async (input: CreateStudyPlanInput) => {
     try {
       const created = await defaultPlannerClient.createStudyPlan(input);
       setPlan(created);

@@ -13,7 +13,7 @@ export interface ReplanModalProps {
 
 export function ReplanModal({
   isOpen,
-  planId,
+  planId: _planId,
   onClose,
   onConfirm,
 }: ReplanModalProps): React.JSX.Element {
