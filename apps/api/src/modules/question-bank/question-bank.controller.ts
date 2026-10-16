@@ -157,4 +157,10 @@ export class QuestionBankController {
     const versionNum = version ? parseInt(version, 10) : undefined;
     return this.qbService.getGroupPublicPreview(id, versionNum);
   }
+
+  @Roles('admin', 'editor', 'reviewer')
+  @Get('admin/questions/:id/exam-usage')
+  async getQuestionExamUsage(@Param('id') id: string) {
+    return this.qbService.getQuestionExamUsage(id);
+  }
 }

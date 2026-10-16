@@ -834,9 +834,55 @@ export class AttemptService {
     );
 
     const correctVal = answerKey.keys[input.index] ?? 0;
+
+    // Check if approved explanation exists for this question
+    let explanationText: string | undefined = undefined;
+    const [item] = await db
+      .select({ questionId: schema.examItems.questionId })
+      .from(schema.examItems)
+      .where(
+        and(
+          eq(schema.examItems.examId, attempt.examId),
+          eq(schema.examItems.orderIndex, input.index),
+        ),
+      )
+      .limit(1);
+
+    if (item) {
+      const [exp] = await db
+        .select({ content: schema.explanationVersions.content })
+        .from(schema.explanationVersions)
+        .where(
+          and(
+            eq(schema.explanationVersions.questionId, item.questionId),
+            eq(schema.explanationVersions.status, 'approved'),
+          ),
+        )
+        .orderBy(desc(schema.explanationVersions.version))
+        .limit(1);
+
+      if (exp?.content) {
+        const c = exp.content as Record<string, unknown>;
+        if (typeof c['correctReason'] === 'string') {
+          explanationText = c['correctReason'];
+        } else if (Array.isArray(c['correctReason']) && c['correctReason'].length > 0) {
+          const first = c['correctReason'][0] as Record<string, unknown>;
+          if (typeof first?.['text'] === 'string') {
+            explanationText = first['text'];
+          }
+        } else if (
+          c['correctReason'] &&
+          typeof (c['correctReason'] as Record<string, unknown>)['text'] === 'string'
+        ) {
+          explanationText = (c['correctReason'] as Record<string, unknown>)['text'] as string;
+        }
+      }
+    }
+
     return {
       index: input.index,
       correct: userVal === correctVal,
+      ...(explanationText ? { explanation: explanationText } : {}),
     };
   }
 
