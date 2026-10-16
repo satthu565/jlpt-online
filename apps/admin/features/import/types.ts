@@ -1,5 +1,5 @@
-import type { Level, MondaiType, RichText, Skill } from '@jlpt/schema';
-import type { AdminQuestionGroup, ContentStatus } from '../content/types';
+import type { Level, MondaiType, Skill } from '@jlpt/schema';
+import type { ContentStatus } from '../content/types';
 
 export type ImportJobStatus = 'pending' | 'validating' | 'draft_created' | 'succeeded' | 'failed';
 

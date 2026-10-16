@@ -65,7 +65,9 @@
     "test:payments": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/payment/payment.test.ts",
     "test:entitlements": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/entitlement/entitlement.test.ts",
     "test:payment-provider": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/payment/payment-provider.test.ts",
-    "test:admin-billing": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/billing.test.ts"
+    "test:admin-billing": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/billing.test.ts",
+    "test:e2e:import-publish": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/e2e-import-publish.test.ts",
+    "test:content-review": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/content-review.test.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",

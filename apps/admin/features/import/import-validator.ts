@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
-import type { Level, MondaiType, Skill } from '@jlpt/schema';
-import { StandalonePdfError, ImportValidationError } from './types';
+import type { Level } from '@jlpt/schema';
+import { StandalonePdfError } from './types';
 
 export interface PackageValidationInput {
   files: Record<string, Uint8Array>;
@@ -44,7 +44,7 @@ export function assertNotStandalonePdf(buffer: Uint8Array | Buffer, fileName: st
  * Validates package contents against JLPT Import v2 specification.
  */
 export function validateImportV2Package(input: PackageValidationInput): PackageValidationOutput {
-  const { files, fileName } = input;
+  const { files } = input;
   const errors: string[] = [];
   const warnings: string[] = [];
 

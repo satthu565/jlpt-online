@@ -1,4 +1,4 @@
-import type { Level, MondaiType, Skill, RichText } from '@jlpt/schema';
+import type { Level, MondaiType, Skill } from '@jlpt/schema';
 import type {
   AdminQuestion,
   AdminQuestionGroup,
@@ -9,6 +9,7 @@ import {
   createTextSegment,
   richTextToPlainText,
 } from '../content/types';
+import type { SourceFileRef, SourcePageResolution } from './types';
 
 /**
  * Escapes a single CSV value according to RFC 4180.
@@ -287,5 +288,62 @@ export class JsonCsvService {
     }
 
     return Array.from(groupMap.values());
+  }
+
+  /**
+   * Resolves optional source page reference to view target.
+   * Enforces: "JSON/CSV import/export roundtrip và source page tùy chọn mở đúng"
+   */
+  public resolveSourcePage(
+    group: AdminQuestionGroup,
+    sourceFiles: SourceFileRef[] = [],
+  ): SourcePageResolution {
+    const pageNum = group.sourcePage;
+    const sourceRef = group.sourceRef || '';
+
+    if (pageNum === undefined || pageNum === null) {
+      return {
+        sourceFileId: sourceRef,
+        pageNumber: 0,
+        url: '',
+        available: false,
+        error: 'Chưa khai báo trang nguồn (sourcePage).',
+      };
+    }
+
+    if (isNaN(pageNum) || pageNum < 1) {
+      return {
+        sourceFileId: sourceRef,
+        pageNumber: pageNum,
+        url: '',
+        available: false,
+        error: `Số trang không hợp lệ: ${pageNum}. Số trang phải là số nguyên >= 1.`,
+      };
+    }
+
+    // Match with source file if sourceFiles provided
+    const matchedFile = sourceFiles.find(
+      (sf) => sf.id === sourceRef || sf.path.endsWith(sourceRef) || sf.path.includes(sourceRef),
+    );
+
+    if (sourceFiles.length > 0 && !matchedFile) {
+      return {
+        sourceFileId: sourceRef,
+        pageNumber: pageNum,
+        url: '',
+        available: false,
+        error: `Tệp nguồn PDF "${sourceRef}" không tồn tại trong danh mục tài liệu đính kèm.`,
+      };
+    }
+
+    const fileId = matchedFile ? matchedFile.id : (sourceRef || 'default-source');
+    const safeUrl = `/admin/sources/${encodeURIComponent(fileId)}#page=${pageNum}`;
+
+    return {
+      sourceFileId: fileId,
+      pageNumber: pageNum,
+      url: safeUrl,
+      available: true,
+    };
   }
 }

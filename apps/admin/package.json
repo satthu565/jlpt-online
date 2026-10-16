@@ -13,7 +13,9 @@
     "test:admin": "vitest run",
     "test:admin-auth": "vitest run tests/auth.test.ts tests/guard.test.ts",
     "test:admin-content": "vitest run tests/content.test.ts",
-    "test:admin-users": "vitest run tests/users.test.ts"
+    "test:admin-users": "vitest run tests/users.test.ts",
+    "test:e2e:import-publish": "vitest run tests/e2e-import-publish.test.ts",
+    "test:content-review": "vitest run tests/content-review.test.ts"
   },
   "dependencies": {
     "@jlpt/config": "workspace:*",

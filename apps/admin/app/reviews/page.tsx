@@ -2,14 +2,23 @@
 
 import React from 'react';
 import { AdminGuard } from '../../lib/ui-guard';
+import { useAdminAuth } from '../../lib/auth-context';
+import { ReviewQueueView } from '../../features/review';
+import type { StaffOperator } from '../../features/review/types';
 
 export default function ReviewsPage(): React.JSX.Element {
+  const { user } = useAdminAuth();
+
+  const currentOperator: StaffOperator = {
+    id: user?.id || 'reviewer-01',
+    email: user?.email || 'reviewer@jlpt.local',
+    role: user?.role || 'reviewer',
+    name: user?.name || 'Reviewer Admin',
+  };
+
   return (
     <AdminGuard pathname="/reviews" requiredRoles={['reviewer', 'admin']}>
-      <div style={{ padding: '2rem' }}>
-        <h1 data-testid="page-title">Hàng đợi kiểm duyệt (Review Queue)</h1>
-        <p>Quy trình kiểm duyệt 2 bước: Phê duyệt hoặc từ chối câu hỏi từ biên tập viên.</p>
-      </div>
+      <ReviewQueueView currentOperator={currentOperator} />
     </AdminGuard>
   );
 }
