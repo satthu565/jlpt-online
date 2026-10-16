@@ -24,6 +24,13 @@
     "users": "ユーザー管理",
     "auditLogs": "システム監査ログ",
     "experiments": "A/Bテスト検証",
+    "cms": "記事・CMS管理",
+    "vocab": "語彙・文法管理",
+    "mixedExams": "ランダム試験管理",
+    "reports": "システム分析レポート (15指標)",
+    "notifications": "通知・メール設定",
+    "aiModeration": "AIコンテンツ審査",
+    "orgSettings": "組織・講師設定",
     "settings": "システム設定",
     "sections": {
       "overview": "概要",

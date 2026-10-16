@@ -6,14 +6,22 @@ import { ensureAttemptEventsPartitions } from '../../db/partitions.js';
 export const DB_CLIENT = 'DB_CLIENT';
 
 let cachedClient: DbClientInstance | null = null;
+let pendingClient: Promise<DbClientInstance> | null = null;
 
+// Concurrent first callers share one initialisation, and nobody gets the client before its
+// migrations and partitions are in place.
 export async function getOrCreateDbClient(): Promise<DbClientInstance> {
-  if (!cachedClient) {
-    cachedClient = await createDbClient();
-    await runMigrations(cachedClient);
-    await ensureAttemptEventsPartitions(cachedClient);
-  }
-  return cachedClient;
+  if (cachedClient) return cachedClient;
+  pendingClient ??= (async () => {
+    const client = await createDbClient();
+    await runMigrations(client);
+    await ensureAttemptEventsPartitions(client);
+    cachedClient = client;
+    return client;
+  })().finally(() => {
+    pendingClient = null;
+  });
+  return pendingClient;
 }
 
 export function setTestDbClient(client: DbClientInstance | null): void {

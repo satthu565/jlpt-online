@@ -43,91 +43,112 @@ export function resolveMigrationsDir(customDir?: string): string {
   return path.join(__dirname, 'migrations');
 }
 
+// One key for the whole app: the api and worker containers start together and both migrate
+// on boot. Without serialisation both read an empty ledger and the slower one fails with
+// `relation "..." already exists` (seen in the staging drill after N02).
 export const MIGRATION_ADVISORY_LOCK_ID = 72110115;
+let inProcess: Promise<unknown> = Promise.resolve();
 
 /**
  * Executes database migrations on the target client.
- * Fully idempotent using __drizzle_migrations ledger.
- * Uses PostgreSQL advisory locking to prevent concurrent migration races across multiple processes/containers.
+ * Fully idempotent using __drizzle_migrations ledger; concurrent callers are serialised in
+ * process, and across processes by a Postgres advisory lock held on one reserved connection.
  */
 export async function runMigrations(
   client: DbClientInstance,
   migrationsDir?: string,
 ): Promise<MigrationResult> {
+  const run = inProcess.then(() => runMigrationsLocked(client, migrationsDir));
+  inProcess = run.catch(() => undefined);
+  return run;
+}
+
+async function runMigrationsLocked(
+  client: DbClientInstance,
+  migrationsDir?: string,
+): Promise<MigrationResult> {
+  if (client.type !== 'postgres' || typeof client.rawClient?.reserve !== 'function') {
+    return applyMigrations(client, migrationsDir);
+  }
+  // A session lock needs one connection; the postgres.js pool may hand out another per query.
+  const conn = await client.rawClient.reserve();
+  try {
+    await conn.unsafe(`SELECT pg_advisory_lock(${MIGRATION_ADVISORY_LOCK_ID})`);
+    try {
+      const locked: DbClientInstance = { ...client, query: (sqlQuery: string) => conn.unsafe(sqlQuery) };
+      return await applyMigrations(locked, migrationsDir);
+    } finally {
+      await conn.unsafe(`SELECT pg_advisory_unlock(${MIGRATION_ADVISORY_LOCK_ID})`);
+    }
+  } finally {
+    conn.release();
+  }
+}
+
+async function applyMigrations(
+  client: DbClientInstance,
+  migrationsDir?: string,
+): Promise<MigrationResult> {
   const dir = resolveMigrationsDir(migrationsDir);
 
-  // Acquire advisory lock
-  try {
-    await client.query(`SELECT pg_advisory_lock(${MIGRATION_ADVISORY_LOCK_ID});`);
-  } catch {
-    // If not supported by client, continue
+  // The caller (runMigrationsLocked) holds the advisory lock on the connection this client uses.
+  // Ensure migration ledger exists
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS "__drizzle_migrations" (
+      id SERIAL PRIMARY KEY,
+      name text NOT NULL UNIQUE,
+      applied_at timestamp with time zone DEFAULT now() NOT NULL
+    );
+  `);
+
+  // Query already applied migrations
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ledgerRows = (await client.query(`SELECT name FROM "__drizzle_migrations"`)) as any;
+  const appliedSet = new Set<string>();
+
+  const rows = ledgerRows.rows ?? ledgerRows;
+  if (Array.isArray(rows)) {
+    for (const r of rows) {
+      if (r && r.name) appliedSet.add(r.name);
+    }
   }
 
-  try {
-    // Ensure migration ledger exists
+  const files = fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith('.sql'))
+    .sort();
+
+  const applied: string[] = [];
+  const alreadyApplied: string[] = [];
+
+  for (const file of files) {
+    if (appliedSet.has(file)) {
+      alreadyApplied.push(file);
+      continue;
+    }
+
+    const filePath = path.join(dir, file);
+    const content = fs.readFileSync(filePath, 'utf8');
+
+    // Split statements on breakpoint or semicolons
+    const statements = content
+      .split('--> statement-breakpoint')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+
+    for (const stmt of statements) {
+      await client.query(stmt);
+    }
+
     await client.query(`
-      CREATE TABLE IF NOT EXISTS "__drizzle_migrations" (
-        id SERIAL PRIMARY KEY,
-        name text NOT NULL UNIQUE,
-        applied_at timestamp with time zone DEFAULT now() NOT NULL
-      );
+      INSERT INTO "__drizzle_migrations" (name) VALUES ('${file}')
+      ON CONFLICT (name) DO NOTHING;
     `);
 
-    // Query already applied migrations
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ledgerRows = (await client.query(`SELECT name FROM "__drizzle_migrations"`)) as any;
-    const appliedSet = new Set<string>();
-
-    const rows = ledgerRows.rows ?? ledgerRows;
-    if (Array.isArray(rows)) {
-      for (const r of rows) {
-        if (r && r.name) appliedSet.add(r.name);
-      }
-    }
-
-    const files = fs
-      .readdirSync(dir)
-      .filter((f) => f.endsWith('.sql'))
-      .sort();
-
-    const applied: string[] = [];
-    const alreadyApplied: string[] = [];
-
-    for (const file of files) {
-      if (appliedSet.has(file)) {
-        alreadyApplied.push(file);
-        continue;
-      }
-
-      const filePath = path.join(dir, file);
-      const content = fs.readFileSync(filePath, 'utf8');
-
-      // Split statements on breakpoint or semicolons
-      const statements = content
-        .split('--> statement-breakpoint')
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0);
-
-      for (const stmt of statements) {
-        await client.query(stmt);
-      }
-
-      await client.query(`
-        INSERT INTO "__drizzle_migrations" (name) VALUES ('${file}')
-        ON CONFLICT (name) DO NOTHING;
-      `);
-
-      applied.push(file);
-    }
-
-    return { applied, alreadyApplied };
-  } finally {
-    try {
-      await client.query(`SELECT pg_advisory_unlock(${MIGRATION_ADVISORY_LOCK_ID});`);
-    } catch {
-      // Ignore unlock failure
-    }
+    applied.push(file);
   }
+
+  return { applied, alreadyApplied };
 }
 
 /**

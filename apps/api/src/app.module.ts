@@ -26,6 +26,8 @@ import { AuditModule } from './modules/audit/audit.module.js';
 import { AdminModule } from './modules/admin/admin.module.js';
 import { ExamModule } from './modules/exam/exam.module.js';
 import { NotificationModule } from './modules/notification/notification.module.js';
+import { ClassroomModule } from './modules/classroom/classroom.module.js';
+import { CommunityModule } from './modules/community/community.module.js';
 import { OriginGuard } from './common/guards/origin.guard.js';
 import { TotpGuard } from './common/guards/totp.guard.js';
 import { RateLimitGuard } from './common/guards/rate-limit.guard.js';
@@ -51,6 +53,8 @@ import { RateLimitGuard } from './common/guards/rate-limit.guard.js';
     AdminModule,
     ExamModule,
     NotificationModule,
+    ClassroomModule,
+    CommunityModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -33,7 +33,7 @@ export function initializeFsrsCard(now: Date = new Date()): Card {
 
 export function scheduleReview(
   card: Card,
-  grade: Grade | SRSReviewRatingString,
+  grade: Grade | SRSReviewRatingString | Rating,
   reviewTime: Date = new Date(),
   options: TimezoneScheduleOptions = {},
 ): ReviewScheduleResult {
