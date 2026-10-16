@@ -1,0 +1,255 @@
+{
+  "VALIDATION_ERROR": {
+    "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "Dữ liệu gửi lên không đúng định dạng.",
+      "details": {
+        "field": "answers",
+        "reason": "Option index must be between 0 and 4"
+      },
+      "requestId": "req_01J00000000000000000000001"
+    }
+  },
+  "TURNSTILE_FAILED": {
+    "error": {
+      "code": "TURNSTILE_FAILED",
+      "message": "Xác thực Turnstile không hợp lệ hoặc đã hết hạn.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000002"
+    }
+  },
+  "UNAUTHENTICATED": {
+    "error": {
+      "code": "UNAUTHENTICATED",
+      "message": "Yêu cầu đăng nhập để thực hiện thao tác này.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000003"
+    }
+  },
+  "EMAIL_NOT_VERIFIED": {
+    "error": {
+      "code": "EMAIL_NOT_VERIFIED",
+      "message": "Vui lòng xác minh địa chỉ email trước khi tiếp tục.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000004"
+    }
+  },
+  "FORBIDDEN": {
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Bạn không có quyền thực hiện thao tác này.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000005"
+    }
+  },
+  "TWO_FACTOR_REQUIRED": {
+    "error": {
+      "code": "TWO_FACTOR_REQUIRED",
+      "message": "Nhân viên bắt buộc phải kích hoạt 2FA để truy cập trang quản trị.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000006"
+    }
+  },
+  "NOT_FOUND": {
+    "error": {
+      "code": "NOT_FOUND",
+      "message": "Tài nguyên yêu cầu không tồn tại.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000007"
+    }
+  },
+  "ATTEMPT_ALREADY_OPEN": {
+    "error": {
+      "code": "ATTEMPT_ALREADY_OPEN",
+      "message": "Bạn đang có một bài thi chưa nộp cho đề này.",
+      "details": {
+        "attemptId": "0192f0c0-0000-7000-8000-000000000001"
+      },
+      "requestId": "req_01J00000000000000000000008"
+    }
+  },
+  "LEASE_INVALID": {
+    "error": {
+      "code": "LEASE_INVALID",
+      "message": "Bài thi đang được mở ở nơi khác hoặc tab khác.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000009"
+    }
+  },
+  "ATTEMPT_CLOSED": {
+    "error": {
+      "code": "ATTEMPT_CLOSED",
+      "message": "Bài thi đã được nộp hoặc đã đóng, không thể thao tác tiếp.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000010"
+    }
+  },
+  "ATTEMPT_NOT_SUBMITTED": {
+    "error": {
+      "code": "ATTEMPT_NOT_SUBMITTED",
+      "message": "Không thể xem lại đáp án và giải thích khi chưa nộp bài.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000011"
+    }
+  },
+  "SECTION_NOT_STARTED": {
+    "error": {
+      "code": "SECTION_NOT_STARTED",
+      "message": "Chưa bắt đầu phần thi nào, không thể cập nhật phiếu trả lời.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000012"
+    }
+  },
+  "NO_MORE_SECTIONS": {
+    "error": {
+      "code": "NO_MORE_SECTIONS",
+      "message": "Đã hoàn thành tất cả các phần thi, không còn phần thi tiếp theo.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000013"
+    }
+  },
+  "DEADLINE_PASSED": {
+    "error": {
+      "code": "DEADLINE_PASSED",
+      "message": "Đã hết thời gian làm bài của phần thi này.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000014"
+    }
+  },
+  "RATE_LIMITED": {
+    "error": {
+      "code": "RATE_LIMITED",
+      "message": "Quá nhiều yêu cầu. Vui lòng thử lại sau.",
+      "details": {
+        "retryAfterSec": 30
+      },
+      "requestId": "req_01J00000000000000000000015"
+    }
+  },
+  "INTERNAL_ERROR": {
+    "error": {
+      "code": "INTERNAL_ERROR",
+      "message": "Đã xảy ra lỗi nội bộ hệ thống. Vui lòng liên hệ hỗ trợ kèm mã yêu cầu.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000016"
+    }
+  },
+  "SERVICE_UNAVAILABLE": {
+    "error": {
+      "code": "SERVICE_UNAVAILABLE",
+      "message": "Hệ thống cơ sở dữ liệu hoặc cache tạm thời không sẵn sàng.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000017"
+    }
+  },
+  "POOL_SHORTAGE": {
+    "error": {
+      "code": "POOL_SHORTAGE",
+      "message": "Kho câu hỏi không đủ số lượng câu thỏa mãn bộ lọc đã chọn.",
+      "details": {
+        "requested": 30,
+        "available": 18
+      },
+      "requestId": "req_01J00000000000000000000018"
+    }
+  },
+  "LICENSE_DENIED": {
+    "error": {
+      "code": "LICENSE_DENIED",
+      "message": "Bản quyền nguồn nội dung không cho phép thao tác này.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000019"
+    }
+  },
+  "ENTITLEMENT_REQUIRED": {
+    "error": {
+      "code": "ENTITLEMENT_REQUIRED",
+      "message": "Tính năng yêu cầu gói thuê bao nâng cao hoặc quyền truy cập phù hợp.",
+      "details": {
+        "requiredEntitlement": "unlimited_mix_exams"
+      },
+      "requestId": "req_01J00000000000000000000020"
+    }
+  },
+  "TENANT_FORBIDDEN": {
+    "error": {
+      "code": "TENANT_FORBIDDEN",
+      "message": "Không có quyền truy cập dữ liệu thuộc tổ chức hoặc lớp học khác.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000021"
+    }
+  },
+  "VERSION_CONFLICT": {
+    "error": {
+      "code": "VERSION_CONFLICT",
+      "message": "Tài nguyên đã bị thay đổi bởi người khác (xung đột phiên bản).",
+      "details": {
+        "expectedVersion": 1,
+        "actualVersion": 2
+      },
+      "requestId": "req_01J00000000000000000000022"
+    }
+  },
+  "IDEMPOTENCY_CONFLICT": {
+    "error": {
+      "code": "IDEMPOTENCY_CONFLICT",
+      "message": "Idempotency key đã được sử dụng với nội dung yêu cầu khác.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000023"
+    }
+  },
+  "EVENT_NOT_STARTED": {
+    "error": {
+      "code": "EVENT_NOT_STARTED",
+      "message": "Sự kiện thi chưa tới giờ bắt đầu.",
+      "details": {
+        "startsAt": "2026-12-01T08:00:00Z"
+      },
+      "requestId": "req_01J00000000000000000000024"
+    }
+  },
+  "RESULTS_EMBARGOED": {
+    "error": {
+      "code": "RESULTS_EMBARGOED",
+      "message": "Kết quả và đáp án sự kiện thi chưa được công bố.",
+      "details": {
+        "resultReleaseAt": "2026-12-01T12:00:00Z"
+      },
+      "requestId": "req_01J00000000000000000000025"
+    }
+  },
+  "QUOTA_EXHAUSTED": {
+    "error": {
+      "code": "QUOTA_EXHAUSTED",
+      "message": "Bạn đã sử dụng hết hạn mức AI của kỳ hiện tại.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000026"
+    }
+  },
+  "PROVIDER_UNAVAILABLE": {
+    "error": {
+      "code": "PROVIDER_UNAVAILABLE",
+      "message": "Nhà cung cấp dịch vụ bên ngoài tạm thời không phản hồi.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000027"
+    }
+  },
+  "CONTENT_REVIEW_REQUIRED": {
+    "error": {
+      "code": "CONTENT_REVIEW_REQUIRED",
+      "message": "Nội dung cần được nhân viên kiểm duyệt trước khi xuất bản ra công chúng.",
+      "details": {},
+      "requestId": "req_01J00000000000000000000028"
+    }
+  },
+  "INSUFFICIENT_DATA": {
+    "error": {
+      "code": "INSUFFICIENT_DATA",
+      "message": "Chưa đủ dữ liệu thống kê để kết luận có ý nghĩa.",
+      "details": {
+        "dataStatus": "insufficient_sample_size"
+      },
+      "requestId": "req_01J00000000000000000000029"
+    }
+  }
+}

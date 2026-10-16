@@ -11,7 +11,10 @@
     "test:import-contracts": "vitest run packages/content-tools/tests/import-contracts.test.ts",
     "import:validate": "node tools/import-data/bin/validate.js",
     "dev": "turbo run dev",
-    "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md}\"",
+    "contracts:check": "pnpm --filter @jlpt/schema build && node -e \"import('./packages/schema/dist/index.js').then(m => m.runCheck(process.cwd()))\"",
+    "contracts:generate": "pnpm --filter @jlpt/schema build && node -e \"import('./packages/schema/dist/index.js').then(m => m.runGenerate(process.cwd()))\" && pnpm --filter @jlpt/api-client build",
+    "test:contracts": "vitest run packages/schema/tests packages/api-client/tests"
   },
   "devDependencies": {
     "@eslint/js": "9.21.0",
