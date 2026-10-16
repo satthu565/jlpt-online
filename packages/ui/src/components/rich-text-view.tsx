@@ -16,8 +16,15 @@ export interface RichTextViewProps {
 export function sanitizeUrl(url?: string): string {
   if (!url) return '';
   const trimmed = url.trim();
-  // Strip non-printable / control characters before testing
-  const normalized = trimmed.replace(/[\u0000-\u001F\u007F-\u009F\s]/g, '').toLowerCase();
+  // Strip control characters (< 32, 127, and 128-159) and whitespace
+  const normalized = Array.from(trimmed)
+    .filter((c) => {
+      const code = c.charCodeAt(0);
+      return (code >= 32 && code !== 127) || code > 159;
+    })
+    .join('')
+    .replace(/\s+/g, '')
+    .toLowerCase();
 
   // Block dangerous schemes
   if (

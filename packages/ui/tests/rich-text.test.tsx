@@ -146,6 +146,12 @@ describe('RichText Rendering & XSS Protection (Acceptance 1 & EXAM-10)', () => {
     expect(html).toContain('alt="Áp phích thông báo"');
     expect(html).toContain('width="400"');
     expect(html).toContain('height="300"');
+
+    // Individual RichBlockView check
+    const paragraphHtml = renderToString(
+      <RichBlockView block={{ type: 'paragraph', content: [{ t: 'text', text: 'Đoạn văn mẫu' }] }} />,
+    );
+    expect(paragraphHtml).toContain('Đoạn văn mẫu');
   });
 
   it('prevents XSS: blocks javascript: and vbscript: URIs in images', () => {
