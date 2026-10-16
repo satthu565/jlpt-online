@@ -20,3 +20,4 @@ export * from './components/locale-switcher.js';
 export * from './components/header.js';
 export * from './components/footer.js';
 export * from './components/rich-text-view.js';
+export * from './components/rich-block-view.js';

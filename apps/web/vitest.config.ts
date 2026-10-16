@@ -8,10 +8,12 @@ export default defineConfig({
   resolve: {
     alias: {
       '@jlpt/ui': path.resolve(__dirname, '../../packages/ui/src/index.tsx'),
+      '@jlpt/exam-engine': path.resolve(__dirname, '../../packages/exam-engine/src/index.ts'),
     },
   },
   test: {
     environment: 'node',
+    exclude: ['**/node_modules/**', '**/.next/**'],
   },
 });
 
