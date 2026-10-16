@@ -80,6 +80,10 @@ Theo chỉ thị của chủ dự án và quy tắc `AGENTS.md`:
   3. Kiểm tra tính idempotent: nếu đề `demo-n5-1` đã xuất bản, trả về `idempotent: true` và không tạo trùng.
   4. Thực thi luồng nạp qua Editor -> duyệt qua Reviewer -> xuất bản qua Publisher.
 
+### 2.7. Quản lý tệp cục bộ và tách biệt môi trường lưu trữ (.data/storage)
+- Tệp lưu trữ cục bộ sinh ra bởi `LocalFsStorage` trong môi trường phát triển và kiểm thử (`.data/storage/`) là tài nguyên runtime, không thuộc mã nguồn hay dữ liệu cố định của repo.
+- Đã hoàn tác và loại bỏ hoàn toàn các tệp `.data/storage/` khỏi git index/commit, đảm bảo toàn bộ cây thay đổi của task B01 nằm 100% trong `allowedPaths`.
+
 ---
 
 ## 3. Bằng chứng kiểm thử (Verification & Acceptance Proofs)
