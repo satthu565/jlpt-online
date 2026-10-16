@@ -24,6 +24,13 @@
     "users": "Quản lý người dùng",
     "auditLogs": "Nhật ký hệ thống",
     "experiments": "Thử nghiệm A/B",
+    "cms": "Quản lý bài viết & CMS",
+    "vocab": "Từ vựng & Ngữ pháp",
+    "mixedExams": "Quản lý đề trộn",
+    "reports": "Báo cáo hệ thống (15 chỉ số)",
+    "notifications": "Cấu hình thông báo & Email",
+    "aiModeration": "Kiểm duyệt AI",
+    "orgSettings": "Tổ chức & Giáo viên",
     "settings": "Cài đặt hệ thống",
     "sections": {
       "overview": "Tổng quan",
