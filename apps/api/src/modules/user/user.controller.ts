@@ -48,12 +48,12 @@ export class UserController {
    * ACC-12: Hủy một phiên đăng nhập cụ thể
    */
   @Delete('sessions/:id')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async revokeSession(
     @CurrentUser() user: AuthUserContext,
     @Param('id') sessionId: string,
   ) {
-    return this.userService.revokeSession(user.userId, sessionId);
+    await this.userService.revokeSession(user.userId, sessionId);
   }
 
   /**

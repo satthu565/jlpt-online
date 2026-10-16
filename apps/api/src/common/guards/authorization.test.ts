@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
-import type { FastifyInstance } from 'fastify';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { NestFactory } from '@nestjs/core';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
@@ -267,19 +266,49 @@ describe('F03 Authorization and PII Protection (SYS-06, SYS-07)', () => {
       expect(body.error.message).toContain('ADMIN_HOST');
     });
 
-    it('SYS-07 & Hợp đồng: Route /api/v1/admin/* cho phép khi truy cập đúng ADMIN_HOST', async () => {
+    it('P0 Security: Từ chối kẻ tấn công giả mạo Host header chứa tên miền phụ (admin.jlpt.local.attacker.com)', async () => {
       const res = await app.inject({
         method: 'GET',
         url: '/api/v1/admin/test/dashboard',
         headers: {
           authorization: `Bearer ${adminToken}`,
-          host: 'admin.jlpt.local',
+          host: 'admin.jlpt.local.attacker.com',
+        },
+      });
+
+      expect(res.statusCode).toBe(403);
+      const body = JSON.parse(res.payload);
+      expect(body.error.code).toBe('FORBIDDEN');
+      expect(body.error.message).toContain('ADMIN_HOST');
+    });
+
+    it('SYS-07 & Hợp đồng: Route /api/v1/admin/* cho phép khi truy cập đúng ADMIN_HOST (kể cả có cổng)', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/v1/admin/test/dashboard',
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+          host: 'admin.jlpt.local:3000',
         },
       });
 
       expect(res.statusCode).toBe(200);
       const body = JSON.parse(res.payload);
       expect(body.access).toBe('admin_dashboard');
+    });
+
+    it('P1 Security: Học viên truy cập endpoint thường có query parameter chứa /api/v1/admin không bị chặn nhầm', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/v1/test-rbac/student-endpoint?redirect=/api/v1/admin',
+        headers: {
+          authorization: `Bearer ${studentToken}`,
+        },
+      });
+
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.payload);
+      expect(body.ok).toBe(true);
     });
   });
 

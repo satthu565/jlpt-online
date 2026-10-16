@@ -34,7 +34,7 @@ export interface SignInEmailInput {
 export interface GoogleOAuthCallbackInput {
   code: string;
   state: string;
-  expectedState: string;
+  expectedState?: string;
   redirectUrl?: string;
 }
 
@@ -124,39 +124,39 @@ export class AuthService {
 
     const userId = generateUuidV7();
     const accountId = generateUuidV7();
-    const hashedPassword = await hashPassword(input.password);
-    const name = input.name?.trim() || email.split('@')[0] || 'User';
-
-    // Insert user
-    await this.client.db.insert(schema.users).values({
-      id: userId,
-      email,
-      name,
-      emailVerified: false,
-      role: 'student',
-      locale: 'vi',
-      timezone: 'Asia/Ho_Chi_Minh',
-    });
-
-    // Insert credential account
-    await this.client.db.insert(schema.accounts).values({
-      id: accountId,
-      userId,
-      accountId: userId,
-      providerId: 'credential',
-      password: hashedPassword,
-    });
-
-    // Create verification token (valid 24h)
     const verificationId = generateUuidV7();
     const verificationToken = crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const hashedPassword = await hashPassword(input.password);
+    const name = input.name?.trim() || email.split('@')[0] || 'User';
 
-    await this.client.db.insert(schema.verifications).values({
-      id: verificationId,
-      identifier: email,
-      value: verificationToken,
-      expiresAt,
+    // Insert user, credential account, and verification token in database transaction
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await this.client.db.transaction(async (tx: any) => {
+      await tx.insert(schema.users).values({
+        id: userId,
+        email,
+        name,
+        emailVerified: false,
+        role: 'student',
+        locale: 'vi',
+        timezone: 'Asia/Ho_Chi_Minh',
+      });
+
+      await tx.insert(schema.accounts).values({
+        id: accountId,
+        userId,
+        accountId: userId,
+        providerId: 'credential',
+        password: hashedPassword,
+      });
+
+      await tx.insert(schema.verifications).values({
+        id: verificationId,
+        identifier: email,
+        value: verificationToken,
+        expiresAt,
+      });
     });
 
     // Dispatch verification email (NOTI-01)
@@ -427,26 +427,29 @@ export class AuthService {
       });
     }
 
-    // Hash new password and update credential account
+    // Hash new password and update credential account in transaction
     const newHashedPassword = await hashPassword(newPassword);
 
-    await this.client.db
-      .update(schema.accounts)
-      .set({
-        password: newHashedPassword,
-        updatedAt: new Date(),
-      })
-      .where(and(eq(schema.accounts.userId, user.id), eq(schema.accounts.providerId, 'credential')));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await this.client.db.transaction(async (tx: any) => {
+      await tx
+        .update(schema.accounts)
+        .set({
+          password: newHashedPassword,
+          updatedAt: new Date(),
+        })
+        .where(and(eq(schema.accounts.userId, user.id), eq(schema.accounts.providerId, 'credential')));
 
-    // Delete token immediately so it CANNOT be reused ("reset một lần")
-    await this.client.db
-      .delete(schema.verifications)
-      .where(eq(schema.verifications.id, verification.id));
+      // Delete token immediately so it CANNOT be reused ("reset một lần")
+      await tx
+        .delete(schema.verifications)
+        .where(eq(schema.verifications.id, verification.id));
 
-    // Revoke all existing sessions for this user for security
-    await this.client.db
-      .delete(schema.sessions)
-      .where(eq(schema.sessions.userId, user.id));
+      // Revoke all existing sessions for this user for security
+      await tx
+        .delete(schema.sessions)
+        .where(eq(schema.sessions.userId, user.id));
+    });
 
     this.logger.log(`Password reset completed for ${maskEmail(email)}`);
 
@@ -476,6 +479,16 @@ export class AuthService {
 
     const targetRedirect = redirectUrl || defaultRedirect;
 
+    // Persist OAuth state in verifications table for CSRF protection (valid for 10 minutes)
+    const verificationId = generateUuidV7();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    await this.client.db.insert(schema.verifications).values({
+      id: verificationId,
+      identifier: `oauth_state_${state}`,
+      value: targetRedirect,
+      expiresAt,
+    });
+
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&response_type=code&scope=openid%20email%20profile&redirect_uri=${encodeURIComponent(targetRedirect)}&state=${state}`;
 
     return {
@@ -490,16 +503,41 @@ export class AuthService {
    * Acceptance 2: OAuth callback kiểm tra state và redirect allowlist
    */
   async handleGoogleOAuthCallback(input: GoogleOAuthCallbackInput) {
-    // 1. Kiểm tra state parameter
-    if (!input.state || !input.expectedState || input.state !== input.expectedState) {
+    if (!input.state) {
       throw new BadRequestException({
         code: 'VALIDATION_ERROR',
-        message: 'OAuth state không hợp lệ hoặc không trùng khớp.',
+        message: 'OAuth state không được để trống.',
       });
     }
 
+    // 1. Kiểm tra state lưu trong bảng verifications phía server (CSRF Protection)
+    const verifications = await this.client.db
+      .select()
+      .from(schema.verifications)
+      .where(
+        and(
+          eq(schema.verifications.identifier, `oauth_state_${input.state}`),
+          gt(schema.verifications.expiresAt, new Date()),
+        ),
+      )
+      .limit(1);
+
+    const verification = verifications[0];
+    if (!verification) {
+      throw new BadRequestException({
+        code: 'VALIDATION_ERROR',
+        message: 'OAuth state không hợp lệ hoặc đã hết hạn.',
+      });
+    }
+
+    // Xóa state ngay lập tức sau khi xác thực để đảm bảo Single-Use (anti-replay)
+    await this.client.db
+      .delete(schema.verifications)
+      .where(eq(schema.verifications.id, verification.id));
+
     // 2. Kiểm tra redirect allowlist
-    if (input.redirectUrl && !this.isAllowedRedirectUrl(input.redirectUrl)) {
+    const effectiveRedirectUrl = input.redirectUrl || verification.value;
+    if (effectiveRedirectUrl && !this.isAllowedRedirectUrl(effectiveRedirectUrl)) {
       throw new BadRequestException({
         code: 'VALIDATION_ERROR',
         message: 'URL chuyển hướng không được phép.',
@@ -509,7 +547,7 @@ export class AuthService {
     return {
       success: true,
       code: input.code,
-      targetUrl: input.redirectUrl || 'http://localhost:3000/dashboard',
+      targetUrl: effectiveRedirectUrl || 'http://localhost:3000/dashboard',
       message: 'OAuth callback validated successfully.',
     };
   }

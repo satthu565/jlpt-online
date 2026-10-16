@@ -33,10 +33,11 @@ export class RolesGuard implements CanActivate {
       .switchToHttp()
       .getRequest<FastifyRequest & { user?: AuthUserContext }>();
     const user = request.user;
-    const url = request.raw.url || '';
+    const rawUrl = request.raw?.url || request.url || '';
+    const pathname = rawUrl.split('?')[0] ?? '';
 
     // Check admin host constraint if accessing admin routes
-    if (url.includes('/api/v1/admin')) {
+    if (pathname === '/api/v1/admin' || pathname.startsWith('/api/v1/admin/')) {
       if (!user) {
         throw new UnauthorizedException({
           code: 'UNAUTHENTICATED',
@@ -53,11 +54,15 @@ export class RolesGuard implements CanActivate {
 
       const adminHost = process.env.ADMIN_HOST;
       const hostHeader = (request.headers.host || '').toLowerCase();
-      if (adminHost && !hostHeader.includes(adminHost.toLowerCase())) {
-        throw new ForbiddenException({
-          code: 'FORBIDDEN',
-          message: 'Khu vực quản trị chỉ được phép truy cập qua ADMIN_HOST.',
-        });
+      if (adminHost) {
+        const host = (hostHeader.split(':')[0] ?? '').trim().toLowerCase();
+        const target = (adminHost.split(':')[0] ?? '').trim().toLowerCase();
+        if (host !== target) {
+          throw new ForbiddenException({
+            code: 'FORBIDDEN',
+            message: 'Khu vực quản trị chỉ được phép truy cập qua ADMIN_HOST.',
+          });
+        }
       }
 
       // 2FA requirement for staff

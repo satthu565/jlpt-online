@@ -190,8 +190,7 @@ export class EmailService {
 
       socket.on('close', () => {
         if (step < 6) {
-          // Socket closed before normal completion
-          resolve();
+          reject(new Error('SMTP socket closed prematurely before delivery completion'));
         }
       });
     });

@@ -57,6 +57,8 @@ Task F03 thiết lập hạ tầng cốt lõi cho xác thực (Authentication), 
   - Phân quyền theo vai trò (`@Roles(...)`): Hỗ trợ các vai trò `student`, `editor`, `reviewer`, `moderator`, `billing_admin`, `admin`. Vai trò `admin` có quyền truy cập toàn bộ.
   - Ràng buộc quản trị nhân sự theo hợp đồng `HOP_DONG_KY_THUAT.md`:
     - Endpoint `/api/v1/admin/*` bắt buộc phải là nhân sự và chỉ được phép truy cập qua `ADMIN_HOST` (ngăn truy cập từ domain học viên).
+    - So sánh chính xác tuyệt đối hostname (loại bỏ cổng nếu có, không so sánh chuỗi con) để chống tấn công giả mạo tên miền phụ (như `admin.jlpt.local.attacker.com`).
+    - Trích xuất pathname trước dấu `?` để kiểm tra tiền tố đường dẫn `/api/v1/admin/*`, tránh nhận diện nhầm khi query string của học viên chứa redirect URL.
     - Hỗ trợ cờ kiểm tra 2FA (`TWO_FACTOR_REQUIRED`) cho tài khoản quản trị.
 - `TenantGuard`:
   - Bảo vệ cô lập giữa các tổ chức / lớp học: nếu người dùng thuộc tổ chức A nhưng cố ý truyền param/header tổ chức B, yêu cầu bị từ chối với mã 403 `TENANT_FORBIDDEN`.
@@ -73,27 +75,30 @@ Task F03 thiết lập hạ tầng cốt lõi cho xác thực (Authentication), 
 - Triển khai `EmailService`:
   - Kết nối TCP Socket thuần chuẩn Node.js (`node:net`) tới cổng `1025` (Mailpit).
   - Thực hiện đầy đủ chu trình bắt tay SMTP (Greeting 220 -> EHLO -> MAIL FROM -> RCPT TO -> DATA 354 -> RFC 5322 MIME -> QUIT 221).
+  - Bắt sự kiện `socket.on('close')`: nếu socket bị đóng khi `step < 6` (chưa nhận mã hoàn tất QUIT 221), lập tức reject lỗi thay vì resolve để ngăn ngừa mất email âm thầm.
   - Không cần cài thêm thư viện bên ngoài nặng nề, không làm thay đổi lockfile.
   - Cung cấp sẵn mẫu email tiếng Việt đẹp mắt cho:
     - Xác minh email: liên kết có hiệu lực trong 24 giờ.
     - Đặt lại mật khẩu: liên kết có hiệu lực trong 1 giờ, ghi rõ cảnh báo chỉ dùng một lần duy nhất.
 - Hỗ trợ `SmtpTestServer`: Bộ giả lập socket SMTP phục vụ kiểm thử tích hợp trên cổng 1025 khi môi trường ngoài chưa chạy container Mailpit (`email: MISSING`).
 
-### 2.5. Cơ chế Single-Use Reset Token (Nghiệm thu 1)
+### 2.5. Cơ chế Single-Use Reset Token và Database Transaction (Nghiệm thu 1)
+- Các chuỗi thao tác ghi nhiều bảng liên quan trong `signUpEmail` (bảng `users`, `accounts`, `verifications`) và `resetPassword` (bảng `accounts`, `verifications`, `sessions`) được bọc hoàn toàn trong database transaction (`await this.client.db.transaction(async (tx) => { ... })`), loại bỏ triệt để rủi ro dữ liệu mồ côi khi lỗi phát sinh giữa chuỗi truy vấn.
 - Khi người dùng gửi yêu cầu quên mật khẩu, hệ thống sinh một mã ngẫu nhiên 32-byte lưu vào bảng `verifications` với định danh `reset_<email>` và thời hạn 1 giờ.
 - Khi người dùng đặt lại mật khẩu qua `POST /api/v1/auth/reset-password`:
   1. Kiểm tra token còn hạn và đúng định danh.
-  2. Băm mật khẩu mới và cập nhật vào bảng `accounts`.
-  3. Xóa token ngay lập tức khỏi bảng `verifications` trong cùng transaction / chu trình.
+  2. Băm mật khẩu mới và cập nhật vào bảng `accounts` trong transaction.
+  3. Xóa token ngay lập tức khỏi bảng `verifications` trong cùng transaction.
   4. Hủy toàn bộ các phiên đăng nhập hiện có của người dùng trong bảng `sessions` để đảm bảo an toàn tuyệt đối.
   5. Nếu token này được gọi lại lần thứ hai, hệ thống lập tức từ chối với 400 `VALIDATION_ERROR` (Mã đặt lại mật khẩu không hợp lệ hoặc đã hết hạn).
 
-### 2.6. Bảo vệ Google OAuth (Nghiệm thu 2)
+### 2.6. Bảo vệ Google OAuth với Server-side State (Nghiệm thu 2)
 - `initiateGoogleOAuth()`:
   - Kiểm tra `redirectUrl` dựa trên `isAllowedRedirectUrl()`: Chỉ cho phép các host an toàn (`localhost:3000`, `localhost:3001`, `localhost:4000`, `PUBLIC_HOST`, `ADMIN_HOST` hoặc đường dẫn nội bộ). Từ chối mọi domain bên ngoài (ngăn Open Redirect / Phishing).
-  - Sinh chuỗi ngẫu nhiên bảo mật cao làm `state`.
+  - Sinh chuỗi ngẫu nhiên bảo mật cao làm `state` và lưu vào bảng `verifications` phía server với thời hạn 10 phút.
 - `handleGoogleOAuthCallback()`:
-  - Kiểm tra `state === expectedState`. Nếu sai lệch hoặc rỗng -> từ chối 400 `VALIDATION_ERROR` (Bảo vệ chống tấn công CSRF).
+  - Không nhận `expectedState` từ phía client để triệt tiêu lỗ hổng bypass CSRF.
+  - Tra cứu `state` trực tiếp trong bảng `verifications` phía server; xóa ngay lập tức sau khi xác thực để đảm bảo Single-Use (Anti-Replay).
   - Kiểm tra `redirectUrl` thuộc allowlist.
 
 ### 2.7. Quản lý Hồ sơ và Thiết bị (ACC-07, ACC-10, ACC-12)
@@ -101,7 +106,7 @@ Task F03 thiết lập hạ tầng cốt lõi cho xác thực (Authentication), 
 - `ACC-10`: `GET /api/v1/me` đếm số lượng đề thi duy nhất đã nộp qua query `SELECT count(DISTINCT exam_id) FROM exam_attempts WHERE user_id = $1 AND status = 'submitted'`.
 - `ACC-12`:
   - `GET /api/v1/me/sessions`: Liệt kê các phiên còn hạn, gắn cờ `isCurrent: true` cho phiên hiện tại.
-  - `DELETE /api/v1/me/sessions/:id`: Hủy phiên cụ thể.
+  - `DELETE /api/v1/me/sessions/:id`: Hủy phiên cụ thể, trả về HTTP 204 No Content theo đúng hợp đồng OpenAPI.
   - `DELETE /api/v1/me/sessions`: Hủy toàn bộ các phiên khác ngoại trừ phiên hiện tại.
 
 ---
@@ -109,7 +114,7 @@ Task F03 thiết lập hạ tầng cốt lõi cho xác thực (Authentication), 
 ## 3. Điều kiện ngoài (External Status & Blockers)
 
 Theo nhiệm vụ được giao:
-- `google-oauth: MISSING`: Chưa có Google Client ID/Secret thật trên môi trường production. Đã hoàn thiện toàn bộ luồng logic, kiểm tra state CSRF, validate redirect allowlist và sandbox callback.
+- `google-oauth: MISSING`: Chưa có Google Client ID/Secret thật trên môi trường production. Đã hoàn thiện toàn bộ luồng logic, kiểm tra state CSRF phía server, validate redirect allowlist và sandbox callback.
   - Đánh dấu: `BLOCKED_EXTERNAL` cho `google-oauth`.
 - `email: MISSING`: Mailpit container chưa được khởi chạy trực tiếp trên VPS/host. Đã kiểm chứng hoàn chỉnh thông qua socket TCP SMTP chuẩn RFC 5321 trên cổng 1025.
   - Đánh dấu: `BLOCKED_EXTERNAL` cho `email`.
@@ -118,9 +123,8 @@ Theo nhiệm vụ được giao:
 
 ## 4. Kết quả kiểm chứng
 
-1. `pnpm test:auth`: 20/20 test cases ĐẠT (100%).
-2. `pnpm test:authorization`: 13/13 test cases ĐẠT (100%).
-3. `pnpm test`: 52/52 tests toàn bộ package `@jlpt/api`, 17/17 tasks monorepo ĐẠT (100%).
-4. `pnpm lint`: 13/13 packages ĐẠT, 0 lỗi.
-5. `pnpm typecheck`: 17/17 packages ĐẠT, 0 lỗi TypeScript.
-6. `pnpm build`: 12/12 packages build thành công (Turborepo).
+1. `pnpm test:auth`: 21/21 test cases ĐẠT (100%), kiểm chứng luồng mạng TCP thật qua SMTP Test Server socket messages và cơ chế Server-side OAuth state.
+2. `pnpm test:authorization`: 15/15 test cases ĐẠT (100%), bao gồm kiểm tra bảo vệ subdomain spoofing cho `ADMIN_HOST` và query string bypass.
+3. `pnpm test`: Toàn bộ package `@jlpt/api` và monorepo ĐẠT.
+4. `pnpm lint`: 0 lỗi ESLint.
+5. `pnpm typecheck`: 0 lỗi TypeScript strict mode.

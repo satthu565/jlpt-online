@@ -150,13 +150,11 @@ export class AuthController {
   async googleOAuthCallback(
     @Query('code') code: string,
     @Query('state') state: string,
-    @Query('expectedState') expectedState: string,
     @Query('redirectUrl') redirectUrl?: string,
   ) {
     return this.authService.handleGoogleOAuthCallback({
       code: code || 'mock_auth_code',
       state: state || '',
-      expectedState: expectedState || '',
       redirectUrl,
     });
   }

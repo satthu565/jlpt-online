@@ -1,10 +1,9 @@
 import 'reflect-metadata';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
-import type { NestFastifyApplication, FastifyAdapter } from '@nestjs/platform-fastify';
+import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { createApp } from '../../main.js';
 import { SmtpTestServer } from '../email/smtp-test-server.js';
-import { EmailService } from '../email/email.service.js';
 import { getOrCreateDbClient } from '../../common/database/database.module.js';
 import { seedDatabase } from '../../db/seed.js';
 import * as schema from '../../db/schema.js';
@@ -13,7 +12,6 @@ import { generateUuidV7 } from '../../common/utils/uuid.js';
 describe('F03 Authentication, Verification, and Mailpit Integration', () => {
   let app: NestFastifyApplication;
   let smtpServer: SmtpTestServer;
-  let emailService: EmailService;
 
   beforeAll(async () => {
     // 1. Start SMTP Test Server on port 1025 (Mailpit standard port)
@@ -27,8 +25,6 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
     app = await createApp();
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
-
-    emailService = app.get(EmailService);
 
     // 3. Seed database with synthetic blueprints and exams
     const client = await getOrCreateDbClient();
@@ -64,14 +60,17 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
       expect(body.user.email).toBe(testEmail);
       expect(body.user.emailVerified).toBe(false);
 
-      // Verify email was captured by SMTP server / EmailService
-      const lastEmail = emailService.getLastEmail();
-      expect(lastEmail).toBeDefined();
-      expect(lastEmail?.to).toBe(testEmail);
-      expect(lastEmail?.subject).toBe('Xác minh tài khoản JLPT Online');
+      // Verify email was received over TCP by the SMTP Test Server
+      expect(smtpServer.messages.length).toBeGreaterThan(0);
+      const smtpMessage = smtpServer.messages.find(
+        (m) => m.to.includes(testEmail) && m.subject.includes('Xác minh'),
+      );
+      expect(smtpMessage).toBeDefined();
+      expect(smtpMessage?.to).toContain(testEmail);
+      expect(smtpMessage?.subject).toBe('Xác minh tài khoản JLPT Online');
 
-      // Extract verification token from email
-      const tokenMatch = lastEmail?.html.match(/token=([a-f0-9]+)/i);
+      // Extract verification token directly from TCP SMTP payload
+      const tokenMatch = smtpMessage?.body.match(/token=([a-f0-9]+)/i);
       expect(tokenMatch).not.toBeNull();
       verificationToken = tokenMatch![1]!;
       expect(verificationToken.length).toBeGreaterThan(16);
@@ -205,14 +204,17 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
       const body = JSON.parse(res.payload);
       expect(body.success).toBe(true);
 
-      // Verify reset email was sent via Mailpit
-      const lastEmail = emailService.getLastEmail();
-      expect(lastEmail).toBeDefined();
-      expect(lastEmail?.to).toBe(testEmail);
-      expect(lastEmail?.subject).toBe('Đặt lại mật khẩu JLPT Online');
+      // Verify reset email was received over TCP by the SMTP Test Server
+      expect(smtpServer.messages.length).toBeGreaterThan(0);
+      const resetSmtpMessage = smtpServer.messages.find(
+        (m) => m.to.includes(testEmail) && m.subject.includes('Đặt lại mật khẩu'),
+      );
+      expect(resetSmtpMessage).toBeDefined();
+      expect(resetSmtpMessage?.to).toContain(testEmail);
+      expect(resetSmtpMessage?.subject).toBe('Đặt lại mật khẩu JLPT Online');
 
-      // Extract reset token from email
-      const tokenMatch = lastEmail?.html.match(/token=([a-f0-9]+)/i);
+      // Extract reset token directly from TCP SMTP payload
+      const tokenMatch = resetSmtpMessage?.body.match(/token=([a-f0-9]+)/i);
       expect(tokenMatch).not.toBeNull();
       resetToken = tokenMatch![1]!;
       expect(resetToken.length).toBeGreaterThan(16);
@@ -277,6 +279,8 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
   });
 
   describe('Acceptance 2: OAuth callback kiểm tra state và redirect allowlist', () => {
+    let genuineState = '';
+
     it('ACC-03: Khởi tạo Google OAuth trả về authUrl, state và redirect allowlist', async () => {
       const res = await app.inject({
         method: 'GET',
@@ -288,6 +292,7 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
       expect(body.authUrl).toContain('accounts.google.com');
       expect(body.state).toBeDefined();
       expect(body.redirectUrl).toBe('http://localhost:3000/auth/callback');
+      genuineState = body.state;
     });
 
     it('ACC-03: Từ chối redirectUrl ngoài allowlist (phishing / open redirect)', async () => {
@@ -301,10 +306,10 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
       expect(body.error.code).toBe('VALIDATION_ERROR');
     });
 
-    it('ACC-03: OAuth callback từ chối khi state không trùng khớp (CSRF Protection)', async () => {
+    it('ACC-03: OAuth callback từ chối khi state không tồn tại / không trùng khớp (CSRF Protection)', async () => {
       const res = await app.inject({
         method: 'GET',
-        url: '/api/v1/auth/google/callback?code=test_code&state=forged_state&expectedState=genuine_state',
+        url: '/api/v1/auth/google/callback?code=test_code&state=forged_state_attacker_999',
       });
 
       expect(res.statusCode).toBe(400);
@@ -314,9 +319,17 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
     });
 
     it('ACC-03: OAuth callback từ chối khi redirectUrl trong callback nằm ngoài allowlist', async () => {
+      // First initiate a fresh OAuth state
+      const initRes = await app.inject({
+        method: 'GET',
+        url: '/api/v1/auth/google',
+      });
+      const initBody = JSON.parse(initRes.payload);
+      const testState = initBody.state;
+
       const res = await app.inject({
         method: 'GET',
-        url: '/api/v1/auth/google/callback?code=test_code&state=match_state&expectedState=match_state&redirectUrl=https://evil.org',
+        url: `/api/v1/auth/google/callback?code=test_code&state=${testState}&redirectUrl=https://evil.org`,
       });
 
       expect(res.statusCode).toBe(400);
@@ -324,16 +337,28 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
       expect(body.error.code).toBe('VALIDATION_ERROR');
     });
 
-    it('ACC-03: OAuth callback chấp nhận khi state trùng khớp và redirect trong allowlist', async () => {
+    it('ACC-03: OAuth callback chấp nhận khi state server-side hợp lệ và redirect trong allowlist', async () => {
       const res = await app.inject({
         method: 'GET',
-        url: '/api/v1/auth/google/callback?code=valid_code&state=correct_123&expectedState=correct_123&redirectUrl=http://localhost:3000/dashboard',
+        url: `/api/v1/auth/google/callback?code=valid_code&state=${genuineState}&redirectUrl=http://localhost:3000/dashboard`,
       });
 
       expect(res.statusCode).toBe(200);
       const body = JSON.parse(res.payload);
       expect(body.success).toBe(true);
       expect(body.targetUrl).toBe('http://localhost:3000/dashboard');
+    });
+
+    it('ACC-03: Single-Use State: OAuth callback từ chối khi dùng lại state lần 2 (Anti-Replay)', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: `/api/v1/auth/google/callback?code=valid_code&state=${genuineState}`,
+      });
+
+      expect(res.statusCode).toBe(400);
+      const body = JSON.parse(res.payload);
+      expect(body.error.code).toBe('VALIDATION_ERROR');
+      expect(body.error.message).toContain('state');
     });
   });
 
@@ -470,7 +495,7 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
         url: `/api/v1/me/sessions/${secondSessionId}`,
         headers: { authorization: `Bearer ${userToken}` },
       });
-      expect(revokeRes.statusCode).toBe(200);
+      expect(revokeRes.statusCode).toBe(204);
 
       // Verify second session token no longer works
       const checkRes = await app.inject({
