@@ -29,6 +29,8 @@
     "test:upload": "vitest run apps/api/src/modules/media/",
     "test:storage": "vitest run apps/api/src/modules/storage/",
     "test:exam-engine": "vitest run packages/exam-engine",
+    "test:mix:property": "vitest run packages/exam-engine/tests/mix-property.test.ts",
+    "test:practice-engine": "vitest run packages/exam-engine/tests/practice-engine.test.ts",
     "test:media-token": "vitest run packages/media-token",
     "test:coverage": "vitest run --coverage --coverage.include=\"packages/exam-engine/src/**\" --coverage.include=\"packages/media-token/src/**\" packages/exam-engine packages/media-token",
     "test:admin": "vitest run apps/admin",
