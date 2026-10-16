@@ -1,7 +1,7 @@
 # Quyết định kỹ thuật A03: UI Notebook, Planner, Classroom, Community và Gói Thành Viên
 
 - **Task:** A03
-- **Assignment:** A03-2
+- **Assignment:** A03-7
 - **Worker:** W3 (Giao diện học viên)
 - **Trạng thái:** HOÀN TẤT (Sẵn sàng REVIEW)
 - **Ngày:** 2026-10-16
@@ -63,12 +63,13 @@ Task A03 hoàn thiện toàn bộ giao diện học viên (Web Frontend) cho cá
    - `GradeExportModal` hỗ trợ các định dạng kèm cảnh báo Formula Injection Sanitization.
 
 3. **Coupon checkout refund status hiển thị đúng backend:**
-   - Được chứng minh qua bộ test `pnpm test:e2e:checkout` (7 test cases).
+   - Được chứng minh qua bộ test `pnpm test:e2e:checkout` (8 test cases).
    - Bảng giá hiển thị đúng giá tiền minor sang VND định dạng phân cách hàng nghìn.
    - `CouponInput` hiển thị thẻ giảm giá đã áp dụng, số tiền giảm và nút gỡ bỏ.
    - `CheckoutCard` tính toán đúng giá trị thanh toán cuối cùng.
    - `SubscriptionStatusCard` phản ánh đúng trạng thái `active` (có nút hủy) và `cancelled` (có nút gia hạn).
    - `TransactionHistoryCard` hiển thị huy hiệu trạng thái giao dịch và hoàn tiền (`refundStatus: requested | refunded | rejected`).
+   - `BillingClient` tuân thủ nghiêm ngặt schema `PaymentCreateSchema` với `planId`, `term`, `returnPath` và `couponCode`.
 
 4. **i18n/a11y full routes:**
    - Toàn bộ các route mới: `/so-tay`, `/ke-hoach`, `/lop-hoc`, `/su-kien`, `/thao-luan`, `/goi-thanh-vien`, `/tai-khoan` đều có trang thực, không để nút bấm giả (no dummy buttons).
@@ -97,18 +98,35 @@ Task A03 hoàn thiện toàn bộ giao diện học viên (Web Frontend) cho cá
    - **[P1] Tuân thủ hợp đồng PaymentCreateSchema:** Cập nhật `BillingClient.createCheckoutSession` nhận đầy đủ và bắt buộc các trường `planId`, `term` ('month' | 'quarter' | 'year'), `returnPath` và `couponCode`. Trang `/goi-thanh-vien` suy luận `term` từ chu kỳ gói (`month` | `quarter` | `year`) và truyền đúng URL `returnPath`, loại bỏ hoàn toàn mock fallback che giấu lỗi.
    - **[P1] Khớp route API xuất dữ liệu & xóa tài khoản:** Sửa đường dẫn gọi API trong `apps/web/app/(account)/tai-khoan/page.tsx` từ `/data-exports` và `/deletion-request` thành `/me/data-exports` và `/me/deletion-request`, khớp hoàn toàn với `UserController` (@Controller('me')) và OpenAPI contract.
 
+5. **Phân tích lỗi CI Integration và Báo cáo Blocker ngoài phạm vi (Phiên A03-7):**
+   - **Hiện tượng:** Trong GitHub Actions CI (`Dev Services & Full Integration Gate`), test suite `@jlpt/api#test` thất bại với 6 lỗi assertion trong file `apps/api/src/modules/notification/notifications.test.ts` (các dòng 274, 281, 288, 295, 302, 309): `AssertionError: expected 'deferred_quiet_hours' to be 'delivered'`.
+   - **Nguyên nhân gốc rễ (Root Cause):**
+     - Commit `6ccb9ef` (Task L02 do W2 thực hiện, vừa merge vào `main`) định nghĩa test suite `Concrete Notification Senders (NOTI-03..NOTI-09)`.
+     - Trong khối `beforeAll` (dòng 261-269), test thiết lập tùy chọn người dùng: `quietHours: { start: '00:00', end: '04:00' }` với `timezone: 'Asia/Ho_Chi_Minh'`.
+     - Các hàm sender kiểm thử (`sendPracticeReminder`, `sendNewExamNotification`, `sendSrsDueNotification`, v.v.) không truyền tham số `now` mà ngầm định dùng thời gian hiện tại `new Date()`.
+     - Khi CI trên GitHub Actions thực thi vào lúc `17:08 UTC` (tương đương `00:08 sáng` theo giờ Việt Nam UTC+7), thời điểm này rơi chính xác vào khung giờ yên tĩnh (00:00 đến 04:00).
+     - Dịch vụ `notificationService` hoạt động hoàn toàn chính xác theo logic nghiệp vụ của NOTI-03..08 khi hoãn thông báo ngoài giờ và trả về `status: 'deferred_quiet_hours'`. Tuy nhiên, test case lại kỳ vọng cứng `delivered` mà không cố định thời gian (mock system time).
+   - **Ranh giới thẩm quyền (Allowed Paths):**
+     - `apps/api/src/modules/notification/` thuộc quyền sở hữu độc quyền của **W2** (API Core/Notifications).
+     - Nhiệm vụ A03 của W3 chỉ có `allowedPaths`: `package.json`, `apps/web/`, `packages/ui/`, `docs/decisions/`.
+     - Theo quy tắc dự án và `prompts/REVIEW.md`, việc tự ý sửa file ngoài `allowedPaths` cấu thành lỗi **P1 (sửa ngoài phạm vi task)** và sẽ bị từ chối PR.
+     - Đồng thời, chỉ thị của lượt này ghi rõ: *"Chỉ sửa file trong allowedPaths; cần sửa chỗ khác thì ghi vào blockers của báo cáo, không tự sửa."*
+   - **Phương án khắc phục đề xuất cho W2 / Coordinator:**
+     - Trong `apps/api/src/modules/notification/notifications.test.ts`, tại khối `describe('Concrete Notification Senders (NOTI-03..NOTI-09)')`:
+       1. Đổi khung giờ yên tĩnh trong `beforeAll` sang khung giờ không xung đột khi chạy test (ví dụ: `quietHours: { start: '12:00', end: '13:00' }` hoặc tắt quiet hours); HOẶC
+       2. Sử dụng `vi.setSystemTime(new Date('2026-10-16T10:00:00.000Z'))` (ban ngày) trong `beforeEach`/`beforeAll` và khôi phục `vi.useRealTimers()` trong `afterAll` để kết quả test hoàn toàn tất định (deterministic), không phụ thuộc vào giờ chạy CI.
+
 ---
 
 ## 4. Kết quả kiểm thử và cổng chất lượng
 
-Mọi kiểm tra của task và các cổng chung của dự án đều vượt qua 100%:
+Mọi kiểm tra của task A03 và các cổng chung của phân hệ web/ui đều vượt qua 100%:
 - `pnpm test:e2e:advanced`: 16/16 tests PASS.
-- `pnpm test:e2e:checkout`: 8/8 tests PASS (bổ sung test contract PaymentCreateSchema).
+- `pnpm test:e2e:checkout`: 8/8 tests PASS.
 - `pnpm test:a11y`: 26/26 tests PASS (13 @jlpt/ui + 13 @jlpt/web).
 - `pnpm test:web`: 12/12 test files, 151/151 tests PASS.
 - `pnpm test:i18n`: 8/8 tests PASS (vi, ja, en đồng bộ 100%, NFC verified).
 - `pnpm install --frozen-lockfile`: PASS (clean lockfile).
 - `pnpm lint`: PASS (13/13 packages, 0 error, 0 warning).
 - `pnpm typecheck`: PASS (19/19 packages, 0 error).
-- `pnpm test`: PASS (19/19 packages, full monorepo pass).
 - `pnpm build`: PASS (12/12 packages built successfully, all static/dynamic routes generated).
