@@ -552,17 +552,25 @@ export class ExamService {
     const snapshotKey = `exams/${examId}/v${nextVersion}/snapshot.json`;
     const manifestKey = `exams/${examId}/v${nextVersion}/manifest.json`;
 
-    await this.storageService.put(
-      snapshotKey,
-      Buffer.from(JSON.stringify(publicSnapshot, null, 2)),
-      { mimeType: 'application/json' },
-    );
+    try {
+      await this.storageService.put(
+        snapshotKey,
+        Buffer.from(JSON.stringify(publicSnapshot, null, 2)),
+        { mimeType: 'application/json' },
+      );
 
-    await this.storageService.put(
-      manifestKey,
-      Buffer.from(JSON.stringify(examManifest, null, 2)),
-      { mimeType: 'application/json' },
-    );
+      await this.storageService.put(
+        manifestKey,
+        Buffer.from(JSON.stringify(examManifest, null, 2)),
+        { mimeType: 'application/json' },
+      );
+    } catch (storageErr) {
+      this.logger.error(
+        `Lỗi lưu trữ snapshot/manifest cho đề thi ${examId} (v${nextVersion}): ${(storageErr as Error)?.message}`,
+        (storageErr as Error)?.stack,
+      );
+      throw storageErr;
+    }
 
     // 8. Transactional Database update & Outbox event
     const now = new Date();

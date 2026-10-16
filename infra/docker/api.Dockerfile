@@ -52,6 +52,9 @@ ENV HOST="0.0.0.0"
 
 RUN apk add --no-cache curl
 
+# Create persistent storage directories with proper permissions for user node
+RUN mkdir -p /app/.data/storage && chown -R node:node /app
+
 USER node
 
 # Copy built application and workspace dependencies

@@ -55,7 +55,12 @@ export class ExamController {
     @CurrentUser() user: { id?: string; userId?: string },
   ) {
     const userId = user.userId || user.id || '';
-    return this.examService.publishExam(id, userId);
+    try {
+      return await this.examService.publishExam(id, userId);
+    } catch (err) {
+      console.error(`[ExamController.publishExam] Lỗi xuất bản đề thi ${id} bởi ${userId}:`, err);
+      throw err;
+    }
   }
 
   @Post('admin/exams/:id/unpublish')
@@ -66,6 +71,11 @@ export class ExamController {
     @CurrentUser() user: { id?: string; userId?: string },
   ) {
     const userId = user.userId || user.id || '';
-    return this.examService.unpublishExam(id, userId, reason);
+    try {
+      return await this.examService.unpublishExam(id, userId, reason);
+    } catch (err) {
+      console.error(`[ExamController.unpublishExam] Lỗi gỡ xuất bản đề thi ${id} bởi ${userId}:`, err);
+      throw err;
+    }
   }
 }
