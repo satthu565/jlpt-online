@@ -12,7 +12,7 @@ import { BlueprintService } from '../blueprint/blueprint.service.js';
 import { ReviewService } from '../review/review.service.js';
 import { ImportService } from '../import/import.service.js';
 import { ExamService } from './exam.service.js';
-import { assertNoAnswerLeak, PublicExamSnapshotSchema, ExamAnswerKeySchema } from '@jlpt/schema';
+import { assertNoAnswerLeak, PublicExamSnapshotSchema } from '@jlpt/schema';
 
 describe('B01 Exam Module - Review Workflow, Publishing & Zero Answer Leaks', () => {
   let dbClient: DbClientInstance;
@@ -245,7 +245,7 @@ describe('B01 Exam Module - Review Workflow, Publishing & Zero Answer Leaks', ()
         .from(schema.outbox)
         .where(eq(schema.outbox.topic, 'content.published'));
       expect(outboxPublish.length).toBe(1);
-      const payload = outboxPublish[0]?.payload as any;
+      const payload = outboxPublish[0]?.payload as { payload: { examId: string; version: number; publisherId: string } };
       expect(payload.payload.examId).toBe(examId);
       expect(payload.payload.version).toBe(1);
       expect(payload.payload.publisherId).toBe(publisherUserId);

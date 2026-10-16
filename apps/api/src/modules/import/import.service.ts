@@ -9,7 +9,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { and, desc, eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
@@ -27,6 +27,8 @@ import {
   computePackageContentHash,
   evaluatePackageImportIdempotency,
   readZipBuffer,
+  type BlueprintDefinition,
+  type BlueprintSection,
   type ImportPackageV2,
   type PackageIdentity,
 } from '@jlpt/content-tools';
@@ -85,7 +87,7 @@ export class ImportService {
 
     // 2. Schema, Checksum, Semantic & Blueprint Validation BEFORE touching the database
     // Optional blueprint check if blueprintRef is provided
-    let blueprintDef: any = undefined;
+    let blueprintDef: BlueprintDefinition | undefined = undefined;
     const pkgCandidate = rawJson as Partial<ImportPackageV2>;
     if (pkgCandidate.exam?.blueprintRef?.id) {
       try {
@@ -94,8 +96,10 @@ export class ImportService {
           pkgCandidate.exam.blueprintRef.version,
         );
         blueprintDef = {
-          sections: bpRow.sections,
-          scoring: bpRow.scoring,
+          id: bpRow.id,
+          level: bpRow.level as BlueprintDefinition['level'],
+          version: bpRow.version,
+          sections: bpRow.sections as BlueprintSection[],
         };
       } catch {
         // If blueprint not yet in DB, check demo-data fixtures
@@ -164,7 +168,10 @@ export class ImportService {
 
     if (evaluation.action === 'IDEMPOTENT_SKIP') {
       const matchingJob = existingJobs.find(
-        (j: typeof schema.importJobs.$inferSelect) => (j.errorLog as any)?.packageId === pkg.packageId && (j.errorLog as any)?.revision === pkg.revision,
+        (j: typeof schema.importJobs.$inferSelect) => {
+          const errLog = j.errorLog as Record<string, unknown> | null;
+          return errLog?.['packageId'] === pkg.packageId && errLog?.['revision'] === pkg.revision;
+        },
       );
       return {
         id: matchingJob?.id ?? generateUuidV7(),
@@ -282,7 +289,7 @@ export class ImportService {
           id: sourceId,
           slug: sourceSlug,
           name: pkg.source.name || 'Imported Source',
-          provenance: pkg.source.provenance as any,
+          provenance: pkg.source.provenance || 'self-authored',
           metadata: { rightsStatus: pkg.source.rightsStatus },
         })
         .onConflictDoNothing();
@@ -320,7 +327,7 @@ export class ImportService {
           .values({
             groupId,
             version: 1,
-            passage: (group.passage || []) as any,
+            passage: (group.passage || []) as unknown,
             audioSha256: null,
             status: 'draft',
             createdAt: now,
@@ -341,7 +348,7 @@ export class ImportService {
               level: pkg.source.level,
               skill: q.skill,
               mondaiType: group.mondaiType,
-              origin: pkg.source.provenance as any,
+              origin: pkg.source.provenance || 'self-authored',
             })
             .onConflictDoNothing();
 
@@ -350,8 +357,8 @@ export class ImportService {
             .values({
               questionId,
               version: 1,
-              stem: q.stem as any,
-              explanation: (q.explanation || null) as any,
+              stem: q.stem as unknown,
+              explanation: (q.explanation || null) as unknown,
               status: 'draft',
               createdAt: now,
             })
@@ -368,7 +375,7 @@ export class ImportService {
                 questionId,
                 questionVersion: 1,
                 orderIndex,
-                content: opt.content as any,
+                content: opt.content as unknown,
               })
               .onConflictDoNothing();
           }
@@ -496,7 +503,7 @@ export class ImportService {
     const errLog = j.errorLog as Record<string, unknown> | null;
     return {
       id: j.id,
-      status: j.status as any,
+      status: j.status as ImportJobSummary['status'],
       packageSha256: j.packageSha256,
       fileName: j.fileName,
       targetLevel: j.targetLevel,
@@ -521,7 +528,7 @@ export class ImportService {
       const errLog = j.errorLog as Record<string, unknown> | null;
       return {
         id: j.id,
-        status: j.status as any,
+        status: j.status as ImportJobSummary['status'],
         packageSha256: j.packageSha256,
         fileName: j.fileName,
         targetLevel: j.targetLevel,

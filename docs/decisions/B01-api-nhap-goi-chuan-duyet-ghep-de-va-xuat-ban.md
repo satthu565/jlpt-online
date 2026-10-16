@@ -117,5 +117,10 @@ Theo chỉ thị của chủ dự án và quy tắc `AGENTS.md`:
 
 ### 3.3. Kiểm tra kiểu dữ liệu toàn workspace
 - `pnpm --filter @jlpt/api typecheck`: 0 errors.
-- `pnpm typecheck`: 17/17 packages pass without any errors.
+- `pnpm typecheck`: 19/19 packages pass without any errors.
 - `pnpm demo:seed`: Hoàn tất thành công với exit code 0.
+
+### 3.4. Kiểm tra mã nguồn và tiêu chuẩn ESLint (Strict TypeScript & Zero Any)
+- `pnpm --filter @jlpt/api lint`: 0 errors, 0 warnings (56 lỗi/cảnh báo từ vòng trước đã được khắc phục hoàn toàn).
+- `pnpm lint`: Toàn bộ 13 packages trong workspace đều pass sạch không còn bất kỳ lỗi nào.
+- Toàn bộ các biến chưa sử dụng và ép kiểu `any` lỏng lẻo trong các module `blueprint`, `exam`, `import`, `review` đã được thay thế bằng các kiểu dữ liệu chặt chẽ (`DbTx`, `BlueprintDefinition`, `BlueprintSection`, `ReviewTargetType`, `RichText`, `RichBlock`, `Skill`, `MondaiType`, `ImportJobSummary['status']`).

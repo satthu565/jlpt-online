@@ -1,6 +1,5 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import crypto from 'node:crypto';
 import { beforeEach, afterEach, describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
@@ -8,7 +7,7 @@ import { runMigrations } from '../../db/migrate.js';
 import * as schema from '../../db/schema.js';
 import { StorageService } from '../storage/storage.service.js';
 import { MediaService } from '../media/media.service.js';
-import { OutboxService } from '../outbox/outbox.service.js';
+import { OutboxService, type DbTx } from '../outbox/outbox.service.js';
 import { BlueprintService } from '../blueprint/blueprint.service.js';
 import { ReviewService } from '../review/review.service.js';
 import { ImportService } from './import.service.js';
@@ -121,8 +120,6 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
       const files = readZipBuffer(validZip);
       delete files['import.json'];
 
-      // Pack files without import.json
-      const archiver = await import('node:zlib');
       // Or pass invalid payload
       const emptyBuffer = Buffer.from([
         0x50, 0x4b, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -157,8 +154,8 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
 
       // Monkey patch dbClient.db.transaction to simulate a failure halfway through
       const originalTx = dbClient.db.transaction.bind(dbClient.db);
-      dbClient.db.transaction = async (cb: any) => {
-        return originalTx(async (tx: any) => {
+      dbClient.db.transaction = (async () => {
+        return originalTx(async (tx: DbTx) => {
           // Perform first insert then intentionally throw
           await tx.insert(schema.importJobs).values({
             id: '0192f000-0000-7000-8000-000000000099',
@@ -170,7 +167,7 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
           });
           throw new Error('Simulated mid-transaction failure');
         });
-      };
+      }) as typeof originalTx;
 
       await expect(
         importService.processPackageImport(validZip, 'demo-n5-1.zip', testUserId),
@@ -222,7 +219,7 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
       expect(outboxEvents.length).toBe(1);
       expect(outboxEvents[0]?.topic).toBe('content.import.completed');
 
-      const payload = outboxEvents[0]?.payload as any;
+      const payload = outboxEvents[0]?.payload as { payload: { importJobId: string; revision: number; questionsCount: number; groupsCount: number } };
       expect(payload.payload.importJobId).toBe(result.id);
       expect(payload.payload.revision).toBe(1);
       expect(payload.payload.questionsCount).toBe(29);

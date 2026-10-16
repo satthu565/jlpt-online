@@ -5,13 +5,10 @@ import {
   Param,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { Public } from '../../common/decorators/public.decorator.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
-import { AuthGuard } from '../../common/guards/auth.guard.js';
-import { RolesGuard } from '../../common/guards/roles.guard.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
 import { ExamService } from './exam.service.js';
 import type { Level, ExamKind, Session } from '@jlpt/schema';

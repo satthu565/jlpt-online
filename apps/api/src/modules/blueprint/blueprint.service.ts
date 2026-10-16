@@ -94,7 +94,7 @@ export class BlueprintService {
     const level = String(blueprintData['level']) as Level;
     const isOfficial = blueprintData['kind'] === 'official' || Boolean(blueprintData['isOfficial']);
 
-    let activated: any;
+    let activated: Partial<Blueprint> & { status: string; isConfirmed: boolean; confirmedBy?: string; confirmedAt?: string };
     try {
       activated = activateBlueprint(
         blueprintData as unknown as Blueprint,
@@ -132,10 +132,10 @@ export class BlueprintService {
         confirmedBy: confirmedByUserId || null,
         confirmedAt: activated.confirmedAt ? new Date(activated.confirmedAt) : null,
         effectiveFrom: String(blueprintData['effectiveFrom'] || '2026-10'),
-        sourceRef: (blueprintData['sourceRef'] as any) || [],
+        sourceRef: (blueprintData['sourceRef'] as unknown) ?? [],
         note: (blueprintData['note'] as string) || (rawId !== blueprintId ? `id:${rawId}` : ''),
-        sections: blueprintData['sections'] as any,
-        scoring: blueprintData['scoring'] as any,
+        sections: blueprintData['sections'] as unknown,
+        scoring: blueprintData['scoring'] as unknown,
       })
       .returning();
 

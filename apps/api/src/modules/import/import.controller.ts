@@ -5,14 +5,16 @@ import {
   Param,
   Post,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
-import { AuthGuard } from '../../common/guards/auth.guard.js';
-import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { ImportService } from './import.service.js';
+
+interface MultipartRequest extends FastifyRequest {
+  isMultipart?: () => boolean;
+  file?: () => Promise<{ filename: string; toBuffer: () => Promise<Buffer> } | undefined>;
+}
 
 @Controller('admin/imports')
 @Roles('admin', 'editor', 'reviewer')
@@ -32,28 +34,29 @@ export class ImportController {
   @Post()
   async uploadPackage(
     @Req() req: FastifyRequest,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: { id?: string; userId?: string },
   ) {
-    const rawReq = req as any;
+    const rawReq = req as unknown as MultipartRequest;
     const isMultipart = rawReq.isMultipart?.();
-    if (isMultipart) {
+    if (isMultipart && rawReq.file) {
       const part = await rawReq.file();
       if (!part) {
         throw new BadRequestException('Không tìm thấy tệp tải lên trong multipart request');
       }
       const buffer = await part.toBuffer();
+      const userId = user.userId || user.id || 'importer';
       return this.importService.processPackageImport(
         buffer,
         part.filename,
-        user.id,
+        userId,
       );
     }
 
     // Base64 JSON body fallback
-    const rawBody = req.body as any;
+    const rawBody = req.body as { dataBase64?: string; fileName?: string } | undefined;
     if (rawBody && typeof rawBody === 'object' && typeof rawBody.dataBase64 === 'string') {
       const buf = Buffer.from(rawBody.dataBase64, 'base64');
-      const userId = (user as any)?.userId || user?.id || 'importer';
+      const userId = user.userId || user.id || 'importer';
       return this.importService.processPackageImport(
         buf,
         rawBody.fileName || 'package.zip',
@@ -62,11 +65,11 @@ export class ImportController {
     }
 
     // Binary body fallback
-    if (Buffer.isBuffer(rawBody)) {
+    if (Buffer.isBuffer(req.body)) {
       return this.importService.processPackageImport(
-        rawBody,
+        req.body,
         'package.zip',
-        (user as any)?.userId || user?.id || 'importer',
+        user.userId || user.id || 'importer',
       );
     }
 

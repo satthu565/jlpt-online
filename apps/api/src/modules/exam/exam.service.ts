@@ -5,7 +5,6 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  Optional,
 } from '@nestjs/common';
 import { and, desc, eq, isNotNull, isNull } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
@@ -28,6 +27,10 @@ import {
   type PublicQuestion,
   type PublicQuestionGroup,
   type PublicSection,
+  type Skill,
+  type MondaiType,
+  type RichText,
+  type RichBlock,
 } from '@jlpt/schema';
 import { StorageService } from '../storage/storage.service.js';
 import { OutboxService, type DbTx } from '../outbox/outbox.service.js';
@@ -310,7 +313,7 @@ export class ExamService {
     }
 
     // 4. Verify / find blueprint
-    let blueprint: any;
+    let blueprint: typeof schema.blueprints.$inferSelect;
     try {
       blueprint = await this.blueprintService.getActiveBlueprintByLevel(exam.level as Level);
     } catch {
@@ -331,8 +334,8 @@ export class ExamService {
     const mediaSet = new Set<string>();
 
     const answerKeys: number[] = [];
-    const answerSkills: any[] = [];
-    const answerMondaiTypes: any[] = [];
+    const answerSkills: Skill[] = [];
+    const answerMondaiTypes: MondaiType[] = [];
     const sectionRanges: [number, number][] = [];
 
     const publicSections: PublicSection[] = [];
@@ -400,19 +403,19 @@ export class ExamService {
 
           const correctVal = correctRow[0]?.correctOption ?? 1;
           answerKeys.push(correctVal);
-          answerSkills.push(qObj.skill);
-          answerMondaiTypes.push(qObj.mondaiType);
+          answerSkills.push(qObj.skill as Skill);
+          answerMondaiTypes.push(qObj.mondaiType as MondaiType);
 
           const publicOptions: PublicOption[] = optRows.map((o: typeof schema.answerOptions.$inferSelect) => ({
             label: o.orderIndex.toString(),
-            content: o.content as any,
+            content: o.content as unknown as RichText,
           }));
 
           groupQuestions.push({
             index: currentGlobalIndex++,
             questionId: qid,
             number: (currentGlobalIndex).toString(),
-            stem: (qvRow[0]?.stem as any) || [],
+            stem: (qvRow[0]?.stem as unknown as RichText) || [],
             options: publicOptions,
           });
         }
@@ -420,9 +423,9 @@ export class ExamService {
         const firstQ = examQuestions.find((q: typeof schema.questions.$inferSelect) => qIds.includes(q.id));
         publicGroups.push({
           groupId: gid,
-          mondaiType: (firstQ?.mondaiType as any) || 'kanji_reading',
+          mondaiType: (firstQ?.mondaiType as MondaiType) || 'kanji_reading',
           instructions: [],
-          passage: (gvRow[0]?.passage as any) || null,
+          passage: (gvRow[0]?.passage as unknown as RichBlock[]) || null,
           media: [],
           questions: groupQuestions,
         });
@@ -448,7 +451,7 @@ export class ExamService {
       version: nextVersion,
       level: exam.level as Level,
       title: exam.title,
-      kind: exam.kind as any,
+      kind: exam.kind as ExamKind,
       totalQuestions: currentGlobalIndex,
       sections: publicSections,
     };
@@ -501,7 +504,7 @@ export class ExamService {
         manifestKey,
         blueprintId: blueprint.id,
         blueprintVersion: blueprint.version,
-        scoring: (blueprint.scoring as any) || { method: 'linear_reference', rounding: 'round' },
+        scoring: (blueprint.scoring as unknown) || { method: 'linear_reference', rounding: 'round' },
         totalQuestions: currentGlobalIndex,
         publishedAt: now,
         publishedBy: publisherUserId,
@@ -512,9 +515,9 @@ export class ExamService {
         examId,
         version: nextVersion,
         keys: examAnswerKey.keys,
-        skills: examAnswerKey.skills as any,
-        mondaiTypes: examAnswerKey.mondaiTypes as any,
-        sectionRanges: examAnswerKey.sectionRanges as any,
+        skills: examAnswerKey.skills,
+        mondaiTypes: examAnswerKey.mondaiTypes,
+        sectionRanges: examAnswerKey.sectionRanges as unknown,
       });
 
       // Update exam publishedVersion

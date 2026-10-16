@@ -1,4 +1,4 @@
-import type { ExamKind, ExamSummary, Level, Session } from '@jlpt/schema';
+import type { ExamKind, Level, Session } from '@jlpt/schema';
 
 export interface ExamFilterQuery {
   level?: Level;
