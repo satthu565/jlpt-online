@@ -172,7 +172,7 @@
   "workPackageCount": 45,
   "originalV1TaskCount": 106,
   "workerCount": 6,
-  "localLinksChecked": 426,
+  "localLinksChecked": 427,
   "errors": [],
   "warnings": [
     "Work duration estimates are speculative and exclude independent review, repair loops, provider waits and complete build contention.",

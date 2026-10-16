@@ -8,6 +8,8 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "test:import-contracts": "vitest run packages/content-tools/tests/import-contracts.test.ts",
+    "import:validate": "node tools/import-data/bin/validate.js",
     "dev": "turbo run dev",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md}\"",
     "contracts:check": "pnpm --filter @jlpt/schema build && node -e \"import('./packages/schema/dist/index.js').then(m => m.runCheck(process.cwd()))\"",
