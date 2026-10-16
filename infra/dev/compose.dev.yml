@@ -1,0 +1,78 @@
+# ==============================================================================
+# JLPT Online Dev Services (Separated for 6 Coding Workers)
+# Task: F07
+# ==============================================================================
+services:
+  postgres:
+    image: postgres:17-bookworm
+    container_name: jlpt-dev-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_dev_password
+      POSTGRES_DB: postgres
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - dev-postgres-data:/var/lib/postgresql/data
+      - ./init-workers-db.sql:/docker-entrypoint-initdb.d/init-workers-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis-core:
+    image: redis:7-alpine
+    container_name: jlpt-dev-redis-core
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--maxmemory-policy",
+        "noeviction",
+      ]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - dev-redis-core-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis-cache:
+    image: redis:7-alpine
+    container_name: jlpt-dev-redis-cache
+    command:
+      [
+        "redis-server",
+        "--maxmemory",
+        "64mb",
+        "--maxmemory-policy",
+        "allkeys-lru",
+      ]
+    ports:
+      - "127.0.0.1:6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: jlpt-dev-mailpit
+    ports:
+      - "127.0.0.1:1025:1025" # SMTP
+      - "127.0.0.1:8025:8025" # Web UI
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8025/api/v1/info"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  dev-postgres-data:
+  dev-redis-core-data:
