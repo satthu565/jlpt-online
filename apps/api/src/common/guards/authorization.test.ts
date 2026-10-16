@@ -452,7 +452,7 @@ describe('F03 Authorization and PII Protection (SYS-06, SYS-07)', () => {
         expect(body.error.code).toBe('TWO_FACTOR_REQUIRED');
       });
 
-      it('Negative: Admin endpoint từ chối khi mã TOTP không hợp lệ (INVALID_TOTP_CODE)', async () => {
+      it('Negative: Admin endpoint từ chối khi mã TOTP không hợp lệ (TWO_FACTOR_REQUIRED)', async () => {
         const res = await app.inject({
           method: 'POST',
           url: '/api/v1/admin/test/sensitive-action',
@@ -465,7 +465,7 @@ describe('F03 Authorization and PII Protection (SYS-06, SYS-07)', () => {
 
         expect(res.statusCode).toBe(403);
         const body = JSON.parse(res.payload);
-        expect(body.error.code).toBe('INVALID_TOTP_CODE');
+        expect(body.error.code).toBe('TWO_FACTOR_REQUIRED');
       });
 
       it('Positive: Admin endpoint chấp nhận khi gửi đúng mã TOTP chuẩn RFC 6238', async () => {

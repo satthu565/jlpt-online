@@ -345,6 +345,27 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
       expect(body.mediaToken).toBeDefined();
     });
 
+    it('Khách làm đề có cờ guest_trial với Turnstile không hợp lệ bị từ chối 400 TURNSTILE_FAILED', async () => {
+      const guestId = '0192f000-0000-7000-8000-000000000077';
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/v1/attempts',
+        headers: {
+          'content-type': 'application/json',
+          cookie: `__Host-guest=${guestId}`,
+        },
+        payload: {
+          examId: guestTrialExamId,
+          mode: 'practice',
+          turnstileToken: 'test_invalid_token',
+        },
+      });
+
+      expect(res.statusCode).toBe(400);
+      const body = JSON.parse(res.payload);
+      expect(body.error.code).toBe('TURNSTILE_FAILED');
+    });
+
     it('Tài khoản chưa xác minh email (emailVerified = false) bị từ chối 403 EMAIL_NOT_VERIFIED', async () => {
       const res = await app.inject({
         method: 'POST',
@@ -416,6 +437,24 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
       });
 
       expect(attachRes.statusCode).toBe(200);
+      const attachBody = JSON.parse(attachRes.payload);
+      expect(attachBody.attachedCount).toBe(1);
+
+      // Verify attaching non-existent guest returns attachedCount: 0
+      const attachEmptyRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/attach-guest',
+        headers: {
+          authorization: `Bearer ${verifiedUserToken}`,
+          'content-type': 'application/json',
+        },
+        payload: {
+          guestId: generateUuidV7(),
+        },
+      });
+      expect(attachEmptyRes.statusCode).toBe(200);
+      const emptyBody = JSON.parse(attachEmptyRes.payload);
+      expect(emptyBody.attachedCount).toBe(0);
 
       // Verify guest attempt was attached to verifiedUser
       const [attachedRow] = await client.db
@@ -476,6 +515,28 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
       const body2 = JSON.parse(res2.payload);
       expect(body2.error.code).toBe('ATTEMPT_ALREADY_OPEN');
       expect(body2.error.details.attemptId).toBe(attemptId);
+    });
+
+    it('Lưu phiếu khi chưa bắt đầu phần thi nào bị từ chối 409 SECTION_NOT_STARTED', async () => {
+      const res = await app.inject({
+        method: 'PUT',
+        url: `/api/v1/attempts/${attemptId}/sheet`,
+        headers: {
+          authorization: `Bearer ${verifiedUserToken}`,
+          'content-type': 'application/json',
+        },
+        payload: {
+          lease,
+          seq: 1,
+          answers: [1, 0, 0, 0],
+          flags: [0, 0, 0, 0],
+          changes: [],
+        },
+      });
+
+      expect(res.statusCode).toBe(409);
+      const body = JSON.parse(res.payload);
+      expect(body.error.code).toBe('SECTION_NOT_STARTED');
     });
 
     it('Chuyển sang phần 1 (sections/next) tính đúng deadline', async () => {
@@ -643,6 +704,42 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
       );
       expect(forThisAttempt.length).toBe(1);
     });
+
+    it('Thao tác ghi phiếu hoặc chuyển phần sau khi bài thi đã nộp bị từ chối 409 ATTEMPT_CLOSED', async () => {
+      // 1. Try sections/next on closed attempt
+      const resNext = await app.inject({
+        method: 'POST',
+        url: `/api/v1/attempts/${attemptId}/sections/next`,
+        headers: {
+          authorization: `Bearer ${verifiedUserToken}`,
+          'content-type': 'application/json',
+        },
+        payload: { lease },
+      });
+      expect(resNext.statusCode).toBe(409);
+      const bodyNext = JSON.parse(resNext.payload);
+      expect(bodyNext.error.code).toBe('ATTEMPT_CLOSED');
+
+      // 2. Try update sheet on closed attempt
+      const resSheet = await app.inject({
+        method: 'PUT',
+        url: `/api/v1/attempts/${attemptId}/sheet`,
+        headers: {
+          authorization: `Bearer ${verifiedUserToken}`,
+          'content-type': 'application/json',
+        },
+        payload: {
+          lease,
+          seq: 99,
+          answers: [1, 2, 3, 4],
+          flags: [0, 0, 0, 0],
+          changes: [],
+        },
+      });
+      expect(resSheet.statusCode).toBe(409);
+      const bodySheet = JSON.parse(resSheet.payload);
+      expect(bodySheet.error.code).toBe('ATTEMPT_CLOSED');
+    });
   });
 
   describe('Acceptance 2: ACK chỉ sau commit DB', () => {
@@ -738,6 +835,15 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
       });
       expect(createRes.statusCode).toBe(201);
       const { attemptId, lease: oldLease } = JSON.parse(createRes.payload);
+
+      // Start section so attempt has currentSection initialized
+      const sectionRes = await app.inject({
+        method: 'POST',
+        url: `/api/v1/attempts/${attemptId}/sections/next`,
+        headers: { authorization: `Bearer ${resumeToken}`, 'content-type': 'application/json' },
+        payload: { lease: oldLease },
+      });
+      expect(sectionRes.statusCode).toBe(200);
 
       // Call resume
       const resumeRes = await app.inject({

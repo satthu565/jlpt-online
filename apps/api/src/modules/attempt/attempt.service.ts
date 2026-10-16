@@ -187,8 +187,8 @@ export class AttemptService {
       if (turnstileToken) {
         const turnstileRes = await this.turnstileService.verifyToken(turnstileToken, clientIp);
         if (!turnstileRes.success) {
-          throw new ForbiddenException({
-            code: 'TURNSTILE_INVALID',
+          throw new BadRequestException({
+            code: 'TURNSTILE_FAILED',
             message: 'Xác thực Turnstile không thành công.',
           });
         }
@@ -315,8 +315,8 @@ export class AttemptService {
 
     if (attempt.status !== 'in_progress') {
       throw new ConflictException({
-        code: 'ATTEMPT_ALREADY_SUBMITTED',
-        message: 'Bài thi đã được nộp.',
+        code: 'ATTEMPT_CLOSED',
+        message: 'Bài thi đã được nộp hoặc đã đóng.',
       });
     }
 
@@ -425,8 +425,16 @@ export class AttemptService {
     // 2. Status check
     if (attempt.status !== 'in_progress') {
       throw new ConflictException({
-        code: 'ATTEMPT_ALREADY_SUBMITTED',
-        message: 'Bài thi đã nộp, không thể cập nhật đáp án.',
+        code: 'ATTEMPT_CLOSED',
+        message: 'Bài thi đã nộp hoặc đã đóng, không thể cập nhật đáp án.',
+      });
+    }
+
+    // 3. Section started check (HOP_DONG_KY_THUAT.md Bảng A9: SECTION_NOT_STARTED)
+    if (attempt.currentSection === null || attempt.currentSection === undefined) {
+      throw new ConflictException({
+        code: 'SECTION_NOT_STARTED',
+        message: 'Chưa bắt đầu phần thi nào.',
       });
     }
 
@@ -882,7 +890,7 @@ export class AttemptService {
     const db = this.dbClient.db;
 
     // Execute atomic update
-    await db
+    const updated = await db
       .update(schema.examAttempts)
       .set({
         userId,
@@ -893,9 +901,10 @@ export class AttemptService {
           eq(schema.examAttempts.guestId, targetGuestId),
           isNull(schema.examAttempts.userId),
         ),
-      );
+      )
+      .returning({ id: schema.examAttempts.id });
 
-    return 1;
+    return updated.length;
   }
 
   /**

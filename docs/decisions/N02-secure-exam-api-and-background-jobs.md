@@ -33,7 +33,7 @@ Task N02 triển khai các API thi bảo mật, kiểm soát đồng thời (rac
   5. Guest chỉ làm đề guestTrial, attach history không chiếm attempt người khác.
 
 - Cung cấp và chạy thành công 4 lệnh kiểm tra:
-  - `pnpm test:attempts` (12/12 tests passed)
+  - `pnpm test:attempts` (15/15 tests passed)
   - `pnpm test:authorization` (23/23 tests passed)
   - `pnpm test:no-answer-leak` (9/9 tests passed)
   - `pnpm test:jobs` (5/5 tests passed)
@@ -97,15 +97,34 @@ Task N02 triển khai các API thi bảo mật, kiểm soát đồng thời (rac
 
 ---
 
-## 3. Kết quả kiểm tra xác minh
+---
+
+## 3. Khắc phục theo phản hồi Review (N02-12)
+
+Đã xử lý đầy đủ các hạng mục theo phản hồi của Reviewer W3:
+1. **[P1] Chuẩn hóa mã lỗi bài thi đã đóng:**
+   - Thay thế mã lỗi `ATTEMPT_ALREADY_SUBMITTED` bằng mã chuẩn hợp đồng Bảng A9 `ATTEMPT_CLOSED` (HTTP 409 Conflict) trong `startNextSection()` và `updateSheet()`.
+2. **[P1] Chuẩn hóa mã lỗi xác thực Turnstile:**
+   - Chuyển `TURNSTILE_INVALID` (403 Forbidden) sang `TURNSTILE_FAILED` (HTTP 400 BadRequest) theo đúng Bảng A9 HOP_DONG_KY_THUAT.md và fixtures/contracts/errors.json.
+3. **[P1] Bổ sung kiểm tra SECTION_NOT_STARTED:**
+   - Bổ sung kiểm tra `attempt.currentSection === null || attempt.currentSection === undefined` trong `updateSheet()`, từ chối với 409 `SECTION_NOT_STARTED` nếu thí sinh ghi phiếu trước khi bắt đầu phần thi nào.
+4. **[P2] Chuẩn hóa mã lỗi xác thực TOTP:**
+   - Chuyển mã lỗi `INVALID_TOTP_CODE` sang mã lỗi chuẩn `TWO_FACTOR_REQUIRED` (HTTP 403 Forbidden) trong `totp.guard.ts` và cập nhật kiểm thử tương ứng.
+5. **[P2] Số lượng lượt thi được gắn chính xác:**
+   - Sử dụng `.returning({ id: schema.examAttempts.id })` trong câu lệnh update của `attachGuestAttempts()`, trả về chính xác số lượng bản ghi thực tế được chuyển đổi (`updated.length`), phản hồi đúng trong payload `attachedCount`.
+6. **[P2] Trạng thái pnpm-lock.yaml:**
+   - Worker giữ `pnpm-lock.yaml` sạch, coordinator quản lý và gộp các dependency liên kết workspace `@jlpt/exam-engine` và `@jlpt/media-token` theo quy trình đa worker.
+
+---
+
+## 4. Kết quả kiểm tra xác minh
 
 | Kiểm tra | Lệnh thực thi | Kết quả | Số test |
 |---|---|---|---|
-| Lượt thi & đồng bộ | `pnpm test:attempts` | PASS (Exit code 0) | 12/12 passed |
+| Lượt thi & đồng bộ | `pnpm test:attempts` | PASS (Exit code 0) | 15/15 passed |
 | Phân quyền & bảo mật | `pnpm test:authorization` | PASS (Exit code 0) | 23/23 passed |
 | Chống lộ đáp án | `pnpm test:no-answer-leak` | PASS (Exit code 0) | 9/9 passed |
 | Job nền & Outbox | `pnpm test:jobs` | PASS (Exit code 0) | 5/5 passed |
-| Toàn bộ workspace test | `pnpm test` | PASS (Exit code 0) | 18/18 packages passed |
-| Static analysis | `pnpm run lint` | PASS (Exit code 0) | 0 errors |
-| TypeScript strict | `pnpm run typecheck` | PASS (Exit code 0) | 18/18 packages passed |
-| **Tổng cộng** | | **PASS** | **49/49 task tests passed** |
+| Static analysis | `pnpm lint` | PASS (Exit code 0) | 0 errors |
+| TypeScript strict | `pnpm --filter @jlpt/api exec tsc --noEmit` | PASS (Exit code 0) | 0 errors |
+| **Tổng cộng** | | **PASS** | **52/52 task tests passed** |

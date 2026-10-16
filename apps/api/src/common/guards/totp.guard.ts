@@ -57,7 +57,7 @@ export class TotpGuard implements CanActivate {
       const isValid = verifyTotp(totpCode, secret);
       if (!isValid) {
         throw new ForbiddenException({
-          code: 'INVALID_TOTP_CODE',
+          code: 'TWO_FACTOR_REQUIRED',
           message: 'Mã xác thực TOTP không chính xác hoặc đã hết hạn.',
         });
       }
