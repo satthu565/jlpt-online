@@ -36,6 +36,7 @@ export function flattenExamQuestions(
           number: question.number,
           stem: question.stem,
           options: question.options,
+          media: group.media || [],
           isLocked: isSectionLocked,
         });
 
