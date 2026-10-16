@@ -537,9 +537,19 @@ export class CorpusService {
 
     let result;
     if (format === 'xlsx') {
-      result = exportDatasetToXlsx(agg, { format: 'xlsx', type, level: query.level });
+      result = exportDatasetToXlsx(agg, {
+        format: 'xlsx',
+        type,
+        level: query.level,
+        dataType: query.dataType,
+      });
     } else {
-      result = exportDatasetToCsv(agg, { format: 'csv', type, level: query.level });
+      result = exportDatasetToCsv(agg, {
+        format: 'csv',
+        type,
+        level: query.level,
+        dataType: query.dataType,
+      });
     }
 
     return {

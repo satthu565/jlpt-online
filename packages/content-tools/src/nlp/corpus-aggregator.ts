@@ -148,7 +148,11 @@ export class CorpusAggregator {
   private grammarAnalyzer = new GrammarAnalyzer();
   private questions: CorpusQuestionItem[] = [];
   private examIds = new Set<string>();
+  private observedExamIds = new Set<string>();
+  private syntheticExamIds = new Set<string>();
   private totalTokens = 0;
+  private observedTokens = 0;
+  private syntheticTokens = 0;
   private datasetId: string;
   private name: string;
   private version: string;
@@ -175,7 +179,7 @@ export class CorpusAggregator {
   }
 
   /**
-   * Records a list of tokens into the corpus.
+   * Records a list of tokens into the corpus, differentiating observed vs synthetic data (Acceptance 4).
    */
   recordTokens(
     tokens: WordToken[],
@@ -185,6 +189,8 @@ export class CorpusAggregator {
       skill?: QuestionSkill;
       session?: string;
       source?: string;
+      provenance?: string;
+      isObserved?: boolean;
     },
   ): void {
     const examId = metadata.examId;
@@ -193,9 +199,23 @@ export class CorpusAggregator {
     const skill = metadata.skill ?? 'vocabulary';
     const session = metadata.session ?? 'unknown';
     const sourceName = metadata.source ?? 'unknown';
+    const provenance =
+      metadata.provenance ?? (metadata.isObserved ? 'official_past_exam' : 'synthetic');
+    const isObserved = metadata.isObserved ?? (provenance === 'official_past_exam');
+
+    if (isObserved) {
+      this.observedExamIds.add(examId);
+    } else {
+      this.syntheticExamIds.add(examId);
+    }
 
     for (const token of tokens) {
       this.totalTokens += 1;
+      if (isObserved) {
+        this.observedTokens += 1;
+      } else {
+        this.syntheticTokens += 1;
+      }
       const key = token.baseForm;
 
       let entry = this.vocabMap.get(key);
@@ -215,11 +235,21 @@ export class CorpusAggregator {
           byRole: { stem: 0, option: 0, passage: 0, instruction: 0, transcript: 0 },
           bySession: {},
           bySource: {},
+          observedCount: 0,
+          syntheticCount: 0,
+          byProvenance: {},
         };
         this.vocabMap.set(key, entry);
       }
 
       entry.count += 1;
+      if (isObserved) {
+        entry.observedCount += 1;
+      } else {
+        entry.syntheticCount += 1;
+      }
+      entry.byProvenance[provenance] = (entry.byProvenance[provenance] ?? 0) + 1;
+
       if (token.isTarget) {
         entry.targetCount += 1;
       } else {
@@ -254,15 +284,27 @@ export class CorpusAggregator {
         : pkg.source?.year
           ? `${pkg.source.year}`
           : 'synthetic';
-    const sourceName = pkg.source?.name ?? pkg.exam.title;
+    const provenance =
+      pkg.source?.provenance ??
+      (pkg.source?.year ? 'official_past_exam' : 'synthetic');
+    const isObserved = provenance === 'official_past_exam';
+    const sourceName = pkg.source?.name ?? pkg.exam?.title ?? 'exam';
 
-    if (!pkg.exam.groups) return;
+    if (!pkg.exam?.groups) return;
 
     for (const group of pkg.exam.groups) {
       // 1. Group instructions
       if (group.instructions) {
         const tokens = tokenizeRichText(group.instructions as RichText, 'instruction', false);
-        this.recordTokens(tokens, { examId, level, skill: 'reading', session, source: sourceName });
+        this.recordTokens(tokens, {
+          examId,
+          level,
+          skill: 'reading',
+          session,
+          source: sourceName,
+          provenance,
+          isObserved,
+        });
         const text = richTextToPlainText(group.instructions as RichText);
         this.kanjiAnalyzer.recordText(text, { examId, level, skill: 'reading', role: 'instruction' });
         this.grammarAnalyzer.recordText(text, { examId, level, role: 'instruction', isTarget: false });
@@ -272,7 +314,15 @@ export class CorpusAggregator {
       if (group.passage && Array.isArray(group.passage)) {
         const passageBlocks = group.passage as RichBlock[];
         const tokens = tokenizeRichBlocks(passageBlocks, 'passage');
-        this.recordTokens(tokens, { examId, level, skill: 'reading', session, source: sourceName });
+        this.recordTokens(tokens, {
+          examId,
+          level,
+          skill: 'reading',
+          session,
+          source: sourceName,
+          provenance,
+          isObserved,
+        });
         for (const block of passageBlocks) {
           if (block.type === 'paragraph') {
             const text = richTextToPlainText(block.content);
@@ -301,7 +351,15 @@ export class CorpusAggregator {
           // Stem
           if (q.stem) {
             const tokens = tokenizeRichText(q.stem as RichText, 'stem', false);
-            this.recordTokens(tokens, { examId, level, skill, session, source: sourceName });
+            this.recordTokens(tokens, {
+              examId,
+              level,
+              skill,
+              session,
+              source: sourceName,
+              provenance,
+              isObserved,
+            });
             stemText = richTextToPlainText(q.stem as RichText);
             this.kanjiAnalyzer.recordText(stemText, { examId, level, skill, role: 'stem' });
             this.grammarAnalyzer.recordText(stemText, { examId, level, role: 'stem', isTarget: skill === 'grammar' });
@@ -318,7 +376,15 @@ export class CorpusAggregator {
             for (const opt of q.options) {
               if (opt.content) {
                 const optTokens = tokenizeRichText(opt.content as RichText, 'option', false);
-                this.recordTokens(optTokens, { examId, level, skill, session, source: sourceName });
+                this.recordTokens(optTokens, {
+                  examId,
+                  level,
+                  skill,
+                  session,
+                  source: sourceName,
+                  provenance,
+                  isObserved,
+                });
                 const optText = richTextToPlainText(opt.content as RichText);
                 this.kanjiAnalyzer.recordText(optText, { examId, level, skill, role: 'option' });
                 this.grammarAnalyzer.recordText(optText, { examId, level, role: 'option', isTarget: skill === 'grammar' });
@@ -357,7 +423,7 @@ export class CorpusAggregator {
   }
 
   /**
-   * Returns metadata about the corpus (Acceptance 3).
+   * Returns metadata about the corpus with observed vs synthetic breakdown (DATA-18, Acceptance 4).
    */
   getMetadata(): CorpusMetadata {
     const items = Array.from(this.vocabMap.values());
@@ -396,11 +462,19 @@ export class CorpusAggregator {
       levels: levelCounts,
       skills: skillCounts,
       licenseAttribution: this.licenseAttribution,
+      observedTokens: this.observedTokens,
+      syntheticTokens: this.syntheticTokens,
+      observedDocuments: this.observedExamIds.size,
+      syntheticDocuments: this.syntheticExamIds.size,
+      breakdown: {
+        observed: this.observedExamIds.size,
+        synthetic: this.syntheticExamIds.size,
+      },
     };
   }
 
   /**
-   * Queries and filters vocabulary statistics with rankings (DATA-03, DATA-04, DATA-05, DATA-06, DATA-07, DATA-08, DATA-09, DATA-10).
+   * Queries and filters vocabulary statistics with rankings, distinguishing observed and synthetic data (DATA-03..10, Acceptance 4).
    */
   getVocabularyAnalysis(filter: CorpusFilter = {}): {
     total: number;
@@ -432,21 +506,60 @@ export class CorpusAggregator {
         (i) => i.baseForm.toLowerCase().includes(q) || i.term.toLowerCase().includes(q),
       );
     }
+    // Filter by observed vs synthetic (Acceptance 4)
+    if (filter.dataType === 'observed') {
+      items = items.filter((i) => i.observedCount > 0);
+    } else if (filter.dataType === 'synthetic') {
+      items = items.filter((i) => i.syntheticCount > 0);
+    }
+    if (filter.provenance) {
+      items = items.filter((i) => (i.byProvenance[filter.provenance!] ?? 0) > 0);
+    }
 
-    // Sort by total frequency descending (DATA-09 Ranking)
-    items.sort((a, b) => b.count - a.count);
+    // Sort by appropriate frequency descending
+    items.sort((a, b) => {
+      const freqA =
+        filter.dataType === 'observed'
+          ? a.observedCount
+          : filter.dataType === 'synthetic'
+            ? a.syntheticCount
+            : a.count;
+      const freqB =
+        filter.dataType === 'observed'
+          ? b.observedCount
+          : filter.dataType === 'synthetic'
+            ? b.syntheticCount
+            : b.count;
+      return freqB - freqA;
+    });
 
-    const rankings: CorpusRankingItem[] = items.map((item, index) => ({
-      rank: index + 1,
-      baseForm: item.baseForm,
-      surface: item.term,
-      level: item.level,
-      partOfSpeech: item.partOfSpeech,
-      frequency: item.count,
-      targetFrequency: item.targetCount,
-      incidentalFrequency: item.incidentalCount,
-      distinctExamsCount: item.distinctExamsCount,
-    }));
+    const rankings: CorpusRankingItem[] = items.map((item, index) => {
+      const frequency =
+        filter.dataType === 'observed'
+          ? item.observedCount
+          : filter.dataType === 'synthetic'
+            ? item.syntheticCount
+            : item.count;
+      return {
+        rank: index + 1,
+        baseForm: item.baseForm,
+        surface: item.term,
+        level: item.level,
+        partOfSpeech: item.partOfSpeech,
+        frequency,
+        targetFrequency: item.targetCount,
+        incidentalFrequency: item.incidentalCount,
+        distinctExamsCount: item.distinctExamsCount,
+        observedFrequency: item.observedCount,
+        syntheticFrequency: item.syntheticCount,
+        dataType:
+          item.observedCount > 0 && item.syntheticCount > 0
+            ? 'mixed'
+            : item.observedCount > 0
+              ? 'observed'
+              : 'synthetic',
+      };
+    });
 
     const offset = filter.offset ?? 0;
     const limit = filter.limit ?? 100;

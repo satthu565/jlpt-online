@@ -11,8 +11,10 @@ import {
   formatPackageIssues,
   getQuestionIssues,
   findUnresolvedOcrMarkers,
+  buildSnapshotFromImportPackage,
 } from '../src/index.js';
 import type { ImportPackageV2, BlueprintDefinition, PackageIdentity } from '../src/index.js';
+import { assertNoAnswerLeak, PublicExamSnapshotSchema } from '@jlpt/schema';
 
 const ROOT = path.resolve(__dirname, '../../..');
 const READY_FIXTURE_PATH = path.join(ROOT, 'fixtures/imports/ready');
@@ -661,6 +663,151 @@ describe('C05 Validator gói nhập kiểm tra dữ liệu và đóng gói', () 
       expect(result.valid).toBe(false);
       expect(result.readiness).toBe('INVALID');
       expect(result.errors[0]).toContain('không tồn tại');
+    });
+  });
+
+  // --------------------------------------------------------------------------
+  // V05 Acceptance 1: Gói chuẩn giữ đúng ruby bảng sao audio đáp án qua import và snapshot không lộ đáp án
+  // --------------------------------------------------------------------------
+  describe('V05 Acceptance 1: Gói chuẩn giữ đúng ruby bảng sao audio đáp án qua import và snapshot không lộ đáp án', () => {
+    it('preserves ruby furigana across import package and snapshot without leaking answers', () => {
+      const { rawJson } = loadPackageArchive(READY_FIXTURE_PATH);
+      const pkg = rawJson as ImportPackageV2;
+
+      // 1. Build public snapshot
+      const { snapshot, answerKeys } = buildSnapshotFromImportPackage(pkg);
+
+      // Verify ruby preserved in public question
+      const vocabSec = snapshot.sections.find((s) => s.code === 'language_vocab');
+      expect(vocabSec).toBeDefined();
+
+      const rubyQ = vocabSec?.groups[0]?.questions.find((q) => q.number === '2');
+      expect(rubyQ).toBeDefined();
+
+      // Check ruby segment in stem
+      const rubySegment = rubyQ?.stem.find((seg) => seg.t === 'ruby');
+      expect(rubySegment).toBeDefined();
+      if (rubySegment && rubySegment.t === 'ruby') {
+        expect(rubySegment.text).toBe('水');
+        expect(rubySegment.rt).toBe('みず');
+      }
+
+      // Verify answer key stored on server side and not in snapshot
+      expect(answerKeys[rubyQ!.index]).toBe(1);
+      const rubyQRecord = rubyQ as unknown as Record<string, unknown>;
+      expect(rubyQRecord['correctOption']).toBeUndefined();
+      expect(rubyQRecord['answer']).toBeUndefined();
+      expect(rubyQRecord['explanation']).toBeUndefined();
+    });
+
+    it('preserves tables and images in reading passage across import and into public snapshot', () => {
+      const { rawJson } = loadPackageArchive(READY_FIXTURE_PATH);
+      const pkg = rawJson as ImportPackageV2;
+
+      const { snapshot } = buildSnapshotFromImportPackage(pkg);
+      const readingSec = snapshot.sections.find((s) => s.code === 'language_grammar_reading');
+      expect(readingSec).toBeDefined();
+
+      const readingGroup = readingSec?.groups.find((g) => g.mondaiType === 'info_retrieval');
+      expect(readingGroup?.passage).not.toBeNull();
+
+      // Table preservation
+      const tableBlock = readingGroup?.passage?.find((b) => b.type === 'table');
+      expect(tableBlock).toBeDefined();
+      if (tableBlock && tableBlock.type === 'table') {
+        expect(tableBlock.rows.length).toBe(2);
+        const cell = tableBlock.rows[0]?.[0]?.[0];
+        expect(cell?.t).toBe('text');
+        if (cell?.t === 'text') {
+          expect(cell.text).toBe('曜日');
+        }
+      }
+
+      // Image in passage
+      const imageBlock = readingGroup?.passage?.find((b) => b.type === 'image');
+      expect(imageBlock).toBeDefined();
+      if (imageBlock && imageBlock.type === 'image') {
+        expect(imageBlock.mediaKey).toContain('.png');
+      }
+    });
+
+    it('preserves star and blanks in sentence composition across import and into public snapshot', () => {
+      const { rawJson } = loadPackageArchive(READY_FIXTURE_PATH);
+      const pkg = rawJson as ImportPackageV2;
+
+      const { snapshot, answerKeys } = buildSnapshotFromImportPackage(pkg);
+      const grammarSec = snapshot.sections.find((s) => s.code === 'language_grammar_reading');
+      const orderGroup = grammarSec?.groups.find((g) => g.mondaiType === 'sentence_composition');
+      expect(orderGroup).toBeDefined();
+
+      const starQuestion = orderGroup?.questions[0];
+      expect(starQuestion).toBeDefined();
+
+      const starSegments = starQuestion?.stem.filter((s) => s.t === 'star');
+      const blankSegments = starQuestion?.stem.filter((s) => s.t === 'blank');
+      expect(starSegments?.length).toBe(1);
+      expect(blankSegments?.length).toBe(3);
+
+      // Verify answer key stored
+      expect(answerKeys[starQuestion!.index]).toBe(3);
+    });
+
+    it('preserves audio timeline with millisecond precision in listening section and manifest', () => {
+      const { rawJson } = loadPackageArchive(READY_FIXTURE_PATH);
+      const pkg = rawJson as ImportPackageV2;
+
+      const { snapshot, manifest } = buildSnapshotFromImportPackage(pkg);
+      const listeningSec = snapshot.sections.find((s) => s.code === 'listening');
+      expect(listeningSec).toBeDefined();
+      expect(listeningSec?.listeningTimeline).not.toBeNull();
+      expect(listeningSec?.listeningTimeline?.length).toBeGreaterThan(0);
+
+      const timelineItem = listeningSec!.listeningTimeline![0]!;
+      expect(timelineItem.mediaKey).toContain('.wav');
+      expect(timelineItem.startMs).toBe(0);
+      expect(timelineItem.endMs).toBe(2000);
+      expect(timelineItem.audioStartMs).toBe(0);
+      expect(timelineItem.audioEndMs).toBe(2000);
+      expect(timelineItem.gapAfterMs).toBe(28000);
+
+      // Manifest must include the media key
+      expect(manifest.media).toContain(timelineItem.mediaKey);
+    });
+
+    it('strictly satisfies assertNoAnswerLeak and PublicExamSnapshotSchema on full import snapshot', () => {
+      const { rawJson } = loadPackageArchive(DEMO_N5_ZIP_PATH);
+      const pkg = rawJson as ImportPackageV2;
+
+      const { snapshot, answerKeys, manifest } = buildSnapshotFromImportPackage(pkg);
+
+      // Total questions
+      expect(snapshot.totalQuestions).toBe(29);
+      expect(Object.keys(answerKeys).length).toBe(29);
+      expect(manifest.version).toBe(1);
+
+      // 1. Must satisfy assertNoAnswerLeak
+      expect(() => assertNoAnswerLeak(snapshot)).not.toThrow();
+
+      // 2. Must satisfy PublicExamSnapshotSchema
+      expect(() => PublicExamSnapshotSchema.parse(snapshot)).not.toThrow();
+    });
+
+    it('strictly detects and rejects if any answer key is leaked into snapshot', () => {
+      const { rawJson } = loadPackageArchive(READY_FIXTURE_PATH);
+      const pkg = rawJson as ImportPackageV2;
+      const { snapshot } = buildSnapshotFromImportPackage(pkg);
+
+      // Intentionally contaminate public snapshot with an answer key
+      const leakedSnapshot = JSON.parse(JSON.stringify(snapshot));
+      leakedSnapshot.sections[0].groups[0].questions[0].correctOption = 2;
+
+      expect(() => assertNoAnswerLeak(leakedSnapshot)).toThrow(/forbidden answer field "correctOption"/);
+      expect(() => PublicExamSnapshotSchema.parse(leakedSnapshot)).toThrow();
+
+      // Contaminate with explanation
+      const leakedExplanation = JSON.parse(JSON.stringify(snapshot));
+      leakedExplanation.sections[0].groups[0].questions[0].explanation = 'Lộ lời giải';
+      expect(() => assertNoAnswerLeak(leakedExplanation)).toThrow(/forbidden answer field "explanation"/);
     });
   });
 });

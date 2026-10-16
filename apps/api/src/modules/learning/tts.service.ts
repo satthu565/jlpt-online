@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { ExternalPrerequisiteError } from '../ai/provider/live-ai-provider.js';
 import type { TTSRequestDto, TTSResponseDto } from './learning.types.js';
 
 export const TTS_LICENSE_INFO = {
@@ -8,9 +9,67 @@ export const TTS_LICENSE_INFO = {
   allowedVoices: ['ja-JP-Standard-A', 'ja-JP-Standard-B', 'ja-JP-Neural2-B', 'sandbox-voice-1'],
 };
 
+export class LiveTtsProvider {
+  readonly id = 'live-tts-adapter';
+  readonly name = 'Production External TTS Provider';
+  private apiKey?: string;
+
+  constructor(apiKey?: string) {
+    this.apiKey = apiKey ?? process.env.TTS_PROVIDER_API_KEY ?? process.env.GOOGLE_TTS_API_KEY;
+  }
+
+  isAvailable(): boolean {
+    return Boolean(this.apiKey && this.apiKey.trim().length > 0);
+  }
+
+  getProviderStatus(): {
+    configured: boolean;
+    isLive: boolean;
+    status: 'READY' | 'BLOCKED_EXTERNAL';
+    externalId: string;
+    missingPrerequisites: string[];
+  } {
+    const configured = this.isAvailable();
+    return {
+      configured,
+      isLive: false,
+      status: configured ? 'READY' : 'BLOCKED_EXTERNAL',
+      externalId: 'tts-provider',
+      missingPrerequisites: configured ? [] : ['tts-provider', 'TTS_PROVIDER_API_KEY'],
+    };
+  }
+
+  async synthesize(_text: string, _voice?: string): Promise<{ audioBuffer: Buffer; durationMs: number }> {
+    if (!this.isAvailable()) {
+      throw new ExternalPrerequisiteError(
+        'tts-provider',
+        'BLOCKED_EXTERNAL',
+        'External TTS provider credential (tts-provider) is not configured in environment. Production voice synthesis is blocked pending operator configuration.',
+      );
+    }
+    throw new Error('Live TTS provider execution requires valid cloud audio billing contract.');
+  }
+}
+
 @Injectable()
 export class TTSService {
   private userUsage = new Map<string, number>();
+  private liveProvider = new LiveTtsProvider();
+
+  getLiveProviderStatus() {
+    return this.liveProvider.getProviderStatus();
+  }
+
+  async synthesizeLivePronunciation(_userId: string, dto: TTSRequestDto) {
+    if (!this.liveProvider.isAvailable()) {
+      throw new ExternalPrerequisiteError(
+        'tts-provider',
+        'BLOCKED_EXTERNAL',
+        'External TTS provider credential (tts-provider) is not configured in environment. Production voice synthesis is blocked pending operator configuration.',
+      );
+    }
+    return this.liveProvider.synthesize(dto.text, dto.voice);
+  }
 
   /**
    * Synthesizes Japanese pronunciation with license verification and sandbox fallback.

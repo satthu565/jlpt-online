@@ -51,6 +51,8 @@ export interface CorpusFilterQueryDto {
   search?: string;
   limit?: number;
   offset?: number;
+  dataType?: 'observed' | 'synthetic' | 'all';
+  provenance?: string;
 }
 
 export interface TagQuestionDto {
@@ -212,6 +214,7 @@ export interface DatasetExportQueryDto {
   format?: 'csv' | 'xlsx';
   type?: 'vocabulary' | 'grammar' | 'kanji' | 'summary';
   level?: JlptLevel;
+  dataType?: 'observed' | 'synthetic' | 'all';
 }
 
 export interface DatasetExportResponseDto {
