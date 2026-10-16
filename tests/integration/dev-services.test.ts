@@ -1,18 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect } from "vitest";
+import * as workerEnv from "../../infra/dev/worker-env.ts";
 
 describe("Dev Services & Worker Separation (F07)", () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let workerEnv: any;
-
-  beforeAll(async () => {
-    const workerEnvPath = path.resolve(
-      __dirname,
-      "../../infra/dev/worker-env.ts",
-    );
-    workerEnv = await import(workerEnvPath);
-  });
 
   it("defines 6 distinct workers W1 through W6", () => {
     expect(workerEnv.WORKER_IDS).toHaveLength(6);
@@ -42,28 +33,26 @@ describe("Dev Services & Worker Separation (F07)", () => {
 
   it("guarantees separate databases, Redis namespaces, BullMQ prefixes, and storage roots", () => {
     const dbs = new Set(
-      workerEnv.WORKER_IDS.map(
-        (w: string) => workerEnv.WORKER_CONFIGS[w].database,
-      ),
+      workerEnv.WORKER_IDS.map((w) => workerEnv.WORKER_CONFIGS[w].database),
     );
     const redisCores = new Set(
       workerEnv.WORKER_IDS.map(
-        (w: string) => workerEnv.WORKER_CONFIGS[w].redisCoreNamespace,
+        (w) => workerEnv.WORKER_CONFIGS[w].redisCoreNamespace,
       ),
     );
     const redisCaches = new Set(
       workerEnv.WORKER_IDS.map(
-        (w: string) => workerEnv.WORKER_CONFIGS[w].redisCacheNamespace,
+        (w) => workerEnv.WORKER_CONFIGS[w].redisCacheNamespace,
       ),
     );
     const bullmq = new Set(
       workerEnv.WORKER_IDS.map(
-        (w: string) => workerEnv.WORKER_CONFIGS[w].bullmqPrefix,
+        (w) => workerEnv.WORKER_CONFIGS[w].bullmqPrefix,
       ),
     );
     const storage = new Set(
       workerEnv.WORKER_IDS.map(
-        (w: string) => workerEnv.WORKER_CONFIGS[w].storageRoot,
+        (w) => workerEnv.WORKER_CONFIGS[w].storageRoot,
       ),
     );
 

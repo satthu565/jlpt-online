@@ -84,7 +84,7 @@ jobs:
       - name: Run TypeScript typecheck
         run: pnpm typecheck
 
-      - name: Run test suite (including DAC_TA_RUNNER scenarios)
+      - name: Run test suite
         run: pnpm test
 
       - name: Build monorepo packages and apps

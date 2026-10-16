@@ -16,10 +16,9 @@ Tài liệu hướng dẫn cấu hình, khởi chạy và kiểm chứng hạ t�
 ## 2. Dịch vụ phát triển chung (chỉ bind 127.0.0.1)
 
 - **PostgreSQL 17** (`127.0.0.1:5432`):
-  - Chạy `init-workers-db.sql` tự động khi khởi tạo container.
   - Tạo 6 database độc lập (`jlpt_w1` … `jlpt_w6`) và 6 user tương ứng.
   - Thu hồi quyền `CONNECT` từ `PUBLIC` để đảm bảo user `jlpt_w1` không thể truy cập DB `jlpt_w2`.
-  - Kích hoạt extension `pg_bigm` cho tìm kiếm tiếng Nhật.
+  - Kích hoạt extension `pg_bigm` trên `template1` và từng worker DB cho tìm kiếm tiếng Nhật (nếu dùng PostgreSQL image tùy chỉnh hoặc host packages, cần cài gói `postgresql-17-pg-bigm`; trên image chuẩn script sẽ bỏ qua an toàn nếu chưa có gói).
 - **Redis Core** (`127.0.0.1:6379`):
   - `appendonly yes`, `maxmemory-policy noeviction` cho dữ liệu phiên, state, queue.
   - Phân tách key theo prefix `jlpt:w<N>:core:`.

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "vitest run integration/",
+    "test:vps": "vitest run integration/dac-ta-runner.test.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },

@@ -10,7 +10,8 @@
     "test": "turbo run test",
     "dev": "turbo run dev",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md}\"",
-    "infra:dev:check": "node --no-warnings --experimental-strip-types infra/dev/check.ts"
+    "infra:dev:check": "node --no-warnings --experimental-strip-types infra/dev/check.ts",
+    "test:vps": "pnpm --filter @jlpt/tests test:vps"
   },
   "devDependencies": {
     "@eslint/js": "9.21.0",
