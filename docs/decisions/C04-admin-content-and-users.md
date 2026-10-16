@@ -86,6 +86,10 @@ Hệ thống thiết lập nguyên tắc bất biến nghiêm ngặt tại cả 
     - Hành vi vi phạm được ghi ngay lập tức vào nhật ký kiểm toán với kết quả `blocked_self_elevation`.
   - **Nguyên tắc 4 mắt (Two-Person Rule):**
     - Người phê duyệt nội dung (`reviewer`) không được là người soạn thảo (`authorId`) hoặc người chỉnh sửa cuối cùng (`lastEditedBy`) của nhóm câu hỏi.
+    - Cả tầng Frontend (`apps/admin/features/content/question-bank.ts`) và tầng API Database (`apps/api/src/modules/cms/cms.service.ts`) đều thực thi chốt chặn này:
+      - Khi tạo câu hỏi, định danh tác giả `operatorId` được lưu vào `operator_actions` với vai trò `authorId` và `lastEditorId`.
+      - Khi cập nhật câu hỏi, định danh người sửa được lưu vào `operator_actions` với vai trò `lastEditorId`.
+      - Khi gọi duyệt (`reviewQuestionGroup`), hệ thống kiểm tra `reviewerId !== authorId` (tác giả không được tự duyệt ngay từ lần đầu tiên) và `reviewerId !== lastEditedBy` (người sửa cuối cùng không được duyệt), đồng thời ngăn cùng một người duyệt duyệt liên tiếp 2 lần nếu chưa có người khác kiểm định.
   - **Nhật ký kiểm toán (Audit Logs - ADM-14):**
     - Mọi thao tác thay đổi vai trò, khóa tài khoản, kích hoạt blueprint, xuất bản đề thi đều được ghi lại vào nhật ký `operatorActions` kèm thông tin định danh operator, thời điểm UTC, tài nguyên mục tiêu và chi tiết trạng thái cũ/mới.
     - Chỉ có Quản trị viên (`admin`) mới được phép truy vấn và xem danh sách nhật ký kiểm toán.
@@ -125,7 +129,7 @@ apps/admin/
 │   └── users.test.ts                # 11 ca kiểm thử nghiệm thu RBAC, role và chốt chặn tự nâng quyền
 apps/api/src/modules/cms/
 ├── cms.types.ts                     # DTOs và hợp đồng backend CMS
-├── cms.service.ts                   # Dịch vụ backend thao tác Drizzle DB với chốt chặn bất biến
+├── cms.service.ts                   # Dịch vụ backend thao tác Drizzle DB với chốt chặn bất biến & 4 mắt
 ├── cms.controller.ts                # API Controller với chốt chặn RolesGuard
 ├── cms.module.ts                    # NestJS Module
 └── cms.service.test.ts              # 5 ca kiểm thử tích hợp DB thật PGlite
@@ -133,12 +137,27 @@ apps/api/src/modules/cms/
 
 ---
 
-## 4. Kết quả kiểm thử và nghiệm thu
+## 4. Xử lý phản hồi Reviewer (Vòng C04-3)
+
+1. **Nguyên tắc 4 mắt & Lưu vết tác giả câu hỏi [P1]:**
+   - Đã cập nhật `cms.service.ts`: Lưu `operatorId` của người tạo nhóm câu hỏi vào bảng `operator_actions` với `authorId: operatorId` và `lastEditorId: operatorId`. Khi biên tập viên cập nhật nhóm, `operatorId` được ghi nhận là `lastEditorId`.
+   - Trong `reviewQuestionGroup`, kiểm tra nghiêm ngặt `reviewerId !== authorId` (tác giả không thể tự duyệt nhóm câu hỏi của chính mình ngay lần duyệt đầu tiên) và `reviewerId !== lastEditedBy` trước khi kiểm tra lịch sử `contentReviews`.
+   - Đã bổ sung assertion trong `cms.service.test.ts` kiểm tra tình huống tác giả (`editorId`) cố tình gọi `reviewQuestionGroup` với `reviewerId = editorId` ngay lần đầu tiên, xác nhận hệ thống ném `ForbiddenException`.
+2. **Ranh giới bàn giao giữa C04 và A04 [P1 & P2]:**
+   - Nhiệm vụ C04 tập trung nghiệm thu và bàn giao 2 thư mục chính theo task card: `apps/admin/features/content/` và `apps/admin/features/users/`.
+   - Thư mục `apps/api/src/modules/cms/` nằm trong `allowedPaths` được Coordinator cấp phép cho W4 nhằm kiểm chứng thực tế logic bất biến cơ sở dữ liệu và nguyên tắc 4 mắt bằng test tích hợp PGlite (`cms.service.test.ts`).
+   - Theo phân công kiến trúc, file `apps/api/src/app.module.ts` không nằm trong `allowedPaths` của C04 (tránh sửa ngoài phạm vi). Việc đăng ký `CmsModule` vào `AppModule` và định tuyến runtime HTTP chính thức sẽ được hoàn thiện trong task A04 (Ngày 5, W4) đúng kế hoạch `tasks.json`.
+3. **Cấu hình Next.js tsconfig [P2]:**
+   - Giữ nguyên cấu hình `"jsx": "preserve"` trong `apps/admin/tsconfig.json` theo đúng chuẩn của Next.js Compiler. Cả Vitest và Next.js typecheck đều hoạt động đồng bộ với 0 lỗi.
+
+---
+
+## 5. Kết quả kiểm thử và nghiệm thu
 
 Tất cả các lệnh kiểm tra được giao đều chạy thành công 100%:
 - `pnpm test:admin-content`: 11/11 passed (Acceptance 1 & Acceptance 2).
 - `pnpm test:admin-users`: 11/11 passed (Acceptance 3 & ADM-02, ADM-03).
-- `pnpm vitest run apps/api/src/modules/cms/cms.service.test.ts`: 5/5 passed.
+- `pnpm vitest run apps/api/src/modules/cms/cms.service.test.ts`: 5/5 passed (bảo đảm nguyên tắc 4 mắt và tính bất biến DB).
 - `pnpm test:admin`: 63/63 passed across 7 test files.
 - `pnpm --filter @jlpt/admin typecheck`: Pass (0 error).
 - `pnpm --filter @jlpt/api typecheck`: Pass (0 error).

@@ -142,10 +142,15 @@ describe('CmsService Integration Tests (C04: ADM-04, ADM-08)', () => {
         editorId,
       );
 
-      // First review by reviewerId
+      // 1. Tác giả (editorId) cố tình tự duyệt nhóm câu hỏi của mình ngay lần duyệt đầu tiên -> Phải ném ForbiddenException
+      await expect(
+        service.reviewQuestionGroup(created.groupId, 'approved', 'Tác giả tự duyệt', editorId),
+      ).rejects.toThrow(ForbiddenException);
+
+      // 2. Lần duyệt đầu tiên hợp lệ bởi reviewerId
       await service.reviewQuestionGroup(created.groupId, 'rejected', 'Cần sửa lại', reviewerId);
 
-      // Same reviewerId attempts to review consecutive revision without second person
+      // 3. Cùng reviewerId cố tình duyệt tiếp tục lần 2 mà không có người thứ hai -> Bị chặn
       await expect(
         service.reviewQuestionGroup(created.groupId, 'approved', 'Tự duyệt lại', reviewerId),
       ).rejects.toThrow(ForbiddenException);

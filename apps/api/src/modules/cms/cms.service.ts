@@ -27,7 +27,7 @@ export class CmsService {
   // Question Groups (ADM-04, Acceptance 1 & 2)
   // -------------------------------------------------------------------------
 
-  async createQuestionGroup(input: CreateGroupInput, _operatorId: string) {
+  async createQuestionGroup(input: CreateGroupInput, operatorId: string) {
     const groupId = crypto.randomUUID();
 
     // 1. Insert question_groups metadata
@@ -87,6 +87,15 @@ export class CmsService {
       });
     }
 
+    // 4. Record creator/author in operator_actions for audit and 4-eyes rule enforcement
+    await this.client.db.insert(schema.operatorActions).values({
+      id: crypto.randomUUID(),
+      operatorId,
+      action: 'create_question_group',
+      targetResource: groupId,
+      details: { authorId: operatorId, lastEditorId: operatorId, version: 1 },
+    });
+
     return { groupId, version: 1, status: 'draft' };
   }
 
@@ -95,7 +104,7 @@ export class CmsService {
    * If current version is 'approved': creates new version (version + 1) in 'draft'.
    * If current version is 'draft' or 'rejected': updates in-place.
    */
-  async updateQuestionGroup(groupId: string, input: UpdateGroupInput, _operatorId: string) {
+  async updateQuestionGroup(groupId: string, input: UpdateGroupInput, operatorId: string) {
     const currentVersions = await this.client.db
       .select()
       .from(schema.questionGroupVersions)
@@ -119,6 +128,14 @@ export class CmsService {
         status: 'draft',
       });
 
+      await this.client.db.insert(schema.operatorActions).values({
+        id: crypto.randomUUID(),
+        operatorId,
+        action: 'update_question_group',
+        targetResource: groupId,
+        details: { lastEditorId: operatorId, version: nextVersion },
+      });
+
       return { groupId, version: nextVersion, status: 'draft', isNewVersion: true };
     }
 
@@ -135,6 +152,14 @@ export class CmsService {
           eq(schema.questionGroupVersions.version, latest.version),
         ),
       );
+
+    await this.client.db.insert(schema.operatorActions).values({
+      id: crypto.randomUUID(),
+      operatorId,
+      action: 'update_question_group',
+      targetResource: groupId,
+      details: { lastEditorId: operatorId, version: latest.version },
+    });
 
     return { groupId, version: latest.version, status: latest.status, isNewVersion: false };
   }
@@ -157,7 +182,37 @@ export class CmsService {
 
     const latest = versions[0]!;
 
-    // Two-person rule (nguyên tắc 4 mắt): Check reviewer is not the same author
+    // Two-person rule (nguyên tắc 4 mắt):
+    // 1. Reviewer CANNOT be the author who created the question group
+    // 2. Reviewer CANNOT be the last editor who updated the question group
+    const actions = await this.client.db
+      .select()
+      .from(schema.operatorActions)
+      .where(eq(schema.operatorActions.targetResource, groupId))
+      .orderBy(desc(schema.operatorActions.timestamp));
+
+    const createAction = actions.find((a: { action: string }) => a.action === 'create_question_group');
+    const authorId =
+      ((createAction?.details as Record<string, unknown> | undefined)?.authorId as string | undefined) ??
+      createAction?.operatorId;
+    const lastAction = actions[0];
+    const lastEditedBy =
+      ((lastAction?.details as Record<string, unknown> | undefined)?.lastEditorId as string | undefined) ??
+      lastAction?.operatorId;
+
+    if (authorId && reviewerId === authorId) {
+      throw new ForbiddenException(
+        'Tác giả không thể tự duyệt câu hỏi do mình tạo (nguyên tắc 4 mắt).',
+      );
+    }
+
+    if (lastEditedBy && reviewerId === lastEditedBy) {
+      throw new ForbiddenException(
+        'Người duyệt không được là người sửa cuối cùng của nhóm câu hỏi này (nguyên tắc 4 mắt).',
+      );
+    }
+
+    // 3. Reviewer CANNOT be the same reviewer who reviewed in consecutive cycle without 2nd person
     const reviews = await this.client.db
       .select()
       .from(schema.contentReviews)
@@ -186,9 +241,17 @@ export class CmsService {
       targetId: groupId,
       targetVersion: latest.version,
       reviewerId,
-      lastEditorId: reviewerId,
+      lastEditorId: lastEditedBy ?? authorId ?? reviewerId,
       status: decision,
       comments: comment ?? null,
+    });
+
+    await this.client.db.insert(schema.operatorActions).values({
+      id: crypto.randomUUID(),
+      operatorId: reviewerId,
+      action: 'review_question_group',
+      targetResource: groupId,
+      details: { decision, reviewerId, version: latest.version },
     });
 
     return { approved: decision === 'approved', version: latest.version };
