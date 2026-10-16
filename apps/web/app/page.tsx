@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter, Badge, Button } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter, Badge, Button, JsonLd } from '@jlpt/ui';
 import { useI18n } from '../lib/i18n';
 
 export default function HomePage(): React.JSX.Element {
@@ -15,8 +15,17 @@ export default function HomePage(): React.JSX.Element {
     { id: 'n5', level: 'N5', color: 'neutral', descKey: 'home.levelCards.n5' },
   ];
 
+  const websiteStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'JLPT Online',
+    url: 'https://jlpt.vn',
+    description: 'Nền tảng thi và luyện thi tiếng Nhật trực tuyến chuẩn quốc tế từ N5 đến N1.',
+  };
+
   return (
     <div>
+      <JsonLd id="homepage-website-schema" data={websiteStructuredData} />
       {/* Hero Section */}
       <section
         style={{
@@ -124,8 +133,13 @@ export default function HomePage(): React.JSX.Element {
                 <CardContent style={{ flex: 1 }}>
                   <p style={{ margin: 0 }}>{t(descKey)}</p>
                 </CardContent>
-                <CardFooter style={{ marginTop: 'auto' }}>
-                  <a href={`/de-thi?level=${level}`} style={{ textDecoration: 'none', width: '100%' }}>
+                <CardFooter style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.375rem', width: '100%' }}>
+                  <a href={`/${id}`} style={{ textDecoration: 'none', width: '100%' }}>
+                    <Button variant="primary" size="sm" style={{ width: '100%' }}>
+                      {t('home.exploreLevel', { level })}
+                    </Button>
+                  </a>
+                  <a href={`/${id}/de-thi`} style={{ textDecoration: 'none', width: '100%' }}>
                     <Button variant="outline" size="sm" style={{ width: '100%' }}>
                       {t('home.viewLevelExams', { level })}
                     </Button>

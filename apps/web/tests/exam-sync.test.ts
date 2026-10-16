@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { ExamSyncEngine } from '../features/exam/sync/sync-engine.js';
-import { MemoryExamStorage } from '../features/exam/storage/indexeddb.js';
-import { ExamApiClient, ExamApiError } from '../features/exam/api/exam-api.js';
+import { ExamSyncEngine } from '../features/exam/sync/sync-engine';
+import { MemoryExamStorage } from '../features/exam/storage/indexeddb';
+import { ExamApiClient, ExamApiError } from '../features/exam/api/exam-api';
 import {
   AnswerSheetUpdateInputSchema,
   AnswerSheetAckSchema,

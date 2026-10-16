@@ -1,0 +1,75 @@
+import React from 'react';
+import type { Metadata } from 'next';
+import { Card, Badge, Button, JsonLd } from '@jlpt/ui';
+
+export const metadata: Metadata = {
+  title: 'Giới thiệu Nền tảng Luyện thi JLPT Online Chuẩn Quốc tế',
+  description: 'Nền tảng thi và luyện thi tiếng Nhật trực tuyến chuẩn hóa cấu trúc JEES & Japan Foundation từ N5 đến N1.',
+  alternates: {
+    canonical: 'https://jlpt.vn/gioi-thieu',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
+export default function AboutPage(): React.JSX.Element {
+  const breadcrumbs = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://jlpt.vn' },
+      { '@type': 'ListItem', position: 2, name: 'Giới thiệu', item: 'https://jlpt.vn/gioi-thieu' },
+    ],
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto py-8 px-4 space-y-6" data-testid="about-page">
+      <JsonLd id="about-breadcrumbs" data={breadcrumbs} />
+
+      {/* Breadcrumbs */}
+      <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
+        <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
+        <span className="text-slate-900 dark:text-slate-100 font-semibold">Giới thiệu</span>
+      </nav>
+
+      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+        <Badge variant="primary" size="md">
+          JLPT Online V1–V4
+        </Badge>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-2">
+          Về Nền tảng Luyện thi Tiếng Nhật Trực tuyến JLPT Online
+        </h1>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+          Hệ thống luyện thi và thi thử mô phỏng chính xác phòng thi thực tế với công nghệ đo thời gian máy chủ và phân tích điểm số tự động.
+        </p>
+      </div>
+
+      <Card className="p-6 md:p-8 border border-slate-200 dark:border-slate-800 space-y-4 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+          Sứ mệnh & Mục tiêu
+        </h2>
+        <p>
+          JLPT Online được xây dựng nhằm mang lại trải nghiệm thi thử công bằng, minh bạch và chính xác nhất cho các bạn học viên ôn luyện kỳ thi Năng lực Tiếng Nhật (JLPT) từ cấp độ sơ cấp N5 đến cao cấp N1.
+        </p>
+        <p>
+          Hệ thống đảm bảo tính nghiêm ngặt với quy chế thi chống rò rỉ đáp án (Zero Answer Leak), đồng hồ máy chủ độc lập không phụ thuộc client, và hệ thống phân tích điểm số chi tiết từng chuyên đề (Từ vựng, Ngữ pháp, Đọc hiểu, Nghe hiểu).
+        </p>
+
+        <div className="pt-4 flex flex-wrap gap-3">
+          <a href="/n3" style={{ textDecoration: 'none' }}>
+            <Button variant="primary" size="md">
+              🎯 Khám phá cấp độ JLPT N3
+            </Button>
+          </a>
+          <a href="/de-thi" style={{ textDecoration: 'none' }}>
+            <Button variant="outline" size="md">
+              📚 Xem thư viện đề thi
+            </Button>
+          </a>
+        </div>
+      </Card>
+    </div>
+  );
+}

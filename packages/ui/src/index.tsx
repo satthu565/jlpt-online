@@ -21,3 +21,8 @@ export * from './components/header.js';
 export * from './components/footer.js';
 export * from './components/rich-text-view.js';
 export * from './components/rich-block-view.js';
+export * from './components/cookie-consent.js';
+export * from './components/share-dialog.js';
+export * from './components/json-ld.js';
+export * from './components/tts-audio-player.js';
+export * from './components/watermark-badge.js';

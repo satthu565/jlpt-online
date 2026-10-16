@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { GET } from '../app/healthz/route.js';
+import { GET } from '../app/healthz/route';
 
 describe('@jlpt/web health smoke test', () => {
   it('GET /healthz returns 200 and status ok', async () => {
