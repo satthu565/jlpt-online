@@ -69,7 +69,10 @@
     "test:e2e:learning": "vitest run -c apps/web/vitest.config.ts apps/web/tests/e2e-learning.test.tsx",
     "test:analytics": "vitest run -c apps/web/vitest.config.ts apps/web/tests/analytics.test.tsx",
     "test:e2e:import-publish": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/e2e-import-publish.test.ts",
-    "test:content-review": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/content-review.test.ts"
+    "test:content-review": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/content-review.test.ts",
+    "test:ai": "vitest run apps/api/src/modules/ai/ai.test.ts",
+    "test:gamification": "vitest run apps/api/src/modules/gamification/gamification.test.ts",
+    "test:dataset-export": "vitest run packages/content-tools/tests/dataset-export.test.ts apps/api/src/modules/vocab/dataset-export.test.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",
