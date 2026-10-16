@@ -60,6 +60,10 @@ Tiêu chí nghiệm thu bắt buộc:
 - **Tiền tệ Minor Units**:
   Mọi phép tính doanh thu, tổng số tiền và hoàn tiền đều sử dụng đơn vị minor units dạng số nguyên (integer), đảm bảo không xảy ra sai số làm tròn số thực dấu phẩy động (IEEE 754 floating point issues).
 
+### 2.5. Khắc phục Timeout Cổng Kiểm thử Clean Checkout (`package.json`)
+- Tránh lỗi timeout 60000ms trong `tests/performance.test.tsx` (kiểm tra bundle và prerender của Next.js) khi coordinator chạy kiểm thử từ bản checkout sạch trước khi build (`pnpm test` chạy trước `pnpm build`).
+- Cấu hình script root `test` thành `turbo run build && turbo run test --concurrency=2` để đảm bảo Next.js artifacts và bundle manifest được khởi tạo sẵn bằng pipeline build của Turbo trước khi vitest kích hoạt hook xác minh ngân sách tài nguyên.
+
 ---
 
 ## 3. Điều kiện phụ thuộc bên ngoài (External Status)
