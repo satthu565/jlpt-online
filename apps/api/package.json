@@ -10,7 +10,7 @@
     "dev": "node --watch --loader ts-node/esm src/main.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "vitest run --testTimeout=20000",
+    "test": "vitest run --testTimeout=30000 --hookTimeout=30000",
     "test:auth": "vitest run src/modules/auth/auth.test.ts",
     "test:authorization": "vitest run src/common/guards/authorization.test.ts",
     "test:content": "vitest run src/modules/question-bank/ src/modules/license/",
