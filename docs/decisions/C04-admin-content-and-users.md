@@ -85,22 +85,20 @@ Hệ thống thiết lập nguyên tắc bất biến nghiêm ngặt tại cả 
     - Khi một tài khoản không phải Admin (như Editor, Reviewer) gửi yêu cầu đổi vai trò của chính mình thành `admin`, hệ thống phát hiện hành vi tự nâng quyền, từ chối với mã lỗi `403 FORBIDDEN` và thông điệp: *"Biên tập viên hoặc nhân sự không thể tự nâng quyền lên Quản trị viên (Admin)"*.
     - Hành vi vi phạm được ghi ngay lập tức vào nhật ký kiểm toán với kết quả `blocked_self_elevation`.
   - **Nguyên tắc 4 mắt (Two-Person Rule):**
-    - Người phê duyệt nội dung (`reviewer`) không được là người soạn thảo (`authorId`) hoặc người chỉnh sửa cuối cùng (`lastEditedBy`) của nhóm câu hỏi.
-    - Cả tầng Frontend (`apps/admin/features/content/question-bank.ts`) và tầng API Database (`apps/api/src/modules/cms/cms.service.ts`) đều thực thi chốt chặn này:
-      - Khi tạo câu hỏi, định danh tác giả `operatorId` được lưu vào `operator_actions` với vai trò `authorId` và `lastEditorId`.
-      - Khi cập nhật câu hỏi, định danh người sửa được lưu vào `operator_actions` với vai trò `lastEditorId`.
-      - Khi gọi duyệt (`reviewQuestionGroup`), hệ thống kiểm tra `reviewerId !== authorId` (tác giả không được tự duyệt ngay từ lần đầu tiên) và `reviewerId !== lastEditedBy` (người sửa cuối cùng không được duyệt), đồng thời ngăn cùng một người duyệt duyệt liên tiếp 2 lần nếu chưa có người khác kiểm định.
+    - Người phê duyệt nội dung (`reviewer`) không được là người soạn thảo (`authorId`) hoặc người chỉnh sửa cuối cùng (`lastEditedBy`) của nhóm câu hỏi (`apps/admin/features/content/question-bank.ts`).
+    - Khi gọi duyệt (`reviewGroup`), hệ thống kiểm tra `reviewer.id !== group.authorId` (tác giả không được tự duyệt) và `reviewer.id !== group.lastEditedBy` (người sửa cuối cùng không được duyệt).
   - **Nhật ký kiểm toán (Audit Logs - ADM-14):**
-    - Mọi thao tác thay đổi vai trò, khóa tài khoản, kích hoạt blueprint, xuất bản đề thi đều được ghi lại vào nhật ký `operatorActions` kèm thông tin định danh operator, thời điểm UTC, tài nguyên mục tiêu và chi tiết trạng thái cũ/mới.
+    - Mọi thao tác thay đổi vai trò, khóa tài khoản, kích hoạt blueprint, xuất bản đề thi đều được ghi lại vào nhật ký kiểm toán kèm thông tin định danh operator, thời điểm UTC, tài nguyên mục tiêu và chi tiết trạng thái cũ/mới.
     - Chỉ có Quản trị viên (`admin`) mới được phép truy vấn và xem danh sách nhật ký kiểm toán.
 
 ---
 
 ## 3. Bàn giao và cấu trúc mã nguồn
 
-Các thành phần được tổ chức gọn gàng, tuân thủ đúng phạm vi `allowedPaths`:
+Các thành phần được tổ chức gọn gàng, tuân thủ đúng phạm vi `allowedPaths` và `outputs` được giao cho task C04 theo `docs/multi-worker/tasks.json`:
 ```
 apps/admin/
+├── vitest.config.ts                 # Cấu hình Vitest với oxc jsx transform cho React JSX
 ├── features/
 │   ├── content/
 │   │   ├── types.ts                 # Định nghĩa kiểu RichText, QuestionGroup, Blueprint, Exam
@@ -124,40 +122,46 @@ apps/admin/
 │   └── audit-logs/page.tsx          # Trang nhật ký kiểm toán
 ├── lib/
 │   └── api-client.ts                # Bổ sung các phương thức gọi API có UI Guard
-├── tests/
-│   ├── content.test.ts              # 11 ca kiểm thử nghiệm thu nội dung, preview và bất biến
-│   └── users.test.ts                # 11 ca kiểm thử nghiệm thu RBAC, role và chốt chặn tự nâng quyền
-apps/api/src/modules/cms/
-├── cms.types.ts                     # DTOs và hợp đồng backend CMS
-├── cms.service.ts                   # Dịch vụ backend thao tác Drizzle DB với chốt chặn bất biến & 4 mắt
-├── cms.controller.ts                # API Controller với chốt chặn RolesGuard
-├── cms.module.ts                    # NestJS Module
-└── cms.service.test.ts              # 5 ca kiểm thử tích hợp DB thật PGlite
+└── tests/
+    ├── content.test.ts              # 11 ca kiểm thử nghiệm thu nội dung, preview và bất biến
+    └── users.test.ts                # 11 ca kiểm thử nghiệm thu RBAC, role và chốt chặn tự nâng quyền
 ```
 
 ---
 
-## 4. Xử lý phản hồi Reviewer (Vòng C04-3)
+## 4. Xử lý phản hồi Reviewer (Vòng C04-5)
 
-1. **Nguyên tắc 4 mắt & Lưu vết tác giả câu hỏi [P1]:**
-   - Đã cập nhật `cms.service.ts`: Lưu `operatorId` của người tạo nhóm câu hỏi vào bảng `operator_actions` với `authorId: operatorId` và `lastEditorId: operatorId`. Khi biên tập viên cập nhật nhóm, `operatorId` được ghi nhận là `lastEditorId`.
-   - Trong `reviewQuestionGroup`, kiểm tra nghiêm ngặt `reviewerId !== authorId` (tác giả không thể tự duyệt nhóm câu hỏi của chính mình ngay lần duyệt đầu tiên) và `reviewerId !== lastEditedBy` trước khi kiểm tra lịch sử `contentReviews`.
-   - Đã bổ sung assertion trong `cms.service.test.ts` kiểm tra tình huống tác giả (`editorId`) cố tình gọi `reviewQuestionGroup` với `reviewerId = editorId` ngay lần đầu tiên, xác nhận hệ thống ném `ForbiddenException`.
-2. **Ranh giới bàn giao giữa C04 và A04 [P1 & P2]:**
-   - Nhiệm vụ C04 tập trung nghiệm thu và bàn giao 2 thư mục chính theo task card: `apps/admin/features/content/` và `apps/admin/features/users/`.
-   - Thư mục `apps/api/src/modules/cms/` nằm trong `allowedPaths` được Coordinator cấp phép cho W4 nhằm kiểm chứng thực tế logic bất biến cơ sở dữ liệu và nguyên tắc 4 mắt bằng test tích hợp PGlite (`cms.service.test.ts`).
-   - Theo phân công kiến trúc, file `apps/api/src/app.module.ts` không nằm trong `allowedPaths` của C04 (tránh sửa ngoài phạm vi). Việc đăng ký `CmsModule` vào `AppModule` và định tuyến runtime HTTP chính thức sẽ được hoàn thiện trong task A04 (Ngày 5, W4) đúng kế hoạch `tasks.json`.
-3. **Cấu hình Next.js tsconfig [P2]:**
-   - Giữ nguyên cấu hình `"jsx": "preserve"` trong `apps/admin/tsconfig.json` theo đúng chuẩn của Next.js Compiler. Cả Vitest và Next.js typecheck đều hoạt động đồng bộ với 0 lỗi.
+1. **Cấu hình JSX Transform cho Vitest [P1]:**
+   - **Vấn đề:** Do `apps/admin/tsconfig.json` đặt `"jsx": "preserve"` (cần thiết cho Next.js Compiler), runner Vitest (dùng Vite 8 / OXC) khi chạy từ thư mục `apps/admin` hoặc qua `pnpm --filter admin test` không thể phân tích cú pháp JSX của `preview.tsx`, dẫn đến lỗi `Failed to parse source for import analysis because the content contains invalid JS syntax. If you use tsconfig.json, make sure to not set jsx to preserve`.
+   - **Khắc phục:** Đã tạo file `apps/admin/vitest.config.ts` với cấu hình:
+     ```ts
+     import { defineConfig } from 'vitest/config';
+
+     export default defineConfig({
+       oxc: {
+         jsx: {
+           runtime: 'automatic',
+         },
+       },
+       test: {
+         environment: 'node',
+       },
+     });
+     ```
+     Nhờ cấu hình này, OXC tự động transform JSX runtime cho test runner mà không cần thay đổi `tsconfig.json` của Next.js. Toàn bộ 11 tests của `content.test.ts` (và 63 tests của toàn bộ `apps/admin`) chạy thành công 100% với exit code 0 cả từ root monorepo lẫn trong package admin.
+
+2. **Tách module Backend CMS ra khỏi Task C04 [P1 & P2]:**
+   - **Vấn đề:** `apps/api/src/modules/cms/` thuộc phạm vi outputs của task A04 (Ngày 5, W4) theo `docs/multi-worker/tasks.json`. Task C04 chỉ có phạm vi bàn giao `apps/admin/features/content/` và `apps/admin/features/users/`. Việc sửa `apps/api/src/modules/cms/` trong C04 là out-of-scope edits.
+   - **Khắc phục:** Đã gỡ bỏ toàn bộ thư mục `apps/api/src/modules/cms/` khỏi nhánh `task/C04`. Module backend CMS cùng với việc tích hợp `CmsModule` vào `AppModule` sẽ được bàn giao đầy đủ, đúng tiến độ ở task A04 theo phân công của `tasks.json`.
 
 ---
 
 ## 5. Kết quả kiểm thử và nghiệm thu
 
 Tất cả các lệnh kiểm tra được giao đều chạy thành công 100%:
-- `pnpm test:admin-content`: 11/11 passed (Acceptance 1 & Acceptance 2).
-- `pnpm test:admin-users`: 11/11 passed (Acceptance 3 & ADM-02, ADM-03).
-- `pnpm vitest run apps/api/src/modules/cms/cms.service.test.ts`: 5/5 passed (bảo đảm nguyên tắc 4 mắt và tính bất biến DB).
-- `pnpm test:admin`: 63/63 passed across 7 test files.
-- `pnpm --filter @jlpt/admin typecheck`: Pass (0 error).
-- `pnpm --filter @jlpt/api typecheck`: Pass (0 error).
+- `pnpm test:admin-content`: 11/11 passed (Acceptance 1: tạo sửa ruby star bảng nghe xem trước; Acceptance 2: không sửa đè published version).
+- `pnpm test:admin-users`: 11/11 passed (Acceptance 3: Admin sửa role còn editor không thể tự nâng quyền; ADM-02, ADM-03).
+- `pnpm test:admin`: 63/63 passed across 7 test files (Navigation, Health, Users, I18n, Auth, Guard, Content).
+- `pnpm --filter admin test`: 63/63 passed.
+- `pnpm typecheck`: 17/17 packages pass (0 error).
+- `pnpm lint`: 13/13 packages pass (0 error).
