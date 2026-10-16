@@ -1,11 +1,14 @@
 import type { ExamSummary, Level, ExamKind, Session } from '@jlpt/schema';
 
-export type UserExamStatus = 'not_started' | 'in_progress' | 'completed';
+export type UserExamStatus = 'not_started' | 'in_progress' | 'completed' | 'below_target';
 
 export interface ExamWithUserStatus extends ExamSummary {
   userStatus?: UserExamStatus;
   attemptsCount?: number;
   bestScore?: number | null;
+  targetScore?: number;
+  isFavorite?: boolean;
+  isRecommendedNext?: boolean;
 }
 
 export interface LibraryFilterState {
@@ -14,6 +17,7 @@ export interface LibraryFilterState {
   session: Session | 'ALL';
   kind: ExamKind | 'ALL';
   userStatus: UserExamStatus | 'ALL';
+  onlyFavorites?: boolean;
   searchQuery: string;
 }
 
@@ -23,5 +27,7 @@ export const INITIAL_LIBRARY_FILTERS: LibraryFilterState = {
   session: 'ALL',
   kind: 'ALL',
   userStatus: 'ALL',
+  onlyFavorites: false,
   searchQuery: '',
 };
+

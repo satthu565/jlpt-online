@@ -1,0 +1,199 @@
+'use client';
+
+import React, { useState } from 'react';
+import type { LearnerExplanation } from '../types';
+import { TranscriptView } from './transcript-view';
+import { QuestionBookmarkButton } from './question-bookmark-button';
+import { QuestionReportModal } from './question-report-modal';
+
+export interface ExplanationViewProps {
+  explanation: LearnerExplanation;
+  questionNumber?: string | number;
+  userAnswer?: number;
+  correctAnswer?: number;
+  hasLicensePermission?: boolean;
+  isBookmarked?: boolean;
+  onToggleBookmark?: (isBookmarked: boolean) => void;
+  className?: string;
+}
+
+export function ExplanationView({
+  explanation,
+  questionNumber,
+  userAnswer,
+  correctAnswer,
+  hasLicensePermission = false,
+  isBookmarked = false,
+  onToggleBookmark,
+  className = '',
+}: ExplanationViewProps): React.JSX.Element {
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+
+  if (!explanation.hasExplanation) {
+    return (
+      <div
+        data-testid="explanation-empty"
+        className={`p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 text-xs text-slate-500 text-center ${className}`}
+      >
+        <div className="flex items-center justify-between gap-2">
+          <span>Chưa có lời giải thích được phê duyệt cho câu hỏi này.</span>
+          <button
+            type="button"
+            onClick={() => setReportModalOpen(true)}
+            className="text-[11px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 underline"
+          >
+            Báo cáo thiếu lời giải
+          </button>
+        </div>
+        <QuestionReportModal
+          isOpen={reportModalOpen}
+          questionId={explanation.questionId}
+          onClose={() => setReportModalOpen(false)}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      data-testid="explanation-container"
+      className={`jlpt-explanation-view rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-5 space-y-4 shadow-xs ${className}`}
+    >
+      {/* Header with approved badge, bookmark and report buttons */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 font-bold uppercase tracking-wider">
+            ✓ Lời giải thích đã duyệt
+          </span>
+          {questionNumber && (
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+              Câu {questionNumber}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Bookmark Button (PRA-13, EXPL-10) */}
+          <QuestionBookmarkButton
+            questionId={explanation.questionId}
+            initialBookmarked={isBookmarked}
+            onToggle={onToggleBookmark}
+          />
+
+          {/* Report Button (EXPL-12) */}
+          <button
+            type="button"
+            onClick={() => setReportModalOpen(true)}
+            data-testid="report-question-btn"
+            className="text-xs px-2 py-1 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+            title="Báo cáo lỗi câu hỏi hoặc lời giải"
+          >
+            🚩 Báo lỗi
+          </button>
+        </div>
+      </div>
+
+      {/* 1. Correct Reason (EXPL-01..04) */}
+      {explanation.correctReason && (
+        <div data-testid="explanation-correct-reason" className="space-y-1">
+          <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+            <span>💡</span> Vì sao đáp án đúng?
+          </h4>
+          <div className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed bg-emerald-50/50 dark:bg-emerald-950/20 p-3 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
+            {explanation.correctReason}
+          </div>
+        </div>
+      )}
+
+      {/* 2. Wrong Reasons By Option (EXPL-03) */}
+      {explanation.wrongReasonsByOption &&
+        Object.keys(explanation.wrongReasonsByOption).length > 0 && (
+          <div data-testid="explanation-wrong-reasons" className="space-y-2">
+            <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              Phân tích các phương án còn lại (Bẫy thường gặp):
+            </h4>
+            <div className="space-y-1.5">
+              {Object.entries(explanation.wrongReasonsByOption).map(([optKey, reason]) => {
+                const optNum = Number(optKey);
+                const isSelectedWrong = userAnswer === optNum && userAnswer !== correctAnswer;
+
+                return (
+                  <div
+                    key={optKey}
+                    data-testid={`wrong-reason-opt-${optKey}`}
+                    className={`text-xs p-2.5 rounded-lg border ${
+                      isSelectedWrong
+                        ? 'border-rose-300 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/30 text-rose-950 dark:text-rose-200 ring-1 ring-rose-400'
+                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <span className="font-bold mr-1.5">Phương án {optKey}:</span>
+                    <span>{reason}</span>
+                    {isSelectedWrong && (
+                      <span className="ml-2 text-[10px] font-bold bg-rose-200 text-rose-800 dark:bg-rose-900 dark:text-rose-200 px-1.5 py-0.5 rounded">
+                        Lựa chọn của bạn
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+      {/* 3. Translation (EXPL-05) */}
+      {explanation.translation && (
+        <div data-testid="explanation-translation" className="space-y-1">
+          <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+            Dịch nghĩa tiếng Việt:
+          </h4>
+          <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed bg-white dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+            {explanation.translation}
+          </p>
+        </div>
+      )}
+
+      {/* 4. Vocabulary and Grammar Tags (EXPL-06, EXPL-07) */}
+      {((explanation.vocabTags && explanation.vocabTags.length > 0) ||
+        (explanation.grammarTags && explanation.grammarTags.length > 0)) && (
+        <div data-testid="explanation-tags" className="flex flex-wrap gap-2 pt-1">
+          {explanation.grammarTags?.map((tag, idx) => (
+            <span
+              key={`grammar-${idx}`}
+              className="text-[11px] px-2 py-0.5 rounded-md font-mono bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
+            >
+              📖 Ngữ pháp: {tag}
+            </span>
+          ))}
+          {explanation.vocabTags?.map((tag, idx) => (
+            <span
+              key={`vocab-${idx}`}
+              className="text-[11px] px-2 py-0.5 rounded-md font-mono bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-200 dark:border-purple-800"
+            >
+              🈁 Từ vựng: {tag}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* 5. Transcript and Evidence (AUDIO-08, AUDIO-09) */}
+      {(explanation.transcript || explanation.isLicensed) && (
+        <TranscriptView
+          transcript={explanation.transcript}
+          evidenceRanges={explanation.evidenceRanges}
+          isLicensed={explanation.isLicensed}
+          hasLicensePermission={hasLicensePermission}
+          sourceLabel={explanation.sourceLabel}
+          licenseLabel={explanation.licenseLabel}
+        />
+      )}
+
+      {/* Report Modal */}
+      <QuestionReportModal
+        isOpen={reportModalOpen}
+        questionId={explanation.questionId}
+        onClose={() => setReportModalOpen(false)}
+      />
+    </div>
+  );
+}
