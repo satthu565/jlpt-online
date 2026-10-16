@@ -15,6 +15,15 @@ import { StorageModule } from './modules/storage/storage.module.js';
 import { MediaModule } from './modules/media/media.module.js';
 import { LicenseModule } from './modules/license/license.module.js';
 import { QuestionBankModule } from './modules/question-bank/question-bank.module.js';
+import { ScoringModule } from './modules/scoring/scoring.module.js';
+import { OutboxModule } from './modules/outbox/outbox.module.js';
+import { TurnstileModule } from './modules/turnstile/turnstile.module.js';
+import { AttemptModule } from './modules/attempt/attempt.module.js';
+import { AuditModule } from './modules/audit/audit.module.js';
+import { AdminModule } from './modules/admin/admin.module.js';
+import { ExamModule } from './modules/exam/exam.module.js';
+import { OriginGuard } from './common/guards/origin.guard.js';
+import { TotpGuard } from './common/guards/totp.guard.js';
 
 @Module({
   imports: [
@@ -26,9 +35,20 @@ import { QuestionBankModule } from './modules/question-bank/question-bank.module
     MediaModule,
     LicenseModule,
     QuestionBankModule,
+    ScoringModule,
+    OutboxModule,
+    TurnstileModule,
+    AttemptModule,
+    AuditModule,
+    AdminModule,
+    ExamModule,
   ],
   controllers: [HealthController],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: OriginGuard,
+    },
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
@@ -39,7 +59,15 @@ import { QuestionBankModule } from './modules/question-bank/question-bank.module
     },
     {
       provide: APP_GUARD,
+      useClass: TotpGuard,
+    },
+    {
+      provide: APP_GUARD,
       useClass: TenantGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RateLimitGuard,
     },
     {
       provide: APP_FILTER,
