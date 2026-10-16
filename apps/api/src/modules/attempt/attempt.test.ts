@@ -5,7 +5,7 @@ import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { NestFactory } from '@nestjs/core';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { Module } from '@nestjs/common';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { AuthGuard } from '../../common/guards/auth.guard.js';
 import { TenantGuard } from '../../common/guards/tenant.guard.js';
@@ -60,7 +60,7 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
   let otherUserToken: string;
   let standardExamId: string;
   let guestTrialExamId: string;
-  let examVersion = 1;
+  let resumeUserToken: string;
 
   beforeAll(async () => {
     const client = await getOrCreateDbClient();
@@ -115,7 +115,7 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
 
     // 3b. Create Dedicated Resume Student
     const resumeUserId = generateUuidV7();
-    const resumeUserToken = 'tok_resume_' + Date.now();
+    resumeUserToken = 'tok_resume_' + Date.now();
     await client.db.insert(schema.users).values({
       id: resumeUserId,
       email: `resume_${Date.now()}@example.com`,
@@ -128,7 +128,6 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
       token: resumeUserToken,
       expiresAt: new Date(Date.now() + 86400000),
     });
-    (globalThis as any).__resumeUserToken = resumeUserToken;
 
     // 4. Create Blueprint for testing
     const blueprintId = generateUuidV7();
@@ -604,7 +603,7 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
       const outboxService = app.get(OutboxService);
 
       // Concurrently run client submit and background lockAndScoreAttempt
-      const [clientSubmitRes, jobResult] = await Promise.all([
+      const [clientSubmitRes, _jobResult] = await Promise.all([
         app.inject({
           method: 'POST',
           url: `/api/v1/attempts/${attemptId}/submit`,
@@ -729,7 +728,7 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
 
   describe('Resume and Lease Invalidation (EXAM-18, SYS-05)', () => {
     it('Vào lại bài thi (resume) cấp lease mới và vô hiệu hóa lease cũ', async () => {
-      const resumeToken = (globalThis as any).__resumeUserToken;
+      const resumeToken = resumeUserToken;
       // Create attempt
       const createRes = await app.inject({
         method: 'POST',

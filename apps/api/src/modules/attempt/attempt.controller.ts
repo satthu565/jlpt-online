@@ -8,7 +8,6 @@ import {
   Query,
   Headers,
   Ip,
-  UseGuards,
   HttpCode,
   HttpStatus,
   BadRequestException,
@@ -23,14 +22,8 @@ import {
   AnswerSheetUpdateInputSchema,
   AttemptSubmitInputSchema,
   CheckAnswerInputSchema,
-  type AttemptInitInput,
-  type NextSectionInput,
-  type AnswerSheetUpdateInput,
-  type AttemptSubmitInput,
-  type CheckAnswerInput,
 } from '@jlpt/schema';
 import { RateLimit } from '../../common/decorators/rate-limit.decorator.js';
-import { RateLimitGuard } from '../../common/guards/rate-limit.guard.js';
 
 @Controller()
 export class AttemptController {

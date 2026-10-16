@@ -9,6 +9,9 @@ import type { BlueprintScoring, ExamAnswerKey, Result } from '@jlpt/schema';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+
+type DbTx = Parameters<Parameters<PostgresJsDatabase<typeof schema>['transaction']>[0]>[0];
 
 interface CachedExamScoringData {
   answerKey: ExamAnswerKey;
@@ -24,7 +27,7 @@ export class ScoringService {
   /**
    * Loads or fetches cached exam answer key and scoring configuration.
    */
-  async getExamScoringData(examId: string, version: number, tx?: any): Promise<CachedExamScoringData> {
+  async getExamScoringData(examId: string, version: number, tx?: DbTx): Promise<CachedExamScoringData> {
     const cacheKey = `${examId}:v${version}`;
     const cached = this.cache.get(cacheKey);
     if (cached) {
@@ -79,8 +82,8 @@ export class ScoringService {
       examId: akRow.examId,
       version: akRow.version,
       keys: akRow.keys,
-      skills: akRow.skills as any,
-      mondaiTypes: akRow.mondaiTypes as any,
+      skills: akRow.skills as ExamAnswerKey['skills'],
+      mondaiTypes: akRow.mondaiTypes as ExamAnswerKey['mondaiTypes'],
       sectionRanges: akRow.sectionRanges as [number, number][],
     };
 
@@ -101,7 +104,7 @@ export class ScoringService {
     version: number,
     answers: number[],
     options?: StandardExamResultOptions,
-    tx?: any,
+    tx?: DbTx,
   ): Promise<Result> {
     const { answerKey, scoring } = await this.getExamScoringData(examId, version, tx);
 

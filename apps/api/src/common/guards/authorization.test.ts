@@ -599,7 +599,7 @@ describe('F03 Authorization and PII Protection (SYS-06, SYS-07)', () => {
         const body = JSON.parse(res.payload);
         expect(body.items).toBeDefined();
         expect(Array.isArray(body.items)).toBe(true);
-        expect(body.items.some((i: any) => i.action === 'EXAM_PUBLISH')).toBe(true);
+        expect(body.items.some((i: { action?: string }) => i.action === 'EXAM_PUBLISH')).toBe(true);
       });
     });
   });

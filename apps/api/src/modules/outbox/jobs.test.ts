@@ -4,7 +4,7 @@ import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { NestFactory } from '@nestjs/core';
 import { Module } from '@nestjs/common';
-import { eq, and, isNull, isNotNull } from 'drizzle-orm';
+import { eq, isNull } from 'drizzle-orm';
 import { DatabaseModule, getOrCreateDbClient } from '../../common/database/database.module.js';
 import { ScoringModule } from '../scoring/scoring.module.js';
 import { OutboxModule } from './outbox.module.js';
@@ -178,6 +178,7 @@ describe('Background Jobs & Outbox Processing (N02, A14, SYS-18)', () => {
 
       // Subsequent relay should skip already published rows (idempotent)
       const nextBatch = await outboxService.relayOutbox(50);
+      expect(nextBatch).toBe(0);
       const remainingUnpublished = await client.db
         .select()
         .from(schema.outbox)

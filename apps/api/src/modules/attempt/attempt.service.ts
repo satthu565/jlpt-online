@@ -43,6 +43,9 @@ import type {
   CheckAnswerInput,
   CheckAnswerResponse,
   AttemptSummary,
+  AttemptStatus,
+  AttemptMode,
+  Result,
 } from '@jlpt/schema';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
@@ -569,7 +572,7 @@ export class AttemptService {
       .where(eq(schema.examAttempts.id, attemptId));
 
     return {
-      result: submitted!.result as any,
+      result: submitted!.result as Result,
     };
   }
 
@@ -646,7 +649,7 @@ export class AttemptService {
       lastSeq: sheet?.lastSeq ?? 0,
       answers: sheet?.answers ?? [],
       flags: sheet?.flags ?? [],
-      status: attempt.status as any,
+      status: attempt.status as AttemptStatus,
       currentSection: attempt.currentSection,
       deadline: attempt.currentDeadline?.toISOString() ?? null,
       serverNow: now.toISOString(),
@@ -702,7 +705,7 @@ export class AttemptService {
     if (attempt.status === 'in_progress') {
       return {
         status: 'in_progress',
-        mode: attempt.mode as any,
+        mode: attempt.mode as AttemptMode,
         currentSection: attempt.currentSection,
         deadline: attempt.currentDeadline?.toISOString() ?? null,
         serverNow: nowIso,
@@ -711,11 +714,11 @@ export class AttemptService {
 
     return {
       status: 'submitted',
-      mode: attempt.mode as any,
+      mode: attempt.mode as AttemptMode,
       currentSection: attempt.currentSection,
       deadline: attempt.currentDeadline?.toISOString() ?? null,
       serverNow: nowIso,
-      result: attempt.result as any,
+      result: attempt.result as Result,
     };
   }
 
@@ -774,7 +777,7 @@ export class AttemptService {
       answers: sheet?.answers ?? [],
       flags: sheet?.flags ?? [],
       correct: answerKey.keys,
-      result: attempt.result as any,
+      result: attempt.result as Result,
     };
   }
 
@@ -852,8 +855,8 @@ export class AttemptService {
         id: a.id,
         examId: a.examId,
         examVersion: a.examVersion,
-        mode: a.mode as any,
-        status: a.status as any,
+        mode: a.mode as AttemptMode,
+        status: a.status as AttemptStatus,
         startedAt: a.startedAt.toISOString(),
         submittedAt: a.submittedAt ? a.submittedAt.toISOString() : null,
         score: (scoring?.['total'] as number | undefined) ?? null,
@@ -879,7 +882,7 @@ export class AttemptService {
     const db = this.dbClient.db;
 
     // Execute atomic update
-    const result = await db
+    await db
       .update(schema.examAttempts)
       .set({
         userId,

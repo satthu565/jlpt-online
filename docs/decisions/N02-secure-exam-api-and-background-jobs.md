@@ -105,4 +105,7 @@ Task N02 triển khai các API thi bảo mật, kiểm soát đồng thời (rac
 | Phân quyền & bảo mật | `pnpm test:authorization` | PASS (Exit code 0) | 23/23 passed |
 | Chống lộ đáp án | `pnpm test:no-answer-leak` | PASS (Exit code 0) | 9/9 passed |
 | Job nền & Outbox | `pnpm test:jobs` | PASS (Exit code 0) | 5/5 passed |
-| **Tổng cộng** | | **PASS** | **49/49 passed** |
+| Toàn bộ workspace test | `pnpm test` | PASS (Exit code 0) | 18/18 packages passed |
+| Static analysis | `pnpm run lint` | PASS (Exit code 0) | 0 errors |
+| TypeScript strict | `pnpm run typecheck` | PASS (Exit code 0) | 18/18 packages passed |
+| **Tổng cộng** | | **PASS** | **49/49 task tests passed** |

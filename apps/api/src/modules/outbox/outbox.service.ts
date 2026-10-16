@@ -1,10 +1,9 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { eq, and, sql, isNull, lt, desc } from 'drizzle-orm';
-import { createEventEnvelope, type EventTopic } from '@jlpt/schema';
+import { eq, and, sql, isNull, lt } from 'drizzle-orm';
+import { createEventEnvelope, type EventTopic, type ResultFlag } from '@jlpt/schema';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
-import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { ScoringService } from '../scoring/scoring.service.js';
 import { ensureAttemptEventsPartitions } from '../../db/partitions.js';
 import {
@@ -12,6 +11,9 @@ import {
   DEFAULT_LATE_SYNC_WINDOW_SEC,
   DEFAULT_BETWEEN_SECTIONS_MAX_HOURS,
 } from '@jlpt/exam-engine';
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+
+type DbTx = Parameters<Parameters<PostgresJsDatabase<typeof schema>['transaction']>[0]>[0];
 
 @Injectable()
 export class OutboxService {
@@ -174,7 +176,7 @@ export class OutboxService {
     return this.withAttemptLock(attemptId, async () => {
       const db = this.dbClient.db;
 
-      return await db.transaction(async (tx: any) => {
+      return await db.transaction(async (tx: DbTx) => {
         // 1. SELECT ... FOR UPDATE to lock attempt row
         const [attempt] = await tx
           .select()
@@ -216,7 +218,7 @@ export class OutboxService {
           attempt.examVersion,
           answers,
           {
-            flags: mergedFlags as any,
+            flags: mergedFlags as ResultFlag[],
             durationSec: Math.round(
               (Date.now() - new Date(attempt.startedAt).getTime()) / 1000,
             ),
@@ -277,9 +279,9 @@ export class OutboxService {
     examId: string,
     version: number,
     answers: number[],
-    tx?: unknown,
+    tx?: DbTx,
   ): Promise<number> {
-    const db = (tx as typeof this.dbClient.db) || this.dbClient.db;
+    const db = tx || this.dbClient.db;
 
     const scoringData = await this.scoringService.getExamScoringData(examId, version, tx);
     const answerKey = scoringData.answerKey;
@@ -342,11 +344,11 @@ export class OutboxService {
   /**
    * Background Job: Updates user completed exams stats (A14: update-user-stats).
    */
-  async updateUserStats(userId: string, tx?: unknown): Promise<void> {
-    const db = (tx as typeof this.dbClient.db) || this.dbClient.db;
+  async updateUserStats(userId: string, tx?: DbTx): Promise<void> {
+    const db = tx || this.dbClient.db;
 
     // Count submitted attempts for this user
-    const [res] = await db
+    const [_res] = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(schema.examAttempts)
       .where(
@@ -355,8 +357,6 @@ export class OutboxService {
           eq(schema.examAttempts.status, 'submitted'),
         ),
       );
-
-    const completed = res?.count ?? 0;
 
     // Update user record
     await db

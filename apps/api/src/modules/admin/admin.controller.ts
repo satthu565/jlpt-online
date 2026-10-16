@@ -2,13 +2,11 @@ import {
   Controller,
   Get,
   Query,
-  UseGuards,
   ForbiddenException,
 } from '@nestjs/common';
 import { Roles } from '../../common/decorators/roles.decorator.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
-import { TotpGuard } from '../../common/guards/totp.guard.js';
 import { AuditService } from '../audit/audit.service.js';
 
 @Controller('admin')
