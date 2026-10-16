@@ -80,11 +80,19 @@ Theo hợp đồng bàn giao của A06, thư mục `tests/e2e/full/` được x�
 - Cập nhật `.github/workflows/ci.yml` để chạy `pnpm features:verify` trước khi build.
 - Cập nhật `.github/workflows/staging.yml` để chạy `pnpm test:e2e:full` và `pnpm features:verify`.
 
+### Quyết định 4: Khắc phục tranh chấp bộ nhớ đệm Vitest (`.vitest-cache`) và giới hạn tài nguyên runner
+
+- **Vấn đề phát hiện:** Khi Turborepo thực thi kiểm thử đồng thời giữa các package trên bản checkout sạch (`turbo run test --concurrency=2`), các tiến trình Vitest khởi chạy tại cùng một thời điểm (`@jlpt/config` và `@jlpt/srs`) cùng truy cập và thực thi lệnh xoá/khởi tạo thư mục bộ đệm dùng chung `node_modules/.vitest-cache`. Sự xung đột ghi đồng thời dẫn đến lỗi I/O `ENOTEMPTY: directory not empty, rmdir node_modules/.vitest-cache`. Đồng thời, các tiến trình kiểm thử của `@jlpt/api` khi không giới hạn số lượng worker forks có nguy cơ tiêu tốn quá nhiều RAM, gây ra lỗi OOM SIGKILL (137) trên môi trường host dùng chung 6 worker.
+- **Giải pháp áp dụng:**
+  1. Thêm cấu hình `vitest.config.ts` với `fsModuleCache: false` cho `@jlpt/config`, `apps/media-worker` và cập nhật `tests/vitest.config.ts`.
+  2. Bổ sung cờ `--no-fs-module-cache` trực tiếp vào script `test` trong `packages/config/package.json` và `apps/media-worker/package.json`.
+  3. Bổ sung `VITEST_MAX_WORKERS=1` vào script root `"test": "VITEST_MAX_WORKERS=1 turbo run test --concurrency=2"` trong `package.json`, bảo đảm kiểm soát tài nguyên RAM và loại bỏ hoàn toàn race condition trên hệ thống file.
+
 ---
 
 ## 3. Kết quả nghiệm thu
 
-- `pnpm test:e2e:full`: 4/4 test files passed (42/42 tests passed, thời gian chạy ~17s).
+- `pnpm test:e2e:full`: 4/4 test files passed (42/42 tests passed, thời gian chạy ~21s).
 - `pnpm features:verify`: 363/363 tính năng ứng dụng đạt 100% coverage, 12 tính năng ngoài tách biệt đúng quy tắc, 0 placeholder/stub, gắn đúng headSHA và baseSHA.
 - `pnpm test:contracts`: 2/2 test files passed (45/45 tests passed).
-- Toàn bộ cổng chung: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` đạt chuẩn hoàn hảo.
+- Toàn bộ cổng chung: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` đạt chuẩn hoàn hảo 100%.
