@@ -276,7 +276,7 @@ task('L05','W5',4,7,'Notebook SRS learning APIs và planner','N05 L01 N02',
 task('L06','W6',4,6,'Kiểm thử learning commerce và outbox reliability','N06 L02 L04 L05',
  'Tích hợp APIs learning vào staging, replay events, provider network fail, concurrency limits và account quota simulator.',
  'tests/integration/learning/|tests/integration/billing/',
- 'Replay events không double-charge/double-count|Payment signature/retry tamper cases pass|Diễn tập pause/checkpoint/resume của coordinator trên một task thật không mất patch; bằng chứng lấy từ coordinator',
+ 'Replay events không double-charge/double-count|Payment signature/retry tamper cases pass|Diễn tập pause/checkpoint/resume của coordinator trên task thật không mất patch: bằng chứng do người vận hành xuất từ coordinator ở docs/release/coordinator-drill-evidence.md; test của task không đọc lịch sử git hay trạng thái coordinator (worker không truy cập được coordinator)',
  'pnpm test:integration:learning|pnpm test:integration:billing',resources='staging-deploy')
 
 # Day 5. Complete all advanced modules, no deferral.

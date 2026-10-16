@@ -712,7 +712,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Nghiệm thu:
   - Replay events không double-charge/double-count.
   - Payment signature/retry tamper cases pass.
-  - Diễn tập pause/checkpoint/resume của coordinator trên một task thật không mất patch; bằng chứng lấy từ coordinator.
+  - Diễn tập pause/checkpoint/resume của coordinator trên task thật không mất patch: bằng chứng do người vận hành xuất từ coordinator ở docs/release/coordinator-drill-evidence.md; test của task không đọc lịch sử git hay trạng thái coordinator (worker không truy cập được coordinator).
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:integration:learning`
   - `pnpm test:integration:billing`
