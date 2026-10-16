@@ -106,7 +106,7 @@ OWNERS = {
 # Every exclusiveResources name a task may use. The coordinator refuses unknown names.
 LOCKS = {
     'repo-root': 'File cấu hình gốc của monorepo',
-    'dependency-lock': 'pnpm-lock.yaml và package manifests; worker gửi yêu cầu thêm thư viện, coordinator gộp thành bước ngắn có khóa',
+    'dependency-lock': 'pnpm-lock.yaml và package manifests; worker sửa package.json trong phạm vi rồi chạy pnpm install, coordinator tự cấp khóa trước bước kiểm tra',
     'schema-contract': 'packages/schema, contracts/, api-client sinh tự động',
     'db-migration': 'Migration journal và schema DB',
     'engine-contract': 'API công khai của packages/exam-engine',
@@ -276,8 +276,8 @@ task('L05','W5',4,7,'Notebook SRS learning APIs và planner','N05 L01 N02',
 task('L06','W6',4,6,'Kiểm thử learning commerce và outbox reliability','N06 L02 L04 L05',
  'Tích hợp APIs learning vào staging, replay events, provider network fail, concurrency limits và account quota simulator.',
  'tests/integration/learning/|tests/integration/billing/',
- 'Replay events không double-charge/double-count|Payment signature/retry tamper cases pass|Diễn tập pause/checkpoint/resume của coordinator trên một task thật không mất patch; bằng chứng lấy từ coordinator',
- 'pnpm test:integration:learning|pnpm test:integration:billing',resources='staging-deploy')
+ 'Replay events không double-charge/double-count|Payment signature/retry tamper cases pass|Diễn tập pause/checkpoint/resume của coordinator trên task thật không mất patch: bằng chứng do người vận hành xuất từ coordinator ở docs/release/coordinator-drill-evidence.md; test của task không đọc lịch sử git hay trạng thái coordinator (worker không truy cập được coordinator)',
+ 'pnpm test:integration:learning|pnpm test:integration:billing')
 
 # Day 5. Complete all advanced modules, no deferral.
 task('A01','W1',5,6,'Hợp đồng lớp thi sự kiện community AI và privacy','L01 L04',
@@ -305,11 +305,11 @@ task('A05','W5',5,8,'AI học tập câu sinh và gamification thống kê publi
  'apps/api/src/modules/ai/|apps/api/src/modules/gamification/|apps/api/src/modules/vocab/',
  'Không nhận model-provided tool permission hoặc raw secret|AI bị chặn trong active real exam và event embargo|Token/cost budget atomic, failures refund reservation|Generated label và approval mandatory|Streak timezone anti-replay, voluntary separate leaderboards|Corpus provenance và CSV/XLSX roundtrip',
  'pnpm test:ai|pnpm test:gamification|pnpm test:dataset-export', 'AI:1-14 EXPL:11 GAME:1-5,10 DATA:11-18,24-26',contracts='API DB EVENTS',external='ai-provider ai-budget')
-task('A06','W6',6,6,'Tích hợp toàn bộ module và kiểm tra phạm vi hiện hành','L06 A02 A03 A04 A05',
+task('A06','W6',6,6,'Tích hợp toàn bộ module và kiểm tra phạm vi hiện hành','A02 A03 A04 A05',
  'Dựng staging đủ mọi route, worker background, providers, coverage by feature; generated smoke list không thay test thật.',
  'tests/e2e/full/',
  '363yêu cầu ứng dụng có test reference;12yêu cầu chuẩn bị bên ngoài không tính vào code coverage|Không còn UI placeholder hoặc endpoint stub được tính DONE|Review và CI gắn đúng headSHA/baseSHA',
- 'pnpm test:e2e:full|pnpm features:verify|pnpm test:contracts',resources='staging-deploy')
+ 'pnpm test:e2e:full|pnpm features:verify|pnpm test:contracts')
 
 # Day 6. Finish secondary interfaces, then full validation and recovery.
 task('V01','W1',6,6,'Race tests thuật toán dữ liệu export và schema hardening','A01 A05',
@@ -327,17 +327,17 @@ task('V03','W3',6,7,'UI AI thống kê SEO media và exports hoàn chỉnh','A03
  'apps/web/|packages/ui/',
  'Không có nút chức năng chưa nối API|Public pages static không chứa PII, JSON-LD sitemap hreflang đúng|Âm thanh TTS có fallback thông báo lỗi, không giả provider thành công|Core Web Vitals instrumentation và bundle budgets',
  'pnpm test:e2e:web-all|pnpm test:seo|pnpm test:performance|pnpm test:i18n', 'SEO:1-4,6-8,10-11 SYS:2,17',contracts='API')
-task('V04','W4',6,6,'Admin reconciliation vận hành và chứng từ provider','A04 A06',
+task('V04','W4',6,6,'Admin reconciliation vận hành và chứng từ provider','A04',
  'Đối soát payment refund, cost/corpus reports, full admin flows, backup restore UI chỉ gọi operator job được phép.',
  'apps/admin/|apps/api/src/modules/reporting/',
  'Webhook/live readiness có bằng chứng riêng sandbox|Admin backup không giữ raw secrets trong browser|Mọi action audit có actor và tenant|Report CSV escaping và revenue rounding đúng',
  'pnpm test:e2e:admin-all|pnpm test:reconciliation',contracts='API',external='payment-provider')
-task('V05','W5',6,6,'Đối chiếu dữ liệu nhập AI thật và học tập E2E','A05 A06',
+task('V05','W5',6,6,'Đối chiếu dữ liệu nhập AI thật và học tập E2E','A05',
  'Kiểm thử gói do agent ngoài chuẩn bị, dữ liệu thiếu và sửa revision; actual learning AI/dictionary/TTS tests, statistical cold start và learning workflows.',
  'tools/import-data/|packages/content-tools/|apps/api/src/modules/ai/|apps/api/src/modules/learning/',
  'Gói chuẩn giữ đúng ruby bảng sao audio đáp án qua import và snapshot không lộ đáp án|Provider học tập chưa có credential phải BLOCKED_EXTERNAL|Sinh câu qua moderation đến làm bài|Data tests phân biệt observed và synthetic',
  'pnpm test:import-validation|pnpm test:providers:live|pnpm test:learning:all',external='prepared-import-data ai-provider dictionary tts-provider sample-rights')
-task('V06','W6',6,8,'Full regression load accessibility security và restore','A06 V02 V03 V04 V05',
+task('V06','W6',6,8,'Full regression load accessibility security và restore','L06 A06 V02 V03 V04 V05',
  'Chromium WebKit Firefox; device operator, k6 stepped load, ZAP/CodeQL/deps, backup restore cold deploy rollback.',
  'tests/|infra/',
  'Record target and observed capacity separately|RPO<=5min RTO<=1h có timestamps từ job restore trong CI|No P0/P1 accepted silently|Load generator tách khỏi target; không đo sức chịu bằng VPS đang build',

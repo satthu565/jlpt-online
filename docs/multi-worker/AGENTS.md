@@ -25,7 +25,7 @@ Worker sửa và commit trong clone riêng; coordinator push/PR/merge bằng cre
 ## Quy tắc code và dữ liệu
 
 - TypeScript strict, không dùng any/ts-ignore để qua lỗi; tên ASCII, commit Conventional Commits, body `Task: <taskId>` và `Features: ...`.
-- Công cụ kiểm tra gói bàn giao có thể dùng Python chuẩn trên máy chủ dự án; ứng dụng dùng schema/validator TypeScript, không cài thư viện nhận dạng PDF. F01 xác minh và ghim dependencies thực tế, không latest trong CI production. Worker không tự sửa `pnpm-lock.yaml`/package manifests ngoài task giữ khóa `dependency-lock`: cần thêm thư viện thì ghi yêu cầu trong kết quả task, coordinator gộp các yêu cầu thành một bước ngắn có khóa.
+- Công cụ kiểm tra gói bàn giao có thể dùng Python chuẩn trên máy chủ dự án; ứng dụng dùng schema/validator TypeScript, không cài thư viện nhận dạng PDF. F01 xác minh và ghim dependencies thực tế, không latest trong CI production. Cần thêm thư viện: worker sửa `package.json` trong thư mục được phép của mình rồi chạy `pnpm install` để cập nhật `pnpm-lock.yaml` (không sửa lockfile bằng tay). Coordinator tự cấp khóa `dependency-lock` cho task trước bước kiểm tra, task chờ nếu khóa đang bận; reviewer không coi thay đổi manifest kèm lockfile tương ứng là vi phạm khóa.
 - UTC trong DB/events, timezone người dùng cho SRS/planner/streak. Nội dung Nhật NFC, không biến NFKC vào nội dung gốc.
 - Snapshot/answer key/content version bất biến; không lộ đáp án trước quyền xem, bao gồm qua AI/export/transcript/cache.
 - Thi thật dùng deadline server, lease, seq, transaction ACK; event thi đồng loạt giữ embargo đến lúc công bố.

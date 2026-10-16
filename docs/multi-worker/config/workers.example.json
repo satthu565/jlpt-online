@@ -10,7 +10,7 @@
   },
   "locks": {
     "repo-root": "File cấu hình gốc của monorepo",
-    "dependency-lock": "pnpm-lock.yaml và package manifests; worker gửi yêu cầu thêm thư viện, coordinator gộp thành bước ngắn có khóa",
+    "dependency-lock": "pnpm-lock.yaml và package manifests; worker sửa package.json trong phạm vi rồi chạy pnpm install, coordinator tự cấp khóa trước bước kiểm tra",
     "schema-contract": "packages/schema, contracts/, api-client sinh tự động",
     "db-migration": "Migration journal và schema DB",
     "engine-contract": "API công khai của packages/exam-engine",
