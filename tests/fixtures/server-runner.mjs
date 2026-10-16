@@ -73,14 +73,37 @@ async function start() {
   const { createRequire } = await import('node:module');
   const require = createRequire(path.join(REPO_ROOT, 'apps/api/package.json'));
   const { NestFactory } = require('@nestjs/core');
+  const { Module } = require('@nestjs/common');
   const { FastifyAdapter } = require('@nestjs/platform-fastify');
   const { AppModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/app.module.js'));
+  const { PaymentModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/payment/payment.module.js'));
+  const { EntitlementModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/entitlement/entitlement.module.js'));
+  const { LearningModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/learning/learning.module.js'));
+  const { PlannerModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/planner/planner.module.js'));
+
+  class StagingAppModule {}
+  Module({
+    imports: [
+      AppModule,
+      PaymentModule,
+      EntitlementModule,
+      LearningModule,
+      PlannerModule,
+    ],
+  })(StagingAppModule);
 
   const adapter = new FastifyAdapter({ bodyLimit: 50 * 1024 * 1024 });
-  const app = await NestFactory.create(AppModule, adapter, {
+  const app = await NestFactory.create(StagingAppModule, adapter, {
     logger: ['error', 'warn'],
   });
   app.setGlobalPrefix('api/v1');
+
+  // Initialize seed plans for payment
+  const { PaymentService } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/payment/payment.service.js'));
+  const paymentService = app.get(PaymentService);
+  if (paymentService?.ensureInitialPlans) {
+    await paymentService.ensureInitialPlans();
+  }
 
   // 5. Enhance AuthService.getSession with user tenantId resolved from org_memberships table
   const { AuthService } = await import(
