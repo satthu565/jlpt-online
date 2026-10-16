@@ -1,7 +1,7 @@
 import React from 'react';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'success';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   leftIcon?: React.ReactNode;
@@ -51,6 +51,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles: Record<string, React.CSSProperties> = {
       primary: {
+        backgroundColor: 'var(--color-primary, #16a34a)',
+        color: 'var(--text-inverse, #ffffff)',
+        borderColor: 'var(--color-primary, #16a34a)',
+      },
+      success: {
         backgroundColor: 'var(--color-primary, #16a34a)',
         color: 'var(--text-inverse, #ffffff)',
         borderColor: 'var(--color-primary, #16a34a)',
