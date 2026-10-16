@@ -174,6 +174,11 @@ apps/admin/
    - **Vấn đề:** Test case `renders preview component matching visual specifications without XSS vulnerability` gặp `AssertionError` trên CI GitHub Actions do câu lệnh `expect(html).toContain('<ruby>日本語<rt>にほんご</rt></ruby>')` so sánh chuỗi cứng, trong khi component `RichTextView` từ `@jlpt/ui` kết xuất các thuộc tính class và style chuẩn (`<ruby class="jlpt-ruby" style="ruby-position:over">日本語<rt style="...">にほんご</rt></ruby>`).
    - **Khắc phục:** Cập nhật assertion sử dụng regex `expect(html).toMatch(/<ruby[^>]*>日本語<rt[^>]*>にほんご<\/rt><\/ruby>/)` và `expect(html).toMatch(/<ruby[^>]*>問題<rt[^>]*>もんだい<\/rt><\/ruby>/)`, vừa bảo đảm tính toàn vẹn của cấu trúc ruby HTML, vừa tương thích chính xác với style của component UI dùng chung.
 
+4. **Khắc phục lỗi OOM SIGKILL khi chạy kiểm tra toàn monorepo `pnpm test` [CI/Check Fix - C04-15]:**
+   - **Vấn đề:** Khi điều phối viên chạy cổng kiểm tra chung `pnpm test` (`turbo run test`) trên monorepo, Turbo mặc định khởi chạy song song 10 tác vụ kiểm thử của các package (`@jlpt/api`, `@jlpt/admin`, `@jlpt/web`, `@jlpt/ui`,...). Trong đó `@jlpt/api` sử dụng Vitest với 8 worker forks, mỗi worker nạp máy ảo cơ sở dữ liệu in-memory PGlite WebAssembly. Sự bùng nổ tải bộ nhớ đồng thời vượt quá giới hạn RAM của container/máy chủ kiểm tra dẫn đến việc nhân Linux gửi tín hiệu `SIGKILL` đến worker của `@jlpt/api/src/db/db.test.ts`.
+   - **Khắc phục:** Cập nhật script `"test": "turbo run test --concurrency=1"` trong root `package.json`. Việc điều tiết concurrency cho các tác vụ kiểm tra giữa các package loại bỏ hoàn toàn nguy cơ tranh chấp tài nguyên và cạn kiệt RAM, bảo đảm toàn bộ 17 tasks kiểm thử monorepo đều hoàn thành với exit code 0.
+
+
 ---
 
 ## 5. Kết quả kiểm thử và nghiệm thu
@@ -181,6 +186,7 @@ apps/admin/
 Tất cả các lệnh kiểm tra được giao đều chạy thành công 100%:
 - `pnpm test:admin-content`: 11/11 passed (Acceptance 1: tạo sửa ruby star bảng nghe xem trước; Acceptance 2: không sửa đè published version).
 - `pnpm test:admin-users`: 11/11 passed (Acceptance 3: Admin sửa role còn editor không thể tự nâng quyền; ADM-02, ADM-03).
+- `pnpm test`: 17/17 tasks passed (toàn bộ kiểm thử monorepo không lỗi, không OOM).
 - `pnpm test:admin`: 63/63 passed across 7 test files (Navigation, Health, Users, I18n, Auth, Guard, Content).
 - `pnpm --filter @jlpt/admin test:admin-content`: 11/11 passed.
 - `pnpm --filter @jlpt/admin test:admin-users`: 11/11 passed.
