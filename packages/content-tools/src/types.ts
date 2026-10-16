@@ -3,7 +3,11 @@ export type JLPTProvenance = 'self_authored' | 'official_past_exam' | 'third_par
 export type JLPTSession = 7 | 12 | null;
 export type JLPTRightsStatus = 'unverified' | 'owner_confirmed';
 export type ExamKind = 'original' | 'practice';
-export type SectionCode = 'language_vocab' | 'language_grammar_reading' | 'language_reading' | 'listening';
+export type SectionCode =
+  | 'language_vocab'
+  | 'language_grammar_reading'
+  | 'language_reading'
+  | 'listening';
 export type SkillType = 'kanji' | 'vocabulary' | 'grammar' | 'reading' | 'listening';
 export type IssueSeverity = 'blocking' | 'warning';
 export type ValidationMode = 'ready' | 'draft';
@@ -40,13 +44,25 @@ export type RichTextSegment =
   | { t: 'blank'; label?: string }
   | { t: 'star' }
   | { t: 'br' }
-  | { t: 'image'; mediaKey: string; alt: string; width: number; height: number };
+  | {
+      t: 'image';
+      mediaKey: string;
+      alt: string;
+      width: number;
+      height: number;
+    };
 
 export type RichText = RichTextSegment[];
 
 export type RichBlock =
   | { type: 'paragraph'; content: RichText }
-  | { type: 'image'; mediaKey: string; alt: string; width: number; height: number }
+  | {
+      type: 'image';
+      mediaKey: string;
+      alt: string;
+      width: number;
+      height: number;
+    }
   | { type: 'table'; rows: RichText[][] };
 
 export interface SourcePage {
@@ -175,6 +191,68 @@ export interface ImportPackageV2 {
   issues: IssueItem[];
 }
 
+export interface BlueprintMondai {
+  type: MondaiType;
+  skill: SkillType;
+  questionCount: number;
+}
+
+export interface BlueprintSection {
+  code: string;
+  title: string;
+  durationSec: number;
+  mondai: BlueprintMondai[];
+}
+
+export interface BlueprintDefinition {
+  id?: string;
+  level: JLPTLevel;
+  version: number;
+  kind?: 'synthetic' | 'official';
+  effectiveFrom?: string;
+  sections: BlueprintSection[];
+}
+
+export interface BlueprintValidationResult {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  expectedTotalQuestions: number;
+  actualTotalQuestions: number;
+}
+
+export type IdempotencyAction =
+  | 'IDEMPOTENT_SKIP'
+  | 'PROCEED_NEW_REVISION'
+  | 'PROCEED_INITIAL_IMPORT'
+  | 'REJECT_CONFLICT'
+  | 'REJECT_REGRESSION';
+
+export interface PackageIdentity {
+  packageId: string;
+  revision: number;
+  contentHash: string;
+  status?: string;
+  createdAt?: string;
+}
+
+export interface IdempotencyEvaluation {
+  action: IdempotencyAction;
+  statusCode: number;
+  reason: string;
+  packageId: string;
+  revision: number;
+  contentHash: string;
+}
+
+export interface IssueSummaryReport {
+  totalIssues: number;
+  blockingCount: number;
+  warningCount: number;
+  ocrLowConfidenceCount: number;
+  items: IssueItem[];
+}
+
 export interface ValidationResult {
   valid: boolean;
   mode: ValidationMode;
@@ -190,4 +268,6 @@ export interface ValidationResult {
 export interface ValidateOptions {
   mode?: ValidationMode;
   packageFiles?: Record<string, Uint8Array>;
+  blueprint?: BlueprintDefinition;
+  knownBlueprints?: Record<string, BlueprintDefinition>;
 }
