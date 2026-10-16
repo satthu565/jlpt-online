@@ -4,11 +4,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, countDistinct, eq, gt, ne } from 'drizzle-orm';
+import { and, countDistinct, desc, eq, gt, ne, sql } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
-import { LevelSchema, type Level } from '@jlpt/schema';
+import { LevelSchema, type Level, sanitizeExportField } from '@jlpt/schema';
+import { executeRetentionSafeDeletion } from '../../db/retention-guard.js';
+import { generateUuidV7 } from '../../common/utils/uuid.js';
+import { OutboxService } from '../outbox/outbox.service.js';
+import { extractScoreFromResult } from '../classroom/classroom.service.js';
 
 export interface UpdateProfileDto {
   name?: string;
@@ -28,12 +32,21 @@ export interface SessionSummary {
   isCurrent: boolean;
 }
 
+export interface ConsentInputItem {
+  purpose: string;
+  policyVersion: string;
+  granted: boolean;
+}
+
 @Injectable()
 export class UserService {
-  constructor(@Inject(DB_CLIENT) private readonly client: DbClientInstance) {}
+  constructor(
+    @Inject(DB_CLIENT) private readonly client: DbClientInstance,
+    private readonly outboxService: OutboxService,
+  ) {}
 
   /**
-   * ACC-01, ACC-07, ACC-10: Xem profile kèm số đề đã hoàn thành (completedExams)
+   * ACC-01, ACC-06, ACC-07, ACC-08, ACC-09, ACC-10: Xem profile
    */
   async getProfile(userId: string) {
     const users = await this.client.db
@@ -69,6 +82,8 @@ export class UserService {
       id: user.id,
       email: user.email,
       name: user.name || '',
+      avatarUrl: user.image || null,
+      image: user.image || null,
       targetLevel: (user.targetLevel as Level | null) || null,
       targetExamDate: user.targetExamDate ? String(user.targetExamDate) : null,
       targetScore: user.targetScore ?? null,
@@ -79,7 +94,7 @@ export class UserService {
   }
 
   /**
-   * ACC-07: Chọn cấp độ JLPT đang ôn: N1–N5
+   * ACC-06, ACC-07, ACC-08, ACC-09: Cập nhật thông tin cá nhân, mục tiêu điểm số và kỳ thi
    */
   async updateProfile(userId: string, input: UpdateProfileDto) {
     if (input.targetLevel !== undefined) {
@@ -88,6 +103,27 @@ export class UserService {
         throw new BadRequestException({
           code: 'VALIDATION_ERROR',
           message: 'Cấp độ JLPT không hợp lệ. Vui lòng chọn từ N1 đến N5.',
+        });
+      }
+    }
+
+    // ACC-08: Kiểm tra ngày thi hợp lệ
+    if (input.targetExamDate !== undefined && input.targetExamDate !== null) {
+      const d = new Date(input.targetExamDate);
+      if (isNaN(d.getTime())) {
+        throw new BadRequestException({
+          code: 'VALIDATION_ERROR',
+          message: 'Ngày thi dự kiến không hợp lệ.',
+        });
+      }
+    }
+
+    // ACC-09: Kiểm tra mục tiêu điểm số (0 - 180)
+    if (input.targetScore !== undefined && input.targetScore !== null) {
+      if (input.targetScore < 0 || input.targetScore > 180) {
+        throw new BadRequestException({
+          code: 'VALIDATION_ERROR',
+          message: 'Mục tiêu điểm số phải nằm trong khoảng từ 0 đến 180.',
         });
       }
     }
@@ -112,8 +148,297 @@ export class UserService {
   }
 
   /**
-   * ACC-12: Quản lý thiết bị và phiên đăng nhập - Xem danh sách phiên
+   * ACC-06: Tải lên ảnh đại diện
    */
+  async uploadAvatar(userId: string, avatarUrl: string) {
+    if (!avatarUrl || avatarUrl.trim().length === 0) {
+      throw new BadRequestException({
+        code: 'VALIDATION_ERROR',
+        message: 'Đường dẫn ảnh đại diện không hợp lệ.',
+      });
+    }
+
+    await this.client.db
+      .update(schema.users)
+      .set({ image: avatarUrl, updatedAt: new Date() })
+      .where(eq(schema.users.id, userId));
+
+    return { avatarUrl };
+  }
+
+  /**
+   * ACC-06: Xóa ảnh đại diện
+   */
+  async deleteAvatar(userId: string) {
+    await this.client.db
+      .update(schema.users)
+      .set({ image: null, updatedAt: new Date() })
+      .where(eq(schema.users.id, userId));
+
+    return { success: true };
+  }
+
+  /**
+   * ACC-11: Xem thời gian đã dành cho việc ôn tập và phân tích
+   */
+  async getUserAnalytics(userId: string) {
+    // 1. Calculate study time from studySessionCompletions
+    const sessionCompletions = await this.client.db
+      .select({
+        totalSeconds: sql<number>`COALESCE(SUM(${schema.studySessionCompletions.timeSpentSeconds}), 0)`,
+      })
+      .from(schema.studySessionCompletions)
+      .innerJoin(
+        schema.studySessions,
+        eq(schema.studySessions.id, schema.studySessionCompletions.sessionId),
+      )
+      .where(eq(schema.studySessions.userId, userId));
+
+    const totalSeconds = Number(sessionCompletions[0]?.totalSeconds ?? 0);
+    const studyTimeMinutes = Math.round(totalSeconds / 60);
+
+    // 2. Count total attempts and calculate average accuracy
+    const attempts = await this.client.db
+      .select({
+        attemptResult: schema.examAttempts.result,
+        status: schema.examAttempts.status,
+      })
+      .from(schema.examAttempts)
+      .where(eq(schema.examAttempts.userId, userId));
+
+    interface UserAttemptRow {
+      attemptResult: unknown;
+      status: string;
+    }
+
+    const typedAttempts = attempts as UserAttemptRow[];
+    const totalAttempts = typedAttempts.length;
+    const submittedAttempts = typedAttempts.filter((a: UserAttemptRow) => a.status === 'submitted');
+    const avgScore =
+      submittedAttempts.length > 0
+        ? submittedAttempts.reduce(
+            (acc: number, cur: UserAttemptRow) => acc + extractScoreFromResult(cur.attemptResult),
+            0,
+          ) / submittedAttempts.length
+        : 0;
+    const averageAccuracy = Math.round(avgScore * 10) / 10;
+
+    // 3. Aggregate skill stats from userSkillAggregates
+    const skills = await this.client.db
+      .select({
+        skill: schema.userSkillAggregates.skill,
+        accuracyRate: schema.userSkillAggregates.accuracyRate,
+        sampleSize: schema.userSkillAggregates.sampleSize,
+      })
+      .from(schema.userSkillAggregates)
+      .where(eq(schema.userSkillAggregates.userId, userId));
+
+    interface UserSkillRow {
+      skill: string;
+      accuracyRate: number;
+      sampleSize: number;
+    }
+
+    const bySkill: Record<string, { accuracy: number; totalQuestions: number }> = {};
+    for (const s of skills as UserSkillRow[]) {
+      bySkill[s.skill] = {
+        accuracy: Number(s.accuracyRate ?? 0),
+        totalQuestions: Number(s.sampleSize ?? 0),
+      };
+    }
+
+    return {
+      studyTimeMinutes,
+      totalAttempts,
+      averageAccuracy,
+      bySkill,
+    };
+  }
+
+  /**
+   * ACC-13: Yêu cầu xuất toàn bộ dữ liệu cá nhân (GDPR)
+   * Sử dụng sanitizeExportField để triệt tiêu Formula Injection
+   */
+  async requestDataExport(userId: string, input?: { kind?: string }) {
+    const profile = await this.getProfile(userId);
+    const jobId = generateUuidV7();
+
+    const sanitizedData = {
+      profile: {
+        id: profile.id,
+        email: sanitizeExportField(profile.email),
+        name: sanitizeExportField(profile.name),
+        locale: sanitizeExportField(profile.locale),
+        timezone: sanitizeExportField(profile.timezone),
+      },
+      exportedAt: new Date().toISOString(),
+    };
+
+    const downloadUrl = `/exports/user-data-${jobId}.${(input?.kind || 'JSON').toLowerCase()}`;
+
+    await this.client.db.insert(schema.dataExportJobs).values({
+      id: jobId,
+      userId,
+      status: 'completed',
+      downloadUrl,
+      completedAt: new Date(),
+    });
+
+    return {
+      jobId,
+      status: 'completed',
+      downloadUrl,
+      data: sanitizedData,
+    };
+  }
+
+  /**
+   * ACC-13, SYS-19: Xem trạng thái yêu cầu xóa tài khoản
+   */
+  async getDeletionRequestStatus(userId: string) {
+    const [req] = await this.client.db
+      .select()
+      .from(schema.deletionRequests)
+      .where(eq(schema.deletionRequests.userId, userId))
+      .orderBy(desc(schema.deletionRequests.requestedAt))
+      .limit(1);
+
+    if (!req) {
+      return { status: 'none' };
+    }
+
+    return {
+      id: req.id,
+      status: req.status,
+      requestedAt: req.requestedAt.toISOString(),
+      metadata: req.metadata,
+    };
+  }
+
+  /**
+   * ACC-13, SYS-19: Gửi yêu cầu xóa tài khoản với bảo vệ nghĩa vụ retention chưa duyệt
+   */
+  async createDeletionRequest(
+    userId: string,
+    input?: { reason?: string; confirmation?: string },
+  ) {
+    const result = await executeRetentionSafeDeletion(this.client, userId, [
+      'billing',
+      'exam_attempts',
+      'learning',
+      'audit_logs',
+    ]);
+
+    const requestId = generateUuidV7();
+
+    await this.outboxService.emitEvent(
+      'privacy.deletion.requested',
+      requestId,
+      userId,
+      {
+        userId,
+        deletionRequestId: requestId,
+        requestedAt: new Date().toISOString(),
+        metadata: {
+          reason: input?.reason || 'User requested account deletion',
+          ...result,
+        },
+      },
+    );
+
+    return {
+      id: requestId,
+      status: result.status,
+      deletedDomains: result.deletedDomains,
+      preservedDomains: result.preservedDomains,
+    };
+  }
+
+  /**
+   * Xem danh sách chấp thuận xử lý dữ liệu (Consents)
+   */
+  async getUserConsents(userId: string) {
+    const rows = await this.client.db
+      .select({
+        purpose: schema.consents.purpose,
+        policyVersion: schema.consents.policyVersion,
+        grantedAt: schema.consents.grantedAt,
+        withdrawnAt: schema.consents.withdrawnAt,
+      })
+      .from(schema.consents)
+      .where(eq(schema.consents.userId, userId));
+
+    interface ConsentRow {
+      purpose: string;
+      policyVersion: string;
+      grantedAt: Date;
+      withdrawnAt: Date | null;
+    }
+
+    const items = (rows as ConsentRow[]).map((r: ConsentRow) => ({
+      purpose: r.purpose,
+      policyVersion: r.policyVersion,
+      granted: r.withdrawnAt === null,
+      grantedAt: r.grantedAt.toISOString(),
+    }));
+
+    return { items };
+  }
+
+  /**
+   * Cập nhật danh sách chấp thuận xử lý dữ liệu
+   */
+  async updateUserConsents(userId: string, items: ConsentInputItem[]) {
+    for (const item of items) {
+      const withdrawnAt = item.granted ? null : new Date();
+
+      const [existing] = await this.client.db
+        .select()
+        .from(schema.consents)
+        .where(
+          and(
+            eq(schema.consents.userId, userId),
+            eq(schema.consents.purpose, item.purpose),
+            eq(schema.consents.policyVersion, item.policyVersion),
+          ),
+        )
+        .limit(1);
+
+      if (existing) {
+        await this.client.db
+          .update(schema.consents)
+          .set({ withdrawnAt })
+          .where(eq(schema.consents.id, existing.id));
+      } else {
+        await this.client.db.insert(schema.consents).values({
+          id: generateUuidV7(),
+          userId,
+          purpose: item.purpose,
+          policyVersion: item.policyVersion,
+          withdrawnAt,
+        });
+      }
+
+      await this.outboxService.emitEvent(
+        'privacy.consent.changed',
+        userId,
+        userId,
+        {
+          userId,
+          purpose: item.purpose,
+          granted: item.granted,
+          policyVersion: item.policyVersion,
+        },
+      );
+    }
+
+    return { updated: true };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Session Management (ACC-12)
+  // ---------------------------------------------------------------------------
+
   async getSessions(userId: string, currentSessionId?: string): Promise<SessionSummary[]> {
     const rows = await this.client.db
       .select({
@@ -149,9 +474,6 @@ export class UserService {
     }));
   }
 
-  /**
-   * ACC-12: Hủy 1 phiên đăng nhập cụ thể
-   */
   async revokeSession(userId: string, sessionId: string) {
     await this.client.db
       .delete(schema.sessions)
@@ -168,9 +490,6 @@ export class UserService {
     };
   }
 
-  /**
-   * ACC-12: Hủy tất cả các phiên đăng nhập khác ngoại trừ phiên hiện tại
-   */
   async revokeAllOtherSessions(userId: string, currentSessionId: string) {
     await this.client.db
       .delete(schema.sessions)

@@ -749,6 +749,24 @@ export class AttemptService {
       });
     }
 
+    // Acceptance 3: Event chưa kết thúc không lộ answer kể cả early submit/review
+    const [eventAttempt] = await db
+      .select({
+        eventId: schema.eventAttempts.eventId,
+        resultReleaseAt: schema.examEvents.resultReleaseAt,
+      })
+      .from(schema.eventAttempts)
+      .innerJoin(schema.examEvents, eq(schema.examEvents.id, schema.eventAttempts.eventId))
+      .where(eq(schema.eventAttempts.attemptId, attemptId))
+      .limit(1);
+
+    if (eventAttempt && new Date() < eventAttempt.resultReleaseAt) {
+      throw new ForbiddenException({
+        code: 'RESULTS_EMBARGOED',
+        message: 'Kết quả sự kiện thi chưa được công bố. Không thể xem lại đáp án trước thời điểm công bố kết quả.',
+      });
+    }
+
     const { answerKey } = await this.scoringService.getExamScoringData(
       attempt.examId,
       attempt.examVersion,
