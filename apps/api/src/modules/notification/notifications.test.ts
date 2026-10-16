@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 process.env.EMAIL_DRIVER = 'memory';
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { NestFactory } from '@nestjs/core';
@@ -266,6 +266,13 @@ describe('L02 Notification Preferences, Quiet Hours & Idempotent Delivery (NOTI-
         timezone: 'Asia/Ho_Chi_Minh',
         typeSettings: { practice_reminder: true },
       });
+      // The senders read the wall clock; pin it to noon in Asia/Ho_Chi_Minh so these
+      // non-critical sends are never inside the 00:00-04:00 quiet window (CI ran at 00:08).
+      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-16T05:00:00.000Z') });
+    });
+
+    afterAll(() => {
+      vi.useRealTimers();
     });
 
     it('NOTI-03: Nhắc tiếp tục bài luyện dang dở', async () => {
