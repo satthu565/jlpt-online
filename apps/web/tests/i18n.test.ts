@@ -72,26 +72,49 @@ describe('Internationalization System (ACC-14 & Acceptance 1)', () => {
   });
 
   it('falls back clearly to DEFAULT_LOCALE (vi) when a key is missing in target locale', () => {
-    // If a key is searched in 'ja' that does not exist in 'ja' but exists in 'vi'
-    // It should cleanly return the 'vi' text without throwing an error
-    const key = 'common.nav.home';
-    const fallbackVal = translate('ja' as Locale, key);
-    expect(fallbackVal).toBe('ホーム');
+    // Inject a temporary key only in vi messages to simulate a key missing in ja & en
+    (vi as Record<string, unknown>).__test_fallback_only__ = 'Nội dung tiếng Việt mặc định';
 
-    // Simulate an unknown key: should return the key itself as safe fallback
+    try {
+      // Key does not exist in 'ja', so it must trigger fallback to 'vi' and return the Vietnamese text
+      const fallbackValJa = translate('ja' as Locale, '__test_fallback_only__');
+      expect(fallbackValJa).toBe('Nội dung tiếng Việt mặc định');
+
+      // Key does not exist in 'en', so it must also trigger fallback to 'vi'
+      const fallbackValEn = translate('en' as Locale, '__test_fallback_only__');
+      expect(fallbackValEn).toBe('Nội dung tiếng Việt mặc định');
+    } finally {
+      delete (vi as Record<string, unknown>).__test_fallback_only__;
+    }
+
+    // When an unknown key does not exist in ANY locale (neither target nor vi), return the key path itself
     const nonExistentKey = 'custom.unknown.path';
     expect(translate('ja', nonExistentKey)).toBe('custom.unknown.path');
     expect(translate('vi', nonExistentKey)).toBe('custom.unknown.path');
   });
 
   it('supports parameter interpolation {param}', () => {
-    // Test custom translation with parameter
-    const template = 'Xin chào {name}, bạn đang ôn tập {level}!';
-    const interpolated = template.replace(/{(\w+)}/g, (_, k: string) => {
-      const map: Record<string, string> = { name: 'Thanh', level: 'N3' };
-      return map[k] || `{${k}}`;
-    });
-    expect(interpolated).toBe('Xin chào Thanh, bạn đang ôn tập N3!');
+    // 1. Test interpolation on registered message keys across all locales via translate()
+    expect(translate('vi', 'home.levelHeading', { level: 'N1' })).toBe('Cấp độ N1');
+    expect(translate('ja', 'home.levelHeading', { level: 'N2' })).toBe('レベル N2');
+    expect(translate('en', 'home.levelHeading', { level: 'N3' })).toBe('Level N3');
+
+    expect(translate('vi', 'home.viewLevelExams', { level: 'N1' })).toBe('Xem đề thi N1');
+    expect(translate('ja', 'home.viewLevelExams', { level: 'N1' })).toBe('N1 の問題を見る');
+    expect(translate('en', 'home.viewLevelExams', { level: 'N1' })).toBe('View N1 Exams');
+
+    expect(
+      translate('vi', 'account.sessions.revokeAriaLabel', { device: 'Chrome / macOS' }),
+    ).toBe('Hủy phiên đăng nhập Chrome / macOS');
+    expect(
+      translate('ja', 'account.sessions.revokeAriaLabel', { device: 'Chrome / macOS' }),
+    ).toBe('セッションを終了: Chrome / macOS');
+    expect(
+      translate('en', 'account.sessions.revokeAriaLabel', { device: 'Chrome / macOS' }),
+    ).toBe('Revoke session for Chrome / macOS');
+
+    // 2. Unmatched parameters retain placeholders {unmatched}
+    expect(translate('vi', 'home.levelHeading', {})).toBe('Cấp độ {level}');
   });
 
   it('Japanese text is valid NFC without corrupt NFKC characters', () => {
