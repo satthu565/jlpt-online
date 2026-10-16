@@ -13,7 +13,12 @@
       "account": "アカウント",
       "login": "ログイン",
       "register": "会員登録",
-      "logout": "ログアウト"
+      "logout": "ログアウト",
+      "notebook": "ノート",
+      "planner": "学習計画",
+      "classroom": "クラス",
+      "events": "模擬試験イベント",
+      "pricing": "プラン料金"
     },
     "footer": {
       "about": "当サイトについて",
@@ -162,7 +167,10 @@
     "tabs": {
       "ariaLabel": "アカウント設定タブ",
       "profile": "プロフィール",
-      "sessions": "端末・セッション"
+      "sessions": "端末・セッション",
+      "notifications": "通知とリマインダー",
+      "billing": "サブスクリプションと取引",
+      "privacy": "プライバシーとデータ"
     },
     "profile": {
       "name": "お名前",
@@ -205,6 +213,38 @@
       "revokeError": "セッションの終了に失敗しました。",
       "revokeAllError": "他の端末からのログアウトに失敗しました。",
       "empty": "他に接続中の端末はありません。"
+    },
+    "notifications": {
+      "title": "通知設定とリマインダー",
+      "saveSuccess": "通知設定を保存しました。",
+      "saveError": "通知設定の保存に失敗しました。",
+      "emailUpdates": "学習アップデートのメールを受け取る",
+      "emailUpdatesDesc": "週次レポートとおすすめの学習内容をメールで受信します。",
+      "examReminders": "模擬試験とイベントのリマインダー",
+      "examRemindersDesc": "模擬試験の開始時間や課題の提出期限を通知します。",
+      "streakAlerts": "学習ストリーク維持アラート",
+      "streakAlertsDesc": "ストリークが途切れる前に学習を完了するよう通知します。",
+      "quietHoursTitle": "おやすみモード（通知停止時間）",
+      "quietHoursDesc": "指定した時間帯はプッシュ通知をミュートします。",
+      "quietStart": "開始時間",
+      "quietEnd": "終了時間",
+      "saveButton": "通知設定を保存"
+    },
+    "privacy": {
+      "cardTitle": "プライバシーと個人データ（GDPR）",
+      "exportSuccess": "個人データのエクスポートが完了しました。",
+      "exportError": "個人データのエクスポートに失敗しました。",
+      "deletionScheduledNotice": "アカウント削除リクエストを受け付けました。保持ポリシーに従って安全に処理されます。",
+      "deletionError": "アカウント削除リクエストの送信に失敗しました。",
+      "exportTitle": "個人データのエクスポート（ポータビリティ）",
+      "exportDesc": "すべての受験履歴、単語帳、学習ログを安全なJSON形式でダウンロードします。",
+      "exportButton": "JSONをダウンロード",
+      "deleteAccountTitle": "アカウントの完全削除（忘れられる権利）",
+      "deleteAccountDesc": "GDPR基準およびデータ保持規則に従い、すべての個人識別情報を安全に削除します。",
+      "deleteAccountButton": "削除をリクエスト",
+      "deleteModalTitle": "アカウント削除リクエストの確認",
+      "deleteModalWarning": "この操作により、すべてのセッションが無効化され、個人データの削除がスケジュールされます。会計記録は法的要件に従い匿名化されて保持されます。",
+      "confirmDeletionButton": "アカウント削除を実行"
     }
   },
   "home": {
@@ -230,6 +270,429 @@
       "smartSRS": "忘却曲線に基づいた間隔反復学習（SRS）で語彙と漢字を定着。",
       "analyticsTitle": "分析とレポート",
       "analytics": "苦手分野を可視化し、合格に必要な最短ルートを示す成績分析。"
+    }
+  },
+  "notebook": {
+    "page": {
+      "title": "マイ単語帳・文法ノート",
+      "subtitle": "単語・文法の管理、SRSフラッシュカード学習、ミニクイズ。",
+      "tabsAria": "ノートの表示モード"
+    },
+    "tabs": {
+      "notebook": "ノート一覧",
+      "srsReview": "SRS復習",
+      "quiz": "ミニクイズ"
+    },
+    "filters": {
+      "searchLabel": "単語または意味を検索",
+      "searchPlaceholder": "単語、文法、タグを検索...",
+      "kindLabel": "知識タイプ",
+      "allKinds": "すべてのタイプ",
+      "statusLabel": "ステータス",
+      "allStatus": "すべてのステータス"
+    },
+    "kinds": {
+      "vocab": "単語",
+      "grammar": "文法",
+      "kanji": "漢字"
+    },
+    "status": {
+      "learning": "学習中",
+      "mastered": "習得済み"
+    },
+    "actions": {
+      "exportCsv": "CSVエクスポート",
+      "addItem": "項目を追加",
+      "playAudio": "音声を再生: {term}",
+      "markUnmastered": "未習得に戻す",
+      "markMastered": "習得済みにする",
+      "viewExamples": "試験の例文",
+      "deleteItem": "項目を削除: {term}"
+    },
+    "countSummary": "{total} 項目中 {count} 項目を表示",
+    "empty": {
+      "title": "ノートに項目がありません",
+      "description": "問題演習中に出会った単語や文法をノートに保存して、間隔反復で効率的に復習しましょう。"
+    },
+    "form": {
+      "requiredFields": "単語と意味を入力してください。",
+      "createError": "ノートへの保存に失敗しました。",
+      "kind": "カテゴリー",
+      "term": "単語 / 文法 / 漢字",
+      "termPlaceholder": "例: 躊躇, 〜を皮切りに...",
+      "reading": "読み（ふりがな）",
+      "readingPlaceholder": "例: ちゅうちょ",
+      "meaning": "意味",
+      "meaningPlaceholder": "例: ためらい、躊躇すること",
+      "notes": "メモと用法",
+      "notesPlaceholder": "例: 躊躇なく決断する...",
+      "tags": "タグ（カンマ区切り）",
+      "tagsPlaceholder": "N1, 重要単語, 読解",
+      "submitButton": "ノートに追加"
+    },
+    "modal": {
+      "addTitle": "新しい単語・文法を追加"
+    },
+    "examples": {
+      "title": "「{term}」を含む試験の出題例",
+      "subtitle": "「{term}」が含まれる過去問および練習問題:",
+      "noExamplesFound": "この項目に関連する出題例はまだありません。"
+    },
+    "quiz": {
+      "questionProgress": "第 {current} 問 / 全 {total} 問",
+      "correct": "正解です！",
+      "incorrect": "不正解です！",
+      "viewResults": "クイズ結果を見る",
+      "completedTitle": "クイズ完了！",
+      "scoreSummary": "スコア: {score}/{total} 点 ({percent}%)",
+      "retake": "別のクイズを受ける",
+      "finish": "ノートに戻る"
+    }
+  },
+  "flashcards": {
+    "progress": "カード {current} / {total}",
+    "interval": "間隔: {days} 日",
+    "flipToFront": "表面に戻す",
+    "flipToBack": "裏面を見る",
+    "playAudio": "音声再生",
+    "clickOrSpaceToFlip": "クリックまたはスペースキーでカードを裏返す",
+    "examplesTitle": "例文",
+    "showAnswer": "答えを見る（スペースキー）",
+    "state": {
+      "new": "新規",
+      "learning": "学習中",
+      "review": "復習",
+      "relearning": "再学習"
+    },
+    "rating": {
+      "again": "もう一度",
+      "hard": "難しい",
+      "good": "正解",
+      "easy": "簡単"
+    }
+  },
+  "srs": {
+    "title": "間隔反復学習（SRS）",
+    "completedCount": "復習済み: {count} 枚",
+    "sync": {
+      "syncing": "同期中...",
+      "pendingCount": "同期待ち: {count} 件",
+      "offline": "オフラインモード（ローカル保存中）",
+      "error": "同期エラー（自動再試行予定）",
+      "synced": "同期完了",
+      "syncNow": "今すぐ同期"
+    },
+    "finished": {
+      "title": "お疲れ様でした！今日の復習カードをすべて完了しました！",
+      "description": "{count} 枚のカードを復習しました。最適な復習タイミングが自動計算されます。",
+      "pendingSyncNotice": "{count} 件の復習データがローカルに保存されています。ネットワーク接続時にアップロードされます。",
+      "backToNotebook": "ノートに戻る"
+    }
+  },
+  "planner": {
+    "page": {
+      "title": "学習プラン・ロードマップ",
+      "subtitle": "日次進捗の追跡、試験カウントダウン、ストリーク維持、スケジュール自動再配分。"
+    },
+    "empty": {
+      "title": "学習プランが未設定です",
+      "description": "JLPT目標レベル、試験日、1日の学習時間を設定して、最適な学習プランを作成しましょう。"
+    },
+    "actions": {
+      "createPlan": "プランを作成",
+      "replan": "スケジュール再配分"
+    },
+    "finalSprint": {
+      "title": "直前追い込み期間",
+      "description": "試験が間近に迫っています！模擬試験の割合を増やし、本番での得点力を高めます。"
+    },
+    "overview": {
+      "target": "目標レベル",
+      "daysRemaining": "試験まであと {count} 日",
+      "streak": "連続学習ストリーク",
+      "daysUnit": "日",
+      "streakMotivation": "毎日学習を継続してストリークを伸ばしましょう！",
+      "completionRate": "進捗率",
+      "version": "プランバージョン",
+      "replanHint": "学習できなかった日を自動で再配分",
+      "minutesUnit": "分"
+    },
+    "session": {
+      "todayTitle": "今日の学習タスク",
+      "noSessionToday": "今日の学習タスクはすべて完了しているか、予定がありません。",
+      "statusCompleted": "完了済み",
+      "statusPending": "未完了",
+      "defaultTopic": "ロードマップに基づく総合学習",
+      "targetDuration": "目標時間: {minutes} 分",
+      "studyTimer": "学習時間",
+      "pauseTimer": "一時停止",
+      "startTimer": "タイマースタート",
+      "markComplete": "完了にする",
+      "completedSuccess": "今日の学習タスクを完了し、ストリークを更新しました！",
+      "congratulationsCompleted": "今日のタスクは完了しました！素晴らしい！"
+    },
+    "skills": {
+      "vocabulary": "文字・語彙",
+      "grammar": "文法",
+      "reading": "読解",
+      "listening": "聴解"
+    },
+    "create": {
+      "title": "新規学習プランの設定",
+      "missingDate": "試験日を選択してください。",
+      "error": "プランの作成に失敗しました。",
+      "targetLevel": "目標JLPTレベル",
+      "targetDate": "受験予定日",
+      "dailyMinutes": "1日の学習時間",
+      "durationDays": "プラン期間",
+      "focusSkills": "重点的に学習するスキル",
+      "submitButton": "プランを開始"
+    },
+    "replan": {
+      "title": "学習スケジュールの再配分（Replan）",
+      "description": "未完了の学習時間を今後のスケジュールに均等に再配分します。",
+      "error": "スケジュールの再配分に失敗しました。",
+      "reasonLabel": "調整の理由",
+      "reasonBusy": "急な予定・多忙",
+      "reasonTooHard": "学習負荷が高すぎるため軽減したい",
+      "reasonSick": "体調不良",
+      "reasonSpeedUp": "ペースを加速したい",
+      "noteLabel": "補足メモ",
+      "notePlaceholder": "メモを入力...",
+      "confirmButton": "再配分を実行",
+      "replanSuccess": "学習スケジュールを再配分しました！"
+    },
+    "reminders": {
+      "cardTitle": "学習リマインダー情報",
+      "activeBadge": "有効",
+      "description": "毎日の学習を忘れないよう、指定した時間にリマインダーを送信します。",
+      "dailyTime": "通知時間",
+      "recommendedSession": "今日の推奨学習量",
+      "mockInterval": "模擬試験の頻度",
+      "everyXDays": "{days} 日ごとに1回模擬試験",
+      "customizeInSettings": "通知設定でカスタマイズ"
+    }
+  },
+  "classroom": {
+    "page": {
+      "title": "クラス・指導ポータル",
+      "subtitle": "課題の配信、生徒の進捗・成績分析、コホートプライバシーの保護。"
+    },
+    "privacy": {
+      "isolatedBadge": "データ分離保護",
+      "teacherNotice": "教師モード: 生徒の分析データは所属組織ごとに完全に分離保護されています。",
+      "learnerNotice": "生徒モード: 成績および個人情報はプライベートに保護され、他の生徒には公開されません。"
+    },
+    "dashboard": {
+      "selectClass": "クラスを選択",
+      "exportGrades": "成績をエクスポート",
+      "createAssignment": "新規課題を配信",
+      "tabsAria": "クラス管理タブ",
+      "tabAssignments": "課題・試験 ({count})",
+      "tabMembers": "生徒名簿 ({count})",
+      "noAssignments": "現在配信されている課題はありません。",
+      "due": "締切",
+      "statusClosed": "締切済み",
+      "statusActive": "受付中",
+      "submissionsCount": "提出状況: {submitted}/{total}",
+      "viewProgress": "進捗を確認"
+    },
+    "assignment": {
+      "missingTitle": "課題名を入力してください。",
+      "createError": "課題の配信に失敗しました。",
+      "modalTitle": "クラスへ課題・試験を配信",
+      "titleLabel": "課題名",
+      "titlePlaceholder": "例: N3 模擬試験 第1回",
+      "examLabel": "対象の試験またはシャッフル設定",
+      "opensAtLabel": "開始日時 (UTC)",
+      "dueAtLabel": "締切日時 (UTC)",
+      "targetScope": "対象生徒",
+      "allLearners": "クラスの全生徒 ({count})",
+      "selectedLearnersOnly": "特定の生徒を指定",
+      "submitButton": "課題を配信する",
+      "createSuccess": "課題を配信しました！",
+      "supplementSuccess": "{count} 名の生徒に向けて補習課題を作成しました！",
+      "supplementError": "補習課題の作成に失敗しました。"
+    },
+    "analytics": {
+      "title": "課題の進捗と成績分析",
+      "loadError": "分析データの読み込みに失敗しました。",
+      "submissionRate": "提出率",
+      "averageScore": "平均スコア",
+      "passRate": "合格率",
+      "scoreRange": "最低 - 最高点",
+      "failingNotice": "{count} 名の生徒が合格点（90点/180点）に達していません。",
+      "createSupplement": "補習課題を作成",
+      "submissionsList": "生徒の提出一覧",
+      "noSubmissionsYet": "提出された課題はまだありません。",
+      "learner": "生徒",
+      "score": "スコア",
+      "result": "合否",
+      "submittedAt": "提出日時",
+      "passed": "合格",
+      "failed": "不合格"
+    },
+    "members": {
+      "name": "氏名",
+      "email": "メールアドレス",
+      "status": "ステータス",
+      "unknown": "未設定"
+    },
+    "export": {
+      "modalTitle": "成績エクスポート: {className}",
+      "description": "生徒の成績サマリーをダウンロードします。Formula Injection攻撃対策のサニタイズ処理済みです。",
+      "error": "エクスポートに失敗しました。",
+      "successMessage": "{count} 名分の成績をエクスポートしました（{format}形式）！",
+      "classLabel": "クラス",
+      "exportedAt": "出力日時",
+      "sanitizedNotice": "セキュリティ保護",
+      "sanitizedDetail": "特殊文字はエスケープ処理され、Excelでのスクリプト実行を防止します。",
+      "formatLabel": "ファイル形式",
+      "downloadButton": "エクスポートして保存"
+    }
+  },
+  "community": {
+    "events": {
+      "pageTitle": "オンライン模擬試験イベント待合室",
+      "pageSubtitle": "全国の受験者と一斉に受験するオンライン模擬試験イベント。標準スコアと順位判定。",
+      "registerError": "イベントへの参加登録に失敗しました。",
+      "startError": "まだ開始時間になっていないか、イベントが終了しました。",
+      "registeredBadge": "登録済み",
+      "unregisteredBadge": "未登録",
+      "participantCount": "{count} / {capacity} 人参加",
+      "startsIn": "試験開始までのカウントダウン",
+      "startsAtTime": "開始予定時刻: {time}",
+      "examLiveNow": "試験が開始されました！今すぐ受験してください！",
+      "enterExamRoom": "試験室に入る",
+      "eventEnded": "試験イベントは終了しました",
+      "registerNow": "参加登録する",
+      "embargoTitle": "結果非公開期間（エンバーゴ）",
+      "embargoDescription": "公平性を保つため、正解および順位表は {releaseTime} まで非公開となります。",
+      "officialLeaderboard": "公式ランキング",
+      "participant": "受験者",
+      "score": "スコア",
+      "timeSpent": "所要時間"
+    },
+    "discussions": {
+      "pageTitle": "問題ディスカッションと実績シェア",
+      "pageSubtitle": "問題演習完了後、先生や他の学習者と解説や解き方を共有できます。",
+      "simulateAttempted": "問題解答済み状態のテスト",
+      "gatedTitle": "問題漏洩防止のためディスカッションはロックされています",
+      "gatedDescription": "コミュニティの解説やコメントを見るには、まずこの問題を解いて提出してください。",
+      "postedSuccess": "コメントを投稿しました！",
+      "postedError": "コメントの投稿に失敗しました。",
+      "reportSuccess": "ご報告ありがとうございます。モデレーターが確認いたします。",
+      "reportError": "通報の送信に失敗しました。",
+      "title": "コミュニティディスカッション ({count})",
+      "inputPlaceholder": "質問や解法をシェア...",
+      "submitButton": "投稿する",
+      "noCommentsYet": "まだコメントがありません。最初のディスカッションを始めましょう！",
+      "moderatorBadge": "講師 / モデレーター",
+      "reportButton": "通報",
+      "reportModalTitle": "不適切なコメントを通報",
+      "reportReasonLabel": "通報理由",
+      "reasonSpoiler": "ネタバレ・試験問題の不正漏洩",
+      "reasonWrongAnswer": "重大な誤情報・誤った解説",
+      "reasonSpam": "スパム・宣伝行為",
+      "reasonHarassment": "誹謗中傷・不快な発言",
+      "reasonOther": "その他",
+      "reportDetailLabel": "詳細説明",
+      "reportDetailPlaceholder": "違反内容を簡潔に入力...",
+      "submitReport": "通報を送信"
+    },
+    "share": {
+      "cardTitle": "学習認定証・実績",
+      "anonymousLearner": "匿名学習者",
+      "defaultLearner": "JLPT Online 受験者",
+      "congratulations": "{name} さん、目標達成おめでとうございます！",
+      "scoreLabel": "スコア: {score}/180",
+      "streakLabel": "連続記録: {days} 日",
+      "hideNameOption": "認定証画像で実名を隠す（プライバシー保護）",
+      "copied": "共有リンクをコピーしました！",
+      "copyLink": "共有リンクをコピー"
+    }
+  },
+  "billing": {
+    "page": {
+      "title": "JLPT Online 会員プラン",
+      "subtitle": "本番形式の問題演習、無制限のシャッフル機能、詳細な解説をアンロック。"
+    },
+    "coupon": {
+      "sectionTitle": "プロモーションコード",
+      "invalidError": "クーポンコードが無効か、有効期限が切れています。",
+      "invalidErrorCode": "クーポンコード「{code}」は無効か期限切れです。",
+      "appliedDiscount": "{amount} 割引適用中",
+      "remove": "解除",
+      "placeholder": "クーポンコードを入力（例: JLPT2026）",
+      "applyButton": "適用"
+    },
+    "pricing": {
+      "free": "無料",
+      "monthly": "月",
+      "yearly": "年",
+      "lifetime": "買い切り",
+      "mostPopular": "一番人気",
+      "selectPlan": "このプランを選択",
+      "selectPlanAria": "プランを選択: {name}",
+      "selected": "選択中"
+    },
+    "features": {
+      "unlimitedExams": "N1〜N5 すべての問題に無制限アクセス",
+      "intelligentMix": "7つのモードによる弱点分析シャッフル",
+      "aiExplanations": "詳細な正解解説と誤答トラップ分析",
+      "audioTranscripts": "タイムコード付き著作権保護オーディオテキスト",
+      "srsSync": "マルチデバイス対応オフラインSRS同期"
+    },
+    "checkout": {
+      "title": "ご注文内容の確認・お支払い",
+      "error": "決済セッションの作成に失敗しました。",
+      "subtotal": "小計",
+      "discount": "割引額",
+      "total": "お支払い合計",
+      "sessionCreated": "決済セッションを作成しました（注文番号: {orderId}）。リダイレクト中...",
+      "payNowButton": "安全に決済へ進む"
+    },
+    "subscription": {
+      "cardTitle": "現在のサブスクリプション",
+      "statusActive": "有効",
+      "statusPastDue": "支払い期限超過",
+      "statusCancelled": "自動更新キャンセル済み",
+      "statusExpired": "期限切れ",
+      "statusNone": "無料プラン",
+      "cancelSuccess": "自動更新をキャンセルしました。期間満了まで引き続きご利用いただけます。",
+      "cancelError": "キャンセルの処理に失敗しました。",
+      "renewSuccess": "自動更新を再開しました！",
+      "renewError": "更新処理に失敗しました。",
+      "expiresAt": "有効期限",
+      "cancelAtPeriodEndNotice": "現在の期間満了時に終了し、次回以降の請求は発生しません。",
+      "cancelAction": "自動更新を停止",
+      "renewAction": "プランを再開"
+    },
+    "transactions": {
+      "cardTitle": "購入履歴と請求書",
+      "statusPaid": "支払完了",
+      "statusPending": "処理中",
+      "statusRefunded": "返金済み",
+      "empty": "取引履歴はありません。",
+      "orderId": "注文ID",
+      "date": "取引日時",
+      "amount": "金額",
+      "status": "状態",
+      "actions": "操作"
+    },
+    "refund": {
+      "statusRequested": "返金リクエスト中",
+      "statusRefunded": "返金完了",
+      "statusRejected": "返金却下",
+      "requestSubmittedNotice": "注文 {orderId} の返金リクエストを受け付けました。状態: {status}",
+      "requestButton": "返金を申請",
+      "requestButtonAria": "注文 {orderId} の返金を申請",
+      "modalTitle": "返金申請フォーム",
+      "modalDescription": "注文 {orderId}（{amount}）の返金リクエストです。返金ポリシーに基づき3〜5営業日以内に処理されます。",
+      "submitError": "返金リクエストの送信に失敗しました。",
+      "reasonLabel": "返金理由",
+      "reasonPlaceholder": "返金理由を詳しくご記入ください...",
+      "submitButton": "返金申請を送信"
     }
   }
 }

@@ -8,6 +8,12 @@ import RegisterPage from '../app/(auth)/dang-ky/page';
 import ForgotPasswordPage from '../app/(auth)/quen-mat-khau/page';
 import ResetPasswordPage from '../app/(auth)/dat-lai-mat-khau/page';
 import AccountPage from '../app/(account)/tai-khoan/page';
+import NotebookPage from '../app/(learning)/so-tay/page';
+import PlannerPage from '../app/(planner)/ke-hoach/page';
+import ClassroomPage from '../app/(classroom)/lop-hoc/page';
+import ExamEventPage from '../app/(community)/su-kien/page';
+import DiscussionsPage from '../app/(community)/thao-luan/page';
+import MembershipPage from '../app/(billing)/goi-thanh-vien/page';
 
 const h = React.createElement;
 
@@ -114,5 +120,78 @@ describe('Web Application Accessibility (SYS-14 & WCAG 2.1 AA)', () => {
     expect(html).toContain('role="tabpanel"');
     expect(html).toContain('for="target-level-select"');
     expect(html).toContain('id="target-level-select"');
+  });
+
+  it('NotebookPage includes accessible headings, search input, filters and ARIA tablist', () => {
+    const html = renderToString(
+      h(Providers, null, h(NotebookPage)),
+    );
+
+    expect(html).toContain('<h1');
+    expect(html).toContain('role="tablist"');
+    expect(html).toContain('role="tab"');
+    expect(html).toContain('id="notebook-search"');
+    expect(html).toContain('data-testid="export-csv-button"');
+    expect(html).toContain('data-testid="add-item-button"');
+  });
+
+  it('PlannerPage provides accessible plan overview, streak indicator and today runner', () => {
+    const html = renderToString(
+      h(Providers, null, h(PlannerPage)),
+    );
+
+    expect(html).toContain('<h1');
+    expect(html).toContain('data-testid="today-session-card"');
+    expect(html).toContain('data-testid="replan-button"');
+    expect(html).toContain('data-testid="reminder-settings-card"');
+  });
+
+  it('ClassroomPage provides accessible cohort privacy badge, class selector and tabs', () => {
+    const html = renderToString(
+      h(Providers, null, h(ClassroomPage)),
+    );
+
+    expect(html).toContain('<h1');
+    expect(html).toContain('data-testid="cohort-privacy-badge"');
+    expect(html).toContain('id="select-class-dropdown"');
+    expect(html).toContain('role="tablist"');
+    expect(html).toContain('data-testid="open-create-assignment-button"');
+    expect(html).toContain('data-testid="open-export-modal-button"');
+  });
+
+  it('ExamEventPage provides accessible event countdown, lobby card and registration controls', () => {
+    const html = renderToString(
+      h(Providers, null, h(ExamEventPage)),
+    );
+
+    expect(html).toContain('<h1');
+    expect(html).toContain('data-testid="event-lobby-card"');
+    expect(html).toContain('data-testid="lobby-countdown"');
+    expect(html).toContain('data-testid="embargo-notice"');
+  });
+
+  it('DiscussionsPage provides accessible comment thread and gated completion controls', () => {
+    const html = renderToString(
+      h(Providers, null, h(DiscussionsPage)),
+    );
+
+    expect(html).toContain('<h1');
+    expect(html).toContain('data-testid="question-discussions-view"');
+    expect(html).toContain('id="discussion-comment-input"');
+    expect(html).toContain('data-testid="post-comment-button"');
+    expect(html).toContain('data-testid="achievement-share-card"');
+  });
+
+  it('MembershipPage provides accessible pricing matrix, coupon input and checkout summary', () => {
+    const html = renderToString(
+      h(Providers, null, h(MembershipPage)),
+    );
+
+    expect(html).toContain('<h1');
+    expect(html).toContain('data-testid="pricing-table"');
+    expect(html).toContain('data-testid="coupon-code-input"');
+    expect(html).toContain('data-testid="apply-coupon-button"');
+    expect(html).toContain('data-testid="checkout-card"');
+    expect(html).toContain('data-testid="confirm-checkout-button"');
   });
 });

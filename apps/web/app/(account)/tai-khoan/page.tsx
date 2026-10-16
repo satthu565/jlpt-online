@@ -16,12 +16,18 @@ import {
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import type { SessionItem } from '../../../lib/auth-client';
+import { NotificationSettings } from '../../../features/account/notification-settings';
+import { PrivacySettings } from '../../../features/account/privacy-settings';
+import { SubscriptionStatusCard } from '../../../features/billing/components/subscription-status-card';
+import { TransactionHistoryCard } from '../../../features/billing/components/transaction-history-card';
+import { defaultBillingClient } from '../../../features/billing/services/billing-client';
+import type { UserSubscription, TransactionItem } from '../../../features/billing/types';
 
 export default function AccountPage(): React.JSX.Element {
   const { t } = useI18n();
   const { user, client, refreshUser } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'sessions'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'sessions' | 'notifications' | 'billing' | 'privacy'>('profile');
   const [name, setName] = useState('');
   const [targetLevel, setTargetLevel] = useState<'N1' | 'N2' | 'N3' | 'N4' | 'N5'>('N3');
   const [saving, setSaving] = useState(false);
@@ -31,6 +37,10 @@ export default function AccountPage(): React.JSX.Element {
   const [sessions, setSessions] = useState<SessionItem[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(false);
   const [sessionToRevoke, setSessionToRevoke] = useState<string | null>(null);
+
+  // Billing state
+  const [subscription, setSubscription] = useState<UserSubscription>({ status: 'none' });
+  const [transactions, setTransactions] = useState<TransactionItem[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -47,16 +57,28 @@ export default function AccountPage(): React.JSX.Element {
       const res = await client.getSessions();
       setSessions(res.items || []);
     } catch {
-      // Offline fallback
       setSessions([]);
     } finally {
       setSessionsLoading(false);
     }
   };
 
+  const loadBillingData = async () => {
+    try {
+      const sub = await defaultBillingClient.getUserSubscription();
+      setSubscription(sub);
+      const txs = await defaultBillingClient.getUserTransactions();
+      setTransactions(txs.items || []);
+    } catch {
+      // Fallback
+    }
+  };
+
   useEffect(() => {
     if (activeTab === 'sessions') {
       loadSessions();
+    } else if (activeTab === 'billing') {
+      loadBillingData();
     }
   }, [activeTab]);
 
@@ -112,7 +134,7 @@ export default function AccountPage(): React.JSX.Element {
   ];
 
   return (
-    <div className="container" style={{ padding: '3rem 1rem', maxWidth: '800px' }}>
+    <div className="container" style={{ padding: '3rem 1rem', maxWidth: '840px', margin: '0 auto' }}>
       <div style={{ marginBottom: '2rem' }}>
         <h1
           style={{
@@ -145,6 +167,7 @@ export default function AccountPage(): React.JSX.Element {
         aria-label={t('account.tabs.ariaLabel')}
         style={{
           display: 'flex',
+          flexWrap: 'wrap',
           gap: '0.5rem',
           borderBottom: '1px solid var(--border-subtle)',
           marginBottom: '2rem',
@@ -176,6 +199,52 @@ export default function AccountPage(): React.JSX.Element {
         <button
           type="button"
           role="tab"
+          aria-selected={activeTab === 'notifications'}
+          aria-controls="notifications-panel"
+          id="notifications-tab"
+          onClick={() => setActiveTab('notifications')}
+          style={{
+            padding: '0.75rem 1.25rem',
+            fontWeight: 600,
+            fontSize: '0.9375rem',
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            color: activeTab === 'notifications' ? 'var(--color-primary)' : 'var(--text-muted)',
+            borderBottom: activeTab === 'notifications' ? '2px solid var(--color-primary)' : '2px solid transparent',
+            marginBottom: '-1px',
+            minHeight: '44px',
+          }}
+        >
+          {t('account.tabs.notifications')}
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'billing'}
+          aria-controls="billing-panel"
+          id="billing-tab"
+          onClick={() => setActiveTab('billing')}
+          style={{
+            padding: '0.75rem 1.25rem',
+            fontWeight: 600,
+            fontSize: '0.9375rem',
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            color: activeTab === 'billing' ? 'var(--color-primary)' : 'var(--text-muted)',
+            borderBottom: activeTab === 'billing' ? '2px solid var(--color-primary)' : '2px solid transparent',
+            marginBottom: '-1px',
+            minHeight: '44px',
+          }}
+        >
+          {t('account.tabs.billing')}
+        </button>
+
+        <button
+          type="button"
+          role="tab"
           aria-selected={activeTab === 'sessions'}
           aria-controls="sessions-panel"
           id="sessions-tab"
@@ -195,85 +264,137 @@ export default function AccountPage(): React.JSX.Element {
         >
           {t('account.tabs.sessions')}
         </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'privacy'}
+          aria-controls="privacy-panel"
+          id="privacy-tab"
+          onClick={() => setActiveTab('privacy')}
+          style={{
+            padding: '0.75rem 1.25rem',
+            fontWeight: 600,
+            fontSize: '0.9375rem',
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            color: activeTab === 'privacy' ? 'var(--color-primary)' : 'var(--text-muted)',
+            borderBottom: activeTab === 'privacy' ? '2px solid var(--color-primary)' : '2px solid transparent',
+            marginBottom: '-1px',
+            minHeight: '44px',
+          }}
+        >
+          {t('account.tabs.privacy')}
+        </button>
       </div>
 
       {/* Tab 1: Profile & Target Level */}
       {activeTab === 'profile' && (
         <div id="profile-panel" role="tabpanel" aria-labelledby="profile-tab">
-          <Card elevated>
+          <Card>
             <CardHeader>
-              <CardTitle as="h2">{t('account.tabs.profile')}</CardTitle>
+              <CardTitle>{t('account.profile.title')}</CardTitle>
             </CardHeader>
             <CardContent>
-              {/* Profile summary info */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                  gap: '1rem',
-                  padding: '1.25rem',
-                  borderRadius: '8px',
-                  backgroundColor: 'var(--bg-muted)',
-                  marginBottom: '1.5rem',
-                }}
-              >
+              <form onSubmit={handleUpdateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  <label
+                    htmlFor="user-email"
+                    style={{
+                      display: 'block',
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      marginBottom: '0.5rem',
+                      color: 'var(--text-primary)',
+                    }}
+                  >
                     {t('account.profile.email')}
-                  </div>
-                  <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {user?.email || 'user@example.com'}
-                  </div>
+                  </label>
+                  <Input
+                    id="user-email"
+                    value={user?.email || ''}
+                    disabled
+                    aria-readonly="true"
+                    style={{ backgroundColor: 'var(--bg-muted)' }}
+                  />
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'block' }}>
+                    {t('account.profile.emailNotice')}
+                  </span>
                 </div>
 
                 <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    {t('account.profile.role')}
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '2px' }}>
-                    <Badge variant="neutral">{user?.role || 'student'}</Badge>
-                    {user?.emailVerified ? (
-                      <Badge variant="success">{t('account.profile.emailVerified')}</Badge>
-                    ) : (
-                      <Badge variant="warning">{t('account.profile.emailUnverified')}</Badge>
-                    )}
-                  </div>
+                  <label
+                    htmlFor="user-name"
+                    style={{
+                      display: 'block',
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      marginBottom: '0.5rem',
+                      color: 'var(--text-primary)',
+                    }}
+                  >
+                    {t('account.profile.name')}
+                  </label>
+                  <Input
+                    id="user-name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder={t('account.profile.namePlaceholder')}
+                  />
                 </div>
 
-                {/* ACC-10: Completed Exams */}
                 <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    {t('account.profile.completedExams')}
-                  </div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-primary)' }}>
-                    {user?.completedExams ?? 0} {t('account.profile.completedExamsUnit')}
-                  </div>
+                  <label
+                    htmlFor="target-level-select"
+                    style={{
+                      display: 'block',
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      marginBottom: '0.5rem',
+                      color: 'var(--text-primary)',
+                    }}
+                  >
+                    {t('account.profile.targetLevel')}
+                  </label>
+                  <Select
+                    id="target-level-select"
+                    value={targetLevel}
+                    onChange={(e) => setTargetLevel(e.target.value as 'N1' | 'N2' | 'N3' | 'N4' | 'N5')}
+                    options={levelOptions}
+                  />
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'block' }}>
+                    {t('account.profile.targetLevelDesc')}
+                  </span>
                 </div>
-              </div>
 
-              {/* Edit Profile Form */}
-              <form onSubmit={handleUpdateProfile}>
-                <Input
-                  label={t('account.profile.name')}
-                  id="profile-name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder={t('auth.register.namePlaceholder')}
-                />
+                {user?.completedExams !== undefined && (
+                  <div
+                    style={{
+                      padding: '1rem',
+                      borderRadius: '8px',
+                      backgroundColor: 'var(--bg-muted)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                      {t('account.profile.completedExams')}
+                    </span>
+                    <Badge variant="primary" style={{ fontSize: '1rem', padding: '4px 12px' }}>
+                      {user.completedExams} {t('account.profile.completedExamsUnit')}
+                    </Badge>
+                  </div>
+                )}
 
-                {/* ACC-07: JLPT Target Level N1-N5 */}
-                <Select
-                  label={t('account.profile.targetLevel')}
-                  id="target-level-select"
-                  options={levelOptions}
-                  value={targetLevel}
-                  onChange={(e) => setTargetLevel(e.target.value as 'N1' | 'N2' | 'N3' | 'N4' | 'N5')}
-                  hint={t('account.profile.targetLevelHint')}
-                />
-
-                <div style={{ marginTop: '1.5rem' }}>
-                  <Button type="submit" variant="primary" loading={saving}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    loading={saving}
+                    disabled={saving}
+                  >
                     {saving ? t('account.profile.saving') : t('account.profile.saveButton')}
                   </Button>
                 </div>
@@ -283,17 +404,64 @@ export default function AccountPage(): React.JSX.Element {
         </div>
       )}
 
-      {/* Tab 2: Sessions Management (ACC-12) */}
+      {/* Tab 2: Notifications */}
+      {activeTab === 'notifications' && (
+        <div id="notifications-panel" role="tabpanel" aria-labelledby="notifications-tab">
+          <NotificationSettings
+            onSave={async (prefs) => {
+              // Connect to /me/notification-preferences
+              const url = `${(process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '')}/me/notification-preferences`;
+              const token = client.getAuthToken();
+              await fetch(url, {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json',
+                  ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+                body: JSON.stringify(prefs),
+                credentials: 'include',
+              });
+            }}
+          />
+        </div>
+      )}
+
+      {/* Tab 3: Billing & Transactions */}
+      {activeTab === 'billing' && (
+        <div id="billing-panel" role="tabpanel" aria-labelledby="billing-tab" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <SubscriptionStatusCard
+            subscription={subscription}
+            onCancel={async () => {
+              await defaultBillingClient.cancelSubscription();
+              await loadBillingData();
+            }}
+            onRenew={async () => {
+              await defaultBillingClient.renewSubscription();
+              await loadBillingData();
+            }}
+          />
+
+          <TransactionHistoryCard
+            transactions={transactions}
+            onRequestRefund={async (input) => {
+              return defaultBillingClient.requestRefund(input);
+            }}
+          />
+        </div>
+      )}
+
+      {/* Tab 4: Sessions */}
       {activeTab === 'sessions' && (
         <div id="sessions-panel" role="tabpanel" aria-labelledby="sessions-tab">
-          <Card elevated>
-            <CardHeader style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Card>
+            <CardHeader style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <CardTitle as="h2">{t('account.sessions.title')}</CardTitle>
-                <p style={{ margin: '0.25rem 0 0 0', color: 'var(--text-secondary)' }}>
+                <CardTitle>{t('account.sessions.title')}</CardTitle>
+                <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
                   {t('account.sessions.description')}
                 </p>
               </div>
+
               {sessions.length > 1 && (
                 <Button
                   variant="outline"
@@ -304,21 +472,18 @@ export default function AccountPage(): React.JSX.Element {
                 </Button>
               )}
             </CardHeader>
+
             <CardContent>
-              {sessionsLoading && (
-                <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+              {sessionsLoading ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
                   {t('common.status.loading')}
                 </div>
-              )}
-
-              {!sessionsLoading && sessions.length === 0 && (
-                <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+              ) : sessions.length === 0 ? (
+                <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem 0' }}>
                   {t('account.sessions.empty')}
-                </div>
-              )}
-
-              {!sessionsLoading && sessions.length > 0 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                </p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {sessions.map((item) => (
                     <div
                       key={item.id}
@@ -329,22 +494,27 @@ export default function AccountPage(): React.JSX.Element {
                         padding: '1rem',
                         borderRadius: '8px',
                         border: '1px solid var(--border-subtle)',
-                        backgroundColor: item.isCurrent ? 'var(--color-primary-light)' : 'var(--bg-muted)',
+                        backgroundColor: item.isCurrent ? 'var(--bg-muted)' : 'transparent',
                       }}
                     >
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                            {item.userAgent || t('account.sessions.defaultBrowser')}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <span style={{ fontSize: '1.5rem' }}>
+                          {item.userAgent?.includes('Mobile') ? '📱' : '💻'}
+                        </span>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>
+                              {item.userAgent || t('account.sessions.defaultBrowser')}
+                            </span>
+                            {item.isCurrent && (
+                              <Badge variant="success">
+                                {t('account.sessions.currentDevice')}
+                              </Badge>
+                            )}
+                          </div>
+                          <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+                            IP: {item.ipAddress || '127.0.0.1'} • {t('account.sessions.createdAt')}: {new Date(item.createdAt).toLocaleDateString()}
                           </span>
-                          {item.isCurrent && (
-                            <Badge variant="success" size="sm">
-                              {t('account.sessions.currentDevice')}
-                            </Badge>
-                          )}
-                        </div>
-                        <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                          IP: {item.ipAddress || '127.0.0.1'} • {new Date(item.createdAt).toLocaleString()}
                         </div>
                       </div>
 
@@ -364,6 +534,40 @@ export default function AccountPage(): React.JSX.Element {
               )}
             </CardContent>
           </Card>
+        </div>
+      )}
+
+      {/* Tab 5: Privacy */}
+      {activeTab === 'privacy' && (
+        <div id="privacy-panel" role="tabpanel" aria-labelledby="privacy-tab">
+          <PrivacySettings
+            onExportData={async () => {
+              const url = `${(process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '')}/data-exports`;
+              const token = client.getAuthToken();
+              const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+                credentials: 'include',
+              });
+              return res.json();
+            }}
+            onRequestDeletion={async () => {
+              const url = `${(process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '')}/deletion-request`;
+              const token = client.getAuthToken();
+              const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+                credentials: 'include',
+              });
+              return res.json();
+            }}
+          />
         </div>
       )}
 

@@ -13,7 +13,12 @@
       "account": "Account",
       "login": "Sign In",
       "register": "Sign Up",
-      "logout": "Sign Out"
+      "logout": "Sign Out",
+      "notebook": "Notebook",
+      "planner": "Planner",
+      "classroom": "Classroom",
+      "events": "Exam Events",
+      "pricing": "Membership"
     },
     "footer": {
       "about": "About Us",
@@ -162,7 +167,10 @@
     "tabs": {
       "ariaLabel": "Account Settings Tabs",
       "profile": "Profile",
-      "sessions": "Devices & Sessions"
+      "sessions": "Devices & Sessions",
+      "notifications": "Notifications & Reminders",
+      "billing": "Subscription & Billing",
+      "privacy": "Privacy & Data"
     },
     "profile": {
       "name": "Full Name",
@@ -205,6 +213,38 @@
       "revokeError": "Unable to revoke session.",
       "revokeAllError": "Unable to sign out other devices.",
       "empty": "No other active sessions found."
+    },
+    "notifications": {
+      "title": "Notification Preferences",
+      "saveSuccess": "Notification preferences saved successfully!",
+      "saveError": "Failed to save notification preferences.",
+      "emailUpdates": "Email updates",
+      "emailUpdatesDesc": "Receive weekly study progress reports and lesson recommendations via email.",
+      "examReminders": "Exam reminders",
+      "examRemindersDesc": "Notify before exam events start and assignment submission deadlines.",
+      "streakAlerts": "Study streak alerts",
+      "streakAlertsDesc": "Remind you to complete today's session before midnight to preserve your streak.",
+      "quietHoursTitle": "Quiet Hours",
+      "quietHoursDesc": "Pause all push notifications during this time window.",
+      "quietStart": "Start time",
+      "quietEnd": "End time",
+      "saveButton": "Save Notification Settings"
+    },
+    "privacy": {
+      "cardTitle": "Privacy & Personal Data (GDPR)",
+      "exportSuccess": "Personal data exported successfully!",
+      "exportError": "Failed to export personal data.",
+      "deletionScheduledNotice": "Account deletion request received and scheduled safely in accordance with data retention regulations.",
+      "deletionError": "Failed to submit account deletion request.",
+      "exportTitle": "Export Personal Data (Data Portability)",
+      "exportDesc": "Download all exam history, notebook flashcards, and learning logs in a secure JSON format.",
+      "exportButton": "Download JSON Data",
+      "deleteAccountTitle": "Delete Account (Right to be Forgotten)",
+      "deleteAccountDesc": "Permanently delete all personal identifiable information in compliance with GDPR and retention standards.",
+      "deleteAccountButton": "Request Account Deletion",
+      "deleteModalTitle": "Confirm Account Deletion Request",
+      "deleteModalWarning": "This action will revoke all sessions and schedule the deletion of your personal data. Accounting and invoice records will be retained in anonymized form as required by law.",
+      "confirmDeletionButton": "Confirm Account Deletion"
     }
   },
   "home": {
@@ -230,6 +270,429 @@
       "smartSRS": "Spaced Repetition System (SRS) to reinforce vocabulary and kanji retention.",
       "analyticsTitle": "Analytics & Reports",
       "analytics": "Visual progress tracking highlighting your strengths and areas needing improvement."
+    }
+  },
+  "notebook": {
+    "page": {
+      "title": "Personal Vocabulary & Grammar Notebook",
+      "subtitle": "Manage vocabulary, grammar patterns, smart SRS flashcard reviews, and mini quizzes.",
+      "tabsAria": "Notebook Modes"
+    },
+    "tabs": {
+      "notebook": "Notebook List",
+      "srsReview": "SRS Review",
+      "quiz": "Mini Quiz"
+    },
+    "filters": {
+      "searchLabel": "Search term or meaning",
+      "searchPlaceholder": "Search vocab, grammar, tags...",
+      "kindLabel": "Content Type",
+      "allKinds": "All Types",
+      "statusLabel": "Status",
+      "allStatus": "All Statuses"
+    },
+    "kinds": {
+      "vocab": "Vocabulary",
+      "grammar": "Grammar",
+      "kanji": "Kanji"
+    },
+    "status": {
+      "learning": "Learning",
+      "mastered": "Mastered"
+    },
+    "actions": {
+      "exportCsv": "Export CSV",
+      "addItem": "Add Item",
+      "playAudio": "Play pronunciation for {term}",
+      "markUnmastered": "Mark as Learning",
+      "markMastered": "Mark as Mastered",
+      "viewExamples": "Exam Examples",
+      "deleteItem": "Delete item {term}"
+    },
+    "countSummary": "Showing {count} of {total} items",
+    "empty": {
+      "title": "Your notebook is empty",
+      "description": "Save vocabulary and grammar encountered during practice into your notebook for spaced repetition review."
+    },
+    "form": {
+      "requiredFields": "Please enter both the term and meaning.",
+      "createError": "Failed to save notebook item.",
+      "kind": "Category",
+      "term": "Term / Grammar / Kanji",
+      "termPlaceholder": "e.g. 躊躇, 〜を皮切りに...",
+      "reading": "Reading (Furigana)",
+      "readingPlaceholder": "e.g. ちゅうちょ",
+      "meaning": "Meaning",
+      "meaningPlaceholder": "e.g. Hesitation, wavering",
+      "notes": "Notes & usage",
+      "notesPlaceholder": "e.g. Often used as 躊躇なく...",
+      "tags": "Tags (comma separated)",
+      "tagsPlaceholder": "N1, Difficult, Reading",
+      "submitButton": "Save to Notebook"
+    },
+    "modal": {
+      "addTitle": "Add New Term / Grammar"
+    },
+    "examples": {
+      "title": "Exam Question Examples Containing '{term}'",
+      "subtitle": "Past exam questions and practice items featuring '{term}':",
+      "noExamplesFound": "No exam question examples found for this item yet."
+    },
+    "quiz": {
+      "questionProgress": "Question {current} of {total}",
+      "correct": "Correct!",
+      "incorrect": "Incorrect!",
+      "viewResults": "View Quiz Results",
+      "completedTitle": "Notebook Quiz Completed!",
+      "scoreSummary": "You scored {score}/{total} ({percent}%)",
+      "retake": "Retake Quiz",
+      "finish": "Return to Notebook"
+    }
+  },
+  "flashcards": {
+    "progress": "Card {current} of {total}",
+    "interval": "Interval: {days} days",
+    "flipToFront": "Flip to Front",
+    "flipToBack": "Flip to Back",
+    "playAudio": "Play Audio",
+    "clickOrSpaceToFlip": "Click or press Space to flip",
+    "examplesTitle": "Example sentences",
+    "showAnswer": "Show Answer (Space)",
+    "state": {
+      "new": "New",
+      "learning": "Learning",
+      "review": "Review",
+      "relearning": "Relearning"
+    },
+    "rating": {
+      "again": "Again",
+      "hard": "Hard",
+      "good": "Good",
+      "easy": "Easy"
+    }
+  },
+  "srs": {
+    "title": "SRS Spaced Repetition",
+    "completedCount": "Reviewed: {count} cards",
+    "sync": {
+      "syncing": "Syncing reviews...",
+      "pendingCount": "Pending sync: {count}",
+      "offline": "Offline mode (Saved locally)",
+      "error": "Sync error (Will retry automatically)",
+      "synced": "Synced with server",
+      "syncNow": "Sync Now"
+    },
+    "finished": {
+      "title": "Great job! You finished all due review cards for today!",
+      "description": "You successfully completed {count} review cards. The system calculates optimal repetition intervals for each card.",
+      "pendingSyncNotice": "You have {count} review entries stored locally. They will be uploaded when online.",
+      "backToNotebook": "Return to Notebook"
+    }
+  },
+  "planner": {
+    "page": {
+      "title": "Personal Study Plan & Roadmap",
+      "subtitle": "Daily progress tracking, exam countdown, streak maintenance, and automated replanning."
+    },
+    "empty": {
+      "title": "No active study plan",
+      "description": "Set your target JLPT level, exam date, and daily study time to generate an optimal study schedule."
+    },
+    "actions": {
+      "createPlan": "Create Study Plan",
+      "replan": "Replan Schedule"
+    },
+    "finalSprint": {
+      "title": "Final Sprint Period",
+      "description": "Exam date is approaching! The schedule automatically emphasizes mock exams to sharpen test reflexes."
+    },
+    "overview": {
+      "target": "Target Level",
+      "daysRemaining": "{count} days until exam",
+      "streak": "Study Streak",
+      "daysUnit": "days",
+      "streakMotivation": "Keep studying daily to maintain your streak!",
+      "completionRate": "Progress",
+      "version": "Plan Version",
+      "replanHint": "Automatically redistributes missed study sessions",
+      "minutesUnit": "mins"
+    },
+    "session": {
+      "todayTitle": "Today's Study Session",
+      "noSessionToday": "No study sessions scheduled for today, or all tasks are already completed!",
+      "statusCompleted": "Completed",
+      "statusPending": "Pending",
+      "defaultTopic": "Roadmap Comprehensive Review",
+      "targetDuration": "Target duration: {minutes} mins",
+      "studyTimer": "Time spent",
+      "pauseTimer": "Pause",
+      "startTimer": "Start Timer",
+      "markComplete": "Mark Completed",
+      "completedSuccess": "Congratulations on completing today's study session and extending your streak!",
+      "congratulationsCompleted": "You have completed today's study task!"
+    },
+    "skills": {
+      "vocabulary": "Vocabulary",
+      "grammar": "Grammar",
+      "reading": "Reading",
+      "listening": "Listening"
+    },
+    "create": {
+      "title": "Setup New Study Plan",
+      "missingDate": "Please select your target exam date.",
+      "error": "Failed to create study plan.",
+      "targetLevel": "Target JLPT Level",
+      "targetDate": "Target Exam Date",
+      "dailyMinutes": "Daily Study Time",
+      "durationDays": "Plan Duration",
+      "focusSkills": "Focus Skills",
+      "submitButton": "Start Plan"
+    },
+    "replan": {
+      "title": "Replan Study Schedule",
+      "description": "The system recalculates missed study sessions and redistributes remaining study minutes evenly across upcoming days.",
+      "error": "Failed to replan study schedule.",
+      "reasonLabel": "Reason for adjustment",
+      "reasonBusy": "Busy with urgent matters",
+      "reasonTooHard": "Pace is too heavy, need lighter workload",
+      "reasonSick": "Health issues",
+      "reasonSpeedUp": "Want to accelerate pace",
+      "noteLabel": "Additional notes",
+      "notePlaceholder": "Enter any notes...",
+      "confirmButton": "Confirm Replan",
+      "replanSuccess": "Study schedule successfully replanned!"
+    },
+    "reminders": {
+      "cardTitle": "Study Reminder Info",
+      "activeBadge": "Active",
+      "description": "The system sends daily reminders so you never miss a study session.",
+      "dailyTime": "Reminder Time",
+      "recommendedSession": "Today's Recommended Load",
+      "mockInterval": "Mock Exam Interval",
+      "everyXDays": "Every {days} days",
+      "customizeInSettings": "Customize in Notification Settings"
+    }
+  },
+  "classroom": {
+    "page": {
+      "title": "Classroom & Teacher Portal",
+      "subtitle": "Assign mock exams, track student progress, export gradebooks, and enforce cohort privacy."
+    },
+    "privacy": {
+      "isolatedBadge": "Cohort Isolated",
+      "teacherNotice": "Teacher mode: Student analytics data is strictly isolated by organization tenant.",
+      "learnerNotice": "Learner mode: Your scores and personal data are private and hidden from peers."
+    },
+    "dashboard": {
+      "selectClass": "Select Class",
+      "exportGrades": "Export Grades",
+      "createAssignment": "Assign Homework",
+      "tabsAria": "Classroom Management Tabs",
+      "tabAssignments": "Assignments & Exams ({count})",
+      "tabMembers": "Student Roster ({count})",
+      "noAssignments": "No assignments have been distributed yet.",
+      "due": "Due",
+      "statusClosed": "Closed",
+      "statusActive": "Active",
+      "submissionsCount": "Submissions: {submitted}/{total}",
+      "viewProgress": "View Progress"
+    },
+    "assignment": {
+      "missingTitle": "Please enter assignment title.",
+      "createError": "Failed to create assignment.",
+      "modalTitle": "Assign Exam / Homework to Class",
+      "titleLabel": "Assignment Title",
+      "titlePlaceholder": "e.g. Week 1 N3 Mock Exam",
+      "examLabel": "Select Exam or Mix Configuration",
+      "opensAtLabel": "Opens At (UTC)",
+      "dueAtLabel": "Due At (UTC)",
+      "targetScope": "Target Learners",
+      "allLearners": "All students in class ({count})",
+      "selectedLearnersOnly": "Specific students only",
+      "submitButton": "Distribute Assignment",
+      "createSuccess": "Assignment distributed successfully!",
+      "supplementSuccess": "Supplement assignment created for {count} learners!",
+      "supplementError": "Failed to create supplement assignment."
+    },
+    "analytics": {
+      "title": "Assignment Progress & Score Analytics",
+      "loadError": "Failed to load assignment analytics.",
+      "submissionRate": "Submission Rate",
+      "averageScore": "Average Score",
+      "passRate": "Pass Rate",
+      "scoreRange": "Min - Max Score",
+      "failingNotice": "{count} students scored below pass mark (90/180).",
+      "createSupplement": "Create Supplement Assignment",
+      "submissionsList": "Student Submissions List",
+      "noSubmissionsYet": "No students have submitted this assignment yet.",
+      "learner": "Student",
+      "score": "Score",
+      "result": "Result",
+      "submittedAt": "Submitted At",
+      "passed": "Passed",
+      "failed": "Failed"
+    },
+    "members": {
+      "name": "Name",
+      "email": "Email",
+      "status": "Status",
+      "unknown": "Unnamed"
+    },
+    "export": {
+      "modalTitle": "Export Gradebook: {className}",
+      "description": "Download summary gradebook. Sanitized against formula injection.",
+      "error": "Failed to export gradebook.",
+      "successMessage": "Successfully exported grades for {count} learners ({format})!",
+      "classLabel": "Class",
+      "exportedAt": "Exported At",
+      "sanitizedNotice": "Security Guard",
+      "sanitizedDetail": "Special characters escaped to prevent spreadsheet formula injection.",
+      "formatLabel": "File Format",
+      "downloadButton": "Export & Download"
+    }
+  },
+  "community": {
+    "events": {
+      "pageTitle": "Exam Event Lobby",
+      "pageSubtitle": "Join real-time synchronized national mock exams with thousands of test takers.",
+      "registerError": "Failed to register for exam event.",
+      "startError": "Exam not started or already closed.",
+      "registeredBadge": "Registered",
+      "unregisteredBadge": "Not Registered",
+      "participantCount": "{count} / {capacity} participants",
+      "startsIn": "Countdown until exam starts",
+      "startsAtTime": "Official start time: {time}",
+      "examLiveNow": "Exam room is open! Enter now!",
+      "enterExamRoom": "Enter Exam Room",
+      "eventEnded": "Exam event ended",
+      "registerNow": "Register Now",
+      "embargoTitle": "Results Embargo Period",
+      "embargoDescription": "To ensure fair testing, answer keys and rankings are under strict embargo until {releaseTime}.",
+      "officialLeaderboard": "Official Leaderboard",
+      "participant": "Participant",
+      "score": "Score",
+      "timeSpent": "Time Spent"
+    },
+    "discussions": {
+      "pageTitle": "Question Discussions & Achievements",
+      "pageSubtitle": "Discuss question solutions with teachers and learners after completing tests.",
+      "simulateAttempted": "Simulate question attempted",
+      "gatedTitle": "Discussion Locked to Prevent Answer Leaks",
+      "gatedDescription": "You must complete and submit this question in an exam before unlocking community discussions.",
+      "postedSuccess": "Comment posted successfully!",
+      "postedError": "Failed to post comment.",
+      "reportSuccess": "Thank you for reporting. Moderators will review this comment.",
+      "reportError": "Failed to submit report.",
+      "title": "Community Discussions ({count})",
+      "inputPlaceholder": "Ask a question or share your approach...",
+      "submitButton": "Post Comment",
+      "noCommentsYet": "No comments yet. Be the first to start the discussion!",
+      "moderatorBadge": "Teacher / Moderator",
+      "reportButton": "Report",
+      "reportModalTitle": "Report Inappropriate Comment",
+      "reportReasonLabel": "Reason for Report",
+      "reasonSpoiler": "Spoiler / Leaking Exam Content",
+      "reasonWrongAnswer": "Factually Incorrect Explanation",
+      "reasonSpam": "Spam / Advertising",
+      "reasonHarassment": "Harassment / Inappropriate Language",
+      "reasonOther": "Other Reason",
+      "reportDetailLabel": "Additional Details",
+      "reportDetailPlaceholder": "Briefly describe the violation...",
+      "submitReport": "Submit Report"
+    },
+    "share": {
+      "cardTitle": "Achievement Certificate",
+      "anonymousLearner": "Anonymous Learner",
+      "defaultLearner": "JLPT Online Learner",
+      "congratulations": "Congratulations {name} on achieving your goal!",
+      "scoreLabel": "Score: {score}/180",
+      "streakLabel": "Streak: {days} days",
+      "hideNameOption": "Hide real name on certificate image (Privacy Protection)",
+      "copied": "Share link copied!",
+      "copyLink": "Copy Share Link"
+    }
+  },
+  "billing": {
+    "page": {
+      "title": "JLPT Online Membership Plans",
+      "subtitle": "Unlock the complete exam bank, unlimited mix generator, and in-depth explanations."
+    },
+    "coupon": {
+      "sectionTitle": "Promo Coupon Code",
+      "invalidError": "Promo code is invalid or has expired.",
+      "invalidErrorCode": "Promo code '{code}' is invalid or expired.",
+      "appliedDiscount": "{amount} discount applied",
+      "remove": "Remove",
+      "placeholder": "Enter coupon code (e.g. JLPT2026)",
+      "applyButton": "Apply"
+    },
+    "pricing": {
+      "free": "Free",
+      "monthly": "month",
+      "yearly": "year",
+      "lifetime": "lifetime",
+      "mostPopular": "Most Popular",
+      "selectPlan": "Select Plan",
+      "selectPlanAria": "Select plan: {name}",
+      "selected": "Selected"
+    },
+    "features": {
+      "unlimitedExams": "Unlimited access to N1–N5 exam bank",
+      "intelligentMix": "Intelligent mix generator across 7 modes",
+      "aiExplanations": "Detailed answer explanations & distractor analysis",
+      "audioTranscripts": "Copyrighted audio transcripts with timecodes",
+      "srsSync": "Multi-device offline SRS flashcard sync"
+    },
+    "checkout": {
+      "title": "Order Summary & Checkout",
+      "error": "Failed to initialize checkout session.",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "total": "Total Amount",
+      "sessionCreated": "Checkout session created (Order ID: {orderId}). Redirecting...",
+      "payNowButton": "Proceed to Secure Checkout"
+    },
+    "subscription": {
+      "cardTitle": "Current Subscription",
+      "statusActive": "Active",
+      "statusPastDue": "Past Due",
+      "statusCancelled": "Cancelled",
+      "statusExpired": "Expired",
+      "statusNone": "Free Plan",
+      "cancelSuccess": "Auto-renew cancelled. You can continue using until period end.",
+      "cancelError": "Failed to cancel subscription.",
+      "renewSuccess": "Subscription renewed successfully!",
+      "renewError": "Failed to renew subscription.",
+      "expiresAt": "Expires On",
+      "cancelAtPeriodEndNotice": "Subscription will terminate at the end of the period without renewing.",
+      "cancelAction": "Cancel Auto-renew",
+      "renewAction": "Renew Subscription"
+    },
+    "transactions": {
+      "cardTitle": "Transaction History & Invoices",
+      "statusPaid": "Paid",
+      "statusPending": "Pending",
+      "statusRefunded": "Refunded",
+      "empty": "No transaction records found.",
+      "orderId": "Order ID",
+      "date": "Date",
+      "amount": "Amount",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "refund": {
+      "statusRequested": "Refund Requested",
+      "statusRefunded": "Refunded",
+      "statusRejected": "Refund Rejected",
+      "requestSubmittedNotice": "Refund requested for order {orderId}. Status: {status}",
+      "requestButton": "Request Refund",
+      "requestButtonAria": "Request refund for order {orderId}",
+      "modalTitle": "Request Refund",
+      "modalDescription": "Order {orderId} ({amount}). Refund requests are processed within 3-5 business days under our policy.",
+      "submitError": "Failed to submit refund request.",
+      "reasonLabel": "Reason for Refund",
+      "reasonPlaceholder": "Please describe the reason for your refund request...",
+      "submitButton": "Submit Refund Request"
     }
   }
 }
