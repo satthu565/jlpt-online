@@ -19,7 +19,9 @@
     "test:contracts": "vitest run packages/schema/tests packages/api-client/tests",
     "db:migrate:test": "vitest run apps/api/src/db/db.test.ts -t \"migrates a fresh database\"",
     "db:seed:test": "vitest run apps/api/src/db/db.test.ts -t \"seeds fresh migrated database\"",
-    "test:db": "vitest run apps/api/src/db/db.test.ts"
+    "test:db": "vitest run apps/api/src/db/db.test.ts",
+    "test:auth": "vitest run apps/api/src/modules/auth/auth.test.ts",
+    "test:authorization": "vitest run apps/api/src/common/guards/authorization.test.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",
