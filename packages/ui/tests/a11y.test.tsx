@@ -145,6 +145,33 @@ describe('@jlpt/ui Accessibility (SYS-14 & WCAG 2.1 AA)', () => {
     expect(html).toContain('alt="Minh họa câu hỏi"');
   });
 
+  it('RichTextView supports custom localized a11y labels', () => {
+    const html = renderToString(
+      <RichTextView
+        segments={[
+          { t: 'blank' },
+          { t: 'star' },
+          { t: 'image', url: '/question2.png' },
+        ]}
+        blankAriaLabel="穴埋め空欄"
+        starAriaLabel="星印の位置"
+        imageAlt="問題の挿絵画像"
+      />,
+    );
+    expect(html).toContain('aria-label="穴埋め空欄"');
+    expect(html).toContain('aria-label="星印の位置"');
+    expect(html).toContain('alt="問題の挿絵画像"');
+  });
+
+  it('Footer renders custom a11yNotice when provided', () => {
+    const html = renderToString(
+      <Footer
+        a11yNotice="Designed in compliance with WCAG 2.1 AA."
+      />,
+    );
+    expect(html).toContain('Designed in compliance with WCAG 2.1 AA.');
+  });
+
   it('ThemeToggle buttons have explicit labels and pressed states', () => {
     const html = renderToString(<ThemeToggle />);
     expect(html).toContain('role="group"');

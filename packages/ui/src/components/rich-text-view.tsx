@@ -5,12 +5,18 @@ export interface RichTextViewProps {
   segments: RichTextSegment[];
   className?: string;
   style?: React.CSSProperties;
+  blankAriaLabel?: string;
+  starAriaLabel?: string;
+  imageAlt?: string;
 }
 
 export function RichTextView({
   segments,
   className = '',
   style = {},
+  blankAriaLabel = 'Ô trống điền từ',
+  starAriaLabel = 'Vị trí dấu sao',
+  imageAlt = 'Minh họa câu hỏi',
 }: RichTextViewProps): React.JSX.Element {
   return (
     <div
@@ -46,7 +52,7 @@ export function RichTextView({
               <span
                 key={idx}
                 role="textbox"
-                aria-label="Ô trống điền từ"
+                aria-label={blankAriaLabel}
                 style={{
                   display: 'inline-block',
                   borderBottom: '2px solid currentColor',
@@ -64,7 +70,7 @@ export function RichTextView({
               <span
                 key={idx}
                 role="img"
-                aria-label="Vị trí dấu sao"
+                aria-label={starAriaLabel}
                 style={{
                   fontWeight: 'bold',
                   color: 'var(--color-warning, #d97706)',
@@ -81,7 +87,7 @@ export function RichTextView({
               <img
                 key={idx}
                 src={seg.url}
-                alt="Minh họa câu hỏi"
+                alt={imageAlt}
                 style={{
                   display: 'inline-block',
                   maxHeight: '12rem',

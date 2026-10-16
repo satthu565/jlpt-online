@@ -57,7 +57,7 @@ export function ThemeToggle({
             type="button"
             onClick={() => setTheme(mode)}
             aria-pressed={isSelected}
-            aria-label={`${label} (${mode === 'system' ? `đang chọn: ${resolvedTheme}` : mode})`}
+            aria-label={`${label} (${mode === 'system' ? resolvedTheme : mode})`}
             title={label}
             style={{
               display: 'inline-flex',

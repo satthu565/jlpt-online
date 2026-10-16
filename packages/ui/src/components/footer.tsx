@@ -10,6 +10,7 @@ export interface FooterProps {
   tagline?: string;
   links?: FooterLink[];
   copyright?: string;
+  a11yNotice?: string;
   localeControl?: React.ReactNode;
   themeControl?: React.ReactNode;
   className?: string;
@@ -20,6 +21,7 @@ export function Footer({
   tagline = 'Nền tảng thi và luyện thi tiếng Nhật trực tuyến chuẩn JLPT N1–N5',
   links = [],
   copyright,
+  a11yNotice = 'Thiết kế tuân thủ WCAG 2.1 AA trợ năng và tương thích thiết bị di động.',
   localeControl,
   themeControl,
   className = '',
@@ -121,7 +123,7 @@ export function Footer({
           }}
         >
           <div>{copyright || defaultCopyright}</div>
-          <div>Thiết kế tuân thủ WCAG 2.1 AA trợ năng và tương thích thiết bị di động.</div>
+          {a11yNotice && <div>{a11yNotice}</div>}
         </div>
       </div>
 
