@@ -18,6 +18,8 @@ export function NavigationHeader(): React.JSX.Element {
   const navItems = [
     { label: t('common.nav.home'), href: '/' },
     { label: t('common.nav.exams'), href: '/de-thi' },
+    { label: 'Từ vựng', href: '/tu-vung' },
+    { label: 'Ngữ pháp', href: '/ngu-phap' },
     { label: t('common.nav.practice'), href: '/luyen-tap' },
     { label: t('common.nav.notebook'), href: '/so-tay' },
     { label: t('common.nav.planner'), href: '/ke-hoach' },
@@ -137,9 +139,13 @@ export function NavigationFooter(): React.JSX.Element {
 
   const footerLinks = [
     { label: t('common.footer.about'), href: '/gioi-thieu' },
+    { label: 'Cấp độ N1–N5', href: '/n3' },
+    { label: 'Từ vựng & Ngữ pháp', href: '/tu-vung' },
+    { label: 'Thống kê từ vựng', href: '/thong-ke-tu-vung' },
+    { label: t('common.footer.faq'), href: '/faq' },
+    { label: 'Hỗ trợ kỹ thuật', href: '/ho-tro' },
     { label: t('common.footer.terms'), href: '/dieu-khoan' },
     { label: t('common.footer.privacy'), href: '/chinh-sach' },
-    { label: t('common.footer.faq'), href: '/faq' },
     { label: t('common.footer.contact'), href: '/lien-he' },
   ];
 

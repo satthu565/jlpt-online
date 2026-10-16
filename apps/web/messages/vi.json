@@ -694,5 +694,124 @@
       "reasonPlaceholder": "Vui lòng nêu rõ lý do hoàn tiền...",
       "submitButton": "Gửi yêu cầu hoàn tiền"
     }
+  },
+  "seo": {
+    "consent": {
+      "bannerTitle": "Chính sách Cookie & Quyền riêng tư",
+      "bannerDescription": "Chúng tôi sử dụng cookie cần thiết để vận hành và cookie phân tích ẩn danh để nâng cao chất lượng học tập theo tiêu chuẩn bảo mật quốc tế.",
+      "acceptAll": "Chấp nhận tất cả",
+      "rejectAnalytics": "Từ chối cookie phân tích",
+      "customize": "Tùy chỉnh"
+    },
+    "share": {
+      "dialogTitle": "Chia sẻ kết quả & Liên kết học tập",
+      "copyLink": "Sao chép liên kết",
+      "copied": "Đã sao chép vào bộ nhớ tạm!",
+      "close": "Đóng",
+      "shareTwitter": "Chia sẻ qua Twitter (X)",
+      "shareFacebook": "Chia sẻ qua Facebook"
+    },
+    "tts": {
+      "play": "Phát âm",
+      "pause": "Tạm dừng",
+      "loading": "Đang tải âm thanh...",
+      "sandboxNotice": "Đang sử dụng bộ phát âm dự phòng thử nghiệm (Sandbox Fallback). Nhà cung cấp TTS chính thức chưa được cấu hình.",
+      "errorNotice": "Không thể phát âm thanh: Lỗi kết nối dịch vụ TTS."
+    },
+    "watermark": {
+      "notice": "BẢN QUYỀN THUỘC JLPT ONLINE - NGHIÊM CẤM SAO CHÉP TRÁI PHÉP",
+      "downloadPdf": "Tải phiếu điểm PDF (Đóng dấu bảo mật)",
+      "exportingPdf": "Đang tạo phiếu điểm PDF...",
+      "exportSuccess": "Đã xuất phiếu điểm thành công!"
+    },
+    "levels": {
+      "n1Title": "JLPT N1 - Cấp độ Cao cấp",
+      "n2Title": "JLPT N2 - Cấp độ Trung cao cấp",
+      "n3Title": "JLPT N3 - Cấp độ Trung cấp",
+      "n4Title": "JLPT N4 - Cấp độ Sơ trung cấp",
+      "n5Title": "JLPT N5 - Cấp độ Cơ bản Sơ cấp",
+      "passingScore": "Điểm đậu tiêu chuẩn: {pass}/{total} điểm",
+      "sectionPass": "Điểm sàn mỗi phần: tối thiểu {min} điểm",
+      "vocabCount": "Lượng từ vựng mục tiêu: ~{count} từ",
+      "kanjiCount": "Lượng chữ Hán (Kanji): ~{count} chữ",
+      "studyHours": "Thời gian ôn luyện ước tính: ~{hours} giờ",
+      "startExams": "Xem danh sách đề thi {level}",
+      "startPractice": "Luyện tập theo chuyên đề {level}",
+      "examStructureTitle": "Cấu trúc bài thi & Phân bổ thời gian"
+    },
+    "faq": {
+      "title": "Câu hỏi thường gặp (FAQ) & Hỗ trợ kỹ thuật",
+      "subtitle": "Giải đáp các thắc mắc phổ biến về kỳ thi JLPT, phòng thi trực tuyến, gói thành viên và tài khoản.",
+      "searchPlaceholder": "Tìm kiếm câu hỏi...",
+      "empty": "Không tìm thấy câu hỏi phù hợp."
+    },
+    "contact": {
+      "title": "Liên hệ & Hỗ trợ học viên",
+      "subtitle": "Đội ngũ hỗ trợ JLPT Online luôn sẵn sàng giải đáp thắc mắc và tiếp nhận phản hồi của bạn.",
+      "nameLabel": "Họ và tên",
+      "emailLabel": "Email liên hệ",
+      "topicLabel": "Chủ đề cần hỗ trợ",
+      "topicGeneral": "Hỗ trợ chung & Tư vấn học tập",
+      "topicTechnical": "Lỗi kỹ thuật phòng thi / Audio",
+      "topicBilling": "Thanh toán & Gói thành viên",
+      "messageLabel": "Nội dung tin nhắn",
+      "submitBtn": "Gửi thông tin liên hệ",
+      "successNotice": "Cảm ơn bạn! Thông tin liên hệ đã được gửi đến ban hỗ trợ.",
+      "errorNotice": "Có lỗi xảy ra khi gửi thông tin. Vui lòng thử lại sau."
+    },
+    "support": {
+      "title": "Trung tâm Hỗ trợ kỹ thuật & Hướng dẫn thi",
+      "subtitle": "Các bước chuẩn bị trước khi vào phòng thi, xử lý sự cố âm thanh và kiểm tra đường truyền.",
+      "deviceCheck": "Kiểm tra thiết bị & Tai nghe",
+      "systemStatus": "Trạng thái hệ thống",
+      "allSystemsOperational": "Tất cả các cụm máy chủ và phòng thi hoạt động bình thường."
+    },
+    "terms": {
+      "title": "Điều khoản dịch vụ & Quy chế thi",
+      "subtitle": "Quy định về việc sử dụng nền tảng, bản quyền nội dung đề thi và bảo mật thông tin."
+    },
+    "privacy": {
+      "title": "Chính sách quyền riêng tư & Bảo mật dữ liệu",
+      "subtitle": "Cam kết bảo vệ dữ liệu học viên, quyền truy cập và chính sách sử dụng cookie."
+    },
+    "ai": {
+      "title": "Trợ lý AI học tập & Giải thích câu hỏi",
+      "labelGenerated": "Nội dung do AI tạo (AI-Generated)",
+      "disclaimer": "Nội dung được tạo tự động bởi mô hình học máy. Hãy kiểm chứng với giáo viên hoặc nguồn chính thống.",
+      "askPlaceholder": "Đặt câu hỏi về cấu trúc ngữ pháp, từ vựng hoặc bẫy đề thi...",
+      "sendButton": "Gửi câu hỏi",
+      "standardDepth": "Giải thích tiêu chuẩn",
+      "deepDepth": "Phân tích chuyên sâu",
+      "quotaLabel": "Số token còn lại hôm nay: {remaining}",
+      "budgetExhausted": "Ngân sách AI hôm nay đã hết. Vui lòng quay lại vào ngày mai hoặc nâng cấp gói thành viên."
+    },
+    "gamification": {
+      "streakTitle": "Chuỗi ngày học liên tục",
+      "streakDays": "{days} ngày liên tiếp",
+      "checkInButton": "Điểm danh học tập hôm nay",
+      "checkInSuccess": "Điểm danh thành công! Chuỗi ngày của bạn là {days} ngày.",
+      "achievementsTitle": "Huy hiệu & Thành tích học tập",
+      "shareAchievement": "Chia sẻ huy hiệu",
+      "challengesTitle": "Thử thách tuần & tháng",
+      "joinChallenge": "Tham gia thử thách",
+      "joinedSuccess": "Đã tham gia thử thách thành công!",
+      "leaderboardTitle": "Bảng xếp hạng học tập (Tự nguyện)",
+      "optInLabel": "Hiển thị công khai trên bảng xếp hạng",
+      "optInSuccess": "Đã cập nhật tùy chọn hiển thị bảng xếp hạng."
+    },
+    "corpus": {
+      "vocabTitle": "Giới thiệu Từ vựng theo Cấp độ & Ngữ cảnh",
+      "grammarTitle": "Thư viện Mẫu Ngữ pháp JLPT N1–N5",
+      "statsTitle": "Thống kê Từ thường gặp & Xu hướng đề thi",
+      "searchPlaceholder": "Tra cứu từ vựng hoặc chữ Hán...",
+      "searchButton": "Tra cứu",
+      "addToNotebook": "Lưu vào sổ tay cá nhân",
+      "addedToNotebook": "Đã lưu từ vào sổ tay!",
+      "practicePattern": "Luyện tập câu hỏi theo mẫu này",
+      "exportCsv": "Xuất báo cáo CSV",
+      "exportExcel": "Xuất báo cáo Excel",
+      "studyListTitle": "Tạo danh sách từ thường gặp để ôn tập",
+      "createStudyList": "Tạo danh sách ôn tập"
+    }
   }
 }

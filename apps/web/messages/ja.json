@@ -694,5 +694,124 @@
       "reasonPlaceholder": "返金理由を詳しくご記入ください...",
       "submitButton": "返金申請を送信"
     }
+  },
+  "seo": {
+    "consent": {
+      "bannerTitle": "クッキーおよびプライバシーポリシー",
+      "bannerDescription": "当サービスは、機能の提供および匿名のアクセス解析を通じて学習体験を向上させるためにクッキーを使用しています。",
+      "acceptAll": "すべて同意する",
+      "rejectAnalytics": "解析クッキーを拒否する",
+      "customize": "設定をカスタマイズ"
+    },
+    "share": {
+      "dialogTitle": "結果と学習リンクの共有",
+      "copyLink": "リンクをコピー",
+      "copied": "クリップボードにコピーしました！",
+      "close": "閉じる",
+      "shareTwitter": "Twitter (X) で共有",
+      "shareFacebook": "Facebook で共有"
+    },
+    "tts": {
+      "play": "音声を再生",
+      "pause": "一時停止",
+      "loading": "音声を読み込み中...",
+      "sandboxNotice": "現在テスト用フォールバック音声エンジン（Sandbox Fallback）を使用しています。本番TTSプロバイダは未設定です。",
+      "errorNotice": "音声を再生できませんでした。TTSサービスへの接続エラーです。"
+    },
+    "watermark": {
+      "notice": "JLPT ONLINE 著作権保護 - 無断転載・再配布を禁じます",
+      "downloadPdf": "成績証明書PDFをダウンロード（保護透かし付き）",
+      "exportingPdf": "PDFを生成中...",
+      "exportSuccess": "成績証明書を出力しました！"
+    },
+    "levels": {
+      "n1Title": "JLPT N1 - 上級レベル",
+      "n2Title": "JLPT N2 - 中上級レベル",
+      "n3Title": "JLPT N3 - 中級レベル",
+      "n4Title": "JLPT N4 - 初中級レベル",
+      "n5Title": "JLPT N5 - 入門・初級レベル",
+      "passingScore": "合格基準点: {pass}/{total} 点",
+      "sectionPass": "各区分の基準点: 最低 {min} 点",
+      "vocabCount": "目標語彙数: 約 {count} 語",
+      "kanjiCount": "目標漢字数: 約 {count} 字",
+      "studyHours": "目安学習時間: 約 {hours} 時間",
+      "startExams": "{level} の問題一覧を見る",
+      "startPractice": "{level} の分野別演習を始める",
+      "examStructureTitle": "試験構成と時間配分"
+    },
+    "faq": {
+      "title": "よくある質問 (FAQ) と技術サポート",
+      "subtitle": "JLPT試験、オンライン試験室、有料プラン、アカウントに関する主な質問にお答えします。",
+      "searchPlaceholder": "質問を検索...",
+      "empty": "該当する質問が見つかりませんでした。"
+    },
+    "contact": {
+      "title": "お問い合わせとサポート",
+      "subtitle": "JLPT Online サポートチームがご質問やお困りの点にお答えします。",
+      "nameLabel": "お名前",
+      "emailLabel": "メールアドレス",
+      "topicLabel": "お問い合わせ種別",
+      "topicGeneral": "一般的なご質問・学習相談",
+      "topicTechnical": "試験室・音声の技術的不具合",
+      "topicBilling": "お支払い・会員プランについて",
+      "messageLabel": "お問い合わせ内容",
+      "submitBtn": "送信する",
+      "successNotice": "お問い合わせを受け付けました。サポート担当よりご連絡いたします。",
+      "errorNotice": "送信中にエラーが発生しました。しばらく経ってから再度お試しください。"
+    },
+    "support": {
+      "title": "技術サポートセンターと受験ガイド",
+      "subtitle": "試験前の準備手順、音声トラブルの対処法、通信環境の確認手順をご案内します。",
+      "deviceCheck": "機器とヘッドホンの動作確認",
+      "systemStatus": "システム稼働状況",
+      "allSystemsOperational": "すべてのサーバーおよび試験室システムは正常に稼働しています。"
+    },
+    "terms": {
+      "title": "利用規約と受験規程",
+      "subtitle": "サービスの利用条件、問題コンテンツの著作権、アカウントの取り扱いに関する規程です。"
+    },
+    "privacy": {
+      "title": "プライバシーポリシーと個人情報保護",
+      "subtitle": "学習データの保護方針、クッキーの利用目的、情報セキュリティについて説明します。"
+    },
+    "ai": {
+      "title": "AI 学習アシスタント・解説生成",
+      "labelGenerated": "AI 生成コンテンツ (AI-Generated)",
+      "disclaimer": "機械学習モデルにより自動生成された解説です。必要に応じて指導者または公式資料で確認してください。",
+      "askPlaceholder": "文法や語彙、誤答の罠について質問してください...",
+      "sendButton": "質問を送信",
+      "standardDepth": "標準解説",
+      "deepDepth": "詳細解説",
+      "quotaLabel": "本日の残りトークン数: {remaining}",
+      "budgetExhausted": "本日のAI利用上限に達しました。明日再度ご利用いただくか、プランのアップグレードをご検討ください。"
+    },
+    "gamification": {
+      "streakTitle": "連続学習日数 (Streak)",
+      "streakDays": "{days} 日連続",
+      "checkInButton": "今日の学習を出席記録",
+      "checkInSuccess": "出席を記録しました！現在の連続記録は {days} 日です。",
+      "achievementsTitle": "獲得バッジと学習実績",
+      "shareAchievement": "バッジを共有",
+      "challengesTitle": "今週・今月の学習チャレンジ",
+      "joinChallenge": "チャレンジに参加",
+      "joinedSuccess": "チャレンジに参加しました！",
+      "leaderboardTitle": "学習ランキング (任意参加)",
+      "optInLabel": "ランキングに公開表示する",
+      "optInSuccess": "ランキング表示設定を更新しました。"
+    },
+    "corpus": {
+      "vocabTitle": "レベル別・文脈別 語彙コーパス",
+      "grammarTitle": "JLPT N1–N5 文法パターンライブラリ",
+      "statsTitle": "頻出単語の統計と出題トレンド",
+      "searchPlaceholder": "単語または漢字を検索...",
+      "searchButton": "検索",
+      "addToNotebook": "マイ単語帳に追加",
+      "addedToNotebook": "単語帳に追加しました！",
+      "practicePattern": "この文型を使った問題を解く",
+      "exportCsv": "CSV形式で出力",
+      "exportExcel": "Excel形式で出力",
+      "studyListTitle": "頻出語彙から復習リストを生成",
+      "createStudyList": "復習リストを生成"
+    }
   }
 }
