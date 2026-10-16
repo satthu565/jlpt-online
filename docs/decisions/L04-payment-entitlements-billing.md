@@ -85,6 +85,7 @@ Task L04 triển khai toàn bộ hệ thống thanh toán, phân quyền tính n
 Theo chỉ thị của task L04, các dịch vụ sau chưa sẵn sàng trong môi trường thực tế:
 1. `payment-provider`: Thiếu tài khoản merchant PayOS live và webhook production URL (`PAYOS_CLIENT_ID`, `PAYOS_API_KEY`, `PAYOS_CHECKSUM_KEY`). Toàn bộ luồng đã được kiểm chứng bằng test suite và adapter sandbox.
 2. `billing-policy`: Chính sách kinh doanh, tỷ lệ hoàn tiền và điều khoản thương mại chưa được phê duyệt chính thức bởi chủ sở hữu.
+3. `staging-migration-concurrency`: Phân tích lỗi CI `Staging Verification & PITR Drill`: Trong `infra/compose/compose.staging.yml`, cả `api` và `worker` đều khởi chạy đồng thời từ image `jlpt-api` và cùng thực thi `runMigrations()`. Thiếu advisory lock (`pg_advisory_lock`) trong `apps/api/src/db/migrate.ts` dẫn tới nguy cơ race condition khi hai container tạo bảng đồng thời trên DB sạch. Đồng thời, tên constraint foreign key `entitlement_grants_entitlement_code_entitlement_definitions_code_fk` (trong `apps/api/src/db/migrations/0000_legal_paibok.sql` và `apps/api/src/db/schema.ts`) dài 68 ký tự, vượt quá giới hạn 63 ký tự của PostgreSQL (`NAMEDATALEN=64`), gây ra cảnh báo `NOTICE: 42622`. Do `apps/api/src/db/` và `infra/compose/` nằm ngoài `allowedPaths` của W4, W4 ghi nhận blocker này để Coordinator và F02 (DB Foundation) / C06 (Infra) xử lý đồng bộ.
 
 ---
 
@@ -124,13 +125,18 @@ Theo chỉ thị của task L04, các dịch vụ sau chưa sẵn sàng trong m�
 
 ## 5. Bằng chứng kiểm thử (Verification Evidence)
 
-Các lệnh kiểm tra bắt buộc đã được chạy thành công:
-1. `pnpm test:payments`: 21/21 tests passed (exitCode: 0).
-2. `pnpm test:entitlements`: 18/18 tests passed (exitCode: 0, bao gồm DB persistence test).
-3. `pnpm test:payment-provider`: 10/10 tests passed (exitCode: 0).
-4. `pnpm test:admin-billing`: 13/13 tests passed (exitCode: 0).
-5. `pnpm typecheck`: 18/18 packages passed (exitCode: 0).
-6. `pnpm lint`: 13/13 packages passed (0 errors, exitCode: 0).
-7. `pnpm test`: 18/18 tasks passed (187/187 tests api, exitCode: 0).
-8. `pnpm build`: 12/12 build tasks passed (exitCode: 0).
+Các lệnh kiểm tra bắt buộc và common gates đã được chạy và đạt kết quả sạch:
+1. `pnpm install --frozen-lockfile`: Scope 14 workspace projects, lockfile up to date (exitCode: 0).
+2. `pnpm test:payments`: 21/21 tests passed (exitCode: 0, 43.4s).
+3. `pnpm test:entitlements`: 18/18 tests passed (exitCode: 0, 37.1s, bao gồm DB persistence & AI quota atomic).
+4. `pnpm test:payment-provider`: 10/10 tests passed (exitCode: 0, 20.1s, bao gồm HMAC signature, deduplication & sandbox flag).
+5. `pnpm test:admin-billing`: 13/13 tests passed (exitCode: 0, 217ms).
+6. `pnpm typecheck`: 18/18 packages passed (exitCode: 0, 8.7s).
+7. `pnpm lint`: 13/13 packages passed (0 errors, 2 warnings @jlpt/schema, exitCode: 0, 6.5s).
+8. `pnpm test`: 18/18 tasks passed (230 API tests, 79 Web tests, 76 Admin tests; exitCode: 0, 4m).
+9. `pnpm build`: 12/12 build tasks passed (exitCode: 0, 14.1s).
+10. `pnpm infra:check`: 29/29 infrastructure checks passed (exitCode: 0).
+11. `pnpm test:media-edge`: 21/21 tests passed (exitCode: 0).
+12. `pnpm contracts:check`: All contract and fixture checks passed cleanly (exitCode: 0).
+
 
