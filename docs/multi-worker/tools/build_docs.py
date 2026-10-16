@@ -666,6 +666,8 @@ Mỗi thay đổi contract/DB/root/lockfile phải theo owner và locks. Đừng
 
 ## Kết thúc
 
+Trước khi báo REVIEW, tự review như reviewer độc lập: đọc lại toàn bộ `git diff origin/main...HEAD` theo mức lỗi trong ../prompts/REVIEW.md và sửa mọi lỗi P0/P1 bạn tìm thấy: kiểm tra quyền dựa trên dữ liệu client gửi lên (header Host, query, state), lộ đáp án/lời giải, thiếu một tiêu chí nghiệm thu, test không chứng minh hành vi, lệch hợp đồng API/schema, thao tác nhiều bảng thiếu transaction, sửa ngoài phạm vi. Mỗi vòng reviewer trả về tốn khoảng 15 phút của cả dự án.
+
 Trả JSON theo AGENTS.md, kèm diff summary, testFiles, actual runs, artifact paths, head/baseSHA, feature coverage và blockers. REVIEW chỉ là yêu cầu người khác kiểm tra; không tự đặt ACCEPTED. Nếu được cấp task review, dừng ghi task hiện tại và dùng prompt REVIEW.md, tính trong quota của chính bạn.
 ''')
 
