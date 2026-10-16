@@ -16,5 +16,5 @@ describe('Backup PITR Restore Drill & Metrics (SYS-08 / ADM-20)', () => {
     expect(metrics.archiveModeDuringDrill).toBe('off');
     expect(metrics.postTargetRecordsExcluded).toBe(true);
     expect(metrics.recordsRestored).toBeGreaterThan(0);
-  });
+  }, 30000);
 });

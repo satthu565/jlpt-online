@@ -15,7 +15,7 @@ COPY packages/ ./packages/
 COPY apps/api/ ./apps/api/
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm --filter @jlpt/api build
+RUN pnpm --filter @jlpt/schema build && pnpm --filter @jlpt/api build
 
 FROM base AS runner
 WORKDIR /app

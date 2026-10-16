@@ -31,15 +31,40 @@ fi
 # Step 1: Check active real exam attempts to prevent live exam disruption (B2)
 echo "--> [1/6] Checking for active real exam attempts..."
 ACTIVE_EXAMS=0
-if docker compose -f "$COMPOSE_FILE" ps --services --filter "status=running" 2>/dev/null | grep -q "api"; then
+if docker compose -f "$COMPOSE_FILE" ps --services --filter "status=running" 2>/dev/null | grep -q "postgres"; then
+  # Direct PostgreSQL query to exam_attempts table for active real sessions (N06/V06 integration)
+  ACTIVE_EXAMS=$(docker compose -f "$COMPOSE_FILE" exec -T postgres psql -U "${POSTGRES_USER:-jlpt}" -d "${POSTGRES_DB:-jlpt}" -t -A -c "
+    SELECT COUNT(*) FROM exam_attempts 
+    WHERE mode = 'real' 
+      AND status = 'in_progress' 
+      AND (current_deadline IS NULL OR current_deadline > NOW());
+  " 2>/dev/null | tr -d '[:space:]' || echo "0")
+elif docker compose -f "$COMPOSE_FILE" ps --services --filter "status=running" 2>/dev/null | grep -q "api"; then
+  # Fallback query via API container runtime environment
   ACTIVE_EXAMS=$(docker compose -f "$COMPOSE_FILE" exec -T api node -e '
-    try {
-      // In production API, query active open real attempts
-      process.stdout.write("0");
-    } catch (e) {
-      process.stdout.write("0");
-    }
+    import("postgres").then(async ({ default: postgres }) => {
+      const sql = postgres(process.env.DATABASE_URL || "postgres://jlpt:jlpt_secret@postgres:5432/jlpt");
+      try {
+        const [row] = await sql`
+          SELECT COUNT(*)::int AS count 
+          FROM exam_attempts 
+          WHERE mode = \x27real\x27 
+            AND status = \x27in_progress\x27 
+            AND (current_deadline IS NULL OR current_deadline > NOW())
+        `;
+        process.stdout.write(String(row?.count ?? 0));
+      } catch {
+        process.stdout.write("0");
+      } finally {
+        await sql.end();
+      }
+    }).catch(() => process.stdout.write("0"));
   ' 2>/dev/null || echo "0")
+fi
+
+# Ensure ACTIVE_EXAMS is numeric
+if ! [[ "$ACTIVE_EXAMS" =~ ^[0-9]+$ ]]; then
+  ACTIVE_EXAMS=0
 fi
 
 if [ "$ACTIVE_EXAMS" -gt 0 ] && [ "$FORCE_FLAG" != "--force" ]; then

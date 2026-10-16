@@ -13,7 +13,7 @@
     "import:validate": "node tools/import-data/bin/validate.js",
     "dev": "turbo run dev",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md}\"",
-    "test:media-edge": "vitest run apps/media-worker/tests",
+    "test:media-edge": "pnpm --filter @jlpt/media-token build && vitest run apps/media-worker/tests",
     "infra:check": "node --no-warnings --experimental-strip-types infra/check-infra.ts",
     "infra:dev:check": "node --no-warnings --experimental-strip-types infra/dev/check.ts",
     "test:vps": "pnpm --filter @jlpt/tests test:vps",
