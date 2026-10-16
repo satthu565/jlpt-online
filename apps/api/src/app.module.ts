@@ -15,6 +15,11 @@ import { StorageModule } from './modules/storage/storage.module.js';
 import { MediaModule } from './modules/media/media.module.js';
 import { LicenseModule } from './modules/license/license.module.js';
 import { QuestionBankModule } from './modules/question-bank/question-bank.module.js';
+import { OutboxModule } from './modules/outbox/outbox.module.js';
+import { BlueprintModule } from './modules/blueprint/blueprint.module.js';
+import { ReviewModule } from './modules/review/review.module.js';
+import { ImportModule } from './modules/import/import.module.js';
+import { ExamModule } from './modules/exam/exam.module.js';
 
 @Module({
   imports: [
@@ -26,6 +31,11 @@ import { QuestionBankModule } from './modules/question-bank/question-bank.module
     MediaModule,
     LicenseModule,
     QuestionBankModule,
+    OutboxModule,
+    BlueprintModule,
+    ReviewModule,
+    ImportModule,
+    ExamModule,
   ],
   controllers: [HealthController],
   providers: [
