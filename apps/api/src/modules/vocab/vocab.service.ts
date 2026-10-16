@@ -9,7 +9,7 @@ import {
   DictionaryAdapter,
   tagQuestion,
   type QuestionTagItem,
-} from '../../../../../packages/content-tools/dist/index.js';
+} from './nlp/index.js';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import {

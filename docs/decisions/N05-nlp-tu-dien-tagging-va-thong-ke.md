@@ -102,6 +102,11 @@
   - Trả về đầy đủ trường `license: 'CC-BY-SA-4.0'` và `attribution: 'Electronic Dictionary Research and Development Group (EDRDG) JMdict / CC-BY-SA 4.0'`.
   - Xử lý trạng thái dịch vụ ngoài: `SANDBOX` khi dùng dữ liệu mẫu nội bộ, sẵn sàng chuyển `READY` khi nhà cung cấp live được tích hợp.
 
+### 2.7. Độc lập hoá module và tương thích Typecheck sạch (`apps/api/src/modules/vocab/nlp/`)
+
+- **Vấn đề:** Trong monorepo, `apps/api/tsconfig.json` định nghĩa `"rootDir": "."`, ngăn cản việc import TypeScript source trực tiếp từ ngoài thư mục `apps/api`. Đồng thời, việc import từ `packages/content-tools/dist/` gặp lỗi khi chạy `pnpm typecheck` trên một checkout sạch do Turbo chưa build `packages/content-tools` trước đó (và `apps/api/package.json` không nằm trong `allowedPaths` của W5 để thêm dependency).
+- **Giải pháp:** Cung cấp submodule NLP tự thân nội bộ tại `apps/api/src/modules/vocab/nlp/` bên cạnh bàn giao độc lập tại `packages/content-tools/nlp/`. Cả hai đều nằm 100% trong `allowedPaths`, giúp `apps/api:typecheck` và `content-tools:typecheck` độc lập hoàn toàn, pass 100% không phụ thuộc thứ tự build artifacts, không vi phạm khóa dependency hay sửa ngoài allowedPaths.
+
 ---
 
 ## 3. Bằng chứng kiểm thử và nghiệm thu
