@@ -1,0 +1,1832 @@
+{
+  "schemaVersion": 1,
+  "examId": "b4090150-d914-48b5-adfb-372663acaca8",
+  "version": 1,
+  "level": "N5",
+  "title": "Đề demo N5 số 1 (tự soạn)",
+  "kind": "practice",
+  "totalQuestions": 29,
+  "sections": [
+    {
+      "index": 0,
+      "code": "language_vocab",
+      "title": "言語知識（文字・語彙）",
+      "durationSec": 600,
+      "questionRange": [
+        0,
+        11
+      ],
+      "groups": [
+        {
+          "groupId": "b6768740-c3d2-426d-a1da-35728556debc",
+          "mondaiType": "kanji_reading",
+          "instructions": [],
+          "passage": [],
+          "media": [],
+          "questions": [
+            {
+              "index": 0,
+              "questionId": "a2c7fc5c-3000-4c3a-ab3c-a9fa6c915c48",
+              "number": "1",
+              "stem": [
+                {
+                  "t": "underline",
+                  "children": [
+                    {
+                      "t": "text",
+                      "text": "山"
+                    }
+                  ]
+                },
+                {
+                  "t": "text",
+                  "text": "に のぼります。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "やま"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "かわ"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "うみ"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "そら"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 1,
+              "questionId": "62650ef8-4c2f-414e-a929-c532617ad596",
+              "number": "2",
+              "stem": [
+                {
+                  "t": "underline",
+                  "children": [
+                    {
+                      "t": "text",
+                      "text": "先週"
+                    }
+                  ]
+                },
+                {
+                  "t": "text",
+                  "text": " デパートへ 行きました。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "せんしゅ"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "せんしゅう"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "ぜんしゅう"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "さきしゅう"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "questionId": "cbbbdba8-50fb-4fa8-accf-5490a22e55a2",
+              "number": "3",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "この りんごは "
+                },
+                {
+                  "t": "underline",
+                  "children": [
+                    {
+                      "t": "text",
+                      "text": "安い"
+                    }
+                  ]
+                },
+                {
+                  "t": "text",
+                  "text": "です。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "たかい"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "あまい"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "やすい"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "ひくい"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "questionId": "99940bff-6a7d-4e28-a9d8-0f311763988f",
+              "number": "4",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "まいあさ "
+                },
+                {
+                  "t": "underline",
+                  "children": [
+                    {
+                      "t": "text",
+                      "text": "七時"
+                    }
+                  ]
+                },
+                {
+                  "t": "text",
+                  "text": "に おきます。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "ななじ"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "ひちじ"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "しちとき"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "しちじ"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "groupId": "a73bf9a8-3900-4df4-a712-6b764151072c",
+          "mondaiType": "orthography",
+          "instructions": [],
+          "passage": [],
+          "media": [],
+          "questions": [
+            {
+              "index": 4,
+              "questionId": "e6851fe5-ad63-4be3-a5c6-1aba0b698f17",
+              "number": "5",
+              "stem": [
+                {
+                  "t": "underline",
+                  "children": [
+                    {
+                      "t": "text",
+                      "text": "みみ"
+                    }
+                  ]
+                },
+                {
+                  "t": "text",
+                  "text": "が いたいです。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "目"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "耳"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "口"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "手"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 5,
+              "questionId": "8ee8fdcc-bd61-4fec-ab7e-efd7738f8d1e",
+              "number": "6",
+              "stem": [
+                {
+                  "t": "underline",
+                  "children": [
+                    {
+                      "t": "text",
+                      "text": "らいねん"
+                    }
+                  ]
+                },
+                {
+                  "t": "text",
+                  "text": " 日本へ 行きます。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "来月"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "来週"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "来年"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "今年"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 6,
+              "questionId": "b1de0db1-794d-4c5c-a0bd-0098ea77d952",
+              "number": "7",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "わたしの へやは "
+                },
+                {
+                  "t": "underline",
+                  "children": [
+                    {
+                      "t": "text",
+                      "text": "ひろい"
+                    }
+                  ]
+                },
+                {
+                  "t": "text",
+                  "text": "です。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "広い"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "古い"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "長い"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "高い"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "groupId": "71a247dc-8472-4b65-a027-0eac8d76ec3a",
+          "mondaiType": "contextual",
+          "instructions": [],
+          "passage": [],
+          "media": [],
+          "questions": [
+            {
+              "index": 7,
+              "questionId": "0289204d-aaba-4258-a373-314784f7a3f6",
+              "number": "8",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "さむいですから、まどを（　）ください。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "あけて"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "しめて"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "つけて"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "けして"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 8,
+              "questionId": "87982a5a-afc6-44fd-ac3e-0ee64ab17ee4",
+              "number": "9",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "きのうは あたまが いたかったので、（　）を のみました。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "くすり"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "ごはん"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "せっけん"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "しゃしん"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 9,
+              "questionId": "5af740a8-e703-4085-a68b-4f7b8f58267f",
+              "number": "10",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "この ほんは（　）ですから、だれも よみません。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "おもしろい"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "あたらしい"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "つまらない"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "やさしい"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "groupId": "0b9f2373-ab74-4cd9-a8da-75dc3fa9d149",
+          "mondaiType": "paraphrase",
+          "instructions": [],
+          "passage": [],
+          "media": [],
+          "questions": [
+            {
+              "index": 10,
+              "questionId": "f6e4f18e-d2d7-4e16-af89-17ee18325537",
+              "number": "11",
+              "stem": [
+                {
+                  "t": "underline",
+                  "children": [
+                    {
+                      "t": "text",
+                      "text": "きょうは いそがしくないです。"
+                    }
+                  ]
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "きょうは しごとが おおいです。"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "きょうは やすみでは ありません。"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "きょうは ひまです。"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "きょうは つかれました。"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 11,
+              "questionId": "29a9aac0-3b7f-40be-afd1-57b431bf5c0a",
+              "number": "12",
+              "stem": [
+                {
+                  "t": "underline",
+                  "children": [
+                    {
+                      "t": "text",
+                      "text": "あには にほんごの せんせいです。"
+                    }
+                  ]
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "あには にほんごを ならって います。"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "あには にほんごを おしえて います。"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "あには にほんごが わかりません。"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "あには にほんへ いきます。"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "listeningTimeline": null
+    },
+    {
+      "index": 1,
+      "code": "language_grammar_reading",
+      "title": "言語知識（文法）・読解",
+      "durationSec": 900,
+      "questionRange": [
+        12,
+        21
+      ],
+      "groups": [
+        {
+          "groupId": "4b3e984c-bd3a-48e1-a14e-0c9c9b86be26",
+          "mondaiType": "grammar_form",
+          "instructions": [],
+          "passage": [],
+          "media": [],
+          "questions": [
+            {
+              "index": 12,
+              "questionId": "ba9c71af-65f9-44c7-a003-f853f2d38fe6",
+              "number": "13",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "わたしは まいばん 10時（　）ねます。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "で"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "を"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "が"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "に"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 13,
+              "questionId": "64f33bbe-ccfc-4d91-a99e-03cac3a24e61",
+              "number": "14",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "きのうは あめが（　）。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "ふりました"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "ふります"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "ふって"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "ふる"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 14,
+              "questionId": "8bf7bca0-0699-4352-ab51-edaf7a3b6dab",
+              "number": "15",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "A「いっしょに ひるごはんを（　）か。」B「ええ、たべましょう。」"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "たべました"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "たべて"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "たべません"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "たべない"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 15,
+              "questionId": "9c635591-7a2a-4f17-a358-e129575c4588",
+              "number": "16",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "この へやは しずか（　）きれいです。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "くて"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "で"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "に"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "と"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "groupId": "2c5b6d25-1c09-4ad0-a554-e3afcbd9fda3",
+          "mondaiType": "sentence_composition",
+          "instructions": [],
+          "passage": [],
+          "media": [],
+          "questions": [
+            {
+              "index": 16,
+              "questionId": "820bcdf9-1b85-438e-a15c-45d38d04cfb5",
+              "number": "17",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "つくえの "
+                },
+                {
+                  "t": "blank"
+                },
+                {
+                  "t": "blank"
+                },
+                {
+                  "t": "star"
+                },
+                {
+                  "t": "blank"
+                },
+                {
+                  "t": "text",
+                  "text": " あります。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "ほん"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "うえ"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "が"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "に"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 17,
+              "questionId": "f25d4114-10c0-402f-a2b6-d46ca651ccf5",
+              "number": "18",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "きのう "
+                },
+                {
+                  "t": "blank"
+                },
+                {
+                  "t": "blank"
+                },
+                {
+                  "t": "star"
+                },
+                {
+                  "t": "blank"
+                },
+                {
+                  "t": "text",
+                  "text": " かいました。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "くつを"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "あかい"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "で"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "デパート"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "groupId": "bf1fbf33-17f7-4a4b-a94e-7c0a592b0c35",
+          "mondaiType": "comprehension_short",
+          "instructions": [],
+          "passage": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "わたしは "
+                },
+                {
+                  "t": "ruby",
+                  "rt": "まいしゅう",
+                  "text": "毎週"
+                },
+                {
+                  "t": "text",
+                  "text": " "
+                },
+                {
+                  "t": "ruby",
+                  "rt": "どようび",
+                  "text": "土曜日"
+                },
+                {
+                  "t": "text",
+                  "text": "に 友だちと テニスを します。でも、"
+                },
+                {
+                  "t": "ruby",
+                  "rt": "せんしゅう",
+                  "text": "先週"
+                },
+                {
+                  "t": "text",
+                  "text": "の 土曜日は 雨でしたから、テニスを しませんでした。"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "友だちの 家で いっしょに えいがを 見ました。とても おもしろかったです。"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "ruby",
+                  "rt": "らいしゅう",
+                  "text": "来週"
+                },
+                {
+                  "t": "text",
+                  "text": "は "
+                },
+                {
+                  "t": "ruby",
+                  "rt": "てんき",
+                  "text": "天気"
+                },
+                {
+                  "t": "text",
+                  "text": "が いいと いいです。"
+                }
+              ]
+            }
+          ],
+          "media": [],
+          "questions": [
+            {
+              "index": 18,
+              "questionId": "bed5420c-47ca-403e-afe2-0469319b7537",
+              "number": "19",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "先週の 土曜日、「わたし」は 何を しましたか。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "テニスを しました。"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "友だちの 家で えいがを 見ました。"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "ひとりで 家に いました。"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "雨の 中で さんぽしました。"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 19,
+              "questionId": "bbd67829-6370-4a30-a349-7d560b84a12f",
+              "number": "20",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "「わたし」は 来週 何を したいですか。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "えいがを 見たいです。"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "テニスを したいです。"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "友だちの 家へ 行きたいです。"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "雨の 日に 出かけたいです。"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "groupId": "0307c975-2033-4662-a006-d144882d6948",
+          "mondaiType": "info_retrieval",
+          "instructions": [],
+          "passage": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "さくら としょかん"
+                }
+              ]
+            },
+            {
+              "rows": [
+                [
+                  [
+                    {
+                      "t": "text",
+                      "text": "曜日"
+                    }
+                  ],
+                  [
+                    {
+                      "t": "text",
+                      "text": "時間"
+                    }
+                  ]
+                ],
+                [
+                  [
+                    {
+                      "t": "text",
+                      "text": "月曜日"
+                    }
+                  ],
+                  [
+                    {
+                      "t": "text",
+                      "text": "やすみ"
+                    }
+                  ]
+                ],
+                [
+                  [
+                    {
+                      "t": "text",
+                      "text": "火曜日〜金曜日"
+                    }
+                  ],
+                  [
+                    {
+                      "t": "text",
+                      "text": "9:00〜19:00"
+                    }
+                  ]
+                ],
+                [
+                  [
+                    {
+                      "t": "text",
+                      "text": "土曜日・日曜日"
+                    }
+                  ],
+                  [
+                    {
+                      "t": "text",
+                      "text": "10:00〜17:00"
+                    }
+                  ]
+                ]
+              ],
+              "type": "table"
+            }
+          ],
+          "media": [],
+          "questions": [
+            {
+              "index": 20,
+              "questionId": "0966d3e5-8626-4f79-ae27-a5c1683e0704",
+              "number": "21",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "としょかんが 休みなのは 何曜日ですか。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "月曜日"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "火曜日"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "土曜日"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "日曜日"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 21,
+              "questionId": "bd00ffe3-8883-42f6-a6ca-4bedb837e3bf",
+              "number": "22",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "水曜日は 何時に しまりますか。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "9:00"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "10:00"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "17:00"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "19:00"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "listeningTimeline": null
+    },
+    {
+      "index": 2,
+      "code": "listening",
+      "title": "聴解",
+      "durationSec": 203,
+      "questionRange": [
+        22,
+        28
+      ],
+      "groups": [
+        {
+          "groupId": "24a05139-7606-4eae-a21e-1fed19b56ee3",
+          "mondaiType": "task_based",
+          "instructions": [],
+          "passage": [],
+          "media": [],
+          "questions": [
+            {
+              "index": 22,
+              "questionId": "86037f3b-5724-4583-a4ac-1b4fe723fe11",
+              "number": "23",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "男の人は 何を 買いますか。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "パンと 牛乳"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "パンと 牛乳と りんご"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "牛乳と たまご"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "パンと たまごと りんご"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "groupId": "797352c9-0838-4f56-af6a-c0bf49454dfd",
+          "mondaiType": "task_based",
+          "instructions": [],
+          "passage": [],
+          "media": [],
+          "questions": [
+            {
+              "index": 23,
+              "questionId": "0e66cf03-8023-461d-ad32-429121b8d876",
+              "number": "24",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "学生は あした 何時に 学校に 来ますか。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "8時"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "8時45分"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "9時"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "9時15分"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "groupId": "938bc28e-7ef1-4cc9-ad52-6049bcdfa5ff",
+          "mondaiType": "point",
+          "instructions": [],
+          "passage": [],
+          "media": [],
+          "questions": [
+            {
+              "index": 24,
+              "questionId": "00779270-788e-49e8-a971-84abca061d00",
+              "number": "25",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "女の人は きのうの ごご どこへ 行きましたか。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "家"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "こうえん"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "えいがかん"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "友だちの 家"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "groupId": "85941805-27bb-40f9-a883-cbb04762da0e",
+          "mondaiType": "point",
+          "instructions": [],
+          "passage": [],
+          "media": [],
+          "questions": [
+            {
+              "index": 25,
+              "questionId": "7569a0c0-9427-4942-a700-6d0b32fc8c9f",
+              "number": "26",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "男の人の かぞくは 何人ですか。"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "3人"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "4人"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "5人"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "6人"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "groupId": "f69264e5-fa11-4b55-ab65-d92230ec12bd",
+          "mondaiType": "quick_response",
+          "instructions": [],
+          "passage": [],
+          "media": [],
+          "questions": [
+            {
+              "index": 26,
+              "questionId": "6fa6aa4c-cd3b-4ff3-a6d4-df800bcec7f3",
+              "number": "27",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "（ぶんを きいて こたえて ください）"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "はい、そうです。"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "三時半です。"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "三時間です。"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "groupId": "79f523c0-695e-4950-acfc-fd5455790c38",
+          "mondaiType": "quick_response",
+          "instructions": [],
+          "passage": [],
+          "media": [],
+          "questions": [
+            {
+              "index": 27,
+              "questionId": "3c10f406-6c7c-4e1c-a643-8687bab81005",
+              "number": "28",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "（ぶんを きいて こたえて ください）"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "どうぞ、めしあがって ください。"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "ごちそうさまでした。"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "いってらっしゃい。"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "groupId": "336a379f-af4a-4d8b-a0eb-e93681f6953d",
+          "mondaiType": "quick_response",
+          "instructions": [],
+          "passage": [],
+          "media": [],
+          "questions": [
+            {
+              "index": 28,
+              "questionId": "354bfaab-5832-49bf-a7c2-085381c935e2",
+              "number": "29",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "（ぶんを きいて こたえて ください）"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "あそこです。"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "あおいです。"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "わたしのです。"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "listeningTimeline": null
+    }
+  ]
+}
