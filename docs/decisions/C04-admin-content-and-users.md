@@ -129,26 +129,42 @@ apps/admin/
 
 ---
 
-## 4. Xử lý phản hồi Reviewer (Vòng C04-5)
+## 4. Xử lý phản hồi Reviewer (Vòng C04-5 & C04-7)
 
-1. **Cấu hình JSX Transform cho Vitest [P1]:**
-   - **Vấn đề:** Do `apps/admin/tsconfig.json` đặt `"jsx": "preserve"` (cần thiết cho Next.js Compiler), runner Vitest (dùng Vite 8 / OXC) khi chạy từ thư mục `apps/admin` hoặc qua `pnpm --filter admin test` không thể phân tích cú pháp JSX của `preview.tsx`, dẫn đến lỗi `Failed to parse source for import analysis because the content contains invalid JS syntax. If you use tsconfig.json, make sure to not set jsx to preserve`.
-   - **Khắc phục:** Đã tạo file `apps/admin/vitest.config.ts` với cấu hình:
-     ```ts
-     import { defineConfig } from 'vitest/config';
+1. **Cấu hình JSX Transform và Vitest Config Flag [P1 - C04-5 & C04-7]:**
+   - **Vấn đề:** Do `apps/admin/tsconfig.json` đặt `"jsx": "preserve"` (cần thiết cho Next.js Compiler), runner Vitest khi chạy lệnh từ thư mục gốc monorepo (`vitest run apps/admin/tests/content.test.ts`) không tự động nhận cấu hình từ `apps/admin/vitest.config.ts` do working directory ở root monorepo, dẫn đến lỗi cú pháp JSX (`Failed to parse source for import analysis because the content contains invalid JS syntax. If you use tsconfig.json, make sure to not set jsx to preserve`).
+   - **Khắc phục (C04-7):**
+     - Cập nhật các script test admin trong file root `package.json` với cờ chỉ định cấu hình tường minh `-c apps/admin/vitest.config.ts`:
+       - `"test:admin": "vitest run -c apps/admin/vitest.config.ts apps/admin"`
+       - `"test:admin-auth": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/auth.test.ts apps/admin/tests/guard.test.ts"`
+       - `"test:admin-content": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/content.test.ts"`
+       - `"test:admin-users": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/users.test.ts"`
+     - Bổ sung cấu hình `resolve.alias` trong `apps/admin/vitest.config.ts` trỏ trực tiếp `@jlpt/schema` và `@jlpt/ui` về mã nguồn TypeScript (`packages/schema/src/index.ts` và `packages/ui/src/index.tsx`) để bộ test có thể chạy trực tiếp độc lập, không phụ thuộc vào trạng thái build `dist/` của các package nội bộ:
+       ```ts
+       import { defineConfig } from 'vitest/config';
+       import { fileURLToPath } from 'node:url';
+       import { resolve } from 'node:path';
 
-     export default defineConfig({
-       oxc: {
-         jsx: {
-           runtime: 'automatic',
+       const currentDir = fileURLToPath(new URL('.', import.meta.url));
+
+       export default defineConfig({
+         resolve: {
+           alias: {
+             '@jlpt/schema': resolve(currentDir, '../../packages/schema/src/index.ts'),
+             '@jlpt/ui': resolve(currentDir, '../../packages/ui/src/index.tsx'),
+           },
          },
-       },
-       test: {
-         environment: 'node',
-       },
-     });
-     ```
-     Nhờ cấu hình này, OXC tự động transform JSX runtime cho test runner mà không cần thay đổi `tsconfig.json` của Next.js. Toàn bộ 11 tests của `content.test.ts` (và 63 tests của toàn bộ `apps/admin`) chạy thành công 100% với exit code 0 cả từ root monorepo lẫn trong package admin.
+         oxc: {
+           jsx: {
+             runtime: 'automatic',
+           },
+         },
+         test: {
+           environment: 'node',
+         },
+       });
+       ```
+     - Nhờ đó, cả `pnpm test:admin-content`, `pnpm test:admin-users` và `pnpm test:admin` đều chạy thành công 100% với exit code 0 từ root monorepo cũng như khi chạy qua `pnpm --filter @jlpt/admin test`.
 
 2. **Tách module Backend CMS ra khỏi Task C04 [P1 & P2]:**
    - **Vấn đề:** `apps/api/src/modules/cms/` thuộc phạm vi outputs của task A04 (Ngày 5, W4) theo `docs/multi-worker/tasks.json`. Task C04 chỉ có phạm vi bàn giao `apps/admin/features/content/` và `apps/admin/features/users/`. Việc sửa `apps/api/src/modules/cms/` trong C04 là out-of-scope edits.
@@ -162,6 +178,7 @@ Tất cả các lệnh kiểm tra được giao đều chạy thành công 100%:
 - `pnpm test:admin-content`: 11/11 passed (Acceptance 1: tạo sửa ruby star bảng nghe xem trước; Acceptance 2: không sửa đè published version).
 - `pnpm test:admin-users`: 11/11 passed (Acceptance 3: Admin sửa role còn editor không thể tự nâng quyền; ADM-02, ADM-03).
 - `pnpm test:admin`: 63/63 passed across 7 test files (Navigation, Health, Users, I18n, Auth, Guard, Content).
-- `pnpm --filter admin test`: 63/63 passed.
+- `pnpm --filter @jlpt/admin test:admin-content`: 11/11 passed.
+- `pnpm --filter @jlpt/admin test:admin-users`: 11/11 passed.
 - `pnpm typecheck`: 17/17 packages pass (0 error).
 - `pnpm lint`: 13/13 packages pass (0 error).
