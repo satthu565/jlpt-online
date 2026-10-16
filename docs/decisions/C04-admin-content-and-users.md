@@ -170,6 +170,10 @@ apps/admin/
    - **Vấn đề:** `apps/api/src/modules/cms/` thuộc phạm vi outputs của task A04 (Ngày 5, W4) theo `docs/multi-worker/tasks.json`. Task C04 chỉ có phạm vi bàn giao `apps/admin/features/content/` và `apps/admin/features/users/`. Việc sửa `apps/api/src/modules/cms/` trong C04 là out-of-scope edits.
    - **Khắc phục:** Đã gỡ bỏ toàn bộ thư mục `apps/api/src/modules/cms/` khỏi nhánh `task/C04`. Module backend CMS cùng với việc tích hợp `CmsModule` vào `AppModule` sẽ được bàn giao đầy đủ, đúng tiến độ ở task A04 theo phân công của `tasks.json`.
 
+3. **Khắc phục assertion so khớp HTML thẻ Ruby trong test `content.test.ts` [CI Fix - C04-14]:**
+   - **Vấn đề:** Test case `renders preview component matching visual specifications without XSS vulnerability` gặp `AssertionError` trên CI GitHub Actions do câu lệnh `expect(html).toContain('<ruby>日本語<rt>にほんご</rt></ruby>')` so sánh chuỗi cứng, trong khi component `RichTextView` từ `@jlpt/ui` kết xuất các thuộc tính class và style chuẩn (`<ruby class="jlpt-ruby" style="ruby-position:over">日本語<rt style="...">にほんご</rt></ruby>`).
+   - **Khắc phục:** Cập nhật assertion sử dụng regex `expect(html).toMatch(/<ruby[^>]*>日本語<rt[^>]*>にほんご<\/rt><\/ruby>/)` và `expect(html).toMatch(/<ruby[^>]*>問題<rt[^>]*>もんだい<\/rt><\/ruby>/)`, vừa bảo đảm tính toàn vẹn của cấu trúc ruby HTML, vừa tương thích chính xác với style của component UI dùng chung.
+
 ---
 
 ## 5. Kết quả kiểm thử và nghiệm thu
