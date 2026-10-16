@@ -13,7 +13,12 @@
       "account": "Tài khoản",
       "login": "Đăng nhập",
       "register": "Đăng ký",
-      "logout": "Đăng xuất"
+      "logout": "Đăng xuất",
+      "notebook": "Sổ tay",
+      "planner": "Kế hoạch",
+      "classroom": "Lớp học",
+      "events": "Sự kiện",
+      "pricing": "Gói thành viên"
     },
     "footer": {
       "about": "Giới thiệu",
@@ -162,7 +167,10 @@
     "tabs": {
       "ariaLabel": "Cài đặt tài khoản",
       "profile": "Hồ sơ cá nhân",
-      "sessions": "Thiết bị & Phiên đăng nhập"
+      "sessions": "Thiết bị & Phiên đăng nhập",
+      "notifications": "Thông báo & Nhắc nhở",
+      "billing": "Gói thành viên & Giao dịch",
+      "privacy": "Quyền riêng tư & Dữ liệu"
     },
     "profile": {
       "name": "Họ và tên",
@@ -205,6 +213,38 @@
       "revokeError": "Không thể hủy phiên đăng nhập.",
       "revokeAllError": "Không thể đăng xuất các thiết bị khác.",
       "empty": "Không có phiên đăng nhập nào khác."
+    },
+    "notifications": {
+      "title": "Cài đặt thông báo & Nhắc nhở",
+      "saveSuccess": "Đã lưu cài đặt thông báo thành công!",
+      "saveError": "Không thể lưu cài đặt thông báo.",
+      "emailUpdates": "Nhận email cập nhật học tập",
+      "emailUpdatesDesc": "Gửi báo cáo tiến độ tuần và đề xuất bài học mới qua email.",
+      "examReminders": "Nhắc nhở lịch thi và sự kiện sắp diễn ra",
+      "examRemindersDesc": "Nhận thông báo khi phòng thi chuẩn bị mở và thời hạn nộp bài tập.",
+      "streakAlerts": "Cảnh báo duy trì chuỗi học tập (Streak)",
+      "streakAlertsDesc": "Nhắc bạn hoàn thành bài học trước khi kết thúc ngày để không đứt chuỗi.",
+      "quietHoursTitle": "Giờ yên tĩnh (Không làm phiền)",
+      "quietHoursDesc": "Tạm dừng mọi thông báo đẩy trong khoảng thời gian này.",
+      "quietStart": "Bắt đầu từ",
+      "quietEnd": "Đến",
+      "saveButton": "Lưu cài đặt thông báo"
+    },
+    "privacy": {
+      "cardTitle": "Quyền riêng tư & Dữ liệu cá nhân (GDPR)",
+      "exportSuccess": "Dữ liệu cá nhân đã được trích xuất thành công!",
+      "exportError": "Không thể trích xuất dữ liệu cá nhân.",
+      "deletionScheduledNotice": "Yêu cầu xóa tài khoản đã được tiếp nhận và xử lý an toàn theo quy định lưu trữ dữ liệu.",
+      "deletionError": "Lỗi khi gửi yêu cầu xóa tài khoản.",
+      "exportTitle": "Xuất dữ liệu cá nhân (Data Portability)",
+      "exportDesc": "Tải về toàn bộ lịch sử thi, thẻ từ vựng và dữ liệu học tập dưới định dạng JSON an toàn.",
+      "exportButton": "Tải dữ liệu JSON",
+      "deleteAccountTitle": "Xóa tài khoản vĩnh viễn (Right to be Forgotten)",
+      "deleteAccountDesc": "Xóa toàn bộ thông tin định danh cá nhân theo chuẩn GDPR và quy định lưu trữ bảo mật.",
+      "deleteAccountButton": "Yêu cầu xóa tài khoản",
+      "deleteModalTitle": "Xác nhận yêu cầu xóa tài khoản",
+      "deleteModalWarning": "Hành động này sẽ hủy mọi phiên đăng nhập và lập lịch xóa dữ liệu cá nhân của bạn. Dữ liệu kế toán/hóa đơn sẽ được lưu trữ ẩn danh theo luật định.",
+      "confirmDeletionButton": "Xác nhận xóa tài khoản"
     }
   },
   "home": {
@@ -230,6 +270,429 @@
       "smartSRS": "Hệ thống lặp lại ngắt quãng (SRS) củng cố từ vựng và hán tự.",
       "analyticsTitle": "Phân tích & Báo cáo",
       "analytics": "Báo cáo tiến độ trực quan, chỉ rõ điểm mạnh và phần kiến thức cần bổ sung."
+    }
+  },
+  "notebook": {
+    "page": {
+      "title": "Sổ tay từ vựng & Ngữ pháp cá nhân",
+      "subtitle": "Quản lý từ vựng, mẫu ngữ pháp, luyện flashcards thông minh SRS và làm mini-quiz.",
+      "tabsAria": "Các chế độ sổ tay"
+    },
+    "tabs": {
+      "notebook": "Danh sách sổ tay",
+      "srsReview": "Ôn tập SRS",
+      "quiz": "Làm bài trắc nghiệm"
+    },
+    "filters": {
+      "searchLabel": "Tìm kiếm từ hoặc nghĩa",
+      "searchPlaceholder": "Tìm kiếm từ vựng, ngữ pháp, tag...",
+      "kindLabel": "Loại kiến thức",
+      "allKinds": "Tất cả loại",
+      "statusLabel": "Trạng thái",
+      "allStatus": "Tất cả trạng thái"
+    },
+    "kinds": {
+      "vocab": "Từ vựng",
+      "grammar": "Ngữ pháp",
+      "kanji": "Hán tự"
+    },
+    "status": {
+      "learning": "Đang học",
+      "mastered": "Đã thành thạo"
+    },
+    "actions": {
+      "exportCsv": "Xuất file CSV",
+      "addItem": "Thêm mục mới",
+      "playAudio": "Phát âm thanh cho {term}",
+      "markUnmastered": "Học lại",
+      "markMastered": "Đã thuộc",
+      "viewExamples": "Ví dụ trong đề",
+      "deleteItem": "Xóa mục {term}"
+    },
+    "countSummary": "Hiển thị {count} trên tổng số {total} mục",
+    "empty": {
+      "title": "Sổ tay của bạn đang trống",
+      "description": "Hãy lưu các từ vựng và ngữ pháp bạn gặp trong quá trình luyện đề vào sổ tay để ôn tập ngắt quãng."
+    },
+    "form": {
+      "requiredFields": "Vui lòng nhập đầy đủ từ/mẫu câu và ý nghĩa.",
+      "createError": "Lỗi khi lưu vào sổ tay.",
+      "kind": "Phân loại",
+      "term": "Từ / Mẫu ngữ pháp / Chữ Hán",
+      "termPlaceholder": "Ví dụ: 躊躇, 〜を皮切りに...",
+      "reading": "Cách đọc (Furigana / Romaji)",
+      "readingPlaceholder": "Ví dụ: ちゅうちょ",
+      "meaning": "Ý nghĩa tiếng Việt",
+      "meaningPlaceholder": "Ví dụ: Sự ngập ngừng, chần chừ",
+      "notes": "Ghi chú & cách dùng",
+      "notesPlaceholder": "Ví dụ: Thường đi với 躊躇なく...",
+      "tags": "Nhãn (phân tách bằng dấu phẩy)",
+      "tagsPlaceholder": "N1, Từ khó, Đọc hiểu",
+      "submitButton": "Lưu vào sổ tay"
+    },
+    "modal": {
+      "addTitle": "Thêm từ vựng / ngữ pháp mới"
+    },
+    "examples": {
+      "title": "Ví dụ câu hỏi đề thi chứa 「{term}」",
+      "subtitle": "Các câu hỏi thi thật hoặc bài tập luyện có chứa từ/mẫu ngữ pháp 「{term}」:",
+      "noExamplesFound": "Chưa có câu hỏi đề thi nào được gắn thẻ cho từ này."
+    },
+    "quiz": {
+      "questionProgress": "Câu {current} / {total}",
+      "correct": "Chính xác!",
+      "incorrect": "Chưa chính xác!",
+      "viewResults": "Xem kết quả bài trắc nghiệm",
+      "completedTitle": "Hoàn thành bài trắc nghiệm sổ tay!",
+      "scoreSummary": "Bạn đạt {score}/{total} điểm ({percent}%)",
+      "retake": "Làm lại bài khác",
+      "finish": "Quay về sổ tay"
+    }
+  },
+  "flashcards": {
+    "progress": "Thẻ {current} / {total}",
+    "interval": "Chu kỳ: {days} ngày",
+    "flipToFront": "Lật mặt trước",
+    "flipToBack": "Lật mặt sau để xem nghĩa",
+    "playAudio": "Phát âm",
+    "clickOrSpaceToFlip": "Nhấp chuột hoặc ấn phím Space để lật thẻ",
+    "examplesTitle": "Câu ví dụ",
+    "showAnswer": "Xem đáp án (Phím Space)",
+    "state": {
+      "new": "Mới học",
+      "learning": "Đang nhớ",
+      "review": "Ôn tập",
+      "relearning": "Học lại"
+    },
+    "rating": {
+      "again": "Quên rồi",
+      "hard": "Khó",
+      "good": "Tốt",
+      "easy": "Dễ"
+    }
+  },
+  "srs": {
+    "title": "Luyện tập ngắt quãng SRS",
+    "completedCount": "Đã ôn tập: {count} thẻ",
+    "sync": {
+      "syncing": "Đang đồng bộ kết quả...",
+      "pendingCount": "Chờ đồng bộ: {count} thẻ",
+      "offline": "Chế độ ngoại tuyến (Đang lưu cục bộ)",
+      "error": "Lỗi đồng bộ (Sẽ tự động thử lại)",
+      "synced": "Đã đồng bộ máy chủ",
+      "syncNow": "Đồng bộ ngay"
+    },
+    "finished": {
+      "title": "Tuyệt vời! Bạn đã hoàn thành các thẻ cần ôn tập hôm nay!",
+      "description": "Bạn đã hoàn thành xuất sắc {count} thẻ ôn tập. Hệ thống sẽ tự động tính toán thời điểm lặp lại tối ưu cho từng thẻ.",
+      "pendingSyncNotice": "Bạn có {count} lượt ôn tập đang lưu trong hàng đợi cục bộ. Kết quả sẽ được tải lên khi có kết nối mạng.",
+      "backToNotebook": "Quay về sổ tay"
+    }
+  },
+  "planner": {
+    "page": {
+      "title": "Kế hoạch & Lộ trình học tập cá nhân",
+      "subtitle": "Theo dõi tiến độ theo ngày, đếm ngược ngày thi, duy trì chuỗi học tập và tự động tái cân bằng khi bận việc."
+    },
+    "empty": {
+      "title": "Bạn chưa thiết lập kế hoạch học tập",
+      "description": "Thiết lập mục tiêu cấp độ JLPT, ngày thi và thời gian học mỗi ngày để hệ thống tự động phân bổ lộ trình tối ưu cho bạn."
+    },
+    "actions": {
+      "createPlan": "Tạo kế hoạch học tập",
+      "replan": "Tái cân bằng lộ trình"
+    },
+    "finalSprint": {
+      "title": "Giai đoạn nước rút",
+      "description": "Kỳ thi đang đến rất gần! Hệ thống tự động tăng tỉ lệ luyện đề thi thử và giảm bớt bài học mới để củng cố phản xạ."
+    },
+    "overview": {
+      "target": "Mục tiêu thi",
+      "daysRemaining": "Còn {count} ngày nữa đến kỳ thi",
+      "streak": "Chuỗi học liên tục",
+      "daysUnit": "ngày",
+      "streakMotivation": "Duy trì học mỗi ngày để không đứt chuỗi!",
+      "completionRate": "Tiến độ lộ trình",
+      "version": "Phiên bản kế hoạch",
+      "replanHint": "Tự động phân bổ lại khi bỏ lỡ buổi học",
+      "minutesUnit": "phút"
+    },
+    "session": {
+      "todayTitle": "Nhiệm vụ học tập hôm nay",
+      "noSessionToday": "Hôm nay bạn không có lịch học theo kế hoạch hoặc đã hoàn thành toàn bộ!",
+      "statusCompleted": "Đã hoàn thành",
+      "statusPending": "Chưa học",
+      "defaultTopic": "Ôn tập tổng hợp theo lộ trình",
+      "targetDuration": "Thời lượng mục tiêu: {minutes} phút",
+      "studyTimer": "Thời gian đã học",
+      "pauseTimer": "Tạm dừng",
+      "startTimer": "Bắt đầu học",
+      "markComplete": "Hoàn thành buổi học",
+      "completedSuccess": "Chúc mừng bạn đã hoàn thành buổi học hôm nay và nối dài chuỗi học tập!",
+      "congratulationsCompleted": "Bạn đã hoàn thành xuất sắc nhiệm vụ hôm nay!"
+    },
+    "skills": {
+      "vocabulary": "Từ vựng",
+      "grammar": "Ngữ pháp",
+      "reading": "Đọc hiểu",
+      "listening": "Nghe hiểu"
+    },
+    "create": {
+      "title": "Thiết lập kế hoạch học tập mới",
+      "missingDate": "Vui lòng chọn ngày thi dự kiến.",
+      "error": "Không thể tạo kế hoạch học tập.",
+      "targetLevel": "Cấp độ JLPT mục tiêu",
+      "targetDate": "Ngày thi dự kiến",
+      "dailyMinutes": "Thời gian học mỗi ngày",
+      "durationDays": "Tổng thời gian lộ trình",
+      "focusSkills": "Kỹ năng cần tập trung rèn luyện",
+      "submitButton": "Bắt đầu kế hoạch"
+    },
+    "replan": {
+      "title": "Tái cân bằng lộ trình học tập (Replan)",
+      "description": "Hệ thống sẽ tính toán lại các buổi học bạn đã bỏ lỡ và phân bổ đều số phút học còn lại vào những ngày tiếp theo.",
+      "error": "Không thể tái cân bằng lộ trình.",
+      "reasonLabel": "Lý do cần điều chỉnh",
+      "reasonBusy": "Bận việc đột xuất",
+      "reasonTooHard": "Nội dung quá nặng, cần giảm tải",
+      "reasonSick": "Sức khỏe không tốt",
+      "reasonSpeedUp": "Muốn đẩy nhanh tiến độ",
+      "noteLabel": "Ghi chú thêm",
+      "notePlaceholder": "Ghi lại lưu ý cho lần điều chỉnh này...",
+      "confirmButton": "Xác nhận tái cân bằng",
+      "replanSuccess": "Đã tái cân bằng lộ trình học tập thành công!"
+    },
+    "reminders": {
+      "cardTitle": "Thông tin nhắc nhở học tập",
+      "activeBadge": "Đang bật",
+      "description": "Hệ thống gửi thông báo nhắc bạn hoàn thành bài học mỗi ngày trước giờ nghỉ ngơi.",
+      "dailyTime": "Thời điểm nhắc nhở",
+      "recommendedSession": "Khối lượng khuyến nghị hôm nay",
+      "mockInterval": "Tần suất thi thử",
+      "everyXDays": "Cứ {days} ngày làm 1 đề thi thử",
+      "customizeInSettings": "Tùy chỉnh trong Cài đặt thông báo"
+    }
+  },
+  "classroom": {
+    "page": {
+      "title": "Cổng lớp học & Quản lý đào tạo",
+      "subtitle": "Giao đề thi thử, bài tập trắc nghiệm, theo dõi tiến độ học viên và bảo vệ quyền riêng tư học viên theo cohort."
+    },
+    "privacy": {
+      "isolatedBadge": "Cách ly dữ liệu lớp học",
+      "teacherNotice": "Chế độ giáo viên: Dữ liệu phân tích học viên được bảo mật và cách ly tuyệt đối giữa các tổ chức.",
+      "learnerNotice": "Chế độ học viên: Điểm số và thông tin cá nhân của bạn được bảo mật riêng tư, không lộ cho học viên khác."
+    },
+    "dashboard": {
+      "selectClass": "Chọn lớp học",
+      "exportGrades": "Xuất bảng điểm",
+      "createAssignment": "Giao bài tập mới",
+      "tabsAria": "Quản lý lớp học",
+      "tabAssignments": "Bài tập & Đề thi ({count})",
+      "tabMembers": "Danh sách học viên ({count})",
+      "noAssignments": "Lớp học chưa có bài tập nào được giao.",
+      "due": "Hạn nộp",
+      "statusClosed": "Đã đóng",
+      "statusActive": "Đang mở",
+      "submissionsCount": "Đã nộp: {submitted}/{total}",
+      "viewProgress": "Xem tiến độ"
+    },
+    "assignment": {
+      "missingTitle": "Vui lòng nhập tiêu đề bài tập.",
+      "createError": "Không thể giao bài tập.",
+      "modalTitle": "Giao bài tập / đề thi cho lớp học",
+      "titleLabel": "Tiêu đề bài tập",
+      "titlePlaceholder": "Ví dụ: Đề thi thử N3 tuần 1",
+      "examLabel": "Chọn đề thi hoặc bộ trộn đề",
+      "opensAtLabel": "Thời điểm mở đề (UTC)",
+      "dueAtLabel": "Hạn nộp bài (UTC)",
+      "targetScope": "Đối tượng học viên",
+      "allLearners": "Tất cả học viên trong lớp ({count})",
+      "selectedLearnersOnly": "Chỉ định học viên cụ thể",
+      "submitButton": "Xác nhận giao đề",
+      "createSuccess": "Đã giao bài tập thành công cho lớp học!",
+      "supplementSuccess": "Đã tạo bài tập bổ trợ cho {count} học viên chưa đạt điểm chuẩn!",
+      "supplementError": "Không thể tạo bài tập bổ trợ."
+    },
+    "analytics": {
+      "title": "Báo cáo tiến độ & Phân tích kết quả bài tập",
+      "loadError": "Không thể tải dữ liệu phân tích bài tập.",
+      "submissionRate": "Tỉ lệ nộp bài",
+      "averageScore": "Điểm trung bình",
+      "passRate": "Tỉ lệ đạt chuẩn",
+      "scoreRange": "Thấp nhất - Cao nhất",
+      "failingNotice": "Có {count} học viên chưa đạt điểm chuẩn (dưới 90/180).",
+      "createSupplement": "Giao bài tập bổ trợ",
+      "submissionsList": "Chi tiết bài nộp của học viên",
+      "noSubmissionsYet": "Chưa có học viên nào nộp bài tập này.",
+      "learner": "Học viên",
+      "score": "Điểm số",
+      "result": "Kết quả",
+      "submittedAt": "Thời điểm nộp",
+      "passed": "Đạt chuẩn",
+      "failed": "Chưa đạt"
+    },
+    "members": {
+      "name": "Họ và tên",
+      "email": "Email",
+      "status": "Trạng thái",
+      "unknown": "Chưa đặt tên"
+    },
+    "export": {
+      "modalTitle": "Xuất bảng điểm lớp {className}",
+      "description": "Tải xuống bảng điểm tổng hợp kết quả học tập của học viên. Tệp tải về được làm sạch an toàn chống Formula Injection.",
+      "error": "Lỗi khi xuất bảng điểm.",
+      "successMessage": "Đã xuất bảng điểm thành công cho {count} học viên (Định dạng {format})!",
+      "classLabel": "Lớp học",
+      "exportedAt": "Thời điểm xuất",
+      "sanitizedNotice": "Bảo vệ an toàn",
+      "sanitizedDetail": "Dữ liệu ký tự đặc biệt đã được làm sạch để chống rủi ro thực thi lệnh trong Excel.",
+      "formatLabel": "Định dạng tệp",
+      "downloadButton": "Xuất và tải về"
+    }
+  },
+  "community": {
+    "events": {
+      "pageTitle": "Phòng chờ thi sự kiện trực tuyến",
+      "pageSubtitle": "Tham gia thi thử trực tuyến đồng loạt với hàng nghìn thí sinh trên toàn quốc, chấm điểm chuẩn hóa và xếp hạng.",
+      "registerError": "Không thể đăng ký tham gia sự kiện.",
+      "startError": "Chưa đến giờ vào thi hoặc sự kiện đã kết thúc.",
+      "registeredBadge": "Đã đăng ký",
+      "unregisteredBadge": "Chưa đăng ký",
+      "participantCount": "{count} / {capacity} thí sinh",
+      "startsIn": "Thời gian đếm ngược đến giờ phát đề",
+      "startsAtTime": "Giờ bắt đầu chính thức: {time}",
+      "examLiveNow": "Phòng thi đã mở! Bắt đầu làm bài ngay!",
+      "enterExamRoom": "Vào phòng thi ngay",
+      "eventEnded": "Kỳ thi sự kiện đã kết thúc",
+      "registerNow": "Đăng ký tham gia ngay",
+      "embargoTitle": "Thời gian bảo mật kết quả (Embargo)",
+      "embargoDescription": "Để đảm bảo công bằng cho tất cả thí sinh, đáp án và bảng xếp hạng được bảo mật tuyệt đối cho đến {releaseTime}.",
+      "officialLeaderboard": "Bảng xếp hạng vinh danh chính thức",
+      "participant": "Thí sinh",
+      "score": "Điểm số",
+      "timeSpent": "Thời gian làm bài"
+    },
+    "discussions": {
+      "pageTitle": "Thảo luận câu hỏi & Chia sẻ thành tích",
+      "pageSubtitle": "Trao đổi phương pháp giải đề với giáo viên và học viên khác sau khi hoàn thành bài thi.",
+      "simulateAttempted": "Mô phỏng trạng thái đã làm câu hỏi này",
+      "gatedTitle": "Thảo luận bị khóa để chống lộ đề",
+      "gatedDescription": "Bạn cần làm và nộp bài câu hỏi này trước khi xem trao đổi và đáp án của cộng đồng.",
+      "postedSuccess": "Đã gửi bình luận thành công!",
+      "postedError": "Lỗi khi gửi bình luận.",
+      "reportSuccess": "Cảm ơn bạn đã báo cáo. Ban quản trị sẽ kiểm duyệt bình luận này.",
+      "reportError": "Không thể gửi báo cáo.",
+      "title": "Thảo luận cộng đồng ({count})",
+      "inputPlaceholder": "Đặt câu hỏi hoặc chia sẻ cách giải của bạn...",
+      "submitButton": "Gửi thảo luận",
+      "noCommentsYet": "Chưa có bình luận nào cho câu hỏi này. Hãy là người đầu tiên thảo luận!",
+      "moderatorBadge": "Giáo viên / Kiểm duyệt viên",
+      "reportButton": "Báo cáo vi phạm",
+      "reportModalTitle": "Báo cáo bình luận vi phạm",
+      "reportReasonLabel": "Lý do báo cáo",
+      "reasonSpoiler": "Lộ đáp án không cảnh báo / Tiết lộ đề thi",
+      "reasonWrongAnswer": "Giải thích sai kiến thức nghiêm trọng",
+      "reasonSpam": "Quảng cáo rác / Spam",
+      "reasonHarassment": "Ngôn từ thô tục / Xúc phạm người khác",
+      "reasonOther": "Lý do khác",
+      "reportDetailLabel": "Chi tiết bổ sung",
+      "reportDetailPlaceholder": "Mô tả ngắn gọn nội dung vi phạm...",
+      "submitReport": "Gửi báo cáo"
+    },
+    "share": {
+      "cardTitle": "Chứng nhận & Thành tích học tập",
+      "anonymousLearner": "Học viên ẩn danh",
+      "defaultLearner": "Học viên JLPT Online",
+      "congratulations": "Chúc mừng {name} đã chinh phục mục tiêu!",
+      "scoreLabel": "Điểm thi: {score}/180",
+      "streakLabel": "Chuỗi liên tục: {days} ngày",
+      "hideNameOption": "Ẩn tên thật trên ảnh chứng nhận (Bảo vệ riêng tư)",
+      "copied": "Đã sao chép liên kết chia sẻ!",
+      "copyLink": "Sao chép liên kết chia sẻ"
+    }
+  },
+  "billing": {
+    "page": {
+      "title": "Các gói thành viên JLPT Online",
+      "subtitle": "Mở khóa toàn bộ ngân hàng đề thi chuẩn format, luyện trộn không giới hạn và nhận giải thích chuyên sâu."
+    },
+    "coupon": {
+      "sectionTitle": "Mã giảm giá ưu đãi",
+      "invalidError": "Mã giảm giá không hợp lệ hoặc đã hết hạn.",
+      "invalidErrorCode": "Mã giảm giá '{code}' không hợp lệ hoặc đã hết hạn.",
+      "appliedDiscount": "Giảm {amount}",
+      "remove": "Gỡ mã",
+      "placeholder": "Nhập mã ưu đãi (Ví dụ: JLPT2026)",
+      "applyButton": "Áp dụng"
+    },
+    "pricing": {
+      "free": "Miễn phí",
+      "monthly": "tháng",
+      "yearly": "năm",
+      "lifetime": "trọn đời",
+      "mostPopular": "Phổ biến nhất",
+      "selectPlan": "Chọn gói học này",
+      "selectPlanAria": "Chọn gói {name}",
+      "selected": "Đang chọn"
+    },
+    "features": {
+      "unlimitedExams": "Truy cập không giới hạn ngân hàng đề N1–N5",
+      "intelligentMix": "Trộn đề thông minh theo 7 chế độ và điểm yếu",
+      "aiExplanations": "Giải thích chi tiết đáp án và phân tích bẫy sai",
+      "audioTranscripts": "Transcript audio bản quyền kèm timecode",
+      "srsSync": "Đồng bộ flashcards SRS đa thiết bị ngoại tuyến"
+    },
+    "checkout": {
+      "title": "Xác nhận đơn hàng và thanh toán",
+      "error": "Lỗi khởi tạo phiên thanh toán.",
+      "subtotal": "Giá gốc",
+      "discount": "Giảm giá ưu đãi",
+      "total": "Tổng tiền thanh toán",
+      "sessionCreated": "Đã tạo phiên thanh toán thành công (Mã đơn: {orderId}). Đang chuyển tiếp...",
+      "payNowButton": "Tiến hành thanh toán an toàn"
+    },
+    "subscription": {
+      "cardTitle": "Gói thành viên hiện tại",
+      "statusActive": "Đang hoạt động",
+      "statusPastDue": "Chờ thanh toán gia hạn",
+      "statusCancelled": "Đã hủy gia hạn",
+      "statusExpired": "Đã hết hạn",
+      "statusNone": "Tài khoản miễn phí",
+      "cancelSuccess": "Đã hủy gia hạn tự động. Bạn vẫn có thể dùng gói đến hết kỳ hạn.",
+      "cancelError": "Lỗi khi hủy gia hạn.",
+      "renewSuccess": "Đã kích hoạt lại gia hạn thành công!",
+      "renewError": "Lỗi khi gia hạn gói.",
+      "expiresAt": "Thời hạn đến ngày",
+      "cancelAtPeriodEndNotice": "Gói sẽ kết thúc vào cuối kỳ và không tự động trừ phí tiếp theo.",
+      "cancelAction": "Hủy tự động gia hạn",
+      "renewAction": "Gia hạn lại gói"
+    },
+    "transactions": {
+      "cardTitle": "Lịch sử giao dịch & Hóa đơn",
+      "statusPaid": "Đã thanh toán",
+      "statusPending": "Chờ thanh toán",
+      "statusRefunded": "Đã hoàn tiền",
+      "empty": "Bạn chưa có giao dịch thanh toán nào.",
+      "orderId": "Mã đơn hàng",
+      "date": "Ngày thanh toán",
+      "amount": "Số tiền",
+      "status": "Trạng thái",
+      "actions": "Thao tác"
+    },
+    "refund": {
+      "statusRequested": "Đang yêu cầu hoàn tiền",
+      "statusRefunded": "Đã hoàn tiền thành công",
+      "statusRejected": "Yêu cầu hoàn tiền bị từ chối",
+      "requestSubmittedNotice": "Đã gửi yêu cầu hoàn tiền cho đơn {orderId}. Trạng thái: {status}",
+      "requestButton": "Yêu cầu hoàn tiền",
+      "requestButtonAria": "Yêu cầu hoàn tiền cho đơn hàng {orderId}",
+      "modalTitle": "Yêu cầu hoàn tiền giao dịch",
+      "modalDescription": "Giao dịch đơn hàng {orderId} ({amount}). Yêu cầu hoàn tiền sẽ được xem xét và xử lý theo chính sách hoàn trả trong vòng 3-5 ngày làm việc.",
+      "submitError": "Lỗi khi gửi yêu cầu hoàn tiền.",
+      "reasonLabel": "Lý do yêu cầu hoàn tiền",
+      "reasonPlaceholder": "Vui lòng nêu rõ lý do hoàn tiền...",
+      "submitButton": "Gửi yêu cầu hoàn tiền"
     }
   }
 }

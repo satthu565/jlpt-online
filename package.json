@@ -69,6 +69,8 @@
     "test:payment-provider": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/payment/payment-provider.test.ts",
     "test:admin-billing": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/billing.test.ts",
     "test:e2e:learning": "vitest run -c apps/web/vitest.config.ts apps/web/tests/e2e-learning.test.tsx",
+    "test:e2e:advanced": "pnpm --filter @jlpt/ui build && vitest run -c apps/web/vitest.config.ts apps/web/tests/e2e-advanced.test.tsx",
+    "test:e2e:checkout": "vitest run -c apps/web/vitest.config.ts apps/web/tests/e2e-checkout.test.tsx",
     "test:analytics": "vitest run -c apps/web/vitest.config.ts apps/web/tests/analytics.test.tsx",
     "test:e2e:import-publish": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/e2e-import-publish.test.ts",
     "test:content-review": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/content-review.test.ts",

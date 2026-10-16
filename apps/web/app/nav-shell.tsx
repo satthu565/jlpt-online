@@ -17,10 +17,13 @@ export function NavigationHeader(): React.JSX.Element {
 
   const navItems = [
     { label: t('common.nav.home'), href: '/' },
-    { label: t('common.nav.levels'), href: '#levels' },
     { label: t('common.nav.exams'), href: '/de-thi' },
-    { label: t('common.nav.examRoom'), href: '/phong-thi' },
     { label: t('common.nav.practice'), href: '/luyen-tap' },
+    { label: t('common.nav.notebook'), href: '/so-tay' },
+    { label: t('common.nav.planner'), href: '/ke-hoach' },
+    { label: t('common.nav.classroom'), href: '/lop-hoc' },
+    { label: t('common.nav.events'), href: '/su-kien' },
+    { label: t('common.nav.pricing'), href: '/goi-thanh-vien' },
   ];
 
   if (user) {

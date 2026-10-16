@@ -1,7 +1,7 @@
 import React from 'react';
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'neutral';
+  variant?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'default' | 'secondary' | 'error';
   size?: 'sm' | 'md';
 }
 
@@ -34,12 +34,27 @@ export function Badge({
       color: 'var(--color-danger-text, #991b1b)',
       borderColor: 'var(--color-danger, #dc2626)',
     },
+    error: {
+      backgroundColor: 'var(--color-danger-light, #fee2e2)',
+      color: 'var(--color-danger-text, #991b1b)',
+      borderColor: 'var(--color-danger, #dc2626)',
+    },
     info: {
       backgroundColor: 'var(--color-info-light, #dbeafe)',
       color: 'var(--color-info-text, #1e40af)',
       borderColor: 'var(--color-info, #2563eb)',
     },
     neutral: {
+      backgroundColor: 'var(--bg-muted, #f1f5f9)',
+      color: 'var(--text-secondary, #475569)',
+      borderColor: 'var(--border-default, #cbd5e1)',
+    },
+    default: {
+      backgroundColor: 'var(--bg-muted, #f1f5f9)',
+      color: 'var(--text-secondary, #475569)',
+      borderColor: 'var(--border-default, #cbd5e1)',
+    },
+    secondary: {
       backgroundColor: 'var(--bg-muted, #f1f5f9)',
       color: 'var(--text-secondary, #475569)',
       borderColor: 'var(--border-default, #cbd5e1)',
