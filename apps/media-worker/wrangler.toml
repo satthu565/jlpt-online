@@ -4,4 +4,10 @@ compatibility_date = "2026-03-01"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-ENVIRONMENT = "development"
+ENVIRONMENT = "production"
+
+# R2 Bucket binding for media storage per contract T1.8.7 & A11
+[[r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "jlpt-media"
+preview_bucket_name = "jlpt-media-staging"
