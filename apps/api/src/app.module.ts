@@ -17,12 +17,14 @@ import { LicenseModule } from './modules/license/license.module.js';
 import { QuestionBankModule } from './modules/question-bank/question-bank.module.js';
 import { ScoringModule } from './modules/scoring/scoring.module.js';
 import { OutboxModule } from './modules/outbox/outbox.module.js';
+import { BlueprintModule } from './modules/blueprint/blueprint.module.js';
+import { ReviewModule } from './modules/review/review.module.js';
+import { ImportModule } from './modules/import/import.module.js';
 import { TurnstileModule } from './modules/turnstile/turnstile.module.js';
 import { AttemptModule } from './modules/attempt/attempt.module.js';
 import { AuditModule } from './modules/audit/audit.module.js';
 import { AdminModule } from './modules/admin/admin.module.js';
 import { ExamModule } from './modules/exam/exam.module.js';
-import { ReviewModule } from './modules/review/review.module.js';
 import { NotificationModule } from './modules/notification/notification.module.js';
 import { OriginGuard } from './common/guards/origin.guard.js';
 import { TotpGuard } from './common/guards/totp.guard.js';
@@ -40,12 +42,14 @@ import { RateLimitGuard } from './common/guards/rate-limit.guard.js';
     QuestionBankModule,
     ScoringModule,
     OutboxModule,
+    BlueprintModule,
+    ReviewModule,
+    ImportModule,
     TurnstileModule,
     AttemptModule,
     AuditModule,
     AdminModule,
     ExamModule,
-    ReviewModule,
     NotificationModule,
   ],
   controllers: [HealthController],

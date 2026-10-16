@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { eq, and, sql, isNull, lt } from 'drizzle-orm';
 import { createEventEnvelope, type EventTopic, type ResultFlag } from '@jlpt/schema';
 import { DB_CLIENT } from '../../common/database/database.module.js';
@@ -13,7 +13,7 @@ import {
 } from '@jlpt/exam-engine';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 
-type DbTx = Parameters<Parameters<PostgresJsDatabase<typeof schema>['transaction']>[0]>[0];
+export type DbTx = Parameters<Parameters<PostgresJsDatabase<typeof schema>['transaction']>[0]>[0];
 
 @Injectable()
 export class OutboxService {
@@ -21,11 +21,12 @@ export class OutboxService {
 
   constructor(
     @Inject(DB_CLIENT) private readonly dbClient: DbClientInstance,
-    private readonly scoringService: ScoringService,
+    @Optional() private readonly scoringService?: ScoringService,
   ) {}
 
   /**
    * Emits a domain event into the outbox table within the provided database transaction (A10, A15).
+   * Ensures transactional consistency between domain operations and event delivery.
    */
   async emitEvent<T extends Record<string, unknown>>(
     topic: EventTopic,
@@ -35,15 +36,16 @@ export class OutboxService {
     tx?: unknown,
   ): Promise<string> {
     const envelope = createEventEnvelope(topic, aggregateId, actorId, payload);
-    const db = (tx as typeof this.dbClient.db) || this.dbClient.db;
+    const db = (tx as DbTx) || this.dbClient.db;
 
-    await db.insert(schema.outbox).values({
+    await (db as typeof this.dbClient.db).insert(schema.outbox).values({
       id: envelope.eventId,
       topic,
       payload: envelope as unknown as Record<string, unknown>,
       createdAt: new Date(envelope.occurredAt),
     });
 
+    this.logger.debug(`[Outbox] Emitted event topic=${topic} aggregateId=${aggregateId} eventId=${envelope.eventId}`);
     return envelope.eventId;
   }
 
@@ -212,6 +214,9 @@ export class OutboxService {
         }
 
         // 3. Compute score passing tx
+        if (!this.scoringService) {
+          throw new Error('ScoringService is required to score attempt');
+        }
         const mergedFlags = Array.from(new Set([...attempt.resultFlags, ...additionalFlags]));
         const scoreResult = await this.scoringService.scoreAttempt(
           attempt.examId,
@@ -283,6 +288,9 @@ export class OutboxService {
   ): Promise<number> {
     const db = tx || this.dbClient.db;
 
+    if (!this.scoringService) {
+      throw new Error('ScoringService is required to get scoring data');
+    }
     const scoringData = await this.scoringService.getExamScoringData(examId, version, tx);
     const answerKey = scoringData.answerKey;
 
