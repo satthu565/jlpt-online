@@ -21,6 +21,9 @@
     "test:storage": "vitest run src/modules/storage/",
     "test:import-jobs": "vitest run src/modules/import/import-jobs.test.ts",
     "test:publish": "vitest run src/modules/exam/publish.test.ts",
+    "test:practice-api": "vitest run src/modules/exam/practice-api.test.ts",
+    "test:explanations": "vitest run src/modules/review/explanations.test.ts",
+    "test:notifications": "vitest run src/modules/notification/notifications.test.ts",
     "demo:seed": "node dist/src/modules/import/demo-seed.js"
   },
   "dependencies": {
