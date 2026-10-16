@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * @jlpt/ui - Design System and Reusable Components
  * Features: ACC-14, EXAM-26, SYS-01, SYS-14

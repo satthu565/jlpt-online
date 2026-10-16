@@ -2,9 +2,10 @@
 
 - **Task:** F04
 - **Worker:** W3 (Giao diện học viên)
-- **Trạng thái:** IN_PROGRESS
+- **Trạng thái:** REVIEW
 - **Ngày:** 2026-10-16
 - **Branch:** `task/F04`
+- **Base SHA:** `17936fe3db9efefe0796221543726e8c9379c526`
 - **Dependencies:** F02, F03
 - **Resource Locks:** `ui-contract`
 - **Feature IDs:** `ACC-14`, `EXAM-26`, `SYS-01`, `SYS-14`
@@ -68,7 +69,40 @@ Task F04 xây dựng nền tảng giao diện học viên cho dự án JLPT Onli
 
 ---
 
-## 3. Lệnh kiểm tra xác thực
-- `pnpm test:web`: Kiểm tra toàn diện ứng dụng web, các trang công khai, form tài khoản và luồng auth client.
-- `pnpm test:i18n`: Kiểm tra tính toàn vẹn của từ điển cả 3 ngôn ngữ (`vi`, `ja`, `en`), xác nhận không thiếu khóa và kiểm thử cơ chế fallback.
-- `pnpm test:a11y`: Kiểm tra tiêu chuẩn trợ năng, phím tắt, focus ring, nhãn screen-reader và cấu trúc ngữ nghĩa ARIA.
+## 3. Nghiệm thu theo tiêu chí bàn giao
+
+| Tiêu chí nghiệm thu | Kết quả | Bằng chứng |
+|---|---|---|
+| Ba locale có đủ key và fallback rõ | ĐẠT | 100% khóa trong `vi.json`, `ja.json`, `en.json` đồng bộ và có test xác nhận fallback không crash |
+| Keyboard focus và screen-reader labels hoạt động | ĐẠT | `:focus-visible`, `aria-label`, `htmlFor-id`, `role="alert"`, `SkipToContent` vượt qua bộ test a11y |
+| Đăng ký đăng nhập reset xác minh nối API trong F03 trước DONE | ĐẠT | `AuthClient` kết nối đúng đặc tả và contract F03, vượt qua test tích hợp 9/9 case |
+| F03 là dependency nghiệm thu tích hợp, không chặn thiết kế/mock ban đầu | ĐẠT | Client hỗ trợ cả mock adapter và live endpoint, kiểm thử độc lập không phụ thuộc cứng vào API server |
+
+---
+
+## 4. Kết quả thực thi các lệnh kiểm tra
+
+```bash
+# 1. Kiểm tra ứng dụng web
+pnpm test:web
+# -> 4 test files, 25 tests passed, exitCode: 0
+
+# 2. Kiểm tra đa ngôn ngữ
+pnpm test:i18n
+# -> 1 test file, 8 tests passed, exitCode: 0
+
+# 3. Kiểm tra trợ năng
+pnpm test:a11y
+# -> 2 test files (@jlpt/ui: 11 tests, @jlpt/web: 7 tests), 18 tests passed, exitCode: 0
+
+# 4. Kiểm tra F03 auth & authorization
+pnpm test:auth && pnpm test:authorization
+# -> 21 auth tests passed, 15 authorization tests passed, exitCode: 0
+
+# 5. Typecheck & Lint
+pnpm --filter @jlpt/ui typecheck && pnpm --filter @jlpt/web typecheck # -> exitCode: 0
+pnpm --filter @jlpt/ui lint && pnpm --filter @jlpt/web lint           # -> exitCode: 0
+
+# 6. Build
+pnpm --filter @jlpt/ui build && pnpm --filter @jlpt/web build         # -> exitCode: 0
+```

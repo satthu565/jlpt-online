@@ -1,0 +1,206 @@
+{
+  "common": {
+    "brand": "JLPT Online",
+    "tagline": "Standard Online JLPT Mock Exams and Japanese Learning Platform",
+    "nav": {
+      "home": "Home",
+      "levels": "N1–N5 Levels",
+      "exams": "Exam Library",
+      "practice": "Practice",
+      "account": "Account",
+      "login": "Sign In",
+      "register": "Sign Up",
+      "logout": "Sign Out"
+    },
+    "footer": {
+      "about": "About Us",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "faq": "FAQ",
+      "contact": "Contact Support",
+      "copyright": "© JLPT Online. All rights reserved.",
+      "accessibilityNotice": "Designed in compliance with WCAG 2.1 AA accessibility standards."
+    },
+    "buttons": {
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "save": "Save Changes",
+      "edit": "Edit",
+      "delete": "Delete",
+      "close": "Close",
+      "back": "Back",
+      "next": "Next",
+      "continue": "Continue",
+      "retry": "Try Again",
+      "confirm": "Confirm",
+      "processing": "Processing..."
+    },
+    "status": {
+      "loading": "Loading data...",
+      "saving": "Saving...",
+      "error": "An error occurred",
+      "success": "Action completed successfully",
+      "empty": "No data available"
+    }
+  },
+  "theme": {
+    "title": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "toggle": "Toggle light/dark mode"
+  },
+  "locale": {
+    "title": "Language",
+    "select": "Select language",
+    "vi": "Tiếng Việt",
+    "ja": "日本語",
+    "en": "English"
+  },
+  "a11y": {
+    "skipToContent": "Skip to main content",
+    "openMenu": "Open navigation menu",
+    "closeMenu": "Close menu",
+    "required": "required",
+    "errorAlert": "Error notification"
+  },
+  "auth": {
+    "login": {
+      "title": "Account Sign In",
+      "subtitle": "Welcome back to JLPT Online",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "user@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "Remember me",
+      "forgotPasswordLink": "Forgot password?",
+      "submitButton": "Sign In",
+      "submitting": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "registerNow": "Sign Up Now",
+      "orContinueWith": "Or continue with",
+      "googleSignIn": "Sign in with Google",
+      "success": "Signed in successfully!",
+      "errors": {
+        "invalidCredentials": "Incorrect email or password.",
+        "unverifiedEmail": "Your email has not been verified yet. Please check your inbox.",
+        "blocked": "Your account has been locked. Please contact support.",
+        "general": "Sign in failed. Please try again later."
+      }
+    },
+    "register": {
+      "title": "Create an Account",
+      "subtitle": "Start your journey toward JLPT certification",
+      "nameLabel": "Full name",
+      "namePlaceholder": "John Doe",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "user@example.com",
+      "passwordLabel": "Password",
+      "passwordHint": "At least 8 characters with letters and numbers",
+      "confirmPasswordLabel": "Confirm password",
+      "termsAgree": "I agree to the Terms of Service and Privacy Policy",
+      "submitButton": "Create Account",
+      "submitting": "Creating account...",
+      "haveAccount": "Already have an account?",
+      "loginNow": "Sign In",
+      "success": "Registration successful! Please check your email to verify your account.",
+      "errors": {
+        "emailExists": "This email address is already registered.",
+        "weakPassword": "Password is too weak or compromised.",
+        "passwordMismatch": "Passwords do not match.",
+        "termsRequired": "You must agree to the Terms of Service.",
+        "general": "Registration failed. Please check your input."
+      }
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your email to receive a password reset link",
+      "emailLabel": "Registered email address",
+      "submitButton": "Send Recovery Email",
+      "submitting": "Sending link...",
+      "sentSuccess": "If that email exists in our system, recovery instructions have been sent to your inbox.",
+      "backToLogin": "Back to Sign In"
+    },
+    "resetPassword": {
+      "title": "Reset Your Password",
+      "subtitle": "Set a new secure password for your account",
+      "newPasswordLabel": "New password",
+      "confirmPasswordLabel": "Confirm new password",
+      "submitButton": "Update Password",
+      "submitting": "Updating...",
+      "resetSuccess": "Password reset successfully! You can now sign in with your new password.",
+      "backToLogin": "Go to Sign In",
+      "errors": {
+        "invalidToken": "The verification token is invalid or has already been used.",
+        "tokenExpired": "The token has expired (valid for 30 minutes).",
+        "passwordMismatch": "Passwords do not match."
+      }
+    },
+    "verifyEmail": {
+      "title": "Verify Email Address",
+      "verifying": "Verifying token...",
+      "success": "Congratulations! Your email address has been verified successfully.",
+      "loginButton": "Sign in now to start learning",
+      "failed": "Verification failed. The link is invalid or has expired.",
+      "resendButton": "Resend verification email"
+    }
+  },
+  "account": {
+    "title": "Account Settings",
+    "subtitle": "Manage profile details, target study level, and active sessions",
+    "tabs": {
+      "profile": "Profile",
+      "sessions": "Devices & Sessions"
+    },
+    "profile": {
+      "name": "Full Name",
+      "email": "Email Address",
+      "emailVerified": "Verified",
+      "emailUnverified": "Unverified",
+      "role": "Role",
+      "targetLevel": "Target JLPT Level",
+      "targetLevelHint": "The system recommends exams and study paths matching this target level.",
+      "selectLevel": "Select target level",
+      "completedExams": "Completed Mock Exams",
+      "completedExamsUnit": "exams",
+      "saveButton": "Save Changes",
+      "saving": "Saving...",
+      "saveSuccess": "Profile updated successfully!"
+    },
+    "sessions": {
+      "title": "Active Sessions",
+      "description": "List of devices and browsers currently logged into your account.",
+      "currentDevice": "This Device (Current)",
+      "otherDevices": "Other Devices",
+      "ipAddress": "IP Address",
+      "userAgent": "Browser / Client",
+      "createdAt": "Login Time",
+      "expiresAt": "Expires At",
+      "revokeButton": "Sign Out",
+      "revokeAllOtherButton": "Sign out of all other devices",
+      "revokeSuccess": "Session ended successfully.",
+      "revokeAllSuccess": "Successfully signed out of all other devices.",
+      "empty": "No other active sessions."
+    }
+  },
+  "home": {
+    "heroTitle": "Standard Online JLPT Mock Exams",
+    "heroSubtitle": "Extensive exam bank from N5 to N1 with automatic grading, server-synced timer, and detailed progress analytics.",
+    "startFreeTrial": "Start Free Trial Exam",
+    "viewLibrary": "Explore Exam Library",
+    "levelsTitle": "Choose Your Study Level",
+    "levelsSubtitle": "Complete preparation for Vocabulary, Grammar, Reading, and Listening across all 5 levels",
+    "levelCards": {
+      "n1": "Highest proficiency level. Read editorial articles, analyze specialized texts, and grasp complex discussions.",
+      "n2": "Upper-intermediate level. Required for studying and working in Japanese companies.",
+      "n3": "Bridge to intermediate level. Understand everyday situations spoken at natural speed.",
+      "n4": "Elementary 2. Grasp basic everyday conversations and comprehend short passages.",
+      "n5": "Elementary 1. Master Hiragana, Katakana, basic Kanji, and everyday simple phrases."
+    },
+    "features": {
+      "examEngine": "Official JLPT standard exam interface with synchronized countdown timer.",
+      "smartSRS": "Spaced Repetition System (SRS) to reinforce kanji and vocabulary retention.",
+      "analytics": "Actionable progress charts identifying strengths and areas needing review."
+    }
+  }
+}

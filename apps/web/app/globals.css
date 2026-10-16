@@ -1,0 +1,51 @@
+@import '@jlpt/ui/styles.css';
+
+/* Custom application-level layout enhancements */
+html, body {
+  min-height: 100vh;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+main#main-content {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.responsive-grid-5 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-grid-5 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid-5 {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.auth-card-container {
+  width: 100%;
+  max-width: 480px;
+  margin: 2.5rem auto;
+  padding: 0 1rem;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

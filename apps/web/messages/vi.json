@@ -1,0 +1,206 @@
+{
+  "common": {
+    "brand": "JLPT Online",
+    "tagline": "Nền tảng thi và luyện thi tiếng Nhật trực tuyến chuẩn JLPT",
+    "nav": {
+      "home": "Trang chủ",
+      "levels": "Cấp độ N1–N5",
+      "exams": "Thư viện đề",
+      "practice": "Luyện tập",
+      "account": "Tài khoản",
+      "login": "Đăng nhập",
+      "register": "Đăng ký",
+      "logout": "Đăng xuất"
+    },
+    "footer": {
+      "about": "Giới thiệu",
+      "terms": "Điều khoản sử dụng",
+      "privacy": "Chính sách quyền riêng tư",
+      "faq": "Câu hỏi thường gặp",
+      "contact": "Liên hệ hỗ trợ",
+      "copyright": "Bản quyền thuộc về JLPT Online. Mọi quyền được bảo lưu.",
+      "accessibilityNotice": "Thiết kế tuân thủ tiêu chuẩn trợ năng WCAG 2.1 AA."
+    },
+    "buttons": {
+      "submit": "Gửi đi",
+      "cancel": "Hủy",
+      "save": "Lưu thay đổi",
+      "edit": "Chỉnh sửa",
+      "delete": "Xóa",
+      "close": "Đóng",
+      "back": "Quay lại",
+      "next": "Tiếp tục",
+      "continue": "Tiếp tục",
+      "retry": "Thử lại",
+      "confirm": "Xác nhận",
+      "processing": "Đang xử lý..."
+    },
+    "status": {
+      "loading": "Đang tải dữ liệu...",
+      "saving": "Đang lưu...",
+      "error": "Đã có lỗi xảy ra",
+      "success": "Thao tác thành công",
+      "empty": "Không có dữ liệu"
+    }
+  },
+  "theme": {
+    "title": "Giao diện",
+    "light": "Sáng",
+    "dark": "Tối",
+    "system": "Hệ thống",
+    "toggle": "Chuyển đổi chế độ sáng/tối"
+  },
+  "locale": {
+    "title": "Ngôn ngữ",
+    "select": "Chọn ngôn ngữ",
+    "vi": "Tiếng Việt",
+    "ja": "日本語",
+    "en": "English"
+  },
+  "a11y": {
+    "skipToContent": "Chuyển đến nội dung chính",
+    "openMenu": "Mở menu điều hướng",
+    "closeMenu": "Đóng menu",
+    "required": "bắt buộc",
+    "errorAlert": "Thông báo lỗi"
+  },
+  "auth": {
+    "login": {
+      "title": "Đăng nhập tài khoản",
+      "subtitle": "Chào mừng bạn quay trở lại với JLPT Online",
+      "emailLabel": "Địa chỉ email",
+      "emailPlaceholder": "nhan.nguyen@example.com",
+      "passwordLabel": "Mật khẩu",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "Ghi nhớ đăng nhập",
+      "forgotPasswordLink": "Quên mật khẩu?",
+      "submitButton": "Đăng nhập",
+      "submitting": "Đang xác thực...",
+      "noAccount": "Chưa có tài khoản?",
+      "registerNow": "Đăng ký ngay",
+      "orContinueWith": "Hoặc tiếp tục với",
+      "googleSignIn": "Đăng nhập bằng Google",
+      "success": "Đăng nhập thành công!",
+      "errors": {
+        "invalidCredentials": "Email hoặc mật khẩu không chính xác.",
+        "unverifiedEmail": "Email của bạn chưa được xác minh. Vui lòng kiểm tra hộp thư.",
+        "blocked": "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.",
+        "general": "Đăng nhập thất bại. Vui lòng thử lại sau."
+      }
+    },
+    "register": {
+      "title": "Tạo tài khoản mới",
+      "subtitle": "Bắt đầu lộ trình chinh phục chứng chỉ JLPT",
+      "nameLabel": "Họ và tên",
+      "namePlaceholder": "Nguyễn Văn A",
+      "emailLabel": "Địa chỉ email",
+      "emailPlaceholder": "ban@example.com",
+      "passwordLabel": "Mật khẩu",
+      "passwordHint": "Tối thiểu 8 ký tự, gồm chữ và số",
+      "confirmPasswordLabel": "Xác nhận mật khẩu",
+      "termsAgree": "Tôi đồng ý với Điều khoản và Chính sách bảo mật",
+      "submitButton": "Đăng ký tài khoản",
+      "submitting": "Đang tạo tài khoản...",
+      "haveAccount": "Đã có tài khoản?",
+      "loginNow": "Đăng nhập",
+      "success": "Đăng ký thành công! Vui lòng kiểm tra email để xác minh tài khoản.",
+      "errors": {
+        "emailExists": "Địa chỉ email này đã được sử dụng.",
+        "weakPassword": "Mật khẩu quá yếu hoặc không an toàn.",
+        "passwordMismatch": "Mật khẩu xác nhận không khớp.",
+        "termsRequired": "Bạn cần đồng ý với điều khoản sử dụng.",
+        "general": "Đăng ký thất bại. Vui lòng kiểm tra lại thông tin."
+      }
+    },
+    "forgotPassword": {
+      "title": "Quên mật khẩu",
+      "subtitle": "Nhập email của bạn để nhận liên kết đặt lại mật khẩu",
+      "emailLabel": "Địa chỉ email đã đăng ký",
+      "submitButton": "Gửi email khôi phục",
+      "submitting": "Đang gửi liên kết...",
+      "sentSuccess": "Nếu email tồn tại trong hệ thống, hướng dẫn khôi phục đã được gửi vào hộp thư của bạn.",
+      "backToLogin": "Quay lại trang đăng nhập"
+    },
+    "resetPassword": {
+      "title": "Đặt lại mật khẩu mới",
+      "subtitle": "Tạo mật khẩu an toàn mới cho tài khoản của bạn",
+      "newPasswordLabel": "Mật khẩu mới",
+      "confirmPasswordLabel": "Xác nhận mật khẩu mới",
+      "submitButton": "Cập nhật mật khẩu",
+      "submitting": "Đang cập nhật...",
+      "resetSuccess": "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.",
+      "backToLogin": "Đến trang đăng nhập",
+      "errors": {
+        "invalidToken": "Mã xác thực không hợp lệ hoặc đã qua sử dụng.",
+        "tokenExpired": "Mã xác thực đã hết hạn (chỉ có hiệu lực trong 30 phút).",
+        "passwordMismatch": "Hai mật khẩu không khớp nhau."
+      }
+    },
+    "verifyEmail": {
+      "title": "Xác minh địa chỉ email",
+      "verifying": "Đang xác thực mã liên kết...",
+      "success": "Chúc mừng! Email của bạn đã được xác minh thành công.",
+      "loginButton": "Đăng nhập ngay để bắt đầu làm bài",
+      "failed": "Xác minh thất bại. Mã kích hoạt không hợp lệ hoặc đã hết hạn.",
+      "resendButton": "Yêu cầu gửi lại email xác minh"
+    }
+  },
+  "account": {
+    "title": "Quản lý tài khoản",
+    "subtitle": "Xem thông tin cá nhân, trình độ ôn thi và các phiên hoạt động",
+    "tabs": {
+      "profile": "Hồ sơ cá nhân",
+      "sessions": "Thiết bị & Phiên đăng nhập"
+    },
+    "profile": {
+      "name": "Họ và tên",
+      "email": "Email",
+      "emailVerified": "Đã xác minh",
+      "emailUnverified": "Chưa xác minh",
+      "role": "Vai trò",
+      "targetLevel": "Trình độ JLPT mục tiêu",
+      "targetLevelHint": "Hệ thống sẽ gợi ý đề thi và lộ trình phù hợp với cấp độ này.",
+      "selectLevel": "Chọn cấp độ ôn luyện",
+      "completedExams": "Số đề thi đã hoàn thành",
+      "completedExamsUnit": "đề",
+      "saveButton": "Lưu thay đổi",
+      "saving": "Đang lưu...",
+      "saveSuccess": "Cập nhật hồ sơ thành công!"
+    },
+    "sessions": {
+      "title": "Các phiên đăng nhập hiện tại",
+      "description": "Danh sách thiết bị và trình duyệt đang duy trì phiên làm việc của bạn.",
+      "currentDevice": "Thiết bị này (Hiện tại)",
+      "otherDevices": "Thiết bị khác",
+      "ipAddress": "Địa chỉ IP",
+      "userAgent": "Trình duyệt",
+      "createdAt": "Thời điểm đăng nhập",
+      "expiresAt": "Thời hạn phiên",
+      "revokeButton": "Đăng xuất",
+      "revokeAllOtherButton": "Đăng xuất khỏi tất cả thiết bị khác",
+      "revokeSuccess": "Đã hủy phiên đăng nhập thành công.",
+      "revokeAllSuccess": "Đã đăng xuất khỏi tất cả các thiết bị khác.",
+      "empty": "Không có phiên đăng nhập nào khác."
+    }
+  },
+  "home": {
+    "heroTitle": "Luyện thi JLPT Trực tuyến Chuẩn Nhật",
+    "heroSubtitle": "Ngân hàng đề thi phong phú từ N5 đến N1, chấm điểm tự động, đồng hồ thi đồng bộ máy chủ và phân tích chi tiết.",
+    "startFreeTrial": "Làm bài thi thử ngay",
+    "viewLibrary": "Khám phá kho đề thi",
+    "levelsTitle": "Chọn cấp độ ôn luyện của bạn",
+    "levelsSubtitle": "Lộ trình hoàn chỉnh từ vựng, ngữ pháp, đọc hiểu và nghe hiểu cho cả 5 cấp độ",
+    "levelCards": {
+      "n1": "Cấp độ cao cấp nhất. Đọc hiểu báo chí, phân tích chuyên sâu và thảo luận phức tạp.",
+      "n2": "Trung cao cấp. Phục vụ học tập và làm việc tại các doanh nghiệp Nhật Bản.",
+      "n3": "Cầu nối trung cấp. Hiểu các tình huống sinh hoạt hàng ngày với tốc độ tự nhiên.",
+      "n4": "Sơ cấp 2. Giao tiếp cơ bản hàng ngày và đọc đoạn văn ngắn.",
+      "n5": "Sơ cấp 1. Làm quen với Hiragana, Katakana, chữ Hán cơ bản và câu giao tiếp đơn giản."
+    },
+    "features": {
+      "examEngine": "Phòng thi chuẩn format JLPT với đồng hồ đếm ngược đồng bộ.",
+      "smartSRS": "Hệ thống lặp lại ngắt quãng (SRS) củng cố từ vựng và hán tự.",
+      "analytics": "Báo cáo tiến độ trực quan, chỉ rõ điểm mạnh và phần kiến thức cần bổ sung."
+    }
+  }
+}
