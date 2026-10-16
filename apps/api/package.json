@@ -28,6 +28,8 @@
     "test:events": "vitest run src/modules/classroom/event.test.ts",
     "test:community": "vitest run src/modules/community/community.test.ts",
     "test:privacy": "vitest run src/modules/user/privacy.test.ts",
+    "test:security": "vitest run --testTimeout=30000 --hookTimeout=30000 src/common/guards/security-hardening.test.ts src/common/guards/authorization.test.ts src/modules/attempt/no-answer-leak.test.ts",
+    "test:api:all": "vitest run --testTimeout=30000 --hookTimeout=30000",
     "demo:seed": "node dist/src/modules/import/demo-seed.js"
   },
   "dependencies": {

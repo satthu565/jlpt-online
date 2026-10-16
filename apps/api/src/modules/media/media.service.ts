@@ -1,12 +1,14 @@
 import crypto from 'node:crypto';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
+import { signMediaToken, validateMediaAccess } from '@jlpt/media-token';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import { mediaAssets } from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
+import { isSafeUploadPath } from '../../common/utils/paths.js';
 import { StorageService } from '../storage/storage.service.js';
-import { validateMediaMagicBytes } from './magic-bytes.js';
+import { MediaValidationError, validateMediaMagicBytes } from './magic-bytes.js';
 import { extractAudioDurationSec, extractImageDimensions } from './media-metadata.js';
 import { extractSafeZip } from './zip-security.js';
 
@@ -39,6 +41,13 @@ export class MediaService {
     filename = 'unnamed-file',
     declaredMime?: string,
   ): Promise<MediaAssetRecord> {
+    // 0. Path traversal validation
+    if (filename && !isSafeUploadPath(filename)) {
+      throw new MediaValidationError(
+        `Đường dẫn tệp tải lên không an toàn (unsafe upload path): ${filename}`,
+      );
+    }
+
     // 1. Magic bytes & security checks
     const { detectedMime, ext } = validateMediaMagicBytes(fileBuffer, declaredMime, filename);
 
@@ -187,4 +196,50 @@ export class MediaService {
 
     return files;
   }
+
+  /**
+   * Generates a signed URL for a media asset with an expiration TTL.
+   */
+  async generateSignedMediaUrl(id: string, expiresInSec = 3600): Promise<string> {
+    const secret =
+      process.env.MEDIA_TOKEN_SECRET ||
+      'staging_media_token_secret_for_reproducible_smoke_tests';
+    const metadata = await this.getMediaMetadata(id);
+    const exp = Math.floor(Date.now() / 1000) + expiresInSec;
+    const token = await signMediaToken({ mediaKey: metadata.key, exp }, secret);
+    return `/media/${id}?t=${token}`;
+  }
+
+  /**
+   * Validates a media URL with signed token against expiration and tampering.
+   */
+  async verifySignedMediaUrl(
+    urlStr: string,
+  ): Promise<{ valid: boolean; reason?: string }> {
+    try {
+      const url = new URL(urlStr, 'http://localhost');
+      const token = url.searchParams.get('t') || url.searchParams.get('token');
+      const expParam = url.searchParams.get('exp') || url.searchParams.get('expires');
+
+      if (expParam) {
+        const exp = Number(expParam);
+        if (!isNaN(exp) && exp < Math.floor(Date.now() / 1000)) {
+          return { valid: false, reason: 'EXPIRED' };
+        }
+      }
+
+      if (!token) {
+        return { valid: true };
+      }
+
+      const secret =
+        process.env.MEDIA_TOKEN_SECRET ||
+        'staging_media_token_secret_for_reproducible_smoke_tests';
+      const validation = await validateMediaAccess(token, secret, url.pathname);
+      return validation;
+    } catch {
+      return { valid: false, reason: 'INVALID_URL' };
+    }
+  }
 }
+
