@@ -21,6 +21,8 @@
     "db:migrate:test": "vitest run apps/api/src/db/db.test.ts -t \"migrates a fresh database\"",
     "db:seed:test": "vitest run apps/api/src/db/db.test.ts -t \"seeds fresh migrated database\"",
     "test:db": "vitest run apps/api/src/db/db.test.ts",
+    "test:auth": "vitest run apps/api/src/modules/auth/auth.test.ts",
+    "test:authorization": "vitest run apps/api/src/common/guards/authorization.test.ts",
     "test:exam-engine": "vitest run packages/exam-engine",
     "test:media-token": "vitest run packages/media-token",
     "test:coverage": "vitest run --coverage --coverage.include=\"packages/exam-engine/src/**\" --coverage.include=\"packages/media-token/src/**\" packages/exam-engine packages/media-token"
