@@ -16,7 +16,11 @@
   },
   "devDependencies": {
     "@jlpt/config": "workspace:*",
+    "@jlpt/content-tools": "workspace:*",
+    "@jlpt/exam-engine": "workspace:*",
+    "@jlpt/media-token": "workspace:*",
     "@jlpt/schema": "workspace:*",
+    "@jlpt/srs": "workspace:*",
     "@playwright/test": "1.64.1",
     "@types/k6": "2.3.0",
     "@types/node": "22.13.10",

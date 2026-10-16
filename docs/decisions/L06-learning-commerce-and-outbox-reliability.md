@@ -2,11 +2,11 @@
 
 - **Task:** L06
 - **Worker:** W6 (Hạ tầng CI và kiểm chứng)
-- **Assignment ID:** L06-2
+- **Assignment ID:** L06-3
 - **Trạng thái:** Hoàn tất triển khai (REVIEW)
 - **Base SHA:** `2c04c144ef92949f2aa7e88a2397cb36536c5bf4`
 - **Allowed Paths:** `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `turbo.json`, `.gitignore`, `.gitattributes`, `.nvmrc`, `.npmrc`, `.editorconfig`, `README.md`, `infra/`, `.github/`, `tests/`, `packages/config/`, `apps/media-worker/`, `docs/runbooks/`, `docs/release/`, `docs/decisions/`
-- **Resource Locks:** `staging-deploy`
+- **Resource Locks:** `staging-deploy`, `dependency-lock`
 - **Bàn giao:**
   - `tests/integration/learning/`:
     - `learning-staging-integration.test.ts` (15 tests)
@@ -127,6 +127,10 @@ Theo task card L06 và quy tắc `AGENTS.md`:
    - Thay thế các đường dẫn tham chiếu từ `apps/api/dist/src/...` sang mã nguồn TypeScript trực tiếp `apps/api/src/...` trong 5 tệp kiểm thử tích hợp (`signature-tamper.test.ts`, `concurrency-and-failover.test.ts`, `outbox-replay-double-charge.test.ts`, `outbox-replay-no-double-count.test.ts`, `quota-simulator-concurrency.test.ts`).
    - Đảm bảo `tsc --noEmit` và `pnpm typecheck` thành công 100% trên bản checkout sạch của coordinator khi thư mục `apps/api/dist/` chưa tồn tại.
    - Chuẩn hóa chữ ký hàm `findFreePort(_preferred = 4092)` trong `test-server.ts` để vừa tương thích tham số truyền vào vừa không vi phạm linter `@typescript-eslint/no-unused-vars`.
+6. **Khắc phục thứ tự phụ thuộc biên dịch Turbo và Typecheck trên Clean Checkout (L06-3):**
+   - Bổ sung `@jlpt/exam-engine`, `@jlpt/content-tools`, `@jlpt/media-token`, `@jlpt/srs` vào `devDependencies` của `tests/package.json` và cập nhật `pnpm-lock.yaml` qua `pnpm install` với quyền giữ khóa `dependency-lock`.
+   - Turbo task graph nhờ đó xác định đúng thứ tự `^build` cho `@jlpt/tests`, bảo đảm các package phụ thuộc luôn hoàn tất build d.ts trước khi typecheck `@jlpt/tests`.
+   - Bổ sung cấu hình `paths` mapping trong `tests/tsconfig.json` trỏ trực tiếp tới `packages/*/src/index.ts`, bảo đảm `tsc --noEmit` giải quyết kiểu module an toàn 100% không phụ thuộc trạng thái build.
 
 ---
 
@@ -136,10 +140,10 @@ Toàn bộ các cổng kiểm tra bắt buộc đã được chạy trên bản 
 
 | Cổng kiểm tra | Lệnh | Kết quả | Thời gian |
 |---|---|---|---|
-| **Learning Integration** | `pnpm test:integration:learning` | **PASSED (31/31 tests)** | 10.50s |
-| **Billing Integration** | `pnpm test:integration:billing` | **PASSED (26/26 tests)** | 9.76s |
-| **Frozen Lockfile** | `pnpm install --frozen-lockfile` | **PASSED** | 38ms |
-| **Linter** | `pnpm lint` | **PASSED (0 errors, 0 warnings)** | 1.30s |
-| **Typecheck** | `pnpm typecheck` | **PASSED (19/19 packages)** | 6.30s |
-| **Workspace Tests** | `pnpm test` | **PASSED (34/34 files, 452 tests)** | 3m 07s |
-| **Monorepo Build** | `pnpm build` | **PASSED (12/12 packages)** | 5.51s |
+| **Learning Integration** | `pnpm test:integration:learning` | **PASSED (31/31 tests)** | 17.42s |
+| **Billing Integration** | `pnpm test:integration:billing` | **PASSED (26/26 tests)** | 10.40s |
+| **Frozen Lockfile** | `pnpm install --frozen-lockfile` | **PASSED (exit 0)** | 34ms |
+| **Linter** | `pnpm lint` | **PASSED (13/13 packages, exit 0)** | 1.33s |
+| **Typecheck Clean** | `pnpm typecheck --force` | **PASSED (20/20 tasks, exit 0)** | 23.34s |
+| **Workspace Tests** | `pnpm test` | **PASSED (20/20 tasks, 14 files, 111 tests in @jlpt/tests)** | 28.59s |
+| **Monorepo Build** | `pnpm build` | **PASSED (12/12 packages, exit 0)** | 118ms |
