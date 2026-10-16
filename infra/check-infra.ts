@@ -143,8 +143,10 @@ async function main() {
   if (fs.existsSync(apiDockerPath)) {
     const apiContent = fs.readFileSync(apiDockerPath, 'utf-8');
     const apiOk = apiContent.includes('pnpm --filter "./packages/*" build') &&
-      apiContent.includes('apk add --no-cache curl');
-    record('Dockerfiles', 'api.Dockerfile builds all packages and includes curl', apiOk);
+      apiContent.includes('apk add --no-cache curl') &&
+      apiContent.includes('dist/src/main.js') &&
+      apiContent.includes('dist/main.js');
+    record('Dockerfiles', 'api.Dockerfile builds all packages, includes curl, and handles dist/main.js entrypoint', apiOk);
   }
 
 

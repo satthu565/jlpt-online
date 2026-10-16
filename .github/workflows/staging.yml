@@ -63,7 +63,11 @@ jobs:
           PROFILE: small
         run: |
           echo "Bringing up compose profile small using pre-built images (no build on runtime)..."
-          docker compose -f infra/compose/compose.staging.yml up -d
+          docker compose -f infra/compose/compose.staging.yml up -d || {
+            echo "docker compose up -d failed! Dumping logs immediately..."
+            docker compose -f infra/compose/compose.staging.yml logs
+            exit 1
+          }
 
       - name: Wait for staging services health
         timeout-minutes: 3
@@ -105,6 +109,12 @@ jobs:
           echo " Executing Staging PITR Restore Drill in CI Environment"
           echo "=========================================================="
           node --no-warnings --experimental-strip-types infra/backup/drill-pitr.ts
+
+      - name: Dump container logs on failure
+        if: failure()
+        run: |
+          echo "Deployment or test step failed! Dumping all staging container logs:"
+          docker compose -f infra/compose/compose.staging.yml logs || true
 
       - name: Verify Staging Teardown & Volume Cleanliness
         if: always()

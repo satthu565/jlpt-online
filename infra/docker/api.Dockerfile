@@ -16,6 +16,14 @@ COPY apps/api/ ./apps/api/
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm --filter @jlpt/schema build && pnpm --filter "./packages/*" build && pnpm --filter @jlpt/api build
+RUN if [ -f /app/apps/api/dist/src/main.js ] && [ ! -f /app/apps/api/dist/main.js ]; then \
+      printf "%s\n" "export * from './src/main.js';" "import './src/main.js';" > /app/apps/api/dist/main.js; \
+    fi && \
+    if [ -d /app/apps/api/src/db/migrations ]; then \
+      mkdir -p /app/apps/api/dist/src/db/migrations /app/apps/api/dist/migrations && \
+      cp -r /app/apps/api/src/db/migrations/* /app/apps/api/dist/src/db/migrations/ && \
+      cp -r /app/apps/api/src/db/migrations/* /app/apps/api/dist/migrations/; \
+    fi
 
 FROM base AS runner
 WORKDIR /app
@@ -40,4 +48,4 @@ EXPOSE 4000
 HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -fsS http://localhost:4000/api/v1/health || exit 1
 
-CMD ["node", "dist/main.js"]
+CMD ["sh", "-c", "if [ -f dist/main.js ]; then exec node dist/main.js; elif [ -f dist/src/main.js ]; then exec node dist/src/main.js; else echo 'API entrypoint not found' && exit 1; fi"]
