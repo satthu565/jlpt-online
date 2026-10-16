@@ -552,7 +552,7 @@ describe('L02 Explanations, Audio Transcript Licensing & Moderation (EXPL-01..13
 
         expect(listRes.statusCode).toBe(200);
         const reports = JSON.parse(listRes.body).items;
-        expect(reports.some((r: any) => r.id === reportId)).toBe(true);
+        expect(reports.some((r: { id: string }) => r.id === reportId)).toBe(true);
 
         // Update status
         const patchRes = await app.inject({

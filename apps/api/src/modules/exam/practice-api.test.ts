@@ -5,7 +5,6 @@ import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { NestFactory } from '@nestjs/core';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { Module } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
 import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { AuthGuard } from '../../common/guards/auth.guard.js';
 import { TenantGuard } from '../../common/guards/tenant.guard.js';
@@ -721,7 +720,7 @@ describe('L02 Practice & Mix API, Scope and Usage Tracking', () => {
       });
       expect(listRes.statusCode).toBe(200);
       const marks = JSON.parse(listRes.body).items;
-      expect(marks.some((m: any) => m.questionId === question1Id)).toBe(true);
+      expect(marks.some((m: { questionId: string }) => m.questionId === question1Id)).toBe(true);
 
       // Unmark question
       const delRes = await app.inject({
@@ -812,7 +811,7 @@ describe('L02 Practice & Mix API, Scope and Usage Tracking', () => {
       });
       expect(listRes.statusCode).toBe(200);
       const favs = JSON.parse(listRes.body).items;
-      expect(favs.some((f: any) => f.examId === testExamId)).toBe(true);
+      expect(favs.some((f: { examId: string }) => f.examId === testExamId)).toBe(true);
 
       // Unfavorite
       const unfavRes = await app.inject({

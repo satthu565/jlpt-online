@@ -171,8 +171,6 @@ describe('L02 Notification Preferences, Quiet Hours & Idempotent Delivery (NOTI-
       emailService.clearSentEmails();
 
       // Even during quiet hours, critical notifications bypass quiet hours
-      const quietTimeUTC = new Date('2026-10-16T14:30:00.000Z');
-
       const result = await notiService.sendPaymentStatusNotification(
         studentId,
         'order-999',

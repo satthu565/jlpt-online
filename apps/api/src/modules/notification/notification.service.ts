@@ -1,11 +1,10 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { EmailService } from '../email/email.service.js';
-import type { NotificationPreferences } from '@jlpt/schema';
 
 export interface QuietHours {
   start: string; // "HH:mm" e.g. "22:00"
@@ -254,11 +253,6 @@ export class NotificationService {
    * Computes the Date timestamp when current quiet hours end in user's timezone.
    */
   getNextQuietHoursEnd(now: Date, quietHours: QuietHours, timezone: string): Date {
-    // Approximation: compute target hour/minute in local day
-    const [endH, endM] = quietHours.end.split(':').map((s) => parseInt(s, 10));
-    const endHour = endH ?? 7;
-    const endMinute = endM ?? 0;
-
     // Advance hour-by-hour until out of quiet hours
     let testDate = new Date(now.getTime() + 15 * 60 * 1000);
     for (let i = 0; i < 48; i++) {

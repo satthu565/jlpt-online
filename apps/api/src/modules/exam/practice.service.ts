@@ -1,7 +1,6 @@
 import {
   Inject,
   Injectable,
-  NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
@@ -11,7 +10,6 @@ import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import {
   PracticeConfigSchema,
-  type PracticeConfig,
   type GeneratedExam,
   type Level,
   type MondaiType,
@@ -100,18 +98,7 @@ export class PracticeService {
 
     const questionIds = qList.map((q: { id: string }) => q.id);
 
-    // 4. Fetch approved question versions
-    const qVersions = await db
-      .select()
-      .from(schema.questionVersions)
-      .where(
-        and(
-          inArray(schema.questionVersions.questionId, questionIds),
-          eq(schema.questionVersions.status, 'approved'),
-        ),
-      );
-
-    // 5. Fetch correct answers
+    // 4. Fetch correct answers
     const answers = await db
       .select()
       .from(schema.correctAnswers)
@@ -360,7 +347,7 @@ export class PracticeService {
       });
 
       // Find or create blueprint for this level
-      let [bp] = await db
+      const [bp] = await db
         .select({ id: schema.blueprints.id })
         .from(schema.blueprints)
         .where(eq(schema.blueprints.level, config.level))

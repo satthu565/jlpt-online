@@ -1,13 +1,12 @@
 import crypto from 'node:crypto';
 import {
-  BadRequestException,
   ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
@@ -24,7 +23,6 @@ import {
 import {
   generateMixedExam as generateMixedExamEngine,
   PoolShortageError,
-  type CandidateGroup,
 } from '@jlpt/exam-engine';
 import { LicenseService } from '../license/license.service.js';
 import { PracticeService } from './practice.service.js';
@@ -65,10 +63,10 @@ export class MixService {
         isOfficial: row.isOfficial,
         isConfirmed: row.isConfirmed,
         effectiveFrom: row.effectiveFrom,
-        sourceRef: row.sourceRef as any,
+        sourceRef: row.sourceRef as unknown as Blueprint['sourceRef'],
         note: row.note ?? undefined,
-        sections: row.sections as any,
-        scoring: row.scoring as any,
+        sections: row.sections as unknown as Blueprint['sections'],
+        scoring: row.scoring as unknown as Blueprint['scoring'],
       };
     }
 
@@ -226,7 +224,7 @@ export class MixService {
       });
 
       // Find or create blueprint for this level
-      let [bp] = await db
+      const [bp] = await db
         .select({ id: schema.blueprints.id })
         .from(schema.blueprints)
         .where(eq(schema.blueprints.level, config.level))
