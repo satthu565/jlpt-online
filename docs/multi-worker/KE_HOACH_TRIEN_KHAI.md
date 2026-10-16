@@ -526,7 +526,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Khóa tài nguyên: staging-deploy, heavy-load.
 - Điều kiện ngoài chặn bắt đầu: không.
 - Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): hosting.
-- Quyền ghi tạm ngoài thư mục của worker: không.
+- Quyền ghi tạm ngoài thư mục của worker: apps/api/src/modules/exam/, apps/api/src/modules/review/, apps/api/src/modules/import/.
 - Nghiệm thu:
   - Gói demo docs/multi-worker/demo-data: validate->review->publish->thi->review chạy thật trên staging tạm trong CI.
   - Cross-tenant/IDOR negative matrix pass.
