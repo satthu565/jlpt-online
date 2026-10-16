@@ -141,6 +141,24 @@ export class MediaService {
   }
 
   /**
+   * Retrieves media asset metadata only from database without fetching storage content.
+   */
+  async getMediaMetadata(id: string): Promise<MediaAssetRecord> {
+    const records = await this.dbClient.db
+      .select()
+      .from(mediaAssets)
+      .where(eq(mediaAssets.id, id))
+      .limit(1);
+
+    const metadata = records[0];
+    if (!metadata) {
+      throw new NotFoundException(`Media asset không tìm thấy: ${id}`);
+    }
+
+    return metadata;
+  }
+
+  /**
    * Finds media asset by SHA-256.
    */
   async getMediaBySha256(sha256: string): Promise<MediaAssetRecord | null> {

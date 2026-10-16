@@ -2,7 +2,10 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -42,7 +45,29 @@ export class QuestionBankController {
   @Roles('admin', 'editor', 'reviewer')
   @Get('admin/groups')
   async listGroups(@Query() filters: GroupSearchFilters) {
-    return this.qbService.searchGroups(filters);
+    return { items: await this.qbService.searchGroups(filters) };
+  }
+
+  @Roles('admin', 'editor', 'reviewer')
+  @Get('admin/groups/:id')
+  async getGroup(@Param('id') id: string) {
+    return this.qbService.getGroup(id);
+  }
+
+  @Roles('admin', 'editor')
+  @Delete('admin/groups/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteGroup(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthUserContext,
+  ) {
+    await this.qbService.deleteGroup(id, user?.userId || 'admin');
+  }
+
+  @Roles('admin', 'editor', 'reviewer')
+  @Get('admin/groups/:id/versions')
+  async listGroupVersions(@Param('id') id: string) {
+    return this.qbService.listGroupVersions(id);
   }
 
   @Roles('admin', 'editor')

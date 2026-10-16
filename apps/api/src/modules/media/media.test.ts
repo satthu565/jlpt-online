@@ -243,6 +243,18 @@ describe('Media Module - Magic Bytes, Upload Security & Deduplication', () => {
       expect(() => validateMediaMagicBytes(pngBytes, 'audio/mpeg', 'test.mp3')).toThrow(
         MediaValidationError,
       );
+
+      // 5. Dangerous extensions (.exe, .sh, .php) containing valid media magic bytes
+      expect(() => validateMediaMagicBytes(pngBytes, undefined, 'payload.exe')).toThrow(
+        MediaValidationError,
+      );
+      expect(() => validateMediaMagicBytes(pngBytes, undefined, 'script.sh')).toThrow(
+        MediaValidationError,
+      );
+      const mp3Bytes = createMinimalMp3WithId3();
+      expect(() => validateMediaMagicBytes(mp3Bytes, undefined, 'shell.php')).toThrow(
+        MediaValidationError,
+      );
     });
 
     it('enforces maximum size limits on audio, images, and pdfs', () => {

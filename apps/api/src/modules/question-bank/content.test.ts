@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { ForbiddenException, ConflictException } from '@nestjs/common';
+import { ForbiddenException, ConflictException, NotFoundException } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { assertNoAnswerLeak } from '@jlpt/schema';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
@@ -181,6 +181,48 @@ describe('Question Bank Module - Versioning, Review, and Idempotency (C02)', () 
       expect(res.questions[0].id).toBeDefined();
       expect(res.questions[0].correctAnswer.correctOption).toBe(1);
     });
+
+    it('supports getGroup, soft deleteGroup, and listGroupVersions (QB-01, QB-04, QB-17)', async () => {
+      const created = await qbService.createGroup(
+        {
+          level: 'N2',
+          sectionCode: 'reading',
+          title: 'CRUD test group',
+          questions: [
+            {
+              stem: [{ t: 'text', text: 'Reading passage question' }],
+              options: [
+                { orderIndex: 1, content: [{ t: 'text', text: 'A' }] },
+                { orderIndex: 2, content: [{ t: 'text', text: 'B' }] },
+                { orderIndex: 3, content: [{ t: 'text', text: 'C' }] },
+                { orderIndex: 4, content: [{ t: 'text', text: 'D' }] },
+              ],
+              correctOption: 2,
+              skill: 'reading',
+              mondaiType: 'comprehension_mid',
+            },
+          ],
+        },
+        authorId,
+      );
+
+      // 1. getGroup returns complete group details and questions
+      const fetched = await qbService.getGroup(created.id);
+      expect(fetched.id).toBe(created.id);
+      expect(fetched.version.version).toBe(1);
+      expect(fetched.questions.length).toBe(1);
+      expect(fetched.questions[0]?.options.length).toBe(4);
+
+      // 2. listGroupVersions returns array of versions wrapped in items
+      const vers = await qbService.listGroupVersions(created.id);
+      expect(vers.items.length).toBe(1);
+      expect(vers.items[0]?.version).toBe(1);
+
+      // 3. deleteGroup performs soft-delete
+      await qbService.deleteGroup(created.id, authorId);
+      await expect(qbService.getGroup(created.id)).rejects.toThrow(NotFoundException);
+      await expect(qbService.listGroupVersions(created.id)).rejects.toThrow(NotFoundException);
+    });
   });
 
   describe('Acceptance 2: Sửa nội dung approved tạo phiên bản mới', () => {
@@ -293,6 +335,71 @@ describe('Question Bank Module - Versioning, Review, and Idempotency (C02)', () 
       expect(rows[1]?.version).toBe(2);
       expect(rows[1]?.status).toBe('draft'); // NEW DRAFT!
     });
+
+    it('creates new version when modifying hidden content to protect immutability (QB-13)', async () => {
+      const created = await qbService.createGroup(
+        {
+          level: 'N3',
+          sectionCode: 'grammar',
+          questions: [
+            {
+              stem: [{ t: 'text', text: 'Original stem before flaw discovered' }],
+              options: [
+                { orderIndex: 1, content: [{ t: 'text', text: '1' }] },
+                { orderIndex: 2, content: [{ t: 'text', text: '2' }] },
+                { orderIndex: 3, content: [{ t: 'text', text: '3' }] },
+                { orderIndex: 4, content: [{ t: 'text', text: '4' }] },
+              ],
+              correctOption: 1,
+              skill: 'grammar',
+              mondaiType: 'grammar_form',
+            },
+          ],
+        },
+        authorId,
+      );
+
+      // Hide the group
+      await qbService.hideGroup(created.id, { reason: 'Flawed content reported' }, editorId);
+
+      // Modifying hidden group MUST spawn a new version 2, leaving version 1 as 'hidden'!
+      const updateRes = await qbService.updateGroup(
+        created.id,
+        {
+          title: 'Fixed version after hide',
+          questions: [
+            {
+              stem: [{ t: 'text', text: 'Corrected stem' }],
+              options: [
+                { orderIndex: 1, content: [{ t: 'text', text: '1' }] },
+                { orderIndex: 2, content: [{ t: 'text', text: '2' }] },
+                { orderIndex: 3, content: [{ t: 'text', text: '3' }] },
+                { orderIndex: 4, content: [{ t: 'text', text: '4' }] },
+              ],
+              correctOption: 1,
+              skill: 'grammar',
+              mondaiType: 'grammar_form',
+            },
+          ],
+        },
+        editorId,
+      );
+
+      expect(updateRes.isNewVersion).toBe(true);
+      expect(updateRes.version.version).toBe(2);
+      expect(updateRes.version.status).toBe('draft');
+
+      const vers = await dbClient.db
+        .select()
+        .from(questionGroupVersions)
+        .where(eq(questionGroupVersions.groupId, created.id))
+        .orderBy(questionGroupVersions.version);
+      expect(vers.length).toBe(2);
+      expect(vers[0]?.version).toBe(1);
+      expect(vers[0]?.status).toBe('hidden'); // IMMUTABLE!
+      expect(vers[1]?.version).toBe(2);
+      expect(vers[1]?.status).toBe('draft');
+    });
   });
 
   describe('Review Workflow & Separation of Duties', () => {
@@ -373,9 +480,108 @@ describe('Question Bank Module - Versioning, Review, and Idempotency (C02)', () 
       expect(hideRes.status).toBe('hidden');
       expect(hideRes.version.status).toBe('hidden');
     });
+
+    it('enforces separation of duties even after service restart from persistent content_reviews journal (QB-15)', async () => {
+      const created = await qbService.createGroup(
+        {
+          level: 'N1',
+          sectionCode: 'grammar',
+          questions: [
+            {
+              stem: [{ t: 'text', text: 'N1 sentence' }],
+              options: [
+                { orderIndex: 1, content: [{ t: 'text', text: '1' }] },
+                { orderIndex: 2, content: [{ t: 'text', text: '2' }] },
+                { orderIndex: 3, content: [{ t: 'text', text: '3' }] },
+                { orderIndex: 4, content: [{ t: 'text', text: '4' }] },
+              ],
+              correctOption: 4,
+              skill: 'grammar',
+              mondaiType: 'grammar_form',
+            },
+          ],
+        },
+        authorId,
+      );
+
+      await qbService.submitForReview(created.id, 1, authorId);
+
+      // Simulate service restart by instantiating a new QuestionBankService instance
+      // (in-memory groupLastEditors cache is completely empty)
+      const restartedService = new QuestionBankService(dbClient, licenseService, mediaService);
+
+      // Author attempting review must still be blocked by reading persistent journal
+      await expect(
+        restartedService.reviewGroup(
+          created.id,
+          1,
+          { decision: 'approved', comment: 'Bypassing after restart' },
+          authorId,
+        ),
+      ).rejects.toThrow(ForbiddenException);
+
+      // Independent reviewer passes
+      const approved = await restartedService.reviewGroup(
+        created.id,
+        1,
+        { decision: 'approved', comment: 'Approved by independent reviewer' },
+        reviewerId,
+      );
+      expect(approved.status).toBe('approved');
+    });
   });
 
   describe('Public Student Preview (Strictly No Answer Leaks)', () => {
+    it('only returns approved versions when version param is omitted on public preview', async () => {
+      const created = await qbService.createGroup(
+        {
+          level: 'N5',
+          sectionCode: 'language_vocab',
+          title: 'Draft preview test',
+          questions: [
+            {
+              stem: [{ t: 'text', text: 'Draft stem' }],
+              options: [
+                { orderIndex: 1, content: [{ t: 'text', text: 'Opt 1' }] },
+                { orderIndex: 2, content: [{ t: 'text', text: 'Opt 2' }] },
+                { orderIndex: 3, content: [{ t: 'text', text: 'Opt 3' }] },
+                { orderIndex: 4, content: [{ t: 'text', text: 'Opt 4' }] },
+              ],
+              correctOption: 1,
+              skill: 'vocabulary',
+              mondaiType: 'contextual',
+            },
+          ],
+        },
+        authorId,
+      );
+
+      // When draft, public preview without version param MUST throw NotFoundException
+      await expect(qbService.getGroupPublicPreview(created.id)).rejects.toThrow(
+        NotFoundException,
+      );
+
+      // Approve version 1
+      await qbService.submitForReview(created.id, 1, authorId);
+      await qbService.reviewGroup(created.id, 1, { decision: 'approved' }, reviewerId);
+
+      // Now public preview without version param returns approved version 1!
+      const approvedPreview = await qbService.getGroupPublicPreview(created.id);
+      expect(approvedPreview.groupId).toBe(created.id);
+      expect(approvedPreview.version).toBe(1);
+
+      // Create draft version 2
+      await qbService.updateGroup(
+        created.id,
+        { title: 'Draft v2' },
+        editorId,
+      );
+
+      // Public preview without version param STILL returns approved version 1 (not draft v2!)
+      const publicStillV1 = await qbService.getGroupPublicPreview(created.id);
+      expect(publicStillV1.version).toBe(1);
+    });
+
     it('returns public question preview with zero answer keys or correct fields', async () => {
       const created = await qbService.createGroup(
         {

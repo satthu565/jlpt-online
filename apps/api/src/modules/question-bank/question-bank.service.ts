@@ -38,9 +38,14 @@ import type {
   UpdateQuestionGroupDto,
 } from './question-bank.types.js';
 
+function isValidUuid(id?: string): boolean {
+  if (!id) return false;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+}
+
 @Injectable()
 export class QuestionBankService {
-  // In-memory or metadata map to track last editor per group version
+  // In-memory cache to track last editor per group version
   private readonly groupLastEditors = new Map<string, string>();
 
   constructor(
@@ -94,8 +99,24 @@ export class QuestionBankService {
         })
         .returning();
 
-      // Track author as last editor for version 1
+      // Track author as last editor for version 1 (QB-15)
       this.groupLastEditors.set(`${groupId}:1`, authorId);
+      if (isValidUuid(authorId)) {
+        try {
+          await tx.insert(contentReviews).values({
+            id: generateUuidV7(),
+            targetType: 'group_version',
+            targetId: groupId,
+            targetVersion: 1,
+            reviewerId: authorId,
+            lastEditorId: authorId,
+            status: 'draft',
+            comments: 'Khởi tạo nhóm câu hỏi',
+          });
+        } catch {
+          // Fall back gracefully if authorId not in users table
+        }
+      }
 
       // 3. Insert questions and version 1 for each question
       const createdQuestions: Array<Record<string, unknown>> = [];
@@ -195,8 +216,8 @@ export class QuestionBankService {
 
     const currentVersion = latestVersions[0];
 
-    // If approved, create NEW version (Acceptance 2)
-    if (currentVersion.status === 'approved') {
+    // If approved or hidden, create NEW version (Acceptance 2, QB-13)
+    if (currentVersion.status === 'approved' || currentVersion.status === 'hidden') {
       const nextVersionNum = currentVersion.version + 1;
 
       return this.dbClient.db.transaction(async (tx: DbTx) => {
@@ -227,6 +248,22 @@ export class QuestionBankService {
           .returning();
 
         this.groupLastEditors.set(`${groupId}:${nextVersionNum}`, editorId);
+        if (isValidUuid(editorId)) {
+          try {
+            await tx.insert(contentReviews).values({
+              id: generateUuidV7(),
+              targetType: 'group_version',
+              targetId: groupId,
+              targetVersion: nextVersionNum,
+              reviewerId: editorId,
+              lastEditorId: editorId,
+              status: 'draft',
+              comments: 'Cập nhật phiên bản mới',
+            });
+          } catch {
+            // Fall back gracefully
+          }
+        }
 
         // Fetch existing questions
         const existingQRecords = await tx
@@ -332,6 +369,22 @@ export class QuestionBankService {
         .returning();
 
       this.groupLastEditors.set(`${groupId}:${currentVersion.version}`, editorId);
+      if (isValidUuid(editorId)) {
+        try {
+          await tx.insert(contentReviews).values({
+            id: generateUuidV7(),
+            targetType: 'group_version',
+            targetId: groupId,
+            targetVersion: currentVersion.version,
+            reviewerId: editorId,
+            lastEditorId: editorId,
+            status: 'draft',
+            comments: 'Sửa đổi bản nháp',
+          });
+        } catch {
+          // Fall back gracefully
+        }
+      }
 
       // If questions provided, update questions
       if (dto.questions && dto.questions.length > 0) {
@@ -420,6 +473,22 @@ export class QuestionBankService {
     }
 
     this.groupLastEditors.set(`${groupId}:${expectedVersion}`, editorId);
+    if (isValidUuid(editorId)) {
+      try {
+        await this.dbClient.db.insert(contentReviews).values({
+          id: generateUuidV7(),
+          targetType: 'group_version',
+          targetId: groupId,
+          targetVersion: expectedVersion,
+          reviewerId: editorId,
+          lastEditorId: editorId,
+          status: 'submitted',
+          comments: 'Nộp yêu cầu kiểm duyệt',
+        });
+      } catch {
+        // Fall back gracefully
+      }
+    }
 
     const [updated] = await this.dbClient.db
       .update(questionGroupVersions)
@@ -452,8 +521,33 @@ export class QuestionBankService {
       );
     }
 
-    // Server verification: Reviewer cannot be the last editor!
-    const lastEditorId = this.groupLastEditors.get(`${groupId}:${expectedVersion}`);
+    // Server verification: Reviewer cannot be the last editor! (QB-15)
+    let lastEditorId = this.groupLastEditors.get(`${groupId}:${expectedVersion}`);
+    if (!lastEditorId) {
+      try {
+        const reviewLogs = await this.dbClient.db
+          .select()
+          .from(contentReviews)
+          .where(
+            and(
+              eq(contentReviews.targetType, 'group_version'),
+              eq(contentReviews.targetId, groupId),
+              eq(contentReviews.targetVersion, expectedVersion),
+            ),
+          )
+          .orderBy(desc(contentReviews.reviewedAt), desc(contentReviews.id))
+          .limit(1);
+
+        const recoveredEditor = reviewLogs[0]?.lastEditorId;
+        if (recoveredEditor) {
+          lastEditorId = recoveredEditor;
+          this.groupLastEditors.set(`${groupId}:${expectedVersion}`, recoveredEditor);
+        }
+      } catch {
+        // Fall back gracefully
+      }
+    }
+
     if (lastEditorId && lastEditorId === reviewerId) {
       throw new ForbiddenException(
         'Người duyệt không được là người sửa cuối cùng của nội dung này (vi phạm quy tắc kiểm duyệt độc lập)',
@@ -625,10 +719,19 @@ export class QuestionBankService {
       const versions = await this.dbClient.db
         .select()
         .from(questionGroupVersions)
-        .where(eq(questionGroupVersions.groupId, groupId))
+        .where(
+          and(
+            eq(questionGroupVersions.groupId, groupId),
+            eq(questionGroupVersions.status, 'approved'),
+          ),
+        )
         .orderBy(desc(questionGroupVersions.version))
         .limit(1);
-      if (versions.length === 0 || !versions[0]) throw new NotFoundException('Phiên bản không tồn tại');
+      if (versions.length === 0 || !versions[0]) {
+        throw new NotFoundException(
+          `Không tìm thấy phiên bản đã duyệt (approved) cho nhóm câu hỏi: ${groupId}`,
+        );
+      }
       versionRow = versions[0];
     }
 
@@ -688,6 +791,7 @@ export class QuestionBankService {
 
     const publicGroupDto = {
       groupId: group.id,
+      version: versionRow.version,
       mondaiType: qRecords[0]?.mondaiType || 'kanji_reading',
       instructions: [{ t: 'text', text: group.title || '' }],
       passage: Array.isArray(versionRow.passage) ? versionRow.passage : null,
@@ -908,6 +1012,116 @@ export class QuestionBankService {
       status: 'succeeded',
       packageSha256,
     };
+  }
+
+  /**
+   * QB-01: Admin get group by ID with its latest version and questions.
+   */
+  async getGroup(groupId: string) {
+    const group = await this.getGroupRaw(groupId);
+
+    const latestVersions = await this.dbClient.db
+      .select()
+      .from(questionGroupVersions)
+      .where(eq(questionGroupVersions.groupId, groupId))
+      .orderBy(desc(questionGroupVersions.version))
+      .limit(1);
+
+    if (latestVersions.length === 0 || !latestVersions[0]) {
+      throw new NotFoundException(`Không tìm thấy phiên bản cho nhóm câu hỏi: ${groupId}`);
+    }
+
+    const currentVersion = latestVersions[0];
+
+    const qRecords = await this.dbClient.db
+      .select()
+      .from(questions)
+      .where(and(eq(questions.groupId, groupId), isNull(questions.deletedAt)));
+
+    const questionDetails: Array<Record<string, unknown>> = [];
+
+    for (const q of qRecords) {
+      const qvRows = await this.dbClient.db
+        .select()
+        .from(questionVersions)
+        .where(
+          and(
+            eq(questionVersions.questionId, q.id),
+            eq(questionVersions.version, currentVersion.version),
+          ),
+        )
+        .limit(1);
+
+      const opts = await this.dbClient.db
+        .select()
+        .from(answerOptions)
+        .where(
+          and(
+            eq(answerOptions.questionId, q.id),
+            eq(answerOptions.questionVersion, currentVersion.version),
+          ),
+        )
+        .orderBy(answerOptions.orderIndex);
+
+      const correct = await this.dbClient.db
+        .select()
+        .from(correctAnswers)
+        .where(
+          and(
+            eq(correctAnswers.questionId, q.id),
+            eq(correctAnswers.questionVersion, currentVersion.version),
+          ),
+        )
+        .limit(1);
+
+      questionDetails.push({
+        ...q,
+        version: qvRows[0] || null,
+        options: opts,
+        correctAnswer: correct[0] || null,
+      });
+    }
+
+    return {
+      ...group,
+      version: currentVersion,
+      questions: questionDetails,
+    };
+  }
+
+  /**
+   * QB-01: Soft-deletes a question group and its questions.
+   */
+  async deleteGroup(groupId: string, _deletedByUserId: string): Promise<void> {
+    await this.getGroupRaw(groupId);
+
+    const now = new Date();
+    await this.dbClient.db.transaction(async (tx: DbTx) => {
+      await tx
+        .update(questionGroups)
+        .set({ deletedAt: now })
+        .where(eq(questionGroups.id, groupId));
+
+      await tx
+        .update(questions)
+        .set({ deletedAt: now })
+        .where(eq(questions.groupId, groupId));
+    });
+  }
+
+  /**
+   * QB-04, QB-17: List immutable version history of a question group.
+   */
+  async listGroupVersions(groupId: string): Promise<{ items: Array<typeof questionGroupVersions.$inferSelect> }> {
+    await this.getGroupRaw(groupId);
+
+    const versions = await this.dbClient.db
+      .select()
+      .from(questionGroupVersions)
+      .where(eq(questionGroupVersions.groupId, groupId))
+      .orderBy(desc(questionGroupVersions.version));
+
+    return { items: versions };
   }
 
   // ---------------------------------------------------------------------------

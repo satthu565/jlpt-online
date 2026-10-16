@@ -34,8 +34,8 @@ export class MediaController {
     @Headers('range') rangeHeader: string | undefined,
     @Res() reply: FastifyReply,
   ) {
-    const asset = await this.mediaService.getMedia(id);
-    const totalSize = asset.metadata.size;
+    const metadata = await this.mediaService.getMediaMetadata(id);
+    const totalSize = metadata.size;
 
     const parsedRange = this.storageService.parseRangeHeader(rangeHeader, totalSize);
     if (parsedRange) {
@@ -45,7 +45,7 @@ export class MediaController {
 
       reply
         .status(206)
-        .header('Content-Type', asset.mime)
+        .header('Content-Type', metadata.mime)
         .header('Content-Range', `bytes ${start}-${end}/${totalSize}`)
         .header('Content-Length', rangedAsset.content.length)
         .header('Accept-Ranges', 'bytes')
@@ -53,9 +53,10 @@ export class MediaController {
       return;
     }
 
+    const asset = await this.mediaService.getMedia(id);
     reply
       .status(200)
-      .header('Content-Type', asset.mime)
+      .header('Content-Type', metadata.mime)
       .header('Content-Length', totalSize)
       .header('Accept-Ranges', 'bytes')
       .send(asset.content);

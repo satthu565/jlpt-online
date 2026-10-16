@@ -114,7 +114,8 @@ export function validateMediaMagicBytes(
     );
   }
 
-  const extFromFilename = filename.split('.').pop()?.toLowerCase();
+  const extFromFilename =
+    filename && filename.includes('.') ? filename.split('.').pop()?.toLowerCase() : undefined;
 
   // If MIME was declared, check compatibility
   if (declaredMime) {
@@ -131,7 +132,7 @@ export function validateMediaMagicBytes(
     }
   }
 
-  // If filename extension was declared, verify extension aligns with detected MIME
+  // If filename extension was declared, verify extension aligns with detected MIME and is in whitelist
   if (extFromFilename) {
     const extMimeMap: Record<string, string[]> = {
       png: ['image/png'],
@@ -146,9 +147,9 @@ export function validateMediaMagicBytes(
     };
 
     const allowedMimesForExt = extMimeMap[extFromFilename];
-    if (allowedMimesForExt && !allowedMimesForExt.includes(detected)) {
+    if (!allowedMimesForExt || !allowedMimesForExt.includes(detected)) {
       throw new MediaValidationError(
-        `Phần mở rộng .${extFromFilename} không khớp nội dung thực tế (${detected}) cho tệp ${filename}`,
+        `Phần mở rộng .${extFromFilename} không được phép hoặc không khớp nội dung thực tế (${detected}) cho tệp ${filename}`,
       );
     }
   }
