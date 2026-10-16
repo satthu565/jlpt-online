@@ -1,7 +1,7 @@
 # Báo cáo kỹ thuật L03: Phân tích lỗi Race Condition Migration trên Staging CI
 
 - **Mã task**: L03
-- **Assignment**: L03-3
+- **Assignment**: L03-5 (cập nhật từ L03-3)
 - **Worker**: W3 (Giao diện học viên)
 - **Nhánh**: `task/L03`
 - **Ngày**: 2026-10-16
@@ -10,8 +10,28 @@
 
 ## 1. Hiện tượng và Log lỗi trên CI GitHub Actions
 
-Trong bước `Deploy temporary staging with profile small` của workflow `.github/workflows/staging.yml`, container `jlpt-staging-api` gặp sự cố khởi động và sập với mã lỗi Postgres:
+Trong các lượt chạy CI trên GitHub Actions (`.github/workflows/staging.yml` tại bước `Deploy temporary staging with profile small`), hệ thống liên tục ghi nhận sự cố race condition khi khởi động staging containers:
 
+### Lần chạy gần nhất (2026-10-16T11:35:17Z):
+```text
+Staging Compose Profile Small & PITR Drill | Deploy temporary staging with profile small
+jlpt-staging-api | at Readable.push (node:internal/streams/readable:400:5)
+jlpt-staging-api | at TCP.onStreamRead (node:internal/stream_base_commons:194:23) {
+jlpt-staging-api |   severity_local: 'ERROR',
+jlpt-staging-api |   severity: 'ERROR',
+jlpt-staging-api |   code: '42P07',
+jlpt-staging-api |   file: 'heap.c',
+jlpt-staging-api |   line: '1177',
+jlpt-staging-api |   routine: 'heap_create_with_catalog'
+jlpt-staging-api | }
+jlpt-staging-api | { severity_local: 'NOTICE', code: '42P07', message: 'relation "__drizzle_migrations" already exists, skipping' }
+jlpt-staging-api | { severity_local: 'NOTICE', code: '42P07', message: 'relation "attempt_events_y2026m10" already exists, skipping' }
+...
+jlpt-staging-api | JLPT API listening on port 4000
+##[error]Process completed with exit code 1.
+```
+
+### Lần chạy trước đó (2026-10-16T11:03:50Z):
 ```text
 jlpt-staging-worker | message: 'identifier "entitlement_grants_entitlement_code_entitlement_definitions_code_fk" will be truncated to "entitlement_grants_entitlement_code_entitlement_definitions_cod"'
 ...
@@ -19,11 +39,10 @@ jlpt-staging-api    | severity_local: 'NOTICE', severity: 'NOTICE', code: '42P07
 ...
 jlpt-staging-api    | [Nest] 1 - ERROR [ExceptionHandler] PostgresError: relation "accounts" already exists
 jlpt-staging-api    |     at ErrorResponse (file:///app/node_modules/.pnpm/postgres@3.4.9/node_modules/postgres/src/connection.js:815:30)
-...
 Process completed with exit code 1.
 ```
 
-Hậu quả: `jlpt-staging-api` không thể vượt qua health check (`/api/v1/health`), khiến bước probe timeout sau 3 phút và workflow staging bị trả về mã lỗi 1.
+Hậu quả: Một trong hai container (`jlpt-staging-api` hoặc `jlpt-staging-worker`) bị crash do lỗi xung đột migration song song (`42P07`), khiến lệnh `docker compose up -d` phát hiện container dừng bất thường và thoát ngay với exit code 1.
 
 ---
 
