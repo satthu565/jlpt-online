@@ -64,7 +64,15 @@ export async function runDemoSeed(
 
     // 2. Initialize domain services
     if (!options?.storageService && !process.env.STORAGE_LOCAL_ROOT) {
-      process.env.STORAGE_LOCAL_ROOT = resolveRepoPath('node_modules/.cache/storage');
+      const defaultDataDir = resolveRepoPath('.data/storage');
+      try {
+        if (!fs.existsSync(defaultDataDir)) {
+          fs.mkdirSync(defaultDataDir, { recursive: true });
+        }
+        process.env.STORAGE_LOCAL_ROOT = defaultDataDir;
+      } catch {
+        process.env.STORAGE_LOCAL_ROOT = resolveRepoPath('node_modules/.cache/storage');
+      }
     }
     const storageService = options?.storageService ?? new StorageService();
     const mediaService = new MediaService(dbClient, storageService);

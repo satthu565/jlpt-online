@@ -11,6 +11,12 @@ jobs:
   staging-verify:
     name: Staging Compose Profile Small & PITR Drill
     runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{ github.sha }}
+      IMAGE_REPO: jlpt
+      IMAGE_REGISTRY: docker.io
+      PROFILE: small
+      STAGING_API_URL: http://127.0.0.1:4000
 
     steps:
       - name: Checkout repository
@@ -102,6 +108,34 @@ jobs:
           curl -fsS http://127.0.0.1:3001/healthz
           echo "Staging live smoke tests passed!"
 
+      - name: Seed Staging Database for N06
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_REPO: jlpt
+          IMAGE_REGISTRY: docker.io
+          PROFILE: small
+        run: |
+          echo "Seeding staging sessions and tenant data..."
+          docker compose -f infra/compose/compose.staging.yml exec -T postgres psql -U jlpt -d jlpt_staging < tests/fixtures/seed-sessions.sql
+          echo "Seeding demo package blueprint and initial content..."
+          docker compose -f infra/compose/compose.staging.yml exec -T api node dist/src/modules/import/demo-seed.js
+          echo "Staging database seeded successfully."
+
+      # Acceptance (N06): "Gói demo docs/multi-worker/demo-data: validate->review->publish->thi->review chạy thật trên staging tạm trong CI"
+      # Acceptance (N06): "Cross-tenant/IDOR negative matrix pass"
+      # Acceptance (N06): "Ghi actual load metrics; không suy ra sức chịu khi chưa đo"
+      - name: Run Core Vertical Slice E2E & Demo Package Flow (N06)
+        run: |
+          pnpm test:e2e:core
+
+      - name: Run Security Negative Matrix (Cross-tenant, IDOR, RBAC, Lease) (N06)
+        run: |
+          pnpm test:security
+
+      - name: Run Load Baseline & Record Actual Measured Metrics (N06)
+        run: |
+          pnpm test:load:baseline
+
       # Acceptance: "Backup PITR khôi phục trên staging tạm có RPO/RTO đo trong log CI"
       - name: Execute Backup PITR Restore Drill & Log RPO/RTO Measurements
         run: |
@@ -112,11 +146,21 @@ jobs:
 
       - name: Dump container logs on failure
         if: failure()
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_REPO: jlpt
+          IMAGE_REGISTRY: docker.io
+          PROFILE: small
         run: |
           echo "Deployment or test step failed! Dumping all staging container logs:"
           docker compose -f infra/compose/compose.staging.yml logs || true
 
       - name: Verify Staging Teardown & Volume Cleanliness
         if: always()
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_REPO: jlpt
+          IMAGE_REGISTRY: docker.io
+          PROFILE: small
         run: |
           docker compose -f infra/compose/compose.staging.yml down -v --remove-orphans || true

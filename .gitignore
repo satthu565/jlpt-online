@@ -36,3 +36,7 @@ Thumbs.db
 
 # Local storage driver and test output (STORAGE_LOCAL_ROOT defaults to ./.data/storage)
 .data/
+
+# Load test outputs and performance baseline metrics
+docs/release/load-baseline-metrics.json
+

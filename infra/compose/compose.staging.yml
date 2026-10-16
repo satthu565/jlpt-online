@@ -4,7 +4,7 @@
 
 services:
   web:
-    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_REPO:-jlpt}/jlpt-web:${IMAGE_TAG:?IMAGE_TAG required}
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_REPO:-jlpt}/jlpt-web:${IMAGE_TAG:-latest}
     container_name: jlpt-staging-web
     restart: unless-stopped
     ports:
@@ -30,7 +30,7 @@ services:
       - jlpt-staging-net
 
   admin:
-    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_REPO:-jlpt}/jlpt-admin:${IMAGE_TAG:?IMAGE_TAG required}
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_REPO:-jlpt}/jlpt-admin:${IMAGE_TAG:-latest}
     container_name: jlpt-staging-admin
     restart: unless-stopped
     ports:
@@ -55,7 +55,7 @@ services:
       - jlpt-staging-net
 
   api:
-    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_REPO:-jlpt}/jlpt-api:${IMAGE_TAG:?IMAGE_TAG required}
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_REPO:-jlpt}/jlpt-api:${IMAGE_TAG:-latest}
     container_name: jlpt-staging-api
     restart: unless-stopped
     ports:
@@ -63,6 +63,8 @@ services:
     environment:
       - APP_MODE=api
       - NODE_ENV=production
+      - APP_ENV=staging
+      - RATE_LIMIT_NAMESPACE=staging
       - PORT=4000
       - API_WORKERS=1
       - NODE_OPTIONS=--max-old-space-size=${API_MAX_OLD_SPACE:-384}
@@ -72,7 +74,10 @@ services:
       - WEB_INTERNAL_URL=http://web:3000
       - AUTH_SECRET=${AUTH_SECRET:-staging_secret_key_fixed_length_for_tests}
       - MEDIA_TOKEN_SECRET=${MEDIA_TOKEN_SECRET:-staging_media_token_secret_for_tests}
+      - STORAGE_LOCAL_ROOT=/app/.data/storage
       - SENTRY_DSN=
+    volumes:
+      - staging-storage-data:/app/.data/storage
     mem_limit: ${API_MEM_LIMIT:-512m}
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:4000/api/v1/health || exit 1"]
@@ -91,7 +96,7 @@ services:
       - jlpt-staging-net
 
   worker:
-    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_REPO:-jlpt}/jlpt-api:${IMAGE_TAG:?IMAGE_TAG required}
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_REPO:-jlpt}/jlpt-api:${IMAGE_TAG:-latest}
     container_name: jlpt-staging-worker
     restart: unless-stopped
     environment:
@@ -101,10 +106,15 @@ services:
       - DATABASE_URL=postgres://${POSTGRES_USER:-jlpt}:${POSTGRES_PASSWORD:-staging_password}@postgres:5432/${POSTGRES_DB:-jlpt_staging}
       - REDIS_CORE_URL=redis://redis-core:6379
       - REDIS_CACHE_URL=redis://redis-cache:6379
+      - STORAGE_LOCAL_ROOT=/app/.data/storage
       - AUTH_SECRET=${AUTH_SECRET:-staging_secret_key_fixed_length_for_tests}
       - MEDIA_TOKEN_SECRET=${MEDIA_TOKEN_SECRET:-staging_media_token_secret_for_tests}
+    volumes:
+      - staging-storage-data:/app/.data/storage
     mem_limit: ${WORKER_MEM_LIMIT:-320m}
     depends_on:
+      api:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       redis-core:
@@ -174,3 +184,4 @@ networks:
 volumes:
   staging-postgres-data:
   staging-redis-core-data:
+  staging-storage-data:

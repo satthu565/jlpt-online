@@ -9,11 +9,13 @@ import {
 import { Public } from '../../common/decorators/public.decorator.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
+import { RateLimit } from '../../common/decorators/rate-limit.decorator.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
 import { ExamService } from './exam.service.js';
 import type { Level, ExamKind, Session } from '@jlpt/schema';
 
 @Controller()
+@RateLimit({ limit: 1000, windowSec: 60, keyPrefix: 'exams' })
 export class ExamController {
   constructor(private readonly examService: ExamService) {}
 
@@ -55,7 +57,12 @@ export class ExamController {
     @CurrentUser() user: { id?: string; userId?: string },
   ) {
     const userId = user.userId || user.id || '';
-    return this.examService.publishExam(id, userId);
+    try {
+      return await this.examService.publishExam(id, userId);
+    } catch (err) {
+      console.error(`[ExamController.publishExam] Lỗi xuất bản đề thi ${id} bởi ${userId}:`, err);
+      throw err;
+    }
   }
 
   @Post('admin/exams/:id/unpublish')
@@ -66,6 +73,11 @@ export class ExamController {
     @CurrentUser() user: { id?: string; userId?: string },
   ) {
     const userId = user.userId || user.id || '';
-    return this.examService.unpublishExam(id, userId, reason);
+    try {
+      return await this.examService.unpublishExam(id, userId, reason);
+    } catch (err) {
+      console.error(`[ExamController.unpublishExam] Lỗi gỡ xuất bản đề thi ${id} bởi ${userId}:`, err);
+      throw err;
+    }
   }
 }

@@ -3,6 +3,9 @@
   "compilerOptions": {
     "noEmit": true,
     "allowImportingTsExtensions": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false,
     "types": ["node", "k6"]
   },
   "include": ["integration/**/*", "load/**/*", "e2e/**/*"]

@@ -88,7 +88,9 @@
     "test:reporting": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/reporting/reporting.test.ts",
     "test:cms": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/cms/cms.test.ts",
     "test:experiments": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/experiment/experiment.test.ts",
-    "test:security": "vitest run --testTimeout=30000 --hookTimeout=30000 apps/api/src/common/guards/security-hardening.test.ts apps/api/src/common/guards/authorization.test.ts apps/api/src/modules/attempt/no-answer-leak.test.ts",
+    "test:e2e:core": "vitest run -c tests/vitest.config.ts tests/e2e/core.test.ts",
+    "test:security": "vitest run -c tests/vitest.config.ts --testTimeout=30000 --hookTimeout=30000 tests/integration/security-matrix.test.ts apps/api/src/common/guards/security-hardening.test.ts apps/api/src/common/guards/authorization.test.ts apps/api/src/modules/attempt/no-answer-leak.test.ts",
+    "test:load:baseline": "node --no-warnings --experimental-strip-types tests/load/baseline-runner.ts",
     "test:api:all": "pnpm --filter @jlpt/api test"
   },
   "devDependencies": {
