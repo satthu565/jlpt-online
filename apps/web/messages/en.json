@@ -1,0 +1,232 @@
+{
+  "common": {
+    "brand": "JLPT Online",
+    "tagline": "Official JLPT Standard Online Japanese Proficiency Exam & Practice Platform",
+    "nav": {
+      "home": "Home",
+      "levels": "Levels N1–N5",
+      "exams": "Exam Library",
+      "practice": "Practice",
+      "account": "Account",
+      "login": "Sign In",
+      "register": "Sign Up",
+      "logout": "Sign Out"
+    },
+    "footer": {
+      "about": "About Us",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "faq": "FAQ",
+      "contact": "Contact Support",
+      "copyright": "Copyright © JLPT Online. All rights reserved.",
+      "accessibilityNotice": "Designed in compliance with WCAG 2.1 AA accessibility standards."
+    },
+    "buttons": {
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "save": "Save Changes",
+      "edit": "Edit",
+      "delete": "Delete",
+      "close": "Close",
+      "back": "Back",
+      "next": "Next",
+      "continue": "Continue",
+      "retry": "Retry",
+      "confirm": "Confirm",
+      "processing": "Processing..."
+    },
+    "status": {
+      "loading": "Loading...",
+      "saving": "Saving...",
+      "error": "An error occurred",
+      "success": "Action completed successfully",
+      "empty": "No data available"
+    }
+  },
+  "theme": {
+    "title": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "toggle": "Toggle light/dark theme"
+  },
+  "locale": {
+    "title": "Language",
+    "select": "Select language",
+    "vi": "Tiếng Việt",
+    "ja": "日本語",
+    "en": "English"
+  },
+  "a11y": {
+    "skipToContent": "Skip to main content",
+    "openMenu": "Open navigation menu",
+    "closeMenu": "Close menu",
+    "required": "required",
+    "errorAlert": "Error notification"
+  },
+  "auth": {
+    "login": {
+      "title": "Account Sign In",
+      "subtitle": "Welcome back to JLPT Online",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "user@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "Remember me",
+      "forgotPasswordLink": "Forgot password?",
+      "submitButton": "Sign In",
+      "submitting": "Authenticating...",
+      "noAccount": "Don't have an account?",
+      "registerNow": "Sign up now",
+      "orContinueWith": "Or continue with",
+      "googleSignIn": "Sign in with Google",
+      "success": "Signed in successfully!",
+      "errors": {
+        "invalidCredentials": "Invalid email or password.",
+        "unverifiedEmail": "Your email address is not verified. Please check your inbox.",
+        "blocked": "Your account has been suspended. Please contact support.",
+        "general": "Sign in failed. Please try again later."
+      }
+    },
+    "register": {
+      "title": "Create New Account",
+      "subtitle": "Start your journey toward JLPT certification",
+      "nameLabel": "Full Name",
+      "namePlaceholder": "John Doe",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "user@example.com",
+      "passwordLabel": "Password",
+      "passwordHint": "At least 8 characters with letters and numbers",
+      "confirmPasswordLabel": "Confirm Password",
+      "termsAgree": "I agree to the Terms of Service and Privacy Policy",
+      "submitButton": "Create Account",
+      "submitting": "Creating account...",
+      "haveAccount": "Already have an account?",
+      "loginNow": "Sign In",
+      "success": "Registration successful! Please check your email to verify your account.",
+      "errors": {
+        "emailExists": "This email address is already registered.",
+        "weakPassword": "Password is too weak or insecure.",
+        "passwordMismatch": "Confirmation password does not match.",
+        "termsRequired": "You must agree to the Terms of Service.",
+        "general": "Registration failed. Please check your inputs."
+      }
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your email to receive a password reset link",
+      "emailLabel": "Registered email address",
+      "submitButton": "Send Reset Link",
+      "submitting": "Sending link...",
+      "sentSuccess": "If the email exists in our system, recovery instructions have been sent to your inbox.",
+      "backToLogin": "Back to Sign In",
+      "errors": {
+        "general": "Failed to send reset link. Please try again."
+      }
+    },
+    "resetPassword": {
+      "title": "Set New Password",
+      "subtitle": "Create a new secure password for your account",
+      "tokenLabel": "Verification Token",
+      "tokenPlaceholder": "Enter verification token from email",
+      "passwordHint": "At least 8 characters",
+      "newPasswordLabel": "New Password",
+      "confirmPasswordLabel": "Confirm New Password",
+      "submitButton": "Update Password",
+      "submitting": "Updating...",
+      "resetSuccess": "Password reset successful! You can now sign in with your new password.",
+      "backToLogin": "Go to Sign In",
+      "errors": {
+        "invalidToken": "Verification token is invalid or has already been used.",
+        "tokenExpired": "Verification token has expired (valid for 30 minutes).",
+        "passwordMismatch": "Passwords do not match.",
+        "general": "Failed to reset password. Please try again."
+      }
+    },
+    "verifyEmail": {
+      "title": "Verify Email Address",
+      "verifying": "Verifying your link token...",
+      "success": "Congratulations! Your email address has been successfully verified.",
+      "loginButton": "Sign In to Start Learning",
+      "failed": "Verification failed. Token is invalid or expired.",
+      "missingToken": "No verification token found in the verification link.",
+      "resendButton": "Resend Verification Email"
+    }
+  },
+  "account": {
+    "title": "Account Settings",
+    "subtitle": "View personal profile, target JLPT level, and active sessions",
+    "tabs": {
+      "ariaLabel": "Account Settings Tabs",
+      "profile": "Profile",
+      "sessions": "Devices & Sessions"
+    },
+    "profile": {
+      "name": "Full Name",
+      "email": "Email Address",
+      "emailVerified": "Verified",
+      "emailUnverified": "Unverified",
+      "role": "Role",
+      "targetLevel": "Target JLPT Level",
+      "targetLevelHint": "The system will recommend exams and study paths tailored to this level.",
+      "selectLevel": "Select target level",
+      "levelN1": "JLPT N1 (Advanced)",
+      "levelN2": "JLPT N2 (Upper Intermediate)",
+      "levelN3": "JLPT N3 (Intermediate)",
+      "levelN4": "JLPT N4 (Elementary 2)",
+      "levelN5": "JLPT N5 (Elementary 1)",
+      "completedExams": "Completed Mock Exams",
+      "completedExamsUnit": "exams",
+      "saveButton": "Save Changes",
+      "saving": "Saving...",
+      "saveSuccess": "Profile updated successfully!",
+      "saveError": "Failed to update profile."
+    },
+    "sessions": {
+      "title": "Active Login Sessions",
+      "description": "List of devices and browsers currently connected to your account.",
+      "currentDevice": "This Device (Current)",
+      "otherDevices": "Other Devices",
+      "defaultBrowser": "Web Browser",
+      "ipAddress": "IP Address",
+      "userAgent": "Browser / OS",
+      "createdAt": "Login Time",
+      "expiresAt": "Session Expiry",
+      "revokeButton": "Sign Out",
+      "revokeAriaLabel": "Revoke session for {device}",
+      "confirmRevokeTitle": "Confirm Revoke Session",
+      "confirmRevokeBody": "Are you sure you want to sign out from this device? You will need to log in again on that device.",
+      "revokeAllOtherButton": "Sign Out From All Other Devices",
+      "revokeSuccess": "Session revoked successfully.",
+      "revokeAllSuccess": "Successfully signed out from all other devices.",
+      "revokeError": "Unable to revoke session.",
+      "revokeAllError": "Unable to sign out other devices.",
+      "empty": "No other active sessions found."
+    }
+  },
+  "home": {
+    "heroTitle": "Standard Online JLPT Practice Platform",
+    "heroSubtitle": "Rich mock exams from N5 to N1, automatic scoring, synchronized server timer, and detailed analysis.",
+    "startFreeTrial": "Start Free Mock Exam",
+    "viewLibrary": "Explore Exam Library",
+    "levelsTitle": "Choose Your Practice Level",
+    "levelsSubtitle": "Complete curriculum for vocabulary, grammar, reading, and listening across all 5 levels",
+    "levelHeading": "Level {level}",
+    "viewLevelExams": "View {level} Exams",
+    "levelCards": {
+      "n1": "Top advanced level. Reading editorials, in-depth analysis, and complex comprehension.",
+      "n2": "Upper intermediate. Suitable for work and study at Japanese enterprises and universities.",
+      "n3": "Intermediate bridge. Understanding daily scenarios at natural speaking speed.",
+      "n4": "Elementary 2. Basic everyday conversation and reading short passages.",
+      "n5": "Elementary 1. Introduction to Hiragana, Katakana, basic Kanji, and essential phrases."
+    },
+    "features": {
+      "examEngineTitle": "Standard Exam Environment",
+      "examEngine": "Standard JLPT exam simulator with synchronized server countdown.",
+      "smartSRSTitle": "Smart SRS Review",
+      "smartSRS": "Spaced Repetition System (SRS) to reinforce vocabulary and kanji retention.",
+      "analyticsTitle": "Analytics & Reports",
+      "analytics": "Visual progress tracking highlighting your strengths and areas needing improvement."
+    }
+  }
+}

@@ -24,7 +24,6 @@ Nếu thiếu một điều kiện chặn bắt đầu, các task sau không gia
 | coding-vps | 45 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, F01, F02, F03, F04, F05, F06, F07, F08, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
 | coding-accounts | 45 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, F01, F02, F03, F04, F05, F06, F07, F08, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
 | coordinator-runtime | 1 | F07 |
-| hosting | 13 | A06, C06, L06, N06, R01, R02, R03, R04, R05, R06, V04, V05, V06 |
 
 ## Mô phỏng theo giả định
 

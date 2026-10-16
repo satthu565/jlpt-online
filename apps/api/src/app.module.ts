@@ -11,8 +11,22 @@ import { TenantGuard } from './common/guards/tenant.guard.js';
 import { ApiExceptionFilter } from './common/filters/api-exception.filter.js';
 import { PiiMaskingInterceptor } from './common/interceptors/pii-masking.interceptor.js';
 
+import { StorageModule } from './modules/storage/storage.module.js';
+import { MediaModule } from './modules/media/media.module.js';
+import { LicenseModule } from './modules/license/license.module.js';
+import { QuestionBankModule } from './modules/question-bank/question-bank.module.js';
+
 @Module({
-  imports: [DatabaseModule, EmailModule, AuthModule, UserModule],
+  imports: [
+    DatabaseModule,
+    EmailModule,
+    AuthModule,
+    UserModule,
+    StorageModule,
+    MediaModule,
+    LicenseModule,
+    QuestionBankModule,
+  ],
   controllers: [HealthController],
   providers: [
     {

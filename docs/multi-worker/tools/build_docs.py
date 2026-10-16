@@ -209,10 +209,10 @@ task('C05','W5',2,6,'Validator gói nhập kiểm tra dữ liệu và đóng gó
  'Lỗi schema checksum đáp án timeline hoặc thiếu file có path cụ thể|Draft có vấn đề vẫn lưu nháp nhưng bị chặn publish|Ready đủ media và không issue blocking|Nhập lại packageId/revision/content hash không tạo trùng; sửa nội dung có revision mới|Gói demo docs/multi-worker/demo-data/demo-n5-1.zip đạt READY',
  'pnpm test:import-contracts|pnpm test:import-validation|pnpm import:validate -- fixtures/imports/ready', 'PDF:21-23,27',contracts='API DB',external='sample-rights')
 task('C06','W6',2,6,'Staging production profiles CDN backup và release','F01 F08',
- 'Compose full small/large, R2/media Worker, Cloudflare Tunnel, WAL-G, GHCR deploy rollback; secrets qua operator.',
- 'infra/|apps/media-worker/|.github/workflows/release.yml',
- 'Staging độc lập dữ liệu worker|Signed media check trước cache; Range206 đúng|Backup PITR khôi phục staging có RPO/RTO đo|Không build trên production',
- 'pnpm test:media-edge|pnpm infra:check|pnpm test:deploy|pnpm test:restore', 'SYS:8-9,11,15 ADM:20',contracts='API',resources='ci-workflow staging-deploy',start='hosting',external='cloudflare r2')
+ 'Compose full small/large, R2/media Worker, Cloudflare Tunnel, WAL-G, GHCR deploy rollback; secrets qua operator. Chưa có hosting: staging tạm dựng bằng docker compose (profile small) trong GitHub Actions; cùng script deploy lên staging thật khi có hosting.',
+ 'infra/|apps/media-worker/|.github/workflows/',
+ 'Workflow staging tạm trong GitHub Actions dựng compose profile small từ image build một lần, chạy smoke và xanh trên PR|Staging độc lập dữ liệu worker|Signed media check trước cache; Range206 đúng|Backup PITR khôi phục trên staging tạm có RPO/RTO đo trong log CI|Không build trên production|Lệnh cần Docker (deploy, restore) chạy trong CI, không chạy trên VPS coding vì worker không có Docker',
+ 'pnpm test:media-edge|pnpm infra:check', 'SYS:8-9,11,15 ADM:20',contracts='API',resources='ci-workflow staging-deploy',external='cloudflare r2 hosting')
 
 # Day 3. Close the first vertical slice and implement learning engines.
 task('N01','W1',3,5,'Thuật toán luyện và trộn tất cả chế độ','C01 C02',
@@ -241,10 +241,10 @@ task('N05','W5',3,6,'NLP từ điển tagging và dữ liệu thống kê','C05 
  'Từ xuất hiện trong đề khác từ được hỏi trực tiếp|Frequency theo kỳ level skill nguồn và role câu|Có dataset version size source date|Dictionary license và attribution đầy đủ',
  'pnpm test:nlp|pnpm test:vocab-data', 'DATA:1-10,19-23 QB:9',contracts='API DB EVENTS',external='dictionary sample-rights')
 task('N06','W6',3,6,'Tích hợp nội dung tới thi và kiểm thử lỗi nền','C06 N02 N03 N04',
- 'Triển khai vertical slice trên staging; test không lộ đáp án, isolation, recovery migration và load baseline.',
+ 'Triển khai vertical slice trên staging tạm trong CI (staging thật khi có hosting); test không lộ đáp án, isolation, recovery migration và load baseline.',
  'tests/integration/|tests/e2e/',
- 'Agent ngoài chuẩn bị gói->validate->review->publish->thi->review chạy thật trên staging|Cross-tenant/IDOR negative matrix pass|Ghi actual load metrics; không suy ra sức chịu khi chưa đo',
- 'pnpm test:e2e:core|pnpm test:security|pnpm test:load:baseline',contracts='API',resources='staging-deploy heavy-load')
+ 'Gói demo docs/multi-worker/demo-data: validate->review->publish->thi->review chạy thật trên staging tạm trong CI|Cross-tenant/IDOR negative matrix pass|Ghi actual load metrics; không suy ra sức chịu khi chưa đo',
+ 'pnpm test:e2e:core|pnpm test:security|pnpm test:load:baseline',contracts='API',resources='staging-deploy heavy-load',external='hosting')
 
 # Day 4. Learning, SRS, planner, commerce.
 task('L01','W1',4,6,'SRS độ khó dedupe và hợp đồng learning','N01 N05',
@@ -339,8 +339,8 @@ task('V05','W5',6,6,'Đối chiếu dữ liệu nhập AI thật và học tập
 task('V06','W6',6,8,'Full regression load accessibility security và restore','A06 V02 V03 V04 V05',
  'Chromium WebKit Firefox; device operator, k6 stepped load, ZAP/CodeQL/deps, backup restore cold deploy rollback.',
  'tests/|infra/',
- 'Record target and observed capacity separately|RPO<=5min RTO<=1h có timestamps|No P0/P1 accepted silently|Load generator tách khỏi target; không đo sức chịu bằng VPS đang build',
- 'pnpm test:e2e:all-browsers|pnpm test:security|pnpm test:load|pnpm test:restore|pnpm test:a11y', 'SYS:10',resources='staging-deploy heavy-load',external='device-test hosting')
+ 'Record target and observed capacity separately|RPO<=5min RTO<=1h có timestamps từ job restore trong CI|No P0/P1 accepted silently|Load generator tách khỏi target; không đo sức chịu bằng VPS đang build',
+ 'pnpm test:e2e:all-browsers|pnpm test:security|pnpm test:load|pnpm test:a11y', 'SYS:10',resources='staging-deploy heavy-load',external='device-test hosting')
 
 # Day 7. Feature fixes remain in scope; no silent cuts if the target is missed.
 for owner, name, paths, checks, deps in [
@@ -359,7 +359,7 @@ task('R06','W6',7,6,'Nghiệm thu phạm vi hiện hành và bàn giao toàn b�
  'Chạy final release candidate, đối chiếu matrix, ghi separate code/provider/release acceptance; owner quyết định production.',
  'docs/release/BAO_CAO_NGAY_7.md|docs/release/feature-evidence.json|docs/release/release-decision.md|docs/runbooks/',
  '363yêu cầu ứng dụng chỉ DONE khi đủ evidence;12yêu cầu chuẩn bị bên ngoài báo riêng|Thiếu yêu cầu trong phạm vi hiện hành => TARGET_NOT_MET|Chưa beta14ngày/payment30ngày không ghi đạt|Runbooks deploy rollback restore handover tái hiện được',
- 'pnpm features:verify|pnpm test:release|pnpm test:restore',resources='staging-deploy',kind='verification')
+ 'pnpm features:verify|pnpm test:release',resources='staging-deploy',kind='verification',external='hosting')
 
 # Supplemental tasks ensure capabilities that cross work-package boundaries are explicit.
 task('B01','W2',3,4,'API nhập gói chuẩn duyệt ghép đề và xuất bản','C02 C01 C05',
