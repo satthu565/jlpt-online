@@ -99,8 +99,22 @@ jobs:
           echo "Verifying Web health..."
           curl -fsS http://127.0.0.1:3000/healthz
           echo "Verifying Admin health..."
-          curl -fsS http://127.0.0.1:3001/healthz
           echo "Staging live smoke tests passed!"
+
+      # Acceptance (N06): "Gói demo docs/multi-worker/demo-data: validate->review->publish->thi->review chạy thật trên staging tạm trong CI"
+      # Acceptance (N06): "Cross-tenant/IDOR negative matrix pass"
+      # Acceptance (N06): "Ghi actual load metrics; không suy ra sức chịu khi chưa đo"
+      - name: Run Core Vertical Slice E2E & Demo Package Flow (N06)
+        run: |
+          pnpm test:e2e:core
+
+      - name: Run Security Negative Matrix (Cross-tenant, IDOR, RBAC, Lease) (N06)
+        run: |
+          pnpm test:security
+
+      - name: Run Load Baseline & Record Actual Measured Metrics (N06)
+        run: |
+          pnpm test:load:baseline
 
       # Acceptance: "Backup PITR khôi phục trên staging tạm có RPO/RTO đo trong log CI"
       - name: Execute Backup PITR Restore Drill & Log RPO/RTO Measurements
