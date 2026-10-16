@@ -32,6 +32,8 @@
     "aiModeration": "AI Moderation",
     "orgSettings": "Organizations & Teachers",
     "settings": "System Settings",
+    "reconciliation": "Payment Reconciliation",
+    "backup": "Backup & Restore",
     "sections": {
       "overview": "Overview",
       "authoring": "Content & Authoring",

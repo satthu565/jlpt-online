@@ -272,4 +272,77 @@ export class BillingManager {
       },
     };
   }
+
+  private reconciliationRuns: import('./types').AdminReconciliationRun[] = [
+    {
+      id: 'rec_run_sample_1',
+      provider: 'payos',
+      periodStart: '2026-10-01T00:00:00Z',
+      periodEnd: '2026-10-15T23:59:59Z',
+      discrepanciesFound: 0,
+      discrepancies: [],
+      status: 'reconciled',
+      runAt: '2026-10-16T02:00:00Z',
+    },
+  ];
+
+  listReconciliationRuns(): import('./types').AdminReconciliationRun[] {
+    return [...this.reconciliationRuns];
+  }
+
+  runReconciliation(
+    provider = 'payos',
+    externalStatements?: Array<{
+      reference: string;
+      orderId?: string;
+      amountMinor: number;
+      currency: string;
+      status: 'PAID' | 'REFUNDED' | 'FAILED';
+    }>,
+    _operator?: { id: string; email?: string; role: string; tenantId?: string },
+  ): import('./types').AdminReconciliationRun {
+    const discrepancies: import('./types').AdminDiscrepancyItem[] = [];
+
+    if (externalStatements && externalStatements.length > 0) {
+      for (const stmt of externalStatements) {
+        if (stmt.status === 'PAID') {
+          const matchingOrder = this.payments.find((p) => p.orderId === stmt.orderId);
+          if (!matchingOrder) {
+            discrepancies.push({
+              type: 'missing_internal_order',
+              providerRef: stmt.reference,
+              orderId: stmt.orderId,
+              actualAmountMinor: stmt.amountMinor,
+              currency: stmt.currency,
+              description: `Chứng từ ${stmt.reference} không tồn tại trong hệ thống đơn hàng.`,
+            });
+          } else if (matchingOrder.totalAmount !== stmt.amountMinor) {
+            discrepancies.push({
+              type: 'amount_mismatch',
+              orderId: matchingOrder.orderId,
+              providerRef: stmt.reference,
+              expectedAmountMinor: matchingOrder.totalAmount,
+              actualAmountMinor: stmt.amountMinor,
+              description: `Số tiền đơn hàng ${matchingOrder.orderId} không khớp chứng từ provider.`,
+            });
+          }
+        }
+      }
+    }
+
+    const runId = `rec_run_${Date.now()}`;
+    const newRun: import('./types').AdminReconciliationRun = {
+      id: runId,
+      provider,
+      periodStart: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+      periodEnd: new Date().toISOString(),
+      discrepanciesFound: discrepancies.length,
+      discrepancies,
+      status: discrepancies.length === 0 ? 'reconciled' : 'discrepancy_detected',
+      runAt: new Date().toISOString(),
+    };
+
+    this.reconciliationRuns.unshift(newRun);
+    return newRun;
+  }
 }

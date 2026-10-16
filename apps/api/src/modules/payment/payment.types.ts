@@ -98,3 +98,65 @@ export interface SubscriptionChangeResultDto {
   prorationMinor?: number;
 }
 
+export interface ProviderStatementItem {
+  reference: string;
+  orderId?: string;
+  amountMinor: number;
+  currency: string;
+  status: 'PAID' | 'REFUNDED' | 'FAILED';
+  timestamp: string;
+}
+
+export type DiscrepancyType =
+  | 'amount_mismatch'
+  | 'missing_internal_order'
+  | 'missing_provider_settlement'
+  | 'refund_amount_mismatch'
+  | 'unprocessed_refund'
+  | 'duplicate_provider_ref';
+
+export interface ReconciliationDiscrepancyItem {
+  type: DiscrepancyType;
+  orderId?: string;
+  providerRef?: string;
+  expectedAmountMinor?: number;
+  actualAmountMinor?: number;
+  currency?: string;
+  description: string;
+}
+
+export interface ReconciliationSummaryDto {
+  runId: string;
+  provider: string;
+  periodStart: string;
+  periodEnd: string;
+  totalOrdersChecked: number;
+  totalRefundsChecked: number;
+  matchedOrdersCount: number;
+  matchedRefundsCount: number;
+  grossSettledMinor: number;
+  refundSettledMinor: number;
+  netSettledMinor: number;
+  discrepanciesCount: number;
+  discrepancies: ReconciliationDiscrepancyItem[];
+  status: 'reconciled' | 'discrepancy_detected';
+  runAt: string;
+}
+
+export interface ProviderReadinessDto {
+  provider: string;
+  isLive: boolean;
+  mode: 'sandbox' | 'live';
+  configured: boolean;
+  missingPrerequisites?: string[];
+  webhookVerifiedInSandbox: boolean;
+  evidence: {
+    sandboxTested: boolean;
+    signatureAlgorithm: 'HMAC-SHA256';
+    replayProtected: boolean;
+    outOfOrderProtected: boolean;
+    reconciliationReady: boolean;
+  };
+}
+
+

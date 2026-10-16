@@ -10,6 +10,8 @@ import type {
   ContentIncidentsReportDto,
   ContentReviewReportDto,
   ConversionReportDto,
+  CorpusLevelAggregate,
+  CorpusReportDto,
   DashboardOverviewDto,
   ExamCompletionReportDto,
   ExperimentPerformanceReportDto,
@@ -817,7 +819,7 @@ export class ReportingService {
 
     const grossRevenueMinor = paidOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
     const approvedRefunds = refunds
-      .filter((r) => r.status === 'approved')
+      .filter((r) => r.status === 'approved' || r.status === 'refunded')
       .reduce((sum, r) => sum + (r.amount || 0), 0);
     const netRevenueMinor = Math.max(grossRevenueMinor - approvedRefunds, 0);
 
@@ -1013,6 +1015,75 @@ export class ReportingService {
   }
 
   /**
+   * CORPUS: Báo cáo kho ngữ liệu ngôn ngữ học và thống kê từ vựng/ngữ pháp/kanji
+   */
+  async getCorpusReport(_query?: ReportQueryDto): Promise<CorpusReportDto> {
+    const datasetRows = await this.dbClient.db.select().from(schema.datasets);
+    const documentRows = await this.dbClient.db.select().from(schema.datasetDocuments);
+    const vocabRows = (await this.dbClient.db.select().from(schema.vocabOccurrences)) as Array<{ count: number | null }>;
+    const grammarRows = (await this.dbClient.db.select().from(schema.grammarOccurrences)) as Array<{ count: number | null }>;
+    const kanjiRows = (await this.dbClient.db.select().from(schema.kanjiOccurrences)) as Array<{ count: number | null }>;
+    const aggregateRows = (await this.dbClient.db.select().from(schema.corpusAggregates)) as Array<{
+      id: string;
+      level: string;
+      aggregateType: string;
+      payload: unknown;
+      calculatedAt: Date;
+    }>;
+
+    let totalVocabOccurrences = 0;
+    for (const v of vocabRows) {
+      totalVocabOccurrences += v.count || 1;
+    }
+
+    let totalGrammarOccurrences = 0;
+    for (const g of grammarRows) {
+      totalGrammarOccurrences += g.count || 1;
+    }
+
+    let totalKanjiOccurrences = 0;
+    for (const k of kanjiRows) {
+      totalKanjiOccurrences += k.count || 1;
+    }
+
+    const levels = ['N1', 'N2', 'N3', 'N4', 'N5'];
+    const levelAggregates: CorpusLevelAggregate[] = levels.map((lvl) => {
+      const agg = aggregateRows.find((a) => a.level === lvl);
+      const payload = (agg?.payload as Record<string, number>) || {};
+      return {
+        level: lvl,
+        vocabCount: payload['vocabCount'] || 0,
+        grammarCount: payload['grammarCount'] || 0,
+        kanjiCount: payload['kanjiCount'] || 0,
+      };
+    });
+
+    const lastCalculatedAt =
+      aggregateRows.length > 0
+        ? aggregateRows.reduce(
+            (latest, a) =>
+              new Date(a.calculatedAt) > new Date(latest)
+                ? a.calculatedAt.toISOString()
+                : latest,
+            aggregateRows[0]!.calculatedAt.toISOString(),
+          )
+        : null;
+
+    const hasData = datasetRows.length > 0 || totalVocabOccurrences > 0;
+
+    return {
+      totalDatasets: datasetRows.length,
+      totalDocuments: documentRows.length,
+      totalVocabOccurrences,
+      totalGrammarOccurrences,
+      totalKanjiOccurrences,
+      levelAggregates,
+      lastCalculatedAt,
+      corpusHealthStatus: hasData ? 'healthy' : 'empty',
+    };
+  }
+
+  /**
    * ADM-01: Dashboard tổng quan hệ thống
    */
   async getDashboardOverview(): Promise<DashboardOverviewDto> {
@@ -1131,6 +1202,8 @@ export class ReportingService {
         return this.getProviderCostsReport(query);
       case 'experiments':
         return this.getExperimentPerformanceReport(query);
+      case 'corpus':
+        return this.getCorpusReport(query);
       default:
         return this.getDashboardOverview();
     }
@@ -1145,7 +1218,7 @@ export class ReportingService {
   }
 
   /**
-   * Sanitizes a CSV cell to neutralize Excel/Google Sheets formula injection.
+   * Sanitizes a CSV cell to neutralize Excel/Google Sheets formula injection and adhere to RFC 4180.
    */
   sanitizeCsvCell(value: unknown): string {
     if (value === null || value === undefined) return '';
@@ -1156,8 +1229,8 @@ export class ReportingService {
       str = `'${str}`;
     }
 
-    // Escape quotes
-    if (str.includes('"') || str.includes(',') || str.includes('\n')) {
+    // RFC 4180: if cell contains quotes, commas, newlines or carriage returns, wrap in quotes and escape internal quotes
+    if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
       str = `"${str.replace(/"/g, '""')}"`;
     }
     return str;
@@ -1216,6 +1289,74 @@ export class ReportingService {
             item.d7Rate !== null ? String(item.d7Rate) : 'insufficient_data',
             item.d30Status,
             item.d30Rate !== null ? String(item.d30Rate) : 'insufficient_data',
+          ]);
+        }
+        break;
+      }
+      case 'corpus': {
+        rows.push(['Section', 'Metric', 'Value']);
+        rows.push(['Summary', 'Total Datasets', String(record.totalDatasets ?? 0)]);
+        rows.push(['Summary', 'Total Documents', String(record.totalDocuments ?? 0)]);
+        rows.push(['Summary', 'Total Vocab Occurrences', String(record.totalVocabOccurrences ?? 0)]);
+        rows.push(['Summary', 'Total Grammar Occurrences', String(record.totalGrammarOccurrences ?? 0)]);
+        rows.push(['Summary', 'Total Kanji Occurrences', String(record.totalKanjiOccurrences ?? 0)]);
+        rows.push(['Summary', 'Health Status', String(record.corpusHealthStatus ?? 'empty')]);
+        const levelAggs = (record.levelAggregates ?? []) as Array<{
+          level: string;
+          vocabCount: number;
+          grammarCount: number;
+          kanjiCount: number;
+        }>;
+        for (const la of levelAggs) {
+          rows.push([`Level ${la.level}`, 'Vocab Count', String(la.vocabCount)]);
+          rows.push([`Level ${la.level}`, 'Grammar Count', String(la.grammarCount)]);
+          rows.push([`Level ${la.level}`, 'Kanji Count', String(la.kanjiCount)]);
+        }
+        break;
+      }
+      case 'provider-costs': {
+        rows.push(['Cost Category', 'Metric', 'Value']);
+        rows.push(['AI', 'Requests Count', String(record.aiRequestsCount ?? 0)]);
+        const tokens = (record.aiTokenUsage ?? {}) as Record<string, number>;
+        rows.push(['AI', 'Prompt Tokens', String(tokens['promptTokens'] ?? 0)]);
+        rows.push(['AI', 'Completion Tokens', String(tokens['completionTokens'] ?? 0)]);
+        rows.push(['AI', 'Total Tokens', String(tokens['totalTokens'] ?? 0)]);
+        rows.push(['AI', 'Estimated Cost USD', String(record.estimatedAiCostUsd ?? 0)]);
+        rows.push(['AI', 'Estimated Cost VND', String(record.estimatedAiCostVnd ?? 0)]);
+        rows.push(['Storage', 'Assets Count', String(record.storageAssetsCount ?? 0)]);
+        rows.push(['Storage', 'Size MB', String(record.storageSizeMb ?? 0)]);
+        rows.push(['Storage', 'Estimated Cost VND', String(record.estimatedStorageCostVnd ?? 0)]);
+        rows.push(['Total', 'Estimated Total Cost VND', String(record.totalEstimatedCostVnd ?? 0)]);
+        break;
+      }
+      case 'conversion': {
+        rows.push(['Metric', 'Value']);
+        rows.push(['Total Free Users', String(record.totalFreeUsers ?? 0)]);
+        rows.push(['Paid Users', String(record.paidUsers ?? 0)]);
+        rows.push(['Conversion Rate (%)', String(record.conversionRate ?? 0)]);
+        rows.push(['Total Orders', String(record.totalOrders ?? 0)]);
+        rows.push(['Gross Revenue Minor', String(record.grossRevenueMinor ?? 0)]);
+        rows.push(['Net Revenue Minor', String(record.netRevenueMinor ?? 0)]);
+        rows.push(['Currency', String(record.currency ?? 'VND')]);
+        rows.push(['ARPU Minor', String(record.arpuMinor ?? 0)]);
+        break;
+      }
+      case 'funnel': {
+        rows.push(['Step', 'Name', 'Users', 'Step Conversion (%)', 'Overall Conversion (%)']);
+        const steps = (record.steps ?? []) as Array<{
+          step: string;
+          name: string;
+          users: number;
+          conversionFromPrevious: number;
+          overallConversion: number;
+        }>;
+        for (const s of steps) {
+          rows.push([
+            s.step,
+            s.name,
+            String(s.users),
+            String(s.conversionFromPrevious),
+            String(s.overallConversion),
           ]);
         }
         break;

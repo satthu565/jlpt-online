@@ -28,9 +28,14 @@ import type {
 } from './payment.types.js';
 import { PaymentCreateSchema, type PaymentCreate } from '@jlpt/schema';
 
+import { ReconciliationService } from './reconciliation.service.js';
+
 @Controller()
 export class PaymentController {
-  constructor(private readonly paymentService: PaymentService) {}
+  constructor(
+    private readonly paymentService: PaymentService,
+    private readonly reconciliationService?: ReconciliationService,
+  ) {}
 
   // -------------------------------------------------------------------------
   // Public Plans API (PAY-01, PAY-02)
@@ -241,5 +246,65 @@ export class PaymentController {
     @Query('currency') currency?: string,
   ): Promise<RevenueReportDto> {
     return this.paymentService.getRevenueReport({ from, to, currency });
+  }
+
+  // -------------------------------------------------------------------------
+  // Payment Reconciliation & Provider Readiness (V04, ADM-16, Acceptance 1)
+  // -------------------------------------------------------------------------
+
+  @Get('admin/payment/readiness')
+  @Roles('admin', 'billing_admin')
+  async getPaymentReadiness(@Query('provider') provider?: string) {
+    if (!this.reconciliationService) {
+      throw new Error('ReconciliationService không khả dụng.');
+    }
+    return this.reconciliationService.getReadinessStatus(provider || 'payos');
+  }
+
+  @Post('admin/reconciliation/run')
+  @Roles('admin', 'billing_admin')
+  async runReconciliation(
+    @CurrentUser() admin?: AuthUserContext,
+    @Body()
+    body?: {
+      provider?: string;
+      fromDate?: string;
+      toDate?: string;
+      externalStatements?: import('./payment.types.js').ProviderStatementItem[];
+    },
+  ) {
+    if (!this.reconciliationService) {
+      throw new Error('ReconciliationService không khả dụng.');
+    }
+    return this.reconciliationService.runReconciliation({
+      provider: body?.provider,
+      fromDate: body?.fromDate,
+      toDate: body?.toDate,
+      externalStatements: body?.externalStatements,
+      actor: {
+        id: admin?.userId || 'system_admin',
+        email: admin?.email,
+        role: admin?.role,
+        tenantId: admin?.tenantId || 'global',
+      },
+    });
+  }
+
+  @Get('admin/reconciliation/runs')
+  @Roles('admin', 'billing_admin')
+  async listReconciliationRuns(@Query('limit') limit?: number) {
+    if (!this.reconciliationService) {
+      throw new Error('ReconciliationService không khả dụng.');
+    }
+    return this.reconciliationService.listReconciliationRuns(limit ? Number(limit) : 20);
+  }
+
+  @Get('admin/reconciliation/runs/:id')
+  @Roles('admin', 'billing_admin')
+  async getReconciliationRun(@Param('id') id: string) {
+    if (!this.reconciliationService) {
+      throw new Error('ReconciliationService không khả dụng.');
+    }
+    return this.reconciliationService.getReconciliationRunById(id);
   }
 }
