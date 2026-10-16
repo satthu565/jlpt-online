@@ -93,9 +93,10 @@ Triển khai trong bộ kiểm thử chuyên dụng `tests/integration/security-
 ### 2.4. Khắc phục Kiểm thử trên Clean Checkout & Điều kiện Ngoại vi Chưa sẵn sàng (Hosting: MISSING)
 - Dịch vụ hosting bên ngoài hiện ở trạng thái `MISSING`.
 - Để bảo đảm tính độc lập và khả năng kiểm chứng 100% trong CI cũng như trên bản checkout sạch của coordinator:
-  - Bổ sung cấu hình `tests/vitest.config.ts` alias trực tiếp các workspace packages (`@jlpt/schema`, `@jlpt/content-tools`, `@jlpt/exam-engine`, `@jlpt/config`, `@jlpt/ui`) tới source code `src/index.ts`. Điều này đảm bảo `pnpm test:e2e:core` và `pnpm test:security` luôn thực thi thành công ngay cả khi `packages/schema/dist` chưa được build.
-  - Khi coordinator hoặc CI chạy `pnpm test` trước `pnpm build`, `tests/fixtures/test-server.ts` và `tests/fixtures/server-runner.mjs` kiểm tra và kích hoạt tuần tự build toàn bộ workspace dependencies (`@jlpt/schema`, `@jlpt/content-tools`, `@jlpt/exam-engine`, `@jlpt/api`).
-  - Loại bỏ hoàn toàn runtime monkey-patch của `authService.getSession` trong `tests/fixtures/server-runner.mjs`, cấu hình dữ liệu tổ chức và phiên xác định qua `tests/fixtures/seed-sessions.sql`.
+  - Bổ sung cấu hình `tests/vitest.config.ts` alias trực tiếp các workspace packages (`@jlpt/schema`, `@jlpt/content-tools`, `@jlpt/exam-engine`, `@jlpt/media-token`, `@jlpt/srs`, `@jlpt/api-client`, `@jlpt/config`, `@jlpt/ui`) tới source code `src/index.ts`. Điều này đảm bảo `pnpm test:e2e:core` và `pnpm test:security` luôn thực thi thành công ngay cả khi `packages/schema/dist` hay `packages/media-token/dist` chưa được build.
+  - Khi coordinator hoặc CI chạy `pnpm test` trước `pnpm build`, `tests/fixtures/test-server.ts` và `tests/fixtures/server-runner.mjs` kiểm tra và kích hoạt tuần tự build toàn bộ workspace dependencies (`@jlpt/schema`, `@jlpt/content-tools`, `@jlpt/exam-engine`, `@jlpt/media-token`) và build `@jlpt/api` theo cây phụ thuộc `pnpm --filter @jlpt/api... build`.
+  - Thiết lập dữ liệu tổ chức và liên kết thành viên thực tế qua `org_memberships` trong `tests/fixtures/seed-sessions.sql`. Trong `tests/fixtures/server-runner.mjs`, context phiên làm việc của người dùng tự động truy vấn bảng `org_memberships` và gán `tenantId` tương ứng (`org-alpha` cho Student 1, `org-beta` cho Other Student).
+  - Kiểm thử nghiêm ngặt ma trận cách ly đa tổ chức (Cross-Tenant Isolation) tại `tests/integration/security-matrix.test.ts`: chứng minh `TenantGuard` trả về đúng mã lỗi `403 TENANT_FORBIDDEN` khi người dùng thuộc tổ chức này truy cập tài nguyên của tổ chức khác, trả về `200 OK` khi truy cập trong cùng ranh giới tổ chức, và cho phép quyền quản trị viên (`admin`) vận hành xuyên tổ chức.
   - Khôi phục lệnh kiểm tra sức khỏe Admin container `curl -fsS http://127.0.0.1:3001/healthz` trong smoke test CI staging.
   - Cung cấp hàm `findFreePort(4092)`: kiểm tra và chọn cổng rảnh (ephemeral port) nếu cổng 4092 đang bị chiếm giữ, loại bỏ hoàn toàn nguy cơ xung đột cổng (`EADDRINUSE`) khi chạy kiểm thử đồng thời.
   - Bổ sung `--hookTimeout=60000` và bộ bắt toàn bộ stdout/stderr của tiến trình con để tránh timeout giả lập và hỗ trợ chẩn đoán chính xác.
@@ -110,7 +111,7 @@ Triển khai trong bộ kiểm thử chuyên dụng `tests/integration/security-
 | Lệnh kiểm thử | Kết quả | Ghi chú |
 |---|---|---|
 | `pnpm test:e2e:core` | **PASS (15/15 tests)** | Chạy toàn bộ luồng validate->review->publish->thi->review kèm Reviewer decision HTTP call thật |
-| `pnpm test:security` | **PASS (22/22 tests)** | Toàn bộ ma trận cross-tenant, IDOR, RBAC, lease tampering không monkey-patch |
+| `pnpm test:security` | **PASS (24/24 tests)** | Toàn bộ ma trận cross-tenant (TenantGuard 403 TENANT_FORBIDDEN), IDOR, RBAC, lease tampering |
 | `pnpm test:load:baseline` | **PASS (250 reqs, 0 err)** | Ghi nhận thực tế throughput >400 req/s vào `load-baseline-metrics.json` |
 | `pnpm install --frozen-lockfile` | **PASS** | Dependencies được khóa an toàn |
 | `pnpm lint` | **PASS** | ESLint đạt chuẩn trên toàn bộ 13 packages/apps |

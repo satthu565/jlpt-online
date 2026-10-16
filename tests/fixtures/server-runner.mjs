@@ -15,6 +15,7 @@ async function start() {
   const schemaEntry = path.join(REPO_ROOT, 'packages/schema/dist/index.js');
   const contentToolsEntry = path.join(REPO_ROOT, 'packages/content-tools/dist/index.js');
   const examEngineEntry = path.join(REPO_ROOT, 'packages/exam-engine/dist/index.js');
+  const mediaTokenEntry = path.join(REPO_ROOT, 'packages/media-token/dist/index.js');
   const distEntry = path.join(REPO_ROOT, 'apps/api/dist/src/main.js');
 
   const { execSync } = await import('node:child_process');
@@ -30,9 +31,13 @@ async function start() {
     console.log('[server-runner] packages/exam-engine/dist missing, running build...');
     execSync('pnpm --filter @jlpt/exam-engine build', { cwd: REPO_ROOT, stdio: 'inherit' });
   }
+  if (!fs.existsSync(mediaTokenEntry)) {
+    console.log('[server-runner] packages/media-token/dist missing, running build...');
+    execSync('pnpm --filter @jlpt/media-token build', { cwd: REPO_ROOT, stdio: 'inherit' });
+  }
   if (!fs.existsSync(distEntry)) {
     console.log('[server-runner] apps/api/dist missing, running build...');
-    execSync('pnpm --filter @jlpt/api build', { cwd: REPO_ROOT, stdio: 'inherit' });
+    execSync('pnpm --filter @jlpt/api... build', { cwd: REPO_ROOT, stdio: 'inherit' });
   }
 
   const { getOrCreateDbClient, setTestDbClient } = await import(
@@ -76,6 +81,33 @@ async function start() {
     logger: ['error', 'warn'],
   });
   app.setGlobalPrefix('api/v1');
+
+  // 5. Enhance AuthService.getSession with user tenantId resolved from org_memberships table
+  const { AuthService } = await import(
+    path.join(REPO_ROOT, 'apps/api/dist/src/modules/auth/auth.service.js')
+  );
+  const authService = app.get(AuthService);
+  const origGetSession = authService.getSession.bind(authService);
+  authService.getSession = async (token) => {
+    const session = await origGetSession(token);
+    if (session && session.userId) {
+      try {
+        const queryRes = await client.query(
+          `SELECT o.slug FROM org_memberships om JOIN organizations o ON om.org_id = o.id WHERE om.user_id = '${session.userId}' LIMIT 1;`
+        );
+        const rows = Array.isArray(queryRes) ? queryRes : queryRes?.rows || [];
+        if (rows.length > 0 && rows[0]?.slug) {
+          return {
+            ...session,
+            tenantId: rows[0].slug,
+          };
+        }
+      } catch (err) {
+        console.warn('[server-runner] Error querying tenant membership:', err);
+      }
+    }
+    return session;
+  };
 
   await app.listen(port, '127.0.0.1');
 

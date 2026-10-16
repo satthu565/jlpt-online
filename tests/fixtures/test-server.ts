@@ -34,6 +34,7 @@ function ensureApiBuilt(): void {
   const schemaEntry = path.join(REPO_ROOT, 'packages/schema/dist/index.js');
   const contentToolsEntry = path.join(REPO_ROOT, 'packages/content-tools/dist/index.js');
   const examEngineEntry = path.join(REPO_ROOT, 'packages/exam-engine/dist/index.js');
+  const mediaTokenEntry = path.join(REPO_ROOT, 'packages/media-token/dist/index.js');
   const distEntry = path.join(REPO_ROOT, 'apps/api/dist/src/main.js');
 
   if (!fs.existsSync(schemaEntry)) {
@@ -48,9 +49,13 @@ function ensureApiBuilt(): void {
     console.log('[test-server] packages/exam-engine/dist missing, running pnpm --filter @jlpt/exam-engine build...');
     execSync('pnpm --filter @jlpt/exam-engine build', { cwd: REPO_ROOT, stdio: 'inherit' });
   }
+  if (!fs.existsSync(mediaTokenEntry)) {
+    console.log('[test-server] packages/media-token/dist missing, running pnpm --filter @jlpt/media-token build...');
+    execSync('pnpm --filter @jlpt/media-token build', { cwd: REPO_ROOT, stdio: 'inherit' });
+  }
   if (!fs.existsSync(distEntry)) {
-    console.log('[test-server] apps/api/dist missing, running pnpm --filter @jlpt/api build...');
-    execSync('pnpm --filter @jlpt/api build', { cwd: REPO_ROOT, stdio: 'inherit' });
+    console.log('[test-server] apps/api/dist missing, running pnpm --filter @jlpt/api... build...');
+    execSync('pnpm --filter @jlpt/api... build', { cwd: REPO_ROOT, stdio: 'inherit' });
   }
 }
 

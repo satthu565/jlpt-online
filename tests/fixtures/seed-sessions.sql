@@ -40,3 +40,14 @@ VALUES
 ON CONFLICT (tenant_id) DO UPDATE SET
   total_seats = EXCLUDED.total_seats,
   status = EXCLUDED.status;
+
+-- Seed org memberships linking users to organizations for realistic tenant isolation (N06)
+INSERT INTO org_memberships (id, org_id, user_id, role)
+VALUES
+  ('0192f000-0000-7000-8000-000000000051', '0192f000-0000-7000-8000-000000000001', '0192f000-0000-7000-8000-0000000000c1', 'member'),
+  ('0192f000-0000-7000-8000-000000000052', '0192f000-0000-7000-8000-000000000002', '0192f000-0000-7000-8000-0000000000c3', 'member')
+ON CONFLICT (id) DO UPDATE SET
+  org_id = EXCLUDED.org_id,
+  user_id = EXCLUDED.user_id,
+  role = EXCLUDED.role;
+
