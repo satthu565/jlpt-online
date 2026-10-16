@@ -16,7 +16,7 @@ export interface TeacherApplication {
 }
 
 export default function OrgSettingsPage(): React.JSX.Element {
-  const { user } = useAdminAuth();
+  const { user: _user } = useAdminAuth();
 
   const [applications, setApplications] = useState<TeacherApplication[]>([
     {

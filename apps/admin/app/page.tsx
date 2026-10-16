@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AdminGuard } from '../lib/ui-guard';
 import { useAdminAuth } from '../lib/auth-context';
 import { getNavigationSections } from '../lib/navigation';
@@ -19,7 +19,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
   const { user, locale } = useAdminAuth();
   const sections = user ? getNavigationSections(user.role) : [];
 
-  const [metrics, setMetrics] = useState<DashboardMetrics>({
+  const [metrics] = useState<DashboardMetrics>({
     totalUsers: 1420,
     totalExams: 36,
     overallCompletionRate: 78.4,

@@ -175,8 +175,8 @@ describe('A04 Experiment System & Consented Analytics (REPORT-15, Acceptance 3)'
 
       const a1 = await service.getOrAssignVariant(expId, sub1);
       const a2 = await service.getOrAssignVariant(expId, sub2);
-      const a3 = await service.getOrAssignVariant(expId, sub3);
-      const a4 = await service.getOrAssignVariant(expId, sub4);
+      await service.getOrAssignVariant(expId, sub3);
+      await service.getOrAssignVariant(expId, sub4);
 
       // Ghi nhận lượt exposure
       await service.trackExposure({ experimentId: expId, subjectId: sub1 });

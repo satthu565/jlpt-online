@@ -18,7 +18,7 @@ export interface QuestionReportItem {
 }
 
 export default function ContentReportsPage(): React.JSX.Element {
-  const { user } = useAdminAuth();
+  const { user: _user } = useAdminAuth();
 
   const [reports, setReports] = useState<QuestionReportItem[]>([
     {

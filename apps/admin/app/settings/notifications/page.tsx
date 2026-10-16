@@ -16,7 +16,7 @@ export interface NotificationTemplate {
 }
 
 export default function NotificationsSettingsPage(): React.JSX.Element {
-  const { user } = useAdminAuth();
+  const { user: _user } = useAdminAuth();
 
   const [templates, setTemplates] = useState<NotificationTemplate[]>([
     {

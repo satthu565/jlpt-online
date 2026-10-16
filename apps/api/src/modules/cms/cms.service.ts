@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   NotFoundException,
@@ -259,7 +258,7 @@ export class CmsService {
   /**
    * Lấy bài viết theo slug (cho người học & khách vãng lai).
    */
-  async getArticleBySlug(slug: string, locale = 'vi'): Promise<ArticleDto> {
+  async getArticleBySlug(slug: string, _locale = 'vi'): Promise<ArticleDto> {
     const db = this.dbClient.db;
     const rows = (await db
       .select()

@@ -261,16 +261,16 @@ describe('A04 Reporting System (REPORT-01..15, ADM-01, ADM-17)', () => {
     expect(csvLevels).toContain('Level,Attempts,Completed,Average Score,Pass Rate (%)');
     expect(csvLevels).toContain('N1');
 
-    const sanitizedFormula = (service as any).sanitizeCsvCell('=SUM(A1:A10)');
+    const sanitizedFormula = service.sanitizeCsvCell('=SUM(A1:A10)');
     expect(sanitizedFormula).toBe("'=SUM(A1:A10)");
 
-    const sanitizedAt = (service as any).sanitizeCsvCell('@cmd');
+    const sanitizedAt = service.sanitizeCsvCell('@cmd');
     expect(sanitizedAt).toBe("'@cmd");
 
-    const sanitizedPlus = (service as any).sanitizeCsvCell('+123456');
+    const sanitizedPlus = service.sanitizeCsvCell('+123456');
     expect(sanitizedPlus).toBe("'+123456");
 
-    const sanitizedMinus = (service as any).sanitizeCsvCell('-500');
+    const sanitizedMinus = service.sanitizeCsvCell('-500');
     expect(sanitizedMinus).toBe("'-500");
   });
 

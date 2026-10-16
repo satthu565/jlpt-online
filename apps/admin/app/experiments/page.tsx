@@ -22,7 +22,7 @@ export interface ExperimentItem {
 }
 
 export default function ExperimentsAdminPage(): React.JSX.Element {
-  const { user } = useAdminAuth();
+  const { user: _user } = useAdminAuth();
 
   const [experiments, setExperiments] = useState<ExperimentItem[]>([
     {

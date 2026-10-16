@@ -15,7 +15,7 @@ export interface VocabEntry {
 }
 
 export default function VocabManagementPage(): React.JSX.Element {
-  const { user } = useAdminAuth();
+  const { user: _user } = useAdminAuth();
 
   const [entries, setEntries] = useState<VocabEntry[]>([
     {
@@ -305,7 +305,7 @@ export default function VocabManagementPage(): React.JSX.Element {
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Cấp độ:</label>
                   <select
                     value={newLevel}
-                    onChange={(e) => setNewLevel(e.target.value as any)}
+                    onChange={(e) => setNewLevel(e.target.value as 'N1' | 'N2' | 'N3' | 'N4' | 'N5')}
                     style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }}
                   >
                     <option value="N5">N5</option>

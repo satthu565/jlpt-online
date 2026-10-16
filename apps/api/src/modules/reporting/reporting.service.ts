@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, count, desc, eq, gte, isNotNull, lte, sql } from 'drizzle-orm';
+import { count, eq, isNotNull } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
@@ -92,7 +92,7 @@ export class ReportingService {
   /**
    * REPORT-02: Số người dùng hoạt động hàng ngày/hàng tháng (DAU/MAU)
    */
-  async getActivityReport(query?: ReportQueryDto): Promise<ActivityReportDto> {
+  async getActivityReport(_query?: ReportQueryDto): Promise<ActivityReportDto> {
     const now = new Date();
     const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -248,10 +248,10 @@ export class ReportingService {
 
       if (r.submittedAt) {
         levelBuckets[lvl].completed++;
-        const resObj = (r.result as any) ?? {};
-        const score = typeof resObj.score === 'number' ? resObj.score : (resObj.totalScore ?? 0);
+        const resObj = (r.result && typeof r.result === 'object' ? r.result : {}) as Record<string, unknown>;
+        const score = typeof resObj.score === 'number' ? resObj.score : (Number(resObj.totalScore) || 0);
         levelBuckets[lvl].totalScore += score;
-        if (resObj.passed || resObj.isPass) {
+        if (Boolean(resObj.passed) || Boolean(resObj.isPass)) {
           levelBuckets[lvl].passedCount++;
         }
       }
@@ -280,7 +280,7 @@ export class ReportingService {
   /**
    * REPORT-06: Thống kê bộ đề phổ biến
    */
-  async getPopularExamsReport(query?: ReportQueryDto): Promise<PopularExamsReportDto> {
+  async getPopularExamsReport(_query?: ReportQueryDto): Promise<PopularExamsReportDto> {
     const examList = (await this.dbClient.db
       .select({
         id: schema.exams.id,
@@ -364,7 +364,7 @@ export class ReportingService {
   /**
    * REPORT-07: Thời gian sử dụng trung bình
    */
-  async getSessionDurationReport(query?: ReportQueryDto): Promise<SessionDurationReportDto> {
+  async getSessionDurationReport(_query?: ReportQueryDto): Promise<SessionDurationReportDto> {
     const attempts = await this.dbClient.db
       .select({
         startedAt: schema.examAttempts.startedAt,
@@ -437,7 +437,7 @@ export class ReportingService {
    * "D7/D30 reports hiển thị insufficient-data thay số thật giả"
    * Nếu cohort chưa đủ 7 hoặc 30 ngày, status là insufficient_data và rate là null.
    */
-  async getRetentionReport(query?: ReportQueryDto): Promise<RetentionReportDto> {
+  async getRetentionReport(_query?: ReportQueryDto): Promise<RetentionReportDto> {
     const now = new Date();
     const users = await this.dbClient.db
       .select({
@@ -543,7 +543,7 @@ export class ReportingService {
   /**
    * REPORT-09: Phân tích phễu đăng ký và bắt đầu làm đề
    */
-  async getFunnelReport(query?: ReportQueryDto): Promise<FunnelReportDto> {
+  async getFunnelReport(_query?: ReportQueryDto): Promise<FunnelReportDto> {
     const userCountRows = (await this.dbClient.db
       .select({ count: count() })
       .from(schema.users)) as Array<{ count: number | string }>;
@@ -633,7 +633,7 @@ export class ReportingService {
   /**
    * REPORT-10: Thống kê kết quả kiểm duyệt gói dữ liệu nhập
    */
-  async getContentReviewReport(query?: ReportQueryDto): Promise<ContentReviewReportDto> {
+  async getContentReviewReport(_query?: ReportQueryDto): Promise<ContentReviewReportDto> {
     const jobs = (await this.dbClient.db
       .select({
         id: schema.importJobs.id,
@@ -685,7 +685,7 @@ export class ReportingService {
    * REPORT-11: Thống kê lỗi OCR, lỗi câu hỏi và lỗi audio
    * Quyết định kiến trúc: KHÔNG có chỉ số nhận dạng PDF trong hệ thống.
    */
-  async getContentIncidentsReport(query?: ReportQueryDto): Promise<ContentIncidentsReportDto> {
+  async getContentIncidentsReport(_query?: ReportQueryDto): Promise<ContentIncidentsReportDto> {
     const reports = (await this.dbClient.db
       .select({
         id: schema.questionReports.id,
@@ -735,7 +735,7 @@ export class ReportingService {
   /**
    * REPORT-12: Thống kê lượt sử dụng tính năng trộn đề
    */
-  async getMixUsageReport(query?: ReportQueryDto): Promise<MixUsageReportDto> {
+  async getMixUsageReport(_query?: ReportQueryDto): Promise<MixUsageReportDto> {
     const mixedList = (await this.dbClient.db
       .select({
         id: schema.generatedExams.id,
@@ -778,7 +778,7 @@ export class ReportingService {
   /**
    * REPORT-13: Báo cáo chuyển đổi Free → Premium
    */
-  async getConversionReport(query?: ReportQueryDto): Promise<ConversionReportDto> {
+  async getConversionReport(_query?: ReportQueryDto): Promise<ConversionReportDto> {
     const userCountRows = (await this.dbClient.db
       .select({ count: count() })
       .from(schema.users)) as Array<{ count: number | string }>;
@@ -840,7 +840,7 @@ export class ReportingService {
   /**
    * REPORT-14: Báo cáo chi phí AI và lưu trữ
    */
-  async getProviderCostsReport(query?: ReportQueryDto): Promise<ProviderCostsReportDto> {
+  async getProviderCostsReport(_query?: ReportQueryDto): Promise<ProviderCostsReportDto> {
     const aiReqs = await this.dbClient.db
       .select({
         id: schema.aiRequests.id,
@@ -901,7 +901,7 @@ export class ReportingService {
    * REPORT-15: Theo dõi hiệu quả các thử nghiệm cải tiến giao diện
    */
   async getExperimentPerformanceReport(
-    query?: ReportQueryDto,
+    _query?: ReportQueryDto,
   ): Promise<ExperimentPerformanceReportDto> {
     const expDefs = (await this.dbClient.db
       .select({
@@ -1099,7 +1099,7 @@ export class ReportingService {
   /**
    * ADM-17: Generic dispatcher by report kind
    */
-  async getReportByKind(kind: string, query?: ReportQueryDto): Promise<any> {
+  async getReportByKind(kind: string, query?: ReportQueryDto): Promise<unknown> {
     switch (kind) {
       case 'acquisition':
         return this.getAcquisitionReport(query);
@@ -1147,7 +1147,7 @@ export class ReportingService {
   /**
    * Sanitizes a CSV cell to neutralize Excel/Google Sheets formula injection.
    */
-  private sanitizeCsvCell(value: unknown): string {
+  sanitizeCsvCell(value: unknown): string {
     if (value === null || value === undefined) return '';
     let str = String(value);
 
@@ -1163,20 +1163,29 @@ export class ReportingService {
     return str;
   }
 
-  private convertToSafeCsv(kind: string, data: any): string {
+  private convertToSafeCsv(kind: string, data: unknown): string {
     const rows: string[][] = [];
+    const record = (data && typeof data === 'object' ? data : {}) as Record<string, unknown>;
 
     switch (kind) {
       case 'acquisition': {
         rows.push(['Period', 'New Users']);
-        for (const item of data.byPeriod ?? []) {
+        const byPeriod = (record.byPeriod ?? []) as Array<{ period: string; count: number }>;
+        for (const item of byPeriod) {
           rows.push([item.period, String(item.count)]);
         }
         break;
       }
       case 'levels': {
         rows.push(['Level', 'Attempts', 'Completed', 'Average Score', 'Pass Rate (%)']);
-        for (const item of data.levels ?? []) {
+        const levels = (record.levels ?? []) as Array<{
+          level: string;
+          attempts: number;
+          completed: number;
+          avgScore: number;
+          passRate: number;
+        }>;
+        for (const item of levels) {
           rows.push([
             item.level,
             String(item.attempts),
@@ -1189,7 +1198,16 @@ export class ReportingService {
       }
       case 'retention': {
         rows.push(['Cohort Date', 'Cohort Size', 'Days Observed', 'D7 Status', 'D7 Rate (%)', 'D30 Status', 'D30 Rate (%)']);
-        for (const item of data.cohorts ?? []) {
+        const cohorts = (record.cohorts ?? []) as Array<{
+          cohortDate: string;
+          cohortSize: number;
+          daysSinceCohort: number;
+          d7Status: string;
+          d7Rate: number | null;
+          d30Status: string;
+          d30Rate: number | null;
+        }>;
+        for (const item of cohorts) {
           rows.push([
             item.cohortDate,
             String(item.cohortSize),
@@ -1204,8 +1222,8 @@ export class ReportingService {
       }
       default: {
         rows.push(['Key', 'Value']);
-        for (const [k, v] of Object.entries(data)) {
-          if (typeof v !== 'object') {
+        for (const [k, v] of Object.entries(record)) {
+          if (typeof v !== 'object' || v === null) {
             rows.push([k, String(v)]);
           } else {
             rows.push([k, JSON.stringify(v)]);

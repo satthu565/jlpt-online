@@ -311,7 +311,7 @@ Kỳ thi Năng lực Tiếng Nhật (JLPT) là kỳ thi quốc tế uy tín đá
                 <select
                   data-testid="select-article-status"
                   value={editStatus}
-                  onChange={(e) => setEditStatus(e.target.value as any)}
+                  onChange={(e) => setEditStatus(e.target.value as 'draft' | 'review' | 'published')}
                   style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }}
                 >
                   <option value="draft">Bản nháp (Draft)</option>

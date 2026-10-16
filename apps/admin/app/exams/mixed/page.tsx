@@ -17,7 +17,7 @@ export interface MixedExamItem {
 }
 
 export default function MixedExamsPage(): React.JSX.Element {
-  const { user } = useAdminAuth();
+  const { user: _user } = useAdminAuth();
 
   const [mixedExams, setMixedExams] = useState<MixedExamItem[]>([
     {
@@ -260,7 +260,7 @@ export default function MixedExamsPage(): React.JSX.Element {
                   <select
                     data-testid="select-mixed-level"
                     value={newLevel}
-                    onChange={(e) => setNewLevel(e.target.value as any)}
+                    onChange={(e) => setNewLevel(e.target.value as 'N1' | 'N2' | 'N3' | 'N4' | 'N5')}
                     style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }}
                   >
                     <option value="N5">N5</option>
@@ -288,7 +288,7 @@ export default function MixedExamsPage(): React.JSX.Element {
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Thuật toán trộn:</label>
                 <select
                   value={newMode}
-                  onChange={(e) => setNewMode(e.target.value as any)}
+                  onChange={(e) => setNewMode(e.target.value as 'random' | 'weak_points' | 'by_mondai')}
                   style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }}
                 >
                   <option value="random">Ngẫu nhiên phân bổ đồng đều các mondai</option>

@@ -5,7 +5,7 @@ import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 
 export default function ReportsHubPage(): React.JSX.Element {
-  const { user } = useAdminAuth();
+  const { user: _user } = useAdminAuth();
 
   const [activeReport, setActiveReport] = useState<string>('acquisition');
   const [dateRange, setDateRange] = useState<string>('30d');
@@ -32,8 +32,6 @@ export default function ReportsHubPage(): React.JSX.Element {
 
   const handleExportCsv = (kind: string) => {
     // Simulate safe CSV export with formula injection neutralization
-    const sampleCsv = `Bao cao,Ky quan sat,Chi so chinh,Trang thai
-${kind},${dateRange},100%,sufficient`;
     setDownloadSuccess(`Đã xuất báo cáo ${kind} định dạng CSV (chống Formula Injection an toàn)`);
     setTimeout(() => setDownloadSuccess(null), 3000);
   };

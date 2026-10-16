@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   NotFoundException,
@@ -212,7 +211,7 @@ export class ExperimentService {
     const db = this.dbClient.db;
     const subjectId = this.sanitizeSubjectId(dto.subjectId);
 
-    const assignment = await this.getOrAssignVariant(dto.experimentId, subjectId);
+    await this.getOrAssignVariant(dto.experimentId, subjectId);
 
     await db.insert(schema.experimentExposures).values({
       id: generateUuidV7(),

@@ -18,7 +18,7 @@ export interface AiModerationLog {
 }
 
 export default function AiModerationPage(): React.JSX.Element {
-  const { user } = useAdminAuth();
+  const { user: _user } = useAdminAuth();
 
   const [logs, setLogs] = useState<AiModerationLog[]>([
     {
