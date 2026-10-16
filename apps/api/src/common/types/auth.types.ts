@@ -14,9 +14,11 @@ export interface AuthUserContext {
 
 export interface AuthenticatedRequest {
   user?: AuthUserContext;
+  guestId?: string;
   headers: Record<string, string | string[] | undefined>;
   raw?: {
     url?: string;
     method?: string;
   };
 }
+
