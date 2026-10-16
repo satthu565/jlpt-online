@@ -9,3 +9,4 @@ export * from './mix/index.js';
 export * from './practice/index.js';
 export * from './difficulty/index.js';
 export * from './dedupe/index.js';
+export * from './analytics/index.js';
