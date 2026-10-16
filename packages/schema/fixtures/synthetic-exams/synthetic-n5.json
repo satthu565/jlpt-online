@@ -1,0 +1,434 @@
+{
+  "id": "3211806b-fdf3-4bb1-a9c6-74684635be39",
+  "slug": "synthetic-n5-mock-1",
+  "level": "N5",
+  "title": "Đề thi thử nghiệm JLPT N5 (Tự soạn)",
+  "kind": "synthetic",
+  "provenance": "self_authored",
+  "label": "synthetic",
+  "year": 2026,
+  "session": "10",
+  "totalQuestions": 4,
+  "blueprintId": "synthetic-n5-blueprint-v1",
+  "blueprintVersion": 1,
+  "description": "Bộ đề thi mẫu N1–N5 tự soạn phục vụ kiểm thử hệ thống thi và chấm điểm; toàn bộ nội dung gắn nhãn synthetic.",
+  "questions": [
+    {
+      "id": "f560eb0c-72b0-48eb-be85-72afdd54bd43",
+      "index": 0,
+      "mondaiType": "kanji_reading",
+      "skill": "kanji",
+      "stem": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "あそこに"
+            },
+            {
+              "type": "ruby",
+              "text": "犬",
+              "rt": "いぬ"
+            },
+            {
+              "type": "text",
+              "text": "がいます。"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "orderIndex": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "いぬ"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 2,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "ねこ"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 3,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "とり"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 4,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "うま"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "correctOption": 1,
+      "explanation": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "「犬」の読み方は「いぬ」です。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "8657e305-ced0-4759-ace8-5f7dd3f7fce4",
+      "index": 1,
+      "mondaiType": "sentence_composition",
+      "skill": "grammar",
+      "stem": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "わたしは "
+            },
+            {
+              "type": "blank",
+              "index": 1
+            },
+            {
+              "type": "text",
+              "text": " "
+            },
+            {
+              "type": "star",
+              "index": 2
+            },
+            {
+              "type": "text",
+              "text": " "
+            },
+            {
+              "type": "blank",
+              "index": 3
+            },
+            {
+              "type": "text",
+              "text": " "
+            },
+            {
+              "type": "blank",
+              "index": 4
+            },
+            {
+              "type": "text",
+              "text": " 食べました。"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "orderIndex": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "朝ごはんを"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 2,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "家で"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 3,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "パンを"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 4,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "7時に"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "correctOption": 4,
+      "explanation": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "わたしは 家で(2) 7時に(4) 朝ごはんの(1) パンを(3) 食べました。★の位置は「7時に」(4)。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "e53b9f46-b476-4011-8f16-a5f5e9993506",
+      "index": 2,
+      "mondaiType": "comprehension_short",
+      "skill": "reading",
+      "stem": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "きのう、デパートへ行きました。シャツとくつを買いました。それから、友達とレストランでおひるごはんを食べました。"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "orderIndex": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "デパートで本を買いました。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 2,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "デパートでシャツとくつを買いました。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 3,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "一人でおひるごはんを食べました。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 4,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "学校へ行きました。"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "correctOption": 2,
+      "explanation": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "「シャツとくつを買いました」と明確に書かれています。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "5b00d8ef-9fa5-4f49-b2ef-57e5978ec312",
+      "index": 3,
+      "mondaiType": "quick_response",
+      "skill": "listening",
+      "stem": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "おはようございます。"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "orderIndex": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "おはようございます。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 2,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "さようなら。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 3,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "いただきます。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 4,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "ごちそうさまでした。"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "correctOption": 1,
+      "explanation": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "「おはようございます」への挨拶は「おはようございます」です。"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "answerKey": {
+    "examId": "3211806b-fdf3-4bb1-a9c6-74684635be39",
+    "version": 1,
+    "keys": [
+      1,
+      4,
+      2,
+      1
+    ],
+    "skills": [
+      "kanji",
+      "grammar",
+      "reading",
+      "listening"
+    ],
+    "mondaiTypes": [
+      "kanji_reading",
+      "sentence_composition",
+      "comprehension_short",
+      "quick_response"
+    ],
+    "sectionRanges": [
+      [
+        0,
+        3
+      ]
+    ]
+  }
+}

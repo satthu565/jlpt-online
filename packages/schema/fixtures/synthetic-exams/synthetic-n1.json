@@ -1,0 +1,443 @@
+{
+  "id": "93d032d9-36ae-4879-ad3c-47ba515a9c53",
+  "slug": "synthetic-n1-mock-1",
+  "level": "N1",
+  "title": "Đề thi thử nghiệm JLPT N1 (Tự soạn)",
+  "kind": "synthetic",
+  "provenance": "self_authored",
+  "label": "synthetic",
+  "year": 2026,
+  "session": "10",
+  "totalQuestions": 4,
+  "blueprintId": "synthetic-n1-blueprint-v1",
+  "blueprintVersion": 1,
+  "description": "Bộ đề thi mẫu N1–N5 tự soạn phục vụ kiểm thử hệ thống thi và chấm điểm; toàn bộ nội dung gắn nhãn synthetic.",
+  "questions": [
+    {
+      "id": "95766ef8-0699-45f6-b7f3-b726c263a03e",
+      "index": 0,
+      "mondaiType": "kanji_reading",
+      "skill": "kanji",
+      "stem": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "彼らの提案は"
+            },
+            {
+              "type": "ruby",
+              "text": "妥協",
+              "rt": "だきょう"
+            },
+            {
+              "type": "text",
+              "text": "の余地がないほど厳格だった。"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "orderIndex": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "だきょう"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 2,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "たいきょう"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 3,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "だこう"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 4,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "ざきょう"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "correctOption": 1,
+      "explanation": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "「妥協」の正しい読み方は「だきょう」です。意味は「thỏa hiệp」。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d3c3aa96-be59-4b9e-ab4a-c684784e29ba",
+      "index": 1,
+      "mondaiType": "sentence_composition",
+      "skill": "grammar",
+      "stem": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "環境問題について、一人ひとりが "
+            },
+            {
+              "type": "blank",
+              "index": 1
+            },
+            {
+              "type": "text",
+              "text": " "
+            },
+            {
+              "type": "star",
+              "index": 2
+            },
+            {
+              "type": "text",
+              "text": " "
+            },
+            {
+              "type": "blank",
+              "index": 3
+            },
+            {
+              "type": "text",
+              "text": " "
+            },
+            {
+              "type": "blank",
+              "index": 4
+            },
+            {
+              "type": "text",
+              "text": " べきではない。"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "orderIndex": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "見過ごす"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 2,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "意識を"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 3,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "高めずには"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 4,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "おかない"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "correctOption": 2,
+      "explanation": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "正解の順序: 意識を(2) 高めずには(3) 見過ごす(1) おかない(4)。★の位置は「意識を」。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "86752f95-f7f3-4650-b766-54f9647a45ee",
+      "index": 2,
+      "mondaiType": "comprehension_short",
+      "skill": "reading",
+      "stem": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "科学技術の進展に伴い、情報の取捨選択がますます重要になっている。単に大量の知識を蓄えることよりも、何が本質であるかを見抜く批判的思考が求められる。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "筆者が最も主張したいことは何か。"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "orderIndex": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "知識をできるだけ多く蓄積することが最も重要である。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 2,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "情報の質を見極める批判的思考力を養うことが重要である。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 3,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "科学技術の進歩を止めるべきである。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 4,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "すべての情報を無条件に信じる姿勢が必要である。"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "correctOption": 2,
+      "explanation": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "「何が本質であるかを見抜く批判的思考が求められる」と述べており、選択肢2が合致します。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "b7d728fc-16d1-4233-b03a-7d1ce7d4049a",
+      "index": 3,
+      "mondaiType": "quick_response",
+      "skill": "listening",
+      "stem": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "明日のプレゼン、資料の準備は万全ですか。"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "orderIndex": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "ええ、先ほど最終確認を終えたところです。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 2,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "いいえ、昨日終わらせたはずです。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 3,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "はい、誰にも見せられません。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 4,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "資料は不要だと伺っています。"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "correctOption": 1,
+      "explanation": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "準備状況を問われており、「ええ、先ほど最終確認を終えたところです」が最も自然な応答です。"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "answerKey": {
+    "examId": "93d032d9-36ae-4879-ad3c-47ba515a9c53",
+    "version": 1,
+    "keys": [
+      1,
+      2,
+      2,
+      1
+    ],
+    "skills": [
+      "kanji",
+      "grammar",
+      "reading",
+      "listening"
+    ],
+    "mondaiTypes": [
+      "kanji_reading",
+      "sentence_composition",
+      "comprehension_short",
+      "quick_response"
+    ],
+    "sectionRanges": [
+      [
+        0,
+        3
+      ]
+    ]
+  }
+}

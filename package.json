@@ -14,9 +14,13 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md}\"",
     "contracts:check": "pnpm --filter @jlpt/schema build && node -e \"import('./packages/schema/dist/index.js').then(m => m.runCheck(process.cwd()))\"",
     "contracts:generate": "pnpm --filter @jlpt/schema build && node -e \"import('./packages/schema/dist/index.js').then(m => m.runGenerate(process.cwd()))\" && pnpm --filter @jlpt/api-client build",
-    "test:contracts": "vitest run packages/schema/tests packages/api-client/tests"
+    "test:contracts": "vitest run packages/schema/tests packages/api-client/tests",
+    "db:migrate:test": "vitest run packages/schema/tests/db.test.ts -t \"migrates a fresh database\"",
+    "db:seed:test": "vitest run packages/schema/tests/db.test.ts -t \"seeds fresh migrated database\"",
+    "test:db": "vitest run packages/schema/tests/db.test.ts"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
     "@eslint/js": "9.21.0",
     "eslint": "9.21.0",
     "prettier": "3.5.3",
