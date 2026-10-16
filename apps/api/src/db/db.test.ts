@@ -64,6 +64,17 @@ describe('F08 Database Schema and Migrations', () => {
       }
     });
 
+    it('concurrent migration runs are serialised (api and worker boot together)', async () => {
+      const client = await createDbClient();
+      try {
+        const [first, second] = await Promise.all([runMigrations(client), runMigrations(client)]);
+        expect(first.applied.length).toBeGreaterThanOrEqual(2);
+        expect(second.applied.length).toBe(0);
+      } finally {
+        await client.close();
+      }
+    });
+
     it('seeds fresh migrated database and succeeds idempotently', async () => {
       const client = await createDbClient();
       try {
