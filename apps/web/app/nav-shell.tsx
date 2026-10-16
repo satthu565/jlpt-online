@@ -25,6 +25,7 @@ export function NavigationHeader(): React.JSX.Element {
 
   if (user) {
     navItems.push({ label: t('common.nav.examHistory'), href: '/lich-su' });
+    navItems.push({ label: t('common.nav.analytics'), href: '/thong-ke' });
     navItems.push({ label: t('common.nav.account'), href: '/tai-khoan' });
   }
 

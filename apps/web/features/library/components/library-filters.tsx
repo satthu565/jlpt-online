@@ -35,9 +35,10 @@ export function LibraryFilters({
   ];
   const statuses: Array<{ id: UserExamStatus | 'ALL'; label: string }> = [
     { id: 'ALL', label: 'Mọi trạng thái' },
-    { id: 'not_started', label: 'Chưa làm' },
+    { id: 'not_started', label: 'Chưa từng làm (LIB-12)' },
     { id: 'in_progress', label: 'Đang làm dở' },
     { id: 'completed', label: 'Đã hoàn thành' },
+    { id: 'below_target', label: 'Chưa đạt mục tiêu (LIB-13)' },
   ];
 
   return (
@@ -207,8 +208,24 @@ export function LibraryFilters({
         )}
       </div>
 
-      {/* Reset filters button */}
-      <div className="flex justify-end pt-1">
+      {/* Favorite filter toggle (LIB-11) & Reset filters button */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-slate-100 dark:border-slate-800">
+        <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <input
+            type="checkbox"
+            checked={Boolean(filters.onlyFavorites)}
+            onChange={(e) =>
+              onFilterChange({
+                ...filters,
+                onlyFavorites: e.target.checked,
+              })
+            }
+            data-testid="filter-only-favorites"
+            className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-700"
+          />
+          <span>⭐ Chỉ hiện các đề đã yêu thích (LIB-11)</span>
+        </label>
+
         <button
           type="button"
           onClick={onResetFilters}
