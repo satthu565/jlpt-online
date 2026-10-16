@@ -1,0 +1,100 @@
+import type { PaymentTerm } from '@jlpt/schema';
+
+export type OrderStatus = 'created' | 'pending' | 'paid' | 'failed' | 'cancelled' | 'refunded';
+export type PaymentAttemptStatus = 'initiated' | 'successful' | 'failed' | 'cancelled';
+export type SubscriptionStatus = 'none' | 'active' | 'past_due' | 'cancelled' | 'expired';
+export type RefundStatus = 'requested' | 'approved' | 'processing' | 'refunded' | 'rejected';
+export type TenantPlanStatus = 'trial' | 'active' | 'suspended' | 'expired';
+
+export interface PlanDto {
+  id: string;
+  name: string;
+  description?: string | null;
+  interval: PaymentTerm | 'lifetime' | string;
+  priceMinor: number;
+  currency: string;
+  version?: number;
+  entitlements?: string[];
+  isActive?: boolean;
+}
+
+export interface AdminPlanCreateDto {
+  name: string;
+  code: string;
+  term: PaymentTerm | 'lifetime';
+  priceMinor: number;
+  currency?: string;
+  entitlements?: string[];
+  maxUses?: number;
+  active?: boolean;
+}
+
+export interface CheckoutSessionDto {
+  orderId: string;
+  checkoutUrl: string;
+  amountMinor: number;
+  currency: string;
+  couponApplied?: {
+    code: string;
+    discountMinor: number;
+  };
+}
+
+export interface UserSubscriptionDto {
+  planId?: string | null;
+  status: SubscriptionStatus;
+  expiresAt?: string | null;
+  currentPeriodStart?: string | null;
+  currentPeriodEnd?: string | null;
+  cancelAtPeriodEnd?: boolean;
+}
+
+export interface TransactionItemDto {
+  orderId: string;
+  amountMinor: number;
+  currency: string;
+  status: OrderStatus;
+  createdAt: string;
+  planId?: string | null;
+  paymentAttemptId?: string | null;
+}
+
+export interface RefundRequestDto {
+  transactionId: string;
+  reason: string;
+  amountMinor?: number;
+}
+
+export interface AdminCouponCreateDto {
+  code: string;
+  discountPercent?: number;
+  discountMinor?: number;
+  maxUses: number;
+  expiresAt: string;
+  scope?: string;
+}
+
+export interface RevenueReportDto {
+  grossMinor: number;
+  refundMinor: number;
+  netMinor: number;
+  currency: string;
+  periodStart?: string;
+  periodEnd?: string;
+  breakdownByCurrency?: Record<string, {
+    grossMinor: number;
+    refundMinor: number;
+    netMinor: number;
+    orderCount: number;
+    refundCount: number;
+  }>;
+}
+
+export interface SubscriptionChangeResultDto {
+  updated: boolean;
+  requiresPayment?: boolean;
+  checkoutUrl?: string;
+  orderId?: string;
+  prorationMinor?: number;
+}
+
