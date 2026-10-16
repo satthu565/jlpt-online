@@ -20,8 +20,8 @@ async function loadValidator() {
     if (!fs.existsSync(DIST_INDEX_PATH)) {
       console.error(
         'Lỗi: Chưa biên dịch @jlpt/content-tools (không tìm thấy tệp packages/content-tools/dist/index.js).\n' +
-        'Vui lòng chạy "pnpm build" hoặc "pnpm --filter @jlpt/content-tools build" trước khi thực hiện kiểm tra gói.\n' +
-        (buildProc.stderr || buildProc.stdout || '')
+          'Vui lòng chạy "pnpm build" hoặc "pnpm --filter @jlpt/content-tools build" trước khi thực hiện kiểm tra gói.\n' +
+          (buildProc.stderr || buildProc.stdout || ''),
       );
       return null;
     }
@@ -100,17 +100,16 @@ async function main() {
   }
 
   const stat = fs.statSync(resolvedPath);
-  if (stat.isDirectory()) {
+  if (stat.isDirectory() || (stat.isFile() && resolvedPath.endsWith('.zip'))) {
     const validatePackagePath = await loadValidator();
-    if (!validatePackagePath) {
-      return 1;
+    if (validatePackagePath) {
+      const result = validatePackagePath(resolvedPath, { mode });
+      console.log(JSON.stringify(result, null, 2));
+      return result.valid ? 0 : 1;
     }
-    const result = validatePackagePath(resolvedPath, { mode });
-    console.log(JSON.stringify(result, null, 2));
-    return result.valid ? 0 : 1;
   }
 
-  // If it is a zip file, run python validator
+  // Fallback to python validator if TypeScript dist is not available
   const pythonScript = path.join(__dirname, '../validate_import.py');
   const proc = spawnSync('python3', [pythonScript, resolvedPath, '--mode', mode], {
     encoding: 'utf-8',
