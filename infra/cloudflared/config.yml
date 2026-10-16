@@ -1,12 +1,35 @@
-# Cloudflare Tunnel Configuration Template (credentials injected via env/secrets)
+# Cloudflare Tunnel Configuration Template per contract A13 & T1.8.4
+# Credentials file generated and placed on server by operator, not committed to git.
 tunnel: <TUNNEL_ID>
-credentials-file: /etc/cloudflared/credentials.json
+credentials-file: /etc/cloudflared/<TUNNEL_ID>.json
 
 ingress:
-  - hostname: exam.jlpt.example.com
-    service: http://web:3000
-  - hostname: admin.jlpt.example.com
-    service: http://admin:3001
-  - hostname: api.jlpt.example.com
-    service: http://api:4000
+  # 1. Deny administrative APIs on public domain (A13 security requirement)
+  - hostname: example.com
+    path: ^/api/v1/admin(/.*)?$
+    service: http_status:404
+
+  # 2. Public API routing
+  - hostname: example.com
+    path: ^/api/.*
+    service: http://127.0.0.1:4000
+
+  # 3. Public Web application routing
+  - hostname: example.com
+    service: http://127.0.0.1:3000
+
+  # 4. Admin API routing (under Cloudflare Access protected hostname)
+  - hostname: admin.example.com
+    path: ^/api/.*
+    service: http://127.0.0.1:4000
+
+  # 5. Admin portal routing (under Cloudflare Access protected hostname)
+  - hostname: admin.example.com
+    service: http://127.0.0.1:3001
+
+  # 6. Secure SSH routing over Cloudflare Access
+  - hostname: ssh.example.com
+    service: ssh://127.0.0.1:22
+
+  # Default catch-all
   - service: http_status:404

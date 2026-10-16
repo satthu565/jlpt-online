@@ -18,7 +18,10 @@
     "test:jobs": "vitest run src/modules/outbox/jobs.test.ts",
     "test:content": "vitest run src/modules/question-bank/ src/modules/license/",
     "test:upload": "vitest run src/modules/media/",
-    "test:storage": "vitest run src/modules/storage/"
+    "test:storage": "vitest run src/modules/storage/",
+    "test:practice-api": "vitest run src/modules/exam/practice-api.test.ts",
+    "test:explanations": "vitest run src/modules/review/explanations.test.ts",
+    "test:notifications": "vitest run src/modules/notification/notifications.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1152.0",
