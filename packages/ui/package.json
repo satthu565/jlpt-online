@@ -12,6 +12,11 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./rich-text": {
+      "types": "./dist/rich-text/index.d.ts",
+      "import": "./dist/rich-text/index.js",
+      "require": "./dist/rich-text/index.cjs"
+    },
     "./styles.css": "./src/styles.css"
   },
   "scripts": {
@@ -19,7 +24,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:a11y": "vitest run tests/a11y.test.tsx"
+    "test:a11y": "vitest run tests/a11y.test.tsx",
+    "test:rich-text": "vitest run tests/rich-text.test.tsx"
   },
   "peerDependencies": {
     "react": "^19.0.0",
