@@ -1,6 +1,5 @@
 import crypto from 'node:crypto';
 import {
-  BadRequestException,
   Inject,
   Injectable,
   Logger,
@@ -18,7 +17,6 @@ import {
   classMemberships,
   leaderboardEntries,
   streakDays,
-  studySessionCompletions,
   userAchievements,
   userProfiles,
   users,
@@ -273,7 +271,7 @@ export class GamificationService {
   ): Promise<StreakResponseDto> {
     const db = this.dbClient.db;
 
-    let timezone = timezoneOverride;
+    let timezone: string = timezoneOverride ?? '';
     if (!timezone) {
       const [u] = await db
         .select({ timezone: users.timezone })

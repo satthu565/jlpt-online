@@ -26,7 +26,7 @@ import { LiveAiProvider, ExternalPrerequisiteError } from './provider/live-ai-pr
 import { SandboxAiProvider } from './provider/sandbox-ai-provider.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
 
-function createMockUser(userId: string, role = 'student'): AuthUserContext {
+function createMockUser(userId: string, role: AuthUserContext['role'] = 'student'): AuthUserContext {
   return {
     userId,
     email: `student-${userId}@jlpt.test`,

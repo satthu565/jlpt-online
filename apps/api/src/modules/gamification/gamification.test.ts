@@ -2,17 +2,14 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
 import {
-  achievementDefinitions,
   achievementShares,
   challengeEnrollments,
-  challenges,
   classes,
   classMemberships,
   leaderboardEntries,
   organizations,
   orgMemberships,
   streakDays,
-  studySessionCompletions,
   userAchievements,
   userProfiles,
   users,
@@ -23,7 +20,7 @@ import { GamificationController } from './gamification.controller.js';
 import { GamificationService, getLocalDateForTimezone } from './gamification.service.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
 
-function createMockUser(userId: string, name = 'Student A', timezone = 'Asia/Ho_Chi_Minh'): AuthUserContext {
+function createMockUser(userId: string, name = 'Student A', _timezone = 'Asia/Ho_Chi_Minh'): AuthUserContext {
   return {
     userId,
     email: `${userId}@jlpt.test`,
