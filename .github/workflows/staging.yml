@@ -1,0 +1,106 @@
+name: Staging Verification & PITR Drill
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  staging-verify:
+    name: Staging Compose Profile Small & PITR Drill
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.11.2
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Media Edge Worker Tests (SYS-11 / Range 206 / Signed check before cache)
+        run: pnpm test:media-edge
+
+      - name: Run Infrastructure & Profile Verification Gate (A12 / A13)
+        run: pnpm infra:check
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Acceptance: "Không build trên production: image build một lần trong CI"
+      - name: Build staging container images once
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "Building application images tagged with commit SHA: ${IMAGE_TAG}"
+          docker build -t jlpt/jlpt-api:${IMAGE_TAG} -f infra/docker/api.Dockerfile .
+          docker build -t jlpt/jlpt-web:${IMAGE_TAG} -f infra/docker/web.Dockerfile .
+          docker build -t jlpt/jlpt-admin:${IMAGE_TAG} -f infra/docker/admin.Dockerfile .
+          docker build -t jlpt/jlpt-postgres:${IMAGE_TAG} -f infra/postgres/Dockerfile infra/postgres
+          echo "Images built successfully."
+
+      # Acceptance: "Workflow staging tạm trong GitHub Actions dựng compose profile small từ image build một lần"
+      # Acceptance: "Staging độc lập dữ liệu worker"
+      - name: Deploy temporary staging with profile small
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_REPO: jlpt
+          IMAGE_REGISTRY: docker.io
+          PROFILE: small
+        run: |
+          echo "Bringing up compose profile small using pre-built images (no build on runtime)..."
+          docker compose -f infra/compose/compose.staging.yml up -d
+
+      - name: Wait for staging services health
+        timeout-minutes: 3
+        run: |
+          echo "Waiting for all staging services to report healthy..."
+          for i in {1..30}; do
+            API_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:4000/api/v1/health || true)
+            WEB_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/healthz || true)
+            ADMIN_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3001/healthz || true)
+
+            echo "Probe $i: API=${API_HEALTH}, Web=${WEB_HEALTH}, Admin=${ADMIN_HEALTH}"
+            if [ "$API_HEALTH" = "200" ] && [ "$WEB_HEALTH" = "200" ] && [ "$ADMIN_HEALTH" = "200" ]; then
+              echo "All services healthy!"
+              break
+            fi
+            sleep 5
+          done
+
+      - name: Run Staging Smoke Tests against live containers
+        run: |
+          echo "Verifying API health payload..."
+          curl -fsS http://127.0.0.1:4000/api/v1/health | grep -q "ok"
+          echo "Verifying Web health..."
+          curl -fsS http://127.0.0.1:3000/healthz
+          echo "Verifying Admin health..."
+          curl -fsS http://127.0.0.1:3001/healthz
+          echo "Staging live smoke tests passed!"
+
+      # Acceptance: "Backup PITR khôi phục trên staging tạm có RPO/RTO đo trong log CI"
+      - name: Execute Backup PITR Restore Drill & Log RPO/RTO Measurements
+        run: |
+          echo "=========================================================="
+          echo " Executing Staging PITR Restore Drill in CI Environment"
+          echo "=========================================================="
+          node --no-warnings --experimental-strip-types infra/backup/drill-pitr.ts
+
+      - name: Verify Staging Teardown & Volume Cleanliness
+        if: always()
+        run: |
+          docker compose -f infra/compose/compose.staging.yml down -v --remove-orphans || true
