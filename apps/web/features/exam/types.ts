@@ -1,13 +1,9 @@
 import type {
   AttemptMode,
   AttemptStatus,
-  Level,
   MondaiType,
   PublicExamSnapshot,
   PublicOption,
-  PublicQuestion,
-  PublicQuestionGroup,
-  PublicSection,
   RichBlock,
   RichText,
 } from '@jlpt/schema';

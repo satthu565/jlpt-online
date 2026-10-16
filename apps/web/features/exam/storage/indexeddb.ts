@@ -1,4 +1,4 @@
-import type { StoredAttempt, OutboxEntry } from '../types.js';
+import type { StoredAttempt, OutboxEntry } from '../types';
 
 export interface ExamStorageAdapter {
   saveAttempt(attempt: StoredAttempt): Promise<void>;

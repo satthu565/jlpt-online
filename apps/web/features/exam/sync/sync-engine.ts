@@ -1,6 +1,6 @@
-import type { StoredAttempt, OutboxEntry, SyncState } from '../types.js';
-import type { ExamStorageAdapter } from '../storage/indexeddb.js';
-import type { ExamApiClient } from '../api/exam-api.js';
+import type { StoredAttempt, OutboxEntry, SyncState } from '../types';
+import type { ExamStorageAdapter } from '../storage/indexeddb';
+import type { ExamApiClient } from '../api/exam-api';
 
 export interface ExamSyncEngineOptions {
   attemptId: string;

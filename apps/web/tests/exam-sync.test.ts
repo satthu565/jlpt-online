@@ -57,7 +57,9 @@ describe('ExamSyncEngine & Autosave Outbox (Acceptance 2, 3, 4 & EXAM-17)', () =
     await vi.advanceTimersByTimeAsync(1000);
     expect(updateSpy).toHaveBeenCalledTimes(1);
 
-    const callArgs = updateSpy.mock.calls[0][1] as AnswerSheetUpdateInput;
+    const firstCall = updateSpy.mock.calls[0];
+    expect(firstCall).toBeDefined();
+    const callArgs = firstCall![1] as AnswerSheetUpdateInput;
     expect(callArgs.answers[0]).toBe(2);
     expect(callArgs.seq).toBe(1);
     expect(engine.getSyncState()).toBe('saved');
@@ -112,7 +114,9 @@ describe('ExamSyncEngine & Autosave Outbox (Acceptance 2, 3, 4 & EXAM-17)', () =
     await vi.advanceTimersByTimeAsync(2000); // t = 10s
     expect(updateSpy).toHaveBeenCalledTimes(1);
 
-    const callArgs = updateSpy.mock.calls[0][1] as AnswerSheetUpdateInput;
+    const firstCall = updateSpy.mock.calls[0];
+    expect(firstCall).toBeDefined();
+    const callArgs = firstCall![1] as AnswerSheetUpdateInput;
     expect(callArgs.answers).toEqual([4, 2, 3, 4]);
     expect(callArgs.seq).toBe(5);
 
@@ -179,7 +183,9 @@ describe('ExamSyncEngine & Autosave Outbox (Acceptance 2, 3, 4 & EXAM-17)', () =
       expect(updateSpy).toHaveBeenCalledTimes(2);
     });
 
-    const secondCall = updateSpy.mock.calls[1][1] as AnswerSheetUpdateInput;
+    const secondCallRaw = updateSpy.mock.calls[1];
+    expect(secondCallRaw).toBeDefined();
+    const secondCall = secondCallRaw![1] as AnswerSheetUpdateInput;
     expect(secondCall.seq).toBe(3);
     expect(secondCall.answers).toEqual([1, 2, 3, 0]);
 
@@ -222,9 +228,10 @@ describe('ExamSyncEngine & Autosave Outbox (Acceptance 2, 3, 4 & EXAM-17)', () =
     expect(stored?.currentSeq).toBe(1);
 
     const pendingOutbox = await storage.getPendingOutbox('11111111-1111-4111-8111-111111111111');
-    expect(pendingOutbox.length).toBe(1);
-    expect(pendingOutbox[0].seq).toBe(1);
-    expect(pendingOutbox[0].status).toBe('pending');
+    const firstOutboxItem = pendingOutbox[0];
+    expect(firstOutboxItem).toBeDefined();
+    expect(firstOutboxItem!.seq).toBe(1);
+    expect(firstOutboxItem!.status).toBe('pending');
 
     // State is 'saving' or 'offline_saved', NOT 'saved'
     expect(engine.getSyncState()).not.toBe('saved');
