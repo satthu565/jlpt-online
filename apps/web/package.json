@@ -14,6 +14,8 @@
     "test:a11y": "vitest run tests/a11y.test.tsx",
     "test:exam-ui": "vitest run tests/exam-ui.test.tsx",
     "test:sync": "vitest run tests/exam-sync.test.ts",
+    "test:e2e:exam": "vitest run tests/e2e-exam.test.tsx",
+    "test:e2e:library": "vitest run tests/e2e-library.test.tsx",
     "test:e2e": "playwright test"
   },
   "dependencies": {

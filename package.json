@@ -50,7 +50,9 @@
     "test:admin-users": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/users.test.ts",
     "test:srs": "vitest run packages/srs/tests",
     "test:difficulty": "vitest run packages/exam-engine/tests/difficulty.test.ts",
-    "test:dedupe": "vitest run packages/exam-engine/tests/dedupe.test.ts"
+    "test:dedupe": "vitest run packages/exam-engine/tests/dedupe.test.ts",
+    "test:e2e:exam": "vitest run -c apps/web/vitest.config.ts apps/web/tests/e2e-exam.test.tsx",
+    "test:e2e:library": "vitest run -c apps/web/vitest.config.ts apps/web/tests/e2e-library.test.tsx"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",

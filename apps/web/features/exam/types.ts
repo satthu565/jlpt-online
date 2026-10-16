@@ -79,5 +79,6 @@ export interface FlatQuestionItem {
   number: string;
   stem: RichText;
   options: PublicOption[];
+  media?: string[];
   isLocked: boolean;
 }
