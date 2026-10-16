@@ -119,6 +119,29 @@ async function main() {
     record('Postgres', 'infra/postgres/Dockerfile contains pg_bigm, WAL-G and healthcheck', pgDockerOk);
   }
 
+  const webDockerPath = path.join(rootDir, 'infra/docker/web.Dockerfile');
+  const adminDockerPath = path.join(rootDir, 'infra/docker/admin.Dockerfile');
+  const apiDockerPath = path.join(rootDir, 'infra/docker/api.Dockerfile');
+
+  if (fs.existsSync(webDockerPath)) {
+    const webContent = fs.readFileSync(webDockerPath, 'utf-8');
+    const webOk = webContent.includes('pnpm --filter "./packages/*" build') && webContent.includes('mkdir -p /app/apps/web/public');
+    record('Dockerfiles', 'web.Dockerfile builds all packages and guarantees public folder', webOk);
+  }
+
+  if (fs.existsSync(adminDockerPath)) {
+    const adminContent = fs.readFileSync(adminDockerPath, 'utf-8');
+    const adminOk = adminContent.includes('pnpm --filter "./packages/*" build') && adminContent.includes('mkdir -p /app/apps/admin/public');
+    record('Dockerfiles', 'admin.Dockerfile builds all packages and guarantees public folder', adminOk);
+  }
+
+  if (fs.existsSync(apiDockerPath)) {
+    const apiContent = fs.readFileSync(apiDockerPath, 'utf-8');
+    const apiOk = apiContent.includes('pnpm --filter "./packages/*" build');
+    record('Dockerfiles', 'api.Dockerfile builds all packages', apiOk);
+  }
+
+
   // 4. Cloudflare Tunnel Ingress (A13)
   console.log('\n--> Checking Cloudflare Tunnel Ingress Rules...');
   const cfPath = path.join(rootDir, 'infra/cloudflared/config.yml');
