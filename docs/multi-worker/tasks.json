@@ -1452,7 +1452,11 @@
       "acceptancePrerequisites": [
         "hosting"
       ],
-      "temporaryGrants": [],
+      "temporaryGrants": [
+        "apps/api/src/modules/exam/",
+        "apps/api/src/modules/review/",
+        "apps/api/src/modules/import/"
+      ],
       "kind": "implementation",
       "status": "TODO",
       "reviewRequired": true,
