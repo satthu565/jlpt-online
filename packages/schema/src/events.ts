@@ -112,10 +112,91 @@ export const AIRequestCancelledPayloadSchema = z.object({
   userId: z.string().uuid(),
 });
 
+export const FORBIDDEN_EVENT_ANSWER_FIELDS = [
+  'correct',
+  'correctOption',
+  'isCorrect',
+  'answer',
+  'answers',
+  'answerKey',
+  'keys',
+  'explanation',
+  'explanations',
+  'rawAnswer',
+] as const;
+
+export const FORBIDDEN_EVENT_PII_FIELDS = [
+  'email',
+  'password',
+  'passwd',
+  'secret',
+  'bearerToken',
+  'authToken',
+  'phone',
+  'phoneNumber',
+  'bankAccount',
+  'creditCard',
+  'cardNumber',
+] as const;
+
+const EMAIL_PATTERN = /[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+/;
+const BEARER_PATTERN = /^Bearer\s+/i;
+
+/**
+ * Asserts that an event envelope or payload does not leak exam answers or user PII.
+ * Satisfies Acceptance 3: Public events không chứa answers hay PII.
+ */
+export function assertNoEventLeak(data: unknown, path = ''): void {
+  if (data === null || data === undefined) return;
+
+  if (Array.isArray(data)) {
+    data.forEach((item, index) => assertNoEventLeak(item, `${path}[${index}]`));
+    return;
+  }
+
+  if (typeof data === 'string') {
+    if (EMAIL_PATTERN.test(data.trim())) {
+      throw new Error(
+        `Security violation: plain email PII detected at path "${path}" in event envelope/payload`,
+      );
+    }
+    if (BEARER_PATTERN.test(data.trim())) {
+      throw new Error(
+        `Security violation: bearer token secret detected at path "${path}" in event envelope/payload`,
+      );
+    }
+    return;
+  }
+
+  if (typeof data === 'object') {
+    const obj = data as Record<string, unknown>;
+    for (const key of Object.keys(obj)) {
+      const lower = key.toLowerCase();
+      for (const forbidden of FORBIDDEN_EVENT_ANSWER_FIELDS) {
+        if (lower === forbidden.toLowerCase()) {
+          throw new Error(
+            `Security violation: forbidden answer field "${key}" detected at path "${path ? path + '.' + key : key}" in event envelope/payload`,
+          );
+        }
+      }
+      for (const forbidden of FORBIDDEN_EVENT_PII_FIELDS) {
+        if (lower === forbidden.toLowerCase()) {
+          throw new Error(
+            `Security violation: forbidden PII field "${key}" detected at path "${path ? path + '.' + key : key}" in event envelope/payload`,
+          );
+        }
+      }
+      assertNoEventLeak(obj[key], path ? `${path}.${key}` : key);
+    }
+  }
+}
+
 export const AIContentReviewedPayloadSchema = z.object({
   contentId: z.string().uuid(),
   decision: z.enum(['approve', 'reject']),
   reviewerId: z.string().uuid(),
+  aiGenerated: z.boolean().default(true),
+  contentType: z.enum(['explanation', 'hint', 'translation', 'flashcard', 'question']).optional(),
 });
 
 export const AssignmentCreatedPayloadSchema = z.object({
@@ -144,12 +225,14 @@ export const PrivacyConsentChangedPayloadSchema = z.object({
   purpose: z.string(),
   granted: z.boolean(),
   policyVersion: z.string(),
+  withdrawnAt: z.string().datetime().optional(),
 });
 
 export const PrivacyDeletionRequestedPayloadSchema = z.object({
   userId: z.string().uuid(),
   deletionRequestId: z.string().uuid(),
   requestedAt: z.string().datetime(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const ExperimentExposedPayloadSchema = z.object({
@@ -158,18 +241,29 @@ export const ExperimentExposedPayloadSchema = z.object({
   subjectId: z.string(),
 });
 
-export const EventEnvelopeSchema = z.object({
-  eventId: z.string().uuid(),
-  schemaVersion: z.literal(1),
-  topic: EventTopicSchema,
-  occurredAt: z.string().datetime(),
-  actorId: z.string(),
-  tenantId: z.string().uuid().nullable().default(null),
-  aggregateId: z.string().uuid(),
-  aggregateVersion: z.number().int().positive().default(1),
-  correlationId: z.string(),
-  payload: BaseEventPayloadSchema,
-});
+export const EventEnvelopeSchema = z
+  .object({
+    eventId: z.string().uuid(),
+    schemaVersion: z.literal(1),
+    topic: EventTopicSchema,
+    occurredAt: z.string().datetime(),
+    actorId: z.string(),
+    tenantId: z.string().uuid().nullable().default(null),
+    aggregateId: z.string().uuid(),
+    aggregateVersion: z.number().int().positive().default(1),
+    correlationId: z.string(),
+    payload: BaseEventPayloadSchema,
+  })
+  .superRefine((data, ctx) => {
+    try {
+      assertNoEventLeak(data);
+    } catch (err: unknown) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: err instanceof Error ? err.message : String(err),
+      });
+    }
+  });
 export type EventEnvelope = z.infer<typeof EventEnvelopeSchema>;
 
 export function createEventEnvelope<T extends Record<string, unknown>>(
@@ -185,7 +279,7 @@ export function createEventEnvelope<T extends Record<string, unknown>>(
     correlationId?: string;
   },
 ): EventEnvelope {
-  return {
+  const envelope: EventEnvelope = {
     eventId: options?.eventId ?? crypto.randomUUID(),
     schemaVersion: 1,
     topic,
@@ -197,4 +291,7 @@ export function createEventEnvelope<T extends Record<string, unknown>>(
     correlationId: options?.correlationId ?? `req_${Date.now()}`,
     payload,
   };
+  assertNoEventLeak(envelope);
+  return envelope;
 }
+
