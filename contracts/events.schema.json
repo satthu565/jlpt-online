@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://jlpt.internal/schemas/events.schema.json",
+  "title": "JLPT System Event Envelope",
+  "description": "Standardized event envelope and payload contracts for all asynchronous outbox events across V1-V4",
+  "type": "object",
+  "required": [
+    "eventId",
+    "schemaVersion",
+    "topic",
+    "occurredAt",
+    "actorId",
+    "tenantId",
+    "aggregateId",
+    "aggregateVersion",
+    "correlationId",
+    "payload"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique UUIDv7 event identifier"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1,
+      "description": "Version of the event contract schema"
+    },
+    "topic": {
+      "type": "string",
+      "enum": [
+        "content.import.requested",
+        "content.import.completed",
+        "content.import.failed",
+        "content.approved",
+        "content.published",
+        "content.taken_down",
+        "attempt.submitted",
+        "learning.card.reviewed",
+        "study.session.completed",
+        "study.session.missed",
+        "payment.captured",
+        "payment.refunded",
+        "payment.failed",
+        "subscription.changed",
+        "ai.request.settled",
+        "ai.request.cancelled",
+        "ai.content.reviewed",
+        "assignment.created",
+        "assignment.completed",
+        "exam_event.results_released",
+        "privacy.consent.changed",
+        "privacy.deletion.requested",
+        "experiment.exposed"
+      ]
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC ISO 8601 timestamp"
+    },
+    "actorId": {
+      "type": "string",
+      "description": "Actor UUID or 'system'"
+    },
+    "tenantId": {
+      "type": ["string", "null"],
+      "description": "Tenant organization UUID if scoped, or null"
+    },
+    "aggregateId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Root aggregate UUID"
+    },
+    "aggregateVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Aggregate version for optimistic concurrency"
+    },
+    "correlationId": {
+      "type": "string",
+      "description": "Request correlation ID for end-to-end tracing"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Topic-specific payload adhering to data minimization"
+    }
+  },
+  "additionalProperties": false
+}

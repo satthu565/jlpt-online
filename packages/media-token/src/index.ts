@@ -1,5 +1,9 @@
 export interface MediaTokenPayload {
-  mediaKey: string;
+  a?: string; // attemptId
+  e?: string; // examId
+  v?: number; // version
+  k?: 'attempt' | 'review'; // scope
+  mediaKey?: string; // backwards compatibility
   exp: number; // unix timestamp in seconds
 }
 

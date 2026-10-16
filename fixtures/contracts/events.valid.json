@@ -1,0 +1,55 @@
+[
+  {
+    "eventId": "0192f0c0-0000-7000-8000-000000000001",
+    "schemaVersion": 1,
+    "topic": "attempt.submitted",
+    "occurredAt": "2026-10-15T10:00:00Z",
+    "actorId": "0192f0c0-0000-7000-8000-000000000099",
+    "tenantId": null,
+    "aggregateId": "0192f0c0-0000-7000-8000-000000000010",
+    "aggregateVersion": 1,
+    "correlationId": "req_01J00000000000000000000001",
+    "payload": {
+      "attemptId": "0192f0c0-0000-7000-8000-000000000010",
+      "examId": "0192f0c0-0000-7000-8000-000000000001",
+      "examVersion": 1,
+      "score": 145,
+      "passed": true
+    }
+  },
+  {
+    "eventId": "0192f0c0-0000-7000-8000-000000000002",
+    "schemaVersion": 1,
+    "topic": "payment.captured",
+    "occurredAt": "2026-10-15T10:05:00Z",
+    "actorId": "system",
+    "tenantId": null,
+    "aggregateId": "0192f0c0-0000-7000-8000-000000000020",
+    "aggregateVersion": 1,
+    "correlationId": "req_01J00000000000000000000002",
+    "payload": {
+      "orderId": "0192f0c0-0000-7000-8000-000000000020",
+      "provider": "payos",
+      "paymentAttemptId": "pay_att_01",
+      "amountMinor": 299000,
+      "currency": "VND",
+      "userId": "0192f0c0-0000-7000-8000-000000000099"
+    }
+  },
+  {
+    "eventId": "0192f0c0-0000-7000-8000-000000000003",
+    "schemaVersion": 1,
+    "topic": "content.published",
+    "occurredAt": "2026-10-15T10:10:00Z",
+    "actorId": "0192f0c0-0000-7000-8000-000000000088",
+    "tenantId": null,
+    "aggregateId": "0192f0c0-0000-7000-8000-000000000001",
+    "aggregateVersion": 1,
+    "correlationId": "req_01J00000000000000000000003",
+    "payload": {
+      "examId": "0192f0c0-0000-7000-8000-000000000001",
+      "version": 1,
+      "publisherId": "0192f0c0-0000-7000-8000-000000000088"
+    }
+  }
+]

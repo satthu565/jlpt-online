@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "examId": "0192f0c0-0000-7000-8000-000000000001",
+  "version": 1,
+  "level": "N5",
+  "title": "Đề thi rò rỉ đáp án",
+  "kind": "practice",
+  "totalQuestions": 1,
+  "sections": [
+    {
+      "index": 0,
+      "code": "language_vocab",
+      "title": "言語知識",
+      "durationSec": 1200,
+      "questionRange": [0, 0],
+      "groups": [
+        {
+          "groupId": "0192f0c0-0000-7000-8000-0000000000a1",
+          "mondaiType": "kanji_reading",
+          "instructions": [
+            {
+              "t": "text",
+              "text": "指示"
+            }
+          ],
+          "passage": null,
+          "media": [],
+          "questions": [
+            {
+              "index": 0,
+              "questionId": "0192f0c0-0000-7000-8000-0000000000b1",
+              "number": "1",
+              "stem": [
+                {
+                  "t": "text",
+                  "text": "問題文"
+                }
+              ],
+              "options": [
+                {
+                  "label": "1",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "A"
+                    }
+                  ]
+                },
+                {
+                  "label": "2",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "B"
+                    }
+                  ]
+                },
+                {
+                  "label": "3",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "C"
+                    }
+                  ]
+                },
+                {
+                  "label": "4",
+                  "content": [
+                    {
+                      "t": "text",
+                      "text": "D"
+                    }
+                  ]
+                }
+              ],
+              "correctOption": 1,
+              "explanation": "Giải thích đáp án câu 1"
+            }
+          ]
+        }
+      ],
+      "listeningTimeline": null
+    }
+  ]
+}

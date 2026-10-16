@@ -8,10 +8,15 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "test:import-contracts": "vitest run packages/content-tools/tests/import-contracts.test.ts",
+    "import:validate": "node tools/import-data/bin/validate.js",
     "dev": "turbo run dev",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md}\"",
     "infra:dev:check": "node --no-warnings --experimental-strip-types infra/dev/check.ts",
-    "test:vps": "pnpm --filter @jlpt/tests test:vps"
+    "test:vps": "pnpm --filter @jlpt/tests test:vps",
+    "contracts:check": "pnpm --filter @jlpt/schema build && node -e \"import('./packages/schema/dist/index.js').then(m => m.runCheck(process.cwd()))\"",
+    "contracts:generate": "pnpm --filter @jlpt/schema build && node -e \"import('./packages/schema/dist/index.js').then(m => m.runGenerate(process.cwd()))\" && pnpm --filter @jlpt/api-client build",
+    "test:contracts": "vitest run packages/schema/tests packages/api-client/tests"
   },
   "devDependencies": {
     "@eslint/js": "9.21.0",

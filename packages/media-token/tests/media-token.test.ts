@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { signMediaToken, verifyMediaToken } from '../src/index.js';
 
-describe('@jlpt/media-token smoke test', () => {
+describe('@jlpt/media-token tests', () => {
   const secret = 'super-secret-key-32-bytes-minimum-length-for-hmac!';
 
   it('signs and verifies a valid token', async () => {
@@ -17,6 +17,24 @@ describe('@jlpt/media-token smoke test', () => {
     const verified = await verifyMediaToken(token, secret);
     expect(verified).not.toBeNull();
     expect(verified?.mediaKey).toBe(payload.mediaKey);
+  });
+
+  it('signs and verifies A11 contract format { a, e, v, k, exp }', async () => {
+    const payload = {
+      a: '0192f0c0-0000-7000-8000-000000000001',
+      e: '0192f0c0-0000-7000-8000-000000000002',
+      v: 1,
+      k: 'attempt' as const,
+      exp: Math.floor(Date.now() / 1000) + 7200,
+    };
+
+    const token = await signMediaToken(payload, secret);
+    const verified = await verifyMediaToken(token, secret);
+    expect(verified).not.toBeNull();
+    expect(verified?.a).toBe(payload.a);
+    expect(verified?.e).toBe(payload.e);
+    expect(verified?.v).toBe(payload.v);
+    expect(verified?.k).toBe(payload.k);
   });
 
   it('rejects an expired token', async () => {
