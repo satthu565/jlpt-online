@@ -4,7 +4,7 @@ import React, { use, useState, useEffect } from 'react';
 import { ExamApiClient, ExamApiError } from '../../../../features/exam/api/exam-api';
 import { ReviewView, type AttemptReviewData } from '../../../../features/results';
 import { SAMPLE_N5_EXAM_SNAPSHOT } from '../../../../features/exam/fixtures/sample-exam';
-import { ALL_SAMPLE_EXAMS, resolveExamSnapshotFromUrl } from '../../../../features/exam/fixtures/exam-fixtures';
+import { resolveExamSnapshotFromUrl } from '../../../../features/exam/fixtures/exam-fixtures';
 import { Alert, Button, Card } from '@jlpt/ui';
 import type { PublicExamSnapshot } from '@jlpt/schema';
 

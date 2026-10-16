@@ -15,6 +15,9 @@ export default defineConfig({
   test: {
     environment: 'node',
     exclude: ['**/node_modules/**', '**/.next/**'],
+    maxWorkers: 1,
+    fileParallelism: false,
+    isolate: false,
   },
 });
 

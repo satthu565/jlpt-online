@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import {
-  ALL_SAMPLE_EXAMS,
   SAMPLE_EXAM_SUMMARIES,
   findExamSummaryBySlug,
   SAMPLE_N1_EXAM_SNAPSHOT,
@@ -366,6 +365,7 @@ describe('E2E Library, Results, Review & Persisted History Suite (N03)', () => {
 
       for (const snap of allLevels) {
         const flatQ = flattenExamQuestions(snap);
+        expect(flatQ.length).toBe(snap.totalQuestions);
         const correctAnswers = new Array(snap.totalQuestions).fill(1);
         const userAnswers = new Array(snap.totalQuestions).fill(1);
         const flags = new Array(snap.totalQuestions).fill(0);
