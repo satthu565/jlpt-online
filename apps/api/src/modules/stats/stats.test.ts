@@ -263,7 +263,7 @@ describe('L05: Stats & Readiness Module Tests (PLAN-12, Acceptance 3, Analytics)
       // Succeeds without foreign key error
     });
 
-    it('generates complete analytics report including readiness, speed-accuracy, and progress comparisons (GET /me/analytics)', async () => {
+    it('returns undefined for speed-accuracy and progress metrics when user has zero question history (no-data honest state)', async () => {
       const report = await statsController.getAnalytics(
         mockUser(testUserId),
         'N3',
@@ -272,8 +272,37 @@ describe('L05: Stats & Readiness Module Tests (PLAN-12, Acceptance 3, Analytics)
       expect(report.userId).toBe(testUserId);
       expect(report.readiness).toBeDefined();
       expect(report.readiness.isCalibrated).toBe(false); // No data readiness rule
+      // Zero questions answered MUST NOT fabricate speed-accuracy or progress numbers
+      expect(report.speedAccuracy).toBeUndefined();
+      expect(report.unseenProgress).toBeUndefined();
+      expect(report.trueProgress).toBeUndefined();
+      expect(report.generatedAt).toBeDefined();
+    });
+
+    it('generates complete analytics report including speed-accuracy and progress comparisons once user has answered questions', async () => {
+      const qId = generateUuidV7();
+      await dbClient.db.insert(questions).values({
+        id: qId,
+        level: 'N3',
+        skill: 'vocabulary',
+        mondaiType: 'mondai_1',
+        origin: 'JLPT-2024-07',
+      });
+
+      await statsService.recordQuestionAnswer(testUserId, {
+        questionId: qId,
+        isCorrect: true,
+        skill: 'vocabulary',
+      });
+
+      const report = await statsController.getAnalytics(
+        mockUser(testUserId),
+        'N3',
+      );
+
+      expect(report.userId).toBe(testUserId);
+      expect(report.readiness).toBeDefined();
       expect(report.speedAccuracy).toBeDefined();
-      expect(report.answerChanges).toBeDefined();
       expect(report.unseenProgress).toBeDefined();
       expect(report.trueProgress).toBeDefined();
       expect(report.generatedAt).toBeDefined();

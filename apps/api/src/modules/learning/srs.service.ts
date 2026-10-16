@@ -1,9 +1,13 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
+import * as schema from '../../db/schema.js';
 import { cardReviews, cardSchedules, cards } from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
+
+type DbTx = Parameters<Parameters<PostgresJsDatabase<typeof schema>['transaction']>[0]>[0];
 import type {
   CardScheduleDto,
   ReviewResultDto,
@@ -125,6 +129,17 @@ export class SrsService {
     const timezone = dto.timezone ?? 'Asia/Ho_Chi_Minh';
     const reviewTime = dto.reviewedAt ? new Date(dto.reviewedAt) : new Date();
 
+    // 0. Verify card ownership (IDOR & resource authorization protection)
+    const userCards = await this.dbClient.db
+      .select()
+      .from(cards)
+      .where(and(eq(cards.id, dto.cardId), eq(cards.userId, userId)))
+      .limit(1);
+
+    if (userCards.length === 0) {
+      throw new NotFoundException(`Card '${dto.cardId}' not found for user '${userId}'`);
+    }
+
     // 1. Cross-Device Idempotency Check:
     // If clientReviewId was already submitted for this user and card, return current schedule without modifying!
     const existingReviews = await this.dbClient.db
@@ -220,26 +235,27 @@ export class SrsService {
     // 3. Align next due time to local midnight boundary in user's timezone
     const nextDue = alignIntervalToMidnight(reviewTime, interval, timezone);
 
-    // 4. Update schedule in DB
-    await this.dbClient.db
-      .update(cardSchedules)
-      .set({
-        dueAt: nextDue,
-        intervalDays: interval,
-        easeFactor: ef,
-        repetitions: reps,
-        state: newState,
-      })
-      .where(eq(cardSchedules.cardId, dto.cardId));
+    // 4. Update schedule and record review atomically within database transaction
+    await this.dbClient.db.transaction(async (tx: DbTx) => {
+      await tx
+        .update(cardSchedules)
+        .set({
+          dueAt: nextDue,
+          intervalDays: interval,
+          easeFactor: ef,
+          repetitions: reps,
+          state: newState,
+        })
+        .where(eq(cardSchedules.cardId, dto.cardId));
 
-    // 5. Record card review with unique clientReviewId
-    await this.dbClient.db.insert(cardReviews).values({
-      id: generateUuidV7(),
-      cardId: dto.cardId,
-      userId,
-      clientReviewId: dto.clientReviewId,
-      rating: dto.rating,
-      reviewedAt: reviewTime,
+      await tx.insert(cardReviews).values({
+        id: generateUuidV7(),
+        cardId: dto.cardId,
+        userId,
+        clientReviewId: dto.clientReviewId,
+        rating: dto.rating,
+        reviewedAt: reviewTime,
+      });
     });
 
     return {

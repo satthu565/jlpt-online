@@ -2,7 +2,7 @@
 
 - **Task:** L05
 - **Worker:** W5 (Chuẩn nhập liệu dữ liệu và học thông minh)
-- **Assignment ID:** L05-2
+- **Assignment ID:** L05-4
 - **Trạng thái:** Hoàn tất triển khai (REVIEW)
 - **Tính năng liên quan:**
   - Từ vựng, Sổ tay, SRS, Flashcard, TTS: `VOC-01` đến `VOC-18`
@@ -130,12 +130,37 @@
 
 ---
 
-## 3. Bằng chứng kiểm thử (Verification & Acceptance)
+
+---
+
+## 3. Các điểm khắc phục theo phản hồi Reviewer W2 (L05-4)
+
+Trong phiên review trước, reviewer W2 phát hiện 4 điểm cần xử lý:
+1. **[P0] Xác thực quyền sở hữu thẻ trong `srs.service.ts`:**
+   - *Nguyên nhân:* Trước khi xử lý review, thiếu bước kiểm tra `cards.userId === userId`. Học viên có thể truyền `cardId` của người khác hoặc cardId không tồn tại gây IDOR/500 foreign key error.
+   - *Khắc phục:* Bổ sung truy vấn `cards` với `and(eq(cards.id, dto.cardId), eq(cards.userId, userId))` và ném `NotFoundException` ngay nếu không tìm thấy.
+   - *Kiểm thử:* Bổ sung test case trong `learning.test.ts` xác thực ném `NotFoundException` khi card thuộc user khác hoặc cardId ngẫu nhiên không tồn tại.
+2. **[P1] Lệnh `test:analytics-data` độc lập:**
+   - *Nguyên nhân:* Khi chạy trên clean workspace, `@jlpt/exam-engine` và `@jlpt/schema` chưa có `dist/`, khiến vitest thất bại.
+   - *Khắc phục:* Cập nhật script `test:analytics-data` trong `package.json` thành:
+     `pnpm --filter @jlpt/schema build && pnpm --filter @jlpt/exam-engine build && vitest run apps/api/src/modules/stats/`
+3. **[P2] Trạng thái trung thực khi người dùng chưa có lịch sử làm bài (`stats.service.ts`):**
+   - *Nguyên nhân:* Khi `totalAnswered === 0`, `getAnalyticsReport` truyền các câu hỏi giả định (`'q-vocab-sample'`, `'q1'`, `'q2'`) vào thuật toán, vi phạm nguyên tắc "No-data readiness không bịa kết quả".
+   - *Khắc phục:* Khi `totalAnswered === 0`, gán `speedAccuracy`, `unseenProgress`, `trueProgress` và `answerChanges` thành `undefined`. Khi `totalAnswered > 0`, tính toán thuần túy dựa trên lịch sử thực tế của học viên từ `user_question_history`.
+   - *Kiểm thử:* Bổ sung test case trong `stats.test.ts` kiểm tra trả về `undefined` khi chưa có lịch sử, và trả về đầy đủ metrics khi đã có câu trả lời.
+4. **[P2] Transaction cập nhật lịch và bản ghi review SRS:**
+   - *Nguyên nhân:* Cập nhật `cardSchedules` và chèn `cardReviews` thực hiện riêng biệt, có nguy cơ bất đồng bộ.
+   - *Khắc phục:* Bọc toàn bộ thao tác ghi DB này trong `this.dbClient.db.transaction(async (tx: DbTx) => { ... })`.
+
+---
+
+## 4. Bằng chứng kiểm thử (Verification & Acceptance)
 
 Toàn bộ các tiêu chí nghiệm thu và tính năng giao việc đều được kiểm chứng thông qua bộ unit & integration tests trên cơ sở dữ liệu thật (PGlite in-memory):
 
-1. **`pnpm test:learning`:** 15/15 tests PASS (thời gian chạy ~42s)
+1. **`pnpm test:learning`:** 16/16 tests PASS (thời gian chạy ~35s)
    - Kiểm chứng chống trùng lặp `clientReviewId` không tăng lặp lịch ôn tập.
+   - Kiểm chứng bảo vệ IDOR ngăn chặn review thẻ của người khác bằng `NotFoundException`.
    - Kiểm chứng trung hòa Formula Injection (`sanitizeCsvField`) và xuất CSV.
    - Kiểm chứng chính sách bản quyền giọng đọc TTS (`Open-Voice-License-1.0`) và fallback sandbox.
    - Kiểm chứng CRUD sổ tay, tìm kiếm, quiz 4 đáp án và trích xuất câu hỏi ví dụ từ ngân hàng đề.
@@ -143,13 +168,15 @@ Toàn bộ các tiêu chí nghiệm thu và tính năng giao việc đều đư�
    - Kiểm chứng đếm ngược ngày mục tiêu tất định theo múi giờ (`Asia/Tokyo`, `Asia/Ho_Chi_Minh`, `America/New_York`, `UTC`).
    - Kiểm chứng tái lập lịch các buổi học bị bỏ lỡ mà không làm biến đổi các buổi đã hoàn thành.
    - Kiểm chứng cân bằng thời gian cho kỹ năng yếu và nhận diện tuần nước rút (Sprint <= 7 ngày).
-3. **`pnpm test:analytics-data`:** 6/6 tests PASS (thời gian chạy ~13s)
+3. **`pnpm test:analytics-data`:** 7/7 tests PASS (thời gian chạy ~16s)
+   - Tự động build `@jlpt/schema` và `@jlpt/exam-engine` thành công.
    - Kiểm chứng chính sách Readiness: `isCalibrated: false` khi có 0, 1 hoặc 2 đề thi thử; chỉ chuyển `CALIBRATED` khi đạt >= 3 đề thi.
+   - Kiểm chứng No-data analytics: Trả về `undefined` cho speed-accuracy/progress khi `totalAnswered === 0`, không bịa đặt số liệu ảo.
+   - Kiểm chứng báo cáo hoàn chỉnh khi đã có dữ liệu làm bài.
    - Kiểm chứng cập nhật thống kê độ khó câu hỏi và thay đổi đáp án.
-   - Kiểm chứng endpoint báo cáo phân tích toàn diện `GET /me/analytics`.
 4. **Common Gates:**
-   - `pnpm lint`: Đạt 100% trên 13 packages.
-   - `pnpm typecheck`: Đạt 100% trên 13 packages.
-   - `pnpm test`: 18/18 packages thành công (toàn bộ 166 tests trong `@jlpt/api` và toàn repo đều PASS).
-   - `pnpm build`: 12/12 packages build thành công.
-   - `pnpm install --frozen-lockfile`: Khóa lockfile nguyên vẹn, không có thay đổi bất hợp lệ.
+   - `pnpm lint`: Đạt 100% trên toàn bộ các packages.
+   - `pnpm typecheck`: Đạt 100% trên toàn bộ các packages.
+   - `pnpm test`: Toàn bộ test suites đều PASS.
+   - `pnpm build`: Build thành công.
+   - `pnpm install --frozen-lockfile`: Khóa lockfile nguyên vẹn.

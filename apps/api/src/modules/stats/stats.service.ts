@@ -1,6 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, desc, eq } from 'drizzle-orm';
-import type { Level, PassProbabilityEstimate, Skill } from '@jlpt/schema';
+import type {
+  AnswerChangeAnalysis,
+  Level,
+  PassProbabilityEstimate,
+  Skill,
+  SpeedAccuracyReport,
+  TrueProgressComparison,
+  UnseenProgressReport,
+} from '@jlpt/schema';
 import {
   analyzeAnswerChanges,
   analyzeSpeedAndAccuracy,
@@ -128,66 +136,43 @@ export class StatsService {
       .limit(200);
 
     const totalAnswered = historyRows.length;
-    const correctCount = historyRows.filter((h: (typeof historyRows)[number]) => h.isCorrect).length;
-    const accuracy = totalAnswered > 0 ? (correctCount / totalAnswered) * 100 : 0;
 
-    const speedAccuracy = analyzeSpeedAndAccuracy([
-      {
-        questionId: 'q-vocab-sample',
-        skill: 'vocabulary' as Skill,
-        timeSpentMs: 45000,
-        isCorrect: accuracy >= 50,
-      },
-      {
-        questionId: 'q-reading-sample',
-        skill: 'reading' as Skill,
-        timeSpentMs: 90000,
-        isCorrect: accuracy >= 60,
-      },
-    ]);
+    let speedAccuracy: SpeedAccuracyReport | undefined = undefined;
+    let unseenProgress: UnseenProgressReport | undefined = undefined;
+    let trueProgress: TrueProgressComparison | undefined = undefined;
+    let answerChanges: AnswerChangeAnalysis | undefined = undefined;
 
-    const answerChanges = analyzeAnswerChanges([], {}, 0);
+    if (totalAnswered > 0) {
+      speedAccuracy = analyzeSpeedAndAccuracy(
+        historyRows.map((h: (typeof historyRows)[number]) => ({
+          questionId: h.questionId,
+          skill: 'vocabulary' as Skill,
+          timeSpentMs: 60000,
+          isCorrect: h.isCorrect,
+        })),
+      );
 
-    const unseenProgress = analyzeUnseenProgress([
-      {
-        period: 'current',
-        questions:
-          totalAnswered > 0
-            ? historyRows.map((h: (typeof historyRows)[number]) => ({
-                questionId: h.questionId,
-                isCorrect: h.isCorrect,
-                exposureCount: 0,
-              }))
-            : [
-                {
-                  questionId: 'placeholder',
-                  isCorrect: true,
-                  exposureCount: 0,
-                },
-              ],
-      },
-    ]);
+      answerChanges = analyzeAnswerChanges([], {}, 0);
 
-    const trueProgress = compareTrueProgress(
-      totalAnswered > 0
-        ? historyRows.map((h: (typeof historyRows)[number], idx: number) => ({
+      unseenProgress = analyzeUnseenProgress([
+        {
+          period: 'current',
+          questions: historyRows.map((h: (typeof historyRows)[number]) => ({
             questionId: h.questionId,
             isCorrect: h.isCorrect,
-            exposureCount: idx < 10 ? 0 : 2,
-          }))
-        : [
-            {
-              questionId: 'q1',
-              isCorrect: true,
-              exposureCount: 0,
-            },
-            {
-              questionId: 'q2',
-              isCorrect: true,
-              exposureCount: 1,
-            },
-          ],
-    );
+            exposureCount: 0,
+          })),
+        },
+      ]);
+
+      trueProgress = compareTrueProgress(
+        historyRows.map((h: (typeof historyRows)[number], idx: number) => ({
+          questionId: h.questionId,
+          isCorrect: h.isCorrect,
+          exposureCount: idx < 10 ? 0 : 2,
+        })),
+      );
+    }
 
     return {
       userId,

@@ -51,7 +51,7 @@
     "test:dedupe": "vitest run packages/exam-engine/tests/dedupe.test.ts",
     "test:learning": "vitest run apps/api/src/modules/learning/",
     "test:planner": "vitest run apps/api/src/modules/planner/",
-    "test:analytics-data": "vitest run apps/api/src/modules/stats/"
+    "test:analytics-data": "pnpm --filter @jlpt/schema build && pnpm --filter @jlpt/exam-engine build && vitest run apps/api/src/modules/stats/"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",

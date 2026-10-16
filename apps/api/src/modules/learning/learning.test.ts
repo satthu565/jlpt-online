@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { NotFoundException } from '@nestjs/common';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
 import { questions, questionVersions, users } from '../../db/schema.js';
@@ -121,6 +122,42 @@ describe('L05: Learning & Notebook Module Tests (VOC-01..18, Acceptance 1 & 4)',
       expect(resB.repetitions).toBe(1); // STILL 1, NOT 2!
       expect(resB.intervalDays).toBe(1); // STILL 1, NOT 6!
       expect(resB.nextDueAt).toBe(firstDueAt); // Due date unchanged!
+    });
+
+    it('prevents IDOR by rejecting review for non-existent card or card belonging to another user', async () => {
+      const otherUserId = generateUuidV7();
+      await dbClient.db.insert(users).values({
+        id: otherUserId,
+        email: `other-${otherUserId}@jlpt.local`,
+        name: 'Other Student',
+        role: 'user',
+      });
+
+      const item = await notebookService.createItem(testUserId, {
+        kind: 'vocab',
+        term: '本',
+        reading: 'ほん',
+        meaning: 'sách',
+      });
+      const card = await flashcardService.generateCardForNotebookItem(testUserId, item.id);
+
+      // Attempt by another user to review card owned by testUserId must throw NotFoundException
+      await expect(
+        srsService.processReview(otherUserId, {
+          cardId: card.id,
+          clientReviewId: generateUuidV7(),
+          rating: 3,
+        }),
+      ).rejects.toThrow(NotFoundException);
+
+      // Attempt to review a completely non-existent card must throw NotFoundException
+      await expect(
+        srsService.processReview(testUserId, {
+          cardId: generateUuidV7(),
+          clientReviewId: generateUuidV7(),
+          rating: 3,
+        }),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('advances SRS intervals correctly on consecutive distinct reviews', async () => {
