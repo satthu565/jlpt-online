@@ -9,6 +9,7 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:import-contracts": "vitest run packages/content-tools/tests/import-contracts.test.ts",
+    "test:import-validation": "vitest run packages/content-tools/tests/import-validation.test.ts",
     "import:validate": "node tools/import-data/bin/validate.js",
     "dev": "turbo run dev",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md}\"",

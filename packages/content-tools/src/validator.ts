@@ -2,6 +2,8 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { validateSchema } from './schema.js';
+import { loadPackageArchive } from './zip.js';
+import { validateExamAgainstBlueprint } from './blueprint-validator.js';
 import type {
   ImportPackageV2,
   ValidationResult,
@@ -10,6 +12,26 @@ import type {
   ReadinessState,
   MediaMimeType,
 } from './types.js';
+
+export function extractPlainTextFromRichText(segments: unknown[]): string {
+  let text = '';
+  for (const seg of segments) {
+    if (!seg || typeof seg !== 'object') continue;
+    const s = seg as Record<string, unknown>;
+    if (s['t'] === 'text' && typeof s['text'] === 'string') {
+      text += s['text'];
+    } else if (s['t'] === 'ruby' && typeof s['text'] === 'string') {
+      text += s['text'];
+    } else if ((s['t'] === 'underline' || s['t'] === 'emphasis') && Array.isArray(s['children'])) {
+      text += extractPlainTextFromRichText(s['children']);
+    } else if (s['t'] === 'blank') {
+      text += '___';
+    } else if (s['t'] === 'star') {
+      text += '★';
+    }
+  }
+  return text;
+}
 
 export function resolveJsonPointer(root: unknown, pointerPath: string): unknown {
   if (pointerPath === '' || pointerPath === '/') {
@@ -207,7 +229,9 @@ export function validateImportData(rawObj: unknown, options?: ValidateOptions): 
   };
 
   const addUncertain = (p: string, msg: string) => {
-    const isCovered = blockingIssues.some((issue) => p === issue.path || p.startsWith(issue.path + '/'));
+    const isCovered = blockingIssues.some(
+      (issue) => p === issue.path || p.startsWith(issue.path + '/'),
+    );
     if (mode === 'ready' || !isCovered) {
       addError(p, `${msg}; cần issue blocking và chế độ draft nếu chưa xác định`);
     }
@@ -267,6 +291,8 @@ export function validateImportData(rawObj: unknown, options?: ValidateOptions): 
   // 7. Groups & Questions semantic check
   const groupMap = new Map<string, (typeof pkg.groups)[0]>();
   const questionIdSet = new Set<string>();
+  const questionNumberSet = new Set<string>();
+  const questionSignatureMap = new Map<string, string>();
   let totalCalculatedQuestions = 0;
 
   for (let gi = 0; gi < pkg.groups.length; gi++) {
@@ -277,6 +303,11 @@ export function validateImportData(rawObj: unknown, options?: ValidateOptions): 
       addError(`${gp}/id`, 'group id trùng');
     }
     groupMap.set(group.id, group);
+
+    // Empty group check (PDF-22)
+    if (group.questions.length === 0) {
+      addError(`${gp}/questions`, 'nhóm không có câu hỏi');
+    }
 
     // Check mediaKeys of group exist in exam media
     for (const key of group.mediaKeys) {
@@ -292,6 +323,18 @@ export function validateImportData(rawObj: unknown, options?: ValidateOptions): 
       }
     }
 
+    // Check [KHONG_DOC_RO] in group passage (PDF-21)
+    for (let bi = 0; bi < group.passage.length; bi++) {
+      const block = group.passage[bi]!;
+      if (block.type === 'paragraph') {
+        for (const seg of block.content) {
+          if (seg.t === 'text' && seg.text.includes('[KHONG_DOC_RO]')) {
+            addUncertain(`${gp}/passage/${bi}/content`, 'đoạn văn còn nhãn không đọc rõ');
+          }
+        }
+      }
+    }
+
     // Walk questions
     for (let qi = 0; qi < group.questions.length; qi++) {
       const q = group.questions[qi]!;
@@ -303,6 +346,32 @@ export function validateImportData(rawObj: unknown, options?: ValidateOptions): 
       }
       questionIdSet.add(q.id);
 
+      // Duplicate question number check (PDF-22)
+      if (questionNumberSet.has(q.number)) {
+        addError(`${qp}/number`, `số thứ tự câu (${q.number}) bị trùng trong đề`);
+      }
+      questionNumberSet.add(q.number);
+
+      // Check empty stem (PDF-22)
+      const stemPlainText = extractPlainTextFromRichText(q.stem).trim();
+      if (q.stem.length === 0 || stemPlainText.length === 0) {
+        addError(`${qp}/stem`, 'nội dung câu hỏi rỗng');
+      }
+
+      // Check duplicate full question (stem + options) (PDF-22)
+      const optionsSignature = q.options
+        .map((o) => extractPlainTextFromRichText(o.content).trim())
+        .join('|');
+      const questionSig = stemPlainText + ':::' + optionsSignature;
+      if (questionSignatureMap.has(questionSig)) {
+        addError(
+          qp,
+          `phát hiện câu hỏi bị trùng lặp với câu ${questionSignatureMap.get(questionSig)}`,
+        );
+      } else {
+        questionSignatureMap.set(questionSig, q.id);
+      }
+
       // Options labels must be sequential "1".."N"
       const labels = q.options.map((o) => o.label);
       const expectedLabels = Array.from({ length: q.options.length }, (_, idx) => String(idx + 1));
@@ -310,10 +379,33 @@ export function validateImportData(rawObj: unknown, options?: ValidateOptions): 
         addError(`${qp}/options`, 'labels phải giữ thứ tự 1..n');
       }
 
-      // Check correctOption
+      // Check options count (must be 3 or 4) (PDF-22)
+      if (q.options.length < 3 || q.options.length > 4) {
+        addError(`${qp}/options`, 'số lựa chọn phải từ 3 đến 4');
+      }
+
+      // Check empty options & duplicate option content within the question (PDF-22)
+      const optTexts = q.options.map((o) => extractPlainTextFromRichText(o.content).trim());
+      for (let oi = 0; oi < q.options.length; oi++) {
+        if (q.options[oi]!.content.length === 0 || optTexts[oi]!.length === 0) {
+          addError(`${qp}/options/${oi}/content`, 'lựa chọn không được để rỗng');
+        }
+      }
+      for (let i = 0; i < optTexts.length; i++) {
+        for (let j = i + 1; j < optTexts.length; j++) {
+          if (optTexts[i] && optTexts[i] === optTexts[j]) {
+            addError(
+              `${qp}/options`,
+              `các lựa chọn [${i + 1}] và [${j + 1}] trong câu bị trùng nội dung`,
+            );
+          }
+        }
+      }
+
+      // Check correctOption (PDF-22)
       if (q.correctOption === null) {
         addUncertain(`${qp}/correctOption`, 'chưa có đáp án');
-      } else if (q.correctOption > q.options.length) {
+      } else if (q.correctOption < 1 || q.correctOption > q.options.length) {
         addError(`${qp}/correctOption`, 'đáp án ngoài số lựa chọn');
       }
 
@@ -326,27 +418,30 @@ export function validateImportData(rawObj: unknown, options?: ValidateOptions): 
           if (seg.t === 'blank') blankCount++;
         }
         if (starCount !== 1 || blankCount !== 3) {
-          addError(
-            `${qp}/stem`,
-            'câu sắp xếp cần 3 blank và 1 star; không đổi thứ tự lựa chọn'
-          );
+          addError(`${qp}/stem`, 'câu sắp xếp cần 3 blank và 1 star; không đổi thứ tự lựa chọn');
         }
       }
 
-      // Check [KHONG_DOC_RO] in question stem
+      // Check [KHONG_DOC_RO] in question stem (PDF-21)
       for (const seg of q.stem) {
         if (seg.t === 'text' && seg.text.includes('[KHONG_DOC_RO]')) {
           addUncertain(`${qp}/stem`, 'nội dung còn nhãn không đọc rõ');
+        }
+      }
+
+      // Check [KHONG_DOC_RO] in question options (PDF-21)
+      for (let oi = 0; oi < q.options.length; oi++) {
+        for (const seg of q.options[oi]!.content) {
+          if (seg.t === 'text' && seg.text.includes('[KHONG_DOC_RO]')) {
+            addUncertain(`${qp}/options/${oi}/content`, 'lựa chọn còn nhãn không đọc rõ');
+          }
         }
       }
     }
   }
 
   if (totalCalculatedQuestions !== pkg.exam.totalQuestions) {
-    addError(
-      '/exam/totalQuestions',
-      `không bằng tổng câu thực tế ${totalCalculatedQuestions}`
-    );
+    addError('/exam/totalQuestions', `không bằng tổng câu thực tế ${totalCalculatedQuestions}`);
   }
 
   // 8. Exam sections and listeningTimeline
@@ -413,23 +508,20 @@ export function validateImportData(rawObj: unknown, options?: ValidateOptions): 
       }
 
       if (t.endMs <= t.startMs || t.audioEndMs <= t.audioStartMs) {
-        addError(tp, 'mốc kết thúc phải lớn hơn bắt đầu');
+        addError(`${tp}/endMs`, 'mốc kết thúc phải lớn hơn bắt đầu');
       }
 
       if (t.endMs - t.startMs !== t.audioEndMs - t.audioStartMs) {
-        addError(tp, 'thời gian phát trên timeline phải bằng đoạn file audio');
+        addError(`${tp}/audioEndMs`, 'thời gian phát trên timeline phải bằng đoạn file audio');
       }
 
       if (previousTimelineEnd !== null && t.startMs !== previousTimelineEnd) {
-        addError(
-          `${tp}/startMs`,
-          'timeline không liên tục với endMs+gapAfterMs trước đó'
-        );
+        addError(`${tp}/startMs`, 'timeline không liên tục với endMs+gapAfterMs trước đó');
       }
       previousTimelineEnd = t.endMs + t.gapAfterMs;
 
       if (s.durationSec !== null && previousTimelineEnd > s.durationSec * 1000) {
-        addError(tp, 'timeline vượt thời lượng phần thi');
+        addError(`${tp}/endMs`, 'timeline vượt thời lượng phần thi');
       }
     }
 
@@ -453,10 +545,7 @@ export function validateImportData(rawObj: unknown, options?: ValidateOptions): 
   const sortedUsed = [...usedGroupIds].sort();
   const sortedAll = Array.from(groupMap.keys()).sort();
   if (JSON.stringify(sortedUsed) !== JSON.stringify(sortedAll)) {
-    addError(
-      '/exam/sections',
-      'mỗi group phải được tham chiếu đúng một lần, không bỏ sót'
-    );
+    addError('/exam/sections', 'mỗi group phải được tham chiếu đúng một lần, không bỏ sót');
   }
 
   // Original exam section ordering checks
@@ -468,7 +557,7 @@ export function validateImportData(rawObj: unknown, options?: ValidateOptions): 
     if (JSON.stringify(sectionCodes) !== JSON.stringify(expected)) {
       addError(
         '/exam/sections',
-        'sai thứ tự phần theo cấp độ; còn cần server đối chiếu blueprint chính thức'
+        'sai thứ tự phần theo cấp độ; còn cần server đối chiếu blueprint chính thức',
       );
     }
     if (pkg.source.year === null) {
@@ -485,7 +574,7 @@ export function validateImportData(rawObj: unknown, options?: ValidateOptions): 
 
   if (pkg.source.rightsStatus === 'unverified' || pkg.source.licenseRef === null) {
     warnings.push(
-      'Quyền sử dụng chưa được xác minh; server phải chặn publish tới khi owner duyệt license.'
+      'Quyền sử dụng chưa được xác minh; server phải chặn publish tới khi owner duyệt license.',
     );
   }
 
@@ -510,7 +599,7 @@ export function validateImportData(rawObj: unknown, options?: ValidateOptions): 
         addError(`${p}/sha256`, 'hash hoặc tên file không đúng nội dung bytes');
       }
       if (Buffer.from(data.subarray(0, 5)).toString('ascii') !== '%PDF-') {
-        addError(p, 'attachment nguồn không có signature PDF');
+        addError(`${p}/path`, 'attachment nguồn không có signature PDF');
       }
     }
 
@@ -532,13 +621,13 @@ export function validateImportData(rawObj: unknown, options?: ValidateOptions): 
       }
 
       if (!checkMediaSignature(data, m.mimeType)) {
-        addError(p, 'signature file không khớp MIME');
+        addError(`${p}/mimeType`, 'signature file không khớp MIME');
       }
 
       if (m.mimeType === 'image/png') {
         const dims = parsePngDimensions(data);
         if (dims && (dims.width !== m.width || dims.height !== m.height)) {
-          addError(p, 'kích thước không khớp PNG thật');
+          addError(`${p}/width`, 'kích thước không khớp PNG thật');
         }
       } else if (m.mimeType === 'audio/wav') {
         const actualDuration = parseWavDurationMs(data);
@@ -558,6 +647,26 @@ export function validateImportData(rawObj: unknown, options?: ValidateOptions): 
         addError('/files', `file chưa khai báo: ${filePath}`);
       }
     }
+  }
+
+  // 10. Blueprint structural validation (Feature PDF-23)
+  if (options?.blueprint) {
+    const bpResult = validateExamAgainstBlueprint(pkg.exam, pkg.groups, options.blueprint);
+    if (!bpResult.valid) {
+      errors.push(...bpResult.errors);
+    }
+    warnings.push(...bpResult.warnings);
+  } else if (
+    options?.knownBlueprints &&
+    pkg.exam.blueprintRef &&
+    options.knownBlueprints[pkg.exam.blueprintRef.id]
+  ) {
+    const bp = options.knownBlueprints[pkg.exam.blueprintRef.id]!;
+    const bpResult = validateExamAgainstBlueprint(pkg.exam, pkg.groups, bp);
+    if (!bpResult.valid) {
+      errors.push(...bpResult.errors);
+    }
+    warnings.push(...bpResult.warnings);
   }
 
   const valid = errors.length === 0;
@@ -583,39 +692,12 @@ export function loadPackageDirectory(dirPath: string): {
   rawJson: unknown;
   files: Record<string, Uint8Array>;
 } {
-  const base = path.resolve(dirPath);
-  const files: Record<string, Uint8Array> = {};
-
-  function walkDir(currentDir: string) {
-    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
-    for (const entry of entries) {
-      const fullPath = path.join(currentDir, entry.name);
-      if (entry.isSymbolicLink()) {
-        throw new Error(`Không nhận symlink: ${fullPath}`);
-      }
-      if (entry.isDirectory()) {
-        walkDir(fullPath);
-      } else if (entry.isFile()) {
-        const relPath = path.relative(base, fullPath).replace(/\\/g, '/');
-        files[relPath] = fs.readFileSync(fullPath);
-      }
-    }
-  }
-
-  walkDir(base);
-
-  if (!files['import.json']) {
-    throw new Error('Thiếu import.json ở gốc gói');
-  }
-
-  const jsonStr = Buffer.from(files['import.json']).toString('utf-8');
-  const rawJson = JSON.parse(jsonStr);
-  return { rawJson, files };
+  return loadPackageArchive(dirPath);
 }
 
 export function validatePackagePath(
   packagePath: string,
-  options?: ValidateOptions
+  options?: ValidateOptions,
 ): ValidationResult {
   const absPath = path.resolve(packagePath);
   if (!fs.existsSync(absPath)) {
@@ -632,37 +714,21 @@ export function validatePackagePath(
     };
   }
 
-  const stat = fs.statSync(absPath);
-  if (stat.isDirectory()) {
-    try {
-      const { rawJson, files } = loadPackageDirectory(absPath);
-      return validateImportData(rawJson, { ...options, packageFiles: files });
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
-      return {
-        valid: false,
-        mode: options?.mode ?? 'ready',
-        readiness: 'INVALID',
-        questionCount: 0,
-        groupCount: 0,
-        blockingIssueCount: 0,
-        errors: [msg],
-        warnings: [],
-        publicationApproved: false,
-      };
-    }
+  try {
+    const { rawJson, files } = loadPackageArchive(absPath);
+    return validateImportData(rawJson, { ...options, packageFiles: files });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return {
+      valid: false,
+      mode: options?.mode ?? 'ready',
+      readiness: 'INVALID',
+      questionCount: 0,
+      groupCount: 0,
+      blockingIssueCount: 0,
+      errors: [msg],
+      warnings: [],
+      publicationApproved: false,
+    };
   }
-
-  // If zip or other file: invoke python validator or return error if not directory
-  return {
-    valid: false,
-    mode: options?.mode ?? 'ready',
-    readiness: 'INVALID',
-    questionCount: 0,
-    groupCount: 0,
-    blockingIssueCount: 0,
-    errors: ['Validator TypeScript hiện tại hỗ trợ thư mục giải nén'],
-    warnings: [],
-    publicationApproved: false,
-  };
 }
