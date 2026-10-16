@@ -9,6 +9,7 @@ export default defineConfig({
     alias: {
       '@jlpt/schema': resolve(currentDir, '../../packages/schema/src/index.ts'),
       '@jlpt/ui': resolve(currentDir, '../../packages/ui/src/index.tsx'),
+      '@jlpt/content-tools': resolve(currentDir, '../../packages/content-tools/src/index.ts'),
     },
   },
   oxc: {

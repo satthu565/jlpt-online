@@ -283,3 +283,88 @@ export function loadPackageArchive(packagePath: string): {
 
   return { rawJson, files };
 }
+
+export interface ZipFileInput {
+  name: string;
+  data: Buffer | Uint8Array | string;
+}
+
+/**
+ * Creates a standard ZIP archive buffer in memory.
+ * Uses Deflate (method 8) with CRC-32 checksums.
+ */
+export function createZipBuffer(files: ZipFileInput[]): Buffer {
+  const localHeaders: Buffer[] = [];
+  const centralHeaders: Buffer[] = [];
+  let offset = 0;
+
+  for (const file of files) {
+    const nameBuf = Buffer.from(file.name, 'utf8');
+    const dataBuf = Buffer.isBuffer(file.data)
+      ? file.data
+      : typeof file.data === 'string'
+        ? Buffer.from(file.data, 'utf8')
+        : Buffer.from(file.data);
+
+    const crc = zlib.crc32(dataBuf);
+    const compressed = zlib.deflateRawSync(dataBuf);
+    const compMethod = 8;
+    const compSize = compressed.length;
+    const uncompSize = dataBuf.length;
+
+    // Local file header (30 bytes + name)
+    const lh = Buffer.alloc(30 + nameBuf.length);
+    lh.writeUInt32LE(0x04034b50, 0);
+    lh.writeUInt16LE(20, 4);
+    lh.writeUInt16LE(0, 6);
+    lh.writeUInt16LE(compMethod, 8);
+    lh.writeUInt16LE(0, 10);
+    lh.writeUInt16LE(0, 12);
+    lh.writeUInt32LE(crc, 14);
+    lh.writeUInt32LE(compSize, 18);
+    lh.writeUInt32LE(uncompSize, 22);
+    lh.writeUInt16LE(nameBuf.length, 26);
+    lh.writeUInt16LE(0, 28);
+    nameBuf.copy(lh, 30);
+
+    localHeaders.push(lh, compressed);
+
+    // Central directory file header (46 bytes + name)
+    const cd = Buffer.alloc(46 + nameBuf.length);
+    cd.writeUInt32LE(0x02014b50, 0);
+    cd.writeUInt16LE(20, 4);
+    cd.writeUInt16LE(20, 6);
+    cd.writeUInt16LE(0, 8);
+    cd.writeUInt16LE(compMethod, 10);
+    cd.writeUInt16LE(0, 12);
+    cd.writeUInt16LE(0, 14);
+    cd.writeUInt32LE(crc, 16);
+    cd.writeUInt32LE(compSize, 20);
+    cd.writeUInt32LE(uncompSize, 24);
+    cd.writeUInt16LE(nameBuf.length, 28);
+    cd.writeUInt16LE(0, 30);
+    cd.writeUInt16LE(0, 32);
+    cd.writeUInt16LE(0, 34);
+    cd.writeUInt16LE(0, 36);
+    cd.writeUInt32LE(0, 38);
+    cd.writeUInt32LE(offset, 42);
+    nameBuf.copy(cd, 46);
+
+    centralHeaders.push(cd);
+    offset += lh.length + compressed.length;
+  }
+
+  const cdTotalSize = centralHeaders.reduce((acc, b) => acc + b.length, 0);
+  const eocd = Buffer.alloc(22);
+  eocd.writeUInt32LE(0x06054b50, 0);
+  eocd.writeUInt16LE(0, 4);
+  eocd.writeUInt16LE(0, 6);
+  eocd.writeUInt16LE(files.length, 8);
+  eocd.writeUInt16LE(files.length, 10);
+  eocd.writeUInt32LE(cdTotalSize, 12);
+  eocd.writeUInt32LE(offset, 16);
+  eocd.writeUInt16LE(0, 20);
+
+  return Buffer.concat([...localHeaders, ...centralHeaders, eocd]);
+}
+

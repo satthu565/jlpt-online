@@ -93,60 +93,46 @@ export function extractSegmentsFromRichText(
   const results: ExtractedSegment[] = [];
 
   for (const seg of richText) {
-    switch (seg.t) {
-      case 'text': {
-        const text = normalizeJapaneseTextNFC(seg.text);
+    if (seg.t === 'ruby') {
+      const text = normalizeJapaneseTextNFC(seg.text);
+      const reading = normalizeJapaneseTextNFC(seg.rt);
+      if (text.trim().length > 0) {
+        results.push({
+          text,
+          reading,
+          isTarget: inheritedTarget,
+          role,
+        });
+      }
+    } else if (seg.t === 'underline') {
+      // Underline in JLPT indicates the word being tested directly
+      const isTarget = true;
+      const s = seg as { children?: RichTextSegment[]; text?: string };
+      if (s.children && s.children.length > 0) {
+        results.push(...extractSegmentsFromRichText(s.children, role, isTarget));
+      } else if (typeof s.text === 'string') {
+        const text = normalizeJapaneseTextNFC(s.text);
         if (text.trim().length > 0) {
           results.push({
             text,
-            isTarget: inheritedTarget,
+            isTarget,
             role,
           });
         }
-        break;
       }
-      case 'ruby': {
-        const text = normalizeJapaneseTextNFC(seg.text);
-        const reading = normalizeJapaneseTextNFC(seg.rt);
-        if (text.trim().length > 0) {
-          results.push({
-            text,
-            reading,
-            isTarget: inheritedTarget,
-            role,
-          });
-        }
-        break;
+    } else if (seg.t === 'emphasis') {
+      if (seg.children && seg.children.length > 0) {
+        results.push(...extractSegmentsFromRichText(seg.children, role, inheritedTarget));
       }
-      case 'underline': {
-        // Underline in JLPT indicates the word being tested directly!
-        const isTarget = true;
-        if (seg.children && seg.children.length > 0) {
-          results.push(...extractSegmentsFromRichText(seg.children, role, isTarget));
-        } else if (seg.text) {
-          const text = normalizeJapaneseTextNFC(seg.text);
-          if (text.trim().length > 0) {
-            results.push({
-              text,
-              isTarget,
-              role,
-            });
-          }
-        }
-        break;
+    } else if (seg.t === 'text' || (!seg.t && typeof (seg as { text?: unknown }).text === 'string')) {
+      const text = normalizeJapaneseTextNFC((seg as { text: string }).text);
+      if (text.trim().length > 0) {
+        results.push({
+          text,
+          isTarget: inheritedTarget,
+          role,
+        });
       }
-      case 'emphasis': {
-        if (seg.children && seg.children.length > 0) {
-          results.push(...extractSegmentsFromRichText(seg.children, role, inheritedTarget));
-        }
-        break;
-      }
-      case 'blank':
-      case 'star':
-      case 'br':
-      case 'image':
-      default:
-        break;
     }
   }
 
