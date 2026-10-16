@@ -1,0 +1,434 @@
+{
+  "id": "a2b025e5-e466-40b5-b144-8dc55286d1f0",
+  "slug": "synthetic-n2-mock-1",
+  "level": "N2",
+  "title": "Đề thi thử nghiệm JLPT N2 (Tự soạn)",
+  "kind": "synthetic",
+  "provenance": "self_authored",
+  "label": "synthetic",
+  "year": 2026,
+  "session": "10",
+  "totalQuestions": 4,
+  "blueprintId": "synthetic-n2-blueprint-v1",
+  "blueprintVersion": 1,
+  "description": "Bộ đề thi mẫu N1–N5 tự soạn phục vụ kiểm thử hệ thống thi và chấm điểm; toàn bộ nội dung gắn nhãn synthetic.",
+  "questions": [
+    {
+      "id": "b9eba793-4d98-421f-b81c-b8c0a636844e",
+      "index": 0,
+      "mondaiType": "kanji_reading",
+      "skill": "kanji",
+      "stem": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "この法律は速やかに"
+            },
+            {
+              "type": "ruby",
+              "text": "施行",
+              "rt": "しこう"
+            },
+            {
+              "type": "text",
+              "text": "される予定です。"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "orderIndex": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "しこう"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 2,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "せこう"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 3,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "じこう"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 4,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "しきょう"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "correctOption": 1,
+      "explanation": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "「施行」の標準的な読み方は「しこう」です。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "0b8aca57-dda1-4d66-aba4-742194bcbded",
+      "index": 1,
+      "mondaiType": "sentence_composition",
+      "skill": "grammar",
+      "stem": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "どんなに忙しくても、健康管理を "
+            },
+            {
+              "type": "blank",
+              "index": 1
+            },
+            {
+              "type": "text",
+              "text": " "
+            },
+            {
+              "type": "blank",
+              "index": 2
+            },
+            {
+              "type": "text",
+              "text": " "
+            },
+            {
+              "type": "star",
+              "index": 3
+            },
+            {
+              "type": "text",
+              "text": " "
+            },
+            {
+              "type": "blank",
+              "index": 4
+            },
+            {
+              "type": "text",
+              "text": " にはならない。"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "orderIndex": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "怠る"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 2,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "言い訳"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 3,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "理由の"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 4,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "一つ"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "correctOption": 2,
+      "explanation": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "順序: 怠る(1) 理由の(3) 一つ(4) 言い訳(2) -> 健康管理を怠る理由の一つ 言い訳にはならない。★は「言い訳」(2)。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "264a7a68-e9b7-4786-9f40-44bf7f98ad27",
+      "index": 2,
+      "mondaiType": "comprehension_short",
+      "skill": "reading",
+      "stem": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "睡眠不足は集中力の低下だけでなく、感情のコントロールにも悪影響を及ぼす。質の高い睡眠を確保することは健康維持の基本である。"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "orderIndex": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "睡眠時間は短ければ短いほどよい。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 2,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "睡眠不足は心身の両面に悪影響を及ぼす。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 3,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "集中力と睡眠は全く関係がない。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 4,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "夜更かしをしても健康は維持できる。"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "correctOption": 2,
+      "explanation": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "睡眠不足は心身両面（集中力と感情）に悪影響とあるため2が正解。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "7f06f67c-b46c-4fd4-b826-1155ae08cce9",
+      "index": 3,
+      "mondaiType": "task_based",
+      "skill": "listening",
+      "stem": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "会社で男の人と女の人が話しています。男の人はまず何をしますか。"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "orderIndex": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "会議室を予約する"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 2,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "資料を印刷する"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 3,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "取引先に電話する"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 4,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "上司に報告する"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "correctOption": 1,
+      "explanation": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "男の人が最初に行うアクションは会議室の予約です。"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "answerKey": {
+    "examId": "a2b025e5-e466-40b5-b144-8dc55286d1f0",
+    "version": 1,
+    "keys": [
+      1,
+      2,
+      2,
+      1
+    ],
+    "skills": [
+      "kanji",
+      "grammar",
+      "reading",
+      "listening"
+    ],
+    "mondaiTypes": [
+      "kanji_reading",
+      "sentence_composition",
+      "comprehension_short",
+      "task_based"
+    ],
+    "sectionRanges": [
+      [
+        0,
+        3
+      ]
+    ]
+  }
+}

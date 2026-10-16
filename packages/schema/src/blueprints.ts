@@ -41,11 +41,18 @@ export const BlueprintScoringSchema = z.object({
 export type BlueprintScoring = z.infer<typeof BlueprintScoringSchema>;
 
 export const BlueprintSchema = z.object({
+  id: z.string().optional(),
   level: LevelSchema,
   version: z.number().int().positive(),
+  kind: z.enum(['synthetic', 'official']).default('synthetic').optional(),
+  status: z.enum(['draft', 'active', 'pending_confirmation', 'archived']).default('draft').optional(),
+  isOfficial: z.boolean().default(false).optional(),
+  isConfirmed: z.boolean().default(false).optional(),
   effectiveFrom: z.string(),
   sourceRef: z.array(BlueprintSourceRefSchema),
+  note: z.string().optional(),
   sections: z.array(BlueprintSectionSchema),
   scoring: BlueprintScoringSchema,
 });
 export type Blueprint = z.infer<typeof BlueprintSchema>;
+

@@ -1,0 +1,434 @@
+{
+  "id": "41cbe98e-a10c-42d0-8d65-e67cc4fa85c2",
+  "slug": "synthetic-n4-mock-1",
+  "level": "N4",
+  "title": "Đề thi thử nghiệm JLPT N4 (Tự soạn)",
+  "kind": "synthetic",
+  "provenance": "self_authored",
+  "label": "synthetic",
+  "year": 2026,
+  "session": "10",
+  "totalQuestions": 4,
+  "blueprintId": "synthetic-n4-blueprint-v1",
+  "blueprintVersion": 1,
+  "description": "Bộ đề thi mẫu N1–N5 tự soạn phục vụ kiểm thử hệ thống thi và chấm điểm; toàn bộ nội dung gắn nhãn synthetic.",
+  "questions": [
+    {
+      "id": "271fc250-766d-464d-aa5c-5a5a88414f34",
+      "index": 0,
+      "mondaiType": "kanji_reading",
+      "skill": "kanji",
+      "stem": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "田中さんは"
+            },
+            {
+              "type": "ruby",
+              "text": "親切",
+              "rt": "しんせつ"
+            },
+            {
+              "type": "text",
+              "text": "な人です。"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "orderIndex": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "しんせつ"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 2,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "じんせつ"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 3,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "しんせち"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 4,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "しんぜつ"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "correctOption": 1,
+      "explanation": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "「親切」の読み方は「しんせつ」です。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "290fd2c2-14a0-4470-a02c-35bf1318a52a",
+      "index": 1,
+      "mondaiType": "sentence_composition",
+      "skill": "grammar",
+      "stem": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "雨が "
+            },
+            {
+              "type": "blank",
+              "index": 1
+            },
+            {
+              "type": "text",
+              "text": " "
+            },
+            {
+              "type": "star",
+              "index": 2
+            },
+            {
+              "type": "text",
+              "text": " "
+            },
+            {
+              "type": "blank",
+              "index": 3
+            },
+            {
+              "type": "text",
+              "text": " "
+            },
+            {
+              "type": "blank",
+              "index": 4
+            },
+            {
+              "type": "text",
+              "text": " 出かけましょう。"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "orderIndex": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "やんだら"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 2,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "買い物に"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 3,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "すぐ"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 4,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "一緒に"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "correctOption": 3,
+      "explanation": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "雨が やんだら(1) すぐ(3) 一緒に(4) 買い物に(2) 出かけましょう。★の位置は「すぐ」(3)。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f625d8f7-9515-418a-a6c9-94184aa8a51d",
+      "index": 2,
+      "mondaiType": "comprehension_short",
+      "skill": "reading",
+      "stem": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "図書館では静かに本を読まなければなりません。携帯電話の使用や飲食は禁止されています。"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "orderIndex": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "図書館で電話をしてもよい。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 2,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "図書館でお菓子を食べてよい。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 3,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "図書館では静かに読書する。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 4,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "図書館では大きな声で話す。"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "correctOption": 3,
+      "explanation": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "図書館での正しい行動は「静かに読書する」です。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "503ce280-89a3-4368-976d-b827964fde8b",
+      "index": 3,
+      "mondaiType": "quick_response",
+      "skill": "listening",
+      "stem": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "日曜日、一緒に映画を見に行きませんか。"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "orderIndex": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "いいですね、ぜひ行きましょう。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 2,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "映画は昨日見ましたよ。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 3,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "日曜日は平日です。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "orderIndex": 4,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "切符をなくしました。"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "correctOption": 1,
+      "explanation": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "誘いに応じる表現「いいですね、ぜひ行きましょう」が正解です。"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "answerKey": {
+    "examId": "41cbe98e-a10c-42d0-8d65-e67cc4fa85c2",
+    "version": 1,
+    "keys": [
+      1,
+      3,
+      3,
+      1
+    ],
+    "skills": [
+      "kanji",
+      "grammar",
+      "reading",
+      "listening"
+    ],
+    "mondaiTypes": [
+      "kanji_reading",
+      "sentence_composition",
+      "comprehension_short",
+      "quick_response"
+    ],
+    "sectionRanges": [
+      [
+        0,
+        3
+      ]
+    ]
+  }
+}

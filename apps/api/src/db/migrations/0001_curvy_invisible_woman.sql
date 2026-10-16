@@ -1,0 +1,7 @@
+ALTER TABLE "exam_answer_keys" ADD CONSTRAINT "exam_answer_keys_exam_id_version_exam_versions_exam_id_version_fk" FOREIGN KEY ("exam_id","version") REFERENCES "public"."exam_versions"("exam_id","version") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "exam_attempts" ADD CONSTRAINT "exam_attempts_exam_id_exam_version_exam_versions_exam_id_version_fk" FOREIGN KEY ("exam_id","exam_version") REFERENCES "public"."exam_versions"("exam_id","version") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+CREATE UNIQUE INDEX "attempt_events_month_attempt_seq_unique" ON "attempt_events" USING btree ("attempt_month","attempt_id","seq");--> statement-breakpoint
+ALTER TABLE "exam_attempts" ADD CONSTRAINT "exam_attempts_user_or_guest_check" CHECK (user_id IS NOT NULL OR guest_id IS NOT NULL);--> statement-breakpoint
+ALTER TABLE "exam_attempts" ADD CONSTRAINT "exam_attempts_mode_check" CHECK (mode IN ('real', 'practice'));--> statement-breakpoint
+ALTER TABLE "exam_attempts" ADD CONSTRAINT "exam_attempts_status_check" CHECK (status IN ('in_progress', 'submitted'));--> statement-breakpoint
+ALTER TABLE "exam_attempts" ADD CONSTRAINT "exam_attempts_submitted_by_check" CHECK (submitted_by IS NULL OR submitted_by IN ('user', 'auto_client', 'system'));

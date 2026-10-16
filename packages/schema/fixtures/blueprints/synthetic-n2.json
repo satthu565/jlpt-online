@@ -1,0 +1,160 @@
+{
+  "id": "synthetic-n2-blueprint-v1",
+  "level": "N2",
+  "version": 1,
+  "kind": "synthetic",
+  "status": "active",
+  "isOfficial": false,
+  "isConfirmed": true,
+  "effectiveFrom": "2026-10",
+  "sourceRef": [],
+  "note": "Blueprint synthetic tự soạn dùng cho kiểm thử N2; số câu và thang điểm synthetic.",
+  "sections": [
+    {
+      "code": "language_reading",
+      "title": "言語知識（文字・語彙・文法）・読解",
+      "durationSec": 6300,
+      "mondai": [
+        {
+          "type": "kanji_reading",
+          "skill": "kanji",
+          "questionCount": 5
+        },
+        {
+          "type": "orthography",
+          "skill": "vocabulary",
+          "questionCount": 5
+        },
+        {
+          "type": "word_formation",
+          "skill": "vocabulary",
+          "questionCount": 5
+        },
+        {
+          "type": "contextual",
+          "skill": "vocabulary",
+          "questionCount": 7
+        },
+        {
+          "type": "paraphrase",
+          "skill": "vocabulary",
+          "questionCount": 5
+        },
+        {
+          "type": "usage",
+          "skill": "vocabulary",
+          "questionCount": 5
+        },
+        {
+          "type": "grammar_form",
+          "skill": "grammar",
+          "questionCount": 12
+        },
+        {
+          "type": "sentence_composition",
+          "skill": "grammar",
+          "questionCount": 5
+        },
+        {
+          "type": "text_grammar",
+          "skill": "grammar",
+          "questionCount": 5
+        },
+        {
+          "type": "comprehension_short",
+          "skill": "reading",
+          "questionCount": 5
+        },
+        {
+          "type": "comprehension_mid",
+          "skill": "reading",
+          "questionCount": 9
+        },
+        {
+          "type": "integrated_reading",
+          "skill": "reading",
+          "questionCount": 2
+        },
+        {
+          "type": "thematic",
+          "skill": "reading",
+          "questionCount": 3
+        },
+        {
+          "type": "info_retrieval",
+          "skill": "reading",
+          "questionCount": 2
+        }
+      ]
+    },
+    {
+      "code": "listening",
+      "title": "聴解",
+      "durationSec": 3000,
+      "mondai": [
+        {
+          "type": "task_based",
+          "skill": "listening",
+          "questionCount": 5
+        },
+        {
+          "type": "point",
+          "skill": "listening",
+          "questionCount": 6
+        },
+        {
+          "type": "summary",
+          "skill": "listening",
+          "questionCount": 5
+        },
+        {
+          "type": "quick_response",
+          "skill": "listening",
+          "questionCount": 11
+        },
+        {
+          "type": "integrated_listening",
+          "skill": "listening",
+          "questionCount": 3
+        }
+      ]
+    }
+  ],
+  "scoring": {
+    "method": "linear_reference",
+    "rounding": "round",
+    "scoringSections": [
+      {
+        "code": "language",
+        "label": "言語知識（文字・語彙・文法）",
+        "skills": [
+          "kanji",
+          "vocabulary",
+          "grammar"
+        ],
+        "maxScaled": 60,
+        "minPass": 19
+      },
+      {
+        "code": "reading",
+        "label": "読解",
+        "skills": [
+          "reading"
+        ],
+        "maxScaled": 60,
+        "minPass": 19
+      },
+      {
+        "code": "listening",
+        "label": "聴解",
+        "skills": [
+          "listening"
+        ],
+        "maxScaled": 60,
+        "minPass": 19
+      }
+    ],
+    "totalMax": 180,
+    "totalPass": 90
+  }
+}
