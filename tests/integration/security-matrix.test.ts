@@ -49,7 +49,7 @@ describe('Security Negative Matrix: Cross-Tenant, IDOR, RBAC & Lease Protection 
     };
     candidate1AttemptId = initData.attemptId;
     candidate1Lease = initData.lease;
-  }, 30000);
+  }, 60000);
 
   afterAll(() => {
     stopApiServer();

@@ -35,7 +35,7 @@ describe('Core Vertical Slice E2E: Demo Package flow (N06)', () => {
         demoExamId = found.id;
       }
     }
-  }, 30000);
+  }, 60000);
 
   afterAll(() => {
     stopApiServer();

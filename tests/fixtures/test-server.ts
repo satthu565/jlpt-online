@@ -1,9 +1,12 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawn, type ChildProcess } from 'node:child_process';
+import { spawn, execSync, type ChildProcess } from 'node:child_process';
+import fs from 'node:fs';
+import net from 'node:net';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const REPO_ROOT = path.resolve(__dirname, '../../');
 
 export const AUTH_TOKENS = {
   admin: 'tok_admin_demo',
@@ -25,6 +28,36 @@ export const TEST_USERS = {
 
 let apiProcess: ChildProcess | null = null;
 let activeBaseUrl: string | null = null;
+let startingPromise: Promise<string> | null = null;
+
+function ensureApiBuilt(): void {
+  const distEntry = path.join(REPO_ROOT, 'apps/api/dist/src/main.js');
+  if (!fs.existsSync(distEntry)) {
+    console.log('[test-server] apps/api/dist missing, running pnpm --filter @jlpt/api build...');
+    execSync('pnpm --filter @jlpt/api build', { cwd: REPO_ROOT, stdio: 'inherit' });
+  }
+}
+
+async function findFreePort(preferred = 4092): Promise<number> {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.once('error', () => {
+      const ephemeral = net.createServer();
+      ephemeral.once('listening', () => {
+        const address = ephemeral.address() as net.AddressInfo;
+        const port = address.port;
+        ephemeral.close(() => resolve(port));
+      });
+      ephemeral.listen(0, '127.0.0.1');
+    });
+    server.once('listening', () => {
+      const address = server.address() as net.AddressInfo;
+      const port = address.port;
+      server.close(() => resolve(port));
+    });
+    server.listen(preferred, '127.0.0.1');
+  });
+}
 
 export async function getApiBaseUrl(): Promise<string> {
   // 1. External Staging in CI takes highest precedence
@@ -37,75 +70,101 @@ export async function getApiBaseUrl(): Promise<string> {
   if (activeBaseUrl) {
     return activeBaseUrl;
   }
-
-  // 2. Check if default staging/dev port 4000 is active
-  try {
-    const res = await fetch('http://127.0.0.1:4000/api/v1/health');
-    if (res.ok) {
-      activeBaseUrl = 'http://127.0.0.1:4000';
-      return activeBaseUrl;
-    }
-  } catch {
-    // Port 4000 not responding
+  if (startingPromise) {
+    return startingPromise;
   }
 
-  // 3. Spawn server-runner.mjs on an isolated port
-  const port = 4092;
-  const runnerPath = path.join(__dirname, 'server-runner.mjs');
-
-  return new Promise<string>((resolve, reject) => {
-    apiProcess = spawn('node', [runnerPath], {
-      env: {
-        ...process.env,
-        PORT: String(port),
-        EMAIL_DRIVER: 'memory',
-      },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-
-    let resolved = false;
-
-    apiProcess.stdout?.on('data', (data) => {
-      const text = data.toString('utf8');
-      const match = text.match(/API_READY_ON:(http:\/\/[^\s]+)/);
-      if (match && match[1] && !resolved) {
-        resolved = true;
-        const readyUrl = match[1];
-        activeBaseUrl = readyUrl;
-        resolve(readyUrl);
+  startingPromise = (async () => {
+    // 2. Check if default staging/dev port 4000 is active
+    try {
+      const res = await fetch('http://127.0.0.1:4000/api/v1/health');
+      if (res.ok) {
+        activeBaseUrl = 'http://127.0.0.1:4000';
+        return activeBaseUrl;
       }
-    });
+    } catch {
+      // Port 4000 not responding
+    }
 
-    apiProcess.stderr?.on('data', (data) => {
-      // In case of fatal bootstrap errors
-      const text = data.toString('utf8');
-      if (text.includes('Fatal error') && !resolved) {
-        resolved = true;
-        reject(new Error(text));
-      }
-    });
+    // 3. Ensure API dist is built
+    ensureApiBuilt();
 
-    apiProcess.on('exit', (code) => {
-      if (!resolved) {
-        resolved = true;
-        reject(new Error(`API server process exited prematurely with code ${code}`));
-      }
-    });
+    // 4. Spawn server-runner.mjs on an isolated port
+    const port = await findFreePort(4092);
+    const runnerPath = path.join(__dirname, 'server-runner.mjs');
 
-    // 15 seconds timeout
-    setTimeout(() => {
-      if (!resolved) {
-        resolved = true;
-        reject(new Error(`API server timed out after 15s on port ${port}`));
-      }
-    }, 15000);
-  });
+    return new Promise<string>((resolve, reject) => {
+      apiProcess = spawn('node', [runnerPath], {
+        env: {
+          ...process.env,
+          PORT: String(port),
+          EMAIL_DRIVER: 'memory',
+        },
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+
+      let resolved = false;
+      let stdout = '';
+      let stderr = '';
+
+      apiProcess.stdout?.on('data', (data) => {
+        const text = data.toString('utf8');
+        stdout += text;
+        const match = text.match(/API_READY_ON:(http:\/\/[^\s]+)/);
+        if (match && match[1] && !resolved) {
+          resolved = true;
+          const readyUrl = match[1];
+          activeBaseUrl = readyUrl;
+          resolve(readyUrl);
+        }
+      });
+
+      apiProcess.stderr?.on('data', (data) => {
+        const text = data.toString('utf8');
+        stderr += text;
+        if (text.includes('Fatal error') && !resolved) {
+          resolved = true;
+          reject(new Error(`Server runner failed:\n${text}`));
+        }
+      });
+
+      apiProcess.on('exit', (code) => {
+        if (!resolved) {
+          resolved = true;
+          reject(
+            new Error(
+              `API server process exited prematurely with code ${code}.\nSTDOUT: ${stdout}\nSTDERR: ${stderr}`,
+            ),
+          );
+        }
+      });
+
+      // 45 seconds timeout for cold starts and heavy CI runs
+      setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          reject(
+            new Error(
+              `API server timed out after 45s on port ${port}.\nSTDOUT: ${stdout}\nSTDERR: ${stderr}`,
+            ),
+          );
+        }
+      }, 45000);
+    });
+  })();
+
+  return startingPromise;
 }
 
 export function stopApiServer(): void {
   if (apiProcess) {
-    apiProcess.kill('SIGTERM');
+    try {
+      apiProcess.kill('SIGTERM');
+    } catch {
+      // ignore
+    }
     apiProcess = null;
     activeBaseUrl = null;
+    startingPromise = null;
   }
 }

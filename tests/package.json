@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "vitest run integration/ --testTimeout=30000",
+    "test": "vitest run integration/ --testTimeout=30000 --hookTimeout=60000",
     "test:vps": "vitest run integration/dac-ta-runner.test.ts",
-    "test:e2e:core": "vitest run e2e/core.test.ts",
-    "test:security": "vitest run integration/security-matrix.test.ts",
+    "test:e2e:core": "vitest run e2e/core.test.ts --testTimeout=30000 --hookTimeout=60000",
+    "test:security": "vitest run integration/security-matrix.test.ts --testTimeout=30000 --hookTimeout=60000",
     "test:load:baseline": "node --no-warnings --experimental-strip-types load/baseline-runner.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."

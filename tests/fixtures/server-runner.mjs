@@ -11,14 +11,21 @@ const REPO_ROOT = path.resolve(__dirname, '../../');
 // Set NODE_ENV to test so main.js doesn't auto-bootstrap
 process.env.NODE_ENV = 'test';
 
-const { getOrCreateDbClient, setTestDbClient } = await import(
-  path.join(REPO_ROOT, 'apps/api/dist/src/common/database/database.module.js')
-);
-const { runDemoSeed } = await import(
-  path.join(REPO_ROOT, 'apps/api/dist/src/modules/import/demo-seed.js')
-);
-
 async function start() {
+  const distEntry = path.join(REPO_ROOT, 'apps/api/dist/src/main.js');
+  if (!fs.existsSync(distEntry)) {
+    console.log('[server-runner] apps/api/dist missing, running build...');
+    const { execSync } = await import('node:child_process');
+    execSync('pnpm --filter @jlpt/api build', { cwd: REPO_ROOT, stdio: 'inherit' });
+  }
+
+  const { getOrCreateDbClient, setTestDbClient } = await import(
+    path.join(REPO_ROOT, 'apps/api/dist/src/common/database/database.module.js')
+  );
+  const { runDemoSeed } = await import(
+    path.join(REPO_ROOT, 'apps/api/dist/src/modules/import/demo-seed.js')
+  );
+
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 4092;
 
   // Ensure migrations directory is linked or copied to dist if missing
@@ -70,7 +77,9 @@ async function start() {
 
   await app.listen(port, '127.0.0.1');
 
-  const readyUrl = `http://127.0.0.1:${port}`;
+  const serverAddress = app.getHttpServer().address();
+  const actualPort = typeof serverAddress === 'object' && serverAddress ? serverAddress.port : port;
+  const readyUrl = `http://127.0.0.1:${actualPort}`;
   console.log(`API_READY_ON:${readyUrl}`);
 
   // Graceful shutdown on SIGTERM / SIGINT

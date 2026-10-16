@@ -89,10 +89,13 @@ Triển khai trong bộ kiểm thử chuyên dụng `tests/integration/security-
 
 ---
 
-### 2.4. Khắc phục Điều kiện Ngoại vi Chưa sẵn sàng (Hosting: MISSING)
+### 2.4. Khắc phục Kiểm thử trên Clean Checkout & Điều kiện Ngoại vi Chưa sẵn sàng (Hosting: MISSING)
 - Dịch vụ hosting bên ngoài hiện ở trạng thái `MISSING`.
-- Để bảo đảm tính độc lập và khả năng kiểm chứng 100% trong CI:
-  - Khởi tạo `tests/fixtures/server-runner.mjs` sử dụng bundle đã build của `@jlpt/api`, khởi tạo cơ sở dữ liệu cô lập in-memory PGlite, áp dụng tự động toàn bộ migration Drizzle, nạp gói đề demo và các session kiểm thử xác định từ `seed-sessions.sql`.
+- Để bảo đảm tính độc lập và khả năng kiểm chứng 100% trong CI cũng như trên bản checkout sạch của coordinator:
+  - Khi coordinator hoặc CI chạy `pnpm test` trước `pnpm build`, thư mục `apps/api/dist` chưa tồn tại. `tests/fixtures/test-server.ts` và `tests/fixtures/server-runner.mjs` được trang bị cơ chế tự động phát hiện: nếu `apps/api/dist/src/main.js` vắng mặt, script sẽ tự động kích hoạt `pnpm --filter @jlpt/api build` một cách an toàn và đồng bộ.
+  - Cung cấp hàm `findFreePort(4092)`: kiểm tra và chọn cổng rảnh (ephemeral port) nếu cổng 4092 đang bị chiếm giữ, loại bỏ hoàn toàn nguy cơ xung đột cổng (`EADDRINUSE`) khi chạy kiểm thử đồng thời.
+  - Bổ sung `--hookTimeout=60000` và bộ bắt toàn bộ stdout/stderr của tiến trình con để tránh timeout giả lập và hỗ trợ chẩn đoán chính xác.
+  - Khởi tạo cơ sở dữ liệu cô lập in-memory PGlite, áp dụng tự động toàn bộ migration Drizzle, nạp gói đề demo và các session kiểm thử xác định từ `seed-sessions.sql`.
   - Bộ kiểm thử tự động nhận diện `STAGING_API_URL` khi chạy trong workflow Docker compose của GitHub Actions hoặc fallback linh hoạt về test runner độc lập.
 - Ghi nhận `BLOCKED_EXTERNAL: hosting` trong báo cáo kết quả nhiệm vụ N06.
 
@@ -104,8 +107,9 @@ Triển khai trong bộ kiểm thử chuyên dụng `tests/integration/security-
 |---|---|---|
 | `pnpm test:e2e:core` | **PASS (15/15 tests)** | Chạy toàn bộ luồng validate->review->publish->thi->review |
 | `pnpm test:security` | **PASS (21/21 tests)** | Toàn bộ ma trận cross-tenant, IDOR, RBAC, lease tampering |
-| `pnpm test:load:baseline` | **PASS (250 reqs, 0 err)** | Ghi nhận thực tế throughput 542.3 req/s vào `load-baseline-metrics.json` |
-| `pnpm lint` | **PASS** | ESLint đạt chuẩn trên toàn bộ monorepo |
+| `pnpm test:load:baseline` | **PASS (250 reqs, 0 err)** | Ghi nhận thực tế throughput 559.3 req/s vào `load-baseline-metrics.json` |
+| `pnpm install --frozen-lockfile` | **PASS** | Dependencies được khóa an toàn |
+| `pnpm lint` | **PASS** | ESLint đạt chuẩn trên toàn bộ 13 packages/apps |
 | `pnpm typecheck` | **PASS** | TypeScript strict checks không phát sinh lỗi |
-| `pnpm test` | **PASS** | Toàn bộ test suite monorepo hoàn tất thành công |
+| `pnpm test` | **PASS** | Toàn bộ test suite monorepo (19 tasks) hoàn tất thành công |
 | `pnpm build` | **PASS** | Turborepo build thành công toàn bộ packages và apps |
