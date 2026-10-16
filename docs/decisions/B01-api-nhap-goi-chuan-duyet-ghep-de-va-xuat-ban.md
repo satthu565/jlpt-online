@@ -84,7 +84,9 @@ Theo chỉ thị của chủ dự án và quy tắc `AGENTS.md`:
 
 ### 2.7. Quản lý tệp cục bộ và tách biệt môi trường lưu trữ (.data/storage)
 - Tệp lưu trữ cục bộ sinh ra bởi `LocalFsStorage` trong môi trường phát triển và kiểm thử (`.data/storage/`) là tài nguyên runtime, không thuộc mã nguồn hay dữ liệu cố định của repo.
-- Đã hoàn tác và loại bỏ hoàn toàn các tệp `.data/storage/` khỏi git index/commit, đảm bảo toàn bộ cây thay đổi của task B01 nằm 100% trong `allowedPaths`.
+- Đã hoàn tác và loại bỏ hoàn toàn các tệp `.data/storage/` khỏi git index/commit (`git rm -r .data/`), đảm bảo toàn bộ cây thay đổi của task B01 nằm 100% trong `allowedPaths`.
+- Đã cấu hình `.data/` vào `.git/info/exclude` của kho làm việc cục bộ để ngăn chặn `git add -A` vô tình ghi nhận lại các tệp lưu trữ khi chạy script dev/seed.
+- Đã ghi nhận kiến nghị blocker tới Coordinator / F01 để bổ sung `.data/` vào `.gitignore` chung của monorepo theo đúng thiết kế ban đầu trong `docs/multi-worker/TRUY_VET_TASK_V1.md`.
 
 ---
 
