@@ -12,10 +12,26 @@ const REPO_ROOT = path.resolve(__dirname, '../../');
 process.env.NODE_ENV = 'test';
 
 async function start() {
+  const schemaEntry = path.join(REPO_ROOT, 'packages/schema/dist/index.js');
+  const contentToolsEntry = path.join(REPO_ROOT, 'packages/content-tools/dist/index.js');
+  const examEngineEntry = path.join(REPO_ROOT, 'packages/exam-engine/dist/index.js');
   const distEntry = path.join(REPO_ROOT, 'apps/api/dist/src/main.js');
+
+  const { execSync } = await import('node:child_process');
+  if (!fs.existsSync(schemaEntry)) {
+    console.log('[server-runner] packages/schema/dist missing, running build...');
+    execSync('pnpm --filter @jlpt/schema build', { cwd: REPO_ROOT, stdio: 'inherit' });
+  }
+  if (!fs.existsSync(contentToolsEntry)) {
+    console.log('[server-runner] packages/content-tools/dist missing, running build...');
+    execSync('pnpm --filter @jlpt/content-tools build', { cwd: REPO_ROOT, stdio: 'inherit' });
+  }
+  if (!fs.existsSync(examEngineEntry)) {
+    console.log('[server-runner] packages/exam-engine/dist missing, running build...');
+    execSync('pnpm --filter @jlpt/exam-engine build', { cwd: REPO_ROOT, stdio: 'inherit' });
+  }
   if (!fs.existsSync(distEntry)) {
     console.log('[server-runner] apps/api/dist missing, running build...');
-    const { execSync } = await import('node:child_process');
     execSync('pnpm --filter @jlpt/api build', { cwd: REPO_ROOT, stdio: 'inherit' });
   }
 
@@ -60,20 +76,6 @@ async function start() {
     logger: ['error', 'warn'],
   });
   app.setGlobalPrefix('api/v1');
-
-  // Support tenantId for tok_student_verified to enable Cross-Tenant verification (TenantGuard)
-  const { AuthService } = await import(
-    path.join(REPO_ROOT, 'apps/api/dist/src/modules/auth/auth.service.js')
-  );
-  const authService = app.get(AuthService);
-  const origGetSession = authService.getSession.bind(authService);
-  authService.getSession = async (token) => {
-    const session = await origGetSession(token);
-    if (session && token === 'tok_student_verified') {
-      return { ...session, tenantId: 'org-student-tenant-1' };
-    }
-    return session;
-  };
 
   await app.listen(port, '127.0.0.1');
 

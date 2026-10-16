@@ -31,7 +31,23 @@ let activeBaseUrl: string | null = null;
 let startingPromise: Promise<string> | null = null;
 
 function ensureApiBuilt(): void {
+  const schemaEntry = path.join(REPO_ROOT, 'packages/schema/dist/index.js');
+  const contentToolsEntry = path.join(REPO_ROOT, 'packages/content-tools/dist/index.js');
+  const examEngineEntry = path.join(REPO_ROOT, 'packages/exam-engine/dist/index.js');
   const distEntry = path.join(REPO_ROOT, 'apps/api/dist/src/main.js');
+
+  if (!fs.existsSync(schemaEntry)) {
+    console.log('[test-server] packages/schema/dist missing, running pnpm --filter @jlpt/schema build...');
+    execSync('pnpm --filter @jlpt/schema build', { cwd: REPO_ROOT, stdio: 'inherit' });
+  }
+  if (!fs.existsSync(contentToolsEntry)) {
+    console.log('[test-server] packages/content-tools/dist missing, running pnpm --filter @jlpt/content-tools build...');
+    execSync('pnpm --filter @jlpt/content-tools build', { cwd: REPO_ROOT, stdio: 'inherit' });
+  }
+  if (!fs.existsSync(examEngineEntry)) {
+    console.log('[test-server] packages/exam-engine/dist missing, running pnpm --filter @jlpt/exam-engine build...');
+    execSync('pnpm --filter @jlpt/exam-engine build', { cwd: REPO_ROOT, stdio: 'inherit' });
+  }
   if (!fs.existsSync(distEntry)) {
     console.log('[test-server] apps/api/dist missing, running pnpm --filter @jlpt/api build...');
     execSync('pnpm --filter @jlpt/api build', { cwd: REPO_ROOT, stdio: 'inherit' });

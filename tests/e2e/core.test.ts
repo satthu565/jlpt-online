@@ -135,13 +135,26 @@ describe('Core Vertical Slice E2E: Demo Package flow (N06)', () => {
     });
 
     it('allows independent Reviewer to review and approve questions', async () => {
-      // Reviewer checks pending review queue or validates review permissions
-      const reviewCheckRes = await fetch(`${baseUrl}/api/v1/admin/explanations`, {
-        headers: {
-          Authorization: `Bearer ${AUTH_TOKENS.reviewer}`,
+      const decisionPayload = {
+        decision: 'approved',
+        comments: 'Phê duyệt nội dung đề thi bởi Reviewer độc lập (4-Eyes separation)',
+      };
+
+      const res = await fetch(
+        `${baseUrl}/api/v1/admin/reviews/exam_version/${demoExamId}/v1/decision`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${AUTH_TOKENS.reviewer}`,
+          },
+          body: JSON.stringify(decisionPayload),
         },
-      });
-      expect(reviewCheckRes.status).toBe(200);
+      );
+
+      expect([200, 201]).toContain(res.status);
+      const data = (await res.json()) as { id: string; status: string };
+      expect(data.status).toBe('approved');
     });
   });
 

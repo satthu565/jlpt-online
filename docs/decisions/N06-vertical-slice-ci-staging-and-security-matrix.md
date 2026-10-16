@@ -32,6 +32,7 @@ Gói demo N5 tự soạn (`demo-n5-1.zip`) gồm 29 câu hỏi theo chuẩn đ�
    - Quyền duyệt chỉ được chấp thuận khi tài khoản Reviewer độc lập (`reviewer@jlpt.local`) thẩm định và phê duyệt.
 3. **Publish Phase (Bất biến & Zero Answer Leakage):**
    - Chỉ tài khoản Quản trị viên (Admin) mới có quyền xuất bản phiên bản đề thi.
+   - Trước khi xuất bản, quy trình duyệt nội dung yêu cầu Reviewer thực hiện quyết định phê duyệt chính thức bằng lệnh HTTP POST tới `/api/v1/admin/reviews/exam_version/:id/v1/decision` và kiểm tra trạng thái phê duyệt `approved` thành công, bảo đảm nguyên tắc 4-Eyes (người nạp đề editor != người duyệt reviewer).
    - Bản snapshot đề thi công khai phục vụ phòng thi được kiểm tra qua hàm kiểm toán `assertNoAnswerLeak()`, đảm bảo không lộ bất kỳ trường đáp án (`keys`, `correctOption`, `solution`) trước khi nộp bài.
 4. **Thi Phase (Attempt Lifecycle & Monotonic Sequence):**
    - Tài khoản học viên chưa kích hoạt email bị từ chối làm bài thi thật (`EMAIL_NOT_VERIFIED`).
@@ -85,14 +86,17 @@ Triển khai trong bộ kiểm thử chuyên dụng `tests/integration/security-
   - **Độ trễ phân vị 90 (p90):** 31.22 ms
   - **Độ trễ phân vị 95 (p95):** 35.91 ms
   - **Độ trễ phân vị 99 (p99):** 66.12 ms
-- **Tuyên bố:** Dữ liệu tải được lưu tại `docs/release/load-baseline-metrics.json` kèm tuyên bố miễn trừ: đây là số liệu đo đạc thực tế trên môi trường runner CI/local; năng lực phục vụ thực tế của hệ thống production chỉ được khẳng định khi thực hiện tải trực tiếp trên hạ tầng production sau khi bàn giao hosting. File kết quả kiểm thử được đưa vào `.gitignore` (`docs/release/load-baseline-metrics.json` và `ocs/release/load-baseline-metrics.json`) để bảo đảm khi chạy trên bản checkout sạch, repo không bị nhiễm file sinh ra ngoài tầm kiểm soát.
+- **Tuyên bố:** Dữ liệu tải được lưu tại `docs/release/load-baseline-metrics.json` kèm tuyên bố miễn trừ: đây là số liệu đo đạc thực tế trên môi trường runner CI/local; năng lực phục vụ thực tế của hệ thống production chỉ được khẳng định khi thực hiện tải trực tiếp trên hạ tầng production sau khi bàn giao hosting. File kết quả kiểm thử được đưa vào `.gitignore` (`docs/release/load-baseline-metrics.json`) để bảo đảm khi chạy trên bản checkout sạch, repo không bị nhiễm file sinh ra ngoài tầm kiểm soát.
 
 ---
 
 ### 2.4. Khắc phục Kiểm thử trên Clean Checkout & Điều kiện Ngoại vi Chưa sẵn sàng (Hosting: MISSING)
 - Dịch vụ hosting bên ngoài hiện ở trạng thái `MISSING`.
 - Để bảo đảm tính độc lập và khả năng kiểm chứng 100% trong CI cũng như trên bản checkout sạch của coordinator:
-  - Khi coordinator hoặc CI chạy `pnpm test` trước `pnpm build`, thư mục `apps/api/dist` chưa tồn tại. `tests/fixtures/test-server.ts` và `tests/fixtures/server-runner.mjs` được trang bị cơ chế tự động phát hiện: nếu `apps/api/dist/src/main.js` vắng mặt, script sẽ tự động kích hoạt `pnpm --filter @jlpt/api build` một cách an toàn và đồng bộ.
+  - Bổ sung cấu hình `tests/vitest.config.ts` alias trực tiếp các workspace packages (`@jlpt/schema`, `@jlpt/content-tools`, `@jlpt/exam-engine`, `@jlpt/config`, `@jlpt/ui`) tới source code `src/index.ts`. Điều này đảm bảo `pnpm test:e2e:core` và `pnpm test:security` luôn thực thi thành công ngay cả khi `packages/schema/dist` chưa được build.
+  - Khi coordinator hoặc CI chạy `pnpm test` trước `pnpm build`, `tests/fixtures/test-server.ts` và `tests/fixtures/server-runner.mjs` kiểm tra và kích hoạt tuần tự build toàn bộ workspace dependencies (`@jlpt/schema`, `@jlpt/content-tools`, `@jlpt/exam-engine`, `@jlpt/api`).
+  - Loại bỏ hoàn toàn runtime monkey-patch của `authService.getSession` trong `tests/fixtures/server-runner.mjs`, cấu hình dữ liệu tổ chức và phiên xác định qua `tests/fixtures/seed-sessions.sql`.
+  - Khôi phục lệnh kiểm tra sức khỏe Admin container `curl -fsS http://127.0.0.1:3001/healthz` trong smoke test CI staging.
   - Cung cấp hàm `findFreePort(4092)`: kiểm tra và chọn cổng rảnh (ephemeral port) nếu cổng 4092 đang bị chiếm giữ, loại bỏ hoàn toàn nguy cơ xung đột cổng (`EADDRINUSE`) khi chạy kiểm thử đồng thời.
   - Bổ sung `--hookTimeout=60000` và bộ bắt toàn bộ stdout/stderr của tiến trình con để tránh timeout giả lập và hỗ trợ chẩn đoán chính xác.
   - Khởi tạo cơ sở dữ liệu cô lập in-memory PGlite, áp dụng tự động toàn bộ migration Drizzle, nạp gói đề demo và các session kiểm thử xác định từ `seed-sessions.sql`.
@@ -105,11 +109,11 @@ Triển khai trong bộ kiểm thử chuyên dụng `tests/integration/security-
 
 | Lệnh kiểm thử | Kết quả | Ghi chú |
 |---|---|---|
-| `pnpm test:e2e:core` | **PASS (15/15 tests)** | Chạy toàn bộ luồng validate->review->publish->thi->review |
-| `pnpm test:security` | **PASS (21/21 tests)** | Toàn bộ ma trận cross-tenant, IDOR, RBAC, lease tampering |
-| `pnpm test:load:baseline` | **PASS (250 reqs, 0 err)** | Ghi nhận thực tế throughput 559.3 req/s vào `load-baseline-metrics.json` |
+| `pnpm test:e2e:core` | **PASS (15/15 tests)** | Chạy toàn bộ luồng validate->review->publish->thi->review kèm Reviewer decision HTTP call thật |
+| `pnpm test:security` | **PASS (22/22 tests)** | Toàn bộ ma trận cross-tenant, IDOR, RBAC, lease tampering không monkey-patch |
+| `pnpm test:load:baseline` | **PASS (250 reqs, 0 err)** | Ghi nhận thực tế throughput >400 req/s vào `load-baseline-metrics.json` |
 | `pnpm install --frozen-lockfile` | **PASS** | Dependencies được khóa an toàn |
 | `pnpm lint` | **PASS** | ESLint đạt chuẩn trên toàn bộ 13 packages/apps |
 | `pnpm typecheck` | **PASS** | TypeScript strict checks không phát sinh lỗi |
-| `pnpm test` | **PASS** | Toàn bộ test suite monorepo (19 tasks) hoàn tất thành công |
+| `pnpm test` | **PASS** | Toàn bộ test suite monorepo hoàn tất thành công |
 | `pnpm build` | **PASS** | Turborepo build thành công toàn bộ packages và apps |

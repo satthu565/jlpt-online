@@ -39,5 +39,4 @@ Thumbs.db
 
 # Load test outputs and performance baseline metrics
 docs/release/load-baseline-metrics.json
-ocs/release/load-baseline-metrics.json
 

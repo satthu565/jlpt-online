@@ -23,3 +23,20 @@ VALUES
 ON CONFLICT (id) DO UPDATE SET
   token = EXCLUDED.token,
   expires_at = EXCLUDED.expires_at;
+
+-- Seed organizations and tenant plans for cross-tenant isolation testing (N06)
+INSERT INTO organizations (id, name, slug)
+VALUES
+  ('0192f000-0000-7000-8000-000000000001', 'Tenant Organization Alpha', 'org-alpha'),
+  ('0192f000-0000-7000-8000-000000000002', 'Tenant Organization Beta', 'org-beta')
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  slug = EXCLUDED.slug;
+
+INSERT INTO tenant_plans (tenant_id, plan_code, status, total_seats, used_seats, max_classes, features)
+VALUES
+  ('org-alpha', 'organization_standard', 'active', 50, 5, 10, '["unlimited_exams", "teacher_dashboard"]'::jsonb),
+  ('org-beta', 'organization_enterprise', 'active', 200, 20, 50, '["unlimited_exams", "teacher_dashboard", "custom_branding"]'::jsonb)
+ON CONFLICT (tenant_id) DO UPDATE SET
+  total_seats = EXCLUDED.total_seats,
+  status = EXCLUDED.status;

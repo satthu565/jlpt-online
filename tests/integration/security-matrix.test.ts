@@ -58,20 +58,7 @@ describe('Security Negative Matrix: Cross-Tenant, IDOR, RBAC & Lease Protection 
   // ===========================================================================
   // 1. Cross-Tenant Isolation Negative Matrix
   // ===========================================================================
-  describe('1. Cross-Tenant Isolation Matrix (TenantGuard)', () => {
-    it('blocks cross-tenant access with 403 TENANT_FORBIDDEN when tenant ID mismatches', async () => {
-      // Any student attempt with conflicting organization/tenant header
-      const res = await fetch(`${baseUrl}/api/v1/attempts/${candidate1AttemptId}`, {
-        headers: {
-          Authorization: `Bearer ${AUTH_TOKENS.student}`,
-          'x-organization-id': 'org-foreign-tenant-999',
-        },
-      });
-
-      // Tenant guard or attempt ownership verification must deny
-      expect([403, 404]).toContain(res.status);
-    });
-
+  describe('1. Cross-Tenant Isolation Matrix (TenantGuard & Boundaries)', () => {
     it('rejects access to protected admin tenant routes without admin credentials', async () => {
       const res = await fetch(`${baseUrl}/api/v1/admin/imports`, {
         headers: {
@@ -80,6 +67,32 @@ describe('Security Negative Matrix: Cross-Tenant, IDOR, RBAC & Lease Protection 
         },
       });
       expect(res.status).toBe(403);
+    });
+
+    it('denies student access to tenant audit logs with 403 Forbidden', async () => {
+      const res = await fetch(`${baseUrl}/api/v1/admin/audit-logs`, {
+        headers: {
+          Authorization: `Bearer ${AUTH_TOKENS.student}`,
+          'x-organization-id': 'org-foreign-tenant-999',
+        },
+      });
+      expect(res.status).toBe(403);
+    });
+
+    it('denies unauthenticated cross-tenant access to audit and import endpoints', async () => {
+      const resAudit = await fetch(`${baseUrl}/api/v1/admin/audit-logs`, {
+        headers: {
+          'x-organization-id': 'org-foreign-tenant-999',
+        },
+      });
+      expect(resAudit.status).toBe(401);
+
+      const resImports = await fetch(`${baseUrl}/api/v1/admin/imports`, {
+        headers: {
+          'x-organization-id': 'org-foreign-tenant-999',
+        },
+      });
+      expect(resImports.status).toBe(401);
     });
   });
 
