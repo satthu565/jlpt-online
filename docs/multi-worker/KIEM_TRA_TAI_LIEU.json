@@ -152,21 +152,6 @@
     ],
     "coordinator-runtime": [
       "F07"
-    ],
-    "hosting": [
-      "A06",
-      "C06",
-      "L06",
-      "N06",
-      "R01",
-      "R02",
-      "R03",
-      "R04",
-      "R05",
-      "R06",
-      "V04",
-      "V05",
-      "V06"
     ]
   },
   "workPackageCount": 45,

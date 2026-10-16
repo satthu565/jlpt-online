@@ -62,15 +62,18 @@
       "owner": "project-owner",
       "status": "PENDING",
       "evidence": [],
-      "blocksStart": [
-        "C06"
-      ],
+      "blocksStart": [],
       "blocksAcceptance": [
-        "V06"
+        "C06",
+        "N06",
+        "V06",
+        "R06"
       ],
       "affectedTasks": [
         "C06",
-        "V06"
+        "N06",
+        "V06",
+        "R06"
       ],
       "definition": "QUYET_DINH_VA_DICH_VU.md"
     },

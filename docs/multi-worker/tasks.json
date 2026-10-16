@@ -933,23 +933,23 @@
         "SYS-15",
         "ADM-20"
       ],
-      "scope": "Compose full small/large, R2/media Worker, Cloudflare Tunnel, WAL-G, GHCR deploy rollback; secrets qua operator.",
+      "scope": "Compose full small/large, R2/media Worker, Cloudflare Tunnel, WAL-G, GHCR deploy rollback; secrets qua operator. Chưa có hosting: staging tạm dựng bằng docker compose (profile small) trong GitHub Actions; cùng script deploy lên staging thật khi có hosting.",
       "outputs": [
         "infra/",
         "apps/media-worker/",
-        ".github/workflows/release.yml"
+        ".github/workflows/"
       ],
       "acceptance": [
+        "Workflow staging tạm trong GitHub Actions dựng compose profile small từ image build một lần, chạy smoke và xanh trên PR",
         "Staging độc lập dữ liệu worker",
         "Signed media check trước cache; Range206 đúng",
-        "Backup PITR khôi phục staging có RPO/RTO đo",
-        "Không build trên production"
+        "Backup PITR khôi phục trên staging tạm có RPO/RTO đo trong log CI",
+        "Không build trên production",
+        "Lệnh cần Docker (deploy, restore) chạy trong CI, không chạy trên VPS coding vì worker không có Docker"
       ],
       "checks": [
         "pnpm test:media-edge",
-        "pnpm infra:check",
-        "pnpm test:deploy",
-        "pnpm test:restore"
+        "pnpm infra:check"
       ],
       "contracts": [
         "API"
@@ -958,12 +958,11 @@
         "ci-workflow",
         "staging-deploy"
       ],
-      "startPrerequisites": [
-        "hosting"
-      ],
+      "startPrerequisites": [],
       "acceptancePrerequisites": [
         "cloudflare",
-        "r2"
+        "r2",
+        "hosting"
       ],
       "temporaryGrants": [],
       "kind": "implementation",
@@ -1427,13 +1426,13 @@
         "N04"
       ],
       "featureIds": [],
-      "scope": "Triển khai vertical slice trên staging; test không lộ đáp án, isolation, recovery migration và load baseline.",
+      "scope": "Triển khai vertical slice trên staging tạm trong CI (staging thật khi có hosting); test không lộ đáp án, isolation, recovery migration và load baseline.",
       "outputs": [
         "tests/integration/",
         "tests/e2e/"
       ],
       "acceptance": [
-        "Agent ngoài chuẩn bị gói->validate->review->publish->thi->review chạy thật trên staging",
+        "Gói demo docs/multi-worker/demo-data: validate->review->publish->thi->review chạy thật trên staging tạm trong CI",
         "Cross-tenant/IDOR negative matrix pass",
         "Ghi actual load metrics; không suy ra sức chịu khi chưa đo"
       ],
@@ -1450,7 +1449,9 @@
         "heavy-load"
       ],
       "startPrerequisites": [],
-      "acceptancePrerequisites": [],
+      "acceptancePrerequisites": [
+        "hosting"
+      ],
       "temporaryGrants": [],
       "kind": "implementation",
       "status": "TODO",
@@ -2547,7 +2548,7 @@
       ],
       "acceptance": [
         "Record target and observed capacity separately",
-        "RPO<=5min RTO<=1h có timestamps",
+        "RPO<=5min RTO<=1h có timestamps từ job restore trong CI",
         "No P0/P1 accepted silently",
         "Load generator tách khỏi target; không đo sức chịu bằng VPS đang build"
       ],
@@ -2555,7 +2556,6 @@
         "pnpm test:e2e:all-browsers",
         "pnpm test:security",
         "pnpm test:load",
-        "pnpm test:restore",
         "pnpm test:a11y"
       ],
       "contracts": [],
@@ -2853,15 +2853,16 @@
       ],
       "checks": [
         "pnpm features:verify",
-        "pnpm test:release",
-        "pnpm test:restore"
+        "pnpm test:release"
       ],
       "contracts": [],
       "exclusiveResources": [
         "staging-deploy"
       ],
       "startPrerequisites": [],
-      "acceptancePrerequisites": [],
+      "acceptancePrerequisites": [
+        "hosting"
+      ],
       "temporaryGrants": [],
       "kind": "verification",
       "status": "TODO",
