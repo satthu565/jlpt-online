@@ -7,7 +7,7 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "test": "turbo run test --concurrency=1 -- --fileParallelism=false",
+    "test": "turbo run test",
     "test:import-contracts": "vitest run packages/content-tools/tests/import-contracts.test.ts",
     "test:import-validation": "vitest run packages/content-tools/tests/import-validation.test.ts",
     "test:import-jobs": "vitest run apps/api/src/modules/import/import-jobs.test.ts",
@@ -66,6 +66,8 @@
     "test:entitlements": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/entitlement/entitlement.test.ts",
     "test:payment-provider": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/payment/payment-provider.test.ts",
     "test:admin-billing": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/billing.test.ts",
+    "test:e2e:learning": "vitest run -c apps/web/vitest.config.ts apps/web/tests/e2e-learning.test.tsx",
+    "test:analytics": "vitest run -c apps/web/vitest.config.ts apps/web/tests/analytics.test.tsx",
     "test:e2e:import-publish": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/e2e-import-publish.test.ts",
     "test:content-review": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/content-review.test.ts"
   },

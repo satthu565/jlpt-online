@@ -5,3 +5,4 @@ export * from './migrate.js';
 export * from './seed.js';
 export * from './partitions.js';
 export * from './blueprint-guard.js';
+export * from './retention-guard.js';

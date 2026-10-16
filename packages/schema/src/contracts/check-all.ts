@@ -7,6 +7,7 @@ import {
   ApiErrorEnvelopeSchema,
   PublicExamSnapshotSchema,
   assertNoAnswerLeak,
+  assertNoEventLeak,
   ExamAnswerKeySchema,
   EventEnvelopeSchema,
   ErrorCodeSchema,
@@ -112,6 +113,7 @@ export function runCheck(rootDir: string): void {
   const validEvents = JSON.parse(fs.readFileSync(validEventsPath, 'utf-8')) as unknown[];
   for (const ev of validEvents) {
     EventEnvelopeSchema.parse(ev);
+    assertNoEventLeak(ev);
   }
   console.log(`✓ fixtures/contracts/events.valid.json (${validEvents.length} events) validated`);
 
@@ -128,8 +130,8 @@ export function runCheck(rootDir: string): void {
   // 9. Validate OpenAPI Error Responses & RequestBody Completeness
   let missingErrorsCount = 0;
   let emptyObjectBodyCount = 0;
-  for (const [pathStr, methods] of Object.entries(endpointsData)) {
-    for (const [method, op] of Object.entries(methods)) {
+  for (const [_pathStr, methods] of Object.entries(endpointsData)) {
+    for (const [_method, op] of Object.entries(methods)) {
       if (typeof op !== 'object' || !op.responses) continue;
       const errorCodes = Object.keys(op.responses).filter((c) => c.startsWith('4') || c.startsWith('5'));
       if (errorCodes.length === 0) {
