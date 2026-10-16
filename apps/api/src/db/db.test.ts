@@ -6,9 +6,9 @@ import {
   BlueprintSchema,
   ExamAnswerKeySchema,
   type Blueprint,
-} from '../src/index.js';
+} from '@jlpt/schema';
 
-// We import database utilities directly from apps/api/src/db
+// We import database utilities directly from local module
 import {
   activateBlueprint,
   BlueprintActivationError,
@@ -18,12 +18,11 @@ import {
   runMigrations,
   seedDatabase,
   verifyRollbackCompatibility,
-} from '../../../apps/api/src/db/index.js';
-
+} from './index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const fixturesDir = path.resolve(__dirname, '../fixtures');
+const fixturesDir = path.resolve(__dirname, '../../../../packages/schema/fixtures');
 
 describe('F08 Database Schema and Migrations', () => {
   describe('Acceptance 1: Migrate fresh seeded rollback-code compatibility pass', () => {
@@ -217,9 +216,9 @@ describe('F08 Database Schema and Migrations', () => {
 
         const months = getPartitionMonths(new Date('2026-10-15T00:00:00Z'), 3);
         expect(months.length).toBe(3);
-        expect(months[0].startDate).toBe('2026-10-01');
-        expect(months[1].startDate).toBe('2026-11-01');
-        expect(months[2].startDate).toBe('2026-12-01');
+        expect(months[0]?.startDate).toBe('2026-10-01');
+        expect(months[1]?.startDate).toBe('2026-11-01');
+        expect(months[2]?.startDate).toBe('2026-12-01');
 
         const created = await ensureAttemptEventsPartitions(client, months);
         expect(created.length).toBe(3);
@@ -320,7 +319,7 @@ describe('F08 Database Schema and Migrations', () => {
         expect(parsed.status).toBe('draft');
         expect(parsed.isConfirmed).toBe(false);
         expect(parsed.sourceRef.length).toBeGreaterThan(0);
-        expect(parsed.sourceRef[0].url).toContain('jlpt.jp');
+        expect(parsed.sourceRef[0]?.url).toContain('jlpt.jp');
       }
     });
 

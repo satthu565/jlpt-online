@@ -73,11 +73,21 @@ Toàn bộ 139 bảng thuộc 25 miền chức năng được định nghĩa t�
   - Tự động tính toán và tạo partition dạng bảng `attempt_events_yYYYYmMM` cho tháng hiện tại và 2 tháng tiếp theo.
   - Chạy lũy kế không lỗi (`CREATE TABLE IF NOT EXISTS`).
 
+### 2.8. Tách biệt kiểm thử DB và ranh giới gói monorepo (Khắc phục TS6059 & TS2532)
+
+- Đặt bộ kiểm thử `db.test.ts` tại `apps/api/src/db/db.test.ts` thay vì trong `@jlpt/schema`:
+  - Về mặt kiến trúc: `@jlpt/schema` là thư viện hợp đồng/DTO/schema chia sẻ cấp thấp, không phụ thuộc vào `apps/api`. Ngược lại `apps/api` phụ thuộc `@jlpt/schema`.
+  - Về mặt TypeScript compilation: Tránh lỗi `TS6059` (`rootDir` vi phạm khi gói `schema` import source file của `apps/api/src/db`).
+  - Gói `apps/api` sở hữu `db.test.ts` và import trực tiếp từ local `./index.js` cùng `@jlpt/schema` qua workspace package dependency.
+  - Xử lý triệt để `noUncheckedIndexedAccess: true` với `months[i]?.startDate` và `parsed.sourceRef[0]?.url` (tránh `TS2532`).
+  - `tsconfig.build.json` của `apps/api` loại trừ `**/*.test.ts`, đảm bảo build artifact sạch sẽ không dính test files.
+
 ## 3. Kết quả kiểm thử
 
 - `pnpm db:migrate:test`: Đạt (1 test migration fresh + ledger assertion).
 - `pnpm db:seed:test`: Đạt (1 test seed users, blueprints, exams, questions, partitions).
 - `pnpm test:db`: Đạt toàn bộ 15/15 test cases (Acceptance 1, 2, 3).
 - `pnpm contracts:check`: Đạt 100% hợp đồng API và fixtures.
-- `pnpm test`: Đạt 17/17 package test suites.
-- `pnpm lint` & `pnpm typecheck`: Đạt 0 lỗi.
+- `pnpm test`: Đạt 17/17 package test suites (16 passed in `@jlpt/api`, 27 passed in `@jlpt/schema`, v.v.).
+- `pnpm lint`: Đạt 13/13 packages, 0 lỗi.
+- `pnpm typecheck`: Đạt toàn bộ 17/17 package typecheck tasks mà không còn bất kỳ lỗi nào.
