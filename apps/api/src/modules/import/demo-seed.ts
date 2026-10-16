@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { eq } from 'drizzle-orm';
+import { resolveRepoPath } from '../../common/utils/paths.js';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
 import * as schema from '../../db/schema.js';
@@ -87,8 +88,7 @@ export async function runDemoSeed(client?: DbClientInstance): Promise<DemoSeedRe
       .onConflictDoNothing();
 
     // 4. Load & Seed Synthetic Blueprint
-    const blueprintPath = path.resolve(
-      process.cwd(),
+    const blueprintPath = resolveRepoPath(
       'docs/multi-worker/demo-data/blueprints/synthetic-n5-demo-v1.json',
     );
     if (!fs.existsSync(blueprintPath)) {
@@ -120,7 +120,7 @@ export async function runDemoSeed(client?: DbClientInstance): Promise<DemoSeedRe
     }
 
     // 6. Step 1: Import package v2 ZIP via Editor account
-    const zipPath = path.resolve(process.cwd(), 'docs/multi-worker/demo-data/demo-n5-1.zip');
+    const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
     if (!fs.existsSync(zipPath)) {
       throw new Error(`Tệp zip demo không tồn tại: ${zipPath}`);
     }

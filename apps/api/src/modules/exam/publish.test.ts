@@ -1,7 +1,7 @@
 import fs from 'node:fs';
-import path from 'node:path';
 import { beforeEach, afterEach, describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
+import { resolveRepoPath } from '../../common/utils/paths.js';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
 import * as schema from '../../db/schema.js';
@@ -82,8 +82,7 @@ describe('B01 Exam Module - Review Workflow, Publishing & Zero Answer Leaks', ()
       .onConflictDoNothing();
 
     // Seed synthetic blueprint for demo exam
-    const bpPath = path.resolve(
-      process.cwd(),
+    const bpPath = resolveRepoPath(
       'docs/multi-worker/demo-data/blueprints/synthetic-n5-demo-v1.json',
     );
     const bpData = JSON.parse(fs.readFileSync(bpPath, 'utf8'));
@@ -97,7 +96,7 @@ describe('B01 Exam Module - Review Workflow, Publishing & Zero Answer Leaks', ()
   describe('Acceptance 3: Editor!=reviewer; create version và outbox transaction consistent', () => {
     it('strictly forbids editor from approving their own content (separation of duties)', async () => {
       // Import package as editor
-      const zipPath = path.resolve(process.cwd(), 'docs/multi-worker/demo-data/demo-n5-1.zip');
+      const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
       const zipBuffer = fs.readFileSync(zipPath);
       await importService.processPackageImport(zipBuffer, 'demo-n5-1.zip', editorUserId);
 
@@ -122,7 +121,7 @@ describe('B01 Exam Module - Review Workflow, Publishing & Zero Answer Leaks', ()
     });
 
     it('allows a distinct reviewer to approve and emits content.approved in outbox', async () => {
-      const zipPath = path.resolve(process.cwd(), 'docs/multi-worker/demo-data/demo-n5-1.zip');
+      const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
       const zipBuffer = fs.readFileSync(zipPath);
       await importService.processPackageImport(zipBuffer, 'demo-n5-1.zip', editorUserId);
 
@@ -167,7 +166,7 @@ describe('B01 Exam Module - Review Workflow, Publishing & Zero Answer Leaks', ()
     });
 
     it('rejects publishing when any question or group remains unapproved (draft or in_review)', async () => {
-      const zipPath = path.resolve(process.cwd(), 'docs/multi-worker/demo-data/demo-n5-1.zip');
+      const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
       const zipBuffer = fs.readFileSync(zipPath);
       await importService.processPackageImport(zipBuffer, 'demo-n5-1.zip', editorUserId);
 
@@ -185,7 +184,7 @@ describe('B01 Exam Module - Review Workflow, Publishing & Zero Answer Leaks', ()
 
     it('publishes exam successfully when all questions are approved, creating version snapshot and outbox event', async () => {
       // 1. Import
-      const zipPath = path.resolve(process.cwd(), 'docs/multi-worker/demo-data/demo-n5-1.zip');
+      const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
       const zipBuffer = fs.readFileSync(zipPath);
       await importService.processPackageImport(zipBuffer, 'demo-n5-1.zip', editorUserId);
 
@@ -253,7 +252,7 @@ describe('B01 Exam Module - Review Workflow, Publishing & Zero Answer Leaks', ()
 
     it('enforces immutability: re-publishing increments to version 2 rather than mutating version 1', async () => {
       // Setup and publish version 1
-      const zipPath = path.resolve(process.cwd(), 'docs/multi-worker/demo-data/demo-n5-1.zip');
+      const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
       const zipBuffer = fs.readFileSync(zipPath);
       await importService.processPackageImport(zipBuffer, 'demo-n5-1.zip', editorUserId);
 
@@ -282,7 +281,7 @@ describe('B01 Exam Module - Review Workflow, Publishing & Zero Answer Leaks', ()
     });
 
     it('unpublishes exam and emits content.taken_down event', async () => {
-      const zipPath = path.resolve(process.cwd(), 'docs/multi-worker/demo-data/demo-n5-1.zip');
+      const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
       const zipBuffer = fs.readFileSync(zipPath);
       await importService.processPackageImport(zipBuffer, 'demo-n5-1.zip', editorUserId);
 
@@ -312,7 +311,7 @@ describe('B01 Exam Module - Review Workflow, Publishing & Zero Answer Leaks', ()
 
     it('supports public exam discovery (A8) only returning published exams', async () => {
       // Import exam (draft)
-      const zipPath = path.resolve(process.cwd(), 'docs/multi-worker/demo-data/demo-n5-1.zip');
+      const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
       const zipBuffer = fs.readFileSync(zipPath);
       await importService.processPackageImport(zipBuffer, 'demo-n5-1.zip', editorUserId);
 

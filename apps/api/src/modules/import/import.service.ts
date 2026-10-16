@@ -1,6 +1,5 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
-import path from 'node:path';
 import {
   BadRequestException,
   ConflictException,
@@ -14,6 +13,7 @@ import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
+import { resolveRepoPath } from '../../common/utils/paths.js';
 import { StorageService } from '../storage/storage.service.js';
 import { MediaService } from '../media/media.service.js';
 import { ReviewService } from '../review/review.service.js';
@@ -103,8 +103,7 @@ export class ImportService {
         };
       } catch {
         // If blueprint not yet in DB, check demo-data fixtures
-        const fixturePath = path.resolve(
-          process.cwd(),
+        const fixturePath = resolveRepoPath(
           `docs/multi-worker/demo-data/blueprints/${pkgCandidate.exam.blueprintRef.id}-v1.json`,
         );
         if (fs.existsSync(fixturePath)) {

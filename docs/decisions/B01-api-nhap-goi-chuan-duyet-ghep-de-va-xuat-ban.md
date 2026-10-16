@@ -88,13 +88,18 @@ Theo chỉ thị của chủ dự án và quy tắc `AGENTS.md`:
 - Đã cấu hình `.data/` vào `.git/info/exclude` của kho làm việc cục bộ để ngăn chặn `git add -A` vô tình ghi nhận lại các tệp lưu trữ khi chạy script dev/seed.
 - Đã ghi nhận kiến nghị blocker tới Coordinator / F01 để bổ sung `.data/` vào `.gitignore` chung của monorepo theo đúng thiết kế ban đầu trong `docs/multi-worker/TRUY_VET_TASK_V1.md`.
 
+### 2.8. Định vị đường dẫn monorepo tất định (Deterministic Repo Path Resolution)
+- Khi turbo và vitest chạy kiểm thử trong môi trường workspace con (`apps/api`), `process.cwd()` trỏ về thư mục con (`apps/api`) thay vì gốc repo. Việc sử dụng trực tiếp `path.resolve(process.cwd(), 'docs/multi-worker/...')` gây ra lỗi `ENOENT` khi điều phối viên chạy `pnpm test` sạch.
+- Đã bổ sung tiện ích `resolveRepoPath` tại `apps/api/src/common/utils/paths.ts` để tự động dò ngược lên các thư mục cha tìm `pnpm-workspace.yaml` hoặc `docs/multi-worker/`, đảm bảo định vị đường dẫn tuyệt đối ổn định và tất định bất kể lệnh được kích hoạt từ thư mục gốc monorepo hay thư mục con.
+- Đã chuẩn hóa toàn bộ các điểm truy xuất fixture, dữ liệu demo và thư mục lưu trữ cục bộ sang `resolveRepoPath` trong `demo-seed.ts`, `import.service.ts`, `local-fs.storage.ts`, `import-jobs.test.ts` và `publish.test.ts`.
+
 ---
 
 ## 3. Bằng chứng kiểm thử (Verification & Acceptance Proofs)
 
 ### 3.1. `pnpm test:import-jobs`
 - **Tập tin**: `apps/api/src/modules/import/import-jobs.test.ts`
-- **Kết quả**: 9/9 tests pass (100% đạt).
+- **Kết quả**: 9/9 tests pass (100% đạt, exit code 0).
 - **Phạm vi kiểm tra**:
   1. Từ chối tệp tải lên nếu không phải ZIP hợp lệ (magic bytes zip signature).
   2. Từ chối gói ZIP thiếu các tệp bắt buộc (`manifest.json`, `exam.json`).
@@ -107,7 +112,7 @@ Theo chỉ thị của chủ dự án và quy tắc `AGENTS.md`:
 
 ### 3.2. `pnpm test:publish`
 - **Tập tin**: `apps/api/src/modules/exam/publish.test.ts`
-- **Kết quả**: 7/7 tests pass (100% đạt).
+- **Kết quả**: 7/7 tests pass (100% đạt, exit code 0).
 - **Phạm vi kiểm tra**:
   1. Kiểm tra phân quyền: Editor không thể tự duyệt câu hỏi do chính mình tạo (Separation of Duties).
   2. Từ chối xuất bản đề thi nếu còn câu hỏi chưa được duyệt (`status !== 'approved'`).
@@ -119,10 +124,15 @@ Theo chỉ thị của chủ dự án và quy tắc `AGENTS.md`:
 
 ### 3.3. Kiểm tra kiểu dữ liệu toàn workspace
 - `pnpm --filter @jlpt/api typecheck`: 0 errors.
-- `pnpm typecheck`: 19/19 packages pass without any errors.
+- `pnpm typecheck`: 19/19 packages pass without any errors (exit code 0).
 - `pnpm demo:seed`: Hoàn tất thành công với exit code 0.
 
 ### 3.4. Kiểm tra mã nguồn và tiêu chuẩn ESLint (Strict TypeScript & Zero Any)
-- `pnpm --filter @jlpt/api lint`: 0 errors, 0 warnings (56 lỗi/cảnh báo từ vòng trước đã được khắc phục hoàn toàn).
-- `pnpm lint`: Toàn bộ 13 packages trong workspace đều pass sạch không còn bất kỳ lỗi nào.
-- Toàn bộ các biến chưa sử dụng và ép kiểu `any` lỏng lẻo trong các module `blueprint`, `exam`, `import`, `review` đã được thay thế bằng các kiểu dữ liệu chặt chẽ (`DbTx`, `BlueprintDefinition`, `BlueprintSection`, `ReviewTargetType`, `RichText`, `RichBlock`, `Skill`, `MondaiType`, `ImportJobSummary['status']`).
+- `pnpm --filter @jlpt/api lint`: 0 errors, 0 warnings.
+- `pnpm lint`: Toàn bộ 13 packages trong workspace đều pass sạch không còn lỗi (exit code 0).
+- Loại bỏ toàn bộ các import và biến không sử dụng (`path` trong `publish.test.ts` và `import.service.ts`).
+
+### 3.5. Kiểm tra toàn bộ test suite (`pnpm test`)
+- `turbo run test --concurrency=1 -- --fileParallelism=false`: 19/19 successful, 14 test files passed (154/154 tests passed), exit code 0.
+- `pnpm build`: 12/12 packages build successful, exit code 0.
+

@@ -1,7 +1,9 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { beforeEach, afterEach, describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
+import { resolveRepoPath } from '../../common/utils/paths.js';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
 import * as schema from '../../db/schema.js';
@@ -15,7 +17,7 @@ import { execFileSync } from 'node:child_process';
 import { runDemoSeed } from './demo-seed.js';
 
 function createZipBuffer(files: Record<string, string | Uint8Array>): Buffer {
-  const tmpDir = fs.mkdtempSync(path.join(process.cwd(), 'node_modules/.tmp-zip-'));
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'jlpt-tmp-zip-'));
   try {
     for (const [p, content] of Object.entries(files)) {
       const fullPath = path.join(tmpDir, p);
@@ -112,7 +114,7 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
 
     it('rejects zip missing import.json at root before inserting into DB', async () => {
       // Create minimal zip without import.json
-      const zipPath = path.resolve(process.cwd(), 'docs/multi-worker/demo-data/demo-n5-1.zip');
+      const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
       const validZip = fs.readFileSync(zipPath);
 
       // Mutate package: change import.json name or create a buffer missing it
@@ -135,7 +137,7 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
     });
 
     it('rejects draft package with blocking issues in ready mode without modifying DB', async () => {
-      const draftZipPath = path.resolve(process.cwd(), 'docs/multi-worker/examples/import-v2-draft.zip');
+      const draftZipPath = resolveRepoPath('docs/multi-worker/examples/import-v2-draft.zip');
       if (fs.existsSync(draftZipPath)) {
         const draftBuffer = fs.readFileSync(draftZipPath);
 
@@ -149,7 +151,7 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
     });
 
     it('guarantees complete transaction rollback on failure so no orphaned rows exist', async () => {
-      const zipPath = path.resolve(process.cwd(), 'docs/multi-worker/demo-data/demo-n5-1.zip');
+      const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
       const validZip = fs.readFileSync(zipPath);
 
       // Monkey patch dbClient.db.transaction to simulate a failure halfway through
@@ -187,7 +189,7 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
 
   describe('Acceptance 2: PackageId/revision/content hash chống trùng và nhận diện conflict', () => {
     it('processes initial import successfully and emits outbox domain event', async () => {
-      const zipPath = path.resolve(process.cwd(), 'docs/multi-worker/demo-data/demo-n5-1.zip');
+      const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
       const zipBuffer = fs.readFileSync(zipPath);
 
       const result = await importService.processPackageImport(zipBuffer, 'demo-n5-1.zip', testUserId);
@@ -227,7 +229,7 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
     });
 
     it('returns IDEMPOTENT_SKIP when re-importing the same package without duplicate rows', async () => {
-      const zipPath = path.resolve(process.cwd(), 'docs/multi-worker/demo-data/demo-n5-1.zip');
+      const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
       const zipBuffer = fs.readFileSync(zipPath);
 
       // First import
@@ -255,7 +257,7 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
     });
 
     it('rejects with 409 Conflict when content changes but revision is NOT incremented', async () => {
-      const zipPath = path.resolve(process.cwd(), 'docs/multi-worker/demo-data/demo-n5-1.zip');
+      const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
       const zipBuffer = fs.readFileSync(zipPath);
 
       // 1. Initial import
@@ -300,7 +302,7 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
       });
 
       // Try importing a zip with revision 1
-      const zipPath = path.resolve(process.cwd(), 'docs/multi-worker/demo-data/demo-n5-1.zip');
+      const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
       const zipBuffer = fs.readFileSync(zipPath);
       const { readZipBuffer } = await import('@jlpt/content-tools');
       const files = readZipBuffer(zipBuffer);
