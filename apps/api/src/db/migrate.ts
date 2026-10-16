@@ -43,11 +43,49 @@ export function resolveMigrationsDir(customDir?: string): string {
   return path.join(__dirname, 'migrations');
 }
 
+// One key for the whole app: the api and worker containers start together and both migrate
+// on boot. Without serialisation both read an empty ledger and the slower one fails with
+// `relation "..." already exists` (seen in the staging drill after N02).
+const MIGRATION_LOCK_KEY = 727001;
+let inProcess: Promise<unknown> = Promise.resolve();
+
 /**
  * Executes database migrations on the target client.
- * Fully idempotent using __drizzle_migrations ledger.
+ * Fully idempotent using __drizzle_migrations ledger; concurrent callers are serialised in
+ * process, and across processes by a Postgres advisory lock held on one reserved connection.
  */
 export async function runMigrations(
+  client: DbClientInstance,
+  migrationsDir?: string,
+): Promise<MigrationResult> {
+  const run = inProcess.then(() => runMigrationsLocked(client, migrationsDir));
+  inProcess = run.catch(() => undefined);
+  return run;
+}
+
+async function runMigrationsLocked(
+  client: DbClientInstance,
+  migrationsDir?: string,
+): Promise<MigrationResult> {
+  if (client.type !== 'postgres' || typeof client.rawClient?.reserve !== 'function') {
+    return applyMigrations(client, migrationsDir);
+  }
+  // A session lock needs one connection; the postgres.js pool may hand out another per query.
+  const conn = await client.rawClient.reserve();
+  try {
+    await conn.unsafe(`SELECT pg_advisory_lock(${MIGRATION_LOCK_KEY})`);
+    try {
+      const locked: DbClientInstance = { ...client, query: (sqlQuery: string) => conn.unsafe(sqlQuery) };
+      return await applyMigrations(locked, migrationsDir);
+    } finally {
+      await conn.unsafe(`SELECT pg_advisory_unlock(${MIGRATION_LOCK_KEY})`);
+    }
+  } finally {
+    conn.release();
+  }
+}
+
+async function applyMigrations(
   client: DbClientInstance,
   migrationsDir?: string,
 ): Promise<MigrationResult> {
