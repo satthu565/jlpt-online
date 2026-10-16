@@ -82,3 +82,78 @@ export interface MixedExamValidationResult {
   valid: boolean;
   errors: string[];
 }
+
+export interface CandidateQuestion {
+  id: string;
+  stem?: unknown;
+  difficulty?: number;
+  tags?: string[];
+  exposureCount?: number;
+  userAccuracy?: number;
+  wrongCount?: number;
+  isMarked?: boolean;
+}
+
+export interface CandidateGroupLicense {
+  licenseId?: string;
+  remixAllowed: boolean;
+  displayAllowed: boolean;
+  expiresAt?: string;
+}
+
+export interface CandidateGroup {
+  groupId: string;
+  sourceSession: string;
+  sourceId?: string;
+  level: Level;
+  sectionCode?: string;
+  mondaiType: MondaiType;
+  skill: Skill;
+  questions: CandidateQuestion[];
+  questionCount: number;
+  passage?: unknown;
+  hasMedia: boolean;
+  mediaKeys?: string[];
+  isApproved: boolean;
+  hasAnswerKeys: boolean;
+  license?: CandidateGroupLicense;
+  averageDifficulty?: number;
+  tags?: string[];
+  maxExposure?: number;
+  totalWrongCount?: number;
+  averageAccuracy?: number;
+  isMarked?: boolean;
+}
+
+export interface ShortageDetail {
+  mondaiType?: MondaiType | string;
+  sourceSession?: string;
+  sourceId?: string;
+  skill?: Skill | string;
+  requested: number;
+  available: number;
+  shortage: number;
+  reason?: string;
+}
+
+export class PoolShortageError extends Error {
+  readonly code = 'POOL_SHORTAGE' as const;
+  constructor(
+    message: string,
+    public readonly details: ShortageDetail[] = [],
+  ) {
+    super(message);
+    this.name = 'PoolShortageError';
+  }
+}
+
+export class LicenseDeniedError extends Error {
+  readonly code = 'LICENSE_DENIED' as const;
+  constructor(
+    message: string,
+    public readonly details: Record<string, unknown> = {},
+  ) {
+    super(message);
+    this.name = 'LicenseDeniedError';
+  }
+}
