@@ -58,7 +58,11 @@
     "test:notifications": "vitest run apps/api/src/modules/notification/notifications.test.ts",
     "test:learning": "vitest run apps/api/src/modules/learning/",
     "test:planner": "vitest run apps/api/src/modules/planner/",
-    "test:analytics-data": "pnpm --filter @jlpt/schema build && pnpm --filter @jlpt/exam-engine build && vitest run apps/api/src/modules/stats/"
+    "test:analytics-data": "pnpm --filter @jlpt/schema build && pnpm --filter @jlpt/exam-engine build && vitest run apps/api/src/modules/stats/",
+    "test:payments": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/payment/payment.test.ts",
+    "test:entitlements": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/entitlement/entitlement.test.ts",
+    "test:payment-provider": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/payment/payment-provider.test.ts",
+    "test:admin-billing": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/billing.test.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",
