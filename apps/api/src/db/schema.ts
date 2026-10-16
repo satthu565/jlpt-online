@@ -100,24 +100,36 @@ export const consents = pgTable(
   ],
 );
 
-export const dataExportJobs = pgTable('data_export_jobs', {
-  id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  status: text('status').notNull().default('pending'),
-  downloadUrl: text('download_url'),
-  expiresAt: timestamp('expires_at', { withTimezone: true }),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  completedAt: timestamp('completed_at', { withTimezone: true }),
-});
+export const dataExportJobs = pgTable(
+  'data_export_jobs',
+  {
+    id: uuid('id').primaryKey(),
+    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    status: text('status').notNull().default('pending'),
+    downloadUrl: text('download_url'),
+    expiresAt: timestamp('expires_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    completedAt: timestamp('completed_at', { withTimezone: true }),
+  },
+  (t) => [
+    index('data_export_jobs_user_status_idx').on(t.userId, t.status),
+  ],
+);
 
-export const deletionRequests = pgTable('deletion_requests', {
-  id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  status: text('status').notNull().default('requested'),
-  requestedAt: timestamp('requested_at', { withTimezone: true }).defaultNow().notNull(),
-  processedAt: timestamp('processed_at', { withTimezone: true }),
-  metadata: jsonb('metadata').default('{}').notNull(),
-});
+export const deletionRequests = pgTable(
+  'deletion_requests',
+  {
+    id: uuid('id').primaryKey(),
+    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    status: text('status').notNull().default('requested'),
+    requestedAt: timestamp('requested_at', { withTimezone: true }).defaultNow().notNull(),
+    processedAt: timestamp('processed_at', { withTimezone: true }),
+    metadata: jsonb('metadata').default('{}').notNull(),
+  },
+  (t) => [
+    index('deletion_requests_user_status_idx').on(t.userId, t.status),
+  ],
+);
 
 export const retentionPolicies = pgTable(
   'retention_policies',
@@ -1497,13 +1509,19 @@ export const analyticsConsents = pgTable('analytics_consents', {
   consentedAt: timestamp('consented_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
-export const reportSnapshots = pgTable('report_snapshots', {
-  id: uuid('id').primaryKey(),
-  reportName: text('report_name').notNull(),
-  period: text('period').notNull(),
-  data: jsonb('data').notNull(),
-  generatedAt: timestamp('generated_at', { withTimezone: true }).defaultNow().notNull(),
-});
+export const reportSnapshots = pgTable(
+  'report_snapshots',
+  {
+    id: uuid('id').primaryKey(),
+    reportName: text('report_name').notNull(),
+    period: text('period').notNull(),
+    data: jsonb('data').notNull(),
+    generatedAt: timestamp('generated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index('report_snapshots_name_period_idx').on(t.reportName, t.period),
+  ],
+);
 
 export const experimentDefinitions = pgTable('experiment_definitions', {
   id: text('id').primaryKey(),
@@ -1573,15 +1591,21 @@ export const deadLetterEvents = pgTable('dead_letter_events', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
-export const exportJobs = pgTable('export_jobs', {
-  id: uuid('id').primaryKey(),
-  jobType: text('job_type').notNull(),
-  status: text('status').notNull(),
-  storagePath: text('storage_path'),
-  requestedBy: uuid('requested_by').notNull().references(() => users.id),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  completedAt: timestamp('completed_at', { withTimezone: true }),
-});
+export const exportJobs = pgTable(
+  'export_jobs',
+  {
+    id: uuid('id').primaryKey(),
+    jobType: text('job_type').notNull(),
+    status: text('status').notNull(),
+    storagePath: text('storage_path'),
+    requestedBy: uuid('requested_by').notNull().references(() => users.id),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    completedAt: timestamp('completed_at', { withTimezone: true }),
+  },
+  (t) => [
+    index('export_jobs_requested_by_status_idx').on(t.requestedBy, t.status),
+  ],
+);
 
 export const backupJobs = pgTable('backup_jobs', {
   id: uuid('id').primaryKey(),

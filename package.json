@@ -40,6 +40,8 @@
     "test:mix:property": "vitest run packages/exam-engine/tests/mix-property.test.ts",
     "test:practice-engine": "vitest run packages/exam-engine/tests/practice-engine.test.ts",
     "test:media-token": "vitest run packages/media-token",
+    "test:engines:all": "vitest run packages/exam-engine packages/srs packages/media-token",
+    "test:exports": "vitest run packages/exam-engine/tests/score-report.test.ts packages/exam-engine/tests/exports.test.ts",
     "test:coverage": "vitest run --coverage --coverage.include=\"packages/exam-engine/src/**\" --coverage.include=\"packages/media-token/src/**\" packages/exam-engine packages/media-token",
     "test:admin": "vitest run -c apps/admin/vitest.config.ts apps/admin",
     "test:admin-auth": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/auth.test.ts apps/admin/tests/guard.test.ts",
