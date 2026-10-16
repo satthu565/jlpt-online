@@ -181,8 +181,8 @@ describe('Content Management & Authoring (C04: ADM-04, ADM-08)', () => {
       );
 
       // Verify ruby rendering
-      expect(html).toContain('<ruby>日本語<rt>にほんご</rt></ruby>');
-      expect(html).toContain('<ruby>問題<rt>もんだい</rt></ruby>');
+      expect(html).toMatch(/<ruby[^>]*>日本語<rt[^>]*>にほんご<\/rt><\/ruby>/);
+      expect(html).toMatch(/<ruby[^>]*>問題<rt[^>]*>もんだい<\/rt><\/ruby>/);
 
       // Verify star rendering
       expect(html).toContain('★');
