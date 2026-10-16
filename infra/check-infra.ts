@@ -115,8 +115,9 @@ async function main() {
     const dockerContent = fs.readFileSync(pgDockerPath, 'utf-8');
     const pgDockerOk = dockerContent.includes('pg_bigm') &&
       dockerContent.includes('wal-g') &&
-      dockerContent.includes('HEALTHCHECK');
-    record('Postgres', 'infra/postgres/Dockerfile contains pg_bigm, WAL-G and healthcheck', pgDockerOk);
+      dockerContent.includes('HEALTHCHECK') &&
+      dockerContent.includes('mv wal-g-pg-* /usr/local/bin/wal-g');
+    record('Postgres', 'infra/postgres/Dockerfile contains pg_bigm, WAL-G with rename and healthcheck', pgDockerOk);
   }
 
   const webDockerPath = path.join(rootDir, 'infra/docker/web.Dockerfile');
@@ -125,20 +126,25 @@ async function main() {
 
   if (fs.existsSync(webDockerPath)) {
     const webContent = fs.readFileSync(webDockerPath, 'utf-8');
-    const webOk = webContent.includes('pnpm --filter "./packages/*" build') && webContent.includes('mkdir -p /app/apps/web/public');
-    record('Dockerfiles', 'web.Dockerfile builds all packages and guarantees public folder', webOk);
+    const webOk = webContent.includes('pnpm --filter "./packages/*" build') &&
+      webContent.includes('mkdir -p /app/apps/web/public') &&
+      webContent.includes('apk add --no-cache curl');
+    record('Dockerfiles', 'web.Dockerfile builds all packages, guarantees public folder, and includes curl', webOk);
   }
 
   if (fs.existsSync(adminDockerPath)) {
     const adminContent = fs.readFileSync(adminDockerPath, 'utf-8');
-    const adminOk = adminContent.includes('pnpm --filter "./packages/*" build') && adminContent.includes('mkdir -p /app/apps/admin/public');
-    record('Dockerfiles', 'admin.Dockerfile builds all packages and guarantees public folder', adminOk);
+    const adminOk = adminContent.includes('pnpm --filter "./packages/*" build') &&
+      adminContent.includes('mkdir -p /app/apps/admin/public') &&
+      adminContent.includes('apk add --no-cache curl');
+    record('Dockerfiles', 'admin.Dockerfile builds all packages, guarantees public folder, and includes curl', adminOk);
   }
 
   if (fs.existsSync(apiDockerPath)) {
     const apiContent = fs.readFileSync(apiDockerPath, 'utf-8');
-    const apiOk = apiContent.includes('pnpm --filter "./packages/*" build');
-    record('Dockerfiles', 'api.Dockerfile builds all packages', apiOk);
+    const apiOk = apiContent.includes('pnpm --filter "./packages/*" build') &&
+      apiContent.includes('apk add --no-cache curl');
+    record('Dockerfiles', 'api.Dockerfile builds all packages and includes curl', apiOk);
   }
 
 

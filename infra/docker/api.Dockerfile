@@ -24,6 +24,8 @@ ENV NODE_ENV=production
 ENV PORT=4000
 ENV HOST="0.0.0.0"
 
+RUN apk add --no-cache curl
+
 USER node
 
 # Copy built application and workspace dependencies
@@ -36,6 +38,6 @@ WORKDIR /app/apps/api
 EXPOSE 4000
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget --spider -q http://localhost:4000/api/v1/health || exit 1
+  CMD curl -fsS http://localhost:4000/api/v1/health || exit 1
 
 CMD ["node", "dist/main.js"]

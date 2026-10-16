@@ -47,10 +47,10 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "Building application images tagged with commit SHA: ${IMAGE_TAG}"
-          docker build -t jlpt/jlpt-api:${IMAGE_TAG} -f infra/docker/api.Dockerfile .
-          docker build -t jlpt/jlpt-web:${IMAGE_TAG} -f infra/docker/web.Dockerfile .
-          docker build -t jlpt/jlpt-admin:${IMAGE_TAG} -f infra/docker/admin.Dockerfile .
-          docker build -t jlpt/jlpt-postgres:${IMAGE_TAG} -f infra/postgres/Dockerfile infra/postgres
+          docker build -t jlpt/jlpt-api:${IMAGE_TAG} -t docker.io/jlpt/jlpt-api:${IMAGE_TAG} -f infra/docker/api.Dockerfile .
+          docker build -t jlpt/jlpt-web:${IMAGE_TAG} -t docker.io/jlpt/jlpt-web:${IMAGE_TAG} -f infra/docker/web.Dockerfile .
+          docker build -t jlpt/jlpt-admin:${IMAGE_TAG} -t docker.io/jlpt/jlpt-admin:${IMAGE_TAG} -f infra/docker/admin.Dockerfile .
+          docker build -t jlpt/jlpt-postgres:${IMAGE_TAG} -t docker.io/jlpt/jlpt-postgres:${IMAGE_TAG} -f infra/postgres/Dockerfile infra/postgres
           echo "Images built successfully."
 
       # Acceptance: "Workflow staging tạm trong GitHub Actions dựng compose profile small từ image build một lần"
@@ -81,6 +81,12 @@ jobs:
             fi
             sleep 5
           done
+
+          if [ "$API_HEALTH" != "200" ] || [ "$WEB_HEALTH" != "200" ] || [ "$ADMIN_HEALTH" != "200" ]; then
+            echo "Staging services failed to reach healthy state within timeout! Dumping container logs..."
+            docker compose -f infra/compose/compose.staging.yml logs
+            exit 1
+          fi
 
       - name: Run Staging Smoke Tests against live containers
         run: |

@@ -96,6 +96,7 @@ describe('Staging & Production Infrastructure Profiles (SYS-08, SYS-15, SYS-09)'
       expect(dockerfile).toContain('pg_bigm');
       expect(dockerfile).toContain('wal-g');
       expect(dockerfile).toContain('HEALTHCHECK');
+      expect(dockerfile).toContain('mv wal-g-pg-* /usr/local/bin/wal-g');
     });
   });
 
