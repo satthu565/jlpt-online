@@ -85,7 +85,7 @@ Triển khai trong bộ kiểm thử chuyên dụng `tests/integration/security-
   - **Độ trễ phân vị 90 (p90):** 31.22 ms
   - **Độ trễ phân vị 95 (p95):** 35.91 ms
   - **Độ trễ phân vị 99 (p99):** 66.12 ms
-- **Tuyên bố:** Dữ liệu tải được lưu tại `docs/release/load-baseline-metrics.json` kèm tuyên bố miễn trừ: đây là số liệu đo đạc thực tế trên môi trường runner CI/local; năng lực phục vụ thực tế của hệ thống production chỉ được khẳng định khi thực hiện tải trực tiếp trên hạ tầng production sau khi bàn giao hosting.
+- **Tuyên bố:** Dữ liệu tải được lưu tại `docs/release/load-baseline-metrics.json` kèm tuyên bố miễn trừ: đây là số liệu đo đạc thực tế trên môi trường runner CI/local; năng lực phục vụ thực tế của hệ thống production chỉ được khẳng định khi thực hiện tải trực tiếp trên hạ tầng production sau khi bàn giao hosting. File kết quả kiểm thử được đưa vào `.gitignore` (`docs/release/load-baseline-metrics.json` và `ocs/release/load-baseline-metrics.json`) để bảo đảm khi chạy trên bản checkout sạch, repo không bị nhiễm file sinh ra ngoài tầm kiểm soát.
 
 ---
 
