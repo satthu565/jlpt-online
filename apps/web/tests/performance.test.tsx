@@ -63,6 +63,7 @@ const SAMPLE_RESULT: Result = {
     totalPass: 95,
     passEstimate: true,
   },
+  flags: [],
 };
 
 describe('Performance, Web Vitals, Bundle Budgets & Media Security (SYS-02, SYS-17, Acceptance 3 & 4)', () => {

@@ -75,7 +75,7 @@ export default function TermsOfServicePage(): React.JSX.Element {
             3. Quy chế thi và Phòng thi trực tuyến
           </h2>
           <p>
-            Học viên tham gia phòng thi chuẩn JLPT cam kết làm bài trung thực. Hệ thống sử dụng cơ chế đồng bộ thời gian thực theo đồng hồ máy chủ (Server-side Deadline) và cơ chế khóa đáp án (Zero Answer Leak Guard). Đáp án chính thức chỉ được công bố sau khi người dùng nộp bài thành công hoặc hết giờ làm bài quy định.
+            Học viên tham gia phòng thi chuẩn JLPT cam kết làm bài trung thực. Hệ thống sử dụng cơ chế đồng bộ thời gian thực theo đồng hồ máy chủ (Server-side Deadline) và cơ chế chống rò rỉ đáp án (Zero Answer Leak Guard). Đáp án chính thức chỉ được công bố sau khi người dùng nộp bài thành công hoặc hết giờ làm bài quy định.
           </p>
         </section>
 

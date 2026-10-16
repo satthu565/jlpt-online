@@ -27,8 +27,7 @@ import { captureTrafficAttribution, getStoredAttribution } from '../lib/attribut
 
 const renderClean = (element: React.JSX.Element): string =>
   renderToString(element)
-    .replace(/<!--.*?-->/g, '')
-    .replace(/&amp;/g, '&');
+    .replace(/<!--.*?-->/g, '');
 
 describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', () => {
   // =========================================================================
@@ -307,6 +306,7 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
   // =========================================================================
   describe('SEO-11: Consent-Aware Traffic Attribution', () => {
     beforeEach(() => {
+      setConsentStatus('undetermined');
       if (typeof window !== 'undefined') {
         window.localStorage.clear();
         window.sessionStorage.clear();
@@ -314,6 +314,7 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
     });
 
     afterEach(() => {
+      setConsentStatus('undetermined');
       if (typeof window !== 'undefined') {
         window.localStorage.clear();
         window.sessionStorage.clear();

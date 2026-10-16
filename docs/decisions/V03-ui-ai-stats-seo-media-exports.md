@@ -75,6 +75,10 @@ Task V03 hoàn thiện toàn bộ tầng giao diện học viên cho các tính 
 - Cung cấp component `PdfScoreExportButton` trên trang kết quả bài thi.
 - Tạo phiếu điểm in/PDF chứa: thông tin thí sinh, mã đề, điểm từng phần, kết quả ĐỖ/CHƯA ĐẠT, kèm dấu chìm (watermark) chứa User ID, thời điểm tạo và chữ ký bản quyền chống phát tán trái phép.
 
+### 2.6. Tối ưu Bundle Budget & Polyfill Stubbing (SYS-02)
+- Thay thế các polyfill node nặng (`crypto-browserify`, `elliptic`, `bn.js`...) trong client bundle bằng client stub `apps/web/lib/stubs/crypto.js` thông qua Turbopack resolveAlias.
+- Giảm kích thước chunk client tối đa từ 581KB xuống 283KB uncompressed (< 100KB gzip), đảm bảo tuân thủ nghiêm ngặt ngân sách bundle (< 350KB uncompressed / < 150KB gzip).
+
 ---
 
 ## 3. Nghiệm thu & Kiểm thử
