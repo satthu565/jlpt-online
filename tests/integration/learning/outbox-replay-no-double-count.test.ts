@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
-import { createDbClient, type DbClientInstance } from '../../../apps/api/dist/src/db/client.js';
-import { runMigrations } from '../../../apps/api/dist/src/db/migrate.js';
-import * as schema from '../../../apps/api/dist/src/db/schema.js';
-import { generateUuidV7 } from '../../../apps/api/dist/src/common/utils/uuid.js';
-import { PlannerService } from '../../../apps/api/dist/src/modules/planner/planner.service.js';
-import { SrsService } from '../../../apps/api/dist/src/modules/learning/srs.service.js';
-import { FlashcardService } from '../../../apps/api/dist/src/modules/learning/flashcard.service.js';
-import { NotebookService } from '../../../apps/api/dist/src/modules/learning/notebook.service.js';
-import { OutboxService } from '../../../apps/api/dist/src/modules/outbox/outbox.service.js';
+import { createDbClient, type DbClientInstance } from '../../../apps/api/src/db/client.js';
+import { runMigrations } from '../../../apps/api/src/db/migrate.js';
+import * as schema from '../../../apps/api/src/db/schema.js';
+import { generateUuidV7 } from '../../../apps/api/src/common/utils/uuid.js';
+import { PlannerService } from '../../../apps/api/src/modules/planner/planner.service.js';
+import { SrsService } from '../../../apps/api/src/modules/learning/srs.service.js';
+import { FlashcardService } from '../../../apps/api/src/modules/learning/flashcard.service.js';
+import { NotebookService } from '../../../apps/api/src/modules/learning/notebook.service.js';
+import { OutboxService } from '../../../apps/api/src/modules/outbox/outbox.service.js';
 
 describe('Learning Outbox Replay & Idempotency: Không Double-Count (L06 Acceptance 1)', () => {
   let dbClient: DbClientInstance;

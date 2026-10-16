@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { eq, and, sql, isNull } from 'drizzle-orm';
-import { createDbClient, type DbClientInstance } from '../../../apps/api/dist/src/db/client.js';
-import { runMigrations } from '../../../apps/api/dist/src/db/migrate.js';
-import * as schema from '../../../apps/api/dist/src/db/schema.js';
-import { generateUuidV7 } from '../../../apps/api/dist/src/common/utils/uuid.js';
-import { EntitlementService } from '../../../apps/api/dist/src/modules/entitlement/entitlement.service.js';
-import { OutboxService } from '../../../apps/api/dist/src/modules/outbox/outbox.service.js';
+import { createDbClient, type DbClientInstance } from '../../../apps/api/src/db/client.js';
+import { runMigrations } from '../../../apps/api/src/db/migrate.js';
+import * as schema from '../../../apps/api/src/db/schema.js';
+import { generateUuidV7 } from '../../../apps/api/src/common/utils/uuid.js';
+import { EntitlementService } from '../../../apps/api/src/modules/entitlement/entitlement.service.js';
+import { OutboxService } from '../../../apps/api/src/modules/outbox/outbox.service.js';
 
 class QuotaExceededError extends Error {
   status: number;

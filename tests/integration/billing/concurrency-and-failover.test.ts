@@ -1,16 +1,16 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { eq, and } from 'drizzle-orm';
-import { createDbClient, type DbClientInstance } from '../../../apps/api/dist/src/db/client.js';
-import { runMigrations } from '../../../apps/api/dist/src/db/migrate.js';
-import * as schema from '../../../apps/api/dist/src/db/schema.js';
-import { generateUuidV7 } from '../../../apps/api/dist/src/common/utils/uuid.js';
-import { PaymentService } from '../../../apps/api/dist/src/modules/payment/payment.service.js';
-import { PaymentProviderRegistry } from '../../../apps/api/dist/src/modules/payment/provider/provider.registry.js';
-import { PayOSAdapter } from '../../../apps/api/dist/src/modules/payment/provider/payos.adapter.js';
-import { EntitlementService } from '../../../apps/api/dist/src/modules/entitlement/entitlement.service.js';
-import { OutboxService } from '../../../apps/api/dist/src/modules/outbox/outbox.service.js';
-import { ScoringService } from '../../../apps/api/dist/src/modules/scoring/scoring.service.js';
-import type { IPaymentProvider } from '../../../apps/api/dist/src/modules/payment/provider/payment-provider.interface.js';
+import { createDbClient, type DbClientInstance } from '../../../apps/api/src/db/client.js';
+import { runMigrations } from '../../../apps/api/src/db/migrate.js';
+import * as schema from '../../../apps/api/src/db/schema.js';
+import { generateUuidV7 } from '../../../apps/api/src/common/utils/uuid.js';
+import { PaymentService } from '../../../apps/api/src/modules/payment/payment.service.js';
+import { PaymentProviderRegistry } from '../../../apps/api/src/modules/payment/provider/provider.registry.js';
+import { PayOSAdapter } from '../../../apps/api/src/modules/payment/provider/payos.adapter.js';
+import { EntitlementService } from '../../../apps/api/src/modules/entitlement/entitlement.service.js';
+import { OutboxService } from '../../../apps/api/src/modules/outbox/outbox.service.js';
+import { ScoringService } from '../../../apps/api/src/modules/scoring/scoring.service.js';
+import type { IPaymentProvider } from '../../../apps/api/src/modules/payment/provider/payment-provider.interface.js';
 
 describe('Billing Concurrency Limits & Provider Network Failures (PAY-04, PAY-07 & Acceptance 1, 2)', () => {
   let dbClient: DbClientInstance;

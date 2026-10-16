@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import crypto from 'node:crypto';
 import { getApiBaseUrl, stopApiServer } from '../../fixtures/test-server.ts';
-import { PayOSAdapter } from '../../../apps/api/dist/src/modules/payment/provider/payos.adapter.js';
+import { PayOSAdapter } from '../../../apps/api/src/modules/payment/provider/payos.adapter.js';
 
 describe('Payment Signature & Retry Tamper Verification (PAY-04 & Acceptance 2)', () => {
   let baseUrl: string;

@@ -2,7 +2,7 @@
 
 - **Task:** L06
 - **Worker:** W6 (Hạ tầng CI và kiểm chứng)
-- **Assignment ID:** L06-1
+- **Assignment ID:** L06-2
 - **Trạng thái:** Hoàn tất triển khai (REVIEW)
 - **Base SHA:** `2c04c144ef92949f2aa7e88a2397cb36536c5bf4`
 - **Allowed Paths:** `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `turbo.json`, `.gitignore`, `.gitattributes`, `.nvmrc`, `.npmrc`, `.editorconfig`, `README.md`, `infra/`, `.github/`, `tests/`, `packages/config/`, `apps/media-worker/`, `docs/runbooks/`, `docs/release/`, `docs/decisions/`
@@ -123,6 +123,10 @@ Theo task card L06 và quy tắc `AGENTS.md`:
    - Tích hợp tự động các module NestJS cần thiết cho môi trường staging: `PaymentModule`, `EntitlementModule`, `LearningModule`, `PlannerModule`.
    - Khởi tạo seed ban đầu cho các gói thanh toán (`paymentService.ensureInitialPlans()`).
    - Cung cấp tài khoản quản trị thanh toán `billingAdmin` (`tok_billing_admin_demo`) trong `seed-sessions.sql`.
+5. **Đồng bộ mã nguồn trực tiếp cho Clean Checkout Typecheck:**
+   - Thay thế các đường dẫn tham chiếu từ `apps/api/dist/src/...` sang mã nguồn TypeScript trực tiếp `apps/api/src/...` trong 5 tệp kiểm thử tích hợp (`signature-tamper.test.ts`, `concurrency-and-failover.test.ts`, `outbox-replay-double-charge.test.ts`, `outbox-replay-no-double-count.test.ts`, `quota-simulator-concurrency.test.ts`).
+   - Đảm bảo `tsc --noEmit` và `pnpm typecheck` thành công 100% trên bản checkout sạch của coordinator khi thư mục `apps/api/dist/` chưa tồn tại.
+   - Chuẩn hóa chữ ký hàm `findFreePort(_preferred = 4092)` trong `test-server.ts` để vừa tương thích tham số truyền vào vừa không vi phạm linter `@typescript-eslint/no-unused-vars`.
 
 ---
 

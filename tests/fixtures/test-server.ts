@@ -61,7 +61,7 @@ function ensureApiBuilt(): void {
   }
 }
 
-async function findFreePort(): Promise<number> {
+async function findFreePort(_preferred = 4092): Promise<number> {
   return new Promise((resolve) => {
     const server = net.createServer();
     server.listen(0, '127.0.0.1', () => {
