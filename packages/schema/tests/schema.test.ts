@@ -16,6 +16,12 @@ import {
   EventEnvelopeSchema,
   createEventEnvelope,
   ResultSchema,
+  EventCreateSchema,
+  AssignmentCreateSchema,
+  ReviewAttemptResponseSchema,
+  ActorContextSchema,
+  ResourceVersionSchema,
+  SourceRightsSchema,
 } from '../src/index.js';
 
 describe('@jlpt/schema contracts test', () => {
@@ -243,6 +249,163 @@ describe('@jlpt/schema contracts test', () => {
         flags: [],
       };
       expect(ResultSchema.parse(result)).toEqual(result);
+    });
+  });
+
+  describe('ReviewAttemptResponseSchema', () => {
+    it('validates review attempt response containing answer comparison', () => {
+      const reviewData = {
+        snapshotUrl: 'https://cdn.jlpt.example.com/snapshots/exam-01.json',
+        mediaToken: 'token_123',
+        answers: [1, 2, 3, 4],
+        flags: [0, 1, 0, 0],
+        correct: [1, 2, 4, 3],
+        result: {
+          totals: { correct: 2, wrong: 2, blank: 0, total: 4 },
+          accuracy: 50,
+          durationSec: 300,
+          bySection: [{ code: 'language', correct: 2, total: 4 }],
+          bySkill: [{ skill: 'kanji', correct: 2, total: 4 }],
+          scoring: {
+            method: 'linear_reference',
+            sections: [
+              {
+                code: 'language',
+                label: '言語知識',
+                raw: 2,
+                rawMax: 4,
+                scaled: 30,
+                maxScaled: 60,
+                minPass: 19,
+                passed: true,
+              },
+            ],
+            total: 30,
+            totalMax: 60,
+            totalPass: 38,
+            passEstimate: false,
+          },
+          flags: [],
+        },
+      };
+      expect(ReviewAttemptResponseSchema.parse(reviewData)).toEqual(reviewData);
+    });
+  });
+
+  describe('EventCreateSchema time constraints: require opens<=starts<ends<=release', () => {
+    const baseEvent = {
+      examId: '0192f0c0-0000-7000-8000-000000000001',
+      opensAt: '2026-12-01T08:00:00.000Z',
+      startsAt: '2026-12-01T09:00:00.000Z',
+      endsAt: '2026-12-01T11:00:00.000Z',
+      resultReleaseAt: '2026-12-01T12:00:00.000Z',
+      capacity: 1000,
+      lateSyncWindowSec: 0,
+      rankingScope: 'global',
+    };
+
+    it('accepts valid timeline where opens <= starts < ends <= release', () => {
+      expect(EventCreateSchema.parse(baseEvent)).toEqual(baseEvent);
+    });
+
+    it('accepts opens == starts and ends == release', () => {
+      const equalBounds = {
+        ...baseEvent,
+        opensAt: '2026-12-01T09:00:00.000Z',
+        resultReleaseAt: '2026-12-01T11:00:00.000Z',
+      };
+      expect(EventCreateSchema.parse(equalBounds)).toEqual(equalBounds);
+    });
+
+    it('rejects if opensAt > startsAt', () => {
+      const invalid = {
+        ...baseEvent,
+        opensAt: '2026-12-01T09:30:00.000Z',
+      };
+      expect(() => EventCreateSchema.parse(invalid)).toThrow(/opens<=starts<ends<=release/);
+    });
+
+    it('rejects if startsAt >= endsAt', () => {
+      const invalid = {
+        ...baseEvent,
+        startsAt: '2026-12-01T11:00:00.000Z',
+      };
+      expect(() => EventCreateSchema.parse(invalid)).toThrow(/opens<=starts<ends<=release/);
+    });
+
+    it('rejects if endsAt > resultReleaseAt', () => {
+      const invalid = {
+        ...baseEvent,
+        resultReleaseAt: '2026-12-01T10:30:00.000Z',
+      };
+      expect(() => EventCreateSchema.parse(invalid)).toThrow(/opens<=starts<ends<=release/);
+    });
+  });
+
+  describe('AssignmentCreateSchema constraints: opensAtUTC < dueAtUTC and require examId || mixConfig', () => {
+    const validAssignment = {
+      examId: '0192f0c0-0000-7000-8000-000000000001',
+      opensAtUTC: '2026-11-01T00:00:00.000Z',
+      dueAtUTC: '2026-11-07T23:59:59.000Z',
+      attemptPolicy: { maxAttempts: 3 },
+    };
+
+    it('accepts valid assignment with examId and opensAtUTC < dueAtUTC', () => {
+      expect(AssignmentCreateSchema.parse(validAssignment)).toMatchObject(validAssignment);
+    });
+
+    it('rejects if neither examId nor mixConfig is provided', () => {
+      const missingConfig = {
+        opensAtUTC: '2026-11-01T00:00:00.000Z',
+        dueAtUTC: '2026-11-07T23:59:59.000Z',
+        attemptPolicy: {},
+      };
+      expect(() => AssignmentCreateSchema.parse(missingConfig)).toThrow(/examId hoặc mixConfig/);
+    });
+
+    it('rejects if opensAtUTC >= dueAtUTC', () => {
+      const invalidTime = {
+        ...validAssignment,
+        opensAtUTC: '2026-11-08T00:00:00.000Z',
+      };
+      expect(() => AssignmentCreateSchema.parse(invalidTime)).toThrow(/opensAtUTC phải diễn ra trước dueAtUTC/);
+    });
+  });
+
+  describe('Shared contracts: ActorContext, ResourceVersion, SourceRights', () => {
+    it('validates ActorContextSchema', () => {
+      const actor = {
+        userId: '0192f0c0-0000-7000-8000-000000000001',
+        tenantId: null,
+        roles: ['admin', 'reviewer'],
+        entitlements: ['exam.review', 'exam.publish'],
+      };
+      expect(ActorContextSchema.parse(actor)).toEqual(actor);
+    });
+
+    it('validates ResourceVersionSchema', () => {
+      const version = {
+        id: '0192f0c0-0000-7000-8000-000000000001',
+        version: 2,
+        createdAt: '2026-10-15T10:00:00.000Z',
+        createdBy: '0192f0c0-0000-7000-8000-000000000002',
+        status: 'published',
+      };
+      expect(ResourceVersionSchema.parse(version)).toEqual(version);
+    });
+
+    it('validates SourceRightsSchema', () => {
+      const rights = {
+        sourceId: '0192f0c0-0000-7000-8000-000000000001',
+        licenseId: '0192f0c0-0000-7000-8000-000000000002',
+        displayAllowed: true,
+        remixAllowed: false,
+        commercialAllowed: false,
+        transcriptAllowed: true,
+        aiProcessingAllowed: true,
+        exportAllowed: false,
+      };
+      expect(SourceRightsSchema.parse(rights)).toMatchObject(rights);
     });
   });
 });

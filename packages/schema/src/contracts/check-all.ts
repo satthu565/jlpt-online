@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { generateOpenApiYaml } from './openapi-builder.js';
 import { generateApiClientCode } from './client-generator.js';
+import { endpointsData } from './endpoints-data.js';
 import {
   ApiErrorEnvelopeSchema,
   PublicExamSnapshotSchema,
@@ -123,6 +124,37 @@ export function runCheck(rootDir: string): void {
     }
   }
   console.log(`✓ fixtures/contracts/events.invalid.json (${invalidEvents.length} events) correctly rejected`);
+
+  // 9. Validate OpenAPI Error Responses & RequestBody Completeness
+  let missingErrorsCount = 0;
+  let emptyObjectBodyCount = 0;
+  for (const [pathStr, methods] of Object.entries(endpointsData)) {
+    for (const [method, op] of Object.entries(methods)) {
+      if (typeof op !== 'object' || !op.responses) continue;
+      const errorCodes = Object.keys(op.responses).filter((c) => c.startsWith('4') || c.startsWith('5'));
+      if (errorCodes.length === 0) {
+        missingErrorsCount++;
+      }
+      if (op.requestBody && op.requestBody.content && op.requestBody.content['application/json']) {
+        const schema = op.requestBody.content['application/json'].schema as Record<string, unknown> | undefined;
+        if (
+          schema &&
+          schema.type === 'object' &&
+          (!schema.properties || Object.keys(schema.properties as object).length === 0) &&
+          !schema['$ref']
+        ) {
+          emptyObjectBodyCount++;
+        }
+      }
+    }
+  }
+  if (missingErrorsCount > 0) {
+    throw new Error(`[contracts:check] Found ${missingErrorsCount} operations without error responses (4xx/5xx)!`);
+  }
+  if (emptyObjectBodyCount > 0) {
+    throw new Error(`[contracts:check] Found ${emptyObjectBodyCount} operations with empty object requestBody!`);
+  }
+  console.log('✓ All OpenAPI operations have explicit error responses (4xx/5xx) and valid request bodies');
 
   console.log('[contracts:check] All contract and fixture checks PASSED! ✨');
 }

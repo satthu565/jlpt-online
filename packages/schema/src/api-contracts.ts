@@ -24,6 +24,36 @@ export const MoneySchema = z.object({
 });
 export type Money = z.infer<typeof MoneySchema>;
 
+export const ActorContextSchema = z.object({
+  userId: z.string().uuid(),
+  tenantId: z.string().uuid().nullable().optional(),
+  roles: z.array(z.string()),
+  entitlements: z.array(z.string()).default([]),
+});
+export type ActorContext = z.infer<typeof ActorContextSchema>;
+
+export const ResourceVersionSchema = z.object({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  createdAt: z.string().datetime(),
+  createdBy: z.string().uuid(),
+  status: z.string(),
+});
+export type ResourceVersion = z.infer<typeof ResourceVersionSchema>;
+
+export const SourceRightsSchema = z.object({
+  sourceId: z.string().uuid(),
+  licenseId: z.string().uuid(),
+  displayAllowed: z.boolean(),
+  remixAllowed: z.boolean(),
+  commercialAllowed: z.boolean(),
+  transcriptAllowed: z.boolean(),
+  aiProcessingAllowed: z.boolean(),
+  exportAllowed: z.boolean(),
+  expiresAt: z.string().datetime().nullable().optional(),
+});
+export type SourceRights = z.infer<typeof SourceRightsSchema>;
+
 export const AsyncJobSchema = z.object({
   id: z.string().uuid(),
   status: AsyncJobStatusSchema,
@@ -189,26 +219,52 @@ export const PaymentCreateSchema = z.object({
 });
 export type PaymentCreate = z.infer<typeof PaymentCreateSchema>;
 
-export const AssignmentCreateSchema = z.object({
-  examId: z.string().uuid().optional(),
-  mixConfig: MixConfigSchema.optional(),
-  dueAtUTC: z.string().datetime(),
-  opensAtUTC: z.string().datetime(),
-  attemptPolicy: z.record(z.string(), z.unknown()).default({}),
-  learnerIds: z.array(z.string().uuid()).optional(),
-});
+export const AssignmentCreateSchema = z
+  .object({
+    examId: z.string().uuid().optional(),
+    mixConfig: MixConfigSchema.optional(),
+    dueAtUTC: z.string().datetime(),
+    opensAtUTC: z.string().datetime(),
+    attemptPolicy: z.record(z.string(), z.unknown()).default({}),
+    learnerIds: z.array(z.string().uuid()).optional(),
+  })
+  .refine((data) => Boolean(data.examId || data.mixConfig), {
+    message: 'Phải cung cấp ít nhất examId hoặc mixConfig',
+    path: ['examId'],
+  })
+  .refine(
+    (data) => new Date(data.opensAtUTC).getTime() < new Date(data.dueAtUTC).getTime(),
+    {
+      message: 'opensAtUTC phải diễn ra trước dueAtUTC',
+      path: ['dueAtUTC'],
+    },
+  );
 export type AssignmentCreate = z.infer<typeof AssignmentCreateSchema>;
 
-export const EventCreateSchema = z.object({
-  examId: z.string().uuid(),
-  opensAt: z.string().datetime(),
-  startsAt: z.string().datetime(),
-  endsAt: z.string().datetime(),
-  resultReleaseAt: z.string().datetime(),
-  capacity: z.number().int().positive(),
-  lateSyncWindowSec: z.literal(0).default(0),
-  rankingScope: z.string().default('global'),
-});
+export const EventCreateSchema = z
+  .object({
+    examId: z.string().uuid(),
+    opensAt: z.string().datetime(),
+    startsAt: z.string().datetime(),
+    endsAt: z.string().datetime(),
+    resultReleaseAt: z.string().datetime(),
+    capacity: z.number().int().positive(),
+    lateSyncWindowSec: z.literal(0).default(0),
+    rankingScope: z.string().default('global'),
+  })
+  .refine(
+    (data) => {
+      const opens = new Date(data.opensAt).getTime();
+      const starts = new Date(data.startsAt).getTime();
+      const ends = new Date(data.endsAt).getTime();
+      const release = new Date(data.resultReleaseAt).getTime();
+      return opens <= starts && starts < ends && ends <= release;
+    },
+    {
+      message: 'Ràng buộc thời gian bắt buộc: require opens<=starts<ends<=release',
+      path: ['resultReleaseAt'],
+    },
+  );
 export type EventCreate = z.infer<typeof EventCreateSchema>;
 
 export const ReportQuerySchema = z.object({

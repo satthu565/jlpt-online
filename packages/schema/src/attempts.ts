@@ -126,6 +126,16 @@ export const AttemptSubmitResponseSchema = z.object({
 });
 export type AttemptSubmitResponse = z.infer<typeof AttemptSubmitResponseSchema>;
 
+export const ReviewAttemptResponseSchema = z.object({
+  snapshotUrl: z.string().url(),
+  mediaToken: z.string(),
+  answers: z.array(z.number().int().min(0).max(4)),
+  flags: z.array(z.number().int().min(0).max(1)),
+  correct: z.array(z.number().int().min(0).max(4)),
+  result: ResultSchema,
+});
+export type ReviewAttemptResponse = z.infer<typeof ReviewAttemptResponseSchema>;
+
 export const ResumeAttemptResponseSchema = z.object({
   lease: z.string().uuid(),
   lastSeq: z.number().int().nonnegative(),

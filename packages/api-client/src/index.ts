@@ -525,8 +525,8 @@ export class ApiClient {
   /**
    * Cập nhật tiêu đề, mô tả đề thi
    */
-  public async adminUpdateExam<T = unknown>(id: string): Promise<T> {
-    return this.request<T>('PATCH', `/api/v1/admin/exams/${encodeURIComponent(id)}`);
+  public async adminUpdateExam<T = unknown>(id: string, body: unknown): Promise<T> {
+    return this.request<T>('PATCH', `/api/v1/admin/exams/${encodeURIComponent(id)}`, { body });
   }
 
   /**

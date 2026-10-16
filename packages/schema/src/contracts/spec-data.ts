@@ -67,10 +67,47 @@ export function createErrorResponse(
   };
 }
 
+export function createAdminForbiddenResponse(): OpenApiResponse {
+  return {
+    description: 'Insufficient permissions or two-factor authentication required',
+    content: {
+      'application/json': {
+        schema: errorSchemaRef,
+        examples: {
+          forbidden: {
+            summary: 'FORBIDDEN',
+            value: {
+              error: {
+                code: 'FORBIDDEN',
+                message: 'Bạn không có quyền thực hiện thao tác quản trị này.',
+                details: {},
+                requestId: 'req_01J00000000000000000000000',
+              },
+            },
+          },
+          twoFactorRequired: {
+            summary: 'TWO_FACTOR_REQUIRED',
+            value: {
+              error: {
+                code: 'TWO_FACTOR_REQUIRED',
+                message: 'Yêu cầu xác thực hai bước (2FA) trước khi truy cập quản trị.',
+                details: {},
+                requestId: 'req_01J00000000000000000000000',
+              },
+            },
+          },
+        },
+      },
+    },
+  };
+}
+
 export const standardErrors = {
   badRequest: createErrorResponse('Validation error', 'VALIDATION_ERROR', 'Dữ liệu gửi lên không đúng định dạng.'),
+  validationError: createErrorResponse('Validation error', 'VALIDATION_ERROR', 'Dữ liệu gửi lên không đúng định dạng.'),
   unauthorized: createErrorResponse('Authentication required', 'UNAUTHENTICATED', 'Yêu cầu đăng nhập.'),
   forbidden: createErrorResponse('Insufficient permissions', 'FORBIDDEN', 'Bạn không có quyền thực hiện thao tác này.'),
+  adminForbidden: createAdminForbiddenResponse(),
   notFound: createErrorResponse('Resource not found', 'NOT_FOUND', 'Tài nguyên không tồn tại.'),
   conflict: createErrorResponse('Version or lease conflict', 'VERSION_CONFLICT', 'Tài nguyên đã bị thay đổi bởi phiên khác.'),
   unprocessable: createErrorResponse('Business logic error', 'DEADLINE_PASSED', 'Quá thời hạn xử lý.'),
@@ -662,6 +699,383 @@ export const openApiComponents = {
         capacity: { type: 'integer', minimum: 1 },
         lateSyncWindowSec: { type: 'integer', const: 0 },
         rankingScope: { type: 'string' },
+      },
+    },
+    ActorContext: {
+      type: 'object',
+      required: ['userId', 'roles', 'entitlements'],
+      properties: {
+        userId: { type: 'string', format: 'uuid' },
+        tenantId: { type: 'string', format: 'uuid' },
+        roles: { type: 'array', items: { type: 'string' } },
+        entitlements: { type: 'array', items: { type: 'string' } },
+      },
+    },
+    ResourceVersion: {
+      type: 'object',
+      required: ['id', 'version', 'createdAt', 'createdBy', 'status'],
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+        version: { type: 'integer', minimum: 1 },
+        createdAt: { type: 'string', format: 'date-time' },
+        createdBy: { type: 'string', format: 'uuid' },
+        status: { type: 'string' },
+      },
+    },
+    SourceRights: {
+      type: 'object',
+      required: [
+        'sourceId',
+        'licenseId',
+        'displayAllowed',
+        'remixAllowed',
+        'commercialAllowed',
+        'transcriptAllowed',
+        'aiProcessingAllowed',
+        'exportAllowed',
+      ],
+      properties: {
+        sourceId: { type: 'string', format: 'uuid' },
+        licenseId: { type: 'string', format: 'uuid' },
+        displayAllowed: { type: 'boolean' },
+        remixAllowed: { type: 'boolean' },
+        commercialAllowed: { type: 'boolean' },
+        transcriptAllowed: { type: 'boolean' },
+        aiProcessingAllowed: { type: 'boolean' },
+        exportAllowed: { type: 'boolean' },
+        expiresAt: { type: 'string', format: 'date-time' },
+      },
+    },
+    SourceCreateInput: {
+      type: 'object',
+      required: ['name', 'level', 'year', 'session', 'origin', 'licenseId'],
+      properties: {
+        name: { type: 'string' },
+        level: { type: 'string', enum: ['N1', 'N2', 'N3', 'N4', 'N5'] },
+        year: { type: 'integer', minimum: 2000, maximum: 2050 },
+        session: { type: 'string', enum: ['JUL', 'DEC'] },
+        origin: { type: 'string', enum: ['official', 'sample', 'custom'] },
+        licenseId: { type: 'string', format: 'uuid' },
+        sourceUrl: { type: 'string', format: 'uri' },
+      },
+    },
+    SourceUpdateInput: {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        level: { type: 'string', enum: ['N1', 'N2', 'N3', 'N4', 'N5'] },
+        year: { type: 'integer', minimum: 2000, maximum: 2050 },
+        session: { type: 'string', enum: ['JUL', 'DEC'] },
+        origin: { type: 'string', enum: ['official', 'sample', 'custom'] },
+        licenseId: { type: 'string', format: 'uuid' },
+        sourceUrl: { type: 'string', format: 'uri' },
+      },
+    },
+    LicenseCreateInput: {
+      type: 'object',
+      required: [
+        'sourceId',
+        'displayAllowed',
+        'remixAllowed',
+        'commercialAllowed',
+        'transcriptAllowed',
+        'aiProcessingAllowed',
+        'exportAllowed',
+        'evidenceRef',
+        'legalApproval',
+      ],
+      properties: {
+        sourceId: { type: 'string', format: 'uuid' },
+        displayAllowed: { type: 'boolean' },
+        remixAllowed: { type: 'boolean' },
+        commercialAllowed: { type: 'boolean' },
+        transcriptAllowed: { type: 'boolean' },
+        aiProcessingAllowed: { type: 'boolean' },
+        exportAllowed: { type: 'boolean' },
+        expiresAt: { type: 'string', format: 'date-time' },
+        evidenceRef: { type: 'string' },
+        legalApproval: { type: 'boolean' },
+      },
+    },
+    LicenseUpdateInput: {
+      type: 'object',
+      properties: {
+        displayAllowed: { type: 'boolean' },
+        remixAllowed: { type: 'boolean' },
+        commercialAllowed: { type: 'boolean' },
+        transcriptAllowed: { type: 'boolean' },
+        aiProcessingAllowed: { type: 'boolean' },
+        exportAllowed: { type: 'boolean' },
+        expiresAt: { type: 'string', format: 'date-time' },
+        evidenceRef: { type: 'string' },
+        legalApproval: { type: 'boolean' },
+      },
+    },
+    GroupDraft: {
+      type: 'object',
+      required: ['level', 'sectionCode', 'mondaiType', 'skill', 'instructions', 'questions', 'sourceRef'],
+      properties: {
+        level: { type: 'string', enum: ['N1', 'N2', 'N3', 'N4', 'N5'] },
+        sectionCode: { type: 'string' },
+        mondaiType: { type: 'string' },
+        skill: { type: 'string', enum: ['kanji_vocab', 'grammar', 'reading', 'listening'] },
+        instructions: { $ref: '#/components/schemas/RichText' },
+        passage: { $ref: '#/components/schemas/RichText' },
+        mediaIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
+        questions: {
+          type: 'array',
+          items: {
+            type: 'object',
+            required: ['tempId', 'stem', 'options', 'correctOption'],
+            properties: {
+              tempId: { type: 'string' },
+              stem: { $ref: '#/components/schemas/RichText' },
+              options: { type: 'array', items: { $ref: '#/components/schemas/RichText' } },
+              correctOption: { type: 'integer', minimum: 1, maximum: 4 },
+              explanationId: { type: 'string', format: 'uuid' },
+              tags: { type: 'array', items: { type: 'string' } },
+            },
+          },
+        },
+        sourceRef: { type: 'string' },
+        sourcePage: { type: 'integer' },
+        rights: { $ref: '#/components/schemas/SourceRights' },
+      },
+    },
+    GroupDraftUpdate: {
+      type: 'object',
+      properties: {
+        level: { type: 'string', enum: ['N1', 'N2', 'N3', 'N4', 'N5'] },
+        sectionCode: { type: 'string' },
+        mondaiType: { type: 'string' },
+        skill: { type: 'string', enum: ['kanji_vocab', 'grammar', 'reading', 'listening'] },
+        instructions: { $ref: '#/components/schemas/RichText' },
+        passage: { $ref: '#/components/schemas/RichText' },
+        mediaIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
+        questions: {
+          type: 'array',
+          items: {
+            type: 'object',
+            required: ['tempId', 'stem', 'options', 'correctOption'],
+            properties: {
+              tempId: { type: 'string' },
+              stem: { $ref: '#/components/schemas/RichText' },
+              options: { type: 'array', items: { $ref: '#/components/schemas/RichText' } },
+              correctOption: { type: 'integer', minimum: 1, maximum: 4 },
+              explanationId: { type: 'string', format: 'uuid' },
+              tags: { type: 'array', items: { type: 'string' } },
+            },
+          },
+        },
+        sourceRef: { type: 'string' },
+        sourcePage: { type: 'integer' },
+        rights: { $ref: '#/components/schemas/SourceRights' },
+      },
+    },
+    BlueprintCreateInput: {
+      type: 'object',
+      required: ['level', 'version', 'effectiveFrom', 'sourceRef', 'sections', 'scoring'],
+      properties: {
+        level: { type: 'string', enum: ['N1', 'N2', 'N3', 'N4', 'N5'] },
+        version: { type: 'integer', minimum: 1 },
+        effectiveFrom: { type: 'string' },
+        sourceRef: {
+          type: 'array',
+          items: {
+            type: 'object',
+            required: ['url', 'accessedAt'],
+            properties: {
+              url: { type: 'string', format: 'uri' },
+              accessedAt: { type: 'string' },
+            },
+          },
+        },
+        sections: {
+          type: 'array',
+          items: {
+            type: 'object',
+            required: ['code', 'title', 'durationSec', 'mondai'],
+            properties: {
+              code: { type: 'string' },
+              title: { type: 'string' },
+              durationSec: { type: 'integer', minimum: 1 },
+              mondai: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  required: ['type', 'skill', 'questionCount'],
+                  properties: {
+                    type: { type: 'string' },
+                    skill: { type: 'string' },
+                    questionCount: { type: 'integer', minimum: 1 },
+                  },
+                },
+              },
+            },
+          },
+        },
+        scoring: {
+          type: 'object',
+          required: ['method', 'rounding', 'scoringSections', 'totalMax', 'totalPass'],
+          properties: {
+            method: { type: 'string', const: 'linear_reference' },
+            rounding: { type: 'string', const: 'round' },
+            scoringSections: { type: 'array', items: { type: 'object' } },
+            totalMax: { type: 'integer', minimum: 1 },
+            totalPass: { type: 'integer', minimum: 1 },
+          },
+        },
+      },
+    },
+    ExamCreateInput: {
+      type: 'object',
+      required: ['kind', 'level', 'title', 'slug', 'blueprintVersion', 'sourceRefs'],
+      properties: {
+        kind: { type: 'string', enum: ['real', 'practice', 'mixed', 'custom'] },
+        level: { type: 'string', enum: ['N1', 'N2', 'N3', 'N4', 'N5'] },
+        title: { type: 'string' },
+        slug: { type: 'string' },
+        blueprintVersion: { type: 'integer', minimum: 1 },
+        sourceRefs: { type: 'array', items: { type: 'string', format: 'uuid' } },
+      },
+    },
+    ExamSetItemsInput: {
+      type: 'object',
+      required: ['items'],
+      properties: {
+        items: {
+          type: 'array',
+          items: {
+            type: 'object',
+            required: ['groupVersionId', 'sectionCode', 'orderIndex'],
+            properties: {
+              groupVersionId: { type: 'string', format: 'uuid' },
+              sectionCode: { type: 'string' },
+              orderIndex: { type: 'integer', minimum: 0 },
+            },
+          },
+        },
+      },
+    },
+    ExplanationDraft: {
+      type: 'object',
+      required: ['questionId', 'contentVersion', 'correctReason', 'wrongReasonsByOption', 'translation', 'language', 'origin'],
+      properties: {
+        questionId: { type: 'string', format: 'uuid' },
+        contentVersion: { type: 'integer', minimum: 1 },
+        correctReason: { $ref: '#/components/schemas/RichText' },
+        wrongReasonsByOption: {
+          type: 'object',
+          additionalProperties: { $ref: '#/components/schemas/RichText' },
+        },
+        translation: { $ref: '#/components/schemas/RichText' },
+        grammarTags: { type: 'array', items: { type: 'string' } },
+        vocabTags: { type: 'array', items: { type: 'string' } },
+        transcript: { $ref: '#/components/schemas/RichText' },
+        evidenceRanges: { type: 'array', items: { type: 'object' } },
+        language: { type: 'string', default: 'vi' },
+        origin: { type: 'string', enum: ['human', 'ai_assisted'] },
+        humanReviewed: { type: 'boolean', default: false },
+      },
+    },
+    ExplanationDraftUpdate: {
+      type: 'object',
+      properties: {
+        correctReason: { $ref: '#/components/schemas/RichText' },
+        wrongReasonsByOption: {
+          type: 'object',
+          additionalProperties: { $ref: '#/components/schemas/RichText' },
+        },
+        translation: { $ref: '#/components/schemas/RichText' },
+        grammarTags: { type: 'array', items: { type: 'string' } },
+        vocabTags: { type: 'array', items: { type: 'string' } },
+        transcript: { $ref: '#/components/schemas/RichText' },
+        evidenceRanges: { type: 'array', items: { type: 'object' } },
+        language: { type: 'string' },
+        origin: { type: 'string', enum: ['human', 'ai_assisted'] },
+        humanReviewed: { type: 'boolean' },
+      },
+    },
+    ContentReportResolveInput: {
+      type: 'object',
+      required: ['status', 'resolution'],
+      properties: {
+        status: { type: 'string', enum: ['pending', 'in_review', 'resolved', 'dismissed'] },
+        resolution: { type: 'string' },
+        moderatorNotes: { type: 'string' },
+      },
+    },
+    CommunityReportResolveInput: {
+      type: 'object',
+      required: ['status', 'action', 'reason'],
+      properties: {
+        status: { type: 'string', enum: ['pending', 'in_review', 'resolved', 'dismissed'] },
+        action: { type: 'string', enum: ['none', 'hide_comment', 'warn_user', 'ban_user'] },
+        reason: { type: 'string' },
+      },
+    },
+    UserAdminUpdateInput: {
+      type: 'object',
+      properties: {
+        roles: {
+          type: 'array',
+          items: {
+            type: 'string',
+            enum: ['user', 'teacher', 'editor', 'reviewer', 'moderator', 'admin', 'billing_admin'],
+          },
+        },
+        isBlocked: { type: 'boolean' },
+        blockReason: { type: 'string' },
+        scopes: { type: 'array', items: { type: 'string' } },
+      },
+    },
+    AdminPlanCreateInput: {
+      type: 'object',
+      required: ['name', 'code', 'term', 'priceMinor'],
+      properties: {
+        name: { type: 'string' },
+        code: { type: 'string' },
+        term: { type: 'string', enum: ['month', 'quarter', 'year'] },
+        priceMinor: { type: 'integer', minimum: 0 },
+        currency: { type: 'string', default: 'VND' },
+        entitlements: { type: 'array', items: { type: 'string' } },
+        maxUses: { type: 'integer', minimum: 1 },
+        active: { type: 'boolean', default: true },
+      },
+    },
+    AdminCouponCreateInput: {
+      type: 'object',
+      required: ['code', 'maxUses', 'expiresAt', 'scope'],
+      properties: {
+        code: { type: 'string' },
+        discountPercent: { type: 'integer', minimum: 1, maximum: 100 },
+        discountMinor: { type: 'integer', minimum: 0 },
+        maxUses: { type: 'integer', minimum: 1 },
+        expiresAt: { type: 'string', format: 'date-time' },
+        scope: { type: 'string' },
+      },
+    },
+    AdminExperimentCreateInput: {
+      type: 'object',
+      required: ['name', 'hypothesis', 'targetMetric', 'eligibleCohorts', 'variants', 'startAt', 'endAt'],
+      properties: {
+        name: { type: 'string' },
+        hypothesis: { type: 'string' },
+        targetMetric: { type: 'string' },
+        eligibleCohorts: { type: 'array', items: { type: 'string' } },
+        variants: {
+          type: 'array',
+          items: {
+            type: 'object',
+            required: ['name', 'weight'],
+            properties: {
+              name: { type: 'string' },
+              weight: { type: 'number', minimum: 0, maximum: 1 },
+            },
+          },
+        },
+        startAt: { type: 'string', format: 'date-time' },
+        endAt: { type: 'string', format: 'date-time' },
       },
     },
   },
