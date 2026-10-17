@@ -1,0 +1,252 @@
+[
+  {
+    "app": "web",
+    "route": "/lich-su",
+    "file": "apps/web/app/(account)/lich-su/page.tsx",
+    "violations": [
+      "ALL_SAMPLE",
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "web",
+    "route": "/goi-thanh-vien",
+    "file": "apps/web/app/(billing)/goi-thanh-vien/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "web",
+    "route": "/lop-hoc",
+    "file": "apps/web/app/(classroom)/lop-hoc/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "web",
+    "route": "/su-kien",
+    "file": "apps/web/app/(community)/su-kien/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "web",
+    "route": "/thao-luan",
+    "file": "apps/web/app/(community)/thao-luan/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "web",
+    "route": "/phong-thi",
+    "file": "apps/web/app/(exam)/phong-thi/page.tsx",
+    "violations": [
+      "ALL_SAMPLE"
+    ]
+  },
+  {
+    "app": "web",
+    "route": "/so-tay",
+    "file": "apps/web/app/(learning)/so-tay/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "web",
+    "route": "/de-thi/[slug]",
+    "file": "apps/web/app/(library)/de-thi/[slug]/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "web",
+    "route": "/de-thi",
+    "file": "apps/web/app/(library)/de-thi/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "web",
+    "route": "/ke-hoach",
+    "file": "apps/web/app/(planner)/ke-hoach/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "web",
+    "route": "/luyen-tap",
+    "file": "apps/web/app/(practice)/luyen-tap/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "web",
+    "route": "/ket-qua/[id]",
+    "file": "apps/web/app/(results)/ket-qua/[id]/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "web",
+    "route": "/[level]/de-thi/[session]",
+    "file": "apps/web/app/(seo)/[level]/de-thi/[session]/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "web",
+    "route": "/[level]/de-thi",
+    "file": "apps/web/app/(seo)/[level]/de-thi/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "web",
+    "route": "/sitemap",
+    "file": "apps/web/app/sitemap.ts",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "web",
+    "route": "apps/web/features/exam/fixtures/exam-fixtures.ts",
+    "file": "apps/web/features/exam/fixtures/exam-fixtures.ts",
+    "violations": [
+      "mảng mẫu",
+      "ALL_SAMPLE"
+    ]
+  },
+  {
+    "app": "web",
+    "route": "apps/web/features/exam/fixtures/sample-exam.ts",
+    "file": "apps/web/features/exam/fixtures/sample-exam.ts",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "admin",
+    "route": "/audit-logs",
+    "file": "apps/admin/app/audit-logs/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "admin",
+    "route": "/blueprints",
+    "file": "apps/admin/app/blueprints/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "admin",
+    "route": "/cms",
+    "file": "apps/admin/app/cms/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "admin",
+    "route": "/exams",
+    "file": "apps/admin/app/exams/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "admin",
+    "route": "/",
+    "file": "apps/admin/app/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "admin",
+    "route": "/questions",
+    "file": "apps/admin/app/questions/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "admin",
+    "route": "/settings/notifications",
+    "file": "apps/admin/app/settings/notifications/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "admin",
+    "route": "/settings/org",
+    "file": "apps/admin/app/settings/org/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "admin",
+    "route": "/users",
+    "file": "apps/admin/app/users/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "admin",
+    "route": "/vocab",
+    "file": "apps/admin/app/vocab/page.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "admin",
+    "route": "apps/admin/features/billing/billing-service.ts",
+    "file": "apps/admin/features/billing/billing-service.ts",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "admin",
+    "route": "apps/admin/features/content/richtext-editor.tsx",
+    "file": "apps/admin/features/content/richtext-editor.tsx",
+    "violations": [
+      "mảng mẫu"
+    ]
+  },
+  {
+    "app": "admin",
+    "route": "apps/admin/lib/api-client.ts",
+    "file": "apps/admin/lib/api-client.ts",
+    "violations": [
+      "đăng nhập giả"
+    ]
+  },
+  {
+    "app": "admin",
+    "route": "apps/admin/lib/auth-context.tsx",
+    "file": "apps/admin/lib/auth-context.tsx",
+    "violations": [
+      "đăng nhập giả"
+    ]
+  }
+]

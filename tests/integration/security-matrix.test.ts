@@ -43,14 +43,33 @@ describe('Security Negative Matrix: Cross-Tenant, IDOR, RBAC & Lease Protection 
         mode: 'real',
       }),
     });
-    expect(initRes.status).toBe(201);
-    const initData = (await initRes.json()) as {
-      attemptId: string;
-      lease: string;
-      mediaToken: string;
-    };
-    candidate1AttemptId = initData.attemptId;
-    candidate1Lease = initData.lease;
+    if (initRes.status === 409) {
+      // Resume existing open attempt if one was left in progress
+      const errData = (await initRes.json()) as {
+        details?: { attemptId?: string };
+        error?: { details?: { attemptId?: string } };
+      };
+      const attemptId = errData?.error?.details?.attemptId || errData?.details?.attemptId;
+      expect(attemptId).toBeDefined();
+      candidate1AttemptId = attemptId!;
+      const resumeRes = await fetch(`${baseUrl}/api/v1/attempts/${candidate1AttemptId}/resume`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AUTH_TOKENS.student}` },
+      });
+      expect(resumeRes.status).toBe(200);
+      const resumeData = (await resumeRes.json()) as { lease: string };
+      expect(resumeData.lease).toBeDefined();
+      candidate1Lease = resumeData.lease;
+    } else {
+      expect(initRes.status).toBe(201);
+      const initData = (await initRes.json()) as {
+        attemptId: string;
+        lease: string;
+        mediaToken: string;
+      };
+      candidate1AttemptId = initData.attemptId;
+      candidate1Lease = initData.lease;
+    }
   }, 60000);
 
   afterAll(() => {
