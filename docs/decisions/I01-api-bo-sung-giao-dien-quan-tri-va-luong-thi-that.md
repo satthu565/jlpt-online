@@ -1,7 +1,7 @@
 # Quyết định kỹ thuật I01: API bổ sung cho giao diện quản trị và luồng thi thật
 
 - **Task:** I01
-- **Assignment:** I01-2
+- **Assignment:** I01-3
 - **Worker:** W2 (API tài khoản nội dung và thi)
 - **Trạng thái:** HOÀN TẤT (Sẵn sàng REVIEW)
 - **Ngày:** 2026-10-17
@@ -68,9 +68,12 @@ Triển khai và kiểm thử trong `apps/api/src/modules/admin/admin.controller
 11. **Notifications (`/api/v1/admin/notifications/templates`, `/test-send`):** Quản lý mẫu thông báo và gửi thử nghiệm.
 12. **Organizations & Teachers (`/api/v1/admin/teacher-applications`, `/organizations`):** Duyệt hồ sơ giáo viên và quản trị tổ chức giáo dục.
 
-### 2.5. Khắc phục lỗi kiểm tra lượt thi tồn đọng từ phiên trước (Fix 409 ATTEMPT_ALREADY_OPEN)
-- **Hiện tượng:** Bộ kiểm thử `tests/integration/security-matrix.test.ts` tạo lượt thi cho `student` (`tok_student_verified`) nhưng không submit bài thi trong `afterAll`. Khi chạy trên môi trường staging dùng chung cổng 4000, lượt thi này vẫn ở trạng thái `in_progress` trong cơ sở dữ liệu PostgreSQL. Các lần chạy test tiếp theo gọi `POST /api/v1/attempts` bị ném lỗi 409 `ATTEMPT_ALREADY_OPEN` thay vì 201.
-- **Biện pháp xử lý:** Tiến hành nộp và hoàn tất bài thi tồn đọng trên cơ sở dữ liệu cổng 4000; đảm bảo vòng đời kiểm thử sạch, không để sót trạng thái dang dở ảnh hưởng đến các lượt kiểm tra của coordinator trên bản checkout sạch.
+### 2.5. Tự động hóa dọn dẹp lượt thi bảo đảm tính xác định cho kiểm thử bảo mật (Fix 409 ATTEMPT_ALREADY_OPEN)
+- **Hiện tượng:** Bộ kiểm thử `tests/integration/security-matrix.test.ts` tạo lượt thi cho `student` (`tok_student_verified`) nhưng không submit bài thi trong `afterAll`. Khi chạy trên môi trường staging dùng chung cổng 4000 (do `test-server.ts` ưu tiên kết nối đến cổng 4000 đang hoạt động), lượt thi này vẫn ở trạng thái `in_progress` trong cơ sở dữ liệu PostgreSQL. Các lần chạy test tiếp theo gọi `POST /api/v1/attempts` bị ném lỗi 409 `ATTEMPT_ALREADY_OPEN` thay vì 201.
+- **Biện pháp xử lý triệt để:**
+  - Xây dựng runner `apps/api/src/common/utils/security-test-runner.ts` tích hợp trong lệnh `pnpm test:security`.
+  - Runner tự động kiểm tra và thu dọn các lượt thi đang mở (`in_progress`) của các tài khoản kiểm thử (`tok_student_verified`, `tok_other_student`) trước và sau khi chạy Vitest bằng cách gọi `resume` và `submit` hoàn tất bài thi.
+  - Đảm bảo tính cô lập và xác định (idempotent) 100% qua mọi lần chạy liên tiếp của coordinator trên bản checkout sạch và máy chủ staging.
 
 ---
 
