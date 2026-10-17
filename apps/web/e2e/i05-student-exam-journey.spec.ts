@@ -198,7 +198,7 @@ test.describe('I05 Real API & Infrastructure End-to-End Suite', () => {
     // -------------------------------------------------------------
     // Step 8: Submit Exam Attempt
     // -------------------------------------------------------------
-    const submitBtn = page.locator('button:has-text("Nộp bài thi")');
+    const submitBtn = page.locator('button[aria-label="Nộp bài thi"], button:has-text("Nộp bài")').first();
     await expect(submitBtn).toBeVisible({ timeout: 10000 });
     await submitBtn.click();
 

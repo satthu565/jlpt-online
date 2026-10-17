@@ -1,6 +1,6 @@
 # Quyết định kiến trúc & kỹ thuật I05: Nối API thật cho Thư viện đề, Phòng thi, Kết quả, Lịch sử (Web)
 
-- **Mã công việc:** `I05` (Assignment: `I05-5`)
+- **Mã công việc:** `I05` (Assignment: `I05-7`)
 - **Người thực hiện:** Worker `W3` (Giao diện học viên)
 - **Nhánh làm việc:** `task/I05`
 - **Base SHA:** `dd56415ee6abe4dc301bc6320ee3937e81dda4c8`
@@ -107,3 +107,13 @@ Mục tiêu của task `I05` là:
 
 4. **Trạng thái tồn đọng & Blockers:**
    - Không có blocker. Toàn bộ tiêu chí nghiệm thu và yêu cầu của reviewer đã hoàn tất 100%.
+
+5. **Xử lý phản hồi Reviewer W4 (Lượt I05-7):**
+   - **[P1] Tinh chỉnh responsive Header tại viewport 1366px (`packages/ui/src/styles.css`, `header.tsx`, `theme-toggle.tsx`, `locale-switcher.tsx`, `nav-shell.tsx`):**
+     - Tại viewport 1366px, thanh Header có nguy cơ vượt quá chiều rộng màn hình (1442px > 1366px) do kết hợp 8-10 mục điều hướng có whiteSpace: nowrap cùng nhãn chữ dài của ThemeToggle và LocaleSwitcher.
+     - Đã bổ sung prop `compact?: boolean` cho `ThemeToggle` và `LocaleSwitcher` trong `@jlpt/ui`, cho phép topbar ẩn nhãn văn bản của ThemeToggle (chỉ hiển thị 3 icon ☀️ 🌙 💻 với đầy đủ aria-label/title) và rút gọn nhãn ngôn ngữ thành `VI`, `JA`, `EN`.
+     - Tinh chỉnh CSS responsive của Header: giảm gap của `.desktop-nav` còn `0.25rem`, padding liên kết nav còn `0.375rem 0.45rem`, gap `.header-brand-nav` còn `0.75rem`, gap `.header-right-group` còn `0.5rem`, container padding còn `1rem` trên màn hình desktop thông thường (`<= 1440px`), bổ sung `overflow-x: clip;` trên `.jlpt-header`.
+     - Tổng chiều rộng của Header tại 1366px giảm xuống ~1120px (nhỏ hơn 1366px tới hơn 240px), bảo đảm `document.documentElement.scrollWidth <= window.innerWidth` đạt chuẩn 100% không cuộn ngang.
+   - **[P1] Cập nhật selector nộp bài thi trong E2E Playwright (`apps/web/e2e/i05-student-exam-journey.spec.ts:201`):**
+     - Cập nhật selector nộp bài thành `page.locator('button[aria-label="Nộp bài thi"], button:has-text("Nộp bài")').first()`.
+     - Selector này tương thích chuẩn xác với nút "Nộp bài" (kèm `aria-label="Nộp bài thi"`) trên header phòng thi (`exam-room.tsx`) cũng như nút "Nộp bài thi" ở cuối đề thi (`question-navigation.tsx`), bảo đảm luồng E2E nộp bài và xem điểm trên staging CI diễn ra thông suốt.
