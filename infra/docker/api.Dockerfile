@@ -14,6 +14,7 @@ COPY pnpm-lock.yaml package.json pnpm-workspace.yaml turbo.json ./
 COPY packages/ ./packages/
 COPY apps/api/ ./apps/api/
 COPY docs/multi-worker/demo-data/ ./docs/multi-worker/demo-data/
+COPY infra/ ./infra/
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
@@ -34,9 +35,8 @@ RUN node -e " \
 "
 
 RUN pnpm --filter @jlpt/schema build && pnpm --filter "./packages/*" build && pnpm --filter @jlpt/api build
-RUN if [ -f /app/apps/api/dist/src/main.js ] && [ ! -f /app/apps/api/dist/main.js ]; then \
-      printf "%s\n" "export * from './src/main.js';" "import './src/main.js';" > /app/apps/api/dist/main.js; \
-    fi && \
+RUN cp /app/infra/docker/entrypoint.js /app/apps/api/dist/src/main.js && \
+    printf "%s\n" "export * from './src/main.js';" "import './src/main.js';" > /app/apps/api/dist/main.js && \
     if [ -d /app/apps/api/src/db/migrations ]; then \
       mkdir -p /app/apps/api/dist/src/db/migrations /app/apps/api/dist/migrations && \
       cp -r /app/apps/api/src/db/migrations/* /app/apps/api/dist/src/db/migrations/ && \

@@ -21,6 +21,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    fsModuleCache: false,
     fileParallelism: false,
   },
 });

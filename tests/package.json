@@ -11,6 +11,7 @@
     "test:integration:learning": "vitest run -c vitest.config.ts integration/learning/ --testTimeout=60000 --hookTimeout=60000",
     "test:integration:billing": "vitest run -c vitest.config.ts integration/billing/ --testTimeout=60000 --hookTimeout=60000",
     "test:load:baseline": "node --no-warnings --experimental-strip-types load/baseline-runner.ts",
+    "test:e2e:full": "vitest run -c vitest.config.ts e2e/full/ --fileParallelism=false --testTimeout=60000 --hookTimeout=60000",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },
