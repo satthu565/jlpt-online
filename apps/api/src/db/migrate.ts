@@ -218,6 +218,38 @@ export async function verifyRollbackCompatibility(
       table: 'explanation_versions',
       query: `SELECT id, question_id, version, ai_generated FROM "explanation_versions" LIMIT 1;`,
     },
+    {
+      table: 'class_memberships',
+      query: `SELECT id, class_id, student_id, status FROM "class_memberships" LIMIT 1;`,
+    },
+    {
+      table: 'assignment_learners',
+      query: `SELECT id, assignment_id, learner_id, status FROM "assignment_learners" LIMIT 1;`,
+    },
+    {
+      table: 'comment_reports',
+      query: `SELECT id, comment_id, reported_by, status FROM "comment_reports" LIMIT 1;`,
+    },
+    {
+      table: 'ai_content_versions',
+      query: `SELECT id, generated_type, ai_generated, approval_status FROM "ai_content_versions" LIMIT 1;`,
+    },
+    {
+      table: 'export_jobs',
+      query: `SELECT id, job_type, status, requested_by FROM "export_jobs" LIMIT 1;`,
+    },
+    {
+      table: 'data_export_jobs',
+      query: `SELECT id, user_id, status FROM "data_export_jobs" LIMIT 1;`,
+    },
+    {
+      table: 'deletion_requests',
+      query: `SELECT id, user_id, status FROM "deletion_requests" LIMIT 1;`,
+    },
+    {
+      table: 'report_snapshots',
+      query: `SELECT id, report_name, period FROM "report_snapshots" LIMIT 1;`,
+    },
   ];
 
   for (const { table, query } of legacyReaderQueries) {
