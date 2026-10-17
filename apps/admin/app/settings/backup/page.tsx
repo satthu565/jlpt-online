@@ -61,13 +61,6 @@ export default function BackupSettingsPage(): React.JSX.Element {
         },
         body: JSON.stringify({
           jobType,
-          configSnapshot: {
-            POSTGRES_PASSWORD: 'super_secret_db_password_123',
-            WALG_S3_SECRET: 'walg_secret_key_abc_xyz',
-            PAYOS_CHECKSUM_KEY: 'test_checksum_key_unleaked',
-            NODE_ENV: 'production',
-            PROFILE: 'small',
-          },
         }),
       });
 

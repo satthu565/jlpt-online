@@ -59,9 +59,8 @@ export class AdminApiClient {
   private totpCode: string | null;
   private user: StaffUser | null;
   private fetchFn?: typeof fetch;
-  private mode: 'real' | 'offline';
 
-  // In-memory credential store for offline verification
+  // In-memory credential store for 2FA enrollment verification
   private activeRecoveryHashes: string[] = [];
   private activeTotpSecret: string | null = null;
 
@@ -72,7 +71,6 @@ export class AdminApiClient {
     this.totpCode = options.totpCode ?? null;
     this.user = options.user ?? null;
     this.fetchFn = options.fetchFn;
-    this.mode = options.mode === 'offline' || (options.mode as string) === 'mock' ? 'offline' : 'real';
   }
 
   public setAuth(user: StaffUser | null, token: string | null): void {
@@ -149,10 +147,6 @@ export class AdminApiClient {
   ): Promise<T> {
     if (!options.skipGuard) {
       this.enforceGuard(options.requiredRoles);
-    }
-
-    if (this.mode === 'offline') {
-      return this.handleOfflineRequest<T>(method, path, options.body);
     }
 
     const url = `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
@@ -640,69 +634,10 @@ export class AdminApiClient {
   ): Promise<{ success: boolean; job: unknown }> {
     return this.request('POST', '/api/v1/admin/settings/backup/jobs', {
       requiredRoles: ['admin'],
-      body: { jobType, configSnapshot },
+      body: {
+        jobType,
+        ...(configSnapshot ? { configSnapshot } : {}),
+      },
     });
-  }
-
-  // --- Offline Request Dispatcher (Unit verification) ---
-  private handleOfflineRequest<T>(_method: string, path: string, _body?: unknown): T {
-    if (path.includes('/dashboard')) {
-      return {
-        metrics: {
-          totalUsers: 10,
-          totalExams: 5,
-          overallCompletionRate: 85.0,
-          openReportsCount: 2,
-          grossRevenueVnd: 15000000,
-          activeDau: 10,
-        },
-        activities: [],
-      } as T;
-    }
-    if (path.includes('/settings/notifications')) {
-      return { items: [] } as T;
-    }
-    if (path.includes('/settings/org')) {
-      return { applications: [], organizations: [] } as T;
-    }
-    if (path.includes('/settings/backup')) {
-      return { items: [] } as T;
-    }
-    if (path.includes('/groups')) {
-      return { items: [{ id: 'grp_01', title: 'Mondai 1 Kanji Reading', status: 'draft' }] } as T;
-    }
-    if (path.includes('/reviews')) {
-      return { items: [{ id: 'rev_01', groupId: 'grp_01', status: 'pending' }] } as T;
-    }
-    if (path.includes('/exams')) {
-      return { items: [{ id: 'ex_01', title: 'JLPT N1 Full Test 2026', published: false }] } as T;
-    }
-    if (path.includes('/audit-logs')) {
-      return { items: [{ id: 'aud_01', action: 'update_role', user: 'admin@jlpt.local' }] } as T;
-    }
-    if (path.includes('/blueprints')) {
-      return { items: [{ id: 'bp_N1', level: 'N1', version: 1, status: 'active' }] } as T;
-    }
-    if (path.includes('/users')) {
-      return { items: [{ id: 'usr_01', email: 'user@jlpt.local', role: 'student' }] } as T;
-    }
-    if (path.includes('/validate')) {
-      return { valid: true, violations: [] } as T;
-    }
-    if (path.includes('/auth/2fa/verify')) {
-      const code = (_body as { code?: string })?.code;
-      if (!code || code === '000000') {
-        throw new AdminClientGuardError('TWO_FACTOR_REQUIRED', 'Mã xác thực TOTP không chính xác hoặc đã hết hạn.', 403);
-      }
-      return { success: true, verified: true } as T;
-    }
-    if (path.includes('/auth/2fa/recovery')) {
-      const recoveryCode = (_body as { recoveryCode?: string })?.recoveryCode;
-      if (!recoveryCode || recoveryCode === 'wrong123' || recoveryCode === 'wrong_recovery_code' || recoveryCode.length < 8) {
-        throw new AdminClientGuardError('INVALID_RECOVERY_CODE', 'Mã khôi phục không hợp lệ.', 403);
-      }
-      return { success: true, verified: true } as T;
-    }
-    return { success: true } as T;
   }
 }

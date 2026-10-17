@@ -66,41 +66,71 @@ export default function OrgSettingsPage({
   }, [fetchApplications]);
 
   const handleApprove = async (id: string) => {
+    setError(null);
     try {
-      if (token) {
-        await fetch(`/api/v1/admin/settings/org/${encodeURIComponent(id)}/approve`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Host: 'admin.jlpt.local',
-          },
-        });
+      if (!token) {
+        setError(t('auth.unauthenticated', locale));
+        return;
       }
+      const res = await fetch(`/api/v1/admin/settings/org/${encodeURIComponent(id)}/approve`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Host: 'admin.jlpt.local',
+        },
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          setError(t('auth.unauthenticated', locale));
+        } else if (res.status === 403) {
+          setError(t('auth.forbidden', locale));
+        } else {
+          setError(t('common.error', locale));
+        }
+        return;
+      }
+
+      setApplications((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, status: 'approved' } : a)),
+      );
     } catch {
-      // Offline fallback
+      setError(t('common.error', locale));
     }
-    setApplications((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status: 'approved' } : a)),
-    );
   };
 
   const handleReject = async (id: string) => {
+    setError(null);
     try {
-      if (token) {
-        await fetch(`/api/v1/admin/settings/org/${encodeURIComponent(id)}/reject`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Host: 'admin.jlpt.local',
-          },
-        });
+      if (!token) {
+        setError(t('auth.unauthenticated', locale));
+        return;
       }
+      const res = await fetch(`/api/v1/admin/settings/org/${encodeURIComponent(id)}/reject`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Host: 'admin.jlpt.local',
+        },
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          setError(t('auth.unauthenticated', locale));
+        } else if (res.status === 403) {
+          setError(t('auth.forbidden', locale));
+        } else {
+          setError(t('common.error', locale));
+        }
+        return;
+      }
+
+      setApplications((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, status: 'rejected' } : a)),
+      );
     } catch {
-      // Offline fallback
+      setError(t('common.error', locale));
     }
-    setApplications((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status: 'rejected' } : a)),
-    );
   };
 
   return (

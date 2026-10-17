@@ -70,26 +70,41 @@ export default function NotificationsSettingsPage({
   }, [fetchTemplates]);
 
   const handleSave = async (updated: NotificationTemplate) => {
+    setError(null);
+    setSendSuccess(null);
     try {
-      if (token) {
-        await fetch(`/api/v1/admin/settings/notifications/${encodeURIComponent(updated.id)}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-            Host: 'admin.jlpt.local',
-          },
-          body: JSON.stringify(updated),
-        });
+      if (!token) {
+        setError(t('auth.unauthenticated', locale));
+        return;
       }
-    } catch {
-      // Offline fallback
-    }
+      const res = await fetch(`/api/v1/admin/settings/notifications/${encodeURIComponent(updated.id)}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          Host: 'admin.jlpt.local',
+        },
+        body: JSON.stringify(updated),
+      });
 
-    setTemplates((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
-    setSelectedTemplate(updated);
-    setSendSuccess('Đã lưu cấu hình mẫu thông báo thành công.');
-    setTimeout(() => setSendSuccess(null), 3000);
+      if (!res.ok) {
+        if (res.status === 401) {
+          setError(t('auth.unauthenticated', locale));
+        } else if (res.status === 403) {
+          setError(t('auth.forbidden', locale));
+        } else {
+          setError(t('common.error', locale));
+        }
+        return;
+      }
+
+      setTemplates((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
+      setSelectedTemplate(updated);
+      setSendSuccess('Đã lưu cấu hình mẫu thông báo thành công.');
+      setTimeout(() => setSendSuccess(null), 3000);
+    } catch {
+      setError(t('common.error', locale));
+    }
   };
 
   const handleTestSend = () => {

@@ -57,37 +57,71 @@ export default function UsersPage(): React.JSX.Element {
 
   const handleRoleChanged = async (userId: string, newRole: Role) => {
     try {
-      if (token) {
-        await fetch(`/api/v1/admin/users/${encodeURIComponent(userId)}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-            Host: 'admin.jlpt.local',
-          },
-          body: JSON.stringify({ roles: [newRole] }),
-        });
+      if (!token) {
+        setError(t('auth.unauthenticated', locale));
+        await fetchUsers();
+        return;
       }
+      const res = await fetch(`/api/v1/admin/users/${encodeURIComponent(userId)}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          Host: 'admin.jlpt.local',
+        },
+        body: JSON.stringify({ roles: [newRole] }),
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          setError(t('auth.unauthenticated', locale));
+        } else if (res.status === 403) {
+          setError(t('auth.forbidden', locale));
+        } else {
+          setError(t('common.error', locale));
+        }
+        await fetchUsers();
+        return;
+      }
+      setError(null);
     } catch {
-      // Offline fallback
+      setError(t('common.error', locale));
+      await fetchUsers();
     }
   };
 
   const handleStatusChanged = async (userId: string, isBlocked: boolean) => {
     try {
-      if (token) {
-        await fetch(`/api/v1/admin/users/${encodeURIComponent(userId)}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-            Host: 'admin.jlpt.local',
-          },
-          body: JSON.stringify({ isBlocked, blockReason: isBlocked ? 'Khóa bởi quản trị viên' : undefined }),
-        });
+      if (!token) {
+        setError(t('auth.unauthenticated', locale));
+        await fetchUsers();
+        return;
       }
+      const res = await fetch(`/api/v1/admin/users/${encodeURIComponent(userId)}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          Host: 'admin.jlpt.local',
+        },
+        body: JSON.stringify({ isBlocked, blockReason: isBlocked ? 'Khóa bởi quản trị viên' : undefined }),
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          setError(t('auth.unauthenticated', locale));
+        } else if (res.status === 403) {
+          setError(t('auth.forbidden', locale));
+        } else {
+          setError(t('common.error', locale));
+        }
+        await fetchUsers();
+        return;
+      }
+      setError(null);
     } catch {
-      // Offline fallback
+      setError(t('common.error', locale));
+      await fetchUsers();
     }
   };
 

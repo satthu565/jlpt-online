@@ -82,6 +82,12 @@ describe('Admin UI & API Guard Direct Access Prevention (Acceptance 3: Thá»­ gá»
     });
 
     it('Blocks direct API calls when role lacks permission (Editor trying to list audit logs or publish exam)', async () => {
+      const mockFetch: typeof fetch = vi.fn().mockImplementation(async (url: string) => {
+        if (url.includes('/groups')) return new Response(JSON.stringify({ items: [{ id: 'grp_01' }] }), { status: 200 });
+        if (url.includes('/reviews')) return new Response(JSON.stringify({ items: [{ id: 'rev_01' }] }), { status: 200 });
+        return new Response(JSON.stringify({ items: [] }), { status: 200 });
+      }) as unknown as typeof fetch;
+
       const editorClient = new AdminApiClient({
         baseUrl: 'http://localhost:4000',
         token: 'editor_valid_token',
@@ -93,7 +99,7 @@ describe('Admin UI & API Guard Direct Access Prevention (Acceptance 3: Thá»­ gá»
           twoFactorEnabled: true,
           twoFactorStatus: 'verified',
         },
-        mode: 'mock',
+        fetchFn: mockFetch,
       });
 
       // Allowed for editor:
@@ -116,6 +122,12 @@ describe('Admin UI & API Guard Direct Access Prevention (Acceptance 3: Thá»­ gá»
     });
 
     it('Blocks direct API calls when Reviewer tries to create or edit question groups', async () => {
+      const mockFetch: typeof fetch = vi.fn().mockImplementation(async (url: string) => {
+        if (url.includes('/groups')) return new Response(JSON.stringify({ items: [{ id: 'grp_01' }] }), { status: 200 });
+        if (url.includes('/reviews')) return new Response(JSON.stringify({ items: [{ id: 'rev_01' }] }), { status: 200 });
+        return new Response(JSON.stringify({ items: [] }), { status: 200 });
+      }) as unknown as typeof fetch;
+
       const reviewerClient = new AdminApiClient({
         baseUrl: 'http://localhost:4000',
         token: 'reviewer_valid_token',
@@ -127,7 +139,7 @@ describe('Admin UI & API Guard Direct Access Prevention (Acceptance 3: Thá»­ gá»
           twoFactorEnabled: true,
           twoFactorStatus: 'verified',
         },
-        mode: 'mock',
+        fetchFn: mockFetch,
       });
 
       // Reviewer can list pending reviews

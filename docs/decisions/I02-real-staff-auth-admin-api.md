@@ -102,3 +102,24 @@ Bổ sung đầy đủ và đối xứng các khóa dịch cho `vi.json`, `ja.js
   - Kiểm tra áp dụng đầy đủ class Tailwind (padding/margin hợp lệ, không dính mép).
   - Kiểm tra cả 3 ngôn ngữ `vi`, `ja`, `en`, khẳng định không để lộ key dịch thô.
   - Cấm hoàn toàn `page.route` hay mock fetch ở tầng trình duyệt.
+
+## 4. Khắc phục Đóng góp Ý kiến từ Reviewer W3 (Lượt 4 -> Lượt 5)
+
+### 4.1. [P0] Khắc phục Lỗ hổng Bảo mật 2FA Recovery Bypass
+- Loại bỏ hoàn toàn khối regex fallback `isValidFormat` trong `apps/api/src/modules/reporting/reporting.service.ts` (`verifyRecoveryCode`).
+- Bắt buộc đối chiếu mã khôi phục với bản ghi thực tế trong cơ sở dữ liệu `schema.verifications` khớp với `identifier = 'recovery:${userId}'` và `value = upper`.
+- Khi khớp: tiêu hủy bản ghi ngay lập tức (single-use delete), ghi nhật ký kiểm toán vào `schema.operatorActions`, và trả về `true`.
+- Khi không tìm thấy bản ghi hoặc phát sinh ngoại lệ: bắt buộc trả về `false`, ngăn chặn tuyệt đối mọi hành vi bypass 2FA bằng chuỗi định dạng bất kỳ.
+
+### 4.2. [P1] Kiến trúc Module API & Giới hạn Quyền Hạn Worker
+- Ghi nhận phản hồi của reviewer W3 về việc phân tách các endpoint admin quản trị (`/admin/users`, `/admin/settings/...`, `/admin/auth/2fa/...`) từ `ReportingController`/`ReportingService` sang các module chuyên trách (`AdminController`/`UsersService`, `NotificationModule`, `BackupModule`, `AuthModule`).
+- Theo quy định nghiêm ngặt tại `AGENTS.md`, Worker chỉ được sửa trong `allowedPaths`. Thư mục `apps/api/src/modules/admin/`, `auth/`, `notification/` không nằm trong `allowedPaths` của W4. Do đó, W4 duy trì tính ổn định của các endpoint hiện tại để toàn bộ kiểm thử tích hợp và E2E staging pass 100%, đồng thời báo cáo `blocker` kiến trúc để Coordinator điều phối bàn giao/tách task backend chuyên trách tiếp theo.
+
+### 4.3. [P1] Xử lý Lỗi API Chặt chẽ trên Giao diện Quản trị
+- **Cấu hình Thông báo (`apps/admin/app/settings/notifications/page.tsx`)**: Hàm `handleSave` kiểm tra phản hồi `res.ok`. Nếu API từ chối (401, 403, 500), hiển thị lỗi rõ ràng trên UI (qua `setError`), không hiển thị `sendSuccess` và không cập nhật state thành công giả lập.
+- **Cài đặt Tổ chức & Hồ sơ Giáo viên (`apps/admin/app/settings/org/page.tsx`)**: Các hàm `handleApprove` và `handleReject` kiểm tra phản hồi `res.ok`. Chỉ cập nhật trạng thái hồ sơ khi API trả về 200 OK. Trường hợp lỗi 401/403 hoặc lỗi mạng, hiển thị lỗi rõ ràng và giữ nguyên trạng thái cũ.
+- **Quản lý Người dùng & RBAC (`apps/admin/app/users/page.tsx`)**: Các hàm `handleRoleChanged` và `handleStatusChanged` kiểm tra `res.ok`, xử lý mã lỗi 401/403/500, hiển thị thông báo lỗi cụ thể cho người dùng và tự động gọi lại `fetchUsers()` để hoàn nguyên (revert) vai trò/trạng thái người dùng về dữ liệu máy chủ thực tế.
+
+### 4.4. [P2] Loại bỏ Dữ liệu Giả lập Cứng & Dispatcher Offline trong Production Code
+- **Sao lưu & Phục hồi (`apps/admin/app/settings/backup/page.tsx`)**: Loại bỏ hoàn toàn khối `configSnapshot` chứa các biến mật khẩu/secret giả định viết cứng trong payload request; chỉ gửi tham số hợp lệ cần thiết (`jobType`).
+- **Client Quản trị (`apps/admin/lib/api-client.ts`)**: Loại bỏ hoàn toàn phương thức `handleOfflineRequest` và cờ `mode: 'offline'` khỏi production client. Toàn bộ yêu cầu quản trị đi qua giao thức HTTP chuẩn tới API máy chủ. Các kiểm thử unit sử dụng `fetchFn` mock trực tiếp trong tệp test chuyên dụng (`apps/admin/tests/guard.test.ts`).

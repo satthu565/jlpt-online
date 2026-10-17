@@ -1892,18 +1892,10 @@ export class ReportingService {
         });
         return true;
       }
+      return false;
     } catch {
-      // DB check bypassed during isolated unit test
+      return false;
     }
-
-    const isValidFormat =
-      upper.startsWith('REC-') ||
-      upper.startsWith('RCVD-') ||
-      upper.startsWith('BACKUP-') ||
-      /^[A-Z0-9]{4}-[A-Z0-9]{4}(-[A-Z0-9]{4})?$/.test(upper) ||
-      upper === 'RECOVERY_VALID_CODE_2026';
-
-    return isValidFormat;
   }
 }
 
