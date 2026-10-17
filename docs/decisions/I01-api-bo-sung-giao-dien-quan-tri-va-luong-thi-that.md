@@ -1,7 +1,7 @@
 # Quyết định kỹ thuật I01: API bổ sung cho giao diện quản trị và luồng thi thật
 
 - **Task:** I01
-- **Assignment:** I01-3
+- **Assignment:** I01-7
 - **Worker:** W2 (API tài khoản nội dung và thi)
 - **Trạng thái:** HOÀN TẤT (Sẵn sàng REVIEW)
 - **Ngày:** 2026-10-17
@@ -135,4 +135,13 @@ Tất cả các lệnh kiểm tra bắt buộc và cổng chung đều đạt 10
 5. **[P2] Tối ưu hóa lệnh `test:api:all` và cấu hình vitest:**
    - Trong `package.json`, cập nhật `test:api:all` để tự động build `@jlpt/schema` trước khi chạy Vitest với alias từ `tests/vitest.config.ts`.
    - Trong `apps/api/package.json`, cấu hình `-c ../../tests/vitest.config.ts` để phân giải trực tiếp các package nội bộ về `src/`, đảm bảo các lệnh kiểm thử của API chạy độc lập trên checkout sạch mà không bị lỗi thiếu `dist/`.
+
+---
+
+## 5. Xử lý phản hồi từ Coordinator (Lượt I01-7)
+
+- **Vấn đề:** File `tests/test-results/.last-run.json` vô tình bị thêm vào git trong commit checkpoint trước đó và nằm ngoài `allowedPaths`.
+- **Xử lý:** 
+  - Hoàn tác file `tests/test-results/.last-run.json` bằng cách xóa khỏi git và working tree (`git rm tests/test-results/.last-run.json`).
+  - Đảm bảo diff giữa `baseSha` (`07b920c17a8ee5582f941ddcf5e1b13718eef2ae`) và `HEAD` chỉ chứa chính xác các file thuộc `allowedPaths`.
 
