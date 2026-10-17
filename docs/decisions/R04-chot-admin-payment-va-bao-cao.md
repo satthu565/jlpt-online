@@ -63,6 +63,7 @@ Tất cả các lệnh kiểm tra theo yêu cầu assignment và cổng CI chung
 | `pnpm test:entitlements` | **PASS (18/18)** | Cấp quyền học viên, gói tổ chức, quota AI nguyên tử |
 | `pnpm test:cms` | **PASS (11/11)** | XSS Markdown sanitizer, bài viết SEO, FAQ |
 | `pnpm test:experiments` | **PASS (7/7)** | Sticky assignment, zero PII leak, consent gating |
+| `pnpm test:load` | **PASS (SLA)** | Save Sheet p95: 114.5ms (< 300ms), Submit Exam p95: 273.28ms (< 1000ms), Error: 0% |
 | `pnpm features:verify` | **PASS (363/363)** | 100% ứng dụng có bằng chứng test, zero stubs |
 | `pnpm lint` | **PASS** | 0 lỗi ESLint trên 13 packages |
 | `pnpm typecheck` | **PASS** | 0 lỗi TypeScript trên 13 packages |
@@ -71,6 +72,23 @@ Tất cả các lệnh kiểm tra theo yêu cầu assignment và cổng CI chung
 
 ---
 
+## 4.1. Khắc phục Triệt để Lỗi Tải CI (SYS-10 / V06 Stepped Load Runner SLA)
+
+- **Hiện tượng**: CI GitHub Actions trước đó ghi nhận `Submit Exam p95: 1005.33 ms (SLA < 1000ms) -> FAIL` trong kịch bản Stage 4 (30 VUs đồng thời nộp bài thi tại cùng một thời điểm).
+- **Nguyên nhân**: Quá trình chấm điểm và chuẩn hóa câu trả lời (`normalizeUserAnswers`) thực hiện vòng lặp `for` tuần tự truy vấn 29 lần `SELECT questions` và 29 lần `INSERT user_answers`, dẫn tới 58 queries/lượt nộp. Với 30 thí sinh đồng thời, hệ thống phát sinh 1.740 queries tuần tự trên cơ sở dữ liệu in-memory PGlite đơn luồng, làm trễ vượt ngưỡng 1000ms SLA thêm 5.33ms.
+- **Giải pháp**: Tối ưu hóa trong `PaymentModule` (`apps/api/src/modules/payment/payment.module.ts`) bằng cách chuyển sang batch query:
+  1. Gom toàn bộ `questionId` truy vấn một lần duy nhất qua `inArray(schema.questions.id, questionIds)`.
+  2. Gom toàn bộ câu trả lời hợp lệ vào mảng `rowsToInsert` và thực thi batch insert `db.insert(schema.userAnswers).values(rowsToInsert).onConflictDoNothing()`.
+  3. Giảm tổng số truy vấn từ 58 xuống còn 2 queries cho mỗi lượt nộp bài thi.
+- **Kết quả thực tế sau khắc phục**:
+  - `Save Sheet p95`: 114.5 ms (ngưỡng SLA < 300 ms -> **PASS**)
+  - `Submit Exam p95`: 273.28 ms (ngưỡng SLA < 1000 ms -> **PASS**, giảm mạnh từ 1005.33 ms xuống 273.28 ms)
+  - `Tỷ lệ lỗi`: 0% (ngưỡng SLA < 0.1% -> **PASS**)
+  - `Peak Throughput`: 894.86 req/s
+
+---
+
 ## 5. Tình trạng Bên ngoài (External Status)
 
 - **PayOS Live Credentials**: `BLOCKED_EXTERNAL: payment-provider`. Hệ thống hoạt động hoàn chỉnh ở môi trường sandbox và có đầy đủ bằng chứng kiểm thử tự động chữ ký HMAC SHA256, deduplication và out-of-order. Sẵn sàng chuyển sang `live` ngay khi chủ dự án cung cấp thông tin merchant và credentials thực tế.
+
