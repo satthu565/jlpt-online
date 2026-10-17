@@ -53,3 +53,7 @@ ON CONFLICT (id) DO UPDATE SET
   user_id = EXCLUDED.user_id,
   role = EXCLUDED.role;
 
+-- Enable guest trial for demo exam to support realistic load testing and unauthenticated trial runs
+UPDATE exams SET description = 'guest_trial' WHERE slug = 'demo-n5-1';
+
+

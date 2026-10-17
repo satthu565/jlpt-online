@@ -1,0 +1,16 @@
+{
+  "targetRecoveryTime": "2026-10-16T03:03:45.000Z",
+  "latestRestoredTimestamp": "2026-10-16T03:03:45.000Z",
+  "restoreJobStartedAtUTC": "2026-10-17T02:46:22.963Z",
+  "restoreJobFinishedAtUTC": "2026-10-17T02:46:24.186Z",
+  "rtoSeconds": 1.223,
+  "rpoSeconds": 0,
+  "rtoFormatted": "1.223s (Threshold: <= 3600s)",
+  "rpoFormatted": "0s (Threshold: <= 300s)",
+  "rtoAcceptable": true,
+  "rpoAcceptable": true,
+  "stagingIsolated": true,
+  "archiveModeDuringDrill": "off",
+  "recordsRestored": 2,
+  "postTargetRecordsExcluded": true
+}

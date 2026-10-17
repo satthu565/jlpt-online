@@ -140,6 +140,18 @@ jobs:
         run: |
           pnpm test:security
 
+      - name: Run Accessibility Verification (SYS-14)
+        run: |
+          pnpm test:a11y
+
+      - name: Run Multi-Browser Regression Suite (Chromium, WebKit, Firefox) (V06)
+        run: |
+          pnpm test:e2e:all-browsers
+
+      - name: Run Stepped Load Capacity Runner (SYS-10 / V06)
+        run: |
+          pnpm test:load
+
       - name: Run Load Baseline & Record Actual Measured Metrics (N06)
         run: |
           pnpm test:load:baseline

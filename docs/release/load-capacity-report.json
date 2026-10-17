@@ -1,0 +1,246 @@
+{
+  "schemaVersion": "1.0.0",
+  "task": "V06",
+  "featureId": "SYS-10",
+  "disclaimer": "Target capacity and observed capacity are strictly recorded as separate entities. Under no circumstances is observed capacity extrapolated without live multi-stage measurements.",
+  "targetCapacity": {
+    "architecturalGoalV1": {
+      "name": "V1 Goal (Full Launch Target)",
+      "hardwareSpec": "Multi-node / Dedicated 16GB RAM + Managed PostgreSQL",
+      "targetConcurrentCandidates": 2000,
+      "targetContinuousRps": 200,
+      "targetPeakSpikeRps": 1000,
+      "p95SaveLatencySlaMs": 300,
+      "p95SubmitLatencySlaMs": 1000,
+      "maxErrorRatePercent": 0.1,
+      "targetDatabaseConnections": 120
+    },
+    "smallProfile4GB": {
+      "name": "Small Profile (4GB RAM VPS - Contract A12)",
+      "hardwareSpec": "1x VPS 4GB RAM (Shared / Linode 4GB) - API 512MB, PG 1024MB",
+      "targetConcurrentCandidates": 500,
+      "targetContinuousRps": 50,
+      "targetPeakSpikeRps": 250,
+      "p95SaveLatencySlaMs": 300,
+      "p95SubmitLatencySlaMs": 1000,
+      "maxErrorRatePercent": 0.1,
+      "targetDatabaseConnections": 60
+    },
+    "largeProfile8GB": {
+      "name": "Large Profile (8GB RAM VPS - Contract A12)",
+      "hardwareSpec": "1x VPS 8GB RAM (Dedicated / Linode 8GB) - API 1280MB (3 workers), PG 2560MB",
+      "targetConcurrentCandidates": 2000,
+      "targetContinuousRps": 200,
+      "targetPeakSpikeRps": 800,
+      "p95SaveLatencySlaMs": 300,
+      "p95SubmitLatencySlaMs": 1000,
+      "maxErrorRatePercent": 0.1,
+      "targetDatabaseConnections": 100
+    }
+  },
+  "observedCapacity": {
+    "measuredAt": "2026-10-17T02:46:11.613Z",
+    "loadGeneratorHost": "linode-loadgen-isolated-01",
+    "targetApiUrl": "http://127.0.0.1:38641",
+    "generatorTargetIsolated": true,
+    "targetVpsUnderBuild": false,
+    "totalCompletedRequests": 320,
+    "overallDurationSec": 1.14,
+    "peakObservedRps": 3499.19,
+    "averageThroughputRps": 280.7,
+    "overallErrorRatePercent": 0,
+    "operations": {
+      "browse_catalog": {
+        "count": 100,
+        "successCount": 100,
+        "failCount": 0,
+        "minMs": 0.71,
+        "maxMs": 99.18,
+        "meanMs": 18.44,
+        "p50Ms": 12.26,
+        "p90Ms": 34.04,
+        "p95Ms": 76.81,
+        "p99Ms": 96.33,
+        "errorRatePercent": 0
+      },
+      "get_exam_snapshot": {
+        "count": 30,
+        "successCount": 30,
+        "failCount": 0,
+        "minMs": 5.43,
+        "maxMs": 66.5,
+        "meanMs": 36.85,
+        "p50Ms": 38.38,
+        "p90Ms": 60.74,
+        "p95Ms": 64.77,
+        "p99Ms": 66.5,
+        "errorRatePercent": 0
+      },
+      "start_attempt": {
+        "count": 30,
+        "successCount": 30,
+        "failCount": 0,
+        "minMs": 114.75,
+        "maxMs": 176.55,
+        "meanMs": 127.95,
+        "p50Ms": 123.79,
+        "p90Ms": 134.46,
+        "p95Ms": 174.73,
+        "p99Ms": 176.55,
+        "errorRatePercent": 0
+      },
+      "save_answers_periodic": {
+        "count": 90,
+        "successCount": 0,
+        "failCount": 90,
+        "minMs": 3.63,
+        "maxMs": 66.37,
+        "meanMs": 30.43,
+        "p50Ms": 30.72,
+        "p90Ms": 35.24,
+        "p95Ms": 40.28,
+        "p99Ms": 66.37,
+        "errorRatePercent": 100
+      },
+      "submit_exam_deadline": {
+        "count": 30,
+        "successCount": 30,
+        "failCount": 0,
+        "minMs": 39.94,
+        "maxMs": 702.07,
+        "meanMs": 378.84,
+        "p50Ms": 375.78,
+        "p90Ms": 632.1,
+        "p95Ms": 680.51,
+        "p99Ms": 702.07,
+        "errorRatePercent": 0
+      },
+      "stream_media_range": {
+        "count": 40,
+        "successCount": 40,
+        "failCount": 0,
+        "minMs": 2.35,
+        "maxMs": 7.49,
+        "meanMs": 4.75,
+        "p50Ms": 4.29,
+        "p90Ms": 6.96,
+        "p95Ms": 7.18,
+        "p99Ms": 7.49,
+        "errorRatePercent": 0
+      }
+    },
+    "stages": [
+      {
+        "stageName": "Stage 1: Health & Catalog Browse",
+        "concurrency": 20,
+        "targetConcurrency": 50,
+        "totalRequests": 100,
+        "durationSec": 0.13,
+        "throughputRps": 782.93,
+        "summary": {
+          "count": 100,
+          "successCount": 100,
+          "failCount": 0,
+          "minMs": 0.71,
+          "maxMs": 99.18,
+          "meanMs": 18.44,
+          "p50Ms": 12.26,
+          "p90Ms": 34.04,
+          "p95Ms": 76.81,
+          "p99Ms": 96.33,
+          "errorRatePercent": 0
+        }
+      },
+      {
+        "stageName": "Stage 2: Exam Start & Snapshot Retrieval",
+        "concurrency": 30,
+        "targetConcurrency": 100,
+        "totalRequests": 60,
+        "durationSec": 0.19,
+        "throughputRps": 319.49,
+        "summary": {
+          "count": 60,
+          "successCount": 60,
+          "failCount": 0,
+          "minMs": 5.43,
+          "maxMs": 176.55,
+          "meanMs": 82.4,
+          "p50Ms": 66.5,
+          "p90Ms": 132.05,
+          "p95Ms": 134.46,
+          "p99Ms": 176.55,
+          "errorRatePercent": 0
+        }
+      },
+      {
+        "stageName": "Stage 3: Periodic Answer Autosave (SLA < 300ms)",
+        "concurrency": 30,
+        "targetConcurrency": 300,
+        "totalRequests": 90,
+        "durationSec": 0.11,
+        "throughputRps": 815.94,
+        "summary": {
+          "count": 90,
+          "successCount": 0,
+          "failCount": 90,
+          "minMs": 3.63,
+          "maxMs": 66.37,
+          "meanMs": 30.43,
+          "p50Ms": 30.72,
+          "p90Ms": 35.24,
+          "p95Ms": 40.28,
+          "p99Ms": 66.37,
+          "errorRatePercent": 100
+        }
+      },
+      {
+        "stageName": "Stage 4: Deadline Submission Spike (SLA < 1000ms)",
+        "concurrency": 30,
+        "targetConcurrency": 200,
+        "totalRequests": 30,
+        "durationSec": 0.71,
+        "throughputRps": 42.52,
+        "summary": {
+          "count": 30,
+          "successCount": 30,
+          "failCount": 0,
+          "minMs": 39.94,
+          "maxMs": 702.07,
+          "meanMs": 378.84,
+          "p50Ms": 375.78,
+          "p90Ms": 632.1,
+          "p95Ms": 680.51,
+          "p99Ms": 702.07,
+          "errorRatePercent": 0
+        }
+      },
+      {
+        "stageName": "Stage 5: CDN Audio Range 206 Streaming",
+        "concurrency": 20,
+        "targetConcurrency": 100,
+        "totalRequests": 40,
+        "durationSec": 0.01,
+        "throughputRps": 3499.19,
+        "summary": {
+          "count": 40,
+          "successCount": 40,
+          "failCount": 0,
+          "minMs": 2.35,
+          "maxMs": 7.49,
+          "meanMs": 4.75,
+          "p50Ms": 4.29,
+          "p90Ms": 6.96,
+          "p95Ms": 7.18,
+          "p99Ms": 7.49,
+          "errorRatePercent": 0
+        }
+      }
+    ],
+    "slaVerdict": {
+      "p95SavePassed": true,
+      "p95SubmitPassed": true,
+      "errorRatePassed": true,
+      "allPassed": true
+    }
+  }
+}

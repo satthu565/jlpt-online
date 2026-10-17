@@ -1,5 +1,7 @@
+import { execSync } from 'node:child_process';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { assertNoAnswerLeak } from '@jlpt/schema';
+import { signMediaToken, verifyMediaToken } from '@jlpt/media-token';
 import {
   getApiBaseUrl,
   stopApiServer,
@@ -430,4 +432,114 @@ describe('Security Negative Matrix: Cross-Tenant, IDOR, RBAC & Lease Protection 
       expect(() => assertNoAnswerLeak(data)).not.toThrow();
     });
   });
+
+  // ===========================================================================
+  // 6. OWASP ASVS L2 & Hardening Security Verification (SYS-10 / Task V06)
+  // ===========================================================================
+  describe('6. OWASP ASVS L2 & Hardening Security Gate (Task V06)', () => {
+    const testSecret = 'test_secret_key_for_asvs_l2_hardening_at_least_32_bytes!';
+
+    it('rejects tampered media token signatures immediately (no unauthorized audio leak)', async () => {
+      const validToken = await signMediaToken(
+        {
+          a: candidate1AttemptId,
+          e: demoExamId,
+          v: 1,
+          k: 'attempt',
+          exp: Math.floor(Date.now() / 1000) + 3600,
+        },
+        testSecret
+      );
+
+      // Tamper with the signature bytes
+      const parts = validToken.split('.');
+      expect(parts.length).toBe(2);
+      const tamperedToken = `${parts[0]}.forgedSignatureBytes1234567890`;
+
+      const verifyResult = await verifyMediaToken(tamperedToken, testSecret);
+      expect(verifyResult).toBeNull();
+    });
+
+    it('rejects expired media tokens strictly', async () => {
+      const pastTimeUnix = Math.floor(Date.now() / 1000) - 300; // 5 mins ago
+      const expiredToken = await signMediaToken(
+        {
+          a: candidate1AttemptId,
+          e: demoExamId,
+          v: 1,
+          k: 'attempt',
+          exp: pastTimeUnix,
+        },
+        testSecret
+      );
+
+      const verifyResult = await verifyMediaToken(expiredToken, testSecret);
+      expect(verifyResult).toBeNull();
+    });
+
+    it('denies student accounts from calling administrative routes (/api/v1/admin/*) with 403 Forbidden', async () => {
+      const adminEndpoints = [
+        '/api/v1/admin/audit-logs',
+        '/api/v1/admin/imports',
+        `/api/v1/admin/exams/${demoExamId}/publish`,
+        '/api/v1/admin/explanations',
+      ];
+
+      for (const ep of adminEndpoints) {
+        const res = await fetch(`${baseUrl}${ep}`, {
+          method: ep.includes('publish') ? 'POST' : 'GET',
+          headers: {
+            Authorization: `Bearer ${AUTH_TOKENS.student}`,
+          },
+        });
+        expect([401, 403]).toContain(res.status);
+      }
+    });
+
+    it('dependency audit passes with zero high or critical security vulnerabilities (T1.9.3)', () => {
+      // pnpm audit --audit-level=high must exit with 0 code
+      expect(() => {
+        execSync('pnpm audit --audit-level=high', { stdio: 'pipe' });
+      }).not.toThrow();
+    });
+
+    it('verifies acceptance: No P0/P1 accepted silently (rejections must be explicit)', async () => {
+      // 1. Cross-tenant access must return explicit TENANT_FORBIDDEN error envelope
+      const crossTenantRes = await fetch(`${baseUrl}/api/v1/attempts/${candidate1AttemptId}`, {
+        headers: {
+          Authorization: `Bearer ${AUTH_TOKENS.student}`,
+          'x-organization-id': 'org-beta',
+        },
+      });
+      expect(crossTenantRes.status).toBe(403);
+      const crossTenantBody = (await crossTenantRes.json()) as ApiEnvelope;
+      expect(crossTenantBody.error?.code).toBe('TENANT_FORBIDDEN');
+
+      // 2. IDOR hijack must return explicit NOT_FOUND error envelope
+      const idorRes = await fetch(`${baseUrl}/api/v1/attempts/${candidate1AttemptId}`, {
+        headers: {
+          Authorization: `Bearer ${AUTH_TOKENS.otherStudent}`,
+        },
+      });
+      expect(idorRes.status).toBe(404);
+      const idorBody = (await idorRes.json()) as ApiEnvelope;
+      expect(idorBody.error?.code).toBe('NOT_FOUND');
+
+      // 3. Forged lease must return explicit LEASE_INVALID error envelope
+      const leaseRes = await fetch(`${baseUrl}/api/v1/attempts/${candidate1AttemptId}/sections/next`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${AUTH_TOKENS.student}`,
+        },
+        body: JSON.stringify({
+          lease: '0192f000-0000-7000-8000-000000000099',
+        }),
+      });
+      expect(leaseRes.status).toBe(409);
+      const leaseBody = (await leaseRes.json()) as ApiEnvelope;
+      expect(leaseBody.error?.code).toBe('LEASE_INVALID');
+    });
+  });
 });
+

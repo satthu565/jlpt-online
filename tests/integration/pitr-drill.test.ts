@@ -12,6 +12,10 @@ describe('Backup PITR Restore Drill & Metrics (SYS-08 / ADM-20)', () => {
     expect(metrics.rpoAcceptable).toBe(true);
     expect(metrics.rtoSeconds).toBeLessThan(3600);
     expect(metrics.rpoSeconds).toBeLessThanOrEqual(300);
+    expect(metrics.restoreJobStartedAtUTC).toBeDefined();
+    expect(metrics.restoreJobFinishedAtUTC).toBeDefined();
+    expect(metrics.targetRecoveryTime).toBeDefined();
+    expect(metrics.latestRestoredTimestamp).toBeDefined();
     expect(metrics.stagingIsolated).toBe(true);
     expect(metrics.archiveModeDuringDrill).toBe('off');
     expect(metrics.postTargetRecordsExcluded).toBe(true);
