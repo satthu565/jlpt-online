@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { performance } from 'node:perf_hooks';
@@ -73,6 +74,8 @@ export interface ObservedCapacitySummary {
     p95SavePassed: boolean;
     p95SubmitPassed: boolean;
     errorRatePassed: boolean;
+    /** Latency SLAs gate only when the generator runs on a different host than the target. */
+    latencyEnforced: boolean;
     allPassed: boolean;
   };
 }
@@ -142,7 +145,7 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
   console.log('========================================================================\n');
 
   // 1. Acceptance check: Load generator tách khỏi target; không đo sức chịu bằng VPS đang build
-  const loadGenHost = process.env.LOAD_GENERATOR_HOST || 'linode-loadgen-isolated-01';
+  const loadGenHost = process.env.LOAD_GENERATOR_HOST || os.hostname();
   const targetHostEnv = process.env.STAGING_API_URL || process.env.API_BASE_URL || 'http://127.0.0.1:4000';
   const vpsUnderBuild = Boolean(
     process.env.BUILDING_VPS === 'true' ||
@@ -664,6 +667,12 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
   const totalFail = allMetrics.filter((m) => !m.success).length;
   const overallErrorRate = Number(((totalFail / allMetrics.length) * 100).toFixed(3));
 
+  // Latency measured with generator and API on one shared CI runner says nothing about the
+  // SLA hardware, so it is recorded but only gates when the generator is really isolated.
+  const targetIsLocal = /^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(:|\/|$)/i.test(baseUrl);
+  const generatorTargetIsolated = Boolean(process.env.LOAD_GENERATOR_HOST) && !targetIsLocal;
+  const latencyEnforced = generatorTargetIsolated || process.env.LOAD_ENFORCE_LATENCY_SLA === 'true';
+
   const p95SavePassed = saveSummary.p95Ms < 300;
   const p95SubmitPassed = submitSummary.p95Ms < 1000;
   const errorRatePassed = overallErrorRate < 0.1;
@@ -672,7 +681,7 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
     measuredAt: new Date().toISOString(),
     loadGeneratorHost: loadGenHost,
     targetApiUrl: baseUrl,
-    generatorTargetIsolated: true,
+    generatorTargetIsolated,
     targetVpsUnderBuild: false,
     totalCompletedRequests: allMetrics.length,
     overallDurationSec: totalDurationSec,
@@ -685,7 +694,8 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
       p95SavePassed,
       p95SubmitPassed,
       errorRatePassed,
-      allPassed: p95SavePassed && p95SubmitPassed && errorRatePassed,
+      latencyEnforced,
+      allPassed: errorRatePassed && (!latencyEnforced || (p95SavePassed && p95SubmitPassed)),
     },
   };
 
@@ -715,6 +725,7 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
 
 > Được tự động đo lường và lập báo cáo bởi Stepped Load Runner tại \`${observedCapacity.measuredAt}\`.
 > **Quy tắc nghiệm thu:** Tách biệt rõ ràng giữa Năng lực Mục tiêu (Target) và Năng lực Quan sát Thực tế (Observed); Load Generator cô lập hoàn toàn khỏi máy chủ đích.
+> **Lần đo này:** máy tạo tải \`${loadGenHost}\` ${generatorTargetIsolated ? 'tách khỏi' : 'chạy cùng máy với'} API \`${baseUrl}\`; SLA độ trễ ${latencyEnforced ? 'được áp dụng' : 'chỉ ghi nhận, không chặn (cần máy tạo tải tách riêng)'}.
 
 ---
 
@@ -742,11 +753,11 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
 
 | Giai đoạn kịch bản | Concurrency (VUs) | Tổng requests | Thời lượng (s) | Throughput (req/s) | Latency p50 | Latency p95 | SLA Mục tiêu | Kết quả SLA |
 |---|---|---|---|---|---|---|---|---|
-| **1. Duyệt đề & Sức khỏe** | 20 | ${stageResults[0]!.totalRequests} | ${stageResults[0]!.durationSec}s | ${stageResults[0]!.throughputRps} | ${stageResults[0]!.summary.p50Ms}ms | ${stageResults[0]!.summary.p95Ms}ms | p95 < 300ms | ✓ PASS |
-| **2. Bắt đầu thi & Snapshot** | 30 | ${stageResults[1]!.totalRequests} | ${stageResults[1]!.durationSec}s | ${stageResults[1]!.throughputRps} | ${stageResults[1]!.summary.p50Ms}ms | ${stageResults[1]!.summary.p95Ms}ms | p95 < 500ms | ✓ PASS |
-| **3. Lưu phiếu định kỳ (SLA)** | 40 | ${stageResults[2]!.totalRequests} | ${stageResults[2]!.durationSec}s | ${stageResults[2]!.throughputRps} | ${stageResults[2]!.summary.p50Ms}ms | ${stageResults[2]!.summary.p95Ms}ms | p95 < 300ms | ${p95SavePassed ? '✓ PASS' : '✗ FAIL'} |
-| **4. Đỉnh nộp bài đồng loạt (SLA)**| 30 | ${stageResults[3]!.totalRequests} | ${stageResults[3]!.durationSec}s | ${stageResults[3]!.throughputRps} | ${stageResults[3]!.summary.p50Ms}ms | ${stageResults[3]!.summary.p95Ms}ms | p95 < 1000ms | ${p95SubmitPassed ? '✓ PASS' : '✗ FAIL'} |
-| **5. Stream Audio Range 206** | 20 | ${stageResults[4]!.totalRequests} | ${stageResults[4]!.durationSec}s | ${stageResults[4]!.throughputRps} | ${stageResults[4]!.summary.p50Ms}ms | ${stageResults[4]!.summary.p95Ms}ms | p95 < 300ms | ✓ PASS |
+| **1. Duyệt đề & Sức khỏe** | 20 | ${stageResults[0]!.totalRequests} | ${stageResults[0]!.durationSec}s | ${stageResults[0]!.throughputRps} | ${stageResults[0]!.summary.p50Ms}ms | ${stageResults[0]!.summary.p95Ms}ms | p95 < 300ms | ${stageResults[0]!.summary.p95Ms < 300 ? '✓ PASS' : '✗ FAIL'} (không chặn) |
+| **2. Bắt đầu thi & Snapshot** | 30 | ${stageResults[1]!.totalRequests} | ${stageResults[1]!.durationSec}s | ${stageResults[1]!.throughputRps} | ${stageResults[1]!.summary.p50Ms}ms | ${stageResults[1]!.summary.p95Ms}ms | p95 < 500ms | ${stageResults[1]!.summary.p95Ms < 500 ? '✓ PASS' : '✗ FAIL'} (không chặn) |
+| **3. Lưu phiếu định kỳ (SLA)** | 40 | ${stageResults[2]!.totalRequests} | ${stageResults[2]!.durationSec}s | ${stageResults[2]!.throughputRps} | ${stageResults[2]!.summary.p50Ms}ms | ${stageResults[2]!.summary.p95Ms}ms | p95 < 300ms | ${p95SavePassed ? '✓ PASS' : '✗ FAIL'}${latencyEnforced ? '' : ' (không chặn)'} |
+| **4. Đỉnh nộp bài đồng loạt (SLA)**| 30 | ${stageResults[3]!.totalRequests} | ${stageResults[3]!.durationSec}s | ${stageResults[3]!.throughputRps} | ${stageResults[3]!.summary.p50Ms}ms | ${stageResults[3]!.summary.p95Ms}ms | p95 < 1000ms | ${p95SubmitPassed ? '✓ PASS' : '✗ FAIL'}${latencyEnforced ? '' : ' (không chặn)'} |
+| **5. Stream Audio Range 206** | 20 | ${stageResults[4]!.totalRequests} | ${stageResults[4]!.durationSec}s | ${stageResults[4]!.throughputRps} | ${stageResults[4]!.summary.p50Ms}ms | ${stageResults[4]!.summary.p95Ms}ms | p95 < 300ms | ${stageResults[4]!.summary.p95Ms < 300 ? '✓ PASS' : '✗ FAIL'} (không chặn) |
 
 ---
 
@@ -769,6 +780,9 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
   console.log(`Average Throughput:     ${observedCapacity.averageThroughputRps} req/s`);
   console.log(`Save Sheet p95:         ${saveSummary.p95Ms} ms (SLA < 300ms) -> ${p95SavePassed ? 'PASS' : 'FAIL'}`);
   console.log(`Submit Exam p95:        ${submitSummary.p95Ms} ms (SLA < 1000ms) -> ${p95SubmitPassed ? 'PASS' : 'FAIL'}`);
+  if (!latencyEnforced) {
+    console.log('Latency SLA:            recorded only (generator and target share one host; set LOAD_GENERATOR_HOST on an isolated generator to enforce)');
+  }
   console.log(`Error Rate:             ${observedCapacity.overallErrorRatePercent}% (SLA < 0.1%) -> ${errorRatePassed ? 'PASS' : 'FAIL'}`);
   console.log(`Report JSON:            ${path.relative(REPO_ROOT, jsonReportPath)}`);
   console.log(`Report Markdown:        ${path.relative(REPO_ROOT, mdReportPath)}`);
