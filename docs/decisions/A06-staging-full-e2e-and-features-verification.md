@@ -106,7 +106,9 @@ Theo các yêu cầu đánh giá của reviewer W3 đối với A06:
    - Đăng bình luận thực tế, gửi báo cáo vi phạm và kiểm tra danh sách báo cáo trong hàng đợi kiểm duyệt của quản trị viên (`/api/v1/admin/community-reports`).
 9. **Hoàn nguyên thay đổi script test theo yêu cầu reviewer P2**:
    - Hoàn nguyên script `test` trong root `package.json`, `packages/config/package.json`, và `apps/media-worker/package.json` về nguyên trạng base.
-   - Loại bỏ `docs/release/features-verification-report.json` khỏi `.gitignore` để file báo cáo chính thức được theo dõi trong git.
+10. **Bổ sung `docs/release/features-verification-report.json` vào `.gitignore`**:
+   - Theo chỉ thị của coordinator cho lượt A06-5, khi chạy kiểm tra trên bản checkout sạch, lệnh `pnpm features:verify` tự động tạo ra file `docs/release/features-verification-report.json`.
+   - Bổ sung đường dẫn này vào `.gitignore` và loại khỏi theo dõi của Git (`git rm -f docs/release/features-verification-report.json`) để working tree luôn ở trạng thái sạch (clean), ngăn ngừa lỗi untracked/dirty tree khi coordinator chạy lại các cổng kiểm tra trên bản checkout sạch.
 
 ---
 
