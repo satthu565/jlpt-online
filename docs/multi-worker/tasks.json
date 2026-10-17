@@ -3065,8 +3065,7 @@
       "estimatedWorkerHours": 4,
       "title": "Đăng nhập nhân sự thật và khung quản trị nối API",
       "dependencies": [
-        "I00",
-        "I01"
+        "I00"
       ],
       "featureIds": [],
       "scope": "Bỏ đăng nhập giả trong apps/admin/lib/auth-context.tsx: đăng nhập email mật khẩu, TOTP enrollment/challenge và recovery codes qua API; session, đăng xuất, guard theo role từ server. Trang tổng quan, người dùng, audit log, cài đặt (org, thông báo, backup) lấy dữ liệu từ API.",
@@ -3077,7 +3076,8 @@
         "Sai mật khẩu hoặc sai TOTP bị từ chối bởi API, không chỉ ở UI",
         "Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass",
         "E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt",
-        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền"
+        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền",
+        "E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en"
       ],
       "checks": [
         "pnpm test:admin",
@@ -3089,7 +3089,10 @@
       "exclusiveResources": [],
       "startPrerequisites": [],
       "acceptancePrerequisites": [],
-      "temporaryGrants": [],
+      "temporaryGrants": [
+        "tests/playwright/",
+        "tests/integration/mock-ui-baseline.json"
+      ],
       "kind": "implementation",
       "status": "TODO",
       "reviewRequired": true,
@@ -3116,7 +3119,8 @@
         "Editor nhập gói docs/multi-worker/demo-data qua giao diện, reviewer khác duyệt, xuất bản; đề hiện ở trang thư viện đề của web",
         "Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass",
         "E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt",
-        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền"
+        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền",
+        "E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en"
       ],
       "checks": [
         "pnpm test:admin",
@@ -3128,7 +3132,10 @@
       "exclusiveResources": [],
       "startPrerequisites": [],
       "acceptancePrerequisites": [],
-      "temporaryGrants": [],
+      "temporaryGrants": [
+        "tests/playwright/",
+        "tests/integration/mock-ui-baseline.json"
+      ],
       "kind": "implementation",
       "status": "TODO",
       "reviewRequired": true,
@@ -3160,7 +3167,8 @@
         "Gói, giao dịch sandbox, hoàn tiền và đối soát hiển thị dữ liệu thật từ API",
         "Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass",
         "E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt",
-        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền"
+        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền",
+        "E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en"
       ],
       "checks": [
         "pnpm test:admin",
@@ -3173,7 +3181,10 @@
       "exclusiveResources": [],
       "startPrerequisites": [],
       "acceptancePrerequisites": [],
-      "temporaryGrants": [],
+      "temporaryGrants": [
+        "tests/playwright/",
+        "tests/integration/mock-ui-baseline.json"
+      ],
       "kind": "implementation",
       "status": "TODO",
       "reviewRequired": true,
@@ -3189,8 +3200,7 @@
       "estimatedWorkerHours": 6,
       "title": "Web: thư viện đề, phòng thi, kết quả, lịch sử nối API thật",
       "dependencies": [
-        "I00",
-        "I01"
+        "I00"
       ],
       "featureIds": [],
       "scope": "Thư viện đề (de-thi, trang SEO theo cấp) và phòng thi lấy đề đã xuất bản từ API, bỏ ALL_SAMPLE_EXAMS; bắt đầu lượt, tải snapshot, lưu tự động, chuyển phần, nộp, xem kết quả, lịch sử, chia sẻ kết quả qua API; khách làm thử đề guest_trial.",
@@ -3203,7 +3213,8 @@
         "Khách làm thử được đề guest_trial, đề khác yêu cầu đăng nhập",
         "Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass",
         "E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt",
-        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền"
+        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền",
+        "E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en"
       ],
       "checks": [
         "pnpm test:web",
@@ -3215,7 +3226,10 @@
       "exclusiveResources": [],
       "startPrerequisites": [],
       "acceptancePrerequisites": [],
-      "temporaryGrants": [],
+      "temporaryGrants": [
+        "tests/playwright/",
+        "tests/integration/mock-ui-baseline.json"
+      ],
       "kind": "implementation",
       "status": "TODO",
       "reviewRequired": true,
@@ -3243,7 +3257,8 @@
         "Mỗi trang trong phạm vi hiển thị dữ liệu của chính học viên đăng nhập, ghi được thay đổi và tải lại vẫn còn",
         "Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass",
         "E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt",
-        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền"
+        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền",
+        "E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en"
       ],
       "checks": [
         "pnpm test:web",
@@ -3255,7 +3270,10 @@
       "exclusiveResources": [],
       "startPrerequisites": [],
       "acceptancePrerequisites": [],
-      "temporaryGrants": [],
+      "temporaryGrants": [
+        "tests/playwright/",
+        "tests/integration/mock-ui-baseline.json"
+      ],
       "kind": "implementation",
       "status": "TODO",
       "reviewRequired": true,
@@ -3271,6 +3289,7 @@
       "estimatedWorkerHours": 4,
       "title": "Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả",
       "dependencies": [
+        "I01",
         "I02",
         "I03",
         "I04",
@@ -3294,6 +3313,254 @@
       "checks": [
         "pnpm check:no-mock-ui",
         "pnpm test:e2e:integration"
+      ],
+      "contracts": [],
+      "exclusiveResources": [
+        "ci-workflow",
+        "staging-deploy"
+      ],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [],
+      "kind": "verification",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
+      "id": "D00",
+      "owner": "W3",
+      "day": 9,
+      "notBeforeHour": 192,
+      "targetByHour": 216,
+      "estimatedWorkerHours": 5,
+      "title": "Hệ thống thiết kế @jlpt/ui dựng lại trên shadcn/ui",
+      "dependencies": [
+        "I07"
+      ],
+      "featureIds": [],
+      "scope": "Khởi tạo shadcn/ui (components.json, cn, class-variance-authority, tailwind-merge, Radix khi cần) trong packages/ui; dựng lại Button, Input, Textarea, Label, Select, Checkbox, RadioGroup, Switch, Tabs, Dialog, DropdownMenu, Popover, Tooltip, Card, Badge, Alert, Toast, Skeleton theo token màu hiện có, sáng/tối theo class dark. Giữ nguyên tên export và props đang dùng để web/admin không vỡ; bỏ inline style. Thêm lệnh pnpm check:ui-primitives (packages/ui/scripts/) báo thẻ <button>/<input>/<select>/<textarea> gốc trong apps/web và apps/admin, kèm baseline giảm dần.",
+      "outputs": [
+        "packages/ui/",
+        "package.json",
+        "docs/decisions/"
+      ],
+      "acceptance": [
+        "Mỗi thành phần có test hành vi bàn phím, focus và aria; Dialog giữ focus và đóng bằng Esc",
+        "Chỉ chép thành phần thật sự dùng; không cài thư viện UI nguyên khối",
+        "Bản build web không tăng quá 15 KB JS nén ở trang chủ so với trước đợt",
+        "Lighthouse trên staging CI không giảm so với số đo trước đợt (máy tính hiệu năng ≥98, điện thoại ≥70, trợ năng ≥95, SEO 100); ảnh chụp 390px và 1366px của các trang đã đổi lưu làm artifact"
+      ],
+      "checks": [
+        "pnpm --filter @jlpt/ui test",
+        "pnpm check:ui-primitives",
+        "pnpm build"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [
+        "ui-contract"
+      ],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
+      "id": "D01",
+      "owner": "W6",
+      "day": 9,
+      "notBeforeHour": 192,
+      "targetByHour": 216,
+      "estimatedWorkerHours": 3,
+      "title": "Cổng hiệu năng Lighthouse trên staging CI",
+      "dependencies": [
+        "I07"
+      ],
+      "featureIds": [],
+      "scope": "Thêm Lighthouse CI chạy trên staging thật cho các trang chính (/, /de-thi, /phong-thi, /n5, /dang-nhap, admin /login), preset điện thoại và máy tính, lưu báo cáo làm artifact; ghi số đo gốc trước đợt vào docs/release/performance-baseline.json; ngân sách: điện thoại LCP < 2,5 s, CLS < 0,1, TBT < 200 ms, JS ban đầu mỗi trang có trần.",
+      "outputs": [
+        "tests/",
+        ".github/",
+        "infra/",
+        "docs/release/",
+        "package.json"
+      ],
+      "acceptance": [
+        "pnpm test:lighthouse chạy được trên staging CI và fail khi vượt ngân sách",
+        "Số đo gốc lưu kèm commit SHA; không lấy số máy ảo làm số production",
+        "Ngân sách ban đầu ở chế độ cảnh báo, D04 chuyển thành chặn"
+      ],
+      "checks": [
+        "pnpm test:lighthouse -- --list"
+      ],
+      "contracts": [],
+      "exclusiveResources": [
+        "ci-workflow",
+        "staging-deploy"
+      ],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
+      "id": "D02",
+      "owner": "W3",
+      "day": 9,
+      "notBeforeHour": 192,
+      "targetByHour": 216,
+      "estimatedWorkerHours": 6,
+      "title": "Web dùng thống nhất @jlpt/ui",
+      "dependencies": [
+        "D00"
+      ],
+      "featureIds": [],
+      "scope": "Thay toàn bộ <button>/<input>/<select>/<textarea> gốc và class tự chế trong apps/web bằng thành phần @jlpt/ui; đồng bộ khoảng cách, cỡ chữ, trạng thái hover/focus/disabled/loading; thiết kế lại thanh menu máy tính gọn (nhóm mục phụ vào menu \"Thêm\", chuyển ngôn ngữ/giao diện vào menu tài khoản) để hiện được từ 1280px.",
+      "outputs": [
+        "apps/web/"
+      ],
+      "acceptance": [
+        "Baseline check:ui-primitives của apps/web rỗng",
+        "Menu máy tính hiện đủ từ 1280px, không cuộn ngang",
+        "Lighthouse trên staging CI không giảm so với số đo trước đợt (máy tính hiệu năng ≥98, điện thoại ≥70, trợ năng ≥95, SEO 100); ảnh chụp 390px và 1366px của các trang đã đổi lưu làm artifact"
+      ],
+      "checks": [
+        "pnpm test:web",
+        "pnpm check:ui-primitives",
+        "pnpm check:no-mock-ui"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
+      "id": "D03",
+      "owner": "W4",
+      "day": 9,
+      "notBeforeHour": 192,
+      "targetByHour": 216,
+      "estimatedWorkerHours": 4,
+      "title": "Admin dùng thống nhất @jlpt/ui",
+      "dependencies": [
+        "D00"
+      ],
+      "featureIds": [],
+      "scope": "Thay thẻ gốc và inline style trong apps/admin bằng thành phần @jlpt/ui; bảng, form, bộ lọc, hộp thoại xác nhận dùng chung một kiểu.",
+      "outputs": [
+        "apps/admin/"
+      ],
+      "acceptance": [
+        "Baseline check:ui-primitives của apps/admin rỗng",
+        "Admin có chế độ tối hoạt động",
+        "Lighthouse trên staging CI không giảm so với số đo trước đợt (máy tính hiệu năng ≥98, điện thoại ≥70, trợ năng ≥95, SEO 100); ảnh chụp 390px và 1366px của các trang đã đổi lưu làm artifact"
+      ],
+      "checks": [
+        "pnpm test:admin",
+        "pnpm check:ui-primitives",
+        "pnpm check:no-mock-ui"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
+      "id": "D04",
+      "owner": "W3",
+      "day": 9,
+      "notBeforeHour": 192,
+      "targetByHour": 216,
+      "estimatedWorkerHours": 5,
+      "title": "Tối ưu tốc độ web trên điện thoại",
+      "dependencies": [
+        "D01",
+        "D02"
+      ],
+      "featureIds": [],
+      "scope": "Đưa các trang chính đạt ngân sách D01 trên điện thoại: giảm JS tải ban đầu (server component, tách gói, tải muộn phần không cần ngay), font tự host có preload và font-display swap, ảnh next/image đúng kích thước, bỏ request analytics lỗi 404, cache tĩnh.",
+      "outputs": [
+        "apps/web/",
+        "packages/ui/"
+      ],
+      "acceptance": [
+        "Lighthouse điện thoại trên staging: LCP < 2,5 s, CLS < 0,1, TBT < 200 ms ở /, /de-thi, /phong-thi, /n5, /dang-nhap",
+        "Ngân sách D01 chuyển sang chặn và pass",
+        "Không đổi hành vi; E2E tích hợp vẫn pass"
+      ],
+      "checks": [
+        "pnpm test:web",
+        "pnpm build"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
+      "id": "D05",
+      "owner": "W6",
+      "day": 9,
+      "notBeforeHour": 192,
+      "targetByHour": 216,
+      "estimatedWorkerHours": 3,
+      "title": "Nghiệm thu giao diện thống nhất và hiệu năng",
+      "dependencies": [
+        "D02",
+        "D03",
+        "D04"
+      ],
+      "featureIds": [],
+      "scope": "Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau.",
+      "outputs": [
+        "tests/",
+        ".github/",
+        "docs/release/"
+      ],
+      "acceptance": [
+        "docs/release/DESIGN_PERF_REPORT.md có số đo trước/sau và ảnh từng trang",
+        "Không trang nào cuộn ngang hoặc hiện key dịch thô",
+        "check:ui-primitives và test:lighthouse chặn trong CI"
+      ],
+      "checks": [
+        "pnpm test:e2e:integration",
+        "pnpm test:lighthouse",
+        "pnpm check:ui-primitives"
       ],
       "contracts": [],
       "exclusiveResources": [

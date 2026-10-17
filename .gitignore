@@ -47,4 +47,6 @@ docs/release/load-capacity-report.json
 docs/release/pitr-drill-report.json
 docs/release/playwright-report.json
 
-
+# Playwright run output
+test-results/
+playwright-report/

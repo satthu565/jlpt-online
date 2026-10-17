@@ -1246,7 +1246,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### I02 Đăng nhập nhân sự thật và khung quản trị nối API
 
 - Worker: **W4**. Ngày mục tiêu: 8. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: I00, I01. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: I00. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Bỏ đăng nhập giả trong apps/admin/lib/auth-context.tsx: đăng nhập email mật khẩu, TOTP enrollment/challenge và recovery codes qua API; session, đăng xuất, guard theo role từ server. Trang tổng quan, người dùng, audit log, cài đặt (org, thông báo, backup) lấy dữ liệu từ API.
 - Bàn giao: apps/admin/.
@@ -1254,12 +1254,13 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
 - Điều kiện ngoài chặn bắt đầu: không.
 - Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
-- Quyền ghi tạm ngoài thư mục của worker: không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, tests/integration/mock-ui-baseline.json.
 - Nghiệm thu:
   - Sai mật khẩu hoặc sai TOTP bị từ chối bởi API, không chỉ ở UI.
   - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
   - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
   - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
+  - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:admin`
   - `pnpm check:no-mock-ui`
@@ -1279,12 +1280,13 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
 - Điều kiện ngoài chặn bắt đầu: không.
 - Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
-- Quyền ghi tạm ngoài thư mục của worker: không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, tests/integration/mock-ui-baseline.json.
 - Nghiệm thu:
   - Editor nhập gói docs/multi-worker/demo-data qua giao diện, reviewer khác duyệt, xuất bản; đề hiện ở trang thư viện đề của web.
   - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
   - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
   - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
+  - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:admin`
   - `pnpm check:no-mock-ui`
@@ -1304,12 +1306,13 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
 - Điều kiện ngoài chặn bắt đầu: không.
 - Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
-- Quyền ghi tạm ngoài thư mục của worker: không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, tests/integration/mock-ui-baseline.json.
 - Nghiệm thu:
   - Gói, giao dịch sandbox, hoàn tiền và đối soát hiển thị dữ liệu thật từ API.
   - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
   - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
   - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
+  - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:admin`
   - `pnpm test:payments`
@@ -1322,7 +1325,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### I05 Web: thư viện đề, phòng thi, kết quả, lịch sử nối API thật
 
 - Worker: **W3**. Ngày mục tiêu: 8. Ước lượng chưa đo: 6 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: I00, I01. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: I00. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Thư viện đề (de-thi, trang SEO theo cấp) và phòng thi lấy đề đã xuất bản từ API, bỏ ALL_SAMPLE_EXAMS; bắt đầu lượt, tải snapshot, lưu tự động, chuyển phần, nộp, xem kết quả, lịch sử, chia sẻ kết quả qua API; khách làm thử đề guest_trial.
 - Bàn giao: apps/web/; packages/ui/.
@@ -1330,13 +1333,14 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
 - Điều kiện ngoài chặn bắt đầu: không.
 - Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
-- Quyền ghi tạm ngoài thư mục của worker: không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, tests/integration/mock-ui-baseline.json.
 - Nghiệm thu:
   - Học viên đăng ký qua Mailpit, xác minh, làm trọn đề demo N5 đã xuất bản và xem điểm trên staging CI.
   - Khách làm thử được đề guest_trial, đề khác yêu cầu đăng nhập.
   - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
   - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
   - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
+  - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:web`
   - `pnpm check:no-mock-ui`
@@ -1356,12 +1360,13 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
 - Điều kiện ngoài chặn bắt đầu: không.
 - Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
-- Quyền ghi tạm ngoài thư mục của worker: không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, tests/integration/mock-ui-baseline.json.
 - Nghiệm thu:
   - Mỗi trang trong phạm vi hiển thị dữ liệu của chính học viên đăng nhập, ghi được thay đổi và tải lại vẫn còn.
   - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
   - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
   - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
+  - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:web`
   - `pnpm check:no-mock-ui`
@@ -1373,7 +1378,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### I07 Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả
 
 - Worker: **W6**. Ngày mục tiêu: 8. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: I02, I03, I04, I05, I06. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: I01, I02, I03, I04, I05, I06. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.
 - Bàn giao: tests/; .github/; infra/; docs/release/; docs/runbooks/.
@@ -1389,5 +1394,156 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Lệnh cần cung cấp và chạy:
   - `pnpm check:no-mock-ui`
   - `pnpm test:e2e:integration`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+## Ngày 9
+
+
+<a id="d00"></a>
+
+### D00 Hệ thống thiết kế @jlpt/ui dựng lại trên shadcn/ui
+
+- Worker: **W3**. Ngày mục tiêu: 9. Ước lượng chưa đo: 5 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: I07. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Khởi tạo shadcn/ui (components.json, cn, class-variance-authority, tailwind-merge, Radix khi cần) trong packages/ui; dựng lại Button, Input, Textarea, Label, Select, Checkbox, RadioGroup, Switch, Tabs, Dialog, DropdownMenu, Popover, Tooltip, Card, Badge, Alert, Toast, Skeleton theo token màu hiện có, sáng/tối theo class dark. Giữ nguyên tên export và props đang dùng để web/admin không vỡ; bỏ inline style. Thêm lệnh pnpm check:ui-primitives (packages/ui/scripts/) báo thẻ <button>/<input>/<select>/<textarea> gốc trong apps/web và apps/admin, kèm baseline giảm dần.
+- Bàn giao: packages/ui/; package.json; docs/decisions/.
+- Hợp đồng: API.
+- Khóa tài nguyên: ui-contract.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: không.
+- Nghiệm thu:
+  - Mỗi thành phần có test hành vi bàn phím, focus và aria; Dialog giữ focus và đóng bằng Esc.
+  - Chỉ chép thành phần thật sự dùng; không cài thư viện UI nguyên khối.
+  - Bản build web không tăng quá 15 KB JS nén ở trang chủ so với trước đợt.
+  - Lighthouse trên staging CI không giảm so với số đo trước đợt (máy tính hiệu năng ≥98, điện thoại ≥70, trợ năng ≥95, SEO 100); ảnh chụp 390px và 1366px của các trang đã đổi lưu làm artifact.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm --filter @jlpt/ui test`
+  - `pnpm check:ui-primitives`
+  - `pnpm build`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+<a id="d01"></a>
+
+### D01 Cổng hiệu năng Lighthouse trên staging CI
+
+- Worker: **W6**. Ngày mục tiêu: 9. Ước lượng chưa đo: 3 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: I07. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Thêm Lighthouse CI chạy trên staging thật cho các trang chính (/, /de-thi, /phong-thi, /n5, /dang-nhap, admin /login), preset điện thoại và máy tính, lưu báo cáo làm artifact; ghi số đo gốc trước đợt vào docs/release/performance-baseline.json; ngân sách: điện thoại LCP < 2,5 s, CLS < 0,1, TBT < 200 ms, JS ban đầu mỗi trang có trần.
+- Bàn giao: tests/; .github/; infra/; docs/release/; package.json.
+- Hợp đồng: quy tắc chung.
+- Khóa tài nguyên: ci-workflow, staging-deploy.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: không.
+- Nghiệm thu:
+  - pnpm test:lighthouse chạy được trên staging CI và fail khi vượt ngân sách.
+  - Số đo gốc lưu kèm commit SHA; không lấy số máy ảo làm số production.
+  - Ngân sách ban đầu ở chế độ cảnh báo, D04 chuyển thành chặn.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:lighthouse -- --list`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+<a id="d02"></a>
+
+### D02 Web dùng thống nhất @jlpt/ui
+
+- Worker: **W3**. Ngày mục tiêu: 9. Ước lượng chưa đo: 6 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: D00. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Thay toàn bộ <button>/<input>/<select>/<textarea> gốc và class tự chế trong apps/web bằng thành phần @jlpt/ui; đồng bộ khoảng cách, cỡ chữ, trạng thái hover/focus/disabled/loading; thiết kế lại thanh menu máy tính gọn (nhóm mục phụ vào menu "Thêm", chuyển ngôn ngữ/giao diện vào menu tài khoản) để hiện được từ 1280px.
+- Bàn giao: apps/web/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: không.
+- Nghiệm thu:
+  - Baseline check:ui-primitives của apps/web rỗng.
+  - Menu máy tính hiện đủ từ 1280px, không cuộn ngang.
+  - Lighthouse trên staging CI không giảm so với số đo trước đợt (máy tính hiệu năng ≥98, điện thoại ≥70, trợ năng ≥95, SEO 100); ảnh chụp 390px và 1366px của các trang đã đổi lưu làm artifact.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:web`
+  - `pnpm check:ui-primitives`
+  - `pnpm check:no-mock-ui`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+<a id="d03"></a>
+
+### D03 Admin dùng thống nhất @jlpt/ui
+
+- Worker: **W4**. Ngày mục tiêu: 9. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: D00. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Thay thẻ gốc và inline style trong apps/admin bằng thành phần @jlpt/ui; bảng, form, bộ lọc, hộp thoại xác nhận dùng chung một kiểu.
+- Bàn giao: apps/admin/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: không.
+- Nghiệm thu:
+  - Baseline check:ui-primitives của apps/admin rỗng.
+  - Admin có chế độ tối hoạt động.
+  - Lighthouse trên staging CI không giảm so với số đo trước đợt (máy tính hiệu năng ≥98, điện thoại ≥70, trợ năng ≥95, SEO 100); ảnh chụp 390px và 1366px của các trang đã đổi lưu làm artifact.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:admin`
+  - `pnpm check:ui-primitives`
+  - `pnpm check:no-mock-ui`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+<a id="d04"></a>
+
+### D04 Tối ưu tốc độ web trên điện thoại
+
+- Worker: **W3**. Ngày mục tiêu: 9. Ước lượng chưa đo: 5 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: D01, D02. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Đưa các trang chính đạt ngân sách D01 trên điện thoại: giảm JS tải ban đầu (server component, tách gói, tải muộn phần không cần ngay), font tự host có preload và font-display swap, ảnh next/image đúng kích thước, bỏ request analytics lỗi 404, cache tĩnh.
+- Bàn giao: apps/web/; packages/ui/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: không.
+- Nghiệm thu:
+  - Lighthouse điện thoại trên staging: LCP < 2,5 s, CLS < 0,1, TBT < 200 ms ở /, /de-thi, /phong-thi, /n5, /dang-nhap.
+  - Ngân sách D01 chuyển sang chặn và pass.
+  - Không đổi hành vi; E2E tích hợp vẫn pass.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:web`
+  - `pnpm build`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+<a id="d05"></a>
+
+### D05 Nghiệm thu giao diện thống nhất và hiệu năng
+
+- Worker: **W6**. Ngày mục tiêu: 9. Ước lượng chưa đo: 3 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: D02, D03, D04. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau.
+- Bàn giao: tests/; .github/; docs/release/.
+- Hợp đồng: quy tắc chung.
+- Khóa tài nguyên: ci-workflow, staging-deploy.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: không.
+- Nghiệm thu:
+  - docs/release/DESIGN_PERF_REPORT.md có số đo trước/sau và ảnh từng trang.
+  - Không trang nào cuộn ngang hoặc hiện key dịch thô.
+  - check:ui-primitives và test:lighthouse chặn trong CI.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:e2e:integration`
+  - `pnpm test:lighthouse`
+  - `pnpm check:ui-primitives`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.

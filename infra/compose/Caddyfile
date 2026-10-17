@@ -1,0 +1,22 @@
+{
+	admin off
+	auto_https off
+}
+
+:3000 {
+	handle /api/* {
+		reverse_proxy api:4000
+	}
+	handle {
+		reverse_proxy web:3000
+	}
+}
+
+:3001 {
+	handle /api/* {
+		reverse_proxy api:4000
+	}
+	handle {
+		reverse_proxy admin:3000
+	}
+}

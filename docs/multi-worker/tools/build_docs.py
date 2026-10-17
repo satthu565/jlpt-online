@@ -384,6 +384,9 @@ NO_MOCK = ('Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhậ
 REAL_E2E = ('E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; '
             'cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt')
 STATES = 'Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền'
+LAYOUT = ('E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; '
+          'class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; '
+          'không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en')
 task('I00','W6',8,4,'Hạ tầng kiểm thử tích hợp giao diện với API thật','R06',
  'Staging CI chạy web và admin build với NEXT_PUBLIC_API_URL=/api/v1 sau reverse proxy cùng origin (giống bản demo trên jlpt-vm), thêm Mailpit; '
  'bộ Playwright E2E tích hợp dùng chung; lệnh pnpm check:no-mock-ui quét apps/web và apps/admin tìm dữ liệu viết cứng/mock và so với baseline. '
@@ -404,38 +407,78 @@ task('I01','W2',8,5,'API bổ sung cho giao diện quản trị và luồng thi 
  'Lượt thi trên staging tải được snapshot, audio Range 206 và nộp bài, không phụ thuộc domain media.jlpt.local|'
  'Danh sách endpoint admin cần cho từng trang (users, audit, exams, questions, imports, reviews, blueprints, media, vocab, moderation, notifications, org) có trong API, có phân quyền và test',
  'pnpm test:api:all|pnpm test:security',contracts='API',resources='api-hardening')
-task('I02','W4',8,4,'Đăng nhập nhân sự thật và khung quản trị nối API','I00 I01',
+task('I02','W4',8,4,'Đăng nhập nhân sự thật và khung quản trị nối API','I00',
  'Bỏ đăng nhập giả trong apps/admin/lib/auth-context.tsx: đăng nhập email mật khẩu, TOTP enrollment/challenge và recovery codes qua API; session, đăng xuất, guard theo role từ server. '
  'Trang tổng quan, người dùng, audit log, cài đặt (org, thông báo, backup) lấy dữ liệu từ API.',
  'apps/admin/',
- 'Sai mật khẩu hoặc sai TOTP bị từ chối bởi API, không chỉ ở UI|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES,
- 'pnpm test:admin|pnpm check:no-mock-ui',contracts='API')
+ 'Sai mật khẩu hoặc sai TOTP bị từ chối bởi API, không chỉ ở UI|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
+ 'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
 task('I03','W4',8,6,'Quản trị nội dung nối API: nhập gói, câu hỏi, đề, duyệt, media','I02',
  'Các trang imports, questions, exams (kể cả đề trộn), blueprints, reviews (duyệt 4 mắt, giải thích), media, vocab, cms, moderation AI, reports/content gọi API thật; '
  'luồng nhập gói demo-data -> duyệt -> xuất bản làm được hoàn toàn qua giao diện quản trị.',
  'apps/admin/',
- 'Editor nhập gói docs/multi-worker/demo-data qua giao diện, reviewer khác duyệt, xuất bản; đề hiện ở trang thư viện đề của web|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES,
- 'pnpm test:admin|pnpm check:no-mock-ui',contracts='API')
+ 'Editor nhập gói docs/multi-worker/demo-data qua giao diện, reviewer khác duyệt, xuất bản; đề hiện ở trang thư viện đề của web|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
+ 'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
 task('I04','W4',8,4,'Quản trị thương mại, báo cáo, thử nghiệm nối API','I02',
  'Các trang commercial (payments, plans, refunds, reconciliation), reports (tổng quan, doanh thu), experiments gọi API thật; sửa endpoint trong module payment, entitlement, reporting, cms, experiment nếu thiếu.',
  'apps/admin/|apps/api/src/modules/payment/|apps/api/src/modules/entitlement/|apps/api/src/modules/reporting/|apps/api/src/modules/cms/|apps/api/src/modules/experiment/',
- 'Gói, giao dịch sandbox, hoàn tiền và đối soát hiển thị dữ liệu thật từ API|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES,
- 'pnpm test:admin|pnpm test:payments|pnpm check:no-mock-ui',contracts='API')
-task('I05','W3',8,6,'Web: thư viện đề, phòng thi, kết quả, lịch sử nối API thật','I00 I01',
+ 'Gói, giao dịch sandbox, hoàn tiền và đối soát hiển thị dữ liệu thật từ API|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
+ 'pnpm test:admin|pnpm test:payments|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
+task('I05','W3',8,6,'Web: thư viện đề, phòng thi, kết quả, lịch sử nối API thật','I00',
  'Thư viện đề (de-thi, trang SEO theo cấp) và phòng thi lấy đề đã xuất bản từ API, bỏ ALL_SAMPLE_EXAMS; bắt đầu lượt, tải snapshot, lưu tự động, chuyển phần, nộp, xem kết quả, lịch sử, chia sẻ kết quả qua API; khách làm thử đề guest_trial.',
  'apps/web/|packages/ui/',
- 'Học viên đăng ký qua Mailpit, xác minh, làm trọn đề demo N5 đã xuất bản và xem điểm trên staging CI|Khách làm thử được đề guest_trial, đề khác yêu cầu đăng nhập|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES,
- 'pnpm test:web|pnpm check:no-mock-ui',contracts='API')
+ 'Học viên đăng ký qua Mailpit, xác minh, làm trọn đề demo N5 đã xuất bản và xem điểm trên staging CI|Khách làm thử được đề guest_trial, đề khác yêu cầu đăng nhập|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
+ 'pnpm test:web|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
 task('I06','W3',8,6,'Web: học tập, kế hoạch, lớp học, cộng đồng, gói thành viên nối API','I00',
  'Các trang so-tay, ke-hoach, luyen-tap, thong-ke, tu-vung/ngu-phap/thong-ke-tu-vung, lop-hoc, su-kien, thao-luan, goi-thanh-vien, tai-khoan, faq gọi API thật (module W5 learning/planner/stats/vocab/gamification/ai, W2 community/classroom, W4 entitlement).',
  'apps/web/|packages/ui/',
- 'Mỗi trang trong phạm vi hiển thị dữ liệu của chính học viên đăng nhập, ghi được thay đổi và tải lại vẫn còn|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES,
- 'pnpm test:web|pnpm check:no-mock-ui',contracts='API')
-task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I02 I03 I04 I05 I06',
+ 'Mỗi trang trong phạm vi hiển thị dữ liệu của chính học viên đăng nhập, ghi được thay đổi và tải lại vẫn còn|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
+ 'pnpm test:web|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
+task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I02 I03 I04 I05 I06',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',
  'tests/integration/mock-ui-baseline.json rỗng; CI fail nếu có dữ liệu giả mới|E2E: học viên đăng ký -> làm đề -> xem điểm; editor nhập -> reviewer duyệt -> xuất bản; admin xem người dùng và audit; tất cả trên staging thật|docs/release/INTEGRATION_REPORT.md liệt kê từng trang và bằng chứng E2E',
  'pnpm check:no-mock-ui|pnpm test:e2e:integration',resources='ci-workflow staging-deploy',kind='verification')
+
+# Day 9 (owner request 2026-10-17): one design system on shadcn/ui + Tailwind, and mobile speed.
+# Starts after I07 so it never fights the API-wiring tasks over the same pages.
+NO_REGRESS = ('Lighthouse trên staging CI không giảm so với số đo trước đợt (máy tính hiệu năng ≥98, điện thoại ≥70, trợ năng ≥95, SEO 100); '
+              'ảnh chụp 390px và 1366px của các trang đã đổi lưu làm artifact')
+task('D00','W3',9,5,'Hệ thống thiết kế @jlpt/ui dựng lại trên shadcn/ui','I07',
+ 'Khởi tạo shadcn/ui (components.json, cn, class-variance-authority, tailwind-merge, Radix khi cần) trong packages/ui; '
+ 'dựng lại Button, Input, Textarea, Label, Select, Checkbox, RadioGroup, Switch, Tabs, Dialog, DropdownMenu, Popover, Tooltip, Card, Badge, Alert, Toast, Skeleton theo token màu hiện có, sáng/tối theo class dark. '
+ 'Giữ nguyên tên export và props đang dùng để web/admin không vỡ; bỏ inline style. Thêm lệnh pnpm check:ui-primitives (packages/ui/scripts/) báo thẻ <button>/<input>/<select>/<textarea> gốc trong apps/web và apps/admin, kèm baseline giảm dần.',
+ 'packages/ui/|package.json|docs/decisions/',
+ 'Mỗi thành phần có test hành vi bàn phím, focus và aria; Dialog giữ focus và đóng bằng Esc|Chỉ chép thành phần thật sự dùng; không cài thư viện UI nguyên khối|'
+ 'Bản build web không tăng quá 15 KB JS nén ở trang chủ so với trước đợt|'+NO_REGRESS,
+ 'pnpm --filter @jlpt/ui test|pnpm check:ui-primitives|pnpm build',contracts='API',resources='ui-contract')
+task('D01','W6',9,3,'Cổng hiệu năng Lighthouse trên staging CI','I07',
+ 'Thêm Lighthouse CI chạy trên staging thật cho các trang chính (/, /de-thi, /phong-thi, /n5, /dang-nhap, admin /login), preset điện thoại và máy tính, lưu báo cáo làm artifact; '
+ 'ghi số đo gốc trước đợt vào docs/release/performance-baseline.json; ngân sách: điện thoại LCP < 2,5 s, CLS < 0,1, TBT < 200 ms, JS ban đầu mỗi trang có trần.',
+ 'tests/|.github/|infra/|docs/release/|package.json',
+ 'pnpm test:lighthouse chạy được trên staging CI và fail khi vượt ngân sách|Số đo gốc lưu kèm commit SHA; không lấy số máy ảo làm số production|Ngân sách ban đầu ở chế độ cảnh báo, D04 chuyển thành chặn',
+ 'pnpm test:lighthouse -- --list',resources='ci-workflow staging-deploy')
+task('D02','W3',9,6,'Web dùng thống nhất @jlpt/ui','D00',
+ 'Thay toàn bộ <button>/<input>/<select>/<textarea> gốc và class tự chế trong apps/web bằng thành phần @jlpt/ui; đồng bộ khoảng cách, cỡ chữ, trạng thái hover/focus/disabled/loading; '
+ 'thiết kế lại thanh menu máy tính gọn (nhóm mục phụ vào menu "Thêm", chuyển ngôn ngữ/giao diện vào menu tài khoản) để hiện được từ 1280px.',
+ 'apps/web/',
+ 'Baseline check:ui-primitives của apps/web rỗng|Menu máy tính hiện đủ từ 1280px, không cuộn ngang|'+NO_REGRESS,
+ 'pnpm test:web|pnpm check:ui-primitives|pnpm check:no-mock-ui',contracts='API')
+task('D03','W4',9,4,'Admin dùng thống nhất @jlpt/ui','D00',
+ 'Thay thẻ gốc và inline style trong apps/admin bằng thành phần @jlpt/ui; bảng, form, bộ lọc, hộp thoại xác nhận dùng chung một kiểu.',
+ 'apps/admin/',
+ 'Baseline check:ui-primitives của apps/admin rỗng|Admin có chế độ tối hoạt động|'+NO_REGRESS,
+ 'pnpm test:admin|pnpm check:ui-primitives|pnpm check:no-mock-ui',contracts='API')
+task('D04','W3',9,5,'Tối ưu tốc độ web trên điện thoại','D01 D02',
+ 'Đưa các trang chính đạt ngân sách D01 trên điện thoại: giảm JS tải ban đầu (server component, tách gói, tải muộn phần không cần ngay), font tự host có preload và font-display swap, ảnh next/image đúng kích thước, bỏ request analytics lỗi 404, cache tĩnh.',
+ 'apps/web/|packages/ui/',
+ 'Lighthouse điện thoại trên staging: LCP < 2,5 s, CLS < 0,1, TBT < 200 ms ở /, /de-thi, /phong-thi, /n5, /dang-nhap|Ngân sách D01 chuyển sang chặn và pass|Không đổi hành vi; E2E tích hợp vẫn pass',
+ 'pnpm test:web|pnpm build',contracts='API')
+task('D05','W6',9,3,'Nghiệm thu giao diện thống nhất và hiệu năng','D02 D03 D04',
+ 'Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau.',
+ 'tests/|.github/|docs/release/',
+ 'docs/release/DESIGN_PERF_REPORT.md có số đo trước/sau và ảnh từng trang|Không trang nào cuộn ngang hoặc hiện key dịch thô|check:ui-primitives và test:lighthouse chặn trong CI',
+ 'pnpm test:e2e:integration|pnpm test:lighthouse|pnpm check:ui-primitives',resources='ci-workflow staging-deploy',kind='verification')
 
 # Map every feature exactly once to a primary delivery task; other tasks may integrate it.
 feature_task = {}

@@ -2,7 +2,7 @@
 
 Đây là kiểm tra tĩnh tài liệu và catalog, không chạy ứng dụng, model, provider hay runner mới.
 
-Kết quả: PASS. 375 mã nguồn:363yêu cầu ứng dụng và12yêu cầu chuẩn bị thủ công bên ngoài;53 gói việc,106 task V1 giữ truy vết,6 worker;kiểm tra 427 liên kết nội bộ.
+Kết quả: PASS. 375 mã nguồn:363yêu cầu ứng dụng và12yêu cầu chuẩn bị thủ công bên ngoài;59 gói việc,106 task V1 giữ truy vết,6 worker;kiểm tra 427 liên kết nội bộ.
 
 ## Kiểm tra
 
@@ -20,14 +20,14 @@ Nếu thiếu một điều kiện chặn bắt đầu, các task sau không gia
 
 | Điều kiện | Số task bị chặn | Task |
 |---|---|---|
-| repo-ci | 53 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
-| coding-vps | 53 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
-| coding-accounts | 53 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
+| repo-ci | 59 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, D00, D01, D02, D03, D04, D05, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
+| coding-vps | 59 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, D00, D01, D02, D03, D04, D05, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
+| coding-accounts | 59 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, D00, D01, D02, D03, D04, D05, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
 | coordinator-runtime | 1 | F07 |
 
 ## Mô phỏng theo giả định
 
-Lịch greedy dependencies/worker/exclusive locks kết thúc ở giờ 191/168. Đây là ước lượng lạc quan, không chứng minh đủ thời gian khi thêm review, sửa lỗi, quota, provider hoặc chờ CI.
+Lịch greedy dependencies/worker/exclusive locks kết thúc ở giờ 211/168. Đây là ước lượng lạc quan, không chứng minh đủ thời gian khi thêm review, sửa lỗi, quota, provider hoặc chờ CI.
 
 | Task | Worker | Bắt đầu giờ | Kết thúc giờ | Mốc ngày | Trễ mốc ngày |
 |---|---|---|---|---|---|
@@ -78,16 +78,22 @@ Lịch greedy dependencies/worker/exclusive locks kết thúc ở giờ 191/168.
 | R06 | W6 | 149 | 155 | 7 | 0h |
 | I00 | W6 | 168 | 172 | 8 | 0h |
 | I01 | W2 | 168 | 173 | 8 | 0h |
-| I06 | W3 | 172 | 178 | 8 | 0h |
-| I02 | W4 | 173 | 177 | 8 | 0h |
-| I03 | W4 | 177 | 183 | 8 | 0h |
-| I05 | W3 | 178 | 184 | 8 | 0h |
-| I04 | W4 | 183 | 187 | 8 | 0h |
-| I07 | W6 | 187 | 191 | 8 | 0h |
+| I02 | W4 | 172 | 176 | 8 | 0h |
+| I05 | W3 | 172 | 178 | 8 | 0h |
+| I03 | W4 | 176 | 182 | 8 | 0h |
+| I06 | W3 | 178 | 184 | 8 | 0h |
+| I04 | W4 | 182 | 186 | 8 | 0h |
+| I07 | W6 | 186 | 190 | 8 | 0h |
+| D00 | W3 | 192 | 197 | 9 | 0h |
+| D01 | W6 | 192 | 195 | 9 | 0h |
+| D02 | W3 | 197 | 203 | 9 | 0h |
+| D03 | W4 | 197 | 201 | 9 | 0h |
+| D04 | W3 | 203 | 208 | 9 | 0h |
+| D05 | W6 | 208 | 211 | 9 | 0h |
 
 ## Điều kiện và cảnh báo
 
-- Optimistic schedule exceeds 168h: 191h
+- Optimistic schedule exceeds 168h: 211h
 - Work duration estimates are speculative and exclude independent review, repair loops, provider waits and complete build contention.
 - Application requirements remain TODO; twelve source requirements are manual preparation outside the product, not implemented features.
 - Coding accounts quota/usage permission and external service readiness are not verified.

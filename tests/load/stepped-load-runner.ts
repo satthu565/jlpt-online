@@ -247,7 +247,7 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
   }
 
   // Pre-generate signed media token for Scenario 4 (CDN Range 206 Audio Streaming)
-  const mediaToken = await signMediaToken(
+  let mediaToken = await signMediaToken(
     {
       a: 'att-load-test',
       e: demoExamId,
@@ -438,14 +438,21 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
           if (mResume.success && (resumeData as { lease?: string })?.lease) {
             m2.success = true;
             m2.statusCode = 200;
-            initData = { attemptId: existingAttemptId, lease: (resumeData as { lease: string }).lease };
+            initData = {
+              attemptId: existingAttemptId,
+              lease: (resumeData as { lease: string }).lease,
+              mediaToken: (resumeData as { mediaToken?: string }).mediaToken,
+            };
           }
         }
       }
 
       stage2Metrics.push(m2);
 
-      const parsedInit = initData as { attemptId?: string; lease?: string } | undefined;
+      const parsedInit = initData as { attemptId?: string; lease?: string; mediaToken?: string } | undefined;
+      if (parsedInit?.mediaToken) {
+        mediaToken = parsedInit.mediaToken;
+      }
       if (parsedInit?.attemptId && parsedInit?.lease) {
         workerAttempts.set(workerId, {
           attemptId: parsedInit.attemptId,
