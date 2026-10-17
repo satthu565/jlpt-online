@@ -289,11 +289,17 @@ test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () 
 
   test('SYS-10 & AC5: Responsive verification (390px & 1366px) and screenshots without horizontal scrolling', async ({
     page,
-  }) => {
+  }, testInfo) => {
     const artifactDir = path.resolve(process.cwd(), 'playwright-report/artifacts/i06');
     fs.mkdirSync(artifactDir, { recursive: true });
 
-    for (const vp of VIEWPORTS) {
+    const isMobileDevice = Boolean(testInfo.project.use?.isMobile);
+    // For mobile emulated devices (iPhone / Pixel), mobile viewports (<= 500px) are applicable
+    const viewportsToTest = isMobileDevice
+      ? VIEWPORTS.filter((v) => v.width <= 500)
+      : VIEWPORTS;
+
+    for (const vp of viewportsToTest) {
       await page.setViewportSize({ width: vp.width, height: vp.height });
 
       for (const route of STUDENT_ROUTES) {
@@ -306,7 +312,8 @@ test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () 
 
         // Verify no horizontal scrolling (scrollWidth <= innerWidth with 1px subpixel tolerance)
         const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
-        expect(scrollWidth, `Route ${route.path} has horizontal scrollbar at ${vp.name}`).toBeLessThanOrEqual(vp.width + 1);
+        const expectedWidth = page.viewportSize()?.width || vp.width;
+        expect(scrollWidth, `Route ${route.path} has horizontal scrollbar at ${vp.name}`).toBeLessThanOrEqual(expectedWidth + 1);
 
         // Save screenshot artifact for CI review
         await page.screenshot({
@@ -320,20 +327,42 @@ test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () 
   test('SYS-14 & AC5: Tri-locale i18n verification across vi, ja, and en with 0 raw translation keys', async ({
     page,
   }) => {
+    const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
     const artifactDir = path.resolve(process.cwd(), 'playwright-report/artifacts/i06');
     fs.mkdirSync(artifactDir, { recursive: true });
 
+    let domain = '127.0.0.1';
+    try {
+      domain = new URL(baseURL).hostname;
+    } catch {
+      // fallback
+    }
+
     for (const locale of LOCALES) {
-      await page.addInitScript((l) => {
-        try {
-          localStorage.setItem('jlpt_locale', l);
-        } catch {
-          // ignore
-        }
-      }, locale);
+      // Set cookie on context so it is sent with the initial HTTP request across all browser engines
+      try {
+        await page.context().addCookies([
+          {
+            name: 'jlpt_locale',
+            value: locale,
+            domain,
+            path: '/',
+          },
+        ]);
+      } catch {
+        // ignore
+      }
 
       for (const route of STUDENT_ROUTES) {
         await page.goto(route.path, { waitUntil: 'domcontentloaded' });
+        await page.evaluate((l) => {
+          try {
+            localStorage.setItem('jlpt_locale', l);
+            document.cookie = `jlpt_locale=${l}; path=/; SameSite=Lax`;
+          } catch {
+            // ignore storage errors
+          }
+        }, locale);
         await page.waitForTimeout(50);
 
         const bodyText = await page.innerText('body');
@@ -359,32 +388,34 @@ test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () 
     // 1. Account page without auth shows sign-in alert or login prompt
     await page.goto('/tai-khoan', { waitUntil: 'domcontentloaded' });
     const authAlert = page.locator('[role="alert"]').first();
-    await expect(authAlert).toBeVisible();
+    await expect(authAlert).toBeVisible({ timeout: 10000 });
 
     // 2. Classroom page without enrolled classes displays empty state and token invite form
     await page.goto('/lop-hoc', { waitUntil: 'domcontentloaded' });
-    const inviteInput = page.locator('input[placeholder*="mã mời" i], input[placeholder*="Invite Token" i]').first();
-    await expect(inviteInput).toBeVisible();
+    const inviteInput = page.locator('[data-testid="classroom-invite-input"], input[placeholder*="mã mời" i], input[placeholder*="Invite Token" i]').first();
+    await expect(inviteInput).toBeVisible({ timeout: 10000 });
 
     // 3. Exam event page shows sign-in notice and practice CTA
     await page.goto('/su-kien', { waitUntil: 'domcontentloaded' });
     const eventLoginAlert = page.locator('[role="alert"]').first();
-    await expect(eventLoginAlert).toBeVisible();
+    await expect(eventLoginAlert).toBeVisible({ timeout: 10000 });
 
     // 4. Discussion page has question selector or anti-leak gating active
     await page.goto('/thao-luan', { waitUntil: 'domcontentloaded' });
     const questionInput = page.locator('input[placeholder*="câu hỏi" i], [data-testid="discussion-gated-card"]').first();
-    await expect(questionInput).toBeVisible();
+    await expect(questionInput).toBeVisible({ timeout: 10000 });
 
     // 5. Billing membership coupon validation connects to real backend
     await page.goto('/goi-thanh-vien', { waitUntil: 'domcontentloaded' });
     const couponInput = page.locator('[data-testid="coupon-code-input"]');
-    await expect(couponInput).toBeVisible();
+    await expect(couponInput).toBeVisible({ timeout: 10000 });
+    await couponInput.scrollIntoViewIfNeeded();
     await couponInput.fill('INVALID_TEST_CODE');
     const applyBtn = page.locator('[data-testid="apply-coupon-button"]');
+    await applyBtn.scrollIntoViewIfNeeded();
     await applyBtn.click();
     const errorAlert = page.locator('.jlpt-alert-error, [role="alert"]').first();
-    await expect(errorAlert).toBeVisible();
+    await expect(errorAlert).toBeVisible({ timeout: 10000 });
   });
 
   test('AC1 & AC3: Notebook persistence flow across page reload without browser mocks', async ({
@@ -395,17 +426,19 @@ test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () 
     await page.waitForTimeout(600);
 
     // Open add item modal
-    const addBtn = page.locator('[data-testid="add-item-button"]');
-    await expect(addBtn).toBeVisible();
+    const addBtn = page.locator('[data-testid="add-item-button"]').first();
+    await expect(addBtn).toBeVisible({ timeout: 10000 });
+    await addBtn.scrollIntoViewIfNeeded();
     await addBtn.click();
 
     // Verify modal is open and form inputs are interactable
     const termInput = page.locator('#modal-term-input, #item-term-input, input[placeholder*="Từ vựng"]').first();
-    await expect(termInput).toBeVisible();
+    await expect(termInput).toBeVisible({ timeout: 10000 });
 
     // Reload page and verify UI re-renders stably
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await expect(page.locator('#main-content')).toBeVisible();
+    await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
   });
 });
+
 

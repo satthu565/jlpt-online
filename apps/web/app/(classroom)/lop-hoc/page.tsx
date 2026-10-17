@@ -256,6 +256,8 @@ export default function ClassroomPage(): React.JSX.Element {
             </span>
             <div style={{ flex: 1, minWidth: '220px' }}>
               <Input
+                id="classroom-invite-token"
+                data-testid="classroom-invite-input"
                 placeholder="Nhập mã mời (Invite Token) từ giáo viên..."
                 value={inviteToken}
                 onChange={(e) => setInviteToken(e.target.value)}
