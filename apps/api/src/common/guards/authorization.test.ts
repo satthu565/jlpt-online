@@ -26,7 +26,7 @@ import { AuthService } from '../../modules/auth/auth.service.js';
 import { AuditModule } from '../../modules/audit/audit.module.js';
 import { AdminModule } from '../../modules/admin/admin.module.js';
 import { AuditService } from '../../modules/audit/audit.service.js';
-import { generateTotp } from '../utils/totp.js';
+import { generateTotp, encryptTotpSecret, hashRecoveryCode } from '../utils/totp.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../utils/uuid.js';
 
@@ -161,6 +161,22 @@ describe('F03 Authorization and PII Protection (SYS-06, SYS-07)', () => {
       userId: adminId,
       token: adminToken,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    });
+
+    // Seed 2FA configuration in userProfiles for admin
+    await client.db.insert(schema.userProfiles).values({
+      userId: adminId,
+      metadata: {
+        twoFactor: {
+          enabled: true,
+          encryptedSecret: encryptTotpSecret('JBSWY3DPEHPK3PXP', adminId),
+          hashedRecoveryCodes: ['RECV-0001', 'RECV-0002'].map(hashRecoveryCode),
+          verifiedAt: new Date().toISOString(),
+          failedAttempts: 0,
+          lockedUntil: null,
+        },
+      },
+      updatedAt: new Date(),
     });
 
     // Start test app
