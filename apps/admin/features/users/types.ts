@@ -23,12 +23,18 @@ export type AuditActionType =
   | 'exam_unpublish'
   | 'blueprint_activate'
   | 'blueprint_create'
-  | 'group_review';
+  | 'group_review'
+  | 'backup_job_trigger'
+  | 'reconciliation_run'
+  | 'refund_approval'
+  | 'refund_rejection';
 
 export interface AuditLogEntry {
   id: string;
   operatorId: string;
   operatorEmail?: string;
+  operatorRole?: string;
+  tenantId: string;
   action: AuditActionType;
   targetResource: string;
   targetId: string;

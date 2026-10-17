@@ -32,6 +32,8 @@
     "aiModeration": "AIコンテンツ審査",
     "orgSettings": "組織・講師設定",
     "settings": "システム設定",
+    "reconciliation": "決済消込・照合",
+    "backup": "バックアップ・復元",
     "sections": {
       "overview": "概要",
       "authoring": "コンテンツ作成・編集",
