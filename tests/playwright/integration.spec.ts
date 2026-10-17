@@ -122,7 +122,7 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
 
     // 2. Poll Mailpit for verification email
     const emailMessage = await mailpit.waitForEmail(testEmail, 15000);
-    expect(emailMessage.Subject).toContain('xác minh');
+    expect(emailMessage.Subject.toLowerCase()).toContain('xác minh');
 
     // 3. Extract verification token from email
     const verificationToken = mailpit.extractVerificationToken(emailMessage);

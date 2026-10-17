@@ -92,9 +92,25 @@ Bước vào Ngày 8 (tích hợp giao diện với API thật, mã task I00–I
     ```
   - Bổ sung các dòng `echo ""` sau lệnh kiểm tra Web/Admin healthz để phân tách dòng nhật ký rõ ràng.
 
+## 5. Khắc phục kiểm tra Subject email Mailpit trong Playwright Suite (Lượt 7)
+
+- **Nguyên nhân lỗi CI**: Bước `Run Playwright Real API Integration Suite (I00)` trong `.github/workflows/staging.yml` chạy test:
+  `Mailpit integration: Student registration dispatches real email and verifies account`
+  bị fail tại assertion:
+  ```typescript
+  expect(emailMessage.Subject).toContain('xác minh');
+  ```
+  Thực tế, `email.templates.ts` sinh tiêu đề email là `'Xác minh tài khoản JLPT Online'` (viết hoa chữ `X`). Do phương thức `toContain` phân biệt hoa/thường (case-sensitive) nên `emailMessage.Subject` không chứa chuỗi `'xác minh'` viết thường, gây lỗi `AssertionError` trên cả 5 trình duyệt (chromium, firefox, webkit, Mobile Chrome, Mobile Safari).
+- **Biện pháp xử lý**:
+  - Chuẩn hóa kiểm tra sang không phân biệt chữ hoa/thường:
+    ```typescript
+    expect(emailMessage.Subject.toLowerCase()).toContain('xác minh');
+    ```
+  - Đảm bảo kiểm tra hoạt động ổn định và chính xác với mọi biến thể viết hoa/thường của tiêu đề email xác minh tài khoản.
+
 ---
 
-## 5. Kết quả nghiệm thu các tiêu chí
+## 6. Kết quả nghiệm thu các tiêu chí
 
 | Tiêu chí | Trạng thái | Bằng chứng |
 | :--- | :--- | :--- |
