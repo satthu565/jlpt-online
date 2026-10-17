@@ -619,5 +619,101 @@ describe('@jlpt/schema contracts test', () => {
       expect(parsed.decision).toBe('approve');
     });
   });
+
+  describe('R01 Acceptance: Logic contracts and schema integrity', () => {
+    it('validates event envelope generation and zero-leakage for all 23 topics', () => {
+      const topics = [
+        'content.import.requested',
+        'content.import.completed',
+        'content.import.failed',
+        'content.approved',
+        'content.published',
+        'content.taken_down',
+        'attempt.submitted',
+        'learning.card.reviewed',
+        'study.session.completed',
+        'study.session.missed',
+        'payment.captured',
+        'payment.refunded',
+        'payment.failed',
+        'subscription.changed',
+        'ai.request.settled',
+        'ai.request.cancelled',
+        'ai.content.reviewed',
+        'assignment.created',
+        'assignment.completed',
+        'exam_event.results_released',
+        'privacy.consent.changed',
+        'privacy.deletion.requested',
+        'experiment.exposed',
+      ] as const;
+
+      expect(topics.length).toBe(23);
+
+      for (const topic of topics) {
+        const envelope = createEventEnvelope(
+          topic,
+          '0192f0c0-0000-7000-8000-000000000001',
+          '0192f0c0-0000-7000-8000-000000000002',
+          { status: 'ok', detail: `Sample payload for topic ${topic}` },
+          { tenantId: '0192f0c0-0000-7000-8000-000000000003' },
+        );
+        expect(envelope.topic).toBe(topic);
+        expect(envelope.schemaVersion).toBe(1);
+        expect(envelope.tenantId).toBe('0192f0c0-0000-7000-8000-000000000003');
+        expect(() => assertNoEventLeak(envelope)).not.toThrow();
+        expect(EventEnvelopeSchema.parse(envelope)).toMatchObject({ topic });
+      }
+    });
+
+    it('assertNoEventLeak strictly rejects answer keys and PII in payloads', () => {
+      expect(() =>
+        assertNoEventLeak({
+          topic: 'attempt.submitted',
+          payload: { answerKey: { '1': 'A' } },
+        }),
+      ).toThrow(/forbidden answer field/);
+
+      expect(() =>
+        assertNoEventLeak({
+          topic: 'attempt.submitted',
+          payload: { userEmail: 'user@example.com' },
+        }),
+      ).toThrow(/plain email PII detected/);
+
+      expect(() =>
+        assertNoEventLeak({
+          topic: 'attempt.submitted',
+          payload: { token: 'Bearer eyJhbGciOiJIUzI1NiJ9.test' },
+        }),
+      ).toThrow(/bearer token secret detected/);
+    });
+
+    it('assertNoAnswerLeak strictly rejects leaked answer fields at arbitrary nesting depths', () => {
+      const shallowLeak = { isCorrect: true };
+      expect(() => assertNoAnswerLeak(shallowLeak)).toThrow(/forbidden answer field/);
+
+      const deepLeak = {
+        section: {
+          group: {
+            question: {
+              answers: ['1'],
+            },
+          },
+        },
+      };
+      expect(() => assertNoAnswerLeak(deepLeak)).toThrow(/forbidden answer field/);
+    });
+
+    it('sanitizeExportField strips and neutralizes all spreadsheet formula injection triggers', () => {
+      expect(sanitizeExportField('=HYPERLINK("http://attacker.com")')).toBe("'=HYPERLINK(\"http://attacker.com\")");
+      expect(sanitizeExportField('+1+1')).toBe("'+1+1");
+      expect(sanitizeExportField('-cmd|"/C calc"!A0')).toBe("'-cmd|\"/C calc\"!A0");
+      expect(sanitizeExportField('@SUM(1,2)')).toBe("'@SUM(1,2)");
+      expect(sanitizeExportField('\tTAB_PREFIX')).toBe("'\tTAB_PREFIX");
+      expect(sanitizeExportField('\rCR_PREFIX')).toBe("'\rCR_PREFIX");
+      expect(sanitizeExportField('Normal Japanese テキスト 日本語')).toBe('Normal Japanese テキスト 日本語');
+    });
+  });
 });
 
