@@ -4,11 +4,12 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ZodError } from 'zod';
 import type { ErrorCode } from '@jlpt/schema';
-import { maskPii } from '../utils/pii.js';
+import { maskPii, maskPiiString } from '../utils/pii.js';
 
 interface CustomErrorResponse {
   code?: ErrorCode | string;
@@ -18,6 +19,8 @@ interface CustomErrorResponse {
 
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(ApiExceptionFilter.name);
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<FastifyReply>();
@@ -89,6 +92,17 @@ export class ApiExceptionFilter implements ExceptionFilter {
       if (process.env.NODE_ENV === 'test') {
         details = { internal: exception.message };
       }
+    }
+
+    // Server-side failures must leave a trace: the client only sees a generic message.
+    if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      const reason =
+        exception instanceof Error
+          ? exception.stack || `${exception.name}: ${exception.message}`
+          : String(exception);
+      this.logger.error(
+        `${requestId} ${request.method} ${maskPiiString(request.url)} -> ${status} ${maskPiiString(reason)}`,
+      );
     }
 
     // Mask any PII before sending
