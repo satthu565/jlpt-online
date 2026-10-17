@@ -35,7 +35,7 @@ describe('ApiExceptionFilter logging', () => {
     new ApiExceptionFilter().catch(new TypeError('boom for a.user@example.com'), host);
 
     expect(reply.statusCode).toBe(500);
-    expect(JSON.stringify(reply.body)).not.toContain('boom');
+    expect((reply.body as { error: { message: string } }).error.message).toBe('Đã có lỗi xảy ra trên hệ thống.');
     expect(logged).toHaveBeenCalledTimes(1);
     const line = String(logged.mock.calls[0]?.[0]);
     expect(line).toContain('req_test POST /api/v1/attempts');
