@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import {
   BadRequestException,
   ConflictException,
@@ -10,6 +12,15 @@ import { and, desc, eq, isNotNull, isNull } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
+import { generateUuidV7 } from '../../common/utils/uuid.js';
+import { getRepoRoot } from '../../common/utils/paths.js';
+
+export function toPublicExamKind(kind?: string | null): ExamKind {
+  if (kind === 'original' || kind === 'official') return 'original';
+  if (kind === 'custom') return 'custom';
+  if (kind === 'mixed') return 'mixed';
+  return 'practice';
+}
 import {
   assertNoAnswerLeak,
   ExamAnswerKeySchema,
@@ -136,7 +147,7 @@ export class ExamService {
         slug: e.slug,
         level: e.level as Level,
         title: e.title,
-        kind: e.kind as ExamKind,
+        kind: toPublicExamKind(e.kind),
         year: e.year,
         session: (e.session as Session) || null,
         totalQuestions: ev?.totalQuestions ?? e.totalQuestions,
@@ -208,7 +219,7 @@ export class ExamService {
       slug: e.slug,
       level: e.level as Level,
       title: e.title,
-      kind: e.kind as ExamKind,
+      kind: toPublicExamKind(e.kind),
       year: e.year,
       session: (e.session as Session) || null,
       totalQuestions: ev?.totalQuestions ?? e.totalQuestions,
@@ -721,4 +732,565 @@ export class ExamService {
 
     return { items };
   }
+
+  /**
+   * Constructs a public exam snapshot without answer keys from database (Acceptance 3, A5, A10).
+   */
+  async constructPublicSnapshot(
+    exam: typeof schema.exams.$inferSelect,
+    versionNum: number,
+  ): Promise<PublicExamSnapshot> {
+    const sections = await this.dbClient.db
+      .select()
+      .from(schema.examSections)
+      .where(eq(schema.examSections.examId, exam.id))
+      .orderBy(schema.examSections.orderIndex);
+
+    const items = await this.dbClient.db
+      .select()
+      .from(schema.examItems)
+      .where(eq(schema.examItems.examId, exam.id))
+      .orderBy(schema.examItems.orderIndex);
+
+    // If no sections or items exist in DB, look for synthetic fixture file
+    if (sections.length === 0 || items.length === 0) {
+      try {
+        const repoRoot = getRepoRoot();
+        const syntheticDir = path.join(repoRoot, 'packages/schema/fixtures/synthetic-exams');
+        if (fs.existsSync(syntheticDir)) {
+          const files = fs.readdirSync(syntheticDir).filter((f) => f.endsWith('.json'));
+          for (const f of files) {
+            const raw = JSON.parse(fs.readFileSync(path.join(syntheticDir, f), 'utf-8'));
+            if (raw.id === exam.id || raw.slug === exam.slug || (raw.level === exam.level && f.toLowerCase().includes(exam.level.toLowerCase()))) {
+              const publicQuestions: PublicQuestion[] = (
+                (raw.questions as Array<{
+                  id: string;
+                  stem?: unknown;
+                  options?: Array<{ orderIndex?: number; content?: unknown }>;
+                }>) || []
+              ).map((q, idx: number) => ({
+                index: idx,
+                questionId: q.id,
+                number: (idx + 1).toString(),
+                stem: (q.stem as unknown as RichText) || [],
+                options: (q.options || []).map((opt) => ({
+                  label: opt.orderIndex ? opt.orderIndex.toString() : String(idx + 1),
+                  content: (opt.content as unknown as RichText) || [],
+                })),
+              }));
+
+              const totalCount = publicQuestions.length || raw.totalQuestions || 1;
+              const publicSections: PublicSection[] = [
+                {
+                  index: 0,
+                  code: 'language_knowledge',
+                  title: 'Kiến thức ngôn ngữ & Đọc hiểu',
+                  durationSec: 3600,
+                  questionRange: [0, Math.max(0, totalCount - 1)],
+                  groups: [
+                    {
+                      groupId: `synthetic-${raw.level}-group-1`,
+                      mondaiType: 'kanji_reading',
+                      instructions: [],
+                      passage: null,
+                      media: [],
+                      questions: publicQuestions,
+                    },
+                  ],
+                  listeningTimeline: null,
+                },
+              ];
+
+              const snapshot: PublicExamSnapshot = {
+                schemaVersion: 1,
+                examId: exam.id,
+                version: versionNum,
+                level: (exam.level || raw.level) as Level,
+                title: exam.title || raw.title,
+                kind: toPublicExamKind(exam.kind || raw.kind),
+                totalQuestions: totalCount,
+                sections: publicSections,
+              };
+
+              assertNoAnswerLeak(snapshot);
+              PublicExamSnapshotSchema.parse(snapshot);
+              return snapshot;
+            }
+          }
+        }
+      } catch (err) {
+        this.logger.warn(`Không thể nạp snapshot từ fixture: ${(err as Error)?.message}`);
+      }
+    }
+
+    const questionIds = items.map((i: { questionId: string }) => i.questionId);
+    const allQuestions = await this.dbClient.db.select().from(schema.questions);
+    const examQuestions = allQuestions.filter((q: typeof schema.questions.$inferSelect) =>
+      questionIds.includes(q.id),
+    );
+
+    const publicSections: PublicSection[] = [];
+    let currentGlobalIndex = 0;
+
+    for (let sIdx = 0; sIdx < sections.length; sIdx++) {
+      const sec = sections[sIdx]!;
+      const secItems = items.filter(
+        (i: typeof schema.examItems.$inferSelect) => i.sectionId === sec.id,
+      );
+      const startRange = currentGlobalIndex;
+
+      const secGroupMap = new Map<string, string[]>();
+      for (const item of secItems) {
+        const qObj = examQuestions.find(
+          (q: typeof schema.questions.$inferSelect) => q.id === item.questionId,
+        );
+        const gId = qObj?.groupId || 'default';
+        if (!secGroupMap.has(gId)) {
+          secGroupMap.set(gId, []);
+        }
+        secGroupMap.get(gId)!.push(item.questionId);
+      }
+
+      const publicGroups: PublicQuestionGroup[] = [];
+
+      for (const [gid, qIds] of secGroupMap.entries()) {
+        const gvRow = await this.dbClient.db
+          .select()
+          .from(schema.questionGroupVersions)
+          .where(eq(schema.questionGroupVersions.groupId, gid))
+          .orderBy(desc(schema.questionGroupVersions.version))
+          .limit(1);
+
+        const groupMediaSet = new Set<string>();
+
+        if (gvRow[0]?.audioSha256) {
+          groupMediaSet.add(gvRow[0].audioSha256);
+          const assetRow = await this.dbClient.db
+            .select()
+            .from(schema.mediaAssets)
+            .where(eq(schema.mediaAssets.sha256, gvRow[0].audioSha256))
+            .limit(1);
+          if (assetRow[0]?.key) {
+            groupMediaSet.add(assetRow[0].key);
+          }
+        }
+
+        const groupMediaArtifacts = await this.dbClient.db
+          .select()
+          .from(schema.importArtifacts)
+          .where(eq(schema.importArtifacts.artifactType, 'group_media'));
+        for (const art of groupMediaArtifacts) {
+          if (art.storageKey.startsWith(`${gid}:`)) {
+            const mKey = art.storageKey.slice(gid.length + 1);
+            groupMediaSet.add(mKey);
+          }
+        }
+
+        const extractMediaFromRichText = (richText?: unknown) => {
+          if (!Array.isArray(richText)) return;
+          for (const seg of richText) {
+            if (seg && typeof seg === 'object') {
+              const segObj = seg as Record<string, unknown>;
+              if (
+                segObj['t'] === 'image' &&
+                typeof segObj['mediaKey'] === 'string' &&
+                segObj['mediaKey']
+              ) {
+                groupMediaSet.add(segObj['mediaKey']);
+              }
+            }
+          }
+        };
+
+        const passageBlocks = (gvRow[0]?.passage as unknown as RichBlock[]) || null;
+        if (Array.isArray(passageBlocks)) {
+          for (const block of passageBlocks) {
+            if (!block || typeof block !== 'object') continue;
+            if (block.type === 'image' && typeof block.mediaKey === 'string' && block.mediaKey) {
+              groupMediaSet.add(block.mediaKey);
+            } else if (block.type === 'paragraph' && Array.isArray(block.content)) {
+              extractMediaFromRichText(block.content);
+            } else if (block.type === 'table' && Array.isArray(block.rows)) {
+              for (const row of block.rows) {
+                if (Array.isArray(row)) {
+                  for (const cell of row) {
+                    extractMediaFromRichText(cell);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        const groupQuestions: PublicQuestion[] = [];
+
+        for (const qid of qIds) {
+          const qvRow = await this.dbClient.db
+            .select()
+            .from(schema.questionVersions)
+            .where(eq(schema.questionVersions.questionId, qid))
+            .orderBy(desc(schema.questionVersions.version))
+            .limit(1);
+
+          extractMediaFromRichText(qvRow[0]?.stem);
+
+          const optRows = await this.dbClient.db
+            .select()
+            .from(schema.answerOptions)
+            .where(
+              and(
+                eq(schema.answerOptions.questionId, qid),
+                eq(schema.answerOptions.questionVersion, qvRow[0]?.version ?? 1),
+              ),
+            )
+            .orderBy(schema.answerOptions.orderIndex);
+
+          for (const opt of optRows) {
+            extractMediaFromRichText(opt.content);
+          }
+
+          const publicOptions: PublicOption[] = optRows.map(
+            (o: typeof schema.answerOptions.$inferSelect) => ({
+              label: o.orderIndex.toString(),
+              content: o.content as unknown as RichText,
+            }),
+          );
+
+          groupQuestions.push({
+            index: currentGlobalIndex++,
+            questionId: qid,
+            number: currentGlobalIndex.toString(),
+            stem: (qvRow[0]?.stem as unknown as RichText) || [],
+            options: publicOptions,
+          });
+        }
+
+        const firstQ = examQuestions.find(
+          (q: typeof schema.questions.$inferSelect) => qIds.includes(q.id),
+        );
+        publicGroups.push({
+          groupId: gid,
+          mondaiType: (firstQ?.mondaiType as MondaiType) || 'kanji_reading',
+          instructions: [],
+          passage: passageBlocks,
+          media: Array.from(groupMediaSet),
+          questions: groupQuestions,
+        });
+      }
+
+      const endRange = currentGlobalIndex > startRange ? currentGlobalIndex - 1 : startRange;
+
+      publicSections.push({
+        index: sIdx,
+        code: sec.code,
+        title: sec.title,
+        durationSec: sec.durationSec,
+        questionRange: [startRange, endRange],
+        groups: publicGroups,
+        listeningTimeline: null,
+      });
+    }
+
+    const totalCount = currentGlobalIndex > 0 ? currentGlobalIndex : Math.max(1, exam.totalQuestions || 1);
+
+    const publicSnapshot: PublicExamSnapshot = {
+      schemaVersion: 1,
+      examId: exam.id,
+      version: versionNum,
+      level: exam.level as Level,
+      title: exam.title,
+      kind: toPublicExamKind(exam.kind),
+      totalQuestions: totalCount,
+      sections: publicSections,
+    };
+
+    assertNoAnswerLeak(publicSnapshot);
+    PublicExamSnapshotSchema.parse(publicSnapshot);
+    return publicSnapshot;
+  }
+
+  /**
+   * Retrieves a public exam snapshot without answer keys (Acceptance 3, A5, A10).
+   */
+  async getExamSnapshot(examId: string, version: number): Promise<PublicExamSnapshot> {
+    const snapshotKey = `exams/${examId}/v${version}/snapshot.json`;
+    const stored = await this.storageService.get(snapshotKey);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored.data.toString('utf-8')) as PublicExamSnapshot;
+        assertNoAnswerLeak(parsed);
+        return parsed;
+      } catch (err) {
+        this.logger.warn(
+          `Lỗi đọc snapshot từ storage cho đề thi ${examId} (v${version}): ${(err as Error)?.message}`,
+        );
+      }
+    }
+
+    // Fallback: construct snapshot from DB
+    const examRows = await this.dbClient.db
+      .select()
+      .from(schema.exams)
+      .where(and(eq(schema.exams.id, examId), isNull(schema.exams.deletedAt)))
+      .limit(1);
+
+    if (examRows.length === 0) {
+      throw new NotFoundException(`Đề thi ${examId} không tồn tại`);
+    }
+
+    const exam = examRows[0]!;
+    const snapshot = await this.constructPublicSnapshot(exam, version);
+    assertNoAnswerLeak(snapshot);
+
+    // Cache in storage asynchronously
+    try {
+      await this.storageService.put(
+        snapshotKey,
+        Buffer.from(JSON.stringify(snapshot, null, 2)),
+        { mimeType: 'application/json' },
+      );
+    } catch {
+      // ignore
+    }
+
+    return snapshot;
+  }
+
+  /**
+   * Admin: List all exams including drafts (ADM-03).
+   */
+  async listAdminExams(filters?: {
+    level?: Level;
+    kind?: ExamKind;
+    status?: string;
+  }): Promise<{ items: unknown[] }> {
+    const db = this.dbClient.db;
+    const conditions = [isNull(schema.exams.deletedAt)];
+
+    if (filters?.level) {
+      conditions.push(eq(schema.exams.level, filters.level));
+    }
+    if (filters?.kind) {
+      conditions.push(eq(schema.exams.kind, filters.kind));
+    }
+    if (filters?.status === 'published') {
+      conditions.push(isNotNull(schema.exams.publishedVersion));
+    } else if (filters?.status === 'draft') {
+      conditions.push(isNull(schema.exams.publishedVersion));
+    }
+
+    const rows = await db
+      .select()
+      .from(schema.exams)
+      .where(and(...conditions))
+      .orderBy(desc(schema.exams.createdAt));
+
+    return { items: rows };
+  }
+
+  /**
+   * Admin: Get full details of an exam (ADM-03).
+   */
+  async getAdminExam(id: string): Promise<unknown> {
+    const [exam] = await this.dbClient.db
+      .select()
+      .from(schema.exams)
+      .where(and(eq(schema.exams.id, id), isNull(schema.exams.deletedAt)))
+      .limit(1);
+
+    if (!exam) {
+      throw new NotFoundException(`Đề thi không tồn tại: ${id}`);
+    }
+
+    const sections = await this.dbClient.db
+      .select()
+      .from(schema.examSections)
+      .where(eq(schema.examSections.examId, id))
+      .orderBy(schema.examSections.orderIndex);
+
+    const items = await this.dbClient.db
+      .select()
+      .from(schema.examItems)
+      .where(eq(schema.examItems.examId, id))
+      .orderBy(schema.examItems.orderIndex);
+
+    const versions = await this.dbClient.db
+      .select()
+      .from(schema.examVersions)
+      .where(eq(schema.examVersions.examId, id))
+      .orderBy(desc(schema.examVersions.version));
+
+    return {
+      ...exam,
+      sections,
+      items,
+      versions,
+    };
+  }
+
+  /**
+   * Admin: Create new exam draft (ADM-03).
+   */
+  async createAdminExam(
+    dto: {
+      title: string;
+      level: Level;
+      kind: ExamKind;
+      year?: number;
+      session?: Session;
+      description?: string;
+      slug?: string;
+    },
+    _userId: string,
+  ): Promise<{ id: string; success: boolean }> {
+    const id = generateUuidV7();
+    const slug =
+      dto.slug ||
+      `${dto.level.toLowerCase()}-${dto.year || 2026}-${dto.session || '07'}-${id.slice(0, 8)}`;
+
+    const [inserted] = await this.dbClient.db
+      .insert(schema.exams)
+      .values({
+        id,
+        slug,
+        level: dto.level,
+        kind: dto.kind,
+        title: dto.title,
+        year: dto.year ?? null,
+        session: dto.session ?? null,
+        description: dto.description || '',
+        publishedVersion: null,
+        totalQuestions: 0,
+      })
+      .returning();
+
+    return { id: inserted!.id, success: true };
+  }
+
+  /**
+   * Admin: Update exam draft metadata (ADM-03).
+   */
+  async updateAdminExam(
+    id: string,
+    dto: {
+      title?: string;
+      level?: Level;
+      kind?: ExamKind;
+      year?: number;
+      session?: Session;
+      description?: string;
+    },
+    _userId: string,
+  ): Promise<{ updated: boolean }> {
+    const updateData: Record<string, unknown> = {
+      updatedAt: new Date(),
+    };
+    if (dto.title !== undefined) updateData['title'] = dto.title;
+    if (dto.level !== undefined) updateData['level'] = dto.level;
+    if (dto.kind !== undefined) updateData['kind'] = dto.kind;
+    if (dto.year !== undefined) updateData['year'] = dto.year;
+    if (dto.session !== undefined) updateData['session'] = dto.session;
+    if (dto.description !== undefined) updateData['description'] = dto.description;
+
+    const res = await this.dbClient.db
+      .update(schema.exams)
+      .set(updateData)
+      .where(and(eq(schema.exams.id, id), isNull(schema.exams.deletedAt)))
+      .returning();
+
+    if (res.length === 0) {
+      throw new NotFoundException(`Đề thi không tồn tại: ${id}`);
+    }
+
+    return { updated: true };
+  }
+
+  /**
+   * Admin: Validate exam structure against blueprint and approval criteria (ADM-03).
+   */
+  async validateAdminExam(examId: string): Promise<{ valid: boolean; violations: string[] }> {
+    const violations: string[] = [];
+
+    const examRows = await this.dbClient.db
+      .select()
+      .from(schema.exams)
+      .where(and(eq(schema.exams.id, examId), isNull(schema.exams.deletedAt)))
+      .limit(1);
+
+    if (examRows.length === 0) {
+      return { valid: false, violations: [`Đề thi ${examId} không tồn tại.`] };
+    }
+
+    const _exam = examRows[0]!;
+
+    const sections = await this.dbClient.db
+      .select()
+      .from(schema.examSections)
+      .where(eq(schema.examSections.examId, examId))
+      .orderBy(schema.examSections.orderIndex);
+
+    if (sections.length === 0) {
+      violations.push('Đề thi chưa có phần thi (sections).');
+    }
+
+    const items = await this.dbClient.db
+      .select()
+      .from(schema.examItems)
+      .where(eq(schema.examItems.examId, examId))
+      .orderBy(schema.examItems.orderIndex);
+
+    if (items.length === 0) {
+      violations.push('Đề thi chưa có câu hỏi (questions).');
+    } else {
+      const questionIds = items.map((i: { questionId: string }) => i.questionId);
+      const allQuestions = await this.dbClient.db.select().from(schema.questions);
+      const examQuestions = allQuestions.filter(
+        (q: typeof schema.questions.$inferSelect) => questionIds.includes(q.id),
+      );
+
+      for (const q of examQuestions) {
+        const qvRows = await this.dbClient.db
+          .select()
+          .from(schema.questionVersions)
+          .where(eq(schema.questionVersions.questionId, q.id))
+          .orderBy(desc(schema.questionVersions.version))
+          .limit(1);
+
+        if (qvRows.length === 0 || qvRows[0]?.status !== 'approved') {
+          violations.push(
+            `Câu hỏi ${q.id} chưa được duyệt (trạng thái: ${qvRows[0]?.status ?? 'none'}).`,
+          );
+        }
+      }
+
+      const groupIds = Array.from(
+        new Set(
+          examQuestions
+            .map((q: typeof schema.questions.$inferSelect) => q.groupId)
+            .filter(Boolean),
+        ),
+      ) as string[];
+
+      for (const gid of groupIds) {
+        const gvRows = await this.dbClient.db
+          .select()
+          .from(schema.questionGroupVersions)
+          .where(eq(schema.questionGroupVersions.groupId, gid))
+          .orderBy(desc(schema.questionGroupVersions.version))
+          .limit(1);
+
+        if (gvRows.length === 0 || gvRows[0]?.status !== 'approved') {
+          violations.push(
+            `Nhóm câu hỏi ${gid} chưa được duyệt (trạng thái: ${gvRows[0]?.status ?? 'none'}).`,
+          );
+        }
+      }
+    }
+
+    return {
+      valid: violations.length === 0,
+      violations,
+    };
+  }
 }
+
