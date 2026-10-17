@@ -16,47 +16,7 @@ export class BackupService {
     private readonly auditService?: AuditLogService,
     initialJobs: OperatorBackupJob[] = [],
   ) {
-    if (initialJobs.length > 0) {
-      this.jobs = [...initialJobs];
-    } else {
-      // Seed default operator jobs history
-      this.jobs = [
-        {
-          id: 'job_walg_base_20261015',
-          jobType: 'base-backup',
-          status: 'completed',
-          initiatedBy: 'u_admin_system',
-          operatorEmail: 'admin@jlpt.local',
-          tenantId: 'global',
-          sizeBytes: 1024 * 1024 * 48, // 48 MB
-          outputLocation: 's3://jlpt-backups/prod/base_20261015T030000Z.tar.gz',
-          sanitizedConfig: {
-            WALG_S3_PREFIX: 's3://jlpt-backups/prod',
-            PGDATA: '/var/lib/postgresql/data',
-            AWS_SECRET_ACCESS_KEY: '[REDACTED_SECRET]',
-            POSTGRES_PASSWORD: '[REDACTED_SECRET]',
-          },
-          createdAt: '2026-10-15T03:00:00Z',
-          completedAt: '2026-10-15T03:04:15Z',
-        },
-        {
-          id: 'job_pitr_drill_20261015',
-          jobType: 'restore-pitr',
-          status: 'completed',
-          initiatedBy: 'u_admin_system',
-          operatorEmail: 'admin@jlpt.local',
-          tenantId: 'global',
-          outputLocation: 'staging-db-isolated',
-          sanitizedConfig: {
-            TARGET_RECOVERY_TIME: '2026-10-15T03:03:45.000Z',
-            ARCHIVE_MODE: 'off',
-            DATABASE_URL: '[REDACTED_SECRET]',
-          },
-          createdAt: '2026-10-15T04:00:00Z',
-          completedAt: '2026-10-15T04:02:30Z',
-        },
-      ];
-    }
+    this.jobs = [...initialJobs];
   }
 
   /**

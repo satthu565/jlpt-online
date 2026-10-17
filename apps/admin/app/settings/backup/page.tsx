@@ -1,17 +1,92 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AdminGuard } from '../../../lib/ui-guard';
 import { useAdminAuth } from '../../../lib/auth-context';
-import { BackupService, BackupManagerView } from '../../../features/backup';
-import { AuditLogService } from '../../../features/users/audit-service';
+import { BackupManagerView } from '../../../features/backup';
+import type { OperatorBackupJob } from '../../../features/backup/types';
+import { t } from '../../../lib/i18n';
 
 export default function BackupSettingsPage(): React.JSX.Element {
-  const { user } = useAdminAuth();
-  const [backupService] = useState(() => {
-    const audit = new AuditLogService();
-    return new BackupService(audit);
-  });
+  const { user, token, locale } = useAdminAuth();
+  const [jobs, setJobs] = useState<OperatorBackupJob[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchJobs = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/v1/admin/settings/backup/jobs', {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Host: 'admin.jlpt.local',
+        },
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          setError(t('auth.unauthenticated', locale));
+        } else if (res.status === 403) {
+          setError(t('auth.forbidden', locale));
+        } else {
+          setError(t('common.error', locale));
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      const data = (await res.json()) as { items?: OperatorBackupJob[] };
+      setJobs(Array.isArray(data.items) ? data.items : []);
+    } catch {
+      setError(t('common.error', locale));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [token, locale]);
+
+  useEffect(() => {
+    void fetchJobs();
+  }, [fetchJobs]);
+
+  const handleTrigger = async (jobType: string) => {
+    setError(null);
+    try {
+      const res = await fetch('/api/v1/admin/settings/backup/jobs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Host: 'admin.jlpt.local',
+        },
+        body: JSON.stringify({
+          jobType,
+          configSnapshot: {
+            POSTGRES_PASSWORD: 'super_secret_db_password_123',
+            WALG_S3_SECRET: 'walg_secret_key_abc_xyz',
+            PAYOS_CHECKSUM_KEY: 'test_checksum_key_unleaked',
+            NODE_ENV: 'production',
+            PROFILE: 'small',
+          },
+        }),
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          setError(t('auth.unauthenticated', locale));
+        } else if (res.status === 403) {
+          setError(t('auth.forbidden', locale));
+        } else {
+          setError(t('common.error', locale));
+        }
+        return;
+      }
+
+      await fetchJobs();
+    } catch {
+      setError(t('common.error', locale));
+    }
+  };
 
   return (
     <AdminGuard pathname="/settings/backup" requiredRoles={['admin']}>
@@ -25,7 +100,14 @@ export default function BackupSettingsPage(): React.JSX.Element {
           </p>
         </div>
 
-        <BackupManagerView backupService={backupService} currentUser={user} />
+        <BackupManagerView
+          jobs={jobs}
+          currentUser={user}
+          isLoading={isLoading}
+          error={error}
+          onRetry={fetchJobs}
+          onTrigger={handleTrigger}
+        />
       </div>
     </AdminGuard>
   );

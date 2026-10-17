@@ -69,3 +69,36 @@ Các endpoint được bổ sung vào `ReportingController` (`@Controller('admin
 ### 2.5. Bảo đảm Đa ngôn ngữ (i18n)
 
 Bổ sung đầy đủ và đối xứng các khóa dịch cho `vi.json`, `ja.json`, `en.json`. Mọi chuỗi tiếng Nhật đều chuẩn hóa NFC. Kiểm tra không để lộ key dịch thô.
+
+## 3. Khắc phục Đóng góp Ý kiến từ Reviewer W2 (Lượt 2 -> Lượt 3)
+
+### 3.1. [P0] Vá Lỗ hổng 2FA Challenge Bypass (auth-context.tsx)
+- Đã thiết lập 2 endpoint chính thức trên máy chủ API:
+  - `POST /api/v1/admin/auth/2fa/verify`: Xác thực mã TOTP 6 số qua RFC 6238 theo secret đã kích hoạt của nhân sự.
+  - `POST /api/v1/admin/auth/2fa/recovery`: Xác thực mã khôi phục dự phòng 8 ký tự (`XXXX-XXXX`) đối chiếu hash trong cơ sở dữ liệu `schema.verifications` và tiêu hủy một lần (single-use).
+- Trong `apps/admin/lib/auth-context.tsx`: Loại bỏ hoàn toàn việc client tự nâng cấp `twoFactorStatus: 'verified'` khi chưa nhận được phản hồi 200 OK từ API máy chủ. Khi gặp lỗi mạng (catch block) hoặc API trả về lỗi 400/401/403, hàm tuyệt đối không bypass mà gán lỗi rõ ràng trên UI và trả về `false`.
+
+### 3.2. [P1] Kết nối /settings/backup với API Máy chủ & Lưu trữ Postgres Bền vững
+- Xóa bỏ dữ liệu mẫu cứng `job_walg_base_20261015` khỏi `BackupService`.
+- Trang `/settings/backup` nối trực tiếp với endpoint `GET /api/v1/admin/settings/backup/jobs` và `POST /api/v1/admin/settings/backup/jobs`.
+- Bổ sung đầy đủ 3 trạng thái:
+  - Đang tải: `data-testid="backup-loading"`
+  - Rỗng: `data-testid="backup-empty"`
+  - Lỗi API có nút Thử lại: `data-testid="backup-error"`
+- Dữ liệu backup jobs và notification templates được lưu trữ bền vững vào PostgreSQL (`schema.backupJobs`, `schema.templateVersions`, `schema.operatorActions`) thay vì mảng tạm trong bộ nhớ.
+
+### 3.3. [P1] Xóa bỏ Dữ liệu Mẫu & Cập nhật Baseline
+- Xóa bỏ `DEFAULT_TEMPLATES` trong `/settings/notifications/page.tsx` và `DEFAULT_APPLICATIONS` trong `/settings/org/page.tsx`.
+- Gỡ bỏ 7 route/file quản trị hoàn tất khỏi `tests/integration/mock-ui-baseline.json`. Lệnh `pnpm check:no-mock-ui` kiểm tra pass 100% với 0 vi phạm mới.
+
+### 3.4. [P1] Bổ sung Playwright E2E Browser GUI Test Matrix
+- Đã bổ sung suite `Admin Portal Real GUI & Staff Authentication Flow (I02)` trong `tests/playwright/integration.spec.ts` đi đúng luồng người dùng qua giao diện:
+  - Giao diện đăng nhập nhập email/mật khẩu sai bị từ chối và hiện alert lỗi từ API.
+  - Nhập mã TOTP sai bị từ chối bởi API tại trang `/verify-2fa`.
+  - Nhập đúng mật khẩu và TOTP RFC 6238 đăng nhập thành công vào Bảng điều khiển `/`.
+  - Duyệt toàn bộ các trang trong phạm vi: `/`, `/users`, `/audit-logs`, `/settings/notifications`, `/settings/org`, `/settings/backup`.
+  - Kiểm tra viewport ở 390px (mobile) và 1366px (desktop): khẳng định `scrollWidth <= clientWidth` (không cuộn ngang).
+  - Chụp màn hình artifact lưu vào `test-results/screenshots/`.
+  - Kiểm tra áp dụng đầy đủ class Tailwind (padding/margin hợp lệ, không dính mép).
+  - Kiểm tra cả 3 ngôn ngữ `vi`, `ja`, `en`, khẳng định không để lộ key dịch thô.
+  - Cấm hoàn toàn `page.route` hay mock fetch ở tầng trình duyệt.

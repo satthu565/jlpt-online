@@ -13,7 +13,11 @@ const rawArgs = process.argv.slice(2);
 const filteredArgs = rawArgs.filter((arg) => arg !== '--');
 
 const defaultArgs = ['test', '-c', 'tests/playwright.config.ts', 'integration.spec.ts'];
-const args = [...defaultArgs, ...filteredArgs];
+const localProjectArgs =
+  !process.env.CI && !filteredArgs.some((arg) => arg.includes('project'))
+    ? ['--project=chromium']
+    : [];
+const args = [...defaultArgs, ...localProjectArgs, ...filteredArgs];
 
 const child = spawn(playwrightBin, args, {
   cwd: repoRoot,

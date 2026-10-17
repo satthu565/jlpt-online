@@ -16,45 +16,12 @@ export interface NotificationTemplate {
   variables: string[];
 }
 
-const DEFAULT_TEMPLATES: NotificationTemplate[] = [
-  {
-    id: 'welcome_email',
-    key: 'welcome_email',
-    name: 'Email Chào Mừng Thành Viên Mới',
-    channel: 'email',
-    subject: 'Chào mừng {{userName}} gia nhập nền tảng luyện thi JLPT Online!',
-    bodyTemplate: 'Xin chào {{userName}},\n\nCảm ơn bạn đã đăng ký tài khoản. Hãy bắt đầu bài thi thử đầu tiên để xác định trình độ của mình ngay hôm nay nhé!\n\nTrân trọng,\nĐội ngũ JLPT Online',
-    isActive: true,
-    variables: ['userName', 'loginUrl'],
-  },
-  {
-    id: 'exam_result',
-    key: 'exam_result',
-    name: 'Thông Báo Kết Quả Bài Thi',
-    channel: 'in_app',
-    subject: 'Kết quả bài thi {{examTitle}}: {{score}}/180 điểm ({{resultStatus}})',
-    bodyTemplate: 'Chúc mừng bạn đã hoàn thành bài thi {{examTitle}} với số điểm {{score}}/180. Nhấn vào đây để xem phân tích chi tiết từng mondai.',
-    isActive: true,
-    variables: ['examTitle', 'score', 'resultStatus'],
-  },
-  {
-    id: 'streak_reminder',
-    key: 'streak_reminder',
-    name: 'Nhắc Nhở Duy Trì Chuỗi Học Tập (Streak)',
-    channel: 'push',
-    subject: 'Đừng để mất chuỗi {{streakDays}} ngày học tập!',
-    bodyTemplate: 'Chỉ còn 3 tiếng nữa là hết ngày. Dành 15 phút ôn tập 30 thẻ flashcards để bảo vệ ngọn lửa streak của bạn nhé!',
-    isActive: true,
-    variables: ['userName', 'streakDays'],
-  },
-];
-
 export interface NotificationsSettingsPageProps {
   initialTemplates?: NotificationTemplate[];
 }
 
 export default function NotificationsSettingsPage({
-  initialTemplates = DEFAULT_TEMPLATES,
+  initialTemplates = [],
 }: NotificationsSettingsPageProps = {}): React.JSX.Element {
   const { token, locale } = useAdminAuth();
   const [templates, setTemplates] = useState<NotificationTemplate[]>(initialTemplates);
@@ -88,12 +55,11 @@ export default function NotificationsSettingsPage({
       }
 
       const data = (await res.json()) as { items?: NotificationTemplate[] };
-      if (Array.isArray(data.items) && data.items.length > 0) {
-        setTemplates(data.items);
-        setSelectedTemplate(data.items[0] ?? null);
-      }
+      const items = Array.isArray(data.items) ? data.items : [];
+      setTemplates(items);
+      setSelectedTemplate(items[0] ?? null);
     } catch {
-      // Offline fallback
+      setError(t('common.error', locale));
     } finally {
       setIsLoading(false);
     }

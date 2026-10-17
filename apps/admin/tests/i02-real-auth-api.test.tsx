@@ -111,8 +111,16 @@ describe('I02: Đăng nhập nhân sự thật và khung quản trị nối API'
       expect(() => client.enforceGuard(['editor'])).not.toThrow();
     });
 
-    it('Mô phỏng máy chủ API từ chối sai mật khẩu với mã HTTP 401 UNAUTHENTICATED', async () => {
-      const mockFetch = vi.fn().mockResolvedValue({
+    it('AdminApiClient từ chối sai mật khẩu từ API với mã HTTP 401 UNAUTHENTICATED', async () => {
+      const client = new AdminApiClient({
+        baseUrl: 'http://localhost:4000',
+        token: null,
+        user: null,
+        mode: 'live',
+      });
+
+      const originalFetch = global.fetch;
+      global.fetch = vi.fn().mockResolvedValue({
         ok: false,
         status: 401,
         json: async () => ({
@@ -123,19 +131,43 @@ describe('I02: Đăng nhập nhân sự thật và khung quản trị nối API'
         }),
       });
 
-      const res = await mockFetch('/api/v1/auth/sign-in/email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'publisher@jlpt.local', password: 'WrongPassword123!' }),
-      });
-
-      expect(res.status).toBe(401);
-      const data = await res.json();
-      expect(data.error.code).toBe('UNAUTHENTICATED');
+      try {
+        await expect(client.loginWithPassword('publisher@jlpt.local', 'WrongPassword123!')).rejects.toThrow(
+          AdminClientGuardError,
+        );
+        try {
+          await client.loginWithPassword('publisher@jlpt.local', 'WrongPassword123!');
+        } catch (err) {
+          const e = err as AdminClientGuardError;
+          expect(e.status).toBe(401);
+          expect(e.code).toBe('UNAUTHENTICATED');
+          expect(e.message).toContain('Sai địa chỉ email hoặc mật khẩu');
+        }
+      } finally {
+        global.fetch = originalFetch;
+      }
     });
 
-    it('Mô phỏng máy chủ API từ chối sai TOTP với mã HTTP 403 TWO_FACTOR_REQUIRED', async () => {
-      const mockFetch = vi.fn().mockResolvedValue({
+    it('AdminApiClient và TotpGuard từ chối sai TOTP với mã HTTP 403 TWO_FACTOR_REQUIRED', async () => {
+      const client = new AdminApiClient({
+        baseUrl: 'http://localhost:4000',
+        token: 'valid_jwt_token',
+        user: {
+          id: 'usr_staff_01',
+          email: 'publisher@jlpt.local',
+          name: 'Admin',
+          role: 'admin',
+          twoFactorEnabled: true,
+          twoFactorStatus: 'challenge_required',
+        },
+        mode: 'live',
+      });
+
+      // Calling protected endpoint before 2FA challenge throws TWO_FACTOR_REQUIRED
+      expect(() => client.enforceGuard()).toThrowError(/xác thực hai yếu tố \(2FA\)/);
+
+      const originalFetch = global.fetch;
+      global.fetch = vi.fn().mockResolvedValue({
         ok: false,
         status: 403,
         json: async () => ({
@@ -146,16 +178,59 @@ describe('I02: Đăng nhập nhân sự thật và khung quản trị nối API'
         }),
       });
 
-      const res = await mockFetch('/api/v1/admin/dashboard', {
-        headers: {
-          Authorization: 'Bearer valid_jwt_token',
-          'x-totp-code': '000000',
+      try {
+        await expect(client.verify2faChallenge('000000')).rejects.toThrow(AdminClientGuardError);
+        try {
+          await client.verify2faChallenge('000000');
+        } catch (err) {
+          const e = err as AdminClientGuardError;
+          expect(e.status).toBe(403);
+          expect(e.code).toBe('TWO_FACTOR_REQUIRED');
+        }
+      } finally {
+        global.fetch = originalFetch;
+      }
+    });
+
+    it('AdminApiClient từ chối mã khôi phục sai với mã HTTP 403 INVALID_RECOVERY_CODE', async () => {
+      const client = new AdminApiClient({
+        baseUrl: 'http://localhost:4000',
+        token: 'valid_jwt_token',
+        user: {
+          id: 'usr_staff_01',
+          email: 'publisher@jlpt.local',
+          name: 'Admin',
+          role: 'admin',
+          twoFactorEnabled: true,
+          twoFactorStatus: 'challenge_required',
         },
+        mode: 'live',
       });
 
-      expect(res.status).toBe(403);
-      const data = await res.json();
-      expect(data.error.code).toBe('TWO_FACTOR_REQUIRED');
+      const originalFetch = global.fetch;
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 403,
+        json: async () => ({
+          error: {
+            code: 'INVALID_RECOVERY_CODE',
+            message: 'Mã khôi phục không hợp lệ.',
+          },
+        }),
+      });
+
+      try {
+        await expect(client.verifyRecoveryCode('wrong_code')).rejects.toThrow(AdminClientGuardError);
+        try {
+          await client.verifyRecoveryCode('wrong_code');
+        } catch (err) {
+          const e = err as AdminClientGuardError;
+          expect(e.status).toBe(403);
+          expect(e.code).toBe('INVALID_RECOVERY_CODE');
+        }
+      } finally {
+        global.fetch = originalFetch;
+      }
     });
   });
 

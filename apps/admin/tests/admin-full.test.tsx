@@ -125,7 +125,19 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
 
   describe('ADM-18: Cấu hình thông báo và email tự động', () => {
     it('hiển thị danh sách mẫu thông báo, trình chỉnh sửa template và nút gửi thử nghiệm', () => {
-      const html = renderWithAuth(<NotificationsSettingsPage />);
+      const initialTemplates = [
+        {
+          id: 'welcome_email',
+          key: 'welcome_email',
+          name: 'Email Chào Mừng Thành Viên Mới',
+          channel: 'email' as const,
+          subject: 'Chào mừng {{userName}} gia nhập nền tảng',
+          bodyTemplate: 'Xin chào {{userName}}',
+          isActive: true,
+          variables: ['userName'],
+        },
+      ];
+      const html = renderWithAuth(<NotificationsSettingsPage initialTemplates={initialTemplates} />);
 
       expect(html).toContain('Cấu hình Thông báo &amp; Email Tự động (ADM-18)');
       expect(html).toContain('data-testid="tpl-item-welcome_email"');
@@ -145,7 +157,19 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
     });
 
     it('OrgSettingsPage hiển thị hồ sơ ứng tuyển giáo viên và thao tác phê duyệt', () => {
-      const html = renderWithAuth(<OrgSettingsPage />);
+      const initialApplications = [
+        {
+          id: 'teacher_app_01',
+          applicantName: 'Nguyễn Văn Hùng',
+          email: 'hung.teacher@jlptcenter.vn',
+          currentOrg: 'Trung tâm Tiếng Nhật Sakura',
+          jlptCertificate: 'N1 (165/180)',
+          yearsOfExperience: 6,
+          status: 'pending' as const,
+          appliedAt: '2026-10-14 15:30',
+        },
+      ];
+      const html = renderWithAuth(<OrgSettingsPage initialApplications={initialApplications} />);
       expect(html).toContain('Cài đặt Tổ chức &amp; Hồ sơ Giáo viên');
       expect(html).toContain('data-testid="teacher-app-teacher_app_01"');
       expect(html).toContain('data-testid="btn-approve-teacher-teacher_app_01"');

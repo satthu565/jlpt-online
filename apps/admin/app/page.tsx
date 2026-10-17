@@ -74,7 +74,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
         setActivities(data.activities);
       }
     } catch {
-      // In offline SSR or unit test mode, retain initial state
+      setError(t('common.error', locale));
     } finally {
       setIsLoading(false);
     }

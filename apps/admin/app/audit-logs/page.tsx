@@ -45,7 +45,7 @@ export default function AuditLogsPage({ initialLogs = [] }: AuditLogsPageProps =
         setLogs(data.items);
       }
     } catch {
-      // Offline fallback: retain current logs
+      setError(t('common.error', locale));
     } finally {
       setIsLoading(false);
     }

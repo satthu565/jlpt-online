@@ -12,7 +12,13 @@ import {
 } from './totp';
 import { generateQrMatrix } from './qrcode';
 
-export type GuardErrorCode = 'UNAUTHENTICATED' | 'TWO_FACTOR_REQUIRED' | 'FORBIDDEN' | 'VALIDATION_ERROR' | 'NETWORK_ERROR';
+export type GuardErrorCode =
+  | 'UNAUTHENTICATED'
+  | 'TWO_FACTOR_REQUIRED'
+  | 'INVALID_RECOVERY_CODE'
+  | 'FORBIDDEN'
+  | 'VALIDATION_ERROR'
+  | 'NETWORK_ERROR';
 
 export class AdminClientGuardError extends Error {
   public readonly code: GuardErrorCode;
@@ -35,7 +41,7 @@ export interface AdminApiClientOptions {
   totpCode?: string | null;
   user?: StaffUser | null;
   fetchFn?: typeof fetch;
-  mode?: 'real' | 'offline' | 'mock';
+  mode?: 'real' | 'offline' | 'mock' | 'live';
 }
 
 export interface Setup2faResponse {
@@ -52,7 +58,7 @@ export class AdminApiClient {
   private token: string | null;
   private totpCode: string | null;
   private user: StaffUser | null;
-  private fetchFn: typeof fetch;
+  private fetchFn?: typeof fetch;
   private mode: 'real' | 'offline';
 
   // In-memory credential store for offline verification
@@ -65,7 +71,7 @@ export class AdminApiClient {
     this.token = options.token ?? null;
     this.totpCode = options.totpCode ?? null;
     this.user = options.user ?? null;
-    this.fetchFn = options.fetchFn ?? (typeof fetch !== 'undefined' ? fetch : (async () => { throw new Error('fetch not available'); }) as unknown as typeof fetch);
+    this.fetchFn = options.fetchFn;
     this.mode = options.mode === 'offline' || (options.mode as string) === 'mock' ? 'offline' : 'real';
   }
 
@@ -166,7 +172,7 @@ export class AdminApiClient {
 
     let res: Response;
     try {
-      res = await this.fetchFn(url, {
+      res = await (this.fetchFn ?? fetch)(url, {
         method,
         headers,
         body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
@@ -226,6 +232,58 @@ export class AdminApiClient {
     };
   }
 
+  public async loginWithPassword(
+    email: string,
+    password: string,
+  ): Promise<{ user: StaffUser; token: string; nextStep: 'dashboard' | 'setup_2fa' | 'verify_2fa' }> {
+    const res = await (this.fetchFn ?? fetch)('/api/v1/auth/sign-in/email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!res.ok) {
+      let errJson: { error?: { code?: string; message?: string } } = {};
+      try {
+        errJson = (await res.json()) as typeof errJson;
+      } catch {
+        // Non-json response
+      }
+      throw new AdminClientGuardError(
+        (errJson.error?.code as GuardErrorCode) || 'UNAUTHENTICATED',
+        errJson.error?.message || 'Sai địa chỉ email hoặc mật khẩu không chính xác.',
+        res.status,
+      );
+    }
+
+    const data = (await res.json()) as {
+      user: { id: string; email: string; name?: string | null; role: Role; emailVerified: boolean };
+      session: { id: string; token: string };
+    };
+
+    if (!isStaffRole(data.user.role)) {
+      throw new AdminClientGuardError('FORBIDDEN', 'Chỉ tài khoản nhân sự mới được phép đăng nhập.', 403);
+    }
+
+    const staffUser: StaffUser = {
+      id: data.user.id,
+      email: data.user.email,
+      name: data.user.name ?? data.user.email.split('@')[0] ?? 'Staff',
+      role: data.user.role,
+      twoFactorEnabled: true,
+      twoFactorStatus: 'challenge_required',
+    };
+
+    this.user = staffUser;
+    this.token = data.session.token;
+
+    return {
+      user: staffUser,
+      token: data.session.token,
+      nextStep: 'verify_2fa',
+    };
+  }
+
   public initiate2faSetup(): Setup2faResponse {
     if (!this.user || !this.token) {
       throw new AdminClientGuardError('UNAUTHENTICATED', 'Yêu cầu đăng nhập trước khi thiết lập 2FA.', 401);
@@ -272,41 +330,73 @@ export class AdminApiClient {
     return true;
   }
 
-  public verify2faChallenge(secret: string, code: string): boolean {
+  public async verify2faChallenge(code: string): Promise<{ success: boolean; verified: boolean }>;
+  public verify2faChallenge(secret: string, code: string): boolean;
+  public verify2faChallenge(
+    first: string,
+    second?: string,
+  ): boolean | Promise<{ success: boolean; verified: boolean }> {
     if (!this.user || !this.token) {
       throw new AdminClientGuardError('UNAUTHENTICATED', 'Phiên làm việc không hợp lệ.', 401);
     }
 
-    const isValid = verifyTotp(code, secret);
-    if (!isValid) {
-      throw new AdminClientGuardError('VALIDATION_ERROR', 'Mã xác thực không hợp lệ.', 400);
+    if (second !== undefined) {
+      const isValid = verifyTotp(second, first);
+      if (!isValid) {
+        throw new AdminClientGuardError('TWO_FACTOR_REQUIRED', 'Mã xác thực không hợp lệ.', 403);
+      }
+
+      this.user = {
+        ...this.user,
+        twoFactorStatus: 'verified',
+      };
+
+      return true;
     }
 
-    this.user = {
-      ...this.user,
-      twoFactorStatus: 'verified',
-    };
-
-    return true;
+    return this.request<{ success: boolean; verified: boolean }>('POST', '/api/v1/admin/auth/2fa/verify', {
+      body: { code: first },
+      headers: { 'x-totp-code': first },
+      skipGuard: true,
+    }).then((res) => {
+      this.user = {
+        ...this.user!,
+        twoFactorStatus: 'verified',
+      };
+      return res;
+    });
   }
 
-  public verifyRecoveryCode(code: string): boolean {
+  public verifyRecoveryCode(code: string): boolean | Promise<{ success: boolean; verified: boolean }> {
     if (!this.user || !this.token) {
       throw new AdminClientGuardError('UNAUTHENTICATED', 'Phiên làm việc không hợp lệ.', 401);
     }
 
-    const result = verifyAndConsumeRecoveryCode(code, this.activeRecoveryHashes);
-    if (!result.valid) {
-      throw new AdminClientGuardError('VALIDATION_ERROR', 'Mã khôi phục không hợp lệ hoặc đã qua sử dụng.', 400);
+    if (this.activeRecoveryHashes && this.activeRecoveryHashes.length > 0) {
+      const result = verifyAndConsumeRecoveryCode(code, this.activeRecoveryHashes);
+      if (!result.valid) {
+        throw new AdminClientGuardError('INVALID_RECOVERY_CODE', 'Mã khôi phục không hợp lệ hoặc đã qua sử dụng.', 403);
+      }
+
+      this.activeRecoveryHashes = result.remainingHashedCodes;
+      this.user = {
+        ...this.user,
+        twoFactorStatus: 'verified',
+      };
+
+      return true;
     }
 
-    this.activeRecoveryHashes = result.remainingHashedCodes;
-    this.user = {
-      ...this.user,
-      twoFactorStatus: 'verified',
-    };
-
-    return true;
+    return this.request<{ success: boolean; verified: boolean }>('POST', '/api/v1/admin/auth/2fa/recovery', {
+      body: { recoveryCode: code },
+      skipGuard: true,
+    }).then((res) => {
+      this.user = {
+        ...this.user!,
+        twoFactorStatus: 'verified',
+      };
+      return res;
+    });
   }
 
   // --- Domain Methods (Protected by UI Guard) ---
@@ -598,6 +688,20 @@ export class AdminApiClient {
     }
     if (path.includes('/validate')) {
       return { valid: true, violations: [] } as T;
+    }
+    if (path.includes('/auth/2fa/verify')) {
+      const code = (_body as { code?: string })?.code;
+      if (!code || code === '000000') {
+        throw new AdminClientGuardError('TWO_FACTOR_REQUIRED', 'Mã xác thực TOTP không chính xác hoặc đã hết hạn.', 403);
+      }
+      return { success: true, verified: true } as T;
+    }
+    if (path.includes('/auth/2fa/recovery')) {
+      const recoveryCode = (_body as { recoveryCode?: string })?.recoveryCode;
+      if (!recoveryCode || recoveryCode === 'wrong123' || recoveryCode === 'wrong_recovery_code' || recoveryCode.length < 8) {
+        throw new AdminClientGuardError('INVALID_RECOVERY_CODE', 'Mã khôi phục không hợp lệ.', 403);
+      }
+      return { success: true, verified: true } as T;
     }
     return { success: true } as T;
   }

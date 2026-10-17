@@ -16,35 +16,12 @@ export interface TeacherApplication {
   appliedAt: string;
 }
 
-const DEFAULT_APPLICATIONS: TeacherApplication[] = [
-  {
-    id: 'teacher_app_01',
-    applicantName: 'Nguyễn Văn Hùng',
-    email: 'hung.teacher@jlptcenter.vn',
-    currentOrg: 'Trung tâm Tiếng Nhật Sakura',
-    jlptCertificate: 'N1 (165/180)',
-    yearsOfExperience: 6,
-    status: 'pending',
-    appliedAt: '2026-10-14 15:30',
-  },
-  {
-    id: 'teacher_app_02',
-    applicantName: 'Yamada Kenji',
-    email: 'kenji.yamada@nihongo.jp',
-    currentOrg: 'Tokyo Language Academy',
-    jlptCertificate: 'Bản xứ (Native)',
-    yearsOfExperience: 10,
-    status: 'approved',
-    appliedAt: '2026-10-10 09:00',
-  },
-];
-
 export interface OrgSettingsPageProps {
   initialApplications?: TeacherApplication[];
 }
 
 export default function OrgSettingsPage({
-  initialApplications = DEFAULT_APPLICATIONS,
+  initialApplications = [],
 }: OrgSettingsPageProps = {}): React.JSX.Element {
   const { token, locale } = useAdminAuth();
   const [applications, setApplications] = useState<TeacherApplication[]>(initialApplications);
@@ -75,11 +52,10 @@ export default function OrgSettingsPage({
       }
 
       const data = (await res.json()) as { applications?: TeacherApplication[] };
-      if (Array.isArray(data.applications) && data.applications.length > 0) {
-        setApplications(data.applications);
-      }
+      const apps = Array.isArray(data.applications) ? data.applications : [];
+      setApplications(apps);
     } catch {
-      // Offline fallback
+      setError(t('common.error', locale));
     } finally {
       setIsLoading(false);
     }

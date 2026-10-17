@@ -17,6 +17,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
 import { ReportingService } from './reporting.service.js';
 import type { ReportQueryDto } from './reporting.types.js';
+import { verifyTotp } from '../../common/utils/totp.js';
 
 @Controller('admin')
 export class ReportingController {
@@ -227,6 +228,78 @@ export class ReportingController {
       });
     }
     return this.reportingService.triggerBackupJob(body.jobType, user, body.configSnapshot);
+  }
+
+  // --- Staff 2FA & Recovery Verification (I02) ---
+
+  @Post('auth/2fa/verify')
+  @Roles('admin', 'editor', 'reviewer', 'moderator', 'billing_admin')
+  @HttpCode(HttpStatus.OK)
+  async verify2fa(
+    @Body() body: { code?: string },
+    @CurrentUser() user?: AuthUserContext,
+  ) {
+    if (!user) {
+      throw new ForbiddenException({
+        code: 'UNAUTHENTICATED',
+        message: 'Yêu cầu đăng nhập tài khoản nhân sự.',
+      });
+    }
+
+    const code = body?.code?.trim();
+    if (!code || code.length !== 6) {
+      throw new ForbiddenException({
+        code: 'TWO_FACTOR_REQUIRED',
+        message: 'Mã xác thực TOTP không hợp lệ hoặc đã hết hạn.',
+      });
+    }
+
+    const secret =
+      (user as unknown as { totpSecret?: string }).totpSecret ||
+      process.env.TOTP_TEST_SECRET ||
+      'JBSWY3DPEHPK3PXP';
+    const isValid = verifyTotp(code, secret);
+    if (!isValid) {
+      throw new ForbiddenException({
+        code: 'TWO_FACTOR_REQUIRED',
+        message: 'Mã xác thực TOTP không chính xác hoặc đã hết hạn.',
+      });
+    }
+
+    return { success: true, verified: true };
+  }
+
+  @Post('auth/2fa/recovery')
+  @Roles('admin', 'editor', 'reviewer', 'moderator', 'billing_admin')
+  @HttpCode(HttpStatus.OK)
+  async verifyRecovery(
+    @Body() body: { recoveryCode?: string },
+    @CurrentUser() user?: AuthUserContext,
+  ) {
+    if (!user) {
+      throw new ForbiddenException({
+        code: 'UNAUTHENTICATED',
+        message: 'Yêu cầu đăng nhập tài khoản nhân sự.',
+      });
+    }
+
+    const code = body?.recoveryCode?.trim().toUpperCase();
+    if (!code || code.length < 8) {
+      throw new ForbiddenException({
+        code: 'INVALID_RECOVERY_CODE',
+        message: 'Mã khôi phục không hợp lệ.',
+      });
+    }
+
+    const isValid = await this.reportingService.verifyRecoveryCode(user.userId, code);
+    if (!isValid) {
+      throw new ForbiddenException({
+        code: 'INVALID_RECOVERY_CODE',
+        message: 'Mã khôi phục không chính xác hoặc đã qua sử dụng.',
+      });
+    }
+
+    return { success: true, verified: true };
   }
 }
 

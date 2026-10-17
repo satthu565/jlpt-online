@@ -257,26 +257,30 @@ export function AdminAuthProvider({
     }
 
     if (!code || code.trim().length !== 6) {
+      setError(t('totp.invalidCode', locale));
       return false;
     }
 
-    // Verify against API TotpGuard
+    // Verify against API official endpoint
     try {
-      if (token && typeof window !== 'undefined') {
-        const res = await fetch('/api/v1/admin/dashboard', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'x-totp-code': code.trim(),
-            Host: 'admin.jlpt.local',
-          },
-        });
-        if (res.status === 403) {
-          return false;
-        }
+      const res = await fetch('/api/v1/admin/auth/2fa/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          'x-totp-code': code.trim(),
+          Host: 'admin.jlpt.local',
+        },
+        body: JSON.stringify({ code: code.trim() }),
+      });
+
+      if (!res.ok) {
+        setError(t('totp.invalidCode', locale));
+        return false;
       }
     } catch {
-      // Ignore network errors in local tests
+      setError(t('common.error', locale));
+      return false;
     }
 
     const upgradedUser: StaffUser = {
@@ -284,6 +288,7 @@ export function AdminAuthProvider({
       twoFactorStatus: 'verified',
     };
     saveToStorage(upgradedUser, token);
+    setError(null);
     return true;
   };
 
@@ -293,6 +298,28 @@ export function AdminAuthProvider({
     }
 
     if (!code || code.trim().length < 8) {
+      setError(t('totp.invalidRecoveryCode', locale));
+      return false;
+    }
+
+    // Verify against API official recovery endpoint
+    try {
+      const res = await fetch('/api/v1/admin/auth/2fa/recovery', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Host: 'admin.jlpt.local',
+        },
+        body: JSON.stringify({ recoveryCode: code.trim() }),
+      });
+
+      if (!res.ok) {
+        setError(t('totp.invalidRecoveryCode', locale));
+        return false;
+      }
+    } catch {
+      setError(t('common.error', locale));
       return false;
     }
 
@@ -301,6 +328,7 @@ export function AdminAuthProvider({
       twoFactorStatus: 'verified',
     };
     saveToStorage(upgradedUser, token);
+    setError(null);
     return true;
   };
 

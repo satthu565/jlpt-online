@@ -45,7 +45,7 @@ export default function UsersPage(): React.JSX.Element {
         setRefreshKey((k) => k + 1);
       }
     } catch {
-      // Offline fallback
+      setError(t('common.error', locale));
     } finally {
       setIsLoading(false);
     }
