@@ -1,4 +1,5 @@
 import React from 'react';
+import './globals.css';
 import { AdminAuthProvider } from '../lib/auth-context';
 import { AdminNavigation } from '../lib/admin-nav';
 
