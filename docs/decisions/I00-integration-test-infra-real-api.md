@@ -76,7 +76,25 @@ Bước vào Ngày 8 (tích hợp giao diện với API thật, mã task I00–I
 
 ---
 
-## 4. Kết quả nghiệm thu các tiêu chí
+## 4. Khắc phục kiểm tra Mailpit Smoke Test trên Staging CI (Lượt 5)
+
+- **Nguyên nhân lỗi CI**: Bước `Run Staging Smoke Tests against live containers` trong `.github/workflows/staging.yml` thực thi lệnh:
+  ```bash
+  curl -fsS http://127.0.0.1:8025/api/v1/info | grep -q "Mailpit"
+  ```
+  Tuy nhiên, theo đặc tả Mailpit REST API v1, endpoint `GET /api/v1/info` trả về payload JSON có cấu trúc:
+  `{"Database": "...", "DatabaseSize": ..., "LatestVersion": "...", "Messages": ..., "RuntimeStats": {...}, "Version": "..."}`.
+  Do chuỗi ký tự `"Mailpit"` không xuất hiện trong payload JSON của `/api/v1/info`, lệnh `grep -q "Mailpit"` trả về mã lỗi 1, khiến toàn bộ workflow CI bị ngắt bởi cờ `set -e`.
+- **Biện pháp xử lý**:
+  - Sửa lệnh kiểm tra thành:
+    ```bash
+    curl -fsS http://127.0.0.1:8025/api/v1/info | grep -qiE "version|database"
+    ```
+  - Bổ sung các dòng `echo ""` sau lệnh kiểm tra Web/Admin healthz để phân tách dòng nhật ký rõ ràng.
+
+---
+
+## 5. Kết quả nghiệm thu các tiêu chí
 
 | Tiêu chí | Trạng thái | Bằng chứng |
 | :--- | :--- | :--- |

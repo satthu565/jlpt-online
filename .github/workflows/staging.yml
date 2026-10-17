@@ -107,10 +107,12 @@ jobs:
           curl -fsS http://127.0.0.1:4000/api/v1/health | grep -q "ok"
           echo "Verifying Web health..."
           curl -fsS http://127.0.0.1:3000/healthz
+          echo ""
           echo "Verifying Admin health..."
           curl -fsS http://127.0.0.1:3001/healthz
+          echo ""
           echo "Verifying Mailpit health..."
-          curl -fsS http://127.0.0.1:8025/api/v1/info | grep -q "Mailpit"
+          curl -fsS http://127.0.0.1:8025/api/v1/info | grep -qiE "version|database"
           echo "Verifying same-origin Web /api/v1 reverse proxy routing..."
           curl -fsS http://127.0.0.1:3000/api/v1/health | grep -q "ok"
           echo "Verifying same-origin Admin /api/v1 reverse proxy routing..."
