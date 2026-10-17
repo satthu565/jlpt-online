@@ -209,7 +209,7 @@ describe('Practice, Mix, QB, Vocab & Planner E2E Suite (PRA-01..17, MIX-01..19, 
     });
 
     it('performs dictionary lookup without answer leaks', async () => {
-      const res = await fetch(`${baseUrl}/api/v1/dictionary/lookup?keyword=nihon`);
+      const res = await fetch(`${baseUrl}/api/v1/dictionary/lookup?text=nihon`);
       expect([200, 404]).toContain(res.status);
     });
   });
