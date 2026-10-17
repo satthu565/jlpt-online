@@ -384,6 +384,8 @@ NO_MOCK = ('Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhậ
 REAL_E2E = ('E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; '
             'cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt')
 STATES = 'Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền'
+LAYOUT = ('E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; '
+          'class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép')
 task('I00','W6',8,4,'Hạ tầng kiểm thử tích hợp giao diện với API thật','R06',
  'Staging CI chạy web và admin build với NEXT_PUBLIC_API_URL=/api/v1 sau reverse proxy cùng origin (giống bản demo trên jlpt-vm), thêm Mailpit; '
  'bộ Playwright E2E tích hợp dùng chung; lệnh pnpm check:no-mock-ui quét apps/web và apps/admin tìm dữ liệu viết cứng/mock và so với baseline. '
@@ -408,28 +410,28 @@ task('I02','W4',8,4,'Đăng nhập nhân sự thật và khung quản trị nố
  'Bỏ đăng nhập giả trong apps/admin/lib/auth-context.tsx: đăng nhập email mật khẩu, TOTP enrollment/challenge và recovery codes qua API; session, đăng xuất, guard theo role từ server. '
  'Trang tổng quan, người dùng, audit log, cài đặt (org, thông báo, backup) lấy dữ liệu từ API.',
  'apps/admin/',
- 'Sai mật khẩu hoặc sai TOTP bị từ chối bởi API, không chỉ ở UI|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES,
+ 'Sai mật khẩu hoặc sai TOTP bị từ chối bởi API, không chỉ ở UI|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:admin|pnpm check:no-mock-ui',contracts='API')
 task('I03','W4',8,6,'Quản trị nội dung nối API: nhập gói, câu hỏi, đề, duyệt, media','I02',
  'Các trang imports, questions, exams (kể cả đề trộn), blueprints, reviews (duyệt 4 mắt, giải thích), media, vocab, cms, moderation AI, reports/content gọi API thật; '
  'luồng nhập gói demo-data -> duyệt -> xuất bản làm được hoàn toàn qua giao diện quản trị.',
  'apps/admin/',
- 'Editor nhập gói docs/multi-worker/demo-data qua giao diện, reviewer khác duyệt, xuất bản; đề hiện ở trang thư viện đề của web|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES,
+ 'Editor nhập gói docs/multi-worker/demo-data qua giao diện, reviewer khác duyệt, xuất bản; đề hiện ở trang thư viện đề của web|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:admin|pnpm check:no-mock-ui',contracts='API')
 task('I04','W4',8,4,'Quản trị thương mại, báo cáo, thử nghiệm nối API','I02',
  'Các trang commercial (payments, plans, refunds, reconciliation), reports (tổng quan, doanh thu), experiments gọi API thật; sửa endpoint trong module payment, entitlement, reporting, cms, experiment nếu thiếu.',
  'apps/admin/|apps/api/src/modules/payment/|apps/api/src/modules/entitlement/|apps/api/src/modules/reporting/|apps/api/src/modules/cms/|apps/api/src/modules/experiment/',
- 'Gói, giao dịch sandbox, hoàn tiền và đối soát hiển thị dữ liệu thật từ API|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES,
+ 'Gói, giao dịch sandbox, hoàn tiền và đối soát hiển thị dữ liệu thật từ API|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:admin|pnpm test:payments|pnpm check:no-mock-ui',contracts='API')
 task('I05','W3',8,6,'Web: thư viện đề, phòng thi, kết quả, lịch sử nối API thật','I00 I01',
  'Thư viện đề (de-thi, trang SEO theo cấp) và phòng thi lấy đề đã xuất bản từ API, bỏ ALL_SAMPLE_EXAMS; bắt đầu lượt, tải snapshot, lưu tự động, chuyển phần, nộp, xem kết quả, lịch sử, chia sẻ kết quả qua API; khách làm thử đề guest_trial.',
  'apps/web/|packages/ui/',
- 'Học viên đăng ký qua Mailpit, xác minh, làm trọn đề demo N5 đã xuất bản và xem điểm trên staging CI|Khách làm thử được đề guest_trial, đề khác yêu cầu đăng nhập|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES,
+ 'Học viên đăng ký qua Mailpit, xác minh, làm trọn đề demo N5 đã xuất bản và xem điểm trên staging CI|Khách làm thử được đề guest_trial, đề khác yêu cầu đăng nhập|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:web|pnpm check:no-mock-ui',contracts='API')
 task('I06','W3',8,6,'Web: học tập, kế hoạch, lớp học, cộng đồng, gói thành viên nối API','I00',
  'Các trang so-tay, ke-hoach, luyen-tap, thong-ke, tu-vung/ngu-phap/thong-ke-tu-vung, lop-hoc, su-kien, thao-luan, goi-thanh-vien, tai-khoan, faq gọi API thật (module W5 learning/planner/stats/vocab/gamification/ai, W2 community/classroom, W4 entitlement).',
  'apps/web/|packages/ui/',
- 'Mỗi trang trong phạm vi hiển thị dữ liệu của chính học viên đăng nhập, ghi được thay đổi và tải lại vẫn còn|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES,
+ 'Mỗi trang trong phạm vi hiển thị dữ liệu của chính học viên đăng nhập, ghi được thay đổi và tải lại vẫn còn|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:web|pnpm check:no-mock-ui',contracts='API')
 task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I02 I03 I04 I05 I06',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.',

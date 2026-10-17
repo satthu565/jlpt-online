@@ -3077,7 +3077,8 @@
         "Sai mật khẩu hoặc sai TOTP bị từ chối bởi API, không chỉ ở UI",
         "Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass",
         "E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt",
-        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền"
+        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền",
+        "E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép"
       ],
       "checks": [
         "pnpm test:admin",
@@ -3116,7 +3117,8 @@
         "Editor nhập gói docs/multi-worker/demo-data qua giao diện, reviewer khác duyệt, xuất bản; đề hiện ở trang thư viện đề của web",
         "Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass",
         "E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt",
-        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền"
+        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền",
+        "E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép"
       ],
       "checks": [
         "pnpm test:admin",
@@ -3160,7 +3162,8 @@
         "Gói, giao dịch sandbox, hoàn tiền và đối soát hiển thị dữ liệu thật từ API",
         "Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass",
         "E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt",
-        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền"
+        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền",
+        "E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép"
       ],
       "checks": [
         "pnpm test:admin",
@@ -3203,7 +3206,8 @@
         "Khách làm thử được đề guest_trial, đề khác yêu cầu đăng nhập",
         "Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass",
         "E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt",
-        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền"
+        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền",
+        "E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép"
       ],
       "checks": [
         "pnpm test:web",
@@ -3243,7 +3247,8 @@
         "Mỗi trang trong phạm vi hiển thị dữ liệu của chính học viên đăng nhập, ghi được thay đổi và tải lại vẫn còn",
         "Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass",
         "E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt",
-        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền"
+        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền",
+        "E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép"
       ],
       "checks": [
         "pnpm test:web",

@@ -1260,6 +1260,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
   - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
   - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
+  - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:admin`
   - `pnpm check:no-mock-ui`
@@ -1285,6 +1286,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
   - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
   - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
+  - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:admin`
   - `pnpm check:no-mock-ui`
@@ -1310,6 +1312,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
   - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
   - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
+  - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:admin`
   - `pnpm test:payments`
@@ -1337,6 +1340,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
   - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
   - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
+  - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:web`
   - `pnpm check:no-mock-ui`
@@ -1362,6 +1366,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
   - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
   - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
+  - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:web`
   - `pnpm check:no-mock-ui`
