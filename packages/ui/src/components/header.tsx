@@ -41,6 +41,8 @@ export function Header({
         zIndex: 40,
         boxShadow: 'var(--shadow-sm)',
         transition: 'background-color 0.2s ease, border-color 0.2s ease',
+        maxWidth: '100vw',
+        overflowX: 'clip',
       }}
       className={`jlpt-header ${className}`}
     >
@@ -51,6 +53,9 @@ export function Header({
           alignItems: 'center',
           justifyContent: 'space-between',
           height: '64px',
+          maxWidth: '100%',
+          width: '100%',
+          boxSizing: 'border-box',
         }}
       >
         {/* Brand / Logo */}
@@ -201,6 +206,19 @@ export function Header({
       )}
 
       <style>{`
+        @media (max-width: 1400px) {
+          .theme-toggle-label {
+            display: none !important;
+          }
+        }
+        @media (max-width: 768px) {
+          .theme-toggle-label {
+            display: none !important;
+          }
+          .header-auth-buttons {
+            display: none !important;
+          }
+        }
         @media (min-width: 2200px) {
           .desktop-nav {
             display: flex !important;

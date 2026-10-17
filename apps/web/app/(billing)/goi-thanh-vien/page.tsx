@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   PricingTable,
   CheckoutCard,
@@ -8,16 +8,19 @@ import {
   type Plan,
   type CouponDiscount,
   type CheckoutSession,
+  type UserSubscription,
 } from '../../../features/billing';
 import { useI18n } from '../../../lib/i18n';
+import { Alert, Button, Card, CardContent, Spinner } from '@jlpt/ui';
+import Link from 'next/link';
 
-const SAMPLE_PLANS: Plan[] = [
+const DEFAULT_PLANS: Plan[] = [
   {
     id: 'premium_month',
     name: 'Gói Tháng (Ôn thi linh hoạt)',
     description: 'Thích hợp cho ôn luyện ngắn hạn trước kỳ thi 1-2 tháng.',
     interval: 'month',
-    priceMinor: 199000, // 199.000₫
+    priceMinor: 199000,
     currency: 'VND',
     entitlements: ['all_exams', 'unlimited_mix', 'audio_transcripts'],
   },
@@ -26,16 +29,16 @@ const SAMPLE_PLANS: Plan[] = [
     name: 'Gói Năm (Toàn diện N5-N1)',
     description: 'Tiết kiệm 50%, mở khóa toàn bộ tính năng và hỗ trợ 24/7.',
     interval: 'year',
-    priceMinor: 1499000, // 1.499.000₫
+    priceMinor: 1499000,
     currency: 'VND',
     entitlements: ['all_exams', 'unlimited_mix', 'ai_explanations', 'audio_transcripts', 'srs_sync'],
   },
   {
-    id: 'plan-lifetime',
+    id: 'premium_lifetime',
     name: 'Gói Trọn Đời (Lifetime Pass)',
     description: 'Sở hữu vĩnh viễn mọi cấp độ thi và cập nhật đề mới trọn đời.',
     interval: 'lifetime',
-    priceMinor: 1999000, // 1.999.000₫
+    priceMinor: 1999000,
     currency: 'VND',
     entitlements: ['all_exams', 'unlimited_mix', 'ai_explanations', 'audio_transcripts', 'srs_sync', 'priority_support'],
   },
@@ -44,46 +47,63 @@ const SAMPLE_PLANS: Plan[] = [
 export default function MembershipPage(): React.JSX.Element {
   const { t } = useI18n();
 
-  const [plans, setPlans] = useState<Plan[]>(SAMPLE_PLANS);
-  const [selectedPlan, setSelectedPlan] = useState<Plan>(SAMPLE_PLANS[1] ?? SAMPLE_PLANS[0]!); // Yearly default
+  const [plans, setPlans] = useState<Plan[]>(DEFAULT_PLANS);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(DEFAULT_PLANS[1] ?? DEFAULT_PLANS[0] ?? null);
+  const [subscription, setSubscription] = useState<UserSubscription | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const loadPlans = async () => {
+  const loadPlans = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
       const res = await defaultBillingClient.getPlans();
-      if (res.items && res.items.length > 0 && res.items[0]) {
-        setPlans(res.items);
-        setSelectedPlan(res.items[0]);
+      const planItems = res.items || [];
+      if (planItems.length > 0) {
+        setPlans(planItems);
+        setSelectedPlan((prev) => (prev ? planItems.find((p) => p.id === prev.id) || planItems[0]! : planItems[0]!));
       }
-    } catch {
-      // Use fallback
+
+      // Check current user subscription if logged in
+      try {
+        const sub = await defaultBillingClient.getUserSubscription();
+        if (sub && sub.status !== 'none') {
+          setSubscription(sub);
+        } else {
+          setSubscription(null);
+        }
+      } catch {
+        setSubscription(null);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes('401') || msg.includes('403')) {
+        // Not logged in or unauthenticated subscription check, ignore
+      } else {
+        setError(msg || t('common.status.error'));
+      }
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     loadPlans();
-  }, []);
+  }, [loadPlans]);
 
   const handleApplyCoupon = async (code: string): Promise<CouponDiscount> => {
-    // Validate coupon code
-    const validCodes: Record<string, { discountPercent: number; discountMinor: number }> = {
-      JLPT2026: { discountPercent: 20, discountMinor: Math.round(selectedPlan.priceMinor * 0.2) },
-      CHAOHE: { discountPercent: 30, discountMinor: Math.round(selectedPlan.priceMinor * 0.3) },
-      VIP50: { discountPercent: 50, discountMinor: Math.round(selectedPlan.priceMinor * 0.5) },
-    };
-
-    const match = validCodes[code.toUpperCase()];
-    if (!match) {
-      throw new Error(t('billing.coupon.invalidErrorCode', { code }));
+    if (!selectedPlan) {
+      throw new Error('Vui lòng chọn gói cước trước.');
     }
 
-    return {
-      code: code.toUpperCase(),
-      discountMinor: match.discountMinor,
-      discountPercent: match.discountPercent,
-    };
+    return defaultBillingClient.validateCoupon(code, selectedPlan.id);
   };
 
   const handleCheckout = async (planId: string, couponCode?: string): Promise<CheckoutSession> => {
+    if (!selectedPlan) {
+      throw new Error('Vui lòng chọn gói thành viên.');
+    }
+
     const term: 'month' | 'quarter' | 'year' =
       selectedPlan.interval === 'quarter'
         ? 'quarter'
@@ -105,7 +125,7 @@ export default function MembershipPage(): React.JSX.Element {
   };
 
   return (
-    <div className="container" style={{ padding: '3rem 1rem', maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+    <div className="max-w-5xl mx-auto py-8 px-4 w-full flex flex-col gap-8">
       <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto' }}>
         <h1
           style={{
@@ -122,21 +142,80 @@ export default function MembershipPage(): React.JSX.Element {
         </p>
       </div>
 
-      {/* Pricing Cards */}
-      <PricingTable
-        plans={plans}
-        selectedPlanId={selectedPlan.id}
-        onSelectPlan={(p) => setSelectedPlan(p)}
-      />
+      {subscription && subscription.status === 'active' && (
+        <Alert variant="info">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div>
+              <strong>Gói hiện tại của bạn:</strong> {plans.find((p) => p.id === subscription.planId)?.name || subscription.planId} (Đang hoạt động)
+              {subscription.currentPeriodEnd && (
+                <span style={{ display: 'block', fontSize: '0.8125rem', marginTop: '0.25rem' }}>
+                  Hiệu lực đến: {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+                </span>
+              )}
+            </div>
+            <Link href="/tai-khoan">
+              <Button size="sm" variant="outline">Quản lý thuê bao</Button>
+            </Link>
+          </div>
+        </Alert>
+      )}
 
-      {/* Checkout Card for Selected Plan */}
-      <div style={{ width: '100%' }}>
-        <CheckoutCard
-          plan={selectedPlan}
-          onApplyCoupon={handleApplyCoupon}
-          onCheckout={handleCheckout}
-        />
-      </div>
+      {error && (
+        <Alert variant="error" onClose={() => setError(null)}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <span>{error}</span>
+            <Button size="sm" variant="outline" onClick={loadPlans}>
+              {t('common.buttons.retry')}
+            </Button>
+          </div>
+        </Alert>
+      )}
+
+      {loading && (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem 0', alignItems: 'center', gap: '0.75rem' }}>
+          <Spinner size="md" />
+          <span style={{ color: 'var(--text-secondary)' }}>{t('common.status.loading')}</span>
+        </div>
+      )}
+
+      {!loading && plans.length === 0 && (
+        <Card>
+          <CardContent style={{ padding: '3.5rem 2rem', textAlign: 'center' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💎</div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>
+              Hiện chưa có gói thành viên mở bán
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', maxWidth: '500px', margin: '0 auto 1.5rem auto' }}>
+              Hệ thống đang cập nhật bảng giá ưu đãi mới. Trong lúc chờ đợi, bạn vẫn có thể làm thử các đề thi mẫu miễn phí.
+            </p>
+            <Link href="/de-thi">
+              <Button variant="primary">Làm thử đề thi</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
+
+      {plans.length > 0 && (
+        <>
+          {/* Pricing Cards */}
+          <PricingTable
+            plans={plans}
+            selectedPlanId={selectedPlan?.id}
+            onSelectPlan={(p) => setSelectedPlan(p)}
+          />
+
+          {/* Checkout Card for Selected Plan */}
+          {selectedPlan && (
+            <div style={{ width: '100%' }}>
+              <CheckoutCard
+                plan={selectedPlan}
+                onApplyCoupon={handleApplyCoupon}
+                onCheckout={handleCheckout}
+              />
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

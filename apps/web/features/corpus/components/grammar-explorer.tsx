@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Input, Button, Badge, TTSAudioPlayer } from '@jlpt/ui';
+import { Card, Input, Button, Badge, TTSAudioPlayer, Spinner, Alert } from '@jlpt/ui';
 import { CorpusClient } from '../services/corpus-client';
 import type { GrammarPatternDto } from '../types';
 import { useI18n } from '../../../lib/i18n';
@@ -12,6 +12,79 @@ export interface GrammarExplorerProps {
   className?: string;
 }
 
+const DEFAULT_GRAMMAR_PATTERNS: GrammarPatternDto[] = [
+  {
+    patternId: 'gp-n1-01',
+    pattern: '〜を皮切りに（して） / 〜を皮切りとして',
+    meaning: 'Khởi đầu với..., mở màn bằng... (sau đó diễn ra hàng loạt hành động tương tự)',
+    level: 'N1',
+    formation: 'Danh từ + を皮切りに（して） / を皮切りとして',
+    examples: [
+      {
+        sentence: '東京公演を皮切りに、全国ツアーが始まった。',
+        reading: 'とうきょうこうえんをかわきりに、ぜんこくツアーがはじまった。',
+        meaning: 'Khởi đầu bằng buổi diễn ở Tokyo, chuyến lưu diễn toàn quốc đã bắt đầu.',
+      },
+    ],
+  },
+  {
+    patternId: 'gp-n2-01',
+    pattern: '〜に際して / 〜に際し',
+    meaning: 'Nhân dịp..., khi bắt đầu làm một việc quan trọng...',
+    level: 'N2',
+    formation: 'Động từ thể từ điển / Danh từ + に際して',
+    examples: [
+      {
+        sentence: '留学に際して、多くの人から温かい励ましを受けた。',
+        reading: 'りゅうがくにさいして、おおくのひとからあたたかいはげましをうけた。',
+        meaning: 'Nhân dịp đi du học, tôi đã nhận được sự động viên ấm áp từ nhiều người.',
+      },
+    ],
+  },
+  {
+    patternId: 'gp-n3-01',
+    pattern: '〜わけにはいかない',
+    meaning: 'Không thể nào... (vì lý do đạo đức, xã hội, tâm lý chứ không phải khả năng)',
+    level: 'N3',
+    formation: 'Động từ thể từ điển / thể ない + わけにはいかない',
+    examples: [
+      {
+        sentence: '大事な会議があるので、仕事を休むわけにはいかない。',
+        reading: 'だいじなかいぎがあるので、しごとをやすむわけにはいかない。',
+        meaning: 'Vì có cuộc họp quan trọng nên tôi không thể nào nghỉ làm được.',
+      },
+    ],
+  },
+  {
+    patternId: 'gp-n4-01',
+    pattern: '〜てはいけない',
+    meaning: 'Không được phép làm...',
+    level: 'N4',
+    formation: 'Động từ thể て + はいけない',
+    examples: [
+      {
+        sentence: 'ここで写真を撮ってはいけません。',
+        reading: 'ここでしゃしんをとってはいけません。',
+        meaning: 'Không được chụp ảnh ở đây.',
+      },
+    ],
+  },
+  {
+    patternId: 'gp-n5-01',
+    pattern: '〜から〜まで',
+    meaning: 'Từ... đến...',
+    level: 'N5',
+    formation: 'Danh từ (thời gian/địa điểm) + から + Danh từ + まで',
+    examples: [
+      {
+        sentence: '銀行は午前9時から午後3時までです。',
+        reading: 'ぎんこうはごぜんくじからごごさんじまでです。',
+        meaning: 'Ngân hàng mở cửa từ 9 giờ sáng đến 3 giờ chiều.',
+      },
+    ],
+  },
+];
+
 export function GrammarExplorer({
   initialLevel = 'ALL',
   initialPatterns,
@@ -21,90 +94,28 @@ export function GrammarExplorer({
   const [client] = useState(() => new CorpusClient());
   const [selectedLevel, setSelectedLevel] = useState<string>(initialLevel);
   const [searchQuery, setSearchQuery] = useState('');
-  const [patterns, setPatterns] = useState<GrammarPatternDto[]>(() => initialPatterns || [
-    {
-      patternId: 'gp-n1-01',
-      pattern: '〜を皮切りに（して） / 〜を皮切りとして',
-      meaning: 'Khởi đầu với..., mở màn bằng... (sau đó diễn ra hàng loạt hành động tương tự)',
-      level: 'N1',
-      formation: 'Danh từ + を皮切りに（して） / を皮切りとして',
-      examples: [
-        {
-          sentence: '東京公演を皮切りに、全国ツアーが始まった。',
-          reading: 'とうきょうこうえんをかわきりに、ぜんこくツアーがはじまった。',
-          meaning: 'Khởi đầu bằng buổi diễn ở Tokyo, chuyến lưu diễn toàn quốc đã bắt đầu.',
-        },
-      ],
-    },
-    {
-      patternId: 'gp-n2-01',
-      pattern: '〜に際して / 〜に際し',
-      meaning: 'Nhân dịp..., khi bắt đầu làm một việc quan trọng...',
-      level: 'N2',
-      formation: 'Động từ thể từ điển / Danh từ + に際して',
-      examples: [
-        {
-          sentence: '留学に際して、多くの人から温かい励ましを受けた。',
-          reading: 'りゅうがくにさいして、おおくのひとからあたたかいはげましをうけた。',
-          meaning: 'Nhân dịp đi du học, tôi đã nhận được sự động viên ấm áp từ nhiều người.',
-        },
-      ],
-    },
-    {
-      patternId: 'gp-n3-01',
-      pattern: '〜わけにはいかない',
-      meaning: 'Không thể nào... (vì lý do đạo đức, xã hội, tâm lý chứ không phải khả năng)',
-      level: 'N3',
-      formation: 'Động từ thể từ điển / thể ない + わけにはいかない',
-      examples: [
-        {
-          sentence: '大事な会議があるので、仕事を休むわけにはいかない。',
-          reading: 'だいじなかいぎがあるので、しごとをやすむわけにはいかない。',
-          meaning: 'Vì có cuộc họp quan trọng nên tôi không thể nào nghỉ làm được.',
-        },
-      ],
-    },
-    {
-      patternId: 'gp-n4-01',
-      pattern: '〜てはいけない',
-      meaning: 'Không được phép làm...',
-      level: 'N4',
-      formation: 'Động từ thể て + はいけない',
-      examples: [
-        {
-          sentence: 'ここで写真を撮ってはいけません。',
-          reading: 'ここでしゃしんをとってはいけません。',
-          meaning: 'Không được chụp ảnh ở đây.',
-        },
-      ],
-    },
-    {
-      patternId: 'gp-n5-01',
-      pattern: '〜から〜まで',
-      meaning: 'Từ... đến...',
-      level: 'N5',
-      formation: 'Danh từ (thời gian/địa điểm) + から + Danh từ + まで',
-      examples: [
-        {
-          sentence: '銀行は午前9時から午後3時までです。',
-          reading: 'ぎんこうはごぜんくじからごごさんじまでです。',
-          meaning: 'Ngân hàng mở cửa từ 9 giờ sáng đến 3 giờ chiều.',
-        },
-      ],
-    },
-  ]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [patterns, setPatterns] = useState<GrammarPatternDto[]>(() => initialPatterns || DEFAULT_GRAMMAR_PATTERNS);
 
   useEffect(() => {
     let active = true;
+    setIsLoading(true);
+    setLoadError(null);
     client
       .getGrammar('jlpt-official', selectedLevel === 'ALL' ? undefined : selectedLevel)
       .then((data) => {
-        if (active && data && data.length > 0) {
-          setPatterns(data);
+        if (active) {
+          setPatterns(data || []);
         }
       })
-      .catch(() => {
-        // Retain fallback items
+      .catch((err) => {
+        if (active) {
+          setLoadError(err instanceof Error ? err.message : 'Không thể tải dữ liệu ngữ pháp');
+        }
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
       });
     return () => {
       active = false;
@@ -163,6 +174,18 @@ export function GrammarExplorer({
           ))}
         </div>
       </div>
+
+      {isLoading && (
+        <div className="flex justify-center items-center py-6" data-testid="grammar-loading-spinner">
+          <Spinner size="md" aria-label="Đang tải dữ liệu ngữ pháp..." />
+        </div>
+      )}
+
+      {loadError && (
+        <Alert variant="error" className="text-xs" data-testid="grammar-load-error">
+          {loadError}
+        </Alert>
+      )}
 
       {/* Patterns Grid */}
       <div className="space-y-4" data-testid="grammar-cards-list">
