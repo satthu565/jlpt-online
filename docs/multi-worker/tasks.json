@@ -3393,6 +3393,73 @@
       "originalTaskRefs": []
     },
     {
+      "id": "I10",
+      "owner": "W2",
+      "day": 8,
+      "notBeforeHour": 168,
+      "targetByHour": 192,
+      "estimatedWorkerHours": 3,
+      "title": "Bỏ tự tạo tài khoản nhân sự khi API khởi động",
+      "dependencies": [
+        "I08"
+      ],
+      "featureIds": [],
+      "scope": "AuthService.onModuleInit đang tự tạo 5 tài khoản nhân sự (kể cả admin) với mật khẩu Admin123456! và secret TOTP cố định mỗi khi NODE_ENV khác production: một cửa hậu nếu máy chủ thật cấu hình thiếu biến. Gỡ hẳn việc tạo tài khoản khỏi code chạy thật (onModuleInit, service); tài khoản nhân sự demo chỉ được tạo bởi script seed chạy tay cho staging/demo (demo-seed hoặc tests/fixtures) và script đó từ chối chạy khi APP_ENV=production. Không còn mật khẩu hay secret TOTP viết cứng trong apps/api/src ngoài file test và script seed.",
+      "outputs": [
+        "package.json",
+        "apps/api/package.json",
+        "apps/api/src/common/",
+        "apps/api/src/modules/auth/",
+        "apps/api/src/modules/user/",
+        "apps/api/src/modules/exam/",
+        "apps/api/src/modules/attempt/",
+        "apps/api/src/modules/question-bank/",
+        "apps/api/src/modules/import/",
+        "apps/api/src/modules/media/",
+        "apps/api/src/modules/review/",
+        "apps/api/src/modules/storage/",
+        "apps/api/src/modules/license/",
+        "apps/api/src/modules/blueprint/",
+        "apps/api/src/modules/audit/",
+        "apps/api/src/modules/notification/",
+        "apps/api/src/modules/community/",
+        "apps/api/src/modules/classroom/",
+        "apps/api/src/modules/scoring/",
+        "apps/api/src/modules/outbox/",
+        "apps/api/src/modules/email/",
+        "apps/api/src/modules/admin/",
+        "apps/api/src/modules/turnstile/",
+        "apps/api/src/main.ts",
+        "apps/api/src/app.module.ts",
+        "docs/decisions/"
+      ],
+      "acceptance": [
+        "API khởi động với mọi NODE_ENV không tạo hay sửa tài khoản nào; có test kiểm tra",
+        "Script seed staging từ chối chạy khi APP_ENV=production",
+        "grep mật khẩu/secret mặc định trong apps/api/src (trừ test và seed) không còn kết quả",
+        "E2E staff login trên staging vẫn pass vì staging chạy seed"
+      ],
+      "checks": [
+        "pnpm test:auth",
+        "pnpm test:security",
+        "pnpm test:api:all"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [
+        "api-hardening"
+      ],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
       "id": "I07",
       "owner": "W6",
       "day": 8,
@@ -3403,6 +3470,7 @@
       "dependencies": [
         "I01",
         "I08",
+        "I10",
         "I09",
         "I03",
         "I04",

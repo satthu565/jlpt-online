@@ -1425,12 +1425,38 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
+<a id="i10"></a>
+
+### I10 Bỏ tự tạo tài khoản nhân sự khi API khởi động
+
+- Worker: **W2**. Ngày mục tiêu: 8. Ước lượng chưa đo: 3 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: I08. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: AuthService.onModuleInit đang tự tạo 5 tài khoản nhân sự (kể cả admin) với mật khẩu Admin123456! và secret TOTP cố định mỗi khi NODE_ENV khác production: một cửa hậu nếu máy chủ thật cấu hình thiếu biến. Gỡ hẳn việc tạo tài khoản khỏi code chạy thật (onModuleInit, service); tài khoản nhân sự demo chỉ được tạo bởi script seed chạy tay cho staging/demo (demo-seed hoặc tests/fixtures) và script đó từ chối chạy khi APP_ENV=production. Không còn mật khẩu hay secret TOTP viết cứng trong apps/api/src ngoài file test và script seed.
+- Bàn giao: package.json; apps/api/package.json; apps/api/src/common/; apps/api/src/modules/auth/; apps/api/src/modules/user/; apps/api/src/modules/exam/; apps/api/src/modules/attempt/; apps/api/src/modules/question-bank/; apps/api/src/modules/import/; apps/api/src/modules/media/; apps/api/src/modules/review/; apps/api/src/modules/storage/; apps/api/src/modules/license/; apps/api/src/modules/blueprint/; apps/api/src/modules/audit/; apps/api/src/modules/notification/; apps/api/src/modules/community/; apps/api/src/modules/classroom/; apps/api/src/modules/scoring/; apps/api/src/modules/outbox/; apps/api/src/modules/email/; apps/api/src/modules/admin/; apps/api/src/modules/turnstile/; apps/api/src/main.ts; apps/api/src/app.module.ts; docs/decisions/.
+- Hợp đồng: API.
+- Khóa tài nguyên: api-hardening.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: không.
+- Nghiệm thu:
+  - API khởi động với mọi NODE_ENV không tạo hay sửa tài khoản nào; có test kiểm tra.
+  - Script seed staging từ chối chạy khi APP_ENV=production.
+  - grep mật khẩu/secret mặc định trong apps/api/src (trừ test và seed) không còn kết quả.
+  - E2E staff login trên staging vẫn pass vì staging chạy seed.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:auth`
+  - `pnpm test:security`
+  - `pnpm test:api:all`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
 <a id="i07"></a>
 
 ### I07 Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả
 
 - Worker: **W6**. Ngày mục tiêu: 8. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: I01, I08, I09, I03, I04, I05, I06. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: I01, I08, I10, I09, I03, I04, I05, I06. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.
 - Bàn giao: tests/; .github/; infra/; docs/release/; docs/runbooks/.
