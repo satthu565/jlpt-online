@@ -440,6 +440,46 @@ task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ l
  'tests/integration/mock-ui-baseline.json rỗng; CI fail nếu có dữ liệu giả mới|E2E: học viên đăng ký -> làm đề -> xem điểm; editor nhập -> reviewer duyệt -> xuất bản; admin xem người dùng và audit; tất cả trên staging thật|docs/release/INTEGRATION_REPORT.md liệt kê từng trang và bằng chứng E2E',
  'pnpm check:no-mock-ui|pnpm test:e2e:integration',resources='ci-workflow staging-deploy',kind='verification')
 
+# Day 9 (owner request 2026-10-17): one design system on shadcn/ui + Tailwind, and mobile speed.
+# Starts after I07 so it never fights the API-wiring tasks over the same pages.
+NO_REGRESS = ('Lighthouse trên staging CI không giảm so với số đo trước đợt (máy tính hiệu năng ≥98, điện thoại ≥70, trợ năng ≥95, SEO 100); '
+              'ảnh chụp 390px và 1366px của các trang đã đổi lưu làm artifact')
+task('D00','W3',9,5,'Hệ thống thiết kế @jlpt/ui dựng lại trên shadcn/ui','I07',
+ 'Khởi tạo shadcn/ui (components.json, cn, class-variance-authority, tailwind-merge, Radix khi cần) trong packages/ui; '
+ 'dựng lại Button, Input, Textarea, Label, Select, Checkbox, RadioGroup, Switch, Tabs, Dialog, DropdownMenu, Popover, Tooltip, Card, Badge, Alert, Toast, Skeleton theo token màu hiện có, sáng/tối theo class dark. '
+ 'Giữ nguyên tên export và props đang dùng để web/admin không vỡ; bỏ inline style. Thêm lệnh pnpm check:ui-primitives (packages/ui/scripts/) báo thẻ <button>/<input>/<select>/<textarea> gốc trong apps/web và apps/admin, kèm baseline giảm dần.',
+ 'packages/ui/|package.json|docs/decisions/',
+ 'Mỗi thành phần có test hành vi bàn phím, focus và aria; Dialog giữ focus và đóng bằng Esc|Chỉ chép thành phần thật sự dùng; không cài thư viện UI nguyên khối|'
+ 'Bản build web không tăng quá 15 KB JS nén ở trang chủ so với trước đợt|'+NO_REGRESS,
+ 'pnpm --filter @jlpt/ui test|pnpm check:ui-primitives|pnpm build',contracts='API',resources='ui-contract')
+task('D01','W6',9,3,'Cổng hiệu năng Lighthouse trên staging CI','I07',
+ 'Thêm Lighthouse CI chạy trên staging thật cho các trang chính (/, /de-thi, /phong-thi, /n5, /dang-nhap, admin /login), preset điện thoại và máy tính, lưu báo cáo làm artifact; '
+ 'ghi số đo gốc trước đợt vào docs/release/performance-baseline.json; ngân sách: điện thoại LCP < 2,5 s, CLS < 0,1, TBT < 200 ms, JS ban đầu mỗi trang có trần.',
+ 'tests/|.github/|infra/|docs/release/|package.json',
+ 'pnpm test:lighthouse chạy được trên staging CI và fail khi vượt ngân sách|Số đo gốc lưu kèm commit SHA; không lấy số máy ảo làm số production|Ngân sách ban đầu ở chế độ cảnh báo, D04 chuyển thành chặn',
+ 'pnpm test:lighthouse -- --list',resources='ci-workflow staging-deploy')
+task('D02','W3',9,6,'Web dùng thống nhất @jlpt/ui','D00',
+ 'Thay toàn bộ <button>/<input>/<select>/<textarea> gốc và class tự chế trong apps/web bằng thành phần @jlpt/ui; đồng bộ khoảng cách, cỡ chữ, trạng thái hover/focus/disabled/loading; '
+ 'thiết kế lại thanh menu máy tính gọn (nhóm mục phụ vào menu "Thêm", chuyển ngôn ngữ/giao diện vào menu tài khoản) để hiện được từ 1280px.',
+ 'apps/web/',
+ 'Baseline check:ui-primitives của apps/web rỗng|Menu máy tính hiện đủ từ 1280px, không cuộn ngang|'+NO_REGRESS,
+ 'pnpm test:web|pnpm check:ui-primitives|pnpm check:no-mock-ui',contracts='API')
+task('D03','W4',9,4,'Admin dùng thống nhất @jlpt/ui','D00',
+ 'Thay thẻ gốc và inline style trong apps/admin bằng thành phần @jlpt/ui; bảng, form, bộ lọc, hộp thoại xác nhận dùng chung một kiểu.',
+ 'apps/admin/',
+ 'Baseline check:ui-primitives của apps/admin rỗng|Admin có chế độ tối hoạt động|'+NO_REGRESS,
+ 'pnpm test:admin|pnpm check:ui-primitives|pnpm check:no-mock-ui',contracts='API')
+task('D04','W3',9,5,'Tối ưu tốc độ web trên điện thoại','D01 D02',
+ 'Đưa các trang chính đạt ngân sách D01 trên điện thoại: giảm JS tải ban đầu (server component, tách gói, tải muộn phần không cần ngay), font tự host có preload và font-display swap, ảnh next/image đúng kích thước, bỏ request analytics lỗi 404, cache tĩnh.',
+ 'apps/web/|packages/ui/',
+ 'Lighthouse điện thoại trên staging: LCP < 2,5 s, CLS < 0,1, TBT < 200 ms ở /, /de-thi, /phong-thi, /n5, /dang-nhap|Ngân sách D01 chuyển sang chặn và pass|Không đổi hành vi; E2E tích hợp vẫn pass',
+ 'pnpm test:web|pnpm build',contracts='API')
+task('D05','W6',9,3,'Nghiệm thu giao diện thống nhất và hiệu năng','D02 D03 D04',
+ 'Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau.',
+ 'tests/|.github/|docs/release/',
+ 'docs/release/DESIGN_PERF_REPORT.md có số đo trước/sau và ảnh từng trang|Không trang nào cuộn ngang hoặc hiện key dịch thô|check:ui-primitives và test:lighthouse chặn trong CI',
+ 'pnpm test:e2e:integration|pnpm test:lighthouse|pnpm check:ui-primitives',resources='ci-workflow staging-deploy',kind='verification')
+
 # Map every feature exactly once to a primary delivery task; other tasks may integrate it.
 feature_task = {}
 for t in TASKS:
