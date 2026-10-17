@@ -134,6 +134,11 @@ jobs:
           docker compose -f infra/compose/compose.staging.yml exec -T postgres psql -U jlpt -d jlpt_staging -c "UPDATE exams SET description = 'guest_trial' WHERE slug = 'demo-n5-1';"
           echo "Staging database seeded successfully."
 
+      # Browsers for the Playwright projects in tests/playwright.config.ts (chromium, firefox, webkit).
+      # The version comes from tests/node_modules, the same binary the runner uses.
+      - name: Install Playwright browsers
+        run: pnpm --filter @jlpt/tests exec playwright install --with-deps chromium firefox webkit
+
       # Acceptance (I00): "pnpm test:e2e:integration chạy Playwright thật trên staging CI; có fixture đăng ký qua Mailpit và tài khoản staff seed có mật khẩu và TOTP"
       - name: Run Playwright Real API Integration Suite (I00)
         env:
