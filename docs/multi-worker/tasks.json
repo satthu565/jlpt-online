@@ -3065,8 +3065,7 @@
       "estimatedWorkerHours": 4,
       "title": "Đăng nhập nhân sự thật và khung quản trị nối API",
       "dependencies": [
-        "I00",
-        "I01"
+        "I00"
       ],
       "featureIds": [],
       "scope": "Bỏ đăng nhập giả trong apps/admin/lib/auth-context.tsx: đăng nhập email mật khẩu, TOTP enrollment/challenge và recovery codes qua API; session, đăng xuất, guard theo role từ server. Trang tổng quan, người dùng, audit log, cài đặt (org, thông báo, backup) lấy dữ liệu từ API.",
@@ -3192,8 +3191,7 @@
       "estimatedWorkerHours": 6,
       "title": "Web: thư viện đề, phòng thi, kết quả, lịch sử nối API thật",
       "dependencies": [
-        "I00",
-        "I01"
+        "I00"
       ],
       "featureIds": [],
       "scope": "Thư viện đề (de-thi, trang SEO theo cấp) và phòng thi lấy đề đã xuất bản từ API, bỏ ALL_SAMPLE_EXAMS; bắt đầu lượt, tải snapshot, lưu tự động, chuyển phần, nộp, xem kết quả, lịch sử, chia sẻ kết quả qua API; khách làm thử đề guest_trial.",
@@ -3276,6 +3274,7 @@
       "estimatedWorkerHours": 4,
       "title": "Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả",
       "dependencies": [
+        "I01",
         "I02",
         "I03",
         "I04",
