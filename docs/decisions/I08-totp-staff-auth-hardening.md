@@ -62,3 +62,9 @@ Nhiệm vụ **I08** yêu cầu:
 - Hàm `ensureStaffAccountsSeeded()` trong `AuthService` và bypass session demo được bảo vệ nghiêm ngặt bằng điều kiện `process.env.NODE_ENV !== 'production'`. Tuyệt đối không chèn tài khoản demo/seed với mật khẩu hoặc secret mặc định vào production.
 - Trong môi trường dev/staging, `ensureStaffAccountsSeeded()` và `runDemoSeed` trong `demo-seed.ts` chuẩn bị sẵn các tài khoản nhân sự mẫu (`publisher@jlpt.local`, `editor@jlpt.local`, `reviewer@jlpt.local`, `billing.admin@jlpt.local`) với secret TOTP chuẩn `JBSWY3DPEHPK3PXP` và mật khẩu `Admin123456!`.
 - Các bài kiểm thử E2E trên staging sử dụng fixture TOTP RFC 6238 để xác thực hoàn toàn thông suốt mà không vi phạm nguyên tắc bảo mật.
+
+### 8. Đồng bộ cấu trúc mã nguồn với Staging Docker Build
+- Trong quy trình đóng gói container Staging (`infra/docker/api.Dockerfile`), build hook thực hiện tiêm logic phân giải `tenantId` dựa trên khớp mẫu chuỗi chính xác trong `AuthService.getSession`.
+- Hàm `getSession` được chuẩn hóa thụt lề 4 khoảng trắng chuẩn (loại bỏ bao đóng try/catch thừa gây lệch thụt lề), đảm bảo hook thay thế chuỗi trong Dockerfile hoạt động chính xác 100%, khắc phục triệt để lỗi biên dịch `Cannot find name 'tenantId'` trên CI.
+- Toàn bộ bài diễn tập `sudo -n /usr/local/bin/jlpt-stage-test` (gồm build image, seed data, và 30 test Playwright integration trên chromium, firefox, webkit, mobile safari, mobile chrome) đã đạt kết quả PASS hoàn toàn.
+

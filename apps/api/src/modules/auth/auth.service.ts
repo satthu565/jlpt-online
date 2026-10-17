@@ -838,103 +838,97 @@ export class AuthService implements OnModuleInit {
   async getSession(token: string): Promise<AuthUserContext | null> {
     if (!token) return null;
 
-    try {
-      const rows = await this.client.db
-        .select({
-          sessionId: schema.sessions.id,
-          sessionToken: schema.sessions.token,
-          sessionExpiresAt: schema.sessions.expiresAt,
-          userId: schema.users.id,
-          email: schema.users.email,
-          name: schema.users.name,
-          role: schema.users.role,
-          emailVerified: schema.users.emailVerified,
-          blockedAt: schema.users.blockedAt,
-        })
-        .from(schema.sessions)
-        .innerJoin(schema.users, eq(schema.sessions.userId, schema.users.id))
+    const rows = await this.client.db
+      .select({
+        sessionId: schema.sessions.id,
+        sessionToken: schema.sessions.token,
+        sessionExpiresAt: schema.sessions.expiresAt,
+        userId: schema.users.id,
+        email: schema.users.email,
+        name: schema.users.name,
+        role: schema.users.role,
+        emailVerified: schema.users.emailVerified,
+        blockedAt: schema.users.blockedAt,
+      })
+      .from(schema.sessions)
+      .innerJoin(schema.users, eq(schema.sessions.userId, schema.users.id))
+      .where(
+        and(
+          eq(schema.sessions.token, token),
+          gt(schema.sessions.expiresAt, new Date()),
+        ),
+      )
+      .limit(1);
+
+    const row = rows[0];
+    if (!row || row.blockedAt) {
+      return null;
+    }
+
+    // Query user profile for 2FA metadata
+    let twoFactorEnabled = false;
+    let totpSecret: string | undefined = undefined;
+
+    const profileRows = await this.client.db
+      .select({ metadata: schema.userProfiles.metadata })
+      .from(schema.userProfiles)
+      .where(eq(schema.userProfiles.userId, row.userId))
+      .limit(1);
+
+    const meta = profileRows[0]?.metadata as Record<string, unknown> | undefined;
+    const tf = meta?.twoFactor as UserTotpMetadata | undefined;
+
+    if (tf && tf.enabled) {
+      twoFactorEnabled = true;
+      if (tf.encryptedSecret) {
+        try {
+          totpSecret = decryptTotpSecret(tf.encryptedSecret, row.userId);
+        } catch {
+          totpSecret = undefined;
+        }
+      }
+    }
+
+    // Check if session has verified 2FA challenge
+    let twoFactorVerified = false;
+    const isDemoToken =
+      process.env.NODE_ENV !== 'production' &&
+      (token === 'tok_admin_demo' ||
+        token === 'tok_billing_admin_demo' ||
+        token === 'tok_editor_demo' ||
+        token === 'tok_reviewer_demo');
+
+    if (isDemoToken) {
+      twoFactorVerified = true;
+    } else {
+      const verifs = await this.client.db
+        .select({ value: schema.verifications.value })
+        .from(schema.verifications)
         .where(
           and(
-            eq(schema.sessions.token, token),
-            gt(schema.sessions.expiresAt, new Date()),
+            eq(schema.verifications.identifier, `session_2fa_${row.sessionId}`),
+            gt(schema.verifications.expiresAt, new Date()),
           ),
         )
         .limit(1);
 
-      const row = rows[0];
-      if (!row || row.blockedAt) {
-        return null;
-      }
-
-      // Query user profile for 2FA metadata
-      let twoFactorEnabled = false;
-      let totpSecret: string | undefined = undefined;
-
-      const profileRows = await this.client.db
-        .select({ metadata: schema.userProfiles.metadata })
-        .from(schema.userProfiles)
-        .where(eq(schema.userProfiles.userId, row.userId))
-        .limit(1);
-
-      const meta = profileRows[0]?.metadata as Record<string, unknown> | undefined;
-      const tf = meta?.twoFactor as UserTotpMetadata | undefined;
-
-      if (tf && tf.enabled) {
-        twoFactorEnabled = true;
-        if (tf.encryptedSecret) {
-          try {
-            totpSecret = decryptTotpSecret(tf.encryptedSecret, row.userId);
-          } catch {
-            totpSecret = undefined;
-          }
-        }
-      }
-
-      // Check if session has verified 2FA challenge
-      let twoFactorVerified = false;
-      const isDemoToken =
-        process.env.NODE_ENV !== 'production' &&
-        (token === 'tok_admin_demo' ||
-          token === 'tok_billing_admin_demo' ||
-          token === 'tok_editor_demo' ||
-          token === 'tok_reviewer_demo');
-
-      if (isDemoToken) {
+      if (verifs.length > 0 && verifs[0]?.value === 'verified') {
         twoFactorVerified = true;
-      } else {
-        const verifs = await this.client.db
-          .select({ value: schema.verifications.value })
-          .from(schema.verifications)
-          .where(
-            and(
-              eq(schema.verifications.identifier, `session_2fa_${row.sessionId}`),
-              gt(schema.verifications.expiresAt, new Date()),
-            ),
-          )
-          .limit(1);
-
-        if (verifs.length > 0 && verifs[0]?.value === 'verified') {
-          twoFactorVerified = true;
-        }
       }
-
-      return {
-        userId: row.userId,
-        email: row.email,
-        name: row.name,
-        role: row.role as AuthUserContext['role'],
-        sessionId: row.sessionId,
-        sessionToken: row.sessionToken,
-        emailVerified: row.emailVerified,
-        twoFactorEnabled,
-        twoFactorVerified,
-        totpSecret,
-      };
-    } catch (err: unknown) {
-      this.logger.error(`Error resolving session: ${(err as Error)?.message || String(err)}`);
-      // Fail closed: database error never lets request pass through
-      throw err;
     }
+
+    return {
+      userId: row.userId,
+      email: row.email,
+      name: row.name,
+      role: row.role as AuthUserContext['role'],
+      sessionId: row.sessionId,
+      sessionToken: row.sessionToken,
+      emailVerified: row.emailVerified,
+      twoFactorEnabled,
+      twoFactorVerified,
+      totpSecret,
+    };
   }
 
   // =========================================================================
