@@ -7,7 +7,7 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "test": "turbo run test --concurrency=2",
+    "test": "turbo run build && turbo run test --concurrency=2",
     "test:import-contracts": "vitest run packages/content-tools/tests/import-contracts.test.ts",
     "test:import-validation": "vitest run packages/content-tools/tests/import-validation.test.ts",
     "test:import-jobs": "vitest run apps/api/src/modules/import/import-jobs.test.ts",
@@ -93,7 +93,9 @@
     "test:integration:learning": "vitest run -c tests/vitest.config.ts tests/integration/learning/ --testTimeout=60000 --hookTimeout=60000",
     "test:integration:billing": "vitest run -c tests/vitest.config.ts tests/integration/billing/ --testTimeout=60000 --hookTimeout=60000",
     "test:load:baseline": "node --no-warnings --experimental-strip-types tests/load/baseline-runner.ts",
-    "test:api:all": "pnpm --filter @jlpt/api test"
+    "test:api:all": "pnpm --filter @jlpt/api test",
+    "test:e2e:admin-all": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/e2e-admin-all.test.tsx",
+    "test:reconciliation": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/payment/reconciliation.test.ts && vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/reporting/reporting-reconciliation.test.ts && vitest run -c apps/admin/vitest.config.ts apps/admin/tests/reconciliation.test.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",

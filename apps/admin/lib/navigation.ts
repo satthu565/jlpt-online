@@ -181,6 +181,12 @@ export const ALL_NAV_SECTIONS: NavSection[] = [
         href: '/commercial/coupons',
         requiredRoles: ['admin', 'billing_admin'],
       },
+      {
+        id: 'reconciliation',
+        labelKey: 'nav.reconciliation',
+        href: '/commercial/reconciliation',
+        requiredRoles: ['admin', 'billing_admin'],
+      },
     ],
   },
   {
@@ -239,6 +245,12 @@ export const ALL_NAV_SECTIONS: NavSection[] = [
         id: 'settings',
         labelKey: 'nav.settings',
         href: '/settings',
+        requiredRoles: ['admin'],
+      },
+      {
+        id: 'backup',
+        labelKey: 'nav.backup',
+        href: '/settings/backup',
         requiredRoles: ['admin'],
       },
     ],
