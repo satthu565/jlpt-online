@@ -407,8 +407,14 @@ task('I01','W2',8,5,'API bổ sung cho giao diện quản trị và luồng thi 
  'Lượt thi trên staging tải được snapshot, audio Range 206 và nộp bài, không phụ thuộc domain media.jlpt.local|'
  'Danh sách endpoint admin cần cho từng trang (users, audit, exams, questions, imports, reviews, blueprints, media, vocab, moderation, notifications, org) có trong API, có phân quyền và test',
  'pnpm test:api:all|pnpm test:security',contracts='API',resources='api-hardening')
-task('I02','W4',8,4,'Đăng nhập nhân sự thật và khung quản trị nối API','I00',
- 'Bỏ đăng nhập giả trong apps/admin/lib/auth-context.tsx: đăng nhập email mật khẩu, TOTP enrollment/challenge và recovery codes qua API; session, đăng xuất, guard theo role từ server. '
+task('I08','W2',8,4,'API xác thực hai bước (TOTP) cho nhân sự','I01',
+ 'Bổ sung trong module auth: đăng ký TOTP cho nhân sự (sinh secret lưu mã hóa theo user, trả otpauth URI), xác nhận đăng ký bằng mã 6 số, thử thách TOTP sau khi đăng nhập mật khẩu (session chỉ đánh dấu twoFactorVerified khi mã đúng), mã khôi phục dùng một lần lưu dạng hash, tắt/đặt lại 2FA có audit. '
+ 'Sửa TotpGuard: bỏ secret mặc định viết cứng (JBSWY3DPEHPK3PXP và TOTP_TEST_SECRET ở production), kiểm tra theo secret của chính user và cờ twoFactorVerified của session; route /admin bắt buộc với nhân sự. Seed staging có tài khoản nhân sự với secret biết trước cho E2E.',
+ '@roots',
+ 'Mã sai, mã cũ, mã khôi phục đã dùng hoặc không tồn tại đều bị API từ chối; lỗi DB không bao giờ cho qua|Không còn secret TOTP mặc định trong code chạy thật|Test API cho đăng ký, thử thách, mã khôi phục, khóa sau nhiều lần sai; E2E đăng nhập nhân sự qua API trên staging',
+ 'pnpm test:auth|pnpm test:security|pnpm test:api:all',contracts='API',resources='api-hardening')
+task('I02','W4',8,4,'Đăng nhập nhân sự thật và khung quản trị nối API','I00 I08',
+ 'Bỏ đăng nhập giả trong apps/admin/lib/auth-context.tsx: đăng nhập email mật khẩu, TOTP enrollment/challenge và recovery codes qua API của I08 (không tự viết xác thực trong module khác, không giữ chế độ offline giả lập); session, đăng xuất, guard theo role từ server. '
  'Trang tổng quan, người dùng, audit log, cài đặt (org, thông báo, backup) lấy dữ liệu từ API.',
  'apps/admin/',
  'Sai mật khẩu hoặc sai TOTP bị từ chối bởi API, không chỉ ở UI|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
@@ -434,7 +440,7 @@ task('I06','W3',8,6,'Web: học tập, kế hoạch, lớp học, cộng đồng
  'apps/web/|packages/ui/',
  'Mỗi trang trong phạm vi hiển thị dữ liệu của chính học viên đăng nhập, ghi được thay đổi và tải lại vẫn còn|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:web|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
-task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I02 I03 I04 I05 I06',
+task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I02 I03 I04 I05 I06',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',
  'tests/integration/mock-ui-baseline.json rỗng; CI fail nếu có dữ liệu giả mới|E2E: học viên đăng ký -> làm đề -> xem điểm; editor nhập -> reviewer duyệt -> xuất bản; admin xem người dùng và audit; tất cả trên staging thật|docs/release/INTEGRATION_REPORT.md liệt kê từng trang và bằng chứng E2E',
