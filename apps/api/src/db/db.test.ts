@@ -47,6 +47,9 @@ describe('F08 Database Schema and Migrations', () => {
         const names = (ledger.rows ?? ledger).map((r: { name: string }) => r.name);
         expect(names).toContain('0000_legal_paibok.sql');
         expect(names).toContain('0001_curvy_invisible_woman.sql');
+        expect(names).toContain('0002_tenant_retention_community.sql');
+        expect(names).toContain('0003_privacy_export_isolation.sql');
+        expect(names.length).toBe(4);
       } finally {
         await client.close();
       }
@@ -58,7 +61,7 @@ describe('F08 Database Schema and Migrations', () => {
         await runMigrations(client);
         const secondRun = await runMigrations(client);
         expect(secondRun.applied.length).toBe(0);
-        expect(secondRun.alreadyApplied.length).toBeGreaterThanOrEqual(2);
+        expect(secondRun.alreadyApplied.length).toBeGreaterThanOrEqual(4);
       } finally {
         await client.close();
       }
@@ -68,7 +71,7 @@ describe('F08 Database Schema and Migrations', () => {
       const client = await createDbClient();
       try {
         const [first, second] = await Promise.all([runMigrations(client), runMigrations(client)]);
-        expect(first.applied.length).toBeGreaterThanOrEqual(2);
+        expect(first.applied.length).toBeGreaterThanOrEqual(4);
         expect(second.applied.length).toBe(0);
       } finally {
         await client.close();
@@ -117,6 +120,22 @@ describe('F08 Database Schema and Migrations', () => {
         expect(compatResult.checkedTables).toContain('blueprints');
         expect(compatResult.checkedTables).toContain('users');
         expect(compatResult.checkedTables).toContain('outbox');
+        expect(compatResult.checkedTables).toContain('tenant_plans');
+        expect(compatResult.checkedTables).toContain('retention_policies');
+        expect(compatResult.checkedTables).toContain('org_memberships');
+        expect(compatResult.checkedTables).toContain('classes');
+        expect(compatResult.checkedTables).toContain('assignments');
+        expect(compatResult.checkedTables).toContain('exam_events');
+        expect(compatResult.checkedTables).toContain('explanation_versions');
+        expect(compatResult.checkedTables).toContain('class_memberships');
+        expect(compatResult.checkedTables).toContain('assignment_learners');
+        expect(compatResult.checkedTables).toContain('comment_reports');
+        expect(compatResult.checkedTables).toContain('ai_content_versions');
+        expect(compatResult.checkedTables).toContain('export_jobs');
+        expect(compatResult.checkedTables).toContain('data_export_jobs');
+        expect(compatResult.checkedTables).toContain('deletion_requests');
+        expect(compatResult.checkedTables).toContain('report_snapshots');
+        expect(compatResult.checkedTables.length).toBe(21);
 
         for (const msg of Object.values(compatResult.details)) {
           expect(msg).not.toContain('FAILED');
@@ -1256,6 +1275,65 @@ describe('F08 Database Schema and Migrations', () => {
         expect(names).toContain('deletion_requests_user_status_idx');
         expect(names).toContain('report_snapshots_name_period_idx');
         expect(names).toContain('export_jobs_requested_by_status_idx');
+      } finally {
+        await client.close();
+      }
+    });
+  });
+
+  describe('R01 Acceptance: Final database migrations and schema consistency verification', () => {
+    it('migration journal meta matches migration directory perfectly', () => {
+      const migrationsDir = resolveMigrationsDir();
+      const journalPath = path.join(migrationsDir, 'meta', '_journal.json');
+      expect(fs.existsSync(journalPath)).toBe(true);
+
+      const journal = JSON.parse(fs.readFileSync(journalPath, 'utf8'));
+      expect(journal.dialect).toBe('postgresql');
+      expect(Array.isArray(journal.entries)).toBe(true);
+      expect(journal.entries.length).toBe(4);
+
+      const sqlFiles = fs.readdirSync(migrationsDir).filter((f) => f.endsWith('.sql')).sort();
+      expect(sqlFiles.length).toBe(4);
+
+      for (let i = 0; i < journal.entries.length; i++) {
+        expect(journal.entries[i].idx).toBe(i);
+        const expectedTag = sqlFiles[i]!.replace('.sql', '');
+        expect(journal.entries[i].tag).toBe(expectedTag);
+      }
+    });
+
+    it('serializes 10 concurrent migration callers with zero lock errors', async () => {
+      const client = await createDbClient();
+      try {
+        const results = await Promise.all(
+          Array.from({ length: 10 }, () => runMigrations(client)),
+        );
+        const appliedRuns = results.filter((r) => r.applied.length > 0);
+        const zeroAppliedRuns = results.filter((r) => r.applied.length === 0);
+        expect(appliedRuns.length).toBe(1);
+        expect(appliedRuns[0]!.applied.length).toBe(4);
+        expect(zeroAppliedRuns.length).toBe(9);
+        for (const r of zeroAppliedRuns) {
+          expect(r.alreadyApplied.length).toBe(4);
+        }
+      } finally {
+        await client.close();
+      }
+    });
+
+    it('verifies all 21 core domain tables exist and pass expand-contract compatibility', async () => {
+      const client = await createDbClient();
+      try {
+        await runMigrations(client);
+        await seedDatabase(client, fixturesDir);
+
+        const compat = await verifyRollbackCompatibility(client);
+        expect(compat.compatible).toBe(true);
+        expect(compat.checkedTables.length).toBe(21);
+        for (const [_table, status] of Object.entries(compat.details)) {
+          expect(status).not.toContain('FAILED');
+          expect(status).toContain('PASSED');
+        }
       } finally {
         await client.close();
       }

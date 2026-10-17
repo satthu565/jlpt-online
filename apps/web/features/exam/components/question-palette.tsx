@@ -36,7 +36,7 @@ export function QuestionPalette({
 
       {/* Grid of questions */}
       <div
-        className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-5 lg:grid-cols-6 gap-2 max-h-[380px] overflow-y-auto pr-1"
+        className="grid grid-cols-4 min-[360px]:grid-cols-5 sm:grid-cols-6 md:grid-cols-5 lg:grid-cols-6 gap-2 max-h-[380px] overflow-y-auto pr-1"
         role="navigation"
         aria-label="Danh sách các câu hỏi"
       >
@@ -82,7 +82,7 @@ export function QuestionPalette({
               data-question-index={idx}
               data-answered={isAnswered}
               data-flagged={isFlagged}
-              className={`relative h-10 rounded-lg text-xs font-mono flex items-center justify-center border transition-all ${btnClass}`}
+              className={`relative min-h-[44px] min-w-[44px] rounded-lg text-xs font-mono flex items-center justify-center border transition-all ${btnClass}`}
             >
               <span>{q.number}</span>
 
