@@ -55,8 +55,27 @@ type DbTx = Parameters<Parameters<PostgresJsDatabase<typeof schema>['transaction
 @Injectable()
 export class AttemptService {
   private readonly logger = new Logger(AttemptService.name);
-  private readonly mediaSecret = process.env.MEDIA_TOKEN_SECRET || 'test_media_token_secret_32_bytes_long_ok';
-  private readonly mediaBaseUrl = process.env.MEDIA_BASE_URL || 'https://media.jlpt.local';
+  private readonly mediaSecret =
+    process.env.MEDIA_TOKEN_SECRET ||
+    'staging_media_token_secret_for_reproducible_smoke_tests';
+
+  getMediaBaseUrl(): string {
+    const envMedia = process.env.MEDIA_BASE_URL;
+    if (envMedia && !envMedia.includes('media.jlpt.local')) {
+      return envMedia;
+    }
+    const apiUrl = process.env.API_BASE_URL || process.env.PUBLIC_API_URL;
+    if (apiUrl) {
+      return apiUrl.replace(/\/+$/, '');
+    }
+    if (process.env.PUBLIC_HOST) {
+      const host = process.env.PUBLIC_HOST.startsWith('http')
+        ? process.env.PUBLIC_HOST
+        : `http://${process.env.PUBLIC_HOST}`;
+      return `${host}/api/v1`;
+    }
+    return '/api/v1';
+  }
 
   constructor(
     @Inject(DB_CLIENT) private readonly dbClient: DbClientInstance,
@@ -244,7 +263,7 @@ export class AttemptService {
       this.mediaSecret,
     );
 
-    const snapshotUrl = buildMediaSnapshotUrl(this.mediaBaseUrl, exam.id, versionNum, mediaToken);
+    const snapshotUrl = buildMediaSnapshotUrl(this.getMediaBaseUrl(), exam.id, versionNum, mediaToken);
 
     // Compute month string (YYYY-MM-01)
     const monthPad = String(now.getUTCMonth() + 1).padStart(2, '0');
@@ -620,7 +639,7 @@ export class AttemptService {
     );
 
     const snapshotUrl = buildMediaSnapshotUrl(
-      this.mediaBaseUrl,
+      this.getMediaBaseUrl(),
       attempt.examId,
       attempt.examVersion,
       mediaToken,
@@ -791,7 +810,7 @@ export class AttemptService {
     );
 
     const snapshotUrl = buildMediaSnapshotUrl(
-      this.mediaBaseUrl,
+      this.getMediaBaseUrl(),
       attempt.examId,
       attempt.examVersion,
       mediaToken,

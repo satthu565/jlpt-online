@@ -141,4 +141,75 @@ export class BlueprintService {
 
     return inserted!;
   }
+
+  /**
+   * Admin: List all blueprints (ADM-04).
+   */
+  async listBlueprints(): Promise<{ items: (typeof schema.blueprints.$inferSelect)[] }> {
+    const rows = await this.dbClient.db
+      .select()
+      .from(schema.blueprints)
+      .orderBy(desc(schema.blueprints.level), desc(schema.blueprints.version));
+    return { items: rows };
+  }
+
+  /**
+   * Admin: Create a new blueprint draft (ADM-04).
+   */
+  async createBlueprint(
+    data: Record<string, unknown>,
+    userId: string,
+  ): Promise<{ id: string }> {
+    const inserted = await this.upsertBlueprint(data, userId);
+    return { id: inserted.id };
+  }
+
+  /**
+   * Admin: Create a new version of an existing blueprint (ADM-04).
+   */
+  async createBlueprintVersion(
+    id: string,
+    data: Record<string, unknown>,
+    userId: string,
+  ): Promise<{ version: number }> {
+    const existing = await this.getBlueprintById(id);
+    const nextVersion = existing.version + 1;
+    const blueprintData = {
+      ...existing,
+      ...data,
+      id: `${id}-v${nextVersion}`,
+      version: nextVersion,
+      status: 'draft',
+      isConfirmed: false,
+    };
+    await this.upsertBlueprint(blueprintData, userId);
+    return { version: nextVersion };
+  }
+
+  /**
+   * Admin: Activate blueprint with confirmation and safety checks (ADM-04).
+   */
+  async activateBlueprint(
+    id: string,
+    confirmation: unknown,
+    userId: string,
+  ): Promise<{ active: boolean }> {
+    const blueprint = await this.getBlueprintById(id);
+    activateBlueprint(
+      blueprint as unknown as Blueprint,
+      { confirmedBy: userId },
+    );
+
+    await this.dbClient.db
+      .update(schema.blueprints)
+      .set({
+        status: 'active',
+        isConfirmed: true,
+        confirmedBy: userId,
+        confirmedAt: new Date(),
+      })
+      .where(eq(schema.blueprints.id, blueprint.id));
+
+    return { active: true };
+  }
 }

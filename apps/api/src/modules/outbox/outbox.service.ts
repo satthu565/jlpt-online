@@ -5,6 +5,7 @@ import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
 import { ScoringService } from '../scoring/scoring.service.js';
+import { EmailService } from '../email/email.service.js';
 import { ensureAttemptEventsPartitions } from '../../db/partitions.js';
 import {
   DEFAULT_EXAM_GRACE_SEC,
@@ -22,6 +23,7 @@ export class OutboxService {
   constructor(
     @Inject(DB_CLIENT) private readonly dbClient: DbClientInstance,
     @Optional() private readonly scoringService?: ScoringService,
+    @Optional() private readonly emailService?: EmailService,
   ) {}
 
   /**
@@ -68,14 +70,46 @@ export class OutboxService {
     }
 
     const now = new Date();
+    let relayedCount = 0;
     for (const row of unpublished) {
+      if (row.topic === 'notification.email' && this.emailService) {
+        const payload = row.payload as {
+          type?: string;
+          to?: string;
+          verificationUrl?: string;
+          resetUrl?: string;
+          name?: string;
+        };
+        try {
+          if (payload.type === 'verification' && payload.to && payload.verificationUrl) {
+            await this.emailService.sendVerificationEmail(
+              payload.to,
+              payload.verificationUrl,
+              payload.name,
+            );
+          } else if (payload.type === 'password_reset' && payload.to && payload.resetUrl) {
+            await this.emailService.sendPasswordResetEmail(
+              payload.to,
+              payload.resetUrl,
+              payload.name,
+            );
+          }
+        } catch (emailErr) {
+          this.logger.warn(
+            `[Outbox] Không thể gửi lại email row=${row.id}: ${(emailErr as Error)?.message || String(emailErr)}. Sẽ thử lại lần sau.`,
+          );
+          continue; // Keep publishedAt null for next retry
+        }
+      }
+
       await db
         .update(schema.outbox)
         .set({ publishedAt: now })
         .where(eq(schema.outbox.id, row.id));
+      relayedCount++;
     }
 
-    return unpublished.length;
+    return relayedCount;
   }
 
   /**

@@ -34,6 +34,12 @@ export class ReviewController {
   // Content Review & Approval (B01)
   // ---------------------------------------------------------------------------
 
+  @Roles('admin', 'reviewer')
+  @Get('admin/reviews')
+  async listReviews() {
+    return this.reviewService.listReviews();
+  }
+
   @Roles('admin', 'editor', 'reviewer')
   @Post('admin/reviews/submit')
   @UsePipes(new ZodValidationPipe(SubmitReviewSchema))
