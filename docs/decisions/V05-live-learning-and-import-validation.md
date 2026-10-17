@@ -60,13 +60,18 @@ Hệ thống đã triển khai và vượt qua 100% các bộ kiểm thử:
 2. `pnpm test:providers:live`: 12/12 tests passed (kiểm định 4 điều kiện ngoài `ai-provider`, `tts-provider`, `dictionary`, `sample-rights` với trạng thái `BLOCKED_EXTERNAL`).
 3. `pnpm test:learning:all`: 24/24 tests passed (16 tests notebook/srs/tts + 8 tests workflow E2E sinh câu qua moderation đến làm bài & phân biệt observed/synthetic data).
 
-### Khắc phục cổng kiểm tra chung (Assignment V05-2)
-- **Vấn đề lượt trước**: Lệnh `pnpm test` chạy trên bản checkout sạch gặp lỗi timeout trong hook `beforeAll` (60000ms) tại `apps/web/tests/performance.test.tsx` do hook này cố gắng tự biên dịch `pnpm run build` cho `@jlpt/web` trong khi các suite test khác đang chạy đồng thời làm CPU quá tải.
-- **Giải pháp**: Cập nhật script `"test"` trong file `package.json` gốc (`allowedPaths`) thành `"turbo run build --filter=@jlpt/web && VITEST_MAX_WORKERS=1 turbo run test --concurrency=2"`. Việc này bảo đảm các artifacts Next.js (`prerender-manifest.json`, `static/chunks`) đã được turbo build và lưu cache từ trước. Nhờ đó `performance.test.tsx` không phải trigger build lại trong hook test vitest, loại trừ hoàn toàn nguy cơ timeout.
-- **Xác thực toàn bộ cổng chung**:
-  - `pnpm install --frozen-lockfile`: Hoàn thành thành công (0 lỗi).
-  - `pnpm lint`: 13 packages passed (0 lỗi).
-  - `pnpm typecheck`: 19 packages passed (0 lỗi).
-  - `pnpm test`: 19 packages passed (472/472 unit/integration tests passed, exitCode: 0).
-  - `pnpm build`: 12 packages passed (exitCode: 0).
+### Đồng bộ nhánh và giải quyết xung đột với origin/main (Assignment V05-4)
+- **Bối cảnh**: Nhánh `task/V05` có xung đột tại `package.json` khi hòa trộn commit mới từ `origin/main` (tính năng V04).
+- **Xử lý**:
+  - Đồng bộ `origin/main` vào `task/V05`.
+  - Hợp nhất cấu hình script `"test"` thành `"turbo run build && turbo run test --concurrency=2"` đồng bộ với `origin/main`, đồng thời duy trì đầy đủ các script kiểm tra riêng của V05 (`test:providers:live`, `test:learning:all`, `test:import-validation`).
+- **Xác thực toàn bộ kiểm tra V05 & cổng kiểm tra chung**:
+  - `pnpm test:import-validation`: 46/46 tests passed (exitCode: 0).
+  - `pnpm test:providers:live`: 12/12 tests passed (exitCode: 0).
+  - `pnpm test:learning:all`: 24/24 tests passed (exitCode: 0).
+  - `pnpm install --frozen-lockfile`: Hoàn thành thành công (exitCode: 0).
+  - `pnpm lint`: 13/13 packages passed (0 lỗi, exitCode: 0).
+  - `pnpm typecheck`: 20/20 packages passed (0 lỗi, exitCode: 0).
+  - `pnpm test`: 20/20 packages passed (489/489 unit/integration tests passed, exitCode: 0).
+  - `pnpm build`: 12/12 packages passed (exitCode: 0).
 
