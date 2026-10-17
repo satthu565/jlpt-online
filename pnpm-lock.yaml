@@ -587,9 +587,21 @@ importers:
       '@jlpt/config':
         specifier: workspace:*
         version: link:../packages/config
+      '@jlpt/content-tools':
+        specifier: workspace:*
+        version: link:../packages/content-tools
+      '@jlpt/exam-engine':
+        specifier: workspace:*
+        version: link:../packages/exam-engine
+      '@jlpt/media-token':
+        specifier: workspace:*
+        version: link:../packages/media-token
       '@jlpt/schema':
         specifier: workspace:*
         version: link:../packages/schema
+      '@jlpt/srs':
+        specifier: workspace:*
+        version: link:../packages/srs
       '@playwright/test':
         specifier: 1.64.1
         version: 1.64.1
@@ -599,6 +611,9 @@ importers:
       '@types/node':
         specifier: 22.13.10
         version: 22.13.10
+      drizzle-orm:
+        specifier: 0.45.4
+        version: 0.45.4(@cloudflare/workers-types@4.20250303.0)(@electric-sql/pglite@0.5.10)(kysely@0.29.6)(postgres@3.4.9)
       eslint:
         specifier: 9.21.0
         version: 9.21.0(supports-color@10.2.2)

@@ -10,6 +10,7 @@ const REPO_ROOT = path.resolve(__dirname, '../../');
 
 export const AUTH_TOKENS = {
   admin: 'tok_admin_demo',
+  billingAdmin: 'tok_billing_admin_demo',
   editor: 'tok_editor_demo',
   reviewer: 'tok_reviewer_demo',
   student: 'tok_student_verified',
@@ -19,6 +20,7 @@ export const AUTH_TOKENS = {
 
 export const TEST_USERS = {
   admin: '0192f000-0000-7000-8000-0000000000b1',
+  billingAdmin: '0192f000-0000-7000-8000-0000000000b2',
   editor: '0192f000-0000-7000-8000-0000000000e1',
   reviewer: '0192f000-0000-7000-8000-0000000000d1',
   student: '0192f000-0000-7000-8000-0000000000c1',
@@ -59,24 +61,14 @@ function ensureApiBuilt(): void {
   }
 }
 
-async function findFreePort(preferred = 4092): Promise<number> {
+async function findFreePort(_preferred = 4092): Promise<number> {
   return new Promise((resolve) => {
     const server = net.createServer();
-    server.once('error', () => {
-      const ephemeral = net.createServer();
-      ephemeral.once('listening', () => {
-        const address = ephemeral.address() as net.AddressInfo;
-        const port = address.port;
-        ephemeral.close(() => resolve(port));
-      });
-      ephemeral.listen(0, '127.0.0.1');
-    });
-    server.once('listening', () => {
+    server.listen(0, '127.0.0.1', () => {
       const address = server.address() as net.AddressInfo;
       const port = address.port;
       server.close(() => resolve(port));
     });
-    server.listen(preferred, '127.0.0.1');
   });
 }
 
