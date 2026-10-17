@@ -139,9 +139,9 @@ export default function AccountPage(): React.JSX.Element {
       {!user && (
         <Alert variant="warning" style={{ marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <span>Vui lòng đăng nhập để xem thông tin hồ sơ và lưu thay đổi tài khoản cá nhân.</span>
+            <span>{t('account.auth.required')}</span>
             <Link href="/dang-nhap?redirect=/tai-khoan">
-              <Button size="sm" variant="primary">Đăng nhập ngay</Button>
+              <Button size="sm" variant="primary">{t('account.auth.signIn')}</Button>
             </Link>
           </div>
         </Alert>

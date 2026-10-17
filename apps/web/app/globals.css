@@ -11,6 +11,8 @@
 /* Custom application-level layout enhancements */
 html, body {
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {

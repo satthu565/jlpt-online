@@ -17,31 +17,13 @@ import { useAuth } from '../../../lib/auth-context';
 import { Alert, Button, Card, CardContent, Input, Spinner } from '@jlpt/ui';
 import Link from 'next/link';
 
-const DEFAULT_ORGS: Organization[] = [
-  {
-    id: '0192f000-org0-7000-8000-000000000001',
-    name: 'Trung tâm Nhật ngữ Sakura',
-    role: 'teacher',
-  },
-];
-
-const DEFAULT_CLASSES: ClassRoom[] = [
-  {
-    id: '0192f000-cls0-7000-8000-000000000001',
-    orgId: '0192f000-org0-7000-8000-000000000001',
-    name: 'Lớp N3 Chiến Binh K26',
-    level: 'N3',
-    createdAt: new Date().toISOString(),
-  },
-];
-
 export default function ClassroomPage(): React.JSX.Element {
   const { t } = useI18n();
   const { user } = useAuth();
 
-  const [organizations, setOrganizations] = useState<Organization[]>(DEFAULT_ORGS);
-  const [classes, setClasses] = useState<ClassRoom[]>(DEFAULT_CLASSES);
-  const [selectedClassId, setSelectedClassId] = useState<string>(DEFAULT_CLASSES[0]?.id || '');
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [classes, setClasses] = useState<ClassRoom[]>([]);
+  const [selectedClassId, setSelectedClassId] = useState<string>('');
   const [members, setMembers] = useState<ClassMember[]>([]);
   const [assignments, setAssignments] = useState<ClassAssignment[]>([]);
   const [loading, setLoading] = useState(false);
@@ -62,18 +44,16 @@ export default function ClassroomPage(): React.JSX.Element {
     try {
       const orgsRes = await defaultClassroomClient.getOrganizations();
       const orgItems = orgsRes.items || [];
-      if (orgItems.length > 0) {
-        setOrganizations(orgItems);
-      }
+      setOrganizations(orgItems);
 
       if (orgItems.length > 0 && orgItems[0]) {
         const clsRes = await defaultClassroomClient.getClasses(orgItems[0].id);
         const classItems = clsRes.items || [];
-        if (classItems.length > 0) {
-          setClasses(classItems);
-          const currentClassId = selectedClassId || classItems[0]?.id || '';
-          setSelectedClassId(currentClassId);
+        setClasses(classItems);
+        const currentClassId = selectedClassId || classItems[0]?.id || '';
+        setSelectedClassId(currentClassId);
 
+        if (currentClassId) {
           const [memRes, asgnRes] = await Promise.allSettled([
             defaultClassroomClient.getClassMembers(currentClassId),
             fetch(`${baseUrl}/classes/${encodeURIComponent(currentClassId)}/assignments`, {
@@ -88,12 +68,25 @@ export default function ClassroomPage(): React.JSX.Element {
           if (asgnRes.status === 'fulfilled') {
             setAssignments(asgnRes.value.items || []);
           }
+        } else {
+          setMembers([]);
+          setAssignments([]);
         }
+      } else {
+        setClasses([]);
+        setSelectedClassId('');
+        setMembers([]);
+        setAssignments([]);
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('401') || msg.includes('403') || msg.includes('UNAUTHENTICATED') || msg.includes('Yêu cầu đăng nhập')) {
         setIsUnauthorized(true);
+        setOrganizations([]);
+        setClasses([]);
+        setSelectedClassId('');
+        setMembers([]);
+        setAssignments([]);
       } else {
         setError(msg || t('common.status.error'));
       }
@@ -295,10 +288,10 @@ export default function ClassroomPage(): React.JSX.Element {
           <CardContent style={{ padding: '3.5rem 2rem', textAlign: 'center' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏫</div>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>
-              Bạn chưa tham gia lớp học nào
+              {t('classroom.empty.title')}
             </h2>
             <p style={{ color: 'var(--text-secondary)', maxWidth: '500px', margin: '0 auto 1.5rem auto' }}>
-              Nhập mã mời từ giáo viên ở khung phía trên để tham gia lớp học và nhận bài tập định kỳ từ trung tâm.
+              {t('classroom.empty.description')}
             </p>
           </CardContent>
         </Card>

@@ -17,8 +17,10 @@ import {
 import type { GeneratedExam, Level, PublicExamSnapshot } from '@jlpt/schema';
 import { Button, Alert, Spinner } from '@jlpt/ui';
 import Link from 'next/link';
+import { useI18n } from '../../../lib/i18n';
 
 export default function PracticeAndMixPage(): React.JSX.Element {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<'practice' | 'mix' | 'quick'>('practice');
   const [isGenerating, setIsGenerating] = useState(false);
   const [practiceShortage, setPracticeShortage] = useState<PracticeShortageInfo | null>(null);
@@ -92,11 +94,11 @@ export default function PracticeAndMixPage(): React.JSX.Element {
             available: data.available ?? 0,
             pool: config.pool,
             level: config.level,
-            message: data.message || 'Không đủ câu hỏi theo điều kiện lọc đã chọn.',
+            message: data.message || t('practice.shortage.defaultMessage'),
             suggestedPools: data.suggestedPools,
           });
         } else {
-          setError(data.message || `Lỗi tạo bài luyện tập (Mã lỗi: ${res.status})`);
+          setError(data.message || t('practice.errors.createPracticeFailed', { status: res.status }));
         }
         return;
       }
@@ -106,11 +108,11 @@ export default function PracticeAndMixPage(): React.JSX.Element {
       } else if (data.exam && data.exam.snapshot) {
         setActivePracticeExam(data.exam.snapshot);
       } else {
-        setError('Không nhận được dữ liệu đề thi từ máy chủ.');
+        setError(t('practice.errors.noExamData'));
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      setError(msg || 'Lỗi kết nối máy chủ khi tạo bài luyện tập.');
+      setError(msg || t('practice.errors.connectError'));
     } finally {
       setIsGenerating(false);
     }
@@ -146,11 +148,11 @@ export default function PracticeAndMixPage(): React.JSX.Element {
             missingMondaiTypes: data.missingMondaiTypes || [],
             requested: data.requested || 0,
             available: data.available || 0,
-            message: data.message || 'Không đủ câu hỏi từ các nguồn được chỉ định.',
+            message: data.message || t('practice.shortage.mixDefaultMessage'),
             suggestions: data.suggestions || [],
           });
         } else {
-          setError(data.message || `Lỗi tạo đề trộn (Mã lỗi: ${res.status})`);
+          setError(data.message || t('practice.errors.createMixFailed', { status: res.status }));
         }
         return;
       }
@@ -160,7 +162,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
       await loadRecentMixExams();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      setError(msg || 'Lỗi kết nối máy chủ khi tạo đề trộn.');
+      setError(msg || t('practice.errors.connectError'));
     } finally {
       setIsGenerating(false);
     }
@@ -187,7 +189,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setError(data.message || `Lỗi trộn nhanh đề thi (Mã lỗi: ${res.status})`);
+        setError(data.message || t('practice.errors.quickMixFailed', { status: res.status }));
         return;
       }
 
@@ -197,7 +199,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
       await loadRecentMixExams();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      setError(msg || 'Lỗi kết nối máy chủ khi trộn nhanh đề thi.');
+      setError(msg || t('practice.errors.connectError'));
     } finally {
       setIsGenerating(false);
     }
@@ -220,10 +222,12 @@ export default function PracticeAndMixPage(): React.JSX.Element {
         const data = await res.json();
         setGeneratedMixExam(data.generatedExam || data);
       } else {
-        setGeneratedMixExam((prev) => (prev ? { ...prev, seed: newSeed } : null));
+        const errData = await res.json().catch(() => ({}));
+        setError(errData.message || t('practice.errors.regenerateFailed'));
       }
-    } catch {
-      setGeneratedMixExam((prev) => (prev ? { ...prev, seed: newSeed } : null));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || t('practice.errors.regenerateFailed'));
     } finally {
       setIsGenerating(false);
     }
@@ -240,19 +244,19 @@ export default function PracticeAndMixPage(): React.JSX.Element {
             margin: '0 0 0.5rem 0',
           }}
         >
-          Luyện tập chuyên đề & Trộn đề thông minh
+          {t('practice.page.title')}
         </h1>
         <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '0.9375rem' }}>
-          Tùy biến các bài thi thử theo điểm yếu, câu chưa làm, câu làm sai hoặc tạo bộ đề tổng hợp bất biến.
+          {t('practice.page.subtitle')}
         </p>
       </div>
 
       {isUnauthorized && (
         <Alert variant="warning" style={{ marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <span>Bạn cần đăng nhập để tạo và lưu bài luyện tập hoặc đề trộn cá nhân.</span>
+            <span>{t('practice.auth.required')}</span>
             <Link href="/dang-nhap?redirect=/luyen-tap">
-              <Button size="sm" variant="primary">Đăng nhập ngay</Button>
+              <Button size="sm" variant="primary">{t('practice.auth.signInButton')}</Button>
             </Link>
           </div>
         </Alert>
@@ -267,7 +271,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
       {/* Tabs */}
       <div
         role="tablist"
-        aria-label="Các chế độ ôn luyện"
+        aria-label={t('practice.tabs.ariaLabel')}
         style={{
           display: 'flex',
           flexWrap: 'wrap',
@@ -298,7 +302,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
             minHeight: '44px',
           }}
         >
-          📚 Luyện theo nguồn câu hỏi (Practice)
+          {t('practice.tabs.practice')}
         </button>
 
         <button
@@ -320,7 +324,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
             minHeight: '44px',
           }}
         >
-          🔀 Trộn đề đa nguồn (7 Chế độ)
+          {t('practice.tabs.mix')}
         </button>
 
         <button
@@ -342,7 +346,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
             minHeight: '44px',
           }}
         >
-          ⚡ Trộn nhanh 1 chạm
+          {t('practice.tabs.quick')}
         </button>
       </div>
 
@@ -357,7 +361,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
                   size="sm"
                   onClick={() => setActivePracticeExam(null)}
                 >
-                  ← Đổi cấu hình luyện tập
+                  {t('practice.runner.changeConfig')}
                 </Button>
               </div>
               <PracticeRunner snapshot={activePracticeExam} />
@@ -390,7 +394,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
                   size="sm"
                   onClick={() => setGeneratedMixExam(null)}
                 >
-                  Tạo cấu hình trộn đề khác
+                  {t('practice.mix.changeConfig')}
                 </Button>
               </div>
             </div>
@@ -408,13 +412,13 @@ export default function PracticeAndMixPage(): React.JSX.Element {
           {loadingRecent && (
             <div className="flex items-center justify-center py-4 gap-2 text-slate-500">
               <Spinner size="sm" />
-              <span>Đang tải các đề đã tạo gần đây...</span>
+              <span>{t('practice.recent.loading')}</span>
             </div>
           )}
           {recentMixExams.length > 0 && !generatedMixExam && (
             <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800">
               <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">
-                Các đề đã tạo gần đây ({recentMixExams.length})
+                {t('practice.recent.title', { count: recentMixExams.length })}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {recentMixExams.slice(0, 4).map((exam) => (
@@ -428,7 +432,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
                       <span className="text-xs text-slate-500">Seed: {exam.seed}</span>
                     </div>
                     <p className="text-xs text-slate-600 dark:text-slate-400">
-                      Phiên bản: {exam.engineVersion}
+                      {t('practice.recent.version', { version: exam.engineVersion })}
                     </p>
                   </div>
                 ))}

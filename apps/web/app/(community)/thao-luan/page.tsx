@@ -13,35 +13,16 @@ import { useAuth } from '../../../lib/auth-context';
 import { Alert, Button, Card, CardContent, Input, Spinner } from '@jlpt/ui';
 import Link from 'next/link';
 
-const DEFAULT_COMMENTS: DiscussionComment[] = [
-  {
-    id: '0192f000-com0-7000-8000-000000000001',
-    questionId: 'q-default-1',
-    userId: 'user-default-1',
-    userName: 'Nguyễn Văn A',
-    content: 'Câu này ngữ pháp 〜わけにはいかない biểu thị sự kiềm chế về mặt đạo đức.',
-    createdAt: new Date().toISOString(),
-  },
-];
-
-const DEFAULT_ACHIEVEMENT: AchievementShareData = {
-  type: 'streak_milestone',
-  title: 'Chiến Binh N3 Kiên Cường',
-  badge: '🔥 7 Days Streak',
-  userName: 'Học viên JLPT',
-  level: 'N3',
-  achievedAt: new Date().toISOString(),
-};
-
 export default function DiscussionsPage(): React.JSX.Element {
   const { t } = useI18n();
   const { user } = useAuth();
 
   const [questionId, setQuestionId] = useState<string>('q-default-1');
   const [inputQuestionId, setInputQuestionId] = useState<string>('q-default-1');
-  const [isCompleted, setIsCompleted] = useState(true);
-  const [comments, setComments] = useState<DiscussionComment[]>(DEFAULT_COMMENTS);
-  const [achievement] = useState<AchievementShareData | null>(DEFAULT_ACHIEVEMENT);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [comments, setComments] = useState<DiscussionComment[]>([]);
+  const [achievement] = useState<AchievementShareData | null>(null);
+  const [shareNotice, setShareNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isUnauthorized, setIsUnauthorized] = useState(false);
@@ -67,13 +48,13 @@ export default function DiscussionsPage(): React.JSX.Element {
     try {
       const res = await defaultCommunityClient.getQuestionDiscussions(qId);
       setIsCompleted(res.allowed !== false);
-      if (res.items) {
-        setComments(res.items);
-      }
+      setComments(res.items || []);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('401') || msg.includes('403') || msg.includes('UNAUTHENTICATED') || msg.includes('Yêu cầu đăng nhập')) {
         setIsUnauthorized(true);
+        setIsCompleted(false);
+        setComments([]);
       } else {
         setError(msg || t('common.status.error'));
       }
@@ -129,7 +110,7 @@ export default function DiscussionsPage(): React.JSX.Element {
         achievedAt: achievement.achievedAt,
         userName: achievement.userName,
       });
-      alert('Đã chia sẻ thành tích lên cộng đồng học viên JLPT Online!');
+      setShareNotice('Đã chia sẻ thành tích lên cộng đồng học viên JLPT Online!');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg || 'Không thể chia sẻ thành tích.');
@@ -164,9 +145,9 @@ export default function DiscussionsPage(): React.JSX.Element {
       {(!user || isUnauthorized) && (
         <Alert variant="warning" style={{ marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <span>Bạn cần đăng nhập để tham gia thảo luận và chia sẻ đáp án với cộng đồng.</span>
+            <span>{t('community.discussions.authRequired')}</span>
             <Link href="/dang-nhap?redirect=/thao-luan">
-              <Button size="sm" variant="primary">Đăng nhập ngay</Button>
+              <Button size="sm" variant="primary">{t('community.discussions.signInButton')}</Button>
             </Link>
           </div>
         </Alert>
@@ -180,6 +161,12 @@ export default function DiscussionsPage(): React.JSX.Element {
               {t('common.buttons.retry')}
             </Button>
           </div>
+        </Alert>
+      )}
+
+      {shareNotice && (
+        <Alert variant="success" onClose={() => setShareNotice(null)} style={{ marginBottom: '1.5rem' }}>
+          {shareNotice}
         </Alert>
       )}
 

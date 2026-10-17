@@ -114,14 +114,14 @@ export default function AnalyticsPage(): React.JSX.Element {
     return (
       <div className="max-w-4xl mx-auto py-12 px-4 w-full">
         <Alert variant="warning" className="mb-6" data-testid="analytics-auth-required">
-          Vui lòng đăng nhập để xem dữ liệu thống kê và phân tích tiến độ học tập cá nhân.
+          {t('analytics.auth.required')}
         </Alert>
         <div className="text-center">
           <Link
             href="/dang-nhap?redirect=/thong-ke"
             className="inline-flex items-center px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
           >
-            Đăng nhập ngay
+            {t('analytics.auth.signIn')}
           </Link>
         </div>
       </div>
@@ -132,17 +132,17 @@ export default function AnalyticsPage(): React.JSX.Element {
     <div className="max-w-6xl mx-auto py-8 px-4 w-full space-y-6" data-testid="analytics-page-container">
       <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-          Bảng điều khiển học tập & Phân tích chuyên sâu (Analytics Dashboard)
+          {t('analytics.page.title')}
         </h1>
         <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-          Đánh giá tiến độ thực chất, kiểm soát bẫy lạm phát điểm quen thuộc, và định hướng kỹ năng cần ưu tiên bứt phá.
+          {t('analytics.page.subtitle')}
         </p>
       </div>
 
       {isLoading && (
         <div className="flex flex-col items-center justify-center py-16 space-y-3" data-testid="analytics-loading-spinner">
-          <Spinner size="lg" aria-label="Đang tải dữ liệu phân tích học tập..." />
-          <p className="text-sm text-slate-500">Đang đồng bộ dữ liệu thi và lịch sử làm bài...</p>
+          <Spinner size="lg" aria-label={t('analytics.status.syncing')} />
+          <p className="text-sm text-slate-500">{t('analytics.status.syncing')}</p>
         </div>
       )}
 
@@ -151,7 +151,7 @@ export default function AnalyticsPage(): React.JSX.Element {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span>{error}</span>
             <Button size="sm" variant="outline" onClick={fetchAnalyticsData}>
-              Thử lại
+              {t('common.buttons.retry')}
             </Button>
           </div>
         </Alert>
@@ -164,23 +164,23 @@ export default function AnalyticsPage(): React.JSX.Element {
         >
           <div className="text-4xl">📊</div>
           <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">
-            Chưa có dữ liệu bài thi hoặc lịch sử làm bài
+            {t('analytics.empty.title')}
           </h2>
           <p className="text-sm text-slate-500 max-w-md mx-auto">
-            Bạn chưa hoàn thành bài thi hay bài luyện tập nào. Hãy làm bài thi hoặc câu hỏi luyện tập để hệ thống tổng hợp và phân tích năng lực chi tiết.
+            {t('analytics.empty.description')}
           </p>
           <div className="flex flex-wrap gap-4 justify-center pt-2">
             <Link
               href="/de-thi"
               className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition"
             >
-              Vào thư viện đề thi
+              {t('analytics.empty.toExams')}
             </Link>
             <Link
               href="/luyen-tap"
               className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition"
             >
-              Luyện tập câu hỏi
+              {t('analytics.empty.toPractice')}
             </Link>
           </div>
         </div>

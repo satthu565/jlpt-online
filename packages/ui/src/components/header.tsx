@@ -201,6 +201,14 @@ export function Header({
       )}
 
       <style>{`
+        @media (max-width: 768px) {
+          .theme-toggle-label {
+            display: none !important;
+          }
+          .header-auth-buttons {
+            display: none !important;
+          }
+        }
         @media (min-width: 2200px) {
           .desktop-nav {
             display: flex !important;

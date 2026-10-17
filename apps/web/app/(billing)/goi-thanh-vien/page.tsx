@@ -96,22 +96,7 @@ export default function MembershipPage(): React.JSX.Element {
       throw new Error('Vui lòng chọn gói cước trước.');
     }
 
-    const validCodes: Record<string, { discountPercent: number; discountMinor: number }> = {
-      JLPT2026: { discountPercent: 20, discountMinor: Math.round(selectedPlan.priceMinor * 0.2) },
-      CHAOHE: { discountPercent: 30, discountMinor: Math.round(selectedPlan.priceMinor * 0.3) },
-      VIP50: { discountPercent: 50, discountMinor: Math.round(selectedPlan.priceMinor * 0.5) },
-    };
-
-    const match = validCodes[code.toUpperCase()];
-    if (!match) {
-      throw new Error(t('billing.coupon.invalidErrorCode', { code }));
-    }
-
-    return {
-      code: code.toUpperCase(),
-      discountMinor: match.discountMinor,
-      discountPercent: match.discountPercent,
-    };
+    return defaultBillingClient.validateCoupon(code, selectedPlan.id);
   };
 
   const handleCheckout = async (planId: string, couponCode?: string): Promise<CheckoutSession> => {

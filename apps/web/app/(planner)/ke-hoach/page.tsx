@@ -12,52 +12,11 @@ import { useI18n } from '../../../lib/i18n';
 import { Alert, Button, Spinner } from '@jlpt/ui';
 import Link from 'next/link';
 
-const DEFAULT_STUDY_PLAN: StudyPlan = {
-  id: '0192f000-plan-7000-8000-000000000001',
-  userId: 'user-default',
-  targetLevel: 'N3',
-  targetDate: '2026-12-06',
-  status: 'active',
-  currentVersion: 1,
-  daysRemaining: 51,
-  totalSessions: 60,
-  completedSessions: 18,
-  completionRate: 30,
-  currentStreak: 5,
-  isFinalSprint: false,
-  createdAt: new Date().toISOString(),
-  config: {
-    dailyMinutes: 30,
-    durationDays: 60,
-    timezone: 'Asia/Ho_Chi_Minh',
-    focusSkills: ['vocabulary', 'grammar', 'reading', 'listening'],
-    mockExamIntervalDays: 7,
-    finalSprintDays: 14,
-    skillDistribution: {
-      vocabulary: 25,
-      grammar: 25,
-      reading: 25,
-      listening: 25,
-    },
-  },
-};
-
-const DEFAULT_TODAY_SESSION: StudySession = {
-  id: '0192f000-sess-7000-8000-000000000001',
-  planId: '0192f000-plan-7000-8000-000000000001',
-  scheduledDate: new Date().toISOString().split('T')[0] ?? '',
-  durationMinutes: 30,
-  status: 'pending',
-  skill: 'grammar',
-  sessionType: 'lesson',
-  topic: 'Mẫu ngữ pháp N3: 〜ばかりか, 〜を皮切りに, 〜に伴って',
-};
-
 export default function PlannerPage(): React.JSX.Element {
   const { t } = useI18n();
 
-  const [plan, setPlan] = useState<StudyPlan | null>(DEFAULT_STUDY_PLAN);
-  const [todaySession, setTodaySession] = useState<StudySession | null>(DEFAULT_TODAY_SESSION);
+  const [plan, setPlan] = useState<StudyPlan | null>(null);
+  const [todaySession, setTodaySession] = useState<StudySession | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isUnauthorized, setIsUnauthorized] = useState(false);

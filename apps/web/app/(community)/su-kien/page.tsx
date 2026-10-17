@@ -13,38 +13,13 @@ import { useAuth } from '../../../lib/auth-context';
 import { Alert, Button, Card, CardContent, Spinner } from '@jlpt/ui';
 import Link from 'next/link';
 
-const DEFAULT_EVENT: ExamEvent = {
-  id: '0192f000-evt0-7000-8000-000000000001',
-  examId: '0192f000-exam-7000-8000-000000000001',
-  title: 'Kỳ thi Thử Sức Toàn Quốc JLPT N3 - Tháng 10/2026',
-  level: 'N3',
-  opensAt: new Date(Date.now() - 3600 * 1000).toISOString(),
-  startsAt: new Date(Date.now() + 3600 * 1000).toISOString(),
-  endsAt: new Date(Date.now() + 7200 * 1000).toISOString(),
-  resultReleaseAt: new Date(Date.now() + 10800 * 1000).toISOString(),
-  capacity: 1000,
-  registeredCount: 320,
-  status: 'UPCOMING',
-  userRegistered: true,
-};
-
-const DEFAULT_LOBBY: EventLobbyInfo = {
-  event: DEFAULT_EVENT,
-  serverTime: new Date().toISOString(),
-  startsInSeconds: 3600,
-  isRegistered: true,
-  participantCount: 320,
-  canStart: false,
-  isEmbargoed: true,
-};
-
 export default function ExamEventPage(): React.JSX.Element {
   const { t } = useI18n();
   const { user } = useAuth();
 
-  const [events, setEvents] = useState<ExamEvent[]>([DEFAULT_EVENT]);
-  const [selectedEventId, setSelectedEventId] = useState<string>(DEFAULT_EVENT.id);
-  const [lobbyInfo, setLobbyInfo] = useState<EventLobbyInfo | null>(DEFAULT_LOBBY);
+  const [events, setEvents] = useState<ExamEvent[]>([]);
+  const [selectedEventId, setSelectedEventId] = useState<string>('');
+  const [lobbyInfo, setLobbyInfo] = useState<EventLobbyInfo | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardRank[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,9 +32,7 @@ export default function ExamEventPage(): React.JSX.Element {
     try {
       const res = await defaultCommunityClient.getExamEvents();
       const items = res.items || [];
-      if (items.length > 0) {
-        setEvents(items);
-      }
+      setEvents(items);
 
       const targetId = selectedEventId || items[0]?.id || '';
       if (targetId) {
@@ -76,11 +49,19 @@ export default function ExamEventPage(): React.JSX.Element {
         if (lb.status === 'fulfilled' && lb.value.items) {
           setLeaderboard(lb.value.items);
         }
+      } else {
+        setSelectedEventId('');
+        setLobbyInfo(null);
+        setLeaderboard([]);
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('401') || msg.includes('403') || msg.includes('UNAUTHENTICATED') || msg.includes('Yêu cầu đăng nhập')) {
         setIsUnauthorized(true);
+        setEvents([]);
+        setSelectedEventId('');
+        setLobbyInfo(null);
+        setLeaderboard([]);
       } else {
         setError(msg || t('common.status.error'));
       }
@@ -180,13 +161,13 @@ export default function ExamEventPage(): React.JSX.Element {
           <CardContent style={{ padding: '3.5rem 2rem', textAlign: 'center' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>
-              Hiện chưa có kỳ thi sự kiện đồng loạt nào
+              {t('community.events.emptyTitle')}
             </h2>
             <p style={{ color: 'var(--text-secondary)', maxWidth: '500px', margin: '0 auto 1.5rem auto' }}>
-              Hãy theo dõi thông báo hoặc luyện tập với các đề thi mẫu trong lúc chờ kỳ thi tiếp theo được mở.
+              {t('community.events.emptySubtitle')}
             </p>
             <Link href="/de-thi">
-              <Button variant="primary">Luyện thi ngay</Button>
+              <Button variant="primary">{t('community.events.practiceNow')}</Button>
             </Link>
           </CardContent>
         </Card>

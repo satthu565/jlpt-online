@@ -12,6 +12,64 @@ export interface VocabExplorerProps {
   className?: string;
 }
 
+const DEFAULT_VOCAB_TERMS: VocabTermDto[] = [
+  {
+    term: '曖昧',
+    reading: 'あいまい',
+    meaning: 'Mơ hồ, không rõ ràng, lập lờ',
+    level: 'N1',
+    frequency: 48,
+    partOfSpeech: 'Tính từ đuôi な / Danh từ',
+    exampleSentence: '曖昧な返事をして相手を困らせた。',
+    exampleReading: 'あいまいなへんじをしてあいてをこまらせた。',
+    exampleMeaning: 'Tôi đã trả lời lập lờ khiến đối phương bối rối.',
+  },
+  {
+    term: '徹底',
+    reading: 'てってい',
+    meaning: 'Triệt để, thấu đáo',
+    level: 'N2',
+    frequency: 72,
+    partOfSpeech: 'Danh từ / Động từ nhóm 3',
+    exampleSentence: '安全管理を徹底する必要がある。',
+    exampleReading: 'あんぜんかんりをてっていするひつようがある。',
+    exampleMeaning: 'Cần phải triệt để quản lý an toàn.',
+  },
+  {
+    term: '納得',
+    reading: 'なっとく',
+    meaning: 'Thấu hiểu, đồng ý, bị thuyết phục',
+    level: 'N3',
+    frequency: 110,
+    partOfSpeech: 'Danh từ / Động từ nhóm 3',
+    exampleSentence: '説明を聞いて納得した。',
+    exampleReading: 'せつめいをきいてなっとくした。',
+    exampleMeaning: 'Sau khi nghe giải thích tôi đã hiểu và bị thuyết phục.',
+  },
+  {
+    term: '複雑',
+    reading: 'ふくざつ',
+    meaning: 'Phức tạp, rắc rối',
+    level: 'N4',
+    frequency: 95,
+    partOfSpeech: 'Tính từ đuôi な',
+    exampleSentence: 'この機械は構造が複雑だ。',
+    exampleReading: 'このきかいはこうぞうがふくざつだ。',
+    exampleMeaning: 'Cỗ máy này có cấu trúc phức tạp.',
+  },
+  {
+    term: '便利',
+    reading: 'べんり',
+    meaning: 'Tiện lợi, thuận tiện',
+    level: 'N5',
+    frequency: 160,
+    partOfSpeech: 'Tính từ đuôi な',
+    exampleSentence: '駅の近くは便利です。',
+    exampleReading: 'えきのちかくはべんりです。',
+    exampleMeaning: 'Khu vực gần nhà ga rất tiện lợi.',
+  },
+];
+
 export function VocabExplorer({
   initialLevel = 'ALL',
   initialItems,
@@ -23,63 +81,7 @@ export function VocabExplorer({
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [items, setItems] = useState<VocabTermDto[]>(() => initialItems || [
-    {
-      term: '曖昧',
-      reading: 'あいまい',
-      meaning: 'Mơ hồ, không rõ ràng, lập lờ',
-      level: 'N1',
-      frequency: 48,
-      partOfSpeech: 'Tính từ đuôi な / Danh từ',
-      exampleSentence: '曖昧な返事をして相手を困らせた。',
-      exampleReading: 'あいまいなへんじをしてあいてをこまらせた。',
-      exampleMeaning: 'Tôi đã trả lời lập lờ khiến đối phương bối rối.',
-    },
-    {
-      term: '徹底',
-      reading: 'てってい',
-      meaning: 'Triệt để, thấu đáo',
-      level: 'N2',
-      frequency: 72,
-      partOfSpeech: 'Danh từ / Động từ nhóm 3',
-      exampleSentence: '安全管理を徹底する必要がある。',
-      exampleReading: 'あんぜんかんりをてっていするひつようがある。',
-      exampleMeaning: 'Cần phải triệt để quản lý an toàn.',
-    },
-    {
-      term: '納得',
-      reading: 'なっとく',
-      meaning: 'Thấu hiểu, đồng ý, bị thuyết phục',
-      level: 'N3',
-      frequency: 110,
-      partOfSpeech: 'Danh từ / Động từ nhóm 3',
-      exampleSentence: '説明を聞いて納得した。',
-      exampleReading: 'せつめいをきいてなっとくした。',
-      exampleMeaning: 'Sau khi nghe giải thích tôi đã hiểu và bị thuyết phục.',
-    },
-    {
-      term: '複雑',
-      reading: 'ふくざつ',
-      meaning: 'Phức tạp, rắc rối',
-      level: 'N4',
-      frequency: 95,
-      partOfSpeech: 'Tính từ đuôi な',
-      exampleSentence: 'この機械は構造が複雑だ。',
-      exampleReading: 'このきかいはこうぞうがふくざつだ。',
-      exampleMeaning: 'Cỗ máy này có cấu trúc phức tạp.',
-    },
-    {
-      term: '便利',
-      reading: 'べんり',
-      meaning: 'Tiện lợi, thuận tiện',
-      level: 'N5',
-      frequency: 160,
-      partOfSpeech: 'Tính từ đuôi な',
-      exampleSentence: '駅の近くは便利です。',
-      exampleReading: 'えきのちかくはべんりです。',
-      exampleMeaning: 'Khu vực gần nhà ga rất tiện lợi.',
-    },
-  ]);
+  const [items, setItems] = useState<VocabTermDto[]>(() => initialItems || DEFAULT_VOCAB_TERMS);
 
   const [savingTerm, setSavingTerm] = useState<string | null>(null);
   const [saveSuccessNotice, setSaveSuccessNotice] = useState<string | null>(null);
@@ -92,8 +94,8 @@ export function VocabExplorer({
     client
       .getVocabulary('jlpt-official', selectedLevel === 'ALL' ? undefined : selectedLevel)
       .then((data) => {
-        if (active && data && data.length > 0) {
-          setItems(data);
+        if (active) {
+          setItems(data || []);
         }
       })
       .catch((err) => {
