@@ -219,16 +219,29 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
     // fallback
   }
 
+  // Look up seeded media asset for demo exam audio streaming
+  let mediaAssetId = '';
+  const demoAudioSha = '25e6d7d051a1487de1e86e7dcb1817c5117727d0018780f3f0534982f8f4c884';
+  try {
+    const mediaLookup = await fetch(`${baseUrl}/api/v1/media/by-sha/${demoAudioSha}`);
+    if (mediaLookup.ok) {
+      const asset = (await mediaLookup.json()) as { id: string };
+      mediaAssetId = asset.id;
+    }
+  } catch {
+    // fallback
+  }
+
   // Pre-generate signed media token for Scenario 4 (CDN Range 206 Audio Streaming)
   const mediaToken = await signMediaToken(
     {
       a: 'att-load-test',
-      e: 'demo-n5-1',
+      e: demoExamId,
       v: 1,
       k: 'attempt',
       exp: Math.floor(Date.now() / 1000) + 3600,
     },
-    process.env.MEDIA_TOKEN_SECRET || 'dev_media_token_secret_32_bytes_long_ok!'
+    process.env.MEDIA_TOKEN_SECRET || 'staging_media_token_secret_for_reproducible_smoke_tests'
   );
 
   const allMetrics: OperationMetric[] = [];
@@ -398,7 +411,27 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
       const lease = state?.lease || `0192f000-0000-7000-8000-${String(workerId + 10).padStart(12, '0')}`;
       const guestId = state?.guestId || `0192f000-0000-7000-8000-${String(workerId + 10).padStart(12, '0')}`;
 
+      // Stepped ramp-up for worker autosave interval
+      await new Promise((r) => setTimeout(r, (workerId % 10) * 15));
+
+      // Start initial section before saving answers (per Reviewer W3: /sections/next)
+      const { metric: mSec } = await executeRequest(
+        'start_section',
+        'POST',
+        `/api/v1/attempts/${attemptId}/sections/next`,
+        {
+          'Content-Type': 'application/json',
+          cookie: `__Host-guest=${guestId}`,
+        },
+        JSON.stringify({ lease }),
+        workerId
+      );
+      stage3Metrics.push(mSec);
+
       for (let s = 1; s <= savesPerWorker; s++) {
+        if (s > 1) {
+          await new Promise((r) => setTimeout(r, 15));
+        }
         const { metric: m } = await executeRequest(
           'save_answers_periodic',
           'PUT',
@@ -486,11 +519,15 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
 
   await Promise.all(
     Array.from({ length: stage5Concurrency }).map(async (_, workerId) => {
+      const mediaEndpoint = mediaAssetId
+        ? `/api/v1/media/${mediaAssetId}?t=${mediaToken}`
+        : `/api/v1/health`;
+
       // First range request
       const { metric: m1 } = await executeRequest(
         'stream_media_range',
         'GET',
-        `/api/v1/health`, // Proxy probe for stream availability
+        mediaEndpoint,
         {
           Range: 'bytes=0-1023',
           'X-Media-Token': mediaToken,
@@ -504,7 +541,7 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
       const { metric: m2 } = await executeRequest(
         'stream_media_range',
         'GET',
-        `/api/v1/health`,
+        mediaEndpoint,
         {
           Range: 'bytes=1024-2047',
           'X-Media-Token': mediaToken,
@@ -537,6 +574,7 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
     'browse_catalog',
     'get_exam_snapshot',
     'start_attempt',
+    'start_section',
     'save_answers_periodic',
     'submit_exam_deadline',
     'stream_media_range',
@@ -549,7 +587,8 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
 
   const saveSummary = operations['save_answers_periodic']!;
   const submitSummary = operations['submit_exam_deadline']!;
-  const totalFail = allMetrics.filter((m) => !m.success && m.statusCode >= 500).length;
+  // Per Reviewer W3 requirement: compute totalFail taking into account all unexpected 4xx and 5xx errors
+  const totalFail = allMetrics.filter((m) => !m.success).length;
   const overallErrorRate = Number(((totalFail / allMetrics.length) * 100).toFixed(3));
 
   const p95SavePassed = saveSummary.p95Ms < 300;

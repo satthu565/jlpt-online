@@ -116,6 +116,29 @@ Trong quá trình chạy Staging Verification & PITR Drill trên GitHub Actions:
    - Bổ sung 5 tài khoản học viên và token xác thực phiên riêng biệt tương ứng với 5 cấu hình thiết bị (`student.iphone`, `student.pixel`, `student.macbook`, `student.windows`, `student.ubuntu`) vào `tests/fixtures/seed-sessions.sql` và khai báo `DEVICE_AUTH_TOKENS` trong `tests/fixtures/test-server.ts`.
    - Nâng cấp `tests/e2e/all-browsers.test.ts` kiểm tra tính hợp lệ của `attemptId` trước khi thực hiện các bước lưu phiếu/nộp bài, ghi log phản hồi lỗi chi tiết thay vì nuốt ngoại lệ, và hỗ trợ fallback xác thực qua token học viên nếu môi trường staging có cấu hình cấm khách làm thử.
 
+### Quyết định 7: Khắc phục các vấn đề phản hồi từ Reviewer W3
+
+Dựa trên kết quả đánh giá độc lập của Reviewer W3, W6 thực hiện các điều chỉnh kỹ thuật chuẩn mực:
+1. **Khởi tạo Section trước khi lưu phiếu trong Stepped Load Runner (`tests/load/stepped-load-runner.ts`):**
+   - Bổ sung bước gọi `POST /api/v1/attempts/:id/sections/next` với lease hợp lệ cho từng VU trước khi bước vào vòng lặp lưu phiếu định kỳ Stage 3. Điều này chuyển trạng thái attempt sang phần thi 0, đảm bảo 100% request `PUT /api/v1/attempts/:id/sheet` được xử lý thành công (200 OK) thay vì bị từ chối với mã 409 SECTION_NOT_STARTED.
+   - Sửa đổi công thức tính `totalFail`: chuyển từ lọc `!m.success && m.statusCode >= 500` sang `allMetrics.filter((m) => !m.success).length`, đảm bảo mọi mã lỗi HTTP 4xx hoặc 5xx bất thường đều được ghi nhận trực tiếp vào tỷ lệ lỗi của hệ thống.
+   - Chuyển target kiểm thử Stage 5 sang endpoint media thực tế (`/api/v1/media/:id?t=...`) với token media đã ký để đo lường năng lực Range 206 streaming thực sự.
+
+2. **Kiểm thử Range 206 trên endpoint Media thực tế (`tests/e2e/all-browsers.test.ts`):**
+   - Loại bỏ việc gửi header `Range` vào endpoint `/api/v1/health` (vốn chỉ trả 200 OK).
+   - Truy vấn UUID của tệp âm thanh demo (`25e6d7d051a1487de1e86e7dcb1817c5117727d0018780f3f0534982f8f4c884`) qua `/api/v1/media/by-sha/:sha256`.
+   - Gửi yêu cầu kiểm thử tới `/api/v1/media/:id?t=${sampleMediaToken}` với header `Range: bytes=0-1023`, kiểm tra nghiêm ngặt mã trạng thái phản hồi `206 Partial Content`, header `Content-Range: bytes 0-1023/<totalSize>` và kích thước buffer nhận về đúng 1024 bytes.
+
+3. **Chuẩn hóa k6 load script (`tests/load/load-test.js`):**
+   - Thêm hàm `setup()` tự động khám phá ID đề thi và ID media asset đã seed trong cơ sở dữ liệu.
+   - Khởi tạo attempt hợp lệ (`POST /api/v1/attempts` -> 201 Created) và bắt đầu phần thi (`POST /api/v1/attempts/:id/sections/next` -> 200 OK) cho từng VU.
+   - Loại bỏ hoàn toàn việc chấp nhận mã lỗi 404 và 409: kiểm tra nghiêm ngặt `r.status === 200` khi lưu phiếu (`/sheet`) và khi nộp bài (`/submit`), bảo đảm áp lực ghi cơ sở dữ liệu được đo lường thực tế.
+
+4. **Cách ly thư mục kiểm thử Playwright (`tests/playwright.config.ts`):**
+   - Chuyển `testDir` từ `./e2e` sang `./playwright`, cấu hình `testMatch: /.*\.spec\.ts/` và thiết lập `testIgnore: ['**/e2e/**', '**/*.test.ts', '**/*.test.tsx']` để Playwright không quét và thực thi nhầm các tệp kiểm thử của Vitest.
+   - Tạo tệp kiểm thử smoke `tests/playwright/browser-matrix.spec.ts` cho Playwright CLI.
+   - Đưa tệp báo cáo tự sinh `docs/release/playwright-report.json` vào `.gitignore`.
+
 ---
 
 ## 3. Quản lý trạng thái và rào cản ngoại vi (External Blockers)

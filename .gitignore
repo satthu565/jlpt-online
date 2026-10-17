@@ -45,5 +45,6 @@ docs/release/device-matrix-report.json
 docs/release/load-capacity-matrix.md
 docs/release/load-capacity-report.json
 docs/release/pitr-drill-report.json
+docs/release/playwright-report.json
 
 

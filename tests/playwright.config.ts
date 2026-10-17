@@ -7,7 +7,9 @@ import { defineConfig, devices } from '@playwright/test';
  * Feature: SYS-10, SYS-14 (A11y), Device Matrix T1.9.4
  */
 export default defineConfig({
-  testDir: './e2e',
+  testDir: './playwright',
+  testMatch: /.*\.spec\.ts/,
+  testIgnore: ['**/e2e/**', '**/*.test.ts', '**/*.test.tsx'],
   timeout: 60 * 1000,
   expect: {
     timeout: 10 * 1000,

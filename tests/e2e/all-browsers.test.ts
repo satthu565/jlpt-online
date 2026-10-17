@@ -109,6 +109,7 @@ interface DeviceTestResult {
 describe('Full Regression Multi-Browser & Device Matrix (SYS-10 / T1.9.4 / Task V06)', () => {
   let baseUrl: string;
   let demoExamId: string;
+  let sampleMediaAssetId = '';
   let sampleMediaToken: string;
   const testResults: DeviceTestResult[] = [];
 
@@ -123,6 +124,14 @@ describe('Full Regression Multi-Browser & Device Matrix (SYS-10 / T1.9.4 / Task 
     expect(found).toBeDefined();
     demoExamId = found!.id;
 
+    // Look up seeded media asset for demo exam audio
+    const demoAudioSha = '25e6d7d051a1487de1e86e7dcb1817c5117727d0018780f3f0534982f8f4c884';
+    const mediaRes = await fetch(`${baseUrl}/api/v1/media/by-sha/${demoAudioSha}`);
+    if (mediaRes.ok) {
+      const mediaAsset = (await mediaRes.json()) as { id: string };
+      sampleMediaAssetId = mediaAsset.id;
+    }
+
     // Generate valid signed media token for WebKit / Blink / Gecko audio test
     sampleMediaToken = await signMediaToken(
       {
@@ -132,7 +141,7 @@ describe('Full Regression Multi-Browser & Device Matrix (SYS-10 / T1.9.4 / Task 
         k: 'attempt',
         exp: Math.floor(Date.now() / 1000) + 3600,
       },
-      process.env.MEDIA_TOKEN_SECRET || 'dev_media_token_secret_32_bytes_long_ok!'
+      process.env.MEDIA_TOKEN_SECRET || 'staging_media_token_secret_for_reproducible_smoke_tests'
     );
   }, 60000);
 
@@ -321,19 +330,25 @@ ${testResults
 
       it('4. Audio Streaming Range 206 playback check (Crucial for WebKit / Safari)', async () => {
         try {
-          // Probe audio range streaming compatibility with signed media token
-          const res = await fetch(`${baseUrl}/api/v1/health`, {
+          expect(sampleMediaAssetId, 'Target media asset ID must be established').toBeTruthy();
+          // Test actual audio range streaming with signed media token
+          const res = await fetch(`${baseUrl}/api/v1/media/${sampleMediaAssetId}?t=${sampleMediaToken}`, {
             headers: {
               'User-Agent': device.userAgent,
               Range: 'bytes=0-1023',
               'X-Media-Token': sampleMediaToken,
             },
           });
-          expect([200, 206]).toContain(res.status);
+          expect(res.status).toBe(206);
+          const contentRange = res.headers.get('content-range');
+          expect(contentRange).toBeTruthy();
+          expect(contentRange).toMatch(/^bytes 0-1023\/\d+$/);
+          const buf = await res.arrayBuffer();
+          expect(buf.byteLength).toBe(1024);
           steps.audioRangePlayback = true;
-        } catch {
+        } catch (err) {
           p1Defects++;
-          throw new Error(`[P1] Range 206 streaming failed on ${device.deviceName}`);
+          throw new Error(`[P1] Range 206 streaming failed on ${device.deviceName}: ${(err as Error).message}`);
         }
       });
 

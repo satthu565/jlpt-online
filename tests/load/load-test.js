@@ -36,19 +36,58 @@ export const options = {
 const BASE_URL = __ENV.API_BASE_URL || 'http://localhost:4000';
 const MEDIA_TOKEN = __ENV.MEDIA_TOKEN || 'tok_media_streaming_demo';
 
-export default function () {
+export function setup() {
+  const catalogRes = http.get(`${BASE_URL}/api/v1/exams`);
+  let examId = 'demo-n5-1';
+  if (catalogRes.status === 200) {
+    try {
+      const data = JSON.parse(catalogRes.body);
+      const item = data.items?.find((x) => x.slug === 'demo-n5-1');
+      if (item) examId = item.id;
+    } catch {
+      // ignore
+    }
+  }
+
+  let mediaAssetId = '';
+  const mediaSha = '25e6d7d051a1487de1e86e7dcb1817c5117727d0018780f3f0534982f8f4c884';
+  const mediaRes = http.get(`${BASE_URL}/api/v1/media/by-sha/${mediaSha}`);
+  if (mediaRes.status === 200) {
+    try {
+      const mData = JSON.parse(mediaRes.body);
+      mediaAssetId = mData.id;
+    } catch {
+      // ignore
+    }
+  }
+
+  return { examId, mediaAssetId };
+}
+
+let vuAttemptId = '';
+let vuLease = '';
+let vuGuestId = '';
+
+export default function (data) {
   const vuId = __VU;
   const iteration = __ITER;
   const clientIp = `198.51.100.${(vuId % 50) + 1}`;
+  const examId = data?.examId || 'demo-n5-1';
+  const mediaAssetId = data?.mediaAssetId || '';
+  if (!vuGuestId) {
+    vuGuestId = `0192f000-0000-7000-8000-${String(vuId + 10).padStart(12, '0')}`;
+  }
+
   const headers = {
     'Content-Type': 'application/json',
     'x-forwarded-for': clientIp,
     'cf-connecting-ip': clientIp,
+    cookie: `__Host-guest=${vuGuestId}`,
     'user-agent': `JLPT-k6-Load-Agent/1.0 (VU ${vuId})`,
   };
 
-  // Scenario 1: Healthcheck & Exam Snapshot
-  group('1. Health & Catalog Snapshot', () => {
+  // Scenario 1: Healthcheck & Exam Start
+  group('1. Health & Exam Initiation', () => {
     const healthRes = http.get(`${BASE_URL}/api/v1/health`, { headers });
     check(healthRes, {
       'health status is 200': (r) => r.status === 200,
@@ -58,34 +97,76 @@ export default function () {
     check(catalogRes, {
       'exams catalog status is 200': (r) => r.status === 200,
     });
+
+    // Initialize attempt if not yet created for this VU
+    if (!vuAttemptId) {
+      const initRes = http.post(
+        `${BASE_URL}/api/v1/attempts`,
+        JSON.stringify({
+          examId,
+          mode: 'real',
+        }),
+        {
+          headers,
+          tags: { scenario: 'start_attempt' },
+        }
+      );
+
+      // Per Reviewer W3: strictly accept 201 for attempt initiation
+      check(initRes, {
+        'attempt initiated with 201': (r) => r.status === 201,
+      });
+
+      if (initRes.status === 201) {
+        const body = JSON.parse(initRes.body);
+        vuAttemptId = body.attemptId;
+        vuLease = body.lease;
+
+        // Immediately start Section 0 so sheet autosave is accepted
+        const sectionRes = http.post(
+          `${BASE_URL}/api/v1/attempts/${vuAttemptId}/sections/next`,
+          JSON.stringify({ lease: vuLease }),
+          {
+            headers,
+            tags: { scenario: 'start_section' },
+          }
+        );
+
+        check(sectionRes, {
+          'section started with 200': (r) => r.status === 200,
+        });
+      }
+    }
   });
 
   sleep(0.5);
 
   // Scenario 2: Periodic Answer Autosave with Lease
-  group('2. Answering & Sheet Autosave', () => {
-    const lease = `0192f000-0000-7000-8000-0000000000${(vuId % 90) + 10}`;
-    const payload = JSON.stringify({
-      lease,
-      seq: iteration + 1,
-      answers: [1, 2, 3, 4, 1, 2, 3, 4],
-      flags: [0, 0, 0, 0, 0, 0, 0, 0],
-      changes: [{ i: iteration % 8, v: 2, at: Date.now() }],
-    });
+  if (vuAttemptId) {
+    group('2. Answering & Sheet Autosave', () => {
+      const payload = JSON.stringify({
+        lease: vuLease,
+        seq: iteration + 1,
+        answers: [1, 2, 3, 4, 1, 2, 3, 4],
+        flags: [0, 0, 0, 0, 0, 0, 0, 0],
+        changes: [{ i: iteration % 8, v: 2, at: Date.now() }],
+      });
 
-    const saveRes = http.put(
-      `${BASE_URL}/api/v1/attempts/att-load-${vuId}/sheet`,
-      payload,
-      {
-        headers,
-        tags: { scenario: 'save_answers' },
-      }
-    );
+      const saveRes = http.put(
+        `${BASE_URL}/api/v1/attempts/${vuAttemptId}/sheet`,
+        payload,
+        {
+          headers,
+          tags: { scenario: 'save_answers' },
+        }
+      );
 
-    check(saveRes, {
-      'save response is accepted or handled': (r) => r.status === 200 || r.status === 404 || r.status === 409,
+      // Per Reviewer W3: strictly accept 200 (no 404/409 accepted)
+      check(saveRes, {
+        'save response is accepted with 200': (r) => r.status === 200,
+      });
     });
-  });
+  }
 
   sleep(0.5);
 
@@ -97,31 +178,34 @@ export default function () {
       'X-Media-Token': MEDIA_TOKEN,
     };
 
-    const mediaRes = http.get(`${BASE_URL}/api/v1/health`, {
+    const mediaEndpoint = mediaAssetId
+      ? `${BASE_URL}/api/v1/media/${mediaAssetId}?t=${MEDIA_TOKEN}`
+      : `${BASE_URL}/api/v1/health`;
+
+    const mediaRes = http.get(mediaEndpoint, {
       headers: rangeHeaders,
       tags: { scenario: 'media_range' },
     });
 
     check(mediaRes, {
-      'media request returned successfully': (r) => r.status === 200 || r.status === 206,
+      'media request returned 206 Partial Content': (r) => r.status === 206,
     });
   });
 
   sleep(0.5);
 
   // Scenario 4: Submission Spike at Deadline
-  if (iteration % 5 === 0) {
+  if (iteration % 5 === 0 && vuAttemptId) {
     group('4. Deadline Submission Spike', () => {
-      const lease = `0192f000-0000-7000-8000-0000000000${(vuId % 90) + 10}`;
       const submitPayload = JSON.stringify({
-        lease,
+        lease: vuLease,
         seq: iteration + 2,
         answers: [1, 2, 3, 4, 1, 2, 3, 4],
         flags: [0, 0, 0, 0, 0, 0, 0, 0],
       });
 
       const submitRes = http.post(
-        `${BASE_URL}/api/v1/attempts/att-load-${vuId}/submit`,
+        `${BASE_URL}/api/v1/attempts/${vuAttemptId}/submit`,
         submitPayload,
         {
           headers,
@@ -129,9 +213,14 @@ export default function () {
         }
       );
 
+      // Per Reviewer W3: strictly accept 200 (no 404/409 accepted)
       check(submitRes, {
-        'submit response handled': (r) => r.status === 200 || r.status === 404 || r.status === 409,
+        'submit response handled with 200': (r) => r.status === 200,
       });
+
+      // Clear attempt so next cycle can create a fresh attempt
+      vuAttemptId = '';
+      vuLease = '';
     });
   }
 
