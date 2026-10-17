@@ -107,7 +107,8 @@ export function Header({
                   fontWeight: item.active ? 600 : 500,
                   color: item.active ? 'var(--color-primary, #16a34a)' : 'var(--text-secondary, #475569)',
                   textDecoration: 'none',
-                  padding: '0.5rem 0.75rem',
+                  whiteSpace: 'nowrap',
+                  padding: '0.5rem 0.625rem',
                   borderRadius: '6px',
                   transition: 'color 0.15s ease',
                 }}
@@ -200,7 +201,7 @@ export function Header({
       )}
 
       <style>{`
-        @media (min-width: 768px) {
+        @media (min-width: 2200px) {
           .desktop-nav {
             display: flex !important;
           }

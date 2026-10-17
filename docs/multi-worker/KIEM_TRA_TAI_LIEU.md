@@ -27,7 +27,7 @@ Nếu thiếu một điều kiện chặn bắt đầu, các task sau không gia
 
 ## Mô phỏng theo giả định
 
-Lịch greedy dependencies/worker/exclusive locks kết thúc ở giờ 191/168. Đây là ước lượng lạc quan, không chứng minh đủ thời gian khi thêm review, sửa lỗi, quota, provider hoặc chờ CI.
+Lịch greedy dependencies/worker/exclusive locks kết thúc ở giờ 190/168. Đây là ước lượng lạc quan, không chứng minh đủ thời gian khi thêm review, sửa lỗi, quota, provider hoặc chờ CI.
 
 | Task | Worker | Bắt đầu giờ | Kết thúc giờ | Mốc ngày | Trễ mốc ngày |
 |---|---|---|---|---|---|
@@ -78,16 +78,16 @@ Lịch greedy dependencies/worker/exclusive locks kết thúc ở giờ 191/168.
 | R06 | W6 | 149 | 155 | 7 | 0h |
 | I00 | W6 | 168 | 172 | 8 | 0h |
 | I01 | W2 | 168 | 173 | 8 | 0h |
-| I06 | W3 | 172 | 178 | 8 | 0h |
-| I02 | W4 | 173 | 177 | 8 | 0h |
-| I03 | W4 | 177 | 183 | 8 | 0h |
-| I05 | W3 | 178 | 184 | 8 | 0h |
-| I04 | W4 | 183 | 187 | 8 | 0h |
-| I07 | W6 | 187 | 191 | 8 | 0h |
+| I02 | W4 | 172 | 176 | 8 | 0h |
+| I05 | W3 | 172 | 178 | 8 | 0h |
+| I03 | W4 | 176 | 182 | 8 | 0h |
+| I06 | W3 | 178 | 184 | 8 | 0h |
+| I04 | W4 | 182 | 186 | 8 | 0h |
+| I07 | W6 | 186 | 190 | 8 | 0h |
 
 ## Điều kiện và cảnh báo
 
-- Optimistic schedule exceeds 168h: 191h
+- Optimistic schedule exceeds 168h: 190h
 - Work duration estimates are speculative and exclude independent review, repair loops, provider waits and complete build contention.
 - Application requirements remain TODO; twelve source requirements are manual preparation outside the product, not implemented features.
 - Coding accounts quota/usage permission and external service readiness are not verified.

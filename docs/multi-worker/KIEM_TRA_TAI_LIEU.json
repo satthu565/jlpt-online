@@ -184,14 +184,14 @@
   "localLinksChecked": 427,
   "errors": [],
   "warnings": [
-    "Optimistic schedule exceeds 168h: 191h",
+    "Optimistic schedule exceeds 168h: 190h",
     "Work duration estimates are speculative and exclude independent review, repair loops, provider waits and complete build contention.",
     "Application requirements remain TODO; twelve source requirements are manual preparation outside the product, not implemented features.",
     "Coding accounts quota/usage permission and external service readiness are not verified.",
     "14/30-day observed acceptance cannot be proven by a 7-day implementation schedule."
   ],
   "estimateOnly": {
-    "hoursWithoutReviewRepairProviderDelay": 191,
+    "hoursWithoutReviewRepairProviderDelay": 190,
     "targetHours": 168,
     "dailyTargetOverruns": [],
     "schedule": [
@@ -619,7 +619,16 @@
         "lateToDailyTargetHours": 0
       },
       {
-        "taskId": "I06",
+        "taskId": "I02",
+        "worker": "W4",
+        "plannedDay": 8,
+        "startHour": 172,
+        "finishHour": 176,
+        "targetByHour": 192,
+        "lateToDailyTargetHours": 0
+      },
+      {
+        "taskId": "I05",
         "worker": "W3",
         "plannedDay": 8,
         "startHour": 172,
@@ -628,25 +637,16 @@
         "lateToDailyTargetHours": 0
       },
       {
-        "taskId": "I02",
-        "worker": "W4",
-        "plannedDay": 8,
-        "startHour": 173,
-        "finishHour": 177,
-        "targetByHour": 192,
-        "lateToDailyTargetHours": 0
-      },
-      {
         "taskId": "I03",
         "worker": "W4",
         "plannedDay": 8,
-        "startHour": 177,
-        "finishHour": 183,
+        "startHour": 176,
+        "finishHour": 182,
         "targetByHour": 192,
         "lateToDailyTargetHours": 0
       },
       {
-        "taskId": "I05",
+        "taskId": "I06",
         "worker": "W3",
         "plannedDay": 8,
         "startHour": 178,
@@ -658,8 +658,8 @@
         "taskId": "I04",
         "worker": "W4",
         "plannedDay": 8,
-        "startHour": 183,
-        "finishHour": 187,
+        "startHour": 182,
+        "finishHour": 186,
         "targetByHour": 192,
         "lateToDailyTargetHours": 0
       },
@@ -667,8 +667,8 @@
         "taskId": "I07",
         "worker": "W6",
         "plannedDay": 8,
-        "startHour": 187,
-        "finishHour": 191,
+        "startHour": 186,
+        "finishHour": 190,
         "targetByHour": 192,
         "lateToDailyTargetHours": 0
       }
