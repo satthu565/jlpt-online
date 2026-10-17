@@ -65,8 +65,19 @@ function resolveGitSha(cmd: string, fallback = 'unknown'): string {
   }
 }
 
-export function runFeaturesVerification(): VerificationSummary {
-  const rootDir = process.cwd();
+export function findRepoRoot(startDir: string = process.cwd()): string {
+  let curr = path.resolve(startDir);
+  while (curr !== path.dirname(curr)) {
+    if (fs.existsSync(path.join(curr, 'pnpm-workspace.yaml'))) {
+      return curr;
+    }
+    curr = path.dirname(curr);
+  }
+  return path.resolve(startDir);
+}
+
+export function runFeaturesVerification(customRootDir?: string): VerificationSummary {
+  const rootDir = customRootDir ? path.resolve(customRootDir) : findRepoRoot();
   const catalogPath = path.join(rootDir, 'docs/multi-worker/features.json');
 
   if (!fs.existsSync(catalogPath)) {
@@ -144,18 +155,20 @@ export function runFeaturesVerification(): VerificationSummary {
   const groupBreakdown: Record<string, { total: number; covered: number; status: string }> = {};
 
   for (const f of appFeatures) {
-    const prefix = f.id.split('-')[0];
-    if (!groupBreakdown[prefix]) {
-      groupBreakdown[prefix] = { total: 0, covered: 0, status: 'PASS' };
+    const prefix = f.id.split('-')[0] ?? 'OTHER';
+    let entry = groupBreakdown[prefix];
+    if (!entry) {
+      entry = { total: 0, covered: 0, status: 'PASS' };
+      groupBreakdown[prefix] = entry;
     }
-    groupBreakdown[prefix].total += 1;
+    entry.total += 1;
 
     const refs = featureTestMap.get(f.id) || [];
     if (refs.length > 0) {
-      groupBreakdown[prefix].covered += 1;
+      entry.covered += 1;
     } else {
       missingFeatures.push(f.id);
-      groupBreakdown[prefix].status = 'FAIL';
+      entry.status = 'FAIL';
     }
   }
 
@@ -294,8 +307,9 @@ export function printVerificationReport(summary: VerificationSummary) {
 const isMain = process.argv[1] && (process.argv[1].endsWith('features-verify.ts') || process.argv[1].endsWith('features-verify.js'));
 if (isMain || process.argv.includes('--run')) {
   try {
-    const summary = runFeaturesVerification();
-    const releaseDir = path.join(process.cwd(), 'docs/release');
+    const rootDir = findRepoRoot();
+    const summary = runFeaturesVerification(rootDir);
+    const releaseDir = path.join(rootDir, 'docs/release');
     if (!fs.existsSync(releaseDir)) {
       fs.mkdirSync(releaseDir, { recursive: true });
     }
@@ -311,7 +325,7 @@ if (isMain || process.argv.includes('--run')) {
       !fs.existsSync(evidenceFilePath) || process.argv.includes('--generate-evidence');
 
     if (shouldWriteEvidence) {
-      const catalogPath = path.join(process.cwd(), 'docs/multi-worker/features.json');
+      const catalogPath = path.join(rootDir, 'docs/multi-worker/features.json');
     const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf-8')) as FeaturesCatalog;
     const appFeatures = catalog.features.filter((f) => f.executionMode === 'APPLICATION');
     const extFeatures = catalog.features.filter((f) => f.executionMode !== 'APPLICATION');
@@ -346,10 +360,10 @@ if (isMain || process.argv.includes('--run')) {
         }
       }
     }
-    scanDir(process.cwd());
+    scanDir(rootDir);
 
     for (const file of testFiles) {
-      const relPath = path.relative(process.cwd(), file);
+      const relPath = path.relative(rootDir, file);
       const content = fs.readFileSync(file, 'utf-8');
       if (!content.includes('expect(') && !content.includes('assert')) continue;
 

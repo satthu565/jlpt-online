@@ -69,6 +69,18 @@ Nhiệm vụ **R06** là dấu mốc hoàn tất của kế hoạch 7 ngày tri�
   - **`docs/runbooks/restore.md`:** Quy định quy trình phục hồi thảm họa và PITR (Point-in-Time Recovery) qua WAL-G trên Cloudflare R2 (`wal-g backup-fetch`, tạo `recovery.signal`, nạp WAL qua `restore_command`). Bắt buộc thiết lập `archive_mode = off` trong suốt quá trình diễn tập để không gây ô nhiễm kho WAL production.
   - **`docs/runbooks/handover.md`:** Cẩm nang bàn giao chi tiết cho Chủ dự án và Quản trị viên, bao gồm kiến trúc monorepo, danh mục biến môi trường `.env.production`, chuyển đổi profile tài nguyên (`switch-profile.sh`), danh mục 5 điều kiện ngoại vi cần hoàn tất (Linode VPS, Cloudflare Tunnel, Merchant VNPay/MoMo, Gemini API Key, Resend Email) và lộ trình triển khai tiếp theo.
 
+### 2.5. Tinh chỉnh lượt 2 (Assignment R06-2): Độc lập tuyệt đối trên bản checkout sạch
+
+Theo kết quả kiểm tra tự động của Coordinator:
+1. **Khắc phục lỗi ENOENT `features-verification-report.json`:**
+   - Tệp này được loại trừ khỏi Git trong `.gitignore` để không làm bẩn working tree sau khi chạy lệnh.
+   - Cập nhật `tests/integration/release-acceptance.test.ts` để fallback thực thi trực tiếp hàm thuần `runFeaturesVerification(rootDir)` nếu tệp báo cáo chưa có sẵn trên đĩa.
+   - Bổ sung cơ chế tự định vị thư mục gốc monorepo `findRepoRoot()` và tham số `rootDir` tùy chọn cho `runFeaturesVerification` trong `infra/features-verify.ts`, loại bỏ hoàn toàn sự phụ thuộc vào `process.cwd()` cục bộ của từng gói.
+   - Khắc phục triệt để lỗi kiểu dữ liệu `TS2538` (`prefix` có thể là `undefined` khi bật `noUncheckedIndexedAccess`), đảm bảo `pnpm typecheck` thành công 100%.
+2. **Khắc phục assertion `load-capacity-report.json` và `device-matrix-report.json`:**
+   - Các tệp báo cáo này thuộc nhóm kiểm thử sinh động (dynamic drill reports) được loại trừ trong `.gitignore` theo Quyết định 5 của Task V06.
+   - Cập nhật `release-acceptance.test.ts` chuyển sang xác thực các chỉ số tải đỉnh (Peak Observed RPS > 500), khôi phục thảm họa (RTO 1.35s, archive_mode = off) và danh mục thiết bị từ tài liệu chuẩn tắc `BAO_CAO_NGAY_7.md`, kết hợp kiểm tra cấu trúc dữ liệu của các tệp drill JSON khi chúng được tạo ra trên đĩa bởi các bộ chạy tương ứng.
+
 ---
 
 ## 3. Danh Mục Tệp Bàn Giao (Deliverables)
