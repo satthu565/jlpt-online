@@ -157,6 +157,7 @@ describe('Full Staging Routes E2E Suite: UI & Navigation (SYS-01, EXAM-26, SEO-0
       // Verify robots header directly from server without default fallback string
       const robotsHeader = privateRes.headers.get('x-robots-tag');
       expect(robotsHeader).toBeDefined();
+      expect(robotsHeader).not.toBeNull();
       expect(robotsHeader).toMatch(/noindex,\s*nofollow/i);
     });
   });

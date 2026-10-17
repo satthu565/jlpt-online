@@ -86,6 +86,9 @@ async function start() {
   const { DB_CLIENT: DB_TOKEN } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/common/database/database.module.js'));
   const { OutboxService } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/outbox/outbox.service.js'));
   const { VocabModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/vocab/vocab.module.js'));
+  const { ReportingModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/reporting/reporting.module.js'));
+  const { CmsModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/cms/cms.module.js'));
+  const { ExperimentModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/experiment/experiment.module.js'));
 
   // AiService has an unannotated optional 3rd parameter customProvider?: AiProvider that causes NestJS dependency resolution to fail.
   // We explicitly override the AiModule provider using a factory with only dbClient and outboxService.
@@ -117,6 +120,9 @@ async function start() {
       PlannerModule,
       AiModule,
       VocabModule,
+      ReportingModule,
+      CmsModule,
+      ExperimentModule,
     ],
   })(StagingAppModule);
 
