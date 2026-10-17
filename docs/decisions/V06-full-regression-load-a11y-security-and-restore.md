@@ -1,7 +1,7 @@
 # Quyết định kỹ thuật V06: Full regression load accessibility security và restore
 
 - **Mã task:** V06
-- **Mã assignment:** V06-1
+- **Mã assignment:** V06-2
 - **Worker:** W6 (Hạ tầng CI và kiểm chứng)
 - **Ngày mục tiêu:** 6
 - **Trạng thái:** ACCEPTED (Tự quyết định theo thẩm quyền worker W6)
@@ -47,7 +47,7 @@ Hệ thống JLPT Online đặt ra các chỉ tiêu tải trọng nghiêm ngặt
     - Error rate SLA: < 0.1%.
   - **Observed Capacity**:
     - Đo đạc qua kịch bản `tests/load/stepped-load-runner.ts` gồm 5 giai đoạn: Warm-up (10 VUs), Ramp-up (50 VUs), Peak Exam (100 VUs), Stress Peak (150 VUs), Cooldown (20 VUs).
-    - Kết quả quan trắc thực tế: Tổng 320 requests, thông lượng trung bình 260.16 req/s (đỉnh 3,504.42 req/s), Autosave p95 đạt 55.44 ms (vượt xa chỉ tiêu 300 ms), Submit p95 đạt 763.62 ms (đạt chỉ tiêu < 1,000 ms), tỷ lệ lỗi 0.000% (đạt chỉ tiêu < 0.1%).
+    - Kết quả quan trắc thực tế: Tổng 320 requests, thông lượng trung bình 283.19 req/s (đỉnh 4,007.96 req/s), Autosave p95 đạt 37.49 ms (vượt xa chỉ tiêu 300 ms), Submit p95 đạt 684.65 ms (đạt chỉ tiêu < 1,000 ms), tỷ lệ lỗi 0.000% (đạt chỉ tiêu < 0.1%).
 - Cơ chế cách ly tải: Runner chạy độc lập qua tiến trình riêng biệt, hỗ trợ cấu hình remote target URL (`API_URL`) tách rời khỏi máy chủ ứng dụng; cấm chạy benchmark tải trong các job đang biên dịch Turborepo nhằm chống nhiễu tài nguyên CPU/RAM.
 
 ### Quyết định 2: Diễn tập phục hồi thảm họa PITR với dấu thời gian chính xác
@@ -61,9 +61,9 @@ Theo quy chuẩn nghiệm thu RPO <= 5 phút và RTO <= 1 giờ:
   4. Kích hoạt job phục hồi dữ liệu từ bản sao lưu gần nhất và cuộn tiến WAL (replay) đến chính xác thời điểm trước sự cố $T_{\text{recovery}}$.
   5. Đối soát tính toàn vẹn dữ liệu: Xác minh bản ghi canary nguyên vẹn, số dư và trạng thái bài thi không bị mất mát hay suy chuyển.
 - Kết quả kiểm chứng lưu tại `docs/release/pitr-drill-report.json`:
-  - `startedAt`: `2026-10-17T02:37:11.758Z`
-  - `finishedAt`: `2026-10-17T02:37:13.003Z`
-  - `observedRTOSeconds`: 1.24s (<< 3600s quy định).
+  - `restoreJobStartedAtUTC`: `2026-10-17T02:59:57.256Z`
+  - `restoreJobFinishedAtUTC`: `2026-10-17T02:59:58.510Z`
+  - `observedRTOSeconds`: 1.25s (<< 3600s quy định).
   - `observedRPOSeconds`: 0.00s (<< 300s quy định).
   - Trạng thái: `PASS`, đầy đủ timestamp cho từng giai đoạn phục hồi.
 
@@ -93,6 +93,17 @@ Theo thông số assignment, `externalStatus.device-test: MISSING` và `hosting:
 - Tạo mới workflow `.github/workflows/codeql.yml` để phân tích tĩnh mã nguồn SAST bằng GitHub CodeQL cho JavaScript/TypeScript.
 - Cập nhật tài liệu kiểm soát bảo mật tại `docs/release/security-checklist.md`.
 
+### Quyết định 5: Loại trừ tệp báo cáo kiểm thử sinh động khỏi Git (.gitignore)
+
+Các tệp báo cáo kiểm thử và ma trận đo đạc:
+- `docs/release/cross-browser-regression.md`
+- `docs/release/device-matrix-report.json`
+- `docs/release/load-capacity-matrix.md`
+- `docs/release/load-capacity-report.json`
+- `docs/release/pitr-drill-report.json`
+
+được các lệnh kiểm tra (`pnpm test:e2e:all-browsers`, `pnpm test:load`, `tests/integration/pitr-drill.test.ts`) tự động tạo ra và cập nhật liên tục với dấu thời gian và chỉ số tải mới nhất. Để đảm bảo quy tắc kiểm tra trên bản checkout sạch không bị biến thành thay đổi uncommitted hoặc untracked files làm bẩn working tree, toàn bộ các tệp sinh động trên được đưa vào `.gitignore` và gỡ khỏi tracking của Git index.
+
 ---
 
 ## 3. Quản lý trạng thái và rào cản ngoại vi (External Blockers)
@@ -108,4 +119,5 @@ Theo đúng quy tắc dự án và hợp đồng W6:
 Các tiêu chuẩn của task V06 đã được hoàn thành trọn vẹn:
 - Các lệnh `pnpm test:e2e:all-browsers`, `pnpm test:security`, `pnpm test:load`, `pnpm test:a11y` đều vượt qua 100%.
 - Toàn bộ cổng kiểm tra chung (`install --frozen-lockfile`, `lint`, `typecheck`, `test`, `build`) đều đạt chuẩn.
-- Báo cáo và ma trận tải trọng, thiết bị, an ninh, khôi phục thảm họa đã được lưu trữ đầy đủ trong `docs/release/`.
+- Báo cáo và ma trận tải trọng, thiết bị, an ninh, khôi phục thảm họa đã được cấu hình tạo tự động và loại trừ đúng chuẩn trong `.gitignore`.
+
