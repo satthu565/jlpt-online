@@ -1,5 +1,8 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalPassThroughEnv": [
+    "VITEST_MAX_WORKERS"
+  ],
   "tasks": {
     "build": {
       "dependsOn": [
