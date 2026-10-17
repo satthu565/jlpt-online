@@ -48,6 +48,8 @@
       "I08",
       "I09",
       "I10",
+      "I11",
+      "I12",
       "L01",
       "L02",
       "L03",
@@ -112,6 +114,8 @@
       "I08",
       "I09",
       "I10",
+      "I11",
+      "I12",
       "L01",
       "L02",
       "L03",
@@ -176,6 +180,8 @@
       "I08",
       "I09",
       "I10",
+      "I11",
+      "I12",
       "L01",
       "L02",
       "L03",
@@ -205,7 +211,7 @@
       "F07"
     ]
   },
-  "workPackageCount": 62,
+  "workPackageCount": 64,
   "originalV1TaskCount": 106,
   "workerCount": 6,
   "localLinksChecked": 427,
@@ -720,11 +726,29 @@
         "lateToDailyTargetHours": 0
       },
       {
+        "taskId": "I12",
+        "worker": "W2",
+        "plannedDay": 8,
+        "startHour": 180,
+        "finishHour": 182,
+        "targetByHour": 192,
+        "lateToDailyTargetHours": 0
+      },
+      {
         "taskId": "I09",
         "worker": "W4",
         "plannedDay": 8,
         "startHour": 181,
         "finishHour": 186,
+        "targetByHour": 192,
+        "lateToDailyTargetHours": 0
+      },
+      {
+        "taskId": "I11",
+        "worker": "W3",
+        "plannedDay": 8,
+        "startHour": 184,
+        "finishHour": 187,
         "targetByHour": 192,
         "lateToDailyTargetHours": 0
       },

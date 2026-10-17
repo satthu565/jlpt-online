@@ -1,123 +1,240 @@
 'use client';
 
-import React, { useState } from 'react';
-import { PracticeGenerator, PracticeRunner, type PracticeFilterState, type PracticeShortageInfo } from '../../../features/practice';
-import { MixGenerator, QuickMixCard, GeneratedExamCard, type MixFormState, type MixShortageInfo } from '../../../features/mix';
-import { SAMPLE_N3_EXAM_SNAPSHOT, SAMPLE_N2_EXAM_SNAPSHOT } from '../../../features/exam/fixtures/exam-fixtures';
-import type { GeneratedExam, Level } from '@jlpt/schema';
-import { Button } from '@jlpt/ui';
+import React, { useState, useEffect } from 'react';
+import {
+  PracticeGenerator,
+  PracticeRunner,
+  type PracticeFilterState,
+  type PracticeShortageInfo,
+} from '../../../features/practice';
+import {
+  MixGenerator,
+  QuickMixCard,
+  GeneratedExamCard,
+  type MixFormState,
+  type MixShortageInfo,
+} from '../../../features/mix';
+import type { GeneratedExam, Level, PublicExamSnapshot } from '@jlpt/schema';
+import { Button, Alert, Spinner } from '@jlpt/ui';
+import Link from 'next/link';
+import { useI18n } from '../../../lib/i18n';
 
 export default function PracticeAndMixPage(): React.JSX.Element {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<'practice' | 'mix' | 'quick'>('practice');
   const [isGenerating, setIsGenerating] = useState(false);
   const [practiceShortage, setPracticeShortage] = useState<PracticeShortageInfo | null>(null);
   const [mixShortage, setMixShortage] = useState<MixShortageInfo | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isUnauthorized, setIsUnauthorized] = useState(false);
 
   // Active practice runner session
-  const [activePracticeExam, setActivePracticeExam] = useState<typeof SAMPLE_N3_EXAM_SNAPSHOT | null>(null);
+  const [activePracticeExam, setActivePracticeExam] = useState<PublicExamSnapshot | null>(null);
 
   // Active generated mix exam
   const [generatedMixExam, setGeneratedMixExam] = useState<GeneratedExam | null>(null);
 
+  // Recent generated exams
+  const [recentMixExams, setRecentMixExams] = useState<GeneratedExam[]>([]);
+  const [loadingRecent, setLoadingRecent] = useState(false);
+
+  const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '');
+
+  const loadRecentMixExams = async () => {
+    setLoadingRecent(true);
+    try {
+      const res = await fetch(`${baseUrl}/generated-exams`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setRecentMixExams(data.items || (Array.isArray(data) ? data : []));
+      }
+    } catch {
+      // Ignore if not logged in or endpoint unseeded
+    } finally {
+      setLoadingRecent(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'mix') {
+      loadRecentMixExams();
+    }
+  }, [activeTab]);
+
   const handleGeneratePractice = async (config: PracticeFilterState) => {
     setIsGenerating(true);
     setPracticeShortage(null);
-
-    // Simulate shortage UX if question count > 20 in 'wrong' pool for testing/demonstration
-    if (config.pool === 'wrong' && config.questionCount > 15) {
-      setTimeout(() => {
-        setIsGenerating(false);
-        setPracticeShortage({
-          isShortage: true,
-          requested: config.questionCount,
-          available: 8,
-          pool: config.pool,
-          level: config.level,
-        });
-      }, 400);
-      return;
-    }
+    setError(null);
+    setIsUnauthorized(false);
 
     try {
-      // In real mode, call POST /practice-exams; in mock, use sample snapshot
-      setTimeout(() => {
-        setIsGenerating(false);
-        setActivePracticeExam(config.level === 'N2' ? SAMPLE_N2_EXAM_SNAPSHOT : SAMPLE_N3_EXAM_SNAPSHOT);
-      }, 500);
-    } catch {
+      const res = await fetch(`${baseUrl}/practice-exams`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config),
+        credentials: 'include',
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        setIsUnauthorized(true);
+        return;
+      }
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        if (data.shortage || data.code === 'SHORTAGE' || data.isShortage) {
+          setPracticeShortage({
+            isShortage: true,
+            requested: data.requested || config.questionCount,
+            available: data.available ?? 0,
+            pool: config.pool,
+            level: config.level,
+            message: data.message || t('practice.shortage.defaultMessage'),
+            suggestedPools: data.suggestedPools,
+          });
+        } else {
+          setError(data.message || t('practice.errors.createPracticeFailed', { status: res.status }));
+        }
+        return;
+      }
+
+      if (data.snapshot) {
+        setActivePracticeExam(data.snapshot);
+      } else if (data.exam && data.exam.snapshot) {
+        setActivePracticeExam(data.exam.snapshot);
+      } else {
+        setError(t('practice.errors.noExamData'));
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || t('practice.errors.connectError'));
+    } finally {
       setIsGenerating(false);
-      setActivePracticeExam(SAMPLE_N3_EXAM_SNAPSHOT);
     }
   };
 
   const handleGenerateMix = async (config: MixFormState) => {
     setIsGenerating(true);
     setMixShortage(null);
+    setError(null);
+    setIsUnauthorized(false);
 
-    // Simulate shortage if custom weights cannot be satisfied
-    if (config.mode === 'Custom' && config.sourceWeights['2023-12'] === 1) {
-      setTimeout(() => {
-        setIsGenerating(false);
-        setMixShortage({
-          isShortage: true,
-          mode: config.mode,
-          level: config.level,
-          missingMondaiTypes: ['kanji_reading', 'text_grammar'],
-          requested: 35,
-          available: 22,
-          message: 'Kỳ thi 12/2023 đơn lẻ không đủ số câu cho toàn bộ blueprint N3.',
-          suggestions: ['Thêm nguồn đề 07/2024 hoặc ngân hàng đề thi JLPT Online.'],
-        });
-      }, 400);
-      return;
-    }
-
-    setTimeout(() => {
-      setIsGenerating(false);
-      setGeneratedMixExam({
-        id: '0192f000-mix0-7000-8000-000000000001',
-        examId: SAMPLE_N3_EXAM_SNAPSHOT.examId,
-        version: 1,
-        seed: config.seed ?? 42,
-        engineVersion: '1.2.0',
-        configHash: 'hash_' + config.mode.toLowerCase() + '_' + config.level,
-        selectionGroupIds: ['0192f000-1000-7000-8000-000000000001'],
-        sourceSummary: {
-          '2023-12': { count: 14, ratio: 0.4, requestedRatio: 0.4 },
-          '2024-07': { count: 14, ratio: 0.4, requestedRatio: 0.4 },
-          bank_official: { count: 7, ratio: 0.2, requestedRatio: 0.2 },
-        },
-        warnings: [],
-        blueprintConformant: true,
+    try {
+      const res = await fetch(`${baseUrl}/mixed-exams`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config),
+        credentials: 'include',
       });
-    }, 500);
+
+      if (res.status === 401 || res.status === 403) {
+        setIsUnauthorized(true);
+        return;
+      }
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        if (data.shortage || data.code === 'SHORTAGE' || data.isShortage) {
+          setMixShortage({
+            isShortage: true,
+            mode: config.mode,
+            level: config.level,
+            missingMondaiTypes: data.missingMondaiTypes || [],
+            requested: data.requested || 0,
+            available: data.available || 0,
+            message: data.message || t('practice.shortage.mixDefaultMessage'),
+            suggestions: data.suggestions || [],
+          });
+        } else {
+          setError(data.message || t('practice.errors.createMixFailed', { status: res.status }));
+        }
+        return;
+      }
+
+      const generated = data.generatedExam || data;
+      setGeneratedMixExam(generated);
+      await loadRecentMixExams();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || t('practice.errors.connectError'));
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleQuickMix = async (level: Level) => {
     setIsGenerating(true);
-    setTimeout(() => {
-      setIsGenerating(false);
-      setGeneratedMixExam({
-        id: '0192f000-quick-7000-8000-000000000001',
-        examId: level === 'N2' ? SAMPLE_N2_EXAM_SNAPSHOT.examId : SAMPLE_N3_EXAM_SNAPSHOT.examId,
-        version: 1,
-        seed: 12345,
-        engineVersion: '1.2.0',
-        configHash: 'quick_' + level.toLowerCase(),
-        selectionGroupIds: ['0192f000-1000-7000-8000-000000000001'],
-        sourceSummary: {
-          '2023-12': { count: 15, ratio: 0.5, requestedRatio: 0.5 },
-          bank_official: { count: 15, ratio: 0.5, requestedRatio: 0.5 },
-        },
-        warnings: [],
-        blueprintConformant: true,
+    setError(null);
+    setIsUnauthorized(false);
+
+    try {
+      const res = await fetch(`${baseUrl}/mixed-exams/quick`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ level }),
+        credentials: 'include',
       });
+
+      if (res.status === 401 || res.status === 403) {
+        setIsUnauthorized(true);
+        return;
+      }
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(data.message || t('practice.errors.quickMixFailed', { status: res.status }));
+        return;
+      }
+
+      const generated = data.generatedExam || data;
+      setGeneratedMixExam(generated);
       setActiveTab('mix');
-    }, 500);
+      await loadRecentMixExams();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || t('practice.errors.connectError'));
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleRegenerate = async (newSeed: number) => {
+    if (!generatedMixExam) return;
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`${baseUrl}/generated-exams/${encodeURIComponent(generatedMixExam.id)}/regenerate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newSeed }),
+        credentials: 'include',
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setGeneratedMixExam(data.generatedExam || data);
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        setError(errData.message || t('practice.errors.regenerateFailed'));
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || t('practice.errors.regenerateFailed'));
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
-    <div className="container" style={{ padding: '3rem 1rem', maxWidth: '1000px' }}>
+    <div className="max-w-5xl mx-auto py-8 px-4 w-full">
       <div style={{ marginBottom: '2rem' }}>
         <h1
           style={{
@@ -127,19 +244,37 @@ export default function PracticeAndMixPage(): React.JSX.Element {
             margin: '0 0 0.5rem 0',
           }}
         >
-          Luyện tập chuyên đề & Trộn đề thông minh
+          {t('practice.page.title')}
         </h1>
         <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '0.9375rem' }}>
-          Tùy biến các bài thi thử theo điểm yếu, câu chưa làm, câu làm sai hoặc tạo bộ đề tổng hợp bất biến.
+          {t('practice.page.subtitle')}
         </p>
       </div>
+
+      {isUnauthorized && (
+        <Alert variant="warning" style={{ marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <span>{t('practice.auth.required')}</span>
+            <Link href="/dang-nhap?redirect=/luyen-tap">
+              <Button size="sm" variant="primary">{t('practice.auth.signInButton')}</Button>
+            </Link>
+          </div>
+        </Alert>
+      )}
+
+      {error && !isUnauthorized && (
+        <Alert variant="error" onClose={() => setError(null)} style={{ marginBottom: '1.5rem' }}>
+          {error}
+        </Alert>
+      )}
 
       {/* Tabs */}
       <div
         role="tablist"
-        aria-label="Các chế độ ôn luyện"
+        aria-label={t('practice.tabs.ariaLabel')}
         style={{
           display: 'flex',
+          flexWrap: 'wrap',
           gap: '0.5rem',
           borderBottom: '1px solid var(--border-subtle)',
           marginBottom: '2rem',
@@ -167,7 +302,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
             minHeight: '44px',
           }}
         >
-          📚 Luyện theo nguồn câu hỏi (Practice)
+          {t('practice.tabs.practice')}
         </button>
 
         <button
@@ -189,7 +324,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
             minHeight: '44px',
           }}
         >
-          🔀 Trộn đề đa nguồn (7 Chế độ)
+          {t('practice.tabs.mix')}
         </button>
 
         <button
@@ -211,7 +346,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
             minHeight: '44px',
           }}
         >
-          ⚡ Trộn nhanh 1 chạm
+          {t('practice.tabs.quick')}
         </button>
       </div>
 
@@ -226,7 +361,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
                   size="sm"
                   onClick={() => setActivePracticeExam(null)}
                 >
-                  ← Đổi cấu hình luyện tập
+                  {t('practice.runner.changeConfig')}
                 </Button>
               </div>
               <PracticeRunner snapshot={activePracticeExam} />
@@ -238,7 +373,6 @@ export default function PracticeAndMixPage(): React.JSX.Element {
               shortage={practiceShortage}
               onProceedWithShortage={() => {
                 setPracticeShortage(null);
-                setActivePracticeExam(SAMPLE_N3_EXAM_SNAPSHOT);
               }}
             />
           )}
@@ -252,9 +386,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
             <div className="space-y-4">
               <GeneratedExamCard
                 generatedExam={generatedMixExam}
-                onRegenerate={(newSeed) => {
-                  setGeneratedMixExam((prev) => (prev ? { ...prev, seed: newSeed } : null));
-                }}
+                onRegenerate={handleRegenerate}
               />
               <div className="text-right">
                 <Button
@@ -262,7 +394,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
                   size="sm"
                   onClick={() => setGeneratedMixExam(null)}
                 >
-                  Tạo cấu hình trộn đề khác
+                  {t('practice.mix.changeConfig')}
                 </Button>
               </div>
             </div>
@@ -274,6 +406,38 @@ export default function PracticeAndMixPage(): React.JSX.Element {
               isGenerating={isGenerating}
               shortage={mixShortage}
             />
+          )}
+
+          {/* List of previously generated exams if any */}
+          {loadingRecent && (
+            <div className="flex items-center justify-center py-4 gap-2 text-slate-500">
+              <Spinner size="sm" />
+              <span>{t('practice.recent.loading')}</span>
+            </div>
+          )}
+          {recentMixExams.length > 0 && !generatedMixExam && (
+            <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">
+                {t('practice.recent.title', { count: recentMixExams.length })}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {recentMixExams.slice(0, 4).map((exam) => (
+                  <div
+                    key={exam.id}
+                    className="p-4 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-primary transition cursor-pointer"
+                    onClick={() => setGeneratedMixExam(exam)}
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-semibold text-sm">{exam.configHash || exam.id.slice(0, 8)}</span>
+                      <span className="text-xs text-slate-500">Seed: {exam.seed}</span>
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                      {t('practice.recent.version', { version: exam.engineVersion })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       )}

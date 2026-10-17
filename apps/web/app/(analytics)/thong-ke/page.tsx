@@ -1,299 +1,199 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { AnalyticsDashboard } from '../../../features/analytics';
 import type { AttemptRecord, QuestionAttemptRecord } from '../../../features/analytics/types';
-import type { Level } from '@jlpt/schema';
+import type { Level, Skill, MondaiType } from '@jlpt/schema';
 import { useAuth } from '../../../lib/auth-context';
+import { Alert, Button, Spinner } from '@jlpt/ui';
+import { useI18n } from '../../../lib/i18n';
 
 export default function AnalyticsPage(): React.JSX.Element {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
+  const token = session?.token;
+  const { t } = useI18n();
 
-  // Hand-verified sample attempts history
-  const sampleAttempts: AttemptRecord[] = [
-    {
-      id: 'att-01',
-      examId: '0192f000-0000-7000-8000-000000000003',
-      examTitle: 'Đề thi chính thức JLPT N3 - 12/2023',
-      level: 'N3',
-      mode: 'real',
-      totalScore: 92,
-      maxScore: 180,
-      accuracy: 51.1,
-      passed: false,
-      durationSec: 5400,
-      submittedAt: '2026-08-15T09:30:00Z',
-    },
-    {
-      id: 'att-02',
-      examId: '0192f000-0000-7000-8000-000000000004',
-      examTitle: 'Đề thi chính thức JLPT N3 - 07/2024',
-      level: 'N3',
-      mode: 'real',
-      totalScore: 110,
-      maxScore: 180,
-      accuracy: 61.1,
-      passed: true,
-      durationSec: 5200,
-      submittedAt: '2026-09-10T14:15:00Z',
-    },
-    {
-      id: 'att-03',
-      examId: '0192f000-mix0-7000-8000-000000000001',
-      examTitle: 'Đề trộn tổng hợp N3 Balanced',
-      level: 'N3',
-      mode: 'practice',
-      totalScore: 128,
-      maxScore: 180,
-      accuracy: 71.1,
-      passed: true,
-      durationSec: 4800,
-      submittedAt: '2026-10-12T10:00:00Z',
-    },
-  ];
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [attempts, setAttempts] = useState<AttemptRecord[]>([]);
+  const [questionAttempts, setQuestionAttempts] = useState<QuestionAttemptRecord[]>([]);
 
-  // Question attempt records with strict separation between Unseen (exposureCount = 0) and Familiar (exposureCount > 0)
-  const sampleQuestionAttempts: QuestionAttemptRecord[] = [
-    // Unseen fresh questions (exposureCount = 0)
-    {
-      questionId: 'q-u1',
-      questionNumber: '1',
-      stemPreview: 'この法律の改正には慎重な審議が求められる。',
-      level: 'N3',
-      skill: 'kanji',
-      mondaiType: 'kanji_reading',
-      isCorrect: true,
-      timeSpentMs: 42000,
-      exposureCount: 0,
-      submittedAt: '2026-10-12T10:05:00Z',
-    },
-    {
-      questionId: 'q-u2',
-      questionNumber: '2',
-      stemPreview: '新政策の実施に伴い、様々な問題が惹起された。',
-      level: 'N3',
-      skill: 'vocabulary',
-      mondaiType: 'contextual',
-      isCorrect: false,
-      timeSpentMs: 65000,
-      exposureCount: 0,
-      errorCategory: 'vocab_nuance',
-      submittedAt: '2026-10-12T10:07:00Z',
-    },
-    {
-      questionId: 'q-u3',
-      questionNumber: '3',
-      stemPreview: '計画を成功させるためには、事前の準備が不可欠だ。',
-      level: 'N3',
-      skill: 'grammar',
-      mondaiType: 'sentence_composition',
-      isCorrect: true,
-      timeSpentMs: 50000,
-      exposureCount: 0,
-      submittedAt: '2026-10-12T10:09:00Z',
-    },
-    {
-      questionId: 'q-u4',
-      questionNumber: '4',
-      stemPreview: '彼の説明は要領を得ず、理解するのが難しかった。',
-      level: 'N3',
-      skill: 'reading',
-      mondaiType: 'comprehension_short',
-      isCorrect: false,
-      timeSpentMs: 110000,
-      exposureCount: 0,
-      errorCategory: 'time_pressure',
-      submittedAt: '2026-10-12T10:14:00Z',
-    },
-    {
-      questionId: 'q-u5',
-      questionNumber: '5',
-      stemPreview: '会議で今後のスケジュールについて話し合います。',
-      level: 'N3',
-      skill: 'listening',
-      mondaiType: 'task_based',
-      isCorrect: true,
-      timeSpentMs: 70000,
-      exposureCount: 0,
-      submittedAt: '2026-10-12T10:20:00Z',
-    },
-    {
-      questionId: 'q-u6',
-      questionNumber: '6',
-      stemPreview: '経済の回復に伴い、雇用の状況も改善しつつある。',
-      level: 'N3',
-      skill: 'grammar',
-      mondaiType: 'grammar_form',
-      isCorrect: true,
-      timeSpentMs: 45000,
-      exposureCount: 0,
-      submittedAt: '2026-10-12T10:25:00Z',
-    },
-    {
-      questionId: 'q-u7',
-      questionNumber: '7',
-      stemPreview: '技術の進歩は私たちの生活を大きく変えた。',
-      level: 'N3',
-      skill: 'reading',
-      mondaiType: 'comprehension_mid',
-      isCorrect: true,
-      timeSpentMs: 85000,
-      exposureCount: 0,
-      submittedAt: '2026-10-12T10:30:00Z',
-    },
-    {
-      questionId: 'q-u8',
-      questionNumber: '8',
-      stemPreview: '環境問題に対する関心が高まっている。',
-      level: 'N3',
-      skill: 'vocabulary',
-      mondaiType: 'paraphrase',
-      isCorrect: true,
-      timeSpentMs: 40000,
-      exposureCount: 0,
-      submittedAt: '2026-10-12T10:35:00Z',
-    },
-    {
-      questionId: 'q-u9',
-      questionNumber: '9',
-      stemPreview: '留学生の増加に対応するため、支援体制を整える。',
-      level: 'N3',
-      skill: 'kanji',
-      mondaiType: 'orthography',
-      isCorrect: false,
-      timeSpentMs: 55000,
-      exposureCount: 0,
-      errorCategory: 'kanji_confusion',
-      submittedAt: '2026-10-12T10:40:00Z',
-    },
-    {
-      questionId: 'q-u10',
-      questionNumber: '10',
-      stemPreview: '資料を整理してからレポートを書き始めた。',
-      level: 'N3',
-      skill: 'listening',
-      mondaiType: 'point',
-      isCorrect: false,
-      timeSpentMs: 68000,
-      exposureCount: 0,
-      errorCategory: 'listening_distractor',
-      submittedAt: '2026-10-12T10:45:00Z',
-    },
+  const fetchAnalyticsData = useCallback(async () => {
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
 
-    // Familiar repeated questions (exposureCount > 0)
-    {
-      questionId: 'q-f1',
-      questionNumber: '11',
-      stemPreview: '事故の知らせを聞いて、現場に急行した。',
-      level: 'N3',
-      skill: 'kanji',
-      mondaiType: 'kanji_reading',
-      isCorrect: true,
-      timeSpentMs: 30000,
-      exposureCount: 1,
-      submittedAt: '2026-10-12T10:50:00Z',
-    },
-    {
-      questionId: 'q-f2',
-      questionNumber: '12',
-      stemPreview: 'どんな困難があっても、決して諦めない。',
-      level: 'N3',
-      skill: 'grammar',
-      mondaiType: 'grammar_form',
-      isCorrect: true,
-      timeSpentMs: 32000,
-      exposureCount: 2,
-      submittedAt: '2026-10-12T10:52:00Z',
-    },
-    {
-      questionId: 'q-f3',
-      questionNumber: '13',
-      stemPreview: 'この製品は環境に配慮して作られている。',
-      level: 'N3',
-      skill: 'vocabulary',
-      mondaiType: 'contextual',
-      isCorrect: true,
-      timeSpentMs: 35000,
-      exposureCount: 1,
-      submittedAt: '2026-10-12T10:55:00Z',
-    },
-    {
-      questionId: 'q-f4',
-      questionNumber: '14',
-      stemPreview: '雨が降りそうなので、傘を持っていったほうがいい。',
-      level: 'N3',
-      skill: 'grammar',
-      mondaiType: 'sentence_composition',
-      isCorrect: true,
-      timeSpentMs: 28000,
-      exposureCount: 1,
-      submittedAt: '2026-10-12T10:58:00Z',
-    },
-    {
-      questionId: 'q-f5',
-      questionNumber: '15',
-      stemPreview: '友人に勧められて、新しい趣味を始めた。',
-      level: 'N3',
-      skill: 'reading',
-      mondaiType: 'comprehension_short',
-      isCorrect: true,
-      timeSpentMs: 45000,
-      exposureCount: 2,
-      submittedAt: '2026-10-12T11:02:00Z',
-    },
-    // Repeated wrong question (missed multiple times)
-    {
-      questionId: 'q-rep1',
-      questionNumber: '16',
-      stemPreview: '契約を締結するにあたり、条件を慎重に確認する。',
-      level: 'N3',
-      skill: 'grammar',
-      mondaiType: 'grammar_form',
-      isCorrect: false,
-      timeSpentMs: 70000,
-      exposureCount: 2,
-      errorCategory: 'grammar_trap',
-      submittedAt: '2026-10-12T11:05:00Z',
-    },
-    {
-      questionId: 'q-rep1',
-      questionNumber: '16',
-      stemPreview: '契約を締結するにあたり、条件を慎重に確認する。',
-      level: 'N3',
-      skill: 'grammar',
-      mondaiType: 'grammar_form',
-      isCorrect: false,
-      timeSpentMs: 75000,
-      exposureCount: 1,
-      errorCategory: 'grammar_trap',
-      submittedAt: '2026-09-10T14:30:00Z',
-    },
-  ];
+    setIsLoading(true);
+    setError(null);
+
+    const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    try {
+      const [attemptsRes, analyticsRes] = await Promise.all([
+        fetch(`${baseUrl}/me/attempts`, {
+          headers,
+          credentials: 'include',
+        }),
+        fetch(`${baseUrl}/me/analytics?targetLevel=${encodeURIComponent(user.targetLevel || 'N3')}`, {
+          headers,
+          credentials: 'include',
+        }),
+      ]);
+
+      if (attemptsRes.status === 401 || attemptsRes.status === 403 || analyticsRes.status === 401 || analyticsRes.status === 403) {
+        setError(t('auth.sessionExpired') || 'Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.');
+        setIsLoading(false);
+        return;
+      }
+
+      let loadedAttempts: AttemptRecord[] = [];
+      if (attemptsRes.ok) {
+        const attemptsData = await attemptsRes.json();
+        const rawItems = Array.isArray(attemptsData) ? attemptsData : (attemptsData.items || []);
+        loadedAttempts = rawItems.map((att: Record<string, unknown>) => {
+          const score = typeof att['score'] === 'number' ? att['score'] : 0;
+          return {
+            id: String(att['id']),
+            examId: String(att['examId'] || ''),
+            examTitle: String(att['examTitle'] || `Đề thi JLPT ${att['mode'] === 'real' ? 'chính thức' : 'luyện tập'} (${String(att['id']).slice(0, 8)})`),
+            level: ((att['level'] || user.targetLevel || 'N3') as Level),
+            mode: att['mode'] === 'real' ? 'real' : 'practice',
+            totalScore: score,
+            maxScore: 180,
+            accuracy: Math.round((score / 180) * 1000) / 10,
+            passed: Boolean(att['passed']),
+            durationSec: typeof att['durationSec'] === 'number' ? att['durationSec'] : 0,
+            submittedAt: String(att['submittedAt'] || att['startedAt'] || new Date().toISOString()),
+          };
+        });
+      }
+
+      let loadedQuestionAttempts: QuestionAttemptRecord[] = [];
+      if (analyticsRes.ok) {
+        const analyticsData = await analyticsRes.json();
+        if (Array.isArray(analyticsData.questionHistory)) {
+          loadedQuestionAttempts = analyticsData.questionHistory.map((q: Record<string, unknown>, idx: number) => ({
+            questionId: String(q['questionId'] || `q-${idx}`),
+            questionNumber: String(q['questionNumber'] || idx + 1),
+            stemPreview: typeof q['stemPreview'] === 'string' ? q['stemPreview'] : undefined,
+            level: ((q['level'] || user.targetLevel || 'N3') as Level),
+            skill: ((q['skill'] || 'vocabulary') as Skill),
+            mondaiType: q['mondaiType'] as MondaiType | undefined,
+            isCorrect: Boolean(q['isCorrect']),
+            timeSpentMs: typeof q['timeSpentMs'] === 'number' ? q['timeSpentMs'] : 60000,
+            exposureCount: typeof q['exposureCount'] === 'number' ? q['exposureCount'] : 0,
+            errorCategory: q['errorCategory'] as QuestionAttemptRecord['errorCategory'],
+            submittedAt: String(q['submittedAt'] || new Date().toISOString()),
+          }));
+        }
+      }
+
+      setAttempts(loadedAttempts);
+      setQuestionAttempts(loadedQuestionAttempts);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Không thể kết nối máy chủ phân tích';
+      setError(msg);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, token, t]);
+
+  useEffect(() => {
+    fetchAnalyticsData();
+  }, [fetchAnalyticsData]);
+
+  if (!user) {
+    return (
+      <div className="max-w-4xl mx-auto py-12 px-4 w-full">
+        <Alert variant="warning" className="mb-6" data-testid="analytics-auth-required">
+          {t('analytics.auth.required')}
+        </Alert>
+        <div className="text-center">
+          <Link
+            href="/dang-nhap?redirect=/thong-ke"
+            className="inline-flex items-center px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+          >
+            {t('analytics.auth.signIn')}
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container" style={{ padding: '3rem 1rem', maxWidth: '1100px' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <h1
-          style={{
-            fontSize: '2rem',
-            fontWeight: 800,
-            color: 'var(--text-primary)',
-            margin: '0 0 0.5rem 0',
-          }}
-        >
-          Bảng điều khiển học tập & Phân tích chuyên sâu (Analytics Dashboard)
+    <div className="max-w-6xl mx-auto py-8 px-4 w-full space-y-6" data-testid="analytics-page-container">
+      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+          {t('analytics.page.title')}
         </h1>
-        <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '0.9375rem' }}>
-          Đánh giá tiến độ thực chất, kiểm soát bẫy lạm phát điểm quen thuộc, và định hướng kỹ năng cần ưu tiên bứt phá.
+        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+          {t('analytics.page.subtitle')}
         </p>
       </div>
 
-      <AnalyticsDashboard
-        attempts={sampleAttempts}
-        questionAttempts={sampleQuestionAttempts}
-        targetLevel={(user?.targetLevel as Level) || 'N3'}
-        targetScore={120}
-      />
+      {isLoading && (
+        <div className="flex flex-col items-center justify-center py-16 space-y-3" data-testid="analytics-loading-spinner">
+          <Spinner size="lg" aria-label={t('analytics.status.syncing')} />
+          <p className="text-sm text-slate-500">{t('analytics.status.syncing')}</p>
+        </div>
+      )}
+
+      {error && !isLoading && (
+        <Alert variant="error" className="my-4" data-testid="analytics-error-alert">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span>{error}</span>
+            <Button size="sm" variant="outline" onClick={fetchAnalyticsData}>
+              {t('common.buttons.retry')}
+            </Button>
+          </div>
+        </Alert>
+      )}
+
+      {!isLoading && !error && attempts.length === 0 && questionAttempts.length === 0 && (
+        <div
+          data-testid="analytics-empty-state"
+          className="p-12 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4"
+        >
+          <div className="text-4xl">📊</div>
+          <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">
+            {t('analytics.empty.title')}
+          </h2>
+          <p className="text-sm text-slate-500 max-w-md mx-auto">
+            {t('analytics.empty.description')}
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center pt-2">
+            <Link
+              href="/de-thi"
+              className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition"
+            >
+              {t('analytics.empty.toExams')}
+            </Link>
+            <Link
+              href="/luyen-tap"
+              className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+            >
+              {t('analytics.empty.toPractice')}
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {!isLoading && !error && (attempts.length > 0 || questionAttempts.length > 0) && (
+        <AnalyticsDashboard
+          attempts={attempts}
+          questionAttempts={questionAttempts}
+          targetLevel={(user?.targetLevel as Level) || 'N3'}
+          targetScore={120}
+        />
+      )}
     </div>
   );
 }

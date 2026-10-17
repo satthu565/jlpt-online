@@ -179,12 +179,16 @@
       "privacy": "Privacy & Data"
     },
     "profile": {
+      "title": "Personal Profile",
       "name": "Full Name",
+      "namePlaceholder": "Enter your display name",
       "email": "Email Address",
+      "emailNotice": "Email used for sign-in cannot be changed directly.",
       "emailVerified": "Verified",
       "emailUnverified": "Unverified",
       "role": "Role",
       "targetLevel": "Target JLPT Level",
+      "targetLevelDesc": "The JLPT level you are currently aiming to pass.",
       "targetLevelHint": "The system will recommend exams and study paths tailored to this level.",
       "selectLevel": "Select target level",
       "levelN1": "JLPT N1 (Advanced)",
@@ -251,6 +255,10 @@
       "deleteModalTitle": "Confirm Account Deletion Request",
       "deleteModalWarning": "This action will revoke all sessions and schedule the deletion of your personal data. Accounting and invoice records will be retained in anonymized form as required by law.",
       "confirmDeletionButton": "Confirm Account Deletion"
+    },
+    "auth": {
+      "required": "Please sign in to view your profile and manage account settings.",
+      "signIn": "Sign In Now"
     }
   },
   "home": {
@@ -556,6 +564,10 @@
       "sanitizedDetail": "Special characters escaped to prevent spreadsheet formula injection.",
       "formatLabel": "File Format",
       "downloadButton": "Export & Download"
+    },
+    "empty": {
+      "title": "You have not joined any classroom yet",
+      "description": "Enter an invite token from your instructor above to join a classroom and receive assignments."
     }
   },
   "community": {
@@ -578,7 +590,10 @@
       "officialLeaderboard": "Official Leaderboard",
       "participant": "Participant",
       "score": "Score",
-      "timeSpent": "Time Spent"
+      "timeSpent": "Time Spent",
+      "emptyTitle": "No live exam events available at the moment",
+      "emptySubtitle": "Check announcements or practice with mock exams while waiting for the next live event.",
+      "practiceNow": "Practice Now"
     },
     "discussions": {
       "pageTitle": "Question Discussions & Achievements",
@@ -605,7 +620,11 @@
       "reasonOther": "Other Reason",
       "reportDetailLabel": "Additional Details",
       "reportDetailPlaceholder": "Briefly describe the violation...",
-      "submitReport": "Submit Report"
+      "submitReport": "Submit Report",
+      "authRequired": "Please sign in to join discussions and share answers with the community.",
+      "signInButton": "Sign In Now",
+      "shareSuccess": "Achievement shared with JLPT Online community successfully!",
+      "shareFailed": "Failed to share achievement."
     },
     "share": {
       "cardTitle": "Achievement Certificate",
@@ -636,6 +655,7 @@
     "pricing": {
       "free": "Free",
       "monthly": "month",
+      "quarterly": "quarter",
       "yearly": "year",
       "lifetime": "lifetime",
       "mostPopular": "Most Popular",
@@ -824,6 +844,64 @@
       "exportExcel": "Export Excel Report",
       "studyListTitle": "Generate Study List from Frequent Words",
       "createStudyList": "Create Study List"
+    }
+  },
+  "practice": {
+    "page": {
+      "title": "Topic Practice & Smart Exam Mixer",
+      "subtitle": "Customize practice tests by weak points, unattempted or incorrect questions, or generate immutable composite exams."
+    },
+    "auth": {
+      "required": "Please sign in to generate and save personalized practice sets or mixed exams.",
+      "signInButton": "Sign In Now"
+    },
+    "tabs": {
+      "ariaLabel": "Study Modes",
+      "practice": "📚 Practice by Question Source",
+      "mix": "🔀 Multi-Source Mixer (7 Modes)",
+      "quick": "⚡ Quick 1-Touch Mix"
+    },
+    "runner": {
+      "changeConfig": "← Change Practice Configuration"
+    },
+    "mix": {
+      "changeConfig": "Create Another Mix Configuration"
+    },
+    "recent": {
+      "loading": "Loading recently generated exams...",
+      "title": "Recently Generated Exams ({count})",
+      "version": "Engine version: {version}"
+    },
+    "shortage": {
+      "defaultMessage": "Not enough questions matching selected filters.",
+      "mixDefaultMessage": "Not enough questions from specified sources."
+    },
+    "errors": {
+      "createPracticeFailed": "Failed to create practice exam (Code: {status})",
+      "createMixFailed": "Failed to create mixed exam (Code: {status})",
+      "quickMixFailed": "Failed to quick-mix exam (Code: {status})",
+      "noExamData": "No exam snapshot data received from server.",
+      "connectError": "Server connection error.",
+      "regenerateFailed": "Failed to regenerate exam seed on server."
+    }
+  },
+  "analytics": {
+    "auth": {
+      "required": "Please sign in to view your learning analytics and personal progress tracking.",
+      "signIn": "Sign In Now"
+    },
+    "page": {
+      "title": "Learning Analytics & Performance Dashboard",
+      "subtitle": "Assess genuine mastery, guard against overconfidence traps, and pinpoint priority skills to advance."
+    },
+    "status": {
+      "syncing": "Synchronizing exam history and practice results..."
+    },
+    "empty": {
+      "title": "No exam results or practice history yet",
+      "description": "You haven't completed any mock exams or practice questions yet. Complete an exam or practice session to generate detailed analytics.",
+      "toExams": "Go to Exam Library",
+      "toPractice": "Practice Questions"
     }
   }
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Input, Button, Badge, Alert, TTSAudioPlayer } from '@jlpt/ui';
+import { Card, Input, Button, Badge, Alert, TTSAudioPlayer, Spinner } from '@jlpt/ui';
 import { CorpusClient } from '../services/corpus-client';
 import type { VocabTermDto } from '../types';
 import { useI18n } from '../../../lib/i18n';
@@ -12,6 +12,64 @@ export interface VocabExplorerProps {
   className?: string;
 }
 
+const DEFAULT_VOCAB_TERMS: VocabTermDto[] = [
+  {
+    term: '曖昧',
+    reading: 'あいまい',
+    meaning: 'Mơ hồ, không rõ ràng, lập lờ',
+    level: 'N1',
+    frequency: 48,
+    partOfSpeech: 'Tính từ đuôi な / Danh từ',
+    exampleSentence: '曖昧な返事をして相手を困らせた。',
+    exampleReading: 'あいまいなへんじをしてあいてをこまらせた。',
+    exampleMeaning: 'Tôi đã trả lời lập lờ khiến đối phương bối rối.',
+  },
+  {
+    term: '徹底',
+    reading: 'てってい',
+    meaning: 'Triệt để, thấu đáo',
+    level: 'N2',
+    frequency: 72,
+    partOfSpeech: 'Danh từ / Động từ nhóm 3',
+    exampleSentence: '安全管理を徹底する必要がある。',
+    exampleReading: 'あんぜんかんりをてっていするひつようがある。',
+    exampleMeaning: 'Cần phải triệt để quản lý an toàn.',
+  },
+  {
+    term: '納得',
+    reading: 'なっとく',
+    meaning: 'Thấu hiểu, đồng ý, bị thuyết phục',
+    level: 'N3',
+    frequency: 110,
+    partOfSpeech: 'Danh từ / Động từ nhóm 3',
+    exampleSentence: '説明を聞いて納得した。',
+    exampleReading: 'せつめいをきいてなっとくした。',
+    exampleMeaning: 'Sau khi nghe giải thích tôi đã hiểu và bị thuyết phục.',
+  },
+  {
+    term: '複雑',
+    reading: 'ふくざつ',
+    meaning: 'Phức tạp, rắc rối',
+    level: 'N4',
+    frequency: 95,
+    partOfSpeech: 'Tính từ đuôi な',
+    exampleSentence: 'この機械は構造が複雑だ。',
+    exampleReading: 'このきかいはこうぞうがふくざつだ。',
+    exampleMeaning: 'Cỗ máy này có cấu trúc phức tạp.',
+  },
+  {
+    term: '便利',
+    reading: 'べんり',
+    meaning: 'Tiện lợi, thuận tiện',
+    level: 'N5',
+    frequency: 160,
+    partOfSpeech: 'Tính từ đuôi な',
+    exampleSentence: '駅の近くは便利です。',
+    exampleReading: 'えきのちかくはべんりです。',
+    exampleMeaning: 'Khu vực gần nhà ga rất tiện lợi.',
+  },
+];
+
 export function VocabExplorer({
   initialLevel = 'ALL',
   initialItems,
@@ -21,63 +79,9 @@ export function VocabExplorer({
   const [client] = useState(() => new CorpusClient());
   const [selectedLevel, setSelectedLevel] = useState<string>(initialLevel);
   const [searchQuery, setSearchQuery] = useState('');
-  const [items, setItems] = useState<VocabTermDto[]>(() => initialItems || [
-    {
-      term: '曖昧',
-      reading: 'あいまい',
-      meaning: 'Mơ hồ, không rõ ràng, lập lờ',
-      level: 'N1',
-      frequency: 48,
-      partOfSpeech: 'Tính từ đuôi な / Danh từ',
-      exampleSentence: '曖昧な返事をして相手を困らせた。',
-      exampleReading: 'あいまいなへんじをしてあいてをこまらせた。',
-      exampleMeaning: 'Tôi đã trả lời lập lờ khiến đối phương bối rối.',
-    },
-    {
-      term: '徹底',
-      reading: 'てってい',
-      meaning: 'Triệt để, thấu đáo',
-      level: 'N2',
-      frequency: 72,
-      partOfSpeech: 'Danh từ / Động từ nhóm 3',
-      exampleSentence: '安全管理を徹底する必要がある。',
-      exampleReading: 'あんぜんかんりをてっていするひつようがある。',
-      exampleMeaning: 'Cần phải triệt để quản lý an toàn.',
-    },
-    {
-      term: '納得',
-      reading: 'なっとく',
-      meaning: 'Thấu hiểu, đồng ý, bị thuyết phục',
-      level: 'N3',
-      frequency: 110,
-      partOfSpeech: 'Danh từ / Động từ nhóm 3',
-      exampleSentence: '説明を聞いて納得した。',
-      exampleReading: 'せつめいをきいてなっとくした。',
-      exampleMeaning: 'Sau khi nghe giải thích tôi đã hiểu và bị thuyết phục.',
-    },
-    {
-      term: '複雑',
-      reading: 'ふくざつ',
-      meaning: 'Phức tạp, rắc rối',
-      level: 'N4',
-      frequency: 95,
-      partOfSpeech: 'Tính từ đuôi な',
-      exampleSentence: 'この機械は構造が複雑だ。',
-      exampleReading: 'このきかいはこうぞうがふくざつだ。',
-      exampleMeaning: 'Cỗ máy này có cấu trúc phức tạp.',
-    },
-    {
-      term: '便利',
-      reading: 'べんり',
-      meaning: 'Tiện lợi, thuận tiện',
-      level: 'N5',
-      frequency: 160,
-      partOfSpeech: 'Tính từ đuôi な',
-      exampleSentence: '駅の近くは便利です。',
-      exampleReading: 'えきのちかくはべんりです。',
-      exampleMeaning: 'Khu vực gần nhà ga rất tiện lợi.',
-    },
-  ]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [items, setItems] = useState<VocabTermDto[]>(() => initialItems || DEFAULT_VOCAB_TERMS);
 
   const [savingTerm, setSavingTerm] = useState<string | null>(null);
   const [saveSuccessNotice, setSaveSuccessNotice] = useState<string | null>(null);
@@ -85,15 +89,22 @@ export function VocabExplorer({
 
   useEffect(() => {
     let active = true;
+    setIsLoading(true);
+    setLoadError(null);
     client
       .getVocabulary('jlpt-official', selectedLevel === 'ALL' ? undefined : selectedLevel)
       .then((data) => {
-        if (active && data && data.length > 0) {
-          setItems(data);
+        if (active) {
+          setItems(data || []);
         }
       })
-      .catch(() => {
-        // Retain fallback items
+      .catch((err) => {
+        if (active) {
+          setLoadError(err instanceof Error ? err.message : 'Không thể tải dữ liệu từ vựng');
+        }
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
       });
     return () => {
       active = false;
@@ -179,6 +190,18 @@ export function VocabExplorer({
       {saveErrorNotice && (
         <Alert variant="error" className="text-xs" data-testid="notebook-save-error">
           {saveErrorNotice}
+        </Alert>
+      )}
+
+      {isLoading && (
+        <div className="flex justify-center items-center py-6" data-testid="vocab-loading-spinner">
+          <Spinner size="md" aria-label="Đang tải dữ liệu từ vựng..." />
+        </div>
+      )}
+
+      {loadError && (
+        <Alert variant="error" className="text-xs" data-testid="vocab-load-error">
+          {loadError}
         </Alert>
       )}
 

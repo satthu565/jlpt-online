@@ -2,7 +2,7 @@
 
 Đây là kiểm tra tĩnh tài liệu và catalog, không chạy ứng dụng, model, provider hay runner mới.
 
-Kết quả: PASS. 375 mã nguồn:363yêu cầu ứng dụng và12yêu cầu chuẩn bị thủ công bên ngoài;62 gói việc,106 task V1 giữ truy vết,6 worker;kiểm tra 427 liên kết nội bộ.
+Kết quả: PASS. 375 mã nguồn:363yêu cầu ứng dụng và12yêu cầu chuẩn bị thủ công bên ngoài;64 gói việc,106 task V1 giữ truy vết,6 worker;kiểm tra 427 liên kết nội bộ.
 
 ## Kiểm tra
 
@@ -20,9 +20,9 @@ Nếu thiếu một điều kiện chặn bắt đầu, các task sau không gia
 
 | Điều kiện | Số task bị chặn | Task |
 |---|---|---|
-| repo-ci | 62 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, D00, D01, D02, D03, D04, D05, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, I08, I09, I10, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
-| coding-vps | 62 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, D00, D01, D02, D03, D04, D05, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, I08, I09, I10, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
-| coding-accounts | 62 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, D00, D01, D02, D03, D04, D05, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, I08, I09, I10, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
+| repo-ci | 64 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, D00, D01, D02, D03, D04, D05, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, I08, I09, I10, I11, I12, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
+| coding-vps | 64 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, D00, D01, D02, D03, D04, D05, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, I08, I09, I10, I11, I12, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
+| coding-accounts | 64 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, D00, D01, D02, D03, D04, D05, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, I08, I09, I10, I11, I12, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
 | coordinator-runtime | 1 | F07 |
 
 ## Mô phỏng theo giả định
@@ -83,7 +83,9 @@ Lịch greedy dependencies/worker/exclusive locks kết thúc ở giờ 219/168.
 | I02 | W4 | 177 | 181 | 8 | 0h |
 | I10 | W2 | 177 | 180 | 8 | 0h |
 | I06 | W3 | 178 | 184 | 8 | 0h |
+| I12 | W2 | 180 | 182 | 8 | 0h |
 | I09 | W4 | 181 | 186 | 8 | 0h |
+| I11 | W3 | 184 | 187 | 8 | 0h |
 | I03 | W4 | 186 | 192 | 8 | 0h |
 | I04 | W4 | 192 | 196 | 8 | 4h |
 | I07 | W6 | 196 | 200 | 8 | 8h |

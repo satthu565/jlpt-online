@@ -13,6 +13,9 @@ import PlannerPage from '../app/(planner)/ke-hoach/page';
 import ClassroomPage from '../app/(classroom)/lop-hoc/page';
 import ExamEventPage from '../app/(community)/su-kien/page';
 import DiscussionsPage from '../app/(community)/thao-luan/page';
+import { PlannerDashboard } from '../features/planner';
+import { ClassroomDashboard } from '../features/classroom';
+import { ExamEventLobby, QuestionDiscussions } from '../features/community';
 import MembershipPage from '../app/(billing)/goi-thanh-vien/page';
 
 const h = React.createElement;
@@ -136,50 +139,169 @@ describe('Web Application Accessibility (SYS-14 & WCAG 2.1 AA)', () => {
   });
 
   it('PlannerPage provides accessible plan overview, streak indicator and today runner', () => {
-    const html = renderToString(
+    const emptyHtml = renderToString(
       h(Providers, null, h(PlannerPage)),
     );
 
-    expect(html).toContain('<h1');
-    expect(html).toContain('data-testid="today-session-card"');
-    expect(html).toContain('data-testid="replan-button"');
-    expect(html).toContain('data-testid="reminder-settings-card"');
+    expect(emptyHtml).toContain('<h1');
+    expect(emptyHtml).toContain('data-testid="planner-no-plan-card"');
+    expect(emptyHtml).toContain('data-testid="create-plan-button"');
+
+    const dashboardHtml = renderToString(
+      h(Providers, null, h(PlannerDashboard, {
+        plan: {
+          id: 'plan-1',
+          userId: 'u1',
+          targetLevel: 'N2',
+          targetDate: '2026-12-06',
+          status: 'active',
+          currentVersion: 1,
+          daysRemaining: 45,
+          totalSessions: 60,
+          completedSessions: 15,
+          completionRate: 25,
+          currentStreak: 5,
+          isFinalSprint: false,
+          createdAt: '2026-01-01',
+          config: {
+            dailyMinutes: 45,
+            durationDays: 60,
+            timezone: 'Asia/Ho_Chi_Minh',
+            focusSkills: ['vocabulary', 'grammar'],
+            mockExamIntervalDays: 7,
+            finalSprintDays: 14,
+            skillDistribution: { vocabulary: 30, grammar: 30, reading: 20, listening: 20 },
+          },
+        },
+        todaySession: {
+          id: 'ses-1',
+          planId: 'plan-1',
+          scheduledDate: '2026-10-18',
+          durationMinutes: 45,
+          status: 'pending',
+          sessionType: 'lesson',
+          skill: 'grammar',
+          topic: 'N2 Grammar Patterns',
+        },
+        onCreatePlan: async () => {},
+        onCompleteSession: async () => {},
+        onReplan: async () => {},
+      })),
+    );
+
+    expect(dashboardHtml).toContain('data-testid="today-session-card"');
+    expect(dashboardHtml).toContain('data-testid="replan-button"');
+    expect(dashboardHtml).toContain('data-testid="reminder-settings-card"');
   });
 
   it('ClassroomPage provides accessible cohort privacy badge, class selector and tabs', () => {
-    const html = renderToString(
+    const emptyHtml = renderToString(
       h(Providers, null, h(ClassroomPage)),
     );
 
-    expect(html).toContain('<h1');
-    expect(html).toContain('data-testid="cohort-privacy-badge"');
-    expect(html).toContain('id="select-class-dropdown"');
-    expect(html).toContain('role="tablist"');
-    expect(html).toContain('data-testid="open-create-assignment-button"');
-    expect(html).toContain('data-testid="open-export-modal-button"');
+    expect(emptyHtml).toContain('<h1');
+    expect(emptyHtml).toContain('🔑 Gia nhập lớp học bằng mã mời:');
+
+    const dashboardHtml = renderToString(
+      h(Providers, null, h(ClassroomDashboard, {
+        organizations: [{ id: 'org-1', name: 'Tokyo Japanese Center', role: 'teacher', createdAt: '2026-01-01' }],
+        classes: [{ id: 'c-1', orgId: 'org-1', name: 'N2 Shinkanzen Intensive', level: 'N2', createdAt: '2026-01-01' }],
+        selectedClassId: 'c-1',
+        members: [],
+        assignments: [],
+        onSelectClass: () => {},
+        onCreateAssignment: async () => {},
+        onLoadAssignmentAnalytics: async () => ({
+          assignmentId: 'a1',
+          totalLearners: 20,
+          submissionCount: 15,
+          submissionRate: 75,
+          averageScore: 82,
+          passRate: 80,
+          highestScore: 98,
+          lowestScore: 65,
+          submissions: [],
+        }),
+        onExportGrades: async (_classId, format) => ({
+          className: 'N2 Shinkanzen Intensive',
+          level: 'N2',
+          exportedAt: '2026-10-17T00:00:00Z',
+          format,
+          rowCount: 0,
+          items: [],
+        }),
+        onSupplementAssignment: async () => {},
+      })),
+    );
+
+    expect(dashboardHtml).toContain('data-testid="cohort-privacy-badge"');
+    expect(dashboardHtml).toContain('id="select-class-dropdown"');
+    expect(dashboardHtml).toContain('role="tablist"');
+    expect(dashboardHtml).toContain('data-testid="open-create-assignment-button"');
+    expect(dashboardHtml).toContain('data-testid="open-export-modal-button"');
   });
 
   it('ExamEventPage provides accessible event countdown, lobby card and registration controls', () => {
-    const html = renderToString(
+    const emptyHtml = renderToString(
       h(Providers, null, h(ExamEventPage)),
     );
 
-    expect(html).toContain('<h1');
-    expect(html).toContain('data-testid="event-lobby-card"');
-    expect(html).toContain('data-testid="lobby-countdown"');
-    expect(html).toContain('data-testid="embargo-notice"');
+    expect(emptyHtml).toContain('<h1');
+
+    const lobbyHtml = renderToString(
+      h(Providers, null, h(ExamEventLobby, {
+        lobbyInfo: {
+          event: {
+            id: 'event-mock',
+            title: 'Sự kiện thi thử N2 Toàn Quốc',
+            examId: 'n2-mock-1',
+            level: 'N2',
+            opensAt: '2026-12-01T07:00:00Z',
+            startsAt: '2026-12-01T08:00:00Z',
+            endsAt: '2026-12-01T11:00:00Z',
+            resultReleaseAt: '2026-12-01T12:00:00Z',
+            capacity: 5000,
+            status: 'UPCOMING',
+          },
+          serverTime: '2026-12-01T07:30:00Z',
+          startsInSeconds: 1800,
+          isRegistered: false,
+          participantCount: 1420,
+          canStart: false,
+          isEmbargoed: true,
+        },
+        leaderboard: [],
+        onRegister: async () => {},
+        onStartExam: async () => {},
+      })),
+    );
+
+    expect(lobbyHtml).toContain('data-testid="event-lobby-card"');
+    expect(lobbyHtml).toContain('data-testid="lobby-countdown"');
+    expect(lobbyHtml).toContain('data-testid="embargo-notice"');
   });
 
   it('DiscussionsPage provides accessible comment thread and gated completion controls', () => {
-    const html = renderToString(
+    const emptyHtml = renderToString(
       h(Providers, null, h(DiscussionsPage)),
     );
 
-    expect(html).toContain('<h1');
-    expect(html).toContain('data-testid="question-discussions-view"');
-    expect(html).toContain('id="discussion-comment-input"');
-    expect(html).toContain('data-testid="post-comment-button"');
-    expect(html).toContain('data-testid="achievement-share-card"');
+    expect(emptyHtml).toContain('<h1');
+    expect(emptyHtml).toContain('data-testid="discussion-gated-card"');
+
+    const discussionsHtml = renderToString(
+      h(Providers, null, h(QuestionDiscussions, {
+        questionId: 'q-sample',
+        isCompleted: true,
+        comments: [],
+        onAddComment: async () => {},
+        onReportComment: async () => {},
+      })),
+    );
+
+    expect(discussionsHtml).toContain('data-testid="question-discussions-view"');
+    expect(discussionsHtml).toContain('id="discussion-comment-input"');
+    expect(discussionsHtml).toContain('data-testid="post-comment-button"');
   });
 
   it('MembershipPage provides accessible pricing matrix, coupon input and checkout summary', () => {

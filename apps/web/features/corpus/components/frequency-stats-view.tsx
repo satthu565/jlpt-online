@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Badge, Alert } from '@jlpt/ui';
+import { Card, Button, Badge, Alert, Spinner } from '@jlpt/ui';
 import { CorpusClient } from '../services/corpus-client';
 import type {
   CorpusFrequencyStatDto,
@@ -14,67 +14,73 @@ export interface FrequencyStatsViewProps {
   className?: string;
 }
 
+const DEFAULT_FREQUENCY_STATS: CorpusFrequencyStatDto[] = [
+  {
+    term: '徹底',
+    reading: 'てってい',
+    meaning: 'Triệt để, thấu đáo',
+    level: 'N2',
+    occurrences: 142,
+    relativeFrequencyPerThousand: 4.8,
+  },
+  {
+    term: '納得',
+    reading: 'なっとく',
+    meaning: 'Thấu hiểu, đồng ý',
+    level: 'N3',
+    occurrences: 198,
+    relativeFrequencyPerThousand: 6.2,
+  },
+  {
+    term: '曖昧',
+    reading: 'あいまい',
+    meaning: 'Mơ hồ, lập lờ',
+    level: 'N1',
+    occurrences: 96,
+    relativeFrequencyPerThousand: 3.1,
+  },
+  {
+    term: '複雑',
+    reading: 'ふくざつ',
+    meaning: 'Phức tạp',
+    level: 'N4',
+    occurrences: 215,
+    relativeFrequencyPerThousand: 7.4,
+  },
+  {
+    term: '案内',
+    reading: 'あんない',
+    meaning: 'Hướng dẫn, thông báo',
+    level: 'N5',
+    occurrences: 320,
+    relativeFrequencyPerThousand: 10.5,
+  },
+];
+
+const DEFAULT_LEVEL_COMPARISONS: LevelComparisonItemDto[] = [
+  { term: '徹底', counts: { N1: 28, N2: 84, N3: 30 } },
+  { term: '納得', counts: { N1: 15, N2: 65, N3: 118 } },
+  { term: '曖昧', counts: { N1: 68, N2: 24, N3: 4 } },
+];
+
+const DEFAULT_YEARLY_TRENDS: YearlyTrendItemDto[] = [
+  { year: 2021, term: '徹底', count: 24 },
+  { year: 2022, term: '徹底', count: 35 },
+  { year: 2023, term: '徹底', count: 42 },
+  { year: 2024, term: '徹底', count: 41 },
+];
+
 export function FrequencyStatsView({
   className = '',
 }: FrequencyStatsViewProps): React.JSX.Element {
   const { t } = useI18n();
   const [client] = useState(() => new CorpusClient());
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const [frequencyStats] = useState<CorpusFrequencyStatDto[]>([
-    {
-      term: '徹底',
-      reading: 'てってい',
-      meaning: 'Triệt để, thấu đáo',
-      level: 'N2',
-      occurrences: 142,
-      relativeFrequencyPerThousand: 4.8,
-    },
-    {
-      term: '納得',
-      reading: 'なっとく',
-      meaning: 'Thấu hiểu, đồng ý',
-      level: 'N3',
-      occurrences: 198,
-      relativeFrequencyPerThousand: 6.2,
-    },
-    {
-      term: '曖昧',
-      reading: 'あいまい',
-      meaning: 'Mơ hồ, lập lờ',
-      level: 'N1',
-      occurrences: 96,
-      relativeFrequencyPerThousand: 3.1,
-    },
-    {
-      term: '複雑',
-      reading: 'ふくざつ',
-      meaning: 'Phức tạp',
-      level: 'N4',
-      occurrences: 215,
-      relativeFrequencyPerThousand: 7.4,
-    },
-    {
-      term: '案内',
-      reading: 'あんない',
-      meaning: 'Hướng dẫn, thông báo',
-      level: 'N5',
-      occurrences: 320,
-      relativeFrequencyPerThousand: 10.5,
-    },
-  ]);
-
-  const [levelComparisons, setLevelComparisons] = useState<LevelComparisonItemDto[]>([
-    { term: '徹底', counts: { N1: 28, N2: 84, N3: 30 } },
-    { term: '納得', counts: { N1: 15, N2: 65, N3: 118 } },
-    { term: '曖昧', counts: { N1: 68, N2: 24, N3: 4 } },
-  ]);
-
-  const [yearlyTrends, setYearlyTrends] = useState<YearlyTrendItemDto[]>([
-    { year: 2021, term: '徹底', count: 24 },
-    { year: 2022, term: '徹底', count: 35 },
-    { year: 2023, term: '徹底', count: 42 },
-    { year: 2024, term: '徹底', count: 41 },
-  ]);
+  const [frequencyStats, setFrequencyStats] = useState<CorpusFrequencyStatDto[]>(DEFAULT_FREQUENCY_STATS);
+  const [levelComparisons, setLevelComparisons] = useState<LevelComparisonItemDto[]>(DEFAULT_LEVEL_COMPARISONS);
+  const [yearlyTrends, setYearlyTrends] = useState<YearlyTrendItemDto[]>(DEFAULT_YEARLY_TRENDS);
 
   const [generatingStudyList, setGeneratingStudyList] = useState(false);
   const [studyListNotice, setStudyListNotice] = useState<string | null>(null);
@@ -82,19 +88,28 @@ export function FrequencyStatsView({
 
   useEffect(() => {
     let active = true;
-    client
-      .compareLevels('jlpt-official')
-      .then((data) => {
-        if (active && data && data.length > 0) setLevelComparisons(data);
-      })
-      .catch(() => {});
+    setIsLoading(true);
+    setLoadError(null);
 
-    client
-      .getYearlyTrends('jlpt-official')
-      .then((data) => {
-        if (active && data && data.length > 0) setYearlyTrends(data);
+    Promise.all([
+      client.getFrequencyRanking('jlpt-official', 50).then((data) => {
+        if (active) setFrequencyStats(data || []);
+      }),
+      client.compareLevels('jlpt-official').then((data) => {
+        if (active) setLevelComparisons(data || []);
+      }),
+      client.getYearlyTrends('jlpt-official').then((data) => {
+        if (active) setYearlyTrends(data || []);
+      }),
+    ])
+      .catch((err) => {
+        if (active) {
+          setLoadError(err instanceof Error ? err.message : 'Không thể tải dữ liệu thống kê từ vựng');
+        }
       })
-      .catch(() => {});
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
 
     return () => {
       active = false;
@@ -191,6 +206,18 @@ export function FrequencyStatsView({
         )}
       </Card>
 
+      {isLoading && (
+        <div className="flex justify-center items-center py-6" data-testid="frequency-loading-spinner">
+          <Spinner size="md" aria-label="Đang tải dữ liệu thống kê từ vựng..." />
+        </div>
+      )}
+
+      {loadError && (
+        <Alert variant="error" className="text-xs" data-testid="frequency-load-error">
+          {loadError}
+        </Alert>
+      )}
+
       {/* 1. Frequency Ranking Table */}
       <Card className="p-6 space-y-4">
         <div className="flex items-center justify-between">
@@ -219,30 +246,38 @@ export function FrequencyStatsView({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {frequencyStats.map((item) => (
-                <tr key={item.term} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                  <td className="py-3 px-3 font-japanese font-bold text-sm text-slate-900 dark:text-slate-100">
-                    {item.term}
-                  </td>
-                  <td className="py-3 px-3 font-japanese text-slate-600 dark:text-slate-400">
-                    {item.reading}
-                  </td>
-                  <td className="py-3 px-3 text-slate-700 dark:text-slate-300">
-                    {item.meaning}
-                  </td>
-                  <td className="py-3 px-3">
-                    <Badge variant="primary" size="sm">
-                      {item.level}
-                    </Badge>
-                  </td>
-                  <td className="py-3 px-3 text-right font-extrabold text-blue-600 dark:text-blue-400">
-                    {item.occurrences} lần
-                  </td>
-                  <td className="py-3 px-3 text-right text-slate-500">
-                    {item.relativeFrequencyPerThousand} ‰
+              {frequencyStats.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-slate-500">
+                    Chưa có dữ liệu tần suất từ vựng
                   </td>
                 </tr>
-              ))}
+              ) : (
+                frequencyStats.map((item) => (
+                  <tr key={item.term} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                    <td className="py-3 px-3 font-japanese font-bold text-sm text-slate-900 dark:text-slate-100">
+                      {item.term}
+                    </td>
+                    <td className="py-3 px-3 font-japanese text-slate-600 dark:text-slate-400">
+                      {item.reading}
+                    </td>
+                    <td className="py-3 px-3 text-slate-700 dark:text-slate-300">
+                      {item.meaning}
+                    </td>
+                    <td className="py-3 px-3">
+                      <Badge variant="primary" size="sm">
+                        {item.level}
+                      </Badge>
+                    </td>
+                    <td className="py-3 px-3 text-right font-extrabold text-blue-600 dark:text-blue-400">
+                      {item.occurrences} lần
+                    </td>
+                    <td className="py-3 px-3 text-right text-slate-500">
+                      {item.relativeFrequencyPerThousand} ‰
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
