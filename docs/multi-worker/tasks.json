@@ -3506,6 +3506,72 @@
       "originalTaskRefs": []
     },
     {
+      "id": "I12",
+      "owner": "W2",
+      "day": 8,
+      "notBeforeHour": 168,
+      "targetByHour": 192,
+      "estimatedWorkerHours": 2,
+      "title": "Phiên đăng nhập đọc được cookie: không mất đăng nhập khi tải lại trang",
+      "dependencies": [
+        "I08"
+      ],
+      "featureIds": [],
+      "scope": "Đăng nhập đặt cookie auth_token (HttpOnly). Các route /me/* đọc cookie này, nhưng GET /api/v1/auth/session chỉ đọc header Bearer nên trả {\"user\":null} khi trình duyệt chỉ gửi cookie; web tưởng đã đăng xuất sau mỗi lần tải lại hoặc chuyển trang. Sửa để /auth/session và mọi guard dùng cùng một cách lấy phiên (cookie hoặc Bearer), đăng xuất xóa cookie.",
+      "outputs": [
+        "package.json",
+        "apps/api/package.json",
+        "apps/api/src/common/",
+        "apps/api/src/modules/auth/",
+        "apps/api/src/modules/user/",
+        "apps/api/src/modules/exam/",
+        "apps/api/src/modules/attempt/",
+        "apps/api/src/modules/question-bank/",
+        "apps/api/src/modules/import/",
+        "apps/api/src/modules/media/",
+        "apps/api/src/modules/review/",
+        "apps/api/src/modules/storage/",
+        "apps/api/src/modules/license/",
+        "apps/api/src/modules/blueprint/",
+        "apps/api/src/modules/audit/",
+        "apps/api/src/modules/notification/",
+        "apps/api/src/modules/community/",
+        "apps/api/src/modules/classroom/",
+        "apps/api/src/modules/scoring/",
+        "apps/api/src/modules/outbox/",
+        "apps/api/src/modules/email/",
+        "apps/api/src/modules/admin/",
+        "apps/api/src/modules/turnstile/",
+        "apps/api/src/main.ts",
+        "apps/api/src/app.module.ts",
+        "docs/decisions/"
+      ],
+      "acceptance": [
+        "E2E: học viên đăng nhập, tải lại trang, chuyển sang /so-tay và /lop-hoc vẫn ở trạng thái đã đăng nhập; đăng xuất rồi tải lại thì về trạng thái khách",
+        "Test API: /auth/session trả user khi chỉ có cookie hợp lệ, trả null khi cookie sai hoặc hết hạn"
+      ],
+      "checks": [
+        "pnpm test:auth",
+        "pnpm test:security"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [
+        "api-hardening"
+      ],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [
+        "tests/playwright/"
+      ],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
       "id": "I07",
       "owner": "W6",
       "day": 8,
@@ -3518,6 +3584,7 @@
         "I08",
         "I10",
         "I11",
+        "I12",
         "I09",
         "I03",
         "I04",

@@ -460,7 +460,13 @@ task('I11','W3',8,3,'Sửa lỗi 500 do mã viết cứng ở từ vựng, ngữ
  'apps/web/|packages/ui/',
  'Ba trang trên không còn request API trả 5xx khi đăng nhập học viên demo trên staging|Route API nhận id sai định dạng trả 400/404, có test|'+NO_MOCK+'|'+REAL_E2E,
  'pnpm test:web|pnpm check:no-mock-ui',contracts='API',grants='apps/api/src/modules/vocab/ apps/api/src/modules/community/ apps/api/src/common/pipes/ tests/playwright/ tests/integration/mock-ui-baseline.json')
-task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I11 I09 I03 I04 I05 I06',
+task('I12','W2',8,2,'Phiên đăng nhập đọc được cookie: không mất đăng nhập khi tải lại trang','I08',
+ 'Đăng nhập đặt cookie auth_token (HttpOnly). Các route /me/* đọc cookie này, nhưng GET /api/v1/auth/session chỉ đọc header Bearer nên trả {"user":null} khi trình duyệt chỉ gửi cookie; web tưởng đã đăng xuất sau mỗi lần tải lại hoặc chuyển trang. '
+ 'Sửa để /auth/session và mọi guard dùng cùng một cách lấy phiên (cookie hoặc Bearer), đăng xuất xóa cookie.',
+ '@roots',
+ 'E2E: học viên đăng nhập, tải lại trang, chuyển sang /so-tay và /lop-hoc vẫn ở trạng thái đã đăng nhập; đăng xuất rồi tải lại thì về trạng thái khách|Test API: /auth/session trả user khi chỉ có cookie hợp lệ, trả null khi cookie sai hoặc hết hạn',
+ 'pnpm test:auth|pnpm test:security',contracts='API',resources='api-hardening',grants='tests/playwright/')
+task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I11 I12 I09 I03 I04 I05 I06',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',
  'tests/integration/mock-ui-baseline.json rỗng; CI fail nếu có dữ liệu giả mới|E2E đăng nhập học viên và nhân sự rồi đi qua mọi trang web/admin, fail nếu bất kỳ request API nào trả 5xx hoặc trang hiện key dịch thô|E2E: học viên đăng ký -> làm đề -> xem điểm; editor nhập -> reviewer duyệt -> xuất bản; admin xem người dùng và audit; tất cả trên staging thật|docs/release/INTEGRATION_REPORT.md liệt kê từng trang và bằng chứng E2E',
