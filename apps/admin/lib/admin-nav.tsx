@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAdminAuth } from './auth-context';
 import { getNavigationSections } from './navigation';
@@ -9,6 +9,7 @@ import { t, SUPPORTED_LOCALES, type Locale } from './i18n';
 export function AdminNavigation(): React.JSX.Element | null {
   const { user, isAuthenticated, logout, locale, setLocale } = useAdminAuth();
   const pathname = usePathname() || '/';
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   if (!isAuthenticated || !user) {
     return null;
@@ -17,38 +18,65 @@ export function AdminNavigation(): React.JSX.Element | null {
   const sections = getNavigationSections(user.role);
 
   return (
-    <nav
-      role="navigation"
-      aria-label="Admin Navigation"
-      data-testid="admin-navigation"
-      style={{
-        width: '260px',
-        minHeight: '100vh',
-        background: '#111827',
-        color: '#f3f4f6',
-        display: 'flex',
-        flexDirection: 'column',
-        borderRight: '1px solid #374151',
-        fontFamily: 'sans-serif',
-      }}
-    >
-      {/* Brand Header */}
-      <div
-        style={{
-          padding: '1.25rem 1rem',
-          borderBottom: '1px solid #1f2937',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ fontSize: '1.5rem' }}>⛩️</span>
-          <div>
-            <h1 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: '#ffffff' }}>
-              {t('app.portalName', locale)}
-            </h1>
-            <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>v1.0.0</span>
-          </div>
+    <>
+      {/* Mobile Top Navigation Bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-gray-900 border-b border-gray-800 z-30 px-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">⛩️</span>
+          <span className="text-sm font-bold text-white">{t('app.portalName', locale)}</span>
         </div>
+        <button
+          type="button"
+          data-testid="btn-open-mobile-nav"
+          onClick={() => setIsMobileOpen(true)}
+          aria-label="Open Navigation"
+          className="p-2 text-gray-300 hover:text-white rounded-lg focus:outline-none"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </div>
+
+      {/* Mobile Backdrop Overlay */}
+      {isMobileOpen && (
+        <div
+          data-testid="mobile-nav-backdrop"
+          onClick={() => setIsMobileOpen(false)}
+          className="md:hidden fixed inset-0 bg-black/60 z-40 backdrop-blur-xs transition-opacity"
+        />
+      )}
+
+      {/* Sidebar Navigation */}
+      <nav
+        role="navigation"
+        aria-label="Admin Navigation"
+        data-testid="admin-navigation"
+        className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-gray-900 text-gray-100 flex flex-col border-r border-gray-800 transform transition-transform duration-200 ease-in-out ${
+          isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
+      >
+        {/* Brand Header */}
+        <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">⛩️</span>
+            <div>
+              <h1 className="text-sm font-bold text-white m-0">
+                {t('app.portalName', locale)}
+              </h1>
+              <span className="text-xs text-gray-400">v1.0.0</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            data-testid="btn-close-mobile-nav"
+            onClick={() => setIsMobileOpen(false)}
+            aria-label="Close Navigation"
+            className="md:hidden p-1.5 text-gray-400 hover:text-white rounded-lg"
+          >
+            ✕
+          </button>
+        </div>
 
       {/* User Badge */}
       <div
@@ -134,6 +162,7 @@ export function AdminNavigation(): React.JSX.Element | null {
                   <li key={item.id} style={{ marginBottom: '0.125rem' }}>
                     <a
                       href={item.href}
+                      onClick={() => setIsMobileOpen(false)}
                       aria-current={isActive ? 'page' : undefined}
                       data-testid={`nav-item-${item.id}`}
                       style={{
@@ -233,5 +262,6 @@ export function AdminNavigation(): React.JSX.Element | null {
         </button>
       </div>
     </nav>
+    </>
   );
 }

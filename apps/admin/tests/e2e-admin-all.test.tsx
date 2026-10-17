@@ -33,6 +33,7 @@ import { BillingManager } from '../features/billing/billing-service';
 import { ReconciliationManager } from '../features/billing/reconciliation-manager';
 import { BackupService, BackupManagerView } from '../features/backup';
 import { AuditLogService } from '../features/users/audit-service';
+import type { AuditLogEntry } from '../features/users/types';
 
 describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
   const adminUser: StaffUser = {
@@ -182,7 +183,20 @@ describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
     });
 
     it('AuditLogsPage hiển thị nhật ký kiểm toán hệ thống với actor và tenant', () => {
-      const html = renderWithAdmin(<AuditLogsPage />);
+      const mockLogs: AuditLogEntry[] = [
+        {
+          id: 'log_adm_live_01',
+          operatorId: adminUser.id,
+          operatorEmail: adminUser.email,
+          tenantId: 'tenant_center_01',
+          action: 'role_change',
+          targetResource: 'users',
+          targetId: 'usr_editor_01',
+          details: { previousRole: 'student', newRole: 'editor' },
+          timestamp: '2026-01-10T14:15:00Z',
+        },
+      ];
+      const html = renderWithAdmin(<AuditLogsPage initialLogs={mockLogs} />);
       expect(html).toContain('Nhật ký kiểm toán hệ thống (Audit Logs - ADM-14)');
       expect(html).toContain('Người thực hiện (Actor):');
       expect(html).toContain('Đơn vị (Tenant):');

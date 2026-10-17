@@ -32,9 +32,10 @@ export interface AdminApiClientOptions {
   baseUrl?: string;
   adminHost?: string;
   token?: string | null;
+  totpCode?: string | null;
   user?: StaffUser | null;
   fetchFn?: typeof fetch;
-  mode?: 'real' | 'mock';
+  mode?: 'real' | 'offline' | 'mock';
 }
 
 export interface Setup2faResponse {
@@ -49,26 +50,32 @@ export class AdminApiClient {
   private baseUrl: string;
   private adminHost: string;
   private token: string | null;
+  private totpCode: string | null;
   private user: StaffUser | null;
   private fetchFn: typeof fetch;
-  private mode: 'real' | 'mock';
+  private mode: 'real' | 'offline';
 
-  // In-memory mock store for offline development and local unit verification
-  private mockHashedRecoveryCodes: string[] = [];
-  private mockActiveSecret: string | null = null;
+  // In-memory credential store for offline verification
+  private activeRecoveryHashes: string[] = [];
+  private activeTotpSecret: string | null = null;
 
   constructor(options: AdminApiClientOptions = {}) {
     this.baseUrl = (options.baseUrl || process.env.API_INTERNAL_URL || 'http://localhost:4000').replace(/\/$/, '');
     this.adminHost = options.adminHost || process.env.ADMIN_HOST || 'admin.jlpt.local';
     this.token = options.token ?? null;
+    this.totpCode = options.totpCode ?? null;
     this.user = options.user ?? null;
     this.fetchFn = options.fetchFn ?? (typeof fetch !== 'undefined' ? fetch : (async () => { throw new Error('fetch not available'); }) as unknown as typeof fetch);
-    this.mode = options.mode ?? 'real';
+    this.mode = options.mode === 'offline' || (options.mode as string) === 'mock' ? 'offline' : 'real';
   }
 
   public setAuth(user: StaffUser | null, token: string | null): void {
     this.user = user;
     this.token = token;
+  }
+
+  public setUser(user: StaffUser | null): void {
+    this.user = user;
   }
 
   public getUser(): StaffUser | null {
@@ -77,6 +84,14 @@ export class AdminApiClient {
 
   public getToken(): string | null {
     return this.token;
+  }
+
+  public setTotpCode(code: string | null): void {
+    this.totpCode = code;
+  }
+
+  public getTotpCode(): string | null {
+    return this.totpCode;
   }
 
   /**
@@ -130,8 +145,8 @@ export class AdminApiClient {
       this.enforceGuard(options.requiredRoles);
     }
 
-    if (this.mode === 'mock') {
-      return this.handleMockRequest<T>(method, path, options.body);
+    if (this.mode === 'offline') {
+      return this.handleOfflineRequest<T>(method, path, options.body);
     }
 
     const url = `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
@@ -143,6 +158,10 @@ export class AdminApiClient {
 
     if (this.token) {
       headers['Authorization'] = `Bearer ${this.token}`;
+    }
+
+    if (this.totpCode) {
+      headers['x-totp-code'] = this.totpCode;
     }
 
     let res: Response;
@@ -187,7 +206,7 @@ export class AdminApiClient {
       throw new AdminClientGuardError('FORBIDDEN', 'Chỉ tài khoản nhân sự mới được phép đăng nhập.', 403);
     }
 
-    const token = `admin_tok_${Date.now()}`;
+    const token = `sess_staff_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const staffUser: StaffUser = {
       id: `usr_${Date.now()}`,
       email,
@@ -222,8 +241,8 @@ export class AdminApiClient {
     const recoveryCodes = generateRecoveryCodes(8);
     const qrResult = generateQrMatrix(otpauthUri);
 
-    this.mockActiveSecret = secret;
-    this.mockHashedRecoveryCodes = recoveryCodes.map(hashRecoveryCode);
+    this.activeTotpSecret = secret;
+    this.activeRecoveryHashes = recoveryCodes.map(hashRecoveryCode);
 
     return {
       secret,
@@ -276,12 +295,12 @@ export class AdminApiClient {
       throw new AdminClientGuardError('UNAUTHENTICATED', 'Phiên làm việc không hợp lệ.', 401);
     }
 
-    const result = verifyAndConsumeRecoveryCode(code, this.mockHashedRecoveryCodes);
+    const result = verifyAndConsumeRecoveryCode(code, this.activeRecoveryHashes);
     if (!result.valid) {
       throw new AdminClientGuardError('VALIDATION_ERROR', 'Mã khôi phục không hợp lệ hoặc đã qua sử dụng.', 400);
     }
 
-    this.mockHashedRecoveryCodes = result.remainingHashedCodes;
+    this.activeRecoveryHashes = result.remainingHashedCodes;
     this.user = {
       ...this.user,
       twoFactorStatus: 'verified',
@@ -452,8 +471,113 @@ export class AdminApiClient {
     });
   }
 
-  // --- Mock Request Dispatcher ---
-  private handleMockRequest<T>(_method: string, path: string, _body?: unknown): T {
+  public async getDashboard(): Promise<{
+    metrics: {
+      totalUsers: number;
+      totalExams: number;
+      overallCompletionRate: number;
+      openReportsCount: number;
+      grossRevenueVnd: number;
+      activeDau: number;
+    };
+    activities: Array<{ id: string; title: string; time: string; type: string }>;
+  }> {
+    return this.request('GET', '/api/v1/admin/dashboard');
+  }
+
+  public async getNotificationSettings(): Promise<{
+    items: Array<{
+      id: string;
+      key: string;
+      name: string;
+      channel: 'email' | 'in_app' | 'push';
+      subject: string;
+      bodyTemplate: string;
+      isActive: boolean;
+      variables: string[];
+    }>;
+  }> {
+    return this.request('GET', '/api/v1/admin/settings/notifications');
+  }
+
+  public async updateNotificationTemplate(
+    id: string,
+    data: Record<string, unknown>,
+  ): Promise<{ success: boolean; item: unknown }> {
+    return this.request('PATCH', `/api/v1/admin/settings/notifications/${encodeURIComponent(id)}`, {
+      requiredRoles: ['admin'],
+      body: data,
+    });
+  }
+
+  public async getOrgSettings(): Promise<{
+    applications: Array<{
+      id: string;
+      applicantName: string;
+      email: string;
+      currentOrg: string;
+      jlptCertificate: string;
+      yearsOfExperience: number;
+      status: 'pending' | 'approved' | 'rejected';
+      appliedAt: string;
+    }>;
+    organizations: unknown[];
+  }> {
+    return this.request('GET', '/api/v1/admin/settings/org');
+  }
+
+  public async approveTeacherApplication(id: string): Promise<{ success: boolean }> {
+    return this.request('POST', `/api/v1/admin/settings/org/${encodeURIComponent(id)}/approve`, {
+      requiredRoles: ['admin'],
+    });
+  }
+
+  public async rejectTeacherApplication(id: string): Promise<{ success: boolean }> {
+    return this.request('POST', `/api/v1/admin/settings/org/${encodeURIComponent(id)}/reject`, {
+      requiredRoles: ['admin'],
+    });
+  }
+
+  public async getBackupJobs(): Promise<{ items: unknown[] }> {
+    return this.request('GET', '/api/v1/admin/settings/backup/jobs', {
+      requiredRoles: ['admin'],
+    });
+  }
+
+  public async triggerBackupJob(
+    jobType: string,
+    configSnapshot?: Record<string, string>,
+  ): Promise<{ success: boolean; job: unknown }> {
+    return this.request('POST', '/api/v1/admin/settings/backup/jobs', {
+      requiredRoles: ['admin'],
+      body: { jobType, configSnapshot },
+    });
+  }
+
+  // --- Offline Request Dispatcher (Unit verification) ---
+  private handleOfflineRequest<T>(_method: string, path: string, _body?: unknown): T {
+    if (path.includes('/dashboard')) {
+      return {
+        metrics: {
+          totalUsers: 10,
+          totalExams: 5,
+          overallCompletionRate: 85.0,
+          openReportsCount: 2,
+          grossRevenueVnd: 15000000,
+          activeDau: 10,
+        },
+        activities: [],
+      } as T;
+    }
+    if (path.includes('/settings/notifications')) {
+      return { items: [] } as T;
+    }
+    if (path.includes('/settings/org')) {
+      return { applications: [], organizations: [] } as T;
+    }
+    if (path.includes('/settings/backup')) {
+      return { items: [] } as T;
+    }
     if (path.includes('/groups')) {
       return { items: [{ id: 'grp_01', title: 'Mondai 1 Kanji Reading', status: 'draft' }] } as T;
     }

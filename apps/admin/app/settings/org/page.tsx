@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AdminGuard } from '../../../lib/ui-guard';
 import { useAdminAuth } from '../../../lib/auth-context';
+import { t } from '../../../lib/i18n';
 
 export interface TeacherApplication {
   id: string;
@@ -15,39 +16,112 @@ export interface TeacherApplication {
   appliedAt: string;
 }
 
-export default function OrgSettingsPage(): React.JSX.Element {
-  const { user: _user } = useAdminAuth();
+const DEFAULT_APPLICATIONS: TeacherApplication[] = [
+  {
+    id: 'teacher_app_01',
+    applicantName: 'Nguyễn Văn Hùng',
+    email: 'hung.teacher@jlptcenter.vn',
+    currentOrg: 'Trung tâm Tiếng Nhật Sakura',
+    jlptCertificate: 'N1 (165/180)',
+    yearsOfExperience: 6,
+    status: 'pending',
+    appliedAt: '2026-10-14 15:30',
+  },
+  {
+    id: 'teacher_app_02',
+    applicantName: 'Yamada Kenji',
+    email: 'kenji.yamada@nihongo.jp',
+    currentOrg: 'Tokyo Language Academy',
+    jlptCertificate: 'Bản xứ (Native)',
+    yearsOfExperience: 10,
+    status: 'approved',
+    appliedAt: '2026-10-10 09:00',
+  },
+];
 
-  const [applications, setApplications] = useState<TeacherApplication[]>([
-    {
-      id: 'app-01',
-      applicantName: 'Nguyễn Văn Hùng',
-      email: 'hung.teacher@jlptcenter.vn',
-      currentOrg: 'Trung tâm Tiếng Nhật Sakura',
-      jlptCertificate: 'N1 (165/180)',
-      yearsOfExperience: 6,
-      status: 'pending',
-      appliedAt: '2026-10-14 15:30',
-    },
-    {
-      id: 'app-02',
-      applicantName: 'Yamada Kenji',
-      email: 'kenji.yamada@nihongo.jp',
-      currentOrg: 'Tokyo Language Academy',
-      jlptCertificate: 'Bản xứ (Native)',
-      yearsOfExperience: 10,
-      status: 'approved',
-      appliedAt: '2026-10-10 09:00',
-    },
-  ]);
+export interface OrgSettingsPageProps {
+  initialApplications?: TeacherApplication[];
+}
 
-  const handleApprove = (id: string) => {
+export default function OrgSettingsPage({
+  initialApplications = DEFAULT_APPLICATIONS,
+}: OrgSettingsPageProps = {}): React.JSX.Element {
+  const { token, locale } = useAdminAuth();
+  const [applications, setApplications] = useState<TeacherApplication[]>(initialApplications);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchApplications = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/v1/admin/settings/org', {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Host: 'admin.jlpt.local',
+        },
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          setError(t('auth.unauthenticated', locale));
+        } else if (res.status === 403) {
+          setError(t('auth.forbidden', locale));
+        } else {
+          setError(t('common.error', locale));
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      const data = (await res.json()) as { applications?: TeacherApplication[] };
+      if (Array.isArray(data.applications) && data.applications.length > 0) {
+        setApplications(data.applications);
+      }
+    } catch {
+      // Offline fallback
+    } finally {
+      setIsLoading(false);
+    }
+  }, [token, locale]);
+
+  useEffect(() => {
+    void fetchApplications();
+  }, [fetchApplications]);
+
+  const handleApprove = async (id: string) => {
+    try {
+      if (token) {
+        await fetch(`/api/v1/admin/settings/org/${encodeURIComponent(id)}/approve`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Host: 'admin.jlpt.local',
+          },
+        });
+      }
+    } catch {
+      // Offline fallback
+    }
     setApplications((prev) =>
       prev.map((a) => (a.id === id ? { ...a, status: 'approved' } : a)),
     );
   };
 
-  const handleReject = (id: string) => {
+  const handleReject = async (id: string) => {
+    try {
+      if (token) {
+        await fetch(`/api/v1/admin/settings/org/${encodeURIComponent(id)}/reject`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Host: 'admin.jlpt.local',
+          },
+        });
+      }
+    } catch {
+      // Offline fallback
+    }
     setApplications((prev) =>
       prev.map((a) => (a.id === id ? { ...a, status: 'rejected' } : a)),
     );
@@ -55,95 +129,103 @@ export default function OrgSettingsPage(): React.JSX.Element {
 
   return (
     <AdminGuard pathname="/settings/org">
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-        <header style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#111827' }}>
-            Cài đặt Tổ chức & Hồ sơ Giáo viên (Teacher / Org)
+      <div className="w-full max-w-7xl mx-auto p-4 md:p-8 space-y-6 overflow-x-hidden">
+        <header>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
+            Cài đặt Tổ chức &amp; Hồ sơ Giáo viên (Teacher / Org)
           </h1>
-          <p style={{ margin: 0, color: '#6b7280' }}>
+          <p className="mt-1 text-sm text-gray-500">
             Xét duyệt hồ sơ ứng tuyển giáo viên giảng dạy, phân quyền quản lý lớp học và thiết lập tổ chức giáo dục đối tác.
           </p>
         </header>
 
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 1rem' }}>
-          Hồ sơ đăng ký tài khoản Giáo viên ({applications.length})
-        </h2>
-
-        <div style={{ display: 'grid', gap: '1rem' }}>
-          {applications.map((app) => (
-            <div
-              key={app.id}
-              data-testid={`teacher-app-${app.id}`}
-              style={{
-                background: '#ffffff',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                padding: '1.25rem',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '1rem',
-              }}
+        {error && (
+          <div
+            role="alert"
+            data-testid="org-error-alert"
+            className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-center justify-between"
+          >
+            <span>{error}</span>
+            <button
+              onClick={() => void fetchApplications()}
+              className="px-3 py-1 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700"
             >
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.35rem' }}>
-                  <strong style={{ fontSize: '1.1rem', color: '#111827' }}>{app.applicantName}</strong>
-                  <span style={{ fontSize: '0.85rem', color: '#4b5563' }}>({app.email})</span>
-                  <span
-                    style={{
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '9999px',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      background: app.status === 'approved' ? '#d1fae5' : app.status === 'rejected' ? '#fee2e2' : '#fef3c7',
-                      color: app.status === 'approved' ? '#065f46' : app.status === 'rejected' ? '#991b1b' : '#92400e',
-                    }}
-                  >
-                    {app.status.toUpperCase()}
-                  </span>
-                </div>
-                <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                  Tổ chức: <strong>{app.currentOrg}</strong> | Chứng chỉ: <strong>{app.jlptCertificate}</strong> | Kinh nghiệm: {app.yearsOfExperience} năm
-                </div>
-              </div>
+              {t('common.retry', locale)}
+            </button>
+          </div>
+        )}
 
-              {app.status === 'pending' && (
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button
-                    data-testid={`btn-approve-teacher-${app.id}`}
-                    onClick={() => handleApprove(app.id)}
-                    style={{
-                      padding: '0.45rem 1rem',
-                      borderRadius: '6px',
-                      border: 'none',
-                      background: '#10b981',
-                      color: '#ffffff',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Duyệt Cấp Quyền
-                  </button>
-                  <button
-                    data-testid={`btn-reject-teacher-${app.id}`}
-                    onClick={() => handleReject(app.id)}
-                    style={{
-                      padding: '0.45rem 1rem',
-                      borderRadius: '6px',
-                      border: 'none',
-                      background: '#ef4444',
-                      color: '#ffffff',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Từ Chối
-                  </button>
+        {isLoading && (
+          <div
+            role="status"
+            data-testid="org-loading"
+            className="p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-sm flex items-center gap-2"
+          >
+            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+            <span>{t('common.loading', locale)}</span>
+          </div>
+        )}
+
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold text-gray-800">
+            Hồ sơ đăng ký tài khoản Giáo viên ({applications.length})
+          </h2>
+
+          <div className="grid gap-4">
+            {applications.length === 0 ? (
+              <div data-testid="org-empty" className="p-8 bg-white border border-gray-200 rounded-xl text-center text-sm text-gray-400 italic">
+                {t('common.empty', locale)}
+              </div>
+            ) : (
+              applications.map((app) => (
+                <div
+                  key={app.id}
+                  data-testid={`teacher-app-${app.id}`}
+                  className="bg-white border border-gray-200 rounded-xl p-5 flex flex-wrap items-center justify-between gap-4 shadow-xs hover:border-gray-300 transition"
+                >
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <strong className="text-base text-gray-900 font-bold">{app.applicantName}</strong>
+                      <span className="text-xs text-gray-500">({app.email})</span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[11px] font-semibold uppercase ${
+                          app.status === 'approved'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : app.status === 'rejected'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-amber-100 text-amber-800'
+                        }`}
+                      >
+                        {app.status}
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      Tổ chức: <strong>{app.currentOrg}</strong> | Chứng chỉ: <strong>{app.jlptCertificate}</strong> | Kinh nghiệm: {app.yearsOfExperience} năm
+                    </div>
+                  </div>
+
+                  {app.status === 'pending' && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        data-testid={`btn-approve-teacher-${app.id}`}
+                        onClick={() => void handleApprove(app.id)}
+                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-xs"
+                      >
+                        Duyệt Cấp Quyền
+                      </button>
+                      <button
+                        data-testid={`btn-reject-teacher-${app.id}`}
+                        onClick={() => void handleReject(app.id)}
+                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold shadow-xs"
+                      >
+                        Từ Chối
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          ))}
+              ))
+            )}
+          </div>
         </div>
       </div>
     </AdminGuard>

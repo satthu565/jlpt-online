@@ -31,16 +31,9 @@ export default function RootLayout({
         }}
       >
         <AdminAuthProvider>
-          <div style={{ display: 'flex', minHeight: '100vh' }}>
+          <div className="flex min-h-screen w-full max-w-full overflow-x-hidden">
             <AdminNavigation />
-            <main
-              style={{
-                flex: 1,
-                minWidth: 0,
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
+            <main className="flex-1 min-w-0 flex flex-col pt-14 md:pt-0 overflow-x-hidden w-full max-w-full">
               {children}
             </main>
           </div>

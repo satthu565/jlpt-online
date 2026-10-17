@@ -15,7 +15,7 @@ export default function BackupSettingsPage(): React.JSX.Element {
 
   return (
     <AdminGuard pathname="/settings/backup" requiredRoles={['admin']}>
-      <div style={{ padding: '2rem' }} className="space-y-6 max-w-6xl mx-auto">
+      <div className="w-full max-w-6xl mx-auto p-4 md:p-8 space-y-6 overflow-x-hidden">
         <div>
           <h1 data-testid="page-title" className="text-2xl font-bold text-gray-900">
             Sao lưu &amp; Phục hồi Hệ thống (ADM-20 / SYS-08)

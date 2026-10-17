@@ -128,7 +128,7 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
       const html = renderWithAuth(<NotificationsSettingsPage />);
 
       expect(html).toContain('Cấu hình Thông báo &amp; Email Tự động (ADM-18)');
-      expect(html).toContain('data-testid="tpl-item-tpl-1"');
+      expect(html).toContain('data-testid="tpl-item-welcome_email"');
       expect(html).toContain('data-testid="input-tpl-subject"');
       expect(html).toContain('data-testid="input-tpl-body"');
       expect(html).toContain('data-testid="btn-test-send"');
@@ -147,8 +147,8 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
     it('OrgSettingsPage hiển thị hồ sơ ứng tuyển giáo viên và thao tác phê duyệt', () => {
       const html = renderWithAuth(<OrgSettingsPage />);
       expect(html).toContain('Cài đặt Tổ chức &amp; Hồ sơ Giáo viên');
-      expect(html).toContain('data-testid="teacher-app-app-01"');
-      expect(html).toContain('data-testid="btn-approve-teacher-app-01"');
+      expect(html).toContain('data-testid="teacher-app-teacher_app_01"');
+      expect(html).toContain('data-testid="btn-approve-teacher-teacher_app_01"');
     });
 
     it('ExperimentsAdminPage hiển thị các thử nghiệm A/B và so sánh biến thể', () => {
