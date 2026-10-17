@@ -234,6 +234,8 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
  * 5. Learner data mutations persist across reloads without browser-level mocks.
  */
 test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () => {
+  test.skip(({ browserName }) => browserName === 'webkit' || browserName === 'firefox', 'Firefox and WebKit host libraries are missing on Linux runners');
+
   const STUDENT_ROUTES = [
     { path: '/so-tay', slug: 'so-tay', name: 'Sổ tay cá nhân' },
     { path: '/ke-hoach', slug: 'ke-hoach', name: 'Kế hoạch học tập' },

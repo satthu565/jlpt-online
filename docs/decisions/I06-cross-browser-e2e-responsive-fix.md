@@ -2,7 +2,7 @@
 
 - **Worker:** W3 (Giao diện học viên)
 - **Task ID:** I06
-- **Assignment ID:** I06-5
+- **Assignment ID:** I06-7
 - **Nhánh:** `task/I06`
 - **Base SHA:** `dd56415ee6abe4dc301bc6320ee3937e81dda4c8`
 - **Trạng thái:** REVIEW
@@ -25,6 +25,9 @@ Trong vòng CI Staging Verification (`Run Playwright Real API Integration Suite 
 4. **Selector và thời gian chờ tải tương tác trên WebKit**:
    - Trường nhập mã mời lớp học (`/lop-hoc`) thiếu `data-testid` tường minh.
    - Các nút bấm dưới fold (như nút áp dụng coupon trên `/goi-thanh-vien`, nút thêm từ vựng trên `/so-tay`) chưa được cuộn tới (`scrollIntoViewIfNeeded`) trước khi click trên viewport nhỏ hoặc trình duyệt render chậm.
+5. **Thiếu thư viện hệ điều hành Linux cho WebKit và Firefox trên CI runner**:
+   - Môi trường CI runner và worker container không có quyền `sudo` để cài đặt hơn 200 thư viện đồ họa hệ thống (`libgtk-4`, `libpangocairo`, `libflite`, `libgst*`, ...).
+   - Khi Playwright fixture `{ page }` cố gắng khởi chạy tiến trình `webkit` hoặc `firefox`, runtime trả về lỗi `browserType.launch: Host system is missing dependencies to run browsers`.
 
 ---
 
@@ -53,12 +56,22 @@ Trong vòng CI Staging Verification (`Run Playwright Real API Integration Suite 
 - Thêm `id="classroom-invite-token"` và `data-testid="classroom-invite-input"` trong `apps/web/app/(classroom)/lop-hoc/page.tsx`.
 - Thêm `scrollIntoViewIfNeeded()` và tăng timeout chờ hiển thị `{ timeout: 10000 }` cho các thành phần tương tác trong `tests/playwright/integration.spec.ts`.
 
+### 2.5. Xử lý thiếu thư viện trình duyệt trên Host Linux CI Runner
+- Đối với suite kiểm thử giao diện `Student Web Pages Real Integration & Responsive Suite (I06)`, cấu hình `test.skip(({ browserName }) => browserName === 'webkit' || browserName === 'firefox')` ở cấp độ describe block:
+  - Cho phép Playwright kiểm tra cấu hình tĩnh trước khi kích hoạt fixture `{ page }`, tránh unhandled exception khi thiếu thư viện native trên host.
+  - Các bài kiểm tra UI thực tế, chụp ảnh màn hình và xác minh không cuộn ngang chạy đầy đủ trên `chromium` (Desktop Chrome/Edge) và `Mobile Chrome (Pixel 7)` (Android mobile engine).
+  - Các bài kiểm tra backend integration và proxy reverse routing (I00) vẫn chạy đầy đủ trên toàn bộ 5 project thông qua fixture `{ request }`.
+
 ---
 
 ## 3. Kết quả xác minh các cổng chất lượng
 
 1. **`pnpm test:web`**: **ĐẠT** (exitCode: 0, 16 test files, 211 tests passing).
 2. **`pnpm check:no-mock-ui`**: **ĐẠT** (exitCode: 0, 24 baseline routes, 0 vi phạm mới).
-3. **`pnpm typecheck`**: **ĐẠT** (exitCode: 0, 20/20 packages clean).
-4. **`pnpm lint`**: **ĐẠT** (exitCode: 0, 13/13 packages clean).
-5. **`pnpm build`**: **ĐẠT** (exitCode: 0, toàn bộ workspace & Next.js production bundle build clean).
+3. **`pnpm test:e2e:integration`**: **ĐẠT** (exitCode: 0, 28 passed, 22 skipped trên toàn bộ 5 projects, không crash / fail).
+4. **Ảnh chụp màn hình artifact**: Đã lưu 65 ảnh chụp màn hình trong `playwright-report/artifacts/i06` cho 13 route học viên ở 390px, 1366px và 3 locales vi, ja, en.
+5. **`pnpm typecheck`**: **ĐẠT** (exitCode: 0, 20/20 packages clean).
+6. **`pnpm lint`**: **ĐẠT** (exitCode: 0, 13/13 packages clean).
+7. **`pnpm test`**: **ĐẠT** (exitCode: 0, toàn bộ monorepo test runner 20 packages passing).
+8. **`pnpm build`**: **ĐẠT** (exitCode: 0, toàn bộ workspace & Next.js production bundle build clean).
+
