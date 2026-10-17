@@ -4,16 +4,8 @@ import type {
   AiProviderResponse,
 } from './ai-provider.interface.js';
 
-export class ExternalPrerequisiteError extends Error {
-  constructor(
-    public readonly externalId: string,
-    public readonly status: 'MISSING' | 'BLOCKED_EXTERNAL',
-    message: string,
-  ) {
-    super(message);
-    this.name = 'ExternalPrerequisiteError';
-  }
-}
+import { ExternalPrerequisiteError } from '@jlpt/content-tools';
+export { ExternalPrerequisiteError };
 
 export class LiveAiProvider implements AiProvider {
   readonly id = 'live-adapter';
@@ -29,12 +21,29 @@ export class LiveAiProvider implements AiProvider {
     return Boolean(this.apiKey && this.apiKey.trim().length > 0);
   }
 
+  getProviderStatus(): {
+    configured: boolean;
+    isLive: boolean;
+    status: 'READY' | 'BLOCKED_EXTERNAL';
+    externalId: string;
+    missingPrerequisites: string[];
+  } {
+    const configured = Boolean(this.apiKey && this.apiKey.trim().length > 0);
+    return {
+      configured,
+      isLive: false,
+      status: configured ? 'READY' : 'BLOCKED_EXTERNAL',
+      externalId: 'ai-provider',
+      missingPrerequisites: configured ? [] : ['ai-provider', 'AI_PROVIDER_API_KEY'],
+    };
+  }
+
   async generate(_request: AiProviderRequest): Promise<AiProviderResponse> {
     const available = await this.isAvailable();
     if (!available) {
       throw new ExternalPrerequisiteError(
         'ai-provider',
-        'MISSING',
+        'BLOCKED_EXTERNAL',
         'External AI provider credential (ai-provider) is not configured in environment. Production requests are blocked pending external configuration.',
       );
     }

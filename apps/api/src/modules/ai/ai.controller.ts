@@ -71,4 +71,31 @@ export class AiController {
     };
     return this.aiService.reviewAiContent(reviewDto);
   }
+
+  @Get(['ai/generated-questions/:id/practice', 'learning/generated-questions/:id/practice'])
+  async getGeneratedQuestionForPractice(
+    @CurrentUser() user: AuthUserContext | undefined,
+    @Param('id') contentId: string,
+  ) {
+    if (!user) {
+      throw new UnauthorizedException('Authentication required.');
+    }
+    return this.aiService.getApprovedGeneratedQuestionForPractice(contentId);
+  }
+
+  @Post(['ai/generated-questions/:id/submit', 'learning/generated-questions/:id/submit'])
+  async submitGeneratedQuestion(
+    @CurrentUser() user: AuthUserContext | undefined,
+    @Param('id') contentId: string,
+    @Body() body: { selectedOptionIndex: number },
+  ) {
+    if (!user) {
+      throw new UnauthorizedException('Authentication required.');
+    }
+    return this.aiService.submitGeneratedQuestionAnswer(
+      user.userId,
+      contentId,
+      body.selectedOptionIndex,
+    );
+  }
 }

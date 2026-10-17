@@ -49,6 +49,7 @@ export interface CreateAiRequestDto {
 
 export interface AiRequestResponseDto {
   requestId: string;
+  contentId?: string;
   status: 'completed' | 'queued' | 'failed' | 'cancelled';
   action: string;
   aiGenerated: true;

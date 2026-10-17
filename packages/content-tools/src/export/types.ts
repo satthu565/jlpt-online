@@ -23,6 +23,9 @@ export interface VocabExportRow {
   targetFrequency: number;
   incidentalFrequency: number;
   distinctExamsCount: number;
+  observedFrequency?: number;
+  syntheticFrequency?: number;
+  dataType?: string;
   datasetId: string;
   datasetName: string;
   version: string;
@@ -65,6 +68,7 @@ export interface ExportOptions {
   type: ExportType;
   level?: JlptLevel;
   sanitizeFormula?: boolean;
+  dataType?: 'observed' | 'synthetic' | 'all';
 }
 
 export interface ExportResult {
