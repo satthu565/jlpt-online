@@ -134,7 +134,7 @@ const MOCK_TEST_RESULT: Result = {
   flags: [],
 };
 
-describe('I05 Web Real API Integration Test Suite', () => {
+describe('ExamApiClient Unit & SDK Contract Suite', () => {
   let mockFetch: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
@@ -146,9 +146,9 @@ describe('I05 Web Real API Integration Test Suite', () => {
   });
 
   // =========================================================================
-  // 1. ExamApiClient Contract & Real API Endpoint Verification
+  // 1. ExamApiClient Contract & API Methods (Unit Tests)
   // =========================================================================
-  describe('1. ExamApiClient Integration & API Methods', () => {
+  describe('1. ExamApiClient Contract & Method Verification', () => {
     it('getExams retrieves published exams with level filter and pagination', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -195,6 +195,53 @@ describe('I05 Web Real API Integration Test Suite', () => {
       expect(found.title).toContain('Đề thi Mẫu N5');
 
       await expect(client.getExamBySlug('non-existent-exam')).rejects.toThrow('Không tìm thấy');
+    });
+
+    it('getExamById resolves via published exams list when UUID is passed', async () => {
+      // 1st fetch: list exams to find slug
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            items: [MOCK_DEMO_N5_EXAM],
+          }),
+        })
+        // 2nd fetch: get by slug
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ...MOCK_DEMO_N5_EXAM,
+            description: 'Đề thi N5 chi tiết.',
+          }),
+        });
+
+      const client = new ExamApiClient({ baseUrl: '/api/v1', fetcher: mockFetch as unknown as typeof fetch });
+      const found = await client.getExamById('0192f000-0001-7000-8000-000000000001');
+
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+      expect(found.slug).toBe('demo-n5-1');
+      expect(found.title).toContain('Đề thi Mẫu N5');
+    });
+
+    it('getExamById falls back to slug when non-UUID string is passed', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          ...MOCK_DEMO_N5_EXAM,
+          description: 'Đề thi N5 chi tiết.',
+        }),
+      });
+
+      const client = new ExamApiClient({ baseUrl: '/api/v1', fetcher: mockFetch as unknown as typeof fetch });
+      const found = await client.getExamById('demo-n5-1');
+
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      const [url] = mockFetch.mock.calls[0]!;
+      expect(url).toContain('/exams/demo-n5-1');
+      expect(found.slug).toBe('demo-n5-1');
     });
 
     it('fetchSnapshot loads immutable snapshot and verifies zero answer key leakage', async () => {

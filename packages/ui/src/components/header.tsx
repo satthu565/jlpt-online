@@ -121,7 +121,11 @@ export function Header({
 
         {/* Right Controls & Auth */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          {rightControls}
+          {rightControls && (
+            <div className="header-desktop-controls" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {rightControls}
+            </div>
+          )}
           {userMenu}
 
           {/* Mobile Menu Hamburger Button */}
@@ -197,11 +201,32 @@ export function Header({
               </a>
             ))}
           </nav>
+          {rightControls && (
+            <div
+              style={{
+                borderTop: '1px solid var(--border-subtle, #e2e8f0)',
+                paddingTop: '0.75rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              {rightControls}
+            </div>
+          )}
         </div>
       )}
 
       <style>{`
-        @media (min-width: 2200px) {
+        @media (max-width: 768px) {
+          .header-desktop-controls {
+            display: none !important;
+          }
+          .desktop-nav {
+            display: none !important;
+          }
+        }
+        @media (min-width: 769px) {
           .desktop-nav {
             display: flex !important;
           }

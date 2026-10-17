@@ -213,9 +213,22 @@ export class ExamApiClient {
   }
 
   async getExamById(id: string): Promise<ExamDetailPublic> {
-    const data = await this.request<unknown>(`/exams/${id}`, 'GET');
-    return ExamDetailPublicSchema.parse(data);
+    // Backend API routes /exams/:slug by slug. When an ID or UUID is passed, resolve its slug via published exams list
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    if (isUuid) {
+      try {
+        const list = await this.getExams({ limit: 100 });
+        const found = list.items.find((item) => item.id === id);
+        if (found) {
+          return this.getExamBySlug(found.slug);
+        }
+      } catch {
+        // Fall back to direct query
+      }
+    }
+    return this.getExamBySlug(id);
   }
+
 
   async fetchSnapshot(snapshotUrl: string): Promise<PublicExamSnapshot> {
     const urlsToTry: string[] = [];
