@@ -3460,6 +3460,52 @@
       "originalTaskRefs": []
     },
     {
+      "id": "I11",
+      "owner": "W3",
+      "day": 8,
+      "notBeforeHour": 168,
+      "targetByHour": 192,
+      "estimatedWorkerHours": 3,
+      "title": "Sửa lỗi 500 do mã viết cứng ở từ vựng, ngữ pháp, thảo luận",
+      "dependencies": [
+        "I06"
+      ],
+      "featureIds": [],
+      "scope": "Trên bản demo sau I06: /tu-vung và /ngu-phap gọi /api/v1/datasets/jlpt-official/* và /thao-luan gọi /api/v1/questions/q-default-1/discussions, đều trả 500 vì id không phải UUID; /tu-vung vẫn hiện thẻ từ vựng viết sẵn khi API lỗi. Web: lấy id thật từ API (danh sách dataset, câu hỏi thật), bỏ mọi thẻ hoặc id viết cứng. API: kiểm tra định dạng id ở các route có tham số id (pipe/validator chung), id sai định dạng trả 400 hoặc 404, không bao giờ 500.",
+      "outputs": [
+        "apps/web/",
+        "packages/ui/"
+      ],
+      "acceptance": [
+        "Ba trang trên không còn request API trả 5xx khi đăng nhập học viên demo trên staging",
+        "Route API nhận id sai định dạng trả 400/404, có test",
+        "Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass",
+        "E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt"
+      ],
+      "checks": [
+        "pnpm test:web",
+        "pnpm check:no-mock-ui"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [
+        "apps/api/src/modules/vocab/",
+        "apps/api/src/modules/community/",
+        "apps/api/src/common/pipes/",
+        "tests/playwright/",
+        "tests/integration/mock-ui-baseline.json"
+      ],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
       "id": "I07",
       "owner": "W6",
       "day": 8,
@@ -3471,6 +3517,7 @@
         "I01",
         "I08",
         "I10",
+        "I11",
         "I09",
         "I03",
         "I04",
@@ -3488,6 +3535,7 @@
       ],
       "acceptance": [
         "tests/integration/mock-ui-baseline.json rỗng; CI fail nếu có dữ liệu giả mới",
+        "E2E đăng nhập học viên và nhân sự rồi đi qua mọi trang web/admin, fail nếu bất kỳ request API nào trả 5xx hoặc trang hiện key dịch thô",
         "E2E: học viên đăng ký -> làm đề -> xem điểm; editor nhập -> reviewer duyệt -> xuất bản; admin xem người dùng và audit; tất cả trên staging thật",
         "docs/release/INTEGRATION_REPORT.md liệt kê từng trang và bằng chứng E2E"
       ],

@@ -454,10 +454,16 @@ task('I10','W2',8,3,'Bỏ tự tạo tài khoản nhân sự khi API khởi đ�
  '@roots',
  'API khởi động với mọi NODE_ENV không tạo hay sửa tài khoản nào; có test kiểm tra|Script seed staging từ chối chạy khi APP_ENV=production|grep mật khẩu/secret mặc định trong apps/api/src (trừ test và seed) không còn kết quả|E2E staff login trên staging vẫn pass vì staging chạy seed',
  'pnpm test:auth|pnpm test:security|pnpm test:api:all',contracts='API',resources='api-hardening')
-task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I09 I03 I04 I05 I06',
+task('I11','W3',8,3,'Sửa lỗi 500 do mã viết cứng ở từ vựng, ngữ pháp, thảo luận','I06',
+ 'Trên bản demo sau I06: /tu-vung và /ngu-phap gọi /api/v1/datasets/jlpt-official/* và /thao-luan gọi /api/v1/questions/q-default-1/discussions, đều trả 500 vì id không phải UUID; /tu-vung vẫn hiện thẻ từ vựng viết sẵn khi API lỗi. '
+ 'Web: lấy id thật từ API (danh sách dataset, câu hỏi thật), bỏ mọi thẻ hoặc id viết cứng. API: kiểm tra định dạng id ở các route có tham số id (pipe/validator chung), id sai định dạng trả 400 hoặc 404, không bao giờ 500.',
+ 'apps/web/|packages/ui/',
+ 'Ba trang trên không còn request API trả 5xx khi đăng nhập học viên demo trên staging|Route API nhận id sai định dạng trả 400/404, có test|'+NO_MOCK+'|'+REAL_E2E,
+ 'pnpm test:web|pnpm check:no-mock-ui',contracts='API',grants='apps/api/src/modules/vocab/ apps/api/src/modules/community/ apps/api/src/common/pipes/ tests/playwright/ tests/integration/mock-ui-baseline.json')
+task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I11 I09 I03 I04 I05 I06',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',
- 'tests/integration/mock-ui-baseline.json rỗng; CI fail nếu có dữ liệu giả mới|E2E: học viên đăng ký -> làm đề -> xem điểm; editor nhập -> reviewer duyệt -> xuất bản; admin xem người dùng và audit; tất cả trên staging thật|docs/release/INTEGRATION_REPORT.md liệt kê từng trang và bằng chứng E2E',
+ 'tests/integration/mock-ui-baseline.json rỗng; CI fail nếu có dữ liệu giả mới|E2E đăng nhập học viên và nhân sự rồi đi qua mọi trang web/admin, fail nếu bất kỳ request API nào trả 5xx hoặc trang hiện key dịch thô|E2E: học viên đăng ký -> làm đề -> xem điểm; editor nhập -> reviewer duyệt -> xuất bản; admin xem người dùng và audit; tất cả trên staging thật|docs/release/INTEGRATION_REPORT.md liệt kê từng trang và bằng chứng E2E',
  'pnpm check:no-mock-ui|pnpm test:e2e:integration',resources='ci-workflow staging-deploy',kind='verification')
 
 # Day 9 (owner request 2026-10-17): one design system on shadcn/ui + Tailwind, and mobile speed.

@@ -48,6 +48,7 @@
       "I08",
       "I09",
       "I10",
+      "I11",
       "L01",
       "L02",
       "L03",
@@ -112,6 +113,7 @@
       "I08",
       "I09",
       "I10",
+      "I11",
       "L01",
       "L02",
       "L03",
@@ -176,6 +178,7 @@
       "I08",
       "I09",
       "I10",
+      "I11",
       "L01",
       "L02",
       "L03",
@@ -205,7 +208,7 @@
       "F07"
     ]
   },
-  "workPackageCount": 62,
+  "workPackageCount": 63,
   "originalV1TaskCount": 106,
   "workerCount": 6,
   "localLinksChecked": 427,
@@ -725,6 +728,15 @@
         "plannedDay": 8,
         "startHour": 181,
         "finishHour": 186,
+        "targetByHour": 192,
+        "lateToDailyTargetHours": 0
+      },
+      {
+        "taskId": "I11",
+        "worker": "W3",
+        "plannedDay": 8,
+        "startHour": 184,
+        "finishHour": 187,
         "targetByHour": 192,
         "lateToDailyTargetHours": 0
       },
