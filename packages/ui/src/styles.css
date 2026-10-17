@@ -220,3 +220,38 @@ body {
     padding-right: 2rem;
   }
 }
+
+/* Real device & mobile interaction enhancements (SYS-01, SYS-10, WCAG 2.1 AA) */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+button, input, select, textarea, a {
+  touch-action: manipulation;
+}
+
+/* Touch active feedback & tap highlight neutralization on mobile devices */
+@media (hover: none) and (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Mobile Safe Area utilities for notched and curved screens (iPhone Safari / Android Chrome) */
+.safe-area-pt {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-area-pl {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+
+.safe-area-pr {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+

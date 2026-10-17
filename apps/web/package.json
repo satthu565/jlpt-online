@@ -22,7 +22,8 @@
     "test:analytics": "vitest run tests/analytics.test.tsx",
     "test:seo": "vitest run tests/seo.test.tsx",
     "test:performance": "vitest run tests/performance.test.tsx",
-    "test:e2e:web-all": "vitest run tests/e2e-exam.test.tsx tests/e2e-library.test.tsx tests/e2e-learning.test.tsx tests/e2e-advanced.test.tsx tests/e2e-checkout.test.tsx",
+    "test:device": "vitest run tests/real-device.test.tsx",
+    "test:e2e:web-all": "vitest run tests/e2e-exam.test.tsx tests/e2e-library.test.tsx tests/e2e-learning.test.tsx tests/e2e-advanced.test.tsx tests/e2e-checkout.test.tsx tests/real-device.test.tsx",
     "test:e2e": "playwright test"
   },
   "dependencies": {
