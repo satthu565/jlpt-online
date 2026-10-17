@@ -10,6 +10,8 @@ const REPO_ROOT = path.resolve(__dirname, '../../');
 
 // Set NODE_ENV to test so main.js doesn't auto-bootstrap
 process.env.NODE_ENV = 'test';
+process.env.MEDIA_TOKEN_SECRET =
+  process.env.MEDIA_TOKEN_SECRET || 'staging_media_token_secret_for_reproducible_smoke_tests';
 
 async function start() {
   const schemaEntry = path.join(REPO_ROOT, 'packages/schema/dist/index.js');

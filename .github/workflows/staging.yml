@@ -147,10 +147,14 @@ jobs:
           pnpm test:a11y
 
       - name: Run Multi-Browser Regression Suite (Chromium, WebKit, Firefox) (V06)
+        env:
+          MEDIA_TOKEN_SECRET: staging_media_token_secret_for_reproducible_smoke_tests
         run: |
           pnpm test:e2e:all-browsers
 
       - name: Run Stepped Load Capacity Runner (SYS-10 / V06)
+        env:
+          MEDIA_TOKEN_SECRET: staging_media_token_secret_for_reproducible_smoke_tests
         run: |
           pnpm test:load
 

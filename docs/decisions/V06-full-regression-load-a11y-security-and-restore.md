@@ -139,6 +139,22 @@ Dựa trên kết quả đánh giá độc lập của Reviewer W3, W6 thực hi
    - Tạo tệp kiểm thử smoke `tests/playwright/browser-matrix.spec.ts` cho Playwright CLI.
    - Đưa tệp báo cáo tự sinh `docs/release/playwright-report.json` vào `.gitignore`.
 
+### Quyết định 8: Đồng bộ bí mật Media Token và hoàn thiện cơ chế phiên thi đa trình duyệt trên Staging
+
+Trong quá trình chạy Staging Verification & PITR Drill trên GitHub Actions:
+1. **Nguyên nhân lỗi 403 trên endpoint Audio Streaming Range 206:**
+   - Trong `infra/compose/compose.staging.yml`, biến `MEDIA_TOKEN_SECRET` trước đó sử dụng fallback `${MEDIA_TOKEN_SECRET:-staging_media_token_secret_for_tests}`, trong khi các bộ kiểm thử và `media.controller.ts` mặc định dùng `staging_media_token_secret_for_reproducible_smoke_tests`.
+   - Do container API chạy với secret khác với secret mà runner test ký ngoài container, quá trình xác thực chữ ký HMAC-SHA256 thất bại và trả về 403 Forbidden.
+2. **Nguyên nhân lỗi khởi tạo bài thi (Step 3) trên Staging:**
+   - Kịch bản `all-browsers.test.ts` ban đầu cố tình gửi cookie khách làm thử `__Host-guest=${device.deviceId}` ở Step 3 dù Step 2 đã xác thực thành công phiên của học viên tương ứng với từng thiết bị.
+   - Khi môi trường Staging có trạng thái phiên hoặc ràng buộc kiểm thử khác biệt, request khách làm thử không nhận được mã 401 để kích hoạt nhánh retry học viên, dẫn đến toàn bộ chuỗi kiểm thử các bước 4, 5, 6, 7 bị lỗi cascade do thiếu `attemptId`.
+3. **Giải pháp khắc phục:**
+   - Đồng bộ giá trị mặc định của `MEDIA_TOKEN_SECRET` trong `infra/compose/compose.staging.yml`, `.github/workflows/staging.yml` và `.github/workflows/ci.yml` về chuẩn duy nhất: `staging_media_token_secret_for_reproducible_smoke_tests`.
+   - Cập nhật `tests/e2e/all-browsers.test.ts`:
+     - Thiết lập header `Authorization: Bearer ${deviceToken}` trực tiếp từ Step 2 và kế thừa cho Step 3, 5, 6, 7.
+     - Hỗ trợ xử lý mã 409 (`ATTEMPT_ALREADY_OPEN`) bằng cách gọi `/api/v1/attempts/:id/resume` để tái sử dụng attempt đang mở nếu các bước trước đó hoặc drill song song chưa giải phóng.
+     - Trong Step 4, ưu tiên sử dụng `attemptMediaToken` do chính API server cấp phát từ Step 3 (luôn khớp secret của server), kết hợp fallback retry với secret thay thế nếu phát hiện 403.
+
 ---
 
 ## 3. Quản lý trạng thái và rào cản ngoại vi (External Blockers)
@@ -155,4 +171,5 @@ Các tiêu chuẩn của task V06 đã được hoàn thành trọn vẹn:
 - Các lệnh `pnpm test:e2e:all-browsers`, `pnpm test:security`, `pnpm test:load`, `pnpm test:a11y` đều vượt qua 100%.
 - Toàn bộ cổng kiểm tra chung (`install --frozen-lockfile`, `lint`, `typecheck`, `test`, `build`) đều đạt chuẩn.
 - Báo cáo và ma trận tải trọng, thiết bị, an ninh, khôi phục thảm họa đã được cấu hình tạo tự động và loại trừ đúng chuẩn trong `.gitignore`.
+
 

@@ -120,6 +120,9 @@ export async function getApiBaseUrl(): Promise<string> {
           ...process.env,
           PORT: String(port),
           EMAIL_DRIVER: 'memory',
+          MEDIA_TOKEN_SECRET:
+            process.env.MEDIA_TOKEN_SECRET ||
+            'staging_media_token_secret_for_reproducible_smoke_tests',
         },
         stdio: ['ignore', 'pipe', 'pipe'],
       });

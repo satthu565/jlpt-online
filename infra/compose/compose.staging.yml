@@ -73,7 +73,7 @@ services:
       - REDIS_CACHE_URL=redis://redis-cache:6379
       - WEB_INTERNAL_URL=http://web:3000
       - AUTH_SECRET=${AUTH_SECRET:-staging_secret_key_fixed_length_for_tests}
-      - MEDIA_TOKEN_SECRET=${MEDIA_TOKEN_SECRET:-staging_media_token_secret_for_tests}
+      - MEDIA_TOKEN_SECRET=${MEDIA_TOKEN_SECRET:-staging_media_token_secret_for_reproducible_smoke_tests}
       - STORAGE_LOCAL_ROOT=/app/.data/storage
       - SENTRY_DSN=
     volumes:
@@ -108,7 +108,7 @@ services:
       - REDIS_CACHE_URL=redis://redis-cache:6379
       - STORAGE_LOCAL_ROOT=/app/.data/storage
       - AUTH_SECRET=${AUTH_SECRET:-staging_secret_key_fixed_length_for_tests}
-      - MEDIA_TOKEN_SECRET=${MEDIA_TOKEN_SECRET:-staging_media_token_secret_for_tests}
+      - MEDIA_TOKEN_SECRET=${MEDIA_TOKEN_SECRET:-staging_media_token_secret_for_reproducible_smoke_tests}
     volumes:
       - staging-storage-data:/app/.data/storage
     mem_limit: ${WORKER_MEM_LIMIT:-320m}
