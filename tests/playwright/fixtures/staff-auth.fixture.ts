@@ -118,17 +118,19 @@ export function generateTotp(
 export async function authenticateStaffAccount(
   account: StaffAccount = SEEDED_STAFF_ACCOUNTS.admin!,
   apiBaseUrl = 'http://127.0.0.1:4000',
+  customIp?: string,
 ): Promise<{
   token: string;
   totpCode: string;
   user: { id: string; email: string; role: string };
 }> {
+  const ip = customIp || '198.51.100.80';
   const signInRes = await fetch(`${apiBaseUrl}/api/v1/auth/sign-in/email`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-forwarded-for': '198.51.100.80',
-      'cf-connecting-ip': '198.51.100.80',
+      'x-forwarded-for': ip,
+      'cf-connecting-ip': ip,
     },
     body: JSON.stringify({
       email: account.email,

@@ -9,6 +9,22 @@ import {
 } from './fixtures/staff-auth.fixture.js';
 
 /**
+ * Resolves a unique client IP per test and project to ensure rate limiting
+ * isolation in staging environments (RateLimitGuard default: 120 req/min).
+ */
+function getProjectClientIp(testInfo: { project?: { name?: string } }, offset = 0): string {
+  const projectBaseMap: Record<string, number> = {
+    chromium: 100,
+    firefox: 120,
+    webkit: 140,
+    'Mobile Safari (iPhone 15)': 160,
+    'Mobile Chrome (Pixel 7)': 180,
+  };
+  const base = projectBaseMap[testInfo?.project?.name || ''] ?? 200;
+  return `198.51.100.${base + offset}`;
+}
+
+/**
  * End-to-End Integration Suite with Real API & Services (I00)
  * Acceptance Criteria:
  * - Staging CI runs Web, Admin, API, Postgres, Redis, Mailpit.
@@ -45,12 +61,14 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
 
   test('Same-origin API reverse proxy: Web origin /api/v1 routes to API service', async ({
     request,
-  }) => {
+  }, testInfo) => {
     const webOrigin = process.env.PLAYWRIGHT_BASE_URL || test.info().project.use.baseURL || 'http://127.0.0.1:3000';
+    const clientIp = getProjectClientIp(testInfo, 1);
+    const ipHeaders = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
 
     let response;
     try {
-      response = await request.get(`${webOrigin}/api/v1/health`, { timeout: 5000 });
+      response = await request.get(`${webOrigin}/api/v1/health`, { headers: ipHeaders, timeout: 5000 });
     } catch (err) {
       if (!process.env.CI) {
         test.skip(true, 'Staging live server not running locally; skipping live check');
@@ -68,12 +86,14 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
 
   test('Same-origin API reverse proxy: Admin origin /api/v1 routes to API service', async ({
     request,
-  }) => {
+  }, testInfo) => {
     const adminOrigin = process.env.ADMIN_URL || 'http://127.0.0.1:3001';
+    const clientIp = getProjectClientIp(testInfo, 2);
+    const ipHeaders = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
 
     let response;
     try {
-      response = await request.get(`${adminOrigin}/api/v1/health`, { timeout: 5000 });
+      response = await request.get(`${adminOrigin}/api/v1/health`, { headers: ipHeaders, timeout: 5000 });
     } catch (err) {
       if (!process.env.CI) {
         test.skip(true, 'Staging live server not running locally; skipping live check');
@@ -91,7 +111,7 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
 
   test('Mailpit integration: Student registration dispatches real email and verifies account', async ({
     request,
-  }) => {
+  }, testInfo) => {
     const isMailpitUp = await mailpit.isHealthy();
     if (!isMailpitUp) {
       if (!process.env.CI) {
@@ -104,12 +124,15 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
 
     const apiUrl = process.env.STAGING_API_URL || 'http://127.0.0.1:4000';
     const timestamp = Date.now();
-    const testEmail = `student.e2e.${timestamp}@jlpt.local`;
+    const testEmail = `student.e2e.${timestamp}.${Math.random().toString(36).slice(2, 6)}@jlpt.local`;
     const testPassword = 'Password123!';
     const testName = `Student E2E ${timestamp}`;
+    const clientIp = getProjectClientIp(testInfo, 3);
+    const ipHeaders = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
 
     // 1. Send registration request to API
     const regRes = await request.post(`${apiUrl}/api/v1/auth/sign-up/email`, {
+      headers: ipHeaders,
       data: {
         email: testEmail,
         password: testPassword,
@@ -133,11 +156,13 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
     // 4. Call verification endpoint
     const verifyRes = await request.get(
       `${apiUrl}/api/v1/auth/verify-email?token=${verificationToken}`,
+      { headers: ipHeaders },
     );
     expect(verifyRes.status()).toBe(200);
 
     // 5. Sign in with newly verified credentials
     const loginRes = await request.post(`${apiUrl}/api/v1/auth/sign-in/email`, {
+      headers: ipHeaders,
       data: {
         email: testEmail,
         password: testPassword,
@@ -150,11 +175,13 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
 
   test('Staff authentication: Seeded staff logs in with password and validates TOTP', async ({
     request,
-  }) => {
+  }, testInfo) => {
     const apiUrl = process.env.STAGING_API_URL || 'http://127.0.0.1:4000';
+    const clientIp = getProjectClientIp(testInfo, 4);
+    const ipHeaders = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
 
     try {
-      const ping = await request.get(`${apiUrl}/api/v1/health`, { timeout: 3000 });
+      const ping = await request.get(`${apiUrl}/api/v1/health`, { headers: ipHeaders, timeout: 3000 });
       if (!ping.ok()) {
         if (!process.env.CI) {
           test.skip(true, 'API not healthy; skipping live staff login drill');
@@ -174,7 +201,7 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
     const staff = SEEDED_STAFF_ACCOUNTS.admin;
     let authResult;
     try {
-      authResult = await authenticateStaffAccount(staff, apiUrl);
+      authResult = await authenticateStaffAccount(staff, apiUrl, clientIp);
     } catch (err) {
       if (!process.env.CI) {
         test.skip(true, `Local staging DB not seeded with staff credentials: ${(err as Error).message}`);
@@ -191,6 +218,7 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
     // Negative test 1: Protected admin route without TOTP header must be rejected with 403 / TWO_FACTOR_REQUIRED
     const missingTotpRes = await request.get(`${apiUrl}/api/v1/admin/audit-logs`, {
       headers: {
+        ...ipHeaders,
         Authorization: `Bearer ${authResult.token}`,
       },
     });
@@ -201,6 +229,7 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
     // Negative test 2: Protected admin route with invalid TOTP code must be rejected with 403 / TWO_FACTOR_REQUIRED
     const invalidTotpRes = await request.get(`${apiUrl}/api/v1/admin/audit-logs`, {
       headers: {
+        ...ipHeaders,
         Authorization: `Bearer ${authResult.token}`,
         'x-totp-code': '000000',
       },
@@ -213,6 +242,7 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
     const validTotp = generateTotp(staff.totpSecret);
     const validTotpRes = await request.get(`${apiUrl}/api/v1/admin/audit-logs`, {
       headers: {
+        ...ipHeaders,
         Authorization: `Bearer ${authResult.token}`,
         'x-totp-code': validTotp,
       },
@@ -301,7 +331,10 @@ test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () 
       ? VIEWPORTS.filter((v) => v.width <= 500)
       : VIEWPORTS;
 
-    for (const vp of viewportsToTest) {
+    for (let i = 0; i < viewportsToTest.length; i++) {
+      const vp = viewportsToTest[i]!;
+      const vpIp = getProjectClientIp(testInfo, 10 + i);
+      await page.setExtraHTTPHeaders({ 'x-forwarded-for': vpIp, 'cf-connecting-ip': vpIp });
       await page.setViewportSize({ width: vp.width, height: vp.height });
 
       for (const route of STUDENT_ROUTES) {
@@ -328,7 +361,7 @@ test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () 
 
   test('SYS-14 & AC5: Tri-locale i18n verification across vi, ja, and en with 0 raw translation keys', async ({
     page,
-  }) => {
+  }, testInfo) => {
     const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
     const artifactDir = path.resolve(process.cwd(), 'playwright-report/artifacts/i06');
     fs.mkdirSync(artifactDir, { recursive: true });
@@ -340,7 +373,11 @@ test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () 
       // fallback
     }
 
-    for (const locale of LOCALES) {
+    for (let i = 0; i < LOCALES.length; i++) {
+      const locale = LOCALES[i]!;
+      const locIp = getProjectClientIp(testInfo, 20 + i);
+      await page.setExtraHTTPHeaders({ 'x-forwarded-for': locIp, 'cf-connecting-ip': locIp });
+
       // Set cookie on context so it is sent with the initial HTTP request across all browser engines
       try {
         await page.context().addCookies([
@@ -386,7 +423,10 @@ test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () 
 
   test('AC4: Unauthenticated & empty states are clearly displayed without mock data', async ({
     page,
-  }) => {
+  }, testInfo) => {
+    const unauthIp = getProjectClientIp(testInfo, 30);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': unauthIp, 'cf-connecting-ip': unauthIp });
+
     // 1. Account page without auth shows sign-in alert or login prompt
     await page.goto('/tai-khoan', { waitUntil: 'domcontentloaded' });
     const authAlert = page.locator('[role="alert"]').first();
@@ -422,7 +462,10 @@ test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () 
 
   test('AC1 & AC3: Notebook persistence flow across page reload without browser mocks', async ({
     page,
-  }) => {
+  }, testInfo) => {
+    const nbIp = getProjectClientIp(testInfo, 40);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': nbIp, 'cf-connecting-ip': nbIp });
+
     // Ensure no page.route or client-side fetch mocking is registered
     await page.goto('/so-tay', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(600);
