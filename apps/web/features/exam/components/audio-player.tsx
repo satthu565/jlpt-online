@@ -141,7 +141,7 @@ export function AudioPlayer({
     }
   }, [timeline, isLocked, computeElapsedMs, onItemChange, mode]);
 
-  // Periodic timeline check in real exam mode
+  // Periodic timeline check and mobile device wake-up / visibilitychange resync in real exam mode
   useEffect(() => {
     if (mode !== 'real' || !timeline || timeline.length === 0 || isLocked) return;
 
@@ -150,7 +150,22 @@ export function AudioPlayer({
       syncWithTimeline();
     }, 1000);
 
-    return () => clearInterval(timer);
+    const handleVisibilityChange = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        syncWithTimeline();
+      }
+    };
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+    }
+
+    return () => {
+      clearInterval(timer);
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      }
+    };
   }, [mode, timeline, isLocked, syncWithTimeline, retryCount]);
 
   // Handle speed rate change (AUDIO-06: only practice mode)
