@@ -18,6 +18,8 @@ COPY apps/web/ ./apps/web/
 
 RUN mkdir -p /app/apps/web/public
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+ARG NEXT_PUBLIC_API_URL=/api/v1
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN pnpm --filter @jlpt/schema build && pnpm --filter "./packages/*" build && pnpm --filter @jlpt/web build
 
 FROM base AS runner

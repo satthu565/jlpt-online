@@ -46,6 +46,9 @@ jobs:
       - name: Verify feature scope and implementation coverage (A06)
         run: pnpm features:verify
 
+      - name: Run Mock UI Data & Baseline Gate (I00)
+        run: pnpm check:no-mock-ui
+
       - name: Run Accessibility Verification (SYS-14)
         run: pnpm test:a11y
 
