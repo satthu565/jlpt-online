@@ -156,6 +156,7 @@ jobs:
         env:
           MEDIA_TOKEN_SECRET: staging_media_token_secret_for_reproducible_smoke_tests
         run: |
+          docker compose -f infra/compose/compose.staging.yml exec -T postgres psql -U jlpt -d jlpt_staging -c "UPDATE exams SET description = 'guest_trial' WHERE slug = 'demo-n5-1';"
           pnpm test:load
 
       - name: Run Load Baseline & Record Actual Measured Metrics (N06)

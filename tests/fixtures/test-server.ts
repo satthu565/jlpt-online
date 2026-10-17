@@ -26,6 +26,11 @@ export const DEVICE_AUTH_TOKENS: Record<string, string> = {
   '0192f000-0000-7000-8000-0000000000d5': 'tok_student_ubuntu',
 };
 
+export const LOAD_STUDENT_TOKENS: string[] = Array.from(
+  { length: 30 },
+  (_, i) => `tok_load_student_${i}`
+);
+
 export const TEST_USERS = {
   admin: '0192f000-0000-7000-8000-0000000000b1',
   billingAdmin: '0192f000-0000-7000-8000-0000000000b2',

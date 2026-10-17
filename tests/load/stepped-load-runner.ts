@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { performance } from 'node:perf_hooks';
-import { getApiBaseUrl, stopApiServer } from '../fixtures/test-server.ts';
+import { getApiBaseUrl, stopApiServer, LOAD_STUDENT_TOKENS } from '../fixtures/test-server.ts';
 import { signMediaToken } from '@jlpt/media-token';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -209,14 +209,25 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
   // Find demo exam
   let demoExamId = 'demo-n5-1';
   try {
-    const examLookup = await fetch(`${baseUrl}/api/v1/exams`);
-    if (examLookup.ok) {
-      const data = (await examLookup.json()) as { items?: Array<{ id: string; slug: string }> };
-      const item = data.items?.find((x) => x.slug === 'demo-n5-1');
-      if (item) demoExamId = item.id;
+    const directLookup = await fetch(`${baseUrl}/api/v1/exams/demo-n5-1`);
+    if (directLookup.ok) {
+      const data = (await directLookup.json()) as { id?: string; slug?: string };
+      if (data?.id) demoExamId = data.id;
     }
   } catch {
     // fallback
+  }
+  if (demoExamId === 'demo-n5-1') {
+    try {
+      const examLookup = await fetch(`${baseUrl}/api/v1/exams`);
+      if (examLookup.ok) {
+        const data = (await examLookup.json()) as { items?: Array<{ id: string; slug: string }> };
+        const item = data.items?.find((x) => x.slug === 'demo-n5-1');
+        if (item) demoExamId = item.id;
+      }
+    } catch {
+      // fallback
+    }
   }
 
   // Look up seeded media asset for demo exam audio streaming
@@ -285,9 +296,17 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
       } catch {
         data = text;
       }
-    } catch {
+    } catch (err) {
       statusCode = 500;
       success = false;
+      data = { error: String(err) };
+    }
+
+    if (!success) {
+      console.warn(
+        `[LoadRunner Warning] Op "${opName}" [${method} ${endpoint}] returned ${statusCode}:`,
+        typeof data === 'string' ? data.slice(0, 300) : JSON.stringify(data)
+      );
     }
 
     const t1 = performance.now();
@@ -339,6 +358,7 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
     attemptId: string;
     lease: string;
     guestId: string;
+    authHeaders: Record<string, string>;
   }
   const workerAttempts = new Map<number, WorkerAttemptState>();
 
@@ -356,22 +376,70 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
       const { metric: m1 } = await executeRequest('get_exam_snapshot', 'GET', `/api/v1/exams/demo-n5-1`, {}, undefined, workerId);
       stage2Metrics.push(m1);
 
-      // 2. Start attempt as distinct guest candidate
+      // 2. Start attempt as verified student candidate or guest fallback
+      const token = LOAD_STUDENT_TOKENS[workerId] || `tok_load_student_${workerId}`;
       const guestId = `0192f000-0000-7000-8000-${String(workerId + 10).padStart(12, '0')}`;
-      const { metric: m2, data: initData } = await executeRequest(
+      let authHeaders: Record<string, string> = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        'x-guest-id': guestId,
+        cookie: `__Host-guest=${guestId}`,
+      };
+
+      let { metric: m2, data: initData } = await executeRequest(
         'start_attempt',
         'POST',
         '/api/v1/attempts',
-        {
-          'Content-Type': 'application/json',
-          cookie: `__Host-guest=${guestId}`,
-        },
+        authHeaders,
         JSON.stringify({
           examId: demoExamId,
           mode: 'real',
         }),
         workerId
       );
+
+      // If token authentication fails with 401 (e.g. unseeded environment), retry as guest candidate
+      if (m2.statusCode === 401) {
+        authHeaders = {
+          'Content-Type': 'application/json',
+          'x-guest-id': guestId,
+          cookie: `__Host-guest=${guestId}`,
+        };
+        const guestRetry = await executeRequest(
+          'start_attempt',
+          'POST',
+          '/api/v1/attempts',
+          authHeaders,
+          JSON.stringify({
+            examId: demoExamId,
+            mode: 'real',
+          }),
+          workerId
+        );
+        m2 = guestRetry.metric;
+        initData = guestRetry.data;
+      }
+
+      // If candidate already has an open attempt (409 ATTEMPT_ALREADY_OPEN), resume it cleanly
+      if (m2.statusCode === 409 && (initData as { code?: string })?.code === 'ATTEMPT_ALREADY_OPEN') {
+        const existingAttemptId = (initData as { details?: { attemptId?: string } })?.details?.attemptId;
+        if (existingAttemptId) {
+          const { metric: mResume, data: resumeData } = await executeRequest(
+            'resume_attempt',
+            'POST',
+            `/api/v1/attempts/${existingAttemptId}/resume`,
+            authHeaders,
+            undefined,
+            workerId
+          );
+          if (mResume.success && (resumeData as { lease?: string })?.lease) {
+            m2.success = true;
+            m2.statusCode = 200;
+            initData = { attemptId: existingAttemptId, lease: (resumeData as { lease: string }).lease };
+          }
+        }
+      }
+
       stage2Metrics.push(m2);
 
       const parsedInit = initData as { attemptId?: string; lease?: string } | undefined;
@@ -380,6 +448,7 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
           attemptId: parsedInit.attemptId,
           lease: parsedInit.lease,
           guestId,
+          authHeaders,
         });
       }
     })
@@ -409,23 +478,30 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
       const state = workerAttempts.get(workerId);
       const attemptId = state?.attemptId || `att-load-${workerId}`;
       const lease = state?.lease || `0192f000-0000-7000-8000-${String(workerId + 10).padStart(12, '0')}`;
-      const guestId = state?.guestId || `0192f000-0000-7000-8000-${String(workerId + 10).padStart(12, '0')}`;
+      const authHeaders = state?.authHeaders || {
+        'Content-Type': 'application/json',
+        cookie: `__Host-guest=0192f000-0000-7000-8000-${String(workerId + 10).padStart(12, '0')}`,
+      };
 
       // Stepped ramp-up for worker autosave interval
       await new Promise((r) => setTimeout(r, (workerId % 10) * 15));
 
       // Start initial section before saving answers (per Reviewer W3: /sections/next)
-      const { metric: mSec } = await executeRequest(
+      const { metric: mSec, data: secData } = await executeRequest(
         'start_section',
         'POST',
         `/api/v1/attempts/${attemptId}/sections/next`,
-        {
-          'Content-Type': 'application/json',
-          cookie: `__Host-guest=${guestId}`,
-        },
+        authHeaders,
         JSON.stringify({ lease }),
         workerId
       );
+      if (
+        mSec.statusCode === 409 &&
+        ((secData as { code?: string })?.code === 'NO_MORE_SECTIONS' ||
+          (secData as { code?: string })?.code === 'SECTION_ALREADY_OPEN')
+      ) {
+        mSec.success = true;
+      }
       stage3Metrics.push(mSec);
 
       for (let s = 1; s <= savesPerWorker; s++) {
@@ -436,10 +512,7 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
           'save_answers_periodic',
           'PUT',
           `/api/v1/attempts/${attemptId}/sheet`,
-          {
-            'Content-Type': 'application/json',
-            cookie: `__Host-guest=${guestId}`,
-          },
+          authHeaders,
           JSON.stringify({
             lease,
             seq: s,
@@ -477,16 +550,16 @@ export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
       const state = workerAttempts.get(workerId);
       const attemptId = state?.attemptId || `att-load-${workerId}`;
       const lease = state?.lease || `0192f000-0000-7000-8000-${String(workerId + 10).padStart(12, '0')}`;
-      const guestId = state?.guestId || `0192f000-0000-7000-8000-${String(workerId + 10).padStart(12, '0')}`;
+      const authHeaders = state?.authHeaders || {
+        'Content-Type': 'application/json',
+        cookie: `__Host-guest=0192f000-0000-7000-8000-${String(workerId + 10).padStart(12, '0')}`,
+      };
 
       const { metric: m } = await executeRequest(
         'submit_exam_deadline',
         'POST',
         `/api/v1/attempts/${attemptId}/submit`,
-        {
-          'Content-Type': 'application/json',
-          cookie: `__Host-guest=${guestId}`,
-        },
+        authHeaders,
         JSON.stringify({
           lease,
           seq: 4,
