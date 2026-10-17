@@ -29,6 +29,10 @@ import OrgSettingsPage from '../app/settings/org/page';
 import NotificationsSettingsPage from '../app/settings/notifications/page';
 import SettingsHubPage from '../app/settings/page';
 import BackupSettingsPage from '../app/settings/backup/page';
+import { BillingManager } from '../features/billing/billing-service';
+import { ReconciliationManager } from '../features/billing/reconciliation-manager';
+import { BackupService, BackupManagerView } from '../features/backup';
+import { AuditLogService } from '../features/users/audit-service';
 
 describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
   const adminUser: StaffUser = {
@@ -197,6 +201,139 @@ describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
     it('NotificationsSettingsPage hiển thị cấu hình mẫu thông báo', () => {
       const html = renderWithAdmin(<NotificationsSettingsPage />);
       expect(html).toContain('Cấu hình Thông báo &amp; Email Tự động (ADM-18)');
+    });
+  });
+
+  describe('6. Nghiệm thu R04: Chốt Toàn diện Admin Payment, Đối soát Vận hành & Báo cáo Doanh thu', () => {
+    it('Quy trình Quản trị Gói Dịch vụ & Giữ chỗ Mã Giảm giá (ADM-15, PAY-01, PAY-07)', () => {
+      const billingManager = new BillingManager();
+      const plan = billingManager.createPlan({
+        name: 'Gói Chuyên Sâu N2',
+        code: 'pro_n2',
+        interval: 'quarter',
+        priceMinor: 450000,
+        currency: 'VND',
+        entitlements: ['unlimited_exams', 'ai_explanations'],
+      });
+      expect(plan.id).toBe('pro_n2');
+      expect(plan.version).toBe(1);
+
+      // Tăng version khi cập nhật gói (tính bất biến)
+      const updatedPlan = billingManager.createPlan({
+        name: 'Gói Chuyên Sâu N2 Bản Mới',
+        code: 'pro_n2',
+        interval: 'quarter',
+        priceMinor: 480000,
+        currency: 'VND',
+      });
+      expect(updatedPlan.version).toBe(2);
+      expect(updatedPlan.priceMinor).toBe(480000);
+
+      // Xác thực giới hạn mã giảm giá (coupon cap)
+      const coupon = billingManager.createCoupon({
+        code: 'R04FINAL',
+        discountPercent: 25,
+        maxRedemptions: 50,
+      });
+      expect(coupon.code).toBe('R04FINAL');
+      expect(coupon.maxRedemptions).toBe(50);
+      expect(coupon.timesRedeemed).toBe(0);
+
+      expect(() => {
+        billingManager.createCoupon({
+          code: 'INVALID_CAP',
+          discountPercent: 150,
+          maxRedemptions: 10,
+        });
+      }).toThrowError('Phần trăm giảm phải từ 1 đến 100.');
+    });
+
+    it('State Machine Hoàn tiền & Phân định Đơn vị Tiền tệ Tuyệt đối (ADM-16, PAY-08, PAY-12)', () => {
+      const billingManager = new BillingManager();
+      const refunds = billingManager.listRefunds();
+      const requested = refunds.find((r) => r.status === 'requested')!;
+      expect(requested).toBeDefined();
+
+      const approved = billingManager.approveRefund(requested.id);
+      expect(approved.status).toBe('refunded');
+
+      // Tách biệt tiền tệ: Thêm refund JPY không làm ảnh hưởng doanh thu VND
+      billingManager.addRefund({
+        id: 'refund-jpy-r04',
+        orderId: 'order-jpy-r04',
+        amount: 3000,
+        currency: 'JPY',
+        status: 'refunded',
+        createdAt: new Date().toISOString(),
+      });
+
+      const reportVND = billingManager.getRevenueReport('VND');
+      expect(reportVND.currency).toBe('VND');
+      expect(reportVND.refundMinor).toBe(199000);
+
+      const reportJPY = billingManager.getRevenueReport('JPY');
+      expect(reportJPY.currency).toBe('JPY');
+      expect(reportJPY.refundMinor).toBe(3000);
+      expect(reportJPY.grossMinor).toBe(0);
+      expect(reportJPY.netMinor).toBe(-3000);
+    });
+
+    it('Động cơ Đối soát Đa chiều & Báo cáo Sai lệch Nhà cung cấp (PAY-04, ADM-16, Acceptance 1)', () => {
+      const billingManager = new BillingManager();
+      const statements = [
+        {
+          reference: 'PAYOS_STMT_R04_MISMATCH',
+          orderId: '0192a000-0000-7000-8000-000000000001',
+          amountMinor: 100000, // Sai lệch so với đơn hàng nội bộ 199.000
+          currency: 'VND',
+          status: 'PAID' as const,
+        },
+        {
+          reference: 'PAYOS_STMT_R04_ORPHAN',
+          orderId: 'non_existent_order_id',
+          amountMinor: 199000,
+          currency: 'VND',
+          status: 'PAID' as const,
+        },
+      ];
+
+      const run = billingManager.runReconciliation('payos', statements);
+      expect(run.status).toBe('discrepancy_detected');
+      expect(run.discrepanciesFound).toBe(2);
+      expect(run.discrepancies?.some((d) => d.type === 'amount_mismatch')).toBe(true);
+      expect(run.discrepancies?.some((d) => d.type === 'missing_internal_order')).toBe(true);
+
+      // Render ReconciliationManager component hiển thị trực quan các sai lệch
+      const html = renderToStaticMarkup(
+        <ReconciliationManager billingManager={billingManager} currentUser={adminUser} />,
+      );
+      expect(html).toContain('data-testid="reconciliation-panel"');
+      expect(html).toContain('data-testid="reconciliation-runs-table"');
+      expect(html).toContain('Phát hiện lệch');
+    });
+
+    it('Toàn vẹn Kiểm toán Multi-tenant & Bảo vệ Bí mật Trình duyệt (ADM-14, ADM-20, SYS-08)', () => {
+      const auditService = new AuditLogService();
+      auditService.recordAction(
+        { id: adminUser.id, email: adminUser.email, role: adminUser.role, tenantId: 'tenant_center_01' },
+        'reconciliation_run',
+        'payments',
+        'rec_run_r04',
+      );
+
+      const logs = auditService.listLogs(adminUser, { tenantId: 'tenant_center_01' });
+      expect(logs.length).toBeGreaterThanOrEqual(1);
+      expect(logs[0]!.tenantId).toBe('tenant_center_01');
+      expect(logs[0]!.operatorId).toBe(adminUser.id);
+
+      // Giao diện sao lưu phục hồi tuyệt đối không rò rỉ secrets vào DOM
+      const backupService = new BackupService();
+      const htmlBackup = renderToStaticMarkup(
+        <BackupManagerView backupService={backupService} currentUser={adminUser} />,
+      );
+      expect(htmlBackup).not.toContain('db_secret_password');
+      expect(htmlBackup).not.toContain('super_secret_key');
+      expect(htmlBackup).toContain('data-testid="btn-trigger-base-backup"');
     });
   });
 });
