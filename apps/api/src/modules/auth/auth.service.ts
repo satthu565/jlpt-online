@@ -65,13 +65,19 @@ export class AuthService implements OnModuleInit {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    await this.ensureStaffAccountsSeeded();
+    if (process.env.NODE_ENV !== 'production') {
+      await this.ensureStaffAccountsSeeded();
+    }
   }
 
   /**
    * Seeds staging staff accounts with known secret (JBSWY3DPEHPK3PXP) and marks dev sessions verified.
+   * Strictly guarded to NEVER run in production.
    */
   async ensureStaffAccountsSeeded(): Promise<void> {
+    if (process.env.NODE_ENV === 'production') {
+      return;
+    }
     try {
       const staffSecret = 'JBSWY3DPEHPK3PXP';
       const staffDefinitions = [
@@ -886,12 +892,14 @@ export class AuthService implements OnModuleInit {
 
       // Check if session has verified 2FA challenge
       let twoFactorVerified = false;
-      if (
-        token === 'tok_admin_demo' ||
-        token === 'tok_billing_admin_demo' ||
-        token === 'tok_editor_demo' ||
-        token === 'tok_reviewer_demo'
-      ) {
+      const isDemoToken =
+        process.env.NODE_ENV !== 'production' &&
+        (token === 'tok_admin_demo' ||
+          token === 'tok_billing_admin_demo' ||
+          token === 'tok_editor_demo' ||
+          token === 'tok_reviewer_demo');
+
+      if (isDemoToken) {
         twoFactorVerified = true;
       } else {
         const verifs = await this.client.db
@@ -1304,18 +1312,42 @@ export class AuthService implements OnModuleInit {
 
       // If self disabling, require password or TOTP verification
       if (isSelf) {
-        if (confirmation?.code) {
-          const secret = caller.totpSecret;
-          if (secret) {
-            const isValid = verifyTotp(confirmation.code, secret);
-            if (!isValid) {
-              throw new ForbiddenException({
-                code: 'TWO_FACTOR_REQUIRED',
-                message: 'Mã xác thực TOTP không chính xác.',
-              });
+        const code = confirmation?.code?.trim();
+        const password = confirmation?.password;
+
+        if (!code && !password) {
+          throw new BadRequestException({
+            code: 'CONFIRMATION_REQUIRED',
+            message: 'Cần cung cấp mật khẩu hoặc mã TOTP để tắt xác thực hai bước.',
+          });
+        }
+
+        if (code) {
+          let secret = caller.totpSecret;
+          if (!secret) {
+            const profile = await this.client.db
+              .select({ metadata: schema.userProfiles.metadata })
+              .from(schema.userProfiles)
+              .where(eq(schema.userProfiles.userId, caller.userId))
+              .limit(1);
+            const meta = profile[0]?.metadata as Record<string, unknown> | undefined;
+            const tf = meta?.twoFactor as UserTotpMetadata | undefined;
+            if (tf?.encryptedSecret) {
+              try {
+                secret = decryptTotpSecret(tf.encryptedSecret, caller.userId);
+              } catch {
+                secret = undefined;
+              }
             }
           }
-        } else if (confirmation?.password) {
+
+          if (!secret || !verifyTotp(code, secret)) {
+            throw new ForbiddenException({
+              code: 'TWO_FACTOR_REQUIRED',
+              message: 'Mã xác thực TOTP không chính xác.',
+            });
+          }
+        } else if (password) {
           const accounts = await this.client.db
             .select()
             .from(schema.accounts)
@@ -1331,7 +1363,7 @@ export class AuthService implements OnModuleInit {
             !account?.password ||
             !(await verifyPassword({
               hash: account.password,
-              password: confirmation.password,
+              password,
             }))
           ) {
             throw new UnauthorizedException({

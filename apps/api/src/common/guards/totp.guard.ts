@@ -107,7 +107,7 @@ export class TotpGuard implements CanActivate {
 
     // 3. Admin routes without x-totp-code header:
     // When enforcement is active (staging/production) or user has enabled 2FA:
-    if (isEnforced) {
+    if (isEnforced || request.user.twoFactorEnabled === true) {
       if (request.user.twoFactorEnabled !== true) {
         throw new ForbiddenException({
           code: 'TWO_FACTOR_REQUIRED',

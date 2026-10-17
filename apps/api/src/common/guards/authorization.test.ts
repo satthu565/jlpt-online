@@ -149,6 +149,7 @@ describe('F03 Authorization and PII Protection (SYS-06, SYS-07)', () => {
 
     // 3. Create Admin User & Session
     const adminId = generateUuidV7();
+    const adminSessionId = generateUuidV7();
     adminToken = 'test_token_admin_' + Date.now();
     await client.db.insert(schema.users).values({
       id: adminId,
@@ -157,7 +158,7 @@ describe('F03 Authorization and PII Protection (SYS-06, SYS-07)', () => {
       emailVerified: true,
     });
     await client.db.insert(schema.sessions).values({
-      id: generateUuidV7(),
+      id: adminSessionId,
       userId: adminId,
       token: adminToken,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
@@ -177,6 +178,14 @@ describe('F03 Authorization and PII Protection (SYS-06, SYS-07)', () => {
         },
       },
       updatedAt: new Date(),
+    });
+
+    // Mark admin session as two-factor verified
+    await client.db.insert(schema.verifications).values({
+      id: generateUuidV7(),
+      identifier: `session_2fa_${adminSessionId}`,
+      value: 'verified',
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
 
     // Start test app

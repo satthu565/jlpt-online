@@ -23,7 +23,7 @@ Nhiệm vụ **I08** yêu cầu:
   - Khóa bí mật Base32 160-bit (20 bytes) được sinh ngẫu nhiên bằng `crypto.randomBytes`.
   - Secret **không bao giờ** lưu trữ dạng văn bản thuần trong cơ sở dữ liệu.
   - Sử dụng thuật toán đối xứng **AES-256-GCM** với IV ngẫu nhiên 12-byte và Authentication Tag 16-byte.
-  - Khóa dẫn xuất qua **PBKDF2** (100.000 vòng lặp HMAC-SHA256) kết hợp giữa `AUTH_SECRET` của hệ thống và `userId` của chính nhân sự làm salt/context, đảm bảo bí mật bị cô lập hoàn toàn giữa các người dùng ngay cả khi DB bị rò rỉ.
+  - Khóa dẫn xuất qua **HMAC-SHA256** kết hợp giữa master secret (`AUTH_SECRET` / `ENCRYPTION_KEY`) của hệ thống và tiền tố cô lập ngữ cảnh `totp-encryption-key:${userId}` của chính nhân sự làm dữ liệu dẫn xuất, đảm bảo bí mật bị cô lập hoàn toàn giữa các người dùng ngay cả khi DB bị rò rỉ.
   - Định dạng chuỗi mã hóa lưu trong DB: `iv:authTag:ciphertext` (hex).
 
 ### 2. Bộ sinh mã QR SVG thuần TypeScript (Zero-Dependency QR Code Generator)
@@ -46,17 +46,19 @@ Nhiệm vụ **I08** yêu cầu:
   - Nếu gửi lại cùng một mã vừa dùng (`lastUsedCode === cleanCode`), hoặc gửi mã thuộc bước thời gian cũ hơn/bằng bước đã dùng (`verification.step <= lastUsedStep`), yêu cầu bị từ chối với lỗi "Mã TOTP đã được sử dụng (mã cũ)".
 
 ### 5. Tắt / Đặt lại 2FA có kiểm toán
-- Nhân sự tự tắt 2FA của chính mình phải cung cấp mã TOTP 6 số hợp lệ hoặc mật khẩu hiện tại.
-- Quản trị viên (`admin`) có thể hỗ trợ đặt lại 2FA cho nhân sự khác.
+- Nhân sự tự tắt 2FA của chính mình bắt buộc phải cung cấp mã TOTP 6 số hợp lệ hoặc mật khẩu hiện tại (`confirmation.code` hoặc `confirmation.password`). Thiếu cả hai trường sẽ bị từ chối với mã lỗi `CONFIRMATION_REQUIRED` (HTTP 400).
+- Khi xác thực qua `confirmation.code`, nếu `caller.totpSecret` chưa có sẵn trong context, hệ thống tự động giải mã secret từ cơ sở dữ liệu; nếu mã không khớp hoặc secret không hợp lệ sẽ ném `ForbiddenException` (HTTP 403).
+- Quản trị viên (`admin`) có thể hỗ trợ đặt lại 2FA cho nhân sự khác mà không cần mã TOTP của user đó.
 - Mọi hành vi tắt 2FA đều được ghi vết vào bảng `operator_actions` với hành động `TOTP_DISABLED`.
 
 ### 6. Thắt chặt TotpGuard (Hardening) & Loại bỏ hoàn toàn Secret mặc định
 - `TotpGuard` đã được tái cấu trúc:
   - **Loại bỏ toàn bộ fallback secret** viết cứng (`JBSWY3DPEHPK3PXP` hay `TOTP_TEST_SECRET`).
   - Kiểm tra dựa trên khóa bí mật đã giải mã của chính tài khoản yêu cầu (`request.user.totpSecret`). Nếu tài khoản chưa thiết lập TOTP, từ chối với mã lỗi `TWO_FACTOR_REQUIRED`.
-  - Trên các route `/api/v1/admin/*`, áp dụng bắt buộc đối với mọi vai trò nhân sự (`admin`, `editor`, `reviewer`, `billing_admin`, `moderator`). Phiên làm việc phải có cờ `twoFactorVerified: true` hoặc header `x-totp-code` hợp lệ theo secret của chính nhân sự đó.
+  - Trên các route `/api/v1/admin/*`, áp dụng bắt buộc khi `isEnforced` (staging/production) hoặc khi nhân sự đã kích hoạt 2FA (`request.user.twoFactorEnabled === true`). Phiên làm việc phải có cờ `twoFactorVerified: true` hoặc header `x-totp-code` hợp lệ theo secret của chính nhân sự đó.
   - Xử lý lỗi theo nguyên tắc **Fail-Closed**: Bất kỳ lỗi truy vấn DB hay giải mã secret đều ném ngoại lệ từ chối truy cập, không bao giờ cho phép bỏ qua xác thực.
 
-### 7. Dữ liệu mồi Staging / Demo phục vụ E2E
-- Hàm `ensureStaffAccountsSeeded()` trong `AuthService` và `runDemoSeed` trong `demo-seed.ts` tự động chuẩn bị các tài khoản nhân sự mẫu (`publisher@jlpt.local`, `editor@jlpt.local`, `reviewer@jlpt.local`, `billing.admin@jlpt.local`) với secret TOTP chuẩn `JBSWY3DPEHPK3PXP` và mật khẩu `Admin123456!`.
+### 7. Dữ liệu mồi Staging / Demo phục vụ E2E & Bảo vệ Production
+- Hàm `ensureStaffAccountsSeeded()` trong `AuthService` và bypass session demo được bảo vệ nghiêm ngặt bằng điều kiện `process.env.NODE_ENV !== 'production'`. Tuyệt đối không chèn tài khoản demo/seed với mật khẩu hoặc secret mặc định vào production.
+- Trong môi trường dev/staging, `ensureStaffAccountsSeeded()` và `runDemoSeed` trong `demo-seed.ts` chuẩn bị sẵn các tài khoản nhân sự mẫu (`publisher@jlpt.local`, `editor@jlpt.local`, `reviewer@jlpt.local`, `billing.admin@jlpt.local`) với secret TOTP chuẩn `JBSWY3DPEHPK3PXP` và mật khẩu `Admin123456!`.
 - Các bài kiểm thử E2E trên staging sử dụng fixture TOTP RFC 6238 để xác thực hoàn toàn thông suốt mà không vi phạm nguyên tắc bảo mật.
