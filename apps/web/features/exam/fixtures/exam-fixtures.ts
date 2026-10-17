@@ -1014,3 +1014,5 @@ export function resolveExamSnapshotFromUrl(snapshotUrl?: string | null): PublicE
   }
   return undefined;
 }
+
+export * from './device-fixtures';

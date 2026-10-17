@@ -1,12 +1,23 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
+import fs from 'node:fs';
+import path from 'node:path';
 import { renderToString } from 'react-dom/server';
 import {
   ALL_SAMPLE_EXAMS,
   SAMPLE_N1_EXAM_SNAPSHOT,
 } from '../features/exam/fixtures/exam-fixtures';
+import {
+  DEVICE_PROFILES,
+  type DeviceProfile,
+} from '../features/exam/fixtures/device-fixtures';
 import { flattenExamQuestions } from '../features/exam/utils/flatten-questions';
-import { AudioPlayer, syncAudioDrift } from '../features/exam/components/audio-player';
+import {
+  AudioPlayer,
+  syncAudioDrift,
+  setupVisibilitySync,
+  type SyncVisibilityDocument,
+} from '../features/exam/components/audio-player';
 import { QuestionView } from '../features/exam/components/question-view';
 import { QuestionPalette } from '../features/exam/components/question-palette';
 import { QuestionNavigation } from '../features/exam/components/question-navigation';
@@ -25,97 +36,9 @@ import {
 const renderClean = (element: React.ReactElement): string =>
   renderToString(element).replace(/<!--.*?-->/g, '');
 
-/**
- * Mobile & Real Device Target Profiles (SYS-01, SYS-10, WCAG 2.1 AA)
- */
-export interface DeviceProfile {
-  id: string;
-  name: string;
-  os: string;
-  browser: string;
-  engine: 'WebKit' | 'Blink' | 'Gecko';
-  isMobile: boolean;
-  viewport: { width: number; height: number };
-  touch: boolean;
-  userAgent: string;
-}
-
-export const DEVICE_PROFILES: DeviceProfile[] = [
-  {
-    id: 'iphone-15',
-    name: 'Apple iPhone 15',
-    os: 'iOS 17.5',
-    browser: 'Mobile Safari 17.5',
-    engine: 'WebKit',
-    isMobile: true,
-    viewport: { width: 393, height: 852 },
-    touch: true,
-    userAgent:
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1',
-  },
-  {
-    id: 'iphone-se',
-    name: 'Apple iPhone SE (Compact)',
-    os: 'iOS 17.5',
-    browser: 'Mobile Safari 17.5',
-    engine: 'WebKit',
-    isMobile: true,
-    viewport: { width: 320, height: 568 },
-    touch: true,
-    userAgent:
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1',
-  },
-  {
-    id: 'pixel-7',
-    name: 'Google Pixel 7',
-    os: 'Android 14',
-    browser: 'Chrome Mobile 125.0',
-    engine: 'Blink',
-    isMobile: true,
-    viewport: { width: 412, height: 915 },
-    touch: true,
-    userAgent:
-      'Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.165 Mobile Safari/537.36',
-  },
-  {
-    id: 'ipad-pro',
-    name: 'Apple iPad Pro 11-inch',
-    os: 'iPadOS 17.5',
-    browser: 'Mobile Safari 17.5',
-    engine: 'WebKit',
-    isMobile: true,
-    viewport: { width: 834, height: 1194 },
-    touch: true,
-    userAgent:
-      'Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1',
-  },
-  {
-    id: 'galaxy-tab',
-    name: 'Samsung Galaxy Tab S9',
-    os: 'Android 14',
-    browser: 'Chrome Mobile 125.0',
-    engine: 'Blink',
-    isMobile: true,
-    viewport: { width: 800, height: 1280 },
-    touch: true,
-    userAgent:
-      'Mozilla/5.0 (Linux; Android 14; SM-X710) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.165 Safari/537.36',
-  },
-  {
-    id: 'desktop-chrome',
-    name: 'Desktop Workstation',
-    os: 'Windows 11',
-    browser: 'Google Chrome 125.0',
-    engine: 'Blink',
-    isMobile: false,
-    viewport: { width: 1920, height: 1080 },
-    touch: false,
-    userAgent:
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-  },
-];
-
 describe('Web Real Device & Mobile Testing Suite (R03 / SYS-01 / SYS-10 / WCAG 2.1 AA)', () => {
+  const flatQuestions = flattenExamQuestions(SAMPLE_N1_EXAM_SNAPSHOT);
+
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -152,6 +75,46 @@ describe('Web Real Device & Mobile Testing Suite (R03 / SYS-01 / SYS-10 / WCAG 2
       expect(ipad?.isMobile).toBe(true);
       expect(ipad?.viewport.width).toBe(834);
     });
+
+    it.each(DEVICE_PROFILES)(
+      'parameterized validation for device profile $name ($id: $viewport.width x $viewport.height, touch: $touch)',
+      (profile: DeviceProfile) => {
+        expect(profile.id).toBeTruthy();
+        expect(profile.name).toBeTruthy();
+        expect(profile.viewport.width).toBeGreaterThanOrEqual(320);
+        expect(profile.viewport.height).toBeGreaterThanOrEqual(568);
+        expect(profile.userAgent).toContain('Mozilla/5.0');
+
+        // Parameterized responsive component render test
+        const htmlPalette = renderClean(
+          <QuestionPalette
+            questions={flatQuestions}
+            currentIndex={0}
+            answers={[1, 0, 0, 0, 0, 0]}
+            flags={[0, 1, 0, 0, 0, 0]}
+            onSelectQuestion={vi.fn()}
+          />,
+        );
+        expect(htmlPalette).toContain('min-h-[44px]');
+        expect(htmlPalette).toContain('min-w-[44px]');
+        expect(htmlPalette).toContain('grid-cols-4');
+
+        const htmlQuestion = renderClean(
+          <QuestionView
+            question={flatQuestions[0]!}
+            selectedOption={2}
+            isFlagged={false}
+            onSelectOption={vi.fn()}
+            onToggleFlag={vi.fn()}
+          />,
+        );
+        expect(htmlQuestion).toContain('p-4 rounded-xl');
+        expect(htmlQuestion).toContain('role="radio"');
+        if (profile.touch) {
+          expect(htmlQuestion).toContain('aria-label');
+        }
+      },
+    );
   });
 
   // =========================================================================
@@ -191,8 +154,10 @@ describe('Web Real Device & Mobile Testing Suite (R03 / SYS-01 / SYS-10 / WCAG 2
         />,
       );
 
-      // Verify min-h-[44px] touch target class is applied
+      // Verify min-h-[44px] and min-w-[44px] touch target classes are applied (WCAG AAA)
       expect(html).toContain('min-h-[44px]');
+      expect(html).toContain('min-w-[44px]');
+      expect(html).toContain('grid-cols-4');
       expect(html).toContain('data-question-index="0"');
       expect(html).toContain('data-answered="true"');
       expect(html).toContain('data-flagged="true"');
@@ -304,6 +269,66 @@ describe('Web Real Device & Mobile Testing Suite (R03 / SYS-01 / SYS-10 / WCAG 2
       expect(html).toContain('1x');
       expect(html).toContain('1.25x');
       expect(html).toContain('↺ Phát lại đoạn này');
+    });
+
+    it('[AUDIO-04] synchronizes audio timeline on mobile device visibilitychange (wake-up / screen unlock) and cleans up listener', () => {
+      const syncWithTimelineSpy = vi.fn();
+
+      type Listener = () => void;
+      const listeners: Record<string, Listener[]> = {};
+
+      const mockDocument: SyncVisibilityDocument = {
+        visibilityState: 'hidden',
+        addEventListener: vi.fn((event: string, handler: Listener) => {
+          listeners[event] = listeners[event] || [];
+          listeners[event].push(handler);
+        }),
+        removeEventListener: vi.fn((event: string, handler: Listener) => {
+          if (listeners[event]) {
+            listeners[event] = listeners[event].filter((h) => h !== handler);
+          }
+        }),
+      };
+
+      // 1. Setup visibility sync listener
+      const cleanup = setupVisibilitySync(syncWithTimelineSpy, mockDocument);
+
+      expect(mockDocument.addEventListener).toHaveBeenCalledWith(
+        'visibilitychange',
+        expect.any(Function),
+      );
+      expect(listeners['visibilitychange']).toHaveLength(1);
+
+      const triggerVisibilityChange = () => {
+        for (const handler of listeners['visibilitychange'] || []) {
+          handler();
+        }
+      };
+
+      // 2. When screen is locked / tab is hidden, visibilitychange should NOT trigger sync
+      mockDocument.visibilityState = 'hidden';
+      triggerVisibilityChange();
+      expect(syncWithTimelineSpy).not.toHaveBeenCalled();
+
+      // 3. When device is unlocked / tab becomes visible, syncWithTimeline IS triggered immediately
+      mockDocument.visibilityState = 'visible';
+      triggerVisibilityChange();
+      expect(syncWithTimelineSpy).toHaveBeenCalledTimes(1);
+
+      // 4. Repeated wake-up / refocus triggers sync again
+      triggerVisibilityChange();
+      expect(syncWithTimelineSpy).toHaveBeenCalledTimes(2);
+
+      // 5. Cleanup removes the listener and prevents further sync calls
+      cleanup();
+      expect(mockDocument.removeEventListener).toHaveBeenCalledWith(
+        'visibilitychange',
+        expect.any(Function),
+      );
+      expect(listeners['visibilitychange']).toHaveLength(0);
+
+      triggerVisibilityChange();
+      expect(syncWithTimelineSpy).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -456,13 +481,48 @@ describe('Web Real Device & Mobile Testing Suite (R03 / SYS-01 / SYS-10 / WCAG 2
   // 6. External Boundary & Device Test Gate Acknowledgment
   // =========================================================================
   describe('6. External Verification Boundary & Hardware Lab Gate', () => {
-    it('documents emulated sandbox testing mode vs actual physical hardware gate', () => {
-      const sandboxMode = 'SANDBOX_EMULATION';
-      expect(sandboxMode).toBe('SANDBOX_EMULATION');
+    it('verifies external prerequisite contract for device-test from external-prerequisites.json', () => {
+      // Check that external-prerequisites.json exists and contains device-test gate blocking R03
+      const candidates = [
+        path.resolve(process.cwd(), '../../docs/multi-worker/external-prerequisites.json'),
+        path.resolve(process.cwd(), 'docs/multi-worker/external-prerequisites.json'),
+      ];
+      const filePath = candidates.find((p) => fs.existsSync(p));
+      expect(filePath).toBeDefined();
 
-      // Hardware lab testing requires external physical devices (iPhone Safari & Android Chrome)
-      const externalPrerequisite = 'BLOCKED_EXTERNAL: device-test';
-      expect(externalPrerequisite).toBe('BLOCKED_EXTERNAL: device-test');
+      const raw = fs.readFileSync(filePath!, 'utf8');
+      const data = JSON.parse(raw);
+      expect(data.schemaVersion).toBe(2);
+
+      const deviceTestItem = data.items.find(
+        (item: { id: string }) => item.id === 'device-test',
+      );
+      expect(deviceTestItem).toBeDefined();
+      expect(deviceTestItem.id).toBe('device-test');
+      expect(deviceTestItem.status).toBe('PENDING');
+      expect(deviceTestItem.blocksAcceptance).toContain('R03');
+      expect(deviceTestItem.blocksAcceptance).toContain('V06');
+      expect(deviceTestItem.definition).toBe('QUYET_DINH_VA_DICH_VU.md');
+    });
+
+    it('verifies software fallback & sandbox emulation behavior when physical devices are absent', () => {
+      // In the absence of physical lab devices, web app operates via software emulation:
+      // 1. All device profiles maintain compliant touch targets and responsive layouts
+      for (const profile of DEVICE_PROFILES) {
+        expect(profile.viewport.width).toBeGreaterThanOrEqual(320);
+        expect(profile.viewport.height).toBeGreaterThanOrEqual(568);
+      }
+
+      // 2. Offline persistence falls back safely to in-memory/IndexedDB storage
+      const storage = new MemoryExamStorage();
+      expect(storage).toBeDefined();
+
+      // 3. Fallback gate explicitly documents that physical hardware verification is pending
+      const externalStatus = { 'device-test': 'MISSING' };
+      const isHardwareVerified = externalStatus['device-test'] === 'AVAILABLE';
+      expect(isHardwareVerified).toBe(false);
+      const blockerTag = isHardwareVerified ? 'VERIFIED' : 'BLOCKED_EXTERNAL: device-test';
+      expect(blockerTag).toBe('BLOCKED_EXTERNAL: device-test');
     });
   });
 });

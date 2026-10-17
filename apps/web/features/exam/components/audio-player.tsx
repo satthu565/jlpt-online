@@ -36,6 +36,44 @@ export function syncAudioDrift(
   return { synced: false, drift };
 }
 
+export interface SyncVisibilityDocument {
+  visibilityState?: DocumentVisibilityState | string;
+  addEventListener: (type: string, listener: () => void) => void;
+  removeEventListener: (type: string, listener: () => void) => void;
+}
+
+/**
+ * Attaches a visibilitychange listener to document that invokes syncFn when document becomes visible.
+ * Useful for mobile wake-up / tab return re-synchronization (Acceptance 2, AUDIO-04).
+ * Returns a cleanup function that removes the event listener.
+ */
+export function setupVisibilitySync(
+  syncFn: () => void,
+  doc?: SyncVisibilityDocument,
+): () => void {
+  const targetDoc =
+    doc ??
+    (typeof document !== 'undefined'
+      ? (document as unknown as SyncVisibilityDocument)
+      : undefined);
+
+  if (!targetDoc || typeof targetDoc.addEventListener !== 'function') return () => {};
+
+  const handleVisibilityChange = () => {
+    if (targetDoc.visibilityState === 'visible') {
+      syncFn();
+    }
+  };
+
+  targetDoc.addEventListener('visibilitychange', handleVisibilityChange);
+
+  return () => {
+    if (typeof targetDoc.removeEventListener === 'function') {
+      targetDoc.removeEventListener('visibilitychange', handleVisibilityChange);
+    }
+  };
+}
+
 export function AudioPlayer({
   timeline,
   sectionStartedAt,
@@ -150,21 +188,13 @@ export function AudioPlayer({
       syncWithTimeline();
     }, 1000);
 
-    const handleVisibilityChange = () => {
-      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
-        syncWithTimeline();
-      }
-    };
-
-    if (typeof document !== 'undefined') {
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-    }
+    const cleanupVisibility = typeof document !== 'undefined'
+      ? setupVisibilitySync(syncWithTimeline, document)
+      : () => {};
 
     return () => {
       clearInterval(timer);
-      if (typeof document !== 'undefined') {
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-      }
+      cleanupVisibility();
     };
   }, [mode, timeline, isLocked, syncWithTimeline, retryCount]);
 
