@@ -18,6 +18,14 @@ export const AUTH_TOKENS = {
   otherStudent: 'tok_other_student',
 } as const;
 
+export const DEVICE_AUTH_TOKENS: Record<string, string> = {
+  '0192f000-0000-7000-8000-0000000000d1': 'tok_student_iphone',
+  '0192f000-0000-7000-8000-0000000000d2': 'tok_student_pixel',
+  '0192f000-0000-7000-8000-0000000000d3': 'tok_student_macbook',
+  '0192f000-0000-7000-8000-0000000000d4': 'tok_student_windows',
+  '0192f000-0000-7000-8000-0000000000d5': 'tok_student_ubuntu',
+};
+
 export const TEST_USERS = {
   admin: '0192f000-0000-7000-8000-0000000000b1',
   billingAdmin: '0192f000-0000-7000-8000-0000000000b2',

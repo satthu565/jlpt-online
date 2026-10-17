@@ -115,10 +115,12 @@ jobs:
           IMAGE_REGISTRY: docker.io
           PROFILE: small
         run: |
-          echo "Seeding staging sessions and tenant data..."
-          docker compose -f infra/compose/compose.staging.yml exec -T postgres psql -U jlpt -d jlpt_staging < tests/fixtures/seed-sessions.sql
           echo "Seeding demo package blueprint and initial content..."
           docker compose -f infra/compose/compose.staging.yml exec -T api node dist/src/modules/import/demo-seed.js
+          echo "Seeding staging sessions and tenant data..."
+          docker compose -f infra/compose/compose.staging.yml exec -T postgres psql -U jlpt -d jlpt_staging < tests/fixtures/seed-sessions.sql
+          echo "Ensuring demo exam is marked for guest trial..."
+          docker compose -f infra/compose/compose.staging.yml exec -T postgres psql -U jlpt -d jlpt_staging -c "UPDATE exams SET description = 'guest_trial' WHERE slug = 'demo-n5-1';"
           echo "Staging database seeded successfully."
 
       # Acceptance (N06): "Gói demo docs/multi-worker/demo-data: validate->review->publish->thi->review chạy thật trên staging tạm trong CI"

@@ -104,6 +104,18 @@ Các tệp báo cáo kiểm thử và ma trận đo đạc:
 
 được các lệnh kiểm tra (`pnpm test:e2e:all-browsers`, `pnpm test:load`, `tests/integration/pitr-drill.test.ts`) tự động tạo ra và cập nhật liên tục với dấu thời gian và chỉ số tải mới nhất. Để đảm bảo quy tắc kiểm tra trên bản checkout sạch không bị biến thành thay đổi uncommitted hoặc untracked files làm bẩn working tree, toàn bộ các tệp sinh động trên được đưa vào `.gitignore` và gỡ khỏi tracking của Git index.
 
+### Quyết định 6: Khắc phục thứ tự nạp dữ liệu Staging CI và cơ chế phiên thi cho ma trận thiết bị
+
+Trong quá trình chạy Staging Verification & PITR Drill trên GitHub Actions:
+1. **Nguyên nhân lỗi 404 / 401 trên Staging:**
+   - Trong workflow `.github/workflows/staging.yml`, bước `Seed Staging Database for N06` trước đó đã thực thi `psql < tests/fixtures/seed-sessions.sql` trước khi chạy `demo-seed.js`.
+   - Vì bảng `exams` lúc đó chưa có bản ghi `demo-n5-1` (được tạo bởi `demo-seed.js`), lệnh SQL `UPDATE exams SET description = 'guest_trial' WHERE slug = 'demo-n5-1';` trong file SQL cập nhật 0 dòng.
+   - Khi `all-browsers.test.ts` chạy với vai trò khách làm thử (`cookie: __Host-guest=${device.deviceId}`), endpoint `POST /api/v1/attempts` kiểm tra cờ `guest_trial` và trả về `401 UNAUTHENTICATED`. Lỗi này khiến `attemptId` không được khởi tạo, dẫn đến các bước gọi API tiếp theo (`/sections/next`, `/sheet`, `/submit`, `/review`) rơi vào URL rỗng `/api/v1/attempts//...` gây lỗi 404 cascade.
+2. **Giải pháp khắc phục:**
+   - Điều chỉnh thứ tự thực thi trong `.github/workflows/staging.yml`: Chạy `demo-seed.js` trước để nạp và xuất bản đề `demo-n5-1`, sau đó nạp `seed-sessions.sql`, đồng thời thực thi lệnh cập nhật trực tiếp `UPDATE exams SET description = 'guest_trial' WHERE slug = 'demo-n5-1';`.
+   - Bổ sung 5 tài khoản học viên và token xác thực phiên riêng biệt tương ứng với 5 cấu hình thiết bị (`student.iphone`, `student.pixel`, `student.macbook`, `student.windows`, `student.ubuntu`) vào `tests/fixtures/seed-sessions.sql` và khai báo `DEVICE_AUTH_TOKENS` trong `tests/fixtures/test-server.ts`.
+   - Nâng cấp `tests/e2e/all-browsers.test.ts` kiểm tra tính hợp lệ của `attemptId` trước khi thực hiện các bước lưu phiếu/nộp bài, ghi log phản hồi lỗi chi tiết thay vì nuốt ngoại lệ, và hỗ trợ fallback xác thực qua token học viên nếu môi trường staging có cấu hình cấm khách làm thử.
+
 ---
 
 ## 3. Quản lý trạng thái và rào cản ngoại vi (External Blockers)

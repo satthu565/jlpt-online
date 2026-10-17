@@ -7,7 +7,12 @@ VALUES
   ('0192f000-0000-7000-8000-0000000000d1', 'reviewer@jlpt.local', 'Demo Reviewer', 'reviewer', true, 'vi', 'Asia/Ho_Chi_Minh'),
   ('0192f000-0000-7000-8000-0000000000c1', 'student.verified@jlpt.local', 'Verified Student', 'student', true, 'vi', 'Asia/Ho_Chi_Minh'),
   ('0192f000-0000-7000-8000-0000000000c2', 'student.unverified@jlpt.local', 'Unverified Student', 'student', false, 'vi', 'Asia/Ho_Chi_Minh'),
-  ('0192f000-0000-7000-8000-0000000000c3', 'student.other@jlpt.local', 'Other Student', 'student', true, 'vi', 'Asia/Ho_Chi_Minh')
+  ('0192f000-0000-7000-8000-0000000000c3', 'student.other@jlpt.local', 'Other Student', 'student', true, 'vi', 'Asia/Ho_Chi_Minh'),
+  ('0192f000-0000-7000-8000-0000000000e5', 'student.iphone@jlpt.local', 'iPhone Student', 'student', true, 'vi', 'Asia/Ho_Chi_Minh'),
+  ('0192f000-0000-7000-8000-0000000000e6', 'student.pixel@jlpt.local', 'Pixel Student', 'student', true, 'vi', 'Asia/Ho_Chi_Minh'),
+  ('0192f000-0000-7000-8000-0000000000e7', 'student.macbook@jlpt.local', 'MacBook Student', 'student', true, 'vi', 'Asia/Ho_Chi_Minh'),
+  ('0192f000-0000-7000-8000-0000000000e8', 'student.windows@jlpt.local', 'Windows Student', 'student', true, 'vi', 'Asia/Ho_Chi_Minh'),
+  ('0192f000-0000-7000-8000-0000000000e9', 'student.ubuntu@jlpt.local', 'Ubuntu Student', 'student', true, 'vi', 'Asia/Ho_Chi_Minh')
 ON CONFLICT (id) DO UPDATE SET
   role = EXCLUDED.role,
   email_verified = EXCLUDED.email_verified;
@@ -21,7 +26,12 @@ VALUES
   ('0192f000-0000-7000-8000-000000000013', '0192f000-0000-7000-8000-0000000000d1', 'tok_reviewer_demo', NOW() + INTERVAL '30 days'),
   ('0192f000-0000-7000-8000-000000000014', '0192f000-0000-7000-8000-0000000000c1', 'tok_student_verified', NOW() + INTERVAL '30 days'),
   ('0192f000-0000-7000-8000-000000000015', '0192f000-0000-7000-8000-0000000000c2', 'tok_student_unverified', NOW() + INTERVAL '30 days'),
-  ('0192f000-0000-7000-8000-000000000016', '0192f000-0000-7000-8000-0000000000c3', 'tok_other_student', NOW() + INTERVAL '30 days')
+  ('0192f000-0000-7000-8000-000000000016', '0192f000-0000-7000-8000-0000000000c3', 'tok_other_student', NOW() + INTERVAL '30 days'),
+  ('0192f000-0000-7000-8000-000000000021', '0192f000-0000-7000-8000-0000000000e5', 'tok_student_iphone', NOW() + INTERVAL '30 days'),
+  ('0192f000-0000-7000-8000-000000000022', '0192f000-0000-7000-8000-0000000000e6', 'tok_student_pixel', NOW() + INTERVAL '30 days'),
+  ('0192f000-0000-7000-8000-000000000023', '0192f000-0000-7000-8000-0000000000e7', 'tok_student_macbook', NOW() + INTERVAL '30 days'),
+  ('0192f000-0000-7000-8000-000000000024', '0192f000-0000-7000-8000-0000000000e8', 'tok_student_windows', NOW() + INTERVAL '30 days'),
+  ('0192f000-0000-7000-8000-000000000025', '0192f000-0000-7000-8000-0000000000e9', 'tok_student_ubuntu', NOW() + INTERVAL '30 days')
 ON CONFLICT (id) DO UPDATE SET
   token = EXCLUDED.token,
   expires_at = EXCLUDED.expires_at;
@@ -55,5 +65,6 @@ ON CONFLICT (id) DO UPDATE SET
 
 -- Enable guest trial for demo exam to support realistic load testing and unauthenticated trial runs
 UPDATE exams SET description = 'guest_trial' WHERE slug = 'demo-n5-1';
+
 
 
