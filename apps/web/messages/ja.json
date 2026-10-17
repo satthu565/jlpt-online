@@ -179,12 +179,16 @@
       "privacy": "プライバシーとデータ"
     },
     "profile": {
+      "title": "プロフィール情報",
       "name": "お名前",
+      "namePlaceholder": "表示名を入力してください",
       "email": "メールアドレス",
+      "emailNotice": "ログインメールアドレスは変更できません。",
       "emailVerified": "認証済み",
       "emailUnverified": "未認証",
       "role": "権限",
       "targetLevel": "目標JLPTレベル",
+      "targetLevelDesc": "合格を目指すJLPTレベルです。",
       "targetLevelHint": "選択したレベルに合わせて模擬試験や推奨カリキュラムを提案します。",
       "selectLevel": "目標レベルを選択",
       "levelN1": "JLPT N1（上級）",
@@ -636,6 +640,7 @@
     "pricing": {
       "free": "無料",
       "monthly": "月",
+      "quarterly": "3ヶ月",
       "yearly": "年",
       "lifetime": "買い切り",
       "mostPopular": "一番人気",

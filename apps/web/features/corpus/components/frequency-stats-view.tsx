@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Badge, Alert } from '@jlpt/ui';
+import { Card, Button, Badge, Alert, Spinner } from '@jlpt/ui';
 import { CorpusClient } from '../services/corpus-client';
 import type {
   CorpusFrequencyStatDto,
@@ -19,8 +19,10 @@ export function FrequencyStatsView({
 }: FrequencyStatsViewProps): React.JSX.Element {
   const { t } = useI18n();
   const [client] = useState(() => new CorpusClient());
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const [frequencyStats] = useState<CorpusFrequencyStatDto[]>([
+  const [frequencyStats, setFrequencyStats] = useState<CorpusFrequencyStatDto[]>([
     {
       term: '徹底',
       reading: 'てってい',
@@ -82,19 +84,28 @@ export function FrequencyStatsView({
 
   useEffect(() => {
     let active = true;
-    client
-      .compareLevels('jlpt-official')
-      .then((data) => {
-        if (active && data && data.length > 0) setLevelComparisons(data);
-      })
-      .catch(() => {});
+    setIsLoading(true);
+    setLoadError(null);
 
-    client
-      .getYearlyTrends('jlpt-official')
-      .then((data) => {
+    Promise.all([
+      client.getFrequencyRanking('jlpt-official', 50).then((data) => {
+        if (active && data && data.length > 0) setFrequencyStats(data);
+      }),
+      client.compareLevels('jlpt-official').then((data) => {
+        if (active && data && data.length > 0) setLevelComparisons(data);
+      }),
+      client.getYearlyTrends('jlpt-official').then((data) => {
         if (active && data && data.length > 0) setYearlyTrends(data);
+      }),
+    ])
+      .catch((err) => {
+        if (active) {
+          setLoadError(err instanceof Error ? err.message : 'Không thể tải dữ liệu thống kê từ vựng');
+        }
       })
-      .catch(() => {});
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
 
     return () => {
       active = false;
@@ -190,6 +201,18 @@ export function FrequencyStatsView({
           </Alert>
         )}
       </Card>
+
+      {isLoading && (
+        <div className="flex justify-center items-center py-6" data-testid="frequency-loading-spinner">
+          <Spinner size="md" aria-label="Đang tải dữ liệu thống kê từ vựng..." />
+        </div>
+      )}
+
+      {loadError && (
+        <Alert variant="error" className="text-xs" data-testid="frequency-load-error">
+          {loadError}
+        </Alert>
+      )}
 
       {/* 1. Frequency Ranking Table */}
       <Card className="p-6 space-y-4">

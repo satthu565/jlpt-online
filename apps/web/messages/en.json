@@ -179,12 +179,16 @@
       "privacy": "Privacy & Data"
     },
     "profile": {
+      "title": "Personal Profile",
       "name": "Full Name",
+      "namePlaceholder": "Enter your display name",
       "email": "Email Address",
+      "emailNotice": "Email used for sign-in cannot be changed directly.",
       "emailVerified": "Verified",
       "emailUnverified": "Unverified",
       "role": "Role",
       "targetLevel": "Target JLPT Level",
+      "targetLevelDesc": "The JLPT level you are currently aiming to pass.",
       "targetLevelHint": "The system will recommend exams and study paths tailored to this level.",
       "selectLevel": "Select target level",
       "levelN1": "JLPT N1 (Advanced)",
@@ -636,6 +640,7 @@
     "pricing": {
       "free": "Free",
       "monthly": "month",
+      "quarterly": "quarter",
       "yearly": "year",
       "lifetime": "lifetime",
       "mostPopular": "Most Popular",

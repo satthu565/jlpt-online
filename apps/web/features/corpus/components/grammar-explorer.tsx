@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Input, Button, Badge, TTSAudioPlayer } from '@jlpt/ui';
+import { Card, Input, Button, Badge, TTSAudioPlayer, Spinner, Alert } from '@jlpt/ui';
 import { CorpusClient } from '../services/corpus-client';
 import type { GrammarPatternDto } from '../types';
 import { useI18n } from '../../../lib/i18n';
@@ -21,6 +21,8 @@ export function GrammarExplorer({
   const [client] = useState(() => new CorpusClient());
   const [selectedLevel, setSelectedLevel] = useState<string>(initialLevel);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [patterns, setPatterns] = useState<GrammarPatternDto[]>(() => initialPatterns || [
     {
       patternId: 'gp-n1-01',
@@ -96,6 +98,8 @@ export function GrammarExplorer({
 
   useEffect(() => {
     let active = true;
+    setIsLoading(true);
+    setLoadError(null);
     client
       .getGrammar('jlpt-official', selectedLevel === 'ALL' ? undefined : selectedLevel)
       .then((data) => {
@@ -103,8 +107,13 @@ export function GrammarExplorer({
           setPatterns(data);
         }
       })
-      .catch(() => {
-        // Retain fallback items
+      .catch((err) => {
+        if (active) {
+          setLoadError(err instanceof Error ? err.message : 'Không thể tải dữ liệu ngữ pháp');
+        }
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
       });
     return () => {
       active = false;
@@ -163,6 +172,18 @@ export function GrammarExplorer({
           ))}
         </div>
       </div>
+
+      {isLoading && (
+        <div className="flex justify-center items-center py-6" data-testid="grammar-loading-spinner">
+          <Spinner size="md" aria-label="Đang tải dữ liệu ngữ pháp..." />
+        </div>
+      )}
+
+      {loadError && (
+        <Alert variant="error" className="text-xs" data-testid="grammar-load-error">
+          {loadError}
+        </Alert>
+      )}
 
       {/* Patterns Grid */}
       <div className="space-y-4" data-testid="grammar-cards-list">

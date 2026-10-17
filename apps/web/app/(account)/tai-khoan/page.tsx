@@ -13,6 +13,7 @@ import {
   Alert,
   Modal,
 } from '@jlpt/ui';
+import Link from 'next/link';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import type { SessionItem } from '../../../lib/auth-client';
@@ -134,7 +135,17 @@ export default function AccountPage(): React.JSX.Element {
   ];
 
   return (
-    <div className="container" style={{ padding: '3rem 1rem', maxWidth: '840px', margin: '0 auto' }}>
+    <div className="max-w-4xl mx-auto py-8 px-4 w-full">
+      {!user && (
+        <Alert variant="warning" style={{ marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <span>Vui lòng đăng nhập để xem thông tin hồ sơ và lưu thay đổi tài khoản cá nhân.</span>
+            <Link href="/dang-nhap?redirect=/tai-khoan">
+              <Button size="sm" variant="primary">Đăng nhập ngay</Button>
+            </Link>
+          </div>
+        </Alert>
+      )}
       <div style={{ marginBottom: '2rem' }}>
         <h1
           style={{

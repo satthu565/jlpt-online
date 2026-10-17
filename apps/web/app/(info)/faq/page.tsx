@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { Card, Input, Badge, JsonLd } from '@jlpt/ui';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Card, Input, Badge, JsonLd, Spinner, Alert } from '@jlpt/ui';
 import { useI18n } from '../../../lib/i18n';
 
 interface FaqItem {
@@ -12,7 +12,7 @@ interface FaqItem {
   answer: string;
 }
 
-const FAQ_LIST: FaqItem[] = [
+const DEFAULT_FAQ_LIST: FaqItem[] = [
   {
     id: 'faq-1',
     category: 'exams',
@@ -58,10 +58,62 @@ const FAQ_LIST: FaqItem[] = [
 ];
 
 export default function FaqPage(): React.JSX.Element {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const [faqs, setFaqs] = useState<FaqItem[]>(DEFAULT_FAQ_LIST);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [openIds, setOpenIds] = useState<string[]>(['faq-1']);
+
+  useEffect(() => {
+    let active = true;
+    const fetchFaqs = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '');
+        const res = await fetch(`${baseUrl}/cms/faqs?locale=${encodeURIComponent(locale || 'vi')}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (active && Array.isArray(data) && data.length > 0) {
+            const mapped: FaqItem[] = data.map((item: Record<string, unknown>) => {
+              const cat = String(item['category'] || 'exams');
+              let categoryLabel = 'Kỳ thi & Đề thi';
+              let normCat: FaqItem['category'] = 'exams';
+              if (cat.includes('tech') || cat.includes('phong-thi')) {
+                categoryLabel = 'Kỹ thuật & Phòng thi';
+                normCat = 'technical';
+              } else if (cat.includes('pay') || cat.includes('thanh-toan')) {
+                categoryLabel = 'Thanh toán & Gói cước';
+                normCat = 'payment';
+              } else if (cat.includes('acc') || cat.includes('tai-khoan')) {
+                categoryLabel = 'Tài khoản & Bảo mật';
+                normCat = 'account';
+              }
+              return {
+                id: String(item['id'] || `faq-${item['orderIndex'] || Math.random()}`),
+                category: normCat,
+                categoryLabel,
+                question: String(item['question'] || ''),
+                answer: String(item['answer'] || ''),
+              };
+            });
+            setFaqs(mapped);
+          }
+        }
+      } catch {
+        // Fall back to pre-rendered default FAQs
+      } finally {
+        if (active) setIsLoading(false);
+      }
+    };
+
+    fetchFaqs();
+    return () => {
+      active = false;
+    };
+  }, [locale]);
 
   const categories = [
     { id: 'all', label: 'Tất cả chủ đề' },
@@ -72,7 +124,7 @@ export default function FaqPage(): React.JSX.Element {
   ];
 
   const filteredFaqs = useMemo(() => {
-    return FAQ_LIST.filter((item) => {
+    return faqs.filter((item) => {
       if (selectedCategory !== 'all' && item.category !== selectedCategory) {
         return false;
       }
@@ -84,7 +136,7 @@ export default function FaqPage(): React.JSX.Element {
       }
       return true;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [faqs, searchQuery, selectedCategory]);
 
   const toggleAccordion = (id: string) => {
     setOpenIds((prev) =>
@@ -96,7 +148,7 @@ export default function FaqPage(): React.JSX.Element {
   const faqStructuredData = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: FAQ_LIST.map((item) => ({
+    mainEntity: faqs.map((item) => ({
       '@type': 'Question',
       name: item.question,
       acceptedAnswer: {
@@ -164,6 +216,18 @@ export default function FaqPage(): React.JSX.Element {
           ))}
         </div>
       </div>
+
+      {isLoading && (
+        <div className="flex justify-center items-center py-6">
+          <Spinner size="md" aria-label="Đang tải dữ liệu câu hỏi..." />
+        </div>
+      )}
+
+      {error && (
+        <Alert variant="error" className="text-xs">
+          {error}
+        </Alert>
+      )}
 
       {/* FAQ Accordion List */}
       <div className="space-y-3" data-testid="faq-accordion-list">

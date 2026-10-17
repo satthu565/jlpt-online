@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Input, Button, Badge, Alert, TTSAudioPlayer } from '@jlpt/ui';
+import { Card, Input, Button, Badge, Alert, TTSAudioPlayer, Spinner } from '@jlpt/ui';
 import { CorpusClient } from '../services/corpus-client';
 import type { VocabTermDto } from '../types';
 import { useI18n } from '../../../lib/i18n';
@@ -21,6 +21,8 @@ export function VocabExplorer({
   const [client] = useState(() => new CorpusClient());
   const [selectedLevel, setSelectedLevel] = useState<string>(initialLevel);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [items, setItems] = useState<VocabTermDto[]>(() => initialItems || [
     {
       term: '曖昧',
@@ -85,6 +87,8 @@ export function VocabExplorer({
 
   useEffect(() => {
     let active = true;
+    setIsLoading(true);
+    setLoadError(null);
     client
       .getVocabulary('jlpt-official', selectedLevel === 'ALL' ? undefined : selectedLevel)
       .then((data) => {
@@ -92,8 +96,13 @@ export function VocabExplorer({
           setItems(data);
         }
       })
-      .catch(() => {
-        // Retain fallback items
+      .catch((err) => {
+        if (active) {
+          setLoadError(err instanceof Error ? err.message : 'Không thể tải dữ liệu từ vựng');
+        }
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
       });
     return () => {
       active = false;
@@ -179,6 +188,18 @@ export function VocabExplorer({
       {saveErrorNotice && (
         <Alert variant="error" className="text-xs" data-testid="notebook-save-error">
           {saveErrorNotice}
+        </Alert>
+      )}
+
+      {isLoading && (
+        <div className="flex justify-center items-center py-6" data-testid="vocab-loading-spinner">
+          <Spinner size="md" aria-label="Đang tải dữ liệu từ vựng..." />
+        </div>
+      )}
+
+      {loadError && (
+        <Alert variant="error" className="text-xs" data-testid="vocab-load-error">
+          {loadError}
         </Alert>
       )}
 

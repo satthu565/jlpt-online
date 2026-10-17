@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   NotebookView,
   SrsReviewRunner,
@@ -14,154 +14,87 @@ import {
   type NotebookItemKind,
 } from '../../../features/learning';
 import { useI18n } from '../../../lib/i18n';
-
-// Sample fallback items for demonstration/offline
-const SAMPLE_NOTEBOOK_ITEMS: NotebookItem[] = [
-  {
-    id: 'item-1',
-    userId: 'user-demo',
-    kind: 'vocab',
-    term: '躊躇',
-    reading: 'ちゅうちょ',
-    meaning: 'Sự do dự, ngập ngừng, chần chừ',
-    notes: 'Thường đi với 躊躇なく (không chút do dự)',
-    mastered: false,
-    tags: ['N1', 'Từ vựng hay gặp'],
-    version: 1,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'item-2',
-    userId: 'user-demo',
-    kind: 'grammar',
-    term: '〜を皮切りに',
-    reading: '〜をかわきりに',
-    meaning: 'Khởi đầu với..., mở màn bằng...',
-    notes: 'Diễn tả một chuỗi sự kiện tương tự diễn ra liên tiếp sau đó',
-    mastered: true,
-    tags: ['N2', 'Ngữ pháp'],
-    version: 1,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'item-3',
-    userId: 'user-demo',
-    kind: 'kanji',
-    term: '曖昧',
-    reading: 'あいまい',
-    meaning: 'Mơ hồ, mập mờ, không rõ ràng',
-    notes: 'Bộ Nhật kết hợp Ái / Muội',
-    mastered: false,
-    tags: ['N3', 'Hán tự'],
-    version: 1,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
-
-const SAMPLE_DUE_CARDS: DueFlashcard[] = [
-  {
-    cardId: 'card-1',
-    notebookItemId: 'item-1',
-    front: { term: '躊躇', reading: 'ちゅうちょ', prompt: '躊躇' },
-    back: { meaning: 'Sự do dự, ngập ngừng, chần chừ', examples: ['躊躇なく決断する (Quyết định không chút do dự)'] },
-    dueAt: new Date().toISOString(),
-    intervalDays: 1,
-    repetitions: 1,
-    state: 'review',
-    kind: 'vocab',
-  },
-  {
-    cardId: 'card-2',
-    notebookItemId: 'item-2',
-    front: { term: '〜を皮切りに', reading: '〜をかわきりに', prompt: '〜を皮切りに' },
-    back: { meaning: 'Khởi đầu với..., mở màn bằng...', examples: ['東京公演を皮切りに全国ツアーが始まる'] },
-    dueAt: new Date().toISOString(),
-    intervalDays: 3,
-    repetitions: 2,
-    state: 'review',
-    kind: 'grammar',
-  },
-];
+import { useAuth } from '../../../lib/auth-context';
+import { Alert, Button, Spinner } from '@jlpt/ui';
+import Link from 'next/link';
 
 export default function NotebookPage(): React.JSX.Element {
   const { t } = useI18n();
+  const { user } = useAuth();
 
   const [activeTab, setActiveTab] = useState<'notebook' | 'srs' | 'quiz'>('notebook');
-  const [items, setItems] = useState<NotebookItem[]>(SAMPLE_NOTEBOOK_ITEMS);
-  const [dueCards, setDueCards] = useState<DueFlashcard[]>(SAMPLE_DUE_CARDS);
+  const [items, setItems] = useState<NotebookItem[]>([]);
+  const [dueCards, setDueCards] = useState<DueFlashcard[]>([]);
   const [activeQuiz, setActiveQuiz] = useState<NotebookQuiz | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isUnauthorized, setIsUnauthorized] = useState(false);
 
-  const loadNotebookData = async () => {
+  const loadNotebookData = useCallback(async () => {
     setLoading(true);
+    setError(null);
+    setIsUnauthorized(false);
     try {
       const res = await defaultLearningClient.getNotebookItems();
-      if (res.items && res.items.length > 0) {
-        setItems(res.items);
+      setItems(res.items || []);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes('401') || msg.includes('403') || msg.includes('UNAUTHENTICATED') || msg.includes('Yêu cầu đăng nhập')) {
+        setIsUnauthorized(true);
+      } else {
+        setError(msg || t('common.status.error'));
       }
-    } catch {
-      // Use fallback
+      setItems([]);
     }
 
     try {
       const dueRes = await defaultLearningClient.getDueCards();
-      if (dueRes.items && dueRes.items.length > 0) {
-        setDueCards(dueRes.items);
-      }
+      setDueCards(dueRes.items || []);
     } catch {
-      // Use fallback
+      setDueCards([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     loadNotebookData();
-  }, []);
+  }, [loadNotebookData]);
 
   const handleAddItem = async (input: CreateNotebookItemInput) => {
+    setError(null);
     try {
       const created = await defaultLearningClient.createNotebookItem(input);
       setItems((prev) => [created, ...prev]);
-    } catch {
-      // Offline fallback
-      const mockCreated: NotebookItem = {
-        id: `mock-${Date.now()}`,
-        userId: 'demo',
-        kind: input.kind,
-        term: input.term,
-        reading: input.reading,
-        meaning: input.meaning,
-        notes: input.notes,
-        mastered: false,
-        tags: input.tags || [],
-        version: 1,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      setItems((prev) => [mockCreated, ...prev]);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || 'Không thể tạo mục sổ tay.');
+      throw err;
     }
   };
 
   const handleUpdateItem = async (id: string, updates: Partial<NotebookItem>) => {
+    setError(null);
     try {
-      await defaultLearningClient.updateNotebookItem(id, updates);
-    } catch {
-      // Update local state
+      const updated = await defaultLearningClient.updateNotebookItem(id, updates);
+      setItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...updated } : item)));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || 'Không thể cập nhật mục sổ tay.');
+      throw err;
     }
-    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...updates } : item)));
   };
 
   const handleDeleteItem = async (id: string) => {
+    setError(null);
     try {
       await defaultLearningClient.deleteNotebookItem(id);
-    } catch {
-      // Delete from local state
+      setItems((prev) => prev.filter((item) => item.id !== id));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || 'Không thể xóa mục sổ tay.');
+      throw err;
     }
-    setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
   const handleExportCsv = async (kind?: NotebookItemKind) => {
@@ -175,65 +108,30 @@ export default function NotebookPage(): React.JSX.Element {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch {
-      // Fallback CSV export
-      const rows = [
-        ['Kind', 'Term', 'Reading', 'Meaning', 'Tags'].join(','),
-        ...items
-          .filter((i) => !kind || i.kind === kind)
-          .map((i) => `"${i.kind}","${i.term}","${i.reading || ''}","${i.meaning}","${i.tags.join(';')}"`),
-      ];
-      const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `so-tay-jlpt-${new Date().toISOString().split('T')[0]}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || 'Không thể xuất file CSV.');
     }
   };
 
   const handleStartQuiz = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const quiz = await defaultLearningClient.createNotebookQuiz({ count: 5 });
       setActiveQuiz(quiz);
       setActiveTab('quiz');
-    } catch {
-      // Generate sample quiz from items
-      const sampleQ = items.slice(0, 4).map((item) => ({
-        id: `q-${item.id}`,
-        stem: `Nghĩa đúng của từ/mẫu「${item.term}」là gì?`,
-        options: [
-          item.meaning,
-          'Ý nghĩa đánh lạc hướng A',
-          'Ý nghĩa đánh lạc hướng B',
-          'Ý nghĩa đánh lạc hướng C',
-        ].sort(() => Math.random() - 0.5),
-        correctOptionIndex: 0,
-        kind: item.kind,
-        notebookItemId: item.id,
-        explanation: `${item.term} [${item.reading || ''}]: ${item.meaning}`,
-      }));
-
-      // Adjust correct index
-      sampleQ.forEach((q) => {
-        const correctIdx = q.options.indexOf(items.find((i) => i.id === q.notebookItemId)?.meaning || '');
-        q.correctOptionIndex = correctIdx >= 0 ? correctIdx : 0;
-      });
-
-      setActiveQuiz({
-        quizId: `quiz-${Date.now()}`,
-        questions: sampleQ,
-        totalQuestions: sampleQ.length,
-        createdAt: new Date().toISOString(),
-      });
-      setActiveTab('quiz');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || 'Không thể tạo quiz từ sổ tay. Vui lòng thêm từ vựng/ngữ pháp trước.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="container" style={{ padding: '3rem 1rem', maxWidth: '1000px', margin: '0 auto' }}>
+    <div className="max-w-5xl mx-auto py-8 px-4 w-full">
       <div style={{ marginBottom: '2rem' }}>
         <h1
           style={{
@@ -250,12 +148,35 @@ export default function NotebookPage(): React.JSX.Element {
         </p>
       </div>
 
+      {(!user || isUnauthorized) && (
+        <Alert variant="warning" style={{ marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <span>Bạn cần đăng nhập để xem và lưu sổ tay học tập cá nhân.</span>
+            <Link href="/dang-nhap?redirect=/so-tay">
+              <Button size="sm" variant="primary">Đăng nhập ngay</Button>
+            </Link>
+          </div>
+        </Alert>
+      )}
+
+      {error && !isUnauthorized && (
+        <Alert variant="error" onClose={() => setError(null)} style={{ marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <span>{error}</span>
+            <Button size="sm" variant="outline" onClick={loadNotebookData}>
+              {t('common.buttons.retry')}
+            </Button>
+          </div>
+        </Alert>
+      )}
+
       {/* Navigation Tabs */}
       <div
         role="tablist"
         aria-label={t('notebook.page.tabsAria')}
         style={{
           display: 'flex',
+          flexWrap: 'wrap',
           gap: '0.5rem',
           borderBottom: '1px solid var(--border-subtle)',
           marginBottom: '2rem',
@@ -334,6 +255,13 @@ export default function NotebookPage(): React.JSX.Element {
         </button>
       </div>
 
+      {loading && items.length === 0 && (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem 0', alignItems: 'center', gap: '0.75rem' }}>
+          <Spinner size="md" />
+          <span style={{ color: 'var(--text-secondary)' }}>{t('common.status.loading')}</span>
+        </div>
+      )}
+
       {/* Tab Panels */}
       {activeTab === 'notebook' && (
         <div id="panel-notebook" role="tabpanel" aria-labelledby="tab-notebook">
@@ -362,7 +290,10 @@ export default function NotebookPage(): React.JSX.Element {
           <SrsReviewRunner
             cards={dueCards}
             syncManager={defaultSrsSyncManager}
-            onFinish={() => setActiveTab('notebook')}
+            onFinish={() => {
+              loadNotebookData();
+              setActiveTab('notebook');
+            }}
           />
         </div>
       )}

@@ -179,12 +179,16 @@
       "privacy": "Quyền riêng tư & Dữ liệu"
     },
     "profile": {
+      "title": "Hồ sơ cá nhân",
       "name": "Họ và tên",
+      "namePlaceholder": "Nhập họ và tên hiển thị",
       "email": "Email",
+      "emailNotice": "Email dùng để đăng nhập và không thể thay đổi trực tiếp.",
       "emailVerified": "Đã xác minh",
       "emailUnverified": "Chưa xác minh",
       "role": "Vai trò",
       "targetLevel": "Trình độ JLPT mục tiêu",
+      "targetLevelDesc": "Cấp độ JLPT bạn đang hướng tới thi đỗ.",
       "targetLevelHint": "Hệ thống sẽ gợi ý đề thi và lộ trình phù hợp với cấp độ này.",
       "selectLevel": "Chọn cấp độ ôn luyện",
       "levelN1": "JLPT N1 (Cao cấp)",
@@ -636,6 +640,7 @@
     "pricing": {
       "free": "Miễn phí",
       "monthly": "tháng",
+      "quarterly": "3 tháng",
       "yearly": "năm",
       "lifetime": "trọn đời",
       "mostPopular": "Phổ biến nhất",

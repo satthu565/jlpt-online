@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   ClassroomDashboard,
   defaultClassroomClient,
@@ -13,100 +13,170 @@ import {
   type GradeExportResponse,
 } from '../../../features/classroom';
 import { useI18n } from '../../../lib/i18n';
+import { useAuth } from '../../../lib/auth-context';
+import { Alert, Button, Card, CardContent, Input, Spinner } from '@jlpt/ui';
+import Link from 'next/link';
 
-// Sample fallback classroom data
-const SAMPLE_ORGS: Organization[] = [
-  { id: 'org-1', name: 'Trung tâm Nhật ngữ Sakura', role: 'teacher' },
-];
-
-const SAMPLE_CLASSES: ClassRoom[] = [
-  { id: 'class-n3-a', orgId: 'org-1', name: 'Lớp Luyện thi N3 K24', level: 'N3', createdAt: new Date().toISOString() },
-  { id: 'class-n2-b', orgId: 'org-1', name: 'Lớp Chiến lược N2 Cấp tốc', level: 'N2', createdAt: new Date().toISOString() },
-];
-
-const SAMPLE_MEMBERS: ClassMember[] = [
-  { userId: 'u-1', name: 'Nguyễn Văn An', email: 'an.nguyen@example.com', status: 'active' },
-  { userId: 'u-2', name: 'Trần Thị Bình', email: 'binh.tran@example.com', status: 'active' },
-  { userId: 'u-3', name: 'Lê Hoàng Cúc', email: 'cuc.le@example.com', status: 'active' },
-  { userId: 'u-4', name: 'Phạm Đức Dũng', email: 'dung.pham@example.com', status: 'active' },
-];
-
-const SAMPLE_ASSIGNMENTS: ClassAssignment[] = [
+const DEFAULT_ORGS: Organization[] = [
   {
-    id: 'asgn-1',
-    classId: 'class-n3-a',
-    title: 'Đề thi thử N3 tuần 1 (Đọc hiểu & Ngữ pháp)',
-    examId: 'exam-n3-2023-07',
-    opensAtUTC: new Date(Date.now() - 3600 * 1000 * 48).toISOString(),
-    dueAtUTC: new Date(Date.now() + 3600 * 1000 * 72).toISOString(),
-    createdAt: new Date().toISOString(),
-    totalAssigned: 4,
-    submittedCount: 3,
+    id: '0192f000-org0-7000-8000-000000000001',
+    name: 'Trung tâm Nhật ngữ Sakura',
+    role: 'teacher',
   },
+];
+
+const DEFAULT_CLASSES: ClassRoom[] = [
   {
-    id: 'asgn-2',
-    classId: 'class-n3-a',
-    title: 'Bài tập ôn luyện điểm yếu Kanji & Từ vựng',
-    opensAtUTC: new Date().toISOString(),
-    dueAtUTC: new Date(Date.now() + 3600 * 1000 * 120).toISOString(),
+    id: '0192f000-cls0-7000-8000-000000000001',
+    orgId: '0192f000-org0-7000-8000-000000000001',
+    name: 'Lớp N3 Chiến Binh K26',
+    level: 'N3',
     createdAt: new Date().toISOString(),
-    totalAssigned: 4,
-    submittedCount: 1,
   },
 ];
 
 export default function ClassroomPage(): React.JSX.Element {
   const { t } = useI18n();
+  const { user } = useAuth();
 
-  const [organizations, setOrganizations] = useState<Organization[]>(SAMPLE_ORGS);
-  const [classes, setClasses] = useState<ClassRoom[]>(SAMPLE_CLASSES);
-  const [selectedClassId, setSelectedClassId] = useState<string>(SAMPLE_CLASSES[0]?.id ?? 'cls-1');
-  const [members, setMembers] = useState<ClassMember[]>(SAMPLE_MEMBERS);
-  const [assignments, setAssignments] = useState<ClassAssignment[]>(SAMPLE_ASSIGNMENTS);
+  const [organizations, setOrganizations] = useState<Organization[]>(DEFAULT_ORGS);
+  const [classes, setClasses] = useState<ClassRoom[]>(DEFAULT_CLASSES);
+  const [selectedClassId, setSelectedClassId] = useState<string>(DEFAULT_CLASSES[0]?.id || '');
+  const [members, setMembers] = useState<ClassMember[]>([]);
+  const [assignments, setAssignments] = useState<ClassAssignment[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isUnauthorized, setIsUnauthorized] = useState(false);
 
-  const loadData = async () => {
+  // Invitation token join state
+  const [inviteToken, setInviteToken] = useState('');
+  const [joining, setJoining] = useState(false);
+  const [joinMessage, setJoinMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '');
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    setIsUnauthorized(false);
     try {
       const orgsRes = await defaultClassroomClient.getOrganizations();
-      if (orgsRes.items?.length) setOrganizations(orgsRes.items);
+      const orgItems = orgsRes.items || [];
+      if (orgItems.length > 0) {
+        setOrganizations(orgItems);
+      }
 
-      if (orgsRes.items?.[0]) {
-        const clsRes = await defaultClassroomClient.getClasses(orgsRes.items[0].id);
-        if (clsRes.items?.length && clsRes.items[0]) {
-          setClasses(clsRes.items);
-          setSelectedClassId(clsRes.items[0].id);
-          const memRes = await defaultClassroomClient.getClassMembers(clsRes.items[0].id);
-          if (memRes.items?.length) {
-            setMembers(memRes.items);
+      if (orgItems.length > 0 && orgItems[0]) {
+        const clsRes = await defaultClassroomClient.getClasses(orgItems[0].id);
+        const classItems = clsRes.items || [];
+        if (classItems.length > 0) {
+          setClasses(classItems);
+          const currentClassId = selectedClassId || classItems[0]?.id || '';
+          setSelectedClassId(currentClassId);
+
+          const [memRes, asgnRes] = await Promise.allSettled([
+            defaultClassroomClient.getClassMembers(currentClassId),
+            fetch(`${baseUrl}/classes/${encodeURIComponent(currentClassId)}/assignments`, {
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+            }).then((r) => (r.ok ? r.json() : { items: [] })),
+          ]);
+
+          if (memRes.status === 'fulfilled') {
+            setMembers(memRes.value.items || []);
+          }
+          if (asgnRes.status === 'fulfilled') {
+            setAssignments(asgnRes.value.items || []);
           }
         }
       }
-    } catch {
-      // Fallback
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes('401') || msg.includes('403') || msg.includes('UNAUTHENTICATED') || msg.includes('Yêu cầu đăng nhập')) {
+        setIsUnauthorized(true);
+      } else {
+        setError(msg || t('common.status.error'));
+      }
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [selectedClassId, baseUrl, t]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
+
+  const handleSelectClass = async (classId: string) => {
+    setSelectedClassId(classId);
+    setLoading(true);
+    try {
+      const [memRes, asgnRes] = await Promise.allSettled([
+        defaultClassroomClient.getClassMembers(classId),
+        fetch(`${baseUrl}/classes/${encodeURIComponent(classId)}/assignments`, {
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+        }).then((r) => (r.ok ? r.json() : { items: [] })),
+      ]);
+
+      if (memRes.status === 'fulfilled') {
+        setMembers(memRes.value.items || []);
+      }
+      if (asgnRes.status === 'fulfilled') {
+        setAssignments(asgnRes.value.items || []);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || 'Không thể tải chi tiết lớp học.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleJoinByToken = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inviteToken.trim()) return;
+
+    setJoining(true);
+    setJoinMessage(null);
+    try {
+      const res = await fetch(`${baseUrl}/class-invitations/${encodeURIComponent(inviteToken.trim())}/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.message || `Lỗi gia nhập lớp học (${res.status})`);
+      }
+
+      setJoinMessage({
+        type: 'success',
+        text: 'Gia nhập lớp học thành công! Đang làm mới danh sách lớp...',
+      });
+      setInviteToken('');
+      await loadData();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setJoinMessage({
+        type: 'error',
+        text: msg || 'Không thể tham gia lớp học bằng mã mời này.',
+      });
+    } finally {
+      setJoining(false);
+    }
+  };
 
   const handleCreateAssignment = async (input: CreateAssignmentInput) => {
+    if (!selectedClassId) return;
+    setError(null);
     try {
       const created = await defaultClassroomClient.createAssignment(selectedClassId, input);
       setAssignments((prev) => [created, ...prev]);
-    } catch {
-      // Mock creation
-      const mockAsgn: ClassAssignment = {
-        id: `asgn-${Date.now()}`,
-        classId: selectedClassId,
-        title: input.title,
-        examId: input.examId,
-        opensAtUTC: input.opensAtUTC,
-        dueAtUTC: input.dueAtUTC,
-        createdAt: new Date().toISOString(),
-        totalAssigned: input.learnerIds?.length || members.length,
-        submittedCount: 0,
-      };
-      setAssignments((prev) => [mockAsgn, ...prev]);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || 'Không thể tạo bài tập mới.');
+      throw err;
     }
   };
 
@@ -114,68 +184,22 @@ export default function ClassroomPage(): React.JSX.Element {
     try {
       return await defaultClassroomClient.getAssignmentAnalytics(assignmentId);
     } catch {
-      // Mock analytics
       return {
         assignmentId,
         totalLearners: members.length,
-        submissionCount: 3,
-        submissionRate: 75,
-        averageScore: 124,
-        passRate: 67,
-        highestScore: 156,
-        lowestScore: 88,
-        submissions: [
-          {
-            attemptId: 'att-1',
-            learnerId: 'u-1',
-            learnerName: 'Nguyễn Văn An',
-            score: 156,
-            passed: true,
-            submittedAt: new Date().toISOString(),
-          },
-          {
-            attemptId: 'att-2',
-            learnerId: 'u-2',
-            learnerName: 'Trần Thị Bình',
-            score: 128,
-            passed: true,
-            submittedAt: new Date().toISOString(),
-          },
-          {
-            attemptId: 'att-3',
-            learnerId: 'u-3',
-            learnerName: 'Lê Hoàng Cúc',
-            score: 88,
-            passed: false,
-            submittedAt: new Date().toISOString(),
-          },
-        ],
+        submissionCount: 0,
+        submissionRate: 0,
+        averageScore: 0,
+        passRate: 0,
+        highestScore: 0,
+        lowestScore: 0,
+        submissions: [],
       };
     }
   };
 
   const handleExportGrades = async (classId: string, format: 'CSV' | 'XLSX' | 'JSON' | 'PDF'): Promise<GradeExportResponse> => {
-    try {
-      return await defaultClassroomClient.exportClassGrades(classId, format);
-    } catch {
-      // Mock export response
-      return {
-        className: classes.find((c) => c.id === classId)?.name || 'Lớp N3 K24',
-        level: 'N3',
-        exportedAt: new Date().toISOString(),
-        format,
-        rowCount: members.length,
-        items: members.map((m, idx) => ({
-          userId: m.userId,
-          name: m.name || '',
-          email: m.email,
-          status: m.status,
-          totalAssignments: assignments.length,
-          submittedAssignments: idx === 0 ? 2 : 1,
-          averageScore: idx === 0 ? 142 : 110,
-        })),
-      };
-    }
+    return defaultClassroomClient.exportClassGrades(classId, format);
   };
 
   const handleSupplementAssignment = async (assignmentId: string, learnerIds: string[]) => {
@@ -183,15 +207,15 @@ export default function ClassroomPage(): React.JSX.Element {
       await defaultClassroomClient.createSupplementAssignment({
         assignmentId,
         learnerIds,
-        title: `Bài bổ trợ phục hồi kiến thức cho học viên chưa đạt`,
       });
-    } catch {
-      // Mock success
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || 'Không thể giao bài tập bổ sung.');
     }
   };
 
   return (
-    <div className="container" style={{ padding: '3rem 1rem', maxWidth: '1000px', margin: '0 auto' }}>
+    <div className="max-w-6xl mx-auto py-8 px-4 w-full">
       <div style={{ marginBottom: '2rem' }}>
         <h1
           style={{
@@ -208,19 +232,92 @@ export default function ClassroomPage(): React.JSX.Element {
         </p>
       </div>
 
-      <ClassroomDashboard
-        organizations={organizations}
-        classes={classes}
-        selectedClassId={selectedClassId}
-        onSelectClass={setSelectedClassId}
-        members={members}
-        assignments={assignments}
-        isTeacher={true}
-        onCreateAssignment={handleCreateAssignment}
-        onLoadAssignmentAnalytics={handleLoadAnalytics}
-        onExportGrades={handleExportGrades}
-        onSupplementAssignment={handleSupplementAssignment}
-      />
+      {(!user || isUnauthorized) && (
+        <Alert variant="warning" style={{ marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <span>Bạn cần đăng nhập tài khoản học viên hoặc giáo viên để truy cập lớp học.</span>
+            <Link href="/dang-nhap?redirect=/lop-hoc">
+              <Button size="sm" variant="primary">Đăng nhập ngay</Button>
+            </Link>
+          </div>
+        </Alert>
+      )}
+
+      {error && !isUnauthorized && (
+        <Alert variant="error" onClose={() => setError(null)} style={{ marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <span>{error}</span>
+            <Button size="sm" variant="outline" onClick={loadData}>
+              {t('common.buttons.retry')}
+            </Button>
+          </div>
+        </Alert>
+      )}
+
+      {/* Invitation Token Card for Learner */}
+      <Card style={{ marginBottom: '2rem' }}>
+        <CardContent style={{ padding: '1.25rem' }}>
+          <form onSubmit={handleJoinByToken} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>
+              🔑 Gia nhập lớp học bằng mã mời:
+            </span>
+            <div style={{ flex: 1, minWidth: '220px' }}>
+              <Input
+                placeholder="Nhập mã mời (Invite Token) từ giáo viên..."
+                value={inviteToken}
+                onChange={(e) => setInviteToken(e.target.value)}
+                disabled={joining}
+              />
+            </div>
+            <Button type="submit" variant="primary" loading={joining} disabled={!inviteToken.trim() || joining}>
+              Tham gia lớp
+            </Button>
+          </form>
+          {joinMessage && (
+            <div style={{ marginTop: '0.75rem' }}>
+              <Alert variant={joinMessage.type === 'success' ? 'success' : 'error'}>
+                {joinMessage.text}
+              </Alert>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {loading && (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem 0', alignItems: 'center', gap: '0.75rem' }}>
+          <Spinner size="md" />
+          <span style={{ color: 'var(--text-secondary)' }}>{t('common.status.loading')}</span>
+        </div>
+      )}
+
+      {!loading && classes.length === 0 && (
+        <Card>
+          <CardContent style={{ padding: '3.5rem 2rem', textAlign: 'center' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏫</div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>
+              Bạn chưa tham gia lớp học nào
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', maxWidth: '500px', margin: '0 auto 1.5rem auto' }}>
+              Nhập mã mời từ giáo viên ở khung phía trên để tham gia lớp học và nhận bài tập định kỳ từ trung tâm.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {classes.length > 0 && (
+        <ClassroomDashboard
+          organizations={organizations}
+          classes={classes}
+          selectedClassId={selectedClassId}
+          members={members}
+          assignments={assignments}
+          onSelectClass={handleSelectClass}
+          onCreateAssignment={handleCreateAssignment}
+          onLoadAssignmentAnalytics={handleLoadAnalytics}
+          onExportGrades={handleExportGrades}
+          onSupplementAssignment={handleSupplementAssignment}
+        />
+      )}
     </div>
   );
 }
