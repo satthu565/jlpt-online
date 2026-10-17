@@ -33,6 +33,7 @@ Worker sửa và commit trong clone riêng; coordinator push/PR/merge bằng cre
 - Sáu coding worker độc lập với service app `worker`, `media-worker` và `API_WORKERS`; không tạo `apps/ocr-worker`.
 - Các phần SRS, mix, scoring là hàm thuần; AI không quyết định điểm thi.
 - Toàn bộ UI vi/ja/en có key, không nút giả, trợ năng cơ bản và trạng thái loading/error/empty đúng.
+- Giao diện chỉ được nộp khi trang đọc và ghi dữ liệu qua API thật. Cấm mảng dữ liệu viết cứng, `ALL_SAMPLE_*`, đăng nhập giả, `page.route` hay mock fetch trong code chạy thật và trong E2E nghiệm thu. Dữ liệu mẫu chỉ được nằm trong file test hoặc seed của API. `pnpm check:no-mock-ui` phải pass. Reviewer trả CHANGES (P1) khi thấy trang trong phạm vi task còn dữ liệu giả, kể cả khi test đơn vị đều đạt.
 
 ## Những việc cần chủ dự án
 

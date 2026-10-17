@@ -46,7 +46,7 @@ def main():
     primary=Counter()
     for t in tasks:
         require(t['owner'] in workers,f"Unknown worker in {t['id']}")
-        require(1<=t['day']<=7 and t['estimatedWorkerHours']>0,f"Invalid time in {t['id']}")
+        require(1<=t['day']<=8 and t['estimatedWorkerHours']>0,f"Invalid time in {t['id']}")
         require(t['notBeforeHour']==(t['day']-1)*24 and t['targetByHour']==t['day']*24,f"Day/hour mismatch {t['id']}")
         require(bool(t['scope'] and t['outputs'] and t['checks'] and t['acceptance']),f"Missing task detail {t['id']}")
         require(t['status']=='TODO' and t['evidence']==[],f"Unverified completion in baseline {t['id']}")

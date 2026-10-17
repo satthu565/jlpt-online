@@ -376,6 +376,67 @@ next(t for t in TASKS if t['id']=='F05')['dependencies'].append('F03')
 next(t for t in TASKS if t['id']=='N03')['dependencies'].append('F03')
 next(t for t in TASKS if t['id']=='F04')['acceptance'].append('F03 là dependency nghiệm thu tích hợp, không chặn thiết kế/mock ban đầu')
 
+# Day 8 (added 2026-10-17 after V1 review): the UI was built against mocks and never wired to the
+# real API. These tasks wire every page to the API and add the checks that were missing, so
+# "mock only while developing" is enforced instead of trusted.
+NO_MOCK = ('Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; '
+           'route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass')
+REAL_E2E = ('E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; '
+            'cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt')
+STATES = 'Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền'
+task('I00','W6',8,4,'Hạ tầng kiểm thử tích hợp giao diện với API thật','R06',
+ 'Staging CI chạy web và admin build với NEXT_PUBLIC_API_URL=/api/v1 sau reverse proxy cùng origin (giống bản demo trên jlpt-vm), thêm Mailpit; '
+ 'bộ Playwright E2E tích hợp dùng chung; lệnh pnpm check:no-mock-ui quét apps/web và apps/admin tìm dữ liệu viết cứng/mock và so với baseline. '
+ 'Baseline ban đầu liệt kê đúng các route đang vi phạm; CI fail khi xuất hiện vi phạm mới ngoài baseline.',
+ 'infra/|.github/|tests/|package.json|docs/runbooks/',
+ 'Staging CI dựng web, admin, API, Postgres, Redis, Mailpit; web và admin gọi API qua /api/v1 cùng origin|'
+ 'pnpm test:e2e:integration chạy Playwright thật trên staging CI; có fixture đăng ký qua Mailpit và tài khoản staff seed có mật khẩu và TOTP|'
+ 'pnpm check:no-mock-ui phát hiện được mảng mẫu, ALL_SAMPLE, đăng nhập giả; baseline tests/integration/mock-ui-baseline.json liệt kê từng route vi phạm hiện có|'
+ 'Runbook docs/runbooks/demo-environment.md mô tả dựng bản demo đầy đủ bằng compose',
+ 'pnpm check:no-mock-ui|pnpm test:e2e:integration -- --list',resources='ci-workflow staging-deploy')
+task('I01','W2',8,5,'API bổ sung cho giao diện quản trị và luồng thi thật','R06',
+ 'Đối chiếu từng trang apps/admin và apps/web với API_V1_V4.md; bổ sung endpoint còn thiếu trong module W2 (admin, auth, user, exam, attempt, question-bank, import, review, media, notification, community, classroom). '
+ 'Sửa các lỗi tích hợp đã thấy trên bản demo: đăng ký trả 500 khi SMTP lỗi (phải gửi qua outbox, đăng ký vẫn thành công); link xác minh email phải trỏ tới trang web có thật; '
+ 'snapshotUrl của lượt thi phải tải được trên staging và bản demo khi chưa có CDN (phục vụ qua API cùng origin, kiểm token).',
+ '@roots',
+ 'Đăng ký vẫn trả 201 khi SMTP không kết nối được; email gửi lại qua outbox và có test|'
+ 'Link trong email xác minh và đặt lại mật khẩu mở đúng trang web và hoàn tất được|'
+ 'Lượt thi trên staging tải được snapshot, audio Range 206 và nộp bài, không phụ thuộc domain media.jlpt.local|'
+ 'Danh sách endpoint admin cần cho từng trang (users, audit, exams, questions, imports, reviews, blueprints, media, vocab, moderation, notifications, org) có trong API, có phân quyền và test',
+ 'pnpm test:api:all|pnpm test:security',contracts='API',resources='api-hardening')
+task('I02','W4',8,4,'Đăng nhập nhân sự thật và khung quản trị nối API','I00 I01',
+ 'Bỏ đăng nhập giả trong apps/admin/lib/auth-context.tsx: đăng nhập email mật khẩu, TOTP enrollment/challenge và recovery codes qua API; session, đăng xuất, guard theo role từ server. '
+ 'Trang tổng quan, người dùng, audit log, cài đặt (org, thông báo, backup) lấy dữ liệu từ API.',
+ 'apps/admin/',
+ 'Sai mật khẩu hoặc sai TOTP bị từ chối bởi API, không chỉ ở UI|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES,
+ 'pnpm test:admin|pnpm check:no-mock-ui',contracts='API')
+task('I03','W4',8,6,'Quản trị nội dung nối API: nhập gói, câu hỏi, đề, duyệt, media','I02',
+ 'Các trang imports, questions, exams (kể cả đề trộn), blueprints, reviews (duyệt 4 mắt, giải thích), media, vocab, cms, moderation AI, reports/content gọi API thật; '
+ 'luồng nhập gói demo-data -> duyệt -> xuất bản làm được hoàn toàn qua giao diện quản trị.',
+ 'apps/admin/',
+ 'Editor nhập gói docs/multi-worker/demo-data qua giao diện, reviewer khác duyệt, xuất bản; đề hiện ở trang thư viện đề của web|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES,
+ 'pnpm test:admin|pnpm check:no-mock-ui',contracts='API')
+task('I04','W4',8,4,'Quản trị thương mại, báo cáo, thử nghiệm nối API','I02',
+ 'Các trang commercial (payments, plans, refunds, reconciliation), reports (tổng quan, doanh thu), experiments gọi API thật; sửa endpoint trong module payment, entitlement, reporting, cms, experiment nếu thiếu.',
+ 'apps/admin/|apps/api/src/modules/payment/|apps/api/src/modules/entitlement/|apps/api/src/modules/reporting/|apps/api/src/modules/cms/|apps/api/src/modules/experiment/',
+ 'Gói, giao dịch sandbox, hoàn tiền và đối soát hiển thị dữ liệu thật từ API|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES,
+ 'pnpm test:admin|pnpm test:payments|pnpm check:no-mock-ui',contracts='API')
+task('I05','W3',8,6,'Web: thư viện đề, phòng thi, kết quả, lịch sử nối API thật','I00 I01',
+ 'Thư viện đề (de-thi, trang SEO theo cấp) và phòng thi lấy đề đã xuất bản từ API, bỏ ALL_SAMPLE_EXAMS; bắt đầu lượt, tải snapshot, lưu tự động, chuyển phần, nộp, xem kết quả, lịch sử, chia sẻ kết quả qua API; khách làm thử đề guest_trial.',
+ 'apps/web/|packages/ui/',
+ 'Học viên đăng ký qua Mailpit, xác minh, làm trọn đề demo N5 đã xuất bản và xem điểm trên staging CI|Khách làm thử được đề guest_trial, đề khác yêu cầu đăng nhập|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES,
+ 'pnpm test:web|pnpm check:no-mock-ui',contracts='API')
+task('I06','W3',8,6,'Web: học tập, kế hoạch, lớp học, cộng đồng, gói thành viên nối API','I00',
+ 'Các trang so-tay, ke-hoach, luyen-tap, thong-ke, tu-vung/ngu-phap/thong-ke-tu-vung, lop-hoc, su-kien, thao-luan, goi-thanh-vien, tai-khoan, faq gọi API thật (module W5 learning/planner/stats/vocab/gamification/ai, W2 community/classroom, W4 entitlement).',
+ 'apps/web/|packages/ui/',
+ 'Mỗi trang trong phạm vi hiển thị dữ liệu của chính học viên đăng nhập, ghi được thay đổi và tải lại vẫn còn|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES,
+ 'pnpm test:web|pnpm check:no-mock-ui',contracts='API')
+task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I02 I03 I04 I05 I06',
+ 'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.',
+ 'tests/|.github/|infra/|docs/release/|docs/runbooks/',
+ 'tests/integration/mock-ui-baseline.json rỗng; CI fail nếu có dữ liệu giả mới|E2E: học viên đăng ký -> làm đề -> xem điểm; editor nhập -> reviewer duyệt -> xuất bản; admin xem người dùng và audit; tất cả trên staging thật|docs/release/INTEGRATION_REPORT.md liệt kê từng trang và bằng chứng E2E',
+ 'pnpm check:no-mock-ui|pnpm test:e2e:integration',resources='ci-workflow staging-deploy',kind='verification')
+
 # Map every feature exactly once to a primary delivery task; other tasks may integrate it.
 feature_task = {}
 for t in TASKS:
@@ -436,7 +497,7 @@ cards=['# Kế hoạch triển khai toàn bộ V1 V2 V3 V4 bằng sáu worker','
  '', '## Điều phối','',
  'Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task đủ dependencies mới được cấp; coordinator ưu tiên task mở khóa đường dài nhất rồi tới deadline. Bộ tài liệu dùng reviewer chéo trong sáu worker, không giả định có worker thứ7. Build/E2E/review dùng semaphore toàn cục. Task blocked không được tự coi là DONE.',
  '', 'Điều kiện ngoài có hai loại. **Chặn bắt đầu**: coordinator chưa giao task khi thiếu. **Chặn nghiệm thu**: task vẫn được giao, code và test bằng sandbox/fixtures; chỉ PROVIDER_VERIFIED hoặc nghiệm thu của tính năng liên quan giữ BLOCKED_EXTERNAL tới khi chủ dự án cung cấp. Bằng chứng (lệnh, exit code, report) lưu ở kho evidence của coordinator/CI, không commit vào repo sản phẩm.']
-for day in range(1,8):
+for day in range(1, max(t["day"] for t in TASKS)+1):
     cards += ['',f'## Ngày {day}','']
     for t in [x for x in TASKS if x['day']==day]:
         cards += ['',f"<a id=\"{t['id'].lower()}\"></a>",'',f"### {t['id']} {t['title']}",'',
