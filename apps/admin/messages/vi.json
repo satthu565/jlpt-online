@@ -32,6 +32,8 @@
     "aiModeration": "Kiểm duyệt AI",
     "orgSettings": "Tổ chức & Giáo viên",
     "settings": "Cài đặt hệ thống",
+    "reconciliation": "Đối soát giao dịch",
+    "backup": "Sao lưu & Phục hồi",
     "sections": {
       "overview": "Tổng quan",
       "authoring": "Nội dung & Biên tập",

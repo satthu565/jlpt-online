@@ -16,10 +16,12 @@ export default defineConfig({
       '@jlpt/api-client': path.resolve(rootDir, 'packages/api-client/src/index.ts'),
       '@jlpt/config': path.resolve(rootDir, 'packages/config/src/index.ts'),
       '@jlpt/ui': path.resolve(rootDir, 'packages/ui/src/index.tsx'),
+      'drizzle-orm': path.resolve(rootDir, 'apps/api/node_modules/drizzle-orm'),
     },
   },
   test: {
     environment: 'node',
     fsModuleCache: false,
+    fileParallelism: false,
   },
 });

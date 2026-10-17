@@ -74,13 +74,18 @@ async function start() {
   const require = createRequire(path.join(REPO_ROOT, 'apps/api/package.json'));
   require('reflect-metadata');
   const { NestFactory } = require('@nestjs/core');
+  const { Module } = require('@nestjs/common');
   const { FastifyAdapter } = require('@nestjs/platform-fastify');
   const { AppModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/app.module.js'));
+  const { PaymentModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/payment/payment.module.js'));
+  const { EntitlementModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/entitlement/entitlement.module.js'));
+  const { LearningModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/learning/learning.module.js'));
   const { PlannerModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/planner/planner.module.js'));
   const { AiModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/ai/ai.module.js'));
   const { AiService } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/ai/ai.service.js'));
   const { DB_CLIENT: DB_TOKEN } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/common/database/database.module.js'));
   const { OutboxService } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/outbox/outbox.service.js'));
+  const { VocabModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/vocab/vocab.module.js'));
 
   // AiService has an unannotated optional 3rd parameter customProvider?: AiProvider that causes NestJS dependency resolution to fail.
   // We explicitly override the AiModule provider using a factory with only dbClient and outboxService.
@@ -102,14 +107,21 @@ async function start() {
   Reflect.defineMetadata('path', '', VocabController);
   Reflect.defineMetadata('path', '', GamificationController);
 
-  // Ensure PlannerModule and AiModule are registered in AppModule imports metadata
-  const currentImports = Reflect.getMetadata('imports', AppModule) || [];
-  if (!currentImports.includes(PlannerModule)) {
-    Reflect.defineMetadata('imports', [...currentImports, PlannerModule, AiModule], AppModule);
-  }
+  class StagingAppModule {}
+  Module({
+    imports: [
+      AppModule,
+      PaymentModule,
+      EntitlementModule,
+      LearningModule,
+      PlannerModule,
+      AiModule,
+      VocabModule,
+    ],
+  })(StagingAppModule);
 
   const adapter = new FastifyAdapter({ bodyLimit: 50 * 1024 * 1024 });
-  const app = await NestFactory.create(AppModule, adapter, {
+  const app = await NestFactory.create(StagingAppModule, adapter, {
     logger: ['error', 'warn'],
   });
   app.setGlobalPrefix('api/v1');
@@ -123,6 +135,13 @@ async function start() {
     }
     done();
   });
+
+  // Initialize seed plans for payment
+  const { PaymentService } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/payment/payment.service.js'));
+  const paymentService = app.get(PaymentService);
+  if (paymentService?.ensureInitialPlans) {
+    await paymentService.ensureInitialPlans();
+  }
 
   // 5. Enhance AuthService.getSession with user tenantId resolved from org_memberships table
   const { AuthService } = await import(

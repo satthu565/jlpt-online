@@ -303,7 +303,8 @@ export function AuditLogTimeline({ logs }: AuditLogTimelineProps): React.JSX.Ele
               <span>{new Date(log.timestamp).toLocaleString('vi-VN')}</span>
             </div>
             <div className="text-gray-700">
-              Người thực hiện: <strong className="text-blue-700">{log.operatorEmail || log.operatorId}</strong> • Tài nguyên:{' '}
+              Người thực hiện (Actor): <strong data-testid={`audit-actor-${log.id}`} className="text-blue-700">{log.operatorEmail || log.operatorId}</strong> • Đơn vị (Tenant):{' '}
+              <span data-testid={`audit-tenant-${log.id}`} className="font-semibold text-emerald-700">{log.tenantId || 'global'}</span> • Tài nguyên:{' '}
               <code>{log.targetResource}/{log.targetId}</code>
             </div>
             {log.details && Object.keys(log.details).length > 0 && (

@@ -89,6 +89,9 @@ export interface VocabOccurrenceItem {
   byRole: Record<SentenceRole, number>;
   bySession: Record<string, number>;
   bySource: Record<string, number>;
+  observedCount: number;
+  syntheticCount: number;
+  byProvenance: Record<string, number>;
 }
 
 export interface CorpusMetadata {
@@ -105,6 +108,14 @@ export interface CorpusMetadata {
   levels: Record<JlptLevel, number>;
   skills: Record<QuestionSkill, number>;
   licenseAttribution: string;
+  observedTokens?: number;
+  syntheticTokens?: number;
+  observedDocuments?: number;
+  syntheticDocuments?: number;
+  breakdown?: {
+    observed: number;
+    synthetic: number;
+  };
 }
 
 export interface CorpusFilter {
@@ -117,6 +128,8 @@ export interface CorpusFilter {
   search?: string;
   limit?: number;
   offset?: number;
+  dataType?: 'observed' | 'synthetic' | 'all';
+  provenance?: string;
 }
 
 export interface CorpusRankingItem {
@@ -129,6 +142,9 @@ export interface CorpusRankingItem {
   targetFrequency: number;
   incidentalFrequency: number;
   distinctExamsCount: number;
+  observedFrequency?: number;
+  syntheticFrequency?: number;
+  dataType?: 'observed' | 'synthetic' | 'mixed';
 }
 
 export interface QuestionTagItem {

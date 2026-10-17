@@ -39,4 +39,5 @@ export * from './blueprint-validator.js';
 export * from './issues.js';
 export * from './nlp/index.js';
 export * from './export/index.js';
+export * from './snapshot.js';
 

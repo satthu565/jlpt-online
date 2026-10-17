@@ -47,7 +47,10 @@ export class PayOSAdapter implements IPaymentProvider {
     const missing: string[] = [];
     if (!this.clientId) missing.push('PAYOS_CLIENT_ID');
     if (!this.apiKey) missing.push('PAYOS_API_KEY');
-    if (!process.env['PAYOS_CHECKSUM_KEY']) missing.push('PAYOS_CHECKSUM_KEY');
+    const hasChecksumKey =
+      Boolean(process.env['PAYOS_CHECKSUM_KEY']) ||
+      (Boolean(this.checksumKey) && this.checksumKey !== 'test-checksum-key-mock-unverified');
+    if (!hasChecksumKey) missing.push('PAYOS_CHECKSUM_KEY');
 
     return {
       configured: missing.length === 0,

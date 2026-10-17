@@ -265,5 +265,6 @@ describe('JLPT Exam Mixing Property Testing (1000 Cases)', () => {
     expect(successfulMixes + shortageCases).toBe(totalCases);
     expect(successfulMixes).toBeGreaterThan(700);
     expect(shortageCases).toBeGreaterThan(100);
-  });
+    // 1000 seeded cases take ~5 s on GitHub runners, right at vitest's 5 s default.
+  }, 60_000);
 });

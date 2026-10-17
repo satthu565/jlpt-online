@@ -14,7 +14,8 @@ export type ReportKind =
   | 'conversion'
   | 'provider-costs'
   | 'experiments'
-  | 'revenue';
+  | 'revenue'
+  | 'corpus';
 
 export interface ReportQueryDto {
   from?: string;
@@ -212,3 +213,22 @@ export interface DashboardOverviewDto {
     timestamp: string;
   }[];
 }
+
+export interface CorpusLevelAggregate {
+  level: string;
+  vocabCount: number;
+  grammarCount: number;
+  kanjiCount: number;
+}
+
+export interface CorpusReportDto {
+  totalDatasets: number;
+  totalDocuments: number;
+  totalVocabOccurrences: number;
+  totalGrammarOccurrences: number;
+  totalKanjiOccurrences: number;
+  levelAggregates: CorpusLevelAggregate[];
+  lastCalculatedAt: string | null;
+  corpusHealthStatus: 'healthy' | 'empty';
+}
+

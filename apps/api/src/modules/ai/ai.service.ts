@@ -24,6 +24,7 @@ import {
   usageReservations,
 } from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
+import { assertNoAnswerLeak } from '@jlpt/schema';
 import { OutboxService } from '../outbox/outbox.service.js';
 import type {
   AiProvider,
@@ -341,12 +342,37 @@ export class AiService {
       );
     }
 
-    // 6. Generated Content Labeling & Approval (Acceptance 4)
-    // Generated questions require two-person review before publication!
+    // 6. Generated Content Labeling & Approval (Acceptance 4 & V05 Acceptance 3)
+    // Generated questions require quality/safety moderation and two-person review before publication!
     const isGeneratedQuestion = dto.action === 'generate_question';
+    const contentVersionId = generateUuidV7();
+
+    if (isGeneratedQuestion && response.structured) {
+      const qMod = this.validateGeneratedQuestionModeration(response.structured);
+      if (!qMod.isValid) {
+        const reviewId = generateUuidV7();
+        await this.dbClient.db.insert(moderationReviews).values({
+          id: reviewId,
+          contentId: contentVersionId,
+          score: 0,
+          flagged: true,
+          reviewedAt: new Date(),
+        });
+        await this.dbClient.db.insert(aiContentVersions).values({
+          id: contentVersionId,
+          questionId: dto.questionId ?? null,
+          generatedType: dto.action,
+          content: response.structured,
+          aiGenerated: true,
+          approvalStatus: 'rejected',
+          createdAt: new Date(),
+        });
+        throw new BadRequestException(`Generated question failed moderation check: ${qMod.reason}`);
+      }
+    }
+
     const approvalStatus = isGeneratedQuestion ? 'pending' : 'approved';
 
-    const contentVersionId = generateUuidV7();
     await this.dbClient.db.insert(aiContentVersions).values({
       id: contentVersionId,
       questionId: dto.questionId ?? null,
@@ -359,6 +385,7 @@ export class AiService {
 
     return {
       requestId,
+      contentId: contentVersionId,
       status: 'completed',
       action: dto.action,
       aiGenerated: true,
@@ -472,6 +499,146 @@ export class AiService {
       contentId: reviewDto.contentId,
       approvalStatus: reviewDto.approvalStatus,
       reviewerId: reviewDto.reviewerId,
+    };
+  }
+
+  /**
+   * Validates quality and safety moderation rubrics for an AI-generated question (AI-14, V05 Acceptance 3).
+   */
+  validateGeneratedQuestionModeration(
+    structured: Record<string, unknown>,
+  ): { isValid: boolean; reason?: string } {
+    if (!structured || typeof structured !== 'object') {
+      return { isValid: false, reason: 'Generated question payload must be an object' };
+    }
+
+    const stem = structured['stem'];
+    if (typeof stem !== 'string' || stem.trim().length === 0) {
+      return { isValid: false, reason: 'Generated question stem is missing or empty' };
+    }
+
+    // Unicode NFC normalization check
+    if (stem !== stem.normalize('NFC')) {
+      return {
+        isValid: false,
+        reason: 'Generated question text must strictly adhere to Unicode NFC normalization',
+      };
+    }
+
+    // Check options
+    const options = structured['options'];
+    if (!Array.isArray(options) || options.length < 3 || options.length > 4) {
+      return { isValid: false, reason: 'Generated question must have between 3 and 4 options' };
+    }
+
+    for (let i = 0; i < options.length; i++) {
+      const opt = options[i];
+      const optStr = typeof opt === 'string' ? opt : opt?.text ? String(opt.text) : '';
+      if (optStr.trim().length === 0) {
+        return { isValid: false, reason: `Option ${i + 1} is empty` };
+      }
+    }
+
+    // Check correct option index
+    const correctIdx = structured['correctOptionIndex'];
+    if (typeof correctIdx !== 'number' || correctIdx < 0 || correctIdx >= options.length) {
+      return { isValid: false, reason: 'Generated question correctOptionIndex is out of range' };
+    }
+
+    // Toxic patterns check
+    const allText = `${stem} ${options.map((o: unknown) => String(o)).join(' ')}`;
+    const modCheck = this.checkModeration(allText);
+    if (modCheck.flagged) {
+      return { isValid: false, reason: modCheck.reason };
+    }
+
+    return { isValid: true };
+  }
+
+  /**
+   * Retrieves an approved generated question for practice without leaking the answer (V05 Acceptance 3).
+   */
+  async getApprovedGeneratedQuestionForPractice(contentId: string) {
+    const rows = await this.dbClient.db
+      .select()
+      .from(aiContentVersions)
+      .where(eq(aiContentVersions.id, contentId))
+      .limit(1);
+
+    if (rows.length === 0) {
+      throw new NotFoundException(`Generated question '${contentId}' not found.`);
+    }
+
+    const version = rows[0]!;
+    if (version.approvalStatus !== 'approved') {
+      throw new ForbiddenException(
+        `Generated question '${contentId}' is currently '${version.approvalStatus}' and has not been approved by moderation for practice.`,
+      );
+    }
+
+    const content = (version.content ?? {}) as Record<string, unknown>;
+    const rawOptions = (content['options'] ?? []) as Array<string | { text: string }>;
+    const options = rawOptions.map((opt, idx) => ({
+      index: idx,
+      text: typeof opt === 'string' ? opt : (opt?.text ?? String(opt)),
+    }));
+
+    const publicQuestion = {
+      contentId: version.id,
+      stem: String(content['stem'] ?? ''),
+      level: String(content['level'] ?? 'N3'),
+      skill: String(content['skill'] ?? 'grammar'),
+      mondaiType: String(content['mondaiType'] ?? 'grammar_form'),
+      options,
+      aiGenerated: true,
+    };
+
+    // Strictly ensure zero answer leak
+    assertNoAnswerLeak(publicQuestion);
+
+    return publicQuestion;
+  }
+
+  /**
+   * Submits an answer to an approved generated question, grades it, and provides explanation feedback (V05 Acceptance 3).
+   */
+  async submitGeneratedQuestionAnswer(
+    userId: string,
+    contentId: string,
+    selectedOptionIndex: number,
+  ) {
+    const rows = await this.dbClient.db
+      .select()
+      .from(aiContentVersions)
+      .where(eq(aiContentVersions.id, contentId))
+      .limit(1);
+
+    if (rows.length === 0) {
+      throw new NotFoundException(`Generated question '${contentId}' not found.`);
+    }
+
+    const version = rows[0]!;
+    if (version.approvalStatus !== 'approved') {
+      throw new ForbiddenException(
+        `Generated question '${contentId}' cannot be answered because it is not approved.`,
+      );
+    }
+
+    const content = (version.content ?? {}) as Record<string, unknown>;
+    const correctOptionIndex =
+      typeof content['correctOptionIndex'] === 'number' ? content['correctOptionIndex'] : 0;
+    const isCorrect = selectedOptionIndex === correctOptionIndex;
+    const explanation = typeof content['explanation'] === 'string' ? content['explanation'] : '';
+
+    return {
+      contentId: version.id,
+      userId,
+      selectedOptionIndex,
+      correctOptionIndex,
+      isCorrect,
+      explanation,
+      aiGenerated: true,
+      submittedAt: new Date().toISOString(),
     };
   }
 }

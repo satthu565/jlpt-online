@@ -61,3 +61,25 @@ export interface AdminRevenueReport {
     refundCount: number;
   }>;
 }
+
+export interface AdminDiscrepancyItem {
+  type: string;
+  orderId?: string;
+  providerRef?: string;
+  expectedAmountMinor?: number;
+  actualAmountMinor?: number;
+  currency?: string;
+  description: string;
+}
+
+export interface AdminReconciliationRun {
+  id: string;
+  provider: string;
+  periodStart: string;
+  periodEnd: string;
+  discrepanciesFound: number;
+  discrepancies?: AdminDiscrepancyItem[];
+  status: 'reconciled' | 'discrepancy_detected';
+  runAt: string;
+}
+

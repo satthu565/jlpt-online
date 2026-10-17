@@ -117,6 +117,9 @@ export function exportDatasetToCsv(
       'TargetFrequency',
       'IncidentalFrequency',
       'DistinctExamsCount',
+      'ObservedFrequency',
+      'SyntheticFrequency',
+      'DataType',
       'DatasetId',
       'DatasetName',
       'Version',
@@ -125,7 +128,10 @@ export function exportDatasetToCsv(
       'License',
     ];
 
-    const analysis = aggregator.getVocabularyAnalysis({ level: options.level });
+    const analysis = aggregator.getVocabularyAnalysis({
+      level: options.level,
+      dataType: options.dataType,
+    });
     for (const item of analysis.rankings) {
       rows.push([
         item.rank,
@@ -137,6 +143,9 @@ export function exportDatasetToCsv(
         item.targetFrequency,
         item.incidentalFrequency,
         item.distinctExamsCount,
+        item.observedFrequency ?? 0,
+        item.syntheticFrequency ?? 0,
+        item.dataType ?? 'observed',
         provenance.datasetId,
         provenance.name,
         provenance.version,
@@ -398,6 +407,9 @@ export function exportDatasetToXlsx(
       'TargetFrequency',
       'IncidentalFrequency',
       'DistinctExamsCount',
+      'ObservedFrequency',
+      'SyntheticFrequency',
+      'DataType',
       'DatasetId',
       'DatasetName',
       'Version',
@@ -406,7 +418,10 @@ export function exportDatasetToXlsx(
       'License',
     ];
 
-    const analysis = aggregator.getVocabularyAnalysis({ level: options.level });
+    const analysis = aggregator.getVocabularyAnalysis({
+      level: options.level,
+      dataType: options.dataType,
+    });
     for (const item of analysis.rankings) {
       rows.push([
         item.rank,
@@ -418,6 +433,9 @@ export function exportDatasetToXlsx(
         item.targetFrequency,
         item.incidentalFrequency,
         item.distinctExamsCount,
+        item.observedFrequency ?? 0,
+        item.syntheticFrequency ?? 0,
+        sanitizeXlsxValue(item.dataType ?? 'observed'),
         provenance.datasetId,
         provenance.name,
         provenance.version,
@@ -542,6 +560,11 @@ export function exportDatasetToXlsx(
     ['License', provenance.license],
     ['Attribution', provenance.attribution],
     ['Total Tokens', String(meta.totalTokens)],
+    ['Observed Tokens', String(meta.observedTokens ?? 0)],
+    ['Synthetic Tokens', String(meta.syntheticTokens ?? 0)],
+    ['Document Count', String(meta.documentCount)],
+    ['Observed Documents', String(meta.observedDocuments ?? 0)],
+    ['Synthetic Documents', String(meta.syntheticDocuments ?? 0)],
     ['Unique Vocabulary', String(meta.uniqueVocabCount)],
   ];
   provRows.forEach(([prop, val], rIdx) => {

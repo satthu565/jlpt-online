@@ -6,21 +6,75 @@ import {
   getAllDictionaryEntries,
 } from './vocab-dict.js';
 
+export class ExternalPrerequisiteError extends Error {
+  constructor(
+    public readonly externalId: string,
+    public readonly status: 'MISSING' | 'BLOCKED_EXTERNAL',
+    message: string,
+  ) {
+    super(message);
+    this.name = 'ExternalPrerequisiteError';
+  }
+}
+
 export interface DictionaryAdapterOptions {
   providerType?: 'sandbox' | 'external';
+  apiKey?: string;
   customAttribution?: string;
   customLicense?: string;
 }
 
 export class DictionaryAdapter {
   private providerType: 'sandbox' | 'external';
+  private apiKey?: string;
   private attribution: string;
   private license: string;
 
   constructor(options: DictionaryAdapterOptions = {}) {
     this.providerType = options.providerType ?? 'sandbox';
+    this.apiKey = options.apiKey ?? process.env.DICTIONARY_API_KEY;
     this.attribution = options.customAttribution ?? DICTIONARY_LICENSE_INFO.attribution;
     this.license = options.customLicense ?? DICTIONARY_LICENSE_INFO.license;
+  }
+
+  isAvailable(): boolean {
+    if (this.providerType === 'sandbox') return true;
+    return Boolean(this.apiKey && this.apiKey.trim().length > 0);
+  }
+
+  getProviderStatus(): {
+    configured: boolean;
+    isLive: boolean;
+    status: 'READY' | 'SANDBOX_FALLBACK' | 'BLOCKED_EXTERNAL';
+    externalId: string;
+    missingPrerequisites: string[];
+  } {
+    if (this.providerType === 'external') {
+      const available = this.isAvailable();
+      if (!available) {
+        return {
+          configured: false,
+          isLive: false,
+          status: 'BLOCKED_EXTERNAL',
+          externalId: 'dictionary',
+          missingPrerequisites: ['dictionary', 'DICTIONARY_API_KEY'],
+        };
+      }
+      return {
+        configured: true,
+        isLive: true,
+        status: 'READY',
+        externalId: 'dictionary',
+        missingPrerequisites: [],
+      };
+    }
+    return {
+      configured: true,
+      isLive: false,
+      status: 'SANDBOX_FALLBACK',
+      externalId: 'dictionary',
+      missingPrerequisites: [],
+    };
   }
 
   /**
@@ -28,6 +82,14 @@ export class DictionaryAdapter {
    */
   lookup(text: string, locale = 'vi'): DictionaryLookupResult | null {
     if (!text || text.trim().length === 0) return null;
+
+    if (this.providerType === 'external' && !this.isAvailable()) {
+      throw new ExternalPrerequisiteError(
+        'dictionary',
+        'BLOCKED_EXTERNAL',
+        'External dictionary provider credential (dictionary) is not configured in environment. Production requests are blocked pending external configuration.',
+      );
+    }
 
     const trimmed = text.trim();
     // 1. Direct lookup
@@ -68,12 +130,16 @@ export class DictionaryAdapter {
    * Returns license and attribution metadata.
    */
   getLicenseMetadata() {
+    let status: 'READY' | 'SANDBOX_FALLBACK' | 'BLOCKED_EXTERNAL' = 'SANDBOX_FALLBACK';
+    if (this.providerType === 'external') {
+      status = this.isAvailable() ? 'READY' : 'BLOCKED_EXTERNAL';
+    }
     return {
       license: this.license,
       attribution: this.attribution,
       provider: DICTIONARY_LICENSE_INFO.provider,
       rightsTerms: DICTIONARY_LICENSE_INFO.rightsTerms,
-      status: this.providerType === 'external' ? 'READY' : 'SANDBOX_FALLBACK',
+      status,
     };
   }
 
