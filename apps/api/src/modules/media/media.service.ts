@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { desc, eq, or } from 'drizzle-orm';
 import { signMediaToken, validateMediaAccess } from '@jlpt/media-token';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
@@ -11,6 +11,20 @@ import { StorageService } from '../storage/storage.service.js';
 import { MediaValidationError, validateMediaMagicBytes } from './magic-bytes.js';
 import { extractAudioDurationSec, extractImageDimensions } from './media-metadata.js';
 import { extractSafeZip } from './zip-security.js';
+
+function detectMimeFromKey(key: string): string {
+  const lower = key.toLowerCase();
+  if (lower.endsWith('.mp3')) return 'audio/mpeg';
+  if (lower.endsWith('.m4a')) return 'audio/mp4';
+  if (lower.endsWith('.wav')) return 'audio/wav';
+  if (lower.endsWith('.ogg')) return 'audio/ogg';
+  if (lower.endsWith('.webp')) return 'image/webp';
+  if (lower.endsWith('.png')) return 'image/png';
+  if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
+  if (lower.endsWith('.json')) return 'application/json';
+  if (lower.endsWith('.pdf')) return 'application/pdf';
+  return 'application/octet-stream';
+}
 
 export interface MediaAssetRecord {
   id: string;
@@ -125,18 +139,13 @@ export class MediaService {
     mime: string;
     range?: { start: number; end: number; total: number };
   }> {
-    const records = await this.dbClient.db
-      .select()
-      .from(mediaAssets)
-      .where(eq(mediaAssets.id, id))
-      .limit(1);
+    const metadata = await this.getMediaMetadata(id);
 
-    const metadata = records[0];
-    if (!metadata) {
-      throw new NotFoundException(`Media asset không tìm thấy: ${id}`);
+    let storageRes = await this.storageService.get(metadata.key, range);
+    if (!storageRes && metadata.key !== id) {
+      storageRes = await this.storageService.get(id, range);
     }
 
-    const storageRes = await this.storageService.get(metadata.key, range);
     if (!storageRes) {
       throw new NotFoundException(`Nội dung media không tồn tại trong lưu trữ: ${metadata.key}`);
     }
@@ -150,21 +159,72 @@ export class MediaService {
   }
 
   /**
-   * Retrieves media asset metadata only from database without fetching storage content.
+   * Retrieves media asset metadata from database with storage head fallback.
    */
   async getMediaMetadata(id: string): Promise<MediaAssetRecord> {
+    const cleanId = id.replace(/^\/+/, '');
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId);
+    const conditions = [
+      eq(mediaAssets.key, cleanId),
+      eq(mediaAssets.key, `media/${cleanId}`),
+      eq(mediaAssets.sha256, cleanId),
+    ];
+    if (isUuid) {
+      conditions.push(eq(mediaAssets.id, cleanId));
+    }
     const records = await this.dbClient.db
       .select()
       .from(mediaAssets)
-      .where(eq(mediaAssets.id, id))
+      .where(or(...conditions))
       .limit(1);
 
     const metadata = records[0];
-    if (!metadata) {
-      throw new NotFoundException(`Media asset không tìm thấy: ${id}`);
+    if (metadata) {
+      return metadata;
     }
 
-    return metadata;
+    // Storage fallback: check storage if media file was uploaded/seeded directly
+    let head = await this.storageService.head(cleanId);
+    let effectiveKey = cleanId;
+    if ((!head || !head.exists) && !cleanId.startsWith('media/')) {
+      const mediaHead = await this.storageService.head(`media/${cleanId}`);
+      if (mediaHead && mediaHead.exists) {
+        head = mediaHead;
+        effectiveKey = `media/${cleanId}`;
+      }
+    }
+
+    if (head && head.exists) {
+      const mime =
+        head.mimeType && head.mimeType !== 'application/octet-stream'
+          ? head.mimeType
+          : detectMimeFromKey(cleanId);
+      return {
+        id: cleanId,
+        sha256: head.sha256 || '',
+        key: effectiveKey,
+        mime,
+        size: head.size ?? 0,
+        durationSec: null,
+        rights: null,
+        createdAt: head.lastModified || new Date(),
+      };
+    }
+
+    throw new NotFoundException(`Media asset không tìm thấy: ${id}`);
+  }
+
+  /**
+   * Lists media assets for admin media library (ADM-10).
+   */
+  async listMediaAssets(): Promise<{ items: MediaAssetRecord[] }> {
+    const rows = await this.dbClient.db
+      .select()
+      .from(mediaAssets)
+      .orderBy(desc(mediaAssets.createdAt))
+      .limit(200);
+
+    return { items: rows };
   }
 
   /**

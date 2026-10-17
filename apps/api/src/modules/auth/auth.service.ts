@@ -161,11 +161,29 @@ export class AuthService {
 
     // Dispatch verification email (NOTI-01)
     const publicUrl = process.env.PUBLIC_HOST
-      ? `http://${process.env.PUBLIC_HOST}`
+      ? (process.env.PUBLIC_HOST.startsWith('http') ? process.env.PUBLIC_HOST : `http://${process.env.PUBLIC_HOST}`)
       : 'http://localhost:3000';
-    const verificationUrl = `${publicUrl}/auth/verify-email?token=${verificationToken}`;
+    const verificationUrl = `${publicUrl}/xac-minh-email?token=${verificationToken}`;
 
-    await this.emailService.sendVerificationEmail(email, verificationUrl, name);
+    try {
+      await this.emailService.sendVerificationEmail(email, verificationUrl, name);
+    } catch (err: unknown) {
+      this.logger.warn(
+        `Không thể gửi email xác minh trực tiếp qua SMTP: ${(err as Error)?.message || String(err)}. Đã đưa vào outbox để gửi lại.`,
+      );
+      await this.client.db.insert(schema.outbox).values({
+        id: generateUuidV7(),
+        topic: 'notification.email',
+        payload: {
+          type: 'verification',
+          to: email,
+          verificationUrl,
+          name,
+        },
+        createdAt: new Date(),
+        publishedAt: null,
+      });
+    }
 
     return {
       user: {
@@ -363,11 +381,29 @@ export class AuthService {
       });
 
       const publicUrl = process.env.PUBLIC_HOST
-        ? `http://${process.env.PUBLIC_HOST}`
+        ? (process.env.PUBLIC_HOST.startsWith('http') ? process.env.PUBLIC_HOST : `http://${process.env.PUBLIC_HOST}`)
         : 'http://localhost:3000';
-      const resetUrl = `${publicUrl}/auth/reset-password?token=${resetToken}`;
+      const resetUrl = `${publicUrl}/dat-lai-mat-khau?token=${resetToken}`;
 
-      await this.emailService.sendPasswordResetEmail(email, resetUrl, user.name || undefined);
+      try {
+        await this.emailService.sendPasswordResetEmail(email, resetUrl, user.name || undefined);
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Không thể gửi email đặt lại mật khẩu qua SMTP: ${(err as Error)?.message || String(err)}. Đã đưa vào outbox để gửi lại.`,
+        );
+        await this.client.db.insert(schema.outbox).values({
+          id: generateUuidV7(),
+          topic: 'notification.email',
+          payload: {
+            type: 'password_reset',
+            to: email,
+            resetUrl,
+            name: user.name || undefined,
+          },
+          createdAt: new Date(),
+          publishedAt: null,
+        });
+      }
     }
 
     // Always return success to prevent user enumeration
