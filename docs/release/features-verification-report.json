@@ -1,0 +1,131 @@
+{
+  "verifiedAt": "2026-10-17T00:33:58.888Z",
+  "headSha": "fbb02f146494391d703a066c741c04ce35789ee3",
+  "baseSha": "b35114e49377cf0a478d17694132b78dbe48941c",
+  "totalCatalogFeatures": 375,
+  "applicationFeaturesCount": 363,
+  "externalPreparationCount": 12,
+  "coveredApplicationFeatures": 363,
+  "missingApplicationFeatures": [],
+  "externalFeaturesChecked": 12,
+  "placeholderStubsFound": 0,
+  "stubsDetails": [],
+  "passed": true,
+  "groupBreakdown": {
+    "ACC": {
+      "total": 14,
+      "covered": 14,
+      "status": "PASS"
+    },
+    "LIB": {
+      "total": 15,
+      "covered": 15,
+      "status": "PASS"
+    },
+    "EXAM": {
+      "total": 26,
+      "covered": 26,
+      "status": "PASS"
+    },
+    "AUDIO": {
+      "total": 10,
+      "covered": 10,
+      "status": "PASS"
+    },
+    "PRA": {
+      "total": 17,
+      "covered": 17,
+      "status": "PASS"
+    },
+    "MIX": {
+      "total": 19,
+      "covered": 19,
+      "status": "PASS"
+    },
+    "SCORE": {
+      "total": 15,
+      "covered": 15,
+      "status": "PASS"
+    },
+    "EXPL": {
+      "total": 13,
+      "covered": 13,
+      "status": "PASS"
+    },
+    "STAT": {
+      "total": 14,
+      "covered": 14,
+      "status": "PASS"
+    },
+    "VOC": {
+      "total": 18,
+      "covered": 18,
+      "status": "PASS"
+    },
+    "DATA": {
+      "total": 26,
+      "covered": 26,
+      "status": "PASS"
+    },
+    "PLAN": {
+      "total": 12,
+      "covered": 12,
+      "status": "PASS"
+    },
+    "AI": {
+      "total": 14,
+      "covered": 14,
+      "status": "PASS"
+    },
+    "PDF": {
+      "total": 18,
+      "covered": 18,
+      "status": "PASS"
+    },
+    "QB": {
+      "total": 20,
+      "covered": 20,
+      "status": "PASS"
+    },
+    "ADM": {
+      "total": 20,
+      "covered": 20,
+      "status": "PASS"
+    },
+    "TEA": {
+      "total": 13,
+      "covered": 13,
+      "status": "PASS"
+    },
+    "GAME": {
+      "total": 10,
+      "covered": 10,
+      "status": "PASS"
+    },
+    "PAY": {
+      "total": 12,
+      "covered": 12,
+      "status": "PASS"
+    },
+    "NOTI": {
+      "total": 10,
+      "covered": 10,
+      "status": "PASS"
+    },
+    "SEO": {
+      "total": 12,
+      "covered": 12,
+      "status": "PASS"
+    },
+    "SYS": {
+      "total": 20,
+      "covered": 20,
+      "status": "PASS"
+    },
+    "REPORT": {
+      "total": 15,
+      "covered": 15,
+      "status": "PASS"
+    }
+  }
+}

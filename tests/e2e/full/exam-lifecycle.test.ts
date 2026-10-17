@@ -12,7 +12,9 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { assertNoAnswerLeak } from '@jlpt/schema';
+import { assertNoAnswerLeak, type BlueprintScoring, type ExamAnswerKey, type RichBlock, type RichText } from '@jlpt/schema';
+import { calculateStandardExamResult } from '@jlpt/exam-engine';
+import { extractSegmentsFromRichText, extractSegmentsFromRichBlocks } from '@jlpt/content-tools';
 import { getApiBaseUrl, stopApiServer, AUTH_TOKENS } from '../../fixtures/test-server.ts';
 
 describe('Full Exam Lifecycle E2E Suite (LIB-01..15, EXAM-01..26, AUDIO-01..10, SCORE-01..15, EXPL-01..13, SYS-20)', () => {
@@ -123,23 +125,41 @@ describe('Full Exam Lifecycle E2E Suite (LIB-01..15, EXAM-01..26, AUDIO-01..10, 
         const data = (await res.json()) as { error?: { details?: { attemptId?: string } } };
         attemptId = data.error?.details?.attemptId || '';
       }
-      expect(attemptId).toBeDefined();
+
+      if (!attemptId) {
+        const myAttemptsRes = await fetch(`${baseUrl}/api/v1/me/attempts`, {
+          headers: { Authorization: `Bearer ${AUTH_TOKENS.student}` },
+        });
+        const myAttempts = (await myAttemptsRes.json()) as { items?: Array<{ id: string; status: string }> };
+        const openAttempt = myAttempts.items?.find((a) => a.status === 'in_progress');
+        if (openAttempt) {
+          attemptId = openAttempt.id;
+        }
+      }
+
+      expect(attemptId).toBeTruthy();
+      expect(typeof attemptId).toBe('string');
     });
 
     it('[SYS-20] recovers attempt session during incident or disconnection', async () => {
       // SYS-20: Quy trình xử lý lỗi hoặc sự cố nội dung/audio trong khi thi
-      if (!attemptId) return;
+      expect(attemptId).toBeTruthy();
       const resumeRes = await fetch(`${baseUrl}/api/v1/attempts/${attemptId}/resume`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${AUTH_TOKENS.student}`,
         },
       });
-      expect([200, 400, 404, 409]).toContain(resumeRes.status);
+      expect(resumeRes.status).toBe(200);
+      const resumeData = (await resumeRes.json()) as { lease: string; snapshotUrl?: string; currentSectionIndex?: number };
+      expect(resumeData.lease).toBeDefined();
+      expect(typeof resumeData.lease).toBe('string');
+      leaseToken = resumeData.lease;
     });
 
     it('advances sections and saves answer sheets with monotonic sequence ACK', async () => {
-      if (!attemptId || !leaseToken) return;
+      expect(attemptId).toBeTruthy();
+      expect(leaseToken).toBeTruthy();
 
       const secRes = await fetch(`${baseUrl}/api/v1/attempts/${attemptId}/sections/next`, {
         method: 'POST',
@@ -170,58 +190,93 @@ describe('Full Exam Lifecycle E2E Suite (LIB-01..15, EXAM-01..26, AUDIO-01..10, 
   });
 
   describe('4. Submission, Scoring Metrics & Accuracy (SCORE-01..15)', () => {
-    it('[SCORE-01..15] verifies certified scoring calculation and counts', async () => {
+    it('[SCORE-01..15] verifies certified scoring calculation and counts via @jlpt/exam-engine and submission review', async () => {
       // SCORE-02: Hiển thị tổng số câu đúng / sai / bỏ trống
       // SCORE-03: Hiển thị tỷ lệ chính xác
-      const mockScoreBreakdown = {
-        totalQuestions: 29,
-        correctCount: 22,
-        wrongCount: 5,
-        unansweredCount: 2,
-        accuracyPercentage: Math.round((22 / 29) * 100),
-        totalScore: 135,
-        maxScore: 180,
-        passEstimate: true,
+      const answerKey: ExamAnswerKey = {
+        examId: demoExamId,
+        version: 1,
+        keys: [1, 2, 3, 4, 1, 2, 3, 4, 1, 2],
+        skills: ['kanji', 'kanji', 'vocabulary', 'vocabulary', 'grammar', 'grammar', 'reading', 'reading', 'listening', 'listening'],
+        mondaiTypes: ['kanji_reading', 'kanji_reading', 'orthography', 'orthography', 'grammar_form', 'grammar_form', 'comprehension_short', 'comprehension_short', 'task_based', 'task_based'],
+        sectionRanges: [[0, 9]],
       };
+      const scoring: BlueprintScoring = {
+        method: 'linear_reference',
+        rounding: 'round',
+        scoringSections: [
+          { code: 'sec_1', label: 'Tổng hợp', skills: ['kanji', 'vocabulary', 'grammar', 'reading', 'listening'], maxScaled: 180, minPass: 80 },
+        ],
+        totalMax: 180,
+        totalPass: 80,
+      };
+      const userAnswers = [1, 2, 3, 0, 1, 2, 0, 4, 1, 3]; // 7 correct, 1 wrong, 2 unanswered
+      const engineResult = calculateStandardExamResult(userAnswers, answerKey, scoring);
 
-      expect(mockScoreBreakdown.correctCount + mockScoreBreakdown.wrongCount + mockScoreBreakdown.unansweredCount).toBe(29);
-      expect(mockScoreBreakdown.accuracyPercentage).toBe(76);
-      expect(mockScoreBreakdown.passEstimate).toBe(true);
+      expect(engineResult.totals.correct).toBe(7);
+      expect(engineResult.totals.wrong).toBe(1);
+      expect(engineResult.totals.blank).toBe(2);
+      expect(engineResult.totals.total).toBe(10);
+      expect(engineResult.accuracy).toBe(70);
+      expect(engineResult.scoring.passEstimate).toBeDefined();
+
+      // Submit the exam attempt to test server and verify review calculation
+      const submitRes = await fetch(`${baseUrl}/api/v1/attempts/${attemptId}/submit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${AUTH_TOKENS.student}`,
+        },
+        body: JSON.stringify({
+          lease: leaseToken,
+          seq: 2,
+          answers: Array(29).fill(1),
+          flags: Array(29).fill(0),
+        }),
+      });
+      expect([200, 409]).toContain(submitRes.status);
+
+      const reviewRes = await fetch(`${baseUrl}/api/v1/attempts/${attemptId}/review`, {
+        headers: { Authorization: `Bearer ${AUTH_TOKENS.student}` },
+      });
+      expect(reviewRes.status).toBe(200);
+      const reviewData = (await reviewRes.json()) as { result?: { totals?: { total?: number }; accuracy?: number } };
+      expect(reviewData.result).toBeDefined();
+      expect(reviewData.result?.totals).toBeDefined();
     });
   });
 
   describe('5. Post-Exam Explanations & Furigana Readings (EXPL-01..13)', () => {
-    it('[EXPL-04] provides Furigana / reading assistance for Kanji terms', () => {
+    it('[EXPL-04] extracts Furigana / reading assistance for Kanji terms via @jlpt/content-tools', () => {
       // EXPL-04: Hiển thị cách đọc Kanji / Furigana
-      const rubyData = {
-        original: '日本語能力試験',
-        rubyElements: [
-          { base: '日', ruby: 'に' },
-          { base: '本', ruby: 'ほん' },
-          { base: '語', ruby: 'ご' },
-          { base: '能', ruby: 'のう' },
-          { base: '力', ruby: 'りょく' },
-          { base: '試', ruby: 'し' },
-          { base: '験', ruby: 'けん' },
-        ],
-      };
+      const richTextWithRuby: RichText = [
+        { t: 'ruby', text: '日本語', rt: 'にほんご' },
+        { t: 'text', text: '能力' },
+        { t: 'ruby', text: '試験', rt: 'しけん' },
+      ];
 
-      expect(rubyData.rubyElements.length).toBe(7);
-      expect(rubyData.rubyElements[0]?.ruby).toBe('に');
+      const segments = extractSegmentsFromRichText(richTextWithRuby, 'stem');
+      expect(segments.length).toBe(3);
+      expect(segments[0]?.text).toBe('日本語');
+      expect(segments[0]?.reading).toBe('にほんご');
+      expect(segments[2]?.text).toBe('試験');
+      expect(segments[2]?.reading).toBe('しけん');
     });
 
-    it('[EXPL-07] supports reading comprehension translation and syntactic breakdown', () => {
+    it('[EXPL-07] parses reading comprehension passages and extracts syntactic blocks via @jlpt/content-tools', () => {
       // EXPL-07: Dịch và phân tích bài đọc
-      const passageAnalysis = {
-        passageId: 'pass_demo_01',
-        vietnameseTranslation: 'Ngày hôm qua tôi đã đến thư viện để mượn sách tiếng Nhật.',
-        keyVocabularies: ['図書館', '借りる'],
-        grammaticalNotes: ['〜てから: sau khi làm gì đó'],
-      };
+      const blocks: RichBlock[] = [
+        {
+          type: 'paragraph',
+          content: [
+            { t: 'text', text: '昨日、図書館へ行って本を借りました。' },
+          ],
+        },
+      ];
 
-      expect(passageAnalysis.vietnameseTranslation).toBeDefined();
-      expect(passageAnalysis.keyVocabularies.length).toBeGreaterThan(0);
-      expect(passageAnalysis.grammaticalNotes.length).toBeGreaterThan(0);
+      const passageSegments = extractSegmentsFromRichBlocks(blocks, 'passage');
+      expect(passageSegments.length).toBeGreaterThan(0);
+      expect(passageSegments[0]?.text).toContain('図書館');
     });
   });
 });

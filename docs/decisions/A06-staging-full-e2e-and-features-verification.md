@@ -80,19 +80,39 @@ Theo hợp đồng bàn giao của A06, thư mục `tests/e2e/full/` được x�
 - Cập nhật `.github/workflows/ci.yml` để chạy `pnpm features:verify` trước khi build.
 - Cập nhật `.github/workflows/staging.yml` để chạy `pnpm test:e2e:full` và `pnpm features:verify`.
 
-### Quyết định 4: Khắc phục tranh chấp bộ nhớ đệm Vitest (`.vitest-cache`) và giới hạn tài nguyên runner
+### Quyết định 4: Khắc phục và hoàn thiện các phản hồi từ Reviewer W3
 
-- **Vấn đề phát hiện:** Khi Turborepo thực thi kiểm thử đồng thời giữa các package trên bản checkout sạch (`turbo run test --concurrency=2`), các tiến trình Vitest khởi chạy tại cùng một thời điểm (`@jlpt/config` và `@jlpt/srs`) cùng truy cập và thực thi lệnh xoá/khởi tạo thư mục bộ đệm dùng chung `node_modules/.vitest-cache`. Sự xung đột ghi đồng thời dẫn đến lỗi I/O `ENOTEMPTY: directory not empty, rmdir node_modules/.vitest-cache`. Đồng thời, các tiến trình kiểm thử của `@jlpt/api` khi không giới hạn số lượng worker forks có nguy cơ tiêu tốn quá nhiều RAM, gây ra lỗi OOM SIGKILL (137) trên môi trường host dùng chung 6 worker.
-- **Giải pháp áp dụng:**
-  1. Thêm cấu hình `vitest.config.ts` với `fsModuleCache: false` cho `@jlpt/config`, `apps/media-worker` và cập nhật `tests/vitest.config.ts`.
-  2. Bổ sung cờ `--no-fs-module-cache` trực tiếp vào script `test` trong `packages/config/package.json` và `apps/media-worker/package.json`.
-  3. Bổ sung `VITEST_MAX_WORKERS=1` vào script root `"test": "VITEST_MAX_WORKERS=1 turbo run test --concurrency=2"` trong `package.json`, bảo đảm kiểm soát tài nguyên RAM và loại bỏ hoàn toàn race condition trên hệ thống file.
+Theo các yêu cầu đánh giá của reviewer W3 đối với A06:
+1. **Loại bỏ chuỗi fallback ngầm định trong kiểm thử SEO (`staging-routes.test.ts`)**:
+   - Xóa bỏ hoàn toàn fallback `|| 'noindex, nofollow'`.
+   - Cấu hình hook `onSend` trong `server-runner.mjs` bảo đảm máy chủ trả về chính xác header `X-Robots-Tag: noindex, nofollow` trên toàn bộ private routes (`/api/v1/me`, `/api/v1/admin`), assert trực tiếp giá trị thực trả về.
+2. **Siết chặt kiểm tra Origin/CORS Guard (`staging-routes.test.ts`)**:
+   - Khẳng định rõ ràng hành vi: Origin độc hại (`http://malicious-origin.attacker.com`) phải bị từ chối bằng HTTP 403, không chấp nhận mập mờ cả 200 lẫn 403.
+3. **Kiểm chứng giao diện thực tế với theme tokens từ `@jlpt/ui` (`staging-routes.test.ts`)**:
+   - Import trực tiếp `tokens` từ `@jlpt/ui`.
+   - Tính toán tỷ lệ tương phản WCAG AA thực tế trên các cặp màu chủ đạo (brand, background, foreground, card) và kiểm tra các ngưỡng breakpoint tiêu chuẩn responsive.
+4. **Bảo đảm phục hồi sự cố thi cử nghiêm ngặt (`exam-lifecycle.test.ts`)**:
+   - Đảm bảo attemptId được tạo hợp lệ trước khi gọi resume; assert chặt chẽ status 200 OK cùng thông tin phiên và lease token, không chấp nhận mã lỗi 404.
+5. **Sử dụng engine chấm điểm và parser ngữ liệu thực tế (`exam-lifecycle.test.ts`)**:
+   - Gọi trực tiếp `calculateStandardExamResult` từ `@jlpt/exam-engine` để kiểm chứng số câu đúng/sai/bỏ trống và tỷ lệ chính xác.
+   - Gọi `extractSegmentsFromRichText` và `extractSegmentsFromRichBlocks` từ `@jlpt/content-tools` để kiểm tra phân tích Furigana và ngữ pháp thay vì assert trên đối tượng giả lập.
+6. **Kiểm thử tích hợp engine luyện tập và FSRS (`practice-mix-learning.test.ts`)**:
+   - Gọi `generatePracticeExam` từ `@jlpt/exam-engine` với các điều kiện wrong-only, unseen-only.
+   - Khởi tạo và lập lịch thẻ học thực tế với `initializeFsrsCard` và `scheduleReview` từ `@jlpt/srs`.
+   - Gọi API Question Bank và Study Planner thực tế trên máy chủ kiểm thử.
+7. **Kiểm tra chặn AI trong kỳ thi thật (`platform-services.test.ts`)**:
+   - Gửi yêu cầu thực tế tới `/api/v1/ai/requests` bằng token của thí sinh đang trong bài thi thật (`mode: 'real'`) và assert mã lỗi 403 Forbidden ("AI assistance is strictly blocked").
+8. **Kiểm tra hàng đợi báo cáo cộng đồng (`platform-services.test.ts`)**:
+   - Đăng bình luận thực tế, gửi báo cáo vi phạm và kiểm tra danh sách báo cáo trong hàng đợi kiểm duyệt của quản trị viên (`/api/v1/admin/community-reports`).
+9. **Hoàn nguyên thay đổi script test theo yêu cầu reviewer P2**:
+   - Hoàn nguyên script `test` trong root `package.json`, `packages/config/package.json`, và `apps/media-worker/package.json` về nguyên trạng base.
+   - Loại bỏ `docs/release/features-verification-report.json` khỏi `.gitignore` để file báo cáo chính thức được theo dõi trong git.
 
 ---
 
 ## 3. Kết quả nghiệm thu
 
-- `pnpm test:e2e:full`: 4/4 test files passed (42/42 tests passed, thời gian chạy ~21s).
+- `pnpm test:e2e:full`: 4/4 test files passed (42/42 tests passed, thời gian chạy ~14s).
 - `pnpm features:verify`: 363/363 tính năng ứng dụng đạt 100% coverage, 12 tính năng ngoài tách biệt đúng quy tắc, 0 placeholder/stub, gắn đúng headSHA và baseSHA.
 - `pnpm test:contracts`: 2/2 test files passed (45/45 tests passed).
 - Toàn bộ cổng chung: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` đạt chuẩn hoàn hảo 100%.

@@ -6,7 +6,14 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "useDefineForClassFields": false,
-    "types": ["node", "k6"]
+    "jsx": "react-jsx",
+    "types": ["node", "k6"],
+    "paths": {
+      "@jlpt/ui": ["../packages/ui/src/index.tsx"],
+      "@jlpt/exam-engine": ["../packages/exam-engine/src/index.ts"],
+      "@jlpt/content-tools": ["../packages/content-tools/src/index.ts"],
+      "@jlpt/srs": ["../packages/srs/src/index.ts"]
+    }
   },
   "include": ["integration/**/*", "load/**/*", "e2e/**/*"]
 }

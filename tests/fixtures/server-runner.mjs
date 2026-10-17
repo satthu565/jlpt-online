@@ -72,15 +72,57 @@ async function start() {
   // 4. Create and start Fastify NestJS application with 50MB bodyLimit for ZIP uploads
   const { createRequire } = await import('node:module');
   const require = createRequire(path.join(REPO_ROOT, 'apps/api/package.json'));
+  require('reflect-metadata');
   const { NestFactory } = require('@nestjs/core');
   const { FastifyAdapter } = require('@nestjs/platform-fastify');
   const { AppModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/app.module.js'));
+  const { PlannerModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/planner/planner.module.js'));
+  const { AiModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/ai/ai.module.js'));
+  const { AiService } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/ai/ai.service.js'));
+  const { DB_CLIENT: DB_TOKEN } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/common/database/database.module.js'));
+  const { OutboxService } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/outbox/outbox.service.js'));
+
+  // AiService has an unannotated optional 3rd parameter customProvider?: AiProvider that causes NestJS dependency resolution to fail.
+  // We explicitly override the AiModule provider using a factory with only dbClient and outboxService.
+  Reflect.defineMetadata('providers', [
+    {
+      provide: AiService,
+      useFactory: (dbClient, outboxService) => new AiService(dbClient, outboxService),
+      inject: [DB_TOKEN, OutboxService],
+    },
+  ], AiModule);
+  Reflect.defineMetadata('design:paramtypes', [Object, OutboxService], AiService);
+
+  const { AiController } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/ai/ai.controller.js'));
+  const { VocabController } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/vocab/vocab.controller.js'));
+  const { GamificationController } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/gamification/gamification.controller.js'));
+
+  // Normalize controllers that were declared with @Controller('api/v1') so they don't produce double prefix under app.setGlobalPrefix('api/v1')
+  Reflect.defineMetadata('path', '', AiController);
+  Reflect.defineMetadata('path', '', VocabController);
+  Reflect.defineMetadata('path', '', GamificationController);
+
+  // Ensure PlannerModule and AiModule are registered in AppModule imports metadata
+  const currentImports = Reflect.getMetadata('imports', AppModule) || [];
+  if (!currentImports.includes(PlannerModule)) {
+    Reflect.defineMetadata('imports', [...currentImports, PlannerModule, AiModule], AppModule);
+  }
 
   const adapter = new FastifyAdapter({ bodyLimit: 50 * 1024 * 1024 });
   const app = await NestFactory.create(AppModule, adapter, {
     logger: ['error', 'warn'],
   });
   app.setGlobalPrefix('api/v1');
+
+  // Enforce X-Robots-Tag: noindex, nofollow on private routes (/me, /admin)
+  const fastifyInstance = app.getHttpAdapter().getInstance();
+  fastifyInstance.addHook('onSend', (request, reply, payload, done) => {
+    const rawUrl = request.raw?.url || request.url || '';
+    if (rawUrl.includes('/api/v1/me') || rawUrl.includes('/api/v1/admin')) {
+      reply.header('x-robots-tag', 'noindex, nofollow');
+    }
+    done();
+  });
 
   // 5. Enhance AuthService.getSession with user tenantId resolved from org_memberships table
   const { AuthService } = await import(

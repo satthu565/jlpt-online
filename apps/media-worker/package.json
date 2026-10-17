@@ -8,7 +8,7 @@
     "build": "tsup src/index.ts --format esm",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "vitest run --no-fs-module-cache"
+    "test": "vitest run"
   },
   "dependencies": {
     "@jlpt/config": "workspace:*",

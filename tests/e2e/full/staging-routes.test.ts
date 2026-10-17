@@ -12,6 +12,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { tokens } from '@jlpt/ui';
 import { getApiBaseUrl, stopApiServer, AUTH_TOKENS } from '../../fixtures/test-server.ts';
 
 describe('Full Staging Routes E2E Suite: UI & Navigation (SYS-01, EXAM-26, SEO-01..12, ADM-01..20)', () => {
@@ -33,42 +34,83 @@ describe('Full Staging Routes E2E Suite: UI & Navigation (SYS-01, EXAM-26, SEO-0
       expect(data.status).toBe('ok');
     });
 
-    it('enforces CORS and Origin verification on authenticated endpoints', async () => {
-      const res = await fetch(`${apiBaseUrl}/api/v1/me/attempts`, {
+    it('enforces CORS and Origin verification on state-changing endpoints', async () => {
+      // 1. State-changing POST with unauthorized origin must be strictly rejected with 403 Forbidden
+      const postRes = await fetch(`${apiBaseUrl}/api/v1/me/study-plans`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${AUTH_TOKENS.student}`,
+          Origin: 'http://malicious-origin.attacker.com',
+        },
+        body: JSON.stringify({
+          targetLevel: 'N5',
+          targetDate: '2026-12-06',
+        }),
+      });
+      expect(postRes.status).toBe(403);
+
+      // 2. GET request must not reflect or allow unauthorized origin in Access-Control-Allow-Origin
+      const getRes = await fetch(`${apiBaseUrl}/api/v1/me/attempts`, {
         headers: {
           Authorization: `Bearer ${AUTH_TOKENS.student}`,
           Origin: 'http://malicious-origin.attacker.com',
         },
       });
-      // Origin guard rejects unauthorized origins with 403 or blocks CORS
-      expect([200, 403]).toContain(res.status);
+      const allowOrigin = getRes.headers.get('access-control-allow-origin');
+      expect(allowOrigin).not.toBe('http://malicious-origin.attacker.com');
     });
   });
 
   describe('2. Responsive Layouts & Theme Contrast (SYS-01, EXAM-26)', () => {
     it('[SYS-01] verifies responsive breakpoint definitions and mobile-first meta in UI configuration', () => {
-      const viewports = [
-        { name: 'mobile', width: 375, minTouchTarget: 44 },
-        { name: 'tablet', width: 768, minTouchTarget: 44 },
-        { name: 'desktop', width: 1280, minTouchTarget: 36 },
+      // SYS-01: Giao diện thích ứng (responsive) cho máy tính, tablet và mobile
+      expect(tokens.breakpoints).toBeDefined();
+      expect(tokens.breakpoints.sm).toBe('640px');
+      expect(tokens.breakpoints.md).toBe('768px');
+      expect(tokens.breakpoints.lg).toBe('1024px');
+      expect(tokens.breakpoints.xl).toBe('1280px');
+
+      const parsedBreakpoints = [
+        { name: 'sm', px: parseInt(tokens.breakpoints.sm, 10) },
+        { name: 'md', px: parseInt(tokens.breakpoints.md, 10) },
+        { name: 'lg', px: parseInt(tokens.breakpoints.lg, 10) },
+        { name: 'xl', px: parseInt(tokens.breakpoints.xl, 10) },
       ];
 
-      for (const vp of viewports) {
-        expect(vp.width).toBeGreaterThan(300);
-        expect(vp.minTouchTarget).toBeGreaterThanOrEqual(36);
+      for (let i = 1; i < parsedBreakpoints.length; i++) {
+        expect(parsedBreakpoints[i]!.px).toBeGreaterThan(parsedBreakpoints[i - 1]!.px);
       }
     });
 
     it('[EXAM-26] ensures light and dark color contrast tokens comply with WCAG AA', () => {
       // EXAM-26: Chế độ sáng / tối
-      const themeColors = {
-        light: { bg: '#ffffff', text: '#111827', contrastRatio: 16.0 },
-        dark: { bg: '#0f172a', text: '#f8fafc', contrastRatio: 15.8 },
+      // Calculate relative luminance and contrast ratio as per WCAG 2.1 specs
+      const getLuminance = (hex: string): number => {
+        const rgb = hex.replace('#', '').match(/.{2}/g)!.map((x) => {
+          const c = parseInt(x, 16) / 255;
+          return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+        });
+        return 0.2126 * rgb[0]! + 0.7152 * rgb[1]! + 0.0722 * rgb[2]!;
       };
 
-      expect(themeColors.light.contrastRatio).toBeGreaterThan(4.5);
-      expect(themeColors.dark.contrastRatio).toBeGreaterThan(4.5);
-      expect(themeColors.light.bg).not.toBe(themeColors.dark.bg);
+      const getContrastRatio = (hex1: string, hex2: string): number => {
+        const l1 = getLuminance(hex1);
+        const l2 = getLuminance(hex2);
+        return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+      };
+
+      const lightBg = tokens.colors.neutral[0]; // #ffffff
+      const lightText = tokens.colors.neutral[900]; // #0f172a
+      const darkBg = tokens.colors.neutral[900]; // #0f172a
+      const darkText = tokens.colors.neutral[50]; // #f8fafc
+
+      const lightContrast = getContrastRatio(lightBg, lightText);
+      const darkContrast = getContrastRatio(darkBg, darkText);
+
+      expect(lightContrast).toBeGreaterThan(4.5); // WCAG AA minimum 4.5:1
+      expect(darkContrast).toBeGreaterThan(4.5);
+      expect(lightBg).not.toBe(darkBg);
     });
   });
 
@@ -112,9 +154,10 @@ describe('Full Staging Routes E2E Suite: UI & Navigation (SYS-01, EXAM-26, SEO-0
       });
       expect(privateRes.status).toBe(200);
 
-      // Verify robots header recommendation for private paths
-      const robotsHeader = privateRes.headers.get('x-robots-tag') || 'noindex, nofollow';
-      expect(robotsHeader).toMatch(/noindex/i);
+      // Verify robots header directly from server without default fallback string
+      const robotsHeader = privateRes.headers.get('x-robots-tag');
+      expect(robotsHeader).toBeDefined();
+      expect(robotsHeader).toMatch(/noindex,\s*nofollow/i);
     });
   });
 

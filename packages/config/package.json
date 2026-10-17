@@ -16,7 +16,7 @@
     "build": "echo 'config ready'",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'config lint ok'",
-    "test": "vitest run --no-fs-module-cache"
+    "test": "vitest run"
   },
   "devDependencies": {
     "@eslint/js": "9.21.0",

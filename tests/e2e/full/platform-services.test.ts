@@ -76,23 +76,75 @@ describe('Platform Services E2E Suite (PDF-01..30, ADM-01..20, AI-01..14, GAME-0
 
   describe('2. AI Learning Actions & Budget Safety (AI-01..14)', () => {
     it('[AI-01..14] denies AI generation tools during active real exam attempts', async () => {
-      const activeExamAiRequest = {
-        candidateState: 'in_exam_attempt',
-        attemptMode: 'real',
-        action: 'explain_question',
-        questionId: 'q_active_01',
-      };
+      // AI-01..14: Chặn AI trong thi thật và bảo đảm an toàn chi phí
+      const examsRes = await fetch(`${baseUrl}/api/v1/exams`);
+      const examsData = (await examsRes.json()) as { items?: Array<{ id: string }> };
+      const demoExam = examsData.items?.[0];
+      expect(demoExam).toBeDefined();
 
-      // AI must be strictly blocked during real examination
-      const isBlocked = activeExamAiRequest.attemptMode === 'real';
-      expect(isBlocked).toBe(true);
+      // Create an active real exam attempt for candidate
+      await fetch(`${baseUrl}/api/v1/attempts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${AUTH_TOKENS.otherStudent}`,
+        },
+        body: JSON.stringify({
+          examId: demoExam!.id,
+          mode: 'real',
+        }),
+      });
+
+      // Send AI request with token of candidate who has an active real exam attempt
+      const aiRes = await fetch(`${baseUrl}/api/v1/ai/requests`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${AUTH_TOKENS.otherStudent}`,
+        },
+        body: JSON.stringify({
+          action: 'explain_reading',
+          message: 'Giải thích giúp câu này',
+        }),
+      });
+
+      expect(aiRes.status).toBe(403);
+      const aiError = (await aiRes.json()) as { error?: { message?: string }; message?: string };
+      const errorMsg = aiError.error?.message || aiError.message || '';
+      expect(errorMsg).toMatch(/AI assistance is strictly blocked/i);
     });
   });
 
   describe('3. Gamification & Community Moderation (GAME-01..10)', () => {
-    it('[GAME-09] reports and moderates inappropriate user comments', async () => {
+    it('[GAME-09] reports and moderates inappropriate user comments with real audit logs', async () => {
       // GAME-09: Bình luận và báo cáo nội dung không phù hợp
-      const reportRes = await fetch(`${baseUrl}/api/v1/comments/0192f000-0000-7000-8000-000000000999/reports`, {
+      // 1. Fetch available question from Question Bank
+      const qRes = await fetch(`${baseUrl}/api/v1/admin/questions`, {
+        headers: { Authorization: `Bearer ${AUTH_TOKENS.admin}` },
+      });
+      expect(qRes.status).toBe(200);
+      const qData = (await qRes.json()) as Array<{ questionId?: string; id?: string }> | { items?: Array<{ id: string }> };
+      const questionId = Array.isArray(qData) ? qData[0]?.questionId || qData[0]?.id : qData.items?.[0]?.id;
+      expect(questionId).toBeDefined();
+
+      // 2. Post a comment on the question as admin
+      const commentRes = await fetch(`${baseUrl}/api/v1/questions/${questionId}/discussions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${AUTH_TOKENS.admin}`,
+        },
+        body: JSON.stringify({
+          content: 'Nội dung bình luận mẫu để kiểm thử quy trình báo cáo vi phạm cộng đồng',
+        }),
+      });
+      expect([200, 201]).toContain(commentRes.status);
+      const commentData = (await commentRes.json()) as { id?: string; commentId?: string };
+      const commentId = commentData.id || commentData.commentId;
+      expect(commentId).toBeDefined();
+
+      // 3. Report the comment as student
+      const reportRes = await fetch(`${baseUrl}/api/v1/comments/${commentId}/reports`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,7 +156,22 @@ describe('Platform Services E2E Suite (PDF-01..30, ADM-01..20, AI-01..14, GAME-0
         }),
       });
 
-      expect([200, 400, 404]).toContain(reportRes.status);
+      expect([200, 201]).toContain(reportRes.status);
+      const reportData = (await reportRes.json()) as { reportId?: string; id?: string };
+      const reportId = reportData.reportId || reportData.id;
+      expect(reportId).toBeDefined();
+
+      // 4. Verify admin community moderation reports queue contains the report
+      const adminReportsRes = await fetch(`${baseUrl}/api/v1/admin/community-reports`, {
+        headers: {
+          Authorization: `Bearer ${AUTH_TOKENS.admin}`,
+        },
+      });
+      expect(adminReportsRes.status).toBe(200);
+      const reportsJson = (await adminReportsRes.json()) as { items?: Array<{ id?: string; commentId?: string }> } | Array<{ id?: string; commentId?: string }>;
+      const reportsList = Array.isArray(reportsJson) ? reportsJson : reportsJson.items || [];
+      expect(Array.isArray(reportsList)).toBe(true);
+      expect(reportsList.some((r) => r.commentId === commentId || r.id === reportId)).toBe(true);
     });
   });
 
