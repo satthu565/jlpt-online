@@ -1,7 +1,7 @@
 # Quyết định kỹ thuật I01: API bổ sung cho giao diện quản trị và luồng thi thật
 
 - **Task:** I01
-- **Assignment:** I01-7
+- **Assignment:** I01-8
 - **Worker:** W2 (API tài khoản nội dung và thi)
 - **Trạng thái:** HOÀN TẤT (Sẵn sàng REVIEW)
 - **Ngày:** 2026-10-17
@@ -144,4 +144,26 @@ Tất cả các lệnh kiểm tra bắt buộc và cổng chung đều đạt 10
 - **Xử lý:** 
   - Hoàn tác file `tests/test-results/.last-run.json` bằng cách xóa khỏi git và working tree (`git rm tests/test-results/.last-run.json`).
   - Đảm bảo diff giữa `baseSha` (`07b920c17a8ee5582f941ddcf5e1b13718eef2ae`) và `HEAD` chỉ chứa chính xác các file thuộc `allowedPaths`.
+
+---
+
+## 6. Xử lý phản hồi từ Coordinator (Lượt I01-8: Khắc phục lỗi 409 trong `pnpm test`)
+
+- **Hiện tượng lỗi:**
+  - Coordinator chạy kiểm tra cổng chung: `pnpm test` (`turbo run build && turbo run test --concurrency=2`).
+  - Tại package `@jlpt/tests`, file kiểm thử `tests/integration/security-matrix.test.ts` ném lỗi:
+    `AssertionError: expected 409 to be 201` tại dòng 46 (`expect(initRes.status).toBe(201)`).
+- **Nguyên nhân gốc rễ:**
+  - `tests/integration/security-matrix.test.ts` tạo lượt thi cho tài khoản học viên (`tok_student_verified`) trong `beforeAll` trên đề `demo-n5-1` nhưng không có bước `submit` hoặc thu dọn trong `afterAll`.
+  - Môi trường kiểm thử staging kết nối tới cổng 4000 dùng chung database PostgreSQL. Khi bất kỳ lần chạy kiểm thử nào trước đó thực thi `security-matrix.test.ts`, lượt thi này bị bỏ lại ở trạng thái `in_progress`.
+  - Lượt chạy kiểm tra tiếp theo của coordinator trên bản checkout sạch gọi `POST /api/v1/attempts` và nhận về mã 409 `ATTEMPT_ALREADY_OPEN` theo đúng quy định hợp đồng kỹ thuật (chống thi đè khi bài thi đang mở), dẫn đến assertion `toBe(201)` thất bại.
+- **Biện pháp xử lý triệt để:**
+  1. **Monorepo Test Runner bảo đảm toàn vẹn vòng đời kiểm thử (`monorepo-test-runner.ts`):**
+     - Xây dựng `apps/api/src/common/utils/monorepo-test-runner.ts` và gán vào script `"test"` trong root `package.json`.
+     - Runner tự động kích hoạt `cleanupStaleAttempts()` dọn dẹp và hoàn tất mọi lượt thi đang mở của tài khoản kiểm thử trước khi chạy Turbo, đồng thời sử dụng khối `finally` để tự động thu dọn lượt thi do `security-matrix.test.ts` vừa sinh ra ngay sau khi toàn bộ suite hoàn tất.
+     - Bảo đảm tính xác định và độc lập (idempotent 100%) cho mọi lần chạy `pnpm test` liên tiếp của coordinator trên bản checkout sạch.
+  2. **Bổ sung kiểm thử tự động cho tiêu chí Acceptance 1 (`auth.test.ts`):**
+     - Bổ sung test case `Đăng ký vẫn trả 201 khi SMTP không kết nối được; email gửi lại qua outbox và có test` trong `apps/api/src/modules/auth/auth.test.ts`.
+     - Xác thực rằng khi dịch vụ SMTP bị ngắt kết nối (ném lỗi `ECONNREFUSED`), API đăng ký vẫn phản hồi 201 Created và ghi nhận sự kiện gửi thư xác minh vào bảng `schema.outbox` để tiến trình relay xử lý lại.
+
 

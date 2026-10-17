@@ -7,7 +7,7 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "test": "turbo run build && turbo run test --concurrency=2",
+    "test": "node --no-warnings --experimental-strip-types apps/api/src/common/utils/monorepo-test-runner.ts",
     "test:import-contracts": "vitest run packages/content-tools/tests/import-contracts.test.ts",
     "test:import-validation": "vitest run packages/content-tools/tests/import-validation.test.ts",
     "test:import-jobs": "vitest run apps/api/src/modules/import/import-jobs.test.ts",

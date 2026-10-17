@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process';
 const TARGET_HOST = process.env.API_BASE_URL || 'http://127.0.0.1:4000';
 const TOKENS_TO_CLEAN = ['tok_student_verified', 'tok_other_student'];
 
-async function cleanupStaleAttempts(): Promise<void> {
+export async function cleanupStaleAttempts(): Promise<void> {
   try {
     const health = await fetch(`${TARGET_HOST}/api/v1/health`, {
       signal: AbortSignal.timeout(1500),
