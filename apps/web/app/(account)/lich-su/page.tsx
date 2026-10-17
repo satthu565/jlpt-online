@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ExamApiClient, ExamApiError } from '../../../features/exam/api/exam-api';
 import { HistoryView, type ExamHistoryItem } from '../../../features/results';
-import { ALL_SAMPLE_EXAMS } from '../../../features/exam/fixtures/exam-fixtures';
 import { Alert, Button, Card } from '@jlpt/ui';
 
 export default function ExamHistoryPage(): React.JSX.Element {
@@ -11,19 +10,25 @@ export default function ExamHistoryPage(): React.JSX.Element {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<{ isAuthError: boolean; message: string } | null>(null);
 
-  const loadHistory = async () => {
+  const loadHistory = useCallback(async () => {
     const client = new ExamApiClient();
     try {
       setLoading(true);
       setError(null);
-      const res = await client.listMyAttempts();
 
-      const mapped: ExamHistoryItem[] = res.items.map((item) => {
-        const snapshot = ALL_SAMPLE_EXAMS.find((e) => e.examId === item.examId);
+      const [attemptsRes, examsRes] = await Promise.all([
+        client.listMyAttempts(),
+        client.getExams().catch(() => ({ items: [] })),
+      ]);
+
+      const examsMap = new Map(examsRes.items.map((e) => [e.id, e]));
+
+      const mapped: ExamHistoryItem[] = attemptsRes.items.map((item) => {
+        const exam = examsMap.get(item.examId);
         return {
           ...item,
-          examTitle: snapshot?.title || `Đề thi JLPT (${item.examId.slice(0, 8)})`,
-          examLevel: snapshot?.level || 'N3',
+          examTitle: exam?.title || `Đề thi JLPT (${item.examId.slice(0, 8)})`,
+          examLevel: exam?.level || 'N3',
           accuracy: item.score !== null ? Math.min(100, Math.round((item.score / 180) * 100)) : undefined,
         };
       });
@@ -47,21 +52,31 @@ export default function ExamHistoryPage(): React.JSX.Element {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadHistory();
-  }, []);
+  }, [loadHistory]);
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4">
+    <div className="max-w-5xl mx-auto py-8 px-4" data-testid="exam-history-page">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+          Lịch sử làm bài thi
+        </h1>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+          Theo dõi tiến độ, điểm số và xem lại chi tiết bài làm của các kỳ thi bạn đã tham gia.
+        </p>
+      </div>
+
       {loading ? (
-        <div className="py-16 text-center text-slate-500">
+        <div className="py-16 text-center text-slate-500" data-testid="history-loading">
           <div className="animate-spin text-3xl mb-3">⏳</div>
           Đang tải lịch sử các lần thi...
         </div>
       ) : error ? (
-        <Card className="p-8 text-center border border-slate-200 dark:border-slate-800">
+        <Card className="p-8 text-center border border-slate-200 dark:border-slate-800" data-testid="history-error">
           <div className="text-4xl mb-3" role="img" aria-label="Lỗi tải lịch sử">
             {error.isAuthError ? '🔑' : '⚠️'}
           </div>
@@ -73,13 +88,13 @@ export default function ExamHistoryPage(): React.JSX.Element {
           </Alert>
           <div className="flex justify-center gap-3">
             {error.isAuthError ? (
-              <a href="/dang-nhap">
+              <a href="/dang-nhap?redirect=/lich-su">
                 <Button variant="primary" size="md">
                   Đăng nhập ngay
                 </Button>
               </a>
             ) : (
-              <Button variant="primary" size="md" onClick={() => loadHistory()}>
+              <Button variant="primary" size="md" onClick={loadHistory}>
                 Thử lại
               </Button>
             )}

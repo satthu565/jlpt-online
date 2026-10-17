@@ -1,12 +1,24 @@
 'use client';
 
 import React, { useState } from 'react';
-import type { PublicExamSnapshot, Level, AttemptMode } from '@jlpt/schema';
+import type { Level, AttemptMode } from '@jlpt/schema';
 import { Card, Badge, Button } from '@jlpt/ui';
 
+export type ExamPickerExam = {
+  id?: string;
+  examId?: string;
+  slug?: string;
+  title: string;
+  level: Level;
+  kind: string;
+  totalQuestions: number;
+  sections: Array<{ title: string; durationSec: number; code?: string; questionRange?: [number, number] }>;
+  guestTrial?: boolean;
+};
+
 export interface ExamPickerProps {
-  exams: PublicExamSnapshot[];
-  onSelectExam: (exam: PublicExamSnapshot, mode: AttemptMode) => void;
+  exams: ExamPickerExam[];
+  onSelectExam: (exam: ExamPickerExam, mode: AttemptMode) => void;
   className?: string;
 }
 
@@ -116,18 +128,26 @@ export function ExamPicker({
               const totalSec = exam.sections.reduce((acc, s) => acc + s.durationSec, 0);
               const totalMinutes = Math.round(totalSec / 60);
 
+              const examKey = exam.id || exam.examId || exam.slug || `exam-${exam.level}`;
               return (
                 <Card
-                  key={exam.examId}
+                  key={examKey}
                   className="hover:shadow-md transition-shadow flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-2">
-                      <span className="text-xs font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 font-mono">
-                        {exam.level}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 font-mono">
+                          {exam.level}
+                        </span>
+                        {exam.guestTrial && (
+                          <span className="text-xs font-medium px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                            Làm thử miễn phí
+                          </span>
+                        )}
+                      </div>
                       <span className="text-xs text-slate-500 capitalize">
-                        {exam.kind === 'original' ? 'Đề chuẩn' : 'Đề thử nghiệm'}
+                        {exam.kind === 'original' ? 'Đề chuẩn' : exam.kind === 'mixed' ? 'Đề trộn' : 'Đề thử nghiệm'}
                       </span>
                     </div>
 

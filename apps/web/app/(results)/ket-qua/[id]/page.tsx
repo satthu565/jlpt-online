@@ -3,8 +3,6 @@
 import React, { use, useState, useEffect } from 'react';
 import { ExamApiClient, ExamApiError } from '../../../../features/exam/api/exam-api';
 import { ReviewView, type AttemptReviewData } from '../../../../features/results';
-import { SAMPLE_N5_EXAM_SNAPSHOT } from '../../../../features/exam/fixtures/sample-exam';
-import { resolveExamSnapshotFromUrl } from '../../../../features/exam/fixtures/exam-fixtures';
 import { Alert, Button, Card } from '@jlpt/ui';
 import type { PublicExamSnapshot } from '@jlpt/schema';
 
@@ -31,24 +29,26 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
         setLoading(true);
         setErrorInfo(null);
 
-        // Fetch from API
+        // 1. Fetch review data from API
         const reviewRes = await client.reviewAttempt(attemptId);
         if (!isMounted) return;
 
-        // Find corresponding snapshot from snapshotUrl (SCORE-07, SCORE-08)
-        let snapshot = resolveExamSnapshotFromUrl(reviewRes.snapshotUrl);
-        if (!snapshot && reviewRes.snapshotUrl) {
+        // 2. Fetch certified snapshot from snapshotUrl
+        let snapshot: PublicExamSnapshot | null = null;
+        if (reviewRes.snapshotUrl) {
           try {
-            const res = await fetch(reviewRes.snapshotUrl);
-            if (res.ok) {
-              snapshot = (await res.json()) as PublicExamSnapshot;
-            }
-          } catch {
-            // Ignore fetch failure
+            snapshot = await client.fetchSnapshot(reviewRes.snapshotUrl);
+          } catch (snapshotErr) {
+            console.error('Failed to fetch snapshot from snapshotUrl:', snapshotErr);
           }
         }
+
         if (!snapshot) {
-          snapshot = SAMPLE_N5_EXAM_SNAPSHOT;
+          throw new ExamApiError(
+            'Không thể tải dữ liệu cấu trúc đề thi để hiển thị chi tiết kết quả.',
+            'SNAPSHOT_UNAVAILABLE',
+            500,
+          );
         }
 
         setReviewData({
@@ -69,21 +69,22 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
           if (err.code === 'ATTEMPT_NOT_SUBMITTED') {
             setErrorInfo({
               code: 'ATTEMPT_NOT_SUBMITTED',
-              message: 'Bài thi này chưa được nộp. Theo quy chế bảo mật JLPT, bạn chỉ có thể xem lại kết quả sau khi đã hoàn thành và nộp bài.',
+              message:
+                'Bài thi này chưa được nộp. Theo quy chế bảo mật JLPT, bạn chỉ có thể xem lại kết quả sau khi đã hoàn thành và nộp bài.',
             });
             return;
           }
           if (err.status === 404 || err.code === 'NOT_FOUND') {
             setErrorInfo({
               code: 'NOT_FOUND',
-              message: 'Không tìm thấy kết quả bài thi hoặc bạn không có quyền truy cập.',
+              message: 'Không tìm thấy kết quả bài thi hoặc bài thi đã bị xóa.',
             });
             return;
           }
           if (err.status === 403 || err.status === 401 || err.code === 'FORBIDDEN') {
             setErrorInfo({
               code: 'FORBIDDEN',
-              message: 'Bạn không có quyền truy cập vào kết quả bài thi này.',
+              message: 'Bạn không có quyền truy cập vào kết quả bài thi này. Vui lòng đăng nhập tài khoản sở hữu.',
             });
             return;
           }
@@ -95,8 +96,8 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
         }
 
         setErrorInfo({
-          code: 'NOT_FOUND',
-          message: 'Không tìm thấy kết quả bài thi hoặc bạn không có quyền truy cập.',
+          code: 'UNKNOWN_ERROR',
+          message: err instanceof Error ? err.message : 'Có lỗi không xác định xảy ra khi tải kết quả bài thi.',
         });
       } finally {
         if (isMounted) setLoading(false);
@@ -111,7 +112,7 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto py-16 px-4 text-center text-slate-500">
+      <div className="max-w-4xl mx-auto py-20 px-4 text-center text-slate-500" data-testid="review-loading">
         <div className="animate-spin text-3xl mb-3">⏳</div>
         Đang tải kết quả và dữ liệu đối chiếu bài thi...
       </div>
@@ -121,15 +122,15 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
   // Review Authorization Error State (Acceptance 4)
   if (errorInfo) {
     return (
-      <div className="max-w-2xl mx-auto py-16 px-4">
+      <div className="max-w-2xl mx-auto py-16 px-4" data-testid="review-error">
         <Card className="p-8 border border-slate-200 dark:border-slate-800 text-center">
           <div className="text-4xl mb-3" role="img" aria-label="Cảnh báo quyền xem lại">
-            🔒
+            {errorInfo.code === 'FORBIDDEN' ? '🔒' : '⚠️'}
           </div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-            Không thể xem lại bài thi
+            {errorInfo.code === 'FORBIDDEN' ? 'Yêu cầu đăng nhập' : 'Không thể xem lại bài thi'}
           </h2>
-          <Alert variant="error" className="mb-6 text-left">
+          <Alert variant={errorInfo.code === 'FORBIDDEN' ? 'info' : 'error'} className="mb-6 text-left">
             {errorInfo.message}
           </Alert>
 
@@ -138,6 +139,12 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
               <a href={`/phong-thi?attemptId=${attemptId}`}>
                 <Button variant="primary" size="md">
                   Về phòng thi tiếp tục làm bài
+                </Button>
+              </a>
+            ) : errorInfo.code === 'FORBIDDEN' ? (
+              <a href={`/dang-nhap?redirect=${encodeURIComponent(`/ket-qua/${attemptId}`)}`}>
+                <Button variant="primary" size="md">
+                  Đăng nhập tài khoản
                 </Button>
               </a>
             ) : (
@@ -155,7 +162,7 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
 
   if (!reviewData) {
     return (
-      <div className="max-w-2xl mx-auto py-16 px-4 text-center">
+      <div className="max-w-2xl mx-auto py-16 px-4 text-center" data-testid="review-empty">
         <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-2">
           Không tìm thấy dữ liệu bài thi
         </h2>
@@ -169,7 +176,7 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4">
+    <div className="max-w-7xl mx-auto py-8 px-4" data-testid="result-review-page">
       {/* Breadcrumbs */}
       <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500 mb-6">
         <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}

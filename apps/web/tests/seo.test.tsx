@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 
@@ -24,12 +24,65 @@ import robots from '../app/robots';
 // Consent & Attribution Helpers
 import { setConsentStatus, getConsentStatus, hasAnalyticsConsent } from '../lib/consent';
 import { captureTrafficAttribution, getStoredAttribution } from '../lib/attribution';
+import { examApiClient } from '../features/exam/api/exam-api';
+import type { ExamSummary } from '@jlpt/schema';
 
 const renderClean = (element: React.JSX.Element): string =>
   renderToString(element)
     .replace(/<!--.*?-->/g, '');
 
+const MOCK_SEO_EXAMS: ExamSummary[] = [
+  {
+    id: 'b6f6c5e0-3277-448c-98a9-f001bfa8e301',
+    slug: 'jlpt-n3-chuan-so-1',
+    title: 'Đề thi JLPT N3 Chuẩn Số 1',
+    level: 'N3',
+    kind: 'practice',
+    year: 2023,
+    session: '12',
+    totalQuestions: 95,
+    sections: [
+      { title: 'Kiến thức ngôn ngữ (Từ vựng)', durationSec: 1800 },
+      { title: 'Ngữ pháp - Đọc hiểu', durationSec: 4200 },
+      { title: 'Nghe hiểu', durationSec: 2400 },
+    ],
+    sourceLabel: 'JLPT Online',
+    guestTrial: false,
+    publishedVersion: 1,
+  },
+  {
+    id: 'c7a7d6f1-4388-559d-a9b0-f002cfb9f402',
+    slug: 'jlpt-n1-2023-12',
+    title: 'Đề thi JLPT N1 - Kỳ thi 2023-12',
+    level: 'N1',
+    kind: 'original',
+    year: 2023,
+    session: '12',
+    totalQuestions: 105,
+    sections: [
+      { title: 'Kiến thức ngôn ngữ - Đọc hiểu', durationSec: 6600 },
+      { title: 'Nghe hiểu', durationSec: 3600 },
+    ],
+    sourceLabel: 'Japan Foundation & JEES',
+    guestTrial: false,
+    publishedVersion: 1,
+  },
+];
+
 describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', () => {
+  beforeEach(() => {
+    vi.spyOn(examApiClient, 'getExams').mockImplementation(async (query) => {
+      let items = MOCK_SEO_EXAMS;
+      if (query?.level) {
+        items = items.filter((e) => e.level.toUpperCase() === query.level?.toUpperCase());
+      }
+      return { items, nextCursor: undefined };
+    });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
   // =========================================================================
   // 1. SEO-01: Trang giới thiệu cho từng cấp độ N1–N5
   // =========================================================================
@@ -118,7 +171,7 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
     });
 
     it('renders specific session page for e.g. /n1/de-thi/2023-12', async () => {
-      const sessionParams = generateSessionParams();
+      const sessionParams = await generateSessionParams();
       expect(sessionParams.some((p) => p.level === 'n1' && p.session === '2023-12')).toBe(true);
 
       const page = await SessionExamsPage({
@@ -179,8 +232,8 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
   // 5. SEO-06: Sitemap và robots.txt
   // =========================================================================
   describe('SEO-06: Sitemap & Metadata robots.txt', () => {
-    it('generates complete sitemap with all public pages, priorities, and hreflang alternates', () => {
-      const entries = sitemap();
+    it('generates complete sitemap with all public pages, priorities, and hreflang alternates', async () => {
+      const entries = await sitemap();
       expect(entries.length).toBeGreaterThan(20);
 
       const urls = entries.map((e) => e.url);
