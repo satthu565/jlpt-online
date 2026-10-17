@@ -1,5 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { describe, it, expect } from 'vitest';
 import {
   validatePackagePath,
@@ -810,4 +811,106 @@ describe('C05 Validator gói nhập kiểm tra dữ liệu và đóng gói', () 
       expect(() => assertNoAnswerLeak(leakedExplanation)).toThrow(/forbidden answer field "explanation"/);
     });
   });
+
+  // --------------------------------------------------------------------------
+  // R05 Chốt dữ liệu nhập AI learning và dữ liệu (Regression & Contract Finalization)
+  // --------------------------------------------------------------------------
+  describe('R05 Chốt dữ liệu nhập AI learning và dữ liệu (Regression & Contract Finalization)', () => {
+    it('CLI tools: validate.js validates ready fixtures and enforces blueprint constraints', () => {
+      const validateBin = path.join(ROOT, 'tools/import-data/bin/validate.js');
+      const proc = spawnSync('node', [validateBin, READY_FIXTURE_PATH], { encoding: 'utf-8' });
+      expect(proc.status).toBe(0);
+      const parsed = JSON.parse(proc.stdout);
+      expect(parsed.valid).toBe(true);
+      expect(parsed.mode).toBe('ready');
+      expect(parsed.readiness).toBe('READY_FOR_REVIEW');
+      expect(parsed.publicationApproved).toBe(false);
+
+      // Validate with blueprint
+      const procBp = spawnSync(
+        'node',
+        [validateBin, DEMO_N5_ZIP_PATH, '--blueprint', DEMO_BLUEPRINT_PATH],
+        { encoding: 'utf-8' },
+      );
+      expect(procBp.status).toBe(0);
+      const parsedBp = JSON.parse(procBp.stdout);
+      expect(parsedBp.valid).toBe(true);
+      expect(parsedBp.questionCount).toBe(29);
+    });
+
+    it('CLI tools: pack.js packages directory into valid ZIP archive verified by validate.js', () => {
+      const packBin = path.join(ROOT, 'tools/import-data/bin/pack.js');
+      const validateBin = path.join(ROOT, 'tools/import-data/bin/validate.js');
+      const tempZip = path.join(ROOT, 'fixtures/imports/temp-test-r05.zip');
+
+      try {
+        const packProc = spawnSync('node', [packBin, READY_FIXTURE_PATH, tempZip], { encoding: 'utf-8' });
+        expect(packProc.status).toBe(0);
+        expect(fs.existsSync(tempZip)).toBe(true);
+
+        const valProc = spawnSync('node', [validateBin, tempZip], { encoding: 'utf-8' });
+        expect(valProc.status).toBe(0);
+        const valResult = JSON.parse(valProc.stdout);
+        expect(valResult.valid).toBe(true);
+        expect(valResult.readiness).toBe('READY_FOR_REVIEW');
+      } finally {
+        if (fs.existsSync(tempZip)) {
+          fs.unlinkSync(tempZip);
+        }
+      }
+    });
+
+    it('Python standalone validator validates ready and draft packages in exact parity with TypeScript', () => {
+      const pyValidator = path.join(ROOT, 'tools/import-data/validate_import.py');
+      const procReady = spawnSync('python3', [pyValidator, READY_FIXTURE_PATH], { encoding: 'utf-8' });
+      expect(procReady.status).toBe(0);
+      const pyReady = JSON.parse(procReady.stdout);
+      expect(pyReady.valid).toBe(true);
+      expect(pyReady.readiness).toBe('READY_FOR_REVIEW');
+      expect(pyReady.publicationApproved).toBe(false);
+
+      const procDraft = spawnSync('python3', [pyValidator, DRAFT_FIXTURE_PATH, '--mode', 'draft'], { encoding: 'utf-8' });
+      expect(procDraft.status).toBe(0);
+      const pyDraft = JSON.parse(procDraft.stdout);
+      expect(pyDraft.valid).toBe(true);
+      expect(pyDraft.readiness).toBe('DRAFT_ONLY');
+      expect(pyDraft.blockingIssueCount).toBeGreaterThan(0);
+    });
+
+    it('preserves question count, answer key integrity, and zero answer leakage across re-imports', () => {
+      const { rawJson } = loadPackageArchive(DEMO_N5_ZIP_PATH);
+      const pkg = rawJson as ImportPackageV2;
+
+      const { snapshot, answerKeys, manifest } = buildSnapshotFromImportPackage(pkg);
+      expect(snapshot.totalQuestions).toBe(29);
+      expect(manifest.media.length).toBeGreaterThan(0);
+
+      // Assert snapshot schema
+      expect(() => assertNoAnswerLeak(snapshot)).not.toThrow();
+      expect(() => PublicExamSnapshotSchema.parse(snapshot)).not.toThrow();
+
+      // Ensure every question has an answer in the separate answerKeys dictionary
+      for (let i = 0; i < snapshot.totalQuestions; i++) {
+        expect(typeof answerKeys[i]).toBe('number');
+        expect(answerKeys[i]).toBeGreaterThanOrEqual(1);
+        expect(answerKeys[i]).toBeLessThanOrEqual(4);
+      }
+
+      // Snapshot sections and question range check
+      for (const section of snapshot.sections) {
+        expect(section.questionRange[0]).toBeLessThanOrEqual(section.questionRange[1]);
+        for (const group of section.groups) {
+          expect(group.groupId).toBeDefined();
+          for (const q of group.questions) {
+            expect(q.questionId).toBeDefined();
+            expect(q.options.length).toBeGreaterThanOrEqual(3);
+            const qAny = q as Record<string, unknown>;
+            expect(qAny['correctOption']).toBeUndefined();
+            expect(qAny['explanation']).toBeUndefined();
+          }
+        }
+      }
+    });
+  });
 });
+
