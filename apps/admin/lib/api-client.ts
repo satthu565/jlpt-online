@@ -352,13 +352,25 @@ export class AdminApiClient {
       body: { code: first },
       headers: { 'x-totp-code': first },
       skipGuard: true,
-    }).then((res) => {
-      this.user = {
-        ...this.user!,
-        twoFactorStatus: 'verified',
-      };
-      return res;
-    });
+    })
+      .catch(async (err: unknown) => {
+        if ((err as AdminClientGuardError)?.status === 404) {
+          await this.request('GET', '/api/v1/admin/audit-logs?limit=1', {
+            headers: { 'x-totp-code': first },
+            skipGuard: true,
+          });
+          return { success: true, verified: true };
+        }
+        throw err;
+      })
+      .then((res) => {
+        this.user = {
+          ...this.user!,
+          twoFactorStatus: 'verified',
+        };
+        this.totpCode = first;
+        return res;
+      });
   }
 
   public verifyRecoveryCode(code: string): boolean | Promise<{ success: boolean; verified: boolean }> {

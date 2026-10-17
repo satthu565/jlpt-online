@@ -263,7 +263,7 @@ export function AdminAuthProvider({
 
     // Verify against API official endpoint
     try {
-      const res = await fetch('/api/v1/admin/auth/2fa/verify', {
+      let res = await fetch('/api/v1/admin/auth/2fa/verify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -273,6 +273,19 @@ export function AdminAuthProvider({
         },
         body: JSON.stringify({ code: code.trim() }),
       });
+
+      // If dedicated verify endpoint is not yet available, verify via TotpGuard on protected admin route
+      if (res.status === 404) {
+        res = await fetch('/api/v1/admin/audit-logs?limit=1', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            'x-totp-code': code.trim(),
+            Host: 'admin.jlpt.local',
+          },
+        });
+      }
 
       if (!res.ok) {
         setError(t('totp.invalidCode', locale));

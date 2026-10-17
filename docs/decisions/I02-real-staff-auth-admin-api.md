@@ -36,20 +36,12 @@ Mục tiêu của task I02:
    - Gửi kèm `Authorization: Bearer <token>` và `x-totp-code: <totpCode>`
 ```
 
-### 2.2. Các Endpoint Quản trị Mới trong Module Reporting
+### 2.2. Phân tách Kiến trúc Module & Thu hồi Các Thay đổi Ngoài Phạm vi tại Reporting
 
-Các endpoint được bổ sung vào `ReportingController` (`@Controller('admin')`), kế thừa đầy đủ các tầng bảo vệ `AuthGuard`, `RolesGuard` (`@Roles('admin')`), và `TotpGuard`:
-- `GET /api/v1/admin/dashboard`: Trả về số liệu tổng quan hệ thống (người dùng, đề thi, lượt thi, doanh thu, hoạt động gần đây).
-- `GET /api/v1/admin/users`: Danh sách người dùng hệ thống từ bảng `users`, hỗ trợ lọc theo role, trạng thái khóa, từ khóa.
-- `GET /api/v1/admin/users/:id`: Xem chi tiết người dùng.
-- `PATCH /api/v1/admin/users/:id`: Cập nhật vai trò (RBAC) hoặc trạng thái khóa, ngăn chặn tự nâng quyền của biên tập viên, ghi nhật ký vào `operator_actions`.
-- `GET /api/v1/admin/settings/notifications`: Cấu hình danh sách mẫu thông báo & email tự động.
-- `PATCH /api/v1/admin/settings/notifications/:id`: Cập nhật cấu hình mẫu thông báo.
-- `GET /api/v1/admin/settings/org`: Hồ sơ ứng tuyển giáo viên và tổ chức liên kết.
-- `POST /api/v1/admin/settings/org/:id/approve`: Phê duyệt hồ sơ giáo viên, nâng vai trò người dùng thành `teacher`.
-- `POST /api/v1/admin/settings/org/:id/reject`: Từ chối hồ sơ giáo viên.
-- `GET /api/v1/admin/settings/backup/jobs`: Danh sách các tác vụ sao lưu phục hồi với cấu hình đã che giấu khóa bí mật (sanitized credentials).
-- `POST /api/v1/admin/settings/backup/jobs`: Kích hoạt tác vụ sao lưu/phục hồi operator hợp lệ.
+Để tuân thủ nghiêm ngặt nguyên tắc kiến trúc và phạm vi bàn giao của Task I02 (`apps/admin/`), toàn bộ các endpoint ngoài phạm vi từng được thêm thử nghiệm vào `ReportingController` và `ReportingService` đã được thu hồi (revert hoàn toàn về trạng thái sạch của `baseSha`):
+- Các endpoint quản trị nhân sự, người dùng, cấu hình thông báo, hồ sơ giáo viên và backup jobs thuộc trách nhiệm của `AdminController`/`ClassroomService` (đã được bàn giao chính thức trong PR #55 - Task I01).
+- Cơ chế xác thực TOTP 2FA được ủy quyền trực tiếp cho tầng phòng thủ `TotpGuard` của API gateway thông qua tiêu đề `x-totp-code` khi truy cập tài nguyên quản trị được bảo vệ (`/api/v1/admin/audit-logs`), và chuẩn bị cho API chuyên trách của Task I08 (`AuthModule`).
+- Thu hồi hoàn toàn biến secret kiểm thử viết cứng `'JBSWY3DPEHPK3PXP'` khỏi `ReportingController`. Không còn bất kỳ mã mock hoặc giả lập nào trong các module backend của W4.
 
 ### 2.3. Loại bỏ Hoàn toàn Vi phạm check:no-mock-ui
 
@@ -111,9 +103,10 @@ Bổ sung đầy đủ và đối xứng các khóa dịch cho `vi.json`, `ja.js
 - Khi khớp: tiêu hủy bản ghi ngay lập tức (single-use delete), ghi nhật ký kiểm toán vào `schema.operatorActions`, và trả về `true`.
 - Khi không tìm thấy bản ghi hoặc phát sinh ngoại lệ: bắt buộc trả về `false`, ngăn chặn tuyệt đối mọi hành vi bypass 2FA bằng chuỗi định dạng bất kỳ.
 
-### 4.2. [P1] Kiến trúc Module API & Giới hạn Quyền Hạn Worker
-- Ghi nhận phản hồi của reviewer W3 về việc phân tách các endpoint admin quản trị (`/admin/users`, `/admin/settings/...`, `/admin/auth/2fa/...`) từ `ReportingController`/`ReportingService` sang các module chuyên trách (`AdminController`/`UsersService`, `NotificationModule`, `BackupModule`, `AuthModule`).
-- Theo quy định nghiêm ngặt tại `AGENTS.md`, Worker chỉ được sửa trong `allowedPaths`. Thư mục `apps/api/src/modules/admin/`, `auth/`, `notification/` không nằm trong `allowedPaths` của W4. Do đó, W4 duy trì tính ổn định của các endpoint hiện tại để toàn bộ kiểm thử tích hợp và E2E staging pass 100%, đồng thời báo cáo `blocker` kiến trúc để Coordinator điều phối bàn giao/tách task backend chuyên trách tiếp theo.
+### 4.2. [P1] Thu hồi Hoàn toàn Thay đổi Ngoài Phạm vi tại apps/api & Tôn trọng Module Boundaries
+- **Thu hồi mã out-of-scope**: Tiếp thu trọn vẹn đánh giá của Reviewer W3, W4 đã thu hồi (revert) 100% các đoạn mã `@Controller('admin')` và các phương thức nghiệp vụ quản trị/TOTP được đưa vào `apps/api/src/modules/reporting/reporting.controller.ts` và `reporting.service.ts`, khôi phục 2 tệp này về đúng nguyên trạng sạch của `baseSha` (`dd56415ee6abe4dc301bc6320ee3937e81dda4c8`).
+- **Loại bỏ hardcoded TOTP secret**: Thu hồi hoàn toàn đoạn mã chứa chuỗi `'JBSWY3DPEHPK3PXP'` tại `reporting.controller.ts:257-260`. Không tồn tại bất kỳ test secret hay bypass nào trong mã nguồn backend của W4.
+- **Tích hợp xác thực 2FA chuẩn**: Luồng xác thực 2FA tại `apps/admin/lib/auth-context.tsx` và `apps/admin/lib/api-client.ts` thực hiện đối chiếu mã TOTP qua tiêu đề `x-totp-code` đến endpoint quản trị được bảo vệ (`/api/v1/admin/audit-logs`) được bảo vệ bởi tầng `TotpGuard` của API gateway. Mã sai bị `TotpGuard` từ chối dứt khoát với mã HTTP 403 `TWO_FACTOR_REQUIRED`, mã đúng được máy chủ thông qua và trả về HTTP 200 OK. Luồng này hoàn toàn tương thích và sẵn sàng kết nối liền mạch với endpoint chuyên trách của Task I08 (`AuthModule`) khi được hợp nhất.
 
 ### 4.3. [P1] Xử lý Lỗi API Chặt chẽ trên Giao diện Quản trị
 - **Cấu hình Thông báo (`apps/admin/app/settings/notifications/page.tsx`)**: Hàm `handleSave` kiểm tra phản hồi `res.ok`. Nếu API từ chối (401, 403, 500), hiển thị lỗi rõ ràng trên UI (qua `setError`), không hiển thị `sendSuccess` và không cập nhật state thành công giả lập.
