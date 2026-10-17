@@ -112,6 +112,42 @@ export class ClassroomService {
   }
 
   /**
+   * TEA-01: Quản trị viên từ chối đơn đăng ký giáo viên
+   */
+  async rejectTeacherApplication(applicationId: string, adminUser: AuthUserContext) {
+    if (adminUser.role !== 'admin') {
+      throw new ForbiddenException({
+        code: 'FORBIDDEN',
+        message: 'Chỉ quản trị viên mới có quyền từ chối đơn đăng ký giáo viên.',
+      });
+    }
+
+    const [application] = await this.client.db
+      .select()
+      .from(schema.teacherApplications)
+      .where(eq(schema.teacherApplications.id, applicationId))
+      .limit(1);
+
+    if (!application) {
+      throw new NotFoundException({
+        code: 'NOT_FOUND',
+        message: 'Không tìm thấy đơn đăng ký giáo viên.',
+      });
+    }
+
+    await this.client.db
+      .update(schema.teacherApplications)
+      .set({ status: 'rejected' })
+      .where(eq(schema.teacherApplications.id, applicationId));
+
+    return {
+      applicationId,
+      status: 'rejected',
+      userId: application.userId,
+    };
+  }
+
+  /**
    * TEA-12: Danh sách tổ chức giáo dục mà người dùng tham gia
    */
   async listOrganizations(user: AuthUserContext) {

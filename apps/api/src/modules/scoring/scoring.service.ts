@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { eq, and } from 'drizzle-orm';
 import {
@@ -9,6 +11,7 @@ import type { BlueprintScoring, ExamAnswerKey, Result } from '@jlpt/schema';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
+import { getRepoRoot } from '../../common/utils/paths.js';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 
 type DbTx = Parameters<Parameters<PostgresJsDatabase<typeof schema>['transaction']>[0]>[0];
@@ -76,7 +79,63 @@ export class ScoringService {
       )
       .limit(1);
 
-    const blueprintScoring = (bpRow?.scoring ?? ev.scoring) as BlueprintScoring;
+    let blueprintScoring = (bpRow?.scoring ?? ev.scoring) as BlueprintScoring;
+    if (
+      !blueprintScoring?.scoringSections ||
+      !Array.isArray(blueprintScoring.scoringSections) ||
+      blueprintScoring.scoringSections.length === 0
+    ) {
+      // Try to load from blueprint fixtures
+      try {
+        const repoRoot = getRepoRoot();
+        const bpDir = path.join(repoRoot, 'packages/schema/fixtures/blueprints');
+        const [examRow] = await db
+          .select({ level: schema.exams.level })
+          .from(schema.exams)
+          .where(eq(schema.exams.id, examId))
+          .limit(1);
+        const levelStr = (examRow?.level || 'n5').toLowerCase();
+        const bpFile = path.join(bpDir, `synthetic-${levelStr}.json`);
+        if (fs.existsSync(bpFile)) {
+          const bpData = JSON.parse(fs.readFileSync(bpFile, 'utf-8'));
+          if (bpData?.scoring?.scoringSections) {
+            blueprintScoring = bpData.scoring;
+          }
+        }
+      } catch {
+        // fallback below
+      }
+
+      // If still missing, fallback to standard scoring sections
+      if (
+        !blueprintScoring?.scoringSections ||
+        !Array.isArray(blueprintScoring.scoringSections) ||
+        blueprintScoring.scoringSections.length === 0
+      ) {
+        blueprintScoring = {
+          method: 'linear_reference',
+          rounding: 'round',
+          scoringSections: [
+            {
+              code: 'language_reading',
+              label: 'Kiến thức ngôn ngữ & Đọc hiểu',
+              skills: ['kanji', 'vocabulary', 'grammar', 'reading'],
+              maxScaled: 120,
+              minPass: 38,
+            },
+            {
+              code: 'listening',
+              label: 'Nghe hiểu',
+              skills: ['listening'],
+              maxScaled: 60,
+              minPass: 19,
+            },
+          ],
+          totalMax: 180,
+          totalPass: 80,
+        };
+      }
+    }
 
     const answerKey: ExamAnswerKey = {
       examId: akRow.examId,

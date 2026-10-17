@@ -10,7 +10,7 @@
     "dev": "node --watch --loader ts-node/esm src/main.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "vitest run --testTimeout=30000 --hookTimeout=30000",
+    "test": "vitest run -c ../../tests/vitest.config.ts --testTimeout=30000 --hookTimeout=30000",
     "test:auth": "vitest run src/modules/auth/auth.test.ts",
     "test:authorization": "vitest run src/common/guards/authorization.test.ts",
     "test:attempts": "vitest run src/modules/attempt/attempt.test.ts",
@@ -29,7 +29,7 @@
     "test:community": "vitest run src/modules/community/community.test.ts",
     "test:privacy": "vitest run src/modules/user/privacy.test.ts",
     "test:security": "vitest run --testTimeout=30000 --hookTimeout=30000 src/common/guards/security-hardening.test.ts src/common/guards/authorization.test.ts src/modules/attempt/no-answer-leak.test.ts",
-    "test:api:all": "vitest run --testTimeout=30000 --hookTimeout=30000",
+    "test:api:all": "vitest run -c ../../tests/vitest.config.ts --testTimeout=30000 --hookTimeout=30000",
     "demo:seed": "node dist/src/modules/import/demo-seed.js"
   },
   "dependencies": {

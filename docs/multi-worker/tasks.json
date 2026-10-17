@@ -3057,6 +3057,72 @@
       "originalTaskRefs": []
     },
     {
+      "id": "I08",
+      "owner": "W2",
+      "day": 8,
+      "notBeforeHour": 168,
+      "targetByHour": 192,
+      "estimatedWorkerHours": 4,
+      "title": "API xác thực hai bước (TOTP) cho nhân sự",
+      "dependencies": [
+        "I01"
+      ],
+      "featureIds": [],
+      "scope": "Bổ sung trong module auth: đăng ký TOTP cho nhân sự (sinh secret lưu mã hóa theo user, trả otpauth URI), xác nhận đăng ký bằng mã 6 số, thử thách TOTP sau khi đăng nhập mật khẩu (session chỉ đánh dấu twoFactorVerified khi mã đúng), mã khôi phục dùng một lần lưu dạng hash, tắt/đặt lại 2FA có audit. Sửa TotpGuard: bỏ secret mặc định viết cứng (JBSWY3DPEHPK3PXP và TOTP_TEST_SECRET ở production), kiểm tra theo secret của chính user và cờ twoFactorVerified của session; route /admin bắt buộc với nhân sự. Seed staging có tài khoản nhân sự với secret biết trước cho E2E.",
+      "outputs": [
+        "package.json",
+        "apps/api/package.json",
+        "apps/api/src/common/",
+        "apps/api/src/modules/auth/",
+        "apps/api/src/modules/user/",
+        "apps/api/src/modules/exam/",
+        "apps/api/src/modules/attempt/",
+        "apps/api/src/modules/question-bank/",
+        "apps/api/src/modules/import/",
+        "apps/api/src/modules/media/",
+        "apps/api/src/modules/review/",
+        "apps/api/src/modules/storage/",
+        "apps/api/src/modules/license/",
+        "apps/api/src/modules/blueprint/",
+        "apps/api/src/modules/audit/",
+        "apps/api/src/modules/notification/",
+        "apps/api/src/modules/community/",
+        "apps/api/src/modules/classroom/",
+        "apps/api/src/modules/scoring/",
+        "apps/api/src/modules/outbox/",
+        "apps/api/src/modules/email/",
+        "apps/api/src/modules/admin/",
+        "apps/api/src/modules/turnstile/",
+        "apps/api/src/main.ts",
+        "apps/api/src/app.module.ts",
+        "docs/decisions/"
+      ],
+      "acceptance": [
+        "Mã sai, mã cũ, mã khôi phục đã dùng hoặc không tồn tại đều bị API từ chối; lỗi DB không bao giờ cho qua",
+        "Không còn secret TOTP mặc định trong code chạy thật",
+        "Test API cho đăng ký, thử thách, mã khôi phục, khóa sau nhiều lần sai; E2E đăng nhập nhân sự qua API trên staging"
+      ],
+      "checks": [
+        "pnpm test:auth",
+        "pnpm test:security",
+        "pnpm test:api:all"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [
+        "api-hardening"
+      ],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
       "id": "I02",
       "owner": "W4",
       "day": 8,
@@ -3065,10 +3131,11 @@
       "estimatedWorkerHours": 4,
       "title": "Đăng nhập nhân sự thật và khung quản trị nối API",
       "dependencies": [
-        "I00"
+        "I00",
+        "I08"
       ],
       "featureIds": [],
-      "scope": "Bỏ đăng nhập giả trong apps/admin/lib/auth-context.tsx: đăng nhập email mật khẩu, TOTP enrollment/challenge và recovery codes qua API; session, đăng xuất, guard theo role từ server. Trang tổng quan, người dùng, audit log, cài đặt (org, thông báo, backup) lấy dữ liệu từ API.",
+      "scope": "Bỏ đăng nhập giả trong apps/admin/lib/auth-context.tsx: đăng nhập email mật khẩu, TOTP enrollment/challenge và recovery codes qua API của I08 (không tự viết xác thực trong module khác, không giữ chế độ offline giả lập); session, đăng xuất, guard theo role từ server. Trang tổng quan, người dùng, audit log, cài đặt (org, thông báo, backup) lấy dữ liệu từ API.",
       "outputs": [
         "apps/admin/"
       ],
@@ -3089,7 +3156,10 @@
       "exclusiveResources": [],
       "startPrerequisites": [],
       "acceptancePrerequisites": [],
-      "temporaryGrants": [],
+      "temporaryGrants": [
+        "tests/playwright/",
+        "tests/integration/mock-ui-baseline.json"
+      ],
       "kind": "implementation",
       "status": "TODO",
       "reviewRequired": true,
@@ -3129,7 +3199,10 @@
       "exclusiveResources": [],
       "startPrerequisites": [],
       "acceptancePrerequisites": [],
-      "temporaryGrants": [],
+      "temporaryGrants": [
+        "tests/playwright/",
+        "tests/integration/mock-ui-baseline.json"
+      ],
       "kind": "implementation",
       "status": "TODO",
       "reviewRequired": true,
@@ -3175,7 +3248,10 @@
       "exclusiveResources": [],
       "startPrerequisites": [],
       "acceptancePrerequisites": [],
-      "temporaryGrants": [],
+      "temporaryGrants": [
+        "tests/playwright/",
+        "tests/integration/mock-ui-baseline.json"
+      ],
       "kind": "implementation",
       "status": "TODO",
       "reviewRequired": true,
@@ -3217,7 +3293,10 @@
       "exclusiveResources": [],
       "startPrerequisites": [],
       "acceptancePrerequisites": [],
-      "temporaryGrants": [],
+      "temporaryGrants": [
+        "tests/playwright/",
+        "tests/integration/mock-ui-baseline.json"
+      ],
       "kind": "implementation",
       "status": "TODO",
       "reviewRequired": true,
@@ -3258,7 +3337,10 @@
       "exclusiveResources": [],
       "startPrerequisites": [],
       "acceptancePrerequisites": [],
-      "temporaryGrants": [],
+      "temporaryGrants": [
+        "tests/playwright/",
+        "tests/integration/mock-ui-baseline.json"
+      ],
       "kind": "implementation",
       "status": "TODO",
       "reviewRequired": true,
@@ -3275,6 +3357,7 @@
       "title": "Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả",
       "dependencies": [
         "I01",
+        "I08",
         "I02",
         "I03",
         "I04",
