@@ -14,6 +14,7 @@
     "test:load": "node --no-warnings --experimental-strip-types load/stepped-load-runner.ts",
     "test:load:baseline": "node --no-warnings --experimental-strip-types load/baseline-runner.ts",
     "test:e2e:full": "vitest run -c vitest.config.ts e2e/full/ --fileParallelism=false --testTimeout=60000 --hookTimeout=60000",
+    "test:release": "vitest run -c vitest.config.ts integration/release-acceptance.test.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },
