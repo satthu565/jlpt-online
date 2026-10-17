@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { spawn, execSync, type ChildProcess } from 'node:child_process';
 import fs from 'node:fs';
 import net from 'node:net';
+import crypto from 'node:crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,6 +41,83 @@ export const TEST_USERS = {
   unverifiedStudent: '0192f000-0000-7000-8000-0000000000c2',
   otherStudent: '0192f000-0000-7000-8000-0000000000c3',
 } as const;
+
+export function generateTestTotp(secret = 'JBSWY3DPEHPK3PXP'): string {
+  const clean = secret.toUpperCase().replace(/[\s\-=]/g, '');
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  let bits = 0;
+  let value = 0;
+  const bytes: number[] = [];
+  for (let i = 0; i < clean.length; i++) {
+    const val = alphabet.indexOf(clean[i]!);
+    if (val !== -1) {
+      value = (value << 5) | val;
+      bits += 5;
+      if (bits >= 8) {
+        bytes.push((value >>> (bits - 8)) & 0xff);
+        bits -= 8;
+      }
+    }
+  }
+  const secretBuf = Buffer.from(bytes);
+  const counter = Math.floor(Date.now() / 1000 / 30);
+  const counterBuf = Buffer.alloc(8);
+  counterBuf.writeBigUInt64BE(BigInt(counter), 0);
+  const hmac = crypto.createHmac('sha1', secretBuf).update(counterBuf).digest();
+  const offset = hmac[hmac.length - 1]! & 0x0f;
+  const binary =
+    ((hmac[offset]! & 0x7f) << 24) |
+    ((hmac[offset + 1]! & 0xff) << 16) |
+    ((hmac[offset + 2]! & 0xff) << 8) |
+    (hmac[offset + 3]! & 0xff);
+  return (binary % 1000000).toString().padStart(6, '0');
+}
+
+const STAFF_TOKENS = new Set<string>([
+  AUTH_TOKENS.admin,
+  AUTH_TOKENS.billingAdmin,
+  AUTH_TOKENS.editor,
+  AUTH_TOKENS.reviewer,
+]);
+
+let isFetchTotpHookInstalled = false;
+export function installFetchTotpHook(): void {
+  if (isFetchTotpHookInstalled || typeof globalThis.fetch === 'undefined') return;
+  isFetchTotpHookInstalled = true;
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async function (
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ): Promise<Response> {
+    const urlStr =
+      typeof input === 'string'
+        ? input
+        : input instanceof URL
+        ? input.toString()
+        : input.url;
+
+    if (urlStr.includes('/api/v1/admin') || urlStr.includes('/admin')) {
+      const headers = new Headers(
+        init?.headers || (input instanceof Request ? input.headers : undefined),
+      );
+      const authHeader = headers.get('authorization') || '';
+      const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+
+      if (STAFF_TOKENS.has(token) && !headers.has('x-totp-code')) {
+        headers.set('x-totp-code', generateTestTotp());
+        if (init) {
+          init.headers = headers;
+        } else if (input instanceof Request) {
+          input = new Request(input, { headers });
+        } else {
+          init = { headers };
+        }
+      }
+    }
+
+    return originalFetch.call(this, input, init);
+  };
+}
 
 let apiProcess: ChildProcess | null = null;
 let activeBaseUrl: string | null = null;
@@ -86,6 +164,8 @@ async function findFreePort(_preferred = 4092): Promise<number> {
 }
 
 export async function getApiBaseUrl(): Promise<string> {
+  installFetchTotpHook();
+
   // 1. External Staging in CI takes highest precedence
   if (process.env.STAGING_API_URL) {
     return process.env.STAGING_API_URL.replace(/\/$/, '');

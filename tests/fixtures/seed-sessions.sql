@@ -137,5 +137,7 @@ ON CONFLICT (id) DO UPDATE SET
 -- Enable guest trial for demo exam to support realistic load testing and unauthenticated trial runs
 UPDATE exams SET description = 'guest_trial' WHERE slug = 'demo-n5-1';
 
-
-
+-- Reset test student attempts for deterministic clean test runs
+DELETE FROM attempt_events WHERE attempt_id IN (SELECT id FROM exam_attempts WHERE user_id = '0192f000-0000-7000-8000-0000000000c1');
+DELETE FROM user_answers WHERE attempt_id IN (SELECT id FROM exam_attempts WHERE user_id = '0192f000-0000-7000-8000-0000000000c1');
+DELETE FROM exam_attempts WHERE user_id = '0192f000-0000-7000-8000-0000000000c1';

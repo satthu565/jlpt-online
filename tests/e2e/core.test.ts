@@ -7,6 +7,7 @@ import {
   getApiBaseUrl,
   stopApiServer,
   AUTH_TOKENS,
+  generateTestTotp,
 } from '../fixtures/test-server.ts';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -53,6 +54,7 @@ describe('Core Vertical Slice E2E: Demo Package flow (N06)', () => {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${AUTH_TOKENS.editor}`,
+          'x-totp-code': generateTestTotp(),
         },
         body: JSON.stringify(corruptPayload),
       });
@@ -80,6 +82,7 @@ describe('Core Vertical Slice E2E: Demo Package flow (N06)', () => {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${AUTH_TOKENS.editor}`,
+          'x-totp-code': generateTestTotp(),
         },
         body: JSON.stringify(payload),
       });
@@ -128,6 +131,7 @@ describe('Core Vertical Slice E2E: Demo Package flow (N06)', () => {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${AUTH_TOKENS.editor}`,
+            'x-totp-code': generateTestTotp(),
           },
           body: JSON.stringify(decisionPayload),
         },
@@ -154,6 +158,7 @@ describe('Core Vertical Slice E2E: Demo Package flow (N06)', () => {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${AUTH_TOKENS.reviewer}`,
+            'x-totp-code': generateTestTotp(),
           },
           body: JSON.stringify(decisionPayload),
         },
@@ -187,6 +192,7 @@ describe('Core Vertical Slice E2E: Demo Package flow (N06)', () => {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${AUTH_TOKENS.editor}`,
+            'x-totp-code': generateTestTotp(),
           },
         },
       );
@@ -200,6 +206,7 @@ describe('Core Vertical Slice E2E: Demo Package flow (N06)', () => {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${AUTH_TOKENS.admin}`,
+            'x-totp-code': generateTestTotp(),
           },
         },
       );
@@ -263,6 +270,26 @@ describe('Core Vertical Slice E2E: Demo Package flow (N06)', () => {
           mode: 'real',
         }),
       });
+
+      if (res.status === 409) {
+        const conflict = (await res.json()) as { error?: { code?: string; details?: { attemptId?: string } } };
+        if (conflict.error?.code === 'ATTEMPT_ALREADY_OPEN' && conflict.error.details?.attemptId) {
+          const resumeRes = await fetch(`${baseUrl}/api/v1/attempts/${conflict.error.details.attemptId}/resume`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${AUTH_TOKENS.student}`,
+            },
+          });
+          if (resumeRes.ok) {
+            const resumeData = (await resumeRes.json()) as { lease: string; mediaToken?: string };
+            activeAttemptId = conflict.error.details.attemptId;
+            activeLeaseToken = resumeData.lease;
+            expect(activeAttemptId).toBeDefined();
+            expect(activeLeaseToken).toBeDefined();
+            return;
+          }
+        }
+      }
 
       expect(res.status).toBe(201);
       const data = (await res.json()) as {

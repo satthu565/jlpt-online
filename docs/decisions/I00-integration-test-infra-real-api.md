@@ -110,7 +110,22 @@ Bước vào Ngày 8 (tích hợp giao diện với API thật, mã task I00–I
 
 ---
 
-## 6. Kết quả nghiệm thu các tiêu chí
+## 6. Khắc phục lỗi TOTP 2FA trên Staging CI cho Core E2E Slice (Lượt 8/9)
+
+- **Nguyên nhân lỗi CI**: Bước `Run Core Vertical Slice E2E & Demo Package Flow (N06)` trong `.github/workflows/staging.yml` chạy test:
+  `tests/e2e/core.test.ts`
+  bị fail tại 5 bài kiểm thử gọi các route `/api/v1/admin/*` (`imports`, `reviews/.../decision`, `exams/.../publish`) với lỗi HTTP 403:
+  `Tài khoản nhân sự bắt buộc phải kích hoạt và xác thực 2FA (TOTP).`
+  Nguyên nhân do biến môi trường `ENFORCE_STAFF_2FA=true` được cấu hình trên container `api` trong `compose.staging.yml`. Khi cờ này bật, `TotpGuard` kiểm tra toàn bộ yêu cầu gọi vào route `/api/v1/admin/*` của nhân sự (`editor`, `reviewer`, `admin`). Do các bài kiểm thử E2E của N06 được viết từ Ngày 6 trước khi có cơ chế cưỡng bức 2FA, các yêu cầu gửi đi chỉ mang token Bearer mà không đính kèm mã TOTP RFC 6238, dẫn đến việc bị chặn 403 sớm trước khi đến được logic nghiệp vụ (như kiểm tra payload ZIP hay quy tắc 4-Eyes).
+- **Biện pháp xử lý**:
+  1. Bổ sung hàm tiện ích `generateTestTotp()` và hook `installFetchTotpHook()` vào `tests/fixtures/test-server.ts`. Khi chạy các bài kiểm thử tích hợp dùng `getApiBaseUrl()`, hook tự động phát hiện các yêu cầu của tài khoản nhân sự gọi vào endpoint `/api/v1/admin/*` và tự động bổ sung tiêu đề `x-totp-code` hợp lệ nếu chưa có.
+  2. Bổ sung tiêu đề `x-totp-code: generateTestTotp()` trực tiếp vào các lệnh gọi quản trị trong `tests/e2e/core.test.ts` (validate ZIP, 4-Eyes review decision, reviewer approve, admin publish).
+  3. Bổ sung cơ chế xử lý và tự động nối lại phiên thi dở dang (`resumeAttempt`) nếu phát hiện mã lỗi `409 ATTEMPT_ALREADY_OPEN` trên môi trường chia sẻ.
+  4. Bổ sung lệnh dọn dẹp các lượt thi cũ của tài khoản học viên mẫu trong `tests/fixtures/seed-sessions.sql` để đảm bảo tính tất định giữa các lần chạy.
+
+---
+
+## 7. Kết quả nghiệm thu các tiêu chí
 
 | Tiêu chí | Trạng thái | Bằng chứng |
 | :--- | :--- | :--- |
