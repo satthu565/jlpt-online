@@ -191,8 +191,11 @@ export function scanDirectory(
 export function scanApps(rootDir = process.cwd()): ScannedFileResult[] {
   const targets: Array<{ app: 'web' | 'admin'; dir: string }> = [
     { app: 'web', dir: path.join(rootDir, 'apps/web/app') },
+    { app: 'web', dir: path.join(rootDir, 'apps/web/components') },
     { app: 'web', dir: path.join(rootDir, 'apps/web/features') },
+    { app: 'web', dir: path.join(rootDir, 'apps/web/lib') },
     { app: 'admin', dir: path.join(rootDir, 'apps/admin/app') },
+    { app: 'admin', dir: path.join(rootDir, 'apps/admin/components') },
     { app: 'admin', dir: path.join(rootDir, 'apps/admin/features') },
     { app: 'admin', dir: path.join(rootDir, 'apps/admin/lib') },
   ];

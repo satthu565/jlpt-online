@@ -41,43 +41,63 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
     expect(SEEDED_STAFF_ACCOUNTS.reviewer.role).toBe('reviewer');
   });
 
-  test('Same-origin API reverse proxy: Web origin /api/v1 routes to API service', async ({ page }) => {
-    const webOrigin = test.info().project.use.baseURL || 'http://127.0.0.1:3000';
+  test('Same-origin API reverse proxy: Web origin /api/v1 routes to API service', async ({
+    request,
+  }) => {
+    const webOrigin = process.env.PLAYWRIGHT_BASE_URL || test.info().project.use.baseURL || 'http://127.0.0.1:3000';
 
+    let response;
     try {
-      const response = await page.request.get(`${webOrigin}/api/v1/health`, { timeout: 3000 });
-      if (response.ok()) {
-        const body = await response.json();
-        expect(body).toHaveProperty('status');
-        expect(body.status).toBe('ok');
+      response = await request.get(`${webOrigin}/api/v1/health`, { timeout: 5000 });
+    } catch (err) {
+      if (!process.env.CI) {
+        test.skip(true, 'Staging live server not running locally; skipping live check');
+        return;
       }
-    } catch {
-      test.skip(!process.env.CI, 'Staging live server not running locally; skipping live check');
+      throw err;
     }
+
+    expect(response.status()).toBe(200);
+    expect(response.ok()).toBe(true);
+    const body = await response.json();
+    expect(body).toHaveProperty('status');
+    expect(body.status).toBe('ok');
   });
 
-  test('Same-origin API reverse proxy: Admin origin /api/v1 routes to API service', async ({ page }) => {
+  test('Same-origin API reverse proxy: Admin origin /api/v1 routes to API service', async ({
+    request,
+  }) => {
     const adminOrigin = process.env.ADMIN_URL || 'http://127.0.0.1:3001';
 
+    let response;
     try {
-      const response = await page.request.get(`${adminOrigin}/api/v1/health`, { timeout: 3000 });
-      if (response.ok()) {
-        const body = await response.json();
-        expect(body).toHaveProperty('status');
-        expect(body.status).toBe('ok');
+      response = await request.get(`${adminOrigin}/api/v1/health`, { timeout: 5000 });
+    } catch (err) {
+      if (!process.env.CI) {
+        test.skip(true, 'Staging live server not running locally; skipping live check');
+        return;
       }
-    } catch {
-      test.skip(!process.env.CI, 'Staging live server not running locally; skipping live check');
+      throw err;
     }
+
+    expect(response.status()).toBe(200);
+    expect(response.ok()).toBe(true);
+    const body = await response.json();
+    expect(body).toHaveProperty('status');
+    expect(body.status).toBe('ok');
   });
 
   test('Mailpit integration: Student registration dispatches real email and verifies account', async ({
-    page,
+    request,
   }) => {
     const isMailpitUp = await mailpit.isHealthy();
     if (!isMailpitUp) {
-      test.skip(!process.env.CI, 'Mailpit not running in local environment; skipping live email drill');
-      return;
+      if (!process.env.CI) {
+        test.skip(true, 'Mailpit not running in local environment; skipping live email drill');
+        return;
+      }
+      expect(isMailpitUp).toBe(true);
+      throw new Error(`Mailpit service unreachable at ${process.env.MAILPIT_URL || 'http://127.0.0.1:8025'}`);
     }
 
     const apiUrl = process.env.STAGING_API_URL || 'http://127.0.0.1:4000';
@@ -87,7 +107,7 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
     const testName = `Student E2E ${timestamp}`;
 
     // 1. Send registration request to API
-    const regRes = await page.request.post(`${apiUrl}/api/v1/auth/sign-up/email`, {
+    const regRes = await request.post(`${apiUrl}/api/v1/auth/sign-up/email`, {
       data: {
         email: testEmail,
         password: testPassword,
@@ -109,13 +129,13 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
     expect(verificationToken).toBeTruthy();
 
     // 4. Call verification endpoint
-    const verifyRes = await page.request.get(
+    const verifyRes = await request.get(
       `${apiUrl}/api/v1/auth/verify-email?token=${verificationToken}`,
     );
     expect(verifyRes.status()).toBe(200);
 
     // 5. Sign in with newly verified credentials
-    const loginRes = await page.request.post(`${apiUrl}/api/v1/auth/sign-in/email`, {
+    const loginRes = await request.post(`${apiUrl}/api/v1/auth/sign-in/email`, {
       data: {
         email: testEmail,
         password: testPassword,
@@ -127,38 +147,77 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
   });
 
   test('Staff authentication: Seeded staff logs in with password and validates TOTP', async ({
-    page,
+    request,
   }) => {
     const apiUrl = process.env.STAGING_API_URL || 'http://127.0.0.1:4000';
 
     try {
-      const ping = await page.request.get(`${apiUrl}/api/v1/health`, { timeout: 2000 });
+      const ping = await request.get(`${apiUrl}/api/v1/health`, { timeout: 3000 });
       if (!ping.ok()) {
-        test.skip(!process.env.CI, 'API not reachable; skipping live staff login drill');
+        if (!process.env.CI) {
+          test.skip(true, 'API not healthy; skipping live staff login drill');
+          return;
+        }
+        expect(ping.status()).toBe(200);
+      }
+    } catch (err) {
+      if (!process.env.CI) {
+        test.skip(true, 'API not reachable; skipping live staff login drill');
         return;
       }
-    } catch {
-      test.skip(!process.env.CI, 'API not reachable; skipping live staff login drill');
-      return;
+      throw err;
     }
 
     // Attempt login with seeded staff credentials
     const staff = SEEDED_STAFF_ACCOUNTS.admin;
-    const authResult = await authenticateStaffAccount(staff, apiUrl);
+    let authResult;
+    try {
+      authResult = await authenticateStaffAccount(staff, apiUrl);
+    } catch (err) {
+      if (!process.env.CI) {
+        test.skip(true, `Local staging DB not seeded with staff credentials: ${(err as Error).message}`);
+        return;
+      }
+      throw err;
+    }
 
     expect(authResult.token).toBeTruthy();
     expect(authResult.user.email).toBe(staff.email);
     expect(authResult.user.role).toBe('admin');
     expect(authResult.totpCode).toHaveLength(6);
 
-    // Verify TOTP is required for protected admin endpoints
+    // Negative test 1: Protected admin route without TOTP header must be rejected with 403 / TWO_FACTOR_REQUIRED
+    const missingTotpRes = await request.get(`${apiUrl}/api/v1/admin/audit-logs`, {
+      headers: {
+        Authorization: `Bearer ${authResult.token}`,
+      },
+    });
+    expect(missingTotpRes.status()).toBe(403);
+    const missingTotpBody = await missingTotpRes.json();
+    expect(missingTotpBody.error?.code).toBe('TWO_FACTOR_REQUIRED');
+
+    // Negative test 2: Protected admin route with invalid TOTP code must be rejected with 403 / TWO_FACTOR_REQUIRED
+    const invalidTotpRes = await request.get(`${apiUrl}/api/v1/admin/audit-logs`, {
+      headers: {
+        Authorization: `Bearer ${authResult.token}`,
+        'x-totp-code': '000000',
+      },
+    });
+    expect(invalidTotpRes.status()).toBe(403);
+    const invalidTotpBody = await invalidTotpRes.json();
+    expect(invalidTotpBody.error?.code).toBe('TWO_FACTOR_REQUIRED');
+
+    // Positive test: Protected admin route with valid RFC 6238 TOTP code succeeds (200 OK)
     const validTotp = generateTotp(staff.totpSecret);
-    const staffCheckRes = await page.request.get(`${apiUrl}/api/v1/auth/session`, {
+    const validTotpRes = await request.get(`${apiUrl}/api/v1/admin/audit-logs`, {
       headers: {
         Authorization: `Bearer ${authResult.token}`,
         'x-totp-code': validTotp,
       },
     });
-    expect(staffCheckRes.status()).toBe(200);
+    expect(validTotpRes.status()).toBe(200);
+    const validBody = await validTotpRes.json();
+    expect(validBody).toHaveProperty('items');
+    expect(Array.isArray(validBody.items)).toBe(true);
   });
 });

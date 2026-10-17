@@ -57,7 +57,26 @@ Bước vào Ngày 8 (tích hợp giao diện với API thật, mã task I00–I
 
 ---
 
-## 3. Kết quả nghiệm thu các tiêu chí
+## 3. Các cải tiến và khắc phục theo yêu cầu Reviewer (Lượt 3)
+
+1. **Chuyển fixture Playwright sang `{ request }` (APIRequestContext):**
+   - Loại bỏ phụ thuộc vào browser engine (`page`), chuyển toàn bộ HTTP calls sang `{ request }`. Điều này giúp test chạy trực tiếp, siêu tốc độ và không gặp lỗi thiếu browser binaries (`Executable doesn't exist`) trong CI.
+2. **Khắc phục assertion bị nuốt trong reverse proxy check:**
+   - Bỏ bọc `if (response.ok())`, assert trực tiếp `expect(response.status()).toBe(200)` và `expect(response.ok()).toBe(true)`.
+   - Trong môi trường CI (`process.env.CI`), ném lỗi trực tiếp khi mất kết nối thay vì nuốt ngoại lệ.
+3. **Chống kết thúc sớm và pass âm thầm khi thiếu dịch vụ:**
+   - Trong CI, nếu Mailpit hoặc API không phản hồi, ném lỗi rõ ràng (`throw new Error(...)` / `expect(isMailpitUp).toBe(true)`) thay vì gọi `test.skip(false)` và `return;`.
+4. **Kiểm tra 2FA/TOTP thực tế trên route quản trị:**
+   - Sử dụng route `/api/v1/admin/audit-logs` có bảo vệ thực tế bởi `TotpGuard`.
+   - Bổ sung 2 bài kiểm thử negative: thiếu mã TOTP bị từ chối 403 (`TWO_FACTOR_REQUIRED`), sai mã TOTP (`000000`) bị từ chối 403 (`TWO_FACTOR_REQUIRED`).
+   - Bài kiểm thử positive chứng minh mã TOTP hợp lệ sinh từ `generateTotp(staff.totpSecret)` trả về HTTP 200 kèm danh sách nhật ký kiểm toán.
+   - Bổ sung biến môi trường `ENFORCE_STAFF_2FA=true` vào `compose.staging.yml` và `compose.demo.yml`.
+5. **Mở rộng phạm vi quét dữ liệu giả:**
+   - Bổ sung `apps/web/components`, `apps/web/lib`, và `apps/admin/components` vào hàm `scanApps()` trong `check-no-mock-ui.ts`.
+
+---
+
+## 4. Kết quả nghiệm thu các tiêu chí
 
 | Tiêu chí | Trạng thái | Bằng chứng |
 | :--- | :--- | :--- |

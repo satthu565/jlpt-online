@@ -112,6 +112,7 @@ services:
       - SMTP_URL=${SMTP_URL:-smtp://mailpit:1025}
       - EMAIL_DRIVER=${EMAIL_DRIVER:-smtp}
       - EMAIL_FROM=${EMAIL_FROM:-no-reply@jlpt.local}
+      - ENFORCE_STAFF_2FA=true
       - SENTRY_DSN=
     volumes:
       - staging-storage-data:/app/.data/storage
@@ -148,6 +149,7 @@ services:
       - STORAGE_LOCAL_ROOT=/app/.data/storage
       - AUTH_SECRET=${AUTH_SECRET:-staging_secret_key_fixed_length_for_tests}
       - MEDIA_TOKEN_SECRET=${MEDIA_TOKEN_SECRET:-staging_media_token_secret_for_reproducible_smoke_tests}
+      - ENFORCE_STAFF_2FA=true
     volumes:
       - staging-storage-data:/app/.data/storage
     mem_limit: ${WORKER_MEM_LIMIT:-320m}
