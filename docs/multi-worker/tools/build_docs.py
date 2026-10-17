@@ -447,7 +447,14 @@ task('I06','W3',8,6,'Web: học tập, kế hoạch, lớp học, cộng đồng
  'apps/web/|packages/ui/',
  'Mỗi trang trong phạm vi hiển thị dữ liệu của chính học viên đăng nhập, ghi được thay đổi và tải lại vẫn còn|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:web|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
-task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I09 I03 I04 I05 I06',
+task('I10','W2',8,3,'Bỏ tự tạo tài khoản nhân sự khi API khởi động','I08',
+ 'AuthService.onModuleInit đang tự tạo 5 tài khoản nhân sự (kể cả admin) với mật khẩu Admin123456! và secret TOTP cố định mỗi khi NODE_ENV khác production: một cửa hậu nếu máy chủ thật cấu hình thiếu biến. '
+ 'Gỡ hẳn việc tạo tài khoản khỏi code chạy thật (onModuleInit, service); tài khoản nhân sự demo chỉ được tạo bởi script seed chạy tay cho staging/demo (demo-seed hoặc tests/fixtures) và script đó từ chối chạy khi APP_ENV=production. '
+ 'Không còn mật khẩu hay secret TOTP viết cứng trong apps/api/src ngoài file test và script seed.',
+ '@roots',
+ 'API khởi động với mọi NODE_ENV không tạo hay sửa tài khoản nào; có test kiểm tra|Script seed staging từ chối chạy khi APP_ENV=production|grep mật khẩu/secret mặc định trong apps/api/src (trừ test và seed) không còn kết quả|E2E staff login trên staging vẫn pass vì staging chạy seed',
+ 'pnpm test:auth|pnpm test:security|pnpm test:api:all',contracts='API',resources='api-hardening')
+task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I09 I03 I04 I05 I06',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',
  'tests/integration/mock-ui-baseline.json rỗng; CI fail nếu có dữ liệu giả mới|E2E: học viên đăng ký -> làm đề -> xem điểm; editor nhập -> reviewer duyệt -> xuất bản; admin xem người dùng và audit; tất cả trên staging thật|docs/release/INTEGRATION_REPORT.md liệt kê từng trang và bằng chứng E2E',
