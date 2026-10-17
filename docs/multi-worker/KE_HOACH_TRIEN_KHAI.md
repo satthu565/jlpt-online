@@ -1241,22 +1241,74 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
+<a id="i08"></a>
+
+### I08 API xác thực hai bước (TOTP) cho nhân sự
+
+- Worker: **W2**. Ngày mục tiêu: 8. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: I01. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Bổ sung trong module auth: đăng ký TOTP cho nhân sự (sinh secret lưu mã hóa theo user, trả otpauth URI), xác nhận đăng ký bằng mã 6 số, thử thách TOTP sau khi đăng nhập mật khẩu (session chỉ đánh dấu twoFactorVerified khi mã đúng), mã khôi phục dùng một lần lưu dạng hash, tắt/đặt lại 2FA có audit. Sửa TotpGuard: bỏ secret mặc định viết cứng (JBSWY3DPEHPK3PXP và TOTP_TEST_SECRET ở production), kiểm tra theo secret của chính user và cờ twoFactorVerified của session; route /admin bắt buộc với nhân sự. Seed staging có tài khoản nhân sự với secret biết trước cho E2E.
+- Bàn giao: package.json; apps/api/package.json; apps/api/src/common/; apps/api/src/modules/auth/; apps/api/src/modules/user/; apps/api/src/modules/exam/; apps/api/src/modules/attempt/; apps/api/src/modules/question-bank/; apps/api/src/modules/import/; apps/api/src/modules/media/; apps/api/src/modules/review/; apps/api/src/modules/storage/; apps/api/src/modules/license/; apps/api/src/modules/blueprint/; apps/api/src/modules/audit/; apps/api/src/modules/notification/; apps/api/src/modules/community/; apps/api/src/modules/classroom/; apps/api/src/modules/scoring/; apps/api/src/modules/outbox/; apps/api/src/modules/email/; apps/api/src/modules/admin/; apps/api/src/modules/turnstile/; apps/api/src/main.ts; apps/api/src/app.module.ts; docs/decisions/.
+- Hợp đồng: API.
+- Khóa tài nguyên: api-hardening.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: không.
+- Nghiệm thu:
+  - Mã sai, mã cũ, mã khôi phục đã dùng hoặc không tồn tại đều bị API từ chối; lỗi DB không bao giờ cho qua.
+  - Không còn secret TOTP mặc định trong code chạy thật.
+  - Test API cho đăng ký, thử thách, mã khôi phục, khóa sau nhiều lần sai; E2E đăng nhập nhân sự qua API trên staging.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:auth`
+  - `pnpm test:security`
+  - `pnpm test:api:all`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
 <a id="i02"></a>
 
 ### I02 Đăng nhập nhân sự thật và khung quản trị nối API
 
 - Worker: **W4**. Ngày mục tiêu: 8. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: I00. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: I00, I08. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: Bỏ đăng nhập giả trong apps/admin/lib/auth-context.tsx: đăng nhập email mật khẩu, TOTP enrollment/challenge và recovery codes qua API; session, đăng xuất, guard theo role từ server. Trang tổng quan, người dùng, audit log, cài đặt (org, thông báo, backup) lấy dữ liệu từ API.
+- Phạm vi: Bỏ đăng nhập giả trong apps/admin/lib/auth-context.tsx: đăng nhập email mật khẩu, TOTP enrollment/challenge và recovery codes qua API của I08 (không tự viết xác thực trong module khác, không giữ chế độ offline giả lập); session, đăng xuất, guard theo role từ server. Trang tổng quan, người dùng, audit log, cài đặt (org, thông báo, backup) lấy dữ liệu từ API.
 - Bàn giao: apps/admin/.
 - Hợp đồng: API.
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
 - Điều kiện ngoài chặn bắt đầu: không.
 - Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
-- Quyền ghi tạm ngoài thư mục của worker: không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, tests/integration/mock-ui-baseline.json.
 - Nghiệm thu:
   - Sai mật khẩu hoặc sai TOTP bị từ chối bởi API, không chỉ ở UI.
+  - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
+  - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
+  - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
+  - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:admin`
+  - `pnpm check:no-mock-ui`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+<a id="i09"></a>
+
+### I09 Đăng nhập nhân sự thật và khung quản trị nối API (làm lại I02)
+
+- Worker: **W4**. Ngày mục tiêu: 8. Ước lượng chưa đo: 5 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: I00, I08. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: I02 bị hủy vì còn xác thực giả (confirm2faSetup nhận mọi mã 6 số, session tạo phía client, gọi API khác thay khi 404); phần nối API của các trang người dùng/audit/cài đặt trong nhánh task/I02 có thể tham khảo nhưng phải rà lại. Bỏ đăng nhập giả trong apps/admin/lib/auth-context.tsx: đăng nhập email mật khẩu, TOTP enrollment/challenge và recovery codes qua API của I08 (không tự viết xác thực trong module khác, không giữ chế độ offline giả lập); session, đăng xuất, guard theo role từ server. Trang tổng quan, người dùng, audit log, cài đặt (org, thông báo, backup) lấy dữ liệu từ API.
+- Bàn giao: apps/admin/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, tests/integration/mock-ui-baseline.json.
+- Nghiệm thu:
+  - Sai mật khẩu hoặc sai TOTP bị từ chối bởi API, không chỉ ở UI.
+  - Mọi bước đăng nhập, đăng ký TOTP, thử thách và mã khôi phục gọi API của I08; cấm đường tắt cho test, cấm tạo session phía client, cấm chấp nhận mã khi API 404 hoặc lỗi.
   - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
   - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
   - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
@@ -1272,7 +1324,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### I03 Quản trị nội dung nối API: nhập gói, câu hỏi, đề, duyệt, media
 
 - Worker: **W4**. Ngày mục tiêu: 8. Ước lượng chưa đo: 6 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: I02. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: I09. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Các trang imports, questions, exams (kể cả đề trộn), blueprints, reviews (duyệt 4 mắt, giải thích), media, vocab, cms, moderation AI, reports/content gọi API thật; luồng nhập gói demo-data -> duyệt -> xuất bản làm được hoàn toàn qua giao diện quản trị.
 - Bàn giao: apps/admin/.
@@ -1280,7 +1332,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
 - Điều kiện ngoài chặn bắt đầu: không.
 - Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
-- Quyền ghi tạm ngoài thư mục của worker: không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, tests/integration/mock-ui-baseline.json.
 - Nghiệm thu:
   - Editor nhập gói docs/multi-worker/demo-data qua giao diện, reviewer khác duyệt, xuất bản; đề hiện ở trang thư viện đề của web.
   - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
@@ -1298,7 +1350,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### I04 Quản trị thương mại, báo cáo, thử nghiệm nối API
 
 - Worker: **W4**. Ngày mục tiêu: 8. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: I02. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: I09. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Các trang commercial (payments, plans, refunds, reconciliation), reports (tổng quan, doanh thu), experiments gọi API thật; sửa endpoint trong module payment, entitlement, reporting, cms, experiment nếu thiếu.
 - Bàn giao: apps/admin/; apps/api/src/modules/payment/; apps/api/src/modules/entitlement/; apps/api/src/modules/reporting/; apps/api/src/modules/cms/; apps/api/src/modules/experiment/.
@@ -1306,7 +1358,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
 - Điều kiện ngoài chặn bắt đầu: không.
 - Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
-- Quyền ghi tạm ngoài thư mục của worker: không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, tests/integration/mock-ui-baseline.json.
 - Nghiệm thu:
   - Gói, giao dịch sandbox, hoàn tiền và đối soát hiển thị dữ liệu thật từ API.
   - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
@@ -1333,7 +1385,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
 - Điều kiện ngoài chặn bắt đầu: không.
 - Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
-- Quyền ghi tạm ngoài thư mục của worker: không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, tests/integration/mock-ui-baseline.json.
 - Nghiệm thu:
   - Học viên đăng ký qua Mailpit, xác minh, làm trọn đề demo N5 đã xuất bản và xem điểm trên staging CI.
   - Khách làm thử được đề guest_trial, đề khác yêu cầu đăng nhập.
@@ -1360,7 +1412,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
 - Điều kiện ngoài chặn bắt đầu: không.
 - Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
-- Quyền ghi tạm ngoài thư mục của worker: không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, tests/integration/mock-ui-baseline.json.
 - Nghiệm thu:
   - Mỗi trang trong phạm vi hiển thị dữ liệu của chính học viên đăng nhập, ghi được thay đổi và tải lại vẫn còn.
   - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
@@ -1378,7 +1430,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### I07 Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả
 
 - Worker: **W6**. Ngày mục tiêu: 8. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: I01, I02, I03, I04, I05, I06. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: I01, I08, I09, I03, I04, I05, I06. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.
 - Bàn giao: tests/; .github/; infra/; docs/release/; docs/runbooks/.

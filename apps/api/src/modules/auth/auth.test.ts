@@ -1,10 +1,12 @@
 import 'reflect-metadata';
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { eq } from 'drizzle-orm';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+import { eq, desc } from 'drizzle-orm';
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { createApp } from '../../main.js';
 import { SmtpTestServer } from '../email/smtp-test-server.js';
-import { getOrCreateDbClient } from '../../common/database/database.module.js';
+import { EmailService } from '../email/email.service.js';
+import { getOrCreateDbClient, DB_CLIENT } from '../../common/database/database.module.js';
+import type { DbClientInstance } from '../../db/client.js';
 import { seedDatabase } from '../../db/seed.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
@@ -74,6 +76,47 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
       expect(tokenMatch).not.toBeNull();
       verificationToken = tokenMatch![1]!;
       expect(verificationToken.length).toBeGreaterThan(16);
+    });
+
+    it('Đăng ký vẫn trả 201 khi SMTP không kết nối được; email gửi lại qua outbox và có test', async () => {
+      const failEmail = `smtp_fail_${Date.now()}@example.com`;
+      const emailService = app.get(EmailService);
+      const originalSend = emailService.sendVerificationEmail.bind(emailService);
+      emailService.sendVerificationEmail = vi.fn().mockRejectedValue(new Error('SMTP down: ECONNREFUSED 127.0.0.1:1025'));
+
+      try {
+        const res = await app.inject({
+          method: 'POST',
+          url: '/api/v1/auth/sign-up/email',
+          payload: {
+            email: failEmail,
+            password: originalPassword,
+            name: 'Fallback User',
+          },
+        });
+
+        expect(res.statusCode).toBe(201);
+        const body = JSON.parse(res.payload);
+        expect(body.user.email).toBe(failEmail);
+        expect(body.user.emailVerified).toBe(false);
+
+        const client = app.get<DbClientInstance>(DB_CLIENT);
+        const outboxItems = await client.db
+          .select()
+          .from(schema.outbox)
+          .where(eq(schema.outbox.topic, 'notification.email'))
+          .orderBy(desc(schema.outbox.createdAt))
+          .limit(5);
+
+        const found = outboxItems.find(
+          (item: { payload: { to?: string; type?: string } }) =>
+            item.payload?.to === failEmail && item.payload?.type === 'verification',
+        );
+        expect(found).toBeDefined();
+        expect(found.payload.verificationUrl).toContain('/xac-minh-email?token=');
+      } finally {
+        emailService.sendVerificationEmail = originalSend;
+      }
     });
 
     it('Từ chối đăng nhập khi email chưa được xác minh', async () => {

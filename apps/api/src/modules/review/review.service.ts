@@ -840,4 +840,46 @@ export class ReviewService {
 
     return updated;
   }
+
+  /**
+   * Admin: List pending reviews and recent review records (ADM-02, ADM-06).
+   */
+  async listReviews(): Promise<{ items: unknown[] }> {
+    const pendingGroups = await this.dbClient.db
+      .select()
+      .from(schema.questionGroupVersions)
+      .where(eq(schema.questionGroupVersions.status, 'in_review'))
+      .orderBy(desc(schema.questionGroupVersions.createdAt));
+
+    const pastReviews = await this.dbClient.db
+      .select()
+      .from(schema.contentReviews)
+      .orderBy(desc(schema.contentReviews.reviewedAt))
+      .limit(50);
+
+    const items = [
+      ...pendingGroups.map((g: typeof schema.questionGroupVersions.$inferSelect) => ({
+        id: `${g.groupId}-v${g.version}`,
+        targetType: 'group_version',
+        targetId: g.groupId,
+        version: g.version,
+        title: `Mondai group (v${g.version})`,
+        status: g.status,
+        authorId: null,
+        createdAt: g.createdAt,
+      })),
+      ...pastReviews.map((r: typeof schema.contentReviews.$inferSelect) => ({
+        id: r.id,
+        targetType: r.targetType,
+        targetId: r.targetId,
+        version: r.targetVersion,
+        reviewerId: r.reviewerId,
+        status: r.status,
+        comments: r.comments,
+        reviewedAt: r.reviewedAt,
+      })),
+    ];
+
+    return { items };
+  }
 }
