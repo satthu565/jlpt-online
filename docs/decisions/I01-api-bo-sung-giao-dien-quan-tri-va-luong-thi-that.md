@@ -83,7 +83,7 @@ Tất cả các lệnh kiểm tra bắt buộc và cổng chung đều đạt 10
 
 1. **`pnpm test:api:all`**:
    - Exit code: 0
-   - 40/40 test suite đạt, 517/517 test case PASSED.
+   - 40/40 test suite đạt, 520/520 test case PASSED.
 
 2. **`pnpm test:security`**:
    - Exit code: 0
@@ -108,3 +108,31 @@ Tất cả các lệnh kiểm tra bắt buộc và cổng chung đều đạt 10
 7. **`pnpm build`**:
    - Exit code: 0
    - 12/12 ứng dụng và thư viện build thành công.
+
+---
+
+## 4. Xử lý phản hồi từ Reviewer W3 (Lượt I01-5)
+
+1. **[P1] Bảo mật endpoint `getExamSnapshot`:**
+   - Tại `apps/api/src/modules/exam/exam.controller.ts`, loại bỏ kiểm tra thô `req.headers['authorization']`.
+   - Bổ sung xác thực phiên làm việc thông qua `AuthService.getSession()` và bắt buộc người dùng phải có vai trò nhân sự hợp lệ (`admin`, `editor`, `reviewer`) khi truy cập không có `mediaToken`.
+   - Bổ sung các test case kiểm tra chặn token giả mạo, chặn tài khoản `student` cố tình dùng `Authorization` header, và cho phép tài khoản `admin`/`editor` có phiên hợp lệ.
+
+2. **[P1] Nghiệp vụ duyệt hồ sơ giáo viên `approveTeacherApplication`:**
+   - Kết nối với `ClassroomService.approveTeacherApplication` và thao tác trực tiếp trên cơ sở dữ liệu PostgreSQL.
+   - Khi được duyệt, bản ghi được cập nhật trạng thái `approved` trong `schema.teacherApplications` và tài khoản người dùng được thăng cấp `role = 'teacher'` trong `schema.users`.
+   - Đã bổ sung assertion trong `admin-endpoints.test.ts` truy vấn DB xác nhận vai trò người dùng đã đổi sang `teacher`.
+
+3. **[P1] Loại bỏ dữ liệu mock hardcoded tại `GET /admin/organizations`:**
+   - Loại bỏ mảng viết cứng `org-01`, `org-02` trong `AdminController`.
+   - Tích hợp gọi `ClassroomService.listOrganizations` truy vấn trực tiếp bảng `schema.organizations` từ PostgreSQL.
+
+4. **[P2] Bền vững hóa dữ liệu Admin sang PostgreSQL:**
+   - Dữ liệu từ vựng: Đọc/ghi trực tiếp vào các bảng `schema.lexicalEntries`, `schema.entryReadings`, `schema.entryMeanings`.
+   - Dữ liệu kiểm duyệt AI: Đọc/ghi và cập nhật cờ vi phạm trực tiếp trên bảng `schema.moderationReviews`.
+   - Dữ liệu mẫu thông báo: Đọc/ghi và cập nhật mẫu nội dung trên bảng `schema.templateVersions`.
+
+5. **[P2] Tối ưu hóa lệnh `test:api:all` và cấu hình vitest:**
+   - Trong `package.json`, cập nhật `test:api:all` để tự động build `@jlpt/schema` trước khi chạy Vitest với alias từ `tests/vitest.config.ts`.
+   - Trong `apps/api/package.json`, cấu hình `-c ../../tests/vitest.config.ts` để phân giải trực tiếp các package nội bộ về `src/`, đảm bảo các lệnh kiểm thử của API chạy độc lập trên checkout sạch mà không bị lỗi thiếu `dist/`.
+

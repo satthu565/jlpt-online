@@ -98,7 +98,7 @@
     "test:integration:billing": "vitest run -c tests/vitest.config.ts tests/integration/billing/ --testTimeout=60000 --hookTimeout=60000",
     "test:load": "node --no-warnings --experimental-strip-types tests/load/stepped-load-runner.ts",
     "test:load:baseline": "node --no-warnings --experimental-strip-types tests/load/baseline-runner.ts",
-    "test:api:all": "pnpm --filter @jlpt/api test",
+    "test:api:all": "pnpm --filter @jlpt/schema build && vitest run -c tests/vitest.config.ts apps/api",
     "test:e2e:admin-all": "vitest run -c apps/admin/vitest.config.ts apps/admin/tests/e2e-admin-all.test.tsx",
     "test:reconciliation": "vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/payment/reconciliation.test.ts && vitest run --testTimeout=60000 --hookTimeout=60000 apps/api/src/modules/reporting/reporting-reconciliation.test.ts && vitest run -c apps/admin/vitest.config.ts apps/admin/tests/reconciliation.test.ts",
     "test:e2e:full": "vitest run -c tests/vitest.config.ts tests/e2e/full/ --fileParallelism=false --testTimeout=60000 --hookTimeout=60000",

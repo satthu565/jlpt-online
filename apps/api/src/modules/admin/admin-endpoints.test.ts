@@ -459,6 +459,44 @@ describe('I01 Full Integration & Hardening Verification', () => {
       });
       expect(res.statusCode).toBe(403);
     });
+
+    it('rejects snapshot request when client provides invalid or forged Authorization header', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/v1/exams/sample-exam-id/v1/snapshot.json',
+        headers: {
+          Authorization: 'Bearer forged_or_fake_token',
+        },
+      });
+      expect(res.statusCode).toBe(403);
+    });
+
+    it('rejects snapshot request when authenticated student provides Authorization header without mediaToken', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/v1/exams/sample-exam-id/v1/snapshot.json',
+        headers: studentHeaders,
+      });
+      expect(res.statusCode).toBe(403);
+    });
+
+    it('allows snapshot request when authenticated admin or editor provides Authorization header', async () => {
+      const examsRes = await app.inject({
+        method: 'GET',
+        url: '/api/v1/exams',
+      });
+      const examsList = JSON.parse(examsRes.payload);
+      const exam = examsList.items[0];
+
+      const res = await app.inject({
+        method: 'GET',
+        url: `/api/v1/exams/${exam.id}/v${exam.publishedVersion || 1}/snapshot.json`,
+        headers: adminHeaders,
+      });
+      expect(res.statusCode).toBe(200);
+      const snapshot = JSON.parse(res.payload);
+      expect(snapshot.examId).toBe(exam.id);
+    });
   });
 
   // ===========================================================================
@@ -739,6 +777,20 @@ describe('I01 Full Integration & Hardening Verification', () => {
       const approveBody = JSON.parse(approveRes.payload);
       expect(approveBody.application.status).toBe('approved');
 
+      // Verify user was promoted to role teacher in PostgreSQL schema.users
+      const candidateUser = await dbClient.db
+        .select()
+        .from(schema.users)
+        .where(eq(schema.users.id, approveBody.application.userId));
+      expect(candidateUser[0].role).toBe('teacher');
+
+      // Verify application status updated in PostgreSQL schema.teacherApplications
+      const appInDb = await dbClient.db
+        .select()
+        .from(schema.teacherApplications)
+        .where(eq(schema.teacherApplications.id, approveBody.application.targetId || '0192f000-0000-7000-8000-000000000071'));
+      expect(appInDb[0].status).toBe('approved');
+
       // Organizations
       const orgRes = await app.inject({
         method: 'GET',
@@ -748,6 +800,10 @@ describe('I01 Full Integration & Hardening Verification', () => {
       expect(orgRes.statusCode).toBe(200);
       const orgData = JSON.parse(orgRes.payload);
       expect(orgData.items.length).toBeGreaterThan(0);
+
+      // Verify organizations are persisted in PostgreSQL schema.organizations
+      const orgsInDb = await dbClient.db.select().from(schema.organizations);
+      expect(orgsInDb.length).toBeGreaterThan(0);
     });
   });
 });

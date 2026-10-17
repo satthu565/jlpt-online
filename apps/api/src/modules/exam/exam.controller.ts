@@ -19,12 +19,17 @@ import { Roles } from '../../common/decorators/roles.decorator.js';
 import { RateLimit } from '../../common/decorators/rate-limit.decorator.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
 import { ExamService } from './exam.service.js';
+import { AuthService } from '../auth/auth.service.js';
+import { Optional } from '@nestjs/common';
 import type { Level, ExamKind, Session } from '@jlpt/schema';
 
 @Controller()
 @RateLimit({ limit: 1000, windowSec: 60, keyPrefix: 'exams' })
 export class ExamController {
-  constructor(private readonly examService: ExamService) {}
+  constructor(
+    private readonly examService: ExamService,
+    @Optional() private readonly authService?: AuthService,
+  ) {}
 
   @Public()
   @Get('exams')
@@ -86,12 +91,51 @@ export class ExamController {
         });
       }
     } else {
-      // If no token, check if user has admin/staff auth header
+      // If no media token, require valid authentication and staff role (admin/editor/reviewer)
+      let authToken: string | null = null;
       const authHeader = req.headers['authorization'];
-      if (!authHeader) {
+      if (authHeader && typeof authHeader === 'string') {
+        const parts = authHeader.split(' ');
+        if (parts.length === 2 && parts[0]?.toLowerCase() === 'bearer') {
+          authToken = parts[1] ?? null;
+        } else {
+          authToken = authHeader;
+        }
+      }
+
+      if (!authToken && req.headers.cookie && typeof req.headers.cookie === 'string') {
+        const cookies = req.headers.cookie.split(';').map((c) => c.trim());
+        for (const cookie of cookies) {
+          if (cookie.startsWith('__Host-session=')) {
+            authToken = decodeURIComponent(cookie.substring('__Host-session='.length));
+            break;
+          }
+          if (cookie.startsWith('auth_token=')) {
+            authToken = decodeURIComponent(cookie.substring('auth_token='.length));
+            break;
+          }
+          if (cookie.startsWith('better-auth.session_token=')) {
+            authToken = decodeURIComponent(cookie.substring('better-auth.session_token='.length));
+            break;
+          }
+        }
+      }
+
+      if (!authToken) {
         throw new ForbiddenException({
           code: 'TOKEN_REQUIRED',
           message: 'Yêu cầu token truy cập snapshot đề thi.',
+        });
+      }
+
+      const sessionUser = this.authService
+        ? await this.authService.getSession(authToken)
+        : null;
+      const staffRoles = ['admin', 'editor', 'reviewer'];
+      if (!sessionUser || !staffRoles.includes(sessionUser.role)) {
+        throw new ForbiddenException({
+          code: 'FORBIDDEN_SNAPSHOT',
+          message: 'Yêu cầu quyền nhân sự (admin/editor/reviewer) hoặc token truy cập hợp lệ để tải snapshot đề thi.',
         });
       }
     }

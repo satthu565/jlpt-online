@@ -22,6 +22,8 @@ import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
 import { AuditService } from '../audit/audit.service.js';
 import { EmailService } from '../email/email.service.js';
+import { ClassroomService } from '../classroom/classroom.service.js';
+import { generateUuidV7 } from '../../common/utils/uuid.js';
 
 export interface AdminVocabEntry {
   id: string;
@@ -71,129 +73,208 @@ export interface AdminTeacherApplication {
 
 @Controller('admin')
 export class AdminController {
-  private vocabStore: AdminVocabEntry[] = [
-    {
-      id: 'voc-1',
-      word: '怠る',
-      reading: 'おこたる',
-      meaningVi: 'Bỏ bê, lơ là, sao nhãng',
-      level: 'N2',
-      partOfSpeech: 'Động từ nhóm 1',
-      exampleSentence: '試験の準備を怠ってはいけない。',
-      createdAt: new Date(),
-    },
-    {
-      id: 'voc-2',
-      word: '契約',
-      reading: 'けいやく',
-      meaningVi: 'Hợp đồng, khế ước',
-      level: 'N3',
-      partOfSpeech: 'Danh từ',
-      exampleSentence: '来週、新しいアパートの契約を結びます。',
-      createdAt: new Date(),
-    },
-    {
-      id: 'voc-3',
-      word: '圧倒的',
-      reading: 'あっとうてき',
-      meaningVi: 'Áp đảo, vượt trội hoàn toàn',
-      level: 'N1',
-      partOfSpeech: 'Tính từ đuôi な',
-      exampleSentence: '圧倒的な勝利を収める。',
-      createdAt: new Date(),
-    },
-  ];
-
-  private aiModerationLogs: AdminAiModerationLog[] = [
-    {
-      id: 'ai-req-101',
-      actionType: 'explain_generation',
-      provider: 'gemini',
-      model: 'gemini-1.5-flash',
-      flaggedUnsafe: false,
-      promptTokens: 420,
-      completionTokens: 280,
-      costVnd: 18,
-      createdAt: '2026-10-16 11:24',
-      reviewStatus: 'auto_passed',
-    },
-    {
-      id: 'ai-req-102',
-      actionType: 'question_synthesis',
-      provider: 'openai',
-      model: 'gpt-4o-mini',
-      flaggedUnsafe: true,
-      promptTokens: 850,
-      completionTokens: 520,
-      costVnd: 36,
-      createdAt: '2026-10-16 10:15',
-      reviewStatus: 'flagged',
-    },
-  ];
-
-  private notificationTemplates: AdminNotificationTemplate[] = [
-    {
-      id: 'tpl-1',
-      key: 'welcome_email',
-      name: 'Email Chào Mừng Thành Viên Mới',
-      channel: 'email',
-      subject: 'Chào mừng {{userName}} gia nhập nền tảng luyện thi JLPT Online!',
-      bodyTemplate:
-        'Xin chào {{userName}},\n\nCảm ơn bạn đã đăng ký tài khoản. Chúc bạn ôn tập tốt!\n\nTrân trọng,\nĐội ngũ JLPT Online',
-      isActive: true,
-      variables: ['userName', 'loginUrl'],
-    },
-    {
-      id: 'tpl-2',
-      key: 'exam_result',
-      name: 'Thông Báo Kết Quả Bài Thi',
-      channel: 'in_app',
-      subject: 'Kết quả bài thi {{examTitle}}: {{score}}/180 điểm ({{resultStatus}})',
-      bodyTemplate:
-        'Chúc mừng bạn đã hoàn thành bài thi {{examTitle}} với số điểm {{score}}/180.',
-      isActive: true,
-      variables: ['examTitle', 'score', 'resultStatus'],
-    },
-    {
-      id: 'tpl-3',
-      key: 'streak_reminder',
-      name: 'Nhắc Nhở Duy Trì Chuỗi Học Tập (Streak)',
-      channel: 'push',
-      subject: 'Đừng để mất chuỗi {{streakDays}} ngày học tập!',
-      bodyTemplate: 'Chỉ còn 3 tiếng nữa là hết ngày. Hãy ôn tập ngay!',
-      isActive: true,
-      variables: ['userName', 'streakDays'],
-    },
-  ];
-
-  private teacherApplications: AdminTeacherApplication[] = [
-    {
-      id: 'app-01',
-      applicantName: 'Nguyễn Văn Hùng',
-      email: 'hung.teacher@jlptcenter.vn',
-      currentOrg: 'Trung tâm Tiếng Nhật Sakura',
-      jlptCertificate: 'N1 (165/180)',
-      yearsOfExperience: 6,
-      status: 'pending',
-      appliedAt: '2026-10-14 15:30',
-    },
-    {
-      id: 'app-02',
-      applicantName: 'Yamada Kenji',
-      email: 'kenji.yamada@nihongo.jp',
-      currentOrg: 'Tokyo Language Academy',
-      jlptCertificate: 'Bản xứ (Native)',
-      yearsOfExperience: 10,
-      status: 'approved',
-      appliedAt: '2026-10-10 09:00',
-    },
-  ];
-
   constructor(
     private readonly auditService: AuditService,
     @Inject(DB_CLIENT) private readonly dbClient: DbClientInstance,
     @Optional() private readonly emailService?: EmailService,
+    @Optional() private readonly classroomService?: ClassroomService,
   ) {}
+
+  private async ensureDefaultVocab(): Promise<void> {
+    const existing = await this.dbClient.db
+      .select({ id: schema.lexicalEntries.id })
+      .from(schema.lexicalEntries)
+      .limit(1);
+    if (existing.length > 0) return;
+
+    const defaultEntries = [
+      {
+        id: '0192f000-0000-7000-8000-0000000000a1',
+        term: '怠る',
+        reading: 'おこたる',
+        meaning: 'Bỏ bê, lơ là, sao nhãng',
+        level: 'N2',
+        partOfSpeech: 'Động từ nhóm 1',
+      },
+      {
+        id: '0192f000-0000-7000-8000-0000000000a2',
+        term: '契約',
+        reading: 'けいやく',
+        meaning: 'Hợp đồng, khế ước',
+        level: 'N3',
+        partOfSpeech: 'Danh từ',
+      },
+      {
+        id: '0192f000-0000-7000-8000-0000000000a3',
+        term: '圧倒的',
+        reading: 'あっとうてき',
+        meaning: 'Áp đảo, vượt trội hoàn toàn',
+        level: 'N1',
+        partOfSpeech: 'Tính từ đuôi な',
+      },
+    ];
+
+    for (const item of defaultEntries) {
+      await this.dbClient.db
+        .insert(schema.lexicalEntries)
+        .values({
+          id: item.id,
+          term: item.term,
+          level: item.level,
+          partOfSpeech: item.partOfSpeech,
+        })
+        .onConflictDoNothing();
+
+      await this.dbClient.db
+        .insert(schema.entryReadings)
+        .values({
+          id: generateUuidV7(),
+          entryId: item.id,
+          reading: item.reading,
+          isPrimary: true,
+        })
+        .onConflictDoNothing();
+
+      await this.dbClient.db
+        .insert(schema.entryMeanings)
+        .values({
+          id: generateUuidV7(),
+          entryId: item.id,
+          locale: 'vi',
+          meaning: item.meaning,
+        })
+        .onConflictDoNothing();
+    }
+  }
+
+  private async ensureDefaultAiModeration(): Promise<void> {
+    const existing = await this.dbClient.db
+      .select({ id: schema.moderationReviews.id })
+      .from(schema.moderationReviews)
+      .limit(1);
+    if (existing.length > 0) return;
+
+    const defaultReviews = [
+      {
+        id: '0192f000-0000-7000-8000-000000000081',
+        contentId: '0192f000-0000-7000-8000-000000000082',
+        score: 95,
+        flagged: false,
+      },
+      {
+        id: '0192f000-0000-7000-8000-000000000083',
+        contentId: '0192f000-0000-7000-8000-000000000084',
+        score: 42,
+        flagged: true,
+      },
+      {
+        id: '0192f000-0000-7000-8000-000000000085',
+        contentId: '0192f000-0000-7000-8000-000000000086',
+        score: 88,
+        flagged: false,
+      },
+    ];
+
+    for (const r of defaultReviews) {
+      await this.dbClient.db
+        .insert(schema.moderationReviews)
+        .values(r)
+        .onConflictDoNothing();
+    }
+  }
+
+  private async ensureDefaultTemplates(): Promise<void> {
+    const existing = await this.dbClient.db
+      .select({ id: schema.templateVersions.id })
+      .from(schema.templateVersions)
+      .limit(1);
+    if (existing.length > 0) return;
+
+    const defaultTemplates = [
+      {
+        id: '0192f000-0000-7000-8000-000000000091',
+        templateKey: 'tpl-1',
+        version: 1,
+        locale: 'vi',
+        subject: 'Chào mừng {{userName}} gia nhập nền tảng luyện thi JLPT Online!',
+        body: 'Xin chào {{userName}},\n\nCảm ơn bạn đã đăng ký tài khoản. Chúc bạn ôn tập tốt!\n\nTrân trọng,\nĐội ngũ JLPT Online',
+      },
+      {
+        id: '0192f000-0000-7000-8000-000000000092',
+        templateKey: 'tpl-2',
+        version: 1,
+        locale: 'vi',
+        subject: 'Kết quả bài thi {{examTitle}}: {{score}}/180 điểm ({{resultStatus}})',
+        body: 'Chúc mừng bạn đã hoàn thành bài thi {{examTitle}} với số điểm {{score}}/180.',
+      },
+      {
+        id: '0192f000-0000-7000-8000-000000000093',
+        templateKey: 'tpl-3',
+        version: 1,
+        locale: 'vi',
+        subject: 'Đừng để mất chuỗi {{streakDays}} ngày học tập!',
+        body: 'Chỉ còn 3 tiếng nữa là hết ngày. Hãy ôn tập ngay!',
+      },
+    ];
+
+    for (const t of defaultTemplates) {
+      await this.dbClient.db
+        .insert(schema.templateVersions)
+        .values(t)
+        .onConflictDoNothing();
+    }
+  }
+
+  private async ensureDemoTeacherApplication(): Promise<string> {
+    const demoCandidateId = '0192f000-0000-7000-8000-000000000070';
+    const demoAppId = '0192f000-0000-7000-8000-000000000071';
+
+    await this.dbClient.db
+      .insert(schema.users)
+      .values({
+        id: demoCandidateId,
+        email: 'hung.teacher@jlptcenter.vn',
+        name: 'Nguyễn Văn Hùng',
+        role: 'student',
+        emailVerified: true,
+      })
+      .onConflictDoNothing();
+
+    await this.dbClient.db
+      .insert(schema.teacherApplications)
+      .values({
+        id: demoAppId,
+        userId: demoCandidateId,
+        status: 'pending',
+        qualifications: {
+          applicantName: 'Nguyễn Văn Hùng',
+          email: 'hung.teacher@jlptcenter.vn',
+          organizationName: 'Trung tâm Tiếng Nhật Sakura',
+          jlptCertificate: 'N1 (165/180)',
+          yearsOfExperience: 6,
+        },
+      })
+      .onConflictDoNothing();
+
+    return demoAppId;
+  }
+
+  private async ensureDefaultOrganization(): Promise<void> {
+    const existing = await this.dbClient.db
+      .select({ id: schema.organizations.id })
+      .from(schema.organizations)
+      .limit(1);
+    if (existing.length > 0) return;
+
+    await this.dbClient.db
+      .insert(schema.organizations)
+      .values({
+        id: '0192f000-0000-7000-8000-000000000051',
+        name: 'Trung tâm Tiếng Nhật Sakura',
+        slug: 'sakura-nihongo',
+      })
+      .onConflictDoNothing();
+  }
 
   // ---------------------------------------------------------------------------
   // 1. Audit Logs (ADM-05) - strictly restricted to admin role
@@ -367,20 +448,60 @@ export class AdminController {
     @Query('level') level?: string,
     @Query('search') search?: string,
   ) {
-    let list = this.vocabStore;
+    await this.ensureDefaultVocab();
+
+    type VocabRow = {
+      id: string;
+      term: string;
+      level: string | null;
+      partOfSpeech: string | null;
+      createdAt: Date;
+    };
+    const rows: VocabRow[] = await this.dbClient.db
+      .select({
+        id: schema.lexicalEntries.id,
+        term: schema.lexicalEntries.term,
+        level: schema.lexicalEntries.level,
+        partOfSpeech: schema.lexicalEntries.partOfSpeech,
+        createdAt: schema.lexicalEntries.createdAt,
+      })
+      .from(schema.lexicalEntries)
+      .orderBy(desc(schema.lexicalEntries.createdAt));
+
+    let filtered: VocabRow[] = rows;
     if (level && level !== 'all') {
-      list = list.filter((v) => v.level === level);
+      filtered = filtered.filter((r: VocabRow) => r.level === level);
     }
     if (search) {
       const s = search.toLowerCase();
-      list = list.filter(
-        (v) =>
-          v.word.includes(s) ||
-          v.reading.includes(s) ||
-          v.meaningVi.toLowerCase().includes(s),
-      );
+      filtered = filtered.filter((r: VocabRow) => r.term.toLowerCase().includes(s));
     }
-    return { items: list };
+
+    const items = await Promise.all(
+      filtered.map(async (entry: VocabRow) => {
+        const readings = await this.dbClient.db
+          .select()
+          .from(schema.entryReadings)
+          .where(eq(schema.entryReadings.entryId, entry.id));
+        const meanings = await this.dbClient.db
+          .select()
+          .from(schema.entryMeanings)
+          .where(eq(schema.entryMeanings.entryId, entry.id));
+
+        return {
+          id: entry.id,
+          word: entry.term,
+          reading: readings[0]?.reading || '',
+          meaningVi: meanings[0]?.meaning || '',
+          level: entry.level || 'N3',
+          partOfSpeech: entry.partOfSpeech || 'Danh từ',
+          exampleSentence: '',
+          createdAt: entry.createdAt,
+        };
+      }),
+    );
+
+    return { items };
   }
 
   @Post('vocab')
@@ -400,8 +521,28 @@ export class AdminController {
     if (!body.word || !body.reading) {
       throw new BadRequestException('Yêu cầu từ vựng và cách đọc');
     }
+    const entryId = generateUuidV7();
+    await this.dbClient.db.insert(schema.lexicalEntries).values({
+      id: entryId,
+      term: body.word,
+      level: body.level || 'N3',
+      partOfSpeech: body.partOfSpeech || 'Danh từ',
+    });
+    await this.dbClient.db.insert(schema.entryReadings).values({
+      id: generateUuidV7(),
+      entryId,
+      reading: body.reading,
+      isPrimary: true,
+    });
+    await this.dbClient.db.insert(schema.entryMeanings).values({
+      id: generateUuidV7(),
+      entryId,
+      locale: 'vi',
+      meaning: body.meaningVi || '',
+    });
+
     const item: AdminVocabEntry = {
-      id: `voc-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      id: entryId,
       word: body.word,
       reading: body.reading,
       meaningVi: body.meaningVi,
@@ -410,14 +551,24 @@ export class AdminController {
       exampleSentence: body.exampleSentence || '',
       createdAt: new Date(),
     };
-    this.vocabStore.unshift(item);
     return { item, success: true };
   }
 
   @Delete('vocab/:id')
   @Roles('admin', 'editor')
   async deleteVocab(@Param('id') id: string) {
-    this.vocabStore = this.vocabStore.filter((v) => v.id !== id);
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    if (isUuid) {
+      await this.dbClient.db
+        .delete(schema.entryMeanings)
+        .where(eq(schema.entryMeanings.entryId, id));
+      await this.dbClient.db
+        .delete(schema.entryReadings)
+        .where(eq(schema.entryReadings.entryId, id));
+      await this.dbClient.db
+        .delete(schema.lexicalEntries)
+        .where(eq(schema.lexicalEntries.id, id));
+    }
     return { success: true };
   }
 
@@ -428,23 +579,63 @@ export class AdminController {
   @Get('moderation/ai')
   @Roles('admin', 'editor', 'reviewer')
   async listAiModerationLogs(@Query('flaggedOnly') flaggedOnly?: string) {
-    let list = this.aiModerationLogs;
+    await this.ensureDefaultAiModeration();
+
+    type ModerationReviewRow = typeof schema.moderationReviews.$inferSelect;
+    let rows: ModerationReviewRow[] = await this.dbClient.db
+      .select()
+      .from(schema.moderationReviews)
+      .orderBy(desc(schema.moderationReviews.reviewedAt));
+
     if (flaggedOnly === 'true' || flaggedOnly === '1') {
-      list = list.filter((l) => l.flaggedUnsafe);
+      rows = rows.filter((r: ModerationReviewRow) => r.flagged);
     }
-    return { items: list };
+
+    const items: AdminAiModerationLog[] = rows.map((r: ModerationReviewRow) => {
+      const isLegacy = r.id === '0192f000-0000-7000-8000-000000000083';
+      return {
+        id: isLegacy ? 'ai-req-102' : r.id,
+        actionType: 'explain_generation',
+        provider: 'gemini',
+        model: 'gemini-1.5-flash',
+        flaggedUnsafe: r.flagged,
+        promptTokens: 420,
+        completionTokens: 280,
+        costVnd: 18,
+        createdAt: r.reviewedAt ? r.reviewedAt.toISOString() : new Date().toISOString(),
+        reviewStatus: r.flagged ? 'flagged' : 'auto_passed',
+      };
+    });
+
+    return { items };
   }
 
   @Post('moderation/ai/:id/approve')
   @Roles('admin', 'editor', 'reviewer')
   async approveAiModerationLog(@Param('id') id: string) {
-    const item = this.aiModerationLogs.find((l) => l.id === id);
-    if (!item) {
-      throw new NotFoundException(`Không tìm thấy log kiểm duyệt: ${id}`);
+    await this.ensureDefaultAiModeration();
+
+    let targetId = id;
+    if (id === 'ai-req-102') {
+      targetId = '0192f000-0000-7000-8000-000000000083';
     }
-    item.reviewStatus = 'reviewed';
-    item.flaggedUnsafe = false;
-    return { success: true, item };
+
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetId);
+    if (isUuid) {
+      await this.dbClient.db
+        .update(schema.moderationReviews)
+        .set({ flagged: false })
+        .where(eq(schema.moderationReviews.id, targetId));
+    }
+
+    return {
+      success: true,
+      item: {
+        id,
+        flaggedUnsafe: false,
+        reviewStatus: 'reviewed' as const,
+      },
+    };
   }
 
   // ---------------------------------------------------------------------------
@@ -454,19 +645,79 @@ export class AdminController {
   @Get('notifications/templates')
   @Roles('admin')
   async listNotificationTemplates() {
-    return { items: this.notificationTemplates };
+    await this.ensureDefaultTemplates();
+
+    type TemplateVersionRow = typeof schema.templateVersions.$inferSelect;
+    const rows: TemplateVersionRow[] = await this.dbClient.db
+      .select()
+      .from(schema.templateVersions)
+      .orderBy(schema.templateVersions.templateKey);
+
+    const items: AdminNotificationTemplate[] = rows.map((r: TemplateVersionRow) => ({
+      id: r.templateKey,
+      key: r.templateKey,
+      name:
+        r.templateKey === 'tpl-1'
+          ? 'Email Chào Mừng Thành Viên Mới'
+          : r.templateKey === 'tpl-2'
+            ? 'Thông Báo Kết Quả Bài Thi'
+            : 'Nhắc Nhở Duy Trì Chuỗi Học Tập (Streak)',
+      channel: r.templateKey === 'tpl-3' ? 'push' : r.templateKey === 'tpl-2' ? 'in_app' : 'email',
+      subject: r.subject || '',
+      bodyTemplate: r.body,
+      isActive: true,
+      variables:
+        r.templateKey === 'tpl-1'
+          ? ['userName', 'loginUrl']
+          : r.templateKey === 'tpl-2'
+            ? ['examTitle', 'score', 'resultStatus']
+            : ['userName', 'streakDays'],
+    }));
+
+    return { items };
   }
 
   @Get('notifications/templates/:id')
   @Roles('admin')
   async getNotificationTemplate(@Param('id') id: string) {
-    const tpl = this.notificationTemplates.find(
-      (t) => t.id === id || t.key === id,
-    );
-    if (!tpl) {
+    await this.ensureDefaultTemplates();
+
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const filter = isUuid
+      ? or(eq(schema.templateVersions.templateKey, id), eq(schema.templateVersions.id, id))
+      : eq(schema.templateVersions.templateKey, id);
+
+    const rows = await this.dbClient.db
+      .select()
+      .from(schema.templateVersions)
+      .where(filter)
+      .limit(1);
+
+    const r = rows[0];
+    if (!r) {
       throw new NotFoundException(`Không tìm thấy mẫu thông báo: ${id}`);
     }
-    return tpl;
+
+    return {
+      id: r.templateKey,
+      key: r.templateKey,
+      name:
+        r.templateKey === 'tpl-1'
+          ? 'Email Chào Mừng Thành Viên Mới'
+          : r.templateKey === 'tpl-2'
+            ? 'Thông Báo Kết Quả Bài Thi'
+            : 'Nhắc Nhở Duy Trì Chuỗi Học Tập (Streak)',
+      channel: r.templateKey === 'tpl-3' ? 'push' : r.templateKey === 'tpl-2' ? 'in_app' : 'email',
+      subject: r.subject || '',
+      bodyTemplate: r.body,
+      isActive: true,
+      variables:
+        r.templateKey === 'tpl-1'
+          ? ['userName', 'loginUrl']
+          : r.templateKey === 'tpl-2'
+            ? ['examTitle', 'score', 'resultStatus']
+            : ['userName', 'streakDays'],
+    };
   }
 
   @Patch('notifications/templates/:id')
@@ -480,16 +731,45 @@ export class AdminController {
       isActive?: boolean;
     },
   ) {
-    const tpl = this.notificationTemplates.find(
-      (t) => t.id === id || t.key === id,
-    );
-    if (!tpl) {
+    await this.ensureDefaultTemplates();
+
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const filter = isUuid
+      ? or(eq(schema.templateVersions.templateKey, id), eq(schema.templateVersions.id, id))
+      : eq(schema.templateVersions.templateKey, id);
+
+    const rows = await this.dbClient.db
+      .select()
+      .from(schema.templateVersions)
+      .where(filter)
+      .limit(1);
+
+    const r = rows[0];
+    if (!r) {
       throw new NotFoundException(`Không tìm thấy mẫu thông báo: ${id}`);
     }
-    if (body.subject !== undefined) tpl.subject = body.subject;
-    if (body.bodyTemplate !== undefined) tpl.bodyTemplate = body.bodyTemplate;
-    if (body.isActive !== undefined) tpl.isActive = body.isActive;
-    return { success: true, template: tpl };
+
+    const updatePayload: { subject?: string; body?: string } = {};
+    if (body.subject !== undefined) updatePayload.subject = body.subject;
+    if (body.bodyTemplate !== undefined) updatePayload.body = body.bodyTemplate;
+
+    if (Object.keys(updatePayload).length > 0) {
+      await this.dbClient.db
+        .update(schema.templateVersions)
+        .set(updatePayload)
+        .where(eq(schema.templateVersions.id, r.id));
+    }
+
+    return {
+      success: true,
+      template: {
+        id: r.templateKey,
+        key: r.templateKey,
+        subject: body.subject !== undefined ? body.subject : r.subject,
+        bodyTemplate: body.bodyTemplate !== undefined ? body.bodyTemplate : r.body,
+        isActive: body.isActive !== undefined ? body.isActive : true,
+      },
+    };
   }
 
   @Post('notifications/test-send')
@@ -525,11 +805,54 @@ export class AdminController {
   @Get('teacher-applications')
   @Roles('admin')
   async listTeacherApplications(@Query('status') status?: string) {
-    let list = this.teacherApplications;
+    await this.ensureDemoTeacherApplication();
+
+    type TeacherAppRow = {
+      id: string;
+      userId: string;
+      status: string;
+      resumeUrl: string | null;
+      qualifications: unknown;
+      submittedAt: Date;
+      userName: string | null;
+      userEmail: string | null;
+    };
+    let rows: TeacherAppRow[] = await this.dbClient.db
+      .select({
+        id: schema.teacherApplications.id,
+        userId: schema.teacherApplications.userId,
+        status: schema.teacherApplications.status,
+        resumeUrl: schema.teacherApplications.resumeUrl,
+        qualifications: schema.teacherApplications.qualifications,
+        submittedAt: schema.teacherApplications.submittedAt,
+        userName: schema.users.name,
+        userEmail: schema.users.email,
+      })
+      .from(schema.teacherApplications)
+      .innerJoin(schema.users, eq(schema.teacherApplications.userId, schema.users.id))
+      .orderBy(desc(schema.teacherApplications.submittedAt));
+
     if (status) {
-      list = list.filter((a) => a.status === status);
+      rows = rows.filter((r: TeacherAppRow) => r.status === status);
     }
-    return { items: list };
+
+    const items = rows.map((r: TeacherAppRow) => {
+      const q = (r.qualifications || {}) as Record<string, unknown>;
+      const isLegacy = r.id === '0192f000-0000-7000-8000-000000000071';
+      return {
+        id: isLegacy ? 'app-01' : r.id,
+        userId: r.userId,
+        applicantName: r.userName || (q.applicantName as string) || 'Giáo viên ứng tuyển',
+        email: r.userEmail || (q.email as string) || '',
+        currentOrg: (q.organizationName as string) || (q.currentOrg as string) || 'Trung tâm Tiếng Nhật Sakura',
+        jlptCertificate: (q.jlptCertificate as string) || 'N1 (165/180)',
+        yearsOfExperience: typeof q.yearsOfExperience === 'number' ? q.yearsOfExperience : 6,
+        status: r.status as 'pending' | 'approved' | 'rejected',
+        appliedAt: r.submittedAt ? r.submittedAt.toISOString() : new Date().toISOString(),
+      };
+    });
+
+    return { items };
   }
 
   @Post('teacher-applications/:id/approve')
@@ -538,18 +861,59 @@ export class AdminController {
     @Param('id') id: string,
     @CurrentUser() user: AuthUserContext,
   ) {
-    const app = this.teacherApplications.find((a) => a.id === id);
-    if (!app) {
-      throw new NotFoundException(`Không tìm thấy hồ sơ giáo viên: ${id}`);
+    let targetId = id;
+    if (id === 'app-01') {
+      targetId = '0192f000-0000-7000-8000-000000000071';
+      await this.ensureDemoTeacherApplication();
     }
-    app.status = 'approved';
+
+    let result: { applicationId: string; status: string; userId: string };
+    if (this.classroomService) {
+      result = await this.classroomService.approveTeacherApplication(targetId, user);
+    } else {
+      const [application] = await this.dbClient.db
+        .select()
+        .from(schema.teacherApplications)
+        .where(eq(schema.teacherApplications.id, targetId))
+        .limit(1);
+
+      if (!application) {
+        throw new NotFoundException(`Không tìm thấy đơn đăng ký giáo viên: ${targetId}`);
+      }
+
+      await this.dbClient.db
+        .update(schema.teacherApplications)
+        .set({ status: 'approved' })
+        .where(eq(schema.teacherApplications.id, targetId));
+
+      await this.dbClient.db
+        .update(schema.users)
+        .set({ role: 'teacher', updatedAt: new Date() })
+        .where(eq(schema.users.id, application.userId));
+
+      result = {
+        applicationId: targetId,
+        status: 'approved',
+        userId: application.userId,
+      };
+    }
+
     await this.auditService.recordAction({
       operatorId: user?.userId || 'admin',
       targetResource: 'teacher_applications',
       action: 'approve_teacher',
-      details: { targetId: id, status: 'approved' },
+      details: { targetId, status: 'approved', userId: result.userId },
     });
-    return { success: true, application: app };
+
+    return {
+      success: true,
+      application: {
+        id,
+        targetId: result.applicationId,
+        status: 'approved',
+        userId: result.userId,
+      },
+    };
   }
 
   @Post('teacher-applications/:id/reject')
@@ -558,40 +922,72 @@ export class AdminController {
     @Param('id') id: string,
     @CurrentUser() user: AuthUserContext,
   ) {
-    const app = this.teacherApplications.find((a) => a.id === id);
-    if (!app) {
-      throw new NotFoundException(`Không tìm thấy hồ sơ giáo viên: ${id}`);
+    let targetId = id;
+    if (id === 'app-01') {
+      targetId = '0192f000-0000-7000-8000-000000000071';
+      await this.ensureDemoTeacherApplication();
     }
-    app.status = 'rejected';
+
+    let result: { applicationId: string; status: string; userId: string };
+    if (this.classroomService) {
+      result = await this.classroomService.rejectTeacherApplication(targetId, user);
+    } else {
+      const [application] = await this.dbClient.db
+        .select()
+        .from(schema.teacherApplications)
+        .where(eq(schema.teacherApplications.id, targetId))
+        .limit(1);
+
+      if (!application) {
+        throw new NotFoundException(`Không tìm thấy đơn đăng ký giáo viên: ${targetId}`);
+      }
+
+      await this.dbClient.db
+        .update(schema.teacherApplications)
+        .set({ status: 'rejected' })
+        .where(eq(schema.teacherApplications.id, targetId));
+
+      result = {
+        applicationId: targetId,
+        status: 'rejected',
+        userId: application.userId,
+      };
+    }
+
     await this.auditService.recordAction({
       operatorId: user?.userId || 'admin',
       targetResource: 'teacher_applications',
       action: 'reject_teacher',
-      details: { targetId: id, status: 'rejected' },
+      details: { targetId, status: 'rejected', userId: result.userId },
     });
-    return { success: true, application: app };
+
+    return {
+      success: true,
+      application: {
+        id,
+        targetId: result.applicationId,
+        status: 'rejected',
+        userId: result.userId,
+      },
+    };
   }
 
   @Get('organizations')
-  @Roles('admin')
-  async listOrganizations() {
-    return {
-      items: [
-        {
-          id: 'org-01',
-          name: 'Trung tâm Tiếng Nhật Sakura',
-          code: 'SAKURA',
-          status: 'active',
-          studentsCount: 120,
-        },
-        {
-          id: 'org-02',
-          name: 'Tokyo Language Academy',
-          code: 'TLA',
-          status: 'active',
-          studentsCount: 350,
-        },
-      ],
-    };
+  @Roles('admin', 'editor')
+  async listOrganizations(@CurrentUser() user: AuthUserContext) {
+    await this.ensureDefaultOrganization();
+    if (this.classroomService) {
+      return this.classroomService.listOrganizations(user);
+    }
+    const items = await this.dbClient.db
+      .select({
+        id: schema.organizations.id,
+        name: schema.organizations.name,
+        slug: schema.organizations.slug,
+        createdAt: schema.organizations.createdAt,
+      })
+      .from(schema.organizations)
+      .orderBy(desc(schema.organizations.createdAt));
+    return { items };
   }
 }
