@@ -1,3 +1,5 @@
+import process from 'node:process';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
@@ -14,6 +16,14 @@ const nextConfig = {
       module: './lib/stubs/module.js',
       path: './lib/stubs/path.js',
     },
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${process.env.API_INTERNAL_URL || 'http://127.0.0.1:4000'}/api/:path*`,
+      },
+    ];
   },
 };
 

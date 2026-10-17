@@ -1,15 +1,6 @@
 [
   {
     "app": "web",
-    "route": "/lich-su",
-    "file": "apps/web/app/(account)/lich-su/page.tsx",
-    "violations": [
-      "ALL_SAMPLE",
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "web",
     "route": "/goi-thanh-vien",
     "file": "apps/web/app/(billing)/goi-thanh-vien/page.tsx",
     "violations": [
@@ -42,32 +33,8 @@
   },
   {
     "app": "web",
-    "route": "/phong-thi",
-    "file": "apps/web/app/(exam)/phong-thi/page.tsx",
-    "violations": [
-      "ALL_SAMPLE"
-    ]
-  },
-  {
-    "app": "web",
     "route": "/so-tay",
     "file": "apps/web/app/(learning)/so-tay/page.tsx",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "web",
-    "route": "/de-thi/[slug]",
-    "file": "apps/web/app/(library)/de-thi/[slug]/page.tsx",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "web",
-    "route": "/de-thi",
-    "file": "apps/web/app/(library)/de-thi/page.tsx",
     "violations": [
       "mảng mẫu"
     ]
@@ -84,38 +51,6 @@
     "app": "web",
     "route": "/luyen-tap",
     "file": "apps/web/app/(practice)/luyen-tap/page.tsx",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "web",
-    "route": "/ket-qua/[id]",
-    "file": "apps/web/app/(results)/ket-qua/[id]/page.tsx",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "web",
-    "route": "/[level]/de-thi/[session]",
-    "file": "apps/web/app/(seo)/[level]/de-thi/[session]/page.tsx",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "web",
-    "route": "/[level]/de-thi",
-    "file": "apps/web/app/(seo)/[level]/de-thi/page.tsx",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "web",
-    "route": "/sitemap",
-    "file": "apps/web/app/sitemap.ts",
     "violations": [
       "mảng mẫu"
     ]

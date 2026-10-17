@@ -32,7 +32,7 @@ export interface MailpitListResponse {
 }
 
 export class MailpitHelper {
-  public readonly baseUrl: string;
+  public baseUrl: string;
 
   constructor(baseUrl?: string) {
     this.baseUrl =
@@ -45,7 +45,15 @@ export class MailpitHelper {
   async isHealthy(): Promise<boolean> {
     try {
       const res = await fetch(`${this.baseUrl}/api/v1/info`, { signal: AbortSignal.timeout(2000) });
-      return res.ok;
+      if (res.ok) return true;
+      if (res.status === 404 && !this.baseUrl.endsWith('/mail')) {
+        const mailRes = await fetch(`${this.baseUrl}/mail/api/v1/info`, { signal: AbortSignal.timeout(2000) });
+        if (mailRes.ok) {
+          this.baseUrl = `${this.baseUrl}/mail`;
+          return true;
+        }
+      }
+      return false;
     } catch {
       return false;
     }

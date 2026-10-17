@@ -19,6 +19,7 @@ import path from 'node:path';
 test.describe('I05 Real API & Infrastructure End-to-End Suite', () => {
   const mailpit = new MailpitHelper();
   const screenshotsDir = path.resolve(process.cwd(), 'test-results/screenshots');
+  let lastSubmittedAttemptId: string | null = null;
 
   test.beforeAll(async () => {
     if (!fs.existsSync(screenshotsDir)) {
@@ -101,7 +102,7 @@ test.describe('I05 Real API & Infrastructure End-to-End Suite', () => {
     await page.click('button[type="submit"]');
 
     // Expect success alert to be visible
-    await expect(page.locator('.jlpt-alert-success, [role="alert"]')).toContainText(
+    await expect(page.locator('.jlpt-alert-success, [role="alert"]').first()).toContainText(
       /thành công|xác minh/i,
       { timeout: 10000 },
     );
@@ -119,7 +120,7 @@ test.describe('I05 Real API & Infrastructure End-to-End Suite', () => {
     // Step 3: Verify Account (/xac-minh-email?token=...)
     // -------------------------------------------------------------
     await page.goto(`/xac-minh-email?token=${token}`);
-    await expect(page.locator('.jlpt-alert-success, [role="alert"]')).toContainText(
+    await expect(page.locator('.jlpt-alert-success, [role="alert"]').first()).toContainText(
       /xác minh thành công/i,
       { timeout: 10000 },
     );
@@ -217,6 +218,11 @@ test.describe('I05 Real API & Infrastructure End-to-End Suite', () => {
     await reviewLink.click();
 
     await page.waitForURL(/.*\/ket-qua\/.+/, { timeout: 10000 });
+    const currentUrl = page.url();
+    const match = currentUrl.match(/\/ket-qua\/([^/?#]+)/);
+    if (match) {
+      lastSubmittedAttemptId = match[1]!;
+    }
     // Verify score summary card is rendered with real scoring
     await expect(page.locator('.jlpt-score-card, text=/ 180')).toBeVisible({ timeout: 10000 });
 
@@ -320,10 +326,15 @@ test.describe('I05 Real API & Infrastructure End-to-End Suite', () => {
       { name: 'desktop-1366', width: 1366, height: 768 },
     ];
 
+    const resultRoute = lastSubmittedAttemptId
+      ? `/ket-qua/${lastSubmittedAttemptId}`
+      : '/ket-qua/demo-test';
+
     const scopedRoutes = [
       { path: '/de-thi', slug: 'de-thi' },
       { path: '/phong-thi', slug: 'phong-thi' },
       { path: '/lich-su', slug: 'lich-su' },
+      { path: resultRoute, slug: 'ket-qua' },
     ];
 
     for (const vp of viewports) {
@@ -331,9 +342,6 @@ test.describe('I05 Real API & Infrastructure End-to-End Suite', () => {
 
       for (const route of scopedRoutes) {
         await page.goto(route.path, { waitUntil: 'domcontentloaded' });
-        await page.addStyleTag({
-          content: 'html, body { overflow-x: clip !important; max-width: 100vw !important; } @media (max-width: 768px) { .header-desktop-controls { display: none !important; } .jlpt-theme-toggle { display: none !important; } }',
-        });
         await page.waitForTimeout(500);
 
         // 1. Capture and save CI screenshot artifact

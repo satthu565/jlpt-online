@@ -1,6 +1,6 @@
 # Quyết định kiến trúc & kỹ thuật I05: Nối API thật cho Thư viện đề, Phòng thi, Kết quả, Lịch sử (Web)
 
-- **Mã công việc:** `I05` (Assignment: `I05-3`)
+- **Mã công việc:** `I05` (Assignment: `I05-5`)
 - **Người thực hiện:** Worker `W3` (Giao diện học viên)
 - **Nhánh làm việc:** `task/I05`
 - **Base SHA:** `dd56415ee6abe4dc301bc6320ee3937e81dda4c8`
@@ -80,11 +80,11 @@ Mục tiêu của task `I05` là:
 
 ---
 
-## 4. Báo Cáo Khóa Tài Nguyên & Blockers
+## 4. Xử Lý Phản Hồi Reviewer & Khóa Tài Nguyên
 
-1. **`tests/integration/mock-ui-baseline.json`:**
-   - Theo phân công phân quyền của dự án, đường dẫn `tests/` nằm ngoài danh mục `allowedPaths` của Worker `W3` (`allowedPaths`: `package.json`, `apps/web/`, `packages/ui/`, `docs/decisions/`).
-   - Vì 8 tệp/route trong phạm vi `I05` đã được loại bỏ hoàn toàn vi phạm mảng mẫu và dữ liệu viết cứng, Điều phối viên (Coordinator) vui lòng hỗ trợ cập nhật xóa 8 route này khỏi `mock-ui-baseline.json` khi gộp PR:
+1. **Cập nhật `tests/integration/mock-ui-baseline.json` (Quyền ghi tạm ngoài thư mục):**
+   - Đã áp dụng quyền ghi tạm được cấp trong Task card (`allowedPaths` bao gồm `tests/integration/mock-ui-baseline.json`).
+   - Xóa hoàn toàn 8 route đã làm sạch thuộc phạm vi I05 khỏi baseline:
      1. `apps/web/app/(account)/lich-su/page.tsx` (`/lich-su`)
      2. `apps/web/app/(exam)/phong-thi/page.tsx` (`/phong-thi`)
      3. `apps/web/app/(library)/de-thi/[slug]/page.tsx` (`/de-thi/[slug]`)
@@ -93,3 +93,17 @@ Mục tiêu của task `I05` là:
      6. `apps/web/app/(seo)/[level]/de-thi/page.tsx` (`/[level]/de-thi`)
      7. `apps/web/app/(seo)/[level]/de-thi/[session]/page.tsx` (`/[level]/de-thi/[session]`)
      8. `apps/web/app/sitemap.ts` (`/sitemap`)
+   - Baseline hiện tại giảm từ 31 xuống còn 23 mục. Lệnh `pnpm check:no-mock-ui` kiểm tra đạt chuẩn với 0 vi phạm mới và không tồn đọng.
+
+2. **Loại bỏ `page.addStyleTag` và bổ sung `/ket-qua/[id]` trong E2E Viewport drill:**
+   - Loại bỏ hoàn toàn `page.addStyleTag` trong `apps/web/e2e/i05-student-exam-journey.spec.ts`.
+   - Chuẩn hóa CSS responsive tại `packages/ui/src/styles.css` và `packages/ui/src/components/header.tsx`: ẩn `.header-desktop-controls` trên màn hình mobile (`<= 768px`) mà không xung đột style inline.
+   - Bổ sung route `/ket-qua/[id]` vào danh sách `scopedRoutes` kiểm tra hiển thị responsive không cuộn ngang và chụp ảnh artifact CI ở cả hai viewport 390px và 1366px.
+   - Hỗ trợ phát hiện tiền tố `/mail` trong `MailpitHelper` tương thích với cấu hình reverse proxy môi trường VPS.
+
+3. **Phân trang con trỏ (Cursor Pagination) cho `getExamById`:**
+   - Cập nhật `ExamApiClient.getExamById(id: string)` hỗ trợ vòng lặp phân trang `getExams({ limit: 100, cursor })` để tìm kiếm slug tương ứng với UUID khi kho đề thi vượt quá 100 bản ghi.
+   - Bổ sung unit test kiểm chứng khả năng duyệt qua nhiều trang tìm thấy đề thi ở trang sau.
+
+4. **Trạng thái tồn đọng & Blockers:**
+   - Không có blocker. Toàn bộ tiêu chí nghiệm thu và yêu cầu của reviewer đã hoàn tất 100%.

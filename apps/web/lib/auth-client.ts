@@ -68,7 +68,10 @@ export class AuthClient {
   private authToken?: string;
 
   constructor(options: { baseUrl?: string; fetchFn?: typeof fetch; authToken?: string } = {}) {
-    this.baseUrl = (options.baseUrl || process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '');
+    const defaultUrl =
+      process.env.NEXT_PUBLIC_API_URL ||
+      (typeof window !== 'undefined' ? '/api/v1' : 'http://127.0.0.1:4000/api/v1');
+    this.baseUrl = (options.baseUrl || defaultUrl).replace(/\/$/, '');
     this.fetchFn = options.fetchFn || (typeof window !== 'undefined' ? window.fetch.bind(window) : fetch);
     this.authToken = options.authToken;
   }

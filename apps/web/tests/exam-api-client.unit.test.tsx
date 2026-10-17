@@ -225,6 +225,57 @@ describe('ExamApiClient Unit & SDK Contract Suite', () => {
       expect(found.title).toContain('Đề thi Mẫu N5');
     });
 
+    it('getExamById traverses multiple pages via cursor when exam is past the first 100 items', async () => {
+      const page1Exam = {
+        ...MOCK_DEMO_N5_EXAM,
+        id: '0192f000-0001-7000-8000-000000000099',
+        slug: 'exam-page-1',
+      };
+      const targetExam = {
+        ...MOCK_DEMO_N5_EXAM,
+        id: '0192f000-0001-7000-8000-000000000150',
+        slug: 'exam-page-2',
+      };
+
+      // 1st fetch: page 1 returns page1Exam and nextCursor
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            items: [page1Exam],
+            nextCursor: 'cursor_offset_100',
+          }),
+        })
+        // 2nd fetch: page 2 returns targetExam
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            items: [targetExam],
+            nextCursor: null,
+          }),
+        })
+        // 3rd fetch: getExamBySlug for exam-page-2
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ...targetExam,
+            description: 'Đề thi trang 2.',
+          }),
+        });
+
+      const client = new ExamApiClient({ baseUrl: '/api/v1', fetcher: mockFetch as unknown as typeof fetch });
+      const found = await client.getExamById('0192f000-0001-7000-8000-000000000150');
+
+      expect(mockFetch).toHaveBeenCalledTimes(3);
+      // Verify cursor was passed in 2nd call
+      const secondCallUrl = mockFetch.mock.calls[1]![0] as string;
+      expect(secondCallUrl).toContain('cursor=cursor_offset_100');
+      expect(found.slug).toBe('exam-page-2');
+    });
+
     it('getExamById falls back to slug when non-UUID string is passed', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,

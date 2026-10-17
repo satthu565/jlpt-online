@@ -90,11 +90,6 @@ export function Header({
           {/* Desktop Navigation */}
           <nav
             aria-label="Main Navigation"
-            style={{
-              display: 'none',
-              alignItems: 'center',
-              gap: '1rem',
-            }}
             className="desktop-nav"
           >
             {navItems.map((item) => (
@@ -122,7 +117,7 @@ export function Header({
         {/* Right Controls & Auth */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           {rightControls && (
-            <div className="header-desktop-controls" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div className="header-desktop-controls">
               {rightControls}
             </div>
           )}
