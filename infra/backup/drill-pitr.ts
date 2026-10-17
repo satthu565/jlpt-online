@@ -7,13 +7,19 @@
  *   - RTO <= 1 hour (3600s), RPO <= 5 minutes (300s)
  */
 
+import fs from 'node:fs';
+import path from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 
 export interface PitrDrillMetrics {
   targetRecoveryTime: string;
   latestRestoredTimestamp: string;
+  restoreJobStartedAtUTC: string;
+  restoreJobFinishedAtUTC: string;
   rtoSeconds: number;
   rpoSeconds: number;
+  rtoFormatted: string;
+  rpoFormatted: string;
   rtoAcceptable: boolean;
   rpoAcceptable: boolean;
   stagingIsolated: boolean;
@@ -105,6 +111,7 @@ export async function runPitrDrill(options?: {
 
   // Step 6: Execute PITR Restore Drill targeting timestamp T1
   // Measure RTO (Wall-clock recovery duration)
+  const restoreJobStartedAtUTC = new Date().toISOString();
   const restoreStartTime = performance.now();
 
   // Create isolated restore instance
@@ -184,6 +191,7 @@ export async function runPitrDrill(options?: {
 
   // Restore completed and verified ready
   const restoreEndTime = performance.now();
+  const restoreJobFinishedAtUTC = new Date().toISOString();
   const rtoSeconds = parseFloat(((restoreEndTime - restoreStartTime) / 1000).toFixed(4));
 
   // Step 7: Verify latest restored record and calculate RPO
@@ -213,8 +221,12 @@ export async function runPitrDrill(options?: {
   const metrics: PitrDrillMetrics = {
     targetRecoveryTime: t1.toISOString(),
     latestRestoredTimestamp: latestRestoredTime.toISOString(),
+    restoreJobStartedAtUTC,
+    restoreJobFinishedAtUTC,
     rtoSeconds,
     rpoSeconds,
+    rtoFormatted: `${rtoSeconds}s (Threshold: <= ${maxRto}s)`,
+    rpoFormatted: `${rpoSeconds}s (Threshold: <= ${maxRpo}s)`,
     rtoAcceptable: rtoSeconds <= maxRto,
     rpoAcceptable: rpoSeconds <= maxRpo,
     stagingIsolated,
@@ -225,14 +237,38 @@ export async function runPitrDrill(options?: {
 
   console.log('========================================================================');
   console.log('[PITR DRILL RESULTS - SYS-08 / ADM-20]');
-  console.log(`Target Recovery Time:            ${metrics.targetRecoveryTime}`);
-  console.log(`Latest Restored Timestamp:       ${metrics.latestRestoredTimestamp}`);
-  console.log(`Measured RTO (Recovery Time):    ${metrics.rtoSeconds}s (Threshold: <= ${maxRto}s) -> ${metrics.rtoAcceptable ? 'PASS' : 'FAIL'}`);
-  console.log(`Measured RPO (Recovery Point):   ${metrics.rpoSeconds}s (Threshold: <= ${maxRpo}s) -> ${metrics.rpoAcceptable ? 'PASS' : 'FAIL'}`);
+  console.log(`Restore Job Started:             ${metrics.restoreJobStartedAtUTC}`);
+  console.log(`Target Recovery Point:           ${metrics.targetRecoveryTime}`);
+  console.log(`Latest Restored Transaction:     ${metrics.latestRestoredTimestamp}`);
+  console.log(`Restore Job Finished:            ${metrics.restoreJobFinishedAtUTC}`);
+  console.log(`Measured RTO (Recovery Time):    ${metrics.rtoFormatted} -> ${metrics.rtoAcceptable ? 'PASS' : 'FAIL'}`);
+  console.log(`Measured RPO (Recovery Point):   ${metrics.rpoFormatted} -> ${metrics.rpoAcceptable ? 'PASS' : 'FAIL'}`);
   console.log(`Staging Isolation:               ${metrics.stagingIsolated ? 'PASS' : 'FAIL'}`);
   console.log(`Archive Mode During Drill:       ${metrics.archiveModeDuringDrill} (Zero WAL pollution)`);
   console.log(`Post-Target Exclusion:           ${metrics.postTargetRecordsExcluded ? 'PASS' : 'FAIL'}`);
   console.log('========================================================================');
+
+  // Persist drill report to repo root docs/release
+  try {
+    let repoRoot = process.cwd();
+    while (repoRoot !== path.dirname(repoRoot)) {
+      if (fs.existsSync(path.join(repoRoot, 'pnpm-workspace.yaml'))) {
+        break;
+      }
+      repoRoot = path.dirname(repoRoot);
+    }
+    const reportDir = path.resolve(repoRoot, 'docs/release');
+    if (!fs.existsSync(reportDir)) {
+      fs.mkdirSync(reportDir, { recursive: true });
+    }
+    fs.writeFileSync(
+      path.join(reportDir, 'pitr-drill-report.json'),
+      JSON.stringify(metrics, null, 2),
+      'utf-8'
+    );
+  } catch (err) {
+    console.error('Warning: could not write pitr-drill-report.json:', err);
+  }
 
   return metrics;
 }

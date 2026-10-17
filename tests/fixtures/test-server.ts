@@ -18,6 +18,19 @@ export const AUTH_TOKENS = {
   otherStudent: 'tok_other_student',
 } as const;
 
+export const DEVICE_AUTH_TOKENS: Record<string, string> = {
+  '0192f000-0000-7000-8000-0000000000d1': 'tok_student_iphone',
+  '0192f000-0000-7000-8000-0000000000d2': 'tok_student_pixel',
+  '0192f000-0000-7000-8000-0000000000d3': 'tok_student_macbook',
+  '0192f000-0000-7000-8000-0000000000d4': 'tok_student_windows',
+  '0192f000-0000-7000-8000-0000000000d5': 'tok_student_ubuntu',
+};
+
+export const LOAD_STUDENT_TOKENS: string[] = Array.from(
+  { length: 30 },
+  (_, i) => `tok_load_student_${i}`
+);
+
 export const TEST_USERS = {
   admin: '0192f000-0000-7000-8000-0000000000b1',
   billingAdmin: '0192f000-0000-7000-8000-0000000000b2',
@@ -112,6 +125,9 @@ export async function getApiBaseUrl(): Promise<string> {
           ...process.env,
           PORT: String(port),
           EMAIL_DRIVER: 'memory',
+          MEDIA_TOKEN_SECRET:
+            process.env.MEDIA_TOKEN_SECRET ||
+            'staging_media_token_secret_for_reproducible_smoke_tests',
         },
         stdio: ['ignore', 'pipe', 'pipe'],
       });

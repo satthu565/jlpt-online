@@ -46,5 +46,24 @@ jobs:
       - name: Verify feature scope and implementation coverage (A06)
         run: pnpm features:verify
 
+      - name: Run Accessibility Verification (SYS-14)
+        run: pnpm test:a11y
+
+      - name: Run Security Negative & Hardening Matrix (V06)
+        run: pnpm test:security
+
+      - name: Run Multi-Browser Regression Suite (Chromium, WebKit, Firefox) (V06)
+        env:
+          MEDIA_TOKEN_SECRET: staging_media_token_secret_for_reproducible_smoke_tests
+        run: pnpm test:e2e:all-browsers
+
+      - name: Run Stepped Load Capacity Runner (SYS-10 / V06)
+        env:
+          MEDIA_TOKEN_SECRET: staging_media_token_secret_for_reproducible_smoke_tests
+        run: pnpm test:load
+
+      - name: Execute Backup PITR Restore Drill & Log RPO/RTO Timestamps (SYS-08)
+        run: node --no-warnings --experimental-strip-types infra/backup/drill-pitr.ts
+
       - name: Build applications and packages
         run: pnpm build

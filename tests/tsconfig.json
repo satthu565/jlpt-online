@@ -17,5 +17,5 @@
       "@jlpt/schema": ["../packages/schema/src/index.ts"]
     }
   },
-  "include": ["integration/**/*", "load/**/*", "e2e/**/*"]
+  "include": ["integration/**/*", "load/**/*", "e2e/**/*", "playwright/**/*", "playwright.config.ts"]
 }
