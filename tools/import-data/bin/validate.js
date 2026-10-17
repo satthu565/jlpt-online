@@ -34,18 +34,20 @@ async function loadValidator() {
 function printUsage() {
   console.log(`
 Sử dụng:
-  node tools/import-data/bin/validate.js <duong-dan-goi> [--mode ready|draft]
+  node tools/import-data/bin/validate.js <duong-dan-goi> [--mode ready|draft] [--blueprint <duong-dan-blueprint>]
 
 Ví dụ:
   node tools/import-data/bin/validate.js fixtures/imports/ready
   node tools/import-data/bin/validate.js fixtures/imports/draft --mode draft
   node tools/import-data/bin/validate.js fixtures/imports/ready.zip
+  node tools/import-data/bin/validate.js docs/multi-worker/demo-data/demo-n5-1.zip --blueprint docs/multi-worker/demo-data/blueprints/synthetic-n5-demo-v1.json
 `);
 }
 
 async function main() {
   const rawArgs = process.argv.slice(2).filter((arg) => arg !== '--');
   let packagePath = null;
+  let blueprintPath = null;
   let mode = 'ready';
 
   for (let i = 0; i < rawArgs.length; i++) {
@@ -71,6 +73,17 @@ async function main() {
         console.error('Lỗi: --mode phải là "ready" hoặc "draft"');
         return 1;
       }
+    } else if (arg === '--blueprint') {
+      const nextArg = rawArgs[i + 1];
+      if (nextArg && !nextArg.startsWith('-')) {
+        blueprintPath = nextArg;
+        i++;
+      } else {
+        console.error('Lỗi: Thiếu đường dẫn sau --blueprint');
+        return 1;
+      }
+    } else if (arg.startsWith('--blueprint=')) {
+      blueprintPath = arg.split('=')[1];
     } else if (!arg.startsWith('-') && !packagePath) {
       packagePath = arg;
     }
@@ -80,6 +93,21 @@ async function main() {
     console.error('Lỗi: Thiếu đường dẫn gói đề cần kiểm tra.');
     printUsage();
     return 1;
+  }
+
+  let blueprint = undefined;
+  if (blueprintPath) {
+    const resolvedBp = path.resolve(process.cwd(), blueprintPath);
+    if (!fs.existsSync(resolvedBp)) {
+      console.error(`Lỗi: Tệp blueprint không tồn tại: ${blueprintPath}`);
+      return 1;
+    }
+    try {
+      blueprint = JSON.parse(fs.readFileSync(resolvedBp, 'utf-8'));
+    } catch (e) {
+      console.error(`Lỗi cú pháp blueprint JSON: ${e}`);
+      return 1;
+    }
   }
 
   const resolvedPath = path.resolve(process.cwd(), packagePath);
@@ -103,7 +131,7 @@ async function main() {
   if (stat.isDirectory() || (stat.isFile() && resolvedPath.endsWith('.zip'))) {
     const validatePackagePath = await loadValidator();
     if (validatePackagePath) {
-      const result = validatePackagePath(resolvedPath, { mode });
+      const result = validatePackagePath(resolvedPath, { mode, blueprint });
       console.log(JSON.stringify(result, null, 2));
       return result.valid ? 0 : 1;
     }
