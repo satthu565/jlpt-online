@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { Button, WatermarkBadge } from '@jlpt/ui';
 import type { Result, Level } from '@jlpt/schema';
-import { generateScoreReportPdf } from '@jlpt/exam-engine';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 
@@ -52,6 +51,7 @@ export function PdfScoreExportButton({
         })) || [];
 
       // Generate official PDF using @jlpt/exam-engine with digital watermark & tamper-evident SHA-256
+      const { generateScoreReportPdf } = await import('@jlpt/exam-engine');
       const pdfRes = generateScoreReportPdf({
         data: {
           attemptId: attemptId || 'att-anonymous',
