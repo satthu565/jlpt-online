@@ -125,7 +125,11 @@ export async function authenticateStaffAccount(
 }> {
   const signInRes = await fetch(`${apiBaseUrl}/api/v1/auth/sign-in/email`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'x-forwarded-for': '198.51.100.80',
+      'cf-connecting-ip': '198.51.100.80',
+    },
     body: JSON.stringify({
       email: account.email,
       password: account.password,

@@ -125,11 +125,36 @@ Bước vào Ngày 8 (tích hợp giao diện với API thật, mã task I00–I
 
 ---
 
-## 7. Kết quả nghiệm thu các tiêu chí
+## 8. Khắc phục lỗi Rate Limiting (429) và Media Token trên Staging CI cho Multi-Browser Matrix và Stepped Load Runner (Lượt 12)
+
+- **Nguyên nhân lỗi CI**:
+  1. **Lỗi Rate Limiting 429 trên `all-browsers.test.ts`**:
+     - `RateLimitGuard` (`apps/api/src/common/guards/rate-limit.guard.ts`) áp dụng mặc định `limit = 120 req/phút` cho mỗi client IP trong môi trường `NODE_ENV=production` (môi trường vận hành staging của container API).
+     - Trong quy trình `.github/workflows/staging.yml`, các bước trước đó (`test:e2e:core`, `test:e2e:full`, `test:security`, `test:a11y`) gửi liên tiếp hơn 115 requests từ runner host (`127.0.0.1`) mà không mang header phân bổ IP.
+     - Khi `pnpm test:e2e:all-browsers` chạy đến lượt thiết bị thứ 2 (Google Pixel 7) và các thiết bị tiếp theo, bucket `staging:global:127.0.0.1` đã vượt ngưỡng 120 req/phút. Các endpoint `/attempts` và `/media/:id` lập tức trả về HTTP 429 `RATE_LIMITED`. Do đó `attemptId` không được khởi tạo, làm đổ vỡ dây chuyền các Step 4, 5, 6, 7 trên các thiết bị tiếp theo.
+  2. **Lỗi Token Audio Range 206 trong `stepped-load-runner.ts`**:
+     - Trong `tests/load/stepped-load-runner.ts`, token media được ký trước tĩnh bằng secret cấu hình cục bộ thay vì sử dụng token động trả về từ chính container API qua endpoint `/api/v1/attempts`. Khi secret môi trường có sự khác biệt, Stage 5 trả về lỗi 403 `EXPIRED_URL` (`TOKEN_INVALID_OR_EXPIRED`).
+
+- **Biện pháp xử lý**:
+  1. **Phân bổ Client IP độc lập cho từng thiết bị trong Ma trận đa trình duyệt (`tests/e2e/all-browsers.test.ts`)**:
+     - Bổ sung trường `clientIp` cho từng `DeviceTarget`: iPhone 15 (`198.51.100.51`), Pixel 7 (`198.51.100.52`), MacBook Pro (`198.51.100.53`), Windows 11 (`198.51.100.54`), Ubuntu Linux (`198.51.100.55`).
+     - Đính kèm các tiêu đề chuẩn `x-forwarded-for` và `cf-connecting-ip` vào mọi yêu cầu `fetch` của từng thiết bị và hook khởi tạo ban đầu (`198.51.100.50`).
+  2. **Cách ly IP tiến trình trong Fetch Hook (`tests/fixtures/test-server.ts`)**:
+     - Cập nhật `installFetchTotpHook()` tự động đính kèm `x-forwarded-for` và `cf-connecting-ip` với địa chỉ IP `198.51.100.<pid>` dựa trên PID tiến trình của test suite nếu yêu cầu chưa có tiêu đề client IP riêng.
+  3. **Đính kèm Client IP trong cấu hình Playwright & Fixture**:
+     - Thêm `extraHTTPHeaders` với IP chuyên dụng `198.51.100.80` trong `tests/playwright.config.ts`.
+     - Thêm header IP trong `tests/playwright/fixtures/staff-auth.fixture.ts` cho hàm `authenticateStaffAccount`.
+  4. **Khai thác token động từ API trong `tests/load/stepped-load-runner.ts`**:
+     - Cập nhật runner thu nhận `mediaToken` trả về trực tiếp từ phản hồi khởi tạo hoặc nối lại bài thi (`start_attempt`/`resume_attempt`) của container API để dùng cho kịch bản Stage 5 CDN Range 206 streaming.
+
+---
+
+## 9. Kết quả nghiệm thu các tiêu chí
 
 | Tiêu chí | Trạng thái | Bằng chứng |
 | :--- | :--- | :--- |
 | Staging CI dựng web, admin, API, Postgres, Redis, Mailpit; cùng origin `/api/v1` | **ĐẠT** | `infra/compose/compose.staging.yml`, `infra/compose/Caddyfile`, `.github/workflows/staging.yml` |
-| `pnpm test:e2e:integration` chạy Playwright thật; fixture Mailpit & staff seed TOTP | **ĐẠT** | `tests/playwright/integration.spec.ts`, `tests/playwright/fixtures/*`, lệnh `-- --list` trả mã 0 |
+| `pnpm test:e2e:integration` chạy Playwright thật; fixture Mailpit & staff seed TOTP | **ĐẠT** | `tests/playwright/integration.spec.ts`, `tests/playwright/fixtures/*`, lệnh `-- --list` trả mã 0 (30 tests) |
 | `pnpm check:no-mock-ui` phát hiện mảng mẫu, ALL_SAMPLE, đăng nhập giả; có baseline | **ĐẠT** | `tests/integration/check-no-mock-ui.ts`, `tests/integration/mock-ui-baseline.json`, unit test 10/10 passed |
 | Runbook `docs/runbooks/demo-environment.md` mô tả dựng bản demo đầy đủ bằng compose | **ĐẠT** | `docs/runbooks/demo-environment.md`, `infra/compose/compose.demo.yml` |
+

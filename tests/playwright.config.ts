@@ -24,6 +24,10 @@ export default defineConfig({
   ],
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000',
+    extraHTTPHeaders: {
+      'x-forwarded-for': '198.51.100.80',
+      'cf-connecting-ip': '198.51.100.80',
+    },
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

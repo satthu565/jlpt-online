@@ -96,22 +96,36 @@ export function installFetchTotpHook(): void {
         ? input.toString()
         : input.url;
 
+    const headers = new Headers(
+      init?.headers || (input instanceof Request ? input.headers : undefined),
+    );
+    let headersModified = false;
+
+    // Attach client IP headers if none are present to ensure each runner/suite process has an isolated rate-limit bucket
+    if (!headers.has('x-forwarded-for') && !headers.has('cf-connecting-ip')) {
+      const runnerClientIp = `198.51.100.${(process.pid % 200) + 1}`;
+      headers.set('x-forwarded-for', runnerClientIp);
+      headers.set('cf-connecting-ip', runnerClientIp);
+      headersModified = true;
+    }
+
     if (urlStr.includes('/api/v1/admin') || urlStr.includes('/admin')) {
-      const headers = new Headers(
-        init?.headers || (input instanceof Request ? input.headers : undefined),
-      );
       const authHeader = headers.get('authorization') || '';
       const token = authHeader.replace(/^Bearer\s+/i, '').trim();
 
       if (STAFF_TOKENS.has(token) && !headers.has('x-totp-code')) {
         headers.set('x-totp-code', generateTestTotp());
-        if (init) {
-          init.headers = headers;
-        } else if (input instanceof Request) {
-          input = new Request(input, { headers });
-        } else {
-          init = { headers };
-        }
+        headersModified = true;
+      }
+    }
+
+    if (headersModified) {
+      if (init) {
+        init.headers = headers;
+      } else if (input instanceof Request) {
+        input = new Request(input, { headers });
+      } else {
+        init = { headers };
       }
     }
 

@@ -12,6 +12,7 @@ const REPO_ROOT = path.resolve(__dirname, '../../');
 interface DeviceTarget {
   deviceId: string;
   deviceName: string;
+  clientIp: string;
   os: string;
   browser: string;
   engine: 'Blink' | 'Gecko' | 'WebKit';
@@ -26,6 +27,7 @@ const DEVICE_TARGETS: DeviceTarget[] = [
   {
     deviceId: '0192f000-0000-7000-8000-0000000000d1',
     deviceName: 'Apple iPhone 15',
+    clientIp: '198.51.100.51',
     os: 'iOS 17.5',
     browser: 'Mobile Safari 17.5',
     engine: 'WebKit',
@@ -39,6 +41,7 @@ const DEVICE_TARGETS: DeviceTarget[] = [
   {
     deviceId: '0192f000-0000-7000-8000-0000000000d2',
     deviceName: 'Google Pixel 7',
+    clientIp: '198.51.100.52',
     os: 'Android 14',
     browser: 'Chrome 125.0',
     engine: 'Blink',
@@ -52,6 +55,7 @@ const DEVICE_TARGETS: DeviceTarget[] = [
   {
     deviceId: '0192f000-0000-7000-8000-0000000000d3',
     deviceName: 'Apple MacBook Pro (macOS Sonoma)',
+    clientIp: '198.51.100.53',
     os: 'macOS 14.5',
     browser: 'Safari 17.5',
     engine: 'WebKit',
@@ -65,6 +69,7 @@ const DEVICE_TARGETS: DeviceTarget[] = [
   {
     deviceId: '0192f000-0000-7000-8000-0000000000d4',
     deviceName: 'Windows 11 Desktop',
+    clientIp: '198.51.100.54',
     os: 'Windows 11',
     browser: 'Google Chrome 125.0',
     engine: 'Blink',
@@ -78,6 +83,7 @@ const DEVICE_TARGETS: DeviceTarget[] = [
   {
     deviceId: '0192f000-0000-7000-8000-0000000000d5',
     deviceName: 'Ubuntu Linux Desktop',
+    clientIp: '198.51.100.55',
     os: 'Ubuntu 24.04 LTS',
     browser: 'Mozilla Firefox 126.0',
     engine: 'Gecko',
@@ -117,7 +123,12 @@ describe('Full Regression Multi-Browser & Device Matrix (SYS-10 / T1.9.4 / Task 
     baseUrl = await getApiBaseUrl();
 
     // Look up demo exam
-    const examsRes = await fetch(`${baseUrl}/api/v1/exams`);
+    const examsRes = await fetch(`${baseUrl}/api/v1/exams`, {
+      headers: {
+        'x-forwarded-for': '198.51.100.50',
+        'cf-connecting-ip': '198.51.100.50',
+      },
+    });
     expect(examsRes.status).toBe(200);
     const data = (await examsRes.json()) as { items?: Array<{ id: string; slug: string }> };
     const found = data.items?.find((x) => x.slug === 'demo-n5-1');
@@ -126,7 +137,12 @@ describe('Full Regression Multi-Browser & Device Matrix (SYS-10 / T1.9.4 / Task 
 
     // Look up seeded media asset for demo exam audio
     const demoAudioSha = '25e6d7d051a1487de1e86e7dcb1817c5117727d0018780f3f0534982f8f4c884';
-    const mediaRes = await fetch(`${baseUrl}/api/v1/media/by-sha/${demoAudioSha}`);
+    const mediaRes = await fetch(`${baseUrl}/api/v1/media/by-sha/${demoAudioSha}`, {
+      headers: {
+        'x-forwarded-for': '198.51.100.50',
+        'cf-connecting-ip': '198.51.100.50',
+      },
+    });
     if (mediaRes.ok) {
       const mediaAsset = (await mediaRes.json()) as { id: string };
       sampleMediaAssetId = mediaAsset.id;
@@ -240,11 +256,17 @@ ${testResults
       let attemptMediaToken = '';
       let authHeaders: Record<string, string> = {};
 
+      const deviceHeaders: Record<string, string> = {
+        'User-Agent': device.userAgent,
+        'x-forwarded-for': device.clientIp,
+        'cf-connecting-ip': device.clientIp,
+      };
+
       it('1. Browse exam catalog with specific User-Agent and Viewport', async () => {
         try {
           const res = await fetch(`${baseUrl}/api/v1/exams`, {
             headers: {
-              'User-Agent': device.userAgent,
+              ...deviceHeaders,
               Accept: 'application/json',
               'Sec-CH-UA-Mobile': device.isMobile ? '?1' : '?0',
             },
@@ -265,7 +287,7 @@ ${testResults
           authHeaders = { Authorization: `Bearer ${deviceToken}` };
           const res = await fetch(`${baseUrl}/api/v1/exams/demo-n5-1`, {
             headers: {
-              'User-Agent': device.userAgent,
+              ...deviceHeaders,
               ...authHeaders,
             },
           });
@@ -287,7 +309,7 @@ ${testResults
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'User-Agent': device.userAgent,
+              ...deviceHeaders,
               ...authHeaders,
             },
             body: JSON.stringify({
@@ -305,7 +327,7 @@ ${testResults
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  'User-Agent': device.userAgent,
+                  ...deviceHeaders,
                   ...authHeaders,
                 },
               });
@@ -331,7 +353,7 @@ ${testResults
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                'User-Agent': device.userAgent,
+                ...deviceHeaders,
                 ...authHeaders,
               },
               body: JSON.stringify({
@@ -366,7 +388,7 @@ ${testResults
           // Test actual audio range streaming with signed media token
           let res = await fetch(`${baseUrl}/api/v1/media/${sampleMediaAssetId}?t=${tokenToUse}`, {
             headers: {
-              'User-Agent': device.userAgent,
+              ...deviceHeaders,
               Range: 'bytes=0-1023',
               'X-Media-Token': tokenToUse,
             },
@@ -388,7 +410,7 @@ ${testResults
             );
             res = await fetch(`${baseUrl}/api/v1/media/${sampleMediaAssetId}?t=${fallbackToken}`, {
               headers: {
-                'User-Agent': device.userAgent,
+                ...deviceHeaders,
                 Range: 'bytes=0-1023',
                 'X-Media-Token': fallbackToken,
               },
@@ -408,7 +430,7 @@ ${testResults
               );
               res = await fetch(`${baseUrl}/api/v1/media/${sampleMediaAssetId}?t=${fallbackToken}`, {
                 headers: {
-                  'User-Agent': device.userAgent,
+                  ...deviceHeaders,
                   Range: 'bytes=0-1023',
                   'X-Media-Token': fallbackToken,
                 },
@@ -438,7 +460,7 @@ ${testResults
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'User-Agent': device.userAgent,
+              ...deviceHeaders,
               ...authHeaders,
             },
             body: JSON.stringify({
@@ -455,7 +477,7 @@ ${testResults
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
-              'User-Agent': device.userAgent,
+              ...deviceHeaders,
               ...authHeaders,
             },
             body: JSON.stringify({
@@ -488,7 +510,7 @@ ${testResults
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'User-Agent': device.userAgent,
+              ...deviceHeaders,
               ...authHeaders,
             },
             body: JSON.stringify({
@@ -516,7 +538,7 @@ ${testResults
 
           const res = await fetch(`${baseUrl}/api/v1/attempts/${attemptId}/review`, {
             headers: {
-              'User-Agent': device.userAgent,
+              ...deviceHeaders,
               ...authHeaders,
             },
           });
