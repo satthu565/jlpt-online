@@ -12,6 +12,7 @@ import {
   CorpusAggregator,
   exportDatasetToCsv,
   exportDatasetToXlsx,
+  getHanVietForWord,
   type ExamPackageInput,
 } from './nlp/index.js';
 import { DB_CLIENT } from '../../common/database/database.module.js';
@@ -436,21 +437,28 @@ export class CorpusService {
 
       let reading: string | undefined;
       let meaning: string | undefined;
+      let hanViet: string | undefined;
 
       if (this.vocabService) {
         try {
           const dictRes = await this.vocabService.lookupDictionary({ text: word });
           reading = dictRes.readings[0];
           meaning = dictRes.meanings[0];
+          hanViet = dictRes.hanViet;
         } catch {
           // Fall back if not in sandbox dictionary
         }
+      }
+
+      if (!hanViet) {
+        hanViet = getHanVietForWord(word) || undefined;
       }
 
       const itemId = generateUuidV7();
       const tags = ['source:corpus', `dataset:${datasetId}`, `term:${word}`];
       if (reading) tags.push(`reading:${reading}`);
       if (meaning) tags.push(`meaning:${meaning}`);
+      if (hanViet) tags.push(`hanviet:${hanViet}`);
       if (dto.level) tags.push(`level:${dto.level}`);
 
       await this.dbClient.db.insert(notebookItems).values({
@@ -470,6 +478,7 @@ export class CorpusService {
         term: word,
         reading,
         meaning,
+        hanViet,
         level: dto.level,
         kind: 'vocab',
       });

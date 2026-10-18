@@ -5,6 +5,8 @@ import {
   findDictionaryEntry,
   getAllDictionaryEntries,
 } from './vocab-dict.js';
+import { getHanVietForWord, getHanVietForKanji } from './hanviet.js';
+import { getKanjiInfo } from './kanji-dict.js';
 
 export class ExternalPrerequisiteError extends Error {
   constructor(
@@ -104,6 +106,26 @@ export class DictionaryAdapter {
     }
 
     if (!entry) {
+      // 3. Fallback for single Kanji character lookup
+      if (Array.from(trimmed).length === 1) {
+        const kHanViet = getHanVietForKanji(trimmed);
+        const kInfo = getKanjiInfo(trimmed);
+        if (kHanViet || (kInfo && kInfo.meanings.length > 0)) {
+          return {
+            entry: trimmed,
+            readings: [...(kInfo?.onyomi ?? []), ...(kInfo?.kunyomi ?? [])],
+            meanings: kInfo?.meanings && kInfo.meanings.length > 0 ? kInfo.meanings : (kHanViet ? [kHanViet.toLowerCase()] : []),
+            examples: [],
+            license: this.license,
+            attribution: this.attribution,
+            level: kInfo?.level,
+            partOfSpeech: 'kanji',
+            isExternal: this.providerType === 'external',
+            status: this.providerType === 'external' ? 'READY' : 'SANDBOX',
+            hanViet: kHanViet || '',
+          };
+        }
+      }
       return null;
     }
 
@@ -111,6 +133,8 @@ export class DictionaryAdapter {
       locale === 'en'
         ? entry.meanings.filter((m) => !/[\u4e00-\u9fa5\u00C0-\u1EF9]/.test(m))
         : entry.meanings;
+
+    const hanViet = entry.hanViet || getHanVietForWord(entry.term) || getHanVietForWord(trimmed) || '';
 
     return {
       entry: entry.term,
@@ -123,6 +147,7 @@ export class DictionaryAdapter {
       partOfSpeech: entry.partOfSpeech,
       isExternal: this.providerType === 'external',
       status: this.providerType === 'external' ? 'READY' : 'SANDBOX',
+      hanViet,
     };
   }
 
