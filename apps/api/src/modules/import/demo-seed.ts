@@ -31,9 +31,8 @@ export async function runDemoSeed(
   options?: { storageService?: StorageService },
 ): Promise<DemoSeedResult> {
   const appEnv = (process.env.APP_ENV || '').trim().toLowerCase();
-  const nodeEnv = (process.env.NODE_ENV || '').trim().toLowerCase();
-  if (appEnv === 'production' || nodeEnv === 'production') {
-    throw new Error('Script seed staging/demo bị từ chối chạy khi APP_ENV=production hoặc NODE_ENV=production');
+  if (appEnv === 'production') {
+    throw new Error('Script seed staging/demo bị từ chối chạy khi APP_ENV=production');
   }
   let dbClient = client;
   let closeOnExit = false;

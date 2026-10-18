@@ -732,9 +732,12 @@ export class AuthService {
 
     // Check if session has verified 2FA challenge
     let twoFactorVerified = false;
+    const appEnv = (process.env.APP_ENV || '').trim().toLowerCase();
+    const isProduction =
+      appEnv === 'production' ||
+      (process.env.NODE_ENV === 'production' && appEnv !== 'staging' && appEnv !== 'demo');
     const isDemoToken =
-      process.env.NODE_ENV !== 'production' &&
-      process.env.APP_ENV !== 'production' &&
+      !isProduction &&
       (token === 'tok_admin_demo' ||
         token === 'tok_billing_admin_demo' ||
         token === 'tok_editor_demo' ||

@@ -18,7 +18,7 @@ Hành vi này tạo ra rủi ro bảo mật nghiêm trọng (cửa hậu tiềm 
 - **Bỏ `OnModuleInit`:** Loại bỏ interface `OnModuleInit` và hook `onModuleInit()` khỏi class `AuthService`.
 - **Gỡ bỏ các hàm gieo mầm dữ liệu:** Xóa bỏ hoàn toàn phương thức `ensureStaffAccountsSeeded()` và `seedStaffTotp()` khỏi `AuthService`.
 - **Khởi động an toàn (Safe Bootstrap):** API khi khởi động với bất kỳ giá trị `NODE_ENV` nào (kể cả `undefined`, `development`, `staging`, `production`, `test`) không thực hiện bất kỳ thao tác tạo mới hoặc cập nhật nào trên các bảng `users`, `accounts`, `user_profiles`, hay `sessions`.
-- **Hardening `isDemoToken`:** Trong phương thức `getSession`, điều kiện bypass session cho các token demo cố định (`tok_admin_demo`, v.v.) được thắt chặt bằng cả `process.env.NODE_ENV !== 'production'` và `process.env.APP_ENV !== 'production'`.
+- **Hardening `isDemoToken`:** Trong phương thức `getSession`, điều kiện bypass session cho các token demo cố định (`tok_admin_demo`, v.v.) được thắt chặt: chỉ cho phép khi môi trường không phải production (`APP_ENV !== 'production' && !(NODE_ENV === 'production' && APP_ENV !== 'staging' && APP_ENV !== 'demo')`). Điều này cho phép môi trường Staging/Demo (`APP_ENV=staging`, dù chạy container `NODE_ENV=production`) hoạt động bình thường, trong khi loại trừ triệt để môi trường production thực tế.
 
 ### 2. Cách ly Dữ liệu Kiểm thử vào Script Seed Độc lập (`demo-seed.ts`)
 
@@ -40,12 +40,11 @@ Hành vi này tạo ra rủi ro bảo mật nghiêm trọng (cửa hậu tiềm 
 - Ngay đầu hàm `runDemoSeed` trong `apps/api/src/modules/import/demo-seed.ts`:
   ```typescript
   const appEnv = (process.env.APP_ENV || '').trim().toLowerCase();
-  const nodeEnv = (process.env.NODE_ENV || '').trim().toLowerCase();
-  if (appEnv === 'production' || nodeEnv === 'production') {
-    throw new Error('Script seed staging/demo bị từ chối chạy khi APP_ENV=production hoặc NODE_ENV=production');
+  if (appEnv === 'production') {
+    throw new Error('Script seed staging/demo bị từ chối chạy khi APP_ENV=production');
   }
   ```
-- Khi script được thực thi dưới dạng CLI (`node dist/src/modules/import/demo-seed.js`), nếu môi trường là production, script lập tức bắt lỗi, xuất cảnh báo bảo mật và kết thúc với mã lỗi `exitCode = 1`.
+- Khi script được thực thi dưới dạng CLI (`node dist/src/modules/import/demo-seed.js`), nếu môi trường là production (`APP_ENV=production`), script lập tức bắt lỗi, xuất cảnh báo bảo mật và kết thúc với mã lỗi `exitCode = 1`. Môi trường Staging (vốn thiết lập `APP_ENV=staging` và `NODE_ENV=production` theo quy chuẩn Docker production build) được phép thực thi seed bình thường.
 
 ### 4. Kiểm thử Độc lập và Tự chứa (Self-Contained Test Fixtures)
 
@@ -62,8 +61,9 @@ Hành vi này tạo ra rủi ro bảo mật nghiêm trọng (cửa hậu tiềm 
    - Kiểm tra bằng reflection: Các thuộc tính `onModuleInit`, `ensureStaffAccountsSeeded`, `seedStaffTotp` trên `AuthService` hoàn toàn `undefined`.
 
 2. **Script seed staging từ chối chạy khi `APP_ENV=production`:**
-   - Kiểm thử tự động với `APP_ENV=production`, `APP_ENV=PRODUCTION` và `NODE_ENV=production`. Tất cả đều bị từ chối với ngoại lệ lỗi bảo vệ môi trường.
-   - Kiểm tra CLI thực tế trên bản build `apps/api/dist/src/modules/import/demo-seed.js` trả về `Exit code: 1`.
+   - Kiểm thử tự động với `APP_ENV=production` và `APP_ENV=PRODUCTION` (case-insensitive). Cả hai đều bị từ chối với ngoại lệ lỗi bảo vệ môi trường.
+   - Kiểm tra tương thích Staging: Khi `APP_ENV=staging` và `NODE_ENV=production`, script cho phép thực thi bình thường mà không bị chặn bởi bộ lọc production.
+   - Kiểm tra CLI thực tế trên bản build `apps/api/dist/src/modules/import/demo-seed.js` với `APP_ENV=production` trả về `Exit code: 1`.
 
 3. **Grep mật khẩu/secret mặc định trong `apps/api/src` không còn kết quả:**
    - Quét toàn bộ cây thư mục `apps/api/src` (ngoại trừ file test `*.test.ts` và script `*seed*`):

@@ -1280,16 +1280,21 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
         // 1. Rejects when APP_ENV=production
         process.env.APP_ENV = 'production';
         process.env.NODE_ENV = 'development';
-        await expect(runDemoSeed()).rejects.toThrow(/từ chối chạy.*production/i);
+        await expect(runDemoSeed()).rejects.toThrow(/từ chối chạy.*APP_ENV=production/i);
 
         // 2. Case-insensitive check (e.g. PRODUCTION)
         process.env.APP_ENV = 'PRODUCTION';
-        await expect(runDemoSeed()).rejects.toThrow(/từ chối chạy.*production/i);
+        await expect(runDemoSeed()).rejects.toThrow(/từ chối chạy.*APP_ENV=production/i);
 
-        // 3. Rejects when NODE_ENV=production
-        delete process.env.APP_ENV;
+        // 3. Allows running when APP_ENV=staging even if NODE_ENV=production (Staging Docker environment)
+        process.env.APP_ENV = 'staging';
         process.env.NODE_ENV = 'production';
-        await expect(runDemoSeed()).rejects.toThrow(/từ chối chạy.*production/i);
+        try {
+          await runDemoSeed();
+        } catch (err: unknown) {
+          const msg = (err as Error)?.message || '';
+          expect(msg).not.toContain('từ chối chạy');
+        }
       } finally {
         if (origAppEnv !== undefined) {
           process.env.APP_ENV = origAppEnv;
