@@ -1,11 +1,9 @@
-import {
-  PublicExamSnapshotSchema,
-  ExamSummarySchema,
-  type PublicExamSnapshot,
-  type ExamSummary,
+import type {
+  PublicExamSnapshot,
+  ExamSummary,
 } from '@jlpt/schema';
 
-export const SAMPLE_N1_EXAM_SNAPSHOT: PublicExamSnapshot = PublicExamSnapshotSchema.parse({
+export const SAMPLE_N1_EXAM_SNAPSHOT: PublicExamSnapshot = {
   schemaVersion: 1,
   examId: '0192f000-0000-7000-8000-000000000001',
   version: 1,
@@ -195,9 +193,9 @@ export const SAMPLE_N1_EXAM_SNAPSHOT: PublicExamSnapshot = PublicExamSnapshotSch
       ],
     },
   ],
-});
+};
 
-export const SAMPLE_N2_EXAM_SNAPSHOT: PublicExamSnapshot = PublicExamSnapshotSchema.parse({
+export const SAMPLE_N2_EXAM_SNAPSHOT: PublicExamSnapshot = {
   schemaVersion: 1,
   examId: '0192f000-0000-7000-8000-000000000002',
   version: 1,
@@ -359,9 +357,9 @@ export const SAMPLE_N2_EXAM_SNAPSHOT: PublicExamSnapshot = PublicExamSnapshotSch
       ],
     },
   ],
-});
+};
 
-export const SAMPLE_N3_EXAM_SNAPSHOT: PublicExamSnapshot = PublicExamSnapshotSchema.parse({
+export const SAMPLE_N3_EXAM_SNAPSHOT: PublicExamSnapshot = {
   schemaVersion: 1,
   examId: '0192f000-0000-7000-8000-000000000003',
   version: 1,
@@ -537,9 +535,9 @@ export const SAMPLE_N3_EXAM_SNAPSHOT: PublicExamSnapshot = PublicExamSnapshotSch
       ],
     },
   ],
-});
+};
 
-export const SAMPLE_N4_EXAM_SNAPSHOT: PublicExamSnapshot = PublicExamSnapshotSchema.parse({
+export const SAMPLE_N4_EXAM_SNAPSHOT: PublicExamSnapshot = {
   schemaVersion: 1,
   examId: '0192f000-0000-7000-8000-000000000004',
   version: 1,
@@ -702,9 +700,9 @@ export const SAMPLE_N4_EXAM_SNAPSHOT: PublicExamSnapshot = PublicExamSnapshotSch
       ],
     },
   ],
-});
+};
 
-export const SAMPLE_N5_EXAM_SNAPSHOT: PublicExamSnapshot = PublicExamSnapshotSchema.parse({
+export const SAMPLE_N5_EXAM_SNAPSHOT: PublicExamSnapshot = {
   schemaVersion: 1,
   examId: '0192f000-0000-7000-8000-000000000005',
   version: 1,
@@ -889,7 +887,7 @@ export const SAMPLE_N5_EXAM_SNAPSHOT: PublicExamSnapshot = PublicExamSnapshotSch
       ],
     },
   ],
-});
+};
 
 export const ALL_SAMPLE_EXAMS: PublicExamSnapshot[] = [
   SAMPLE_N1_EXAM_SNAPSHOT,
@@ -900,7 +898,7 @@ export const ALL_SAMPLE_EXAMS: PublicExamSnapshot[] = [
 ];
 
 export const SAMPLE_EXAM_SUMMARIES: ExamSummary[] = [
-  ExamSummarySchema.parse({
+  {
     id: SAMPLE_N1_EXAM_SNAPSHOT.examId,
     slug: 'jlpt-n1-2023-12',
     level: 'N1',
@@ -917,8 +915,8 @@ export const SAMPLE_EXAM_SUMMARIES: ExamSummary[] = [
     licenseLabel: 'Nghiên cứu & Học tập phi thương mại',
     guestTrial: true,
     publishedVersion: 1,
-  }),
-  ExamSummarySchema.parse({
+  },
+  {
     id: SAMPLE_N2_EXAM_SNAPSHOT.examId,
     slug: 'jlpt-n2-2023-07',
     level: 'N2',
@@ -935,8 +933,8 @@ export const SAMPLE_EXAM_SUMMARIES: ExamSummary[] = [
     licenseLabel: 'Nghiên cứu & Học tập phi thương mại',
     guestTrial: true,
     publishedVersion: 1,
-  }),
-  ExamSummarySchema.parse({
+  },
+  {
     id: SAMPLE_N3_EXAM_SNAPSHOT.examId,
     slug: 'jlpt-n3-chuan-so-1',
     level: 'N3',
@@ -953,8 +951,8 @@ export const SAMPLE_EXAM_SUMMARIES: ExamSummary[] = [
     licenseLabel: 'Bản quyền giáo trình JLPT Online',
     guestTrial: true,
     publishedVersion: 1,
-  }),
-  ExamSummarySchema.parse({
+  },
+  {
     id: SAMPLE_N4_EXAM_SNAPSHOT.examId,
     slug: 'jlpt-n4-mixed-tong-hop',
     level: 'N4',
@@ -971,8 +969,8 @@ export const SAMPLE_EXAM_SUMMARIES: ExamSummary[] = [
     licenseLabel: 'Mã nguồn mở giáo dục',
     guestTrial: true,
     publishedVersion: 1,
-  }),
-  ExamSummarySchema.parse({
+  },
+  {
     id: SAMPLE_N5_EXAM_SNAPSHOT.examId,
     slug: 'jlpt-n5-mau-chuan',
     level: 'N5',
@@ -989,7 +987,7 @@ export const SAMPLE_EXAM_SUMMARIES: ExamSummary[] = [
     licenseLabel: 'Sử dụng miễn phí',
     guestTrial: true,
     publishedVersion: 1,
-  }),
+  },
 ];
 
 export function findExamSnapshotById(id: string): PublicExamSnapshot | undefined {

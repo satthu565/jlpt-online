@@ -9,12 +9,14 @@ const nextConfig = {
   },
   turbopack: {
     resolveAlias: {
-      '@jlpt/exam-engine': '../../packages/exam-engine/dist/index.js',
       crypto: './lib/stubs/crypto.js',
       'node:crypto': './lib/stubs/crypto.js',
       fs: './lib/stubs/fs.js',
+      'node:fs': './lib/stubs/fs.js',
       module: './lib/stubs/module.js',
+      'node:module': './lib/stubs/module.js',
       path: './lib/stubs/path.js',
+      'node:path': './lib/stubs/path.js',
     },
   },
   async rewrites() {

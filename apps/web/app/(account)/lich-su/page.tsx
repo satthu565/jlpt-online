@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { ExamApiClient, ExamApiError } from '../../../features/exam/api/exam-api';
-import { HistoryView, type ExamHistoryItem } from '../../../features/results';
+import { HistoryView } from '../../../features/results/components/history-view';
+import type { ExamHistoryItem } from '../../../features/results/types';
 import { Alert, Button, Card } from '@jlpt/ui';
 
 export default function ExamHistoryPage(): React.JSX.Element {

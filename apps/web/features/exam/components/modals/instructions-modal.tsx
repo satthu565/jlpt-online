@@ -43,7 +43,7 @@ export function InstructionsModal({
           <Button variant="secondary" onClick={onClose}>
             Đóng
           </Button>
-          <Button variant="primary" onClick={onConfirmStart}>
+          <Button variant="primary" onClick={onConfirmStart} data-testid="modal-start-exam-btn">
             Bắt đầu làm bài
           </Button>
         </div>

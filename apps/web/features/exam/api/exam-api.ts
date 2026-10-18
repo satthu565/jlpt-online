@@ -1,38 +1,21 @@
-import {
-  AttemptInitInputSchema,
-  AttemptInitResponseSchema,
-  NextSectionInputSchema,
-  NextSectionResponseSchema,
-  AnswerSheetUpdateInputSchema,
-  AnswerSheetAckSchema,
-  AttemptSubmitInputSchema,
-  AttemptSubmitResponseSchema,
-  ResumeAttemptResponseSchema,
-  ReviewAttemptResponseSchema,
-  AttemptDetailResponseSchema,
-  CheckAnswerInputSchema,
-  CheckAnswerResponseSchema,
-  ExamSummarySchema,
-  ExamDetailPublicSchema,
-  PublicExamSnapshotSchema,
-  type AttemptInitInput,
-  type AttemptInitResponse,
-  type NextSectionInput,
-  type NextSectionResponse,
-  type AnswerSheetUpdateInput,
-  type AnswerSheetAck,
-  type AttemptSubmitInput,
-  type AttemptSubmitResponse,
-  type ResumeAttemptResponse,
-  type ReviewAttemptResponse,
-  type AttemptDetailResponse,
-  type CheckAnswerInput,
-  type CheckAnswerResponse,
-  type AttemptSummary,
-  type ExamSummary,
-  type ExamDetailPublic,
-  type PublicExamSnapshot,
-  AttemptSummarySchema,
+import type {
+  AttemptInitInput,
+  AttemptInitResponse,
+  NextSectionInput,
+  NextSectionResponse,
+  AnswerSheetUpdateInput,
+  AnswerSheetAck,
+  AttemptSubmitInput,
+  AttemptSubmitResponse,
+  ResumeAttemptResponse,
+  ReviewAttemptResponse,
+  AttemptDetailResponse,
+  CheckAnswerInput,
+  CheckAnswerResponse,
+  AttemptSummary,
+  ExamSummary,
+  ExamDetailPublic,
+  PublicExamSnapshot,
 } from '@jlpt/schema';
 
 export interface ExamApiOptions {
@@ -120,48 +103,35 @@ export class ExamApiClient {
   }
 
   async initAttempt(input: AttemptInitInput): Promise<AttemptInitResponse> {
-    const validatedInput = AttemptInitInputSchema.parse(input);
-    const data = await this.request<unknown>('/attempts', 'POST', validatedInput);
-    return AttemptInitResponseSchema.parse(data);
+    return this.request<AttemptInitResponse>('/attempts', 'POST', input);
   }
 
   async resumeAttempt(attemptId: string, lease?: string): Promise<ResumeAttemptResponse> {
-    const data = await this.request<unknown>(`/attempts/${attemptId}/resume`, 'POST', { lease });
-    return ResumeAttemptResponseSchema.parse(data);
+    return this.request<ResumeAttemptResponse>(`/attempts/${attemptId}/resume`, 'POST', { lease });
   }
 
   async nextSection(attemptId: string, input: NextSectionInput): Promise<NextSectionResponse> {
-    const validatedInput = NextSectionInputSchema.parse(input);
-    const data = await this.request<unknown>(`/attempts/${attemptId}/sections/next`, 'POST', validatedInput);
-    return NextSectionResponseSchema.parse(data);
+    return this.request<NextSectionResponse>(`/attempts/${attemptId}/sections/next`, 'POST', input);
   }
 
   async updateAnswerSheet(attemptId: string, input: AnswerSheetUpdateInput): Promise<AnswerSheetAck> {
-    const validatedInput = AnswerSheetUpdateInputSchema.parse(input);
-    const data = await this.request<unknown>(`/attempts/${attemptId}/sheet`, 'PUT', validatedInput);
-    return AnswerSheetAckSchema.parse(data);
+    return this.request<AnswerSheetAck>(`/attempts/${attemptId}/sheet`, 'PUT', input);
   }
 
   async submitAttempt(attemptId: string, input: AttemptSubmitInput): Promise<AttemptSubmitResponse> {
-    const validatedInput = AttemptSubmitInputSchema.parse(input);
-    const data = await this.request<unknown>(`/attempts/${attemptId}/submit`, 'POST', validatedInput);
-    return AttemptSubmitResponseSchema.parse(data);
+    return this.request<AttemptSubmitResponse>(`/attempts/${attemptId}/submit`, 'POST', input);
   }
 
   async checkAnswer(attemptId: string, input: CheckAnswerInput): Promise<CheckAnswerResponse> {
-    const validatedInput = CheckAnswerInputSchema.parse(input);
-    const data = await this.request<unknown>(`/attempts/${attemptId}/check`, 'POST', validatedInput);
-    return CheckAnswerResponseSchema.parse(data);
+    return this.request<CheckAnswerResponse>(`/attempts/${attemptId}/check`, 'POST', input);
   }
 
   async getAttempt(attemptId: string): Promise<AttemptDetailResponse> {
-    const data = await this.request<unknown>(`/attempts/${attemptId}`, 'GET');
-    return AttemptDetailResponseSchema.parse(data);
+    return this.request<AttemptDetailResponse>(`/attempts/${attemptId}`, 'GET');
   }
 
   async reviewAttempt(attemptId: string): Promise<ReviewAttemptResponse> {
-    const data = await this.request<unknown>(`/attempts/${attemptId}/review`, 'GET');
-    return ReviewAttemptResponseSchema.parse(data);
+    return this.request<ReviewAttemptResponse>(`/attempts/${attemptId}/review`, 'GET');
   }
 
   async listMyAttempts(
@@ -174,10 +144,9 @@ export class ExamApiClient {
 
     const qs = params.toString();
     const endpoint = `/me/attempts${qs ? `?${qs}` : ''}`;
-    const data = await this.request<{ items: unknown[]; nextCursor?: string | null }>(endpoint, 'GET');
-    const items = (data.items || []).map((item) => AttemptSummarySchema.parse(item));
+    const data = await this.request<{ items?: AttemptSummary[]; nextCursor?: string | null }>(endpoint, 'GET');
     return {
-      items,
+      items: data.items || [],
       nextCursor: data.nextCursor || null,
     };
   }
@@ -202,14 +171,12 @@ export class ExamApiClient {
 
     const qs = query.toString();
     const endpoint = `/exams${qs ? `?${qs}` : ''}`;
-    const data = await this.request<{ items: unknown[]; nextCursor?: string | null }>(endpoint, 'GET');
-    const items = (data.items || []).map((item) => ExamSummarySchema.parse(item));
-    return { items, nextCursor: data.nextCursor || null };
+    const data = await this.request<{ items?: ExamSummary[]; nextCursor?: string | null }>(endpoint, 'GET');
+    return { items: data.items || [], nextCursor: data.nextCursor || null };
   }
 
   async getExamBySlug(slug: string): Promise<ExamDetailPublic> {
-    const data = await this.request<unknown>(`/exams/${slug}`, 'GET');
-    return ExamDetailPublicSchema.parse(data);
+    return this.request<ExamDetailPublic>(`/exams/${slug}`, 'GET');
   }
 
   async getExamById(id: string): Promise<ExamDetailPublic> {
@@ -277,7 +244,7 @@ export class ExamApiClient {
         });
         if (response.ok) {
           const data = await response.json();
-          return PublicExamSnapshotSchema.parse(data);
+          return data as PublicExamSnapshot;
         }
       } catch (err) {
         lastError = err as Error;

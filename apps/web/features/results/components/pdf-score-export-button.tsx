@@ -50,8 +50,8 @@ export function PdfScoreExportButton({
           passed: s.passed,
         })) || [];
 
-      // Generate official PDF using @jlpt/exam-engine with digital watermark & tamper-evident SHA-256
-      const { generateScoreReportPdf } = await import('@jlpt/exam-engine');
+      // Generate official PDF using digital watermark & tamper-evident SHA-256
+      const { generateScoreReportPdf } = await import('../utils/score-report-pdf');
       const pdfRes = generateScoreReportPdf({
         data: {
           attemptId: attemptId || 'att-anonymous',
