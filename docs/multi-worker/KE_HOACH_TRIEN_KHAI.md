@@ -1536,12 +1536,62 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
+<a id="i14"></a>
+
+### I14 API: sửa lỗi 500 ở /api/v1/datasets/jlpt-official/*
+
+- Worker: **W5**. Ngày mục tiêu: 8. Ước lượng chưa đo: 2 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: I01. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Trên staging, GET /api/v1/datasets/jlpt-official/trends, /vocabulary, /grammar, /compare/levels trả 500 ("Failed query: select id, name, version, license_id ..."): bảng hoặc migration của dataset không khớp schema. Trang thống kê tần suất của web (apps/web/features/corpus) gọi các API này. Tìm nguyên nhân (thiếu migration, thiếu cột, thiếu dữ liệu seed), sửa để trả dữ liệu thật hoặc danh sách rỗng hợp lệ khi chưa có dataset; không trả 500.
+- Bàn giao: apps/api/src/modules/vocab/; apps/api/src/db/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: apps/api/src/db/, tests/playwright/.
+- Nghiệm thu:
+  - Trên staging sau khi seed demo, cả 4 API trên trả 200 với dữ liệu thật hoặc rỗng hợp lệ.
+  - Test API cho trường hợp chưa có dataset và đã có dataset.
+  - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+<a id="i15"></a>
+
+### I15 Quản trị: phiên hết hạn phải đưa về trang đăng nhập
+
+- Worker: **W4**. Ngày mục tiêu: 8. Ước lượng chưa đo: 2 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: I03, I12. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Sau I03, apps/admin/lib/auth-context.tsx không xóa phiên lưu trong trình duyệt khi GET /api/v1/auth/session trả 200 với user = null (phiên hết hạn hoặc đã đăng xuất ở nơi khác), nên giao diện vẫn hiện như đã đăng nhập trong khi mọi API trả 401. Xử lý: user null hoặc API trả 401 thì xóa phiên và đưa về /login kèm thông báo; bỏ móc test window.__setAdminLocale và DEFAULT_AUTH_CONTEXT giả nếu không cần (useAdminAuth ngoài provider phải báo lỗi rõ).
+- Bàn giao: apps/admin/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, tests/integration/mock-ui-baseline.json.
+- Nghiệm thu:
+  - E2E: đăng nhập nhân sự, tải lại trang vẫn đăng nhập.
+  - E2E: xóa phiên phía máy chủ (đăng xuất ở tab khác) rồi tải lại hoặc thao tác thì về trang đăng nhập.
+  - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
+  - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:admin`
+  - `pnpm check:no-mock-ui`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
 <a id="i07"></a>
 
 ### I07 Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả
 
 - Worker: **W6**. Ngày mục tiêu: 8. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: I01, I08, I10, I11, I12, I13, I09, I03, I04, I05, I06. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: I01, I08, I10, I11, I12, I13, I09, I03, I04, I05, I06, I14, I15. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.
 - Bàn giao: tests/; .github/; infra/; docs/release/; docs/runbooks/.
