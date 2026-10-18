@@ -4,6 +4,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { eq, and } from 'drizzle-orm';
 import {
   calculateStandardExamResult,
+  ESTIMATED_LABEL,
   REFERENCE_SCORING_DISCLAIMER,
   type StandardExamResultOptions,
 } from '@jlpt/exam-engine';
@@ -169,10 +170,36 @@ export class ScoringService {
 
     const result = calculateStandardExamResult(answers, answerKey, scoring, options);
 
-    // Ensure disclaimer is set
-    if (!result.scoring.disclaimer) {
-      result.scoring.disclaimer = REFERENCE_SCORING_DISCLAIMER;
+    // Ensure disclaimer, isEstimated, label, and failedSections match P01
+    result.scoring.disclaimer = result.scoring.disclaimer || REFERENCE_SCORING_DISCLAIMER;
+    result.scoring.isEstimated = true;
+    result.scoring.label = ESTIMATED_LABEL;
+    if (!result.scoring.failedSections) {
+      result.scoring.failedSections = result.scoring.sections
+        .filter((s) => !s.passed)
+        .map((s) => s.code);
     }
+
+    // Attach margin to each section
+    for (const sec of result.scoring.sections) {
+      if ((sec as Record<string, unknown>)['margin'] === undefined) {
+        (sec as Record<string, unknown>)['margin'] = sec.scaled - sec.minPass;
+      }
+    }
+
+    // Derive explicit pass/fail reason aligned with P01
+    const isTotalPassed = result.scoring.total >= result.scoring.totalPass;
+    const isAllSectionsPassed = result.scoring.sections.every((s) => s.passed);
+    let reason = 'PASSED';
+    if (!isTotalPassed && !isAllSectionsPassed) {
+      reason = 'FAILED_TOTAL_AND_SECTION';
+    } else if (isTotalPassed && !isAllSectionsPassed) {
+      reason = 'FAILED_SECTION_FLOOR';
+    } else if (!isTotalPassed && isAllSectionsPassed) {
+      reason = 'FAILED_TOTAL_SCORE';
+    }
+    (result.scoring as Record<string, unknown>)['reason'] = reason;
+    result.scoring.passEstimate = isTotalPassed && isAllSectionsPassed;
 
     return result;
   }

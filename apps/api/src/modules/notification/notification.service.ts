@@ -1,10 +1,11 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, isNull } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { EmailService } from '../email/email.service.js';
+import { jlptExamSchedules } from '../exam/jlpt-schedule.schema.js';
 
 export interface QuietHours {
   start: string; // "HH:mm" e.g. "22:00"
@@ -99,6 +100,8 @@ export class NotificationService {
       target_exam_reminder: true,
       exam_result_released: true,
       payment_status: true,
+      jlpt_registration_reminder: true,
+      jlpt_exam_reminder: true,
     };
 
     let emailUpdates = true;
@@ -109,8 +112,15 @@ export class NotificationService {
       if (p.channel === 'email' && p.notificationType === 'general_updates') {
         emailUpdates = p.enabled;
       }
-      if (p.notificationType === 'exam_reminders' || p.notificationType === 'target_exam_reminder') {
-        examReminders = p.enabled;
+      if (
+        p.notificationType === 'exam_reminders' ||
+        p.notificationType === 'target_exam_reminder' ||
+        p.notificationType === 'jlpt_registration_reminder' ||
+        p.notificationType === 'jlpt_exam_reminder'
+      ) {
+        if (!p.enabled) {
+          examReminders = false;
+        }
       }
       if (p.notificationType === 'study_streak' || p.notificationType === 'srs_due') {
         studyStreakAlerts = p.enabled;
@@ -195,7 +205,11 @@ export class NotificationService {
     if (update.examReminders !== undefined) {
       await upsertSetting('email', 'target_exam_reminder', update.examReminders);
       await upsertSetting('email', 'new_exam', update.examReminders);
+      await upsertSetting('email', 'jlpt_registration_reminder', update.examReminders);
+      await upsertSetting('email', 'jlpt_exam_reminder', update.examReminders);
       await upsertSetting('in_app', 'target_exam_reminder', update.examReminders);
+      await upsertSetting('in_app', 'jlpt_registration_reminder', update.examReminders);
+      await upsertSetting('in_app', 'jlpt_exam_reminder', update.examReminders);
     }
     if (update.studyStreakAlerts !== undefined) {
       await upsertSetting('email', 'srs_due', update.studyStreakAlerts);
@@ -547,4 +561,324 @@ export class NotificationService {
       dedupeKey: `payment_${orderId}_${status}`,
     });
   }
+
+  /**
+   * P03: Nhắc hạn đăng ký kỳ thi JLPT tại Việt Nam.
+   * Gửi qua outbox đúng một lần cho từng mốc nhắc (ví dụ: 1d, 7d, 14d),
+   * chỉ gửi khi hạn đăng ký còn hiệu lực trong tương lai (diffMs > 0),
+   * và tôn trọng cài đặt tắt nhắc của người dùng (truy vấn batch preferences, không N+1).
+   */
+  async processJlptRegistrationReminders(options?: { scheduleId?: string; now?: Date }): Promise<{
+    sent: number;
+    skippedOptOut: number;
+    skippedDuplicate: number;
+    eventIds: string[];
+  }> {
+    const db = this.dbClient.db;
+    const now = options?.now ?? new Date();
+
+    // 1. Fetch published schedules
+    const schedules = await db
+      .select()
+      .from(jlptExamSchedules)
+      .where(eq(jlptExamSchedules.status, 'published'));
+
+    const filteredSchedules = options?.scheduleId
+      ? schedules.filter((s: typeof jlptExamSchedules.$inferSelect) => s.id === options.scheduleId)
+      : schedules;
+
+    if (filteredSchedules.length === 0) {
+      return { sent: 0, skippedOptOut: 0, skippedDuplicate: 0, eventIds: [] };
+    }
+
+    // 2. Fetch all active users
+    const allUsers = await db
+      .select({ id: schema.users.id, email: schema.users.email, name: schema.users.name })
+      .from(schema.users)
+      .where(isNull(schema.users.blockedAt));
+
+    // Batch fetch disabled preferences for all users (solves N+1 query issue)
+    const disabledPrefs = await db
+      .select({
+        userId: schema.notificationPreferences.userId,
+        notificationType: schema.notificationPreferences.notificationType,
+      })
+      .from(schema.notificationPreferences)
+      .where(eq(schema.notificationPreferences.enabled, false));
+
+    const userDisabledTypes = new Map<string, Set<string>>();
+    for (const row of disabledPrefs) {
+      let set = userDisabledTypes.get(row.userId);
+      if (!set) {
+        set = new Set();
+        userDisabledTypes.set(row.userId, set);
+      }
+      set.add(row.notificationType);
+    }
+
+    // 3. Pre-fetch existing outbox rows with registration reminder topic to deduplicate in-memory
+    const existingOutboxRows = await db
+      .select()
+      .from(schema.outbox)
+      .where(eq(schema.outbox.topic, 'notification.jlpt_registration_reminder'));
+
+    const existingDedupeKeys = new Set<string>();
+    for (const row of existingOutboxRows) {
+      const payload = row.payload as Record<string, unknown>;
+      if (payload?.['dedupeKey']) {
+        existingDedupeKeys.add(String(payload['dedupeKey']));
+      }
+    }
+
+    let sent = 0;
+    let skippedOptOut = 0;
+    let skippedDuplicate = 0;
+    const eventIds: string[] = [];
+
+    for (const schedule of filteredSchedules) {
+      const deadline = new Date(schedule.registrationDeadline);
+      const diffMs = deadline.getTime() - now.getTime();
+      // Chỉ gửi khi hạn chót còn hiệu lực trong tương lai (diffMs > 0)
+      if (diffMs <= 0) {
+        continue;
+      }
+
+      const daysLeft = Math.ceil(diffMs / (24 * 3600 * 1000));
+      // Nằm trong cửa sổ nhắc quy định (tối đa 14 ngày)
+      if (daysLeft > 14) {
+        continue;
+      }
+
+      // Mốc thời gian nhắc (windowKey): '1d', '7d', '14d'
+      let windowKey = '14d';
+      if (daysLeft <= 1) {
+        windowKey = '1d';
+      } else if (daysLeft <= 7) {
+        windowKey = '7d';
+      }
+
+      for (const user of allUsers) {
+        // a. Check opt-out từ batch preferences: tôn trọng cài đặt tắt nhắc
+        const disabled = userDisabledTypes.get(user.id);
+        const isOptedOut = !!(
+          disabled &&
+          (disabled.has('exam_reminders') ||
+            disabled.has('target_exam_reminder') ||
+            disabled.has('jlpt_registration_reminder'))
+        );
+
+        if (isOptedOut) {
+          skippedOptOut++;
+          continue;
+        }
+
+        // b. Deduplication check với windowKey: đúng một lần cho mỗi mốc nhắc
+        const dedupeKey = `jlpt_reg_reminder_${schedule.id}_${user.id}_${windowKey}`;
+        if (existingDedupeKeys.has(dedupeKey)) {
+          skippedDuplicate++;
+          continue;
+        }
+
+        // c. Emit outbox event
+        const eventId = generateUuidV7();
+        const payload = {
+          dedupeKey,
+          windowKey,
+          recipientId: user.id,
+          recipientEmail: user.email,
+          scheduleId: schedule.id,
+          title: schedule.title,
+          examDate: schedule.examDate,
+          registrationDeadline: deadline.toISOString(),
+          daysLeft,
+          officialUrl: schedule.officialUrl,
+          subject: `[Nhắc hạn đăng ký] Kỳ thi JLPT: ${schedule.title}`,
+          message: `Kỳ thi JLPT ${schedule.title} sắp hết hạn đăng ký! Còn ${daysLeft} ngày (hạn chót: ${deadline.toISOString()}). Đăng ký tại: ${schedule.officialUrl}`,
+        };
+
+        await db.insert(schema.outbox).values({
+          id: eventId,
+          topic: 'notification.jlpt_registration_reminder',
+          payload,
+          createdAt: now,
+        });
+
+        // Also record in notificationJobs
+        await db.insert(schema.notificationJobs).values({
+          id: generateUuidV7(),
+          recipientId: user.id,
+          type: 'jlpt_registration_reminder',
+          channel: 'email',
+          payload,
+          status: 'delivered',
+          scheduledFor: now,
+        });
+
+        existingDedupeKeys.add(dedupeKey);
+        eventIds.push(eventId);
+        sent++;
+      }
+    }
+
+    return { sent, skippedOptOut, skippedDuplicate, eventIds };
+  }
+
+  /**
+   * P03: Nhắc ngày thi JLPT tại Việt Nam.
+   * Gửi qua outbox đúng một lần cho từng mốc nhắc (ví dụ: 1d, 3d, 7d, 30d, 60d, 90d),
+   * chỉ gửi khi ngày thi còn hiệu lực trong tương lai (diffMs > 0),
+   * và tôn trọng cài đặt tắt nhắc của người dùng (truy vấn batch preferences, không N+1).
+   */
+  async processJlptExamDateReminders(options?: { scheduleId?: string; now?: Date }): Promise<{
+    sent: number;
+    skippedOptOut: number;
+    skippedDuplicate: number;
+    eventIds: string[];
+  }> {
+    const db = this.dbClient.db;
+    const now = options?.now ?? new Date();
+
+    const schedules = await db
+      .select()
+      .from(jlptExamSchedules)
+      .where(eq(jlptExamSchedules.status, 'published'));
+
+    const filteredSchedules = options?.scheduleId
+      ? schedules.filter((s: typeof jlptExamSchedules.$inferSelect) => s.id === options.scheduleId)
+      : schedules;
+
+    if (filteredSchedules.length === 0) {
+      return { sent: 0, skippedOptOut: 0, skippedDuplicate: 0, eventIds: [] };
+    }
+
+    const allUsers = await db
+      .select({ id: schema.users.id, email: schema.users.email, name: schema.users.name })
+      .from(schema.users)
+      .where(isNull(schema.users.blockedAt));
+
+    // Batch fetch disabled preferences for all users (solves N+1 query issue)
+    const disabledPrefs = await db
+      .select({
+        userId: schema.notificationPreferences.userId,
+        notificationType: schema.notificationPreferences.notificationType,
+      })
+      .from(schema.notificationPreferences)
+      .where(eq(schema.notificationPreferences.enabled, false));
+
+    const userDisabledTypes = new Map<string, Set<string>>();
+    for (const row of disabledPrefs) {
+      let set = userDisabledTypes.get(row.userId);
+      if (!set) {
+        set = new Set();
+        userDisabledTypes.set(row.userId, set);
+      }
+      set.add(row.notificationType);
+    }
+
+    const existingOutboxRows = await db
+      .select()
+      .from(schema.outbox)
+      .where(eq(schema.outbox.topic, 'notification.jlpt_exam_reminder'));
+
+    const existingDedupeKeys = new Set<string>();
+    for (const row of existingOutboxRows) {
+      const payload = row.payload as Record<string, unknown>;
+      if (payload?.['dedupeKey']) {
+        existingDedupeKeys.add(String(payload['dedupeKey']));
+      }
+    }
+
+    let sent = 0;
+    let skippedOptOut = 0;
+    let skippedDuplicate = 0;
+    const eventIds: string[] = [];
+
+    for (const schedule of filteredSchedules) {
+      const examDate = new Date(`${schedule.examDate}T00:00:00Z`);
+      const diffMs = examDate.getTime() - now.getTime();
+      // Chỉ gửi khi ngày thi còn trong tương lai (diffMs > 0)
+      if (diffMs <= 0) {
+        continue;
+      }
+
+      const daysLeft = Math.ceil(diffMs / (24 * 3600 * 1000));
+      // Nằm trong cửa sổ nhắc ngày thi (tối đa 90 ngày)
+      if (daysLeft > 90) {
+        continue;
+      }
+
+      let windowKey = '90d';
+      if (daysLeft <= 1) {
+        windowKey = '1d';
+      } else if (daysLeft <= 3) {
+        windowKey = '3d';
+      } else if (daysLeft <= 7) {
+        windowKey = '7d';
+      } else if (daysLeft <= 30) {
+        windowKey = '30d';
+      } else if (daysLeft <= 60) {
+        windowKey = '60d';
+      }
+
+      for (const user of allUsers) {
+        const disabled = userDisabledTypes.get(user.id);
+        const isOptedOut = !!(
+          disabled &&
+          (disabled.has('exam_reminders') ||
+            disabled.has('target_exam_reminder') ||
+            disabled.has('jlpt_exam_reminder'))
+        );
+
+        if (isOptedOut) {
+          skippedOptOut++;
+          continue;
+        }
+
+        const dedupeKey = `jlpt_exam_date_reminder_${schedule.id}_${user.id}_${windowKey}`;
+        if (existingDedupeKeys.has(dedupeKey)) {
+          skippedDuplicate++;
+          continue;
+        }
+
+        const eventId = generateUuidV7();
+        const payload = {
+          dedupeKey,
+          windowKey,
+          recipientId: user.id,
+          recipientEmail: user.email,
+          scheduleId: schedule.id,
+          title: schedule.title,
+          examDate: schedule.examDate,
+          daysLeft,
+          officialUrl: schedule.officialUrl,
+          subject: `[Nhắc ngày thi] Kỳ thi JLPT: ${schedule.title}`,
+          message: `Kỳ thi JLPT ${schedule.title} sẽ diễn ra vào ngày ${schedule.examDate} (còn ${daysLeft} ngày). Chúc bạn ôn tập tốt!`,
+        };
+
+        await db.insert(schema.outbox).values({
+          id: eventId,
+          topic: 'notification.jlpt_exam_reminder',
+          payload,
+          createdAt: now,
+        });
+
+        await db.insert(schema.notificationJobs).values({
+          id: generateUuidV7(),
+          recipientId: user.id,
+          type: 'jlpt_exam_reminder',
+          channel: 'email',
+          payload,
+          status: 'delivered',
+          scheduledFor: now,
+        });
+
+        existingDedupeKeys.add(dedupeKey);
+        eventIds.push(eventId);
+        sent++;
+      }
+    }
+
+    return { sent, skippedOptOut, skippedDuplicate, eventIds };
+  }
 }
+

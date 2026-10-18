@@ -23,6 +23,12 @@ import * as schema from '../../db/schema.js';
 import { AuditService } from '../audit/audit.service.js';
 import { EmailService } from '../email/email.service.js';
 import { ClassroomService } from '../classroom/classroom.service.js';
+import { NotificationService } from '../notification/notification.service.js';
+import { JlptScheduleService } from '../exam/jlpt-schedule.service.js';
+import {
+  CreateJlptScheduleInputSchema,
+  UpdateJlptScheduleInputSchema,
+} from '../exam/jlpt-schedule.schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 
 export interface AdminVocabEntry {
@@ -78,6 +84,8 @@ export class AdminController {
     @Inject(DB_CLIENT) private readonly dbClient: DbClientInstance,
     @Optional() private readonly emailService?: EmailService,
     @Optional() private readonly classroomService?: ClassroomService,
+    @Optional() private readonly notificationService?: NotificationService,
+    @Optional() private readonly jlptScheduleService?: JlptScheduleService,
   ) {}
 
   private async ensureDefaultVocab(): Promise<void> {
@@ -989,5 +997,111 @@ export class AdminController {
       .from(schema.organizations)
       .orderBy(desc(schema.organizations.createdAt));
     return { items };
+  }
+
+  // ---------------------------------------------------------------------------
+  // P03: JLPT Exam Schedules Admin CRUD & Audit (Acceptance 2)
+  // ---------------------------------------------------------------------------
+
+  @Get('jlpt-schedules')
+  @Roles('admin', 'editor')
+  async listJlptSchedules(@Query('status') status?: string) {
+    if (!this.jlptScheduleService) {
+      throw new BadRequestException('JlptScheduleService is not available');
+    }
+    const items = await this.jlptScheduleService.listAdminSchedules(status);
+    return { items };
+  }
+
+  @Get('jlpt-schedules/:id')
+  @Roles('admin', 'editor')
+  async getJlptSchedule(@Param('id') id: string) {
+    if (!this.jlptScheduleService) {
+      throw new BadRequestException('JlptScheduleService is not available');
+    }
+    return this.jlptScheduleService.getAdminScheduleById(id);
+  }
+
+  @Post('jlpt-schedules')
+  @Roles('admin')
+  async createJlptSchedule(
+    @CurrentUser() user: AuthUserContext,
+    @Body() body: unknown,
+  ) {
+    if (!this.jlptScheduleService) {
+      throw new BadRequestException('JlptScheduleService is not available');
+    }
+    const parsed = CreateJlptScheduleInputSchema.parse(body);
+    return this.jlptScheduleService.createSchedule(parsed, user?.userId);
+  }
+
+  @Patch('jlpt-schedules/:id')
+  @Roles('admin')
+  async updateJlptSchedule(
+    @CurrentUser() user: AuthUserContext,
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ) {
+    if (!this.jlptScheduleService) {
+      throw new BadRequestException('JlptScheduleService is not available');
+    }
+    const parsed = UpdateJlptScheduleInputSchema.parse(body);
+    return this.jlptScheduleService.updateSchedule(id, parsed, user?.userId);
+  }
+
+  @Post('jlpt-schedules/:id/publish')
+  @Roles('admin')
+  async publishJlptSchedule(
+    @CurrentUser() user: AuthUserContext,
+    @Param('id') id: string,
+  ) {
+    if (!this.jlptScheduleService) {
+      throw new BadRequestException('JlptScheduleService is not available');
+    }
+    return this.jlptScheduleService.publishSchedule(id, user?.userId);
+  }
+
+  @Post('jlpt-schedules/:id/unpublish')
+  @Roles('admin')
+  async unpublishJlptSchedule(
+    @CurrentUser() user: AuthUserContext,
+    @Param('id') id: string,
+  ) {
+    if (!this.jlptScheduleService) {
+      throw new BadRequestException('JlptScheduleService is not available');
+    }
+    return this.jlptScheduleService.unpublishSchedule(id, user?.userId);
+  }
+
+  @Delete('jlpt-schedules/:id')
+  @Roles('admin')
+  async deleteJlptSchedule(
+    @CurrentUser() user: AuthUserContext,
+    @Param('id') id: string,
+  ) {
+    if (!this.jlptScheduleService) {
+      throw new BadRequestException('JlptScheduleService is not available');
+    }
+    return this.jlptScheduleService.deleteSchedule(id, user?.userId);
+  }
+
+  @Post('jlpt-schedules/:id/remind-registration')
+  @Roles('admin')
+  async remindJlptRegistration(@Param('id') id: string) {
+    if (!this.notificationService) {
+      throw new BadRequestException('NotificationService is not available');
+    }
+    return this.notificationService.processJlptRegistrationReminders({ scheduleId: id });
+  }
+
+  @Post('jlpt-schedules/trigger-reminders')
+  @Roles('admin')
+  async triggerJlptReminders() {
+    if (!this.notificationService) {
+      throw new BadRequestException('NotificationService is not available');
+    }
+    const regResult = await this.notificationService.processJlptRegistrationReminders();
+    const examResult = await this.notificationService.processJlptExamDateReminders();
+    return { registrationReminders: regResult, examReminders: examResult };
   }
 }
