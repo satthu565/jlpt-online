@@ -1,6 +1,6 @@
 {
   "commitSha": "f53bd8ab0cebf776ae4259ede7f8ce19e9aad573",
-  "recordedAt": "2026-10-18T10:45:00.000Z",
+  "recordedAt": "2026-10-18T10:54:13.646Z",
   "environment": "staging-ci-lab",
   "disclaimer": "Số đo hiệu năng gốc lưu kèm commit SHA; đây là kết quả đo lab/staging CI trước đợt tối ưu hóa D04. Không lấy số đo máy ảo/lab CI làm số production thật (RUM production sẽ đo qua Cloudflare Web Analytics và web-vitals từ người dùng thật p75).",
   "budgetMode": "warn",
@@ -31,23 +31,24 @@
       "path": "/",
       "app": "web",
       "mobile": {
-        "performance": 82,
+        "performance": 92,
         "accessibility": 96,
         "seo": 100,
-        "lcpMs": 2180,
-        "cls": 0.04,
-        "tbtMs": 160,
-        "initialJsKb": 138,
-        "budgetPassed": true
+        "lcpMs": 2767.2,
+        "cls": 0.0,
+        "tbtMs": 158.5,
+        "initialJsKb": 189.9,
+        "budgetPassed": false,
+        "notes": "Vượt LCP và Initial JS trần 150KB trước tối ưu D04"
       },
       "desktop": {
-        "performance": 99,
-        "accessibility": 98,
+        "performance": 100,
+        "accessibility": 96,
         "seo": 100,
-        "lcpMs": 850,
-        "cls": 0.01,
-        "tbtMs": 45,
-        "initialJsKb": 138,
+        "lcpMs": 619.2,
+        "cls": 0.002,
+        "tbtMs": 0.0,
+        "initialJsKb": 189.9,
         "budgetPassed": true
       }
     },
@@ -56,24 +57,26 @@
       "path": "/de-thi",
       "app": "web",
       "mobile": {
-        "performance": 78,
-        "accessibility": 96,
+        "performance": 77,
+        "accessibility": 95,
         "seo": 100,
-        "lcpMs": 2350,
-        "cls": 0.05,
-        "tbtMs": 185,
-        "initialJsKb": 146,
-        "budgetPassed": true
+        "lcpMs": 4580.2,
+        "cls": 0.0,
+        "tbtMs": 0.0,
+        "initialJsKb": 258.1,
+        "budgetPassed": false,
+        "notes": "Vượt LCP và Initial JS trần 150KB trước tối ưu D04"
       },
       "desktop": {
         "performance": 98,
-        "accessibility": 98,
+        "accessibility": 95,
         "seo": 100,
-        "lcpMs": 920,
-        "cls": 0.02,
-        "tbtMs": 60,
-        "initialJsKb": 146,
-        "budgetPassed": true
+        "lcpMs": 1004.0,
+        "cls": 0.016,
+        "tbtMs": 0.0,
+        "initialJsKb": 258.1,
+        "budgetPassed": false,
+        "notes": "Desktop initial JS 258KB vượt trần 200KB"
       }
     },
     "web_phong-thi": {
@@ -84,21 +87,23 @@
         "performance": 75,
         "accessibility": 95,
         "seo": 100,
-        "lcpMs": 2420,
-        "cls": 0.06,
-        "tbtMs": 190,
-        "initialJsKb": 148,
-        "budgetPassed": true
+        "lcpMs": 5028.8,
+        "cls": 0.008,
+        "tbtMs": 281.0,
+        "initialJsKb": 337.6,
+        "budgetPassed": false,
+        "notes": "Vượt LCP, TBT và Initial JS trần 150KB trước tối ưu D04"
       },
       "desktop": {
         "performance": 98,
-        "accessibility": 97,
+        "accessibility": 95,
         "seo": 100,
-        "lcpMs": 950,
-        "cls": 0.02,
-        "tbtMs": 70,
-        "initialJsKb": 148,
-        "budgetPassed": true
+        "lcpMs": 1076.0,
+        "cls": 0.0,
+        "tbtMs": 0.0,
+        "initialJsKb": 337.6,
+        "budgetPassed": false,
+        "notes": "Desktop initial JS 337.6KB vượt trần 200KB"
       }
     },
     "web_n5": {
@@ -106,23 +111,24 @@
       "path": "/n5",
       "app": "web",
       "mobile": {
-        "performance": 80,
+        "performance": 78,
         "accessibility": 96,
         "seo": 100,
-        "lcpMs": 2240,
-        "cls": 0.03,
-        "tbtMs": 170,
-        "initialJsKb": 142,
-        "budgetPassed": true
+        "lcpMs": 4283.2,
+        "cls": 0.001,
+        "tbtMs": 0.0,
+        "initialJsKb": 188.6,
+        "budgetPassed": false,
+        "notes": "Vượt LCP và Initial JS trần 150KB trước tối ưu D04"
       },
       "desktop": {
-        "performance": 99,
-        "accessibility": 98,
+        "performance": 100,
+        "accessibility": 96,
         "seo": 100,
-        "lcpMs": 880,
-        "cls": 0.01,
-        "tbtMs": 50,
-        "initialJsKb": 142,
+        "lcpMs": 612.0,
+        "cls": 0.007,
+        "tbtMs": 0.0,
+        "initialJsKb": 188.6,
         "budgetPassed": true
       }
     },
@@ -131,23 +137,24 @@
       "path": "/dang-nhap",
       "app": "web",
       "mobile": {
-        "performance": 85,
-        "accessibility": 98,
+        "performance": 84,
+        "accessibility": 95,
         "seo": 100,
-        "lcpMs": 1950,
-        "cls": 0.02,
-        "tbtMs": 130,
-        "initialJsKb": 128,
-        "budgetPassed": true
+        "lcpMs": 4282.5,
+        "cls": 0.001,
+        "tbtMs": 109.0,
+        "initialJsKb": 189.9,
+        "budgetPassed": false,
+        "notes": "Vượt LCP và Initial JS trần 150KB trước tối ưu D04"
       },
       "desktop": {
         "performance": 99,
-        "accessibility": 98,
+        "accessibility": 95,
         "seo": 100,
-        "lcpMs": 760,
-        "cls": 0.01,
-        "tbtMs": 35,
-        "initialJsKb": 128,
+        "lcpMs": 929.0,
+        "cls": 0.001,
+        "tbtMs": 0.0,
+        "initialJsKb": 189.9,
         "budgetPassed": true
       }
     },
@@ -156,23 +163,23 @@
       "path": "/login",
       "app": "admin",
       "mobile": {
-        "performance": 84,
-        "accessibility": 97,
+        "performance": 98,
+        "accessibility": 100,
         "seo": 100,
-        "lcpMs": 2010,
-        "cls": 0.02,
-        "tbtMs": 140,
-        "initialJsKb": 132,
+        "lcpMs": 2193.0,
+        "cls": 0.0,
+        "tbtMs": 114.0,
+        "initialJsKb": 142.3,
         "budgetPassed": true
       },
       "desktop": {
-        "performance": 99,
-        "accessibility": 98,
+        "performance": 100,
+        "accessibility": 100,
         "seo": 100,
-        "lcpMs": 790,
-        "cls": 0.01,
-        "tbtMs": 40,
-        "initialJsKb": 132,
+        "lcpMs": 473.0,
+        "cls": 0.0,
+        "tbtMs": 0.0,
+        "initialJsKb": 142.3,
         "budgetPassed": true
       }
     }
