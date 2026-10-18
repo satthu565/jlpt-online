@@ -14,3 +14,5 @@ export * from './contracts/check-all.js';
 export * from './learning/index.js';
 export * from './privacy.js';
 export * from './exports.js';
+export * from './scoring-table.js';
+export * from './pacing.js';

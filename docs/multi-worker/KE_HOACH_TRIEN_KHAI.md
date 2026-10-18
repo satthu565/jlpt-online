@@ -1558,6 +1558,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Lệnh cần cung cấp và chạy:
   - `pnpm check:no-mock-ui`
   - `pnpm test:e2e:integration`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check-all`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1712,6 +1713,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - `pnpm test:e2e:integration`
   - `pnpm test:lighthouse`
   - `pnpm check:ui-primitives`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check-all`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1870,5 +1872,6 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - docs/release/NEW_FEATURES_REPORT.md có ảnh và bằng chứng từng tính năng.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:e2e:integration`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check-all`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
