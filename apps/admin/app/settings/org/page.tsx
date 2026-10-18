@@ -71,7 +71,6 @@ export default function OrgSettingsPage({
       const res = await fetch(`/api/v1/admin/teacher-applications/${encodeURIComponent(id)}/approve`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
           Host: 'admin.jlpt.local',
         },
@@ -106,6 +105,7 @@ export default function OrgSettingsPage({
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
           Host: 'admin.jlpt.local',
         },
+        body: JSON.stringify({ reason: 'Rejected by admin' }),
       });
 
       if (!res.ok) {

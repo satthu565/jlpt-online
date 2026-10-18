@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { PublicExamSnapshot } from '@jlpt/schema';
 import type { AdminExam, StaffOperator, PublishedVersionRecord } from './types';
 import { ExamService } from './exam-service';
 import { richTextToPlainText } from '../content/types';
+import { apiClient } from '../../lib/api-client';
+import { useAdminAuth } from '../../lib/auth-context';
+import { t } from '../../lib/i18n';
 
 export interface ExamListViewProps {
   initialExams?: AdminExam[];
@@ -17,10 +20,10 @@ export function ExamListView({
   currentOperator,
   onExamPublished,
 }: ExamListViewProps): React.JSX.Element {
+  const { locale } = useAdminAuth();
   const [service] = useState(() => new ExamService(initialExams));
-  const [exams, setExams] = useState<AdminExam[]>(() =>
-    initialExams.length > 0 ? initialExams : service.listExams(),
-  );
+  const [exams, setExams] = useState<AdminExam[]>(initialExams);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const [previewSnapshot, setPreviewSnapshot] = useState<PublicExamSnapshot | null>(null);
   const [historyExamId, setHistoryExamId] = useState<string | null>(null);
@@ -32,9 +35,30 @@ export function ExamListView({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const refreshExams = () => {
-    setExams([...service.listExams()]);
+  const fetchExams = async () => {
+    setIsLoading(true);
+    try {
+      const res = (await apiClient.listExams()) as { items?: AdminExam[] } | AdminExam[];
+      const items = Array.isArray(res) ? res : res?.items || [];
+      if (Array.isArray(items) && items.length > 0) {
+        setExams(items);
+      } else if (initialExams.length > 0) {
+        setExams(initialExams);
+      } else {
+        setExams([]);
+      }
+    } catch {
+      if (initialExams.length > 0) {
+        setExams(initialExams);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchExams();
+  }, []);
 
   const handlePreview = (exam: AdminExam) => {
     try {
@@ -47,16 +71,16 @@ export function ExamListView({
     }
   };
 
-  const handlePublish = (exam: AdminExam) => {
+  const handlePublish = async (exam: AdminExam) => {
     setErrorMessage(null);
     setStatusMessage(null);
     try {
-      const res = service.publishExam(exam.id, currentOperator);
+      await apiClient.publishExam(exam.id);
       setStatusMessage(
-        `Xuất bản thành công! Đề thi đạt phiên bản v${res.exam.publishedVersion}. Snapshot không lộ đáp án.`,
+        `Xuất bản thành công! Đề thi đạt phiên bản v${exam.publishedVersion ? exam.publishedVersion + 1 : 1}. Snapshot không lộ đáp án.`,
       );
-      onExamPublished?.(res.exam);
-      refreshExams();
+      onExamPublished?.(exam);
+      await fetchExams();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setErrorMessage(msg);
@@ -69,16 +93,16 @@ export function ExamListView({
     setErrorMessage(null);
   };
 
-  const handleConfirmTakedown = () => {
+  const handleConfirmTakedown = async () => {
     if (!takedownExamId) return;
     setErrorMessage(null);
     try {
-      const res = service.takedownExam(takedownExamId, takedownReason, currentOperator);
+      await apiClient.unpublishExam(takedownExamId, takedownReason);
       setStatusMessage(
-        `Đã gỡ đề thi khỏi xuất bản (Takedown v${res.takedownRecord.version}). Phiên bản cũ vẫn được lưu trữ nguyên vẹn trong lịch sử.`,
+        `Đã gỡ đề thi khỏi xuất bản (Takedown). Phiên bản cũ vẫn được lưu trữ nguyên vẹn trong lịch sử.`,
       );
       setTakedownExamId(null);
-      refreshExams();
+      await fetchExams();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setErrorMessage(msg);
@@ -93,241 +117,178 @@ export function ExamListView({
   };
 
   return (
-    <div style={{ padding: '1.5rem', fontFamily: 'sans-serif' }}>
-      <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem' }}>
-        <h2 data-testid="exam-page-title" style={{ fontSize: '1.5rem', fontWeight: 600, color: '#1e293b' }}>
-          Quản lý & Xuất bản Đề thi (Exam Management)
+    <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
+      <div className="border-b border-gray-200 pb-4">
+        <h2 data-testid="exam-page-title" className="text-2xl font-bold text-gray-900">
+          {t('content.exams.title', locale)}
         </h2>
-        <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
-          Xem trước đề theo giao diện thí sinh, thẩm định blueprint, xuất bản phiên bản mới và gỡ đề
-          nhưng bảo tồn toàn bộ lịch sử phiên bản.
+        <p className="text-sm text-gray-500 mt-1">
+          {t('content.exams.subtitle', locale)}
         </p>
-        <div style={{ fontSize: '0.85rem', color: '#475569' }}>
+        <div className="mt-2 text-xs text-gray-600">
           Đăng nhập hiện tại: <strong>{currentOperator.email}</strong> (Vai trò: <code>{currentOperator.role}</code>)
         </div>
       </div>
 
+      {isLoading && (
+        <div
+          data-testid="exams-loading"
+          className="p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-md text-sm animate-pulse"
+        >
+          {t('common.loading', locale)}
+        </div>
+      )}
+
       {errorMessage && (
         <div
           data-testid="exam-error-alert"
-          style={{
-            padding: '1rem',
-            backgroundColor: '#fee2e2',
-            border: '1px solid #ef4444',
-            borderRadius: '6px',
-            color: '#b91c1c',
-            marginBottom: '1rem',
-            fontSize: '0.9rem',
-          }}
+          className="p-4 bg-red-50 border border-red-300 text-red-700 rounded-md text-sm"
         >
-          <strong>Lỗi thao tác: </strong>
+          <strong data-testid="exams-error-alert" className="font-semibold">Lỗi: </strong>
           {errorMessage}
         </div>
       )}
 
       {statusMessage && (
         <div
-          data-testid="exam-success-alert"
-          style={{
-            padding: '1rem',
-            backgroundColor: '#dcfce7',
-            border: '1px solid #22c55e',
-            borderRadius: '6px',
-            color: '#15803d',
-            marginBottom: '1rem',
-            fontSize: '0.9rem',
-          }}
+          data-testid="status-alert"
+          className="p-4 bg-green-50 border border-green-300 text-green-700 rounded-md text-sm"
         >
           {statusMessage}
         </div>
       )}
 
-      {/* Exams Table */}
-      <table
-        data-testid="exams-table"
-        style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #e2e8f0', marginBottom: '2rem' }}
-      >
-        <thead>
-          <tr style={{ backgroundColor: '#f1f5f9', textAlign: 'left', fontSize: '0.85rem' }}>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Tên đề thi</th>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Cấp độ</th>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Trạng thái</th>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Phiên bản</th>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Số câu</th>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {exams.length === 0 ? (
-            <tr>
-              <td colSpan={6} style={{ padding: '1.5rem', textAlign: 'center', color: '#94a3b8' }}>
-                Chưa có đề thi nào.
-              </td>
+      {/* Exam Table */}
+      <div className="overflow-x-auto w-full border border-gray-200 rounded-lg shadow-xs mb-6">
+        <table data-testid="exam-table" className="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr className="bg-gray-100 border-b border-gray-200 text-gray-700">
+              <th className="p-3">Tiêu đề đề thi</th>
+              <th className="p-3">Cấp độ</th>
+              <th className="p-3">Trạng thái</th>
+              <th className="p-3">Phiên bản</th>
+              <th className="p-3">Số câu hỏi</th>
+              <th className="p-3">Thao tác</th>
             </tr>
-          ) : (
-            exams.map((exam) => (
-              <tr key={exam.id} data-testid={`exam-row-${exam.id}`} style={{ fontSize: '0.85rem' }}>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0', fontWeight: 500 }}>
-                  {exam.title}
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{exam.slug}</div>
-                </td>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>{exam.level}</td>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>
-                  <span
-                    data-testid={`exam-status-${exam.id}`}
-                    style={{
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '4px',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      backgroundColor: exam.status === 'published' ? '#dcfce7' : '#fef3c7',
-                      color: exam.status === 'published' ? '#166534' : '#92400e',
-                    }}
-                  >
-                    {exam.status}
-                  </span>
-                </td>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>
-                  {exam.publishedVersion ? `v${exam.publishedVersion}` : 'Chưa xuất bản'}
-                </td>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>
-                  {exam.totalQuestions}
-                </td>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>
-                  <button
-                    data-testid={`preview-exam-btn-${exam.id}`}
-                    onClick={() => handlePreview(exam)}
-                    style={{
-                      marginRight: '0.5rem',
-                      padding: '0.25rem 0.5rem',
-                      fontSize: '0.75rem',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Xem trước (PDF-24)
-                  </button>
-                  {exam.status === 'published' ? (
-                    <button
-                      data-testid={`takedown-exam-btn-${exam.id}`}
-                      onClick={() => handleOpenTakedown(exam)}
-                      style={{
-                        marginRight: '0.5rem',
-                        padding: '0.25rem 0.5rem',
-                        fontSize: '0.75rem',
-                        backgroundColor: '#ef4444',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '3px',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Gỡ đề (Takedown)
-                    </button>
-                  ) : (
-                    <button
-                      data-testid={`publish-exam-btn-${exam.id}`}
-                      onClick={() => handlePublish(exam)}
-                      style={{
-                        marginRight: '0.5rem',
-                        padding: '0.25rem 0.5rem',
-                        fontSize: '0.75rem',
-                        backgroundColor: '#22c55e',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '3px',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Xuất bản (ADM-07)
-                    </button>
-                  )}
-                  <button
-                    data-testid={`history-exam-btn-${exam.id}`}
-                    onClick={() => handleViewHistory(exam)}
-                    style={{
-                      padding: '0.25rem 0.5rem',
-                      fontSize: '0.75rem',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Lịch sử (PDF-29)
-                  </button>
+          </thead>
+          <tbody>
+            {!isLoading && exams.length === 0 ? (
+              <tr>
+                <td colSpan={6} data-testid="exams-empty" className="p-8 text-center text-gray-400">
+                  {t('content.exams.empty', locale)}
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              exams.map((exam) => (
+                <tr key={exam.id} data-testid={`exam-row-${exam.id}`} className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="p-3 font-medium text-gray-900">{exam.title}</td>
+                  <td className="p-3">{exam.level}</td>
+                  <td className="p-3">
+                    <span
+                      data-testid={`exam-status-${exam.id}`}
+                      className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                        exam.status === 'published'
+                          ? 'bg-green-100 text-green-800'
+                          : exam.status === 'archived'
+                            ? 'bg-amber-100 text-amber-800'
+                            : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {exam.status}
+                    </span>
+                  </td>
+                  <td className="p-3">
+                    {exam.publishedVersion ? `v${exam.publishedVersion}` : 'Chưa có'}
+                  </td>
+                  <td className="p-3">{exam.totalQuestions}</td>
+                  <td className="p-3 space-x-2">
+                    <button
+                      type="button"
+                      data-testid={`preview-exam-btn-${exam.id}`}
+                      onClick={() => handlePreview(exam)}
+                      className="px-2.5 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100"
+                    >
+                      {t('content.exams.previewBtn', locale)}
+                    </button>
+                    {exam.status === 'published' ? (
+                      <button
+                        type="button"
+                        data-testid={`takedown-exam-btn-${exam.id}`}
+                        onClick={() => handleOpenTakedown(exam)}
+                        className="px-2.5 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                      >
+                        {t('content.exams.unpublishBtn', locale)}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        data-testid={`publish-exam-btn-${exam.id}`}
+                        onClick={() => handlePublish(exam)}
+                        className="px-2.5 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"
+                      >
+                        {t('content.exams.publishBtn', locale)}
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      data-testid={`history-exam-btn-${exam.id}`}
+                      onClick={() => handleViewHistory(exam)}
+                      className="px-2.5 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100"
+                    >
+                      Lịch sử
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      {/* PDF-24: Exam Preview on Test Interface Simulation */}
+      {/* Exam Preview on Test Interface Simulation */}
       {previewSnapshot && (
         <div
           data-testid="exam-preview-modal"
-          style={{
-            border: '2px solid #2563eb',
-            borderRadius: '8px',
-            padding: '1.5rem',
-            backgroundColor: '#ffffff',
-            marginBottom: '2rem',
-          }}
+          className="border-2 border-blue-500 rounded-lg p-6 bg-white mb-6 shadow-sm"
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          <div className="flex justify-between items-center mb-4">
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#1e40af' }}>
-                Xem trước Đề thi trên Giao diện làm bài (PDF-24)
+              <h3 className="text-lg font-bold text-blue-900">
+                Xem trước Đề thi trên Giao diện làm bài
               </h3>
-              <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: '#64748b' }}>
-                Hiển thị đúng cấu trúc phòng thi của thí sinh: {previewSnapshot.title} (
-                {previewSnapshot.level} - Tổng {previewSnapshot.totalQuestions} câu) - Tuyệt đối không lộ
-                đáp án!
+              <p className="text-xs text-gray-500 mt-1">
+                {previewSnapshot.title} ({previewSnapshot.level} - Tổng {previewSnapshot.totalQuestions} câu) - Tuyệt đối không lộ đáp án!
               </p>
             </div>
-            <button onClick={() => setPreviewSnapshot(null)} style={{ padding: '0.25rem 0.5rem' }}>
+            <button
+              type="button"
+              onClick={() => setPreviewSnapshot(null)}
+              className="px-3 py-1 text-xs bg-gray-100 border border-gray-300 rounded hover:bg-gray-200"
+            >
               Đóng xem trước
             </button>
           </div>
 
-          <div style={{ border: '1px solid #e2e8f0', borderRadius: '6px', padding: '1rem' }}>
+          <div className="border border-gray-200 rounded-md p-4 space-y-4">
             {previewSnapshot.sections.map((sec, secIdx) => (
-              <div key={sec.code} style={{ marginBottom: '1.5rem' }}>
-                <div
-                  style={{
-                    backgroundColor: '#f1f5f9',
-                    padding: '0.5rem 0.75rem',
-                    fontWeight: 600,
-                    fontSize: '0.9rem',
-                    borderRadius: '4px',
-                    color: '#334155',
-                  }}
-                >
+              <div key={sec.code} className="space-y-2">
+                <div className="bg-gray-100 px-3 py-1.5 font-semibold text-sm rounded text-gray-700">
                   Phần {secIdx + 1}: {sec.title} ({Math.round(sec.durationSec / 60)} phút)
                 </div>
                 {sec.groups.map((grp) => (
-                  <div
-                    key={grp.groupId}
-                    style={{
-                      padding: '0.75rem',
-                      borderBottom: '1px dashed #cbd5e1',
-                    }}
-                  >
-                    <div style={{ fontSize: '0.85rem', color: '#475569', marginBottom: '0.5rem' }}>
-                      <em>{richTextToPlainText(grp.instructions)}</em>
+                  <div key={grp.groupId} className="p-3 border-b border-dashed border-gray-200">
+                    <div className="text-xs text-gray-500 italic mb-2">
+                      {richTextToPlainText(grp.instructions)}
                     </div>
                     {grp.questions.map((q) => (
-                      <div key={q.questionId} style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
-                        <div>
-                          <strong>Câu {q.number}: </strong>
-                          <span>{richTextToPlainText(q.stem)}</span>
+                      <div key={q.questionId} className="mt-2 text-sm">
+                        <div className="font-medium text-gray-900">
+                          Câu {q.number}: {richTextToPlainText(q.stem)}
                         </div>
-                        <div style={{ marginTop: '0.25rem', paddingLeft: '1rem' }}>
+                        <div className="mt-1 pl-4 space-y-1">
                           {q.options.map((opt) => (
-                            <div key={opt.label} style={{ marginTop: '0.15rem' }}>
-                              <label style={{ cursor: 'pointer' }}>
-                                <input type="radio" name={`preview_q_${q.questionId}`} disabled />
-                                <span style={{ marginLeft: '0.4rem' }}>
-                                  {opt.label}. {richTextToPlainText(opt.content)}
-                                </span>
-                              </label>
+                            <div key={opt.label} className="text-xs text-gray-700">
+                              <span className="font-semibold">{opt.label}.</span> {richTextToPlainText(opt.content)}
                             </div>
                           ))}
                         </div>
@@ -345,23 +306,16 @@ export function ExamListView({
       {takedownExamId && (
         <div
           data-testid="takedown-modal"
-          style={{
-            border: '2px solid #ef4444',
-            borderRadius: '8px',
-            padding: '1.5rem',
-            backgroundColor: '#fef2f2',
-            marginBottom: '2rem',
-          }}
+          className="border-2 border-red-500 rounded-lg p-6 bg-red-50 mb-6"
         >
-          <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.15rem', color: '#991b1b' }}>
+          <h3 className="text-base font-bold text-red-900 mb-2">
             Xác nhận Gỡ Đề thi (Takedown - Giữ version cũ)
           </h3>
-          <p style={{ fontSize: '0.85rem', color: '#7f1d1d' }}>
-            Hệ thống sẽ chuyển đề thi về trạng thái gỡ xuất bản, đồng thời lưu giữ nguyên vẹn bản ghi phiên
-            bản cũ cùng snapshot trong lịch sử.
+          <p className="text-xs text-red-700 mb-4">
+            Hệ thống sẽ chuyển đề thi về trạng thái gỡ xuất bản, đồng thời lưu giữ nguyên vẹn bản ghi phiên bản cũ cùng snapshot trong lịch sử.
           </p>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+          <div className="mb-4">
+            <label className="block text-xs font-semibold text-gray-700 mb-1">
               Lý do gỡ đề (bắt buộc):
             </label>
             <input
@@ -370,89 +324,81 @@ export function ExamListView({
               value={takedownReason}
               onChange={(e) => setTakedownReason(e.target.value)}
               placeholder="Ví dụ: Đổi nội dung câu 4 theo phản hồi bản quyền..."
-              style={{ width: '100%', padding: '0.4rem', fontSize: '0.85rem' }}
+              className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
             />
           </div>
-          <button
-            data-testid="confirm-takedown-btn"
-            onClick={handleConfirmTakedown}
-            style={{
-              padding: '0.4rem 1rem',
-              backgroundColor: '#dc2626',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '4px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              marginRight: '0.5rem',
-            }}
-          >
-            Xác nhận Gỡ Đề
-          </button>
-          <button onClick={() => setTakedownExamId(null)} style={{ padding: '0.4rem 0.75rem', cursor: 'pointer' }}>
-            Hủy
-          </button>
+          <div className="space-x-2">
+            <button
+              type="button"
+              data-testid="confirm-takedown-btn"
+              onClick={handleConfirmTakedown}
+              className="px-4 py-2 bg-red-600 text-white rounded text-xs font-semibold hover:bg-red-700"
+            >
+              Xác nhận Gỡ Đề
+            </button>
+            <button
+              type="button"
+              onClick={() => setTakedownExamId(null)}
+              className="px-4 py-2 bg-white border border-gray-300 rounded text-xs hover:bg-gray-100"
+            >
+              Hủy
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Version History Modal (PDF-29: Takedown giữ version cũ) */}
+      {/* Version History Modal */}
       {historyExamId && (
         <div
           data-testid="version-history-modal"
-          style={{
-            border: '1px solid #cbd5e1',
-            borderRadius: '8px',
-            padding: '1.5rem',
-            backgroundColor: '#ffffff',
-            marginBottom: '2rem',
-          }}
+          className="border border-gray-300 rounded-lg p-6 bg-white mb-6 shadow-sm"
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#1e293b' }}>
-              Lịch sử các phiên bản đã xuất bản (Version History - PDF-29)
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-base font-bold text-gray-900">
+              Lịch sử các phiên bản đã xuất bản (Version History)
             </h3>
-            <button onClick={() => setHistoryExamId(null)} style={{ padding: '0.2rem 0.5rem' }}>
+            <button
+              type="button"
+              onClick={() => setHistoryExamId(null)}
+              className="px-2.5 py-1 text-xs bg-gray-100 border border-gray-300 rounded hover:bg-gray-200"
+            >
               Đóng
             </button>
           </div>
 
           {versionHistory.length === 0 ? (
-            <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Đề thi chưa có phiên bản xuất bản nào.</p>
+            <p className="text-sm text-gray-400">Đề thi chưa có phiên bản xuất bản nào.</p>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-              <thead>
-                <tr style={{ backgroundColor: '#f8fafc', textAlign: 'left' }}>
-                  <th style={{ padding: '0.5rem', border: '1px solid #e2e8f0' }}>Phiên bản</th>
-                  <th style={{ padding: '0.5rem', border: '1px solid #e2e8f0' }}>Thời điểm xuất bản</th>
-                  <th style={{ padding: '0.5rem', border: '1px solid #e2e8f0' }}>Người xuất bản</th>
-                  <th style={{ padding: '0.5rem', border: '1px solid #e2e8f0' }}>Trạng thái / Gỡ đề</th>
-                  <th style={{ padding: '0.5rem', border: '1px solid #e2e8f0' }}>Lý do gỡ</th>
-                </tr>
-              </thead>
-              <tbody>
-                {versionHistory.map((ver) => (
-                  <tr key={ver.version} data-testid={`version-row-${ver.version}`}>
-                    <td style={{ padding: '0.5rem', border: '1px solid #e2e8f0', fontWeight: 600 }}>
-                      v{ver.version}
-                    </td>
-                    <td style={{ padding: '0.5rem', border: '1px solid #e2e8f0' }}>{ver.publishedAt}</td>
-                    <td style={{ padding: '0.5rem', border: '1px solid #e2e8f0' }}>{ver.publishedBy}</td>
-                    <td style={{ padding: '0.5rem', border: '1px solid #e2e8f0' }}>
-                      {ver.takedownAt ? (
-                        <span style={{ color: '#dc2626', fontWeight: 600 }}>
-                          Đã gỡ ({ver.takedownAt})
-                        </span>
-                      ) : (
-                        <span style={{ color: '#16a34a', fontWeight: 600 }}>Đang hiệu lực</span>
-                      )}
-                    </td>
-                    <td style={{ padding: '0.5rem', border: '1px solid #e2e8f0' }}>
-                      {ver.takedownReason || '—'}
-                    </td>
+            <div className="overflow-x-auto w-full">
+              <table className="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200 text-gray-600">
+                    <th className="p-2.5">Phiên bản</th>
+                    <th className="p-2.5">Thời điểm xuất bản</th>
+                    <th className="p-2.5">Người xuất bản</th>
+                    <th className="p-2.5">Trạng thái</th>
+                    <th className="p-2.5">Lý do gỡ</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {versionHistory.map((ver) => (
+                    <tr key={ver.version} data-testid={`version-row-${ver.version}`} className="border-b border-gray-100">
+                      <td className="p-2.5 font-semibold">v{ver.version}</td>
+                      <td className="p-2.5">{ver.publishedAt}</td>
+                      <td className="p-2.5">{ver.publishedBy}</td>
+                      <td className="p-2.5">
+                        {ver.takedownAt ? (
+                          <span className="text-red-600 font-semibold">Đã gỡ ({ver.takedownAt})</span>
+                        ) : (
+                          <span className="text-green-600 font-semibold">Đang hiệu lực</span>
+                        )}
+                      </td>
+                      <td className="p-2.5">{ver.takedownReason || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}

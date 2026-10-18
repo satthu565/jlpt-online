@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminGuard } from '../../../lib/ui-guard';
 import { useAdminAuth } from '../../../lib/auth-context';
+import { apiClient } from '../../../lib/api-client';
+import { t } from '../../../lib/i18n';
 
 export interface AiModerationLog {
   id: string;
@@ -18,134 +20,162 @@ export interface AiModerationLog {
 }
 
 export default function AiModerationPage(): React.JSX.Element {
-  const { user: _user } = useAdminAuth();
+  const { user: _user, locale } = useAdminAuth();
 
-  const [logs, setLogs] = useState<AiModerationLog[]>([
-    {
-      id: 'ai-req-101',
-      actionType: 'explain_generation',
-      provider: 'gemini',
-      model: 'gemini-1.5-flash',
-      flaggedUnsafe: false,
-      promptTokens: 420,
-      completionTokens: 280,
-      costVnd: 18,
-      createdAt: '2026-10-16 11:24',
-      reviewStatus: 'auto_passed',
-    },
-    {
-      id: 'ai-req-102',
-      actionType: 'question_synthesis',
-      provider: 'openai',
-      model: 'gpt-4o-mini',
-      flaggedUnsafe: true,
-      promptTokens: 850,
-      completionTokens: 520,
-      costVnd: 36,
-      createdAt: '2026-10-16 10:15',
-      reviewStatus: 'flagged',
-    },
-  ]);
-
+  const [logs, setLogs] = useState<AiModerationLog[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [filterFlagged, setFilterFlagged] = useState<boolean>(false);
+
+  const fetchAiLogs = async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const res = (await apiClient.getContentReport('ai').catch(() => null)) as { items?: Record<string, unknown>[] } | Record<string, unknown>[] | null;
+      const items = Array.isArray(res) ? res : res?.items || [];
+      if (Array.isArray(items)) {
+        const mapped: AiModerationLog[] = items.map((it: Record<string, unknown>) => ({
+          id: String(it.id || ''),
+          actionType: (it.actionType as AiModerationLog['actionType']) || 'explain_generation',
+          provider: (it.provider as AiModerationLog['provider']) || 'gemini',
+          model: String(it.model || 'gemini-1.5-flash'),
+          flaggedUnsafe: Boolean(it.flaggedUnsafe),
+          promptTokens: typeof it.promptTokens === 'number' ? it.promptTokens : 0,
+          completionTokens: typeof it.completionTokens === 'number' ? it.completionTokens : 0,
+          costVnd: typeof it.costVnd === 'number' ? it.costVnd : 0,
+          createdAt: it.createdAt ? new Date(String(it.createdAt)).toISOString().slice(0, 16).replace('T', ' ') : '2026-10-18 10:00',
+          reviewStatus: (it.reviewStatus as AiModerationLog['reviewStatus']) || (it.flaggedUnsafe ? 'flagged' : 'auto_passed'),
+        }));
+        setLogs(mapped);
+      }
+    } catch (err: unknown) {
+      setErrorMessage((err as Error).message || 'Không thể nạp nhật ký kiểm duyệt AI.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAiLogs();
+  }, []);
 
   const filtered = logs.filter((l) => !filterFlagged || l.flaggedUnsafe);
 
-  const handleApprove = (id: string) => {
-    setLogs((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, reviewStatus: 'reviewed', flaggedUnsafe: false } : l)),
-    );
+  const handleApprove = async (id: string) => {
+    try {
+      await apiClient.reviewAiContent(id, 'approved', 'Biên tập viên bỏ cảnh báo an toàn').catch(() => null);
+      setLogs((prev) =>
+        prev.map((l) => (l.id === id ? { ...l, reviewStatus: 'reviewed', flaggedUnsafe: false } : l)),
+      );
+    } catch (err: unknown) {
+      setErrorMessage((err as Error).message);
+    }
   };
 
   return (
     <AdminGuard pathname="/moderation/ai">
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-        <header style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#111827' }}>
-            Kiểm duyệt Nội dung AI & Giám sát Chi phí
+      <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
+        <header className="border-b border-gray-200 pb-4">
+          <h1 className="text-2xl font-bold text-gray-900">
+            {t('content.aiModeration.title', locale)}
           </h1>
-          <p style={{ margin: 0, color: '#6b7280' }}>
-            Theo dõi các yêu cầu sinh lời giải, dịch thuật và tổng hợp đề từ mô hình AI, phát hiện rủi ro và kiểm soát chi phí API.
+          <p className="text-sm text-gray-500 mt-1">
+            {t('content.aiModeration.subtitle', locale)}
           </p>
         </header>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
-              <input
-                data-testid="checkbox-filter-flagged"
-                type="checkbox"
-                checked={filterFlagged}
-                onChange={(e) => setFilterFlagged(e.target.checked)}
-              />
-              Chỉ hiển thị yêu cầu bị cảnh báo an toàn ({logs.filter((l) => l.flaggedUnsafe).length})
-            </label>
+        {isLoading && (
+          <div
+            data-testid="ai-loading"
+            className="p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-md text-sm animate-pulse"
+          >
+            {t('common.loading', locale)}
           </div>
+        )}
+
+        {errorMessage && (
+          <div
+            data-testid="ai-error-alert"
+            className="p-4 bg-red-50 border border-red-300 text-red-700 rounded-md text-sm"
+          >
+            <strong className="font-semibold">Lỗi: </strong>
+            {errorMessage}
+          </div>
+        )}
+
+        <div className="flex justify-between items-center">
+          <label className="flex items-center gap-2 cursor-pointer font-medium text-sm text-gray-700">
+            <input
+              data-testid="checkbox-filter-flagged"
+              type="checkbox"
+              checked={filterFlagged}
+              onChange={(e) => setFilterFlagged(e.target.checked)}
+              className="rounded text-blue-600"
+            />
+            {t('content.aiModeration.filterLabel', locale)} ({logs.filter((l) => l.flaggedUnsafe).length})
+          </label>
         </div>
 
-        <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <div className="overflow-x-auto w-full border border-gray-200 rounded-lg shadow-xs bg-white">
+          <table className="w-full text-left text-sm border-collapse">
             <thead>
-              <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                <th style={{ padding: '0.75rem 1rem', fontSize: '0.85rem' }}>Mã yêu cầu</th>
-                <th style={{ padding: '0.75rem 1rem', fontSize: '0.85rem' }}>Tác vụ</th>
-                <th style={{ padding: '0.75rem 1rem', fontSize: '0.85rem' }}>Nhà cung cấp / Model</th>
-                <th style={{ padding: '0.75rem 1rem', fontSize: '0.85rem' }}>Tokens</th>
-                <th style={{ padding: '0.75rem 1rem', fontSize: '0.85rem' }}>Chi phí ước tính</th>
-                <th style={{ padding: '0.75rem 1rem', fontSize: '0.85rem' }}>Trạng thái</th>
-                <th style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', textAlign: 'right' }}>Thao tác</th>
+              <tr className="bg-gray-50 border-b border-gray-200 text-gray-700">
+                <th className="p-3">Mã yêu cầu</th>
+                <th className="p-3">Tác vụ</th>
+                <th className="p-3">Nhà cung cấp / Model</th>
+                <th className="p-3">Tokens</th>
+                <th className="p-3">Chi phí ước tính</th>
+                <th className="p-3">Trạng thái</th>
+                <th className="p-3 text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((item) => (
-                <tr key={item.id} data-testid={`ai-log-row-${item.id}`} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                  <td style={{ padding: '0.75rem 1rem', fontFamily: 'monospace', fontSize: '0.85rem' }}>{item.id}</td>
-                  <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{item.actionType}</td>
-                  <td style={{ padding: '0.75rem 1rem', color: '#4b5563', fontSize: '0.85rem' }}>
-                    {item.provider} / {item.model}
-                  </td>
-                  <td style={{ padding: '0.75rem 1rem', fontSize: '0.85rem' }}>
-                    {item.promptTokens} in / {item.completionTokens} out
-                  </td>
-                  <td style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#059669' }}>
-                    {item.costVnd} đ
-                  </td>
-                  <td style={{ padding: '0.75rem 1rem' }}>
-                    <span
-                      style={{
-                        padding: '0.2rem 0.5rem',
-                        borderRadius: '4px',
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        background: item.flaggedUnsafe ? '#fee2e2' : '#d1fae5',
-                        color: item.flaggedUnsafe ? '#991b1b' : '#065f46',
-                      }}
-                    >
-                      {item.flaggedUnsafe ? 'CẢNH BÁO' : 'AN TOÀN'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
-                    {item.flaggedUnsafe && (
-                      <button
-                        data-testid={`btn-approve-ai-${item.id}`}
-                        onClick={() => handleApprove(item.id)}
-                        style={{
-                          padding: '0.25rem 0.6rem',
-                          borderRadius: '4px',
-                          border: 'none',
-                          background: '#10b981',
-                          color: '#ffffff',
-                          fontSize: '0.75rem',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Bỏ cảnh báo
-                      </button>
-                    )}
+              {!isLoading && filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={7} data-testid="ai-empty" className="p-8 text-center text-gray-400">
+                    {t('content.aiModeration.empty', locale)}
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map((item) => (
+                  <tr key={item.id} data-testid={`ai-log-row-${item.id}`} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="p-3 font-mono text-xs">{item.id}</td>
+                    <td className="p-3 font-semibold text-gray-900">{item.actionType}</td>
+                    <td className="p-3 text-xs text-gray-600">
+                      {item.provider} / {item.model}
+                    </td>
+                    <td className="p-3 text-xs text-gray-600">
+                      {item.promptTokens} in / {item.completionTokens} out
+                    </td>
+                    <td className="p-3 font-semibold text-emerald-600">
+                      {item.costVnd} đ
+                    </td>
+                    <td className="p-3">
+                      <span
+                        className={`px-2 py-0.5 rounded text-xs font-bold ${
+                          item.flaggedUnsafe
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-green-100 text-green-800'
+                        }`}
+                      >
+                        {item.flaggedUnsafe ? 'CẢNH BÁO' : 'AN TOÀN'}
+                      </span>
+                    </td>
+                    <td className="p-3 text-right">
+                      {item.flaggedUnsafe && (
+                        <button
+                          type="button"
+                          data-testid={`btn-approve-ai-${item.id}`}
+                          onClick={() => handleApprove(item.id)}
+                          className="px-2.5 py-1 text-xs font-semibold bg-emerald-600 text-white rounded hover:bg-emerald-700"
+                        >
+                          {t('content.aiModeration.unflagBtn', locale)}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

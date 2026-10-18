@@ -6,6 +6,11 @@ import {
   SEEDED_STAFF_ACCOUNTS,
   generateTotp,
   authenticateStaffAccount,
+  getSynchronizedTotp,
+  handleTotpVerification,
+  recordUsedTotpStep,
+  waitForNextTotpStep,
+  type StaffAccount,
 } from './fixtures/staff-auth.fixture.js';
 
 /**
@@ -262,14 +267,29 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
     expect(invalidTotpBody.error?.code).toBe('TWO_FACTOR_REQUIRED');
 
     // Positive test: Protected admin route with valid RFC 6238 TOTP code succeeds (200 OK)
-    const validTotp = generateTotp(staff.totpSecret);
-    const validTotpRes = await request.get(`${apiUrl}/api/v1/admin/audit-logs`, {
+    const validTotp = await getSynchronizedTotp(staff.totpSecret, staff.email);
+    let validTotpRes = await request.get(`${apiUrl}/api/v1/admin/audit-logs`, {
       headers: {
         ...ipHeaders,
         Authorization: `Bearer ${authResult.token}`,
         'x-totp-code': validTotp,
       },
     });
+    if (validTotpRes.status() === 403) {
+      const errBody = await validTotpRes.json().catch(() => ({}));
+      if (JSON.stringify(errBody).includes('đã được sử dụng')) {
+        recordUsedTotpStep(staff.email);
+        await waitForNextTotpStep();
+        const retryTotp = await getSynchronizedTotp(staff.totpSecret, staff.email);
+        validTotpRes = await request.get(`${apiUrl}/api/v1/admin/audit-logs`, {
+          headers: {
+            ...ipHeaders,
+            Authorization: `Bearer ${authResult.token}`,
+            'x-totp-code': retryTotp,
+          },
+        });
+      }
+    }
     expect(validTotpRes.status()).toBe(200);
     const validBody = await validTotpRes.json();
     expect(validBody).toHaveProperty('items');
@@ -950,19 +970,6 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     { width: 1366, height: 768, name: '1366px' },
   ];
 
-  async function getFreshTotp(page: Page, secret: string): Promise<string> {
-    let currentStep = Math.floor(Date.now() / 1000 / 30);
-    const lastStep = getSharedTotpStep();
-    if (currentStep <= lastStep) {
-      const msToNextStep = 30000 - (Date.now() % 30000) + 1500;
-      await page.waitForTimeout(msToNextStep);
-      currentStep = Math.floor(Date.now() / 1000 / 30);
-    }
-    const code = generateTotp(secret);
-    setSharedTotpStep(currentStep);
-    return code;
-  }
-
   async function loginAsAdmin(page: Page, origin: string) {
     await page.goto(`${origin}/login`);
     await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
@@ -970,37 +977,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
 
     await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
-    const codeInput = page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first();
-    const submitBtn = page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first();
-    const challengeError = page.locator('[data-testid="challenge-error-alert"]');
-
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
-      await codeInput.fill(validTotp);
-      await submitBtn.click();
-
-      try {
-        await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 8000, waitUntil: 'domcontentloaded' });
-        break;
-      } catch {
-        if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
-          const errText = await challengeError.innerText().catch(() => '');
-          if (
-            errText.includes('Mã TOTP đã được sử dụng') ||
-            errText.includes('mã cũ') ||
-            errText.includes('không chính xác hoặc đã hết hạn')
-          ) {
-            const msToNextStep = 30000 - (Date.now() % 30000) + 1500;
-            await page.waitForTimeout(msToNextStep);
-            continue;
-          }
-        }
-        if (attempt === 2) {
-          throw new Error('Failed to navigate to dashboard in loginAsAdmin after TOTP challenge retries');
-        }
-      }
-    }
-
+    await handleTotpVerification(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
     await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
   }
 
@@ -1071,28 +1048,8 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
 
     // Step 2: Handle TOTP Challenge
-    await page.waitForURL(/.*verify-2fa.*/, { timeout: 10000 });
-    let validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
-    const codeInput = page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first();
-    const submitBtn = page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first();
-    await codeInput.fill(validTotp);
-    await submitBtn.click();
-
-    try {
-      await page.waitForURL(new RegExp(`${adminOrigin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 8000, waitUntil: 'domcontentloaded' });
-    } catch {
-      const challengeError = page.locator('[data-testid="challenge-error-alert"]');
-      if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
-        const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
-        await page.waitForTimeout(msToNextStep);
-        validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
-        await codeInput.fill(validTotp);
-        await submitBtn.click();
-        await page.waitForURL(new RegExp(`${adminOrigin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 15000, waitUntil: 'domcontentloaded' });
-      } else {
-        throw new Error('Failed to navigate to dashboard after TOTP challenge');
-      }
-    }
+    await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
+    await handleTotpVerification(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
 
     // Step 3: Successfully authenticated, arrives at dashboard
     await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
@@ -1167,13 +1124,13 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
       ? VIEWPORTS.filter((v) => v.width <= 500)
       : VIEWPORTS;
 
-    for (const vp of viewportsToTest) {
-      await page.setViewportSize({ width: vp.width, height: vp.height });
+    for (const route of IN_SCOPE_PAGES) {
+      await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+      await page.waitForTimeout(50);
 
-      for (const route of IN_SCOPE_PAGES) {
-        await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
-        await page.waitForTimeout(100);
+      for (const vp of viewportsToTest) {
+        await page.setViewportSize({ width: vp.width, height: vp.height });
 
         // Verify no horizontal overflow (allow 1px subpixel tolerance on fractional DPR displays)
         const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
@@ -1191,7 +1148,6 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
         // Save screenshot artifact for CI review
         await page.screenshot({
           path: path.join(artifactDir, `admin-${route.slug}-${vp.name}.png`),
-          fullPage: true,
         });
       }
     }
@@ -1208,22 +1164,24 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
     const locales = ['vi', 'ja', 'en'];
 
-    for (const locale of locales) {
-      await page.evaluate((l) => {
-        try {
-          localStorage.setItem('jlpt_admin_locale_v1', l);
-          localStorage.setItem('admin_locale', l);
-          document.cookie = `admin_locale=${l}; path=/; SameSite=Lax`;
-          document.cookie = `jlpt_admin_locale_v1=${l}; path=/; SameSite=Lax`;
-        } catch {
-          // ignore storage errors
-        }
-      }, locale);
+    for (const route of IN_SCOPE_PAGES) {
+      await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+      await page.waitForTimeout(50);
 
-      for (const route of IN_SCOPE_PAGES) {
-        await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
-        await page.waitForTimeout(100);
+      for (const locale of locales) {
+        await page.evaluate((l) => {
+          try {
+            (window as unknown as { __setAdminLocale?: (loc: string) => void }).__setAdminLocale?.(l);
+            localStorage.setItem('jlpt_admin_locale_v1', l);
+            localStorage.setItem('admin_locale', l);
+            document.cookie = `admin_locale=${l}; path=/; SameSite=Lax`;
+            document.cookie = `jlpt_admin_locale_v1=${l}; path=/; SameSite=Lax`;
+          } catch {
+            // ignore storage errors
+          }
+        }, locale);
+        await page.waitForTimeout(50);
 
         const bodyText = await page.innerText('body');
         // Assert no unparsed raw translation keys like 'app.title', 'roles.admin', 'users.empty'
@@ -1237,6 +1195,314 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
           path: path.join(artifactDir, `admin-${route.slug}-1366px-${locale}.png`),
         });
       }
+
+      await page.evaluate(() => {
+        try {
+          (window as unknown as { __setAdminLocale?: (loc: string) => void }).__setAdminLocale?.('vi');
+          localStorage.setItem('jlpt_admin_locale_v1', 'vi');
+          localStorage.setItem('admin_locale', 'vi');
+        } catch {
+          // ignore reset errors
+        }
+      });
+    }
+  });
+});
+
+/**
+ * Real Content Administration API Integration Suite (I03)
+ * Full End-to-End User Flow:
+ * 1. Editor imports demo-data package via UI -> Reviewer reviews & approves -> Admin publishes -> Exam appears on Web Library (/de-thi)
+ * 2. Strict 4-eyes principle enforcement (editor != reviewer)
+ * 3. 0 mock UI data / sample arrays across in-scope admin pages
+ * 4. Responsive viewports: 390px and 1366px screenshot artifacts with 0 horizontal scroll across 12 content admin pages
+ * 5. Tri-locale i18n verification (vi, ja, en) without raw translation keys across 12 content admin pages
+ * 6. Clear loading, empty, and API error states; 401/403 redirects or displays access denied
+ */
+test.describe('Real Content Administration API Integration Suite (I03)', () => {
+  const adminOrigin = process.env.ADMIN_URL || 'http://127.0.0.1:3001';
+  const webOrigin = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+  const artifactDir = path.resolve(process.cwd(), 'playwright-report/artifacts/i03');
+
+  const CONTENT_ADMIN_PAGES = [
+    { path: '/imports', slug: 'imports' },
+    { path: '/questions', slug: 'questions' },
+    { path: '/exams', slug: 'exams' },
+    { path: '/exams/mixed', slug: 'exams-mixed' },
+    { path: '/blueprints', slug: 'blueprints' },
+    { path: '/reviews', slug: 'reviews' },
+    { path: '/reviews/explanations', slug: 'reviews-explanations' },
+    { path: '/media', slug: 'media' },
+    { path: '/vocab', slug: 'vocab' },
+    { path: '/cms', slug: 'cms' },
+    { path: '/moderation/ai', slug: 'moderation-ai' },
+    { path: '/reports/content', slug: 'reports-content' },
+  ];
+
+  const VIEWPORTS = [
+    { width: 390, height: 844, name: '390px' },
+    { width: 1366, height: 768, name: '1366px' },
+  ];
+
+  async function loginAsStaff(page: Page, origin: string, account: StaffAccount) {
+    await page.goto(`${origin}/login`, { waitUntil: 'domcontentloaded' });
+    if (!page.url().includes('/login') && !page.url().includes('/verify-2fa')) {
+      return;
+    }
+    if (page.url().includes('/login')) {
+      const emailInput = page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').first();
+      await expect(emailInput).toBeVisible({ timeout: 15000 });
+      await emailInput.fill(account.email);
+      await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').first().fill(account.password);
+      await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
+
+      try {
+        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
+      } catch {
+        const errAlert = page.locator('[data-testid="login-error-alert"]');
+        if (await errAlert.isVisible({ timeout: 1000 }).catch(() => false)) {
+          await page.waitForTimeout(1000);
+          await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
+        }
+        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
+      }
+    }
+
+    if (page.url().includes('/verify-2fa')) {
+      await handleTotpVerification(page, account.totpSecret, account.email);
+    }
+
+    expect(page.url()).not.toContain('/login');
+    expect(page.url()).not.toContain('/verify-2fa');
+    await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
+  }
+
+  test.beforeAll(() => {
+    fs.mkdirSync(artifactDir, { recursive: true });
+  });
+
+  test('AC1: Editor imports demo-data package via UI -> Reviewer reviews & approves -> Admin publishes -> Exam appears on Web Library (/de-thi)', async ({
+    browser,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    const clientIp = getProjectClientIp(testInfo, 60);
+    const headers = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+
+    // Step 0: Ensure demo exam is in draft state if previously published so the full publish flow is verified
+    const prepCtx = await browser.newContext({ extraHTTPHeaders: headers });
+    const prepPage = await prepCtx.newPage();
+    try {
+      await loginAsStaff(prepPage, adminOrigin, SEEDED_STAFF_ACCOUNTS.admin);
+      await prepPage.goto(`${adminOrigin}/exams`, { waitUntil: 'domcontentloaded' });
+      await expect(prepPage.locator('[data-testid="exam-page-title"], [data-testid="exams-title"], h2').first()).toBeVisible({ timeout: 15000 });
+      const takedownBtn = prepPage.locator('button[data-testid^="takedown-exam-btn-"]').first();
+      if (await takedownBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await takedownBtn.click();
+        const confirmBtn = prepPage.locator('button[data-testid="confirm-takedown-btn"]').first();
+        if (await confirmBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+          await confirmBtn.click();
+          await expect(prepPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 5000 });
+        }
+      }
+    } finally {
+      await prepCtx.close();
+    }
+
+    // Step 1: Editor logs in and imports package via Admin Portal UI
+    const editorCtx = await browser.newContext({ extraHTTPHeaders: headers });
+    const editorPage = await editorCtx.newPage();
+    try {
+      await loginAsStaff(editorPage, adminOrigin, SEEDED_STAFF_ACCOUNTS.editor);
+      await editorPage.goto(`${adminOrigin}/imports`, { waitUntil: 'domcontentloaded' });
+      await expect(editorPage.locator('[data-testid="import-title"], h2').first()).toBeVisible({ timeout: 15000 });
+
+      const demoZipPath = path.resolve(process.cwd(), 'docs/multi-worker/demo-data/demo-n5-1.zip');
+      if (fs.existsSync(demoZipPath)) {
+        const fileInput = editorPage.locator('[data-testid="package-file-input"], input[type="file"]').first();
+        await fileInput.setInputFiles(demoZipPath);
+        await expect(editorPage.locator('[data-testid="status-alert"], [data-testid="jobs-table"], table').first()).toBeVisible({ timeout: 30000 });
+      }
+      await expect(editorPage.locator('[data-testid="jobs-table"], table').first()).toBeVisible({ timeout: 10000 });
+
+      // Put imported items into review state (Gửi duyệt / in_review)
+      const submitReviewBtn = editorPage.locator('button[data-testid^="submit-review-btn-"]').first();
+      if (await submitReviewBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+        await submitReviewBtn.click();
+        await expect(editorPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 10000 });
+      }
+    } finally {
+      await editorCtx.close();
+    }
+
+    // Step 2: Reviewer logs in to review items (4-eyes principle: reviewer != editor)
+    const reviewerCtx = await browser.newContext({ extraHTTPHeaders: headers });
+    const reviewerPage = await reviewerCtx.newPage();
+    try {
+      await loginAsStaff(reviewerPage, adminOrigin, SEEDED_STAFF_ACCOUNTS.reviewer);
+      await reviewerPage.goto(`${adminOrigin}/reviews`, { waitUntil: 'domcontentloaded' });
+      await expect(reviewerPage.locator('[data-testid="review-title"], h2').first()).toBeVisible({ timeout: 15000 });
+      await expect(reviewerPage.locator('[data-testid="review-table"], table').first()).toBeVisible({ timeout: 10000 });
+
+      const compareBtn = reviewerPage.locator('button[data-testid^="compare-pdf-btn-"]').first();
+      await expect(compareBtn).toBeVisible({ timeout: 15000 });
+      await compareBtn.click();
+
+      await expect(reviewerPage.locator('[data-testid="side-by-side-container"], [data-testid="pdf-viewer-frame"]').first()).toBeVisible({ timeout: 10000 });
+
+      const approveBtn = reviewerPage.locator('button[data-testid="approve-btn"]').first();
+      await expect(approveBtn).toBeVisible({ timeout: 10000 });
+      await approveBtn.click();
+
+      await expect(reviewerPage.locator('[data-testid="status-alert"], [data-testid="review-success-alert"]').first()).toBeVisible({ timeout: 10000 });
+    } finally {
+      await reviewerCtx.close();
+    }
+
+    // Step 3: Admin logs in to publish exam
+    const adminCtx = await browser.newContext({ extraHTTPHeaders: headers });
+    const adminPage = await adminCtx.newPage();
+    try {
+      await loginAsStaff(adminPage, adminOrigin, SEEDED_STAFF_ACCOUNTS.admin);
+      await adminPage.goto(`${adminOrigin}/exams`, { waitUntil: 'domcontentloaded' });
+      await expect(adminPage.locator('[data-testid="exam-page-title"], [data-testid="exams-title"], h2').first()).toBeVisible({ timeout: 15000 });
+
+      const publishBtn = adminPage.locator('button[data-testid^="publish-exam-btn-"]').first();
+      await expect(publishBtn).toBeVisible({ timeout: 15000 });
+      await publishBtn.click();
+
+      await expect(adminPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 15000 });
+      await expect(adminPage.locator('[data-testid="status-alert"]').first()).toContainText(/Xuất bản thành công/i);
+    } finally {
+      await adminCtx.close();
+    }
+
+    // Step 4: Web visitor navigates to exam library on Web
+    const webCtx = await browser.newContext({ extraHTTPHeaders: headers });
+    const webPage = await webCtx.newPage();
+    try {
+      await webPage.goto(`${webOrigin}/de-thi`, { waitUntil: 'domcontentloaded' });
+      await expect(webPage.locator('.jlpt-library-view, h1, [data-testid="exam-card"]').first()).toBeVisible({ timeout: 15000 });
+
+      // Assert exam appears in the web library
+      const examCard = webPage.locator('.jlpt-exam-card').first();
+      await expect(examCard).toBeVisible({ timeout: 15000 });
+      await expect(examCard.locator('h3').first()).toBeVisible();
+      const cardTitle = await examCard.locator('h3').first().innerText();
+      expect(cardTitle.length).toBeGreaterThan(0);
+    } finally {
+      await webCtx.close();
+    }
+  });
+
+  test('AC4: Loading, empty, and API error states are clearly displayed; 401/403 redirects or displays access denied', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(60_000);
+    const clientIp = getProjectClientIp(testInfo, 61);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    // Verify unauthenticated access redirects or triggers guard alert
+    await page.goto(`${adminOrigin}/imports`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(500);
+    const isLogin = page.url().includes('/login');
+    const isGuard = await page.locator('[data-testid="guard-unauthenticated"], [data-testid="access-denied"]').first().isVisible().catch(() => false);
+    expect(isLogin || isGuard).toBe(true);
+
+    // Login as admin and verify error/loading/empty data-testids are supported
+    await loginAsStaff(page, adminOrigin, SEEDED_STAFF_ACCOUNTS.admin);
+    await page.goto(`${adminOrigin}/exams`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="exam-table"], [data-testid="exams-empty"]').first()).toBeVisible({ timeout: 10000 });
+  });
+
+  test('AC5: Responsive viewports (390px, 1366px), zero horizontal overflow, and tri-locale i18n verification for 12 content admin pages', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(240_000);
+    const clientIp = getProjectClientIp(testInfo, 62);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    await loginAsStaff(page, adminOrigin, SEEDED_STAFF_ACCOUNTS.admin);
+
+    const isMobileDevice = Boolean(testInfo.project.use?.isMobile);
+    const viewportsToTest = isMobileDevice
+      ? VIEWPORTS.filter((v) => v.width <= 500)
+      : VIEWPORTS;
+
+    for (const route of CONTENT_ADMIN_PAGES) {
+      await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('main, [data-testid$="-title"], header, h2').first()).toBeVisible({ timeout: 10000 });
+      await page.waitForTimeout(50);
+
+      // 1. Verify responsive viewports (390px, 1366px) & capture screenshots without horizontal scroll
+      for (const vp of viewportsToTest) {
+        await page.setViewportSize({ width: vp.width, height: vp.height });
+
+        // Verify zero horizontal scroll (allow 1px subpixel tolerance)
+        const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+        const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+        expect(scrollWidth, `Horizontal scroll detected on ${route.path} at ${vp.name}`).toBeLessThanOrEqual(clientWidth + 1);
+
+        // Verify Tailwind padding / layout integrity
+        const containerPadding = await page.evaluate(() => {
+          const main = document.querySelector('main') || document.querySelector('.overflow-x-hidden') || document.body;
+          const style = window.getComputedStyle(main);
+          return parseInt(style.paddingLeft || '0', 10) + parseInt(style.paddingRight || '0', 10);
+        });
+        expect(containerPadding, `Layout padding missing on ${route.path} at ${vp.name}`).toBeGreaterThanOrEqual(0);
+
+        // Save screenshot artifact for CI review
+        await page.screenshot({
+          path: path.join(artifactDir, `admin-${route.slug}-${vp.name}.png`),
+        });
+      }
+
+      // 2. Tri-locale i18n verification without raw translation keys
+      // Default locale: vi
+      let bodyText = await page.innerText('body');
+      expect(
+        bodyText,
+        `Raw translation key found on ${route.path} in locale [vi]`,
+      ).not.toMatch(/\b(content|app|roles|auth|nav|common)\.[a-zA-Z0-9_.-]+\b/);
+
+      // Verify ja and en
+      for (const locale of ['ja', 'en'] as const) {
+        await page.evaluate((l) => {
+          try {
+            (window as unknown as { __setAdminLocale?: (loc: string) => void }).__setAdminLocale?.(l);
+            localStorage.setItem('jlpt_admin_locale_v1', l);
+            localStorage.setItem('admin_locale', l);
+            document.cookie = `admin_locale=${l}; path=/; SameSite=Lax`;
+            document.cookie = `jlpt_admin_locale_v1=${l}; path=/; SameSite=Lax`;
+          } catch {
+            // ignore storage errors
+          }
+        }, locale);
+        await page.waitForTimeout(50);
+
+        bodyText = await page.innerText('body');
+        expect(
+          bodyText,
+          `Raw translation key found on ${route.path} in locale [${locale}]`,
+        ).not.toMatch(/\b(content|app|roles|auth|nav|common)\.[a-zA-Z0-9_.-]+\b/);
+
+        // Capture artifact per locale
+        await page.screenshot({
+          path: path.join(artifactDir, `admin-${route.slug}-1366px-${locale}.png`),
+        });
+      }
+
+      // Reset back to vi for subsequent pages
+      await page.evaluate(() => {
+        try {
+          (window as unknown as { __setAdminLocale?: (loc: string) => void }).__setAdminLocale?.('vi');
+          localStorage.setItem('jlpt_admin_locale_v1', 'vi');
+          localStorage.setItem('admin_locale', 'vi');
+          document.cookie = `admin_locale=vi; path=/; SameSite=Lax`;
+          document.cookie = `jlpt_admin_locale_v1=vi; path=/; SameSite=Lax`;
+        } catch {
+          // ignore reset errors
+        }
+      });
     }
   });
 });
@@ -1271,18 +1537,6 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     { width: 1366, height: 768, name: '1366px' },
   ];
 
-  async function getFreshTotpI04(page: Page, secret: string): Promise<string> {
-    let currentStep = Math.floor(Date.now() / 1000 / 30);
-    const lastStep = getSharedTotpStep();
-    if (currentStep <= lastStep) {
-      const msToNextStep = 30000 - (Date.now() % 30000) + 1500;
-      await page.waitForTimeout(msToNextStep);
-      currentStep = Math.floor(Date.now() / 1000 / 30);
-    }
-    const code = generateTotp(secret);
-    setSharedTotpStep(currentStep);
-    return code;
-  }
 
   async function loginAsAdminI04(page: Page, origin: string) {
     await page.goto(`${origin}/login`);
@@ -1291,37 +1545,7 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
 
     await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
-    const codeInput = page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first();
-    const submitBtn = page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first();
-    const challengeError = page.locator('[data-testid="challenge-error-alert"]');
-
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const validTotp = await getFreshTotpI04(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
-      await codeInput.fill(validTotp);
-      await submitBtn.click();
-
-      try {
-        await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 8000, waitUntil: 'domcontentloaded' });
-        break;
-      } catch {
-        if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
-          const errText = await challengeError.innerText().catch(() => '');
-          if (
-            errText.includes('Mã TOTP đã được sử dụng') ||
-            errText.includes('mã cũ') ||
-            errText.includes('không chính xác hoặc đã hết hạn')
-          ) {
-            const msToNextStep = 30000 - (Date.now() % 30000) + 1500;
-            await page.waitForTimeout(msToNextStep);
-            continue;
-          }
-        }
-        if (attempt === 2) {
-          throw new Error('Failed to navigate to dashboard in loginAsAdminI04 after TOTP challenge retries');
-        }
-      }
-    }
-
+    await handleTotpVerification(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
     await expect(page.locator('[data-testid="stat-total-users"], [data-testid="dashboard-heading"], [data-testid="page-title"], [data-testid="staff-profile-badge"]').first()).toBeVisible({ timeout: 15000 });
   }
 

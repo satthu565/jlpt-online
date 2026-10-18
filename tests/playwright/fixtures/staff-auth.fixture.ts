@@ -1,5 +1,8 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import type { Page } from '@playwright/test';
 
 /**
  * Seeded Staff Account Credentials for Integration & Playwright Tests (I00)
@@ -114,6 +117,114 @@ export function generateTotp(
 }
 
 /**
+ * Records a TOTP time step as consumed/used across all test runner worker processes.
+ */
+export function recordUsedTotpStep(accountKey: string, step?: number): void {
+  const sanitizeKey = accountKey.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const syncFile = path.join(os.tmpdir(), `jlpt-totp-step-${sanitizeKey}.txt`);
+  const usedStep = step ?? Math.floor(Date.now() / 1000 / 30);
+  try {
+    fs.writeFileSync(syncFile, String(usedStep), 'utf8');
+  } catch {
+    // Ignore write errors
+  }
+}
+
+/**
+ * Reads the last consumed TOTP step from cross-process file tracker.
+ */
+export function getLastUsedTotpStep(accountKey: string): number {
+  const sanitizeKey = accountKey.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const syncFile = path.join(os.tmpdir(), `jlpt-totp-step-${sanitizeKey}.txt`);
+  try {
+    if (fs.existsSync(syncFile)) {
+      const val = parseInt(fs.readFileSync(syncFile, 'utf8').trim(), 10);
+      if (!Number.isNaN(val)) return val;
+    }
+  } catch {
+    // Ignore read errors
+  }
+  return 0;
+}
+
+/**
+ * Waits until the next 30-second TOTP step window with added random jitter.
+ */
+export async function waitForNextTotpStep(jitterMs = 1500): Promise<void> {
+  const now = Date.now();
+  const msToNext = 30000 - (now % 30000) + jitterMs + Math.floor(Math.random() * 1500);
+  await new Promise((r) => setTimeout(r, msToNext));
+}
+
+/**
+ * Generates an RFC 6238 TOTP code, ensuring across concurrent test processes that
+ * the 30-second step has not already been used for this account.
+ * If already used, waits until the next step before generating a fresh code.
+ */
+export async function getSynchronizedTotp(
+  secret = 'JBSWY3DPEHPK3PXP',
+  accountKey: string = secret,
+): Promise<string> {
+  const lastStep = getLastUsedTotpStep(accountKey);
+  const currentStep = Math.floor(Date.now() / 1000 / 30);
+  if (currentStep <= lastStep) {
+    await waitForNextTotpStep();
+  }
+  const freshStep = Math.floor(Date.now() / 1000 / 30);
+  recordUsedTotpStep(accountKey, freshStep);
+  return generateTotp(secret);
+}
+
+/**
+ * Robust Playwright UI handler for TOTP challenge.
+ * Retries across 30-second windows if API reports "Mã TOTP đã được sử dụng" due to concurrent test runs.
+ */
+export async function handleTotpVerification(
+  page: Page,
+  secret = 'JBSWY3DPEHPK3PXP',
+  accountKey: string = secret,
+  maxAttempts = 4,
+): Promise<void> {
+  const codeInput = page
+    .locator(
+      '[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]',
+    )
+    .first();
+  const submitBtn = page
+    .locator(
+      '[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]',
+    )
+    .first();
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const validTotp = await getSynchronizedTotp(secret, accountKey);
+    await codeInput.fill(validTotp);
+    await submitBtn.click();
+
+    try {
+      await page.waitForURL(
+        (url: URL) => !url.pathname.includes('/verify-2fa') && !url.pathname.includes('/login'),
+        { timeout: 8000, waitUntil: 'domcontentloaded' },
+      );
+      return;
+    } catch {
+      const challengeError = page.locator('[data-testid="challenge-error-alert"]');
+      if (await challengeError.isVisible({ timeout: 3000 }).catch(() => false)) {
+        recordUsedTotpStep(accountKey);
+        await waitForNextTotpStep();
+        continue;
+      }
+      if (!page.url().includes('/verify-2fa') && !page.url().includes('/login')) {
+        return;
+      }
+      if (attempt === maxAttempts) {
+        throw new Error(`TOTP challenge failed after ${maxAttempts} attempts for ${accountKey}`);
+      }
+    }
+  }
+}
+
+/**
  * Authenticates staff account against API and returns session details and token
  */
 export async function authenticateStaffAccount(
@@ -149,7 +260,7 @@ export async function authenticateStaffAccount(
     user: { id: string; email: string; role: string };
   };
 
-  const totpCode = generateTotp(account.totpSecret);
+  const totpCode = await getSynchronizedTotp(account.totpSecret, account.email);
 
   return {
     token: data.session.token,
@@ -157,115 +268,3 @@ export async function authenticateStaffAccount(
     user: data.user,
   };
 }
-
-let memoryLastUsedTotpStep = 0;
-
-/**
- * Retrieves the highest recorded TOTP 30-second step across processes
- */
-export function getLastUsedTotpStep(): number {
-  try {
-    if (fs.existsSync('/tmp/jlpt_admin_totp_last_step.txt')) {
-      const val = parseInt(fs.readFileSync('/tmp/jlpt_admin_totp_last_step.txt', 'utf8').trim(), 10);
-      if (!isNaN(val)) return Math.max(memoryLastUsedTotpStep, val);
-    }
-  } catch {
-    // ignore
-  }
-  return memoryLastUsedTotpStep;
-}
-
-/**
- * Records the used TOTP 30-second step to memory and shared file
- */
-export function recordUsedTotpStep(step: number): void {
-  memoryLastUsedTotpStep = step;
-  try {
-    fs.writeFileSync('/tmp/jlpt_admin_totp_last_step.txt', String(step));
-  } catch {
-    // ignore
-  }
-}
-
-/**
- * Waits until the next 30-second TOTP step window plus safety buffer.
- */
-export async function waitForNextTotpWindow(extraBufferMs = 1500): Promise<void> {
-  const msToNextStep = 30000 - (Date.now() % 30000) + extraBufferMs;
-  await new Promise((resolve) => setTimeout(resolve, msToNextStep));
-}
-
-/**
- * Returns a guaranteed fresh TOTP code that has not been used in the current 30s step.
- */
-export async function getFreshTotpCode(
-  secret: string = 'JBSWY3DPEHPK3PXP',
-  waitFn?: (ms: number) => Promise<void>,
-): Promise<string> {
-  let currentStep = Math.floor(Date.now() / 1000 / 30);
-  const lastStep = getLastUsedTotpStep();
-  if (currentStep <= lastStep) {
-    const msToNextStep = 30000 - (Date.now() % 30000) + 1500;
-    if (waitFn) {
-      await waitFn(msToNextStep);
-    } else {
-      await waitForNextTotpWindow(1500);
-    }
-    currentStep = Math.floor(Date.now() / 1000 / 30);
-  }
-  const code = generateTotp(secret);
-  recordUsedTotpStep(currentStep);
-  return code;
-}
-
-/**
- * Submits TOTP code for 2FA challenge. If the API returns "Mã TOTP đã được sử dụng"
- * or replay detection rejections, waits for the next 30-second window and retries with a fresh code.
- */
-export async function verifyTotpChallengeWithRetry(
-  token: string,
-  secret: string = SEEDED_STAFF_ACCOUNTS.admin.totpSecret,
-  apiBaseUrl = 'http://127.0.0.1:4000',
-  customIp?: string,
-  maxRetries = 3,
-): Promise<{ ok: boolean; status: number; body: unknown }> {
-  const ip = customIp || '198.51.100.80';
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    const code = await getFreshTotpCode(secret);
-    const res = await fetch(`${apiBaseUrl}/api/v1/auth/totp/challenge`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        'x-forwarded-for': ip,
-        'cf-connecting-ip': ip,
-      },
-      body: JSON.stringify({ code }),
-    });
-
-    const bodyText = await res.text();
-    let bodyJson: unknown = null;
-    try {
-      bodyJson = JSON.parse(bodyText);
-    } catch {
-      bodyJson = bodyText;
-    }
-
-    if (res.ok) {
-      return { ok: true, status: res.status, body: bodyJson };
-    }
-
-    if (
-      bodyText.includes('Mã TOTP đã được sử dụng') ||
-      bodyText.includes('mã cũ') ||
-      bodyText.includes('không chính xác hoặc đã hết hạn')
-    ) {
-      await waitForNextTotpWindow(1500);
-      continue;
-    }
-
-    return { ok: false, status: res.status, body: bodyJson };
-  }
-  throw new Error('TOTP challenge verification failed after retry attempts.');
-}
-
