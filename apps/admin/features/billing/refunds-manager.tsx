@@ -221,51 +221,56 @@ export function RefundsManager({ billingManager, onRefundUpdated }: RefundsManag
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
-              {refunds.map((r) => (
-                <tr key={r.id} data-testid={`refund-row-${r.id}`} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-mono text-gray-900">{r.id.slice(0, 13)}...</td>
-                  <td className="px-4 py-3 font-mono text-gray-600">{r.orderId.slice(0, 13)}...</td>
-                  <td className="px-4 py-3 font-semibold text-gray-900">{r.amount.toLocaleString('vi-VN')} đ</td>
-                  <td className="px-4 py-3 text-gray-600">{r.reason || 'Không có'}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
-                        r.status === 'refunded'
-                          ? 'bg-green-100 text-green-800'
-                          : r.status === 'requested'
-                          ? 'bg-amber-100 text-amber-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {r.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    {r.status === 'requested' ? (
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          data-testid={`approve-refund-${r.id}`}
-                          onClick={() => void handleApprove(r.id)}
-                          className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-medium"
-                        >
-                          {t('commercial.approve', locale)}
-                        </button>
-                        <button
-                          type="button"
-                          data-testid={`reject-refund-${r.id}`}
-                          onClick={() => setRejectingRefundId(r.id)}
-                          className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-[11px] font-medium"
-                        >
-                          {t('commercial.reject', locale)}
-                        </button>
-                      </div>
-                    ) : (
-                      <span className="text-gray-400 text-xs">Đã hoàn tất</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {refunds.map((r) => {
+                const refId = r.id || '';
+                const ordId = r.orderId || '';
+                const amount = typeof r.amount === 'number' ? r.amount : Number(r.amount || 0);
+                return (
+                  <tr key={refId} data-testid={`refund-row-${refId}`} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 font-mono text-gray-900">{refId.slice(0, 13)}...</td>
+                    <td className="px-4 py-3 font-mono text-gray-600">{ordId.slice(0, 13)}...</td>
+                    <td className="px-4 py-3 font-semibold text-gray-900">{amount.toLocaleString('vi-VN')} đ</td>
+                    <td className="px-4 py-3 text-gray-600">{r.reason || 'Không có'}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
+                          r.status === 'refunded'
+                            ? 'bg-green-100 text-green-800'
+                            : r.status === 'requested'
+                            ? 'bg-amber-100 text-amber-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {r.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {r.status === 'requested' ? (
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            data-testid={`approve-refund-${refId}`}
+                            onClick={() => void handleApprove(refId)}
+                            className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-medium"
+                          >
+                            {t('commercial.approve', locale)}
+                          </button>
+                          <button
+                            type="button"
+                            data-testid={`reject-refund-${refId}`}
+                            onClick={() => setRejectingRefundId(refId)}
+                            className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-[11px] font-medium"
+                          >
+                            {t('commercial.reject', locale)}
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-xs">Đã hoàn tất</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

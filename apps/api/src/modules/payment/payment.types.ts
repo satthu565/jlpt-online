@@ -163,4 +163,35 @@ export interface ProviderReadinessDto {
   };
 }
 
+export interface AdminSubscriptionItemDto {
+  id: string;
+  userId: string;
+  planId: string;
+  status: string;
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  cancelAtPeriodEnd: boolean;
+}
+
+export interface AdminPaymentItemDto {
+  id: string;
+  orderId: string;
+  userId: string;
+  totalAmount: number;
+  currency: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface AdminRefundItemDto {
+  id: string;
+  orderId: string;
+  transactionId: string;
+  amount: number;
+  reason: string | null;
+  status: string;
+  createdAt: string;
+}
+
+
 

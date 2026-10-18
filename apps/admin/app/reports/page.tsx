@@ -866,7 +866,7 @@ export default function ReportsHubPage(): React.JSX.Element {
                         <tbody className="divide-y divide-gray-100 bg-white">
                           {rev.recentJobs.map((j) => (
                             <tr key={j.id} className="hover:bg-gray-50">
-                              <td className="px-4 py-2 font-mono text-gray-900">{j.id.slice(0, 10)}...</td>
+                              <td className="px-4 py-2 font-mono text-gray-900">{(j.id || '').slice(0, 10)}...</td>
                               <td className="px-4 py-2 text-gray-600">{j.source}</td>
                               <td className="px-4 py-2 text-right">{j.totalQuestions}</td>
                               <td className="px-4 py-2 font-semibold">{j.status}</td>

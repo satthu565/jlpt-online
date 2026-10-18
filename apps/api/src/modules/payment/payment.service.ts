@@ -15,7 +15,10 @@ import { EntitlementService } from '../entitlement/entitlement.service.js';
 import { PaymentProviderRegistry } from './provider/provider.registry.js';
 import type {
   AdminCouponCreateDto,
+  AdminPaymentItemDto,
   AdminPlanCreateDto,
+  AdminRefundItemDto,
+  AdminSubscriptionItemDto,
   CheckoutSessionDto,
   PlanDto,
   RefundRequestDto,
@@ -966,7 +969,7 @@ export class PaymentService {
     return { updated: true };
   }
 
-  async getAdminSubscriptions(): Promise<{ items: (typeof schema.subscriptions.$inferSelect)[] }> {
+  async getAdminSubscriptions(): Promise<{ items: AdminSubscriptionItemDto[] }> {
     await this.ensureInitialOrdersAndRefunds();
     const db = this.dbClient.db;
     const rows = await db
@@ -974,7 +977,17 @@ export class PaymentService {
       .from(schema.subscriptions)
       .orderBy(desc(schema.subscriptions.currentPeriodEnd));
 
-    return { items: rows };
+    return {
+      items: rows.map((s: typeof schema.subscriptions.$inferSelect) => ({
+        id: s.id,
+        userId: s.userId,
+        planId: s.planId,
+        status: s.status,
+        currentPeriodStart: s.currentPeriodStart ? new Date(s.currentPeriodStart).toISOString() : new Date().toISOString(),
+        currentPeriodEnd: s.currentPeriodEnd ? new Date(s.currentPeriodEnd).toISOString() : new Date().toISOString(),
+        cancelAtPeriodEnd: s.cancelAtPeriodEnd ?? false,
+      })),
+    };
   }
 
   /**
@@ -1058,7 +1071,7 @@ export class PaymentService {
     }
   }
 
-  async getAdminPayments(): Promise<{ items: (typeof schema.orders.$inferSelect)[] }> {
+  async getAdminPayments(): Promise<{ items: AdminPaymentItemDto[] }> {
     await this.ensureInitialOrdersAndRefunds();
     const db = this.dbClient.db;
     const rows = await db
@@ -1066,7 +1079,17 @@ export class PaymentService {
       .from(schema.orders)
       .orderBy(desc(schema.orders.createdAt));
 
-    return { items: rows };
+    return {
+      items: rows.map((r: typeof schema.orders.$inferSelect) => ({
+        id: r.id,
+        orderId: r.id,
+        userId: r.userId,
+        totalAmount: r.totalAmount,
+        currency: r.currency,
+        status: r.status,
+        createdAt: r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString(),
+      })),
+    };
   }
 
   /**
@@ -1133,7 +1156,7 @@ export class PaymentService {
     return { refundId, status: 'requested' };
   }
 
-  async getAdminRefunds(): Promise<{ items: (typeof schema.refundRequests.$inferSelect)[] }> {
+  async getAdminRefunds(): Promise<{ items: AdminRefundItemDto[] }> {
     await this.ensureInitialOrdersAndRefunds();
     const db = this.dbClient.db;
     const rows = await db
@@ -1141,7 +1164,17 @@ export class PaymentService {
       .from(schema.refundRequests)
       .orderBy(desc(schema.refundRequests.createdAt));
 
-    return { items: rows };
+    return {
+      items: rows.map((r: typeof schema.refundRequests.$inferSelect) => ({
+        id: r.id,
+        orderId: r.orderId,
+        transactionId: r.orderId,
+        amount: r.amount,
+        reason: r.reason,
+        status: r.status,
+        createdAt: r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString(),
+      })),
+    };
   }
 
   async approveRefund(adminId: string, refundRequestId: string): Promise<{ approved: boolean; status: string }> {

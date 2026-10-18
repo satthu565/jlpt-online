@@ -146,25 +146,33 @@ export function PaymentsManager({ billingManager }: PaymentsManagerProps): React
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white">
-                  {payments.map((p) => (
-                    <tr key={p.orderId} data-testid={`payment-row-${p.orderId}`} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-mono text-gray-900">{p.orderId.slice(0, 13)}...</td>
-                      <td className="px-4 py-3 font-mono text-gray-600">{p.userId.slice(0, 13)}...</td>
-                      <td className="px-4 py-3 font-semibold text-gray-900">
-                        {p.totalAmount.toLocaleString('vi-VN')} {p.currency}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
-                            p.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {p.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-gray-500">{new Date(p.createdAt).toLocaleString('vi-VN')}</td>
-                    </tr>
-                  ))}
+                  {payments.map((p) => {
+                    const orderId = p.orderId || '';
+                    const userId = p.userId || '';
+                    const amount = typeof p.totalAmount === 'number' ? p.totalAmount : Number(p.totalAmount || 0);
+                    const currency = p.currency || 'VND';
+                    const status = p.status || 'created';
+                    const createdAtStr = p.createdAt ? new Date(p.createdAt).toLocaleString('vi-VN') : '';
+                    return (
+                      <tr key={orderId} data-testid={`payment-row-${orderId}`} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 font-mono text-gray-900">{orderId.slice(0, 13)}...</td>
+                        <td className="px-4 py-3 font-mono text-gray-600">{userId.slice(0, 13)}...</td>
+                        <td className="px-4 py-3 font-semibold text-gray-900">
+                          {amount.toLocaleString('vi-VN')} {currency}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
+                              status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }`}
+                          >
+                            {status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-gray-500">{createdAtStr}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -191,28 +199,34 @@ export function PaymentsManager({ billingManager }: PaymentsManagerProps): React
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white">
-                  {subscriptions.map((s) => (
-                    <tr key={s.id} data-testid={`sub-row-${s.id}`} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-mono text-gray-900">{s.id.slice(0, 13)}...</td>
-                      <td className="px-4 py-3 font-semibold text-gray-900">{s.planId}</td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
-                            s.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {s.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-gray-600">
-                        {new Date(s.currentPeriodStart).toLocaleDateString('vi-VN')} -{' '}
-                        {new Date(s.currentPeriodEnd).toLocaleDateString('vi-VN')}
-                      </td>
-                      <td className="px-4 py-3 text-gray-600">
-                        {s.cancelAtPeriodEnd ? 'Không (đã hủy)' : 'Có'}
-                      </td>
-                    </tr>
-                  ))}
+                  {subscriptions.map((s) => {
+                    const subId = s.id || '';
+                    const planId = s.planId || '';
+                    const status = s.status || 'active';
+                    const startStr = s.currentPeriodStart ? new Date(s.currentPeriodStart).toLocaleDateString('vi-VN') : '';
+                    const endStr = s.currentPeriodEnd ? new Date(s.currentPeriodEnd).toLocaleDateString('vi-VN') : '';
+                    return (
+                      <tr key={subId} data-testid={`sub-row-${subId}`} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 font-mono text-gray-900">{subId.slice(0, 13)}...</td>
+                        <td className="px-4 py-3 font-semibold text-gray-900">{planId}</td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
+                              status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }`}
+                          >
+                            {status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-gray-600">
+                          {startStr} - {endStr}
+                        </td>
+                        <td className="px-4 py-3 text-gray-600">
+                          {s.cancelAtPeriodEnd ? 'Không (đã hủy)' : 'Có'}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
