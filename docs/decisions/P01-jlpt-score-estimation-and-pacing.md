@@ -168,8 +168,21 @@ Thuật toán phân loại trạng thái thí sinh thành 4 mức:
 - `pnpm contracts:check`: OpenAPI 3.1 & fixtures check PASSED (0 drift).
 - Common gates: `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build` đều vượt qua.
 
-### 6.5. Khắc phục kiểm thử tích hợp monorepo (Lượt P01-2)
-- Khi chạy `pnpm test` trên máy trạm có phân vùng root `/` tiệm cận ngưỡng dung lượng đĩa (>80% used), kịch bản kiểm thử `dac-ta-runner.test.ts` (Scenario 10) kiểm tra điều kiện `đĩa còn trống >= 20%` bị thất bại nếu thư mục tạm được đặt trên `/tmp` của ổ root.
-- `monorepo-test-runner.ts` đã chuẩn bị `TMPDIR=/dev/shm` (tmpfs 100% trống), tuy nhiên Turborepo mặc định chạy ở strict env-mode nên đã loại bỏ `TMPDIR` khi chuyển giao sang các package test tasks.
-- Giải pháp: Cung cấp `packages/exam-engine/scripts/turbo-wrapper.sh` nạp flag `--env-mode=loose` cho Turborepo và cấu hình `TURBO_BINARY_PATH` trong `package.json` `scripts.test`. Cơ chế này cho phép các biến môi trường cách ly (đặc biệt là tmpfs `TMPDIR`) truyền nguyên vẹn tới Vitest, giúp toàn bộ 20 tasks của Turborepo hoàn thành thành công 100%.
+### 6.5. Tuân thủ ranh giới gói và khóa dependency-lock (Lượt P01-3/4)
+- Hoàn nguyên lệnh `test` trong `package.json` về bản gốc và loại bỏ `packages/exam-engine/scripts/turbo-wrapper.sh` để tuân thủ triệt để ranh giới cho phép (`allowedPaths`), tránh sửa manifest khi chưa có khóa `dependency-lock` và tránh ghép nối cứng Turborepo runner vào thư mục nội bộ exam-engine.
+- Kiến nghị coordinator: Khi cần cách ly biến môi trường `TMPDIR` trong CI/CD hoặc máy trạm có đĩa root hạn hẹp, cấu hình qua `globalPassThroughEnv: ["TMPDIR"]` trong `turbo.json` dùng chung cho toàn bộ monorepo.
+
+### 6.6. Khắc phục các phát hiện từ Reviewer W5 (Lượt P01-4)
+1. **[P0] Chuẩn hóa và quy đổi điểm từng phần trước khi gộp điểm N4/N5**:
+   - Khi thí sinh chỉ nộp điểm một phần trong cặp gộp (ví dụ chỉ có `language` hoặc chỉ có `reading`), hệ thống quy đổi điểm từng phần theo thang điểm chuẩn (tối đa 60 điểm cho mỗi phần con) trước khi gộp vào `language_reading` (tối đa 120 điểm).
+   - Nếu thiếu một phần, phần còn thiếu mặc định tính 0 điểm quy đổi thay vì bỏ sót khiến điểm bị xóa về 0, hoặc làm giảm `combRawMax` xuống 60 dẫn đến điểm bị nhân đôi sai lệch.
+2. **[P1] Chuẩn hóa điều kiện phân loại trạng thái nhịp làm bài trong `evaluatePacing`**:
+   - Khi thí sinh làm nhanh hơn tiến độ với `diffSec > 60` (kể cả khoảng 61s–89s với `diffQuestions = 0 hoặc 1`) hoặc `diffQuestions >= 2`, trạng thái được phân loại chính xác là `AHEAD`.
+   - Vùng dung sai `diffQuestions` [-1, 1] và `diffSec` [-60, 60] thuộc trạng thái `ON_TRACK`.
+   - Trạng thái `BEHIND` chỉ kích hoạt khi thực sự trễ (`diffSec < -60` hoặc `diffQuestions < -1`).
+   - Trạng thái `CRITICAL` kích hoạt khi trễ nghiêm trọng (`diffQuestions < -3` hoặc không đủ thời gian tối thiểu 25s/câu).
+3. **[P2] Mở rộng tính nhịp làm bài cho đề thi hoàn chỉnh đa phần thi**:
+   - Cung cấp hàm `calculateExamBlueprintPacing(blueprint: Blueprint): SectionPacingModel[]` sinh nhịp làm bài và mốc tiến độ cho toàn bộ các phần thi của đề thi JLPT.
+   - Bổ sung JSDoc làm rõ phạm vi xử lý của `calculateBlueprintPacing` cho phần thi đơn lẻ.
+
 

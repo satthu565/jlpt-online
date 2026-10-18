@@ -1,10 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import type { BlueprintSection, Level, MondaiType } from '@jlpt/schema';
+import type { Blueprint, BlueprintSection, Level, MondaiType } from '@jlpt/schema';
 import {
   MONDAI_TYPE_NAMES,
   RECOMMENDED_MONDAI_PACE,
   STANDARD_PACING_MODELS,
   calculateBlueprintPacing,
+  calculateExamBlueprintPacing,
   evaluatePacing,
   getAllPacingModels,
   getPacingModel,
@@ -137,6 +138,35 @@ describe('P01: JLPT Exam Pacing Model and Progress Milestones', () => {
       expect(evalResult.message).toContain('nhanh hơn');
     });
 
+    it('detects AHEAD status when examinee is ahead in time with diffSec between 61s and 89s (diffQuestions = 0 or 1)', () => {
+      // In N1 language_reading: Q25 target expectedElapsedSec is around 1435s.
+      // If elapsedSec is 1360s (diffSec = +75s), diffQuestions = 0:
+      const evalResult = evaluatePacing({
+        level: 'N1',
+        sectionCode: 'language_reading',
+        currentQuestionIndex: 25,
+        elapsedSec: 1360, // 75s faster than target 1435s
+      });
+
+      expect(evalResult.diffSec).toBe(75);
+      expect(evalResult.paceStatus).toBe('AHEAD');
+      expect(evalResult.message).toContain('nhanh hơn');
+      expect(evalResult.message).not.toContain('chậm');
+    });
+
+    it('detects ON_TRACK when within tolerance (+/-1 question and +/-60s)', () => {
+      // At elapsed 1410s and Q25 (expected ~1435s, diffSec = +25s, diffQuestions = 0):
+      const evalResult = evaluatePacing({
+        level: 'N1',
+        sectionCode: 'language_reading',
+        currentQuestionIndex: 25,
+        elapsedSec: 1410,
+      });
+
+      expect(evalResult.paceStatus).toBe('ON_TRACK');
+      expect(evalResult.message).toContain('đúng chuẩn');
+    });
+
     it('detects BEHIND status when examinee is lagging moderately', () => {
       // At elapsed 2500s, expected is around Q43, examinee is at Q41 (2 questions behind)
       const evalResult = evaluatePacing({
@@ -206,6 +236,57 @@ describe('P01: JLPT Exam Pacing Model and Progress Milestones', () => {
       expect(model.milestones.length).toBeGreaterThan(0);
       const lastMilestone = model.milestones[model.milestones.length - 1]!;
       expect(lastMilestone.targetQuestionIndex).toBe(19);
+    });
+
+    it('calculates pacing for all sections of a multi-section Blueprint via calculateExamBlueprintPacing', () => {
+      const fullBlueprint: Blueprint = {
+        level: 'N2',
+        version: 1,
+        effectiveFrom: '2026-10',
+        sourceRef: [{ url: 'https://www.jlpt.jp', accessedAt: '2026-10-18' }],
+        sections: [
+          {
+            code: 'sec_lang_reading',
+            title: 'Ngôn ngữ & Đọc hiểu',
+            durationSec: 4200,
+            mondai: [
+              { type: 'kanji_reading', skill: 'kanji', questionCount: 5 },
+              { type: 'orthography', skill: 'kanji', questionCount: 5 },
+            ],
+          },
+          {
+            code: 'sec_listening',
+            title: 'Nghe hiểu',
+            durationSec: 2100,
+            mondai: [
+              { type: 'task_based', skill: 'listening', questionCount: 5 },
+              { type: 'point', skill: 'listening', questionCount: 6 },
+            ],
+          },
+        ],
+        scoring: {
+          method: 'linear_reference',
+          rounding: 'round',
+          scoringSections: [
+            {
+              code: 'total',
+              label: 'Total',
+              skills: ['kanji', 'listening'],
+              maxScaled: 180,
+              minPass: 90,
+            },
+          ],
+          totalMax: 180,
+          totalPass: 90,
+        },
+      };
+
+      const sectionModels = calculateExamBlueprintPacing(fullBlueprint);
+      expect(sectionModels).toHaveLength(2);
+      expect(sectionModels[0]?.sectionCode).toBe('sec_lang_reading');
+      expect(sectionModels[0]?.totalDurationSec).toBe(4200);
+      expect(sectionModels[1]?.sectionCode).toBe('sec_listening');
+      expect(sectionModels[1]?.totalDurationSec).toBe(2100);
     });
   });
 });

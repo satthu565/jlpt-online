@@ -585,18 +585,20 @@ export function evaluatePacing(params: EvaluatePacingParams): PacingEvaluation {
   let paceStatus: PaceStatus;
   let message: string;
 
-  if (diffQuestions >= 2 || diffSec >= 90) {
-    paceStatus = 'AHEAD';
-    message = `Bạn đang nhanh hơn nhịp khuyến nghị ${diffQuestions > 0 ? diffQuestions : 1} câu (${Math.abs(Math.round(diffSec / 60))} phút dự phòng). Duy trì sự cẩn thận khi đọc bài.`;
-  } else if (Math.abs(diffQuestions) <= 1 && Math.abs(diffSec) <= 60) {
-    paceStatus = 'ON_TRACK';
-    message = `Nhịp làm bài đúng chuẩn. Bạn còn trung bình ${recommendedPacePerRemainingQuestionSec}s cho mỗi câu còn lại.`;
-  } else if (diffQuestions < -3 || (remainingSec < remainingQuestions * 25 && remainingQuestions > 0)) {
+  if (diffQuestions < -3 || (remainingSec < remainingQuestions * 25 && remainingQuestions > 0)) {
     paceStatus = 'CRITICAL';
     message = `Cảnh báo nhịp chậm nghiêm trọng: Chậm hơn ${Math.abs(diffQuestions)} câu. Thời gian còn lại chỉ đủ ${recommendedPacePerRemainingQuestionSec}s/câu. Cần tăng tốc hoặc bỏ qua câu khó để giữ điểm sàn.`;
-  } else {
+  } else if (diffQuestions < -1 || diffSec < -60) {
     paceStatus = 'BEHIND';
-    message = `Bạn đang chậm hơn tiến độ khuyến nghị ${Math.abs(diffQuestions)} câu. Hãy tăng tốc, mục tiêu ${recommendedPacePerRemainingQuestionSec}s/câu cho các câu còn lại.`;
+    const lagQuestions = Math.max(1, Math.abs(diffQuestions));
+    message = `Bạn đang chậm hơn tiến độ khuyến nghị ${lagQuestions} câu. Hãy tăng tốc, mục tiêu ${recommendedPacePerRemainingQuestionSec}s/câu cho các câu còn lại.`;
+  } else if (diffQuestions >= 2 || diffSec > 60) {
+    paceStatus = 'AHEAD';
+    const reserveMin = Math.max(1, Math.round(diffSec / 60));
+    message = `Bạn đang nhanh hơn nhịp khuyến nghị ${diffQuestions > 0 ? diffQuestions : 1} câu (${reserveMin} phút dự phòng). Duy trì sự cẩn thận khi đọc bài.`;
+  } else {
+    paceStatus = 'ON_TRACK';
+    message = `Nhịp làm bài đúng chuẩn. Bạn còn trung bình ${recommendedPacePerRemainingQuestionSec}s cho mỗi câu còn lại.`;
   }
 
   return {
@@ -615,7 +617,9 @@ export function evaluatePacing(params: EvaluatePacingParams): PacingEvaluation {
 }
 
 /**
- * Pure function: Calculates dynamic pacing model from a BlueprintSection or full Blueprint.
+ * Pure function: Calculates dynamic pacing model from a single BlueprintSection or the first section of a Blueprint.
+ * Note: If you provide a full multi-section Blueprint and want pacing models for ALL sections,
+ * use `calculateExamBlueprintPacing(blueprint)` instead.
  */
 export function calculateBlueprintPacing(
   sectionOrBlueprint: BlueprintSection | Blueprint,
@@ -693,3 +697,18 @@ export function calculateBlueprintPacing(
     milestones,
   };
 }
+
+/**
+ * Pure function: Calculates dynamic pacing models for all sections in a full multi-section Blueprint.
+ *
+ * @param blueprint Full exam blueprint containing one or more sections.
+ * @returns An array of SectionPacingModel, one for each section in the blueprint.
+ */
+export function calculateExamBlueprintPacing(
+  blueprint: Blueprint,
+): SectionPacingModel[] {
+  return blueprint.sections.map((section) =>
+    calculateBlueprintPacing(section, blueprint.level),
+  );
+}
+

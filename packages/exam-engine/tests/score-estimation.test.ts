@@ -261,6 +261,42 @@ describe('P01: JLPT Score Estimation and Section Floor Verification', () => {
         expect(lrSec?.passed).toBe(true);
       });
 
+      it('xử lý đúng khi chỉ truyền scaled một phần trong cặp gộp (ví dụ chỉ language: 30)', () => {
+        const res = estimateJlptScore({
+          level: 'N4',
+          sections: {
+            language: 30,
+            listening: 35,
+          },
+        });
+
+        // language: 30 quy đổi, reading: 0 quy đổi -> language_reading = 30/120 (< floor 38)
+        const lrSec = res.sections.find((s) => s.code === 'language_reading');
+        expect(lrSec?.scaled).toBe(30);
+        expect(lrSec?.passed).toBe(false);
+        expect(res.totalScaled).toBe(65); // 30 + 35
+        expect(res.passed).toBe(false);
+        expect(res.failedSections).toContain('language_reading');
+      });
+
+      it('xử lý đúng khi chỉ truyền raw một phần trong cặp gộp (ví dụ raw 30/60 language): không bị nhân đôi điểm', () => {
+        const res = estimateJlptScore({
+          level: 'N4',
+          sections: [
+            { code: 'language', raw: 30, rawMax: 60 },
+            { code: 'listening', raw: 35, rawMax: 60 },
+          ],
+        });
+
+        // language raw 30/60 -> 30 quy đổi; reading thiếu -> 0 quy đổi; tổng language_reading = 30/120 (không bị nhân đôi thành 60/120)
+        const lrSec = res.sections.find((s) => s.code === 'language_reading');
+        expect(lrSec?.scaled).toBe(30);
+        expect(lrSec?.passed).toBe(false);
+        expect(res.totalScaled).toBe(65);
+        expect(res.passed).toBe(false);
+        expect(res.failedSections).toContain('language_reading');
+      });
+
       it('TRƯỢT khi đủ tổng nhưng dưới sàn Listening: 75/120, listening 18/60 (Tổng 93 >= 90, Listening 18 < 19)', () => {
         const res = estimateJlptScore({
           level: 'N4',

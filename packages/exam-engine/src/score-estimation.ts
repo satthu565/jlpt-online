@@ -377,18 +377,57 @@ export function estimateJlptScore(params: EstimateJlptScoreParams): EstimatedSco
     const lang = inputMap.get('language');
     const read = inputMap.get('reading');
     if (lang || read) {
-      const langScaled = lang?.scaled;
-      const readScaled = read?.scaled;
-      if (langScaled !== undefined && readScaled !== undefined) {
-        inputMap.set('language_reading', { scaled: langScaled + readScaled });
-      } else {
-        const combRaw = (lang?.raw ?? 0) + (read?.raw ?? 0);
-        const combRawMax =
-          (lang?.rawMax !== undefined || read?.rawMax !== undefined)
-            ? (lang?.rawMax ?? 0) + (read?.rawMax ?? 0)
-            : undefined;
-        inputMap.set('language_reading', { raw: combRaw, rawMax: combRawMax });
+      const lrSecConfig = levelConfig.sections.find((s) => s.code === 'language_reading');
+      const partMaxScaled = Math.round((lrSecConfig?.maxScaled ?? 120) / 2);
+
+      let langScaled = 0;
+      let langRaw = 0;
+      let langRawMax = partMaxScaled;
+      if (lang) {
+        if (lang.scaled !== undefined) {
+          langScaled = Math.max(0, Math.min(partMaxScaled, Math.round(lang.scaled)));
+          langRaw = lang.raw ?? langScaled;
+          langRawMax = lang.rawMax ?? partMaxScaled;
+        } else if (lang.raw !== undefined) {
+          langRaw = Math.max(0, lang.raw);
+          langRawMax = lang.rawMax ?? partMaxScaled;
+          langScaled =
+            langRawMax > 0
+              ? Math.round(Math.max(0, Math.min(1, langRaw / langRawMax)) * partMaxScaled)
+              : 0;
+        }
       }
+
+      let readScaled = 0;
+      let readRaw = 0;
+      let readRawMax = partMaxScaled;
+      if (read) {
+        if (read.scaled !== undefined) {
+          readScaled = Math.max(0, Math.min(partMaxScaled, Math.round(read.scaled)));
+          readRaw = read.raw ?? readScaled;
+          readRawMax = read.rawMax ?? partMaxScaled;
+        } else if (read.raw !== undefined) {
+          readRaw = Math.max(0, read.raw);
+          readRawMax = read.rawMax ?? partMaxScaled;
+          readScaled =
+            readRawMax > 0
+              ? Math.round(Math.max(0, Math.min(1, readRaw / readRawMax)) * partMaxScaled)
+              : 0;
+        }
+      }
+
+      const combScaled = Math.min(
+        lrSecConfig?.maxScaled ?? 120,
+        langScaled + readScaled,
+      );
+      const combRaw = langRaw + readRaw;
+      const combRawMax = langRawMax + readRawMax;
+
+      inputMap.set('language_reading', {
+        scaled: combScaled,
+        raw: combRaw,
+        rawMax: combRawMax,
+      });
     }
   }
 
