@@ -14,97 +14,74 @@ export interface FrequencyStatsViewProps {
   className?: string;
 }
 
-const DEFAULT_FREQUENCY_STATS: CorpusFrequencyStatDto[] = [
-  {
-    term: '徹底',
-    reading: 'てってい',
-    meaning: 'Triệt để, thấu đáo',
-    level: 'N2',
-    occurrences: 142,
-    relativeFrequencyPerThousand: 4.8,
-  },
-  {
-    term: '納得',
-    reading: 'なっとく',
-    meaning: 'Thấu hiểu, đồng ý',
-    level: 'N3',
-    occurrences: 198,
-    relativeFrequencyPerThousand: 6.2,
-  },
-  {
-    term: '曖昧',
-    reading: 'あいまい',
-    meaning: 'Mơ hồ, lập lờ',
-    level: 'N1',
-    occurrences: 96,
-    relativeFrequencyPerThousand: 3.1,
-  },
-  {
-    term: '複雑',
-    reading: 'ふくざつ',
-    meaning: 'Phức tạp',
-    level: 'N4',
-    occurrences: 215,
-    relativeFrequencyPerThousand: 7.4,
-  },
-  {
-    term: '案内',
-    reading: 'あんない',
-    meaning: 'Hướng dẫn, thông báo',
-    level: 'N5',
-    occurrences: 320,
-    relativeFrequencyPerThousand: 10.5,
-  },
-];
-
-const DEFAULT_LEVEL_COMPARISONS: LevelComparisonItemDto[] = [
-  { term: '徹底', counts: { N1: 28, N2: 84, N3: 30 } },
-  { term: '納得', counts: { N1: 15, N2: 65, N3: 118 } },
-  { term: '曖昧', counts: { N1: 68, N2: 24, N3: 4 } },
-];
-
-const DEFAULT_YEARLY_TRENDS: YearlyTrendItemDto[] = [
-  { year: 2021, term: '徹底', count: 24 },
-  { year: 2022, term: '徹底', count: 35 },
-  { year: 2023, term: '徹底', count: 42 },
-  { year: 2024, term: '徹底', count: 41 },
-];
-
 export function FrequencyStatsView({
   className = '',
 }: FrequencyStatsViewProps): React.JSX.Element {
   const { t } = useI18n();
   const [client] = useState(() => new CorpusClient());
+  const [datasetId, setDatasetId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const [frequencyStats, setFrequencyStats] = useState<CorpusFrequencyStatDto[]>(DEFAULT_FREQUENCY_STATS);
-  const [levelComparisons, setLevelComparisons] = useState<LevelComparisonItemDto[]>(DEFAULT_LEVEL_COMPARISONS);
-  const [yearlyTrends, setYearlyTrends] = useState<YearlyTrendItemDto[]>(DEFAULT_YEARLY_TRENDS);
+  const [frequencyStats, setFrequencyStats] = useState<CorpusFrequencyStatDto[]>([]);
+  const [levelComparisons, setLevelComparisons] = useState<LevelComparisonItemDto[]>([]);
+  const [yearlyTrends, setYearlyTrends] = useState<YearlyTrendItemDto[]>([]);
 
   const [generatingStudyList, setGeneratingStudyList] = useState(false);
   const [studyListNotice, setStudyListNotice] = useState<string | null>(null);
   const [studyListError, setStudyListError] = useState<string | null>(null);
 
+  // 1. Fetch real dataset ID dynamically from API (no hardcoded IDs)
   useEffect(() => {
+    let active = true;
+    setIsLoading(true);
+    setLoadError(null);
+    client
+      .listDatasets()
+      .then((res) => {
+        if (active) {
+          if (res.items && res.items.length > 0) {
+            setDatasetId(res.items[0]!.id);
+          } else {
+            setIsLoading(false);
+          }
+        }
+      })
+      .catch((err) => {
+        if (active) {
+          setLoadError(err instanceof Error ? err.message : 'Không thể tải danh sách tập ngữ liệu');
+          setIsLoading(false);
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [client]);
+
+  // 2. Fetch frequency stats, comparisons, and trends using the real datasetId
+  useEffect(() => {
+    if (!datasetId) return;
     let active = true;
     setIsLoading(true);
     setLoadError(null);
 
     Promise.all([
-      client.getFrequencyRanking('jlpt-official', 50).then((data) => {
+      client.getFrequencyRanking(datasetId, 50).then((data) => {
         if (active) setFrequencyStats(data || []);
       }),
-      client.compareLevels('jlpt-official').then((data) => {
+      client.compareLevels(datasetId).then((data) => {
         if (active) setLevelComparisons(data || []);
       }),
-      client.getYearlyTrends('jlpt-official').then((data) => {
+      client.getYearlyTrends(datasetId).then((data) => {
         if (active) setYearlyTrends(data || []);
       }),
     ])
       .catch((err) => {
         if (active) {
           setLoadError(err instanceof Error ? err.message : 'Không thể tải dữ liệu thống kê từ vựng');
+          setFrequencyStats([]);
+          setLevelComparisons([]);
+          setYearlyTrends([]);
         }
       })
       .finally(() => {
@@ -114,14 +91,15 @@ export function FrequencyStatsView({
     return () => {
       active = false;
     };
-  }, [client]);
+  }, [client, datasetId]);
 
   const handleCreateStudyList = async () => {
+    if (!datasetId) return;
     try {
       setGeneratingStudyList(true);
       setStudyListNotice(null);
       setStudyListError(null);
-      const res = await client.createStudyList('jlpt-official', 'ALL', 50);
+      const res = await client.createStudyList(datasetId, 'ALL', 50);
       setStudyListNotice(
         `Đã tạo thành công danh sách ôn tập gồm ${res.items?.length || 50} từ thường gặp nhất!`,
       );
@@ -162,7 +140,7 @@ export function FrequencyStatsView({
             </Button>
 
             <a
-              href="/api/v1/datasets/jlpt-official/export?format=csv"
+              href={datasetId ? `/api/v1/datasets/${datasetId}/export?format=csv` : '/api/v1/datasets/export?format=csv'}
               download="jlpt-frequent-vocabulary.csv"
               style={{ textDecoration: 'none' }}
             >
@@ -171,13 +149,14 @@ export function FrequencyStatsView({
                 variant="outline"
                 size="sm"
                 data-testid="export-csv-btn"
+                disabled={!datasetId}
               >
                 📥 {t('seo.corpus.exportCsv')}
               </Button>
             </a>
 
             <a
-              href="/api/v1/datasets/jlpt-official/export?format=excel"
+              href={datasetId ? `/api/v1/datasets/${datasetId}/export?format=excel` : '/api/v1/datasets/export?format=excel'}
               download="jlpt-frequent-vocabulary.xlsx"
               style={{ textDecoration: 'none' }}
             >
@@ -186,6 +165,7 @@ export function FrequencyStatsView({
                 variant="outline"
                 size="sm"
                 data-testid="export-excel-btn"
+                disabled={!datasetId}
               >
                 📊 {t('seo.corpus.exportExcel')}
               </Button>

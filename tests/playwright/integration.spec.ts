@@ -486,4 +486,92 @@ test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () 
   });
 });
 
+test.describe('I11: No 500 errors from hardcoded IDs in vocab, grammar, discussions', () => {
+  test.skip(({ browserName }) => browserName === 'webkit' || browserName === 'firefox', 'Firefox and WebKit host libraries are missing on Linux runners');
+
+  test('I11-AC1 & AC4: Authenticated student visits /tu-vung, /ngu-phap, /thao-luan without any 5xx API responses', async ({
+    page,
+    request,
+  }, testInfo) => {
+    const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+    try {
+      const ping = await request.get(`${baseURL}/healthz`, { timeout: 3000 });
+      if (!ping.ok()) {
+        if (!process.env.CI) {
+          test.skip(true, 'Staging live server not running locally; skipping live check');
+          return;
+        }
+      }
+    } catch {
+      if (!process.env.CI) {
+        test.skip(true, 'Staging live server not reachable; skipping live check');
+        return;
+      }
+    }
+
+    const clientIp = getProjectClientIp(testInfo, 50);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    // Track all responses to ensure no 5xx errors occur
+    const serverErrors: Array<{ url: string; status: number }> = [];
+    page.on('response', (response) => {
+      if (response.status() >= 500) {
+        serverErrors.push({ url: response.url(), status: response.status() });
+      }
+    });
+
+    // 1. Visit /tu-vung
+    await page.goto('/tu-vung', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="vocab-explorer"]')).toBeVisible({ timeout: 10000 });
+
+    // 2. Visit /ngu-phap
+    await page.goto('/ngu-phap', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="grammar-explorer"]')).toBeVisible({ timeout: 10000 });
+
+    // 3. Visit /thao-luan
+    await page.goto('/thao-luan', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('input[placeholder*="câu hỏi" i], [data-testid="discussion-gated-card"]')).toBeVisible({ timeout: 10000 });
+
+    // Assert strictly no 5xx requests were triggered across all three pages
+    expect(serverErrors, `Detected 5xx server errors: ${JSON.stringify(serverErrors)}`).toHaveLength(0);
+  });
+
+  test('I11-AC2: API routes reject invalid (non-UUID) IDs with 400 or 404, never 500', async ({
+    request,
+  }, testInfo) => {
+    const apiBaseUrl = process.env.API_BASE_URL || 'http://127.0.0.1:4000';
+    const clientIp = getProjectClientIp(testInfo, 51);
+    const ipHeaders = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+
+    try {
+      const ping = await request.get(`${apiBaseUrl}/api/v1/health`, { headers: ipHeaders, timeout: 3000 });
+      if (!ping.ok()) {
+        if (!process.env.CI) {
+          test.skip(true, 'Live API server not running locally; skipping live check');
+          return;
+        }
+      }
+    } catch {
+      if (!process.env.CI) {
+        test.skip(true, 'Live API server not reachable; skipping live check');
+        return;
+      }
+    }
+
+    // 1. Invalid dataset ID 'jlpt-official' must return 400 or 404, NEVER 500
+    const datasetRes = await request.get(`${apiBaseUrl}/api/v1/datasets/jlpt-official/terms`, {
+      headers: ipHeaders,
+    });
+    expect([400, 404]).toContain(datasetRes.status());
+    expect(datasetRes.status()).not.toBe(500);
+
+    // 2. Invalid question ID 'q-default-1' must return 400 or 404, NEVER 500
+    const discussionRes = await request.get(`${apiBaseUrl}/api/v1/questions/q-default-1/discussions`, {
+      headers: ipHeaders,
+    });
+    expect([400, 401, 403, 404]).toContain(discussionRes.status());
+    expect(discussionRes.status()).not.toBe(500);
+  });
+});
+
 

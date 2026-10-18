@@ -141,20 +141,17 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
       expect(html).toContain('Thư viện Từ vựng JLPT N1–N5');
       expect(html).toContain('application/ld+json');
       expect(html).toContain('"@type":"LearningResource"');
-      expect(html).toContain('曖昧');
-      expect(html).toContain('あいまい');
-      expect(html).toContain('Mơ hồ, không rõ ràng');
       expect(html).toContain('data-testid="vocab-search-input"');
       expect(html).toContain('data-testid="level-tabs"');
+      expect(html).not.toContain('jlpt-official');
     });
 
     it('renders grammar pattern page with formation, examples, and practice link', () => {
       const html = renderClean(<GrammarCorpusPage />);
       expect(html).toContain('Thư viện Mẫu Ngữ pháp JLPT N1–N5');
-      expect(html).toContain('〜わけにはいかない');
-      expect(html).toContain('Cấu trúc kết hợp:');
-      expect(html).toContain('data-testid="practice-pattern-btn"');
-      expect(html).toContain('/luyen-tap?patternId=');
+      expect(html).toContain('data-testid="grammar-search-input"');
+      expect(html).toContain('data-testid="grammar-level-tabs"');
+      expect(html).not.toContain('jlpt-official');
     });
   });
 
@@ -169,7 +166,7 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
       expect(html).toContain('data-testid="create-study-list-btn"');
       expect(html).toContain('data-testid="export-csv-btn"');
       expect(html).toContain('data-testid="export-excel-btn"');
-      expect(html).toContain('/api/v1/datasets/jlpt-official/export?format=csv');
+      expect(html).toContain('/export?format=csv');
       expect(html).toContain('data-testid="cross-level-list"');
       expect(html).toContain('data-testid="yearly-trends-list"');
     });

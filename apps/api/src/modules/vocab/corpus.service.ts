@@ -26,6 +26,7 @@ import {
   notebookItems,
 } from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
+import { isUuid } from '../../common/pipes/uuid-param.pipe.js';
 import type {
   AddToNotebookDto,
   AddToNotebookResponseDto,
@@ -128,7 +129,23 @@ export class CorpusService {
    * Danh sách tập ngữ liệu (GET /api/v1/datasets).
    */
   async listDatasets(): Promise<{ items: DatasetItemDto[] }> {
-    const rows = await this.dbClient.db.select().from(datasets);
+    let rows = await this.dbClient.db.select().from(datasets);
+
+    if (rows.length === 0) {
+      const defaultId = '018e0000-0000-7000-8000-0000000000d1';
+      try {
+        await this.createDataset({
+          id: defaultId,
+          name: 'Tập ngữ liệu đề thi JLPT N1–N5',
+          version: '1.0.0',
+          source: 'Đề thi chính thức JLPT và Mẫu chuẩn hóa',
+          date: '2026-10-16',
+        });
+        rows = await this.dbClient.db.select().from(datasets);
+      } catch {
+        rows = await this.dbClient.db.select().from(datasets);
+      }
+    }
 
     const items: DatasetItemDto[] = rows.map(
       (r: { id: string; name: string; version: string }) => {
@@ -150,6 +167,10 @@ export class CorpusService {
    * Chi tiết tập ngữ liệu (GET /api/v1/datasets/:id) (Acceptance 3: version, size, source, date).
    */
   async getDataset(id: string): Promise<DatasetDetailDto> {
+    if (!isUuid(id)) {
+      throw new NotFoundException(`Dataset '${id}' not found`);
+    }
+
     const rows = await this.dbClient.db
       .select()
       .from(datasets)
