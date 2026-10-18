@@ -3,7 +3,6 @@ export * from './storage/indexeddb';
 export * from './api/exam-api';
 export * from './sync/sync-engine';
 export * from './utils/flatten-questions';
-export * from './fixtures/exam-fixtures';
 export * from './hooks/use-countdown-timer';
 export * from './hooks/use-keyboard-shortcuts';
 

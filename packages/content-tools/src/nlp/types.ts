@@ -29,6 +29,7 @@ export interface KanjiInfo {
   meanings: string[];
   radical?: string;
   knowledgeGroup: string;
+  hanViet?: string;
 }
 
 export interface KanjiOccurrence {
@@ -162,6 +163,7 @@ export interface DictionaryEntry {
   examples: string[];
   license: string;
   attribution: string;
+  hanViet?: string;
 }
 
 export interface DictionaryLookupResult {
@@ -175,6 +177,7 @@ export interface DictionaryLookupResult {
   partOfSpeech?: string;
   isExternal: boolean;
   status: 'READY' | 'SANDBOX' | 'MISSING';
+  hanViet?: string;
 }
 
 export interface ExtractedSegment {

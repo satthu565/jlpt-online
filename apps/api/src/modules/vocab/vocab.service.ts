@@ -9,6 +9,7 @@ import {
   DictionaryAdapter,
   tagQuestion,
   type QuestionTagItem,
+  getHanVietForWord,
 } from './nlp/index.js';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
@@ -81,6 +82,7 @@ export class VocabService {
           }
         }
 
+        const hanViet = getHanVietForWord(entry.term) || '';
         return {
           entry: entry.term,
           readings: readings.map((r: { reading: string }) => r.reading),
@@ -91,6 +93,7 @@ export class VocabService {
           level: entry.level ?? undefined,
           partOfSpeech: entry.partOfSpeech ?? undefined,
           status: 'READY',
+          hanViet,
         };
       }
     } catch {
@@ -113,6 +116,7 @@ export class VocabService {
       level: result.level,
       partOfSpeech: result.partOfSpeech,
       status: result.status,
+      hanViet: result.hanViet || getHanVietForWord(result.entry) || '',
     };
   }
 

@@ -489,5 +489,66 @@ describe('L05: Learning & Notebook Module Tests (VOC-01..18, Acceptance 1 & 4)',
       expect(res.partOfSpeech).toBeDefined(); // VOC-04
       expect(res.examples.length).toBeGreaterThan(0); // VOC-05
     });
+
+    it('saves and retrieves notebook item with hanViet (P02)', async () => {
+      const item = await notebookService.createItem(testUserId, {
+        kind: 'vocab',
+        term: '経済',
+        reading: 'けいざい',
+        meaning: 'kinh tế',
+      });
+
+      expect(item.term).toBe('経済');
+      expect(item.hanViet).toBe('KINH TẾ');
+
+      // Fetch by ID
+      const fetched = await notebookService.getItem(testUserId, item.id);
+      expect(fetched.hanViet).toBe('KINH TẾ');
+
+      // List items
+      const list = await notebookService.listItems(testUserId, { kind: 'vocab' });
+      const found = list.items.find((it) => it.id === item.id);
+      expect(found?.hanViet).toBe('KINH TẾ');
+    });
+
+    it('generates quiz and explanation containing hanViet (P02)', async () => {
+      await notebookService.createItem(testUserId, {
+        kind: 'vocab',
+        term: '経済',
+        reading: 'けいざい',
+        meaning: 'kinh tế',
+      });
+      await notebookService.createItem(testUserId, {
+        kind: 'vocab',
+        term: '社会',
+        reading: 'しゃかい',
+        meaning: 'xã hội',
+      });
+
+      const quiz = await quizService.generateNotebookQuiz(testUserId, { count: 2 });
+      expect(quiz.questions.length).toBeGreaterThanOrEqual(2);
+
+      const keizaiQuestion = quiz.questions.find((q) => q.stem.includes('経済'));
+      expect(keizaiQuestion).toBeDefined();
+      expect(keizaiQuestion?.hanViet).toBe('KINH TẾ');
+      expect(keizaiQuestion?.explanation).toContain('[KINH TẾ]');
+    });
+
+    it('generates flashcards including hanViet on the back card (P02)', async () => {
+      const item = await notebookService.createItem(testUserId, {
+        kind: 'vocab',
+        term: '経済',
+        reading: 'けいざい',
+        meaning: 'kinh tế',
+      });
+
+      const card = await flashcardService.generateCardForNotebookItem(testUserId, item.id, {
+        template: 'term_to_meaning',
+      });
+
+      expect(card).toBeDefined();
+      const back = card.back as Record<string, unknown>;
+      expect(back?.hanViet).toBe('KINH TẾ');
+    });
   });
 });

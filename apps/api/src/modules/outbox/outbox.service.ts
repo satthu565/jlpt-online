@@ -233,7 +233,7 @@ export class OutboxService {
 
         let answers = sheet?.answers ?? [];
 
-        if (sheet && finalSheet && finalSheet.seq > sheet.lastSeq) {
+        if (sheet && finalSheet && (finalSheet.seq >= sheet.lastSeq || finalSheet.timeSpentMs)) {
           answers = finalSheet.answers;
           await tx
             .update(schema.attemptAnswerSheets)
@@ -241,7 +241,7 @@ export class OutboxService {
               answers: finalSheet.answers,
               flags: finalSheet.flags,
               timeSpentMs: finalSheet.timeSpentMs ?? sheet.timeSpentMs,
-              lastSeq: finalSheet.seq,
+              lastSeq: Math.max(finalSheet.seq, sheet.lastSeq),
               updatedAt: new Date(),
             })
             .where(eq(schema.attemptAnswerSheets.attemptId, attemptId));

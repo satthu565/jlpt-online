@@ -1,36 +1,21 @@
-import {
-  AttemptInitInputSchema,
-  AttemptInitResponseSchema,
-  NextSectionInputSchema,
-  NextSectionResponseSchema,
-  AnswerSheetUpdateInputSchema,
-  AnswerSheetAckSchema,
-  AttemptSubmitInputSchema,
-  AttemptSubmitResponseSchema,
-  ResumeAttemptResponseSchema,
-  ReviewAttemptResponseSchema,
-  AttemptDetailResponseSchema,
-  CheckAnswerInputSchema,
-  CheckAnswerResponseSchema,
-  ExamSummarySchema,
-  ExamDetailPublicSchema,
-  type AttemptInitInput,
-  type AttemptInitResponse,
-  type NextSectionInput,
-  type NextSectionResponse,
-  type AnswerSheetUpdateInput,
-  type AnswerSheetAck,
-  type AttemptSubmitInput,
-  type AttemptSubmitResponse,
-  type ResumeAttemptResponse,
-  type ReviewAttemptResponse,
-  type AttemptDetailResponse,
-  type CheckAnswerInput,
-  type CheckAnswerResponse,
-  type AttemptSummary,
-  type ExamSummary,
-  type ExamDetailPublic,
-  AttemptSummarySchema,
+import type {
+  AttemptInitInput,
+  AttemptInitResponse,
+  NextSectionInput,
+  NextSectionResponse,
+  AnswerSheetUpdateInput,
+  AnswerSheetAck,
+  AttemptSubmitInput,
+  AttemptSubmitResponse,
+  ResumeAttemptResponse,
+  ReviewAttemptResponse,
+  AttemptDetailResponse,
+  CheckAnswerInput,
+  CheckAnswerResponse,
+  AttemptSummary,
+  ExamSummary,
+  ExamDetailPublic,
+  PublicExamSnapshot,
 } from '@jlpt/schema';
 
 export interface ExamApiOptions {
@@ -59,7 +44,25 @@ export class ExamApiClient {
   private getAuthToken?: () => string | null;
 
   constructor(options: ExamApiOptions = {}) {
-    this.baseUrl = options.baseUrl ?? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000');
+    const isBrowser = typeof window !== 'undefined';
+    let resolved = options.baseUrl;
+    if (!resolved) {
+      if (isBrowser) {
+        resolved = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
+      } else {
+        const publicUrl = process.env.NEXT_PUBLIC_API_URL;
+        if (publicUrl && (publicUrl.startsWith('http://') || publicUrl.startsWith('https://'))) {
+          resolved = publicUrl;
+        } else {
+          resolved = process.env.API_INTERNAL_URL || process.env.STAGING_API_URL || 'http://127.0.0.1:4000/api/v1';
+        }
+      }
+    }
+    resolved = resolved.replace(/\/+$/, '');
+    if (!resolved.endsWith('/api/v1') && !resolved.includes('/api/v1')) {
+      resolved = `${resolved}/api/v1`;
+    }
+    this.baseUrl = resolved;
     this.fetcher = options.fetcher ?? (typeof window !== 'undefined' ? window.fetch.bind(window) : fetch);
     this.getAuthToken = options.getAuthToken;
   }
@@ -74,17 +77,23 @@ export class ExamApiClient {
       'Content-Type': 'application/json',
     };
 
-    if (this.getAuthToken) {
-      const token = this.getAuthToken();
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+    let token = this.getAuthToken ? this.getAuthToken() : null;
+    if (!token && typeof window !== 'undefined') {
+      try {
+        token = localStorage.getItem('jlpt_auth_token') || sessionStorage.getItem('jlpt_auth_token');
+      } catch {
+        // Ignore storage access error
       }
+    }
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     const response = await this.fetcher(url, {
       method,
       headers,
       body: body ? JSON.stringify(body) : undefined,
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -104,48 +113,35 @@ export class ExamApiClient {
   }
 
   async initAttempt(input: AttemptInitInput): Promise<AttemptInitResponse> {
-    const validatedInput = AttemptInitInputSchema.parse(input);
-    const data = await this.request<unknown>('/attempts', 'POST', validatedInput);
-    return AttemptInitResponseSchema.parse(data);
+    return this.request<AttemptInitResponse>('/attempts', 'POST', input);
   }
 
   async resumeAttempt(attemptId: string, lease?: string): Promise<ResumeAttemptResponse> {
-    const data = await this.request<unknown>(`/attempts/${attemptId}/resume`, 'POST', { lease });
-    return ResumeAttemptResponseSchema.parse(data);
+    return this.request<ResumeAttemptResponse>(`/attempts/${attemptId}/resume`, 'POST', { lease });
   }
 
   async nextSection(attemptId: string, input: NextSectionInput): Promise<NextSectionResponse> {
-    const validatedInput = NextSectionInputSchema.parse(input);
-    const data = await this.request<unknown>(`/attempts/${attemptId}/sections/next`, 'POST', validatedInput);
-    return NextSectionResponseSchema.parse(data);
+    return this.request<NextSectionResponse>(`/attempts/${attemptId}/sections/next`, 'POST', input);
   }
 
   async updateAnswerSheet(attemptId: string, input: AnswerSheetUpdateInput): Promise<AnswerSheetAck> {
-    const validatedInput = AnswerSheetUpdateInputSchema.parse(input);
-    const data = await this.request<unknown>(`/attempts/${attemptId}/sheet`, 'PUT', validatedInput);
-    return AnswerSheetAckSchema.parse(data);
+    return this.request<AnswerSheetAck>(`/attempts/${attemptId}/sheet`, 'PUT', input);
   }
 
   async submitAttempt(attemptId: string, input: AttemptSubmitInput): Promise<AttemptSubmitResponse> {
-    const validatedInput = AttemptSubmitInputSchema.parse(input);
-    const data = await this.request<unknown>(`/attempts/${attemptId}/submit`, 'POST', validatedInput);
-    return AttemptSubmitResponseSchema.parse(data);
+    return this.request<AttemptSubmitResponse>(`/attempts/${attemptId}/submit`, 'POST', input);
   }
 
   async checkAnswer(attemptId: string, input: CheckAnswerInput): Promise<CheckAnswerResponse> {
-    const validatedInput = CheckAnswerInputSchema.parse(input);
-    const data = await this.request<unknown>(`/attempts/${attemptId}/check`, 'POST', validatedInput);
-    return CheckAnswerResponseSchema.parse(data);
+    return this.request<CheckAnswerResponse>(`/attempts/${attemptId}/check`, 'POST', input);
   }
 
   async getAttempt(attemptId: string): Promise<AttemptDetailResponse> {
-    const data = await this.request<unknown>(`/attempts/${attemptId}`, 'GET');
-    return AttemptDetailResponseSchema.parse(data);
+    return this.request<AttemptDetailResponse>(`/attempts/${attemptId}`, 'GET');
   }
 
   async reviewAttempt(attemptId: string): Promise<ReviewAttemptResponse> {
-    const data = await this.request<unknown>(`/attempts/${attemptId}/review`, 'GET');
-    return ReviewAttemptResponseSchema.parse(data);
+    return this.request<ReviewAttemptResponse>(`/attempts/${attemptId}/review`, 'GET');
   }
 
   async listMyAttempts(
@@ -158,10 +154,9 @@ export class ExamApiClient {
 
     const qs = params.toString();
     const endpoint = `/me/attempts${qs ? `?${qs}` : ''}`;
-    const data = await this.request<{ items: unknown[]; nextCursor?: string | null }>(endpoint, 'GET');
-    const items = (data.items || []).map((item) => AttemptSummarySchema.parse(item));
+    const data = await this.request<{ items?: AttemptSummary[]; nextCursor?: string | null }>(endpoint, 'GET');
     return {
-      items,
+      items: data.items || [],
       nextCursor: data.nextCursor || null,
     };
   }
@@ -171,23 +166,106 @@ export class ExamApiClient {
     year?: number;
     session?: string;
     kind?: string;
-  }): Promise<{ items: ExamSummary[] }> {
+    limit?: number;
+    cursor?: string;
+    isFree?: boolean;
+  }): Promise<{ items: ExamSummary[]; nextCursor?: string | null }> {
     const query = new URLSearchParams();
     if (params?.level && params.level !== 'ALL') query.set('level', params.level);
     if (params?.year) query.set('year', params.year.toString());
     if (params?.session && params.session !== 'ALL') query.set('session', params.session);
     if (params?.kind && params.kind !== 'ALL') query.set('kind', params.kind);
+    if (params?.limit) query.set('limit', params.limit.toString());
+    if (params?.cursor) query.set('cursor', params.cursor);
+    if (params?.isFree !== undefined) query.set('isFree', params.isFree.toString());
 
     const qs = query.toString();
     const endpoint = `/exams${qs ? `?${qs}` : ''}`;
-    const data = await this.request<{ items: unknown[] }>(endpoint, 'GET');
-    const items = (data.items || []).map((item) => ExamSummarySchema.parse(item));
-    return { items };
+    const data = await this.request<{ items?: ExamSummary[]; nextCursor?: string | null }>(endpoint, 'GET');
+    return { items: data.items || [], nextCursor: data.nextCursor || null };
   }
 
   async getExamBySlug(slug: string): Promise<ExamDetailPublic> {
-    const data = await this.request<unknown>(`/exams/${slug}`, 'GET');
-    return ExamDetailPublicSchema.parse(data);
+    return this.request<ExamDetailPublic>(`/exams/${slug}`, 'GET');
+  }
+
+  async getExamById(id: string): Promise<ExamDetailPublic> {
+    // Backend API routes /exams/:slug by slug. When an ID or UUID is passed, resolve its slug via published exams list with cursor pagination
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    if (isUuid) {
+      try {
+        let cursor: string | undefined = undefined;
+        let foundSlug: string | null = null;
+        do {
+          const list = await this.getExams({ limit: 100, cursor });
+          const found = list.items.find((item) => item.id === id);
+          if (found) {
+            foundSlug = found.slug;
+            break;
+          }
+          cursor = list.nextCursor || undefined;
+        } while (cursor);
+
+        if (foundSlug) {
+          return this.getExamBySlug(foundSlug);
+        }
+      } catch {
+        // Fall back to direct query
+      }
+    }
+    return this.getExamBySlug(id);
+  }
+
+
+  async fetchSnapshot(snapshotUrl: string): Promise<PublicExamSnapshot> {
+    const urlsToTry: string[] = [];
+
+    // 1. Direct snapshotUrl
+    urlsToTry.push(snapshotUrl);
+
+    // 2. Relative & Same-Origin alternatives for staging/docker environments
+    try {
+      const parsed = new URL(snapshotUrl, 'http://localhost');
+      const pathnameAndSearch = `${parsed.pathname}${parsed.search}`;
+
+      // via this.baseUrl
+      const cleanPath = pathnameAndSearch.startsWith('/api/v1')
+        ? pathnameAndSearch.slice('/api/v1'.length)
+        : pathnameAndSearch;
+      const viaBase = `${this.baseUrl}${cleanPath}`;
+      if (!urlsToTry.includes(viaBase)) urlsToTry.push(viaBase);
+
+      // Same-origin reverse proxy /api/v1/...
+      const sameOrigin = pathnameAndSearch.startsWith('/api/v1')
+        ? pathnameAndSearch
+        : `/api/v1${pathnameAndSearch}`;
+      if (!urlsToTry.includes(sameOrigin)) urlsToTry.push(sameOrigin);
+
+      if (!urlsToTry.includes(pathnameAndSearch)) urlsToTry.push(pathnameAndSearch);
+    } catch {
+      // Ignore URL parse error
+    }
+
+    let lastError: Error | null = null;
+    for (const targetUrl of urlsToTry) {
+      try {
+        const response = await this.fetcher(targetUrl, {
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const data = await response.json();
+          return data as PublicExamSnapshot;
+        }
+      } catch (err) {
+        lastError = err as Error;
+      }
+    }
+
+    throw new ExamApiError(
+      `Không thể tải snapshot từ URL ${snapshotUrl}: ${lastError?.message || 'Lỗi mạng'}`,
+      'SNAPSHOT_NOT_FOUND',
+      500,
+    );
   }
 
   async getUserExamStatus(level?: string): Promise<{
@@ -201,3 +279,5 @@ export class ExamApiClient {
     return this.request(endpoint, 'GET');
   }
 }
+
+export const examApiClient = new ExamApiClient();

@@ -68,13 +68,46 @@ export class AuthClient {
   private authToken?: string;
 
   constructor(options: { baseUrl?: string; fetchFn?: typeof fetch; authToken?: string } = {}) {
-    this.baseUrl = (options.baseUrl || process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '');
+    const isBrowser = typeof window !== 'undefined';
+    let defaultUrl = options.baseUrl;
+    if (!defaultUrl) {
+      if (isBrowser) {
+        defaultUrl = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
+      } else {
+        const publicUrl = process.env.NEXT_PUBLIC_API_URL;
+        if (publicUrl && (publicUrl.startsWith('http://') || publicUrl.startsWith('https://'))) {
+          defaultUrl = publicUrl;
+        } else {
+          defaultUrl = process.env.API_INTERNAL_URL || process.env.STAGING_API_URL || 'http://127.0.0.1:4000/api/v1';
+        }
+      }
+    }
+    this.baseUrl = defaultUrl.replace(/\/$/, '');
     this.fetchFn = options.fetchFn || (typeof window !== 'undefined' ? window.fetch.bind(window) : fetch);
-    this.authToken = options.authToken;
+    let token = options.authToken;
+    if (!token && isBrowser) {
+      try {
+        token = localStorage.getItem('jlpt_auth_token') || sessionStorage.getItem('jlpt_auth_token') || undefined;
+      } catch {
+        // Ignore storage access error
+      }
+    }
+    this.authToken = token;
   }
 
   public setAuthToken(token?: string): void {
     this.authToken = token;
+    if (typeof window !== 'undefined') {
+      try {
+        if (token) {
+          localStorage.setItem('jlpt_auth_token', token);
+        } else {
+          localStorage.removeItem('jlpt_auth_token');
+        }
+      } catch {
+        // Ignore storage access error
+      }
+    }
   }
 
   public getAuthToken(): string | undefined {

@@ -59,9 +59,10 @@ export function Header({
         }}
       >
         {/* Brand / Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+        <div className="header-brand-nav" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           <a
             href={brandHref}
+            className="header-brand-logo"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -95,17 +96,13 @@ export function Header({
           {/* Desktop Navigation */}
           <nav
             aria-label="Main Navigation"
-            style={{
-              display: 'none',
-              alignItems: 'center',
-              gap: '1rem',
-            }}
             className="desktop-nav"
           >
             {navItems.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
+                className="header-nav-link"
                 aria-current={item.active ? 'page' : undefined}
                 style={{
                   fontSize: '0.9375rem',
@@ -125,8 +122,12 @@ export function Header({
         </div>
 
         {/* Right Controls & Auth */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          {rightControls}
+        <div className="header-right-group" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {rightControls && (
+            <div className="header-desktop-controls">
+              {rightControls}
+            </div>
+          )}
           {userMenu}
 
           {/* Mobile Menu Hamburger Button */}
@@ -202,6 +203,19 @@ export function Header({
               </a>
             ))}
           </nav>
+          {rightControls && (
+            <div
+              style={{
+                borderTop: '1px solid var(--border-subtle, #e2e8f0)',
+                paddingTop: '0.75rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              {rightControls}
+            </div>
+          )}
         </div>
       )}
 
