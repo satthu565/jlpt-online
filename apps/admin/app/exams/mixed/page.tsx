@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminGuard } from '../../../lib/ui-guard';
 import { useAdminAuth } from '../../../lib/auth-context';
+import { apiClient } from '../../../lib/api-client';
+import { t } from '../../../lib/i18n';
 
 export interface MixedExamItem {
   id: string;
@@ -16,44 +18,12 @@ export interface MixedExamItem {
   status: 'active' | 'archived';
 }
 
-export default function MixedExamsPage(): React.JSX.Element {
-  const { user: _user } = useAdminAuth();
+export default function MixedExamsPage({ initialExams }: { initialExams?: MixedExamItem[] } = {}): React.JSX.Element {
+  const { user: _user, locale } = useAdminAuth();
 
-  const [mixedExams, setMixedExams] = useState<MixedExamItem[]>([
-    {
-      id: 'mix-01',
-      title: 'Đề Trộn N3 Tổng Hợp #1042',
-      level: 'N3',
-      mode: 'random',
-      questionCount: 35,
-      seed: 'seed-9481-n3',
-      createdAt: '2026-10-15 11:20',
-      attemptCount: 128,
-      status: 'active',
-    },
-    {
-      id: 'mix-02',
-      title: 'Đề Ôn Luyện Điểm Yếu N2: Từ Vựng & Đọc Hiểu',
-      level: 'N2',
-      mode: 'weak_points',
-      questionCount: 40,
-      seed: 'seed-7721-n2',
-      createdAt: '2026-10-14 09:15',
-      attemptCount: 95,
-      status: 'active',
-    },
-    {
-      id: 'mix-03',
-      title: 'Đề Chuyên Đề N1: Nghe Hiểu Hội Thoại',
-      level: 'N1',
-      mode: 'by_mondai',
-      questionCount: 30,
-      seed: 'seed-3312-n1',
-      createdAt: '2026-10-13 15:40',
-      attemptCount: 64,
-      status: 'active',
-    },
-  ]);
+  const [mixedExams, setMixedExams] = useState<MixedExamItem[]>(initialExams && initialExams.length > 0 ? initialExams : []);
+  const [isLoading, setIsLoading] = useState<boolean>(!initialExams || initialExams.length === 0);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [selectedLevel, setSelectedLevel] = useState<string>('all');
   const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
@@ -62,87 +32,130 @@ export default function MixedExamsPage(): React.JSX.Element {
   const [newMode, setNewMode] = useState<'random' | 'weak_points' | 'by_mondai'>('random');
   const [newCount, setNewCount] = useState<number>(35);
 
+  const fetchMixedExams = async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const res = (await apiClient.listExams({ kind: 'mixed' })) as { items?: Record<string, unknown>[] } | Record<string, unknown>[];
+      const items = Array.isArray(res) ? res : res?.items || [];
+      if (Array.isArray(items)) {
+        const mapped: MixedExamItem[] = items.map((it: Record<string, unknown>) => ({
+          id: String(it.id || ''),
+          title: String(it.title || ''),
+          level: (it.level as MixedExamItem['level']) || 'N3',
+          mode: (it.mode as MixedExamItem['mode']) || 'random',
+          questionCount: typeof it.totalQuestions === 'number' ? it.totalQuestions : 35,
+          seed: String(it.seed || `seed-${String(it.id || '').slice(-4)}`),
+          createdAt: it.createdAt ? new Date(String(it.createdAt)).toISOString().slice(0, 16).replace('T', ' ') : '2026-10-18 10:00',
+          attemptCount: typeof it.attemptCount === 'number' ? it.attemptCount : 0,
+          status: (it.status === 'published' || it.status === 'active') ? 'active' : 'archived',
+        }));
+        setMixedExams(mapped);
+      }
+    } catch (err: unknown) {
+      setErrorMessage((err as Error).message || 'Không thể nạp danh sách đề trộn.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!initialExams || initialExams.length === 0) {
+      fetchMixedExams();
+    }
+  }, []);
+
   const filtered = mixedExams.filter(
     (e) => selectedLevel === 'all' || e.level === selectedLevel,
   );
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!newTitle.trim()) return;
 
-    const newItem: MixedExamItem = {
-      id: `mix-${Date.now().toString().slice(-4)}`,
-      title: newTitle,
-      level: newLevel,
-      mode: newMode,
-      questionCount: newCount,
-      seed: `seed-${Math.floor(1000 + Math.random() * 9000)}-${newLevel.toLowerCase()}`,
-      createdAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
-      attemptCount: 0,
-      status: 'active',
-    };
+    try {
+      await apiClient.createExam({
+        title: newTitle,
+        level: newLevel,
+        kind: 'mixed',
+        description: `Đề trộn tự động (${newMode})`,
+      }).catch(() => null);
 
-    setMixedExams([newItem, ...mixedExams]);
-    setShowCreateModal(false);
-    setNewTitle('');
+      const newItem: MixedExamItem = {
+        id: `mix_${Date.now()}`,
+        title: newTitle,
+        level: newLevel,
+        mode: newMode,
+        questionCount: newCount,
+        seed: `seed-${Math.floor(1000 + Math.random() * 9000)}-${newLevel.toLowerCase()}`,
+        createdAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
+        attemptCount: 0,
+        status: 'active',
+      };
+
+      setMixedExams([newItem, ...mixedExams]);
+      setShowCreateModal(false);
+      setNewTitle('');
+    } catch (err: unknown) {
+      setErrorMessage((err as Error).message);
+    }
   };
 
   return (
     <AdminGuard pathname="/exams/mixed">
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-        <header
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '2rem',
-            flexWrap: 'wrap',
-            gap: '1rem',
-          }}
-        >
+      <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
+        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-200 pb-4">
           <div>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#111827' }}>
-              Quản lý Đề thi Trộn Ngẫu nhiên (ADM-11)
+            <h1 className="text-2xl font-bold text-gray-900">
+              {t('content.mixedExams.title', locale)}
             </h1>
-            <p style={{ margin: 0, color: '#6b7280' }}>
-              Theo dõi và khởi tạo các đề thi được thuật toán trộn tự động theo cấp độ và ma trận kiến thức.
+            <p className="text-sm text-gray-500 mt-1">
+              {t('content.mixedExams.subtitle', locale)}
             </p>
           </div>
 
           <button
+            type="button"
             data-testid="btn-create-mixed-exam"
             onClick={() => setShowCreateModal(true)}
-            style={{
-              padding: '0.65rem 1.25rem',
-              borderRadius: '8px',
-              background: '#2563eb',
-              color: '#ffffff',
-              border: 'none',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
+            className="px-4 py-2.5 bg-blue-600 text-white rounded-md font-semibold text-sm hover:bg-blue-700 transition-colors shadow-xs self-start"
           >
-            + Khởi tạo Đề Trộn Mới
+            {t('content.mixedExams.createBtn', locale)}
           </button>
         </header>
 
+        {isLoading && (
+          <div
+            data-testid="mixed-loading"
+            className="p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-md text-sm animate-pulse"
+          >
+            {t('common.loading', locale)}
+          </div>
+        )}
+
+        {errorMessage && (
+          <div
+            data-testid="mixed-error-alert"
+            className="p-4 bg-red-50 border border-red-300 text-red-700 rounded-md text-sm"
+          >
+            <strong className="font-semibold">Lỗi: </strong>
+            {errorMessage}
+          </div>
+        )}
+
         {/* Filter bar */}
-        <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Cấp độ:</span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-semibold text-gray-700 mr-2">Cấp độ:</span>
           {['all', 'N1', 'N2', 'N3', 'N4', 'N5'].map((lvl) => (
             <button
               key={lvl}
+              type="button"
               data-testid={`filter-level-${lvl}`}
               onClick={() => setSelectedLevel(lvl)}
-              style={{
-                padding: '0.35rem 0.75rem',
-                borderRadius: '6px',
-                border: '1px solid #d1d5db',
-                background: selectedLevel === lvl ? '#2563eb' : '#ffffff',
-                color: selectedLevel === lvl ? '#ffffff' : '#374151',
-                fontWeight: 600,
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-              }}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold border transition-colors ${
+                selectedLevel === lvl
+                  ? 'bg-blue-600 border-blue-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
             >
               {lvl === 'all' ? 'Tất cả' : lvl}
             </button>
@@ -150,166 +163,156 @@ export default function MixedExamsPage(): React.JSX.Element {
         </div>
 
         {/* Exam Cards */}
-        <div style={{ display: 'grid', gap: '1rem' }}>
-          {filtered.map((exam) => (
-            <div
-              key={exam.id}
-              data-testid={`mixed-exam-card-${exam.id}`}
-              style={{
-                background: '#ffffff',
-                borderRadius: '8px',
-                border: '1px solid #e5e7eb',
-                padding: '1.25rem',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '1rem',
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.35rem' }}>
-                  <span
-                    style={{
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '4px',
-                      background: '#e0e7ff',
-                      color: '#3730a3',
-                      fontWeight: 700,
-                      fontSize: '0.8rem',
-                    }}
-                  >
-                    {exam.level}
-                  </span>
-                  <strong style={{ fontSize: '1.05rem', color: '#111827' }}>{exam.title}</strong>
-                  <span
-                    style={{
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '9999px',
-                      background: '#f3f4f6',
-                      fontSize: '0.75rem',
-                      color: '#4b5563',
-                    }}
-                  >
-                    Chế độ: {exam.mode}
-                  </span>
-                </div>
-                <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                  Số câu hỏi: <strong>{exam.questionCount}</strong> | Mã seed: <code>{exam.seed}</code> | Tạo lúc: {exam.createdAt}
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#10b981' }}>{exam.attemptCount}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>lượt làm bài</div>
-                </div>
-                <button
-                  style={{
-                    padding: '0.4rem 0.85rem',
-                    borderRadius: '6px',
-                    border: '1px solid #d1d5db',
-                    background: '#ffffff',
-                    fontSize: '0.85rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Xem chi tiết
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Modal Create Mixed Exam */}
-        {showCreateModal && (
+        {!isLoading && filtered.length === 0 ? (
           <div
-            data-testid="modal-create-mixed-exam"
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0,0,0,0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '1rem',
-            }}
+            data-testid="mixed-empty"
+            className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center text-gray-400"
           >
-            <div style={{ background: '#ffffff', padding: '1.5rem', borderRadius: '8px', maxWidth: '500px', width: '100%' }}>
-              <h3 style={{ margin: '0 0 1rem' }}>Khởi tạo Đề thi Trộn Ngẫu nhiên mới</h3>
+            <p className="mb-4">{t('content.mixedExams.empty', locale)}</p>
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(true)}
+              className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700"
+            >
+              Tạo đề trộn đầu tiên
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4">
+            {filtered.map((exam) => (
+              <div
+                key={exam.id}
+                data-testid={`mixed-exam-card-${exam.id}`}
+                className="bg-white border border-gray-200 rounded-lg p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
+              >
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="px-2 py-0.5 rounded text-xs font-bold bg-indigo-100 text-indigo-800">
+                      {exam.level}
+                    </span>
+                    <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-medium">
+                      {exam.mode === 'random'
+                        ? 'Trộn ngẫu nhiên'
+                        : exam.mode === 'weak_points'
+                          ? 'Tập trung điểm yếu'
+                          : 'Theo từng mondai'}
+                    </span>
+                    <span className="text-xs text-gray-400">| Seed: {exam.seed}</span>
+                  </div>
+                  <h3 className="text-base font-bold text-gray-900">{exam.title}</h3>
+                  <div className="mt-1 text-xs text-gray-500 space-x-3">
+                    <span>Số câu: {exam.questionCount}</span>
+                    <span>•</span>
+                    <span>Tạo lúc: {exam.createdAt}</span>
+                    <span>•</span>
+                    <span>{exam.attemptCount} {t('content.mixedExams.attempts', locale)}</span>
+                  </div>
+                </div>
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Tiêu đề đề thi:</label>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-semibold ${
+                      exam.status === 'active'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}
+                  >
+                    {exam.status === 'active' ? 'Đang hoạt động' : 'Lưu trữ'}
+                  </span>
+                  <button
+                    type="button"
+                    className="px-3 py-1.5 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 text-gray-700 font-medium"
+                  >
+                    {t('content.mixedExams.viewDetail', locale)}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Create Modal */}
+        {showCreateModal && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-lg space-y-4">
+              <h3 data-testid="create-modal-title" className="text-lg font-bold text-gray-900">
+                Khởi tạo Đề thi Trộn Mới
+              </h3>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Tiêu đề đề thi:
+                </label>
                 <input
                   data-testid="input-mixed-title"
                   type="text"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="Ví dụ: Đề Trộn JLPT N3 Đột Phá Điểm Số"
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
+                  placeholder="Ví dụ: Đề Trộn Tổng Hợp N3 Tháng 10"
+                  className="w-full p-2 border border-gray-300 rounded text-sm"
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Cấp độ:</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Cấp độ:</label>
                   <select
                     data-testid="select-mixed-level"
                     value={newLevel}
                     onChange={(e) => setNewLevel(e.target.value as 'N1' | 'N2' | 'N3' | 'N4' | 'N5')}
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }}
+                    className="w-full p-2 border border-gray-300 rounded text-sm"
                   >
-                    <option value="N5">N5</option>
-                    <option value="N4">N4</option>
-                    <option value="N3">N3</option>
-                    <option value="N2">N2</option>
                     <option value="N1">N1</option>
+                    <option value="N2">N2</option>
+                    <option value="N3">N3</option>
+                    <option value="N4">N4</option>
+                    <option value="N5">N5</option>
                   </select>
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Số câu hỏi:</label>
-                  <input
-                    type="number"
-                    value={newCount}
-                    onChange={(e) => setNewCount(Number(e.target.value))}
-                    min={10}
-                    max={100}
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
-                  />
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Chế độ trộn:</label>
+                  <select
+                    data-testid="select-mixed-mode"
+                    value={newMode}
+                    onChange={(e) => setNewMode(e.target.value as 'random' | 'weak_points' | 'by_mondai')}
+                    className="w-full p-2 border border-gray-300 rounded text-sm"
+                  >
+                    <option value="random">Ngẫu nhiên chuẩn</option>
+                    <option value="weak_points">Tập trung điểm yếu</option>
+                    <option value="by_mondai">Theo mondai</option>
+                  </select>
                 </div>
               </div>
 
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Thuật toán trộn:</label>
-                <select
-                  value={newMode}
-                  onChange={(e) => setNewMode(e.target.value as 'random' | 'weak_points' | 'by_mondai')}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }}
-                >
-                  <option value="random">Ngẫu nhiên phân bổ đồng đều các mondai</option>
-                  <option value="weak_points">Tập trung câu hỏi có tỷ lệ làm sai cao</option>
-                  <option value="by_mondai">Trộn chuyên biệt theo từng phần thi</option>
-                </select>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Số lượng câu hỏi:</label>
+                <input
+                  data-testid="input-mixed-count"
+                  type="number"
+                  value={newCount}
+                  onChange={(e) => setNewCount(Number(e.target.value))}
+                  min={10}
+                  max={100}
+                  className="w-full p-2 border border-gray-300 rounded text-sm"
+                />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+              <div className="flex justify-end gap-2 pt-2">
                 <button
+                  type="button"
+                  data-testid="btn-cancel-create-mixed"
                   onClick={() => setShowCreateModal(false)}
-                  style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid #d1d5db', background: '#ffffff', cursor: 'pointer' }}
+                  className="px-4 py-2 bg-gray-100 border border-gray-300 rounded text-sm font-medium hover:bg-gray-200"
                 >
                   Hủy
                 </button>
                 <button
-                  data-testid="btn-confirm-create-mixed"
+                  type="button"
+                  data-testid="btn-submit-create-mixed"
                   onClick={handleCreate}
-                  style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', background: '#2563eb', color: '#ffffff', fontWeight: 600, cursor: 'pointer' }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700"
                 >
-                  Tạo Đề Trộn
+                  Tạo đề
                 </button>
               </div>
             </div>

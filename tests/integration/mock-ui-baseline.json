@@ -19,56 +19,8 @@
   },
   {
     "app": "admin",
-    "route": "/blueprints",
-    "file": "apps/admin/app/blueprints/page.tsx",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "admin",
-    "route": "/cms",
-    "file": "apps/admin/app/cms/page.tsx",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "admin",
-    "route": "/exams",
-    "file": "apps/admin/app/exams/page.tsx",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "admin",
-    "route": "/questions",
-    "file": "apps/admin/app/questions/page.tsx",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "admin",
-    "route": "/vocab",
-    "file": "apps/admin/app/vocab/page.tsx",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "admin",
     "route": "apps/admin/features/billing/billing-service.ts",
     "file": "apps/admin/features/billing/billing-service.ts",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "admin",
-    "route": "apps/admin/features/content/richtext-editor.tsx",
-    "file": "apps/admin/features/content/richtext-editor.tsx",
     "violations": [
       "mảng mẫu"
     ]

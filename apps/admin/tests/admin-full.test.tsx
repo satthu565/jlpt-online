@@ -48,7 +48,23 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
 
   describe('ADM-09: Quản lý báo lỗi câu hỏi từ người dùng', () => {
     it('hiển thị danh sách báo lỗi câu hỏi và bộ lọc trạng thái/loại lỗi', () => {
-      const html = renderWithAuth(<ContentReportsPage />);
+      const html = renderWithAuth(
+        <ContentReportsPage
+          initialReports={[
+            {
+              id: 'rep-01',
+              questionId: 'q-n3-kanji-04',
+              examTitle: 'JLPT N3 Tháng 12/2023',
+              level: 'N3',
+              issueType: 'wrong_answer',
+              description: 'Đáp án đúng là B thay vì C...',
+              status: 'open',
+              reporterEmail: 'student1@example.com',
+              createdAt: '2026-10-15 09:30',
+            },
+          ]}
+        />,
+      );
 
       expect(html).toContain('Quản lý Báo lỗi Câu hỏi từ Người dùng (ADM-09)');
       expect(html).toContain('data-testid="select-report-filter"');
@@ -60,7 +76,24 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
 
   describe('ADM-10: Quản lý nội dung giải thích và bản dịch (Two-Person Review)', () => {
     it('hiển thị hàng đợi duyệt lời giải và áp dụng quy tắc kiểm soát 2 người', () => {
-      const html = renderWithAuth(<ExplanationReviewsPage />);
+      const html = renderWithAuth(
+        <ExplanationReviewsPage
+          initialItems={[
+            {
+              id: 'exp-rev-1',
+              questionId: 'q-n3-grammar-15',
+              version: 2,
+              level: 'N3',
+              authorId: 'usr-editor-01',
+              authorName: 'Biên tập viên A',
+              explanationMarkdown: '**Ngữ pháp**: ~わけにはいかない',
+              translationVi: 'Vì ngày mai có cuộc họp quan trọng...',
+              status: 'pending',
+              submittedAt: '2026-10-15 16:40',
+            },
+          ]}
+        />,
+      );
 
       expect(html).toContain('Kiểm duyệt Lời giải &amp; Bản dịch (ADM-10)');
       expect(html).toContain('data-testid="explanation-card-exp-rev-1"');
@@ -72,7 +105,23 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
 
   describe('ADM-11: Quản lý các đề thi trộn ngẫu nhiên đã tạo', () => {
     it('hiển thị danh sách đề thi trộn, bộ lọc cấp độ N1-N5 và nút khởi tạo', () => {
-      const html = renderWithAuth(<MixedExamsPage />);
+      const html = renderWithAuth(
+        <MixedExamsPage
+          initialExams={[
+            {
+              id: 'mix-01',
+              title: 'Đề Trộn N3 Tổng Hợp #1042',
+              level: 'N3',
+              mode: 'random',
+              questionCount: 35,
+              seed: 'seed-9481-n3',
+              createdAt: '2026-10-15 11:20',
+              attemptCount: 128,
+              status: 'active',
+            },
+          ]}
+        />,
+      );
 
       expect(html).toContain('Quản lý Đề thi Trộn Ngẫu nhiên (ADM-11)');
       expect(html).toContain('data-testid="btn-create-mixed-exam"');
@@ -84,7 +133,21 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
 
   describe('ADM-12: Quản lý từ vựng và mẫu ngữ pháp', () => {
     it('hiển thị bảng từ vựng, cấp độ, furigana và nút thêm từ mới', () => {
-      const html = renderWithAuth(<VocabManagementPage />);
+      const html = renderWithAuth(
+        <VocabManagementPage
+          initialEntries={[
+            {
+              id: 'voc-test-1',
+              word: '怠る',
+              reading: 'おこたる',
+              meaningVi: 'Bỏ bê, lơ là, sao nhãng',
+              level: 'N2',
+              partOfSpeech: 'Động từ nhóm 1',
+              exampleSentence: '試験の準備を怠ってはいけない。',
+            },
+          ]}
+        />,
+      );
 
       expect(html).toContain('Quản lý Từ vựng &amp; Ngữ pháp (ADM-12)');
       expect(html).toContain('data-testid="input-vocab-search"');
@@ -98,7 +161,25 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
 
   describe('ADM-13: Quản lý bài viết và nội dung trang chủ (CMS)', () => {
     it('hiển thị danh sách bài viết blog, nút soạn thảo và xem trước Markdown', () => {
-      const html = renderWithAuth(<CmsManagementPage />);
+      const html = renderWithAuth(
+        <CmsManagementPage
+          initialArticles={[
+            {
+              id: 'art-01',
+              slug: 'huong-dan-thi-jlpt-toan-dien',
+              title: 'Hướng dẫn thi JLPT N1-N5 toàn diện: Cấu trúc đề thi, thang điểm và chiến lược',
+              version: 1,
+              status: 'published',
+              author: 'Admin JLPT',
+              locale: 'vi',
+              markdown: '# Hướng Dẫn Toàn Diện Về Kỳ Thi JLPT N1 - N5',
+              summary: 'Cẩm nang chi tiết nhất về kỳ thi năng lực tiếng Nhật JLPT dành cho mọi cấp độ.',
+              tags: ['JLPT', 'N1'],
+              publishedAt: '2026-10-15 08:00',
+            },
+          ]}
+        />,
+      );
 
       expect(html).toContain('Quản trị Nội dung CMS &amp; Bài viết (ADM-13)');
       expect(html).toContain('data-testid="tab-articles"');
@@ -156,7 +237,7 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
       const html = renderWithAuth(<AiModerationPage />);
       expect(html).toContain('Kiểm duyệt Nội dung AI &amp; Giám sát Chi phí');
       expect(html).toContain('data-testid="checkbox-filter-flagged"');
-      expect(html).toContain('gemini-1.5-flash');
+      expect(html).toContain('data-testid="ai-empty"');
     });
 
     it('OrgSettingsPage hiển thị hồ sơ ứng tuyển giáo viên và thao tác phê duyệt', () => {
