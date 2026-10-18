@@ -91,11 +91,41 @@ export class AdminApiClient {
   }
 
   public getUser(): StaffUser | null {
-    return this.user;
+    if (this.user) return this.user;
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('jlpt_admin_auth_state_v1');
+        if (raw) {
+          const parsed = JSON.parse(raw) as { user?: StaffUser };
+          if (parsed?.user) {
+            this.user = parsed.user;
+            return parsed.user;
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return null;
   }
 
   public getToken(): string | null {
-    return this.token;
+    if (this.token) return this.token;
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('jlpt_admin_auth_state_v1');
+        if (raw) {
+          const parsed = JSON.parse(raw) as { token?: string };
+          if (parsed?.token) {
+            this.token = parsed.token;
+            return parsed.token;
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return null;
   }
 
   public setTotpCode(code: string | null): void {
@@ -111,15 +141,18 @@ export class AdminApiClient {
    * Throws AdminClientGuardError if user is not authenticated, 2FA is pending, or role lacks permission.
    */
   public enforceGuard(requiredRoles?: Role[]): void {
-    if (!this.user || !this.token) {
+    const user = this.getUser();
+    const token = this.getToken();
+
+    if (!user || !token) {
       throw new AdminClientGuardError('UNAUTHENTICATED', 'Yêu cầu đăng nhập tài khoản nhân sự.', 401);
     }
 
-    if (!isStaffRole(this.user.role)) {
+    if (!isStaffRole(user.role)) {
       throw new AdminClientGuardError('FORBIDDEN', 'Tài khoản không thuộc quyền quản trị.', 403);
     }
 
-    if (this.user.twoFactorStatus !== 'verified' || !this.user.twoFactorEnabled) {
+    if (user.twoFactorStatus !== 'verified' || !user.twoFactorEnabled) {
       throw new AdminClientGuardError(
         'TWO_FACTOR_REQUIRED',
         'Nhân sự bắt buộc phải hoàn thành xác thực hai yếu tố (2FA) trước khi truy cập tài nguyên quản trị.',
@@ -128,12 +161,12 @@ export class AdminApiClient {
     }
 
     if (requiredRoles && requiredRoles.length > 0) {
-      if (this.user.role !== 'admin' && !requiredRoles.includes(this.user.role)) {
+      if (user.role !== 'admin' && !requiredRoles.includes(user.role)) {
         throw new AdminClientGuardError(
           'FORBIDDEN',
-          `Vai trò ${this.user.role} không có thẩm quyền truy cập tài nguyên này.`,
+          `Vai trò ${user.role} không có thẩm quyền truy cập tài nguyên này.`,
           403,
-          { requiredRoles, userRole: this.user.role },
+          { requiredRoles, userRole: user.role },
         );
       }
     }
@@ -174,8 +207,9 @@ export class AdminApiClient {
       headers['Host'] = this.adminHost;
     }
 
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    const token = this.getToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     if (this.totpCode) {

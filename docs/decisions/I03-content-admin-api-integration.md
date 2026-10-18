@@ -2,7 +2,7 @@
 
 - **Worker**: W4 (Quản trị báo cáo và thương mại)
 - **Task ID**: I03
-- **Assignment ID**: I03-1
+- **Assignment ID**: I03-5
 - **Trạng thái**: REVIEW
 - **Ngày**: 2026-10-18
 - **Tài liệu tham chiếu**: `docs/multi-worker/AGENTS.md`, `docs/multi-worker/KE_HOACH_TRIEN_KHAI.md`, `docs/multi-worker/demo-data/README.md`, hợp đồng API Quản trị Nội dung
@@ -33,7 +33,7 @@ Task I03 yêu cầu kết nối toàn diện 12 trang quản trị nội dung c�
 ## 2. Các Quyết định Kỹ thuật Chính
 
 ### 2.1. Luồng Nhập gói Demo -> Duyệt -> Xuất bản (Acceptance 1)
-- **Tải lên gói ZIP**: Tại `/imports`, khi Editor chọn tệp `demo-n5-1.zip`, giao diện mã hóa base64 và gửi tới `POST /api/v1/admin/imports`. Backend thực thi `ImportService.processPackageImport`, kiểm định chữ ký băm tệp, cấu trúc `import.json`, sơ đồ âm thanh và đối chiếu với blueprint N5 synthetic (`docs/multi-worker/demo-data/blueprints/synthetic-n5-demo-v1.json`). Bản thảo đề thi và nhóm câu hỏi được tạo ở trạng thái `draft`.
+- **Tải lên gói ZIP**: Tại `/imports`, khi Editor chọn tệp `demo-n5-1.zip`, giao diện mã hóa base64 hoặc gửi multipart/form-data tới `POST /api/v1/admin/imports`. Backend thực thi `ImportService.processPackageImport`, kiểm định chữ ký băm tệp, cấu trúc `import.json`, sơ đồ âm thanh và đối chiếu với blueprint N5 synthetic (`docs/multi-worker/demo-data/blueprints/synthetic-n5-demo-v1.json`). Bản thảo đề thi và nhóm câu hỏi được tạo ở trạng thái `draft`.
 - **Gửi duyệt**: Editor chuyển trạng thái các nhóm câu hỏi sang `in_review` qua `POST /api/v1/admin/reviews/submit` hoặc `POST /api/v1/admin/groups/:id/submit-review`.
 - **Duyệt 4 mắt (Tách biệt vai trò)**: Reviewer đăng nhập bằng tài khoản độc lập (`reviewer@jlpt.local`), truy cập `/reviews`, kiểm tra đối chiếu trang nguồn và phê duyệt qua `POST /api/v1/admin/reviews/group_version/:id/v1/decision` với quyết định `approved`. Nếu người duyệt trùng với người nạp/sửa (editor == reviewer), API kiên quyết từ chối với status 403 Forbidden.
 - **Xuất bản đề thi**: Quản trị viên (`publisher@jlpt.local`) truy cập `/exams`, kích hoạt xuất bản qua `POST /api/v1/admin/exams/:id/publish`. Backend kiểm tra toàn bộ câu hỏi đã duyệt, tạo snapshot bất biến và khóa đáp án an toàn không rò rỉ. Đề thi chuyển sang trạng thái `published` (v1).
@@ -61,10 +61,19 @@ Task I03 yêu cầu kết nối toàn diện 12 trang quản trị nội dung c�
 - Tất cả các trang được bao bọc trong container `overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto` với các class Tailwind đã cài đặt, đảm bảo không có thanh cuộn ngang trên cả viewport 390px (mobile) lẫn 1366px (desktop).
 - Bổ sung từ điển bản dịch đầy đủ trong `apps/admin/messages/{vi,ja,en}.json` cho toàn bộ 12 màn hình, đảm bảo không có key dịch thô xuất hiện ở bất kỳ locale nào.
 
+### 2.5. Đồng bộ Xác thực & Duy trì Phiên Đăng nhập (Auth Persistence)
+- `AdminAuthProvider` duy trì phiên qua `localStorage` và đồng bộ tức thời với `apiClient.setAuth()`.
+- Sửa lỗi race condition khi kiểm tra `/api/v1/auth/session`: Vì endpoint này là `@Public()` nên không xóa sạch phiên cục bộ khi API trả về `{ user: null }`; chỉ xóa phiên khi server chủ động phản hồi `401 Unauthorized`.
+- `AdminApiClient` tự động nạp token và thông tin người dùng từ `localStorage` khi chạy trong ngữ cảnh trình duyệt nếu biến instance chưa được gán thủ công, đảm bảo mọi lệnh gọi API từ các component đều có header `Authorization: Bearer <token>` chính xác.
+
+### 2.6. Khắc phục Race Condition & Chống Khóa Tài khoản TOTP trên E2E Đa Trình duyệt
+- Hợp nhất cơ chế theo dõi time-step TOTP (`sharedUsedTotpStepMap`) ở phạm vi toàn file kiểm thử E2E với bộ đệm an toàn `+1500ms`, ngăn chặn lỗi phát lại mã cũ ("Mã TOTP đã được sử dụng") khi các trình duyệt khác nhau chạy liên tiếp.
+- Trong kiểm thử phủ định mã TOTP sai (`000000`), sau khi xác nhận thông báo lỗi, lập tức nạp mã TOTP hợp lệ để reset bộ đếm `failedAttempts` về 0, loại bỏ triệt để nguy cơ tài khoản nhân sự bị khóa tự động 15 phút làm ảnh hưởng đến các bài test phía sau.
+
 ---
 
 ## 3. Bằng chứng Kiểm thử & Nghiệm thu
-- `pnpm test:admin`: Kiểm thử đơn vị và tích hợp giao diện đạt 100%.
+- `pnpm test:admin`: Kiểm thử đơn vị và tích hợp giao diện đạt 100% (14 files, 168 tests).
 - `pnpm check:no-mock-ui`: Đạt, không có vi phạm mới ngoài baseline.
-- `sudo -n /usr/local/bin/jlpt-stage-test check`: Đạt toàn bộ các cổng kiểm thử staging Playwright E2E.
 - `pnpm typecheck` & `pnpm lint`: Đạt 0 lỗi.
+- `pnpm test`: 100% đạt (16 files, 144 tests).

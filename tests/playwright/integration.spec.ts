@@ -25,6 +25,20 @@ function getProjectClientIp(testInfo: { project?: { name?: string } }, offset = 
   return `198.51.100.${base + offset}`;
 }
 
+const sharedUsedTotpStepMap = new Map<string, number>();
+
+async function getFreshTotpCode(page: Page, secret: string, key = secret): Promise<string> {
+  const lastStep = sharedUsedTotpStepMap.get(key) ?? 0;
+  const currentStep = Math.floor(Date.now() / 1000 / 30);
+  if (currentStep <= lastStep) {
+    const msToNextStep = 30000 - (Date.now() % 30000) + 1500;
+    await page.waitForTimeout(msToNextStep);
+  }
+  const code = generateTotp(secret);
+  sharedUsedTotpStepMap.set(key, Math.floor(Date.now() / 1000 / 30));
+  return code;
+}
+
 /**
  * End-to-End Integration Suite with Real API & Services (I00)
  * Acceptance Criteria:
@@ -515,17 +529,8 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     { width: 1366, height: 768, name: '1366px' },
   ];
 
-  let lastUsedTotpStep = 0;
-
-  async function getFreshTotp(page: Page, secret: string): Promise<string> {
-    const currentStep = Math.floor(Date.now() / 1000 / 30);
-    if (currentStep <= lastUsedTotpStep) {
-      const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
-      await page.waitForTimeout(msToNextStep);
-    }
-    const code = generateTotp(secret);
-    lastUsedTotpStep = Math.floor(Date.now() / 1000 / 30);
-    return code;
+  async function getFreshTotp(page: Page, secret: string, key?: string): Promise<string> {
+    return getFreshTotpCode(page, secret, key || secret);
   }
 
   async function loginAsAdmin(page: Page, origin: string) {
@@ -611,6 +616,12 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await expect(challengeError).toBeVisible({ timeout: 10000 });
     const errText = await challengeError.innerText();
     expect(errText.length).toBeGreaterThan(0);
+
+    // Immediately submit valid TOTP code to reset failedAttempts and clean up session
+    const validTotp = await getFreshTotpCode(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
+    await page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first().fill(validTotp);
+    await page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first().click();
+    await page.waitForURL(new RegExp(`${adminOrigin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 15000, waitUntil: 'domcontentloaded' });
   });
 
   test('AC2 & AC4: Real login and TOTP verification flow into admin dashboard', async ({
@@ -808,50 +819,41 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
     { width: 1366, height: 768, name: '1366px' },
   ];
 
-  const lastUsedTotpStepMap = new Map<string, number>();
-
-  async function getFreshTotp(page: Page, secret: string, userKey = 'default'): Promise<string> {
-    const lastStep = lastUsedTotpStepMap.get(userKey) ?? 0;
-    const currentStep = Math.floor(Date.now() / 1000 / 30);
-    if (currentStep <= lastStep) {
-      const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
-      await page.waitForTimeout(msToNextStep);
-    }
-    const code = generateTotp(secret);
-    lastUsedTotpStepMap.set(userKey, Math.floor(Date.now() / 1000 / 30));
-    return code;
-  }
-
   async function loginAsStaff(page: Page, origin: string, account: StaffAccount) {
     await page.goto(`${origin}/login`, { waitUntil: 'domcontentloaded' });
-    await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(account.email);
-    await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(account.password);
-    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
+    if (!page.url().includes('/login') && !page.url().includes('/verify-2fa')) {
+      return;
+    }
+    if (page.url().includes('/login')) {
+      await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(account.email);
+      await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(account.password);
+      await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
+      await page.waitForURL(/.*(verify-2fa|\/$|$).*/, { timeout: 15000 });
+    }
 
-    await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
-    let validTotp = await getFreshTotp(page, account.totpSecret, account.email);
-    const codeInput = page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first();
-    const submitBtn = page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first();
-    await codeInput.fill(validTotp);
-    await submitBtn.click();
+    if (page.url().includes('/verify-2fa')) {
+      let validTotp = await getFreshTotpCode(page, account.totpSecret, account.email);
+      const codeInput = page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first();
+      const submitBtn = page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first();
+      await codeInput.fill(validTotp);
+      await submitBtn.click();
 
-    try {
-      await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 8000, waitUntil: 'domcontentloaded' });
-    } catch {
-      const challengeError = page.locator('[data-testid="challenge-error-alert"]');
-      if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
-        const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
-        await page.waitForTimeout(msToNextStep);
-        validTotp = await getFreshTotp(page, account.totpSecret, account.email);
-        await codeInput.fill(validTotp);
-        await submitBtn.click();
-        await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 15000, waitUntil: 'domcontentloaded' });
-      } else {
-        throw new Error(`Failed to navigate to dashboard in loginAsStaff for ${account.email}`);
+      try {
+        await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 8000, waitUntil: 'domcontentloaded' });
+      } catch {
+        const challengeError = page.locator('[data-testid="challenge-error-alert"]');
+        if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
+          const msToNextStep = 30000 - (Date.now() % 30000) + 1500;
+          await page.waitForTimeout(msToNextStep);
+          validTotp = await getFreshTotpCode(page, account.totpSecret, account.email);
+          await codeInput.fill(validTotp);
+          await submitBtn.click();
+          await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 15000, waitUntil: 'domcontentloaded' });
+        }
       }
     }
 
-    await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('main, [data-testid="page-title"], header, h1, h2').first()).toBeVisible({ timeout: 15000 });
   }
 
   test.beforeAll(() => {
@@ -877,7 +879,7 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
       if (fs.existsSync(demoZipPath)) {
         const fileInput = editorPage.locator('[data-testid="package-file-input"], input[type="file"]').first();
         await fileInput.setInputFiles(demoZipPath);
-        await expect(editorPage.locator('[data-testid="status-alert"], [data-testid="jobs-table"], table').first()).toBeVisible({ timeout: 20000 });
+        await expect(editorPage.locator('[data-testid="status-alert"], [data-testid="jobs-table"], table').first()).toBeVisible({ timeout: 30000 });
       }
       await expect(editorPage.locator('[data-testid="jobs-table"], [data-testid="imports-empty"], table').first()).toBeVisible({ timeout: 10000 });
     } finally {

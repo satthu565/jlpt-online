@@ -5,6 +5,7 @@ import type { Role } from '@jlpt/schema';
 import { isStaffRole } from './navigation';
 import type { Locale } from './i18n';
 import { DEFAULT_LOCALE, t } from './i18n';
+import { apiClient } from './api-client';
 
 export type TwoFactorStatus = 'verified' | 'setup_required' | 'challenge_required';
 
@@ -93,6 +94,7 @@ export function AdminAuthProvider({
         if (parsed.user && isStaffRole(parsed.user.role) && parsed.token) {
           setUserState(parsed.user);
           setToken(parsed.token);
+          apiClient.setAuth(parsed.user, parsed.token);
 
           // Verify session validity against server
           fetch('/api/v1/auth/session', {
@@ -122,9 +124,8 @@ export function AdminAuthProvider({
                     twoFactorStatus,
                   };
                   setUserState(refreshedUser);
+                  apiClient.setAuth(refreshedUser, parsed.token);
                   localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify({ user: refreshedUser, token: parsed.token }));
-                } else {
-                  saveToStorage(null, null);
                 }
               } else if (res.status === 401) {
                 saveToStorage(null, null);
@@ -134,17 +135,20 @@ export function AdminAuthProvider({
               // Ignore network failure on startup
             });
         }
+      } else if (initialUser) {
+        apiClient.setAuth(initialUser, initialToken || null);
       }
     } catch {
       // Ignore storage read errors
     } finally {
       setIsLoading(false);
     }
-  }, [initialUser]);
+  }, [initialUser, initialToken]);
 
   const saveToStorage = (u: StaffUser | null, tok: string | null) => {
     setUserState(u);
     setToken(tok);
+    apiClient.setAuth(u, tok);
     if (typeof window !== 'undefined') {
       if (u && tok) {
         localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify({ user: u, token: tok }));
