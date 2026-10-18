@@ -3268,7 +3268,7 @@
         "I09"
       ],
       "featureIds": [],
-      "scope": "Các trang commercial (payments, plans, refunds, reconciliation), reports (tổng quan, doanh thu), experiments gọi API thật; sửa endpoint trong module payment, entitlement, reporting, cms, experiment nếu thiếu.",
+      "scope": "Các trang commercial (payments, plans, refunds, reconciliation), reports (tổng quan, doanh thu), experiments gọi API thật; sửa endpoint trong module payment, entitlement, reporting, cms, experiment nếu thiếu. Lưu ý khi làm lại (lượt 4 trượt staging E2E, 34 test đạt, 2 trượt): (1) tests/playwright/integration.spec.ts:877 dùng locator [data-testid^=\"experiment-card-\"], [data-testid=\"experiments-empty\"] khớp nhiều thẻ nên Playwright báo strict mode violation; dùng .first() hoặc kiểm tra số thẻ, không nới lỏng điều kiện kiểm tra dữ liệu thật. (2) Lỗi mã TOTP dùng lại khi đăng nhập nhân sự song song: trong tests/playwright/fixtures/staff-auth.fixture.ts, gặp \"Mã TOTP đã được sử dụng\" thì chờ sang khung 30 giây kế tiếp rồi thử lại với mã mới (nếu I03 đã sửa trên main thì giữ bản của main). (3) Lỗi 500 ở /api/v1/datasets/jlpt-official/* không thuộc I04 nếu trang quản trị của I04 không gọi; không sửa module ngoài danh sách trên.",
       "outputs": [
         "apps/admin/",
         "apps/api/src/modules/payment/",
