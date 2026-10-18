@@ -539,15 +539,15 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
     await page.goto(`${adminOrigin}/login`, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('[data-testid="login-heading"], h1')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="login-card"], h1').first()).toBeVisible({ timeout: 10000 });
 
     // Fill seeded staff email with an intentionally wrong password
-    await page.locator('[data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
-    await page.locator('[data-testid="input-password"], input[type="password"]').fill('WrongPassword123!');
-    await page.locator('[data-testid="btn-login-submit"], button[type="submit"]').click();
+    await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
+    await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill('WrongPassword123!');
+    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
 
     // The API rejects the request and the UI displays the server error alert
-    const errorAlert = page.locator('[data-testid="login-error-alert"], [role="alert"]').first();
+    const errorAlert = page.locator('[data-testid="login-error-alert"]');
     await expect(errorAlert).toBeVisible({ timeout: 10000 });
     const text = await errorAlert.innerText();
     expect(text.length).toBeGreaterThan(0);
@@ -562,20 +562,20 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await page.goto(`${adminOrigin}/login`, { waitUntil: 'domcontentloaded' });
 
     // Login with valid credentials
-    await page.locator('[data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
-    await page.locator('[data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
-    await page.locator('[data-testid="btn-login-submit"], button[type="submit"]').click();
+    await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
+    await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
+    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
 
     // Page redirects to 2FA verification challenge
     await page.waitForURL(/.*verify-2fa.*/, { timeout: 10000 });
-    await expect(page.locator('[data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first()).toBeVisible({ timeout: 10000 });
 
     // Submit invalid 6-digit TOTP code
-    await page.locator('[data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').fill('000000');
-    await page.locator('[data-testid="btn-verify-2fa-submit"], button[type="submit"]').click();
+    await page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first().fill('000000');
+    await page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first().click();
 
     // The API rejects the invalid code and the UI displays the error
-    const challengeError = page.locator('[data-testid="challenge-error-alert"], [role="alert"]').first();
+    const challengeError = page.locator('[data-testid="challenge-error-alert"]');
     await expect(challengeError).toBeVisible({ timeout: 10000 });
     const errText = await challengeError.innerText();
     expect(errText.length).toBeGreaterThan(0);
@@ -590,19 +590,19 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await page.goto(`${adminOrigin}/login`, { waitUntil: 'domcontentloaded' });
 
     // Step 1: Submit valid staff credentials
-    await page.locator('[data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
-    await page.locator('[data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
-    await page.locator('[data-testid="btn-login-submit"], button[type="submit"]').click();
+    await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
+    await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
+    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
 
     // Step 2: Handle TOTP Challenge
     await page.waitForURL(/.*verify-2fa.*/, { timeout: 10000 });
     const validTotp = generateTotp(SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
-    await page.locator('[data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').fill(validTotp);
-    await page.locator('[data-testid="btn-verify-2fa-submit"], button[type="submit"]').click();
+    await page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first().fill(validTotp);
+    await page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first().click();
 
     // Step 3: Successfully authenticated, arrives at dashboard
-    await page.waitForURL(new RegExp(`${adminOrigin}/?$`), { timeout: 10000 });
-    await expect(page.locator('[data-testid="stat-total-users"], header')).toBeVisible({ timeout: 10000 });
+    await page.waitForURL(new RegExp(`${adminOrigin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 10000 });
+    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
   });
 
   test('AC5: Unauthenticated access redirects or displays guard alert', async ({
@@ -626,11 +626,11 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
     // Expect either redirected to /login or unauthenticated guard alert visible
     await expect(
-      page.locator('[data-testid="guard-unauthenticated"], [data-testid="login-card"], [data-testid="email-input"]')
+      page.locator('[data-testid="guard-unauthenticated"], [data-testid="login-card"], [data-testid="email-input"]').first()
     ).toBeVisible({ timeout: 15000 });
 
     const isLogin = page.url().includes('/login');
-    const isGuard = await page.locator('[data-testid="guard-unauthenticated"], [role="alert"]').first().isVisible();
+    const isGuard = await page.locator('[data-testid="guard-unauthenticated"]').first().isVisible();
     expect(isLogin || isGuard).toBe(true);
   });
 
