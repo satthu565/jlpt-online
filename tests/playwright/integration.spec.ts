@@ -24,6 +24,8 @@ function getProjectClientIp(testInfo: { project?: { name?: string } }, offset = 
   return `198.51.100.${base + offset}`;
 }
 
+let globalLastUsedTotpStep = 0;
+
 /**
  * End-to-End Integration Suite with Real API & Services (I00)
  * Acceptance Criteria:
@@ -514,16 +516,14 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     { width: 1366, height: 768, name: '1366px' },
   ];
 
-  let lastUsedTotpStep = 0;
-
   async function getFreshTotp(page: Page, secret: string): Promise<string> {
     const currentStep = Math.floor(Date.now() / 1000 / 30);
-    if (currentStep <= lastUsedTotpStep) {
+    if (currentStep <= globalLastUsedTotpStep) {
       const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
       await page.waitForTimeout(msToNextStep);
     }
     const code = generateTotp(secret);
-    lastUsedTotpStep = Math.floor(Date.now() / 1000 / 30);
+    globalLastUsedTotpStep = Math.floor(Date.now() / 1000 / 30);
     return code;
   }
 
@@ -802,16 +802,14 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     { width: 1366, height: 768, name: '1366px' },
   ];
 
-  let lastUsedTotpStepI04 = 0;
-
   async function getFreshTotpI04(page: Page, secret: string): Promise<string> {
     const currentStep = Math.floor(Date.now() / 1000 / 30);
-    if (currentStep <= lastUsedTotpStepI04) {
+    if (currentStep <= globalLastUsedTotpStep) {
       const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
       await page.waitForTimeout(msToNextStep);
     }
     const code = generateTotp(secret);
-    lastUsedTotpStepI04 = Math.floor(Date.now() / 1000 / 30);
+    globalLastUsedTotpStep = Math.floor(Date.now() / 1000 / 30);
     return code;
   }
 
@@ -844,7 +842,7 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
       }
     }
 
-    await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="stat-total-users"], [data-testid="dashboard-heading"], [data-testid="page-title"], [data-testid="staff-profile-badge"]').first()).toBeVisible({ timeout: 15000 });
   }
 
   test.beforeAll(() => {
@@ -891,6 +889,7 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     await expect(page.locator('[data-testid="btn-export-csv"]')).toBeVisible();
 
     // Switch to retention tab and check insufficient-data indicator
+    await page.locator('[data-testid="report-tab-retention"]').scrollIntoViewIfNeeded();
     await page.locator('[data-testid="report-tab-retention"]').click();
     await expect(page.locator('[data-testid="alert-insufficient-data"]')).toBeVisible();
 

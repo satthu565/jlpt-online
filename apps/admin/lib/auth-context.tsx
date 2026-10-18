@@ -123,8 +123,6 @@ export function AdminAuthProvider({
                   };
                   setUserState(refreshedUser);
                   localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify({ user: refreshedUser, token: parsed.token }));
-                } else {
-                  saveToStorage(null, null);
                 }
               } else if (res.status === 401) {
                 saveToStorage(null, null);

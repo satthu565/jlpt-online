@@ -72,11 +72,27 @@ Mục tiêu của I04:
    - 15 tệp kiểm thử, 192 ca kiểm thử đạt 100% PASS.
 4. **No-mock-ui Validation (`pnpm check:no-mock-ui`)**:
    - Đạt 0 vi phạm mới ngoài danh mục baseline.
-5. **Staging Integration Test (`sudo -n /usr/local/bin/jlpt-stage-test check`)**:
-   - 68 ca kiểm thử Playwright trên môi trường staging thật đạt PASS.
-6. **Common Gates Verification**:
-   - `pnpm install --frozen-lockfile`: PASS.
-   - `pnpm lint`: PASS (13/13 packages).
-   - `pnpm typecheck`: PASS (20/20 packages).
-   - `pnpm test`: PASS (20/20 packages, 40 test files & 533 tests in api).
-   - `pnpm build`: PASS (12/12 packages built successfully).
+
+### 2.4. Khắc phục sự cố Staging E2E & Bảo toàn Phiên đăng nhập Admin
+- **Lỗi phiên đăng nhập Admin trong `AdminAuthProvider` (`apps/admin/lib/auth-context.tsx`)**:
+  - Khi người dùng điều hướng qua các trang quản trị (`page.goto`), `useEffect` trong `AdminAuthProvider` tải lại thông tin phiên từ `localStorage` và đồng thời gọi nền `GET /api/v1/auth/session`.
+  - Endpoint `/api/v1/auth/session` được đánh dấu `@Public()`, khiến `AuthGuard` bỏ qua bước trích xuất token người dùng và trả về `{ user: null, session: null }` (HTTP 200).
+  - Khối `else` trước đó đã gọi `saveToStorage(null, null)` khi `data.user` là null, vô tình xóa sạch token hợp lệ đã lưu trong `localStorage` và chuyển `AdminGuard` sang màn hình cảnh báo `guard-unauthenticated` ("Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.").
+  - Giải pháp: Loại bỏ nhánh `else` xóa phiên vô điều kiện khi nhận HTTP 200 với `user: null`, chỉ xóa phiên khi server trả về mã lỗi HTTP 401 rõ ràng. Phiên đăng nhập hợp lệ của nhân sự được duy trì liên tục và an toàn qua mọi lần điều hướng trang.
+- **Đồng bộ bước sinh mã TOTP tránh lỗi Replay Protection (`tests/playwright/integration.spec.ts`)**:
+  - Gộp cơ chế đếm bước TOTP thành biến dùng chung `globalLastUsedTotpStep` giữa các bộ suite I09 và I04. Khi các test chạy nối tiếp nhau trong cùng cửa sổ 30 giây của RFC 6238, hàm sinh mã sẽ tự động chờ sang bước thời gian tiếp theo, loại bỏ triệt để lỗi "Mã TOTP đã được sử dụng (mã cũ)" từ backend.
+  - Bổ sung `scrollIntoViewIfNeeded()` cho tab retention trên thiết bị di động trước khi kích hoạt click sự kiện.
+
+---
+
+## 3. Nghiệm thu & Kết quả Kiểm tra
+- **Admin Unit & Static Markup Suite (`pnpm test:admin`)**: 15 tệp kiểm thử, 192 ca kiểm thử đạt 100% PASS.
+- **Payment Module Suite (`pnpm test:payments`)**: 21 ca kiểm thử đạt 100% PASS.
+- **No-mock-ui Validation (`pnpm check:no-mock-ui`)**: 0 vi phạm mới ngoài danh mục baseline.
+- **Common Gates**:
+  - `pnpm install --frozen-lockfile`: PASS.
+  - `pnpm lint`: PASS (13/13 packages).
+  - `pnpm typecheck`: PASS (20/20 packages).
+  - `pnpm test`: PASS (20/20 packages, 40 test files & 533 tests in api).
+  - `pnpm build`: PASS (12/12 packages built successfully).
+- **Staging Verification**: `sudo -n /usr/local/bin/jlpt-stage-test check` đạt PASS.
