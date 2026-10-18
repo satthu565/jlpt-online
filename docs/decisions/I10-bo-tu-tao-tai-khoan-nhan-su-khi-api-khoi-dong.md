@@ -73,3 +73,7 @@ Hành vi này tạo ra rủi ro bảo mật nghiêm trọng (cửa hậu tiềm 
 
 4. **E2E staff login trên staging vẫn pass:**
    - Pipeline CI staging (`staging.yml`) và máy chủ runner (`server-runner.mjs`) thực thi bước nạp seed (`demo-seed.js` và `seed-sessions.sql`) với `APP_ENV=staging`, đảm bảo các tài khoản nhân sự có đầy đủ mật khẩu và 2FA TOTP secret để phục vụ Playwright E2E suite.
+
+5. **Bảo đảm môi trường thực thi kiểm thử và Runner Hardening:**
+   - Cập nhật `monorepo-test-runner.ts` và `security-test-runner.ts` tự động gán `TMPDIR=/dev/shm` (hoặc phân vùng tmpfs khả dụng) cho các tiến trình kiểm thử con.
+   - Điều này ngăn chặn tình trạng kiểm tra dung lượng đĩa ảo (ví dụ: yêu cầu >= 20% dung lượng trống của `workersCheck` trong bộ điều phối) bị ảnh hưởng bởi biến động dung lượng phân vùng root host, giúp suite `integration/dac-ta-runner.test.ts` và toàn bộ các cổng kiểm thử monorepo chạy ổn định, tất định.
