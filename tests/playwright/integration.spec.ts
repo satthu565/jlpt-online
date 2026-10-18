@@ -484,6 +484,61 @@ test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () 
     await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
   });
+
+  test('I12 E2E: học viên đăng nhập, tải lại trang, chuyển sang /so-tay và /lop-hoc vẫn ở trạng thái đã đăng nhập; đăng xuất rồi tải lại thì về trạng thái khách', async ({
+    page,
+  }, testInfo) => {
+    const clientIp = getProjectClientIp(testInfo, 44);
+    const ipHeaders = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+    await page.setExtraHTTPHeaders(ipHeaders);
+
+    const studentUser = SEEDED_STAFF_ACCOUNTS.student;
+
+    // 1. Log in via UI at /dang-nhap
+    await page.goto('/dang-nhap', { waitUntil: 'domcontentloaded' });
+    await page.locator('#login-email, input[type="email"]').fill(studentUser.email);
+    await page.locator('#login-password, input[type="password"]').fill(studentUser.password);
+
+    // Wait for successful sign-in response and subsequent redirect to /tai-khoan
+    const [loginResponse] = await Promise.all([
+      page.waitForResponse((res) => res.url().includes('/auth/sign-in/email') && res.status() === 200),
+      page.locator('button[type="submit"]').click(),
+    ]);
+    expect(loginResponse.ok()).toBeTruthy();
+
+    await page.waitForURL(/\/tai-khoan/, { timeout: 15000, waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
+
+    // 2. Reload page on /tai-khoan - verify still logged in
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
+    // Alert warning "Vui lòng đăng nhập để xem thông tin hồ sơ" should NOT be visible
+    await expect(page.locator('text=Vui lòng đăng nhập để xem thông tin hồ sơ')).not.toBeVisible();
+    await expect(page.locator('#user-email')).toHaveValue(studentUser.email, { timeout: 10000 });
+
+    // 3. Move to /so-tay - verify still logged in
+    await page.goto('/so-tay', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
+    // Alert warning "Bạn cần đăng nhập để xem và lưu sổ tay học tập cá nhân" should NOT be visible
+    await expect(page.locator('text=Bạn cần đăng nhập để xem và lưu sổ tay học tập cá nhân')).not.toBeVisible();
+
+    // 4. Move to /lop-hoc - verify still logged in
+    await page.goto('/lop-hoc', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
+    // Alert warning "Bạn cần đăng nhập tài khoản học viên hoặc giáo viên để truy cập lớp học" should NOT be visible
+    await expect(page.locator('text=Bạn cần đăng nhập tài khoản học viên hoặc giáo viên để truy cập lớp học')).not.toBeVisible();
+
+    // 5. Sign out
+    await page.evaluate(async () => {
+      await fetch('/api/v1/auth/sign-out', { method: 'POST', credentials: 'include' });
+    });
+
+    // 6. Reload on /so-tay and verify back to guest state
+    await page.goto('/so-tay', { waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    // In guest state, warning alert IS visible
+    await expect(page.locator('text=Bạn cần đăng nhập để xem và lưu sổ tay học tập cá nhân')).toBeVisible({ timeout: 10000 });
+  });
 });
 
 test.describe('I11: No 500 errors from hardcoded IDs in vocab, grammar, discussions', () => {
@@ -789,6 +844,30 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
     // Step 3: Successfully authenticated, arrives at dashboard
     await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
+  });
+
+  test('I12 E2E admin: nhân sự đăng nhập bằng mật khẩu và TOTP, tải lại trang hoặc mở thẳng /users vẫn ở trạng thái đã đăng nhập', async ({
+    page,
+  }, testInfo) => {
+    const clientIp = getProjectClientIp(testInfo, 54);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    // Step 1: Submit valid staff credentials and handle TOTP challenge
+    await loginAsAdmin(page, adminOrigin);
+
+    // Arrives at dashboard and stats are visible
+    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
+
+    // Step 2: Reload dashboard page and verify still logged in (no "Phiên làm việc đã hết hạn" or guard unauthenticated alert)
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-expired"]')).not.toBeVisible();
+
+    // Step 3: Open /users directly and verify still logged in
+    await page.goto(`${adminOrigin}/users`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('main, [data-testid="user-management-title"], table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-expired"]')).not.toBeVisible();
+    expect(page.url()).toContain('/users');
   });
 
   test('AC5: Unauthenticated access redirects or displays guard alert', async ({
