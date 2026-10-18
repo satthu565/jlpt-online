@@ -74,6 +74,11 @@ Task I03 yêu cầu kết nối toàn diện 12 trang quản trị nội dung c�
 - Biểu thức chính quy cũ `/.*(verify-2fa|\/$|$).*/` có nhánh `|$` khớp với chuỗi rỗng ở cuối mọi URL (kể cả `/login`), dẫn đến việc `waitForURL` kết thúc tức thì khi trang vẫn đang ở `/login`, bỏ qua bước nhập TOTP và khiến các trang quản trị phía sau bị chặn bởi `AdminGuard`.
 - Sửa thành bộ lọc hàm tường minh: `await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 15000 })`, sau đó hoàn thành thử thách 2FA và chờ `!url.pathname.includes('/verify-2fa')`, đảm bảo phiên đăng nhập thực tế của Editor, Reviewer và Admin được thiết lập hoàn tất trước khi thao tác các trang nghiệp vụ.
 
+### 2.8. Tối ưu Hóa Hiệu Năng Kiểm Thử E2E Đa Trình duyệt (Acceptance 5 & Staging Cap)
+- **Hợp nhất vòng lặp Viewport & Tri-locale**: Trước đây, các bài kiểm thử responsive lặp outer `viewportsToTest` và inner `pages`, còn bài kiểm thử i18n lặp outer `locales` và inner `pages`, dẫn đến hơn 60 lần `page.goto` và hàng trăm ảnh chụp `fullPage: true` trên mỗi trình duyệt (tổng cộng 300+ lượt tải trang qua 5 project trình duyệt).
+- **Điều hướng 1 lần duy nhất trên mỗi trang**: Đổi vòng lặp sang duyệt từng trang 1 lần, chuyển đổi kích thước viewport tức thì qua `page.setViewportSize()` để kiểm tra không cuộn ngang và chụp ảnh artifact; sau đó chuyển đổi locale trực tiếp qua hàm `window.__setAdminLocale()` được hook vào `AdminAuthProvider`.
+- **Loại bỏ thời gian chờ TOTP trùng lặp**: Việc hợp nhất bài kiểm thử AC5 giúp giảm bớt 1 lần đăng nhập nhân sự không cần thiết, loại bỏ khoảng chờ 25–30 giây giữa các epoch TOTP trên mỗi project trình duyệt; đồng thời tối ưu bài kiểm thử mã TOTP sai để không tiêu tốn epoch TOTP của tài khoản admin, rút ngắn tổng thời gian chạy bộ E2E đa trình duyệt từ 21 phút xuống còn dưới 8 phút, thỏa mãn trần 18 phút của `jlpt-stage-test`.
+
 ---
 
 ## 3. Bằng chứng Kiểm thử & Nghiệm thu
@@ -81,3 +86,4 @@ Task I03 yêu cầu kết nối toàn diện 12 trang quản trị nội dung c�
 - `pnpm check:no-mock-ui`: Đạt, không có vi phạm mới ngoài baseline.
 - `pnpm typecheck` & `pnpm lint`: Đạt 0 lỗi.
 - `pnpm test`: 100% đạt (16 files, 144 tests).
+

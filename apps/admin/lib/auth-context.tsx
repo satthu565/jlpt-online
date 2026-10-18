@@ -167,6 +167,17 @@ export function AdminAuthProvider({
     }
   };
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as unknown as { __setAdminLocale?: (loc: Locale) => void }).__setAdminLocale = setLocale;
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete (window as unknown as { __setAdminLocale?: (loc: Locale) => void }).__setAdminLocale;
+      }
+    };
+  }, []);
+
   const login = async (
     email: string,
     password?: string,

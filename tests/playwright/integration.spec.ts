@@ -616,12 +616,6 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await expect(challengeError).toBeVisible({ timeout: 10000 });
     const errText = await challengeError.innerText();
     expect(errText.length).toBeGreaterThan(0);
-
-    // Immediately submit valid TOTP code to reset failedAttempts and clean up session
-    const validTotp = await getFreshTotpCode(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
-    await page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first().fill(validTotp);
-    await page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first().click();
-    await page.waitForURL(new RegExp(`${adminOrigin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 15000, waitUntil: 'domcontentloaded' });
   });
 
   test('AC2 & AC4: Real login and TOTP verification flow into admin dashboard', async ({
@@ -710,13 +704,13 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
       ? VIEWPORTS.filter((v) => v.width <= 500)
       : VIEWPORTS;
 
-    for (const vp of viewportsToTest) {
-      await page.setViewportSize({ width: vp.width, height: vp.height });
+    for (const route of IN_SCOPE_PAGES) {
+      await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+      await page.waitForTimeout(50);
 
-      for (const route of IN_SCOPE_PAGES) {
-        await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
-        await page.waitForTimeout(100);
+      for (const vp of viewportsToTest) {
+        await page.setViewportSize({ width: vp.width, height: vp.height });
 
         // Verify no horizontal overflow (allow 1px subpixel tolerance on fractional DPR displays)
         const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
@@ -734,7 +728,6 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
         // Save screenshot artifact for CI review
         await page.screenshot({
           path: path.join(artifactDir, `admin-${route.slug}-${vp.name}.png`),
-          fullPage: true,
         });
       }
     }
@@ -751,22 +744,24 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
     const locales = ['vi', 'ja', 'en'];
 
-    for (const locale of locales) {
-      await page.evaluate((l) => {
-        try {
-          localStorage.setItem('jlpt_admin_locale_v1', l);
-          localStorage.setItem('admin_locale', l);
-          document.cookie = `admin_locale=${l}; path=/; SameSite=Lax`;
-          document.cookie = `jlpt_admin_locale_v1=${l}; path=/; SameSite=Lax`;
-        } catch {
-          // ignore storage errors
-        }
-      }, locale);
+    for (const route of IN_SCOPE_PAGES) {
+      await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+      await page.waitForTimeout(50);
 
-      for (const route of IN_SCOPE_PAGES) {
-        await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
-        await page.waitForTimeout(100);
+      for (const locale of locales) {
+        await page.evaluate((l) => {
+          try {
+            (window as unknown as { __setAdminLocale?: (loc: string) => void }).__setAdminLocale?.(l);
+            localStorage.setItem('jlpt_admin_locale_v1', l);
+            localStorage.setItem('admin_locale', l);
+            document.cookie = `admin_locale=${l}; path=/; SameSite=Lax`;
+            document.cookie = `jlpt_admin_locale_v1=${l}; path=/; SameSite=Lax`;
+          } catch {
+            // ignore storage errors
+          }
+        }, locale);
+        await page.waitForTimeout(50);
 
         const bodyText = await page.innerText('body');
         // Assert no unparsed raw translation keys like 'app.title', 'roles.admin', 'users.empty'
@@ -780,6 +775,16 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
           path: path.join(artifactDir, `admin-${route.slug}-1366px-${locale}.png`),
         });
       }
+
+      await page.evaluate(() => {
+        try {
+          (window as unknown as { __setAdminLocale?: (loc: string) => void }).__setAdminLocale?.('vi');
+          localStorage.setItem('jlpt_admin_locale_v1', 'vi');
+          localStorage.setItem('admin_locale', 'vi');
+        } catch {
+          // ignore reset errors
+        }
+      });
     }
   });
 });
@@ -962,7 +967,7 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
     await expect(page.locator('[data-testid="exam-table"], [data-testid="exams-empty"]').first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('AC5: Responsive viewports (390px, 1366px), zero horizontal overflow, and screenshot capture for 12 content admin pages', async ({
+  test('AC5: Responsive viewports (390px, 1366px), zero horizontal overflow, and tri-locale i18n verification for 12 content admin pages', async ({
     page,
   }, testInfo) => {
     test.setTimeout(240_000);
@@ -976,13 +981,14 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
       ? VIEWPORTS.filter((v) => v.width <= 500)
       : VIEWPORTS;
 
-    for (const vp of viewportsToTest) {
-      await page.setViewportSize({ width: vp.width, height: vp.height });
+    for (const route of CONTENT_ADMIN_PAGES) {
+      await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('main, [data-testid$="-title"], header, h2').first()).toBeVisible({ timeout: 10000 });
+      await page.waitForTimeout(50);
 
-      for (const route of CONTENT_ADMIN_PAGES) {
-        await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('main, [data-testid$="-title"], header, h2').first()).toBeVisible({ timeout: 10000 });
-        await page.waitForTimeout(100);
+      // 1. Verify responsive viewports (390px, 1366px) & capture screenshots without horizontal scroll
+      for (const vp of viewportsToTest) {
+        await page.setViewportSize({ width: vp.width, height: vp.height });
 
         // Verify zero horizontal scroll (allow 1px subpixel tolerance)
         const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
@@ -1000,42 +1006,33 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
         // Save screenshot artifact for CI review
         await page.screenshot({
           path: path.join(artifactDir, `admin-${route.slug}-${vp.name}.png`),
-          fullPage: true,
         });
       }
-    }
-  });
 
-  test('AC5: Tri-locale i18n verification (vi, ja, en) without raw translation keys across 12 content admin pages', async ({
-    page,
-  }, testInfo) => {
-    test.setTimeout(240_000);
-    const clientIp = getProjectClientIp(testInfo, 63);
-    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+      // 2. Tri-locale i18n verification without raw translation keys
+      // Default locale: vi
+      let bodyText = await page.innerText('body');
+      expect(
+        bodyText,
+        `Raw translation key found on ${route.path} in locale [vi]`,
+      ).not.toMatch(/\b(content|app|roles|auth|nav|common)\.[a-zA-Z0-9_.-]+\b/);
 
-    await loginAsStaff(page, adminOrigin, SEEDED_STAFF_ACCOUNTS.admin);
+      // Verify ja and en
+      for (const locale of ['ja', 'en'] as const) {
+        await page.evaluate((l) => {
+          try {
+            (window as unknown as { __setAdminLocale?: (loc: string) => void }).__setAdminLocale?.(l);
+            localStorage.setItem('jlpt_admin_locale_v1', l);
+            localStorage.setItem('admin_locale', l);
+            document.cookie = `admin_locale=${l}; path=/; SameSite=Lax`;
+            document.cookie = `jlpt_admin_locale_v1=${l}; path=/; SameSite=Lax`;
+          } catch {
+            // ignore storage errors
+          }
+        }, locale);
+        await page.waitForTimeout(50);
 
-    const locales = ['vi', 'ja', 'en'];
-
-    for (const locale of locales) {
-      await page.evaluate((l) => {
-        try {
-          localStorage.setItem('jlpt_admin_locale_v1', l);
-          localStorage.setItem('admin_locale', l);
-          document.cookie = `admin_locale=${l}; path=/; SameSite=Lax`;
-          document.cookie = `jlpt_admin_locale_v1=${l}; path=/; SameSite=Lax`;
-        } catch {
-          // ignore storage errors
-        }
-      }, locale);
-
-      for (const route of CONTENT_ADMIN_PAGES) {
-        await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('main, [data-testid$="-title"], header, h2').first()).toBeVisible({ timeout: 10000 });
-        await page.waitForTimeout(100);
-
-        const bodyText = await page.innerText('body');
-        // Assert no unparsed raw translation keys
+        bodyText = await page.innerText('body');
         expect(
           bodyText,
           `Raw translation key found on ${route.path} in locale [${locale}]`,
@@ -1046,6 +1043,19 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
           path: path.join(artifactDir, `admin-${route.slug}-1366px-${locale}.png`),
         });
       }
+
+      // Reset back to vi for subsequent pages
+      await page.evaluate(() => {
+        try {
+          (window as unknown as { __setAdminLocale?: (loc: string) => void }).__setAdminLocale?.('vi');
+          localStorage.setItem('jlpt_admin_locale_v1', 'vi');
+          localStorage.setItem('admin_locale', 'vi');
+          document.cookie = `admin_locale=vi; path=/; SameSite=Lax`;
+          document.cookie = `jlpt_admin_locale_v1=vi; path=/; SameSite=Lax`;
+        } catch {
+          // ignore reset errors
+        }
+      });
     }
   });
 });
