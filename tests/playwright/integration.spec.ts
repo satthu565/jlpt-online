@@ -484,6 +484,199 @@ test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () 
     await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
   });
+
+  test('I12 E2E: học viên đăng nhập, tải lại trang, chuyển sang /so-tay và /lop-hoc vẫn ở trạng thái đã đăng nhập; đăng xuất rồi tải lại thì về trạng thái khách', async ({
+    page,
+  }, testInfo) => {
+    const clientIp = getProjectClientIp(testInfo, 44);
+    const ipHeaders = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+    await page.setExtraHTTPHeaders(ipHeaders);
+
+    const studentUser = SEEDED_STAFF_ACCOUNTS.student;
+
+    // 1. Log in via UI at /dang-nhap
+    await page.goto('/dang-nhap', { waitUntil: 'domcontentloaded' });
+    await page.locator('#login-email, input[type="email"]').fill(studentUser.email);
+    await page.locator('#login-password, input[type="password"]').fill(studentUser.password);
+
+    // Wait for successful sign-in response and subsequent redirect to /tai-khoan
+    const [loginResponse] = await Promise.all([
+      page.waitForResponse((res) => res.url().includes('/auth/sign-in/email') && res.status() === 200),
+      page.locator('button[type="submit"]').click(),
+    ]);
+    expect(loginResponse.ok()).toBeTruthy();
+
+    await page.waitForURL(/\/tai-khoan/, { timeout: 15000, waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
+
+    // 2. Reload page on /tai-khoan - verify still logged in
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
+    // Alert warning "Vui lòng đăng nhập để xem thông tin hồ sơ" should NOT be visible
+    await expect(page.locator('text=Vui lòng đăng nhập để xem thông tin hồ sơ')).not.toBeVisible();
+    await expect(page.locator('#user-email')).toHaveValue(studentUser.email, { timeout: 10000 });
+
+    // 3. Move to /so-tay - verify still logged in
+    await page.goto('/so-tay', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
+    // Alert warning "Bạn cần đăng nhập để xem và lưu sổ tay học tập cá nhân" should NOT be visible
+    await expect(page.locator('text=Bạn cần đăng nhập để xem và lưu sổ tay học tập cá nhân')).not.toBeVisible();
+
+    // 4. Move to /lop-hoc - verify still logged in
+    await page.goto('/lop-hoc', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
+    // Alert warning "Bạn cần đăng nhập tài khoản học viên hoặc giáo viên để truy cập lớp học" should NOT be visible
+    await expect(page.locator('text=Bạn cần đăng nhập tài khoản học viên hoặc giáo viên để truy cập lớp học')).not.toBeVisible();
+
+    // 5. Sign out
+    await page.evaluate(async () => {
+      await fetch('/api/v1/auth/sign-out', { method: 'POST', credentials: 'include' });
+    });
+
+    // 6. Reload on /so-tay and verify back to guest state
+    await page.goto('/so-tay', { waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    // In guest state, warning alert IS visible
+    await expect(page.locator('text=Bạn cần đăng nhập để xem và lưu sổ tay học tập cá nhân')).toBeVisible({ timeout: 10000 });
+  });
+});
+
+test.describe('I11: No 500 errors from hardcoded IDs in vocab, grammar, discussions', () => {
+  test.skip(({ browserName }) => browserName === 'webkit' || browserName === 'firefox', 'Firefox and WebKit host libraries are missing on Linux runners');
+
+  test('I11-AC1 & AC4: Authenticated student visits /tu-vung, /ngu-phap, /thao-luan without any 5xx API responses', async ({
+    page,
+    request,
+  }, testInfo) => {
+    const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+    try {
+      const ping = await request.get(`${baseURL}/healthz`, { timeout: 3000 });
+      if (!ping.ok()) {
+        if (!process.env.CI) {
+          test.skip(true, 'Staging live server not running locally; skipping live check');
+          return;
+        }
+      }
+    } catch {
+      if (!process.env.CI) {
+        test.skip(true, 'Staging live server not reachable; skipping live check');
+        return;
+      }
+    }
+
+    const clientIp = getProjectClientIp(testInfo, 50);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    // Authenticate as demo student on staging when credentials are available
+    const apiBaseUrl = process.env.STAGING_API_URL || process.env.API_BASE_URL || 'http://127.0.0.1:4000';
+    try {
+      const studentAuth = await authenticateStaffAccount(
+        SEEDED_STAFF_ACCOUNTS.student,
+        apiBaseUrl,
+        clientIp,
+      );
+      if (studentAuth?.token) {
+        let domain = '127.0.0.1';
+        try {
+          domain = new URL(baseURL).hostname;
+        } catch {
+          // ignore
+        }
+        await page.context().addCookies([
+          {
+            name: 'auth_token',
+            value: studentAuth.token,
+            domain,
+            path: '/',
+          },
+        ]);
+      }
+    } catch {
+      // If student account is unseeded, continue testing live pages in unauthenticated state
+    }
+
+    // Track all responses to ensure no 5xx errors occur
+    const serverErrors: Array<{ url: string; status: number }> = [];
+    page.on('response', (response) => {
+      if (response.status() >= 500) {
+        serverErrors.push({ url: response.url(), status: response.status() });
+      }
+    });
+
+    // 1. Visit /tu-vung
+    await page.goto('/tu-vung', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="vocab-explorer"]')).toBeVisible({ timeout: 10000 });
+
+    // 2. Visit /ngu-phap
+    await page.goto('/ngu-phap', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="grammar-explorer"]')).toBeVisible({ timeout: 10000 });
+
+    // 3. Visit /thao-luan
+    await page.goto('/thao-luan', { waitUntil: 'domcontentloaded' });
+    await expect(
+      page.locator('input[placeholder*="câu hỏi" i], [data-testid="discussion-gated-card"]').first(),
+    ).toBeVisible({ timeout: 10000 });
+
+    // Assert strictly no 5xx requests were triggered across all three pages
+    expect(serverErrors, `Detected 5xx server errors: ${JSON.stringify(serverErrors)}`).toHaveLength(0);
+  });
+
+  test('I11-AC2: API routes reject invalid (non-UUID) IDs with 400 Bad Request (INVALID_UUID), never 500', async ({
+    request,
+  }, testInfo) => {
+    const apiBaseUrl = process.env.STAGING_API_URL || process.env.API_BASE_URL || 'http://127.0.0.1:4000';
+    const clientIp = getProjectClientIp(testInfo, 51);
+    const ipHeaders = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+
+    try {
+      const ping = await request.get(`${apiBaseUrl}/api/v1/health`, { headers: ipHeaders, timeout: 3000 });
+      if (!ping.ok()) {
+        if (!process.env.CI) {
+          test.skip(true, 'Live API server not running locally; skipping live check');
+          return;
+        }
+      }
+    } catch {
+      if (!process.env.CI) {
+        test.skip(true, 'Live API server not reachable; skipping live check');
+        return;
+      }
+    }
+
+    // Authenticate demo student to test authenticated route validation
+    let authHeaders: Record<string, string> = { ...ipHeaders };
+    try {
+      const studentAuth = await authenticateStaffAccount(
+        SEEDED_STAFF_ACCOUNTS.student,
+        apiBaseUrl,
+        clientIp,
+      );
+      if (studentAuth?.token) {
+        authHeaders = {
+          ...ipHeaders,
+          authorization: `Bearer ${studentAuth.token}`,
+        };
+      }
+    } catch {
+      // In staging CI, seeded student account is guaranteed
+    }
+
+    // 1. Invalid dataset ID 'jlpt-official' must return 400 Bad Request with INVALID_UUID, NEVER 500
+    const datasetRes = await request.get(`${apiBaseUrl}/api/v1/datasets/jlpt-official/vocabulary`, {
+      headers: authHeaders,
+    });
+    expect(datasetRes.status()).toBe(400);
+    const datasetBody = (await datasetRes.json()) as { error?: { code?: string } };
+    expect(datasetBody?.error?.code).toBe('INVALID_UUID');
+
+    // 2. Invalid question ID 'q-default-1' must return 400 Bad Request with INVALID_UUID, NEVER 500
+    const discussionRes = await request.get(`${apiBaseUrl}/api/v1/questions/q-default-1/discussions`, {
+      headers: authHeaders,
+    });
+    expect(discussionRes.status()).toBe(400);
+    const discussionBody = (await discussionRes.json()) as { error?: { code?: string } };
+    expect(discussionBody?.error?.code).toBe('INVALID_UUID');
+  });
 });
 
 /**
@@ -653,6 +846,30 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
   });
 
+  test('I12 E2E admin: nhân sự đăng nhập bằng mật khẩu và TOTP, tải lại trang hoặc mở thẳng /users vẫn ở trạng thái đã đăng nhập', async ({
+    page,
+  }, testInfo) => {
+    const clientIp = getProjectClientIp(testInfo, 54);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    // Step 1: Submit valid staff credentials and handle TOTP challenge
+    await loginAsAdmin(page, adminOrigin);
+
+    // Arrives at dashboard and stats are visible
+    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
+
+    // Step 2: Reload dashboard page and verify still logged in (no "Phiên làm việc đã hết hạn" or guard unauthenticated alert)
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-expired"]')).not.toBeVisible();
+
+    // Step 3: Open /users directly and verify still logged in
+    await page.goto(`${adminOrigin}/users`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('main, [data-testid="user-management-title"], table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-expired"]')).not.toBeVisible();
+    expect(page.url()).toContain('/users');
+  });
+
   test('AC5: Unauthenticated access redirects or displays guard alert', async ({
     page,
   }, testInfo) => {
@@ -771,6 +988,3 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     }
   });
 });
-
-
-

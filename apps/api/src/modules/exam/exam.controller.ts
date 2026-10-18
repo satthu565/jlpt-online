@@ -22,6 +22,7 @@ import { ExamService } from './exam.service.js';
 import { AuthService } from '../auth/auth.service.js';
 import { Optional } from '@nestjs/common';
 import type { Level, ExamKind, Session } from '@jlpt/schema';
+import { extractTokenFromRequest } from '../../common/guards/auth.guard.js';
 
 @Controller()
 @RateLimit({ limit: 1000, windowSec: 60, keyPrefix: 'exams' })
@@ -92,34 +93,7 @@ export class ExamController {
       }
     } else {
       // If no media token, require valid authentication and staff role (admin/editor/reviewer)
-      let authToken: string | null = null;
-      const authHeader = req.headers['authorization'];
-      if (authHeader && typeof authHeader === 'string') {
-        const parts = authHeader.split(' ');
-        if (parts.length === 2 && parts[0]?.toLowerCase() === 'bearer') {
-          authToken = parts[1] ?? null;
-        } else {
-          authToken = authHeader;
-        }
-      }
-
-      if (!authToken && req.headers.cookie && typeof req.headers.cookie === 'string') {
-        const cookies = req.headers.cookie.split(';').map((c) => c.trim());
-        for (const cookie of cookies) {
-          if (cookie.startsWith('__Host-session=')) {
-            authToken = decodeURIComponent(cookie.substring('__Host-session='.length));
-            break;
-          }
-          if (cookie.startsWith('auth_token=')) {
-            authToken = decodeURIComponent(cookie.substring('auth_token='.length));
-            break;
-          }
-          if (cookie.startsWith('better-auth.session_token=')) {
-            authToken = decodeURIComponent(cookie.substring('better-auth.session_token='.length));
-            break;
-          }
-        }
-      }
+      const authToken = extractTokenFromRequest(req);
 
       if (!authToken) {
         throw new ForbiddenException({

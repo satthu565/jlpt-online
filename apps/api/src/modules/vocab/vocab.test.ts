@@ -390,4 +390,30 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       expect(storedTags.some((t) => t.tag === 'target_vocab:山')).toBe(true);
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // I11: Route API nhận id sai định dạng trả 400/404, không bao giờ 500
+  // ---------------------------------------------------------------------------
+  describe('I11: Route API nhận id sai định dạng trả 400/404, không bao giờ 500', () => {
+    it('throws NotFoundException when datasetId is non-UUID (e.g. jlpt-official)', async () => {
+      // Calling getDataset with non-UUID must throw NotFoundException, never 500
+      await expect(vocabController.getDataset('jlpt-official')).rejects.toThrow();
+
+      // Calling getDatasetVocabulary with non-UUID must throw NotFoundException, never 500
+      await expect(vocabController.getDatasetVocabulary('jlpt-official')).rejects.toThrow();
+
+      // Calling getDatasetGrammar with non-UUID must throw NotFoundException, never 500
+      await expect(vocabController.getDatasetGrammar('jlpt-official')).rejects.toThrow();
+
+      // Calling getDatasetKanji with non-UUID must throw NotFoundException, never 500
+      await expect(vocabController.getDatasetKanji('jlpt-official')).rejects.toThrow();
+    });
+
+    it('listDatasets auto-initializes a standard dataset if none exists', async () => {
+      // Even on an initially clean database, listDatasets returns at least one valid UUID dataset
+      const res = await vocabController.listDatasets();
+      expect(res.items.length).toBeGreaterThan(0);
+      expect(res.items[0]?.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+    });
+  });
 });

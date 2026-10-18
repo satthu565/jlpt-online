@@ -16,6 +16,7 @@ import { AuthService } from './auth.service.js';
 import { Public } from '../../common/decorators/public.decorator.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
+import { extractTokenFromRequest } from '../../common/guards/auth.guard.js';
 
 interface SignUpBody {
   email: string;
@@ -104,16 +105,27 @@ export class AuthController {
   }
 
   /**
-   * ACC-02: Đăng xuất
+   * ACC-02: Đăng xuất - xóa phiên trong DB và xóa cookie auth_token
    */
+  @Public()
   @Post('sign-out')
   @HttpCode(HttpStatus.OK)
   async signOut(
     @CurrentUser() user: AuthUserContext | undefined,
+    @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
-    if (user?.sessionToken) {
-      await this.authService.signOut(user.sessionToken);
+    let token = user?.sessionToken;
+    if (!token) {
+      token = extractTokenFromRequest(req) ?? undefined;
+    }
+
+    if (token) {
+      try {
+        await this.authService.signOut(token);
+      } catch {
+        // Ignore error if session was already deleted
+      }
     }
 
     res.header(
@@ -180,26 +192,39 @@ export class AuthController {
   }
 
   /**
-   * Kiểm tra phiên đăng nhập hiện tại
+   * Kiểm tra phiên đăng nhập hiện tại qua cookie hoặc Bearer token
    */
   @Public()
   @Get('session')
-  async getSession(@CurrentUser() user: AuthUserContext | undefined) {
-    if (!user) {
+  async getSession(
+    @CurrentUser() user: AuthUserContext | undefined,
+    @Req() req: FastifyRequest,
+  ) {
+    let currentUser = user;
+    if (!currentUser) {
+      const token = extractTokenFromRequest(req);
+      if (token) {
+        currentUser = (await this.authService.getSession(token)) ?? undefined;
+      }
+    }
+
+    if (!currentUser) {
       return { user: null, session: null };
     }
+
     return {
       user: {
-        id: user.userId,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        emailVerified: user.emailVerified,
-        twoFactorEnabled: user.twoFactorEnabled ?? false,
+        id: currentUser.userId,
+        email: currentUser.email,
+        name: currentUser.name,
+        role: currentUser.role,
+        emailVerified: currentUser.emailVerified,
+        twoFactorEnabled: currentUser.twoFactorEnabled ?? false,
       },
       session: {
-        id: user.sessionId,
-        twoFactorVerified: user.twoFactorVerified ?? false,
+        id: currentUser.sessionId,
+        userId: currentUser.userId,
+        twoFactorVerified: currentUser.twoFactorVerified ?? false,
       },
     };
   }
