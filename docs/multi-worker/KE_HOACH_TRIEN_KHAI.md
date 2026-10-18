@@ -1316,6 +1316,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:admin`
   - `pnpm check:no-mock-ui`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1342,6 +1343,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:admin`
   - `pnpm check:no-mock-ui`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1369,6 +1371,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - `pnpm test:admin`
   - `pnpm test:payments`
   - `pnpm check:no-mock-ui`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1396,6 +1399,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:web`
   - `pnpm check:no-mock-ui`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1448,6 +1452,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - `pnpm test:auth`
   - `pnpm test:security`
   - `pnpm test:api:all`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1473,6 +1478,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:web`
   - `pnpm check:no-mock-ui`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1496,6 +1502,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:auth`
   - `pnpm test:security`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1524,6 +1531,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:web`
   - `pnpm check:no-mock-ui`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1626,6 +1634,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - `pnpm test:web`
   - `pnpm check:ui-primitives`
   - `pnpm check:no-mock-ui`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1651,6 +1660,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - `pnpm test:admin`
   - `pnpm check:ui-primitives`
   - `pnpm check:no-mock-ui`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1675,6 +1685,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:web`
   - `pnpm build`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1775,6 +1786,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:api:all`
   - `pnpm test:security`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1805,6 +1817,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - `pnpm test:web`
   - `pnpm check:no-mock-ui`
   - `pnpm check:ui-primitives`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1833,6 +1846,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - `pnpm test:admin`
   - `pnpm check:no-mock-ui`
   - `pnpm check:ui-primitives`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 

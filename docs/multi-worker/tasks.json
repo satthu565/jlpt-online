@@ -3193,7 +3193,8 @@
       ],
       "checks": [
         "pnpm test:admin",
-        "pnpm check:no-mock-ui"
+        "pnpm check:no-mock-ui",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
       ],
       "contracts": [
         "API"
@@ -3236,7 +3237,8 @@
       ],
       "checks": [
         "pnpm test:admin",
-        "pnpm check:no-mock-ui"
+        "pnpm check:no-mock-ui",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
       ],
       "contracts": [
         "API"
@@ -3285,7 +3287,8 @@
       "checks": [
         "pnpm test:admin",
         "pnpm test:payments",
-        "pnpm check:no-mock-ui"
+        "pnpm check:no-mock-ui",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
       ],
       "contracts": [
         "API"
@@ -3330,7 +3333,8 @@
       ],
       "checks": [
         "pnpm test:web",
-        "pnpm check:no-mock-ui"
+        "pnpm check:no-mock-ui",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
       ],
       "contracts": [
         "API"
@@ -3442,7 +3446,8 @@
       "checks": [
         "pnpm test:auth",
         "pnpm test:security",
-        "pnpm test:api:all"
+        "pnpm test:api:all",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
       ],
       "contracts": [
         "API"
@@ -3484,7 +3489,8 @@
       ],
       "checks": [
         "pnpm test:web",
-        "pnpm check:no-mock-ui"
+        "pnpm check:no-mock-ui",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
       ],
       "contracts": [
         "API"
@@ -3552,7 +3558,8 @@
       ],
       "checks": [
         "pnpm test:auth",
-        "pnpm test:security"
+        "pnpm test:security",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
       ],
       "contracts": [
         "API"
@@ -3599,7 +3606,8 @@
       ],
       "checks": [
         "pnpm test:web",
-        "pnpm check:no-mock-ui"
+        "pnpm check:no-mock-ui",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
       ],
       "contracts": [
         "API"
@@ -3781,7 +3789,8 @@
       "checks": [
         "pnpm test:web",
         "pnpm check:ui-primitives",
-        "pnpm check:no-mock-ui"
+        "pnpm check:no-mock-ui",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
       ],
       "contracts": [
         "API"
@@ -3820,7 +3829,8 @@
       "checks": [
         "pnpm test:admin",
         "pnpm check:ui-primitives",
-        "pnpm check:no-mock-ui"
+        "pnpm check:no-mock-ui",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
       ],
       "contracts": [
         "API"
@@ -3860,7 +3870,8 @@
       ],
       "checks": [
         "pnpm test:web",
-        "pnpm build"
+        "pnpm build",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
       ],
       "contracts": [
         "API"
@@ -4053,7 +4064,8 @@
       ],
       "checks": [
         "pnpm test:api:all",
-        "pnpm test:security"
+        "pnpm test:security",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
       ],
       "contracts": [
         "API",
@@ -4104,7 +4116,8 @@
       "checks": [
         "pnpm test:web",
         "pnpm check:no-mock-ui",
-        "pnpm check:ui-primitives"
+        "pnpm check:ui-primitives",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
       ],
       "contracts": [
         "API"
@@ -4150,7 +4163,8 @@
       "checks": [
         "pnpm test:admin",
         "pnpm check:no-mock-ui",
-        "pnpm check:ui-primitives"
+        "pnpm check:ui-primitives",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
       ],
       "contracts": [
         "API"
