@@ -309,7 +309,7 @@ test.describe('Real Staging User Journey & Exam Flow (I05)', () => {
 
     // 3. User navigates to /xac-minh-email?token=...
     await page.goto(`${webOrigin}/xac-minh-email?token=${verificationToken}`);
-    await expect(page.locator('[role="alert"], a[href="/dang-nhap"]').first()).toBeVisible({ timeout: 20000 });
+    await expect(page.locator('main [role="alert"], main a[href="/dang-nhap"]').first()).toBeVisible({ timeout: 20000 });
 
     // 4. User navigates to /dang-nhap and signs in
     await page.goto(`${webOrigin}/dang-nhap`);
@@ -416,7 +416,7 @@ test.describe('Real Staging User Journey & Exam Flow (I05)', () => {
     const guestPage = await guestContext.newPage();
 
     await guestPage.goto(`${webOrigin}/lich-su`);
-    await expect(guestPage.locator('[data-testid="history-error"], a[href*="/dang-nhap"]').first()).toBeVisible({ timeout: 15000 });
+    await expect(guestPage.locator('[data-testid="history-error"], main a[href*="/dang-nhap"]').first()).toBeVisible({ timeout: 15000 });
 
     await guestContext.close();
   });

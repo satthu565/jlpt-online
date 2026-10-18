@@ -296,9 +296,9 @@ test.describe('I05 Real API & Infrastructure End-to-End Suite', () => {
     // Navigating with a non-existent or VIP exam must either show login prompt or redirect to /dang-nhap
     await guestPage.goto('/phong-thi?examId=vip-n1-exam&mode=real');
     const loginPrompt = guestPage
-      .locator('text=yêu cầu đăng nhập')
-      .or(guestPage.locator('a[href*="/dang-nhap"]'))
-      .or(guestPage.locator('text=Đăng nhập'));
+      .locator('main text=yêu cầu đăng nhập')
+      .or(guestPage.locator('main a[href*="/dang-nhap"]'))
+      .or(guestPage.locator('main text=Đăng nhập'));
 
     await expect(loginPrompt.first()).toBeVisible({ timeout: 10000 });
     await guestContext.close();
