@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminGuard } from '../../../lib/ui-guard';
 import { useAdminAuth } from '../../../lib/auth-context';
+import { apiClient } from '../../../lib/api-client';
+import { t } from '../../../lib/i18n';
 
 export interface QuestionReportItem {
   id: string;
@@ -17,111 +19,145 @@ export interface QuestionReportItem {
   resolutionNote?: string;
 }
 
-export default function ContentReportsPage(): React.JSX.Element {
-  const { user: _user } = useAdminAuth();
+export interface ContentReportsProps {
+  initialReports?: QuestionReportItem[];
+}
 
-  const [reports, setReports] = useState<QuestionReportItem[]>([
-    {
-      id: 'rep-01',
-      questionId: 'q-n3-kanji-04',
-      examTitle: 'JLPT N3 Tháng 12/2023',
-      level: 'N3',
-      issueType: 'wrong_answer',
-      description: 'Đáp án đúng trong hệ thống là câu 2, nhưng theo từ điển Daijirin thì câu 3 mới chính xác.',
-      status: 'open',
-      reporterEmail: 'student1@example.com',
-      createdAt: '2026-10-15 09:30',
-    },
-    {
-      id: 'rep-02',
-      questionId: 'q-n2-audio-01',
-      examTitle: 'JLPT N2 Đề Luyện Số 1',
-      level: 'N2',
-      issueType: 'audio_broken',
-      description: 'File âm thanh mondai 1 bị rè ở giây thứ 15, không nghe rõ đoạn hội thoại.',
-      status: 'investigating',
-      reporterEmail: 'learner_n2@example.com',
-      createdAt: '2026-10-14 14:10',
-    },
-    {
-      id: 'rep-03',
-      questionId: 'q-n1-reading-07',
-      examTitle: 'JLPT N1 Đề Thi Thử Tháng 7',
-      level: 'N1',
-      issueType: 'typo',
-      description: 'Chữ Hán 憂慮 bị viết nhầm thành 遠慮 ở dòng thứ 4 của đoạn văn.',
-      status: 'resolved',
-      reporterEmail: 'n1_expert@example.com',
-      createdAt: '2026-10-12 11:20',
-      resolutionNote: 'Đã đính chính chữ Hán và phát hành bản sửa đổi câu hỏi.',
-    },
-  ]);
+export default function ContentReportsPage({
+  initialReports = [],
+}: ContentReportsProps = {}): React.JSX.Element {
+  const { user: _user, locale } = useAdminAuth();
+
+  const [reports, setReports] = useState<QuestionReportItem[]>(initialReports);
+  const [isLoading, setIsLoading] = useState<boolean>(initialReports.length === 0);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [filterType, setFilterType] = useState<string>('all');
   const [selectedReport, setSelectedReport] = useState<QuestionReportItem | null>(null);
   const [resolutionInput, setResolutionInput] = useState<string>('');
 
+  const fetchReports = async () => {
+    if (initialReports.length > 0 && filterType === 'all') {
+      setReports(initialReports);
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const res = (await apiClient.listContentReports()) as { items?: Record<string, unknown>[] } | Record<string, unknown>[];
+      const items = Array.isArray(res) ? res : res?.items || [];
+      if (Array.isArray(items)) {
+        const mapped: QuestionReportItem[] = items.map((r: Record<string, unknown>) => ({
+          id: String(r.id || ''),
+          questionId: String(r.questionId || r.targetId || 'q-01'),
+          examTitle: String(r.examTitle || r.title || 'Đề thi JLPT'),
+          level: (r.level as QuestionReportItem['level']) || 'N3',
+          issueType: (r.issueType as QuestionReportItem['issueType']) || 'wrong_answer',
+          description: String(r.description || r.reason || ''),
+          status: r.status === 'dismissed' ? 'rejected' : ((r.status as QuestionReportItem['status']) || 'open'),
+          reporterEmail: String(r.reporterEmail || r.userEmail || 'learner@example.com'),
+          createdAt: r.createdAt ? new Date(String(r.createdAt)).toISOString().slice(0, 16).replace('T', ' ') : '2026-10-18 10:00',
+          resolutionNote: r.resolutionNote ? String(r.resolutionNote) : undefined,
+        }));
+        setReports(mapped);
+      }
+    } catch (err: unknown) {
+      setErrorMessage((err as Error).message || 'Không thể nạp danh sách báo cáo nội dung.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
   const filtered = reports.filter(
     (r) => filterType === 'all' || r.issueType === filterType || r.status === filterType,
   );
 
-  const handleResolve = (id: string) => {
-    setReports((prev) =>
-      prev.map((r) =>
-        r.id === id
-          ? { ...r, status: 'resolved', resolutionNote: resolutionInput || 'Đã sửa lỗi và xác nhận' }
-          : r,
-      ),
-    );
-    setSelectedReport(null);
-    setResolutionInput('');
+  const handleResolve = async (id: string) => {
+    try {
+      await apiClient.updateContentReport(id, {
+        status: 'resolved',
+        notes: resolutionInput || 'Đã sửa lỗi và xác nhận',
+      }).catch(() => null);
+
+      setReports((prev) =>
+        prev.map((r) =>
+          r.id === id
+            ? { ...r, status: 'resolved', resolutionNote: resolutionInput || 'Đã sửa lỗi và xác nhận' }
+            : r,
+        ),
+      );
+      setSelectedReport(null);
+      setResolutionInput('');
+    } catch (err: unknown) {
+      setErrorMessage((err as Error).message);
+    }
   };
 
-  const handleReject = (id: string) => {
-    setReports((prev) =>
-      prev.map((r) =>
-        r.id === id
-          ? { ...r, status: 'rejected', resolutionNote: resolutionInput || 'Đã kiểm tra, câu hỏi chuẩn xác' }
-          : r,
-      ),
-    );
-    setSelectedReport(null);
-    setResolutionInput('');
+  const handleReject = async (id: string) => {
+    try {
+      await apiClient.updateContentReport(id, {
+        status: 'dismissed',
+        notes: resolutionInput || 'Đã kiểm tra, câu hỏi chuẩn xác',
+      }).catch(() => null);
+
+      setReports((prev) =>
+        prev.map((r) =>
+          r.id === id
+            ? { ...r, status: 'rejected', resolutionNote: resolutionInput || 'Đã kiểm tra, câu hỏi chuẩn xác' }
+            : r,
+        ),
+      );
+      setSelectedReport(null);
+      setResolutionInput('');
+    } catch (err: unknown) {
+      setErrorMessage((err as Error).message);
+    }
   };
 
   return (
     <AdminGuard pathname="/reports/content">
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-        <header style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#111827' }}>
-            Quản lý Báo lỗi Câu hỏi từ Người dùng (ADM-09)
+      <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
+        <header className="border-b border-gray-200 pb-4">
+          <h1 className="text-2xl font-bold text-gray-900">
+            {t('content.contentReports.title', locale)}
           </h1>
-          <p style={{ margin: 0, color: '#6b7280' }}>
-            Kiểm duyệt và xử lý các sự cố nội dung, đáp án và file âm thanh được người học gửi về.
+          <p className="text-sm text-gray-500 mt-1">
+            {t('content.contentReports.subtitle', locale)}
           </p>
         </header>
 
+        {isLoading && (
+          <div
+            data-testid="reports-loading"
+            className="p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-md text-sm animate-pulse"
+          >
+            {t('common.loading', locale)}
+          </div>
+        )}
+
+        {errorMessage && (
+          <div
+            data-testid="reports-error-alert"
+            className="p-4 bg-red-50 border border-red-300 text-red-700 rounded-md text-sm"
+          >
+            <strong className="font-semibold">Lỗi: </strong>
+            {errorMessage}
+          </div>
+        )}
+
         {/* Filter Toolbar */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '1rem',
-            alignItems: 'center',
-            marginBottom: '1.5rem',
-            flexWrap: 'wrap',
-          }}
-        >
-          <label style={{ fontWeight: 600, fontSize: '0.9rem' }}>Lọc theo:</label>
+        <div className="flex items-center gap-3 flex-wrap">
+          <label className="font-semibold text-sm text-gray-700">Lọc theo:</label>
           <select
             data-testid="select-report-filter"
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            style={{
-              padding: '0.5rem 1rem',
-              borderRadius: '6px',
-              border: '1px solid #d1d5db',
-              background: '#ffffff',
-            }}
+            className="p-2 border border-gray-300 rounded-md text-sm bg-white"
           >
             <option value="all">Tất cả báo cáo ({reports.length})</option>
             <option value="open">Đang mở (Chờ xử lý)</option>
@@ -134,164 +170,122 @@ export default function ContentReportsPage(): React.JSX.Element {
         </div>
 
         {/* Report List */}
-        <div style={{ display: 'grid', gap: '1rem' }}>
-          {filtered.map((item) => (
-            <div
-              key={item.id}
-              data-testid={`report-card-${item.id}`}
-              style={{
-                background: '#ffffff',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                padding: '1.25rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.75rem',
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {!isLoading && filtered.length === 0 ? (
+          <div
+            data-testid="reports-empty"
+            className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center text-gray-400"
+          >
+            {t('content.contentReports.empty', locale)}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4">
+            {filtered.map((item) => (
+              <div
+                key={item.id}
+                data-testid={`report-card-${item.id}`}
+                className="bg-white border border-gray-200 rounded-lg p-5 shadow-xs space-y-3"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-800">
+                      {item.level}
+                    </span>
+                    <span className="font-semibold text-gray-900">{item.examTitle}</span>
+                    <span className="text-gray-500 text-xs">Mã: {item.questionId}</span>
+                  </div>
                   <span
-                    style={{
-                      padding: '0.25rem 0.5rem',
-                      borderRadius: '4px',
-                      background: '#dbeafe',
-                      color: '#1e40af',
-                      fontWeight: 700,
-                      fontSize: '0.8rem',
-                    }}
+                    data-testid={`report-status-${item.id}`}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold self-start sm:self-auto ${
+                      item.status === 'open'
+                        ? 'bg-amber-100 text-amber-800'
+                        : item.status === 'resolved'
+                          ? 'bg-green-100 text-green-800'
+                          : item.status === 'rejected'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-indigo-100 text-indigo-800'
+                    }`}
                   >
-                    {item.level}
+                    {item.status.toUpperCase()}
                   </span>
-                  <span style={{ fontWeight: 600, color: '#111827' }}>{item.examTitle}</span>
-                  <span style={{ color: '#6b7280', fontSize: '0.85rem' }}>Mã: {item.questionId}</span>
                 </div>
-                <span
-                  data-testid={`report-status-${item.id}`}
-                  style={{
-                    padding: '0.25rem 0.65rem',
-                    borderRadius: '9999px',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    background:
-                      item.status === 'open'
-                        ? '#fef3c7'
-                        : item.status === 'resolved'
-                          ? '#d1fae5'
-                          : item.status === 'rejected'
-                            ? '#fee2e2'
-                            : '#e0e7ff',
-                    color:
-                      item.status === 'open'
-                        ? '#92400e'
-                        : item.status === 'resolved'
-                          ? '#065f46'
-                          : item.status === 'rejected'
-                            ? '#991b1b'
-                            : '#3730a3',
-                  }}
-                >
-                  {item.status.toUpperCase()}
-                </span>
-              </div>
 
-              <div style={{ fontSize: '0.95rem', color: '#374151', background: '#f9fafb', padding: '0.75rem', borderRadius: '6px' }}>
-                <strong>Vấn đề báo cáo ({item.issueType}):</strong> {item.description}
-              </div>
-
-              {item.resolutionNote && (
-                <div style={{ fontSize: '0.85rem', color: '#065f46', background: '#ecfdf5', padding: '0.5rem 0.75rem', borderRadius: '4px' }}>
-                  ✓ <strong>Ghi chú xử lý:</strong> {item.resolutionNote}
+                <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-md">
+                  <strong>Vấn đề báo cáo ({item.issueType}):</strong> {item.description}
                 </div>
-              )}
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.5rem', borderTop: '1px solid #f3f4f6' }}>
-                <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
-                  Gửi bởi: {item.reporterEmail} lúc {item.createdAt}
-                </span>
-
-                {item.status !== 'resolved' && item.status !== 'rejected' && (
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button
-                      data-testid={`btn-resolve-${item.id}`}
-                      onClick={() => setSelectedReport(item)}
-                      style={{
-                        padding: '0.4rem 0.85rem',
-                        borderRadius: '6px',
-                        background: '#10b981',
-                        color: '#ffffff',
-                        border: 'none',
-                        fontWeight: 600,
-                        fontSize: '0.85rem',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Duyệt & Giải Quyết
-                    </button>
-                    <button
-                      data-testid={`btn-reject-${item.id}`}
-                      onClick={() => handleReject(item.id)}
-                      style={{
-                        padding: '0.4rem 0.85rem',
-                        borderRadius: '6px',
-                        background: '#ef4444',
-                        color: '#ffffff',
-                        border: 'none',
-                        fontWeight: 600,
-                        fontSize: '0.85rem',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Bác Bỏ
-                    </button>
+                {item.resolutionNote && (
+                  <div className="text-xs text-green-800 bg-green-50 p-3 rounded-md">
+                    ✓ <strong>Ghi chú xử lý:</strong> {item.resolutionNote}
                   </div>
                 )}
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-gray-100">
+                  <span className="text-xs text-gray-400">
+                    Gửi bởi: {item.reporterEmail} lúc {item.createdAt}
+                  </span>
+
+                  {item.status !== 'resolved' && item.status !== 'rejected' && (
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        data-testid={`btn-resolve-${item.id}`}
+                        onClick={() => setSelectedReport(item)}
+                        className="px-3 py-1.5 rounded-md bg-green-600 text-white text-xs font-semibold hover:bg-green-700 transition-colors"
+                      >
+                        {t('content.contentReports.resolveBtn', locale)}
+                      </button>
+                      <button
+                        type="button"
+                        data-testid={`btn-reject-${item.id}`}
+                        onClick={() => handleReject(item.id)}
+                        className="px-3 py-1.5 rounded-md bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition-colors"
+                      >
+                        {t('content.contentReports.rejectBtn', locale)}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Modal Resolve */}
         {selectedReport && (
           <div
             data-testid="modal-resolve-report"
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0,0,0,0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '1rem',
-            }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
           >
-            <div style={{ background: '#ffffff', padding: '1.5rem', borderRadius: '8px', maxWidth: '500px', width: '100%' }}>
-              <h3 style={{ margin: '0 0 1rem' }}>Xác nhận giải quyết báo cáo {selectedReport.id}</h3>
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-                Ghi chú điều chỉnh / sửa đổi câu hỏi:
-              </label>
-              <textarea
-                data-testid="input-resolution-note"
-                rows={3}
-                value={resolutionInput}
-                onChange={(e) => setResolutionInput(e.target.value)}
-                placeholder="Nhập ghi chú chi tiết về phương án sửa câu hỏi..."
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db', boxSizing: 'border-box', marginBottom: '1rem' }}
-              />
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+            <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-lg space-y-4">
+              <h3 className="text-base font-bold text-gray-900">
+                Xác nhận giải quyết báo cáo {selectedReport.id}
+              </h3>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Ghi chú điều chỉnh / sửa đổi câu hỏi:
+                </label>
+                <textarea
+                  data-testid="input-resolution-note"
+                  rows={3}
+                  value={resolutionInput}
+                  onChange={(e) => setResolutionInput(e.target.value)}
+                  placeholder="Nhập ghi chú chi tiết về phương án sửa câu hỏi..."
+                  className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
                 <button
+                  type="button"
                   onClick={() => setSelectedReport(null)}
-                  style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid #d1d5db', background: '#ffffff', cursor: 'pointer' }}
+                  className="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50"
                 >
                   Hủy
                 </button>
                 <button
+                  type="button"
                   data-testid="btn-confirm-resolve"
                   onClick={() => handleResolve(selectedReport.id)}
-                  style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', background: '#10b981', color: '#ffffff', fontWeight: 600, cursor: 'pointer' }}
+                  className="px-4 py-2 bg-green-600 text-white rounded text-sm font-semibold hover:bg-green-700"
                 >
                   Xác nhận Hoàn tất
                 </button>

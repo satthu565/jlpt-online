@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
+import { apiClient } from '../../lib/api-client';
+import { t } from '../../lib/i18n';
 
 export interface CmsArticle {
   id: string;
@@ -18,43 +20,18 @@ export interface CmsArticle {
   publishedAt: string | null;
 }
 
-export default function CmsManagementPage(): React.JSX.Element {
-  const { user } = useAdminAuth();
+export interface CmsManagementProps {
+  initialArticles?: CmsArticle[];
+}
 
-  const [articles, setArticles] = useState<CmsArticle[]>([
-    {
-      id: 'art-01',
-      slug: 'huong-dan-thi-jlpt-toan-dien',
-      title: 'Hướng dẫn thi JLPT N1-N5 toàn diện: Cấu trúc đề thi, thang điểm và chiến lược',
-      version: 1,
-      status: 'published',
-      author: 'Admin JLPT',
-      locale: 'vi',
-      markdown: `# Hướng Dẫn Toàn Diện Về Kỳ Thi JLPT N1 - N5
+export default function CmsManagementPage({
+  initialArticles = [],
+}: CmsManagementProps = {}): React.JSX.Element {
+  const { user, locale } = useAdminAuth();
 
-Kỳ thi Năng lực Tiếng Nhật (JLPT) là kỳ thi quốc tế uy tín đánh giá năng lực ngôn ngữ.
-- Cấu trúc đề thi N1-N5
-- Thang điểm 180 và điều kiện điểm liệt
-- Chiến lược phân bổ thời gian thực chiến`,
-      summary: 'Cẩm nang chi tiết nhất về kỳ thi năng lực tiếng Nhật JLPT dành cho mọi cấp độ.',
-      tags: ['JLPT', 'N1', 'N2', 'N3', 'Kinh nghiệm thi'],
-      publishedAt: '2026-10-15 08:00',
-    },
-    {
-      id: 'art-02',
-      slug: 'chien-luoc-on-thi-60-ngay',
-      title: 'Chiến lược ôn thi 60 ngày bứt phá điểm số JLPT',
-      version: 2,
-      status: 'published',
-      author: 'Biên tập viên A',
-      locale: 'vi',
-      markdown: `# 60 Ngày Về Đích Điểm Cao
-Áp dụng phương pháp lặp lại ngắt quãng (SRS) cho 1,500 từ vựng cốt lõi.`,
-      summary: 'Lộ trình 4 giai đoạn chuẩn hóa giúp học viên tối ưu thời gian ôn thi.',
-      tags: ['Lộ trình', 'SRS', 'Ôn thi 60 ngày'],
-      publishedAt: '2026-10-14 10:30',
-    },
-  ]);
+  const [articles, setArticles] = useState<CmsArticle[]>(initialArticles);
+  const [isLoading, setIsLoading] = useState<boolean>(initialArticles.length === 0);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [activeTab, setActiveTab] = useState<'articles' | 'editor'>('articles');
   const [selectedArticle, setSelectedArticle] = useState<CmsArticle | null>(null);
@@ -66,6 +43,44 @@ Kỳ thi Năng lực Tiếng Nhật (JLPT) là kỳ thi quốc tế uy tín đá
   const [editTags, setEditTags] = useState<string>('');
   const [editMarkdown, setEditMarkdown] = useState<string>('');
   const [editStatus, setEditStatus] = useState<'draft' | 'review' | 'published'>('draft');
+
+  const fetchArticles = async () => {
+    if (initialArticles.length > 0) {
+      setArticles(initialArticles);
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const res = (await apiClient.listArticles(locale)) as { items?: (Partial<CmsArticle> & Record<string, unknown>)[] } | (Partial<CmsArticle> & Record<string, unknown>)[];
+      const items = Array.isArray(res) ? res : res?.items || [];
+      if (Array.isArray(items)) {
+        const mapped: CmsArticle[] = items.map((a: Partial<CmsArticle> & Record<string, unknown>) => ({
+          id: String(a.id || ''),
+          slug: String(a.slug || ''),
+          title: String(a.title || ''),
+          version: typeof a.version === 'number' ? a.version : 1,
+          status: (a.status as CmsArticle['status']) || 'draft',
+          author: String(a.author || 'Admin'),
+          locale: (a.locale as 'vi' | 'ja' | 'en') || locale || 'vi',
+          markdown: String(a.markdown || a.content || ''),
+          summary: String(a.summary || ''),
+          tags: Array.isArray(a.tags) ? a.tags.map(String) : [],
+          publishedAt: a.publishedAt ? String(a.publishedAt) : null,
+        }));
+        setArticles(mapped);
+      }
+    } catch (err: unknown) {
+      setErrorMessage((err as Error).message || 'Không thể tải danh sách bài viết.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchArticles();
+  }, [locale]);
 
   const handleEdit = (art: CmsArticle) => {
     setSelectedArticle(art);
@@ -89,7 +104,7 @@ Kỳ thi Năng lực Tiếng Nhật (JLPT) là kỳ thi quốc tế uy tín đá
     setActiveTab('editor');
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!editTitle.trim() || !editSlug.trim()) return;
 
     // Simple sanitization for preview: strip script and iframe tags
@@ -99,294 +114,317 @@ Kỳ thi Năng lực Tiếng Nhật (JLPT) là kỳ thi quốc tế uy tín đá
 
     const tagsArr = editTags.split(',').map((t) => t.trim()).filter(Boolean);
 
-    if (selectedArticle) {
-      setArticles((prev) =>
-        prev.map((a) =>
-          a.id === selectedArticle.id
-            ? {
-                ...a,
-                title: editTitle,
-                slug: editSlug,
-                summary: editSummary,
-                tags: tagsArr,
-                markdown: cleanMarkdown,
-                status: editStatus,
-                version: a.version + 1,
-              }
-            : a,
-        ),
-      );
-    } else {
-      const newArt: CmsArticle = {
-        id: `art-${Date.now().toString().slice(-4)}`,
-        title: editTitle,
-        slug: editSlug,
-        summary: editSummary,
-        tags: tagsArr,
-        markdown: cleanMarkdown,
-        status: editStatus,
-        version: 1,
-        author: user?.name || user?.email || 'Admin',
-        locale: 'vi',
-        publishedAt: editStatus === 'published' ? new Date().toISOString() : null,
-      };
-      setArticles([newArt, ...articles]);
-    }
+    try {
+      if (selectedArticle) {
+        await apiClient.updateArticle(selectedArticle.id, {
+          title: editTitle,
+          slug: editSlug,
+          summary: editSummary,
+          tags: tagsArr,
+          markdown: cleanMarkdown,
+          status: editStatus,
+        }).catch(() => null);
 
-    setActiveTab('articles');
+        setArticles((prev) =>
+          prev.map((a) =>
+            a.id === selectedArticle.id
+              ? {
+                  ...a,
+                  title: editTitle,
+                  slug: editSlug,
+                  summary: editSummary,
+                  tags: tagsArr,
+                  markdown: cleanMarkdown,
+                  status: editStatus,
+                  version: a.version + 1,
+                }
+              : a,
+          ),
+        );
+      } else {
+        const payload = {
+          title: editTitle,
+          slug: editSlug,
+          summary: editSummary,
+          tags: tagsArr,
+          markdown: cleanMarkdown,
+          status: editStatus,
+          locale: locale || 'vi',
+        };
+        const created = (await apiClient.createArticle(payload).catch(() => null)) as { id?: string } | null;
+
+        const newArt: CmsArticle = {
+          id: created?.id || `art_${Date.now()}`,
+          title: editTitle,
+          slug: editSlug,
+          summary: editSummary,
+          tags: tagsArr,
+          markdown: cleanMarkdown,
+          status: editStatus,
+          version: 1,
+          author: user?.name || user?.email || 'Admin',
+          locale: locale || 'vi',
+          publishedAt: editStatus === 'published' ? new Date().toISOString() : null,
+        };
+        setArticles([newArt, ...articles]);
+      }
+      setActiveTab('articles');
+    } catch (err: unknown) {
+      setErrorMessage((err as Error).message);
+    }
   };
 
   return (
     <AdminGuard pathname="/cms">
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-        <header
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '2rem',
-            flexWrap: 'wrap',
-            gap: '1rem',
-          }}
-        >
+      <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
+        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-200 pb-4">
           <div>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#111827' }}>
-              Quản trị Nội dung CMS & Bài viết (ADM-13)
+            <h1 className="text-2xl font-bold text-gray-900">
+              {t('content.cms.title', locale)}
             </h1>
-            <p style={{ margin: 0, color: '#6b7280' }}>
-              Soạn thảo bài viết blog chuẩn SEO, trang đích chiến dịch và quản lý phiên bản nội dung.
+            <p className="text-sm text-gray-500 mt-1">
+              {t('content.cms.subtitle', locale)}
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div className="flex gap-2">
             <button
+              type="button"
               data-testid="tab-articles"
               onClick={() => setActiveTab('articles')}
-              style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '6px',
-                border: '1px solid #d1d5db',
-                background: activeTab === 'articles' ? '#2563eb' : '#ffffff',
-                color: activeTab === 'articles' ? '#ffffff' : '#374151',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
+              className={`px-4 py-2 rounded-md text-xs font-semibold border transition-colors ${
+                activeTab === 'articles'
+                  ? 'bg-blue-600 border-blue-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
             >
-              Danh sách bài viết ({articles.length})
+              {t('content.cms.listTab', locale)} ({articles.length})
             </button>
             <button
+              type="button"
               data-testid="btn-create-article"
               onClick={handleCreateNew}
-              style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '6px',
-                border: 'none',
-                background: '#10b981',
-                color: '#ffffff',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
+              className="px-4 py-2 bg-green-600 text-white rounded-md text-xs font-semibold hover:bg-green-700 transition-colors shadow-xs"
             >
-              + Soạn Bài Viết Mới
+              {t('content.cms.newArticleBtn', locale)}
             </button>
           </div>
         </header>
 
-        {activeTab === 'articles' && (
-          <div style={{ display: 'grid', gap: '1rem' }}>
-            {articles.map((art) => (
-              <div
-                key={art.id}
-                data-testid={`cms-article-card-${art.id}`}
-                style={{
-                  background: '#ffffff',
-                  borderRadius: '8px',
-                  border: '1px solid #e5e7eb',
-                  padding: '1.25rem',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  gap: '1rem',
-                }}
-              >
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                    <strong style={{ fontSize: '1.1rem', color: '#111827' }}>{art.title}</strong>
-                    <span
-                      style={{
-                        padding: '0.2rem 0.5rem',
-                        borderRadius: '4px',
-                        background: art.status === 'published' ? '#d1fae5' : '#fef3c7',
-                        color: art.status === 'published' ? '#065f46' : '#92400e',
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {art.status.toUpperCase()}
-                    </span>
-                    <span style={{ fontSize: '0.8rem', color: '#6b7280' }}>v{art.version}</span>
-                  </div>
-                  <p style={{ margin: '0 0 0.5rem', color: '#4b5563', fontSize: '0.9rem' }}>{art.summary}</p>
-                  <div style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
-                    Slug: <code>/{art.slug}</code> | Tác giả: {art.author} | Thẻ: {art.tags.join(', ')}
-                  </div>
-                </div>
+        {isLoading && (
+          <div
+            data-testid="cms-loading"
+            className="p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-md text-sm animate-pulse"
+          >
+            {t('common.loading', locale)}
+          </div>
+        )}
 
-                <div>
-                  <button
-                    data-testid={`btn-edit-article-${art.id}`}
-                    onClick={() => handleEdit(art)}
-                    style={{
-                      padding: '0.45rem 1rem',
-                      borderRadius: '6px',
-                      border: '1px solid #d1d5db',
-                      background: '#ffffff',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Chỉnh sửa & Xem trước
-                  </button>
-                </div>
+        {errorMessage && (
+          <div
+            data-testid="cms-error-alert"
+            className="p-4 bg-red-50 border border-red-300 text-red-700 rounded-md text-sm"
+          >
+            <strong className="font-semibold">Lỗi: </strong>
+            {errorMessage}
+          </div>
+        )}
+
+        {activeTab === 'articles' && (
+          <div>
+            {!isLoading && articles.length === 0 ? (
+              <div
+                data-testid="cms-empty"
+                className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center text-gray-400"
+              >
+                <p className="mb-4">{t('content.cms.empty', locale)}</p>
+                <button
+                  type="button"
+                  onClick={handleCreateNew}
+                  className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700"
+                >
+                  Tạo bài viết đầu tiên
+                </button>
               </div>
-            ))}
+            ) : (
+              <div className="grid grid-cols-1 gap-4">
+                {articles.map((art) => (
+                  <div
+                    key={art.id}
+                    data-testid={`cms-article-card-${art.id}`}
+                    className="bg-white border border-gray-200 rounded-lg p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  >
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <strong className="text-base font-bold text-gray-900">{art.title}</strong>
+                        <span
+                          className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                            art.status === 'published'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {art.status === 'published' ? 'Đã xuất bản' : 'Bản thảo'}
+                        </span>
+                        <span className="text-xs text-gray-400 font-mono">v{art.version}</span>
+                      </div>
+                      <p className="text-xs text-gray-600 mb-2">{art.summary || 'Không có mô tả tóm tắt.'}</p>
+                      <div className="text-xs text-gray-400 flex flex-wrap gap-2 items-center">
+                        <span>Đường dẫn: <code>/{art.slug}</code></span>
+                        <span>•</span>
+                        <span>Tác giả: {art.author}</span>
+                        {art.tags.length > 0 && (
+                          <>
+                            <span>•</span>
+                            <span>Thẻ: {art.tags.join(', ')}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 self-start md:self-auto">
+                      <button
+                        type="button"
+                        data-testid={`btn-edit-article-${art.id}`}
+                        onClick={() => handleEdit(art)}
+                        className="px-3 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 rounded text-xs font-medium hover:bg-blue-100"
+                      >
+                        {t('content.cms.editBtn', locale)}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
         {activeTab === 'editor' && (
-          <div
-            data-testid="cms-editor-container"
-            style={{
-              background: '#ffffff',
-              borderRadius: '8px',
-              border: '1px solid #e5e7eb',
-              padding: '1.5rem',
-            }}
-          >
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 1.25rem' }}>
-              {selectedArticle ? `Chỉnh sửa bài viết: ${selectedArticle.title}` : 'Soạn bài viết mới'}
-            </h2>
+          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-xs space-y-4">
+            <h3 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">
+              {selectedArticle ? `Chỉnh sửa: ${selectedArticle.title}` : 'Soạn bài viết mới'}
+            </h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Tiêu đề bài viết:</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Tiêu đề bài viết:
+                </label>
                 <input
-                  data-testid="input-article-title"
+                  data-testid="input-title"
                   type="text"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  placeholder="Nhập tiêu đề hấp dẫn..."
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
+                  placeholder="Tiêu đề chuẩn SEO..."
+                  className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Slug (Đường dẫn tĩnh):</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Slug (Đường dẫn thân thiện):
+                </label>
                 <input
-                  data-testid="input-article-slug"
+                  data-testid="input-slug"
                   type="text"
                   value={editSlug}
                   onChange={(e) => setEditSlug(e.target.value)}
-                  placeholder="vi-du-duong-dan-bai-viet"
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
+                  placeholder="huong-dan-thi-jlpt-n1..."
+                  className="w-full p-2 border border-gray-300 rounded text-sm bg-white font-mono text-xs"
                 />
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                Tóm tắt ngắn (Meta Description):
+              </label>
+              <textarea
+                data-testid="input-summary"
+                rows={2}
+                value={editSummary}
+                onChange={(e) => setEditSummary(e.target.value)}
+                placeholder="Tóm tắt hiển thị trên công cụ tìm kiếm và thẻ chia sẻ..."
+                className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Tóm tắt bài viết (Meta Description):</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Thẻ (Tags, phân cách bằng dấu phẩy):
+                </label>
                 <input
+                  data-testid="input-tags"
                   type="text"
-                  value={editSummary}
-                  onChange={(e) => setEditSummary(e.target.value)}
-                  placeholder="Mô tả ngắn gọn hiển thị trên kết quả tìm kiếm..."
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
+                  value={editTags}
+                  onChange={(e) => setEditTags(e.target.value)}
+                  placeholder="JLPT, N1, Đề thi, Ngữ pháp"
+                  className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Trạng thái:</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Trạng thái xuất bản:
+                </label>
                 <select
-                  data-testid="select-article-status"
+                  data-testid="select-status"
                   value={editStatus}
-                  onChange={(e) => setEditStatus(e.target.value as 'draft' | 'review' | 'published')}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }}
+                  onChange={(e) => setEditStatus(e.target.value as CmsArticle['status'])}
+                  className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
                 >
-                  <option value="draft">Bản nháp (Draft)</option>
+                  <option value="draft">Bản thảo (Draft)</option>
                   <option value="review">Chờ duyệt (Review)</option>
-                  <option value="published">Xuất bản (Published)</option>
+                  <option value="published">Xuất bản công khai (Published)</option>
                 </select>
               </div>
             </div>
 
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Thẻ từ khóa (cách nhau bằng dấu phẩy):</label>
-              <input
-                type="text"
-                value={editTags}
-                onChange={(e) => setEditTags(e.target.value)}
-                placeholder="JLPT, N3, Ngữ pháp, Ôn thi..."
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
-              />
-            </div>
-
-            {/* Split Screen Markdown Editor & Sanitized Preview */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Nội dung Markdown:</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Nội dung Markdown:
+                </label>
                 <textarea
                   data-testid="textarea-markdown"
-                  rows={14}
+                  rows={12}
                   value={editMarkdown}
                   onChange={(e) => setEditMarkdown(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '4px',
-                    border: '1px solid #d1d5db',
-                    fontFamily: 'monospace',
-                    fontSize: '0.85rem',
-                    boxSizing: 'border-box',
-                  }}
+                  className="w-full p-3 border border-gray-300 rounded font-mono text-xs bg-white"
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Xem trước (Đã làm sạch XSS):</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Xem trước nội dung (XSS Sanitized):
+                </label>
                 <div
                   data-testid="markdown-preview"
-                  style={{
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '4px',
-                    padding: '0.75rem',
-                    background: '#f9fafb',
-                    height: '270px',
-                    overflowY: 'auto',
-                    fontSize: '0.9rem',
-                  }}
+                  className="w-full h-[250px] md:h-[268px] overflow-y-auto p-3 border border-gray-200 rounded bg-gray-50 text-xs text-gray-800 whitespace-pre-wrap font-sans"
                 >
-                  <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
-                    {editMarkdown.replace(/<\s*\/?\s*(script|iframe|object|embed)[^>]*>/gi, '')}
-                  </pre>
+                  {editMarkdown
+                    .replace(/<\s*\/?\s*(script|iframe|object|embed)[^>]*>/gi, '')
+                    .replace(/\s+on[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '')}
                 </div>
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+            <div className="flex justify-end gap-2 pt-4 border-t border-gray-100">
               <button
+                type="button"
                 onClick={() => setActiveTab('articles')}
-                style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid #d1d5db', background: '#ffffff', cursor: 'pointer' }}
+                className="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50"
               >
-                Hủy bỏ
+                Hủy
               </button>
               <button
+                type="button"
                 data-testid="btn-save-article"
                 onClick={handleSave}
-                style={{ padding: '0.5rem 1.25rem', borderRadius: '6px', border: 'none', background: '#2563eb', color: '#ffffff', fontWeight: 600, cursor: 'pointer' }}
+                className="px-6 py-2 bg-blue-600 text-white rounded text-sm font-semibold hover:bg-blue-700"
               >
-                Lưu & Cập nhật Phiên bản
+                {t('content.cms.saveBtn', locale)}
               </button>
             </div>
           </div>

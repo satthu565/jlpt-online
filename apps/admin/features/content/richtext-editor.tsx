@@ -315,7 +315,7 @@ export function PassageBlocksEditor({ blocks, onChange }: PassageBlocksEditorPro
   };
 
   const addImage = () => {
-    const defaultImage = createImageBlock('media_passage_sample', 'Hình ảnh minh họa bài đọc', 500, 300);
+    const defaultImage = createImageBlock('media_passage_illustration', 'Hình ảnh minh họa bài đọc', 500, 300);
     onChange([...blocks, defaultImage]);
   };
 

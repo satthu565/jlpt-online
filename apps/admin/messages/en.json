@@ -115,5 +115,113 @@
     "requiredRoles": "Required Roles:",
     "currentRole": "Your Current Role:",
     "securityWarning": "Direct access was blocked by multi-tier security guards."
+  },
+  "content": {
+    "imports": {
+      "title": "Exam Package Management (Import v2)",
+      "subtitle": "Upload standardized data packages (.zip) containing import.json, media/ and sources/.",
+      "empty": "No import jobs have been processed yet.",
+      "uploadPrompt": "Select one or more valid ZIP packages (Batch upload supported):",
+      "uploadWarning": "Note: Standalone PDFs do not initiate extraction or OCR. Please prepare full ZIP packages.",
+      "jobsTitle": "Recent Import Jobs",
+      "sourcePage": "Source Page",
+      "exportCsv": "Export CSV",
+      "submitReviewBtn": "Submit for Review",
+      "csvToolTitle": "Question Bank: Import / Export JSON & CSV Tools (PDF-30)",
+      "importCsvBtn": "Load Questions from CSV",
+      "csvInputLabel": "Input CSV Data:",
+      "csvOutputLabel": "Exported CSV Data:"
+    },
+    "questions": {
+      "title": "Question Bank (Editor)",
+      "subtitle": "Author RichText (ruby, star ★, passages, tables, audio) and preview in student exam environment.",
+      "empty": "No questions available in the question bank.",
+      "editorTab": "RichText Editor",
+      "previewTab": "Preview (Exam Room)",
+      "stemTitle": "1. Question Stem (Ruby, Star ★, Underline)",
+      "passageTitle": "2. Reading Passage (Paragraphs & Tables)",
+      "saveBtn": "Save Question Group",
+      "previewPrompt": "Student Real Exam Interface:"
+    },
+    "exams": {
+      "title": "Exam Management & Publishing",
+      "subtitle": "Check blueprint, preview without answer leak, and publish immutable versions.",
+      "empty": "No exams available in the system.",
+      "publishBtn": "Publish",
+      "unpublishBtn": "Unpublish",
+      "previewBtn": "Preview",
+      "filterLevel": "Filter Level"
+    },
+    "mixedExams": {
+      "title": "Mixed Exams Management (ADM-11)",
+      "subtitle": "Monitor and generate automated mixed exams tailored to levels and weakness matrices.",
+      "empty": "No mixed exams have been generated yet.",
+      "createBtn": "+ Create Mixed Exam",
+      "attempts": "attempts",
+      "viewDetail": "View Detail"
+    },
+    "blueprints": {
+      "title": "Exam Blueprints",
+      "subtitle": "Manage duration and question allocations N1–N5. Activated blueprints are immutable.",
+      "empty": "No exam blueprints found.",
+      "createVersionBtn": "Create New Version",
+      "activateBtn": "Activate"
+    },
+    "reviews": {
+      "title": "Content Review Queue",
+      "subtitle": "Four-eyes principle: reviewer must be independent of the editor (editor != reviewer).",
+      "empty": "Content review queue is currently empty.",
+      "approveBtn": "Approve",
+      "rejectBtn": "Reject",
+      "compareBtn": "Compare with Source PDF"
+    },
+    "explanationReviews": {
+      "title": "Explanation & Translation Review (ADM-10)",
+      "subtitle": "Two-person quality rule: Explanations and Vietnamese translations require independent review.",
+      "empty": "No explanations pending review.",
+      "approveBtn": "Approve",
+      "rejectBtn": "Request Revision"
+    },
+    "media": {
+      "title": "Media Library",
+      "subtitle": "Manage listening audio MP3/WAV and exam illustration WebP/PNG assets.",
+      "empty": "No media assets found in library.",
+      "uploadBtn": "Upload New Asset",
+      "copyUrl": "Copy URL",
+      "audioTitle": "Audio Assets",
+      "imageTitle": "Image Assets"
+    },
+    "vocab": {
+      "title": "Vocabulary & Grammar Management (ADM-12)",
+      "subtitle": "Dictionary lookup and JLPT N1-N5 vocabulary for study, SRS flashcards, and exams.",
+      "empty": "No matching vocabulary entries found.",
+      "addBtn": "+ Add New Word",
+      "deleteBtn": "Delete",
+      "searchPlaceholder": "Search by word, reading, or translation..."
+    },
+    "cms": {
+      "title": "CMS Content & Articles (ADM-13)",
+      "subtitle": "Author SEO blog articles, campaign landing pages, and manage content versions.",
+      "empty": "No articles have been created yet.",
+      "listTab": "Article List",
+      "editorTab": "Article Editor",
+      "newArticleBtn": "+ New Article",
+      "editBtn": "Edit & Preview",
+      "saveBtn": "Save & Version"
+    },
+    "aiModeration": {
+      "title": "AI Moderation & Cost Governance",
+      "subtitle": "Monitor AI explanation generation, translations, safety alerts, and token expenditures.",
+      "empty": "No AI requests requiring moderation.",
+      "unflagBtn": "Clear Warning",
+      "filterLabel": "Show only safety flagged requests"
+    },
+    "contentReports": {
+      "title": "User Question Incident Reports (ADM-09)",
+      "subtitle": "Review and resolve question discrepancies, answer issues, and audio errors reported by learners.",
+      "empty": "No incident reports found.",
+      "resolveBtn": "Resolve Issue",
+      "rejectBtn": "Dismiss"
+    }
   }
 }

@@ -66,7 +66,13 @@ export class AdminApiClient {
   private activeTotpSecret: string | null = null;
 
   constructor(options: AdminApiClientOptions = {}) {
-    this.baseUrl = (options.baseUrl || process.env.API_INTERNAL_URL || 'http://localhost:4000').replace(/\/$/, '');
+    if (options.baseUrl) {
+      this.baseUrl = options.baseUrl.replace(/\/$/, '');
+    } else if (typeof window !== 'undefined') {
+      this.baseUrl = '';
+    } else {
+      this.baseUrl = (process.env.API_INTERNAL_URL || 'http://localhost:4000').replace(/\/$/, '');
+    }
     this.adminHost = options.adminHost || process.env.ADMIN_HOST || 'admin.jlpt.local';
     this.token = options.token ?? null;
     this.totpCode = options.totpCode ?? null;
@@ -85,11 +91,41 @@ export class AdminApiClient {
   }
 
   public getUser(): StaffUser | null {
-    return this.user;
+    if (this.user) return this.user;
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('jlpt_admin_auth_state_v1');
+        if (raw) {
+          const parsed = JSON.parse(raw) as { user?: StaffUser };
+          if (parsed?.user) {
+            this.user = parsed.user;
+            return parsed.user;
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return null;
   }
 
   public getToken(): string | null {
-    return this.token;
+    if (this.token) return this.token;
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('jlpt_admin_auth_state_v1');
+        if (raw) {
+          const parsed = JSON.parse(raw) as { token?: string };
+          if (parsed?.token) {
+            this.token = parsed.token;
+            return parsed.token;
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return null;
   }
 
   public setTotpCode(code: string | null): void {
@@ -105,15 +141,18 @@ export class AdminApiClient {
    * Throws AdminClientGuardError if user is not authenticated, 2FA is pending, or role lacks permission.
    */
   public enforceGuard(requiredRoles?: Role[]): void {
-    if (!this.user || !this.token) {
+    const user = this.getUser();
+    const token = this.getToken();
+
+    if (!user || !token) {
       throw new AdminClientGuardError('UNAUTHENTICATED', 'Yêu cầu đăng nhập tài khoản nhân sự.', 401);
     }
 
-    if (!isStaffRole(this.user.role)) {
+    if (!isStaffRole(user.role)) {
       throw new AdminClientGuardError('FORBIDDEN', 'Tài khoản không thuộc quyền quản trị.', 403);
     }
 
-    if (this.user.twoFactorStatus !== 'verified' || !this.user.twoFactorEnabled) {
+    if (user.twoFactorStatus !== 'verified' || !user.twoFactorEnabled) {
       throw new AdminClientGuardError(
         'TWO_FACTOR_REQUIRED',
         'Nhân sự bắt buộc phải hoàn thành xác thực hai yếu tố (2FA) trước khi truy cập tài nguyên quản trị.',
@@ -122,12 +161,12 @@ export class AdminApiClient {
     }
 
     if (requiredRoles && requiredRoles.length > 0) {
-      if (this.user.role !== 'admin' && !requiredRoles.includes(this.user.role)) {
+      if (user.role !== 'admin' && !requiredRoles.includes(user.role)) {
         throw new AdminClientGuardError(
           'FORBIDDEN',
-          `Vai trò ${this.user.role} không có thẩm quyền truy cập tài nguyên này.`,
+          `Vai trò ${user.role} không có thẩm quyền truy cập tài nguyên này.`,
           403,
-          { requiredRoles, userRole: this.user.role },
+          { requiredRoles, userRole: user.role },
         );
       }
     }
@@ -156,14 +195,22 @@ export class AdminApiClient {
     }
 
     const url = `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+    const hasBody = options.body !== undefined;
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      Host: this.adminHost,
+      ...(hasBody && !isFormData ? { 'Content-Type': 'application/json' } : {}),
       ...options.headers,
     };
+    if (isFormData) {
+      delete headers['Content-Type'];
+    }
+    if (typeof window === 'undefined') {
+      headers['Host'] = this.adminHost;
+    }
 
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    const token = this.getToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     if (this.totpCode) {
@@ -175,8 +222,12 @@ export class AdminApiClient {
       res = await (this.fetchFn ?? fetch)(url, {
         method,
         headers,
-        body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
         credentials: 'include',
+        body: isFormData
+          ? (options.body as FormData)
+          : options.body !== undefined
+            ? JSON.stringify(options.body)
+            : undefined,
       });
     } catch (err: unknown) {
       throw new AdminClientGuardError('NETWORK_ERROR', (err as Error).message || 'Lỗi kết nối tới máy chủ.', 500);
@@ -411,6 +462,16 @@ export class AdminApiClient {
     });
   }
 
+  public async listQuestionGroups(params?: { level?: string; status?: string }): Promise<{ items: unknown[] }> {
+    const q = new URLSearchParams();
+    if (params?.level) q.set('level', params.level);
+    if (params?.status) q.set('status', params.status);
+    const qs = q.toString();
+    return this.request<{ items: unknown[] }>('GET', `/api/v1/admin/groups${qs ? `?${qs}` : ''}`, {
+      requiredRoles: ['editor', 'reviewer', 'admin'],
+    });
+  }
+
   public async createQuestionGroup(data: unknown): Promise<{ id: string }> {
     return this.request<{ id: string }>('POST', '/api/v1/admin/groups', {
       requiredRoles: ['editor', 'admin'],
@@ -418,9 +479,21 @@ export class AdminApiClient {
     });
   }
 
-  public async submitForReview(id: string): Promise<{ success: boolean }> {
+  public async submitForReview(id: string, expectedVersion = 1): Promise<{ success: boolean }> {
     return this.request<{ success: boolean }>('POST', `/api/v1/admin/groups/${encodeURIComponent(id)}/submit-review`, {
       requiredRoles: ['editor', 'admin'],
+      body: { expectedVersion },
+    });
+  }
+
+  public async submitTargetForReview(
+    targetType: string,
+    targetId: string,
+    targetVersion = 1,
+  ): Promise<{ status: string }> {
+    return this.request<{ status: string }>('POST', '/api/v1/admin/reviews/submit', {
+      requiredRoles: ['editor', 'admin', 'reviewer'],
+      body: { targetType, targetId, targetVersion },
     });
   }
 
@@ -437,8 +510,13 @@ export class AdminApiClient {
     });
   }
 
-  public async listExams(): Promise<{ items: unknown[] }> {
-    return this.request<{ items: unknown[] }>('GET', '/api/v1/admin/exams', {
+  public async listExams(params?: { level?: string; kind?: string; status?: string }): Promise<{ items: unknown[] }> {
+    const q = new URLSearchParams();
+    if (params?.level) q.set('level', params.level);
+    if (params?.kind) q.set('kind', params.kind);
+    if (params?.status) q.set('status', params.status);
+    const qs = q.toString();
+    return this.request<{ items: unknown[] }>('GET', `/api/v1/admin/exams${qs ? `?${qs}` : ''}`, {
       requiredRoles: ['editor', 'reviewer', 'admin'],
     });
   }
@@ -450,8 +528,9 @@ export class AdminApiClient {
     });
   }
 
-  public async listBlueprints(): Promise<{ items: unknown[] }> {
-    return this.request<{ items: unknown[] }>('GET', '/api/v1/admin/blueprints', {
+  public async listBlueprints(level?: string): Promise<{ items: unknown[] }> {
+    const qs = level ? `?level=${encodeURIComponent(level)}` : '';
+    return this.request<{ items: unknown[] }>('GET', `/api/v1/admin/blueprints${qs}`, {
       requiredRoles: ['editor', 'admin'],
     });
   }
@@ -644,6 +723,215 @@ export class AdminApiClient {
     });
   }
 
+  public async unpublishExam(id: string, reason = 'Admin unpublish'): Promise<{ status: string }> {
+    return this.request<{ status: string }>('POST', `/api/v1/admin/exams/${encodeURIComponent(id)}/unpublish`, {
+      requiredRoles: ['admin'],
+      body: { reason },
+    });
+  }
+
+  public async listImportJobs(): Promise<{ items: unknown[] }> {
+    return this.request<{ items: unknown[] }>('GET', '/api/v1/admin/imports', {
+      requiredRoles: ['editor', 'reviewer', 'admin'],
+    });
+  }
+
+  public async uploadImportPackage(
+    fileOrBase64: File | string,
+    fileName?: string,
+  ): Promise<unknown> {
+    if (typeof FormData !== 'undefined' && typeof fileOrBase64 !== 'string') {
+      const formData = new FormData();
+      formData.append('file', fileOrBase64, fileName || fileOrBase64.name);
+      return this.request('POST', '/api/v1/admin/imports', {
+        requiredRoles: ['editor', 'admin'],
+        body: formData,
+      });
+    }
+
+    let dataBase64: string;
+    let name = fileName || 'package.zip';
+    if (typeof fileOrBase64 === 'string') {
+      dataBase64 = fileOrBase64;
+    } else {
+      name = fileOrBase64.name;
+      const arrayBuffer = await fileOrBase64.arrayBuffer();
+      if (typeof Buffer !== 'undefined') {
+        dataBase64 = Buffer.from(arrayBuffer).toString('base64');
+      } else {
+        const bytes = new Uint8Array(arrayBuffer);
+        const chunkSize = 8192;
+        let binary = '';
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunkSize)));
+        }
+        dataBase64 = btoa(binary);
+      }
+    }
+    return this.request('POST', '/api/v1/admin/imports', {
+      requiredRoles: ['editor', 'admin'],
+      body: { dataBase64, fileName: name },
+    });
+  }
+
+  public async submitReviewDecision(
+    targetType: string,
+    targetId: string,
+    version: number,
+    decision: 'approved' | 'rejected',
+    comments?: string,
+  ): Promise<{ id: string; status: string }> {
+    return this.request<{ id: string; status: string }>(
+      'POST',
+      `/api/v1/admin/reviews/${encodeURIComponent(targetType)}/${encodeURIComponent(targetId)}/v${version}/decision`,
+      {
+        requiredRoles: ['reviewer', 'admin'],
+        body: { decision, comments },
+      },
+    );
+  }
+
+  public async listExplanations(query?: { questionId?: string; status?: string }): Promise<{ items: unknown[] }> {
+    const searchParams = new URLSearchParams();
+    if (query?.questionId) searchParams.set('questionId', query.questionId);
+    if (query?.status) searchParams.set('status', query.status);
+    const qs = searchParams.toString();
+    const path = `/api/v1/admin/explanations${qs ? `?${qs}` : ''}`;
+    return this.request<{ items: unknown[] }>('GET', path, {
+      requiredRoles: ['editor', 'reviewer', 'admin'],
+    });
+  }
+
+  public async reviewExplanation(
+    id: string,
+    decision: 'approved' | 'rejected',
+    comments?: string,
+  ): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(
+      'POST',
+      `/api/v1/admin/explanations/${encodeURIComponent(id)}/reviews`,
+      {
+        requiredRoles: ['reviewer', 'admin'],
+        body: { decision, comments },
+      },
+    );
+  }
+
+  public async listMedia(): Promise<{ items: unknown[] }> {
+    return this.request<{ items: unknown[] }>('GET', '/api/v1/admin/media', {
+      requiredRoles: ['editor', 'reviewer', 'admin'],
+    });
+  }
+
+  public async uploadMedia(
+    fileOrData: File | { filename: string; dataBase64: string; mimeType?: string },
+    optionalKey?: string,
+  ): Promise<{ success: boolean; asset: unknown }> {
+    let payload: { filename: string; dataBase64: string; mimeType?: string };
+    if ('dataBase64' in fileOrData) {
+      payload = fileOrData;
+    } else {
+      const arrayBuffer = await fileOrData.arrayBuffer();
+      let dataBase64 = '';
+      if (typeof Buffer !== 'undefined') {
+        dataBase64 = Buffer.from(arrayBuffer).toString('base64');
+      } else {
+        const bytes = new Uint8Array(arrayBuffer);
+        const chunkSize = 8192;
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          dataBase64 += btoa(String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunkSize))));
+        }
+      }
+      payload = {
+        filename: optionalKey || fileOrData.name,
+        dataBase64,
+        mimeType: fileOrData.type || 'application/octet-stream',
+      };
+    }
+    return this.request<{ success: boolean; asset: unknown }>('POST', '/api/v1/admin/media', {
+      requiredRoles: ['editor', 'reviewer', 'admin'],
+      body: payload,
+    });
+  }
+
+  public async listVocab(
+    datasetId = 'official-corpus',
+    query?: Record<string, string>,
+  ): Promise<{ items: unknown[] } | unknown[]> {
+    const searchParams = new URLSearchParams(query);
+    const qs = searchParams.toString();
+    const path = `/api/v1/datasets/${encodeURIComponent(datasetId)}/vocabulary${qs ? `?${qs}` : ''}`;
+    return this.request('GET', path, {
+      requiredRoles: ['editor', 'reviewer', 'admin'],
+    });
+  }
+
+  public async listArticles(locale?: string): Promise<{ items: unknown[] } | unknown[]> {
+    const qs = locale ? `?locale=${encodeURIComponent(locale)}` : '';
+    return this.request('GET', `/api/v1/cms/articles${qs}`, {
+      requiredRoles: ['editor', 'reviewer', 'admin'],
+    });
+  }
+
+  public async createArticle(data: unknown): Promise<{ id: string }> {
+    return this.request<{ id: string }>('POST', '/api/v1/cms/articles', {
+      requiredRoles: ['editor', 'admin'],
+      body: data,
+    });
+  }
+
+  public async updateArticle(id: string, data: unknown): Promise<{ updated: boolean }> {
+    return this.request<{ updated: boolean }>('PUT', `/api/v1/cms/articles/${encodeURIComponent(id)}`, {
+      requiredRoles: ['editor', 'admin'],
+      body: data,
+    });
+  }
+
+  public async listContentReports(query?: { status?: string; questionId?: string }): Promise<{ items: unknown[] } | unknown[]> {
+    const searchParams = new URLSearchParams();
+    if (query?.status) searchParams.set('status', query.status);
+    if (query?.questionId) searchParams.set('questionId', query.questionId);
+    const qs = searchParams.toString();
+    return this.request('GET', `/api/v1/admin/content-reports${qs ? `?${qs}` : ''}`, {
+      requiredRoles: ['reviewer', 'editor', 'admin'],
+    });
+  }
+
+  public async updateContentReport(
+    id: string,
+    data: { status: 'in_review' | 'resolved' | 'dismissed'; notes?: string },
+  ): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(
+      'PATCH',
+      `/api/v1/admin/content-reports/${encodeURIComponent(id)}`,
+      {
+        requiredRoles: ['reviewer', 'editor', 'admin'],
+        body: data,
+      },
+    );
+  }
+
+  public async getContentReport(kind = 'content'): Promise<unknown> {
+    return this.request('GET', `/api/v1/admin/reports/${encodeURIComponent(kind)}`, {
+      requiredRoles: ['editor', 'reviewer', 'admin'],
+    });
+  }
+
+  public async reviewAiContent(
+    id: string,
+    approvalStatus: 'approved' | 'rejected',
+    reviewNotes?: string,
+  ): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(
+      'POST',
+      `/api/v1/admin/ai-content/${encodeURIComponent(id)}/reviews`,
+      {
+        requiredRoles: ['reviewer', 'admin'],
+        body: { approvalStatus, reviewNotes },
+      },
+    );
+  }
+
   private handleMockRequest<T>(_method: string, path: string, _body?: unknown): T {
     if (path.includes('/groups') || path.includes('/questions')) {
       return { items: [{ id: 'grp_01', title: 'Mondai 1 Kanji Reading', status: 'draft' }] } as T;
@@ -669,3 +957,6 @@ export class AdminApiClient {
     return { success: true } as T;
   }
 }
+
+export const apiClient = new AdminApiClient();
+
