@@ -19,40 +19,62 @@ export function ShareExamModal({
   const [copied, setCopied] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const baseUrl = (process.env.NEXT_PUBLIC_API_URL || '/api/v1').replace(/\/+$/, '');
 
   const handleCreateShareLink = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/generated-exams/${examId}/shares`, {
+      setError(null);
+
+      let tokenHeader: string | null = null;
+      if (typeof window !== 'undefined') {
+        tokenHeader = localStorage.getItem('jlpt_auth_token') || sessionStorage.getItem('jlpt_auth_token');
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (tokenHeader) {
+        headers['Authorization'] = `Bearer ${tokenHeader}`;
+      }
+
+      const res = await fetch(`${baseUrl}/generated-exams/${encodeURIComponent(examId)}/shares`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({}),
+        credentials: 'include',
       });
+
       if (res.ok) {
         const data = await res.json();
-        setToken(data.token || `sh_${examId.slice(0, 8)}`);
+        setToken(data.token);
       } else {
-        setToken(`sh_${examId.slice(0, 8)}`);
+        const errData = await res.json().catch(() => ({}));
+        setError(errData.message || `Không thể tạo liên kết chia sẻ (Mã lỗi: ${res.status})`);
       }
-    } catch {
-      setToken(`sh_${examId.slice(0, 8)}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Lỗi kết nối máy chủ khi tạo liên kết.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
   };
 
   React.useEffect(() => {
-    if (isOpen && !token) {
+    if (isOpen && !token && !error) {
       handleCreateShareLink();
     }
   }, [isOpen, examId]);
 
+  const shareToken = token || examId;
   const shareUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/shared-exams/${token || examId}`
-    : `https://jlpt.example.com/shared-exams/${token || examId}`;
+    ? `${window.location.origin}/shared-exams/${shareToken}`
+    : `https://jlpt.example.com/shared-exams/${shareToken}`;
 
   const handleCopy = () => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+    if (typeof navigator !== 'undefined' && navigator.clipboard && shareToken) {
       navigator.clipboard.writeText(shareUrl).then(() => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2500);
@@ -74,9 +96,17 @@ export function ShareExamModal({
           Bạn có thể chia sẻ liên kết này cho bạn bè hoặc nhóm học tập để cùng làm chung một bộ đề trộn với cùng cấu trúc seed câu hỏi bất biến.
         </p>
 
-        {loading ? (
+        {loading && (
           <div className="py-4 text-center text-slate-500">Đang tạo liên kết chia sẻ...</div>
-        ) : (
+        )}
+
+        {error && (
+          <div className="p-3 rounded-xl bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+            {error}
+          </div>
+        )}
+
+        {!loading && !error && (
           <div className="space-y-3">
             <div>
               <label
