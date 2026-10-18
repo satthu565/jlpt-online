@@ -176,6 +176,7 @@ export function ExamPicker({
                     variant="primary"
                     onClick={() => onSelectExam(exam, selectedMode)}
                     className="w-full"
+                    data-testid="exam-card-start-btn"
                   >
                     Bắt đầu làm bài
                   </Button>

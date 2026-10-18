@@ -44,10 +44,20 @@ export class ExamApiClient {
   private getAuthToken?: () => string | null;
 
   constructor(options: ExamApiOptions = {}) {
-    const defaultUrl =
-      process.env.NEXT_PUBLIC_API_URL ||
-      (typeof window !== 'undefined' ? '/api/v1' : 'http://127.0.0.1:4000/api/v1');
-    let resolved = options.baseUrl ?? defaultUrl;
+    const isBrowser = typeof window !== 'undefined';
+    let resolved = options.baseUrl;
+    if (!resolved) {
+      if (isBrowser) {
+        resolved = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
+      } else {
+        const publicUrl = process.env.NEXT_PUBLIC_API_URL;
+        if (publicUrl && (publicUrl.startsWith('http://') || publicUrl.startsWith('https://'))) {
+          resolved = publicUrl;
+        } else {
+          resolved = process.env.API_INTERNAL_URL || process.env.STAGING_API_URL || 'http://127.0.0.1:4000/api/v1';
+        }
+      }
+    }
     resolved = resolved.replace(/\/+$/, '');
     if (!resolved.endsWith('/api/v1') && !resolved.includes('/api/v1')) {
       resolved = `${resolved}/api/v1`;

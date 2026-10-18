@@ -48,9 +48,22 @@ export interface ScoreReportResult {
 
 function sanitizeExportField(value: unknown): string {
   if (value === null || value === undefined) return '';
-  return String(value)
-    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
-    .trim();
+  const str = String(value);
+  let cleaned = '';
+  for (let i = 0; i < str.length; i++) {
+    const code = str.charCodeAt(i);
+    if (
+      (code >= 0x00 && code <= 0x08) ||
+      code === 0x0b ||
+      code === 0x0c ||
+      (code >= 0x0e && code <= 0x1f) ||
+      code === 0x7f
+    ) {
+      continue;
+    }
+    cleaned += str[i];
+  }
+  return cleaned.trim();
 }
 
 function assertScoreReportIsolation(
@@ -110,7 +123,8 @@ function sha256Hex(ascii: string): string {
     const oldHash = hash.slice(0);
 
     for (j = 0; j < 64; j++) {
-      let s0: number, s1: number, ch: number, temp1: number, temp2: number, maj: number;
+      let s0 = 0;
+      let s1 = 0;
       if (j >= 16) {
         const w15 = w[j - 15]!;
         const w2 = w[j - 2]!;
@@ -120,11 +134,11 @@ function sha256Hex(ascii: string): string {
       }
 
       s1 = rightRotate(hash[4]!, 6) ^ rightRotate(hash[4]!, 11) ^ rightRotate(hash[4]!, 25);
-      ch = (hash[4]! & hash[5]!) ^ (~hash[4]! & hash[6]!);
-      temp1 = (hash[7]! + s1 + ch + k[j]! + w[j]!) | 0;
+      const ch = (hash[4]! & hash[5]!) ^ (~hash[4]! & hash[6]!);
+      const temp1 = (hash[7]! + s1 + ch + k[j]! + w[j]!) | 0;
       s0 = rightRotate(hash[0]!, 2) ^ rightRotate(hash[0]!, 13) ^ rightRotate(hash[0]!, 22);
-      maj = (hash[0]! & hash[1]!) ^ (hash[0]! & hash[2]!) ^ (hash[1]! & hash[2]!);
-      temp2 = (s0 + maj) | 0;
+      const maj = (hash[0]! & hash[1]!) ^ (hash[0]! & hash[2]!) ^ (hash[1]! & hash[2]!);
+      const temp2 = (s0 + maj) | 0;
 
       hash = [(temp1 + temp2) | 0, hash[0]!, hash[1]!, hash[2]!, (hash[3]! + temp1) | 0, hash[4]!, hash[5]!, hash[6]!];
     }

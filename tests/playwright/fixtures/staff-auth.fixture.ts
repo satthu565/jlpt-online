@@ -127,8 +127,8 @@ export async function authenticateStaffAccount(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-forwarded-for': '198.51.100.80',
-      'cf-connecting-ip': '198.51.100.80',
+      'x-forwarded-for': `198.51.100.${Math.floor(Math.random() * 200) + 10}`,
+      'cf-connecting-ip': `198.51.100.${Math.floor(Math.random() * 200) + 10}`,
     },
     body: JSON.stringify({
       email: account.email,

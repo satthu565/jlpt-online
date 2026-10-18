@@ -235,6 +235,17 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
 test.describe('Real Staging User Journey & Exam Flow (I05)', () => {
   const mailpit = new MailpitClient();
 
+  test.beforeEach(async ({ context }) => {
+    await context.addInitScript(() => {
+      try {
+        localStorage.setItem('jlpt_cookie_consent', 'all');
+        document.cookie = 'jlpt_consent=all; path=/; SameSite=Lax';
+      } catch {
+        // ignore
+      }
+    });
+  });
+
   test('Student registration via UI, email verification, login, taking demo N5 exam, and viewing score (Acceptance 1, 4)', async ({
     page,
   }) => {
@@ -283,9 +294,16 @@ test.describe('Real Staging User Journey & Exam Flow (I05)', () => {
 
     // 6. Navigate to /phong-thi?examId=demo-n5-1
     await page.goto(`${webOrigin}/phong-thi?examId=demo-n5-1`);
-    const startExamBtn = page.locator('[data-testid="modal-start-exam-btn"], button:has-text("Bắt đầu làm bài")').last();
-    await expect(startExamBtn).toBeVisible({ timeout: 15000 });
-    await startExamBtn.click();
+    const modalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
+    try {
+      await modalBtn.waitFor({ state: 'visible', timeout: 5000 });
+    } catch {
+      const cardBtn = page.locator('[data-testid="exam-card-start-btn"], button:has-text("Bắt đầu làm bài")').first();
+      await expect(cardBtn).toBeVisible({ timeout: 15000 });
+      await cardBtn.click();
+      await modalBtn.waitFor({ state: 'visible', timeout: 10000 });
+    }
+    await modalBtn.click();
 
     // 7. Exam room rendered - answer at least one question
     await expect(page.locator('[role="radiogroup"], [data-testid="exam-room"], main').first()).toBeVisible({ timeout: 15000 });
@@ -321,13 +339,28 @@ test.describe('Real Staging User Journey & Exam Flow (I05)', () => {
     const webOrigin = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
     // Fresh context without login
     const guestContext = await page.context().browser()!.newContext();
+    await guestContext.addInitScript(() => {
+      try {
+        localStorage.setItem('jlpt_cookie_consent', 'all');
+        document.cookie = 'jlpt_consent=all; path=/; SameSite=Lax';
+      } catch {
+        // ignore
+      }
+    });
     const guestPage = await guestContext.newPage();
 
     // 1. Guest can start guest_trial exam (demo-n5-1)
     await guestPage.goto(`${webOrigin}/phong-thi?examId=demo-n5-1`);
-    const startExamBtn = guestPage.locator('[data-testid="modal-start-exam-btn"], button:has-text("Bắt đầu làm bài")').last();
-    await expect(startExamBtn).toBeVisible({ timeout: 15000 });
-    await startExamBtn.click();
+    const guestModalBtn = guestPage.locator('[data-testid="modal-start-exam-btn"]');
+    try {
+      await guestModalBtn.waitFor({ state: 'visible', timeout: 5000 });
+    } catch {
+      const cardBtn = guestPage.locator('[data-testid="exam-card-start-btn"], button:has-text("Bắt đầu làm bài")').first();
+      await expect(cardBtn).toBeVisible({ timeout: 15000 });
+      await cardBtn.click();
+      await guestModalBtn.waitFor({ state: 'visible', timeout: 10000 });
+    }
+    await guestModalBtn.click();
 
     // Verified: exam room begins for guest
     await expect(guestPage.locator('[role="radiogroup"], [data-testid="exam-room"], main').first()).toBeVisible({ timeout: 15000 });
