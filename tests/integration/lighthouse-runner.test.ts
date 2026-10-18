@@ -412,6 +412,7 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
         routeFilter: '/',
         presetFilter: 'desktop',
         outputDir: tempOutputDir,
+        mock: true,
       });
 
       expect(summary.totalAudits).toBe(1);

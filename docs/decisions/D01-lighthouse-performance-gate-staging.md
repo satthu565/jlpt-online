@@ -77,3 +77,6 @@ Theo yêu cầu Ngày 9 của chủ dự án (xem `KE_HOACH_TRIEN_KHAI.md` mục
 3. Chạy audit thật với Playwright Chromium trên local HTTP server tạo ra file HTML report và JSON report hoàn chỉnh.
 4. Đã hoàn tác các sửa đổi ngoài phạm vi tại `tests/integration/dac-ta-runner.test.ts`.
 5. Các cổng kiểm tra chung (`pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`) đều hoàn thành xuất sắc.
+6. Đã khắc phục phản hồi review từ W5: truyền cờ `mock: true` trong test case artifact generation của `tests/integration/lighthouse-runner.test.ts` và kiểm tra `fs.existsSync(chromeExecutable)` trước khi khởi chạy browser trong `tests/lighthouse/runner.ts`, bảo đảm `pnpm test` chạy độc lập thành công trong mọi môi trường CI/worker không có sẵn Playwright chromium binary.
+7. Khóa tài nguyên `dependency-lock` đã được cấp cho task D01 theo phân công của coordinator để quản lý gói dependency `lighthouse`.
+

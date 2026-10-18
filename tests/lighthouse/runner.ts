@@ -269,6 +269,11 @@ export async function runLighthouseAudit(options: RunnerOptions = {}): Promise<L
     const lighthouse = lighthouseModule.default || lighthouseModule;
 
     const chromeExecutable = chromium.executablePath();
+    if (!fs.existsSync(chromeExecutable)) {
+      throw new Error(
+        `Chromium browser binary was not found at ${chromeExecutable}. Run 'pnpm exec playwright install chromium' first.`,
+      );
+    }
     const cdpPort = await findFreePort(9444);
 
     const browser = await chromium.launch({
