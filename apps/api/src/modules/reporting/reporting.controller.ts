@@ -1,6 +1,10 @@
 import {
   Controller,
   Get,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
   Param,
   Query,
   Res,
@@ -67,5 +71,35 @@ export class ReportingController {
       `attachment; filename="report-${kind}-${new Date().toISOString().slice(0, 10)}.csv"`,
     );
     return reply.send(csvContent);
+  }
+
+  // --- Settings: Backup & Restore (ADM-20 / SYS-08) ---
+
+  @Get('settings/backup/jobs')
+  @Roles('admin')
+  async getBackupJobs(@CurrentUser() user?: AuthUserContext) {
+    if (!user) {
+      throw new ForbiddenException({
+        code: 'UNAUTHENTICATED',
+        message: 'Yêu cầu đăng nhập.',
+      });
+    }
+    return this.reportingService.getBackupJobs();
+  }
+
+  @Post('settings/backup/jobs')
+  @Roles('admin')
+  @HttpCode(HttpStatus.CREATED)
+  async triggerBackupJob(
+    @Body() body: { jobType: string; configSnapshot?: Record<string, string> },
+    @CurrentUser() user?: AuthUserContext,
+  ) {
+    if (!user) {
+      throw new ForbiddenException({
+        code: 'UNAUTHENTICATED',
+        message: 'Yêu cầu đăng nhập.',
+      });
+    }
+    return this.reportingService.triggerBackupJob(body?.jobType, user, body?.configSnapshot);
   }
 }

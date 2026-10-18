@@ -1,115 +1,185 @@
-'use client';
-
 import React, { useState } from 'react';
 import type { BackupService } from './backup-service';
+import type { OperatorBackupJob, BackupSummary } from './types';
 import type { StaffUser } from '../../lib/auth-context';
 
 export interface BackupManagerViewProps {
-  backupService: BackupService;
-  currentUser?: StaffUser | null;
+  backupService?: BackupService;
+  currentUser: StaffUser | null;
+  jobs?: OperatorBackupJob[];
+  isLoading?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
+  onTrigger?: (jobType: string) => Promise<void>;
 }
 
-export function BackupManagerView({ backupService, currentUser }: BackupManagerViewProps): React.JSX.Element {
-  const [summary, setSummary] = useState(() => backupService.getSummary());
+export function BackupManagerView({
+  backupService,
+  currentUser,
+  jobs,
+  isLoading,
+  error,
+  onRetry,
+  onTrigger,
+}: BackupManagerViewProps): React.JSX.Element {
+  const [internalError, setInternalError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [internalSummary, setInternalSummary] = useState<BackupSummary | null>(() =>
+    backupService ? backupService.getSummary() : null,
+  );
 
-  const handleTrigger = (jobType: string) => {
-    setErrorMsg(null);
+  const displayJobs = jobs !== undefined ? jobs : (internalSummary?.jobs ?? []);
+  const summary: BackupSummary = {
+    jobs: displayJobs,
+    totalJobs: displayJobs.length,
+    totalJobsCount: displayJobs.length,
+    lastSuccessfulBaseBackup: displayJobs.find((j) => j.jobType === 'base-backup' && j.status === 'completed')?.completedAt,
+    lastSuccessfulPitrDrill: displayJobs.find((j) => j.jobType === 'restore-pitr' && j.status === 'completed')?.completedAt,
+    totalSizeBytes: displayJobs.filter((j) => j.status === 'completed').reduce((sum, j) => sum + (j.sizeBytes || 0), 0),
+    isRpoMet: Boolean(displayJobs.find((j) => j.jobType === 'base-backup' && j.status === 'completed')),
+  };
+
+  const handleTrigger = async (jobType: 'base-backup' | 'restore-pitr' | 'export-bundle') => {
+    setInternalError(null);
     setSuccessMsg(null);
 
     if (!currentUser) {
-      setErrorMsg('Yêu cầu đăng nhập quản trị viên.');
+      setInternalError('Chưa xác thực người vận hành.');
       return;
     }
 
-    try {
-      const job = backupService.triggerJob(
-        jobType,
-        {
-          id: currentUser.id,
-          email: currentUser.email,
-          role: currentUser.role,
-          tenantId: 'global',
-        },
-        {
-          POSTGRES_PASSWORD: 'super_secret_db_password_123',
-          WALG_S3_SECRET: 'walg_secret_key_abc_xyz',
-          PAYOS_CHECKSUM_KEY: 'test_checksum_key_unleaked',
-          NODE_ENV: 'production',
-          PROFILE: 'small',
-        },
-      );
+    if (onTrigger) {
+      try {
+        await onTrigger(jobType);
+        setSuccessMsg(`Đã kích hoạt thành công operator job: ${jobType}.`);
+      } catch (err: unknown) {
+        setInternalError(err instanceof Error ? err.message : 'Lỗi khi kích hoạt operator job.');
+      }
+      return;
+    }
 
-      setSummary(backupService.getSummary());
-      setSuccessMsg(`Đã kích hoạt thành công operator job: ${job.jobType} (${job.id}).`);
-    } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Lỗi khi kích hoạt operator job.');
+    if (backupService) {
+      try {
+        const job = await backupService.triggerJob(
+          jobType,
+          currentUser.id,
+          currentUser.email,
+          {},
+          'global',
+        );
+
+        setInternalSummary(backupService.getSummary());
+        setSuccessMsg(`Đã kích hoạt thành công operator job: ${job.jobType} (${job.id}).`);
+      } catch (err: unknown) {
+        setInternalError(err instanceof Error ? err.message : 'Lỗi khi kích hoạt operator job.');
+      }
     }
   };
+
+  const activeError = error || internalError;
 
   return (
     <div data-testid="backup-management-panel" className="space-y-6">
       {/* Security alert notice */}
       <div
         data-testid="backup-security-notice"
-        className="p-4 bg-blue-50 border border-blue-200 text-blue-900 rounded-lg text-sm"
+        className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-900 text-xs space-y-1"
       >
-        <p className="font-semibold">Chính sách bảo vệ an toàn &amp; vận hành sao lưu (ADM-20 / SYS-08)</p>
-        <p className="text-xs text-blue-700 mt-1">
-          Giao diện chỉ cho phép kích hoạt các operator background job đã được kiểm chứng (<code>base-backup</code>,{' '}
-          <code>export-bundle</code>, <code>restore-pitr</code>). Trình duyệt tuyệt đối không lưu trữ, tiếp nhận hoặc
-          truyền tải raw secrets / passwords. Mọi thông số cấu hình hiển thị đều được trung hòa bảo mật (
-          <code>[REDACTED_SECRET]</code>).
+        <div className="font-bold uppercase tracking-wider flex items-center gap-1.5">
+          <span>⚠️</span>
+          <span>Chính sách bảo vệ an toàn &amp; vận hành sao lưu (ADM-20 / SYS-08)</span>
+        </div>
+        <p>
+          Toàn bộ thao tác sao lưu hệ thống, diễn tập khôi phục PITR (Point-In-Time Recovery) và xuất gói dữ liệu kiểm toán
+          phải tuân thủ các quy tắc bảo mật. Mọi biến môi trường nhạy cảm (mật khẩu DB, private token, access keys) tự động bị khử định danh thành <code>[REDACTED_SECRET]</code> trước khi lưu nhật ký.
         </p>
       </div>
 
-      {errorMsg && (
-        <div data-testid="backup-error-alert" className="p-3 bg-red-50 border border-red-200 text-red-700 rounded text-sm">
-          {errorMsg}
+      {activeError && (
+        <div
+          role="alert"
+          data-testid="backup-error-alert"
+          className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-center justify-between"
+        >
+          <span>{activeError}</span>
+          {onRetry && (
+            <button
+              onClick={onRetry}
+              className="px-3 py-1 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700"
+            >
+              Thử lại
+            </button>
+          )}
+        </div>
+      )}
+
+      {isLoading && (
+        <div
+          role="status"
+          data-testid="backup-loading"
+          className="p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-sm flex items-center gap-2"
+        >
+          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <span>Đang tải danh sách tác vụ sao lưu...</span>
         </div>
       )}
 
       {successMsg && (
-        <div data-testid="backup-success-alert" className="p-3 bg-green-50 border border-green-200 text-green-700 rounded text-sm">
-          {successMsg}
+        <div
+          role="status"
+          data-testid="backup-success-alert"
+          className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-sm"
+        >
+          ✓ {successMsg}
         </div>
       )}
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 bg-white border rounded-lg">
-          <div className="text-xs text-gray-500 font-medium">Tổng tác vụ sao lưu / diễn tập</div>
-          <div data-testid="stat-total-backup-jobs" className="text-2xl font-bold text-gray-900 mt-1">
-            {summary.totalJobs}
+      {/* SLA & Status Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white p-4 rounded-lg border shadow-xs">
+          <div className="text-xs text-gray-500">Mục tiêu Điểm khôi phục (RPO)</div>
+          <div data-testid="backup-rpo-indicator" className="text-lg font-bold text-gray-900 mt-1 flex items-center gap-1.5">
+            <span className={`w-2.5 h-2.5 rounded-full ${summary.isRpoMet ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+            <span>≤ 5 phút (WAL-G R2)</span>
+          </div>
+          <div className="text-[11px] text-gray-500 mt-0.5">
+            Trạng thái: {summary.isRpoMet ? 'Đạt chuẩn SLA' : 'Cần diễn tập'}
           </div>
         </div>
-        <div className="p-4 bg-white border rounded-lg">
-          <div className="text-xs text-gray-500 font-medium">Bản sao lưu Base Backup gần nhất</div>
-          <div data-testid="stat-last-backup" className="text-sm font-semibold text-gray-800 mt-1">
-            {summary.lastBackupAt ? new Date(summary.lastBackupAt).toLocaleString('vi-VN') : 'Chưa có'}
+
+        <div className="bg-white p-4 rounded-lg border shadow-xs">
+          <div className="text-xs text-gray-500">Bản sao lưu Base gần nhất</div>
+          <div data-testid="last-base-backup" className="text-sm font-semibold text-gray-900 mt-1">
+            {summary.lastSuccessfulBaseBackup ? new Date(summary.lastSuccessfulBaseBackup).toLocaleString('vi-VN') : 'Chưa ghi nhận'}
           </div>
+          <div className="text-[11px] text-gray-500 mt-0.5">Tần suất: Hằng ngày (03:00 UTC)</div>
         </div>
-        <div className="p-4 bg-white border rounded-lg">
-          <div className="text-xs text-gray-500 font-medium">Diễn tập khôi phục PITR gần nhất</div>
-          <div data-testid="stat-last-drill" className="text-sm font-semibold text-gray-800 mt-1">
-            {summary.lastDrillAt ? new Date(summary.lastDrillAt).toLocaleString('vi-VN') : 'Chưa có'}
+
+        <div className="bg-white p-4 rounded-lg border shadow-xs">
+          <div className="text-xs text-gray-500">Lần diễn tập PITR gần nhất</div>
+          <div data-testid="last-pitr-drill" className="text-sm font-semibold text-gray-900 mt-1">
+            {summary.lastSuccessfulPitrDrill ? new Date(summary.lastSuccessfulPitrDrill).toLocaleString('vi-VN') : 'Chưa ghi nhận'}
           </div>
+          <div className="text-[11px] text-gray-500 mt-0.5">Môi trường: Staging Isolated DB</div>
+        </div>
+
+        <div className="bg-white p-4 rounded-lg border shadow-xs">
+          <div className="text-xs text-gray-500">Tổng dung lượng sao lưu</div>
+          <div data-testid="total-backup-size" className="text-lg font-bold text-gray-900 mt-1">
+            {Math.round((summary.totalSizeBytes / 1024 / 1024) * 10) / 10} MB
+          </div>
+          <div className="text-[11px] text-gray-500 mt-0.5">{summary.totalJobsCount} bản ghi hoàn tất</div>
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="p-4 bg-white border rounded-lg space-y-3">
-        <h3 className="text-sm font-bold text-gray-800">Kích hoạt tác vụ vận hành (Operator Jobs)</h3>
-        <p className="text-xs text-gray-500">
-          Chỉ Quản trị viên cấp cao (Admin) mới có thẩm quyền khởi chạy tác vụ. Mỗi hành động đều ghi nhật ký kiểm toán
-          với danh tính Actor và Tenant.
-        </p>
-        <div className="flex flex-wrap gap-3 pt-2">
+      {/* Operator Trigger Actions */}
+      <div className="bg-white p-4 rounded-lg border space-y-3 shadow-xs">
+        <h3 className="text-sm font-bold text-gray-800">Kích hoạt tác vụ sao lưu / diễn tập thủ công</h3>
+        <div className="flex flex-wrap gap-2">
           <button
             type="button"
             data-testid="btn-trigger-base-backup"
-            onClick={() => handleTrigger('base-backup')}
+            onClick={() => void handleTrigger('base-backup')}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded shadow-xs"
           >
             Chạy Base Backup (WAL-G)
@@ -117,7 +187,7 @@ export function BackupManagerView({ backupService, currentUser }: BackupManagerV
           <button
             type="button"
             data-testid="btn-trigger-export-bundle"
-            onClick={() => handleTrigger('export-bundle')}
+            onClick={() => void handleTrigger('export-bundle')}
             className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded shadow-xs"
           >
             Xuất gói dữ liệu quản trị (Sanitized)
@@ -125,7 +195,7 @@ export function BackupManagerView({ backupService, currentUser }: BackupManagerV
           <button
             type="button"
             data-testid="btn-trigger-restore-pitr"
-            onClick={() => handleTrigger('restore-pitr')}
+            onClick={() => void handleTrigger('restore-pitr')}
             className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded shadow-xs"
           >
             Diễn tập khôi phục PITR (Staging Isolated)
@@ -133,50 +203,58 @@ export function BackupManagerView({ backupService, currentUser }: BackupManagerV
         </div>
       </div>
 
-      {/* Operator Jobs Table */}
-      <div className="bg-white border rounded-lg overflow-x-auto">
-        <table data-testid="backup-jobs-table" className="min-w-full divide-y divide-gray-200 text-xs">
-          <thead className="bg-gray-50">
+      {/* Backup Jobs History Table */}
+      <div className="bg-white border rounded-lg overflow-x-auto shadow-xs">
+        <table data-testid="backup-jobs-table" className="w-full text-left text-xs">
+          <thead className="bg-gray-50 border-b text-gray-600 font-semibold">
             <tr>
-              <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Mã tác vụ</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Loại tác vụ</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Người kích hoạt (Actor)</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Đơn vị (Tenant)</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Trạng thái</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Dung lượng</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Đích lưu trữ</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Thời gian</th>
+              <th className="px-4 py-3">Mã Job</th>
+              <th className="px-4 py-3">Loại tác vụ</th>
+              <th className="px-4 py-3">Người vận hành</th>
+              <th className="px-4 py-3">Đơn vị</th>
+              <th className="px-4 py-3">Trạng thái</th>
+              <th className="px-4 py-3">Dung lượng</th>
+              <th className="px-4 py-3">Vị trí lưu trữ</th>
+              <th className="px-4 py-3">Thời gian hoàn thành</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {summary.jobs.map((job) => (
-              <tr key={job.id} data-testid={`backup-job-${job.id}`}>
-                <td className="px-4 py-3 font-mono font-medium text-gray-900">{job.id}</td>
-                <td className="px-4 py-3">
-                  <span className="px-2 py-0.5 rounded font-mono bg-blue-50 text-blue-700 font-semibold">
-                    {job.jobType}
-                  </span>
-                </td>
-                <td data-testid={`backup-actor-${job.id}`} className="px-4 py-3 font-medium text-gray-800">
-                  {job.operatorEmail || job.initiatedBy}
-                </td>
-                <td data-testid={`backup-tenant-${job.id}`} className="px-4 py-3 text-emerald-700 font-semibold">
-                  {job.tenantId}
-                </td>
-                <td className="px-4 py-3">
-                  <span className="px-2 py-0.5 rounded bg-green-50 text-green-700 font-medium">
-                    {job.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-gray-600 font-mono">
-                  {job.sizeBytes ? `${Math.round((job.sizeBytes / 1024 / 1024) * 10) / 10} MB` : '—'}
-                </td>
-                <td className="px-4 py-3 font-mono text-gray-500 truncate max-w-xs">{job.outputLocation || '—'}</td>
-                <td className="px-4 py-3 text-gray-500">
-                  {job.completedAt ? new Date(job.completedAt).toLocaleString('vi-VN') : '—'}
+            {summary.jobs.length === 0 ? (
+              <tr>
+                <td colSpan={8} data-testid="backup-empty" className="px-4 py-8 text-center text-gray-500 text-sm italic">
+                  Chưa có tác vụ sao lưu nào được thực thi. Nhấn nút bên trên để khởi tạo bản sao lưu mới.
                 </td>
               </tr>
-            ))}
+            ) : (
+              summary.jobs.map((job) => (
+                <tr key={job.id} data-testid={`backup-job-${job.id}`}>
+                  <td className="px-4 py-3 font-mono font-medium text-gray-900">{job.id}</td>
+                  <td className="px-4 py-3">
+                    <span className="px-2 py-0.5 rounded font-mono bg-blue-50 text-blue-700 font-semibold">
+                      {job.jobType}
+                    </span>
+                  </td>
+                  <td data-testid={`backup-actor-${job.id}`} className="px-4 py-3 font-medium text-gray-800">
+                    {job.operatorEmail || job.initiatedBy || 'admin@jlpt.local'}
+                  </td>
+                  <td data-testid={`backup-tenant-${job.id}`} className="px-4 py-3 text-emerald-700 font-semibold">
+                    {job.tenantId || 'global'}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="px-2 py-0.5 rounded bg-green-50 text-green-700 font-medium">
+                      {job.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-600 font-mono">
+                    {job.sizeBytes ? `${Math.round((job.sizeBytes / 1024 / 1024) * 10) / 10} MB` : '—'}
+                  </td>
+                  <td className="px-4 py-3 font-mono text-gray-500 truncate max-w-xs">{job.outputLocation || '—'}</td>
+                  <td className="px-4 py-3 text-gray-500">
+                    {job.completedAt ? new Date(job.completedAt).toLocaleString('vi-VN') : '—'}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
