@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { ListeningTimelineItem, AttemptMode } from '@jlpt/schema';
-import { getListeningPlaybackPosition } from '@jlpt/exam-engine';
+import { getListeningPlaybackPosition } from '../utils/listening';
 import { Button, Badge, Alert } from '@jlpt/ui';
 
 export interface AudioPlayerProps {

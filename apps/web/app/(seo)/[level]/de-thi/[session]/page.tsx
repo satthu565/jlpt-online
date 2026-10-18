@@ -1,31 +1,37 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { SAMPLE_EXAM_SUMMARIES } from '../../../../../features/exam/fixtures/exam-fixtures';
+import { examApiClient } from '../../../../../features/exam/api/exam-api';
 import { LibraryView } from '../../../../../features/library';
 import { JsonLd } from '@jlpt/ui';
+import type { ExamSummary } from '@jlpt/schema';
 
 export interface SessionExamsPageProps {
   params: Promise<{ level: string; session: string }>;
 }
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
   const params: Array<{ level: string; session: string }> = [];
-  for (const e of SAMPLE_EXAM_SUMMARIES) {
-    if (e.year && e.session) {
-      const sessionSlug = `${e.year}-${e.session.padStart(2, '0')}`;
-      params.push({
-        level: e.level.toLowerCase(),
-        session: sessionSlug,
-      });
-      // Also without padStart for single digits (e.g. 2024-7)
-      if (e.session.length === 1) {
+  try {
+    const res = await examApiClient.getExams({ limit: 100 });
+    for (const e of res.items || []) {
+      if (e.year && e.session) {
+        const sessionSlug = `${e.year}-${e.session.padStart(2, '0')}`;
         params.push({
           level: e.level.toLowerCase(),
-          session: `${e.year}-${e.session}`,
+          session: sessionSlug,
         });
+        // Also without padStart for single digits (e.g. 2024-7)
+        if (e.session.length === 1) {
+          params.push({
+            level: e.level.toLowerCase(),
+            session: `${e.year}-${e.session}`,
+          });
+        }
       }
     }
+  } catch {
+    // Graceful fallback during static build or offline
   }
   return params;
 }
@@ -57,12 +63,18 @@ export default async function SessionExamsPage({ params }: SessionExamsPageProps
   const yearNum = Number(parts[0]);
   const sessionNum = parts[1]?.replace(/^0+/, ''); // strip leading zero
 
-  const matchingExams = SAMPLE_EXAM_SUMMARIES.filter((e) => {
-    if (e.level.toUpperCase() !== upper) return false;
-    if (yearNum && e.year !== yearNum) return false;
-    if (sessionNum && e.session !== sessionNum && e.session !== parts[1]) return false;
-    return true;
-  });
+  let matchingExams: ExamSummary[] = [];
+  try {
+    const res = await examApiClient.getExams({ level: upper });
+    matchingExams = (res.items || []).filter((e) => {
+      if (e.level.toUpperCase() !== upper) return false;
+      if (yearNum && e.year !== yearNum) return false;
+      if (sessionNum && e.session !== sessionNum && e.session !== parts[1]) return false;
+      return true;
+    });
+  } catch {
+    // Graceful fallback during static build or offline
+  }
 
   if (matchingExams.length === 0) {
     notFound();

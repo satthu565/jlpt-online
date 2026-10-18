@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
-import { SAMPLE_EXAM_SUMMARIES } from '../features/exam/fixtures/exam-fixtures';
+import { examApiClient } from '../features/exam/api/exam-api';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://jlpt.vn';
   const currentDate = new Date().toISOString();
 
@@ -45,20 +45,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   // 2. Published exam routes (SEO-06)
-  for (const exam of SAMPLE_EXAM_SUMMARIES) {
-    entries.push({
-      url: `${baseUrl}/de-thi/${exam.slug}`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-      alternates: {
-        languages: {
-          vi: `${baseUrl}/de-thi/${exam.slug}`,
-          ja: `${baseUrl}/ja/de-thi/${exam.slug}`,
-          en: `${baseUrl}/en/de-thi/${exam.slug}`,
+  try {
+    const res = await examApiClient.getExams({ limit: 100 });
+    for (const exam of res.items || []) {
+      entries.push({
+        url: `${baseUrl}/de-thi/${exam.slug}`,
+        lastModified: currentDate,
+        changeFrequency: 'monthly',
+        priority: 0.7,
+        alternates: {
+          languages: {
+            vi: `${baseUrl}/de-thi/${exam.slug}`,
+            ja: `${baseUrl}/ja/de-thi/${exam.slug}`,
+            en: `${baseUrl}/en/de-thi/${exam.slug}`,
+          },
         },
-      },
-    });
+      });
+    }
+  } catch {
+    // Graceful fallback during static build or offline
   }
 
   return entries;

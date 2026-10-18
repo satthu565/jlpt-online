@@ -6,6 +6,7 @@ import type {
   NotebookQuizResponseDto,
 } from './learning.types.js';
 import { NotebookService } from './notebook.service.js';
+import { getHanVietForWord } from '@jlpt/content-tools';
 
 const FALLBACK_DISTRACTORS: Record<string, string[]> = {
   vocab: [
@@ -98,6 +99,11 @@ export class QuizService {
       const options = [...distractors];
       options.splice(correctIndex, 0, correctMeaning);
 
+      const hanViet = current.hanViet || (current.term ? getHanVietForWord(current.term) : '') || '';
+      const termDisplay = hanViet
+        ? `「${current.term}」 [${hanViet}]${current.reading ? ` (${current.reading})` : ''}`
+        : `「${current.term}」${current.reading ? ` (${current.reading})` : ''}`;
+
       questions.push({
         id: generateUuidV7(),
         stem: `Nghĩa đúng của từ/cụm từ 「${current.term}」${current.reading ? ` (${current.reading})` : ''} là gì?`,
@@ -105,7 +111,8 @@ export class QuizService {
         correctOptionIndex: correctIndex,
         kind: current.kind,
         notebookItemId: current.id,
-        explanation: `「${current.term}」${current.reading ? ` (${current.reading})` : ''}: ${correctMeaning}`,
+        hanViet: hanViet || undefined,
+        explanation: `${termDisplay}: ${correctMeaning}`,
       });
     }
 
