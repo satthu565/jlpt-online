@@ -248,15 +248,13 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
 
     try {
       const resumeRes = await apiClient.resumeAttempt(attemptId);
-      let lease = resumeRes.lease;
       if (resumeRes.currentSection === null) {
-        const nextSec = await apiClient.nextSection(attemptId, { lease });
-        lease = nextSec.lease;
+        await apiClient.nextSection(attemptId, { lease: resumeRes.lease });
       }
       const snapshot = await apiClient.fetchSnapshot(resumeRes.snapshotUrl);
       setActivePracticeExam(snapshot);
       setActiveAttemptId(attemptId);
-      setActiveLease(lease);
+      setActiveLease(resumeRes.lease);
       setInitialAnswers(resumeRes.answers);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Không thể tiếp tục phiên luyện tập dở dang.';
