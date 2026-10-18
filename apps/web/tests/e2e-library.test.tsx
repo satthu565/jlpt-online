@@ -10,7 +10,7 @@ import {
   SAMPLE_N4_EXAM_SNAPSHOT,
   SAMPLE_N5_EXAM_SNAPSHOT,
   resolveExamSnapshotFromUrl,
-} from '../features/exam/fixtures/exam-fixtures';
+} from './fixtures/exam-fixtures';
 import { LibraryView } from '../features/library/components/library-view';
 import { ExamCard } from '../features/library/components/exam-card';
 import { ExamDetailView } from '../features/library/components/exam-detail-view';

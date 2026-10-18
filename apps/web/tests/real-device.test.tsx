@@ -6,11 +6,11 @@ import { renderToString } from 'react-dom/server';
 import {
   ALL_SAMPLE_EXAMS,
   SAMPLE_N1_EXAM_SNAPSHOT,
-} from '../features/exam/fixtures/exam-fixtures';
+} from './fixtures/exam-fixtures';
 import {
   DEVICE_PROFILES,
   type DeviceProfile,
-} from '../features/exam/fixtures/device-fixtures';
+} from './fixtures/device-fixtures';
 import { flattenExamQuestions } from '../features/exam/utils/flatten-questions';
 import {
   AudioPlayer,

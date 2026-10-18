@@ -11,7 +11,7 @@ import { setConsentStatus, hasAnalyticsConsent } from '../lib/consent';
 import { TTSAudioPlayer, WatermarkBadge } from '@jlpt/ui';
 import { PdfScoreExportButton } from '../features/results';
 import { generateScoreReportPdf } from '@jlpt/exam-engine';
-import { SAMPLE_EXAM_SUMMARIES } from '../features/exam/fixtures/exam-fixtures';
+import { SAMPLE_EXAM_SUMMARIES } from './fixtures/exam-fixtures';
 import type { Result } from '@jlpt/schema';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

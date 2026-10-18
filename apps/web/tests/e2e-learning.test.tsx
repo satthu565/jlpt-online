@@ -24,7 +24,7 @@ import type { LearnerExplanation } from '../features/explanations/types';
 import { ExamCard } from '../features/library/components/exam-card';
 import { LibraryView } from '../features/library/components/library-view';
 import type { ExamWithUserStatus } from '../features/library/types';
-import { SAMPLE_N3_EXAM_SNAPSHOT } from '../features/exam/fixtures/exam-fixtures';
+import { SAMPLE_N3_EXAM_SNAPSHOT } from './fixtures/exam-fixtures';
 
 const renderClean = (element: React.JSX.Element): string =>
   renderToString(element)
