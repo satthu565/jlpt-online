@@ -169,7 +169,7 @@ export function GeneratedExamCard({
       {/* Share Modal */}
       <ShareExamModal
         isOpen={shareModalOpen}
-        examId={generatedExam.examId}
+        examId={generatedExam.id || generatedExam.examId}
         examTitle={title}
         onClose={() => setShareModalOpen(false)}
       />
