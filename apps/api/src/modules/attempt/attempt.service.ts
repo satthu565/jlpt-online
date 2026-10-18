@@ -42,7 +42,6 @@ import type {
   ReviewAttemptResponse,
   CheckAnswerInput,
   CheckAnswerResponse,
-  AttemptSummary,
   AttemptStatus,
   AttemptMode,
   Result,
@@ -739,13 +738,26 @@ export class AttemptService {
       };
     }
 
+    const db = this.dbClient.db;
+    let result = attempt.result as Result | undefined;
+    if (attempt.status === 'submitted' && result) {
+      const [sheet] = await db
+        .select({ timeSpentMs: schema.attemptAnswerSheets.timeSpentMs })
+        .from(schema.attemptAnswerSheets)
+        .where(eq(schema.attemptAnswerSheets.attemptId, attemptId))
+        .limit(1);
+      if (sheet?.timeSpentMs) {
+        result = { ...result, timeSpentMs: sheet.timeSpentMs } as unknown as Result;
+      }
+    }
+
     return {
       status: 'submitted',
       mode: attempt.mode as AttemptMode,
       currentSection: attempt.currentSection,
       deadline: attempt.currentDeadline?.toISOString() ?? null,
       serverNow: nowIso,
-      result: attempt.result as Result,
+      result,
     };
   }
 
@@ -816,13 +828,18 @@ export class AttemptService {
       mediaToken,
     );
 
+    const resultWithPacing = {
+      ...(attempt.result as Result),
+      timeSpentMs: sheet?.timeSpentMs ?? [],
+    } as unknown as Result;
+
     return {
       snapshotUrl,
       mediaToken,
       answers: sheet?.answers ?? [],
       flags: sheet?.flags ?? [],
       correct: answerKey.keys,
-      result: attempt.result as Result,
+      result: resultWithPacing,
     };
   }
 
@@ -939,7 +956,7 @@ export class AttemptService {
     const returnItems = hasNext ? items.slice(0, limit) : items;
     const nextCursor = hasNext && returnItems.length > 0 ? returnItems[returnItems.length - 1]!.id : null;
 
-    const formatted: AttemptSummary[] = returnItems.map((a: typeof schema.examAttempts.$inferSelect) => {
+    const formatted = returnItems.map((a: typeof schema.examAttempts.$inferSelect) => {
       const res = a.result as Record<string, unknown> | null;
       const scoring = res?.['scoring'] as Record<string, unknown> | undefined;
       return {
@@ -952,6 +969,10 @@ export class AttemptService {
         submittedAt: a.submittedAt ? a.submittedAt.toISOString() : null,
         score: (scoring?.['total'] as number | undefined) ?? null,
         passed: (scoring?.['passEstimate'] as boolean | undefined) ?? null,
+        sections: (scoring?.['sections'] as unknown[]) ?? null,
+        failedSections: (scoring?.['failedSections'] as string[]) ?? [],
+        isEstimated: (scoring?.['isEstimated'] as boolean) ?? true,
+        label: (scoring?.['label'] as string) ?? 'ước lượng',
       };
     });
 

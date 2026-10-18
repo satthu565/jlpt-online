@@ -1,10 +1,11 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, isNull } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { EmailService } from '../email/email.service.js';
+import { jlptExamSchedules } from '../exam/jlpt-schedule.schema.js';
 
 export interface QuietHours {
   start: string; // "HH:mm" e.g. "22:00"
@@ -99,6 +100,8 @@ export class NotificationService {
       target_exam_reminder: true,
       exam_result_released: true,
       payment_status: true,
+      jlpt_registration_reminder: true,
+      jlpt_exam_reminder: true,
     };
 
     let emailUpdates = true;
@@ -109,8 +112,15 @@ export class NotificationService {
       if (p.channel === 'email' && p.notificationType === 'general_updates') {
         emailUpdates = p.enabled;
       }
-      if (p.notificationType === 'exam_reminders' || p.notificationType === 'target_exam_reminder') {
-        examReminders = p.enabled;
+      if (
+        p.notificationType === 'exam_reminders' ||
+        p.notificationType === 'target_exam_reminder' ||
+        p.notificationType === 'jlpt_registration_reminder' ||
+        p.notificationType === 'jlpt_exam_reminder'
+      ) {
+        if (!p.enabled) {
+          examReminders = false;
+        }
       }
       if (p.notificationType === 'study_streak' || p.notificationType === 'srs_due') {
         studyStreakAlerts = p.enabled;
@@ -195,7 +205,11 @@ export class NotificationService {
     if (update.examReminders !== undefined) {
       await upsertSetting('email', 'target_exam_reminder', update.examReminders);
       await upsertSetting('email', 'new_exam', update.examReminders);
+      await upsertSetting('email', 'jlpt_registration_reminder', update.examReminders);
+      await upsertSetting('email', 'jlpt_exam_reminder', update.examReminders);
       await upsertSetting('in_app', 'target_exam_reminder', update.examReminders);
+      await upsertSetting('in_app', 'jlpt_registration_reminder', update.examReminders);
+      await upsertSetting('in_app', 'jlpt_exam_reminder', update.examReminders);
     }
     if (update.studyStreakAlerts !== undefined) {
       await upsertSetting('email', 'srs_due', update.studyStreakAlerts);
@@ -547,4 +561,228 @@ export class NotificationService {
       dedupeKey: `payment_${orderId}_${status}`,
     });
   }
+
+  /**
+   * P03: Nhắc hạn đăng ký kỳ thi JLPT tại Việt Nam.
+   * Gửi qua outbox đúng một lần, tôn trọng cài đặt tắt nhắc của người dùng.
+   */
+  async processJlptRegistrationReminders(options?: { scheduleId?: string; now?: Date }): Promise<{
+    sent: number;
+    skippedOptOut: number;
+    skippedDuplicate: number;
+    eventIds: string[];
+  }> {
+    const db = this.dbClient.db;
+    const now = options?.now ?? new Date();
+
+    // 1. Fetch published schedules
+    const schedules = await db
+      .select()
+      .from(jlptExamSchedules)
+      .where(eq(jlptExamSchedules.status, 'published'));
+
+    const filteredSchedules = options?.scheduleId
+      ? schedules.filter((s: typeof jlptExamSchedules.$inferSelect) => s.id === options.scheduleId)
+      : schedules;
+
+    // 2. Fetch all active users
+    const allUsers = await db
+      .select({ id: schema.users.id, email: schema.users.email, name: schema.users.name })
+      .from(schema.users)
+      .where(isNull(schema.users.blockedAt));
+
+    // 3. Pre-fetch existing outbox rows with registration reminder topic to deduplicate in-memory
+    const existingOutboxRows = await db
+      .select()
+      .from(schema.outbox)
+      .where(eq(schema.outbox.topic, 'notification.jlpt_registration_reminder'));
+
+    const existingDedupeKeys = new Set<string>();
+    for (const row of existingOutboxRows) {
+      const payload = row.payload as Record<string, unknown>;
+      if (payload?.['dedupeKey']) {
+        existingDedupeKeys.add(String(payload['dedupeKey']));
+      }
+    }
+
+    let sent = 0;
+    let skippedOptOut = 0;
+    let skippedDuplicate = 0;
+    const eventIds: string[] = [];
+
+    for (const schedule of filteredSchedules) {
+      const deadline = new Date(schedule.registrationDeadline);
+      const diffMs = deadline.getTime() - now.getTime();
+      const daysLeft = Math.ceil(diffMs / (24 * 3600 * 1000));
+
+      for (const user of allUsers) {
+        // a. Check opt-out: tôn trọng cài đặt tắt nhắc
+        const prefs = await this.getPreferences(user.id);
+        const isOptedOut =
+          !prefs.examReminders ||
+          prefs.typeSettings['jlpt_registration_reminder'] === false ||
+          prefs.typeSettings['exam_reminders'] === false;
+
+        if (isOptedOut) {
+          skippedOptOut++;
+          continue;
+        }
+
+        // b. Deduplication check: đúng một lần
+        const dedupeKey = `jlpt_reg_reminder_${schedule.id}_${user.id}`;
+        if (existingDedupeKeys.has(dedupeKey)) {
+          skippedDuplicate++;
+          continue;
+        }
+
+        // c. Emit outbox event
+        const eventId = generateUuidV7();
+        const payload = {
+          dedupeKey,
+          recipientId: user.id,
+          recipientEmail: user.email,
+          scheduleId: schedule.id,
+          title: schedule.title,
+          examDate: schedule.examDate,
+          registrationDeadline: new Date(schedule.registrationDeadline).toISOString(),
+          daysLeft: Math.max(0, daysLeft),
+          officialUrl: schedule.officialUrl,
+          subject: `[Nhắc hạn đăng ký] Kỳ thi JLPT: ${schedule.title}`,
+          message: `Kỳ thi JLPT ${schedule.title} sắp hết hạn đăng ký! Còn ${Math.max(0, daysLeft)} ngày (hạn chót: ${new Date(schedule.registrationDeadline).toISOString()}). Đăng ký tại: ${schedule.officialUrl}`,
+        };
+
+        await db.insert(schema.outbox).values({
+          id: eventId,
+          topic: 'notification.jlpt_registration_reminder',
+          payload,
+          createdAt: now,
+        });
+
+        // Also record in notificationJobs
+        await db.insert(schema.notificationJobs).values({
+          id: generateUuidV7(),
+          recipientId: user.id,
+          type: 'jlpt_registration_reminder',
+          channel: 'email',
+          payload,
+          status: 'delivered',
+          scheduledFor: now,
+        });
+
+        existingDedupeKeys.add(dedupeKey);
+        eventIds.push(eventId);
+        sent++;
+      }
+    }
+
+    return { sent, skippedOptOut, skippedDuplicate, eventIds };
+  }
+
+  /**
+   * P03: Nhắc ngày thi JLPT tại Việt Nam.
+   * Gửi qua outbox đúng một lần, tôn trọng cài đặt tắt nhắc của người dùng.
+   */
+  async processJlptExamDateReminders(options?: { scheduleId?: string; now?: Date }): Promise<{
+    sent: number;
+    skippedOptOut: number;
+    skippedDuplicate: number;
+    eventIds: string[];
+  }> {
+    const db = this.dbClient.db;
+    const now = options?.now ?? new Date();
+
+    const schedules = await db
+      .select()
+      .from(jlptExamSchedules)
+      .where(eq(jlptExamSchedules.status, 'published'));
+
+    const filteredSchedules = options?.scheduleId
+      ? schedules.filter((s: typeof jlptExamSchedules.$inferSelect) => s.id === options.scheduleId)
+      : schedules;
+
+    const allUsers = await db
+      .select({ id: schema.users.id, email: schema.users.email, name: schema.users.name })
+      .from(schema.users)
+      .where(isNull(schema.users.blockedAt));
+
+    const existingOutboxRows = await db
+      .select()
+      .from(schema.outbox)
+      .where(eq(schema.outbox.topic, 'notification.jlpt_exam_reminder'));
+
+    const existingDedupeKeys = new Set<string>();
+    for (const row of existingOutboxRows) {
+      const payload = row.payload as Record<string, unknown>;
+      if (payload?.['dedupeKey']) {
+        existingDedupeKeys.add(String(payload['dedupeKey']));
+      }
+    }
+
+    let sent = 0;
+    let skippedOptOut = 0;
+    let skippedDuplicate = 0;
+    const eventIds: string[] = [];
+
+    for (const schedule of filteredSchedules) {
+      const examDate = new Date(`${schedule.examDate}T00:00:00Z`);
+      const diffMs = examDate.getTime() - now.getTime();
+      const daysLeft = Math.ceil(diffMs / (24 * 3600 * 1000));
+
+      for (const user of allUsers) {
+        const prefs = await this.getPreferences(user.id);
+        const isOptedOut =
+          !prefs.examReminders ||
+          prefs.typeSettings['jlpt_exam_reminder'] === false ||
+          prefs.typeSettings['exam_reminders'] === false;
+
+        if (isOptedOut) {
+          skippedOptOut++;
+          continue;
+        }
+
+        const dedupeKey = `jlpt_exam_date_reminder_${schedule.id}_${user.id}`;
+        if (existingDedupeKeys.has(dedupeKey)) {
+          skippedDuplicate++;
+          continue;
+        }
+
+        const eventId = generateUuidV7();
+        const payload = {
+          dedupeKey,
+          recipientId: user.id,
+          recipientEmail: user.email,
+          scheduleId: schedule.id,
+          title: schedule.title,
+          examDate: schedule.examDate,
+          daysLeft: Math.max(0, daysLeft),
+          subject: `[Nhắc ngày thi] Kỳ thi JLPT: ${schedule.title}`,
+          message: `Kỳ thi JLPT ${schedule.title} sẽ diễn ra vào ngày ${schedule.examDate} (còn ${Math.max(0, daysLeft)} ngày). Chúc bạn ôn tập tốt!`,
+        };
+
+        await db.insert(schema.outbox).values({
+          id: eventId,
+          topic: 'notification.jlpt_exam_reminder',
+          payload,
+          createdAt: now,
+        });
+
+        await db.insert(schema.notificationJobs).values({
+          id: generateUuidV7(),
+          recipientId: user.id,
+          type: 'jlpt_exam_reminder',
+          channel: 'email',
+          payload,
+          status: 'delivered',
+          scheduledFor: now,
+        });
+
+        existingDedupeKeys.add(dedupeKey);
+        eventIds.push(eventId);
+        sent++;
+      }
+    }
+
+    return { sent, skippedOptOut, skippedDuplicate, eventIds };
+  }
 }
+
