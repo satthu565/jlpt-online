@@ -6,6 +6,7 @@ import type { ThemeMode } from '../tokens.js';
 
 export interface ThemeToggleProps {
   className?: string;
+  compact?: boolean;
   labels?: {
     toggleTheme?: string;
     light?: string;
@@ -16,6 +17,7 @@ export interface ThemeToggleProps {
 
 export function ThemeToggle({
   className = '',
+  compact = false,
   labels = {},
 }: ThemeToggleProps): React.JSX.Element {
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -63,7 +65,7 @@ export function ThemeToggle({
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '6px 10px',
+              padding: compact ? '6px 8px' : '6px 10px',
               borderRadius: '9999px',
               border: 'none',
               cursor: 'pointer',
@@ -77,10 +79,19 @@ export function ThemeToggle({
               minWidth: '36px',
             }}
           >
-            <span aria-hidden="true" style={{ marginRight: '4px' }}>
+            <span
+              aria-hidden="true"
+              className="theme-toggle-icon"
+              style={{ marginRight: compact ? '0' : '4px' }}
+            >
               {icon}
             </span>
-            <span className="theme-toggle-label">{label}</span>
+            <span
+              className="theme-toggle-label"
+              style={compact ? { display: 'none' } : undefined}
+            >
+              {label}
+            </span>
           </button>
         );
       })}

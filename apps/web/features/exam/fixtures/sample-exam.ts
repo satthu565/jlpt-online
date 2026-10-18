@@ -1,6 +1,6 @@
-import { PublicExamSnapshotSchema, type PublicExamSnapshot } from '@jlpt/schema';
+import type { PublicExamSnapshot } from '@jlpt/schema';
 
-export const SAMPLE_N5_EXAM_SNAPSHOT: PublicExamSnapshot = PublicExamSnapshotSchema.parse({
+export const SAMPLE_N5_EXAM_SNAPSHOT: PublicExamSnapshot = {
   schemaVersion: 1,
   examId: '00000000-0000-4000-8000-000000000001',
   version: 1,
@@ -185,4 +185,4 @@ export const SAMPLE_N5_EXAM_SNAPSHOT: PublicExamSnapshot = PublicExamSnapshotSch
       ],
     },
   ],
-});
+};

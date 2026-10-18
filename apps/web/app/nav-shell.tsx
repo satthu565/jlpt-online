@@ -104,14 +104,16 @@ export function NavigationHeader(): React.JSX.Element {
       <LocaleSwitcher
         currentLocale={locale}
         onLocaleChange={(newLoc: Locale) => setLocale(newLoc)}
+        compact
         labels={{
           selectLanguage: t('locale.select'),
-          vi: t('locale.vi'),
-          ja: t('locale.ja'),
-          en: t('locale.en'),
+          vi: 'VI',
+          ja: 'JA',
+          en: 'EN',
         }}
       />
       <ThemeToggle
+        compact
         labels={{
           toggleTheme: t('theme.toggle'),
           light: t('theme.light'),
