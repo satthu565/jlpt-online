@@ -176,6 +176,7 @@ export class AdminApiClient {
         method,
         headers,
         body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+        credentials: 'include',
       });
     } catch (err: unknown) {
       throw new AdminClientGuardError('NETWORK_ERROR', (err as Error).message || 'Lỗi kết nối tới máy chủ.', 500);
@@ -241,6 +242,7 @@ export class AdminApiClient {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
+      credentials: 'include',
     });
 
     if (!res.ok) {

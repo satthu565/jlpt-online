@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { computeClientRemainingMs } from '@jlpt/exam-engine';
+import { computeClientRemainingMs } from '../utils/timing';
 
 export interface UseCountdownTimerOptions {
   deadline: string | null;

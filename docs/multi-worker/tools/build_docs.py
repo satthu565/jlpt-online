@@ -562,6 +562,9 @@ task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05 D05',
 for _t in TASKS:
     if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','D02','D03','D04','P03','P04','P05'}:
         _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check')
+    # Per-task runs cover Chromium + Mobile Safari; final acceptance runs every browser.
+    if _t['id'] in {'I07','D05','P06'}:
+        _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check-all')
 
 # Map every feature exactly once to a primary delivery task; other tasks may integrate it.
 feature_task = {}

@@ -2,13 +2,24 @@
 
 import React from 'react';
 import { Modal, Button } from '@jlpt/ui';
-import type { PublicExamSnapshot } from '@jlpt/schema';
+
+export type InstructionSnapshot = {
+  title: string;
+  level: string;
+  totalQuestions: number;
+  sections: Array<{
+    title: string;
+    durationSec: number;
+    code?: string;
+    questionRange?: [number, number];
+  }>;
+};
 
 export interface InstructionsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirmStart: () => void;
-  snapshot: PublicExamSnapshot;
+  snapshot: InstructionSnapshot;
   mode: 'real' | 'practice';
 }
 
@@ -32,7 +43,7 @@ export function InstructionsModal({
           <Button variant="secondary" onClick={onClose}>
             Đóng
           </Button>
-          <Button variant="primary" onClick={onConfirmStart}>
+          <Button variant="primary" onClick={onConfirmStart} data-testid="modal-start-exam-btn">
             Bắt đầu làm bài
           </Button>
         </div>
@@ -51,9 +62,9 @@ export function InstructionsModal({
         <div>
           <h4 className="font-bold text-slate-900 dark:text-slate-100 mb-2">1. Quy định thời gian từng phần</h4>
           <ul className="list-disc pl-5 space-y-1">
-            {snapshot.sections.map((sec) => (
-              <li key={sec.code}>
-                <span className="font-semibold">{sec.title}</span>: {Math.round(sec.durationSec / 60)} phút ({sec.questionRange[1] - sec.questionRange[0] + 1} câu).
+            {snapshot.sections.map((sec, idx) => (
+              <li key={sec.code || sec.title || idx}>
+                <span className="font-semibold">{sec.title}</span>: {Math.round(sec.durationSec / 60)} phút{sec.questionRange ? ` (${sec.questionRange[1] - sec.questionRange[0] + 1} câu)` : ''}.
               </li>
             ))}
           </ul>

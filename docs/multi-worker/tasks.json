@@ -3665,7 +3665,8 @@
       ],
       "checks": [
         "pnpm check:no-mock-ui",
-        "pnpm test:e2e:integration"
+        "pnpm test:e2e:integration",
+        "sudo -n /usr/local/bin/jlpt-stage-test check-all"
       ],
       "contracts": [],
       "exclusiveResources": [
@@ -3916,7 +3917,8 @@
       "checks": [
         "pnpm test:e2e:integration",
         "pnpm test:lighthouse",
-        "pnpm check:ui-primitives"
+        "pnpm check:ui-primitives",
+        "sudo -n /usr/local/bin/jlpt-stage-test check-all"
       ],
       "contracts": [],
       "exclusiveResources": [
@@ -4208,7 +4210,8 @@
         "docs/release/NEW_FEATURES_REPORT.md có ảnh và bằng chứng từng tính năng"
       ],
       "checks": [
-        "pnpm test:e2e:integration"
+        "pnpm test:e2e:integration",
+        "sudo -n /usr/local/bin/jlpt-stage-test check-all"
       ],
       "contracts": [],
       "exclusiveResources": [
