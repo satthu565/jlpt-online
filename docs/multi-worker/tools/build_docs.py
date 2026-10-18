@@ -558,6 +558,11 @@ task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05 D05',
  'E2E: làm đề N5 → đỗ/trượt từng phần; Hán Việt và furigana; cảnh báo nhịp; lịch thi và nhắc hạn đăng ký|docs/release/NEW_FEATURES_REPORT.md có ảnh và bằng chứng từng tính năng',
  'pnpm test:e2e:integration',resources='staging-deploy',kind='verification')
 
+# Staging E2E on jlpt-vm (same suite as CI) is a required check for tasks that touch the UI or APIs it uses.
+for _t in TASKS:
+    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','D02','D03','D04','P03','P04','P05'}:
+        _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check')
+
 # Map every feature exactly once to a primary delivery task; other tasks may integrate it.
 feature_task = {}
 for t in TASKS:
