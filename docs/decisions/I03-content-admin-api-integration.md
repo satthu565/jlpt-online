@@ -2,7 +2,7 @@
 
 - **Worker**: W4 (Quản trị báo cáo và thương mại)
 - **Task ID**: I03
-- **Assignment ID**: I03-5
+- **Assignment ID**: I03-6
 - **Trạng thái**: REVIEW
 - **Ngày**: 2026-10-18
 - **Tài liệu tham chiếu**: `docs/multi-worker/AGENTS.md`, `docs/multi-worker/KE_HOACH_TRIEN_KHAI.md`, `docs/multi-worker/demo-data/README.md`, hợp đồng API Quản trị Nội dung
@@ -69,6 +69,10 @@ Task I03 yêu cầu kết nối toàn diện 12 trang quản trị nội dung c�
 ### 2.6. Khắc phục Race Condition & Chống Khóa Tài khoản TOTP trên E2E Đa Trình duyệt
 - Hợp nhất cơ chế theo dõi time-step TOTP (`sharedUsedTotpStepMap`) ở phạm vi toàn file kiểm thử E2E với bộ đệm an toàn `+1500ms`, ngăn chặn lỗi phát lại mã cũ ("Mã TOTP đã được sử dụng") khi các trình duyệt khác nhau chạy liên tiếp.
 - Trong kiểm thử phủ định mã TOTP sai (`000000`), sau khi xác nhận thông báo lỗi, lập tức nạp mã TOTP hợp lệ để reset bộ đếm `failedAttempts` về 0, loại bỏ triệt để nguy cơ tài khoản nhân sự bị khóa tự động 15 phút làm ảnh hưởng đến các bài test phía sau.
+
+### 2.7. Sửa Lỗi Chờ Điều Hướng Đăng Nhập Nhân Sự (loginAsStaff Navigation Wait)
+- Biểu thức chính quy cũ `/.*(verify-2fa|\/$|$).*/` có nhánh `|$` khớp với chuỗi rỗng ở cuối mọi URL (kể cả `/login`), dẫn đến việc `waitForURL` kết thúc tức thì khi trang vẫn đang ở `/login`, bỏ qua bước nhập TOTP và khiến các trang quản trị phía sau bị chặn bởi `AdminGuard`.
+- Sửa thành bộ lọc hàm tường minh: `await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 15000 })`, sau đó hoàn thành thử thách 2FA và chờ `!url.pathname.includes('/verify-2fa')`, đảm bảo phiên đăng nhập thực tế của Editor, Reviewer và Admin được thiết lập hoàn tất trước khi thao tác các trang nghiệp vụ.
 
 ---
 

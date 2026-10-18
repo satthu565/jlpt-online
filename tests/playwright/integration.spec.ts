@@ -530,7 +530,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
   ];
 
   async function getFreshTotp(page: Page, secret: string, key?: string): Promise<string> {
-    return getFreshTotpCode(page, secret, key || secret);
+    return getFreshTotpCode(page, secret, key || SEEDED_STAFF_ACCOUNTS.admin.email);
   }
 
   async function loginAsAdmin(page: Page, origin: string) {
@@ -828,7 +828,7 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
       await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(account.email);
       await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(account.password);
       await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
-      await page.waitForURL(/.*(verify-2fa|\/$|$).*/, { timeout: 15000 });
+      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 15000 });
     }
 
     if (page.url().includes('/verify-2fa')) {
@@ -839,7 +839,7 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
       await submitBtn.click();
 
       try {
-        await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 8000, waitUntil: 'domcontentloaded' });
+        await page.waitForURL((url) => !url.pathname.includes('/verify-2fa') && !url.pathname.includes('/login'), { timeout: 8000, waitUntil: 'domcontentloaded' });
       } catch {
         const challengeError = page.locator('[data-testid="challenge-error-alert"]');
         if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
@@ -848,12 +848,16 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
           validTotp = await getFreshTotpCode(page, account.totpSecret, account.email);
           await codeInput.fill(validTotp);
           await submitBtn.click();
-          await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 15000, waitUntil: 'domcontentloaded' });
+          await page.waitForURL((url) => !url.pathname.includes('/verify-2fa') && !url.pathname.includes('/login'), { timeout: 15000, waitUntil: 'domcontentloaded' });
+        } else {
+          await page.waitForURL((url) => !url.pathname.includes('/verify-2fa') && !url.pathname.includes('/login'), { timeout: 10000, waitUntil: 'domcontentloaded' });
         }
       }
     }
 
-    await expect(page.locator('main, [data-testid="page-title"], header, h1, h2').first()).toBeVisible({ timeout: 15000 });
+    expect(page.url()).not.toContain('/login');
+    expect(page.url()).not.toContain('/verify-2fa');
+    await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
   }
 
   test.beforeAll(() => {
