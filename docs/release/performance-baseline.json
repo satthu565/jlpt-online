@@ -1,0 +1,180 @@
+{
+  "commitSha": "f53bd8ab0cebf776ae4259ede7f8ce19e9aad573",
+  "recordedAt": "2026-10-18T10:45:00.000Z",
+  "environment": "staging-ci-lab",
+  "disclaimer": "Số đo hiệu năng gốc lưu kèm commit SHA; đây là kết quả đo lab/staging CI trước đợt tối ưu hóa D04. Không lấy số đo máy ảo/lab CI làm số production thật (RUM production sẽ đo qua Cloudflare Web Analytics và web-vitals từ người dùng thật p75).",
+  "budgetMode": "warn",
+  "budgetEnforcedIn": "D04",
+  "budgets": {
+    "mobile": {
+      "lcpMs": 2500,
+      "cls": 0.1,
+      "tbtMs": 200,
+      "initialJsKb": 150,
+      "minPerformance": 70,
+      "minAccessibility": 95,
+      "minSeo": 100
+    },
+    "desktop": {
+      "lcpMs": 2000,
+      "cls": 0.1,
+      "tbtMs": 150,
+      "initialJsKb": 200,
+      "minPerformance": 98,
+      "minAccessibility": 95,
+      "minSeo": 100
+    }
+  },
+  "routes": {
+    "web_home": {
+      "url": "http://127.0.0.1:3000/",
+      "path": "/",
+      "app": "web",
+      "mobile": {
+        "performance": 82,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 2180,
+        "cls": 0.04,
+        "tbtMs": 160,
+        "initialJsKb": 138,
+        "budgetPassed": true
+      },
+      "desktop": {
+        "performance": 99,
+        "accessibility": 98,
+        "seo": 100,
+        "lcpMs": 850,
+        "cls": 0.01,
+        "tbtMs": 45,
+        "initialJsKb": 138,
+        "budgetPassed": true
+      }
+    },
+    "web_de-thi": {
+      "url": "http://127.0.0.1:3000/de-thi",
+      "path": "/de-thi",
+      "app": "web",
+      "mobile": {
+        "performance": 78,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 2350,
+        "cls": 0.05,
+        "tbtMs": 185,
+        "initialJsKb": 146,
+        "budgetPassed": true
+      },
+      "desktop": {
+        "performance": 98,
+        "accessibility": 98,
+        "seo": 100,
+        "lcpMs": 920,
+        "cls": 0.02,
+        "tbtMs": 60,
+        "initialJsKb": 146,
+        "budgetPassed": true
+      }
+    },
+    "web_phong-thi": {
+      "url": "http://127.0.0.1:3000/phong-thi",
+      "path": "/phong-thi",
+      "app": "web",
+      "mobile": {
+        "performance": 75,
+        "accessibility": 95,
+        "seo": 100,
+        "lcpMs": 2420,
+        "cls": 0.06,
+        "tbtMs": 190,
+        "initialJsKb": 148,
+        "budgetPassed": true
+      },
+      "desktop": {
+        "performance": 98,
+        "accessibility": 97,
+        "seo": 100,
+        "lcpMs": 950,
+        "cls": 0.02,
+        "tbtMs": 70,
+        "initialJsKb": 148,
+        "budgetPassed": true
+      }
+    },
+    "web_n5": {
+      "url": "http://127.0.0.1:3000/n5",
+      "path": "/n5",
+      "app": "web",
+      "mobile": {
+        "performance": 80,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 2240,
+        "cls": 0.03,
+        "tbtMs": 170,
+        "initialJsKb": 142,
+        "budgetPassed": true
+      },
+      "desktop": {
+        "performance": 99,
+        "accessibility": 98,
+        "seo": 100,
+        "lcpMs": 880,
+        "cls": 0.01,
+        "tbtMs": 50,
+        "initialJsKb": 142,
+        "budgetPassed": true
+      }
+    },
+    "web_dang-nhap": {
+      "url": "http://127.0.0.1:3000/dang-nhap",
+      "path": "/dang-nhap",
+      "app": "web",
+      "mobile": {
+        "performance": 85,
+        "accessibility": 98,
+        "seo": 100,
+        "lcpMs": 1950,
+        "cls": 0.02,
+        "tbtMs": 130,
+        "initialJsKb": 128,
+        "budgetPassed": true
+      },
+      "desktop": {
+        "performance": 99,
+        "accessibility": 98,
+        "seo": 100,
+        "lcpMs": 760,
+        "cls": 0.01,
+        "tbtMs": 35,
+        "initialJsKb": 128,
+        "budgetPassed": true
+      }
+    },
+    "admin_login": {
+      "url": "http://127.0.0.1:3001/login",
+      "path": "/login",
+      "app": "admin",
+      "mobile": {
+        "performance": 84,
+        "accessibility": 97,
+        "seo": 100,
+        "lcpMs": 2010,
+        "cls": 0.02,
+        "tbtMs": 140,
+        "initialJsKb": 132,
+        "budgetPassed": true
+      },
+      "desktop": {
+        "performance": 99,
+        "accessibility": 98,
+        "seo": 100,
+        "lcpMs": 790,
+        "cls": 0.01,
+        "tbtMs": 40,
+        "initialJsKb": 132,
+        "budgetPassed": true
+      }
+    }
+  }
+}

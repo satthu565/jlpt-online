@@ -1,0 +1,11 @@
+{
+  "url": "http://127.0.0.1:3000/phong-thi",
+  "formFactor": "desktop",
+  "performance": 99,
+  "accessibility": 98,
+  "seo": 100,
+  "lcpMs": 850,
+  "cls": 0.01,
+  "tbtMs": 45,
+  "initialJsKb": 138
+}

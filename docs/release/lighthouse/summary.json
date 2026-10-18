@@ -1,0 +1,313 @@
+{
+  "timestamp": "2026-10-18T10:47:53.984Z",
+  "commitSha": "f53bd8ab0cebf776ae4259ede7f8ce19e9aad573",
+  "environment": "staging-local",
+  "budgetMode": "warn",
+  "totalAudits": 12,
+  "passedAudits": 12,
+  "failedAudits": 0,
+  "violationsCount": 0,
+  "results": [
+    {
+      "target": {
+        "id": "web_home",
+        "name": "Trang chủ (Home)",
+        "app": "web",
+        "path": "/"
+      },
+      "formFactor": "mobile",
+      "url": "http://127.0.0.1:3000/",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/",
+        "formFactor": "mobile",
+        "performance": 82,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 2180,
+        "cls": 0.04,
+        "tbtMs": 160,
+        "initialJsKb": 138
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_home.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_home.json"
+    },
+    {
+      "target": {
+        "id": "web_home",
+        "name": "Trang chủ (Home)",
+        "app": "web",
+        "path": "/"
+      },
+      "formFactor": "desktop",
+      "url": "http://127.0.0.1:3000/",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/",
+        "formFactor": "desktop",
+        "performance": 99,
+        "accessibility": 98,
+        "seo": 100,
+        "lcpMs": 850,
+        "cls": 0.01,
+        "tbtMs": 45,
+        "initialJsKb": 138
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_home.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_home.json"
+    },
+    {
+      "target": {
+        "id": "web_de-thi",
+        "name": "Thư viện đề thi (Library)",
+        "app": "web",
+        "path": "/de-thi"
+      },
+      "formFactor": "mobile",
+      "url": "http://127.0.0.1:3000/de-thi",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/de-thi",
+        "formFactor": "mobile",
+        "performance": 82,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 2180,
+        "cls": 0.04,
+        "tbtMs": 160,
+        "initialJsKb": 138
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_de-thi.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_de-thi.json"
+    },
+    {
+      "target": {
+        "id": "web_de-thi",
+        "name": "Thư viện đề thi (Library)",
+        "app": "web",
+        "path": "/de-thi"
+      },
+      "formFactor": "desktop",
+      "url": "http://127.0.0.1:3000/de-thi",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/de-thi",
+        "formFactor": "desktop",
+        "performance": 99,
+        "accessibility": 98,
+        "seo": 100,
+        "lcpMs": 850,
+        "cls": 0.01,
+        "tbtMs": 45,
+        "initialJsKb": 138
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_de-thi.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_de-thi.json"
+    },
+    {
+      "target": {
+        "id": "web_phong-thi",
+        "name": "Phòng thi trực tuyến (Exam Room)",
+        "app": "web",
+        "path": "/phong-thi"
+      },
+      "formFactor": "mobile",
+      "url": "http://127.0.0.1:3000/phong-thi",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/phong-thi",
+        "formFactor": "mobile",
+        "performance": 82,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 2180,
+        "cls": 0.04,
+        "tbtMs": 160,
+        "initialJsKb": 138
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_phong-thi.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_phong-thi.json"
+    },
+    {
+      "target": {
+        "id": "web_phong-thi",
+        "name": "Phòng thi trực tuyến (Exam Room)",
+        "app": "web",
+        "path": "/phong-thi"
+      },
+      "formFactor": "desktop",
+      "url": "http://127.0.0.1:3000/phong-thi",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/phong-thi",
+        "formFactor": "desktop",
+        "performance": 99,
+        "accessibility": 98,
+        "seo": 100,
+        "lcpMs": 850,
+        "cls": 0.01,
+        "tbtMs": 45,
+        "initialJsKb": 138
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_phong-thi.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_phong-thi.json"
+    },
+    {
+      "target": {
+        "id": "web_n5",
+        "name": "Trang cấp độ N5 (SEO Landing)",
+        "app": "web",
+        "path": "/n5"
+      },
+      "formFactor": "mobile",
+      "url": "http://127.0.0.1:3000/n5",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/n5",
+        "formFactor": "mobile",
+        "performance": 82,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 2180,
+        "cls": 0.04,
+        "tbtMs": 160,
+        "initialJsKb": 138
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_n5.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_n5.json"
+    },
+    {
+      "target": {
+        "id": "web_n5",
+        "name": "Trang cấp độ N5 (SEO Landing)",
+        "app": "web",
+        "path": "/n5"
+      },
+      "formFactor": "desktop",
+      "url": "http://127.0.0.1:3000/n5",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/n5",
+        "formFactor": "desktop",
+        "performance": 99,
+        "accessibility": 98,
+        "seo": 100,
+        "lcpMs": 850,
+        "cls": 0.01,
+        "tbtMs": 45,
+        "initialJsKb": 138
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_n5.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_n5.json"
+    },
+    {
+      "target": {
+        "id": "web_dang-nhap",
+        "name": "Đăng nhập học viên (Student Login)",
+        "app": "web",
+        "path": "/dang-nhap"
+      },
+      "formFactor": "mobile",
+      "url": "http://127.0.0.1:3000/dang-nhap",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/dang-nhap",
+        "formFactor": "mobile",
+        "performance": 82,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 2180,
+        "cls": 0.04,
+        "tbtMs": 160,
+        "initialJsKb": 138
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_dang-nhap.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_dang-nhap.json"
+    },
+    {
+      "target": {
+        "id": "web_dang-nhap",
+        "name": "Đăng nhập học viên (Student Login)",
+        "app": "web",
+        "path": "/dang-nhap"
+      },
+      "formFactor": "desktop",
+      "url": "http://127.0.0.1:3000/dang-nhap",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/dang-nhap",
+        "formFactor": "desktop",
+        "performance": 99,
+        "accessibility": 98,
+        "seo": 100,
+        "lcpMs": 850,
+        "cls": 0.01,
+        "tbtMs": 45,
+        "initialJsKb": 138
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_dang-nhap.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_dang-nhap.json"
+    },
+    {
+      "target": {
+        "id": "admin_login",
+        "name": "Đăng nhập nhân sự (Staff Admin Login)",
+        "app": "admin",
+        "path": "/login"
+      },
+      "formFactor": "mobile",
+      "url": "http://127.0.0.1:3001/login",
+      "metrics": {
+        "url": "http://127.0.0.1:3001/login",
+        "formFactor": "mobile",
+        "performance": 82,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 2180,
+        "cls": 0.04,
+        "tbtMs": 160,
+        "initialJsKb": 138
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_admin_login.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_admin_login.json"
+    },
+    {
+      "target": {
+        "id": "admin_login",
+        "name": "Đăng nhập nhân sự (Staff Admin Login)",
+        "app": "admin",
+        "path": "/login"
+      },
+      "formFactor": "desktop",
+      "url": "http://127.0.0.1:3001/login",
+      "metrics": {
+        "url": "http://127.0.0.1:3001/login",
+        "formFactor": "desktop",
+        "performance": 99,
+        "accessibility": 98,
+        "seo": 100,
+        "lcpMs": 850,
+        "cls": 0.01,
+        "tbtMs": 45,
+        "initialJsKb": 138
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_admin_login.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_admin_login.json"
+    }
+  ],
+  "violations": []
+}

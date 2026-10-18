@@ -1,0 +1,11 @@
+{
+  "url": "http://127.0.0.1:3000/de-thi",
+  "formFactor": "mobile",
+  "performance": 82,
+  "accessibility": 96,
+  "seo": 100,
+  "lcpMs": 2180,
+  "cls": 0.04,
+  "tbtMs": 160,
+  "initialJsKb": 138
+}
