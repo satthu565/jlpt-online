@@ -1273,6 +1273,12 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
       await n5Button.click();
     }
 
+    // Select random pool so repeated runs and multiple browser viewports don't deplete the single test account's unseen pool
+    const randomPoolButton = page.locator('[data-testid="practice-pool-random"]');
+    if (await randomPoolButton.isVisible()) {
+      await randomPoolButton.click();
+    }
+
     // Set 10 questions slider if available
     const slider = page.locator('[data-testid="practice-question-count-slider"]');
     if (await slider.isVisible()) {
@@ -1288,7 +1294,22 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
       page.waitForResponse((res) => res.url().includes('/practice-exams') && res.request().method() === 'POST', { timeout: 25000 }),
       page.locator('[data-testid="generate-practice-btn"]').click(),
     ]);
-    expect(createRes.ok()).toBeTruthy();
+
+    if (!createRes.ok()) {
+      // In case of question shortage in seeded environment, proceed with available questions via UI
+      const shortageProceedBtn = page.locator('[data-testid="shortage-proceed-btn"]');
+      if (await shortageProceedBtn.isVisible()) {
+        const [proceedRes] = await Promise.all([
+          page.waitForResponse((res) => res.url().includes('/practice-exams') && res.request().method() === 'POST', { timeout: 25000 }),
+          shortageProceedBtn.click(),
+        ]);
+        expect(proceedRes.ok()).toBeTruthy();
+      } else {
+        expect(createRes.ok()).toBeTruthy();
+      }
+    } else {
+      expect(createRes.ok()).toBeTruthy();
+    }
 
     // 4. Verify PracticeRunner renders with questions
     await expect(page.locator('[data-testid="practice-runner-container"]')).toBeVisible({ timeout: 20000 });

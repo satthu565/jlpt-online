@@ -196,10 +196,11 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
 
       if (!res.ok) {
         if (data.shortage || data.code === 'SHORTAGE' || data.code === 'POOL_SHORTAGE' || data.isShortage) {
+          const shortageItem = Array.isArray(data.shortages) && data.shortages.length > 0 ? data.shortages[0] : null;
           setPracticeShortage({
             isShortage: true,
-            requested: data.requested || config.questionCount,
-            available: data.available ?? 0,
+            requested: data.requested || shortageItem?.requested || config.questionCount,
+            available: data.available ?? shortageItem?.available ?? 0,
             pool: config.pool,
             level: config.level,
             message: data.message || t('practice.shortage.defaultMessage'),
@@ -647,7 +648,19 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
                 isGenerating={isGenerating}
                 shortage={practiceShortage}
                 onProceedWithShortage={() => {
-                  setPracticeShortage(null);
+                  if (practiceShortage && practiceShortage.available > 0) {
+                    const availCount = practiceShortage.available;
+                    const shortageLvl = practiceShortage.level;
+                    setPracticeShortage(null);
+                    handleGeneratePractice({
+                      level: shortageLvl,
+                      pool: 'random',
+                      skills: ['vocabulary', 'grammar', 'reading', 'kanji', 'listening'],
+                      questionCount: availCount,
+                    });
+                  } else {
+                    setPracticeShortage(null);
+                  }
                 }}
               />
             </div>

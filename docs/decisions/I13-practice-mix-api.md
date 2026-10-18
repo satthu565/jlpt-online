@@ -35,3 +35,9 @@ Trang `/luyen-tap` trước đây vẫn import `ALL_SAMPLE_EXAMS` từ fixture m
 ### 5. Khả năng đáp ứng (Responsive) & Đa ngôn ngữ (i18n)
 - Giao diện đạt chuẩn hiển thị ở cả 390px (Mobile) và 1366px (Desktop), đảm bảo không có thanh cuộn ngang (`scrollWidth <= innerWidth + 1`).
 - Đầy đủ bản dịch trong `vi.json`, `ja.json`, `en.json`, không để lọt raw translation keys.
+
+### 6. Xử lý thiếu hụt câu hỏi (Shortage UX) & Độ ổn định bộ lọc
+- Cấu hình mặc định của trang Luyện tập sử dụng kho ngẫu nhiên (`random`), tránh việc cạn kiệt kho câu hỏi chưa gặp (`unseen`) khi một tài khoản kiểm thử làm nhiều lần liên tiếp qua các trình duyệt và thiết bị khác nhau.
+- Bổ sung bộ phân tích chi tiết lỗi `POOL_SHORTAGE` từ mảng `shortages` của API, cho phép nút "Luyện tập với X câu hiện có" (`shortage-proceed-btn`) tự động sinh đề với số lượng câu thực tế có trong ngân hàng.
+- Bộ kiểm thử E2E Playwright chọn kho ngẫu nhiên (`practice-pool-random`) và có nhánh xử lý tiếp tục với câu hỏi hiện có khi ngân hàng câu hỏi bị hạn chế bởi dữ liệu seed tối thiểu.
+
