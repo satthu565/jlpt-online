@@ -1,0 +1,187 @@
+{
+  "commitSha": "f53bd8ab0cebf776ae4259ede7f8ce19e9aad573",
+  "recordedAt": "2026-10-18T10:54:13.646Z",
+  "environment": "staging-ci-lab",
+  "disclaimer": "Số đo hiệu năng gốc lưu kèm commit SHA; đây là kết quả đo lab/staging CI trước đợt tối ưu hóa D04. Không lấy số đo máy ảo/lab CI làm số production thật (RUM production sẽ đo qua Cloudflare Web Analytics và web-vitals từ người dùng thật p75).",
+  "budgetMode": "warn",
+  "budgetEnforcedIn": "D04",
+  "budgets": {
+    "mobile": {
+      "lcpMs": 2500,
+      "cls": 0.1,
+      "tbtMs": 200,
+      "initialJsKb": 150,
+      "minPerformance": 70,
+      "minAccessibility": 95,
+      "minSeo": 100
+    },
+    "desktop": {
+      "lcpMs": 2000,
+      "cls": 0.1,
+      "tbtMs": 150,
+      "initialJsKb": 200,
+      "minPerformance": 98,
+      "minAccessibility": 95,
+      "minSeo": 100
+    }
+  },
+  "routes": {
+    "web_home": {
+      "url": "http://127.0.0.1:3000/",
+      "path": "/",
+      "app": "web",
+      "mobile": {
+        "performance": 92,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 2767.2,
+        "cls": 0.0,
+        "tbtMs": 158.5,
+        "initialJsKb": 189.9,
+        "budgetPassed": false,
+        "notes": "Vượt LCP và Initial JS trần 150KB trước tối ưu D04"
+      },
+      "desktop": {
+        "performance": 100,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 619.2,
+        "cls": 0.002,
+        "tbtMs": 0.0,
+        "initialJsKb": 189.9,
+        "budgetPassed": true
+      }
+    },
+    "web_de-thi": {
+      "url": "http://127.0.0.1:3000/de-thi",
+      "path": "/de-thi",
+      "app": "web",
+      "mobile": {
+        "performance": 77,
+        "accessibility": 95,
+        "seo": 100,
+        "lcpMs": 4580.2,
+        "cls": 0.0,
+        "tbtMs": 0.0,
+        "initialJsKb": 258.1,
+        "budgetPassed": false,
+        "notes": "Vượt LCP và Initial JS trần 150KB trước tối ưu D04"
+      },
+      "desktop": {
+        "performance": 98,
+        "accessibility": 95,
+        "seo": 100,
+        "lcpMs": 1004.0,
+        "cls": 0.016,
+        "tbtMs": 0.0,
+        "initialJsKb": 258.1,
+        "budgetPassed": false,
+        "notes": "Desktop initial JS 258KB vượt trần 200KB"
+      }
+    },
+    "web_phong-thi": {
+      "url": "http://127.0.0.1:3000/phong-thi",
+      "path": "/phong-thi",
+      "app": "web",
+      "mobile": {
+        "performance": 75,
+        "accessibility": 95,
+        "seo": 100,
+        "lcpMs": 5028.8,
+        "cls": 0.008,
+        "tbtMs": 281.0,
+        "initialJsKb": 337.6,
+        "budgetPassed": false,
+        "notes": "Vượt LCP, TBT và Initial JS trần 150KB trước tối ưu D04"
+      },
+      "desktop": {
+        "performance": 98,
+        "accessibility": 95,
+        "seo": 100,
+        "lcpMs": 1076.0,
+        "cls": 0.0,
+        "tbtMs": 0.0,
+        "initialJsKb": 337.6,
+        "budgetPassed": false,
+        "notes": "Desktop initial JS 337.6KB vượt trần 200KB"
+      }
+    },
+    "web_n5": {
+      "url": "http://127.0.0.1:3000/n5",
+      "path": "/n5",
+      "app": "web",
+      "mobile": {
+        "performance": 78,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 4283.2,
+        "cls": 0.001,
+        "tbtMs": 0.0,
+        "initialJsKb": 188.6,
+        "budgetPassed": false,
+        "notes": "Vượt LCP và Initial JS trần 150KB trước tối ưu D04"
+      },
+      "desktop": {
+        "performance": 100,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 612.0,
+        "cls": 0.007,
+        "tbtMs": 0.0,
+        "initialJsKb": 188.6,
+        "budgetPassed": true
+      }
+    },
+    "web_dang-nhap": {
+      "url": "http://127.0.0.1:3000/dang-nhap",
+      "path": "/dang-nhap",
+      "app": "web",
+      "mobile": {
+        "performance": 84,
+        "accessibility": 95,
+        "seo": 100,
+        "lcpMs": 4282.5,
+        "cls": 0.001,
+        "tbtMs": 109.0,
+        "initialJsKb": 189.9,
+        "budgetPassed": false,
+        "notes": "Vượt LCP và Initial JS trần 150KB trước tối ưu D04"
+      },
+      "desktop": {
+        "performance": 99,
+        "accessibility": 95,
+        "seo": 100,
+        "lcpMs": 929.0,
+        "cls": 0.001,
+        "tbtMs": 0.0,
+        "initialJsKb": 189.9,
+        "budgetPassed": true
+      }
+    },
+    "admin_login": {
+      "url": "http://127.0.0.1:3001/login",
+      "path": "/login",
+      "app": "admin",
+      "mobile": {
+        "performance": 98,
+        "accessibility": 100,
+        "seo": 100,
+        "lcpMs": 2193.0,
+        "cls": 0.0,
+        "tbtMs": 114.0,
+        "initialJsKb": 142.3,
+        "budgetPassed": true
+      },
+      "desktop": {
+        "performance": 100,
+        "accessibility": 100,
+        "seo": 100,
+        "lcpMs": 473.0,
+        "cls": 0.0,
+        "tbtMs": 0.0,
+        "initialJsKb": 142.3,
+        "budgetPassed": true
+      }
+    }
+  }
+}

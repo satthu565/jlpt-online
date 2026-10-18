@@ -1,0 +1,631 @@
+{
+  "timestamp": "2026-10-18T10:54:13.646Z",
+  "commitSha": "f53bd8ab0cebf776ae4259ede7f8ce19e9aad573",
+  "environment": "staging-local",
+  "budgetMode": "warn",
+  "totalAudits": 12,
+  "passedAudits": 5,
+  "failedAudits": 7,
+  "violationsCount": 13,
+  "results": [
+    {
+      "target": {
+        "id": "web_home",
+        "name": "Trang chủ (Home)",
+        "app": "web",
+        "path": "/"
+      },
+      "formFactor": "mobile",
+      "url": "http://127.0.0.1:3000/",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/",
+        "formFactor": "mobile",
+        "performance": 92,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 2767.1562,
+        "cls": 0,
+        "tbtMs": 158.5,
+        "initialJsKb": 189.9,
+        "reportHtmlPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_home.html",
+        "reportJsonPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_home.json"
+      },
+      "violations": [
+        {
+          "targetId": "web_home",
+          "targetName": "Trang chủ (Home)",
+          "url": "http://127.0.0.1:3000/",
+          "formFactor": "mobile",
+          "metric": "LCP",
+          "actual": 2767.1562,
+          "expected": 2500,
+          "operator": "<",
+          "message": "LCP 2767.2 ms exceeded budget 2500 ms"
+        },
+        {
+          "targetId": "web_home",
+          "targetName": "Trang chủ (Home)",
+          "url": "http://127.0.0.1:3000/",
+          "formFactor": "mobile",
+          "metric": "InitialJS",
+          "actual": 189.9,
+          "expected": 150,
+          "operator": "<=",
+          "message": "Initial JS 189.9 KB exceeded budget 150 KB"
+        }
+      ],
+      "passed": false,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_home.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_home.json"
+    },
+    {
+      "target": {
+        "id": "web_home",
+        "name": "Trang chủ (Home)",
+        "app": "web",
+        "path": "/"
+      },
+      "formFactor": "desktop",
+      "url": "http://127.0.0.1:3000/",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/",
+        "formFactor": "desktop",
+        "performance": 100,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 619.21435,
+        "cls": 0.002191108844641835,
+        "tbtMs": 0,
+        "initialJsKb": 189.9,
+        "reportHtmlPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_home.html",
+        "reportJsonPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_home.json"
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_home.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_home.json"
+    },
+    {
+      "target": {
+        "id": "web_de-thi",
+        "name": "Thư viện đề thi (Library)",
+        "app": "web",
+        "path": "/de-thi"
+      },
+      "formFactor": "mobile",
+      "url": "http://127.0.0.1:3000/de-thi",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/de-thi",
+        "formFactor": "mobile",
+        "performance": 77,
+        "accessibility": 95,
+        "seo": 100,
+        "lcpMs": 4580.237650000001,
+        "cls": 0.0001779559408438196,
+        "tbtMs": 0,
+        "initialJsKb": 258.1,
+        "reportHtmlPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_de-thi.html",
+        "reportJsonPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_de-thi.json"
+      },
+      "violations": [
+        {
+          "targetId": "web_de-thi",
+          "targetName": "Thư viện đề thi (Library)",
+          "url": "http://127.0.0.1:3000/de-thi",
+          "formFactor": "mobile",
+          "metric": "LCP",
+          "actual": 4580.237650000001,
+          "expected": 2500,
+          "operator": "<",
+          "message": "LCP 4580.2 ms exceeded budget 2500 ms"
+        },
+        {
+          "targetId": "web_de-thi",
+          "targetName": "Thư viện đề thi (Library)",
+          "url": "http://127.0.0.1:3000/de-thi",
+          "formFactor": "mobile",
+          "metric": "InitialJS",
+          "actual": 258.1,
+          "expected": 150,
+          "operator": "<=",
+          "message": "Initial JS 258.1 KB exceeded budget 150 KB"
+        }
+      ],
+      "passed": false,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_de-thi.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_de-thi.json"
+    },
+    {
+      "target": {
+        "id": "web_de-thi",
+        "name": "Thư viện đề thi (Library)",
+        "app": "web",
+        "path": "/de-thi"
+      },
+      "formFactor": "desktop",
+      "url": "http://127.0.0.1:3000/de-thi",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/de-thi",
+        "formFactor": "desktop",
+        "performance": 98,
+        "accessibility": 95,
+        "seo": 100,
+        "lcpMs": 1004.1688,
+        "cls": 0.01579198160206651,
+        "tbtMs": 0,
+        "initialJsKb": 258.1,
+        "reportHtmlPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_de-thi.html",
+        "reportJsonPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_de-thi.json"
+      },
+      "violations": [
+        {
+          "targetId": "web_de-thi",
+          "targetName": "Thư viện đề thi (Library)",
+          "url": "http://127.0.0.1:3000/de-thi",
+          "formFactor": "desktop",
+          "metric": "InitialJS",
+          "actual": 258.1,
+          "expected": 200,
+          "operator": "<=",
+          "message": "Initial JS 258.1 KB exceeded budget 200 KB"
+        }
+      ],
+      "passed": false,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_de-thi.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_de-thi.json"
+    },
+    {
+      "target": {
+        "id": "web_phong-thi",
+        "name": "Phòng thi trực tuyến (Exam Room)",
+        "app": "web",
+        "path": "/phong-thi"
+      },
+      "formFactor": "mobile",
+      "url": "http://127.0.0.1:3000/phong-thi",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/phong-thi",
+        "formFactor": "mobile",
+        "performance": 75,
+        "accessibility": 95,
+        "seo": 100,
+        "lcpMs": 5028.8207999999995,
+        "cls": 0.008476898542260955,
+        "tbtMs": 281,
+        "initialJsKb": 337.6,
+        "reportHtmlPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_phong-thi.html",
+        "reportJsonPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_phong-thi.json"
+      },
+      "violations": [
+        {
+          "targetId": "web_phong-thi",
+          "targetName": "Phòng thi trực tuyến (Exam Room)",
+          "url": "http://127.0.0.1:3000/phong-thi",
+          "formFactor": "mobile",
+          "metric": "LCP",
+          "actual": 5028.8207999999995,
+          "expected": 2500,
+          "operator": "<",
+          "message": "LCP 5028.8 ms exceeded budget 2500 ms"
+        },
+        {
+          "targetId": "web_phong-thi",
+          "targetName": "Phòng thi trực tuyến (Exam Room)",
+          "url": "http://127.0.0.1:3000/phong-thi",
+          "formFactor": "mobile",
+          "metric": "TBT",
+          "actual": 281,
+          "expected": 200,
+          "operator": "<",
+          "message": "TBT 281.0 ms exceeded budget 200 ms"
+        },
+        {
+          "targetId": "web_phong-thi",
+          "targetName": "Phòng thi trực tuyến (Exam Room)",
+          "url": "http://127.0.0.1:3000/phong-thi",
+          "formFactor": "mobile",
+          "metric": "InitialJS",
+          "actual": 337.6,
+          "expected": 150,
+          "operator": "<=",
+          "message": "Initial JS 337.6 KB exceeded budget 150 KB"
+        }
+      ],
+      "passed": false,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_phong-thi.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_phong-thi.json"
+    },
+    {
+      "target": {
+        "id": "web_phong-thi",
+        "name": "Phòng thi trực tuyến (Exam Room)",
+        "app": "web",
+        "path": "/phong-thi"
+      },
+      "formFactor": "desktop",
+      "url": "http://127.0.0.1:3000/phong-thi",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/phong-thi",
+        "formFactor": "desktop",
+        "performance": 98,
+        "accessibility": 95,
+        "seo": 100,
+        "lcpMs": 1076.0358,
+        "cls": 0.0002296028375362058,
+        "tbtMs": 0,
+        "initialJsKb": 337.6,
+        "reportHtmlPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_phong-thi.html",
+        "reportJsonPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_phong-thi.json"
+      },
+      "violations": [
+        {
+          "targetId": "web_phong-thi",
+          "targetName": "Phòng thi trực tuyến (Exam Room)",
+          "url": "http://127.0.0.1:3000/phong-thi",
+          "formFactor": "desktop",
+          "metric": "InitialJS",
+          "actual": 337.6,
+          "expected": 200,
+          "operator": "<=",
+          "message": "Initial JS 337.6 KB exceeded budget 200 KB"
+        }
+      ],
+      "passed": false,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_phong-thi.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_phong-thi.json"
+    },
+    {
+      "target": {
+        "id": "web_n5",
+        "name": "Trang cấp độ N5 (SEO Landing)",
+        "app": "web",
+        "path": "/n5"
+      },
+      "formFactor": "mobile",
+      "url": "http://127.0.0.1:3000/n5",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/n5",
+        "formFactor": "mobile",
+        "performance": 78,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 4283.17835,
+        "cls": 0.0009311947700134595,
+        "tbtMs": 0,
+        "initialJsKb": 188.6,
+        "reportHtmlPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_n5.html",
+        "reportJsonPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_n5.json"
+      },
+      "violations": [
+        {
+          "targetId": "web_n5",
+          "targetName": "Trang cấp độ N5 (SEO Landing)",
+          "url": "http://127.0.0.1:3000/n5",
+          "formFactor": "mobile",
+          "metric": "LCP",
+          "actual": 4283.17835,
+          "expected": 2500,
+          "operator": "<",
+          "message": "LCP 4283.2 ms exceeded budget 2500 ms"
+        },
+        {
+          "targetId": "web_n5",
+          "targetName": "Trang cấp độ N5 (SEO Landing)",
+          "url": "http://127.0.0.1:3000/n5",
+          "formFactor": "mobile",
+          "metric": "InitialJS",
+          "actual": 188.6,
+          "expected": 150,
+          "operator": "<=",
+          "message": "Initial JS 188.6 KB exceeded budget 150 KB"
+        }
+      ],
+      "passed": false,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_n5.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_n5.json"
+    },
+    {
+      "target": {
+        "id": "web_n5",
+        "name": "Trang cấp độ N5 (SEO Landing)",
+        "app": "web",
+        "path": "/n5"
+      },
+      "formFactor": "desktop",
+      "url": "http://127.0.0.1:3000/n5",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/n5",
+        "formFactor": "desktop",
+        "performance": 100,
+        "accessibility": 96,
+        "seo": 100,
+        "lcpMs": 611.7810999999999,
+        "cls": 0.007451907438591464,
+        "tbtMs": 0,
+        "initialJsKb": 188.6,
+        "reportHtmlPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_n5.html",
+        "reportJsonPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_n5.json"
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_n5.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_n5.json"
+    },
+    {
+      "target": {
+        "id": "web_dang-nhap",
+        "name": "Đăng nhập học viên (Student Login)",
+        "app": "web",
+        "path": "/dang-nhap"
+      },
+      "formFactor": "mobile",
+      "url": "http://127.0.0.1:3000/dang-nhap",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/dang-nhap",
+        "formFactor": "mobile",
+        "performance": 84,
+        "accessibility": 95,
+        "seo": 100,
+        "lcpMs": 4282.5207,
+        "cls": 0.0008823792153832331,
+        "tbtMs": 109,
+        "initialJsKb": 189.9,
+        "reportHtmlPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_dang-nhap.html",
+        "reportJsonPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_dang-nhap.json"
+      },
+      "violations": [
+        {
+          "targetId": "web_dang-nhap",
+          "targetName": "Đăng nhập học viên (Student Login)",
+          "url": "http://127.0.0.1:3000/dang-nhap",
+          "formFactor": "mobile",
+          "metric": "LCP",
+          "actual": 4282.5207,
+          "expected": 2500,
+          "operator": "<",
+          "message": "LCP 4282.5 ms exceeded budget 2500 ms"
+        },
+        {
+          "targetId": "web_dang-nhap",
+          "targetName": "Đăng nhập học viên (Student Login)",
+          "url": "http://127.0.0.1:3000/dang-nhap",
+          "formFactor": "mobile",
+          "metric": "InitialJS",
+          "actual": 189.9,
+          "expected": 150,
+          "operator": "<=",
+          "message": "Initial JS 189.9 KB exceeded budget 150 KB"
+        }
+      ],
+      "passed": false,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_dang-nhap.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_web_dang-nhap.json"
+    },
+    {
+      "target": {
+        "id": "web_dang-nhap",
+        "name": "Đăng nhập học viên (Student Login)",
+        "app": "web",
+        "path": "/dang-nhap"
+      },
+      "formFactor": "desktop",
+      "url": "http://127.0.0.1:3000/dang-nhap",
+      "metrics": {
+        "url": "http://127.0.0.1:3000/dang-nhap",
+        "formFactor": "desktop",
+        "performance": 99,
+        "accessibility": 95,
+        "seo": 100,
+        "lcpMs": 929.0413,
+        "cls": 0.0006479430836017614,
+        "tbtMs": 0,
+        "initialJsKb": 189.9,
+        "reportHtmlPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_dang-nhap.html",
+        "reportJsonPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_dang-nhap.json"
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_dang-nhap.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_web_dang-nhap.json"
+    },
+    {
+      "target": {
+        "id": "admin_login",
+        "name": "Đăng nhập nhân sự (Staff Admin Login)",
+        "app": "admin",
+        "path": "/login"
+      },
+      "formFactor": "mobile",
+      "url": "http://127.0.0.1:3001/login",
+      "metrics": {
+        "url": "http://127.0.0.1:3001/login",
+        "formFactor": "mobile",
+        "performance": 98,
+        "accessibility": 100,
+        "seo": 100,
+        "lcpMs": 2192.7197,
+        "cls": 0,
+        "tbtMs": 114,
+        "initialJsKb": 145.9,
+        "reportHtmlPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_admin_login.html",
+        "reportJsonPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_admin_login.json"
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_admin_login.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/mobile_admin_login.json"
+    },
+    {
+      "target": {
+        "id": "admin_login",
+        "name": "Đăng nhập nhân sự (Staff Admin Login)",
+        "app": "admin",
+        "path": "/login"
+      },
+      "formFactor": "desktop",
+      "url": "http://127.0.0.1:3001/login",
+      "metrics": {
+        "url": "http://127.0.0.1:3001/login",
+        "formFactor": "desktop",
+        "performance": 100,
+        "accessibility": 100,
+        "seo": 100,
+        "lcpMs": 472.8447,
+        "cls": 0,
+        "tbtMs": 0,
+        "initialJsKb": 145.9,
+        "reportHtmlPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_admin_login.html",
+        "reportJsonPath": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_admin_login.json"
+      },
+      "violations": [],
+      "passed": true,
+      "htmlReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_admin_login.html",
+      "jsonReportFile": "/srv/jlpt-workers/w4/repo/docs/release/lighthouse/desktop_admin_login.json"
+    }
+  ],
+  "violations": [
+    {
+      "targetId": "web_home",
+      "targetName": "Trang chủ (Home)",
+      "url": "http://127.0.0.1:3000/",
+      "formFactor": "mobile",
+      "metric": "LCP",
+      "actual": 2767.1562,
+      "expected": 2500,
+      "operator": "<",
+      "message": "LCP 2767.2 ms exceeded budget 2500 ms"
+    },
+    {
+      "targetId": "web_home",
+      "targetName": "Trang chủ (Home)",
+      "url": "http://127.0.0.1:3000/",
+      "formFactor": "mobile",
+      "metric": "InitialJS",
+      "actual": 189.9,
+      "expected": 150,
+      "operator": "<=",
+      "message": "Initial JS 189.9 KB exceeded budget 150 KB"
+    },
+    {
+      "targetId": "web_de-thi",
+      "targetName": "Thư viện đề thi (Library)",
+      "url": "http://127.0.0.1:3000/de-thi",
+      "formFactor": "mobile",
+      "metric": "LCP",
+      "actual": 4580.237650000001,
+      "expected": 2500,
+      "operator": "<",
+      "message": "LCP 4580.2 ms exceeded budget 2500 ms"
+    },
+    {
+      "targetId": "web_de-thi",
+      "targetName": "Thư viện đề thi (Library)",
+      "url": "http://127.0.0.1:3000/de-thi",
+      "formFactor": "mobile",
+      "metric": "InitialJS",
+      "actual": 258.1,
+      "expected": 150,
+      "operator": "<=",
+      "message": "Initial JS 258.1 KB exceeded budget 150 KB"
+    },
+    {
+      "targetId": "web_de-thi",
+      "targetName": "Thư viện đề thi (Library)",
+      "url": "http://127.0.0.1:3000/de-thi",
+      "formFactor": "desktop",
+      "metric": "InitialJS",
+      "actual": 258.1,
+      "expected": 200,
+      "operator": "<=",
+      "message": "Initial JS 258.1 KB exceeded budget 200 KB"
+    },
+    {
+      "targetId": "web_phong-thi",
+      "targetName": "Phòng thi trực tuyến (Exam Room)",
+      "url": "http://127.0.0.1:3000/phong-thi",
+      "formFactor": "mobile",
+      "metric": "LCP",
+      "actual": 5028.8207999999995,
+      "expected": 2500,
+      "operator": "<",
+      "message": "LCP 5028.8 ms exceeded budget 2500 ms"
+    },
+    {
+      "targetId": "web_phong-thi",
+      "targetName": "Phòng thi trực tuyến (Exam Room)",
+      "url": "http://127.0.0.1:3000/phong-thi",
+      "formFactor": "mobile",
+      "metric": "TBT",
+      "actual": 281,
+      "expected": 200,
+      "operator": "<",
+      "message": "TBT 281.0 ms exceeded budget 200 ms"
+    },
+    {
+      "targetId": "web_phong-thi",
+      "targetName": "Phòng thi trực tuyến (Exam Room)",
+      "url": "http://127.0.0.1:3000/phong-thi",
+      "formFactor": "mobile",
+      "metric": "InitialJS",
+      "actual": 337.6,
+      "expected": 150,
+      "operator": "<=",
+      "message": "Initial JS 337.6 KB exceeded budget 150 KB"
+    },
+    {
+      "targetId": "web_phong-thi",
+      "targetName": "Phòng thi trực tuyến (Exam Room)",
+      "url": "http://127.0.0.1:3000/phong-thi",
+      "formFactor": "desktop",
+      "metric": "InitialJS",
+      "actual": 337.6,
+      "expected": 200,
+      "operator": "<=",
+      "message": "Initial JS 337.6 KB exceeded budget 200 KB"
+    },
+    {
+      "targetId": "web_n5",
+      "targetName": "Trang cấp độ N5 (SEO Landing)",
+      "url": "http://127.0.0.1:3000/n5",
+      "formFactor": "mobile",
+      "metric": "LCP",
+      "actual": 4283.17835,
+      "expected": 2500,
+      "operator": "<",
+      "message": "LCP 4283.2 ms exceeded budget 2500 ms"
+    },
+    {
+      "targetId": "web_n5",
+      "targetName": "Trang cấp độ N5 (SEO Landing)",
+      "url": "http://127.0.0.1:3000/n5",
+      "formFactor": "mobile",
+      "metric": "InitialJS",
+      "actual": 188.6,
+      "expected": 150,
+      "operator": "<=",
+      "message": "Initial JS 188.6 KB exceeded budget 150 KB"
+    },
+    {
+      "targetId": "web_dang-nhap",
+      "targetName": "Đăng nhập học viên (Student Login)",
+      "url": "http://127.0.0.1:3000/dang-nhap",
+      "formFactor": "mobile",
+      "metric": "LCP",
+      "actual": 4282.5207,
+      "expected": 2500,
+      "operator": "<",
+      "message": "LCP 4282.5 ms exceeded budget 2500 ms"
+    },
+    {
+      "targetId": "web_dang-nhap",
+      "targetName": "Đăng nhập học viên (Student Login)",
+      "url": "http://127.0.0.1:3000/dang-nhap",
+      "formFactor": "mobile",
+      "metric": "InitialJS",
+      "actual": 189.9,
+      "expected": 150,
+      "operator": "<=",
+      "message": "Initial JS 189.9 KB exceeded budget 150 KB"
+    }
+  ]
+}
