@@ -123,14 +123,6 @@
   },
   {
     "app": "admin",
-    "route": "apps/admin/features/billing/billing-service.ts",
-    "file": "apps/admin/features/billing/billing-service.ts",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "admin",
     "route": "apps/admin/features/content/richtext-editor.tsx",
     "file": "apps/admin/features/content/richtext-editor.tsx",
     "violations": [

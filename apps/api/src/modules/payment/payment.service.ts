@@ -1249,7 +1249,38 @@ export class PaymentService {
   /**
    * Coupons Management & Atomic Reservation (PAY-07, ADM-15).
    */
+  async ensureInitialCoupons(): Promise<void> {
+    const db = this.dbClient.db;
+    const existing = await db.select().from(schema.coupons).limit(1);
+    if (existing.length === 0) {
+      await db
+        .insert(schema.coupons)
+        .values([
+          {
+            code: 'JLPT2026',
+            discountPercent: 20,
+            discountMinor: null,
+            maxUses: 100,
+            usedCount: 0,
+            expiresAt: new Date('2026-12-31T23:59:59Z'),
+            createdAt: new Date(),
+          },
+          {
+            code: 'WELCOME50K',
+            discountPercent: null,
+            discountMinor: 50000,
+            maxUses: 500,
+            usedCount: 0,
+            expiresAt: new Date('2026-12-31T23:59:59Z'),
+            createdAt: new Date(),
+          },
+        ])
+        .onConflictDoNothing();
+    }
+  }
+
   async getAdminCoupons(): Promise<{ items: (typeof schema.coupons.$inferSelect)[] }> {
+    await this.ensureInitialCoupons();
     const db = this.dbClient.db;
     const rows = await db.select().from(schema.coupons);
     return { items: rows };

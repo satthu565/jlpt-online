@@ -2,19 +2,26 @@
 
 import React from 'react';
 import { AdminGuard } from '../../../lib/ui-guard';
-import { BillingManager } from '../../../features/billing/billing-service';
+import { useAdminAuth } from '../../../lib/auth-context';
 import { PaymentsManager } from '../../../features/billing/payments-manager';
-
-const billingManager = new BillingManager();
+import { t } from '../../../lib/i18n';
 
 export default function PaymentsPage(): React.JSX.Element {
+  const { locale } = useAdminAuth();
+
   return (
     <AdminGuard pathname="/commercial/payments" requiredRoles={['billing_admin', 'admin']}>
-      <div style={{ padding: '2rem' }}>
-        <h1 data-testid="page-title" style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '1.5rem' }}>
-          Quản trị giao dịch và thuê bao
-        </h1>
-        <PaymentsManager billingManager={billingManager} />
+      <div className="w-full max-w-6xl mx-auto p-4 md:p-8 space-y-6 overflow-x-hidden">
+        <div>
+          <h1 data-testid="page-title" className="text-2xl font-bold text-gray-900">
+            {t('commercial.paymentsTitle', locale)}
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            {t('commercial.paymentsSubtitle', locale)}
+          </p>
+        </div>
+
+        <PaymentsManager />
       </div>
     </AdminGuard>
   );

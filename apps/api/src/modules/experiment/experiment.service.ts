@@ -76,9 +76,48 @@ export class ExperimentService {
   }
 
   /**
+   * Khởi tạo các thử nghiệm mặc định nếu cơ sở dữ liệu chưa có.
+   */
+  async ensureInitialExperiments(): Promise<void> {
+    const db = this.dbClient.db;
+    const existing = await db.select().from(schema.experimentDefinitions).limit(1);
+    if (existing.length === 0) {
+      const now = new Date();
+      await db
+        .insert(schema.experimentDefinitions)
+        .values([
+          {
+            id: 'exp_checkout_layout_v1',
+            name: 'Thử nghiệm giao diện thanh toán (1 bước vs 2 bước)',
+            description: 'Đánh giá tỷ lệ hoàn tất đơn hàng gói Premium khi giảm bớt trường nhập liệu.',
+            variants: [
+              { key: 'control', name: 'Gốc (2 bước)', weight: 50 },
+              { key: 'variant_b', name: 'Mới (1 chạm)', weight: 50 },
+            ],
+            isActive: true,
+            createdAt: now,
+          },
+          {
+            id: 'exp_reading_font_size',
+            name: 'Thử nghiệm cỡ chữ đoạn văn Đọc hiểu',
+            description: 'So sánh cỡ chữ 16px và 18px đối với tốc độ đọc hiểu và hoàn thành mondai.',
+            variants: [
+              { key: 'control', name: 'Chuẩn 16px', weight: 50 },
+              { key: 'large_18px', name: 'Lớn 18px', weight: 50 },
+            ],
+            isActive: false,
+            createdAt: now,
+          },
+        ])
+        .onConflictDoNothing();
+    }
+  }
+
+  /**
    * Lấy danh sách thử nghiệm.
    */
   async listExperiments(): Promise<ExperimentDefinitionDto[]> {
+    await this.ensureInitialExperiments();
     const db = this.dbClient.db;
     const rows = (await db.select().from(schema.experimentDefinitions)) as Array<{
       id: string;
@@ -97,6 +136,45 @@ export class ExperimentService {
       isActive: r.isActive,
       createdAt: r.createdAt.toISOString(),
     }));
+  }
+
+  /**
+   * Bật/tắt trạng thái hoạt động của thử nghiệm A/B.
+   */
+  async toggleExperimentStatus(id: string): Promise<ExperimentDefinitionDto> {
+    const db = this.dbClient.db;
+    const existing = (await db
+      .select()
+      .from(schema.experimentDefinitions)
+      .where(eq(schema.experimentDefinitions.id, id))
+      .limit(1)) as Array<{
+      id: string;
+      name: string;
+      description: string | null;
+      variants: unknown;
+      isActive: boolean;
+      createdAt: Date;
+    }>;
+
+    const exp = existing[0];
+    if (!exp) {
+      throw new NotFoundException(`Không tìm thấy thử nghiệm: ${id}`);
+    }
+
+    const nextActive = !exp.isActive;
+    await db
+      .update(schema.experimentDefinitions)
+      .set({ isActive: nextActive })
+      .where(eq(schema.experimentDefinitions.id, id));
+
+    return {
+      id: exp.id,
+      name: exp.name,
+      description: exp.description,
+      variants: (Array.isArray(exp.variants) ? exp.variants : []) as ExperimentDefinitionDto['variants'],
+      isActive: nextActive,
+      createdAt: exp.createdAt.toISOString(),
+    };
   }
 
   /**

@@ -228,7 +228,7 @@ describe('V04 Admin Reconciliation, Operator Backup & Audit Security', () => {
       expect(html).toContain('data-testid="reconciliation-panel"');
       expect(html).toContain('data-testid="btn-run-reconciliation"');
       expect(html).toContain('data-testid="reconciliation-runs-table"');
-      expect(html).toContain('rec_run_sample_1');
+      expect(html).toContain('rec_run_init_1');
       expect(html).toContain('Khớp hoàn toàn');
     });
   });

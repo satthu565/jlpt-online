@@ -1,23 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { AdminGuard } from '../../../lib/ui-guard';
 import { useAdminAuth } from '../../../lib/auth-context';
 import { BillingManager, ReconciliationManager } from '../../../features/billing';
+import { t } from '../../../lib/i18n';
 
 export default function CommercialReconciliationPage(): React.JSX.Element {
-  const { user } = useAdminAuth();
-  const [billingManager] = useState(() => new BillingManager());
+  const { user, locale } = useAdminAuth();
+  const [billingManager] = React.useState(() => new BillingManager());
 
   return (
     <AdminGuard pathname="/commercial/reconciliation" requiredRoles={['admin', 'billing_admin']}>
-      <div style={{ padding: '2rem' }} className="space-y-6 max-w-6xl mx-auto">
+      <div className="w-full max-w-6xl mx-auto p-4 md:p-8 space-y-6 overflow-x-hidden">
         <div>
           <h1 data-testid="page-title" className="text-2xl font-bold text-gray-900">
-            Đối soát Giao dịch &amp; Chứng từ Cổng thanh toán (Reconciliation)
+            {t('commercial.reconciliationTitle', locale)}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Đối chiếu số dư, doanh thu, hoàn tiền và phát hiện sai lệch giữa hệ thống JLPT và cổng thanh toán.
+            {t('commercial.reconciliationSubtitle', locale)}
           </p>
         </div>
 

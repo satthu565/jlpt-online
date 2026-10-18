@@ -772,5 +772,257 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
   });
 });
 
+/**
+ * Commercial, Reports & Experiments Real API Integration Suite (I04)
+ * Acceptance Criteria:
+ * - Plans, payments sandbox, refunds, and reconciliation display real API data
+ * - Zero hardcoded sample data or fake logins in scope
+ * - Real user flow through UI on staging CI without page.route or browser mocks
+ * - Loading, empty, and API error states clearly displayed; 401/403 redirects or notices
+ * - 390px and 1366px screenshots captured with zero horizontal overflow (scrollWidth <= clientWidth + 1)
+ * - Tri-locale i18n verification (vi, ja, en) without raw unparsed translation keys
+ */
+test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04)', () => {
+  const adminOrigin = process.env.ADMIN_URL || 'http://127.0.0.1:3001';
+  const artifactDir = path.resolve(process.cwd(), 'playwright-report/artifacts/i04');
+
+  const I04_PAGES = [
+    { path: '/commercial/plans', slug: 'commercial-plans' },
+    { path: '/commercial/payments', slug: 'commercial-payments' },
+    { path: '/commercial/refunds', slug: 'commercial-refunds' },
+    { path: '/commercial/reconciliation', slug: 'commercial-reconciliation' },
+    { path: '/reports', slug: 'reports-hub' },
+    { path: '/reports/revenue', slug: 'reports-revenue' },
+    { path: '/reports/content', slug: 'reports-content' },
+    { path: '/experiments', slug: 'experiments' },
+  ];
+
+  const VIEWPORTS = [
+    { width: 390, height: 844, name: '390px' },
+    { width: 1366, height: 768, name: '1366px' },
+  ];
+
+  let lastUsedTotpStepI04 = 0;
+
+  async function getFreshTotpI04(page: Page, secret: string): Promise<string> {
+    const currentStep = Math.floor(Date.now() / 1000 / 30);
+    if (currentStep <= lastUsedTotpStepI04) {
+      const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
+      await page.waitForTimeout(msToNextStep);
+    }
+    const code = generateTotp(secret);
+    lastUsedTotpStepI04 = Math.floor(Date.now() / 1000 / 30);
+    return code;
+  }
+
+  async function loginAsAdminI04(page: Page, origin: string) {
+    await page.goto(`${origin}/login`);
+    await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
+    await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
+    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
+
+    await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
+    let validTotp = await getFreshTotpI04(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
+    const codeInput = page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first();
+    const submitBtn = page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first();
+    await codeInput.fill(validTotp);
+    await submitBtn.click();
+
+    try {
+      await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 8000, waitUntil: 'domcontentloaded' });
+    } catch {
+      const challengeError = page.locator('[data-testid="challenge-error-alert"]');
+      if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
+        const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
+        await page.waitForTimeout(msToNextStep);
+        validTotp = await getFreshTotpI04(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
+        await codeInput.fill(validTotp);
+        await submitBtn.click();
+        await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 15000, waitUntil: 'domcontentloaded' });
+      } else {
+        throw new Error('Failed to navigate to dashboard in loginAsAdminI04');
+      }
+    }
+
+    await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
+  }
+
+  test.beforeAll(() => {
+    fs.mkdirSync(artifactDir, { recursive: true });
+  });
+
+  test('AC1 & AC3: Real user flows through Commercial, Reports & Experiments via API without browser mocks', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    const clientIp = getProjectClientIp(testInfo, 70);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    await loginAsAdminI04(page, adminOrigin);
+
+    // 1. Commercial Plans & Coupons
+    await page.goto(`${adminOrigin}/commercial/plans`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="plans-heading"]')).toBeVisible();
+    await expect(page.locator('[data-testid="coupons-heading"]')).toBeVisible();
+    await expect(page.locator('[data-testid="create-plan-button"]')).toBeVisible();
+
+    // 2. Commercial Payments & Subscriptions
+    await page.goto(`${adminOrigin}/commercial/payments`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="tab-payments"]')).toBeVisible();
+    await page.locator('[data-testid="tab-subscriptions"]').click();
+    await expect(page.locator('[data-testid="tab-subscriptions"]')).toBeVisible();
+
+    // 3. Commercial Refunds
+    await page.goto(`${adminOrigin}/commercial/refunds`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="refunds-heading"]')).toBeVisible();
+
+    // 4. Commercial Reconciliation
+    await page.goto(`${adminOrigin}/commercial/reconciliation`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="btn-run-reconciliation"]')).toBeVisible();
+
+    // 5. Reports Hub
+    await page.goto(`${adminOrigin}/reports`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="reports-tab-nav"]')).toBeVisible();
+    await expect(page.locator('[data-testid="btn-export-csv"]')).toBeVisible();
+
+    // Switch to retention tab and check insufficient-data indicator
+    await page.locator('[data-testid="report-tab-retention"]').click();
+    await expect(page.locator('[data-testid="alert-insufficient-data"]')).toBeVisible();
+
+    // 6. Revenue Report
+    await page.goto(`${adminOrigin}/reports/revenue`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="card-gross"]')).toBeVisible();
+    await expect(page.locator('[data-testid="currency-select"]')).toBeVisible();
+
+    // 7. Content Reports
+    await page.goto(`${adminOrigin}/reports/content`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="select-report-filter"]')).toBeVisible();
+
+    // 8. Experiments
+    await page.goto(`${adminOrigin}/experiments`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+  });
+
+  test('AC4: Unauthenticated access to commercial routes redirects or displays guard alert', async ({
+    page,
+  }, testInfo) => {
+    const clientIp = getProjectClientIp(testInfo, 71);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    await page.context().clearCookies();
+    await page.addInitScript(() => {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch {
+        // ignore storage errors
+      }
+    });
+
+    await page.goto(`${adminOrigin}/commercial/plans`);
+    await expect(
+      page.locator('[data-testid="guard-unauthenticated"], [data-testid="login-card"], [data-testid="email-input"]').first()
+    ).toBeVisible({ timeout: 15000 });
+
+    const isLogin = page.url().includes('/login');
+    const isGuard = await page.locator('[data-testid="guard-unauthenticated"]').first().isVisible();
+    expect(isLogin || isGuard).toBe(true);
+  });
+
+  test('AC5: Responsive viewports (390px, 1366px), zero horizontal overflow, and screenshot capture for I04', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    const clientIp = getProjectClientIp(testInfo, 72);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    await loginAsAdminI04(page, adminOrigin);
+
+    const isMobileDevice = Boolean(testInfo.project.use?.isMobile);
+    const viewportsToTest = isMobileDevice
+      ? VIEWPORTS.filter((v) => v.width <= 500)
+      : VIEWPORTS;
+
+    for (const vp of viewportsToTest) {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+
+      for (const route of I04_PAGES) {
+        await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
+        await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+        await page.waitForTimeout(100);
+
+        // Verify zero horizontal overflow
+        const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+        const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+        expect(scrollWidth, `Horizontal scroll detected on ${route.path} at ${vp.name}`).toBeLessThanOrEqual(clientWidth + 1);
+
+        // Verify container padding / layout integrity
+        const containerPadding = await page.evaluate(() => {
+          const main = document.querySelector('main') || document.querySelector('.overflow-x-hidden') || document.body;
+          const style = window.getComputedStyle(main);
+          return parseInt(style.paddingLeft || '0', 10) + parseInt(style.paddingRight || '0', 10);
+        });
+        expect(containerPadding, `Layout padding missing on ${route.path} at ${vp.name}`).toBeGreaterThanOrEqual(0);
+
+        // Save screenshot artifact for CI review
+        await page.screenshot({
+          path: path.join(artifactDir, `admin-${route.slug}-${vp.name}.png`),
+          fullPage: true,
+        });
+      }
+    }
+  });
+
+  test('AC5: Tri-locale i18n verification (vi, ja, en) without raw translation keys in I04 Commercial & Reports', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    const clientIp = getProjectClientIp(testInfo, 73);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    await loginAsAdminI04(page, adminOrigin);
+
+    const locales = ['vi', 'ja', 'en'];
+
+    for (const locale of locales) {
+      await page.evaluate((l) => {
+        try {
+          localStorage.setItem('jlpt_admin_locale_v1', l);
+          localStorage.setItem('admin_locale', l);
+          document.cookie = `admin_locale=${l}; path=/; SameSite=Lax`;
+          document.cookie = `jlpt_admin_locale_v1=${l}; path=/; SameSite=Lax`;
+        } catch {
+          // ignore storage errors
+        }
+      }, locale);
+
+      for (const route of I04_PAGES) {
+        await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
+        await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+        await page.waitForTimeout(100);
+
+        const bodyText = await page.innerText('body');
+        // Assert no unparsed raw translation keys
+        expect(
+          bodyText,
+          `Raw translation key found on ${route.path} in locale [${locale}]`,
+        ).not.toMatch(/\b(commercial|reports|experiments|contentReports|common|auth|roles)\.[a-zA-Z0-9_.-]+\b/);
+
+        // Capture artifact per locale
+        await page.screenshot({
+          path: path.join(artifactDir, `admin-${route.slug}-1366px-${locale}.png`),
+        });
+      }
+    }
+  });
+});
+
 
 

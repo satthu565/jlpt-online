@@ -1,16 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import type { AdminPlanItem } from './types';
 import type { BillingManager } from './billing-service';
+import { useOptionalAdminAuth } from '../../lib/auth-context';
+import { t } from '../../lib/i18n';
 
 export interface PlansManagerProps {
-  billingManager: BillingManager;
+  billingManager?: BillingManager;
   onPlanCreated?: (plan: AdminPlanItem) => void;
 }
 
 export function PlansManager({ billingManager, onPlanCreated }: PlansManagerProps): React.JSX.Element {
-  const [plans, setPlans] = useState<AdminPlanItem[]>(() => billingManager.listPlans());
+  const auth = useOptionalAdminAuth();
+  const token = auth?.token ?? null;
+  const locale = auth?.locale ?? 'vi';
+  const [plans, setPlans] = useState<AdminPlanItem[]>(() => (billingManager ? billingManager.listPlans() : []));
+  const [isLoading, setIsLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
@@ -19,127 +27,215 @@ export function PlansManager({ billingManager, onPlanCreated }: PlansManagerProp
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  const handleCreate = (e: React.FormEvent) => {
+  const fetchPlans = useCallback(async () => {
+    setIsLoading(true);
+    setFetchError(null);
+    try {
+      const res = await fetch('/api/v1/admin/plans', {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Host: 'admin.jlpt.local',
+        },
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          setFetchError(t('auth.unauthenticated', locale));
+        } else if (res.status === 403) {
+          setFetchError(t('auth.forbidden', locale));
+        } else {
+          setFetchError(t('common.error', locale));
+        }
+        return;
+      }
+
+      const data = await res.json();
+      const items = Array.isArray(data) ? data : data.plans || data.items || [];
+      if (Array.isArray(items)) {
+        setPlans(items);
+      }
+    } catch {
+      if (!billingManager) {
+        setFetchError(t('common.error', locale));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [token, locale, billingManager]);
+
+  useEffect(() => {
+    void fetchPlans();
+  }, [fetchPlans]);
+
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
     setSuccessMsg(null);
 
+    const payload = {
+      name,
+      code,
+      interval,
+      priceMinor: Number(priceMinor),
+      currency: 'VND',
+      entitlements: ['unlimited_exams', 'ai_explanations'],
+    };
+
     try {
-      const created = billingManager.createPlan({
-        name,
-        code,
-        interval,
-        priceMinor: Number(priceMinor),
-        currency: 'VND',
-        entitlements: ['unlimited_exams', 'ai_explanations'],
+      const res = await fetch('/api/v1/admin/plans', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Host: 'admin.jlpt.local',
+        },
+        body: JSON.stringify(payload),
       });
-      setPlans(billingManager.listPlans());
-      setSuccessMsg(`Đã tạo/cập nhật gói ${created.name} thành công.`);
-      setIsModalOpen(false);
-      setName('');
-      setCode('');
-      onPlanCreated?.(created);
+
+      if (res.ok) {
+        const created = await res.json();
+        setSuccessMsg(`Đã tạo/cập nhật gói ${created.name || name} thành công.`);
+        setIsModalOpen(false);
+        setName('');
+        setCode('');
+        void fetchPlans();
+        onPlanCreated?.(created);
+        return;
+      }
+
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.message || 'Lỗi khi tạo gói dịch vụ.');
     } catch (err: unknown) {
+      if (billingManager) {
+        try {
+          const created = billingManager.createPlan(payload);
+          setPlans(billingManager.listPlans());
+          setSuccessMsg(`Đã tạo/cập nhật gói ${created.name} thành công.`);
+          setIsModalOpen(false);
+          setName('');
+          setCode('');
+          onPlanCreated?.(created);
+          return;
+        } catch (bmErr: unknown) {
+          setErrorMsg(bmErr instanceof Error ? bmErr.message : 'Lỗi khi tạo gói dịch vụ.');
+          return;
+        }
+      }
       setErrorMsg(err instanceof Error ? err.message : 'Lỗi khi tạo gói dịch vụ.');
     }
   };
 
   return (
-    <div style={{ padding: '1rem', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+    <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6 space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 data-testid="plans-heading" style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>
+          <h2 data-testid="plans-heading" className="text-lg font-bold text-gray-900">
             Quản lý gói dịch vụ (Membership Plans)
           </h2>
-          <p style={{ color: '#64748b', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>
-            Thiết lập bảng giá, thời hạn và phân quyền tính năng cho học viên.
+          <p className="text-xs text-gray-500 mt-1">
+            {t('commercial.plansSubtitle', locale)}
           </p>
         </div>
         <button
           type="button"
           data-testid="create-plan-button"
           onClick={() => setIsModalOpen(true)}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#2563eb',
-            color: '#fff',
-            borderRadius: '6px',
-            border: 'none',
-            cursor: 'pointer',
-            fontWeight: 500,
-          }}
+          className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded shadow-xs self-start sm:self-auto"
         >
-          + Tạo gói mới
+          + {t('commercial.createPlan', locale)}
         </button>
       </div>
 
+      {fetchError && (
+        <div
+          role="alert"
+          data-testid="plans-error-alert"
+          className="p-3 bg-red-50 border border-red-200 text-red-700 rounded text-xs flex items-center justify-between"
+        >
+          <span>{fetchError}</span>
+          <button
+            onClick={() => void fetchPlans()}
+            className="px-2.5 py-1 bg-red-600 text-white rounded text-[11px] font-medium hover:bg-red-700"
+          >
+            {t('common.retry', locale)}
+          </button>
+        </div>
+      )}
+
+      {isLoading && (
+        <div
+          role="status"
+          data-testid="plans-loading"
+          className="p-3 bg-blue-50 border border-blue-200 text-blue-700 rounded text-xs flex items-center gap-2"
+        >
+          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <span>{t('common.loading', locale)}</span>
+        </div>
+      )}
+
       {successMsg && (
-        <div data-testid="plan-success-msg" style={{ padding: '0.75rem', background: '#ecfdf5', color: '#065f46', borderRadius: '6px', marginBottom: '1rem' }}>
+        <div data-testid="plan-success-msg" className="p-3 bg-green-50 border border-green-200 text-green-700 rounded text-xs">
           {successMsg}
         </div>
       )}
 
       {errorMsg && (
-        <div data-testid="plan-error-msg" style={{ padding: '0.75rem', background: '#fef2f2', color: '#991b1b', borderRadius: '6px', marginBottom: '1rem' }}>
+        <div data-testid="plan-error-msg" className="p-3 bg-red-50 border border-red-200 text-red-700 rounded text-xs">
           {errorMsg}
         </div>
       )}
 
-      <table data-testid="plans-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
-        <thead>
-          <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#475569' }}>
-            <th style={{ padding: '0.75rem' }}>Mã gói</th>
-            <th style={{ padding: '0.75rem' }}>Tên gói</th>
-            <th style={{ padding: '0.75rem' }}>Thời hạn</th>
-            <th style={{ padding: '0.75rem' }}>Giá (VND)</th>
-            <th style={{ padding: '0.75rem' }}>Phiên bản</th>
-            <th style={{ padding: '0.75rem' }}>Trạng thái</th>
-          </tr>
-        </thead>
-        <tbody>
-          {plans.map((p) => (
-            <tr key={p.id} data-testid={`plan-row-${p.id}`} style={{ borderBottom: '1px solid #f1f5f9' }}>
-              <td style={{ padding: '0.75rem', fontWeight: 600 }}>{p.id}</td>
-              <td style={{ padding: '0.75rem' }}>{p.name}</td>
-              <td style={{ padding: '0.75rem' }}>{p.interval}</td>
-              <td style={{ padding: '0.75rem' }}>{p.priceMinor.toLocaleString('vi-VN')} đ</td>
-              <td style={{ padding: '0.75rem' }}>v{p.version}</td>
-              <td style={{ padding: '0.75rem' }}>
-                <span
-                  style={{
-                    padding: '0.25rem 0.5rem',
-                    borderRadius: '4px',
-                    fontSize: '0.75rem',
-                    background: p.isActive ? '#dcfce7' : '#f1f5f9',
-                    color: p.isActive ? '#15803d' : '#64748b',
-                  }}
-                >
-                  {p.isActive ? 'Đang hoạt động' : 'Tạm dừng'}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {plans.length === 0 && !isLoading && !fetchError ? (
+        <div data-testid="plans-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+          {t('commercial.emptyPlans', locale)}
+        </div>
+      ) : (
+        <div className="overflow-x-auto border rounded-lg">
+          <table data-testid="plans-table" className="min-w-full divide-y divide-gray-200 text-xs">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Mã gói</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Tên gói</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Thời hạn</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Giá (VND)</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Phiên bản</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 bg-white">
+              {plans.map((p) => (
+                <tr key={p.id} data-testid={`plan-row-${p.id}`} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 font-mono font-medium text-gray-900">{p.id}</td>
+                  <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
+                  <td className="px-4 py-3 text-gray-600">{p.interval}</td>
+                  <td className="px-4 py-3 font-semibold text-gray-900">{p.priceMinor.toLocaleString('vi-VN')} đ</td>
+                  <td className="px-4 py-3 text-gray-500">v{p.version}</td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
+                        p.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                      }`}
+                    >
+                      {p.isActive ? 'Đang hoạt động' : 'Tạm dừng'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {isModalOpen && (
         <div
           data-testid="create-plan-modal"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 50,
-          }}
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
         >
-          <div style={{ background: '#fff', borderRadius: '8px', padding: '1.5rem', width: '420px', maxWidth: '90%' }}>
-            <h3 style={{ margin: '0 0 1rem' }}>Tạo / Cập nhật gói dịch vụ</h3>
-            <form onSubmit={handleCreate}>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Mã gói (Code):</label>
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 space-y-4">
+            <h3 className="text-base font-bold text-gray-900">Tạo / Cập nhật gói dịch vụ</h3>
+            <form onSubmit={handleCreate} className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Mã gói (Code):</label>
                 <input
                   data-testid="plan-code-input"
                   type="text"
@@ -147,11 +243,11 @@ export function PlansManager({ billingManager, onPlanCreated }: PlansManagerProp
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="e.g. premium_6months"
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-blue-500"
                 />
               </div>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Tên hiển thị:</label>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Tên hiển thị:</label>
                 <input
                   data-testid="plan-name-input"
                   type="text"
@@ -159,16 +255,16 @@ export function PlansManager({ billingManager, onPlanCreated }: PlansManagerProp
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Gói Premium 6 Tháng"
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-blue-500"
                 />
               </div>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Chu kỳ thanh toán:</label>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Chu kỳ thanh toán:</label>
                 <select
                   data-testid="plan-interval-select"
                   value={interval}
                   onChange={(e) => setInterval(e.target.value)}
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="month">1 Tháng (month)</option>
                   <option value="quarter">3 Tháng (quarter)</option>
@@ -176,8 +272,8 @@ export function PlansManager({ billingManager, onPlanCreated }: PlansManagerProp
                   <option value="lifetime">Trọn đời (lifetime)</option>
                 </select>
               </div>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Giá bán (VND):</label>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Giá bán (VND):</label>
                 <input
                   data-testid="plan-price-input"
                   type="number"
@@ -185,21 +281,21 @@ export function PlansManager({ billingManager, onPlanCreated }: PlansManagerProp
                   required
                   value={priceMinor}
                   onChange={(e) => setPriceMinor(Number(e.target.value))}
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-blue-500"
                 />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+              <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  style={{ padding: '0.5rem 1rem', border: '1px solid #cbd5e1', background: '#fff', borderRadius: '4px', cursor: 'pointer' }}
+                  className="px-3 py-1.5 border border-gray-300 text-gray-700 text-xs rounded hover:bg-gray-50"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
                   data-testid="save-plan-button"
-                  style={{ padding: '0.5rem 1rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                  className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded shadow-xs"
                 >
                   Lưu gói
                 </button>

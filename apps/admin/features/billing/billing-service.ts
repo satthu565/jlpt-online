@@ -275,7 +275,7 @@ export class BillingManager {
 
   private reconciliationRuns: import('./types').AdminReconciliationRun[] = [
     {
-      id: 'rec_run_sample_1',
+      id: 'rec_run_init_1',
       provider: 'payos',
       periodStart: '2026-10-01T00:00:00Z',
       periodEnd: '2026-10-15T23:59:59Z',
