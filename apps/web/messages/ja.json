@@ -181,14 +181,14 @@
     "profile": {
       "title": "プロフィール情報",
       "name": "お名前",
-      "namePlaceholder": "氏名を入力してください",
+      "namePlaceholder": "表示名を入力してください",
       "email": "メールアドレス",
-      "emailNotice": "メールアドレスはログインおよびセキュリティ通知に使用されます。",
+      "emailNotice": "ログインメールアドレスは変更できません。",
       "emailVerified": "認証済み",
       "emailUnverified": "未認証",
       "role": "権限",
       "targetLevel": "目標JLPTレベル",
-      "targetLevelDesc": "次回の試験で合格を目指しているJLPTレベルです。",
+      "targetLevelDesc": "合格を目指すJLPTレベルです。",
       "targetLevelHint": "選択したレベルに合わせて模擬試験や推奨カリキュラムを提案します。",
       "selectLevel": "目標レベルを選択",
       "levelN1": "JLPT N1（上級）",
@@ -255,6 +255,10 @@
       "deleteModalTitle": "アカウント削除リクエストの確認",
       "deleteModalWarning": "この操作により、すべてのセッションが無効化され、個人データの削除がスケジュールされます。会計記録は法的要件に従い匿名化されて保持されます。",
       "confirmDeletionButton": "アカウント削除を実行"
+    },
+    "auth": {
+      "required": "プロフィールの確認および個人アカウント設定の保存にはログインが必要です。",
+      "signIn": "今すぐログイン"
     }
   },
   "home": {
@@ -560,6 +564,10 @@
       "sanitizedDetail": "特殊文字はエスケープ処理され、Excelでのスクリプト実行を防止します。",
       "formatLabel": "ファイル形式",
       "downloadButton": "エクスポートして保存"
+    },
+    "empty": {
+      "title": "参加しているクラスはありません",
+      "description": "講師から提供された招待コードを入力してクラスに参加し、定期課題を受け取ってください。"
     }
   },
   "community": {
@@ -582,7 +590,10 @@
       "officialLeaderboard": "公式ランキング",
       "participant": "受験者",
       "score": "スコア",
-      "timeSpent": "所要時間"
+      "timeSpent": "所要時間",
+      "emptyTitle": "現在開催中の同時開催試験イベントはありません",
+      "emptySubtitle": "次回イベント開催まで、お知らせを確認するか模擬試験で対策を行ってください。",
+      "practiceNow": "今すぐ模擬試験を受ける"
     },
     "discussions": {
       "pageTitle": "問題ディスカッションと実績シェア",
@@ -609,7 +620,11 @@
       "reasonOther": "その他",
       "reportDetailLabel": "詳細説明",
       "reportDetailPlaceholder": "違反内容を簡潔に入力...",
-      "submitReport": "通報を送信"
+      "submitReport": "通報を送信",
+      "authRequired": "コミュニティでの議論や解答解説の共有にはログインが必要です。",
+      "signInButton": "今すぐログイン",
+      "shareSuccess": "JLPT Onlineコミュニティに実績を共有しました！",
+      "shareFailed": "実績の共有に失敗しました。"
     },
     "share": {
       "cardTitle": "学習認定証・実績",
@@ -640,7 +655,7 @@
     "pricing": {
       "free": "無料",
       "monthly": "月",
-      "quarterly": "四半期",
+      "quarterly": "3ヶ月",
       "yearly": "年",
       "lifetime": "買い切り",
       "mostPopular": "一番人気",
@@ -829,6 +844,64 @@
       "exportExcel": "Excel形式で出力",
       "studyListTitle": "頻出語彙から復習リストを生成",
       "createStudyList": "復習リストを生成"
+    }
+  },
+  "practice": {
+    "page": {
+      "title": "テーマ別練習 ＆ スマート問題シャッフル",
+      "subtitle": "弱点、未回答、誤答問題に基づいて模擬試験をカスタマイズするか、不変の総合問題セットを生成します。"
+    },
+    "auth": {
+      "required": "個人用練習問題セットやシャッフル試験を作成・保存するにはログインが必要です。",
+      "signInButton": "今すぐログイン"
+    },
+    "tabs": {
+      "ariaLabel": "学習モード一覧",
+      "practice": "📚 出題元別練習（Practice）",
+      "mix": "🔀 複数ソースシャッフル（7モード）",
+      "quick": "⚡ ワンタップ簡単シャッフル"
+    },
+    "runner": {
+      "changeConfig": "← 練習設定を変更"
+    },
+    "mix": {
+      "changeConfig": "別のシャッフル設定を作成"
+    },
+    "recent": {
+      "loading": "最近作成した試験を読み込み中...",
+      "title": "最近作成した試験（{count}件）",
+      "version": "エンジンバージョン: {version}"
+    },
+    "shortage": {
+      "defaultMessage": "指定されたフィルター条件に合致する問題数が不足しています。",
+      "mixDefaultMessage": "指定された出題元からの問題数が不足しています。"
+    },
+    "errors": {
+      "createPracticeFailed": "練習問題の生成に失敗しました（エラーコード: {status}）",
+      "createMixFailed": "シャッフル試験の生成に失敗しました（エラーコード: {status}）",
+      "quickMixFailed": "簡易シャッフル試験の生成に失敗しました（エラーコード: {status}）",
+      "noExamData": "サーバーから試験データを受信できませんでした。",
+      "connectError": "サーバー接続エラーが発生しました。",
+      "regenerateFailed": "サーバー上の試験シードの再生成に失敗しました。"
+    }
+  },
+  "analytics": {
+    "auth": {
+      "required": "学習統計および進捗分析を確認するにはログインしてください。",
+      "signIn": "今すぐログイン"
+    },
+    "page": {
+      "title": "学習分析ダッシュボード ＆ 詳細パフォーマンス分析",
+      "subtitle": "実質的な理解度を正確に測定し、点数の過信を防ぎながら重点克服スキルを明確化します。"
+    },
+    "status": {
+      "syncing": "試験履歴および演習ログを同期中..."
+    },
+    "empty": {
+      "title": "受験履歴や練習記録がまだありません",
+      "description": "まだ模擬試験や練習問題を完了していません。問題演習に取り組むことで詳細な能力分析が生成されます。",
+      "toExams": "問題集ライブラリへ",
+      "toPractice": "練習問題を解く"
     }
   }
 }

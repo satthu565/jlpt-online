@@ -447,10 +447,34 @@ task('I06','W3',8,6,'Web: học tập, kế hoạch, lớp học, cộng đồng
  'apps/web/|packages/ui/',
  'Mỗi trang trong phạm vi hiển thị dữ liệu của chính học viên đăng nhập, ghi được thay đổi và tải lại vẫn còn|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:web|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
-task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I09 I03 I04 I05 I06',
+task('I10','W2',8,3,'Bỏ tự tạo tài khoản nhân sự khi API khởi động','I08',
+ 'AuthService.onModuleInit đang tự tạo 5 tài khoản nhân sự (kể cả admin) với mật khẩu Admin123456! và secret TOTP cố định mỗi khi NODE_ENV khác production: một cửa hậu nếu máy chủ thật cấu hình thiếu biến. '
+ 'Gỡ hẳn việc tạo tài khoản khỏi code chạy thật (onModuleInit, service); tài khoản nhân sự demo chỉ được tạo bởi script seed chạy tay cho staging/demo (demo-seed hoặc tests/fixtures) và script đó từ chối chạy khi APP_ENV=production. '
+ 'Không còn mật khẩu hay secret TOTP viết cứng trong apps/api/src ngoài file test và script seed.',
+ '@roots',
+ 'API khởi động với mọi NODE_ENV không tạo hay sửa tài khoản nào; có test kiểm tra|Script seed staging từ chối chạy khi APP_ENV=production|grep mật khẩu/secret mặc định trong apps/api/src (trừ test và seed) không còn kết quả|E2E staff login trên staging vẫn pass vì staging chạy seed',
+ 'pnpm test:auth|pnpm test:security|pnpm test:api:all',contracts='API',resources='api-hardening')
+task('I11','W3',8,3,'Sửa lỗi 500 do mã viết cứng ở từ vựng, ngữ pháp, thảo luận','I06',
+ 'Trên bản demo sau I06: /tu-vung và /ngu-phap gọi /api/v1/datasets/jlpt-official/* và /thao-luan gọi /api/v1/questions/q-default-1/discussions, đều trả 500 vì id không phải UUID; /tu-vung vẫn hiện thẻ từ vựng viết sẵn khi API lỗi. '
+ 'Web: lấy id thật từ API (danh sách dataset, câu hỏi thật), bỏ mọi thẻ hoặc id viết cứng. API: kiểm tra định dạng id ở các route có tham số id (pipe/validator chung), id sai định dạng trả 400 hoặc 404, không bao giờ 500.',
+ 'apps/web/|packages/ui/',
+ 'Ba trang trên không còn request API trả 5xx khi đăng nhập học viên demo trên staging|Route API nhận id sai định dạng trả 400/404, có test|'+NO_MOCK+'|'+REAL_E2E,
+ 'pnpm test:web|pnpm check:no-mock-ui',contracts='API',grants='apps/api/src/modules/vocab/ apps/api/src/modules/community/ apps/api/src/common/pipes/ tests/playwright/ tests/integration/mock-ui-baseline.json')
+task('I12','W2',8,2,'Phiên đăng nhập đọc được cookie: không mất đăng nhập khi tải lại trang','I08',
+ 'Đăng nhập đặt cookie auth_token (HttpOnly). Các route /me/* đọc cookie này, nhưng GET /api/v1/auth/session chỉ đọc header Bearer nên trả {"user":null} khi trình duyệt chỉ gửi cookie; web tưởng đã đăng xuất sau mỗi lần tải lại hoặc chuyển trang. '
+ 'Sửa để /auth/session và mọi guard dùng cùng một cách lấy phiên (cookie hoặc Bearer), đăng xuất xóa cookie.',
+ '@roots',
+ 'E2E: học viên đăng nhập, tải lại trang, chuyển sang /so-tay và /lop-hoc vẫn ở trạng thái đã đăng nhập; đăng xuất rồi tải lại thì về trạng thái khách|Test API: /auth/session trả user khi chỉ có cookie hợp lệ, trả null khi cookie sai hoặc hết hạn',
+ 'pnpm test:auth|pnpm test:security',contracts='API',resources='api-hardening',grants='tests/playwright/')
+task('I13','W3',8,4,'Web: trang Luyện tập và Đề trộn nối API thật','I05',
+ 'Trang /luyen-tap vẫn import ALL_SAMPLE_EXAMS từ apps/web/features/exam/fixtures (I06 bỏ sót). Nối luyện tập theo kỹ năng, dạng 問題, số câu, câu sai/chưa gặp/đã đánh dấu, độ khó, tiếp tục bài dở (PRA) và tạo, lưu, làm lại, chia sẻ đề trộn (MIX) với API thật; xóa file fixtures khỏi code chạy thật (chỉ giữ trong test nếu cần).',
+ 'apps/web/|packages/ui/',
+ 'Học viên tạo bài luyện 10 câu theo bộ lọc, làm, xem đáp án ngay và tiếp tục bài dở trên staging|Học viên tạo đề trộn từ hai kỳ thi, làm và chia sẻ link; người nhận mở được|apps/web không còn import exam-fixtures ngoài thư mục test|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
+ 'pnpm test:web|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
+task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I11 I12 I13 I09 I03 I04 I05 I06',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',
- 'tests/integration/mock-ui-baseline.json rỗng; CI fail nếu có dữ liệu giả mới|E2E: học viên đăng ký -> làm đề -> xem điểm; editor nhập -> reviewer duyệt -> xuất bản; admin xem người dùng và audit; tất cả trên staging thật|docs/release/INTEGRATION_REPORT.md liệt kê từng trang và bằng chứng E2E',
+ 'tests/integration/mock-ui-baseline.json rỗng; CI fail nếu có dữ liệu giả mới|E2E đăng nhập học viên và nhân sự rồi đi qua mọi trang web/admin, fail nếu bất kỳ request API nào trả 5xx hoặc trang hiện key dịch thô|E2E: học viên đăng ký -> làm đề -> xem điểm; editor nhập -> reviewer duyệt -> xuất bản; admin xem người dùng và audit; tất cả trên staging thật|docs/release/INTEGRATION_REPORT.md liệt kê từng trang và bằng chứng E2E',
  'pnpm check:no-mock-ui|pnpm test:e2e:integration',resources='ci-workflow staging-deploy',kind='verification')
 
 # Day 9 (owner request 2026-10-17): one design system on shadcn/ui + Tailwind, and mobile speed.
@@ -492,6 +516,52 @@ task('D05','W6',9,3,'Nghiệm thu giao diện thống nhất và hiệu năng','
  'tests/|.github/|docs/release/',
  'docs/release/DESIGN_PERF_REPORT.md có số đo trước/sau và ảnh từng trang|Không trang nào cuộn ngang hoặc hiện key dịch thô|check:ui-primitives và test:lighthouse chặn trong CI',
  'pnpm test:e2e:integration|pnpm test:lighthouse|pnpm check:ui-primitives',resources='ci-workflow staging-deploy',kind='verification')
+
+# Day 10 (owner request 2026-10-18): five features a Vietnamese JLPT candidate asks for first.
+# NEW-01 scaled score + sectional pass marks, NEW-02 Hán-Việt readings, NEW-03 furigana toggle,
+# NEW-04 pacing alerts, NEW-05 JLPT calendar and registration deadlines in Vietnam.
+# Backend and data run alongside day 9; UI waits for the day-9 design system (D02/D03).
+task('P01','W1',10,4,'Ước lượng điểm quy đổi JLPT, điểm sàn từng phần và nhịp làm bài','I07',
+ 'Trong packages/exam-engine: hàm thuần ước lượng điểm quy đổi 0–180 theo từng phần thi của từng cấp N1–N5 (N1–N3: ba phần; N4–N5: hai phần, trong đó phần kiến thức và đọc hiểu gộp điểm), so với điểm đỗ tổng và điểm sàn từng phần, trả kết quả đỗ/trượt và phần dưới sàn. '
+ 'Bảng quy đổi và ngưỡng là dữ liệu cấu hình có phiên bản (không viết cứng trong hàm), mặc định theo mức công bố chính thức của JLPT; mọi kết quả kèm cờ "ước lượng". '
+ 'Thêm mô hình nhịp làm bài: thời gian khuyến nghị cho từng dạng 問題 và mốc tiến độ trong mỗi phần.',
+ 'packages/exam-engine/|packages/schema/|contracts/|docs/decisions/',
+ 'Test cho cả 5 cấp: đỗ khi đủ tổng và đủ sàn; trượt khi đủ tổng nhưng dưới sàn một phần; trượt khi thiếu tổng|Bảng quy đổi có phiên bản, đổi bảng không cần sửa code|Kết quả luôn có nhãn ước lượng; giải thích nguồn ngưỡng trong docs/decisions',
+ 'pnpm test:engines:all|pnpm contracts:check',contracts='API',resources='engine-contract schema-contract')
+task('P02','W5',10,4,'Dữ liệu âm Hán Việt cho Kanji','I07',
+ 'Nhập âm Hán Việt cho Kanji từ trường kVietnamese của Unicode Unihan (giấy phép Unicode, ghi nguồn và phiên bản); chuẩn hóa NFC; lưu vào dữ liệu Kanji; API trả hanViet cho Kanji và cho từ vựng (ghép theo từng chữ Hán của từ). Kanji không có dữ liệu thì để trống, không đoán.',
+ 'tools/import-data/|packages/content-tools/|apps/api/src/modules/vocab/|apps/api/src/modules/learning/|docs/decisions/',
+ 'Script nhập chạy lại không tạo trùng, ghi nguồn và giấy phép|経済 trả KINH TẾ; chữ không có dữ liệu trả rỗng|API trả hanViet trong tra từ, sổ tay và giải thích; có test',
+ 'pnpm test:import-validation|pnpm test:learning:all',contracts='API')
+task('P03','W2',10,5,'API: kết quả đỗ/trượt theo JLPT, lịch thi tại Việt Nam và nhắc hạn đăng ký','P01',
+ 'Kết quả bài thi và lịch sử trả điểm quy đổi từng phần, đỗ/trượt và phần dưới sàn từ P01; lưu dữ liệu thời gian từng câu để phân tích nhịp. '
+ 'Thêm thực thể lịch thi JLPT tại Việt Nam (kỳ thi, ngày thi, hạn đăng ký, địa điểm Hà Nội/Đà Nẵng/TP.HCM, link đăng ký chính thức) do quản trị nhập; API công khai đọc lịch; thông báo nhắc trước hạn đăng ký và trước ngày thi (bật/tắt theo người dùng). Không seed ngày thi giả: thiếu dữ liệu thì API trả rỗng.',
+ '@roots',
+ 'Kết quả bài thi demo N5 có điểm từng phần và đỗ/trượt khớp P01|Lịch thi CRUD có phân quyền và audit; trang công khai chỉ thấy bản đã xuất bản|Nhắc hạn đăng ký gửi qua outbox đúng một lần, tôn trọng cài đặt tắt nhắc; có test',
+ 'pnpm test:api:all|pnpm test:security',contracts='API EVENTS DB',resources='db-migration')
+task('P04','W3',10,6,'Web: đỗ/trượt theo phần, Hán Việt, bật/tắt furigana, cảnh báo nhịp làm bài, lịch thi','P02 P03 D02',
+ 'Trang kết quả: điểm quy đổi từng phần, đỗ/trượt, phần dưới sàn, nhãn ước lượng. '
+ 'Hiện âm Hán Việt cạnh Kanji ở tra từ, sổ tay, giải thích. Nút bật/tắt furigana trong luyện tập và chữa bài (nhớ lựa chọn). '
+ 'Phòng thi: chế độ luyện tập cảnh báo khi chậm so với mốc nhịp; chế độ thi thật chỉ hiện mốc tiến độ kín đáo; sau bài có phân tích câu tốn thời gian. '
+ 'Trang lịch thi JLPT tại Việt Nam và cài đặt nhắc hạn đăng ký.',
+ 'apps/web/|packages/ui/',
+ 'Học viên làm đề demo N5 thấy điểm từng phần và đỗ/trượt|Tắt furigana thì ẩn trên mọi câu, tải lại vẫn giữ|Cảnh báo nhịp hiện đúng khi chậm hơn mốc trong E2E|Trang lịch thi hiện dữ liệu quản trị nhập, trống khi chưa có|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
+ 'pnpm test:web|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
+task('P05','W4',10,3,'Quản trị: lịch thi JLPT và bảng quy đổi điểm','P03 D03',
+ 'Trang quản trị nhập và xuất bản lịch thi (ngày thi, hạn đăng ký, địa điểm, link) và xem/cập nhật phiên bản bảng quy đổi điểm, có audit.',
+ 'apps/admin/',
+ 'Admin nhập kỳ thi tháng 12, xuất bản, trang web công khai hiện ngay|Đổi bảng quy đổi tạo phiên bản mới, kết quả cũ giữ phiên bản đã dùng|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
+ 'pnpm test:admin|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
+task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05 D05',
+ 'E2E trên staging cho NEW-01..05, ảnh chụp 390/1366px, cập nhật danh sách tính năng và báo cáo.',
+ 'tests/|docs/release/',
+ 'E2E: làm đề N5 → đỗ/trượt từng phần; Hán Việt và furigana; cảnh báo nhịp; lịch thi và nhắc hạn đăng ký|docs/release/NEW_FEATURES_REPORT.md có ảnh và bằng chứng từng tính năng',
+ 'pnpm test:e2e:integration',resources='staging-deploy',kind='verification')
+
+# Staging E2E on jlpt-vm (same suite as CI) is a required check for tasks that touch the UI or APIs it uses.
+for _t in TASKS:
+    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','D02','D03','D04','P03','P04','P05'}:
+        _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check')
 
 # Map every feature exactly once to a primary delivery task; other tasks may integrate it.
 feature_task = {}

@@ -41,6 +41,8 @@ export function Header({
         zIndex: 40,
         boxShadow: 'var(--shadow-sm)',
         transition: 'background-color 0.2s ease, border-color 0.2s ease',
+        maxWidth: '100vw',
+        overflowX: 'clip',
       }}
       className={`jlpt-header ${className}`}
     >
@@ -51,6 +53,9 @@ export function Header({
           alignItems: 'center',
           justifyContent: 'space-between',
           height: '64px',
+          maxWidth: '100%',
+          width: '100%',
+          boxSizing: 'border-box',
         }}
       >
         {/* Brand / Logo */}
@@ -215,85 +220,28 @@ export function Header({
       )}
 
       <style>{`
-        .jlpt-header {
-          width: 100%;
-          max-width: 100vw;
-          overflow-x: clip;
-        }
-        .jlpt-header .container {
-          max-width: 100%;
-          box-sizing: border-box;
-        }
-        @media (min-width: 1024px) {
-          .jlpt-header .container {
-            padding-left: 1rem;
-            padding-right: 1rem;
+        @media (max-width: 1400px) {
+          .theme-toggle-label {
+            display: none !important;
           }
         }
         @media (max-width: 768px) {
-          .header-desktop-controls {
+          .theme-toggle-label {
             display: none !important;
           }
-          .desktop-nav {
+          .header-auth-buttons {
             display: none !important;
           }
         }
-        @media (min-width: 769px) {
+        @media (min-width: 2200px) {
           .desktop-nav {
             display: flex !important;
-            gap: 0.25rem;
-            align-items: center;
-          }
-          .header-desktop-controls {
-            display: flex !important;
-            gap: 0.375rem;
-          }
-          .header-brand-nav {
-            gap: 0.75rem !important;
-          }
-          .header-right-group {
-            gap: 0.5rem !important;
-          }
-          .header-nav-link {
-            padding: 0.375rem 0.45rem !important;
-            font-size: 0.875rem !important;
           }
           .mobile-menu-button {
             display: none !important;
           }
           .mobile-drawer {
             display: none !important;
-          }
-        }
-        @media (max-width: 1440px) {
-          .header-desktop-controls .theme-toggle-label {
-            display: none !important;
-          }
-          .header-desktop-controls .theme-toggle-icon {
-            margin-right: 0 !important;
-          }
-          .header-desktop-controls .jlpt-theme-toggle button {
-            padding: 6px 8px !important;
-          }
-          .header-desktop-controls .jlpt-locale-switcher select {
-            padding: 0.375rem 0.5rem !important;
-            font-size: 0.8125rem !important;
-            max-width: 115px !important;
-          }
-        }
-        @media (min-width: 1440px) {
-          .desktop-nav {
-            gap: 0.5rem;
-          }
-          .header-brand-nav {
-            gap: 1.25rem !important;
-          }
-          .header-nav-link {
-            padding: 0.5rem 0.625rem !important;
-            font-size: 0.9375rem !important;
-          }
-          .header-desktop-controls {
-            gap: 0.5rem;
           }
         }
       `}</style>

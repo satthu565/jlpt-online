@@ -94,6 +94,14 @@ export function I18nProvider({
       } catch {
         // Fallback
       }
+      try {
+        const match = document.cookie.match(new RegExp('(?:^|; )' + LOCALE_STORAGE_KEY + '=([^;]*)'));
+        if (match && match[1] && SUPPORTED_LOCALES.includes(match[1] as Locale)) {
+          return match[1] as Locale;
+        }
+      } catch {
+        // Fallback
+      }
     }
     return initialLocale;
   });

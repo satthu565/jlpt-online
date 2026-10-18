@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -8,6 +9,7 @@ import {
   Query,
   Req,
   Res,
+  UnauthorizedException,
 } from '@nestjs/common';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { AuthService } from './auth.service.js';
@@ -33,6 +35,24 @@ interface ForgotPasswordBody {
 interface ResetPasswordBody {
   token: string;
   newPassword: string;
+}
+
+interface ConfirmTotpBody {
+  code: string;
+}
+
+interface ChallengeTotpBody {
+  code?: string;
+}
+
+interface RecoveryTotpBody {
+  code: string;
+}
+
+interface DisableTotpBody {
+  code?: string;
+  password?: string;
+  targetUserId?: string;
 }
 
 @Controller('auth')
@@ -175,10 +195,175 @@ export class AuthController {
         name: user.name,
         role: user.role,
         emailVerified: user.emailVerified,
+        twoFactorEnabled: user.twoFactorEnabled ?? false,
       },
       session: {
         id: user.sessionId,
+        twoFactorVerified: user.twoFactorVerified ?? false,
       },
     };
+  }
+
+  // =========================================================================
+  // I08: Two-Factor Authentication (TOTP & Recovery) Endpoints
+  // =========================================================================
+
+  /**
+   * 1. Đăng ký TOTP: sinh secret lưu mã hóa, tạo otpauth URI và mã khôi phục (I08).
+   */
+  @Post('totp/setup')
+  @HttpCode(HttpStatus.OK)
+  async setupTotp(@CurrentUser() user: AuthUserContext | undefined) {
+    if (!user) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHENTICATED',
+        message: 'Yêu cầu đăng nhập trước khi thiết lập 2FA.',
+      });
+    }
+    return this.authService.initiateTotpSetup(user.userId, user.email);
+  }
+
+  @Post('2fa/setup')
+  @HttpCode(HttpStatus.OK)
+  async setup2faAlias(@CurrentUser() user: AuthUserContext | undefined) {
+    return this.setupTotp(user);
+  }
+
+  /**
+   * 2. Xác nhận đăng ký TOTP bằng mã 6 số (I08).
+   */
+  @Post('totp/confirm')
+  @HttpCode(HttpStatus.OK)
+  async confirmTotp(
+    @CurrentUser() user: AuthUserContext | undefined,
+    @Body() body: ConfirmTotpBody,
+  ) {
+    if (!user) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHENTICATED',
+        message: 'Yêu cầu đăng nhập.',
+      });
+    }
+    if (!body?.code) {
+      throw new BadRequestException({
+        code: 'VALIDATION_ERROR',
+        message: 'Mã xác thực TOTP không được để trống.',
+      });
+    }
+    return this.authService.confirmTotpSetup(user.userId, body.code, user.sessionId);
+  }
+
+  @Post('2fa/confirm')
+  @HttpCode(HttpStatus.OK)
+  async confirm2faAlias(
+    @CurrentUser() user: AuthUserContext | undefined,
+    @Body() body: ConfirmTotpBody,
+  ) {
+    return this.confirmTotp(user, body);
+  }
+
+  /**
+   * 3. Thử thách TOTP sau khi đăng nhập mật khẩu (I08).
+   */
+  @Post('totp/challenge')
+  @HttpCode(HttpStatus.OK)
+  async challengeTotp(
+    @CurrentUser() user: AuthUserContext | undefined,
+    @Body() body: ChallengeTotpBody,
+    @Req() req: FastifyRequest,
+  ) {
+    if (!user) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHENTICATED',
+        message: 'Yêu cầu đăng nhập.',
+      });
+    }
+
+    const headerCode = req.headers['x-totp-code'];
+    const code =
+      body?.code || (typeof headerCode === 'string' ? headerCode : undefined);
+
+    if (!code) {
+      throw new BadRequestException({
+        code: 'VALIDATION_ERROR',
+        message: 'Mã xác thực TOTP không được để trống.',
+      });
+    }
+
+    return this.authService.verifyTotpChallenge(user.userId, code, user.sessionId);
+  }
+
+  @Post('2fa/challenge')
+  @HttpCode(HttpStatus.OK)
+  async challenge2faAlias(
+    @CurrentUser() user: AuthUserContext | undefined,
+    @Body() body: ChallengeTotpBody,
+    @Req() req: FastifyRequest,
+  ) {
+    return this.challengeTotp(user, body, req);
+  }
+
+  /**
+   * 4. Xác thực và tiêu thụ mã khôi phục dùng một lần (I08).
+   */
+  @Post('totp/recovery')
+  @HttpCode(HttpStatus.OK)
+  async recoveryTotp(
+    @CurrentUser() user: AuthUserContext | undefined,
+    @Body() body: RecoveryTotpBody,
+  ) {
+    if (!user) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHENTICATED',
+        message: 'Yêu cầu đăng nhập.',
+      });
+    }
+
+    if (!body?.code) {
+      throw new BadRequestException({
+        code: 'VALIDATION_ERROR',
+        message: 'Mã khôi phục không được để trống.',
+      });
+    }
+
+    return this.authService.verifyRecoveryCode(user.userId, body.code, user.sessionId);
+  }
+
+  @Post('2fa/recovery')
+  @HttpCode(HttpStatus.OK)
+  async recovery2faAlias(
+    @CurrentUser() user: AuthUserContext | undefined,
+    @Body() body: RecoveryTotpBody,
+  ) {
+    return this.recoveryTotp(user, body);
+  }
+
+  /**
+   * 5. Tắt/Đặt lại 2FA có ghi nhận kiểm toán (I08).
+   */
+  @Post('totp/disable')
+  @HttpCode(HttpStatus.OK)
+  async disableTotp(
+    @CurrentUser() user: AuthUserContext | undefined,
+    @Body() body: DisableTotpBody,
+  ) {
+    if (!user) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHENTICATED',
+        message: 'Yêu cầu đăng nhập.',
+      });
+    }
+
+    const targetUserId = body?.targetUserId || user.userId;
+    return this.authService.disableTotp(user, targetUserId, body);
+  }
+
+  @Post('2fa/disable')
+  @HttpCode(HttpStatus.OK)
+  async disable2faAlias(
+    @CurrentUser() user: AuthUserContext | undefined,
+    @Body() body: DisableTotpBody,
+  ) {
+    return this.disableTotp(user, body);
   }
 }

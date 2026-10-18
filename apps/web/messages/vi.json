@@ -179,16 +179,16 @@
       "privacy": "Quyền riêng tư & Dữ liệu"
     },
     "profile": {
-      "title": "Thông tin hồ sơ",
+      "title": "Hồ sơ cá nhân",
       "name": "Họ và tên",
-      "namePlaceholder": "Nhập họ và tên của bạn",
+      "namePlaceholder": "Nhập họ và tên hiển thị",
       "email": "Email",
-      "emailNotice": "Địa chỉ email được sử dụng để đăng nhập và nhận thông báo bảo mật.",
+      "emailNotice": "Email dùng để đăng nhập và không thể thay đổi trực tiếp.",
       "emailVerified": "Đã xác minh",
       "emailUnverified": "Chưa xác minh",
       "role": "Vai trò",
       "targetLevel": "Trình độ JLPT mục tiêu",
-      "targetLevelDesc": "Cấp độ JLPT bạn đang đặt mục tiêu thi đỗ trong kỳ thi sắp tới.",
+      "targetLevelDesc": "Cấp độ JLPT bạn đang hướng tới thi đỗ.",
       "targetLevelHint": "Hệ thống sẽ gợi ý đề thi và lộ trình phù hợp với cấp độ này.",
       "selectLevel": "Chọn cấp độ ôn luyện",
       "levelN1": "JLPT N1 (Cao cấp)",
@@ -255,6 +255,10 @@
       "deleteModalTitle": "Xác nhận yêu cầu xóa tài khoản",
       "deleteModalWarning": "Hành động này sẽ hủy mọi phiên đăng nhập và lập lịch xóa dữ liệu cá nhân của bạn. Dữ liệu kế toán/hóa đơn sẽ được lưu trữ ẩn danh theo luật định.",
       "confirmDeletionButton": "Xác nhận xóa tài khoản"
+    },
+    "auth": {
+      "required": "Vui lòng đăng nhập để xem thông tin hồ sơ và lưu thay đổi tài khoản cá nhân.",
+      "signIn": "Đăng nhập ngay"
     }
   },
   "home": {
@@ -560,6 +564,10 @@
       "sanitizedDetail": "Dữ liệu ký tự đặc biệt đã được làm sạch để chống rủi ro thực thi lệnh trong Excel.",
       "formatLabel": "Định dạng tệp",
       "downloadButton": "Xuất và tải về"
+    },
+    "empty": {
+      "title": "Bạn chưa tham gia lớp học nào",
+      "description": "Nhập mã mời từ giáo viên ở khung phía trên để tham gia lớp học và nhận bài tập định kỳ từ trung tâm."
     }
   },
   "community": {
@@ -582,7 +590,10 @@
       "officialLeaderboard": "Bảng xếp hạng vinh danh chính thức",
       "participant": "Thí sinh",
       "score": "Điểm số",
-      "timeSpent": "Thời gian làm bài"
+      "timeSpent": "Thời gian làm bài",
+      "emptyTitle": "Hiện chưa có kỳ thi sự kiện đồng loạt nào",
+      "emptySubtitle": "Hãy theo dõi thông báo hoặc luyện tập với các đề thi mẫu trong lúc chờ kỳ thi tiếp theo được mở.",
+      "practiceNow": "Luyện thi ngay"
     },
     "discussions": {
       "pageTitle": "Thảo luận câu hỏi & Chia sẻ thành tích",
@@ -609,7 +620,11 @@
       "reasonOther": "Lý do khác",
       "reportDetailLabel": "Chi tiết bổ sung",
       "reportDetailPlaceholder": "Mô tả ngắn gọn nội dung vi phạm...",
-      "submitReport": "Gửi báo cáo"
+      "submitReport": "Gửi báo cáo",
+      "authRequired": "Bạn cần đăng nhập để tham gia thảo luận và chia sẻ đáp án với cộng đồng.",
+      "signInButton": "Đăng nhập ngay",
+      "shareSuccess": "Đã chia sẻ thành tích lên cộng đồng học viên JLPT Online!",
+      "shareFailed": "Không thể chia sẻ thành tích."
     },
     "share": {
       "cardTitle": "Chứng nhận & Thành tích học tập",
@@ -640,7 +655,7 @@
     "pricing": {
       "free": "Miễn phí",
       "monthly": "tháng",
-      "quarterly": "quý",
+      "quarterly": "3 tháng",
       "yearly": "năm",
       "lifetime": "trọn đời",
       "mostPopular": "Phổ biến nhất",
@@ -829,6 +844,64 @@
       "exportExcel": "Xuất báo cáo Excel",
       "studyListTitle": "Tạo danh sách từ thường gặp để ôn tập",
       "createStudyList": "Tạo danh sách ôn tập"
+    }
+  },
+  "practice": {
+    "page": {
+      "title": "Luyện tập chuyên đề & Trộn đề thông minh",
+      "subtitle": "Tùy biến các bài thi thử theo điểm yếu, câu chưa làm, câu làm sai hoặc tạo bộ đề tổng hợp bất biến."
+    },
+    "auth": {
+      "required": "Bạn cần đăng nhập để tạo và lưu bài luyện tập hoặc đề trộn cá nhân.",
+      "signInButton": "Đăng nhập ngay"
+    },
+    "tabs": {
+      "ariaLabel": "Các chế độ ôn luyện",
+      "practice": "📚 Luyện theo nguồn câu hỏi (Practice)",
+      "mix": "🔀 Trộn đề đa nguồn (7 Chế độ)",
+      "quick": "⚡ Trộn nhanh 1 chạm"
+    },
+    "runner": {
+      "changeConfig": "← Đổi cấu hình luyện tập"
+    },
+    "mix": {
+      "changeConfig": "Tạo cấu hình trộn đề khác"
+    },
+    "recent": {
+      "loading": "Đang tải các đề đã tạo gần đây...",
+      "title": "Các đề đã tạo gần đây ({count})",
+      "version": "Phiên bản: {version}"
+    },
+    "shortage": {
+      "defaultMessage": "Không đủ câu hỏi theo điều kiện lọc đã chọn.",
+      "mixDefaultMessage": "Không đủ câu hỏi từ các nguồn được chỉ định."
+    },
+    "errors": {
+      "createPracticeFailed": "Lỗi tạo bài luyện tập (Mã lỗi: {status})",
+      "createMixFailed": "Lỗi tạo đề trộn (Mã lỗi: {status})",
+      "quickMixFailed": "Lỗi trộn nhanh đề thi (Mã lỗi: {status})",
+      "noExamData": "Không nhận được dữ liệu đề thi từ máy chủ.",
+      "connectError": "Lỗi kết nối máy chủ.",
+      "regenerateFailed": "Không thể làm mới hạt giống đề thi trên máy chủ."
+    }
+  },
+  "analytics": {
+    "auth": {
+      "required": "Vui lòng đăng nhập để xem dữ liệu thống kê và phân tích tiến độ học tập cá nhân.",
+      "signIn": "Đăng nhập ngay"
+    },
+    "page": {
+      "title": "Bảng điều khiển học tập & Phân tích chuyên sâu (Analytics Dashboard)",
+      "subtitle": "Đánh giá tiến độ thực chất, kiểm soát bẫy lạm phát điểm quen thuộc, và định hướng kỹ năng cần ưu tiên bứt phá."
+    },
+    "status": {
+      "syncing": "Đang đồng bộ dữ liệu thi và lịch sử làm bài..."
+    },
+    "empty": {
+      "title": "Chưa có dữ liệu bài thi hoặc lịch sử làm bài",
+      "description": "Bạn chưa hoàn thành bài thi hay bài luyện tập nào. Hãy làm bài thi hoặc câu hỏi luyện tập để hệ thống tổng hợp và phân tích năng lực chi tiết.",
+      "toExams": "Vào thư viện đề thi",
+      "toPractice": "Luyện tập câu hỏi"
     }
   }
 }

@@ -5,11 +5,15 @@ import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { createApp } from '../../main.js';
 import { SmtpTestServer } from '../email/smtp-test-server.js';
 import { EmailService } from '../email/email.service.js';
+import { AuthService } from './auth.service.js';
 import { getOrCreateDbClient, DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import { seedDatabase } from '../../db/seed.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
+import { generateTotp, encryptTotpSecret } from '../../common/utils/totp.js';
+import type { AuthUserContext, UserTotpMetadata } from '../../common/types/auth.types.js';
+import { hashPassword } from 'better-auth/crypto';
 
 describe('F03 Authentication, Verification, and Mailpit Integration', () => {
   let app: NestFastifyApplication;
@@ -563,6 +567,584 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
         headers: { authorization: `Bearer ${userToken}` },
       });
       expect(currentCheck.statusCode).toBe(200);
+    });
+  });
+
+  describe('I08 Staff Two-Factor Authentication (TOTP RFC 6238 & Single-Use Recovery Codes)', () => {
+    const staffEmail = `staff_totp_${Date.now()}@test.local`;
+    const staffPassword = 'StaffPassword123!';
+    let staffId = '';
+    let staffSessionToken = '';
+    let staffSetupSecret = '';
+    let recoveryCodes: string[] = [];
+
+    beforeAll(async () => {
+      const authService = app.get(AuthService);
+      await authService.ensureStaffAccountsSeeded();
+
+      // Create staff account
+      staffId = generateUuidV7();
+      const accountId = generateUuidV7();
+      const client = await getOrCreateDbClient();
+      const hashedPassword = await hashPassword(staffPassword);
+
+      await client.db.insert(schema.users).values({
+        id: staffId,
+        email: staffEmail,
+        name: 'Staff TOTP Tester',
+        role: 'editor',
+        emailVerified: true,
+        locale: 'vi',
+        timezone: 'Asia/Ho_Chi_Minh',
+      });
+
+      await client.db.insert(schema.accounts).values({
+        id: accountId,
+        userId: staffId,
+        accountId: staffId,
+        providerId: 'credential',
+        password: hashedPassword,
+      });
+
+      // Sign in to obtain session
+      const signInRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/sign-in/email',
+        payload: {
+          email: staffEmail,
+          password: staffPassword,
+        },
+      });
+
+      expect(signInRes.statusCode).toBe(200);
+      const body = JSON.parse(signInRes.payload);
+      staffSessionToken = body.session.token;
+      expect(body.user.twoFactorEnabled).toBe(false);
+      expect(body.user.twoFactorStatus).toBe('setup_required');
+    });
+
+    it('Acceptance 1: Đăng ký TOTP sinh secret lưu mã hóa, trả otpauth URI, QR SVG, và 8 mã khôi phục', async () => {
+      // 1. Unauthenticated request rejected
+      const unauthRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/setup',
+      });
+      expect(unauthRes.statusCode).toBe(401);
+
+      // 2. Authenticated request initiates setup
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/setup',
+        headers: { authorization: `Bearer ${staffSessionToken}` },
+      });
+
+      expect(res.statusCode).toBe(200);
+      const data = JSON.parse(res.payload);
+      expect(data.secret).toBeDefined();
+      expect(data.secret.length).toBe(32);
+      expect(data.formattedSecret.split(' ').length).toBe(8);
+      expect(data.otpauthUri).toContain('otpauth://totp/');
+      expect(data.otpauthUri).toContain(staffEmail);
+      expect(data.recoveryCodes.length).toBe(8);
+      expect(data.qrSvg).toContain('<svg');
+
+      staffSetupSecret = data.secret;
+      recoveryCodes = data.recoveryCodes;
+
+      // Check DB: Secret is stored encrypted in pending setup, never in plain text
+      const client = await getOrCreateDbClient();
+      const verifs = await client.db
+        .select()
+        .from(schema.verifications)
+        .where(eq(schema.verifications.identifier, `totp_setup_${staffId}`));
+
+      expect(verifs.length).toBe(1);
+      expect(verifs[0]!.value).not.toContain(staffSetupSecret);
+      expect(verifs[0]!.value).toContain(':');
+    });
+
+    it('Acceptance 1 & 2: Xác nhận đăng ký bằng mã 6 số (kích hoạt 2FA, đánh dấu session twoFactorVerified)', async () => {
+      // 1. Invalid code rejected
+      const invalidRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/confirm',
+        headers: { authorization: `Bearer ${staffSessionToken}` },
+        payload: { code: '000000' },
+      });
+      expect(invalidRes.statusCode).toBe(400);
+
+      // 2. Malformed code rejected
+      const malformedRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/confirm',
+        headers: { authorization: `Bearer ${staffSessionToken}` },
+        payload: { code: 'abc' },
+      });
+      expect(malformedRes.statusCode).toBe(400);
+
+      // 3. Valid RFC 6238 code confirms setup
+      const validCode = generateTotp(staffSetupSecret);
+      const confirmRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/confirm',
+        headers: { authorization: `Bearer ${staffSessionToken}` },
+        payload: { code: validCode },
+      });
+      expect(confirmRes.statusCode).toBe(200);
+      const body = JSON.parse(confirmRes.payload);
+      expect(body.success).toBe(true);
+
+      // 4. Verify user profile now has twoFactor enabled in DB
+      const client = await getOrCreateDbClient();
+      const profiles = await client.db
+        .select()
+        .from(schema.userProfiles)
+        .where(eq(schema.userProfiles.userId, staffId));
+      expect(profiles.length).toBe(1);
+      const meta = profiles[0]!.metadata as { twoFactor: UserTotpMetadata };
+      expect(meta.twoFactor.enabled).toBe(true);
+      expect(meta.twoFactor.encryptedSecret).not.toBe(staffSetupSecret);
+      expect(meta.twoFactor.hashedRecoveryCodes?.length).toBe(8);
+
+      // 5. Verify audit log entry for enrollment
+      const auditLogs = await client.db
+        .select()
+        .from(schema.operatorActions)
+        .where(eq(schema.operatorActions.action, 'TOTP_ENROLLED'));
+      expect(auditLogs.some((l: { operatorId: string | null }) => l.operatorId === staffId)).toBe(true);
+    });
+
+    it('Acceptance 2 & 3: Thử thách TOTP sau khi đăng nhập mật khẩu; session chỉ đánh dấu twoFactorVerified khi mã đúng', async () => {
+      // 1. Password login creates unverified session
+      const loginRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/sign-in/email',
+        payload: {
+          email: staffEmail,
+          password: staffPassword,
+        },
+      });
+      expect(loginRes.statusCode).toBe(200);
+      const loginBody = JSON.parse(loginRes.payload);
+      const newSessionToken = loginBody.session.token;
+      expect(loginBody.user.twoFactorEnabled).toBe(true);
+      expect(loginBody.user.twoFactorStatus).toBe('challenge_required');
+      expect(loginBody.session.twoFactorVerified).toBe(false);
+
+      // 2. Challenge with wrong code is rejected
+      const wrongChallengeRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/challenge',
+        headers: { authorization: `Bearer ${newSessionToken}` },
+        payload: { code: '999999' },
+      });
+      expect(wrongChallengeRes.statusCode).toBe(403);
+
+      // 3. Challenge with valid code succeeds and marks session twoFactorVerified
+      const validCode = generateTotp(staffSetupSecret);
+      const challengeRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/challenge',
+        headers: { authorization: `Bearer ${newSessionToken}` },
+        payload: { code: validCode },
+      });
+      expect(challengeRes.statusCode).toBe(200);
+      const challengeBody = JSON.parse(challengeRes.payload);
+      expect(challengeBody.verified).toBe(true);
+      expect(challengeBody.session.twoFactorVerified).toBe(true);
+    });
+
+    it('Acceptance 1: Mã cũ (Anti-Replay) bị từ chối khi gọi lại trong cùng bước thời gian', async () => {
+      // Immediate second call with identical code ("mã cũ") is rejected
+      const replayCode = generateTotp(staffSetupSecret);
+      const secondRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/challenge',
+        headers: { authorization: `Bearer ${staffSessionToken}` },
+        payload: { code: replayCode },
+      });
+      expect(secondRes.statusCode).toBe(403);
+      const errBody = JSON.parse(secondRes.payload);
+      expect(errBody.error?.message).toContain('mã cũ');
+    });
+
+    it('Acceptance 3: Khóa tài khoản sau 5 lần nhập sai liên tiếp (Brute-Force Protection)', async () => {
+      // 5 failed challenge attempts
+      for (let i = 0; i < 5; i++) {
+        const failRes = await app.inject({
+          method: 'POST',
+          url: '/api/v1/auth/totp/challenge',
+          headers: { authorization: `Bearer ${staffSessionToken}` },
+          payload: { code: '000000' },
+        });
+        expect(failRes.statusCode).toBe(403);
+      }
+
+      // 6th attempt (even with valid code) is locked out
+      const validCode = generateTotp(staffSetupSecret);
+      const lockedRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/challenge',
+        headers: { authorization: `Bearer ${staffSessionToken}` },
+        payload: { code: validCode },
+      });
+      expect(lockedRes.statusCode).toBe(403);
+      const err = JSON.parse(lockedRes.payload);
+      expect(err.error?.code).toBe('ACCOUNT_LOCKED');
+
+      // Reset lockout for subsequent test steps
+      const client = await getOrCreateDbClient();
+      const [profile] = await client.db
+        .select()
+        .from(schema.userProfiles)
+        .where(eq(schema.userProfiles.userId, staffId));
+      const meta = profile!.metadata as { twoFactor: UserTotpMetadata };
+      meta.twoFactor.failedAttempts = 0;
+      meta.twoFactor.lockedUntil = null;
+      await client.db
+        .update(schema.userProfiles)
+        .set({ metadata: meta })
+        .where(eq(schema.userProfiles.userId, staffId));
+    });
+
+    it('Acceptance 1 & 3: Mã khôi phục dùng một lần lưu dạng hash (tiêu thụ thành công, từ chối khi dùng lại hoặc sai)', async () => {
+      const targetCode = recoveryCodes[0]!;
+
+      // 1. First use of recovery code succeeds
+      const recoveryRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/recovery',
+        headers: { authorization: `Bearer ${staffSessionToken}` },
+        payload: { code: targetCode },
+      });
+      expect(recoveryRes.statusCode).toBe(200);
+      const recoveryBody = JSON.parse(recoveryRes.payload);
+      expect(recoveryBody.verified).toBe(true);
+      expect(recoveryBody.remainingCodesCount).toBe(7);
+
+      // Verify audit log for recovery code usage
+      const client = await getOrCreateDbClient();
+      const auditLogs = await client.db
+        .select()
+        .from(schema.operatorActions)
+        .where(eq(schema.operatorActions.action, 'TOTP_RECOVERY_CODE_USED'));
+      expect(auditLogs.some((l: { operatorId: string | null }) => l.operatorId === staffId)).toBe(true);
+
+      // 2. Re-using the same recovery code is rejected (Single-Use Token)
+      const reuseRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/recovery',
+        headers: { authorization: `Bearer ${staffSessionToken}` },
+        payload: { code: targetCode },
+      });
+      expect(reuseRes.statusCode).toBe(403);
+
+      // 3. Non-existent / invalid recovery code rejected
+      const invalidCodeRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/recovery',
+        headers: { authorization: `Bearer ${staffSessionToken}` },
+        payload: { code: 'INVALID-RECOVERY-CODE' },
+      });
+      expect(invalidCodeRes.statusCode).toBe(403);
+    });
+
+    it('Acceptance 1: Tắt/đặt lại 2FA có ghi nhận nhật ký kiểm toán (Audit Log)', async () => {
+      // 1. Negative: Tự tắt không kèm code hoặc password bị từ chối 400 CONFIRMATION_REQUIRED
+      const noConfirmRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/disable',
+        headers: { authorization: `Bearer ${staffSessionToken}` },
+        payload: {},
+      });
+      expect(noConfirmRes.statusCode).toBe(400);
+      const noConfirmBody = JSON.parse(noConfirmRes.payload);
+      expect(noConfirmBody.error?.code).toBe('CONFIRMATION_REQUIRED');
+
+      // 2. Negative: Tự tắt với mã TOTP sai bị từ chối 403 TWO_FACTOR_REQUIRED
+      const wrongCodeRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/disable',
+        headers: { authorization: `Bearer ${staffSessionToken}` },
+        payload: { code: '000000' },
+      });
+      expect(wrongCodeRes.statusCode).toBe(403);
+      const wrongCodeBody = JSON.parse(wrongCodeRes.payload);
+      expect(wrongCodeBody.error?.code).toBe('TWO_FACTOR_REQUIRED');
+
+      // 3. Negative: Tự tắt với mật khẩu sai bị từ chối 401 UNAUTHENTICATED
+      const wrongPwdRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/disable',
+        headers: { authorization: `Bearer ${staffSessionToken}` },
+        payload: { password: 'WrongPassword123!' },
+      });
+      expect(wrongPwdRes.statusCode).toBe(401);
+
+      // 4. Positive: Staff disables their own 2FA with valid TOTP code
+      const validCode = generateTotp(staffSetupSecret);
+      const disableRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/disable',
+        headers: { authorization: `Bearer ${staffSessionToken}` },
+        payload: { code: validCode },
+      });
+      expect(disableRes.statusCode).toBe(200);
+
+      // 5. Verify 2FA is marked disabled in DB
+      const client = await getOrCreateDbClient();
+      const [profile] = await client.db
+        .select()
+        .from(schema.userProfiles)
+        .where(eq(schema.userProfiles.userId, staffId));
+      const meta = profile!.metadata as { twoFactor: UserTotpMetadata };
+      expect(meta.twoFactor.enabled).toBe(false);
+
+      // 6. Verify audit log entry
+      const auditLogs = await client.db
+        .select()
+        .from(schema.operatorActions)
+        .where(eq(schema.operatorActions.action, 'TOTP_DISABLED'));
+      expect(auditLogs.some((l: { operatorId: string | null }) => l.operatorId === staffId)).toBe(true);
+    });
+
+    it('Acceptance 2: Không còn secret TOTP mặc định trong code chạy thật; từ chối khi tài khoản chưa có secret', async () => {
+      // Create user without 2FA secret
+      const noTotpId = generateUuidV7();
+      const noTotpToken = 'no_totp_token_' + Date.now();
+      const client = await getOrCreateDbClient();
+
+      await client.db.insert(schema.users).values({
+        id: noTotpId,
+        email: `nototp_${Date.now()}@test.local`,
+        role: 'admin',
+        emailVerified: true,
+      });
+
+      await client.db.insert(schema.sessions).values({
+        id: generateUuidV7(),
+        userId: noTotpId,
+        token: noTotpToken,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      });
+
+      // Calling admin route with x-totp-code does NOT fall back to JBSWY3DPEHPK3PXP
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/v1/admin/audit-logs',
+        headers: {
+          authorization: `Bearer ${noTotpToken}`,
+          host: 'admin.jlpt.local',
+          'x-totp-code': generateTotp('JBSWY3DPEHPK3PXP'),
+        },
+      });
+
+      expect(res.statusCode).toBe(403);
+      const body = JSON.parse(res.payload);
+      expect(body.error?.code).toBe('TWO_FACTOR_REQUIRED');
+      expect(body.error?.message).toContain('chưa thiết lập');
+    });
+
+    it('Acceptance 3: Tài khoản nhân sự seed staging (publisher@jlpt.local) có secret biết trước JBSWY3DPEHPK3PXP cho E2E', async () => {
+      // Login as publisher
+      const loginRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/sign-in/email',
+        payload: {
+          email: 'publisher@jlpt.local',
+          password: 'Admin123456!',
+        },
+      });
+      expect(loginRes.statusCode).toBe(200);
+      const loginBody = JSON.parse(loginRes.payload);
+      expect(loginBody.user.role).toBe('admin');
+      expect(loginBody.user.twoFactorEnabled).toBe(true);
+
+      const token = loginBody.session.token;
+      const validCode = generateTotp('JBSWY3DPEHPK3PXP');
+
+      // Validates TOTP code against seeded secret JBSWY3DPEHPK3PXP
+      const challengeRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/totp/challenge',
+        headers: { authorization: `Bearer ${token}` },
+        payload: { code: validCode },
+      });
+      expect(challengeRes.statusCode).toBe(200);
+      const challengeBody = JSON.parse(challengeRes.payload);
+      expect(challengeBody.verified).toBe(true);
+    });
+
+    it('Review Hardening: Production guards ngăn chặn seed tài khoản và bypass session token trong production', async () => {
+      const authService = app.get(AuthService);
+      const originalNodeEnv = process.env.NODE_ENV;
+      try {
+        process.env.NODE_ENV = 'production';
+
+        // 1. ensureStaffAccountsSeeded() does nothing in production
+        await authService.ensureStaffAccountsSeeded();
+
+        // 2. getSession does not bypass twoFactorVerified for demo tokens in production
+        const client = await getOrCreateDbClient();
+        const prodTestUserId = generateUuidV7();
+        const prodTestSessionId = generateUuidV7();
+        const prodDemoToken = 'tok_editor_demo';
+
+        // Clear any existing verification row for this session ID
+        await client.db
+          .delete(schema.verifications)
+          .where(eq(schema.verifications.identifier, `session_2fa_${prodTestSessionId}`));
+
+        // Insert session with demo token
+        await client.db
+          .insert(schema.users)
+          .values({
+            id: prodTestUserId,
+            email: `prod_demo_${Date.now()}@test.local`,
+            name: 'Prod Demo User',
+            role: 'editor',
+            emailVerified: true,
+          })
+          .onConflictDoNothing();
+
+        await client.db
+          .insert(schema.sessions)
+          .values({
+            id: prodTestSessionId,
+            userId: prodTestUserId,
+            token: prodDemoToken,
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          })
+          .onConflictDoNothing();
+
+        const session = await authService.getSession(prodDemoToken);
+        if (session) {
+          expect(session.twoFactorVerified).toBe(false);
+        }
+      } finally {
+        process.env.NODE_ENV = originalNodeEnv;
+      }
+    });
+
+    it('Review Hardening: TotpGuard từ chối nhân sự đã bật 2FA khi truy cập route admin dù ENFORCE_STAFF_2FA không bật', async () => {
+      const originalEnforce = process.env.ENFORCE_STAFF_2FA;
+      const originalNodeEnv = process.env.NODE_ENV;
+      try {
+        process.env.ENFORCE_STAFF_2FA = 'false';
+        process.env.NODE_ENV = 'development';
+
+        const client = await getOrCreateDbClient();
+        const testStaffId = generateUuidV7();
+        const testSessionId = generateUuidV7();
+        const testToken = 'staff_2fa_guard_test_' + Date.now();
+
+        await client.db.insert(schema.users).values({
+          id: testStaffId,
+          email: `staff_guard_${Date.now()}@test.local`,
+          name: 'Guard Tester',
+          role: 'admin',
+          emailVerified: true,
+        });
+
+        await client.db.insert(schema.sessions).values({
+          id: testSessionId,
+          userId: testStaffId,
+          token: testToken,
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        });
+
+        const secret = 'JBSWY3DPEHPK3PXP';
+        await client.db.insert(schema.userProfiles).values({
+          id: generateUuidV7(),
+          userId: testStaffId,
+          metadata: {
+            twoFactor: {
+              enabled: true,
+              encryptedSecret: encryptTotpSecret(secret, testStaffId),
+              hashedRecoveryCodes: [],
+              failedAttempts: 0,
+              lockedUntil: null,
+            },
+          },
+        });
+
+        const res = await app.inject({
+          method: 'GET',
+          url: '/api/v1/admin/audit-logs',
+          headers: {
+            authorization: `Bearer ${testToken}`,
+            host: 'admin.jlpt.local',
+          },
+        });
+
+        expect(res.statusCode).toBe(403);
+        const body = JSON.parse(res.payload);
+        expect(body.error?.code).toBe('TWO_FACTOR_REQUIRED');
+        expect(body.error?.message).toContain('Yêu cầu xác thực hai bước');
+      } finally {
+        process.env.ENFORCE_STAFF_2FA = originalEnforce;
+        process.env.NODE_ENV = originalNodeEnv;
+      }
+    });
+
+    it('Review Hardening: Tự tắt 2FA giải mã secret từ DB khi caller.totpSecret không có sẵn trong context', async () => {
+      const client = await getOrCreateDbClient();
+      const authService = app.get(AuthService);
+      const testUserId = generateUuidV7();
+      const testSecret = 'JBSWY3DPEHPK3PXP';
+
+      await client.db.insert(schema.users).values({
+        id: testUserId,
+        email: `self_disable_${Date.now()}@test.local`,
+        name: 'Self Disable Tester',
+        role: 'editor',
+        emailVerified: true,
+      });
+
+      await client.db.insert(schema.userProfiles).values({
+        id: generateUuidV7(),
+        userId: testUserId,
+        metadata: {
+          twoFactor: {
+            enabled: true,
+            encryptedSecret: encryptTotpSecret(testSecret, testUserId),
+            hashedRecoveryCodes: [],
+            failedAttempts: 0,
+            lockedUntil: null,
+          },
+        },
+      });
+
+      const callerContext: AuthUserContext = {
+        userId: testUserId,
+        email: `self_disable_${Date.now()}@test.local`,
+        name: 'Self Disable Tester',
+        role: 'editor',
+        sessionId: generateUuidV7(),
+        sessionToken: 'test_token',
+        emailVerified: true,
+        twoFactorEnabled: true,
+        twoFactorVerified: true,
+        totpSecret: undefined, // Simulating missing secret in caller context
+      };
+
+      // 1. Wrong code rejected even if secret resolved from DB
+      await expect(
+        authService.disableTotp(callerContext, testUserId, { code: '000000' }),
+      ).rejects.toThrow('Mã xác thực TOTP không chính xác');
+
+      // 2. Correct code accepted after resolving secret from DB
+      const validCode = generateTotp(testSecret);
+      const result = await authService.disableTotp(callerContext, testUserId, { code: validCode });
+      expect(result.success).toBe(true);
+
+      // Verify disabled in DB
+      const [profile] = await client.db
+        .select()
+        .from(schema.userProfiles)
+        .where(eq(schema.userProfiles.userId, testUserId));
+      const meta = profile!.metadata as { twoFactor: UserTotpMetadata };
+      expect(meta.twoFactor.enabled).toBe(false);
     });
   });
 });

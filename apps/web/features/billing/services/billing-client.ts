@@ -5,6 +5,7 @@ import type {
   TransactionItem,
   RefundRequestInput,
   RefundRequestResponse,
+  CouponDiscount,
 } from '../types';
 
 export class BillingClient {
@@ -98,6 +99,13 @@ export class BillingClient {
 
   public async renewSubscription(): Promise<{ success: boolean }> {
     return this.request<{ success: boolean }>('POST', '/me/subscription/renew');
+  }
+
+  public async validateCoupon(code: string, planId?: string): Promise<CouponDiscount> {
+    return this.request<CouponDiscount>('POST', '/coupons/validate', {
+      code: code.trim().toUpperCase(),
+      planId,
+    });
   }
 }
 

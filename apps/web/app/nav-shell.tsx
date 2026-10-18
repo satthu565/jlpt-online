@@ -64,7 +64,7 @@ export function NavigationHeader(): React.JSX.Element {
       </Button>
     </div>
   ) : (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+    <div className="header-auth-buttons" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
       <a
         href="/dang-nhap"
         style={{
