@@ -314,4 +314,48 @@ describe('P03: JLPT Exam Schedules in Vietnam API & RBAC & Audit', () => {
     expect(auditLog).toBeDefined();
     expect(auditLog.targetResource).toContain(sched.id);
   });
+
+  it('7. Publish schedule with non-UUID operatorId fallback does not cause Postgres syntax error and sets published_by to null', async () => {
+    const client = await getOrCreateDbClient();
+    // Create new schedule directly via service
+    const schedId = generateUuidV7();
+    await client.db.insert(jlptExamSchedules).values({
+      id: schedId,
+      title: 'Kỳ thi JLPT Test Non-UUID Operator',
+      examDate: '2026-12-06',
+      registrationDeadline: new Date(Date.now() + 86400000),
+      locations: [{ city: 'Hà Nội', name: 'ĐH Ngoại ngữ', address: 'Hà Nội' }],
+      officialUrl: 'https://jlpt.vnu.edu.vn',
+      levels: ['N5'],
+      status: 'draft',
+    });
+
+    // Publish with non-UUID operatorId 'admin'
+    const res = await app.inject({
+      method: 'POST',
+      url: `/api/v1/admin/jlpt-schedules/${schedId}/publish`,
+      headers: { authorization: `Bearer ${adminToken}` },
+    });
+    expect(res.statusCode).toBe(201);
+    const body = JSON.parse(res.body);
+    expect(body.status).toBe('published');
+
+    // Verify in database: published_by must be null (or valid UUID) and no Postgres error occurred
+    const [row] = await client.db
+      .select()
+      .from(jlptExamSchedules)
+      .where(eq(jlptExamSchedules.id, schedId));
+    expect(row).toBeDefined();
+    expect(row.status).toBe('published');
+    // If adminUserId was passed, it is adminUserId, but if 'admin' was passed to service, publishedBy is null
+    const { JlptScheduleService } = await import('./jlpt-schedule.service.js');
+    const service = app.get(JlptScheduleService);
+    const directPublish = await service.publishSchedule(schedId, 'admin');
+    expect(directPublish.status).toBe('published');
+    const [rowAfterDirect] = await client.db
+      .select()
+      .from(jlptExamSchedules)
+      .where(eq(jlptExamSchedules.id, schedId));
+    expect(rowAfterDirect.publishedBy).toBeNull();
+  });
 });

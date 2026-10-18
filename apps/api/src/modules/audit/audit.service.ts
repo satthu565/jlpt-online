@@ -30,6 +30,10 @@ export class AuditService {
    * Records an administrative/staff action to the operator_actions audit table (ADM-14).
    */
   async recordAction(params: RecordActionParams): Promise<string> {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.operatorId);
+    if (!isUuid) {
+      return '';
+    }
     const id = generateUuidV7();
     await this.dbClient.db.insert(schema.operatorActions).values({
       id,

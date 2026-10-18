@@ -158,7 +158,7 @@ describe('P03: JLPT Registration & Exam Date Reminders via Outbox', () => {
     expect(payload['scheduleId']).toBe(publishedScheduleId);
     expect(payload['title']).toBe('Kỳ thi JLPT Tháng 12/2026');
     expect(payload['daysLeft']).toBeGreaterThanOrEqual(6);
-    expect(payload['dedupeKey']).toBe(`jlpt_reg_reminder_${publishedScheduleId}_${activeStudentId}`);
+    expect(payload['dedupeKey']).toBe(`jlpt_reg_reminder_${publishedScheduleId}_${activeStudentId}_7d`);
     expect(payload['officialUrl']).toBe('https://jlpt.vnu.edu.vn');
 
     // Opted-out user MUST NOT receive any outbox event!
@@ -282,7 +282,7 @@ describe('P03: JLPT Registration & Exam Date Reminders via Outbox', () => {
     expect(activeUserEvent).toBeDefined();
 
     const payload = activeUserEvent!.payload as Record<string, unknown>;
-    expect(payload['dedupeKey']).toBe(`jlpt_exam_date_reminder_${publishedScheduleId}_${activeStudentId}`);
+    expect(payload['dedupeKey']).toBe(`jlpt_exam_date_reminder_${publishedScheduleId}_${activeStudentId}_60d`);
 
     // Re-run for deduplication check
     const res2 = await notificationService.processJlptExamDateReminders({
@@ -290,5 +290,87 @@ describe('P03: JLPT Registration & Exam Date Reminders via Outbox', () => {
     });
     expect(res2.sent).toBe(0);
     expect(res2.skippedDuplicate).toBeGreaterThanOrEqual(1);
+  });
+
+  it('5. Expired registration deadline (diffMs <= 0) sends 0 reminders and skips past schedule', async () => {
+    // Create a schedule with deadline in the past
+    const pastDeadline = new Date(Date.now() - 2 * 3600 * 1000); // 2 hours ago
+    const pastSched = await scheduleService.createSchedule(
+      {
+        title: 'Kỳ thi JLPT Đã Hết Hạn Đăng Ký',
+        examDate: '2026-12-06',
+        registrationDeadline: pastDeadline.toISOString(),
+        locations: [
+          { city: 'Hà Nội', name: 'ĐH Ngoại ngữ', address: 'Số 2 Phạm Văn Đồng' },
+        ],
+        officialUrl: 'https://jlpt.vnu.edu.vn',
+        levels: ['N5'],
+      },
+      adminId,
+    );
+    await scheduleService.publishSchedule(pastSched.id, adminId);
+
+    const client = await getOrCreateDbClient();
+    const countBefore = (
+      await client.db
+        .select()
+        .from(schema.outbox)
+        .where(eq(schema.outbox.topic, 'notification.jlpt_registration_reminder'))
+    ).length;
+
+    const result = await notificationService.processJlptRegistrationReminders({
+      scheduleId: pastSched.id,
+    });
+
+    expect(result.sent).toBe(0);
+
+    const countAfter = (
+      await client.db
+        .select()
+        .from(schema.outbox)
+        .where(eq(schema.outbox.topic, 'notification.jlpt_registration_reminder'))
+    ).length;
+
+    expect(countAfter).toBe(countBefore);
+  });
+
+  it('6. Milestone-based idempotency: 1d milestone reminder is sent even if 7d was sent previously', async () => {
+    // publishedSchedule was already sent with 7d milestone in Test 1.
+    // Now simulate time moving to 20 hours before deadline (daysLeft <= 1 -> windowKey '1d')
+    const sched = await scheduleService.getAdminScheduleById(publishedScheduleId);
+    const deadline = new Date(sched.registrationDeadline);
+    const simulatedNow = new Date(deadline.getTime() - 20 * 3600 * 1000); // 20 hours before deadline
+
+    const res1d = await notificationService.processJlptRegistrationReminders({
+      scheduleId: publishedScheduleId,
+      now: simulatedNow,
+    });
+
+    // Active student receives the 1d milestone reminder!
+    expect(res1d.sent).toBeGreaterThanOrEqual(1);
+
+    const client = await getOrCreateDbClient();
+    const outboxRows = await client.db
+      .select()
+      .from(schema.outbox)
+      .where(eq(schema.outbox.topic, 'notification.jlpt_registration_reminder'));
+
+    const event1d = outboxRows.find((row: typeof schema.outbox.$inferSelect) => {
+      const p = row.payload as Record<string, unknown>;
+      return (
+        p?.['recipientId'] === activeStudentId &&
+        p?.['scheduleId'] === publishedScheduleId &&
+        p?.['dedupeKey'] === `jlpt_reg_reminder_${publishedScheduleId}_${activeStudentId}_1d`
+      );
+    });
+    expect(event1d).toBeDefined();
+
+    // Re-running with same simulated time produces 0 new events (deduplicated for '1d')
+    const res1dAgain = await notificationService.processJlptRegistrationReminders({
+      scheduleId: publishedScheduleId,
+      now: simulatedNow,
+    });
+    expect(res1dAgain.sent).toBe(0);
+    expect(res1dAgain.skippedDuplicate).toBeGreaterThanOrEqual(1);
   });
 });

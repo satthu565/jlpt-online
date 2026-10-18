@@ -80,6 +80,7 @@ describe('P03: Demo N5 Scoring, JLPT Floor Rules & Pacing Analysis (Matching P01
   let studentId: string;
   let studentToken: string;
   let examId: string;
+  let failTotalExamId: string;
   let blueprintId: string;
 
   beforeAll(async () => {
@@ -227,6 +228,83 @@ describe('P03: Demo N5 Scoring, JLPT Floor Rules & Pacing Analysis (Matching P01
       skills: ['kanji', 'grammar', 'reading', 'listening'],
       mondaiTypes: ['kanji_reading', 'sentence_composition', 'comprehension_short', 'quick_response'],
       sectionRanges: [[0, 2], [3, 3]],
+    });
+
+    // 6. Create Exam specifically for FAILED_TOTAL_SCORE scenario (total < 80 but each section >= floor)
+    // Section 1: language_reading (3 questions, maxScaled 120, minPass 38). Correct: [1, 4, 2]
+    // Section 2: listening (3 questions, maxScaled 60, minPass 19). Correct: [1, 2, 3]
+    failTotalExamId = generateUuidV7();
+    await client.db.insert(schema.exams).values({
+      id: failTotalExamId,
+      slug: `demo-n5-fail-total-${Date.now()}`,
+      level: 'N5',
+      title: 'Đề thi demo JLPT N5 Kịch bản Trượt Tổng Điểm',
+      kind: 'synthetic',
+      year: 2026,
+      session: '10',
+      totalQuestions: 6,
+      publishedVersion: 1,
+    });
+
+    await client.db.insert(schema.examVersions).values({
+      examId: failTotalExamId,
+      version: 1,
+      snapshotKey: `exams/${failTotalExamId}/v1/snapshot.json`,
+      manifestKey: `exams/${failTotalExamId}/v1/manifest.json`,
+      blueprintId,
+      blueprintVersion: 1,
+      scoring: scoringConfig,
+      totalQuestions: 6,
+      publishedAt: new Date(),
+      publishedBy: studentId,
+    });
+
+    const ftSec1Id = generateUuidV7();
+    const ftSec2Id = generateUuidV7();
+    await client.db.insert(schema.examSections).values([
+      {
+        id: ftSec1Id,
+        examId: failTotalExamId,
+        orderIndex: 0,
+        code: 'language_reading',
+        title: 'Kiến thức ngôn ngữ & Đọc hiểu',
+        durationSec: 3600,
+      },
+      {
+        id: ftSec2Id,
+        examId: failTotalExamId,
+        orderIndex: 1,
+        code: 'listening',
+        title: 'Nghe hiểu',
+        durationSec: 1800,
+      },
+    ]);
+
+    for (let i = 0; i < 6; i++) {
+      const qId = generateUuidV7();
+      await client.db.insert(schema.questions).values({
+        id: qId,
+        level: 'N5',
+        skill: i < 3 ? ((['kanji', 'grammar', 'reading'] as const)[i]) : 'listening',
+        mondaiType: i < 3 ? 'kanji_reading' : 'quick_response',
+        origin: 'self_authored',
+      });
+      await client.db.insert(schema.examItems).values({
+        id: generateUuidV7(),
+        examId: failTotalExamId,
+        sectionId: i < 3 ? ftSec1Id : ftSec2Id,
+        orderIndex: i,
+        questionId: qId,
+      });
+    }
+
+    await client.db.insert(schema.examAnswerKeys).values({
+      examId: failTotalExamId,
+      version: 1,
+      keys: [1, 4, 2, 1, 2, 3],
+      skills: ['kanji', 'grammar', 'reading', 'listening', 'listening', 'listening'],
+      mondaiTypes: ['kanji_reading', 'sentence_composition', 'comprehension_short', 'quick_response', 'task_based_comprehension', 'point_comprehension'],
+      sectionRanges: [[0, 2], [3, 5]],
     });
 
     // Boot Nest App
@@ -466,21 +544,84 @@ describe('P03: Demo N5 Scoring, JLPT Floor Rules & Pacing Analysis (Matching P01
   });
 
   it('4. TRƯỢT DO TỔNG ĐIỂM (FAILED_TOTAL_SCORE): Các phần đạt điểm sàn nhưng tổng < 80', async () => {
-    // We can evaluate directly through scoringService with a synthetic scenario
-    // Suppose language_reading achieves 40 (>= 38) and listening achieves 20 (>= 19) -> total 60 < 80
-    // Test the pure scoring logic
-    const directResult = await scoringService.scoreAttempt(examId, 1, [1, 0, 0, 1]);
-    // Q0 correct (kanji: raw 1/3 -> scaled 40), Q1 wrong, Q2 wrong
-    // Q3 correct (listening: raw 1/1 -> scaled 60)
-    // 40 + 60 = 100 >= 80 would pass.
-    // Let's create an answer key / attempt test where total is below 80 but sections pass minPass
-    // In our 4-question exam, 1 question in listening is 60 points, so 1 question already gives 60.
-    // If language_reading has 1 correct out of 3, scaled is 40. 40 >= 38.
-    // Total is 40 + 60 = 100.
-    const firstSec = directResult.scoring.sections[0] as Record<string, unknown> | undefined;
-    expect(firstSec).toBeDefined();
-    expect(firstSec?.['scaled']).toBe(40);
-    expect(firstSec?.['passed']).toBe(true); // 40 >= 38
-    expect(firstSec?.['margin']).toBe(2); // 40 - 38 = 2
+    // 1. Create Attempt for failTotalExamId
+    const createRes = await app.inject({
+      method: 'POST',
+      url: '/api/v1/attempts',
+      headers: { authorization: `Bearer ${studentToken}`, 'content-type': 'application/json' },
+      payload: { examId: failTotalExamId, mode: 'real' },
+    });
+    expect(createRes.statusCode).toBe(201);
+    const { attemptId, lease } = JSON.parse(createRes.payload);
+
+    await app.inject({
+      method: 'POST',
+      url: `/api/v1/attempts/${attemptId}/sections/next`,
+      headers: { authorization: `Bearer ${studentToken}`, 'content-type': 'application/json' },
+      payload: { lease },
+    });
+
+    // 2. Submit answers: [1, 0, 0, 1, 0, 0]
+    // Q0 correct (kanji: raw 1/3 -> scaled 40 >= 38 floor)
+    // Q3 correct (listening: raw 1/3 -> scaled 20 >= 19 floor)
+    // Total = 40 + 20 = 60 < 80
+    const submitRes = await app.inject({
+      method: 'POST',
+      url: `/api/v1/attempts/${attemptId}/submit`,
+      headers: { authorization: `Bearer ${studentToken}`, 'content-type': 'application/json' },
+      payload: {
+        lease,
+        seq: 1,
+        answers: [1, 0, 0, 1, 0, 0],
+        flags: [0, 0, 0, 0, 0, 0],
+      },
+    });
+
+    expect(submitRes.statusCode).toBe(200);
+    const submitData = JSON.parse(submitRes.payload);
+    const scoring = submitData.result.scoring;
+
+    // Must be FAILED_TOTAL_SCORE because sections pass minPass (40 >= 38, 20 >= 19) but total 60 < 80
+    expect(scoring.total).toBe(60);
+    expect(scoring.total).toBeLessThan(80);
+    expect(scoring.passEstimate).toBe(false);
+    expect(scoring.reason).toBe('FAILED_TOTAL_SCORE');
+    expect(scoring.failedSections).toEqual([]);
+
+    const sec1 = scoring.sections.find((s: ScoredSectionItem) => s.code === 'language_reading');
+    expect(sec1).toBeDefined();
+    expect(sec1.scaled).toBe(40);
+    expect(sec1.minPass).toBe(38);
+    expect(sec1.passed).toBe(true);
+    expect(sec1.margin).toBe(2); // 40 - 38 = +2
+
+    const sec2 = scoring.sections.find((s: ScoredSectionItem) => s.code === 'listening');
+    expect(sec2).toBeDefined();
+    expect(sec2.scaled).toBe(20);
+    expect(sec2.minPass).toBe(19);
+    expect(sec2.passed).toBe(true);
+    expect(sec2.margin).toBe(1); // 20 - 19 = +1
+
+    // Verify GET /api/v1/me/attempts reflects failed status with no failed individual sections
+    const historyRes = await app.inject({
+      method: 'GET',
+      url: '/api/v1/me/attempts',
+      headers: { authorization: `Bearer ${studentToken}` },
+    });
+    expect(historyRes.statusCode).toBe(200);
+    const historyData = JSON.parse(historyRes.payload);
+    const myAttempt = historyData.items.find((it: AttemptHistoryRecord) => it.id === attemptId);
+    expect(myAttempt).toBeDefined();
+    expect(myAttempt.score).toBe(60);
+    expect(myAttempt.passed).toBe(false);
+    expect(myAttempt.failedSections).toEqual([]);
+
+    // Direct scoring service evaluation also proves FAILED_TOTAL_SCORE pure logic
+    const directResult = await scoringService.scoreAttempt(failTotalExamId, 1, [1, 0, 0, 1, 0, 0]);
+    expect(directResult.scoring.total).toBe(60);
+    expect(directResult.scoring.total).toBeLessThan(80);
+    expect(directResult.scoring.passEstimate).toBe(false);
+    expect((directResult.scoring as Record<string, unknown>)['reason']).toBe('FAILED_TOTAL_SCORE');
+    expect(directResult.scoring.failedSections).toEqual([]);
   });
 });

@@ -101,35 +101,48 @@ Theo công thức chuẩn từ P01:
 
 ---
 
-## 5. Cơ chế Nhắc hạn Đăng ký và Tránh lặp (Outbox Deduplication)
+## 5. Cơ chế Nhắc hạn Đăng ký và Tránh lặp (Outbox Deduplication & Batch Preferences)
 
-### 5.1. Quy trình xử lý
-1. Quét các kỳ thi đã xuất bản (`published`) có hạn đăng ký hoặc ngày thi nằm trong khoảng thời gian nhắc (ví dụ: sắp hết hạn đăng ký trong vòng 7 ngày).
-2. Lấy danh sách học viên đăng ký nhận thông báo (`examReminders = true`).
-3. Kiểm tra chi tiết `typeSettings`: người dùng có thể tắt riêng `jlpt_registration_reminder` hoặc `jlpt_exam_reminder`.
-4. Sinh `idempotencyKey` duy nhất cho cặp (user, schedule, reminder_type).
-5. Kiểm tra trong bảng `outbox`: nếu sự kiện với khóa này đã tồn tại, bỏ qua (idempotent, không gửi lặp).
-6. Nếu chưa gửi: ghi sự kiện vào `outbox` với đầy đủ payload (thông tin kỳ thi, hạn đăng ký, link chính thức, địa điểm) để background worker chuyển phát email/in-app notification.
+### 5.1. Quy trình xử lý và Tối ưu hóa hiệu năng
+1. **Kiểm tra thời hạn trong tương lai (Future Check):** Quét các kỳ thi đã xuất bản (`published`) có hạn đăng ký hoặc ngày thi còn trong tương lai (`diffMs > 0`) và nằm trong cửa sổ nhắc quy định (tối đa 14 ngày cho hạn đăng ký, 90 ngày cho ngày thi). Các kỳ thi đã quá hạn bị bỏ qua ngay lập tức, tuyệt đối không gửi thông báo "còn 0 ngày".
+2. **Truy vấn Batch Preferences (Triệt tiêu N+1 Query):** Truy vấn toàn bộ cấu hình thông báo đã tắt của người dùng trong một câu truy vấn duy nhất (`select ... from notification_preferences where enabled = false`) và gom vào `Map<string, Set<string>>`. Không gọi tuần tự `getPreferences(userId)` trong vòng lặp lồng nhau, đảm bảo hiệu năng tối ưu khi số lượng người dùng tăng cao.
+3. **Kiểm tra Opt-out:** Người dùng tắt nhắc thi cử (`examReminders = false` hoặc tắt riêng `jlpt_registration_reminder` / `jlpt_exam_reminder`) được lọc bỏ an toàn (`skippedOptOut++`).
+4. **Cơ chế Idempotent theo mốc nhắc (Milestone-based Deduplication):**
+   - Xác định mốc thời gian nhắc `windowKey` (ví dụ: `1d`, `7d`, `14d` đối với hạn đăng ký; `1d`, `3d`, `7d`, `30d`, `60d`, `90d` đối với ngày thi).
+   - Sinh `dedupeKey` duy nhất theo mẫu: `jlpt_reg_reminder_${schedule.id}_${user.id}_${windowKey}` và `jlpt_exam_date_reminder_${schedule.id}_${user.id}_${windowKey}`.
+   - Nhờ có `windowKey`, học viên đã nhận thông báo mốc 7 ngày vẫn sẽ tiếp tục nhận được thông báo mốc 1 ngày kế tiếp, đồng thời mỗi mốc nhắc được đảm bảo chuyển phát đúng một lần (idempotent, không gửi lặp khi cron quét lại).
+5. **Ghi nhận Outbox và Notification Jobs:** Ghi nhận sự kiện vào bảng `outbox` và `notification_jobs` với đầy đủ payload để background worker xử lý gửi email/in-app notification.
 
 ---
 
-## 6. Bằng chứng kiểm thử (Verification Proofs)
+## 6. Xử lý An toàn Kiểu dữ liệu và Phân quyền Quản trị
 
-Hệ thống đã được kiểm thử toàn diện với 3 bộ test chuyên biệt:
-1. `src/modules/exam/jlpt-schedule.test.ts` (6 tests):
+- **Kiểm tra UUID hợp lệ cho `publishedBy`:** Do cột `published_by` trong `jlpt_exam_schedules` là kiểu `uuid REFERENCES users(id)`, hàm `publishSchedule` kiểm tra tính hợp lệ của `operatorId` bằng regex UUID chuẩn. Nếu `operatorId` không phải là UUID (ví dụ: chuỗi fallback `'admin'`), giá trị lưu vào cơ sở dữ liệu là `null`, triệt tiêu hoàn toàn lỗi cú pháp PostgreSQL (`22P02: invalid input syntax for type uuid`).
+- **Ghi nhận Audit Log an toàn:** Bảng `operator_actions` ghi nhận hành động khi có `operatorId` là UUID hợp lệ của quản trị viên, tránh lỗi khóa ngoại hoặc lỗi cú pháp kiểu dữ liệu.
+
+---
+
+## 7. Bằng chứng kiểm thử (Verification Proofs)
+
+Hệ thống đã được kiểm thử toàn diện với 17 test case trên 3 bộ test chuyên biệt:
+1. `src/modules/exam/jlpt-schedule.test.ts` (7 tests):
    - Trả mảng rỗng khi chưa có lịch xuất bản (không seed dữ liệu giả).
    - Chặn học viên thường tạo lịch thi (403 Forbidden).
    - Quản trị viên tạo lịch nháp, ghi audit log, kiểm tra trang công khai không nhìn thấy bản nháp.
    - Quản trị viên cập nhật và xuất bản, trang công khai nhìn thấy ngay lập tức.
    - Quản trị viên hủy xuất bản (unpublish), trang công khai lập tức ẩn đi.
    - Quản trị viên xóa lịch thi, ghi audit log xóa thành công.
-2. `src/modules/notification/jlpt-registration-reminder.test.ts` (4 tests):
+   - Quản trị viên xuất bản với fallback non-UUID không gây lỗi cú pháp PostgreSQL và gán `published_by: null`.
+2. `src/modules/notification/jlpt-registration-reminder.test.ts` (6 tests):
    - Nhắc hạn đăng ký phát sự kiện outbox cho người dùng bật nhận nhắc và bỏ qua người dùng tắt nhắc.
    - Exactly-once delivery: chạy lại job nhắc hạn đăng ký không sinh bất kỳ sự kiện outbox trùng lặp nào.
    - Tôn trọng cài đặt tắt nhắc riêng lẻ của người dùng (`typeSettings.jlpt_registration_reminder = false`).
    - Nhắc ngày thi phát sự kiện outbox đúng 1 lần và tôn trọng cài đặt tắt nhắc.
+   - Kỳ thi đã quá hạn đăng ký (`diffMs <= 0`) được bỏ qua an toàn, gửi 0 thông báo.
+   - Idempotency theo từng mốc nhắc: mốc 1 ngày vẫn được gửi thành công sau khi đã gửi mốc 7 ngày, và không bị trùng lặp khi chạy lại.
 3. `src/modules/attempt/demo-n5-scoring.test.ts` (4 tests):
    - ĐỖ (PASSED): Vượt ngưỡng tổng (180 >= 80) và vượt điểm sàn mọi phần (120 >= 38, 60 >= 19), margin dương, lưu và trả về `timeSpentMs`, lịch sử `me/attempts` có đầy đủ thông tin.
    - TRƯỢT DO ĐIỂM SÀN (FAILED_SECTION_FLOOR): Tổng điểm 120 >= 80 nhưng Nghe hiểu 0 < 19, `failedSections: ['listening']`, margin âm (-19).
    - TRƯỢT DO CẢ TỔNG VÀ SÀN (FAILED_TOTAL_AND_SECTION): Điểm 0 < 80, `failedSections: ['language_reading', 'listening']`.
-   - TRƯỢT DO TỔNG ĐIỂM (FAILED_TOTAL_SCORE): Các phần đạt điểm sàn nhưng tổng điểm không đủ ngưỡng đỗ.
+   - TRƯỢT DO TỔNG ĐIỂM (FAILED_TOTAL_SCORE): Đề thi mẫu 6 câu được thiết kế sao cho Kiến thức ngôn ngữ & Đọc hiểu đạt 40/120 (>= sàn 38, margin +2, passed: true) và Nghe hiểu đạt 20/60 (>= sàn 19, margin +1, passed: true), nhưng tổng điểm quy đổi là 60 < 80. Assert đầy đủ: `expect(scoring.total).toBe(60)`, `expect(scoring.total).toBeLessThan(80)`, `expect(scoring.passEstimate).toBe(false)`, `expect(scoring.reason).toBe('FAILED_TOTAL_SCORE')`, `expect(scoring.failedSections).toEqual([])`.
+

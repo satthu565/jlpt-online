@@ -1032,7 +1032,7 @@ export class AdminController {
       throw new BadRequestException('JlptScheduleService is not available');
     }
     const parsed = CreateJlptScheduleInputSchema.parse(body);
-    return this.jlptScheduleService.createSchedule(parsed, user?.userId || 'admin');
+    return this.jlptScheduleService.createSchedule(parsed, user?.userId);
   }
 
   @Patch('jlpt-schedules/:id')
@@ -1046,7 +1046,7 @@ export class AdminController {
       throw new BadRequestException('JlptScheduleService is not available');
     }
     const parsed = UpdateJlptScheduleInputSchema.parse(body);
-    return this.jlptScheduleService.updateSchedule(id, parsed, user?.userId || 'admin');
+    return this.jlptScheduleService.updateSchedule(id, parsed, user?.userId);
   }
 
   @Post('jlpt-schedules/:id/publish')
@@ -1058,7 +1058,7 @@ export class AdminController {
     if (!this.jlptScheduleService) {
       throw new BadRequestException('JlptScheduleService is not available');
     }
-    return this.jlptScheduleService.publishSchedule(id, user?.userId || 'admin');
+    return this.jlptScheduleService.publishSchedule(id, user?.userId);
   }
 
   @Post('jlpt-schedules/:id/unpublish')
@@ -1070,7 +1070,7 @@ export class AdminController {
     if (!this.jlptScheduleService) {
       throw new BadRequestException('JlptScheduleService is not available');
     }
-    return this.jlptScheduleService.unpublishSchedule(id, user?.userId || 'admin');
+    return this.jlptScheduleService.unpublishSchedule(id, user?.userId);
   }
 
   @Delete('jlpt-schedules/:id')
@@ -1082,7 +1082,7 @@ export class AdminController {
     if (!this.jlptScheduleService) {
       throw new BadRequestException('JlptScheduleService is not available');
     }
-    return this.jlptScheduleService.deleteSchedule(id, user?.userId || 'admin');
+    return this.jlptScheduleService.deleteSchedule(id, user?.userId);
   }
 
   @Post('jlpt-schedules/:id/remind-registration')

@@ -127,7 +127,7 @@ export class JlptScheduleService {
    */
   async createSchedule(
     input: CreateJlptScheduleInput,
-    operatorId: string,
+    operatorId?: string,
   ): Promise<JlptScheduleResponse> {
     const db = this.dbClient.db;
     const id = generateUuidV7();
@@ -152,17 +152,19 @@ export class JlptScheduleService {
       .returning();
 
     // Audit action
-    await this.auditService.recordAction({
-      operatorId,
-      action: 'create_jlpt_schedule',
-      targetResource: `jlpt_schedule:${id}`,
-      details: {
-        title: input.title,
-        examDate: input.examDate,
-        registrationDeadline: input.registrationDeadline,
-        locationsCount: input.locations.length,
-      },
-    });
+    if (operatorId) {
+      await this.auditService.recordAction({
+        operatorId,
+        action: 'create_jlpt_schedule',
+        targetResource: `jlpt_schedule:${id}`,
+        details: {
+          title: input.title,
+          examDate: input.examDate,
+          registrationDeadline: input.registrationDeadline,
+          locationsCount: input.locations.length,
+        },
+      });
+    }
 
     return this.formatRow(inserted);
   }
@@ -174,7 +176,7 @@ export class JlptScheduleService {
   async updateSchedule(
     id: string,
     input: UpdateJlptScheduleInput,
-    operatorId: string,
+    operatorId?: string,
   ): Promise<JlptScheduleResponse> {
     const db = this.dbClient.db;
 
@@ -207,12 +209,14 @@ export class JlptScheduleService {
       .returning();
 
     // Audit action
-    await this.auditService.recordAction({
-      operatorId,
-      action: 'update_jlpt_schedule',
-      targetResource: `jlpt_schedule:${id}`,
-      details: input as Record<string, unknown>,
-    });
+    if (operatorId) {
+      await this.auditService.recordAction({
+        operatorId,
+        action: 'update_jlpt_schedule',
+        targetResource: `jlpt_schedule:${id}`,
+        details: input as Record<string, unknown>,
+      });
+    }
 
     return this.formatRow(updated);
   }
@@ -221,30 +225,37 @@ export class JlptScheduleService {
    * Admin: Publish schedule (publicly visible).
    * Records audit log.
    */
-  async publishSchedule(id: string, operatorId: string): Promise<JlptScheduleResponse> {
+  async publishSchedule(id: string, operatorId?: string): Promise<JlptScheduleResponse> {
     const db = this.dbClient.db;
     const now = new Date();
 
     await this.getAdminScheduleById(id);
+
+    const isUuid = (val?: string | null): val is string =>
+      typeof val === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+
+    const validPublishedBy = isUuid(operatorId) ? operatorId : null;
 
     const [updated] = await db
       .update(jlptExamSchedules)
       .set({
         status: 'published',
         publishedAt: now,
-        publishedBy: operatorId,
+        publishedBy: validPublishedBy,
         updatedAt: now,
       })
       .where(eq(jlptExamSchedules.id, id))
       .returning();
 
     // Audit action
-    await this.auditService.recordAction({
-      operatorId,
-      action: 'publish_jlpt_schedule',
-      targetResource: `jlpt_schedule:${id}`,
-      details: { title: updated.title, publishedAt: now.toISOString() },
-    });
+    if (operatorId) {
+      await this.auditService.recordAction({
+        operatorId,
+        action: 'publish_jlpt_schedule',
+        targetResource: `jlpt_schedule:${id}`,
+        details: { title: updated.title, publishedAt: now.toISOString() },
+      });
+    }
 
     return this.formatRow(updated);
   }
@@ -253,7 +264,7 @@ export class JlptScheduleService {
    * Admin: Unpublish schedule (reverts to draft).
    * Records audit log.
    */
-  async unpublishSchedule(id: string, operatorId: string): Promise<JlptScheduleResponse> {
+  async unpublishSchedule(id: string, operatorId?: string): Promise<JlptScheduleResponse> {
     const db = this.dbClient.db;
     const now = new Date();
 
@@ -269,12 +280,14 @@ export class JlptScheduleService {
       .returning();
 
     // Audit action
-    await this.auditService.recordAction({
-      operatorId,
-      action: 'unpublish_jlpt_schedule',
-      targetResource: `jlpt_schedule:${id}`,
-      details: { title: updated.title },
-    });
+    if (operatorId) {
+      await this.auditService.recordAction({
+        operatorId,
+        action: 'unpublish_jlpt_schedule',
+        targetResource: `jlpt_schedule:${id}`,
+        details: { title: updated.title },
+      });
+    }
 
     return this.formatRow(updated);
   }
@@ -283,7 +296,7 @@ export class JlptScheduleService {
    * Admin: Delete schedule.
    * Records audit log.
    */
-  async deleteSchedule(id: string, operatorId: string): Promise<{ success: boolean }> {
+  async deleteSchedule(id: string, operatorId?: string): Promise<{ success: boolean }> {
     const db = this.dbClient.db;
 
     const existing = await this.getAdminScheduleById(id);
@@ -291,12 +304,14 @@ export class JlptScheduleService {
     await db.delete(jlptExamSchedules).where(eq(jlptExamSchedules.id, id));
 
     // Audit action
-    await this.auditService.recordAction({
-      operatorId,
-      action: 'delete_jlpt_schedule',
-      targetResource: `jlpt_schedule:${id}`,
-      details: { title: existing.title, examDate: existing.examDate },
-    });
+    if (operatorId) {
+      await this.auditService.recordAction({
+        operatorId,
+        action: 'delete_jlpt_schedule',
+        targetResource: `jlpt_schedule:${id}`,
+        details: { title: existing.title, examDate: existing.examDate },
+      });
+    }
 
     return { success: true };
   }
