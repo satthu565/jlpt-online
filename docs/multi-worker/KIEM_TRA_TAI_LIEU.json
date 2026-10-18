@@ -51,6 +51,8 @@
       "I11",
       "I12",
       "I13",
+      "I14",
+      "I15",
       "L01",
       "L02",
       "L03",
@@ -124,6 +126,8 @@
       "I11",
       "I12",
       "I13",
+      "I14",
+      "I15",
       "L01",
       "L02",
       "L03",
@@ -197,6 +201,8 @@
       "I11",
       "I12",
       "I13",
+      "I14",
+      "I15",
       "L01",
       "L02",
       "L03",
@@ -232,14 +238,14 @@
       "F07"
     ]
   },
-  "workPackageCount": 71,
+  "workPackageCount": 73,
   "originalV1TaskCount": 106,
   "workerCount": 6,
   "localLinksChecked": 427,
   "errors": [],
   "warnings": [
     "Optimistic schedule exceeds 168h: 233h",
-    "Daily target overruns: I04 +4h, I07 +8h, D05 +3h",
+    "Daily target overruns: I04 +4h, I15 +6h, I07 +10h, D04 +2h, D05 +5h",
     "Work duration estimates are speculative and exclude independent review, repair loops, provider waits and complete build contention.",
     "Application requirements remain TODO; twelve source requirements are manual preparation outside the product, not implemented features.",
     "Coding accounts quota/usage permission and external service readiness are not verified.",
@@ -259,22 +265,40 @@
         "lateToDailyTargetHours": 4
       },
       {
+        "taskId": "I15",
+        "worker": "W4",
+        "plannedDay": 8,
+        "startHour": 196,
+        "finishHour": 198,
+        "targetByHour": 192,
+        "lateToDailyTargetHours": 6
+      },
+      {
         "taskId": "I07",
         "worker": "W6",
         "plannedDay": 8,
-        "startHour": 196,
-        "finishHour": 200,
+        "startHour": 198,
+        "finishHour": 202,
         "targetByHour": 192,
-        "lateToDailyTargetHours": 8
+        "lateToDailyTargetHours": 10
+      },
+      {
+        "taskId": "D04",
+        "worker": "W3",
+        "plannedDay": 9,
+        "startHour": 213,
+        "finishHour": 218,
+        "targetByHour": 216,
+        "lateToDailyTargetHours": 2
       },
       {
         "taskId": "D05",
         "worker": "W6",
         "plannedDay": 9,
-        "startHour": 216,
-        "finishHour": 219,
+        "startHour": 218,
+        "finishHour": 221,
         "targetByHour": 216,
-        "lateToDailyTargetHours": 3
+        "lateToDailyTargetHours": 5
       }
     ],
     "schedule": [
@@ -720,6 +744,15 @@
         "lateToDailyTargetHours": 0
       },
       {
+        "taskId": "I14",
+        "worker": "W5",
+        "plannedDay": 8,
+        "startHour": 173,
+        "finishHour": 175,
+        "targetByHour": 192,
+        "lateToDailyTargetHours": 0
+      },
+      {
         "taskId": "I02",
         "worker": "W4",
         "plannedDay": 8,
@@ -810,20 +843,29 @@
         "lateToDailyTargetHours": 0
       },
       {
+        "taskId": "I15",
+        "worker": "W4",
+        "plannedDay": 8,
+        "startHour": 196,
+        "finishHour": 198,
+        "targetByHour": 192,
+        "lateToDailyTargetHours": 6
+      },
+      {
         "taskId": "I07",
         "worker": "W6",
         "plannedDay": 8,
-        "startHour": 196,
-        "finishHour": 200,
+        "startHour": 198,
+        "finishHour": 202,
         "targetByHour": 192,
-        "lateToDailyTargetHours": 8
+        "lateToDailyTargetHours": 10
       },
       {
         "taskId": "D00",
         "worker": "W3",
         "plannedDay": 9,
-        "startHour": 200,
-        "finishHour": 205,
+        "startHour": 202,
+        "finishHour": 207,
         "targetByHour": 216,
         "lateToDailyTargetHours": 0
       },
@@ -831,8 +873,8 @@
         "taskId": "D02",
         "worker": "W3",
         "plannedDay": 9,
-        "startHour": 205,
-        "finishHour": 211,
+        "startHour": 207,
+        "finishHour": 213,
         "targetByHour": 216,
         "lateToDailyTargetHours": 0
       },
@@ -840,8 +882,8 @@
         "taskId": "D03",
         "worker": "W4",
         "plannedDay": 9,
-        "startHour": 205,
-        "finishHour": 209,
+        "startHour": 207,
+        "finishHour": 211,
         "targetByHour": 216,
         "lateToDailyTargetHours": 0
       },
@@ -849,19 +891,10 @@
         "taskId": "D04",
         "worker": "W3",
         "plannedDay": 9,
-        "startHour": 211,
-        "finishHour": 216,
+        "startHour": 213,
+        "finishHour": 218,
         "targetByHour": 216,
-        "lateToDailyTargetHours": 0
-      },
-      {
-        "taskId": "D05",
-        "worker": "W6",
-        "plannedDay": 9,
-        "startHour": 216,
-        "finishHour": 219,
-        "targetByHour": 216,
-        "lateToDailyTargetHours": 3
+        "lateToDailyTargetHours": 2
       },
       {
         "taskId": "P01",
@@ -880,6 +913,15 @@
         "finishHour": 220,
         "targetByHour": 240,
         "lateToDailyTargetHours": 0
+      },
+      {
+        "taskId": "D05",
+        "worker": "W6",
+        "plannedDay": 9,
+        "startHour": 218,
+        "finishHour": 221,
+        "targetByHour": 216,
+        "lateToDailyTargetHours": 5
       },
       {
         "taskId": "P03",

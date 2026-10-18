@@ -483,7 +483,24 @@ task('I13','W3',8,4,'Web: trang Luyện tập và Đề trộn nối API thật'
  'apps/web/|packages/ui/',
  'Học viên tạo bài luyện 10 câu theo bộ lọc, làm, xem đáp án ngay và tiếp tục bài dở trên staging|Học viên tạo đề trộn từ hai kỳ thi, làm và chia sẻ link; người nhận mở được|apps/web không còn import exam-fixtures ngoài thư mục test|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:web|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
-task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I11 I12 I13 I09 I03 I04 I05 I06',
+# Found on staging logs 2026-10-19 while I03/I04 ran: I07 may only touch tests/ and docs, so fixes go first.
+task('I14','W5',8,2,'API: sửa lỗi 500 ở /api/v1/datasets/jlpt-official/*','I01',
+ 'Trên staging, GET /api/v1/datasets/jlpt-official/trends, /vocabulary, /grammar, /compare/levels trả 500 '
+ '("Failed query: select id, name, version, license_id ..."): bảng hoặc migration của dataset không khớp schema. '
+ 'Trang thống kê tần suất của web (apps/web/features/corpus) gọi các API này. Tìm nguyên nhân (thiếu migration, thiếu cột, thiếu dữ liệu seed), '
+ 'sửa để trả dữ liệu thật hoặc danh sách rỗng hợp lệ khi chưa có dataset; không trả 500.',
+ 'apps/api/src/modules/vocab/|apps/api/src/db/',
+ 'Trên staging sau khi seed demo, cả 4 API trên trả 200 với dữ liệu thật hoặc rỗng hợp lệ|Test API cho trường hợp chưa có dataset và đã có dataset|'+REAL_E2E,
+ 'pnpm test',contracts='API',grants='apps/api/src/db/ tests/playwright/')
+task('I15','W4',8,2,'Quản trị: phiên hết hạn phải đưa về trang đăng nhập','I03 I12',
+ 'Sau I03, apps/admin/lib/auth-context.tsx không xóa phiên lưu trong trình duyệt khi GET /api/v1/auth/session trả 200 với user = null '
+ '(phiên hết hạn hoặc đã đăng xuất ở nơi khác), nên giao diện vẫn hiện như đã đăng nhập trong khi mọi API trả 401. '
+ 'Xử lý: user null hoặc API trả 401 thì xóa phiên và đưa về /login kèm thông báo; bỏ móc test window.__setAdminLocale và DEFAULT_AUTH_CONTEXT '
+ 'giả nếu không cần (useAdminAuth ngoài provider phải báo lỗi rõ).',
+ 'apps/admin/',
+ 'E2E: đăng nhập nhân sự, tải lại trang vẫn đăng nhập|E2E: xóa phiên phía máy chủ (đăng xuất ở tab khác) rồi tải lại hoặc thao tác thì về trang đăng nhập|'+NO_MOCK+'|'+REAL_E2E,
+ 'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
+task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I11 I12 I13 I09 I03 I04 I05 I06 I14 I15',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',
  'tests/integration/mock-ui-baseline.json rỗng; CI fail nếu có dữ liệu giả mới|E2E đăng nhập học viên và nhân sự rồi đi qua mọi trang web/admin, fail nếu bất kỳ request API nào trả 5xx hoặc trang hiện key dịch thô|E2E: học viên đăng ký -> làm đề -> xem điểm; editor nhập -> reviewer duyệt -> xuất bản; admin xem người dùng và audit; tất cả trên staging thật|docs/release/INTEGRATION_REPORT.md liệt kê từng trang và bằng chứng E2E',
@@ -572,7 +589,7 @@ task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05 D05',
 
 # Staging E2E on jlpt-vm (same suite as CI) is a required check for tasks that touch the UI or APIs it uses.
 for _t in TASKS:
-    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','D02','D03','D04','P03','P04','P05'}:
+    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','D02','D03','D04','P03','P04','P05'}:
         _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check')
     # Per-task runs cover Chromium + Mobile Safari; final acceptance runs every browser.
     if _t['id'] in {'I07','D05','P06'}:
