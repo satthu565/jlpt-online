@@ -1,4 +1,10 @@
 import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+
+const effectiveEnv = {
+  ...process.env,
+  ...(fs.existsSync('/dev/shm') ? { TMPDIR: process.env.TMPDIR || '/dev/shm' } : {}),
+};
 
 const TARGET_HOST = process.env.API_BASE_URL || 'http://127.0.0.1:4000';
 const TOKENS_TO_CLEAN = ['tok_student_verified', 'tok_other_student'];
@@ -64,7 +70,7 @@ async function main(): Promise<void> {
   try {
     const buildResult = spawnSync('pnpm', ['exec', 'turbo', 'run', 'build'], {
       stdio: 'inherit',
-      env: process.env,
+      env: effectiveEnv,
     });
     if (buildResult.status !== 0) {
       exitCode = buildResult.status ?? (buildResult.error ? 1 : 0);
@@ -74,7 +80,7 @@ async function main(): Promise<void> {
         ['exec', 'turbo', 'run', 'test', '--concurrency=2'],
         {
           stdio: 'inherit',
-          env: process.env,
+          env: effectiveEnv,
         },
       );
       exitCode = testResult.status ?? (testResult.error ? 1 : 0);

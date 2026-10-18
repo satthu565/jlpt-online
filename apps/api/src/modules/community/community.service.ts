@@ -10,6 +10,7 @@ import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
+import { isUuid } from '../../common/pipes/uuid-param.pipe.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
 import type {
   PostDiscussionCommentDto,
@@ -85,6 +86,13 @@ export class CommunityService {
    * Asserts that user has completed at least one exam attempt containing questionId
    */
   async assertQuestionCompleted(questionId: string, user: AuthUserContext) {
+    if (!isUuid(questionId)) {
+      throw new BadRequestException({
+        code: 'INVALID_UUID',
+        message: 'Mã câu hỏi không đúng định dạng UUID.',
+      });
+    }
+
     if (user.role === 'admin' || user.role === 'moderator') {
       return;
     }
@@ -126,6 +134,74 @@ export class CommunityService {
           'Bạn chỉ có thể xem và tham gia thảo luận sau khi đã hoàn thành một bài thi có chứa câu hỏi này (và kết quả sự kiện thi đã được công bố).',
       });
     }
+  }
+
+  /**
+   * Danh sách câu hỏi khả dụng để thảo luận (đã hoàn thành hoặc tài khoản quản trị)
+   */
+  async listDiscussableQuestions(user?: AuthUserContext) {
+    if (!user) {
+      return { items: [] };
+    }
+
+    if (user.role === 'admin' || user.role === 'moderator') {
+      const rows = await this.client.db
+        .select({
+          id: schema.questions.id,
+          stem: schema.questionVersions.stem,
+          level: schema.questions.level,
+        })
+        .from(schema.questions)
+        .leftJoin(
+          schema.questionVersions,
+          eq(schema.questions.id, schema.questionVersions.questionId),
+        )
+        .where(isNull(schema.questions.deletedAt))
+        .limit(20);
+      return { items: rows };
+    }
+
+    const serverNow = new Date();
+    const rows = await this.client.db
+      .select({
+        id: schema.examItems.questionId,
+        stem: schema.questionVersions.stem,
+        level: schema.questions.level,
+      })
+      .from(schema.examAttempts)
+      .innerJoin(
+        schema.examItems,
+        eq(schema.examAttempts.examId, schema.examItems.examId),
+      )
+      .innerJoin(
+        schema.questions,
+        eq(schema.examItems.questionId, schema.questions.id),
+      )
+      .leftJoin(
+        schema.questionVersions,
+        eq(schema.questions.id, schema.questionVersions.questionId),
+      )
+      .leftJoin(
+        schema.eventAttempts,
+        eq(schema.eventAttempts.attemptId, schema.examAttempts.id),
+      )
+      .leftJoin(
+        schema.examEvents,
+        eq(schema.examEvents.id, schema.eventAttempts.eventId),
+      )
+      .where(
+        and(
+          eq(schema.examAttempts.userId, user.userId),
+          eq(schema.examAttempts.status, 'submitted'),
+          or(
+            isNull(schema.eventAttempts.id),
+            lte(schema.examEvents.resultReleaseAt, serverNow),
+          ),
+        ),
+      )
+      .limit(20);
+
+    return { items: rows };
   }
 
   /**
@@ -280,6 +356,13 @@ export class CommunityService {
     user: AuthUserContext,
     input: ReportCommentDto,
   ) {
+    if (!isUuid(commentId)) {
+      throw new BadRequestException({
+        code: 'INVALID_UUID',
+        message: 'Mã bình luận không đúng định dạng UUID.',
+      });
+    }
+
     if (!input.reason || input.reason.trim().length === 0) {
       throw new BadRequestException({
         code: 'VALIDATION_ERROR',
@@ -332,6 +415,13 @@ export class CommunityService {
    * Xóa bình luận của mình hoặc do điều hành viên xóa
    */
   async deleteComment(commentId: string, user: AuthUserContext) {
+    if (!isUuid(commentId)) {
+      throw new BadRequestException({
+        code: 'INVALID_UUID',
+        message: 'Mã bình luận không đúng định dạng UUID.',
+      });
+    }
+
     const [comment] = await this.client.db
       .select()
       .from(schema.comments)
@@ -414,6 +504,13 @@ export class CommunityService {
     input: ResolveCommunityReportDto,
   ) {
     this.assertModeratorOrAdmin(user);
+
+    if (!isUuid(reportId)) {
+      throw new BadRequestException({
+        code: 'INVALID_UUID',
+        message: 'Mã báo cáo không đúng định dạng UUID.',
+      });
+    }
 
     const [report] = await this.client.db
       .select()

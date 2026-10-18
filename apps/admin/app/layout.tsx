@@ -4,8 +4,8 @@ import { AdminAuthProvider } from '../lib/auth-context';
 import { AdminNavigation } from '../lib/admin-nav';
 
 export const metadata = {
-  title: 'JLPT Admin Portal',
-  description: 'Hệ thống quản trị và kiểm duyệt đề thi JLPT',
+  title: 'JLPT Online - Admin Portal',
+  description: 'Hệ thống Quản trị & Điều hành JLPT Toàn diện',
 };
 
 export default function RootLayout({
@@ -15,32 +15,19 @@ export default function RootLayout({
 }): React.JSX.Element {
   return (
     <html lang="vi">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </head>
       <body
+        className="bg-gray-50 text-gray-900 min-h-screen antialiased overflow-x-hidden font-sans"
         style={{
           margin: 0,
           padding: 0,
           fontFamily:
             '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-          background: '#f9fafb',
-          color: '#111827',
-          minHeight: '100vh',
         }}
       >
         <AdminAuthProvider>
-          <div style={{ display: 'flex', minHeight: '100vh' }}>
+          <div className="flex min-h-screen w-full max-w-full overflow-x-hidden">
             <AdminNavigation />
-            <main
-              style={{
-                flex: 1,
-                minWidth: 0,
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
+            <main className="flex-1 min-w-0 flex flex-col pt-14 md:pt-0 overflow-x-hidden w-full max-w-full">
               {children}
             </main>
           </div>

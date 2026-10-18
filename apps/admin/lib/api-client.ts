@@ -12,7 +12,13 @@ import {
 } from './totp';
 import { generateQrMatrix } from './qrcode';
 
-export type GuardErrorCode = 'UNAUTHENTICATED' | 'TWO_FACTOR_REQUIRED' | 'FORBIDDEN' | 'VALIDATION_ERROR' | 'NETWORK_ERROR';
+export type GuardErrorCode =
+  | 'UNAUTHENTICATED'
+  | 'TWO_FACTOR_REQUIRED'
+  | 'INVALID_RECOVERY_CODE'
+  | 'FORBIDDEN'
+  | 'VALIDATION_ERROR'
+  | 'NETWORK_ERROR';
 
 export class AdminClientGuardError extends Error {
   public readonly code: GuardErrorCode;
@@ -32,9 +38,10 @@ export interface AdminApiClientOptions {
   baseUrl?: string;
   adminHost?: string;
   token?: string | null;
+  totpCode?: string | null;
   user?: StaffUser | null;
   fetchFn?: typeof fetch;
-  mode?: 'real' | 'mock';
+  mode?: string;
 }
 
 export interface Setup2faResponse {
@@ -49,26 +56,32 @@ export class AdminApiClient {
   private baseUrl: string;
   private adminHost: string;
   private token: string | null;
+  private totpCode: string | null;
   private user: StaffUser | null;
-  private fetchFn: typeof fetch;
-  private mode: 'real' | 'mock';
+  private fetchFn?: typeof fetch;
+  private mode: string;
 
-  // In-memory mock store for offline development and local unit verification
-  private mockHashedRecoveryCodes: string[] = [];
-  private mockActiveSecret: string | null = null;
+  // In-memory credential store for 2FA enrollment verification in unit tests
+  private activeRecoveryHashes: string[] = [];
+  private activeTotpSecret: string | null = null;
 
   constructor(options: AdminApiClientOptions = {}) {
     this.baseUrl = (options.baseUrl || process.env.API_INTERNAL_URL || 'http://localhost:4000').replace(/\/$/, '');
     this.adminHost = options.adminHost || process.env.ADMIN_HOST || 'admin.jlpt.local';
     this.token = options.token ?? null;
+    this.totpCode = options.totpCode ?? null;
     this.user = options.user ?? null;
-    this.fetchFn = options.fetchFn ?? (typeof fetch !== 'undefined' ? fetch : (async () => { throw new Error('fetch not available'); }) as unknown as typeof fetch);
-    this.mode = options.mode ?? 'real';
+    this.fetchFn = options.fetchFn;
+    this.mode = options.mode || 'network';
   }
 
   public setAuth(user: StaffUser | null, token: string | null): void {
     this.user = user;
     this.token = token;
+  }
+
+  public setUser(user: StaffUser | null): void {
+    this.user = user;
   }
 
   public getUser(): StaffUser | null {
@@ -77,6 +90,14 @@ export class AdminApiClient {
 
   public getToken(): string | null {
     return this.token;
+  }
+
+  public setTotpCode(code: string | null): void {
+    this.totpCode = code;
+  }
+
+  public getTotpCode(): string | null {
+    return this.totpCode;
   }
 
   /**
@@ -145,12 +166,17 @@ export class AdminApiClient {
       headers['Authorization'] = `Bearer ${this.token}`;
     }
 
+    if (this.totpCode) {
+      headers['x-totp-code'] = this.totpCode;
+    }
+
     let res: Response;
     try {
-      res = await this.fetchFn(url, {
+      res = await (this.fetchFn ?? fetch)(url, {
         method,
         headers,
         body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+        credentials: 'include',
       });
     } catch (err: unknown) {
       throw new AdminClientGuardError('NETWORK_ERROR', (err as Error).message || 'Lỗi kết nối tới máy chủ.', 500);
@@ -187,7 +213,7 @@ export class AdminApiClient {
       throw new AdminClientGuardError('FORBIDDEN', 'Chỉ tài khoản nhân sự mới được phép đăng nhập.', 403);
     }
 
-    const token = `admin_tok_${Date.now()}`;
+    const token = `sess_staff_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const staffUser: StaffUser = {
       id: `usr_${Date.now()}`,
       email,
@@ -207,6 +233,60 @@ export class AdminApiClient {
     };
   }
 
+  public async loginWithPassword(
+    email: string,
+    password: string,
+  ): Promise<{ user: StaffUser; token: string; nextStep: 'dashboard' | 'setup_2fa' | 'verify_2fa' }> {
+    const url = `${this.baseUrl}/api/v1/auth/sign-in/email`;
+    const res = await (this.fetchFn ?? fetch)(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+      credentials: 'include',
+    });
+
+    if (!res.ok) {
+      let errJson: { error?: { code?: string; message?: string }; message?: string } = {};
+      try {
+        errJson = (await res.json()) as typeof errJson;
+      } catch {
+        // Non-json response
+      }
+      throw new AdminClientGuardError(
+        (errJson.error?.code as GuardErrorCode) || 'UNAUTHENTICATED',
+        errJson.message || errJson.error?.message || 'Sai địa chỉ email hoặc mật khẩu không chính xác.',
+        res.status,
+      );
+    }
+
+    const data = (await res.json()) as {
+      user: { id: string; email: string; name?: string | null; role: Role; emailVerified: boolean; twoFactorEnabled?: boolean };
+      session: { id: string; token: string; twoFactorVerified?: boolean };
+    };
+
+    if (!isStaffRole(data.user.role)) {
+      throw new AdminClientGuardError('FORBIDDEN', 'Chỉ tài khoản nhân sự mới được phép đăng nhập.', 403);
+    }
+
+    const staffUser: StaffUser = {
+      id: data.user.id,
+      email: data.user.email,
+      name: data.user.name ?? data.user.email.split('@')[0] ?? 'Staff',
+      role: data.user.role,
+      twoFactorEnabled: true,
+      twoFactorStatus: 'challenge_required',
+    };
+
+    this.user = staffUser;
+    this.token = data.session.token;
+
+    return {
+      user: staffUser,
+      token: data.session.token,
+      nextStep: 'verify_2fa',
+    };
+  }
+
   public initiate2faSetup(): Setup2faResponse {
     if (!this.user || !this.token) {
       throw new AdminClientGuardError('UNAUTHENTICATED', 'Yêu cầu đăng nhập trước khi thiết lập 2FA.', 401);
@@ -222,8 +302,8 @@ export class AdminApiClient {
     const recoveryCodes = generateRecoveryCodes(8);
     const qrResult = generateQrMatrix(otpauthUri);
 
-    this.mockActiveSecret = secret;
-    this.mockHashedRecoveryCodes = recoveryCodes.map(hashRecoveryCode);
+    this.activeTotpSecret = secret;
+    this.activeRecoveryHashes = recoveryCodes.map(hashRecoveryCode);
 
     return {
       secret,
@@ -241,7 +321,7 @@ export class AdminApiClient {
 
     const isValid = verifyTotp(code, secret);
     if (!isValid) {
-      throw new AdminClientGuardError('VALIDATION_ERROR', 'Mã xác thực 6 số không chính xác.', 400);
+      throw new AdminClientGuardError('VALIDATION_ERROR', 'Mã xác thực không hợp lệ.', 400);
     }
 
     this.user = {
@@ -253,60 +333,86 @@ export class AdminApiClient {
     return true;
   }
 
-  public verify2faChallenge(secret: string, code: string): boolean {
+  public async verify2faChallenge(code: string): Promise<{ success: boolean; verified: boolean }>;
+  public verify2faChallenge(secret: string, code: string): boolean;
+  public verify2faChallenge(
+    first: string,
+    second?: string,
+  ): boolean | Promise<{ success: boolean; verified: boolean }> {
     if (!this.user || !this.token) {
       throw new AdminClientGuardError('UNAUTHENTICATED', 'Phiên làm việc không hợp lệ.', 401);
     }
 
-    const isValid = verifyTotp(code, secret);
-    if (!isValid) {
-      throw new AdminClientGuardError('VALIDATION_ERROR', 'Mã xác thực không hợp lệ.', 400);
+    if (second !== undefined) {
+      const isValid = verifyTotp(second, first);
+      if (!isValid) {
+        throw new AdminClientGuardError('TWO_FACTOR_REQUIRED', 'Mã xác thực không hợp lệ.', 403);
+      }
+
+      this.user = {
+        ...this.user,
+        twoFactorStatus: 'verified',
+      };
+
+      return true;
     }
 
-    this.user = {
-      ...this.user,
-      twoFactorStatus: 'verified',
-    };
-
-    return true;
+    return this.request<{ success: boolean; verified: boolean }>('POST', '/api/v1/auth/totp/challenge', {
+      body: { code: first },
+      headers: { 'x-totp-code': first },
+      skipGuard: true,
+    }).then((res) => {
+      this.user = {
+        ...this.user!,
+        twoFactorStatus: 'verified',
+      };
+      this.totpCode = first;
+      return res;
+    });
   }
 
-  public verifyRecoveryCode(code: string): boolean {
+  public verifyRecoveryCode(code: string): boolean | Promise<{ success: boolean; verified: boolean }> {
     if (!this.user || !this.token) {
       throw new AdminClientGuardError('UNAUTHENTICATED', 'Phiên làm việc không hợp lệ.', 401);
     }
 
-    const result = verifyAndConsumeRecoveryCode(code, this.mockHashedRecoveryCodes);
-    if (!result.valid) {
-      throw new AdminClientGuardError('VALIDATION_ERROR', 'Mã khôi phục không hợp lệ hoặc đã qua sử dụng.', 400);
+    if (this.activeRecoveryHashes && this.activeRecoveryHashes.length > 0) {
+      const result = verifyAndConsumeRecoveryCode(code, this.activeRecoveryHashes);
+      if (!result.valid) {
+        throw new AdminClientGuardError('INVALID_RECOVERY_CODE', 'Mã khôi phục không hợp lệ hoặc đã qua sử dụng.', 403);
+      }
+
+      this.activeRecoveryHashes = result.remainingHashedCodes;
+      this.user = {
+        ...this.user,
+        twoFactorStatus: 'verified',
+      };
+
+      return true;
     }
 
-    this.mockHashedRecoveryCodes = result.remainingHashedCodes;
-    this.user = {
-      ...this.user,
-      twoFactorStatus: 'verified',
-    };
-
-    return true;
+    return this.request<{ success: boolean; verified: boolean }>('POST', '/api/v1/auth/totp/recovery', {
+      body: { code },
+      skipGuard: true,
+    }).then((res) => {
+      this.user = {
+        ...this.user!,
+        twoFactorStatus: 'verified',
+      };
+      return res;
+    });
   }
 
   // --- Domain Methods (Protected by UI Guard) ---
 
-  public async listQuestions(query?: Record<string, string>): Promise<{ items: unknown[] }> {
-    return this.request<{ items: unknown[] }>('GET', '/api/v1/admin/groups', {
-      requiredRoles: ['editor', 'admin'],
-      headers: query ? { 'X-Query': JSON.stringify(query) } : undefined,
+  public async listQuestions(): Promise<{ items: unknown[] }> {
+    return this.request<{ items: unknown[] }>('GET', '/api/v1/admin/questions', {
+      requiredRoles: ['editor', 'reviewer', 'admin'],
     });
   }
 
-  public async getQuestionGroup(id: string): Promise<unknown> {
-    return this.request('GET', `/api/v1/admin/groups/${encodeURIComponent(id)}`, {
-      requiredRoles: ['editor', 'admin'],
-    });
-  }
-
-  public async createQuestionGroup(data: unknown): Promise<{ id: string; success: boolean }> {
-    return this.request<{ id: string; success: boolean }>('POST', '/api/v1/admin/groups', {
+  public async createQuestionGroup(data: unknown): Promise<{ id: string }> {
+    return this.request<{ id: string }>('POST', '/api/v1/admin/groups', {
       requiredRoles: ['editor', 'admin'],
       body: data,
     });
@@ -452,9 +558,94 @@ export class AdminApiClient {
     });
   }
 
-  // --- Mock Request Dispatcher ---
+  public async getDashboard(): Promise<{
+    metrics: {
+      totalUsers: number;
+      totalExams: number;
+      overallCompletionRate: number;
+      openReportsCount: number;
+      grossRevenueVnd: number;
+      activeDau: number;
+    };
+    activities: Array<{ id: string; title: string; time: string; type: string }>;
+  }> {
+    return this.request('GET', '/api/v1/admin/dashboard');
+  }
+
+  public async getNotificationSettings(): Promise<{
+    items: Array<{
+      id: string;
+      key: string;
+      name: string;
+      channel: 'email' | 'in_app' | 'push';
+      subject: string;
+      bodyTemplate: string;
+      isActive: boolean;
+      variables: string[];
+    }>;
+  }> {
+    return this.request('GET', '/api/v1/admin/settings/notifications');
+  }
+
+  public async updateNotificationTemplate(
+    id: string,
+    data: Record<string, unknown>,
+  ): Promise<{ success: boolean; item: unknown }> {
+    return this.request('PATCH', `/api/v1/admin/settings/notifications/${encodeURIComponent(id)}`, {
+      requiredRoles: ['admin'],
+      body: data,
+    });
+  }
+
+  public async getOrgSettings(): Promise<{
+    applications: Array<{
+      id: string;
+      applicantName: string;
+      email: string;
+      currentOrg: string;
+      jlptCertificate: string;
+      yearsOfExperience: number;
+      status: 'pending' | 'approved' | 'rejected';
+      appliedAt: string;
+    }>;
+    organizations: unknown[];
+  }> {
+    return this.request('GET', '/api/v1/admin/settings/org');
+  }
+
+  public async approveTeacherApplication(id: string): Promise<{ success: boolean }> {
+    return this.request('POST', `/api/v1/admin/settings/org/${encodeURIComponent(id)}/approve`, {
+      requiredRoles: ['admin'],
+    });
+  }
+
+  public async rejectTeacherApplication(id: string): Promise<{ success: boolean }> {
+    return this.request('POST', `/api/v1/admin/settings/org/${encodeURIComponent(id)}/reject`, {
+      requiredRoles: ['admin'],
+    });
+  }
+
+  public async getBackupJobs(): Promise<{ items: unknown[] }> {
+    return this.request('GET', '/api/v1/admin/settings/backup/jobs', {
+      requiredRoles: ['admin'],
+    });
+  }
+
+  public async triggerBackupJob(
+    jobType: string,
+    configSnapshot?: Record<string, string>,
+  ): Promise<{ success: boolean; job: unknown }> {
+    return this.request('POST', '/api/v1/admin/settings/backup/jobs', {
+      requiredRoles: ['admin'],
+      body: {
+        jobType,
+        ...(configSnapshot ? { configSnapshot } : {}),
+      },
+    });
+  }
+
   private handleMockRequest<T>(_method: string, path: string, _body?: unknown): T {
-    if (path.includes('/groups')) {
+    if (path.includes('/groups') || path.includes('/questions')) {
       return { items: [{ id: 'grp_01', title: 'Mondai 1 Kanji Reading', status: 'draft' }] } as T;
     }
     if (path.includes('/reviews')) {
