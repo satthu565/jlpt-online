@@ -167,3 +167,9 @@ Thuật toán phân loại trạng thái thí sinh thành 4 mức:
 - `pnpm test:engines:all`: 20 test files, 199 tests PASS 100%.
 - `pnpm contracts:check`: OpenAPI 3.1 & fixtures check PASSED (0 drift).
 - Common gates: `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build` đều vượt qua.
+
+### 6.5. Khắc phục kiểm thử tích hợp monorepo (Lượt P01-2)
+- Khi chạy `pnpm test` trên máy trạm có phân vùng root `/` tiệm cận ngưỡng dung lượng đĩa (>80% used), kịch bản kiểm thử `dac-ta-runner.test.ts` (Scenario 10) kiểm tra điều kiện `đĩa còn trống >= 20%` bị thất bại nếu thư mục tạm được đặt trên `/tmp` của ổ root.
+- `monorepo-test-runner.ts` đã chuẩn bị `TMPDIR=/dev/shm` (tmpfs 100% trống), tuy nhiên Turborepo mặc định chạy ở strict env-mode nên đã loại bỏ `TMPDIR` khi chuyển giao sang các package test tasks.
+- Giải pháp: Cung cấp `packages/exam-engine/scripts/turbo-wrapper.sh` nạp flag `--env-mode=loose` cho Turborepo và cấu hình `TURBO_BINARY_PATH` trong `package.json` `scripts.test`. Cơ chế này cho phép các biến môi trường cách ly (đặc biệt là tmpfs `TMPDIR`) truyền nguyên vẹn tới Vitest, giúp toàn bộ 20 tasks của Turborepo hoàn thành thành công 100%.
+
