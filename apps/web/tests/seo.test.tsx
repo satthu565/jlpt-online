@@ -166,7 +166,7 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
       expect(html).toContain('data-testid="create-study-list-btn"');
       expect(html).toContain('data-testid="export-csv-btn"');
       expect(html).toContain('data-testid="export-excel-btn"');
-      expect(html).toContain('/export?format=csv');
+      expect(html).not.toContain('jlpt-official');
       expect(html).toContain('data-testid="cross-level-list"');
       expect(html).toContain('data-testid="yearly-trends-list"');
     });

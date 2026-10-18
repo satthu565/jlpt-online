@@ -566,10 +566,10 @@ test.describe('I11: No 500 errors from hardcoded IDs in vocab, grammar, discussi
     expect(serverErrors, `Detected 5xx server errors: ${JSON.stringify(serverErrors)}`).toHaveLength(0);
   });
 
-  test('I11-AC2: API routes reject invalid (non-UUID) IDs with 400 or 404, never 500', async ({
+  test('I11-AC2: API routes reject invalid (non-UUID) IDs with 400 Bad Request (INVALID_UUID), never 500', async ({
     request,
   }, testInfo) => {
-    const apiBaseUrl = process.env.API_BASE_URL || 'http://127.0.0.1:4000';
+    const apiBaseUrl = process.env.STAGING_API_URL || process.env.API_BASE_URL || 'http://127.0.0.1:4000';
     const clientIp = getProjectClientIp(testInfo, 51);
     const ipHeaders = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
 
@@ -588,19 +588,39 @@ test.describe('I11: No 500 errors from hardcoded IDs in vocab, grammar, discussi
       }
     }
 
-    // 1. Invalid dataset ID 'jlpt-official' must return 400 or 404, NEVER 500
-    const datasetRes = await request.get(`${apiBaseUrl}/api/v1/datasets/jlpt-official/terms`, {
-      headers: ipHeaders,
-    });
-    expect([400, 404]).toContain(datasetRes.status());
-    expect(datasetRes.status()).not.toBe(500);
+    // Authenticate demo student to test authenticated route validation
+    let authHeaders: Record<string, string> = { ...ipHeaders };
+    try {
+      const studentAuth = await authenticateStaffAccount(
+        SEEDED_STAFF_ACCOUNTS.student,
+        apiBaseUrl,
+        clientIp,
+      );
+      if (studentAuth?.token) {
+        authHeaders = {
+          ...ipHeaders,
+          authorization: `Bearer ${studentAuth.token}`,
+        };
+      }
+    } catch {
+      // In staging CI, seeded student account is guaranteed
+    }
 
-    // 2. Invalid question ID 'q-default-1' must return 400 or 404, NEVER 500
-    const discussionRes = await request.get(`${apiBaseUrl}/api/v1/questions/q-default-1/discussions`, {
-      headers: ipHeaders,
+    // 1. Invalid dataset ID 'jlpt-official' must return 400 Bad Request with INVALID_UUID, NEVER 500
+    const datasetRes = await request.get(`${apiBaseUrl}/api/v1/datasets/jlpt-official/vocabulary`, {
+      headers: authHeaders,
     });
-    expect([400, 401, 403, 404]).toContain(discussionRes.status());
-    expect(discussionRes.status()).not.toBe(500);
+    expect(datasetRes.status()).toBe(400);
+    const datasetBody = (await datasetRes.json()) as { error?: { code?: string } };
+    expect(datasetBody?.error?.code).toBe('INVALID_UUID');
+
+    // 2. Invalid question ID 'q-default-1' must return 400 Bad Request with INVALID_UUID, NEVER 500
+    const discussionRes = await request.get(`${apiBaseUrl}/api/v1/questions/q-default-1/discussions`, {
+      headers: authHeaders,
+    });
+    expect(discussionRes.status()).toBe(400);
+    const discussionBody = (await discussionRes.json()) as { error?: { code?: string } };
+    expect(discussionBody?.error?.code).toBe('INVALID_UUID');
   });
 });
 

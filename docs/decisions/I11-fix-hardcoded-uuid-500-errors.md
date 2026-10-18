@@ -16,18 +16,19 @@ Trên bản demo sau I06, các trang `/tu-vung`, `/ngu-phap`, và `/thao-luan` g
    - Bổ sung kiểm tra `isUuid` tại tầng service (`CorpusService`, `CommunityService`) như lớp bảo vệ thứ hai.
 
 2. **Khởi tạo dữ liệu tập ngữ liệu chuẩn (Corpus Dataset)**:
-   - Trong `CorpusService.listDatasets()`, nếu hệ thống chưa có dataset nào, tự động khởi tạo tập ngữ liệu chuẩn `018e0000-0000-7000-8000-0000000000d1` ("Tập ngữ liệu đề thi JLPT N1–N5") với UUID hợp lệ.
+   - Trong `CorpusService`, khai báo hằng số định danh chuẩn `DEFAULT_CORPUS_DATASET_ID` (`018e0000-0000-7000-8000-0000000000d1`) cho tập ngữ liệu "Tập ngữ liệu đề thi JLPT N1–N5" với UUIDv7 hợp lệ thay vì viết số cứng vô danh trong thân hàm.
 
 3. **Giao diện Web (`apps/web`)**:
    - `CorpusClient`: Thêm phương thức `listDatasets()` gọi `GET /api/v1/datasets`. Bỏ toàn bộ giá trị mặc định viết cứng `jlpt-official`.
    - `VocabExplorer` (`/tu-vung`): Bỏ hoàn toàn hằng số `DEFAULT_VOCAB_TERMS`. Trạng thái khởi tạo là mảng rỗng `[]`. Tự động gọi `listDatasets()` để lấy `datasetId` thật dạng UUID, sau đó gọi `getVocabulary(datasetId, level)`.
    - `GrammarExplorer` (`/ngu-phap`): Bỏ hoàn toàn hằng số `DEFAULT_GRAMMAR_PATTERNS`. Trạng thái khởi tạo là mảng rỗng `[]`. Lấy `datasetId` thật từ API danh sách dataset.
-   - `FrequencyStatsView` (`/thong-ke-tu-vung`): Bỏ toàn bộ mảng mẫu `DEFAULT_FREQUENCY_STATS`, `DEFAULT_LEVEL_COMPARISONS`, `DEFAULT_YEARLY_TRENDS`. Lấy `datasetId` thật từ API.
+   - `FrequencyStatsView` (`/thong-ke-tu-vung`): Bỏ toàn bộ mảng mẫu `DEFAULT_FREQUENCY_STATS`, `DEFAULT_LEVEL_COMPARISONS`, `DEFAULT_YEARLY_TRENDS`. Lấy `datasetId` thật từ API. Khi chưa tải xong `datasetId`, vô hiệu hóa liên kết xuất dữ liệu (`href={undefined}`) để router không nhầm lẫn đường dẫn `export` với tham số `:id`.
    - `DiscussionsPage` (`/thao-luan`): Bỏ hoàn toàn mã viết cứng `q-default-1`. Khởi tạo `questionId` là chuỗi rỗng `''`. Chỉ gọi API khi có `questionId` hợp lệ dạng UUID (từ URL param `?questionId=...` hoặc tự động phát hiện câu hỏi đã thi xong từ `/api/v1/me/attempts`). Khi người dùng nhập mã câu hỏi thủ công, kiểm tra định dạng UUID trước khi gửi yêu cầu.
 
 4. **Kiểm tra và kiểm thử**:
    - Thêm unit test cho `UuidParamPipe` kiểm tra các trường hợp UUID hợp lệ và không hợp lệ.
    - Thêm test API trong `vocab.test.ts` và `community.test.ts` xác nhận id sai định dạng trả 400/404, không bao giờ 500.
    - Thêm test web trong `apps/web/tests/i11-no-hardcoded-500.test.tsx` kiểm tra các component không dùng dữ liệu viết cứng và lấy ID thật.
-   - Thêm Playwright E2E test trong `tests/playwright/integration.spec.ts` xác nhận luồng người dùng trên 3 trang không có bất kỳ request API nào trả về 5xx.
+   - Thêm Playwright E2E test trong `tests/playwright/integration.spec.ts` xác nhận luồng người dùng trên 3 trang không có bất kỳ request API nào trả về 5xx, và route API có tham số ID (`/datasets/:id/vocabulary`, `/questions/:id/discussions`) với ID sai định dạng khi gửi kèm auth token của học viên demo bị từ chối chính xác bằng 400 Bad Request (`INVALID_UUID`).
+   - Revert mọi thay đổi ngoài phạm vi trên `package.json`, đảm bảo `package.json` giữ nguyên trạng thái gốc của repo.
    - Đảm bảo `pnpm check:no-mock-ui` và các cổng kiểm tra chung đều pass.

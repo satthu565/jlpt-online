@@ -52,6 +52,11 @@ import type {
 } from './vocab.types.js';
 import { VocabService } from './vocab.service.js';
 
+/**
+ * Mã định danh chuẩn cho tập ngữ liệu mặc định JLPT N1-N5 (RFC 9562 UUIDv7).
+ */
+export const DEFAULT_CORPUS_DATASET_ID = '018e0000-0000-7000-8000-0000000000d1';
+
 @Injectable()
 export class CorpusService {
   // In-memory corpus aggregators cached per datasetId
@@ -132,10 +137,9 @@ export class CorpusService {
     let rows = await this.dbClient.db.select().from(datasets);
 
     if (rows.length === 0) {
-      const defaultId = '018e0000-0000-7000-8000-0000000000d1';
       try {
         await this.createDataset({
-          id: defaultId,
+          id: DEFAULT_CORPUS_DATASET_ID,
           name: 'Tập ngữ liệu đề thi JLPT N1–N5',
           version: '1.0.0',
           source: 'Đề thi chính thức JLPT và Mẫu chuẩn hóa',

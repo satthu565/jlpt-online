@@ -140,8 +140,9 @@ export function FrequencyStatsView({
             </Button>
 
             <a
-              href={datasetId ? `/api/v1/datasets/${datasetId}/export?format=csv` : '/api/v1/datasets/export?format=csv'}
-              download="jlpt-frequent-vocabulary.csv"
+              href={datasetId ? `/api/v1/datasets/${datasetId}/export?format=csv` : undefined}
+              download={datasetId ? 'jlpt-frequent-vocabulary.csv' : undefined}
+              aria-disabled={!datasetId}
               style={{ textDecoration: 'none' }}
             >
               <Button
@@ -156,8 +157,9 @@ export function FrequencyStatsView({
             </a>
 
             <a
-              href={datasetId ? `/api/v1/datasets/${datasetId}/export?format=excel` : '/api/v1/datasets/export?format=excel'}
-              download="jlpt-frequent-vocabulary.xlsx"
+              href={datasetId ? `/api/v1/datasets/${datasetId}/export?format=excel` : undefined}
+              download={datasetId ? 'jlpt-frequent-vocabulary.xlsx' : undefined}
+              aria-disabled={!datasetId}
               style={{ textDecoration: 'none' }}
             >
               <Button
