@@ -512,6 +512,34 @@ test.describe('I11: No 500 errors from hardcoded IDs in vocab, grammar, discussi
     const clientIp = getProjectClientIp(testInfo, 50);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
+    // Authenticate as demo student on staging when credentials are available
+    const apiBaseUrl = process.env.STAGING_API_URL || process.env.API_BASE_URL || 'http://127.0.0.1:4000';
+    try {
+      const studentAuth = await authenticateStaffAccount(
+        SEEDED_STAFF_ACCOUNTS.student,
+        apiBaseUrl,
+        clientIp,
+      );
+      if (studentAuth?.token) {
+        let domain = '127.0.0.1';
+        try {
+          domain = new URL(baseURL).hostname;
+        } catch {
+          // ignore
+        }
+        await page.context().addCookies([
+          {
+            name: 'auth_token',
+            value: studentAuth.token,
+            domain,
+            path: '/',
+          },
+        ]);
+      }
+    } catch {
+      // If student account is unseeded, continue testing live pages in unauthenticated state
+    }
+
     // Track all responses to ensure no 5xx errors occur
     const serverErrors: Array<{ url: string; status: number }> = [];
     page.on('response', (response) => {
@@ -530,7 +558,9 @@ test.describe('I11: No 500 errors from hardcoded IDs in vocab, grammar, discussi
 
     // 3. Visit /thao-luan
     await page.goto('/thao-luan', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('input[placeholder*="câu hỏi" i], [data-testid="discussion-gated-card"]')).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.locator('input[placeholder*="câu hỏi" i], [data-testid="discussion-gated-card"]').first(),
+    ).toBeVisible({ timeout: 10000 });
 
     // Assert strictly no 5xx requests were triggered across all three pages
     expect(serverErrors, `Detected 5xx server errors: ${JSON.stringify(serverErrors)}`).toHaveLength(0);
