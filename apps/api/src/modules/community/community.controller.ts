@@ -19,6 +19,7 @@ import type {
   ShareAchievementDto,
 } from './community.types.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
+import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe.js';
 
 @Controller()
 export class CommunityController {
@@ -41,9 +42,14 @@ export class CommunityController {
   // GAME-08: Thảo luận về câu hỏi sau khi hoàn thành bài
   // ---------------------------------------------------------------------------
 
+  @Get('questions/discussions')
+  async listDiscussableQuestions(@CurrentUser() user?: AuthUserContext) {
+    return this.communityService.listDiscussableQuestions(user);
+  }
+
   @Get('questions/:id/discussions')
   async listQuestionDiscussions(
-    @Param('id') id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthUserContext,
   ) {
     return this.communityService.listQuestionDiscussions(id, user);
@@ -52,7 +58,7 @@ export class CommunityController {
   @Post('questions/:id/discussions')
   @HttpCode(HttpStatus.CREATED)
   async postQuestionComment(
-    @Param('id') id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthUserContext,
     @Body() body: PostDiscussionCommentDto,
   ) {
@@ -66,7 +72,7 @@ export class CommunityController {
   @Post('comments/:id/reports')
   @HttpCode(HttpStatus.OK)
   async reportComment(
-    @Param('id') id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthUserContext,
     @Body() body: ReportCommentDto,
   ) {
@@ -76,7 +82,7 @@ export class CommunityController {
   @Delete('comments/:id')
   @HttpCode(HttpStatus.OK)
   async deleteComment(
-    @Param('id') id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthUserContext,
   ) {
     return this.communityService.deleteComment(id, user);
@@ -91,7 +97,7 @@ export class CommunityController {
   @Roles('admin', 'moderator')
   @Patch('admin/community-reports/:id')
   async adminResolveCommunityReport(
-    @Param('id') id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthUserContext,
     @Body() body: ResolveCommunityReportDto,
   ) {
