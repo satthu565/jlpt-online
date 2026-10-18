@@ -1345,5 +1345,165 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
       expect(violations).toEqual([]);
     });
   });
+
+  describe('I12 Session Cookie & Reload Persistence (AC: /auth/session & guards)', () => {
+    let authService: AuthService;
+    let client: DbClientInstance;
+    let testUserToken: string;
+    let testUserCookie: string;
+    let testUserEmail: string;
+
+    beforeAll(async () => {
+      authService = app.get(AuthService);
+      client = await getOrCreateDbClient();
+      testUserEmail = `i12.test.${Date.now()}@jlpt.local`;
+      await authService.signUpEmail({
+        email: testUserEmail,
+        password: 'Password123!',
+        name: 'I12 Tester',
+      });
+      // verify email in db
+      await client.db
+        .update(schema.users)
+        .set({ emailVerified: true })
+        .where(eq(schema.users.email, testUserEmail));
+
+      const signInResult = await authService.signInEmail({
+        email: testUserEmail,
+        password: 'Password123!',
+      });
+      testUserToken = signInResult.session.token;
+      testUserCookie = `auth_token=${encodeURIComponent(testUserToken)}`;
+    });
+
+    it('Test API: /auth/session trả user khi chỉ có cookie hợp lệ', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/v1/auth/session',
+        headers: {
+          cookie: testUserCookie,
+        },
+      });
+
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.payload);
+      expect(body.user).toBeTruthy();
+      expect(body.user.email).toBe(testUserEmail);
+      expect(body.user.role).toBe('student');
+      expect(body.session).toBeTruthy();
+      expect(body.session.id).toBeTruthy();
+    });
+
+    it('Test API: /auth/session trả user khi có Bearer header hợp lệ', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/v1/auth/session',
+        headers: {
+          authorization: `Bearer ${testUserToken}`,
+        },
+      });
+
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.payload);
+      expect(body.user).toBeTruthy();
+      expect(body.user.email).toBe(testUserEmail);
+      expect(body.session).toBeTruthy();
+    });
+
+    it('Test API: /auth/session trả null khi cookie sai hoặc hết hạn', async () => {
+      // 1. Invalid cookie string
+      const resBadCookie = await app.inject({
+        method: 'GET',
+        url: '/api/v1/auth/session',
+        headers: {
+          cookie: 'auth_token=invalid_expired_token_value_xyz',
+        },
+      });
+
+      expect(resBadCookie.statusCode).toBe(200);
+      const bodyBad = JSON.parse(resBadCookie.payload);
+      expect(bodyBad.user).toBeNull();
+      expect(bodyBad.session).toBeNull();
+
+      // 2. Expired session in DB
+      const expiredToken = `tok_expired_${Date.now()}`;
+      const userRows = await client.db.select().from(schema.users).where(eq(schema.users.email, testUserEmail));
+      await client.db.insert(schema.sessions).values({
+        id: generateUuidV7(),
+        userId: userRows[0]!.id,
+        token: expiredToken,
+        expiresAt: new Date(Date.now() - 3600000), // 1 hour ago
+      });
+
+      const resExpired = await app.inject({
+        method: 'GET',
+        url: '/api/v1/auth/session',
+        headers: {
+          cookie: `auth_token=${expiredToken}`,
+        },
+      });
+      expect(resExpired.statusCode).toBe(200);
+      const bodyExpired = JSON.parse(resExpired.payload);
+      expect(bodyExpired.user).toBeNull();
+      expect(bodyExpired.session).toBeNull();
+    });
+
+    it('Test API: /auth/session trả null khi không có cookie hay header', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/v1/auth/session',
+      });
+
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.payload);
+      expect(body.user).toBeNull();
+      expect(body.session).toBeNull();
+    });
+
+    it('Đăng xuất qua cookie: xóa cookie Set-Cookie và vô hiệu hóa phiên', async () => {
+      const signInTemp = await authService.signInEmail({
+        email: testUserEmail,
+        password: 'Password123!',
+      });
+      const tempToken = signInTemp.session.token;
+
+      const logoutRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/sign-out',
+        headers: {
+          cookie: `auth_token=${tempToken}`,
+        },
+      });
+
+      expect(logoutRes.statusCode).toBe(200);
+      const logoutCookies = logoutRes.headers['set-cookie'];
+      expect(String(logoutCookies)).toContain('auth_token=');
+      expect(String(logoutCookies)).toContain('Max-Age=0');
+
+      // Session is invalidated
+      const checkRes = await app.inject({
+        method: 'GET',
+        url: '/api/v1/auth/session',
+        headers: {
+          cookie: `auth_token=${tempToken}`,
+        },
+      });
+      expect(checkRes.statusCode).toBe(200);
+      const checkBody = JSON.parse(checkRes.payload);
+      expect(checkBody.user).toBeNull();
+    });
+
+    it('Đăng xuất không có token: vẫn trả 200 và xóa cookie', async () => {
+      const logoutRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/sign-out',
+      });
+
+      expect(logoutRes.statusCode).toBe(200);
+      const logoutCookies = logoutRes.headers['set-cookie'];
+      expect(String(logoutCookies)).toContain('auth_token=');
+      expect(String(logoutCookies)).toContain('Max-Age=0');
+    });
+  });
 });
 
