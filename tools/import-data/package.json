@@ -6,10 +6,12 @@
   "description": "CLI kiểm tra và đóng gói dữ liệu import v2 cho đề thi JLPT",
   "bin": {
     "import-validate": "./bin/validate.js",
-    "import-pack": "./bin/pack.js"
+    "import-pack": "./bin/pack.js",
+    "import-hanviet": "./bin/import-hanviet.js"
   },
   "scripts": {
     "validate": "node ./bin/validate.js",
-    "pack": "node ./bin/pack.js"
+    "pack": "node ./bin/pack.js",
+    "import-hanviet": "node ./bin/import-hanviet.js"
   }
 }

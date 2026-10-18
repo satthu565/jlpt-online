@@ -10,3 +10,4 @@ export * from './tokenizer.js';
 export * from './corpus-aggregator.js';
 export * from './tagger.js';
 export * from './dictionary-adapter.js';
+export * from './hanviet.js';

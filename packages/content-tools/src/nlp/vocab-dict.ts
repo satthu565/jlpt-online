@@ -1,4 +1,5 @@
 import type { DictionaryEntry } from './types.js';
+import { getHanVietForWord } from './hanviet.js';
 
 export const DICTIONARY_LICENSE_INFO = {
   license: 'CC-BY-SA-4.0',
@@ -423,15 +424,37 @@ export const VOCAB_DATABASE: DictionaryEntry[] = [
     examples: ['特異な自然現象が観測された。'],
     license: DICTIONARY_LICENSE_INFO.license,
     attribution: DICTIONARY_LICENSE_INFO.attribution,
+    hanViet: 'HIỆN TƯỢNG',
+  },
+  {
+    id: 'v-n3-keizai',
+    term: '経済',
+    level: 'N3',
+    partOfSpeech: 'noun',
+    readings: ['けいざい'],
+    meanings: ['kinh tế', 'economy'],
+    examples: ['日本の経済について勉強しています。', '世界経済が急速に変化しています。'],
+    license: DICTIONARY_LICENSE_INFO.license,
+    attribution: DICTIONARY_LICENSE_INFO.attribution,
+    hanViet: 'KINH TẾ',
   },
 ];
 
 export function findDictionaryEntry(text: string): DictionaryEntry | undefined {
-  return VOCAB_DATABASE.find(
+  const entry = VOCAB_DATABASE.find(
     (e) => e.term === text || e.readings.includes(text) || e.id === text,
   );
+  if (!entry) return undefined;
+  const hanViet = entry.hanViet || getHanVietForWord(entry.term) || undefined;
+  return {
+    ...entry,
+    hanViet,
+  };
 }
 
 export function getAllDictionaryEntries(): DictionaryEntry[] {
-  return [...VOCAB_DATABASE];
+  return VOCAB_DATABASE.map((e) => ({
+    ...e,
+    hanViet: e.hanViet || getHanVietForWord(e.term) || undefined,
+  }));
 }
