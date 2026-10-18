@@ -1495,9 +1495,10 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Khóa tài nguyên: api-hardening.
 - Điều kiện ngoài chặn bắt đầu: không.
 - Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
-- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, apps/admin/lib/.
 - Nghiệm thu:
   - E2E: học viên đăng nhập, tải lại trang, chuyển sang /so-tay và /lop-hoc vẫn ở trạng thái đã đăng nhập; đăng xuất rồi tải lại thì về trạng thái khách.
+  - E2E admin: nhân sự đăng nhập bằng mật khẩu và TOTP, tải lại trang hoặc mở thẳng /users vẫn ở trạng thái đã đăng nhập (sau I09, admin gọi /auth/session với Bearer nhận user null và hiện "Phiên làm việc đã hết hạn").
   - Test API: /auth/session trả user khi chỉ có cookie hợp lệ, trả null khi cookie sai hoặc hết hạn.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:auth`
