@@ -125,7 +125,22 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
 
   describe('ADM-18: Cấu hình thông báo và email tự động', () => {
     it('hiển thị danh sách mẫu thông báo, trình chỉnh sửa template và nút gửi thử nghiệm', () => {
-      const html = renderWithAuth(<NotificationsSettingsPage />);
+      const html = renderWithAuth(
+        <NotificationsSettingsPage
+          initialTemplates={[
+            {
+              id: 'tpl-1',
+              key: 'auth_otp',
+              name: 'Mã xác thực OTP',
+              channel: 'email',
+              subject: 'Mã xác thực OTP JLPT',
+              bodyTemplate: 'Mã OTP của bạn là: {{otp_code}}',
+              isActive: true,
+              variables: ['otp_code'],
+            },
+          ]}
+        />,
+      );
 
       expect(html).toContain('Cấu hình Thông báo &amp; Email Tự động (ADM-18)');
       expect(html).toContain('data-testid="tpl-item-tpl-1"');
@@ -145,7 +160,22 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
     });
 
     it('OrgSettingsPage hiển thị hồ sơ ứng tuyển giáo viên và thao tác phê duyệt', () => {
-      const html = renderWithAuth(<OrgSettingsPage />);
+      const html = renderWithAuth(
+        <OrgSettingsPage
+          initialApplications={[
+            {
+              id: 'app-01',
+              applicantName: 'Nguyễn Văn A',
+              email: 'teacher.a@example.com',
+              currentOrg: 'Đại học Ngoại Ngữ',
+              jlptCertificate: 'N1 - 170/180',
+              yearsOfExperience: 5,
+              status: 'pending',
+              appliedAt: '2026-10-15T08:00:00Z',
+            },
+          ]}
+        />,
+      );
       expect(html).toContain('Cài đặt Tổ chức &amp; Hồ sơ Giáo viên');
       expect(html).toContain('data-testid="teacher-app-app-01"');
       expect(html).toContain('data-testid="btn-approve-teacher-app-01"');

@@ -7,7 +7,7 @@ import { t } from '../../lib/i18n';
 
 export default function Verify2faChallengePage(): React.JSX.Element {
   const router = useRouter();
-  const { user, verify2faChallenge, verifyRecoveryCode, locale } = useAdminAuth();
+  const { user, verify2faChallenge, verifyRecoveryCode, locale, error: authError } = useAdminAuth();
 
   const [totpCode, setTotpCode] = useState('');
   const [recoveryCode, setRecoveryCode] = useState('');
@@ -25,7 +25,6 @@ export default function Verify2faChallengePage(): React.JSX.Element {
         const clean = recoveryCode.trim();
         const success = await verifyRecoveryCode(clean);
         if (!success) {
-          setError(t('totp.invalidRecoveryCode', locale));
           setIsVerifying(false);
           return;
         }
@@ -33,7 +32,6 @@ export default function Verify2faChallengePage(): React.JSX.Element {
         const clean = totpCode.trim().replace(/\s+/g, '');
         const success = await verify2faChallenge(clean);
         if (!success) {
-          setError(t('totp.invalidCode', locale));
           setIsVerifying(false);
           return;
         }
@@ -45,6 +43,8 @@ export default function Verify2faChallengePage(): React.JSX.Element {
       setIsVerifying(false);
     }
   };
+
+  const activeError = error || authError;
 
   return (
     <div
@@ -82,7 +82,7 @@ export default function Verify2faChallengePage(): React.JSX.Element {
           </p>
         </div>
 
-        {error && (
+        {activeError && (
           <div
             role="alert"
             data-testid="challenge-error-alert"
@@ -96,7 +96,7 @@ export default function Verify2faChallengePage(): React.JSX.Element {
               fontSize: '0.875rem',
             }}
           >
-            {error}
+            {activeError}
           </div>
         )}
 

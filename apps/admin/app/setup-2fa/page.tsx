@@ -3,19 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuth } from '../../lib/auth-context';
-import {
-  generateBase32Secret,
-  formatSecret,
-  generateOtpAuthUri,
-  generateRecoveryCodes,
-  verifyTotp,
-} from '../../lib/totp';
-import { generateQrMatrix } from '../../lib/qrcode';
 import { t } from '../../lib/i18n';
 
 export default function Setup2faPage(): React.JSX.Element {
   const router = useRouter();
-  const { user, confirm2faSetup, setPendingSetup, locale } = useAdminAuth();
+  const { user, token, confirm2faSetup, setPendingSetup, locale } = useAdminAuth();
 
   const [secret, setSecret] = useState('');
   const [formattedSecret, setFormattedSecret] = useState('');
@@ -38,23 +30,43 @@ export default function Setup2faPage(): React.JSX.Element {
       return;
     }
 
-    // Initialize 2FA enrollment credentials
-    const sec = generateBase32Secret(20);
-    const fmt = formatSecret(sec);
-    const rec = generateRecoveryCodes(8);
-    const uri = generateOtpAuthUri({
-      issuer: 'JLPT Admin',
-      accountName: user.email,
-      secret: sec,
-    });
-    const qr = generateQrMatrix(uri);
+    // Call I08 official API endpoint for TOTP setup
+    let isMounted = true;
+    fetch('/api/v1/auth/totp/setup', {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error('Không thể khởi tạo đăng ký 2FA từ máy chủ.');
+        }
+        return res.json() as Promise<{
+          secret: string;
+          formattedSecret: string;
+          uri: string;
+          qrCodeSvg: string;
+          recoveryCodes: string[];
+        }>;
+      })
+      .then((data) => {
+        if (!isMounted) return;
+        setSecret(data.secret);
+        setFormattedSecret(data.formattedSecret || data.secret);
+        setRecoveryCodes(data.recoveryCodes || []);
+        setQrSvg(data.qrCodeSvg);
+        setPendingSetup(data.secret, data.recoveryCodes || []);
+      })
+      .catch((err: unknown) => {
+        if (!isMounted) return;
+        setError((err as Error).message || t('common.error', locale));
+      });
 
-    setSecret(sec);
-    setFormattedSecret(fmt);
-    setRecoveryCodes(rec);
-    setQrSvg(qr.svg);
-    setPendingSetup(sec, rec);
-  }, [user, router, setPendingSetup]);
+    return () => {
+      isMounted = false;
+    };
+  }, [user, token, router, setPendingSetup, locale]);
 
   const handleCopySecret = async () => {
     try {
@@ -103,17 +115,8 @@ export default function Setup2faPage(): React.JSX.Element {
     setIsVerifying(true);
 
     const cleanCode = totpCode.trim().replace(/\s+/g, '');
-    const isValid = verifyTotp(cleanCode, secret);
-
-    if (!isValid) {
-      setError(t('totp.invalidCode', locale));
-      setIsVerifying(false);
-      return;
-    }
-
     const confirmed = await confirm2faSetup(cleanCode);
     if (!confirmed) {
-      setError(t('totp.invalidCode', locale));
       setIsVerifying(false);
       return;
     }
