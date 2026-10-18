@@ -45,6 +45,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
   const [activeAttemptId, setActiveAttemptId] = useState<string | undefined>(undefined);
   const [activeLease, setActiveLease] = useState<string | undefined>(undefined);
   const [initialAnswers, setInitialAnswers] = useState<number[] | undefined>(undefined);
+  const [activeSeq, setActiveSeq] = useState<number>(0);
 
   // In-progress practice sessions
   const [inProgressSessions, setInProgressSessions] = useState<InProgressPracticeItem[]>([]);
@@ -233,6 +234,7 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
       setActiveAttemptId(initRes.attemptId);
       setActiveLease(initRes.lease);
       setInitialAnswers(undefined);
+      setActiveSeq(0);
       await loadInProgressSessions();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -257,6 +259,7 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
       setActiveAttemptId(attemptId);
       setActiveLease(resumeRes.lease);
       setInitialAnswers(resumeRes.answers);
+      setActiveSeq(resumeRes.lastSeq ?? 0);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Không thể tiếp tục phiên luyện tập dở dang.';
       setError(msg);
@@ -557,6 +560,7 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
                     setActiveAttemptId(undefined);
                     setActiveLease(undefined);
                     setInitialAnswers(undefined);
+                    setActiveSeq(0);
                     loadInProgressSessions();
                   }}
                   data-testid="change-practice-config-btn"
@@ -565,10 +569,12 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
                 </Button>
               </div>
               <PracticeRunner
+                key={activeAttemptId || 'new'}
                 snapshot={activePracticeExam}
                 attemptId={activeAttemptId}
                 lease={activeLease}
                 initialAnswers={initialAnswers}
+                initialSeq={activeSeq}
                 apiClient={apiClient}
                 onFinish={() => {
                   loadInProgressSessions();

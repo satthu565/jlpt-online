@@ -13,6 +13,7 @@ export interface PracticeRunnerProps {
   attemptId?: string;
   lease?: string;
   initialAnswers?: number[];
+  initialSeq?: number;
   apiClient?: ExamApiClient;
   explanationsMap?: Record<number, LearnerExplanation>;
   onFinish?: (results: { total: number; correct: number; durationSec: number }) => void;
@@ -29,13 +30,22 @@ export function PracticeRunner({
   attemptId,
   lease,
   initialAnswers,
+  initialSeq,
   apiClient,
   explanationsMap = {},
   onFinish,
   className = '',
 }: PracticeRunnerProps): React.JSX.Element {
   const flatQuestions = flattenExamQuestions(snapshot);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    if (initialAnswers && Array.isArray(initialAnswers)) {
+      const firstUnanswered = initialAnswers.findIndex((a) => a === 0);
+      if (firstUnanswered >= 0 && firstUnanswered < flatQuestions.length) {
+        return firstUnanswered;
+      }
+    }
+    return 0;
+  });
 
   // Initialize selected answers from initialAnswers if present
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>(() => {
@@ -52,7 +62,8 @@ export function PracticeRunner({
   const [isChecking, setIsChecking] = useState(false);
   const [checkError, setCheckError] = useState<string | null>(null);
   const [isFinished, setIsFinished] = useState(false);
-  const lastSeqRef = useRef<number>(0);
+  const lastSeqRef = useRef<number>(initialSeq ?? 0);
+  const pendingSyncRef = useRef<Promise<unknown> | null>(null);
 
   const currentQ = flatQuestions[currentIndex];
   const userChoice = currentQ ? selectedAnswers[currentQ.globalIndex] : undefined;
@@ -74,17 +85,20 @@ export function PracticeRunner({
     if (attemptId && lease && apiClient) {
       try {
         lastSeqRef.current += 1;
+        const currentSeq = lastSeqRef.current;
         const answerArray = Array(flatQuestions.length).fill(0);
         Object.entries(newAnswers).forEach(([k, v]) => {
           answerArray[Number(k)] = v;
         });
-        await apiClient.updateAnswerSheet(attemptId, {
+        const syncPromise = apiClient.updateAnswerSheet(attemptId, {
           lease,
-          seq: lastSeqRef.current,
+          seq: currentSeq,
           answers: answerArray,
           flags: Array(flatQuestions.length).fill(0),
           changes: [{ i: currentQ.globalIndex, v: optVal, at: Date.now() }],
         });
+        pendingSyncRef.current = syncPromise;
+        await syncPromise;
       } catch {
         // Non-blocking sync error
       }
@@ -97,6 +111,13 @@ export function PracticeRunner({
     setCheckError(null);
 
     try {
+      if (pendingSyncRef.current) {
+        try {
+          await pendingSyncRef.current;
+        } catch {
+          // Non-blocking sync error
+        }
+      }
       if (attemptId && lease && apiClient) {
         const res = await apiClient.checkAnswer(attemptId, {
           lease,
@@ -135,6 +156,14 @@ export function PracticeRunner({
       Object.values(checkedState).forEach((c) => {
         if (c.isCorrect) correct += 1;
       });
+
+      if (pendingSyncRef.current) {
+        try {
+          await pendingSyncRef.current;
+        } catch {
+          // Non-blocking sync error
+        }
+      }
 
       if (attemptId && lease && apiClient) {
         try {

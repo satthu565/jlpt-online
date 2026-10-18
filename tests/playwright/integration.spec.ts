@@ -1262,6 +1262,7 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
     browser,
   }, testInfo) => {
     test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'Content import and publish flow runs on chromium');
     const clientIp = getProjectClientIp(testInfo, 60);
     const headers = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
 
@@ -1620,6 +1621,24 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
 
     // Verifies resumed session opens PracticeRunner
     await expect(page.locator('[data-testid="practice-runner-container"]')).toBeVisible({ timeout: 20000 });
+
+    // Select option for the resumed question (advancing sequence) and check answer
+    const resumedOption = page.locator('[data-testid="practice-option-1"]').first();
+    await expect(resumedOption).toBeVisible({ timeout: 10000 });
+    await resumedOption.click();
+
+    const resumedCheckBtn = page.locator('[data-testid="practice-check-answer-btn"]');
+    await expect(resumedCheckBtn).toBeVisible({ timeout: 10000 });
+    const [resumedCheckRes] = await Promise.all([
+      page.waitForResponse(
+        (res) => (res.url().includes('/check') || res.url().includes('/check-answer')) && res.request().method() === 'POST',
+        { timeout: 15000 }
+      ),
+      resumedCheckBtn.click(),
+    ]);
+    expect(resumedCheckRes.ok()).toBeTruthy();
+
+    await expect(page.locator('[data-testid="practice-check-result"]')).toBeVisible({ timeout: 10000 });
   });
 
   test('AC2 & MIX: Học viên tạo đề trộn từ hai kỳ thi, làm và chia sẻ link; người nhận mở được', async ({

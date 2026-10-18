@@ -130,6 +130,7 @@ describe('E2E Learning, Generator Modes, Explanations & Personalization Suite (L
           isOpen={true}
           examId="0192f000-0000-7000-8000-000000000003"
           examTitle="Đề thi chia sẻ N3"
+          initialToken="0192f000-token-seed"
           onClose={() => {}}
         />,
       );

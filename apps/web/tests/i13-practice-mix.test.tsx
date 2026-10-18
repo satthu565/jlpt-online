@@ -79,6 +79,24 @@ describe('I13: Real Practice & Mix Exams Integration Suite', () => {
 
       expect(html).toContain('Không có câu hỏi trong đề luyện tập.');
     });
+
+    it('PracticeRunner positions at first unanswered question when resuming with initialAnswers', () => {
+      // In SAMPLE_N5_EXAM_SNAPSHOT, question 1 is index 0, question 2 is index 1
+      const html = renderToString(
+        h(
+          Providers,
+          null,
+          h(PracticeRunner, {
+            snapshot: SAMPLE_N5_EXAM_SNAPSHOT,
+            initialAnswers: [2, 0],
+            initialSeq: 1,
+          }),
+        ),
+      );
+
+      // Question 1 was answered (value 2), so runner should position at Question 2
+      expect(html).toMatch(/Câu\s*(<!-- -->)?\s*2\s*(<!-- -->)?\s*\//);
+    });
   });
 
   describe('Acceptance 2: Mixed exam generator and sharing', () => {

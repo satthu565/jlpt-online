@@ -7,6 +7,7 @@ export interface ShareExamModalProps {
   isOpen: boolean;
   examId: string;
   examTitle?: string;
+  initialToken?: string;
   onClose: () => void;
 }
 
@@ -14,10 +15,11 @@ export function ShareExamModal({
   isOpen,
   examId,
   examTitle = 'Đề thi trộn',
+  initialToken,
   onClose,
 }: ShareExamModalProps): React.JSX.Element {
   const [copied, setCopied] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(initialToken ?? null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,18 +70,20 @@ export function ShareExamModal({
     }
   }, [isOpen, examId]);
 
-  const shareToken = token || examId;
-  const shareUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/shared-exams/${shareToken}`
-    : `https://jlpt.example.com/shared-exams/${shareToken}`;
+  const shareToken = token;
+  const shareUrl = shareToken
+    ? (typeof window !== 'undefined'
+        ? `${window.location.origin}/shared-exams/${shareToken}`
+        : `https://jlpt.example.com/shared-exams/${shareToken}`)
+    : '';
 
   const handleCopy = () => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard && shareToken) {
+    if (typeof navigator !== 'undefined' && navigator.clipboard && shareUrl) {
       navigator.clipboard.writeText(shareUrl).then(() => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2500);
       });
-    } else {
+    } else if (shareUrl) {
       setCopied(true);
     }
   };
@@ -106,7 +110,7 @@ export function ShareExamModal({
           </div>
         )}
 
-        {!loading && !error && (
+        {!loading && !error && shareToken && (
           <div className="space-y-3">
             <div>
               <label
