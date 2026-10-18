@@ -557,25 +557,34 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
 
     await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
-    let validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
     const codeInput = page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first();
     const submitBtn = page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first();
-    await codeInput.fill(validTotp);
-    await submitBtn.click();
+    const challengeError = page.locator('[data-testid="challenge-error-alert"]');
 
-    try {
-      await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 8000, waitUntil: 'domcontentloaded' });
-    } catch {
-      const challengeError = page.locator('[data-testid="challenge-error-alert"]');
-      if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
-        const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
-        await page.waitForTimeout(msToNextStep);
-        validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
-        await codeInput.fill(validTotp);
-        await submitBtn.click();
-        await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 15000, waitUntil: 'domcontentloaded' });
-      } else {
-        throw new Error('Failed to navigate to dashboard in loginAsAdmin');
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
+      await codeInput.fill(validTotp);
+      await submitBtn.click();
+
+      try {
+        await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 8000, waitUntil: 'domcontentloaded' });
+        break;
+      } catch {
+        if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
+          const errText = await challengeError.innerText().catch(() => '');
+          if (
+            errText.includes('Mã TOTP đã được sử dụng') ||
+            errText.includes('mã cũ') ||
+            errText.includes('không chính xác hoặc đã hết hạn')
+          ) {
+            const msToNextStep = 30000 - (Date.now() % 30000) + 1500;
+            await page.waitForTimeout(msToNextStep);
+            continue;
+          }
+        }
+        if (attempt === 2) {
+          throw new Error('Failed to navigate to dashboard in loginAsAdmin after TOTP challenge retries');
+        }
       }
     }
 
@@ -845,25 +854,34 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
 
     await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
-    let validTotp = await getFreshTotpI04(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
     const codeInput = page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first();
     const submitBtn = page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first();
-    await codeInput.fill(validTotp);
-    await submitBtn.click();
+    const challengeError = page.locator('[data-testid="challenge-error-alert"]');
 
-    try {
-      await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 8000, waitUntil: 'domcontentloaded' });
-    } catch {
-      const challengeError = page.locator('[data-testid="challenge-error-alert"]');
-      if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
-        const msToNextStep = 30000 - (Date.now() % 30000) + 1500;
-        await page.waitForTimeout(msToNextStep);
-        validTotp = await getFreshTotpI04(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
-        await codeInput.fill(validTotp);
-        await submitBtn.click();
-        await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 15000, waitUntil: 'domcontentloaded' });
-      } else {
-        throw new Error('Failed to navigate to dashboard in loginAsAdminI04');
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const validTotp = await getFreshTotpI04(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
+      await codeInput.fill(validTotp);
+      await submitBtn.click();
+
+      try {
+        await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 8000, waitUntil: 'domcontentloaded' });
+        break;
+      } catch {
+        if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
+          const errText = await challengeError.innerText().catch(() => '');
+          if (
+            errText.includes('Mã TOTP đã được sử dụng') ||
+            errText.includes('mã cũ') ||
+            errText.includes('không chính xác hoặc đã hết hạn')
+          ) {
+            const msToNextStep = 30000 - (Date.now() % 30000) + 1500;
+            await page.waitForTimeout(msToNextStep);
+            continue;
+          }
+        }
+        if (attempt === 2) {
+          throw new Error('Failed to navigate to dashboard in loginAsAdminI04 after TOTP challenge retries');
+        }
       }
     }
 
@@ -979,11 +997,12 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     // 8. Experiments
     await page.goto(`${adminOrigin}/experiments`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('[data-testid^="experiment-card-"], [data-testid="experiments-empty"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid^="experiment-card-"], [data-testid="experiments-empty"]').first()).toBeVisible({ timeout: 10000 });
     // Real interactive flow: toggle experiment active state
-    const toggleExpBtn = page.locator('[data-testid^="btn-toggle-experiment-"]').first();
+    const toggleExpBtn = page.locator('[data-testid="btn-toggle-experiment-exp_checkout_layout_v1"], [data-testid^="btn-toggle-experiment-"]').first();
     if (await toggleExpBtn.isVisible().catch(() => false)) {
-      const initialText = await toggleExpBtn.innerText();
+      await toggleExpBtn.scrollIntoViewIfNeeded();
+      const initialText = (await toggleExpBtn.innerText()).trim();
       await toggleExpBtn.click();
       await expect(toggleExpBtn).not.toHaveText(initialText, { timeout: 10000 });
     }

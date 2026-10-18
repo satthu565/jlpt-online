@@ -175,7 +175,12 @@ export class AdminApiClient {
       res = await (this.fetchFn ?? fetch)(url, {
         method,
         headers,
-        body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+        body:
+          options.body !== undefined
+            ? JSON.stringify(options.body)
+            : ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase())
+              ? '{}'
+              : undefined,
       });
     } catch (err: unknown) {
       throw new AdminClientGuardError('NETWORK_ERROR', (err as Error).message || 'Lỗi kết nối tới máy chủ.', 500);

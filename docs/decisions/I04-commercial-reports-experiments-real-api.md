@@ -2,7 +2,7 @@
 
 - **Worker**: W4 (Quản trị báo cáo và thương mại)
 - **Task ID**: I04
-- **Assignment ID**: I04-1
+- **Assignment ID**: I04-11
 - **Trạng thái**: REVIEW
 - **Ngày**: 2026-10-18
 - **Tài liệu tham chiếu**: `docs/multi-worker/AGENTS.md`, `docs/multi-worker/KE_HOACH_TRIEN_KHAI.md`, hợp đồng API thanh toán L04 (`/api/v1/admin/plans`, `/api/v1/admin/coupons`, `/api/v1/admin/payments`, `/api/v1/admin/refunds`, `/api/v1/admin/reconciliation`), báo cáo R04/A04 (`/api/v1/admin/reports/*`), và thử nghiệm A/B A04 (`/api/v1/experiments/*`).
@@ -112,6 +112,13 @@ Mục tiêu của I04:
    - Khi tạo gói dịch vụ từ giao diện `/commercial/plans`, payload client gửi thuộc tính `interval`, trong khi DTO backend trước đó chỉ nhận `term`. Đã đồng bộ `AdminPlanCreateDto` và `PaymentService.createAdminPlan` hỗ trợ cả hai trường `term` và `interval` kèm giá trị mặc định an toàn ('month'), ngăn chặn triệt để lỗi 500 do chèn `default` vào cột NOT NULL không có DEFAULT expression trong Postgres.
    - Bổ sung ánh xạ đồng bộ cho mã giảm giá `AdminCouponCreateDto` (hỗ trợ cả `discountAmount`/`discountMinor`, `maxRedemptions`/`maxUses`, `validUntil`/`expiresAt`), chuẩn hóa cột CSDL trong `ensureInitialCoupons()`.
    - Cơ chế ghi nhận bước TOTP (`/tmp/jlpt_admin_totp_last_step.txt`) giúp đồng bộ hóa giữa các worker Playwright và các project trình duyệt khác nhau, tránh xung đột chống phát lại mã cũ (Replay Protection) của NestJS `AuthService`.
+
+### 2.6. Khắc phục lỗi Staging E2E Lượt 4 (Strict Mode Violation & Xử lý Mã TOTP dùng lại)
+1. **Lỗi Strict Mode Violation trong Experiments locator (`tests/playwright/integration.spec.ts`)**:
+   - Khi có nhiều thẻ thử nghiệm A/B (`experiment-card-exp_checkout_layout_v1`, `experiment-card-exp_reading_font_size`), locator `[data-testid^="experiment-card-"], [data-testid="experiments-empty"]` khớp nhiều phần tử khiến Playwright báo lỗi strict mode violation trong cả hai trình duyệt Chromium và Mobile Safari.
+   - Giải pháp: Sử dụng `.first()` cho assertion hiển thị thẻ thử nghiệm, đồng thời giữ nguyên kiểm tra dữ liệu thật.
+2. **Khắc phục lỗi mã TOTP dùng lại khi chạy song song (`tests/playwright/fixtures/staff-auth.fixture.ts`)**:
+   - Bổ sung hàm `verifyTotpChallengeWithRetry`, `waitForNextTotpWindow`, `getFreshTotpCode` và cập nhật các hàm đăng nhập admin (`loginAsAdmin`, `loginAsAdminI04`) với vòng lặp thử lại tối đa 3 lần: khi gặp lỗi "Mã TOTP đã được sử dụng" hoặc "mã cũ", tự động chờ qua ranh giới 30 giây tiếp theo của RFC 6238 rồi thử lại với mã mới, không làm suy yếu kiểm tra chống replay ở API.
 
 ---
 

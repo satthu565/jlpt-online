@@ -67,6 +67,7 @@ export class ExperimentController {
   @Roles('admin')
   async toggleExperiment(
     @Param('id') id: string,
+    @Body() _body?: unknown,
     @CurrentUser() user?: AuthUserContext,
   ) {
     if (!user) {
@@ -82,6 +83,7 @@ export class ExperimentController {
   @Roles('admin')
   async toggleExperimentPost(
     @Param('id') id: string,
+    @Body() _body?: unknown,
     @CurrentUser() user?: AuthUserContext,
   ) {
     if (!user) {

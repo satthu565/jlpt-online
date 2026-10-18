@@ -81,8 +81,11 @@ export default function ExperimentsAdminPage({ initialExperiments }: Experiments
       const data = await res.json();
       const rawList = Array.isArray(data) ? data : data.items || data.experiments || [];
       if (Array.isArray(rawList)) {
+        const sortedList = [...rawList].sort((a: RawExperiment, b: RawExperiment) =>
+          (a.id || '').localeCompare(b.id || ''),
+        );
         setExperiments(
-          (rawList as RawExperiment[]).map((e: RawExperiment) => ({
+          sortedList.map((e: RawExperiment) => ({
             id: e.id,
             name: e.name || e.id,
             description: e.description || '',
@@ -122,10 +125,14 @@ export default function ExperimentsAdminPage({ initialExperiments }: Experiments
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
           Host: 'admin.jlpt.local',
         },
+        body: JSON.stringify({}),
       });
 
       if (res.ok) {
-        void fetchExperiments();
+        setExperiments((prev) =>
+          prev.map((exp) => (exp.id === id ? { ...exp, isActive: !exp.isActive } : exp)),
+        );
+        await fetchExperiments();
         return;
       }
       setErrorMsg('Lỗi khi thay đổi trạng thái thử nghiệm.');
