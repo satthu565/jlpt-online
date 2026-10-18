@@ -55,6 +55,15 @@ export function generateBase32Secret(byteLength = 20): string {
   return base32Encode(randomBytes);
 }
 
+export function formatSecret(secret: string): string {
+  const clean = secret.replace(/\s+/g, '').toUpperCase();
+  const chunks: string[] = [];
+  for (let i = 0; i < clean.length; i += 4) {
+    chunks.push(clean.slice(i, i + 4));
+  }
+  return chunks.join(' ');
+}
+
 export interface TotpOptions {
   digits?: number;
   timeStepSeconds?: number;
@@ -91,13 +100,17 @@ export interface VerifyTotpOptions extends TotpOptions {
   window?: number;
 }
 
-export function verifyTotp(token: string, secret: string, options: VerifyTotpOptions = {}): boolean {
-  if (!token || !secret) return false;
+export function verifyTotpWithStep(
+  token: string,
+  secret: string,
+  options: VerifyTotpOptions = {},
+): { valid: boolean; step?: number } {
+  if (!token || !secret) return { valid: false };
   const cleanToken = token.trim().replace(/\s+/g, '');
   const { digits = 6, timeStepSeconds = 30, timestampMs = Date.now(), window = 1 } = options;
 
   if (cleanToken.length !== digits || !/^\d+$/.test(cleanToken)) {
-    return false;
+    return { valid: false };
   }
 
   try {
@@ -109,12 +122,141 @@ export function verifyTotp(token: string, secret: string, options: VerifyTotpOpt
       if (candidateCounter < 0) continue;
       const expectedToken = computeHotp(secretBuffer, candidateCounter, digits);
       if (crypto.timingSafeEqual(Buffer.from(cleanToken), Buffer.from(expectedToken))) {
-        return true;
+        return { valid: true, step: candidateCounter };
       }
     }
 
-    return false;
+    return { valid: false };
   } catch {
-    return false;
+    return { valid: false };
   }
+}
+
+export function verifyTotp(token: string, secret: string, options: VerifyTotpOptions = {}): boolean {
+  return verifyTotpWithStep(token, secret, options).valid;
+}
+
+export function generateOtpAuthUri(options: {
+  issuer: string;
+  accountName: string;
+  secret: string;
+  digits?: number;
+  period?: number;
+}): string {
+  const { issuer, accountName, secret, digits = 6, period = 30 } = options;
+  const label = `${encodeURIComponent(issuer)}:${accountName}`;
+  const params = new URLSearchParams({
+    secret: secret.replace(/\s+/g, '').toUpperCase(),
+    issuer,
+    algorithm: 'SHA1',
+    digits: String(digits),
+    period: String(period),
+  });
+
+  return `otpauth://totp/${label}?${params.toString()}`;
+}
+
+export function generateRecoveryCodes(count = 8): string[] {
+  const codes: string[] = [];
+  const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+
+  for (let i = 0; i < count; i++) {
+    const bytes = crypto.randomBytes(8);
+    let code = '';
+    for (let j = 0; j < 8; j++) {
+      code += chars[bytes[j]! % chars.length];
+      if (j === 3) code += '-';
+    }
+    codes.push(code);
+  }
+
+  return codes;
+}
+
+export function hashRecoveryCode(code: string): string {
+  const normalized = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  return crypto.createHash('sha256').update(normalized).digest('hex');
+}
+
+export function verifyAndConsumeRecoveryCode(
+  inputCode: string,
+  storedHashedCodes: string[],
+): { valid: boolean; remainingHashedCodes: string[] } {
+  if (!inputCode || storedHashedCodes.length === 0) {
+    return { valid: false, remainingHashedCodes: storedHashedCodes };
+  }
+
+  const targetHash = hashRecoveryCode(inputCode);
+  const targetBuffer = Buffer.from(targetHash, 'hex');
+
+  let matchIndex = -1;
+  for (let i = 0; i < storedHashedCodes.length; i++) {
+    const storedHash = storedHashedCodes[i]!;
+    try {
+      const storedBuffer = Buffer.from(storedHash, 'hex');
+      if (storedBuffer.length === targetBuffer.length && crypto.timingSafeEqual(targetBuffer, storedBuffer)) {
+        matchIndex = i;
+        break;
+      }
+    } catch {
+      // Ignore corrupt entries
+    }
+  }
+
+  if (matchIndex === -1) {
+    return { valid: false, remainingHashedCodes: storedHashedCodes };
+  }
+
+  const remaining = storedHashedCodes.filter((_, idx) => idx !== matchIndex);
+  return { valid: true, remainingHashedCodes: remaining };
+}
+
+/**
+ * Derives a deterministic user-specific 256-bit encryption key from system secret and userId.
+ */
+function deriveUserKey(userId: string): Buffer {
+  const masterKey =
+    process.env.AUTH_SECRET ||
+    process.env.ENCRYPTION_KEY ||
+    'jlpt_prod_auth_secret_must_be_32_bytes_or_longer_secure_key';
+  return crypto.createHmac('sha256', masterKey).update(`totp-encryption-key:${userId}`).digest();
+}
+
+/**
+ * Encrypts a TOTP secret using AES-256-GCM.
+ * Output format: iv:authTag:ciphertext (hex).
+ */
+export function encryptTotpSecret(secret: string, userId: string): string {
+  const key = deriveUserKey(userId);
+  const iv = crypto.randomBytes(12); // 96-bit IV for GCM
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+  const ciphertext = Buffer.concat([cipher.update(secret, 'utf8'), cipher.final()]);
+  const authTag = cipher.getAuthTag();
+
+  return `${iv.toString('hex')}:${authTag.toString('hex')}:${ciphertext.toString('hex')}`;
+}
+
+/**
+ * Decrypts a TOTP secret using AES-256-GCM.
+ */
+export function decryptTotpSecret(encryptedStr: string, userId: string): string {
+  if (!encryptedStr || !encryptedStr.includes(':')) {
+    throw new Error('Invalid encrypted TOTP secret payload format.');
+  }
+
+  const parts = encryptedStr.split(':');
+  if (parts.length !== 3) {
+    throw new Error('Invalid encrypted TOTP secret parts count.');
+  }
+
+  const iv = Buffer.from(parts[0]!, 'hex');
+  const authTag = Buffer.from(parts[1]!, 'hex');
+  const ciphertext = Buffer.from(parts[2]!, 'hex');
+
+  const key = deriveUserKey(userId);
+  const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+  decipher.setAuthTag(authTag);
+
+  const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+  return decrypted.toString('utf8');
 }

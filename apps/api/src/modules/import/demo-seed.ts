@@ -14,6 +14,8 @@ import { ReviewService } from '../review/review.service.js';
 import { ImportService } from './import.service.js';
 import { ExamService } from '../exam/exam.service.js';
 
+import { encryptTotpSecret, hashRecoveryCode } from '../../common/utils/totp.js';
+
 export interface DemoSeedResult {
   blueprintId: string;
   examId: string;
@@ -126,6 +128,46 @@ export async function runDemoSeed(
         },
       ])
       .onConflictDoNothing();
+
+    // 3b. Seed 2FA profiles with known secret for staff E2E and staging drills (I08)
+    const staffTotpSecret = 'JBSWY3DPEHPK3PXP';
+    const recoveryHashes = ['RECV-0001', 'RECV-0002', 'RECV-0003', 'RECV-0004'].map(hashRecoveryCode);
+
+    for (const sid of [editorId, reviewerId, publisherId]) {
+      const encryptedSecret = encryptTotpSecret(staffTotpSecret, sid);
+      await dbClient.db
+        .insert(schema.userProfiles)
+        .values({
+          userId: sid,
+          metadata: {
+            twoFactor: {
+              enabled: true,
+              encryptedSecret,
+              hashedRecoveryCodes: recoveryHashes,
+              verifiedAt: new Date().toISOString(),
+              failedAttempts: 0,
+              lockedUntil: null,
+            },
+          },
+          updatedAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: [schema.userProfiles.userId],
+          set: {
+            metadata: {
+              twoFactor: {
+                enabled: true,
+                encryptedSecret,
+                hashedRecoveryCodes: recoveryHashes,
+                verifiedAt: new Date().toISOString(),
+                failedAttempts: 0,
+                lockedUntil: null,
+              },
+            },
+            updatedAt: new Date(),
+          },
+        });
+    }
 
     // 4. Load & Seed Synthetic Blueprint
     const blueprintPath = resolveRepoPath(

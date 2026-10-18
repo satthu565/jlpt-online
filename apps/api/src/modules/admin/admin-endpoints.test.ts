@@ -58,6 +58,7 @@ describe('I01 Full Integration & Hardening Verification', () => {
 
     // 2. Create Editor User & Session
     editorId = '0192f000-0000-7000-8000-0000000000e1';
+    const editorSessionId = generateUuidV7();
     const editorToken = 'tok_editor_demo_' + Date.now();
     await dbClient.db.insert(schema.users).values({
       id: editorId,
@@ -66,7 +67,7 @@ describe('I01 Full Integration & Hardening Verification', () => {
       emailVerified: true,
     }).onConflictDoNothing();
     await dbClient.db.insert(schema.sessions).values({
-      id: generateUuidV7(),
+      id: editorSessionId,
       userId: editorId,
       token: editorToken,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
@@ -74,6 +75,7 @@ describe('I01 Full Integration & Hardening Verification', () => {
 
     // 3. Create Reviewer User & Session
     const reviewerId = '0192f000-0000-7000-8000-0000000000d1';
+    const reviewerSessionId = generateUuidV7();
     const reviewerToken = 'tok_reviewer_demo_' + Date.now();
     await dbClient.db.insert(schema.users).values({
       id: reviewerId,
@@ -82,7 +84,7 @@ describe('I01 Full Integration & Hardening Verification', () => {
       emailVerified: true,
     }).onConflictDoNothing();
     await dbClient.db.insert(schema.sessions).values({
-      id: generateUuidV7(),
+      id: reviewerSessionId,
       userId: reviewerId,
       token: reviewerToken,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
@@ -90,6 +92,7 @@ describe('I01 Full Integration & Hardening Verification', () => {
 
     // 4. Create Admin User & Session
     const adminId = '0192f000-0000-7000-8000-0000000000b1';
+    const adminSessionId = generateUuidV7();
     const adminToken = 'tok_admin_demo_' + Date.now();
     await dbClient.db.insert(schema.users).values({
       id: adminId,
@@ -98,11 +101,21 @@ describe('I01 Full Integration & Hardening Verification', () => {
       emailVerified: true,
     }).onConflictDoNothing();
     await dbClient.db.insert(schema.sessions).values({
-      id: generateUuidV7(),
+      id: adminSessionId,
       userId: adminId,
       token: adminToken,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
+
+    // Mark staff test sessions as 2FA verified
+    for (const sId of [editorSessionId, reviewerSessionId, adminSessionId]) {
+      await dbClient.db.insert(schema.verifications).values({
+        id: generateUuidV7(),
+        identifier: `session_2fa_${sId}`,
+        value: 'verified',
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      });
+    }
 
     adminHeaders = {
       Authorization: `Bearer ${adminToken}`,

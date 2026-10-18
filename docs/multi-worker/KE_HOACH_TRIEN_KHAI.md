@@ -1499,12 +1499,40 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
+<a id="i13"></a>
+
+### I13 Web: trang Luyện tập và Đề trộn nối API thật
+
+- Worker: **W3**. Ngày mục tiêu: 8. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: I05. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Trang /luyen-tap vẫn import ALL_SAMPLE_EXAMS từ apps/web/features/exam/fixtures (I06 bỏ sót). Nối luyện tập theo kỹ năng, dạng 問題, số câu, câu sai/chưa gặp/đã đánh dấu, độ khó, tiếp tục bài dở (PRA) và tạo, lưu, làm lại, chia sẻ đề trộn (MIX) với API thật; xóa file fixtures khỏi code chạy thật (chỉ giữ trong test nếu cần).
+- Bàn giao: apps/web/; packages/ui/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, tests/integration/mock-ui-baseline.json.
+- Nghiệm thu:
+  - Học viên tạo bài luyện 10 câu theo bộ lọc, làm, xem đáp án ngay và tiếp tục bài dở trên staging.
+  - Học viên tạo đề trộn từ hai kỳ thi, làm và chia sẻ link; người nhận mở được.
+  - apps/web không còn import exam-fixtures ngoài thư mục test.
+  - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
+  - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
+  - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
+  - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:web`
+  - `pnpm check:no-mock-ui`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
 <a id="i07"></a>
 
 ### I07 Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả
 
 - Worker: **W6**. Ngày mục tiêu: 8. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: I01, I08, I10, I11, I12, I09, I03, I04, I05, I06. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: I01, I08, I10, I11, I12, I13, I09, I03, I04, I05, I06. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.
 - Bàn giao: tests/; .github/; infra/; docs/release/; docs/runbooks/.
@@ -1672,5 +1700,160 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - `pnpm test:e2e:integration`
   - `pnpm test:lighthouse`
   - `pnpm check:ui-primitives`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+## Ngày 10
+
+
+<a id="p01"></a>
+
+### P01 Ước lượng điểm quy đổi JLPT, điểm sàn từng phần và nhịp làm bài
+
+- Worker: **W1**. Ngày mục tiêu: 10. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: I07. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Trong packages/exam-engine: hàm thuần ước lượng điểm quy đổi 0–180 theo từng phần thi của từng cấp N1–N5 (N1–N3: ba phần; N4–N5: hai phần, trong đó phần kiến thức và đọc hiểu gộp điểm), so với điểm đỗ tổng và điểm sàn từng phần, trả kết quả đỗ/trượt và phần dưới sàn. Bảng quy đổi và ngưỡng là dữ liệu cấu hình có phiên bản (không viết cứng trong hàm), mặc định theo mức công bố chính thức của JLPT; mọi kết quả kèm cờ "ước lượng". Thêm mô hình nhịp làm bài: thời gian khuyến nghị cho từng dạng 問題 và mốc tiến độ trong mỗi phần.
+- Bàn giao: packages/exam-engine/; packages/schema/; contracts/; docs/decisions/.
+- Hợp đồng: API.
+- Khóa tài nguyên: engine-contract, schema-contract.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: không.
+- Nghiệm thu:
+  - Test cho cả 5 cấp: đỗ khi đủ tổng và đủ sàn; trượt khi đủ tổng nhưng dưới sàn một phần; trượt khi thiếu tổng.
+  - Bảng quy đổi có phiên bản, đổi bảng không cần sửa code.
+  - Kết quả luôn có nhãn ước lượng; giải thích nguồn ngưỡng trong docs/decisions.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:engines:all`
+  - `pnpm contracts:check`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+<a id="p02"></a>
+
+### P02 Dữ liệu âm Hán Việt cho Kanji
+
+- Worker: **W5**. Ngày mục tiêu: 10. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: I07. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Nhập âm Hán Việt cho Kanji từ trường kVietnamese của Unicode Unihan (giấy phép Unicode, ghi nguồn và phiên bản); chuẩn hóa NFC; lưu vào dữ liệu Kanji; API trả hanViet cho Kanji và cho từ vựng (ghép theo từng chữ Hán của từ). Kanji không có dữ liệu thì để trống, không đoán.
+- Bàn giao: tools/import-data/; packages/content-tools/; apps/api/src/modules/vocab/; apps/api/src/modules/learning/; docs/decisions/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: không.
+- Nghiệm thu:
+  - Script nhập chạy lại không tạo trùng, ghi nguồn và giấy phép.
+  - 経済 trả KINH TẾ; chữ không có dữ liệu trả rỗng.
+  - API trả hanViet trong tra từ, sổ tay và giải thích; có test.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:import-validation`
+  - `pnpm test:learning:all`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+<a id="p03"></a>
+
+### P03 API: kết quả đỗ/trượt theo JLPT, lịch thi tại Việt Nam và nhắc hạn đăng ký
+
+- Worker: **W2**. Ngày mục tiêu: 10. Ước lượng chưa đo: 5 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: P01. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Kết quả bài thi và lịch sử trả điểm quy đổi từng phần, đỗ/trượt và phần dưới sàn từ P01; lưu dữ liệu thời gian từng câu để phân tích nhịp. Thêm thực thể lịch thi JLPT tại Việt Nam (kỳ thi, ngày thi, hạn đăng ký, địa điểm Hà Nội/Đà Nẵng/TP.HCM, link đăng ký chính thức) do quản trị nhập; API công khai đọc lịch; thông báo nhắc trước hạn đăng ký và trước ngày thi (bật/tắt theo người dùng). Không seed ngày thi giả: thiếu dữ liệu thì API trả rỗng.
+- Bàn giao: package.json; apps/api/package.json; apps/api/src/common/; apps/api/src/modules/auth/; apps/api/src/modules/user/; apps/api/src/modules/exam/; apps/api/src/modules/attempt/; apps/api/src/modules/question-bank/; apps/api/src/modules/import/; apps/api/src/modules/media/; apps/api/src/modules/review/; apps/api/src/modules/storage/; apps/api/src/modules/license/; apps/api/src/modules/blueprint/; apps/api/src/modules/audit/; apps/api/src/modules/notification/; apps/api/src/modules/community/; apps/api/src/modules/classroom/; apps/api/src/modules/scoring/; apps/api/src/modules/outbox/; apps/api/src/modules/email/; apps/api/src/modules/admin/; apps/api/src/modules/turnstile/; apps/api/src/main.ts; apps/api/src/app.module.ts; docs/decisions/.
+- Hợp đồng: API, EVENTS, DB.
+- Khóa tài nguyên: db-migration.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: không.
+- Nghiệm thu:
+  - Kết quả bài thi demo N5 có điểm từng phần và đỗ/trượt khớp P01.
+  - Lịch thi CRUD có phân quyền và audit; trang công khai chỉ thấy bản đã xuất bản.
+  - Nhắc hạn đăng ký gửi qua outbox đúng một lần, tôn trọng cài đặt tắt nhắc; có test.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:api:all`
+  - `pnpm test:security`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+<a id="p04"></a>
+
+### P04 Web: đỗ/trượt theo phần, Hán Việt, bật/tắt furigana, cảnh báo nhịp làm bài, lịch thi
+
+- Worker: **W3**. Ngày mục tiêu: 10. Ước lượng chưa đo: 6 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: P02, P03, D02. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Trang kết quả: điểm quy đổi từng phần, đỗ/trượt, phần dưới sàn, nhãn ước lượng. Hiện âm Hán Việt cạnh Kanji ở tra từ, sổ tay, giải thích. Nút bật/tắt furigana trong luyện tập và chữa bài (nhớ lựa chọn). Phòng thi: chế độ luyện tập cảnh báo khi chậm so với mốc nhịp; chế độ thi thật chỉ hiện mốc tiến độ kín đáo; sau bài có phân tích câu tốn thời gian. Trang lịch thi JLPT tại Việt Nam và cài đặt nhắc hạn đăng ký.
+- Bàn giao: apps/web/; packages/ui/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, tests/integration/mock-ui-baseline.json.
+- Nghiệm thu:
+  - Học viên làm đề demo N5 thấy điểm từng phần và đỗ/trượt.
+  - Tắt furigana thì ẩn trên mọi câu, tải lại vẫn giữ.
+  - Cảnh báo nhịp hiện đúng khi chậm hơn mốc trong E2E.
+  - Trang lịch thi hiện dữ liệu quản trị nhập, trống khi chưa có.
+  - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
+  - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
+  - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
+  - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:web`
+  - `pnpm check:no-mock-ui`
+  - `pnpm check:ui-primitives`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+<a id="p05"></a>
+
+### P05 Quản trị: lịch thi JLPT và bảng quy đổi điểm
+
+- Worker: **W4**. Ngày mục tiêu: 10. Ước lượng chưa đo: 3 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: P03, D03. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Trang quản trị nhập và xuất bản lịch thi (ngày thi, hạn đăng ký, địa điểm, link) và xem/cập nhật phiên bản bảng quy đổi điểm, có audit.
+- Bàn giao: apps/admin/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, tests/integration/mock-ui-baseline.json.
+- Nghiệm thu:
+  - Admin nhập kỳ thi tháng 12, xuất bản, trang web công khai hiện ngay.
+  - Đổi bảng quy đổi tạo phiên bản mới, kết quả cũ giữ phiên bản đã dùng.
+  - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
+  - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
+  - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
+  - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:admin`
+  - `pnpm check:no-mock-ui`
+  - `pnpm check:ui-primitives`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+<a id="p06"></a>
+
+### P06 Nghiệm thu 5 tính năng bổ sung
+
+- Worker: **W6**. Ngày mục tiêu: 10. Ước lượng chưa đo: 2 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: P04, P05, D05. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: E2E trên staging cho NEW-01..05, ảnh chụp 390/1366px, cập nhật danh sách tính năng và báo cáo.
+- Bàn giao: tests/; docs/release/.
+- Hợp đồng: quy tắc chung.
+- Khóa tài nguyên: staging-deploy.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: không.
+- Nghiệm thu:
+  - E2E: làm đề N5 → đỗ/trượt từng phần; Hán Việt và furigana; cảnh báo nhịp; lịch thi và nhắc hạn đăng ký.
+  - docs/release/NEW_FEATURES_REPORT.md có ảnh và bằng chứng từng tính năng.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:e2e:integration`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
