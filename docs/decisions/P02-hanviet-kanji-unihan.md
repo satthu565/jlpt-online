@@ -67,6 +67,12 @@
 3. **Giải thích câu hỏi và bài tập (Giải thích):**
    - `apps/api/src/modules/learning/quiz.service.ts`: Trong `generateNotebookQuiz`, mỗi câu hỏi trắc nghiệm được sinh ra trả về trường `hanViet` và chèn âm Hán Việt trực tiếp vào phần giải thích `explanation` (ví dụ: `「経済」 [KINH TẾ] (けいざい): Kinh tế`).
 
+### 2.4. Khắc phục các điểm góp ý từ Review (Vòng 3)
+
+- **Root `package.json`**: Revert script `import:hanviet` ở root `package.json` để bảo toàn phạm vi task P02 và không vi phạm khóa `dependency-lock`/manifest. Lệnh `import-hanviet` đã sẵn sàng trong `tools/import-data/package.json` và có thể chạy qua `pnpm --filter @jlpt/import-data import-hanviet`.
+- **Dải Unicode CJK BMP**: Cập nhật regex `KANJI_CHAR_REGEX` và `KANJI_GLOBAL_REGEX` từ `[\u4e00-\u9faf\u3400-\u4dbf]` thành `[\u4e00-\u9fff\u3400-\u4dbf]` theo đúng chuẩn CJK Unified Ideographs Unicode 15.1.
+- **Xác thực đầu vào `getHanVietForKanji`**: Bổ sung `if (Array.from(normalized).length !== 1) return '';`. Đảm bảo gọi `getHanVietForKanji('経済')` trả về chuỗi rỗng `''` thay vì tự ý cắt ký tự đầu, yêu cầu gọi đúng hàm `getHanVietForWord('経済')` để lấy `'KINH TẾ'`.
+
 ---
 
 ## 3. Bằng chứng kiểm thử và nghiệm thu
@@ -77,8 +83,10 @@
    - Kiểm tra `getHanVietLicenseInfo()` trả về đầy đủ nguồn Unicode Unihan 15.1.0 và giấy phép Unicode Terms of Use.
 2. **Kiểm tra nghiệp vụ âm Hán Việt:**
    - `getHanVietForWord('経済')` -> `'KINH TẾ'`.
+   - `getHanVietForKanji('経済')` -> `''` (xác thực độ dài đơn ký tự nghiêm ngặt).
    - Chữ không có dữ liệu: Kokuji `getHanVietForKanji('込')` -> `''`, `getHanVietForWord('さようなら')` -> `''`.
    - Từ hỗn hợp Kanji và Kana: `getHanVietForWord('食べる')` -> `'THỰC'`.
 3. **Kiểm tra API học thông minh và từ điển (`pnpm test:learning:all` & `vocab.test.ts`):**
    - `pnpm test:learning:all`: 31/31 tests đạt chuẩn (bao gồm lưu sổ tay, sinh bài tập giải thích có âm Hán Việt và tạo flashcard).
    - `vocab.test.ts`: 16/16 tests đạt chuẩn (tra từ điển trả về `hanViet`, endpoint `GET /api/v1/dictionary/hanviet` trả về đúng cấu trúc).
+

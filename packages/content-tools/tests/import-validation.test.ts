@@ -951,6 +951,8 @@ describe('C05 Validator gói nhập kiểm tra dữ liệu và đóng gói', () 
       it('resolves 経済 to KINH TẾ', () => {
         expect(getHanVietForKanji('経')).toBe('KINH');
         expect(getHanVietForKanji('済')).toBe('TẾ');
+        // getHanVietForKanji validates single character; multi-kanji word returns empty string
+        expect(getHanVietForKanji('経済')).toBe('');
         expect(getHanVietForWord('経済')).toBe('KINH TẾ');
       });
 

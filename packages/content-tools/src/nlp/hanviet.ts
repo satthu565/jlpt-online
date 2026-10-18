@@ -1,20 +1,24 @@
 import { HANVIET_DATA } from './hanviet-data.js';
 
-const KANJI_CHAR_REGEX = /[\u4e00-\u9faf\u3400-\u4dbf]/;
-const KANJI_GLOBAL_REGEX = /[\u4e00-\u9faf\u3400-\u4dbf]/g;
+const KANJI_CHAR_REGEX = /[\u4e00-\u9fff\u3400-\u4dbf]/;
+const KANJI_GLOBAL_REGEX = /[\u4e00-\u9fff\u3400-\u4dbf]/g;
 
 /**
  * Tra cứu âm Hán Việt cho một chữ Kanji đơn lẻ.
  * Chuẩn hóa Unicode NFC và trả về dạng in hoa (ví dụ: 経 -> 'KINH', 済 -> 'TẾ').
- * Nếu Kanji không có trong dữ liệu Unihan kVietnamese, trả về chuỗi rỗng '', không đoán mò.
+ * Nếu Kanji không có trong dữ liệu Unihan kVietnamese hoặc truyền vào từ nhiều ký tự, trả về chuỗi rỗng '', không đoán mò.
  */
 export function getHanVietForKanji(kanji: string): string {
   if (!kanji || typeof kanji !== 'string') return '';
   const normalized = kanji.normalize('NFC').trim();
   if (normalized.length === 0) return '';
 
-  // Lấy ký tự Unicode đầu tiên (hỗ trợ surrogate pairs)
-  const firstChar = Array.from(normalized)[0];
+  const chars = Array.from(normalized);
+  if (chars.length !== 1) {
+    return '';
+  }
+
+  const firstChar = chars[0];
   if (!firstChar || !KANJI_CHAR_REGEX.test(firstChar)) {
     return '';
   }
