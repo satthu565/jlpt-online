@@ -182,7 +182,23 @@ describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
     });
 
     it('AuditLogsPage hiển thị nhật ký kiểm toán hệ thống với actor và tenant', () => {
-      const html = renderWithAdmin(<AuditLogsPage />);
+      const html = renderWithAdmin(
+        <AuditLogsPage
+          initialLogs={[
+            {
+              id: 'aud_entry_01',
+              operatorId: 'u_admin_1',
+              operatorEmail: 'admin@jlpt.local',
+              tenantId: 'global',
+              action: 'role_change',
+              targetResource: 'users',
+              targetId: 'u_editor_1',
+              details: { previousRole: 'student', newRole: 'editor', tenantId: 'global' },
+              timestamp: '2026-01-05T08:30:00Z',
+            },
+          ]}
+        />,
+      );
       expect(html).toContain('Nhật ký kiểm toán hệ thống (Audit Logs - ADM-14)');
       expect(html).toContain('Người thực hiện (Actor):');
       expect(html).toContain('Đơn vị (Tenant):');

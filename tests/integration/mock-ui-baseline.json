@@ -83,14 +83,6 @@
   },
   {
     "app": "admin",
-    "route": "/audit-logs",
-    "file": "apps/admin/app/audit-logs/page.tsx",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "admin",
     "route": "/blueprints",
     "file": "apps/admin/app/blueprints/page.tsx",
     "violations": [
@@ -115,40 +107,8 @@
   },
   {
     "app": "admin",
-    "route": "/",
-    "file": "apps/admin/app/page.tsx",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "admin",
     "route": "/questions",
     "file": "apps/admin/app/questions/page.tsx",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "admin",
-    "route": "/settings/notifications",
-    "file": "apps/admin/app/settings/notifications/page.tsx",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "admin",
-    "route": "/settings/org",
-    "file": "apps/admin/app/settings/org/page.tsx",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
-  {
-    "app": "admin",
-    "route": "/users",
-    "file": "apps/admin/app/users/page.tsx",
     "violations": [
       "mảng mẫu"
     ]
@@ -175,22 +135,6 @@
     "file": "apps/admin/features/content/richtext-editor.tsx",
     "violations": [
       "mảng mẫu"
-    ]
-  },
-  {
-    "app": "admin",
-    "route": "apps/admin/lib/api-client.ts",
-    "file": "apps/admin/lib/api-client.ts",
-    "violations": [
-      "đăng nhập giả"
-    ]
-  },
-  {
-    "app": "admin",
-    "route": "apps/admin/lib/auth-context.tsx",
-    "file": "apps/admin/lib/auth-context.tsx",
-    "violations": [
-      "đăng nhập giả"
     ]
   }
 ]

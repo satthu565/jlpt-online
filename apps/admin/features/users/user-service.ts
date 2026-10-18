@@ -25,6 +25,13 @@ export class UserManager {
     }
   }
 
+  public setUsers(newUsers: AdminManagedUser[]): void {
+    this.users.clear();
+    for (const u of newUsers) {
+      this.users.set(u.id, u);
+    }
+  }
+
   /**
    * List users with optional filter criteria.
    * Requires staff user.

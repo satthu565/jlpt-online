@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AdminGuard } from '../lib/ui-guard';
 import { useAdminAuth } from '../lib/auth-context';
 import { getNavigationSections } from '../lib/navigation';
@@ -15,195 +15,224 @@ export interface DashboardMetrics {
   activeDau: number;
 }
 
+export interface ActivityItem {
+  id: string;
+  title: string;
+  time: string;
+  type: string;
+}
+
 export default function AdminDashboardPage(): React.JSX.Element {
-  const { user, locale } = useAdminAuth();
+  const { user, token, locale } = useAdminAuth();
   const sections = user ? getNavigationSections(user.role) : [];
 
-  const [metrics] = useState<DashboardMetrics>({
-    totalUsers: 1420,
-    totalExams: 36,
-    overallCompletionRate: 78.4,
-    openReportsCount: 4,
-    grossRevenueVnd: 48900000,
-    activeDau: 320,
+  const [metrics, setMetrics] = useState<DashboardMetrics>({
+    totalUsers: 0,
+    totalExams: 0,
+    overallCompletionRate: 0,
+    openReportsCount: 0,
+    grossRevenueVnd: 0,
+    activeDau: 0,
   });
 
-  const [activities] = useState<Array<{ id: string; title: string; time: string; type: string }>>([
-    { id: '1', title: 'Thí sinh hoàn thành bài thi thử N3 tháng 12', time: '5 phút trước', type: 'exam' },
-    { id: '2', title: 'Đơn hàng gói Premium 3 Tháng được thanh toán thành công', time: '12 phút trước', type: 'payment' },
-    { id: '3', title: 'Biên tập viên xuất bản bài viết Hướng dẫn thi JLPT', time: '1 giờ trước', type: 'cms' },
-    { id: '4', title: 'Báo cáo lỗi câu hỏi Nghe N2 được gửi từ học viên', time: '2 giờ trước', type: 'report' },
-  ]);
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchDashboard = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/v1/admin/dashboard', {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Host: 'admin.jlpt.local',
+        },
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          setError(t('auth.unauthenticated', locale));
+        } else if (res.status === 403) {
+          setError(t('auth.forbidden', locale));
+        } else {
+          setError(t('common.error', locale));
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      const data = (await res.json()) as {
+        metrics?: DashboardMetrics;
+        activities?: ActivityItem[];
+        totalUsers?: number;
+        totalExams?: number;
+        overallCompletionRate?: number;
+        openReportsCount?: number;
+        grossRevenueVnd?: number;
+        activeUsers30d?: number;
+        recentActivities?: Array<{ id: string; title: string; timestamp?: string; time?: string; type: string }>;
+      };
+
+      if (data.metrics) {
+        setMetrics(data.metrics);
+      } else if (data.totalUsers !== undefined) {
+        setMetrics({
+          totalUsers: data.totalUsers ?? 0,
+          totalExams: data.totalExams ?? 0,
+          overallCompletionRate: data.overallCompletionRate ?? 0,
+          openReportsCount: data.openReportsCount ?? 0,
+          grossRevenueVnd: data.grossRevenueVnd ?? 0,
+          activeDau: data.activeUsers30d ?? 0,
+        });
+      }
+
+      if (Array.isArray(data.activities)) {
+        setActivities(data.activities);
+      } else if (Array.isArray(data.recentActivities)) {
+        setActivities(
+          data.recentActivities.map((act) => ({
+            id: act.id,
+            title: act.title,
+            time: act.time || (act.timestamp ? new Date(act.timestamp).toLocaleTimeString('vi-VN') : 'Vừa xong'),
+            type: act.type,
+          })),
+        );
+      }
+    } catch {
+      setError(t('common.error', locale));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [token, locale]);
+
+  useEffect(() => {
+    void fetchDashboard();
+  }, [fetchDashboard]);
 
   return (
     <AdminGuard pathname="/">
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
+      <div className="w-full max-w-7xl mx-auto p-4 md:p-8 space-y-6 overflow-x-hidden">
         {/* Header */}
-        <header
-          style={{
-            background: '#ffffff',
-            padding: '1.5rem 2rem',
-            borderRadius: '12px',
-            border: '1px solid #e5e7eb',
-            marginBottom: '2rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '1rem',
-          }}
-        >
+        <header className="bg-white p-6 rounded-xl border border-gray-200 flex flex-wrap items-center justify-between gap-4 shadow-xs">
           <div>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#111827' }}>
-              {t('app.title', locale)}
+            <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
+              Tổng quan chỉ số hoạt động hệ thống (ADM-01)
             </h1>
-            <p style={{ margin: 0, color: '#4b5563', fontSize: '0.95rem' }}>
+            <p className="mt-1 text-sm text-gray-500">
               Xin chào <strong>{user?.name || user?.email}</strong> — Chúc bạn một ngày làm việc hiệu quả!
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span
-              style={{
-                padding: '0.35rem 0.75rem',
-                borderRadius: '9999px',
-                background: '#e0e7ff',
-                color: '#3730a3',
-                fontSize: '0.85rem',
-                fontWeight: 600,
-              }}
-            >
+          <div className="flex items-center gap-3">
+            <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold">
               Vai trò: {user ? t(`roles.${user.role}`, locale) : ''}
             </span>
-            <span
-              style={{
-                padding: '0.35rem 0.75rem',
-                borderRadius: '9999px',
-                background: '#d1fae5',
-                color: '#065f46',
-                fontSize: '0.85rem',
-                fontWeight: 600,
-              }}
-            >
+            <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">
               ✓ TOTP 2FA Đã kích hoạt
             </span>
           </div>
         </header>
 
-        {/* ADM-01: Key Performance Metrics Overview */}
-        <section aria-labelledby="kpi-heading" style={{ marginBottom: '2.5rem' }}>
-          <h2 id="kpi-heading" style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1rem', color: '#1f2937' }}>
-            Tổng quan chỉ số hoạt động hệ thống (ADM-01)
-          </h2>
+        {/* Alerts: Loading / Error */}
+        {error && (
           <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '1rem',
-            }}
+            role="alert"
+            data-testid="dashboard-error-alert"
+            className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-center justify-between"
           >
+            <span>{error}</span>
+            <button
+              onClick={() => void fetchDashboard()}
+              className="px-3 py-1 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700"
+            >
+              {t('common.retry', locale)}
+            </button>
+          </div>
+        )}
+
+        {isLoading && (
+          <div
+            role="status"
+            data-testid="dashboard-loading"
+            className="p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-sm flex items-center gap-2"
+          >
+            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+            <span>{t('common.loading', locale)}</span>
+          </div>
+        )}
+
+        {/* Metrics Grid */}
+        <section aria-labelledby="metrics-heading" className="space-y-3">
+          <h2 id="metrics-heading" className="text-lg font-bold text-gray-800">
+            Chỉ số hoạt động cốt lõi (Live System Overview)
+          </h2>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <div
               data-testid="stat-total-users"
-              style={{
-                background: '#ffffff',
-                padding: '1.25rem',
-                borderRadius: '10px',
-                border: '1px solid #e5e7eb',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-              }}
+              className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs space-y-1"
             >
-              <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.35rem' }}>Tổng người dùng</div>
-              <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#111827' }}>
+              <div className="text-xs text-gray-500 font-medium">Người dùng hệ thống</div>
+              <div className="text-2xl font-extrabold text-gray-900">
                 {metrics.totalUsers.toLocaleString()}
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#10b981', marginTop: '0.25rem' }}>
-                DAU: {metrics.activeDau} hoạt động hôm nay
-              </div>
+              <div className="text-xs text-gray-500">Tài khoản học viên &amp; nhân sự</div>
             </div>
 
             <div
               data-testid="stat-total-exams"
-              style={{
-                background: '#ffffff',
-                padding: '1.25rem',
-                borderRadius: '10px',
-                border: '1px solid #e5e7eb',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-              }}
+              className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs space-y-1"
             >
-              <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.35rem' }}>Đề thi hoạt động</div>
-              <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#2563eb' }}>
+              <div className="text-xs text-gray-500 font-medium">Đề thi công bố</div>
+              <div className="text-2xl font-extrabold text-blue-600">
                 {metrics.totalExams}
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>Từ N5 đến N1</div>
+              <div className="text-xs text-gray-500">Từ N5 đến N1</div>
             </div>
 
             <div
               data-testid="stat-completion-rate"
-              style={{
-                background: '#ffffff',
-                padding: '1.25rem',
-                borderRadius: '10px',
-                border: '1px solid #e5e7eb',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-              }}
+              className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs space-y-1"
             >
-              <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.35rem' }}>Tỷ lệ hoàn thành</div>
-              <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#059669' }}>
+              <div className="text-xs text-gray-500 font-medium">Tỷ lệ hoàn thành đề</div>
+              <div className="text-2xl font-extrabold text-emerald-600">
                 {metrics.overallCompletionRate}%
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>Bài thi nộp thành công</div>
+              <div className="text-xs text-gray-500">Bài thi nộp thành công</div>
             </div>
 
             <div
               data-testid="stat-open-reports"
-              style={{
-                background: '#ffffff',
-                padding: '1.25rem',
-                borderRadius: '10px',
-                border: '1px solid #e5e7eb',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-              }}
+              className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs space-y-1"
             >
-              <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.35rem' }}>Báo lỗi câu hỏi</div>
-              <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#d97706' }}>
+              <div className="text-xs text-gray-500 font-medium">Báo lỗi câu hỏi</div>
+              <div className="text-2xl font-extrabold text-amber-600">
                 {metrics.openReportsCount}
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#d97706', marginTop: '0.25rem' }}>Cần xử lý & kiểm duyệt</div>
+              <div className="text-xs text-amber-600 font-medium">Cần xử lý &amp; kiểm duyệt</div>
             </div>
 
             <div
               data-testid="stat-gross-revenue"
-              style={{
-                background: '#ffffff',
-                padding: '1.25rem',
-                borderRadius: '10px',
-                border: '1px solid #e5e7eb',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-              }}
+              className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs space-y-1"
             >
-              <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.35rem' }}>Doanh thu gói học</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#7c3aed' }}>
+              <div className="text-xs text-gray-500 font-medium">Doanh thu gói học</div>
+              <div className="text-2xl font-extrabold text-purple-600 truncate">
                 {metrics.grossRevenueVnd.toLocaleString()} đ
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#10b981', marginTop: '0.25rem' }}>Đã đối soát thanh toán</div>
+              <div className="text-xs text-emerald-600 font-medium">Đã đối soát thanh toán</div>
             </div>
           </div>
         </section>
 
         {/* Dynamic Section Cards */}
-        <section aria-labelledby="modules-heading" style={{ marginBottom: '2.5rem' }}>
-          <h2 id="modules-heading" style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.25rem' }}>
+        <section aria-labelledby="modules-heading" className="space-y-3">
+          <h2 id="modules-heading" className="text-lg font-bold text-gray-800">
             Chức năng quản trị được phân quyền
           </h2>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '1.25rem',
-            }}
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {sections
               .filter((sec) => sec.id !== 'overview')
               .flatMap((sec) => sec.items)
@@ -212,25 +241,15 @@ export default function AdminDashboardPage(): React.JSX.Element {
                   key={item.id}
                   href={item.href}
                   data-testid={`dashboard-card-${item.id}`}
-                  style={{
-                    display: 'block',
-                    background: '#ffffff',
-                    padding: '1.5rem',
-                    borderRadius: '10px',
-                    border: '1px solid #e5e7eb',
-                    textDecoration: 'none',
-                    color: '#111827',
-                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.05)',
-                    transition: 'border-color 0.15s, transform 0.15s',
-                  }}
+                  className="block bg-white p-5 rounded-xl border border-gray-200 shadow-xs hover:border-blue-500 hover:shadow-md transition duration-150"
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: 0, color: '#1f2937' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-base font-bold text-gray-900">
                       {t(item.labelKey, locale)}
                     </h3>
-                    <span style={{ fontSize: '1.2rem', color: '#2563eb' }}>→</span>
+                    <span className="text-blue-600 text-lg font-bold">→</span>
                   </div>
-                  <p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280', lineHeight: 1.5 }}>
+                  <p className="text-xs text-gray-500 leading-relaxed">
                     Truy cập mô-đun {t(item.labelKey, locale).toLowerCase()} theo thẩm quyền của bạn.
                   </p>
                 </a>
@@ -239,37 +258,30 @@ export default function AdminDashboardPage(): React.JSX.Element {
         </section>
 
         {/* Recent Activity Stream */}
-        <section aria-labelledby="activity-heading">
-          <h2 id="activity-heading" style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1rem', color: '#1f2937' }}>
+        <section aria-labelledby="activity-heading" className="space-y-3">
+          <h2 id="activity-heading" className="text-lg font-bold text-gray-800">
             Nhật ký hoạt động trực tiếp gần đây
           </h2>
-          <div
-            style={{
-              background: '#ffffff',
-              borderRadius: '10px',
-              border: '1px solid #e5e7eb',
-              overflow: 'hidden',
-            }}
-          >
-            {activities.map((act, idx) => (
-              <div
-                key={act.id}
-                data-testid={`activity-item-${act.id}`}
-                style={{
-                  padding: '1rem 1.5rem',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  borderBottom: idx < activities.length - 1 ? '1px solid #f3f4f6' : 'none',
-                }}
-              >
-                <div>
-                  <div style={{ fontSize: '0.95rem', fontWeight: 500, color: '#111827' }}>{act.title}</div>
-                  <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>Phân hệ: {act.type}</div>
-                </div>
-                <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>{act.time}</span>
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 shadow-xs">
+            {activities.length === 0 ? (
+              <div data-testid="activity-empty" className="p-6 text-center text-xs text-gray-400 italic">
+                {t('common.empty', locale)}
               </div>
-            ))}
+            ) : (
+              activities.map((act) => (
+                <div
+                  key={act.id}
+                  data-testid={`activity-item-${act.id}`}
+                  className="p-4 flex items-center justify-between hover:bg-gray-50"
+                >
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900">{act.title}</div>
+                    <div className="text-xs text-gray-500">Phân hệ: {act.type}</div>
+                  </div>
+                  <span className="text-xs text-gray-400">{act.time}</span>
+                </div>
+              ))
+            )}
           </div>
         </section>
       </div>
