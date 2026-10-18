@@ -29,28 +29,6 @@ function getProjectClientIp(testInfo: { project?: { name?: string } }, offset = 
   return `198.51.100.${base + offset}`;
 }
 
-let globalLastUsedTotpStep = 0;
-
-function getSharedTotpStep(): number {
-  try {
-    if (fs.existsSync('/tmp/jlpt_admin_totp_last_step.txt')) {
-      const val = parseInt(fs.readFileSync('/tmp/jlpt_admin_totp_last_step.txt', 'utf8').trim(), 10);
-      if (!isNaN(val)) return Math.max(globalLastUsedTotpStep, val);
-    }
-  } catch {
-    // ignore
-  }
-  return globalLastUsedTotpStep;
-}
-
-function setSharedTotpStep(step: number): void {
-  globalLastUsedTotpStep = step;
-  try {
-    fs.writeFileSync('/tmp/jlpt_admin_totp_last_step.txt', String(step));
-  } catch {
-    // ignore
-  }
-}
 
 /**
  * End-to-End Integration Suite with Real API & Services (I00)

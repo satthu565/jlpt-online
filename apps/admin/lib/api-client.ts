@@ -814,22 +814,6 @@ export class AdminApiClient {
     });
   }
 
-  public async listContentReports(filters?: { status?: string; questionId?: string }): Promise<{ items: unknown[] }> {
-    const params = new URLSearchParams();
-    if (filters?.status && filters.status !== 'all') params.set('status', filters.status);
-    if (filters?.questionId) params.set('questionId', filters.questionId);
-    const qs = params.toString() ? `?${params.toString()}` : '';
-    return this.request<{ items: unknown[] }>('GET', `/api/v1/admin/content-reports${qs}`, {
-      requiredRoles: ['admin', 'editor', 'reviewer', 'moderator'],
-    });
-  }
-
-  public async updateContentReport(id: string, body: { status: string; notes?: string }): Promise<unknown> {
-    return this.request('PATCH', `/api/v1/admin/content-reports/${encodeURIComponent(id)}`, {
-      requiredRoles: ['admin', 'editor', 'reviewer', 'moderator'],
-      body,
-    });
-  }
 
   public async getDashboard(): Promise<{
     metrics: {

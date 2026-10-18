@@ -183,9 +183,12 @@ describe('I04 Commercial, Reports & Experiments Real API Integration Suite', () 
         {
           id: 'rep-01',
           questionId: 'q-n3-kanji-04',
+          examTitle: 'JLPT N3 Tháng 12/2023',
           level: 'N3',
-          issueType: 'wrong_answer',
+          issueType: 'wrong_answer' as const,
+          description: 'Đáp án đúng là B thay vì C...',
           status: 'open' as const,
+          reporterEmail: 'student1@example.com',
           createdAt: '2026-10-15 09:30',
         },
       ];
@@ -350,7 +353,8 @@ describe('I04 Commercial, Reports & Experiments Real API Integration Suite', () 
       expect(Array.isArray(expRes)).toBe(true);
 
       const contentReportsRes = await client.listContentReports();
-      expect(contentReportsRes.items).toBeDefined();
+      const reportsList = Array.isArray(contentReportsRes) ? contentReportsRes : contentReportsRes.items;
+      expect(Array.isArray(reportsList)).toBe(true);
     });
   });
 });
