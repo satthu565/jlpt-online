@@ -75,6 +75,7 @@ export function PlansManager({ billingManager, onPlanCreated }: PlansManagerProp
     const payload = {
       name,
       code,
+      term: interval,
       interval,
       priceMinor: Number(priceMinor),
       currency: 'VND',

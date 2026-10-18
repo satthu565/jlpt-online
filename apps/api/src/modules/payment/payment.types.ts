@@ -21,7 +21,8 @@ export interface PlanDto {
 export interface AdminPlanCreateDto {
   name: string;
   code: string;
-  term: PaymentTerm | 'lifetime';
+  term?: PaymentTerm | 'lifetime' | string;
+  interval?: PaymentTerm | 'lifetime' | string;
   priceMinor: number;
   currency?: string;
   entitlements?: string[];
@@ -67,10 +68,13 @@ export interface RefundRequestDto {
 
 export interface AdminCouponCreateDto {
   code: string;
-  discountPercent?: number;
-  discountMinor?: number;
-  maxUses: number;
-  expiresAt: string;
+  discountPercent?: number | null;
+  discountMinor?: number | null;
+  discountAmount?: number | null;
+  maxUses?: number;
+  maxRedemptions?: number;
+  expiresAt?: string;
+  validUntil?: string;
   scope?: string;
 }
 

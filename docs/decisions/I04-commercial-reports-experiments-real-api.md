@@ -108,6 +108,11 @@ Mục tiêu của I04:
      - Bật/Tắt thử nghiệm A/B (`btn-toggle-experiment-*`, xác nhận trạng thái cập nhật trên UI).
      - Điều hướng và xác minh dữ liệu DTO thực của các tab báo cáo (Retention, Funnel, Conversion).
 
+6. **Sửa lỗi ánh xạ interval/term khi tạo gói dịch vụ và đồng bộ bước TOTP qua tiến trình Playwright**:
+   - Khi tạo gói dịch vụ từ giao diện `/commercial/plans`, payload client gửi thuộc tính `interval`, trong khi DTO backend trước đó chỉ nhận `term`. Đã đồng bộ `AdminPlanCreateDto` và `PaymentService.createAdminPlan` hỗ trợ cả hai trường `term` và `interval` kèm giá trị mặc định an toàn ('month'), ngăn chặn triệt để lỗi 500 do chèn `default` vào cột NOT NULL không có DEFAULT expression trong Postgres.
+   - Bổ sung ánh xạ đồng bộ cho mã giảm giá `AdminCouponCreateDto` (hỗ trợ cả `discountAmount`/`discountMinor`, `maxRedemptions`/`maxUses`, `validUntil`/`expiresAt`), chuẩn hóa cột CSDL trong `ensureInitialCoupons()`.
+   - Cơ chế ghi nhận bước TOTP (`/tmp/jlpt_admin_totp_last_step.txt`) giúp đồng bộ hóa giữa các worker Playwright và các project trình duyệt khác nhau, tránh xung đột chống phát lại mã cũ (Replay Protection) của NestJS `AuthService`.
+
 ---
 
 ## 3. Nghiệm thu & Kết quả Kiểm tra
@@ -118,7 +123,8 @@ Mục tiêu của I04:
   - `pnpm install --frozen-lockfile`: PASS.
   - `pnpm lint`: PASS (13/13 packages).
   - `pnpm typecheck`: PASS (20/20 packages).
-  - `pnpm test`: PASS (20/20 packages, 40 test files & 533 tests in api).
-  - `pnpm build`: PASS (12/12 packages built successfully).
+  - `pnpm test`: PASS.
+  - `pnpm build`: PASS.
 - **Staging Verification**: `sudo -n /usr/local/bin/jlpt-stage-test check` đạt PASS.
+
 

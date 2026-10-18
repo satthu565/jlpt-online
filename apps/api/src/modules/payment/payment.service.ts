@@ -242,12 +242,14 @@ export class PaymentService {
       .where(eq(schema.plans.id, planId))
       .limit(1);
 
+    const intervalVal = (input.term || input.interval || 'month') as string;
+
     if (existingPlan.length === 0) {
       await db.insert(schema.plans).values({
         id: planId,
         name: input.name,
         description: `Gói ${input.name}`,
-        interval: input.term,
+        interval: intervalVal,
         price: input.priceMinor,
         currency: input.currency || 'VND',
         isActive: input.active ?? true,
@@ -258,6 +260,7 @@ export class PaymentService {
         .update(schema.plans)
         .set({
           name: input.name,
+          interval: intervalVal,
           price: input.priceMinor,
           currency: input.currency || existingPlan[0]!.currency,
           isActive: input.active ?? existingPlan[0]!.isActive,
@@ -286,7 +289,7 @@ export class PaymentService {
     return {
       id: planId,
       name: input.name,
-      interval: input.term,
+      interval: intervalVal,
       priceMinor: input.priceMinor,
       currency: input.currency || 'VND',
       version: nextVer,
@@ -964,6 +967,7 @@ export class PaymentService {
   }
 
   async getAdminSubscriptions(): Promise<{ items: (typeof schema.subscriptions.$inferSelect)[] }> {
+    await this.ensureInitialOrdersAndRefunds();
     const db = this.dbClient.db;
     const rows = await db
       .select()
@@ -1002,7 +1006,10 @@ export class PaymentService {
     if (existing.length === 0) {
       const now = new Date();
       const userRows = (await db.select({ id: schema.users.id }).from(schema.users).limit(1)) as Array<{ id: string }>;
-      const userId = userRows[0]?.id || generateUuidV7();
+      if (userRows.length === 0) {
+        return;
+      }
+      const userId = userRows[0]!.id;
 
       const order1Id = generateUuidV7();
       await db.insert(schema.orders).values({
@@ -1032,6 +1039,22 @@ export class PaymentService {
         status: 'requested',
         createdAt: now,
       }).onConflictDoNothing();
+
+      const subExisting = await db.select().from(schema.subscriptions).limit(1);
+      if (subExisting.length === 0) {
+        await this.ensureInitialPlans();
+        const planRows = await db.select({ id: schema.plans.id }).from(schema.plans).limit(1);
+        const planId = planRows[0]?.id || 'n2_monthly';
+        await db.insert(schema.subscriptions).values({
+          id: generateUuidV7(),
+          userId,
+          planId,
+          status: 'active',
+          currentPeriodStart: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000),
+          currentPeriodEnd: new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000),
+          cancelAtPeriodEnd: false,
+        }).onConflictDoNothing();
+      }
     }
   }
 
@@ -1300,20 +1323,18 @@ export class PaymentService {
           {
             code: 'JLPT2026',
             discountPercent: 20,
-            discountMinor: null,
-            maxUses: 100,
-            usedCount: 0,
-            expiresAt: new Date('2026-12-31T23:59:59Z'),
-            createdAt: new Date(),
+            discountAmount: null,
+            maxRedemptions: 100,
+            timesRedeemed: 0,
+            validUntil: new Date('2026-12-31T23:59:59Z'),
           },
           {
             code: 'WELCOME50K',
             discountPercent: null,
-            discountMinor: 50000,
-            maxUses: 500,
-            usedCount: 0,
-            expiresAt: new Date('2026-12-31T23:59:59Z'),
-            createdAt: new Date(),
+            discountAmount: 50000,
+            maxRedemptions: 500,
+            timesRedeemed: 0,
+            validUntil: new Date('2026-12-31T23:59:59Z'),
           },
         ])
         .onConflictDoNothing();
@@ -1328,23 +1349,26 @@ export class PaymentService {
   }
 
   async createAdminCoupon(input: AdminCouponCreateDto): Promise<typeof schema.coupons.$inferSelect> {
-    if (input.maxUses <= 0) {
+    const maxUses = input.maxRedemptions ?? input.maxUses ?? 1;
+    if (maxUses <= 0) {
       throw new BadRequestException('maxUses phải lớn hơn hoặc bằng 1.');
     }
 
-    if (!input.discountPercent && !input.discountMinor) {
-      throw new BadRequestException('Mã giảm giá phải có discountPercent hoặc discountMinor.');
+    const discountAmount = input.discountAmount ?? input.discountMinor;
+    if (!input.discountPercent && !discountAmount) {
+      throw new BadRequestException('Mã giảm giá phải có discountPercent hoặc discountMinor/discountAmount.');
     }
 
     if (input.discountPercent && (input.discountPercent <= 0 || input.discountPercent > 100)) {
       throw new BadRequestException('discountPercent phải nằm trong khoảng từ 1 đến 100.');
     }
 
-    if (input.discountMinor && input.discountMinor <= 0) {
-      throw new BadRequestException('discountMinor phải lớn hơn 0.');
+    if (discountAmount && discountAmount <= 0) {
+      throw new BadRequestException('discountMinor/discountAmount phải lớn hơn 0.');
     }
 
-    const expiryDate = new Date(input.expiresAt);
+    const expiryRaw = input.validUntil ?? input.expiresAt;
+    const expiryDate = expiryRaw ? new Date(expiryRaw) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
     if (expiryDate <= new Date()) {
       throw new BadRequestException('Ngày hết hạn phải ở tương lai.');
     }
@@ -1365,8 +1389,8 @@ export class PaymentService {
     await db.insert(schema.coupons).values({
       code: cleanCode,
       discountPercent: input.discountPercent ?? null,
-      discountAmount: input.discountMinor ?? null,
-      maxRedemptions: input.maxUses,
+      discountAmount: discountAmount ?? null,
+      maxRedemptions: maxUses,
       timesRedeemed: 0,
       validUntil: expiryDate,
     });

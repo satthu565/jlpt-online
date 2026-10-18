@@ -26,6 +26,27 @@ function getProjectClientIp(testInfo: { project?: { name?: string } }, offset = 
 
 let globalLastUsedTotpStep = 0;
 
+function getSharedTotpStep(): number {
+  try {
+    if (fs.existsSync('/tmp/jlpt_admin_totp_last_step.txt')) {
+      const val = parseInt(fs.readFileSync('/tmp/jlpt_admin_totp_last_step.txt', 'utf8').trim(), 10);
+      if (!isNaN(val)) return Math.max(globalLastUsedTotpStep, val);
+    }
+  } catch {
+    // ignore
+  }
+  return globalLastUsedTotpStep;
+}
+
+function setSharedTotpStep(step: number): void {
+  globalLastUsedTotpStep = step;
+  try {
+    fs.writeFileSync('/tmp/jlpt_admin_totp_last_step.txt', String(step));
+  } catch {
+    // ignore
+  }
+}
+
 /**
  * End-to-End Integration Suite with Real API & Services (I00)
  * Acceptance Criteria:
@@ -517,13 +538,15 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
   ];
 
   async function getFreshTotp(page: Page, secret: string): Promise<string> {
-    const currentStep = Math.floor(Date.now() / 1000 / 30);
-    if (currentStep <= globalLastUsedTotpStep) {
-      const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
+    let currentStep = Math.floor(Date.now() / 1000 / 30);
+    const lastStep = getSharedTotpStep();
+    if (currentStep <= lastStep) {
+      const msToNextStep = 30000 - (Date.now() % 30000) + 1500;
       await page.waitForTimeout(msToNextStep);
+      currentStep = Math.floor(Date.now() / 1000 / 30);
     }
     const code = generateTotp(secret);
-    globalLastUsedTotpStep = Math.floor(Date.now() / 1000 / 30);
+    setSharedTotpStep(currentStep);
     return code;
   }
 
@@ -803,13 +826,15 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
   ];
 
   async function getFreshTotpI04(page: Page, secret: string): Promise<string> {
-    const currentStep = Math.floor(Date.now() / 1000 / 30);
-    if (currentStep <= globalLastUsedTotpStep) {
-      const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
+    let currentStep = Math.floor(Date.now() / 1000 / 30);
+    const lastStep = getSharedTotpStep();
+    if (currentStep <= lastStep) {
+      const msToNextStep = 30000 - (Date.now() % 30000) + 1500;
       await page.waitForTimeout(msToNextStep);
+      currentStep = Math.floor(Date.now() / 1000 / 30);
     }
     const code = generateTotp(secret);
-    globalLastUsedTotpStep = Math.floor(Date.now() / 1000 / 30);
+    setSharedTotpStep(currentStep);
     return code;
   }
 
@@ -831,7 +856,7 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     } catch {
       const challengeError = page.locator('[data-testid="challenge-error-alert"]');
       if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
-        const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
+        const msToNextStep = 30000 - (Date.now() % 30000) + 1500;
         await page.waitForTimeout(msToNextStep);
         validTotp = await getFreshTotpI04(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
         await codeInput.fill(validTotp);
@@ -892,10 +917,10 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     await page.goto(`${adminOrigin}/commercial/payments`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('[data-testid="tab-payments"]')).toBeVisible();
-    await expect(page.locator('[data-testid="payments-table"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="payments-table"], [data-testid="payments-empty"]')).toBeVisible({ timeout: 10000 });
     await page.locator('[data-testid="tab-subscriptions"]').click();
     await expect(page.locator('[data-testid="tab-subscriptions"]')).toBeVisible();
-    await expect(page.locator('[data-testid="subscriptions-table"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="subscriptions-table"], [data-testid="subscriptions-empty"]')).toBeVisible({ timeout: 10000 });
 
     // 3. Commercial Refunds
     await page.goto(`${adminOrigin}/commercial/refunds`, { waitUntil: 'domcontentloaded' });

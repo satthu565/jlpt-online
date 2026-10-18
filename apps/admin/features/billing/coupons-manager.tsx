@@ -77,8 +77,11 @@ export function CouponsManager({ billingManager, onCouponCreated }: CouponsManag
       code,
       discountPercent: discountType === 'percent' ? Number(discountVal) : null,
       discountAmount: discountType === 'amount' ? Number(discountVal) : null,
+      discountMinor: discountType === 'amount' ? Number(discountVal) : null,
       maxRedemptions: Number(maxRedemptions),
+      maxUses: Number(maxRedemptions),
       validUntil: expiresAt,
+      expiresAt,
     };
 
     try {
