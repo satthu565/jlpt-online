@@ -2,7 +2,7 @@
 
 - **Worker**: W4 (Quản trị báo cáo và thương mại)
 - **Task ID**: I03
-- **Assignment ID**: I03-6
+- **Assignment ID**: I03-9
 - **Trạng thái**: REVIEW
 - **Ngày**: 2026-10-18
 - **Tài liệu tham chiếu**: `docs/multi-worker/AGENTS.md`, `docs/multi-worker/KE_HOACH_TRIEN_KHAI.md`, `docs/multi-worker/demo-data/README.md`, hợp đồng API Quản trị Nội dung
