@@ -415,4 +415,51 @@ describe('A02: Community Module Tests (GAME-07..09, Acceptance 4: Discussion ch�
       expect(record).toBeDefined();
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // I11: Validation id sai định dạng trả 400 Bad Request, không bao giờ 500
+  // ---------------------------------------------------------------------------
+  describe('I11: Route API nhận id sai định dạng trả 400, không bao giờ 500', () => {
+    it('throws BadRequestException (400) when questionId is not a valid UUID (e.g. q-default-1)', async () => {
+      await expect(
+        communityController.listQuestionDiscussions('q-default-1', studentCompleted),
+      ).rejects.toMatchObject({
+        response: {
+          code: 'INVALID_UUID',
+          message: expect.stringContaining('UUID'),
+        },
+      });
+
+      await expect(
+        communityController.postQuestionComment('q-default-1', studentCompleted, {
+          content: 'Thử gửi bình luận với id sai định dạng',
+        }),
+      ).rejects.toMatchObject({
+        response: {
+          code: 'INVALID_UUID',
+          message: expect.stringContaining('UUID'),
+        },
+      });
+    });
+
+    it('throws BadRequestException (400) when commentId is not a valid UUID', async () => {
+      await expect(
+        communityController.reportComment('invalid-comment-id', studentCompleted, {
+          reason: 'Spam',
+        }),
+      ).rejects.toMatchObject({
+        response: {
+          code: 'INVALID_UUID',
+        },
+      });
+
+      await expect(
+        communityController.deleteComment('invalid-comment-id', studentCompleted),
+      ).rejects.toMatchObject({
+        response: {
+          code: 'INVALID_UUID',
+        },
+      });
+    });
+  });
 });
