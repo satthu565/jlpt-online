@@ -2,19 +2,15 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Role } from '@jlpt/schema';
 import { useAdminAuth } from '../../lib/auth-context';
-import { STAFF_ROLES } from '../../lib/navigation';
 import { t } from '../../lib/i18n';
 
 export default function StaffLoginPage(): React.JSX.Element {
   const router = useRouter();
   const { login, locale, error: authError } = useAdminAuth();
 
-  const [email, setEmail] = useState('editor@jlpt.local');
-  const [password, setPassword] = useState('••••••••••••');
-  const [role, setRole] = useState<Role>('editor');
-  const [has2faEnabled, setHas2faEnabled] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -24,7 +20,7 @@ export default function StaffLoginPage(): React.JSX.Element {
     setIsSubmitting(true);
 
     try {
-      const res = await login(email, role, has2faEnabled);
+      const res = await login(email, password);
       if (!res.success) {
         setLocalError(res.error || t('auth.invalidCredentials', locale));
         setIsSubmitting(false);
@@ -105,6 +101,7 @@ export default function StaffLoginPage(): React.JSX.Element {
             </label>
             <input
               id="email-input"
+              name="email"
               data-testid="email-input"
               type="email"
               required
@@ -131,6 +128,7 @@ export default function StaffLoginPage(): React.JSX.Element {
             </label>
             <input
               id="password-input"
+              name="password"
               data-testid="password-input"
               type="password"
               required
@@ -146,50 +144,6 @@ export default function StaffLoginPage(): React.JSX.Element {
                 boxSizing: 'border-box',
               }}
             />
-          </div>
-
-          <div>
-            <label
-              htmlFor="role-select"
-              style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.35rem' }}
-            >
-              Vai trò nhân sự (Staff Role)
-            </label>
-            <select
-              id="role-select"
-              data-testid="role-select"
-              value={role}
-              onChange={(e) => setRole(e.target.value as Role)}
-              style={{
-                width: '100%',
-                padding: '0.625rem 0.75rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '0.95rem',
-                boxSizing: 'border-box',
-                background: '#ffffff',
-              }}
-            >
-              {STAFF_ROLES.map((r) => (
-                <option key={r} value={r}>
-                  {t(`roles.${r}`, locale)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <input
-              id="twofactor-checkbox"
-              data-testid="twofactor-checkbox"
-              type="checkbox"
-              checked={has2faEnabled}
-              onChange={(e) => setHas2faEnabled(e.target.checked)}
-              style={{ width: '16px', height: '16px' }}
-            />
-            <label htmlFor="twofactor-checkbox" style={{ fontSize: '0.85rem', color: '#4b5563', cursor: 'pointer' }}>
-              Tài khoản đã kích hoạt 2FA trước đó (yêu cầu xác thực ngay)
-            </label>
           </div>
 
           <button

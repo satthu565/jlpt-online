@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState, useTransition } 
 import type { Role } from '@jlpt/schema';
 import { isStaffRole } from './navigation';
 import type { Locale } from './i18n';
-import { DEFAULT_LOCALE } from './i18n';
+import { DEFAULT_LOCALE, t } from './i18n';
 
 export type TwoFactorStatus = 'verified' | 'setup_required' | 'challenge_required';
 
@@ -29,7 +29,12 @@ export interface AdminAuthState {
 }
 
 export interface AdminAuthContextValue extends AdminAuthState {
-  login: (email: string, role?: Role, twoFactorEnabled?: boolean) => Promise<{ success: boolean; nextStep: 'dashboard' | 'setup_2fa' | 'verify_2fa'; error?: string }>;
+  login: (
+    email: string,
+    password?: string,
+    role?: Role,
+    twoFactorEnabled?: boolean,
+  ) => Promise<{ success: boolean; nextStep: 'dashboard' | 'setup_2fa' | 'verify_2fa'; error?: string }>;
   logout: () => Promise<void>;
   setPendingSetup: (secret: string, recoveryCodes: string[]) => void;
   confirm2faSetup: (code: string) => Promise<boolean>;
@@ -48,11 +53,13 @@ export function AdminAuthProvider({
   children,
   initialUser = null,
   initialToken = null,
+  initialLocale,
   initialLoading,
 }: {
   children: React.ReactNode;
   initialUser?: StaffUser | null;
   initialToken?: string | null;
+  initialLocale?: Locale;
   initialLoading?: boolean;
 }): React.JSX.Element {
   const [user, setUserState] = useState<StaffUser | null>(initialUser);
@@ -63,25 +70,68 @@ export function AdminAuthProvider({
     initialLoading !== undefined ? initialLoading : !initialUser,
   );
   const [error, setError] = useState<string | null>(null);
-  const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
+  const [locale, setLocaleState] = useState<Locale>(initialLocale || DEFAULT_LOCALE);
   const [, startTransition] = useTransition();
 
-  // Load persisted session from localStorage in browser
+  // Load persisted session from localStorage in browser and verify with server
   useEffect(() => {
-    try {
-      if (typeof window !== 'undefined') {
-        const savedLocale = localStorage.getItem(STORAGE_KEY_LOCALE) as Locale | null;
-        if (savedLocale && ['vi', 'ja', 'en'].includes(savedLocale)) {
-          setLocaleState(savedLocale);
-        }
+    if (typeof window === 'undefined') {
+      setIsLoading(false);
+      return;
+    }
 
-        const raw = localStorage.getItem(STORAGE_KEY_AUTH);
-        if (raw) {
-          const parsed = JSON.parse(raw) as { user: StaffUser; token: string };
-          if (parsed.user && isStaffRole(parsed.user.role)) {
-            setUserState(parsed.user);
-            setToken(parsed.token);
-          }
+    try {
+      const savedLocale = localStorage.getItem(STORAGE_KEY_LOCALE) as Locale | null;
+      if (savedLocale && ['vi', 'ja', 'en'].includes(savedLocale)) {
+        setLocaleState(savedLocale);
+      }
+
+      const raw = localStorage.getItem(STORAGE_KEY_AUTH);
+      if (raw && !initialUser) {
+        const parsed = JSON.parse(raw) as { user: StaffUser; token: string };
+        if (parsed.user && isStaffRole(parsed.user.role) && parsed.token) {
+          setUserState(parsed.user);
+          setToken(parsed.token);
+
+          // Verify session validity against server
+          fetch('/api/v1/auth/session', {
+            headers: { Authorization: `Bearer ${parsed.token}` },
+          })
+            .then(async (res) => {
+              if (res.ok) {
+                const data = (await res.json()) as {
+                  user: { id: string; email: string; name?: string | null; role: Role; twoFactorEnabled?: boolean } | null;
+                  session: { id: string; twoFactorVerified?: boolean } | null;
+                };
+                if (data.user && isStaffRole(data.user.role)) {
+                  const is2faVerified = data.session?.twoFactorVerified === true;
+                  const is2faEnabled = data.user.twoFactorEnabled === true;
+                  const twoFactorStatus: TwoFactorStatus = is2faEnabled
+                    ? is2faVerified
+                      ? 'verified'
+                      : 'challenge_required'
+                    : 'setup_required';
+
+                  const refreshedUser: StaffUser = {
+                    id: data.user.id,
+                    email: data.user.email,
+                    name: data.user.name ?? data.user.email.split('@')[0] ?? 'Staff',
+                    role: data.user.role,
+                    twoFactorEnabled: is2faEnabled,
+                    twoFactorStatus,
+                  };
+                  setUserState(refreshedUser);
+                  localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify({ user: refreshedUser, token: parsed.token }));
+                } else {
+                  saveToStorage(null, null);
+                }
+              } else if (res.status === 401) {
+                saveToStorage(null, null);
+              }
+            })
+            .catch(() => {
+              // Ignore network failure on startup
+            });
         }
       }
     } catch {
@@ -89,7 +139,7 @@ export function AdminAuthProvider({
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [initialUser]);
 
   const saveToStorage = (u: StaffUser | null, tok: string | null) => {
     setUserState(u);
@@ -112,45 +162,79 @@ export function AdminAuthProvider({
 
   const login = async (
     email: string,
-    role: Role = 'editor',
-    twoFactorEnabled = false,
+    password?: string,
+    _role?: Role,
+    _twoFactorEnabled?: boolean,
   ): Promise<{ success: boolean; nextStep: 'dashboard' | 'setup_2fa' | 'verify_2fa'; error?: string }> => {
     setError(null);
 
-    if (!isStaffRole(role)) {
-      const err = 'Chỉ tài khoản nhân sự (Admin, Editor, Reviewer) mới được phép đăng nhập.';
+    if (!password || !password.trim()) {
+      const err = t('auth.invalidCredentials', locale);
       setError(err);
       return { success: false, nextStep: 'dashboard', error: err };
     }
 
-    const mockId = `usr_${Date.now()}`;
-    const sessionToken = `admin_tok_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    try {
+      const res = await fetch('/api/v1/auth/sign-in/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-    // If 2FA is NOT enabled yet -> Must enroll (AWAITING_2FA_SETUP)
-    if (!twoFactorEnabled) {
-      const staffUser: StaffUser = {
-        id: mockId,
-        email,
-        name: email.split('@')[0] ?? 'Staff',
-        role,
-        twoFactorEnabled: false,
-        twoFactorStatus: 'setup_required',
+      if (!res.ok) {
+        let err = t('auth.invalidCredentials', locale);
+        try {
+          const errJson = (await res.json()) as { message?: string; error?: { message?: string } };
+          err = errJson.message || errJson.error?.message || err;
+        } catch {
+          // Fallback message
+        }
+        setError(err);
+        return { success: false, nextStep: 'dashboard', error: err };
+      }
+
+      const data = (await res.json()) as {
+        user: { id: string; email: string; name?: string | null; role: Role; emailVerified: boolean; twoFactorEnabled?: boolean };
+        session: { id: string; token: string; twoFactorVerified?: boolean };
       };
-      saveToStorage(staffUser, sessionToken);
-      return { success: true, nextStep: 'setup_2fa' };
-    }
 
-    // If 2FA IS enabled -> Must challenge (AWAITING_2FA_CHALLENGE)
-    const staffUser: StaffUser = {
-      id: mockId,
-      email,
-      name: email.split('@')[0] ?? 'Staff',
-      role,
-      twoFactorEnabled: true,
-      twoFactorStatus: 'challenge_required',
-    };
-    saveToStorage(staffUser, sessionToken);
-    return { success: true, nextStep: 'verify_2fa' };
+      if (!isStaffRole(data.user.role)) {
+        const err = t('auth.staffOnlyError', locale);
+        setError(err);
+        return { success: false, nextStep: 'dashboard', error: err };
+      }
+
+      const is2faEnabled = Boolean(data.user.twoFactorEnabled);
+      let twoFactorStatus: TwoFactorStatus = 'challenge_required';
+      let nextStep: 'dashboard' | 'setup_2fa' | 'verify_2fa' = 'verify_2fa';
+
+      if (!is2faEnabled) {
+        twoFactorStatus = 'setup_required';
+        nextStep = 'setup_2fa';
+      } else if (data.session?.twoFactorVerified) {
+        twoFactorStatus = 'verified';
+        nextStep = 'dashboard';
+      } else {
+        twoFactorStatus = 'challenge_required';
+        nextStep = 'verify_2fa';
+      }
+
+      const staffUser: StaffUser = {
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name ?? data.user.email.split('@')[0] ?? 'Staff',
+        role: data.user.role,
+        twoFactorEnabled: is2faEnabled,
+        twoFactorStatus,
+      };
+
+      saveToStorage(staffUser, data.session.token);
+      return { success: true, nextStep };
+    } catch (err: unknown) {
+      const message = (err as Error).message || t('auth.invalidCredentials', locale);
+      setError(message);
+      return { success: false, nextStep: 'dashboard', error: message };
+    }
   };
 
   const confirm2faSetup = async (code: string): Promise<boolean> => {
@@ -159,19 +243,47 @@ export function AdminAuthProvider({
     }
 
     if (!code || code.trim().length !== 6) {
+      setError(t('totp.invalidCode', locale));
       return false;
     }
 
-    // In client context, upon successful verification:
-    const upgradedUser: StaffUser = {
-      ...user,
-      twoFactorEnabled: true,
-      twoFactorStatus: 'verified',
-    };
-    saveToStorage(upgradedUser, token);
-    setPendingSetupSecret(null);
-    setPendingRecoveryCodes(null);
-    return true;
+    try {
+      const res = await fetch('/api/v1/auth/totp/confirm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ code: code.trim() }),
+      });
+
+      if (!res.ok) {
+        let err = t('totp.invalidCode', locale);
+        try {
+          const errJson = (await res.json()) as { message?: string; error?: { message?: string } };
+          err = errJson.message || errJson.error?.message || err;
+        } catch {
+          // Fallback
+        }
+        setError(err);
+        return false;
+      }
+
+      const upgradedUser: StaffUser = {
+        ...user,
+        twoFactorEnabled: true,
+        twoFactorStatus: 'verified',
+      };
+      saveToStorage(upgradedUser, token);
+      setPendingSetupSecret(null);
+      setPendingRecoveryCodes(null);
+      setError(null);
+      return true;
+    } catch (err: unknown) {
+      const msg = (err as Error).message || t('common.error', locale);
+      setError(msg);
+      return false;
+    }
   };
 
   const verify2faChallenge = async (code: string): Promise<boolean> => {
@@ -180,15 +292,45 @@ export function AdminAuthProvider({
     }
 
     if (!code || code.trim().length !== 6) {
+      setError(t('totp.invalidCode', locale));
       return false;
     }
 
-    const upgradedUser: StaffUser = {
-      ...user,
-      twoFactorStatus: 'verified',
-    };
-    saveToStorage(upgradedUser, token);
-    return true;
+    try {
+      const res = await fetch('/api/v1/auth/totp/challenge', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          'x-totp-code': code.trim(),
+        },
+        body: JSON.stringify({ code: code.trim() }),
+      });
+
+      if (!res.ok) {
+        let err = t('totp.invalidCode', locale);
+        try {
+          const errJson = (await res.json()) as { message?: string; error?: { message?: string } };
+          err = errJson.message || errJson.error?.message || err;
+        } catch {
+          // Fallback
+        }
+        setError(err);
+        return false;
+      }
+
+      const upgradedUser: StaffUser = {
+        ...user,
+        twoFactorStatus: 'verified',
+      };
+      saveToStorage(upgradedUser, token);
+      setError(null);
+      return true;
+    } catch (err: unknown) {
+      const msg = (err as Error).message || t('common.error', locale);
+      setError(msg);
+      return false;
+    }
   };
 
   const verifyRecoveryCode = async (code: string): Promise<boolean> => {
@@ -197,18 +339,60 @@ export function AdminAuthProvider({
     }
 
     if (!code || code.trim().length < 8) {
+      setError(t('totp.invalidRecoveryCode', locale));
       return false;
     }
 
-    const upgradedUser: StaffUser = {
-      ...user,
-      twoFactorStatus: 'verified',
-    };
-    saveToStorage(upgradedUser, token);
-    return true;
+    try {
+      const res = await fetch('/api/v1/auth/totp/recovery', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ code: code.trim() }),
+      });
+
+      if (!res.ok) {
+        let err = t('totp.invalidRecoveryCode', locale);
+        try {
+          const errJson = (await res.json()) as { message?: string; error?: { message?: string } };
+          err = errJson.message || errJson.error?.message || err;
+        } catch {
+          // Fallback
+        }
+        setError(err);
+        return false;
+      }
+
+      const upgradedUser: StaffUser = {
+        ...user,
+        twoFactorStatus: 'verified',
+      };
+      saveToStorage(upgradedUser, token);
+      setError(null);
+      return true;
+    } catch (err: unknown) {
+      const msg = (err as Error).message || t('common.error', locale);
+      setError(msg);
+      return false;
+    }
   };
 
   const logout = async () => {
+    try {
+      if (token && typeof window !== 'undefined') {
+        await fetch('/api/v1/auth/sign-out', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
+    } catch {
+      // Ignore network errors during sign-out
+    }
+
     startTransition(() => {
       saveToStorage(null, null);
       setPendingSetupSecret(null);

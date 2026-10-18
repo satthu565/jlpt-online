@@ -21,3 +21,17 @@ export interface BackupManagerSummary {
   lastDrillAt?: string;
   jobs: OperatorBackupJob[];
 }
+
+export interface BackupFilterCriteria {
+  jobType?: AllowedOperatorJobType;
+  status?: 'pending' | 'running' | 'completed' | 'failed';
+}
+
+export interface BackupSummary extends BackupManagerSummary {
+  totalJobsCount: number;
+  lastSuccessfulBaseBackup?: string;
+  lastSuccessfulPitrDrill?: string;
+  totalSizeBytes: number;
+  isRpoMet: boolean;
+}
+

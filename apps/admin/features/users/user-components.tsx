@@ -142,7 +142,7 @@ export function UserListTable({
           <tbody className="divide-y divide-gray-200">
             {users.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-gray-400 italic">
+                <td colSpan={5} data-testid="users-empty" className="px-4 py-6 text-center text-gray-400 italic">
                   Không tìm thấy người dùng phù hợp.
                 </td>
               </tr>
