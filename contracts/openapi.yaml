@@ -1570,6 +1570,16 @@ components:
           type: array
         scoring:
           properties:
+            disclaimer:
+              type: string
+            failedSections:
+              items:
+                type: string
+              type: array
+            isEstimated:
+              type: boolean
+            label:
+              type: string
             method:
               const: linear_reference
               type: string

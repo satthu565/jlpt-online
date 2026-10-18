@@ -1,7 +1,6 @@
 import type {
   BlueprintScoring,
   ExamAnswerKey,
-  Level,
   MondaiType,
   Result,
   ResultFlag,
@@ -44,23 +43,9 @@ export function calculateRawScore(
   };
 }
 
-/**
- * Provides minimum total passing score for JLPT levels
- */
-export function getPassingScore(level: Level): number {
-  switch (level) {
-    case 'N1':
-      return 100;
-    case 'N2':
-      return 90;
-    case 'N3':
-      return 95;
-    case 'N4':
-      return 90;
-    case 'N5':
-      return 80;
-  }
-}
+import { ESTIMATED_LABEL } from './score-estimation.js';
+export * from './score-estimation.js';
+
 
 /**
  * Calculates statistics broken down by mondai type (SCORE-05)
@@ -239,6 +224,7 @@ export function calculateStandardExamResult(
   const totalMax = scoredSections.reduce((acc, s) => acc + s.maxScaled, 0);
   const allSectionsPassed = scoredSections.every((s) => s.passed);
   const passEstimate = totalScaled >= scoring.totalPass && allSectionsPassed;
+  const failedSections = scoredSections.filter((s) => !s.passed).map((s) => s.code);
 
   // target evaluation (SCORE-13)
   const targetEvaluation = options?.targetScore
@@ -266,6 +252,9 @@ export function calculateStandardExamResult(
       totalPass: scoring.totalPass,
       passEstimate,
       disclaimer: REFERENCE_SCORING_DISCLAIMER,
+      isEstimated: true,
+      label: ESTIMATED_LABEL,
+      failedSections,
     },
     flags: options?.flags ?? [],
   };
