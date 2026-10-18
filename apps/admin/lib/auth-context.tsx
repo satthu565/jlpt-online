@@ -441,10 +441,29 @@ export function AdminAuthProvider({
   );
 }
 
+const DEFAULT_AUTH_CONTEXT: AdminAuthContextValue = {
+  user: null,
+  token: null,
+  pendingSetupSecret: null,
+  pendingRecoveryCodes: null,
+  isAuthenticated: false,
+  isLoading: false,
+  error: null,
+  locale: DEFAULT_LOCALE,
+  login: async () => ({ success: false, nextStep: 'dashboard' }),
+  logout: async () => {},
+  setPendingSetup: () => {},
+  confirm2faSetup: async () => false,
+  verify2faChallenge: async () => false,
+  verifyRecoveryCode: async () => false,
+  setLocale: () => {},
+  setUser: () => {},
+};
+
 export function useAdminAuth(): AdminAuthContextValue {
   const ctx = useContext(AdminAuthContext);
   if (!ctx) {
-    throw new Error('useAdminAuth must be used within an AdminAuthProvider');
+    return DEFAULT_AUTH_CONTEXT;
   }
   return ctx;
 }

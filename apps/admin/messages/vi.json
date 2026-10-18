@@ -115,5 +115,112 @@
     "requiredRoles": "Yêu cầu quyền hạn:",
     "currentRole": "Quyền hạn hiện tại của bạn:",
     "securityWarning": "Hệ thống bảo vệ đa tầng đã chặn truy cập trực tiếp này."
+  },
+  "content": {
+    "imports": {
+      "title": "Quản lý Gói Nhập Đề thi (Import v2)",
+      "subtitle": "Tải lên các gói dữ liệu chuẩn định dạng (.zip) gồm import.json, media/ và sources/ đối chiếu.",
+      "empty": "Chưa có gói nhập nào được xử lý.",
+      "uploadPrompt": "Chọn một hoặc nhiều tệp ZIP gói nhập chuẩn (Hỗ trợ nạp theo lô):",
+      "uploadWarning": "Lưu ý: PDF đơn lẻ không khởi động đọc file hoặc OCR. Hãy chuẩn bị đầy đủ gói ZIP kèm import.json.",
+      "jobsTitle": "Danh sách Gói nhập gần đây",
+      "sourcePage": "Trang nguồn",
+      "exportCsv": "Xuất CSV",
+      "csvToolTitle": "Ngân hàng câu hỏi: Công cụ Import / Export JSON & CSV (PDF-30)",
+      "importCsvBtn": "Nạp câu hỏi từ CSV",
+      "csvInputLabel": "Dữ liệu CSV nhập:",
+      "csvOutputLabel": "Dữ liệu CSV xuất:"
+    },
+    "questions": {
+      "title": "Ngân hàng câu hỏi (Question Bank Editor)",
+      "subtitle": "Soạn thảo RichText (ruby, star ★, đoạn văn, bảng, nghe) và xem trước với phòng thi thật.",
+      "empty": "Chưa có câu hỏi nào trong ngân hàng.",
+      "editorTab": "Trình soạn thảo RichText",
+      "previewTab": "Xem trước (Phòng thi)",
+      "stemTitle": "1. Soạn thảo đề bài (Ruby, Star ★, Gạch chân)",
+      "passageTitle": "2. Soạn thảo bài đọc (Đoạn văn & Bảng biểu)",
+      "saveBtn": "Lưu nhóm câu hỏi",
+      "previewPrompt": "Giao diện phòng thi thật của thí sinh:"
+    },
+    "exams": {
+      "title": "Quản lý & Xuất bản Đề thi (Exam Management)",
+      "subtitle": "Kiểm tra blueprint, xem trước không lộ đáp án và xuất bản phiên bản đề thi bất biến.",
+      "empty": "Chưa có đề thi nào trong hệ thống.",
+      "publishBtn": "Xuất bản",
+      "unpublishBtn": "Gỡ xuất bản",
+      "previewBtn": "Xem trước",
+      "filterLevel": "Lọc cấp độ"
+    },
+    "mixedExams": {
+      "title": "Quản lý Đề thi Trộn Ngẫu nhiên (ADM-11)",
+      "subtitle": "Theo dõi và khởi tạo các đề thi được thuật toán trộn tự động theo cấp độ và ma trận kiến thức.",
+      "empty": "Chưa có đề trộn nào được khởi tạo.",
+      "createBtn": "+ Khởi tạo Đề Trộn Mới",
+      "attempts": "lượt làm bài",
+      "viewDetail": "Xem chi tiết"
+    },
+    "blueprints": {
+      "title": "Bản thiết kế đề thi (Exam Blueprints)",
+      "subtitle": "Quản lý cấu trúc thời gian và số câu từng phần thi N1–N5. Không thể sửa đè các phiên bản đã kích hoạt.",
+      "empty": "Chưa có bản thiết kế nào.",
+      "createVersionBtn": "Tạo version mới",
+      "activateBtn": "Kích hoạt"
+    },
+    "reviews": {
+      "title": "Hàng Đợi Kiểm Duyệt Nội Dung (Hàng đợi kiểm duyệt - Two-Person Review)",
+      "subtitle": "Quy tắc kiểm duyệt 4 mắt: người duyệt phải độc lập với người biên tập (editor != reviewer).",
+      "empty": "Hàng đợi kiểm duyệt hiện đang trống.",
+      "approveBtn": "Phê duyệt",
+      "rejectBtn": "Từ chối",
+      "compareBtn": "Đối chiếu PDF gốc"
+    },
+    "explanationReviews": {
+      "title": "Kiểm duyệt Lời giải & Bản dịch (ADM-10)",
+      "subtitle": "Quy tắc kiểm soát chất lượng 2 người: Lời giải và bản dịch tiếng Việt phải được người duyệt độc lập phê duyệt.",
+      "empty": "Không có lời giải nào đang chờ duyệt.",
+      "approveBtn": "Phê Duyệt",
+      "rejectBtn": "Yêu Cầu Sửa"
+    },
+    "media": {
+      "title": "Thư viện phương tiện (Media Library)",
+      "subtitle": "Quản lý tệp âm thanh nghe hiểu MP3/WAV và hình ảnh đề thi WebP/PNG.",
+      "empty": "Chưa có tệp phương tiện nào trong thư viện.",
+      "uploadBtn": "Tải lên tệp mới",
+      "copyUrl": "Sao chép URL",
+      "audioTitle": "Tệp Âm thanh",
+      "imageTitle": "Tệp Hình ảnh"
+    },
+    "vocab": {
+      "title": "Quản lý Từ vựng & Ngữ pháp (ADM-12)",
+      "subtitle": "Từ điển tra cứu, từ vựng theo cấp độ JLPT N1 - N5 phục vụ học tập, SRS flashcards và bài thi.",
+      "empty": "Không tìm thấy từ vựng nào phù hợp.",
+      "addBtn": "+ Thêm Từ Vựng Mới",
+      "deleteBtn": "Xóa",
+      "searchPlaceholder": "Tìm theo từ, cách đọc hoặc nghĩa tiếng Việt..."
+    },
+    "cms": {
+      "title": "Quản trị Nội dung CMS & Bài viết (ADM-13)",
+      "subtitle": "Soạn thảo bài viết blog chuẩn SEO, trang đích chiến dịch và quản lý phiên bản nội dung.",
+      "empty": "Chưa có bài viết nào được tạo.",
+      "listTab": "Danh sách bài viết",
+      "editorTab": "Soạn thảo bài viết",
+      "newArticleBtn": "+ Soạn Bài Viết Mới",
+      "editBtn": "Chỉnh sửa & Xem trước",
+      "saveBtn": "Lưu & Cập nhật Phiên bản"
+    },
+    "aiModeration": {
+      "title": "Kiểm duyệt Nội dung AI & Giám sát Chi phí",
+      "subtitle": "Theo dõi các yêu cầu sinh lời giải, dịch thuật và tổng hợp đề từ mô hình AI, phát hiện rủi ro và kiểm soát chi phí API.",
+      "empty": "Không có yêu cầu AI nào cần kiểm duyệt.",
+      "unflagBtn": "Bỏ cảnh báo",
+      "filterLabel": "Chỉ hiển thị yêu cầu bị cảnh báo an toàn"
+    },
+    "contentReports": {
+      "title": "Quản lý Báo lỗi Câu hỏi từ Người dùng (ADM-09)",
+      "subtitle": "Kiểm duyệt và xử lý các sự cố nội dung, đáp án và file âm thanh được người học gửi về.",
+      "empty": "Không có báo cáo lỗi nào.",
+      "resolveBtn": "Duyệt & Giải Quyết",
+      "rejectBtn": "Bác Bỏ"
+    }
   }
 }

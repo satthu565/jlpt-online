@@ -115,5 +115,112 @@
     "requiredRoles": "必要なロール：",
     "currentRole": "現在のロール：",
     "securityWarning": "多層防御セキュリティガードにより直接アクセスが遮断されました。"
+  },
+  "content": {
+    "imports": {
+      "title": "問題パッケージ管理 (Import v2)",
+      "subtitle": "import.json、media/、sources/を含む標準データパッケージ(.zip)のアップロード。",
+      "empty": "処理されたインポートパッケージはありません。",
+      "uploadPrompt": "標準ZIPパッケージを選択してください（一括アップロード対応）：",
+      "uploadWarning": "注意: 単独PDFは抽出やOCRを行いません。import.jsonを含む完全なZIPパッケージを準備してください。",
+      "jobsTitle": "最近のインポートジョブ一覧",
+      "sourcePage": "出典ページ",
+      "exportCsv": "CSV出力",
+      "csvToolTitle": "問題バンク: JSON & CSV インポート／エクスポートツール (PDF-30)",
+      "importCsvBtn": "CSVから問題を読み込む",
+      "csvInputLabel": "入力CSVデータ：",
+      "csvOutputLabel": "出力CSVデータ："
+    },
+    "questions": {
+      "title": "問題バンク (Question Bank Editor)",
+      "subtitle": "リッチテキスト（ルビ、★、段落、表、音声）の作成と本番受験環境でのプレビュー。",
+      "empty": "問題バンクに問題がありません。",
+      "editorTab": "リッチテキストエディタ",
+      "previewTab": "プレビュー（試験会場）",
+      "stemTitle": "1. 問題文の作成（ルビ、★、下線）",
+      "passageTitle": "2. 読解文の作成（段落・表）",
+      "saveBtn": "問題グループを保存",
+      "previewPrompt": "受験生の本番試験画面："
+    },
+    "exams": {
+      "title": "試験管理＆公開 (Exam Management)",
+      "subtitle": "ブループリント適合検証、正解非漏洩プレビュー、不変スナップショットの公開。",
+      "empty": "システムに試験が登録されていません。",
+      "publishBtn": "公開する",
+      "unpublishBtn": "公開を取り消す",
+      "previewBtn": "プレビュー",
+      "filterLevel": "レベルで絞り込み"
+    },
+    "mixedExams": {
+      "title": "自動ミックス試験管理 (ADM-11)",
+      "subtitle": "レベルや弱点項目に合わせた自動シャッフル試験の監視と生成。",
+      "empty": "生成されたミックス試験はありません。",
+      "createBtn": "+ 新規ミックス試験を生成",
+      "attempts": "回受験",
+      "viewDetail": "詳細を見る"
+    },
+    "blueprints": {
+      "title": "試験設計仕様 (Exam Blueprints)",
+      "subtitle": "N1–N5各セクションの時間と問題数配分を管理します。有効化された仕様は不変です。",
+      "empty": "試験設計仕様が見つかりません。",
+      "createVersionBtn": "新バージョンを作成",
+      "activateBtn": "有効化"
+    },
+    "reviews": {
+      "title": "コンテンツ承認待ちキュー (Content Review Queue)",
+      "subtitle": "4つの目原則：承認者は編集者と異なる独立した担当者でなければなりません (editor != reviewer)。",
+      "empty": "承認待ちのコンテンツはありません。",
+      "approveBtn": "承認する",
+      "rejectBtn": "差し戻す",
+      "compareBtn": "原本PDFと照合"
+    },
+    "explanationReviews": {
+      "title": "解説・翻訳レビュー (ADM-10)",
+      "subtitle": "二人制品質管理規則：解説およびベトナム語訳は独立したレビュー担当者の承認が必要です。",
+      "empty": "承認待ちの解説はありません。",
+      "approveBtn": "承認する",
+      "rejectBtn": "修正を要求"
+    },
+    "media": {
+      "title": "メディアライブラリ (Media Library)",
+      "subtitle": "聴解音声ファイル(MP3/WAV)および試験挿絵画像(WebP/PNG)の管理。",
+      "empty": "ライブラリにメディアファイルがありません。",
+      "uploadBtn": "新規ファイルをアップロード",
+      "copyUrl": "URLをコピー",
+      "audioTitle": "音声ファイル",
+      "imageTitle": "画像ファイル"
+    },
+    "vocab": {
+      "title": "語彙・文法管理 (ADM-12)",
+      "subtitle": "JLPT N1〜N5レベル別の語彙・辞書引き、SRS暗記カードおよび試験用の語彙データ。",
+      "empty": "一致する語彙データが見つかりません。",
+      "addBtn": "+ 新規単語を追加",
+      "deleteBtn": "削除",
+      "searchPlaceholder": "単語、読み、または訳で検索..."
+    },
+    "cms": {
+      "title": "CMS記事・コンテンツ管理 (ADM-13)",
+      "subtitle": "SEO対応ブログ記事、ランディングページの作成およびバージョン管理。",
+      "empty": "作成された記事はありません。",
+      "listTab": "記事一覧",
+      "editorTab": "記事編集",
+      "newArticleBtn": "+ 新規記事を作成",
+      "editBtn": "編集＆プレビュー",
+      "saveBtn": "保存＆バージョン更新"
+    },
+    "aiModeration": {
+      "title": "AIコンテンツ監視＆コスト管理",
+      "subtitle": "AI解説生成、翻訳、問題生成のリクエスト監視とトークンコスト管理。",
+      "empty": "モデレーションが必要なAIリクエストはありません。",
+      "unflagBtn": "警告を解除",
+      "filterLabel": "安全性警告のあるリクエストのみ表示"
+    },
+    "contentReports": {
+      "title": "ユーザー問題不備報告管理 (ADM-09)",
+      "subtitle": "受講生から寄せられた問題文、解答、音声の不具合報告の審査と対応。",
+      "empty": "不備報告はありません。",
+      "resolveBtn": "解決して更新",
+      "rejectBtn": "却下する"
+    }
   }
 }

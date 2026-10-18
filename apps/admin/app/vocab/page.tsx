@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
+import { apiClient } from '../../lib/api-client';
+import { t } from '../../lib/i18n';
 
 export interface VocabEntry {
   id: string;
@@ -14,47 +16,18 @@ export interface VocabEntry {
   exampleSentence?: string;
 }
 
-export default function VocabManagementPage(): React.JSX.Element {
-  const { user: _user } = useAdminAuth();
+export interface VocabManagementProps {
+  initialEntries?: VocabEntry[];
+}
 
-  const [entries, setEntries] = useState<VocabEntry[]>([
-    {
-      id: 'voc-1',
-      word: '怠る',
-      reading: 'おこたる',
-      meaningVi: 'Bỏ bê, lơ là, sao nhãng',
-      level: 'N2',
-      partOfSpeech: 'Động từ nhóm 1',
-      exampleSentence: '試験の準備を怠ってはいけない。',
-    },
-    {
-      id: 'voc-2',
-      word: '契約',
-      reading: 'けいやく',
-      meaningVi: 'Hợp đồng, khế ước',
-      level: 'N3',
-      partOfSpeech: 'Danh từ',
-      exampleSentence: '来週、新しいアパートの契約を結びます。',
-    },
-    {
-      id: 'voc-3',
-      word: '圧倒的',
-      reading: 'あっとうてき',
-      meaningVi: 'Áp đảo, vượt trội hoàn toàn',
-      level: 'N1',
-      partOfSpeech: 'Tính từ đuôi な',
-      exampleSentence: '圧倒的な勝利を収める。',
-    },
-    {
-      id: 'voc-4',
-      word: '案内',
-      reading: 'あんない',
-      meaningVi: 'Hướng dẫn, dẫn đường',
-      level: 'N4',
-      partOfSpeech: 'Danh từ / Động từ nhóm 3',
-      exampleSentence: '街をご案内します。',
-    },
-  ]);
+export default function VocabManagementPage({
+  initialEntries = [],
+}: VocabManagementProps = {}): React.JSX.Element {
+  const { locale } = useAdminAuth();
+
+  const [entries, setEntries] = useState<VocabEntry[]>(initialEntries);
+  const [isLoading, setIsLoading] = useState<boolean>(initialEntries.length === 0);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [levelFilter, setLevelFilter] = useState<string>('all');
@@ -67,6 +40,44 @@ export default function VocabManagementPage(): React.JSX.Element {
   const [newLevel, setNewLevel] = useState<'N1' | 'N2' | 'N3' | 'N4' | 'N5'>('N3');
   const [newPos, setNewPos] = useState<string>('Danh từ');
   const [newExample, setNewExample] = useState<string>('');
+
+  const fetchVocab = async () => {
+    if (initialEntries.length > 0 && levelFilter === 'all' && !searchTerm) {
+      setEntries(initialEntries);
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const query: Record<string, string> = {};
+      if (levelFilter !== 'all') query.level = levelFilter;
+      if (searchTerm) query.query = searchTerm;
+
+      const res = (await apiClient.listVocab('official-corpus', query)) as { items?: Record<string, unknown>[]; vocabulary?: Record<string, unknown>[] } | Record<string, unknown>[];
+      const raw = Array.isArray(res) ? res : (res?.items || res?.vocabulary || []);
+      if (Array.isArray(raw)) {
+        const mapped: VocabEntry[] = raw.map((it: Record<string, unknown>, idx: number) => ({
+          id: String(it.id || `v_${idx}_${String(it.word || it.term || '')}`),
+          word: String(it.word || it.term || ''),
+          reading: String(it.reading || it.furigana || ''),
+          meaningVi: String(it.meaningVi || it.meaning || it.gloss || ''),
+          level: (it.level as VocabEntry['level']) || 'N3',
+          partOfSpeech: String(it.partOfSpeech || it.pos || 'Danh từ'),
+          exampleSentence: String(it.exampleSentence || it.example || ''),
+        }));
+        setEntries(mapped);
+      }
+    } catch (err: unknown) {
+      setErrorMessage((err as Error).message || 'Không thể tải danh sách từ vựng.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchVocab();
+  }, [levelFilter]);
 
   const filtered = entries.filter((item) => {
     const matchesLevel = levelFilter === 'all' || item.level === levelFilter;
@@ -82,7 +93,7 @@ export default function VocabManagementPage(): React.JSX.Element {
     if (!newWord.trim() || !newReading.trim()) return;
 
     const newItem: VocabEntry = {
-      id: `voc-${Date.now().toString().slice(-4)}`,
+      id: `v_${Date.now()}`,
       word: newWord,
       reading: newReading,
       meaningVi: newMeaning,
@@ -105,70 +116,62 @@ export default function VocabManagementPage(): React.JSX.Element {
 
   return (
     <AdminGuard pathname="/vocab">
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-        <header
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '2rem',
-            flexWrap: 'wrap',
-            gap: '1rem',
-          }}
-        >
+      <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
+        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-200 pb-4">
           <div>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#111827' }}>
-              Quản lý Từ vựng & Ngữ pháp (ADM-12)
+            <h1 className="text-2xl font-bold text-gray-900">
+              {t('content.vocab.title', locale)}
             </h1>
-            <p style={{ margin: 0, color: '#6b7280' }}>
-              Từ điển tra cứu, từ vựng theo cấp độ JLPT N1 - N5 phục vụ học tập, SRS flashcards và bài thi.
+            <p className="text-sm text-gray-500 mt-1">
+              {t('content.vocab.subtitle', locale)}
             </p>
           </div>
 
           <button
+            type="button"
             data-testid="btn-add-vocab"
             onClick={() => setShowAddModal(true)}
-            style={{
-              padding: '0.65rem 1.25rem',
-              borderRadius: '8px',
-              background: '#2563eb',
-              color: '#ffffff',
-              border: 'none',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-semibold hover:bg-blue-700 transition-colors shadow-xs self-start"
           >
-            + Thêm Từ Vựng Mới
+            {t('content.vocab.addBtn', locale)}
           </button>
         </header>
 
+        {isLoading && (
+          <div
+            data-testid="vocab-loading"
+            className="p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-md text-sm animate-pulse"
+          >
+            {t('common.loading', locale)}
+          </div>
+        )}
+
+        {errorMessage && (
+          <div
+            data-testid="vocab-error-alert"
+            className="p-4 bg-red-50 border border-red-300 text-red-700 rounded-md text-sm"
+          >
+            <strong className="font-semibold">Lỗi: </strong>
+            {errorMessage}
+          </div>
+        )}
+
         {/* Filters */}
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+        <div className="flex flex-col sm:flex-row gap-3">
           <input
             data-testid="input-vocab-search"
             type="text"
-            placeholder="Tìm theo từ, cách đọc hoặc nghĩa tiếng Việt..."
+            placeholder={t('content.vocab.searchPlaceholder', locale)}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              padding: '0.5rem 1rem',
-              borderRadius: '6px',
-              border: '1px solid #d1d5db',
-              minWidth: '280px',
-              flex: 1,
-            }}
+            className="flex-1 p-2.5 border border-gray-300 rounded-md text-sm bg-white"
           />
 
           <select
             data-testid="select-vocab-level"
             value={levelFilter}
             onChange={(e) => setLevelFilter(e.target.value)}
-            style={{
-              padding: '0.5rem 1rem',
-              borderRadius: '6px',
-              border: '1px solid #d1d5db',
-              background: '#ffffff',
-            }}
+            className="p-2.5 border border-gray-300 rounded-md text-sm bg-white min-w-[140px]"
           >
             <option value="all">Tất cả cấp độ</option>
             <option value="N5">N5</option>
@@ -180,176 +183,173 @@ export default function VocabManagementPage(): React.JSX.Element {
         </div>
 
         {/* Vocab Table */}
-        <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <div className="overflow-x-auto w-full border border-gray-200 rounded-lg shadow-xs bg-white">
+          <table data-testid="vocab-table" className="w-full text-left text-sm border-collapse">
             <thead>
-              <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                <th style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#4b5563', fontSize: '0.85rem' }}>Cấp độ</th>
-                <th style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#4b5563', fontSize: '0.85rem' }}>Từ / Chữ Hán</th>
-                <th style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#4b5563', fontSize: '0.85rem' }}>Cách đọc (Furigana)</th>
-                <th style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#4b5563', fontSize: '0.85rem' }}>Nghĩa Tiếng Việt</th>
-                <th style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#4b5563', fontSize: '0.85rem' }}>Từ loại</th>
-                <th style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#4b5563', fontSize: '0.85rem', textAlign: 'right' }}>Thao tác</th>
+              <tr className="bg-gray-50 border-b border-gray-200 text-gray-700">
+                <th className="p-3">Từ vựng (Kanji)</th>
+                <th className="p-3">Cách đọc (Kana)</th>
+                <th className="p-3">Ý nghĩa tiếng Việt</th>
+                <th className="p-3">Cấp độ</th>
+                <th className="p-3">Từ loại</th>
+                <th className="p-3">Ví dụ minh họa</th>
+                <th className="p-3 text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((item) => (
-                <tr
-                  key={item.id}
-                  data-testid={`vocab-row-${item.id}`}
-                  style={{ borderBottom: '1px solid #f3f4f6' }}
-                >
-                  <td style={{ padding: '0.75rem 1rem' }}>
-                    <span
-                      style={{
-                        padding: '0.2rem 0.5rem',
-                        borderRadius: '4px',
-                        background: '#e0e7ff',
-                        color: '#3730a3',
-                        fontWeight: 700,
-                        fontSize: '0.75rem',
-                      }}
-                    >
-                      {item.level}
-                    </span>
-                  </td>
-                  <td style={{ padding: '0.75rem 1rem', fontWeight: 700, fontSize: '1.05rem', color: '#111827' }}>
-                    {item.word}
-                  </td>
-                  <td style={{ padding: '0.75rem 1rem', color: '#2563eb' }}>{item.reading}</td>
-                  <td style={{ padding: '0.75rem 1rem', color: '#374151' }}>{item.meaningVi}</td>
-                  <td style={{ padding: '0.75rem 1rem', color: '#6b7280', fontSize: '0.85rem' }}>{item.partOfSpeech}</td>
-                  <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
-                    <button
-                      data-testid={`btn-delete-vocab-${item.id}`}
-                      onClick={() => handleDelete(item.id)}
-                      style={{
-                        padding: '0.25rem 0.6rem',
-                        borderRadius: '4px',
-                        border: '1px solid #fca5a5',
-                        background: '#fef2f2',
-                        color: '#b91c1c',
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Xóa
-                    </button>
+              {!isLoading && filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={7} data-testid="vocab-empty" className="p-8 text-center text-gray-400">
+                    {t('content.vocab.empty', locale)}
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map((item) => (
+                  <tr key={item.id} data-testid={`vocab-row-${item.id}`} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="p-3 font-bold text-gray-900 text-base">{item.word}</td>
+                    <td className="p-3 text-gray-600">{item.reading}</td>
+                    <td className="p-3 text-gray-800">{item.meaningVi}</td>
+                    <td className="p-3">
+                      <span className="px-2 py-0.5 rounded text-xs font-bold bg-indigo-100 text-indigo-800">
+                        {item.level}
+                      </span>
+                    </td>
+                    <td className="p-3 text-xs text-gray-500">{item.partOfSpeech}</td>
+                    <td className="p-3 text-xs text-gray-600 italic">{item.exampleSentence || '—'}</td>
+                    <td className="p-3 text-right">
+                      <button
+                        type="button"
+                        data-testid={`btn-delete-vocab-${item.id}`}
+                        onClick={() => handleDelete(item.id)}
+                        className="text-xs text-red-600 hover:text-red-800 font-medium"
+                      >
+                        {t('content.vocab.deleteBtn', locale)}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
-        {/* Modal Add Vocab */}
+        {/* Add Modal */}
         {showAddModal && (
           <div
             data-testid="modal-add-vocab"
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0,0,0,0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '1rem',
-            }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
           >
-            <div style={{ background: '#ffffff', padding: '1.5rem', borderRadius: '8px', maxWidth: '500px', width: '100%' }}>
-              <h3 style={{ margin: '0 0 1rem' }}>Thêm Từ Vựng Mới</h3>
+            <div className="bg-white rounded-lg p-6 max-w-lg w-full shadow-lg space-y-4">
+              <h3 className="text-lg font-bold text-gray-900">Thêm Từ Vựng / Ngữ Pháp Mới</h3>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Từ / Chữ Hán:</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    Từ vựng (Kanji):
+                  </label>
                   <input
-                    data-testid="input-vocab-word"
+                    data-testid="input-word"
                     type="text"
                     value={newWord}
                     onChange={(e) => setNewWord(e.target.value)}
                     placeholder="Ví dụ: 契約"
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
+                    className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Cách đọc:</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    Cách đọc (Furigana):
+                  </label>
                   <input
-                    data-testid="input-vocab-reading"
+                    data-testid="input-reading"
                     type="text"
                     value={newReading}
                     onChange={(e) => setNewReading(e.target.value)}
                     placeholder="Ví dụ: けいやく"
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
+                    className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
                   />
                 </div>
               </div>
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Nghĩa Tiếng Việt:</label>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Ý nghĩa tiếng Việt:
+                </label>
                 <input
-                  data-testid="input-vocab-meaning"
+                  data-testid="input-meaning"
                   type="text"
                   value={newMeaning}
                   onChange={(e) => setNewMeaning(e.target.value)}
                   placeholder="Ví dụ: Hợp đồng, khế ước"
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
+                  className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Cấp độ:</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Cấp độ:</label>
                   <select
+                    data-testid="select-level"
                     value={newLevel}
                     onChange={(e) => setNewLevel(e.target.value as 'N1' | 'N2' | 'N3' | 'N4' | 'N5')}
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }}
+                    className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
                   >
-                    <option value="N5">N5</option>
-                    <option value="N4">N4</option>
-                    <option value="N3">N3</option>
-                    <option value="N2">N2</option>
                     <option value="N1">N1</option>
+                    <option value="N2">N2</option>
+                    <option value="N3">N3</option>
+                    <option value="N4">N4</option>
+                    <option value="N5">N5</option>
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Từ loại:</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Từ loại:</label>
+                  <select
+                    data-testid="select-pos"
                     value={newPos}
                     onChange={(e) => setNewPos(e.target.value)}
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
-                  />
+                    className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
+                  >
+                    <option value="Danh từ">Danh từ</option>
+                    <option value="Động từ nhóm 1">Động từ nhóm 1</option>
+                    <option value="Động từ nhóm 2">Động từ nhóm 2</option>
+                    <option value="Động từ nhóm 3">Động từ nhóm 3</option>
+                    <option value="Tính từ đuôi い">Tính từ đuôi い</option>
+                    <option value="Tính từ đuôi な">Tính từ đuôi な</option>
+                    <option value="Phó từ">Phó từ</option>
+                  </select>
                 </div>
               </div>
 
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Câu ví dụ:</label>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Câu ví dụ minh họa:
+                </label>
                 <input
+                  data-testid="input-example"
                   type="text"
                   value={newExample}
                   onChange={(e) => setNewExample(e.target.value)}
-                  placeholder="Ví dụ câu trong ngữ cảnh..."
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
+                  placeholder="Ví dụ: 新しいアパートの契約を結びます。"
+                  className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+              <div className="flex justify-end gap-2 pt-2">
                 <button
+                  type="button"
+                  data-testid="btn-cancel-vocab"
                   onClick={() => setShowAddModal(false)}
-                  style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid #d1d5db', background: '#ffffff', cursor: 'pointer' }}
+                  className="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50"
                 >
                   Hủy
                 </button>
                 <button
-                  data-testid="btn-confirm-add-vocab"
+                  type="button"
+                  data-testid="btn-submit-vocab"
                   onClick={handleAdd}
-                  style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', background: '#2563eb', color: '#ffffff', fontWeight: 600, cursor: 'pointer' }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-semibold hover:bg-blue-700"
                 >
-                  Lưu Từ Vựng
+                  Thêm từ
                 </button>
               </div>
             </div>

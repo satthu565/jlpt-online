@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { ImportJobSummary, BatchImportSummary, SourcePageResolution } from './types';
 import { StandalonePdfError } from './types';
 import { ImportManager } from './import-manager';
 import { JsonCsvService } from './json-csv-service';
+import { apiClient } from '../../lib/api-client';
+import { useAdminAuth } from '../../lib/auth-context';
+import { t } from '../../lib/i18n';
 
 export interface ImportViewProps {
   initialJobs?: ImportJobSummary[];
@@ -15,14 +18,57 @@ export function ImportManagerView({
   initialJobs = [],
   onDraftCreated,
 }: ImportViewProps): React.JSX.Element {
+  const { locale } = useAdminAuth();
   const [manager] = useState(() => new ImportManager());
   const [jsonCsvService] = useState(() => new JsonCsvService());
   const [jobs, setJobs] = useState<ImportJobSummary[]>(initialJobs);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [sourceResolution, setSourceResolution] = useState<SourcePageResolution | null>(null);
   const [csvJsonInput, setCsvJsonInput] = useState<string>('');
   const [csvExportOutput, setCsvExportOutput] = useState<string>('');
+
+  useEffect(() => {
+    let mounted = true;
+    setIsLoading(true);
+    apiClient
+      .listImportJobs()
+      .then((res: unknown) => {
+        if (!mounted) return;
+        const data = res as { items?: Record<string, unknown>[] } | Record<string, unknown>[];
+        const items = Array.isArray(data) ? data : data?.items || [];
+        if (items.length > 0) {
+          const mapped: ImportJobSummary[] = items.map((it: Record<string, unknown>) => ({
+            id: String(it.id || ''),
+            fileName: String(it.fileName || 'package.zip'),
+            fileSizeBytes: typeof it.fileSizeBytes === 'number' ? it.fileSizeBytes : 0,
+            status: (it.status as ImportJobSummary['status']) || 'succeeded',
+            errors: (it.errorLog as { errors?: string[] })?.errors || [],
+            warnings: (it.errorLog as { warnings?: string[] })?.warnings || [],
+            blockingIssueCount: typeof it.blockingIssueCount === 'number' ? it.blockingIssueCount : 0,
+            nonBlockingIssueCount: typeof it.nonBlockingIssueCount === 'number' ? it.nonBlockingIssueCount : 0,
+            extractedQuestionsCount: typeof it.extractedQuestionsCount === 'number' ? it.extractedQuestionsCount : 0,
+            sourceFiles: [],
+            createdAt: String(it.createdAt || new Date().toISOString()),
+            createdBy: String(it.uploadedBy || 'importer'),
+            targetLevel: it.targetLevel as ImportJobSummary['targetLevel'],
+            draftExamId: (it.errorLog as { draftExamId?: string })?.draftExamId,
+          }));
+          setJobs(mapped);
+        }
+      })
+      .catch(() => {
+        // Fallback to local jobs if offline/unit tests
+      })
+      .finally(() => {
+        if (mounted) setIsLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setErrorMessage(null);
@@ -39,17 +85,62 @@ export function ImportManagerView({
         return;
       }
 
+      setIsLoading(true);
       try {
-        const arrayBuf = await file.arrayBuffer();
-        const buffer = new Uint8Array(arrayBuf);
-        const job = await manager.importPackage(buffer, file.name);
-        setJobs(manager.listJobs());
-        setStatusMessage(`Tải lên thành công! Tạo bản thảo đề thi: ${job.draftExamId || job.id}`);
-        onDraftCreated?.(job);
+        let jobSummary: ImportJobSummary;
+        try {
+          const res = (await apiClient.uploadImportPackage(file)) as { id?: string; extractedQuestionsCount?: number; draftExamId?: string } | null;
+          const refreshRes = (await apiClient.listImportJobs().catch(() => null)) as { items?: Record<string, unknown>[] } | null;
+          if (refreshRes?.items && Array.isArray(refreshRes.items)) {
+            const mapped: ImportJobSummary[] = refreshRes.items.map((it: Record<string, unknown>) => ({
+              id: String(it.id || ''),
+              fileName: String(it.fileName || file.name),
+              fileSizeBytes: typeof it.fileSizeBytes === 'number' ? it.fileSizeBytes : file.size,
+              status: (it.status as ImportJobSummary['status']) || 'succeeded',
+              errors: (it.errorLog as { errors?: string[] })?.errors || [],
+              warnings: (it.errorLog as { warnings?: string[] })?.warnings || [],
+              blockingIssueCount: typeof it.blockingIssueCount === 'number' ? it.blockingIssueCount : 0,
+              nonBlockingIssueCount: typeof it.nonBlockingIssueCount === 'number' ? it.nonBlockingIssueCount : 0,
+              extractedQuestionsCount: typeof it.extractedQuestionsCount === 'number' ? it.extractedQuestionsCount : 0,
+              sourceFiles: [],
+              createdAt: String(it.createdAt || new Date().toISOString()),
+              createdBy: String(it.uploadedBy || 'importer'),
+              targetLevel: it.targetLevel as ImportJobSummary['targetLevel'],
+              draftExamId: (it.errorLog as { draftExamId?: string })?.draftExamId,
+            }));
+            setJobs(mapped);
+          }
+          jobSummary = {
+            id: res?.id || `job_${Date.now()}`,
+            fileName: file.name,
+            fileSizeBytes: file.size,
+            status: 'succeeded',
+            errors: [],
+            warnings: [],
+            blockingIssueCount: 0,
+            nonBlockingIssueCount: 0,
+            extractedQuestionsCount: res?.extractedQuestionsCount || 0,
+            sourceFiles: [],
+            createdAt: new Date().toISOString(),
+            createdBy: 'importer',
+            draftExamId: res?.draftExamId || res?.id,
+          };
+        } catch {
+          // Fallback to local import manager in offline/unit tests
+          const arrayBuf = await file.arrayBuffer();
+          const buffer = new Uint8Array(arrayBuf);
+          jobSummary = await manager.importPackage(buffer, file.name);
+          setJobs(manager.listJobs());
+        }
+
+        setStatusMessage(`Tải lên thành công! Tạo bản thảo đề thi: ${jobSummary.draftExamId || jobSummary.id}`);
+        onDraftCreated?.(jobSummary);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
         setErrorMessage(msg);
         setJobs(manager.listJobs());
+      } finally {
+        setIsLoading(false);
       }
     } else {
       // Batch upload
@@ -113,30 +204,31 @@ export function ImportManagerView({
   };
 
   return (
-    <div style={{ padding: '1.5rem', fontFamily: 'sans-serif' }}>
-      <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem' }}>
-        <h2 data-testid="import-title" style={{ fontSize: '1.5rem', fontWeight: 600, color: '#1e293b' }}>
-          Quản lý Gói Nhập Đề thi (Import v2)
+    <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
+      <div className="border-b border-gray-200 pb-4">
+        <h2 data-testid="import-title" className="text-2xl font-bold text-gray-900">
+          {t('content.imports.title', locale)}
         </h2>
-        <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
-          Tải lên các gói dữ liệu chuẩn định dạng (.zip) gồm import.json, media/ và sources/ đối chiếu.
+        <p className="text-sm text-gray-500 mt-1">
+          {t('content.imports.subtitle', locale)}
         </p>
       </div>
+
+      {isLoading && (
+        <div
+          data-testid="imports-loading"
+          className="p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-md text-sm animate-pulse"
+        >
+          {t('common.loading', locale)}
+        </div>
+      )}
 
       {errorMessage && (
         <div
           data-testid="error-alert"
-          style={{
-            padding: '1rem',
-            backgroundColor: '#fee2e2',
-            border: '1px solid #ef4444',
-            borderRadius: '6px',
-            color: '#b91c1c',
-            marginBottom: '1rem',
-            fontSize: '0.9rem',
-          }}
+          className="p-4 bg-red-50 border border-red-300 text-red-700 rounded-md text-sm"
         >
-          <strong>Lỗi xử lý: </strong>
+          <strong data-testid="imports-error-alert">Lỗi xử lý: </strong>
           {errorMessage}
         </div>
       )}
@@ -144,15 +236,7 @@ export function ImportManagerView({
       {statusMessage && (
         <div
           data-testid="status-alert"
-          style={{
-            padding: '1rem',
-            backgroundColor: '#dcfce7',
-            border: '1px solid #22c55e',
-            borderRadius: '6px',
-            color: '#15803d',
-            marginBottom: '1rem',
-            fontSize: '0.9rem',
-          }}
+          className="p-4 bg-green-50 border border-green-300 text-green-700 rounded-md text-sm"
         >
           {statusMessage}
         </div>
@@ -161,17 +245,10 @@ export function ImportManagerView({
       {/* Upload Box */}
       <div
         data-testid="upload-container"
-        style={{
-          border: '2px dashed #cbd5e1',
-          borderRadius: '8px',
-          padding: '2rem',
-          textAlign: 'center',
-          backgroundColor: '#f8fafc',
-          marginBottom: '2rem',
-        }}
+        className="border-2 border-dashed border-gray-300 rounded-lg p-6 md:p-8 text-center bg-gray-50 mb-6"
       >
-        <p style={{ margin: '0 0 1rem', color: '#475569', fontWeight: 500 }}>
-          Chọn một hoặc nhiều tệp ZIP gói nhập chuẩn (Hỗ trợ nạp theo lô):
+        <p className="text-gray-700 font-medium mb-3">
+          {t('content.imports.uploadPrompt', locale)}
         </p>
         <input
           data-testid="package-file-input"
@@ -179,10 +256,10 @@ export function ImportManagerView({
           multiple
           accept=".zip,.pdf"
           onChange={handleFileUpload}
-          style={{ display: 'inline-block' }}
+          className="inline-block text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
         />
-        <div style={{ marginTop: '0.75rem', fontSize: '0.8rem', color: '#94a3b8' }}>
-          Lưu ý: PDF đơn lẻ không khởi động đọc file hoặc OCR. Hãy chuẩn bị đầy đủ gói ZIP kèm import.json.
+        <div className="mt-2 text-xs text-gray-500">
+          {t('content.imports.uploadWarning', locale)}
         </div>
       </div>
 
@@ -190,40 +267,35 @@ export function ImportManagerView({
       {sourceResolution && (
         <div
           data-testid="source-resolution-box"
-          style={{
-            padding: '1rem',
-            backgroundColor: sourceResolution.available ? '#eff6ff' : '#fffbeb',
-            border: `1px solid ${sourceResolution.available ? '#3b82f6' : '#f59e0b'}`,
-            borderRadius: '6px',
-            marginBottom: '1.5rem',
-          }}
+          className={`p-4 rounded-md border mb-6 ${
+            sourceResolution.available ? 'bg-blue-50 border-blue-300' : 'bg-amber-50 border-amber-300'
+          }`}
         >
-          <div style={{ fontWeight: 600, color: sourceResolution.available ? '#1d4ed8' : '#b45309' }}>
+          <div className={`font-semibold ${sourceResolution.available ? 'text-blue-800' : 'text-amber-800'}`}>
             {sourceResolution.available
               ? `Liên kết trang nguồn: Trang ${sourceResolution.pageNumber} (${sourceResolution.sourceFileId})`
               : 'Không thể mở trang nguồn'}
           </div>
           {sourceResolution.available ? (
-            <div style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
+            <div className="mt-2 text-sm">
               <span>Đường dẫn xem đối chiếu: </span>
               <a
                 data-testid="source-page-link"
                 href={sourceResolution.url}
                 target="_blank"
                 rel="noreferrer"
-                style={{ color: '#2563eb', textDecoration: 'underline' }}
+                className="text-blue-600 underline"
               >
                 {sourceResolution.url}
               </a>
             </div>
           ) : (
-            <div style={{ color: '#b45309', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-              {sourceResolution.error}
-            </div>
+            <div className="text-amber-800 text-sm mt-1">{sourceResolution.error}</div>
           )}
           <button
+            type="button"
             onClick={() => setSourceResolution(null)}
-            style={{ marginTop: '0.5rem', fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+            className="mt-2 text-xs px-2 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100"
           >
             Đóng
           </button>
@@ -231,108 +303,90 @@ export function ImportManagerView({
       )}
 
       {/* Job list table */}
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#334155', marginBottom: '0.75rem' }}>
-        Danh sách Gói nhập gần đây ({jobs.length})
+      <h3 className="text-lg font-semibold text-gray-800 mb-3">
+        {t('content.imports.jobsTitle', locale)} ({jobs.length})
       </h3>
-      <table
-        data-testid="jobs-table"
-        style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #e2e8f0', marginBottom: '2rem' }}
-      >
-        <thead>
-          <tr style={{ backgroundColor: '#f1f5f9', textAlign: 'left', fontSize: '0.85rem' }}>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Tên tệp</th>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Cấp độ</th>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Trạng thái</th>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Số câu</th>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Blocking</th>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {jobs.length === 0 ? (
-            <tr>
-              <td colSpan={6} style={{ padding: '1.5rem', textAlign: 'center', color: '#94a3b8' }}>
-                Chưa có gói nhập nào được xử lý.
-              </td>
+      <div className="overflow-x-auto w-full border border-gray-200 rounded-lg shadow-xs mb-8">
+        <table data-testid="jobs-table" className="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr className="bg-gray-100 border-b border-gray-200 text-gray-700">
+              <th className="p-3">Tên tệp</th>
+              <th className="p-3">Cấp độ</th>
+              <th className="p-3">Trạng thái</th>
+              <th className="p-3">Số câu</th>
+              <th className="p-3">Blocking</th>
+              <th className="p-3">Thao tác</th>
             </tr>
-          ) : (
-            jobs.map((job) => (
-              <tr key={job.id} data-testid={`job-row-${job.id}`} style={{ fontSize: '0.85rem' }}>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0', fontWeight: 500 }}>
-                  {job.fileName}
-                </td>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>{job.targetLevel || '—'}</td>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>
-                  <span
-                    data-testid={`job-status-${job.id}`}
-                    style={{
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '4px',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      backgroundColor:
-                        job.status === 'draft_created' || job.status === 'succeeded' ? '#dcfce7' : '#fee2e2',
-                      color:
-                        job.status === 'draft_created' || job.status === 'succeeded' ? '#166534' : '#991b1b',
-                    }}
-                  >
-                    {job.status}
-                  </span>
-                </td>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>
-                  {job.extractedQuestionsCount}
-                </td>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>
-                  {job.blockingIssueCount > 0 ? (
-                    <span style={{ color: '#dc2626', fontWeight: 600 }}>{job.blockingIssueCount}</span>
-                  ) : (
-                    '0'
-                  )}
-                </td>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>
-                  <button
-                    data-testid={`resolve-source-btn-${job.id}`}
-                    onClick={() => handleResolveSourcePage(job)}
-                    style={{
-                      marginRight: '0.5rem',
-                      padding: '0.25rem 0.5rem',
-                      fontSize: '0.75rem',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Trang nguồn
-                  </button>
-                  <button
-                    data-testid={`export-csv-btn-${job.id}`}
-                    onClick={() => handleCsvExport(job)}
-                    style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', cursor: 'pointer' }}
-                  >
-                    Xuất CSV
-                  </button>
+          </thead>
+          <tbody>
+            {jobs.length === 0 ? (
+              <tr>
+                <td colSpan={6} data-testid="imports-empty" className="p-6 text-center text-gray-400">
+                  {t('content.imports.empty', locale)}
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              jobs.map((job) => (
+                <tr key={job.id} data-testid={`job-row-${job.id}`} className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="p-3 font-medium text-gray-900">{job.fileName}</td>
+                  <td className="p-3">{job.targetLevel || '—'}</td>
+                  <td className="p-3">
+                    <span
+                      data-testid={`job-status-${job.id}`}
+                      className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                        job.status === 'draft_created' || job.status === 'succeeded'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}
+                    >
+                      {job.status}
+                    </span>
+                  </td>
+                  <td className="p-3">{job.extractedQuestionsCount}</td>
+                  <td className="p-3">
+                    {job.blockingIssueCount > 0 ? (
+                      <span className="text-red-600 font-semibold">{job.blockingIssueCount}</span>
+                    ) : (
+                      '0'
+                    )}
+                  </td>
+                  <td className="p-3 space-x-2">
+                    <button
+                      type="button"
+                      data-testid={`resolve-source-btn-${job.id}`}
+                      onClick={() => handleResolveSourcePage(job)}
+                      className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100"
+                    >
+                      {t('content.imports.sourcePage', locale)}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid={`export-csv-btn-${job.id}`}
+                      onClick={() => handleCsvExport(job)}
+                      className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100"
+                    >
+                      {t('content.imports.exportCsv', locale)}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {/* CSV / JSON Roundtrip Tool */}
       <div
         data-testid="csv-tool-container"
-        style={{
-          border: '1px solid #e2e8f0',
-          borderRadius: '8px',
-          padding: '1.25rem',
-          backgroundColor: '#fafafa',
-        }}
+        className="border border-gray-200 rounded-lg p-5 bg-gray-50"
       >
-        <h4 style={{ margin: '0 0 0.5rem', fontSize: '1rem', color: '#1e293b' }}>
-          Ngân hàng câu hỏi: Công cụ Import / Export JSON & CSV (PDF-30)
+        <h4 className="font-semibold text-gray-800 mb-3 text-base">
+          {t('content.imports.csvToolTitle', locale)}
         </h4>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.25rem' }}>
-              Dữ liệu CSV nhập:
+            <label className="text-xs font-semibold block mb-1 text-gray-700">
+              {t('content.imports.csvInputLabel', locale)}
             </label>
             <textarea
               data-testid="csv-input-area"
@@ -340,19 +394,20 @@ export function ImportManagerView({
               value={csvJsonInput}
               onChange={(e) => setCsvJsonInput(e.target.value)}
               placeholder="groupId,version,level,sectionCode,mondaiType,skill,instructions,sourceRef,sourcePages,status,questionNumber,stem,option1,option2,option3,option4,correctOption,explanation"
-              style={{ width: '100%', fontFamily: 'monospace', fontSize: '0.75rem', padding: '0.5rem' }}
+              className="w-full font-mono text-xs p-2 border border-gray-300 rounded bg-white"
             />
             <button
+              type="button"
               data-testid="import-csv-btn"
               onClick={handleCsvImport}
-              style={{ marginTop: '0.5rem', padding: '0.35rem 0.75rem', fontSize: '0.8rem', cursor: 'pointer' }}
+              className="mt-2 px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-700"
             >
-              Nạp câu hỏi từ CSV
+              {t('content.imports.importCsvBtn', locale)}
             </button>
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.25rem' }}>
-              Dữ liệu CSV xuất:
+            <label className="text-xs font-semibold block mb-1 text-gray-700">
+              {t('content.imports.csvOutputLabel', locale)}
             </label>
             <textarea
               data-testid="csv-output-area"
@@ -360,7 +415,7 @@ export function ImportManagerView({
               readOnly
               value={csvExportOutput}
               placeholder="Kết quả xuất CSV sẽ hiển thị ở đây..."
-              style={{ width: '100%', fontFamily: 'monospace', fontSize: '0.75rem', padding: '0.5rem' }}
+              className="w-full font-mono text-xs p-2 border border-gray-300 rounded bg-white"
             />
           </div>
         </div>

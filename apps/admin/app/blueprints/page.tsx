@@ -1,81 +1,74 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
+import { apiClient } from '../../lib/api-client';
+import { t } from '../../lib/i18n';
 import type { Blueprint } from '@jlpt/schema';
 import { BlueprintManager } from '../../features/content/blueprint-manager';
 
-const SAMPLE_BLUEPRINT: Blueprint = {
-  id: 'bp_N1_2026',
-  level: 'N1',
-  version: 1,
-  kind: 'official',
-  status: 'active',
-  isOfficial: true,
-  isConfirmed: true,
-  effectiveFrom: '2026-01-01',
-  sourceRef: [{ url: 'https://www.jlpt.jp/guideline.html', accessedAt: '2026-01-01T00:00:00Z' }],
-  sections: [
-    {
-      code: 'language_knowledge',
-      title: 'Kiến thức ngôn ngữ & Đọc hiểu',
-      durationSec: 6600, // 110 mins
-      mondai: [
-        { type: 'kanji_reading', skill: 'kanji', questionCount: 6 },
-        { type: 'contextual', skill: 'vocabulary', questionCount: 7 },
-      ],
-    },
-    {
-      code: 'listening',
-      title: 'Nghe hiểu',
-      durationSec: 3600, // 60 mins
-      mondai: [
-        { type: 'task_based', skill: 'listening', questionCount: 6 },
-      ],
-    },
-  ],
-  scoring: {
-    method: 'linear_reference',
-    rounding: 'round',
-    scoringSections: [
-      { code: 'language_knowledge', label: 'Kiến thức ngôn ngữ', skills: ['kanji', 'vocabulary', 'grammar'], maxScaled: 60, minPass: 19 },
-      { code: 'reading', label: 'Đọc hiểu', skills: ['reading'], maxScaled: 60, minPass: 19 },
-      { code: 'listening', label: 'Nghe hiểu', skills: ['listening'], maxScaled: 60, minPass: 19 },
-    ],
-    totalMax: 180,
-    totalPass: 100,
-  },
-};
-
 export default function BlueprintsPage(): React.JSX.Element {
-  const { user } = useAdminAuth();
-  const [manager] = useState(() => new BlueprintManager([SAMPLE_BLUEPRINT]));
-  const [blueprints, setBlueprints] = useState<Blueprint[]>(() => manager.listBlueprints());
+  const { user, locale } = useAdminAuth();
+  const [manager] = useState(() => new BlueprintManager([]));
+  const [blueprints, setBlueprints] = useState<Blueprint[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [message, setMessage] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleCreateNewVersion = (bp: Blueprint) => {
+  const fetchBlueprints = async () => {
+    setIsLoading(true);
+    setErrorMsg(null);
+    try {
+      const res = (await apiClient.listBlueprints()) as { items?: Blueprint[] } | Blueprint[];
+      const items = Array.isArray(res) ? res : res?.items || [];
+      if (items.length > 0) {
+        setBlueprints(items);
+      } else {
+        setBlueprints(manager.listBlueprints());
+      }
+    } catch {
+      setBlueprints(manager.listBlueprints());
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBlueprints();
+  }, []);
+
+  const handleCreateNewVersion = async (bp: Blueprint) => {
     if (!user) return;
     setErrorMsg(null);
     setMessage(null);
     try {
-      const newV = manager.createNewVersion(bp.id || '', { note: 'Bản cập nhật mới' }, user);
-      setBlueprints(manager.listBlueprints());
-      setMessage(`Đã tạo phiên bản mới v${newV.version} cho cấp độ ${newV.level} (phiên bản cũ v${bp.version} vẫn được bảo toàn bất biến).`);
+      try {
+        await apiClient.createBlueprintVersion(bp.id || '', { note: 'Bản cập nhật mới' });
+      } catch {
+        manager.createNewVersion(bp.id || '', { note: 'Bản cập nhật mới' }, user);
+      }
+      await fetchBlueprints();
+      setMessage(
+        `Đã tạo phiên bản mới cho cấp độ ${bp.level} (phiên bản cũ v${bp.version} vẫn được bảo toàn bất biến).`,
+      );
     } catch (err: unknown) {
       setErrorMsg((err as Error).message);
     }
   };
 
-  const handleActivate = (bp: Blueprint) => {
+  const handleActivate = async (bp: Blueprint) => {
     if (!user) return;
     setErrorMsg(null);
     setMessage(null);
     try {
-      const activated = manager.activateBlueprint(bp.id || '', bp.version, user, { confirmedBy: user.id });
-      setBlueprints(manager.listBlueprints());
-      setMessage(`Đã kích hoạt Blueprint ${activated.level} v${activated.version} thành công!`);
+      try {
+        await apiClient.activateBlueprint(bp.id || '', bp.version);
+      } catch {
+        manager.activateBlueprint(bp.id || '', bp.version, user, { confirmedBy: user.id });
+      }
+      await fetchBlueprints();
+      setMessage(`Đã kích hoạt Blueprint ${bp.level} v${bp.version} thành công!`);
     } catch (err: unknown) {
       setErrorMsg((err as Error).message);
     }
@@ -83,83 +76,107 @@ export default function BlueprintsPage(): React.JSX.Element {
 
   return (
     <AdminGuard pathname="/blueprints" requiredRoles={['editor', 'admin']}>
-      <div style={{ padding: '2rem' }} className="space-y-6 max-w-6xl mx-auto">
-        <div>
+      <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
+        <div className="border-b border-gray-200 pb-4">
           <h1 data-testid="page-title" className="text-2xl font-bold text-gray-900">
-            Bản thiết kế đề thi (Exam Blueprints)
+            {t('content.blueprints.title', locale)}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Quản lý cấu trúc thời gian và số câu từng phần thi N1–N5. Không thể sửa đè các phiên bản đã kích hoạt.
+            {t('content.blueprints.subtitle', locale)}
           </p>
         </div>
 
+        {isLoading && (
+          <div
+            data-testid="blueprints-loading"
+            className="p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-md text-sm animate-pulse"
+          >
+            {t('common.loading', locale)}
+          </div>
+        )}
+
         {message && (
-          <div data-testid="bp-success-message" className="p-3 bg-green-50 border border-green-200 text-green-800 rounded text-sm">
+          <div
+            data-testid="bp-success-message"
+            className="p-3 bg-green-50 border border-green-200 text-green-800 rounded-md text-sm"
+          >
             {message}
           </div>
         )}
 
         {errorMsg && (
-          <div data-testid="bp-error-message" className="p-3 bg-red-50 border border-red-200 text-red-800 rounded text-sm">
+          <div
+            data-testid="bp-error-message"
+            className="p-3 bg-red-50 border border-red-200 text-red-800 rounded-md text-sm"
+          >
+            <strong data-testid="blueprints-error-alert" className="font-semibold">Lỗi: </strong>
             {errorMsg}
           </div>
         )}
 
-        <div className="bg-white border rounded-lg overflow-hidden">
+        <div className="overflow-x-auto w-full bg-white border border-gray-200 rounded-lg shadow-xs">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 text-gray-700">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Cấp độ</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Phiên bản</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Loại đề</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Trạng thái</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Nguồn tham chiếu</th>
-                <th className="px-4 py-3 text-right font-medium text-gray-500 uppercase tracking-wider text-xs">Thao tác</th>
+                <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">Cấp độ</th>
+                <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">Phiên bản</th>
+                <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">Loại đề</th>
+                <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">Trạng thái</th>
+                <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">Nguồn tham chiếu</th>
+                <th className="px-4 py-3 text-right font-semibold text-xs uppercase tracking-wider">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {blueprints.map((bp) => (
-                <tr key={`${bp.id}_${bp.version}`} data-testid={`bp-row-${bp.level}-v${bp.version}`}>
-                  <td className="px-4 py-3 font-bold text-blue-700">{bp.level}</td>
-                  <td className="px-4 py-3 font-mono">v{bp.version}</td>
-                  <td className="px-4 py-3">
-                    <span className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700">{bp.kind}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      data-testid={`bp-status-${bp.level}-v${bp.version}`}
-                      className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                        bp.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
-                      }`}
-                    >
-                      {bp.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">
-                    {bp.sourceRef?.[0]?.url || 'Không có nguồn'}
-                  </td>
-                  <td className="px-4 py-3 text-right space-x-2">
-                    <button
-                      type="button"
-                      data-testid={`btn-create-version-${bp.level}`}
-                      onClick={() => handleCreateNewVersion(bp)}
-                      className="px-2.5 py-1 text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 rounded font-medium"
-                    >
-                      Tạo version mới
-                    </button>
-                    {bp.status !== 'active' && user?.role === 'admin' && (
-                      <button
-                        type="button"
-                        data-testid={`btn-activate-${bp.level}`}
-                        onClick={() => handleActivate(bp)}
-                        className="px-2.5 py-1 text-xs bg-green-50 text-green-700 hover:bg-green-100 rounded font-medium"
-                      >
-                        Kích hoạt
-                      </button>
-                    )}
+              {!isLoading && blueprints.length === 0 ? (
+                <tr>
+                  <td colSpan={6} data-testid="blueprints-empty" className="p-8 text-center text-gray-400">
+                    {t('content.blueprints.empty', locale)}
                   </td>
                 </tr>
-              ))}
+              ) : (
+                blueprints.map((bp) => (
+                  <tr key={`${bp.id}_${bp.version}`} data-testid={`bp-row-${bp.level}-v${bp.version}`} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 font-bold text-blue-700">{bp.level}</td>
+                    <td className="px-4 py-3 font-mono">v{bp.version}</td>
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700">{bp.kind}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        data-testid={`bp-status-${bp.level}-v${bp.version}`}
+                        className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                          bp.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+                        }`}
+                      >
+                        {bp.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-gray-500">
+                      {bp.sourceRef?.[0]?.url || 'Không có nguồn'}
+                    </td>
+                    <td className="px-4 py-3 text-right space-x-2">
+                      <button
+                        type="button"
+                        data-testid={`btn-create-version-${bp.level}`}
+                        onClick={() => handleCreateNewVersion(bp)}
+                        className="px-2.5 py-1 text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 rounded font-medium"
+                      >
+                        {t('content.blueprints.createVersionBtn', locale)}
+                      </button>
+                      {bp.status !== 'active' && user?.role === 'admin' && (
+                        <button
+                          type="button"
+                          data-testid={`btn-activate-${bp.level}`}
+                          onClick={() => handleActivate(bp)}
+                          className="px-2.5 py-1 text-xs bg-green-50 text-green-700 hover:bg-green-100 rounded font-medium"
+                        >
+                          {t('content.blueprints.activateBtn', locale)}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

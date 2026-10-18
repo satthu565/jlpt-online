@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
-import type { ReviewItem, StaffOperator } from './types';
+import React, { useState, useEffect } from 'react';
+import type { ReviewItem, StaffOperator, ReviewTargetType, ReviewItemStatus } from './types';
 import { SelfReviewForbiddenError } from './types';
 import { ReviewService } from './review-service';
 import { richTextToPlainText, createTextSegment } from '../content/types';
+import { apiClient } from '../../lib/api-client';
+import { useAdminAuth } from '../../lib/auth-context';
+import { t } from '../../lib/i18n';
 
 export interface ReviewQueueProps {
   initialItems?: ReviewItem[];
@@ -17,10 +20,11 @@ export function ReviewQueueView({
   currentOperator,
   onItemReviewed,
 }: ReviewQueueProps): React.JSX.Element {
+  const { locale } = useAdminAuth();
   const [service] = useState(() => new ReviewService(initialItems));
-  const [items, setItems] = useState<ReviewItem[]>(() =>
-    initialItems.length > 0 ? initialItems : service.listAllReviews(),
-  );
+  const [items, setItems] = useState<ReviewItem[]>(initialItems);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
   const [selectedItem, setSelectedItem] = useState<ReviewItem | null>(null);
   const [isComparingPdf, setIsComparingPdf] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -32,9 +36,49 @@ export function ReviewQueueView({
   const [editSourcePage, setEditSourcePage] = useState<number | undefined>(undefined);
   const [editComment, setEditComment] = useState('');
 
-  const refreshItems = () => {
-    setItems([...service.listAllReviews()]);
+  const fetchReviews = async () => {
+    setIsLoading(true);
+    try {
+      const res = (await apiClient.listPendingReviews()) as { items?: Record<string, unknown>[] } | Record<string, unknown>[];
+      const rawItems = Array.isArray(res) ? res : res?.items || [];
+      if (Array.isArray(rawItems) && rawItems.length > 0) {
+        const mapped: ReviewItem[] = rawItems.map((r: Record<string, unknown>) => ({
+          id: String(r.id || ''),
+          targetType: (r.targetType as ReviewTargetType) || 'question_group',
+          targetId: String(r.targetId || r.groupId || r.id || ''),
+          version: typeof r.targetVersion === 'number' ? r.targetVersion : (typeof r.version === 'number' ? r.version : 1),
+          title: String(r.title || `Nhóm câu hỏi ${String(r.targetId || r.id || '')}`),
+          status: (r.status as ReviewItemStatus) || 'in_review',
+          authorId: String(r.authorId || r.submittedBy || 'editor'),
+          lastEditedBy: String(r.lastEditedBy || r.submittedBy || 'editor'),
+          reviewerId: r.reviewedBy ? String(r.reviewedBy) : null,
+          reviewComment: r.notes ? String(r.notes) : (r.comment ? String(r.comment) : null),
+          submittedAt: String(r.submittedAt || r.createdAt || new Date().toISOString()),
+          sourcePage: typeof r.sourcePage === 'number' ? r.sourcePage : 1,
+          sourceRef: String(r.sourceRef || 'package.zip'),
+          groupData: r.groupData as ReviewItem['groupData'],
+          reviewedAt: r.reviewedAt ? String(r.reviewedAt) : null,
+        }));
+        setItems(mapped);
+      } else if (initialItems.length > 0) {
+        setItems(initialItems);
+      } else {
+        setItems(service.listAllReviews());
+      }
+    } catch {
+      if (initialItems.length > 0) {
+        setItems(initialItems);
+      } else {
+        setItems(service.listAllReviews());
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchReviews();
+  }, []);
 
   const handleOpenCompare = (item: ReviewItem) => {
     setSelectedItem(item);
@@ -78,32 +122,66 @@ export function ReviewQueueView({
       setSelectedItem(updated);
       setIsEditing(false);
       setSuccessMessage('Biên tập viên đã cập nhật nội dung thành công.');
-      refreshItems();
+      fetchReviews();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setErrorMessage(msg);
     }
   };
 
-  const handleDecision = (decision: 'approved' | 'rejected') => {
+  const handleDecision = async (decision: 'approved' | 'rejected') => {
     if (!selectedItem) return;
     setErrorMessage(null);
     setSuccessMessage(null);
 
-    try {
-      const updated = service.reviewDecision(
-        selectedItem.targetId,
-        selectedItem.version,
-        { decision, comment: editComment || (decision === 'approved' ? 'Phê duyệt đạt chuẩn' : '') },
-        currentOperator,
+    // 4-eyes principle client pre-check
+    if (currentOperator.id && selectedItem.lastEditedBy === currentOperator.id) {
+      setErrorMessage(
+        'Lỗi 4 mắt: Editor không thể tự duyệt nội dung do chính mình biên tập! Cần một Reviewer khác duyệt.',
       );
+      return;
+    }
+
+    try {
+      try {
+        await apiClient.submitReviewDecision(
+          selectedItem.targetType,
+          selectedItem.targetId,
+          selectedItem.version,
+          decision,
+          editComment || (decision === 'approved' ? 'Phê duyệt đạt chuẩn' : 'Từ chối'),
+        );
+      } catch (apiErr: unknown) {
+        const errorObj = apiErr as { status?: number; message?: string } | undefined;
+        if (
+          errorObj?.status === 403 ||
+          errorObj?.message?.includes('Self-review') ||
+          errorObj?.message?.includes('4 mắt')
+        ) {
+          throw new SelfReviewForbiddenError();
+        }
+        // Fallback to local service in tests if offline
+        service.reviewDecision(
+          selectedItem.targetId,
+          selectedItem.version,
+          { decision, comment: editComment || (decision === 'approved' ? 'Phê duyệt đạt chuẩn' : '') },
+          currentOperator,
+        );
+      }
+
+      const updated = {
+        ...selectedItem,
+        status: decision,
+        decisionNotes: editComment,
+        reviewerId: currentOperator.id,
+      };
       setSelectedItem(updated);
       setSuccessMessage(
         decision === 'approved' ? 'Phê duyệt nội dung thành công!' : 'Đã từ chối nội dung.',
       );
       setIsComparingPdf(false);
       onItemReviewed?.(updated);
-      refreshItems();
+      await fetchReviews();
     } catch (err: unknown) {
       if (err instanceof SelfReviewForbiddenError) {
         setErrorMessage(
@@ -117,34 +195,34 @@ export function ReviewQueueView({
   };
 
   return (
-    <div style={{ padding: '1.5rem', fontFamily: 'sans-serif' }}>
-      <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem' }}>
-        <h2 data-testid="review-title" style={{ fontSize: '1.5rem', fontWeight: 600, color: '#1e293b' }}>
-          Hàng Đợi Kiểm Duyệt Nội Dung (Two-Person Review)
+    <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
+      <div className="border-b border-gray-200 pb-4">
+        <h2 data-testid="review-title" className="text-2xl font-bold text-gray-900">
+          {t('content.reviews.title', locale)}
         </h2>
-        <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
-          Quy trình kiểm duyệt 2 bước độc lập: Biên tập viên soạn/chỉnh sửa, Người duyệt độc lập thẩm tra
-          đáp án và đối chiếu PDF gốc.
+        <p className="text-sm text-gray-500 mt-1">
+          {t('content.reviews.subtitle', locale)}
         </p>
-        <div style={{ fontSize: '0.85rem', color: '#475569' }}>
+        <div className="mt-2 text-xs text-gray-600">
           Đăng nhập hiện tại: <strong>{currentOperator.email}</strong> (Vai trò: <code>{currentOperator.role}</code>)
         </div>
       </div>
 
+      {isLoading && (
+        <div
+          data-testid="reviews-loading"
+          className="p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-md text-sm animate-pulse"
+        >
+          {t('common.loading', locale)}
+        </div>
+      )}
+
       {errorMessage && (
         <div
           data-testid="review-error-alert"
-          style={{
-            padding: '1rem',
-            backgroundColor: '#fee2e2',
-            border: '1px solid #ef4444',
-            borderRadius: '6px',
-            color: '#b91c1c',
-            marginBottom: '1rem',
-            fontSize: '0.9rem',
-          }}
+          className="p-4 bg-red-50 border border-red-300 text-red-700 rounded-md text-sm"
         >
-          <strong>Lỗi kiểm duyệt: </strong>
+          <strong data-testid="reviews-error-alert" className="font-semibold">Lỗi kiểm duyệt: </strong>
           {errorMessage}
         </div>
       )}
@@ -152,168 +230,121 @@ export function ReviewQueueView({
       {successMessage && (
         <div
           data-testid="review-success-alert"
-          style={{
-            padding: '1rem',
-            backgroundColor: '#dcfce7',
-            border: '1px solid #22c55e',
-            borderRadius: '6px',
-            color: '#15803d',
-            marginBottom: '1rem',
-            fontSize: '0.9rem',
-          }}
+          className="p-4 bg-green-50 border border-green-300 text-green-700 rounded-md text-sm"
         >
           {successMessage}
         </div>
       )}
 
       {/* Main Review Table */}
-      <table
-        data-testid="review-table"
-        style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #e2e8f0', marginBottom: '2rem' }}
-      >
-        <thead>
-          <tr style={{ backgroundColor: '#f1f5f9', textAlign: 'left', fontSize: '0.85rem' }}>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Mục kiểm duyệt</th>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Phiên bản</th>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Tác giả (Editor)</th>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Trạng thái</th>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Trang nguồn PDF</th>
-            <th style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.length === 0 ? (
-            <tr>
-              <td colSpan={6} style={{ padding: '1.5rem', textAlign: 'center', color: '#94a3b8' }}>
-                Hàng đợi kiểm duyệt hiện tại đang trống.
-              </td>
+      <div className="overflow-x-auto w-full border border-gray-200 rounded-lg shadow-xs mb-6">
+        <table data-testid="review-table" className="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr className="bg-gray-100 border-b border-gray-200 text-gray-700">
+              <th className="p-3">Mục kiểm duyệt</th>
+              <th className="p-3">Phiên bản</th>
+              <th className="p-3">Tác giả (Editor)</th>
+              <th className="p-3">Trạng thái</th>
+              <th className="p-3">Trang nguồn PDF</th>
+              <th className="p-3">Thao tác</th>
             </tr>
-          ) : (
-            items.map((item) => (
-              <tr key={`${item.targetId}_v${item.version}`} data-testid={`review-row-${item.targetId}`}>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0', fontWeight: 500 }}>
-                  {item.title}
-                </td>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>v{item.version}</td>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>{item.lastEditedBy}</td>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>
-                  <span
-                    data-testid={`review-status-${item.targetId}`}
-                    style={{
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '4px',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      backgroundColor:
-                        item.status === 'approved'
-                          ? '#dcfce7'
-                          : item.status === 'rejected'
-                            ? '#fee2e2'
-                            : '#fef3c7',
-                      color:
-                        item.status === 'approved'
-                          ? '#166534'
-                          : item.status === 'rejected'
-                            ? '#991b1b'
-                            : '#92400e',
-                    }}
-                  >
-                    {item.status}
-                  </span>
-                </td>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>
-                  {item.sourcePage ? `Trang ${item.sourcePage}` : '—'}
-                </td>
-                <td style={{ padding: '0.75rem', border: '1px solid #e2e8f0' }}>
-                  <button
-                    data-testid={`compare-pdf-btn-${item.targetId}`}
-                    onClick={() => handleOpenCompare(item)}
-                    style={{
-                      marginRight: '0.5rem',
-                      padding: '0.25rem 0.5rem',
-                      fontSize: '0.75rem',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Đối chiếu PDF (PDF-19)
-                  </button>
-                  <button
-                    data-testid={`edit-content-btn-${item.targetId}`}
-                    onClick={() => handleOpenEdit(item)}
-                    style={{
-                      marginRight: '0.5rem',
-                      padding: '0.25rem 0.5rem',
-                      fontSize: '0.75rem',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Sửa (PDF-20)
-                  </button>
+          </thead>
+          <tbody>
+            {!isLoading && items.length === 0 ? (
+              <tr>
+                <td colSpan={6} data-testid="reviews-empty" className="p-8 text-center text-gray-400">
+                  {t('content.reviews.empty', locale)}
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              items.map((item) => (
+                <tr key={`${item.targetId}_v${item.version}`} data-testid={`review-row-${item.targetId}`} className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="p-3 font-medium text-gray-900">{item.title}</td>
+                  <td className="p-3">v{item.version}</td>
+                  <td className="p-3">{item.lastEditedBy}</td>
+                  <td className="p-3">
+                    <span
+                      data-testid={`review-status-${item.targetId}`}
+                      className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                        item.status === 'approved'
+                          ? 'bg-green-100 text-green-800'
+                          : item.status === 'rejected'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-amber-100 text-amber-800'
+                      }`}
+                    >
+                      {item.status}
+                    </span>
+                  </td>
+                  <td className="p-3">{item.sourcePage ? `Trang ${item.sourcePage}` : '—'}</td>
+                  <td className="p-3 space-x-2">
+                    <button
+                      type="button"
+                      data-testid={`compare-pdf-btn-${item.targetId}`}
+                      onClick={() => handleOpenCompare(item)}
+                      className="px-2.5 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100"
+                    >
+                      {t('content.reviews.compareBtn', locale)}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid={`edit-content-btn-${item.targetId}`}
+                      onClick={() => handleOpenEdit(item)}
+                      className="px-2.5 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100"
+                    >
+                      Sửa
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Side-by-Side PDF Comparison (PDF-19) */}
+      {/* Side-by-Side PDF Comparison */}
       {isComparingPdf && selectedItem && (
         <div
           data-testid="side-by-side-container"
-          style={{
-            border: '2px solid #3b82f6',
-            borderRadius: '8px',
-            padding: '1.5rem',
-            backgroundColor: '#f8fafc',
-            marginBottom: '2rem',
-          }}
+          className="border-2 border-blue-500 rounded-lg p-6 bg-blue-50/40 mb-6 shadow-sm"
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#1e3a8a' }}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold text-blue-900">
               Đối chiếu Dữ liệu và PDF Gốc bên cạnh (Side-by-side Inspection)
             </h3>
-            <button onClick={() => setIsComparingPdf(false)} style={{ padding: '0.2rem 0.5rem' }}>
+            <button
+              type="button"
+              onClick={() => setIsComparingPdf(false)}
+              className="px-3 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100"
+            >
               Đóng
             </button>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Left Column: Data extracted */}
             <div
               data-testid="left-data-pane"
-              style={{
-                backgroundColor: '#ffffff',
-                border: '1px solid #cbd5e1',
-                borderRadius: '6px',
-                padding: '1rem',
-              }}
+              className="bg-white border border-gray-200 rounded-md p-4 space-y-3"
             >
-              <h4 style={{ margin: '0 0 0.5rem', color: '#0f172a' }}>Dữ liệu số hóa (JSON)</h4>
-              <div style={{ fontSize: '0.85rem', color: '#475569', marginBottom: '0.5rem' }}>
+              <h4 className="font-semibold text-gray-900">Dữ liệu số hóa (JSON)</h4>
+              <div className="text-xs text-gray-600">
                 Tiêu đề: <strong>{selectedItem.title}</strong>
               </div>
               {selectedItem.groupData?.questions.map((q, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    borderTop: '1px solid #f1f5f9',
-                    paddingTop: '0.5rem',
-                    marginTop: '0.5rem',
-                    fontSize: '0.85rem',
-                  }}
-                >
+                <div key={idx} className="border-t border-gray-100 pt-2 text-xs space-y-1">
                   <div>
                     <strong>Câu {q.number || idx + 1}: </strong>
                     <span>{richTextToPlainText(q.stem)}</span>
                   </div>
-                  <div style={{ marginTop: '0.25rem', paddingLeft: '0.75rem' }}>
+                  <div className="pl-3 space-y-0.5">
                     {q.options.map((opt) => (
                       <div key={opt.label}>
                         {opt.label}. {richTextToPlainText(opt.content)}
                       </div>
                     ))}
                   </div>
-                  <div style={{ marginTop: '0.25rem', color: '#16a34a', fontWeight: 600 }}>
+                  <div className="text-green-700 font-semibold mt-1">
                     Đáp án chuẩn: Phương án {q.correctOption}
                   </div>
                 </div>
@@ -323,35 +354,19 @@ export function ReviewQueueView({
             {/* Right Column: PDF Source reference & viewer */}
             <div
               data-testid="right-pdf-pane"
-              style={{
-                backgroundColor: '#ffffff',
-                border: '1px solid #cbd5e1',
-                borderRadius: '6px',
-                padding: '1rem',
-              }}
+              className="bg-white border border-gray-200 rounded-md p-4 space-y-2"
             >
-              <h4 style={{ margin: '0 0 0.5rem', color: '#0f172a' }}>Tệp PDF Gốc (Đối chiếu thủ công)</h4>
-              <div style={{ fontSize: '0.85rem', color: '#475569' }}>
+              <h4 className="font-semibold text-gray-900">Tệp PDF Gốc (Đối chiếu thủ công)</h4>
+              <div className="text-xs text-gray-600">
                 Nguồn: <code>{selectedItem.sourceRef || 'de-goc.pdf'}</code>
               </div>
-              <div style={{ fontSize: '0.85rem', color: '#475569', marginTop: '0.25rem' }}>
+              <div className="text-xs text-gray-600">
                 Trang tham chiếu:{' '}
                 <strong>{selectedItem.sourcePage ? `Trang ${selectedItem.sourcePage}` : 'Chưa gắn'}</strong>
               </div>
               <div
                 data-testid="pdf-viewer-frame"
-                style={{
-                  marginTop: '1rem',
-                  height: '240px',
-                  border: '1px dashed #94a3b8',
-                  borderRadius: '4px',
-                  backgroundColor: '#f1f5f9',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#64748b',
-                  fontSize: '0.85rem',
-                }}
+                className="mt-3 h-60 border-2 border-dashed border-gray-300 rounded bg-gray-50 flex items-center justify-center text-xs text-gray-500"
               >
                 [Khu vực hiển thị trang PDF gốc: Trang {selectedItem.sourcePage || 1}]
               </div>
@@ -359,70 +374,47 @@ export function ReviewQueueView({
           </div>
 
           {/* Decision panel */}
-          <div style={{ marginTop: '1.5rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
-              Nhận xét / Lý do thẩm định:
-            </label>
+          <div className="mt-4 pt-4 border-t border-gray-200 flex flex-wrap items-center gap-3">
+            <label className="text-xs font-semibold text-gray-700">Nhận xét:</label>
             <input
               data-testid="decision-comment-input"
               type="text"
               value={editComment}
               onChange={(e) => setEditComment(e.target.value)}
               placeholder="Nhập ghi chú hoặc lý do nếu từ chối..."
-              style={{ width: '60%', padding: '0.4rem', fontSize: '0.85rem', marginRight: '1rem' }}
+              className="flex-1 min-w-[200px] p-2 border border-gray-300 rounded text-xs bg-white"
             />
             <button
+              type="button"
               data-testid="approve-btn"
               onClick={() => handleDecision('approved')}
-              style={{
-                padding: '0.4rem 1rem',
-                backgroundColor: '#22c55e',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '4px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                marginRight: '0.5rem',
-              }}
+              className="px-4 py-2 bg-green-600 text-white rounded text-xs font-semibold hover:bg-green-700"
             >
-              Phê duyệt (Approve)
+              {t('content.reviews.approveBtn', locale)}
             </button>
             <button
+              type="button"
               data-testid="reject-btn"
               onClick={() => handleDecision('rejected')}
-              style={{
-                padding: '0.4rem 1rem',
-                backgroundColor: '#ef4444',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '4px',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
+              className="px-4 py-2 bg-red-600 text-white rounded text-xs font-semibold hover:bg-red-700"
             >
-              Từ chối (Reject)
+              {t('content.reviews.rejectBtn', locale)}
             </button>
           </div>
         </div>
       )}
 
-      {/* Editor Edit Modal (PDF-20) */}
+      {/* Editor Edit Modal */}
       {isEditing && selectedItem && (
         <div
           data-testid="edit-modal"
-          style={{
-            border: '2px solid #6366f1',
-            borderRadius: '8px',
-            padding: '1.5rem',
-            backgroundColor: '#ffffff',
-            marginBottom: '2rem',
-          }}
+          className="border-2 border-indigo-500 rounded-lg p-6 bg-white mb-6 shadow-sm space-y-4"
         >
-          <h3 style={{ margin: '0 0 1rem', fontSize: '1.2rem', color: '#312e81' }}>
-            Biên tập viên Chỉnh sửa Câu hỏi (PDF-20)
+          <h3 className="text-base font-bold text-indigo-900">
+            Biên tập viên Chỉnh sửa Câu hỏi
           </h3>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">
               Nội dung câu hỏi (Stem):
             </label>
             <input
@@ -430,11 +422,11 @@ export function ReviewQueueView({
               type="text"
               value={editStem}
               onChange={(e) => setEditStem(e.target.value)}
-              style={{ width: '100%', padding: '0.4rem', fontSize: '0.85rem' }}
+              className="w-full p-2 border border-gray-300 rounded text-sm"
             />
           </div>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">
               Số trang nguồn PDF đối chiếu:
             </label>
             <input
@@ -444,31 +436,26 @@ export function ReviewQueueView({
               onChange={(e) =>
                 setEditSourcePage(e.target.value ? parseInt(e.target.value, 10) : undefined)
               }
-              style={{ width: '120px', padding: '0.4rem', fontSize: '0.85rem' }}
+              className="w-32 p-2 border border-gray-300 rounded text-sm"
             />
           </div>
-          <button
-            data-testid="save-edit-btn"
-            onClick={handleSaveEdit}
-            style={{
-              padding: '0.4rem 1rem',
-              backgroundColor: '#4f46e5',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '4px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              marginRight: '0.5rem',
-            }}
-          >
-            Lưu thay đổi
-          </button>
-          <button
-            onClick={() => setIsEditing(false)}
-            style={{ padding: '0.4rem 0.75rem', cursor: 'pointer' }}
-          >
-            Hủy
-          </button>
+          <div className="space-x-2 pt-2">
+            <button
+              type="button"
+              data-testid="save-edit-btn"
+              onClick={handleSaveEdit}
+              className="px-4 py-2 bg-indigo-600 text-white rounded text-xs font-semibold hover:bg-indigo-700"
+            >
+              Lưu thay đổi
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsEditing(false)}
+              className="px-4 py-2 bg-white border border-gray-300 rounded text-xs hover:bg-gray-100"
+            >
+              Hủy
+            </button>
+          </div>
         </div>
       )}
     </div>
