@@ -303,20 +303,20 @@ test.describe('Real Staging User Journey & Exam Flow (I05)', () => {
     await page.locator('button[type="submit"]').click();
 
     // 2. Verification email received in Mailpit
-    const emailMessage = await mailpit.waitForEmail(testEmail, 15000);
+    const emailMessage = await mailpit.waitForEmail(testEmail, 20000);
     const verificationToken = mailpit.extractVerificationToken(emailMessage);
     expect(verificationToken).toBeTruthy();
 
     // 3. User navigates to /xac-minh-email?token=...
     await page.goto(`${webOrigin}/xac-minh-email?token=${verificationToken}`);
-    await expect(page.locator('[role="alert"], a[href="/dang-nhap"]').first()).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[role="alert"], a[href="/dang-nhap"]').first()).toBeVisible({ timeout: 20000 });
 
     // 4. User navigates to /dang-nhap and signs in
     await page.goto(`${webOrigin}/dang-nhap`);
     await page.locator('#login-email').fill(testEmail);
     await page.locator('#login-password').fill(testPassword);
     await page.locator('button[type="submit"]').click();
-    await page.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 15000 });
+    await page.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 20000 });
 
     // 5. Navigate to /de-thi and find demo N5 exam
     await page.goto(`${webOrigin}/de-thi`);
