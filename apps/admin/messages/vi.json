@@ -126,6 +126,7 @@
       "jobsTitle": "Danh sách Gói nhập gần đây",
       "sourcePage": "Trang nguồn",
       "exportCsv": "Xuất CSV",
+      "submitReviewBtn": "Gửi duyệt",
       "csvToolTitle": "Ngân hàng câu hỏi: Công cụ Import / Export JSON & CSV (PDF-30)",
       "importCsvBtn": "Nạp câu hỏi từ CSV",
       "csvInputLabel": "Dữ liệu CSV nhập:",

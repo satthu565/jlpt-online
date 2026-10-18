@@ -219,20 +219,20 @@ export function ReviewQueueView({
 
       {errorMessage && (
         <div
-          data-testid="review-error-alert"
+          data-testid="error-alert"
           className="p-4 bg-red-50 border border-red-300 text-red-700 rounded-md text-sm"
         >
           <strong data-testid="reviews-error-alert" className="font-semibold">Lỗi kiểm duyệt: </strong>
-          {errorMessage}
+          <span data-testid="review-error-alert">{errorMessage}</span>
         </div>
       )}
 
       {successMessage && (
         <div
-          data-testid="review-success-alert"
+          data-testid="status-alert"
           className="p-4 bg-green-50 border border-green-300 text-green-700 rounded-md text-sm"
         >
-          {successMessage}
+          <span data-testid="review-success-alert">{successMessage}</span>
         </div>
       )}
 

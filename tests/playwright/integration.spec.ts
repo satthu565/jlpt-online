@@ -1093,6 +1093,26 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
     const clientIp = getProjectClientIp(testInfo, 60);
     const headers = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
 
+    // Step 0: Ensure demo exam is in draft state if previously published so the full publish flow is verified
+    const prepCtx = await browser.newContext({ extraHTTPHeaders: headers });
+    const prepPage = await prepCtx.newPage();
+    try {
+      await loginAsStaff(prepPage, adminOrigin, SEEDED_STAFF_ACCOUNTS.admin);
+      await prepPage.goto(`${adminOrigin}/exams`, { waitUntil: 'domcontentloaded' });
+      await expect(prepPage.locator('[data-testid="exam-page-title"], [data-testid="exams-title"], h2').first()).toBeVisible({ timeout: 15000 });
+      const takedownBtn = prepPage.locator('button[data-testid^="takedown-exam-btn-"]').first();
+      if (await takedownBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await takedownBtn.click();
+        const confirmBtn = prepPage.locator('button[data-testid="confirm-takedown-btn"]').first();
+        if (await confirmBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+          await confirmBtn.click();
+          await expect(prepPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 5000 });
+        }
+      }
+    } finally {
+      await prepCtx.close();
+    }
+
     // Step 1: Editor logs in and imports package via Admin Portal UI
     const editorCtx = await browser.newContext({ extraHTTPHeaders: headers });
     const editorPage = await editorCtx.newPage();
@@ -1107,7 +1127,14 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
         await fileInput.setInputFiles(demoZipPath);
         await expect(editorPage.locator('[data-testid="status-alert"], [data-testid="jobs-table"], table').first()).toBeVisible({ timeout: 30000 });
       }
-      await expect(editorPage.locator('[data-testid="jobs-table"], [data-testid="imports-empty"], table').first()).toBeVisible({ timeout: 10000 });
+      await expect(editorPage.locator('[data-testid="jobs-table"], table').first()).toBeVisible({ timeout: 10000 });
+
+      // Put imported items into review state (Gửi duyệt / in_review)
+      const submitReviewBtn = editorPage.locator('button[data-testid^="submit-review-btn-"]').first();
+      if (await submitReviewBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+        await submitReviewBtn.click();
+        await expect(editorPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 10000 });
+      }
     } finally {
       await editorCtx.close();
     }
@@ -1119,17 +1146,19 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
       await loginAsStaff(reviewerPage, adminOrigin, SEEDED_STAFF_ACCOUNTS.reviewer);
       await reviewerPage.goto(`${adminOrigin}/reviews`, { waitUntil: 'domcontentloaded' });
       await expect(reviewerPage.locator('[data-testid="review-title"], h2').first()).toBeVisible({ timeout: 15000 });
-      await expect(reviewerPage.locator('[data-testid="review-table"], [data-testid="reviews-empty"], table').first()).toBeVisible({ timeout: 10000 });
+      await expect(reviewerPage.locator('[data-testid="review-table"], table').first()).toBeVisible({ timeout: 10000 });
 
       const compareBtn = reviewerPage.locator('button[data-testid^="compare-pdf-btn-"]').first();
-      if (await compareBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-        await compareBtn.click();
-        const approveBtn = reviewerPage.locator('button[data-testid="approve-btn"]').first();
-        if (await approveBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-          await approveBtn.click();
-          await reviewerPage.waitForTimeout(1000);
-        }
-      }
+      await expect(compareBtn).toBeVisible({ timeout: 15000 });
+      await compareBtn.click();
+
+      await expect(reviewerPage.locator('[data-testid="side-by-side-container"], [data-testid="pdf-viewer-frame"]').first()).toBeVisible({ timeout: 10000 });
+
+      const approveBtn = reviewerPage.locator('button[data-testid="approve-btn"]').first();
+      await expect(approveBtn).toBeVisible({ timeout: 10000 });
+      await approveBtn.click();
+
+      await expect(reviewerPage.locator('[data-testid="status-alert"], [data-testid="review-success-alert"]').first()).toBeVisible({ timeout: 10000 });
     } finally {
       await reviewerCtx.close();
     }
@@ -1140,13 +1169,14 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
     try {
       await loginAsStaff(adminPage, adminOrigin, SEEDED_STAFF_ACCOUNTS.admin);
       await adminPage.goto(`${adminOrigin}/exams`, { waitUntil: 'domcontentloaded' });
-      await expect(adminPage.locator('[data-testid="exams-title"], [data-testid="exam-table"], h2').first()).toBeVisible({ timeout: 15000 });
+      await expect(adminPage.locator('[data-testid="exam-page-title"], [data-testid="exams-title"], h2').first()).toBeVisible({ timeout: 15000 });
 
       const publishBtn = adminPage.locator('button[data-testid^="publish-exam-btn-"]').first();
-      if (await publishBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-        await publishBtn.click();
-        await adminPage.waitForTimeout(1000);
-      }
+      await expect(publishBtn).toBeVisible({ timeout: 15000 });
+      await publishBtn.click();
+
+      await expect(adminPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 15000 });
+      await expect(adminPage.locator('[data-testid="status-alert"]').first()).toContainText(/Xuất bản thành công/i);
     } finally {
       await adminCtx.close();
     }
@@ -1157,8 +1187,13 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
     try {
       await webPage.goto(`${webOrigin}/de-thi`, { waitUntil: 'domcontentloaded' });
       await expect(webPage.locator('.jlpt-library-view, h1, [data-testid="exam-card"]').first()).toBeVisible({ timeout: 15000 });
-      const pageText = await webPage.innerText('body');
-      expect(pageText).toMatch(/(Thư viện đề thi|JLPT|N5)/i);
+
+      // Assert exam appears in the web library
+      const examCard = webPage.locator('.jlpt-exam-card').first();
+      await expect(examCard).toBeVisible({ timeout: 15000 });
+      await expect(examCard.locator('h3').first()).toBeVisible();
+      const cardTitle = await examCard.locator('h3').first().innerText();
+      expect(cardTitle.length).toBeGreaterThan(0);
     } finally {
       await webCtx.close();
     }

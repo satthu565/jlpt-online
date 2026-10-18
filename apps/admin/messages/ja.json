@@ -126,6 +126,7 @@
       "jobsTitle": "最近のインポートジョブ一覧",
       "sourcePage": "出典ページ",
       "exportCsv": "CSV出力",
+      "submitReviewBtn": "レビュー提出",
       "csvToolTitle": "問題バンク: JSON & CSV インポート／エクスポートツール (PDF-30)",
       "importCsvBtn": "CSVから問題を読み込む",
       "csvInputLabel": "入力CSVデータ：",

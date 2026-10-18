@@ -478,9 +478,21 @@ export class AdminApiClient {
     });
   }
 
-  public async submitForReview(id: string): Promise<{ success: boolean }> {
+  public async submitForReview(id: string, expectedVersion = 1): Promise<{ success: boolean }> {
     return this.request<{ success: boolean }>('POST', `/api/v1/admin/groups/${encodeURIComponent(id)}/submit-review`, {
       requiredRoles: ['editor', 'admin'],
+      body: { expectedVersion },
+    });
+  }
+
+  public async submitTargetForReview(
+    targetType: string,
+    targetId: string,
+    targetVersion = 1,
+  ): Promise<{ status: string }> {
+    return this.request<{ status: string }>('POST', '/api/v1/admin/reviews/submit', {
+      requiredRoles: ['editor', 'admin', 'reviewer'],
+      body: { targetType, targetId, targetVersion },
     });
   }
 

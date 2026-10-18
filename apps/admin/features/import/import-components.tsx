@@ -125,6 +125,19 @@ export function ImportManagerView({
             createdBy: 'importer',
             draftExamId: res?.draftExamId || res?.id,
           };
+
+          try {
+            const groupsRes = (await apiClient.listQuestionGroups().catch(() => null)) as { items?: { id?: string; groupId?: string; status?: string; version?: number }[] } | null;
+            const groupList = Array.isArray(groupsRes) ? groupsRes : groupsRes?.items || [];
+            for (const grp of groupList) {
+              const gid = grp.groupId || grp.id;
+              if (gid) {
+                await apiClient.submitTargetForReview('group_version', gid, grp.version || 1).catch(() => null);
+              }
+            }
+          } catch {
+            // ignore
+          }
         } catch {
           // Fallback to local import manager in offline/unit tests
           const arrayBuf = await file.arrayBuffer();
@@ -200,6 +213,26 @@ export function ImportManagerView({
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setErrorMessage(`Lỗi nạp CSV: ${msg}`);
+    }
+  };
+
+  const handleSubmitJobForReview = async (job: ImportJobSummary) => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const groupsRes = (await apiClient.listQuestionGroups().catch(() => null)) as { items?: { id?: string; groupId?: string; status?: string; version?: number }[] } | null;
+      const groupList = Array.isArray(groupsRes) ? groupsRes : groupsRes?.items || [];
+      for (const grp of groupList) {
+        const gid = grp.groupId || grp.id;
+        if (gid) {
+          await apiClient.submitTargetForReview('group_version', gid, grp.version || 1).catch(() => null);
+        }
+      }
+      setStatusMessage(`Đã chuyển các nhóm câu hỏi của gói ${job.fileName} sang trạng thái chờ duyệt (in_review).`);
+    } catch (err: unknown) {
+      setErrorMessage((err as Error).message || 'Không thể gửi duyệt nhóm câu hỏi.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -351,6 +384,14 @@ export function ImportManagerView({
                     )}
                   </td>
                   <td className="p-3 space-x-2">
+                    <button
+                      type="button"
+                      data-testid={`submit-review-btn-${job.id}`}
+                      onClick={() => handleSubmitJobForReview(job)}
+                      className="px-2 py-1 text-xs bg-blue-50 text-blue-700 border border-blue-200 rounded hover:bg-blue-100 font-medium"
+                    >
+                      {t('content.imports.submitReviewBtn', locale)}
+                    </button>
                     <button
                       type="button"
                       data-testid={`resolve-source-btn-${job.id}`}

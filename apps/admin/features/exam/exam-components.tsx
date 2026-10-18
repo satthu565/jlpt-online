@@ -75,11 +75,7 @@ export function ExamListView({
     setErrorMessage(null);
     setStatusMessage(null);
     try {
-      try {
-        await apiClient.publishExam(exam.id);
-      } catch {
-        service.publishExam(exam.id, currentOperator);
-      }
+      await apiClient.publishExam(exam.id);
       setStatusMessage(
         `Xuất bản thành công! Đề thi đạt phiên bản v${exam.publishedVersion ? exam.publishedVersion + 1 : 1}. Snapshot không lộ đáp án.`,
       );
@@ -101,11 +97,7 @@ export function ExamListView({
     if (!takedownExamId) return;
     setErrorMessage(null);
     try {
-      try {
-        await apiClient.unpublishExam(takedownExamId, takedownReason);
-      } catch {
-        service.takedownExam(takedownExamId, takedownReason, currentOperator);
-      }
+      await apiClient.unpublishExam(takedownExamId, takedownReason);
       setStatusMessage(
         `Đã gỡ đề thi khỏi xuất bản (Takedown). Phiên bản cũ vẫn được lưu trữ nguyên vẹn trong lịch sử.`,
       );

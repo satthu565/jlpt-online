@@ -19,31 +19,10 @@ export interface AiModerationLog {
   reviewStatus: 'auto_passed' | 'flagged' | 'reviewed';
 }
 
-export interface AiModerationProps {
-  initialLogs?: AiModerationLog[];
-}
-
-const DEFAULT_AI_LOGS: AiModerationLog[] = [
-  {
-    id: 'ai_log_01',
-    actionType: 'explain_generation',
-    provider: 'gemini',
-    model: 'gemini-1.5-flash',
-    flaggedUnsafe: false,
-    promptTokens: 420,
-    completionTokens: 280,
-    costVnd: 18,
-    createdAt: '2026-10-18 10:00',
-    reviewStatus: 'auto_passed',
-  },
-];
-
-export default function AiModerationPage({
-  initialLogs,
-}: AiModerationProps = {}): React.JSX.Element {
+export default function AiModerationPage(): React.JSX.Element {
   const { user: _user, locale } = useAdminAuth();
 
-  const [logs, setLogs] = useState<AiModerationLog[]>(() => initialLogs ?? DEFAULT_AI_LOGS);
+  const [logs, setLogs] = useState<AiModerationLog[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [filterFlagged, setFilterFlagged] = useState<boolean>(false);

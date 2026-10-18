@@ -126,6 +126,7 @@
       "jobsTitle": "Recent Import Jobs",
       "sourcePage": "Source Page",
       "exportCsv": "Export CSV",
+      "submitReviewBtn": "Submit for Review",
       "csvToolTitle": "Question Bank: Import / Export JSON & CSV Tools (PDF-30)",
       "importCsvBtn": "Load Questions from CSV",
       "csvInputLabel": "Input CSV Data:",

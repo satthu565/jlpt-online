@@ -237,7 +237,7 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
       const html = renderWithAuth(<AiModerationPage />);
       expect(html).toContain('Kiểm duyệt Nội dung AI &amp; Giám sát Chi phí');
       expect(html).toContain('data-testid="checkbox-filter-flagged"');
-      expect(html).toContain('gemini-1.5-flash');
+      expect(html).toContain('data-testid="ai-empty"');
     });
 
     it('OrgSettingsPage hiển thị hồ sơ ứng tuyển giáo viên và thao tác phê duyệt', () => {

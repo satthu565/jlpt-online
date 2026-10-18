@@ -1192,18 +1192,6 @@ export class ReportingService {
         return this.getRetentionReport(query);
       case 'funnel':
         return this.getFunnelReport(query);
-      case 'content': {
-        const [review, incidents] = await Promise.all([
-          this.getContentReviewReport(query),
-          this.getContentIncidentsReport(query),
-        ]);
-        return {
-          ...review,
-          ...incidents,
-          review,
-          incidents,
-        };
-      }
       case 'content-review':
         return this.getContentReviewReport(query);
       case 'content-incidents':
