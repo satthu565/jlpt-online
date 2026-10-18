@@ -112,6 +112,14 @@ export class CommunityClient {
   }
 
   // 2. Question Discussions (Gated to question completion)
+  public async getDiscussableQuestions(): Promise<{
+    items: Array<{ id: string; stem?: string | null; level?: string | null }>;
+  }> {
+    return this.request<{
+      items: Array<{ id: string; stem?: string | null; level?: string | null }>;
+    }>('GET', '/questions/discussions');
+  }
+
   public async getQuestionDiscussions(questionId: string): Promise<{
     allowed: boolean;
     reason?: string;

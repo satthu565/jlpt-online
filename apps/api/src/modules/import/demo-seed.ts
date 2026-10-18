@@ -1,7 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
+import { hashPassword } from 'better-auth/crypto';
+import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { resolveRepoPath } from '../../common/utils/paths.js';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
@@ -28,6 +30,10 @@ export async function runDemoSeed(
   client?: DbClientInstance,
   options?: { storageService?: StorageService },
 ): Promise<DemoSeedResult> {
+  const appEnv = (process.env.APP_ENV || '').trim().toLowerCase();
+  if (appEnv === 'production') {
+    throw new Error('Script seed staging/demo bị từ chối chạy khi APP_ENV=production');
+  }
   let dbClient = client;
   let closeOnExit = false;
 
@@ -91,54 +97,96 @@ export async function runDemoSeed(
     );
     const examService = new ExamService(dbClient, storageService, outboxService, blueprintService);
 
-    // 3. Seed distinct accounts for editor, reviewer, and publisher (Acceptance 3 & 4)
+    // 3. Seed staff accounts for editor, reviewer, publisher, billing admin, and admin (Acceptance 3 & 4)
     const editorId = '0192f000-0000-7000-8000-0000000000e1';
-    const reviewerId = '0192f000-0000-7000-8000-0000000000d1'; // valid hex
-    const publisherId = '0192f000-0000-7000-8000-0000000000b1'; // valid hex
+    const reviewerId = '0192f000-0000-7000-8000-0000000000d1';
+    const publisherId = '0192f000-0000-7000-8000-0000000000b1';
+    const billingAdminId = '0192f000-0000-7000-8000-0000000000b2';
+    const systemAdminId = '0192f000-0000-7000-8000-000000000001';
 
-    await dbClient.db
-      .insert(schema.users)
-      .values([
-        {
-          id: editorId,
-          name: 'Demo Content Editor',
-          email: 'editor@jlpt.local',
-          emailVerified: true,
-          role: 'editor',
-          locale: 'vi',
-          timezone: 'Asia/Ho_Chi_Minh',
-        },
-        {
-          id: reviewerId,
-          name: 'Demo Content Reviewer',
-          email: 'reviewer@jlpt.local',
-          emailVerified: true,
-          role: 'reviewer',
-          locale: 'vi',
-          timezone: 'Asia/Ho_Chi_Minh',
-        },
-        {
-          id: publisherId,
-          name: 'Demo Content Publisher',
-          email: 'publisher@jlpt.local',
-          emailVerified: true,
-          role: 'admin',
-          locale: 'vi',
-          timezone: 'Asia/Ho_Chi_Minh',
-        },
-      ])
-      .onConflictDoNothing();
+    const staffDefinitions = [
+      {
+        id: publisherId,
+        name: 'Demo Content Publisher',
+        email: 'publisher@jlpt.local',
+        role: 'admin' as const,
+      },
+      {
+        id: billingAdminId,
+        name: 'Demo Billing Admin',
+        email: 'billing.admin@jlpt.local',
+        role: 'billing_admin' as const,
+      },
+      {
+        id: editorId,
+        name: 'Demo Content Editor',
+        email: 'editor@jlpt.local',
+        role: 'editor' as const,
+      },
+      {
+        id: reviewerId,
+        name: 'Demo Content Reviewer',
+        email: 'reviewer@jlpt.local',
+        role: 'reviewer' as const,
+      },
+      {
+        id: systemAdminId,
+        name: 'System Admin',
+        email: 'admin@jlpt.local',
+        role: 'admin' as const,
+      },
+    ];
 
-    // 3b. Seed 2FA profiles with known secret for staff E2E and staging drills (I08)
+    for (const staff of staffDefinitions) {
+      await dbClient.db
+        .insert(schema.users)
+        .values({
+          id: staff.id,
+          name: staff.name,
+          email: staff.email,
+          emailVerified: true,
+          role: staff.role,
+          locale: 'vi',
+          timezone: 'Asia/Ho_Chi_Minh',
+        })
+        .onConflictDoNothing();
+    }
+
+    // 3b. Seed credential accounts with default staging password
+    const defaultPasswordHash = await hashPassword('Admin123456!');
+    for (const staff of staffDefinitions) {
+      const accRows = await dbClient.db
+        .select({ id: schema.accounts.id })
+        .from(schema.accounts)
+        .where(
+          and(
+            eq(schema.accounts.userId, staff.id),
+            eq(schema.accounts.providerId, 'credential'),
+          ),
+        )
+        .limit(1);
+
+      if (accRows.length === 0) {
+        await dbClient.db.insert(schema.accounts).values({
+          id: generateUuidV7(),
+          userId: staff.id,
+          accountId: staff.id,
+          providerId: 'credential',
+          password: defaultPasswordHash,
+        });
+      }
+    }
+
+    // 3c. Seed 2FA profiles with known secret for staff E2E and staging drills (I08)
     const staffTotpSecret = 'JBSWY3DPEHPK3PXP';
     const recoveryHashes = ['RECV-0001', 'RECV-0002', 'RECV-0003', 'RECV-0004'].map(hashRecoveryCode);
 
-    for (const sid of [editorId, reviewerId, publisherId]) {
-      const encryptedSecret = encryptTotpSecret(staffTotpSecret, sid);
+    for (const staff of staffDefinitions) {
+      const encryptedSecret = encryptTotpSecret(staffTotpSecret, staff.id);
       await dbClient.db
         .insert(schema.userProfiles)
         .values({
-          userId: sid,
+          userId: staff.id,
           metadata: {
             twoFactor: {
               enabled: true,
@@ -167,6 +215,39 @@ export async function runDemoSeed(
             updatedAt: new Date(),
           },
         });
+    }
+
+    // 3d. Pre-seed known dev session verifications for determinism in unit/integration suites
+    const devSessions = [
+      '0192f000-0000-7000-8000-000000000011', // tok_admin_demo
+      '0192f000-0000-7000-8000-000000000017', // tok_billing_admin_demo
+      '0192f000-0000-7000-8000-000000000012', // tok_editor_demo
+      '0192f000-0000-7000-8000-000000000013', // tok_reviewer_demo
+    ];
+    for (const devSessionId of devSessions) {
+      const sessRows = await dbClient.db
+        .select({ id: schema.sessions.id })
+        .from(schema.sessions)
+        .where(eq(schema.sessions.id, devSessionId))
+        .limit(1);
+      if (sessRows.length > 0) {
+        const vRows = await dbClient.db
+          .select({ id: schema.verifications.id })
+          .from(schema.verifications)
+          .where(eq(schema.verifications.identifier, `session_2fa_${devSessionId}`))
+          .limit(1);
+        if (vRows.length === 0) {
+          await dbClient.db
+            .insert(schema.verifications)
+            .values({
+              id: generateUuidV7(),
+              identifier: `session_2fa_${devSessionId}`,
+              value: 'verified',
+              expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+            })
+            .onConflictDoNothing();
+        }
+      }
     }
 
     // 4. Load & Seed Synthetic Blueprint
