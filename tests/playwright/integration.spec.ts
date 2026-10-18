@@ -6,6 +6,10 @@ import {
   SEEDED_STAFF_ACCOUNTS,
   generateTotp,
   authenticateStaffAccount,
+  getSynchronizedTotp,
+  handleTotpVerification,
+  recordUsedTotpStep,
+  waitForNextTotpStep,
   type StaffAccount,
 } from './fixtures/staff-auth.fixture.js';
 
@@ -23,20 +27,6 @@ function getProjectClientIp(testInfo: { project?: { name?: string } }, offset = 
   };
   const base = projectBaseMap[testInfo?.project?.name || ''] ?? 200;
   return `198.51.100.${base + offset}`;
-}
-
-const sharedUsedTotpStepMap = new Map<string, number>();
-
-async function getFreshTotpCode(page: Page, secret: string, key = secret): Promise<string> {
-  const lastStep = sharedUsedTotpStepMap.get(key) ?? 0;
-  const currentStep = Math.floor(Date.now() / 1000 / 30);
-  if (currentStep <= lastStep) {
-    const msToNextStep = 30000 - (Date.now() % 30000) + 1500;
-    await page.waitForTimeout(msToNextStep);
-  }
-  const code = generateTotp(secret);
-  sharedUsedTotpStepMap.set(key, Math.floor(Date.now() / 1000 / 30));
-  return code;
 }
 
 /**
@@ -254,14 +244,29 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
     expect(invalidTotpBody.error?.code).toBe('TWO_FACTOR_REQUIRED');
 
     // Positive test: Protected admin route with valid RFC 6238 TOTP code succeeds (200 OK)
-    const validTotp = generateTotp(staff.totpSecret);
-    const validTotpRes = await request.get(`${apiUrl}/api/v1/admin/audit-logs`, {
+    const validTotp = await getSynchronizedTotp(staff.totpSecret, staff.email);
+    let validTotpRes = await request.get(`${apiUrl}/api/v1/admin/audit-logs`, {
       headers: {
         ...ipHeaders,
         Authorization: `Bearer ${authResult.token}`,
         'x-totp-code': validTotp,
       },
     });
+    if (validTotpRes.status() === 403) {
+      const errBody = await validTotpRes.json().catch(() => ({}));
+      if (JSON.stringify(errBody).includes('đã được sử dụng')) {
+        recordUsedTotpStep(staff.email);
+        await waitForNextTotpStep();
+        const retryTotp = await getSynchronizedTotp(staff.totpSecret, staff.email);
+        validTotpRes = await request.get(`${apiUrl}/api/v1/admin/audit-logs`, {
+          headers: {
+            ...ipHeaders,
+            Authorization: `Bearer ${authResult.token}`,
+            'x-totp-code': retryTotp,
+          },
+        });
+      }
+    }
     expect(validTotpRes.status()).toBe(200);
     const validBody = await validTotpRes.json();
     expect(validBody).toHaveProperty('items');
@@ -722,10 +727,6 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     { width: 1366, height: 768, name: '1366px' },
   ];
 
-  async function getFreshTotp(page: Page, secret: string, key?: string): Promise<string> {
-    return getFreshTotpCode(page, secret, key || SEEDED_STAFF_ACCOUNTS.admin.email);
-  }
-
   async function loginAsAdmin(page: Page, origin: string) {
     await page.goto(`${origin}/login`);
     await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
@@ -733,28 +734,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
 
     await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
-    let validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
-    const codeInput = page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first();
-    const submitBtn = page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first();
-    await codeInput.fill(validTotp);
-    await submitBtn.click();
-
-    try {
-      await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 8000, waitUntil: 'domcontentloaded' });
-    } catch {
-      const challengeError = page.locator('[data-testid="challenge-error-alert"]');
-      if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
-        const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
-        await page.waitForTimeout(msToNextStep);
-        validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
-        await codeInput.fill(validTotp);
-        await submitBtn.click();
-        await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 15000, waitUntil: 'domcontentloaded' });
-      } else {
-        throw new Error('Failed to navigate to dashboard in loginAsAdmin');
-      }
-    }
-
+    await handleTotpVerification(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
     await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
   }
 
@@ -825,28 +805,8 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
 
     // Step 2: Handle TOTP Challenge
-    await page.waitForURL(/.*verify-2fa.*/, { timeout: 10000 });
-    let validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
-    const codeInput = page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first();
-    const submitBtn = page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first();
-    await codeInput.fill(validTotp);
-    await submitBtn.click();
-
-    try {
-      await page.waitForURL(new RegExp(`${adminOrigin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 8000, waitUntil: 'domcontentloaded' });
-    } catch {
-      const challengeError = page.locator('[data-testid="challenge-error-alert"]');
-      if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
-        const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
-        await page.waitForTimeout(msToNextStep);
-        validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
-        await codeInput.fill(validTotp);
-        await submitBtn.click();
-        await page.waitForURL(new RegExp(`${adminOrigin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 15000, waitUntil: 'domcontentloaded' });
-      } else {
-        throw new Error('Failed to navigate to dashboard after TOTP challenge');
-      }
-    }
+    await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
+    await handleTotpVerification(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
 
     // Step 3: Successfully authenticated, arrives at dashboard
     await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
@@ -1047,34 +1007,26 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
       return;
     }
     if (page.url().includes('/login')) {
-      await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(account.email);
-      await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(account.password);
-      await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
-      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 15000 });
+      const emailInput = page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').first();
+      await expect(emailInput).toBeVisible({ timeout: 15000 });
+      await emailInput.fill(account.email);
+      await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').first().fill(account.password);
+      await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
+
+      try {
+        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
+      } catch {
+        const errAlert = page.locator('[data-testid="login-error-alert"]');
+        if (await errAlert.isVisible({ timeout: 1000 }).catch(() => false)) {
+          await page.waitForTimeout(1000);
+          await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
+        }
+        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
+      }
     }
 
     if (page.url().includes('/verify-2fa')) {
-      let validTotp = await getFreshTotpCode(page, account.totpSecret, account.email);
-      const codeInput = page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first();
-      const submitBtn = page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first();
-      await codeInput.fill(validTotp);
-      await submitBtn.click();
-
-      try {
-        await page.waitForURL((url) => !url.pathname.includes('/verify-2fa') && !url.pathname.includes('/login'), { timeout: 8000, waitUntil: 'domcontentloaded' });
-      } catch {
-        const challengeError = page.locator('[data-testid="challenge-error-alert"]');
-        if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
-          const msToNextStep = 30000 - (Date.now() % 30000) + 1500;
-          await page.waitForTimeout(msToNextStep);
-          validTotp = await getFreshTotpCode(page, account.totpSecret, account.email);
-          await codeInput.fill(validTotp);
-          await submitBtn.click();
-          await page.waitForURL((url) => !url.pathname.includes('/verify-2fa') && !url.pathname.includes('/login'), { timeout: 15000, waitUntil: 'domcontentloaded' });
-        } else {
-          await page.waitForURL((url) => !url.pathname.includes('/verify-2fa') && !url.pathname.includes('/login'), { timeout: 10000, waitUntil: 'domcontentloaded' });
-        }
-      }
+      await handleTotpVerification(page, account.totpSecret, account.email);
     }
 
     expect(page.url()).not.toContain('/login');

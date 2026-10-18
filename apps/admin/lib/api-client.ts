@@ -196,8 +196,9 @@ export class AdminApiClient {
 
     const url = `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
     const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+    const hasBody = options.body !== undefined;
     const headers: Record<string, string> = {
-      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+      ...(hasBody && !isFormData ? { 'Content-Type': 'application/json' } : {}),
       ...options.headers,
     };
     if (isFormData) {
