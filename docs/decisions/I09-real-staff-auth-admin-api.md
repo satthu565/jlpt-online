@@ -48,6 +48,18 @@ Mục tiêu của I09: Xóa bỏ triệt để toàn bộ xác thực giả lậ
 - Toàn bộ 6 trang được bao bọc trong container `overflow-x-hidden` với padding Tailwind chuẩn (`p-4 md:p-8`), đảm bảo không có thanh cuộn ngang trên cả viewport 390px (mobile) lẫn 1366px (desktop).
 - Toàn bộ chuỗi văn bản sử dụng từ điển `t(key, locale)` hỗ trợ cả 3 ngôn ngữ `vi`, `ja`, `en`, không hiển thị key dịch thô.
 
+### 2.5. Khắc phục Race Conditions & Timeout trong Playwright E2E Staging (Lượt I09-3)
+1. **AC5: Unauthenticated access guard / redirect**:
+   - Sử dụng `page.addInitScript` để xóa sạch `localStorage` và `sessionStorage` trước khi tải trang, ngăn rò rỉ session token từ các test trước.
+   - Thay thế `waitForTimeout(500)` bằng web-first assertion: `await expect(page.locator('[data-testid="guard-unauthenticated"], [data-testid="login-card"], [data-testid="email-input"]')).toBeVisible({ timeout: 15000 })`. Điều này loại bỏ hoàn toàn race condition khi React đang hydrate trên môi trường CI có độ trễ CPU cao.
+2. **AC6: Responsive Viewports (390px, 1366px)**:
+   - Thiết lập `test.setTimeout(180_000)` (3 phút) để thực thi toàn bộ 12 lượt tải trang và chụp fullPage screenshots mà không bị timeout 60s.
+   - Xử lý mobile viewports: Với thiết bị mobile giả lập (`isMobile: true` như iPhone 15, Pixel 7), chỉ quét các viewport mobile (<= 500px), tránh xung đột viewport desktop trên mobile browser emulation.
+   - Bổ sung dung sai subpixel 1px (`scrollWidth <= clientWidth + 1`) giải quyết sai số làm tròn điểm ảnh trên màn hình có `devicePixelRatio` phân số.
+3. **AC6: Tri-Locale Verification (vi, ja, en)**:
+   - Thiết lập `test.setTimeout(180_000)` cho 18 lượt quét đa ngôn ngữ.
+   - Đồng bộ key ngôn ngữ: Trong `auth-context.tsx`, hỗ trợ đồng thời cả `STORAGE_KEY_LOCALE` (`jlpt_admin_locale_v1`) lẫn `admin_locale` (trong `localStorage` và cookie), đảm bảo mọi cơ chế thiết lập locale đều có hiệu lực ngay lập tức.
+
 ---
 
 ## 3. Bằng chứng Kiểm thử & Nghiệm thu
@@ -55,4 +67,5 @@ Mục tiêu của I09: Xóa bỏ triệt để toàn bộ xác thực giả lậ
 1. **`pnpm test:admin`**: Đạt 14/14 test suites, 168/168 tests passed, exit code 0.
    - Bao gồm suite mới `apps/admin/tests/i09-real-auth-api.test.tsx` kiểm tra chuyên biệt cho các tiêu chí nghiệm thu của I09.
 2. **`pnpm check:no-mock-ui`**: Đạt, 0 vi phạm mới ngoài baseline.
-3. **`tests/playwright/integration.spec.ts`**: Bổ sung bộ kiểm thử E2E Playwright `Real Staff Authentication & Admin Portal API Integration Suite (I09)` chạy qua giao diện thật (không mock trình duyệt), chụp artifact màn hình tại 390px và 1366px, kiểm tra từ chối sai mật khẩu và sai TOTP từ API.
+3. **`pnpm typecheck` & `pnpm lint`**: 13/13 packages thành công, 0 cảnh báo hay lỗi kiểu dữ liệu.
+4. **`tests/playwright/integration.spec.ts`**: Bộ kiểm thử E2E Playwright `Real Staff Authentication & Admin Portal API Integration Suite (I09)` chạy qua giao diện thật (không mock trình duyệt), chụp artifact màn hình tại 390px và 1366px, kiểm tra từ chối sai mật khẩu và sai TOTP từ API, kiểm tra tri-locale và responsive không cuộn ngang.

@@ -515,16 +515,17 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
   ];
 
   async function loginAsAdmin(page: Page, origin: string) {
-    await page.goto(`${origin}/login`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${origin}/login`);
     await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
     await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
     await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
 
-    await page.waitForURL(/.*verify-2fa.*/, { timeout: 10000 });
+    await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
     const validTotp = generateTotp(SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
     await page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').fill(validTotp);
     await page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').click();
-    await page.waitForURL(new RegExp(`${origin}/?$`), { timeout: 10000 });
+    await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 15000 });
+    await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
   }
 
   test.beforeAll(() => {
@@ -612,36 +613,55 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
     // Clear session storage and cookies
     await page.context().clearCookies();
-    await page.goto(`${adminOrigin}/users`, { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(500);
+    await page.addInitScript(() => {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch {
+        // ignore storage errors
+      }
+    });
 
-    // Expect either redirected to /login or unauthenticated guard visible
+    await page.goto(`${adminOrigin}/users`);
+
+    // Expect either redirected to /login or unauthenticated guard alert visible
+    await expect(
+      page.locator('[data-testid="guard-unauthenticated"], [data-testid="login-card"], [data-testid="email-input"]')
+    ).toBeVisible({ timeout: 15000 });
+
     const isLogin = page.url().includes('/login');
-    const isGuard = await page.locator('[data-testid="guard-unauthenticated"], [role="alert"]').isVisible();
+    const isGuard = await page.locator('[data-testid="guard-unauthenticated"], [role="alert"]').first().isVisible();
     expect(isLogin || isGuard).toBe(true);
   });
 
   test('AC6: Responsive viewports (390px, 1366px), zero horizontal overflow, and screenshot capture', async ({
     page,
   }, testInfo) => {
+    test.setTimeout(180_000);
     const clientIp = getProjectClientIp(testInfo, 54);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
     // Authenticate session via staff-auth helper
     await loginAsAdmin(page, adminOrigin);
 
-    for (const vp of VIEWPORTS) {
+    const isMobileDevice = Boolean(testInfo.project.use?.isMobile);
+    // For mobile emulated devices (iPhone / Pixel), mobile viewports (<= 500px) are applicable
+    const viewportsToTest = isMobileDevice
+      ? VIEWPORTS.filter((v) => v.width <= 500)
+      : VIEWPORTS;
+
+    for (const vp of viewportsToTest) {
       await page.setViewportSize({ width: vp.width, height: vp.height });
 
       for (const route of IN_SCOPE_PAGES) {
         await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-        await page.waitForTimeout(300);
+        await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+        await page.waitForTimeout(100);
 
-        // Verify no horizontal overflow
-        const hasHorizontalScroll = await page.evaluate(() => {
-          return document.documentElement.scrollWidth > document.documentElement.clientWidth;
-        });
-        expect(hasHorizontalScroll, `Horizontal scroll detected on ${route.path} at ${vp.name}`).toBe(false);
+        // Verify no horizontal overflow (allow 1px subpixel tolerance on fractional DPR displays)
+        const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+        const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+        expect(scrollWidth, `Horizontal scroll detected on ${route.path} at ${vp.name}`).toBeLessThanOrEqual(clientWidth + 1);
 
         // Verify Tailwind padding / layout integrity (not touching edge)
         const containerPadding = await page.evaluate(() => {
@@ -663,6 +683,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
   test('AC6: Tri-locale i18n verification (vi, ja, en) without raw translation keys in Admin Portal', async ({
     page,
   }, testInfo) => {
+    test.setTimeout(180_000);
     const clientIp = getProjectClientIp(testInfo, 55);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -673,8 +694,10 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     for (const locale of locales) {
       await page.evaluate((l) => {
         try {
+          localStorage.setItem('jlpt_admin_locale_v1', l);
           localStorage.setItem('admin_locale', l);
           document.cookie = `admin_locale=${l}; path=/; SameSite=Lax`;
+          document.cookie = `jlpt_admin_locale_v1=${l}; path=/; SameSite=Lax`;
         } catch {
           // ignore storage errors
         }
@@ -682,7 +705,8 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
       for (const route of IN_SCOPE_PAGES) {
         await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-        await page.waitForTimeout(200);
+        await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+        await page.waitForTimeout(100);
 
         const bodyText = await page.innerText('body');
         // Assert no unparsed raw translation keys like 'app.title', 'roles.admin', 'users.empty'

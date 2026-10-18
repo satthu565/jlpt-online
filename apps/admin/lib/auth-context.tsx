@@ -81,7 +81,8 @@ export function AdminAuthProvider({
     }
 
     try {
-      const savedLocale = localStorage.getItem(STORAGE_KEY_LOCALE) as Locale | null;
+      const savedLocale = (localStorage.getItem(STORAGE_KEY_LOCALE) ||
+        localStorage.getItem('admin_locale')) as Locale | null;
       if (savedLocale && ['vi', 'ja', 'en'].includes(savedLocale)) {
         setLocaleState(savedLocale);
       }
@@ -157,6 +158,8 @@ export function AdminAuthProvider({
     setLocaleState(l);
     if (typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEY_LOCALE, l);
+      localStorage.setItem('admin_locale', l);
+      document.cookie = `admin_locale=${l}; path=/; SameSite=Lax`;
     }
   };
 
