@@ -128,6 +128,28 @@ export default function PracticeAndMixPage(): React.JSX.Element {
     }
   }, [activeTab]);
 
+const SKILL_MONDAI_TYPES: Record<string, string[]> = {
+  kanji: ['kanji_reading', 'orthography'],
+  vocabulary: ['word_formation', 'contextual', 'paraphrase', 'usage'],
+  grammar: ['grammar_form', 'sentence_composition', 'text_grammar'],
+  reading: [
+    'comprehension_short',
+    'comprehension_mid',
+    'comprehension_long',
+    'integrated_reading',
+    'thematic',
+    'info_retrieval',
+  ],
+  listening: [
+    'task_based',
+    'point',
+    'summary',
+    'utterance',
+    'quick_response',
+    'integrated_listening',
+  ],
+};
+
   const handleGeneratePractice = async (config: PracticeFilterState) => {
     setIsGenerating(true);
     setPracticeShortage(null);
@@ -146,10 +168,22 @@ export default function PracticeAndMixPage(): React.JSX.Element {
         headers['Authorization'] = `Bearer ${tokenHeader}`;
       }
 
+      const derivedMondaiTypes =
+        config.mondaiTypes && config.mondaiTypes.length > 0
+          ? config.mondaiTypes
+          : config.skills && config.skills.length > 0
+            ? config.skills.flatMap((s) => SKILL_MONDAI_TYPES[s] || [])
+            : Object.values(SKILL_MONDAI_TYPES).flat();
+
+      const payload = {
+        ...config,
+        mondaiTypes: derivedMondaiTypes,
+      };
+
       const res = await fetch(`${baseUrl}/practice-exams`, {
         method: 'POST',
         headers,
-        body: JSON.stringify(config),
+        body: JSON.stringify(payload),
         credentials: 'include',
       });
 
@@ -214,10 +248,15 @@ export default function PracticeAndMixPage(): React.JSX.Element {
 
     try {
       const resumeRes = await apiClient.resumeAttempt(attemptId);
+      let lease = resumeRes.lease;
+      if (resumeRes.currentSection === null) {
+        const nextSec = await apiClient.nextSection(attemptId, { lease });
+        lease = nextSec.lease;
+      }
       const snapshot = await apiClient.fetchSnapshot(resumeRes.snapshotUrl);
       setActivePracticeExam(snapshot);
       setActiveAttemptId(attemptId);
-      setActiveLease(resumeRes.lease);
+      setActiveLease(lease);
       setInitialAnswers(resumeRes.answers);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Không thể tiếp tục phiên luyện tập dở dang.';
@@ -245,10 +284,22 @@ export default function PracticeAndMixPage(): React.JSX.Element {
         headers['Authorization'] = `Bearer ${tokenHeader}`;
       }
 
+      const derivedMixMondaiTypes =
+        config.mondaiTypes && config.mondaiTypes.length > 0
+          ? config.mondaiTypes
+          : config.skills && config.skills.length > 0
+            ? config.skills.flatMap((s) => SKILL_MONDAI_TYPES[s] || [])
+            : Object.values(SKILL_MONDAI_TYPES).flat();
+
+      const payload = {
+        ...config,
+        mondaiTypes: derivedMixMondaiTypes,
+      };
+
       const res = await fetch(`${baseUrl}/mixed-exams`, {
         method: 'POST',
         headers,
-        body: JSON.stringify(config),
+        body: JSON.stringify(payload),
         credentials: 'include',
       });
 
@@ -426,7 +477,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
           type="button"
           role="tab"
           aria-selected={activeTab === 'practice'}
-          data-testid="tab-practice-btn"
+          data-testid="tab-practice"
           onClick={() => {
             setActiveTab('practice');
             setActivePracticeExam(null);
@@ -452,7 +503,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
           type="button"
           role="tab"
           aria-selected={activeTab === 'mix'}
-          data-testid="tab-mix-btn"
+          data-testid="tab-mix"
           onClick={() => setActiveTab('mix')}
           style={{
             padding: '0.75rem 1.25rem',
@@ -474,7 +525,7 @@ export default function PracticeAndMixPage(): React.JSX.Element {
           type="button"
           role="tab"
           aria-selected={activeTab === 'quick'}
-          data-testid="tab-quick-mix-btn"
+          data-testid="tab-quick"
           onClick={() => setActiveTab('quick')}
           style={{
             padding: '0.75rem 1.25rem',

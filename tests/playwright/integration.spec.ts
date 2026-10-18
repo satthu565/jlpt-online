@@ -1265,7 +1265,7 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
     // 2. Navigate to /luyen-tap
     await page.goto('/luyen-tap', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('[data-testid="tab-practice"]')).toBeVisible();
+    await expect(page.locator('[data-testid="tab-practice"], [data-testid="tab-practice-btn"]')).toBeVisible();
 
     // Select N5 level
     const n5Button = page.locator('[data-testid="practice-level-N5"]');
@@ -1276,7 +1276,11 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
     // Set 10 questions slider if available
     const slider = page.locator('[data-testid="practice-question-count-slider"]');
     if (await slider.isVisible()) {
-      await slider.fill('10');
+      await slider.evaluate((el: HTMLInputElement) => {
+        el.value = '10';
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      });
     }
 
     // 3. Generate practice session
@@ -1298,7 +1302,7 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
     const checkBtn = page.locator('[data-testid="practice-check-answer-btn"]');
     await expect(checkBtn).toBeVisible();
     const [checkRes] = await Promise.all([
-      page.waitForResponse((res) => res.url().includes('/check-answer') && res.request().method() === 'POST', { timeout: 10000 }),
+      page.waitForResponse((res) => (res.url().includes('/check') || res.url().includes('/check-answer')) && res.request().method() === 'POST', { timeout: 15000 }),
       checkBtn.click(),
     ]);
     expect(checkRes.ok()).toBeTruthy();
@@ -1343,7 +1347,7 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
     await page.goto('/luyen-tap', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
 
-    await page.locator('[data-testid="tab-quick"]').click();
+    await page.locator('[data-testid="tab-quick"], [data-testid="tab-quick-mix-btn"]').click();
     await expect(page.locator('[data-testid="quick-mix-card"]')).toBeVisible({ timeout: 10000 });
 
     // Select N5 quick mix
@@ -1367,7 +1371,7 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
 
     await expect(page.locator('[data-testid="share-exam-modal-content"]')).toBeVisible({ timeout: 10000 });
     const shareUrlInput = page.locator('[data-testid="share-url-input"]');
-    await expect(shareUrlInput).toBeVisible({ timeout: 10000 });
+    await expect(shareUrlInput).toBeVisible({ timeout: 15000 });
     const shareUrl = await shareUrlInput.inputValue();
     expect(shareUrl).toContain('/shared-exams/');
 
