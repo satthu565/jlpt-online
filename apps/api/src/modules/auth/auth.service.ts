@@ -6,7 +6,6 @@ import {
   Inject,
   Injectable,
   Logger,
-  OnModuleInit,
   Optional,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -55,7 +54,7 @@ export interface GoogleOAuthCallbackInput {
 }
 
 @Injectable()
-export class AuthService implements OnModuleInit {
+export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
   constructor(
@@ -64,164 +63,6 @@ export class AuthService implements OnModuleInit {
     @Optional() private readonly auditService?: AuditService,
   ) {}
 
-  async onModuleInit(): Promise<void> {
-    if (process.env.NODE_ENV !== 'production') {
-      await this.ensureStaffAccountsSeeded();
-    }
-  }
-
-  /**
-   * Seeds staging staff accounts with known secret (JBSWY3DPEHPK3PXP) and marks dev sessions verified.
-   * Strictly guarded to NEVER run in production.
-   */
-  async ensureStaffAccountsSeeded(): Promise<void> {
-    if (process.env.NODE_ENV === 'production') {
-      return;
-    }
-    try {
-      const staffSecret = 'JBSWY3DPEHPK3PXP';
-      const staffDefinitions = [
-        {
-          id: '0192f000-0000-7000-8000-0000000000b1',
-          name: 'Demo Content Publisher',
-          email: 'publisher@jlpt.local',
-          role: 'admin',
-        },
-        {
-          id: '0192f000-0000-7000-8000-0000000000b2',
-          name: 'Demo Billing Admin',
-          email: 'billing.admin@jlpt.local',
-          role: 'billing_admin',
-        },
-        {
-          id: '0192f000-0000-7000-8000-0000000000e1',
-          name: 'Demo Content Editor',
-          email: 'editor@jlpt.local',
-          role: 'editor',
-        },
-        {
-          id: '0192f000-0000-7000-8000-0000000000d1',
-          name: 'Demo Content Reviewer',
-          email: 'reviewer@jlpt.local',
-          role: 'reviewer',
-        },
-        {
-          id: '0192f000-0000-7000-8000-000000000001',
-          name: 'System Admin',
-          email: 'admin@jlpt.local',
-          role: 'admin',
-        },
-      ];
-
-      const defaultPasswordHash = await hashPassword('Admin123456!');
-
-      for (const staff of staffDefinitions) {
-        // 1. Ensure user row exists
-        await this.client.db
-          .insert(schema.users)
-          .values({
-            id: staff.id,
-            name: staff.name,
-            email: staff.email,
-            emailVerified: true,
-            role: staff.role,
-            locale: 'vi',
-            timezone: 'Asia/Ho_Chi_Minh',
-          })
-          .onConflictDoNothing();
-
-        // 2. Ensure credential account exists
-        const accRows = await this.client.db
-          .select({ id: schema.accounts.id })
-          .from(schema.accounts)
-          .where(
-            and(
-              eq(schema.accounts.userId, staff.id),
-              eq(schema.accounts.providerId, 'credential'),
-            ),
-          )
-          .limit(1);
-
-        if (accRows.length === 0) {
-          await this.client.db.insert(schema.accounts).values({
-            id: generateUuidV7(),
-            userId: staff.id,
-            accountId: staff.id,
-            providerId: 'credential',
-            password: defaultPasswordHash,
-          });
-        }
-
-        // 3. Ensure 2FA profile exists with known secret
-        const profileRows = await this.client.db
-          .select({ metadata: schema.userProfiles.metadata })
-          .from(schema.userProfiles)
-          .where(eq(schema.userProfiles.userId, staff.id))
-          .limit(1);
-
-        const existingMeta = (profileRows[0]?.metadata as Record<string, unknown>) || {};
-        const tf = existingMeta.twoFactor as UserTotpMetadata | undefined;
-        if (!tf || !tf.enabled) {
-          await this.seedStaffTotp(staff.id, staffSecret);
-        }
-      }
-
-      // Pre-seed known dev session verifications for determinism in unit/integration suites
-      const devSessions = [
-        '0192f000-0000-7000-8000-000000000011', // tok_admin_demo
-        '0192f000-0000-7000-8000-000000000017', // tok_billing_admin_demo
-        '0192f000-0000-7000-8000-000000000012', // tok_editor_demo
-        '0192f000-0000-7000-8000-000000000013', // tok_reviewer_demo
-      ];
-      for (const devSessionId of devSessions) {
-        const sessRows = await this.client.db
-          .select({ id: schema.sessions.id })
-          .from(schema.sessions)
-          .where(eq(schema.sessions.id, devSessionId))
-          .limit(1);
-        if (sessRows.length > 0) {
-          const vRows = await this.client.db
-            .select({ id: schema.verifications.id })
-            .from(schema.verifications)
-            .where(eq(schema.verifications.identifier, `session_2fa_${devSessionId}`))
-            .limit(1);
-          if (vRows.length === 0) {
-            await this.client.db
-              .insert(schema.verifications)
-              .values({
-                id: generateUuidV7(),
-                identifier: `session_2fa_${devSessionId}`,
-                value: 'verified',
-                expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-              })
-              .onConflictDoNothing();
-          }
-        }
-      }
-    } catch (err: unknown) {
-      this.logger.debug(
-        `Staff accounts 2FA seed skip or error: ${(err as Error)?.message || String(err)}`,
-      );
-    }
-  }
-
-  /**
-   * Helper to seed a specific staff account with a known TOTP secret.
-   */
-  async seedStaffTotp(userId: string, secret = 'JBSWY3DPEHPK3PXP'): Promise<void> {
-    const encryptedSecret = encryptTotpSecret(secret, userId);
-    const recoveryCodes = ['RECV-0001', 'RECV-0002', 'RECV-0003', 'RECV-0004'];
-    const hashedRecoveryCodes = recoveryCodes.map(hashRecoveryCode);
-
-    await this.updateUserTotpMetadata(userId, {
-      enabled: true,
-      encryptedSecret,
-      hashedRecoveryCodes,
-      verifiedAt: new Date().toISOString(),
-      failedAttempts: 0,
-      lockedUntil: null,
-    });
-  }
 
   /**
    * Validates if a redirect URL belongs to the allowed origin whitelist.
@@ -891,8 +732,12 @@ export class AuthService implements OnModuleInit {
 
     // Check if session has verified 2FA challenge
     let twoFactorVerified = false;
+    const appEnv = (process.env.APP_ENV || '').trim().toLowerCase();
+    const isProduction =
+      appEnv === 'production' ||
+      (process.env.NODE_ENV === 'production' && appEnv !== 'staging' && appEnv !== 'demo');
     const isDemoToken =
-      process.env.NODE_ENV !== 'production' &&
+      !isProduction &&
       (token === 'tok_admin_demo' ||
         token === 'tok_billing_admin_demo' ||
         token === 'tok_editor_demo' ||

@@ -13,6 +13,12 @@ import {
   getQuestionIssues,
   findUnresolvedOcrMarkers,
   buildSnapshotFromImportPackage,
+  getHanVietForKanji,
+  getHanVietForWord,
+  getHanVietLicenseInfo,
+  hasHanVietData,
+  findDictionaryEntry,
+  getKanjiInfo,
 } from '../src/index.js';
 import type { ImportPackageV2, BlueprintDefinition, PackageIdentity } from '../src/index.js';
 import { assertNoAnswerLeak, PublicExamSnapshotSchema } from '@jlpt/schema';
@@ -912,5 +918,82 @@ describe('C05 Validator gói nhập kiểm tra dữ liệu và đóng gói', () 
       }
     });
   });
+
+  // --------------------------------------------------------------------------
+  // P02: Dữ liệu âm Hán Việt cho Kanji từ Unicode Unihan
+  // --------------------------------------------------------------------------
+  describe('P02 Dữ liệu âm Hán Việt cho Kanji từ Unicode Unihan', () => {
+    describe('Acceptance 1: Script nhập chạy lại không tạo trùng, ghi nguồn và giấy phép', () => {
+      it('executes import script and maintains idempotency without duplicate entries', () => {
+        const scriptPath = path.join(ROOT, 'tools/import-data/bin/import-hanviet.js');
+        expect(fs.existsSync(scriptPath)).toBe(true);
+
+        const run1 = spawnSync('node', [scriptPath], { encoding: 'utf-8' });
+        expect(run1.status).toBe(0);
+        expect(run1.stdout).toContain('Unicode Unihan Database');
+        expect(run1.stdout).toContain('Unicode Terms of Use');
+
+        // Second run: verify idempotent run without duplicates or crashes
+        const run2 = spawnSync('node', [scriptPath], { encoding: 'utf-8' });
+        expect(run2.status).toBe(0);
+        expect(run2.stdout).toContain('Unicode Unihan Database');
+
+        // Verify license info
+        const licenseInfo = getHanVietLicenseInfo();
+        expect(licenseInfo.source).toContain('Unicode Unihan Database');
+        expect(licenseInfo.version).toBe('15.1.0');
+        expect(licenseInfo.license).toContain('Unicode Terms of Use');
+        expect(licenseInfo.entryCount).toBeGreaterThanOrEqual(19000);
+      });
+    });
+
+    describe('Acceptance 2: 経済 trả KINH TẾ; chữ không có dữ liệu trả rỗng', () => {
+      it('resolves 経済 to KINH TẾ', () => {
+        expect(getHanVietForKanji('経')).toBe('KINH');
+        expect(getHanVietForKanji('済')).toBe('TẾ');
+        // getHanVietForKanji validates single character; multi-kanji word returns empty string
+        expect(getHanVietForKanji('経済')).toBe('');
+        expect(getHanVietForWord('経済')).toBe('KINH TẾ');
+      });
+
+      it('returns empty string for kanji/characters without data (no guessing)', () => {
+        // Kokuji or characters without Sino-Vietnamese reading
+        expect(getHanVietForKanji('込')).toBe('');
+        expect(getHanVietForKanji('峠')).toBe('');
+        expect(getHanVietForKanji('𠀋')).toBe('');
+        // Pure kana or non-kanji words
+        expect(getHanVietForWord('さようなら')).toBe('');
+        expect(getHanVietForWord('こんにちは')).toBe('');
+        expect(getHanVietForWord('abc')).toBe('');
+      });
+
+      it('handles mixed kanji and kana words correctly', () => {
+        // 食べる has kanji 食 (THỰC) and hiragana べる -> returns THỰC
+        expect(getHanVietForWord('食べる')).toBe('THỰC');
+        // 勉強する has 勉 (MIỄN) and 強 (CƯỜNG) -> returns MIỄN CƯỜNG
+        expect(getHanVietForWord('勉強する')).toBe('MIỄN CƯỜNG');
+      });
+
+      it('guarantees NFC normalization and uppercase formatting', () => {
+        const reading = getHanVietForWord('経済');
+        expect(reading).toBe(reading.normalize('NFC'));
+        expect(reading).toBe(reading.toUpperCase());
+        expect(hasHanVietData('経')).toBe(true);
+        expect(hasHanVietData('済')).toBe(true);
+        expect(hasHanVietData('込')).toBe(false);
+      });
+
+      it('integrates with dictionary entry lookups', () => {
+        const entry = findDictionaryEntry('経済');
+        expect(entry).toBeDefined();
+        expect(entry?.hanViet).toBe('KINH TẾ');
+
+        const kanjiEntry = getKanjiInfo('経');
+        expect(kanjiEntry).toBeDefined();
+        expect(kanjiEntry?.hanViet).toBe('KINH');
+      });
+    });
+  });
 });
+
 

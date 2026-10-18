@@ -11,6 +11,43 @@ import { ALLOW_GUEST_KEY } from '../decorators/allow-guest.decorator.js';
 import { AuthService } from '../../modules/auth/auth.service.js';
 import type { AuthUserContext } from '../types/auth.types.js';
 
+/**
+ * Unified token extraction from Authorization header (Bearer) or session cookies
+ * (auth_token, __Host-session, better-auth.session_token).
+ */
+export function extractTokenFromRequest(
+  request: FastifyRequest | { headers: Record<string, string | string[] | undefined> },
+): string | null {
+  // 1. Bearer token in Authorization header
+  const authHeader = request.headers.authorization || request.headers['Authorization'];
+  if (authHeader && typeof authHeader === 'string') {
+    const parts = authHeader.trim().split(' ');
+    if (parts.length === 2 && parts[0]?.toLowerCase() === 'bearer') {
+      const token = parts[1]?.trim();
+      if (token) return token;
+    }
+  }
+
+  // 2. Session cookie (auth_token, __Host-session, better-auth.session_token)
+  const cookieHeader = request.headers.cookie || request.headers['Cookie'];
+  if (cookieHeader && typeof cookieHeader === 'string') {
+    const cookies = cookieHeader.split(';').map((c) => c.trim());
+    for (const cookie of cookies) {
+      if (cookie.startsWith('auth_token=')) {
+        return decodeURIComponent(cookie.substring('auth_token='.length)).replace(/^"|"$/g, '').trim();
+      }
+      if (cookie.startsWith('__Host-session=')) {
+        return decodeURIComponent(cookie.substring('__Host-session='.length)).replace(/^"|"$/g, '').trim();
+      }
+      if (cookie.startsWith('better-auth.session_token=')) {
+        return decodeURIComponent(cookie.substring('better-auth.session_token='.length)).replace(/^"|"$/g, '').trim();
+      }
+    }
+  }
+
+  return null;
+}
+
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
@@ -33,10 +70,6 @@ export class AuthGuard implements CanActivate {
       context.getClass(),
     ]);
 
-    if (isPublic) {
-      return true;
-    }
-
     // 3. Check if route allows Guest access
     const allowGuest = this.reflector.getAllAndOverride<boolean>(ALLOW_GUEST_KEY, [
       context.getHandler(),
@@ -51,13 +84,18 @@ export class AuthGuard implements CanActivate {
         request.user = sessionUser;
         return true;
       }
-      // If token was provided but invalid and allowGuest is not set, reject
-      if (!allowGuest) {
+      // If token was provided but invalid and route is not public or allowGuest, reject
+      if (!isPublic && !allowGuest) {
         throw new UnauthorizedException({
           code: 'UNAUTHENTICATED',
           message: 'Phiên đăng nhập đã hết hạn hoặc không hợp lệ.',
         });
       }
+    }
+
+    // Public route: allow access even if token was missing or invalid
+    if (isPublic) {
+      return true;
     }
 
     // 4. If AllowGuest is active and user is not authenticated, extract or assign guestId
@@ -104,32 +142,6 @@ export class AuthGuard implements CanActivate {
   }
 
   private extractTokenFromRequest(request: FastifyRequest): string | null {
-    // 1. Bearer token in Authorization header
-    const authHeader = request.headers.authorization;
-    if (authHeader && typeof authHeader === 'string') {
-      const parts = authHeader.split(' ');
-      if (parts.length === 2 && parts[0]?.toLowerCase() === 'bearer') {
-        return parts[1] ?? null;
-      }
-    }
-
-    // 2. Session cookie (__Host-session, auth_token, better-auth.session_token)
-    const cookieHeader = request.headers.cookie;
-    if (cookieHeader && typeof cookieHeader === 'string') {
-      const cookies = cookieHeader.split(';').map((c) => c.trim());
-      for (const cookie of cookies) {
-        if (cookie.startsWith('__Host-session=')) {
-          return decodeURIComponent(cookie.substring('__Host-session='.length));
-        }
-        if (cookie.startsWith('auth_token=')) {
-          return decodeURIComponent(cookie.substring('auth_token='.length));
-        }
-        if (cookie.startsWith('better-auth.session_token=')) {
-          return decodeURIComponent(cookie.substring('better-auth.session_token='.length));
-        }
-      }
-    }
-
-    return null;
+    return extractTokenFromRequest(request);
   }
 }

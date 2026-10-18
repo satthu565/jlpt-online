@@ -1,9 +1,10 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { SAMPLE_EXAM_SUMMARIES } from '../../../../features/exam/fixtures/exam-fixtures';
+import { examApiClient } from '../../../../features/exam/api/exam-api';
 import { LibraryView } from '../../../../features/library';
 import { JsonLd } from '@jlpt/ui';
+import type { ExamSummary } from '@jlpt/schema';
 
 export interface LevelExamsPageProps {
   params: Promise<{ level: string }>;
@@ -60,8 +61,14 @@ export default async function LevelExamsPage({ params }: LevelExamsPageProps): P
     notFound();
   }
 
-  // Pre-filter exams by this level
-  const exams = SAMPLE_EXAM_SUMMARIES.filter((e) => e.level.toUpperCase() === upper);
+  // Fetch exams for this level from API
+  let exams: ExamSummary[] = [];
+  try {
+    const res = await examApiClient.getExams({ level: upper });
+    exams = res.items || [];
+  } catch {
+    // Graceful fallback during static build or offline
+  }
 
   // Schema.org Breadcrumbs (SEO-07)
   const breadcrumbStructuredData = {

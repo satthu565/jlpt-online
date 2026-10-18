@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import 'reflect-metadata';
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { eq, desc } from 'drizzle-orm';
@@ -11,9 +14,10 @@ import type { DbClientInstance } from '../../db/client.js';
 import { seedDatabase } from '../../db/seed.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
-import { generateTotp, encryptTotpSecret } from '../../common/utils/totp.js';
+import { generateTotp, encryptTotpSecret, hashRecoveryCode } from '../../common/utils/totp.js';
 import type { AuthUserContext, UserTotpMetadata } from '../../common/types/auth.types.js';
 import { hashPassword } from 'better-auth/crypto';
+import { runDemoSeed } from '../import/demo-seed.js';
 
 describe('F03 Authentication, Verification, and Mailpit Integration', () => {
   let app: NestFastifyApplication;
@@ -579,13 +583,72 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
     let recoveryCodes: string[] = [];
 
     beforeAll(async () => {
-      const authService = app.get(AuthService);
-      await authService.ensureStaffAccountsSeeded();
+      const client = await getOrCreateDbClient();
+
+      // Seed test staff account (publisher@jlpt.local) with known test credentials and TOTP for test suite
+      const publisherId = '0192f000-0000-7000-8000-0000000000b1';
+      const defaultPasswordHash = await hashPassword('Admin123456!');
+      await client.db
+        .insert(schema.users)
+        .values({
+          id: publisherId,
+          name: 'Demo Content Publisher',
+          email: 'publisher@jlpt.local',
+          emailVerified: true,
+          role: 'admin',
+          locale: 'vi',
+          timezone: 'Asia/Ho_Chi_Minh',
+        })
+        .onConflictDoNothing();
+
+      await client.db
+        .insert(schema.accounts)
+        .values({
+          id: generateUuidV7(),
+          userId: publisherId,
+          accountId: publisherId,
+          providerId: 'credential',
+          password: defaultPasswordHash,
+        })
+        .onConflictDoNothing();
+
+      const encPublisherSecret = encryptTotpSecret('JBSWY3DPEHPK3PXP', publisherId);
+      await client.db
+        .insert(schema.userProfiles)
+        .values({
+          userId: publisherId,
+          metadata: {
+            twoFactor: {
+              enabled: true,
+              encryptedSecret: encPublisherSecret,
+              hashedRecoveryCodes: ['RECV-0001', 'RECV-0002', 'RECV-0003', 'RECV-0004'].map(hashRecoveryCode),
+              verifiedAt: new Date().toISOString(),
+              failedAttempts: 0,
+              lockedUntil: null,
+            },
+          },
+          updatedAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: [schema.userProfiles.userId],
+          set: {
+            metadata: {
+              twoFactor: {
+                enabled: true,
+                encryptedSecret: encPublisherSecret,
+                hashedRecoveryCodes: ['RECV-0001', 'RECV-0002', 'RECV-0003', 'RECV-0004'].map(hashRecoveryCode),
+                verifiedAt: new Date().toISOString(),
+                failedAttempts: 0,
+                lockedUntil: null,
+              },
+            },
+            updatedAt: new Date(),
+          },
+        });
 
       // Create staff account
       staffId = generateUuidV7();
       const accountId = generateUuidV7();
-      const client = await getOrCreateDbClient();
       const hashedPassword = await hashPassword(staffPassword);
 
       await client.db.insert(schema.users).values({
@@ -978,13 +1041,19 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
     it('Review Hardening: Production guards ngăn chặn seed tài khoản và bypass session token trong production', async () => {
       const authService = app.get(AuthService);
       const originalNodeEnv = process.env.NODE_ENV;
+      const originalAppEnv = process.env.APP_ENV;
       try {
         process.env.NODE_ENV = 'production';
+        process.env.APP_ENV = 'production';
 
-        // 1. ensureStaffAccountsSeeded() does nothing in production
-        await authService.ensureStaffAccountsSeeded();
+        // 1. AuthService không còn hàm tự động seed tài khoản
+        expect(Reflect.get(authService, 'ensureStaffAccountsSeeded')).toBeUndefined();
+        expect(Reflect.get(authService, 'onModuleInit')).toBeUndefined();
 
-        // 2. getSession does not bypass twoFactorVerified for demo tokens in production
+        // 2. demo-seed từ chối chạy trong production
+        await expect(runDemoSeed()).rejects.toThrow(/từ chối chạy.*production/i);
+
+        // 3. getSession does not bypass twoFactorVerified for demo tokens in production
         const client = await getOrCreateDbClient();
         const prodTestUserId = generateUuidV7();
         const prodTestSessionId = generateUuidV7();
@@ -1023,6 +1092,11 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
         }
       } finally {
         process.env.NODE_ENV = originalNodeEnv;
+        if (originalAppEnv !== undefined) {
+          process.env.APP_ENV = originalAppEnv;
+        } else {
+          delete process.env.APP_ENV;
+        }
       }
     });
 
@@ -1147,4 +1221,289 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
       expect(meta.twoFactor.enabled).toBe(false);
     });
   });
+
+  describe('I10 Hardening: Bỏ tự tạo tài khoản nhân sự khi API khởi động', () => {
+    it('Acceptance 1: API khởi động với mọi NODE_ENV không tạo hay sửa tài khoản nào; có test kiểm tra', async () => {
+      const client = await getOrCreateDbClient();
+      const envValues: (string | undefined)[] = [undefined, 'development', 'staging', 'production', 'test'];
+
+      for (const envVal of envValues) {
+        const origNodeEnv = process.env.NODE_ENV;
+        const origAppEnv = process.env.APP_ENV;
+        try {
+          if (envVal === undefined) {
+            delete process.env.NODE_ENV;
+          } else {
+            process.env.NODE_ENV = envVal;
+          }
+          delete process.env.APP_ENV;
+
+          // Snapshot database user, account, and profile counts prior to bootstrap
+          const usersBefore = (await client.db.select().from(schema.users)).length;
+          const accountsBefore = (await client.db.select().from(schema.accounts)).length;
+          const profilesBefore = (await client.db.select().from(schema.userProfiles)).length;
+
+          // Start fresh API instance and trigger full bootstrap
+          const testApp = await createApp();
+          await testApp.init();
+
+          // Snapshot database user, account, and profile counts after bootstrap
+          const usersAfter = (await client.db.select().from(schema.users)).length;
+          const accountsAfter = (await client.db.select().from(schema.accounts)).length;
+          const profilesAfter = (await client.db.select().from(schema.userProfiles)).length;
+
+          expect(usersAfter).toBe(usersBefore);
+          expect(accountsAfter).toBe(accountsBefore);
+          expect(profilesAfter).toBe(profilesBefore);
+        } finally {
+          process.env.NODE_ENV = origNodeEnv;
+          if (origAppEnv !== undefined) {
+            process.env.APP_ENV = origAppEnv;
+          } else {
+            delete process.env.APP_ENV;
+          }
+        }
+      }
+    });
+
+    it('Acceptance 1: AuthService không có hook onModuleInit hay method tạo tài khoản nhân sự', () => {
+      const authService = app.get(AuthService);
+      expect(Reflect.get(authService, 'onModuleInit')).toBeUndefined();
+      expect(Reflect.get(authService, 'ensureStaffAccountsSeeded')).toBeUndefined();
+      expect(Reflect.get(authService, 'seedStaffTotp')).toBeUndefined();
+    });
+
+    it('Acceptance 2: Script seed staging từ chối chạy khi APP_ENV=production', async () => {
+      const origAppEnv = process.env.APP_ENV;
+      const origNodeEnv = process.env.NODE_ENV;
+      try {
+        // 1. Rejects when APP_ENV=production
+        process.env.APP_ENV = 'production';
+        process.env.NODE_ENV = 'development';
+        await expect(runDemoSeed()).rejects.toThrow(/từ chối chạy.*APP_ENV=production/i);
+
+        // 2. Case-insensitive check (e.g. PRODUCTION)
+        process.env.APP_ENV = 'PRODUCTION';
+        await expect(runDemoSeed()).rejects.toThrow(/từ chối chạy.*APP_ENV=production/i);
+
+        // 3. Allows running when APP_ENV=staging even if NODE_ENV=production (Staging Docker environment)
+        process.env.APP_ENV = 'staging';
+        process.env.NODE_ENV = 'production';
+        try {
+          await runDemoSeed();
+        } catch (err: unknown) {
+          const msg = (err as Error)?.message || '';
+          expect(msg).not.toContain('từ chối chạy');
+        }
+      } finally {
+        if (origAppEnv !== undefined) {
+          process.env.APP_ENV = origAppEnv;
+        } else {
+          delete process.env.APP_ENV;
+        }
+        process.env.NODE_ENV = origNodeEnv;
+      }
+    });
+
+    it('Acceptance 3: grep mật khẩu/secret mặc định trong apps/api/src (trừ test và seed) không còn kết quả', () => {
+      const srcDir = path.resolve(fileURLToPath(import.meta.url), '../../');
+      const files: string[] = [];
+
+      function walk(dir: string) {
+        for (const item of fs.readdirSync(dir, { withFileTypes: true })) {
+          const full = path.join(dir, item.name);
+          if (item.isDirectory()) {
+            if (item.name !== 'node_modules' && item.name !== 'dist') {
+              walk(full);
+            }
+          } else if (item.isFile()) {
+            const isCodeFile = item.name.endsWith('.ts') || item.name.endsWith('.js');
+            const isTest = item.name.includes('.test.') || item.name.includes('.spec.');
+            const isSeed = item.name.includes('seed');
+            if (isCodeFile && !isTest && !isSeed) {
+              files.push(full);
+            }
+          }
+        }
+      }
+
+      walk(srcDir);
+      expect(files.length).toBeGreaterThan(0);
+
+      const forbiddenSecrets = ['Admin123456!', 'JBSWY3DPEHPK3PXP'];
+      const violations: { file: string; secret: string }[] = [];
+
+      for (const file of files) {
+        const text = fs.readFileSync(file, 'utf8');
+        for (const s of forbiddenSecrets) {
+          if (text.includes(s)) {
+            violations.push({ file, secret: s });
+          }
+        }
+      }
+
+      expect(violations).toEqual([]);
+    });
+  });
+
+  describe('I12 Session Cookie & Reload Persistence (AC: /auth/session & guards)', () => {
+    let authService: AuthService;
+    let client: DbClientInstance;
+    let testUserToken: string;
+    let testUserCookie: string;
+    let testUserEmail: string;
+
+    beforeAll(async () => {
+      authService = app.get(AuthService);
+      client = await getOrCreateDbClient();
+      testUserEmail = `i12.test.${Date.now()}@jlpt.local`;
+      await authService.signUpEmail({
+        email: testUserEmail,
+        password: 'Password123!',
+        name: 'I12 Tester',
+      });
+      // verify email in db
+      await client.db
+        .update(schema.users)
+        .set({ emailVerified: true })
+        .where(eq(schema.users.email, testUserEmail));
+
+      const signInResult = await authService.signInEmail({
+        email: testUserEmail,
+        password: 'Password123!',
+      });
+      testUserToken = signInResult.session.token;
+      testUserCookie = `auth_token=${encodeURIComponent(testUserToken)}`;
+    });
+
+    it('Test API: /auth/session trả user khi chỉ có cookie hợp lệ', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/v1/auth/session',
+        headers: {
+          cookie: testUserCookie,
+        },
+      });
+
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.payload);
+      expect(body.user).toBeTruthy();
+      expect(body.user.email).toBe(testUserEmail);
+      expect(body.user.role).toBe('student');
+      expect(body.session).toBeTruthy();
+      expect(body.session.id).toBeTruthy();
+    });
+
+    it('Test API: /auth/session trả user khi có Bearer header hợp lệ', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/v1/auth/session',
+        headers: {
+          authorization: `Bearer ${testUserToken}`,
+        },
+      });
+
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.payload);
+      expect(body.user).toBeTruthy();
+      expect(body.user.email).toBe(testUserEmail);
+      expect(body.session).toBeTruthy();
+    });
+
+    it('Test API: /auth/session trả null khi cookie sai hoặc hết hạn', async () => {
+      // 1. Invalid cookie string
+      const resBadCookie = await app.inject({
+        method: 'GET',
+        url: '/api/v1/auth/session',
+        headers: {
+          cookie: 'auth_token=invalid_expired_token_value_xyz',
+        },
+      });
+
+      expect(resBadCookie.statusCode).toBe(200);
+      const bodyBad = JSON.parse(resBadCookie.payload);
+      expect(bodyBad.user).toBeNull();
+      expect(bodyBad.session).toBeNull();
+
+      // 2. Expired session in DB
+      const expiredToken = `tok_expired_${Date.now()}`;
+      const userRows = await client.db.select().from(schema.users).where(eq(schema.users.email, testUserEmail));
+      await client.db.insert(schema.sessions).values({
+        id: generateUuidV7(),
+        userId: userRows[0]!.id,
+        token: expiredToken,
+        expiresAt: new Date(Date.now() - 3600000), // 1 hour ago
+      });
+
+      const resExpired = await app.inject({
+        method: 'GET',
+        url: '/api/v1/auth/session',
+        headers: {
+          cookie: `auth_token=${expiredToken}`,
+        },
+      });
+      expect(resExpired.statusCode).toBe(200);
+      const bodyExpired = JSON.parse(resExpired.payload);
+      expect(bodyExpired.user).toBeNull();
+      expect(bodyExpired.session).toBeNull();
+    });
+
+    it('Test API: /auth/session trả null khi không có cookie hay header', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/v1/auth/session',
+      });
+
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.payload);
+      expect(body.user).toBeNull();
+      expect(body.session).toBeNull();
+    });
+
+    it('Đăng xuất qua cookie: xóa cookie Set-Cookie và vô hiệu hóa phiên', async () => {
+      const signInTemp = await authService.signInEmail({
+        email: testUserEmail,
+        password: 'Password123!',
+      });
+      const tempToken = signInTemp.session.token;
+
+      const logoutRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/sign-out',
+        headers: {
+          cookie: `auth_token=${tempToken}`,
+        },
+      });
+
+      expect(logoutRes.statusCode).toBe(200);
+      const logoutCookies = logoutRes.headers['set-cookie'];
+      expect(String(logoutCookies)).toContain('auth_token=');
+      expect(String(logoutCookies)).toContain('Max-Age=0');
+
+      // Session is invalidated
+      const checkRes = await app.inject({
+        method: 'GET',
+        url: '/api/v1/auth/session',
+        headers: {
+          cookie: `auth_token=${tempToken}`,
+        },
+      });
+      expect(checkRes.statusCode).toBe(200);
+      const checkBody = JSON.parse(checkRes.payload);
+      expect(checkBody.user).toBeNull();
+    });
+
+    it('Đăng xuất không có token: vẫn trả 200 và xóa cookie', async () => {
+      const logoutRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/sign-out',
+      });
+
+      expect(logoutRes.statusCode).toBe(200);
+      const logoutCookies = logoutRes.headers['set-cookie'];
+      expect(String(logoutCookies)).toContain('auth_token=');
+      expect(String(logoutCookies)).toContain('Max-Age=0');
+    });
+  });
 });
+

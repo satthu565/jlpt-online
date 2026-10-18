@@ -8,6 +8,7 @@ export interface NotebookItemDto {
   term?: string;
   reading?: string;
   meaning?: string;
+  hanViet?: string;
   partOfSpeech?: string;
   examples?: string[];
   strokeCount?: number;
@@ -24,6 +25,7 @@ export interface CreateNotebookItemDto {
   term?: string;
   reading?: string;
   meaning?: string;
+  hanViet?: string;
   partOfSpeech?: string;
   examples?: string[];
   strokeCount?: number;
@@ -126,6 +128,7 @@ export interface NotebookQuizItemDto {
   kind: NotebookItemKind;
   notebookItemId: string;
   explanation?: string;
+  hanViet?: string;
 }
 
 export interface NotebookQuizResponseDto {

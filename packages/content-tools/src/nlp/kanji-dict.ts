@@ -1,4 +1,5 @@
 import type { KanjiInfo } from './types.js';
+import { getHanVietForKanji } from './hanviet.js';
 
 export const KANJI_KNOWLEDGE_GROUPS = {
   HUMAN: 'human', // Con người & cơ thể (人, 子, 女, 男, 目, 耳, 手, 足, ...)
@@ -570,15 +571,44 @@ export const KANJI_DATABASE: Record<string, KanjiInfo> = {
     meanings: ['căn cứ', 'dựa vào', 'foothold', 'based on'],
     radical: '手',
     knowledgeGroup: KANJI_KNOWLEDGE_GROUPS.SOCIETY,
+    hanViet: 'CỨ',
+  },
+  経: {
+    kanji: '経',
+    level: 'N3',
+    strokeCount: 11,
+    onyomi: ['ケイ', 'キョウ'],
+    kunyomi: ['へ・る', 'た・つ'],
+    meanings: ['kinh', 'kinh qua', 'trải qua', 'sutra', 'pass through'],
+    radical: '糸',
+    knowledgeGroup: KANJI_KNOWLEDGE_GROUPS.SOCIETY,
+    hanViet: 'KINH',
+  },
+  済: {
+    kanji: '済',
+    level: 'N3',
+    strokeCount: 11,
+    onyomi: ['サイ', 'セイ'],
+    kunyomi: ['す・む', 'す・ます'],
+    meanings: ['tế', 'kết thúc', 'hoàn tất', 'settle', 'finish'],
+    radical: '水',
+    knowledgeGroup: KANJI_KNOWLEDGE_GROUPS.SOCIETY,
+    hanViet: 'TẾ',
   },
 };
 
 /**
  * Returns Kanji info if available in database, or generates a sensible fallback.
+ * Automatically attaches Unicode Unihan kVietnamese Hán-Việt reading.
  */
 export function getKanjiInfo(kanji: string): KanjiInfo {
+  const hanViet = getHanVietForKanji(kanji) || undefined;
   if (KANJI_DATABASE[kanji]) {
-    return KANJI_DATABASE[kanji];
+    const entry = KANJI_DATABASE[kanji]!;
+    return {
+      ...entry,
+      hanViet: entry.hanViet || hanViet,
+    };
   }
 
   // Fallback estimation based on radical or stroke count heuristics
@@ -590,5 +620,6 @@ export function getKanjiInfo(kanji: string): KanjiInfo {
     kunyomi: [],
     meanings: [],
     knowledgeGroup: KANJI_KNOWLEDGE_GROUPS.SOCIETY,
+    hanViet,
   };
 }

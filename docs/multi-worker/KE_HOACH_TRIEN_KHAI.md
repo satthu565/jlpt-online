@@ -1327,7 +1327,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Worker: **W4**. Ngày mục tiêu: 8. Ước lượng chưa đo: 6 giờ worker; không gồm mọi vòng sửa/review.
 - Phụ thuộc: I09. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: Các trang imports, questions, exams (kể cả đề trộn), blueprints, reviews (duyệt 4 mắt, giải thích), media, vocab, cms, moderation AI, reports/content gọi API thật; luồng nhập gói demo-data -> duyệt -> xuất bản làm được hoàn toàn qua giao diện quản trị.
+- Phạm vi: Các trang imports, questions, exams (kể cả đề trộn), blueprints, reviews (duyệt 4 mắt, giải thích), media, vocab, cms, moderation AI, reports/content gọi API thật; luồng nhập gói demo-data -> duyệt -> xuất bản làm được hoàn toàn qua giao diện quản trị. Lưu ý khi làm lại (lượt 4 trượt staging E2E): (1) nút Xuất bản báo "Body cannot be empty when content-type is set to 'application/json'" vì apps/admin/lib/api-client.ts luôn gửi Content-Type: application/json kể cả khi không có body (publishExam, unpublish, approve...); chỉ đặt Content-Type khi có body, hoặc gửi body {}; kiểm tra mọi lời gọi POST/PUT/PATCH không body. (2) Test đăng nhập nhân sự chạy song song trên nhiều trình duyệt dùng chung tài khoản nên API từ chối mã TOTP đã dùng ("Mã TOTP đã được sử dụng"); trong tests/playwright/fixtures/staff-auth.fixture.ts, khi gặp lỗi này thì chờ sang khung 30 giây kế tiếp rồi thử lại với mã mới (không tắt kiểm tra chống dùng lại mã ở API). (3) Không sửa package.json gốc, không đổi TMPDIR, không sửa file ngoài apps/admin/ và phần được cấp.
 - Bàn giao: apps/admin/.
 - Hợp đồng: API.
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
@@ -1354,7 +1354,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Worker: **W4**. Ngày mục tiêu: 8. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
 - Phụ thuộc: I09. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: Các trang commercial (payments, plans, refunds, reconciliation), reports (tổng quan, doanh thu), experiments gọi API thật; sửa endpoint trong module payment, entitlement, reporting, cms, experiment nếu thiếu.
+- Phạm vi: Các trang commercial (payments, plans, refunds, reconciliation), reports (tổng quan, doanh thu), experiments gọi API thật; sửa endpoint trong module payment, entitlement, reporting, cms, experiment nếu thiếu. Lưu ý khi làm lại (lượt 4 trượt staging E2E, 34 test đạt, 2 trượt): (1) tests/playwright/integration.spec.ts:877 dùng locator [data-testid^="experiment-card-"], [data-testid="experiments-empty"] khớp nhiều thẻ nên Playwright báo strict mode violation; dùng .first() hoặc kiểm tra số thẻ, không nới lỏng điều kiện kiểm tra dữ liệu thật. (2) Lỗi mã TOTP dùng lại khi đăng nhập nhân sự song song: trong tests/playwright/fixtures/staff-auth.fixture.ts, gặp "Mã TOTP đã được sử dụng" thì chờ sang khung 30 giây kế tiếp rồi thử lại với mã mới (nếu I03 đã sửa trên main thì giữ bản của main). (3) Lỗi 500 ở /api/v1/datasets/jlpt-official/* không thuộc I04 nếu trang quản trị của I04 không gọi; không sửa module ngoài danh sách trên.
 - Bàn giao: apps/admin/; apps/api/src/modules/payment/; apps/api/src/modules/entitlement/; apps/api/src/modules/reporting/; apps/api/src/modules/cms/; apps/api/src/modules/experiment/.
 - Hợp đồng: API.
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
@@ -1495,9 +1495,10 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Khóa tài nguyên: api-hardening.
 - Điều kiện ngoài chặn bắt đầu: không.
 - Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
-- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, apps/admin/lib/.
 - Nghiệm thu:
   - E2E: học viên đăng nhập, tải lại trang, chuyển sang /so-tay và /lop-hoc vẫn ở trạng thái đã đăng nhập; đăng xuất rồi tải lại thì về trạng thái khách.
+  - E2E admin: nhân sự đăng nhập bằng mật khẩu và TOTP, tải lại trang hoặc mở thẳng /users vẫn ở trạng thái đã đăng nhập (sau I09, admin gọi /auth/session với Bearer nhận user null và hiện "Phiên làm việc đã hết hạn").
   - Test API: /auth/session trả user khi chỉ có cookie hợp lệ, trả null khi cookie sai hoặc hết hạn.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:auth`
@@ -1557,6 +1558,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Lệnh cần cung cấp và chạy:
   - `pnpm check:no-mock-ui`
   - `pnpm test:e2e:integration`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check-all`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1594,7 +1596,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### D01 Cổng hiệu năng Lighthouse trên staging CI
 
 - Worker: **W6**. Ngày mục tiêu: 9. Ước lượng chưa đo: 3 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: I07. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: I00. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Thêm Lighthouse CI chạy trên staging thật cho các trang chính (/, /de-thi, /phong-thi, /n5, /dang-nhap, admin /login), preset điện thoại và máy tính, lưu báo cáo làm artifact; ghi số đo gốc trước đợt vào docs/release/performance-baseline.json; ngân sách: điện thoại LCP < 2,5 s, CLS < 0,1, TBT < 200 ms, JS ban đầu mỗi trang có trần.
 - Bàn giao: tests/; .github/; infra/; docs/release/; package.json.
@@ -1711,6 +1713,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - `pnpm test:e2e:integration`
   - `pnpm test:lighthouse`
   - `pnpm check:ui-primitives`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check-all`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
@@ -1722,7 +1725,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### P01 Ước lượng điểm quy đổi JLPT, điểm sàn từng phần và nhịp làm bài
 
 - Worker: **W1**. Ngày mục tiêu: 10. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: I07. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: I01. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Trong packages/exam-engine: hàm thuần ước lượng điểm quy đổi 0–180 theo từng phần thi của từng cấp N1–N5 (N1–N3: ba phần; N4–N5: hai phần, trong đó phần kiến thức và đọc hiểu gộp điểm), so với điểm đỗ tổng và điểm sàn từng phần, trả kết quả đỗ/trượt và phần dưới sàn. Bảng quy đổi và ngưỡng là dữ liệu cấu hình có phiên bản (không viết cứng trong hàm), mặc định theo mức công bố chính thức của JLPT; mọi kết quả kèm cờ "ước lượng". Thêm mô hình nhịp làm bài: thời gian khuyến nghị cho từng dạng 問題 và mốc tiến độ trong mỗi phần.
 - Bàn giao: packages/exam-engine/; packages/schema/; contracts/; docs/decisions/.
@@ -1746,7 +1749,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### P02 Dữ liệu âm Hán Việt cho Kanji
 
 - Worker: **W5**. Ngày mục tiêu: 10. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: I07. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: I01. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Nhập âm Hán Việt cho Kanji từ trường kVietnamese của Unicode Unihan (giấy phép Unicode, ghi nguồn và phiên bản); chuẩn hóa NFC; lưu vào dữ liệu Kanji; API trả hanViet cho Kanji và cho từ vựng (ghép theo từng chữ Hán của từ). Kanji không có dữ liệu thì để trống, không đoán.
 - Bàn giao: tools/import-data/; packages/content-tools/; apps/api/src/modules/vocab/; apps/api/src/modules/learning/; docs/decisions/.
@@ -1869,5 +1872,6 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - docs/release/NEW_FEATURES_REPORT.md có ảnh và bằng chứng từng tính năng.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:e2e:integration`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check-all`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.

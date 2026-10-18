@@ -110,6 +110,9 @@ export const ResultScoringSchema = z.object({
   totalPass: z.number().int().nonnegative(),
   passEstimate: z.boolean(),
   disclaimer: z.string().optional(),
+  isEstimated: z.boolean().optional(),
+  label: z.string().optional(),
+  failedSections: z.array(z.string()).optional(),
 });
 
 export const ResultMondaiStatsSchema = z.object({

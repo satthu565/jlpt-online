@@ -97,6 +97,7 @@ export function AdminAuthProvider({
           // Verify session validity against server
           fetch('/api/v1/auth/session', {
             headers: { Authorization: `Bearer ${parsed.token}` },
+            credentials: 'include',
           })
             .then(async (res) => {
               if (res.ok) {
@@ -180,6 +181,7 @@ export function AdminAuthProvider({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
+        credentials: 'include',
       });
 
       if (!res.ok) {
@@ -256,6 +258,7 @@ export function AdminAuthProvider({
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ code: code.trim() }),
+        credentials: 'include',
       });
 
       if (!res.ok) {
@@ -306,6 +309,7 @@ export function AdminAuthProvider({
           'x-totp-code': code.trim(),
         },
         body: JSON.stringify({ code: code.trim() }),
+        credentials: 'include',
       });
 
       if (!res.ok) {
@@ -352,6 +356,7 @@ export function AdminAuthProvider({
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ code: code.trim() }),
+        credentials: 'include',
       });
 
       if (!res.ok) {
@@ -382,12 +387,13 @@ export function AdminAuthProvider({
 
   const logout = async () => {
     try {
-      if (token && typeof window !== 'undefined') {
+      if (typeof window !== 'undefined') {
         await fetch('/api/v1/auth/sign-out', {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${token}`,
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
+          credentials: 'include',
         });
       }
     } catch {

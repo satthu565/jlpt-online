@@ -2,6 +2,7 @@ import { Global, Module, OnModuleDestroy, Provider } from '@nestjs/common';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
 import { ensureAttemptEventsPartitions } from '../../db/partitions.js';
+import { ensureJlptExamSchedulesTable } from './jlpt-schedule-migration.js';
 
 export const DB_CLIENT = 'DB_CLIENT';
 
@@ -16,6 +17,7 @@ export async function getOrCreateDbClient(): Promise<DbClientInstance> {
     const client = await createDbClient();
     await runMigrations(client);
     await ensureAttemptEventsPartitions(client);
+    await ensureJlptExamSchedulesTable(client);
     cachedClient = client;
     return client;
   })().finally(() => {

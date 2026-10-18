@@ -801,6 +801,15 @@
         "lateToDailyTargetHours": 4
       },
       {
+        "taskId": "D01",
+        "worker": "W6",
+        "plannedDay": 9,
+        "startHour": 192,
+        "finishHour": 195,
+        "targetByHour": 216,
+        "lateToDailyTargetHours": 0
+      },
+      {
         "taskId": "I07",
         "worker": "W6",
         "plannedDay": 8,
@@ -815,15 +824,6 @@
         "plannedDay": 9,
         "startHour": 200,
         "finishHour": 205,
-        "targetByHour": 216,
-        "lateToDailyTargetHours": 0
-      },
-      {
-        "taskId": "D01",
-        "worker": "W6",
-        "plannedDay": 9,
-        "startHour": 200,
-        "finishHour": 203,
         "targetByHour": 216,
         "lateToDailyTargetHours": 0
       },

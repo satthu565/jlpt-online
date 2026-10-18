@@ -428,12 +428,24 @@ task('I09','W4',8,5,'Đăng nhập nhân sự thật và khung quản trị nố
  'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
 task('I03','W4',8,6,'Quản trị nội dung nối API: nhập gói, câu hỏi, đề, duyệt, media','I09',
  'Các trang imports, questions, exams (kể cả đề trộn), blueprints, reviews (duyệt 4 mắt, giải thích), media, vocab, cms, moderation AI, reports/content gọi API thật; '
- 'luồng nhập gói demo-data -> duyệt -> xuất bản làm được hoàn toàn qua giao diện quản trị.',
+ 'luồng nhập gói demo-data -> duyệt -> xuất bản làm được hoàn toàn qua giao diện quản trị. '
+ 'Lưu ý khi làm lại (lượt 4 trượt staging E2E): (1) nút Xuất bản báo "Body cannot be empty when content-type is set to \'application/json\'" '
+ 'vì apps/admin/lib/api-client.ts luôn gửi Content-Type: application/json kể cả khi không có body (publishExam, unpublish, approve...); '
+ 'chỉ đặt Content-Type khi có body, hoặc gửi body {}; kiểm tra mọi lời gọi POST/PUT/PATCH không body. '
+ '(2) Test đăng nhập nhân sự chạy song song trên nhiều trình duyệt dùng chung tài khoản nên API từ chối mã TOTP đã dùng ("Mã TOTP đã được sử dụng"); '
+ 'trong tests/playwright/fixtures/staff-auth.fixture.ts, khi gặp lỗi này thì chờ sang khung 30 giây kế tiếp rồi thử lại với mã mới (không tắt kiểm tra chống dùng lại mã ở API). '
+ '(3) Không sửa package.json gốc, không đổi TMPDIR, không sửa file ngoài apps/admin/ và phần được cấp.',
  'apps/admin/',
  'Editor nhập gói docs/multi-worker/demo-data qua giao diện, reviewer khác duyệt, xuất bản; đề hiện ở trang thư viện đề của web|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
 task('I04','W4',8,4,'Quản trị thương mại, báo cáo, thử nghiệm nối API','I09',
- 'Các trang commercial (payments, plans, refunds, reconciliation), reports (tổng quan, doanh thu), experiments gọi API thật; sửa endpoint trong module payment, entitlement, reporting, cms, experiment nếu thiếu.',
+ 'Các trang commercial (payments, plans, refunds, reconciliation), reports (tổng quan, doanh thu), experiments gọi API thật; sửa endpoint trong module payment, entitlement, reporting, cms, experiment nếu thiếu. '
+ 'Lưu ý khi làm lại (lượt 4 trượt staging E2E, 34 test đạt, 2 trượt): (1) tests/playwright/integration.spec.ts:877 dùng locator '
+ '[data-testid^="experiment-card-"], [data-testid="experiments-empty"] khớp nhiều thẻ nên Playwright báo strict mode violation; dùng .first() '
+ 'hoặc kiểm tra số thẻ, không nới lỏng điều kiện kiểm tra dữ liệu thật. (2) Lỗi mã TOTP dùng lại khi đăng nhập nhân sự song song: trong '
+ 'tests/playwright/fixtures/staff-auth.fixture.ts, gặp "Mã TOTP đã được sử dụng" thì chờ sang khung 30 giây kế tiếp rồi thử lại với mã mới '
+ '(nếu I03 đã sửa trên main thì giữ bản của main). (3) Lỗi 500 ở /api/v1/datasets/jlpt-official/* không thuộc I04 nếu trang quản trị của I04 không gọi; '
+ 'không sửa module ngoài danh sách trên.',
  'apps/admin/|apps/api/src/modules/payment/|apps/api/src/modules/entitlement/|apps/api/src/modules/reporting/|apps/api/src/modules/cms/|apps/api/src/modules/experiment/',
  'Gói, giao dịch sandbox, hoàn tiền và đối soát hiển thị dữ liệu thật từ API|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:admin|pnpm test:payments|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
@@ -464,8 +476,8 @@ task('I12','W2',8,2,'Phiên đăng nhập đọc được cookie: không mất �
  'Đăng nhập đặt cookie auth_token (HttpOnly). Các route /me/* đọc cookie này, nhưng GET /api/v1/auth/session chỉ đọc header Bearer nên trả {"user":null} khi trình duyệt chỉ gửi cookie; web tưởng đã đăng xuất sau mỗi lần tải lại hoặc chuyển trang. '
  'Sửa để /auth/session và mọi guard dùng cùng một cách lấy phiên (cookie hoặc Bearer), đăng xuất xóa cookie.',
  '@roots',
- 'E2E: học viên đăng nhập, tải lại trang, chuyển sang /so-tay và /lop-hoc vẫn ở trạng thái đã đăng nhập; đăng xuất rồi tải lại thì về trạng thái khách|Test API: /auth/session trả user khi chỉ có cookie hợp lệ, trả null khi cookie sai hoặc hết hạn',
- 'pnpm test:auth|pnpm test:security',contracts='API',resources='api-hardening',grants='tests/playwright/')
+ 'E2E: học viên đăng nhập, tải lại trang, chuyển sang /so-tay và /lop-hoc vẫn ở trạng thái đã đăng nhập; đăng xuất rồi tải lại thì về trạng thái khách|E2E admin: nhân sự đăng nhập bằng mật khẩu và TOTP, tải lại trang hoặc mở thẳng /users vẫn ở trạng thái đã đăng nhập (sau I09, admin gọi /auth/session với Bearer nhận user null và hiện "Phiên làm việc đã hết hạn")|Test API: /auth/session trả user khi chỉ có cookie hợp lệ, trả null khi cookie sai hoặc hết hạn',
+ 'pnpm test:auth|pnpm test:security',contracts='API',resources='api-hardening',grants='tests/playwright/ apps/admin/lib/')
 task('I13','W3',8,4,'Web: trang Luyện tập và Đề trộn nối API thật','I05',
  'Trang /luyen-tap vẫn import ALL_SAMPLE_EXAMS từ apps/web/features/exam/fixtures (I06 bỏ sót). Nối luyện tập theo kỹ năng, dạng 問題, số câu, câu sai/chưa gặp/đã đánh dấu, độ khó, tiếp tục bài dở (PRA) và tạo, lưu, làm lại, chia sẻ đề trộn (MIX) với API thật; xóa file fixtures khỏi code chạy thật (chỉ giữ trong test nếu cần).',
  'apps/web/|packages/ui/',
@@ -489,7 +501,7 @@ task('D00','W3',9,5,'Hệ thống thiết kế @jlpt/ui dựng lại trên shadc
  'Mỗi thành phần có test hành vi bàn phím, focus và aria; Dialog giữ focus và đóng bằng Esc|Chỉ chép thành phần thật sự dùng; không cài thư viện UI nguyên khối|'
  'Bản build web không tăng quá 15 KB JS nén ở trang chủ so với trước đợt|'+NO_REGRESS,
  'pnpm --filter @jlpt/ui test|pnpm check:ui-primitives|pnpm build',contracts='API',resources='ui-contract')
-task('D01','W6',9,3,'Cổng hiệu năng Lighthouse trên staging CI','I07',
+task('D01','W6',9,3,'Cổng hiệu năng Lighthouse trên staging CI','I00',
  'Thêm Lighthouse CI chạy trên staging thật cho các trang chính (/, /de-thi, /phong-thi, /n5, /dang-nhap, admin /login), preset điện thoại và máy tính, lưu báo cáo làm artifact; '
  'ghi số đo gốc trước đợt vào docs/release/performance-baseline.json; ngân sách: điện thoại LCP < 2,5 s, CLS < 0,1, TBT < 200 ms, JS ban đầu mỗi trang có trần.',
  'tests/|.github/|infra/|docs/release/|package.json',
@@ -521,14 +533,14 @@ task('D05','W6',9,3,'Nghiệm thu giao diện thống nhất và hiệu năng','
 # NEW-01 scaled score + sectional pass marks, NEW-02 Hán-Việt readings, NEW-03 furigana toggle,
 # NEW-04 pacing alerts, NEW-05 JLPT calendar and registration deadlines in Vietnam.
 # Backend and data run alongside day 9; UI waits for the day-9 design system (D02/D03).
-task('P01','W1',10,4,'Ước lượng điểm quy đổi JLPT, điểm sàn từng phần và nhịp làm bài','I07',
+task('P01','W1',10,4,'Ước lượng điểm quy đổi JLPT, điểm sàn từng phần và nhịp làm bài','I01',
  'Trong packages/exam-engine: hàm thuần ước lượng điểm quy đổi 0–180 theo từng phần thi của từng cấp N1–N5 (N1–N3: ba phần; N4–N5: hai phần, trong đó phần kiến thức và đọc hiểu gộp điểm), so với điểm đỗ tổng và điểm sàn từng phần, trả kết quả đỗ/trượt và phần dưới sàn. '
  'Bảng quy đổi và ngưỡng là dữ liệu cấu hình có phiên bản (không viết cứng trong hàm), mặc định theo mức công bố chính thức của JLPT; mọi kết quả kèm cờ "ước lượng". '
  'Thêm mô hình nhịp làm bài: thời gian khuyến nghị cho từng dạng 問題 và mốc tiến độ trong mỗi phần.',
  'packages/exam-engine/|packages/schema/|contracts/|docs/decisions/',
  'Test cho cả 5 cấp: đỗ khi đủ tổng và đủ sàn; trượt khi đủ tổng nhưng dưới sàn một phần; trượt khi thiếu tổng|Bảng quy đổi có phiên bản, đổi bảng không cần sửa code|Kết quả luôn có nhãn ước lượng; giải thích nguồn ngưỡng trong docs/decisions',
  'pnpm test:engines:all|pnpm contracts:check',contracts='API',resources='engine-contract schema-contract')
-task('P02','W5',10,4,'Dữ liệu âm Hán Việt cho Kanji','I07',
+task('P02','W5',10,4,'Dữ liệu âm Hán Việt cho Kanji','I01',
  'Nhập âm Hán Việt cho Kanji từ trường kVietnamese của Unicode Unihan (giấy phép Unicode, ghi nguồn và phiên bản); chuẩn hóa NFC; lưu vào dữ liệu Kanji; API trả hanViet cho Kanji và cho từ vựng (ghép theo từng chữ Hán của từ). Kanji không có dữ liệu thì để trống, không đoán.',
  'tools/import-data/|packages/content-tools/|apps/api/src/modules/vocab/|apps/api/src/modules/learning/|docs/decisions/',
  'Script nhập chạy lại không tạo trùng, ghi nguồn và giấy phép|経済 trả KINH TẾ; chữ không có dữ liệu trả rỗng|API trả hanViet trong tra từ, sổ tay và giải thích; có test',
@@ -562,6 +574,9 @@ task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05 D05',
 for _t in TASKS:
     if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','D02','D03','D04','P03','P04','P05'}:
         _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check')
+    # Per-task runs cover Chromium + Mobile Safari; final acceptance runs every browser.
+    if _t['id'] in {'I07','D05','P06'}:
+        _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check-all')
 
 # Map every feature exactly once to a primary delivery task; other tasks may integrate it.
 feature_task = {}

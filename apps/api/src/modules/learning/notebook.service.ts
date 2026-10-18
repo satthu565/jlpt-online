@@ -17,6 +17,7 @@ import type {
   QuestionExampleDto,
   UpdateNotebookItemDto,
 } from './learning.types.js';
+import { getHanVietForWord } from '@jlpt/content-tools';
 
 @Injectable()
 export class NotebookService {
@@ -33,6 +34,8 @@ export class NotebookService {
     const partOfSpeech = tags.find((t: string) => t.startsWith('pos:'))?.replace('pos:', '');
     const strokeStr = tags.find((t: string) => t.startsWith('stroke:'))?.replace('stroke:', '');
     const strokeCount = strokeStr ? Number(strokeStr) : undefined;
+    const hanVietTag = tags.find((t: string) => t.startsWith('hanviet:'))?.replace('hanviet:', '');
+    const hanViet = hanVietTag || (term ? getHanVietForWord(term) : undefined);
     const examples = tags
       .filter((t: string) => t.startsWith('example:'))
       .map((t: string) => t.replace('example:', ''));
@@ -45,6 +48,7 @@ export class NotebookService {
         !t.startsWith('meaning:') &&
         !t.startsWith('pos:') &&
         !t.startsWith('stroke:') &&
+        !t.startsWith('hanviet:') &&
         !t.startsWith('example:') &&
         !t.startsWith('explanation:'),
     );
@@ -57,6 +61,7 @@ export class NotebookService {
       term,
       reading,
       meaning,
+      hanViet: hanViet || undefined,
       partOfSpeech,
       examples,
       strokeCount,
@@ -85,6 +90,8 @@ export class NotebookService {
     if (dto.term) storedTags.push(`term:${dto.term.trim()}`);
     if (dto.reading) storedTags.push(`reading:${dto.reading.trim()}`);
     if (dto.meaning) storedTags.push(`meaning:${dto.meaning.trim()}`);
+    const hanViet = dto.hanViet?.trim() || (dto.term ? getHanVietForWord(dto.term) : undefined);
+    if (hanViet) storedTags.push(`hanviet:${hanViet}`);
     if (dto.partOfSpeech) storedTags.push(`pos:${dto.partOfSpeech.trim()}`);
     if (dto.strokeCount !== undefined) storedTags.push(`stroke:${dto.strokeCount}`);
     if (dto.examples && dto.examples.length > 0) {

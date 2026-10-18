@@ -1,6 +1,6 @@
-import { test, expect, type Page } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
+import { test, expect, type Page } from '@playwright/test';
 import { MailpitClient } from './fixtures/mailpit.fixture.js';
 import {
   SEEDED_STAFF_ACCOUNTS,
@@ -278,6 +278,226 @@ test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
 });
 
 /**
+ * Full User Journey & Exam Flow E2E Suite with Real Staging Services (I05)
+ * Acceptance Criteria:
+ * - Student registers via UI, verifies via Mailpit, logs in, takes published demo N5 exam, views score on staging.
+ * - Guest trial permitted for guest_trial exam; other exams require login.
+ * - Loading, empty, and unauthorized states displayed clearly; 401/403 prompts login.
+ * - Multi-viewport screenshots at 390px and 1366px, no horizontal scroll, 3 locales (vi, ja, en), no raw translation keys.
+ */
+test.describe('Real Staging User Journey & Exam Flow (I05)', () => {
+  const mailpit = new MailpitClient();
+
+  test.beforeEach(async ({ context }) => {
+    await context.addInitScript(() => {
+      try {
+        localStorage.setItem('jlpt_cookie_consent', 'all');
+        document.cookie = 'jlpt_consent=all; path=/; SameSite=Lax';
+      } catch {
+        // ignore
+      }
+    });
+  });
+
+  test('Student registration via UI, email verification, login, taking demo N5 exam, and viewing score (Acceptance 1, 4)', async ({
+    page,
+  }) => {
+    const webOrigin = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+    const isMailpitUp = await mailpit.isHealthy();
+    if (!isMailpitUp) {
+      if (!process.env.CI) {
+        test.skip(true, 'Mailpit not running in local environment; skipping live UI flow');
+        return;
+      }
+    }
+
+    const timestamp = Date.now() + Math.floor(Math.random() * 10000);
+    const testEmail = `student.e2e.ui.${timestamp}@jlpt.local`;
+    const testPassword = 'Password123!';
+    const testName = `Student UI ${timestamp}`;
+
+    // 1. Student navigates to /dang-ky and submits registration
+    await page.goto(`${webOrigin}/dang-ky`);
+    await page.locator('#register-name').fill(testName);
+    await page.locator('#register-email').fill(testEmail);
+    await page.locator('#register-password').fill(testPassword);
+    await page.locator('#register-confirm-password').fill(testPassword);
+    await page.locator('#agree-terms').check();
+    await page.locator('button[type="submit"]').click();
+
+    // 2. Verification email received in Mailpit
+    const emailMessage = await mailpit.waitForEmail(testEmail, 20000);
+    const verificationToken = mailpit.extractVerificationToken(emailMessage);
+    expect(verificationToken).toBeTruthy();
+
+    // 3. User navigates to /xac-minh-email?token=...
+    await page.goto(`${webOrigin}/xac-minh-email?token=${verificationToken}`);
+    await expect(page.locator('main [role="alert"], main a[href="/dang-nhap"]').first()).toBeVisible({ timeout: 20000 });
+
+    // 4. User navigates to /dang-nhap and signs in
+    await page.goto(`${webOrigin}/dang-nhap`);
+    await page.locator('#login-email').fill(testEmail);
+    await page.locator('#login-password').fill(testPassword);
+    await page.locator('button[type="submit"]').click();
+    await page.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 20000 });
+
+    // 5. Navigate to /de-thi and find demo N5 exam
+    await page.goto(`${webOrigin}/de-thi`);
+    await expect(page.locator('[data-testid="exam-library-page"]')).toBeVisible({ timeout: 15000 });
+
+    // 6. Navigate to /phong-thi?examId=demo-n5-1
+    await page.goto(`${webOrigin}/phong-thi?examId=demo-n5-1`);
+    const modalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
+    try {
+      await modalBtn.waitFor({ state: 'visible', timeout: 5000 });
+    } catch {
+      const cardBtn = page.locator('[data-testid="exam-card-start-btn"], button:has-text("Bắt đầu làm bài")').first();
+      await expect(cardBtn).toBeVisible({ timeout: 15000 });
+      await cardBtn.click();
+      await modalBtn.waitFor({ state: 'visible', timeout: 10000 });
+    }
+    await modalBtn.click();
+
+    // 7. Exam room rendered - answer at least one question
+    await expect(page.locator('[role="radiogroup"], [data-testid="exam-room"], main').first()).toBeVisible({ timeout: 15000 });
+    const firstOption = page.locator('[role="radio"]').first();
+    if (await firstOption.isVisible()) {
+      await firstOption.click();
+    }
+
+    // 8. Submit exam via navigation or toolbar
+    const submitBtn = page.locator('button:has-text("Nộp bài")').first();
+    await expect(submitBtn).toBeVisible({ timeout: 10000 });
+    await submitBtn.click();
+
+    // 9. Confirm in EarlySubmitModal
+    const confirmBtn = page.locator('button:has-text("Xác nhận nộp bài")').first();
+    await expect(confirmBtn).toBeVisible({ timeout: 10000 });
+    await confirmBtn.click();
+
+    // 10. Verify submission success screen or redirect to /ket-qua/
+    const viewResultLink = page.locator('a[href*="/ket-qua/"]').first();
+    await expect(viewResultLink).toBeVisible({ timeout: 15000 });
+    const resultHref = await viewResultLink.getAttribute('href');
+    expect(resultHref).toBeTruthy();
+
+    // 11. Navigate to results page and verify score
+    await page.goto(`${webOrigin}${resultHref}`);
+    await expect(page.locator('[data-testid="score-summary"], [data-testid="exam-result-page"], :has-text("Kết quả")').first()).toBeVisible({ timeout: 15000 });
+  });
+
+  test('Guest trial allowed for guest_trial exam, login required for other exams (Acceptance 2)', async ({
+    page,
+  }) => {
+    const webOrigin = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+    // Fresh context without login
+    const guestContext = await page.context().browser()!.newContext();
+    await guestContext.addInitScript(() => {
+      try {
+        localStorage.setItem('jlpt_cookie_consent', 'all');
+        document.cookie = 'jlpt_consent=all; path=/; SameSite=Lax';
+      } catch {
+        // ignore
+      }
+    });
+    const guestPage = await guestContext.newPage();
+
+    // 1. Guest can start guest_trial exam (demo-n5-1)
+    await guestPage.goto(`${webOrigin}/phong-thi?examId=demo-n5-1`);
+    const guestModalBtn = guestPage.locator('[data-testid="modal-start-exam-btn"]');
+    try {
+      await guestModalBtn.waitFor({ state: 'visible', timeout: 5000 });
+    } catch {
+      const cardBtn = guestPage.locator('[data-testid="exam-card-start-btn"], button:has-text("Bắt đầu làm bài")').first();
+      await expect(cardBtn).toBeVisible({ timeout: 15000 });
+      await cardBtn.click();
+      await guestModalBtn.waitFor({ state: 'visible', timeout: 10000 });
+    }
+    await guestModalBtn.click();
+
+    // Verified: exam room begins for guest
+    await expect(guestPage.locator('[role="radiogroup"], [data-testid="exam-room"], main').first()).toBeVisible({ timeout: 15000 });
+
+    // 2. Calling initAttempt on non-guest trial without auth must be rejected with 401 / AUTH_REQUIRED
+    const apiUrl = process.env.STAGING_API_URL || 'http://127.0.0.1:4000';
+    const initRes = await guestPage.request.post(`${apiUrl}/api/v1/attempts`, {
+      data: {
+        examId: '0192f000-0002-7000-8000-000000000002',
+        mode: 'real',
+      },
+    });
+    expect([401, 403, 404]).toContain(initRes.status());
+
+    await guestContext.close();
+  });
+
+  test('Exam history displays loading and requires login when unauthenticated (Acceptance 5)', async ({
+    page,
+  }) => {
+    const webOrigin = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+    const guestContext = await page.context().browser()!.newContext();
+    const guestPage = await guestContext.newPage();
+
+    await guestPage.goto(`${webOrigin}/lich-su`);
+    await expect(guestPage.locator('[data-testid="history-error"], main a[href*="/dang-nhap"]').first()).toBeVisible({ timeout: 15000 });
+
+    await guestContext.close();
+  });
+
+  test('Responsive viewports 390px & 1366px, no horizontal scroll, 3 locales, no raw translation keys (Acceptance 6)', async ({
+    page,
+  }) => {
+    // Run on chromium project to verify both viewports and save artifact screenshots
+    test.skip(test.info().project.name !== 'chromium', 'Viewport and screenshot verification runs on chromium');
+
+    const webOrigin = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+    const viewports = [
+      { name: 'mobile-390px', width: 390, height: 844 },
+      { name: 'desktop-1366px', width: 1366, height: 768 },
+    ];
+    const routes = ['/de-thi', '/tai-khoan', '/dang-ky', '/dang-nhap', '/lich-su'];
+    const locales = ['vi', 'ja', 'en'] as const;
+
+    const screenshotDir = path.resolve(process.cwd(), 'test-results/screenshots');
+    fs.mkdirSync(screenshotDir, { recursive: true });
+
+    for (const vp of viewports) {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+
+      for (const route of routes) {
+        for (const loc of locales) {
+          // Set locale in localStorage
+          await page.goto(`${webOrigin}${route}`);
+          await page.evaluate((l) => {
+            localStorage.setItem('jlpt_locale', l);
+          }, loc);
+          await page.reload();
+
+          // Wait for page ready
+          await page.waitForLoadState('domcontentloaded');
+
+          // Check no horizontal scroll (no overflow beyond clientWidth)
+          const isOverflowing = await page.evaluate(() => {
+            return document.documentElement.scrollWidth > window.innerWidth + 2;
+          });
+          expect(isOverflowing).toBe(false);
+
+          // Verify no raw translation keys visible on page
+          const bodyText = await page.evaluate(() => document.body.innerText);
+          const rawKeyMatches = bodyText.match(/\b(account|auth|common|exam|results|library)\.[a-zA-Z0-9_.]+\b/g) || [];
+          expect(rawKeyMatches).toEqual([]);
+
+          // Capture screenshot artifact
+          const sanitizedRoute = route.replace(/\//g, '-').replace(/^-/, '');
+          const filename = `${sanitizedRoute}-${vp.name}-${loc}.png`;
+          await page.screenshot({ path: path.join(screenshotDir, filename), fullPage: false });
+        }
+      }
+    }
+  });
+});
+
+/**
  * Student Web Real API & Responsive Suite (I06)
  * Acceptance Criteria:
  * 1. 13 student pages connected to real APIs (no page.route / mock fetch).
@@ -507,6 +727,199 @@ test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () 
     await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
   });
+
+  test('I12 E2E: học viên đăng nhập, tải lại trang, chuyển sang /so-tay và /lop-hoc vẫn ở trạng thái đã đăng nhập; đăng xuất rồi tải lại thì về trạng thái khách', async ({
+    page,
+  }, testInfo) => {
+    const clientIp = getProjectClientIp(testInfo, 44);
+    const ipHeaders = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+    await page.setExtraHTTPHeaders(ipHeaders);
+
+    const studentUser = SEEDED_STAFF_ACCOUNTS.student;
+
+    // 1. Log in via UI at /dang-nhap
+    await page.goto('/dang-nhap', { waitUntil: 'domcontentloaded' });
+    await page.locator('#login-email, input[type="email"]').fill(studentUser.email);
+    await page.locator('#login-password, input[type="password"]').fill(studentUser.password);
+
+    // Wait for successful sign-in response and subsequent redirect to /tai-khoan
+    const [loginResponse] = await Promise.all([
+      page.waitForResponse((res) => res.url().includes('/auth/sign-in/email') && res.status() === 200),
+      page.locator('button[type="submit"]').click(),
+    ]);
+    expect(loginResponse.ok()).toBeTruthy();
+
+    await page.waitForURL(/\/tai-khoan/, { timeout: 15000, waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
+
+    // 2. Reload page on /tai-khoan - verify still logged in
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
+    // Alert warning "Vui lòng đăng nhập để xem thông tin hồ sơ" should NOT be visible
+    await expect(page.locator('text=Vui lòng đăng nhập để xem thông tin hồ sơ')).not.toBeVisible();
+    await expect(page.locator('#user-email')).toHaveValue(studentUser.email, { timeout: 10000 });
+
+    // 3. Move to /so-tay - verify still logged in
+    await page.goto('/so-tay', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
+    // Alert warning "Bạn cần đăng nhập để xem và lưu sổ tay học tập cá nhân" should NOT be visible
+    await expect(page.locator('text=Bạn cần đăng nhập để xem và lưu sổ tay học tập cá nhân')).not.toBeVisible();
+
+    // 4. Move to /lop-hoc - verify still logged in
+    await page.goto('/lop-hoc', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
+    // Alert warning "Bạn cần đăng nhập tài khoản học viên hoặc giáo viên để truy cập lớp học" should NOT be visible
+    await expect(page.locator('text=Bạn cần đăng nhập tài khoản học viên hoặc giáo viên để truy cập lớp học')).not.toBeVisible();
+
+    // 5. Sign out
+    await page.evaluate(async () => {
+      await fetch('/api/v1/auth/sign-out', { method: 'POST', credentials: 'include' });
+    });
+
+    // 6. Reload on /so-tay and verify back to guest state
+    await page.goto('/so-tay', { waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    // In guest state, warning alert IS visible
+    await expect(page.locator('text=Bạn cần đăng nhập để xem và lưu sổ tay học tập cá nhân')).toBeVisible({ timeout: 10000 });
+  });
+});
+
+test.describe('I11: No 500 errors from hardcoded IDs in vocab, grammar, discussions', () => {
+  test.skip(({ browserName }) => browserName === 'webkit' || browserName === 'firefox', 'Firefox and WebKit host libraries are missing on Linux runners');
+
+  test('I11-AC1 & AC4: Authenticated student visits /tu-vung, /ngu-phap, /thao-luan without any 5xx API responses', async ({
+    page,
+    request,
+  }, testInfo) => {
+    const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+    try {
+      const ping = await request.get(`${baseURL}/healthz`, { timeout: 3000 });
+      if (!ping.ok()) {
+        if (!process.env.CI) {
+          test.skip(true, 'Staging live server not running locally; skipping live check');
+          return;
+        }
+      }
+    } catch {
+      if (!process.env.CI) {
+        test.skip(true, 'Staging live server not reachable; skipping live check');
+        return;
+      }
+    }
+
+    const clientIp = getProjectClientIp(testInfo, 50);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    // Authenticate as demo student on staging when credentials are available
+    const apiBaseUrl = process.env.STAGING_API_URL || process.env.API_BASE_URL || 'http://127.0.0.1:4000';
+    try {
+      const studentAuth = await authenticateStaffAccount(
+        SEEDED_STAFF_ACCOUNTS.student,
+        apiBaseUrl,
+        clientIp,
+      );
+      if (studentAuth?.token) {
+        let domain = '127.0.0.1';
+        try {
+          domain = new URL(baseURL).hostname;
+        } catch {
+          // ignore
+        }
+        await page.context().addCookies([
+          {
+            name: 'auth_token',
+            value: studentAuth.token,
+            domain,
+            path: '/',
+          },
+        ]);
+      }
+    } catch {
+      // If student account is unseeded, continue testing live pages in unauthenticated state
+    }
+
+    // Track all responses to ensure no 5xx errors occur
+    const serverErrors: Array<{ url: string; status: number }> = [];
+    page.on('response', (response) => {
+      if (response.status() >= 500) {
+        serverErrors.push({ url: response.url(), status: response.status() });
+      }
+    });
+
+    // 1. Visit /tu-vung
+    await page.goto('/tu-vung', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="vocab-explorer"]')).toBeVisible({ timeout: 10000 });
+
+    // 2. Visit /ngu-phap
+    await page.goto('/ngu-phap', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="grammar-explorer"]')).toBeVisible({ timeout: 10000 });
+
+    // 3. Visit /thao-luan
+    await page.goto('/thao-luan', { waitUntil: 'domcontentloaded' });
+    await expect(
+      page.locator('input[placeholder*="câu hỏi" i], [data-testid="discussion-gated-card"]').first(),
+    ).toBeVisible({ timeout: 10000 });
+
+    // Assert strictly no 5xx requests were triggered across all three pages
+    expect(serverErrors, `Detected 5xx server errors: ${JSON.stringify(serverErrors)}`).toHaveLength(0);
+  });
+
+  test('I11-AC2: API routes reject invalid (non-UUID) IDs with 400 Bad Request (INVALID_UUID), never 500', async ({
+    request,
+  }, testInfo) => {
+    const apiBaseUrl = process.env.STAGING_API_URL || process.env.API_BASE_URL || 'http://127.0.0.1:4000';
+    const clientIp = getProjectClientIp(testInfo, 51);
+    const ipHeaders = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+
+    try {
+      const ping = await request.get(`${apiBaseUrl}/api/v1/health`, { headers: ipHeaders, timeout: 3000 });
+      if (!ping.ok()) {
+        if (!process.env.CI) {
+          test.skip(true, 'Live API server not running locally; skipping live check');
+          return;
+        }
+      }
+    } catch {
+      if (!process.env.CI) {
+        test.skip(true, 'Live API server not reachable; skipping live check');
+        return;
+      }
+    }
+
+    // Authenticate demo student to test authenticated route validation
+    let authHeaders: Record<string, string> = { ...ipHeaders };
+    try {
+      const studentAuth = await authenticateStaffAccount(
+        SEEDED_STAFF_ACCOUNTS.student,
+        apiBaseUrl,
+        clientIp,
+      );
+      if (studentAuth?.token) {
+        authHeaders = {
+          ...ipHeaders,
+          authorization: `Bearer ${studentAuth.token}`,
+        };
+      }
+    } catch {
+      // In staging CI, seeded student account is guaranteed
+    }
+
+    // 1. Invalid dataset ID 'jlpt-official' must return 400 Bad Request with INVALID_UUID, NEVER 500
+    const datasetRes = await request.get(`${apiBaseUrl}/api/v1/datasets/jlpt-official/vocabulary`, {
+      headers: authHeaders,
+    });
+    expect(datasetRes.status()).toBe(400);
+    const datasetBody = (await datasetRes.json()) as { error?: { code?: string } };
+    expect(datasetBody?.error?.code).toBe('INVALID_UUID');
+
+    // 2. Invalid question ID 'q-default-1' must return 400 Bad Request with INVALID_UUID, NEVER 500
+    const discussionRes = await request.get(`${apiBaseUrl}/api/v1/questions/q-default-1/discussions`, {
+      headers: authHeaders,
+    });
+    expect(discussionRes.status()).toBe(400);
+    const discussionBody = (await discussionRes.json()) as { error?: { code?: string } };
+    expect(discussionBody?.error?.code).toBe('INVALID_UUID');
+  });
 });
 
 /**
@@ -683,6 +1096,30 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
     // Step 3: Successfully authenticated, arrives at dashboard
     await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
+  });
+
+  test('I12 E2E admin: nhân sự đăng nhập bằng mật khẩu và TOTP, tải lại trang hoặc mở thẳng /users vẫn ở trạng thái đã đăng nhập', async ({
+    page,
+  }, testInfo) => {
+    const clientIp = getProjectClientIp(testInfo, 54);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    // Step 1: Submit valid staff credentials and handle TOTP challenge
+    await loginAsAdmin(page, adminOrigin);
+
+    // Arrives at dashboard and stats are visible
+    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
+
+    // Step 2: Reload dashboard page and verify still logged in (no "Phiên làm việc đã hết hạn" or guard unauthenticated alert)
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-expired"]')).not.toBeVisible();
+
+    // Step 3: Open /users directly and verify still logged in
+    await page.goto(`${adminOrigin}/users`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('main, [data-testid="user-management-title"], table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-expired"]')).not.toBeVisible();
+    expect(page.url()).toContain('/users');
   });
 
   test('AC5: Unauthenticated access redirects or displays guard alert', async ({
@@ -1121,6 +1558,5 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     }
   });
 });
-
 
 

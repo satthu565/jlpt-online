@@ -19,6 +19,7 @@ export interface DictionaryLookupResponseDto {
   level?: string;
   partOfSpeech?: string;
   status: 'READY' | 'SANDBOX' | 'MISSING';
+  hanViet?: string;
 }
 
 export interface DatasetItemDto {
@@ -188,6 +189,7 @@ export interface AddToNotebookResponseDto {
     term: string;
     reading?: string;
     meaning?: string;
+    hanViet?: string;
     level?: string;
     kind: string;
   }>;
