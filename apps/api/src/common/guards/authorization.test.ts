@@ -26,7 +26,7 @@ import { AuthService } from '../../modules/auth/auth.service.js';
 import { AuditModule } from '../../modules/audit/audit.module.js';
 import { AdminModule } from '../../modules/admin/admin.module.js';
 import { AuditService } from '../../modules/audit/audit.service.js';
-import { generateTotp } from '../utils/totp.js';
+import { generateTotp, encryptTotpSecret, hashRecoveryCode } from '../utils/totp.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../utils/uuid.js';
 
@@ -149,6 +149,7 @@ describe('F03 Authorization and PII Protection (SYS-06, SYS-07)', () => {
 
     // 3. Create Admin User & Session
     const adminId = generateUuidV7();
+    const adminSessionId = generateUuidV7();
     adminToken = 'test_token_admin_' + Date.now();
     await client.db.insert(schema.users).values({
       id: adminId,
@@ -157,9 +158,33 @@ describe('F03 Authorization and PII Protection (SYS-06, SYS-07)', () => {
       emailVerified: true,
     });
     await client.db.insert(schema.sessions).values({
-      id: generateUuidV7(),
+      id: adminSessionId,
       userId: adminId,
       token: adminToken,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    });
+
+    // Seed 2FA configuration in userProfiles for admin
+    await client.db.insert(schema.userProfiles).values({
+      userId: adminId,
+      metadata: {
+        twoFactor: {
+          enabled: true,
+          encryptedSecret: encryptTotpSecret('JBSWY3DPEHPK3PXP', adminId),
+          hashedRecoveryCodes: ['RECV-0001', 'RECV-0002'].map(hashRecoveryCode),
+          verifiedAt: new Date().toISOString(),
+          failedAttempts: 0,
+          lockedUntil: null,
+        },
+      },
+      updatedAt: new Date(),
+    });
+
+    // Mark admin session as two-factor verified
+    await client.db.insert(schema.verifications).values({
+      id: generateUuidV7(),
+      identifier: `session_2fa_${adminSessionId}`,
+      value: 'verified',
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
 
