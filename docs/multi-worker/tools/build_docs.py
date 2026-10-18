@@ -517,6 +517,47 @@ task('D05','W6',9,3,'Nghiệm thu giao diện thống nhất và hiệu năng','
  'docs/release/DESIGN_PERF_REPORT.md có số đo trước/sau và ảnh từng trang|Không trang nào cuộn ngang hoặc hiện key dịch thô|check:ui-primitives và test:lighthouse chặn trong CI',
  'pnpm test:e2e:integration|pnpm test:lighthouse|pnpm check:ui-primitives',resources='ci-workflow staging-deploy',kind='verification')
 
+# Day 10 (owner request 2026-10-18): five features a Vietnamese JLPT candidate asks for first.
+# NEW-01 scaled score + sectional pass marks, NEW-02 Hán-Việt readings, NEW-03 furigana toggle,
+# NEW-04 pacing alerts, NEW-05 JLPT calendar and registration deadlines in Vietnam.
+# Backend and data run alongside day 9; UI waits for the day-9 design system (D02/D03).
+task('P01','W1',10,4,'Ước lượng điểm quy đổi JLPT, điểm sàn từng phần và nhịp làm bài','I07',
+ 'Trong packages/exam-engine: hàm thuần ước lượng điểm quy đổi 0–180 theo từng phần thi của từng cấp N1–N5 (N1–N3: ba phần; N4–N5: hai phần, trong đó phần kiến thức và đọc hiểu gộp điểm), so với điểm đỗ tổng và điểm sàn từng phần, trả kết quả đỗ/trượt và phần dưới sàn. '
+ 'Bảng quy đổi và ngưỡng là dữ liệu cấu hình có phiên bản (không viết cứng trong hàm), mặc định theo mức công bố chính thức của JLPT; mọi kết quả kèm cờ "ước lượng". '
+ 'Thêm mô hình nhịp làm bài: thời gian khuyến nghị cho từng dạng 問題 và mốc tiến độ trong mỗi phần.',
+ 'packages/exam-engine/|packages/schema/|contracts/|docs/decisions/',
+ 'Test cho cả 5 cấp: đỗ khi đủ tổng và đủ sàn; trượt khi đủ tổng nhưng dưới sàn một phần; trượt khi thiếu tổng|Bảng quy đổi có phiên bản, đổi bảng không cần sửa code|Kết quả luôn có nhãn ước lượng; giải thích nguồn ngưỡng trong docs/decisions',
+ 'pnpm test:engines:all|pnpm contracts:check',contracts='API',resources='engine-contract schema-contract')
+task('P02','W5',10,4,'Dữ liệu âm Hán Việt cho Kanji','I07',
+ 'Nhập âm Hán Việt cho Kanji từ trường kVietnamese của Unicode Unihan (giấy phép Unicode, ghi nguồn và phiên bản); chuẩn hóa NFC; lưu vào dữ liệu Kanji; API trả hanViet cho Kanji và cho từ vựng (ghép theo từng chữ Hán của từ). Kanji không có dữ liệu thì để trống, không đoán.',
+ 'tools/import-data/|packages/content-tools/|apps/api/src/modules/vocab/|apps/api/src/modules/learning/|docs/decisions/',
+ 'Script nhập chạy lại không tạo trùng, ghi nguồn và giấy phép|経済 trả KINH TẾ; chữ không có dữ liệu trả rỗng|API trả hanViet trong tra từ, sổ tay và giải thích; có test',
+ 'pnpm test:import-validation|pnpm test:learning:all',contracts='API')
+task('P03','W2',10,5,'API: kết quả đỗ/trượt theo JLPT, lịch thi tại Việt Nam và nhắc hạn đăng ký','P01',
+ 'Kết quả bài thi và lịch sử trả điểm quy đổi từng phần, đỗ/trượt và phần dưới sàn từ P01; lưu dữ liệu thời gian từng câu để phân tích nhịp. '
+ 'Thêm thực thể lịch thi JLPT tại Việt Nam (kỳ thi, ngày thi, hạn đăng ký, địa điểm Hà Nội/Đà Nẵng/TP.HCM, link đăng ký chính thức) do quản trị nhập; API công khai đọc lịch; thông báo nhắc trước hạn đăng ký và trước ngày thi (bật/tắt theo người dùng). Không seed ngày thi giả: thiếu dữ liệu thì API trả rỗng.',
+ '@roots',
+ 'Kết quả bài thi demo N5 có điểm từng phần và đỗ/trượt khớp P01|Lịch thi CRUD có phân quyền và audit; trang công khai chỉ thấy bản đã xuất bản|Nhắc hạn đăng ký gửi qua outbox đúng một lần, tôn trọng cài đặt tắt nhắc; có test',
+ 'pnpm test:api:all|pnpm test:security',contracts='API EVENTS DB',resources='db-migration')
+task('P04','W3',10,6,'Web: đỗ/trượt theo phần, Hán Việt, bật/tắt furigana, cảnh báo nhịp làm bài, lịch thi','P02 P03 D02',
+ 'Trang kết quả: điểm quy đổi từng phần, đỗ/trượt, phần dưới sàn, nhãn ước lượng. '
+ 'Hiện âm Hán Việt cạnh Kanji ở tra từ, sổ tay, giải thích. Nút bật/tắt furigana trong luyện tập và chữa bài (nhớ lựa chọn). '
+ 'Phòng thi: chế độ luyện tập cảnh báo khi chậm so với mốc nhịp; chế độ thi thật chỉ hiện mốc tiến độ kín đáo; sau bài có phân tích câu tốn thời gian. '
+ 'Trang lịch thi JLPT tại Việt Nam và cài đặt nhắc hạn đăng ký.',
+ 'apps/web/|packages/ui/',
+ 'Học viên làm đề demo N5 thấy điểm từng phần và đỗ/trượt|Tắt furigana thì ẩn trên mọi câu, tải lại vẫn giữ|Cảnh báo nhịp hiện đúng khi chậm hơn mốc trong E2E|Trang lịch thi hiện dữ liệu quản trị nhập, trống khi chưa có|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
+ 'pnpm test:web|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
+task('P05','W4',10,3,'Quản trị: lịch thi JLPT và bảng quy đổi điểm','P03 D03',
+ 'Trang quản trị nhập và xuất bản lịch thi (ngày thi, hạn đăng ký, địa điểm, link) và xem/cập nhật phiên bản bảng quy đổi điểm, có audit.',
+ 'apps/admin/',
+ 'Admin nhập kỳ thi tháng 12, xuất bản, trang web công khai hiện ngay|Đổi bảng quy đổi tạo phiên bản mới, kết quả cũ giữ phiên bản đã dùng|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
+ 'pnpm test:admin|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
+task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05 D05',
+ 'E2E trên staging cho NEW-01..05, ảnh chụp 390/1366px, cập nhật danh sách tính năng và báo cáo.',
+ 'tests/|docs/release/',
+ 'E2E: làm đề N5 → đỗ/trượt từng phần; Hán Việt và furigana; cảnh báo nhịp; lịch thi và nhắc hạn đăng ký|docs/release/NEW_FEATURES_REPORT.md có ảnh và bằng chứng từng tính năng',
+ 'pnpm test:e2e:integration',resources='staging-deploy',kind='verification')
+
 # Map every feature exactly once to a primary delivery task; other tasks may integrate it.
 feature_task = {}
 for t in TASKS:
