@@ -200,7 +200,7 @@ describe('I04 Commercial, Reports & Experiments Real API Integration Suite', () 
 
     it('ContentReportsPage renders empty state when initialReports is empty', () => {
       const html = renderWithAuth(<ContentReportsPage initialReports={[]} />);
-      expect(html).toContain('data-testid="content-reports-empty"');
+      expect(html).toContain('data-testid="reports-empty"');
     });
   });
 
