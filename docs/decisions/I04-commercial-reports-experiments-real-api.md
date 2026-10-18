@@ -2,7 +2,7 @@
 
 - **Worker**: W4 (Quản trị báo cáo và thương mại)
 - **Task ID**: I04
-- **Assignment ID**: I04-11
+- **Assignment ID**: I04-13
 - **Trạng thái**: REVIEW
 - **Ngày**: 2026-10-18
 - **Tài liệu tham chiếu**: `docs/multi-worker/AGENTS.md`, `docs/multi-worker/KE_HOACH_TRIEN_KHAI.md`, hợp đồng API thanh toán L04 (`/api/v1/admin/plans`, `/api/v1/admin/coupons`, `/api/v1/admin/payments`, `/api/v1/admin/refunds`, `/api/v1/admin/reconciliation`), báo cáo R04/A04 (`/api/v1/admin/reports/*`), và thử nghiệm A/B A04 (`/api/v1/experiments/*`).
@@ -119,6 +119,11 @@ Mục tiêu của I04:
    - Giải pháp: Sử dụng `.first()` cho assertion hiển thị thẻ thử nghiệm, đồng thời giữ nguyên kiểm tra dữ liệu thật.
 2. **Khắc phục lỗi mã TOTP dùng lại khi chạy song song (`tests/playwright/fixtures/staff-auth.fixture.ts`)**:
    - Bổ sung hàm `verifyTotpChallengeWithRetry`, `waitForNextTotpWindow`, `getFreshTotpCode` và cập nhật các hàm đăng nhập admin (`loginAsAdmin`, `loginAsAdminI04`) với vòng lặp thử lại tối đa 3 lần: khi gặp lỗi "Mã TOTP đã được sử dụng" hoặc "mã cũ", tự động chờ qua ranh giới 30 giây tiếp theo của RFC 6238 rồi thử lại với mã mới, không làm suy yếu kiểm tra chống replay ở API.
+
+### 2.7. Giải quyết Xung đột Nhánh (Merge main vào task/I04)
+- Đồng bộ nhánh với `origin/main` (bao gồm các thay đổi từ PR #69 P03 và PR #60 I05).
+- Giải quyết xung đột trong `apps/admin/lib/api-client.ts`: kết hợp logic gửi body mặc định `'{}'` cho POST/PUT/PATCH từ I04 và cấu hình `credentials: 'include'` từ `origin/main`.
+- Giải quyết xung đột trong `tests/playwright/integration.spec.ts`: giữ nguyên bộ kiểm thử tích hợp E2E thực tế của I04 ở cuối tệp.
 
 ---
 
