@@ -514,6 +514,19 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     { width: 1366, height: 768, name: '1366px' },
   ];
 
+  let lastUsedTotpStep = 0;
+
+  async function getFreshTotp(page: Page, secret: string): Promise<string> {
+    const currentStep = Math.floor(Date.now() / 1000 / 30);
+    if (currentStep <= lastUsedTotpStep) {
+      const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
+      await page.waitForTimeout(msToNextStep);
+    }
+    const code = generateTotp(secret);
+    lastUsedTotpStep = Math.floor(Date.now() / 1000 / 30);
+    return code;
+  }
+
   async function loginAsAdmin(page: Page, origin: string) {
     await page.goto(`${origin}/login`);
     await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
@@ -521,10 +534,23 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
 
     await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
-    const validTotp = generateTotp(SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
-    await page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').fill(validTotp);
-    await page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').click();
-    await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 15000 });
+    let validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
+    const codeInput = page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first();
+    const submitBtn = page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first();
+    await codeInput.fill(validTotp);
+    await submitBtn.click();
+
+    const challengeError = page.locator('[data-testid="challenge-error-alert"]');
+    const isReplay = await challengeError.isVisible({ timeout: 1500 }).catch(() => false);
+    if (isReplay) {
+      const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
+      await page.waitForTimeout(msToNextStep);
+      validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
+      await codeInput.fill(validTotp);
+      await submitBtn.click();
+    }
+
+    await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 20000 });
     await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
   }
 
@@ -596,12 +622,24 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
     // Step 2: Handle TOTP Challenge
     await page.waitForURL(/.*verify-2fa.*/, { timeout: 10000 });
-    const validTotp = generateTotp(SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
-    await page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first().fill(validTotp);
-    await page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first().click();
+    let validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
+    const codeInput = page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first();
+    const submitBtn = page.locator('[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]').first();
+    await codeInput.fill(validTotp);
+    await submitBtn.click();
+
+    const challengeError = page.locator('[data-testid="challenge-error-alert"]');
+    const isReplay = await challengeError.isVisible({ timeout: 1500 }).catch(() => false);
+    if (isReplay) {
+      const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
+      await page.waitForTimeout(msToNextStep);
+      validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
+      await codeInput.fill(validTotp);
+      await submitBtn.click();
+    }
 
     // Step 3: Successfully authenticated, arrives at dashboard
-    await page.waitForURL(new RegExp(`${adminOrigin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 10000 });
+    await page.waitForURL(new RegExp(`${adminOrigin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 20000 });
     await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
   });
 
