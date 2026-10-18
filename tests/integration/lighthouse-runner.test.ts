@@ -16,6 +16,7 @@ import { DEFAULT_BUDGETS, evaluateMetrics } from '../lighthouse/budgets.ts';
 import {
   parseCliArgs,
   runLighthouseAudit,
+  probeStagingServers,
   DEFAULT_BASELINE_FILE,
   REPO_ROOT,
 } from '../lighthouse/runner.ts';
@@ -307,6 +308,11 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
 
     beforeAll(async () => {
       testServer = http.createServer((req, res) => {
+        if (req.url === '/healthz') {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ status: 'ok' }));
+          return;
+        }
         if (req.url === '/robots.txt') {
           res.writeHead(200, { 'Content-Type': 'text/plain' });
           res.end('User-agent: *\nAllow: /\n');
@@ -345,6 +351,55 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
 
     afterAll(async () => {
       await new Promise<void>((resolve) => testServer.close(() => resolve()));
+    });
+
+    it('probes both web and admin staging healthz endpoints and fails if either is down', async () => {
+      // 1. When both web and admin are online on testPort
+      const healthyResult = await probeStagingServers({
+        webUrl: `http://127.0.0.1:${testPort}`,
+        adminUrl: `http://127.0.0.1:${testPort}`,
+      });
+      expect(healthyResult.webOk).toBe(true);
+      expect(healthyResult.adminOk).toBe(true);
+
+      // 2. When admin is unreachable (simulating admin container crash on port 3001)
+      const adminDownResult = await probeStagingServers({
+        webUrl: `http://127.0.0.1:${testPort}`,
+        adminUrl: 'http://127.0.0.1:59999', // Port with no server
+      });
+      expect(adminDownResult.webOk).toBe(true);
+      expect(adminDownResult.adminOk).toBe(false);
+
+      // 3. When web is unreachable (simulating web container crash on port 3000)
+      const webDownResult = await probeStagingServers({
+        webUrl: 'http://127.0.0.1:59998',
+        adminUrl: `http://127.0.0.1:${testPort}`,
+      });
+      expect(webDownResult.webOk).toBe(false);
+      expect(webDownResult.adminOk).toBe(true);
+    });
+
+    it('aborts with exit code 1 and fatal error log when staging servers are offline without --mock', () => {
+      const runnerScript = path.join(REPO_ROOT, 'tests/lighthouse/runner.ts');
+      let exitCode: number | null = 0;
+      let stderrOutput = '';
+
+      try {
+        execSync(
+          `node --no-warnings --experimental-strip-types "${runnerScript}" --web-url=http://127.0.0.1:59998 --admin-url=http://127.0.0.1:59999`,
+          { stdio: 'pipe' },
+        );
+      } catch (err: unknown) {
+        const spawnErr = err as { status?: number; stderr?: Buffer | string };
+        exitCode = spawnErr.status ?? null;
+        stderrOutput = spawnErr.stderr ? spawnErr.stderr.toString() : '';
+      }
+
+      // Must fail with exitCode 1 and must NOT fall back to mock
+      expect(exitCode).toBe(1);
+      expect(stderrOutput).toContain('[FATAL] Staging server pre-flight health probe failed:');
+      expect(stderrOutput).toContain('Cannot run real Lighthouse audit without responding staging servers');
+      expect(stderrOutput).toContain('Automated fallback to mock mode is disabled');
     });
 
     it('generates HTML and JSON report artifacts upon audit completion', async () => {
@@ -405,6 +460,33 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
 
       const violations = evaluateMetrics(failingMetrics, DEFAULT_BUDGETS.mobile, customTarget);
       expect(violations.length).toBe(7); // All 7 metrics violated
+
+      // Execute runner CLI with --enforce and verify exit code 1
+      const runnerScript = path.join(REPO_ROOT, 'tests/lighthouse/runner.ts');
+      let enforceExitCode: number | null = 0;
+      let enforceStderr = '';
+      try {
+        execSync(
+          `node --no-warnings --experimental-strip-types "${runnerScript}" --mock --mock-failing --enforce --route=/ --preset=mobile --output-dir="${testOutputDir}"`,
+          { stdio: 'pipe' },
+        );
+      } catch (err: unknown) {
+        const spawnErr = err as { status?: number; stderr?: Buffer | string };
+        enforceExitCode = spawnErr.status ?? null;
+        enforceStderr = spawnErr.stderr ? spawnErr.stderr.toString() : '';
+      }
+
+      expect(enforceExitCode).toBe(1);
+      expect(enforceStderr).toContain('[FAIL] Lighthouse audit failed');
+      expect(enforceStderr).toContain('budget violation(s) under budgetMode=error (blocking)');
+
+      // In warn mode (initial D01 mode), violations are reported as warnings and process exits 0
+      const warnOutput = execSync(
+        `node --no-warnings --experimental-strip-types "${runnerScript}" --mock --mock-failing --warn --route=/ --preset=mobile --output-dir="${testOutputDir}"`,
+        { encoding: 'utf8' },
+      );
+      expect(warnOutput).toContain('[WARN]');
+      expect(warnOutput).toContain('budget violation(s) reported under budgetMode=warn');
 
       fs.rmSync(testOutputDir, { recursive: true, force: true });
     });

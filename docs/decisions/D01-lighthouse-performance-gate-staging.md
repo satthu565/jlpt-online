@@ -4,7 +4,7 @@
 - **Phụ trách**: W6 (Hạ tầng CI và kiểm chứng)
 - **Ngày**: 2026-10-18
 - **Nhánh**: `task/D01`
-- **Khóa tài nguyên**: `ci-workflow`, `staging-deploy`
+- **Khóa tài nguyên**: `ci-workflow`, `staging-deploy`, `dependency-lock`
 
 ---
 
@@ -27,9 +27,17 @@ Theo yêu cầu Ngày 9 của chủ dự án (xem `KE_HOACH_TRIEN_KHAI.md` mục
   - `pnpm test:lighthouse -- --list`: Liệt kê đầy đủ 6 route mục tiêu, 2 preset (mobile & desktop), ngân sách và chế độ áp dụng.
   - `pnpm test:lighthouse`: Chạy audit trên môi trường staging thật (`http://127.0.0.1:3000` cho Web và `http://127.0.0.1:3001` cho Admin).
   - `--enforce` / `--fail-on-budget`: Chế độ chặn (bật exit code 1 khi có vi phạm ngân sách).
-  - `--mock`: Chạy kiểm tra assertion và sinh báo cáo giả lập mà không yêu cầu server live.
+  - `--warn`: Chế độ cảnh báo ban đầu (ghi nhận cảnh báo và exit code 0).
+  - `--mock` / `--dry-run`: Chạy kiểm tra assertion và sinh báo cáo giả lập mà không yêu cầu server live. Chỉ kích hoạt khi được truyền rõ ràng từ CLI hoặc biến môi trường; không tự động fallback khi server chết port để tránh ngụy trang mock thành kết quả thật (silent skip).
+  - `--mock-failing`: Giả lập dữ liệu vi phạm ngân sách cho mục đích kiểm thử tự động của CI runner khi test chế độ chặn `--enforce`.
 
-### 2.2. Danh mục các trang chính và Presets
+### 2.2. Kiểm tra sức khỏe tiền thi hành (Pre-flight probe)
+- Kiểm tra sức khỏe song song qua `probeStagingServers` tới cả hai cổng dịch vụ trước khi audit:
+  - Web frontend: `GET ${baseUrls.webUrl}/healthz` (cổng 3000)
+  - Admin portal: `GET ${baseUrls.adminUrl}/healthz` (cổng 3001)
+- Nếu một trong hai dịch vụ không phản hồi hoặc trả về mã lỗi HTTP: runner in rõ chi tiết lỗi của từng dịch vụ và dừng lại ngay với exit code 1. Không tự động fallback sang mock mode khi không có cờ `--mock`.
+
+### 2.3. Danh mục các trang chính và Presets
 6 route mục tiêu theo đúng đặc tả:
 1. `/` (Web, port 3000): Trang chủ học viên.
 2. `/de-thi` (Web, port 3000): Thư viện đề thi.
@@ -48,14 +56,14 @@ Theo yêu cầu Ngày 9 của chủ dự án (xem `KE_HOACH_TRIEN_KHAI.md` mục
   - Throttling: Không áp dụng CPU slowdown (1x).
   - Ngân sách: Performance ≥ 98, Accessibility ≥ 95, SEO = 100, LCP < 2.000 ms, CLS < 0,1, TBT < 150 ms.
 
-### 2.3. Quy tắc lưu số đo gốc và tuyên bố miễn trừ (Disclaimer)
+### 2.4. Quy tắc lưu số đo gốc và tuyên bố miễn trừ (Disclaimer)
 - File lưu trữ: `docs/release/performance-baseline.json`.
 - Ghi nhận `commitSha`: `f53bd8ab0cebf776ae4259ede7f8ce19e9aad573`.
 - Ghi nhận `environment`: `staging-ci-lab`.
 - **Disclaimer**: *"Số đo hiệu năng gốc lưu kèm commit SHA; đây là kết quả đo lab/staging CI trước đợt tối ưu hóa D04. Không lấy số đo máy ảo/lab CI làm số production thật (RUM production sẽ đo qua Cloudflare Web Analytics và web-vitals từ người dùng thật p75)."*
 - Ghi nhận `budgetMode: "warn"` và `budgetEnforcedIn: "D04"`.
 
-### 2.4. Tích hợp GitHub Actions CI Workflow
+### 2.5. Tích hợp GitHub Actions CI Workflow
 - Trong `.github/workflows/staging.yml`:
   - Thêm bước `Run Lighthouse Performance Audit on Staging (D01)` sau bước kiểm thử đa trình duyệt (`pnpm test:e2e:all-browsers`).
   - Thiết lập biến môi trường `PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000`, `ADMIN_URL: http://127.0.0.1:3001`, `LIGHTHOUSE_BUDGET_MODE: warn`.
@@ -65,6 +73,7 @@ Theo yêu cầu Ngày 9 của chủ dự án (xem `KE_HOACH_TRIEN_KHAI.md` mục
 
 ## 3. Kiểm chứng và nghiệm thu
 1. `pnpm test:lighthouse -- --list`: Đã chạy thực tế, thoát mã 0, hiển thị đầy đủ 6 routes và bảng ngân sách chi tiết.
-2. `vitest run integration/lighthouse-runner.test.ts`: Đạt 17/17 tests kiểm tra toàn diện cấu trúc route, logic đánh giá vi phạm, chế độ cảnh báo vs chặn, và lưu trữ artifact.
+2. `vitest run tests/integration/lighthouse-runner.test.ts`: Đạt 19/19 tests kiểm tra toàn diện cấu trúc route, logic đánh giá vi phạm, probe kiểm tra cả Web và Admin, kiểm tra fail khi server chết mà không có `--mock`, chế độ cảnh báo vs chặn (`exitCode === 1` khi chạy child process `--enforce`), và lưu trữ artifact.
 3. Chạy audit thật với Playwright Chromium trên local HTTP server tạo ra file HTML report và JSON report hoàn chỉnh.
-4. Các cổng kiểm tra chung (`pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`) đều hoàn thành xuất sắc.
+4. Đã hoàn tác các sửa đổi ngoài phạm vi tại `tests/integration/dac-ta-runner.test.ts`.
+5. Các cổng kiểm tra chung (`pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`) đều hoàn thành xuất sắc.

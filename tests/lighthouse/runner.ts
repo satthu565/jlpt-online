@@ -38,6 +38,7 @@ export interface RunnerOptions {
   listOnly?: boolean;
   budgetMode?: BudgetMode;
   mock?: boolean;
+  mockFailing?: boolean;
   presetFilter?: FormFactor | 'all';
   routeFilter?: string;
   outputDir?: string;
@@ -67,6 +68,14 @@ export function parseCliArgs(args: string[]): RunnerOptions {
     options.budgetMode = 'error';
   }
 
+  if (
+    process.env.LIGHTHOUSE_MOCK_FAILING === '1' ||
+    process.env.LIGHTHOUSE_MOCK_FAILING === 'true'
+  ) {
+    options.mock = true;
+    options.mockFailing = true;
+  }
+
   for (const arg of filtered) {
     if (arg === '--list' || arg === '-l') {
       options.listOnly = true;
@@ -76,6 +85,9 @@ export function parseCliArgs(args: string[]): RunnerOptions {
       options.budgetMode = 'warn';
     } else if (arg === '--mock' || arg === '--dry-run') {
       options.mock = true;
+    } else if (arg === '--mock-failing') {
+      options.mock = true;
+      options.mockFailing = true;
     } else if (arg.startsWith('--preset=')) {
       const p = arg.split('=')[1]?.toLowerCase();
       if (p === 'mobile' || p === 'desktop' || p === 'all') {
@@ -199,18 +211,30 @@ export async function runLighthouseAudit(options: RunnerOptions = {}): Promise<L
         const isMobile = preset === 'mobile';
         const budget = isMobile ? DEFAULT_BUDGETS.mobile : DEFAULT_BUDGETS.desktop;
 
-        // Baseline numbers within realistic staging targets
-        const metrics: PageMetrics = {
-          url,
-          formFactor: preset,
-          performance: isMobile ? 82 : 99,
-          accessibility: isMobile ? 96 : 98,
-          seo: 100,
-          lcpMs: isMobile ? 2180 : 850,
-          cls: isMobile ? 0.04 : 0.01,
-          tbtMs: isMobile ? 160 : 45,
-          initialJsKb: isMobile ? 138 : 138,
-        };
+        // Baseline numbers within realistic staging targets (or synthetic violations if mockFailing)
+        const metrics: PageMetrics = options.mockFailing
+          ? {
+              url,
+              formFactor: preset,
+              performance: 65, // Below mobile 70 / desktop 98
+              accessibility: 90, // Below 95
+              seo: 90, // Below 100
+              lcpMs: 3400, // Exceeds mobile 2500ms / desktop 2000ms
+              cls: 0.18, // Exceeds 0.1
+              tbtMs: 450, // Exceeds mobile 200ms / desktop 150ms
+              initialJsKb: 180, // Exceeds 150KB
+            }
+          : {
+              url,
+              formFactor: preset,
+              performance: isMobile ? 82 : 99,
+              accessibility: isMobile ? 96 : 98,
+              seo: 100,
+              lcpMs: isMobile ? 2180 : 850,
+              cls: isMobile ? 0.04 : 0.01,
+              tbtMs: isMobile ? 160 : 45,
+              initialJsKb: isMobile ? 138 : 138,
+            };
 
         const violations = evaluateMetrics(metrics, budget, target);
         allViolations.push(...violations);
@@ -425,6 +449,50 @@ export async function runLighthouseAudit(options: RunnerOptions = {}): Promise<L
   return summary;
 }
 
+export interface ProbeResult {
+  webOk: boolean;
+  adminOk: boolean;
+  webStatus?: number;
+  adminStatus?: number;
+  webError?: string;
+  adminError?: string;
+}
+
+export async function probeStagingServers(
+  baseUrls: { webUrl: string; adminUrl: string },
+  timeoutMs = 5000,
+): Promise<ProbeResult> {
+  const checkUrl = async (url: string) => {
+    try {
+      const res = await fetch(`${url}/healthz`, {
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+      return {
+        ok: res.ok,
+        status: res.status,
+        error: res.ok ? undefined : `HTTP ${res.status} ${res.statusText}`,
+      };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      return { ok: false, status: 0, error: message };
+    }
+  };
+
+  const [webRes, adminRes] = await Promise.all([
+    checkUrl(baseUrls.webUrl),
+    checkUrl(baseUrls.adminUrl),
+  ]);
+
+  return {
+    webOk: webRes.ok,
+    adminOk: adminRes.ok,
+    webStatus: webRes.status,
+    adminStatus: adminRes.status,
+    webError: webRes.error,
+    adminError: adminRes.error,
+  };
+}
+
 // Main execution when invoked as a CLI
 async function main() {
   const options = parseCliArgs(process.argv.slice(2));
@@ -437,23 +505,42 @@ async function main() {
   console.log('Starting Lighthouse CI Staging Audit Runner...');
   printTargetsList(options);
 
-  // Check if staging web server is reachable
+  // Check if staging web server and admin portal are reachable
   const baseUrls = {
     webUrl: options.webUrl || getBaseUrls().webUrl,
     adminUrl: options.adminUrl || getBaseUrls().adminUrl,
   };
 
   if (!options.mock) {
-    try {
-      const res = await fetch(`${baseUrls.webUrl}/healthz`);
-      if (!res.ok) {
-        console.warn(`[WARN] Web health check returned ${res.status}`);
+    console.log('Probing staging servers before Lighthouse audit...');
+    const probe = await probeStagingServers(baseUrls);
+
+    if (!probe.webOk || !probe.adminOk) {
+      console.error('\n[FATAL] Staging server pre-flight health probe failed:');
+      if (!probe.webOk) {
+        console.error(`  - Web frontend (${baseUrls.webUrl}/healthz): ${probe.webError || 'Unreachable'}`);
+      } else {
+        console.log(`  ✓ Web frontend (${baseUrls.webUrl}/healthz) is healthy.`);
       }
-    } catch {
-      console.log(`[INFO] Staging web server ${baseUrls.webUrl} is not responding.`);
-      console.log('Falling back to dry-run / mock audit mode for local verification.');
-      options.mock = true;
+      if (!probe.adminOk) {
+        console.error(`  - Admin portal (${baseUrls.adminUrl}/healthz): ${probe.adminError || 'Unreachable'}`);
+      } else {
+        console.log(`  ✓ Admin portal (${baseUrls.adminUrl}/healthz) is healthy.`);
+      }
+      console.error(
+        '\nCannot run real Lighthouse audit without responding staging servers.',
+      );
+      console.error(
+        'Automated fallback to mock mode is disabled to prevent disguising server downtime as successful test runs.',
+      );
+      console.error(
+        'To run synthetic/mock audit explicitly, provide --mock or --dry-run.\n',
+      );
+      process.exit(1);
     }
+
+    console.log(`✓ Web frontend (${baseUrls.webUrl}) is healthy.`);
+    console.log(`✓ Admin portal (${baseUrls.adminUrl}) is healthy.`);
   }
 
   const summary = await runLighthouseAudit(options);
