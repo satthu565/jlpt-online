@@ -1499,12 +1499,40 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
+<a id="i13"></a>
+
+### I13 Web: trang Luyện tập và Đề trộn nối API thật
+
+- Worker: **W3**. Ngày mục tiêu: 8. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: I05. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Trang /luyen-tap vẫn import ALL_SAMPLE_EXAMS từ apps/web/features/exam/fixtures (I06 bỏ sót). Nối luyện tập theo kỹ năng, dạng 問題, số câu, câu sai/chưa gặp/đã đánh dấu, độ khó, tiếp tục bài dở (PRA) và tạo, lưu, làm lại, chia sẻ đề trộn (MIX) với API thật; xóa file fixtures khỏi code chạy thật (chỉ giữ trong test nếu cần).
+- Bàn giao: apps/web/; packages/ui/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/, tests/integration/mock-ui-baseline.json.
+- Nghiệm thu:
+  - Học viên tạo bài luyện 10 câu theo bộ lọc, làm, xem đáp án ngay và tiếp tục bài dở trên staging.
+  - Học viên tạo đề trộn từ hai kỳ thi, làm và chia sẻ link; người nhận mở được.
+  - apps/web không còn import exam-fixtures ngoài thư mục test.
+  - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
+  - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
+  - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
+  - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:web`
+  - `pnpm check:no-mock-ui`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
 <a id="i07"></a>
 
 ### I07 Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả
 
 - Worker: **W6**. Ngày mục tiêu: 8. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: I01, I08, I10, I11, I12, I09, I03, I04, I05, I06. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: I01, I08, I10, I11, I12, I13, I09, I03, I04, I05, I06. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.
 - Bàn giao: tests/; .github/; infra/; docs/release/; docs/runbooks/.
