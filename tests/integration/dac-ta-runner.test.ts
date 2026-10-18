@@ -318,7 +318,8 @@ describe.runIf(hasCoordinator)(
     });
 
     beforeEach(() => {
-      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "coordinator-test-"));
+      const baseTmpDir = fs.existsSync("/dev/shm") ? "/dev/shm" : os.tmpdir();
+      tmpDir = fs.mkdtempSync(path.join(baseTmpDir, "coordinator-test-"));
       dbFile = path.join(tmpDir, "test-coordinator.sqlite");
       store = openStore(dbFile);
     });
