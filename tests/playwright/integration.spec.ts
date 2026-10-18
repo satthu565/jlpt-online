@@ -926,13 +926,12 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     await page.goto(`${adminOrigin}/commercial/refunds`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('[data-testid="refunds-heading"]')).toBeVisible();
+    await expect(page.locator('[data-testid="refunds-table"], [data-testid="refunds-empty"]')).toBeVisible({ timeout: 10000 });
     // Real interactive flow: approve requested refund if available
     const approveBtn = page.locator('[data-testid^="approve-refund-"]').first();
-    if (await approveBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
+    if (await approveBtn.isVisible().catch(() => false)) {
       await approveBtn.click();
       await expect(page.locator('[data-testid="refund-success-msg"]')).toBeVisible({ timeout: 10000 });
-    } else {
-      await expect(page.locator('[data-testid="refunds-table"], [data-testid="refunds-empty"]')).toBeVisible();
     }
 
     // 4. Commercial Reconciliation
@@ -980,14 +979,13 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     // 8. Experiments
     await page.goto(`${adminOrigin}/experiments`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid^="experiment-card-"], [data-testid="experiments-empty"]')).toBeVisible({ timeout: 10000 });
     // Real interactive flow: toggle experiment active state
     const toggleExpBtn = page.locator('[data-testid^="btn-toggle-experiment-"]').first();
-    if (await toggleExpBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+    if (await toggleExpBtn.isVisible().catch(() => false)) {
       const initialText = await toggleExpBtn.innerText();
       await toggleExpBtn.click();
       await expect(toggleExpBtn).not.toHaveText(initialText, { timeout: 10000 });
-    } else {
-      await expect(page.locator('[data-testid="experiments-empty"]')).toBeVisible();
     }
   });
 

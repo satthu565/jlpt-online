@@ -78,6 +78,7 @@ export function RefundsManager({ billingManager, onRefundUpdated }: RefundsManag
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
           Host: 'admin.jlpt.local',
         },
+        body: JSON.stringify({}),
       });
 
       if (res.ok) {

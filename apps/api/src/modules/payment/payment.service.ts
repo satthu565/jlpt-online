@@ -1177,7 +1177,7 @@ export class PaymentService {
     };
   }
 
-  async approveRefund(adminId: string, refundRequestId: string): Promise<{ approved: boolean; status: string }> {
+  async approveRefund(adminId: string, refundRequestId: string): Promise<{ approved: boolean; status: string; amount: number; refundId: string }> {
     const db = this.dbClient.db;
 
     // 1. Transaction with database lock to verify priorRefunded + refundReq.amount <= order.totalAmount
@@ -1316,7 +1316,7 @@ export class PaymentService {
       }
     });
 
-    return { approved: true, status: 'refunded' };
+    return { approved: true, status: 'refunded', amount: refundReq.amount, refundId: refundReq.id };
   }
 
   async rejectRefund(refundRequestId: string, reason?: string): Promise<{ rejected: boolean }> {
