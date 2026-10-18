@@ -59,6 +59,7 @@ export class FlashcardService {
     }
 
     // 2. Build front and back payload based on template and item content
+    const hanViet = tags.find((t: string) => t.startsWith('hanviet:'))?.replace('hanviet:', '') || undefined;
     let front: Record<string, unknown>;
     let back: Record<string, unknown>;
 
@@ -73,6 +74,7 @@ export class FlashcardService {
         back = {
           term: tags.find((t: string) => t.startsWith('term:'))?.replace('term:', '') ?? '',
           reading: tags.find((t: string) => t.startsWith('reading:'))?.replace('reading:', '') ?? '',
+          ...(hanViet ? { hanViet } : {}),
           examples: tags.filter((t: string) => t.startsWith('example:')).map((t: string) => t.replace('example:', '')),
         };
         break;
@@ -86,6 +88,7 @@ export class FlashcardService {
         back = {
           reading: tags.find((t: string) => t.startsWith('reading:'))?.replace('reading:', '') ?? '',
           meaning: tags.find((t: string) => t.startsWith('meaning:'))?.replace('meaning:', '') ?? '',
+          ...(hanViet ? { hanViet } : {}),
           onyomi: tags.filter((t: string) => t.startsWith('onyomi:')).map((t: string) => t.replace('onyomi:', '')),
           kunyomi: tags.filter((t: string) => t.startsWith('kunyomi:')).map((t: string) => t.replace('kunyomi:', '')),
         };
@@ -112,6 +115,7 @@ export class FlashcardService {
         };
         back = {
           meaning: tags.find((t: string) => t.startsWith('meaning:'))?.replace('meaning:', '') ?? '',
+          ...(hanViet ? { hanViet } : {}),
           partOfSpeech: tags.find((t: string) => t.startsWith('pos:'))?.replace('pos:', '') ?? '',
           examples: tags.filter((t: string) => t.startsWith('example:')).map((t: string) => t.replace('example:', '')),
         };

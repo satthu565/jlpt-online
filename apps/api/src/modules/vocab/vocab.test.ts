@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
-import { questions, questionGroups } from '../../db/schema.js';
+import { questions, questionGroups, users } from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { CorpusService } from './corpus.service.js';
 import { VocabController } from './vocab.controller.js';
@@ -414,6 +414,59 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       const res = await vocabController.listDatasets();
       expect(res.items.length).toBeGreaterThan(0);
       expect(res.items[0]?.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // P02: Dữ liệu âm Hán Việt cho Kanji và từ vựng
+  // ---------------------------------------------------------------------------
+  describe('P02: Dữ liệu âm Hán Việt cho Kanji và từ vựng', () => {
+    it('returns hanViet: KINH TẾ for 経済 in dictionary lookup', async () => {
+      const res = await vocabController.lookupDictionary({ text: '経済' });
+      expect(res.entry).toBe('経済');
+      expect(res.hanViet).toBe('KINH TẾ');
+    });
+
+    it('returns hanViet: KINH for single kanji 経', async () => {
+      const res = await vocabController.lookupDictionary({ text: '経' });
+      expect(res.entry).toBe('経');
+      expect(res.hanViet).toBe('KINH');
+    });
+
+    it('returns empty string for kanji or words without Han-Viet data', async () => {
+      const res = await vocabController.getHanViet('さようなら');
+      expect(res.hanViet).toBe('');
+
+      const resKokuji = await vocabController.getHanViet('込');
+      expect(resKokuji.hanViet).toBe('');
+    });
+
+    it('returns dedicated hanviet endpoint with license and attribution', async () => {
+      const res = await vocabController.getHanViet('経済');
+      expect(res.query).toBe('経済');
+      expect(res.hanViet).toBe('KINH TẾ');
+      expect(res.entries.length).toBe(2);
+      expect(res.entries[0]).toEqual({ kanji: '経', hanViet: 'KINH' });
+      expect(res.entries[1]).toEqual({ kanji: '済', hanViet: 'TẾ' });
+      expect(res.license.source).toContain('Unicode Unihan Database');
+      expect(res.license.version).toBe('15.1.0');
+      expect(res.license.license).toContain('Unicode Terms of Use');
+    });
+
+    it('returns hanViet when adding vocabulary to notebook via corpusService', async () => {
+      const datasets = await vocabController.listDatasets();
+      const datasetId = datasets.items[0]!.id;
+      const userId = generateUuidV7();
+      await dbClient.db.insert(users).values({
+        id: userId,
+        email: `test-${userId}@jlpt.local`,
+        name: 'Test Learner',
+        role: 'user',
+      });
+      const res = await corpusService.addWordsToNotebook(userId, datasetId, { words: ['経済'] });
+      expect(res.addedCount).toBe(1);
+      expect(res.items[0]?.term).toBe('経済');
+      expect(res.items[0]?.hanViet).toBe('KINH TẾ');
     });
   });
 });

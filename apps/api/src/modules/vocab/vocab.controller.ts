@@ -13,6 +13,7 @@ import type { AuthUserContext } from '../../common/types/auth.types.js';
 import { CorpusService } from './corpus.service.js';
 import { VocabService } from './vocab.service.js';
 import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe.js';
+import { getHanVietForWord, getHanVietForKanji, getHanVietLicenseInfo } from './nlp/index.js';
 import type {
   AddToNotebookDto,
   AddToNotebookResponseDto,
@@ -50,6 +51,28 @@ export class VocabController {
   @Get('dictionary/lookup')
   async lookupDictionary(@Query() query: DictionaryLookupQueryDto) {
     return this.vocabService.lookupDictionary(query);
+  }
+
+  @Public()
+  @Get('dictionary/hanviet')
+  async getHanViet(
+    @Query('text') text?: string,
+    @Query('q') q?: string,
+  ) {
+    const rawText = text || q || '';
+    const hanViet = getHanVietForWord(rawText);
+    const kanjiChars = Array.from(rawText).filter((c) => /[\u4e00-\u9faf\u3400-\u4dbf]/.test(c));
+    const entries = kanjiChars.map((k) => ({
+      kanji: k,
+      hanViet: getHanVietForKanji(k),
+    }));
+    return {
+      query: rawText,
+      text: rawText,
+      hanViet,
+      entries,
+      license: getHanVietLicenseInfo(),
+    };
   }
 
   // ---------------------------------------------------------------------------

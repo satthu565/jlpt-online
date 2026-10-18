@@ -428,12 +428,24 @@ task('I09','W4',8,5,'Đăng nhập nhân sự thật và khung quản trị nố
  'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
 task('I03','W4',8,6,'Quản trị nội dung nối API: nhập gói, câu hỏi, đề, duyệt, media','I09',
  'Các trang imports, questions, exams (kể cả đề trộn), blueprints, reviews (duyệt 4 mắt, giải thích), media, vocab, cms, moderation AI, reports/content gọi API thật; '
- 'luồng nhập gói demo-data -> duyệt -> xuất bản làm được hoàn toàn qua giao diện quản trị.',
+ 'luồng nhập gói demo-data -> duyệt -> xuất bản làm được hoàn toàn qua giao diện quản trị. '
+ 'Lưu ý khi làm lại (lượt 4 trượt staging E2E): (1) nút Xuất bản báo "Body cannot be empty when content-type is set to \'application/json\'" '
+ 'vì apps/admin/lib/api-client.ts luôn gửi Content-Type: application/json kể cả khi không có body (publishExam, unpublish, approve...); '
+ 'chỉ đặt Content-Type khi có body, hoặc gửi body {}; kiểm tra mọi lời gọi POST/PUT/PATCH không body. '
+ '(2) Test đăng nhập nhân sự chạy song song trên nhiều trình duyệt dùng chung tài khoản nên API từ chối mã TOTP đã dùng ("Mã TOTP đã được sử dụng"); '
+ 'trong tests/playwright/fixtures/staff-auth.fixture.ts, khi gặp lỗi này thì chờ sang khung 30 giây kế tiếp rồi thử lại với mã mới (không tắt kiểm tra chống dùng lại mã ở API). '
+ '(3) Không sửa package.json gốc, không đổi TMPDIR, không sửa file ngoài apps/admin/ và phần được cấp.',
  'apps/admin/',
  'Editor nhập gói docs/multi-worker/demo-data qua giao diện, reviewer khác duyệt, xuất bản; đề hiện ở trang thư viện đề của web|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
 task('I04','W4',8,4,'Quản trị thương mại, báo cáo, thử nghiệm nối API','I09',
- 'Các trang commercial (payments, plans, refunds, reconciliation), reports (tổng quan, doanh thu), experiments gọi API thật; sửa endpoint trong module payment, entitlement, reporting, cms, experiment nếu thiếu.',
+ 'Các trang commercial (payments, plans, refunds, reconciliation), reports (tổng quan, doanh thu), experiments gọi API thật; sửa endpoint trong module payment, entitlement, reporting, cms, experiment nếu thiếu. '
+ 'Lưu ý khi làm lại (lượt 4 trượt staging E2E, 34 test đạt, 2 trượt): (1) tests/playwright/integration.spec.ts:877 dùng locator '
+ '[data-testid^="experiment-card-"], [data-testid="experiments-empty"] khớp nhiều thẻ nên Playwright báo strict mode violation; dùng .first() '
+ 'hoặc kiểm tra số thẻ, không nới lỏng điều kiện kiểm tra dữ liệu thật. (2) Lỗi mã TOTP dùng lại khi đăng nhập nhân sự song song: trong '
+ 'tests/playwright/fixtures/staff-auth.fixture.ts, gặp "Mã TOTP đã được sử dụng" thì chờ sang khung 30 giây kế tiếp rồi thử lại với mã mới '
+ '(nếu I03 đã sửa trên main thì giữ bản của main). (3) Lỗi 500 ở /api/v1/datasets/jlpt-official/* không thuộc I04 nếu trang quản trị của I04 không gọi; '
+ 'không sửa module ngoài danh sách trên.',
  'apps/admin/|apps/api/src/modules/payment/|apps/api/src/modules/entitlement/|apps/api/src/modules/reporting/|apps/api/src/modules/cms/|apps/api/src/modules/experiment/',
  'Gói, giao dịch sandbox, hoàn tiền và đối soát hiển thị dữ liệu thật từ API|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:admin|pnpm test:payments|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')

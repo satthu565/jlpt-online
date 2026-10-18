@@ -178,6 +178,25 @@ jobs:
         run: |
           pnpm test:e2e:all-browsers
 
+      # Acceptance (D01): "pnpm test:lighthouse chạy được trên staging CI và fail khi vượt ngân sách"
+      # Acceptance (D01): "Số đo gốc lưu kèm commit SHA; không lấy số máy ảo làm số production"
+      # Acceptance (D01): "Ngân sách ban đầu ở chế độ cảnh báo, D04 chuyển thành chặn"
+      - name: Run Lighthouse Performance Audit on Staging (D01)
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
+          ADMIN_URL: http://127.0.0.1:3001
+          LIGHTHOUSE_BUDGET_MODE: warn
+        run: |
+          pnpm test:lighthouse
+
+      - name: Upload Lighthouse Performance Reports (D01)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-staging-reports
+          path: docs/release/lighthouse/
+          if-no-files-found: ignore
+
       - name: Run Stepped Load Capacity Runner (SYS-10 / V06)
         env:
           MEDIA_TOKEN_SECRET: staging_media_token_secret_for_reproducible_smoke_tests
