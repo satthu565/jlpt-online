@@ -540,17 +540,22 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await codeInput.fill(validTotp);
     await submitBtn.click();
 
-    const challengeError = page.locator('[data-testid="challenge-error-alert"]');
-    const isReplay = await challengeError.isVisible({ timeout: 1500 }).catch(() => false);
-    if (isReplay) {
-      const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
-      await page.waitForTimeout(msToNextStep);
-      validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
-      await codeInput.fill(validTotp);
-      await submitBtn.click();
+    try {
+      await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 8000, waitUntil: 'domcontentloaded' });
+    } catch {
+      const challengeError = page.locator('[data-testid="challenge-error-alert"]');
+      if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
+        const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
+        await page.waitForTimeout(msToNextStep);
+        validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
+        await codeInput.fill(validTotp);
+        await submitBtn.click();
+        await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 15000, waitUntil: 'domcontentloaded' });
+      } else {
+        throw new Error('Failed to navigate to dashboard in loginAsAdmin');
+      }
     }
 
-    await page.waitForURL(new RegExp(`${origin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 20000 });
     await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
   }
 
@@ -628,18 +633,23 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await codeInput.fill(validTotp);
     await submitBtn.click();
 
-    const challengeError = page.locator('[data-testid="challenge-error-alert"]');
-    const isReplay = await challengeError.isVisible({ timeout: 1500 }).catch(() => false);
-    if (isReplay) {
-      const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
-      await page.waitForTimeout(msToNextStep);
-      validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
-      await codeInput.fill(validTotp);
-      await submitBtn.click();
+    try {
+      await page.waitForURL(new RegExp(`${adminOrigin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 8000, waitUntil: 'domcontentloaded' });
+    } catch {
+      const challengeError = page.locator('[data-testid="challenge-error-alert"]');
+      if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
+        const msToNextStep = 30000 - (Date.now() % 30000) + 1000;
+        await page.waitForTimeout(msToNextStep);
+        validTotp = await getFreshTotp(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret);
+        await codeInput.fill(validTotp);
+        await submitBtn.click();
+        await page.waitForURL(new RegExp(`${adminOrigin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 15000, waitUntil: 'domcontentloaded' });
+      } else {
+        throw new Error('Failed to navigate to dashboard after TOTP challenge');
+      }
     }
 
     // Step 3: Successfully authenticated, arrives at dashboard
-    await page.waitForURL(new RegExp(`${adminOrigin.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/?$`), { timeout: 20000 });
     await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
   });
 
