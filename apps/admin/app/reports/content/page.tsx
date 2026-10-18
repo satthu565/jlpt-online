@@ -22,43 +22,6 @@ export interface QuestionReportItem {
   notes?: string;
 }
 
-const INITIAL_CONTENT_REPORTS: QuestionReportItem[] = [
-  {
-    id: 'rep-01',
-    questionId: 'q-n3-kanji-04',
-    examTitle: 'JLPT N3 Tháng 12/2023',
-    level: 'N3',
-    issueType: 'wrong_answer',
-    description: 'Đáp án đúng trong hệ thống là câu 2, nhưng theo từ điển Daijirin thì câu 3 mới chính xác.',
-    status: 'open',
-    reporterEmail: 'student1@example.com',
-    createdAt: '2026-10-15 09:30',
-  },
-  {
-    id: 'rep-02',
-    questionId: 'q-n2-audio-01',
-    examTitle: 'JLPT N2 Đề Luyện Số 1',
-    level: 'N2',
-    issueType: 'audio_broken',
-    description: 'File âm thanh mondai 1 bị rè ở giây thứ 15, không nghe rõ đoạn hội thoại.',
-    status: 'investigating',
-    reporterEmail: 'learner_n2@example.com',
-    createdAt: '2026-10-14 14:10',
-  },
-  {
-    id: 'rep-03',
-    questionId: 'q-n1-reading-07',
-    examTitle: 'JLPT N1 Đề Thi Thử Tháng 7',
-    level: 'N1',
-    issueType: 'typo',
-    description: 'Chữ Hán 憂慮 bị viết nhầm thành 遠慮 ở dòng thứ 4 của đoạn văn.',
-    status: 'resolved',
-    reporterEmail: 'n1_expert@example.com',
-    createdAt: '2026-10-12 11:20',
-    resolutionNote: 'Đã đính chính chữ Hán và phát hành bản sửa đổi câu hỏi.',
-  },
-];
-
 export interface ContentReportsPageProps {
   initialReports?: QuestionReportItem[];
 }
@@ -66,7 +29,7 @@ export interface ContentReportsPageProps {
 export default function ContentReportsPage({ initialReports }: ContentReportsPageProps = {}): React.JSX.Element {
   const { token, locale } = useAdminAuth();
 
-  const [reports, setReports] = useState<QuestionReportItem[]>(() => initialReports || INITIAL_CONTENT_REPORTS);
+  const [reports, setReports] = useState<QuestionReportItem[]>(() => initialReports || []);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 

@@ -8,20 +8,19 @@ import { useOptionalAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
 
 export interface ReconciliationManagerProps {
+  initialRuns?: AdminReconciliationRun[];
   billingManager?: BillingManager;
   currentUser?: StaffUser | null;
 }
 
 export function ReconciliationManager({
-  billingManager,
-  currentUser,
+  initialRuns,
+  currentUser: _currentUser,
 }: ReconciliationManagerProps): React.JSX.Element {
   const auth = useOptionalAdminAuth();
   const token = auth?.token ?? null;
   const locale = auth?.locale ?? 'vi';
-  const [runs, setRuns] = useState<AdminReconciliationRun[]>(() =>
-    billingManager ? billingManager.listReconciliationRuns() : [],
-  );
+  const [runs, setRuns] = useState<AdminReconciliationRun[]>(() => initialRuns ?? []);
   const [selectedRun, setSelectedRun] = useState<AdminReconciliationRun | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -77,13 +76,11 @@ interface RawReconciliationRun {
         );
       }
     } catch {
-      if (!billingManager) {
-        setErrorMsg(t('common.error', locale));
-      }
+      setErrorMsg(t('common.error', locale));
     } finally {
       setIsLoading(false);
     }
-  }, [token, locale, billingManager]);
+  }, [token, locale]);
 
   useEffect(() => {
     void fetchRuns();
@@ -131,27 +128,6 @@ interface RawReconciliationRun {
       const errData = await res.json().catch(() => ({}));
       throw new Error(errData.message || 'Lỗi khi chạy đối soát.');
     } catch (err: unknown) {
-      if (billingManager) {
-        try {
-          const newRun = billingManager.runReconciliation('payos', [], {
-            id: currentUser?.id || 'admin_user',
-            email: currentUser?.email,
-            role: currentUser?.role || 'admin',
-            tenantId: 'global',
-          });
-          setRuns(billingManager.listReconciliationRuns());
-          setSelectedRun(newRun);
-          setSuccessMsg(
-            `Đã hoàn tất đối soát kỳ ${newRun.id}. Trạng thái: ${
-              newRun.status === 'reconciled' ? 'Khớp 100%' : 'Có sai lệch'
-            }.`,
-          );
-          return;
-        } catch (bmErr: unknown) {
-          setErrorMsg(bmErr instanceof Error ? bmErr.message : 'Lỗi khi chạy đối soát.');
-          return;
-        }
-      }
       setErrorMsg(err instanceof Error ? err.message : 'Lỗi khi chạy đối soát.');
     }
   };

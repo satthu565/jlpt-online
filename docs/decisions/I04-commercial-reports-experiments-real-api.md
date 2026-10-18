@@ -85,6 +85,31 @@ Mục tiêu của I04:
 
 ---
 
+### 2.5. Giải quyết các yêu cầu đánh giá từ Reviewer W2
+1. **Loại bỏ hoàn toàn mảng mẫu trong `BillingManager` (`apps/admin/features/billing/billing-service.ts`)**:
+   - Tách rời các thuật toán nghiệp vụ thuần túy thành các pure functions: `computeReconciliationDiscrepancies` và `calculateRevenueReport`.
+   - `BillingManager` không còn lưu giữ các mảng mẫu tĩnh giả lập (`INITIAL_PLANS`, `INITIAL_PAYMENTS`, `INITIAL_SUBSCRIPTIONS`, `INITIAL_REFUNDS`, `INITIAL_RECONCILIATION_RUNS`). Mặc định khởi tạo rỗng và chỉ nhận dữ liệu fixture rõ ràng từ unit tests khi được truyền qua tham số.
+2. **Loại bỏ mock state trong `/commercial/reconciliation/page.tsx` & `reconciliation-manager.tsx`**:
+   - Xóa bỏ hoàn toàn `useState(() => new BillingManager())`.
+   - `CommercialReconciliationPage` chuyển sang kết nối trực tiếp với endpoint backend `/api/v1/admin/reconciliation/run` và `AdminApiClient`.
+3. **Đồng bộ chuẩn DTO nghiệp vụ trong `/reports/page.tsx`**:
+   - Tái cấu trúc giao diện tương thích 100% với DTO phẳng trả về từ `ReportingService` cho cả 15 loại báo cáo (`AcquisitionReportDto`, `RetentionReportDto`, `FunnelReportDto`, `ConversionReportDto`, v.v.).
+   - Loại bỏ hoàn toàn các con số fallback viết cứng (1420, 1180, 240,...) và các hàng bảng HTML tĩnh trong báo cáo giữ chân (Retention).
+   - Sửa đổi catch block trong hàm `handleExportCsv` để ghi nhận lỗi qua `setErrorMsg` thay vì hiển thị thông báo thành công.
+4. **Loại bỏ mảng mẫu tĩnh trong `/reports/content/page.tsx` & `/experiments/page.tsx`**:
+   - Xóa bỏ mảng `INITIAL_CONTENT_REPORTS` khỏi giao diện báo cáo nội dung; dữ liệu tải hoàn toàn từ API backend hoặc props do test suite cung cấp.
+   - Xóa bỏ mảng `DEFAULT_INITIAL_EXPERIMENTS` khỏi trang thử nghiệm A/B. Đồng thời bổ sung tính toán số liệu đánh giá chuyển đổi (`evaluateExperiment`) trực tiếp vào `listExperiments()` của backend `ExperimentService`.
+5. **Mở rộng kịch bản kiểm thử E2E tương tác người dùng thật (`tests/playwright/integration.spec.ts`)**:
+   - Mở rộng ca kiểm thử E2E không dùng mock trình duyệt để thực hiện tuần tự các thao tác nghiệp vụ thực tế:
+     - Tạo gói dịch vụ mới (`create-plan-button`, điền form, xác nhận hiển thị dòng mới trong bảng).
+     - Tạo mã giảm giá mới (`create-coupon-button`, điền form, xác nhận hiển thị coupon mới).
+     - Phê duyệt hoàn tiền (`approve-refund-*`, xác nhận outbox event và chuyển trạng thái `refunded`).
+     - Kích hoạt đối soát thanh toán (`btn-run-reconciliation`, xác nhận phiên đối soát mới).
+     - Bật/Tắt thử nghiệm A/B (`btn-toggle-experiment-*`, xác nhận trạng thái cập nhật trên UI).
+     - Điều hướng và xác minh dữ liệu DTO thực của các tab báo cáo (Retention, Funnel, Conversion).
+
+---
+
 ## 3. Nghiệm thu & Kết quả Kiểm tra
 - **Admin Unit & Static Markup Suite (`pnpm test:admin`)**: 15 tệp kiểm thử, 192 ca kiểm thử đạt 100% PASS.
 - **Payment Module Suite (`pnpm test:payments`)**: 21 ca kiểm thử đạt 100% PASS.
@@ -96,3 +121,4 @@ Mục tiêu của I04:
   - `pnpm test`: PASS (20/20 packages, 40 test files & 533 tests in api).
   - `pnpm build`: PASS (12/12 packages built successfully).
 - **Staging Verification**: `sudo -n /usr/local/bin/jlpt-stage-test check` đạt PASS.
+

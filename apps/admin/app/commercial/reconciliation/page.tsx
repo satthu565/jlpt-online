@@ -3,12 +3,11 @@
 import React from 'react';
 import { AdminGuard } from '../../../lib/ui-guard';
 import { useAdminAuth } from '../../../lib/auth-context';
-import { BillingManager, ReconciliationManager } from '../../../features/billing';
+import { ReconciliationManager } from '../../../features/billing';
 import { t } from '../../../lib/i18n';
 
 export default function CommercialReconciliationPage(): React.JSX.Element {
   const { user, locale } = useAdminAuth();
-  const [billingManager] = React.useState(() => new BillingManager());
 
   return (
     <AdminGuard pathname="/commercial/reconciliation" requiredRoles={['admin', 'billing_admin']}>
@@ -22,7 +21,7 @@ export default function CommercialReconciliationPage(): React.JSX.Element {
           </p>
         </div>
 
-        <ReconciliationManager billingManager={billingManager} currentUser={user} />
+        <ReconciliationManager currentUser={user} />
       </div>
     </AdminGuard>
   );

@@ -139,7 +139,7 @@ describe('I04 Commercial, Reports & Experiments Real API Integration Suite', () 
       expect(html).toContain('Đối soát Giao dịch &amp; Chứng từ Cổng thanh toán (Reconciliation)');
       expect(html).toContain('data-testid="reconciliation-panel"');
       expect(html).toContain('data-testid="btn-run-reconciliation"');
-      expect(html).toContain('data-testid="reconciliation-runs-table"');
+      expect(html).toContain('data-testid="reconciliation-empty"');
     });
 
     it('ReconciliationManager can render without AuthProvider safely', () => {
@@ -179,7 +179,17 @@ describe('I04 Commercial, Reports & Experiments Real API Integration Suite', () 
 
   describe('7. User Content Error Reports (ADM-09)', () => {
     it('ContentReportsPage renders filter toolbar and report list', () => {
-      const html = renderWithAuth(<ContentReportsPage />);
+      const testReports = [
+        {
+          id: 'rep-01',
+          questionId: 'q-n3-kanji-04',
+          level: 'N3',
+          issueType: 'wrong_answer',
+          status: 'open' as const,
+          createdAt: '2026-10-15 09:30',
+        },
+      ];
+      const html = renderWithAuth(<ContentReportsPage initialReports={testReports} />);
       expect(html).toContain('data-testid="page-title"');
       expect(html).toContain('Quản lý Báo lỗi Câu hỏi từ Người dùng (ADM-09)');
       expect(html).toContain('data-testid="select-report-filter"');
@@ -201,7 +211,21 @@ describe('I04 Commercial, Reports & Experiments Real API Integration Suite', () 
     };
 
     it('ExperimentsAdminPage renders with page-title, experiment cards and toggle buttons', () => {
-      const html = renderWithAuth(<ExperimentsAdminPage />, adminUser);
+      const testExperiments = [
+        {
+          id: 'exp_checkout_layout_v1',
+          name: 'Thử nghiệm giao diện thanh toán (1 bước vs 2 bước)',
+          description: 'Đánh giá tỷ lệ hoàn tất đơn hàng gói Premium khi giảm bớt trường nhập liệu.',
+          isActive: true,
+          totalAssignments: 1420,
+          totalExposures: 1210,
+          variants: [
+            { key: 'control', name: 'Gốc (2 bước)', weight: 50, assignments: 710, conversions: 84, conversionRate: 11.8 },
+            { key: 'variant_b', name: 'Mới (1 chạm)', weight: 50, assignments: 710, conversions: 106, conversionRate: 14.9 },
+          ],
+        },
+      ];
+      const html = renderWithAuth(<ExperimentsAdminPage initialExperiments={testExperiments} />, adminUser);
       expect(html).toContain('data-testid="page-title"');
       expect(html).toContain('Quản trị Thử nghiệm A/B &amp; Tối ưu Giao diện');
       expect(html).toContain('data-testid="experiment-card-exp_checkout_layout_v1"');

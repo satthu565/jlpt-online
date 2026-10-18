@@ -1,110 +1,131 @@
 import type {
   AdminCouponItem,
+  AdminDiscrepancyItem,
   AdminPaymentItem,
   AdminPlanItem,
+  AdminReconciliationRun,
   AdminRefundItem,
   AdminRevenueReport,
   AdminSubscriptionItem,
 } from './types';
 
+/**
+ * Pure calculation function for reconciliation discrepancies (PAY-04, ADM-16).
+ */
+export function computeReconciliationDiscrepancies(
+  internalPayments: Array<{ orderId: string; totalAmount: number }>,
+  externalStatements?: Array<{
+    reference: string;
+    orderId?: string;
+    amountMinor: number;
+    currency: string;
+    status: 'PAID' | 'REFUNDED' | 'FAILED';
+  }>,
+): AdminDiscrepancyItem[] {
+  const discrepancies: AdminDiscrepancyItem[] = [];
+
+  if (externalStatements && externalStatements.length > 0) {
+    for (const stmt of externalStatements) {
+      if (stmt.status === 'PAID') {
+        const matchingOrder = internalPayments.find((p) => p.orderId === stmt.orderId);
+        if (!matchingOrder) {
+          discrepancies.push({
+            type: 'missing_internal_order',
+            providerRef: stmt.reference,
+            orderId: stmt.orderId,
+            actualAmountMinor: stmt.amountMinor,
+            currency: stmt.currency,
+            description: `Chứng từ ${stmt.reference} không tồn tại trong hệ thống đơn hàng.`,
+          });
+        } else if (matchingOrder.totalAmount !== stmt.amountMinor) {
+          discrepancies.push({
+            type: 'amount_mismatch',
+            orderId: matchingOrder.orderId,
+            providerRef: stmt.reference,
+            expectedAmountMinor: matchingOrder.totalAmount,
+            actualAmountMinor: stmt.amountMinor,
+            description: `Số tiền đơn hàng ${matchingOrder.orderId} không khớp chứng từ provider.`,
+          });
+        }
+      }
+    }
+  }
+
+  return discrepancies;
+}
+
+/**
+ * Pure calculation function for revenue reports partitioned by currency (PAY-12).
+ */
+export function calculateRevenueReport(
+  payments: AdminPaymentItem[],
+  refunds: AdminRefundItem[],
+  currency = 'VND',
+): AdminRevenueReport {
+  const targetCurrency = currency.toUpperCase();
+  const gross = payments
+    .filter((p) => p.status === 'paid' && p.currency.toUpperCase() === targetCurrency)
+    .reduce((sum, p) => sum + p.totalAmount, 0);
+
+  const totalRefunds = refunds
+    .filter((r) => {
+      if (r.status !== 'refunded') return false;
+      const refundCurr = (r.currency || payments.find((p) => p.orderId === r.orderId)?.currency || 'VND').toUpperCase();
+      return refundCurr === targetCurrency;
+    })
+    .reduce((sum, r) => sum + r.amount, 0);
+
+  const paidOrdersForCurrency = payments.filter(
+    (p) => p.status === 'paid' && p.currency.toUpperCase() === targetCurrency,
+  ).length;
+  const refundedForCurrency = refunds.filter((r) => {
+    if (r.status !== 'refunded') return false;
+    const refundCurr = (r.currency || payments.find((p) => p.orderId === r.orderId)?.currency || 'VND').toUpperCase();
+    return refundCurr === targetCurrency;
+  }).length;
+
+  return {
+    grossMinor: gross,
+    refundMinor: totalRefunds,
+    netMinor: gross - totalRefunds,
+    currency,
+    breakdownByCurrency: {
+      [currency]: {
+        grossMinor: gross,
+        refundMinor: totalRefunds,
+        netMinor: gross - totalRefunds,
+        orderCount: paidOrdersForCurrency,
+        refundCount: refundedForCurrency,
+      },
+    },
+  };
+}
+
+export interface BillingInitialData {
+  plans?: AdminPlanItem[];
+  coupons?: AdminCouponItem[];
+  payments?: AdminPaymentItem[];
+  subscriptions?: AdminSubscriptionItem[];
+  refunds?: AdminRefundItem[];
+  reconciliationRuns?: AdminReconciliationRun[];
+}
+
 export class BillingManager {
-  private plans: AdminPlanItem[] = [
-    {
-      id: 'free',
-      name: 'Gói Miễn Phí (Free)',
-      description: 'Luyện thi và tra cứu từ vựng cơ bản',
-      interval: 'lifetime',
-      priceMinor: 0,
-      currency: 'VND',
-      version: 1,
-      entitlements: ['basic_exams', 'practice_mode', 'vocab_flashcards'],
-      isActive: true,
-    },
-    {
-      id: 'premium_month',
-      name: 'Gói Premium 1 Tháng',
-      description: 'Toàn bộ đề thi chuẩn và hỗ trợ AI giải thích',
-      interval: 'month',
-      priceMinor: 199000,
-      currency: 'VND',
-      version: 1,
-      entitlements: ['unlimited_exams', 'ai_explanations', 'advanced_analytics'],
-      isActive: true,
-    },
-    {
-      id: 'premium_year',
-      name: 'Gói Premium 1 Năm',
-      description: 'Gói năm tiết kiệm 40% chi phí',
-      interval: 'year',
-      priceMinor: 1499000,
-      currency: 'VND',
-      version: 1,
-      entitlements: ['unlimited_exams', 'ai_explanations', 'advanced_analytics'],
-      isActive: true,
-    },
-  ];
+  private plans: AdminPlanItem[] = [];
+  private coupons: AdminCouponItem[] = [];
+  private payments: AdminPaymentItem[] = [];
+  private subscriptions: AdminSubscriptionItem[] = [];
+  private refunds: AdminRefundItem[] = [];
+  private reconciliationRuns: AdminReconciliationRun[] = [];
 
-  private coupons: AdminCouponItem[] = [
-    {
-      code: 'JLPT2026',
-      discountPercent: 20,
-      discountAmount: null,
-      maxRedemptions: 100,
-      timesRedeemed: 15,
-      validUntil: '2026-12-31T23:59:59Z',
-    },
-    {
-      code: 'WELCOME50K',
-      discountPercent: null,
-      discountAmount: 50000,
-      maxRedemptions: 500,
-      timesRedeemed: 120,
-      validUntil: '2026-12-31T23:59:59Z',
-    },
-  ];
-
-  private payments: AdminPaymentItem[] = [
-    {
-      orderId: '0192a000-0000-7000-8000-000000000001',
-      userId: '0192a000-0000-7000-8000-000000000002',
-      totalAmount: 199000,
-      currency: 'VND',
-      status: 'paid',
-      createdAt: '2026-10-15T08:00:00Z',
-    },
-    {
-      orderId: '0192a000-0000-7000-8000-000000000003',
-      userId: '0192a000-0000-7000-8000-000000000004',
-      totalAmount: 1499000,
-      currency: 'VND',
-      status: 'paid',
-      createdAt: '2026-10-15T10:30:00Z',
-    },
-  ];
-
-  private subscriptions: AdminSubscriptionItem[] = [
-    {
-      id: '0192a000-0000-7000-8000-000000000005',
-      userId: '0192a000-0000-7000-8000-000000000002',
-      planId: 'premium_month',
-      status: 'active',
-      currentPeriodStart: '2026-10-15T08:00:00Z',
-      currentPeriodEnd: '2026-11-15T08:00:00Z',
-      cancelAtPeriodEnd: false,
-    },
-  ];
-
-  private refunds: AdminRefundItem[] = [
-    {
-      id: '0192a000-0000-7000-8000-000000000006',
-      orderId: '0192a000-0000-7000-8000-000000000001',
-      amount: 199000,
-      currency: 'VND',
-      reason: 'Mua nhầm gói cần nâng cấp lên gói năm',
-      status: 'requested',
-      createdAt: '2026-10-15T12:00:00Z',
-    },
-  ];
+  constructor(initialData?: BillingInitialData) {
+    if (initialData?.plans) this.plans = [...initialData.plans];
+    if (initialData?.coupons) this.coupons = [...initialData.coupons];
+    if (initialData?.payments) this.payments = [...initialData.payments];
+    if (initialData?.subscriptions) this.subscriptions = [...initialData.subscriptions];
+    if (initialData?.refunds) this.refunds = [...initialData.refunds];
+    if (initialData?.reconciliationRuns) this.reconciliationRuns = [...initialData.reconciliationRuns];
+  }
 
   listPlans(): AdminPlanItem[] {
     return [...this.plans];
@@ -234,59 +255,10 @@ export class BillingManager {
   }
 
   getRevenueReport(currency = 'VND'): AdminRevenueReport {
-    const targetCurrency = currency.toUpperCase();
-    const gross = this.payments
-      .filter((p) => p.status === 'paid' && p.currency.toUpperCase() === targetCurrency)
-      .reduce((sum, p) => sum + p.totalAmount, 0);
-
-    const refunds = this.refunds
-      .filter((r) => {
-        if (r.status !== 'refunded') return false;
-        const refundCurr = (r.currency || this.payments.find((p) => p.orderId === r.orderId)?.currency || 'VND').toUpperCase();
-        return refundCurr === targetCurrency;
-      })
-      .reduce((sum, r) => sum + r.amount, 0);
-
-    const paidOrdersForCurrency = this.payments.filter(
-      (p) => p.status === 'paid' && p.currency.toUpperCase() === targetCurrency,
-    ).length;
-    const refundedForCurrency = this.refunds.filter((r) => {
-      if (r.status !== 'refunded') return false;
-      const refundCurr = (r.currency || this.payments.find((p) => p.orderId === r.orderId)?.currency || 'VND').toUpperCase();
-      return refundCurr === targetCurrency;
-    }).length;
-
-    return {
-      grossMinor: gross,
-      refundMinor: refunds,
-      netMinor: gross - refunds,
-      currency,
-      breakdownByCurrency: {
-        [currency]: {
-          grossMinor: gross,
-          refundMinor: refunds,
-          netMinor: gross - refunds,
-          orderCount: paidOrdersForCurrency,
-          refundCount: refundedForCurrency,
-        },
-      },
-    };
+    return calculateRevenueReport(this.payments, this.refunds, currency);
   }
 
-  private reconciliationRuns: import('./types').AdminReconciliationRun[] = [
-    {
-      id: 'rec_run_init_1',
-      provider: 'payos',
-      periodStart: '2026-10-01T00:00:00Z',
-      periodEnd: '2026-10-15T23:59:59Z',
-      discrepanciesFound: 0,
-      discrepancies: [],
-      status: 'reconciled',
-      runAt: '2026-10-16T02:00:00Z',
-    },
-  ];
-
-  listReconciliationRuns(): import('./types').AdminReconciliationRun[] {
+  listReconciliationRuns(): AdminReconciliationRun[] {
     return [...this.reconciliationRuns];
   }
 
@@ -300,38 +272,10 @@ export class BillingManager {
       status: 'PAID' | 'REFUNDED' | 'FAILED';
     }>,
     _operator?: { id: string; email?: string; role: string; tenantId?: string },
-  ): import('./types').AdminReconciliationRun {
-    const discrepancies: import('./types').AdminDiscrepancyItem[] = [];
-
-    if (externalStatements && externalStatements.length > 0) {
-      for (const stmt of externalStatements) {
-        if (stmt.status === 'PAID') {
-          const matchingOrder = this.payments.find((p) => p.orderId === stmt.orderId);
-          if (!matchingOrder) {
-            discrepancies.push({
-              type: 'missing_internal_order',
-              providerRef: stmt.reference,
-              orderId: stmt.orderId,
-              actualAmountMinor: stmt.amountMinor,
-              currency: stmt.currency,
-              description: `Chứng từ ${stmt.reference} không tồn tại trong hệ thống đơn hàng.`,
-            });
-          } else if (matchingOrder.totalAmount !== stmt.amountMinor) {
-            discrepancies.push({
-              type: 'amount_mismatch',
-              orderId: matchingOrder.orderId,
-              providerRef: stmt.reference,
-              expectedAmountMinor: matchingOrder.totalAmount,
-              actualAmountMinor: stmt.amountMinor,
-              description: `Số tiền đơn hàng ${matchingOrder.orderId} không khớp chứng từ provider.`,
-            });
-          }
-        }
-      }
-    }
-
+  ): AdminReconciliationRun {
+    const discrepancies = computeReconciliationDiscrepancies(this.payments, externalStatements);
     const runId = `rec_run_${Date.now()}`;
-    const newRun: import('./types').AdminReconciliationRun = {
+    const newRun: AdminReconciliationRun = {
       id: runId,
       provider,
       periodStart: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),

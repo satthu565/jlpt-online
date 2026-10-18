@@ -863,24 +863,61 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('[data-testid="plans-heading"]')).toBeVisible();
     await expect(page.locator('[data-testid="coupons-heading"]')).toBeVisible();
-    await expect(page.locator('[data-testid="create-plan-button"]')).toBeVisible();
+
+    // 1a. Create a new plan via UI modal
+    await page.locator('[data-testid="create-plan-button"]').click();
+    await expect(page.locator('[data-testid="create-plan-modal"]')).toBeVisible();
+    const newPlanCode = `plan_e2e_${Date.now()}`;
+    await page.locator('[data-testid="plan-code-input"]').fill(newPlanCode);
+    await page.locator('[data-testid="plan-name-input"]').fill('Gói E2E JLPT N2 Chuyên Sâu');
+    await page.locator('[data-testid="plan-interval-select"]').selectOption('month');
+    await page.locator('[data-testid="plan-price-input"]').fill('299000');
+    await page.locator('[data-testid="save-plan-button"]').click();
+    await expect(page.locator('[data-testid="plan-success-msg"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator(`[data-testid="plan-row-${newPlanCode}"]`)).toBeVisible({ timeout: 10000 });
+
+    // 1b. Create a new coupon via UI modal
+    await page.locator('[data-testid="create-coupon-button"]').click();
+    await expect(page.locator('[data-testid="create-coupon-modal"]')).toBeVisible();
+    const newCouponCode = `E2E${Date.now().toString().slice(-4)}`;
+    await page.locator('[data-testid="coupon-code-input"]').fill(newCouponCode);
+    await page.locator('[data-testid="coupon-discount-input"]').fill('25');
+    await page.locator('[data-testid="coupon-maxuses-input"]').fill('50');
+    await page.locator('[data-testid="coupon-expiry-input"]').fill('2027-12-31');
+    await page.locator('[data-testid="save-coupon-button"]').click();
+    await expect(page.locator('[data-testid="coupon-success-msg"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator(`[data-testid="coupon-row-${newCouponCode}"]`)).toBeVisible({ timeout: 10000 });
 
     // 2. Commercial Payments & Subscriptions
     await page.goto(`${adminOrigin}/commercial/payments`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('[data-testid="tab-payments"]')).toBeVisible();
+    await expect(page.locator('[data-testid="payments-table"]')).toBeVisible({ timeout: 10000 });
     await page.locator('[data-testid="tab-subscriptions"]').click();
     await expect(page.locator('[data-testid="tab-subscriptions"]')).toBeVisible();
+    await expect(page.locator('[data-testid="subscriptions-table"]')).toBeVisible({ timeout: 10000 });
 
     // 3. Commercial Refunds
     await page.goto(`${adminOrigin}/commercial/refunds`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('[data-testid="refunds-heading"]')).toBeVisible();
+    // Real interactive flow: approve requested refund if available
+    const approveBtn = page.locator('[data-testid^="approve-refund-"]').first();
+    if (await approveBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
+      await approveBtn.click();
+      await expect(page.locator('[data-testid="refund-success-msg"]')).toBeVisible({ timeout: 10000 });
+    } else {
+      await expect(page.locator('[data-testid="refunds-table"], [data-testid="refunds-empty"]')).toBeVisible();
+    }
 
     // 4. Commercial Reconciliation
     await page.goto(`${adminOrigin}/commercial/reconciliation`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('[data-testid="btn-run-reconciliation"]')).toBeVisible();
+    // Real interactive flow: trigger reconciliation run
+    await page.locator('[data-testid="btn-run-reconciliation"]').click();
+    await expect(page.locator('[data-testid="reconciliation-success-alert"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="reconciliation-runs-table"]')).toBeVisible({ timeout: 10000 });
 
     // 5. Reports Hub
     await page.goto(`${adminOrigin}/reports`, { waitUntil: 'domcontentloaded' });
@@ -891,7 +928,18 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     // Switch to retention tab and check insufficient-data indicator
     await page.locator('[data-testid="report-tab-retention"]').scrollIntoViewIfNeeded();
     await page.locator('[data-testid="report-tab-retention"]').click();
+    await expect(page.locator('[data-testid="report-view-retention"]')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('[data-testid="alert-insufficient-data"]')).toBeVisible();
+
+    // Switch to funnel tab
+    await page.locator('[data-testid="report-tab-funnel"]').scrollIntoViewIfNeeded();
+    await page.locator('[data-testid="report-tab-funnel"]').click();
+    await expect(page.locator('[data-testid="report-view-funnel"]')).toBeVisible({ timeout: 10000 });
+
+    // Switch to conversion tab
+    await page.locator('[data-testid="report-tab-conversion"]').scrollIntoViewIfNeeded();
+    await page.locator('[data-testid="report-tab-conversion"]').click();
+    await expect(page.locator('[data-testid="report-view-conversion"]')).toBeVisible({ timeout: 10000 });
 
     // 6. Revenue Report
     await page.goto(`${adminOrigin}/reports/revenue`, { waitUntil: 'domcontentloaded' });
@@ -907,6 +955,15 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     // 8. Experiments
     await page.goto(`${adminOrigin}/experiments`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    // Real interactive flow: toggle experiment active state
+    const toggleExpBtn = page.locator('[data-testid^="btn-toggle-experiment-"]').first();
+    if (await toggleExpBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+      const initialText = await toggleExpBtn.innerText();
+      await toggleExpBtn.click();
+      await expect(toggleExpBtn).not.toHaveText(initialText, { timeout: 10000 });
+    } else {
+      await expect(page.locator('[data-testid="experiments-empty"]')).toBeVisible();
+    }
   });
 
   test('AC4: Unauthenticated access to commercial routes redirects or displays guard alert', async ({

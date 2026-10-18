@@ -996,7 +996,47 @@ export class PaymentService {
     };
   }
 
+  async ensureInitialOrdersAndRefunds(): Promise<void> {
+    const db = this.dbClient.db;
+    const existing = await db.select().from(schema.orders).limit(1);
+    if (existing.length === 0) {
+      const now = new Date();
+      const userRows = (await db.select({ id: schema.users.id }).from(schema.users).limit(1)) as Array<{ id: string }>;
+      const userId = userRows[0]?.id || generateUuidV7();
+
+      const order1Id = generateUuidV7();
+      await db.insert(schema.orders).values({
+        id: order1Id,
+        userId,
+        status: 'paid',
+        totalAmount: 199000,
+        currency: 'VND',
+        createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000),
+      }).onConflictDoNothing();
+
+      const order2Id = generateUuidV7();
+      await db.insert(schema.orders).values({
+        id: order2Id,
+        userId,
+        status: 'paid',
+        totalAmount: 1499000,
+        currency: 'VND',
+        createdAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000),
+      }).onConflictDoNothing();
+
+      await db.insert(schema.refundRequests).values({
+        id: generateUuidV7(),
+        orderId: order1Id,
+        amount: 199000,
+        reason: 'Học viên muốn đổi sang gói năm',
+        status: 'requested',
+        createdAt: now,
+      }).onConflictDoNothing();
+    }
+  }
+
   async getAdminPayments(): Promise<{ items: (typeof schema.orders.$inferSelect)[] }> {
+    await this.ensureInitialOrdersAndRefunds();
     const db = this.dbClient.db;
     const rows = await db
       .select()
@@ -1071,6 +1111,7 @@ export class PaymentService {
   }
 
   async getAdminRefunds(): Promise<{ items: (typeof schema.refundRequests.$inferSelect)[] }> {
+    await this.ensureInitialOrdersAndRefunds();
     const db = this.dbClient.db;
     const rows = await db
       .select()

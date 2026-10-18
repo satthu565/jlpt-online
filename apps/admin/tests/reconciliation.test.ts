@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { BackupService, ALLOWED_OPERATOR_JOBS, BackupManagerView } from '../features/backup';
 import { AuditLogService } from '../features/users/audit-service';
 import { AuditLogTimeline } from '../features/users/user-components';
-import { BillingManager } from '../features/billing/billing-service';
+import { computeReconciliationDiscrepancies } from '../features/billing/billing-service';
 import { ReconciliationManager } from '../features/billing/reconciliation-manager';
 import type { StaffUser } from '../lib/auth-context';
 
@@ -200,8 +200,10 @@ describe('V04 Admin Reconciliation, Operator Backup & Audit Security', () => {
   });
 
   describe('Admin Commercial Reconciliation UI & Workflows', () => {
-    it('BillingManager thực hiện đối soát và phát hiện đúng sai lệch số tiền', () => {
-      const billingManager = new BillingManager();
+    it('computeReconciliationDiscrepancies thực hiện đối soát và phát hiện đúng sai lệch số tiền', () => {
+      const internalPayments = [
+        { orderId: '0192a000-0000-7000-8000-000000000001', totalAmount: 199000 },
+      ];
 
       const externalStatements = [
         {
@@ -213,23 +215,20 @@ describe('V04 Admin Reconciliation, Operator Backup & Audit Security', () => {
         },
       ];
 
-      const run = billingManager.runReconciliation('payos', externalStatements);
-      expect(run.status).toBe('discrepancy_detected');
-      expect(run.discrepanciesFound).toBe(1);
-      expect(run.discrepancies?.[0]?.type).toBe('amount_mismatch');
+      const discrepancies = computeReconciliationDiscrepancies(internalPayments, externalStatements);
+      expect(discrepancies.length).toBe(1);
+      expect(discrepancies[0]?.type).toBe('amount_mismatch');
+      expect(discrepancies[0]?.expectedAmountMinor).toBe(199000);
+      expect(discrepancies[0]?.actualAmountMinor).toBe(150000);
     });
 
-    it('ReconciliationManager hiển thị bảng phiên đối soát và nút chạy đối soát', () => {
-      const billingManager = new BillingManager();
+    it('ReconciliationManager hiển thị cấu trúc giao diện đối soát và nút chạy đối soát', () => {
       const html = renderToStaticMarkup(
-        React.createElement(ReconciliationManager, { billingManager, currentUser: adminUser }),
+        React.createElement(ReconciliationManager, { currentUser: adminUser }),
       );
 
       expect(html).toContain('data-testid="reconciliation-panel"');
       expect(html).toContain('data-testid="btn-run-reconciliation"');
-      expect(html).toContain('data-testid="reconciliation-runs-table"');
-      expect(html).toContain('rec_run_init_1');
-      expect(html).toContain('Khớp hoàn toàn');
     });
   });
 });

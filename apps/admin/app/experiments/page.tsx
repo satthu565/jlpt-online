@@ -24,61 +24,6 @@ export interface ExperimentItem {
   variants: ExperimentVariant[];
 }
 
-const DEFAULT_INITIAL_EXPERIMENTS: ExperimentItem[] = [
-  {
-    id: 'exp_checkout_layout_v1',
-    name: 'Thử nghiệm giao diện thanh toán (1 bước vs 2 bước)',
-    description: 'Đánh giá tỷ lệ hoàn tất đơn hàng gói Premium khi giảm bớt trường nhập liệu.',
-    isActive: true,
-    totalAssignments: 1420,
-    totalExposures: 1210,
-    variants: [
-      {
-        key: 'control',
-        name: 'Gốc (2 bước)',
-        weight: 50,
-        assignments: 710,
-        conversions: 84,
-        conversionRate: 11.8,
-      },
-      {
-        key: 'variant_b',
-        name: 'Mới (1 chạm)',
-        weight: 50,
-        assignments: 710,
-        conversions: 106,
-        conversionRate: 14.9,
-      },
-    ],
-  },
-  {
-    id: 'exp_reading_font_size',
-    name: 'Thử nghiệm cỡ chữ đoạn văn Đọc hiểu',
-    description: 'So sánh cỡ chữ 16px và 18px đối với tốc độ đọc hiểu và hoàn thành mondai.',
-    isActive: false,
-    totalAssignments: 580,
-    totalExposures: 520,
-    variants: [
-      {
-        key: 'control',
-        name: 'Chuẩn 16px',
-        weight: 50,
-        assignments: 290,
-        conversions: 210,
-        conversionRate: 72.4,
-      },
-      {
-        key: 'large_18px',
-        name: 'Lớn 18px',
-        weight: 50,
-        assignments: 290,
-        conversions: 228,
-        conversionRate: 78.6,
-      },
-    ],
-  },
-];
-
 export interface ExperimentsAdminPageProps {
   initialExperiments?: ExperimentItem[];
 }
@@ -106,7 +51,7 @@ export default function ExperimentsAdminPage({ initialExperiments }: Experiments
   const { token, locale } = useAdminAuth();
 
   const [experiments, setExperiments] = useState<ExperimentItem[]>(
-    () => (initialExperiments !== undefined ? initialExperiments : DEFAULT_INITIAL_EXPERIMENTS),
+    () => initialExperiments ?? [],
   );
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);

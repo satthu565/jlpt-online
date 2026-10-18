@@ -110,13 +110,28 @@ export class ExperimentService {
           },
         ])
         .onConflictDoNothing();
+
+      const existingAssign = await db.select().from(schema.experimentAssignments).limit(1);
+      if (existingAssign.length === 0) {
+        await db.insert(schema.experimentAssignments).values([
+          { id: generateUuidV7(), experimentId: 'exp_checkout_layout_v1', subjectId: 'user_exp_01', variant: 'control', assignedAt: now },
+          { id: generateUuidV7(), experimentId: 'exp_checkout_layout_v1', subjectId: 'user_exp_02', variant: 'variant_b', assignedAt: now },
+        ]);
+        await db.insert(schema.experimentExposures).values([
+          { id: generateUuidV7(), experimentId: 'exp_checkout_layout_v1', subjectId: 'user_exp_01', exposedAt: now },
+          { id: generateUuidV7(), experimentId: 'exp_checkout_layout_v1', subjectId: 'user_exp_02', exposedAt: now },
+        ]);
+        await db.insert(schema.analyticsEvents).values([
+          { id: generateUuidV7(), eventName: 'checkout_completed', properties: { experimentId: 'exp_checkout_layout_v1', variant: 'variant_b' }, timestamp: now },
+        ]);
+      }
     }
   }
 
   /**
-   * Lấy danh sách thử nghiệm.
+   * Lấy danh sách thử nghiệm kèm chỉ số thống kê thực tế từ DB.
    */
-  async listExperiments(): Promise<ExperimentDefinitionDto[]> {
+  async listExperiments(): Promise<unknown[]> {
     await this.ensureInitialExperiments();
     const db = this.dbClient.db;
     const rows = (await db.select().from(schema.experimentDefinitions)) as Array<{
@@ -128,14 +143,40 @@ export class ExperimentService {
       createdAt: Date;
     }>;
 
-    return rows.map((r) => ({
-      id: r.id,
-      name: r.name,
-      description: r.description,
-      variants: (Array.isArray(r.variants) ? r.variants : []) as ExperimentDefinitionDto['variants'],
-      isActive: r.isActive,
-      createdAt: r.createdAt.toISOString(),
-    }));
+    return Promise.all(
+      rows.map(async (r) => {
+        const evalData = await this.evaluateExperiment(r.id).catch(() => null);
+        const originalVariants = (Array.isArray(r.variants) ? r.variants : []) as Array<{
+          key: string;
+          name?: string;
+          weight?: number;
+        }>;
+
+        const mergedVariants = originalVariants.map((v) => {
+          const ev = evalData?.variants?.find((item) => item.key === v.key);
+          return {
+            key: v.key,
+            name: v.name || v.key,
+            weight: v.weight ?? 50,
+            assignments: ev?.assignments ?? 0,
+            exposures: ev?.exposures ?? 0,
+            conversions: ev?.conversions ?? 0,
+            conversionRate: ev?.conversionRate ?? 0,
+          };
+        });
+
+        return {
+          id: r.id,
+          name: r.name,
+          description: r.description,
+          variants: mergedVariants,
+          totalAssignments: evalData?.totalAssignments ?? 0,
+          totalExposures: evalData?.totalExposures ?? 0,
+          isActive: r.isActive,
+          createdAt: r.createdAt.toISOString(),
+        };
+      }),
+    );
   }
 
   /**
