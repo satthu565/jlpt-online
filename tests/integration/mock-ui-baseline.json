@@ -1,22 +1,4 @@
 [
-
-  {
-    "app": "web",
-    "route": "apps/web/features/exam/fixtures/exam-fixtures.ts",
-    "file": "apps/web/features/exam/fixtures/exam-fixtures.ts",
-    "violations": [
-      "mảng mẫu",
-      "ALL_SAMPLE"
-    ]
-  },
-  {
-    "app": "web",
-    "route": "apps/web/features/exam/fixtures/sample-exam.ts",
-    "file": "apps/web/features/exam/fixtures/sample-exam.ts",
-    "violations": [
-      "mảng mẫu"
-    ]
-  },
   {
     "app": "admin",
     "route": "apps/admin/features/billing/billing-service.ts",
