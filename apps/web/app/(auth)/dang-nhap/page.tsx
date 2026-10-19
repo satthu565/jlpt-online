@@ -33,13 +33,17 @@ export default function LoginPage(): React.JSX.Element {
 
     setLoading(true);
     try {
-      await client.signInEmail({ email, password });
+      const res = await client.signInEmail({ email, password });
+      if (typeof window !== 'undefined' && res?.user) {
+        try {
+          localStorage.setItem('jlpt_cached_user', JSON.stringify(res.user));
+        } catch {
+          // Ignore storage access error
+        }
+      }
       setSuccessMessage(t('auth.login.success'));
-      await refreshUser();
-      // Client-side redirect after successful login
-      setTimeout(() => {
-        window.location.href = '/tai-khoan';
-      }, 500);
+      // Immediate redirect to user profile on successful login
+      window.location.href = '/tai-khoan';
     } catch (err: unknown) {
       if (err instanceof AuthClientError) {
         if (err.code === 'INVALID_CREDENTIALS') {

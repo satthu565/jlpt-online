@@ -1,7 +1,7 @@
 # Quyết định kỹ thuật D04: Tối ưu tốc độ web trên điện thoại và kích hoạt chế độ chặn ngân sách D01
 
 - **Mã task**: D04
-- **Mã phân công**: D04-7
+- **Mã phân công**: D04-8
 - **Phụ trách**: W3 (Giao diện học viên)
 - **Ngày**: 2026-10-19
 - **Nhánh**: `task/D04`
@@ -74,6 +74,12 @@ Theo yêu cầu Ngày 9 của kế hoạch triển khai JLPT Online (mục D04, 
 - **Bổ sung kiểm thử hồi quy đa ngôn ngữ**:
   - Bổ sung các bài kiểm thử trong `apps/web/tests/i18n.test.ts` kiểm tra `HomePage` dịch chính xác qua cả 3 ngôn ngữ (`vi`, `ja`, `en`) khi được bọc bởi `I18nProvider`, đồng thời kiểm tra hàm nạp động `loadLocaleMessages()`.
 
+### 2.7. Tối ưu tốc độ chuyển trang đăng nhập và bộ nhớ đệm trạng thái người dùng (D04-8)
+- **Loại bỏ độ trễ nhân tạo 500ms khi đăng nhập thành công**:
+  - Trong `apps/web/app/(auth)/dang-nhap/page.tsx`, loại bỏ `setTimeout(..., 500)` và lời gọi `await refreshUser()` thừa trước khi chuyển hướng `window.location.href = '/tai-khoan'`. Khi trang `/tai-khoan` nạp, `AuthProvider` đã tự động xác thực phiên với máy chủ.
+- **Bộ nhớ đệm người dùng tức thì (`localStorage`)**:
+  - Lưu trữ thông tin người dùng (`jlpt_cached_user`) ngay khi `signInEmail` trả về kết quả và đồng bộ qua `AuthProvider`. Khi trang đích `/tai-khoan` được render, trường email `#user-email` được điền ngay lập tức trên lượt render đầu tiên, loại bỏ nguy cơ timeout kiểm thử E2E trên môi trường staging.
+
 ---
 
 ## 3. Bằng chứng kiểm thử và nghiệm thu
@@ -86,3 +92,8 @@ Theo yêu cầu Ngày 9 của kế hoạch triển khai JLPT Online (mục D04, 
 3. **Cổng kiểm soát quy tắc dự án**:
    - `pnpm check:no-mock-ui`: 0 vi phạm (không sử dụng dữ liệu giả trên UI).
    - `pnpm check:ui-primitives`: 0 vi phạm (tuân thủ nghiêm ngặt hệ thống thiết kế `@jlpt/ui`).
+4. **Cổng chất lượng chung**:
+   - `pnpm install --frozen-lockfile`: exit code 0.
+   - `pnpm lint`: exit code 0 (13 packages clean).
+   - `pnpm typecheck`: exit code 0 (20 tasks clean).
+   - `pnpm test`: exit code 0 (20 tasks clean).
