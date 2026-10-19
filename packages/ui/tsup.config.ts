@@ -1,10 +1,13 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.tsx', 'src/rich-text/index.ts'],
+  entry: [
+    'src/index.tsx',
+    'src/rich-text/index.ts',
+    'src/components/*.tsx',
+  ],
   format: ['esm', 'cjs'],
   dts: true,
-  banner: {
-    js: "'use client';",
-  },
+  splitting: true,
+  treeshake: true,
 });

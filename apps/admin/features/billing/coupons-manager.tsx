@@ -1,16 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import type { AdminCouponItem } from './types';
 import type { BillingManager } from './billing-service';
+import { useOptionalAdminAuth } from '../../lib/auth-context';
+import { t } from '../../lib/i18n';
 
 export interface CouponsManagerProps {
-  billingManager: BillingManager;
+  billingManager?: BillingManager;
   onCouponCreated?: (coupon: AdminCouponItem) => void;
 }
 
 export function CouponsManager({ billingManager, onCouponCreated }: CouponsManagerProps): React.JSX.Element {
-  const [coupons, setCoupons] = useState<AdminCouponItem[]>(() => billingManager.listCoupons());
+  const auth = useOptionalAdminAuth();
+  const token = auth?.token ?? null;
+  const locale = auth?.locale ?? 'vi';
+  const [coupons, setCoupons] = useState<AdminCouponItem[]>(() => (billingManager ? billingManager.listCoupons() : []));
+  const [isLoading, setIsLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [code, setCode] = useState('');
   const [discountType, setDiscountType] = useState<'percent' | 'amount'>('percent');
@@ -20,37 +28,112 @@ export function CouponsManager({ billingManager, onCouponCreated }: CouponsManag
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  const handleCreate = (e: React.FormEvent) => {
+  const fetchCoupons = useCallback(async () => {
+    setIsLoading(true);
+    setFetchError(null);
+    try {
+      const res = await fetch('/api/v1/admin/coupons', {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Host: 'admin.jlpt.local',
+        },
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          setFetchError(t('auth.unauthenticated', locale));
+        } else if (res.status === 403) {
+          setFetchError(t('auth.forbidden', locale));
+        } else {
+          setFetchError(t('common.error', locale));
+        }
+        return;
+      }
+
+      const data = await res.json();
+      const items = Array.isArray(data) ? data : data.coupons || data.items || [];
+      if (Array.isArray(items)) {
+        setCoupons(items);
+      }
+    } catch {
+      if (!billingManager) {
+        setFetchError(t('common.error', locale));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [token, locale, billingManager]);
+
+  useEffect(() => {
+    void fetchCoupons();
+  }, [fetchCoupons]);
+
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
     setSuccessMsg(null);
 
+    const payload = {
+      code,
+      discountPercent: discountType === 'percent' ? Number(discountVal) : null,
+      discountAmount: discountType === 'amount' ? Number(discountVal) : null,
+      discountMinor: discountType === 'amount' ? Number(discountVal) : null,
+      maxRedemptions: Number(maxRedemptions),
+      maxUses: Number(maxRedemptions),
+      validUntil: expiresAt,
+      expiresAt,
+    };
+
     try {
-      const created = billingManager.createCoupon({
-        code,
-        discountPercent: discountType === 'percent' ? Number(discountVal) : null,
-        discountAmount: discountType === 'amount' ? Number(discountVal) : null,
-        maxRedemptions: Number(maxRedemptions),
-        validUntil: expiresAt,
+      const res = await fetch('/api/v1/admin/coupons', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Host: 'admin.jlpt.local',
+        },
+        body: JSON.stringify(payload),
       });
-      setCoupons(billingManager.listCoupons());
-      setSuccessMsg(`Đã tạo mã giảm giá ${created.code} thành công.`);
-      setIsModalOpen(false);
-      setCode('');
-      onCouponCreated?.(created);
+
+      if (res.ok) {
+        const created = await res.json();
+        setSuccessMsg(`Đã tạo mã giảm giá ${created.code || code} thành công.`);
+        setIsModalOpen(false);
+        setCode('');
+        void fetchCoupons();
+        onCouponCreated?.(created);
+        return;
+      }
+
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.message || 'Lỗi khi tạo mã giảm giá.');
     } catch (err: unknown) {
+      if (billingManager) {
+        try {
+          const created = billingManager.createCoupon(payload);
+          setCoupons(billingManager.listCoupons());
+          setSuccessMsg(`Đã tạo mã giảm giá ${created.code} thành công.`);
+          setIsModalOpen(false);
+          setCode('');
+          onCouponCreated?.(created);
+          return;
+        } catch (bmErr: unknown) {
+          setErrorMsg(bmErr instanceof Error ? bmErr.message : 'Lỗi khi tạo mã giảm giá.');
+          return;
+        }
+      }
       setErrorMsg(err instanceof Error ? err.message : 'Lỗi khi tạo mã giảm giá.');
     }
   };
 
   return (
-    <div style={{ padding: '1rem', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '1.5rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+    <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6 space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 data-testid="coupons-heading" style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>
-            Quản lý mã giảm giá (Coupons & Discounts)
+          <h2 data-testid="coupons-heading" className="text-lg font-bold text-gray-900">
+            Quản lý mã giảm giá (Coupons &amp; Discounts)
           </h2>
-          <p style={{ color: '#64748b', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>
+          <p className="text-xs text-gray-500 mt-1">
             Chiến dịch khuyến mại, giảm phần trăm hoặc số tiền cố định, giới hạn lượt dùng nguyên tử.
           </p>
         </div>
@@ -58,77 +141,96 @@ export function CouponsManager({ billingManager, onCouponCreated }: CouponsManag
           type="button"
           data-testid="create-coupon-button"
           onClick={() => setIsModalOpen(true)}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#059669',
-            color: '#fff',
-            borderRadius: '6px',
-            border: 'none',
-            cursor: 'pointer',
-            fontWeight: 500,
-          }}
+          className="inline-flex items-center justify-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded shadow-xs self-start sm:self-auto"
         >
-          + Tạo mã mới
+          + {t('commercial.createCoupon', locale)}
         </button>
       </div>
 
+      {fetchError && (
+        <div
+          role="alert"
+          data-testid="coupons-error-alert"
+          className="p-3 bg-red-50 border border-red-200 text-red-700 rounded text-xs flex items-center justify-between"
+        >
+          <span>{fetchError}</span>
+          <button
+            onClick={() => void fetchCoupons()}
+            className="px-2.5 py-1 bg-red-600 text-white rounded text-[11px] font-medium hover:bg-red-700"
+          >
+            {t('common.retry', locale)}
+          </button>
+        </div>
+      )}
+
+      {isLoading && (
+        <div
+          role="status"
+          data-testid="coupons-loading"
+          className="p-3 bg-blue-50 border border-blue-200 text-blue-700 rounded text-xs flex items-center gap-2"
+        >
+          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <span>{t('common.loading', locale)}</span>
+        </div>
+      )}
+
       {successMsg && (
-        <div data-testid="coupon-success-msg" style={{ padding: '0.75rem', background: '#ecfdf5', color: '#065f46', borderRadius: '6px', marginBottom: '1rem' }}>
+        <div data-testid="coupon-success-msg" className="p-3 bg-green-50 border border-green-200 text-green-700 rounded text-xs">
           {successMsg}
         </div>
       )}
 
       {errorMsg && (
-        <div data-testid="coupon-error-msg" style={{ padding: '0.75rem', background: '#fef2f2', color: '#991b1b', borderRadius: '6px', marginBottom: '1rem' }}>
+        <div data-testid="coupon-error-msg" className="p-3 bg-red-50 border border-red-200 text-red-700 rounded text-xs">
           {errorMsg}
         </div>
       )}
 
-      <table data-testid="coupons-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
-        <thead>
-          <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#475569' }}>
-            <th style={{ padding: '0.75rem' }}>Mã giảm giá</th>
-            <th style={{ padding: '0.75rem' }}>Mức giảm</th>
-            <th style={{ padding: '0.75rem' }}>Đã dùng / Giới hạn</th>
-            <th style={{ padding: '0.75rem' }}>Hết hạn</th>
-          </tr>
-        </thead>
-        <tbody>
-          {coupons.map((c) => (
-            <tr key={c.code} data-testid={`coupon-row-${c.code}`} style={{ borderBottom: '1px solid #f1f5f9' }}>
-              <td style={{ padding: '0.75rem', fontWeight: 600, color: '#059669' }}>{c.code}</td>
-              <td style={{ padding: '0.75rem' }}>
-                {c.discountPercent ? `${c.discountPercent}%` : `${c.discountAmount?.toLocaleString('vi-VN')} đ`}
-              </td>
-              <td style={{ padding: '0.75rem' }}>
-                {c.timesRedeemed} / {c.maxRedemptions}
-              </td>
-              <td style={{ padding: '0.75rem', color: '#64748b' }}>
-                {c.validUntil ? new Date(c.validUntil).toLocaleDateString('vi-VN') : 'Vô thời hạn'}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {coupons.length === 0 && !isLoading && !fetchError ? (
+        <div data-testid="coupons-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+          {t('commercial.emptyCoupons', locale)}
+        </div>
+      ) : (
+        <div className="overflow-x-auto border rounded-lg">
+          <table data-testid="coupons-table" className="min-w-full divide-y divide-gray-200 text-xs">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Mã giảm giá</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Mức giảm</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Đã dùng / Giới hạn</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Hết hạn</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 bg-white">
+              {coupons.map((c) => (
+                <tr key={c.code} data-testid={`coupon-row-${c.code}`} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 font-mono font-bold text-emerald-700">{c.code}</td>
+                  <td className="px-4 py-3 font-medium text-gray-900">
+                    {c.discountPercent ? `${c.discountPercent}%` : `${c.discountAmount?.toLocaleString('vi-VN')} đ`}
+                  </td>
+                  <td className="px-4 py-3 text-gray-600">
+                    {c.timesRedeemed} / {c.maxRedemptions}
+                  </td>
+                  <td className="px-4 py-3 text-gray-500">
+                    {c.validUntil ? new Date(c.validUntil).toLocaleDateString('vi-VN') : 'Vô thời hạn'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {isModalOpen && (
         <div
           data-testid="create-coupon-modal"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 50,
-          }}
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
         >
-          <div style={{ background: '#fff', borderRadius: '8px', padding: '1.5rem', width: '420px', maxWidth: '90%' }}>
-            <h3 style={{ margin: '0 0 1rem' }}>Tạo mã giảm giá mới</h3>
-            <form onSubmit={handleCreate}>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Mã coupon:</label>
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 space-y-4">
+            <h3 className="text-base font-bold text-gray-900">Tạo mã giảm giá mới</h3>
+            <form onSubmit={handleCreate} className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Mã coupon:</label>
                 <input
                   data-testid="coupon-code-input"
                   type="text"
@@ -136,34 +238,36 @@ export function CouponsManager({ billingManager, onCouponCreated }: CouponsManag
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="e.g. FLASH20"
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-xs uppercase focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Loại giảm giá:</label>
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '0.25rem' }}>
-                  <label>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Loại giảm giá:</label>
+                <div className="flex gap-4 text-xs text-gray-700">
+                  <label className="flex items-center gap-1.5 cursor-pointer">
                     <input
                       type="radio"
                       name="discountType"
                       checked={discountType === 'percent'}
                       onChange={() => setDiscountType('percent')}
-                    />{' '}
+                      className="text-emerald-600"
+                    />
                     Phần trăm (%)
                   </label>
-                  <label>
+                  <label className="flex items-center gap-1.5 cursor-pointer">
                     <input
                       type="radio"
                       name="discountType"
                       checked={discountType === 'amount'}
                       onChange={() => setDiscountType('amount')}
-                    />{' '}
+                      className="text-emerald-600"
+                    />
                     Số tiền cố định (VND)
                   </label>
                 </div>
               </div>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
                   {discountType === 'percent' ? 'Phần trăm giảm (%):' : 'Số tiền giảm (VND):'}
                 </label>
                 <input
@@ -173,11 +277,11 @@ export function CouponsManager({ billingManager, onCouponCreated }: CouponsManag
                   required
                   value={discountVal}
                   onChange={(e) => setDiscountVal(Number(e.target.value))}
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Số lượt dùng tối đa:</label>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Số lượt dùng tối đa:</label>
                 <input
                   data-testid="coupon-maxuses-input"
                   type="number"
@@ -185,32 +289,32 @@ export function CouponsManager({ billingManager, onCouponCreated }: CouponsManag
                   required
                   value={maxRedemptions}
                   onChange={(e) => setMaxRedemptions(Number(e.target.value))}
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Hạn sử dụng:</label>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Hạn sử dụng:</label>
                 <input
                   data-testid="coupon-expiry-input"
                   type="text"
                   required
                   value={expiresAt}
                   onChange={(e) => setExpiresAt(e.target.value)}
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+              <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  style={{ padding: '0.5rem 1rem', border: '1px solid #cbd5e1', background: '#fff', borderRadius: '4px', cursor: 'pointer' }}
+                  className="px-3 py-1.5 border border-gray-300 text-gray-700 text-xs rounded hover:bg-gray-50"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
                   data-testid="save-coupon-button"
-                  style={{ padding: '0.5rem 1rem', background: '#059669', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                  className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded shadow-xs"
                 >
                   Lưu mã
                 </button>

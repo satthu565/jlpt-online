@@ -1,10 +1,1 @@
-[
-  {
-    "app": "admin",
-    "route": "apps/admin/features/billing/billing-service.ts",
-    "file": "apps/admin/features/billing/billing-service.ts",
-    "violations": [
-      "mảng mẫu"
-    ]
-  }
-]
+[]
