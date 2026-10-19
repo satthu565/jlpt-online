@@ -1,11 +1,7 @@
 'use client';
 
-<<<<<<< HEAD
-import React, { useState } from 'react';
-import { Button, Input } from '@jlpt/ui';
-=======
 import React, { useState, useEffect, useCallback } from 'react';
->>>>>>> origin/main
+import { Button, Input } from '@jlpt/ui';
 import type { AdminCouponItem } from './types';
 import type { BillingManager } from './billing-service';
 import { useOptionalAdminAuth } from '../../lib/auth-context';
@@ -132,23 +128,13 @@ export function CouponsManager({ billingManager, onCouponCreated }: CouponsManag
   };
 
   return (
-<<<<<<< HEAD
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-xs mt-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-        <div>
-          <h2 data-testid="coupons-heading" className="text-xl font-bold text-gray-900 dark:text-gray-100">
-            Quản lý mã giảm giá (Coupons & Discounts)
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-=======
-    <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6 space-y-4">
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6 space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 data-testid="coupons-heading" className="text-lg font-bold text-gray-900">
+          <h2 data-testid="coupons-heading" className="text-lg font-bold text-gray-900 dark:text-gray-100">
             Quản lý mã giảm giá (Coupons &amp; Discounts)
           </h2>
-          <p className="text-xs text-gray-500 mt-1">
->>>>>>> origin/main
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Chiến dịch khuyến mại, giảm phần trăm hoặc số tiền cố định, giới hạn lượt dùng nguyên tử.
           </p>
         </div>
@@ -157,32 +143,27 @@ export function CouponsManager({ billingManager, onCouponCreated }: CouponsManag
           variant="primary"
           data-testid="create-coupon-button"
           onClick={() => setIsModalOpen(true)}
-<<<<<<< HEAD
-          className="bg-emerald-600 hover:bg-emerald-700"
-        >
-          + Tạo mã mới
-        </Button>
-=======
-          className="inline-flex items-center justify-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded shadow-xs self-start sm:self-auto"
+          className="bg-emerald-600 hover:bg-emerald-700 self-start sm:self-auto"
         >
           + {t('commercial.createCoupon', locale)}
-        </button>
->>>>>>> origin/main
+        </Button>
       </div>
 
       {fetchError && (
         <div
           role="alert"
           data-testid="coupons-error-alert"
-          className="p-3 bg-red-50 border border-red-200 text-red-700 rounded text-xs flex items-center justify-between"
+          className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded text-xs flex items-center justify-between"
         >
           <span>{fetchError}</span>
-          <button
+          <Button
+            type="button"
+            size="sm"
             onClick={() => void fetchCoupons()}
             className="px-2.5 py-1 bg-red-600 text-white rounded text-[11px] font-medium hover:bg-red-700"
           >
             {t('common.retry', locale)}
-          </button>
+          </Button>
         </div>
       )}
 
@@ -190,7 +171,7 @@ export function CouponsManager({ billingManager, onCouponCreated }: CouponsManag
         <div
           role="status"
           data-testid="coupons-loading"
-          className="p-3 bg-blue-50 border border-blue-200 text-blue-700 rounded text-xs flex items-center gap-2"
+          className="p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 rounded text-xs flex items-center gap-2"
         >
           <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
           <span>{t('common.loading', locale)}</span>
@@ -198,81 +179,43 @@ export function CouponsManager({ billingManager, onCouponCreated }: CouponsManag
       )}
 
       {successMsg && (
-<<<<<<< HEAD
-        <div data-testid="coupon-success-msg" className="p-3 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200 rounded-md text-sm font-semibold mb-4">
-=======
-        <div data-testid="coupon-success-msg" className="p-3 bg-green-50 border border-green-200 text-green-700 rounded text-xs">
->>>>>>> origin/main
+        <div data-testid="coupon-success-msg" className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 rounded-md text-xs font-semibold">
           {successMsg}
         </div>
       )}
 
       {errorMsg && (
-<<<<<<< HEAD
-        <div data-testid="coupon-error-msg" className="p-3 bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-200 rounded-md text-sm font-semibold mb-4">
-=======
-        <div data-testid="coupon-error-msg" className="p-3 bg-red-50 border border-red-200 text-red-700 rounded text-xs">
->>>>>>> origin/main
+        <div data-testid="coupon-error-msg" className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 rounded-md text-xs font-semibold">
           {errorMsg}
         </div>
       )}
 
-<<<<<<< HEAD
-      <div className="overflow-x-auto">
-        <table data-testid="coupons-table" className="w-full text-left text-sm border-collapse">
-          <thead>
-            <tr className="border-b-2 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300">
-              <th className="p-3 font-semibold">Mã giảm giá</th>
-              <th className="p-3 font-semibold">Mức giảm</th>
-              <th className="p-3 font-semibold">Đã dùng / Giới hạn</th>
-              <th className="p-3 font-semibold">Hết hạn</th>
-            </tr>
-          </thead>
-          <tbody>
-            {coupons.map((c) => (
-              <tr key={c.code} data-testid={`coupon-row-${c.code}`} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td className="p-3 font-semibold text-emerald-600 dark:text-emerald-400">{c.code}</td>
-                <td className="p-3 text-gray-700 dark:text-gray-300">
-                  {c.discountPercent ? `${c.discountPercent}%` : `${c.discountAmount?.toLocaleString('vi-VN')} đ`}
-                </td>
-                <td className="p-3 text-gray-700 dark:text-gray-300">
-                  {c.timesRedeemed} / {c.maxRedemptions}
-                </td>
-                <td className="p-3 text-gray-500 dark:text-gray-400">
-                  {c.validUntil ? new Date(c.validUntil).toLocaleDateString('vi-VN') : 'Vô thời hạn'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-=======
       {coupons.length === 0 && !isLoading && !fetchError ? (
-        <div data-testid="coupons-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+        <div data-testid="coupons-empty" className="p-6 text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 rounded border border-gray-100 dark:border-gray-700 text-xs">
           {t('commercial.emptyCoupons', locale)}
         </div>
       ) : (
-        <div className="overflow-x-auto border rounded-lg">
-          <table data-testid="coupons-table" className="min-w-full divide-y divide-gray-200 text-xs">
-            <thead className="bg-gray-50">
+        <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+          <table data-testid="coupons-table" className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Mã giảm giá</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Mức giảm</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Đã dùng / Giới hạn</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Hết hạn</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Mã giảm giá</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Mức giảm</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Đã dùng / Giới hạn</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Hết hạn</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50 bg-white dark:bg-gray-800">
               {coupons.map((c) => (
-                <tr key={c.code} data-testid={`coupon-row-${c.code}`} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-mono font-bold text-emerald-700">{c.code}</td>
-                  <td className="px-4 py-3 font-medium text-gray-900">
+                <tr key={c.code} data-testid={`coupon-row-${c.code}`} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <td className="px-4 py-3 font-mono font-bold text-emerald-700 dark:text-emerald-400">{c.code}</td>
+                  <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">
                     {c.discountPercent ? `${c.discountPercent}%` : `${c.discountAmount?.toLocaleString('vi-VN')} đ`}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
                     {c.timesRedeemed} / {c.maxRedemptions}
                   </td>
-                  <td className="px-4 py-3 text-gray-500">
+                  <td className="px-4 py-3 text-gray-500 dark:text-gray-400">
                     {c.validUntil ? new Date(c.validUntil).toLocaleDateString('vi-VN') : 'Vô thời hạn'}
                   </td>
                 </tr>
@@ -281,93 +224,54 @@ export function CouponsManager({ billingManager, onCouponCreated }: CouponsManag
           </table>
         </div>
       )}
->>>>>>> origin/main
 
       {isModalOpen && (
         <div
           data-testid="create-coupon-modal"
-<<<<<<< HEAD
-          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
         >
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-lg space-y-4">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Tạo mã giảm giá mới</h3>
-            <form onSubmit={handleCreate} className="space-y-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 space-y-4">
+            <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">Tạo mã giảm giá mới</h3>
+            <form onSubmit={handleCreate} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Mã coupon:</label>
                 <Input
-=======
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-        >
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 space-y-4">
-            <h3 className="text-base font-bold text-gray-900">Tạo mã giảm giá mới</h3>
-            <form onSubmit={handleCreate} className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Mã coupon:</label>
-                <input
->>>>>>> origin/main
                   data-testid="coupon-code-input"
                   type="text"
                   required
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="e.g. FLASH20"
-<<<<<<< HEAD
+                  className="w-full uppercase"
                 />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Loại giảm giá:</label>
-                <div className="flex gap-4 mt-1">
-                  <label className="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                    <Input
-=======
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-xs uppercase focus:ring-1 focus:ring-emerald-500"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Loại giảm giá:</label>
-                <div className="flex gap-4 text-xs text-gray-700">
+                <div className="flex gap-4 text-xs text-gray-700 dark:text-gray-300">
                   <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input
->>>>>>> origin/main
+                    <Input
                       type="radio"
                       name="discountType"
                       checked={discountType === 'percent'}
                       onChange={() => setDiscountType('percent')}
-<<<<<<< HEAD
-                      className="w-4 h-4 min-h-0"
-                    />
-                    Phần trăm (%)
-                  </label>
-                  <label className="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                    <Input
-=======
-                      className="text-emerald-600"
+                      className="w-4 h-4 min-h-0 text-emerald-600"
                     />
                     Phần trăm (%)
                   </label>
                   <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input
->>>>>>> origin/main
+                    <Input
                       type="radio"
                       name="discountType"
                       checked={discountType === 'amount'}
                       onChange={() => setDiscountType('amount')}
-<<<<<<< HEAD
-                      className="w-4 h-4 min-h-0"
-=======
-                      className="text-emerald-600"
->>>>>>> origin/main
+                      className="w-4 h-4 min-h-0 text-emerald-600"
                     />
                     Số tiền cố định (VND)
                   </label>
                 </div>
               </div>
               <div>
-<<<<<<< HEAD
                 <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
-=======
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
->>>>>>> origin/main
                   {discountType === 'percent' ? 'Phần trăm giảm (%):' : 'Số tiền giảm (VND):'}
                 </label>
                 <Input
@@ -377,64 +281,37 @@ export function CouponsManager({ billingManager, onCouponCreated }: CouponsManag
                   required
                   value={discountVal}
                   onChange={(e) => setDiscountVal(Number(e.target.value))}
-<<<<<<< HEAD
+                  className="w-full"
                 />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Số lượt dùng tối đa:</label>
                 <Input
-=======
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-emerald-500"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Số lượt dùng tối đa:</label>
-                <input
->>>>>>> origin/main
                   data-testid="coupon-maxuses-input"
                   type="number"
                   min="1"
                   required
                   value={maxRedemptions}
                   onChange={(e) => setMaxRedemptions(Number(e.target.value))}
-<<<<<<< HEAD
+                  className="w-full"
                 />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Hạn sử dụng:</label>
                 <Input
-=======
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-emerald-500"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Hạn sử dụng:</label>
-                <input
->>>>>>> origin/main
                   data-testid="coupon-expiry-input"
                   type="text"
                   required
                   value={expiresAt}
                   onChange={(e) => setExpiresAt(e.target.value)}
-<<<<<<< HEAD
+                  className="w-full"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <Button
-=======
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-emerald-500"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button
->>>>>>> origin/main
                   type="button"
                   variant="outline"
                   onClick={() => setIsModalOpen(false)}
-<<<<<<< HEAD
-=======
-                  className="px-3 py-1.5 border border-gray-300 text-gray-700 text-xs rounded hover:bg-gray-50"
->>>>>>> origin/main
                 >
                   Hủy
                 </Button>
@@ -442,11 +319,7 @@ export function CouponsManager({ billingManager, onCouponCreated }: CouponsManag
                   type="submit"
                   variant="primary"
                   data-testid="save-coupon-button"
-<<<<<<< HEAD
-                  className="bg-emerald-600 hover:bg-emerald-700"
-=======
-                  className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded shadow-xs"
->>>>>>> origin/main
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
                 >
                   Lưu mã
                 </Button>

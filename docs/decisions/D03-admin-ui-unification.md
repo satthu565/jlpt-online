@@ -69,7 +69,20 @@ Toàn bộ thẻ thô và inline style đã được thay thế triệt để tr
 
 ---
 
-## 3. Kết quả nghiệm thu
+## 3. Giải quyết xung đột sáp nhập (Merge Conflict Resolution)
+
+Sau khi nhánh `origin/main` sáp nhập tính năng `I04` (Quản trị thương mại, báo cáo, thử nghiệm nối API thật), xuất hiện xung đột tại hai tệp:
+- `apps/admin/features/billing/coupons-manager.tsx`
+- `apps/admin/features/billing/refunds-manager.tsx`
+
+Các xung đột đã được giải quyết triệt để:
+- Giữ nguyên toàn bộ logic kết nối API thực tế, cơ chế xác thực JWT/TOTP, và hỗ trợ đa ngôn ngữ (`t(...)` với `locale`) từ `origin/main`.
+- Đồng thời duy trì chuẩn hóa `@jlpt/ui`: thay thế toàn bộ thẻ thô bằng `Button`, `Input`, `Textarea` từ `@jlpt/ui`.
+- Bổ sung các lớp Tailwind thích ứng Dark Mode (`dark:bg-gray-800`, `dark:text-gray-100`, `dark:border-gray-700`, v.v.).
+
+---
+
+## 4. Kết quả nghiệm thu
 
 1. **Kiểm tra UI primitives (`pnpm check:ui-primitives`)**:
    - `[apps/admin] Total: 0`
@@ -84,6 +97,8 @@ Toàn bộ thẻ thô và inline style đã được thay thế triệt để tr
    - Kiểm tra hiển thị responsive không tràn ngang tại 390px và 1366px.
 
 3. **Bảo toàn chức năng & Test suites**:
-   - `pnpm test:admin`: 15/15 test files đạt (171 tests passed).
-   - `pnpm check:no-mock-ui`: ĐẠT.
-   - `sudo -n /usr/local/bin/jlpt-stage-test check`: ĐẠT (PASS toàn bộ 61 integration/e2e test cases trên staging containers).
+   - `pnpm test:admin`: 16/16 test files đạt (195 tests passed).
+   - `pnpm check:no-mock-ui`: ĐẠT (0 vi phạm mới, 0 vi phạm baseline).
+   - `sudo -n /usr/local/bin/jlpt-stage-test check`: ĐẠT (PASS toàn bộ test suite trên staging containers).
+   - Common gates: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` đều vượt qua 100%.
+   - Artifacts ảnh chụp màn hình 390px và 1366px đã được lưu trữ đầy đủ.
