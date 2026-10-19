@@ -74,14 +74,14 @@ Theo đặc tả `DRAFT_ONLY`:
   - Trong `loginAsStaff`: chờ phần tử `main` thay vì selector ghép `main, [data-testid="page-title"], header, h1` để tránh bị chặn bởi thẻ `h1` ẩn trong menu điều hướng di động.
   - Trong AC5 (I03): giới hạn phạm vi tìm kiếm tiêu đề bên trong `main`, và bổ sung dung sai subpixel (2px) cho các màn hình di động có tỉ lệ điểm ảnh lẻ (DPR 2.625 trên Pixel 7).
 
-### 7. Tiếp thu phản hồi Reviewer (Round 2)
+### 7. Tiếp thu phản hồi và chỉ thị của Người vận hành (Round 3 - 19/10)
 
-1. **Revert `apps/api/src/modules/attempt/attempt.service.ts`**:
-   - Revert dòng 225 về nguyên bản của `origin/main` (`sql\`${schema.examAttempts.startedAt} >= ${oneDayAgo}\``). Báo coordinator cấp phép hoặc giao task riêng nếu cần tối ưu truy vấn attempt của khách.
-2. **Giới hạn kích thước Body (BodyLimit / DoS / OOM Guard) trong `apps/api/src/main.ts`**:
-   - Chuyển `addContentTypeParser` cho `multipart/form-data`, `application/zip`, `application/octet-stream` sang parser bộ đệm chuẩn của Fastify kèm `{ parseAs: 'buffer', bodyLimit: maxImportBytes }`.
-   - `maxImportBytes` lấy từ biến môi trường `IMPORT_MAX_BYTES`, mặc định 50 MB. Fastify tự động hủy stream và trả về mã lỗi 413 (Payload Too Large) khi tải lên vượt quá giới hạn cấu hình, triệt tiêu nguy cơ cạn kiệt bộ nhớ.
-3. **Đếm chính xác toàn bộ câu hỏi thiếu đáp án trong `apps/admin/features/import/import-validator.ts`**:
+1. **Giữ lại `gte()` trong `apps/api/src/modules/attempt/attempt.service.ts`**:
+   - Sử dụng `gte(schema.examAttempts.startedAt, oneDayAgo)` thay cho `sql` thô để so sánh thời gian chuẩn xác qua Drizzle ORM, tránh lỗi HTTP 500 khi khách bắt đầu làm bài thi thử trên môi trường staging thật.
+2. **Cấu hình giới hạn kích thước Body (BodyLimit) hai tầng trong `apps/api/src/main.ts`**:
+   - Parser bộ đệm chung (`addContentTypeParser`) cho `multipart/form-data`, `application/zip`, `application/octet-stream` đặt giới hạn mặc định là 1 MB (`1024 * 1024`) để chống DoS/OOM trên toàn hệ thống.
+   - Sử dụng hook `onRoute` của Fastify để cấu hình riêng giới hạn cho route `POST /api/v1/admin/imports` theo `IMPORT_MAX_BYTES` (mặc định 50 MB). Yêu cầu vượt kích thước sẽ bị Fastify từ chối và trả về HTTP 413.
+3. **Đếm đầy đủ số câu thiếu đáp án vào `blockingIssueCount` trong `apps/admin/features/import/import-validator.ts`**:
    - Theo dõi chính xác `missingAnswerCount` qua vòng lặp kiểm tra câu hỏi.
    - So sánh với số lượng issue blocking đã khai báo trong gói để tính `undeclaredMissingAnswers = Math.max(0, missingAnswerCount - coveredMissingAnswers)`.
    - `blockingIssues = packageBlockingIssues + undeclaredMissingAnswers`, bảo đảm đếm đầy đủ từng câu hỏi thiếu đáp án ngay cả khi mảng `issues` không khai báo hoặc chỉ khai báo một phần.
