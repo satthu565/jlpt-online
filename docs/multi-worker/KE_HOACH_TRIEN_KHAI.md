@@ -1586,6 +1586,34 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
+<a id="i16"></a>
+
+### I16 Nhập gói đề ở chế độ nháp (DRAFT_ONLY) qua API và trang quản trị
+
+- Worker: **W2**. Ngày mục tiêu: 8. Ước lượng chưa đo: 3 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: I03. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: import.controller.ts không truyền mode nên import.service luôn kiểm tra ở chế độ ready và từ chối gói có issue blocking, trái với docs/import-format/README.md (DRAFT_ONLY được lưu nháp, chặn xuất bản). Cho POST /api/v1/admin/imports nhận mode=draft|ready (multipart field và JSON body), mặc định ready; gói DRAFT_ONLY lưu thành bản nháp kèm danh sách issue, không vào hàng duyệt/xuất bản cho tới khi nạp lại bản ready cùng packageId với revision cao hơn. Trang nhập gói của quản trị có lựa chọn "Nạp bản nháp", hiện trạng thái DRAFT_ONLY và từng issue (mức độ, đường dẫn, lý do). Xuất bản đề từ bản nháp phải bị chặn ở API.
+- Bàn giao: apps/api/src/modules/import/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: apps/admin/features/import/, apps/admin/app/imports/, apps/admin/lib/api-client.ts, tests/playwright/.
+- Nghiệm thu:
+  - Gói fixtures/imports/draft.zip nạp được ở chế độ nháp, trang quản trị hiện issue blocking.
+  - Cùng gói ở chế độ ready bị từ chối với thông báo rõ.
+  - API chặn duyệt và xuất bản bản nháp (test âm).
+  - Nạp lại bản ready cùng packageId, revision cao hơn thì thay bản nháp.
+  - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
+  - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test`
+  - `pnpm check:no-mock-ui`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
 <a id="i07"></a>
 
 ### I07 Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả
@@ -1620,7 +1648,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### D00 Hệ thống thiết kế @jlpt/ui dựng lại trên shadcn/ui
 
 - Worker: **W3**. Ngày mục tiêu: 9. Ước lượng chưa đo: 5 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: I07. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: I00. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
 - Phạm vi: Khởi tạo shadcn/ui (components.json, cn, class-variance-authority, tailwind-merge, Radix khi cần) trong packages/ui; dựng lại Button, Input, Textarea, Label, Select, Checkbox, RadioGroup, Switch, Tabs, Dialog, DropdownMenu, Popover, Tooltip, Card, Badge, Alert, Toast, Skeleton theo token màu hiện có, sáng/tối theo class dark. Giữ nguyên tên export và props đang dùng để web/admin không vỡ; bỏ inline style. Thêm lệnh pnpm check:ui-primitives (packages/ui/scripts/) báo thẻ <button>/<input>/<select>/<textarea> gốc trong apps/web và apps/admin, kèm baseline giảm dần.
 - Bàn giao: packages/ui/; package.json; docs/decisions/.
@@ -1879,9 +1907,9 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### P05 Quản trị: lịch thi JLPT và bảng quy đổi điểm
 
 - Worker: **W4**. Ngày mục tiêu: 10. Ước lượng chưa đo: 3 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: P03, D03. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: P03. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: Trang quản trị nhập và xuất bản lịch thi (ngày thi, hạn đăng ký, địa điểm, link) và xem/cập nhật phiên bản bảng quy đổi điểm, có audit.
+- Phạm vi: Trang quản trị nhập và xuất bản lịch thi (ngày thi, hạn đăng ký, địa điểm, link) và xem/cập nhật phiên bản bảng quy đổi điểm, có audit. Dùng thành phần đang có trong @jlpt/ui; D03 sẽ chuyển trang sang bộ thành phần mới, nên không tự viết lại nút/ô nhập riêng.
 - Bàn giao: apps/admin/.
 - Hợp đồng: API.
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
@@ -1898,7 +1926,6 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:admin`
   - `pnpm check:no-mock-ui`
-  - `pnpm check:ui-primitives`
   - `sudo -n /usr/local/bin/jlpt-stage-test check`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
