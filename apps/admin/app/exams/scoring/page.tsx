@@ -16,6 +16,22 @@ export interface ScoreConversionSection {
   minPass: number;
 }
 
+export function resolveScoringSectionSkills(code: string, explicitSkills?: Skill[], origSkills?: Skill[]): Skill[] {
+  if (Array.isArray(explicitSkills) && explicitSkills.length > 0) {
+    return [...explicitSkills];
+  }
+  if (Array.isArray(origSkills) && origSkills.length > 0) {
+    return [...origSkills];
+  }
+  if (code === 'listening') return ['listening'];
+  if (code === 'reading') return ['reading'];
+  if (code === 'language' || code === 'language_knowledge') return ['kanji', 'vocabulary', 'grammar'];
+  if (code === 'vocabulary') return ['vocabulary'];
+  if (code === 'grammar') return ['grammar'];
+  if (code === 'kanji') return ['kanji'];
+  return ['kanji', 'vocabulary', 'grammar', 'reading'];
+}
+
 export default function ScoreConversionTablesPage(): React.JSX.Element {
   const { user, locale } = useAdminAuth();
 
@@ -63,7 +79,7 @@ export default function ScoreConversionTablesPage(): React.JSX.Element {
     const sections: ScoreConversionSection[] = (bp.scoring?.scoringSections || []).map((sec) => ({
       code: sec.code,
       label: sec.label || sec.code,
-      skills: Array.isArray(sec.skills) ? [...sec.skills] : [],
+      skills: resolveScoringSectionSkills(sec.code, sec.skills, undefined),
       maxScaled: sec.maxScaled,
       minPass: sec.minPass,
     }));
@@ -103,9 +119,7 @@ export default function ScoreConversionTablesPage(): React.JSX.Element {
           label: s.label,
           maxScaled: s.maxScaled,
           minPass: s.minPass,
-          skills: s.skills && s.skills.length > 0
-            ? [...s.skills]
-            : (origSec?.skills ? [...origSec.skills] : (s.code === 'listening' ? ['listening'] : ['kanji', 'vocabulary', 'grammar', 'reading'])),
+          skills: resolveScoringSectionSkills(s.code, s.skills, origSec?.skills),
         };
       }),
     };

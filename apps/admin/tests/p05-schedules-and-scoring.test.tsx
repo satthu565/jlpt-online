@@ -3,7 +3,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { AdminAuthProvider, type StaffUser } from '../lib/auth-context';
 import JlptSchedulesPage from '../app/exams/schedules/page';
-import ScoreConversionTablesPage from '../app/exams/scoring/page';
+import ScoreConversionTablesPage, { resolveScoringSectionSkills } from '../app/exams/scoring/page';
 import { AdminApiClient } from '../lib/api-client';
 
 describe('P05: Quản trị lịch thi JLPT và bảng quy đổi điểm', () => {
@@ -100,6 +100,31 @@ describe('P05: Quản trị lịch thi JLPT và bảng quy đổi điểm', () =
       expect(html).toContain('Từ chối truy cập (403 Forbidden)');
       expect(html).toContain('data-testid="guard-non-staff"');
       expect(html).not.toContain('data-testid="page-title"');
+    });
+
+    it('Bảo toàn cấu trúc kỹ năng (skills) của từng section cho mọi cấp độ N1–N5', () => {
+      // N1-N3: language section only has kanji, vocabulary, grammar (NOT reading)
+      const n1LangSkills = resolveScoringSectionSkills('language', undefined, ['kanji', 'vocabulary', 'grammar']);
+      expect(n1LangSkills).toEqual(['kanji', 'vocabulary', 'grammar']);
+      expect(n1LangSkills).not.toContain('reading');
+
+      // N1-N3: reading section only has reading
+      const n1ReadingSkills = resolveScoringSectionSkills('reading', undefined, ['reading']);
+      expect(n1ReadingSkills).toEqual(['reading']);
+      expect(n1ReadingSkills).not.toContain('listening');
+
+      // N1-N5: listening section only has listening
+      const listeningSkills = resolveScoringSectionSkills('listening', undefined, ['listening']);
+      expect(listeningSkills).toEqual(['listening']);
+
+      // N4-N5: language_reading combines all 4 skills
+      const n5LangReadingSkills = resolveScoringSectionSkills('language_reading', ['kanji', 'vocabulary', 'grammar', 'reading'], undefined);
+      expect(n5LangReadingSkills).toEqual(['kanji', 'vocabulary', 'grammar', 'reading']);
+
+      // Fallback heuristics when skills array is empty: does NOT blindly assign reading to language section
+      expect(resolveScoringSectionSkills('language')).toEqual(['kanji', 'vocabulary', 'grammar']);
+      expect(resolveScoringSectionSkills('reading')).toEqual(['reading']);
+      expect(resolveScoringSectionSkills('listening')).toEqual(['listening']);
     });
   });
 

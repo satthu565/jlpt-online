@@ -89,8 +89,9 @@ Task P05 triển khai giao diện và quy trình quản trị toàn diện cho h
 ## 4. Xử lý phản hồi Reviewer (Vòng P05-3)
 
 1. **[P0] Bảo toàn mảng `skills` gốc trong bảng quy đổi điểm (`apps/admin/app/exams/scoring/page.tsx`):**
-   - Loại bỏ việc gán cứng kỹ năng N5 (`['kanji', 'vocabulary', 'grammar', 'reading']` hoặc `['listening']`).
-   - Cập nhật interface `ScoreConversionSection` có `skills: Skill[]` và sao chép chính xác mảng `skills` từ `bp.scoring.scoringSections` khi mở form tạo phiên bản mới cũng như khi đóng gói payload gửi lên API, bảo đảm cấu trúc kỹ năng của các cấp độ N1–N3 không bị sai lệch.
+   - Loại bỏ triệt để việc gán cứng kỹ năng N5 (`['kanji', 'vocabulary', 'grammar', 'reading']` hoặc `['listening']`).
+   - Xây dựng hàm `resolveScoringSectionSkills(code, explicitSkills, origSkills)` đảm bảo giữ nguyên mảng `skills` từ `bp.scoring.scoringSections` khi mở form cũng như khi submit tạo phiên bản mới; cơ chế fallback theo mã section xác định đúng kỹ năng (ví dụ `reading` chỉ gồm `['reading']`, `language` chỉ gồm `['kanji', 'vocabulary', 'grammar']`), không làm méo mó cấu trúc kỹ năng của các cấp độ N1–N3.
+   - Bổ sung unit tests kiểm chứng bảo toàn kỹ năng đa cấp độ N1–N5 trong `apps/admin/tests/p05-schedules-and-scoring.test.tsx`.
 
 2. **[P1] Bỏ bọc `if` và dùng `adminCtx.request` trong Playwright E2E (`tests/playwright/integration.spec.ts`):**
    - Thay thế `request.get` bằng `adminCtx.request.get` để kế thừa session cookie nhân sự đã xác thực; bỏ bọc `if (bpRes.ok())` và assert trực tiếp `expect(bpRes.ok()).toBe(true)` cùng kiểm tra sự tồn tại của phiên bản mới.
