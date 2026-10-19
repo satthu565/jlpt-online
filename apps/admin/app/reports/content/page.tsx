@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Button, Select, Textarea } from '@jlpt/ui';
 import { AdminGuard } from '../../../lib/ui-guard';
 import { useAdminAuth } from '../../../lib/auth-context';
 import { apiClient } from '../../../lib/api-client';
@@ -153,11 +154,11 @@ export default function ContentReportsPage({
         {/* Filter Toolbar */}
         <div className="flex items-center gap-3 flex-wrap">
           <label className="font-semibold text-sm text-gray-700">Lọc theo:</label>
-          <select
+          <Select
             data-testid="select-report-filter"
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="p-2 border border-gray-300 rounded-md text-sm bg-white"
+            className="w-auto min-w-[200px]"
           >
             <option value="all">Tất cả báo cáo ({reports.length})</option>
             <option value="open">Đang mở (Chờ xử lý)</option>
@@ -166,7 +167,7 @@ export default function ContentReportsPage({
             <option value="wrong_answer">Lỗi sai đáp án</option>
             <option value="audio_broken">Lỗi âm thanh</option>
             <option value="typo">Lỗi chính tả</option>
-          </select>
+          </Select>
         </div>
 
         {/* Report List */}
@@ -226,22 +227,26 @@ export default function ContentReportsPage({
 
                   {item.status !== 'resolved' && item.status !== 'rejected' && (
                     <div className="flex gap-2">
-                      <button
+                      <Button
                         type="button"
+                        variant="primary"
+                        size="sm"
                         data-testid={`btn-resolve-${item.id}`}
                         onClick={() => setSelectedReport(item)}
-                        className="px-3 py-1.5 rounded-md bg-green-600 text-white text-xs font-semibold hover:bg-green-700 transition-colors"
+                        className="bg-green-600 hover:bg-green-700 text-xs"
                       >
                         {t('content.contentReports.resolveBtn', locale)}
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
+                        variant="destructive"
+                        size="sm"
                         data-testid={`btn-reject-${item.id}`}
                         onClick={() => handleReject(item.id)}
-                        className="px-3 py-1.5 rounded-md bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition-colors"
+                        className="text-xs"
                       >
                         {t('content.contentReports.rejectBtn', locale)}
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </div>
@@ -264,31 +269,31 @@ export default function ContentReportsPage({
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
                   Ghi chú điều chỉnh / sửa đổi câu hỏi:
                 </label>
-                <textarea
+                <Textarea
                   data-testid="input-resolution-note"
                   rows={3}
                   value={resolutionInput}
                   onChange={(e) => setResolutionInput(e.target.value)}
                   placeholder="Nhập ghi chú chi tiết về phương án sửa câu hỏi..."
-                  className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => setSelectedReport(null)}
-                  className="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50"
                 >
                   Hủy
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="primary"
                   data-testid="btn-confirm-resolve"
                   onClick={() => handleResolve(selectedReport.id)}
-                  className="px-4 py-2 bg-green-600 text-white rounded text-sm font-semibold hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700"
                 >
                   Xác nhận Hoàn tất
-                </button>
+                </Button>
               </div>
             </div>
           </div>

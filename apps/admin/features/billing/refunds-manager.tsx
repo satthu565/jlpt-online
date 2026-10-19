@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Button, Textarea } from '@jlpt/ui';
 import type { AdminRefundItem } from './types';
 import type { BillingManager } from './billing-service';
 
@@ -49,157 +50,128 @@ export function RefundsManager({ billingManager, onRefundUpdated }: RefundsManag
   };
 
   return (
-    <div style={{ padding: '1rem', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-      <div style={{ marginBottom: '1rem' }}>
-        <h2 data-testid="refunds-heading" style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-xs">
+      <div className="mb-4">
+        <h2 data-testid="refunds-heading" className="text-xl font-bold text-gray-900 dark:text-gray-100">
           Quản lý yêu cầu hoàn tiền (Refund Requests)
         </h2>
-        <p style={{ color: '#64748b', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           Xét duyệt và đối soát các yêu cầu hoàn tiền theo chính sách thương mại.
         </p>
       </div>
 
       {successMsg && (
-        <div data-testid="refund-success-msg" style={{ padding: '0.75rem', background: '#ecfdf5', color: '#065f46', borderRadius: '6px', marginBottom: '1rem' }}>
+        <div data-testid="refund-success-msg" className="p-3 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200 rounded-md text-sm font-semibold mb-4">
           {successMsg}
         </div>
       )}
 
       {errorMsg && (
-        <div data-testid="refund-error-msg" style={{ padding: '0.75rem', background: '#fef2f2', color: '#991b1b', borderRadius: '6px', marginBottom: '1rem' }}>
+        <div data-testid="refund-error-msg" className="p-3 bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-200 rounded-md text-sm font-semibold mb-4">
           {errorMsg}
         </div>
       )}
 
-      <table data-testid="refunds-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
-        <thead>
-          <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#475569' }}>
-            <th style={{ padding: '0.75rem' }}>Mã yêu cầu</th>
-            <th style={{ padding: '0.75rem' }}>Mã đơn hàng</th>
-            <th style={{ padding: '0.75rem' }}>Số tiền</th>
-            <th style={{ padding: '0.75rem' }}>Lý do</th>
-            <th style={{ padding: '0.75rem' }}>Trạng thái</th>
-            <th style={{ padding: '0.75rem' }}>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {refunds.map((r) => (
-            <tr key={r.id} data-testid={`refund-row-${r.id}`} style={{ borderBottom: '1px solid #f1f5f9' }}>
-              <td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>{r.id.slice(0, 13)}...</td>
-              <td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>{r.orderId.slice(0, 13)}...</td>
-              <td style={{ padding: '0.75rem', fontWeight: 600 }}>{r.amount.toLocaleString('vi-VN')} đ</td>
-              <td style={{ padding: '0.75rem' }}>{r.reason || 'Không có'}</td>
-              <td style={{ padding: '0.75rem' }}>
-                <span
-                  style={{
-                    padding: '0.25rem 0.5rem',
-                    borderRadius: '4px',
-                    fontSize: '0.75rem',
-                    background:
-                      r.status === 'refunded'
-                        ? '#dcfce7'
-                        : r.status === 'requested'
-                        ? '#fef3c7'
-                        : '#fef2f2',
-                    color:
-                      r.status === 'refunded'
-                        ? '#15803d'
-                        : r.status === 'requested'
-                        ? '#92400e'
-                        : '#991b1b',
-                  }}
-                >
-                  {r.status}
-                </span>
-              </td>
-              <td style={{ padding: '0.75rem' }}>
-                {r.status === 'requested' ? (
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button
-                      type="button"
-                      data-testid={`approve-refund-${r.id}`}
-                      onClick={() => handleApprove(r.id)}
-                      style={{
-                        padding: '0.25rem 0.5rem',
-                        background: '#059669',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '0.75rem',
-                      }}
-                    >
-                      Duyệt
-                    </button>
-                    <button
-                      type="button"
-                      data-testid={`reject-refund-${r.id}`}
-                      onClick={() => setRejectingRefundId(r.id)}
-                      style={{
-                        padding: '0.25rem 0.5rem',
-                        background: '#dc2626',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '0.75rem',
-                      }}
-                    >
-                      Từ chối
-                    </button>
-                  </div>
-                ) : (
-                  <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>Đã hoàn tất</span>
-                )}
-              </td>
+      <div className="overflow-x-auto">
+        <table data-testid="refunds-table" className="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr className="border-b-2 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300">
+              <th className="p-3 font-semibold">Mã yêu cầu</th>
+              <th className="p-3 font-semibold">Mã đơn hàng</th>
+              <th className="p-3 font-semibold">Số tiền</th>
+              <th className="p-3 font-semibold">Lý do</th>
+              <th className="p-3 font-semibold">Trạng thái</th>
+              <th className="p-3 font-semibold">Thao tác</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {refunds.map((r) => (
+              <tr key={r.id} data-testid={`refund-row-${r.id}`} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <td className="p-3 font-mono text-gray-900 dark:text-gray-100">{r.id.slice(0, 13)}...</td>
+                <td className="p-3 font-mono text-gray-500 dark:text-gray-400">{r.orderId.slice(0, 13)}...</td>
+                <td className="p-3 font-semibold text-gray-900 dark:text-gray-100">{r.amount.toLocaleString('vi-VN')} đ</td>
+                <td className="p-3 text-gray-700 dark:text-gray-300">{r.reason || 'Không có'}</td>
+                <td className="p-3">
+                  <span
+                    className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                      r.status === 'refunded'
+                        ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300'
+                        : r.status === 'requested'
+                        ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300'
+                        : 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300'
+                    }`}
+                  >
+                    {r.status}
+                  </span>
+                </td>
+                <td className="p-3">
+                  {r.status === 'requested' ? (
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="primary"
+                        size="sm"
+                        data-testid={`approve-refund-${r.id}`}
+                        onClick={() => handleApprove(r.id)}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-xs"
+                      >
+                        Duyệt
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        data-testid={`reject-refund-${r.id}`}
+                        onClick={() => setRejectingRefundId(r.id)}
+                        className="text-xs"
+                      >
+                        Từ chối
+                      </Button>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-gray-400">Đã hoàn tất</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {rejectingRefundId && (
         <div
           data-testid="reject-refund-modal"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 50,
-          }}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
         >
-          <div style={{ background: '#fff', borderRadius: '8px', padding: '1.5rem', width: '380px' }}>
-            <h3 style={{ margin: '0 0 1rem' }}>Từ chối yêu cầu hoàn tiền</h3>
-            <form onSubmit={handleRejectConfirm}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Lý do từ chối:</label>
-                <textarea
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full shadow-lg space-y-4">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Từ chối yêu cầu hoàn tiền</h3>
+            <form onSubmit={handleRejectConfirm} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Lý do từ chối:</label>
+                <Textarea
                   data-testid="reject-reason-input"
                   required
                   rows={3}
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
                   placeholder="Ghi rõ lý do theo chính sách hoàn tiền..."
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
                 />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                <button
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => setRejectingRefundId(null)}
-                  style={{ padding: '0.5rem 1rem', border: '1px solid #cbd5e1', background: '#fff', borderRadius: '4px', cursor: 'pointer' }}
                 >
                   Hủy
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
+                  variant="destructive"
                   data-testid="confirm-reject-button"
-                  style={{ padding: '0.5rem 1rem', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                 >
                   Xác nhận từ chối
-                </button>
+                </Button>
               </div>
             </form>
           </div>

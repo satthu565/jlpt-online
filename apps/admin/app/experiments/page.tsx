@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Button } from '@jlpt/ui';
 import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 
@@ -87,105 +88,81 @@ export default function ExperimentsAdminPage(): React.JSX.Element {
 
   return (
     <AdminGuard pathname="/experiments">
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-        <header
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '2rem',
-            flexWrap: 'wrap',
-            gap: '1rem',
-          }}
-        >
+      <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
+        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
           <div>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#111827' }}>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               Quản trị Thử nghiệm A/B & Tối ưu Giao diện
             </h1>
-            <p style={{ margin: 0, color: '#6b7280' }}>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               Cơ chế phân bổ cố định (Sticky Assignment) ẩn danh bảo vệ PII, theo dõi tỷ lệ chuyển đổi thời gian thực.
             </p>
           </div>
         </header>
 
-        <div style={{ display: 'grid', gap: '1.5rem' }}>
+        <div className="grid gap-6">
           {experiments.map((exp) => (
             <div
               key={exp.id}
               data-testid={`experiment-card-${exp.id}`}
-              style={{
-                background: '#ffffff',
-                border: '1px solid #e5e7eb',
-                borderRadius: '10px',
-                padding: '1.5rem',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-              }}
+              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-xs"
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                 <div>
-                  <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: '0 0 0.35rem', color: '#111827' }}>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
                     {exp.name}
                   </h3>
-                  <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                    Mã thử nghiệm: <code>{exp.id}</code> | {exp.description}
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Mã thử nghiệm: <code className="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-xs">{exp.id}</code> | {exp.description}
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div className="flex items-center gap-3">
                   <span
                     data-testid={`experiment-status-${exp.id}`}
-                    style={{
-                      padding: '0.25rem 0.65rem',
-                      borderRadius: '9999px',
-                      fontSize: '0.8rem',
-                      fontWeight: 700,
-                      background: exp.isActive ? '#d1fae5' : '#f3f4f6',
-                      color: exp.isActive ? '#065f46' : '#6b7280',
-                    }}
+                    className={`px-3 py-1 rounded-full text-xs font-bold ${
+                      exp.isActive
+                        ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                    }`}
                   >
                     {exp.isActive ? 'ĐANG CHẠY (ACTIVE)' : 'TẠM DỪNG'}
                   </span>
 
-                  <button
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
                     data-testid={`btn-toggle-experiment-${exp.id}`}
                     onClick={() => toggleActive(exp.id)}
-                    style={{
-                      padding: '0.4rem 0.85rem',
-                      borderRadius: '6px',
-                      border: '1px solid #d1d5db',
-                      background: '#ffffff',
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                    }}
                   >
                     {exp.isActive ? 'Tạm dừng' : 'Kích hoạt'}
-                  </button>
+                  </Button>
                 </div>
               </div>
 
               {/* Variant Comparison Table */}
-              <div style={{ background: '#f9fafb', borderRadius: '8px', overflow: 'hidden' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+              <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg overflow-x-auto border border-gray-100 dark:border-gray-700">
+                <table className="w-full border-collapse text-left text-sm">
                   <thead>
-                    <tr style={{ borderBottom: '1px solid #e5e7eb', color: '#4b5563' }}>
-                      <th style={{ padding: '0.65rem 1rem' }}>Biến thể (Variant)</th>
-                      <th style={{ padding: '0.65rem 1rem' }}>Tỷ lệ lưu lượng</th>
-                      <th style={{ padding: '0.65rem 1rem' }}>Lượt gán (Sticky)</th>
-                      <th style={{ padding: '0.65rem 1rem' }}>Số chuyển đổi</th>
-                      <th style={{ padding: '0.65rem 1rem', textAlign: 'right' }}>Tỷ lệ chuyển đổi</th>
+                    <tr className="border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300">
+                      <th className="p-3">Biến thể (Variant)</th>
+                      <th className="p-3">Tỷ lệ lưu lượng</th>
+                      <th className="p-3">Lượt gán (Sticky)</th>
+                      <th className="p-3">Số chuyển đổi</th>
+                      <th className="p-3 text-right">Tỷ lệ chuyển đổi</th>
                     </tr>
                   </thead>
                   <tbody>
                     {exp.variants.map((v) => (
-                      <tr key={v.key} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                        <td style={{ padding: '0.65rem 1rem', fontWeight: 600 }}>
+                      <tr key={v.key} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-100/50 dark:hover:bg-gray-800/50">
+                        <td className="p-3 font-semibold text-gray-900 dark:text-gray-100">
                           <code>{v.key}</code> ({v.name})
                         </td>
-                        <td style={{ padding: '0.65rem 1rem' }}>{v.weight}%</td>
-                        <td style={{ padding: '0.65rem 1rem' }}>{v.assignments.toLocaleString()}</td>
-                        <td style={{ padding: '0.65rem 1rem' }}>{v.conversions.toLocaleString()}</td>
-                        <td style={{ padding: '0.65rem 1rem', textAlign: 'right', fontWeight: 700, color: '#2563eb' }}>
+                        <td className="p-3 text-gray-700 dark:text-gray-300">{v.weight}%</td>
+                        <td className="p-3 text-gray-700 dark:text-gray-300">{v.assignments.toLocaleString()}</td>
+                        <td className="p-3 text-gray-700 dark:text-gray-300">{v.conversions.toLocaleString()}</td>
+                        <td className="p-3 text-right font-bold text-blue-600 dark:text-blue-400">
                           {v.conversionRate}%
                         </td>
                       </tr>

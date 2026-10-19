@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Button, Input } from '@jlpt/ui';
 import type { AdminCouponItem } from './types';
 import type { BillingManager } from './billing-service';
 
@@ -44,176 +45,162 @@ export function CouponsManager({ billingManager, onCouponCreated }: CouponsManag
   };
 
   return (
-    <div style={{ padding: '1rem', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '1.5rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-xs mt-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         <div>
-          <h2 data-testid="coupons-heading" style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>
+          <h2 data-testid="coupons-heading" className="text-xl font-bold text-gray-900 dark:text-gray-100">
             Quản lý mã giảm giá (Coupons & Discounts)
           </h2>
-          <p style={{ color: '#64748b', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Chiến dịch khuyến mại, giảm phần trăm hoặc số tiền cố định, giới hạn lượt dùng nguyên tử.
           </p>
         </div>
-        <button
+        <Button
           type="button"
+          variant="primary"
           data-testid="create-coupon-button"
           onClick={() => setIsModalOpen(true)}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#059669',
-            color: '#fff',
-            borderRadius: '6px',
-            border: 'none',
-            cursor: 'pointer',
-            fontWeight: 500,
-          }}
+          className="bg-emerald-600 hover:bg-emerald-700"
         >
           + Tạo mã mới
-        </button>
+        </Button>
       </div>
 
       {successMsg && (
-        <div data-testid="coupon-success-msg" style={{ padding: '0.75rem', background: '#ecfdf5', color: '#065f46', borderRadius: '6px', marginBottom: '1rem' }}>
+        <div data-testid="coupon-success-msg" className="p-3 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200 rounded-md text-sm font-semibold mb-4">
           {successMsg}
         </div>
       )}
 
       {errorMsg && (
-        <div data-testid="coupon-error-msg" style={{ padding: '0.75rem', background: '#fef2f2', color: '#991b1b', borderRadius: '6px', marginBottom: '1rem' }}>
+        <div data-testid="coupon-error-msg" className="p-3 bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-200 rounded-md text-sm font-semibold mb-4">
           {errorMsg}
         </div>
       )}
 
-      <table data-testid="coupons-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
-        <thead>
-          <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#475569' }}>
-            <th style={{ padding: '0.75rem' }}>Mã giảm giá</th>
-            <th style={{ padding: '0.75rem' }}>Mức giảm</th>
-            <th style={{ padding: '0.75rem' }}>Đã dùng / Giới hạn</th>
-            <th style={{ padding: '0.75rem' }}>Hết hạn</th>
-          </tr>
-        </thead>
-        <tbody>
-          {coupons.map((c) => (
-            <tr key={c.code} data-testid={`coupon-row-${c.code}`} style={{ borderBottom: '1px solid #f1f5f9' }}>
-              <td style={{ padding: '0.75rem', fontWeight: 600, color: '#059669' }}>{c.code}</td>
-              <td style={{ padding: '0.75rem' }}>
-                {c.discountPercent ? `${c.discountPercent}%` : `${c.discountAmount?.toLocaleString('vi-VN')} đ`}
-              </td>
-              <td style={{ padding: '0.75rem' }}>
-                {c.timesRedeemed} / {c.maxRedemptions}
-              </td>
-              <td style={{ padding: '0.75rem', color: '#64748b' }}>
-                {c.validUntil ? new Date(c.validUntil).toLocaleDateString('vi-VN') : 'Vô thời hạn'}
-              </td>
+      <div className="overflow-x-auto">
+        <table data-testid="coupons-table" className="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr className="border-b-2 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300">
+              <th className="p-3 font-semibold">Mã giảm giá</th>
+              <th className="p-3 font-semibold">Mức giảm</th>
+              <th className="p-3 font-semibold">Đã dùng / Giới hạn</th>
+              <th className="p-3 font-semibold">Hết hạn</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {coupons.map((c) => (
+              <tr key={c.code} data-testid={`coupon-row-${c.code}`} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <td className="p-3 font-semibold text-emerald-600 dark:text-emerald-400">{c.code}</td>
+                <td className="p-3 text-gray-700 dark:text-gray-300">
+                  {c.discountPercent ? `${c.discountPercent}%` : `${c.discountAmount?.toLocaleString('vi-VN')} đ`}
+                </td>
+                <td className="p-3 text-gray-700 dark:text-gray-300">
+                  {c.timesRedeemed} / {c.maxRedemptions}
+                </td>
+                <td className="p-3 text-gray-500 dark:text-gray-400">
+                  {c.validUntil ? new Date(c.validUntil).toLocaleDateString('vi-VN') : 'Vô thời hạn'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {isModalOpen && (
         <div
           data-testid="create-coupon-modal"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 50,
-          }}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
         >
-          <div style={{ background: '#fff', borderRadius: '8px', padding: '1.5rem', width: '420px', maxWidth: '90%' }}>
-            <h3 style={{ margin: '0 0 1rem' }}>Tạo mã giảm giá mới</h3>
-            <form onSubmit={handleCreate}>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Mã coupon:</label>
-                <input
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-lg space-y-4">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Tạo mã giảm giá mới</h3>
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Mã coupon:</label>
+                <Input
                   data-testid="coupon-code-input"
                   type="text"
                   required
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="e.g. FLASH20"
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
                 />
               </div>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Loại giảm giá:</label>
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '0.25rem' }}>
-                  <label>
-                    <input
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Loại giảm giá:</label>
+                <div className="flex gap-4 mt-1">
+                  <label className="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                    <Input
                       type="radio"
                       name="discountType"
                       checked={discountType === 'percent'}
                       onChange={() => setDiscountType('percent')}
-                    />{' '}
+                      className="w-4 h-4 min-h-0"
+                    />
                     Phần trăm (%)
                   </label>
-                  <label>
-                    <input
+                  <label className="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                    <Input
                       type="radio"
                       name="discountType"
                       checked={discountType === 'amount'}
                       onChange={() => setDiscountType('amount')}
-                    />{' '}
+                      className="w-4 h-4 min-h-0"
+                    />
                     Số tiền cố định (VND)
                   </label>
                 </div>
               </div>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   {discountType === 'percent' ? 'Phần trăm giảm (%):' : 'Số tiền giảm (VND):'}
                 </label>
-                <input
+                <Input
                   data-testid="coupon-discount-input"
                   type="number"
                   min="1"
                   required
                   value={discountVal}
                   onChange={(e) => setDiscountVal(Number(e.target.value))}
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
                 />
               </div>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Số lượt dùng tối đa:</label>
-                <input
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Số lượt dùng tối đa:</label>
+                <Input
                   data-testid="coupon-maxuses-input"
                   type="number"
                   min="1"
                   required
                   value={maxRedemptions}
                   onChange={(e) => setMaxRedemptions(Number(e.target.value))}
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
                 />
               </div>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Hạn sử dụng:</label>
-                <input
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Hạn sử dụng:</label>
+                <Input
                   data-testid="coupon-expiry-input"
                   type="text"
                   required
                   value={expiresAt}
                   onChange={(e) => setExpiresAt(e.target.value)}
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
                 />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                <button
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => setIsModalOpen(false)}
-                  style={{ padding: '0.5rem 1rem', border: '1px solid #cbd5e1', background: '#fff', borderRadius: '4px', cursor: 'pointer' }}
                 >
                   Hủy
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
+                  variant="primary"
                   data-testid="save-coupon-button"
-                  style={{ padding: '0.5rem 1rem', background: '#059669', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                  className="bg-emerald-600 hover:bg-emerald-700"
                 >
                   Lưu mã
-                </button>
+                </Button>
               </div>
             </form>
           </div>

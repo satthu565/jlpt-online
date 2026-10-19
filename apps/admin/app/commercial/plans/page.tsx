@@ -11,8 +11,8 @@ const billingManager = new BillingManager();
 export default function PlansPage(): React.JSX.Element {
   return (
     <AdminGuard pathname="/commercial/plans" requiredRoles={['billing_admin', 'admin']}>
-      <div style={{ padding: '2rem' }}>
-        <h1 data-testid="page-title" style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '1.5rem' }}>
+      <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
+        <h1 data-testid="page-title" className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           Quản trị các gói dịch vụ và mã giảm giá
         </h1>
         <PlansManager billingManager={billingManager} />

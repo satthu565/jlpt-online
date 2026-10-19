@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Button, Input, Select } from '@jlpt/ui';
 import type { AdminPlanItem } from './types';
 import type { BillingManager } from './billing-service';
 
@@ -45,164 +46,144 @@ export function PlansManager({ billingManager, onPlanCreated }: PlansManagerProp
   };
 
   return (
-    <div style={{ padding: '1rem', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-xs">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         <div>
-          <h2 data-testid="plans-heading" style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>
+          <h2 data-testid="plans-heading" className="text-xl font-bold text-gray-900 dark:text-gray-100">
             Quản lý gói dịch vụ (Membership Plans)
           </h2>
-          <p style={{ color: '#64748b', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Thiết lập bảng giá, thời hạn và phân quyền tính năng cho học viên.
           </p>
         </div>
-        <button
+        <Button
           type="button"
+          variant="primary"
           data-testid="create-plan-button"
           onClick={() => setIsModalOpen(true)}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#2563eb',
-            color: '#fff',
-            borderRadius: '6px',
-            border: 'none',
-            cursor: 'pointer',
-            fontWeight: 500,
-          }}
         >
           + Tạo gói mới
-        </button>
+        </Button>
       </div>
 
       {successMsg && (
-        <div data-testid="plan-success-msg" style={{ padding: '0.75rem', background: '#ecfdf5', color: '#065f46', borderRadius: '6px', marginBottom: '1rem' }}>
+        <div data-testid="plan-success-msg" className="p-3 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200 rounded-md text-sm font-semibold mb-4">
           {successMsg}
         </div>
       )}
 
       {errorMsg && (
-        <div data-testid="plan-error-msg" style={{ padding: '0.75rem', background: '#fef2f2', color: '#991b1b', borderRadius: '6px', marginBottom: '1rem' }}>
+        <div data-testid="plan-error-msg" className="p-3 bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-200 rounded-md text-sm font-semibold mb-4">
           {errorMsg}
         </div>
       )}
 
-      <table data-testid="plans-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
-        <thead>
-          <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#475569' }}>
-            <th style={{ padding: '0.75rem' }}>Mã gói</th>
-            <th style={{ padding: '0.75rem' }}>Tên gói</th>
-            <th style={{ padding: '0.75rem' }}>Thời hạn</th>
-            <th style={{ padding: '0.75rem' }}>Giá (VND)</th>
-            <th style={{ padding: '0.75rem' }}>Phiên bản</th>
-            <th style={{ padding: '0.75rem' }}>Trạng thái</th>
-          </tr>
-        </thead>
-        <tbody>
-          {plans.map((p) => (
-            <tr key={p.id} data-testid={`plan-row-${p.id}`} style={{ borderBottom: '1px solid #f1f5f9' }}>
-              <td style={{ padding: '0.75rem', fontWeight: 600 }}>{p.id}</td>
-              <td style={{ padding: '0.75rem' }}>{p.name}</td>
-              <td style={{ padding: '0.75rem' }}>{p.interval}</td>
-              <td style={{ padding: '0.75rem' }}>{p.priceMinor.toLocaleString('vi-VN')} đ</td>
-              <td style={{ padding: '0.75rem' }}>v{p.version}</td>
-              <td style={{ padding: '0.75rem' }}>
-                <span
-                  style={{
-                    padding: '0.25rem 0.5rem',
-                    borderRadius: '4px',
-                    fontSize: '0.75rem',
-                    background: p.isActive ? '#dcfce7' : '#f1f5f9',
-                    color: p.isActive ? '#15803d' : '#64748b',
-                  }}
-                >
-                  {p.isActive ? 'Đang hoạt động' : 'Tạm dừng'}
-                </span>
-              </td>
+      <div className="overflow-x-auto">
+        <table data-testid="plans-table" className="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr className="border-b-2 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300">
+              <th className="p-3 font-semibold">Mã gói</th>
+              <th className="p-3 font-semibold">Tên gói</th>
+              <th className="p-3 font-semibold">Thời hạn</th>
+              <th className="p-3 font-semibold">Giá (VND)</th>
+              <th className="p-3 font-semibold">Phiên bản</th>
+              <th className="p-3 font-semibold">Trạng thái</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {plans.map((p) => (
+              <tr key={p.id} data-testid={`plan-row-${p.id}`} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <td className="p-3 font-semibold text-gray-900 dark:text-gray-100">{p.id}</td>
+                <td className="p-3 text-gray-700 dark:text-gray-300">{p.name}</td>
+                <td className="p-3 text-gray-700 dark:text-gray-300">{p.interval}</td>
+                <td className="p-3 text-gray-700 dark:text-gray-300">{p.priceMinor.toLocaleString('vi-VN')} đ</td>
+                <td className="p-3 text-gray-500 dark:text-gray-400">v{p.version}</td>
+                <td className="p-3">
+                  <span
+                    className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                      p.isActive
+                        ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                    }`}
+                  >
+                    {p.isActive ? 'Đang hoạt động' : 'Tạm dừng'}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {isModalOpen && (
         <div
           data-testid="create-plan-modal"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 50,
-          }}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
         >
-          <div style={{ background: '#fff', borderRadius: '8px', padding: '1.5rem', width: '420px', maxWidth: '90%' }}>
-            <h3 style={{ margin: '0 0 1rem' }}>Tạo / Cập nhật gói dịch vụ</h3>
-            <form onSubmit={handleCreate}>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Mã gói (Code):</label>
-                <input
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-lg space-y-4">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Tạo / Cập nhật gói dịch vụ</h3>
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Mã gói (Code):</label>
+                <Input
                   data-testid="plan-code-input"
                   type="text"
                   required
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="e.g. premium_6months"
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
                 />
               </div>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Tên hiển thị:</label>
-                <input
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Tên hiển thị:</label>
+                <Input
                   data-testid="plan-name-input"
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Gói Premium 6 Tháng"
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
                 />
               </div>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Chu kỳ thanh toán:</label>
-                <select
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Chu kỳ thanh toán:</label>
+                <Select
                   data-testid="plan-interval-select"
                   value={interval}
                   onChange={(e) => setInterval(e.target.value)}
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
                 >
                   <option value="month">1 Tháng (month)</option>
                   <option value="quarter">3 Tháng (quarter)</option>
                   <option value="year">1 Năm (year)</option>
                   <option value="lifetime">Trọn đời (lifetime)</option>
-                </select>
+                </Select>
               </div>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.875rem' }}>Giá bán (VND):</label>
-                <input
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Giá bán (VND):</label>
+                <Input
                   data-testid="plan-price-input"
                   type="number"
                   min="0"
                   required
                   value={priceMinor}
                   onChange={(e) => setPriceMinor(Number(e.target.value))}
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '4px' }}
                 />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                <button
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => setIsModalOpen(false)}
-                  style={{ padding: '0.5rem 1rem', border: '1px solid #cbd5e1', background: '#fff', borderRadius: '4px', cursor: 'pointer' }}
                 >
                   Hủy
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
+                  variant="primary"
                   data-testid="save-plan-button"
-                  style={{ padding: '0.5rem 1rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                 >
                   Lưu gói
-                </button>
+                </Button>
               </div>
             </form>
           </div>

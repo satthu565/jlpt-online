@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Button, Select } from '@jlpt/ui';
 import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 
@@ -38,74 +39,45 @@ export default function ReportsHubPage(): React.JSX.Element {
 
   return (
     <AdminGuard pathname="/reports">
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-        <header
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '2rem',
-            flexWrap: 'wrap',
-            gap: '1rem',
-          }}
-        >
+      <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
+        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
           <div>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#111827' }}>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               Trung tâm Báo cáo & Phân tích Hệ thống (ADM-17)
             </h1>
-            <p style={{ margin: 0, color: '#6b7280' }}>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               Hệ thống theo dõi đầy đủ 15 chỉ số nghiệp vụ từ vận hành, nội dung, người dùng đến thương mại.
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-            <select
+          <div className="flex flex-wrap gap-3 items-center">
+            <Select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '6px',
-                border: '1px solid #d1d5db',
-                background: '#ffffff',
-                fontWeight: 600,
-              }}
+              className="w-auto min-w-[140px]"
             >
               <option value="7d">7 ngày qua</option>
               <option value="30d">30 ngày qua</option>
               <option value="90d">90 ngày qua</option>
               <option value="all">Toàn bộ thời gian</option>
-            </select>
+            </Select>
 
-            <button
+            <Button
+              type="button"
+              variant="primary"
               data-testid="btn-export-csv"
               onClick={() => handleExportCsv(activeReport)}
-              style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '6px',
-                background: '#059669',
-                color: '#ffffff',
-                border: 'none',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
+              className="bg-emerald-600 hover:bg-emerald-700"
             >
               ↓ Xuất CSV (RFC 4180)
-            </button>
+            </Button>
           </div>
         </header>
 
         {downloadSuccess && (
           <div
             data-testid="alert-export-success"
-            style={{
-              padding: '0.75rem 1rem',
-              borderRadius: '6px',
-              background: '#d1fae5',
-              border: '1px solid #10b981',
-              color: '#065f46',
-              marginBottom: '1.5rem',
-              fontWeight: 600,
-            }}
+            className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200 rounded-md text-sm font-semibold"
           >
             ✓ {downloadSuccess}
           </div>
@@ -114,65 +86,45 @@ export default function ReportsHubPage(): React.JSX.Element {
         {/* 15 Tabs Navigation */}
         <div
           data-testid="reports-tab-nav"
-          style={{
-            display: 'flex',
-            gap: '0.5rem',
-            overflowX: 'auto',
-            paddingBottom: '0.75rem',
-            marginBottom: '1.5rem',
-            borderBottom: '2px solid #e5e7eb',
-          }}
+          className="flex gap-2 overflow-x-auto pb-3 border-b-2 border-gray-200 dark:border-gray-800"
         >
           {REPORT_TABS.map((tab) => (
-            <button
+            <Button
               key={tab.id}
+              type="button"
+              variant={activeReport === tab.id ? 'primary' : 'secondary'}
+              size="sm"
               data-testid={`report-tab-${tab.id}`}
               onClick={() => setActiveReport(tab.id)}
-              style={{
-                padding: '0.5rem 0.85rem',
-                borderRadius: '6px',
-                border: 'none',
-                background: activeReport === tab.id ? '#2563eb' : '#f3f4f6',
-                color: activeReport === tab.id ? '#ffffff' : '#4b5563',
-                fontWeight: 600,
-                fontSize: '0.8rem',
-                whiteSpace: 'nowrap',
-                cursor: 'pointer',
-              }}
+              className="whitespace-nowrap shrink-0 text-xs"
             >
               {tab.label}
-            </button>
+            </Button>
           ))}
         </div>
 
         {/* Active Report Content Container */}
         <div
           data-testid="report-content-panel"
-          style={{
-            background: '#ffffff',
-            borderRadius: '10px',
-            border: '1px solid #e5e7eb',
-            padding: '1.75rem',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-          }}
+          className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-xs"
         >
           {activeReport === 'acquisition' && (
             <div data-testid="report-view-acquisition">
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, margin: '0 0 1rem' }}>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                 REPORT-01: Số người dùng mới theo ngày/tháng
               </h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
-                <div style={{ background: '#f9fafb', padding: '1rem', borderRadius: '8px' }}>
-                  <div style={{ color: '#6b7280', fontSize: '0.85rem' }}>Tổng người dùng mới</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#111827' }}>1,420</div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Tổng người dùng mới</div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">1,420</div>
                 </div>
-                <div style={{ background: '#f9fafb', padding: '1rem', borderRadius: '8px' }}>
-                  <div style={{ color: '#6b7280', fontSize: '0.85rem' }}>Theo ngôn ngữ Tiếng Việt (vi)</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#2563eb' }}>1,180 (83%)</div>
+                <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Theo ngôn ngữ Tiếng Việt (vi)</div>
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">1,180 (83%)</div>
                 </div>
-                <div style={{ background: '#f9fafb', padding: '1rem', borderRadius: '8px' }}>
-                  <div style={{ color: '#6b7280', fontSize: '0.85rem' }}>Theo ngôn ngữ Tiếng Nhật (ja)</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>240 (17%)</div>
+                <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Theo ngôn ngữ Tiếng Nhật (ja)</div>
+                  <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">240 (17%)</div>
                 </div>
               </div>
             </div>
@@ -180,76 +132,69 @@ export default function ReportsHubPage(): React.JSX.Element {
 
           {activeReport === 'retention' && (
             <div data-testid="report-view-retention">
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, margin: '0 0 1rem' }}>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                 REPORT-08: Tỷ lệ quay lại sau 7/30 ngày (Retention)
               </h2>
 
               {/* Acceptance 4 Alert */}
               <div
                 data-testid="alert-insufficient-data"
-                style={{
-                  background: '#fef3c7',
-                  border: '1px solid #f59e0b',
-                  borderRadius: '8px',
-                  padding: '1rem',
-                  color: '#92400e',
-                  marginBottom: '1.5rem',
-                  fontWeight: 600,
-                  fontSize: '0.9rem',
-                }}
+                className="bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 rounded-lg p-4 text-amber-800 dark:text-amber-200 mb-6 text-sm font-semibold"
               >
                 ℹ️ Trạng thái: <code>insufficient-data</code> — Các cohort người dùng mới đăng ký chưa đủ 7 hoặc 30 ngày quan sát. Hệ thống hiển thị <code>insufficient-data</code> thay vì hiển thị tỷ lệ 0% giả gây hiểu lầm.
               </div>
 
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead>
-                  <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                    <th style={{ padding: '0.75rem', fontWeight: 600 }}>Cohort ngày</th>
-                    <th style={{ padding: '0.75rem', fontWeight: 600 }}>Quy mô cohort</th>
-                    <th style={{ padding: '0.75rem', fontWeight: 600 }}>Tỷ lệ D7 (7 ngày)</th>
-                    <th style={{ padding: '0.75rem', fontWeight: 600 }}>Tỷ lệ D30 (30 ngày)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr style={{ borderBottom: '1px solid #f3f4f6' }}>
-                    <td style={{ padding: '0.75rem' }}>2026-10-15 (Hôm qua)</td>
-                    <td style={{ padding: '0.75rem' }}>84 học viên</td>
-                    <td style={{ padding: '0.75rem', color: '#d97706', fontWeight: 600 }}>insufficient-data</td>
-                    <td style={{ padding: '0.75rem', color: '#d97706', fontWeight: 600 }}>insufficient-data</td>
-                  </tr>
-                  <tr style={{ borderBottom: '1px solid #f3f4f6' }}>
-                    <td style={{ padding: '0.75rem' }}>2026-10-12 (4 ngày trước)</td>
-                    <td style={{ padding: '0.75rem' }}>112 học viên</td>
-                    <td style={{ padding: '0.75rem', color: '#d97706', fontWeight: 600 }}>insufficient-data</td>
-                    <td style={{ padding: '0.75rem', color: '#d97706', fontWeight: 600 }}>insufficient-data</td>
-                  </tr>
-                  <tr style={{ borderBottom: '1px solid #f3f4f6' }}>
-                    <td style={{ padding: '0.75rem' }}>2026-09-01 (Cohort trưởng thành)</td>
-                    <td style={{ padding: '0.75rem' }}>230 học viên</td>
-                    <td style={{ padding: '0.75rem', color: '#059669', fontWeight: 600 }}>42.8%</td>
-                    <td style={{ padding: '0.75rem', color: '#059669', fontWeight: 600 }}>28.5%</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-left text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300">
+                      <th className="p-3 font-semibold">Cohort ngày</th>
+                      <th className="p-3 font-semibold">Quy mô cohort</th>
+                      <th className="p-3 font-semibold">Tỷ lệ D7 (7 ngày)</th>
+                      <th className="p-3 font-semibold">Tỷ lệ D30 (30 ngày)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-gray-100 dark:border-gray-700/50">
+                      <td className="p-3">2026-10-15 (Hôm qua)</td>
+                      <td className="p-3">84 học viên</td>
+                      <td className="p-3 text-amber-600 font-semibold">insufficient-data</td>
+                      <td className="p-3 text-amber-600 font-semibold">insufficient-data</td>
+                    </tr>
+                    <tr className="border-b border-gray-100 dark:border-gray-700/50">
+                      <td className="p-3">2026-10-12 (4 ngày trước)</td>
+                      <td className="p-3">112 học viên</td>
+                      <td className="p-3 text-amber-600 font-semibold">insufficient-data</td>
+                      <td className="p-3 text-amber-600 font-semibold">insufficient-data</td>
+                    </tr>
+                    <tr className="border-b border-gray-100 dark:border-gray-700/50">
+                      <td className="p-3">2026-09-01 (Cohort trưởng thành)</td>
+                      <td className="p-3">230 học viên</td>
+                      <td className="p-3 text-emerald-600 font-semibold">42.8%</td>
+                      <td className="p-3 text-emerald-600 font-semibold">28.5%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
           {activeReport === 'funnel' && (
             <div data-testid="report-view-funnel">
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, margin: '0 0 1rem' }}>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                 REPORT-09: Phân tích phễu đăng ký và bắt đầu làm đề
               </h2>
-              <div style={{ display: 'grid', gap: '0.75rem' }}>
-                <div style={{ background: '#f3f4f6', padding: '1rem', borderRadius: '6px' }}>
+              <div className="grid gap-3">
+                <div className="bg-gray-100 dark:bg-gray-700/60 p-4 rounded-md text-gray-800 dark:text-gray-200">
                   1. Đăng ký tài khoản: <strong>1,420 người dùng (100%)</strong>
                 </div>
-                <div style={{ background: '#e0e7ff', padding: '1rem', borderRadius: '6px' }}>
+                <div className="bg-indigo-50 dark:bg-indigo-950/40 p-4 rounded-md text-indigo-900 dark:text-indigo-200">
                   2. Duyệt danh mục đề thi: <strong>1,210 người dùng (85.2%)</strong>
                 </div>
-                <div style={{ background: '#dbeafe', padding: '1rem', borderRadius: '6px' }}>
+                <div className="bg-blue-50 dark:bg-blue-950/40 p-4 rounded-md text-blue-900 dark:text-blue-200">
                   3. Bắt đầu làm bài thi: <strong>940 người dùng (66.2%)</strong>
                 </div>
-                <div style={{ background: '#d1fae5', padding: '1rem', borderRadius: '6px' }}>
+                <div className="bg-emerald-50 dark:bg-emerald-950/40 p-4 rounded-md text-emerald-900 dark:text-emerald-200">
                   4. Nộp bài hoàn tất: <strong>780 người dùng (54.9%)</strong>
                 </div>
               </div>
@@ -258,25 +203,25 @@ export default function ReportsHubPage(): React.JSX.Element {
 
           {activeReport === 'conversion' && (
             <div data-testid="report-view-conversion">
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, margin: '0 0 1rem' }}>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                 REPORT-13: Báo cáo chuyển đổi Free → Premium
               </h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
-                <div style={{ background: '#f9fafb', padding: '1rem', borderRadius: '8px' }}>
-                  <div style={{ color: '#6b7280', fontSize: '0.85rem' }}>Học viên Miễn phí</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>1,230</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Học viên Miễn phí</div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">1,230</div>
                 </div>
-                <div style={{ background: '#f9fafb', padding: '1rem', borderRadius: '8px' }}>
-                  <div style={{ color: '#6b7280', fontSize: '0.85rem' }}>Học viên Trả phí</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#10b981' }}>190</div>
+                <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Học viên Trả phí</div>
+                  <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">190</div>
                 </div>
-                <div style={{ background: '#f9fafb', padding: '1rem', borderRadius: '8px' }}>
-                  <div style={{ color: '#6b7280', fontSize: '0.85rem' }}>Tỷ lệ chuyển đổi</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#2563eb' }}>13.4%</div>
+                <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Tỷ lệ chuyển đổi</div>
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">13.4%</div>
                 </div>
-                <div style={{ background: '#f9fafb', padding: '1rem', borderRadius: '8px' }}>
-                  <div style={{ color: '#6b7280', fontSize: '0.85rem' }}>Doanh thu thuần</div>
-                  <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#7c3aed' }}>48,900,000 đ</div>
+                <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Doanh thu thuần</div>
+                  <div className="text-xl font-bold text-purple-600 dark:text-purple-400">48,900,000 đ</div>
                 </div>
               </div>
             </div>
@@ -287,10 +232,10 @@ export default function ReportsHubPage(): React.JSX.Element {
             activeReport !== 'funnel' &&
             activeReport !== 'conversion' && (
               <div data-testid={`report-view-${activeReport}`}>
-                <h2 style={{ fontSize: '1.3rem', fontWeight: 700, margin: '0 0 1rem' }}>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                   Dữ liệu báo cáo: {REPORT_TABS.find((t) => t.id === activeReport)?.label}
                 </h2>
-                <div style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '8px', color: '#4b5563' }}>
+                <div className="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-lg text-gray-600 dark:text-gray-300 text-sm">
                   Báo cáo được tổng hợp thời gian thực từ cơ sở dữ liệu PostgreSQL chuẩn hóa. Đã bao gồm các chỉ số thống kê, phân phối tần suất và biểu đồ trực quan hóa.
                 </div>
               </div>

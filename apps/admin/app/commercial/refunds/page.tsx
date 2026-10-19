@@ -10,8 +10,8 @@ const billingManager = new BillingManager();
 export default function RefundsPage(): React.JSX.Element {
   return (
     <AdminGuard pathname="/commercial/refunds" requiredRoles={['billing_admin', 'admin']}>
-      <div style={{ padding: '2rem' }}>
-        <h1 data-testid="page-title" style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '1.5rem' }}>
+      <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
+        <h1 data-testid="page-title" className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           Quản trị yêu cầu hoàn tiền
         </h1>
         <RefundsManager billingManager={billingManager} />
