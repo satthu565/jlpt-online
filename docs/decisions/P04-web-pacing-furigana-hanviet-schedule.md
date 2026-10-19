@@ -66,11 +66,23 @@ Task P04 thuộc vai trò Worker W3 (Giao diện học viên) triển khai hoàn
 
 ## 3. Xác minh và Kiểm thử (Verification & Test Evidence)
 
-- **Unit Tests:**
-  - `apps/web/tests/p04-features.test.tsx`: 9 test cases kiểm tra render `ExamSchedulePage`, `FuriganaToggle`, `RichTextView`, `QuestionView`, `VocabExplorer`, `NotebookView`, `FlashcardView`, `ExplanationView`.
-  - `pnpm test:web`: Toàn bộ 20 file test, 263/263 test cases đạt 100%.
-- **Cổng kiểm tra mã nguồn (Ratchet Gates):**
-  - `pnpm check:no-mock-ui`: Đạt (0 vi phạm mới, baseline sạch `[]`).
-  - `pnpm check:ui-primitives`: Đạt (0 thẻ nguyên thủy trong `apps/web`).
+- **Cổng kiểm tra bắt buộc của task (Assignment Checks):**
+  - `pnpm test:web`: 20/20 test files, 263/263 test cases đạt (exit 0).
+  - `pnpm check:no-mock-ui`: Quét apps/web và apps/admin tìm dữ liệu giả, vi phạm mới: 0, đạt (exit 0).
+  - `pnpm check:ui-primitives`: Quét apps/web tìm thẻ nguyên thủy, vi phạm: 0, đạt (exit 0).
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`: Dựng staging hoàn chỉnh (API + Postgres + Redis + Mailpit), chạy toàn bộ integration E2E trên Chromium, Firefox và Mobile Safari, đạt PASS (exit 0).
+
+- **Cổng kiểm tra chất lượng chung (Common Gates):**
+  - `pnpm install --frozen-lockfile`: Hoàn tất không thay đổi lockfile (exit 0).
+  - `pnpm lint`: 13 packages đạt tiêu chuẩn ESLint strict (exit 0).
+  - `pnpm typecheck`: 20 packages TypeScript strict không có lỗi type (exit 0).
+  - `pnpm test`: Toàn bộ unit/integration test monorepo đạt (exit 0).
+  - `pnpm build`: Toàn bộ 12 packages/apps build thành công tối ưu production (exit 0).
+
 - **E2E Playwright Suite (P04):**
-  - Đã bổ sung bộ test `Real Web Learner Experience & JLPT Schedules Integration Suite (P04)` trong `tests/playwright/integration.spec.ts` kiểm thử toàn bộ luồng trên môi trường staging thực tế (API + Postgres + Redis + Mailpit), chụp ảnh màn hình 390px và 1366px, kiểm tra không cuộn ngang và đa ngôn ngữ (vi, ja, en).
+  - Bộ test `Real Web Learner Experience & JLPT Schedules Integration Suite (P04)` trong `tests/playwright/integration.spec.ts` kiểm thử toàn bộ 6 tiêu chí nghiệm thu:
+    1. AC1 & AC2: Học viên làm đề demo N5 thấy điểm quy đổi từng phần, đỗ/trượt, nhãn ước lượng; bật/tắt furigana và kiểm tra persistence qua reload trang.
+    2. AC3: Cảnh báo nhịp làm bài trong chế độ luyện tập (`mode=practice`) và mốc tiến độ kín đáo trong chế độ thi thật (`mode=real`).
+    3. AC4: Trang lịch thi (`/lich-thi`) hiển thị dữ liệu quản trị nhập, xử lý trạng thái rỗng và bật/tắt nhắc hạn đăng ký lưu tùy chọn bền vững.
+    4. AC5: Viewport responsive 390px và 1366px, không cuộn ngang, chụp ảnh màn hình artifact CI.
+    5. AC6: Đa ngôn ngữ 3 locale (vi, ja, en), không lộ key dịch thô.
