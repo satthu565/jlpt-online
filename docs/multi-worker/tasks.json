@@ -3805,6 +3805,43 @@
       "originalTaskRefs": []
     },
     {
+      "id": "I18",
+      "owner": "W2",
+      "day": 8,
+      "notBeforeHour": 168,
+      "targetByHour": 192,
+      "estimatedWorkerHours": 1,
+      "title": "API: giới hạn kích thước body cho multipart, zip và octet-stream",
+      "dependencies": [
+        "I16"
+      ],
+      "featureIds": [],
+      "scope": "I16 thêm vào apps/api/src/main.ts ba addContentTypeParser (multipart/form-data, application/zip, application/octet-stream) tự gom stream vào Buffer. Cách này bỏ qua bodyLimit của Fastify và chạy trước guard đăng nhập, nên ai cũng gửi được body lớn tùy ý vào bất kỳ route POST nào và làm API hết RAM. Sửa: dùng một parser chung với { parseAs: \"buffer\", bodyLimit } (mặc định 1 MB; riêng POST /api/v1/admin/imports đặt giới hạn ở cấu hình route, lấy từ biến môi trường IMPORT_MAX_BYTES, mặc định 50 MB); vượt giới hạn trả 413. Giữ nguyên hành vi nhập gói của I16.",
+      "outputs": [
+        "apps/api/src/main.ts",
+        "apps/api/src/modules/import/"
+      ],
+      "acceptance": [
+        "Test: body 2 MB application/octet-stream vào route không phải nhập gói trả 413 mà không cần đăng nhập",
+        "Test: gói vượt IMPORT_MAX_BYTES vào /api/v1/admin/imports trả 413; gói fixtures hợp lệ vẫn nhập được ở chế độ draft và ready"
+      ],
+      "checks": [
+        "pnpm test"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
       "id": "I07",
       "owner": "W6",
       "day": 8,
