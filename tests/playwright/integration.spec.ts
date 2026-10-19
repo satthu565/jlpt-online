@@ -2793,6 +2793,7 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
     page,
   }, testInfo) => {
     test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'Cross-page 29-web-route crawl runs on primary chromium browser');
     const clientIp = getProjectClientIp(testInfo, 85);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -2859,6 +2860,7 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
     page,
   }, testInfo) => {
     test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'Cross-page 30-admin-route crawl runs on primary chromium browser');
     const clientIp = getProjectClientIp(testInfo, 86);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
