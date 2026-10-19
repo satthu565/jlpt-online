@@ -1,17 +1,35 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import type { PublicExamSnapshot, AttemptMode } from '@jlpt/schema';
-import {
-  ExamPicker,
-  InstructionsModal,
-  ExamRoom,
-  createExamStorage,
-  ExamApiClient,
-  ExamApiError,
-  type ExamPickerExam,
-} from '../../../features/exam';
+import { ExamPicker, type ExamPickerExam } from '../../../features/exam/components/exam-picker';
+import { createExamStorage } from '../../../features/exam/storage/indexeddb';
+import { ExamApiClient, ExamApiError } from '../../../features/exam/api/exam-api';
 import { Card, Alert, Button } from '@jlpt/ui';
+
+const ExamRoom = dynamic(
+  () => import('../../../features/exam/components/exam-room').then((m) => m.ExamRoom),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="max-w-2xl mx-auto py-20 px-4 text-center">
+        <div className="animate-spin text-4xl mb-4">⏳</div>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+          Đang chuẩn bị phòng thi...
+        </h2>
+        <p className="text-sm text-slate-500">
+          Vui lòng đợi trong giây lát. Hệ thống đang tải nội dung bài thi.
+        </p>
+      </div>
+    ),
+  },
+);
+
+const InstructionsModal = dynamic(
+  () => import('../../../features/exam/components/modals/instructions-modal').then((m) => m.InstructionsModal),
+  { ssr: false },
+);
 
 export default function ExamRoomPage(): React.JSX.Element {
   const [availableExams, setAvailableExams] = useState<ExamPickerExam[]>([]);

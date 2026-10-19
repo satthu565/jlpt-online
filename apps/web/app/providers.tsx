@@ -1,12 +1,16 @@
 'use client';
 
-import React from 'react';
+import dynamic from 'next/dynamic';
 import { ThemeProvider, SkipToContent } from '@jlpt/ui';
 import { I18nProvider, useI18n } from '../lib/i18n';
 import { AuthProvider } from '../lib/auth-context';
 import { NavigationHeader, NavigationFooter } from './nav-shell';
-import { CookieConsentManager } from '../components/cookie-consent-manager';
 import { WebVitalsReporter } from '../components/web-vitals-reporter';
+
+const CookieConsentManager = dynamic(
+  () => import('../components/cookie-consent-manager').then((m) => m.CookieConsentManager),
+  { ssr: false },
+);
 
 function LocalizedSkipToContent(): React.JSX.Element {
   const { t } = useI18n();
