@@ -500,6 +500,17 @@ task('I15','W4',8,2,'Quản trị: phiên hết hạn phải đưa về trang đ
  'apps/admin/',
  'E2E: đăng nhập nhân sự, tải lại trang vẫn đăng nhập|E2E: xóa phiên phía máy chủ (đăng xuất ở tab khác) rồi tải lại hoặc thao tác thì về trang đăng nhập|'+NO_MOCK+'|'+REAL_E2E,
  'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
+# Owner tried a real N3 package (2026-10-19): it validates as DRAFT_ONLY, but POST /imports always uses mode 'ready'.
+task('I16','W2',8,3,'Nhập gói đề ở chế độ nháp (DRAFT_ONLY) qua API và trang quản trị','I03',
+ 'import.controller.ts không truyền mode nên import.service luôn kiểm tra ở chế độ ready và từ chối gói có issue blocking, '
+ 'trái với docs/import-format/README.md (DRAFT_ONLY được lưu nháp, chặn xuất bản). Cho POST /api/v1/admin/imports nhận mode=draft|ready '
+ '(multipart field và JSON body), mặc định ready; gói DRAFT_ONLY lưu thành bản nháp kèm danh sách issue, không vào hàng duyệt/xuất bản cho tới khi '
+ 'nạp lại bản ready cùng packageId với revision cao hơn. Trang nhập gói của quản trị có lựa chọn "Nạp bản nháp", hiện trạng thái DRAFT_ONLY và từng issue '
+ '(mức độ, đường dẫn, lý do). Xuất bản đề từ bản nháp phải bị chặn ở API.',
+ 'apps/api/src/modules/import/',
+ 'Gói fixtures/imports/draft.zip nạp được ở chế độ nháp, trang quản trị hiện issue blocking|Cùng gói ở chế độ ready bị từ chối với thông báo rõ|'
+ 'API chặn duyệt và xuất bản bản nháp (test âm)|Nạp lại bản ready cùng packageId, revision cao hơn thì thay bản nháp|'+NO_MOCK+'|'+REAL_E2E,
+ 'pnpm test|pnpm check:no-mock-ui',contracts='API',grants='apps/admin/features/import/ apps/admin/app/imports/ apps/admin/lib/api-client.ts tests/playwright/')
 task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I11 I12 I13 I09 I03 I04 I05 I06 I14 I15',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',
@@ -592,7 +603,7 @@ task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05 D05',
 
 # Staging E2E on jlpt-vm (same suite as CI) is a required check for tasks that touch the UI or APIs it uses.
 for _t in TASKS:
-    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','D02','D03','D04','P03','P04','P05'}:
+    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','D02','D03','D04','P03','P04','P05'}:
         _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check')
     # Per-task runs cover Chromium + Mobile Safari; final acceptance runs every browser.
     if _t['id'] in {'I07','D05','P06'}:
