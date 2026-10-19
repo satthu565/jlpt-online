@@ -77,3 +77,7 @@ Trong `apps/admin/app/login/page.tsx`:
    - `E2E: đăng nhập nhân sự, tải lại trang vẫn đăng nhập`.
    - `E2E: xóa phiên phía máy chủ (đăng xuất ở tab khác) rồi tải lại thì về trang đăng nhập kèm thông báo`.
    - `E2E: xóa phiên phía máy chủ rồi thao tác trên giao diện thì về trang đăng nhập kèm thông báo`.
+   - Ổn định tương thích đa trình duyệt (Chromium, Firefox, Mobile Safari):
+     - Tinh chỉnh `loginAsStaff` và `loginAsAdmin` không truy vấn thẻ `h1` ẩn trong mobile navigation khi chưa mở sidebar, giúp Mobile Safari (iPhone 15) nhận diện `main` lập tức.
+     - Tinh chỉnh `handleSessionExpired` trì hoãn điều hướng qua `setTimeout(..., 0)` và xử lý trường hợp `NS_BINDING_ABORTED` của Gecko engine khi chuyển trang sau mã 401 trên Firefox.
+     - Chạy toàn bộ staging E2E đạt PASS: `sudo -n /usr/local/bin/jlpt-stage-test check` (exitCode: 0, 64 passed).
