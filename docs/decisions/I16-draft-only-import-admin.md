@@ -64,3 +64,13 @@ Theo đặc tả `DRAFT_ONLY`:
   - Xác nhận toàn bộ luồng import, validator phía admin, và các trạng thái gói đề.
 - **E2E Playwright Tests (`tests/playwright/integration.spec.ts`)**:
   - Bổ sung kịch bản kiểm thử giao diện thật: bật chế độ "Nạp bản nháp", kiểm tra hiển thị trạng thái `DRAFT_ONLY`, danh sách issue chặn, và nút gửi duyệt bị vô hiệu hóa.
+
+### 6. Xử lý độ tương thích hiển thị Responsive trên thiết bị di động (Mobile Chrome Pixel 7 / Mobile Safari)
+
+- Tối ưu hóa layout `import-components.tsx`:
+  - Bổ sung `w-full max-w-full overflow-hidden` cho `upload-container` và phần tử `<input type="file">` để triệt tiêu hiện tượng tràn ngang (horizontal overflow) do kích thước nội tại của input tệp trên trình duyệt di động Chromium.
+  - Thêm `max-w-full` cho danh sách issues chặn và vùng hiển thị bảng kết quả.
+- Tinh chỉnh locator và dung sai subpixel trong bộ test Playwright `integration.spec.ts`:
+  - Trong `loginAsStaff`: chờ phần tử `main` thay vì selector ghép `main, [data-testid="page-title"], header, h1` để tránh bị chặn bởi thẻ `h1` ẩn trong menu điều hướng di động.
+  - Trong AC5 (I03): giới hạn phạm vi tìm kiếm tiêu đề bên trong `main`, và bổ sung dung sai subpixel (2px) cho các màn hình di động có tỉ lệ điểm ảnh lẻ (DPR 2.625 trên Pixel 7).
+

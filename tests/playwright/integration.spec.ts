@@ -1321,7 +1321,7 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
 
     expect(page.url()).not.toContain('/login');
     expect(page.url()).not.toContain('/verify-2fa');
-    await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('main').first()).toBeVisible({ timeout: 15000 });
   }
 
   test.beforeAll(() => {
@@ -1540,17 +1540,21 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
 
     for (const route of CONTENT_ADMIN_PAGES) {
       await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-      await expect(page.locator('main, [data-testid$="-title"], header, h2').first()).toBeVisible({ timeout: 10000 });
+      await expect(page.locator('main').first()).toBeVisible({ timeout: 10000 });
+      await expect(
+        page.locator('main').locator('[data-testid$="-title"], [data-testid="page-title"], header, h1, h2, table').first(),
+      ).toBeVisible({ timeout: 10000 });
       await page.waitForTimeout(50);
 
       // 1. Verify responsive viewports (390px, 1366px) & capture screenshots without horizontal scroll
       for (const vp of viewportsToTest) {
         await page.setViewportSize({ width: vp.width, height: vp.height });
 
-        // Verify zero horizontal scroll (allow 1px subpixel tolerance)
+        // Verify zero horizontal scroll (allow 1px subpixel tolerance, 2px for fractional DPR mobile devices)
         const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
         const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
-        expect(scrollWidth, `Horizontal scroll detected on ${route.path} at ${vp.name}`).toBeLessThanOrEqual(clientWidth + 1);
+        const tolerance = isMobileDevice ? 2 : 1;
+        expect(scrollWidth, `Horizontal scroll detected on ${route.path} at ${vp.name}`).toBeLessThanOrEqual(clientWidth + tolerance);
 
         // Verify Tailwind padding / layout integrity
         const containerPadding = await page.evaluate(() => {

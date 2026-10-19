@@ -383,7 +383,7 @@ export function ImportManagerView({
   };
 
   return (
-    <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
+    <div className="w-full max-w-full overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
       <div className="border-b border-gray-200 pb-4">
         <h2 data-testid="import-title" className="text-2xl font-bold text-gray-900">
           {t('content.imports.title', locale)}
@@ -424,27 +424,27 @@ export function ImportManagerView({
       {/* Upload Box */}
       <div
         data-testid="upload-container"
-        className="border-2 border-dashed border-gray-300 rounded-lg p-6 md:p-8 text-center bg-gray-50 mb-6"
+        className="w-full max-w-full overflow-hidden border-2 border-dashed border-gray-300 rounded-lg p-4 md:p-8 text-center bg-gray-50 mb-6"
       >
         <p className="text-gray-700 font-medium mb-3">
           {t('content.imports.uploadPrompt', locale)}
         </p>
-        <div className="flex flex-col items-center gap-3">
+        <div className="flex flex-col items-center gap-3 w-full max-w-full overflow-hidden">
           <input
             data-testid="package-file-input"
             type="file"
             multiple
             accept=".zip,.pdf"
             onChange={handleFileUpload}
-            className="inline-block text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            className="inline-block max-w-full text-sm text-gray-600 file:mr-2 md:file:mr-4 file:py-1.5 md:file:py-2 file:px-3 md:file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
           />
-          <label className="inline-flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-md border border-gray-300 hover:bg-gray-100 transition-colors shadow-2xs">
+          <label className="inline-flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-md border border-gray-300 hover:bg-gray-100 transition-colors shadow-2xs max-w-full">
             <input
               type="checkbox"
               data-testid="draft-mode-checkbox"
               checked={isDraftMode}
               onChange={(e) => setIsDraftMode(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
             />
             <span className="text-sm font-semibold text-gray-800">Nạp bản nháp</span>
             <span className="text-xs text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 font-mono">DRAFT_ONLY</span>
@@ -498,8 +498,8 @@ export function ImportManagerView({
       <h3 className="text-lg font-semibold text-gray-800 mb-3">
         {t('content.imports.jobsTitle', locale)} ({jobs.length})
       </h3>
-      <div className="overflow-x-auto w-full border border-gray-200 rounded-lg shadow-xs mb-8">
-        <table data-testid="jobs-table" className="w-full text-left text-sm border-collapse">
+      <div className="overflow-x-auto w-full max-w-full border border-gray-200 rounded-lg shadow-xs mb-8">
+        <table data-testid="jobs-table" className="w-full text-left text-sm border-collapse min-w-full">
           <thead>
             <tr className="bg-gray-100 border-b border-gray-200 text-gray-700">
               <th className="p-3">Tên tệp</th>
@@ -542,7 +542,7 @@ export function ImportManagerView({
                       <div className="space-y-1">
                         <span className="text-red-600 font-bold">{job.blockingIssueCount}</span>
                         {job.issues && job.issues.length > 0 && (
-                          <div data-testid={`job-issues-${job.id}`} className="mt-2 space-y-1.5 text-xs max-w-md">
+                          <div data-testid={`job-issues-${job.id}`} className="mt-2 space-y-1.5 text-xs max-w-full">
                             {job.issues.map((iss, idx) => (
                               <div
                                 key={iss.id || idx}
