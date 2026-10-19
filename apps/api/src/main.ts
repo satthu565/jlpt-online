@@ -7,32 +7,16 @@ export async function createApp(): Promise<NestFastifyApplication> {
   const adapter = new FastifyAdapter();
   const fastify = adapter.getInstance();
 
-  // Register buffer parsers for multipart/form-data and binary zip uploads
+  const maxImportBytes = process.env['IMPORT_MAX_BYTES']
+    ? parseInt(process.env['IMPORT_MAX_BYTES'], 10)
+    : 50 * 1024 * 1024; // 50MB default
+
+  // Register buffer parsers with bodyLimit to prevent memory exhaustion (DoS/OOM)
   fastify.addContentTypeParser(
-    'multipart/form-data',
-    (_req: unknown, payload: import('stream').Readable, done: (err: Error | null, res?: Buffer) => void) => {
-      const chunks: Buffer[] = [];
-      payload.on('data', (chunk: Buffer) => chunks.push(chunk));
-      payload.on('end', () => done(null, Buffer.concat(chunks)));
-      payload.on('error', (err: Error) => done(err));
-    },
-  );
-  fastify.addContentTypeParser(
-    'application/zip',
-    (_req: unknown, payload: import('stream').Readable, done: (err: Error | null, res?: Buffer) => void) => {
-      const chunks: Buffer[] = [];
-      payload.on('data', (chunk: Buffer) => chunks.push(chunk));
-      payload.on('end', () => done(null, Buffer.concat(chunks)));
-      payload.on('error', (err: Error) => done(err));
-    },
-  );
-  fastify.addContentTypeParser(
-    'application/octet-stream',
-    (_req: unknown, payload: import('stream').Readable, done: (err: Error | null, res?: Buffer) => void) => {
-      const chunks: Buffer[] = [];
-      payload.on('data', (chunk: Buffer) => chunks.push(chunk));
-      payload.on('end', () => done(null, Buffer.concat(chunks)));
-      payload.on('error', (err: Error) => done(err));
+    ['multipart/form-data', 'application/zip', 'application/octet-stream'],
+    { parseAs: 'buffer', bodyLimit: maxImportBytes },
+    (_req: unknown, body: Buffer, done: (err: Error | null, res?: Buffer) => void) => {
+      done(null, body);
     },
   );
 

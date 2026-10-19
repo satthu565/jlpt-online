@@ -9,7 +9,7 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
-import { eq, and, sql, desc, isNull, gte } from 'drizzle-orm';
+import { eq, and, sql, desc, isNull } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
@@ -222,7 +222,7 @@ export class AttemptService {
         .where(
           and(
             eq(schema.examAttempts.guestId, effectiveGuestId),
-            gte(schema.examAttempts.startedAt, oneDayAgo),
+            sql`${schema.examAttempts.startedAt} >= ${oneDayAgo}`,
           ),
         );
 

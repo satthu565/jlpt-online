@@ -170,7 +170,7 @@ export function validateImportV2Package(input: PackageValidationInput): PackageV
     ? (parsed['sourceFiles'] as Record<string, unknown>[])
     : [];
 
-  let blockingIssues = 0;
+  let missingAnswerCount = 0;
   let nonBlockingIssues = 0;
 
   for (const g of groups) {
@@ -217,7 +217,7 @@ export function validateImportV2Package(input: PackageValidationInput): PackageV
 
       const correctOption = q['correctOption'];
       if (correctOption === null || correctOption === undefined) {
-        blockingIssues++;
+        missingAnswerCount++;
       } else if (
         typeof correctOption !== 'number' ||
         correctOption < 1 ||
@@ -236,19 +236,18 @@ export function validateImportV2Package(input: PackageValidationInput): PackageV
     (iss: Record<string, unknown>) => iss['severity'] === 'blocking' || iss['blocking'] === true,
   ).length;
   nonBlockingIssues = issues.length - packageBlockingIssues;
-  blockingIssues = Math.max(blockingIssues, packageBlockingIssues);
 
-  // If questions have missing answers but issues list didn't declare it
-  for (const g of groups) {
-    const questions = Array.isArray(g['questions']) ? (g['questions'] as Record<string, unknown>[]) : [];
-    for (const q of questions) {
-      if (q['correctOption'] === null || q['correctOption'] === undefined) {
-        if (blockingIssues === 0) {
-          blockingIssues++;
-        }
-      }
-    }
-  }
+  // Count how many missing answers are already declared in package issues
+  const coveredMissingAnswers = issues.filter(
+    (iss: Record<string, unknown>) =>
+      (iss['severity'] === 'blocking' || iss['blocking'] === true) &&
+      typeof iss['path'] === 'string' &&
+      iss['path'].endsWith('/correctOption'),
+  ).length;
+
+  // Accurately count all blocking issues: package declared blocking issues plus all undeclared missing answers
+  const undeclaredMissingAnswers = Math.max(0, missingAnswerCount - coveredMissingAnswers);
+  const blockingIssues = packageBlockingIssues + undeclaredMissingAnswers;
 
   if (input.mode === 'ready' && blockingIssues > 0) {
     errors.push(`Gói nhập có ${blockingIssues} issue blocking; không thể nạp ở chế độ ready`);
