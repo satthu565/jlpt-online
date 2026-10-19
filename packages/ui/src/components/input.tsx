@@ -1,4 +1,7 @@
-import React, { useId } from 'react';
+'use client';
+
+import * as React from 'react';
+import { cn } from '../lib/utils.js';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -16,13 +19,12 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       id: explicitId,
       requiredIndicator = false,
       required,
-      className = '',
-      style = {},
+      className,
       ...rest
     },
     ref,
   ) => {
-    const generatedId = useId();
+    const generatedId = React.useId();
     const inputId = explicitId || generatedId;
     const errorId = `${inputId}-error`;
     const hintId = `${inputId}-hint`;
@@ -34,59 +36,48 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       .filter(Boolean)
       .join(' ') || undefined;
 
+    const inputElement = (
+      <input
+        ref={ref}
+        id={inputId}
+        required={required}
+        aria-invalid={error ? 'true' : 'false'}
+        aria-describedby={describedBy}
+        className={cn(
+          'jlpt-input flex w-full rounded-md border border-[var(--border-default,#cbd5e1)] bg-[var(--bg-surface,#ffffff)] px-3.5 py-2.5 text-base text-[var(--text-primary,#0f172a)] transition-colors placeholder:text-[var(--text-muted,#64748b)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color,#2563eb)] focus-visible:ring-offset-1 focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] dark:border-[var(--border-default,#475569)] dark:bg-[var(--bg-surface,#1e293b)] dark:text-[var(--text-primary,#f8fafc)] dark:placeholder:text-[var(--text-muted,#94a3b8)]',
+          error && 'border-[var(--color-danger,#dc2626)] focus-visible:ring-[var(--color-danger,#dc2626)] dark:border-[var(--color-danger,#ef4444)]',
+          className,
+        )}
+        {...rest}
+      />
+    );
+
+    if (!label && !hint && !error) {
+      return inputElement;
+    }
+
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', marginBottom: '1rem' }}>
+      <div className="flex flex-col gap-1.5 mb-4 w-full">
         {label && (
           <label
             htmlFor={inputId}
-            style={{
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              color: 'var(--text-primary, #0f172a)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-            }}
+            className="flex items-center gap-1 text-sm font-semibold text-[var(--text-primary,#0f172a)] dark:text-[var(--text-primary,#f8fafc)]"
           >
             {label}
             {(required || requiredIndicator) && (
-              <span aria-hidden="true" style={{ color: 'var(--color-danger, #dc2626)' }}>
+              <span aria-hidden="true" className="text-[var(--color-danger,#dc2626)] dark:text-[var(--color-danger,#ef4444)]">
                 *
               </span>
             )}
           </label>
         )}
 
-        <input
-          ref={ref}
-          id={inputId}
-          required={required}
-          aria-invalid={error ? 'true' : 'false'}
-          aria-describedby={describedBy}
-          style={{
-            padding: '0.625rem 0.875rem',
-            borderRadius: '6px',
-            border: `1px solid ${error ? 'var(--color-danger, #dc2626)' : 'var(--border-default, #cbd5e1)'}`,
-            backgroundColor: 'var(--bg-surface, #ffffff)',
-            color: 'var(--text-primary, #0f172a)',
-            fontSize: '1rem',
-            lineHeight: 1.5,
-            minHeight: '44px',
-            fontFamily: 'inherit',
-            transition: 'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
-            ...style,
-          }}
-          className={`jlpt-input ${className}`}
-          {...rest}
-        />
+        {inputElement}
 
         {hint && !error && (
           <span
             id={hintId}
-            style={{
-              fontSize: '0.75rem',
-              color: 'var(--text-muted, #64748b)',
-            }}
+            className="text-xs text-[var(--text-muted,#64748b)] dark:text-[var(--text-muted,#94a3b8)]"
           >
             {hint}
           </span>
@@ -96,14 +87,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <span
             id={errorId}
             role="alert"
-            style={{
-              fontSize: '0.8125rem',
-              color: 'var(--color-danger, #dc2626)',
-              fontWeight: 500,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-            }}
+            className="flex items-center gap-1 text-xs font-medium text-[var(--color-danger,#dc2626)] dark:text-[var(--color-danger,#ef4444)]"
           >
             {error}
           </span>

@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import * as React from 'react';
 import { useTheme } from '../theme-context.js';
 import type { ThemeMode } from '../tokens.js';
+import { cn } from '../lib/utils.js';
 
 export interface ThemeToggleProps {
   className?: string;
@@ -40,16 +41,10 @@ export function ThemeToggle({
     <div
       role="group"
       aria-label={defaultLabels.toggleTheme}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        backgroundColor: 'var(--bg-muted, #f1f5f9)',
-        borderRadius: '9999px',
-        padding: '3px',
-        border: '1px solid var(--border-default, #cbd5e1)',
-        gap: '2px',
-      }}
-      className={`jlpt-theme-toggle ${className}`}
+      className={cn(
+        'jlpt-theme-toggle inline-flex items-center bg-[var(--bg-muted,#f1f5f9)] rounded-full p-[3px] border border-[var(--border-default,#cbd5e1)] gap-0.5 dark:bg-[var(--bg-muted,#1e293b)] dark:border-[var(--border-default,#475569)]',
+        className,
+      )}
     >
       {modes.map(({ mode, label, icon }) => {
         const isSelected = theme === mode;
@@ -61,34 +56,22 @@ export function ThemeToggle({
             aria-pressed={isSelected}
             aria-label={`${label} (${mode === 'system' ? resolvedTheme : mode})`}
             title={label}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: compact ? '6px 8px' : '6px 10px',
-              borderRadius: '9999px',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-              fontWeight: isSelected ? 600 : 500,
-              backgroundColor: isSelected ? 'var(--bg-surface, #ffffff)' : 'transparent',
-              color: isSelected ? 'var(--text-primary, #0f172a)' : 'var(--text-muted, #64748b)',
-              boxShadow: isSelected ? 'var(--shadow-sm)' : 'none',
-              transition: 'all 0.15s ease-in-out',
-              minHeight: '36px',
-              minWidth: '36px',
-            }}
+            className={cn(
+              'inline-flex items-center justify-center rounded-full border-0 cursor-pointer text-sm transition-all min-h-[36px] min-w-[36px]',
+              compact ? 'px-2 py-1.5' : 'px-2.5 py-1.5',
+              isSelected
+                ? 'font-semibold bg-[var(--bg-surface,#ffffff)] text-[var(--text-primary,#0f172a)] shadow-sm dark:bg-[var(--bg-surface-elevated,#334155)] dark:text-[var(--text-primary,#f8fafc)]'
+                : 'font-medium bg-transparent text-[var(--text-muted,#64748b)] hover:text-[var(--text-primary,#0f172a)] dark:text-[var(--text-muted,#94a3b8)] dark:hover:text-[var(--text-primary,#f8fafc)]',
+            )}
           >
             <span
               aria-hidden="true"
-              className="theme-toggle-icon"
-              style={{ marginRight: compact ? '0' : '4px' }}
+              className={cn('theme-toggle-icon', compact ? 'mr-0' : 'mr-1')}
             >
               {icon}
             </span>
             <span
-              className="theme-toggle-label"
-              style={compact ? { display: 'none' } : undefined}
+              className={cn('theme-toggle-label', compact && 'hidden')}
             >
               {label}
             </span>
