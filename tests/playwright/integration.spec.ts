@@ -29,6 +29,39 @@ function getProjectClientIp(testInfo: { project?: { name?: string } }, offset = 
   return `198.51.100.${base + offset}`;
 }
 
+async function loginAsStaff(page: Page, origin: string, account: StaffAccount) {
+  await page.goto(`${origin}/login`, { waitUntil: 'domcontentloaded' });
+  if (!page.url().includes('/login') && !page.url().includes('/verify-2fa')) {
+    return;
+  }
+  if (page.url().includes('/login')) {
+    const emailInput = page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').first();
+    await expect(emailInput).toBeVisible({ timeout: 15000 });
+    await emailInput.fill(account.email);
+    await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').first().fill(account.password);
+    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
+
+    try {
+      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
+    } catch {
+      const errAlert = page.locator('[data-testid="login-error-alert"]');
+      if (await errAlert.isVisible({ timeout: 1000 }).catch(() => false)) {
+        await page.waitForTimeout(1000);
+        await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
+      }
+      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
+    }
+  }
+
+  if (page.url().includes('/verify-2fa')) {
+    await handleTotpVerification(page, account.totpSecret, account.email);
+  }
+
+  expect(page.url()).not.toContain('/login');
+  expect(page.url()).not.toContain('/verify-2fa');
+  await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
+}
+
 /**
  * End-to-End Integration Suite with Real API & Services (I00)
  * Acceptance Criteria:
@@ -1093,17 +1126,24 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     // Invalidate the server session via API while user is on the dashboard
     await page.request.post(`${adminOrigin}/api/v1/auth/sign-out`);
 
-    // User performs an action (thao tác: navigate to /users or make an API request)
-    const usersLink = page.locator('a[href="/users"]').first();
-    if (await usersLink.isVisible().catch(() => false)) {
-      await usersLink.click();
+    // User performs an action (thao tác: navigate to /questions or make an API request)
+    const questionsLink = page.locator('a[href="/questions"]').first();
+    if (await questionsLink.isVisible().catch(() => false)) {
+      await questionsLink.click();
     } else {
-      const mobileMenu = page.locator('[data-testid="btn-open-mobile-nav"]').first();
-      if (await mobileMenu.isVisible().catch(() => false)) {
-        await mobileMenu.click();
-        await page.locator('a[href="/users"]').first().click();
+      const isMobileMenuOpen = await page.locator('[data-testid="btn-close-mobile-nav"]').isVisible().catch(() => false);
+      if (!isMobileMenuOpen) {
+        const mobileMenu = page.locator('[data-testid="btn-open-mobile-nav"]').first();
+        if (await mobileMenu.isVisible().catch(() => false)) {
+          await mobileMenu.click();
+          await page.waitForTimeout(50);
+        }
+      }
+      const navItem = page.locator('a[href="/questions"]').first();
+      if (await navItem.isVisible().catch(() => false)) {
+        await navItem.click();
       } else {
-        await page.goto(`${adminOrigin}/users`);
+        await page.goto(`${adminOrigin}/questions`);
       }
     }
 
@@ -1205,9 +1245,13 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
       await page.waitForTimeout(50);
 
       for (const locale of locales) {
-        const openNavBtn = page.locator('[data-testid="btn-open-mobile-nav"]').first();
-        if (await openNavBtn.isVisible().catch(() => false)) {
-          await openNavBtn.click();
+        const isNavOpen = await page.locator('[data-testid="btn-close-mobile-nav"]').isVisible().catch(() => false);
+        if (!isNavOpen) {
+          const openNavBtn = page.locator('[data-testid="btn-open-mobile-nav"]').first();
+          if (await openNavBtn.isVisible().catch(() => false)) {
+            await openNavBtn.click();
+            await page.waitForTimeout(50);
+          }
         }
         const locBtn = page.locator(`[data-testid="admin-locale-${locale}"]`).first();
         if (await locBtn.isVisible().catch(() => false)) {
@@ -1232,9 +1276,10 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
         });
       }
 
-      const openNavBtnVi = page.locator('[data-testid="btn-open-mobile-nav"]').first();
-      if (await openNavBtnVi.isVisible().catch(() => false)) {
-        await openNavBtnVi.click();
+      const closeNavBtn = page.locator('[data-testid="btn-close-mobile-nav"]').first();
+      if (await closeNavBtn.isVisible().catch(() => false)) {
+        await closeNavBtn.click();
+        await page.waitForTimeout(50);
       }
       const viBtn = page.locator('[data-testid="admin-locale-vi"]').first();
       if (await viBtn.isVisible().catch(() => false)) {
@@ -1282,39 +1327,6 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
     { width: 390, height: 844, name: '390px' },
     { width: 1366, height: 768, name: '1366px' },
   ];
-
-  async function loginAsStaff(page: Page, origin: string, account: StaffAccount) {
-    await page.goto(`${origin}/login`, { waitUntil: 'domcontentloaded' });
-    if (!page.url().includes('/login') && !page.url().includes('/verify-2fa')) {
-      return;
-    }
-    if (page.url().includes('/login')) {
-      const emailInput = page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').first();
-      await expect(emailInput).toBeVisible({ timeout: 15000 });
-      await emailInput.fill(account.email);
-      await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').first().fill(account.password);
-      await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
-
-      try {
-        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
-      } catch {
-        const errAlert = page.locator('[data-testid="login-error-alert"]');
-        if (await errAlert.isVisible({ timeout: 1000 }).catch(() => false)) {
-          await page.waitForTimeout(1000);
-          await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
-        }
-        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
-      }
-    }
-
-    if (page.url().includes('/verify-2fa')) {
-      await handleTotpVerification(page, account.totpSecret, account.email);
-    }
-
-    expect(page.url()).not.toContain('/login');
-    expect(page.url()).not.toContain('/verify-2fa');
-    await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
-  }
 
   test.beforeAll(() => {
     fs.mkdirSync(artifactDir, { recursive: true });
@@ -1505,9 +1517,13 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
 
       // Verify ja and en
       for (const locale of ['ja', 'en'] as const) {
-        const openNavBtn = page.locator('[data-testid="btn-open-mobile-nav"]').first();
-        if (await openNavBtn.isVisible().catch(() => false)) {
-          await openNavBtn.click();
+        const isNavOpen = await page.locator('[data-testid="btn-close-mobile-nav"]').isVisible().catch(() => false);
+        if (!isNavOpen) {
+          const openNavBtn = page.locator('[data-testid="btn-open-mobile-nav"]').first();
+          if (await openNavBtn.isVisible().catch(() => false)) {
+            await openNavBtn.click();
+            await page.waitForTimeout(50);
+          }
         }
         const locBtn = page.locator(`[data-testid="admin-locale-${locale}"]`).first();
         if (await locBtn.isVisible().catch(() => false)) {
@@ -1532,9 +1548,10 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
       }
 
       // Reset back to vi for subsequent pages
-      const openNavBtnVi = page.locator('[data-testid="btn-open-mobile-nav"]').first();
-      if (await openNavBtnVi.isVisible().catch(() => false)) {
-        await openNavBtnVi.click();
+      const closeNavBtn = page.locator('[data-testid="btn-close-mobile-nav"]').first();
+      if (await closeNavBtn.isVisible().catch(() => false)) {
+        await closeNavBtn.click();
+        await page.waitForTimeout(50);
       }
       const viBtn = page.locator('[data-testid="admin-locale-vi"]').first();
       if (await viBtn.isVisible().catch(() => false)) {
