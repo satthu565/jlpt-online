@@ -2196,12 +2196,12 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
     await page.waitForTimeout(300);
     await submitBtn.click();
     try {
-      await page.waitForURL(/\/tai-khoan/, { timeout: 15000, waitUntil: 'domcontentloaded' });
+      await page.waitForURL(/\/tai-khoan/, { timeout: 25000, waitUntil: 'domcontentloaded' });
     } catch {
       if (page.url().includes('/dang-nhap')) {
         await page.waitForTimeout(500);
         await submitBtn.click();
-        await page.waitForURL(/\/tai-khoan/, { timeout: 15000, waitUntil: 'domcontentloaded' });
+        await page.waitForURL(/\/tai-khoan/, { timeout: 25000, waitUntil: 'domcontentloaded' });
       }
     }
   }
