@@ -932,7 +932,87 @@ export class AdminApiClient {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // P05: JLPT Exam Schedules Admin API Client
+  // ---------------------------------------------------------------------------
+
+  public async listJlptSchedules(status?: string): Promise<{ items: unknown[] }> {
+    const qs = status ? `?status=${encodeURIComponent(status)}` : '';
+    return this.request<{ items: unknown[] }>(
+      'GET',
+      `/api/v1/admin/jlpt-schedules${qs}`,
+      { requiredRoles: ['editor', 'admin'] },
+    );
+  }
+
+  public async getJlptSchedule(id: string): Promise<unknown> {
+    return this.request(
+      'GET',
+      `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}`,
+      { requiredRoles: ['editor', 'admin'] },
+    );
+  }
+
+  public async createJlptSchedule(data: unknown): Promise<{ id: string }> {
+    return this.request<{ id: string }>(
+      'POST',
+      '/api/v1/admin/jlpt-schedules',
+      { requiredRoles: ['admin'], body: data },
+    );
+  }
+
+  public async updateJlptSchedule(id: string, data: unknown): Promise<{ updated: boolean }> {
+    return this.request<{ updated: boolean }>(
+      'PATCH',
+      `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}`,
+      { requiredRoles: ['admin'], body: data },
+    );
+  }
+
+  public async publishJlptSchedule(id: string): Promise<{ status: string }> {
+    return this.request<{ status: string }>(
+      'POST',
+      `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}/publish`,
+      { requiredRoles: ['admin'] },
+    );
+  }
+
+  public async unpublishJlptSchedule(id: string): Promise<{ status: string }> {
+    return this.request<{ status: string }>(
+      'POST',
+      `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}/unpublish`,
+      { requiredRoles: ['admin'] },
+    );
+  }
+
+  public async deleteJlptSchedule(id: string): Promise<{ deleted: boolean }> {
+    return this.request<{ deleted: boolean }>(
+      'DELETE',
+      `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}`,
+      { requiredRoles: ['admin'] },
+    );
+  }
+
+  public async remindJlptRegistration(id: string): Promise<unknown> {
+    return this.request(
+      'POST',
+      `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}/remind-registration`,
+      { requiredRoles: ['admin'] },
+    );
+  }
+
+  public async triggerJlptReminders(): Promise<unknown> {
+    return this.request(
+      'POST',
+      '/api/v1/admin/jlpt-schedules/trigger-reminders',
+      { requiredRoles: ['admin'] },
+    );
+  }
+
   private handleMockRequest<T>(_method: string, path: string, _body?: unknown): T {
+    if (path.includes('/jlpt-schedules')) {
+      return { items: [] } as T;
+    }
     if (path.includes('/groups') || path.includes('/questions')) {
       return { items: [{ id: 'grp_01', title: 'Mondai 1 Kanji Reading', status: 'draft' }] } as T;
     }
