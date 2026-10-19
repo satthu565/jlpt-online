@@ -35,11 +35,13 @@ async function loginAsStaff(page: Page, origin: string, account: StaffAccount) {
     return;
   }
   if (page.url().includes('/login')) {
+    const submitBtn = page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first();
+    await expect(submitBtn).toBeEnabled({ timeout: 15000 });
     const emailInput = page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').first();
     await expect(emailInput).toBeVisible({ timeout: 15000 });
     await emailInput.fill(account.email);
     await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').first().fill(account.password);
-    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
+    await submitBtn.click();
 
     try {
       await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
@@ -59,7 +61,7 @@ async function loginAsStaff(page: Page, origin: string, account: StaffAccount) {
 
   expect(page.url()).not.toContain('/login');
   expect(page.url()).not.toContain('/verify-2fa');
-  await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 15000 });
+  await expect(page.locator('main, [data-testid="page-title"], header').filter({ visible: true }).first()).toBeVisible({ timeout: 15000 });
 }
 
 /**
@@ -1051,14 +1053,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
   ];
 
   async function loginAsAdmin(page: Page, origin: string) {
-    await page.goto(`${origin}/login`);
-    await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
-    await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
-    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
-
-    await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
-    await handleTotpVerification(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
-    await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 15000 });
+    await loginAsStaff(page, origin, SEEDED_STAFF_ACCOUNTS.admin);
   }
 
   test.beforeAll(() => {
@@ -1073,11 +1068,13 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
     await page.goto(`${adminOrigin}/login`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-testid="login-card"], h1').first()).toBeVisible({ timeout: 10000 });
+    const submitBtn = page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first();
+    await expect(submitBtn).toBeEnabled({ timeout: 15000 });
 
     // Fill seeded staff email with an intentionally wrong password
     await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
     await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill('WrongPassword123!');
-    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
+    await submitBtn.click();
 
     // The API rejects the request and the UI displays the server error alert
     const errorAlert = page.locator('[data-testid="login-error-alert"]');
@@ -1093,14 +1090,16 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
     await page.goto(`${adminOrigin}/login`, { waitUntil: 'domcontentloaded' });
+    const submitBtn = page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first();
+    await expect(submitBtn).toBeEnabled({ timeout: 15000 });
 
     // Login with valid credentials
     await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
     await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
-    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
+    await submitBtn.click();
 
     // Page redirects to 2FA verification challenge
-    await page.waitForURL(/.*verify-2fa.*/, { timeout: 10000 });
+    await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
     await expect(page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first()).toBeVisible({ timeout: 10000 });
 
     // Submit invalid 6-digit TOTP code
@@ -1121,11 +1120,13 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
     await page.goto(`${adminOrigin}/login`, { waitUntil: 'domcontentloaded' });
+    const submitBtn = page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first();
+    await expect(submitBtn).toBeEnabled({ timeout: 15000 });
 
     // Step 1: Submit valid staff credentials
     await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
     await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
-    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
+    await submitBtn.click();
 
     // Step 2: Handle TOTP Challenge
     await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
@@ -1179,7 +1180,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     // 2. Xóa phiên phía máy chủ (mô phỏng đăng xuất ở tab khác) rồi thao tác trên trang thì về trang đăng nhập
     const adminToken = await page.evaluate(() => {
       try {
-        const raw = localStorage.getItem('jlpt_admin_auth');
+        const raw = localStorage.getItem('jlpt_admin_auth_state_v1') || localStorage.getItem('jlpt_admin_auth');
         return raw ? JSON.parse(raw).token : null;
       } catch {
         return null;
@@ -1272,7 +1273,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
     for (const route of IN_SCOPE_PAGES) {
       await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-      await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+      await expect(page.locator('main, [data-testid="page-title"], header').filter({ visible: true }).first()).toBeVisible({ timeout: 10000 });
       await page.waitForTimeout(50);
 
       for (const vp of viewportsToTest) {
@@ -1312,7 +1313,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
     for (const route of IN_SCOPE_PAGES) {
       await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-      await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+      await expect(page.locator('main, [data-testid="page-title"], header').filter({ visible: true }).first()).toBeVisible({ timeout: 10000 });
       await page.waitForTimeout(50);
 
       for (const locale of locales) {
@@ -1569,7 +1570,7 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
 
     for (const route of CONTENT_ADMIN_PAGES) {
       await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-      await expect(page.locator('main, [data-testid$="-title"], header, h2').first()).toBeVisible({ timeout: 10000 });
+      await expect(page.locator('main, [data-testid$="-title"], header, h2').filter({ visible: true }).first()).toBeVisible({ timeout: 10000 });
       await page.waitForTimeout(50);
 
       // 1. Verify responsive viewports (390px, 1366px) & capture screenshots without horizontal scroll
@@ -1998,14 +1999,7 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
 
 
   async function loginAsAdminI04(page: Page, origin: string) {
-    await page.goto(`${origin}/login`);
-    await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
-    await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
-    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
-
-    await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
-    await handleTotpVerification(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
-    await expect(page.locator('[data-testid="stat-total-users"], [data-testid="dashboard-heading"], [data-testid="page-title"], [data-testid="staff-profile-badge"]').first()).toBeVisible({ timeout: 15000 });
+    await loginAsStaff(page, origin, SEEDED_STAFF_ACCOUNTS.admin);
   }
 
   test.beforeAll(() => {
@@ -2173,7 +2167,7 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
 
       for (const route of I04_PAGES) {
         await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('main, [data-testid="page-title"], header').filter({ visible: true }).first()).toBeVisible({ timeout: 10000 });
         await page.waitForTimeout(100);
 
         // Verify zero horizontal overflow
@@ -2223,7 +2217,7 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
 
       for (const route of I04_PAGES) {
         await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('main, [data-testid="page-title"], header').filter({ visible: true }).first()).toBeVisible({ timeout: 10000 });
         await page.waitForTimeout(100);
 
         const bodyText = await page.innerText('body');

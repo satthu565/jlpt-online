@@ -13,18 +13,17 @@ export default function StaffLoginPage(): React.JSX.Element {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
+    setIsHydrated(true);
     if (typeof window !== 'undefined') {
       try {
         const notice = sessionStorage.getItem('jlpt_admin_auth_notice');
+        const params = new URLSearchParams(window.location.search);
         if (notice) {
           setLocalError(notice);
-          sessionStorage.removeItem('jlpt_admin_auth_notice');
-          return;
-        }
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('expired') || params.get('error') === 'session_expired') {
+        } else if (params.get('expired') || params.get('error') === 'session_expired') {
           setLocalError(t('auth.unauthenticated', locale));
         }
       } catch {
@@ -37,6 +36,13 @@ export default function StaffLoginPage(): React.JSX.Element {
     e.preventDefault();
     setLocalError(null);
     setIsSubmitting(true);
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.removeItem('jlpt_admin_auth_notice');
+      } catch {
+        // ignore storage errors
+      }
+    }
 
     try {
       const res = await login(email, password);
@@ -168,7 +174,8 @@ export default function StaffLoginPage(): React.JSX.Element {
           <button
             type="submit"
             data-testid="submit-login-button"
-            disabled={isSubmitting}
+            data-hydrated={isHydrated ? 'true' : undefined}
+            disabled={!isHydrated || isSubmitting}
             style={{
               marginTop: '0.5rem',
               padding: '0.75rem',

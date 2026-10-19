@@ -75,9 +75,13 @@ Trong `apps/admin/app/login/page.tsx`:
    - Đạt tiêu chuẩn, không có vi phạm mới ngoài baseline.
 3. **Kiểm thử E2E Playwright (`tests/playwright/integration.spec.ts`):**
    - `E2E: đăng nhập nhân sự, tải lại trang vẫn đăng nhập`.
-   - `E2E: xóa phiên phía máy chủ (đăng xuất ở tab khác) rồi tải lại thì về trang đăng nhập kèm thông báo`.
+   - `E2E: xóa phiên phía máy chủ (đăng xuất ở tab khác) rồi tải lại hoặc thao tác thì về trang đăng nhập kèm thông báo`.
    - `E2E: xóa phiên phía máy chủ rồi thao tác trên giao diện thì về trang đăng nhập kèm thông báo`.
-   - Ổn định tương thích đa trình duyệt (Chromium, Firefox, Mobile Safari):
-     - Tinh chỉnh `loginAsStaff` và `loginAsAdmin` không truy vấn thẻ `h1` ẩn trong mobile navigation khi chưa mở sidebar, giúp Mobile Safari (iPhone 15) nhận diện `main` lập tức.
-     - Tinh chỉnh `handleSessionExpired` trì hoãn điều hướng qua `setTimeout(..., 0)` và xử lý trường hợp `NS_BINDING_ABORTED` của Gecko engine khi chuyển trang sau mã 401 trên Firefox.
-     - Chạy toàn bộ staging E2E đạt PASS: `sudo -n /usr/local/bin/jlpt-stage-test check` (exitCode: 0, 64 passed).
+   - Ổn định tương thích đa trình duyệt (Chromium, Firefox, WebKit, Mobile Safari, Mobile Chrome):
+     - Gỡ bỏ các lớp `invisible md:visible pointer-events-none md:pointer-events-auto` khỏi thanh menu đóng trên thiết bị di động trong `admin-nav.tsx`, tránh lỗi ẩn phần tử `staff-profile-badge` trên Mobile Safari và Mobile Chrome.
+     - Dùng `.filter({ visible: true }).first()` cho toàn bộ locator ghép tìm tiêu đề trang hoặc container chính.
+     - Hợp nhất `loginAsAdmin` và `loginAsAdminI04` qua `loginAsStaff`, chờ nút submit kích hoạt trước khi điền thông tin và click.
+     - Thêm trạng thái `isHydrated` trên trang đăng nhập `/login` để tránh race condition trước hydration trên Firefox.
+     - Duy trì thông báo phiên hết hạn trong `sessionStorage` qua các lần tải lại trang cho tới khi người dùng bấm submit.
+     - Đọc khóa token `jlpt_admin_auth_state_v1` khi gửi yêu cầu hủy phiên máy chủ.
+     - Chạy toàn bộ staging E2E đạt PASS: `sudo -n /usr/local/bin/jlpt-stage-test check` (exitCode: 0).

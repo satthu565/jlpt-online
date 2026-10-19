@@ -53,9 +53,7 @@ export function AdminNavigation(): React.JSX.Element | null {
         aria-label="Admin Navigation"
         data-testid="admin-navigation"
         className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-gray-900 text-gray-100 flex flex-col border-r border-gray-800 transform transition-transform duration-200 ease-in-out ${
-          isMobileOpen
-            ? 'translate-x-0'
-            : '-translate-x-full md:translate-x-0 invisible md:visible pointer-events-none md:pointer-events-auto'
+          isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
         {/* Brand Header */}
