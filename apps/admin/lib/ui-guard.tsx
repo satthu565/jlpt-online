@@ -24,27 +24,10 @@ export function AdminGuard({
       <div
         role="status"
         aria-live="polite"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '60vh',
-          fontFamily: 'sans-serif',
-          color: '#4b5563',
-        }}
+        className="flex items-center justify-center min-h-[60vh] font-sans text-gray-600 dark:text-gray-400"
       >
-        <div style={{ textAlign: 'center' }}>
-          <div
-            style={{
-              width: '36px',
-              height: '36px',
-              border: '3px solid #e5e7eb',
-              borderTopColor: '#2563eb',
-              borderRadius: '50%',
-              margin: '0 auto 12px',
-              animation: 'spin 1s linear infinite',
-            }}
-          />
+        <div className="text-center">
+          <div className="w-9 h-9 border-[3px] border-gray-200 dark:border-gray-700 border-t-blue-600 dark:border-t-blue-500 rounded-full mx-auto mb-3 animate-spin" />
           <p>{t('common.loading', locale)}</p>
         </div>
       </div>
@@ -57,33 +40,15 @@ export function AdminGuard({
       <div
         role="alert"
         data-testid="guard-unauthenticated"
-        style={{
-          padding: '2.5rem',
-          maxWidth: '520px',
-          margin: '4rem auto',
-          background: '#ffffff',
-          borderRadius: '8px',
-          border: '1px solid #e5e7eb',
-          boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-          fontFamily: 'sans-serif',
-          textAlign: 'center',
-        }}
+        className="p-8 max-w-[520px] mx-auto my-16 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md font-sans text-center"
       >
-        <h2 style={{ color: '#dc2626', marginBottom: '0.75rem' }}>{t('auth.unauthenticated', locale)}</h2>
-        <p style={{ color: '#4b5563', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
+        <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-3">{t('auth.unauthenticated', locale)}</h2>
+        <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm">
           {t('auth.staffOnlyError', locale)}
         </p>
         <a
           href="/login"
-          style={{
-            display: 'inline-block',
-            padding: '0.625rem 1.25rem',
-            background: '#2563eb',
-            color: '#ffffff',
-            borderRadius: '6px',
-            textDecoration: 'none',
-            fontWeight: 500,
-          }}
+          className="inline-block px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg no-underline font-medium text-sm transition-colors"
         >
           {t('auth.signInButton', locale)}
         </a>
@@ -97,20 +62,11 @@ export function AdminGuard({
       <div
         role="alert"
         data-testid="guard-non-staff"
-        style={{
-          padding: '2.5rem',
-          maxWidth: '520px',
-          margin: '4rem auto',
-          background: '#fef2f2',
-          borderRadius: '8px',
-          border: '1px solid #fecaca',
-          fontFamily: 'sans-serif',
-          textAlign: 'center',
-        }}
+        className="p-8 max-w-[520px] mx-auto my-16 bg-red-50 dark:bg-red-950/40 rounded-xl border border-red-200 dark:border-red-900 font-sans text-center"
       >
-        <h2 style={{ color: '#991b1b', marginBottom: '0.75rem' }}>{t('common.accessDenied', locale)}</h2>
-        <p style={{ color: '#7f1d1d', marginBottom: '1.25rem' }}>{t('auth.staffOnlyError', locale)}</p>
-        <p style={{ fontSize: '0.85rem', color: '#b91c1c' }}>{t('common.securityWarning', locale)}</p>
+        <h2 className="text-xl font-bold text-red-800 dark:text-red-300 mb-3">{t('common.accessDenied', locale)}</h2>
+        <p className="text-red-700 dark:text-red-200 mb-5 text-sm">{t('auth.staffOnlyError', locale)}</p>
+        <p className="text-xs text-red-600 dark:text-red-400">{t('common.securityWarning', locale)}</p>
       </div>
     );
   }
@@ -121,34 +77,16 @@ export function AdminGuard({
       <div
         role="alert"
         data-testid="guard-2fa-setup-required"
-        style={{
-          padding: '2.5rem',
-          maxWidth: '540px',
-          margin: '4rem auto',
-          background: '#fffbeb',
-          borderRadius: '8px',
-          border: '1px solid #fef3c7',
-          boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-          fontFamily: 'sans-serif',
-          textAlign: 'center',
-        }}
+        className="p-8 max-w-[540px] mx-auto my-16 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-900 shadow-md font-sans text-center"
       >
-        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🛡️</div>
-        <h2 style={{ color: '#92400e', marginBottom: '0.75rem' }}>{t('auth.twoFactorRequired', locale)}</h2>
-        <p style={{ color: '#78350f', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
+        <div className="text-4xl mb-2">🛡️</div>
+        <h2 className="text-xl font-bold text-amber-800 dark:text-amber-300 mb-3">{t('auth.twoFactorRequired', locale)}</h2>
+        <p className="text-amber-700 dark:text-amber-200 mb-6 text-sm">
           {t('totp.setupSubtitle', locale)}
         </p>
         <a
           href="/setup-2fa"
-          style={{
-            display: 'inline-block',
-            padding: '0.625rem 1.25rem',
-            background: '#d97706',
-            color: '#ffffff',
-            borderRadius: '6px',
-            textDecoration: 'none',
-            fontWeight: 500,
-          }}
+          className="inline-block px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg no-underline font-medium text-sm transition-colors"
         >
           {t('totp.setupTitle', locale)}
         </a>
@@ -162,34 +100,16 @@ export function AdminGuard({
       <div
         role="alert"
         data-testid="guard-2fa-challenge-required"
-        style={{
-          padding: '2.5rem',
-          maxWidth: '540px',
-          margin: '4rem auto',
-          background: '#eff6ff',
-          borderRadius: '8px',
-          border: '1px solid #bfdbfe',
-          boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-          fontFamily: 'sans-serif',
-          textAlign: 'center',
-        }}
+        className="p-8 max-w-[540px] mx-auto my-16 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-900 shadow-md font-sans text-center"
       >
-        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔑</div>
-        <h2 style={{ color: '#1e40af', marginBottom: '0.75rem' }}>{t('totp.challengeTitle', locale)}</h2>
-        <p style={{ color: '#1e3a8a', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
+        <div className="text-4xl mb-2">🔑</div>
+        <h2 className="text-xl font-bold text-blue-800 dark:text-blue-300 mb-3">{t('totp.challengeTitle', locale)}</h2>
+        <p className="text-blue-700 dark:text-blue-200 mb-6 text-sm">
           {t('totp.challengeSubtitle', locale)}
         </p>
         <a
           href="/verify-2fa"
-          style={{
-            display: 'inline-block',
-            padding: '0.625rem 1.25rem',
-            background: '#2563eb',
-            color: '#ffffff',
-            borderRadius: '6px',
-            textDecoration: 'none',
-            fontWeight: 500,
-          }}
+          className="inline-block px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg no-underline font-medium text-sm transition-colors"
         >
           {t('totp.challengeButton', locale)}
         </a>
@@ -208,71 +128,34 @@ export function AdminGuard({
       <div
         role="alert"
         data-testid="guard-forbidden"
-        style={{
-          padding: '2.5rem',
-          maxWidth: '580px',
-          margin: '4rem auto',
-          background: '#ffffff',
-          borderRadius: '8px',
-          border: '1px solid #e5e7eb',
-          boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-          fontFamily: 'sans-serif',
-          textAlign: 'center',
-        }}
+        className="p-8 max-w-[580px] mx-auto my-16 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md font-sans text-center"
       >
-        <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🚫</div>
-        <h2 style={{ color: '#dc2626', marginBottom: '0.75rem' }}>{t('common.accessDenied', locale)}</h2>
-        <p style={{ color: '#4b5563', marginBottom: '1.25rem', lineHeight: 1.5 }}>
+        <div className="text-4xl mb-2">🚫</div>
+        <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-3">{t('common.accessDenied', locale)}</h2>
+        <p className="text-gray-600 dark:text-gray-300 mb-5 text-sm leading-relaxed">
           {t('common.accessDeniedMessage', locale)}
         </p>
 
-        <div
-          style={{
-            background: '#f9fafb',
-            border: '1px solid #f3f4f6',
-            borderRadius: '6px',
-            padding: '0.75rem 1rem',
-            marginBottom: '1.5rem',
-            fontSize: '0.875rem',
-            textAlign: 'left',
-          }}
-        >
-          <div style={{ marginBottom: '0.35rem' }}>
+        <div className="bg-gray-50 dark:bg-slate-900/60 border border-gray-200 dark:border-gray-700 rounded-lg p-3.5 mb-6 text-sm text-left">
+          <div className="mb-1.5">
             <strong>{t('common.currentRole', locale)}</strong>{' '}
-            <span
-              style={{
-                display: 'inline-block',
-                padding: '0.125rem 0.5rem',
-                borderRadius: '9999px',
-                background: '#e0e7ff',
-                color: '#3730a3',
-                fontWeight: 600,
-              }}
-            >
+            <span className="inline-block px-2 py-0.5 rounded-full text-xs bg-indigo-100 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-200 font-semibold">
               {t(`roles.${user.role}`, locale)}
             </span>
           </div>
           <div>
             <strong>{t('common.requiredRoles', locale)}</strong>{' '}
-            <span>{rolesNeeded.map((r) => t(`roles.${r}`, locale)).join(', ')}</span>
+            <span className="text-gray-600 dark:text-gray-400">{rolesNeeded.map((r) => t(`roles.${r}`, locale)).join(', ')}</span>
           </div>
         </div>
 
-        <p style={{ fontSize: '0.8rem', color: '#9ca3af', marginBottom: '1.5rem' }}>
+        <p className="text-xs text-gray-400 mb-6">
           {t('common.securityWarning', locale)}
         </p>
 
         <a
           href="/"
-          style={{
-            display: 'inline-block',
-            padding: '0.625rem 1.25rem',
-            background: '#4b5563',
-            color: '#ffffff',
-            borderRadius: '6px',
-            textDecoration: 'none',
-            fontWeight: 500,
-          }}
+          className="inline-block px-5 py-2.5 bg-gray-600 hover:bg-gray-700 text-white rounded-lg no-underline font-medium text-sm transition-colors"
         >
           {t('common.backToHome', locale)}
         </a>
@@ -282,4 +165,5 @@ export function AdminGuard({
 
   // Guard passed successfully
   return <>{children}</>;
+
 }
