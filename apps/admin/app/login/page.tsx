@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Input, Card, Alert } from '@jlpt/ui';
 import { useAdminAuth } from '../../lib/auth-context';
@@ -14,11 +14,36 @@ export default function StaffLoginPage(): React.JSX.Element {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+    if (typeof window !== 'undefined') {
+      try {
+        const notice = sessionStorage.getItem('jlpt_admin_auth_notice');
+        const params = new URLSearchParams(window.location.search);
+        if (notice) {
+          setLocalError(notice);
+        } else if (params.get('expired') || params.get('error') === 'session_expired') {
+          setLocalError(t('auth.unauthenticated', locale));
+        }
+      } catch {
+        // ignore storage errors
+      }
+    }
+  }, [locale]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError(null);
     setIsSubmitting(true);
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.removeItem('jlpt_admin_auth_notice');
+      } catch {
+        // ignore storage errors
+      }
+    }
 
     try {
       const res = await login(email, password);
@@ -97,7 +122,8 @@ export default function StaffLoginPage(): React.JSX.Element {
           <Button
             type="submit"
             data-testid="submit-login-button"
-            disabled={isSubmitting}
+            data-hydrated={isHydrated ? 'true' : undefined}
+            disabled={!isHydrated || isSubmitting}
             loading={isSubmitting}
             variant="primary"
             className="w-full mt-2"

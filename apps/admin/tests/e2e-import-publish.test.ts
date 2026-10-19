@@ -24,6 +24,7 @@ import {
   ExamImmutableVersionError,
   ExamListView,
 } from '../features/exam';
+import { AdminAuthProvider } from '../lib/auth-context';
 import type { StaffOperator } from '../features/review/types';
 import type { AdminQuestionGroup, AdminExam } from '../features/content/types';
 import { createTextSegment } from '../features/content/types';
@@ -798,7 +799,11 @@ describe('E2E Import to Publish & Audit Suite (N04)', () => {
       };
 
       const markup = renderToStaticMarkup(
-        React.createElement(ExamListView, { initialExams: [sampleExam], currentOperator: adminOp }),
+        React.createElement(
+          AdminAuthProvider,
+          null,
+          React.createElement(ExamListView, { initialExams: [sampleExam], currentOperator: adminOp }),
+        ),
       );
 
       expect(markup).toContain('Quản lý &amp; Xuất bản Đề thi');
@@ -812,7 +817,9 @@ describe('E2E Import to Publish & Audit Suite (N04)', () => {
   // =========================================================================
   describe('UI Component Integration: ImportManagerView', () => {
     it('renders import upload zone, job table, and CSV tool controls', () => {
-      const markup = renderToStaticMarkup(React.createElement(ImportManagerView));
+      const markup = renderToStaticMarkup(
+        React.createElement(AdminAuthProvider, null, React.createElement(ImportManagerView)),
+      );
       expect(markup).toContain('Quản lý Gói Nhập Đề thi (Import v2)');
       expect(markup).toContain('data-testid="package-file-input"');
       expect(markup).toContain('Ngân hàng câu hỏi: Công cụ Import / Export JSON &amp; CSV');

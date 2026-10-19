@@ -64,9 +64,9 @@ export function AdminNavigation(): React.JSX.Element | null {
           <div className="flex items-center gap-2">
             <span className="text-2xl">⛩️</span>
             <div>
-              <h1 className="text-sm font-bold text-white m-0">
+              <span className="text-sm font-bold text-white m-0 block">
                 {t('app.portalName', locale)}
-              </h1>
+              </span>
               <span className="text-xs text-gray-400">v1.0.0</span>
             </div>
           </div>
@@ -175,6 +175,7 @@ export function AdminNavigation(): React.JSX.Element | null {
                   type="button"
                   onClick={() => setLocale(loc as Locale)}
                   aria-label={`Switch to ${loc}`}
+                  data-testid={`admin-locale-${loc}`}
                   size="sm"
                   variant={locale === loc ? 'primary' : 'outline'}
                   className={cn(
