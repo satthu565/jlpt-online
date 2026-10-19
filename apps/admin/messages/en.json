@@ -118,6 +118,56 @@
     "currentRole": "Your Current Role:",
     "securityWarning": "Direct access was blocked by multi-tier security guards."
   },
+  "commercial": {
+    "plansTitle": "Membership Plans & Discount Coupons",
+    "plansSubtitle": "Manage pricing tiers, billing intervals, and student entitlement access.",
+    "paymentsTitle": "Transactions & Student Subscriptions",
+    "paymentsSubtitle": "Monitor payment status, recurring subscriptions, and order history.",
+    "refundsTitle": "Refund Requests Management",
+    "refundsSubtitle": "Review and process refund requests according to commercial policy.",
+    "reconciliationTitle": "Payment Gateway Reconciliation & Settlement",
+    "reconciliationSubtitle": "Verify transaction balances, revenues, refunds, and discrepancy detection.",
+    "createPlan": "Create New Plan",
+    "createCoupon": "Create New Coupon",
+    "runReconciliation": "Run Reconciliation",
+    "approve": "Approve",
+    "reject": "Reject",
+    "emptyPlans": "No subscription plans available.",
+    "emptyCoupons": "No discount coupons available.",
+    "emptyPayments": "No payment transactions recorded.",
+    "emptySubscriptions": "No subscriptions recorded.",
+    "emptyRefunds": "No refund requests pending.",
+    "emptyReconciliation": "No reconciliation runs recorded."
+  },
+  "reports": {
+    "hubTitle": "System Analytics & Reports Hub (ADM-17)",
+    "hubSubtitle": "Comprehensive real-time tracking across 15 operational, content, user, and commercial metrics.",
+    "revenueTitle": "Financial Revenue Reports",
+    "revenueSubtitle": "Gross revenue, refunds, and net revenue segregated strictly by currency units.",
+    "exportCsv": "Export CSV (RFC 4180)",
+    "exportSuccess": "Report exported safely as CSV format.",
+    "grossRevenue": "Gross Revenue",
+    "refunds": "Refunds",
+    "netRevenue": "Net Revenue",
+    "currency": "Currency",
+    "empty": "No report data found for the selected time range."
+  },
+  "experiments": {
+    "title": "A/B Testing & UI Optimization",
+    "subtitle": "Anonymous sticky assignment preserving PII, tracking real-time conversion rates.",
+    "active": "RUNNING (ACTIVE)",
+    "paused": "PAUSED",
+    "pause": "Pause",
+    "resume": "Activate",
+    "empty": "No A/B experiments defined."
+  },
+  "contentReports": {
+    "title": "User Question Issue Reports (ADM-09)",
+    "subtitle": "Moderate and resolve question content, answer key, and audio issues reported by learners.",
+    "empty": "No question issue reports found.",
+    "resolve": "Resolve Issue",
+    "dismiss": "Dismiss"
+  },
   "content": {
     "imports": {
       "title": "Exam Package Management (Import v2)",

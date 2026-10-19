@@ -110,3 +110,20 @@ Task P05 triển khai giao diện và quy trình quản trị toàn diện cho h
 6. **[P2] Chuẩn hóa Conventional Commits:**
    - Đảm bảo commit body có đầy đủ dòng `Task: P05` và `Features: ...` theo đúng quy định.
 
+---
+
+## 5. Đồng bộ và giải quyết xung đột với nhánh chính (`origin/main`)
+
+- Trong lượt assignment `P05-7`, nhánh `task/P05` được đồng bộ với `origin/main` (`git fetch origin && git merge origin/main`).
+- Xung đột xảy ra tại `tests/playwright/integration.spec.ts` do nhánh `origin/main` vừa thêm bộ test tích hợp `I04` (Commercial & Reports) và `I14` (Corpus Datasets), trong khi `task/P05` thêm suite `P05` ở cuối file.
+- Giải pháp: Tích hợp đầy đủ cả bộ test `I04`, `I14` từ `origin/main` và bộ test `P05` từ `task/P05`.
+- Đã chạy kiểm tra toàn diện và pass tất cả các cổng:
+  - `pnpm install --frozen-lockfile`: PASS (0)
+  - `pnpm test:admin`: PASS (0) - 16 test files (202 tests)
+  - `pnpm check:no-mock-ui`: PASS (0) - 0 vi phạm mới ngoài baseline
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`: PASS (0) - toàn bộ e2e staging pass
+  - `pnpm lint`: PASS (0) - 13 packages
+  - `pnpm typecheck`: PASS (0) - 20 tasks
+  - `pnpm test`: PASS (0) - 20 tasks
+  - `pnpm build`: PASS (0) - 12 packages
+

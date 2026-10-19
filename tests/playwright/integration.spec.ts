@@ -901,8 +901,8 @@ test.describe('I11: No 500 errors from hardcoded IDs in vocab, grammar, discussi
       // In staging CI, seeded student account is guaranteed
     }
 
-    // 1. Invalid dataset ID 'jlpt-official' must return 400 Bad Request with INVALID_UUID, NEVER 500
-    const datasetRes = await request.get(`${apiBaseUrl}/api/v1/datasets/jlpt-official/vocabulary`, {
+    // 1. Invalid dataset ID must return 400 Bad Request with INVALID_UUID, NEVER 500
+    const datasetRes = await request.get(`${apiBaseUrl}/api/v1/datasets/invalid-uuid-format/vocabulary`, {
       headers: authHeaders,
     });
     expect(datasetRes.status()).toBe(400);
@@ -916,6 +916,76 @@ test.describe('I11: No 500 errors from hardcoded IDs in vocab, grammar, discussi
     expect(discussionRes.status()).toBe(400);
     const discussionBody = (await discussionRes.json()) as { error?: { code?: string } };
     expect(discussionBody?.error?.code).toBe('INVALID_UUID');
+  });
+});
+
+/**
+ * Official JLPT Corpus Datasets & Frequency Integration Suite (I14)
+ * Verifies that:
+ * 1. On staging after demo seed, GET /api/v1/datasets/jlpt-official/trends, /vocabulary, /grammar, /compare/levels
+ *    return 200 with valid structure (never 500).
+ * 2. Web corpus frequency statistics page (/thong-ke-tu-vung) loads and displays frequency data without crashing.
+ * 3. No mock data or page.route used.
+ */
+test.describe('Official JLPT Corpus Datasets & Frequency Integration Suite (I14)', () => {
+  const apiBaseUrl = process.env.STAGING_API_URL || 'http://127.0.0.1:4000';
+  const webBaseUrl = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+  const clientIp = '127.0.0.1';
+  const ipHeaders = {
+    'x-forwarded-for': clientIp,
+    'x-real-ip': clientIp,
+  };
+
+  test('GET /api/v1/datasets/jlpt-official/* endpoints return 200 with valid data structure', async ({
+    request,
+  }) => {
+    // 1. GET /api/v1/datasets/jlpt-official/trends
+    const trendsRes = await request.get(`${apiBaseUrl}/api/v1/datasets/jlpt-official/trends`, {
+      headers: ipHeaders,
+    });
+    expect(trendsRes.status()).toBe(200);
+    const trendsBody = (await trendsRes.json()) as Record<string, unknown>;
+    expect(trendsBody).toBeDefined();
+
+    // 2. GET /api/v1/datasets/jlpt-official/vocabulary
+    const vocabRes = await request.get(`${apiBaseUrl}/api/v1/datasets/jlpt-official/vocabulary`, {
+      headers: ipHeaders,
+    });
+    expect(vocabRes.status()).toBe(200);
+    const vocabBody = (await vocabRes.json()) as { items?: unknown[] };
+    expect(vocabBody).toBeDefined();
+    expect(Array.isArray(vocabBody.items)).toBe(true);
+
+    // 3. GET /api/v1/datasets/jlpt-official/grammar
+    const grammarRes = await request.get(`${apiBaseUrl}/api/v1/datasets/jlpt-official/grammar`, {
+      headers: ipHeaders,
+    });
+    expect(grammarRes.status()).toBe(200);
+    const grammarBody = (await grammarRes.json()) as { items?: unknown[] };
+    expect(grammarBody).toBeDefined();
+    expect(Array.isArray(grammarBody.items)).toBe(true);
+
+    // 4. GET /api/v1/datasets/jlpt-official/compare/levels
+    const compareRes = await request.get(`${apiBaseUrl}/api/v1/datasets/jlpt-official/compare/levels`, {
+      headers: ipHeaders,
+    });
+    expect(compareRes.status()).toBe(200);
+    const compareBody = (await compareRes.json()) as { datasetId?: string; levels?: unknown };
+    expect(compareBody).toBeDefined();
+    expect(compareBody.datasetId).toBeDefined();
+    expect(compareBody.levels).toBeDefined();
+  });
+
+  test('Learner can browse /thong-ke-tu-vung web page without 500 error or crash', async ({ page }) => {
+    const response = await page.goto(`${webBaseUrl}/thong-ke-tu-vung`, { waitUntil: 'domcontentloaded' });
+    expect(response?.status()).toBe(200);
+
+    // Expect page container to be present
+    const container = page.locator('[data-testid="vocab-stats-page"]');
+    await expect(container).toBeVisible({ timeout: 10000 });
+
+    // Verify heading text
+    await expect(page.locator('h1')).toContainText('Thống kê Từ thường gặp');
   });
 });
 
@@ -1779,6 +1849,282 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
       await page.screenshot({
         path: path.join(artifactDir, `i13-luyen-tap-1366px-${locale}.png`),
       });
+    }
+  });
+});
+
+/**
+ * Commercial, Reports & Experiments Real API Integration Suite (I04)
+ * Acceptance Criteria:
+ * - Plans, payments sandbox, refunds, and reconciliation display real API data
+ * - Zero hardcoded sample data or fake logins in scope
+ * - Real user flow through UI on staging CI without page.route or browser mocks
+ * - Loading, empty, and API error states clearly displayed; 401/403 redirects or notices
+ * - 390px and 1366px screenshots captured with zero horizontal overflow (scrollWidth <= clientWidth + 1)
+ * - Tri-locale i18n verification (vi, ja, en) without raw unparsed translation keys
+ */
+test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04)', () => {
+  const adminOrigin = process.env.ADMIN_URL || 'http://127.0.0.1:3001';
+  const artifactDir = path.resolve(process.cwd(), 'playwright-report/artifacts/i04');
+
+  const I04_PAGES = [
+    { path: '/commercial/plans', slug: 'commercial-plans' },
+    { path: '/commercial/payments', slug: 'commercial-payments' },
+    { path: '/commercial/refunds', slug: 'commercial-refunds' },
+    { path: '/commercial/reconciliation', slug: 'commercial-reconciliation' },
+    { path: '/reports', slug: 'reports-hub' },
+    { path: '/reports/revenue', slug: 'reports-revenue' },
+    { path: '/reports/content', slug: 'reports-content' },
+    { path: '/experiments', slug: 'experiments' },
+  ];
+
+  const VIEWPORTS = [
+    { width: 390, height: 844, name: '390px' },
+    { width: 1366, height: 768, name: '1366px' },
+  ];
+
+
+  async function loginAsAdminI04(page: Page, origin: string) {
+    await page.goto(`${origin}/login`);
+    await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
+    await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
+    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
+
+    await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
+    await handleTotpVerification(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
+    await expect(page.locator('[data-testid="stat-total-users"], [data-testid="dashboard-heading"], [data-testid="page-title"], [data-testid="staff-profile-badge"]').first()).toBeVisible({ timeout: 15000 });
+  }
+
+  test.beforeAll(() => {
+    fs.mkdirSync(artifactDir, { recursive: true });
+  });
+
+  test('AC1 & AC3: Real user flows through Commercial, Reports & Experiments via API without browser mocks', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    const clientIp = getProjectClientIp(testInfo, 70);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    await loginAsAdminI04(page, adminOrigin);
+
+    // 1. Commercial Plans & Coupons
+    await page.goto(`${adminOrigin}/commercial/plans`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="plans-heading"]')).toBeVisible();
+    await expect(page.locator('[data-testid="coupons-heading"]')).toBeVisible();
+
+    // 1a. Create a new plan via UI modal
+    await page.locator('[data-testid="create-plan-button"]').click();
+    await expect(page.locator('[data-testid="create-plan-modal"]')).toBeVisible();
+    const newPlanCode = `plan_e2e_${Date.now()}`;
+    await page.locator('[data-testid="plan-code-input"]').fill(newPlanCode);
+    await page.locator('[data-testid="plan-name-input"]').fill('Gói E2E JLPT N2 Chuyên Sâu');
+    await page.locator('[data-testid="plan-interval-select"]').selectOption('month');
+    await page.locator('[data-testid="plan-price-input"]').fill('299000');
+    await page.locator('[data-testid="save-plan-button"]').click();
+    await expect(page.locator('[data-testid="plan-success-msg"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator(`[data-testid="plan-row-${newPlanCode}"]`)).toBeVisible({ timeout: 10000 });
+
+    // 1b. Create a new coupon via UI modal
+    await page.locator('[data-testid="create-coupon-button"]').click();
+    await expect(page.locator('[data-testid="create-coupon-modal"]')).toBeVisible();
+    const newCouponCode = `E2E${Date.now().toString().slice(-4)}`;
+    await page.locator('[data-testid="coupon-code-input"]').fill(newCouponCode);
+    await page.locator('[data-testid="coupon-discount-input"]').fill('25');
+    await page.locator('[data-testid="coupon-maxuses-input"]').fill('50');
+    await page.locator('[data-testid="coupon-expiry-input"]').fill('2027-12-31');
+    await page.locator('[data-testid="save-coupon-button"]').click();
+    await expect(page.locator('[data-testid="coupon-success-msg"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator(`[data-testid="coupon-row-${newCouponCode}"]`)).toBeVisible({ timeout: 10000 });
+
+    // 2. Commercial Payments & Subscriptions
+    await page.goto(`${adminOrigin}/commercial/payments`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="tab-payments"]')).toBeVisible();
+    await expect(page.locator('[data-testid="payments-table"], [data-testid="payments-empty"]')).toBeVisible({ timeout: 10000 });
+    await page.locator('[data-testid="tab-subscriptions"]').click();
+    await expect(page.locator('[data-testid="tab-subscriptions"]')).toBeVisible();
+    await expect(page.locator('[data-testid="subscriptions-table"], [data-testid="subscriptions-empty"]')).toBeVisible({ timeout: 10000 });
+
+    // 3. Commercial Refunds
+    await page.goto(`${adminOrigin}/commercial/refunds`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="refunds-heading"]')).toBeVisible();
+    await expect(page.locator('[data-testid="refunds-table"], [data-testid="refunds-empty"]')).toBeVisible({ timeout: 10000 });
+    // Real interactive flow: approve requested refund if available
+    const approveBtn = page.locator('[data-testid^="approve-refund-"]').first();
+    if (await approveBtn.isVisible().catch(() => false)) {
+      await approveBtn.click();
+      await expect(page.locator('[data-testid="refund-success-msg"]')).toBeVisible({ timeout: 10000 });
+    }
+
+    // 4. Commercial Reconciliation
+    await page.goto(`${adminOrigin}/commercial/reconciliation`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="btn-run-reconciliation"]')).toBeVisible();
+    // Real interactive flow: trigger reconciliation run
+    await page.locator('[data-testid="btn-run-reconciliation"]').click();
+    await expect(page.locator('[data-testid="reconciliation-success-alert"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="reconciliation-runs-table"]')).toBeVisible({ timeout: 10000 });
+
+    // 5. Reports Hub
+    await page.goto(`${adminOrigin}/reports`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="reports-tab-nav"]')).toBeVisible();
+    await expect(page.locator('[data-testid="btn-export-csv"]')).toBeVisible();
+
+    // Switch to retention tab and check insufficient-data indicator
+    await page.locator('[data-testid="report-tab-retention"]').scrollIntoViewIfNeeded();
+    await page.locator('[data-testid="report-tab-retention"]').click();
+    await expect(page.locator('[data-testid="report-view-retention"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="alert-insufficient-data"]')).toBeVisible();
+
+    // Switch to funnel tab
+    await page.locator('[data-testid="report-tab-funnel"]').scrollIntoViewIfNeeded();
+    await page.locator('[data-testid="report-tab-funnel"]').click();
+    await expect(page.locator('[data-testid="report-view-funnel"]')).toBeVisible({ timeout: 10000 });
+
+    // Switch to conversion tab
+    await page.locator('[data-testid="report-tab-conversion"]').scrollIntoViewIfNeeded();
+    await page.locator('[data-testid="report-tab-conversion"]').click();
+    await expect(page.locator('[data-testid="report-view-conversion"]')).toBeVisible({ timeout: 10000 });
+
+    // 6. Revenue Report
+    await page.goto(`${adminOrigin}/reports/revenue`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="card-gross"]')).toBeVisible();
+    await expect(page.locator('[data-testid="currency-select"]')).toBeVisible();
+
+    // 7. Content Reports
+    await page.goto(`${adminOrigin}/reports/content`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="select-report-filter"]')).toBeVisible();
+
+    // 8. Experiments
+    await page.goto(`${adminOrigin}/experiments`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid^="experiment-card-"], [data-testid="experiments-empty"]').first()).toBeVisible({ timeout: 10000 });
+    // Real interactive flow: toggle experiment active state
+    const toggleExpBtn = page.locator('[data-testid="btn-toggle-experiment-exp_checkout_layout_v1"], [data-testid^="btn-toggle-experiment-"]').first();
+    if (await toggleExpBtn.isVisible().catch(() => false)) {
+      await toggleExpBtn.scrollIntoViewIfNeeded();
+      const initialText = (await toggleExpBtn.innerText()).trim();
+      await toggleExpBtn.click();
+      await expect(toggleExpBtn).not.toHaveText(initialText, { timeout: 10000 });
+    }
+  });
+
+  test('AC4: Unauthenticated access to commercial routes redirects or displays guard alert', async ({
+    page,
+  }, testInfo) => {
+    const clientIp = getProjectClientIp(testInfo, 71);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    await page.context().clearCookies();
+    await page.addInitScript(() => {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch {
+        // ignore storage errors
+      }
+    });
+
+    await page.goto(`${adminOrigin}/commercial/plans`);
+    await expect(
+      page.locator('[data-testid="guard-unauthenticated"], [data-testid="login-card"], [data-testid="email-input"]').first()
+    ).toBeVisible({ timeout: 15000 });
+
+    const isLogin = page.url().includes('/login');
+    const isGuard = await page.locator('[data-testid="guard-unauthenticated"]').first().isVisible();
+    expect(isLogin || isGuard).toBe(true);
+  });
+
+  test('AC5: Responsive viewports (390px, 1366px), zero horizontal overflow, and screenshot capture for I04', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    const clientIp = getProjectClientIp(testInfo, 72);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    await loginAsAdminI04(page, adminOrigin);
+
+    const isMobileDevice = Boolean(testInfo.project.use?.isMobile);
+    const viewportsToTest = isMobileDevice
+      ? VIEWPORTS.filter((v) => v.width <= 500)
+      : VIEWPORTS;
+
+    for (const vp of viewportsToTest) {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+
+      for (const route of I04_PAGES) {
+        await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
+        await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+        await page.waitForTimeout(100);
+
+        // Verify zero horizontal overflow
+        const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+        const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+        expect(scrollWidth, `Horizontal scroll detected on ${route.path} at ${vp.name}`).toBeLessThanOrEqual(clientWidth + 1);
+
+        // Verify container padding / layout integrity
+        const containerPadding = await page.evaluate(() => {
+          const main = document.querySelector('main') || document.querySelector('.overflow-x-hidden') || document.body;
+          const style = window.getComputedStyle(main);
+          return parseInt(style.paddingLeft || '0', 10) + parseInt(style.paddingRight || '0', 10);
+        });
+        expect(containerPadding, `Layout padding missing on ${route.path} at ${vp.name}`).toBeGreaterThanOrEqual(0);
+
+        // Save screenshot artifact for CI review
+        await page.screenshot({
+          path: path.join(artifactDir, `admin-${route.slug}-${vp.name}.png`),
+          fullPage: true,
+        });
+      }
+    }
+  });
+
+  test('AC5: Tri-locale i18n verification (vi, ja, en) without raw translation keys in I04 Commercial & Reports', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    const clientIp = getProjectClientIp(testInfo, 73);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    await loginAsAdminI04(page, adminOrigin);
+
+    const locales = ['vi', 'ja', 'en'];
+
+    for (const locale of locales) {
+      await page.evaluate((l) => {
+        try {
+          localStorage.setItem('jlpt_admin_locale_v1', l);
+          localStorage.setItem('admin_locale', l);
+          document.cookie = `admin_locale=${l}; path=/; SameSite=Lax`;
+          document.cookie = `jlpt_admin_locale_v1=${l}; path=/; SameSite=Lax`;
+        } catch {
+          // ignore storage errors
+        }
+      }, locale);
+
+      for (const route of I04_PAGES) {
+        await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
+        await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+        await page.waitForTimeout(100);
+
+        const bodyText = await page.innerText('body');
+        // Assert no unparsed raw translation keys
+        expect(
+          bodyText,
+          `Raw translation key found on ${route.path} in locale [${locale}]`,
+        ).not.toMatch(/\b(commercial|reports|experiments|contentReports|common|auth|roles)\.[a-zA-Z0-9_.-]+\b/);
+
+        // Capture artifact per locale
+        await page.screenshot({
+          path: path.join(artifactDir, `admin-${route.slug}-1366px-${locale}.png`),
+        });
+      }
     }
   });
 });

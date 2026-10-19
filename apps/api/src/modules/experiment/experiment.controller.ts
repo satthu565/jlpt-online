@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Get,
   Param,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { Roles } from '../../common/decorators/roles.decorator.js';
@@ -60,6 +61,38 @@ export class ExperimentController {
       });
     }
     return this.experimentService.evaluateExperiment(id);
+  }
+
+  @Patch(':id/toggle')
+  @Roles('admin')
+  async toggleExperiment(
+    @Param('id') id: string,
+    @Body() _body?: unknown,
+    @CurrentUser() user?: AuthUserContext,
+  ) {
+    if (!user) {
+      throw new ForbiddenException({
+        code: 'UNAUTHENTICATED',
+        message: 'Yêu cầu quyền quản trị viên.',
+      });
+    }
+    return this.experimentService.toggleExperimentStatus(id);
+  }
+
+  @Post(':id/toggle')
+  @Roles('admin')
+  async toggleExperimentPost(
+    @Param('id') id: string,
+    @Body() _body?: unknown,
+    @CurrentUser() user?: AuthUserContext,
+  ) {
+    if (!user) {
+      throw new ForbiddenException({
+        code: 'UNAUTHENTICATED',
+        message: 'Yêu cầu quyền quản trị viên.',
+      });
+    }
+    return this.experimentService.toggleExperimentStatus(id);
   }
 
   @Post(':id/assign')
