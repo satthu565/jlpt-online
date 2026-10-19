@@ -25,7 +25,10 @@ export function ScoreSummaryCard({
   const passThreshold = result.scoring.totalPass;
 
   return (
-    <Card className={`jlpt-score-summary border border-slate-200 dark:border-slate-800 p-6 md:p-8 ${className}`}>
+    <Card
+      data-testid="score-summary-card"
+      className={`jlpt-score-summary border border-slate-200 dark:border-slate-800 p-6 md:p-8 ${className}`}
+    >
       {/* Header: Title, Level, Mode, Submitted Date */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-6 border-b border-slate-200 dark:border-slate-800">
         <div>
@@ -88,7 +91,7 @@ export function ScoreSummaryCard({
         <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-center relative">
           <div className="flex items-center justify-center gap-1.5 mb-1">
             <span className="text-xs text-slate-500">Điểm quy đổi</span>
-            {result.scoring.isEstimated && (
+            {(result.scoring.isEstimated ?? true) && (
               <Badge variant="neutral" size="sm" data-testid="scoring-estimate-label">
                 {result.scoring.label || 'ước lượng'}
               </Badge>
@@ -163,6 +166,7 @@ export function ScoreSummaryCard({
             return (
               <div
                 key={idx}
+                data-testid="section-scaled-score"
                 className={`p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs ${
                   isSectionFailed
                     ? 'bg-rose-50/40 dark:bg-rose-950/20'
