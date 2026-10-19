@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { Button, Input, Textarea } from '@jlpt/ui';
 import { AdminGuard } from '../../../lib/ui-guard';
 import { useAdminAuth } from '../../../lib/auth-context';
 import { t } from '../../../lib/i18n';
@@ -172,12 +173,13 @@ export default function NotificationsSettingsPage({
             className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-center justify-between"
           >
             <span>{error}</span>
-            <button
+            <Button
+              variant="destructive"
+              size="sm"
               onClick={() => void fetchTemplates()}
-              className="px-3 py-1 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700"
             >
               {t('common.retry', locale)}
-            </button>
+            </Button>
           </div>
         )}
 
@@ -195,10 +197,10 @@ export default function NotificationsSettingsPage({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* List templates */}
           <div className="space-y-3">
-            <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Danh sách mẫu</h2>
+            <h2 className="text-sm font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wide">Danh sách mẫu</h2>
             <div className="space-y-2">
               {templates.length === 0 ? (
-                <div data-testid="notifications-empty" className="p-6 bg-white border border-gray-200 rounded-lg text-center text-xs text-gray-400 italic">
+                <div data-testid="notifications-empty" className="p-6 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg text-center text-xs text-gray-400 italic">
                   {t('common.empty', locale)}
                 </div>
               ) : (
@@ -209,12 +211,12 @@ export default function NotificationsSettingsPage({
                     onClick={() => setSelectedTemplate(tpl)}
                     className={`p-4 rounded-xl border cursor-pointer transition ${
                       selectedTemplate?.id === tpl.id
-                        ? 'bg-blue-50 border-blue-600 shadow-xs'
-                        : 'bg-white border-gray-200 hover:border-gray-300'
+                        ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-600 shadow-xs'
+                        : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 hover:border-gray-300'
                     }`}
                   >
                     <div className="flex justify-between items-center mb-1">
-                      <strong className="text-sm font-semibold text-gray-900">{tpl.name}</strong>
+                      <strong className="text-sm font-semibold text-gray-900 dark:text-slate-100">{tpl.name}</strong>
                       <span
                         className={`px-2 py-0.5 rounded text-[11px] font-semibold uppercase ${
                           tpl.channel === 'email'
@@ -238,39 +240,39 @@ export default function NotificationsSettingsPage({
           {selectedTemplate && (
             <div
               data-testid="template-editor-panel"
-              className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6 space-y-4 shadow-xs"
+              className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 p-6 space-y-4 shadow-xs"
             >
-              <h2 className="text-lg font-bold text-gray-900">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-slate-100">
                 Chỉnh sửa mẫu: {selectedTemplate.name}
               </h2>
 
               <div className="space-y-1">
-                <label className="block text-xs font-semibold text-gray-700">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300">
                   Tiêu đề thông báo / Subject:
                 </label>
-                <input
+                <Input
                   data-testid="input-tpl-subject"
                   type="text"
                   value={selectedTemplate.subject}
                   onChange={(e) =>
                     setSelectedTemplate({ ...selectedTemplate, subject: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  className="w-full"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="block text-xs font-semibold text-gray-700">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300">
                   Nội dung mẫu (hỗ trợ biến chèn động):
                 </label>
-                <textarea
+                <Textarea
                   data-testid="input-tpl-body"
                   rows={6}
                   value={selectedTemplate.bodyTemplate}
                   onChange={(e) =>
                     setSelectedTemplate({ ...selectedTemplate, bodyTemplate: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-xs"
+                  className="w-full font-mono text-xs"
                 />
               </div>
 
@@ -280,7 +282,7 @@ export default function NotificationsSettingsPage({
                   {selectedTemplate.variables?.map((v) => (
                     <code
                       key={v}
-                      className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-700 mr-1.5 font-mono text-xs"
+                      className="bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-gray-700 dark:text-slate-300 mr-1.5 font-mono text-xs"
                     >
                       {`{{${v}}}`}
                     </code>
@@ -289,31 +291,32 @@ export default function NotificationsSettingsPage({
               </div>
 
               {/* Test send */}
-              <div className="bg-gray-50 p-4 rounded-lg flex flex-wrap gap-2 items-center">
-                <input
+              <div className="bg-gray-50 dark:bg-slate-800/60 p-4 rounded-lg flex flex-wrap gap-2 items-center">
+                <Input
                   type="email"
                   value={testEmail}
                   onChange={(e) => setTestEmail(e.target.value)}
                   placeholder="Nhập email kiểm thử..."
-                  className="flex-1 min-w-[200px] px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
+                  className="flex-1 min-w-[200px]"
                 />
-                <button
+                <Button
                   data-testid="btn-test-send"
+                  variant="secondary"
+                  size="sm"
                   onClick={handleTestSend}
-                  className="px-4 py-1.5 bg-gray-700 hover:bg-gray-800 text-white rounded-lg text-xs font-semibold"
                 >
                   Gửi thử nghiệm
-                </button>
+                </Button>
               </div>
 
               <div className="flex justify-end pt-2">
-                <button
+                <Button
                   data-testid="btn-save-notification-tpl"
+                  variant="primary"
                   onClick={() => void handleSave(selectedTemplate)}
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-xs"
                 >
                   Lưu cấu hình
-                </button>
+                </Button>
               </div>
             </div>
           )}

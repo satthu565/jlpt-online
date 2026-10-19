@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import type { RichBlock, RichText } from '@jlpt/schema';
-import { RichTextView } from '@jlpt/ui';
+import { RichTextView, Button, Input } from '@jlpt/ui';
 import {
   createBlankSegment,
   createImageBlock,
@@ -82,34 +82,32 @@ export function RichTextSegmentEditor({
 
   return (
     <div data-testid="richtext-segment-editor" className="border border-gray-300 rounded-md p-3 bg-white space-y-3">
-      <div className="flex items-center justify-between border-b pb-2">
-        <label className="text-sm font-semibold text-gray-700">{label || 'Soạn thảo đoạn (RichText)'}</label>
+      <div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-800 pb-2">
+        <label className="text-sm font-semibold text-gray-700 dark:text-slate-300">{label || 'Soạn thảo đoạn (RichText)'}</label>
         <div className="flex space-x-2">
-          <button
+          <Button
             type="button"
+            variant={activeTab === 'edit' ? 'primary' : 'secondary'}
+            size="sm"
             data-testid="tab-edit"
             onClick={() => setActiveTab('edit')}
-            className={`px-2.5 py-1 text-xs font-medium rounded ${
-              activeTab === 'edit' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
           >
             Chỉnh sửa
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant={activeTab === 'preview' ? 'primary' : 'secondary'}
+            size="sm"
             data-testid="tab-preview"
             onClick={() => setActiveTab('preview')}
-            className={`px-2.5 py-1 text-xs font-medium rounded ${
-              activeTab === 'preview' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
           >
             Xem trước
-          </button>
+          </Button>
         </div>
       </div>
 
       {activeTab === 'preview' ? (
-        <div data-testid="segment-preview" className="p-3 bg-gray-50 border rounded min-h-[4rem] text-sm">
+        <div data-testid="segment-preview" className="p-3 bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-800 rounded min-h-[4rem] text-sm">
           {value.length === 0 ? (
             <span className="text-gray-400 italic">Chưa có nội dung.</span>
           ) : (
@@ -119,7 +117,7 @@ export function RichTextSegmentEditor({
       ) : (
         <div className="space-y-3">
           {/* List of current segments */}
-          <div data-testid="segments-list" className="flex flex-wrap gap-1.5 p-2 bg-gray-50 rounded border min-h-[3rem] items-center">
+          <div data-testid="segments-list" className="flex flex-wrap gap-1.5 p-2 bg-gray-50 dark:bg-slate-800/50 rounded border border-gray-200 dark:border-slate-800 min-h-[3rem] items-center">
             {value.length === 0 ? (
               <span className="text-xs text-gray-400 italic">Thêm các đoạn chữ, ruby, hoặc dấu sao bên dưới...</span>
             ) : (
@@ -127,11 +125,11 @@ export function RichTextSegmentEditor({
                 <span
                   key={idx}
                   data-testid={`segment-badge-${idx}`}
-                  className="inline-flex items-center text-xs px-2 py-1 rounded bg-white border border-gray-300 shadow-xs"
+                  className="inline-flex items-center text-xs px-2 py-1 rounded bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 shadow-xs"
                 >
-                  {seg.t === 'text' && <span className="text-gray-800">{seg.text}</span>}
+                  {seg.t === 'text' && <span className="text-gray-800 dark:text-slate-200">{seg.text}</span>}
                   {seg.t === 'ruby' && (
-                    <span className="text-purple-700 font-medium">
+                    <span className="text-purple-700 dark:text-purple-400 font-medium">
                       <ruby>
                         {seg.text}
                         <rt>{seg.rt}</rt>
@@ -139,20 +137,22 @@ export function RichTextSegmentEditor({
                     </span>
                   )}
                   {seg.t === 'star' && <span className="text-amber-500 font-bold">★</span>}
-                  {seg.t === 'underline' && <u className="text-blue-700">{seg.text}</u>}
-                  {seg.t === 'blank' && <span className="text-gray-600">({seg.label || ' '})</span>}
+                  {seg.t === 'underline' && <u className="text-blue-700 dark:text-blue-400">{seg.text}</u>}
+                  {seg.t === 'blank' && <span className="text-gray-600 dark:text-slate-400">({seg.label || ' '})</span>}
                   {seg.t === 'br' && <span className="text-gray-400">↵</span>}
-                  {seg.t === 'image' && <span className="text-green-700">[Ảnh]</span>}
+                  {seg.t === 'image' && <span className="text-green-700 dark:text-green-400">[Ảnh]</span>}
 
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     data-testid={`remove-segment-${idx}`}
                     onClick={() => removeSegment(idx)}
-                    className="ml-1.5 text-gray-400 hover:text-red-600 font-bold"
+                    className="ml-1.5 h-4 w-4 p-0 min-h-0 text-gray-400 hover:text-red-600 font-bold"
                     title="Xóa đoạn này"
                   >
                     ×
-                  </button>
+                  </Button>
                 </span>
               ))
             )}
@@ -162,13 +162,13 @@ export function RichTextSegmentEditor({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
             {/* Plain Text Input */}
             <div className="flex space-x-1">
-              <input
+              <Input
                 type="text"
                 data-testid="input-plain-text"
                 value={plainText}
                 onChange={(e) => setPlainText(e.target.value)}
                 placeholder="Nhập chữ thông thường"
-                className="flex-1 px-2 py-1 border rounded text-xs"
+                className="flex-1 min-h-[36px] py-1 text-xs"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -176,112 +176,120 @@ export function RichTextSegmentEditor({
                   }
                 }}
               />
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 data-testid="btn-add-text"
                 onClick={addText}
-                className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded font-medium"
               >
                 + Chữ
-              </button>
+              </Button>
             </div>
 
             {/* Ruby Furigana Input */}
             <div className="flex space-x-1">
-              <input
+              <Input
                 type="text"
                 data-testid="input-ruby-kanji"
                 value={rubyText}
                 onChange={(e) => setRubyText(e.target.value)}
                 placeholder="Kanji (vd: 漢字)"
-                className="w-1/2 px-2 py-1 border rounded text-xs"
+                className="w-1/2 min-h-[36px] py-1 text-xs"
               />
-              <input
+              <Input
                 type="text"
                 data-testid="input-ruby-rt"
                 value={rubyRt}
                 onChange={(e) => setRubyRt(e.target.value)}
                 placeholder="Furigana (vd: かんじ)"
-                className="w-1/2 px-2 py-1 border rounded text-xs"
+                className="w-1/2 min-h-[36px] py-1 text-xs"
               />
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 data-testid="btn-add-ruby"
                 onClick={addRuby}
-                className="px-2 py-1 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded font-medium"
               >
                 + Ruby
-              </button>
+              </Button>
             </div>
 
             {/* Underline Input */}
             <div className="flex space-x-1">
-              <input
+              <Input
                 type="text"
                 data-testid="input-underline-text"
                 value={underlineText}
                 onChange={(e) => setUnderlineText(e.target.value)}
                 placeholder="Từ gạch chân"
-                className="flex-1 px-2 py-1 border rounded text-xs"
+                className="flex-1 min-h-[36px] py-1 text-xs"
               />
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 data-testid="btn-add-underline"
                 onClick={addUnderline}
-                className="px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded font-medium"
               >
                 + Gạch chân
-              </button>
+              </Button>
             </div>
 
             {/* Star, Blank, Linebreak tools */}
             <div className="flex space-x-1 items-center">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 data-testid="btn-add-star"
                 onClick={addStar}
-                className="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded font-bold"
                 title="Chèn ô sao JLPT ★"
               >
                 + ★ Sao
-              </button>
+              </Button>
 
-              <input
+              <Input
                 type="text"
                 data-testid="input-blank-label"
                 value={blankLabel}
                 onChange={(e) => setBlankLabel(e.target.value)}
                 placeholder="Số ô trống"
-                className="w-16 px-1.5 py-1 border rounded text-xs text-center"
+                className="w-16 min-h-[36px] py-1 text-xs text-center"
               />
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 data-testid="btn-add-blank"
                 onClick={addBlank}
-                className="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded font-medium"
               >
                 + Ô trống
-              </button>
+              </Button>
 
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 data-testid="btn-add-br"
                 onClick={addBr}
-                className="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded font-medium"
                 title="Xuống dòng"
               >
                 ↵ Xuống dòng
-              </button>
+              </Button>
 
               {value.length > 0 && (
-                <button
+                <Button
                   type="button"
+                  variant="destructive"
+                  size="sm"
                   data-testid="btn-clear-all"
                   onClick={clearAll}
-                  className="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded ml-auto"
+                  className="ml-auto"
                 >
                   Xóa hết
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -347,26 +355,24 @@ export function PassageBlocksEditor({ blocks, onChange }: PassageBlocksEditorPro
       <div className="flex items-center justify-between border-b pb-2">
         <h4 className="text-sm font-bold text-gray-800">Biên tập bài đọc hiểu (Reading Passage)</h4>
         <div className="flex space-x-2">
-          <button
+          <Button
             type="button"
+            variant={activeTab === 'edit' ? 'primary' : 'secondary'}
+            size="sm"
             data-testid="passage-tab-edit"
             onClick={() => setActiveTab('edit')}
-            className={`px-3 py-1 text-xs font-medium rounded ${
-              activeTab === 'edit' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'
-            }`}
           >
             Chỉnh sửa ({blocks.length} khối)
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant={activeTab === 'preview' ? 'primary' : 'secondary'}
+            size="sm"
             data-testid="passage-tab-preview"
             onClick={() => setActiveTab('preview')}
-            className={`px-3 py-1 text-xs font-medium rounded ${
-              activeTab === 'preview' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'
-            }`}
           >
             Xem trước
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -391,14 +397,16 @@ export function PassageBlocksEditor({ blocks, onChange }: PassageBlocksEditorPro
                   <span>
                     Khối {bIdx + 1}: {block.type === 'paragraph' ? 'Đoạn văn (Paragraph)' : block.type === 'table' ? 'Bảng biểu (Table)' : 'Hình ảnh (Image)'}
                   </span>
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     data-testid={`btn-remove-block-${bIdx}`}
                     onClick={() => removeBlock(bIdx)}
-                    className="text-red-500 hover:text-red-700"
+                    className="text-red-500 hover:text-red-700 min-h-0 py-0"
                   >
                     Xóa khối
-                  </button>
+                  </Button>
                 </div>
 
                 {block.type === 'paragraph' && (
@@ -449,30 +457,33 @@ export function PassageBlocksEditor({ blocks, onChange }: PassageBlocksEditorPro
 
           {/* Add block buttons */}
           <div className="flex flex-wrap gap-2 pt-2 border-t text-xs">
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               data-testid="btn-add-paragraph"
               onClick={addParagraph}
-              className="px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded font-medium hover:bg-blue-100"
             >
               + Thêm đoạn văn
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               data-testid="btn-add-table"
               onClick={addTable}
-              className="px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded font-medium hover:bg-emerald-100"
             >
               + Thêm bảng biểu
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               data-testid="btn-add-image"
               onClick={addImage}
-              className="px-3 py-1.5 bg-purple-50 text-purple-700 border border-purple-200 rounded font-medium hover:bg-purple-100"
             >
               + Thêm hình ảnh
-            </button>
+            </Button>
           </div>
         </div>
       )}

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Button, Input } from '@jlpt/ui';
 import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 import { apiClient } from '../../lib/api-client';
@@ -85,7 +86,7 @@ export default function MediaPage(): React.JSX.Element {
 
           <label className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-semibold hover:bg-blue-700 cursor-pointer self-start shadow-xs">
             {t('content.media.uploadBtn', locale)}
-            <input
+            <Input
               data-testid="input-upload-media"
               type="file"
               onChange={handleFileUpload}
@@ -124,46 +125,37 @@ export default function MediaPage(): React.JSX.Element {
 
         {/* Filter controls */}
         <div className="flex gap-2">
-          <button
+          <Button
             type="button"
+            variant={filterType === 'all' ? 'primary' : 'secondary'}
+            size="sm"
             onClick={() => setFilterType('all')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold border ${
-              filterType === 'all'
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-            }`}
           >
             Tất cả ({mediaList.length})
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant={filterType === 'audio' ? 'primary' : 'secondary'}
+            size="sm"
             onClick={() => setFilterType('audio')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold border ${
-              filterType === 'audio'
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-            }`}
           >
             {t('content.media.audioTitle', locale)} ({mediaList.filter((m) => m.mime?.startsWith('audio/')).length})
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant={filterType === 'image' ? 'primary' : 'secondary'}
+            size="sm"
             onClick={() => setFilterType('image')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold border ${
-              filterType === 'image'
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-            }`}
           >
             {t('content.media.imageTitle', locale)} ({mediaList.filter((m) => m.mime?.startsWith('image/')).length})
-          </button>
+          </Button>
         </div>
 
         {/* Media Table */}
-        <div className="overflow-x-auto w-full border border-gray-200 rounded-lg shadow-xs bg-white">
+        <div className="overflow-x-auto w-full border border-gray-200 dark:border-slate-800 rounded-lg shadow-xs bg-white dark:bg-slate-900">
           <table data-testid="media-table" className="w-full text-left text-sm border-collapse">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200 text-gray-700">
+              <tr className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-800 text-gray-700 dark:text-slate-300">
                 <th className="p-3">Khóa tệp (Key)</th>
                 <th className="p-3">Loại MIME</th>
                 <th className="p-3">Kích thước</th>
@@ -180,7 +172,7 @@ export default function MediaPage(): React.JSX.Element {
                 </tr>
               ) : (
                 filtered.map((item) => (
-                  <tr key={item.id} data-testid={`media-row-${item.id}`} className="border-b border-gray-100 hover:bg-gray-50">
+                  <tr key={item.id} data-testid={`media-row-${item.id}`} className="border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50">
                     <td className="p-3 font-medium text-gray-900 font-mono text-xs">
                       {item.key || item.filename || item.id}
                     </td>

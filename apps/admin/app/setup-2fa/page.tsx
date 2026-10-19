@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button, Input, Alert } from '@jlpt/ui';
 import { useAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
 
@@ -99,7 +100,7 @@ export default function Setup2faPage(): React.JSX.Element {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `jlpt-admin-recovery-codes-${user?.email || 'staff'}.txt`;
+      link.download = `jlpt-recovery-codes-${user?.email || 'admin'}.txt`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -126,210 +127,122 @@ export default function Setup2faPage(): React.JSX.Element {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: '680px',
-        margin: '2.5rem auto',
-        padding: '2rem',
-        background: '#ffffff',
-        borderRadius: '12px',
-        border: '1px solid #e5e7eb',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-        fontFamily: 'sans-serif',
-      }}
-    >
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🛡️</div>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.5rem', color: '#111827' }}>
+    <div className="max-w-[680px] mx-auto my-10 p-6 md:p-8 bg-[var(--bg-surface,#ffffff)] dark:bg-[var(--bg-surface,#1e293b)] rounded-2xl border border-[var(--border-default,#cbd5e1)] dark:border-[var(--border-default,#475569)] shadow-lg font-sans">
+      <div className="text-center mb-8">
+        <div className="text-4xl mb-2">🛡️</div>
+        <h1 className="text-2xl font-bold m-0 mb-2 text-[var(--text-primary,#0f172a)] dark:text-[var(--text-primary,#f8fafc)]">
           {t('totp.setupTitle', locale)}
         </h1>
-        <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: 0 }}>
+        <p className="text-sm text-[var(--text-muted,#64748b)] dark:text-[var(--text-muted,#94a3b8)] m-0">
           {t('totp.setupSubtitle', locale)} ({user?.email})
         </p>
       </div>
 
       {error && (
-        <div
-          role="alert"
+        <Alert
+          variant="destructive"
           data-testid="totp-setup-error"
-          style={{
-            padding: '0.75rem 1rem',
-            marginBottom: '1.5rem',
-            background: '#fef2f2',
-            border: '1px solid #fecaca',
-            borderRadius: '6px',
-            color: '#b91c1c',
-            fontSize: '0.875rem',
-          }}
+          className="mb-6 text-sm"
         >
           {error}
-        </div>
+        </Alert>
       )}
 
       {/* Step 1: QR Code & Secret */}
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#1f2937', marginBottom: '0.75rem' }}>
+      <section className="mb-8">
+        <h2 className="text-base font-semibold text-[var(--text-primary,#0f172a)] dark:text-[var(--text-primary,#f8fafc)] mb-3">
           {t('totp.scanQrInstruction', locale)}
         </h2>
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+        <div className="flex flex-col items-center gap-4">
           <div
             data-testid="qr-code-container"
-            style={{
-              width: '180px',
-              height: '180px',
-              padding: '0.5rem',
-              background: '#ffffff',
-              border: '1px solid #d1d5db',
-              borderRadius: '8px',
-            }}
+            className="w-[180px] h-[180px] p-2 bg-white rounded-lg border border-gray-300 shadow-xs flex items-center justify-center overflow-hidden"
             dangerouslySetInnerHTML={{ __html: qrSvg }}
           />
 
-          <div style={{ width: '100%', textAlign: 'center' }}>
-            <span style={{ fontSize: '0.85rem', color: '#4b5563' }}>
+          <div className="w-full text-center">
+            <span className="text-xs text-[var(--text-muted,#64748b)] dark:text-[var(--text-muted,#94a3b8)]">
               {t('totp.manualEntryInstruction', locale)}
             </span>
-            <div
-              style={{
-                marginTop: '0.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-              }}
-            >
+            <div className="mt-2 flex items-center justify-center gap-2 flex-wrap">
               <code
                 data-testid="totp-secret-key"
-                style={{
-                  fontFamily: 'monospace',
-                  fontSize: '1rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.1em',
-                  background: '#f3f4f6',
-                  padding: '0.35rem 0.75rem',
-                  borderRadius: '4px',
-                  color: '#1f2937',
-                }}
+                className="font-mono text-sm md:text-base font-bold tracking-widest bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-gray-100 px-3 py-1.5 rounded"
               >
                 {formattedSecret || '.... .... .... ....'}
               </code>
-              <button
+              <Button
                 type="button"
                 data-testid="copy-secret-button"
                 onClick={handleCopySecret}
-                style={{
-                  padding: '0.35rem 0.75rem',
-                  fontSize: '0.8rem',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '4px',
-                  background: copiedKey ? '#ecfdf5' : '#ffffff',
-                  color: copiedKey ? '#059669' : '#374151',
-                  cursor: 'pointer',
-                  fontWeight: 500,
-                }}
+                variant={copiedKey ? 'success' : 'outline'}
+                size="sm"
+                className="text-xs py-1 px-3 min-h-[32px] h-auto"
               >
                 {copiedKey ? t('totp.secretCopied', locale) : t('totp.copySecret', locale)}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
       {/* Step 2: Recovery Codes */}
-      <section
-        style={{
-          marginBottom: '2rem',
-          padding: '1.25rem',
-          background: '#fffbeb',
-          border: '1px solid #fef3c7',
-          borderRadius: '8px',
-        }}
-      >
-        <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#92400e', margin: '0 0 0.5rem' }}>
+      <section className="mb-8 p-5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-xl">
+        <h2 className="text-base font-semibold text-amber-900 dark:text-amber-200 m-0 mb-2">
           {t('totp.recoveryCodesTitle', locale)}
         </h2>
-        <p style={{ fontSize: '0.85rem', color: '#78350f', margin: '0 0 1rem' }}>
+        <p className="text-xs text-amber-800 dark:text-amber-300 m-0 mb-4">
           {t('totp.recoveryCodesWarning', locale)}
         </p>
 
         <div
           data-testid="recovery-codes-grid"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-            gap: '0.5rem',
-            marginBottom: '1rem',
-          }}
+          className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4"
         >
           {recoveryCodes.map((c, i) => (
             <code
               key={i}
-              style={{
-                display: 'block',
-                background: '#ffffff',
-                border: '1px solid #fde68a',
-                borderRadius: '4px',
-                padding: '0.35rem 0.5rem',
-                fontSize: '0.9rem',
-                fontFamily: 'monospace',
-                textAlign: 'center',
-                fontWeight: 600,
-                color: '#92400e',
-              }}
+              className="block bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-800 rounded px-2 py-1.5 text-xs font-mono text-center font-semibold text-amber-900 dark:text-amber-200"
             >
               {c}
             </code>
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <button
+        <div className="flex gap-2 flex-wrap">
+          <Button
             type="button"
             data-testid="copy-recovery-codes-button"
             onClick={handleCopyRecoveryCodes}
-            style={{
-              padding: '0.4rem 0.75rem',
-              fontSize: '0.8rem',
-              border: '1px solid #d97706',
-              borderRadius: '4px',
-              background: copiedCodes ? '#dcfce7' : '#ffffff',
-              color: copiedCodes ? '#15803d' : '#92400e',
-              cursor: 'pointer',
-              fontWeight: 500,
-            }}
+            variant={copiedCodes ? 'success' : 'outline'}
+            size="sm"
+            className="text-xs py-1.5 px-3 min-h-[32px] h-auto border-amber-600 text-amber-800 dark:text-amber-200"
           >
             {copiedCodes ? t('totp.codesCopied', locale) : t('totp.copyRecoveryCodes', locale)}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             data-testid="download-recovery-codes-button"
             onClick={handleDownloadRecoveryCodes}
-            style={{
-              padding: '0.4rem 0.75rem',
-              fontSize: '0.8rem',
-              border: '1px solid #d97706',
-              borderRadius: '4px',
-              background: '#ffffff',
-              color: '#92400e',
-              cursor: 'pointer',
-              fontWeight: 500,
-            }}
+            variant="outline"
+            size="sm"
+            className="text-xs py-1.5 px-3 min-h-[32px] h-auto border-amber-600 text-amber-800 dark:text-amber-200"
           >
             {t('totp.downloadRecoveryCodes', locale)}
-          </button>
+          </Button>
         </div>
       </section>
 
       {/* Step 3: Verification Code Form */}
       <section>
-        <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#1f2937', marginBottom: '0.75rem' }}>
+        <h2 className="text-base font-semibold text-[var(--text-primary,#0f172a)] dark:text-[var(--text-primary,#f8fafc)] mb-3">
           {t('totp.verifyCodeInstruction', locale)}
         </h2>
 
-        <form onSubmit={handleVerify} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <form onSubmit={handleVerify} className="flex flex-col gap-4">
           <div>
-            <input
+            <Input
               type="text"
               inputMode="numeric"
               pattern="[0-9]*"
@@ -340,40 +253,23 @@ export default function Setup2faPage(): React.JSX.Element {
               value={totpCode}
               onChange={(e) => setTotpCode(e.target.value)}
               placeholder={t('totp.codePlaceholder', locale)}
-              style={{
-                width: '100%',
-                padding: '0.75rem 1rem',
-                border: '2px solid #2563eb',
-                borderRadius: '8px',
-                fontSize: '1.5rem',
-                letterSpacing: '0.3em',
-                textAlign: 'center',
-                fontFamily: 'monospace',
-                boxSizing: 'border-box',
-              }}
+              className="w-full text-center font-mono text-2xl tracking-[0.3em] py-3 border-2 border-blue-600 dark:border-blue-500 rounded-lg"
             />
           </div>
 
-          <button
+          <Button
             type="submit"
             data-testid="submit-verify-totp-button"
             disabled={isVerifying || totpCode.trim().length !== 6}
-            style={{
-              padding: '0.75rem',
-              background: '#2563eb',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '1rem',
-              fontWeight: 600,
-              cursor: isVerifying || totpCode.trim().length !== 6 ? 'not-allowed' : 'pointer',
-              opacity: isVerifying || totpCode.trim().length !== 6 ? 0.6 : 1,
-            }}
+            loading={isVerifying}
+            variant="primary"
+            className="w-full text-base font-semibold py-3"
           >
             {isVerifying ? t('totp.activating', locale) : t('totp.activateButton', locale)}
-          </button>
+          </Button>
         </form>
       </section>
     </div>
   );
 }
+

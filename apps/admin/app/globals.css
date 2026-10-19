@@ -1,6 +1,9 @@
-/* Tailwind utilities for the className strings used in admin pages. Preflight is left out
-   because the admin layout sets its own base styles inline. */
+/* Tailwind utilities for the className strings used in admin pages. */
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css" layer(utilities);
+@import "@jlpt/ui/styles.css";
+
+@source "../../../packages/ui/src";
 @custom-variant dark (&:where(.dark, .dark *));
+

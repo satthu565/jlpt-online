@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Button, Input } from '@jlpt/ui';
 import type { PublicExamSnapshot } from '@jlpt/schema';
 import type { AdminExam, StaffOperator, PublishedVersionRecord } from './types';
 import { ExamService } from './exam-service';
@@ -202,41 +203,45 @@ export function ExamListView({
                   </td>
                   <td className="p-3">{exam.totalQuestions}</td>
                   <td className="p-3 space-x-2">
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="sm"
                       data-testid={`preview-exam-btn-${exam.id}`}
                       onClick={() => handlePreview(exam)}
-                      className="px-2.5 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100"
                     >
                       {t('content.exams.previewBtn', locale)}
-                    </button>
+                    </Button>
                     {exam.status === 'published' ? (
-                      <button
+                      <Button
                         type="button"
+                        variant="destructive"
+                        size="sm"
                         data-testid={`takedown-exam-btn-${exam.id}`}
                         onClick={() => handleOpenTakedown(exam)}
-                        className="px-2.5 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
                       >
                         {t('content.exams.unpublishBtn', locale)}
-                      </button>
+                      </Button>
                     ) : (
-                      <button
+                      <Button
                         type="button"
+                        variant="primary"
+                        size="sm"
                         data-testid={`publish-exam-btn-${exam.id}`}
                         onClick={() => handlePublish(exam)}
-                        className="px-2.5 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"
                       >
                         {t('content.exams.publishBtn', locale)}
-                      </button>
+                      </Button>
                     )}
-                    <button
+                    <Button
                       type="button"
+                      variant="secondary"
+                      size="sm"
                       data-testid={`history-exam-btn-${exam.id}`}
                       onClick={() => handleViewHistory(exam)}
-                      className="px-2.5 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100"
                     >
                       Lịch sử
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))
@@ -249,24 +254,25 @@ export function ExamListView({
       {previewSnapshot && (
         <div
           data-testid="exam-preview-modal"
-          className="border-2 border-blue-500 rounded-lg p-6 bg-white mb-6 shadow-sm"
+          className="border-2 border-blue-500 rounded-lg p-6 bg-white dark:bg-slate-900 mb-6 shadow-sm"
         >
           <div className="flex justify-between items-center mb-4">
             <div>
-              <h3 className="text-lg font-bold text-blue-900">
+              <h3 className="text-lg font-bold text-blue-900 dark:text-blue-300">
                 Xem trước Đề thi trên Giao diện làm bài
               </h3>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                 {previewSnapshot.title} ({previewSnapshot.level} - Tổng {previewSnapshot.totalQuestions} câu) - Tuyệt đối không lộ đáp án!
               </p>
             </div>
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={() => setPreviewSnapshot(null)}
-              className="px-3 py-1 text-xs bg-gray-100 border border-gray-300 rounded hover:bg-gray-200"
             >
               Đóng xem trước
-            </button>
+            </Button>
           </div>
 
           <div className="border border-gray-200 rounded-md p-4 space-y-4">
@@ -315,34 +321,36 @@ export function ExamListView({
             Hệ thống sẽ chuyển đề thi về trạng thái gỡ xuất bản, đồng thời lưu giữ nguyên vẹn bản ghi phiên bản cũ cùng snapshot trong lịch sử.
           </p>
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-700 mb-1">
+            <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
               Lý do gỡ đề (bắt buộc):
             </label>
-            <input
+            <Input
               data-testid="takedown-reason-input"
               type="text"
               value={takedownReason}
               onChange={(e) => setTakedownReason(e.target.value)}
               placeholder="Ví dụ: Đổi nội dung câu 4 theo phản hồi bản quyền..."
-              className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
+              className="w-full"
             />
           </div>
           <div className="space-x-2">
-            <button
+            <Button
               type="button"
+              variant="destructive"
+              size="sm"
               data-testid="confirm-takedown-btn"
               onClick={handleConfirmTakedown}
-              className="px-4 py-2 bg-red-600 text-white rounded text-xs font-semibold hover:bg-red-700"
             >
               Xác nhận Gỡ Đề
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={() => setTakedownExamId(null)}
-              className="px-4 py-2 bg-white border border-gray-300 rounded text-xs hover:bg-gray-100"
             >
               Hủy
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -351,19 +359,20 @@ export function ExamListView({
       {historyExamId && (
         <div
           data-testid="version-history-modal"
-          className="border border-gray-300 rounded-lg p-6 bg-white mb-6 shadow-sm"
+          className="border border-gray-300 dark:border-slate-800 rounded-lg p-6 bg-white dark:bg-slate-900 mb-6 shadow-sm"
         >
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-base font-bold text-gray-900">
+            <h3 className="text-base font-bold text-gray-900 dark:text-slate-100">
               Lịch sử các phiên bản đã xuất bản (Version History)
             </h3>
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={() => setHistoryExamId(null)}
-              className="px-2.5 py-1 text-xs bg-gray-100 border border-gray-300 rounded hover:bg-gray-200"
             >
               Đóng
-            </button>
+            </Button>
           </div>
 
           {versionHistory.length === 0 ? (

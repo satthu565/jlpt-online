@@ -1,6 +1,6 @@
 import React from 'react';
 import './globals.css';
-import { AdminAuthProvider } from '../lib/auth-context';
+import { AdminProviders } from './providers';
 import { AdminNavigation } from '../lib/admin-nav';
 
 export const metadata = {
@@ -14,25 +14,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
-    <html lang="vi">
-      <body
-        className="bg-gray-50 text-gray-900 min-h-screen antialiased overflow-x-hidden font-sans"
-        style={{
-          margin: 0,
-          padding: 0,
-          fontFamily:
-            '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-        }}
-      >
-        <AdminAuthProvider>
+    <html lang="vi" suppressHydrationWarning>
+      <body className="bg-[var(--bg-page,#f8fafc)] text-[var(--text-primary,#0f172a)] dark:bg-[var(--bg-page,#0b1120)] dark:text-[var(--text-primary,#f8fafc)] min-h-screen antialiased overflow-x-hidden font-sans m-0 p-0">
+        <AdminProviders>
           <div className="flex min-h-screen w-full max-w-full overflow-x-hidden">
             <AdminNavigation />
             <main className="flex-1 min-w-0 flex flex-col pt-14 md:pt-0 overflow-x-hidden w-full max-w-full">
               {children}
             </main>
           </div>
-        </AdminAuthProvider>
+        </AdminProviders>
       </body>
     </html>
   );
 }
+

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Button, Textarea } from '@jlpt/ui';
 import { AdminGuard } from '../../../lib/ui-guard';
 import { useAdminAuth } from '../../../lib/auth-context';
 import { apiClient } from '../../../lib/api-client';
@@ -217,28 +218,32 @@ export default function ExplanationReviewsPage({ initialItems }: { initialItems?
 
                     {item.status === 'pending' && (
                       <div className="flex items-center gap-2">
-                        <button
+                        <Button
                           type="button"
+                          variant="primary"
+                          size="sm"
                           data-testid={`btn-approve-explanation-${item.id}`}
                           onClick={() => handleApprove(item)}
                           disabled={isSelfAuthor}
-                          className={`px-3 py-1.5 rounded-md text-xs font-semibold text-white transition-colors ${
-                            isSelfAuthor ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+                          className={`text-xs ${
+                            isSelfAuthor ? 'opacity-50 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
                           }`}
                         >
                           {t('content.explanationReviews.approveBtn', locale)}
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           type="button"
+                          variant="destructive"
+                          size="sm"
                           data-testid={`btn-open-reject-${item.id}`}
                           onClick={() => {
                             setSelectedItem(item);
                             setErrorMessage(null);
                           }}
-                          className="px-3 py-1.5 rounded-md text-xs font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors"
+                          className="text-xs"
                         >
                           {t('content.explanationReviews.rejectBtn', locale)}
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -258,30 +263,29 @@ export default function ExplanationReviewsPage({ initialItems }: { initialItems?
               <h3 className="text-base font-bold text-gray-900">
                 Yêu cầu chỉnh sửa lời giải {selectedItem.questionId}
               </h3>
-              <textarea
+              <Textarea
                 data-testid="input-reject-reason"
                 rows={4}
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder="Nêu rõ lý do từ chối (ví dụ: giải thích chưa rõ ngữ cảnh, dịch sai sắc thái...)"
-                className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
               />
               <div className="flex justify-end gap-2 pt-2">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => setSelectedItem(null)}
-                  className="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50"
                 >
                   Hủy
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="destructive"
                   data-testid="btn-confirm-reject"
                   onClick={() => handleReject(selectedItem)}
-                  className="px-4 py-2 bg-red-600 text-white rounded text-sm font-semibold hover:bg-red-700"
                 >
                   Xác nhận Từ chối
-                </button>
+                </Button>
               </div>
             </div>
           </div>
