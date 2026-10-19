@@ -89,8 +89,67 @@ export class CorpusService {
   /**
    * Tạo một tập ngữ liệu mới (Corpus Dataset) (Acceptance 3).
    */
+  /**
+   * Tìm bản ghi dataset theo UUID hoặc slug.
+   */
+  async findDatasetRecord(idOrSlug: string): Promise<{
+    id: string;
+    slug?: string | null;
+    name: string;
+    version: string;
+    licenseId?: string | null;
+    createdAt?: Date;
+  } | null> {
+    if (isUuid(idOrSlug)) {
+      try {
+        const rows = await this.dbClient.db
+          .select()
+          .from(datasets)
+          .where(eq(datasets.id, idOrSlug))
+          .limit(1);
+        if (rows.length > 0) return rows[0]!;
+      } catch {
+        // Fallback if query fails
+      }
+    }
+
+    try {
+      const rows = await this.dbClient.db
+        .select()
+        .from(datasets)
+        .where(eq(datasets.slug, idOrSlug))
+        .limit(1);
+      if (rows.length > 0) return rows[0]!;
+    } catch {
+      // Slug column not yet available or query failed
+    }
+
+    if (idOrSlug === 'jlpt-official' || idOrSlug === DEFAULT_CORPUS_DATASET_ID) {
+      try {
+        const rows = await this.dbClient.db
+          .select()
+          .from(datasets)
+          .where(eq(datasets.id, DEFAULT_CORPUS_DATASET_ID))
+          .limit(1);
+        if (rows.length > 0) return rows[0]!;
+      } catch {
+        // Fallback if query fails
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Tạo một tập ngữ liệu mới (Corpus Dataset) (Acceptance 3).
+   */
   async createDataset(dto: CreateDatasetDto) {
     const id = dto.id ?? generateUuidV7();
+    const slug =
+      dto.slug ??
+      (id === DEFAULT_CORPUS_DATASET_ID || dto.id === DEFAULT_CORPUS_DATASET_ID
+        ? 'jlpt-official'
+        : undefined);
 
     // Default license if not specified
     let licenseId = dto.licenseId;
@@ -114,12 +173,24 @@ export class CorpusService {
       }
     }
 
-    await this.dbClient.db.insert(datasets).values({
-      id,
-      name: dto.name,
-      version: dto.version,
-      licenseId,
-    });
+    await this.dbClient.db
+      .insert(datasets)
+      .values({
+        id,
+        slug,
+        name: dto.name,
+        version: dto.version,
+        licenseId,
+      })
+      .onConflictDoUpdate({
+        target: datasets.id,
+        set: {
+          slug: slug ?? undefined,
+          name: dto.name,
+          version: dto.version,
+          licenseId: licenseId ?? undefined,
+        },
+      });
 
     this.getOrCreateAggregator(id, {
       name: dto.name,
@@ -128,7 +199,7 @@ export class CorpusService {
       date: dto.date,
     });
 
-    return { id, name: dto.name, version: dto.version, licenseId };
+    return { id, slug, name: dto.name, version: dto.version, licenseId };
   }
 
   /**
@@ -141,6 +212,7 @@ export class CorpusService {
       try {
         await this.createDataset({
           id: DEFAULT_CORPUS_DATASET_ID,
+          slug: 'jlpt-official',
           name: 'Tập ngữ liệu đề thi JLPT N1–N5',
           version: '1.0.0',
           source: 'Đề thi chính thức JLPT và Mẫu chuẩn hóa',
@@ -153,11 +225,12 @@ export class CorpusService {
     }
 
     const items: DatasetItemDto[] = rows.map(
-      (r: { id: string; name: string; version: string }) => {
+      (r: { id: string; slug?: string | null; name: string; version: string }) => {
         const agg = this.aggregators.get(r.id);
         const totalWords = agg ? agg.getMetadata().totalTokens : 0;
         return {
           id: r.id,
+          slug: r.slug ?? (r.id === DEFAULT_CORPUS_DATASET_ID ? 'jlpt-official' : undefined),
           name: r.name,
           version: r.version,
           totalWords,
@@ -171,22 +244,25 @@ export class CorpusService {
   /**
    * Chi tiết tập ngữ liệu (GET /api/v1/datasets/:id) (Acceptance 3: version, size, source, date).
    */
-  async getDataset(id: string): Promise<DatasetDetailDto> {
-    if (!isUuid(id)) {
-      throw new NotFoundException(`Dataset '${id}' not found`);
+  async getDataset(idOrSlug: string): Promise<DatasetDetailDto> {
+    const d = await this.findDatasetRecord(idOrSlug);
+    if (!d) {
+      if (idOrSlug === 'jlpt-official' || idOrSlug === DEFAULT_CORPUS_DATASET_ID) {
+        return {
+          id: DEFAULT_CORPUS_DATASET_ID,
+          slug: 'jlpt-official',
+          name: 'Tập ngữ liệu đề thi JLPT N1–N5',
+          version: '1.0.0',
+          license: 'CC-BY-SA-4.0',
+          documentCount: 0,
+          totalTokens: 0,
+          source: 'Đề thi chính thức JLPT và Mẫu chuẩn hóa',
+          date: '2026-10-16',
+        };
+      }
+      throw new NotFoundException(`Dataset '${idOrSlug}' not found`);
     }
 
-    const rows = await this.dbClient.db
-      .select()
-      .from(datasets)
-      .where(eq(datasets.id, id))
-      .limit(1);
-
-    if (rows.length === 0) {
-      throw new NotFoundException(`Dataset '${id}' not found`);
-    }
-
-    const d = rows[0]!;
     let license = 'CC-BY-SA-4.0';
     if (d.licenseId) {
       const lics = await this.dbClient.db
@@ -199,11 +275,12 @@ export class CorpusService {
       }
     }
 
-    const agg = this.getOrCreateAggregator(id, { name: d.name, version: d.version });
+    const agg = this.getOrCreateAggregator(d.id, { name: d.name, version: d.version });
     const meta = agg.getMetadata();
 
     return {
       id: d.id,
+      slug: d.slug ?? (d.id === DEFAULT_CORPUS_DATASET_ID ? 'jlpt-official' : undefined),
       name: d.name,
       version: d.version,
       license,
@@ -220,9 +297,28 @@ export class CorpusService {
    * Nhập đề thi/văn bản vào ngữ liệu (DATA-01, DATA-02, DATA-03, DATA-04, DATA-05, DATA-06, DATA-07, DATA-08).
    */
   async ingestExamPackage(datasetId: string, pkg: ExamPackageInput) {
-    await this.getDataset(datasetId); // ensure dataset exists
+    const detail = await this.getDataset(datasetId);
+    const realDatasetId = detail.id;
 
-    const agg = this.getOrCreateAggregator(datasetId);
+    // Ensure dataset exists in DB before inserting documents
+    const exists = await this.findDatasetRecord(realDatasetId);
+    if (!exists) {
+      await this.createDataset({
+        id: realDatasetId,
+        slug: datasetId === 'jlpt-official' ? 'jlpt-official' : undefined,
+        name: detail.name,
+        version: detail.version,
+        source: detail.source,
+        date: detail.date,
+      });
+    }
+
+    const agg = this.getOrCreateAggregator(realDatasetId, {
+      name: detail.name,
+      version: detail.version,
+      source: detail.source,
+      date: detail.date,
+    });
     agg.ingestExam(pkg);
 
     // Save document record to DB
@@ -234,7 +330,7 @@ export class CorpusService {
     const docId = generateUuidV7();
     await this.dbClient.db.insert(datasetDocuments).values({
       id: docId,
-      datasetId,
+      datasetId: realDatasetId,
       documentHash: docHash,
       content: pkg.exam.title,
       metadata: {
@@ -254,7 +350,7 @@ export class CorpusService {
           level: lvl,
           aggregateType: 'vocab_summary',
           payload: {
-            datasetId,
+            datasetId: realDatasetId,
             tokenCount: countNum,
             uniqueVocabCount: meta.uniqueVocabCount,
             source: meta.source,
@@ -266,7 +362,7 @@ export class CorpusService {
     return {
       documentId: docId,
       documentHash: docHash,
-      datasetId,
+      datasetId: realDatasetId,
       metadata: meta,
     };
   }
@@ -275,8 +371,13 @@ export class CorpusService {
    * Thống kê từ vựng theo cấp độ và tần suất xuất hiện (GET /api/v1/datasets/:id/vocabulary).
    */
   async getDatasetVocabulary(id: string, filter: CorpusFilterQueryDto = {}) {
-    await this.getDataset(id);
-    const agg = this.getOrCreateAggregator(id);
+    const detail = await this.getDataset(id);
+    const agg = this.getOrCreateAggregator(detail.id, {
+      name: detail.name,
+      version: detail.version,
+      source: detail.source,
+      date: detail.date,
+    });
     return agg.getVocabularyAnalysis(filter);
   }
 
@@ -284,8 +385,13 @@ export class CorpusService {
    * Thống kê ngữ pháp theo cấp độ (GET /api/v1/datasets/:id/grammar) (DATA-19, DATA-20, DATA-21).
    */
   async getDatasetGrammar(id: string, _filter: CorpusFilterQueryDto = {}) {
-    await this.getDataset(id);
-    const agg = this.getOrCreateAggregator(id);
+    const detail = await this.getDataset(id);
+    const agg = this.getOrCreateAggregator(detail.id, {
+      name: detail.name,
+      version: detail.version,
+      source: detail.source,
+      date: detail.date,
+    });
     return agg.getGrammarAnalysis();
   }
 
@@ -293,8 +399,13 @@ export class CorpusService {
    * Thống kê Hán tự theo cấp độ (GET /api/v1/datasets/:id/kanji) (DATA-22, DATA-23).
    */
   async getDatasetKanji(id: string, _filter: CorpusFilterQueryDto = {}) {
-    await this.getDataset(id);
-    const agg = this.getOrCreateAggregator(id);
+    const detail = await this.getDataset(id);
+    const agg = this.getOrCreateAggregator(detail.id, {
+      name: detail.name,
+      version: detail.version,
+      source: detail.source,
+      date: detail.date,
+    });
     return agg.getKanjiAnalysis();
   }
 
@@ -311,7 +422,7 @@ export class CorpusService {
     word: string,
     options?: { level?: JlptLevel; limit?: number; userId?: string },
   ): Promise<CorpusQuestionDto[]> {
-    await this.getDataset(datasetId);
+    const detail = await this.getDataset(datasetId);
 
     // Negative Security Check: Block if user has active real exam attempt (Acceptance 2)
     if (options?.userId) {
@@ -334,7 +445,12 @@ export class CorpusService {
       }
     }
 
-    const agg = this.getOrCreateAggregator(datasetId);
+    const agg = this.getOrCreateAggregator(detail.id, {
+      name: detail.name,
+      version: detail.version,
+      source: detail.source,
+      date: detail.date,
+    });
     let questions = agg.getQuestionsForWord(word, options);
 
     // Embargo Guard: Filter out any questions associated with embargoed exam events
@@ -374,8 +490,13 @@ export class CorpusService {
    * DATA-12: Tra cứu một từ để xem thống kê.
    */
   async getWordStatistics(datasetId: string, term: string): Promise<VocabStatsResponseDto> {
-    await this.getDataset(datasetId);
-    const agg = this.getOrCreateAggregator(datasetId);
+    const detail = await this.getDataset(datasetId);
+    const agg = this.getOrCreateAggregator(detail.id, {
+      name: detail.name,
+      version: detail.version,
+      source: detail.source,
+      date: detail.date,
+    });
     const stats = agg.getWordStatistics(term);
     if (!stats) {
       throw new NotFoundException(
@@ -389,17 +510,31 @@ export class CorpusService {
    * DATA-13: So sánh mức xuất hiện giữa các cấp độ.
    */
   async compareLevels(datasetId: string, terms?: string[]): Promise<LevelComparisonResponseDto> {
-    await this.getDataset(datasetId);
-    const agg = this.getOrCreateAggregator(datasetId);
-    return agg.compareLevels(terms);
+    const detail = await this.getDataset(datasetId);
+    const agg = this.getOrCreateAggregator(detail.id, {
+      name: detail.name,
+      version: detail.version,
+      source: detail.source,
+      date: detail.date,
+    });
+    const res = agg.compareLevels(terms);
+    return {
+      ...res,
+      datasetId,
+    };
   }
 
   /**
    * DATA-14: Thống kê theo khoảng thời gian / exam session.
    */
   async getTimeSeries(datasetId: string): Promise<TimeSeriesResponseDto> {
-    await this.getDataset(datasetId);
-    const agg = this.getOrCreateAggregator(datasetId);
+    const detail = await this.getDataset(datasetId);
+    const agg = this.getOrCreateAggregator(detail.id, {
+      name: detail.name,
+      version: detail.version,
+      source: detail.source,
+      date: detail.date,
+    });
     return agg.getTimeSeries();
   }
 
@@ -410,8 +545,13 @@ export class CorpusService {
     datasetId: string,
     options: StudyListQueryDto = {},
   ): Promise<StudyListResponseDto> {
-    await this.getDataset(datasetId);
-    const agg = this.getOrCreateAggregator(datasetId);
+    const detail = await this.getDataset(datasetId);
+    const agg = this.getOrCreateAggregator(detail.id, {
+      name: detail.name,
+      version: detail.version,
+      source: detail.source,
+      date: detail.date,
+    });
     return agg.createStudyList(options);
   }
 
@@ -498,8 +638,13 @@ export class CorpusService {
     datasetId: string,
     options?: { level?: JlptLevel; limit?: number },
   ): Promise<CompareWithLearnedResponseDto> {
-    await this.getDataset(datasetId);
-    const agg = this.getOrCreateAggregator(datasetId);
+    const detail = await this.getDataset(datasetId);
+    const agg = this.getOrCreateAggregator(detail.id, {
+      name: detail.name,
+      version: detail.version,
+      source: detail.source,
+      date: detail.date,
+    });
     const studyList = agg.createStudyList({ level: options?.level, limit: options?.limit ?? 100 });
 
     const userRows = await this.dbClient.db
@@ -563,8 +708,13 @@ export class CorpusService {
     datasetId: string,
     query: DatasetExportQueryDto = {},
   ): Promise<DatasetExportResponseDto> {
-    await this.getDataset(datasetId);
-    const agg = this.getOrCreateAggregator(datasetId);
+    const detail = await this.getDataset(datasetId);
+    const agg = this.getOrCreateAggregator(detail.id, {
+      name: detail.name,
+      version: detail.version,
+      source: detail.source,
+      date: detail.date,
+    });
 
     const format = query.format ?? 'csv';
     const type = query.type ?? 'vocabulary';
@@ -602,8 +752,13 @@ export class CorpusService {
     datasetId: string,
     options?: { minOccurrences?: number },
   ): Promise<YearlyTrendsResponseDto> {
-    await this.getDataset(datasetId);
-    const agg = this.getOrCreateAggregator(datasetId);
+    const detail = await this.getDataset(datasetId);
+    const agg = this.getOrCreateAggregator(detail.id, {
+      name: detail.name,
+      version: detail.version,
+      source: detail.source,
+      date: detail.date,
+    });
     return agg.getYearlyTrends(options);
   }
 
@@ -614,8 +769,13 @@ export class CorpusService {
     datasetId: string,
     patternId: string,
   ): Promise<GrammarPracticeResponseDto> {
-    await this.getDataset(datasetId);
-    const agg = this.getOrCreateAggregator(datasetId);
+    const detail = await this.getDataset(datasetId);
+    const agg = this.getOrCreateAggregator(detail.id, {
+      name: detail.name,
+      version: detail.version,
+      source: detail.source,
+      date: detail.date,
+    });
     const practice = agg.getGrammarPractice(patternId);
     if (!practice) {
       throw new NotFoundException(
@@ -655,8 +815,13 @@ export class CorpusService {
     datasetId: string,
     query: RecommendationQueryDto = {},
   ): Promise<RecommendationResponseDto> {
-    await this.getDataset(datasetId);
-    const agg = this.getOrCreateAggregator(datasetId);
+    const detail = await this.getDataset(datasetId);
+    const agg = this.getOrCreateAggregator(detail.id, {
+      name: detail.name,
+      version: detail.version,
+      source: detail.source,
+      date: detail.date,
+    });
     const studyList = agg.createStudyList({ level: query.level, limit: 100 });
 
     const userRows = await this.dbClient.db
