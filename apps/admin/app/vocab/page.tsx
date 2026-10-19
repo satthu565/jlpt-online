@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Button, Input, Select } from '@jlpt/ui';
 import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 import { apiClient } from '../../lib/api-client';
@@ -127,14 +128,14 @@ export default function VocabManagementPage({
             </p>
           </div>
 
-          <button
+          <Button
             type="button"
             data-testid="btn-add-vocab"
             onClick={() => setShowAddModal(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-semibold hover:bg-blue-700 transition-colors shadow-xs self-start"
+            className="self-start"
           >
             {t('content.vocab.addBtn', locale)}
-          </button>
+          </Button>
         </header>
 
         {isLoading && (
@@ -158,20 +159,20 @@ export default function VocabManagementPage({
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3">
-          <input
+          <Input
             data-testid="input-vocab-search"
             type="text"
             placeholder={t('content.vocab.searchPlaceholder', locale)}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 p-2.5 border border-gray-300 rounded-md text-sm bg-white"
+            className="flex-1"
           />
 
-          <select
+          <Select
             data-testid="select-vocab-level"
             value={levelFilter}
             onChange={(e) => setLevelFilter(e.target.value)}
-            className="p-2.5 border border-gray-300 rounded-md text-sm bg-white min-w-[140px]"
+            className="min-w-[140px]"
           >
             <option value="all">Tất cả cấp độ</option>
             <option value="N5">N5</option>
@@ -179,7 +180,7 @@ export default function VocabManagementPage({
             <option value="N3">N3</option>
             <option value="N2">N2</option>
             <option value="N1">N1</option>
-          </select>
+          </Select>
         </div>
 
         {/* Vocab Table */}
@@ -217,14 +218,16 @@ export default function VocabManagementPage({
                     <td className="p-3 text-xs text-gray-500">{item.partOfSpeech}</td>
                     <td className="p-3 text-xs text-gray-600 italic">{item.exampleSentence || '—'}</td>
                     <td className="p-3 text-right">
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="sm"
                         data-testid={`btn-delete-vocab-${item.id}`}
                         onClick={() => handleDelete(item.id)}
-                        className="text-xs text-red-600 hover:text-red-800 font-medium"
+                        className="text-xs text-destructive hover:text-destructive"
                       >
                         {t('content.vocab.deleteBtn', locale)}
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))
@@ -247,26 +250,24 @@ export default function VocabManagementPage({
                   <label className="block text-xs font-semibold text-gray-700 mb-1">
                     Từ vựng (Kanji):
                   </label>
-                  <input
+                  <Input
                     data-testid="input-word"
                     type="text"
                     value={newWord}
                     onChange={(e) => setNewWord(e.target.value)}
                     placeholder="Ví dụ: 契約"
-                    className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">
                     Cách đọc (Furigana):
                   </label>
-                  <input
+                  <Input
                     data-testid="input-reading"
                     type="text"
                     value={newReading}
                     onChange={(e) => setNewReading(e.target.value)}
                     placeholder="Ví dụ: けいやく"
-                    className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
                   />
                 </div>
               </div>
@@ -275,39 +276,36 @@ export default function VocabManagementPage({
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
                   Ý nghĩa tiếng Việt:
                 </label>
-                <input
+                <Input
                   data-testid="input-meaning"
                   type="text"
                   value={newMeaning}
                   onChange={(e) => setNewMeaning(e.target.value)}
                   placeholder="Ví dụ: Hợp đồng, khế ước"
-                  className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Cấp độ:</label>
-                  <select
+                  <Select
                     data-testid="select-level"
                     value={newLevel}
                     onChange={(e) => setNewLevel(e.target.value as 'N1' | 'N2' | 'N3' | 'N4' | 'N5')}
-                    className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
                   >
                     <option value="N1">N1</option>
                     <option value="N2">N2</option>
                     <option value="N3">N3</option>
                     <option value="N4">N4</option>
                     <option value="N5">N5</option>
-                  </select>
+                  </Select>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Từ loại:</label>
-                  <select
+                  <Select
                     data-testid="select-pos"
                     value={newPos}
                     onChange={(e) => setNewPos(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
                   >
                     <option value="Danh từ">Danh từ</option>
                     <option value="Động từ nhóm 1">Động từ nhóm 1</option>
@@ -316,7 +314,7 @@ export default function VocabManagementPage({
                     <option value="Tính từ đuôi い">Tính từ đuôi い</option>
                     <option value="Tính từ đuôi な">Tính từ đuôi な</option>
                     <option value="Phó từ">Phó từ</option>
-                  </select>
+                  </Select>
                 </div>
               </div>
 
@@ -324,33 +322,32 @@ export default function VocabManagementPage({
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
                   Câu ví dụ minh họa:
                 </label>
-                <input
+                <Input
                   data-testid="input-example"
                   type="text"
                   value={newExample}
                   onChange={(e) => setNewExample(e.target.value)}
                   placeholder="Ví dụ: 新しいアパートの契約を結びます。"
-                  className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
                 />
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   data-testid="btn-cancel-vocab"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50"
                 >
                   Hủy
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="primary"
                   data-testid="btn-submit-vocab"
                   onClick={handleAdd}
-                  className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-semibold hover:bg-blue-700"
                 >
                   Thêm từ
-                </button>
+                </Button>
               </div>
             </div>
           </div>

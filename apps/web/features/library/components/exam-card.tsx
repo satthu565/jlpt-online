@@ -110,19 +110,21 @@ export function ExamCard({
             )}
 
             {/* Favorite Star Button (LIB-11) */}
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
               onClick={handleFavoriteClick}
               aria-label={favorite ? 'Bỏ yêu thích' : 'Đánh dấu yêu thích'}
               data-testid={`favorite-btn-${exam.id}`}
-              className={`p-1 rounded-lg transition-colors text-sm ${
+              className={`p-1 min-h-[32px] h-8 w-8 transition-colors text-sm ${
                 favorite
                   ? 'text-amber-500 bg-amber-50 dark:bg-amber-950/40'
                   : 'text-slate-400 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               {favorite ? '★' : '☆'}
-            </button>
+            </Button>
 
             {renderStatusBadge()}
           </div>

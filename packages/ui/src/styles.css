@@ -338,16 +338,19 @@ body {
   justify-content: center;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1279px) {
   .header-desktop-controls {
     display: none !important;
   }
   .desktop-nav {
     display: none !important;
   }
+  .mobile-menu-button {
+    display: inline-flex !important;
+  }
 }
 
-@media (min-width: 769px) {
+@media (min-width: 1280px) {
   .header-desktop-controls {
     display: flex !important;
     gap: 0.375rem;
@@ -364,7 +367,7 @@ body {
     gap: 0.5rem !important;
   }
   .header-nav-link {
-    padding: 0.375rem 0.45rem !important;
+    padding: 0.375rem 0.5rem !important;
     font-size: 0.875rem !important;
   }
   .mobile-menu-button {

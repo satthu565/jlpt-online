@@ -411,20 +411,18 @@ export function AudioPlayer({
             <div className="flex items-center gap-1 text-xs">
               <span className="text-slate-500 mr-1">Tốc độ:</span>
               {([0.75, 1.0, 1.25] as const).map((rate) => (
-                <button
+                <Button
                   key={rate}
                   type="button"
+                  size="sm"
+                  variant={playbackRate === rate ? 'primary' : 'secondary'}
                   onClick={() => handleRateChange(rate)}
-                  className={`px-2 py-0.5 rounded text-xs font-mono font-medium transition-all ${
-                    playbackRate === rate
-                      ? 'bg-blue-600 text-white font-bold'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
-                  }`}
+                  className="px-2 py-0.5 text-xs font-mono font-medium min-h-[32px] h-8"
                   aria-label={`Tốc độ phát ${rate}x`}
                   aria-pressed={playbackRate === rate}
                 >
                   {rate}x
-                </button>
+                </Button>
               ))}
             </div>
           </>

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import type { FlatQuestionItem } from '../../exam/types';
-import { RichTextView, PassageView } from '@jlpt/ui';
+import { RichTextView, PassageView, Button } from '@jlpt/ui';
 import { QuestionAudioPlayer } from '../../exam/components/audio-player';
 import type { LearnerExplanation } from '../../explanations/types';
 import { ExplanationView } from '../../explanations/components/explanation-view';
@@ -184,14 +184,16 @@ export function ReviewQuestionItem({
       {/* Explanation Section (EXPL-01..09) */}
       <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
         <div className="flex items-center justify-between mb-2">
-          <button
+          <Button
             type="button"
+            variant="link"
+            size="sm"
             onClick={() => setShowExplanation((prev) => !prev)}
             data-testid={`toggle-explanation-btn-${question.number}`}
-            className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5"
+            className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5 p-0 h-auto min-h-0"
           >
             <span>{showExplanation ? '▼ Ẩn lời giải chi tiết' : '▶ Xem lời giải chi tiết (EXPL-01..09)'}</span>
-          </button>
+          </Button>
         </div>
 
         {showExplanation && (

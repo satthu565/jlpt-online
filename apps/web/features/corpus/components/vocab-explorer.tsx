@@ -138,19 +138,17 @@ export function VocabExplorer({
 
         <div className="flex gap-1.5 flex-wrap" data-testid="level-tabs">
           {levels.map((lvl) => (
-            <button
+            <Button
               key={lvl}
               type="button"
+              size="sm"
+              variant={selectedLevel === lvl ? 'primary' : 'secondary'}
               onClick={() => setSelectedLevel(lvl)}
               data-testid={`level-tab-${lvl}`}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                selectedLevel === lvl
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
-              }`}
+              className="text-xs font-bold"
             >
               {lvl}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

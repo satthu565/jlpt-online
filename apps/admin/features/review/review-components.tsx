@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Button, Input } from '@jlpt/ui';
 import type { ReviewItem, StaffOperator, ReviewTargetType, ReviewItemStatus } from './types';
 import { SelfReviewForbiddenError } from './types';
 import { ReviewService } from './review-service';
@@ -278,22 +279,24 @@ export function ReviewQueueView({
                   </td>
                   <td className="p-3">{item.sourcePage ? `Trang ${item.sourcePage}` : '—'}</td>
                   <td className="p-3 space-x-2">
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="sm"
                       data-testid={`compare-pdf-btn-${item.targetId}`}
                       onClick={() => handleOpenCompare(item)}
-                      className="px-2.5 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100"
                     >
                       {t('content.reviews.compareBtn', locale)}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="sm"
                       data-testid={`edit-content-btn-${item.targetId}`}
                       onClick={() => handleOpenEdit(item)}
-                      className="px-2.5 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100"
                     >
                       Sửa
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))
@@ -312,13 +315,14 @@ export function ReviewQueueView({
             <h3 className="text-lg font-bold text-blue-900">
               Đối chiếu Dữ liệu và PDF Gốc bên cạnh (Side-by-side Inspection)
             </h3>
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={() => setIsComparingPdf(false)}
-              className="px-3 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100"
             >
               Đóng
-            </button>
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -376,30 +380,33 @@ export function ReviewQueueView({
           {/* Decision panel */}
           <div className="mt-4 pt-4 border-t border-gray-200 flex flex-wrap items-center gap-3">
             <label className="text-xs font-semibold text-gray-700">Nhận xét:</label>
-            <input
+            <Input
               data-testid="decision-comment-input"
               type="text"
               value={editComment}
               onChange={(e) => setEditComment(e.target.value)}
               placeholder="Nhập ghi chú hoặc lý do nếu từ chối..."
-              className="flex-1 min-w-[200px] p-2 border border-gray-300 rounded text-xs bg-white"
+              className="flex-1 min-w-[200px]"
             />
-            <button
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
               data-testid="approve-btn"
               onClick={() => handleDecision('approved')}
-              className="px-4 py-2 bg-green-600 text-white rounded text-xs font-semibold hover:bg-green-700"
+              className="bg-green-600 hover:bg-green-700"
             >
               {t('content.reviews.approveBtn', locale)}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="destructive"
+              size="sm"
               data-testid="reject-btn"
               onClick={() => handleDecision('rejected')}
-              className="px-4 py-2 bg-red-600 text-white rounded text-xs font-semibold hover:bg-red-700"
             >
               {t('content.reviews.rejectBtn', locale)}
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -417,44 +424,45 @@ export function ReviewQueueView({
             <label className="block text-xs font-semibold text-gray-700 mb-1">
               Nội dung câu hỏi (Stem):
             </label>
-            <input
+            <Input
               data-testid="edit-stem-input"
               type="text"
               value={editStem}
               onChange={(e) => setEditStem(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded text-sm"
             />
           </div>
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-1">
               Số trang nguồn PDF đối chiếu:
             </label>
-            <input
+            <Input
               data-testid="edit-source-page-input"
               type="number"
               value={editSourcePage ?? ''}
               onChange={(e) =>
                 setEditSourcePage(e.target.value ? parseInt(e.target.value, 10) : undefined)
               }
-              className="w-32 p-2 border border-gray-300 rounded text-sm"
+              className="w-32"
             />
           </div>
           <div className="space-x-2 pt-2">
-            <button
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
               data-testid="save-edit-btn"
               onClick={handleSaveEdit}
-              className="px-4 py-2 bg-indigo-600 text-white rounded text-xs font-semibold hover:bg-indigo-700"
             >
               Lưu thay đổi
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={() => setIsEditing(false)}
-              className="px-4 py-2 bg-white border border-gray-300 rounded text-xs hover:bg-gray-100"
             >
               Hủy
-            </button>
+            </Button>
           </div>
         </div>
       )}

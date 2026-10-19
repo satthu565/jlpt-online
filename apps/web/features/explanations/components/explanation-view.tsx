@@ -5,6 +5,7 @@ import type { LearnerExplanation } from '../types';
 import { TranscriptView } from './transcript-view';
 import { QuestionBookmarkButton } from './question-bookmark-button';
 import { QuestionReportModal } from './question-report-modal';
+import { Button } from '@jlpt/ui';
 
 export interface ExplanationViewProps {
   explanation: LearnerExplanation;
@@ -37,13 +38,15 @@ export function ExplanationView({
       >
         <div className="flex items-center justify-between gap-2">
           <span>Chưa có lời giải thích được phê duyệt cho câu hỏi này.</span>
-          <button
+          <Button
             type="button"
+            variant="link"
+            size="sm"
             onClick={() => setReportModalOpen(true)}
-            className="text-[11px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 underline"
+            className="text-[11px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 underline p-0 h-auto min-h-0"
           >
             Báo cáo thiếu lời giải
-          </button>
+          </Button>
         </div>
         <QuestionReportModal
           isOpen={reportModalOpen}
@@ -81,15 +84,17 @@ export function ExplanationView({
           />
 
           {/* Report Button (EXPL-12) */}
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => setReportModalOpen(true)}
             data-testid="report-question-btn"
-            className="text-xs px-2 py-1 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+            className="text-xs px-2 py-1 h-auto min-h-[32px] text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
             title="Báo cáo lỗi câu hỏi hoặc lời giải"
           >
             🚩 Báo lỗi
-          </button>
+          </Button>
         </div>
       </div>
 

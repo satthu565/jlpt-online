@@ -3,6 +3,7 @@
 import React from 'react';
 import type { Level, ExamKind, Session } from '@jlpt/schema';
 import type { LibraryFilterState, UserExamStatus } from '../types';
+import { Button, Input, Select } from '@jlpt/ui';
 
 export interface LibraryFiltersProps {
   filters: LibraryFilterState;
@@ -56,15 +57,15 @@ export function LibraryFilters({
           Tìm kiếm đề thi (LIB-06)
         </label>
         <div className="relative">
-          <input
+          <Input
             id="library-search-input"
             type="search"
             value={filters.searchQuery}
             onChange={(e) => onFilterChange({ ...filters, searchQuery: e.target.value })}
             placeholder="Nhập tên đề thi, từ khóa hoặc cấp độ..."
-            className="w-full px-4 py-2.5 pl-10 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2.5 pl-10 text-sm"
           />
-          <span className="absolute left-3.5 top-3 text-slate-400 text-sm" aria-hidden="true">
+          <span className="absolute left-3.5 top-3 text-slate-400 text-sm pointer-events-none" aria-hidden="true">
             🔍
           </span>
         </div>
@@ -77,19 +78,17 @@ export function LibraryFilters({
         </span>
         <div className="flex flex-wrap gap-2" role="group" aria-label="Lọc theo cấp độ">
           {levels.map((lvl) => (
-            <button
+            <Button
               key={lvl}
               type="button"
+              size="sm"
+              variant={filters.level === lvl ? 'primary' : 'secondary'}
               onClick={() => onFilterChange({ ...filters, level: lvl })}
               aria-pressed={filters.level === lvl}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                filters.level === lvl
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-              }`}
+              className="text-xs font-bold"
             >
               {lvl === 'ALL' ? 'Tất cả cấp độ' : lvl}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -104,7 +103,7 @@ export function LibraryFilters({
           >
             Năm thi (LIB-03)
           </label>
-          <select
+          <Select
             id="filter-year-select"
             value={filters.year}
             onChange={(e) =>
@@ -113,7 +112,7 @@ export function LibraryFilters({
                 year: e.target.value === 'ALL' ? 'ALL' : Number.parseInt(e.target.value, 10),
               })
             }
-            className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full text-xs"
           >
             <option value="ALL">Tất cả các năm</option>
             {availableYears.map((yr) => (
@@ -121,7 +120,7 @@ export function LibraryFilters({
                 Năm {yr}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         {/* Session Filter (LIB-04) */}
@@ -132,7 +131,7 @@ export function LibraryFilters({
           >
             Kỳ thi (LIB-04)
           </label>
-          <select
+          <Select
             id="filter-session-select"
             value={filters.session}
             onChange={(e) =>
@@ -141,14 +140,14 @@ export function LibraryFilters({
                 session: e.target.value as Session | 'ALL',
               })
             }
-            className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full text-xs"
           >
             {sessions.map((sess) => (
               <option key={sess.id} value={sess.id}>
                 {sess.label}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         {/* Kind Filter (LIB-05) */}
@@ -159,7 +158,7 @@ export function LibraryFilters({
           >
             Thể loại đề (LIB-05)
           </label>
-          <select
+          <Select
             id="filter-kind-select"
             value={filters.kind}
             onChange={(e) =>
@@ -168,14 +167,14 @@ export function LibraryFilters({
                 kind: e.target.value as ExamKind | 'ALL',
               })
             }
-            className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full text-xs"
           >
             {kinds.map((k) => (
               <option key={k.id} value={k.id}>
                 {k.label}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         {/* User Status Filter (LIB-08) */}
@@ -187,7 +186,7 @@ export function LibraryFilters({
             >
               Trạng thái của bạn (LIB-08)
             </label>
-            <select
+            <Select
               id="filter-status-select"
               value={filters.userStatus}
               onChange={(e) =>
@@ -196,14 +195,14 @@ export function LibraryFilters({
                   userStatus: e.target.value as UserExamStatus | 'ALL',
                 })
               }
-              className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full text-xs"
             >
               {statuses.map((st) => (
                 <option key={st.id} value={st.id}>
                   {st.label}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
         )}
       </div>
@@ -211,7 +210,7 @@ export function LibraryFilters({
       {/* Favorite filter toggle (LIB-11) & Reset filters button */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-slate-100 dark:border-slate-800">
         <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
-          <input
+          <Input
             type="checkbox"
             checked={Boolean(filters.onlyFavorites)}
             onChange={(e) =>
@@ -221,18 +220,20 @@ export function LibraryFilters({
               })
             }
             data-testid="filter-only-favorites"
-            className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-700"
+            className="h-4 w-4 min-h-0 cursor-pointer rounded text-blue-600 focus:ring-blue-500"
           />
           <span>⭐ Chỉ hiện các đề đã yêu thích (LIB-11)</span>
         </label>
 
-        <button
+        <Button
           type="button"
+          variant="link"
+          size="sm"
           onClick={onResetFilters}
-          className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
+          className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium p-0 h-auto min-h-0"
         >
           Đặt lại bộ lọc
-        </button>
+        </Button>
       </div>
     </div>
   );
