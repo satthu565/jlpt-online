@@ -10,6 +10,9 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 86400,
   },
+  experimental: {
+    optimizePackageImports: ['@jlpt/ui'],
+  },
   async headers() {
     return [
       {
@@ -33,6 +36,7 @@ const nextConfig = {
       'node:module': './lib/stubs/module.js',
       path: './lib/stubs/path.js',
       'node:path': './lib/stubs/path.js',
+      '../messages/vi.json': './messages/vi-shell.json',
     },
   },
   async rewrites() {

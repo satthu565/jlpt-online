@@ -8,7 +8,7 @@ import { AuthClientError } from '../../../lib/auth-client';
 
 export default function LoginPage(): React.JSX.Element {
   const { t } = useI18n();
-  const { client, refreshUser } = useAuth();
+  const { client } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

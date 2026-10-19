@@ -4,8 +4,14 @@ import dynamic from 'next/dynamic';
 import { ThemeProvider, SkipToContent } from '@jlpt/ui';
 import { I18nProvider, useI18n } from '../lib/i18n';
 import { AuthProvider } from '../lib/auth-context';
-import { NavigationHeader, NavigationFooter } from './nav-shell';
-import { WebVitalsReporter } from '../components/web-vitals-reporter';
+import { NavigationHeader } from './nav-shell';
+
+import { NavigationFooter } from './footer-shell';
+
+const WebVitalsReporter = dynamic(
+  () => import('../components/web-vitals-reporter').then((m) => m.WebVitalsReporter),
+  { ssr: false },
+);
 
 const CookieConsentManager = dynamic(
   () => import('../components/cookie-consent-manager').then((m) => m.CookieConsentManager),

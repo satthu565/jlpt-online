@@ -1,5 +1,3 @@
-'use client';
-
 /**
  * @jlpt/ui - Design System and Reusable Components
  * Built on shadcn/ui and Radix UI primitives.
