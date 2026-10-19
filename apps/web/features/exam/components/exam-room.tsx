@@ -385,6 +385,7 @@ export function ExamRoom({
 
   return (
     <div
+      data-testid="exam-room"
       className={`jlpt-exam-room min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col ${
         isZenMode ? 'jlpt-zen-mode' : ''
       } ${className}`}
@@ -429,6 +430,7 @@ export function ExamRoom({
               variant="success"
               onClick={() => setIsSubmitModalOpen(true)}
               aria-label="Nộp bài thi"
+              data-testid="submit-exam-btn"
               className="px-4 py-1.5 text-xs font-bold"
             >
               Nộp bài

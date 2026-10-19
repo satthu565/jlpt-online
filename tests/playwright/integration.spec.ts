@@ -2168,7 +2168,7 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
       page.locator('button[type="submit"]').click(),
     ]);
     expect(loginRes.ok()).toBe(true);
-    await page.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 15000, waitUntil: 'domcontentloaded' });
+    await page.waitForURL(/\/tai-khoan/, { timeout: 15000, waitUntil: 'domcontentloaded' });
   }
 
   test('AC1 & AC2: Learner takes demo N5 exam, views sectional scoring & pass/fail, toggles furigana with persistence', async ({
@@ -2183,36 +2183,30 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
 
     // Step 1: Open demo N5 exam room
     await page.goto(`${webOrigin}/phong-thi?examId=demo-n5-1`);
-    const examRoomLocator = page.locator('[role="radiogroup"], [data-testid="exam-room"], main').first();
-    if (!await examRoomLocator.isVisible({ timeout: 2000 }).catch(() => false)) {
-      const modalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
-      try {
-        await modalBtn.waitFor({ state: 'visible', timeout: 6000 });
-        await modalBtn.click();
-      } catch {
-        const cardBtn = page.locator('[data-testid="exam-card-start-btn"], button:has-text("Bắt đầu làm bài")').first();
-        if (await cardBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-          await cardBtn.click();
-          await modalBtn.waitFor({ state: 'visible', timeout: 10000 });
-          await modalBtn.click();
-        }
-      }
+    const modalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
+    try {
+      await modalBtn.waitFor({ state: 'visible', timeout: 5000 });
+    } catch {
+      const cardBtn = page.locator('[data-testid="exam-card-start-btn"], button:has-text("Bắt đầu làm bài")').first();
+      await expect(cardBtn).toBeVisible({ timeout: 15000 });
+      await cardBtn.click();
+      await modalBtn.waitFor({ state: 'visible', timeout: 10000 });
     }
+    await modalBtn.click();
 
-    // Step 2: Answer option 1 on question 1
-    await expect(page.locator('[role="radiogroup"], [data-testid="exam-room"], main').first()).toBeVisible({ timeout: 15000 });
-    const firstOption = page.locator('[role="radio"]').first();
-    if (await firstOption.isVisible()) {
-      await firstOption.click();
-    }
+    // Step 2: In exam room, answer option 1 on question 1
+    await expect(page.locator('[data-testid="exam-room"]')).toBeVisible({ timeout: 20000 });
+    const firstOption = page.locator('[data-testid="exam-room"] [role="radio"]').first();
+    await expect(firstOption).toBeVisible({ timeout: 10000 });
+    await firstOption.click();
 
     // Step 3: Submit exam
-    const submitBtn = page.locator('button:has-text("Nộp bài")').first();
+    const submitBtn = page.locator('[data-testid="submit-exam-btn"], button:has-text("Nộp bài")').first();
     await expect(submitBtn).toBeVisible({ timeout: 10000 });
     await submitBtn.click();
 
     // Step 4: Confirm in EarlySubmitModal
-    const confirmBtn = page.locator('button:has-text("Xác nhận nộp bài")').first();
+    const confirmBtn = page.locator('[data-testid="modal-confirm-submit-btn"], button:has-text("Xác nhận nộp bài")').first();
     await expect(confirmBtn).toBeVisible({ timeout: 10000 });
     await confirmBtn.click();
 
@@ -2296,23 +2290,18 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
 
     // Test 1: Practice Mode displays prominent pacing-warning when behind schedule
     await page.goto(`${webOrigin}/phong-thi?examId=demo-n5-1&mode=practice`);
-    const examRoomPractice = page.locator('[role="radiogroup"], [data-testid="exam-room"], main').first();
-    if (!await examRoomPractice.isVisible({ timeout: 2000 }).catch(() => false)) {
-      const practiceModalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
-      try {
-        await practiceModalBtn.waitFor({ state: 'visible', timeout: 5000 });
-        await practiceModalBtn.click();
-      } catch {
-        const cardBtn = page.locator('[data-testid="exam-card-start-btn"], button:has-text("Bắt đầu làm bài")').first();
-        if (await cardBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-          await cardBtn.click();
-          await practiceModalBtn.waitFor({ state: 'visible', timeout: 10000 });
-          await practiceModalBtn.click();
-        }
-      }
+    const practiceModalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
+    try {
+      await practiceModalBtn.waitFor({ state: 'visible', timeout: 5000 });
+    } catch {
+      const cardBtn = page.locator('[data-testid="exam-card-start-btn"], button:has-text("Bắt đầu làm bài")').first();
+      await expect(cardBtn).toBeVisible({ timeout: 15000 });
+      await cardBtn.click();
+      await practiceModalBtn.waitFor({ state: 'visible', timeout: 10000 });
     }
+    await practiceModalBtn.click();
 
-    await expect(page.locator('[role="radiogroup"], [data-testid="exam-room"], main').first()).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="exam-room"]')).toBeVisible({ timeout: 20000 });
 
     // Simulate elapsed time being behind schedule (+180 seconds past target benchmark)
     await page.evaluate(() => {
@@ -2330,40 +2319,36 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
     expect(warningText).toContain('chậm hơn');
 
     // Submit practice exam to clear active attempt
-    const submitBtn = page.locator('button:has-text("Nộp bài")').first();
+    const submitBtn = page.locator('[data-testid="submit-exam-btn"], button:has-text("Nộp bài")').first();
     await expect(submitBtn).toBeVisible({ timeout: 10000 });
     await submitBtn.click();
-    const confirmBtn = page.locator('button:has-text("Xác nhận nộp bài")').first();
+    const confirmBtn = page.locator('[data-testid="modal-confirm-submit-btn"], button:has-text("Xác nhận nộp bài")').first();
     await expect(confirmBtn).toBeVisible({ timeout: 10000 });
     await confirmBtn.click();
     await expect(page.locator('a[href*="/ket-qua/"]').first()).toBeVisible({ timeout: 15000 });
 
     // Test 2: Real Exam Mode displays discreet milestone indicator
     await page.goto(`${webOrigin}/phong-thi?examId=demo-n5-1&mode=real`);
-    const examRoomReal = page.locator('[role="radiogroup"], [data-testid="exam-room"], main').first();
-    if (!await examRoomReal.isVisible({ timeout: 2000 }).catch(() => false)) {
-      const modalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
-      try {
-        await modalBtn.waitFor({ state: 'visible', timeout: 5000 });
-        await modalBtn.click();
-      } catch {
-        const cardBtn = page.locator('[data-testid="exam-card-start-btn"], button:has-text("Bắt đầu làm bài")').first();
-        if (await cardBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-          await cardBtn.click();
-          await modalBtn.waitFor({ state: 'visible', timeout: 10000 });
-          await modalBtn.click();
-        }
-      }
+    const modalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
+    try {
+      await modalBtn.waitFor({ state: 'visible', timeout: 5000 });
+    } catch {
+      const cardBtn = page.locator('[data-testid="exam-card-start-btn"], button:has-text("Bắt đầu làm bài")').first();
+      await expect(cardBtn).toBeVisible({ timeout: 15000 });
+      await cardBtn.click();
+      await modalBtn.waitFor({ state: 'visible', timeout: 10000 });
     }
+    await modalBtn.click();
 
     // In real mode, discreet milestone indicator is displayed
+    await expect(page.locator('[data-testid="exam-room"]')).toBeVisible({ timeout: 20000 });
     await expect(page.locator('[data-testid="discreet-pacing-milestone"]')).toBeVisible({ timeout: 15000 });
 
     // Clean up real exam attempt
-    const submitRealBtn = page.locator('button:has-text("Nộp bài")').first();
+    const submitRealBtn = page.locator('[data-testid="submit-exam-btn"], button:has-text("Nộp bài")').first();
     if (await submitRealBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await submitRealBtn.click();
-      const confirmRealBtn = page.locator('button:has-text("Xác nhận nộp bài")').first();
+      const confirmRealBtn = page.locator('[data-testid="modal-confirm-submit-btn"], button:has-text("Xác nhận nộp bài")').first();
       if (await confirmRealBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
         await confirmRealBtn.click();
         await expect(page.locator('a[href*="/ket-qua/"]').first()).toBeVisible({ timeout: 15000 });
