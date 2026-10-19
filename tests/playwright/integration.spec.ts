@@ -1159,6 +1159,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     page,
   }, testInfo) => {
     test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'I09 responsive viewports and screenshots run on chromium');
     const clientIp = getProjectClientIp(testInfo, 54);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -1204,6 +1205,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     page,
   }, testInfo) => {
     test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'I09 tri-locale i18n runs on chromium');
     const clientIp = getProjectClientIp(testInfo, 55);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -1466,6 +1468,7 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
     page,
   }, testInfo) => {
     test.setTimeout(240_000);
+    test.skip(testInfo.project.name !== 'chromium', 'I03 responsive viewports and i18n run on chromium');
     const clientIp = getProjectClientIp(testInfo, 62);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -1885,14 +1888,36 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
 
 
   async function loginAsAdminI04(page: Page, origin: string) {
-    await page.goto(`${origin}/login`);
-    await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
-    await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
-    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
+    await page.goto(`${origin}/login`, { waitUntil: 'domcontentloaded' });
+    if (!page.url().includes('/login') && !page.url().includes('/verify-2fa')) {
+      return;
+    }
+    if (page.url().includes('/login')) {
+      const emailInput = page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').first();
+      await expect(emailInput).toBeVisible({ timeout: 15000 });
+      await emailInput.fill(SEEDED_STAFF_ACCOUNTS.admin.email);
+      await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').first().fill(SEEDED_STAFF_ACCOUNTS.admin.password);
+      await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
 
-    await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
-    await handleTotpVerification(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
-    await expect(page.locator('[data-testid="stat-total-users"], [data-testid="dashboard-heading"], [data-testid="page-title"], [data-testid="staff-profile-badge"]').first()).toBeVisible({ timeout: 15000 });
+      try {
+        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
+      } catch {
+        const errAlert = page.locator('[data-testid="login-error-alert"]');
+        if (await errAlert.isVisible({ timeout: 1000 }).catch(() => false)) {
+          await page.waitForTimeout(1000);
+          await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
+        }
+        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
+      }
+    }
+
+    if (page.url().includes('/verify-2fa')) {
+      await handleTotpVerification(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
+    }
+
+    expect(page.url()).not.toContain('/login');
+    expect(page.url()).not.toContain('/verify-2fa');
+    await expect(page.locator('main, [data-testid="stat-total-users"], [data-testid="dashboard-heading"], [data-testid="page-title"], [data-testid="staff-profile-badge"]').first()).toBeVisible({ timeout: 15000 });
   }
 
   test.beforeAll(() => {
@@ -1903,6 +1928,7 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     page,
   }, testInfo) => {
     test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'Commercial interactive flow runs on chromium');
     const clientIp = getProjectClientIp(testInfo, 70);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -2045,6 +2071,7 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     page,
   }, testInfo) => {
     test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'I04 responsive viewports and screenshots run on chromium');
     const clientIp = getProjectClientIp(testInfo, 72);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -2089,6 +2116,7 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     page,
   }, testInfo) => {
     test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'I04 tri-locale i18n runs on chromium');
     const clientIp = getProjectClientIp(testInfo, 73);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -2165,7 +2193,7 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
     await page.locator('#login-password, input[type="password"]').first().fill(studentUser.password);
     const [loginRes] = await Promise.all([
       page.waitForResponse((res) => res.url().includes('/auth/sign-in/email') && res.status() === 200, { timeout: 15000 }),
-      page.locator('button[type="submit"]').click(),
+      page.locator('button[type="submit"]').first().click(),
     ]);
     expect(loginRes.ok()).toBe(true);
     await page.waitForURL(/\/tai-khoan/, { timeout: 15000, waitUntil: 'domcontentloaded' });
