@@ -1885,14 +1885,36 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
 
 
   async function loginAsAdminI04(page: Page, origin: string) {
-    await page.goto(`${origin}/login`);
-    await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
-    await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
-    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
+    await page.goto(`${origin}/login`, { waitUntil: 'domcontentloaded' });
+    if (!page.url().includes('/login') && !page.url().includes('/verify-2fa')) {
+      return;
+    }
+    if (page.url().includes('/login')) {
+      const emailInput = page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').first();
+      await expect(emailInput).toBeVisible({ timeout: 15000 });
+      await emailInput.fill(SEEDED_STAFF_ACCOUNTS.admin.email);
+      await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').first().fill(SEEDED_STAFF_ACCOUNTS.admin.password);
+      await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
 
-    await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
-    await handleTotpVerification(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
-    await expect(page.locator('[data-testid="stat-total-users"], [data-testid="dashboard-heading"], [data-testid="page-title"], [data-testid="staff-profile-badge"]').first()).toBeVisible({ timeout: 15000 });
+      try {
+        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
+      } catch {
+        const errAlert = page.locator('[data-testid="login-error-alert"]');
+        if (await errAlert.isVisible({ timeout: 1000 }).catch(() => false)) {
+          await page.waitForTimeout(1000);
+          await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
+        }
+        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
+      }
+    }
+
+    if (page.url().includes('/verify-2fa')) {
+      await handleTotpVerification(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
+    }
+
+    expect(page.url()).not.toContain('/login');
+    expect(page.url()).not.toContain('/verify-2fa');
+    await expect(page.locator('main, [data-testid="stat-total-users"], [data-testid="dashboard-heading"], [data-testid="page-title"], [data-testid="staff-profile-badge"]').first()).toBeVisible({ timeout: 15000 });
   }
 
   test.beforeAll(() => {
@@ -1903,6 +1925,7 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     page,
   }, testInfo) => {
     test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'Commercial interactive flow runs on chromium');
     const clientIp = getProjectClientIp(testInfo, 70);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 

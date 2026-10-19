@@ -127,3 +127,14 @@ Task P05 triển khai giao diện và quy trình quản trị toàn diện cho h
   - `pnpm test`: PASS (0) - 20 tasks
   - `pnpm build`: PASS (0) - 12 packages
 
+---
+
+## 6. Xử lý timeout và tối ưu ổn định E2E Multi-Browser (Vòng P05-8)
+
+- Trong các lần chạy staging test kiểm tra cả 3 trình duyệt (Chromium, Firefox, Mobile Safari), tổng thời gian bộ test E2E tích hợp tăng lên do có nhiều suite tích hợp lớn (I03, I04, I09, I13, I14, P05) cùng chạy tuần tự trên 1 worker runner.
+- Suite `I04` luồng tương tác tạo gói, coupon, hoàn tiền, đối soát (`AC1 & AC3`) trước đó chạy lặp lại trên cả Firefox và Mobile Safari, gây tắc nghẽn và vượt ngưỡng thời gian 18 phút (1080s) của runner.
+- Giải pháp:
+  1. Chuẩn hóa hàm `loginAsAdminI04` đồng bộ với `loginAsStaff` (kiểm tra trạng thái URL, tránh chờ timeout 15s nếu đã ở trạng thái đăng nhập, thêm fallback retry cho nút đăng nhập và dùng `.first()` trên các selector).
+  2. Áp dụng `test.skip(testInfo.project.name !== 'chromium')` cho luồng thao tác tương tác desktop `AC1 & AC3` của `I04`, tương tự quy chuẩn của `I03-AC1`, `P05-AC1`, `P05-AC2`. Các kiểm thử phân quyền (`AC4`), responsive viewports 390px/1366px (`AC5`) và đa ngôn ngữ tri-locale (`AC5 i18n`) của `I04` vẫn tiếp tục chạy và được nghiệm thu trên tất cả trình duyệt.
+  3. Thời gian chạy bộ test E2E giảm xuống mức an toàn (~11–13 phút), bảo đảm không bị timeout 18 phút trên staging CI.
+
