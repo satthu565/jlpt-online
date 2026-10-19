@@ -8,7 +8,7 @@ import {
   Optional,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
@@ -165,6 +165,97 @@ export class ReviewService {
     version: number,
     editorId: string,
   ): Promise<{ status: string }> {
+    // 1. Guard against submitting DRAFT_ONLY packages or items with missing answers
+    const artifactType =
+      targetType === 'group_version'
+        ? 'group'
+        : targetType === 'question_version'
+          ? 'question'
+          : 'exam';
+
+    const importJobsForTarget = await this.dbClient.db
+      .select({
+        id: schema.importJobs.id,
+        status: schema.importJobs.status,
+        errorLog: schema.importJobs.errorLog,
+      })
+      .from(schema.importArtifacts)
+      .innerJoin(schema.importJobs, eq(schema.importArtifacts.jobId, schema.importJobs.id))
+      .where(
+        and(
+          eq(schema.importArtifacts.artifactType, artifactType),
+          eq(schema.importArtifacts.storageKey, targetId),
+        ),
+      )
+      .orderBy(desc(schema.importJobs.createdAt))
+      .limit(1);
+
+    if (importJobsForTarget.length > 0) {
+      const latestJob = importJobsForTarget[0]!;
+      const errLog = latestJob.errorLog as Record<string, unknown> | null;
+      if (
+        latestJob.status === 'DRAFT_ONLY' ||
+        errLog?.['readiness'] === 'DRAFT_ONLY' ||
+        errLog?.['mode'] === 'draft' ||
+        (typeof errLog?.['blockingIssueCount'] === 'number' && (errLog['blockingIssueCount'] as number) > 0)
+      ) {
+        throw new BadRequestException(
+          `Không thể gửi duyệt nội dung thuộc gói nháp (DRAFT_ONLY). Cần nạp gói ở chế độ ready với revision cao hơn trước khi duyệt.`,
+        );
+      }
+    }
+
+    if (targetType === 'group_version') {
+      const qRows = await this.dbClient.db
+        .select({ id: schema.questions.id })
+        .from(schema.questions)
+        .where(eq(schema.questions.groupId, targetId));
+
+      if (qRows.length > 0) {
+        const qIds = qRows.map((q: { id: string }) => q.id);
+        const caRows = await this.dbClient.db
+          .select({
+            questionId: schema.correctAnswers.questionId,
+            correctOption: schema.correctAnswers.correctOption,
+          })
+          .from(schema.correctAnswers)
+          .where(
+            and(
+              inArray(schema.correctAnswers.questionId, qIds),
+              eq(schema.correctAnswers.questionVersion, version),
+            ),
+          );
+        const answered = new Set(
+          caRows
+            .filter((r: { questionId: string; correctOption: number | null }) => r.correctOption !== null && r.correctOption !== undefined)
+            .map((r: { questionId: string }) => r.questionId),
+        );
+        for (const qId of qIds) {
+          if (!answered.has(qId)) {
+            throw new BadRequestException(
+              `Không thể gửi duyệt: câu hỏi ${qId} trong nhóm chưa có đáp án đúng (thuộc bản nháp DRAFT_ONLY).`,
+            );
+          }
+        }
+      }
+    } else if (targetType === 'question_version') {
+      const ca = await this.dbClient.db
+        .select()
+        .from(schema.correctAnswers)
+        .where(
+          and(
+            eq(schema.correctAnswers.questionId, targetId),
+            eq(schema.correctAnswers.questionVersion, version),
+          ),
+        )
+        .limit(1);
+      if (ca.length === 0 || ca[0]?.correctOption === null) {
+        throw new BadRequestException(
+          `Không thể gửi duyệt: câu hỏi ${targetId} chưa có đáp án đúng (thuộc bản nháp DRAFT_ONLY).`,
+        );
+      }
+    }
+
     this.recordEditor(targetType, targetId, version, editorId);
 
     if (targetType === 'group_version') {
@@ -238,7 +329,103 @@ export class ReviewService {
     reviewerId: string,
     tx?: DbTx,
   ): Promise<{ id: string; status: string; reviewedAt: Date }> {
-    // 1. Check editor != reviewer
+    const db = tx ?? this.dbClient.db;
+
+    // 1. Guard against approving DRAFT_ONLY packages or items with missing answers
+    if (decisionDto.decision === 'approved') {
+      const artifactType =
+        targetType === 'group_version'
+          ? 'group'
+          : targetType === 'question_version'
+            ? 'question'
+            : 'exam';
+
+      const importJobsForTarget = await db
+        .select({
+          id: schema.importJobs.id,
+          status: schema.importJobs.status,
+          errorLog: schema.importJobs.errorLog,
+          createdAt: schema.importJobs.createdAt,
+        })
+        .from(schema.importArtifacts)
+        .innerJoin(schema.importJobs, eq(schema.importArtifacts.jobId, schema.importJobs.id))
+        .where(
+          and(
+            eq(schema.importArtifacts.artifactType, artifactType),
+            eq(schema.importArtifacts.storageKey, targetId),
+          ),
+        )
+        .orderBy(desc(schema.importJobs.createdAt))
+        .limit(1);
+
+      if (importJobsForTarget.length > 0) {
+        const latestJob = importJobsForTarget[0]!;
+        const errLog = latestJob.errorLog as Record<string, unknown> | null;
+        if (
+          latestJob.status === 'DRAFT_ONLY' ||
+          errLog?.['readiness'] === 'DRAFT_ONLY' ||
+          errLog?.['mode'] === 'draft' ||
+          (typeof errLog?.['blockingIssueCount'] === 'number' && (errLog['blockingIssueCount'] as number) > 0)
+        ) {
+          throw new BadRequestException(
+            `Không thể phê duyệt nội dung thuộc gói nháp (DRAFT_ONLY). Cần nạp gói ở chế độ ready với revision cao hơn trước khi duyệt.`,
+          );
+        }
+      }
+
+      if (targetType === 'group_version') {
+        const qRows = await db
+          .select({ id: schema.questions.id })
+          .from(schema.questions)
+          .where(eq(schema.questions.groupId, targetId));
+
+        if (qRows.length > 0) {
+          const qIds = qRows.map((q: { id: string }) => q.id);
+          const caRows = await db
+            .select({
+              questionId: schema.correctAnswers.questionId,
+              correctOption: schema.correctAnswers.correctOption,
+            })
+            .from(schema.correctAnswers)
+            .where(
+              and(
+                inArray(schema.correctAnswers.questionId, qIds),
+                eq(schema.correctAnswers.questionVersion, version),
+              ),
+            );
+          const answered = new Set(
+            caRows
+              .filter((r: { questionId: string; correctOption: number | null }) => r.correctOption !== null && r.correctOption !== undefined)
+              .map((r: { questionId: string }) => r.questionId),
+          );
+          for (const qId of qIds) {
+            if (!answered.has(qId)) {
+              throw new BadRequestException(
+                `Không thể phê duyệt: câu hỏi ${qId} trong nhóm chưa có đáp án đúng (thuộc bản nháp DRAFT_ONLY).`,
+              );
+            }
+          }
+        }
+      } else if (targetType === 'question_version') {
+        const ca = await db
+          .select()
+          .from(schema.correctAnswers)
+          .where(
+            and(
+              eq(schema.correctAnswers.questionId, targetId),
+              eq(schema.correctAnswers.questionVersion, version),
+            ),
+          )
+          .limit(1);
+        if (ca.length === 0 || ca[0]?.correctOption === null) {
+          throw new BadRequestException(
+            `Không thể phê duyệt: câu hỏi ${targetId} chưa có đáp án đúng (thuộc bản nháp DRAFT_ONLY).`,
+          );
+        }
+      }
+    }
+
+    // 2. Check editor != reviewer
     const lastEditorId = await this.getLastEditor(targetType, targetId, version);
 
     // If lastEditorId cannot be determined, strictly reject to preserve 4-eyes integrity

@@ -935,11 +935,14 @@ export class AdminApiClient {
   public async uploadImportPackage(
     fileOrBase64: File | string,
     fileName?: string,
+    options?: { mode?: 'draft' | 'ready' },
   ): Promise<unknown> {
+    const mode = options?.mode ?? 'ready';
     if (typeof FormData !== 'undefined' && typeof fileOrBase64 !== 'string') {
       const formData = new FormData();
+      formData.append('mode', mode);
       formData.append('file', fileOrBase64, fileName || fileOrBase64.name);
-      return this.request('POST', '/api/v1/admin/imports', {
+      return this.request('POST', `/api/v1/admin/imports?mode=${encodeURIComponent(mode)}`, {
         requiredRoles: ['editor', 'admin'],
         body: formData,
       });
@@ -964,9 +967,9 @@ export class AdminApiClient {
         dataBase64 = btoa(binary);
       }
     }
-    return this.request('POST', '/api/v1/admin/imports', {
+    return this.request('POST', `/api/v1/admin/imports?mode=${encodeURIComponent(mode)}`, {
       requiredRoles: ['editor', 'admin'],
-      body: { dataBase64, fileName: name },
+      body: { dataBase64, fileName: name, mode },
     });
   }
 
