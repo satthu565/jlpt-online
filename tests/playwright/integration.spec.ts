@@ -1097,7 +1097,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
     // 1. Đăng nhập nhân sự, tải lại trang vẫn đăng nhập
-    await loginAsStaff(page, adminOrigin, SEEDED_STAFF_ACCOUNTS.admin);
+    await loginAsStaff(page, adminOrigin, SEEDED_STAFF_ACCOUNTS.billing_admin);
     await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 15000 });
 
     // Reload page -> still authenticated
@@ -1257,18 +1257,20 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
         });
       }
 
-      const closeNavBtn = page.locator('[data-testid="btn-close-mobile-nav"]').first();
-      if (await closeNavBtn.isVisible().catch(() => false)) {
-        await closeNavBtn.click();
-        await page.waitForTimeout(50);
-      }
+      // Reset back to vi for subsequent pages while nav is still open
       const viBtn = page.locator('[data-testid="admin-locale-vi"]').first();
       if (await viBtn.isVisible().catch(() => false)) {
         await viBtn.click();
+        await page.waitForTimeout(50);
       } else {
         await page.evaluate(() => {
           window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: 'vi' }));
         });
+      }
+      const closeNavBtn = page.locator('[data-testid="btn-close-mobile-nav"]').first();
+      if (await closeNavBtn.isVisible().catch(() => false)) {
+        await closeNavBtn.click();
+        await page.waitForTimeout(50);
       }
     }
   });
@@ -1528,19 +1530,20 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
         });
       }
 
-      // Reset back to vi for subsequent pages
-      const closeNavBtn = page.locator('[data-testid="btn-close-mobile-nav"]').first();
-      if (await closeNavBtn.isVisible().catch(() => false)) {
-        await closeNavBtn.click();
-        await page.waitForTimeout(50);
-      }
+      // Reset back to vi for subsequent pages while nav is still open
       const viBtn = page.locator('[data-testid="admin-locale-vi"]').first();
       if (await viBtn.isVisible().catch(() => false)) {
         await viBtn.click();
+        await page.waitForTimeout(50);
       } else {
         await page.evaluate(() => {
           window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: 'vi' }));
         });
+      }
+      const closeNavBtn = page.locator('[data-testid="btn-close-mobile-nav"]').first();
+      if (await closeNavBtn.isVisible().catch(() => false)) {
+        await closeNavBtn.click();
+        await page.waitForTimeout(50);
       }
     }
   });
