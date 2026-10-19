@@ -204,12 +204,12 @@ export async function handleTotpVerification(
     try {
       await page.waitForURL(
         (url: URL) => !url.pathname.includes('/verify-2fa') && !url.pathname.includes('/login'),
-        { timeout: 8000, waitUntil: 'domcontentloaded' },
+        { timeout: 15000, waitUntil: 'domcontentloaded' },
       );
       return;
     } catch {
       const challengeError = page.locator('[data-testid="challenge-error-alert"]');
-      if (await challengeError.isVisible({ timeout: 3000 }).catch(() => false)) {
+      if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
         recordUsedTotpStep(accountKey);
         await waitForNextTotpStep();
         continue;

@@ -125,6 +125,14 @@ export default function AdminDashboardPage(): React.JSX.Element {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              data-testid="btn-refresh-dashboard"
+              onClick={() => void fetchDashboard()}
+              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-xs transition"
+            >
+              ↻ {t('common.retry', locale)}
+            </button>
             <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold">
               Vai trò: {user ? t(`roles.${user.role}`, locale) : ''}
             </span>

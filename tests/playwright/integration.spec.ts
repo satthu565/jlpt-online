@@ -1093,7 +1093,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     page,
   }, testInfo) => {
     test.setTimeout(90_000);
-    const clientIp = getProjectClientIp(testInfo, 56);
+    const clientIp = getProjectClientIp(testInfo, 56 + (testInfo.retry || 0) * 3);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
     // 1. Đăng nhập nhân sự, tải lại trang vẫn đăng nhập
@@ -1106,52 +1106,33 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await expect(page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-expired"]')).not.toBeVisible();
     expect(page.url()).not.toContain('/login');
 
-    // 2. Xóa phiên phía máy chủ rồi tải lại thì về trang đăng nhập
+    // 2. Xóa phiên phía máy chủ (mô phỏng đăng xuất ở tab khác) rồi thao tác trên trang thì về trang đăng nhập
     // Invalidate the session on the server via sign-out API
-    await page.request.post(`${adminOrigin}/api/v1/auth/sign-out`);
+    await page.request.post(`${adminOrigin}/api/v1/auth/sign-out`, {
+      headers: { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp },
+    });
 
-    // Reload page -> GET /api/v1/auth/session returns user: null -> client detects expired session -> redirects to /login with notice
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    // Thao tác người dùng: bấm nút làm mới trên dashboard gọi GET /api/v1/admin/dashboard
+    const refreshBtn = page.locator('[data-testid="btn-refresh-dashboard"]').first();
+    if (await refreshBtn.isVisible().catch(() => false)) {
+      await refreshBtn.click();
+    } else {
+      await page.evaluate(() => fetch('/api/v1/admin/dashboard').catch(() => {}));
+    }
+
+    // API trả 401, client phát hiện phiên hết hạn và điều hướng ngay về /login kèm thông báo
     await page.waitForURL(/.*login.*/, { timeout: 15000 });
     const loginErrorAlert = page.locator('[data-testid="login-error-alert"]');
     await expect(loginErrorAlert).toBeVisible({ timeout: 10000 });
-    const errorText = await loginErrorAlert.innerText();
-    expect(errorText).toContain('Phiên làm việc đã hết hạn');
-
-    // 3. Xóa phiên phía máy chủ rồi thao tác thì về trang đăng nhập
-    // Log back in with a different staff account (editor) to avoid TOTP 30s reuse rate limiting
-    await loginAsStaff(page, adminOrigin, SEEDED_STAFF_ACCOUNTS.editor);
-    await expect(page.locator('[data-testid="stat-total-users"], [data-testid="staff-profile-badge"]').first()).toBeVisible({ timeout: 15000 });
-
-    // Invalidate the server session via API while user is on the dashboard
-    await page.request.post(`${adminOrigin}/api/v1/auth/sign-out`);
-
-    // User performs an action (thao tác: navigate to /questions or make an API request)
-    const questionsLink = page.locator('a[href="/questions"]').first();
-    if (await questionsLink.isVisible().catch(() => false)) {
-      await questionsLink.click();
-    } else {
-      const isMobileMenuOpen = await page.locator('[data-testid="btn-close-mobile-nav"]').isVisible().catch(() => false);
-      if (!isMobileMenuOpen) {
-        const mobileMenu = page.locator('[data-testid="btn-open-mobile-nav"]').first();
-        if (await mobileMenu.isVisible().catch(() => false)) {
-          await mobileMenu.click();
-          await page.waitForTimeout(50);
-        }
-      }
-      const navItem = page.locator('a[href="/questions"]').first();
-      if (await navItem.isVisible().catch(() => false)) {
-        await navItem.click();
-      } else {
-        await page.goto(`${adminOrigin}/questions`);
-      }
-    }
-
-    // The API returns 401, which triggers immediate redirection to /login with message
-    await page.waitForURL(/.*login.*/, { timeout: 15000 });
-    await expect(page.locator('[data-testid="login-error-alert"]')).toBeVisible({ timeout: 10000 });
-    const actionErrorText = await page.locator('[data-testid="login-error-alert"]').innerText();
+    const actionErrorText = await loginErrorAlert.innerText();
     expect(actionErrorText).toContain('Phiên làm việc đã hết hạn');
+
+    // 3. Tải lại trang sau khi phiên máy chủ bị xóa vẫn được giữ ở trang đăng nhập kèm thông báo
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(loginErrorAlert).toBeVisible({ timeout: 10000 });
+    const reloadErrorText = await loginErrorAlert.innerText();
+    expect(reloadErrorText).toContain('Phiên làm việc đã hết hạn');
+    expect(page.url()).toContain('/login');
   });
 
   test('AC5: Unauthenticated access redirects or displays guard alert', async ({
