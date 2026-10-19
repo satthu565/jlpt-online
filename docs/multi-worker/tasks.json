@@ -4236,11 +4236,10 @@
       "estimatedWorkerHours": 3,
       "title": "Quản trị: lịch thi JLPT và bảng quy đổi điểm",
       "dependencies": [
-        "P03",
-        "D03"
+        "P03"
       ],
       "featureIds": [],
-      "scope": "Trang quản trị nhập và xuất bản lịch thi (ngày thi, hạn đăng ký, địa điểm, link) và xem/cập nhật phiên bản bảng quy đổi điểm, có audit.",
+      "scope": "Trang quản trị nhập và xuất bản lịch thi (ngày thi, hạn đăng ký, địa điểm, link) và xem/cập nhật phiên bản bảng quy đổi điểm, có audit. Dùng thành phần đang có trong @jlpt/ui; D03 sẽ chuyển trang sang bộ thành phần mới, nên không tự viết lại nút/ô nhập riêng.",
       "outputs": [
         "apps/admin/"
       ],
@@ -4255,7 +4254,6 @@
       "checks": [
         "pnpm test:admin",
         "pnpm check:no-mock-ui",
-        "pnpm check:ui-primitives",
         "sudo -n /usr/local/bin/jlpt-stage-test check"
       ],
       "contracts": [

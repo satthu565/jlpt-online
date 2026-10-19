@@ -577,11 +577,13 @@ task('P04','W3',10,6,'Web: đỗ/trượt theo phần, Hán Việt, bật/tắt 
  'apps/web/|packages/ui/',
  'Học viên làm đề demo N5 thấy điểm từng phần và đỗ/trượt|Tắt furigana thì ẩn trên mọi câu, tải lại vẫn giữ|Cảnh báo nhịp hiện đúng khi chậm hơn mốc trong E2E|Trang lịch thi hiện dữ liệu quản trị nhập, trống khi chưa có|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:web|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
-task('P05','W4',10,3,'Quản trị: lịch thi JLPT và bảng quy đổi điểm','P03 D03',
- 'Trang quản trị nhập và xuất bản lịch thi (ngày thi, hạn đăng ký, địa điểm, link) và xem/cập nhật phiên bản bảng quy đổi điểm, có audit.',
+# Owner 2026-10-19 "tăng tốc": P05 is a new admin page and its API (P03) is merged, so it starts now; D03 later moves it to @jlpt/ui.
+task('P05','W4',10,3,'Quản trị: lịch thi JLPT và bảng quy đổi điểm','P03',
+ 'Trang quản trị nhập và xuất bản lịch thi (ngày thi, hạn đăng ký, địa điểm, link) và xem/cập nhật phiên bản bảng quy đổi điểm, có audit. '
+ 'Dùng thành phần đang có trong @jlpt/ui; D03 sẽ chuyển trang sang bộ thành phần mới, nên không tự viết lại nút/ô nhập riêng.',
  'apps/admin/',
  'Admin nhập kỳ thi tháng 12, xuất bản, trang web công khai hiện ngay|Đổi bảng quy đổi tạo phiên bản mới, kết quả cũ giữ phiên bản đã dùng|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
- 'pnpm test:admin|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
+ 'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
 task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05 D05',
  'E2E trên staging cho NEW-01..05, ảnh chụp 390/1366px, cập nhật danh sách tính năng và báo cáo.',
  'tests/|docs/release/',
