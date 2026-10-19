@@ -32,7 +32,7 @@
   font-style: normal;
   font-weight: 400 700;
   font-display: swap;
-  src: local('Noto Sans JP'), local('Noto Sans CJK JP'), local('Hiragino Sans'), local('Hiragino Kaku Gothic ProN'), local('Yu Gothic'), local('Meiryo'), sans-serif;
+  src: local('Noto Sans JP'), local('Noto Sans CJK JP'), local('Hiragino Sans'), local('Hiragino Kaku Gothic ProN'), local('Yu Gothic'), local('Meiryo');
 }
 
 /* Custom application-level layout enhancements */

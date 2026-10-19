@@ -34,7 +34,7 @@ interface I18nContextValue {
 const I18nContext = createContext<I18nContextValue | undefined>(undefined);
 
 export interface I18nProviderProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   initialLocale?: Locale;
 }
 
@@ -64,14 +64,18 @@ export function I18nProvider({
     return initialLocale;
   });
 
+  const [revision, setRevision] = useState<number>(0);
+
   const setLocale = (newLocale: Locale) => {
     if (!SUPPORTED_LOCALES.includes(newLocale)) return;
     if (newLocale !== 'vi') {
       loadLocaleMessages(newLocale).then(() => {
         setLocaleState(newLocale);
+        setRevision((r) => r + 1);
       });
     } else {
       setLocaleState(newLocale);
+      setRevision((r) => r + 1);
     }
     try {
       localStorage.setItem(LOCALE_STORAGE_KEY, newLocale);
@@ -82,9 +86,12 @@ export function I18nProvider({
   };
 
   useEffect(() => {
+    let active = true;
     if (locale !== 'vi' && (!MESSAGES_BY_LOCALE[locale] || Object.keys(MESSAGES_BY_LOCALE[locale]).length === 0)) {
       loadLocaleMessages(locale).then(() => {
-        setLocaleState(locale);
+        if (active) {
+          setRevision((r) => r + 1);
+        }
       });
     }
     if (typeof document !== 'undefined') {
@@ -96,6 +103,9 @@ export function I18nProvider({
         document.documentElement.classList.remove('font-japanese');
       }
     }
+    return () => {
+      active = false;
+    };
   }, [locale]);
 
   const value = useMemo<I18nContextValue>(() => {
@@ -105,7 +115,7 @@ export function I18nProvider({
       t: (key: string, params?: Record<string, string | number>) =>
         translate(locale, key, params),
     };
-  }, [locale]);
+  }, [locale, revision]);
 
   return React.createElement(I18nContext.Provider, { value }, children);
 }

@@ -1,9 +1,11 @@
+'use client';
+
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, Badge, Button, JsonLd } from '@jlpt/ui';
-import { translate, DEFAULT_LOCALE } from '../lib/i18n-core';
+import { useI18n } from '../lib/i18n';
 
 export default function HomePage(): React.JSX.Element {
-  const t = (key: string, params?: Record<string, string | number>) => translate(DEFAULT_LOCALE, key, params);
+  const { t } = useI18n();
 
   const levels: Array<{ id: string; level: string; color: 'danger' | 'warning' | 'primary' | 'info' | 'neutral'; descKey: string }> = [
     { id: 'n1', level: 'N1', color: 'danger', descKey: 'home.levelCards.n1' },

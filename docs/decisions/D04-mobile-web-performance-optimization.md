@@ -62,12 +62,23 @@ Theo yêu cầu Ngày 9 của kế hoạch triển khai JLPT Online (mục D04, 
   `"test:lighthouse": "node --no-warnings --experimental-strip-types tests/lighthouse/runner.ts --enforce"`
 - Cờ `--enforce` thiết lập `budgetMode = 'error'`, khiến công cụ kiểm thử hiệu năng trả về mã thoát `1` ngay lập tức nếu bất kỳ trang nào vi phạm các chỉ số trần của ngân sách D01.
 
+### 2.6. Khắc phục phản hồi Reviewer W4 về đa ngôn ngữ và phông chữ
+- **Khôi phục tương tác đa ngôn ngữ trên Trang chủ**:
+  - Khôi phục chỉ thị `'use client'` và hook `useI18n()` trong `apps/web/app/page.tsx`, giúp toàn bộ tiêu đề, phụ đề và thẻ cấp độ trên Trang chủ phản hồi tức thì khi người dùng thay đổi ngôn ngữ sang `ja` hoặc `en` trên thanh điều hướng.
+- **Xử lý React bailout khi nạp từ điển động trong `I18nProvider`**:
+  - Khi mở trang với locale `ja` hoặc `en` lưu sẵn trong `localStorage`, việc gọi `setLocaleState(locale)` với cùng locale đã có sẽ bị React bails out không re-render.
+  - Bổ sung `revision` state counter (`setRevision((r) => r + 1)`) trong `apps/web/lib/i18n.tsx` và gắn `revision` vào dependency array của `useMemo<I18nContextValue>`. Nhờ đó, ngay khi `loadLocaleMessages()` nạp xong gói từ điển động, context value được cấp mới và ép UI re-render hiển thị bản dịch chính xác thay vì kẹt ở tiếng Việt dự phòng.
+- **Chuẩn hóa cú pháp CSS Fonts cho `@font-face` Noto Sans JP**:
+  - Trong `apps/web/app/globals.css`, loại bỏ generic family `, sans-serif` ở cuối thuộc tính `src:` của `@font-face` Noto Sans JP, đảm bảo tuân thủ chặt chẽ đặc tả CSS Fonts Level 4.
+- **Bổ sung kiểm thử hồi quy đa ngôn ngữ**:
+  - Bổ sung các bài kiểm thử trong `apps/web/tests/i18n.test.ts` kiểm tra `HomePage` dịch chính xác qua cả 3 ngôn ngữ (`vi`, `ja`, `en`) khi được bọc bởi `I18nProvider`, đồng thời kiểm tra hàm nạp động `loadLocaleMessages()`.
+
 ---
 
 ## 3. Bằng chứng kiểm thử và nghiệm thu
 
 1. **Bộ kiểm thử đơn vị & tích hợp giao diện web**:
-   - `pnpm test:web`: 19 file kiểm thử (254 tests) pass 100%.
+   - `pnpm test:web`: 19 file kiểm thử (256 tests) pass 100%.
 2. **Quy trình đóng gói bản dựng sản phẩm**:
    - `pnpm build`: Thành công 12/12 tác vụ Turbopack monorepo.
    - Các trang chính (`/`, `/[level]`, `/de-thi`, `/phong-thi`, `/dang-nhap`) được biên dịch thành công dưới dạng Static / SSG với phân tách bundle tối ưu.
