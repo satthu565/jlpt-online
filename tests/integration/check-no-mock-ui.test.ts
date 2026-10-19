@@ -1,12 +1,20 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import {
   scanCodeString,
   fileToRoute,
   isCoveredByBaseline,
+  runNoMockUiCheck,
   type ScannedFileResult,
   type BaselineEntry,
   type ViolationMatch,
 } from './check-no-mock-ui.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const repoRootDir = path.resolve(__dirname, '../../');
 
 describe('check:no-mock-ui Scanner & Baseline Gate', () => {
   describe('Rule Category 1: ALL_SAMPLE detection', () => {
@@ -175,6 +183,41 @@ describe('check:no-mock-ui Scanner & Baseline Gate', () => {
       };
 
       expect(isCoveredByBaseline(unexpectedItem, baseline)).toBe(false);
+    });
+  });
+
+  describe('Rule Category 4: Empty Baseline Gate (I07 Acceptance)', () => {
+    const baselinePath = path.join(repoRootDir, 'tests/integration/mock-ui-baseline.json');
+
+    it('enforces tests/integration/mock-ui-baseline.json is strictly empty ([])', () => {
+      expect(fs.existsSync(baselinePath)).toBe(true);
+      const raw = fs.readFileSync(baselinePath, 'utf8');
+      const parsed = JSON.parse(raw);
+      expect(Array.isArray(parsed)).toBe(true);
+      expect(parsed).toEqual([]);
+    });
+
+    it('runNoMockUiCheck passes with 0 violations and 0 baseline entries on current workspace', () => {
+      const result = runNoMockUiCheck(repoRootDir, baselinePath);
+      expect(result.baselineCount).toBe(0);
+      expect(result.knownViolations).toHaveLength(0);
+      expect(result.newViolations).toHaveLength(0);
+      expect(result.violatingFiles).toHaveLength(0);
+      expect(result.passed).toBe(true);
+    });
+
+    it('fails runNoMockUiCheck if baseline contains any legacy or bypassed mock entries', () => {
+      const tempBaseline = path.join(repoRootDir, 'tests/integration/.tmp-non-empty-baseline.json');
+      fs.writeFileSync(tempBaseline, JSON.stringify(['apps/web/app/fake-page/page.tsx']));
+      try {
+        const result = runNoMockUiCheck(repoRootDir, tempBaseline);
+        expect(result.baselineCount).toBe(1);
+        expect(result.passed).toBe(false);
+      } finally {
+        if (fs.existsSync(tempBaseline)) {
+          fs.unlinkSync(tempBaseline);
+        }
+      }
     });
   });
 });
