@@ -29,6 +29,41 @@ function getProjectClientIp(testInfo: { project?: { name?: string } }, offset = 
   return `198.51.100.${base + offset}`;
 }
 
+async function loginAsStaff(page: Page, origin: string, account: StaffAccount) {
+  await page.goto(`${origin}/login`, { waitUntil: 'domcontentloaded' });
+  if (!page.url().includes('/login') && !page.url().includes('/verify-2fa')) {
+    return;
+  }
+  if (page.url().includes('/login')) {
+    const submitBtn = page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first();
+    await expect(submitBtn).toBeEnabled({ timeout: 15000 });
+    const emailInput = page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').first();
+    await expect(emailInput).toBeVisible({ timeout: 15000 });
+    await emailInput.fill(account.email);
+    await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').first().fill(account.password);
+    await submitBtn.click();
+
+    try {
+      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
+    } catch {
+      const errAlert = page.locator('[data-testid="login-error-alert"]');
+      if (await errAlert.isVisible({ timeout: 1000 }).catch(() => false)) {
+        await page.waitForTimeout(1000);
+        await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
+      }
+      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
+    }
+  }
+
+  if (page.url().includes('/verify-2fa')) {
+    await handleTotpVerification(page, account.totpSecret, account.email);
+  }
+
+  expect(page.url()).not.toContain('/login');
+  expect(page.url()).not.toContain('/verify-2fa');
+  await expect(page.locator('main, [data-testid="page-title"], header').filter({ visible: true }).first()).toBeVisible({ timeout: 15000 });
+}
+
 /**
  * End-to-End Integration Suite with Real API & Services (I00)
  * Acceptance Criteria:
@@ -1018,14 +1053,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
   ];
 
   async function loginAsAdmin(page: Page, origin: string) {
-    await page.goto(`${origin}/login`);
-    await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
-    await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
-    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
-
-    await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
-    await handleTotpVerification(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
-    await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
+    await loginAsStaff(page, origin, SEEDED_STAFF_ACCOUNTS.admin);
   }
 
   test.beforeAll(() => {
@@ -1040,11 +1068,13 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
     await page.goto(`${adminOrigin}/login`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-testid="login-card"], h1').first()).toBeVisible({ timeout: 10000 });
+    const submitBtn = page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first();
+    await expect(submitBtn).toBeEnabled({ timeout: 15000 });
 
     // Fill seeded staff email with an intentionally wrong password
     await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
     await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill('WrongPassword123!');
-    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
+    await submitBtn.click();
 
     // The API rejects the request and the UI displays the server error alert
     const errorAlert = page.locator('[data-testid="login-error-alert"]');
@@ -1060,14 +1090,16 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
     await page.goto(`${adminOrigin}/login`, { waitUntil: 'domcontentloaded' });
+    const submitBtn = page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first();
+    await expect(submitBtn).toBeEnabled({ timeout: 15000 });
 
     // Login with valid credentials
     await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
     await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
-    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
+    await submitBtn.click();
 
     // Page redirects to 2FA verification challenge
-    await page.waitForURL(/.*verify-2fa.*/, { timeout: 10000 });
+    await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
     await expect(page.locator('[data-testid="challenge-code-input"], [data-testid="input-totp-code"], input[name="code"], input[maxlength="6"]').first()).toBeVisible({ timeout: 10000 });
 
     // Submit invalid 6-digit TOTP code
@@ -1088,11 +1120,13 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
     await page.goto(`${adminOrigin}/login`, { waitUntil: 'domcontentloaded' });
+    const submitBtn = page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first();
+    await expect(submitBtn).toBeEnabled({ timeout: 15000 });
 
     // Step 1: Submit valid staff credentials
     await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
     await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
-    await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').click();
+    await submitBtn.click();
 
     // Step 2: Handle TOTP Challenge
     await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
@@ -1124,6 +1158,72 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await expect(page.locator('main, [data-testid="user-management-title"], table').first()).toBeVisible({ timeout: 10000 });
     await expect(page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-expired"]')).not.toBeVisible();
     expect(page.url()).toContain('/users');
+  });
+
+  test('I15 E2E admin: đăng nhập nhân sự, tải lại trang vẫn đăng nhập; xóa phiên phía máy chủ rồi tải lại hoặc thao tác thì về trang đăng nhập', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(90_000);
+    const clientIp = getProjectClientIp(testInfo, 56 + (testInfo.retry || 0) * 3);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    // 1. Đăng nhập nhân sự, tải lại trang vẫn đăng nhập
+    await loginAsStaff(page, adminOrigin, SEEDED_STAFF_ACCOUNTS.billing_admin);
+    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 15000 });
+
+    // Reload page -> still authenticated
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-expired"]')).not.toBeVisible();
+    expect(page.url()).not.toContain('/login');
+
+    // 2. Xóa phiên phía máy chủ (mô phỏng đăng xuất ở tab khác) rồi thao tác trên trang thì về trang đăng nhập
+    const adminToken = await page.evaluate(() => {
+      try {
+        const raw = localStorage.getItem('jlpt_admin_auth_state_v1') || localStorage.getItem('jlpt_admin_auth');
+        return raw ? JSON.parse(raw).token : null;
+      } catch {
+        return null;
+      }
+    });
+
+    // Invalidate the session on the server via sign-out API
+    await page.request.post(`${adminOrigin}/api/v1/auth/sign-out`, {
+      headers: {
+        ...(adminToken ? { Authorization: `Bearer ${adminToken}` } : {}),
+        'x-forwarded-for': clientIp,
+        'cf-connecting-ip': clientIp,
+      },
+    });
+
+    // Thao tác người dùng: bấm nút làm mới trên dashboard gọi GET /api/v1/admin/dashboard
+    const refreshBtn = page.locator('[data-testid="btn-refresh-dashboard"]').first();
+    if (await refreshBtn.isVisible().catch(() => false)) {
+      await refreshBtn.click();
+    } else {
+      await page.evaluate(() => fetch('/api/v1/admin/dashboard').catch(() => {}));
+    }
+
+    // API trả 401, client phát hiện phiên hết hạn và điều hướng ngay về /login kèm thông báo
+    await page
+      .waitForURL(/.*login.*/, { timeout: 15000, waitUntil: 'domcontentloaded' })
+      .catch(async (err) => {
+        if (String(err).includes('NS_BINDING_ABORTED') || page.url().includes('login')) {
+          return;
+        }
+        await expect(page).toHaveURL(/.*login.*/, { timeout: 10000 });
+      });
+    const loginErrorAlert = page.locator('[data-testid="login-error-alert"]');
+    await expect(loginErrorAlert).toBeVisible({ timeout: 10000 });
+    const actionErrorText = await loginErrorAlert.innerText();
+    expect(actionErrorText).toContain('Phiên làm việc đã hết hạn');
+
+    // 3. Tải lại trang sau khi phiên máy chủ bị xóa vẫn được giữ ở trang đăng nhập kèm thông báo
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(loginErrorAlert).toBeVisible({ timeout: 10000 });
+    const reloadErrorText = await loginErrorAlert.innerText();
+    expect(reloadErrorText).toContain('Phiên làm việc đã hết hạn');
+    expect(page.url()).toContain('/login');
   });
 
   test('AC5: Unauthenticated access redirects or displays guard alert', async ({
@@ -1174,7 +1274,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
     for (const route of IN_SCOPE_PAGES) {
       await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-      await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+      await expect(page.locator('main, [data-testid="page-title"], header').filter({ visible: true }).first()).toBeVisible({ timeout: 10000 });
       await page.waitForTimeout(50);
 
       for (const vp of viewportsToTest) {
@@ -1215,21 +1315,33 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
     for (const route of IN_SCOPE_PAGES) {
       await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-      await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+      await expect(page.locator('main, [data-testid="page-title"], header').filter({ visible: true }).first()).toBeVisible({ timeout: 10000 });
       await page.waitForTimeout(50);
 
       for (const locale of locales) {
-        await page.evaluate((l) => {
-          try {
-            (window as unknown as { __setAdminLocale?: (loc: string) => void }).__setAdminLocale?.(l);
-            localStorage.setItem('jlpt_admin_locale_v1', l);
-            localStorage.setItem('admin_locale', l);
-            document.cookie = `admin_locale=${l}; path=/; SameSite=Lax`;
-            document.cookie = `jlpt_admin_locale_v1=${l}; path=/; SameSite=Lax`;
-          } catch {
-            // ignore storage errors
+        const isMobile = await page.locator('[data-testid="btn-open-mobile-nav"]').first().isVisible().catch(() => false);
+        if (isMobile) {
+          const isNavOpen = (await page.locator('[data-testid="mobile-nav-backdrop"]').count()) > 0;
+          if (!isNavOpen) {
+            const openNavBtn = page.locator('[data-testid="btn-open-mobile-nav"]').first();
+            if (await openNavBtn.isVisible().catch(() => false)) {
+              await openNavBtn.click();
+              await page.waitForTimeout(50);
+            }
           }
-        }, locale);
+        }
+        const locBtn = page.locator(`[data-testid="admin-locale-${locale}"]`).first();
+        if (await locBtn.isVisible().catch(() => false)) {
+          await locBtn.click({ timeout: 3000 }).catch(async () => {
+            await page.evaluate((l) => {
+              window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: l }));
+            }, locale);
+          });
+        } else {
+          await page.evaluate((l) => {
+            window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: l }));
+          }, locale);
+        }
         await page.waitForTimeout(50);
 
         const bodyText = await page.innerText('body');
@@ -1245,15 +1357,28 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
         });
       }
 
-      await page.evaluate(() => {
-        try {
-          (window as unknown as { __setAdminLocale?: (loc: string) => void }).__setAdminLocale?.('vi');
-          localStorage.setItem('jlpt_admin_locale_v1', 'vi');
-          localStorage.setItem('admin_locale', 'vi');
-        } catch {
-          // ignore reset errors
+      // Reset back to vi for subsequent pages while nav is still open
+      const viBtn = page.locator('[data-testid="admin-locale-vi"]').first();
+      if (await viBtn.isVisible().catch(() => false)) {
+        await viBtn.click({ timeout: 3000 }).catch(async () => {
+          await page.evaluate(() => {
+            window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: 'vi' }));
+          });
+        });
+        await page.waitForTimeout(50);
+      } else {
+        await page.evaluate(() => {
+          window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: 'vi' }));
+        });
+      }
+      const isMobileAfter = await page.locator('[data-testid="btn-open-mobile-nav"]').first().isVisible().catch(() => false);
+      if (isMobileAfter) {
+        const closeNavBtn = page.locator('[data-testid="btn-close-mobile-nav"]').first();
+        if (await closeNavBtn.isVisible().catch(() => false)) {
+          await closeNavBtn.click({ timeout: 3000 }).catch(() => {});
+          await page.waitForTimeout(50);
         }
-      });
+      }
     }
   });
 });
@@ -1292,39 +1417,6 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
     { width: 390, height: 844, name: '390px' },
     { width: 1366, height: 768, name: '1366px' },
   ];
-
-  async function loginAsStaff(page: Page, origin: string, account: StaffAccount) {
-    await page.goto(`${origin}/login`, { waitUntil: 'domcontentloaded' });
-    if (!page.url().includes('/login') && !page.url().includes('/verify-2fa')) {
-      return;
-    }
-    if (page.url().includes('/login')) {
-      const emailInput = page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').first();
-      await expect(emailInput).toBeVisible({ timeout: 15000 });
-      await emailInput.fill(account.email);
-      await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').first().fill(account.password);
-      await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
-
-      try {
-        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
-      } catch {
-        const errAlert = page.locator('[data-testid="login-error-alert"]');
-        if (await errAlert.isVisible({ timeout: 1000 }).catch(() => false)) {
-          await page.waitForTimeout(1000);
-          await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
-        }
-        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
-      }
-    }
-
-    if (page.url().includes('/verify-2fa')) {
-      await handleTotpVerification(page, account.totpSecret, account.email);
-    }
-
-    expect(page.url()).not.toContain('/login');
-    expect(page.url()).not.toContain('/verify-2fa');
-    await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
-  }
 
   test.beforeAll(() => {
     fs.mkdirSync(artifactDir, { recursive: true });
@@ -1481,7 +1573,7 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
 
     for (const route of CONTENT_ADMIN_PAGES) {
       await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-      await expect(page.locator('main, [data-testid$="-title"], header, h2').first()).toBeVisible({ timeout: 10000 });
+      await expect(page.locator('main, [data-testid$="-title"], header, h2').filter({ visible: true }).first()).toBeVisible({ timeout: 10000 });
       await page.waitForTimeout(50);
 
       // 1. Verify responsive viewports (390px, 1366px) & capture screenshots without horizontal scroll
@@ -1517,17 +1609,29 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
 
       // Verify ja and en
       for (const locale of ['ja', 'en'] as const) {
-        await page.evaluate((l) => {
-          try {
-            (window as unknown as { __setAdminLocale?: (loc: string) => void }).__setAdminLocale?.(l);
-            localStorage.setItem('jlpt_admin_locale_v1', l);
-            localStorage.setItem('admin_locale', l);
-            document.cookie = `admin_locale=${l}; path=/; SameSite=Lax`;
-            document.cookie = `jlpt_admin_locale_v1=${l}; path=/; SameSite=Lax`;
-          } catch {
-            // ignore storage errors
+        const isMobile = await page.locator('[data-testid="btn-open-mobile-nav"]').first().isVisible().catch(() => false);
+        if (isMobile) {
+          const isNavOpen = (await page.locator('[data-testid="mobile-nav-backdrop"]').count()) > 0;
+          if (!isNavOpen) {
+            const openNavBtn = page.locator('[data-testid="btn-open-mobile-nav"]').first();
+            if (await openNavBtn.isVisible().catch(() => false)) {
+              await openNavBtn.click();
+              await page.waitForTimeout(50);
+            }
           }
-        }, locale);
+        }
+        const locBtn = page.locator(`[data-testid="admin-locale-${locale}"]`).first();
+        if (await locBtn.isVisible().catch(() => false)) {
+          await locBtn.click({ timeout: 3000 }).catch(async () => {
+            await page.evaluate((l) => {
+              window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: l }));
+            }, locale);
+          });
+        } else {
+          await page.evaluate((l) => {
+            window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: l }));
+          }, locale);
+        }
         await page.waitForTimeout(50);
 
         bodyText = await page.innerText('body');
@@ -1542,18 +1646,28 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
         });
       }
 
-      // Reset back to vi for subsequent pages
-      await page.evaluate(() => {
-        try {
-          (window as unknown as { __setAdminLocale?: (loc: string) => void }).__setAdminLocale?.('vi');
-          localStorage.setItem('jlpt_admin_locale_v1', 'vi');
-          localStorage.setItem('admin_locale', 'vi');
-          document.cookie = `admin_locale=vi; path=/; SameSite=Lax`;
-          document.cookie = `jlpt_admin_locale_v1=vi; path=/; SameSite=Lax`;
-        } catch {
-          // ignore reset errors
+      // Reset back to vi for subsequent pages while nav is still open
+      const viBtn = page.locator('[data-testid="admin-locale-vi"]').first();
+      if (await viBtn.isVisible().catch(() => false)) {
+        await viBtn.click({ timeout: 3000 }).catch(async () => {
+          await page.evaluate(() => {
+            window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: 'vi' }));
+          });
+        });
+        await page.waitForTimeout(50);
+      } else {
+        await page.evaluate(() => {
+          window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: 'vi' }));
+        });
+      }
+      const isMobileAfter = await page.locator('[data-testid="btn-open-mobile-nav"]').first().isVisible().catch(() => false);
+      if (isMobileAfter) {
+        const closeNavBtn = page.locator('[data-testid="btn-close-mobile-nav"]').first();
+        if (await closeNavBtn.isVisible().catch(() => false)) {
+          await closeNavBtn.click({ timeout: 3000 }).catch(() => {});
+          await page.waitForTimeout(50);
         }
-      });
+      }
     }
   });
 });
@@ -1888,36 +2002,7 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
 
 
   async function loginAsAdminI04(page: Page, origin: string) {
-    await page.goto(`${origin}/login`, { waitUntil: 'domcontentloaded' });
-    if (!page.url().includes('/login') && !page.url().includes('/verify-2fa')) {
-      return;
-    }
-    if (page.url().includes('/login')) {
-      const emailInput = page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').first();
-      await expect(emailInput).toBeVisible({ timeout: 15000 });
-      await emailInput.fill(SEEDED_STAFF_ACCOUNTS.admin.email);
-      await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').first().fill(SEEDED_STAFF_ACCOUNTS.admin.password);
-      await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
-
-      try {
-        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
-      } catch {
-        const errAlert = page.locator('[data-testid="login-error-alert"]');
-        if (await errAlert.isVisible({ timeout: 1000 }).catch(() => false)) {
-          await page.waitForTimeout(1000);
-          await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
-        }
-        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
-      }
-    }
-
-    if (page.url().includes('/verify-2fa')) {
-      await handleTotpVerification(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
-    }
-
-    expect(page.url()).not.toContain('/login');
-    expect(page.url()).not.toContain('/verify-2fa');
-    await expect(page.locator('main, [data-testid="stat-total-users"], [data-testid="dashboard-heading"], [data-testid="page-title"], [data-testid="staff-profile-badge"]').first()).toBeVisible({ timeout: 15000 });
+    await loginAsStaff(page, origin, SEEDED_STAFF_ACCOUNTS.admin);
   }
 
   test.beforeAll(() => {
@@ -2087,7 +2172,7 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
 
       for (const route of I04_PAGES) {
         await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('main, [data-testid="page-title"], header').filter({ visible: true }).first()).toBeVisible({ timeout: 10000 });
         await page.waitForTimeout(100);
 
         // Verify zero horizontal overflow
@@ -2138,7 +2223,7 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
 
       for (const route of I04_PAGES) {
         await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('main, [data-testid="page-title"], header').filter({ visible: true }).first()).toBeVisible({ timeout: 10000 });
         await page.waitForTimeout(100);
 
         const bodyText = await page.innerText('body');

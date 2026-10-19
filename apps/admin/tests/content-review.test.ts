@@ -8,6 +8,7 @@ import {
   ReviewPermissionError,
   ReviewQueueView,
 } from '../features/review';
+import { AdminAuthProvider } from '../lib/auth-context';
 import type { ReviewItem, StaffOperator } from '../features/review/types';
 import type { AdminQuestionGroup } from '../features/content/types';
 import { createTextSegment } from '../features/content/types';
@@ -304,7 +305,11 @@ describe('Content Review & Two-Person Verification Suite (N04)', () => {
       };
 
       const markup = renderToStaticMarkup(
-        React.createElement(ReviewQueueView, { initialItems: [item], currentOperator: reviewerOp }),
+        React.createElement(
+          AdminAuthProvider,
+          null,
+          React.createElement(ReviewQueueView, { initialItems: [item], currentOperator: reviewerOp }),
+        ),
       );
 
       expect(markup).toContain('Hàng Đợi Kiểm Duyệt Nội Dung');
