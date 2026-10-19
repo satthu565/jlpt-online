@@ -33,8 +33,21 @@ Worker sửa và commit trong clone riêng; coordinator push/PR/merge bằng cre
 - Sáu coding worker độc lập với service app `worker`, `media-worker` và `API_WORKERS`; không tạo `apps/ocr-worker`.
 - Các phần SRS, mix, scoring là hàm thuần; AI không quyết định điểm thi.
 - Toàn bộ UI vi/ja/en có key, không nút giả, trợ năng cơ bản và trạng thái loading/error/empty đúng.
-- Task có E2E, giao diện hoặc thay đổi API mà staging dùng: trước khi nộp REVIEW, chạy `sudo -n /usr/local/bin/jlpt-stage-test` (khoảng 6–10 phút, chạy trên Chromium và Mobile Safari; `full` để chạy đủ 5 trình duyệt và các bộ E2E khác) và chỉ nộp khi kết quả PASS. Lệnh dựng staging giống CI từ mã trong thư mục làm việc (kể cả chưa commit), log ở `/srv/jlpt-stagecheck/<worker>/last.log`. Mỗi lúc chỉ một lượt chạy; nếu đang chờ lượt thì cứ chờ. Lệnh dùng compose của main, nên thay đổi compose trong nhánh vẫn chỉ được CI GitHub kiểm tra.
+- Task có E2E, giao diện hoặc thay đổi API mà staging dùng: trước khi nộp REVIEW, chạy `sudo -n /usr/local/bin/jlpt-stage-test` (khoảng 8–12 phút, chạy trên Chromium, Firefox và Mobile Safari; `full` để chạy đủ 5 trình duyệt và các bộ E2E khác) và chỉ nộp khi kết quả PASS. Lệnh dựng staging giống CI từ mã trong thư mục làm việc (kể cả chưa commit), log ở `/srv/jlpt-stagecheck/<worker>/last.log`. Tối đa hai lượt chạy cùng lúc; nếu đang chờ lượt thì cứ chờ. Lệnh dùng compose của main, nên thay đổi compose trong nhánh vẫn chỉ được CI GitHub kiểm tra.
 - Giao diện chỉ được nộp khi trang đọc và ghi dữ liệu qua API thật. Cấm mảng dữ liệu viết cứng, `ALL_SAMPLE_*`, đăng nhập giả, `page.route` hay mock fetch trong code chạy thật và trong E2E nghiệm thu. Dữ liệu mẫu chỉ được nằm trong file test hoặc seed của API. `pnpm check:no-mock-ui` phải pass. Reviewer trả CHANGES (P1) khi thấy trang trong phạm vi task còn dữ liệu giả, kể cả khi test đơn vị đều đạt.
+
+## Lỗi hay gặp: tự kiểm tra trước khi nộp
+
+Rút từ 54 lần task bị trả về trong ngày 8 (17–19/10). Mỗi lần trả về tốn một vòng 1–1,5 giờ, nên tự soát danh sách này trước khi báo REVIEW:
+
+- Request POST/PUT/PATCH không có body thì không đặt `Content-Type: application/json` (hoặc gửi `{}`); API Fastify từ chối body rỗng với lỗi "Body cannot be empty when content-type is set to 'application/json'".
+- E2E đăng nhập nhân sự chạy song song trên nhiều trình duyệt dùng chung tài khoản: API từ chối mã TOTP đã dùng ("Mã TOTP đã được sử dụng"). Dùng fixture `tests/playwright/fixtures/staff-auth.fixture.ts` (chờ sang khung 30 giây kế tiếp rồi thử lại), không tự sinh mã ở nơi khác, không tắt kiểm tra chống dùng lại mã ở API.
+- Locator Playwright phải khớp đúng một phần tử (strict mode): dùng `data-testid` cụ thể, `.first()` hoặc kiểm tra số lượng; selector ghép kiểu `a, b` dễ khớp nhiều phần tử.
+- Không bọc bước nghiệm thu trong `if (await x.isVisible())` hay try/catch nuốt lỗi: E2E phải thất bại khi bước đó không làm được.
+- Khi API lỗi, giao diện hiện thông báo lỗi thật; không quay về dữ liệu mẫu, service trong bộ nhớ hay báo "thành công".
+- Chỉ sửa file trong `allowedPaths` và phần được cấp; không đổi `package.json` gốc, `turbo.json`, `TMPDIR` hay cấu hình test chung để qua kiểm tra. Cần sửa chỗ khác thì ghi vào `blockers`.
+- Trước khi nộp, gộp `origin/main` mới nhất vào nhánh và chạy lại kiểm tra: task khác vừa gộp thường đụng cùng file (api-client, auth-context, integration.spec.ts).
+- CI trên GitHub chạy E2E trên đủ 5 trình duyệt (thêm WebKit desktop và Mobile Chrome); tránh phụ thuộc kích thước màn hình hay thời gian cứng, chờ bằng `expect(...).toBeVisible()` thay vì `waitForTimeout`.
 
 ## Những việc cần chủ dự án
 
