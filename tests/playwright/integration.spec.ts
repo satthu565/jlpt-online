@@ -2128,3 +2128,393 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     }
   });
 });
+
+/**
+ * Real Web Learner Experience, Furigana Toggle, Pacing Warnings, and JLPT Exam Schedules (P04)
+ * Acceptance Criteria:
+ * - Học viên làm đề demo N5 thấy điểm từng phần và đỗ/trượt
+ * - Tắt furigana thì ẩn trên mọi câu, tải lại vẫn giữ
+ * - Cảnh báo nhịp hiện đúng khi chậm hơn mốc trong E2E
+ * - Trang lịch thi hiện dữ liệu quản trị nhập, trống khi chưa có
+ * - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi
+ * - E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt
+ * - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền
+ * - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng; không hiện key dịch thô; kiểm tra cả ba locale vi ja en
+ */
+test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P04)', () => {
+  const artifactDir = path.resolve(process.cwd(), 'playwright-report/artifacts/p04');
+  fs.mkdirSync(artifactDir, { recursive: true });
+
+  const apiUrl = process.env.STAGING_API_URL || 'http://127.0.0.1:4000';
+  const webOrigin = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+
+  const VIEWPORTS = [
+    { name: '390px', width: 390, height: 844 },
+    { name: '1366px', width: 1366, height: 768 },
+  ];
+
+  async function loginAsStudent(page: Page, origin: string) {
+    const studentUser = SEEDED_STAFF_ACCOUNTS.student;
+    await page.goto(`${origin}/dang-nhap`, { waitUntil: 'domcontentloaded' });
+    const emailInput = page.locator('#login-email, input[type="email"]').first();
+    if (await emailInput.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await emailInput.fill(studentUser.email);
+      await page.locator('#login-password, input[type="password"]').first().fill(studentUser.password);
+      await page.locator('button[type="submit"]').click();
+      await page.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 15000, waitUntil: 'domcontentloaded' });
+    }
+  }
+
+  test('AC1 & AC2: Learner takes demo N5 exam, views sectional scoring & pass/fail, toggles furigana with persistence', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    const clientIp = getProjectClientIp(testInfo, 81);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    // Step 0: Log in as verified student to ensure valid exam session
+    await loginAsStudent(page, webOrigin);
+
+    // Step 1: Open demo N5 exam room
+    await page.goto(`${webOrigin}/phong-thi?examId=demo-n5-1`);
+    const modalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
+    try {
+      await modalBtn.waitFor({ state: 'visible', timeout: 6000 });
+      await modalBtn.click();
+    } catch {
+      const cardBtn = page.locator('[data-testid="exam-card-start-btn"], button:has-text("Bắt đầu làm bài")').first();
+      await expect(cardBtn).toBeVisible({ timeout: 15000 });
+      await cardBtn.click();
+      await modalBtn.waitFor({ state: 'visible', timeout: 10000 });
+      await modalBtn.click();
+    }
+
+    // Step 2: Answer option 1 on question 1
+    await expect(page.locator('[role="radiogroup"], [data-testid="exam-room"], main').first()).toBeVisible({ timeout: 15000 });
+    const firstOption = page.locator('[role="radio"]').first();
+    if (await firstOption.isVisible()) {
+      await firstOption.click();
+    }
+
+    // Step 3: Submit exam
+    const submitBtn = page.locator('button:has-text("Nộp bài")').first();
+    await expect(submitBtn).toBeVisible({ timeout: 10000 });
+    await submitBtn.click();
+
+    // Step 4: Confirm in EarlySubmitModal
+    const confirmBtn = page.locator('button:has-text("Xác nhận nộp bài")').first();
+    await expect(confirmBtn).toBeVisible({ timeout: 10000 });
+    await confirmBtn.click();
+
+    // Step 5: Verify result link and navigate to /ket-qua/[attemptId]
+    const viewResultLink = page.locator('a[href*="/ket-qua/"]').first();
+    await expect(viewResultLink).toBeVisible({ timeout: 20000 });
+    const resultHref = await viewResultLink.getAttribute('href');
+    expect(resultHref).toBeTruthy();
+
+    await page.goto(`${webOrigin}${resultHref}`);
+    await expect(page.locator('[data-testid="score-summary-card"]')).toBeVisible({ timeout: 15000 });
+
+    // AC1 Assertions: Sectional scores, pass/fail status, and estimation disclaimer
+    const passStatusEl = page.locator('[data-testid="score-pass-status"]');
+    await expect(passStatusEl).toBeVisible();
+    const passStatusText = await passStatusEl.innerText();
+    expect(passStatusText).toMatch(/ĐỖ|TRƯỢT|CHƯA ĐẠT/);
+
+    const estimateLabel = page.locator('[data-testid="scoring-estimate-label"]').first();
+    await expect(estimateLabel).toBeVisible();
+    expect(await estimateLabel.innerText()).toContain('ước lượng');
+
+    // Section scaled score cards
+    const sectionCards = page.locator('[data-testid="section-scaled-score"]');
+    expect(await sectionCards.count()).toBeGreaterThan(0);
+
+    // AC2: Furigana toggle button in review mode
+    const furiganaBtn = page.locator('[data-testid="toggle-furigana-btn"]').first();
+    await expect(furiganaBtn).toBeVisible({ timeout: 10000 });
+
+    // Find any ruby rt elements rendered on the page
+    const rubyRtLocator = page.locator('.jlpt-ruby-rt');
+    const hasRuby = await rubyRtLocator.count() > 0;
+
+    // Toggle furigana OFF
+    await furiganaBtn.click();
+    await page.waitForTimeout(300);
+
+    // Assert document has data-furigana="off"
+    const docFuriganaOff = await page.evaluate(() => document.documentElement.getAttribute('data-furigana'));
+    expect(docFuriganaOff).toBe('off');
+
+    if (hasRuby) {
+      await expect(rubyRtLocator.first()).toBeHidden();
+    }
+
+    // Reload page to verify persistence across reloads
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="score-summary-card"]')).toBeVisible({ timeout: 15000 });
+
+    const docFuriganaPersisted = await page.evaluate(() => document.documentElement.getAttribute('data-furigana'));
+    expect(docFuriganaPersisted).toBe('off');
+
+    const furiganaBtnAfterReload = page.locator('[data-testid="toggle-furigana-btn"]').first();
+    await expect(furiganaBtnAfterReload).toBeVisible();
+    expect(await furiganaBtnAfterReload.innerText()).toContain('TẮT');
+
+    if (hasRuby) {
+      await expect(rubyRtLocator.first()).toBeHidden();
+    }
+
+    // Toggle furigana back ON
+    await furiganaBtnAfterReload.click();
+    await page.waitForTimeout(300);
+    const docFuriganaOn = await page.evaluate(() => document.documentElement.getAttribute('data-furigana'));
+    expect(docFuriganaOn).toBe('on');
+    if (hasRuby) {
+      await expect(rubyRtLocator.first()).toBeVisible();
+    }
+  });
+
+  test('AC3: Pacing warnings appear when slower than milestone in practice mode; discreet milestone shown in real mode', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    const clientIp = getProjectClientIp(testInfo, 82);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    // Step 0: Log in as verified student
+    await loginAsStudent(page, webOrigin);
+
+    // Test 1: Practice Mode displays prominent pacing-warning when behind schedule
+    await page.goto(`${webOrigin}/phong-thi?examId=demo-n5-1&mode=practice`);
+    const practiceModalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
+    try {
+      await practiceModalBtn.waitFor({ state: 'visible', timeout: 5000 });
+      await practiceModalBtn.click();
+    } catch {
+      const cardBtn = page.locator('[data-testid="exam-card-start-btn"], button:has-text("Bắt đầu làm bài")').first();
+      await expect(cardBtn).toBeVisible({ timeout: 15000 });
+      await cardBtn.click();
+      await practiceModalBtn.waitFor({ state: 'visible', timeout: 10000 });
+      await practiceModalBtn.click();
+    }
+
+    await expect(page.locator('[role="radiogroup"], [data-testid="exam-room"], main').first()).toBeVisible({ timeout: 15000 });
+
+    // Simulate elapsed time being behind schedule (+180 seconds past target benchmark)
+    await page.evaluate(() => {
+      const originalNow = Date.now;
+      Date.now = () => originalNow() + 180_000;
+    });
+
+    // Wait for periodic pacing evaluation interval (2000ms tick)
+    await page.waitForTimeout(2500);
+
+    // Prominent pacing warning banner appears
+    const pacingWarning = page.locator('[data-testid="pacing-warning"]');
+    await expect(pacingWarning).toBeVisible({ timeout: 10000 });
+    const warningText = await pacingWarning.innerText();
+    expect(warningText).toContain('chậm hơn');
+
+    // Submit practice exam to clear active attempt
+    const submitBtn = page.locator('button:has-text("Nộp bài")').first();
+    await expect(submitBtn).toBeVisible({ timeout: 10000 });
+    await submitBtn.click();
+    const confirmBtn = page.locator('button:has-text("Xác nhận nộp bài")').first();
+    await expect(confirmBtn).toBeVisible({ timeout: 10000 });
+    await confirmBtn.click();
+    await expect(page.locator('a[href*="/ket-qua/"]').first()).toBeVisible({ timeout: 15000 });
+
+    // Test 2: Real Exam Mode displays discreet milestone indicator
+    await page.goto(`${webOrigin}/phong-thi?examId=demo-n5-1&mode=real`);
+    const modalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
+    try {
+      await modalBtn.waitFor({ state: 'visible', timeout: 5000 });
+      await modalBtn.click();
+    } catch {
+      const cardBtn = page.locator('[data-testid="exam-card-start-btn"], button:has-text("Bắt đầu làm bài")').first();
+      await expect(cardBtn).toBeVisible({ timeout: 15000 });
+      await cardBtn.click();
+      await modalBtn.waitFor({ state: 'visible', timeout: 10000 });
+      await modalBtn.click();
+    }
+
+    // In real mode, discreet milestone indicator is displayed
+    await expect(page.locator('[data-testid="discreet-pacing-milestone"]')).toBeVisible({ timeout: 15000 });
+
+    // Clean up real exam attempt
+    const submitRealBtn = page.locator('button:has-text("Nộp bài")').first();
+    if (await submitRealBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await submitRealBtn.click();
+      const confirmRealBtn = page.locator('button:has-text("Xác nhận nộp bài")').first();
+      if (await confirmRealBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await confirmRealBtn.click();
+        await expect(page.locator('a[href*="/ket-qua/"]').first()).toBeVisible({ timeout: 15000 });
+      }
+    }
+  });
+
+  test('AC4: Exam schedule page (/lich-thi) displays admin published data and handles empty state and reminders', async ({
+    page,
+    request,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    const clientIp = getProjectClientIp(testInfo, 83);
+    const ipHeaders = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+    await page.setExtraHTTPHeaders(ipHeaders);
+
+    // Step 1: Check existing published schedules via public endpoint
+    const listRes = await request.get(`${apiUrl}/api/v1/jlpt-schedules`, { headers: ipHeaders });
+    const listData = await listRes.json().catch(() => ({ items: [] }));
+    const hasExisting = (listData.items && listData.items.length > 0) || (Array.isArray(listData) && listData.length > 0);
+
+    // If no existing schedules, open page to verify empty state first
+    if (!hasExisting) {
+      await page.goto(`${webOrigin}/lich-thi`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('[data-testid="schedule-page-title"]')).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('[data-testid="schedule-empty-state"]')).toBeVisible({ timeout: 10000 });
+
+      // Create and publish a schedule via Admin API with TOTP header
+      const adminUser = SEEDED_STAFF_ACCOUNTS.admin;
+      const adminAuth = await authenticateStaffAccount(adminUser, apiUrl, clientIp);
+      const validTotp = await getSynchronizedTotp(adminUser.totpSecret, adminUser.email);
+      const adminHeaders = {
+        ...ipHeaders,
+        Authorization: `Bearer ${adminAuth.token}`,
+        'x-totp-code': validTotp,
+        'Content-Type': 'application/json',
+      };
+
+      const createRes = await request.post(`${apiUrl}/api/v1/admin/jlpt-schedules`, {
+        headers: adminHeaders,
+        data: {
+          title: 'Kỳ thi JLPT Quốc tế 2026 tại Việt Nam',
+          examDate: '2026-12-06',
+          registrationDeadline: '2026-09-15T17:00:00.000Z',
+          registrationOpensAt: '2026-08-01T08:00:00.000Z',
+          locations: [
+            { city: 'Hà Nội', name: 'Đại học Ngoại ngữ - ĐHQGHN', address: 'Số 2 Phạm Văn Đồng, Cầu Giấy', link: 'https://ulis.vnu.edu.vn' },
+            { city: 'Hồ Chí Minh', name: 'Đại học KHXH&NV TP.HCM', address: '10-12 Đinh Tiên Hoàng, Q.1' },
+          ],
+          officialUrl: 'https://jlpt.jp',
+          levels: ['N1', 'N2', 'N3', 'N4', 'N5'],
+          notes: 'Thí sinh đăng ký hồ sơ trực tuyến theo thông báo chính thức từ ban tổ chức.',
+        },
+      });
+
+      const created = await createRes.json();
+      if (created.id) {
+        await request.post(`${apiUrl}/api/v1/admin/jlpt-schedules/${created.id}/publish`, {
+          headers: adminHeaders,
+        });
+      }
+    }
+
+    // Step 2: Open /lich-thi as a learner
+    await page.goto(`${webOrigin}/lich-thi`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="schedule-page-title"]')).toBeVisible({ timeout: 15000 });
+
+    // Step 3: Assert schedule list or empty state according to data
+    const scheduleList = page.locator('[data-testid="schedule-list"]');
+    const emptyState = page.locator('[data-testid="schedule-empty-state"]');
+    await expect(scheduleList.or(emptyState)).toBeVisible({ timeout: 15000 });
+
+    if (await scheduleList.isVisible()) {
+      const scheduleTitle = page.locator('[data-testid="schedule-title"]').first();
+      await expect(scheduleTitle).toBeVisible();
+
+      const examDate = page.locator('[data-testid="schedule-exam-date"]').first();
+      await expect(examDate).toBeVisible();
+
+      const regDeadline = page.locator('[data-testid="schedule-registration-deadline"]').first();
+      await expect(regDeadline).toBeVisible();
+
+      const locations = page.locator('[data-testid="schedule-locations"]').first();
+      await expect(locations).toBeVisible();
+    }
+
+    // Step 4: Test registration reminder toggle
+    const reminderToggle = page.locator('[data-testid="schedule-reminder-toggle"]');
+    await expect(reminderToggle).toBeVisible();
+    await reminderToggle.click();
+
+    const reminderStatus = page.locator('[data-testid="schedule-reminder-status"]');
+    await expect(reminderStatus).toBeVisible({ timeout: 5000 });
+    expect(await reminderStatus.innerText()).toContain('Đã bật nhắc hạn đăng ký');
+
+    // Reload and check reminder toggle persists enabled state
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="schedule-reminder-toggle"]')).toBeVisible({ timeout: 10000 });
+    expect(await page.locator('[data-testid="schedule-reminder-toggle"]').getAttribute('aria-pressed')).toBe('true');
+  });
+
+  test('AC5: Viewports (390px, 1366px), zero horizontal overflow, and screenshot capture for P04', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    const clientIp = getProjectClientIp(testInfo, 84);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    const isMobileDevice = Boolean(testInfo.project.use?.isMobile);
+    const viewportsToTest = isMobileDevice
+      ? VIEWPORTS.filter((v) => v.width <= 500)
+      : VIEWPORTS;
+
+    for (const vp of viewportsToTest) {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+
+      await page.goto(`${webOrigin}/lich-thi`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('[data-testid="schedule-page-title"]')).toBeVisible({ timeout: 15000 });
+      await page.waitForTimeout(200);
+
+      // Verify zero horizontal scroll
+      const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+      const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+      expect(scrollWidth, `Horizontal scroll detected on /lich-thi at ${vp.name}`).toBeLessThanOrEqual(clientWidth + 1);
+
+      // Capture screenshot artifact
+      await page.screenshot({
+        path: path.join(artifactDir, `p04-lich-thi-${vp.name}.png`),
+        fullPage: true,
+      });
+    }
+  });
+
+  test('AC6: Tri-locale i18n verification (vi, ja, en) without raw translation keys for P04', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    const clientIp = getProjectClientIp(testInfo, 85);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    const locales = ['vi', 'ja', 'en'];
+
+    for (const locale of locales) {
+      await page.evaluate((l) => {
+        try {
+          localStorage.setItem('jlpt_locale', l);
+          document.cookie = `NEXT_LOCALE=${l}; path=/; SameSite=Lax`;
+          document.cookie = `jlpt_locale=${l}; path=/; SameSite=Lax`;
+        } catch {
+          // ignore storage error
+        }
+      }, locale);
+
+      await page.goto(`${webOrigin}/lich-thi`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('[data-testid="schedule-page-title"]')).toBeVisible({ timeout: 15000 });
+      await page.waitForTimeout(100);
+
+      const bodyText = await page.innerText('body');
+      // Assert no unparsed raw translation keys
+      expect(
+        bodyText,
+        `Raw translation key found on /lich-thi in locale [${locale}]`,
+      ).not.toMatch(/\b(schedules|common|theme|locale|a11y|exam)\.[a-zA-Z0-9_.-]+\b/);
+
+      // Capture artifact per locale
+      await page.screenshot({
+        path: path.join(artifactDir, `p04-lich-thi-1366px-${locale}.png`),
+      });
+    }
+  });
+});
+

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@jlpt/ui';
+import { Button, FuriganaToggle } from '@jlpt/ui';
 
 export type JapaneseFontSize = 'sm' | 'base' | 'lg' | 'xl';
 
@@ -63,8 +63,10 @@ export function ExamToolbar({
         </div>
       </div>
 
-      {/* Right: Zen Mode, Speaker test, Shortcuts help */}
+      {/* Right: Furigana toggle, Zen Mode, Speaker test, Shortcuts help */}
       <div className="flex items-center gap-2">
+        <FuriganaToggle size="sm" />
+
         {hasListeningTimeline && (
           <Button
             type="button"

@@ -21,6 +21,7 @@
       "pricing": "プラン料金",
       "vocabulary": "語彙",
       "grammar": "文法",
+      "schedules": "JLPT日程",
       "more": "その他"
     },
     "footer": {
@@ -28,6 +29,7 @@
       "levels": "レベル N1–N5",
       "vocabAndGrammar": "語彙・文法",
       "vocabStats": "語彙統計",
+      "schedules": "JLPT日程",
       "technicalSupport": "テクニカルサポート",
       "terms": "利用規約",
       "privacy": "プライバシーポリシー",
@@ -923,5 +925,25 @@
       "toExams": "問題集ライブラリへ",
       "toPractice": "練習問題を解く"
     }
+  },
+  "schedules": {
+    "title": "ベトナムにおけるJLPT試験日程",
+    "subtitle": "ベトナム国内の公式JLPT試験日程、会場および申込締切情報",
+    "loading": "JLPT試験日程を読み込み中...",
+    "empty": "公開されている試験日程はまだありません。",
+    "emptyDescription": "主催者による新規日程の発表をお待ちください。申込締切リマインダーもご利用いただけます。",
+    "errorTitle": "試験日程の読み込みに失敗しました",
+    "examDate": "試験日",
+    "registrationDeadline": "申込締切",
+    "registrationOpens": "申込開始",
+    "locations": "試験会場",
+    "levels": "開催レベル",
+    "officialLink": "公式申込サイト",
+    "reminderToggle": "申込締切リマインダーを受け取る",
+    "reminderEnabled": "リマインダーをオンにしました",
+    "reminderDisabled": "リマインダーをオフにしました",
+    "filterLevel": "レベルで絞り込み",
+    "allLevels": "すべてのレベル",
+    "notes": "主催者からの注意事項"
   }
 }

@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import type { PublicExamSnapshot } from '@jlpt/schema';
 import { flattenExamQuestions } from '../../exam/utils/flatten-questions';
-import { RichTextView, PassageView, Button, Alert } from '@jlpt/ui';
+import { RichTextView, PassageView, Button, Alert, FuriganaToggle, useFurigana } from '@jlpt/ui';
 import { ExplanationView } from '../../explanations/components/explanation-view';
 import type { LearnerExplanation } from '../../explanations/types';
 import type { ExamApiClient } from '../../exam';
@@ -37,6 +37,7 @@ export function PracticeRunner({
   className = '',
 }: PracticeRunnerProps): React.JSX.Element {
   const flatQuestions = flattenExamQuestions(snapshot);
+  const [showFurigana] = useFurigana();
   const [currentIndex, setCurrentIndex] = useState(() => {
     if (initialAnswers && Array.isArray(initialAnswers)) {
       const firstUnanswered = initialAnswers.findIndex((a) => a === 0);
@@ -282,6 +283,7 @@ export function PracticeRunner({
         </div>
 
         <div className="flex items-center gap-2">
+          <FuriganaToggle size="sm" />
           <Button
             variant="ghost"
             size="sm"
@@ -310,12 +312,12 @@ export function PracticeRunner({
 
       {/* Passage if present */}
       {currentQ.passage && currentQ.passage.length > 0 && (
-        <PassageView passage={currentQ.passage} className="mb-4" />
+        <PassageView passage={currentQ.passage} showFurigana={showFurigana} className="mb-4" />
       )}
 
       {/* Stem */}
       <div className="text-lg font-japanese leading-relaxed text-slate-900 dark:text-slate-100 p-2">
-        <RichTextView segments={currentQ.stem} />
+        <RichTextView segments={currentQ.stem} showFurigana={showFurigana} />
       </div>
 
       {/* Options List */}
@@ -358,7 +360,7 @@ export function PracticeRunner({
                 {opt.label}
               </span>
               <div className="flex-1 pt-1 font-japanese text-base leading-relaxed">
-                <RichTextView segments={opt.content} />
+                <RichTextView segments={opt.content} showFurigana={showFurigana} />
               </div>
             </Button>
           );

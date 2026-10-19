@@ -24,7 +24,8 @@ import { LeaseConflictModal } from './modals/lease-conflict-modal';
 import { SpeakerTestModal } from './modals/speaker-test-modal';
 import { ShortcutsHelpModal } from './modals/shortcuts-help-modal';
 import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts';
-import { Button } from '@jlpt/ui';
+import { Button, useFurigana } from '@jlpt/ui';
+import { evaluatePacing } from '../pacing';
 
 export interface ExamRoomProps {
   snapshot: PublicExamSnapshot;
@@ -132,6 +133,65 @@ export function ExamRoom({
   const lastQuestionOfSection = currentSection ? currentSection.questionRange[1] : totalQuestions - 1;
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(firstQuestionOfSection);
+
+  // Furigana toggle preference (P04)
+  const [showFurigana] = useFurigana();
+
+  // Time tracking per question in milliseconds (P04)
+  const questionTimesRef = useRef<number[]>(new Array(totalQuestions).fill(0));
+  const lastActiveTimeRef = useRef<number>(Date.now());
+  const activeQIdxRef = useRef<number>(currentQuestionIndex);
+
+  // Update time spent when active question changes
+  useEffect(() => {
+    const now = Date.now();
+    const prevIdx = activeQIdxRef.current;
+    if (prevIdx >= 0 && prevIdx < totalQuestions) {
+      const elapsed = now - lastActiveTimeRef.current;
+      questionTimesRef.current[prevIdx] = (questionTimesRef.current[prevIdx] || 0) + elapsed;
+    }
+    lastActiveTimeRef.current = now;
+    activeQIdxRef.current = currentQuestionIndex;
+  }, [currentQuestionIndex, totalQuestions]);
+
+  // Periodic tick for real-time pacing evaluation
+  const [nowTick, setNowTick] = useState<number>(() => Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNowTick(Date.now());
+    }, 2000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const pacingEvaluation = useMemo(() => {
+    try {
+      const secStartStr = sectionStartTimes[currentSectionIndex] || initialServerNow;
+      const secStartTime = new Date(secStartStr).getTime();
+      const elapsedSec = Math.max(0, Math.floor((nowTick - secStartTime) / 1000));
+      const qInSection = Math.max(1, currentQuestionIndex - firstQuestionOfSection + 1);
+      const secCode = currentSection?.code || currentSection?.title || 'vocab';
+      const secDuration = currentSection?.durationSec;
+
+      return evaluatePacing({
+        level: snapshot.level,
+        sectionCode: secCode,
+        currentQuestionIndex: qInSection,
+        elapsedSec,
+        totalDurationSec: secDuration,
+      });
+    } catch {
+      return null;
+    }
+  }, [
+    snapshot.level,
+    currentSectionIndex,
+    sectionStartTimes,
+    initialServerNow,
+    nowTick,
+    currentQuestionIndex,
+    firstQuestionOfSection,
+    currentSection,
+  ]);
 
   // Sync Engine Ref
   const engineRef = useRef<ExamSyncEngine | null>(null);
@@ -269,11 +329,21 @@ export function ExamRoom({
         await engineRef.current.flush();
       }
 
+      // Flush current active question time
+      const now = Date.now();
+      const prevIdx = activeQIdxRef.current;
+      if (prevIdx >= 0 && prevIdx < totalQuestions) {
+        const elapsed = now - lastActiveTimeRef.current;
+        questionTimesRef.current[prevIdx] = (questionTimesRef.current[prevIdx] || 0) + elapsed;
+      }
+      const finalTimeSpentMs = [...questionTimesRef.current];
+
       const res = await apiClient.submitAttempt(attemptId, {
         lease,
         seq: (engineRef.current?.getCurrentSeq() ?? 0) + 1,
         answers,
         flags,
+        timeSpentMs: finalTimeSpentMs,
       });
 
       await storage.clearAttempt(attemptId);
@@ -332,6 +402,16 @@ export function ExamRoom({
           </div>
 
           <div className="flex items-center gap-3">
+            {mode === 'real' && pacingEvaluation?.currentMilestone && (
+              <div
+                data-testid="discreet-pacing-milestone"
+                className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-mono bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700"
+                title="Mốc tiến độ chuẩn JLPT"
+              >
+                <span>🎯 Mốc {pacingEvaluation.currentMilestone.label || `Câu ${firstQuestionOfSection + pacingEvaluation.currentMilestone.targetQuestionIndex}`} ({Math.round(pacingEvaluation.currentMilestone.targetElapsedSec / 60)}p)</span>
+              </div>
+            )}
+
             <SyncStatusIndicator
               syncState={syncState}
               onRetry={() => engineRef.current?.flush()}
@@ -416,6 +496,18 @@ export function ExamRoom({
         {/* Left column: Question view + Navigation */}
         <div className={`${isZenMode ? 'lg:col-span-12' : 'lg:col-span-8'} flex flex-col justify-between`}>
           <div>
+            {/* Pacing Warning in Practice Mode (P04) */}
+            {mode === 'practice' && pacingEvaluation && (pacingEvaluation.paceStatus === 'BEHIND' || pacingEvaluation.paceStatus === 'CRITICAL') && (
+              <div
+                data-testid="pacing-warning"
+                className="mb-4 p-3.5 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 text-xs font-semibold flex items-center gap-2 shadow-xs"
+                role="alert"
+              >
+                <span className="text-base" aria-hidden="true">⏱️</span>
+                <span className="flex-1">{pacingEvaluation.message}</span>
+              </div>
+            )}
+
             {currentQ ? (
               <QuestionView
                 question={currentQ}
@@ -425,6 +517,7 @@ export function ExamRoom({
                 onToggleFlag={handleToggleFlag}
                 fontSize={fontSize}
                 showKeyboardHints={true}
+                showFurigana={showFurigana}
               />
             ) : (
               <div className="p-8 text-center text-slate-500">Đang tải câu hỏi...</div>

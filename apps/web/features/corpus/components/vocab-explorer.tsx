@@ -187,10 +187,18 @@ export function VocabExplorer({
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="text-xl font-bold font-japanese text-slate-900 dark:text-slate-100">
                     {item.term}
                   </h3>
+                  {item.hanViet && (
+                    <span
+                      data-testid="vocab-hanviet"
+                      className="text-xs font-semibold px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800"
+                    >
+                      {item.hanViet}
+                    </span>
+                  )}
                   <span className="text-xs font-japanese text-slate-500">
                     【{item.reading}】
                   </span>
