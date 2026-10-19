@@ -876,6 +876,25 @@
       "defaultMessage": "Not enough questions matching selected filters.",
       "mixDefaultMessage": "Not enough questions from specified sources."
     },
+    "inProgress": {
+      "title": "In-Progress Practice Sessions",
+      "subtitle": "Resume your ongoing practice anytime to complete your study session.",
+      "resume": "Resume Practice",
+      "answered": "{answered} of {total} questions answered",
+      "empty": "No in-progress practice sessions.",
+      "loading": "Checking in-progress sessions..."
+    },
+    "shared": {
+      "title": "Shared Exam",
+      "subtitle": "Multi-source mixed JLPT exam shared with immutable seed and question structure.",
+      "level": "Level: {level}",
+      "questions": "Questions: {count}",
+      "expiresAt": "Expires at: {date}",
+      "start": "Start Exam Now",
+      "loading": "Loading shared exam...",
+      "notFound": "Shared exam link does not exist or has expired.",
+      "backToPractice": "Back to Practice"
+    },
     "errors": {
       "createPracticeFailed": "Failed to create practice exam (Code: {status})",
       "createMixFailed": "Failed to create mixed exam (Code: {status})",

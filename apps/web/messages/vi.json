@@ -876,6 +876,25 @@
       "defaultMessage": "Không đủ câu hỏi theo điều kiện lọc đã chọn.",
       "mixDefaultMessage": "Không đủ câu hỏi từ các nguồn được chỉ định."
     },
+    "inProgress": {
+      "title": "Bài luyện tập đang làm dở",
+      "subtitle": "Tiếp tục bài luyện tập dở dang bất kỳ lúc nào để lưu kết quả.",
+      "resume": "Tiếp tục làm bài",
+      "answered": "Đã làm {answered} / {total} câu",
+      "empty": "Không có bài luyện tập nào đang làm dở.",
+      "loading": "Đang kiểm tra bài luyện tập dở dang..."
+    },
+    "shared": {
+      "title": "Đề thi được chia sẻ",
+      "subtitle": "Đề thi JLPT trộn đa nguồn được chia sẻ với cấu trúc và hạt giống câu hỏi bất biến.",
+      "level": "Cấp độ: {level}",
+      "questions": "Số câu hỏi: {count} câu",
+      "expiresAt": "Hết hạn: {date}",
+      "start": "Vào làm bài ngay",
+      "loading": "Đang tải đề thi được chia sẻ...",
+      "notFound": "Liên kết chia sẻ đề thi không tồn tại hoặc đã hết hạn.",
+      "backToPractice": "Quay lại trang Luyện tập"
+    },
     "errors": {
       "createPracticeFailed": "Lỗi tạo bài luyện tập (Mã lỗi: {status})",
       "createMixFailed": "Lỗi tạo đề trộn (Mã lỗi: {status})",

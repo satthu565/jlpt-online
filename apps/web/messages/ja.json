@@ -876,6 +876,25 @@
       "defaultMessage": "指定されたフィルター条件に合致する問題数が不足しています。",
       "mixDefaultMessage": "指定された出題元からの問題数が不足しています。"
     },
+    "inProgress": {
+      "title": "進行中の演習",
+      "subtitle": "進行中の演習をいつでも再開できます。",
+      "resume": "演習を再開する",
+      "answered": "{total}問中{answered}問回答済み",
+      "empty": "進行中の演習はありません。",
+      "loading": "進行中の演習を確認中..."
+    },
+    "shared": {
+      "title": "共有された試験",
+      "subtitle": "不変のシードで共有されたJLPT模擬試験です。",
+      "level": "レベル: {level}",
+      "questions": "問題数: {count}問",
+      "expiresAt": "有効期限: {date}",
+      "start": "今すぐ受験する",
+      "loading": "共有された試験を読み込み中...",
+      "notFound": "共有リンクが存在しないか、期限切れです。",
+      "backToPractice": "練習ページに戻る"
+    },
     "errors": {
       "createPracticeFailed": "練習問題の生成に失敗しました（エラーコード: {status}）",
       "createMixFailed": "シャッフル試験の生成に失敗しました（エラーコード: {status}）",
