@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Button, Input, Select } from '@jlpt/ui';
 import { AdminGuard } from '../../../lib/ui-guard';
 import { useAdminAuth } from '../../../lib/auth-context';
 import { apiClient } from '../../../lib/api-client';
@@ -113,14 +114,16 @@ export default function MixedExamsPage({ initialExams }: { initialExams?: MixedE
             </p>
           </div>
 
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="sm"
             data-testid="btn-create-mixed-exam"
             onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2.5 bg-blue-600 text-white rounded-md font-semibold text-sm hover:bg-blue-700 transition-colors shadow-xs self-start"
+            className="self-start"
           >
             {t('content.mixedExams.createBtn', locale)}
-          </button>
+          </Button>
         </header>
 
         {isLoading && (
@@ -144,21 +147,18 @@ export default function MixedExamsPage({ initialExams }: { initialExams?: MixedE
 
         {/* Filter bar */}
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-semibold text-gray-700 mr-2">Cấp độ:</span>
+          <span className="text-sm font-semibold text-gray-700 dark:text-slate-300 mr-2">Cấp độ:</span>
           {['all', 'N1', 'N2', 'N3', 'N4', 'N5'].map((lvl) => (
-            <button
+            <Button
               key={lvl}
               type="button"
+              variant={selectedLevel === lvl ? 'primary' : 'secondary'}
+              size="sm"
               data-testid={`filter-level-${lvl}`}
               onClick={() => setSelectedLevel(lvl)}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold border transition-colors ${
-                selectedLevel === lvl
-                  ? 'bg-blue-600 border-blue-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
             >
               {lvl === 'all' ? 'Tất cả' : lvl}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -166,16 +166,16 @@ export default function MixedExamsPage({ initialExams }: { initialExams?: MixedE
         {!isLoading && filtered.length === 0 ? (
           <div
             data-testid="mixed-empty"
-            className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center text-gray-400"
+            className="border-2 border-dashed border-gray-300 dark:border-slate-800 rounded-lg p-12 text-center text-gray-400"
           >
             <p className="mb-4">{t('content.mixedExams.empty', locale)}</p>
-            <button
+            <Button
               type="button"
+              variant="primary"
               onClick={() => setShowCreateModal(true)}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700"
             >
               Tạo đề trộn đầu tiên
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
@@ -183,14 +183,14 @@ export default function MixedExamsPage({ initialExams }: { initialExams?: MixedE
               <div
                 key={exam.id}
                 data-testid={`mixed-exam-card-${exam.id}`}
-                className="bg-white border border-gray-200 rounded-lg p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
+                className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
               >
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className="px-2 py-0.5 rounded text-xs font-bold bg-indigo-100 text-indigo-800">
+                    <span className="px-2 py-0.5 rounded text-xs font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300">
                       {exam.level}
                     </span>
-                    <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-medium">
+                    <span className="text-xs px-2 py-0.5 rounded bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 font-medium">
                       {exam.mode === 'random'
                         ? 'Trộn ngẫu nhiên'
                         : exam.mode === 'weak_points'
@@ -199,8 +199,8 @@ export default function MixedExamsPage({ initialExams }: { initialExams?: MixedE
                     </span>
                     <span className="text-xs text-gray-400">| Seed: {exam.seed}</span>
                   </div>
-                  <h3 className="text-base font-bold text-gray-900">{exam.title}</h3>
-                  <div className="mt-1 text-xs text-gray-500 space-x-3">
+                  <h3 className="text-base font-bold text-gray-900 dark:text-slate-100">{exam.title}</h3>
+                  <div className="mt-1 text-xs text-gray-500 dark:text-slate-400 space-x-3">
                     <span>Số câu: {exam.questionCount}</span>
                     <span>•</span>
                     <span>Tạo lúc: {exam.createdAt}</span>
@@ -219,12 +219,13 @@ export default function MixedExamsPage({ initialExams }: { initialExams?: MixedE
                   >
                     {exam.status === 'active' ? 'Đang hoạt động' : 'Lưu trữ'}
                   </span>
-                  <button
+                  <Button
                     type="button"
-                    className="px-3 py-1.5 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 text-gray-700 font-medium"
+                    variant="secondary"
+                    size="sm"
                   >
                     {t('content.mixedExams.viewDetail', locale)}
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))}
@@ -234,86 +235,88 @@ export default function MixedExamsPage({ initialExams }: { initialExams?: MixedE
         {/* Create Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-lg space-y-4">
-              <h3 data-testid="create-modal-title" className="text-lg font-bold text-gray-900">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-6 max-w-md w-full shadow-lg space-y-4 border border-gray-200 dark:border-slate-800">
+              <h3 data-testid="create-modal-title" className="text-lg font-bold text-gray-900 dark:text-slate-100">
                 Khởi tạo Đề thi Trộn Mới
               </h3>
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                   Tiêu đề đề thi:
                 </label>
-                <input
+                <Input
                   data-testid="input-mixed-title"
                   type="text"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="Ví dụ: Đề Trộn Tổng Hợp N3 Tháng 10"
-                  className="w-full p-2 border border-gray-300 rounded text-sm"
+                  className="w-full"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Cấp độ:</label>
-                  <select
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Cấp độ:</label>
+                  <Select
                     data-testid="select-mixed-level"
                     value={newLevel}
                     onChange={(e) => setNewLevel(e.target.value as 'N1' | 'N2' | 'N3' | 'N4' | 'N5')}
-                    className="w-full p-2 border border-gray-300 rounded text-sm"
+                    className="w-full"
                   >
                     <option value="N1">N1</option>
                     <option value="N2">N2</option>
                     <option value="N3">N3</option>
                     <option value="N4">N4</option>
                     <option value="N5">N5</option>
-                  </select>
+                  </Select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Chế độ trộn:</label>
-                  <select
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Chế độ trộn:</label>
+                  <Select
                     data-testid="select-mixed-mode"
                     value={newMode}
                     onChange={(e) => setNewMode(e.target.value as 'random' | 'weak_points' | 'by_mondai')}
-                    className="w-full p-2 border border-gray-300 rounded text-sm"
+                    className="w-full"
                   >
                     <option value="random">Ngẫu nhiên chuẩn</option>
                     <option value="weak_points">Tập trung điểm yếu</option>
                     <option value="by_mondai">Theo mondai</option>
-                  </select>
+                  </Select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Số lượng câu hỏi:</label>
-                <input
+                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Số lượng câu hỏi:</label>
+                <Input
                   data-testid="input-mixed-count"
                   type="number"
                   value={newCount}
                   onChange={(e) => setNewCount(Number(e.target.value))}
                   min={10}
                   max={100}
-                  className="w-full p-2 border border-gray-300 rounded text-sm"
+                  className="w-full"
                 />
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
+                  size="md"
                   data-testid="btn-cancel-create-mixed"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 bg-gray-100 border border-gray-300 rounded text-sm font-medium hover:bg-gray-200"
                 >
                   Hủy
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="primary"
+                  size="md"
                   data-testid="btn-submit-create-mixed"
                   onClick={handleCreate}
-                  className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700"
                 >
                   Tạo đề
-                </button>
+                </Button>
               </div>
             </div>
           </div>

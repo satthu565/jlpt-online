@@ -2,7 +2,7 @@
 
 import React from 'react';
 import type { FlatQuestionItem } from '../types';
-import { RichTextView, PassageView } from '@jlpt/ui';
+import { RichTextView, PassageView, Button } from '@jlpt/ui';
 import type { JapaneseFontSize } from './exam-toolbar';
 
 export interface QuestionViewProps {
@@ -91,8 +91,10 @@ export function QuestionView({
         </div>
 
         {/* EXAM-14: Bookmark / Flag question for review */}
-        <button
+        <Button
           type="button"
+          size="sm"
+          variant="outline"
           onClick={onToggleFlag}
           disabled={question.isLocked}
           aria-pressed={isFlagged}
@@ -115,7 +117,7 @@ export function QuestionView({
           </svg>
           <span>{isFlagged ? 'Đã đánh dấu' : 'Đánh dấu xem lại'}</span>
           {showKeyboardHints && <kbd className="text-[10px] opacity-70 ml-1">F</kbd>}
-        </button>
+        </Button>
       </div>
 
       {/* Illustration image if available (AUDIO-02, AUDIO-03) */}
@@ -148,15 +150,16 @@ export function QuestionView({
           const isSelected = selectedOption === optionValue;
 
           return (
-            <button
+            <Button
               key={optIdx}
               type="button"
               role="radio"
+              variant="outline"
               aria-checked={isSelected}
               disabled={question.isLocked}
               onClick={() => handleOptionClick(optionValue)}
               aria-label={`Lựa chọn ${opt.label} (Phím ${optionValue})`}
-              className={`w-full text-left p-4 rounded-xl border transition-all flex items-start gap-4 ${
+              className={`w-full justify-start text-left p-4 rounded-xl border transition-all flex items-start gap-4 min-h-[56px] h-auto whitespace-normal ${
                 isSelected
                   ? 'border-blue-600 dark:border-blue-500 bg-blue-50/70 dark:bg-blue-950/40 text-blue-950 dark:text-blue-100 shadow-sm ring-1 ring-blue-500/30'
                   : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 text-slate-800 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-800/30'
@@ -184,7 +187,7 @@ export function QuestionView({
               <div className={`flex-1 pt-1 font-japanese ${optionFontSizeClass} leading-relaxed`}>
                 <RichTextView segments={opt.content} />
               </div>
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -192,13 +195,15 @@ export function QuestionView({
       {selectedOption > 0 && !question.isLocked && (
         <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
           <span>Click vào phương án đang chọn hoặc phím số tương ứng để bỏ chọn.</span>
-          <button
+          <Button
             type="button"
+            variant="link"
+            size="sm"
             onClick={() => onSelectOption(0)}
-            className="text-slate-500 hover:text-slate-700 underline"
+            className="text-slate-500 hover:text-slate-700 underline text-xs min-h-0"
           >
             Bỏ chọn đáp án
-          </button>
+          </Button>
         </div>
       )}
     </article>

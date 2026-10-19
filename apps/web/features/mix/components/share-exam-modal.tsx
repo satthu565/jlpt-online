@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Modal, Button } from '@jlpt/ui';
+import { Modal, Button, Input } from '@jlpt/ui';
 
 export interface ShareExamModalProps {
   isOpen: boolean;
@@ -120,13 +120,13 @@ export function ShareExamModal({
                 Liên kết làm bài:
               </label>
               <div className="flex gap-2">
-                <input
+                <Input
                   id="share-link-input"
                   type="text"
                   readOnly
                   value={shareUrl}
                   data-testid="share-url-input"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono text-slate-900 dark:text-slate-100 focus:outline-none"
+                  className="w-full text-xs font-mono"
                 />
                 <Button
                   type="button"

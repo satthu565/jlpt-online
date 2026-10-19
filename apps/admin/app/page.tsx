@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { Button } from '@jlpt/ui';
 import { AdminGuard } from '../lib/ui-guard';
 import { useAdminAuth } from '../lib/auth-context';
 import { getNavigationSections } from '../lib/navigation';
@@ -142,12 +143,13 @@ export default function AdminDashboardPage(): React.JSX.Element {
             className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-center justify-between"
           >
             <span>{error}</span>
-            <button
+            <Button
+              variant="destructive"
+              size="sm"
               onClick={() => void fetchDashboard()}
-              className="px-3 py-1 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700"
             >
               {t('common.retry', locale)}
-            </button>
+            </Button>
           </div>
         )}
 

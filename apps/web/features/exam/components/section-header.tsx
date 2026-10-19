@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Button } from '@jlpt/ui';
 import type { PublicSection } from '@jlpt/schema';
 
 export interface SectionHeaderProps {
@@ -36,9 +37,10 @@ export function SectionHeader({
             if (isLocked) statusLabel = 'Đã khóa';
 
             return (
-              <button
+              <Button
                 key={sec.code}
                 type="button"
+                variant={isCurrent ? 'primary' : 'secondary'}
                 disabled={isLocked || isUpcoming}
                 onClick={() => onSelectSection?.(idx)}
                 aria-current={isCurrent ? 'step' : undefined}
@@ -73,7 +75,7 @@ export function SectionHeader({
                     Khóa
                   </span>
                 )}
-              </button>
+              </Button>
             );
           })}
         </div>

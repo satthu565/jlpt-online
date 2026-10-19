@@ -142,9 +142,10 @@ export function ClassroomDashboard({
           borderBottom: '1px solid var(--border-subtle)',
         }}
       >
-        <button
+        <Button
           type="button"
           role="tab"
+          variant="ghost"
           aria-selected={activeTab === 'assignments'}
           aria-controls="assignments-panel"
           id="tab-assignments"
@@ -153,21 +154,20 @@ export function ClassroomDashboard({
             padding: '0.75rem 1.25rem',
             fontWeight: 600,
             fontSize: '0.9375rem',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
             color: activeTab === 'assignments' ? 'var(--color-primary)' : 'var(--text-muted)',
             borderBottom: activeTab === 'assignments' ? '2px solid var(--color-primary)' : '2px solid transparent',
             marginBottom: '-1px',
             minHeight: '44px',
+            borderRadius: 0,
           }}
         >
           {t('classroom.dashboard.tabAssignments', { count: String(assignments.length) })}
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
           role="tab"
+          variant="ghost"
           aria-selected={activeTab === 'members'}
           aria-controls="members-panel"
           id="tab-members"
@@ -176,17 +176,15 @@ export function ClassroomDashboard({
             padding: '0.75rem 1.25rem',
             fontWeight: 600,
             fontSize: '0.9375rem',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
             color: activeTab === 'members' ? 'var(--color-primary)' : 'var(--text-muted)',
             borderBottom: activeTab === 'members' ? '2px solid var(--color-primary)' : '2px solid transparent',
             marginBottom: '-1px',
             minHeight: '44px',
+            borderRadius: 0,
           }}
         >
           {t('classroom.dashboard.tabMembers', { count: String(members.length) })}
-        </button>
+        </Button>
       </div>
 
       {/* Active Assignment Analytics Detail View */}

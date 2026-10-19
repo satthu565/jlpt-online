@@ -101,12 +101,12 @@ export function NotificationSettings({
                 cursor: 'pointer',
               }}
             >
-              <input
+              <Input
                 type="checkbox"
                 checked={emailUpdates}
                 onChange={(e) => setEmailUpdates(e.target.checked)}
                 data-testid="toggle-email-updates"
-                style={{ marginTop: '0.25rem' }}
+                style={{ marginTop: '0.25rem', width: '1rem', height: '1rem', minHeight: 'auto' }}
               />
               <div>
                 <span style={{ fontWeight: 600, display: 'block', color: 'var(--text-primary)' }}>
@@ -126,12 +126,12 @@ export function NotificationSettings({
                 cursor: 'pointer',
               }}
             >
-              <input
+              <Input
                 type="checkbox"
                 checked={examReminders}
                 onChange={(e) => setExamReminders(e.target.checked)}
                 data-testid="toggle-exam-reminders"
-                style={{ marginTop: '0.25rem' }}
+                style={{ marginTop: '0.25rem', width: '1rem', height: '1rem', minHeight: 'auto' }}
               />
               <div>
                 <span style={{ fontWeight: 600, display: 'block', color: 'var(--text-primary)' }}>
@@ -151,12 +151,12 @@ export function NotificationSettings({
                 cursor: 'pointer',
               }}
             >
-              <input
+              <Input
                 type="checkbox"
                 checked={studyStreakAlerts}
                 onChange={(e) => setStudyStreakAlerts(e.target.checked)}
                 data-testid="toggle-streak-alerts"
-                style={{ marginTop: '0.25rem' }}
+                style={{ marginTop: '0.25rem', width: '1rem', height: '1rem', minHeight: 'auto' }}
               />
               <div>
                 <span style={{ fontWeight: 600, display: 'block', color: 'var(--text-primary)' }}>

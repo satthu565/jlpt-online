@@ -105,13 +105,15 @@ export function ReviewView({
               Chi tiết bài làm từng câu hỏi ({displayedQuestions.length}/{flatQuestions.length})
             </h3>
             {activeFilter !== 'all' && (
-              <button
+              <Button
                 type="button"
+                variant="link"
+                size="sm"
                 onClick={() => setActiveFilter('all')}
-                className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium p-0 h-auto min-h-0"
               >
                 Hiển thị tất cả
-              </button>
+              </Button>
             )}
           </div>
 

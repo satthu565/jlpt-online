@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Button } from '@jlpt/ui';
 import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 import { apiClient } from '../../lib/api-client';
@@ -145,14 +146,16 @@ export default function QuestionsPage(): React.JSX.Element {
             </p>
           </div>
           {!currentGroup && !isLoading && (
-            <button
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
               data-testid="btn-create-group"
               onClick={handleCreateNewDraft}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 self-start"
+              className="self-start"
             >
               + Tạo nhóm câu hỏi mới
-            </button>
+            </Button>
           )}
         </div>
 
@@ -187,52 +190,46 @@ export default function QuestionsPage(): React.JSX.Element {
         {!isLoading && !currentGroup && (
           <div
             data-testid="questions-empty"
-            className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center text-gray-500"
+            className="border-2 border-dashed border-gray-300 dark:border-slate-800 rounded-lg p-12 text-center text-gray-500"
           >
             <p className="mb-4">{t('content.questions.empty', locale)}</p>
-            <button
+            <Button
               type="button"
+              variant="primary"
               onClick={handleCreateNewDraft}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700"
             >
               Tạo nhóm câu hỏi đầu tiên
-            </button>
+            </Button>
           </div>
         )}
 
         {currentGroup && (
           <>
-            <div className="flex space-x-2 border-b border-gray-200 pb-2">
-              <button
+            <div className="flex space-x-2 border-b border-gray-200 dark:border-slate-800 pb-2">
+              <Button
                 type="button"
+                variant={activeTab === 'editor' ? 'primary' : 'secondary'}
+                size="sm"
                 data-testid="btn-view-editor"
                 onClick={() => setActiveTab('editor')}
-                className={`px-4 py-2 text-sm font-semibold rounded-t-md transition-colors ${
-                  activeTab === 'editor'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
               >
                 {t('content.questions.editorTab', locale)}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant={activeTab === 'preview' ? 'primary' : 'secondary'}
+                size="sm"
                 data-testid="btn-view-preview"
                 onClick={() => setActiveTab('preview')}
-                className={`px-4 py-2 text-sm font-semibold rounded-t-md transition-colors ${
-                  activeTab === 'preview'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
               >
                 {t('content.questions.previewTab', locale)}
-              </button>
+              </Button>
             </div>
 
             {activeTab === 'editor' ? (
               <div className="space-y-6">
-                <div className="bg-white p-5 border border-gray-200 rounded-lg shadow-xs space-y-4">
-                  <h2 className="text-base font-bold text-gray-800">
+                <div className="bg-white dark:bg-slate-900 p-5 border border-gray-200 dark:border-slate-800 rounded-lg shadow-xs space-y-4">
+                  <h2 className="text-base font-bold text-gray-800 dark:text-slate-100">
                     {t('content.questions.stemTitle', locale)}
                   </h2>
                   <RichTextSegmentEditor
@@ -242,8 +239,8 @@ export default function QuestionsPage(): React.JSX.Element {
                   />
                 </div>
 
-                <div className="bg-white p-5 border border-gray-200 rounded-lg shadow-xs space-y-4">
-                  <h2 className="text-base font-bold text-gray-800">
+                <div className="bg-white dark:bg-slate-900 p-5 border border-gray-200 dark:border-slate-800 rounded-lg shadow-xs space-y-4">
+                  <h2 className="text-base font-bold text-gray-800 dark:text-slate-100">
                     {t('content.questions.passageTitle', locale)}
                   </h2>
                   <PassageBlocksEditor
@@ -253,14 +250,15 @@ export default function QuestionsPage(): React.JSX.Element {
                 </div>
 
                 <div className="flex justify-end">
-                  <button
+                  <Button
                     type="button"
+                    variant="primary"
+                    size="md"
                     data-testid="btn-save-group"
                     onClick={handleSaveDraft}
-                    className="px-6 py-2.5 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition-colors shadow-xs"
                   >
                     {t('content.questions.saveBtn', locale)}
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (

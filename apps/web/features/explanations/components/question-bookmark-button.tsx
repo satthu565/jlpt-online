@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Button } from '@jlpt/ui';
 import type { QuestionMarkType } from '../types';
 
 export interface QuestionBookmarkButtonProps {
@@ -44,20 +45,22 @@ export function QuestionBookmarkButton({
   };
 
   return (
-    <button
+    <Button
       type="button"
+      size="sm"
+      variant="outline"
       onClick={handleClick}
       disabled={loading}
       aria-label={bookmarked ? 'Bỏ đánh dấu câu hỏi' : 'Lưu câu hỏi để ôn tập lại'}
       data-testid="question-bookmark-btn"
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 min-h-[32px] h-8 text-xs font-semibold transition-colors ${
         bookmarked
-          ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800'
-          : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+          ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-300 dark:border-amber-800'
+          : 'text-slate-600 dark:text-slate-400'
       } ${className}`}
     >
       <span aria-hidden="true">{bookmarked ? '🔖' : '📑'}</span>
       <span>{bookmarked ? 'Đã lưu' : 'Lưu câu hỏi'}</span>
-    </button>
+    </Button>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { Button } from '@jlpt/ui';
 import { AdminGuard } from '../../../lib/ui-guard';
 import { useAdminAuth } from '../../../lib/auth-context';
 import { t } from '../../../lib/i18n';
@@ -146,12 +147,13 @@ export default function OrgSettingsPage({
             className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-center justify-between"
           >
             <span>{error}</span>
-            <button
+            <Button
+              variant="destructive"
+              size="sm"
               onClick={() => void fetchApplications()}
-              className="px-3 py-1 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700"
             >
               {t('common.retry', locale)}
-            </button>
+            </Button>
           </div>
         )}
 
@@ -167,13 +169,13 @@ export default function OrgSettingsPage({
         )}
 
         <div className="space-y-4">
-          <h2 className="text-lg font-bold text-gray-800">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-slate-200">
             Hồ sơ đăng ký tài khoản Giáo viên ({applications.length})
           </h2>
 
           <div className="grid gap-4">
             {applications.length === 0 ? (
-              <div data-testid="org-empty" className="p-8 bg-white border border-gray-200 rounded-xl text-center text-sm text-gray-400 italic">
+              <div data-testid="org-empty" className="p-8 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl text-center text-sm text-gray-400 italic">
                 {t('common.empty', locale)}
               </div>
             ) : (
@@ -181,11 +183,11 @@ export default function OrgSettingsPage({
                 <div
                   key={app.id}
                   data-testid={`teacher-app-${app.id}`}
-                  className="bg-white border border-gray-200 rounded-xl p-5 flex flex-wrap items-center justify-between gap-4 shadow-xs hover:border-gray-300 transition"
+                  className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-5 flex flex-wrap items-center justify-between gap-4 shadow-xs hover:border-gray-300 dark:hover:border-slate-700 transition"
                 >
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <strong className="text-base text-gray-900 font-bold">{app.applicantName}</strong>
+                      <strong className="text-base text-gray-900 dark:text-slate-100 font-bold">{app.applicantName}</strong>
                       <span className="text-xs text-gray-500">({app.email})</span>
                       <span
                         className={`px-2 py-0.5 rounded-full text-[11px] font-semibold uppercase ${
@@ -199,27 +201,29 @@ export default function OrgSettingsPage({
                         {app.status}
                       </span>
                     </div>
-                    <div className="text-xs text-gray-600">
+                    <div className="text-xs text-gray-600 dark:text-slate-400">
                       Tổ chức: <strong>{app.currentOrg}</strong> | Chứng chỉ: <strong>{app.jlptCertificate}</strong> | Kinh nghiệm: {app.yearsOfExperience} năm
                     </div>
                   </div>
 
                   {app.status === 'pending' && (
                     <div className="flex items-center gap-2">
-                      <button
+                      <Button
                         data-testid={`btn-approve-teacher-${app.id}`}
+                        variant="primary"
+                        size="sm"
                         onClick={() => void handleApprove(app.id)}
-                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-xs"
                       >
                         Duyệt Cấp Quyền
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         data-testid={`btn-reject-teacher-${app.id}`}
+                        variant="destructive"
+                        size="sm"
                         onClick={() => void handleReject(app.id)}
-                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold shadow-xs"
                       >
                         Từ Chối
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </div>

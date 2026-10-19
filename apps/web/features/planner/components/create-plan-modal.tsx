@@ -171,11 +171,12 @@ export function CreatePlanModal({
                     backgroundColor: checked ? 'var(--bg-muted)' : 'transparent',
                   }}
                 >
-                  <input
+                  <Input
                     type="checkbox"
                     checked={checked}
                     onChange={() => toggleSkill(sk)}
                     aria-label={t(`planner.skills.${sk}`)}
+                    className="h-4 w-4 min-h-0 cursor-pointer"
                   />
                   <span style={{ fontSize: '0.875rem' }}>{t(`planner.skills.${sk}`)}</span>
                 </label>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Button, Input, Textarea } from '@jlpt/ui';
 import type { ImportJobSummary, BatchImportSummary, SourcePageResolution, ImportIssue } from './types';
 import { StandalonePdfError } from './types';
 import { ImportManager } from './import-manager';
@@ -430,7 +431,7 @@ export function ImportManagerView({
           {t('content.imports.uploadPrompt', locale)}
         </p>
         <div className="flex flex-col items-center gap-3 w-full max-w-full overflow-hidden">
-          <input
+          <Input
             data-testid="package-file-input"
             type="file"
             multiple
@@ -484,13 +485,15 @@ export function ImportManagerView({
           ) : (
             <div className="text-amber-800 text-sm mt-1">{sourceResolution.error}</div>
           )}
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="sm"
             onClick={() => setSourceResolution(null)}
-            className="mt-2 text-xs px-2 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100"
+            className="mt-2"
           >
             Đóng
-          </button>
+          </Button>
         </div>
       )}
 
@@ -596,31 +599,34 @@ export function ImportManagerView({
                         Chặn duyệt (DRAFT_ONLY)
                       </span>
                     ) : (
-                      <button
+                      <Button
                         type="button"
+                        variant="secondary"
+                        size="sm"
                         data-testid={`submit-review-btn-${job.id}`}
                         onClick={() => handleSubmitJobForReview(job)}
-                        className="px-2 py-1 text-xs bg-blue-50 text-blue-700 border border-blue-200 rounded hover:bg-blue-100 font-medium"
                       >
                         {t('content.imports.submitReviewBtn', locale)}
-                      </button>
+                      </Button>
                     )}
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="sm"
                       data-testid={`resolve-source-btn-${job.id}`}
                       onClick={() => handleResolveSourcePage(job)}
-                      className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100"
                     >
                       {t('content.imports.sourcePage', locale)}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="sm"
                       data-testid={`export-csv-btn-${job.id}`}
                       onClick={() => handleCsvExport(job)}
-                      className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100"
                     >
                       {t('content.imports.exportCsv', locale)}
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))
@@ -642,34 +648,36 @@ export function ImportManagerView({
             <label className="text-xs font-semibold block mb-1 text-gray-700">
               {t('content.imports.csvInputLabel', locale)}
             </label>
-            <textarea
+            <Textarea
               data-testid="csv-input-area"
               rows={5}
               value={csvJsonInput}
               onChange={(e) => setCsvJsonInput(e.target.value)}
               placeholder="groupId,version,level,sectionCode,mondaiType,skill,instructions,sourceRef,sourcePages,status,questionNumber,stem,option1,option2,option3,option4,correctOption,explanation"
-              className="w-full font-mono text-xs p-2 border border-gray-300 rounded bg-white"
+              className="font-mono text-xs"
             />
-            <button
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
               data-testid="import-csv-btn"
               onClick={handleCsvImport}
-              className="mt-2 px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="mt-2"
             >
               {t('content.imports.importCsvBtn', locale)}
-            </button>
+            </Button>
           </div>
           <div>
             <label className="text-xs font-semibold block mb-1 text-gray-700">
               {t('content.imports.csvOutputLabel', locale)}
             </label>
-            <textarea
+            <Textarea
               data-testid="csv-output-area"
               rows={5}
               readOnly
               value={csvExportOutput}
               placeholder="Kết quả xuất CSV sẽ hiển thị ở đây..."
-              className="w-full font-mono text-xs p-2 border border-gray-300 rounded bg-white"
+              className="font-mono text-xs"
             />
           </div>
         </div>
