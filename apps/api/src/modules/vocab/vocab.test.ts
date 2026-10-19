@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
-import { questions, questionGroups, users } from '../../db/schema.js';
+import { datasets, questions, questionGroups, users } from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
-import { CorpusService } from './corpus.service.js';
+import { CorpusService, DEFAULT_CORPUS_DATASET_ID } from './corpus.service.js';
 import { VocabController } from './vocab.controller.js';
 import { VocabService } from './vocab.service.js';
 
@@ -395,18 +395,18 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
   // I11: Route API nhận id sai định dạng trả 400/404, không bao giờ 500
   // ---------------------------------------------------------------------------
   describe('I11: Route API nhận id sai định dạng trả 400/404, không bao giờ 500', () => {
-    it('throws NotFoundException when datasetId is non-UUID (e.g. jlpt-official)', async () => {
-      // Calling getDataset with non-UUID must throw NotFoundException, never 500
-      await expect(vocabController.getDataset('jlpt-official')).rejects.toThrow();
+    it('throws NotFoundException when datasetId is an unknown non-existent ID', async () => {
+      // Calling getDataset with unknown ID must throw NotFoundException, never 500
+      await expect(vocabController.getDataset('0192f000-0000-7000-8000-999999999999')).rejects.toThrow();
 
-      // Calling getDatasetVocabulary with non-UUID must throw NotFoundException, never 500
-      await expect(vocabController.getDatasetVocabulary('jlpt-official')).rejects.toThrow();
+      // Calling getDatasetVocabulary with unknown ID must throw NotFoundException, never 500
+      await expect(vocabController.getDatasetVocabulary('0192f000-0000-7000-8000-999999999999')).rejects.toThrow();
 
-      // Calling getDatasetGrammar with non-UUID must throw NotFoundException, never 500
-      await expect(vocabController.getDatasetGrammar('jlpt-official')).rejects.toThrow();
+      // Calling getDatasetGrammar with unknown ID must throw NotFoundException, never 500
+      await expect(vocabController.getDatasetGrammar('0192f000-0000-7000-8000-999999999999')).rejects.toThrow();
 
-      // Calling getDatasetKanji with non-UUID must throw NotFoundException, never 500
-      await expect(vocabController.getDatasetKanji('jlpt-official')).rejects.toThrow();
+      // Calling getDatasetKanji with unknown ID must throw NotFoundException, never 500
+      await expect(vocabController.getDatasetKanji('0192f000-0000-7000-8000-999999999999')).rejects.toThrow();
     });
 
     it('listDatasets auto-initializes a standard dataset if none exists', async () => {
@@ -414,6 +414,96 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       const res = await vocabController.listDatasets();
       expect(res.items.length).toBeGreaterThan(0);
       expect(res.items[0]?.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // I14: API /api/v1/datasets/jlpt-official/* trả 200, không bao giờ 500
+  // ---------------------------------------------------------------------------
+  describe('I14: API /api/v1/datasets/jlpt-official/* trả 200 cho cả trường hợp chưa có và đã có dataset', () => {
+    it('returns 200 with valid empty list when querying jlpt-official on clean/unseeded state', async () => {
+      // Explicitly test unseeded state where datasets table has 0 records
+      await dbClient.db.delete(datasets);
+
+      // 1. GET /api/v1/datasets/jlpt-official/trends
+      const trends = await vocabController.getYearlyTrends('jlpt-official');
+      expect(trends).toBeDefined();
+      expect(Array.isArray(trends.trends)).toBe(true);
+      expect(trends.topByLevel).toBeDefined();
+
+      // 2. GET /api/v1/datasets/jlpt-official/vocabulary
+      const vocab = await vocabController.getDatasetVocabulary('jlpt-official');
+      expect(vocab).toBeDefined();
+      expect(vocab.total).toBeGreaterThanOrEqual(0);
+      expect(Array.isArray(vocab.items)).toBe(true);
+      expect(Array.isArray(vocab.rankings)).toBe(true);
+
+      // 3. GET /api/v1/datasets/jlpt-official/grammar
+      const grammar = await vocabController.getDatasetGrammar('jlpt-official');
+      expect(grammar).toBeDefined();
+      expect(grammar.totalCount).toBeGreaterThanOrEqual(0);
+      expect(Array.isArray(grammar.items)).toBe(true);
+
+      // 4. GET /api/v1/datasets/jlpt-official/compare/levels
+      const compare = await vocabController.compareLevels('jlpt-official');
+      expect(compare).toBeDefined();
+      expect(compare.datasetId).toBe('jlpt-official');
+      expect(compare.levels).toBeDefined();
+      expect(compare.levels.N5).toBeDefined();
+    });
+
+    it('returns 200 with real ingested data when dataset exists and has exams', async () => {
+      const seededDataset = await corpusService.createDataset({
+        id: DEFAULT_CORPUS_DATASET_ID,
+        slug: 'jlpt-official',
+        name: 'Tập ngữ liệu đề thi JLPT N1–N5',
+        version: '1.0.0',
+      });
+      expect(seededDataset.slug).toBe('jlpt-official');
+
+      // Ingest a package
+      await corpusService.ingestExamPackage('jlpt-official', {
+        packageId: 'pkg-i14-test',
+        source: {
+          name: 'Đề thi N5 2024',
+          level: 'N5',
+          year: 2024,
+          session: '12',
+        },
+        exam: {
+          title: 'JLPT N5 Real Test for I14',
+          groups: [
+            {
+              id: 'g-i14-1',
+              questions: [
+                {
+                  id: 'q-i14-1',
+                  skill: 'vocabulary',
+                  stem: [
+                    { t: 'underline', children: [{ t: 'text', text: '図書館' }] },
+                    { t: 'text', text: 'で本を読みます。' },
+                  ],
+                  options: [{ id: 'opt-1', content: [{ t: 'text', text: 'としょかん' }] }],
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+      // Verify all 4 endpoints return 200 with populated data
+      const vocabRes = await vocabController.getDatasetVocabulary('jlpt-official');
+      expect(vocabRes.total).toBeGreaterThan(0);
+      expect(vocabRes.items.some((i) => i.baseForm === '図書館' || i.baseForm === '本' || i.baseForm === '読む')).toBe(true);
+
+      const grammarRes = await vocabController.getDatasetGrammar('jlpt-official');
+      expect(grammarRes).toBeDefined();
+
+      const compareRes = await vocabController.compareLevels('jlpt-official');
+      expect(compareRes.datasetId).toBe('jlpt-official');
+
+      const trendsRes = await vocabController.getYearlyTrends('jlpt-official');
+      expect(trendsRes).toBeDefined();
     });
   });
 

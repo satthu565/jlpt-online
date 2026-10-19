@@ -496,10 +496,44 @@ task('I15','W4',8,2,'Quản trị: phiên hết hạn phải đưa về trang đ
  'Sau I03, apps/admin/lib/auth-context.tsx không xóa phiên lưu trong trình duyệt khi GET /api/v1/auth/session trả 200 với user = null '
  '(phiên hết hạn hoặc đã đăng xuất ở nơi khác), nên giao diện vẫn hiện như đã đăng nhập trong khi mọi API trả 401. '
  'Xử lý: user null hoặc API trả 401 thì xóa phiên và đưa về /login kèm thông báo; bỏ móc test window.__setAdminLocale và DEFAULT_AUTH_CONTEXT '
- 'giả nếu không cần (useAdminAuth ngoài provider phải báo lỗi rõ).',
+ 'giả nếu không cần (useAdminAuth ngoài provider phải báo lỗi rõ). '
+ 'Lưu ý khi làm lại (lượt 3 trượt staging, Chromium đạt hết, Mobile Safari trượt 14 test): E2E I15 chờ locator ghép main/page-title/header/h1 kèm .first(), nhưng trên điện thoại phần tử đầu tiên là h1 Hệ thống Quản trị JLPT nằm trong thanh menu đang ẩn, nên toBeVisible thất bại dù trang đã đăng nhập đúng. Dùng getByRole main hoặc heading/data-testid riêng trong main, không dùng selector ghép kèm .first(). Kiểm tra lại các E2E quản trị khác trên Mobile Safari sau khi sửa.',
  'apps/admin/',
  'E2E: đăng nhập nhân sự, tải lại trang vẫn đăng nhập|E2E: xóa phiên phía máy chủ (đăng xuất ở tab khác) rồi tải lại hoặc thao tác thì về trang đăng nhập|'+NO_MOCK+'|'+REAL_E2E,
  'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
+# Owner tried a real N3 package (2026-10-19): it validates as DRAFT_ONLY, but POST /imports always uses mode 'ready'.
+task('I16','W2',8,3,'Nhập gói đề ở chế độ nháp (DRAFT_ONLY) qua API và trang quản trị','I03',
+ 'import.controller.ts không truyền mode nên import.service luôn kiểm tra ở chế độ ready và từ chối gói có issue blocking, '
+ 'trái với docs/import-format/README.md (DRAFT_ONLY được lưu nháp, chặn xuất bản). Cho POST /api/v1/admin/imports nhận mode=draft|ready '
+ '(multipart field và JSON body), mặc định ready; gói DRAFT_ONLY lưu thành bản nháp kèm danh sách issue, không vào hàng duyệt/xuất bản cho tới khi '
+ 'nạp lại bản ready cùng packageId với revision cao hơn. Trang nhập gói của quản trị có lựa chọn "Nạp bản nháp", hiện trạng thái DRAFT_ONLY và từng issue '
+ '(mức độ, đường dẫn, lý do). Xuất bản đề từ bản nháp phải bị chặn ở API.',
+ 'apps/api/src/modules/import/',
+ 'Gói fixtures/imports/draft.zip nạp được ở chế độ nháp, trang quản trị hiện issue blocking|Cùng gói ở chế độ ready bị từ chối với thông báo rõ|'
+ 'API chặn duyệt và xuất bản bản nháp (test âm)|Nạp lại bản ready cùng packageId, revision cao hơn thì thay bản nháp|'+NO_MOCK+'|'+REAL_E2E,
+ 'pnpm test|pnpm check:no-mock-ui',contracts='API',grants='apps/admin/features/import/ apps/admin/app/imports/ apps/admin/lib/api-client.ts tests/playwright/')
+# Owner's extraction project now writes Vietnamese explanations into import packages (2026-10-19).
+task('I17','W2',8,3,'Lời giải trong gói nhập đi vào quy trình duyệt và hiện cho học viên','I16',
+ 'import.service lưu question.explanation ({locale, blocks}) vào question_versions.explanation, nhưng trang xem lại bài của học viên và màn duyệt lời giải '
+ 'chỉ đọc explanation_versions (status approved, content.correctReason/wrongReasonsByOption/translation), nên lời giải trong gói nhập không bao giờ hiện. '
+ 'Khi nhập gói: mỗi câu có explanation tạo một explanation_versions bản nháp (status draft, locale, tác giả = người nhập) và tách các đoạn theo tiền tố: '
+ '"• Dịch nghĩa:" -> translation; "• Đáp án đúng: [n]" + phần sau -> correctReason; mỗi dòng "- [n] ...: ..." trong đoạn "• Phân tích các phương án còn lại:" '
+ '-> wrongReasonsByOption[n]; không khớp tiền tố thì giữ toàn bộ blocks và dùng chữ của chúng làm correctReason. Giữ nguyên blocks gốc trong content. '
+ 'Học viên chỉ thấy lời giải sau khi reviewer duyệt (approved) và sau khi nộp bài; không lộ trước quyền xem.',
+ 'apps/api/src/modules/import/|apps/api/src/modules/review/',
+ 'Nhập gói có explanation -> màn duyệt lời giải của quản trị hiện bản nháp với bản dịch, lý do đúng, lý do sai từng phương án|'
+ 'Reviewer duyệt -> trang xem lại bài của học viên hiện đủ lời giải; chưa duyệt thì không hiện|Test âm: không lộ lời giải trước khi nộp bài|'+NO_MOCK+'|'+REAL_E2E,
+ 'pnpm test|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/')
+# Security review of I16 (PR #74, 2026-10-19): its global body parsers read the whole stream with no size limit.
+task('I18','W2',8,1,'API: giới hạn kích thước body cho multipart, zip và octet-stream','I16',
+ 'I16 thêm vào apps/api/src/main.ts ba addContentTypeParser (multipart/form-data, application/zip, application/octet-stream) tự gom stream vào Buffer. '
+ 'Cách này bỏ qua bodyLimit của Fastify và chạy trước guard đăng nhập, nên ai cũng gửi được body lớn tùy ý vào bất kỳ route POST nào và làm API hết RAM. '
+ 'Sửa: dùng một parser chung với { parseAs: "buffer", bodyLimit } (mặc định 1 MB; riêng POST /api/v1/admin/imports đặt giới hạn ở cấu hình route, '
+ 'lấy từ biến môi trường IMPORT_MAX_BYTES, mặc định 50 MB); vượt giới hạn trả 413. Giữ nguyên hành vi nhập gói của I16.',
+ 'apps/api/src/main.ts|apps/api/src/modules/import/',
+ 'Test: body 2 MB application/octet-stream vào route không phải nhập gói trả 413 mà không cần đăng nhập|'
+ 'Test: gói vượt IMPORT_MAX_BYTES vào /api/v1/admin/imports trả 413; gói fixtures hợp lệ vẫn nhập được ở chế độ draft và ready',
+ 'pnpm test',contracts='API')
 task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I11 I12 I13 I09 I03 I04 I05 I06 I14 I15',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',
@@ -507,10 +541,11 @@ task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ l
  'pnpm check:no-mock-ui|pnpm test:e2e:integration',resources='ci-workflow staging-deploy',kind='verification')
 
 # Day 9 (owner request 2026-10-17): one design system on shadcn/ui + Tailwind, and mobile speed.
-# Starts after I07 so it never fights the API-wiring tasks over the same pages.
+# D00 (packages/ui only) starts early; D02/D03 rewrite pages after D00, by which time the API-wiring tasks have merged.
 NO_REGRESS = ('Lighthouse trên staging CI không giảm so với số đo trước đợt (máy tính hiệu năng ≥98, điện thoại ≥70, trợ năng ≥95, SEO 100); '
               'ảnh chụp 390px và 1366px của các trang đã đổi lưu làm artifact')
-task('D00','W3',9,5,'Hệ thống thiết kế @jlpt/ui dựng lại trên shadcn/ui','I07',
+# Owner 2026-10-19 "tăng tốc": D00 only touches packages/ui, so it starts now instead of after I07.
+task('D00','W3',9,5,'Hệ thống thiết kế @jlpt/ui dựng lại trên shadcn/ui','I00',
  'Khởi tạo shadcn/ui (components.json, cn, class-variance-authority, tailwind-merge, Radix khi cần) trong packages/ui; '
  'dựng lại Button, Input, Textarea, Label, Select, Checkbox, RadioGroup, Switch, Tabs, Dialog, DropdownMenu, Popover, Tooltip, Card, Badge, Alert, Toast, Skeleton theo token màu hiện có, sáng/tối theo class dark. '
  'Giữ nguyên tên export và props đang dùng để web/admin không vỡ; bỏ inline style. Thêm lệnh pnpm check:ui-primitives (packages/ui/scripts/) báo thẻ <button>/<input>/<select>/<textarea> gốc trong apps/web và apps/admin, kèm baseline giảm dần.',
@@ -576,11 +611,13 @@ task('P04','W3',10,6,'Web: đỗ/trượt theo phần, Hán Việt, bật/tắt 
  'apps/web/|packages/ui/',
  'Học viên làm đề demo N5 thấy điểm từng phần và đỗ/trượt|Tắt furigana thì ẩn trên mọi câu, tải lại vẫn giữ|Cảnh báo nhịp hiện đúng khi chậm hơn mốc trong E2E|Trang lịch thi hiện dữ liệu quản trị nhập, trống khi chưa có|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:web|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
-task('P05','W4',10,3,'Quản trị: lịch thi JLPT và bảng quy đổi điểm','P03 D03',
- 'Trang quản trị nhập và xuất bản lịch thi (ngày thi, hạn đăng ký, địa điểm, link) và xem/cập nhật phiên bản bảng quy đổi điểm, có audit.',
+# Owner 2026-10-19 "tăng tốc": P05 is a new admin page and its API (P03) is merged, so it starts now; D03 later moves it to @jlpt/ui.
+task('P05','W4',10,3,'Quản trị: lịch thi JLPT và bảng quy đổi điểm','P03',
+ 'Trang quản trị nhập và xuất bản lịch thi (ngày thi, hạn đăng ký, địa điểm, link) và xem/cập nhật phiên bản bảng quy đổi điểm, có audit. '
+ 'Dùng thành phần đang có trong @jlpt/ui; D03 sẽ chuyển trang sang bộ thành phần mới, nên không tự viết lại nút/ô nhập riêng.',
  'apps/admin/',
  'Admin nhập kỳ thi tháng 12, xuất bản, trang web công khai hiện ngay|Đổi bảng quy đổi tạo phiên bản mới, kết quả cũ giữ phiên bản đã dùng|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
- 'pnpm test:admin|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
+ 'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
 task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05 D05',
  'E2E trên staging cho NEW-01..05, ảnh chụp 390/1366px, cập nhật danh sách tính năng và báo cáo.',
  'tests/|docs/release/',
@@ -589,7 +626,7 @@ task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05 D05',
 
 # Staging E2E on jlpt-vm (same suite as CI) is a required check for tasks that touch the UI or APIs it uses.
 for _t in TASKS:
-    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','D02','D03','D04','P03','P04','P05'}:
+    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','I17','D02','D03','D04','P03','P04','P05'}:
         _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check')
     # Per-task runs cover Chromium + Mobile Safari; final acceptance runs every browser.
     if _t['id'] in {'I07','D05','P06'}:

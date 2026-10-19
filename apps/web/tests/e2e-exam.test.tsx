@@ -6,7 +6,7 @@ import {
   SAMPLE_N1_EXAM_SNAPSHOT,
   SAMPLE_N4_EXAM_SNAPSHOT,
   SAMPLE_N5_EXAM_SNAPSHOT,
-} from '../features/exam/fixtures/exam-fixtures';
+} from './fixtures/exam-fixtures';
 import { flattenExamQuestions } from '../features/exam/utils/flatten-questions';
 import { AudioPlayer, syncAudioDrift } from '../features/exam/components/audio-player';
 import { SpeakerTestModal } from '../features/exam/components/modals/speaker-test-modal';

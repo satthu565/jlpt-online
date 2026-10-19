@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import { SAMPLE_N5_EXAM_SNAPSHOT } from '../features/exam/fixtures/sample-exam';
+import { SAMPLE_N5_EXAM_SNAPSHOT } from './fixtures/sample-exam';
 import { flattenExamQuestions } from '../features/exam/utils/flatten-questions';
 import { ExamClock } from '../features/exam/components/exam-clock';
 import { SectionHeader } from '../features/exam/components/section-header';

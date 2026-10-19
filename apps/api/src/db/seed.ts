@@ -264,6 +264,18 @@ export async function seedDatabase(
   // 6. Partitions creation (idempotent)
   const partitions = await ensureAttemptEventsPartitions(client);
 
+  // 7. Seed Official Corpus Dataset (idempotent)
+  const defaultDatasetId = '018e0000-0000-7000-8000-0000000000d1';
+  await client.db
+    .insert(schema.datasets)
+    .values({
+      id: defaultDatasetId,
+      slug: 'jlpt-official',
+      name: 'Tập ngữ liệu đề thi JLPT N1–N5',
+      version: '1.0.0',
+    })
+    .onConflictDoNothing();
+
   return {
     usersSeeded,
     blueprintsSeeded,

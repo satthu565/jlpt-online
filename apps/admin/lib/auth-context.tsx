@@ -557,3 +557,7 @@ export function useAdminAuth(): AdminAuthContextValue {
   }
   return ctx;
 }
+
+export function useOptionalAdminAuth(): AdminAuthContextValue | null {
+  return useContext(AdminAuthContext) ?? null;
+}

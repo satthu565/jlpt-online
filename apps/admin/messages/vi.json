@@ -116,6 +116,56 @@
     "currentRole": "Quyền hạn hiện tại của bạn:",
     "securityWarning": "Hệ thống bảo vệ đa tầng đã chặn truy cập trực tiếp này."
   },
+  "commercial": {
+    "plansTitle": "Quản trị các gói dịch vụ và mã giảm giá",
+    "plansSubtitle": "Thiết lập bảng giá, thời hạn và phân quyền tính năng cho học viên.",
+    "paymentsTitle": "Quản trị giao dịch và thuê bao",
+    "paymentsSubtitle": "Theo dõi trạng thái thanh toán, gia hạn và lịch sử đơn hàng của học viên.",
+    "refundsTitle": "Quản trị yêu cầu hoàn tiền",
+    "refundsSubtitle": "Xét duyệt và đối soát các yêu cầu hoàn tiền theo chính sách thương mại.",
+    "reconciliationTitle": "Đối soát Giao dịch & Chứng từ Cổng thanh toán (Reconciliation)",
+    "reconciliationSubtitle": "Đối chiếu số dư, doanh thu, hoàn tiền và phát hiện sai lệch giữa hệ thống JLPT và cổng thanh toán.",
+    "createPlan": "Tạo gói mới",
+    "createCoupon": "Tạo mã mới",
+    "runReconciliation": "Chạy đối soát (Run Reconciliation)",
+    "approve": "Duyệt",
+    "reject": "Từ chối",
+    "emptyPlans": "Chưa có gói dịch vụ nào trong hệ thống.",
+    "emptyCoupons": "Chưa có mã giảm giá nào.",
+    "emptyPayments": "Chưa có giao dịch thanh toán nào.",
+    "emptySubscriptions": "Chưa có thuê bao nào.",
+    "emptyRefunds": "Không có yêu cầu hoàn tiền nào cần xử lý.",
+    "emptyReconciliation": "Chưa có phiên đối soát nào được ghi nhận."
+  },
+  "reports": {
+    "hubTitle": "Trung tâm Báo cáo & Phân tích Hệ thống (ADM-17)",
+    "hubSubtitle": "Hệ thống theo dõi đầy đủ 15 chỉ số nghiệp vụ từ vận hành, nội dung, người dùng đến thương mại.",
+    "revenueTitle": "Báo cáo doanh thu tài chính",
+    "revenueSubtitle": "Doanh thu gộp (Gross), tiền hoàn trả (Refunds) và doanh thu thuần (Net) tách theo đơn vị tiền tệ.",
+    "exportCsv": "Xuất CSV (RFC 4180)",
+    "exportSuccess": "Đã xuất báo cáo định dạng CSV an toàn.",
+    "grossRevenue": "Doanh thu gộp (Gross)",
+    "refunds": "Hoàn tiền (Refunds)",
+    "netRevenue": "Doanh thu thuần (Net)",
+    "currency": "Tiền tệ",
+    "empty": "Không có dữ liệu báo cáo trong khoảng thời gian đã chọn."
+  },
+  "experiments": {
+    "title": "Quản trị Thử nghiệm A/B & Tối ưu Giao diện",
+    "subtitle": "Cơ chế phân bổ cố định (Sticky Assignment) ẩn danh bảo vệ PII, theo dõi tỷ lệ chuyển đổi thời gian thực.",
+    "active": "ĐANG CHẠY (ACTIVE)",
+    "paused": "TẠM DỪNG",
+    "pause": "Tạm dừng",
+    "resume": "Kích hoạt",
+    "empty": "Chưa có thử nghiệm A/B nào."
+  },
+  "contentReports": {
+    "title": "Quản lý Báo lỗi Câu hỏi từ Người dùng (ADM-09)",
+    "subtitle": "Kiểm duyệt và xử lý các sự cố nội dung, đáp án và file âm thanh được người học gửi về.",
+    "empty": "Không có báo cáo lỗi câu hỏi nào.",
+    "resolve": "Duyệt & Giải Quyết",
+    "dismiss": "Bác Bỏ"
+  },
   "content": {
     "imports": {
       "title": "Quản lý Gói Nhập Đề thi (Import v2)",

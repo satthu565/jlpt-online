@@ -1,8 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
+  Injectable,
   Param,
+  PipeTransform,
   Post,
   Query,
   UnauthorizedException,
@@ -12,8 +15,30 @@ import { Public } from '../../common/decorators/public.decorator.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
 import { CorpusService } from './corpus.service.js';
 import { VocabService } from './vocab.service.js';
-import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe.js';
+import { isUuid } from '../../common/pipes/uuid-param.pipe.js';
 import { getHanVietForWord, getHanVietForKanji, getHanVietLicenseInfo } from './nlp/index.js';
+
+@Injectable()
+export class DatasetIdPipe implements PipeTransform<string, string> {
+  transform(value: unknown): string {
+    if (typeof value !== 'string') {
+      throw new BadRequestException({
+        code: 'INVALID_UUID',
+        message: 'Mã dataset không hợp lệ',
+      });
+    }
+
+    const trimmed = value.trim();
+    if (isUuid(trimmed) || trimmed === 'jlpt-official') {
+      return trimmed;
+    }
+
+    throw new BadRequestException({
+      code: 'INVALID_UUID',
+      message: `Mã dataset không đúng định dạng UUID hoặc slug hợp lệ: ${trimmed}`,
+    });
+  }
+}
 import type {
   AddToNotebookDto,
   AddToNotebookResponseDto,
@@ -87,7 +112,7 @@ export class VocabController {
 
   @Public()
   @Get('datasets/:id')
-  async getDataset(@Param('id', UuidParamPipe) id: string) {
+  async getDataset(@Param('id', DatasetIdPipe) id: string) {
     return this.corpusService.getDataset(id);
   }
 
@@ -98,7 +123,7 @@ export class VocabController {
   @Public()
   @Get('datasets/:id/vocabulary')
   async getDatasetVocabulary(
-    @Param('id', UuidParamPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Query() query: CorpusFilterQueryDto = {},
   ) {
     return this.corpusService.getDatasetVocabulary(id, query);
@@ -111,7 +136,7 @@ export class VocabController {
   @Public()
   @Get('datasets/:id/grammar')
   async getDatasetGrammar(
-    @Param('id', UuidParamPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Query() query: CorpusFilterQueryDto = {},
   ) {
     return this.corpusService.getDatasetGrammar(id, query);
@@ -124,7 +149,7 @@ export class VocabController {
   @Public()
   @Get('datasets/:id/kanji')
   async getDatasetKanji(
-    @Param('id', UuidParamPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Query() query: CorpusFilterQueryDto = {},
   ) {
     return this.corpusService.getDatasetKanji(id, query);
@@ -147,7 +172,7 @@ export class VocabController {
   @Public()
   @Get('datasets/:id/vocabulary/:term/questions')
   async getQuestionsForWord(
-    @Param('id', UuidParamPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Param('term') term: string,
     @Query('level') level?: JlptLevel,
     @Query('limit') limit?: number,
@@ -167,7 +192,7 @@ export class VocabController {
   @Public()
   @Get('datasets/:id/vocabulary/:term/stats')
   async getWordStatistics(
-    @Param('id', UuidParamPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Param('term') term: string,
   ): Promise<VocabStatsResponseDto> {
     return this.corpusService.getWordStatistics(id, term);
@@ -180,7 +205,7 @@ export class VocabController {
   @Public()
   @Get('datasets/:id/compare/levels')
   async compareLevels(
-    @Param('id', UuidParamPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Query('terms') terms?: string | string[],
   ): Promise<LevelComparisonResponseDto> {
     const termsArray = terms
@@ -197,7 +222,7 @@ export class VocabController {
 
   @Public()
   @Get('datasets/:id/time-series')
-  async getTimeSeries(@Param('id', UuidParamPipe) id: string): Promise<TimeSeriesResponseDto> {
+  async getTimeSeries(@Param('id', DatasetIdPipe) id: string): Promise<TimeSeriesResponseDto> {
     return this.corpusService.getTimeSeries(id);
   }
 
@@ -208,7 +233,7 @@ export class VocabController {
   @Public()
   @Get('datasets/:id/study-lists')
   async getStudyList(
-    @Param('id', UuidParamPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Query() query: StudyListQueryDto = {},
   ): Promise<StudyListResponseDto> {
     return this.corpusService.createStudyList(id, query);
@@ -216,7 +241,7 @@ export class VocabController {
 
   @Post('datasets/:id/study-lists')
   async createStudyList(
-    @Param('id', UuidParamPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Body() dto: StudyListQueryDto = {},
   ): Promise<StudyListResponseDto> {
     return this.corpusService.createStudyList(id, dto);
@@ -228,7 +253,7 @@ export class VocabController {
 
   @Post('datasets/:id/add-to-notebook')
   async addToNotebook(
-    @Param('id', UuidParamPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Body() dto: AddToNotebookDto,
     @CurrentUser() user: AuthUserContext | undefined,
   ): Promise<AddToNotebookResponseDto> {
@@ -244,7 +269,7 @@ export class VocabController {
 
   @Get('datasets/:id/compare-with-learned')
   async compareWithLearned(
-    @Param('id', UuidParamPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Query('level') level?: JlptLevel,
     @Query('limit') limit?: number,
     @CurrentUser() user?: AuthUserContext,
@@ -265,7 +290,7 @@ export class VocabController {
   @Public()
   @Get('datasets/:id/export')
   async exportDatasetGet(
-    @Param('id', UuidParamPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Query() query: DatasetExportQueryDto = {},
   ): Promise<DatasetExportResponseDto> {
     return this.corpusService.exportDataset(id, query);
@@ -274,7 +299,7 @@ export class VocabController {
   @Public()
   @Post('datasets/:id/exports')
   async exportDatasetPost(
-    @Param('id', UuidParamPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Body() dto: DatasetExportQueryDto = {},
   ): Promise<DatasetExportResponseDto> {
     return this.corpusService.exportDataset(id, dto);
@@ -287,7 +312,7 @@ export class VocabController {
   @Public()
   @Get('datasets/:id/trends')
   async getYearlyTrends(
-    @Param('id', UuidParamPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Query('minOccurrences') minOccurrences?: number,
   ): Promise<YearlyTrendsResponseDto> {
     return this.corpusService.getYearlyTrends(id, {
@@ -302,7 +327,7 @@ export class VocabController {
   @Public()
   @Get('datasets/:id/grammar/:patternId/practice')
   async getGrammarPractice(
-    @Param('id', UuidParamPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Param('patternId') patternId: string,
   ): Promise<GrammarPracticeResponseDto> {
     return this.corpusService.getGrammarPractice(id, patternId);
@@ -314,7 +339,7 @@ export class VocabController {
 
   @Get('datasets/:id/recommendations')
   async getRecommendations(
-    @Param('id', UuidParamPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Query() query: RecommendationQueryDto = {},
     @CurrentUser() user?: AuthUserContext,
   ): Promise<RecommendationResponseDto> {
