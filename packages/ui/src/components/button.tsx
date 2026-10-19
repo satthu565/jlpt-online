@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Slot } from '@radix-ui/react-slot';
+import { Slot, Slottable } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils.js';
 
@@ -88,7 +88,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           />
         )}
         {!loading && leftIcon && <span aria-hidden="true" className="shrink-0">{leftIcon}</span>}
-        <span>{children}</span>
+        <Slottable>{children}</Slottable>
         {!loading && rightIcon && <span aria-hidden="true" className="shrink-0">{rightIcon}</span>}
       </Comp>
     );

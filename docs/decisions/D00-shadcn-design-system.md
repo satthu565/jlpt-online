@@ -59,7 +59,7 @@ Cập nhật `packages/ui/src/styles.css` để ánh xạ trực tiếp các CSS
 ### 2.4. Tối ưu Code-Splitting và Tree-Shaking
 - Trong `packages/ui/package.json`: Khai báo `"sideEffects": ["./src/styles.css", "**/*.css"]`.
 - Trong `packages/ui/tsup.config.ts`: Khai báo các entry chi tiết từng component (`src/components/*.tsx`), kích hoạt `splitting: true` và `treeshake: true`. `dist/index.js` giảm dung lượng từ 93.5 KB xuống chỉ còn 4.18 KB nhờ re-export các chunk độc lập.
-- Trong `apps/web/next.config.mjs`: Bổ sung `transpilePackages: ['@jlpt/ui']`.
+- Không sửa `apps/web/next.config.mjs` trong phạm vi D00 (gói `@jlpt/ui` cung cấp bản phân phối `dist/` ESM/CJS chuẩn, Next.js build trực tiếp mà không cần cấu hình transpile bổ sung).
 - **Kết quả đo lường JS nén trang chủ (`/`)**:
   - Baseline trước đợt: **225.88 KB** (Gzip).
   - Sau khi dựng lại trên shadcn/ui: **232.12 KB** (Gzip).
@@ -74,16 +74,23 @@ Cập nhật `packages/ui/src/styles.css` để ánh xạ trực tiếp các CSS
   - Tổng cộng: **256** primitives.
 - Script chặn commit nếu tổng số vượt quá baseline; ghi nhận thông báo ratchet khi số lượng giảm để hạ dần baseline.
 
+### 2.6. Xử lý phản hồi Review D00-3 từ W1
+1. **Button `asChild` runtime crash**: Sử dụng `Slottable` từ `@radix-ui/react-slot` bọc `children`, loại bỏ thẻ `<span>` trung gian khi dùng slot, bảo toàn render thẻ con duy nhất (`<a>`/Link) cùng với các thành phần phụ trợ (icon/spinner). Bổ sung unit tests cho pattern `asChild`.
+2. **Dialog & Modal Focus Trap & Esc**: Bổ sung assertions kiểm tra focus trap trong `components-behavior.test.tsx`: xác nhận phần tử đầu tiên nhận focus khi mở, focus bị bẫy trong container khi Tab/Shift-Tab, và đóng hộp thoại qua phím Esc.
+3. **Phạm vi thay đổi**: Hoàn tác thay đổi tại `apps/web/next.config.mjs` để tuân thủ nghiêm ngặt danh sách bàn giao của task D00 (`packages/ui/`, `package.json`, `docs/decisions/`).
+4. **Keyboard Arrow Navigation**: Bổ sung sự kiện bàn phím thực tế `fireEvent.keyDown` với `ArrowDown`, `ArrowUp`, `ArrowRight`, `ArrowLeft` cho `Select`, `RadioGroup`, và `Tabs`.
+5. **Đồng bộ ngôn ngữ tiếng Việt mặc định**: Cập nhật `closeLabel` của `Alert` từ tiếng Anh `'Close notification'` thành `'Đóng thông báo'`.
+
 ---
 
 ## 3. Kết quả nghiệm thu
 
 1. **Test hành vi bàn phím, focus và ARIA**:
-   - `packages/ui/tests/components-behavior.test.tsx`: 19 tests kiểm thử toàn diện 18 component, kiểm tra focus trap và đóng bằng phím Esc đối với Dialog/Modal.
+   - `packages/ui/tests/components-behavior.test.tsx`: 22 tests kiểm thử toàn diện 18 component, kiểm tra focus trap, điều hướng phím mũi tên và đóng bằng phím Esc đối với Dialog/Modal.
    - `packages/ui/tests/ui.test.tsx`: 19 tests hiện hữu đạt 100%.
    - `packages/ui/tests/a11y.test.tsx`: 13 tests hiện hữu đạt 100%.
    - `packages/ui/tests/rich-text.test.tsx`: 7 tests hiện hữu đạt 100%.
-   - Tổng cộng: **58/58 tests đạt** trong `packages/ui`.
+   - Tổng cộng: **61/61 tests đạt** trong `packages/ui`.
 2. **Thư viện UI không nguyên khối**: Chỉ cài các gói Radix UI đơn lẻ và tiện ích nhẹ (`clsx`, `tailwind-merge`, `cva`). Không cài thư viện UI monolithic.
 3. **Dung lượng trang chủ**: Tăng +6.24 KB Gzip (đạt trần ≤ 15 KB).
 4. **Lighthouse Staging CI**:

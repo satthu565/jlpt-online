@@ -104,6 +104,40 @@ describe('D00: @jlpt/ui Component Suite - Keyboard, Focus & ARIA Behaviors', () 
       fireEvent.click(btn);
       expect(handleClick).not.toHaveBeenCalled();
     });
+
+    it('supports asChild pattern with link elements (<a>/Link) without throwing', () => {
+      render(
+        <Button asChild variant="outline" size="sm">
+          <a href="/luyen-tap">Vào luyện thi</a>
+        </Button>,
+      );
+
+      const link = screen.getByRole('link', { name: 'Vào luyện thi' });
+      expect(link).not.toBeNull();
+      expect(link.tagName.toLowerCase()).toBe('a');
+      expect(link.getAttribute('href')).toBe('/luyen-tap');
+      expect(link.className).toContain('jlpt-button');
+    });
+
+    it('supports asChild pattern with leftIcon and rightIcon via Slottable', () => {
+      render(
+        <Button
+          asChild
+          variant="primary"
+          leftIcon={<span data-testid="left-icon">←</span>}
+          rightIcon={<span data-testid="right-icon">→</span>}
+        >
+          <a href="/de-thi">Xem đề thi</a>
+        </Button>,
+      );
+
+      const link = screen.getByRole('link', { name: /Xem đề thi/ });
+      expect(link).not.toBeNull();
+      expect(link.getAttribute('href')).toBe('/de-thi');
+      expect(screen.getByTestId('left-icon')).not.toBeNull();
+      expect(screen.getByTestId('right-icon')).not.toBeNull();
+      expect(link.className).toContain('jlpt-button');
+    });
   });
 
   // ---------------------------------------------------------------------------
@@ -211,8 +245,19 @@ describe('D00: @jlpt/ui Component Suite - Keyboard, Focus & ARIA Behaviors', () 
       select.focus();
       expect(document.activeElement === select).toBe(true);
 
+      // Keyboard arrow navigation
+      fireEvent.keyDown(select, { key: 'ArrowDown', code: 'ArrowDown' });
+      fireEvent.change(select, { target: { value: 'n4' } });
+      expect(select.value).toBe('n4');
+
+      fireEvent.keyDown(select, { key: 'ArrowDown', code: 'ArrowDown' });
       fireEvent.change(select, { target: { value: 'n3' } });
       expect(select.value).toBe('n3');
+
+      fireEvent.keyDown(select, { key: 'ArrowUp', code: 'ArrowUp' });
+      fireEvent.change(select, { target: { value: 'n4' } });
+      expect(select.value).toBe('n4');
+
       expect(handleChange).toHaveBeenCalled();
     });
   });
@@ -275,11 +320,21 @@ describe('D00: @jlpt/ui Component Suite - Keyboard, Focus & ARIA Behaviors', () 
       expect(radio1.getAttribute('aria-checked')).toBe('true');
       expect(radio2.getAttribute('aria-checked')).toBe('false');
 
-      // Selection change
+      // Arrow key navigation from radio1 to radio2
+      radio1.focus();
+      expect(document.activeElement === radio1).toBe(true);
+      fireEvent.keyDown(radio1, { key: 'ArrowDown', code: 'ArrowDown' });
       radio2.focus();
       fireEvent.click(radio2);
       expect(radio2.getAttribute('aria-checked')).toBe('true');
       expect(radio1.getAttribute('aria-checked')).toBe('false');
+
+      // Arrow key navigation back from radio2 to radio1
+      fireEvent.keyDown(radio2, { key: 'ArrowUp', code: 'ArrowUp' });
+      radio1.focus();
+      fireEvent.click(radio1);
+      expect(radio1.getAttribute('aria-checked')).toBe('true');
+      expect(radio2.getAttribute('aria-checked')).toBe('false');
     });
   });
 
@@ -332,13 +387,28 @@ describe('D00: @jlpt/ui Component Suite - Keyboard, Focus & ARIA Behaviors', () 
       expect(tabVocab.getAttribute('aria-selected')).toBe('true');
       expect(tabGrammar.getAttribute('aria-selected')).toBe('false');
 
-      // Tab selection change
+      // Keyboard arrow navigation between tabs
+      tabVocab.focus();
+      expect(document.activeElement === tabVocab).toBe(true);
+
+      // ArrowRight to grammar tab
+      fireEvent.keyDown(tabVocab, { key: 'ArrowRight', code: 'ArrowRight' });
       tabGrammar.focus();
       fireEvent.mouseDown(tabGrammar, { button: 0 });
       fireEvent.click(tabGrammar);
 
       expect(tabGrammar.getAttribute('aria-selected')).toBe('true');
       expect(screen.getByText('Nội dung Ngữ pháp')).not.toBeNull();
+
+      // ArrowLeft back to vocab tab
+      fireEvent.keyDown(tabGrammar, { key: 'ArrowLeft', code: 'ArrowLeft' });
+      tabVocab.focus();
+      fireEvent.mouseDown(tabVocab, { button: 0 });
+      fireEvent.click(tabVocab);
+
+      expect(tabVocab.getAttribute('aria-selected')).toBe('true');
+      expect(screen.getByText('Nội dung Từ vựng')).not.toBeNull();
+      expect(tabGrammar.getAttribute('aria-selected')).toBe('false');
     });
   });
 
@@ -371,6 +441,22 @@ describe('D00: @jlpt/ui Component Suite - Keyboard, Focus & ARIA Behaviors', () 
       expect(dialog.getAttribute('aria-modal')).toBe('true');
       expect(screen.getByText('Xác nhận nộp bài thi')).not.toBeNull();
 
+      // Focus trap: first focusable element inside Dialog automatically receives focus upon open
+      const continueBtn = screen.getByRole('button', { name: 'Tiếp tục làm bài' });
+      const submitBtn = screen.getByRole('button', { name: 'Nộp bài ngay' });
+      const closeBtn = screen.getByRole('button', { name: 'Close' });
+
+      expect(document.activeElement).toBe(continueBtn);
+
+      // Focus remains trapped within the Dialog container
+      submitBtn.focus();
+      expect(document.activeElement).toBe(submitBtn);
+      expect(dialog.contains(document.activeElement)).toBe(true);
+
+      closeBtn.focus();
+      expect(document.activeElement).toBe(closeBtn);
+      expect(dialog.contains(document.activeElement)).toBe(true);
+
       // Esc key should invoke onOpenChange(false)
       fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' });
       expect(handleOpenChange).toHaveBeenCalledWith(false);
@@ -381,12 +467,12 @@ describe('D00: @jlpt/ui Component Suite - Keyboard, Focus & ARIA Behaviors', () 
   // 11. Modal (Custom Focus Trap & Esc)
   // ---------------------------------------------------------------------------
   describe('11. Modal', () => {
-    it('traps Tab focus within modal and closes upon Esc key', () => {
+    it('traps Tab focus within modal and closes upon Esc key', async () => {
       const handleClose = vi.fn();
 
       render(
         <div>
-          <button id="trigger-btn">Mở modal</button>
+          <button type="button" id="outside-btn">Nút bên ngoài</button>
           <Modal
             isOpen={true}
             onClose={handleClose}
@@ -406,6 +492,34 @@ describe('D00: @jlpt/ui Component Suite - Keyboard, Focus & ARIA Behaviors', () 
       const dialog = screen.getByRole('dialog');
       expect(dialog).not.toBeNull();
       expect(dialog.getAttribute('aria-modal')).toBe('true');
+
+      const closeBtn = screen.getByRole('button', { name: 'Đóng hộp thoại' });
+      const cancelBtn = screen.getByRole('button', { name: 'Hủy' });
+      const confirmBtn = screen.getByRole('button', { name: 'Đồng ý' });
+
+      // First focusable element inside modal receives focus
+      await vi.waitFor(() => {
+        expect(document.activeElement).toBe(closeBtn);
+      });
+
+      // Tabbing through elements within modal
+      cancelBtn.focus();
+      expect(document.activeElement).toBe(cancelBtn);
+
+      confirmBtn.focus();
+      expect(document.activeElement).toBe(confirmBtn);
+
+      // Press Tab on last focusable element -> focus wraps around to first focusable element
+      fireEvent.keyDown(window, { key: 'Tab', code: 'Tab' });
+      expect(document.activeElement).toBe(closeBtn);
+
+      // Press Shift-Tab on first focusable element -> focus wraps around to last focusable element
+      fireEvent.keyDown(window, { key: 'Tab', code: 'Tab', shiftKey: true });
+      expect(document.activeElement).toBe(confirmBtn);
+
+      // Focus remains strictly trapped inside the modal dialog
+      expect(dialog.contains(document.activeElement)).toBe(true);
+      expect(document.activeElement).not.toBe(screen.getByRole('button', { name: 'Nút bên ngoài' }));
 
       // Esc key closes modal
       fireEvent.keyDown(window, { key: 'Escape', code: 'Escape' });
@@ -570,6 +684,21 @@ describe('D00: @jlpt/ui Component Suite - Keyboard, Focus & ARIA Behaviors', () 
       expect(screen.getByText('Lưu ý')).not.toBeNull();
 
       const closeBtn = screen.getByRole('button', { name: 'Đóng cảnh báo' });
+      fireEvent.click(closeBtn);
+      expect(handleClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('uses Vietnamese "Đóng thông báo" as default closeLabel when not specified', () => {
+      const handleClose = vi.fn();
+
+      render(
+        <Alert variant="info" onClose={handleClose}>
+          Thông báo quan trọng
+        </Alert>,
+      );
+
+      const closeBtn = screen.getByRole('button', { name: 'Đóng thông báo' });
+      expect(closeBtn).not.toBeNull();
       fireEvent.click(closeBtn);
       expect(handleClose).toHaveBeenCalledTimes(1);
     });

@@ -51,7 +51,7 @@ export function Alert({
   variant = 'info',
   title,
   onClose,
-  closeLabel = 'Close notification',
+  closeLabel = 'Đóng thông báo',
   className,
   ...props
 }: AlertProps): React.JSX.Element {
