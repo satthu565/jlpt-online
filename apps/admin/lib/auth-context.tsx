@@ -103,7 +103,11 @@ export function AdminAuthProvider({
           // ignore storage errors
         }
         if (window.location.pathname !== '/login') {
-          window.location.href = '/login?expired=1';
+          setTimeout(() => {
+            if (window.location.pathname !== '/login') {
+              window.location.href = '/login?expired=1';
+            }
+          }, 0);
         }
       }
     },

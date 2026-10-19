@@ -1134,7 +1134,14 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     }
 
     // API trả 401, client phát hiện phiên hết hạn và điều hướng ngay về /login kèm thông báo
-    await page.waitForURL(/.*login.*/, { timeout: 15000 });
+    await page
+      .waitForURL(/.*login.*/, { timeout: 15000, waitUntil: 'domcontentloaded' })
+      .catch(async (err) => {
+        if (String(err).includes('NS_BINDING_ABORTED') || page.url().includes('login')) {
+          return;
+        }
+        await expect(page).toHaveURL(/.*login.*/, { timeout: 10000 });
+      });
     const loginErrorAlert = page.locator('[data-testid="login-error-alert"]');
     await expect(loginErrorAlert).toBeVisible({ timeout: 10000 });
     const actionErrorText = await loginErrorAlert.innerText();
