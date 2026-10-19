@@ -13,6 +13,7 @@ import { MediaService } from '../media/media.service.js';
 import { OutboxService, type DbTx } from '../outbox/outbox.service.js';
 import { BlueprintService } from '../blueprint/blueprint.service.js';
 import { ReviewService } from '../review/review.service.js';
+import { ExamService } from '../exam/exam.service.js';
 import { ImportService } from './import.service.js';
 import { execFileSync } from 'node:child_process';
 import { runDemoSeed } from './demo-seed.js';
@@ -57,9 +58,12 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
   let outboxService: OutboxService;
   let blueprintService: BlueprintService;
   let reviewService: ReviewService;
+  let examService: ExamService;
   let importService: ImportService;
 
   const testUserId = '0192f000-0000-7000-8000-0000000000e1';
+  const reviewerUserId = '0192f000-0000-7000-8000-0000000000d1';
+  const publisherUserId = '0192f000-0000-7000-8000-0000000000b1';
 
   beforeEach(async () => {
     tempStorageDir = fs.mkdtempSync(path.join(os.tmpdir(), 'jlpt-import-test-'));
@@ -76,6 +80,7 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
     outboxService = new OutboxService(dbClient);
     blueprintService = new BlueprintService(dbClient);
     reviewService = new ReviewService(dbClient, outboxService);
+    examService = new ExamService(dbClient, storageService, outboxService, blueprintService);
     importService = new ImportService(
       dbClient,
       storageService,
@@ -85,18 +90,38 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
       blueprintService,
     );
 
-    // Create test user
+    // Create test users (editor, reviewer, publisher)
     await dbClient.db
       .insert(schema.users)
-      .values({
-        id: testUserId,
-        name: 'Test Content Editor',
-        email: 'editor@jlpt.local',
-        emailVerified: true,
-        role: 'editor',
-        locale: 'vi',
-        timezone: 'Asia/Ho_Chi_Minh',
-      })
+      .values([
+        {
+          id: testUserId,
+          name: 'Test Content Editor',
+          email: 'editor@jlpt.local',
+          emailVerified: true,
+          role: 'editor',
+          locale: 'vi',
+          timezone: 'Asia/Ho_Chi_Minh',
+        },
+        {
+          id: reviewerUserId,
+          name: 'Test Reviewer',
+          email: 'reviewer@jlpt.local',
+          emailVerified: true,
+          role: 'reviewer',
+          locale: 'vi',
+          timezone: 'Asia/Ho_Chi_Minh',
+        },
+        {
+          id: publisherUserId,
+          name: 'Test Publisher',
+          email: 'publisher@jlpt.local',
+          emailVerified: true,
+          role: 'admin',
+          locale: 'vi',
+          timezone: 'Asia/Ho_Chi_Minh',
+        },
+      ])
       .onConflictDoNothing();
   });
 
@@ -404,6 +429,131 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
 
       const qVersionsAfter = await dbClient.db.select().from(schema.questionVersions);
       expect(qVersionsAfter.length).toBe(29);
+    });
+  });
+
+  describe('I16: Nhập gói đề ở chế độ nháp (DRAFT_ONLY) qua API và trang quản trị', () => {
+    it('Acceptance 1: Gói fixtures/imports/draft.zip nạp được ở chế độ nháp, trả issue blocking', async () => {
+      const draftZipPath = resolveRepoPath('fixtures/imports/draft.zip');
+      const draftBuf = fs.readFileSync(draftZipPath);
+
+      const job = await importService.processPackageImport(draftBuf, 'draft.zip', testUserId, { mode: 'draft' });
+      expect(job.status).toBe('DRAFT_ONLY');
+      expect(job.readiness).toBe('DRAFT_ONLY');
+      expect(job.mode).toBe('draft');
+      expect(job.blockingIssueCount).toBeGreaterThanOrEqual(1);
+      expect(job.issues).toBeDefined();
+      expect(job.issues!.length).toBeGreaterThanOrEqual(1);
+
+      // Verify getImportJob
+      const fetchedJob = await importService.getImportJob(job.id);
+      expect(fetchedJob.status).toBe('DRAFT_ONLY');
+      expect(fetchedJob.readiness).toBe('DRAFT_ONLY');
+      expect(fetchedJob.blockingIssueCount).toBeGreaterThanOrEqual(1);
+      expect(fetchedJob.issues?.length).toBeGreaterThanOrEqual(1);
+
+      // Verify listImportJobs
+      const allJobs = await importService.listImportJobs();
+      const listed = allJobs.find((j) => j.id === job.id);
+      expect(listed).toBeDefined();
+      expect(listed!.status).toBe('DRAFT_ONLY');
+      expect(listed!.readiness).toBe('DRAFT_ONLY');
+    });
+
+    it('Acceptance 2: Cùng gói draft ở chế độ ready bị từ chối với thông báo rõ', async () => {
+      const draftZipPath = resolveRepoPath('fixtures/imports/draft.zip');
+      const draftBuf = fs.readFileSync(draftZipPath);
+
+      await expect(
+        importService.processPackageImport(draftBuf, 'draft.zip', testUserId, { mode: 'ready' }),
+      ).rejects.toThrow(/issue blocking|READY_FOR_REVIEW/);
+
+      // Ensure no rows inserted in DB
+      const jobs = await dbClient.db.select().from(schema.importJobs);
+      expect(jobs.length).toBe(0);
+    });
+
+    it('Acceptance 3: API chặn duyệt và xuất bản bản nháp (test âm)', async () => {
+      const draftZipPath = resolveRepoPath('fixtures/imports/draft.zip');
+      const draftBuf = fs.readFileSync(draftZipPath);
+
+      const job = await importService.processPackageImport(draftBuf, 'draft.zip', testUserId, { mode: 'draft' });
+      expect(job.status).toBe('DRAFT_ONLY');
+
+      // 1. Chặn submitForReview
+      const groups = await dbClient.db.select().from(schema.questionGroups);
+      expect(groups.length).toBeGreaterThan(0);
+      const groupId = groups[0]!.id;
+
+      await expect(
+        reviewService.submitForReview('group_version', groupId, job.revision ?? 1, testUserId),
+      ).rejects.toThrow(/DRAFT_ONLY|chưa có đáp án đúng/);
+
+      // 2. Chặn reviewDecision approval
+      await expect(
+        reviewService.reviewDecision(
+          'group_version',
+          groupId,
+          job.revision ?? 1,
+          { decision: 'approved', comments: 'Thử duyệt bản nháp' },
+          reviewerUserId,
+        ),
+      ).rejects.toThrow(/DRAFT_ONLY|chưa có đáp án đúng/);
+
+      // 3. Chặn publishExam
+      const exams = await dbClient.db.select().from(schema.exams);
+      expect(exams.length).toBeGreaterThan(0);
+      const examId = exams[0]!.id;
+
+      await expect(
+        examService.publishExam(examId, publisherUserId),
+      ).rejects.toThrow(/DRAFT_ONLY|chưa có đáp án đúng|chưa được duyệt/);
+    });
+
+    it('Acceptance 4: Nạp lại bản ready cùng packageId, revision cao hơn thì thay bản nháp', async () => {
+      const draftZipPath = resolveRepoPath('fixtures/imports/draft.zip');
+      const draftBuf = fs.readFileSync(draftZipPath);
+
+      // 1. Nạp bản draft ban đầu (revision 1)
+      const draftJob = await importService.processPackageImport(draftBuf, 'draft.zip', testUserId, { mode: 'draft' });
+      expect(draftJob.status).toBe('DRAFT_ONLY');
+
+      // 2. Chuẩn bị bản ready cùng packageId nhưng revision 2, sửa các câu hỏi có đáp án đầy đủ
+      const draftImportJson = JSON.parse(
+        fs.readFileSync(resolveRepoPath('fixtures/imports/draft/import.json'), 'utf8'),
+      );
+      draftImportJson.revision = 2;
+      draftImportJson.issues = [];
+      // Đảm bảo mọi câu hỏi đều có correctOption hợp lệ
+      for (const g of draftImportJson.groups) {
+        for (const q of g.questions) {
+          if (!q.correctOption) {
+            q.correctOption = 1;
+          }
+        }
+      }
+
+      // Copy media files from fixture
+      const wavBuf = fs.readFileSync(
+        resolveRepoPath('fixtures/imports/draft/media/00d0ad3e26f73d387098dddab2d5f79b9f270d9a7be23a5ef15dec78ef9395f1.wav'),
+      );
+      const pngBuf = fs.readFileSync(
+        resolveRepoPath('fixtures/imports/draft/media/f2fc1dd6c83d15d222b2bc9e60008c5e3b226b035a6ecd779f5b88c5d34a338d.png'),
+      );
+      const readyZipBuf = createZipBuffer({
+        'import.json': JSON.stringify(draftImportJson),
+        'media/00d0ad3e26f73d387098dddab2d5f79b9f270d9a7be23a5ef15dec78ef9395f1.wav': wavBuf,
+        'media/f2fc1dd6c83d15d222b2bc9e60008c5e3b226b035a6ecd779f5b88c5d34a338d.png': pngBuf,
+      });
+
+      // 3. Nạp bản ready revision 2
+      const readyJob = await importService.processPackageImport(readyZipBuf, 'ready-rev2.zip', testUserId, { mode: 'ready' });
+      expect(readyJob.status).toBe('succeeded');
+      expect(readyJob.revision).toBe(2);
+
+      // 4. Kiểm tra bản draft cũ đã được đánh dấu 'replaced'
+      const oldJob = await importService.getImportJob(draftJob.id);
+      expect(oldJob.status).toBe('replaced');
     });
   });
 });

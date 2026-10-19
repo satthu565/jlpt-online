@@ -14,7 +14,14 @@ import { ImportService } from './import.service.js';
 
 interface MultipartRequest extends FastifyRequest {
   isMultipart?: () => boolean;
-  file?: () => Promise<{ filename: string; toBuffer: () => Promise<Buffer> } | undefined>;
+  file?: () => Promise<
+    | {
+        filename: string;
+        toBuffer: () => Promise<Buffer>;
+        fields?: Record<string, unknown>;
+      }
+    | undefined
+  >;
 }
 
 @Controller('admin/imports')
@@ -37,6 +44,9 @@ export class ImportController {
     @Req() req: FastifyRequest,
     @CurrentUser() user: { id?: string; userId?: string },
   ) {
+    const query = (req.query || {}) as { mode?: string };
+    let mode: 'draft' | 'ready' = query.mode === 'draft' ? 'draft' : 'ready';
+
     const rawReq = req as unknown as MultipartRequest;
     const isMultipart = rawReq.isMultipart?.();
     if (isMultipart && rawReq.file) {
@@ -49,17 +59,26 @@ export class ImportController {
           `Đường dẫn gói tải lên không an toàn (unsafe upload path): ${part.filename}`,
         );
       }
+      if (part.fields) {
+        const fields = part.fields as Record<string, { value?: unknown } | unknown>;
+        const modeField = fields['mode'];
+        const modeVal = (modeField as { value?: unknown })?.value ?? modeField;
+        if (modeVal === 'draft' || modeVal === 'ready') {
+          mode = modeVal;
+        }
+      }
       const buffer = await part.toBuffer();
       const userId = user.userId || user.id || 'importer';
       return this.importService.processPackageImport(
         buffer,
         part.filename,
         userId,
+        { mode },
       );
     }
 
     // Base64 JSON body fallback
-    const rawBody = req.body as { dataBase64?: string; fileName?: string } | undefined;
+    const rawBody = req.body as { dataBase64?: string; fileName?: string; mode?: string } | undefined;
     if (rawBody && typeof rawBody === 'object' && typeof rawBody.dataBase64 === 'string') {
       const fileName = rawBody.fileName || 'package.zip';
       if (fileName && !isSafeUploadPath(fileName)) {
@@ -67,12 +86,16 @@ export class ImportController {
           `Đường dẫn gói tải lên không an toàn (unsafe upload path): ${fileName}`,
         );
       }
+      if (rawBody.mode === 'draft' || rawBody.mode === 'ready') {
+        mode = rawBody.mode;
+      }
       const buf = Buffer.from(rawBody.dataBase64, 'base64');
       const userId = user.userId || user.id || 'importer';
       return this.importService.processPackageImport(
         buf,
         fileName,
         userId,
+        { mode },
       );
     }
 
@@ -82,6 +105,7 @@ export class ImportController {
         req.body,
         'package.zip',
         user.userId || user.id || 'importer',
+        { mode },
       );
     }
 

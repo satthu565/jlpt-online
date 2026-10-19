@@ -63,9 +63,11 @@ export class ImportManager {
     buffer: Uint8Array | Buffer,
     fileName: string,
     operatorId = 'importer',
+    options?: { mode?: 'draft' | 'ready' },
   ): Promise<ImportJobSummary> {
     const jobId = `job_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const now = new Date().toISOString();
+    const mode = options?.mode;
 
     // 1. Strict guard: Standalone PDF is strictly forbidden from initiating extraction!
     assertNotStandalonePdf(buffer, fileName);
@@ -95,7 +97,7 @@ export class ImportManager {
     }
 
     // 3. Run validation against Import v2 specification
-    const validation = validateImportV2Package({ files, fileName });
+    const validation = validateImportV2Package({ files, fileName, mode });
     const pkgJson = validation.packageJson;
     const sourceObj = (pkgJson['source'] as Record<string, unknown>) || {};
     const rawSourceFiles = Array.isArray(pkgJson['sourceFiles'])
@@ -108,6 +110,17 @@ export class ImportManager {
       sha256: String(sf['sha256'] || ''),
       mimeType: String(sf['mimeType'] || 'application/pdf'),
       sizeBytes: typeof sf['sizeBytes'] === 'number' ? sf['sizeBytes'] : undefined,
+    }));
+
+    const rawIssues = Array.isArray(pkgJson['issues'])
+      ? (pkgJson['issues'] as Record<string, unknown>[])
+      : [];
+    const issues = rawIssues.map((iss) => ({
+      id: String(iss['id'] || ''),
+      severity: (iss['severity'] === 'warning' ? 'warning' : 'blocking') as 'blocking' | 'warning',
+      path: String(iss['path'] || ''),
+      reason: String(iss['reason'] || ''),
+      sourcePages: Array.isArray(iss['sourcePages']) ? (iss['sourcePages'] as number[]) : [],
     }));
 
     if (!validation.valid) {
@@ -129,6 +142,9 @@ export class ImportManager {
         nonBlockingIssueCount: validation.nonBlockingIssueCount,
         extractedQuestionsCount: 0,
         sourceFiles,
+        issues,
+        readiness: 'INVALID',
+        mode,
         createdAt: now,
         createdBy: operatorId,
       };
@@ -147,7 +163,9 @@ export class ImportManager {
       id: jobId,
       fileName,
       fileSizeBytes: buffer.length,
-      status: 'draft_created',
+      status: options?.mode === 'draft' ? 'DRAFT_ONLY' : 'draft_created',
+      readiness: validation.readiness,
+      mode,
       packageId: String(pkgJson['packageId']),
       revision: Number(pkgJson['revision'] || 1),
       targetLevel: sourceObj['level'] as Level,
@@ -161,6 +179,7 @@ export class ImportManager {
       nonBlockingIssueCount: validation.nonBlockingIssueCount,
       extractedQuestionsCount: questionCount,
       sourceFiles,
+      issues,
       draftExamId,
       createdAt: now,
       createdBy: operatorId,

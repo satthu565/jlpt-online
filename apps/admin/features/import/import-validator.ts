@@ -5,6 +5,7 @@ import { StandalonePdfError } from './types';
 export interface PackageValidationInput {
   files: Record<string, Uint8Array>;
   fileName: string;
+  mode?: 'draft' | 'ready';
 }
 
 export interface PackageValidationOutput {
@@ -15,6 +16,7 @@ export interface PackageValidationOutput {
   warnings: string[];
   blockingIssueCount: number;
   nonBlockingIssueCount: number;
+  readiness?: 'DRAFT_ONLY' | 'READY_FOR_REVIEW' | 'INVALID';
 }
 
 const PDF_MAGIC_BYTES = [0x25, 0x50, 0x44, 0x46]; // %PDF
@@ -160,7 +162,6 @@ export function validateImportV2Package(input: PackageValidationInput): PackageV
   if (groups.length === 0) {
     errors.push('Gói nhập không chứa nhóm câu hỏi nào (groups rỗng).');
   }
-
   const sourceFiles = Array.isArray(parsed['sourceFiles'])
     ? (parsed['sourceFiles'] as Record<string, unknown>[])
     : [];
@@ -227,12 +228,26 @@ export function validateImportV2Package(input: PackageValidationInput): PackageV
 
   // 8. Issues in package
   const issues = Array.isArray(parsed['issues']) ? (parsed['issues'] as Record<string, unknown>[]) : [];
-  for (const iss of issues) {
-    if (iss['severity'] === 'blocking' || iss['blocking'] === true) {
-      blockingIssues++;
-    } else {
-      nonBlockingIssues++;
+  const packageBlockingIssues = issues.filter(
+    (iss: Record<string, unknown>) => iss['severity'] === 'blocking' || iss['blocking'] === true,
+  ).length;
+  nonBlockingIssues = issues.length - packageBlockingIssues;
+  blockingIssues = Math.max(blockingIssues, packageBlockingIssues);
+
+  // If questions have missing answers but issues list didn't declare it
+  for (const g of groups) {
+    const questions = Array.isArray(g['questions']) ? (g['questions'] as Record<string, unknown>[]) : [];
+    for (const q of questions) {
+      if (q['correctOption'] === null || q['correctOption'] === undefined) {
+        if (blockingIssues === 0) {
+          blockingIssues++;
+        }
+      }
     }
+  }
+
+  if (input.mode === 'ready' && blockingIssues > 0) {
+    errors.push(`Gói nhập có ${blockingIssues} issue blocking; không thể nạp ở chế độ ready`);
   }
 
   // 9. Content hash computation (SHA-256)
@@ -240,13 +255,17 @@ export function validateImportV2Package(input: PackageValidationInput): PackageV
   hasher.update(importJsonBytes);
   const contentHash = hasher.digest('hex');
 
+  const valid = errors.length === 0;
+  const readiness = valid ? (blockingIssues > 0 ? 'DRAFT_ONLY' : 'READY_FOR_REVIEW') : 'INVALID';
+
   return {
-    valid: errors.length === 0,
+    valid,
     packageJson: parsed,
     contentHash,
     errors,
     warnings,
     blockingIssueCount: blockingIssues,
     nonBlockingIssueCount: nonBlockingIssues,
+    readiness,
   };
 }

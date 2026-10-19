@@ -8,7 +8,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, or } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
@@ -19,7 +19,7 @@ import { MediaService } from '../media/media.service.js';
 import { ReviewService } from '../review/review.service.js';
 import { OutboxService, type DbTx } from '../outbox/outbox.service.js';
 import { BlueprintService, toDeterministicUuid } from '../blueprint/blueprint.service.js';
-import type { ImportJobSummary, ImportPackageOptions } from './import.types.js';
+import type { ImportIssue, ImportJobSummary, ImportPackageOptions } from './import.types.js';
 
 // Import verified content-tools utilities
 import {
@@ -121,7 +121,7 @@ export class ImportService {
     if (!validationResult.valid || validationResult.readiness === 'INVALID') {
       this.logger.warn(`Import validation failed for ${fileName}: ${validationResult.errors.join('; ')}`);
       throw new BadRequestException({
-        message: 'Dữ liệu gói nhập không hợp lệ',
+        message: `Dữ liệu gói nhập không hợp lệ: ${validationResult.errors.join('; ')}`,
         errors: validationResult.errors,
         warnings: validationResult.warnings,
       });
@@ -143,7 +143,13 @@ export class ImportService {
     const existingJobs = await this.dbClient.db
       .select()
       .from(schema.importJobs)
-      .where(eq(schema.importJobs.status, 'succeeded'));
+      .where(
+        or(
+          eq(schema.importJobs.status, 'succeeded'),
+          eq(schema.importJobs.status, 'DRAFT_ONLY'),
+          eq(schema.importJobs.status, 'draft_created'),
+        ),
+      );
 
     const existingIdentities: PackageIdentity[] = [];
     for (const j of existingJobs) {
@@ -172,15 +178,32 @@ export class ImportService {
           return errLog?.['packageId'] === pkg.packageId && errLog?.['revision'] === pkg.revision;
         },
       );
+      const errLog = matchingJob?.errorLog as Record<string, unknown> | null;
+      const issues = Array.isArray(errLog?.['issues']) ? (errLog['issues'] as ImportIssue[]) : [];
+      const readiness: ImportJobSummary['readiness'] =
+        errLog?.['readiness'] === 'DRAFT_ONLY' || errLog?.['readiness'] === 'READY_FOR_REVIEW' || errLog?.['readiness'] === 'INVALID'
+          ? errLog['readiness']
+          : validationResult.readiness;
+      const jobMode: 'draft' | 'ready' =
+        errLog?.['mode'] === 'draft' || errLog?.['mode'] === 'ready'
+          ? errLog['mode']
+          : mode;
       return {
         id: matchingJob?.id ?? generateUuidV7(),
-        status: 'succeeded',
+        status: (matchingJob?.status as ImportJobSummary['status']) || (validationResult.readiness === 'DRAFT_ONLY' ? 'DRAFT_ONLY' : 'succeeded'),
+        readiness,
+        mode: jobMode,
         packageSha256,
         fileName,
         targetLevel: pkg.source.level,
         packageId: pkg.packageId,
         revision: pkg.revision,
         contentHash,
+        blockingIssueCount: typeof errLog?.blockingIssueCount === 'number' ? errLog.blockingIssueCount : validationResult.blockingIssueCount,
+        nonBlockingIssueCount: typeof errLog?.nonBlockingIssueCount === 'number' ? errLog.nonBlockingIssueCount : 0,
+        extractedQuestionsCount: typeof errLog?.extractedQuestionsCount === 'number' ? errLog.extractedQuestionsCount : pkg.exam.totalQuestions,
+        issues,
+        draftExamId: (errLog?.draftExamId as string) || undefined,
         createdAt: matchingJob?.createdAt ?? new Date(),
         completedAt: matchingJob?.completedAt ?? new Date(),
         message: evaluation.reason,
@@ -239,13 +262,40 @@ export class ImportService {
     // 6. Transactional Database Import (Acceptance 1 & Outbox Consistency)
     const jobId = generateUuidV7();
     const now = new Date();
+    const jobStatus = validationResult.readiness === 'DRAFT_ONLY' ? 'DRAFT_ONLY' : 'succeeded';
+    const examId = toDeterministicUuid(`${pkg.packageId}:exam:${pkg.exam.slug}`);
 
     return await this.dbClient.db.transaction(async (tx: DbTx) => {
+      // If this is a ready package replacing previous DRAFT_ONLY package(s) with lower revision
+      if (mode === 'ready' || validationResult.readiness === 'READY_FOR_REVIEW') {
+        const prevDraftJobs = existingJobs.filter((j: typeof schema.importJobs.$inferSelect) => {
+          const eLog = j.errorLog as Record<string, unknown> | null;
+          return (
+            eLog?.['packageId'] === pkg.packageId &&
+            (j.status === 'DRAFT_ONLY' || eLog?.['readiness'] === 'DRAFT_ONLY' || eLog?.['mode'] === 'draft')
+          );
+        });
+
+        for (const dj of prevDraftJobs) {
+          await tx
+            .update(schema.importJobs)
+            .set({
+              status: 'replaced',
+              errorLog: {
+                ...(dj.errorLog as Record<string, unknown>),
+                replacedByJobId: jobId,
+                replacedByRevision: pkg.revision,
+              },
+            })
+            .where(eq(schema.importJobs.id, dj.id));
+        }
+      }
+
       // a) Insert importJobs
       await tx.insert(schema.importJobs).values({
         id: jobId,
         uploadedBy: uploadedByUserId,
-        status: 'succeeded',
+        status: jobStatus,
         packageSha256,
         fileName,
         targetLevel: pkg.source.level,
@@ -254,6 +304,13 @@ export class ImportService {
           revision: pkg.revision,
           contentHash,
           examSlug: pkg.exam.slug,
+          mode,
+          readiness: validationResult.readiness,
+          issues: pkg.issues,
+          blockingIssueCount: validationResult.blockingIssueCount,
+          nonBlockingIssueCount: pkg.issues.filter((i) => i.severity !== 'blocking').length,
+          extractedQuestionsCount: pkg.exam.totalQuestions,
+          draftExamId: examId,
         },
         createdAt: now,
         completedAt: now,
@@ -265,7 +322,15 @@ export class ImportService {
         jobId,
         attemptNumber: 1,
         status: 'succeeded',
-        logs: [{ at: now.toISOString(), message: 'Package validated and imported successfully' }],
+        logs: [
+          {
+            at: now.toISOString(),
+            message:
+              validationResult.readiness === 'DRAFT_ONLY'
+                ? 'Package validated and saved as DRAFT_ONLY'
+                : 'Package validated and imported successfully',
+          },
+        ],
         startedAt: now,
         finishedAt: now,
       });
@@ -331,7 +396,7 @@ export class ImportService {
           .insert(schema.questionGroupVersions)
           .values({
             groupId,
-            version: 1,
+            version: pkg.revision,
             passage: (group.passage || []) as unknown,
             audioSha256,
             status: 'draft',
@@ -340,7 +405,7 @@ export class ImportService {
           .onConflictDoNothing();
 
         // Record editor for separation of duties in-memory and persistent DB
-        this.reviewService.recordEditor('group_version', groupId, 1, uploadedByUserId);
+        this.reviewService.recordEditor('group_version', groupId, pkg.revision, uploadedByUserId);
 
         await tx
           .insert(schema.importArtifacts)
@@ -385,7 +450,7 @@ export class ImportService {
             .insert(schema.questionVersions)
             .values({
               questionId,
-              version: 1,
+              version: pkg.revision,
               stem: q.stem as unknown,
               explanation: (q.explanation || null) as unknown,
               status: 'draft',
@@ -393,7 +458,7 @@ export class ImportService {
             })
             .onConflictDoNothing();
 
-          this.reviewService.recordEditor('question_version', questionId, 1, uploadedByUserId);
+          this.reviewService.recordEditor('question_version', questionId, pkg.revision, uploadedByUserId);
 
           await tx
             .insert(schema.importArtifacts)
@@ -412,7 +477,7 @@ export class ImportService {
               .insert(schema.answerOptions)
               .values({
                 questionId,
-                questionVersion: 1,
+                questionVersion: pkg.revision,
                 orderIndex,
                 content: opt.content as unknown,
               })
@@ -425,7 +490,7 @@ export class ImportService {
               .insert(schema.correctAnswers)
               .values({
                 questionId,
-                questionVersion: 1,
+                questionVersion: pkg.revision,
                 correctOption: q.correctOption,
                 explanationNotes: null,
               })
@@ -435,7 +500,6 @@ export class ImportService {
       }
 
       // f) Exam Structure (status: draft, publishedVersion: null)
-      const examId = toDeterministicUuid(`${pkg.packageId}:exam:${pkg.exam.slug}`);
       await tx
         .insert(schema.exams)
         .values({
@@ -513,22 +577,34 @@ export class ImportService {
           revision: pkg.revision,
           groupsCount: pkg.groups.length,
           questionsCount: pkg.exam.totalQuestions,
+          readiness: validationResult.readiness,
+          mode,
         },
         tx,
       );
 
       return {
         id: jobId,
-        status: 'succeeded',
+        status: jobStatus as ImportJobSummary['status'],
+        readiness: validationResult.readiness,
+        mode,
         packageSha256,
         fileName,
         targetLevel: pkg.source.level,
         packageId: pkg.packageId,
         revision: pkg.revision,
         contentHash,
+        blockingIssueCount: validationResult.blockingIssueCount,
+        nonBlockingIssueCount: pkg.issues.filter((i) => i.severity !== 'blocking').length,
+        extractedQuestionsCount: pkg.exam.totalQuestions,
+        issues: pkg.issues,
+        draftExamId: examId,
         createdAt: now,
         completedAt: now,
-        message: 'Nhập gói đề thành công',
+        message:
+          validationResult.readiness === 'DRAFT_ONLY'
+            ? 'Nhập gói đề ở chế độ nháp (DRAFT_ONLY) thành công'
+            : 'Nhập gói đề thành công',
         idempotent: false,
       };
     });
@@ -550,15 +626,44 @@ export class ImportService {
 
     const j = rows[0]!;
     const errLog = j.errorLog as Record<string, unknown> | null;
+    const issues = Array.isArray(errLog?.['issues']) ? (errLog['issues'] as ImportIssue[]) : [];
+    const blockingIssueCount =
+      typeof errLog?.['blockingIssueCount'] === 'number'
+        ? (errLog['blockingIssueCount'] as number)
+        : issues.filter((i) => i.severity === 'blocking').length;
+    const nonBlockingIssueCount =
+      typeof errLog?.['nonBlockingIssueCount'] === 'number'
+        ? (errLog['nonBlockingIssueCount'] as number)
+        : issues.filter((i) => i.severity !== 'blocking').length;
+    const readiness: ImportJobSummary['readiness'] =
+      errLog?.['readiness'] === 'DRAFT_ONLY' || errLog?.['readiness'] === 'READY_FOR_REVIEW' || errLog?.['readiness'] === 'INVALID'
+        ? errLog['readiness']
+        : j.status === 'DRAFT_ONLY'
+          ? 'DRAFT_ONLY'
+          : 'READY_FOR_REVIEW';
+    const mode: 'draft' | 'ready' =
+      errLog?.['mode'] === 'draft' || errLog?.['mode'] === 'ready'
+        ? errLog['mode']
+        : j.status === 'DRAFT_ONLY'
+          ? 'draft'
+          : 'ready';
+
     return {
       id: j.id,
       status: j.status as ImportJobSummary['status'],
+      readiness,
+      mode,
       packageSha256: j.packageSha256,
       fileName: j.fileName,
       targetLevel: j.targetLevel,
-      packageId: (errLog?.packageId as string) || undefined,
-      revision: (errLog?.revision as number) || undefined,
-      contentHash: (errLog?.contentHash as string) || undefined,
+      packageId: (errLog?.['packageId'] as string) || undefined,
+      revision: (errLog?.['revision'] as number) || undefined,
+      contentHash: (errLog?.['contentHash'] as string) || undefined,
+      blockingIssueCount,
+      nonBlockingIssueCount,
+      extractedQuestionsCount: (errLog?.['extractedQuestionsCount'] as number) || 0,
+      issues,
+      draftExamId: (errLog?.['draftExamId'] as string) || undefined,
       createdAt: j.createdAt,
       completedAt: j.completedAt,
     };
@@ -575,15 +680,44 @@ export class ImportService {
 
     return rows.map((j: typeof schema.importJobs.$inferSelect) => {
       const errLog = j.errorLog as Record<string, unknown> | null;
+      const issues = Array.isArray(errLog?.['issues']) ? (errLog['issues'] as ImportIssue[]) : [];
+      const blockingIssueCount =
+        typeof errLog?.['blockingIssueCount'] === 'number'
+          ? (errLog['blockingIssueCount'] as number)
+          : issues.filter((i) => i.severity === 'blocking').length;
+      const nonBlockingIssueCount =
+        typeof errLog?.['nonBlockingIssueCount'] === 'number'
+          ? (errLog['nonBlockingIssueCount'] as number)
+          : issues.filter((i) => i.severity !== 'blocking').length;
+      const readiness: ImportJobSummary['readiness'] =
+        errLog?.['readiness'] === 'DRAFT_ONLY' || errLog?.['readiness'] === 'READY_FOR_REVIEW' || errLog?.['readiness'] === 'INVALID'
+          ? errLog['readiness']
+          : j.status === 'DRAFT_ONLY'
+            ? 'DRAFT_ONLY'
+            : 'READY_FOR_REVIEW';
+      const mode: 'draft' | 'ready' =
+        errLog?.['mode'] === 'draft' || errLog?.['mode'] === 'ready'
+          ? errLog['mode']
+          : j.status === 'DRAFT_ONLY'
+            ? 'draft'
+            : 'ready';
+
       return {
         id: j.id,
         status: j.status as ImportJobSummary['status'],
+        readiness,
+        mode,
         packageSha256: j.packageSha256,
         fileName: j.fileName,
         targetLevel: j.targetLevel,
-        packageId: (errLog?.packageId as string) || undefined,
-        revision: (errLog?.revision as number) || undefined,
-        contentHash: (errLog?.contentHash as string) || undefined,
+        packageId: (errLog?.['packageId'] as string) || undefined,
+        revision: (errLog?.['revision'] as number) || undefined,
+        contentHash: (errLog?.['contentHash'] as string) || undefined,
+        blockingIssueCount,
+        nonBlockingIssueCount,
+        extractedQuestionsCount: (errLog?.['extractedQuestionsCount'] as number) || 0,
+        issues,
+        draftExamId: (errLog?.['draftExamId'] as string) || undefined,
         createdAt: j.createdAt,
         completedAt: j.completedAt,
       };
