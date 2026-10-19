@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Card, Alert } from '@jlpt/ui';
+import { Button, Input, Alert } from '@jlpt/ui';
 import { useAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
 
