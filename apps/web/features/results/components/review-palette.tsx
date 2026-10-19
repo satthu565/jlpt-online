@@ -3,6 +3,7 @@
 import React from 'react';
 import type { FlatQuestionItem } from '../../exam/types';
 import type { ReviewFilter } from '../types';
+import { Button } from '@jlpt/ui';
 
 export interface ReviewPaletteProps {
   questions: FlatQuestionItem[];
@@ -67,21 +68,19 @@ export function ReviewPalette({
       {/* Filter Tabs (SCORE-09) */}
       <div className="flex flex-wrap gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl" role="tablist">
         {filters.map((f) => (
-          <button
+          <Button
             key={f.id}
             type="button"
+            size="sm"
+            variant={activeFilter === f.id ? 'primary' : 'ghost'}
             role="tab"
             aria-selected={activeFilter === f.id}
             onClick={() => onFilterChange(f.id)}
-            className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${
-              activeFilter === f.id
-                ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-            }`}
+            className="px-2.5 py-1 text-xs font-semibold flex items-center gap-1 min-h-[32px] h-8"
           >
             <span>{f.label}</span>
             <span className="text-[10px] opacity-75 font-mono font-bold">({f.count})</span>
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -109,12 +108,14 @@ export function ReviewPalette({
           }
 
           return (
-            <button
+            <Button
               key={idx}
               type="button"
+              variant="outline"
+              size="sm"
               onClick={() => onSelectQuestion(idx)}
               aria-label={`Câu ${q.number}: ${isCorrect ? 'Đúng' : isBlank ? 'Bỏ trống' : 'Sai'}`}
-              className={`relative h-10 rounded-xl border text-xs font-mono transition-all flex items-center justify-center ${btnClasses} ${
+              className={`relative h-10 min-h-[40px] p-0 rounded-xl border text-xs font-mono transition-all flex items-center justify-center ${btnClasses} ${
                 matchesFilter ? 'opacity-100 hover:scale-105' : 'opacity-30'
               }`}
             >
@@ -125,7 +126,7 @@ export function ReviewPalette({
                   title="Có gắn cờ"
                 />
               )}
-            </button>
+            </Button>
           );
         })}
       </div>

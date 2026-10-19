@@ -475,9 +475,10 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
           marginBottom: '2rem',
         }}
       >
-        <button
+        <Button
           type="button"
           role="tab"
+          variant="ghost"
           aria-selected={activeTab === 'practice'}
           data-testid="tab-practice"
           onClick={() => {
@@ -496,14 +497,16 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
             borderBottom: activeTab === 'practice' ? '2px solid var(--color-primary)' : '2px solid transparent',
             marginBottom: '-1px',
             minHeight: '44px',
+            borderRadius: 0,
           }}
         >
           {t('practice.tabs.practice')}
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
           role="tab"
+          variant="ghost"
           aria-selected={activeTab === 'mix'}
           data-testid="tab-mix"
           onClick={() => setActiveTab('mix')}
@@ -518,14 +521,16 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
             borderBottom: activeTab === 'mix' ? '2px solid var(--color-primary)' : '2px solid transparent',
             marginBottom: '-1px',
             minHeight: '44px',
+            borderRadius: 0,
           }}
         >
           {t('practice.tabs.mix')}
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
           role="tab"
+          variant="ghost"
           aria-selected={activeTab === 'quick'}
           data-testid="tab-quick"
           onClick={() => setActiveTab('quick')}
@@ -540,10 +545,11 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
             borderBottom: activeTab === 'quick' ? '2px solid var(--color-primary)' : '2px solid transparent',
             marginBottom: '-1px',
             minHeight: '44px',
+            borderRadius: 0,
           }}
         >
           {t('practice.tabs.quick')}
-        </button>
+        </Button>
       </div>
 
       {/* Tab 1: Practice Generator, In-progress, & Runner */}

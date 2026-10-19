@@ -182,9 +182,10 @@ export default function NotebookPage(): React.JSX.Element {
           marginBottom: '2rem',
         }}
       >
-        <button
+        <Button
           type="button"
           role="tab"
+          variant="ghost"
           aria-selected={activeTab === 'notebook'}
           aria-controls="panel-notebook"
           id="tab-notebook"
@@ -200,14 +201,16 @@ export default function NotebookPage(): React.JSX.Element {
             borderBottom: activeTab === 'notebook' ? '2px solid var(--color-primary)' : '2px solid transparent',
             marginBottom: '-1px',
             minHeight: '44px',
+            borderRadius: 0,
           }}
         >
           📓 {t('notebook.tabs.notebook')} ({items.length})
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
           role="tab"
+          variant="ghost"
           aria-selected={activeTab === 'srs'}
           aria-controls="panel-srs"
           id="tab-srs"
@@ -223,14 +226,16 @@ export default function NotebookPage(): React.JSX.Element {
             borderBottom: activeTab === 'srs' ? '2px solid var(--color-primary)' : '2px solid transparent',
             marginBottom: '-1px',
             minHeight: '44px',
+            borderRadius: 0,
           }}
         >
           🗂️ {t('notebook.tabs.srsReview')} ({dueCards.length})
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
           role="tab"
+          variant="ghost"
           aria-selected={activeTab === 'quiz'}
           aria-controls="panel-quiz"
           id="tab-quiz"
@@ -249,10 +254,11 @@ export default function NotebookPage(): React.JSX.Element {
             borderBottom: activeTab === 'quiz' ? '2px solid var(--color-primary)' : '2px solid transparent',
             marginBottom: '-1px',
             minHeight: '44px',
+            borderRadius: 0,
           }}
         >
-          ⚡ {t('notebook.tabs.quiz')}
-        </button>
+          📝 {t('notebook.tabs.quiz')}
+        </Button>
       </div>
 
       {loading && items.length === 0 && (

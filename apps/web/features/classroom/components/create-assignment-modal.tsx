@@ -171,11 +171,12 @@ export function CreateAssignmentModal({
                   cursor: 'pointer',
                 }}
               >
-                <input
+                <Input
                   type="checkbox"
                   checked={selectedLearnerIds.includes(m.userId)}
                   onChange={() => toggleLearner(m.userId)}
                   aria-label={m.name || m.email}
+                  className="h-4 w-4 min-h-0 cursor-pointer"
                 />
                 <span style={{ fontSize: '0.875rem' }}>{m.name || m.email}</span>
               </label>

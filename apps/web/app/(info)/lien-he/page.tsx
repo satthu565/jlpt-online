@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Input, Select, Button, Alert, JsonLd } from '@jlpt/ui';
+import { Card, Input, Select, Button, Alert, JsonLd, Textarea } from '@jlpt/ui';
 import { useI18n } from '../../../lib/i18n';
 
 export default function ContactPage(): React.JSX.Element {
@@ -99,7 +99,7 @@ export default function ContactPage(): React.JSX.Element {
         <form onSubmit={handleSubmit} className="space-y-4" data-testid="contact-form">
           {/* Honeypot field for bot protection */}
           <div style={{ display: 'none' }} aria-hidden="true">
-            <input
+            <Input
               type="text"
               name="website_hp"
               value={honeypot}
@@ -152,7 +152,7 @@ export default function ContactPage(): React.JSX.Element {
             >
               {t('seo.contact.messageLabel')} *
             </label>
-            <textarea
+            <Textarea
               id="contact-message"
               rows={5}
               value={message}

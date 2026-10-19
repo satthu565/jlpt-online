@@ -144,12 +144,12 @@ export default function RegisterPage(): React.JSX.Element {
                   color: 'var(--text-secondary)',
                 }}
               >
-                <input
+                <Input
                   type="checkbox"
                   id="agree-terms"
                   checked={agreeTerms}
                   onChange={(e) => setAgreeTerms(e.target.checked)}
-                  style={{ width: '1rem', height: '1rem', marginTop: '0.2rem', cursor: 'pointer' }}
+                  style={{ width: '1rem', height: '1rem', minHeight: 'auto', marginTop: '0.2rem', cursor: 'pointer' }}
                   required
                 />
                 <span>{t('auth.register.termsAgree')}</span>

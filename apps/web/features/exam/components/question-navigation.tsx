@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import { Button } from '@jlpt/ui';
 
 export interface QuestionNavigationProps {
   currentIndex: number;
@@ -59,8 +60,9 @@ export function QuestionNavigation({
       aria-label="Điều hướng câu hỏi"
     >
       {/* Previous question button */}
-      <button
+      <Button
         type="button"
+        variant="secondary"
         onClick={onPrev}
         disabled={isFirstInSection}
         aria-label="Chuyển đến câu hỏi trước đó (Phím mũi tên trái)"
@@ -75,7 +77,7 @@ export function QuestionNavigation({
         </svg>
         <span>Câu trước</span>
         <kbd className="hidden sm:inline text-xs text-slate-400 border border-slate-300 dark:border-slate-600 px-1 rounded">←</kbd>
-      </button>
+      </Button>
 
       {/* Progress counter */}
       <div className="text-sm font-medium text-slate-500 font-mono">
@@ -85,42 +87,45 @@ export function QuestionNavigation({
       {/* Next question or Section Transition / Submit button */}
       <div className="flex items-center gap-2">
         {!isLastInSection ? (
-          <button
+          <Button
             type="button"
+            variant="primary"
             onClick={onNext}
             aria-label="Chuyển đến câu hỏi tiếp theo (Phím mũi tên phải)"
-            className="flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-xl font-medium text-sm bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-xl font-medium text-sm shadow-sm"
           >
             <span>Câu sau</span>
             <kbd className="hidden sm:inline text-xs bg-blue-700 text-blue-100 border border-blue-500 px-1 rounded">→</kbd>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
             </svg>
-          </button>
+          </Button>
         ) : !isLastSection ? (
-          <button
+          <Button
             type="button"
+            variant="primary"
             onClick={onRequestNextSection}
             aria-label="Hoàn thành phần thi này và chuyển sang phần thi kế tiếp"
-            className="flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-xl font-semibold text-sm bg-indigo-600 text-white hover:bg-indigo-700 shadow-md transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-xl font-semibold text-sm shadow-md"
           >
             <span>Chuyển phần tiếp theo</span>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
             type="button"
+            variant="success"
             onClick={onRequestSubmit}
             aria-label="Hoàn tất bài làm và nộp bài"
-            className="flex items-center gap-2 px-6 py-2.5 min-h-[44px] rounded-xl font-bold text-sm bg-green-600 text-white hover:bg-green-700 shadow-md transition-all"
+            className="flex items-center gap-2 px-6 py-2.5 min-h-[44px] rounded-xl font-bold text-sm shadow-md"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
             </svg>
             <span>Nộp bài thi</span>
-          </button>
+          </Button>
         )}
       </div>
     </div>

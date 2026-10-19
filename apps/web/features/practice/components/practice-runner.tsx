@@ -343,15 +343,16 @@ export function PracticeRunner({
           }
 
           return (
-            <button
+            <Button
               key={optIdx}
               type="button"
               role="radio"
+              variant="outline"
               aria-checked={isSelected}
               disabled={isChecked}
               onClick={() => handleSelectOption(optValue)}
               data-testid={`practice-option-${optValue}`}
-              className={`w-full p-4 rounded-xl border text-left flex items-start gap-3 transition-all ${btnClass}`}
+              className={`w-full p-4 rounded-xl border text-left flex items-start justify-start gap-3 transition-all min-h-[56px] h-auto whitespace-normal ${btnClass}`}
             >
               <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 ${badgeClass}`}>
                 {opt.label}
@@ -359,7 +360,7 @@ export function PracticeRunner({
               <div className="flex-1 pt-1 font-japanese text-base leading-relaxed">
                 <RichTextView segments={opt.content} />
               </div>
-            </button>
+            </Button>
           );
         })}
       </div>

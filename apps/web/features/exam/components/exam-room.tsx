@@ -24,6 +24,7 @@ import { LeaseConflictModal } from './modals/lease-conflict-modal';
 import { SpeakerTestModal } from './modals/speaker-test-modal';
 import { ShortcutsHelpModal } from './modals/shortcuts-help-modal';
 import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts';
+import { Button } from '@jlpt/ui';
 
 export interface ExamRoomProps {
   snapshot: PublicExamSnapshot;
@@ -342,14 +343,16 @@ export function ExamRoom({
               onExpire={handleTimerExpire}
             />
 
-            <button
+            <Button
               type="button"
+              size="sm"
+              variant="success"
               onClick={() => setIsSubmitModalOpen(true)}
               aria-label="Nộp bài thi"
-              className="px-4 py-1.5 rounded-lg text-xs font-bold bg-green-600 text-white hover:bg-green-700 shadow-sm transition-all"
+              className="px-4 py-1.5 text-xs font-bold"
             >
               Nộp bài
-            </button>
+            </Button>
           </div>
         </div>
       </header>

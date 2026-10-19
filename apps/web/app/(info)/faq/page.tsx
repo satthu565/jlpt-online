@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Card, Input, Badge, JsonLd, Spinner, Alert } from '@jlpt/ui';
+import { Card, Input, Badge, JsonLd, Spinner, Alert, Button } from '@jlpt/ui';
 import { useI18n } from '../../../lib/i18n';
 
 interface FaqItem {
@@ -201,18 +201,16 @@ export default function FaqPage(): React.JSX.Element {
 
         <div className="flex gap-2 justify-center flex-wrap" data-testid="faq-category-filters">
           {categories.map((cat) => (
-            <button
+            <Button
               key={cat.id}
               type="button"
+              variant={selectedCategory === cat.id ? 'primary' : 'secondary'}
+              size="sm"
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                selectedCategory === cat.id
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-              }`}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold"
             >
               {cat.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -239,10 +237,11 @@ export default function FaqPage(): React.JSX.Element {
               data-testid="faq-item"
               className="border border-slate-200 dark:border-slate-800 overflow-hidden"
             >
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => toggleAccordion(faq.id)}
-                className="w-full text-left p-5 flex items-center justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                className="w-full text-left p-5 flex items-center justify-between gap-4 h-auto font-normal rounded-none whitespace-normal hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
                 aria-expanded={isOpen}
               >
                 <div className="flex items-center gap-2.5">
@@ -256,7 +255,7 @@ export default function FaqPage(): React.JSX.Element {
                 <span className="text-slate-400 text-sm font-bold">
                   {isOpen ? '▲' : '▼'}
                 </span>
-              </button>
+              </Button>
 
               {isOpen && (
                 <div className="p-5 pt-0 text-sm leading-relaxed text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-slate-800/60 bg-slate-50/30 dark:bg-slate-900/30">

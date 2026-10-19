@@ -184,9 +184,10 @@ export default function AccountPage(): React.JSX.Element {
           marginBottom: '2rem',
         }}
       >
-        <button
+        <Button
           type="button"
           role="tab"
+          variant="ghost"
           aria-selected={activeTab === 'profile'}
           aria-controls="profile-panel"
           id="profile-tab"
@@ -202,14 +203,16 @@ export default function AccountPage(): React.JSX.Element {
             borderBottom: activeTab === 'profile' ? '2px solid var(--color-primary)' : '2px solid transparent',
             marginBottom: '-1px',
             minHeight: '44px',
+            borderRadius: 0,
           }}
         >
           {t('account.tabs.profile')}
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
           role="tab"
+          variant="ghost"
           aria-selected={activeTab === 'notifications'}
           aria-controls="notifications-panel"
           id="notifications-tab"
@@ -225,14 +228,16 @@ export default function AccountPage(): React.JSX.Element {
             borderBottom: activeTab === 'notifications' ? '2px solid var(--color-primary)' : '2px solid transparent',
             marginBottom: '-1px',
             minHeight: '44px',
+            borderRadius: 0,
           }}
         >
           {t('account.tabs.notifications')}
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
           role="tab"
+          variant="ghost"
           aria-selected={activeTab === 'billing'}
           aria-controls="billing-panel"
           id="billing-tab"
@@ -248,14 +253,16 @@ export default function AccountPage(): React.JSX.Element {
             borderBottom: activeTab === 'billing' ? '2px solid var(--color-primary)' : '2px solid transparent',
             marginBottom: '-1px',
             minHeight: '44px',
+            borderRadius: 0,
           }}
         >
           {t('account.tabs.billing')}
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
           role="tab"
+          variant="ghost"
           aria-selected={activeTab === 'sessions'}
           aria-controls="sessions-panel"
           id="sessions-tab"
@@ -271,14 +278,16 @@ export default function AccountPage(): React.JSX.Element {
             borderBottom: activeTab === 'sessions' ? '2px solid var(--color-primary)' : '2px solid transparent',
             marginBottom: '-1px',
             minHeight: '44px',
+            borderRadius: 0,
           }}
         >
           {t('account.tabs.sessions')}
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
           role="tab"
+          variant="ghost"
           aria-selected={activeTab === 'privacy'}
           aria-controls="privacy-panel"
           id="privacy-tab"
@@ -294,10 +303,11 @@ export default function AccountPage(): React.JSX.Element {
             borderBottom: activeTab === 'privacy' ? '2px solid var(--color-primary)' : '2px solid transparent',
             marginBottom: '-1px',
             minHeight: '44px',
+            borderRadius: 0,
           }}
         >
           {t('account.tabs.privacy')}
-        </button>
+        </Button>
       </div>
 
       {/* Tab 1: Profile & Target Level */}

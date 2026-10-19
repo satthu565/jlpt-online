@@ -1,13 +1,13 @@
 {
   "description": "Baseline of raw HTML UI primitives (<button>, <input>, <select>, <textarea>) across apps/web and apps/admin. Decreases over time as teams refactor towards @jlpt/ui.",
-  "updatedAt": "2026-10-19T02:00:00Z",
+  "updatedAt": "2026-10-19T05:34:50.063Z",
   "baseline": {
     "web": {
-      "button": 54,
-      "input": 18,
-      "select": 6,
-      "textarea": 2,
-      "total": 80
+      "button": 0,
+      "input": 0,
+      "select": 0,
+      "textarea": 0,
+      "total": 0
     },
     "admin": {
       "button": 117,
@@ -16,6 +16,6 @@
       "textarea": 8,
       "total": 176
     },
-    "total": 256
+    "total": 176
   }
 }
