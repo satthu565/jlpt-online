@@ -123,12 +123,12 @@ export default function LoginPage(): React.JSX.Element {
                   color: 'var(--text-secondary)',
                 }}
               >
-                <input
+                <Input
                   type="checkbox"
                   id="remember-me"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  style={{ width: '1rem', height: '1rem', cursor: 'pointer' }}
+                  style={{ width: '1rem', height: '1rem', minHeight: 'auto', cursor: 'pointer' }}
                 />
                 <span>{t('auth.login.rememberMe')}</span>
               </label>

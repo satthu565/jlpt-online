@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Button } from '@jlpt/ui';
 import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 import { apiClient } from '../../lib/api-client';
@@ -114,9 +115,9 @@ export default function BlueprintsPage(): React.JSX.Element {
           </div>
         )}
 
-        <div className="overflow-x-auto w-full bg-white border border-gray-200 rounded-lg shadow-xs">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50 text-gray-700">
+        <div className="overflow-x-auto w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg shadow-xs">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-800 text-sm">
+            <thead className="bg-gray-50 dark:bg-slate-800/50 text-gray-700 dark:text-slate-300">
               <tr>
                 <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">Cấp độ</th>
                 <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">Phiên bản</th>
@@ -126,7 +127,7 @@ export default function BlueprintsPage(): React.JSX.Element {
                 <th className="px-4 py-3 text-right font-semibold text-xs uppercase tracking-wider">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 dark:divide-slate-800">
               {!isLoading && blueprints.length === 0 ? (
                 <tr>
                   <td colSpan={6} data-testid="blueprints-empty" className="p-8 text-center text-gray-400">
@@ -135,11 +136,11 @@ export default function BlueprintsPage(): React.JSX.Element {
                 </tr>
               ) : (
                 blueprints.map((bp) => (
-                  <tr key={`${bp.id}_${bp.version}`} data-testid={`bp-row-${bp.level}-v${bp.version}`} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-bold text-blue-700">{bp.level}</td>
+                  <tr key={`${bp.id}_${bp.version}`} data-testid={`bp-row-${bp.level}-v${bp.version}`} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                    <td className="px-4 py-3 font-bold text-blue-700 dark:text-blue-400">{bp.level}</td>
                     <td className="px-4 py-3 font-mono">v{bp.version}</td>
                     <td className="px-4 py-3">
-                      <span className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700">{bp.kind}</span>
+                      <span className="px-2 py-0.5 rounded text-xs bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300">{bp.kind}</span>
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -155,23 +156,25 @@ export default function BlueprintsPage(): React.JSX.Element {
                       {bp.sourceRef?.[0]?.url || 'Không có nguồn'}
                     </td>
                     <td className="px-4 py-3 text-right space-x-2">
-                      <button
+                      <Button
                         type="button"
+                        variant="secondary"
+                        size="sm"
                         data-testid={`btn-create-version-${bp.level}`}
                         onClick={() => handleCreateNewVersion(bp)}
-                        className="px-2.5 py-1 text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 rounded font-medium"
                       >
                         {t('content.blueprints.createVersionBtn', locale)}
-                      </button>
+                      </Button>
                       {bp.status !== 'active' && user?.role === 'admin' && (
-                        <button
+                        <Button
                           type="button"
+                          variant="primary"
+                          size="sm"
                           data-testid={`btn-activate-${bp.level}`}
                           onClick={() => handleActivate(bp)}
-                          className="px-2.5 py-1 text-xs bg-green-50 text-green-700 hover:bg-green-100 rounded font-medium"
                         >
                           {t('content.blueprints.activateBtn', locale)}
-                        </button>
+                        </Button>
                       )}
                     </td>
                   </tr>

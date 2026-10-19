@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Button } from '@jlpt/ui';
 import type { FlatQuestionItem } from '../types';
 
 export interface QuestionPaletteProps {
@@ -72,9 +73,10 @@ export function QuestionPalette({
             .join(', ');
 
           return (
-            <button
+            <Button
               key={idx}
               type="button"
+              variant="outline"
               disabled={isLocked}
               onClick={() => onSelectQuestion(idx)}
               aria-label={statusText}
@@ -82,7 +84,7 @@ export function QuestionPalette({
               data-question-index={idx}
               data-answered={isAnswered}
               data-flagged={isFlagged}
-              className={`relative min-h-[44px] min-w-[44px] rounded-lg text-xs font-mono flex items-center justify-center border transition-all ${btnClass}`}
+              className={`relative min-h-[44px] min-w-[44px] p-0 rounded-lg text-xs font-mono flex items-center justify-center border transition-all ${btnClass}`}
             >
               <span>{q.number}</span>
 
@@ -107,7 +109,7 @@ export function QuestionPalette({
                   🔒
                 </span>
               )}
-            </button>
+            </Button>
           );
         })}
       </div>

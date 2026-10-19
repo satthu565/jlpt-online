@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button, Card, Badge, Alert, ShareDialog } from '@jlpt/ui';
+import { Button, Card, Badge, Alert, ShareDialog, Input } from '@jlpt/ui';
 import { GamificationClient } from '../services/gamification-client';
 import type {
   StreakResponseDto,
@@ -344,12 +344,12 @@ export function GamificationDashboard({
           </h3>
 
           <label className="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
-            <input
+            <Input
               type="checkbox"
               checked={optIn}
               onChange={handleToggleOptIn}
               data-testid="leaderboard-optin-checkbox"
-              className="rounded text-blue-600 focus:ring-blue-500"
+              className="h-4 w-4 min-h-0 cursor-pointer rounded text-blue-600 focus:ring-blue-500"
             />
             <span>{t('seo.gamification.optInLabel')}</span>
           </label>

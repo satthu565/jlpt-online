@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Button } from '@jlpt/ui';
 import type { SyncState } from '../types';
 
 export interface SyncStatusIndicatorProps {
@@ -72,13 +73,15 @@ export function SyncStatusIndicator({
           </svg>
           <span>Lỗi đồng bộ (đã lưu local)</span>
           {onRetry && (
-            <button
+            <Button
               type="button"
+              variant="link"
+              size="sm"
               onClick={onRetry}
-              className="underline text-rose-800 dark:text-rose-300 hover:text-rose-900 ml-1"
+              className="underline text-rose-800 dark:text-rose-300 hover:text-rose-900 ml-1 p-0 h-auto min-h-0 text-xs"
             >
               Thử lại
-            </button>
+            </Button>
           )}
         </div>
       );

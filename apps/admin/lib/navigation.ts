@@ -133,6 +133,18 @@ export const ALL_NAV_SECTIONS: NavSection[] = [
         href: '/exams/mixed',
         requiredRoles: ['admin', 'editor', 'reviewer'],
       },
+      {
+        id: 'jlptSchedules',
+        labelKey: 'nav.schedules',
+        href: '/exams/schedules',
+        requiredRoles: ['admin', 'editor'],
+      },
+      {
+        id: 'scoringTables',
+        labelKey: 'nav.scoringTables',
+        href: '/exams/scoring',
+        requiredRoles: ['admin', 'editor'],
+      },
     ],
   },
   {
