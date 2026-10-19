@@ -2273,9 +2273,14 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
       return;
     }
     const emailInput = page.locator('#login-email, input[type="email"]').first();
+    const passwordInput = page.locator('#login-password, input[type="password"]').first();
     await expect(emailInput).toBeVisible({ timeout: 15000 });
+    await emailInput.click();
     await emailInput.fill(studentUser.email);
-    await page.locator('#login-password, input[type="password"]').first().fill(studentUser.password);
+    await expect(emailInput).toHaveValue(studentUser.email, { timeout: 5000 });
+    await passwordInput.click();
+    await passwordInput.fill(studentUser.password);
+    await expect(passwordInput).toHaveValue(studentUser.password, { timeout: 5000 });
     const submitBtn = page.locator('button[type="submit"]').first();
     await expect(submitBtn).toBeVisible({ timeout: 15000 });
     await page.waitForTimeout(300);
@@ -2284,6 +2289,8 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
       await page.waitForURL(/\/tai-khoan/, { timeout: 25000, waitUntil: 'domcontentloaded' });
     } catch {
       if (page.url().includes('/dang-nhap')) {
+        await emailInput.fill(studentUser.email);
+        await passwordInput.fill(studentUser.password);
         await page.waitForTimeout(500);
         await submitBtn.click();
         await page.waitForURL(/\/tai-khoan/, { timeout: 25000, waitUntil: 'domcontentloaded' });
