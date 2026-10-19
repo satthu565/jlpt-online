@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { Button, Select } from '@jlpt/ui';
 import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
@@ -244,10 +245,10 @@ export default function ReportsHubPage(): React.JSX.Element {
 
   return (
     <AdminGuard pathname="/reports">
-      <div className="w-full max-w-6xl mx-auto p-4 md:p-8 space-y-6 overflow-x-hidden">
+      <div className="w-full max-w-6xl mx-auto p-4 md:p-8 space-y-6 overflow-x-hidden font-sans">
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 data-testid="page-title" className="text-2xl font-bold text-gray-900">
+            <h1 data-testid="page-title" className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {t('reports.hubTitle', locale)}
             </h1>
             <p className="text-sm text-gray-500 mt-1">
@@ -256,25 +257,26 @@ export default function ReportsHubPage(): React.JSX.Element {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <select
+            <Select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded text-xs font-semibold bg-white text-gray-700 focus:ring-1 focus:ring-blue-500"
+              className="w-auto px-3 py-2 text-xs font-semibold"
             >
               <option value="7d">7 ngày qua</option>
               <option value="30d">30 ngày qua</option>
               <option value="90d">90 ngày qua</option>
               <option value="all">Toàn bộ thời gian</option>
-            </select>
+            </Select>
 
-            <button
+            <Button
               type="button"
+              variant="default"
               data-testid="btn-export-csv"
               onClick={() => void handleExportCsv(activeReport)}
               className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded shadow-xs"
             >
               ↓ {t('reports.exportCsv', locale)}
-            </button>
+            </Button>
           </div>
         </header>
 
@@ -294,12 +296,14 @@ export default function ReportsHubPage(): React.JSX.Element {
             className="p-3 bg-red-50 border border-red-200 text-red-700 rounded text-xs flex items-center justify-between"
           >
             <span>{errorMsg}</span>
-            <button
+            <Button
+              variant="destructive"
+              size="sm"
               onClick={() => void fetchReport()}
-              className="px-2.5 py-1 bg-red-600 text-white rounded text-[11px] font-medium hover:bg-red-700"
+              className="text-[11px] h-7 px-2.5"
             >
               {t('common.retry', locale)}
-            </button>
+            </Button>
           </div>
         )}
 
@@ -317,29 +321,27 @@ export default function ReportsHubPage(): React.JSX.Element {
         {/* 15 Tabs Navigation */}
         <div
           data-testid="reports-tab-nav"
-          className="flex gap-2 overflow-x-auto pb-2 border-b border-gray-200"
+          className="flex gap-2 overflow-x-auto pb-2 border-b border-gray-200 dark:border-gray-700"
         >
           {REPORT_TABS.map((tab) => (
-            <button
+            <Button
               key={tab.id}
               type="button"
+              variant={activeReport === tab.id ? 'primary' : 'secondary'}
+              size="sm"
               data-testid={`report-tab-${tab.id}`}
               onClick={() => setActiveReport(tab.id)}
-              className={`px-3 py-1.5 rounded text-xs font-semibold whitespace-nowrap transition-colors ${
-                activeReport === tab.id
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className="text-xs font-semibold whitespace-nowrap shrink-0 transition-colors"
             >
               {tab.label}
-            </button>
+            </Button>
           ))}
         </div>
 
         {/* Active Report Content Container */}
         <div
           data-testid="report-content-panel"
-          className="bg-white rounded-lg border border-gray-200 p-4 md:p-6 shadow-xs"
+          className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6 shadow-xs"
         >
           {/* REPORT-01: Acquisition */}
           {activeReport === 'acquisition' && (

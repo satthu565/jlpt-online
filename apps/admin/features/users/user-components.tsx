@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Button, Input, Select } from '@jlpt/ui';
 import type { Role } from '@jlpt/schema';
 import type { StaffUser } from '../../lib/auth-context';
 import type { AdminManagedUser, AuditLogEntry } from './types';
@@ -98,21 +99,21 @@ export function UserListTable({
       )}
 
       {/* Filter toolbar */}
-      <div className="flex flex-wrap gap-3 items-center justify-between bg-white p-3 border rounded-lg">
+      <div className="flex flex-wrap gap-3 items-center justify-between bg-white dark:bg-slate-900 p-3 border border-gray-200 dark:border-slate-800 rounded-lg">
         <div className="flex items-center space-x-2">
-          <input
+          <Input
             type="text"
             data-testid="input-user-search"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder="Tìm theo email hoặc tên..."
-            className="px-3 py-1.5 border rounded text-sm w-64"
+            className="w-64"
           />
-          <select
+          <Select
             data-testid="select-role-filter"
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="px-3 py-1.5 border rounded text-sm bg-white"
+            className="w-48"
           >
             <option value="all">Tất cả vai trò</option>
             {AVAILABLE_ROLES.map((r) => (
@@ -120,17 +121,17 @@ export function UserListTable({
                 {r.label}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
         <div className="text-xs text-gray-500">
-          Tìm thấy <strong className="text-gray-800">{users.length}</strong> tài khoản
+          Tìm thấy <strong className="text-gray-800 dark:text-slate-200">{users.length}</strong> tài khoản
         </div>
       </div>
 
       {/* Users table */}
-      <div className="overflow-x-auto bg-white border rounded-lg">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
+      <div className="overflow-x-auto bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-800 text-sm">
+          <thead className="bg-gray-50 dark:bg-slate-800/50">
             <tr>
               <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Người dùng</th>
               <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Vai trò</th>
@@ -139,7 +140,7 @@ export function UserListTable({
               <th className="px-4 py-3 text-right font-medium text-gray-500 uppercase tracking-wider text-xs">Hành động</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 dark:divide-slate-800">
             {users.length === 0 ? (
               <tr>
                 <td colSpan={5} data-testid="users-empty" className="px-4 py-6 text-center text-gray-400 italic">
@@ -150,9 +151,9 @@ export function UserListTable({
               users.map((u) => {
                 const isBlocked = Boolean(u.blockedAt);
                 return (
-                  <tr key={u.id} data-testid={`user-row-${u.id}`} className="hover:bg-gray-50">
+                  <tr key={u.id} data-testid={`user-row-${u.id}`} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
                     <td className="px-4 py-3">
-                      <div className="font-medium text-gray-900">{u.name}</div>
+                      <div className="font-medium text-gray-900 dark:text-slate-100">{u.name}</div>
                       <div className="text-xs text-gray-500">{u.email}</div>
                     </td>
                     <td className="px-4 py-3">
@@ -193,26 +194,24 @@ export function UserListTable({
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right space-x-2">
-                      <button
+                      <Button
                         type="button"
+                        variant="secondary"
+                        size="sm"
                         data-testid={`btn-edit-role-${u.id}`}
                         onClick={() => handleOpenRoleModal(u)}
-                        className="text-xs px-2.5 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded font-medium"
                       >
                         Đổi vai trò
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
+                        variant={isBlocked ? 'outline' : 'destructive'}
+                        size="sm"
                         data-testid={`btn-toggle-block-${u.id}`}
                         onClick={() => handleToggleBlock(u)}
-                        className={`text-xs px-2.5 py-1 rounded font-medium ${
-                          isBlocked
-                            ? 'bg-green-50 text-green-700 hover:bg-green-100'
-                            : 'bg-red-50 text-red-700 hover:bg-red-100'
-                        }`}
                       >
                         {isBlocked ? 'Mở khóa' : 'Khóa'}
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 );
@@ -234,38 +233,40 @@ export function UserListTable({
             </p>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-700 block">Chọn vai trò mới:</label>
-              <select
+              <label className="text-xs font-semibold text-gray-700 dark:text-slate-300 block">Chọn vai trò mới:</label>
+              <Select
                 data-testid="modal-select-role"
                 value={pendingRole}
                 onChange={(e) => setPendingRole(e.target.value as Role)}
-                className="w-full px-3 py-2 border rounded text-sm bg-white"
+                className="w-full"
               >
                 {AVAILABLE_ROLES.map((r) => (
                   <option key={r.role} value={r.role}>
                     {r.label}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
-            <div className="flex justify-end space-x-2 pt-2 border-t">
-              <button
+            <div className="flex justify-end space-x-2 pt-2 border-t border-gray-200 dark:border-slate-800">
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 data-testid="btn-cancel-role-modal"
                 onClick={() => setSelectedUser(null)}
-                className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded"
               >
                 Hủy
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="primary"
+                size="sm"
                 data-testid="btn-confirm-role-change"
                 onClick={handleSaveRole}
-                className="px-4 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded shadow-xs"
               >
                 Lưu vai trò
-              </button>
+              </Button>
             </div>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Button } from '@jlpt/ui';
 import type { BackupService } from './backup-service';
 import type { OperatorBackupJob, BackupSummary } from './types';
 import type { StaffUser } from '../../lib/auth-context';
@@ -103,12 +104,13 @@ export function BackupManagerView({
         >
           <span>{activeError}</span>
           {onRetry && (
-            <button
+            <Button
+              variant="destructive"
+              size="sm"
               onClick={onRetry}
-              className="px-3 py-1 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700"
             >
               Thử lại
-            </button>
+            </Button>
           )}
         </div>
       )}
@@ -136,9 +138,9 @@ export function BackupManagerView({
 
       {/* SLA & Status Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg border shadow-xs">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-gray-200 dark:border-slate-800 shadow-xs">
           <div className="text-xs text-gray-500">Mục tiêu Điểm khôi phục (RPO)</div>
-          <div data-testid="backup-rpo-indicator" className="text-lg font-bold text-gray-900 mt-1 flex items-center gap-1.5">
+          <div data-testid="backup-rpo-indicator" className="text-lg font-bold text-gray-900 dark:text-slate-100 mt-1 flex items-center gap-1.5">
             <span className={`w-2.5 h-2.5 rounded-full ${summary.isRpoMet ? 'bg-emerald-500' : 'bg-amber-500'}`} />
             <span>≤ 5 phút (WAL-G R2)</span>
           </div>
@@ -147,25 +149,25 @@ export function BackupManagerView({
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border shadow-xs">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-gray-200 dark:border-slate-800 shadow-xs">
           <div className="text-xs text-gray-500">Bản sao lưu Base gần nhất</div>
-          <div data-testid="last-base-backup" className="text-sm font-semibold text-gray-900 mt-1">
+          <div data-testid="last-base-backup" className="text-sm font-semibold text-gray-900 dark:text-slate-100 mt-1">
             {summary.lastSuccessfulBaseBackup ? new Date(summary.lastSuccessfulBaseBackup).toLocaleString('vi-VN') : 'Chưa ghi nhận'}
           </div>
           <div className="text-[11px] text-gray-500 mt-0.5">Tần suất: Hằng ngày (03:00 UTC)</div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border shadow-xs">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-gray-200 dark:border-slate-800 shadow-xs">
           <div className="text-xs text-gray-500">Lần diễn tập PITR gần nhất</div>
-          <div data-testid="last-pitr-drill" className="text-sm font-semibold text-gray-900 mt-1">
+          <div data-testid="last-pitr-drill" className="text-sm font-semibold text-gray-900 dark:text-slate-100 mt-1">
             {summary.lastSuccessfulPitrDrill ? new Date(summary.lastSuccessfulPitrDrill).toLocaleString('vi-VN') : 'Chưa ghi nhận'}
           </div>
           <div className="text-[11px] text-gray-500 mt-0.5">Môi trường: Staging Isolated DB</div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border shadow-xs">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-gray-200 dark:border-slate-800 shadow-xs">
           <div className="text-xs text-gray-500">Tổng dung lượng sao lưu</div>
-          <div data-testid="total-backup-size" className="text-lg font-bold text-gray-900 mt-1">
+          <div data-testid="total-backup-size" className="text-lg font-bold text-gray-900 dark:text-slate-100 mt-1">
             {Math.round((summary.totalSizeBytes / 1024 / 1024) * 10) / 10} MB
           </div>
           <div className="text-[11px] text-gray-500 mt-0.5">{summary.totalJobsCount} bản ghi hoàn tất</div>
@@ -173,33 +175,36 @@ export function BackupManagerView({
       </div>
 
       {/* Operator Trigger Actions */}
-      <div className="bg-white p-4 rounded-lg border space-y-3 shadow-xs">
-        <h3 className="text-sm font-bold text-gray-800">Kích hoạt tác vụ sao lưu / diễn tập thủ công</h3>
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-gray-200 dark:border-slate-800 space-y-3 shadow-xs">
+        <h3 className="text-sm font-bold text-gray-800 dark:text-slate-200">Kích hoạt tác vụ sao lưu / diễn tập thủ công</h3>
         <div className="flex flex-wrap gap-2">
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="sm"
             data-testid="btn-trigger-base-backup"
             onClick={() => void handleTrigger('base-backup')}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded shadow-xs"
           >
             Chạy Base Backup (WAL-G)
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             data-testid="btn-trigger-export-bundle"
             onClick={() => void handleTrigger('export-bundle')}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded shadow-xs"
           >
             Xuất gói dữ liệu quản trị (Sanitized)
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="outline"
+            size="sm"
             data-testid="btn-trigger-restore-pitr"
             onClick={() => void handleTrigger('restore-pitr')}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded shadow-xs"
           >
             Diễn tập khôi phục PITR (Staging Isolated)
-          </button>
+          </Button>
         </div>
       </div>
 
