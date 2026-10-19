@@ -1593,8 +1593,8 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Worker: **W2**. Ngày mục tiêu: 8. Ước lượng chưa đo: 3 giờ worker; không gồm mọi vòng sửa/review.
 - Phụ thuộc: I03. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: import.controller.ts không truyền mode nên import.service luôn kiểm tra ở chế độ ready và từ chối gói có issue blocking, trái với docs/import-format/README.md (DRAFT_ONLY được lưu nháp, chặn xuất bản). Cho POST /api/v1/admin/imports nhận mode=draft|ready (multipart field và JSON body), mặc định ready; gói DRAFT_ONLY lưu thành bản nháp kèm danh sách issue, không vào hàng duyệt/xuất bản cho tới khi nạp lại bản ready cùng packageId với revision cao hơn. Trang nhập gói của quản trị có lựa chọn "Nạp bản nháp", hiện trạng thái DRAFT_ONLY và từng issue (mức độ, đường dẫn, lý do). Xuất bản đề từ bản nháp phải bị chặn ở API.
-- Bàn giao: apps/api/src/modules/import/.
+- Phạm vi: import.controller.ts không truyền mode nên import.service luôn kiểm tra ở chế độ ready và từ chối gói có issue blocking, trái với docs/import-format/README.md (DRAFT_ONLY được lưu nháp, chặn xuất bản). Cho POST /api/v1/admin/imports nhận mode=draft|ready (multipart field và JSON body), mặc định ready; gói DRAFT_ONLY lưu thành bản nháp kèm danh sách issue, không vào hàng duyệt/xuất bản cho tới khi nạp lại bản ready cùng packageId với revision cao hơn. Trang nhập gói của quản trị có lựa chọn "Nạp bản nháp", hiện trạng thái DRAFT_ONLY và từng issue (mức độ, đường dẫn, lý do). Xuất bản đề từ bản nháp phải bị chặn ở API. Ghi chú của người vận hành (19/10, sau review lần 3): chặn bản nháp cần sửa exam.service.ts và review.service.ts, nên các file này nằm trong phạm vi I16. Sửa gte() trong attempt.service.ts (truy vấn lượt làm bài 24 giờ của khách) cũng giữ lại: đó là lỗi 500 thật khi khách bắt đầu làm bài, cần cho staging đạt. Parser body trong main.ts phải có giới hạn kích thước ngay trong I16: một addContentTypeParser chung với { parseAs: "buffer", bodyLimit } (mặc định 1 MB; route POST /api/v1/admin/imports đặt bodyLimit riêng từ IMPORT_MAX_BYTES, mặc định 50 MB), vượt giới hạn trả 413 (I18 bổ sung test). Validator trang quản trị đếm đủ số câu thiếu đáp án vào blockingIssueCount.
+- Bàn giao: apps/api/src/modules/import/; apps/api/src/modules/exam/; apps/api/src/modules/review/; apps/api/src/modules/attempt/attempt.service.ts; apps/api/src/main.ts.
 - Hợp đồng: API.
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
 - Điều kiện ngoài chặn bắt đầu: không.
@@ -1671,7 +1671,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Worker: **W6**. Ngày mục tiêu: 8. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
 - Phụ thuộc: I01, I08, I10, I11, I12, I13, I09, I03, I04, I05, I06, I14, I15. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.
+- Phạm vi: Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo. Ghi chú của người vận hành (20/10): lần kiểm tra 1 trượt vì chạy pnpm test:e2e:integration thẳng trên VM (thiếu thư viện WebKit, không có stack staging nên API 500, Mailpit 404); lệnh đó đã bỏ khỏi kiểm tra, E2E chạy qua jlpt-stage-test check-all. Không sửa code để chiều các lỗi môi trường đó; chỉ sửa lỗi E2E thật thấy trong jlpt-stage-test check-all.
 - Bàn giao: tests/; .github/; infra/; docs/release/; docs/runbooks/.
 - Hợp đồng: quy tắc chung.
 - Khóa tài nguyên: ci-workflow, staging-deploy.
@@ -1685,7 +1685,6 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - docs/release/INTEGRATION_REPORT.md liệt kê từng trang và bằng chứng E2E.
 - Lệnh cần cung cấp và chạy:
   - `pnpm check:no-mock-ui`
-  - `pnpm test:e2e:integration`
   - `sudo -n /usr/local/bin/jlpt-stage-test check-all`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
@@ -1998,7 +1997,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - E2E: làm đề N5 → đỗ/trượt từng phần; Hán Việt và furigana; cảnh báo nhịp; lịch thi và nhắc hạn đăng ký.
   - docs/release/NEW_FEATURES_REPORT.md có ảnh và bằng chứng từng tính năng.
 - Lệnh cần cung cấp và chạy:
-  - `pnpm test:e2e:integration`
+  - `pnpm check:no-mock-ui`
   - `sudo -n /usr/local/bin/jlpt-stage-test check-all`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.

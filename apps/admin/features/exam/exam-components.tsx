@@ -98,7 +98,7 @@ export function ExamListView({
     if (!takedownExamId) return;
     setErrorMessage(null);
     try {
-      await apiClient.unpublishExam(takedownExamId, takedownReason);
+      await apiClient.unpublishExam(takedownExamId, takedownReason || 'Admin unpublish');
       setStatusMessage(
         `Đã gỡ đề thi khỏi xuất bản (Takedown). Phiên bản cũ vẫn được lưu trữ nguyên vẹn trong lịch sử.`,
       );
