@@ -64,6 +64,7 @@ export class AdminApiClient {
   // In-memory credential store for 2FA enrollment verification in unit tests
   private activeRecoveryHashes: string[] = [];
   private activeTotpSecret: string | null = null;
+  private onUnauthorizedCallback: (() => void) | null = null;
 
   constructor(options: AdminApiClientOptions = {}) {
     if (options.baseUrl) {
@@ -84,6 +85,10 @@ export class AdminApiClient {
   public setAuth(user: StaffUser | null, token: string | null): void {
     this.user = user;
     this.token = token;
+  }
+
+  public setOnUnauthorized(callback: (() => void) | null): void {
+    this.onUnauthorizedCallback = callback;
   }
 
   public setUser(user: StaffUser | null): void {
@@ -195,8 +200,16 @@ export class AdminApiClient {
     }
 
     const url = `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+    const isMutation = ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase());
     const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
-    const hasBody = options.body !== undefined;
+    const bodyToSend = isFormData
+      ? (options.body as FormData)
+      : options.body !== undefined
+        ? options.body
+        : isMutation
+          ? {}
+          : undefined;
+    const hasBody = bodyToSend !== undefined;
     const headers: Record<string, string> = {
       ...(hasBody && !isFormData ? { 'Content-Type': 'application/json' } : {}),
       ...options.headers,
@@ -224,9 +237,9 @@ export class AdminApiClient {
         headers,
         credentials: 'include',
         body: isFormData
-          ? (options.body as FormData)
-          : options.body !== undefined
-            ? JSON.stringify(options.body)
+          ? (bodyToSend as FormData)
+          : bodyToSend !== undefined
+            ? JSON.stringify(bodyToSend)
             : undefined,
       });
     } catch (err: unknown) {
@@ -239,6 +252,10 @@ export class AdminApiClient {
         errorData = (await res.json()) as typeof errorData;
       } catch {
         // Non-json response
+      }
+
+      if (res.status === 401) {
+        this.onUnauthorizedCallback?.();
       }
 
       const code = (errorData.error?.code as GuardErrorCode) || (res.status === 401 ? 'UNAUTHENTICATED' : res.status === 403 ? 'FORBIDDEN' : 'VALIDATION_ERROR');
@@ -585,6 +602,7 @@ export class AdminApiClient {
   public async publishExam(id: string): Promise<{ success: boolean; version?: number }> {
     return this.request<{ success: boolean; version?: number }>('POST', `/api/v1/admin/exams/${encodeURIComponent(id)}/publish`, {
       requiredRoles: ['admin'],
+      body: {},
     });
   }
 
