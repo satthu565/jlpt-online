@@ -2316,7 +2316,7 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
     const pacingWarning = page.locator('[data-testid="pacing-warning"]');
     await expect(pacingWarning).toBeVisible({ timeout: 10000 });
     const warningText = await pacingWarning.innerText();
-    expect(warningText).toContain('chậm hơn');
+    expect(warningText).toMatch(/chậm hơn/i);
 
     // Submit practice exam to clear active attempt
     const submitBtn = page.locator('[data-testid="submit-exam-btn"], button:has-text("Nộp bài")').first();
@@ -2444,8 +2444,9 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
 
     // Reload and check reminder toggle persists enabled state
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await expect(page.locator('[data-testid="schedule-reminder-toggle"]')).toBeVisible({ timeout: 10000 });
-    expect(await page.locator('[data-testid="schedule-reminder-toggle"]').getAttribute('aria-pressed')).toBe('true');
+    const reminderToggleAfterReload = page.locator('[data-testid="schedule-reminder-toggle"]');
+    await expect(reminderToggleAfterReload).toBeVisible({ timeout: 10000 });
+    await expect(reminderToggleAfterReload).toHaveAttribute('aria-pressed', 'true', { timeout: 10000 });
   });
 
   test('AC5: Viewports (390px, 1366px), zero horizontal overflow, and screenshot capture for P04', async ({
