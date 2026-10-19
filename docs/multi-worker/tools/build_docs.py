@@ -511,6 +511,18 @@ task('I16','W2',8,3,'Nhập gói đề ở chế độ nháp (DRAFT_ONLY) qua AP
  'Gói fixtures/imports/draft.zip nạp được ở chế độ nháp, trang quản trị hiện issue blocking|Cùng gói ở chế độ ready bị từ chối với thông báo rõ|'
  'API chặn duyệt và xuất bản bản nháp (test âm)|Nạp lại bản ready cùng packageId, revision cao hơn thì thay bản nháp|'+NO_MOCK+'|'+REAL_E2E,
  'pnpm test|pnpm check:no-mock-ui',contracts='API',grants='apps/admin/features/import/ apps/admin/app/imports/ apps/admin/lib/api-client.ts tests/playwright/')
+# Owner's extraction project now writes Vietnamese explanations into import packages (2026-10-19).
+task('I17','W2',8,3,'Lời giải trong gói nhập đi vào quy trình duyệt và hiện cho học viên','I16',
+ 'import.service lưu question.explanation ({locale, blocks}) vào question_versions.explanation, nhưng trang xem lại bài của học viên và màn duyệt lời giải '
+ 'chỉ đọc explanation_versions (status approved, content.correctReason/wrongReasonsByOption/translation), nên lời giải trong gói nhập không bao giờ hiện. '
+ 'Khi nhập gói: mỗi câu có explanation tạo một explanation_versions bản nháp (status draft, locale, tác giả = người nhập) và tách các đoạn theo tiền tố: '
+ '"• Dịch nghĩa:" -> translation; "• Đáp án đúng: [n]" + phần sau -> correctReason; mỗi dòng "- [n] ...: ..." trong đoạn "• Phân tích các phương án còn lại:" '
+ '-> wrongReasonsByOption[n]; không khớp tiền tố thì giữ toàn bộ blocks và dùng chữ của chúng làm correctReason. Giữ nguyên blocks gốc trong content. '
+ 'Học viên chỉ thấy lời giải sau khi reviewer duyệt (approved) và sau khi nộp bài; không lộ trước quyền xem.',
+ 'apps/api/src/modules/import/|apps/api/src/modules/review/',
+ 'Nhập gói có explanation -> màn duyệt lời giải của quản trị hiện bản nháp với bản dịch, lý do đúng, lý do sai từng phương án|'
+ 'Reviewer duyệt -> trang xem lại bài của học viên hiện đủ lời giải; chưa duyệt thì không hiện|Test âm: không lộ lời giải trước khi nộp bài|'+NO_MOCK+'|'+REAL_E2E,
+ 'pnpm test|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/')
 task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I11 I12 I13 I09 I03 I04 I05 I06 I14 I15',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',
@@ -603,7 +615,7 @@ task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05 D05',
 
 # Staging E2E on jlpt-vm (same suite as CI) is a required check for tasks that touch the UI or APIs it uses.
 for _t in TASKS:
-    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','D02','D03','D04','P03','P04','P05'}:
+    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','I17','D02','D03','D04','P03','P04','P05'}:
         _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check')
     # Per-task runs cover Chromium + Mobile Safari; final acceptance runs every browser.
     if _t['id'] in {'I07','D05','P06'}:

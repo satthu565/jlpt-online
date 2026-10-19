@@ -3761,6 +3761,50 @@
       "originalTaskRefs": []
     },
     {
+      "id": "I17",
+      "owner": "W2",
+      "day": 8,
+      "notBeforeHour": 168,
+      "targetByHour": 192,
+      "estimatedWorkerHours": 3,
+      "title": "Lời giải trong gói nhập đi vào quy trình duyệt và hiện cho học viên",
+      "dependencies": [
+        "I16"
+      ],
+      "featureIds": [],
+      "scope": "import.service lưu question.explanation ({locale, blocks}) vào question_versions.explanation, nhưng trang xem lại bài của học viên và màn duyệt lời giải chỉ đọc explanation_versions (status approved, content.correctReason/wrongReasonsByOption/translation), nên lời giải trong gói nhập không bao giờ hiện. Khi nhập gói: mỗi câu có explanation tạo một explanation_versions bản nháp (status draft, locale, tác giả = người nhập) và tách các đoạn theo tiền tố: \"• Dịch nghĩa:\" -> translation; \"• Đáp án đúng: [n]\" + phần sau -> correctReason; mỗi dòng \"- [n] ...: ...\" trong đoạn \"• Phân tích các phương án còn lại:\" -> wrongReasonsByOption[n]; không khớp tiền tố thì giữ toàn bộ blocks và dùng chữ của chúng làm correctReason. Giữ nguyên blocks gốc trong content. Học viên chỉ thấy lời giải sau khi reviewer duyệt (approved) và sau khi nộp bài; không lộ trước quyền xem.",
+      "outputs": [
+        "apps/api/src/modules/import/",
+        "apps/api/src/modules/review/"
+      ],
+      "acceptance": [
+        "Nhập gói có explanation -> màn duyệt lời giải của quản trị hiện bản nháp với bản dịch, lý do đúng, lý do sai từng phương án",
+        "Reviewer duyệt -> trang xem lại bài của học viên hiện đủ lời giải; chưa duyệt thì không hiện",
+        "Test âm: không lộ lời giải trước khi nộp bài",
+        "Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass",
+        "E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt"
+      ],
+      "checks": [
+        "pnpm test",
+        "pnpm check:no-mock-ui",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [
+        "tests/playwright/"
+      ],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
       "id": "I07",
       "owner": "W6",
       "day": 8,
