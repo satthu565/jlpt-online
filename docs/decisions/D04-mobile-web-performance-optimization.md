@@ -1,6 +1,7 @@
 # Quyết định kỹ thuật D04: Tối ưu tốc độ web trên điện thoại và kích hoạt chế độ chặn ngân sách D01
 
 - **Mã task**: D04
+- **Mã phân công**: D04-7
 - **Phụ trách**: W3 (Giao diện học viên)
 - **Ngày**: 2026-10-19
 - **Nhánh**: `task/D04`
