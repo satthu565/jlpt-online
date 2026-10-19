@@ -1567,7 +1567,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Worker: **W4**. Ngày mục tiêu: 8. Ước lượng chưa đo: 2 giờ worker; không gồm mọi vòng sửa/review.
 - Phụ thuộc: I03, I12. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: Sau I03, apps/admin/lib/auth-context.tsx không xóa phiên lưu trong trình duyệt khi GET /api/v1/auth/session trả 200 với user = null (phiên hết hạn hoặc đã đăng xuất ở nơi khác), nên giao diện vẫn hiện như đã đăng nhập trong khi mọi API trả 401. Xử lý: user null hoặc API trả 401 thì xóa phiên và đưa về /login kèm thông báo; bỏ móc test window.__setAdminLocale và DEFAULT_AUTH_CONTEXT giả nếu không cần (useAdminAuth ngoài provider phải báo lỗi rõ).
+- Phạm vi: Sau I03, apps/admin/lib/auth-context.tsx không xóa phiên lưu trong trình duyệt khi GET /api/v1/auth/session trả 200 với user = null (phiên hết hạn hoặc đã đăng xuất ở nơi khác), nên giao diện vẫn hiện như đã đăng nhập trong khi mọi API trả 401. Xử lý: user null hoặc API trả 401 thì xóa phiên và đưa về /login kèm thông báo; bỏ móc test window.__setAdminLocale và DEFAULT_AUTH_CONTEXT giả nếu không cần (useAdminAuth ngoài provider phải báo lỗi rõ). Lưu ý khi làm lại (lượt 3 trượt staging, Chromium đạt hết, Mobile Safari trượt 14 test): E2E I15 chờ locator ghép main/page-title/header/h1 kèm .first(), nhưng trên điện thoại phần tử đầu tiên là h1 Hệ thống Quản trị JLPT nằm trong thanh menu đang ẩn, nên toBeVisible thất bại dù trang đã đăng nhập đúng. Dùng getByRole main hoặc heading/data-testid riêng trong main, không dùng selector ghép kèm .first(). Kiểm tra lại các E2E quản trị khác trên Mobile Safari sau khi sửa. Lưu ý lượt chạy lại (PR #75 trượt CI 19/10, main vẫn đạt): admin-nav.tsx thêm "invisible md:visible pointer-events-none" cho thanh menu khi đóng trên điện thoại, nên mọi phần tử trong thanh menu (staff-profile-badge, page-title...) bị ẩn thật; các E2E I03/I04 có sẵn (integration.spec.ts dòng ~1572, ~2008, ~2157, ~2201) dùng locator ghép kèm .first() chọn trúng phần tử ẩn đó và trượt trên Mobile Safari và Mobile Chrome. Bỏ thay đổi invisible/pointer-events đó (không thuộc phạm vi I15), hoặc sửa các locator ghép trong integration.spec.ts sang .filter({ visible: true }).first() hoặc locator trong main. Ba E2E I09 trên Firefox (dòng ~1068, ~1117, ~1162: login-error-alert, waitForURL) cũng trượt: chạy lại với --project=firefox và sửa. CI chạy đủ 5 trình duyệt, còn kiểm tra trên jlpt-vm chỉ chạy 3, nên tự chạy E2E quản trị trên cả Mobile Chrome (Pixel 7) và Firefox trước khi nộp.
 - Bàn giao: apps/admin/.
 - Hợp đồng: API.
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
@@ -1638,6 +1638,28 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - `pnpm test`
   - `pnpm check:no-mock-ui`
   - `sudo -n /usr/local/bin/jlpt-stage-test check`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+<a id="i18"></a>
+
+### I18 API: giới hạn kích thước body cho multipart, zip và octet-stream
+
+- Worker: **W2**. Ngày mục tiêu: 8. Ước lượng chưa đo: 1 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: I16. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: I16 thêm vào apps/api/src/main.ts ba addContentTypeParser (multipart/form-data, application/zip, application/octet-stream) tự gom stream vào Buffer. Cách này bỏ qua bodyLimit của Fastify và chạy trước guard đăng nhập, nên ai cũng gửi được body lớn tùy ý vào bất kỳ route POST nào và làm API hết RAM. Sửa: dùng một parser chung với { parseAs: "buffer", bodyLimit } (mặc định 1 MB; riêng POST /api/v1/admin/imports đặt giới hạn ở cấu hình route, lấy từ biến môi trường IMPORT_MAX_BYTES, mặc định 50 MB); vượt giới hạn trả 413. Giữ nguyên hành vi nhập gói của I16.
+- Bàn giao: apps/api/src/main.ts; apps/api/src/modules/import/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: không.
+- Nghiệm thu:
+  - Test: body 2 MB application/octet-stream vào route không phải nhập gói trả 413 mà không cần đăng nhập.
+  - Test: gói vượt IMPORT_MAX_BYTES vào /api/v1/admin/imports trả 413; gói fixtures hợp lệ vẫn nhập được ở chế độ draft và ready.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 

@@ -24,12 +24,12 @@ export interface ContentReportsProps {
 }
 
 export default function ContentReportsPage({
-  initialReports = [],
+  initialReports,
 }: ContentReportsProps = {}): React.JSX.Element {
   const { user: _user, locale } = useAdminAuth();
 
-  const [reports, setReports] = useState<QuestionReportItem[]>(initialReports);
-  const [isLoading, setIsLoading] = useState<boolean>(initialReports.length === 0);
+  const [reports, setReports] = useState<QuestionReportItem[]>(initialReports ?? []);
+  const [isLoading, setIsLoading] = useState<boolean>(initialReports === undefined);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [filterType, setFilterType] = useState<string>('all');
@@ -37,7 +37,7 @@ export default function ContentReportsPage({
   const [resolutionInput, setResolutionInput] = useState<string>('');
 
   const fetchReports = async () => {
-    if (initialReports.length > 0 && filterType === 'all') {
+    if (initialReports !== undefined && filterType === 'all') {
       setReports(initialReports);
       setIsLoading(false);
       return;
@@ -123,7 +123,7 @@ export default function ContentReportsPage({
     <AdminGuard pathname="/reports/content">
       <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
         <header className="border-b border-gray-200 pb-4">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 data-testid="page-title" className="text-2xl font-bold text-gray-900">
             {t('content.contentReports.title', locale)}
           </h1>
           <p className="text-sm text-gray-500 mt-1">

@@ -631,11 +631,189 @@ export class AdminApiClient {
     });
   }
 
-  public async getRevenueReport(): Promise<{ totalRevenue: number; currency: string }> {
-    return this.request<{ totalRevenue: number; currency: string }>('GET', '/api/v1/admin/reports/revenue', {
+  public async createPlan(data: {
+    code: string;
+    name: string;
+    term: string;
+    priceMinor: number;
+    currency?: string;
+    entitlements?: string[];
+    active?: boolean;
+  }): Promise<unknown> {
+    return this.request('POST', '/api/v1/admin/plans', {
+      requiredRoles: ['billing_admin', 'admin'],
+      body: data,
+    });
+  }
+
+  public async listCoupons(): Promise<{ items: unknown[] }> {
+    return this.request<{ items: unknown[] }>('GET', '/api/v1/admin/coupons', {
       requiredRoles: ['billing_admin', 'admin'],
     });
   }
+
+  public async createCoupon(data: {
+    code: string;
+    discountPercent?: number | null;
+    discountMinor?: number | null;
+    maxUses: number;
+    expiresAt: string;
+  }): Promise<unknown> {
+    return this.request('POST', '/api/v1/admin/coupons', {
+      requiredRoles: ['billing_admin', 'admin'],
+      body: data,
+    });
+  }
+
+  public async listPayments(): Promise<{ items: unknown[] }> {
+    return this.request<{ items: unknown[] }>('GET', '/api/v1/admin/payments', {
+      requiredRoles: ['billing_admin', 'admin'],
+    });
+  }
+
+  public async listSubscriptions(): Promise<{ items: unknown[] }> {
+    return this.request<{ items: unknown[] }>('GET', '/api/v1/admin/subscriptions', {
+      requiredRoles: ['billing_admin', 'admin'],
+    });
+  }
+
+  public async listRefunds(): Promise<{ items: unknown[] }> {
+    return this.request<{ items: unknown[] }>('GET', '/api/v1/admin/refunds', {
+      requiredRoles: ['billing_admin', 'admin'],
+    });
+  }
+
+  public async approveRefund(refundId: string): Promise<{ approved: boolean; status: string }> {
+    return this.request<{ approved: boolean; status: string }>(
+      'POST',
+      `/api/v1/admin/refunds/${encodeURIComponent(refundId)}/approve`,
+      {
+        requiredRoles: ['billing_admin', 'admin'],
+      },
+    );
+  }
+
+  public async rejectRefund(refundId: string, reason?: string): Promise<{ rejected: boolean; status: string }> {
+    return this.request<{ rejected: boolean; status: string }>(
+      'POST',
+      `/api/v1/admin/refunds/${encodeURIComponent(refundId)}/reject`,
+      {
+        requiredRoles: ['billing_admin', 'admin'],
+        body: { reason },
+      },
+    );
+  }
+
+  public async getRevenueReport(query?: { from?: string; to?: string; currency?: string }): Promise<{
+    grossMinor: number;
+    refundMinor: number;
+    netMinor: number;
+    currency: string;
+    breakdownByCurrency?: Record<string, {
+      grossMinor: number;
+      refundMinor: number;
+      netMinor: number;
+      orderCount: number;
+      refundCount: number;
+    }>;
+  }> {
+    const params = new URLSearchParams();
+    if (query?.from) params.set('from', query.from);
+    if (query?.to) params.set('to', query.to);
+    if (query?.currency) params.set('currency', query.currency);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    return this.request(
+      'GET',
+      `/api/v1/admin/reports/revenue${qs}`,
+      {
+        requiredRoles: ['billing_admin', 'admin'],
+      },
+    );
+  }
+
+  public async listReconciliationRuns(limit = 20): Promise<unknown[]> {
+    return this.request<unknown[]>(
+      'GET',
+      `/api/v1/admin/reconciliation/runs?limit=${limit}`,
+      {
+        requiredRoles: ['billing_admin', 'admin'],
+      },
+    );
+  }
+
+  public async runReconciliation(data?: {
+    provider?: string;
+    fromDate?: string;
+    toDate?: string;
+    externalStatements?: unknown[];
+  }): Promise<unknown> {
+    return this.request(
+      'POST',
+      '/api/v1/admin/reconciliation/run',
+      {
+        requiredRoles: ['billing_admin', 'admin'],
+        body: data || {},
+      },
+    );
+  }
+
+  public async getPaymentReadiness(provider = 'payos'): Promise<{ ready: boolean; provider: string; checks: unknown[] }> {
+    return this.request(
+      'GET',
+      `/api/v1/admin/payment/readiness?provider=${encodeURIComponent(provider)}`,
+      {
+        requiredRoles: ['billing_admin', 'admin'],
+      },
+    );
+  }
+
+  public async getReport(kind: string, query?: { from?: string; to?: string }): Promise<unknown> {
+    const params = new URLSearchParams();
+    if (query?.from) params.set('from', query.from);
+    if (query?.to) params.set('to', query.to);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    return this.request('GET', `/api/v1/admin/reports/${encodeURIComponent(kind)}${qs}`, {
+      requiredRoles: ['admin', 'billing_admin', 'editor', 'reviewer', 'moderator'],
+    });
+  }
+
+  public async exportReportCsv(kind: string, query?: { from?: string; to?: string }): Promise<string> {
+    const params = new URLSearchParams();
+    if (query?.from) params.set('from', query.from);
+    if (query?.to) params.set('to', query.to);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    const url = `${this.baseUrl}/api/v1/admin/reports/${encodeURIComponent(kind)}/export${qs}`;
+    const headers: Record<string, string> = {
+      Host: this.adminHost,
+    };
+    if (this.token) headers['Authorization'] = `Bearer ${this.token}`;
+    if (this.totpCode) headers['x-totp-code'] = this.totpCode;
+
+    const res = await (this.fetchFn ?? fetch)(url, { headers });
+    if (!res.ok) {
+      throw new AdminClientGuardError('NETWORK_ERROR', `Xuất CSV thất bại (${res.status})`, res.status);
+    }
+    return res.text();
+  }
+
+  public async listExperiments(): Promise<unknown[]> {
+    return this.request<unknown[]>('GET', '/api/v1/experiments', {
+      requiredRoles: ['admin'],
+    });
+  }
+
+  public async evaluateExperiment(id: string): Promise<unknown> {
+    return this.request('GET', `/api/v1/experiments/${encodeURIComponent(id)}/evaluate`, {
+      requiredRoles: ['admin'],
+    });
+  }
+
+  public async toggleExperiment(id: string): Promise<unknown> {
+    return this.request('PATCH', `/api/v1/experiments/${encodeURIComponent(id)}/toggle`, {
+      requiredRoles: ['admin'],
+    });
+  }
+
 
   public async getDashboard(): Promise<{
     metrics: {
@@ -959,4 +1137,3 @@ export class AdminApiClient {
 }
 
 export const apiClient = new AdminApiClient();
-

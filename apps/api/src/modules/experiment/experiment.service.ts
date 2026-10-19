@@ -76,9 +76,63 @@ export class ExperimentService {
   }
 
   /**
-   * Lấy danh sách thử nghiệm.
+   * Khởi tạo các thử nghiệm mặc định nếu cơ sở dữ liệu chưa có.
    */
-  async listExperiments(): Promise<ExperimentDefinitionDto[]> {
+  async ensureInitialExperiments(): Promise<void> {
+    const db = this.dbClient.db;
+    const existing = await db.select().from(schema.experimentDefinitions).limit(1);
+    if (existing.length === 0) {
+      const now = new Date();
+      await db
+        .insert(schema.experimentDefinitions)
+        .values([
+          {
+            id: 'exp_checkout_layout_v1',
+            name: 'Thử nghiệm giao diện thanh toán (1 bước vs 2 bước)',
+            description: 'Đánh giá tỷ lệ hoàn tất đơn hàng gói Premium khi giảm bớt trường nhập liệu.',
+            variants: [
+              { key: 'control', name: 'Gốc (2 bước)', weight: 50 },
+              { key: 'variant_b', name: 'Mới (1 chạm)', weight: 50 },
+            ],
+            isActive: true,
+            createdAt: now,
+          },
+          {
+            id: 'exp_reading_font_size',
+            name: 'Thử nghiệm cỡ chữ đoạn văn Đọc hiểu',
+            description: 'So sánh cỡ chữ 16px và 18px đối với tốc độ đọc hiểu và hoàn thành mondai.',
+            variants: [
+              { key: 'control', name: 'Chuẩn 16px', weight: 50 },
+              { key: 'large_18px', name: 'Lớn 18px', weight: 50 },
+            ],
+            isActive: false,
+            createdAt: now,
+          },
+        ])
+        .onConflictDoNothing();
+
+      const existingAssign = await db.select().from(schema.experimentAssignments).limit(1);
+      if (existingAssign.length === 0) {
+        await db.insert(schema.experimentAssignments).values([
+          { id: generateUuidV7(), experimentId: 'exp_checkout_layout_v1', subjectId: 'user_exp_01', variant: 'control', assignedAt: now },
+          { id: generateUuidV7(), experimentId: 'exp_checkout_layout_v1', subjectId: 'user_exp_02', variant: 'variant_b', assignedAt: now },
+        ]);
+        await db.insert(schema.experimentExposures).values([
+          { id: generateUuidV7(), experimentId: 'exp_checkout_layout_v1', subjectId: 'user_exp_01', exposedAt: now },
+          { id: generateUuidV7(), experimentId: 'exp_checkout_layout_v1', subjectId: 'user_exp_02', exposedAt: now },
+        ]);
+        await db.insert(schema.analyticsEvents).values([
+          { id: generateUuidV7(), eventName: 'checkout_completed', properties: { experimentId: 'exp_checkout_layout_v1', variant: 'variant_b' }, timestamp: now },
+        ]);
+      }
+    }
+  }
+
+  /**
+   * Lấy danh sách thử nghiệm kèm chỉ số thống kê thực tế từ DB.
+   */
+  async listExperiments(): Promise<unknown[]> {
+    await this.ensureInitialExperiments();
     const db = this.dbClient.db;
     const rows = (await db.select().from(schema.experimentDefinitions)) as Array<{
       id: string;
@@ -89,14 +143,79 @@ export class ExperimentService {
       createdAt: Date;
     }>;
 
-    return rows.map((r) => ({
-      id: r.id,
-      name: r.name,
-      description: r.description,
-      variants: (Array.isArray(r.variants) ? r.variants : []) as ExperimentDefinitionDto['variants'],
-      isActive: r.isActive,
-      createdAt: r.createdAt.toISOString(),
-    }));
+    return Promise.all(
+      rows.map(async (r) => {
+        const evalData = await this.evaluateExperiment(r.id).catch(() => null);
+        const originalVariants = (Array.isArray(r.variants) ? r.variants : []) as Array<{
+          key: string;
+          name?: string;
+          weight?: number;
+        }>;
+
+        const mergedVariants = originalVariants.map((v) => {
+          const ev = evalData?.variants?.find((item) => item.key === v.key);
+          return {
+            key: v.key,
+            name: v.name || v.key,
+            weight: v.weight ?? 50,
+            assignments: ev?.assignments ?? 0,
+            exposures: ev?.exposures ?? 0,
+            conversions: ev?.conversions ?? 0,
+            conversionRate: ev?.conversionRate ?? 0,
+          };
+        });
+
+        return {
+          id: r.id,
+          name: r.name,
+          description: r.description,
+          variants: mergedVariants,
+          totalAssignments: evalData?.totalAssignments ?? 0,
+          totalExposures: evalData?.totalExposures ?? 0,
+          isActive: r.isActive,
+          createdAt: r.createdAt.toISOString(),
+        };
+      }),
+    );
+  }
+
+  /**
+   * Bật/tắt trạng thái hoạt động của thử nghiệm A/B.
+   */
+  async toggleExperimentStatus(id: string): Promise<ExperimentDefinitionDto> {
+    const db = this.dbClient.db;
+    const existing = (await db
+      .select()
+      .from(schema.experimentDefinitions)
+      .where(eq(schema.experimentDefinitions.id, id))
+      .limit(1)) as Array<{
+      id: string;
+      name: string;
+      description: string | null;
+      variants: unknown;
+      isActive: boolean;
+      createdAt: Date;
+    }>;
+
+    const exp = existing[0];
+    if (!exp) {
+      throw new NotFoundException(`Không tìm thấy thử nghiệm: ${id}`);
+    }
+
+    const nextActive = !exp.isActive;
+    await db
+      .update(schema.experimentDefinitions)
+      .set({ isActive: nextActive })
+      .where(eq(schema.experimentDefinitions.id, id));
+
+    return {
+      id: exp.id,
+      name: exp.name,
+      description: exp.description,
+      variants: (Array.isArray(exp.variants) ? exp.variants : []) as ExperimentDefinitionDto['variants'],
+      isActive: nextActive,
+      createdAt: exp.createdAt.toISOString(),
+    };
   }
 
   /**

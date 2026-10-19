@@ -1,10 +1,110 @@
 import { describe, expect, it } from 'vitest';
 import { BillingManager } from '../features/billing/billing-service';
 
+const TEST_BILLING_FIXTURES = {
+  plans: [
+    {
+      id: 'free',
+      name: 'Gói Miễn Phí (Free)',
+      description: 'Luyện thi và tra cứu từ vựng cơ bản',
+      interval: 'lifetime',
+      priceMinor: 0,
+      currency: 'VND',
+      version: 1,
+      entitlements: ['basic_exams', 'practice_mode', 'vocab_flashcards'],
+      isActive: true,
+    },
+    {
+      id: 'premium_month',
+      name: 'Gói Premium 1 Tháng',
+      description: 'Toàn bộ đề thi chuẩn và hỗ trợ AI giải thích',
+      interval: 'month',
+      priceMinor: 199000,
+      currency: 'VND',
+      version: 1,
+      entitlements: ['unlimited_exams', 'ai_explanations', 'advanced_analytics'],
+      isActive: true,
+    },
+    {
+      id: 'premium_year',
+      name: 'Gói Premium 1 Năm',
+      description: 'Gói năm tiết kiệm 40% chi phí',
+      interval: 'year',
+      priceMinor: 1499000,
+      currency: 'VND',
+      version: 1,
+      entitlements: ['unlimited_exams', 'ai_explanations', 'advanced_analytics'],
+      isActive: true,
+    },
+  ],
+  coupons: [
+    {
+      code: 'JLPT2026',
+      discountPercent: 20,
+      discountAmount: null,
+      maxRedemptions: 100,
+      timesRedeemed: 15,
+      validUntil: '2026-12-31T23:59:59Z',
+    },
+    {
+      code: 'WELCOME50K',
+      discountPercent: null,
+      discountAmount: 50000,
+      maxRedemptions: 500,
+      timesRedeemed: 120,
+      validUntil: '2026-12-31T23:59:59Z',
+    },
+  ],
+  payments: [
+    {
+      orderId: '0192a000-0000-7000-8000-000000000001',
+      userId: '0192a000-0000-7000-8000-000000000002',
+      totalAmount: 199000,
+      currency: 'VND',
+      status: 'paid',
+      createdAt: '2026-10-15T08:00:00Z',
+    },
+    {
+      orderId: '0192a000-0000-7000-8000-000000000003',
+      userId: '0192a000-0000-7000-8000-000000000004',
+      totalAmount: 1499000,
+      currency: 'VND',
+      status: 'paid',
+      createdAt: '2026-10-15T10:30:00Z',
+    },
+  ],
+  subscriptions: [
+    {
+      id: '0192a000-0000-7000-8000-000000000005',
+      userId: '0192a000-0000-7000-8000-000000000002',
+      planId: 'premium_month',
+      status: 'active',
+      currentPeriodStart: '2026-10-15T08:00:00Z',
+      currentPeriodEnd: '2026-11-15T08:00:00Z',
+      cancelAtPeriodEnd: false,
+    },
+  ],
+  refunds: [
+    {
+      id: '0192a000-0000-7000-8000-000000000006',
+      orderId: '0192a000-0000-7000-8000-000000000001',
+      amount: 199000,
+      currency: 'VND',
+      reason: 'Mua nhầm gói cần nâng cấp lên gói năm',
+      status: 'requested',
+      createdAt: '2026-10-15T12:00:00Z',
+    },
+  ],
+};
+
+function createTestManager(): BillingManager {
+  return new BillingManager(JSON.parse(JSON.stringify(TEST_BILLING_FIXTURES)));
+}
+
 describe('Admin Commercial & Billing (ADM-15, ADM-16, PAY-12)', () => {
   describe('ADM-15: Quản lý gói thành viên và mã giảm giá', () => {
     it('liệt kê danh sách các gói dịch vụ mặc định', () => {
-      const manager = new BillingManager();
+      const manager = createTestManager();
       const plans = manager.listPlans();
       expect(plans.length).toBeGreaterThanOrEqual(3);
       expect(plans.some((p) => p.id === 'free')).toBe(true);
@@ -13,7 +113,7 @@ describe('Admin Commercial & Billing (ADM-15, ADM-16, PAY-12)', () => {
     });
 
     it('tạo gói mới thành công với đầy đủ thông tin và giá hợp lệ', () => {
-      const manager = new BillingManager();
+      const manager = createTestManager();
       const newPlan = manager.createPlan({
         name: 'Gói Luyện Thi N1 Đặc Biệt',
         code: 'special_n1',
@@ -32,7 +132,7 @@ describe('Admin Commercial & Billing (ADM-15, ADM-16, PAY-12)', () => {
     });
 
     it('từ chối tạo gói nếu giá bán là số âm', () => {
-      const manager = new BillingManager();
+      const manager = createTestManager();
       expect(() => {
         manager.createPlan({
           name: 'Gói Lỗi',
@@ -44,7 +144,7 @@ describe('Admin Commercial & Billing (ADM-15, ADM-16, PAY-12)', () => {
     });
 
     it('cập nhật gói đã có thì tăng phiên bản version (bảo toàn tính bất biến)', () => {
-      const manager = new BillingManager();
+      const manager = createTestManager();
       const updated = manager.createPlan({
         name: 'Gói Premium 1 Tháng Mới',
         code: 'premium_month',
@@ -58,7 +158,7 @@ describe('Admin Commercial & Billing (ADM-15, ADM-16, PAY-12)', () => {
     });
 
     it('liệt kê mã giảm giá và tạo mã mới thành công', () => {
-      const manager = new BillingManager();
+      const manager = createTestManager();
       const coupons = manager.listCoupons();
       expect(coupons.length).toBeGreaterThanOrEqual(2);
 
@@ -76,7 +176,7 @@ describe('Admin Commercial & Billing (ADM-15, ADM-16, PAY-12)', () => {
     });
 
     it('từ chối mã giảm giá có discountPercent không hợp lệ (> 100 hoặc <= 0)', () => {
-      const manager = new BillingManager();
+      const manager = createTestManager();
       expect(() => {
         manager.createCoupon({
           code: 'OVER100',
@@ -95,7 +195,7 @@ describe('Admin Commercial & Billing (ADM-15, ADM-16, PAY-12)', () => {
     });
 
     it('từ chối mã giảm giá trùng lặp', () => {
-      const manager = new BillingManager();
+      const manager = createTestManager();
       expect(() => {
         manager.createCoupon({
           code: 'JLPT2026',
@@ -108,7 +208,7 @@ describe('Admin Commercial & Billing (ADM-15, ADM-16, PAY-12)', () => {
 
   describe('ADM-16 & PAY-12: Quản lý thanh toán, thuê bao, hoàn tiền và báo cáo', () => {
     it('liệt kê danh sách giao dịch thanh toán và thuê bao', () => {
-      const manager = new BillingManager();
+      const manager = createTestManager();
       const payments = manager.listPayments();
       expect(payments.length).toBeGreaterThanOrEqual(2);
       expect(payments.every((p) => p.orderId && p.totalAmount > 0)).toBe(true);
@@ -119,7 +219,7 @@ describe('Admin Commercial & Billing (ADM-15, ADM-16, PAY-12)', () => {
     });
 
     it('quản lý hoàn tiền: phê duyệt yêu cầu hoàn tiền thành công', () => {
-      const manager = new BillingManager();
+      const manager = createTestManager();
       const refunds = manager.listRefunds();
       expect(refunds.length).toBeGreaterThanOrEqual(1);
 
@@ -134,7 +234,7 @@ describe('Admin Commercial & Billing (ADM-15, ADM-16, PAY-12)', () => {
     });
 
     it('quản lý hoàn tiền: từ chối yêu cầu kèm lý do', () => {
-      const manager = new BillingManager();
+      const manager = createTestManager();
       const refunds = manager.listRefunds();
       const target = refunds.find((r) => r.status === 'requested')!;
 
@@ -144,7 +244,7 @@ describe('Admin Commercial & Billing (ADM-15, ADM-16, PAY-12)', () => {
     });
 
     it('báo cáo doanh thu tách theo đơn vị tiền tệ VND (PAY-12)', () => {
-      const manager = new BillingManager();
+      const manager = createTestManager();
       const report = manager.getRevenueReport('VND');
 
       expect(report.currency).toBe('VND');
@@ -155,7 +255,7 @@ describe('Admin Commercial & Billing (ADM-15, ADM-16, PAY-12)', () => {
     });
 
     it('báo cáo doanh thu cho đơn vị tiền tệ JPY không bị lẫn với VND', () => {
-      const manager = new BillingManager();
+      const manager = createTestManager();
       const reportJPY = manager.getRevenueReport('JPY');
 
       expect(reportJPY.currency).toBe('JPY');
@@ -164,7 +264,7 @@ describe('Admin Commercial & Billing (ADM-15, ADM-16, PAY-12)', () => {
     });
 
     it('không trừ chéo hoàn tiền giữa các đơn vị tiền tệ khác nhau (PAY-12)', () => {
-      const manager = new BillingManager();
+      const manager = createTestManager();
       // Phê duyệt refund VND sẵn có (199.000 VND)
       const vndRefund = manager.listRefunds().find((r) => r.status === 'requested')!;
       manager.approveRefund(vndRefund.id);

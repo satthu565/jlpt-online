@@ -496,7 +496,13 @@ task('I15','W4',8,2,'Quản trị: phiên hết hạn phải đưa về trang đ
  'Sau I03, apps/admin/lib/auth-context.tsx không xóa phiên lưu trong trình duyệt khi GET /api/v1/auth/session trả 200 với user = null '
  '(phiên hết hạn hoặc đã đăng xuất ở nơi khác), nên giao diện vẫn hiện như đã đăng nhập trong khi mọi API trả 401. '
  'Xử lý: user null hoặc API trả 401 thì xóa phiên và đưa về /login kèm thông báo; bỏ móc test window.__setAdminLocale và DEFAULT_AUTH_CONTEXT '
- 'giả nếu không cần (useAdminAuth ngoài provider phải báo lỗi rõ).',
+ 'giả nếu không cần (useAdminAuth ngoài provider phải báo lỗi rõ). '
+ 'Lưu ý khi làm lại (lượt 3 trượt staging, Chromium đạt hết, Mobile Safari trượt 14 test): E2E I15 chờ locator ghép main/page-title/header/h1 kèm .first(), nhưng trên điện thoại phần tử đầu tiên là h1 Hệ thống Quản trị JLPT nằm trong thanh menu đang ẩn, nên toBeVisible thất bại dù trang đã đăng nhập đúng. Dùng getByRole main hoặc heading/data-testid riêng trong main, không dùng selector ghép kèm .first(). Kiểm tra lại các E2E quản trị khác trên Mobile Safari sau khi sửa. '
+ 'Lưu ý lượt chạy lại (PR #75 trượt CI 19/10, main vẫn đạt): admin-nav.tsx thêm "invisible md:visible pointer-events-none" cho thanh menu khi đóng trên điện thoại, '
+ 'nên mọi phần tử trong thanh menu (staff-profile-badge, page-title...) bị ẩn thật; các E2E I03/I04 có sẵn (integration.spec.ts dòng ~1572, ~2008, ~2157, ~2201) dùng locator ghép kèm .first() chọn trúng phần tử ẩn đó và trượt '
+ 'trên Mobile Safari và Mobile Chrome. Bỏ thay đổi invisible/pointer-events đó (không thuộc phạm vi I15), hoặc sửa các locator ghép trong integration.spec.ts sang .filter({ visible: true }).first() '
+ 'hoặc locator trong main. Ba E2E I09 trên Firefox (dòng ~1068, ~1117, ~1162: login-error-alert, waitForURL) cũng trượt: chạy lại với --project=firefox và sửa. '
+ 'CI chạy đủ 5 trình duyệt, còn kiểm tra trên jlpt-vm chỉ chạy 3, nên tự chạy E2E quản trị trên cả Mobile Chrome (Pixel 7) và Firefox trước khi nộp.',
  'apps/admin/',
  'E2E: đăng nhập nhân sự, tải lại trang vẫn đăng nhập|E2E: xóa phiên phía máy chủ (đăng xuất ở tab khác) rồi tải lại hoặc thao tác thì về trang đăng nhập|'+NO_MOCK+'|'+REAL_E2E,
  'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
@@ -523,6 +529,16 @@ task('I17','W2',8,3,'Lời giải trong gói nhập đi vào quy trình duyệt 
  'Nhập gói có explanation -> màn duyệt lời giải của quản trị hiện bản nháp với bản dịch, lý do đúng, lý do sai từng phương án|'
  'Reviewer duyệt -> trang xem lại bài của học viên hiện đủ lời giải; chưa duyệt thì không hiện|Test âm: không lộ lời giải trước khi nộp bài|'+NO_MOCK+'|'+REAL_E2E,
  'pnpm test|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/')
+# Security review of I16 (PR #74, 2026-10-19): its global body parsers read the whole stream with no size limit.
+task('I18','W2',8,1,'API: giới hạn kích thước body cho multipart, zip và octet-stream','I16',
+ 'I16 thêm vào apps/api/src/main.ts ba addContentTypeParser (multipart/form-data, application/zip, application/octet-stream) tự gom stream vào Buffer. '
+ 'Cách này bỏ qua bodyLimit của Fastify và chạy trước guard đăng nhập, nên ai cũng gửi được body lớn tùy ý vào bất kỳ route POST nào và làm API hết RAM. '
+ 'Sửa: dùng một parser chung với { parseAs: "buffer", bodyLimit } (mặc định 1 MB; riêng POST /api/v1/admin/imports đặt giới hạn ở cấu hình route, '
+ 'lấy từ biến môi trường IMPORT_MAX_BYTES, mặc định 50 MB); vượt giới hạn trả 413. Giữ nguyên hành vi nhập gói của I16.',
+ 'apps/api/src/main.ts|apps/api/src/modules/import/',
+ 'Test: body 2 MB application/octet-stream vào route không phải nhập gói trả 413 mà không cần đăng nhập|'
+ 'Test: gói vượt IMPORT_MAX_BYTES vào /api/v1/admin/imports trả 413; gói fixtures hợp lệ vẫn nhập được ở chế độ draft và ready',
+ 'pnpm test',contracts='API')
 task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I11 I12 I13 I09 I03 I04 I05 I06 I14 I15',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',
