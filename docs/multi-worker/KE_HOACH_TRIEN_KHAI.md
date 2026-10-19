@@ -1671,7 +1671,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Worker: **W6**. Ngày mục tiêu: 8. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
 - Phụ thuộc: I01, I08, I10, I11, I12, I13, I09, I03, I04, I05, I06, I14, I15. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.
+- Phạm vi: Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo. Ghi chú của người vận hành (20/10): lần kiểm tra 1 trượt vì chạy pnpm test:e2e:integration thẳng trên VM (thiếu thư viện WebKit, không có stack staging nên API 500, Mailpit 404); lệnh đó đã bỏ khỏi kiểm tra, E2E chạy qua jlpt-stage-test check-all. Không sửa code để chiều các lỗi môi trường đó; chỉ sửa lỗi E2E thật thấy trong jlpt-stage-test check-all.
 - Bàn giao: tests/; .github/; infra/; docs/release/; docs/runbooks/.
 - Hợp đồng: quy tắc chung.
 - Khóa tài nguyên: ci-workflow, staging-deploy.
@@ -1685,7 +1685,6 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - docs/release/INTEGRATION_REPORT.md liệt kê từng trang và bằng chứng E2E.
 - Lệnh cần cung cấp và chạy:
   - `pnpm check:no-mock-ui`
-  - `pnpm test:e2e:integration`
   - `sudo -n /usr/local/bin/jlpt-stage-test check-all`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
@@ -1998,7 +1997,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - E2E: làm đề N5 → đỗ/trượt từng phần; Hán Việt và furigana; cảnh báo nhịp; lịch thi và nhắc hạn đăng ký.
   - docs/release/NEW_FEATURES_REPORT.md có ảnh và bằng chứng từng tính năng.
 - Lệnh cần cung cấp và chạy:
-  - `pnpm test:e2e:integration`
+  - `pnpm check:no-mock-ui`
   - `sudo -n /usr/local/bin/jlpt-stage-test check-all`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.

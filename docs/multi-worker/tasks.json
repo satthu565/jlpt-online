@@ -3870,7 +3870,7 @@
         "I15"
       ],
       "featureIds": [],
-      "scope": "Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.",
+      "scope": "Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo. Ghi chú của người vận hành (20/10): lần kiểm tra 1 trượt vì chạy pnpm test:e2e:integration thẳng trên VM (thiếu thư viện WebKit, không có stack staging nên API 500, Mailpit 404); lệnh đó đã bỏ khỏi kiểm tra, E2E chạy qua jlpt-stage-test check-all. Không sửa code để chiều các lỗi môi trường đó; chỉ sửa lỗi E2E thật thấy trong jlpt-stage-test check-all.",
       "outputs": [
         "tests/",
         ".github/",
@@ -3886,7 +3886,6 @@
       ],
       "checks": [
         "pnpm check:no-mock-ui",
-        "pnpm test:e2e:integration",
         "sudo -n /usr/local/bin/jlpt-stage-test check-all"
       ],
       "contracts": [],
@@ -4429,7 +4428,7 @@
         "docs/release/NEW_FEATURES_REPORT.md có ảnh và bằng chứng từng tính năng"
       ],
       "checks": [
-        "pnpm test:e2e:integration",
+        "pnpm check:no-mock-ui",
         "sudo -n /usr/local/bin/jlpt-stage-test check-all"
       ],
       "contracts": [],
