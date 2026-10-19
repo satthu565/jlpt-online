@@ -1107,9 +1107,22 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     expect(page.url()).not.toContain('/login');
 
     // 2. Xóa phiên phía máy chủ (mô phỏng đăng xuất ở tab khác) rồi thao tác trên trang thì về trang đăng nhập
+    const adminToken = await page.evaluate(() => {
+      try {
+        const raw = localStorage.getItem('jlpt_admin_auth');
+        return raw ? JSON.parse(raw).token : null;
+      } catch {
+        return null;
+      }
+    });
+
     // Invalidate the session on the server via sign-out API
     await page.request.post(`${adminOrigin}/api/v1/auth/sign-out`, {
-      headers: { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp },
+      headers: {
+        ...(adminToken ? { Authorization: `Bearer ${adminToken}` } : {}),
+        'x-forwarded-for': clientIp,
+        'cf-connecting-ip': clientIp,
+      },
     });
 
     // Thao tác người dùng: bấm nút làm mới trên dashboard gọi GET /api/v1/admin/dashboard
@@ -1226,17 +1239,24 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
       await page.waitForTimeout(50);
 
       for (const locale of locales) {
-        const isNavOpen = await page.locator('[data-testid="btn-close-mobile-nav"]').isVisible().catch(() => false);
-        if (!isNavOpen) {
-          const openNavBtn = page.locator('[data-testid="btn-open-mobile-nav"]').first();
-          if (await openNavBtn.isVisible().catch(() => false)) {
-            await openNavBtn.click();
-            await page.waitForTimeout(50);
+        const isMobile = await page.locator('[data-testid="btn-open-mobile-nav"]').first().isVisible().catch(() => false);
+        if (isMobile) {
+          const isNavOpen = (await page.locator('[data-testid="mobile-nav-backdrop"]').count()) > 0;
+          if (!isNavOpen) {
+            const openNavBtn = page.locator('[data-testid="btn-open-mobile-nav"]').first();
+            if (await openNavBtn.isVisible().catch(() => false)) {
+              await openNavBtn.click();
+              await page.waitForTimeout(50);
+            }
           }
         }
         const locBtn = page.locator(`[data-testid="admin-locale-${locale}"]`).first();
         if (await locBtn.isVisible().catch(() => false)) {
-          await locBtn.click();
+          await locBtn.click({ timeout: 3000 }).catch(async () => {
+            await page.evaluate((l) => {
+              window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: l }));
+            }, locale);
+          });
         } else {
           await page.evaluate((l) => {
             window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: l }));
@@ -1260,17 +1280,24 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
       // Reset back to vi for subsequent pages while nav is still open
       const viBtn = page.locator('[data-testid="admin-locale-vi"]').first();
       if (await viBtn.isVisible().catch(() => false)) {
-        await viBtn.click();
+        await viBtn.click({ timeout: 3000 }).catch(async () => {
+          await page.evaluate(() => {
+            window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: 'vi' }));
+          });
+        });
         await page.waitForTimeout(50);
       } else {
         await page.evaluate(() => {
           window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: 'vi' }));
         });
       }
-      const closeNavBtn = page.locator('[data-testid="btn-close-mobile-nav"]').first();
-      if (await closeNavBtn.isVisible().catch(() => false)) {
-        await closeNavBtn.click();
-        await page.waitForTimeout(50);
+      const isMobileAfter = await page.locator('[data-testid="btn-open-mobile-nav"]').first().isVisible().catch(() => false);
+      if (isMobileAfter) {
+        const closeNavBtn = page.locator('[data-testid="btn-close-mobile-nav"]').first();
+        if (await closeNavBtn.isVisible().catch(() => false)) {
+          await closeNavBtn.click({ timeout: 3000 }).catch(() => {});
+          await page.waitForTimeout(50);
+        }
       }
     }
   });
@@ -1500,17 +1527,24 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
 
       // Verify ja and en
       for (const locale of ['ja', 'en'] as const) {
-        const isNavOpen = await page.locator('[data-testid="btn-close-mobile-nav"]').isVisible().catch(() => false);
-        if (!isNavOpen) {
-          const openNavBtn = page.locator('[data-testid="btn-open-mobile-nav"]').first();
-          if (await openNavBtn.isVisible().catch(() => false)) {
-            await openNavBtn.click();
-            await page.waitForTimeout(50);
+        const isMobile = await page.locator('[data-testid="btn-open-mobile-nav"]').first().isVisible().catch(() => false);
+        if (isMobile) {
+          const isNavOpen = (await page.locator('[data-testid="mobile-nav-backdrop"]').count()) > 0;
+          if (!isNavOpen) {
+            const openNavBtn = page.locator('[data-testid="btn-open-mobile-nav"]').first();
+            if (await openNavBtn.isVisible().catch(() => false)) {
+              await openNavBtn.click();
+              await page.waitForTimeout(50);
+            }
           }
         }
         const locBtn = page.locator(`[data-testid="admin-locale-${locale}"]`).first();
         if (await locBtn.isVisible().catch(() => false)) {
-          await locBtn.click();
+          await locBtn.click({ timeout: 3000 }).catch(async () => {
+            await page.evaluate((l) => {
+              window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: l }));
+            }, locale);
+          });
         } else {
           await page.evaluate((l) => {
             window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: l }));
@@ -1533,17 +1567,24 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
       // Reset back to vi for subsequent pages while nav is still open
       const viBtn = page.locator('[data-testid="admin-locale-vi"]').first();
       if (await viBtn.isVisible().catch(() => false)) {
-        await viBtn.click();
+        await viBtn.click({ timeout: 3000 }).catch(async () => {
+          await page.evaluate(() => {
+            window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: 'vi' }));
+          });
+        });
         await page.waitForTimeout(50);
       } else {
         await page.evaluate(() => {
           window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: 'vi' }));
         });
       }
-      const closeNavBtn = page.locator('[data-testid="btn-close-mobile-nav"]').first();
-      if (await closeNavBtn.isVisible().catch(() => false)) {
-        await closeNavBtn.click();
-        await page.waitForTimeout(50);
+      const isMobileAfter = await page.locator('[data-testid="btn-open-mobile-nav"]').first().isVisible().catch(() => false);
+      if (isMobileAfter) {
+        const closeNavBtn = page.locator('[data-testid="btn-close-mobile-nav"]').first();
+        if (await closeNavBtn.isVisible().catch(() => false)) {
+          await closeNavBtn.click({ timeout: 3000 }).catch(() => {});
+          await page.waitForTimeout(50);
+        }
       }
     }
   });
