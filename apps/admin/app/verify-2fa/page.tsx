@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button, Input, Card, Alert } from '@jlpt/ui';
 import { useAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
 
@@ -47,35 +48,17 @@ export default function Verify2faChallengePage(): React.JSX.Element {
   const activeError = error || authError;
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        padding: '1.5rem',
-        background: '#f3f4f6',
-        fontFamily: 'sans-serif',
-      }}
-    >
-      <div
+    <div className="flex items-center justify-center min-h-screen p-6 bg-[var(--bg-page,#f8fafc)] dark:bg-[var(--bg-page,#0b1120)] font-sans">
+      <Card
         data-testid="verify-2fa-card"
-        style={{
-          width: '100%',
-          maxWidth: '440px',
-          background: '#ffffff',
-          borderRadius: '12px',
-          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
-          padding: '2.5rem 2rem',
-          border: '1px solid #e5e7eb',
-        }}
+        className="w-full max-w-[440px] bg-[var(--bg-surface,#ffffff)] dark:bg-[var(--bg-surface,#1e293b)] rounded-2xl shadow-xl p-8 border border-[var(--border-default,#cbd5e1)] dark:border-[var(--border-default,#475569)]"
       >
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🔑</div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.5rem', color: '#111827' }}>
+        <div className="text-center mb-8">
+          <div className="text-4xl mb-2">🔑</div>
+          <h1 className="text-2xl font-bold m-0 mb-2 text-[var(--text-primary,#0f172a)] dark:text-[var(--text-primary,#f8fafc)]">
             {useRecovery ? t('totp.recoveryCodeTitle', locale) : t('totp.challengeTitle', locale)}
           </h1>
-          <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: 0 }}>
+          <p className="text-sm text-[var(--text-muted,#64748b)] dark:text-[var(--text-muted,#94a3b8)] m-0">
             {useRecovery
               ? t('totp.recoveryCodeInstruction', locale)
               : t('totp.challengeSubtitle', locale)} ({user?.email})
@@ -83,27 +66,19 @@ export default function Verify2faChallengePage(): React.JSX.Element {
         </div>
 
         {activeError && (
-          <div
-            role="alert"
+          <Alert
+            variant="danger"
             data-testid="challenge-error-alert"
-            style={{
-              padding: '0.75rem 1rem',
-              marginBottom: '1.5rem',
-              background: '#fef2f2',
-              border: '1px solid #fecaca',
-              borderRadius: '6px',
-              color: '#b91c1c',
-              fontSize: '0.875rem',
-            }}
+            className="mb-6 text-sm"
           >
             {activeError}
-          </div>
+          </Alert>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           {!useRecovery ? (
             <div>
-              <input
+              <Input
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -114,87 +89,54 @@ export default function Verify2faChallengePage(): React.JSX.Element {
                 value={totpCode}
                 onChange={(e) => setTotpCode(e.target.value)}
                 placeholder={t('totp.codePlaceholder', locale)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  border: '2px solid #2563eb',
-                  borderRadius: '8px',
-                  fontSize: '1.5rem',
-                  letterSpacing: '0.3em',
-                  textAlign: 'center',
-                  fontFamily: 'monospace',
-                  boxSizing: 'border-box',
-                }}
+                className="w-full text-center font-mono text-2xl tracking-[0.3em] py-3 border-2 border-blue-600 dark:border-blue-500 rounded-lg"
               />
             </div>
           ) : (
             <div>
-              <input
+              <Input
                 type="text"
                 required
                 data-testid="recovery-code-input"
                 value={recoveryCode}
                 onChange={(e) => setRecoveryCode(e.target.value)}
                 placeholder={t('totp.recoveryCodePlaceholder', locale)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  border: '2px solid #d97706',
-                  borderRadius: '8px',
-                  fontSize: '1.1rem',
-                  letterSpacing: '0.1em',
-                  textAlign: 'center',
-                  fontFamily: 'monospace',
-                  boxSizing: 'border-box',
-                }}
+                className="w-full text-center font-mono text-lg tracking-[0.1em] py-3 border-2 border-amber-600 dark:border-amber-500 rounded-lg"
               />
             </div>
           )}
 
-          <button
+          <Button
             type="submit"
             data-testid="submit-challenge-button"
             disabled={isVerifying}
-            style={{
-              padding: '0.75rem',
-              background: useRecovery ? '#d97706' : '#2563eb',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '1rem',
-              fontWeight: 600,
-              cursor: isVerifying ? 'not-allowed' : 'pointer',
-              opacity: isVerifying ? 0.7 : 1,
-            }}
+            loading={isVerifying}
+            variant={useRecovery ? 'secondary' : 'primary'}
+            className="w-full text-base font-semibold py-3"
           >
             {isVerifying
               ? t('totp.verifying', locale)
               : useRecovery
                 ? t('totp.recoveryCodeButton', locale)
                 : t('totp.challengeButton', locale)}
-          </button>
+          </Button>
 
-          <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
-            <button
+          <div className="text-center mt-2">
+            <Button
               type="button"
+              variant="link"
               onClick={() => {
                 setUseRecovery(!useRecovery);
                 setError(null);
               }}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#2563eb',
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                textDecoration: 'underline',
-              }}
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
             >
               {useRecovery ? t('totp.useTotpLink', locale) : t('totp.useRecoveryCodeLink', locale)}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 }
+

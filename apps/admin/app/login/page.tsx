@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button, Input, Card, Alert } from '@jlpt/ui';
 import { useAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
 
@@ -41,133 +42,71 @@ export default function StaffLoginPage(): React.JSX.Element {
   };
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        padding: '1.5rem',
-        background: '#f3f4f6',
-      }}
-    >
-      <div
+    <div className="flex items-center justify-center min-h-screen p-6 bg-[var(--bg-page,#f8fafc)] dark:bg-[var(--bg-page,#0b1120)]">
+      <Card
         data-testid="login-card"
-        style={{
-          width: '100%',
-          maxWidth: '440px',
-          background: '#ffffff',
-          borderRadius: '12px',
-          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
-          padding: '2.5rem 2rem',
-          border: '1px solid #e5e7eb',
-        }}
+        className="w-full max-w-[440px] bg-[var(--bg-surface,#ffffff)] dark:bg-[var(--bg-surface,#1e293b)] rounded-2xl shadow-xl p-8 border border-[var(--border-default,#cbd5e1)] dark:border-[var(--border-default,#475569)]"
       >
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>⛩️</div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.5rem', color: '#111827' }}>
+        <div className="text-center mb-8">
+          <div className="text-4xl mb-2">⛩️</div>
+          <h1 className="text-2xl font-bold m-0 mb-2 text-[var(--text-primary,#0f172a)] dark:text-[var(--text-primary,#f8fafc)]">
             {t('auth.loginTitle', locale)}
           </h1>
-          <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: 0 }}>
+          <p className="text-sm text-[var(--text-muted,#64748b)] dark:text-[var(--text-muted,#94a3b8)] m-0">
             {t('auth.loginSubtitle', locale)}
           </p>
         </div>
 
         {(localError || authError) && (
-          <div
-            role="alert"
+          <Alert
+            variant="danger"
             data-testid="login-error-alert"
-            style={{
-              padding: '0.75rem 1rem',
-              marginBottom: '1.5rem',
-              background: '#fef2f2',
-              border: '1px solid #fecaca',
-              borderRadius: '6px',
-              color: '#b91c1c',
-              fontSize: '0.875rem',
-            }}
+            className="mb-6 text-sm"
           >
             {localError || authError}
-          </div>
+          </Alert>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <div>
-            <label
-              htmlFor="email-input"
-              style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.35rem' }}
-            >
-              {t('auth.emailLabel', locale)}
-            </label>
-            <input
-              id="email-input"
-              name="email"
-              data-testid="email-input"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t('auth.emailPlaceholder', locale)}
-              style={{
-                width: '100%',
-                padding: '0.625rem 0.75rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '0.95rem',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <Input
+            id="email-input"
+            name="email"
+            data-testid="email-input"
+            type="email"
+            label={t('auth.emailLabel', locale)}
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={t('auth.emailPlaceholder', locale)}
+            className="w-full"
+          />
 
-          <div>
-            <label
-              htmlFor="password-input"
-              style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.35rem' }}
-            >
-              {t('auth.passwordLabel', locale)}
-            </label>
-            <input
-              id="password-input"
-              name="password"
-              data-testid="password-input"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={t('auth.passwordPlaceholder', locale)}
-              style={{
-                width: '100%',
-                padding: '0.625rem 0.75rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '0.95rem',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
+          <Input
+            id="password-input"
+            name="password"
+            data-testid="password-input"
+            type="password"
+            label={t('auth.passwordLabel', locale)}
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder={t('auth.passwordPlaceholder', locale)}
+            className="w-full"
+          />
 
-          <button
+          <Button
             type="submit"
             data-testid="submit-login-button"
             disabled={isSubmitting}
-            style={{
-              marginTop: '0.5rem',
-              padding: '0.75rem',
-              background: '#2563eb',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '1rem',
-              fontWeight: 600,
-              cursor: isSubmitting ? 'not-allowed' : 'pointer',
-              opacity: isSubmitting ? 0.7 : 1,
-              transition: 'background 0.15s',
-            }}
+            loading={isSubmitting}
+            variant="primary"
+            className="w-full mt-2"
           >
             {isSubmitting ? t('auth.signingIn', locale) : t('auth.signInButton', locale)}
-          </button>
+          </Button>
         </form>
-      </div>
+      </Card>
     </div>
   );
 }
+
