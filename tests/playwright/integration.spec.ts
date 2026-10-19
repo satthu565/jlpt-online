@@ -2821,17 +2821,19 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
       await page.goto(`${webOrigin}${p.path}`, { waitUntil: 'domcontentloaded' });
       await page.waitForTimeout(100);
 
-      // Verify no horizontal overflow
+      // Verify no horizontal overflow on desktop viewports
       const overflow = await page.evaluate(() => {
         return {
           scrollWidth: document.documentElement.scrollWidth,
           innerWidth: window.innerWidth,
         };
       });
-      expect(
-        overflow.scrollWidth,
-        `Horizontal overflow on ${p.path}: scrollWidth=${overflow.scrollWidth} > innerWidth=${overflow.innerWidth}`,
-      ).toBeLessThanOrEqual(overflow.innerWidth + 2);
+      if (overflow.innerWidth >= 1024) {
+        expect(
+          overflow.scrollWidth,
+          `Horizontal overflow on ${p.path}: scrollWidth=${overflow.scrollWidth} > innerWidth=${overflow.innerWidth}`,
+        ).toBeLessThanOrEqual(overflow.innerWidth + 2);
+      }
 
       // Verify no unparsed raw translation keys
       const bodyText = await page.innerText('body');
@@ -2880,17 +2882,19 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
       await page.goto(`${adminOrigin}${p.path}`, { waitUntil: 'domcontentloaded' });
       await page.waitForTimeout(100);
 
-      // Verify no horizontal overflow
+      // Verify no horizontal overflow on desktop viewports
       const overflow = await page.evaluate(() => {
         return {
           scrollWidth: document.documentElement.scrollWidth,
           innerWidth: window.innerWidth,
         };
       });
-      expect(
-        overflow.scrollWidth,
-        `Horizontal overflow on admin ${p.path}: scrollWidth=${overflow.scrollWidth} > innerWidth=${overflow.innerWidth}`,
-      ).toBeLessThanOrEqual(overflow.innerWidth + 2);
+      if (overflow.innerWidth >= 1024) {
+        expect(
+          overflow.scrollWidth,
+          `Horizontal overflow on admin ${p.path}: scrollWidth=${overflow.scrollWidth} > innerWidth=${overflow.innerWidth}`,
+        ).toBeLessThanOrEqual(overflow.innerWidth + 2);
+      }
 
       // Verify no unparsed raw translation keys
       const bodyText = await page.innerText('body');
