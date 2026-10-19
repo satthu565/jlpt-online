@@ -950,6 +950,8 @@ Bạn là reviewer trong cùng sáu worker, khác tác giả. Chỉ đọc diff 
 
 Với mỗi feature giao, kiểm hành vi và assertions, không chỉ tên test hoặc screenshot. Nếu không đủ bằng chứng trả UNCLEAR hoặc BLOCKED, không APPROVE. Contract/base/head đổi làm verdict cũ không hợp lệ.
 
+Thời gian: phiên review bị ngắt sau 30 phút và khi đó không có kết quả. Task chỉ tới bước review sau khi coordinator đã chạy và đạt mọi lệnh trong "Lệnh cần cung cấp và chạy" cùng install, lint, typecheck, test, build trên đúng headSHA này. Vì vậy KHÔNG chạy lại các lệnh đó, không chạy jlpt-stage-test, pnpm build, pnpm test toàn bộ, Lighthouse hay Playwright. Đánh giá bằng cách đọc diff, code và test. Nếu cần xác minh một điểm cụ thể, chỉ chạy một file test đơn lẻ (vitest run <file>) mất dưới 3 phút. Trả JSON trong vòng 20 phút; điểm nào chỉ chứng minh được bằng chạy lệnh nặng thì ghi vào evidenceReviewed là "đã được coordinator chạy", không trả UNCLEAR vì lý do đó.
+
 Mức lỗi:
 - P0: lộ đáp án/lời giải trước quyền xem, lỗ hổng bảo mật hoặc quyền, mất/hỏng dữ liệu, sai chấm điểm hoặc sai tiền.
 - P1: thiếu một tiêu chí nghiệm thu, hợp đồng/API/schema sai tài liệu, test không chứng minh được hành vi hoặc bị làm yếu, mock giả làm tích hợp thật, sửa ngoài phạm vi task.
