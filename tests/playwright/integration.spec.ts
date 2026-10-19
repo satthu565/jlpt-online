@@ -901,8 +901,8 @@ test.describe('I11: No 500 errors from hardcoded IDs in vocab, grammar, discussi
       // In staging CI, seeded student account is guaranteed
     }
 
-    // 1. Invalid dataset ID 'jlpt-official' must return 400 Bad Request with INVALID_UUID, NEVER 500
-    const datasetRes = await request.get(`${apiBaseUrl}/api/v1/datasets/jlpt-official/vocabulary`, {
+    // 1. Invalid dataset ID must return 400 Bad Request with INVALID_UUID, NEVER 500
+    const datasetRes = await request.get(`${apiBaseUrl}/api/v1/datasets/invalid-uuid-format/vocabulary`, {
       headers: authHeaders,
     });
     expect(datasetRes.status()).toBe(400);
@@ -916,6 +916,76 @@ test.describe('I11: No 500 errors from hardcoded IDs in vocab, grammar, discussi
     expect(discussionRes.status()).toBe(400);
     const discussionBody = (await discussionRes.json()) as { error?: { code?: string } };
     expect(discussionBody?.error?.code).toBe('INVALID_UUID');
+  });
+});
+
+/**
+ * Official JLPT Corpus Datasets & Frequency Integration Suite (I14)
+ * Verifies that:
+ * 1. On staging after demo seed, GET /api/v1/datasets/jlpt-official/trends, /vocabulary, /grammar, /compare/levels
+ *    return 200 with valid structure (never 500).
+ * 2. Web corpus frequency statistics page (/thong-ke-tu-vung) loads and displays frequency data without crashing.
+ * 3. No mock data or page.route used.
+ */
+test.describe('Official JLPT Corpus Datasets & Frequency Integration Suite (I14)', () => {
+  const apiBaseUrl = process.env.STAGING_API_URL || 'http://127.0.0.1:4000';
+  const webBaseUrl = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+  const clientIp = '127.0.0.1';
+  const ipHeaders = {
+    'x-forwarded-for': clientIp,
+    'x-real-ip': clientIp,
+  };
+
+  test('GET /api/v1/datasets/jlpt-official/* endpoints return 200 with valid data structure', async ({
+    request,
+  }) => {
+    // 1. GET /api/v1/datasets/jlpt-official/trends
+    const trendsRes = await request.get(`${apiBaseUrl}/api/v1/datasets/jlpt-official/trends`, {
+      headers: ipHeaders,
+    });
+    expect(trendsRes.status()).toBe(200);
+    const trendsBody = (await trendsRes.json()) as Record<string, unknown>;
+    expect(trendsBody).toBeDefined();
+
+    // 2. GET /api/v1/datasets/jlpt-official/vocabulary
+    const vocabRes = await request.get(`${apiBaseUrl}/api/v1/datasets/jlpt-official/vocabulary`, {
+      headers: ipHeaders,
+    });
+    expect(vocabRes.status()).toBe(200);
+    const vocabBody = (await vocabRes.json()) as { items?: unknown[] };
+    expect(vocabBody).toBeDefined();
+    expect(Array.isArray(vocabBody.items)).toBe(true);
+
+    // 3. GET /api/v1/datasets/jlpt-official/grammar
+    const grammarRes = await request.get(`${apiBaseUrl}/api/v1/datasets/jlpt-official/grammar`, {
+      headers: ipHeaders,
+    });
+    expect(grammarRes.status()).toBe(200);
+    const grammarBody = (await grammarRes.json()) as { items?: unknown[] };
+    expect(grammarBody).toBeDefined();
+    expect(Array.isArray(grammarBody.items)).toBe(true);
+
+    // 4. GET /api/v1/datasets/jlpt-official/compare/levels
+    const compareRes = await request.get(`${apiBaseUrl}/api/v1/datasets/jlpt-official/compare/levels`, {
+      headers: ipHeaders,
+    });
+    expect(compareRes.status()).toBe(200);
+    const compareBody = (await compareRes.json()) as { datasetId?: string; levels?: unknown };
+    expect(compareBody).toBeDefined();
+    expect(compareBody.datasetId).toBeDefined();
+    expect(compareBody.levels).toBeDefined();
+  });
+
+  test('Learner can browse /thong-ke-tu-vung web page without 500 error or crash', async ({ page }) => {
+    const response = await page.goto(`${webBaseUrl}/thong-ke-tu-vung`, { waitUntil: 'domcontentloaded' });
+    expect(response?.status()).toBe(200);
+
+    // Expect page container to be present
+    const container = page.locator('[data-testid="vocab-stats-page"]');
+    await expect(container).toBeVisible({ timeout: 10000 });
+
+    // Verify heading text
+    await expect(page.locator('h1')).toContainText('Thống kê Từ thường gặp');
   });
 });
 

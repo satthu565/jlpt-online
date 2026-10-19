@@ -681,6 +681,7 @@ export const pronunciationAssets = pgTable('pronunciation_assets', {
 
 export const datasets = pgTable('datasets', {
   id: uuid('id').primaryKey(),
+  slug: text('slug').unique(),
   name: text('name').notNull(),
   version: text('version').notNull(),
   licenseId: uuid('license_id').references(() => lexiconLicenses.id),
