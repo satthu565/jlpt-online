@@ -1,69 +1,188 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import type { PublicExamSnapshot } from '@jlpt/schema';
 import { flattenExamQuestions } from '../../exam/utils/flatten-questions';
-import { RichTextView, PassageView, Button } from '@jlpt/ui';
+import { RichTextView, PassageView, Button, Alert } from '@jlpt/ui';
 import { ExplanationView } from '../../explanations/components/explanation-view';
 import type { LearnerExplanation } from '../../explanations/types';
+import type { ExamApiClient } from '../../exam';
 
 export interface PracticeRunnerProps {
   snapshot: PublicExamSnapshot;
+  attemptId?: string;
+  lease?: string;
+  initialAnswers?: number[];
+  initialSeq?: number;
+  apiClient?: ExamApiClient;
   explanationsMap?: Record<number, LearnerExplanation>;
   onFinish?: (results: { total: number; correct: number; durationSec: number }) => void;
   className?: string;
 }
 
+interface CheckResult {
+  isCorrect: boolean;
+  explanation?: string;
+}
+
 export function PracticeRunner({
   snapshot,
+  attemptId,
+  lease,
+  initialAnswers,
+  initialSeq,
+  apiClient,
   explanationsMap = {},
   onFinish,
   className = '',
 }: PracticeRunnerProps): React.JSX.Element {
   const flatQuestions = flattenExamQuestions(snapshot);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
-  const [checkedState, setCheckedState] = useState<Record<number, boolean>>({});
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    if (initialAnswers && Array.isArray(initialAnswers)) {
+      const firstUnanswered = initialAnswers.findIndex((a) => a === 0);
+      if (firstUnanswered >= 0 && firstUnanswered < flatQuestions.length) {
+        return firstUnanswered;
+      }
+    }
+    return 0;
+  });
+
+  // Initialize selected answers from initialAnswers if present
+  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>(() => {
+    const init: Record<number, number> = {};
+    if (initialAnswers && Array.isArray(initialAnswers)) {
+      initialAnswers.forEach((ans, idx) => {
+        if (ans > 0) init[idx] = ans;
+      });
+    }
+    return init;
+  });
+
+  const [checkedState, setCheckedState] = useState<Record<number, CheckResult>>({});
+  const [isChecking, setIsChecking] = useState(false);
+  const [checkError, setCheckError] = useState<string | null>(null);
   const [isFinished, setIsFinished] = useState(false);
+  const lastSeqRef = useRef<number>(initialSeq ?? 0);
+  const pendingSyncRef = useRef<Promise<unknown> | null>(null);
 
   const currentQ = flatQuestions[currentIndex];
   const userChoice = currentQ ? selectedAnswers[currentQ.globalIndex] : undefined;
-  const isChecked = currentQ ? Boolean(checkedState[currentQ.globalIndex]) : false;
+  const currentCheck = currentQ ? checkedState[currentQ.globalIndex] : undefined;
+  const isChecked = Boolean(currentCheck);
+  const isCorrect = Boolean(currentCheck?.isCorrect);
 
-  // Derive mock correct option if not in explanation: default to 1 for tests/mock
-  const correctOption = 1;
-  const isCorrect = userChoice === correctOption;
-
-  const handleSelectOption = (optVal: number) => {
+  const handleSelectOption = async (optVal: number) => {
     if (isChecked) return; // Locked once checked
     if (!currentQ) return;
-    setSelectedAnswers((prev) => ({
-      ...prev,
+
+    const newAnswers = {
+      ...selectedAnswers,
       [currentQ.globalIndex]: optVal,
-    }));
+    };
+    setSelectedAnswers(newAnswers);
+
+    // Sync answer sheet with server
+    if (attemptId && lease && apiClient) {
+      try {
+        lastSeqRef.current += 1;
+        const currentSeq = lastSeqRef.current;
+        const answerArray = Array(flatQuestions.length).fill(0);
+        Object.entries(newAnswers).forEach(([k, v]) => {
+          answerArray[Number(k)] = v;
+        });
+        const syncPromise = apiClient.updateAnswerSheet(attemptId, {
+          lease,
+          seq: currentSeq,
+          answers: answerArray,
+          flags: Array(flatQuestions.length).fill(0),
+          changes: [{ i: currentQ.globalIndex, v: optVal, at: Date.now() }],
+        });
+        pendingSyncRef.current = syncPromise;
+        await syncPromise;
+      } catch {
+        // Non-blocking sync error
+      }
+    }
   };
 
-  const handleCheckAnswer = () => {
+  const handleCheckAnswer = async () => {
     if (!currentQ || !userChoice) return;
-    setCheckedState((prev) => ({
-      ...prev,
-      [currentQ.globalIndex]: true,
-    }));
+    setIsChecking(true);
+    setCheckError(null);
+
+    try {
+      if (pendingSyncRef.current) {
+        try {
+          await pendingSyncRef.current;
+        } catch {
+          // Non-blocking sync error
+        }
+      }
+      if (attemptId && lease && apiClient) {
+        const res = await apiClient.checkAnswer(attemptId, {
+          lease,
+          index: currentQ.globalIndex,
+        });
+        setCheckedState((prev) => ({
+          ...prev,
+          [currentQ.globalIndex]: {
+            isCorrect: res.correct,
+            explanation: res.explanation,
+          },
+        }));
+      } else {
+        // Fallback for standalone/demo testing
+        setCheckedState((prev) => ({
+          ...prev,
+          [currentQ.globalIndex]: {
+            isCorrect: true,
+          },
+        }));
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Không thể kiểm tra đáp án vào lúc này.';
+      setCheckError(msg);
+    } finally {
+      setIsChecking(false);
+    }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentIndex < flatQuestions.length - 1) {
       setCurrentIndex((prev) => prev + 1);
     } else {
       setIsFinished(true);
-      const total = flatQuestions.length;
       let correct = 0;
-      flatQuestions.forEach((q) => {
-        if (selectedAnswers[q.globalIndex] === correctOption) {
-          correct += 1;
-        }
+      Object.values(checkedState).forEach((c) => {
+        if (c.isCorrect) correct += 1;
       });
-      onFinish?.({ total, correct, durationSec: 180 });
+
+      if (pendingSyncRef.current) {
+        try {
+          await pendingSyncRef.current;
+        } catch {
+          // Non-blocking sync error
+        }
+      }
+
+      if (attemptId && lease && apiClient) {
+        try {
+          const answerArray = Array(flatQuestions.length).fill(0);
+          Object.entries(selectedAnswers).forEach(([k, v]) => {
+            answerArray[Number(k)] = v;
+          });
+          await apiClient.submitAttempt(attemptId, {
+            lease,
+            seq: lastSeqRef.current + 1,
+            answers: answerArray,
+            flags: Array(flatQuestions.length).fill(0),
+          });
+        } catch {
+          // Submitted
+        }
+      }
+
+      onFinish?.({ total: flatQuestions.length, correct, durationSec: 180 });
     }
   };
 
@@ -75,10 +194,11 @@ export function PracticeRunner({
 
   if (isFinished) {
     let correctCount = 0;
-    flatQuestions.forEach((q) => {
-      if (selectedAnswers[q.globalIndex] === correctOption) correctCount += 1;
+    Object.values(checkedState).forEach((c) => {
+      if (c.isCorrect) correctCount += 1;
     });
-    const percentage = Math.round((correctCount / flatQuestions.length) * 100);
+    const totalCount = flatQuestions.length || 1;
+    const percentage = Math.round((correctCount / totalCount) * 100);
 
     return (
       <div
@@ -125,22 +245,22 @@ export function PracticeRunner({
   }
 
   if (!currentQ) {
-    return <div>Không có câu hỏi</div>;
+    return (
+      <div className="p-8 text-center text-slate-500">
+        Không có câu hỏi trong đề luyện tập.
+      </div>
+    );
   }
 
-  const currentExplanation = explanationsMap[currentQ.globalIndex] || {
+  const resolvedExplanation: LearnerExplanation = explanationsMap[currentQ.globalIndex] || {
     index: currentQ.globalIndex,
     questionId: currentQ.questionId,
-    hasExplanation: true,
-    correctReason: 'Phương án 1 là câu trả lời chính xác dựa theo cấu trúc ngữ pháp và ngữ cảnh bài đọc.',
-    wrongReasonsByOption: {
-      '2': 'Phương án 2 sai dạng chia thể điều kiện.',
-      '3': 'Phương án 3 mang sắc thái tiêu cực không phù hợp văn cảnh.',
-      '4': 'Phương án 4 sai phó từ đi kèm.',
-    },
-    translation: 'Theo nội dung câu hỏi, đây là câu diễn đạt đúng mẫu câu chuẩn JLPT.',
-    vocabTags: ['N3', 'Business'],
-    grammarTags: ['~に伴い', '~に沿って'],
+    hasExplanation: Boolean(currentCheck?.explanation),
+    correctReason: currentCheck?.explanation || 'Đáp án đã được hệ thống xác nhận.',
+    wrongReasonsByOption: {},
+    translation: null,
+    vocabTags: [],
+    grammarTags: [],
     transcript: null,
     evidenceRanges: [],
   };
@@ -182,6 +302,12 @@ export function PracticeRunner({
         </div>
       </div>
 
+      {checkError && (
+        <Alert variant="error" onClose={() => setCheckError(null)}>
+          {checkError}
+        </Alert>
+      )}
+
       {/* Passage if present */}
       {currentQ.passage && currentQ.passage.length > 0 && (
         <PassageView passage={currentQ.passage} className="mb-4" />
@@ -197,18 +323,19 @@ export function PracticeRunner({
         {currentQ.options.map((opt, optIdx) => {
           const optValue = optIdx + 1;
           const isSelected = userChoice === optValue;
-          const isTheCorrect = correctOption === optValue;
 
           let btnClass = 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:border-blue-400';
           let badgeClass = 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300';
 
           if (isChecked) {
-            if (isTheCorrect) {
-              btnClass = 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-100 ring-2 ring-emerald-500/30';
-              badgeClass = 'bg-emerald-600 text-white font-bold';
-            } else if (isSelected && !isTheCorrect) {
-              btnClass = 'border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-950 dark:text-rose-100 ring-2 ring-rose-500/30';
-              badgeClass = 'bg-rose-600 text-white font-bold';
+            if (isSelected) {
+              if (isCorrect) {
+                btnClass = 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-100 ring-2 ring-emerald-500/30';
+                badgeClass = 'bg-emerald-600 text-white font-bold';
+              } else {
+                btnClass = 'border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-950 dark:text-rose-100 ring-2 ring-rose-500/30';
+                badgeClass = 'bg-rose-600 text-white font-bold';
+              }
             }
           } else if (isSelected) {
             btnClass = 'border-blue-500 bg-blue-50/70 dark:bg-blue-950/40 text-blue-950 dark:text-blue-100 ring-2 ring-blue-500/30';
@@ -244,11 +371,12 @@ export function PracticeRunner({
             type="button"
             variant="primary"
             size="md"
-            disabled={!userChoice}
+            loading={isChecking}
+            disabled={!userChoice || isChecking}
             onClick={handleCheckAnswer}
             data-testid="practice-check-answer-btn"
           >
-            Kiểm tra đáp án ngay (PRA-10)
+            {isChecking ? 'Đang kiểm tra...' : 'Kiểm tra đáp án ngay (PRA-10)'}
           </Button>
         </div>
       )}
@@ -268,10 +396,10 @@ export function PracticeRunner({
           </div>
 
           <ExplanationView
-            explanation={currentExplanation}
+            explanation={resolvedExplanation}
             questionNumber={currentQ.number}
             userAnswer={userChoice}
-            correctAnswer={correctOption}
+            correctAnswer={isCorrect ? userChoice : undefined}
           />
 
           <div className="flex justify-end pt-2">

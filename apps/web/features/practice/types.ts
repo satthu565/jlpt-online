@@ -15,7 +15,7 @@ export interface PracticeFilterState {
 
 export const INITIAL_PRACTICE_CONFIG: PracticeFilterState = {
   level: 'N3',
-  pool: 'unseen',
+  pool: 'random',
   skills: ['vocabulary', 'grammar', 'reading'],
   questionCount: 10,
   timeLimitSec: 1200, // 20 mins
