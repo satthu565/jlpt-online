@@ -90,16 +90,16 @@ Lịch greedy dependencies/worker/exclusive locks kết thúc ở giờ 233/168.
 | I03 | W4 | 186 | 192 | 8 | 0h |
 | I13 | W3 | 187 | 191 | 8 | 0h |
 | I04 | W4 | 192 | 196 | 8 | 4h |
+| D00 | W3 | 192 | 197 | 9 | 0h |
 | D01 | W6 | 192 | 195 | 9 | 0h |
 | I15 | W4 | 196 | 198 | 8 | 6h |
+| D02 | W3 | 197 | 203 | 9 | 0h |
 | I07 | W6 | 198 | 202 | 8 | 10h |
-| D00 | W3 | 202 | 207 | 9 | 0h |
-| D02 | W3 | 207 | 213 | 9 | 0h |
-| D03 | W4 | 207 | 211 | 9 | 0h |
-| D04 | W3 | 213 | 218 | 9 | 2h |
+| D03 | W4 | 198 | 202 | 9 | 0h |
+| D04 | W3 | 203 | 208 | 9 | 0h |
+| D05 | W6 | 208 | 211 | 9 | 0h |
 | P01 | W1 | 216 | 220 | 10 | 0h |
 | P02 | W5 | 216 | 220 | 10 | 0h |
-| D05 | W6 | 218 | 221 | 9 | 5h |
 | P03 | W2 | 220 | 225 | 10 | 0h |
 | P04 | W3 | 225 | 231 | 10 | 0h |
 | P05 | W4 | 225 | 228 | 10 | 0h |
@@ -108,7 +108,7 @@ Lịch greedy dependencies/worker/exclusive locks kết thúc ở giờ 233/168.
 ## Điều kiện và cảnh báo
 
 - Optimistic schedule exceeds 168h: 233h
-- Daily target overruns: I04 +4h, I15 +6h, I07 +10h, D04 +2h, D05 +5h
+- Daily target overruns: I04 +4h, I15 +6h, I07 +10h
 - Work duration estimates are speculative and exclude independent review, repair loops, provider waits and complete build contention.
 - Application requirements remain TODO; twelve source requirements are manual preparation outside the product, not implemented features.
 - Coding accounts quota/usage permission and external service readiness are not verified.

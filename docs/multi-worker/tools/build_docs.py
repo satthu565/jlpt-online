@@ -507,10 +507,11 @@ task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ l
  'pnpm check:no-mock-ui|pnpm test:e2e:integration',resources='ci-workflow staging-deploy',kind='verification')
 
 # Day 9 (owner request 2026-10-17): one design system on shadcn/ui + Tailwind, and mobile speed.
-# Starts after I07 so it never fights the API-wiring tasks over the same pages.
+# D00 (packages/ui only) starts early; D02/D03 rewrite pages after D00, by which time the API-wiring tasks have merged.
 NO_REGRESS = ('Lighthouse trên staging CI không giảm so với số đo trước đợt (máy tính hiệu năng ≥98, điện thoại ≥70, trợ năng ≥95, SEO 100); '
               'ảnh chụp 390px và 1366px của các trang đã đổi lưu làm artifact')
-task('D00','W3',9,5,'Hệ thống thiết kế @jlpt/ui dựng lại trên shadcn/ui','I07',
+# Owner 2026-10-19 "tăng tốc": D00 only touches packages/ui, so it starts now instead of after I07.
+task('D00','W3',9,5,'Hệ thống thiết kế @jlpt/ui dựng lại trên shadcn/ui','I00',
  'Khởi tạo shadcn/ui (components.json, cn, class-variance-authority, tailwind-merge, Radix khi cần) trong packages/ui; '
  'dựng lại Button, Input, Textarea, Label, Select, Checkbox, RadioGroup, Switch, Tabs, Dialog, DropdownMenu, Popover, Tooltip, Card, Badge, Alert, Toast, Skeleton theo token màu hiện có, sáng/tối theo class dark. '
  'Giữ nguyên tên export và props đang dùng để web/admin không vỡ; bỏ inline style. Thêm lệnh pnpm check:ui-primitives (packages/ui/scripts/) báo thẻ <button>/<input>/<select>/<textarea> gốc trong apps/web và apps/admin, kèm baseline giảm dần.',
