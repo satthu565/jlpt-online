@@ -106,7 +106,8 @@
     "test:release": "vitest run -c tests/vitest.config.ts tests/integration/release-acceptance.test.ts",
     "check:no-mock-ui": "node --no-warnings --experimental-strip-types tests/integration/check-no-mock-ui.ts",
     "test:e2e:integration": "node tests/playwright/runner.mjs",
-    "test:lighthouse": "node --no-warnings --experimental-strip-types tests/lighthouse/runner.ts"
+    "test:lighthouse": "node --no-warnings --experimental-strip-types tests/lighthouse/runner.ts",
+    "check:ui-primitives": "node --no-warnings --experimental-strip-types packages/ui/scripts/check-ui-primitives.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",

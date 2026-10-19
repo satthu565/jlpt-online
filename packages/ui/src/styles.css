@@ -38,6 +38,28 @@
   --color-info-light: #dbeafe;
   --color-info-text: #1e40af;
 
+  /* Shadcn UI CSS variable mappings */
+  --background: var(--bg-page);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-surface-elevated);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--color-primary);
+  --primary-foreground: var(--text-inverse);
+  --secondary: var(--bg-muted);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-muted);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--bg-hover);
+  --accent-foreground: var(--text-primary);
+  --destructive: var(--color-danger);
+  --destructive-foreground: var(--text-inverse);
+  --border: var(--border-default);
+  --input: var(--border-default);
+  --ring: var(--focus-ring-color);
+  --radius: 0.5rem;
+
   /* Focus ring for WCAG 2.1 AA Keyboard accessibility */
   --focus-ring-color: #2563eb;
   --focus-ring-offset: 2px;
@@ -52,7 +74,8 @@
   --font-japanese: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
 }
 
-/* Dark mode theme */
+/* Dark mode theme: support both .dark class and [data-theme='dark'] */
+.dark,
 [data-theme='dark'] {
   --bg-page: #0b1120;
   --bg-surface: #1e293b;
@@ -86,6 +109,26 @@
   --color-info: #60a5fa;
   --color-info-light: #1e3a8a;
   --color-info-text: #bfdbfe;
+
+  --background: var(--bg-page);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-surface-elevated);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--color-primary);
+  --primary-foreground: var(--text-inverse);
+  --secondary: var(--bg-muted);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-muted);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--bg-hover);
+  --accent-foreground: var(--text-primary);
+  --destructive: var(--color-danger);
+  --destructive-foreground: var(--text-inverse);
+  --border: var(--border-default);
+  --input: var(--border-default);
+  --ring: var(--focus-ring-color);
 
   --focus-ring-color: #60a5fa;
 
@@ -129,6 +172,26 @@
     --color-info: #60a5fa;
     --color-info-light: #1e3a8a;
     --color-info-text: #bfdbfe;
+
+    --background: var(--bg-page);
+    --foreground: var(--text-primary);
+    --card: var(--bg-surface);
+    --card-foreground: var(--text-primary);
+    --popover: var(--bg-surface-elevated);
+    --popover-foreground: var(--text-primary);
+    --primary: var(--color-primary);
+    --primary-foreground: var(--text-inverse);
+    --secondary: var(--bg-muted);
+    --secondary-foreground: var(--text-primary);
+    --muted: var(--bg-muted);
+    --muted-foreground: var(--text-muted);
+    --accent: var(--bg-hover);
+    --accent-foreground: var(--text-primary);
+    --destructive: var(--color-danger);
+    --destructive-foreground: var(--text-inverse);
+    --border: var(--border-default);
+    --input: var(--border-default);
+    --ring: var(--focus-ring-color);
 
     --focus-ring-color: #60a5fa;
   }
@@ -378,4 +441,3 @@ button, input, select, textarea, a {
 .safe-area-pr {
   padding-right: env(safe-area-inset-right, 0px);
 }
-

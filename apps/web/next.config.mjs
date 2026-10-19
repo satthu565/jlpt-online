@@ -3,6 +3,7 @@ import process from 'node:process';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  transpilePackages: ['@jlpt/ui'],
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 86400,
