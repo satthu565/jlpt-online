@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useId, useRef } from 'react';
+import * as React from 'react';
+import { cn } from '../lib/utils.js';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -21,30 +22,72 @@ export function Modal({
   closeLabel = 'Đóng hộp thoại',
   className = '',
 }: ModalProps): React.JSX.Element | null {
-  const titleId = useId();
-  const modalRef = useRef<HTMLDivElement>(null);
+  const titleId = React.useId();
+  const modalRef = React.useRef<HTMLDivElement>(null);
+  const previousActiveElement = React.useRef<HTMLElement | null>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!isOpen) return;
+
+    if (typeof document !== 'undefined') {
+      previousActiveElement.current = document.activeElement as HTMLElement | null;
+    }
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
         onClose();
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        // Trap focus inside modal
+        const focusable = modalRef.current?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        );
+        if (!focusable || focusable.length === 0) {
+          e.preventDefault();
+          return;
+        }
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last?.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first?.focus();
+          }
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    // Focus first focusable element inside modal
-    const focusable = modalRef.current?.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-    );
-    if (focusable && focusable.length > 0) {
-      focusable[0]?.focus();
-    }
+
+    // Focus first focusable element or modal container
+    const timer = setTimeout(() => {
+      const focusable = modalRef.current?.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable && focusable.length > 0) {
+        focusable[0]?.focus();
+      } else {
+        modalRef.current?.focus();
+      }
+    }, 0);
 
     return () => {
+      clearTimeout(timer);
       window.removeEventListener('keydown', handleKeyDown);
+      // Restore focus to previously active element
+      if (previousActiveElement.current && typeof previousActiveElement.current.focus === 'function') {
+        previousActiveElement.current.focus();
+      }
     };
   }, [isOpen, onClose]);
 
@@ -52,17 +95,7 @@ export function Modal({
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 10000,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1rem',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        backdropFilter: 'blur(2px)',
-      }}
+      className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -72,37 +105,16 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        style={{
-          width: '100%',
-          maxWidth: '520px',
-          backgroundColor: 'var(--bg-surface-elevated, #ffffff)',
-          borderRadius: '12px',
-          border: '1px solid var(--border-default, #cbd5e1)',
-          boxShadow: 'var(--shadow-lg)',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          maxHeight: '90vh',
-        }}
-        className={`jlpt-modal ${className}`}
+        tabIndex={-1}
+        className={cn(
+          'jlpt-modal w-full max-w-[520px] bg-[var(--bg-surface-elevated,#ffffff)] rounded-xl border border-[var(--border-default,#cbd5e1)] shadow-lg overflow-hidden flex flex-col max-h-[90vh] dark:border-[var(--border-default,#475569)] dark:bg-[var(--bg-surface-elevated,#1e293b)]',
+          className,
+        )}
       >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '1rem 1.25rem',
-            borderBottom: '1px solid var(--border-subtle, #e2e8f0)',
-          }}
-        >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-subtle,#e2e8f0)] dark:border-[var(--border-subtle,#334155)]">
           <h2
             id={titleId}
-            style={{
-              margin: 0,
-              fontSize: '1.25rem',
-              fontWeight: 700,
-              color: 'var(--text-primary, #0f172a)',
-            }}
+            className="m-0 text-xl font-bold text-[var(--text-primary,#0f172a)] dark:text-[var(--text-primary,#f8fafc)]"
           >
             {title}
           </h2>
@@ -110,46 +122,18 @@ export function Modal({
             type="button"
             onClick={onClose}
             aria-label={closeLabel}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              fontSize: '1.25rem',
-              cursor: 'pointer',
-              color: 'var(--text-muted, #64748b)',
-              padding: '4px 8px',
-              borderRadius: '6px',
-              minHeight: '36px',
-              minWidth: '36px',
-            }}
+            className="flex items-center justify-center min-h-[36px] min-w-[36px] rounded-md text-[var(--text-muted,#64748b)] hover:text-[var(--text-primary,#0f172a)] hover:bg-[var(--bg-hover,#e2e8f0)] transition-colors text-lg dark:hover:bg-[var(--bg-hover,#334155)] dark:hover:text-[var(--text-primary,#f8fafc)]"
           >
             ✕
           </button>
         </div>
 
-        <div
-          style={{
-            padding: '1.25rem',
-            overflowY: 'auto',
-            color: 'var(--text-secondary, #475569)',
-            fontSize: '0.9375rem',
-            lineHeight: 1.6,
-          }}
-        >
+        <div className="p-5 overflow-y-auto text-[var(--text-secondary,#475569)] text-sm leading-relaxed dark:text-[var(--text-muted,#94a3b8)]">
           {children}
         </div>
 
         {footer && (
-          <div
-            style={{
-              padding: '1rem 1.25rem',
-              borderTop: '1px solid var(--border-subtle, #e2e8f0)',
-              backgroundColor: 'var(--bg-muted, #f8fafc)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              gap: '0.75rem',
-            }}
-          >
+          <div className="px-5 py-4 border-t border-[var(--border-subtle,#e2e8f0)] bg-[var(--bg-muted,#f8fafc)] flex items-center justify-end gap-3 dark:border-[var(--border-subtle,#334155)] dark:bg-[var(--bg-muted,#0f172a)]">
             {footer}
           </div>
         )}

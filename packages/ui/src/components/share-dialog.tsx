@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Modal } from './modal.js';
 import { Button } from './button.js';
 import { Input } from './input.js';
+import { cn } from '../lib/utils.js';
 
 export interface ShareDialogProps {
   isOpen: boolean;
@@ -57,23 +58,17 @@ export function ShareDialog({
       isOpen={isOpen}
       onClose={onClose}
       title={labels.dialogTitle}
-      className={`jlpt-share-dialog ${className}`}
+      className={cn('jlpt-share-dialog', className)}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div className="flex flex-col gap-4">
         {description && (
-          <p
-            style={{
-              margin: 0,
-              fontSize: '0.875rem',
-              color: 'var(--text-secondary, #475569)',
-            }}
-          >
+          <p className="m-0 text-sm text-[var(--text-secondary,#475569)] dark:text-[var(--text-muted,#94a3b8)]">
             {description}
           </p>
         )}
 
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
-          <div style={{ flex: 1 }}>
+        <div className="flex gap-2 items-end">
+          <div className="flex-1">
             <Input
               label={labels.copyLink}
               id="share-link-input"
@@ -87,31 +82,24 @@ export function ShareDialog({
             variant={copied ? 'primary' : 'outline'}
             onClick={handleCopy}
             data-testid="share-copy-btn"
-            style={{ minWidth: '90px' }}
+            className="min-w-[90px]"
           >
             {copied ? labels.copied : labels.copyLink}
           </Button>
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            gap: '0.75rem',
-            paddingTop: '0.5rem',
-            borderTop: '1px solid var(--border-subtle, #e2e8f0)',
-          }}
-        >
+        <div className="flex gap-3 pt-2 border-t border-[var(--border-subtle,#e2e8f0)] dark:border-[var(--border-subtle,#334155)]">
           <a
             href={twitterShareUrl}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ textDecoration: 'none', flex: 1 }}
+            className="no-underline flex-1"
           >
             <Button
               type="button"
               variant="outline"
               size="sm"
-              style={{ width: '100%' }}
+              className="w-full"
               data-testid="share-twitter-btn"
             >
               🐦 {labels.shareToTwitter || 'Twitter (X)'}
@@ -121,13 +109,13 @@ export function ShareDialog({
             href={facebookShareUrl}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ textDecoration: 'none', flex: 1 }}
+            className="no-underline flex-1"
           >
             <Button
               type="button"
               variant="outline"
               size="sm"
-              style={{ width: '100%' }}
+              className="w-full"
               data-testid="share-facebook-btn"
             >
               📘 {labels.shareToFacebook || 'Facebook'}

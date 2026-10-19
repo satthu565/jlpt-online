@@ -1,7 +1,46 @@
-import React from 'react';
+'use client';
 
-export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'info' | 'success' | 'warning' | 'error';
+import * as React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '../lib/utils.js';
+
+export const alertVariants = cva(
+  'jlpt-alert relative flex items-start gap-3 p-3.5 rounded-lg text-sm mb-4 border-l-4 transition-colors',
+  {
+    variants: {
+      variant: {
+        info:
+          'jlpt-alert-info bg-[var(--color-info-light,#eff6ff)] border-l-[var(--color-info,#2563eb)] text-[var(--color-info-text,#1e40af)] dark:bg-[var(--color-info-light,#1e3a8a)] dark:border-l-[var(--color-info,#60a5fa)] dark:text-[var(--color-info-text,#bfdbfe)]',
+        default:
+          'jlpt-alert-info bg-[var(--color-info-light,#eff6ff)] border-l-[var(--color-info,#2563eb)] text-[var(--color-info-text,#1e40af)] dark:bg-[var(--color-info-light,#1e3a8a)] dark:border-l-[var(--color-info,#60a5fa)] dark:text-[var(--color-info-text,#bfdbfe)]',
+        success:
+          'jlpt-alert-success bg-[var(--color-primary-light,#f0fdf4)] border-l-[var(--color-primary,#16a34a)] text-[var(--color-primary-text,#14532d)] dark:bg-[var(--color-primary-light,#14532d)] dark:border-l-[var(--color-primary,#22c55e)] dark:text-[var(--color-primary-text,#bbf7d0)]',
+        warning:
+          'jlpt-alert-warning bg-[var(--color-warning-light,#fef3c7)] border-l-[var(--color-warning,#d97706)] text-[var(--color-warning-text,#92400e)] dark:bg-[var(--color-warning-light,#78350f)] dark:border-l-[var(--color-warning,#f59e0b)] dark:text-[var(--color-warning-text,#fde68a)]',
+        error:
+          'jlpt-alert-error bg-[var(--color-danger-light,#fee2e2)] border-l-[var(--color-danger,#dc2626)] text-[var(--color-danger-text,#991b1b)] dark:bg-[var(--color-danger-light,#7f1d1d)] dark:border-l-[var(--color-danger,#ef4444)] dark:text-[var(--color-danger-text,#fecaca)]',
+        destructive:
+          'jlpt-alert-error bg-[var(--color-danger-light,#fee2e2)] border-l-[var(--color-danger,#dc2626)] text-[var(--color-danger-text,#991b1b)] dark:bg-[var(--color-danger-light,#7f1d1d)] dark:border-l-[var(--color-danger,#ef4444)] dark:text-[var(--color-danger-text,#fecaca)]',
+      },
+    },
+    defaultVariants: {
+      variant: 'info',
+    },
+  },
+);
+
+const iconMap: Record<string, string> = {
+  info: 'ℹ',
+  default: 'ℹ',
+  success: '✓',
+  warning: '⚠',
+  error: '✕',
+  destructive: '✕',
+};
+
+export interface AlertProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof alertVariants> {
   title?: string;
   onClose?: () => void;
   closeLabel?: string;
@@ -12,69 +51,24 @@ export function Alert({
   variant = 'info',
   title,
   onClose,
-  closeLabel = 'Close notification',
-  className = '',
-  style = {},
-  ...rest
+  closeLabel = 'Đóng thông báo',
+  className,
+  ...props
 }: AlertProps): React.JSX.Element {
-  const variantStyles: Record<
-    'info' | 'success' | 'warning' | 'error',
-    { bg: string; border: string; text: string; icon: string }
-  > = {
-    info: {
-      bg: 'var(--color-info-light, #eff6ff)',
-      border: 'var(--color-info, #2563eb)',
-      text: 'var(--color-info-text, #1e40af)',
-      icon: 'ℹ',
-    },
-    success: {
-      bg: 'var(--color-primary-light, #f0fdf4)',
-      border: 'var(--color-primary, #16a34a)',
-      text: 'var(--color-primary-text, #14532d)',
-      icon: '✓',
-    },
-    warning: {
-      bg: 'var(--color-warning-light, #fef3c7)',
-      border: 'var(--color-warning, #d97706)',
-      text: 'var(--color-warning-text, #92400e)',
-      icon: '⚠',
-    },
-    error: {
-      bg: 'var(--color-danger-light, #fee2e2)',
-      border: 'var(--color-danger, #dc2626)',
-      text: 'var(--color-danger-text, #991b1b)',
-      icon: '✕',
-    },
-  };
-
-  const v = variantStyles[variant] || variantStyles.info;
+  const icon = iconMap[variant || 'info'] || 'ℹ';
 
   return (
     <div
       role="alert"
       aria-live="polite"
-      style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: '0.75rem',
-        padding: '0.875rem 1rem',
-        borderRadius: '8px',
-        backgroundColor: v.bg,
-        borderLeft: `4px solid ${v.border}`,
-        color: v.text,
-        fontSize: '0.9375rem',
-        marginBottom: '1rem',
-        position: 'relative',
-        ...style,
-      }}
-      className={`jlpt-alert jlpt-alert-${variant} ${className}`}
-      {...rest}
+      className={cn(alertVariants({ variant }), className)}
+      {...props}
     >
-      <span aria-hidden="true" style={{ fontSize: '1.125rem', fontWeight: 'bold', lineHeight: 1 }}>
-        {v.icon}
+      <span aria-hidden="true" className="text-lg font-bold leading-none select-none">
+        {icon}
       </span>
-      <div style={{ flex: 1 }}>
-        {title && <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{title}</div>}
+      <div className="flex-1">
+        {title && <div className="font-semibold mb-1">{title}</div>}
         <div>{children}</div>
       </div>
       {onClose && (
@@ -82,18 +76,7 @@ export function Alert({
           type="button"
           onClick={onClose}
           aria-label={closeLabel}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'inherit',
-            cursor: 'pointer',
-            padding: '4px 8px',
-            fontSize: '1rem',
-            lineHeight: 1,
-            borderRadius: '4px',
-            minHeight: '32px',
-            minWidth: '32px',
-          }}
+          className="cursor-pointer px-2 py-1 text-base leading-none rounded min-h-[32px] min-w-[32px] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
         >
           ✕
         </button>
@@ -101,3 +84,27 @@ export function Alert({
     </div>
   );
 }
+
+export const AlertTitle = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => (
+  <h5
+    ref={ref}
+    className={cn('mb-1 font-semibold leading-none tracking-tight', className)}
+    {...props}
+  />
+));
+AlertTitle.displayName = 'AlertTitle';
+
+export const AlertDescription = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn('text-sm [&_p]:leading-relaxed', className)}
+    {...props}
+  />
+));
+AlertDescription.displayName = 'AlertDescription';
