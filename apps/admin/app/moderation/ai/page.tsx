@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Button, Input } from '@jlpt/ui';
 import { AdminGuard } from '../../../lib/ui-guard';
 import { useAdminAuth } from '../../../lib/auth-context';
 import { apiClient } from '../../../lib/api-client';
@@ -104,22 +105,22 @@ export default function AiModerationPage(): React.JSX.Element {
         )}
 
         <div className="flex justify-between items-center">
-          <label className="flex items-center gap-2 cursor-pointer font-medium text-sm text-gray-700">
-            <input
+          <label className="flex items-center gap-2 cursor-pointer font-medium text-sm text-gray-700 dark:text-slate-300">
+            <Input
               data-testid="checkbox-filter-flagged"
               type="checkbox"
               checked={filterFlagged}
               onChange={(e) => setFilterFlagged(e.target.checked)}
-              className="rounded text-blue-600"
+              className="w-4 h-4 rounded text-blue-600 min-h-0"
             />
             {t('content.aiModeration.filterLabel', locale)} ({logs.filter((l) => l.flaggedUnsafe).length})
           </label>
         </div>
 
-        <div className="overflow-x-auto w-full border border-gray-200 rounded-lg shadow-xs bg-white">
+        <div className="overflow-x-auto w-full border border-gray-200 dark:border-slate-800 rounded-lg shadow-xs bg-white dark:bg-slate-900">
           <table className="w-full text-left text-sm border-collapse">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200 text-gray-700">
+              <tr className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-800 text-gray-700 dark:text-slate-300">
                 <th className="p-3">Mã yêu cầu</th>
                 <th className="p-3">Tác vụ</th>
                 <th className="p-3">Nhà cung cấp / Model</th>
@@ -138,13 +139,13 @@ export default function AiModerationPage(): React.JSX.Element {
                 </tr>
               ) : (
                 filtered.map((item) => (
-                  <tr key={item.id} data-testid={`ai-log-row-${item.id}`} className="border-b border-gray-100 hover:bg-gray-50">
+                  <tr key={item.id} data-testid={`ai-log-row-${item.id}`} className="border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50">
                     <td className="p-3 font-mono text-xs">{item.id}</td>
-                    <td className="p-3 font-semibold text-gray-900">{item.actionType}</td>
-                    <td className="p-3 text-xs text-gray-600">
+                    <td className="p-3 font-semibold text-gray-900 dark:text-slate-100">{item.actionType}</td>
+                    <td className="p-3 text-xs text-gray-600 dark:text-slate-400">
                       {item.provider} / {item.model}
                     </td>
-                    <td className="p-3 text-xs text-gray-600">
+                    <td className="p-3 text-xs text-gray-600 dark:text-slate-400">
                       {item.promptTokens} in / {item.completionTokens} out
                     </td>
                     <td className="p-3 font-semibold text-emerald-600">
@@ -163,14 +164,15 @@ export default function AiModerationPage(): React.JSX.Element {
                     </td>
                     <td className="p-3 text-right">
                       {item.flaggedUnsafe && (
-                        <button
+                        <Button
                           type="button"
+                          variant="primary"
+                          size="sm"
                           data-testid={`btn-approve-ai-${item.id}`}
                           onClick={() => handleApprove(item.id)}
-                          className="px-2.5 py-1 text-xs font-semibold bg-emerald-600 text-white rounded hover:bg-emerald-700"
                         >
                           {t('content.aiModeration.unflagBtn', locale)}
-                        </button>
+                        </Button>
                       )}
                     </td>
                   </tr>

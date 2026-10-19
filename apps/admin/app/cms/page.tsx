@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Button, Input, Select, Textarea } from '@jlpt/ui';
 import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 import { apiClient } from '../../lib/api-client';
@@ -188,26 +189,24 @@ export default function CmsManagementPage({
           </div>
 
           <div className="flex gap-2">
-            <button
+            <Button
               type="button"
+              variant={activeTab === 'articles' ? 'primary' : 'secondary'}
+              size="sm"
               data-testid="tab-articles"
               onClick={() => setActiveTab('articles')}
-              className={`px-4 py-2 rounded-md text-xs font-semibold border transition-colors ${
-                activeTab === 'articles'
-                  ? 'bg-blue-600 border-blue-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
             >
               {t('content.cms.listTab', locale)} ({articles.length})
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
               data-testid="btn-create-article"
               onClick={handleCreateNew}
-              className="px-4 py-2 bg-green-600 text-white rounded-md text-xs font-semibold hover:bg-green-700 transition-colors shadow-xs"
             >
               {t('content.cms.newArticleBtn', locale)}
-            </button>
+            </Button>
           </div>
         </header>
 
@@ -235,16 +234,16 @@ export default function CmsManagementPage({
             {!isLoading && articles.length === 0 ? (
               <div
                 data-testid="cms-empty"
-                className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center text-gray-400"
+                className="border-2 border-dashed border-gray-300 dark:border-slate-800 rounded-lg p-12 text-center text-gray-400"
               >
                 <p className="mb-4">{t('content.cms.empty', locale)}</p>
-                <button
+                <Button
                   type="button"
+                  variant="primary"
                   onClick={handleCreateNew}
-                  className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700"
                 >
                   Tạo bài viết đầu tiên
-                </button>
+                </Button>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4">
@@ -252,11 +251,11 @@ export default function CmsManagementPage({
                   <div
                     key={art.id}
                     data-testid={`cms-article-card-${art.id}`}
-                    className="bg-white border border-gray-200 rounded-lg p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
+                    className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
                   >
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <strong className="text-base font-bold text-gray-900">{art.title}</strong>
+                        <strong className="text-base font-bold text-gray-900 dark:text-slate-100">{art.title}</strong>
                         <span
                           className={`px-2 py-0.5 rounded text-xs font-semibold ${
                             art.status === 'published'
@@ -268,7 +267,7 @@ export default function CmsManagementPage({
                         </span>
                         <span className="text-xs text-gray-400 font-mono">v{art.version}</span>
                       </div>
-                      <p className="text-xs text-gray-600 mb-2">{art.summary || 'Không có mô tả tóm tắt.'}</p>
+                      <p className="text-xs text-gray-600 dark:text-slate-400 mb-2">{art.summary || 'Không có mô tả tóm tắt.'}</p>
                       <div className="text-xs text-gray-400 flex flex-wrap gap-2 items-center">
                         <span>Đường dẫn: <code>/{art.slug}</code></span>
                         <span>•</span>
@@ -283,14 +282,15 @@ export default function CmsManagementPage({
                     </div>
 
                     <div className="flex items-center gap-2 self-start md:self-auto">
-                      <button
+                      <Button
                         type="button"
+                        variant="secondary"
+                        size="sm"
                         data-testid={`btn-edit-article-${art.id}`}
                         onClick={() => handleEdit(art)}
-                        className="px-3 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 rounded text-xs font-medium hover:bg-blue-100"
                       >
                         {t('content.cms.editBtn', locale)}
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -300,108 +300,108 @@ export default function CmsManagementPage({
         )}
 
         {activeTab === 'editor' && (
-          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-xs space-y-4">
-            <h3 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">
+          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-6 shadow-xs space-y-4">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 border-b border-gray-100 dark:border-slate-800 pb-2">
               {selectedArticle ? `Chỉnh sửa: ${selectedArticle.title}` : 'Soạn bài viết mới'}
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                   Tiêu đề bài viết:
                 </label>
-                <input
+                <Input
                   data-testid="input-title"
                   type="text"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
                   placeholder="Tiêu đề chuẩn SEO..."
-                  className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
+                  className="w-full"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                   Slug (Đường dẫn thân thiện):
                 </label>
-                <input
+                <Input
                   data-testid="input-slug"
                   type="text"
                   value={editSlug}
                   onChange={(e) => setEditSlug(e.target.value)}
                   placeholder="huong-dan-thi-jlpt-n1..."
-                  className="w-full p-2 border border-gray-300 rounded text-sm bg-white font-mono text-xs"
+                  className="w-full font-mono text-xs"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
+              <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                 Tóm tắt ngắn (Meta Description):
               </label>
-              <textarea
+              <Textarea
                 data-testid="input-summary"
                 rows={2}
                 value={editSummary}
                 onChange={(e) => setEditSummary(e.target.value)}
                 placeholder="Tóm tắt hiển thị trên công cụ tìm kiếm và thẻ chia sẻ..."
-                className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
+                className="w-full"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                   Thẻ (Tags, phân cách bằng dấu phẩy):
                 </label>
-                <input
+                <Input
                   data-testid="input-tags"
                   type="text"
                   value={editTags}
                   onChange={(e) => setEditTags(e.target.value)}
                   placeholder="JLPT, N1, Đề thi, Ngữ pháp"
-                  className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
+                  className="w-full"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                   Trạng thái xuất bản:
                 </label>
-                <select
+                <Select
                   data-testid="select-status"
                   value={editStatus}
                   onChange={(e) => setEditStatus(e.target.value as CmsArticle['status'])}
-                  className="w-full p-2 border border-gray-300 rounded text-sm bg-white"
+                  className="w-full"
                 >
                   <option value="draft">Bản thảo (Draft)</option>
                   <option value="review">Chờ duyệt (Review)</option>
                   <option value="published">Xuất bản công khai (Published)</option>
-                </select>
+                </Select>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                   Nội dung Markdown:
                 </label>
-                <textarea
+                <Textarea
                   data-testid="textarea-markdown"
                   rows={12}
                   value={editMarkdown}
                   onChange={(e) => setEditMarkdown(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded font-mono text-xs bg-white"
+                  className="w-full font-mono text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                   Xem trước nội dung (XSS Sanitized):
                 </label>
                 <div
                   data-testid="markdown-preview"
-                  className="w-full h-[250px] md:h-[268px] overflow-y-auto p-3 border border-gray-200 rounded bg-gray-50 text-xs text-gray-800 whitespace-pre-wrap font-sans"
+                  className="w-full h-[250px] md:h-[268px] overflow-y-auto p-3 border border-gray-200 dark:border-slate-800 rounded bg-gray-50 dark:bg-slate-800/50 text-xs text-gray-800 dark:text-slate-200 whitespace-pre-wrap font-sans"
                 >
                   {editMarkdown
                     .replace(/<\s*\/?\s*(script|iframe|object|embed)[^>]*>/gi, '')
@@ -410,22 +410,24 @@ export default function CmsManagementPage({
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-4 border-t border-gray-100">
-              <button
+            <div className="flex justify-end gap-2 pt-4 border-t border-gray-100 dark:border-slate-800">
+              <Button
                 type="button"
+                variant="secondary"
+                size="md"
                 onClick={() => setActiveTab('articles')}
-                className="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50"
               >
                 Hủy
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="primary"
+                size="md"
                 data-testid="btn-save-article"
                 onClick={handleSave}
-                className="px-6 py-2 bg-blue-600 text-white rounded text-sm font-semibold hover:bg-blue-700"
               >
                 {t('content.cms.saveBtn', locale)}
-              </button>
+              </Button>
             </div>
           </div>
         )}
