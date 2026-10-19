@@ -5,6 +5,37 @@ import { AppModule } from './app.module.js';
 
 export async function createApp(): Promise<NestFastifyApplication> {
   const adapter = new FastifyAdapter();
+  const fastify = adapter.getInstance();
+
+  // Register buffer parsers for multipart/form-data and binary zip uploads
+  fastify.addContentTypeParser(
+    'multipart/form-data',
+    (_req: unknown, payload: import('stream').Readable, done: (err: Error | null, res?: Buffer) => void) => {
+      const chunks: Buffer[] = [];
+      payload.on('data', (chunk: Buffer) => chunks.push(chunk));
+      payload.on('end', () => done(null, Buffer.concat(chunks)));
+      payload.on('error', (err: Error) => done(err));
+    },
+  );
+  fastify.addContentTypeParser(
+    'application/zip',
+    (_req: unknown, payload: import('stream').Readable, done: (err: Error | null, res?: Buffer) => void) => {
+      const chunks: Buffer[] = [];
+      payload.on('data', (chunk: Buffer) => chunks.push(chunk));
+      payload.on('end', () => done(null, Buffer.concat(chunks)));
+      payload.on('error', (err: Error) => done(err));
+    },
+  );
+  fastify.addContentTypeParser(
+    'application/octet-stream',
+    (_req: unknown, payload: import('stream').Readable, done: (err: Error | null, res?: Buffer) => void) => {
+      const chunks: Buffer[] = [];
+      payload.on('data', (chunk: Buffer) => chunks.push(chunk));
+      payload.on('end', () => done(null, Buffer.concat(chunks)));
+      payload.on('error', (err: Error) => done(err));
+    },
+  );
+
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, adapter, {
     logger: ['error', 'warn'],
   });

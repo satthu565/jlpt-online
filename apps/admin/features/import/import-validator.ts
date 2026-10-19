@@ -148,10 +148,14 @@ export function validateImportV2Package(input: PackageValidationInput): PackageV
   const mediaManifest = Array.isArray(parsed['media']) ? (parsed['media'] as Record<string, unknown>[]) : [];
   const mediaKeysInManifest = new Set<string>();
   for (const m of mediaManifest) {
-    if (typeof m['key'] === 'string') {
-      mediaKeysInManifest.add(m['key']);
+    const mKey =
+      (typeof m['key'] === 'string' && m['key']) ||
+      (typeof m['path'] === 'string' && m['path']) ||
+      '';
+    if (mKey) {
+      mediaKeysInManifest.add(mKey);
     }
-    const mediaPath = String(m['path'] || '');
+    const mediaPath = String(m['path'] || m['key'] || '');
     if (mediaPath && !files[mediaPath]) {
       errors.push(`Tệp media được khai báo trong manifest (${mediaPath}) không tồn tại trong gói nén.`);
     }

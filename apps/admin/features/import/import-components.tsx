@@ -283,9 +283,14 @@ export function ImportManagerView({
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
         setErrorMessage(msg);
-        setJobs(manager.listJobs());
+        if (manager.listJobs().length > 0) {
+          setJobs(manager.listJobs());
+        }
       } finally {
         setIsLoading(false);
+        if (event.target) {
+          event.target.value = '';
+        }
       }
     } else {
       // Batch upload
@@ -301,6 +306,9 @@ export function ImportManagerView({
       setStatusMessage(
         `Xử lý lô hoàn tất: ${batchResult.succeededCount}/${batchResult.totalPackages} gói hợp lệ, ${batchResult.failedCount} gói lỗi.`,
       );
+      if (event.target) {
+        event.target.value = '';
+      }
     }
   };
 
