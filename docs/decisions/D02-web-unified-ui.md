@@ -1,7 +1,7 @@
 # Quyết định kỹ thuật D02: Web dùng thống nhất @jlpt/ui và thiết kế lại menu máy tính 1280px
 
 - **Mã task**: D02
-- **Mã phân công**: D02-1
+- **Mã phân công**: D02-6
 - **Phụ trách**: W3 (Giao diện học viên)
 - **Ngày**: 2026-10-19
 - **Nhánh**: `task/D02`
@@ -106,4 +106,4 @@ Thực hiện rà soát và thay thế toàn diện qua 30+ tệp mã nguồn:
    - `pnpm test:web`: PASS (19/19 test files, 254/254 tests pass).
    - `pnpm test`: PASS (toàn bộ 20 tasks, 578 API tests, 61 UI tests, 254 Web tests pass).
    - `pnpm build`: PASS (toàn bộ các ứng dụng và gói thư viện build thành công).
-   - `sudo -n /usr/local/bin/jlpt-stage-test check`: PASS sau 1124s.
+   - `sudo -n /usr/local/bin/jlpt-stage-test check`: PASS sau 1144s.
