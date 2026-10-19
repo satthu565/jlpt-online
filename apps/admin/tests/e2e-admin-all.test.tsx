@@ -161,7 +161,7 @@ describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
       const html = renderWithAdmin(<CommercialReconciliationPage />);
       expect(html).toContain('Đối soát Giao dịch &amp; Chứng từ Cổng thanh toán (Reconciliation)');
       expect(html).toContain('data-testid="btn-run-reconciliation"');
-      expect(html).toContain('data-testid="reconciliation-runs-table"');
+      expect(html).toContain('data-testid="reconciliation-empty"');
     });
   });
 
@@ -265,7 +265,14 @@ describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
     });
 
     it('State Machine Hoàn tiền & Phân định Đơn vị Tiền tệ Tuyệt đối (ADM-16, PAY-08, PAY-12)', () => {
-      const billingManager = new BillingManager();
+      const billingManager = new BillingManager({
+        payments: [
+          { orderId: '0192a000-0000-7000-8000-000000000001', userId: 'usr_01', totalAmount: 199000, currency: 'VND', status: 'paid', createdAt: '2026-10-15T08:00:00Z' },
+        ],
+        refunds: [
+          { id: '0192a000-0000-7000-8000-000000000006', orderId: '0192a000-0000-7000-8000-000000000001', amount: 199000, currency: 'VND', reason: 'Mua nhầm gói cần nâng cấp lên gói năm', status: 'requested', createdAt: '2026-10-15T12:00:00Z' },
+        ],
+      });
       const refunds = billingManager.listRefunds();
       const requested = refunds.find((r) => r.status === 'requested')!;
       expect(requested).toBeDefined();
@@ -295,7 +302,11 @@ describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
     });
 
     it('Động cơ Đối soát Đa chiều & Báo cáo Sai lệch Nhà cung cấp (PAY-04, ADM-16, Acceptance 1)', () => {
-      const billingManager = new BillingManager();
+      const billingManager = new BillingManager({
+        payments: [
+          { orderId: '0192a000-0000-7000-8000-000000000001', userId: 'usr_01', totalAmount: 199000, currency: 'VND', status: 'paid', createdAt: '2026-10-15T08:00:00Z' },
+        ],
+      });
       const statements = [
         {
           reference: 'PAYOS_STMT_R04_MISMATCH',
@@ -321,7 +332,7 @@ describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
 
       // Render ReconciliationManager component hiển thị trực quan các sai lệch
       const html = renderToStaticMarkup(
-        <ReconciliationManager billingManager={billingManager} currentUser={adminUser} />,
+        <ReconciliationManager initialRuns={[run]} currentUser={adminUser} />,
       );
       expect(html).toContain('data-testid="reconciliation-panel"');
       expect(html).toContain('data-testid="reconciliation-runs-table"');
