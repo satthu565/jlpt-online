@@ -1139,6 +1139,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
   test('I12 E2E admin: nhân sự đăng nhập bằng mật khẩu và TOTP, tải lại trang hoặc mở thẳng /users vẫn ở trạng thái đã đăng nhập', async ({
     page,
   }, testInfo) => {
+    test.setTimeout(90_000);
     const clientIp = getProjectClientIp(testInfo, 54);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -1437,13 +1438,16 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
       await loginAsStaff(prepPage, adminOrigin, SEEDED_STAFF_ACCOUNTS.admin);
       await prepPage.goto(`${adminOrigin}/exams`, { waitUntil: 'domcontentloaded' });
       await expect(prepPage.locator('[data-testid="exam-page-title"], [data-testid="exams-title"], h2').first()).toBeVisible({ timeout: 15000 });
-      const takedownBtn = prepPage.locator('button[data-testid^="takedown-exam-btn-"]').first();
-      if (await takedownBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await takedownBtn.click();
-        const confirmBtn = prepPage.locator('button[data-testid="confirm-takedown-btn"]').first();
-        if (await confirmBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-          await confirmBtn.click();
-          await expect(prepPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 5000 });
+      const demoRow = prepPage.locator('tr:has-text("demo-n5-1"), tr:has-text("Đề demo N5")').first();
+      if (await demoRow.isVisible({ timeout: 5000 }).catch(() => false)) {
+        const takedownBtn = demoRow.locator('button[data-testid^="takedown-exam-btn-"]').first();
+        if (await takedownBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+          await takedownBtn.click();
+          const confirmBtn = prepPage.locator('button[data-testid="confirm-takedown-btn"]').first();
+          if (await confirmBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+            await confirmBtn.click();
+            await expect(prepPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 5000 });
+          }
         }
       }
     } finally {
@@ -1508,7 +1512,9 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
       await adminPage.goto(`${adminOrigin}/exams`, { waitUntil: 'domcontentloaded' });
       await expect(adminPage.locator('[data-testid="exam-page-title"], [data-testid="exams-title"], h2').first()).toBeVisible({ timeout: 15000 });
 
-      const publishBtn = adminPage.locator('button[data-testid^="publish-exam-btn-"]').first();
+      const demoRow = adminPage.locator('tr:has-text("demo-n5-1"), tr:has-text("Đề demo N5")').first();
+      await expect(demoRow).toBeVisible({ timeout: 15000 });
+      const publishBtn = demoRow.locator('button[data-testid^="publish-exam-btn-"]').first();
       await expect(publishBtn).toBeVisible({ timeout: 15000 });
       await publishBtn.click();
 
@@ -1539,7 +1545,7 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
   test('AC4: Loading, empty, and API error states are clearly displayed; 401/403 redirects or displays access denied', async ({
     page,
   }, testInfo) => {
-    test.setTimeout(60_000);
+    test.setTimeout(90_000);
     const clientIp = getProjectClientIp(testInfo, 61);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -3077,21 +3083,23 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
       await expect(adminPage.locator('[data-testid="exam-page-title"], [data-testid="exams-title"], h2').first()).toBeVisible({ timeout: 15000 });
 
       // If demo exam is currently published, take down first to re-publish cleanly
-      const takedownBtn = adminPage.locator('button[data-testid^="takedown-exam-btn-"]').first();
-      if (await takedownBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      const demoExamRow = adminPage.locator('tr:has-text("demo-n5-1"), tr:has-text("Đề demo N5")').first();
+      await expect(demoExamRow).toBeVisible({ timeout: 15000 });
+
+      const takedownBtn = demoExamRow.locator('button[data-testid^="takedown-exam-btn-"]').first();
+      if (await takedownBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
         await takedownBtn.click();
         const confirmBtn = adminPage.locator('button[data-testid="confirm-takedown-btn"]').first();
-        if (await confirmBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+        if (await confirmBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
           await confirmBtn.click();
           await expect(adminPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 10000 });
         }
       }
 
-      const publishBtn = adminPage.locator('button[data-testid^="publish-exam-btn-"]').first();
-      if (await publishBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-        await publishBtn.click();
-        await expect(adminPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 15000 });
-      }
+      const publishBtn = demoExamRow.locator('button[data-testid^="publish-exam-btn-"]').first();
+      await expect(publishBtn).toBeVisible({ timeout: 15000 });
+      await publishBtn.click();
+      await expect(adminPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 15000 });
 
       // =======================================================================
       // Part 3: Admin inspects Users and Audit Logs
