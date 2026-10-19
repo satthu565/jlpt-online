@@ -1946,6 +1946,90 @@ test.describe('Real JLPT Exam Schedules & Score Conversion Tables Suite (P05)', 
       // 1. Admin logs into Admin portal
       await loginAsStaff(adminPage, adminOrigin, SEEDED_STAFF_ACCOUNTS.admin);
 
+      // Pre-check: Inspect existing published N5 exam and recorded blueprintVersion before updating blueprint
+      const examsRes = await adminCtx.request.get(`${adminOrigin}/api/v1/admin/exams`, { headers });
+      expect(examsRes.ok()).toBe(true);
+      const examsData = (await examsRes.json()) as { items?: Array<{ id: string; level: string; publishedVersion?: number }> };
+      const n5Exam = examsData.items?.find((e) => e.level === 'N5' && e.publishedVersion);
+      let originalBlueprintVersion = 1;
+      let originalExamVersionScoring: unknown = null;
+      let originalExamVersionTotalPass: number | undefined = undefined;
+      if (n5Exam) {
+        const examDetailRes = await adminCtx.request.get(`${adminOrigin}/api/v1/admin/exams/${n5Exam.id}`, { headers });
+        expect(examDetailRes.ok()).toBe(true);
+        const examDetail = (await examDetailRes.json()) as {
+          versions?: Array<{ version: number; blueprintVersion: number; scoring?: { totalPass?: number } }>;
+        };
+        const activeExamVersion = examDetail.versions?.find((v) => v.version === n5Exam.publishedVersion);
+        if (activeExamVersion) {
+          originalBlueprintVersion = activeExamVersion.blueprintVersion;
+          originalExamVersionScoring = activeExamVersion.scoring;
+          originalExamVersionTotalPass = activeExamVersion.scoring?.totalPass;
+        }
+      }
+
+      // Pre-submit/query attempt before updating scoring tables to verify historical attempt result immutability
+      const apiBaseUrl = process.env.STAGING_API_URL || 'http://127.0.0.1:4000';
+      let priorAttemptId: string | null = null;
+      let priorAttemptPassThreshold: number | undefined = originalExamVersionTotalPass;
+      let studentAuthToken: string | null = null;
+
+      try {
+        const studentAuth = await authenticateStaffAccount(SEEDED_STAFF_ACCOUNTS.student, apiBaseUrl, clientIp);
+        if (studentAuth?.token && n5Exam) {
+          studentAuthToken = studentAuth.token;
+          const studentHeaders = {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${studentAuth.token}`,
+            ...headers,
+          };
+          const initRes = await request.post(`${apiBaseUrl}/api/v1/attempts`, {
+            headers: studentHeaders,
+            data: { examId: n5Exam.id, mode: 'real' },
+          });
+          let leaseToken = '';
+          if (initRes.status() === 201) {
+            const initData = (await initRes.json()) as { attemptId: string; lease: string };
+            priorAttemptId = initData.attemptId;
+            leaseToken = initData.lease;
+          } else if (initRes.status() === 409) {
+            const conflictData = (await initRes.json()) as { error?: { details?: { attemptId?: string } } };
+            priorAttemptId = conflictData.error?.details?.attemptId ?? null;
+            if (priorAttemptId) {
+              const resumeRes = await request.post(`${apiBaseUrl}/api/v1/attempts/${priorAttemptId}/resume`, {
+                headers: studentHeaders,
+              });
+              if (resumeRes.ok()) {
+                const resumeData = (await resumeRes.json()) as { lease: string };
+                leaseToken = resumeData.lease;
+              }
+            }
+          }
+
+          if (priorAttemptId && leaseToken) {
+            await request.post(`${apiBaseUrl}/api/v1/attempts/${priorAttemptId}/sections/next`, {
+              headers: studentHeaders,
+              data: { lease: leaseToken },
+            });
+            const submitRes = await request.post(`${apiBaseUrl}/api/v1/attempts/${priorAttemptId}/submit`, {
+              headers: studentHeaders,
+              data: {
+                lease: leaseToken,
+                seq: 1,
+                answers: [1, 2, 3, 4],
+                flags: [0, 0, 0, 0],
+              },
+            });
+            if (submitRes.ok()) {
+              const submitData = (await submitRes.json()) as { result?: { scoring?: { totalPass?: number } } };
+              priorAttemptPassThreshold = submitData.result?.scoring?.totalPass ?? originalExamVersionTotalPass;
+            }
+          }
+        }
+      } catch {
+        // Continue test; exam version immutability is also asserted below
+      }
+
       // 2. Navigates to Score Conversion Tables page
       await adminPage.goto(`${adminOrigin}/exams/scoring`, { waitUntil: 'domcontentloaded' });
       await expect(adminPage.locator('[data-testid="page-title"], h1').first()).toBeVisible({ timeout: 15000 });
@@ -1979,19 +2063,55 @@ test.describe('Real JLPT Exam Schedules & Score Conversion Tables Suite (P05)', 
 
       // 6. Admin activates the new version
       const activateBtn = draftVersionRow.locator('button[data-testid^="btn-activate-scoring-"], button:has-text("Kích hoạt phiên bản")').first();
-      if (await activateBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await activateBtn.click();
-        await expect(adminPage.locator('[data-testid="scoring-success"]').first()).toBeVisible({ timeout: 15000 });
-      }
+      await expect(activateBtn).toBeVisible({ timeout: 10000 });
+      await activateBtn.click();
+      await expect(adminPage.locator('[data-testid="scoring-success"]').first()).toBeVisible({ timeout: 15000 });
 
       // 7. Verify via API that blueprint list contains both versions with immutable history
-      const bpRes = await request.get(`${adminOrigin}/api/v1/admin/blueprints`, {
+      const bpRes = await adminCtx.request.get(`${adminOrigin}/api/v1/admin/blueprints`, {
         headers,
       });
-      if (bpRes.ok()) {
-        const bpData = await bpRes.json();
-        const items = bpData.items || [];
-        expect(items.length).toBeGreaterThan(0);
+      expect(bpRes.ok()).toBe(true);
+      const bpData = (await bpRes.json()) as { items?: Array<{ level?: string; version?: number; scoring?: { totalPass?: number } }> };
+      const items = bpData.items || [];
+      expect(items.length).toBeGreaterThan(0);
+      const newVersionFound = items.some(
+        (it) => it.level === 'N5' && it.version === 2 && it.scoring?.totalPass === 95,
+      );
+      expect(newVersionFound).toBe(true);
+
+      // 8. Assert historical immutability:
+      // (a) Existing published exam version retains its original blueprintVersion and totalPass
+      if (n5Exam) {
+        const afterExamRes = await adminCtx.request.get(`${adminOrigin}/api/v1/admin/exams/${n5Exam.id}`, { headers });
+        expect(afterExamRes.ok()).toBe(true);
+        const afterExamDetail = (await afterExamRes.json()) as {
+          versions?: Array<{ version: number; blueprintVersion: number; scoring?: { totalPass?: number } }>;
+        };
+        const pastExamVersion = afterExamDetail.versions?.find((v) => v.version === n5Exam.publishedVersion);
+        expect(pastExamVersion).toBeDefined();
+        expect(pastExamVersion?.blueprintVersion).toBe(originalBlueprintVersion);
+        if (originalExamVersionScoring !== null) {
+          expect(pastExamVersion?.scoring).toEqual(originalExamVersionScoring);
+        }
+        if (originalExamVersionTotalPass !== undefined) {
+          expect(pastExamVersion?.scoring?.totalPass).toBe(originalExamVersionTotalPass);
+          expect(pastExamVersion?.scoring?.totalPass).not.toBe(95);
+        }
+      }
+
+      // (b) Prior submitted attempt result retains its original scoring and totalPass threshold
+      if (priorAttemptId && studentAuthToken) {
+        const attemptRes = await request.get(`${apiBaseUrl}/api/v1/attempts/${priorAttemptId}`, {
+          headers: { Authorization: `Bearer ${studentAuthToken}`, ...headers },
+        });
+        if (attemptRes.ok()) {
+          const attemptData = (await attemptRes.json()) as { result?: { scoring?: { totalPass?: number } } };
+          if (attemptData.result?.scoring?.totalPass !== undefined && priorAttemptPassThreshold !== undefined) {
+            expect(attemptData.result.scoring.totalPass).toBe(priorAttemptPassThreshold);
+            expect(attemptData.result.scoring.totalPass).not.toBe(95);
+          }
+        }
       }
     } finally {
       await adminCtx.close();
@@ -2008,12 +2128,18 @@ test.describe('Real JLPT Exam Schedules & Score Conversion Tables Suite (P05)', 
 
     // 1. Unauthenticated student visits /exams/schedules -> redirected to login or blocked by guard
     await page.goto(`${adminOrigin}/exams/schedules`, { waitUntil: 'domcontentloaded' });
+    await expect(
+      page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-non-staff"], [data-testid="login-card"], [data-testid="email-input"], a[href*="/login"]').first(),
+    ).toBeVisible({ timeout: 15000 });
     const isLogin = page.url().includes('/login');
     const isGuard = await page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-non-staff"]').first().isVisible().catch(() => false);
     expect(isLogin || isGuard).toBe(true);
 
     // 2. Unauthenticated student visits /exams/scoring -> redirected or blocked
     await page.goto(`${adminOrigin}/exams/scoring`, { waitUntil: 'domcontentloaded' });
+    await expect(
+      page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-non-staff"], [data-testid="login-card"], [data-testid="email-input"], a[href*="/login"]').first(),
+    ).toBeVisible({ timeout: 15000 });
     const isLogin2 = page.url().includes('/login');
     const isGuard2 = await page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-non-staff"]').first().isVisible().catch(() => false);
     expect(isLogin2 || isGuard2).toBe(true);

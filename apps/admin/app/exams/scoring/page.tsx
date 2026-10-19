@@ -6,11 +6,12 @@ import { useAdminAuth } from '../../../lib/auth-context';
 import { apiClient } from '../../../lib/api-client';
 import { t } from '../../../lib/i18n';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent, Badge, Alert, Spinner } from '@jlpt/ui';
-import type { Blueprint } from '@jlpt/schema';
+import type { Blueprint, Skill } from '@jlpt/schema';
 
 export interface ScoreConversionSection {
   code: string;
   label: string;
+  skills: Skill[];
   maxScaled: number;
   minPass: number;
 }
@@ -31,6 +32,7 @@ export default function ScoreConversionTablesPage(): React.JSX.Element {
   const [formTotalPass, setFormTotalPass] = useState<number>(80);
   const [formNote, setFormNote] = useState<string>('');
   const [formSections, setFormSections] = useState<ScoreConversionSection[]>([]);
+  const [draftVersionKeys, setDraftVersionKeys] = useState<Set<string>>(new Set());
 
   const fetchBlueprints = useCallback(async () => {
     setIsLoading(true);
@@ -58,9 +60,10 @@ export default function ScoreConversionTablesPage(): React.JSX.Element {
     setTargetBlueprint(bp);
     setFormTotalPass(bp.scoring?.totalPass || 80);
     setFormNote(`Phiên bản mới cho cấp độ ${bp.level} (tạo bởi ${user?.name || user?.email || 'admin'})`);
-    const sections = (bp.scoring?.scoringSections || []).map((sec) => ({
+    const sections: ScoreConversionSection[] = (bp.scoring?.scoringSections || []).map((sec) => ({
       code: sec.code,
       label: sec.label || sec.code,
+      skills: Array.isArray(sec.skills) ? [...sec.skills] : [],
       maxScaled: sec.maxScaled,
       minPass: sec.minPass,
     }));
@@ -93,10 +96,18 @@ export default function ScoreConversionTablesPage(): React.JSX.Element {
       method: targetBlueprint.scoring?.method || 'linear_reference',
       rounding: targetBlueprint.scoring?.rounding || 'round',
       totalPass: Number(formTotalPass),
-      scoringSections: formSections.map((s) => ({
-        ...s,
-        skills: s.code === 'listening' ? ['listening'] : ['kanji', 'vocabulary', 'grammar', 'reading'],
-      })),
+      scoringSections: formSections.map((s) => {
+        const origSec = targetBlueprint.scoring?.scoringSections?.find((orig) => orig.code === s.code);
+        return {
+          code: s.code,
+          label: s.label,
+          maxScaled: s.maxScaled,
+          minPass: s.minPass,
+          skills: s.skills && s.skills.length > 0
+            ? [...s.skills]
+            : (origSec?.skills ? [...origSec.skills] : (s.code === 'listening' ? ['listening'] : ['kanji', 'vocabulary', 'grammar', 'reading'])),
+        };
+      }),
     };
 
     const newVersionPayload = {
@@ -109,8 +120,11 @@ export default function ScoreConversionTablesPage(): React.JSX.Element {
 
     try {
       const res = await apiClient.createBlueprintVersion(targetBlueprint.id, newVersionPayload);
+      const newVersionNum = res.version || targetBlueprint.version + 1;
+      const rowKey = `${targetBlueprint.level}_v${newVersionNum}`;
+      setDraftVersionKeys((prev) => new Set(prev).add(rowKey));
       setSuccessMsg(
-        `${t('content.scoringTables.versionCreatedSuccess', locale)} (v${res.version || targetBlueprint.version + 1})`,
+        `${t('content.scoringTables.versionCreatedSuccess', locale)} (v${newVersionNum})`,
       );
       setIsCreateOpen(false);
       setTargetBlueprint(null);
@@ -130,6 +144,12 @@ export default function ScoreConversionTablesPage(): React.JSX.Element {
     setSuccessMsg(null);
     try {
       await apiClient.activateBlueprint(bp.id, { confirmedBy: user?.id || 'admin' });
+      const rowKey = `${bp.level}_v${bp.version}`;
+      setDraftVersionKeys((prev) => {
+        const next = new Set(prev);
+        next.delete(rowKey);
+        return next;
+      });
       setSuccessMsg(
         `${t('content.scoringTables.versionActivatedSuccess', locale)} (${bp.level} v${bp.version})`,
       );
@@ -343,7 +363,8 @@ export default function ScoreConversionTablesPage(): React.JSX.Element {
                   ) : (
                     blueprints.map((bp) => {
                       const sections = bp.scoring?.scoringSections || [];
-                      const isRowActive = bp.status === 'active';
+                      const rowKey = `${bp.level}_v${bp.version}`;
+                      const isRowActive = !draftVersionKeys.has(rowKey) && bp.status === 'active';
                       return (
                         <tr
                           key={`${bp.id || bp.level}_v${bp.version}`}

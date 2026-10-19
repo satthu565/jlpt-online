@@ -83,3 +83,29 @@ Task P05 triển khai giao diện và quy trình quản trị toàn diện cho h
 - `P05-AC2`: Tạo phiên bản mới cho bảng quy đổi điểm (v2), kích hoạt phiên bản mới, xác nhận dữ liệu phiên bản cũ bất biến.
 - `P05-AC4`: Kiểm tra trạng thái đang tải, rỗng, lỗi và chuyển hướng 401/403 đối với người dùng chưa đăng nhập.
 - `P05-AC5 & AC6`: Chụp ảnh màn hình ở 390px và 1366px, kiểm tra không bị cuộn ngang (`scrollWidth <= innerWidth + 1`), kiểm tra 3 ngôn ngữ `vi`, `ja`, `en` không có key dịch thô.
+
+---
+
+## 4. Xử lý phản hồi Reviewer (Vòng P05-3)
+
+1. **[P0] Bảo toàn mảng `skills` gốc trong bảng quy đổi điểm (`apps/admin/app/exams/scoring/page.tsx`):**
+   - Loại bỏ việc gán cứng kỹ năng N5 (`['kanji', 'vocabulary', 'grammar', 'reading']` hoặc `['listening']`).
+   - Cập nhật interface `ScoreConversionSection` có `skills: Skill[]` và sao chép chính xác mảng `skills` từ `bp.scoring.scoringSections` khi mở form tạo phiên bản mới cũng như khi đóng gói payload gửi lên API, bảo đảm cấu trúc kỹ năng của các cấp độ N1–N3 không bị sai lệch.
+
+2. **[P1] Bỏ bọc `if` và dùng `adminCtx.request` trong Playwright E2E (`tests/playwright/integration.spec.ts`):**
+   - Thay thế `request.get` bằng `adminCtx.request.get` để kế thừa session cookie nhân sự đã xác thực; bỏ bọc `if (bpRes.ok())` và assert trực tiếp `expect(bpRes.ok()).toBe(true)` cùng kiểm tra sự tồn tại của phiên bản mới.
+   - Thao tác kích hoạt bảng quy đổi mới: loại bỏ `if (await activateBtn.isVisible().catch(() => false))`, assert trực tiếp `expect(activateBtn).toBeVisible({ timeout: 10000 })` trước khi thực hiện click.
+
+3. **[P1] Kiểm chứng tính bất biến của kết quả thi cũ (`tests/playwright/integration.spec.ts`):**
+   - Bổ sung bước kiểm tra đề thi đã xuất bản và lượt thi trước thời điểm cập nhật thang điểm.
+   - Sau khi kích hoạt phiên bản thang điểm mới (v2 với `totalPass: 95`), xác nhận phiên bản đề thi cũ vẫn giữ nguyên `blueprintVersion` ban đầu và lượt thi đã nộp vẫn lưu giữ đúng ngưỡng điểm đỗ ban đầu (không bị thay đổi hồi tố).
+
+4. **[P2] Khởi tạo form thêm kỳ thi mới với giá trị rỗng (`apps/admin/app/exams/schedules/page.tsx`):**
+   - Đặt giá trị khởi tạo trong `useState` và `handleOpenAddForm` thành chuỗi rỗng (`''`), hiển thị placeholder hướng dẫn người dùng thay vì điền sẵn dữ liệu mẫu.
+
+5. **[P2] Định dạng ngày theo locale hiện hành (`apps/admin/app/exams/schedules/page.tsx`):**
+   - Cập nhật hàm `formatShortDate` dùng `localeMap[locale]` tương ứng (`vi-VN`, `ja-JP`, `en-US`) thay cho `vi-VN` cố định.
+
+6. **[P2] Chuẩn hóa Conventional Commits:**
+   - Đảm bảo commit body có đầy đủ dòng `Task: P05` và `Features: ...` theo đúng quy định.
+

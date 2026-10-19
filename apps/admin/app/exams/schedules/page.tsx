@@ -53,10 +53,10 @@ export default function JlptSchedulesPage(): React.JSX.Element {
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formTitle, setFormTitle] = useState<string>('');
-  const [formExamDate, setFormExamDate] = useState<string>('2026-12-06');
-  const [formDeadline, setFormDeadline] = useState<string>('2026-09-15T23:59:59.000Z');
-  const [formOpensAt, setFormOpensAt] = useState<string>('2026-08-01T00:00:00.000Z');
-  const [formOfficialUrl, setFormOfficialUrl] = useState<string>('https://jlpt.vn');
+  const [formExamDate, setFormExamDate] = useState<string>('');
+  const [formDeadline, setFormDeadline] = useState<string>('');
+  const [formOpensAt, setFormOpensAt] = useState<string>('');
+  const [formOfficialUrl, setFormOfficialUrl] = useState<string>('');
   const [formNotes, setFormNotes] = useState<string>('');
   const [formLevels, setFormLevels] = useState<Level[]>(['N1', 'N2', 'N3', 'N4', 'N5']);
   const [formLocations, setFormLocations] = useState<JlptScheduleLocation[]>(DEFAULT_LOCATIONS);
@@ -83,12 +83,12 @@ export default function JlptSchedulesPage(): React.JSX.Element {
 
   const handleOpenAddForm = () => {
     setEditingId(null);
-    setFormTitle('Kỳ thi JLPT Tháng 12/2026');
-    setFormExamDate('2026-12-06');
-    setFormDeadline('2026-09-15T23:59:59.000Z');
-    setFormOpensAt('2026-08-01T00:00:00.000Z');
-    setFormOfficialUrl('https://jlpt.vn');
-    setFormNotes('Kỳ thi chính thức đợt 2 năm 2026 tại Việt Nam');
+    setFormTitle('');
+    setFormExamDate('');
+    setFormDeadline('');
+    setFormOpensAt('');
+    setFormOfficialUrl('');
+    setFormNotes('');
     setFormLevels(['N1', 'N2', 'N3', 'N4', 'N5']);
     setFormLocations(DEFAULT_LOCATIONS);
     setErrorMsg(null);
@@ -240,7 +240,13 @@ export default function JlptSchedulesPage(): React.JSX.Element {
   const formatShortDate = (isoStr: string) => {
     try {
       const d = new Date(isoStr);
-      return isNaN(d.getTime()) ? isoStr : d.toLocaleDateString('vi-VN');
+      const localeMap: Record<string, string> = {
+        vi: 'vi-VN',
+        ja: 'ja-JP',
+        en: 'en-US',
+      };
+      const intlLocale = localeMap[locale] || 'vi-VN';
+      return isNaN(d.getTime()) ? isoStr : d.toLocaleDateString(intlLocale);
     } catch {
       return isoStr;
     }
