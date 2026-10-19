@@ -3076,6 +3076,17 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
       await adminPage.goto(`${adminOrigin}/exams`, { waitUntil: 'domcontentloaded' });
       await expect(adminPage.locator('[data-testid="exam-page-title"], [data-testid="exams-title"], h2').first()).toBeVisible({ timeout: 15000 });
 
+      // If demo exam is currently published, take down first to re-publish cleanly
+      const takedownBtn = adminPage.locator('button[data-testid^="takedown-exam-btn-"]').first();
+      if (await takedownBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await takedownBtn.click();
+        const confirmBtn = adminPage.locator('button[data-testid="confirm-takedown-btn"]').first();
+        if (await confirmBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+          await confirmBtn.click();
+          await expect(adminPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 10000 });
+        }
+      }
+
       const publishBtn = adminPage.locator('button[data-testid^="publish-exam-btn-"]').first();
       if (await publishBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
         await publishBtn.click();

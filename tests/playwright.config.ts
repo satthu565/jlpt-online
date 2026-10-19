@@ -16,8 +16,8 @@ export default defineConfig({
   },
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: 1,
+  retries: process.env.CI ? 1 : 0,
+  workers: 2,
   reporter: [
     ['list'],
     ['json', { outputFile: '../docs/release/playwright-report.json' }],
