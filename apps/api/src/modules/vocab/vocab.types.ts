@@ -24,6 +24,7 @@ export interface DictionaryLookupResponseDto {
 
 export interface DatasetItemDto {
   id: string;
+  slug?: string;
   name: string;
   version: string;
   totalWords: number;
@@ -31,6 +32,7 @@ export interface DatasetItemDto {
 
 export interface DatasetDetailDto {
   id: string;
+  slug?: string;
   name: string;
   version: string;
   license: string;
@@ -76,6 +78,7 @@ export interface QuestionTagResultDto {
 
 export interface CreateDatasetDto {
   id?: string;
+  slug?: string;
   name: string;
   version: string;
   licenseId?: string;
