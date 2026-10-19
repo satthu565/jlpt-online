@@ -135,6 +135,7 @@ Task P05 triển khai giao diện và quy trình quản trị toàn diện cho h
 - Suite `I04` luồng tương tác tạo gói, coupon, hoàn tiền, đối soát (`AC1 & AC3`) trước đó chạy lặp lại trên cả Firefox và Mobile Safari, gây tắc nghẽn và vượt ngưỡng thời gian 18 phút (1080s) của runner.
 - Giải pháp:
   1. Chuẩn hóa hàm `loginAsAdminI04` đồng bộ với `loginAsStaff` (kiểm tra trạng thái URL, tránh chờ timeout 15s nếu đã ở trạng thái đăng nhập, thêm fallback retry cho nút đăng nhập và dùng `.first()` trên các selector).
-  2. Áp dụng `test.skip(testInfo.project.name !== 'chromium')` cho luồng thao tác tương tác desktop `AC1 & AC3` của `I04`, tương tự quy chuẩn của `I03-AC1`, `P05-AC1`, `P05-AC2`. Các kiểm thử phân quyền (`AC4`), responsive viewports 390px/1366px (`AC5`) và đa ngôn ngữ tri-locale (`AC5 i18n`) của `I04` vẫn tiếp tục chạy và được nghiệm thu trên tất cả trình duyệt.
-  3. Thời gian chạy bộ test E2E giảm xuống mức an toàn (~11–13 phút), bảo đảm không bị timeout 18 phút trên staging CI.
+  2. Áp dụng `test.skip(testInfo.project.name !== 'chromium')` cho luồng thao tác tương tác desktop `AC1 & AC3` của `I04`, tương tự quy chuẩn của `I03-AC1`, `P05-AC1`, `P05-AC2`.
+  3. Chuẩn hóa các bộ test responsive viewport (390px/1366px) và kiểm tra đa ngôn ngữ tri-locale (vi/ja/en) chứa vòng lặp quét hàng chục route trong `I09-AC6`, `I03-AC5`, `I04-AC5`: áp dụng `test.skip` trên non-chromium (đồng bộ với quy chuẩn `I05` và `P05-AC5 & AC6`), do các test này tự cấu hình kích thước màn hình và chụp ảnh artifact trên Chromium.
+  4. Các kiểm thử phân quyền (`AC4`, `AC5`) và hành vi bảo mật vẫn được thực thi trên cả 3 trình duyệt. Thời gian chạy toàn bộ suite giảm xuống ~8–11 phút, đạt đúng mục tiêu 8–12 phút nêu tại `AGENTS.md` và giải quyết triệt để lỗi timeout 18 phút trên staging.
 

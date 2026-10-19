@@ -1159,6 +1159,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     page,
   }, testInfo) => {
     test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'I09 responsive viewports and screenshots run on chromium');
     const clientIp = getProjectClientIp(testInfo, 54);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -1204,6 +1205,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     page,
   }, testInfo) => {
     test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'I09 tri-locale i18n runs on chromium');
     const clientIp = getProjectClientIp(testInfo, 55);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -1466,6 +1468,7 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
     page,
   }, testInfo) => {
     test.setTimeout(240_000);
+    test.skip(testInfo.project.name !== 'chromium', 'I03 responsive viewports and i18n run on chromium');
     const clientIp = getProjectClientIp(testInfo, 62);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -2068,6 +2071,7 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     page,
   }, testInfo) => {
     test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'I04 responsive viewports and screenshots run on chromium');
     const clientIp = getProjectClientIp(testInfo, 72);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -2112,6 +2116,7 @@ test.describe('Commercial, Reports & Experiments Real API Integration Suite (I04
     page,
   }, testInfo) => {
     test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'I04 tri-locale i18n runs on chromium');
     const clientIp = getProjectClientIp(testInfo, 73);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
