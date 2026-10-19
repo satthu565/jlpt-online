@@ -1417,10 +1417,12 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
 
       // 4. Bảng danh sách hiện trạng thái DRAFT_ONLY và chi tiết issue blocking
       await expect(editorPage.locator('text=DRAFT_ONLY').first()).toBeVisible({ timeout: 15000 });
-      await expect(editorPage.locator('[data-testid="issue-severity"], text=blocking').first()).toBeVisible({ timeout: 15000 });
+      await expect(editorPage.locator('[data-testid="issue-severity"]').filter({ hasText: /blocking/i }).first()).toBeVisible({ timeout: 15000 });
+      await expect(editorPage.locator('[data-testid="issue-path"]').first()).toBeVisible({ timeout: 15000 });
+      await expect(editorPage.locator('[data-testid="issue-reason"]').first()).toBeVisible({ timeout: 15000 });
 
       // 5. Kiểm tra nút "Gửi duyệt" bị ẩn hoặc disabled đối với gói DRAFT_ONLY
-      const draftJobRow = editorPage.locator('tr:has-text("DRAFT_ONLY")').first();
+      const draftJobRow = editorPage.locator('tr').filter({ hasText: 'DRAFT_ONLY' }).first();
       await expect(draftJobRow).toBeVisible();
       const submitBtn = draftJobRow.locator('button[data-testid^="submit-review-btn-"]');
       expect(await submitBtn.count()).toBe(0);
