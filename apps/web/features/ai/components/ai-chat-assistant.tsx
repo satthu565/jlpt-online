@@ -126,30 +126,26 @@ export function AiChatAssistant({
 
         {/* Depth Mode Selector */}
         <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg text-xs">
-          <button
+          <Button
             type="button"
+            variant={depth === 'standard' ? 'primary' : 'ghost'}
+            size="sm"
             onClick={() => setDepth('standard')}
             data-testid="ai-depth-standard-btn"
-            className={`px-2.5 py-1 rounded font-medium transition-colors ${
-              depth === 'standard'
-                ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-            }`}
+            className="px-2.5 py-1 h-auto text-xs font-medium rounded"
           >
             {t('seo.ai.standardDepth')}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant={depth === 'deep' ? 'primary' : 'ghost'}
+            size="sm"
             onClick={() => setDepth('deep')}
             data-testid="ai-depth-deep-btn"
-            className={`px-2.5 py-1 rounded font-medium transition-colors ${
-              depth === 'deep'
-                ? 'bg-white dark:bg-slate-700 text-purple-700 dark:text-purple-300 shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-            }`}
+            className="px-2.5 py-1 h-auto text-xs font-medium rounded"
           >
             🔬 {t('seo.ai.deepDepth')}
-          </button>
+          </Button>
         </div>
       </div>
 

@@ -5,7 +5,7 @@ import type { Level, MixMode } from '@jlpt/schema';
 import type { MixFormState, MixShortageInfo } from '../types';
 import { INITIAL_MIX_CONFIG } from '../types';
 import { MixShortageNotice } from './mix-shortage-notice';
-import { Button } from '@jlpt/ui';
+import { Button, Input } from '@jlpt/ui';
 
 export interface MixGeneratorProps {
   onGenerate: (config: MixFormState) => Promise<void> | void;
@@ -162,12 +162,13 @@ export function MixGenerator({
             {modes.map((m) => {
               const isSelected = config.mode === m.id;
               return (
-                <button
+                <Button
                   key={m.id}
                   type="button"
+                  variant="outline"
                   data-testid={`mix-mode-${m.id}`}
                   onClick={() => setConfig({ ...config, mode: m.id })}
-                  className={`p-3.5 rounded-xl border text-left transition-all ${
+                  className={`p-3.5 h-auto min-h-[64px] rounded-xl border text-left flex-col items-start justify-start whitespace-normal transition-all ${
                     isSelected
                       ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-950 dark:text-blue-100 ring-2 ring-blue-500/20 shadow-xs'
                       : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -180,7 +181,7 @@ export function MixGenerator({
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
                     {m.desc}
                   </p>
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -195,19 +196,17 @@ export function MixGenerator({
             {levels.map((lvl) => {
               const isSelected = config.level === lvl;
               return (
-                <button
+                <Button
                   key={lvl}
                   type="button"
+                  size="sm"
+                  variant={isSelected ? 'primary' : 'secondary'}
                   data-testid={`mix-level-${lvl}`}
                   onClick={() => setConfig({ ...config, level: lvl })}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                    isSelected
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                  }`}
+                  className="px-4 py-2 text-xs font-bold"
                 >
                   {lvl}
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -227,12 +226,12 @@ export function MixGenerator({
                   className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
                 >
                   <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer">
-                    <input
+                    <Input
                       type="checkbox"
                       checked={isChecked}
                       onChange={() => handleToggleSource(src.id)}
                       data-testid={`mix-source-checkbox-${src.id}`}
-                      className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                      className="h-4 w-4 min-h-0 cursor-pointer rounded text-blue-600 focus:ring-blue-500"
                     />
                     <span>{src.label}</span>
                   </label>
@@ -240,7 +239,7 @@ export function MixGenerator({
                   {isChecked && (
                     <div className="flex items-center gap-2 text-xs">
                       <span className="text-slate-500 text-[11px]">Tỷ lệ:</span>
-                      <input
+                      <Input
                         type="number"
                         min="0"
                         max="1"
@@ -257,7 +256,7 @@ export function MixGenerator({
                           });
                         }}
                         data-testid={`mix-source-weight-${src.id}`}
-                        className="w-20 px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-700 text-right font-mono"
+                        className="w-20 px-2 py-1 text-right font-mono min-h-[36px]"
                       />
                     </div>
                   )}
@@ -277,7 +276,7 @@ export function MixGenerator({
               Hạt giống cố định (Deterministic Seed):
             </label>
             <div className="flex gap-2">
-              <input
+              <Input
                 id="mix-seed-input"
                 type="number"
                 value={config.seed ?? 42}
@@ -288,7 +287,7 @@ export function MixGenerator({
                   })
                 }
                 data-testid="mix-seed-input"
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono text-slate-900 dark:text-slate-100"
+                className="w-full text-xs font-mono"
               />
               <Button
                 type="button"
@@ -309,13 +308,13 @@ export function MixGenerator({
             >
               Phiên bản Blueprint cấu trúc đề:
             </label>
-            <input
+            <Input
               id="mix-blueprint-input"
               type="number"
               readOnly
               value={config.blueprintVersion}
               data-testid="mix-blueprint-version-input"
-              className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/60 text-xs font-mono text-slate-600 dark:text-slate-400"
+              className="w-full text-xs font-mono bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400"
             />
           </div>
         </div>

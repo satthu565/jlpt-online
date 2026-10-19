@@ -266,13 +266,14 @@ export default function ExamRoomPage(): React.JSX.Element {
             >
               Xem lại bài làm &amp; Bảng điểm (Review)
             </a>
-            <button
+            <Button
               type="button"
+              variant="secondary"
               onClick={handleExit}
-              className="px-6 py-2.5 rounded-xl font-semibold text-sm bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 shadow-sm transition-all"
+              className="px-6 py-2.5 rounded-xl font-semibold text-sm shadow-sm transition-all"
             >
               Trở về danh sách đề thi
-            </button>
+            </Button>
           </div>
         </div>
       </div>

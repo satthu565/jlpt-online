@@ -5,6 +5,7 @@ import type { ExamWithUserStatus, LibraryFilterState } from '../types';
 import { INITIAL_LIBRARY_FILTERS } from '../types';
 import { LibraryFilters } from './library-filters';
 import { ExamCard } from './exam-card';
+import { Button } from '@jlpt/ui';
 
 export interface LibraryViewProps {
   exams: ExamWithUserStatus[];
@@ -172,13 +173,15 @@ export function LibraryView({
           <p className="text-xs text-slate-500 mb-4 max-w-md mx-auto">
             Không có đề thi nào thỏa mãn các điều kiện tìm kiếm và lọc bạn đã chọn. Hãy thử nới lỏng bộ lọc hoặc tìm với từ khóa khác.
           </p>
-          <button
+          <Button
             type="button"
+            size="sm"
+            variant="primary"
             onClick={() => setFilters(INITIAL_LIBRARY_FILTERS)}
-            className="px-4 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+            className="px-4 py-2 text-xs font-semibold"
           >
             Xóa toàn bộ bộ lọc
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

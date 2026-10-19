@@ -43,19 +43,17 @@ export function QuickMixCard({
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-1 bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
             {levels.map((lvl) => (
-              <button
+              <Button
                 key={lvl}
                 type="button"
+                size="sm"
+                variant={selectedLevel === lvl ? 'primary' : 'ghost'}
                 data-testid={`quick-mix-level-${lvl}`}
                 onClick={() => setSelectedLevel(lvl)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                  selectedLevel === lvl
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
-                }`}
+                className="px-2.5 py-1 text-xs font-bold min-h-[32px] h-8"
               >
                 {lvl}
-              </button>
+              </Button>
             ))}
           </div>
 

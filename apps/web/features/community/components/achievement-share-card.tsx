@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Button, Badge } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent, Button, Badge, Input } from '@jlpt/ui';
 import type { AchievementShareData } from '../types';
 import { useI18n } from '../../../lib/i18n';
 
@@ -80,11 +80,12 @@ export function AchievementShareCard({
             color: 'var(--text-secondary)',
           }}
         >
-          <input
+          <Input
             type="checkbox"
             checked={hideRealName}
             onChange={(e) => setHideRealName(e.target.checked)}
             data-testid="hide-name-toggle"
+            className="h-4 w-4 min-h-0 cursor-pointer"
           />
           <span>🛡️ {t('community.share.hideNameOption')}</span>
         </label>

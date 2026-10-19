@@ -101,19 +101,17 @@ export function ExamPicker({
           </label>
           <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
             {levels.map((lvl) => (
-              <button
+              <Button
                 key={lvl}
                 type="button"
+                size="sm"
+                variant={selectedLevel === lvl ? 'primary' : 'ghost'}
                 onClick={() => setSelectedLevel(lvl)}
                 aria-pressed={selectedLevel === lvl}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-                  selectedLevel === lvl
-                    ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                }`}
+                className="px-3 py-1 text-xs font-semibold min-h-[36px]"
               >
                 {lvl === 'ALL' ? 'Tất cả' : lvl}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

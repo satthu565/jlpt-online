@@ -5,7 +5,7 @@ import type { Level, Skill, PracticePool } from '@jlpt/schema';
 import type { PracticeFilterState, PracticeShortageInfo } from '../types';
 import { INITIAL_PRACTICE_CONFIG } from '../types';
 import { PracticeShortageNotice } from './practice-shortage-notice';
-import { Button } from '@jlpt/ui';
+import { Button, Input, Select } from '@jlpt/ui';
 
 export interface PracticeGeneratorProps {
   onGenerate: (config: PracticeFilterState) => Promise<void> | void;
@@ -99,12 +99,13 @@ export function PracticeGenerator({
             {pools.map((p) => {
               const isSelected = config.pool === p.id;
               return (
-                <button
+                <Button
                   key={p.id}
                   type="button"
+                  variant="outline"
                   data-testid={`practice-pool-${p.id}`}
                   onClick={() => setConfig({ ...config, pool: p.id })}
-                  className={`p-3.5 rounded-xl border text-left transition-all ${
+                  className={`p-3.5 h-auto min-h-[64px] rounded-xl border text-left flex-col items-start justify-start whitespace-normal transition-all ${
                     isSelected
                       ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-950 dark:text-blue-100 ring-2 ring-blue-500/20 shadow-xs'
                       : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -117,7 +118,7 @@ export function PracticeGenerator({
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
                     {p.desc}
                   </p>
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -132,19 +133,17 @@ export function PracticeGenerator({
             {levels.map((lvl) => {
               const isSelected = config.level === lvl;
               return (
-                <button
+                <Button
                   key={lvl}
                   type="button"
+                  size="sm"
+                  variant={isSelected ? 'primary' : 'secondary'}
                   data-testid={`practice-level-${lvl}`}
                   onClick={() => setConfig({ ...config, level: lvl })}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                    isSelected
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                  }`}
+                  className="px-4 py-2 text-xs font-bold"
                 >
                   {lvl}
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -159,20 +158,18 @@ export function PracticeGenerator({
             {skills.map((s) => {
               const isSelected = config.skills.includes(s.id);
               return (
-                <button
+                <Button
                   key={s.id}
                   type="button"
+                  size="sm"
+                  variant={isSelected ? 'primary' : 'secondary'}
                   data-testid={`practice-skill-${s.id}`}
                   onClick={() => toggleSkill(s.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-                    isSelected
-                      ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold'
-                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                  }`}
+                  className="px-3 py-1.5 text-xs font-semibold"
                 >
                   {isSelected ? '✓ ' : '+ '}
                   {s.label}
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -187,7 +184,7 @@ export function PracticeGenerator({
             >
               Số lượng câu hỏi: <strong>{config.questionCount} câu</strong>
             </label>
-            <input
+            <Input
               id="practice-count-input"
               type="range"
               min={5}
@@ -198,7 +195,7 @@ export function PracticeGenerator({
                 setConfig({ ...config, questionCount: Number.parseInt(e.target.value, 10) })
               }
               data-testid="practice-question-count-slider"
-              className="w-full accent-blue-600"
+              className="w-full accent-blue-600 min-h-0"
             />
             <div className="flex justify-between text-[11px] text-slate-400 mt-1">
               <span>5 câu</span>
@@ -214,7 +211,7 @@ export function PracticeGenerator({
             >
               Giới hạn thời gian (tùy chọn)
             </label>
-            <select
+            <Select
               id="practice-time-select"
               value={config.timeLimitSec || 0}
               onChange={(e) =>
@@ -224,13 +221,13 @@ export function PracticeGenerator({
                 })
               }
               data-testid="practice-time-limit-select"
-              className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full text-xs"
             >
               <option value={0}>Không giới hạn thời gian (Tự do ôn luyện)</option>
               <option value={600}>10 phút (Áp lực thời gian nhẹ)</option>
               <option value={1200}>20 phút (Chuẩn thi)</option>
               <option value={1800}>30 phút (Tập trung cao)</option>
-            </select>
+            </Select>
           </div>
         </div>
 

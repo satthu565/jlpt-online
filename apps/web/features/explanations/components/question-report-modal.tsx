@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Modal, Button, Alert } from '@jlpt/ui';
+import { Modal, Button, Alert, Select, Textarea } from '@jlpt/ui';
 import type { QuestionReportReason } from '../types';
 
 export interface QuestionReportModalProps {
@@ -93,12 +93,12 @@ export function QuestionReportModal({
               >
                 Vấn đề bạn phát hiện:
               </label>
-              <select
+              <Select
                 id="report-reason-select"
                 value={reason}
                 onChange={(e) => setReason(e.target.value as QuestionReportReason)}
                 data-testid="report-reason-select"
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full text-xs"
               >
                 <option value="wrong_answer">Đáp án đúng bị sai hoặc không chuẩn</option>
                 <option value="typo_grammar">Lỗi chính tả, furigana hoặc ngữ pháp trong đề</option>
@@ -106,7 +106,7 @@ export function QuestionReportModal({
                 <option value="audio_issue">Lỗi file âm thanh hoặc transcript không khớp</option>
                 <option value="copyright_issue">Vấn đề bản quyền nguồn tài liệu</option>
                 <option value="other">Vấn đề khác</option>
-              </select>
+              </Select>
             </div>
 
             <div>
@@ -116,14 +116,14 @@ export function QuestionReportModal({
               >
                 Mô tả chi tiết:
               </label>
-              <textarea
+              <Textarea
                 id="report-desc-input"
                 rows={4}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Vui lòng cung cấp chi tiết vị trí sai và gợi ý chỉnh sửa..."
                 data-testid="report-desc-input"
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-slate-400"
+                className="w-full text-xs placeholder-slate-400"
               />
             </div>
 

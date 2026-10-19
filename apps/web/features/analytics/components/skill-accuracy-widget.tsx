@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import type { SkillAccuracyStat, MondaiAccuracyStat } from '../types';
-import { Card } from '@jlpt/ui';
+import { Card, Button } from '@jlpt/ui';
 
 export interface SkillAccuracyWidgetProps {
   skills: SkillAccuracyStat[];
@@ -33,30 +33,26 @@ export function SkillAccuracyWidget({
         </div>
 
         <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs">
-          <button
+          <Button
             type="button"
+            variant={viewMode === 'skills' ? 'primary' : 'ghost'}
+            size="sm"
             data-testid="tab-skills-btn"
             onClick={() => setViewMode('skills')}
-            className={`px-3 py-1 rounded-lg font-bold transition-all ${
-              viewMode === 'skills'
-                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-xs'
-                : 'text-slate-600 dark:text-slate-400'
-            }`}
+            className="px-3 py-1 h-auto text-xs font-bold rounded-lg"
           >
             Theo kỹ năng (STAT-03)
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant={viewMode === 'mondais' ? 'primary' : 'ghost'}
+            size="sm"
             data-testid="tab-mondais-btn"
             onClick={() => setViewMode('mondais')}
-            className={`px-3 py-1 rounded-lg font-bold transition-all ${
-              viewMode === 'mondais'
-                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-xs'
-                : 'text-slate-600 dark:text-slate-400'
-            }`}
+            className="px-3 py-1 h-auto text-xs font-bold rounded-lg"
           >
             Theo dạng câu (STAT-04)
-          </button>
+          </Button>
         </div>
       </div>
 
