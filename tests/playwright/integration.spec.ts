@@ -1056,6 +1056,64 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     expect(page.url()).toContain('/users');
   });
 
+  test('I15 E2E admin: đăng nhập nhân sự, tải lại trang vẫn đăng nhập; xóa phiên phía máy chủ rồi tải lại hoặc thao tác thì về trang đăng nhập', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(90_000);
+    const clientIp = getProjectClientIp(testInfo, 56);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    // 1. Đăng nhập nhân sự, tải lại trang vẫn đăng nhập
+    await loginAsStaff(page, adminOrigin, SEEDED_STAFF_ACCOUNTS.admin);
+    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 15000 });
+
+    // Reload page -> still authenticated
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-expired"]')).not.toBeVisible();
+    expect(page.url()).not.toContain('/login');
+
+    // 2. Xóa phiên phía máy chủ rồi tải lại thì về trang đăng nhập
+    // Invalidate the session on the server via sign-out API
+    await page.request.post(`${adminOrigin}/api/v1/auth/sign-out`);
+
+    // Reload page -> GET /api/v1/auth/session returns user: null -> client detects expired session -> redirects to /login with notice
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForURL(/.*login.*/, { timeout: 15000 });
+    const loginErrorAlert = page.locator('[data-testid="login-error-alert"]');
+    await expect(loginErrorAlert).toBeVisible({ timeout: 10000 });
+    const errorText = await loginErrorAlert.innerText();
+    expect(errorText).toContain('Phiên làm việc đã hết hạn');
+
+    // 3. Xóa phiên phía máy chủ rồi thao tác thì về trang đăng nhập
+    // Log back in with a different staff account (editor) to avoid TOTP 30s reuse rate limiting
+    await loginAsStaff(page, adminOrigin, SEEDED_STAFF_ACCOUNTS.editor);
+    await expect(page.locator('[data-testid="stat-total-users"], [data-testid="staff-profile-badge"]').first()).toBeVisible({ timeout: 15000 });
+
+    // Invalidate the server session via API while user is on the dashboard
+    await page.request.post(`${adminOrigin}/api/v1/auth/sign-out`);
+
+    // User performs an action (thao tác: navigate to /users or make an API request)
+    const usersLink = page.locator('a[href="/users"]').first();
+    if (await usersLink.isVisible().catch(() => false)) {
+      await usersLink.click();
+    } else {
+      const mobileMenu = page.locator('[data-testid="btn-open-mobile-nav"]').first();
+      if (await mobileMenu.isVisible().catch(() => false)) {
+        await mobileMenu.click();
+        await page.locator('a[href="/users"]').first().click();
+      } else {
+        await page.goto(`${adminOrigin}/users`);
+      }
+    }
+
+    // The API returns 401, which triggers immediate redirection to /login with message
+    await page.waitForURL(/.*login.*/, { timeout: 15000 });
+    await expect(page.locator('[data-testid="login-error-alert"]')).toBeVisible({ timeout: 10000 });
+    const actionErrorText = await page.locator('[data-testid="login-error-alert"]').innerText();
+    expect(actionErrorText).toContain('Phiên làm việc đã hết hạn');
+  });
+
   test('AC5: Unauthenticated access redirects or displays guard alert', async ({
     page,
   }, testInfo) => {
@@ -1147,17 +1205,18 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
       await page.waitForTimeout(50);
 
       for (const locale of locales) {
-        await page.evaluate((l) => {
-          try {
-            (window as unknown as { __setAdminLocale?: (loc: string) => void }).__setAdminLocale?.(l);
-            localStorage.setItem('jlpt_admin_locale_v1', l);
-            localStorage.setItem('admin_locale', l);
-            document.cookie = `admin_locale=${l}; path=/; SameSite=Lax`;
-            document.cookie = `jlpt_admin_locale_v1=${l}; path=/; SameSite=Lax`;
-          } catch {
-            // ignore storage errors
-          }
-        }, locale);
+        const openNavBtn = page.locator('[data-testid="btn-open-mobile-nav"]').first();
+        if (await openNavBtn.isVisible().catch(() => false)) {
+          await openNavBtn.click();
+        }
+        const locBtn = page.locator(`[data-testid="admin-locale-${locale}"]`).first();
+        if (await locBtn.isVisible().catch(() => false)) {
+          await locBtn.click();
+        } else {
+          await page.evaluate((l) => {
+            window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: l }));
+          }, locale);
+        }
         await page.waitForTimeout(50);
 
         const bodyText = await page.innerText('body');
@@ -1173,15 +1232,18 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
         });
       }
 
-      await page.evaluate(() => {
-        try {
-          (window as unknown as { __setAdminLocale?: (loc: string) => void }).__setAdminLocale?.('vi');
-          localStorage.setItem('jlpt_admin_locale_v1', 'vi');
-          localStorage.setItem('admin_locale', 'vi');
-        } catch {
-          // ignore reset errors
-        }
-      });
+      const openNavBtnVi = page.locator('[data-testid="btn-open-mobile-nav"]').first();
+      if (await openNavBtnVi.isVisible().catch(() => false)) {
+        await openNavBtnVi.click();
+      }
+      const viBtn = page.locator('[data-testid="admin-locale-vi"]').first();
+      if (await viBtn.isVisible().catch(() => false)) {
+        await viBtn.click();
+      } else {
+        await page.evaluate(() => {
+          window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: 'vi' }));
+        });
+      }
     }
   });
 });
@@ -1443,17 +1505,18 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
 
       // Verify ja and en
       for (const locale of ['ja', 'en'] as const) {
-        await page.evaluate((l) => {
-          try {
-            (window as unknown as { __setAdminLocale?: (loc: string) => void }).__setAdminLocale?.(l);
-            localStorage.setItem('jlpt_admin_locale_v1', l);
-            localStorage.setItem('admin_locale', l);
-            document.cookie = `admin_locale=${l}; path=/; SameSite=Lax`;
-            document.cookie = `jlpt_admin_locale_v1=${l}; path=/; SameSite=Lax`;
-          } catch {
-            // ignore storage errors
-          }
-        }, locale);
+        const openNavBtn = page.locator('[data-testid="btn-open-mobile-nav"]').first();
+        if (await openNavBtn.isVisible().catch(() => false)) {
+          await openNavBtn.click();
+        }
+        const locBtn = page.locator(`[data-testid="admin-locale-${locale}"]`).first();
+        if (await locBtn.isVisible().catch(() => false)) {
+          await locBtn.click();
+        } else {
+          await page.evaluate((l) => {
+            window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: l }));
+          }, locale);
+        }
         await page.waitForTimeout(50);
 
         bodyText = await page.innerText('body');
@@ -1469,17 +1532,18 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
       }
 
       // Reset back to vi for subsequent pages
-      await page.evaluate(() => {
-        try {
-          (window as unknown as { __setAdminLocale?: (loc: string) => void }).__setAdminLocale?.('vi');
-          localStorage.setItem('jlpt_admin_locale_v1', 'vi');
-          localStorage.setItem('admin_locale', 'vi');
-          document.cookie = `admin_locale=vi; path=/; SameSite=Lax`;
-          document.cookie = `jlpt_admin_locale_v1=vi; path=/; SameSite=Lax`;
-        } catch {
-          // ignore reset errors
-        }
-      });
+      const openNavBtnVi = page.locator('[data-testid="btn-open-mobile-nav"]').first();
+      if (await openNavBtnVi.isVisible().catch(() => false)) {
+        await openNavBtnVi.click();
+      }
+      const viBtn = page.locator('[data-testid="admin-locale-vi"]').first();
+      if (await viBtn.isVisible().catch(() => false)) {
+        await viBtn.click();
+      } else {
+        await page.evaluate(() => {
+          window.dispatchEvent(new CustomEvent('admin_set_locale', { detail: 'vi' }));
+        });
+      }
     }
   });
 });

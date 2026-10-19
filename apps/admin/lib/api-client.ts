@@ -64,6 +64,7 @@ export class AdminApiClient {
   // In-memory credential store for 2FA enrollment verification in unit tests
   private activeRecoveryHashes: string[] = [];
   private activeTotpSecret: string | null = null;
+  private onUnauthorizedCallback: (() => void) | null = null;
 
   constructor(options: AdminApiClientOptions = {}) {
     if (options.baseUrl) {
@@ -84,6 +85,10 @@ export class AdminApiClient {
   public setAuth(user: StaffUser | null, token: string | null): void {
     this.user = user;
     this.token = token;
+  }
+
+  public setOnUnauthorized(callback: (() => void) | null): void {
+    this.onUnauthorizedCallback = callback;
   }
 
   public setUser(user: StaffUser | null): void {
@@ -239,6 +244,10 @@ export class AdminApiClient {
         errorData = (await res.json()) as typeof errorData;
       } catch {
         // Non-json response
+      }
+
+      if (res.status === 401) {
+        this.onUnauthorizedCallback?.();
       }
 
       const code = (errorData.error?.code as GuardErrorCode) || (res.status === 401 ? 'UNAUTHENTICATED' : res.status === 403 ? 'FORBIDDEN' : 'VALIDATION_ERROR');

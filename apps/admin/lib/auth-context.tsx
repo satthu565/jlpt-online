@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useTransition } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState, useTransition } from 'react';
 import type { Role } from '@jlpt/schema';
 import { isStaffRole } from './navigation';
 import type { Locale } from './i18n';
@@ -72,7 +72,43 @@ export function AdminAuthProvider({
   );
   const [error, setError] = useState<string | null>(null);
   const [locale, setLocaleState] = useState<Locale>(initialLocale || DEFAULT_LOCALE);
+  const localeRef = useRef<Locale>(initialLocale || DEFAULT_LOCALE);
+  localeRef.current = locale;
   const [, startTransition] = useTransition();
+
+  const saveToStorage = useCallback((u: StaffUser | null, tok: string | null) => {
+    setUserState(u);
+    setToken(tok);
+    apiClient.setAuth(u, tok);
+    if (typeof window !== 'undefined') {
+      if (u && tok) {
+        localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify({ user: u, token: tok }));
+      } else {
+        localStorage.removeItem(STORAGE_KEY_AUTH);
+      }
+    }
+  }, []);
+
+  const handleSessionExpired = useCallback(
+    (customMessage?: string) => {
+      const message = customMessage || t('auth.unauthenticated', localeRef.current);
+      saveToStorage(null, null);
+      setPendingSetupSecret(null);
+      setPendingRecoveryCodes(null);
+      setError(message);
+      if (typeof window !== 'undefined') {
+        try {
+          sessionStorage.setItem('jlpt_admin_auth_notice', message);
+        } catch {
+          // ignore storage errors
+        }
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login?expired=1';
+        }
+      }
+    },
+    [saveToStorage],
+  );
 
   // Load persisted session from localStorage in browser and verify with server
   useEffect(() => {
@@ -127,9 +163,11 @@ export function AdminAuthProvider({
                   setUserState(refreshedUser);
                   apiClient.setAuth(refreshedUser, parsed.token);
                   localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify({ user: refreshedUser, token: parsed.token }));
+                } else {
+                  handleSessionExpired();
                 }
               } else if (res.status === 401) {
-                saveToStorage(null, null);
+                handleSessionExpired();
               }
             })
             .catch(() => {
@@ -144,40 +182,82 @@ export function AdminAuthProvider({
     } finally {
       setIsLoading(false);
     }
-  }, [initialUser, initialToken]);
+  }, [initialUser, initialToken, handleSessionExpired]);
 
-  const saveToStorage = (u: StaffUser | null, tok: string | null) => {
-    setUserState(u);
-    setToken(tok);
-    apiClient.setAuth(u, tok);
-    if (typeof window !== 'undefined') {
-      if (u && tok) {
-        localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify({ user: u, token: tok }));
-      } else {
-        localStorage.removeItem(STORAGE_KEY_AUTH);
+  // Multi-tab synchronization and 401 global session expiration interception on user operations
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleStorageEvent = (event: StorageEvent) => {
+      if (event.key === STORAGE_KEY_AUTH) {
+        if (!event.newValue) {
+          handleSessionExpired();
+        } else {
+          try {
+            const parsed = JSON.parse(event.newValue) as { user?: StaffUser; token?: string };
+            if (parsed.user && parsed.token && isStaffRole(parsed.user.role)) {
+              setUserState(parsed.user);
+              setToken(parsed.token);
+              apiClient.setAuth(parsed.user, parsed.token);
+            }
+          } catch {
+            // ignore JSON parse errors
+          }
+        }
       }
-    }
-  };
+    };
+    window.addEventListener('storage', handleStorageEvent);
 
-  const setLocale = (l: Locale) => {
+    const originalFetch = window.fetch;
+    const interceptedFetch: typeof fetch = async (input, init) => {
+      const response = await originalFetch(input, init);
+      if (response.status === 401) {
+        const url = typeof input === 'string' ? input : input instanceof Request ? input.url : '';
+        const isAuthCredentialCheck =
+          url.includes('/api/v1/auth/sign-in') ||
+          url.includes('/api/v1/auth/totp/challenge') ||
+          url.includes('/api/v1/auth/totp/recovery');
+        if (!isAuthCredentialCheck) {
+          handleSessionExpired();
+        }
+      }
+      return response;
+    };
+    window.fetch = interceptedFetch;
+
+    apiClient.setOnUnauthorized(() => {
+      handleSessionExpired();
+    });
+
+    return () => {
+      window.removeEventListener('storage', handleStorageEvent);
+      window.fetch = originalFetch;
+      apiClient.setOnUnauthorized(null);
+    };
+  }, [handleSessionExpired]);
+
+  const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
     if (typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEY_LOCALE, l);
       localStorage.setItem('admin_locale', l);
       document.cookie = `admin_locale=${l}; path=/; SameSite=Lax`;
     }
-  };
+  }, []);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as unknown as { __setAdminLocale?: (loc: Locale) => void }).__setAdminLocale = setLocale;
-    }
-    return () => {
-      if (typeof window !== 'undefined') {
-        delete (window as unknown as { __setAdminLocale?: (loc: Locale) => void }).__setAdminLocale;
+    if (typeof window === 'undefined') return;
+    const handleCustomLocale = (e: Event) => {
+      const detail = (e as CustomEvent<Locale>).detail;
+      if (detail && ['vi', 'ja', 'en'].includes(detail)) {
+        setLocale(detail);
       }
     };
-  }, []);
+    window.addEventListener('admin_set_locale', handleCustomLocale);
+    return () => {
+      window.removeEventListener('admin_set_locale', handleCustomLocale);
+    };
+  }, [setLocale]);
 
   const login = async (
     email: string,
@@ -423,6 +503,10 @@ export function AdminAuthProvider({
       setPendingRecoveryCodes(null);
       setError(null);
     });
+
+    if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
   };
 
   const setPendingSetup = (secret: string, recoveryCodes: string[]) => {
@@ -462,29 +546,10 @@ export function AdminAuthProvider({
   );
 }
 
-const DEFAULT_AUTH_CONTEXT: AdminAuthContextValue = {
-  user: null,
-  token: null,
-  pendingSetupSecret: null,
-  pendingRecoveryCodes: null,
-  isAuthenticated: false,
-  isLoading: false,
-  error: null,
-  locale: DEFAULT_LOCALE,
-  login: async () => ({ success: false, nextStep: 'dashboard' }),
-  logout: async () => {},
-  setPendingSetup: () => {},
-  confirm2faSetup: async () => false,
-  verify2faChallenge: async () => false,
-  verifyRecoveryCode: async () => false,
-  setLocale: () => {},
-  setUser: () => {},
-};
-
 export function useAdminAuth(): AdminAuthContextValue {
   const ctx = useContext(AdminAuthContext);
   if (!ctx) {
-    return DEFAULT_AUTH_CONTEXT;
+    throw new Error('useAdminAuth must be used within an AdminAuthProvider');
   }
   return ctx;
 }

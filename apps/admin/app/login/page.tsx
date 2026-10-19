@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
@@ -13,6 +13,25 @@ export default function StaffLoginPage(): React.JSX.Element {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const notice = sessionStorage.getItem('jlpt_admin_auth_notice');
+        if (notice) {
+          setLocalError(notice);
+          sessionStorage.removeItem('jlpt_admin_auth_notice');
+          return;
+        }
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('expired') || params.get('error') === 'session_expired') {
+          setLocalError(t('auth.unauthenticated', locale));
+        }
+      } catch {
+        // ignore storage errors
+      }
+    }
+  }, [locale]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

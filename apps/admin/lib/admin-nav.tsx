@@ -220,6 +220,7 @@ export function AdminNavigation(): React.JSX.Element | null {
                   key={loc}
                   onClick={() => setLocale(loc as Locale)}
                   aria-label={`Switch to ${loc}`}
+                  data-testid={`admin-locale-${loc}`}
                   style={{
                     padding: '0.2rem 0.4rem',
                     fontSize: '0.7rem',
