@@ -59,7 +59,7 @@ async function loginAsStaff(page: Page, origin: string, account: StaffAccount) {
 
   expect(page.url()).not.toContain('/login');
   expect(page.url()).not.toContain('/verify-2fa');
-  await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
+  await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 15000 });
 }
 
 /**
@@ -988,7 +988,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
     await page.waitForURL(/.*verify-2fa.*/, { timeout: 15000 });
     await handleTotpVerification(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
-    await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('main, [data-testid="page-title"], header').first()).toBeVisible({ timeout: 15000 });
   }
 
   test.beforeAll(() => {

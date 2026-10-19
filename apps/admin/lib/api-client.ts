@@ -200,8 +200,16 @@ export class AdminApiClient {
     }
 
     const url = `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+    const isMutation = ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase());
     const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
-    const hasBody = options.body !== undefined;
+    const bodyToSend = isFormData
+      ? (options.body as FormData)
+      : options.body !== undefined
+        ? options.body
+        : isMutation
+          ? {}
+          : undefined;
+    const hasBody = bodyToSend !== undefined;
     const headers: Record<string, string> = {
       ...(hasBody && !isFormData ? { 'Content-Type': 'application/json' } : {}),
       ...options.headers,
@@ -229,9 +237,9 @@ export class AdminApiClient {
         headers,
         credentials: 'include',
         body: isFormData
-          ? (options.body as FormData)
-          : options.body !== undefined
-            ? JSON.stringify(options.body)
+          ? (bodyToSend as FormData)
+          : bodyToSend !== undefined
+            ? JSON.stringify(bodyToSend)
             : undefined,
       });
     } catch (err: unknown) {
@@ -594,6 +602,7 @@ export class AdminApiClient {
   public async publishExam(id: string): Promise<{ success: boolean; version?: number }> {
     return this.request<{ success: boolean; version?: number }>('POST', `/api/v1/admin/exams/${encodeURIComponent(id)}/publish`, {
       requiredRoles: ['admin'],
+      body: {},
     });
   }
 
