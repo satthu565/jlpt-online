@@ -512,8 +512,13 @@ task('I16','W2',8,3,'Nhập gói đề ở chế độ nháp (DRAFT_ONLY) qua AP
  'trái với docs/import-format/README.md (DRAFT_ONLY được lưu nháp, chặn xuất bản). Cho POST /api/v1/admin/imports nhận mode=draft|ready '
  '(multipart field và JSON body), mặc định ready; gói DRAFT_ONLY lưu thành bản nháp kèm danh sách issue, không vào hàng duyệt/xuất bản cho tới khi '
  'nạp lại bản ready cùng packageId với revision cao hơn. Trang nhập gói của quản trị có lựa chọn "Nạp bản nháp", hiện trạng thái DRAFT_ONLY và từng issue '
- '(mức độ, đường dẫn, lý do). Xuất bản đề từ bản nháp phải bị chặn ở API.',
- 'apps/api/src/modules/import/',
+ '(mức độ, đường dẫn, lý do). Xuất bản đề từ bản nháp phải bị chặn ở API. '
+ 'Ghi chú của người vận hành (19/10, sau review lần 3): chặn bản nháp cần sửa exam.service.ts và review.service.ts, nên các file này nằm trong phạm vi I16. '
+ 'Sửa gte() trong attempt.service.ts (truy vấn lượt làm bài 24 giờ của khách) cũng giữ lại: đó là lỗi 500 thật khi khách bắt đầu làm bài, cần cho staging đạt. '
+ 'Parser body trong main.ts phải có giới hạn kích thước ngay trong I16: một addContentTypeParser chung với { parseAs: "buffer", bodyLimit } '
+ '(mặc định 1 MB; route POST /api/v1/admin/imports đặt bodyLimit riêng từ IMPORT_MAX_BYTES, mặc định 50 MB), vượt giới hạn trả 413 (I18 bổ sung test). '
+ 'Validator trang quản trị đếm đủ số câu thiếu đáp án vào blockingIssueCount.',
+ 'apps/api/src/modules/import/|apps/api/src/modules/exam/|apps/api/src/modules/review/|apps/api/src/modules/attempt/attempt.service.ts|apps/api/src/main.ts',
  'Gói fixtures/imports/draft.zip nạp được ở chế độ nháp, trang quản trị hiện issue blocking|Cùng gói ở chế độ ready bị từ chối với thông báo rõ|'
  'API chặn duyệt và xuất bản bản nháp (test âm)|Nạp lại bản ready cùng packageId, revision cao hơn thì thay bản nháp|'+NO_MOCK+'|'+REAL_E2E,
  'pnpm test|pnpm check:no-mock-ui',contracts='API',grants='apps/admin/features/import/ apps/admin/app/imports/ apps/admin/lib/api-client.ts tests/playwright/')
