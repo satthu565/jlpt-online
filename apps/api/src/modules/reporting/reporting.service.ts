@@ -1177,32 +1177,46 @@ export class ReportingService {
       case 'acquisition':
         return this.getAcquisitionReport(query);
       case 'activity':
+      case 'dau_mau':
+      case 'dau-mau':
         return this.getActivityReport(query);
       case 'exam-completion':
+      case 'completion':
         return this.getExamCompletionReport(query);
       case 'abandonment':
         return this.getAbandonmentReport(query);
       case 'levels':
+      case 'popular_levels':
+      case 'popular-levels':
         return this.getLevelsReport(query);
       case 'exams':
+      case 'popular_exams':
+      case 'popular-exams':
         return this.getPopularExamsReport(query);
       case 'session-duration':
+      case 'duration':
         return this.getSessionDurationReport(query);
       case 'retention':
         return this.getRetentionReport(query);
       case 'funnel':
         return this.getFunnelReport(query);
       case 'content-review':
+      case 'content_review':
         return this.getContentReviewReport(query);
       case 'content-incidents':
+      case 'content_incidents':
         return this.getContentIncidentsReport(query);
       case 'mix-usage':
+      case 'mix_usage':
         return this.getMixUsageReport(query);
       case 'conversion':
         return this.getConversionReport(query);
       case 'provider-costs':
+      case 'provider_costs':
         return this.getProviderCostsReport(query);
       case 'experiments':
+      case 'experiment_performance':
+      case 'experiment-performance':
         return this.getExperimentPerformanceReport(query);
       case 'corpus':
         return this.getCorpusReport(query);
@@ -1241,8 +1255,9 @@ export class ReportingService {
   private convertToSafeCsv(kind: string, data: unknown): string {
     const rows: string[][] = [];
     const record = (data && typeof data === 'object' ? data : {}) as Record<string, unknown>;
+    const normKind = kind.replace(/_/g, '-');
 
-    switch (kind) {
+    switch (normKind) {
       case 'acquisition': {
         rows.push(['Period', 'New Users']);
         const byPeriod = (record.byPeriod ?? []) as Array<{ period: string; count: number }>;

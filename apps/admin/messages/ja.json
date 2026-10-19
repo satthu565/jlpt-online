@@ -116,6 +116,56 @@
     "currentRole": "現在のロール：",
     "securityWarning": "多層防御セキュリティガードにより直接アクセスが遮断されました。"
   },
+  "commercial": {
+    "plansTitle": "プラン管理および割引クーポン",
+    "plansSubtitle": "価格体系、契約期間、および受講生の機能権限を設定します。",
+    "paymentsTitle": "決済トランザクションおよび受講生サブスクリプション",
+    "paymentsSubtitle": "受講生の決済状況、自動更新、注文履歴を管理します。",
+    "refundsTitle": "返金リクエスト管理",
+    "refundsSubtitle": "利用規約および返金ポリシーに基づき審査・処理を行います。",
+    "reconciliationTitle": "決済消込・照合（Reconciliation）",
+    "reconciliationSubtitle": "残高照合、売上、返金、決済代行会社との差異検出を行います。",
+    "createPlan": "新規プラン作成",
+    "createCoupon": "新規クーポン作成",
+    "runReconciliation": "消込処理を実行",
+    "approve": "承認",
+    "reject": "却下",
+    "emptyPlans": "登録されているプランはありません。",
+    "emptyCoupons": "登録されているクーポンはありません。",
+    "emptyPayments": "決済履歴はありません。",
+    "emptySubscriptions": "サブスクリプション履歴はありません。",
+    "emptyRefunds": "処理待ちの返金リクエストはありません。",
+    "emptyReconciliation": "照合実行履歴はありません。"
+  },
+  "reports": {
+    "hubTitle": "システム分析・レポートハブ (ADM-17)",
+    "hubSubtitle": "運用、コンテンツ、学習者、収益に関する全15指標のリアルタイム監視。",
+    "revenueTitle": "財務収益レポート",
+    "revenueSubtitle": "通貨単位ごとに分離された総売上（Gross）、返金額（Refunds）、純売上（Net）。",
+    "exportCsv": "CSV出力 (RFC 4180)",
+    "exportSuccess": "安全なCSV形式でレポートを出力しました。",
+    "grossRevenue": "総売上 (Gross)",
+    "refunds": "返金額 (Refunds)",
+    "netRevenue": "純売上 (Net)",
+    "currency": "通貨",
+    "empty": "指定期間のレポートデータはありません。"
+  },
+  "experiments": {
+    "title": "A/Bテスト検証およびUI最適化",
+    "subtitle": "個人情報を保護する匿名固定割り当て（Sticky Assignment）とコンバージョン追跡。",
+    "active": "稼働中 (ACTIVE)",
+    "paused": "一時停止",
+    "pause": "停止",
+    "resume": "有効化",
+    "empty": "登録されているA/Bテストはありません。"
+  },
+  "contentReports": {
+    "title": "問題通報対応管理 (ADM-09)",
+    "subtitle": "学習者から報告された問題内容、正解、音声の不具合を審査・修正します。",
+    "empty": "対応が必要な通報はありません。",
+    "resolve": "解決済みにする",
+    "dismiss": "却下"
+  },
   "content": {
     "imports": {
       "title": "問題パッケージ管理 (Import v2)",
