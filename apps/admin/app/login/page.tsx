@@ -59,7 +59,7 @@ export default function StaffLoginPage(): React.JSX.Element {
 
         {(localError || authError) && (
           <Alert
-            variant="danger"
+            variant="destructive"
             data-testid="login-error-alert"
             className="mb-6 text-sm"
           >

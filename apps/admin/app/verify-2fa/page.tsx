@@ -67,7 +67,7 @@ export default function Verify2faChallengePage(): React.JSX.Element {
 
         {activeError && (
           <Alert
-            variant="danger"
+            variant="destructive"
             data-testid="challenge-error-alert"
             className="mb-6 text-sm"
           >

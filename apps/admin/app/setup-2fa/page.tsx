@@ -140,7 +140,7 @@ export default function Setup2faPage(): React.JSX.Element {
 
       {error && (
         <Alert
-          variant="danger"
+          variant="destructive"
           data-testid="totp-setup-error"
           className="mb-6 text-sm"
         >
