@@ -65,23 +65,29 @@ Trong `apps/admin/app/login/page.tsx`:
 ## Nghiệm thu và Bằng chứng Kiểm thử
 
 1. **Kiểm thử đơn vị Admin (`pnpm test:admin`):**
-   - 15 tệp kiểm thử với 174 test cases đạt tuyệt đối (100% pass).
+   - 18 tệp kiểm thử với 211 test cases đạt tuyệt đối (100% pass).
    - Bộ kiểm thử mới `apps/admin/tests/i15-session-expiry.test.tsx` xác thực:
      - `useAdminAuth` ném lỗi rõ ràng khi không có Provider.
      - `AdminApiClient` kích hoạt `onUnauthorized` callback khi gặp mã 401.
      - `AdminGuard` chặn truy cập và hiện alert dẫn về `/login`.
      - `StaffLoginPage` dựng đúng cấu trúc card đăng nhập.
 2. **Kiểm tra không dùng mock/placeholder (`pnpm check:no-mock-ui`):**
-   - Đạt tiêu chuẩn, không có vi phạm mới ngoài baseline.
-3. **Kiểm thử E2E Playwright (`tests/playwright/integration.spec.ts`):**
+   - Đạt tiêu chuẩn, 0 vi phạm mới ngoài baseline.
+3. **Cổng chất lượng toàn repo:**
+   - `pnpm install --frozen-lockfile`: exit code 0
+   - `pnpm lint`: exit code 0 (13 packages)
+   - `pnpm typecheck`: exit code 0 (20 tasks)
+   - `pnpm test`: exit code 0 (20 tasks, 17 files in @jlpt/tests + all packages)
+   - `pnpm build`: exit code 0 (12 tasks, apps/admin and apps/web built successfully)
+4. **Kiểm thử E2E Playwright trên Staging (`sudo -n /usr/local/bin/jlpt-stage-test check`):**
    - `E2E: đăng nhập nhân sự, tải lại trang vẫn đăng nhập`.
    - `E2E: xóa phiên phía máy chủ (đăng xuất ở tab khác) rồi tải lại hoặc thao tác thì về trang đăng nhập kèm thông báo`.
    - `E2E: xóa phiên phía máy chủ rồi thao tác trên giao diện thì về trang đăng nhập kèm thông báo`.
-   - Ổn định tương thích đa trình duyệt (Chromium, Firefox, WebKit, Mobile Safari, Mobile Chrome):
+   - Ổn định tương thích đa trình duyệt (Chromium, Firefox, Mobile Safari / Mobile Chrome):
      - Gỡ bỏ các lớp `invisible md:visible pointer-events-none md:pointer-events-auto` khỏi thanh menu đóng trên thiết bị di động trong `admin-nav.tsx`, tránh lỗi ẩn phần tử `staff-profile-badge` trên Mobile Safari và Mobile Chrome.
      - Dùng `.filter({ visible: true }).first()` cho toàn bộ locator ghép tìm tiêu đề trang hoặc container chính.
      - Hợp nhất `loginAsAdmin` và `loginAsAdminI04` qua `loginAsStaff`, chờ nút submit kích hoạt trước khi điền thông tin và click.
      - Thêm trạng thái `isHydrated` trên trang đăng nhập `/login` để tránh race condition trước hydration trên Firefox.
      - Duy trì thông báo phiên hết hạn trong `sessionStorage` qua các lần tải lại trang cho tới khi người dùng bấm submit.
      - Đọc khóa token `jlpt_admin_auth_state_v1` khi gửi yêu cầu hủy phiên máy chủ.
-     - Chạy toàn bộ staging E2E đạt PASS: `sudo -n /usr/local/bin/jlpt-stage-test check` (exitCode: 0).
+     - Toàn bộ 87 tests passed (0 failed, 24 skipped) trên Chromium, Firefox và Mobile Safari. Kết quả: PASS sau 1313s (exitCode: 0).
