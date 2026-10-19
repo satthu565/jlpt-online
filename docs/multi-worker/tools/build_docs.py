@@ -524,10 +524,14 @@ task('I17','W2',8,3,'Lời giải trong gói nhập đi vào quy trình duyệt 
  'Khi nhập gói: mỗi câu có explanation tạo một explanation_versions bản nháp (status draft, locale, tác giả = người nhập) và tách các đoạn theo tiền tố: '
  '"• Dịch nghĩa:" -> translation; "• Đáp án đúng: [n]" + phần sau -> correctReason; mỗi dòng "- [n] ...: ..." trong đoạn "• Phân tích các phương án còn lại:" '
  '-> wrongReasonsByOption[n]; không khớp tiền tố thì giữ toàn bộ blocks và dùng chữ của chúng làm correctReason. Giữ nguyên blocks gốc trong content. '
- 'Học viên chỉ thấy lời giải sau khi reviewer duyệt (approved) và sau khi nộp bài; không lộ trước quyền xem.',
+ 'Học viên chỉ thấy lời giải sau khi reviewer duyệt (approved) và sau khi nộp bài; không lộ trước quyền xem. '
+ 'Script bài nghe: group.transcript (RichText) trong gói hiện bị importer bỏ qua. Khi nhập, mỗi câu nghe của group có transcript cũng tạo explanation_versions bản nháp '
+ '(kể cả khi explanation null) với content.transcript = group.transcript, để màn duyệt và trang xem lại bài hiện script theo quy tắc transcriptAllowed của license (AUDIO-08); '
+ 'không trả transcript trong API làm bài.',
  'apps/api/src/modules/import/|apps/api/src/modules/review/',
  'Nhập gói có explanation -> màn duyệt lời giải của quản trị hiện bản nháp với bản dịch, lý do đúng, lý do sai từng phương án|'
- 'Reviewer duyệt -> trang xem lại bài của học viên hiện đủ lời giải; chưa duyệt thì không hiện|Test âm: không lộ lời giải trước khi nộp bài|'+NO_MOCK+'|'+REAL_E2E,
+ 'Reviewer duyệt -> trang xem lại bài của học viên hiện đủ lời giải; chưa duyệt thì không hiện|Test âm: không lộ lời giải trước khi nộp bài|'
+ 'Gói có group nghe kèm transcript -> màn duyệt và trang xem lại bài (sau khi nộp, license cho phép) hiện script; API làm bài không trả transcript|'+NO_MOCK+'|'+REAL_E2E,
  'pnpm test|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/')
 # Security review of I16 (PR #74, 2026-10-19): its global body parsers read the whole stream with no size limit.
 task('I18','W2',8,1,'API: giới hạn kích thước body cho multipart, zip và octet-stream','I16',
