@@ -524,6 +524,16 @@ task('I17','W2',8,3,'Lời giải trong gói nhập đi vào quy trình duyệt 
  'Nhập gói có explanation -> màn duyệt lời giải của quản trị hiện bản nháp với bản dịch, lý do đúng, lý do sai từng phương án|'
  'Reviewer duyệt -> trang xem lại bài của học viên hiện đủ lời giải; chưa duyệt thì không hiện|Test âm: không lộ lời giải trước khi nộp bài|'+NO_MOCK+'|'+REAL_E2E,
  'pnpm test|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/')
+# Security review of I16 (PR #74, 2026-10-19): its global body parsers read the whole stream with no size limit.
+task('I18','W2',8,1,'API: giới hạn kích thước body cho multipart, zip và octet-stream','I16',
+ 'I16 thêm vào apps/api/src/main.ts ba addContentTypeParser (multipart/form-data, application/zip, application/octet-stream) tự gom stream vào Buffer. '
+ 'Cách này bỏ qua bodyLimit của Fastify và chạy trước guard đăng nhập, nên ai cũng gửi được body lớn tùy ý vào bất kỳ route POST nào và làm API hết RAM. '
+ 'Sửa: dùng một parser chung với { parseAs: "buffer", bodyLimit } (mặc định 1 MB; riêng POST /api/v1/admin/imports đặt giới hạn ở cấu hình route, '
+ 'lấy từ biến môi trường IMPORT_MAX_BYTES, mặc định 50 MB); vượt giới hạn trả 413. Giữ nguyên hành vi nhập gói của I16.',
+ 'apps/api/src/main.ts|apps/api/src/modules/import/',
+ 'Test: body 2 MB application/octet-stream vào route không phải nhập gói trả 413 mà không cần đăng nhập|'
+ 'Test: gói vượt IMPORT_MAX_BYTES vào /api/v1/admin/imports trả 413; gói fixtures hợp lệ vẫn nhập được ở chế độ draft và ready',
+ 'pnpm test',contracts='API')
 task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I11 I12 I13 I09 I03 I04 I05 I06 I14 I15',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',
