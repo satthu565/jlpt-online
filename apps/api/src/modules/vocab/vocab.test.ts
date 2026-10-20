@@ -1,7 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
-import { datasets, questions, questionGroups, users } from '../../db/schema.js';
+import {
+  datasets,
+  entryMeanings,
+  entryReadings,
+  lexicalEntries,
+  lexiconLicenses,
+  questions,
+  questionGroups,
+  users,
+} from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { CorpusService, DEFAULT_CORPUS_DATASET_ID } from './corpus.service.js';
 import { VocabController } from './vocab.controller.js';
@@ -51,6 +60,28 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       await expect(
         vocabController.lookupDictionary({ text: 'xyzunknownterm' }),
       ).rejects.toThrow();
+    });
+
+    it('finds an imported JMdict entry by its headword and by its kana reading, with the EDRDG licence', async () => {
+      const licenseId = generateUuidV7();
+      const entryId = generateUuidV7();
+      await dbClient.db.insert(lexiconLicenses).values({
+        id: licenseId,
+        provider: 'Electronic Dictionary Research and Development Group (EDRDG) — JMdict, KANJIDIC2',
+        license: 'CC-BY-SA-4.0',
+      });
+      await dbClient.db.insert(lexicalEntries).values({ id: entryId, licenseId, term: '予約', partOfSpeech: 'n,vs' });
+      await dbClient.db.insert(entryReadings).values({ id: generateUuidV7(), entryId, reading: 'よやく', isPrimary: true });
+      await dbClient.db.insert(entryMeanings).values({ id: generateUuidV7(), entryId, locale: 'en', meaning: 'reservation; booking' });
+
+      for (const text of ['予約', 'よやく']) {
+        const res = await vocabController.lookupDictionary({ text });
+        expect(res.entry).toBe('予約');
+        expect(res.readings).toEqual(['よやく']);
+        expect(res.meanings).toEqual(['reservation; booking']);
+        expect(res.license).toBe('CC-BY-SA-4.0');
+        expect(res.attribution).toContain('EDRDG');
+      }
     });
   });
 

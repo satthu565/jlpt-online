@@ -49,11 +49,28 @@ export class VocabService {
 
     // 1. Try DB lexical entries if populated
     try {
-      const dbEntries = await this.dbClient.db
+      let dbEntries = await this.dbClient.db
         .select()
         .from(lexicalEntries)
         .where(eq(lexicalEntries.term, trimmed))
         .limit(1);
+
+      // Kana input (よやく) matches the reading of a kanji headword (予約).
+      if (dbEntries.length === 0) {
+        dbEntries = await this.dbClient.db
+          .select({
+            id: lexicalEntries.id,
+            licenseId: lexicalEntries.licenseId,
+            term: lexicalEntries.term,
+            level: lexicalEntries.level,
+            partOfSpeech: lexicalEntries.partOfSpeech,
+            createdAt: lexicalEntries.createdAt,
+          })
+          .from(entryReadings)
+          .innerJoin(lexicalEntries, eq(entryReadings.entryId, lexicalEntries.id))
+          .where(eq(entryReadings.reading, trimmed))
+          .limit(1);
+      }
 
       if (dbEntries.length > 0) {
         const entry = dbEntries[0]!;
