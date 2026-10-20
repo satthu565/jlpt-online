@@ -2048,9 +2048,9 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### D05 Nghiệm thu giao diện thống nhất và hiệu năng
 
 - Worker: **W6**. Ngày mục tiêu: 9. Ước lượng chưa đo: 3 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: D02, D03, D07, D09, D10. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: D02, D03, D07, D10. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau. E2E tích hợp chạy qua jlpt-stage-test check-all; Lighthouse chạy trong CI staging trên GitHub (không chạy thẳng trên VM). Bỏ LCP khỏi WARN_ONLY_METRICS trong tests/lighthouse/budgets.ts để LCP chặn trở lại (tạm cảnh báo từ 2026-10-20 chờ D08). D04, D06, D08, I19, I20, I22 do Claude làm trực tiếp và ghép qua PR (coordinator ghi CANCELLED nên không còn là phụ thuộc); D05 kiểm tra cả phần của D08.
+- Phạm vi: Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau. E2E tích hợp chạy qua jlpt-stage-test check-all; Lighthouse chạy trong CI staging trên GitHub (không chạy thẳng trên VM). Bỏ LCP khỏi WARN_ONLY_METRICS trong tests/lighthouse/budgets.ts để LCP chặn trở lại (tạm cảnh báo từ 2026-10-20 chờ D08). D04, D06, D08, D09, I19, I20, I22 do Claude làm trực tiếp và ghép qua PR (coordinator ghi CANCELLED nên không còn là phụ thuộc); D05 kiểm tra cả phần của D08.
 - Bàn giao: tests/; .github/; docs/release/.
 - Hợp đồng: quy tắc chung.
 - Khóa tài nguyên: ci-workflow, staging-deploy.

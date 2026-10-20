@@ -668,11 +668,11 @@ task('D10','W3',9,4,'Web: tài khoản, gói học, lớp học, cộng đồng 
  'apps/web/app/(account)/|apps/web/app/(billing)/|apps/web/app/(classroom)/|apps/web/app/(community)/|apps/web/app/(share)/|apps/web/features/account/|apps/web/features/billing/|apps/web/features/classroom/|apps/web/features/community/|apps/web/features/explanations/|apps/web/features/gamification/|apps/web/features/ai/|apps/web/features/mix/',
  'Các trang trong phạm vi không còn style={{}} viết tay|Ảnh trước/sau 390/1366px trong docs/release/|'+NO_REGRESS,
  'pnpm test:web|pnpm check:ui-primitives|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ docs/release/')
-task('D05','W6',9,3,'Nghiệm thu giao diện thống nhất và hiệu năng','D02 D03 D07 D09 D10',
+task('D05','W6',9,3,'Nghiệm thu giao diện thống nhất và hiệu năng','D02 D03 D07 D10',
  'Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau. '
  'E2E tích hợp chạy qua jlpt-stage-test check-all; Lighthouse chạy trong CI staging trên GitHub (không chạy thẳng trên VM). '
  'Bỏ LCP khỏi WARN_ONLY_METRICS trong tests/lighthouse/budgets.ts để LCP chặn trở lại (tạm cảnh báo từ 2026-10-20 chờ D08). '
- 'D04, D06, D08, I19, I20, I22 do Claude làm trực tiếp và ghép qua PR (coordinator ghi CANCELLED nên không còn là phụ thuộc); D05 kiểm tra cả phần của D08.',
+ 'D04, D06, D08, D09, I19, I20, I22 do Claude làm trực tiếp và ghép qua PR (coordinator ghi CANCELLED nên không còn là phụ thuộc); D05 kiểm tra cả phần của D08.',
  'tests/|.github/|docs/release/',
  'docs/release/DESIGN_PERF_REPORT.md có số đo trước/sau và ảnh từng trang|tests/lighthouse/budgets.ts không còn chỉ số chỉ cảnh báo|Không trang nào cuộn ngang, hiện key dịch thô hoặc mã tính năng nội bộ|check:ui-primitives và test:lighthouse chặn trong CI',
  'pnpm check:ui-primitives|pnpm check:no-mock-ui',resources='ci-workflow staging-deploy',kind='verification')
