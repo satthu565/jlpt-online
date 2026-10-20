@@ -1671,7 +1671,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Worker: **W6**. Ngày mục tiêu: 8. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
 - Phụ thuộc: I01, I08, I10, I11, I12, I13, I09, I03, I04, I05, I06, I14, I15. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.
+- Phạm vi: Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo. Ghi chú của người vận hành (20/10): lần kiểm tra 1 trượt vì chạy pnpm test:e2e:integration thẳng trên VM (thiếu thư viện WebKit, không có stack staging nên API 500, Mailpit 404); lệnh đó đã bỏ khỏi kiểm tra, E2E chạy qua jlpt-stage-test check-all. Không sửa code để chiều các lỗi môi trường đó; chỉ sửa lỗi E2E thật thấy trong jlpt-stage-test check-all.
 - Bàn giao: tests/; .github/; infra/; docs/release/; docs/runbooks/.
 - Hợp đồng: quy tắc chung.
 - Khóa tài nguyên: ci-workflow, staging-deploy.
@@ -1685,7 +1685,6 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - docs/release/INTEGRATION_REPORT.md liệt kê từng trang và bằng chứng E2E.
 - Lệnh cần cung cấp và chạy:
   - `pnpm check:no-mock-ui`
-  - `pnpm test:e2e:integration`
   - `sudo -n /usr/local/bin/jlpt-stage-test check-all`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
@@ -1819,14 +1818,63 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
+<a id="d06"></a>
+
+### D06 Web: bỏ mã tính năng nội bộ khỏi giao diện, ẩn đề trộn 0 câu
+
+- Worker: **W3**. Ngày mục tiêu: 9. Ước lượng chưa đo: 1 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: D04. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Bỏ mọi mã tính năng nội bộ hiện ra cho người dùng (ví dụ "(ADM-01)", "(LIB-06)", "LIB-14", "(EXAM-03)") khỏi tiêu đề, nhãn, chuỗi dịch vi/ja/en và thuộc tính hiển thị; mã chỉ được nằm trong data-testid, comment hoặc test. Sửa test đang so khớp chuỗi có mã sang data-testid. Thêm kiểm tra trong pnpm check:no-mock-ui: fail nếu chuỗi dịch hoặc JSX text chứa mẫu \([A-Z]{2,5}-\d{2,3}\). Thẻ "Đề xuất tiếp theo" và danh sách đề không hiện đề trộn có 0 câu (ví dụ "Đề trộn N5 (0 câu)"); không đủ câu thì ẩn hoặc hiện trạng thái trống có hướng dẫn.
+- Bàn giao: apps/web/; packages/ui/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/.
+- Nghiệm thu:
+  - Không trang web nào hiện mã dạng (LIB-06) ở vi/ja/en.
+  - Không hiện đề trộn 0 câu.
+  - Lighthouse trên staging CI không giảm so với số đo trước đợt (máy tính hiệu năng ≥98, điện thoại ≥70, trợ năng ≥95, SEO 100); ảnh chụp 390px và 1366px của các trang đã đổi lưu làm artifact.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:web`
+  - `pnpm check:no-mock-ui`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+<a id="d07"></a>
+
+### D07 Admin: bỏ mã tính năng nội bộ khỏi giao diện
+
+- Worker: **W4**. Ngày mục tiêu: 9. Ước lượng chưa đo: 1 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: D03. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: Bỏ mọi mã tính năng nội bộ hiện ra cho người dùng (ví dụ "(ADM-01)", "(LIB-06)", "LIB-14", "(EXAM-03)") khỏi tiêu đề, nhãn, chuỗi dịch vi/ja/en và thuộc tính hiển thị; mã chỉ được nằm trong data-testid, comment hoặc test. Sửa test đang so khớp chuỗi có mã sang data-testid. Thêm kiểm tra trong pnpm check:no-mock-ui: fail nếu chuỗi dịch hoặc JSX text chứa mẫu \([A-Z]{2,5}-\d{2,3}\). Thẻ chức năng trên bảng điều khiển dùng thành phần Card/Link của @jlpt/ui, không gạch chân toàn bộ chữ mô tả.
+- Bàn giao: apps/admin/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: tests/playwright/.
+- Nghiệm thu:
+  - Không trang quản trị nào hiện mã dạng (ADM-01) ở vi/ja/en.
+  - Lighthouse trên staging CI không giảm so với số đo trước đợt (máy tính hiệu năng ≥98, điện thoại ≥70, trợ năng ≥95, SEO 100); ảnh chụp 390px và 1366px của các trang đã đổi lưu làm artifact.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:admin`
+  - `pnpm check:no-mock-ui`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
 <a id="d05"></a>
 
 ### D05 Nghiệm thu giao diện thống nhất và hiệu năng
 
 - Worker: **W6**. Ngày mục tiêu: 9. Ước lượng chưa đo: 3 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: D02, D03, D04. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: D02, D03, D04, D06, D07. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau.
+- Phạm vi: Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau. E2E tích hợp chạy qua jlpt-stage-test check-all; Lighthouse chạy trong CI staging trên GitHub (không chạy thẳng trên VM).
 - Bàn giao: tests/; .github/; docs/release/.
 - Hợp đồng: quy tắc chung.
 - Khóa tài nguyên: ci-workflow, staging-deploy.
@@ -1835,12 +1883,11 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Quyền ghi tạm ngoài thư mục của worker: không.
 - Nghiệm thu:
   - docs/release/DESIGN_PERF_REPORT.md có số đo trước/sau và ảnh từng trang.
-  - Không trang nào cuộn ngang hoặc hiện key dịch thô.
+  - Không trang nào cuộn ngang, hiện key dịch thô hoặc mã tính năng nội bộ.
   - check:ui-primitives và test:lighthouse chặn trong CI.
 - Lệnh cần cung cấp và chạy:
-  - `pnpm test:e2e:integration`
-  - `pnpm test:lighthouse`
   - `pnpm check:ui-primitives`
+  - `pnpm check:no-mock-ui`
   - `sudo -n /usr/local/bin/jlpt-stage-test check-all`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
@@ -1998,7 +2045,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - E2E: làm đề N5 → đỗ/trượt từng phần; Hán Việt và furigana; cảnh báo nhịp; lịch thi và nhắc hạn đăng ký.
   - docs/release/NEW_FEATURES_REPORT.md có ảnh và bằng chứng từng tính năng.
 - Lệnh cần cung cấp và chạy:
-  - `pnpm test:e2e:integration`
+  - `pnpm check:no-mock-ui`
   - `sudo -n /usr/local/bin/jlpt-stage-test check-all`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.

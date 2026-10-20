@@ -264,14 +264,32 @@ export function NotebookView({
                     <Badge variant="success">✓ {t('notebook.status.mastered')}</Badge>
                   )}
                 </div>
-                <CardTitle style={{ fontSize: '1.25rem', margin: '0.25rem 0 0 0' }}>
-                  {item.term}
-                </CardTitle>
-                {item.reading && (
-                  <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                    [{item.reading}]
-                  </span>
-                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <CardTitle style={{ fontSize: '1.25rem', margin: '0.25rem 0 0 0' }}>
+                    {item.term}
+                  </CardTitle>
+                  {item.hanViet && (
+                    <span
+                      data-testid="notebook-item-hanviet"
+                      style={{
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                        color: '#b45309',
+                        display: 'inline-block',
+                      }}
+                    >
+                      {item.hanViet}
+                    </span>
+                  )}
+                  {item.reading && (
+                    <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                      [{item.reading}]
+                    </span>
+                  )}
+                </div>
               </div>
 
               {onPlayTts && (

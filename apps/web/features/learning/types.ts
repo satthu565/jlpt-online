@@ -7,6 +7,7 @@ export interface NotebookItem {
   entryId?: string;
   term: string;
   reading?: string;
+  hanViet?: string;
   meaning: string;
   partOfSpeech?: string;
   examples?: string[];
@@ -23,6 +24,7 @@ export interface CreateNotebookItemInput {
   kind: NotebookItemKind;
   term: string;
   reading?: string;
+  hanViet?: string;
   meaning: string;
   partOfSpeech?: string;
   examples?: string[];
@@ -34,6 +36,7 @@ export interface CreateNotebookItemInput {
 export interface UpdateNotebookItemInput {
   term?: string;
   reading?: string;
+  hanViet?: string;
   meaning?: string;
   partOfSpeech?: string;
   examples?: string[];
@@ -64,6 +67,7 @@ export interface DueFlashcard {
   back: {
     meaning?: string;
     reading?: string;
+    hanViet?: string;
     examples?: string[];
     [key: string]: unknown;
   };

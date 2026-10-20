@@ -1,7 +1,15 @@
 import type { Level, MondaiType, Skill } from '@jlpt/schema';
 import type { ContentStatus } from '../content/types';
 
-export type ImportJobStatus = 'pending' | 'validating' | 'draft_created' | 'succeeded' | 'failed';
+export type ImportJobStatus = 'pending' | 'validating' | 'draft_created' | 'DRAFT_ONLY' | 'READY_FOR_REVIEW' | 'succeeded' | 'failed' | 'replaced' | string;
+
+export interface ImportIssue {
+  id: string;
+  severity: 'blocking' | 'warning';
+  path: string;
+  reason: string;
+  sourcePages?: number[];
+}
 
 export interface ImportPackageSource {
   level: Level;
@@ -35,6 +43,8 @@ export interface ImportJobSummary {
   fileName: string;
   fileSizeBytes: number;
   status: ImportJobStatus;
+  readiness?: 'DRAFT_ONLY' | 'READY_FOR_REVIEW' | 'INVALID';
+  mode?: 'draft' | 'ready';
   packageId?: string;
   revision?: number;
   targetLevel?: Level;
@@ -48,6 +58,7 @@ export interface ImportJobSummary {
   nonBlockingIssueCount: number;
   extractedQuestionsCount: number;
   sourceFiles: SourceFileRef[];
+  issues?: ImportIssue[];
   draftExamId?: string;
   createdAt: string;
   createdBy: string;

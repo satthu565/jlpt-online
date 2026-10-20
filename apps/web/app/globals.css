@@ -59,3 +59,12 @@ main#main-content {
     transform: rotate(360deg);
   }
 }
+
+/* Furigana toggle rules (P04) */
+[data-furigana="off"] rt,
+[data-furigana="off"] .jlpt-ruby rt,
+.hide-furigana rt,
+.hide-furigana .jlpt-ruby rt {
+  display: none !important;
+}
+

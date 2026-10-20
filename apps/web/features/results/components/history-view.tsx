@@ -98,11 +98,17 @@ export function HistoryView({
                   <div className="text-right">
                     {isSubmitted ? (
                       <div>
-                        <div className="flex items-center gap-2 justify-end">
+                        <div className="flex items-center gap-2 justify-end" data-testid="history-attempt-result">
                           <span className="text-base font-extrabold font-mono text-slate-900 dark:text-slate-100">
                             {item.score !== null ? `${item.score}đ` : 'Chờ chấm'}
                           </span>
+                          {(item as { isEstimated?: boolean }).isEstimated && (
+                            <span className="text-[10px] text-slate-500 font-normal" data-testid="history-estimate-label">
+                              ({(item as { label?: string }).label || 'ước lượng'})
+                            </span>
+                          )}
                           <span
+                            data-testid={isPassed ? 'history-badge-pass' : 'history-badge-fail'}
                             className={`text-xs px-2 py-0.5 rounded font-bold ${
                               isPassed
                                 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'

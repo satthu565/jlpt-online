@@ -549,10 +549,10 @@ task('I18','W2',8,1,'API: giới hạn kích thước body cho multipart, zip v�
  'Test: gói vượt IMPORT_MAX_BYTES vào /api/v1/admin/imports trả 413; gói fixtures hợp lệ vẫn nhập được ở chế độ draft và ready',
  'pnpm test',contracts='API')
 task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I11 I12 I13 I09 I03 I04 I05 I06 I14 I15',
- 'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo.',
+ 'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo. Ghi chú của người vận hành (20/10): lần kiểm tra 1 trượt vì chạy pnpm test:e2e:integration thẳng trên VM (thiếu thư viện WebKit, không có stack staging nên API 500, Mailpit 404); lệnh đó đã bỏ khỏi kiểm tra, E2E chạy qua jlpt-stage-test check-all. Không sửa code để chiều các lỗi môi trường đó; chỉ sửa lỗi E2E thật thấy trong jlpt-stage-test check-all.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',
  'tests/integration/mock-ui-baseline.json rỗng; CI fail nếu có dữ liệu giả mới|E2E đăng nhập học viên và nhân sự rồi đi qua mọi trang web/admin, fail nếu bất kỳ request API nào trả 5xx hoặc trang hiện key dịch thô|E2E: học viên đăng ký -> làm đề -> xem điểm; editor nhập -> reviewer duyệt -> xuất bản; admin xem người dùng và audit; tất cả trên staging thật|docs/release/INTEGRATION_REPORT.md liệt kê từng trang và bằng chứng E2E',
- 'pnpm check:no-mock-ui|pnpm test:e2e:integration',resources='ci-workflow staging-deploy',kind='verification')
+ 'pnpm check:no-mock-ui',resources='ci-workflow staging-deploy',kind='verification')
 
 # Day 9 (owner request 2026-10-17): one design system on shadcn/ui + Tailwind, and mobile speed.
 # D00 (packages/ui only) starts early; D02/D03 rewrite pages after D00, by which time the API-wiring tasks have merged.
@@ -589,11 +589,26 @@ task('D04','W3',9,5,'Tối ưu tốc độ web trên điện thoại','D01 D02',
  'apps/web/|packages/ui/',
  'Lighthouse điện thoại trên staging: LCP < 2,5 s, CLS < 0,1, TBT < 200 ms ở /, /de-thi, /phong-thi, /n5, /dang-nhap|Ngân sách D01 chuyển sang chặn và pass|Không đổi hành vi; E2E tích hợp vẫn pass',
  'pnpm test:web|pnpm build',contracts='API')
-task('D05','W6',9,3,'Nghiệm thu giao diện thống nhất và hiệu năng','D02 D03 D04',
- 'Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau.',
+# Owner review of the preview (2026-10-20): pages show internal feature codes such as "(ADM-01)", "(LIB-06)".
+UI_CODES = ('Bỏ mọi mã tính năng nội bộ hiện ra cho người dùng (ví dụ "(ADM-01)", "(LIB-06)", "LIB-14", "(EXAM-03)") khỏi tiêu đề, nhãn, '
+ 'chuỗi dịch vi/ja/en và thuộc tính hiển thị; mã chỉ được nằm trong data-testid, comment hoặc test. Sửa test đang so khớp chuỗi có mã sang data-testid. '
+ 'Thêm kiểm tra trong pnpm check:no-mock-ui: fail nếu chuỗi dịch hoặc JSX text chứa mẫu \\([A-Z]{2,5}-\\d{2,3}\\).')
+task('D06','W3',9,1,'Web: bỏ mã tính năng nội bộ khỏi giao diện, ẩn đề trộn 0 câu','D04',
+ UI_CODES+' Thẻ "Đề xuất tiếp theo" và danh sách đề không hiện đề trộn có 0 câu (ví dụ "Đề trộn N5 (0 câu)"); không đủ câu thì ẩn hoặc hiện trạng thái trống có hướng dẫn.',
+ 'apps/web/|packages/ui/',
+ 'Không trang web nào hiện mã dạng (LIB-06) ở vi/ja/en|Không hiện đề trộn 0 câu|'+NO_REGRESS,
+ 'pnpm test:web|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/')
+task('D07','W4',9,1,'Admin: bỏ mã tính năng nội bộ khỏi giao diện','D03',
+ UI_CODES+' Thẻ chức năng trên bảng điều khiển dùng thành phần Card/Link của @jlpt/ui, không gạch chân toàn bộ chữ mô tả.',
+ 'apps/admin/',
+ 'Không trang quản trị nào hiện mã dạng (ADM-01) ở vi/ja/en|'+NO_REGRESS,
+ 'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/')
+task('D05','W6',9,3,'Nghiệm thu giao diện thống nhất và hiệu năng','D02 D03 D04 D06 D07',
+ 'Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau. '
+ 'E2E tích hợp chạy qua jlpt-stage-test check-all; Lighthouse chạy trong CI staging trên GitHub (không chạy thẳng trên VM).',
  'tests/|.github/|docs/release/',
- 'docs/release/DESIGN_PERF_REPORT.md có số đo trước/sau và ảnh từng trang|Không trang nào cuộn ngang hoặc hiện key dịch thô|check:ui-primitives và test:lighthouse chặn trong CI',
- 'pnpm test:e2e:integration|pnpm test:lighthouse|pnpm check:ui-primitives',resources='ci-workflow staging-deploy',kind='verification')
+ 'docs/release/DESIGN_PERF_REPORT.md có số đo trước/sau và ảnh từng trang|Không trang nào cuộn ngang, hiện key dịch thô hoặc mã tính năng nội bộ|check:ui-primitives và test:lighthouse chặn trong CI',
+ 'pnpm check:ui-primitives|pnpm check:no-mock-ui',resources='ci-workflow staging-deploy',kind='verification')
 
 # Day 10 (owner request 2026-10-18): five features a Vietnamese JLPT candidate asks for first.
 # NEW-01 scaled score + sectional pass marks, NEW-02 Hán-Việt readings, NEW-03 furigana toggle,
@@ -636,13 +651,15 @@ task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05 D05',
  'E2E trên staging cho NEW-01..05, ảnh chụp 390/1366px, cập nhật danh sách tính năng và báo cáo.',
  'tests/|docs/release/',
  'E2E: làm đề N5 → đỗ/trượt từng phần; Hán Việt và furigana; cảnh báo nhịp; lịch thi và nhắc hạn đăng ký|docs/release/NEW_FEATURES_REPORT.md có ảnh và bằng chứng từng tính năng',
- 'pnpm test:e2e:integration',resources='staging-deploy',kind='verification')
+ 'pnpm check:no-mock-ui',resources='staging-deploy',kind='verification')
 
 # Staging E2E on jlpt-vm (same suite as CI) is a required check for tasks that touch the UI or APIs it uses.
 for _t in TASKS:
-    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','I17','D02','D03','D04','P03','P04','P05'}:
+    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','I17','D02','D03','D04','D06','D07','P03','P04','P05'}:
         _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check')
     # Per-task runs cover Chromium + Mobile Safari; final acceptance runs every browser.
+    # The integration E2E suite needs the staging stack and browser deps, so it only runs through
+    # jlpt-stage-test (containers), never as a bare `pnpm test:e2e:integration` on the VM (I07 run 1, 2026-10-20).
     if _t['id'] in {'I07','D05','P06'}:
         _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check-all')
 

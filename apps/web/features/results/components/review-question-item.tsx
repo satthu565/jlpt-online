@@ -15,6 +15,8 @@ export interface ReviewQuestionItemProps {
   explanation?: LearnerExplanation;
   hasLicensePermission?: boolean;
   className?: string;
+  showFurigana?: boolean;
+  timeSpentMs?: number;
 }
 
 export function ReviewQuestionItem({
@@ -25,6 +27,8 @@ export function ReviewQuestionItem({
   explanation,
   hasLicensePermission = false,
   className = '',
+  showFurigana = true,
+  timeSpentMs,
 }: ReviewQuestionItemProps): React.JSX.Element {
   const [showExplanation, setShowExplanation] = React.useState(Boolean(explanation));
   const isCorrect = userAnswer === correctAnswer;
@@ -54,14 +58,14 @@ export function ReviewQuestionItem({
     >
       {/* Passage / Reading material if present */}
       {question.passage && question.passage.length > 0 && (
-        <PassageView passage={question.passage} className="mb-6" />
+        <PassageView passage={question.passage} showFurigana={showFurigana} className="mb-6" />
       )}
 
       {/* Group instructions if present */}
       {question.instructions && question.instructions.length > 0 && (
         <div className="mb-4 text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
           <span className="font-semibold text-slate-700 dark:text-slate-300 mr-2">Hướng dẫn:</span>
-          <RichTextView segments={question.instructions} />
+          <RichTextView segments={question.instructions} showFurigana={showFurigana} />
         </div>
       )}
 
@@ -95,6 +99,16 @@ export function ReviewQuestionItem({
               🚩 Có gắn cờ
             </span>
           )}
+
+          {timeSpentMs !== undefined && timeSpentMs > 0 && (
+            <span
+              data-testid="question-time-spent"
+              className="text-xs px-2.5 py-0.5 rounded-full font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700"
+              title="Thời gian làm bài cho câu này"
+            >
+              ⏱️ {Math.round(timeSpentMs / 1000)}s
+            </span>
+          )}
         </div>
 
         {/* Audio Replay for Listening Question (AUDIO-07) */}
@@ -123,7 +137,7 @@ export function ReviewQuestionItem({
 
       {/* Stem */}
       <div className="mb-6 text-lg font-japanese leading-relaxed text-slate-900 dark:text-slate-100">
-        <RichTextView segments={question.stem} />
+        <RichTextView segments={question.stem} showFurigana={showFurigana} />
       </div>
 
       {/* Options list with correct/selected highlighting (SCORE-07, SCORE-08) */}
@@ -155,7 +169,7 @@ export function ReviewQuestionItem({
                   {opt.label}
                 </span>
                 <div className="flex-1 pt-1 font-japanese text-base leading-relaxed">
-                  <RichTextView segments={opt.content} />
+                  <RichTextView segments={opt.content} showFurigana={showFurigana} />
                 </div>
               </div>
 
