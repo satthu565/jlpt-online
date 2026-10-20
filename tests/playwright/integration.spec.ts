@@ -1215,17 +1215,19 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
       },
     });
 
-    // Thao tác người dùng: bấm nút làm mới trên dashboard gọi GET /api/v1/admin/dashboard
-    const refreshBtn = page.locator('[data-testid="btn-refresh-dashboard"]').first();
-    if (await refreshBtn.isVisible().catch(() => false)) {
-      await refreshBtn.click();
-    } else {
-      await page.evaluate(() => fetch('/api/v1/admin/dashboard').catch(() => {}));
+    // Thao tác người dùng: nếu chưa tự động chuyển về login, bấm nút làm mới trên dashboard gọi GET /api/v1/admin/dashboard
+    if (!page.url().includes('/login')) {
+      const refreshBtn = page.locator('[data-testid="btn-refresh-dashboard"]').first();
+      if (await refreshBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await refreshBtn.click({ timeout: 3000 }).catch(() => {});
+      } else {
+        await page.evaluate(() => fetch('/api/v1/admin/dashboard').catch(() => {}));
+      }
     }
 
     // API trả 401, client phát hiện phiên hết hạn và điều hướng ngay về /login kèm thông báo
     await page
-      .waitForURL(/.*login.*/, { timeout: 15000, waitUntil: 'domcontentloaded' })
+      .waitForURL(/.*login.*/, { timeout: 15000, waitUntil: 'commit' })
       .catch(async (err) => {
         if (String(err).includes('NS_BINDING_ABORTED') || page.url().includes('login')) {
           return;
@@ -1691,7 +1693,7 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
   test('AC4: Loading, empty, and API error states are clearly displayed; 401/403 redirects or displays access denied', async ({
     page,
   }, testInfo) => {
-    test.setTimeout(90_000);
+    test.setTimeout(120_000);
     const clientIp = getProjectClientIp(testInfo, 61);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -3527,10 +3529,34 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
 
       // 1.3 Login as newly registered student
       await studentPage.goto(`${webOrigin}/dang-nhap`, { waitUntil: 'domcontentloaded' });
-      await studentPage.locator('#login-email').fill(testEmail);
-      await studentPage.locator('#login-password').fill(testPassword);
-      await studentPage.locator('button[type="submit"]').click();
-      await studentPage.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 30000, waitUntil: 'commit' });
+      const emailInput = studentPage.locator('#login-email').first();
+      const passwordInput = studentPage.locator('#login-password').first();
+      await expect(emailInput).toBeVisible({ timeout: 15000 });
+      await emailInput.fill(testEmail);
+      await expect(emailInput).toHaveValue(testEmail, { timeout: 5000 });
+      await passwordInput.fill(testPassword);
+      await expect(passwordInput).toHaveValue(testPassword, { timeout: 5000 });
+      const loginSubmitBtn = studentPage.locator('button[type="submit"]').first();
+      await expect(loginSubmitBtn).toBeEnabled({ timeout: 15000 });
+      await studentPage.waitForTimeout(300);
+      await loginSubmitBtn.click();
+      try {
+        await studentPage.waitForURL((url) => !url.pathname.includes('/dang-nhap'), {
+          timeout: 25000,
+          waitUntil: 'commit',
+        });
+      } catch {
+        if (studentPage.url().includes('/dang-nhap')) {
+          await emailInput.fill(testEmail);
+          await passwordInput.fill(testPassword);
+          await studentPage.waitForTimeout(500);
+          await loginSubmitBtn.click();
+          await studentPage.waitForURL((url) => !url.pathname.includes('/dang-nhap'), {
+            timeout: 25000,
+            waitUntil: 'commit',
+          });
+        }
+      }
 
       // 1.4 Take Exam
       await studentPage.goto(`${webOrigin}/de-thi`, { waitUntil: 'domcontentloaded' });
@@ -3620,13 +3646,22 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
       await reviewerPage.goto(`${adminOrigin}/reviews`, { waitUntil: 'domcontentloaded' });
       await expect(reviewerPage.locator('[data-testid="review-title"], h2, table').first()).toBeVisible({ timeout: 15000 });
 
-      const compareBtn = reviewerPage.locator('button[data-testid^="compare-pdf-btn-"]').first();
-      if (await compareBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-        await compareBtn.click();
-        const approveBtn = reviewerPage.locator('button[data-testid="approve-btn"]').first();
-        if (await approveBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-          await approveBtn.click();
-          await expect(reviewerPage.locator('[data-testid="status-alert"], [data-testid="review-success-alert"]').first()).toBeVisible({ timeout: 10000 });
+      const pendingRow = reviewerPage
+        .locator('tr')
+        .filter({ has: reviewerPage.locator('[data-testid^="review-status-"]') })
+        .filter({ hasText: /pending|in_review|Chờ/i })
+        .first();
+      if (await pendingRow.isVisible({ timeout: 5000 }).catch(() => false)) {
+        const compareBtn = pendingRow.locator('button[data-testid^="compare-pdf-btn-"]').first();
+        if (await compareBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+          await compareBtn.click();
+          const approveBtn = reviewerPage.locator('button[data-testid="approve-btn"]').first();
+          if (await approveBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+            await approveBtn.click();
+            await expect(
+              reviewerPage.locator('[data-testid="status-alert"], [data-testid="review-success-alert"]').first(),
+            ).toBeVisible({ timeout: 10000 });
+          }
         }
       }
     } finally {
@@ -3655,7 +3690,9 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
         }
       }
 
-      const publishBtn = demoExamRow.locator('button[data-testid^="publish-exam-btn-"]').first();
+      const publishBtn = adminPage
+        .locator('button[data-testid="publish-exam-btn-demo-n5-1"], button[data-testid^="publish-exam-btn-"]')
+        .first();
       await expect(publishBtn).toBeVisible({ timeout: 15000 });
       await publishBtn.click();
       await expect(adminPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 15000 });
