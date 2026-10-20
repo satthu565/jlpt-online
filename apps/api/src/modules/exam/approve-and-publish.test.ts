@@ -103,6 +103,16 @@ describe('Admin "Duyệt & xuất bản" cả đề (owner decision 2026-10-20)'
     expect(audit[0]!.targetResource).toBe(`exam:${examId}`);
   });
 
+  it('xem trước đề chưa xuất bản trả snapshot đủ câu, không lộ đáp án, không ghi gì', async () => {
+    const examId = await importDemoAsAdmin();
+    const preview = await examService.getAdminExamPreview(examId);
+    expect(preview.examId).toBe(examId);
+    expect(preview.totalQuestions).toBeGreaterThan(0);
+    expect(JSON.stringify(preview)).not.toMatch(/correctOption|"answerKey"|"keys"/);
+    const versions = await dbClient.db.select().from(schema.examVersions);
+    expect(versions).toHaveLength(0);
+  });
+
   it('nhóm đã duyệt không bị duyệt lại ở lần sau', async () => {
     const examId = await importDemoAsAdmin();
     await examService.approveAndPublishExam(examId, adminUserId);
