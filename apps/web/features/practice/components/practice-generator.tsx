@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Bookmark, Check, CircleX, Dices, Plus, Rocket, Sparkles, Tag, Zap, type LucideIcon } from 'lucide-react';
 import type { Level, Skill, PracticePool } from '@jlpt/schema';
 import type { PracticeFilterState, PracticeShortageInfo } from '../types';
 import { INITIAL_PRACTICE_CONFIG } from '../types';
@@ -28,13 +29,13 @@ export function PracticeGenerator({
 
   const levels: Level[] = ['N1', 'N2', 'N3', 'N4', 'N5'];
 
-  const pools: Array<{ id: PracticePool; label: string; desc: string; icon: string }> = [
-    { id: 'unseen', label: 'Câu chưa làm', desc: 'Ưu tiên những câu hỏi bạn chưa từng gặp', icon: '✨' },
-    { id: 'wrong', label: 'Câu đã làm sai', desc: 'Ôn lại các câu trả lời sai từ các bài thi trước', icon: '❌' },
-    { id: 'marked', label: 'Câu đã lưu', desc: 'Luyện tập các câu bạn đã gắn cờ / đánh dấu nhớ', icon: '🔖' },
-    { id: 'random', label: 'Ngẫu nhiên', desc: 'Trích xuất ngẫu nhiên từ toàn bộ kho đề', icon: '🎲' },
-    { id: 'tagged', label: 'Theo chủ đề', desc: 'Luyện sâu các chủ đề ngữ pháp & từ vựng mục tiêu', icon: '🏷️' },
-    { id: 'difficulty', label: 'Theo độ khó', desc: 'Thử thách với các câu hỏi phân hóa cao', icon: '⚡' },
+  const pools: Array<{ id: PracticePool; label: string; desc: string; icon: LucideIcon }> = [
+    { id: 'unseen', label: 'Câu chưa làm', desc: 'Ưu tiên những câu hỏi bạn chưa từng gặp', icon: Sparkles },
+    { id: 'wrong', label: 'Câu đã làm sai', desc: 'Ôn lại các câu trả lời sai từ các bài thi trước', icon: CircleX },
+    { id: 'marked', label: 'Câu đã lưu', desc: 'Luyện tập các câu bạn đã gắn cờ / đánh dấu nhớ', icon: Bookmark },
+    { id: 'random', label: 'Ngẫu nhiên', desc: 'Trích xuất ngẫu nhiên từ toàn bộ kho đề', icon: Dices },
+    { id: 'tagged', label: 'Theo chủ đề', desc: 'Luyện sâu các chủ đề ngữ pháp & từ vựng mục tiêu', icon: Tag },
+    { id: 'difficulty', label: 'Theo độ khó', desc: 'Thử thách với các câu hỏi phân hóa cao', icon: Zap },
   ];
 
   const skills: Array<{ id: Skill; label: string }> = [
@@ -114,7 +115,7 @@ export function PracticeGenerator({
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-base">{p.icon}</span>
+                    <p.icon className="size-4 shrink-0" aria-hidden="true" />
                     <strong className="text-xs font-bold">{p.label}</strong>
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
@@ -169,7 +170,7 @@ export function PracticeGenerator({
                   onClick={() => toggleSkill(s.id)}
                   className="px-3 py-1.5 text-xs font-semibold"
                 >
-                  {isSelected ? '✓ ' : '+ '}
+                  {isSelected ? <Check className="size-3.5" aria-hidden="true" /> : <Plus className="size-3.5" aria-hidden="true" />}
                   {s.label}
                 </Button>
               );
@@ -243,7 +244,7 @@ export function PracticeGenerator({
             loading={isGenerating}
             data-testid="generate-practice-btn"
           >
-            {isGenerating ? 'Đang trích xuất câu hỏi...' : '🚀 Bắt đầu luyện tập ngay'}
+            {isGenerating ? 'Đang trích xuất câu hỏi...' : <><Rocket className="size-4" aria-hidden="true" /> Bắt đầu luyện tập ngay</>}
           </Button>
         </div>
       </form>

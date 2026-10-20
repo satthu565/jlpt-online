@@ -1,5 +1,6 @@
 'use client';
 
+import { Search } from 'lucide-react';
 import React from 'react';
 import { Card } from '@jlpt/ui/components/card';
 
@@ -26,7 +27,7 @@ export function CommonErrorsWidget({
     >
       <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
         <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-          <span>🔍</span> Phân tích lỗi sai thường gặp
+          <Search className="size-4" aria-hidden="true" /> Phân tích lỗi sai thường gặp
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
           Nhận diện các kiểu bẫy và lỗ hổng kiến thức dẫn đến mất điểm nhiều nhất.
@@ -36,8 +37,7 @@ export function CommonErrorsWidget({
       {errors.length === 0 ? (
         <div
           data-testid="common-errors-empty"
-          className="text-center py-6 text-xs text-slate-500"
-        >
+          className="text-center py-6 text-xs text-slate-500">
           Chưa phát hiện mẫu hình lỗi sai lặp lại nổi bật.
         </div>
       ) : (
@@ -46,8 +46,7 @@ export function CommonErrorsWidget({
             <div
               key={err.category}
               data-testid={`common-error-item-${err.category}`}
-              className="p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-1.5"
-            >
+              className="p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-1.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-slate-800 dark:text-slate-200">
                   {err.label}
@@ -60,6 +59,7 @@ export function CommonErrorsWidget({
               <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                 <div
                   className="bg-rose-500 h-2 rounded-full"
+                  // ui-allow-style: chiều rộng theo số liệu, tính lúc chạy
                   style={{ width: `${err.percentage}%` }}
                 />
               </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { ScrollText } from 'lucide-react';
 import React from 'react';
 import type { ExamHistoryItem } from '../types';
 import { Card } from '@jlpt/ui/components/card';
@@ -36,9 +37,7 @@ export function HistoryView({
 
       {historyItems.length === 0 ? (
         <Card className="text-center py-16 p-8 border border-slate-200 dark:border-slate-800">
-          <div className="text-4xl mb-3" role="img" aria-label="Biểu tượng lịch sử">
-            📜
-          </div>
+          <ScrollText className="mx-auto mb-3 size-10" role="img" aria-label="Biểu tượng lịch sử" />
           <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">
             Chưa có lịch sử làm bài thi
           </h3>

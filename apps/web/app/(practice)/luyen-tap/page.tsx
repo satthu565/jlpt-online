@@ -1,5 +1,6 @@
 'use client';
 
+import { Hourglass } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   PracticeGenerator,
@@ -433,25 +434,18 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4 w-full" data-testid="practice-page-container">
-      <div style={{ marginBottom: '2rem' }}>
-        <h1
-          style={{
-            fontSize: '2rem',
-            fontWeight: 800,
-            color: 'var(--text-primary)',
-            margin: '0 0 0.5rem 0',
-          }}
-        >
+      <div className="mb-8">
+        <h1 className="text-[2rem] font-extrabold text-[var(--text-primary)] mt-0 mx-0 mb-2">
           {t('practice.page.title')}
         </h1>
-        <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '0.9375rem' }}>
+        <p className="text-[var(--text-secondary)] m-0 text-[0.9375rem]">
           {t('practice.page.subtitle')}
         </p>
       </div>
 
       {isUnauthorized && (
-        <Alert variant="warning" style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <Alert className="mb-6" variant="warning">
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <span>{t('practice.auth.required')}</span>
             <Link href="/dang-nhap?redirect=/luyen-tap">
               <Button size="sm" variant="primary">{t('practice.auth.signInButton')}</Button>
@@ -461,22 +455,15 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
       )}
 
       {error && !isUnauthorized && (
-        <Alert variant="error" onClose={() => setError(null)} style={{ marginBottom: '1.5rem' }}>
+        <Alert className="mb-6" variant="error" onClose={() => setError(null)}>
           {error}
         </Alert>
       )}
 
       {/* Tabs */}
-      <div
+      <div className="flex flex-wrap gap-2 border-b border-[var(--border-subtle)] mb-8"
         role="tablist"
         aria-label={t('practice.tabs.ariaLabel')}
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '0.5rem',
-          borderBottom: '1px solid var(--border-subtle)',
-          marginBottom: '2rem',
-        }}
       >
         <Button
           type="button"
@@ -489,19 +476,7 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
             setActivePracticeExam(null);
             loadInProgressSessions();
           }}
-          style={{
-            padding: '0.75rem 1.25rem',
-            fontWeight: 600,
-            fontSize: '0.9375rem',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            color: activeTab === 'practice' ? 'var(--color-primary)' : 'var(--text-muted)',
-            borderBottom: activeTab === 'practice' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            marginBottom: '-1px',
-            minHeight: '44px',
-            borderRadius: 0,
-          }}
+          className={`-mb-px min-h-11 cursor-pointer rounded-none border-0 border-b-2 bg-transparent px-5 py-3 text-[0.9375rem] font-semibold ${activeTab === 'practice' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--text-muted)]'}`}
         >
           {t('practice.tabs.practice')}
         </Button>
@@ -513,19 +488,7 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
           aria-selected={activeTab === 'mix'}
           data-testid="tab-mix"
           onClick={() => setActiveTab('mix')}
-          style={{
-            padding: '0.75rem 1.25rem',
-            fontWeight: 600,
-            fontSize: '0.9375rem',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            color: activeTab === 'mix' ? 'var(--color-primary)' : 'var(--text-muted)',
-            borderBottom: activeTab === 'mix' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            marginBottom: '-1px',
-            minHeight: '44px',
-            borderRadius: 0,
-          }}
+          className={`-mb-px min-h-11 cursor-pointer rounded-none border-0 border-b-2 bg-transparent px-5 py-3 text-[0.9375rem] font-semibold ${activeTab === 'mix' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--text-muted)]'}`}
         >
           {t('practice.tabs.mix')}
         </Button>
@@ -537,19 +500,7 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
           aria-selected={activeTab === 'quick'}
           data-testid="tab-quick"
           onClick={() => setActiveTab('quick')}
-          style={{
-            padding: '0.75rem 1.25rem',
-            fontWeight: 600,
-            fontSize: '0.9375rem',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            color: activeTab === 'quick' ? 'var(--color-primary)' : 'var(--text-muted)',
-            borderBottom: activeTab === 'quick' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            marginBottom: '-1px',
-            minHeight: '44px',
-            borderRadius: 0,
-          }}
+          className={`-mb-px min-h-11 cursor-pointer rounded-none border-0 border-b-2 bg-transparent px-5 py-3 text-[0.9375rem] font-semibold ${activeTab === 'quick' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--text-muted)]'}`}
         >
           {t('practice.tabs.quick')}
         </Button>
@@ -603,12 +554,11 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
               {inProgressSessions.length > 0 && (
                 <div
                   data-testid="in-progress-practice-section"
-                  className="p-5 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/40 space-y-3"
-                >
+                  className="p-5 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/40 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-sm font-bold text-blue-950 dark:text-blue-100 flex items-center gap-2">
-                        <span>⏳</span> {t('practice.inProgress.title')}
+                        <Hourglass className="size-4" aria-hidden="true" /> {t('practice.inProgress.title')}
                       </h3>
                       <p className="text-xs text-blue-800/80 dark:text-blue-300/80 mt-0.5">
                         {t('practice.inProgress.subtitle')}
@@ -624,8 +574,7 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
                       <div
                         key={session.id}
                         data-testid={`in-progress-item-${session.id}`}
-                        className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-blue-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-2xs"
-                      >
+                        className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-blue-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-xs text-slate-900 dark:text-slate-100">

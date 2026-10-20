@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertTriangle, Check, Hourglass, PartyPopper, RotateCcw, WifiOff } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
@@ -57,59 +58,49 @@ export function SrsReviewRunner({
       case 'syncing':
         return (
           <Badge variant="warning" data-testid="sync-status-badge">
-            🔄 {t('srs.sync.syncing')}
+            <RotateCcw className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('srs.sync.syncing')}
           </Badge>
         );
       case 'pending_sync':
         return (
           <Badge variant="secondary" data-testid="sync-status-badge">
-            ⏳ {t('srs.sync.pendingCount', { count: String(syncSnapshot.pendingCount) })}
+            <Hourglass className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('srs.sync.pendingCount', { count: String(syncSnapshot.pendingCount) })}
           </Badge>
         );
       case 'offline':
         return (
           <Badge variant="default" data-testid="sync-status-badge">
-            📶 {t('srs.sync.offline')}
+            <WifiOff className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('srs.sync.offline')}
           </Badge>
         );
       case 'error':
         return (
           <Badge variant="error" data-testid="sync-status-badge">
-            ⚠️ {t('srs.sync.error')}
+            <AlertTriangle className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('srs.sync.error')}
           </Badge>
         );
       case 'synced':
       default:
         return (
           <Badge variant="success" data-testid="sync-status-badge">
-            ✓ {t('srs.sync.synced')}
+            <Check className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('srs.sync.synced')}
           </Badge>
         );
     }
   };
 
   return (
-    <div className="srs-runner" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="srs-runner flex flex-col gap-6">
       {/* Sync Status Header */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '0.75rem 1rem',
-          backgroundColor: 'var(--bg-card)',
-          borderRadius: '8px',
-          border: '1px solid var(--border-subtle)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span style={{ fontWeight: 600, fontSize: '0.9375rem' }}>
+      <div className="flex justify-between items-center py-3 px-4 bg-[var(--bg-card)] rounded-[8px] border border-[var(--border-subtle)]">
+        <div className="flex items-center gap-3">
+          <span className="font-semibold text-[0.9375rem]">
             {t('srs.title')}
           </span>
           {getSyncBadge()}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="flex items-center gap-2">
           {syncSnapshot.pendingCount > 0 && (
             <Button
               variant="outline"
@@ -118,10 +109,10 @@ export function SrsReviewRunner({
               aria-label={t('srs.sync.syncNow')}
               data-testid="sync-now-button"
             >
-              🔄 {t('srs.sync.syncNow')}
+              <RotateCcw className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('srs.sync.syncNow')}
             </Button>
           )}
-          <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+          <span className="text-[0.8125rem] text-[var(--text-muted)]">
             {t('srs.completedCount', { count: String(completedCount) })}
           </span>
         </div>
@@ -144,30 +135,30 @@ export function SrsReviewRunner({
         />
       ) : (
         <Card data-testid="srs-finished-card">
-          <CardContent style={{ padding: '3rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
-            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>
+          <CardContent className="p-12 text-center">
+            <PartyPopper className="mx-auto mb-4 size-12" aria-hidden="true" />
+            <h2 className="text-[1.75rem] font-extrabold mt-0 mx-0 mb-2 text-[var(--text-primary)]">
               {t('srs.finished.title')}
             </h2>
-            <p style={{ color: 'var(--text-secondary)', margin: '0 0 1.5rem 0' }}>
+            <p className="text-[var(--text-secondary)] mt-0 mx-0 mb-6">
               {t('srs.finished.description', { count: String(completedCount) })}
             </p>
 
             {syncSnapshot.pendingCount > 0 ? (
-              <div style={{ marginBottom: '1.5rem' }}>
+              <div className="mb-6">
                 <Alert variant="info">
                   {t('srs.finished.pendingSyncNotice', { count: String(syncSnapshot.pendingCount) })}
                 </Alert>
-                <div style={{ marginTop: '1rem' }}>
+                <div className="mt-4">
                   <Button variant="primary" onClick={handleManualSync}>
-                    🔄 {t('srs.sync.syncNow')}
+                    <RotateCcw className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('srs.sync.syncNow')}
                   </Button>
                 </div>
               </div>
             ) : null}
 
             {onFinish && (
-              <Button variant="primary" onClick={onFinish} style={{ minWidth: '160px' }}>
+              <Button className="min-w-[160px]" variant="primary" onClick={onFinish}>
                 {t('srs.finished.backToNotebook')}
               </Button>
             )}

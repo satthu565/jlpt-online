@@ -44,8 +44,8 @@ export function ReplanModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={t('planner.replan.title')}>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-        <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9375rem' }}>
+      <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+        <p className="m-0 text-[var(--text-secondary)] text-[0.9375rem]">
           {t('planner.replan.description')}
         </p>
 
@@ -56,7 +56,7 @@ export function ReplanModal({
         )}
 
         <div>
-          <label htmlFor="replan-reason-select" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 600 }}>
+          <label className="block mb-1 font-semibold" htmlFor="replan-reason-select">
             {t('planner.replan.reasonLabel')}
           </label>
           <Select
@@ -73,7 +73,7 @@ export function ReplanModal({
         </div>
 
         <div>
-          <label htmlFor="replan-note-input" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 600 }}>
+          <label className="block mb-1 font-semibold" htmlFor="replan-note-input">
             {t('planner.replan.noteLabel')}
           </label>
           <Input
@@ -84,7 +84,7 @@ export function ReplanModal({
           />
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
+        <div className="flex justify-end gap-3 mt-4">
           <Button type="button" variant="outline" onClick={onClose}>
             {t('common.buttons.cancel')}
           </Button>

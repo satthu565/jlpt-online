@@ -38,7 +38,7 @@ export function ScoreComparisonCard({
           </span>
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
             {isImproved
-              ? `🎉 Bạn đã tiến bộ +${scoreDiff} điểm so với lần trước!`
+              ? `Bạn đã tiến bộ +${scoreDiff} điểm so với lần trước!`
               : scoreDiff === 0
               ? 'Điểm số của bạn tương đương với lần làm trước.'
               : `Điểm số giảm ${Math.abs(scoreDiff)} điểm so với lần trước.`}
