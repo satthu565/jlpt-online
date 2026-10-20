@@ -7,12 +7,18 @@ import type {
 } from './types.js';
 
 /**
- * Validates an exam against a blueprint definition (Feature PDF-23).
- * Verifies:
- * 1. Total questions count matches blueprint expected total
- * 2. Section codes and order match blueprint sections
- * 3. Question count for each mondaiType matches blueprint specifications
- * 4. Error reporting uses specific JSON Pointer paths
+ * Validates an exam against a blueprint definition (Feature PDF-23, Task I21).
+ *
+ * Rules:
+ * - For original exams (`exam.kind === 'original'`):
+ *   Blueprint defines the structural skeleton:
+ *   1. Must have all required sections according to level/blueprint, in correct order.
+ *   2. All mondaiTypes present in exam must exist in blueprint for that section (no unknown mondaiTypes).
+ *   3. Deviation in question count per mondaiType, total questions, or durationSec is ONLY a WARNING
+ *      (recorded with actual count and blueprint reference count e.g. 10/11), not blocking import/review/publish.
+ * - For practice/synthetic/mixed exams:
+ *   Strict alignment with blueprint question counts is enforced as ERRORS.
+ * - Missing section, incorrect section order, or unknown mondaiType is always an ERROR regardless of exam kind.
  */
 export function validateExamAgainstBlueprint(
   exam: Exam,
@@ -21,6 +27,8 @@ export function validateExamAgainstBlueprint(
 ): BlueprintValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
+
+  const isOriginal = exam.kind === 'original';
 
   const groupMap = new Map<string, Group>();
   for (const g of groups) {
@@ -36,9 +44,15 @@ export function validateExamAgainstBlueprint(
   }
 
   if (exam.totalQuestions !== expectedTotalQuestions) {
-    errors.push(
-      `/exam/totalQuestions: tổng số câu (${exam.totalQuestions}) không khớp cấu trúc blueprint (${expectedTotalQuestions})`,
-    );
+    if (isOriginal) {
+      warnings.push(
+        `/exam/totalQuestions: tổng số câu thực tế (${exam.totalQuestions}) khác số tham chiếu blueprint (${expectedTotalQuestions}) (${exam.totalQuestions}/${expectedTotalQuestions})`,
+      );
+    } else {
+      errors.push(
+        `/exam/totalQuestions: tổng số câu (${exam.totalQuestions}) không khớp cấu trúc blueprint (${expectedTotalQuestions})`,
+      );
+    }
   }
 
   // Check sections count
@@ -56,6 +70,12 @@ export function validateExamAgainstBlueprint(
     if (!examSec) {
       errors.push(`/exam/sections: thiếu phần thi ${bpSec.code} theo blueprint`);
       continue;
+    }
+
+    if (exam.sections[sIdx] && exam.sections[sIdx]!.code !== bpSec.code) {
+      errors.push(
+        `${sp}: thứ tự phần thi (${exam.sections[sIdx]!.code}) không khớp với blueprint (${bpSec.code})`,
+      );
     }
 
     if (examSec.durationSec !== null && examSec.durationSec !== bpSec.durationSec) {
@@ -79,9 +99,15 @@ export function validateExamAgainstBlueprint(
       expectedMondaiTypes.add(m.type);
       const actualCount = actualMondaiCounts.get(m.type) ?? 0;
       if (actualCount !== m.questionCount) {
-        errors.push(
-          `${sp}/mondai/${m.type}: số câu (${actualCount}) không khớp cấu trúc blueprint (${m.questionCount})`,
-        );
+        if (isOriginal) {
+          warnings.push(
+            `${sp}/mondai/${m.type}: số câu thực tế (${actualCount}) khác số tham chiếu blueprint (${m.questionCount}) (${actualCount}/${m.questionCount})`,
+          );
+        } else {
+          errors.push(
+            `${sp}/mondai/${m.type}: số câu (${actualCount}) không khớp cấu trúc blueprint (${m.questionCount})`,
+          );
+        }
       }
     }
 
@@ -92,6 +118,14 @@ export function validateExamAgainstBlueprint(
           `${sp}/mondai/${actualType}: dạng mondai không có trong cấu trúc blueprint của phần ${bpSec.code}`,
         );
       }
+    }
+  }
+
+  // Check for unexpected extra sections not present in blueprint
+  for (let sIdx = 0; sIdx < exam.sections.length; sIdx++) {
+    const sec = exam.sections[sIdx]!;
+    if (!blueprint.sections.some((b) => b.code === sec.code)) {
+      errors.push(`/exam/sections/${sIdx}: phần thi ${sec.code} không có trong blueprint`);
     }
   }
 
