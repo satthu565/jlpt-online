@@ -138,6 +138,13 @@ export class ExamController {
     return this.examService.getAdminExam(id);
   }
 
+  /** Public snapshot of the exam as it stands now (draft included), without answers, for staff to review. */
+  @Roles('admin', 'editor', 'reviewer')
+  @Get('admin/exams/:id/preview')
+  async getAdminExamPreview(@Param('id') id: string) {
+    return this.examService.getAdminExamPreview(id);
+  }
+
   @Roles('admin', 'editor')
   @Post('admin/exams')
   async createAdminExam(

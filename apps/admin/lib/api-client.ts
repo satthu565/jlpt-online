@@ -1,4 +1,4 @@
-import type { Role } from '@jlpt/schema';
+import type { PublicExamSnapshot, Role } from '@jlpt/schema';
 import type { StaffUser } from './auth-context';
 import { isStaffRole } from './navigation';
 
@@ -576,6 +576,13 @@ export class AdminApiClient {
       `/api/v1/admin/exams/${encodeURIComponent(id)}/approve-and-publish`,
       { requiredRoles: ['admin'], body: {} },
     );
+  }
+
+  /** Snapshot without answers of the exam as it stands now (draft included), for staff review. */
+  public async getExamPreview(id: string): Promise<PublicExamSnapshot> {
+    return this.request<PublicExamSnapshot>('GET', `/api/v1/admin/exams/${encodeURIComponent(id)}/preview`, {
+      requiredRoles: ['admin', 'editor', 'reviewer'],
+    });
   }
 
   public async listUsers(): Promise<{ items: unknown[] }> {
