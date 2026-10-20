@@ -35,6 +35,7 @@ export function NavigationHeader(): React.JSX.Element {
     { label: t('common.nav.planner'), href: '/ke-hoach' },
     { label: t('common.nav.classroom'), href: '/lop-hoc' },
     { label: t('common.nav.events'), href: '/su-kien' },
+    { label: t('common.nav.schedules'), href: '/lich-thi' },
     { label: t('common.nav.pricing'), href: '/goi-thanh-vien' },
   ];
 
@@ -209,6 +210,7 @@ export function NavigationFooter(): React.JSX.Element {
     { label: t('common.footer.levels'), href: '/n3' },
     { label: t('common.footer.vocabAndGrammar'), href: '/tu-vung' },
     { label: t('common.footer.vocabStats'), href: '/thong-ke-tu-vung' },
+    { label: t('common.footer.schedules'), href: '/lich-thi' },
     { label: t('common.footer.faq'), href: '/faq' },
     { label: t('common.footer.technicalSupport'), href: '/ho-tro' },
     { label: t('common.footer.terms'), href: '/dieu-khoan' },

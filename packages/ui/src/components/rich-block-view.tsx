@@ -6,12 +6,14 @@ export interface RichTableViewProps {
   rows: RichText[][];
   className?: string;
   tableAriaLabel?: string;
+  showFurigana?: boolean;
 }
 
 export function RichTableView({
   rows,
   className = '',
   tableAriaLabel = 'Bảng dữ liệu câu hỏi',
+  showFurigana = true,
 }: RichTableViewProps): React.JSX.Element {
   if (!Array.isArray(rows) || rows.length === 0) {
     return <div className="jlpt-table-empty" />;
@@ -51,7 +53,7 @@ export function RichTableView({
                     verticalAlign: 'top',
                   }}
                 >
-                  <RichTextView segments={cell} />
+                  <RichTextView segments={cell} showFurigana={showFurigana} />
                 </td>
               ))}
             </tr>
@@ -65,21 +67,22 @@ export function RichTableView({
 export interface RichBlockViewProps {
   block: RichBlock;
   className?: string;
+  showFurigana?: boolean;
 }
 
-export function RichBlockView({ block, className = '' }: RichBlockViewProps): React.JSX.Element | null {
+export function RichBlockView({ block, className = '', showFurigana = true }: RichBlockViewProps): React.JSX.Element | null {
   if (!block || !block.type) return null;
 
   switch (block.type) {
     case 'paragraph':
       return (
         <div className={`jlpt-rich-paragraph my-2 leading-relaxed ${className}`}>
-          <RichTextView segments={block.content} />
+          <RichTextView segments={block.content} showFurigana={showFurigana} />
         </div>
       );
 
     case 'table':
-      return <RichTableView rows={block.rows} className={className} />;
+      return <RichTableView rows={block.rows} className={className} showFurigana={showFurigana} />;
 
     case 'image': {
       const rawUrl = 'url' in block && block.url ? (block as { url?: string }).url : block.mediaKey ? `/${block.mediaKey}` : '';
@@ -121,12 +124,14 @@ export interface PassageViewProps {
   passage?: RichBlock[] | null;
   className?: string;
   passageAriaLabel?: string;
+  showFurigana?: boolean;
 }
 
 export function PassageView({
   passage,
   className = '',
   passageAriaLabel = 'Bài đọc / Dữ liệu tham chiếu',
+  showFurigana = true,
 }: PassageViewProps): React.JSX.Element | null {
   if (!passage || !Array.isArray(passage) || passage.length === 0) {
     return null;
@@ -146,7 +151,7 @@ export function PassageView({
         Bài đọc &amp; Tài liệu
       </div>
       {passage.map((block, idx) => (
-        <RichBlockView key={idx} block={block} />
+        <RichBlockView key={idx} block={block} showFurigana={showFurigana} />
       ))}
     </div>
   );

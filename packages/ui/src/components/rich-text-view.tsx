@@ -8,6 +8,7 @@ export interface RichTextViewProps {
   blankAriaLabel?: string;
   starAriaLabel?: string;
   imageAlt?: string;
+  showFurigana?: boolean;
 }
 
 /**
@@ -64,6 +65,7 @@ export function RichTextView({
   blankAriaLabel = 'Ô trống điền từ',
   starAriaLabel = 'Vị trí dấu sao',
   imageAlt = 'Minh họa câu hỏi',
+  showFurigana = true,
 }: RichTextViewProps): React.JSX.Element {
   if (!Array.isArray(segments) || segments.length === 0) {
     return <span className={className} style={style} />;
@@ -94,10 +96,12 @@ export function RichTextView({
               <ruby key={idx} className="jlpt-ruby" style={{ rubyPosition: 'over' }}>
                 {rubyText}
                 <rt
+                  className="jlpt-ruby-rt"
                   style={{
                     fontSize: '0.65em',
                     color: 'var(--text-secondary, #475569)',
                     userSelect: 'none',
+                    ...(showFurigana === false ? { display: 'none' } : {}),
                   }}
                 >
                   {rtText}
@@ -121,6 +125,7 @@ export function RichTextView({
                     blankAriaLabel={blankAriaLabel}
                     starAriaLabel={starAriaLabel}
                     imageAlt={imageAlt}
+                    showFurigana={showFurigana}
                   />
                 ) : (
                   underlineText ?? ''
@@ -139,6 +144,7 @@ export function RichTextView({
                     blankAriaLabel={blankAriaLabel}
                     starAriaLabel={starAriaLabel}
                     imageAlt={imageAlt}
+                    showFurigana={showFurigana}
                   />
                 ) : null}
               </em>

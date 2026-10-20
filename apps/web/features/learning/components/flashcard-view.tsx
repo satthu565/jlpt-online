@@ -52,6 +52,7 @@ export function FlashcardView({
   const frontTerm = (card.front.term as string) || (card.front.prompt as string) || '';
   const frontReading = (card.front.reading as string) || '';
   const backMeaning = (card.back.meaning as string) || '';
+  const backHanViet = (card.back.hanViet as string) || '';
   const backExamples = Array.isArray(card.back.examples) ? (card.back.examples as string[]) : [];
 
   return (
@@ -154,6 +155,24 @@ export function FlashcardView({
               }}
               data-testid="flashcard-back"
             >
+              {backHanViet && (
+                <div
+                  data-testid="flashcard-hanviet"
+                  style={{
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    color: '#b45309',
+                    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                    padding: '4px 12px',
+                    borderRadius: '8px',
+                    display: 'inline-block',
+                    marginBottom: '0.75rem',
+                  }}
+                >
+                  Âm Hán Việt: {backHanViet}
+                </div>
+              )}
+
               <h3
                 style={{
                   fontSize: '1.5rem',

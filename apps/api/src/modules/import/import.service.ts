@@ -264,7 +264,14 @@ export class ImportService {
     const jobId = generateUuidV7();
     const now = new Date();
     const jobStatus = validationResult.readiness === 'DRAFT_ONLY' ? 'DRAFT_ONLY' : 'succeeded';
-    const examId = toDeterministicUuid(`${pkg.packageId}:exam:${pkg.exam.slug}`);
+    const existingExams = await this.dbClient.db
+      .select({ id: schema.exams.id })
+      .from(schema.exams)
+      .where(eq(schema.exams.slug, pkg.exam.slug))
+      .limit(1);
+    const examId =
+      existingExams[0]?.id ||
+      toDeterministicUuid(`${pkg.packageId}:exam:${pkg.exam.slug}`);
 
     return await this.dbClient.db.transaction(async (tx: DbTx) => {
       // If this is a ready package replacing previous DRAFT_ONLY package(s) with lower revision

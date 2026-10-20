@@ -21,6 +21,7 @@
       "pricing": "Gói thành viên",
       "vocabulary": "Từ vựng",
       "grammar": "Ngữ pháp",
+      "schedules": "Lịch thi JLPT",
       "more": "Thêm"
     },
     "footer": {
@@ -28,6 +29,7 @@
       "levels": "Cấp độ N1–N5",
       "vocabAndGrammar": "Từ vựng & Ngữ pháp",
       "vocabStats": "Thống kê từ vựng",
+      "schedules": "Lịch thi JLPT",
       "technicalSupport": "Hỗ trợ kỹ thuật",
       "terms": "Điều khoản sử dụng",
       "privacy": "Chính sách quyền riêng tư",
@@ -923,5 +925,25 @@
       "toExams": "Vào thư viện đề thi",
       "toPractice": "Luyện tập câu hỏi"
     }
+  },
+  "schedules": {
+    "title": "Lịch thi JLPT tại Việt Nam",
+    "subtitle": "Thông tin các đợt thi năng lực tiếng Nhật quốc tế chính thức, địa điểm và hạn đăng ký tại Việt Nam",
+    "loading": "Đang tải lịch thi JLPT...",
+    "empty": "Chưa có lịch thi chính thức nào được công bố.",
+    "emptyDescription": "Ban tổ chức hiện chưa cập nhật đợt thi mới. Vui lòng quay lại sau hoặc đăng ký nhận thông báo nhắc hạn.",
+    "errorTitle": "Không thể tải lịch thi",
+    "examDate": "Ngày thi",
+    "registrationDeadline": "Hạn đăng ký",
+    "registrationOpens": "Mở cổng đăng ký",
+    "locations": "Địa điểm thi",
+    "levels": "Cấp độ tổ chức",
+    "officialLink": "Trang đăng ký chính thức",
+    "reminderToggle": "Nhận thông báo nhắc hạn đăng ký",
+    "reminderEnabled": "Đã bật nhắc hạn đăng ký",
+    "reminderDisabled": "Đã tắt nhắc hạn đăng ký",
+    "filterLevel": "Lọc theo cấp độ",
+    "allLevels": "Tất cả cấp độ",
+    "notes": "Lưu ý từ ban tổ chức"
   }
 }
