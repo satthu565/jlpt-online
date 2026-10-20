@@ -1510,6 +1510,8 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
 
       const publishBtn = adminPage.locator('button[data-testid^="publish-exam-btn-"]').first();
       await expect(publishBtn).toBeVisible({ timeout: 15000 });
+      // "Duyệt & xuất bản" asks for confirmation; Playwright dismisses dialogs unless told otherwise.
+      adminPage.once('dialog', (dialog) => void dialog.accept());
       await publishBtn.click();
 
       await expect(adminPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 15000 });
