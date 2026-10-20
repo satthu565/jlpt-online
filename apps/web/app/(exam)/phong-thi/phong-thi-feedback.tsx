@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertTriangle, Info, Lock, X } from 'lucide-react';
 import React from 'react';
 import { Button } from '@jlpt/ui/components/button';
 
@@ -10,7 +11,7 @@ export interface ExamResultViewProps {
 
 export function ExamResultView({ activeAttemptId, onExit }: ExamResultViewProps): React.JSX.Element {
   return (
-    <div className="max-w-3xl mx-auto py-12 px-4">
+    <div className="mx-auto w-full max-w-3xl py-12 px-4">
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm text-center">
         <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,10 +58,10 @@ export interface ExamErrorCardProps {
 
 export function ExamErrorCard({ errorInfo, onRetry, onDismiss }: ExamErrorCardProps): React.JSX.Element {
   return (
-    <div className="max-w-2xl mx-auto py-16 px-4">
+    <div className="mx-auto w-full max-w-2xl py-16 px-4">
       <div className="jlpt-card rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-8 shadow-sm text-center">
         <div className="text-4xl mb-3" role="img" aria-label="Lỗi phòng thi">
-          {errorInfo.requiresAuth ? '🔒' : '⚠️'}
+          {errorInfo.requiresAuth ? <Lock className="mx-auto size-10" aria-hidden="true" /> : <AlertTriangle className="mx-auto size-10" aria-hidden="true" />}
         </div>
         <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
           {errorInfo.requiresAuth ? 'Yêu cầu đăng nhập' : 'Không thể bắt đầu làm bài'}
@@ -73,7 +74,7 @@ export function ExamErrorCard({ errorInfo, onRetry, onDismiss }: ExamErrorCardPr
               : 'jlpt-alert-error bg-red-50 dark:bg-red-950 border-l-red-600 dark:border-l-red-500 text-red-900 dark:text-red-200'
           }`}
         >
-          <span>{errorInfo.requiresAuth ? 'ℹ' : '✕'}</span>
+          {errorInfo.requiresAuth ? <Info className="size-4" aria-hidden="true" /> : <X className="size-4" aria-hidden="true" />}
           <div className="flex-1">{errorInfo.message}</div>
         </div>
 
