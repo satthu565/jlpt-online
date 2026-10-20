@@ -40,7 +40,7 @@ export function SpeedAccuracyWidget({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
         <div>
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <span>⚡</span> Phân tích tốc độ & thời gian trung bình (SCORE-15)
+            <span>⚡</span> Phân tích tốc độ & thời gian trung bình
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Đánh giá mối tương quan giữa thời gian làm bài trung bình mỗi câu và tỷ lệ làm đúng.
@@ -88,11 +88,11 @@ export function SpeedAccuracyWidget({
         </div>
       </div>
 
-      {/* Average time per section breakdown (SCORE-15) */}
+      {/* Average time per section breakdown */}
       {Object.keys(avgTimePerSectionSec).length > 0 && (
         <div className="space-y-2">
           <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block uppercase tracking-wider">
-            Thời gian trung bình theo từng phần / kỹ năng (SCORE-15):
+            Thời gian trung bình theo từng phần / kỹ năng:
           </span>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2" data-testid="section-times-breakdown">
             {Object.entries(avgTimePerSectionSec).map(([sec, secTime]) => {

@@ -220,7 +220,7 @@ export function Header({
         </div>
       </div>
 
-      {/* Mobile Drawer Navigation (SYS-01) */}
+      {/* Mobile Drawer Navigation */}
       {isMobileMenuOpen && (
         <div
           id="mobile-navigation-drawer"

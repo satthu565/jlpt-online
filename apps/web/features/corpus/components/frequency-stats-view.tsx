@@ -119,7 +119,7 @@ export function FrequencyStatsView({
       data-testid="frequency-stats-view"
       className={`jlpt-frequency-stats space-y-6 ${className}`}
     >
-      {/* Action Bar: Study list creation & CSV Export (DATA-18, SEO-04) */}
+      {/* Action Bar: Study list creation & CSV Export */}
       <Card className="p-6 bg-blue-50/40 dark:bg-slate-900/60 border border-blue-200 dark:border-blue-900/60">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>

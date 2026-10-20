@@ -94,7 +94,7 @@ export function ShareExamModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Chia sẻ đề thi "${examTitle}" (MIX-14)`}
+      title={`Chia sẻ đề thi "${examTitle}"`}
       closeLabel="Đóng"
     >
       <div data-testid="share-exam-modal-content" className="space-y-4 text-xs">

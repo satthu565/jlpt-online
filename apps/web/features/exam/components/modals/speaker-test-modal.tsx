@@ -71,7 +71,7 @@ export function SpeakerTestModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Kiểm tra tai nghe / loa (EXAM-05)"
+      title="Kiểm tra tai nghe / loa"
       className={className}
     >
       <div className="space-y-4 text-slate-800 dark:text-slate-200">

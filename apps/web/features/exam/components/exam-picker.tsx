@@ -36,6 +36,8 @@ export function ExamPicker({
   const levels: Array<Level | 'ALL'> = ['ALL', 'N1', 'N2', 'N3', 'N4', 'N5'];
 
   const filteredExams = exams.filter((ex) => {
+    // An exam with no questions (for example an empty generated mix) cannot be taken.
+    if (!(ex.totalQuestions > 0)) return false;
     if (selectedLevel === 'ALL') return true;
     return ex.level === selectedLevel;
   });

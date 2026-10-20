@@ -65,7 +65,7 @@ export function ReviewPalette({
         </span>
       </div>
 
-      {/* Filter Tabs (SCORE-09) */}
+      {/* Filter Tabs */}
       <div className="flex flex-wrap gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl" role="tablist">
         {filters.map((f) => (
           <Button

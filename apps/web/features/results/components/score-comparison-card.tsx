@@ -34,7 +34,7 @@ export function ScoreComparisonCard({
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-            So sánh với lần làm trước (SCORE-10)
+            So sánh với lần làm trước
           </span>
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
             {isImproved

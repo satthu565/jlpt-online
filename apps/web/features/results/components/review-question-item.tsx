@@ -71,7 +71,7 @@ export function ReviewQuestionItem({
         </div>
       )}
 
-      {/* Top row: Number, Correctness status, Audio player (AUDIO-07), Flag badge */}
+      {/* Top row: Number, Correctness status, Audio player, Flag badge */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800 mb-5">
         <div className="flex items-center gap-3">
           <span className="text-xl font-bold font-mono text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg">
@@ -81,7 +81,7 @@ export function ReviewQuestionItem({
             (Tổng hợp #{question.globalIndex + 1})
           </span>
 
-          {/* Correctness badge (SCORE-07) */}
+          {/* Correctness badge */}
           {isCorrect ? (
             <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold flex items-center gap-1">
               <span>✓</span> Làm đúng
@@ -113,7 +113,7 @@ export function ReviewQuestionItem({
           )}
         </div>
 
-        {/* Audio Replay for Listening Question (AUDIO-07) */}
+        {/* Audio Replay for Listening Question */}
         {audioMediaKey && (
           <QuestionAudioPlayer
             mediaKey={audioMediaKey}
@@ -122,7 +122,7 @@ export function ReviewQuestionItem({
         )}
       </div>
 
-      {/* Illustration image if available (AUDIO-03) */}
+      {/* Illustration image if available */}
       {imageMedia.length > 0 && (
         <div className="jlpt-question-illustration my-4 text-center">
           {imageMedia.map((imgSrc: string, idx: number) => (
@@ -142,7 +142,7 @@ export function ReviewQuestionItem({
         <RichTextView segments={question.stem} showFurigana={showFurigana} />
       </div>
 
-      {/* Options list with correct/selected highlighting (SCORE-07, SCORE-08) */}
+      {/* Options list with correct/selected highlighting */}
       <div className="space-y-3" role="group" aria-label={`Các phương án câu ${question.number}`}>
         {question.options.map((opt, optIdx) => {
           const optionValue = optIdx + 1;

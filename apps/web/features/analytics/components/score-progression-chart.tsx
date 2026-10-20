@@ -38,7 +38,7 @@ export function ScoreProgressionChart({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
         <div>
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <span>📈</span> Biểu đồ tiến độ điểm số theo thời gian (STAT-02)
+            <span>📈</span> Biểu đồ tiến độ điểm số theo thời gian
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Theo dõi xu hướng điểm số và mức độ tăng trưởng qua từng lượt thi thử.

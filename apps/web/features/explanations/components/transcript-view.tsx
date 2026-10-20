@@ -92,7 +92,7 @@ export function TranscriptView({
         {transcript}
       </div>
 
-      {/* Evidence Ranges (AUDIO-08, AUDIO-09) */}
+      {/* Evidence Ranges */}
       {evidenceRanges.length > 0 && (
         <div className="space-y-2 pt-1" data-testid="evidence-ranges-list">
           <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400 block uppercase tracking-wider">

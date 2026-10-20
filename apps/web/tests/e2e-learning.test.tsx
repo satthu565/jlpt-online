@@ -410,7 +410,7 @@ describe('E2E Learning, Generator Modes, Explanations & Personalization Suite (L
       );
 
       expect(html).toContain('data-testid="next-recommendation-banner"');
-      expect(html).toContain('★ Đề xuất tiếp theo (LIB-14)');
+      expect(html).toContain('★ Đề xuất tiếp theo');
       expect(html).toContain('Đề thi chính thức JLPT N3 - 12/2023');
       expect(html).toContain('Bắt đầu làm ngay');
     });
@@ -423,8 +423,8 @@ describe('E2E Learning, Generator Modes, Explanations & Personalization Suite (L
       );
 
       expect(html).toContain('data-testid="filter-only-favorites"');
-      expect(html).toContain('Chưa từng làm (LIB-12)');
-      expect(html).toContain('Chưa đạt mục tiêu (LIB-13)');
+      expect(html).toContain('Chưa từng làm');
+      expect(html).toContain('Chưa đạt mục tiêu');
     });
   });
 });
