@@ -39,6 +39,7 @@ export interface CheckResult {
   violatingFiles: ScannedFileResult[];
   knownViolations: ScannedFileResult[];
   newViolations: ScannedFileResult[];
+  baselineCount: number;
   passed: boolean;
 }
 
@@ -271,12 +272,17 @@ export function runNoMockUiCheck(
     }
   }
 
+  const baselineCount = baseline.length;
+  // I07 Acceptance: baseline mock-ui phải rỗng; CI fail nếu có dữ liệu giả mới hoặc baseline không rỗng
+  const passed = newViolations.length === 0 && baselineCount === 0;
+
   return {
     totalFilesScanned: scanned.length,
     violatingFiles: scanned,
     knownViolations,
     newViolations,
-    passed: newViolations.length === 0,
+    baselineCount,
+    passed,
   };
 }
 
@@ -316,6 +322,7 @@ export function main(): void {
   console.log('===============================================================');
   console.log(' [check:no-mock-ui] Quét apps/web và apps/admin tìm dữ liệu giả');
   console.log(' Tiêu chuẩn: Không dùng mảng mẫu, ALL_SAMPLE, đăng nhập giả');
+  console.log(' Nghiệm thu I07: mock-ui-baseline.json phải rỗng tuyệt đối');
   console.log('===============================================================');
 
   const rootDir = process.cwd();
@@ -326,6 +333,13 @@ export function main(): void {
   console.log(`\nTổng số tệp/route phát hiện vi phạm: ${result.violatingFiles.length}`);
   console.log(` - Vi phạm đã ghi nhận trong baseline: ${result.knownViolations.length}`);
   console.log(` - Vi phạm mới ngoài baseline (LỖI CI): ${result.newViolations.length}`);
+  console.log(` - Số lượng mục trong baseline: ${result.baselineCount}`);
+
+  if (result.baselineCount > 0) {
+    console.error(`\n❌ LỖI BẢO MẬT/CHẤT LƯỢNG (I07): mock-ui-baseline.json phải hoàn toàn rỗng nhưng hiện có ${result.baselineCount} mục!`);
+    console.error('Không cho phép bất kỳ dữ liệu giả hoặc ngoại lệ mock UI nào trong baseline sau khi nghiệm thu.');
+    process.exit(1);
+  }
 
   const codeHits = findVisibleFeatureCodes(rootDir);
   if (codeHits.length > 0) {
@@ -347,8 +361,8 @@ export function main(): void {
     console.error('\nKiểm tra check:no-mock-ui KHÔNG ĐẠT!');
     process.exit(1);
   } else {
-    console.log('\n✅ Toàn bộ vi phạm hiện tại đều nằm trong danh mục baseline kiểm soát.');
-    console.log('Không phát hiện vi phạm mới. Kiểm tra check:no-mock-ui ĐẠT.');
+    console.log('\n✅ mock-ui-baseline.json hoàn toàn rỗng và không có dữ liệu giả mới.');
+    console.log('Toàn bộ giao diện đã kết nối backend thật. Kiểm tra check:no-mock-ui ĐẠT.');
     process.exit(0);
   }
 }

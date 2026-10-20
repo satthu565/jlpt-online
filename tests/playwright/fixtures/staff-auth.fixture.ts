@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import type { Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 
 /**
  * Seeded Staff Account Credentials for Integration & Playwright Tests (I00)
@@ -195,32 +195,64 @@ export async function handleTotpVerification(
       '[data-testid="submit-challenge-button"], [data-testid="btn-verify-2fa-submit"], button[type="submit"]',
     )
     .first();
+  const challengeError = page.locator('[data-testid="challenge-error-alert"]').first();
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const validTotp = await getSynchronizedTotp(secret, accountKey);
-    await codeInput.fill(validTotp);
-    await submitBtn.click();
-
-    try {
-      await page.waitForURL(
-        (url: URL) => !url.pathname.includes('/verify-2fa') && !url.pathname.includes('/login'),
-        { timeout: 15000, waitUntil: 'domcontentloaded' },
-      );
+    // If we already left verify-2fa, we are done!
+    if (!page.url().includes('/verify-2fa')) {
       return;
-    } catch {
-      const challengeError = page.locator('[data-testid="challenge-error-alert"]');
-      if (await challengeError.isVisible({ timeout: 2000 }).catch(() => false)) {
-        recordUsedTotpStep(accountKey);
-        await waitForNextTotpStep();
-        continue;
-      }
-      if (!page.url().includes('/verify-2fa') && !page.url().includes('/login')) {
+    }
+
+    // Check if codeInput is present. If not visible and we are not on /verify-2fa, exit immediately
+    const isVisible = await codeInput.isVisible().catch(() => false);
+    if (!isVisible) {
+      if (!page.url().includes('/verify-2fa')) {
         return;
       }
-      if (attempt === maxAttempts) {
-        throw new Error(`TOTP challenge failed after ${maxAttempts} attempts for ${accountKey}`);
+      // Wait briefly if still on /verify-2fa
+      await codeInput.waitFor({ state: 'visible', timeout: 5000 }).catch(() => null);
+      if (!page.url().includes('/verify-2fa')) {
+        return;
       }
     }
+
+    const validTotp = await getSynchronizedTotp(secret, accountKey);
+    await codeInput.click();
+    await codeInput.fill(validTotp);
+    await expect(codeInput).toHaveValue(validTotp, { timeout: 5000 });
+    await page.waitForTimeout(200);
+    await submitBtn.click();
+
+    // Race between URL change and immediate error alert from API
+    const navPromise = page
+      .waitForURL(
+        (url: URL) => !url.pathname.includes('/verify-2fa') && !url.pathname.includes('/login'),
+        { timeout: 20000, waitUntil: 'commit' },
+      )
+      .then(() => 'nav' as const)
+      .catch(() => 'timeout' as const);
+
+    const errPromise = challengeError
+      .waitFor({ state: 'visible', timeout: 3500 })
+      .then(() => 'error' as const)
+      .catch(() => 'no-error' as const);
+
+    const result = await Promise.race([navPromise, errPromise]);
+
+    if (result === 'nav' || (!page.url().includes('/verify-2fa') && !page.url().includes('/login'))) {
+      return;
+    }
+
+    if (result === 'error' || (await challengeError.isVisible().catch(() => false))) {
+      recordUsedTotpStep(accountKey);
+      await waitForNextTotpStep();
+      continue;
+    }
+
+    if (attempt === maxAttempts) {
+      throw new Error(`TOTP challenge failed after ${maxAttempts} attempts for ${accountKey}`);
+    }
+    await waitForNextTotpStep();
   }
 }
 

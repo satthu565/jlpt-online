@@ -12,12 +12,12 @@ export default defineConfig({
   testIgnore: ['**/e2e/**', '**/*.test.ts', '**/*.test.tsx'],
   timeout: 60 * 1000,
   expect: {
-    timeout: 10 * 1000,
+    timeout: 15 * 1000,
   },
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: 1,
+  retries: process.env.CI ? 1 : 0,
+  workers: 2,
   reporter: [
     ['list'],
     ['json', { outputFile: '../docs/release/playwright-report.json' }],
