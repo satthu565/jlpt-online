@@ -567,6 +567,17 @@ export class AdminApiClient {
     });
   }
 
+  /** Admin only: approve every pending question group of the exam, then publish it (audit-logged by the API). */
+  public async approveAndPublishExam(
+    id: string,
+  ): Promise<{ approvedGroups: number; version?: number; [key: string]: unknown }> {
+    return this.request<{ approvedGroups: number; version?: number }>(
+      'POST',
+      `/api/v1/admin/exams/${encodeURIComponent(id)}/approve-and-publish`,
+      { requiredRoles: ['admin'], body: {} },
+    );
+  }
+
   public async listUsers(): Promise<{ items: unknown[] }> {
     return this.request<{ items: unknown[] }>('GET', '/api/v1/admin/users', {
       requiredRoles: ['admin'],

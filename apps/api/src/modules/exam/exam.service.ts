@@ -7,6 +7,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { and, desc, eq, isNotNull, isNull } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
@@ -46,6 +47,8 @@ import {
 import { StorageService } from '../storage/storage.service.js';
 import { OutboxService, type DbTx } from '../outbox/outbox.service.js';
 import { BlueprintService } from '../blueprint/blueprint.service.js';
+import { ReviewService } from '../review/review.service.js';
+import { AuditService } from '../audit/audit.service.js';
 import type { ExamFilterQuery, PublishExamResponse } from './exam.types.js';
 
 @Injectable()
@@ -57,7 +60,64 @@ export class ExamService {
     private readonly storageService: StorageService,
     private readonly outboxService: OutboxService,
     private readonly blueprintService: BlueprintService,
+    @Optional() private readonly reviewService?: ReviewService,
+    @Optional() private readonly auditService?: AuditService,
   ) {}
+
+  /**
+   * Admin one-click "Duyệt & xuất bản" (owner decision 2026-10-20, single-operator phase): approves every question
+   * group of the exam whose latest version is not approved yet, then publishes. The four-eyes rule is waived only
+   * through ReviewService's adminOverride; DRAFT_ONLY and missing-answer guards still apply. The controller restricts
+   * this to the admin role; the action is written to the audit log.
+   */
+  async approveAndPublishExam(
+    examId: string,
+    adminUserId: string,
+  ): Promise<PublishExamResponse & { approvedGroups: number }> {
+    if (!this.reviewService) {
+      throw new BadRequestException('Chức năng duyệt chưa sẵn sàng trên máy chủ này');
+    }
+    const db = this.dbClient.db;
+    const groupRows: { groupId: string }[] = await db
+      .selectDistinct({ groupId: schema.questions.groupId })
+      .from(schema.examItems)
+      .innerJoin(schema.questions, eq(schema.questions.id, schema.examItems.questionId))
+      .where(eq(schema.examItems.examId, examId));
+    if (groupRows.length === 0) {
+      throw new BadRequestException(`Đề thi ${examId} không có câu hỏi`);
+    }
+
+    let approvedGroups = 0;
+    for (const { groupId } of groupRows) {
+      const [latest] = await db
+        .select({ version: schema.questionGroupVersions.version, status: schema.questionGroupVersions.status })
+        .from(schema.questionGroupVersions)
+        .where(eq(schema.questionGroupVersions.groupId, groupId))
+        .orderBy(desc(schema.questionGroupVersions.version))
+        .limit(1);
+      if (!latest || latest.status === 'approved') continue;
+      await this.reviewService.reviewDecision(
+        'group_version',
+        groupId,
+        latest.version,
+        { decision: 'approved', comments: 'Admin duyệt cả đề và xuất bản' },
+        adminUserId,
+        undefined,
+        { adminOverride: true },
+      );
+      approvedGroups++;
+    }
+
+    const published = await this.publishExam(examId, adminUserId);
+    await this.auditService?.recordAction({
+      operatorId: adminUserId,
+      action: 'exam.approve_and_publish',
+      targetResource: `exam:${examId}`,
+      details: { approvedGroups, version: published.version },
+    });
+    this.logger.log(`Admin ${adminUserId} duyệt ${approvedGroups} nhóm và xuất bản đề ${examId} v${published.version}`);
+    return { ...published, approvedGroups };
+  }
 
   private isExamGuestTrialEligible(exam: typeof schema.exams.$inferSelect, scoring?: Record<string, unknown>): boolean {
     const descLower = (exam.description || '').toLowerCase();

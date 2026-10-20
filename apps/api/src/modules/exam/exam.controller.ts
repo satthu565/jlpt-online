@@ -211,6 +211,19 @@ export class ExamController {
     }
   }
 
+  @Post('admin/exams/:id/approve-and-publish')
+  @Roles('admin')
+  async approveAndPublishExam(
+    @Param('id') id: string,
+    @CurrentUser() user: { id?: string; userId?: string; role?: string },
+  ) {
+    if (user.role && user.role !== 'admin') {
+      throw new ForbiddenException('Chỉ admin được duyệt và xuất bản cả đề');
+    }
+    const userId = user.userId || user.id || '';
+    return this.examService.approveAndPublishExam(id, userId);
+  }
+
   @Post('admin/exams/:id/unpublish')
   @Roles('admin')
   async unpublishExam(
