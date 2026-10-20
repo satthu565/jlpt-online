@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Input } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
 import type { AdminCouponItem } from './types';
 import type { BillingManager } from './billing-service';
 import { useOptionalAdminAuth } from '../../lib/auth-context';

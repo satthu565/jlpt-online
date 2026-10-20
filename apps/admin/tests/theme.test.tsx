@@ -1,7 +1,8 @@
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { ThemeProvider, ThemeToggle } from '@jlpt/ui';
+import { ThemeProvider } from '@jlpt/ui/theme-context';
+import { ThemeToggle } from '@jlpt/ui/components/theme-toggle';
 import { AdminAuthProvider, type StaffUser } from '../lib/auth-context';
 import { AdminNavigation } from '../lib/admin-nav';
 

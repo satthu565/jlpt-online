@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Input, Select } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
+import { Select } from '@jlpt/ui/components/select';
 import type { Role } from '@jlpt/schema';
 import type { StaffUser } from '../../lib/auth-context';
 import type { AdminManagedUser, AuditLogEntry } from './types';

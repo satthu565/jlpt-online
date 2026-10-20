@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button, Select, Textarea } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Select } from '@jlpt/ui/components/select';
+import { Textarea } from '@jlpt/ui/components/textarea';
 import { AdminGuard } from '../../../lib/ui-guard';
 import { useAdminAuth } from '../../../lib/auth-context';
 import { apiClient } from '../../../lib/api-client';

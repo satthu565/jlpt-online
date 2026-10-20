@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button, Input } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
 import type { PublicExamSnapshot } from '@jlpt/schema';
 import type { AdminExam, StaffOperator, PublishedVersionRecord } from './types';
 import { ExamService } from './exam-service';

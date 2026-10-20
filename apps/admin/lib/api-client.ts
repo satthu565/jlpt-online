@@ -1,16 +1,6 @@
 import type { Role } from '@jlpt/schema';
 import type { StaffUser } from './auth-context';
 import { isStaffRole } from './navigation';
-import {
-  generateBase32Secret,
-  formatSecret,
-  generateOtpAuthUri,
-  generateRecoveryCodes,
-  hashRecoveryCode,
-  verifyTotp,
-  verifyAndConsumeRecoveryCode,
-} from './totp';
-import { generateQrMatrix } from './qrcode';
 
 export type GuardErrorCode =
   | 'UNAUTHENTICATED'
@@ -44,14 +34,6 @@ export interface AdminApiClientOptions {
   mode?: string;
 }
 
-export interface Setup2faResponse {
-  secret: string;
-  formattedSecret: string;
-  otpauthUri: string;
-  recoveryCodes: string[];
-  qrSvg: string;
-}
-
 export class AdminApiClient {
   private baseUrl: string;
   private adminHost: string;
@@ -61,9 +43,6 @@ export class AdminApiClient {
   private fetchFn?: typeof fetch;
   private mode: string;
 
-  // In-memory credential store for 2FA enrollment verification in unit tests
-  private activeRecoveryHashes: string[] = [];
-  private activeTotpSecret: string | null = null;
   private onUnauthorizedCallback: (() => void) | null = null;
 
   constructor(options: AdminApiClientOptions = {}) {
@@ -355,108 +334,28 @@ export class AdminApiClient {
     };
   }
 
-  public initiate2faSetup(): Setup2faResponse {
-    if (!this.user || !this.token) {
-      throw new AdminClientGuardError('UNAUTHENTICATED', 'Yêu cầu đăng nhập trước khi thiết lập 2FA.', 401);
-    }
-
-    const secret = generateBase32Secret(20);
-    const formattedSecret = formatSecret(secret);
-    const otpauthUri = generateOtpAuthUri({
-      issuer: 'JLPT Admin',
-      accountName: this.user.email,
-      secret,
-    });
-    const recoveryCodes = generateRecoveryCodes(8);
-    const qrResult = generateQrMatrix(otpauthUri);
-
-    this.activeTotpSecret = secret;
-    this.activeRecoveryHashes = recoveryCodes.map(hashRecoveryCode);
-
-    return {
-      secret,
-      formattedSecret,
-      otpauthUri,
-      recoveryCodes,
-      qrSvg: qrResult.svg,
-    };
-  }
-
-  public confirm2faSetup(secret: string, code: string): boolean {
+  public async verify2faChallenge(code: string): Promise<{ success: boolean; verified: boolean }> {
     if (!this.user || !this.token) {
       throw new AdminClientGuardError('UNAUTHENTICATED', 'Phiên làm việc không hợp lệ.', 401);
-    }
-
-    const isValid = verifyTotp(code, secret);
-    if (!isValid) {
-      throw new AdminClientGuardError('VALIDATION_ERROR', 'Mã xác thực không hợp lệ.', 400);
-    }
-
-    this.user = {
-      ...this.user,
-      twoFactorEnabled: true,
-      twoFactorStatus: 'verified',
-    };
-
-    return true;
-  }
-
-  public async verify2faChallenge(code: string): Promise<{ success: boolean; verified: boolean }>;
-  public verify2faChallenge(secret: string, code: string): boolean;
-  public verify2faChallenge(
-    first: string,
-    second?: string,
-  ): boolean | Promise<{ success: boolean; verified: boolean }> {
-    if (!this.user || !this.token) {
-      throw new AdminClientGuardError('UNAUTHENTICATED', 'Phiên làm việc không hợp lệ.', 401);
-    }
-
-    if (second !== undefined) {
-      const isValid = verifyTotp(second, first);
-      if (!isValid) {
-        throw new AdminClientGuardError('TWO_FACTOR_REQUIRED', 'Mã xác thực không hợp lệ.', 403);
-      }
-
-      this.user = {
-        ...this.user,
-        twoFactorStatus: 'verified',
-      };
-
-      return true;
     }
 
     return this.request<{ success: boolean; verified: boolean }>('POST', '/api/v1/auth/totp/challenge', {
-      body: { code: first },
-      headers: { 'x-totp-code': first },
+      body: { code },
+      headers: { 'x-totp-code': code },
       skipGuard: true,
     }).then((res) => {
       this.user = {
         ...this.user!,
         twoFactorStatus: 'verified',
       };
-      this.totpCode = first;
+      this.totpCode = code;
       return res;
     });
   }
 
-  public verifyRecoveryCode(code: string): boolean | Promise<{ success: boolean; verified: boolean }> {
+  public async verifyRecoveryCode(code: string): Promise<{ success: boolean; verified: boolean }> {
     if (!this.user || !this.token) {
       throw new AdminClientGuardError('UNAUTHENTICATED', 'Phiên làm việc không hợp lệ.', 401);
-    }
-
-    if (this.activeRecoveryHashes && this.activeRecoveryHashes.length > 0) {
-      const result = verifyAndConsumeRecoveryCode(code, this.activeRecoveryHashes);
-      if (!result.valid) {
-        throw new AdminClientGuardError('INVALID_RECOVERY_CODE', 'Mã khôi phục không hợp lệ hoặc đã qua sử dụng.', 403);
-      }
-
-      this.activeRecoveryHashes = result.remainingHashedCodes;
-      this.user = {
-        ...this.user,
-        twoFactorStatus: 'verified',
-      };
-
-      return true;
     }
 
     return this.request<{ success: boolean; verified: boolean }>('POST', '/api/v1/auth/totp/recovery', {
