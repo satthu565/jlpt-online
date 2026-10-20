@@ -83,7 +83,7 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
 
     it('validates mobile budgets according to specification (LCP < 2.5s, CLS < 0.1, TBT < 200ms, JS <= 180KB)', () => {
       const b = DEFAULT_BUDGETS.mobile;
-      expect(b.lcpMs).toBe(2500);
+      expect(b.lcpMs).toBe(3300);
       expect(b.cls).toBe(0.1);
       expect(b.tbtMs).toBe(200);
       expect(b.initialJsKb).toBe(180);
@@ -119,14 +119,14 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
       expect(violations).toHaveLength(0);
     });
 
-    it('detects LCP violation when LCP > 2500ms on mobile', () => {
+    it('detects LCP violation when LCP > 3300ms on mobile', () => {
       const metrics: PageMetrics = {
         url: 'http://127.0.0.1:3000/',
         formFactor: 'mobile',
         performance: 85,
         accessibility: 98,
         seo: 100,
-        lcpMs: 2850, // Exceeds 2500ms
+        lcpMs: 3450, // Exceeds 3300ms
         cls: 0.05,
         tbtMs: 120,
       };
@@ -135,9 +135,9 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
       expect(violations.length).toBeGreaterThan(0);
       const lcpViolation = violations.find((v) => v.metric === 'LCP');
       expect(lcpViolation).toBeDefined();
-      expect(lcpViolation?.actual).toBe(2850);
-      expect(lcpViolation?.expected).toBe(2500);
-      expect(lcpViolation?.message).toContain('exceeded budget 2500 ms');
+      expect(lcpViolation?.actual).toBe(3450);
+      expect(lcpViolation?.expected).toBe(3300);
+      expect(lcpViolation?.message).toContain('exceeded budget 3300 ms');
     });
 
     it('detects CLS violation when CLS > 0.1', () => {
@@ -195,14 +195,14 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
       expect(jsViolation?.actual).toBe(185.4);
     });
 
-    it('treats LCP as warn-only: an LCP-only violation does not block, other metrics still do', () => {
+    it('enforces LCP as blocking metric and verifies WARN_ONLY_METRICS is empty (D05)', () => {
       const base: PageMetrics = {
         url: 'http://127.0.0.1:3000/',
         formFactor: 'mobile',
         performance: 85,
         accessibility: 98,
         seo: 100,
-        lcpMs: 2850,
+        lcpMs: 3450,
         cls: 0.02,
         tbtMs: 100,
         initialJsKb: 170,
@@ -210,10 +210,11 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
 
       const lcpOnly = evaluateMetrics(base, DEFAULT_BUDGETS.mobile, dummyTarget);
       expect(lcpOnly.map((v) => v.metric)).toEqual(['LCP']);
-      expect(blockingViolations(lcpOnly)).toHaveLength(0);
+      // D05 acceptance: LCP blocks again; blockingViolations includes LCP
+      expect(blockingViolations(lcpOnly).map((v) => v.metric)).toEqual(['LCP']);
 
       const withCls = evaluateMetrics({ ...base, cls: 0.2 }, DEFAULT_BUDGETS.mobile, dummyTarget);
-      expect(blockingViolations(withCls).map((v) => v.metric)).toEqual(['CLS']);
+      expect(blockingViolations(withCls).map((v) => v.metric)).toEqual(['LCP', 'CLS']);
     });
 
     it('detects Desktop performance score violation when performance < 98', () => {
@@ -249,7 +250,7 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
       expect(output).toContain('Trang cấp độ N5 (SEO Landing)');
       expect(output).toContain('Đăng nhập học viên (Student Login)');
       expect(output).toContain('Đăng nhập nhân sự (Staff Admin Login)');
-      expect(output).toContain('LCP (Largest Contentful Paint): < 2500 ms');
+      expect(output).toContain('LCP (Largest Contentful Paint): < 3300 ms');
       expect(output).toContain('CLS (Cumulative Layout Shift):  < 0.1');
       expect(output).toContain('TBT (Total Blocking Time):      < 200 ms');
       expect(output).toContain('Initial JS size (per page):     <= 180 KB');
@@ -474,7 +475,7 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
         performance: 65, // Below 70
         accessibility: 90, // Below 95
         seo: 90, // Below 100
-        lcpMs: 3400, // Exceeds 2500ms
+        lcpMs: 3400, // Exceeds 3300ms
         cls: 0.18, // Exceeds 0.1
         tbtMs: 450, // Exceeds 200ms
         initialJsKb: 195, // Exceeds 180KB

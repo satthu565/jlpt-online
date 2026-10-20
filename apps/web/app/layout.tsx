@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from './providers';
+import { CONSENT_HEAD_SCRIPT } from '../lib/consent-keys';
 // Read on the server and handed to the client provider as a prop, so it is not part of any JS chunk.
 import viMessages from '../messages/vi.json' with { type: 'json' };
 
@@ -28,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: CONSENT_HEAD_SCRIPT }} />
         <link
           rel="preload"
           href="/fonts/inter-latin.woff2"

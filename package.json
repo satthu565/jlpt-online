@@ -108,7 +108,8 @@
     "check:no-mock-ui": "node --no-warnings --experimental-strip-types tests/integration/check-no-mock-ui.ts && node --no-warnings --experimental-strip-types apps/admin/scripts/check-no-internal-codes.ts",
     "test:e2e:integration": "node tests/playwright/runner.mjs",
     "test:lighthouse": "node --no-warnings --experimental-strip-types tests/lighthouse/runner.ts --enforce",
-    "check:ui-primitives": "node --no-warnings --experimental-strip-types packages/ui/scripts/check-ui-primitives.ts && node --no-warnings --experimental-strip-types packages/ui/scripts/check-inline-styles.ts"
+    "check:ui-primitives": "node --no-warnings --experimental-strip-types packages/ui/scripts/check-ui-primitives.ts && node --no-warnings --experimental-strip-types packages/ui/scripts/check-inline-styles.ts",
+    "check:design-perf": "node --no-warnings --experimental-strip-types tests/integration/capture-design-perf.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",

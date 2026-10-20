@@ -8,16 +8,14 @@ import { AuthProvider } from '../lib/auth-context';
 import { NavigationHeader } from './nav-shell';
 
 import { NavigationFooter } from './footer-shell';
+// Rendered on the server: the banner is often the mobile LCP element, so it must be in the first paint.
+import { CookieConsentManager } from '../components/cookie-consent-manager';
 
 const WebVitalsReporter = dynamic(
   () => import('../components/web-vitals-reporter').then((m) => m.WebVitalsReporter),
   { ssr: false },
 );
 
-const CookieConsentManager = dynamic(
-  () => import('../components/cookie-consent-manager').then((m) => m.CookieConsentManager),
-  { ssr: false },
-);
 
 function LocalizedSkipToContent(): React.JSX.Element {
   const { t } = useI18n();

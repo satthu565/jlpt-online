@@ -46,7 +46,10 @@ jobs:
       - name: Verify feature scope and implementation coverage (A06)
         run: pnpm features:verify
 
-      - name: Run Mock UI Data & Baseline Gate (I00)
+      - name: Run UI Primitives & Design System Ratchet Gate (D00 / D05)
+        run: pnpm check:ui-primitives
+
+      - name: Run Mock UI Data & Baseline Gate (I00 / D05)
         run: pnpm check:no-mock-ui
 
       - name: Run Accessibility Verification (SYS-14)
