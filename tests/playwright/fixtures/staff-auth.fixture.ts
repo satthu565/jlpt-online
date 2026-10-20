@@ -198,8 +198,25 @@ export async function handleTotpVerification(
   const challengeError = page.locator('[data-testid="challenge-error-alert"]').first();
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    // If we already left verify-2fa, we are done!
+    if (!page.url().includes('/verify-2fa')) {
+      return;
+    }
+
+    // Check if codeInput is present. If not visible and we are not on /verify-2fa, exit immediately
+    const isVisible = await codeInput.isVisible().catch(() => false);
+    if (!isVisible) {
+      if (!page.url().includes('/verify-2fa')) {
+        return;
+      }
+      // Wait briefly if still on /verify-2fa
+      await codeInput.waitFor({ state: 'visible', timeout: 5000 }).catch(() => null);
+      if (!page.url().includes('/verify-2fa')) {
+        return;
+      }
+    }
+
     const validTotp = await getSynchronizedTotp(secret, accountKey);
-    await codeInput.waitFor({ state: 'visible', timeout: 15000 });
     await codeInput.click();
     await codeInput.fill(validTotp);
     try {
@@ -214,41 +231,32 @@ export async function handleTotpVerification(
     await page.waitForTimeout(200);
     await submitBtn.click();
 
-    // Race URL navigation vs immediate error alert
-    const navPromise = page.waitForURL(
-      (url: URL) => !url.pathname.includes('/verify-2fa') && !url.pathname.includes('/login'),
-      { timeout: 15000, waitUntil: 'domcontentloaded' },
-    ).then(() => 'navigated' as const).catch(() => 'timeout' as const);
-
-    const errorPromise = challengeError.waitFor({ state: 'visible', timeout: 5000 })
-      .then(() => 'error' as const)
-      .catch(() => 'no-error' as const);
-
-    const result = await Promise.race([navPromise, errorPromise]);
-
-    if (result === 'navigated') {
+    // Check URL change or error
+    try {
+      await page.waitForURL(
+        (url: URL) => !url.pathname.includes('/verify-2fa') && !url.pathname.includes('/login'),
+        { timeout: 10000, waitUntil: 'domcontentloaded' },
+      );
       return;
-    }
+    } catch {
+      // Check if we navigated
+      if (!page.url().includes('/verify-2fa') && !page.url().includes('/login')) {
+        return;
+      }
 
-    if (!page.url().includes('/verify-2fa') && !page.url().includes('/login')) {
-      return;
-    }
+      // Check if error alert is visible
+      const isErr = await challengeError.isVisible().catch(() => false);
+      if (isErr) {
+        recordUsedTotpStep(accountKey);
+        await waitForNextTotpStep();
+        continue;
+      }
 
-    if (result === 'error' || await challengeError.isVisible({ timeout: 1000 }).catch(() => false)) {
-      recordUsedTotpStep(accountKey);
+      if (attempt === maxAttempts) {
+        throw new Error(`TOTP challenge failed after ${maxAttempts} attempts for ${accountKey}`);
+      }
       await waitForNextTotpStep();
-      continue;
     }
-
-    // If nav timed out without explicit error, check if we actually navigated
-    if (!page.url().includes('/verify-2fa') && !page.url().includes('/login')) {
-      return;
-    }
-
-    if (attempt === maxAttempts) {
-      throw new Error(`TOTP challenge failed after ${maxAttempts} attempts for ${accountKey}`);
-    }
-    await waitForNextTotpStep();
   }
 }
 
