@@ -458,7 +458,15 @@ export class ExamService {
     }
 
     // 5. Construct Snapshot, Answer Key, and Manifest
-    const nextVersion = (exam.publishedVersion ?? 0) + 1;
+    // Takedown and re-import reset exams.publishedVersion to null while exam_versions keeps the old rows, so the
+    // next version must follow the highest stored version, not publishedVersion (else: duplicate (exam_id, version)).
+    const [latestStored] = await this.dbClient.db
+      .select({ version: schema.examVersions.version })
+      .from(schema.examVersions)
+      .where(eq(schema.examVersions.examId, examId))
+      .orderBy(desc(schema.examVersions.version))
+      .limit(1);
+    const nextVersion = Math.max(exam.publishedVersion ?? 0, latestStored?.version ?? 0) + 1;
     const mediaSet = new Set<string>();
 
     const answerKeys: number[] = [];

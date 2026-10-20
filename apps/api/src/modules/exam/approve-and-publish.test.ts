@@ -111,6 +111,15 @@ describe('Admin "Duyệt & xuất bản" cả đề (owner decision 2026-10-20)'
     expect(again.version).toBe(2);
   });
 
+  it('xuất bản lại sau khi gỡ không trùng phiên bản (publishedVersion bị đặt lại về null)', async () => {
+    const examId = await importDemoAsAdmin();
+    const first = await examService.approveAndPublishExam(examId, adminUserId);
+    expect(first.version).toBe(1);
+    await examService.unpublishExam(examId, adminUserId, 'test takedown');
+    const again = await examService.approveAndPublishExam(examId, adminUserId);
+    expect(again.version).toBe(2);
+  });
+
   it('ngoài lối admin này, quy tắc 4 mắt vẫn áp dụng: admin không tự duyệt nội dung mình nạp', async () => {
     await importDemoAsAdmin();
     const [group] = await dbClient.db.select().from(schema.questionGroupVersions).limit(1);
