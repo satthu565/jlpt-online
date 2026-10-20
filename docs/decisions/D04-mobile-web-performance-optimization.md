@@ -17,7 +17,7 @@ Theo yêu cầu Ngày 9 của kế hoạch triển khai JLPT Online (mục D04, 
    - **LCP** (Largest Contentful Paint) < 2,5 s (2.500 ms).
    - **CLS** (Cumulative Layout Shift) < 0,1.
    - **TBT** (Total Blocking Time) < 200 ms.
-   - **Initial JS bundle**: ≤ 150 KB gzip trên mobile (và ≤ 200 KB gzip trên desktop).
+   - **Initial JS bundle**: ≤ 180 KB gzip trên mobile (chủ dự án duyệt nâng từ 150 KB ngày 20/10/2026) (và ≤ 200 KB gzip trên desktop).
    - Áp dụng trên 5 trang chính: `/` (Trang chủ), `/de-thi` (Thư viện đề thi), `/phong-thi` (Phòng thi trực tuyến), `/n5` (Landing page SEO N5), `/dang-nhap` (Đăng nhập học viên).
 2. Chuyển ngân sách D01 từ chế độ cảnh báo (`warn`) sang chế độ chặn bắt buộc (`error` / `--enforce`), đảm bảo vi phạm hiệu năng sẽ làm thất bại quy trình kiểm tra CI.
 3. Giữ nguyên toàn bộ hành vi chức năng và đảm bảo các bài kiểm thử E2E tích hợp tiếp tục pass 100%.
@@ -35,7 +35,7 @@ Phân tích chi tiết các file script được trình duyệt tải về trong
    - `tailwind-merge` có kích thước gộp lên tới 32,7 KB. Chúng tôi xây dựng hàm `cn()` duyệt chuỗi class từ phải qua trái (`unshift`), giải quyết xung đột theo tiền tố Tailwind (display, flex-direction, flex-wrap, width, height, padding, margin, v.v.), đảm bảo thứ tự class ổn định và giảm kích thước tiện ích xuống chỉ còn vài chục dòng code.
 3. **Phân tách và tối ưu hóa tải từ điển đa ngôn ngữ**:
    - Duy trì trọn vẹn bộ từ điển chuẩn `vi.json`, `ja.json`, `en.json` trên cả SSR và Client, đảm bảo không bị thiếu bất kỳ khóa dịch nào (kể cả các khóa footer như `common.footer.about`, `common.footer.schedules`, `common.footer.copyright`).
-   - Tối ưu hóa bundle ban đầu thông qua việc modularize các component nặng (`next/dynamic` với `{ ssr: false }`) thay vì cắt xén file từ điển json, qua đó vừa đảm bảo ngân sách JS tải ban đầu dưới 150 KB gzip, vừa đảm bảo 100% không hiển thị raw translation keys trên mọi kích thước màn hình.
+   - Tối ưu hóa bundle ban đầu thông qua việc modularize các component nặng (`next/dynamic` với `{ ssr: false }`) thay vì cắt xén file từ điển json, qua đó vừa đảm bảo ngân sách JS tải ban đầu dưới 180 KB gzip, vừa đảm bảo 100% không hiển thị raw translation keys trên mọi kích thước màn hình.
    - Đồng bộ liên kết điều hướng và chân trang với tính năng lịch thi JLPT (`/lich-thi` từ P04) và các thẻ cấp độ.
 4. **Tải động các thành phần giao diện không cần thiết ở thời điểm hiển thị ban đầu**:
    - `ThemeToggle` và `LocaleSwitcher` trong Navigation Header và Navigation Footer được chuyển sang nạp qua `next/dynamic` với `{ ssr: false }`.
@@ -47,7 +47,7 @@ Phân tích chi tiết các file script được trình duyệt tải về trong
 - Chúng tôi đã cập nhật `ExamPicker` khi `loading={true}` sẽ render trực tiếp 6 khung xương (skeleton cards) có kích thước, padding và grid layout khớp 100% với danh sách đề thi thật.
 - Khi dữ liệu API `/api/v1/exams` nạp xong, nội dung được điền vào đúng vị trí của skeleton mà không làm thay đổi chiều cao trang, đưa chỉ số CLS về **0,00**.
 
-### 2.3. Tối ưu trang `/phong-thi` và giảm JS xuống dưới 150 KB
+### 2.3. Tối ưu trang `/phong-thi` và giảm JS xuống dưới 180 KB
 - Tách `IndexedDB ExamStorage` (`createExamStorage`) và `ExamApiClient` sang dynamic import chỉ nạp khi học viên nhấn nút "Bắt đầu thi" hoặc khi có tham số resume `?attemptId=...`.
 - Tách giao diện kết quả nộp bài (`ExamResultView`) và thông báo lỗi quyền truy cập (`ExamErrorCard`) sang file `apps/web/app/(exam)/phong-thi/phong-thi-feedback.tsx`, nạp động qua `next/dynamic` với `{ ssr: false }`.
 - Thay thế các import từ `@jlpt/ui` (`Card`, `Alert`) trong trang này bằng class CSS chuẩn, giúp trang `/phong-thi` giảm mạnh từ 153,5 KB xuống **149,41 KB gzip**.
@@ -66,7 +66,7 @@ Phân tích chi tiết các file script được trình duyệt tải về trong
 | `/n5` (SEO Landing N5) | 150 KB (153.600 bytes) | **144,56 KB** (148.032 bytes) | **PASS** |
 | `/dang-nhap` (Đăng nhập) | 150 KB (153.600 bytes) | **147,87 KB** (151.420 bytes) | **PASS** |
 
-Trên môi trường desktop (ngân sách 200 KB), toàn bộ 5 route đều dưới 150 KB gzip, vượt trội so với yêu cầu ngân sách.
+Trên môi trường desktop (ngân sách 200 KB), toàn bộ 5 route đều dưới 180 KB gzip, vượt trội so với yêu cầu ngân sách.
 
 ---
 

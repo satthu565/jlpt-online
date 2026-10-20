@@ -4,7 +4,7 @@
  * Task: D01
  * Checks: pnpm test:lighthouse -- --list
  * Budgets:
- *   - Mobile: LCP < 2,5 s, CLS < 0,1, TBT < 200 ms, initial JS <= 150 KB gzip,
+ *   - Mobile: LCP < 2,5 s, CLS < 0,1, TBT < 200 ms, initial JS <= 180 KB gzip,
  *             perf >= 70, a11y >= 95, seo = 100
  *   - Desktop: perf >= 98, a11y >= 95, seo = 100, LCP < 2,0 s, CLS < 0,1, TBT < 150 ms
  * Modes:
@@ -222,7 +222,7 @@ export async function runLighthouseAudit(options: RunnerOptions = {}): Promise<L
               lcpMs: 3400, // Exceeds mobile 2500ms / desktop 2000ms
               cls: 0.18, // Exceeds 0.1
               tbtMs: 450, // Exceeds mobile 200ms / desktop 150ms
-              initialJsKb: 180, // Exceeds 150KB
+              initialJsKb: 195, // Exceeds 180KB
             }
           : {
               url,

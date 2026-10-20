@@ -2,7 +2,7 @@
  * Budgets and Evaluation Logic for JLPT Online Lighthouse Performance Gate
  * Task: D01
  * Scope:
- *  - Mobile: LCP < 2.5s (2500ms), CLS < 0.1, TBT < 200ms, initial JS <= 150KB (gzip),
+ *  - Mobile: LCP < 2.5s (2500ms), CLS < 0.1, TBT < 200ms, initial JS <= 180KB (gzip; chủ dự án duyệt nâng từ 150KB ngày 2026-10-20),
  *            performance >= 70, accessibility >= 95, SEO = 100
  *  - Desktop: LCP < 2.0s (2000ms), CLS < 0.1, TBT < 150ms,
  *            performance >= 98, accessibility >= 95, SEO = 100
@@ -15,7 +15,7 @@ export const DEFAULT_BUDGETS: PresetBudgets = {
     lcpMs: 2500,
     cls: 0.1,
     tbtMs: 200,
-    initialJsKb: 150,
+    initialJsKb: 180,
     minPerformance: 70,
     minAccessibility: 95,
     minSeo: 100,
