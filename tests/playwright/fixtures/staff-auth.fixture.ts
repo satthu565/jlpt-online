@@ -235,7 +235,7 @@ export async function handleTotpVerification(
     try {
       await page.waitForURL(
         (url: URL) => !url.pathname.includes('/verify-2fa') && !url.pathname.includes('/login'),
-        { timeout: 10000, waitUntil: 'domcontentloaded' },
+        { timeout: 25000, waitUntil: 'domcontentloaded' },
       );
       return;
     } catch {

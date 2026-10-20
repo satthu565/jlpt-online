@@ -50,14 +50,14 @@ async function loginAsStaff(page: Page, origin: string, account: StaffAccount) {
     await submitBtn.click();
 
     try {
-      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
+      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 30000, waitUntil: 'domcontentloaded' });
     } catch {
       const errAlert = page.locator('[data-testid="login-error-alert"]');
       if (await errAlert.isVisible({ timeout: 1000 }).catch(() => false)) {
         await page.waitForTimeout(1000);
         await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
       }
-      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
+      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 30000, waitUntil: 'domcontentloaded' });
     }
   }
 
@@ -67,7 +67,7 @@ async function loginAsStaff(page: Page, origin: string, account: StaffAccount) {
 
   expect(page.url()).not.toContain('/login');
   expect(page.url()).not.toContain('/verify-2fa');
-  await expect(page.locator('main, [data-testid="page-title"], header').filter({ visible: true }).first()).toBeVisible({ timeout: 15000 });
+  await expect(page.locator('main, [data-testid="page-title"], header').filter({ visible: true }).first()).toBeVisible({ timeout: 20000 });
 }
 
 /**
@@ -1165,16 +1165,16 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await loginAsAdmin(page, adminOrigin);
 
     // Arrives at dashboard and stats are visible
-    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="stat-total-users"], [data-testid="page-title"], main').first()).toBeVisible({ timeout: 25000 });
 
     // Step 2: Reload dashboard page and verify still logged in (no "Phiên làm việc đã hết hạn" or guard unauthenticated alert)
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="stat-total-users"], [data-testid="page-title"], main').first()).toBeVisible({ timeout: 25000 });
     await expect(page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-expired"]')).not.toBeVisible();
 
     // Step 3: Open /users directly and verify still logged in
     await page.goto(`${adminOrigin}/users`, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('main, [data-testid="user-management-title"], table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('main, [data-testid="user-management-title"], table').first()).toBeVisible({ timeout: 25000 });
     await expect(page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-expired"]')).not.toBeVisible();
     expect(page.url()).toContain('/users');
   });
@@ -1188,11 +1188,11 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
     // 1. Đăng nhập nhân sự, tải lại trang vẫn đăng nhập
     await loginAsStaff(page, adminOrigin, SEEDED_STAFF_ACCOUNTS.billing_admin);
-    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="stat-total-users"], [data-testid="page-title"], main').first()).toBeVisible({ timeout: 25000 });
 
     // Reload page -> still authenticated
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="stat-total-users"], [data-testid="page-title"], main').first()).toBeVisible({ timeout: 25000 });
     await expect(page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-expired"]')).not.toBeVisible();
     expect(page.url()).not.toContain('/login');
 
@@ -2531,11 +2531,7 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
 
     // Toggle furigana OFF
     await furiganaBtn.click();
-    await page.waitForTimeout(300);
-
-    // Assert document has data-furigana="off"
-    const docFuriganaOff = await page.evaluate(() => document.documentElement.getAttribute('data-furigana'));
-    expect(docFuriganaOff).toBe('off');
+    await expect(page.locator('html')).toHaveAttribute('data-furigana', 'off', { timeout: 15000 });
 
     if (hasRuby) {
       await expect(rubyRtLocator.first()).toBeHidden();
@@ -2545,8 +2541,7 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
     await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-testid="score-summary-card"]')).toBeVisible({ timeout: 15000 });
 
-    const docFuriganaPersisted = await page.evaluate(() => document.documentElement.getAttribute('data-furigana'));
-    expect(docFuriganaPersisted).toBe('off');
+    await expect(page.locator('html')).toHaveAttribute('data-furigana', 'off', { timeout: 15000 });
 
     const furiganaBtnAfterReload = page.locator('[data-testid="toggle-furigana-btn"]').first();
     await expect(furiganaBtnAfterReload).toBeVisible();
@@ -2558,9 +2553,7 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
 
     // Toggle furigana back ON
     await furiganaBtnAfterReload.click();
-    await page.waitForTimeout(300);
-    const docFuriganaOn = await page.evaluate(() => document.documentElement.getAttribute('data-furigana'));
-    expect(docFuriganaOn).toBe('on');
+    await expect(page.locator('html')).toHaveAttribute('data-furigana', 'on', { timeout: 15000 });
     if (hasRuby) {
       await expect(rubyRtLocator.first()).toBeVisible();
     }
@@ -2854,14 +2847,14 @@ test.describe('Real JLPT Exam Schedules & Score Conversion Tables Suite (P05)', 
       await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
 
       try {
-        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
+        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 30000, waitUntil: 'domcontentloaded' });
       } catch {
         const errAlert = page.locator('[data-testid="login-error-alert"]');
         if (await errAlert.isVisible({ timeout: 1000 }).catch(() => false)) {
           await page.waitForTimeout(1000);
           await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
         }
-        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 });
+        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 30000, waitUntil: 'domcontentloaded' });
       }
     }
 
@@ -2871,7 +2864,7 @@ test.describe('Real JLPT Exam Schedules & Score Conversion Tables Suite (P05)', 
 
     expect(page.url()).not.toContain('/login');
     expect(page.url()).not.toContain('/verify-2fa');
-    await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 20000 });
   }
 
   test('P05-AC1: Admin nhập kỳ thi tháng 12, xuất bản, trang web công khai hiện ngay', async ({

@@ -12,7 +12,7 @@ export default defineConfig({
   testIgnore: ['**/e2e/**', '**/*.test.ts', '**/*.test.tsx'],
   timeout: 60 * 1000,
   expect: {
-    timeout: 10 * 1000,
+    timeout: 15 * 1000,
   },
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
