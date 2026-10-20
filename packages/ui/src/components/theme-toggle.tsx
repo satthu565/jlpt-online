@@ -1,5 +1,6 @@
 'use client';
 
+import { Monitor, Moon, Sun, type LucideIcon } from 'lucide-react';
 import * as React from 'react';
 import { useTheme } from '../theme-context.js';
 import type { ThemeMode } from '../tokens.js';
@@ -31,10 +32,10 @@ export function ThemeToggle({
     ...labels,
   };
 
-  const modes: Array<{ mode: ThemeMode; label: string; icon: string }> = [
-    { mode: 'light', label: defaultLabels.light, icon: '☀️' },
-    { mode: 'dark', label: defaultLabels.dark, icon: '🌙' },
-    { mode: 'system', label: defaultLabels.system, icon: '💻' },
+  const modes: Array<{ mode: ThemeMode; label: string; icon: LucideIcon }> = [
+    { mode: 'light', label: defaultLabels.light, icon: Sun },
+    { mode: 'dark', label: defaultLabels.dark, icon: Moon },
+    { mode: 'system', label: defaultLabels.system, icon: Monitor },
   ];
 
   return (
@@ -46,7 +47,7 @@ export function ThemeToggle({
         className,
       )}
     >
-      {modes.map(({ mode, label, icon }) => {
+      {modes.map(({ mode, label, icon: Icon }) => {
         const isSelected = theme === mode;
         return (
           <button
@@ -64,12 +65,11 @@ export function ThemeToggle({
                 : 'font-medium bg-transparent text-[var(--text-muted,#64748b)] hover:text-[var(--text-primary,#0f172a)] dark:text-[var(--text-muted,#94a3b8)] dark:hover:text-[var(--text-primary,#f8fafc)]',
             )}
           >
-            <span
+            <Icon
               aria-hidden="true"
-              className={cn('theme-toggle-icon', compact ? 'mr-0' : 'mr-1')}
-            >
-              {icon}
-            </span>
+              data-theme-icon={mode}
+              className={cn('theme-toggle-icon inline size-4 align-[-2px]', compact ? 'mr-0' : 'mr-1')}
+            />
             <span
               className={cn('theme-toggle-label', compact && 'hidden')}
             >

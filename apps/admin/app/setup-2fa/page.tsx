@@ -1,5 +1,6 @@
 'use client';
 
+import { ShieldCheck } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@jlpt/ui/components/button';
@@ -131,7 +132,7 @@ export default function Setup2faPage(): React.JSX.Element {
   return (
     <div className="max-w-[680px] mx-auto my-10 p-6 md:p-8 bg-[var(--bg-surface,#ffffff)] dark:bg-[var(--bg-surface,#1e293b)] rounded-2xl border border-[var(--border-default,#cbd5e1)] dark:border-[var(--border-default,#475569)] shadow-lg font-sans">
       <div className="text-center mb-8">
-        <div className="text-4xl mb-2">🛡️</div>
+        <ShieldCheck className="mx-auto mb-2 size-10" aria-hidden="true" />
         <h1 className="text-2xl font-bold m-0 mb-2 text-[var(--text-primary,#0f172a)] dark:text-[var(--text-primary,#f8fafc)]">
           {t('totp.setupTitle', locale)}
         </h1>

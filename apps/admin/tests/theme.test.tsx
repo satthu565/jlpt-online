@@ -25,9 +25,9 @@ describe('Admin Dark Mode & Theme System (Acceptance 2: Admin có chế độ t�
 
     expect(html).toContain('jlpt-theme-toggle');
     expect(html).toContain('aria-label="Chuyển đổi giao diện sáng/tối"');
-    expect(html).toContain('☀️');
-    expect(html).toContain('🌙');
-    expect(html).toContain('💻');
+    expect(html).toContain('data-theme-icon="light"');
+    expect(html).toContain('data-theme-icon="dark"');
+    expect(html).toContain('data-theme-icon="system"');
   });
 
   it('AdminNavigation integrates ThemeToggle with dark mode support', () => {
@@ -42,7 +42,7 @@ describe('Admin Dark Mode & Theme System (Acceptance 2: Admin có chế độ t�
     expect(html).toContain('data-testid="admin-navigation"');
     expect(html).toContain('jlpt-theme-toggle');
     expect(html).toContain('Giao diện / テーマ');
-    expect(html).toContain('🌙');
+    expect(html).toContain('data-theme-icon="dark"');
   });
 
   it('renders dark mode tokens and styling classes on admin navigation container', () => {

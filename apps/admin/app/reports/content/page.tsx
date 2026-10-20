@@ -1,5 +1,6 @@
 'use client';
 
+import { Check } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@jlpt/ui/components/button';
 import { Select } from '@jlpt/ui/components/select';
@@ -218,7 +219,7 @@ export default function ContentReportsPage({
 
                 {item.resolutionNote && (
                   <div className="text-xs text-green-800 bg-green-50 p-3 rounded-md">
-                    ✓ <strong>Ghi chú xử lý:</strong> {item.resolutionNote}
+                    <Check className="inline size-4 align-[-2px]" aria-hidden="true" /> <strong>Ghi chú xử lý:</strong> {item.resolutionNote}
                   </div>
                 )}
 

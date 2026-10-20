@@ -1,5 +1,6 @@
 'use client';
 
+import { Check, Landmark, LogOut, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Button } from '@jlpt/ui/components/button';
@@ -25,7 +26,7 @@ export function AdminNavigation(): React.JSX.Element | null {
       {/* Mobile Top Navigation Bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-gray-900 border-b border-gray-800 z-30 px-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xl">⛩️</span>
+          <Landmark className="size-5" aria-hidden="true" />
           <span className="text-sm font-bold text-white">{t('app.portalName', locale)}</span>
         </div>
         <Button
@@ -64,7 +65,7 @@ export function AdminNavigation(): React.JSX.Element | null {
         {/* Brand Header */}
         <div className="p-4 border-b border-gray-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">⛩️</span>
+            <Landmark className="size-6" aria-hidden="true" />
             <div>
               <span className="text-sm font-bold text-white m-0 block">
                 {t('app.portalName', locale)}
@@ -81,7 +82,7 @@ export function AdminNavigation(): React.JSX.Element | null {
             size="sm"
             className="md:hidden p-1.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg min-h-0"
           >
-            ✕
+            <X className="size-4" aria-hidden="true" />
           </Button>
         </div>
 
@@ -116,7 +117,7 @@ export function AdminNavigation(): React.JSX.Element | null {
               title="2FA Verified"
               className="text-[11px] text-emerald-400 font-semibold inline-flex items-center gap-1"
             >
-              ✓ 2FA
+              <Check className="inline size-4 align-[-2px]" aria-hidden="true" /> 2FA
             </span>
           </div>
         </div>
@@ -200,7 +201,7 @@ export function AdminNavigation(): React.JSX.Element | null {
             variant="secondary"
             className="w-full justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-100 border border-gray-700 text-sm font-medium min-h-[38px]"
           >
-            <span>🚪</span>
+            <LogOut className="size-4" aria-hidden="true" />
             <span>{t('auth.signOutButton', locale)}</span>
           </Button>
         </div>

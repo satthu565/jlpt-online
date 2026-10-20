@@ -102,7 +102,7 @@ export function ShareDialog({
               className="w-full"
               data-testid="share-twitter-btn"
             >
-              🐦 {labels.shareToTwitter || 'Twitter (X)'}
+              {labels.shareToTwitter || 'Twitter (X)'}
             </Button>
           </a>
           <a
@@ -118,7 +118,7 @@ export function ShareDialog({
               className="w-full"
               data-testid="share-facebook-btn"
             >
-              📘 {labels.shareToFacebook || 'Facebook'}
+              {labels.shareToFacebook || 'Facebook'}
             </Button>
           </a>
         </div>

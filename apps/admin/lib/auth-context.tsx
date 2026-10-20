@@ -4,7 +4,7 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 import type { Role } from '@jlpt/schema';
 import { isStaffRole } from './navigation';
 import type { Locale } from './i18n';
-import { DEFAULT_LOCALE, t } from './i18n';
+import { DEFAULT_LOCALE, loadLocaleMessages, t } from './i18n';
 import { apiClient } from './api-client';
 
 export type TwoFactorStatus = 'verified' | 'setup_required' | 'challenge_required';
@@ -125,7 +125,8 @@ export function AdminAuthProvider({
       const savedLocale = (localStorage.getItem(STORAGE_KEY_LOCALE) ||
         localStorage.getItem('admin_locale')) as Locale | null;
       if (savedLocale && ['vi', 'ja', 'en'].includes(savedLocale)) {
-        setLocaleState(savedLocale);
+        // Switch only once the dictionary is loaded so the UI never shows raw keys.
+        void loadLocaleMessages(savedLocale).then(() => setLocaleState(savedLocale));
       }
 
       const raw = localStorage.getItem(STORAGE_KEY_AUTH);
@@ -241,7 +242,7 @@ export function AdminAuthProvider({
   }, [handleSessionExpired]);
 
   const setLocale = useCallback((l: Locale) => {
-    setLocaleState(l);
+    void loadLocaleMessages(l).then(() => setLocaleState(l));
     if (typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEY_LOCALE, l);
       localStorage.setItem('admin_locale', l);
