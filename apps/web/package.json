@@ -27,6 +27,7 @@
     "test:e2e": "playwright test -c playwright.config.ts"
   },
   "dependencies": {
+    "@heroui/styles": "3.2.6",
     "@jlpt/config": "workspace:*",
     "@jlpt/exam-engine": "workspace:*",
     "@jlpt/schema": "workspace:*",
