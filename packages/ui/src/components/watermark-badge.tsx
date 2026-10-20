@@ -1,3 +1,4 @@
+import { ShieldCheck } from 'lucide-react';
 import React from 'react';
 
 export interface WatermarkBadgeProps {
@@ -39,9 +40,7 @@ export function WatermarkBadge({
         userSelect: 'none',
       }}
     >
-      <span role="img" aria-hidden="true">
-        🛡️
-      </span>
+      <ShieldCheck className="size-3.5" aria-hidden="true" />
       <span>
         [JLPT-SECURE-WATERMARK] ID:{maskedId} | TIME:{timestamp} | {notice}
       </span>

@@ -1,5 +1,6 @@
 'use client';
 
+import { Check } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@jlpt/ui/components/button';
 import { Select } from '@jlpt/ui/components/select';
@@ -286,7 +287,7 @@ export default function ReportsHubPage(): React.JSX.Element {
             data-testid="alert-export-success"
             className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded text-xs font-semibold"
           >
-            ✓ {downloadSuccess}
+            <Check className="inline size-4 align-[-2px]" aria-hidden="true" /> {downloadSuccess}
           </div>
         )}
 

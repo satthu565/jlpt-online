@@ -1,5 +1,6 @@
 'use client';
 
+import { Check } from 'lucide-react';
 import * as React from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { cn } from '../lib/utils.js';
@@ -78,7 +79,7 @@ export const SelectItem = React.forwardRef<
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
-        <span aria-hidden="true">✓</span>
+        <Check className="size-4" aria-hidden="true" />
       </SelectPrimitive.ItemIndicator>
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>

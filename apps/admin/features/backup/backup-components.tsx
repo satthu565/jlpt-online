@@ -1,3 +1,4 @@
+import { AlertTriangle, Check } from 'lucide-react';
 import React, { useState } from 'react';
 import { Button } from '@jlpt/ui/components/button';
 import type { BackupService } from './backup-service';
@@ -87,7 +88,7 @@ export function BackupManagerView({
         className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-900 text-xs space-y-1"
       >
         <div className="font-bold uppercase tracking-wider flex items-center gap-1.5">
-          <span>⚠️</span>
+          <AlertTriangle className="size-4" aria-hidden="true" />
           <span>Chính sách bảo vệ an toàn &amp; vận hành sao lưu</span>
         </div>
         <p>
@@ -132,7 +133,7 @@ export function BackupManagerView({
           data-testid="backup-success-alert"
           className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-sm"
         >
-          ✓ {successMsg}
+          <Check className="inline size-4 align-[-2px]" aria-hidden="true" /> {successMsg}
         </div>
       )}
 

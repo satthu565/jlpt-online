@@ -1,5 +1,6 @@
 'use client';
 
+import { X } from 'lucide-react';
 import * as React from 'react';
 import * as ToastPrimitives from '@radix-ui/react-toast';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -84,7 +85,7 @@ export const ToastClose = React.forwardRef<
     toast-close=""
     {...props}
   >
-    <span aria-hidden="true" className="h-4 w-4">✕</span>
+    <X className="size-4" aria-hidden="true" />
     <span className="sr-only">Close</span>
   </ToastPrimitives.Close>
 ));

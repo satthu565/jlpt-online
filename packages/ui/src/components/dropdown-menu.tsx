@@ -1,5 +1,6 @@
 'use client';
 
+import { Check } from 'lucide-react';
 import * as React from 'react';
 import { cn } from '../lib/utils.js';
 
@@ -320,7 +321,7 @@ export const DropdownMenuCheckboxItem = React.forwardRef<HTMLDivElement, Dropdow
       {...props}
     >
       <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-        {checked && <span aria-hidden="true">✓</span>}
+        {checked && <Check className="size-4" aria-hidden="true" />}
       </span>
       {children}
     </DropdownMenuItem>

@@ -1,5 +1,6 @@
 'use client';
 
+import { Check } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Button } from '@jlpt/ui/components/button';
@@ -140,7 +141,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
               Vai trò: {user ? t(`roles.${user.role}`, locale) : ''}
             </span>
             <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">
-              ✓ TOTP 2FA Đã kích hoạt
+              <Check className="inline size-4 align-[-2px]" aria-hidden="true" /> TOTP 2FA Đã kích hoạt
             </span>
           </div>
         </header>

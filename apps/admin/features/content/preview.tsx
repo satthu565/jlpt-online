@@ -1,5 +1,6 @@
 'use client';
 
+import { Headphones } from 'lucide-react';
 import React from 'react';
 import { RichTextView } from '@jlpt/ui/components/rich-text-view';
 import type { RichBlock } from '@jlpt/schema';
@@ -102,7 +103,7 @@ export function ListeningPreview({
   return (
     <div data-testid="listening-preview" className="bg-amber-50 border border-amber-200 rounded p-3 mb-4">
       <div className="flex items-center space-x-2 text-amber-800 text-sm font-semibold mb-2">
-        <span>🎧 File âm thanh phần nghe:</span>
+        <span><Headphones className="inline size-4 align-[-2px]" aria-hidden="true" /> File âm thanh phần nghe:</span>
         <code className="text-xs bg-amber-100 px-2 py-0.5 rounded">{audioMediaKey || audioSha256}</code>
       </div>
       {audioSrc && (

@@ -1,5 +1,6 @@
 'use client';
 
+import { X } from 'lucide-react';
 import * as React from 'react';
 import { cn } from '../lib/utils.js';
 
@@ -124,7 +125,7 @@ export function Modal({
             aria-label={closeLabel}
             className="flex items-center justify-center min-h-[36px] min-w-[36px] rounded-md text-[var(--text-muted,#64748b)] hover:text-[var(--text-primary,#0f172a)] hover:bg-[var(--bg-hover,#e2e8f0)] transition-colors text-lg dark:hover:bg-[var(--bg-hover,#334155)] dark:hover:text-[var(--text-primary,#f8fafc)]"
           >
-            ✕
+            <X className="size-4" aria-hidden="true" />
           </button>
         </div>
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { Pause, Volume2 } from 'lucide-react';
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from './button.js';
 import { Alert } from './alert.js';
@@ -122,7 +123,8 @@ export function TTSAudioPlayer({
           data-testid="tts-play-btn"
           aria-label={isPlaying ? labels.pause : labels.play}
         >
-          {isPlaying ? '⏸ ' + labels.pause : '🔊 ' + labels.play}
+          {isPlaying ? <Pause className="size-4" aria-hidden="true" /> : <Volume2 className="size-4" aria-hidden="true" />}
+          {isPlaying ? labels.pause : labels.play}
         </Button>
 
         {voice && (
@@ -156,7 +158,7 @@ export function TTSAudioPlayer({
       {isSandbox && (
         <div data-testid="tts-sandbox-alert">
           <Alert variant="warning" className="text-xs">
-            ⚠️ {labels.sandboxNotice}
+            {labels.sandboxNotice}
           </Alert>
         </div>
       )}
@@ -164,7 +166,7 @@ export function TTSAudioPlayer({
       {errorMessage && (
         <div data-testid="tts-error-alert">
           <Alert variant="error" className="text-xs">
-            ❌ {errorMessage}
+            {errorMessage}
           </Alert>
         </div>
       )}

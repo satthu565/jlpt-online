@@ -222,7 +222,7 @@ export default function ScoreConversionTablesPage(): React.JSX.Element {
           <Card className="border-blue-200 shadow-md bg-blue-50/20" data-testid="create-scoring-version-form">
             <CardHeader className="border-b border-gray-200">
               <CardTitle as="h2" className="text-lg font-bold text-gray-900">
-                {t('content.scoringTables.formTitle', locale)}: {targetBlueprint.level} (Từ v{targetBlueprint.version} ➔ v{targetBlueprint.version + 1})
+                {t('content.scoringTables.formTitle', locale)}: {targetBlueprint.level} (Từ v{targetBlueprint.version} → v{targetBlueprint.version + 1})
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
