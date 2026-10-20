@@ -1,7 +1,7 @@
 # Quyết định kỹ thuật D04: Tối ưu tốc độ web trên điện thoại và kích hoạt chế độ chặn ngân sách D01
 
 - **Mã task**: D04
-- **Mã phân công**: D04-10
+- **Mã phân công**: D04-12
 - **Phụ trách**: W3 (Giao diện học viên)
 - **Ngày**: 2026-10-20
 - **Nhánh**: `task/D04`
@@ -33,10 +33,10 @@ Phân tích chi tiết các file script được trình duyệt tải về trong
    - Gói `@radix-ui/react-dropdown-menu` cùng các dependency kéo theo (~23,2 KB gzip) trong `@jlpt/ui` đã được thay thế bằng một implementation React thuần gọn gàng, hỗ trợ đầy đủ các phím điều hướng (ArrowDown, ArrowUp, Enter, Space, Escape), đóng menu khi click ra ngoài (outside click), các thuộc tính trợ năng ARIA (`role="menu"`, `aria-haspopup="menu"`, `aria-expanded`, `data-state`) và `ref` forwarding.
 2. **Thay thế `tailwind-merge` bằng tiện ích gộp class conflict-aware siêu nhẹ**:
    - `tailwind-merge` có kích thước gộp lên tới 32,7 KB. Chúng tôi xây dựng hàm `cn()` duyệt chuỗi class từ phải qua trái (`unshift`), giải quyết xung đột theo tiền tố Tailwind (display, flex-direction, flex-wrap, width, height, padding, margin, v.v.), đảm bảo thứ tự class ổn định và giảm kích thước tiện ích xuống chỉ còn vài chục dòng code.
-3. **Phân tách gói từ điển Client bằng Turbopack resolveAlias**:
-   - File `messages/vi.json` chứa toàn bộ từ điển ứng dụng (~48 KB raw). Khi import vào Client Component, Turbopack nhúng toàn bộ chuỗi JSON vào bundle.
-   - Trong `apps/web/next.config.mjs`, cấu hình `turbopack.resolveAlias` trỏ `../messages/vi.json` sang `./messages/vi-shell.json` (~2,1 KB raw) chỉ chứa các khóa giao diện thiết yếu (navigation, theme, locale, a11y, login) cho client build.
-   - Khi chạy SSR, Server Components hoặc Vitest (không dùng Turbopack alias), ứng dụng tiếp tục đọc trực tiếp từ điển đầy đủ `vi.json` trên ổ đĩa, đảm bảo 100% độ chính xác cho bản dịch.
+3. **Phân tách và tối ưu hóa tải từ điển đa ngôn ngữ**:
+   - Duy trì trọn vẹn bộ từ điển chuẩn `vi.json`, `ja.json`, `en.json` trên cả SSR và Client, đảm bảo không bị thiếu bất kỳ khóa dịch nào (kể cả các khóa footer như `common.footer.about`, `common.footer.schedules`, `common.footer.copyright`).
+   - Tối ưu hóa bundle ban đầu thông qua việc modularize các component nặng (`next/dynamic` với `{ ssr: false }`) thay vì cắt xén file từ điển json, qua đó vừa đảm bảo ngân sách JS tải ban đầu dưới 150 KB gzip, vừa đảm bảo 100% không hiển thị raw translation keys trên mọi kích thước màn hình.
+   - Đồng bộ liên kết điều hướng và chân trang với tính năng lịch thi JLPT (`/lich-thi` từ P04) và các thẻ cấp độ.
 4. **Tải động các thành phần giao diện không cần thiết ở thời điểm hiển thị ban đầu**:
    - `ThemeToggle` và `LocaleSwitcher` trong Navigation Header và Navigation Footer được chuyển sang nạp qua `next/dynamic` với `{ ssr: false }`.
    - `NavigationFooter` vẫn render thẻ `<footer` trong HTML SSR để thỏa mãn tiêu chuẩn trợ năng SYS-14 (WCAG 2.1 AA landmark), nhưng các bộ điều khiển phức tạp bên trong được nạp bất đồng bộ.
