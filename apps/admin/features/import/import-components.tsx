@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Textarea } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
+import { Textarea } from '@jlpt/ui/components/textarea';
 import type { ImportJobSummary, BatchImportSummary, SourcePageResolution, ImportIssue } from './types';
 import { StandalonePdfError } from './types';
 import { ImportManager } from './import-manager';

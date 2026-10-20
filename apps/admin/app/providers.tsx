@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ThemeProvider } from '@jlpt/ui';
+import { ThemeProvider } from '@jlpt/ui/theme-context';
 import { AdminAuthProvider } from '../lib/auth-context';
 
 export function AdminProviders({ children }: { children: React.ReactNode }): React.JSX.Element {
