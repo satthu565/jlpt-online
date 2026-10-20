@@ -3930,6 +3930,48 @@
       "originalTaskRefs": []
     },
     {
+      "id": "I21",
+      "owner": "W5",
+      "day": 8,
+      "notBeforeHour": 168,
+      "targetByHour": 192,
+      "estimatedWorkerHours": 1,
+      "title": "Blueprint: đề gốc được lệch số câu so với số tham chiếu",
+      "dependencies": [
+        "I16"
+      ],
+      "featureIds": [],
+      "scope": "validateExamAgainstBlueprint (packages/content-tools/src/blueprint-validator.ts) đang báo lỗi khi tổng số câu hoặc số câu từng mondaiType khác blueprint, nên đề JLPT thật của năm khác (số câu từng 問題 trên jlpt.jp chỉ là 目安) bị từ chối. Sửa: với exam.kind \"original\", blueprint chỉ bắt buộc khung đề (đủ section, đúng thứ tự, mondaiType có trong blueprint); số câu từng mondaiType, tổng số câu và durationSec khác số tham chiếu chỉ là warning có ghi số thực tế và số tham chiếu, không chặn nhập/duyệt/xuất bản. mondaiType không có trong blueprint hoặc thiếu hẳn một section vẫn là lỗi. Với đề trộn (kind \"mixed\"), generator vẫn ra đúng số câu tham chiếu. Điểm quy đổi của đề gốc tính theo số câu thật của đề, không theo questionCount của blueprint. Cập nhật docs/import-format/README.md.",
+      "outputs": [
+        "packages/content-tools/"
+      ],
+      "acceptance": [
+        "Test: đề N3 có 問題3 10 câu (tham chiếu 11) nhập được, readiness không giảm vì số câu, có warning nêu 10/11",
+        "Test: đề thiếu section listening hoặc có mondaiType lạ vẫn bị lỗi",
+        "Test: đề trộn N3 sinh đúng số câu tham chiếu",
+        "Test: chấm điểm đề gốc dùng số câu thật"
+      ],
+      "checks": [
+        "pnpm test"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [
+        "apps/api/src/modules/scoring/",
+        "apps/api/src/modules/import/",
+        "docs/import-format/"
+      ],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
       "id": "I07",
       "owner": "W6",
       "day": 8,

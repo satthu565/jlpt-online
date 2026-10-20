@@ -1713,6 +1713,30 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
+<a id="i21"></a>
+
+### I21 Blueprint: đề gốc được lệch số câu so với số tham chiếu
+
+- Worker: **W5**. Ngày mục tiêu: 8. Ước lượng chưa đo: 1 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: I16. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: validateExamAgainstBlueprint (packages/content-tools/src/blueprint-validator.ts) đang báo lỗi khi tổng số câu hoặc số câu từng mondaiType khác blueprint, nên đề JLPT thật của năm khác (số câu từng 問題 trên jlpt.jp chỉ là 目安) bị từ chối. Sửa: với exam.kind "original", blueprint chỉ bắt buộc khung đề (đủ section, đúng thứ tự, mondaiType có trong blueprint); số câu từng mondaiType, tổng số câu và durationSec khác số tham chiếu chỉ là warning có ghi số thực tế và số tham chiếu, không chặn nhập/duyệt/xuất bản. mondaiType không có trong blueprint hoặc thiếu hẳn một section vẫn là lỗi. Với đề trộn (kind "mixed"), generator vẫn ra đúng số câu tham chiếu. Điểm quy đổi của đề gốc tính theo số câu thật của đề, không theo questionCount của blueprint. Cập nhật docs/import-format/README.md.
+- Bàn giao: packages/content-tools/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: apps/api/src/modules/scoring/, apps/api/src/modules/import/, docs/import-format/.
+- Nghiệm thu:
+  - Test: đề N3 có 問題3 10 câu (tham chiếu 11) nhập được, readiness không giảm vì số câu, có warning nêu 10/11.
+  - Test: đề thiếu section listening hoặc có mondaiType lạ vẫn bị lỗi.
+  - Test: đề trộn N3 sinh đúng số câu tham chiếu.
+  - Test: chấm điểm đề gốc dùng số câu thật.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
 <a id="i07"></a>
 
 ### I07 Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả

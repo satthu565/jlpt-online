@@ -565,6 +565,18 @@ task('I20','W4',8,1,'Trang nhập gói: bỏ nhập giả trong trình duyệt, 
  'apps/admin/',
  'E2E: API trả lỗi -> trang hiện lỗi, không có thông báo thành công, danh sách không thêm dòng|E2E: tải gói thật -> dòng mới đến từ API và còn sau khi tải lại trang|'+NO_MOCK+'|'+REAL_E2E,
  'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/')
+# Owner (2026-10-20): JLPT question counts per 問題 vary by year (jlpt.jp lists them as 目安), so an
+# official blueprint must not reject a real past exam that is off by a few questions.
+task('I21','W5',8,1,'Blueprint: đề gốc được lệch số câu so với số tham chiếu','I16',
+ 'validateExamAgainstBlueprint (packages/content-tools/src/blueprint-validator.ts) đang báo lỗi khi tổng số câu hoặc số câu từng mondaiType khác blueprint, nên đề JLPT thật của năm khác '
+ '(số câu từng 問題 trên jlpt.jp chỉ là 目安) bị từ chối. Sửa: với exam.kind "original", blueprint chỉ bắt buộc khung đề (đủ section, đúng thứ tự, mondaiType có trong blueprint); '
+ 'số câu từng mondaiType, tổng số câu và durationSec khác số tham chiếu chỉ là warning có ghi số thực tế và số tham chiếu, không chặn nhập/duyệt/xuất bản. '
+ 'mondaiType không có trong blueprint hoặc thiếu hẳn một section vẫn là lỗi. Với đề trộn (kind "mixed"), generator vẫn ra đúng số câu tham chiếu. '
+ 'Điểm quy đổi của đề gốc tính theo số câu thật của đề, không theo questionCount của blueprint. Cập nhật docs/import-format/README.md.',
+ 'packages/content-tools/',
+ 'Test: đề N3 có 問題3 10 câu (tham chiếu 11) nhập được, readiness không giảm vì số câu, có warning nêu 10/11|'
+ 'Test: đề thiếu section listening hoặc có mondaiType lạ vẫn bị lỗi|Test: đề trộn N3 sinh đúng số câu tham chiếu|Test: chấm điểm đề gốc dùng số câu thật',
+ 'pnpm test',contracts='API',grants='apps/api/src/modules/scoring/ apps/api/src/modules/import/ docs/import-format/')
 task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I11 I12 I13 I09 I03 I04 I05 I06 I14 I15',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo. Ghi chú của người vận hành (20/10): lần kiểm tra 1 trượt vì chạy pnpm test:e2e:integration thẳng trên VM (thiếu thư viện WebKit, không có stack staging nên API 500, Mailpit 404); lệnh đó đã bỏ khỏi kiểm tra, E2E chạy qua jlpt-stage-test check-all. Không sửa code để chiều các lỗi môi trường đó; chỉ sửa lỗi E2E thật thấy trong jlpt-stage-test check-all.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',

@@ -2,7 +2,7 @@
 
 Đây là kiểm tra tĩnh tài liệu và catalog, không chạy ứng dụng, model, provider hay runner mới.
 
-Kết quả: PASS. 375 mã nguồn:363yêu cầu ứng dụng và12yêu cầu chuẩn bị thủ công bên ngoài;80 gói việc,106 task V1 giữ truy vết,6 worker;kiểm tra 427 liên kết nội bộ.
+Kết quả: PASS. 375 mã nguồn:363yêu cầu ứng dụng và12yêu cầu chuẩn bị thủ công bên ngoài;81 gói việc,106 task V1 giữ truy vết,6 worker;kiểm tra 427 liên kết nội bộ.
 
 ## Kiểm tra
 
@@ -20,9 +20,9 @@ Nếu thiếu một điều kiện chặn bắt đầu, các task sau không gia
 
 | Điều kiện | Số task bị chặn | Task |
 |---|---|---|
-| repo-ci | 80 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, D00, D01, D02, D03, D04, D05, D06, D07, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, I08, I09, I10, I11, I12, I13, I14, I15, I16, I17, I18, I19, I20, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, P01, P02, P03, P04, P05, P06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
-| coding-vps | 80 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, D00, D01, D02, D03, D04, D05, D06, D07, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, I08, I09, I10, I11, I12, I13, I14, I15, I16, I17, I18, I19, I20, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, P01, P02, P03, P04, P05, P06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
-| coding-accounts | 80 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, D00, D01, D02, D03, D04, D05, D06, D07, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, I08, I09, I10, I11, I12, I13, I14, I15, I16, I17, I18, I19, I20, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, P01, P02, P03, P04, P05, P06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
+| repo-ci | 81 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, D00, D01, D02, D03, D04, D05, D06, D07, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, I08, I09, I10, I11, I12, I13, I14, I15, I16, I17, I18, I19, I20, I21, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, P01, P02, P03, P04, P05, P06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
+| coding-vps | 81 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, D00, D01, D02, D03, D04, D05, D06, D07, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, I08, I09, I10, I11, I12, I13, I14, I15, I16, I17, I18, I19, I20, I21, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, P01, P02, P03, P04, P05, P06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
+| coding-accounts | 81 | A01, A02, A03, A04, A05, A06, B01, C01, C02, C03, C04, C05, C06, D00, D01, D02, D03, D04, D05, D06, D07, F01, F02, F03, F04, F05, F06, F07, F08, I00, I01, I02, I03, I04, I05, I06, I07, I08, I09, I10, I11, I12, I13, I14, I15, I16, I17, I18, I19, I20, I21, L01, L02, L03, L04, L05, L06, N01, N02, N03, N04, N05, N06, P01, P02, P03, P04, P05, P06, R01, R02, R03, R04, R05, R06, V01, V02, V03, V04, V05, V06 |
 | coordinator-runtime | 1 | F07 |
 
 ## Mô phỏng theo giả định
@@ -94,6 +94,7 @@ Lịch greedy dependencies/worker/exclusive locks kết thúc ở giờ 233/168.
 | D00 | W3 | 192 | 197 | 9 | 0h |
 | D01 | W6 | 192 | 195 | 9 | 0h |
 | I17 | W2 | 195 | 198 | 8 | 6h |
+| I21 | W5 | 195 | 196 | 8 | 4h |
 | I15 | W4 | 196 | 198 | 8 | 6h |
 | D02 | W3 | 197 | 203 | 9 | 0h |
 | I18 | W2 | 198 | 199 | 8 | 7h |
@@ -115,7 +116,7 @@ Lịch greedy dependencies/worker/exclusive locks kết thúc ở giờ 233/168.
 ## Điều kiện và cảnh báo
 
 - Optimistic schedule exceeds 168h: 233h
-- Daily target overruns: I04 +4h, I16 +3h, I17 +6h, I15 +6h, I18 +7h, I20 +7h, I07 +10h, I19 +8h
+- Daily target overruns: I04 +4h, I16 +3h, I17 +6h, I21 +4h, I15 +6h, I18 +7h, I20 +7h, I07 +10h, I19 +8h
 - Work duration estimates are speculative and exclude independent review, repair loops, provider waits and complete build contention.
 - Application requirements remain TODO; twelve source requirements are manual preparation outside the product, not implemented features.
 - Coding accounts quota/usage permission and external service readiness are not verified.
