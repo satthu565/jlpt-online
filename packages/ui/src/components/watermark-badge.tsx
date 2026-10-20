@@ -38,6 +38,8 @@ export function WatermarkBadge({
         fontFamily: 'monospace',
         letterSpacing: '0.025em',
         userSelect: 'none',
+        maxWidth: '100%',
+        overflowWrap: 'anywhere',
       }}
     >
       <ShieldCheck className="size-3.5" aria-hidden="true" />

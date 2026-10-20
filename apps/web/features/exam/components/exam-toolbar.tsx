@@ -1,6 +1,6 @@
 'use client';
 
-import { Eye, Focus, Headphones } from 'lucide-react';
+import { Eye, Focus, Headphones, Keyboard } from 'lucide-react';
 import React from 'react';
 import { Button } from '@jlpt/ui/components/button';
 import { FuriganaToggle } from '@jlpt/ui/components/furigana-toggle';
@@ -66,7 +66,7 @@ export function ExamToolbar({
       </div>
 
       {/* Right: Furigana toggle, Zen Mode, Speaker test, Shortcuts help */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <FuriganaToggle size="sm" />
 
         {hasListeningTimeline && (
@@ -100,8 +100,9 @@ export function ExamToolbar({
           onClick={onOpenShortcutsHelp}
           title="Xem danh sách phím tắt (?)"
           aria-label="Phím tắt trợ giúp"
+          className="hidden sm:inline-flex"
         >
-          ⌨ Phím tắt
+          <Keyboard className="size-4" aria-hidden="true" /> Phím tắt
         </Button>
       </div>
     </div>

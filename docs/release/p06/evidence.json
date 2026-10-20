@@ -1,0 +1,58 @@
+{
+  "pace_1366": "Cảnh báo nhịp chậm nghiêm trọng: Chậm hơn 4 câu. Thời gian còn lại chỉ đủ 17s/câu. Cần tăng tốc hoặc bỏ qua câu khó để giữ điểm sàn.",
+  "result_1366": {
+    "status": "CHƯA ĐẠT (FAIL)",
+    "sections": 0,
+    "overflow": false
+  },
+  "furigana_1366": "off",
+  "hanviet_result_1366": 0,
+  "schedule_1366": {
+    "title": true,
+    "empty": true,
+    "text": "Lịch thi JLPT tại Việt Nam Thông tin các đợt thi năng lực tiếng Nhật quốc tế chính thức, địa điểm và hạn đăng ký tại Việt Nam Nhận thông báo nhắc hạn đăng ký Lọc theo cấp độ: Tất cả cấp độ N1 N2 N3 N4 N5 Chưa có lịch thi chính thức nào được công bố. Ban tổ chức hiện chưa cập nhật đợt thi mới. Vui lò",
+    "overflow": false
+  },
+  "tu_vung_1366": {
+    "cards": 0,
+    "hanviet": 0
+  },
+  "admin-lich-thi_1366": {
+    "rows": 1,
+    "overflow": false,
+    "h": "Quản lý Lịch thi JLPT tại Việt Nam"
+  },
+  "admin-bang-quy-doi_1366": {
+    "rows": 9,
+    "overflow": false,
+    "h": "Bảng quy đổi điểm chuẩn hóa JLPT"
+  },
+  "pace_390": "Cảnh báo nhịp chậm nghiêm trọng: Chậm hơn 4 câu. Thời gian còn lại chỉ đủ 17s/câu. Cần tăng tốc hoặc bỏ qua câu khó để giữ điểm sàn.",
+  "result_390": {
+    "status": "CHƯA ĐẠT (FAIL)",
+    "sections": 0,
+    "overflow": false
+  },
+  "furigana_390": "off",
+  "hanviet_result_390": 0,
+  "schedule_390": {
+    "title": true,
+    "empty": true,
+    "text": "Lịch thi JLPT tại Việt Nam Thông tin các đợt thi năng lực tiếng Nhật quốc tế chính thức, địa điểm và hạn đăng ký tại Việt Nam Nhận thông báo nhắc hạn đăng ký Lọc theo cấp độ: Tất cả cấp độ N1 N2 N3 N4 N5 Chưa có lịch thi chính thức nào được công bố. Ban tổ chức hiện chưa cập nhật đợt thi mới. Vui lò",
+    "overflow": false
+  },
+  "tu_vung_390": {
+    "cards": 0,
+    "hanviet": 0
+  },
+  "admin-lich-thi_390": {
+    "rows": 1,
+    "overflow": false,
+    "h": "Quản lý Lịch thi JLPT tại Việt Nam"
+  },
+  "admin-bang-quy-doi_390": {
+    "rows": 9,
+    "overflow": false,
+    "h": "Bảng quy đổi điểm chuẩn hóa JLPT"
+  }
+}

@@ -51,6 +51,14 @@ main#main-content {
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+}
+
+/* Page containers (max-w-* mx-auto) are flex items of main: without a width they shrink to their
+   content, so a wide child stretched them past the 390px viewport (clipped by overflow-x: hidden). */
+main#main-content > * {
+  width: 100%;
+  min-width: 0;
 }
 
 .responsive-grid-5 {

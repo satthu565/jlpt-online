@@ -91,7 +91,7 @@ export function ReviewView({
         data-testid="review-actions-bar"
         className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
       >
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 min-w-0">
           <PdfScoreExportButton
             result={result}
             examTitle={snapshot.title}
