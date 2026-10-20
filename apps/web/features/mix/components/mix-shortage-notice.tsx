@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { AlertTriangle } from 'lucide-react';
 import type { MixShortageInfo } from '../types';
 import { Button } from '@jlpt/ui/components/button';
 
@@ -26,7 +27,7 @@ export function MixShortageNotice({
       role="alert"
     >
       <div className="flex items-center gap-2">
-        <span className="text-xl" aria-hidden="true">⚠️</span>
+        <AlertTriangle className="h-5 w-5 text-rose-600 shrink-0" aria-hidden="true" />
         <h4 className="text-sm font-bold text-rose-900 dark:text-rose-200">
           Không đủ câu hỏi để đảm bảo cấu trúc đề thi trộn ({shortage.mode})
         </h4>

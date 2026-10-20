@@ -6,6 +6,7 @@ import { Button } from '@jlpt/ui/components/button';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Select } from '@jlpt/ui/components/select';
 import { Textarea } from '@jlpt/ui/components/textarea';
+import { CheckCircle2 } from 'lucide-react';
 import type { QuestionReportReason } from '../types';
 
 export interface QuestionReportModalProps {
@@ -74,12 +75,14 @@ export function QuestionReportModal({
     >
       <div data-testid="question-report-modal-content" className="space-y-4 text-xs">
         {submitted ? (
-          <div className="space-y-3 py-2 text-center" data-testid="report-success-state">
-            <div className="text-3xl">✅</div>
+          <div className="space-y-3 py-4 text-center" data-testid="report-success-state">
+            <div className="flex justify-center text-[var(--color-success,#16a34a)]">
+              <CheckCircle2 className="size-10" />
+            </div>
             <h4 className="text-sm font-bold text-emerald-800 dark:text-emerald-300">
               Cảm ơn đóng góp của bạn!
             </h4>
-            <p className="text-slate-600 dark:text-slate-400">
+            <p className="text-[var(--text-secondary)]">
               Báo cáo của bạn đã được ghi nhận vào hàng đợi kiểm duyệt nội dung của đội ngũ học thuật.
             </p>
             <Button variant="primary" size="sm" onClick={handleResetAndClose}>
@@ -93,7 +96,7 @@ export function QuestionReportModal({
             <div>
               <label
                 htmlFor="report-reason-select"
-                className="block font-bold text-slate-700 dark:text-slate-300 mb-1"
+                className="block font-bold text-[var(--text-primary)] mb-1"
               >
                 Vấn đề bạn phát hiện:
               </label>
@@ -116,7 +119,7 @@ export function QuestionReportModal({
             <div>
               <label
                 htmlFor="report-desc-input"
-                className="block font-bold text-slate-700 dark:text-slate-300 mb-1"
+                className="block font-bold text-[var(--text-primary)] mb-1"
               >
                 Mô tả chi tiết:
               </label>
@@ -127,11 +130,11 @@ export function QuestionReportModal({
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Vui lòng cung cấp chi tiết vị trí sai và gợi ý chỉnh sửa..."
                 data-testid="report-desc-input"
-                className="w-full text-xs placeholder-slate-400"
+                className="w-full text-xs"
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-2 border-t border-[var(--border-subtle)]">
               <Button type="button" variant="ghost" size="sm" onClick={handleResetAndClose}>
                 Hủy
               </Button>

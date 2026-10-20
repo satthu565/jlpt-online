@@ -85,6 +85,17 @@ JSON Schema máy đọc được đặt tại [`import-v2.schema.json`](./import
 - `totalQuestions`: Tổng số câu hỏi trong toàn bộ đề (phải khớp chính xác số câu trong `groups`).
 - `groupIds`: Danh sách ID nhóm câu thuộc phần thi, sắp xếp theo thứ tự `orderInSection` liên tục từ 1.
 
+### 3.3. Quy tắc đối chiếu Blueprint: Đề gốc được lệch số câu tham chiếu (Task I21)
+Số câu từng dạng câu hỏi (問題) công bố trên trang chính thức JLPT (jlpt.jp) chỉ mang tính tham chiếu ước tính (**目安 - meyasu**). Trong các kỳ thi thực tế qua các năm, số lượng câu hỏi từng mondai có thể có sự dao động nhỏ (ví dụ: N3 問題3 có 10 câu thay vì 11 câu như tham chiếu). Quy tắc kiểm tra cấu trúc so với Blueprint:
+
+1. **Đối với đề gốc (`exam.kind === 'original'`):**
+   - **Bắt buộc khung đề (Error nếu vi phạm):** Đề phải có đủ các phần thi theo chuẩn cấp độ, đúng thứ tự quy định, và mọi `mondaiType` xuất hiện trong đề phải thuộc danh sách dạng bài cho phép trong Blueprint của phần thi đó. Thiếu section (ví dụ thiếu `listening`) hoặc có `mondaiType` lạ sẽ bị báo lỗi và chặn nhập (`readiness: INVALID`).
+   - **Cho phép lệch số câu và thời lượng (Chỉ Warning):** Sự khác biệt giữa số câu thực tế và số câu tham chiếu của Blueprint ở từng `mondaiType`, ở tổng số câu (`totalQuestions`), hoặc thời lượng (`durationSec`) chỉ được ghi nhận dưới dạng **cảnh báo (`warning`)**, ghi rõ số câu thực tế và số tham chiếu (ví dụ: `10/11` hoặc `95/96`). Cảnh báo này **không chặn nhập, duyệt hay xuất bản**; chỉ số kiểm tra vẫn hợp lệ và `readiness` giữ nguyên `READY_FOR_REVIEW` (nếu không có lỗi khác).
+   - **Tính điểm theo số câu thực tế:** Điểm quy đổi (scaled score) của đề gốc được tính toán theo tỷ lệ số câu đúng trên **số câu hỏi thực tế (`rawMax`)** có trong đề, không tính theo con số tham chiếu của Blueprint.
+
+2. **Đối với đề trộn (`exam.kind === 'mixed'`):**
+   - Bộ sinh đề trộn (`generator`) luôn bám sát chặt chẽ Blueprint và sinh đúng chính xác số câu tham chiếu cho từng dạng bài và tổng số câu.
+
 ---
 
 ## 4. Biểu diễn nội dung tiếng Nhật (RichText & RichBlock)

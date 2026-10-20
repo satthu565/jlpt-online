@@ -14,7 +14,9 @@ import { Alert } from '@jlpt/ui/components/alert';
 import { Button } from '@jlpt/ui/components/button';
 import { Card, CardContent } from '@jlpt/ui/components/card';
 import { Input } from '@jlpt/ui/components/input';
-import { Spinner } from '@jlpt/ui/components/spinner';
+import { PageHeader } from '@jlpt/ui/components/page-header';
+import { EmptyState } from '@jlpt/ui/components/empty-state';
+import { Search } from 'lucide-react';
 import Link from 'next/link';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -175,25 +177,15 @@ export default function DiscussionsPage(): React.JSX.Element {
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4 w-full">
-      <div style={{ marginBottom: '2rem' }}>
-        <h1
-          style={{
-            fontSize: '2rem',
-            fontWeight: 800,
-            color: 'var(--text-primary)',
-            margin: '0 0 0.5rem 0',
-          }}
-        >
-          {t('community.discussions.pageTitle')}
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
-          {t('community.discussions.pageSubtitle')}
-        </p>
-      </div>
+      <PageHeader
+        title={t('community.discussions.pageTitle')}
+        description={t('community.discussions.pageSubtitle')}
+        className="mb-8"
+      />
 
       {(!user || isUnauthorized) && (
-        <Alert variant="warning" style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <Alert variant="warning" className="mb-6">
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <span>{t('community.discussions.authRequired')}</span>
             <Link href="/dang-nhap?redirect=/thao-luan">
               <Button size="sm" variant="primary">{t('community.discussions.signInButton')}</Button>
@@ -203,8 +195,8 @@ export default function DiscussionsPage(): React.JSX.Element {
       )}
 
       {error && !isUnauthorized && (
-        <Alert variant="error" onClose={() => setError(null)} style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <Alert variant="error" onClose={() => setError(null)} className="mb-6">
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <span>{error}</span>
             <Button size="sm" variant="outline" onClick={() => questionId && loadDiscussions(questionId)}>
               {t('common.buttons.retry')}
@@ -214,19 +206,20 @@ export default function DiscussionsPage(): React.JSX.Element {
       )}
 
       {shareNotice && (
-        <Alert variant="success" onClose={() => setShareNotice(null)} style={{ marginBottom: '1.5rem' }}>
+        <Alert variant="success" onClose={() => setShareNotice(null)} className="mb-6">
           {shareNotice}
         </Alert>
       )}
 
       {/* Question Selector Card */}
-      <Card style={{ marginBottom: '2rem' }}>
-        <CardContent style={{ padding: '1.25rem' }}>
-          <form onSubmit={handleSelectQuestion} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>
-              🔍 Mã câu hỏi cần thảo luận:
+      <Card className="mb-8">
+        <CardContent className="p-5">
+          <form onSubmit={handleSelectQuestion} className="flex gap-3 items-center flex-wrap">
+            <span className="font-semibold text-sm flex items-center gap-1.5 text-[var(--text-primary)]">
+              <Search className="size-4 text-[var(--color-primary)]" />
+              Mã câu hỏi cần thảo luận:
             </span>
-            <div style={{ flex: 1, minWidth: '180px' }}>
+            <div className="flex-1 min-w-[180px]">
               <Input
                 placeholder="Nhập mã câu hỏi (UUID)..."
                 value={inputQuestionId}
@@ -239,11 +232,11 @@ export default function DiscussionsPage(): React.JSX.Element {
           </form>
 
           {availableQuestions.length > 0 && (
-            <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color, #e5e7eb)' }}>
-              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+            <div className="mt-4 pt-4 border-t border-[var(--border-subtle)]">
+              <span className="text-sm font-semibold text-[var(--text-secondary)]">
                 Câu hỏi từ các bài thi đã làm của bạn:
               </span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
+              <div className="flex flex-wrap gap-2 mt-2">
                 {availableQuestions.map((q, idx) => (
                   <Button
                     key={q.id}
@@ -266,7 +259,7 @@ export default function DiscussionsPage(): React.JSX.Element {
 
       {/* Achievement Share Banner */}
       {achievement && (
-        <div style={{ marginBottom: '2rem' }}>
+        <div className="mb-8">
           <AchievementShareCard
             data={achievement}
             onCopyLink={handleShareAchievement}
@@ -275,10 +268,13 @@ export default function DiscussionsPage(): React.JSX.Element {
       )}
 
       {loading && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem 0', alignItems: 'center', gap: '0.75rem' }}>
-          <Spinner size="md" />
-          <span style={{ color: 'var(--text-secondary)' }}>{t('common.status.loading')}</span>
-        </div>
+        <EmptyState
+          variant="loading"
+          title={t('common.status.loading')}
+          description="Đang tải thảo luận..."
+          minHeight="sm"
+          className="mb-8"
+        />
       )}
 
       {/* Question Discussions View */}

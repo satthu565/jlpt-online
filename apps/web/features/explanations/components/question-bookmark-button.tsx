@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Bookmark, BookmarkCheck } from 'lucide-react';
 import { Button } from '@jlpt/ui/components/button';
 import type { QuestionMarkType } from '../types';
 
@@ -59,7 +60,11 @@ export function QuestionBookmarkButton({
           : 'text-slate-600 dark:text-slate-400'
       } ${className}`}
     >
-      <span aria-hidden="true">{bookmarked ? '🔖' : '📑'}</span>
+      {bookmarked ? (
+        <BookmarkCheck className="h-3.5 w-3.5" aria-hidden="true" />
+      ) : (
+        <Bookmark className="h-3.5 w-3.5" aria-hidden="true" />
+      )}
       <span>{bookmarked ? 'Đã lưu' : 'Lưu câu hỏi'}</span>
     </Button>
   );

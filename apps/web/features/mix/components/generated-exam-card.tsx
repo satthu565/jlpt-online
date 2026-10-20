@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Check, Share2, RefreshCw } from 'lucide-react';
 import type { GeneratedExam } from '@jlpt/schema';
 import { Card } from '@jlpt/ui/components/card';
 import { Badge } from '@jlpt/ui/components/badge';
@@ -45,9 +46,10 @@ export function GeneratedExamCard({
             {generatedExam.blueprintConformant && (
               <span
                 data-testid="blueprint-conformant-badge"
-                className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 inline-flex items-center gap-1"
               >
-                ✓ Chuẩn Blueprint JLPT
+                <Check className="h-3 w-3" aria-hidden="true" />
+                <span>Chuẩn Blueprint JLPT</span>
               </span>
             )}
           </div>
@@ -64,8 +66,10 @@ export function GeneratedExamCard({
             size="sm"
             onClick={() => setShareModalOpen(true)}
             data-testid="share-exam-btn"
+            className="inline-flex items-center gap-1.5"
           >
-            🔗 Chia sẻ đề
+            <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>Chia sẻ đề</span>
           </Button>
 
           {/* Regenerate Exam with New Seed */}
@@ -77,8 +81,10 @@ export function GeneratedExamCard({
               loading={isRegenerating}
               onClick={handleRegenerate}
               data-testid="regenerate-exam-btn"
+              className="inline-flex items-center gap-1.5"
             >
-              🔄 Trộn lại (Seed mới)
+              <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>Trộn lại (Seed mới)</span>
             </Button>
           )}
 
@@ -146,6 +152,7 @@ export function GeneratedExamCard({
                   <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
                     <div
                       className="bg-blue-600 h-1.5 rounded-full"
+                      /* ui-allow-style: runtime computed progress bar percentage */
                       style={{ width: `${Math.min(100, ratioPct)}%` }}
                     />
                   </div>

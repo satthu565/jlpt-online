@@ -12,8 +12,9 @@ import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Button } from '@jlpt/ui/components/button';
-import { Card, CardContent } from '@jlpt/ui/components/card';
-import { Spinner } from '@jlpt/ui/components/spinner';
+import { PageHeader } from '@jlpt/ui/components/page-header';
+import { EmptyState } from '@jlpt/ui/components/empty-state';
+import { Trophy } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ExamEventPage(): React.JSX.Element {
@@ -114,25 +115,15 @@ export default function ExamEventPage(): React.JSX.Element {
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4 w-full">
-      <div style={{ marginBottom: '2rem' }}>
-        <h1
-          style={{
-            fontSize: '2rem',
-            fontWeight: 800,
-            color: 'var(--text-primary)',
-            margin: '0 0 0.5rem 0',
-          }}
-        >
-          {t('community.events.pageTitle')}
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
-          {t('community.events.pageSubtitle')}
-        </p>
-      </div>
+      <PageHeader
+        title={t('community.events.pageTitle')}
+        description={t('community.events.pageSubtitle')}
+        className="mb-8"
+      />
 
       {(!user || isUnauthorized) && (
-        <Alert variant="warning" style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <Alert variant="warning" className="mb-6">
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <span>Bạn cần đăng nhập để tham gia và ghi nhận kết quả thi sự kiện đồng loạt.</span>
             <Link href="/dang-nhap?redirect=/su-kien">
               <Button size="sm" variant="primary">Đăng nhập ngay</Button>
@@ -142,8 +133,8 @@ export default function ExamEventPage(): React.JSX.Element {
       )}
 
       {error && !isUnauthorized && (
-        <Alert variant="error" onClose={() => setError(null)} style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <Alert variant="error" onClose={() => setError(null)} className="mb-6">
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <span>{error}</span>
             <Button size="sm" variant="outline" onClick={loadEvent}>
               {t('common.buttons.retry')}
@@ -153,27 +144,27 @@ export default function ExamEventPage(): React.JSX.Element {
       )}
 
       {loading && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem 0', alignItems: 'center', gap: '0.75rem' }}>
-          <Spinner size="md" />
-          <span style={{ color: 'var(--text-secondary)' }}>{t('common.status.loading')}</span>
-        </div>
+        <EmptyState
+          variant="loading"
+          title={t('common.status.loading')}
+          description="Đang tải sự kiện thi..."
+          minHeight="sm"
+        />
       )}
 
       {!loading && events.length === 0 && (
-        <Card>
-          <CardContent style={{ padding: '3.5rem 2rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>
-              {t('community.events.emptyTitle')}
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', maxWidth: '500px', margin: '0 auto 1.5rem auto' }}>
-              {t('community.events.emptySubtitle')}
-            </p>
+        <EmptyState
+          variant="empty"
+          icon={Trophy}
+          title={t('community.events.emptyTitle')}
+          description={t('community.events.emptySubtitle')}
+          action={
             <Link href="/de-thi">
               <Button variant="primary">{t('community.events.practiceNow')}</Button>
             </Link>
-          </CardContent>
-        </Card>
+          }
+          minHeight="md"
+        />
       )}
 
       {lobbyInfo && (
