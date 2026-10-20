@@ -15,6 +15,7 @@ import { BlueprintService } from '../blueprint/blueprint.service.js';
 import { ReviewService } from '../review/review.service.js';
 import { ImportService } from '../import/import.service.js';
 import { ExamService } from './exam.service.js';
+import { backfillListeningTimeline } from '../import/backfill-listening-timeline.js';
 import { assertNoAnswerLeak, PublicExamSnapshotSchema } from '@jlpt/schema';
 
 describe('B01 Exam Module - Review Workflow, Publishing & Zero Answer Leaks', () => {
@@ -390,6 +391,82 @@ describe('B01 Exam Module - Review Workflow, Publishing & Zero Answer Leaks', ()
       expect(listeningSec).toBeDefined();
       const groupsWithMedia = listeningSec.groups.filter((g: { media: string[] }) => g.media.length > 0);
       expect(groupsWithMedia.length).toBeGreaterThan(0);
+    });
+
+    it('keeps the package listening timeline in the published snapshot and the preview', async () => {
+      const zipPath = resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip');
+      await importService.processPackageImport(fs.readFileSync(zipPath), 'demo-n5-1.zip', editorUserId);
+      const examId = (
+        await dbClient.db.select().from(schema.exams).where(eq(schema.exams.slug, 'demo-n5-1'))
+      )[0]!.id;
+
+      // Group audio is the audio file, never an image of the same group.
+      const groupVersions = await dbClient.db.select().from(schema.questionGroupVersions);
+      const audioShas = groupVersions
+        .map((g: typeof schema.questionGroupVersions.$inferSelect) => g.audioSha256)
+        .filter(Boolean) as string[];
+      expect(audioShas.length).toBeGreaterThan(0);
+      for (const sha of audioShas) {
+        const asset = await dbClient.db
+          .select()
+          .from(schema.mediaAssets)
+          .where(eq(schema.mediaAssets.sha256, sha));
+        expect(asset[0]?.mime).toMatch(/^audio\//);
+      }
+
+      await reviewService.approveAllExamQuestions(examId, reviewerUserId, editorUserId);
+      const publishResult = await examService.publishExam(examId, publisherUserId);
+      const snapshot = JSON.parse((await storageService.get(publishResult.snapshotKey))!.data.toString('utf8'));
+      expect(() => PublicExamSnapshotSchema.parse(snapshot)).not.toThrow();
+
+      const listeningSec = snapshot.sections.find((s: { code: string }) => s.code === 'listening');
+      expect(listeningSec.listeningTimeline).toHaveLength(7);
+      const groupIds = new Set(listeningSec.groups.map((g: { groupId: string }) => g.groupId));
+      for (const item of listeningSec.listeningTimeline) {
+        expect(groupIds.has(item.groupId)).toBe(true);
+        expect(item.mediaKey).toMatch(/^media\/.+\.(wav|mp3)$/);
+      }
+      expect(snapshot.sections.filter((s: { listeningTimeline: unknown }) => s.listeningTimeline)).toHaveLength(1);
+
+      const exam = (await dbClient.db.select().from(schema.exams).where(eq(schema.exams.id, examId)))[0]!;
+      const preview = await examService.constructPublicSnapshot(exam, 1);
+      const previewSec = preview.sections.find((s) => s.code === 'listening')!;
+      expect(previewSec.listeningTimeline).toEqual(listeningSec.listeningTimeline);
+    });
+
+    it('backfills the timeline and group audio of exams imported before the timeline was stored', async () => {
+      const zipBuffer = fs.readFileSync(resolveRepoPath('docs/multi-worker/demo-data/demo-n5-1.zip'));
+      await importService.processPackageImport(zipBuffer, 'demo-n5-1.zip', editorUserId);
+      const examId = (
+        await dbClient.db.select().from(schema.exams).where(eq(schema.exams.slug, 'demo-n5-1'))
+      )[0]!.id;
+      const sectionsBefore = await dbClient.db
+        .select()
+        .from(schema.examSections)
+        .where(eq(schema.examSections.examId, examId));
+      const expected = sectionsBefore.find((s: { code: string }) => s.code === 'listening')!.listeningTimeline;
+
+      // State left by older imports: no timeline, audio pointing at another file.
+      await dbClient.db
+        .update(schema.examSections)
+        .set({ listeningTimeline: null })
+        .where(eq(schema.examSections.examId, examId));
+      await dbClient.db.update(schema.questionGroupVersions).set({ audioSha256: 'not-the-audio' });
+
+      const result = await backfillListeningTimeline(dbClient, zipBuffer);
+      expect(result).toMatchObject({ examSlug: 'demo-n5-1', sections: 1 });
+      expect(result.groupsAudioFixed).toBeGreaterThan(0);
+
+      const sectionsAfter = await dbClient.db
+        .select()
+        .from(schema.examSections)
+        .where(eq(schema.examSections.examId, examId));
+      expect(sectionsAfter.find((s: { code: string }) => s.code === 'listening')!.listeningTimeline).toEqual(expected);
+      const audio = await dbClient.db.select().from(schema.questionGroupVersions);
+      expect(audio.some((g: { audioSha256: string | null }) => g.audioSha256 === 'not-the-audio')).toBe(false);
+
+      // Re-running changes nothing.
+      expect((await backfillListeningTimeline(dbClient, zipBuffer)).groupsAudioFixed).toBe(0);
     });
 
     it('persists lastEditorId across in-memory cache wipes / server restart and prevents self-approval', async () => {

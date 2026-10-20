@@ -397,9 +397,10 @@ export class ImportService {
           .onConflictDoNothing();
 
         const audioMediaKey = group.mediaKeys?.find((k: string) => k.endsWith('.wav') || k.endsWith('.mp3'));
-        const audioAsset = pkg.media.find(
-          (m: { path: string; sha256: string }) => m.path === audioMediaKey || group.mediaKeys?.includes(m.path),
-        );
+        // Only the audio file: a group can also list images, which must not become its audio.
+        const audioAsset = audioMediaKey
+          ? pkg.media.find((m: { path: string; sha256: string }) => m.path === audioMediaKey)
+          : undefined;
         const audioSha256 = audioAsset?.sha256 || null;
 
         await tx
@@ -598,6 +599,13 @@ export class ImportService {
       let globalQuestionIndex = 0;
       for (const section of pkg.exam.sections) {
         const sectionId = toDeterministicUuid(`${examId}:section:${section.code}`);
+        const listeningTimeline =
+          section.listeningTimeline && section.listeningTimeline.length > 0
+            ? section.listeningTimeline.map((t) => ({
+                ...t,
+                groupId: toDeterministicUuid(`${pkg.packageId}:group:${t.groupId}`),
+              }))
+            : null;
         await tx
           .insert(schema.examSections)
           .values({
@@ -607,8 +615,9 @@ export class ImportService {
             title: section.title,
             durationSec: section.durationSec || 600,
             orderIndex: sIdx++,
+            listeningTimeline,
           })
-          .onConflictDoNothing();
+          .onConflictDoUpdate({ target: schema.examSections.id, set: { listeningTimeline } });
 
         for (const gid of section.groupIds) {
           const group = pkg.groups.find((g) => g.id === gid);
