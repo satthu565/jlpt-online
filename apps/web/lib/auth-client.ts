@@ -149,7 +149,9 @@ export class AuthClient {
     }
 
     if (!response.ok) {
-      const err = responseData as AuthErrorResponse;
+      // The API wraps errors as { error: { code, message } }; older handlers return them flat.
+      const raw = responseData as { error?: AuthErrorResponse } & Partial<AuthErrorResponse>;
+      const err = (raw.error ?? raw) as Partial<AuthErrorResponse>;
       throw new AuthClientError(
         err.code || 'UNKNOWN_ERROR',
         err.message || `Request failed with status ${response.status}`,
