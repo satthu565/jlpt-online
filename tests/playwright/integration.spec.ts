@@ -3686,13 +3686,11 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
         const confirmBtn = adminPage.locator('button[data-testid="confirm-takedown-btn"]').first();
         if (await confirmBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
           await confirmBtn.click();
-          await expect(adminPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 10000 });
+          await expect(demoExamRow.locator('button[data-testid^="publish-exam-btn-"]').first()).toBeVisible({ timeout: 10000 });
         }
       }
 
-      const publishBtn = adminPage
-        .locator('button[data-testid="publish-exam-btn-demo-n5-1"], button[data-testid^="publish-exam-btn-"]')
-        .first();
+      const publishBtn = demoExamRow.locator('button[data-testid^="publish-exam-btn-"]').first();
       await expect(publishBtn).toBeVisible({ timeout: 15000 });
       await publishBtn.click();
       await expect(adminPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 15000 });

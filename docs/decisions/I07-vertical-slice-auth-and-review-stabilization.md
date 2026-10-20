@@ -39,8 +39,10 @@ Khi thực thi bộ kiểm thử E2E đa trình duyệt trên môi trường Sta
 - Chỉ thực hiện mở modal so sánh và bấm duyệt nếu tồn tại hàng đang chờ duyệt (`pendingRow`).
 - Trong trường hợp toàn bộ mục kiểm duyệt trong hệ thống đã được duyệt trước đó bởi các suite trước, test tiếp tục hợp lệ mà không gọi trùng hành động duyệt trên bản ghi đã đóng.
 
-### 2.3 Xuất bản đề thi độc lập với tham chiếu dòng (Step 2.3)
-- Sử dụng locator trực tiếp `adminPage.locator('button[data-testid="publish-exam-btn-demo-n5-1"], button[data-testid^="publish-exam-btn-"]').first()` để tránh lỗi tham chiếu DOM cũ khi `demoExamRow` re-render lại sau khi gỡ xuất bản (takedown).
+### 2.3 Xuất bản đúng đề thi mục tiêu (Step 2.3)
+- Sử dụng locator trực tiếp trong hàng `demoExamRow` (`demoExamRow.locator('button[data-testid^="publish-exam-btn-"]').first()`).
+- Tránh tìm kiếm toàn trang `adminPage.locator('button[data-testid^="publish-exam-btn-"]')` vì bảng danh sách có thể chứa các đề nháp trống (chưa có câu hỏi) ở các dòng trên, dẫn đến việc click nhầm vào đề nháp gây lỗi 400 Bad Request từ API (`Đề thi không có câu hỏi`).
+- Sau khi bấm xác nhận gỡ đề (`confirm-takedown-btn`), chờ nút publish của `demoExamRow` hiển thị trở lại trước khi bấm xuất bản.
 
 ## 3. Kết quả nghiệm thu
 
