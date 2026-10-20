@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from './providers';
+// Read on the server and handed to the client provider as a prop, so it is not part of any JS chunk.
+import viMessages from '../messages/vi.json' with { type: 'json' };
 
 export const metadata: Metadata = {
   title: 'JLPT Online - Luyện thi tiếng Nhật trực tuyến chuẩn JLPT',
@@ -42,7 +44,7 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <Providers>{children}</Providers>
+        <Providers messages={viMessages}>{children}</Providers>
       </body>
     </html>
   );

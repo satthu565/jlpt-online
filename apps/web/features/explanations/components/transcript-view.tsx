@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Lock, Headphones, Play } from 'lucide-react';
 import type { EvidenceRange } from '../types';
 
 export interface TranscriptViewProps {
@@ -37,7 +38,7 @@ export function TranscriptView({
         className={`p-4 rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200 text-xs space-y-2 ${className}`}
       >
         <div className="flex items-center gap-2 font-bold text-sm text-amber-800 dark:text-amber-300">
-          <span aria-hidden="true">🔒</span>
+          <Lock className="h-4 w-4" aria-hidden="true" />
           <span>Transcript âm thanh có bản quyền bảo hộ</span>
         </div>
         <p className="leading-relaxed">
@@ -72,7 +73,8 @@ export function TranscriptView({
     >
       <div className="flex items-center justify-between gap-2 border-b border-blue-100 dark:border-slate-800 pb-2">
         <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
-          <span>🎧</span> Transcript & Dẫn chứng nghe hiểu
+          <Headphones className="h-3.5 w-3.5" aria-hidden="true" />
+          <span>Transcript & Dẫn chứng nghe hiểu</span>
         </h4>
         {licenseLabel && (
           <span
@@ -126,8 +128,8 @@ export function TranscriptView({
                         : ''}
                     </span>
                     {onSeek && range.startMs !== undefined && (
-                      <span className="text-[10px] text-blue-600 dark:text-blue-400 underline">
-                        Phát từ đoạn này ▶
+                      <span className="text-[10px] text-blue-600 dark:text-blue-400 underline flex items-center gap-0.5">
+                        Phát từ đoạn này <Play className="h-2.5 w-2.5 fill-current" aria-hidden="true" />
                       </span>
                     )}
                   </div>
