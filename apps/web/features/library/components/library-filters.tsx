@@ -38,10 +38,10 @@ export function LibraryFilters({
   ];
   const statuses: Array<{ id: UserExamStatus | 'ALL'; label: string }> = [
     { id: 'ALL', label: 'Mọi trạng thái' },
-    { id: 'not_started', label: 'Chưa từng làm (LIB-12)' },
+    { id: 'not_started', label: 'Chưa từng làm' },
     { id: 'in_progress', label: 'Đang làm dở' },
     { id: 'completed', label: 'Đã hoàn thành' },
-    { id: 'below_target', label: 'Chưa đạt mục tiêu (LIB-13)' },
+    { id: 'below_target', label: 'Chưa đạt mục tiêu' },
   ];
 
   return (
@@ -50,13 +50,13 @@ export function LibraryFilters({
       role="search"
       aria-label="Bộ lọc thư viện đề thi"
     >
-      {/* Search Input (LIB-06) */}
+      {/* Search Input */}
       <div>
         <label
           htmlFor="library-search-input"
           className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5"
         >
-          Tìm kiếm đề thi (LIB-06)
+          Tìm kiếm đề thi
         </label>
         <div className="relative">
           <Input
@@ -73,10 +73,10 @@ export function LibraryFilters({
         </div>
       </div>
 
-      {/* Level Buttons Filter (LIB-02) */}
+      {/* Level Buttons Filter */}
       <div>
         <span className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-          Cấp độ JLPT (LIB-02)
+          Cấp độ JLPT
         </span>
         <div className="flex flex-wrap gap-2" role="group" aria-label="Lọc theo cấp độ">
           {levels.map((lvl) => (
@@ -97,13 +97,13 @@ export function LibraryFilters({
 
       {/* Dropdown Filters Row: Year, Session, Kind, User Status */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-        {/* Year Filter (LIB-03) */}
+        {/* Year Filter */}
         <div>
           <label
             htmlFor="filter-year-select"
             className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1"
           >
-            Năm thi (LIB-03)
+            Năm thi
           </label>
           <Select
             id="filter-year-select"
@@ -125,13 +125,13 @@ export function LibraryFilters({
           </Select>
         </div>
 
-        {/* Session Filter (LIB-04) */}
+        {/* Session Filter */}
         <div>
           <label
             htmlFor="filter-session-select"
             className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1"
           >
-            Kỳ thi (LIB-04)
+            Kỳ thi
           </label>
           <Select
             id="filter-session-select"
@@ -152,13 +152,13 @@ export function LibraryFilters({
           </Select>
         </div>
 
-        {/* Kind Filter (LIB-05) */}
+        {/* Kind Filter */}
         <div>
           <label
             htmlFor="filter-kind-select"
             className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1"
           >
-            Thể loại đề (LIB-05)
+            Thể loại đề
           </label>
           <Select
             id="filter-kind-select"
@@ -179,14 +179,14 @@ export function LibraryFilters({
           </Select>
         </div>
 
-        {/* User Status Filter (LIB-08) */}
+        {/* User Status Filter */}
         {showStatusFilter && (
           <div>
             <label
               htmlFor="filter-status-select"
               className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1"
             >
-              Trạng thái của bạn (LIB-08)
+              Trạng thái của bạn
             </label>
             <Select
               id="filter-status-select"
@@ -209,7 +209,7 @@ export function LibraryFilters({
         )}
       </div>
 
-      {/* Favorite filter toggle (LIB-11) & Reset filters button */}
+      {/* Favorite filter toggle & Reset filters button */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-slate-100 dark:border-slate-800">
         <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
           <Input
@@ -224,7 +224,7 @@ export function LibraryFilters({
             data-testid="filter-only-favorites"
             className="h-4 w-4 min-h-0 cursor-pointer rounded text-blue-600 focus:ring-blue-500"
           />
-          <span>⭐ Chỉ hiện các đề đã yêu thích (LIB-11)</span>
+          <span>⭐ Chỉ hiện các đề đã yêu thích</span>
         </label>
 
         <Button

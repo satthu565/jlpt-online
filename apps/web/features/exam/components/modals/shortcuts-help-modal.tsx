@@ -26,7 +26,7 @@ export function ShortcutsHelpModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Phím tắt phòng thi (EXAM-24)"
+      title="Phím tắt phòng thi"
     >
       <div className="space-y-4 text-slate-800 dark:text-slate-200">
         <p className="text-xs text-slate-600 dark:text-slate-400">

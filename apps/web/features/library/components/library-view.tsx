@@ -14,10 +14,12 @@ export interface LibraryViewProps {
 }
 
 export function LibraryView({
-  exams,
+  exams: allExams,
   initialLevel,
   className = '',
 }: LibraryViewProps): React.JSX.Element {
+  // An exam with no questions (for example an empty generated mix) cannot be taken; never offer it.
+  const exams = useMemo(() => allExams.filter((e) => (e.totalQuestions ?? 0) > 0), [allExams]);
   const [filters, setFilters] = useState<LibraryFilterState>(() => ({
     ...INITIAL_LIBRARY_FILTERS,
     level: (initialLevel as LibraryFilterState['level']) || 'ALL',
@@ -99,7 +101,7 @@ export function LibraryView({
 
   return (
     <div className={`jlpt-library-view space-y-6 ${className}`}>
-      {/* Next Recommendation Banner (LIB-14) */}
+      {/* Next Recommendation Banner */}
       {recommendedExam && (
         <section
           data-testid="next-recommendation-banner"
@@ -110,7 +112,7 @@ export function LibraryView({
             <div className="space-y-1.5 flex-1">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold uppercase tracking-wider bg-blue-500/30 text-blue-200 px-2.5 py-0.5 rounded-full border border-blue-400/30">
-                  ★ Đề xuất tiếp theo (LIB-14)
+                  ★ Đề xuất tiếp theo
                 </span>
                 <span className="text-xs font-mono bg-white/20 px-2 py-0.5 rounded text-white font-bold">
                   {recommendedExam.level}
@@ -161,7 +163,7 @@ export function LibraryView({
         )}
       </div>
 
-      {/* Exams Grid (LIB-01) */}
+      {/* Exams Grid */}
       {filteredExams.length === 0 ? (
         <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
           <div className="text-4xl mb-3" role="img" aria-label="Không có kết quả">

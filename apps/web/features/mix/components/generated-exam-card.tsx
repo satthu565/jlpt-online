@@ -57,7 +57,7 @@ export function GeneratedExamCard({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Share Exam Button (MIX-14) */}
+          {/* Share Exam Button */}
           <Button
             type="button"
             variant="outline"
@@ -68,7 +68,7 @@ export function GeneratedExamCard({
             🔗 Chia sẻ đề
           </Button>
 
-          {/* Regenerate Exam with New Seed (MIX-15) */}
+          {/* Regenerate Exam with New Seed */}
           {onRegenerate && (
             <Button
               type="button"

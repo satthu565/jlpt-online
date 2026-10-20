@@ -26,7 +26,7 @@ export function CommonErrorsWidget({
     >
       <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
         <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-          <span>🔍</span> Phân tích lỗi sai thường gặp (STAT-06)
+          <span>🔍</span> Phân tích lỗi sai thường gặp
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
           Nhận diện các kiểu bẫy và lỗ hổng kiến thức dẫn đến mất điểm nhiều nhất.

@@ -79,7 +79,7 @@ export function ReviewView({
         level={snapshot.level}
       />
 
-      {/* 3. Previous attempt comparison card (SCORE-10) */}
+      {/* 3. Previous attempt comparison card */}
       <ScoreComparisonCard
         currentResult={result}
         previousResult={previousResult}
@@ -116,7 +116,7 @@ export function ReviewView({
 
       {/* 4. Main review section: Questions list + Sticky Palette */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Questions list (SCORE-07, SCORE-08) */}
+        {/* Questions list */}
         <div className="lg:col-span-8 space-y-6">
           <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
             <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
@@ -160,7 +160,7 @@ export function ReviewView({
           />
         </div>
 
-        {/* Right column: Sticky review palette (SCORE-09) */}
+        {/* Right column: Sticky review palette */}
         <div className="lg:col-span-4 sticky top-20">
           <ReviewPalette
             questions={flatQuestions}

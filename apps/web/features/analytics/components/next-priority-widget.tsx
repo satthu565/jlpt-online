@@ -25,7 +25,7 @@ export function NextPriorityWidget({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-indigo-100 dark:border-indigo-900/40 pb-3">
         <div>
           <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-400 block">
-            Khuyến nghị học tập cá nhân hóa (STAT-11)
+            Khuyến nghị học tập cá nhân hóa
           </span>
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 mt-0.5">
             <span>💡</span> Kỹ năng nên ưu tiên học tiếp: <span className="text-indigo-600 dark:text-indigo-400">{skillLabel}</span>

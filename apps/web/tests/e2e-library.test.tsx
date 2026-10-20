@@ -439,7 +439,7 @@ describe('E2E Library, Results, Review & Persisted History Suite (N03)', () => {
 
       const html = renderClean(<HistoryView historyItems={historyItems} />);
 
-      expect(html).toContain('Lịch sử các lần làm bài thi (STAT-01)');
+      expect(html).toContain('Lịch sử các lần làm bài thi');
       expect(html).toContain('Đề thi thử JLPT N5 Mẫu Chuẩn');
       expect(html).toContain('Đề thi thử chuẩn cấu trúc JLPT N3 - Số 1');
       expect(html).toContain('135đ');

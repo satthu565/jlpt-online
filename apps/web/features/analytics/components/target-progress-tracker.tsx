@@ -36,7 +36,7 @@ export function TargetProgressTracker({
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xl" aria-hidden="true">🏆</span>
             <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
-              Tiến độ so với mục tiêu JLPT (STAT-10)
+              Tiến độ so với mục tiêu JLPT
             </h3>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400">

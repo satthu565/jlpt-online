@@ -124,7 +124,7 @@ export function QuestionView({
         </Button>
       </div>
 
-      {/* Illustration image if available (AUDIO-02, AUDIO-03) */}
+      {/* Illustration image if available */}
       {imageMedia.length > 0 && (
         <div className="jlpt-question-illustration my-4 text-center">
           {imageMedia.map((imgSrc: string, idx: number) => (
@@ -142,7 +142,7 @@ export function QuestionView({
         </div>
       )}
 
-      {/* Question stem with font scaling (EXAM-23) */}
+      {/* Question stem with font scaling */}
       <div className={`mb-6 ${stemFontSizeClass} font-japanese leading-relaxed text-slate-900 dark:text-slate-100`}>
         <RichTextView segments={question.stem} showFurigana={showFurigana} />
       </div>
@@ -169,7 +169,7 @@ export function QuestionView({
                   : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 text-slate-800 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-800/30'
               } ${question.isLocked ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
             >
-              {/* Option label indicator (1, 2, 3, 4) with keyboard hint (EXAM-24) */}
+              {/* Option label indicator (1, 2, 3, 4) with keyboard hint */}
               <div className="flex-shrink-0 flex flex-col items-center gap-1">
                 <span
                   className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
@@ -187,7 +187,7 @@ export function QuestionView({
                 )}
               </div>
 
-              {/* Option rich text content with font scaling (EXAM-23) */}
+              {/* Option rich text content with font scaling */}
               <div className={`flex-1 pt-1 font-japanese ${optionFontSizeClass} leading-relaxed`}>
                 <RichTextView segments={opt.content} showFurigana={showFurigana} />
               </div>
