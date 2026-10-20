@@ -12,6 +12,7 @@ export * from './components/input.js';
 export * from './components/textarea.js';
 export * from './components/label.js';
 export * from './components/select.js';
+export * from './components/select-primitives.js';
 export * from './components/checkbox.js';
 export * from './components/radio-group.js';
 export * from './components/switch.js';
