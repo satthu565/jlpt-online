@@ -50,7 +50,8 @@ describe('F08 Database Schema and Migrations', () => {
         expect(names).toContain('0002_tenant_retention_community.sql');
         expect(names).toContain('0003_privacy_export_isolation.sql');
         expect(names).toContain('0004_dataset_slug.sql');
-        expect(names.length).toBe(5);
+        expect(names).toContain('0005_blueprint_effective_to.sql');
+        expect(names.length).toBe(6);
       } finally {
         await client.close();
       }
@@ -1291,10 +1292,10 @@ describe('F08 Database Schema and Migrations', () => {
       const journal = JSON.parse(fs.readFileSync(journalPath, 'utf8'));
       expect(journal.dialect).toBe('postgresql');
       expect(Array.isArray(journal.entries)).toBe(true);
-      expect(journal.entries.length).toBe(5);
+      expect(journal.entries.length).toBe(6);
 
       const sqlFiles = fs.readdirSync(migrationsDir).filter((f) => f.endsWith('.sql')).sort();
-      expect(sqlFiles.length).toBe(5);
+      expect(sqlFiles.length).toBe(6);
 
       for (let i = 0; i < journal.entries.length; i++) {
         expect(journal.entries[i].idx).toBe(i);
@@ -1312,10 +1313,10 @@ describe('F08 Database Schema and Migrations', () => {
         const appliedRuns = results.filter((r) => r.applied.length > 0);
         const zeroAppliedRuns = results.filter((r) => r.applied.length === 0);
         expect(appliedRuns.length).toBe(1);
-        expect(appliedRuns[0]!.applied.length).toBe(5);
+        expect(appliedRuns[0]!.applied.length).toBe(6);
         expect(zeroAppliedRuns.length).toBe(9);
         for (const r of zeroAppliedRuns) {
-          expect(r.alreadyApplied.length).toBe(5);
+          expect(r.alreadyApplied.length).toBe(6);
         }
       } finally {
         await client.close();

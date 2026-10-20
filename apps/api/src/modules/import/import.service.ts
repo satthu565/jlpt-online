@@ -312,6 +312,8 @@ export class ImportService {
           revision: pkg.revision,
           contentHash,
           examSlug: pkg.exam.slug,
+          // Original past exams are scored and published against the blueprint named in the package.
+          blueprintRef: pkg.exam.blueprintRef ?? null,
           mode,
           readiness: validationResult.readiness,
           issues: pkg.issues,

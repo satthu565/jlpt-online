@@ -7,6 +7,7 @@ import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
+import { selectCurrentBlueprint } from '../blueprint/blueprint.service.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import {
   PracticeConfigSchema,
@@ -352,11 +353,11 @@ export class PracticeService {
       });
 
       // Find or create blueprint for this level
-      const [bp] = await db
-        .select({ id: schema.blueprints.id })
+      const levelBlueprints = await db
+        .select()
         .from(schema.blueprints)
-        .where(eq(schema.blueprints.level, config.level))
-        .limit(1);
+        .where(eq(schema.blueprints.level, config.level));
+      const bp = selectCurrentBlueprint(levelBlueprints) ?? levelBlueprints[0];
 
       let bpId = bp?.id;
       if (!bpId) {
