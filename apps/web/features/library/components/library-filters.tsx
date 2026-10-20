@@ -1,5 +1,6 @@
 'use client';
 
+import { Search, Star } from 'lucide-react';
 import React from 'react';
 import type { Level, ExamKind, Session } from '@jlpt/schema';
 import type { LibraryFilterState, UserExamStatus } from '../types';
@@ -67,9 +68,7 @@ export function LibraryFilters({
             placeholder="Nhập tên đề thi, từ khóa hoặc cấp độ..."
             className="w-full px-4 py-2.5 pl-10 text-sm"
           />
-          <span className="absolute left-3.5 top-3 text-slate-400 text-sm pointer-events-none" aria-hidden="true">
-            🔍
-          </span>
+          <Search className="pointer-events-none absolute left-3.5 top-3 size-4 text-slate-400" aria-hidden="true" />
         </div>
       </div>
 
@@ -224,7 +223,7 @@ export function LibraryFilters({
             data-testid="filter-only-favorites"
             className="h-4 w-4 min-h-0 cursor-pointer rounded text-blue-600 focus:ring-blue-500"
           />
-          <span>⭐ Chỉ hiện các đề đã yêu thích</span>
+          <span className="inline-flex items-center gap-1"><Star className="size-3.5" aria-hidden="true" /> Chỉ hiện các đề đã yêu thích</span>
         </label>
 
         <Button

@@ -1,3 +1,4 @@
+import {  } from 'lucide-react';
 import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
@@ -410,7 +411,7 @@ describe('E2E Learning, Generator Modes, Explanations & Personalization Suite (L
       );
 
       expect(html).toContain('data-testid="next-recommendation-banner"');
-      expect(html).toContain('★ Đề xuất tiếp theo');
+      expect(html).toContain('Đề xuất tiếp theo');
       expect(html).toContain('Đề thi chính thức JLPT N3 - 12/2023');
       expect(html).toContain('Bắt đầu làm ngay');
     });

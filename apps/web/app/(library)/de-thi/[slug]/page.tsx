@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertTriangle, Loader2, SearchX } from 'lucide-react';
 import React, { use, useState, useEffect, useCallback } from 'react';
 import { ExamApiClient, ExamApiError } from '../../../../features/exam/api/exam-api';
 import { ExamDetailView } from '../../../../features/library';
@@ -53,7 +54,7 @@ export default function ExamDetailPage({ params }: ExamDetailPageProps): React.J
   if (loading) {
     return (
       <div className="py-20 text-center text-slate-500" data-testid="exam-detail-loading">
-        <div className="animate-spin text-3xl mb-3">⏳</div>
+        <Loader2 className="mx-auto mb-3 size-8 animate-spin" aria-hidden="true" />
         Đang tải thông tin đề thi...
       </div>
     );
@@ -61,10 +62,10 @@ export default function ExamDetailPage({ params }: ExamDetailPageProps): React.J
 
   if (error) {
     return (
-      <div className="max-w-2xl mx-auto py-16 px-4 text-center" data-testid="exam-detail-error">
+      <div className="mx-auto w-full max-w-2xl py-16 px-4 text-center" data-testid="exam-detail-error">
         <Card className="p-8 border border-slate-200 dark:border-slate-800 text-center">
           <div className="text-4xl mb-3" role="img" aria-label="Lỗi đề thi">
-            {error.notFound ? '🔍' : '⚠️'}
+            {error.notFound ? <SearchX className="mx-auto size-10" aria-hidden="true" /> : <AlertTriangle className="mx-auto size-10" aria-hidden="true" />}
           </div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
             {error.notFound ? 'Không tìm thấy đề thi' : 'Không thể tải đề thi'}
@@ -92,7 +93,7 @@ export default function ExamDetailPage({ params }: ExamDetailPageProps): React.J
 
   if (!exam) {
     return (
-      <div className="max-w-2xl mx-auto py-16 px-4 text-center">
+      <div className="mx-auto w-full max-w-2xl py-16 px-4 text-center">
         <p className="text-sm text-slate-500 mb-4">Không có dữ liệu đề thi.</p>
         <a href="/de-thi">
           <Button variant="primary" size="sm">

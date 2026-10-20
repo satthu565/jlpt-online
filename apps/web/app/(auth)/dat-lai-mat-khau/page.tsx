@@ -73,9 +73,9 @@ export default function ResetPasswordPage(): React.JSX.Element {
   return (
     <div className="auth-card-container">
       <Card elevated>
-        <CardHeader style={{ textAlign: 'center' }}>
+        <CardHeader className="text-center">
           <CardTitle as="h1">{t('auth.resetPassword.title')}</CardTitle>
-          <p style={{ margin: '0.25rem 0 0 0', color: 'var(--text-secondary)' }}>
+          <p className="mt-1 mx-0 mb-0 text-[var(--text-secondary)]">
             {t('auth.resetPassword.subtitle')}
           </p>
         </CardHeader>
@@ -91,14 +91,9 @@ export default function ResetPasswordPage(): React.JSX.Element {
               <Alert variant="success">
                 {t('auth.resetPassword.resetSuccess')}
               </Alert>
-              <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-                <a
+              <div className="mt-6 text-center">
+                <a className="text-[var(--color-primary)] font-semibold no-underline"
                   href="/dang-nhap"
-                  style={{
-                    color: 'var(--color-primary)',
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                  }}
                 >
                   {t('auth.resetPassword.backToLogin')} →
                 </a>
@@ -139,11 +134,10 @@ export default function ResetPasswordPage(): React.JSX.Element {
                 autoComplete="new-password"
               />
 
-              <Button
+              <Button className="w-full mb-4"
                 type="submit"
                 variant="primary"
                 loading={loading}
-                style={{ width: '100%', marginBottom: '1rem' }}
               >
                 {loading ? t('auth.resetPassword.submitting') : t('auth.resetPassword.submitButton')}
               </Button>

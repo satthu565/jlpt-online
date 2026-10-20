@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertTriangle } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { ExamApiClient, ExamApiError } from '../../../features/exam/api/exam-api';
@@ -84,7 +85,7 @@ export default function ExamLibraryPage(): React.JSX.Element {
   }, [loadExams]);
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 space-y-6" data-testid="exam-library-page">
+    <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-8" data-testid="exam-library-page">
       {/* Page header */}
       <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
@@ -104,9 +105,7 @@ export default function ExamLibraryPage(): React.JSX.Element {
             className="p-8 text-center border border-slate-200 dark:border-slate-800"
             data-testid="library-error"
           >
-            <div className="text-4xl mb-3" role="img" aria-label="Lỗi tải đề thi">
-              ⚠️
-            </div>
+            <AlertTriangle className="mx-auto mb-3 size-10 text-[var(--color-danger)]" role="img" aria-label="Lỗi tải đề thi" />
             <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
               Không thể tải thư viện đề thi
             </h2>

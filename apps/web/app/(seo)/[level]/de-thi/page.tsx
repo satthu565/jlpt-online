@@ -97,12 +97,12 @@ export default async function LevelExamsPage({ params }: LevelExamsPageProps): P
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 space-y-6" data-testid="level-exams-page">
+    <div className="mx-auto w-full max-w-7xl py-8 px-4 space-y-6" data-testid="level-exams-page">
       <JsonLd id={`breadcrumb-schema-${normalized}-exams`} data={breadcrumbStructuredData} />
 
       {/* Breadcrumbs */}
       <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
+        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
         <a href={`/${normalized}`} className="hover:underline">{upper}</a> &gt;{' '}
         <span className="text-slate-900 dark:text-slate-100 font-semibold">Đề thi {upper}</span>
       </nav>

@@ -1,5 +1,6 @@
 'use client';
 
+import { Check, Lock, Star } from 'lucide-react';
 import React from 'react';
 import { Button } from '@jlpt/ui/components/button';
 import type { FlatQuestionItem } from '../types';
@@ -94,8 +95,9 @@ export function QuestionPalette({
                   className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-amber-500 text-white rounded-full flex items-center justify-center text-[9px] shadow-xs"
                   title="Đã đánh dấu xem lại"
                   aria-hidden="true"
+                  data-icon="flag"
                 >
-                  ★
+                  <Star className="size-2.5 fill-current" />
                 </span>
               )}
 
@@ -105,8 +107,9 @@ export function QuestionPalette({
                   className="absolute bottom-0.5 right-0.5 text-slate-400"
                   title="Đã khóa"
                   aria-hidden="true"
+                  data-icon="lock"
                 >
-                  🔒
+                  <Lock className="size-3" />
                 </span>
               )}
             </Button>
@@ -119,7 +122,7 @@ export function QuestionPalette({
         <div className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Chú thích trạng thái:</div>
         <div className="grid grid-cols-2 gap-2">
           <div className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold">✓</span>
+            <span className="w-4 h-4 rounded bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold"><Check className="size-3" aria-hidden="true" /></span>
             <span>Đã làm</span>
           </div>
           <div className="flex items-center gap-2">
@@ -127,7 +130,7 @@ export function QuestionPalette({
             <span>Chưa làm</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded bg-amber-500 text-white flex items-center justify-center text-[10px]">★</span>
+            <span className="w-4 h-4 rounded bg-amber-500 text-white flex items-center justify-center text-[10px]"><Star className="size-3 fill-current" aria-hidden="true" /></span>
             <span>Đánh dấu</span>
           </div>
           <div className="flex items-center gap-2">
