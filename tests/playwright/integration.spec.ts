@@ -50,14 +50,14 @@ async function loginAsStaff(page: Page, origin: string, account: StaffAccount) {
     await submitBtn.click();
 
     try {
-      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 30000, waitUntil: 'domcontentloaded' });
+      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 30000, waitUntil: 'commit' });
     } catch {
       const errAlert = page.locator('[data-testid="login-error-alert"]');
       if (await errAlert.isVisible({ timeout: 1000 }).catch(() => false)) {
         await page.waitForTimeout(1000);
         await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
       }
-      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 30000, waitUntil: 'domcontentloaded' });
+      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 30000, waitUntil: 'commit' });
     }
   }
 
@@ -377,7 +377,7 @@ test.describe('Real Staging User Journey & Exam Flow (I05)', () => {
     await page.locator('#login-email').fill(testEmail);
     await page.locator('#login-password').fill(testPassword);
     await page.locator('button[type="submit"]').click();
-    await page.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 30000, waitUntil: 'domcontentloaded' });
+    await page.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 30000, waitUntil: 'commit' });
 
     // 5. Navigate to /de-thi and find demo N5 exam
     await page.goto(`${webOrigin}/de-thi`);
@@ -787,7 +787,7 @@ test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () 
     ]);
     expect(loginResponse.ok()).toBeTruthy();
 
-    await page.waitForURL(/\/tai-khoan/, { timeout: 15000, waitUntil: 'domcontentloaded' });
+    await page.waitForURL(/\/tai-khoan/, { timeout: 15000, waitUntil: 'commit' });
     await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
 
     // 2. Reload page on /tai-khoan - verify still logged in
@@ -1174,7 +1174,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
 
     // Step 3: Open /users directly and verify still logged in
     await page.goto(`${adminOrigin}/users`, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('main, [data-testid="user-management-title"], table').first()).toBeVisible({ timeout: 25000 });
+    await expect(page.locator('[data-testid="page-title"], [data-testid="users-table"], table').first()).toBeVisible({ timeout: 25000 });
     await expect(page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-expired"]')).not.toBeVisible();
     expect(page.url()).toContain('/users');
   });
@@ -1884,7 +1884,7 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
     await page.locator('#login-email, input[type="email"]').fill(studentUser.email);
     await page.locator('#login-password, input[type="password"]').fill(studentUser.password);
     await page.locator('button[type="submit"]').click();
-    await page.waitForURL(/\/tai-khoan/, { timeout: 15000, waitUntil: 'domcontentloaded' });
+    await page.waitForURL(/\/tai-khoan/, { timeout: 15000, waitUntil: 'commit' });
 
     // 2. Navigate to /luyen-tap
     await page.goto('/luyen-tap', { waitUntil: 'domcontentloaded' });
@@ -2004,7 +2004,7 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
     await page.locator('#login-email, input[type="email"]').fill(studentUser.email);
     await page.locator('#login-password, input[type="password"]').fill(studentUser.password);
     await page.locator('button[type="submit"]').click();
-    await page.waitForURL(/\/tai-khoan/, { timeout: 15000, waitUntil: 'domcontentloaded' });
+    await page.waitForURL(/\/tai-khoan/, { timeout: 15000, waitUntil: 'commit' });
 
     // 2. Go to /luyen-tap and switch to Quick Mix tab
     await page.goto('/luyen-tap', { waitUntil: 'domcontentloaded' });
@@ -2447,14 +2447,14 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
     await page.waitForTimeout(300);
     await submitBtn.click();
     try {
-      await page.waitForURL(/\/tai-khoan/, { timeout: 25000, waitUntil: 'domcontentloaded' });
+      await page.waitForURL(/\/tai-khoan/, { timeout: 25000, waitUntil: 'commit' });
     } catch {
       if (page.url().includes('/dang-nhap')) {
         await emailInput.fill(studentUser.email);
         await passwordInput.fill(studentUser.password);
         await page.waitForTimeout(500);
         await submitBtn.click();
-        await page.waitForURL(/\/tai-khoan/, { timeout: 25000, waitUntil: 'domcontentloaded' });
+        await page.waitForURL(/\/tai-khoan/, { timeout: 25000, waitUntil: 'commit' });
       }
     }
   }
@@ -2545,7 +2545,7 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
 
     const furiganaBtnAfterReload = page.locator('[data-testid="toggle-furigana-btn"]').first();
     await expect(furiganaBtnAfterReload).toBeVisible();
-    expect(await furiganaBtnAfterReload.innerText()).toContain('TẮT');
+    await expect(furiganaBtnAfterReload).toContainText('TẮT', { timeout: 15000 });
 
     if (hasRuby) {
       await expect(rubyRtLocator.first()).toBeHidden();
@@ -2847,14 +2847,14 @@ test.describe('Real JLPT Exam Schedules & Score Conversion Tables Suite (P05)', 
       await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
 
       try {
-        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 30000, waitUntil: 'domcontentloaded' });
+        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 30000, waitUntil: 'commit' });
       } catch {
         const errAlert = page.locator('[data-testid="login-error-alert"]');
         if (await errAlert.isVisible({ timeout: 1000 }).catch(() => false)) {
           await page.waitForTimeout(1000);
           await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
         }
-        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 30000, waitUntil: 'domcontentloaded' });
+        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 30000, waitUntil: 'commit' });
       }
     }
 
@@ -3380,7 +3380,7 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
     await page.locator('#login-email, input[type="email"]').fill(studentUser.email);
     await page.locator('#login-password, input[type="password"]').fill(studentUser.password);
     await page.locator('button[type="submit"]').click();
-    await page.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 30000, waitUntil: 'domcontentloaded' });
+    await page.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 30000, waitUntil: 'commit' });
 
     // 2. Visit every web page
     for (const p of ALL_WEB_PAGES) {
@@ -3530,7 +3530,7 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
       await studentPage.locator('#login-email').fill(testEmail);
       await studentPage.locator('#login-password').fill(testPassword);
       await studentPage.locator('button[type="submit"]').click();
-      await studentPage.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 30000, waitUntil: 'domcontentloaded' });
+      await studentPage.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 30000, waitUntil: 'commit' });
 
       // 1.4 Take Exam
       await studentPage.goto(`${webOrigin}/de-thi`, { waitUntil: 'domcontentloaded' });

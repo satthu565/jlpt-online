@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import type { Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 
 /**
  * Seeded Staff Account Credentials for Integration & Playwright Tests (I00)
@@ -219,15 +219,7 @@ export async function handleTotpVerification(
     const validTotp = await getSynchronizedTotp(secret, accountKey);
     await codeInput.click();
     await codeInput.fill(validTotp);
-    try {
-      await codeInput.evaluate((el, val) => {
-        (el as HTMLInputElement).value = val as string;
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-      }, validTotp);
-    } catch {
-      // fallback to fill
-    }
+    await expect(codeInput).toHaveValue(validTotp, { timeout: 5000 });
     await page.waitForTimeout(200);
     await submitBtn.click();
 
@@ -235,7 +227,7 @@ export async function handleTotpVerification(
     try {
       await page.waitForURL(
         (url: URL) => !url.pathname.includes('/verify-2fa') && !url.pathname.includes('/login'),
-        { timeout: 25000, waitUntil: 'domcontentloaded' },
+        { timeout: 25000, waitUntil: 'commit' },
       );
       return;
     } catch {
