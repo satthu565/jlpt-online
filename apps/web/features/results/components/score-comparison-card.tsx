@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Result } from '@jlpt/schema';
-import { Card } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
 
 export interface ScoreComparisonCardProps {
   currentResult: Result;

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import type { PracticeShortageInfo } from '../types';
-import { Button } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface PracticeShortageNoticeProps {
   shortage: PracticeShortageInfo;

@@ -1,7 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Button, Badge, Alert, JsonLd } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
+import { JsonLd } from '@jlpt/ui/components/json-ld';
 import { useI18n } from '../../../lib/i18n';
 
 export default function SupportCenterPage(): React.JSX.Element {

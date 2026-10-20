@@ -1,7 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Input, Button, Badge, TTSAudioPlayer, Spinner, Alert } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Input } from '@jlpt/ui/components/input';
+import { Button } from '@jlpt/ui/components/button';
+import { Badge } from '@jlpt/ui/components/badge';
+import { TTSAudioPlayer } from '@jlpt/ui/components/tts-audio-player';
+import { Spinner } from '@jlpt/ui/components/spinner';
+import { Alert } from '@jlpt/ui/components/alert';
 import { CorpusClient } from '../services/corpus-client';
 import type { GrammarPatternDto } from '../types';
 import { useI18n } from '../../../lib/i18n';

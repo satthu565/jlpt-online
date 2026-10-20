@@ -2,7 +2,7 @@
 
 import React from 'react';
 import type { MonthlyProgressStat } from '../types';
-import { Card } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
 
 export interface MonthlyComparisonWidgetProps {
   monthlyStats: MonthlyProgressStat[];

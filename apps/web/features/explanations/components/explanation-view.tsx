@@ -5,7 +5,7 @@ import type { LearnerExplanation } from '../types';
 import { TranscriptView } from './transcript-view';
 import { QuestionBookmarkButton } from './question-bookmark-button';
 import { QuestionReportModal } from './question-report-modal';
-import { Button } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface ExplanationViewProps {
   explanation: LearnerExplanation;

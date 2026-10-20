@@ -5,7 +5,7 @@ import type { ExamWithUserStatus, LibraryFilterState } from '../types';
 import { INITIAL_LIBRARY_FILTERS } from '../types';
 import { LibraryFilters } from './library-filters';
 import { ExamCard } from './exam-card';
-import { Button } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface LibraryViewProps {
   exams: ExamWithUserStatus[];

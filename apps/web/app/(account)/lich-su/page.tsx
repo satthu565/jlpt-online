@@ -4,7 +4,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ExamApiClient, ExamApiError } from '../../../features/exam/api/exam-api';
 import { HistoryView } from '../../../features/results/components/history-view';
 import type { ExamHistoryItem } from '../../../features/results/types';
-import { Alert, Button, Card } from '@jlpt/ui';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Button } from '@jlpt/ui/components/button';
+import { Card } from '@jlpt/ui/components/card';
 
 export default function ExamHistoryPage(): React.JSX.Element {
   const [historyItems, setHistoryItems] = useState<ExamHistoryItem[]>([]);

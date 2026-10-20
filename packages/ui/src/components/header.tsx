@@ -323,40 +323,6 @@ export function Header({
         </div>
       )}
 
-      <style>{`
-        @media (max-width: 1400px) {
-          .theme-toggle-label {
-            display: none !important;
-          }
-        }
-        @media (max-width: 768px) {
-          .theme-toggle-label {
-            display: none !important;
-          }
-          .header-auth-buttons {
-            display: none !important;
-          }
-        }
-        @media (max-width: 1279px) {
-          .desktop-nav {
-            display: none !important;
-          }
-          .mobile-menu-button {
-            display: inline-flex !important;
-          }
-        }
-        @media (min-width: 1280px) {
-          .desktop-nav {
-            display: flex !important;
-          }
-          .mobile-menu-button {
-            display: none !important;
-          }
-          .mobile-drawer {
-            display: none !important;
-          }
-        }
-      `}</style>
     </header>
   );
 }

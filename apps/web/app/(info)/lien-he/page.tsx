@@ -1,7 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Input, Select, Button, Alert, JsonLd, Textarea } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Input } from '@jlpt/ui/components/input';
+import { Select } from '@jlpt/ui/components/select';
+import { Button } from '@jlpt/ui/components/button';
+import { Alert } from '@jlpt/ui/components/alert';
+import { JsonLd } from '@jlpt/ui/components/json-ld';
+import { Textarea } from '@jlpt/ui/components/textarea';
 import { useI18n } from '../../../lib/i18n';
 
 export default function ContactPage(): React.JSX.Element {

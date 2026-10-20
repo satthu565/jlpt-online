@@ -3,7 +3,11 @@
 import React, { useState, useRef } from 'react';
 import type { PublicExamSnapshot } from '@jlpt/schema';
 import { flattenExamQuestions } from '../../exam/utils/flatten-questions';
-import { RichTextView, PassageView, Button, Alert, FuriganaToggle, useFurigana } from '@jlpt/ui';
+import { RichTextView } from '@jlpt/ui/components/rich-text-view';
+import { PassageView } from '@jlpt/ui/components/rich-block-view';
+import { Button } from '@jlpt/ui/components/button';
+import { Alert } from '@jlpt/ui/components/alert';
+import { FuriganaToggle, useFurigana } from '@jlpt/ui/components/furigana-toggle';
 import { ExplanationView } from '../../explanations/components/explanation-view';
 import type { LearnerExplanation } from '../../explanations/types';
 import type { ExamApiClient } from '../../exam';

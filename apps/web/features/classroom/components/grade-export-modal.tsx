@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Modal, Button, Select, Alert } from '@jlpt/ui';
+import { Modal } from '@jlpt/ui/components/modal';
+import { Button } from '@jlpt/ui/components/button';
+import { Select } from '@jlpt/ui/components/select';
+import { Alert } from '@jlpt/ui/components/alert';
 import type { GradeExportResponse } from '../types';
 import { useI18n } from '../../../lib/i18n';
 

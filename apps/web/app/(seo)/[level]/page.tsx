@@ -1,7 +1,10 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardContent, Badge, Button, JsonLd } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Button } from '@jlpt/ui/components/button';
+import { JsonLd } from '@jlpt/ui/components/json-ld';
 
 export interface LevelPageProps {
   params: Promise<{ level: string }>;

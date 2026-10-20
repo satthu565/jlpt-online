@@ -2,7 +2,8 @@
 
 import React from 'react';
 import type { RepeatedMistakeItem } from '../types';
-import { Card, Button } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface RepeatedMistakesWidgetProps {
   mistakes: RepeatedMistakeItem[];

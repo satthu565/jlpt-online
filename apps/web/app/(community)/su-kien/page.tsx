@@ -10,7 +10,10 @@ import {
 } from '../../../features/community';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
-import { Alert, Button, Card, CardContent, Spinner } from '@jlpt/ui';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Button } from '@jlpt/ui/components/button';
+import { Card, CardContent } from '@jlpt/ui/components/card';
+import { Spinner } from '@jlpt/ui/components/spinner';
 import Link from 'next/link';
 
 export default function ExamEventPage(): React.JSX.Element {

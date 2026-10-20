@@ -1,11 +1,26 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { ExamApiClient, ExamApiError } from '../../../features/exam/api/exam-api';
-import { LibraryView } from '../../../features/library';
 import type { ExamWithUserStatus } from '../../../features/library/types';
 import { useAuth } from '../../../lib/auth-context';
-import { Card, Alert, Button } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Button } from '@jlpt/ui/components/button';
+
+const LibraryView = dynamic(
+  () => import('../../../features/library/components/library-view').then((m) => m.LibraryView),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="py-20 text-center text-slate-500" data-testid="library-loading">
+        <div className="animate-spin text-3xl mb-3">⏳</div>
+        Đang tải thư viện đề thi đã xuất bản...
+      </div>
+    ),
+  },
+);
 
 export default function ExamLibraryPage(): React.JSX.Element {
   const { user } = useAuth();

@@ -4,7 +4,9 @@ import React, { use, useState, useEffect, useCallback } from 'react';
 import { ExamApiClient, ExamApiError } from '../../../../features/exam/api/exam-api';
 import { ExamDetailView } from '../../../../features/library';
 import type { ExamDetailPublic } from '@jlpt/schema';
-import { Card, Alert, Button } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface ExamDetailPageProps {
   params: Promise<{ slug: string }>;

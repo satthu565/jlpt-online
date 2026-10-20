@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Input, Alert } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
+import { Alert } from '@jlpt/ui/components/alert';
 import type { CouponDiscount } from '../types';
 import { useI18n } from '../../../lib/i18n';
 
