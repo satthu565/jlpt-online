@@ -1664,6 +1664,87 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
     }
   });
 
+  test('I19 E2E: Nhân sự tải fixtures/imports/draft.zip qua multipart ở chế độ draft -> 201, GET /api/v1/admin/imports trả job đó sau khi tải lại trang; gói 12 MB vào imports đạt; body 2 MB vào route khác trả 413', async ({
+    browser,
+    request,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'I19 flow runs on chromium');
+    const clientIp = getProjectClientIp(testInfo, 75);
+    const headers = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+    const apiBaseUrl = process.env.STAGING_API_URL || process.env.API_BASE_URL || 'http://127.0.0.1:4000';
+
+    const draftZipPath = path.resolve(process.cwd(), 'fixtures/imports/draft.zip');
+    expect(fs.existsSync(draftZipPath)).toBe(true);
+
+    const editorCtx = await browser.newContext({ extraHTTPHeaders: headers });
+    const editorPage = await editorCtx.newPage();
+    try {
+      await loginAsStaff(editorPage, adminOrigin, SEEDED_STAFF_ACCOUNTS.editor);
+      await editorPage.goto(`${adminOrigin}/imports`, { waitUntil: 'domcontentloaded' });
+      await expect(editorPage.locator('[data-testid="import-title"], h2').first()).toBeVisible({ timeout: 15000 });
+
+      const fileInput = editorPage.locator('[data-testid="package-file-input"], input[type="file"]').first();
+      const draftCheckbox = editorPage.locator('[data-testid="draft-mode-checkbox"]').first();
+
+      // Ensure draft mode is checked
+      if (!(await draftCheckbox.isChecked())) {
+        await draftCheckbox.check();
+      }
+      expect(await draftCheckbox.isChecked()).toBe(true);
+
+      // Upload draft.zip via multipart in draft mode -> assert 201
+      const [uploadResponse] = await Promise.all([
+        editorPage.waitForResponse((resp) => resp.url().includes('/api/v1/admin/imports') && resp.request().method() === 'POST'),
+        fileInput.setInputFiles(draftZipPath),
+      ]);
+      expect(uploadResponse.status()).toBe(201);
+
+      // Reload page and verify GET /api/v1/admin/imports returns the job after reload
+      const [jobsResponse] = await Promise.all([
+        editorPage.waitForResponse((resp) => resp.url().includes('/api/v1/admin/imports') && resp.request().method() === 'GET'),
+        editorPage.reload({ waitUntil: 'domcontentloaded' }),
+      ]);
+      expect(jobsResponse.status()).toBe(200);
+
+      const jobsData = (await jobsResponse.json()) as { items?: Array<{ fileName?: string; status?: string }> };
+      const items = jobsData.items || [];
+      const draftJob = items.find((j) => (j.fileName || '').includes('draft.zip'));
+      expect(draftJob).toBeDefined();
+      expect(draftJob?.status).toBe('DRAFT_ONLY');
+
+      // Table displays the draft job row with DRAFT_ONLY status
+      const draftJobRow = editorPage.locator('tr').filter({ hasText: 'draft.zip' }).first();
+      await expect(draftJobRow).toBeVisible({ timeout: 15000 });
+      await expect(draftJobRow.locator('text=DRAFT_ONLY').first()).toBeVisible();
+
+      // Test body limits on container:
+      // 1. Body 2 MB to non-import route returns 413
+      const payload2Mb = Buffer.alloc(2 * 1024 * 1024, 0xaa);
+      const resRouteOther = await request.post(`${apiBaseUrl}/api/v1/auth/sign-in/email`, {
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          ...headers,
+        },
+        data: payload2Mb,
+      });
+      expect(resRouteOther.status()).toBe(413);
+
+      // 2. Gói 12 MB to /api/v1/admin/imports is accepted by Fastify without 413
+      const payload12Mb = Buffer.alloc(12 * 1024 * 1024, 0xbb);
+      const resImport12Mb = await request.post(`${apiBaseUrl}/api/v1/admin/imports`, {
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          ...headers,
+        },
+        data: payload12Mb,
+      });
+      expect(resImport12Mb.status()).not.toBe(413);
+    } finally {
+      await editorCtx.close();
+    }
+  });
+
   test('AC4: Loading, empty, and API error states are clearly displayed; 401/403 redirects or displays access denied', async ({
     page,
   }, testInfo) => {
