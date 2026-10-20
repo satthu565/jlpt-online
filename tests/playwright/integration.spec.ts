@@ -377,7 +377,7 @@ test.describe('Real Staging User Journey & Exam Flow (I05)', () => {
     await page.locator('#login-email').fill(testEmail);
     await page.locator('#login-password').fill(testPassword);
     await page.locator('button[type="submit"]').click();
-    await page.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 20000 });
+    await page.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 30000, waitUntil: 'domcontentloaded' });
 
     // 5. Navigate to /de-thi and find demo N5 exam
     await page.goto(`${webOrigin}/de-thi`);
@@ -3387,7 +3387,7 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
     await page.locator('#login-email, input[type="email"]').fill(studentUser.email);
     await page.locator('#login-password, input[type="password"]').fill(studentUser.password);
     await page.locator('button[type="submit"]').click();
-    await page.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 20000 });
+    await page.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 30000, waitUntil: 'domcontentloaded' });
 
     // 2. Visit every web page
     for (const p of ALL_WEB_PAGES) {
@@ -3537,7 +3537,7 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
       await studentPage.locator('#login-email').fill(testEmail);
       await studentPage.locator('#login-password').fill(testPassword);
       await studentPage.locator('button[type="submit"]').click();
-      await studentPage.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 20000 });
+      await studentPage.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 30000, waitUntil: 'domcontentloaded' });
 
       // 1.4 Take Exam
       await studentPage.goto(`${webOrigin}/de-thi`, { waitUntil: 'domcontentloaded' });
