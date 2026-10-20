@@ -85,7 +85,7 @@ export default function ExamLibraryPage(): React.JSX.Element {
   }, [loadExams]);
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 space-y-6" data-testid="exam-library-page">
+    <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-8" data-testid="exam-library-page">
       {/* Page header */}
       <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">

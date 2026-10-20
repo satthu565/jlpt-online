@@ -62,7 +62,7 @@ export default function ExamDetailPage({ params }: ExamDetailPageProps): React.J
 
   if (error) {
     return (
-      <div className="max-w-2xl mx-auto py-16 px-4 text-center" data-testid="exam-detail-error">
+      <div className="mx-auto w-full max-w-2xl py-16 px-4 text-center" data-testid="exam-detail-error">
         <Card className="p-8 border border-slate-200 dark:border-slate-800 text-center">
           <div className="text-4xl mb-3" role="img" aria-label="Lỗi đề thi">
             {error.notFound ? <SearchX className="mx-auto size-10" aria-hidden="true" /> : <AlertTriangle className="mx-auto size-10" aria-hidden="true" />}
@@ -93,7 +93,7 @@ export default function ExamDetailPage({ params }: ExamDetailPageProps): React.J
 
   if (!exam) {
     return (
-      <div className="max-w-2xl mx-auto py-16 px-4 text-center">
+      <div className="mx-auto w-full max-w-2xl py-16 px-4 text-center">
         <p className="text-sm text-slate-500 mb-4">Không có dữ liệu đề thi.</p>
         <a href="/de-thi">
           <Button variant="primary" size="sm">

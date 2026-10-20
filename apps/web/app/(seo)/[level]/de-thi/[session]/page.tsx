@@ -112,7 +112,7 @@ export default async function SessionExamsPage({ params }: SessionExamsPageProps
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 space-y-6" data-testid="session-exams-page">
+    <div className="mx-auto w-full max-w-7xl py-8 px-4 space-y-6" data-testid="session-exams-page">
       <JsonLd id={`breadcrumb-schema-${level}-${session}`} data={breadcrumbStructuredData} />
 
       {/* Breadcrumbs */}
