@@ -36,7 +36,8 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
     it('hiển thị đầy đủ các thẻ chỉ số KPI hoạt động và hoạt động trực tiếp', () => {
       const html = renderWithAuth(<AdminDashboardPage />);
 
-      expect(html).toContain('Tổng quan chỉ số hoạt động hệ thống (ADM-01)');
+      expect(html).toContain('data-testid="page-title"');
+      expect(html).toContain('Tổng quan chỉ số hoạt động hệ thống');
       expect(html).toContain('data-testid="stat-total-users"');
       expect(html).toContain('data-testid="stat-total-exams"');
       expect(html).toContain('data-testid="stat-completion-rate"');
@@ -66,7 +67,8 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
         />,
       );
 
-      expect(html).toContain('Quản lý Báo lỗi Câu hỏi từ Người dùng (ADM-09)');
+      expect(html).toContain('data-testid="page-title"');
+      expect(html).toContain('Quản lý Báo lỗi Câu hỏi từ Người dùng');
       expect(html).toContain('data-testid="select-report-filter"');
       expect(html).toContain('data-testid="report-card-rep-01"');
       expect(html).toContain('data-testid="btn-resolve-rep-01"');
@@ -95,7 +97,8 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
         />,
       );
 
-      expect(html).toContain('Kiểm duyệt Lời giải &amp; Bản dịch (ADM-10)');
+      expect(html).toContain('data-testid="page-title"');
+      expect(html).toContain('Kiểm duyệt Lời giải &amp; Bản dịch');
       expect(html).toContain('data-testid="explanation-card-exp-rev-1"');
       expect(html).toContain('NỘI DUNG LỜI GIẢI (MARKDOWN):');
       expect(html).toContain('BẢN DỊCH TIẾNG VIỆT:');
@@ -123,7 +126,8 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
         />,
       );
 
-      expect(html).toContain('Quản lý Đề thi Trộn Ngẫu nhiên (ADM-11)');
+      expect(html).toContain('data-testid="page-title"');
+      expect(html).toContain('Quản lý Đề thi Trộn Ngẫu nhiên');
       expect(html).toContain('data-testid="btn-create-mixed-exam"');
       expect(html).toContain('data-testid="filter-level-N3"');
       expect(html).toContain('data-testid="mixed-exam-card-mix-01"');
@@ -149,7 +153,8 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
         />,
       );
 
-      expect(html).toContain('Quản lý Từ vựng &amp; Ngữ pháp (ADM-12)');
+      expect(html).toContain('data-testid="page-title"');
+      expect(html).toContain('Quản lý Từ vựng &amp; Ngữ pháp');
       expect(html).toContain('data-testid="input-vocab-search"');
       expect(html).toContain('data-testid="select-vocab-level"');
       expect(html).toContain('data-testid="btn-add-vocab"');
@@ -181,7 +186,8 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
         />,
       );
 
-      expect(html).toContain('Quản trị Nội dung CMS &amp; Bài viết (ADM-13)');
+      expect(html).toContain('data-testid="page-title"');
+      expect(html).toContain('Quản trị Nội dung CMS &amp; Bài viết');
       expect(html).toContain('data-testid="tab-articles"');
       expect(html).toContain('data-testid="btn-create-article"');
       expect(html).toContain('data-testid="cms-article-card-art-01"');
@@ -193,7 +199,8 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
     it('hiển thị đủ 15 tab báo cáo, nút xuất CSV và cảnh báo D7/D30 insufficient-data', () => {
       const html = renderWithAuth(<ReportsHubPage />);
 
-      expect(html).toContain('Trung tâm Báo cáo &amp; Phân tích Hệ thống (ADM-17)');
+      expect(html).toContain('data-testid="page-title"');
+      expect(html).toContain('Trung tâm Báo cáo &amp; Phân tích Hệ thống');
       expect(html).toContain('data-testid="btn-export-csv"');
       expect(html).toContain('data-testid="reports-tab-nav"');
       expect(html).toContain('data-testid="report-tab-acquisition"');
@@ -223,7 +230,8 @@ describe('Admin Full Suite (ADM-01, 09, 10, 11, 12, 13, 17, 18, Moderation, Org,
         />,
       );
 
-      expect(html).toContain('Cấu hình Thông báo &amp; Email Tự động (ADM-18)');
+      expect(html).toContain('data-testid="page-title"');
+      expect(html).toContain('Cấu hình Thông báo &amp; Email Tự động');
       expect(html).toContain('data-testid="tpl-item-tpl-1"');
       expect(html).toContain('data-testid="input-tpl-subject"');
       expect(html).toContain('data-testid="input-tpl-body"');

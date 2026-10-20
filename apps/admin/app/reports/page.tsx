@@ -134,21 +134,21 @@ export interface ExperimentPerformanceReportDto {
 }
 
 const REPORT_TABS = [
-  { id: 'acquisition', label: '01. Người dùng mới (REPORT-01)' },
-  { id: 'dau_mau', label: '02. Hoạt động DAU/MAU (REPORT-02)' },
-  { id: 'completion', label: '03. Hoàn thành bài thi (REPORT-03)' },
-  { id: 'abandonment', label: '04. Bỏ dở bài thi (REPORT-04)' },
-  { id: 'popular_levels', label: '05. Cấp độ N1-N5 (REPORT-05)' },
-  { id: 'popular_exams', label: '06. Bộ đề phổ biến (REPORT-06)' },
-  { id: 'duration', label: '07. Thời gian sử dụng (REPORT-07)' },
-  { id: 'retention', label: '08. Giữ chân D7/D30 (REPORT-08)' },
-  { id: 'funnel', label: '09. Phễu đăng ký (REPORT-09)' },
-  { id: 'content_review', label: '10. Duyệt gói nhập (REPORT-10)' },
-  { id: 'content_incidents', label: '11. Sự cố câu hỏi & audio (REPORT-11)' },
-  { id: 'mix_usage', label: '12. Sử dụng trộn đề (REPORT-12)' },
-  { id: 'conversion', label: '13. Chuyển đổi Premium (REPORT-13)' },
-  { id: 'provider_costs', label: '14. Chi phí AI & Storage (REPORT-14)' },
-  { id: 'experiment_performance', label: '15. Thử nghiệm A/B (REPORT-15)' },
+  { id: 'acquisition', label: '01. Người dùng mới' },
+  { id: 'dau_mau', label: '02. Hoạt động DAU/MAU' },
+  { id: 'completion', label: '03. Hoàn thành bài thi' },
+  { id: 'abandonment', label: '04. Bỏ dở bài thi' },
+  { id: 'popular_levels', label: '05. Cấp độ N1-N5' },
+  { id: 'popular_exams', label: '06. Bộ đề phổ biến' },
+  { id: 'duration', label: '07. Thời gian sử dụng' },
+  { id: 'retention', label: '08. Giữ chân D7/D30' },
+  { id: 'funnel', label: '09. Phễu đăng ký' },
+  { id: 'content_review', label: '10. Duyệt gói nhập' },
+  { id: 'content_incidents', label: '11. Sự cố câu hỏi & audio' },
+  { id: 'mix_usage', label: '12. Sử dụng trộn đề' },
+  { id: 'conversion', label: '13. Chuyển đổi Premium' },
+  { id: 'provider_costs', label: '14. Chi phí AI & Storage' },
+  { id: 'experiment_performance', label: '15. Thử nghiệm A/B' },
 ];
 
 export default function ReportsHubPage(): React.JSX.Element {
@@ -347,7 +347,7 @@ export default function ReportsHubPage(): React.JSX.Element {
           {activeReport === 'acquisition' && (
             <div data-testid="report-view-acquisition" className="space-y-4">
               <h2 className="text-base font-bold text-gray-900">
-                REPORT-01: Số người dùng mới theo ngày/tháng
+                Số người dùng mới theo ngày/tháng
               </h2>
               {acq ? (
                 <>
@@ -412,7 +412,7 @@ export default function ReportsHubPage(): React.JSX.Element {
           {activeReport === 'dau_mau' && (
             <div data-testid="report-view-dau_mau" className="space-y-4">
               <h2 className="text-base font-bold text-gray-900">
-                REPORT-02: Số người dùng hoạt động hàng ngày / hàng tháng (DAU/MAU)
+                Số người dùng hoạt động hàng ngày / hàng tháng (DAU/MAU)
               </h2>
               {act ? (
                 <>
@@ -465,7 +465,7 @@ export default function ReportsHubPage(): React.JSX.Element {
           {activeReport === 'completion' && (
             <div data-testid="report-view-completion" className="space-y-4">
               <h2 className="text-base font-bold text-gray-900">
-                REPORT-03: Lượt bắt đầu và hoàn thành bài thi
+                Lượt bắt đầu và hoàn thành bài thi
               </h2>
               {comp ? (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -500,7 +500,7 @@ export default function ReportsHubPage(): React.JSX.Element {
           {activeReport === 'abandonment' && (
             <div data-testid="report-view-abandonment" className="space-y-4">
               <h2 className="text-base font-bold text-gray-900">
-                REPORT-04: Tỷ lệ bỏ dở bài thi
+                Tỷ lệ bỏ dở bài thi
               </h2>
               {aban ? (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -535,7 +535,7 @@ export default function ReportsHubPage(): React.JSX.Element {
           {activeReport === 'popular_levels' && (
             <div data-testid="report-view-popular_levels" className="space-y-4">
               <h2 className="text-base font-bold text-gray-900">
-                REPORT-05: Phân bổ cấp độ thi JLPT (N1-N5)
+                Phân bổ cấp độ thi JLPT (N1-N5)
               </h2>
               {lev ? (
                 <>
@@ -587,7 +587,7 @@ export default function ReportsHubPage(): React.JSX.Element {
           {activeReport === 'popular_exams' && (
             <div data-testid="report-view-popular_exams" className="space-y-4">
               <h2 className="text-base font-bold text-gray-900">
-                REPORT-06: Danh sách bộ đề thi phổ biến nhất
+                Danh sách bộ đề thi phổ biến nhất
               </h2>
               {popEx ? (
                 <>
@@ -641,7 +641,7 @@ export default function ReportsHubPage(): React.JSX.Element {
           {activeReport === 'duration' && (
             <div data-testid="report-view-duration" className="space-y-4">
               <h2 className="text-base font-bold text-gray-900">
-                REPORT-07: Thời gian sử dụng trung bình mỗi phiên
+                Thời gian sử dụng trung bình mỗi phiên
               </h2>
               {dur ? (
                 <>
@@ -702,7 +702,7 @@ export default function ReportsHubPage(): React.JSX.Element {
           {activeReport === 'retention' && (
             <div data-testid="report-view-retention" className="space-y-4">
               <h2 className="text-base font-bold text-gray-900">
-                REPORT-08: Tỷ lệ quay lại sau 7/30 ngày (Retention)
+                Tỷ lệ quay lại sau 7/30 ngày (Retention)
               </h2>
 
               {ret?.dataStatus === 'insufficient_data' && (
@@ -776,7 +776,7 @@ export default function ReportsHubPage(): React.JSX.Element {
           {activeReport === 'funnel' && (
             <div data-testid="report-view-funnel" className="space-y-4">
               <h2 className="text-base font-bold text-gray-900">
-                REPORT-09: Phân tích phễu đăng ký và bắt đầu làm đề
+                Phân tích phễu đăng ký và bắt đầu làm đề
               </h2>
               {fun ? (
                 <>
@@ -828,7 +828,7 @@ export default function ReportsHubPage(): React.JSX.Element {
           {activeReport === 'content_review' && (
             <div data-testid="report-view-content_review" className="space-y-4">
               <h2 className="text-base font-bold text-gray-900">
-                REPORT-10: Tiến độ kiểm duyệt gói nhập đề thi
+                Tiến độ kiểm duyệt gói nhập đề thi
               </h2>
               {rev ? (
                 <>
@@ -893,7 +893,7 @@ export default function ReportsHubPage(): React.JSX.Element {
           {activeReport === 'content_incidents' && (
             <div data-testid="report-view-content_incidents" className="space-y-4">
               <h2 className="text-base font-bold text-gray-900">
-                REPORT-11: Thống kê sự cố câu hỏi và âm thanh
+                Thống kê sự cố câu hỏi và âm thanh
               </h2>
               {inc ? (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -928,7 +928,7 @@ export default function ReportsHubPage(): React.JSX.Element {
           {activeReport === 'mix_usage' && (
             <div data-testid="report-view-mix_usage" className="space-y-4">
               <h2 className="text-base font-bold text-gray-900">
-                REPORT-12: Tình hình sử dụng tính năng trộn đề
+                Tình hình sử dụng tính năng trộn đề
               </h2>
               {mix ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -955,7 +955,7 @@ export default function ReportsHubPage(): React.JSX.Element {
           {activeReport === 'conversion' && (
             <div data-testid="report-view-conversion" className="space-y-4">
               <h2 className="text-base font-bold text-gray-900">
-                REPORT-13: Báo cáo chuyển đổi Free → Premium
+                Báo cáo chuyển đổi Free → Premium
               </h2>
               {conv ? (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -998,7 +998,7 @@ export default function ReportsHubPage(): React.JSX.Element {
           {activeReport === 'provider_costs' && (
             <div data-testid="report-view-provider_costs" className="space-y-4">
               <h2 className="text-base font-bold text-gray-900">
-                REPORT-14: Giám sát chi phí AI và Lưu trữ đám mây
+                Giám sát chi phí AI và Lưu trữ đám mây
               </h2>
               {costs ? (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -1039,7 +1039,7 @@ export default function ReportsHubPage(): React.JSX.Element {
           {activeReport === 'experiment_performance' && (
             <div data-testid="report-view-experiment_performance" className="space-y-4">
               <h2 className="text-base font-bold text-gray-900">
-                REPORT-15: Hiệu quả thử nghiệm A/B
+                Hiệu quả thử nghiệm A/B
               </h2>
               {expPerf && expPerf.experiments && expPerf.experiments.length > 0 ? (
                 <div className="space-y-4">
