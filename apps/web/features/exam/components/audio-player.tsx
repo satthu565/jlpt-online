@@ -1,5 +1,6 @@
 'use client';
 
+import { Headphones, Lock, Pause, Play, RotateCcw, Square } from 'lucide-react';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { ListeningTimelineItem, AttemptMode } from '@jlpt/schema';
 import { getListeningPlaybackPosition } from '../utils/listening';
@@ -280,9 +281,7 @@ export function AudioPlayer({
       {/* Top row: Status, Section info, and Mode badge */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-xl" role="img" aria-label="Biểu tượng tai nghe">
-            🎧
-          </span>
+          <Headphones className="size-5" role="img" aria-label="Biểu tượng tai nghe" />
           <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
             Âm thanh phần thi nghe
           </span>
@@ -334,7 +333,7 @@ export function AudioPlayer({
               onClick={handleRetry}
               aria-label="Thử tải lại âm thanh"
             >
-              🔄 Thử lại
+              <RotateCcw className="size-4" aria-hidden="true" /> Thử lại
             </Button>
           </div>
         </Alert>
@@ -376,6 +375,7 @@ export function AudioPlayer({
         >
           <div
             className="h-full bg-blue-600 transition-all duration-300 rounded-full"
+            // ui-allow-style: chiều rộng theo thời gian phát, tính lúc chạy
             style={{
               width: `${durationSec > 0 ? (currentTimeSec / durationSec) * 100 : 0}%`,
             }}
@@ -396,7 +396,7 @@ export function AudioPlayer({
                 onClick={handleTogglePlayPause}
                 aria-label={playbackStatus === 'playing' ? 'Tạm dừng bài nghe' : 'Phát tiếp bài nghe'}
               >
-                {playbackStatus === 'playing' ? '⏸ Tạm dừng' : '▶ Tiếp tục'}
+                {playbackStatus === 'playing' ? <><Pause className="size-4" aria-hidden="true" /> Tạm dừng</> : <><Play className="size-4" aria-hidden="true" /> Tiếp tục</>}
               </Button>
               <Button
                 type="button"
@@ -431,7 +431,7 @@ export function AudioPlayer({
         ) : (
           /* Real exam mode notice (AUDIO-04) */
           <div className="text-xs text-slate-500 dark:text-slate-400 italic flex items-center gap-1.5">
-            <span>🔒</span>
+            <Lock className="size-4" aria-hidden="true" />
             Âm thanh phát theo trình tự chuẩn kỳ thi. Bạn không thể tua hay phát lại.
           </div>
         )}
@@ -492,9 +492,8 @@ export function QuestionAudioPlayer({
         size="sm"
         onClick={handleToggle}
         aria-label={label}
-        className="text-xs font-medium"
-      >
-        {isPlaying ? '⏹ Dừng nghe' : `▶ ${label}`}
+        className="text-xs font-medium">
+        {isPlaying ? <><Square className="size-4" aria-hidden="true" /> Dừng nghe</> : <><Play className="size-4" aria-hidden="true" /> {label}</>}
       </Button>
     </div>
   );

@@ -28,7 +28,7 @@ export function ExamDetailView({
     <div className={`jlpt-exam-detail max-w-4xl mx-auto space-y-6 ${className}`}>
       {/* Breadcrumb */}
       <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
+        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
         <a href="/de-thi" className="hover:underline">Thư viện đề thi</a> &gt;{' '}
         <span className="text-slate-900 dark:text-slate-100 font-semibold">{exam.title}</span>
       </nav>

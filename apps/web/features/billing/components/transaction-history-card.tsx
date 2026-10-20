@@ -7,6 +7,9 @@ import { Badge } from '@jlpt/ui/components/badge';
 import { Modal } from '@jlpt/ui/components/modal';
 import { Input } from '@jlpt/ui/components/input';
 import { Alert } from '@jlpt/ui/components/alert';
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@jlpt/ui/components/table';
+import { EmptyState } from '@jlpt/ui/components/empty-state';
+import { Clock, RotateCcw, X, Check } from 'lucide-react';
 import type { TransactionItem, RefundRequestInput, RefundRequestResponse } from '../types';
 import { useI18n } from '../../../lib/i18n';
 
@@ -37,21 +40,24 @@ export function TransactionHistoryCard({
       switch (refundStatus) {
         case 'requested':
           return (
-            <Badge variant="warning" data-testid={`tx-refund-status-${tx.orderId}`}>
-              ⏳ {t('billing.refund.statusRequested')}
+            <Badge variant="warning" data-testid={`tx-refund-status-${tx.orderId}`} className="flex items-center gap-1">
+              <Clock className="size-3" />
+              <span>{t('billing.refund.statusRequested')}</span>
             </Badge>
           );
         case 'approved':
         case 'refunded':
           return (
-            <Badge variant="error" data-testid={`tx-refund-status-${tx.orderId}`}>
-              ↩️ {t('billing.refund.statusRefunded')}
+            <Badge variant="error" data-testid={`tx-refund-status-${tx.orderId}`} className="flex items-center gap-1">
+              <RotateCcw className="size-3" />
+              <span>{t('billing.refund.statusRefunded')}</span>
             </Badge>
           );
         case 'rejected':
           return (
-            <Badge variant="default" data-testid={`tx-refund-status-${tx.orderId}`}>
-              ✕ {t('billing.refund.statusRejected')}
+            <Badge variant="default" data-testid={`tx-refund-status-${tx.orderId}`} className="flex items-center gap-1">
+              <X className="size-3" />
+              <span>{t('billing.refund.statusRejected')}</span>
             </Badge>
           );
         default:
@@ -62,27 +68,31 @@ export function TransactionHistoryCard({
     switch (tx.status) {
       case 'paid':
         return (
-          <Badge variant="success" data-testid={`tx-status-${tx.orderId}`}>
-            ✓ {t('billing.transactions.statusPaid')}
+          <Badge variant="success" data-testid={`tx-status-${tx.orderId}`} className="flex items-center gap-1">
+            <Check className="size-3" />
+            <span>{t('billing.transactions.statusPaid')}</span>
           </Badge>
         );
       case 'pending':
         return (
-          <Badge variant="secondary" data-testid={`tx-status-${tx.orderId}`}>
-            ⏳ {t('billing.transactions.statusPending')}
+          <Badge variant="secondary" data-testid={`tx-status-${tx.orderId}`} className="flex items-center gap-1">
+            <Clock className="size-3" />
+            <span>{t('billing.transactions.statusPending')}</span>
           </Badge>
         );
       case 'refunded':
         return (
-          <Badge variant="error" data-testid={`tx-status-${tx.orderId}`}>
-            ↩️ {t('billing.transactions.statusRefunded')}
+          <Badge variant="error" data-testid={`tx-status-${tx.orderId}`} className="flex items-center gap-1">
+            <RotateCcw className="size-3" />
+            <span>{t('billing.transactions.statusRefunded')}</span>
           </Badge>
         );
       case 'failed':
       case 'cancelled':
         return (
-          <Badge variant="default" data-testid={`tx-status-${tx.orderId}`}>
-            ✕ {tx.status}
+          <Badge variant="default" data-testid={`tx-status-${tx.orderId}`} className="flex items-center gap-1">
+            <X className="size-3" />
+            <span>{tx.status}</span>
           </Badge>
         );
       default:
@@ -127,7 +137,7 @@ export function TransactionHistoryCard({
         <CardTitle>{t('billing.transactions.cardTitle')}</CardTitle>
       </CardHeader>
 
-      <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <CardContent className="flex flex-col gap-4">
         {refundResult && (
           <Alert variant="info" onClose={() => setRefundResult(null)}>
             {t('billing.refund.requestSubmittedNotice', {
@@ -138,67 +148,66 @@ export function TransactionHistoryCard({
         )}
 
         {transactions.length === 0 ? (
-          <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '1.5rem 0' }}>
-            {t('billing.transactions.empty')}
-          </p>
+          <EmptyState
+            variant="empty"
+            title={t('billing.transactions.empty')}
+            minHeight="sm"
+          />
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-subtle)', textAlign: 'left' }}>
-                  <th style={{ padding: '0.75rem' }}>{t('billing.transactions.orderId')}</th>
-                  <th style={{ padding: '0.75rem' }}>{t('billing.transactions.date')}</th>
-                  <th style={{ padding: '0.75rem' }}>{t('billing.transactions.amount')}</th>
-                  <th style={{ padding: '0.75rem' }}>{t('billing.transactions.status')}</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'right' }}>{t('billing.transactions.actions')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transactions.map((tx) => {
-                  const isEligibleForRefund =
-                    tx.status === 'paid' &&
-                    (!tx.refundStatus || tx.refundStatus === 'rejected') &&
-                    (!refundResult || refundResult.orderId !== tx.orderId);
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t('billing.transactions.orderId')}</TableHead>
+                <TableHead>{t('billing.transactions.date')}</TableHead>
+                <TableHead>{t('billing.transactions.amount')}</TableHead>
+                <TableHead>{t('billing.transactions.status')}</TableHead>
+                <TableHead className="text-right">{t('billing.transactions.actions')}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {transactions.map((tx) => {
+                const isEligibleForRefund =
+                  tx.status === 'paid' &&
+                  (!tx.refundStatus || tx.refundStatus === 'rejected') &&
+                  (!refundResult || refundResult.orderId !== tx.orderId);
 
-                  return (
-                    <tr
-                      key={tx.orderId}
-                      style={{ borderBottom: '1px solid var(--border-subtle)' }}
-                      data-testid={`tx-row-${tx.orderId}`}
-                    >
-                      <td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>
-                        {tx.orderId}
-                      </td>
-                      <td style={{ padding: '0.75rem', color: 'var(--text-muted)' }}>
-                        {new Date(tx.createdAt).toLocaleDateString()}
-                      </td>
-                      <td style={{ padding: '0.75rem', fontWeight: 600 }}>
-                        {tx.currency === 'VND'
-                          ? `${tx.amountMinor.toLocaleString('vi-VN')}₫`
-                          : `${(tx.amountMinor / 100).toLocaleString()} ${tx.currency}`}
-                      </td>
-                      <td style={{ padding: '0.75rem' }}>
-                        {getOrderStatusBadge(tx)}
-                      </td>
-                      <td style={{ padding: '0.75rem', textAlign: 'right' }}>
-                        {isEligibleForRefund && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleOpenRefundModal(tx)}
-                            data-testid={`request-refund-${tx.orderId}`}
-                            aria-label={t('billing.refund.requestButtonAria', { orderId: tx.orderId })}
-                          >
-                            {t('billing.refund.requestButton')}
-                          </Button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                return (
+                  <TableRow
+                    key={tx.orderId}
+                    data-testid={`tx-row-${tx.orderId}`}
+                  >
+                    <TableCell className="font-mono">
+                      {tx.orderId}
+                    </TableCell>
+                    <TableCell className="text-[var(--text-muted)]">
+                      {new Date(tx.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="font-semibold">
+                      {tx.currency === 'VND'
+                        ? `${tx.amountMinor.toLocaleString('vi-VN')}₫`
+                        : `${(tx.amountMinor / 100).toLocaleString()} ${tx.currency}`}
+                    </TableCell>
+                    <TableCell>
+                      {getOrderStatusBadge(tx)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {isEligibleForRefund && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleOpenRefundModal(tx)}
+                          data-testid={`request-refund-${tx.orderId}`}
+                          aria-label={t('billing.refund.requestButtonAria', { orderId: tx.orderId })}
+                        >
+                          {t('billing.refund.requestButton')}
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
         )}
 
         {/* Refund Request Modal */}
@@ -208,8 +217,8 @@ export function TransactionHistoryCard({
             onClose={() => setActiveTransactionForRefund(null)}
             title={t('billing.refund.modalTitle')}
           >
-            <form onSubmit={handleSubmitRefund} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9375rem' }}>
+            <form onSubmit={handleSubmitRefund} className="flex flex-col gap-4">
+              <p className="m-0 text-[var(--text-secondary)] text-sm">
                 {t('billing.refund.modalDescription', {
                   orderId: activeTransactionForRefund.orderId,
                   amount: activeTransactionForRefund.currency === 'VND'
@@ -225,7 +234,7 @@ export function TransactionHistoryCard({
               )}
 
               <div>
-                <label htmlFor="refund-reason-input" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 600 }}>
+                <label htmlFor="refund-reason-input" className="block mb-1 font-semibold text-sm">
                   {t('billing.refund.reasonLabel')} *
                 </label>
                 <Input
@@ -238,7 +247,7 @@ export function TransactionHistoryCard({
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+              <div className="flex justify-end gap-3 mt-2">
                 <Button type="button" variant="outline" onClick={() => setActiveTransactionForRefund(null)}>
                   {t('common.buttons.cancel')}
                 </Button>

@@ -226,20 +226,82 @@ export class AdminApiClient {
     }
 
     if (!res.ok) {
-      let errorData: { error?: { code?: string; message?: string; details?: Record<string, unknown> } } = {};
-      try {
-        errorData = (await res.json()) as typeof errorData;
-      } catch {
-        // Non-json response
+      let errorData: Record<string, unknown> = {};
+      let rawText = '';
+      if (typeof res.text === 'function') {
+        try {
+          rawText = await res.text();
+          if (rawText && rawText.trim()) {
+            try {
+              errorData = JSON.parse(rawText) as Record<string, unknown>;
+            } catch {
+              // Non-json response, keep rawText
+            }
+          }
+        } catch {
+          // ignore
+        }
+      }
+      if (Object.keys(errorData).length === 0 && typeof res.json === 'function') {
+        try {
+          const parsed = await res.json();
+          if (parsed && typeof parsed === 'object') {
+            errorData = parsed as Record<string, unknown>;
+          }
+        } catch {
+          // Non-json response
+        }
       }
 
       if (res.status === 401) {
         this.onUnauthorizedCallback?.();
       }
 
-      const code = (errorData.error?.code as GuardErrorCode) || (res.status === 401 ? 'UNAUTHENTICATED' : res.status === 403 ? 'FORBIDDEN' : 'VALIDATION_ERROR');
-      const message = errorData.error?.message || `API error with status ${res.status}`;
-      throw new AdminClientGuardError(code, message, res.status, errorData.error?.details || {});
+      const nestedError = typeof errorData.error === 'object' && errorData.error !== null
+        ? (errorData.error as Record<string, unknown>)
+        : undefined;
+
+      const code =
+        (nestedError?.code as GuardErrorCode) ||
+        (res.status === 401 ? 'UNAUTHENTICATED' : res.status === 403 ? 'FORBIDDEN' : 'VALIDATION_ERROR');
+
+      let message = '';
+      if (typeof errorData.error === 'string') {
+        message = typeof errorData.message === 'string'
+          ? `${errorData.error}: ${errorData.message}`
+          : errorData.error;
+      } else if (nestedError && typeof nestedError.message === 'string') {
+        message = nestedError.message;
+      } else if (typeof errorData.message === 'string') {
+        message = errorData.message;
+      } else if (Array.isArray(errorData.message)) {
+        message = errorData.message.join('; ');
+      } else if (rawText && rawText.trim()) {
+        message = rawText.trim();
+      }
+
+      if (!message) {
+        if (res.status === 413) {
+          message = 'Payload Too Large: Tệp tải lên vượt quá kích thước cho phép (413)';
+        } else if (res.status === 415) {
+          message = 'Unsupported Media Type: Định dạng tệp không được hỗ trợ (415)';
+        } else {
+          message = `API error with status ${res.status}`;
+        }
+      }
+
+      const details =
+        nestedError?.details && typeof nestedError.details === 'object'
+          ? (nestedError.details as Record<string, unknown>)
+          : typeof errorData.details === 'object' && errorData.details !== null
+            ? (errorData.details as Record<string, unknown>)
+            : errorData;
+
+      if (Array.isArray(errorData.errors) && !details.errors) {
+        details.errors = errorData.errors;
+      }
+
+      throw new AdminClientGuardError(code, message, res.status, details);
     }
 
     if (res.status === 204) {

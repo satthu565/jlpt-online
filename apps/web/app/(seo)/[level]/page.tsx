@@ -1,3 +1,4 @@
+import { BookOpen, Target, Timer } from 'lucide-react';
 import React from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -211,14 +212,14 @@ export default async function LevelIntroductionPage({ params }: LevelPageProps):
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4 space-y-8" data-testid="level-intro-page">
+    <div className="mx-auto w-full max-w-6xl py-8 px-4 space-y-8" data-testid="level-intro-page">
       {/* Structured data JSON-LD */}
       <JsonLd id={`course-schema-${normalized}`} data={courseStructuredData} />
       <JsonLd id={`breadcrumb-schema-${normalized}`} data={breadcrumbStructuredData} />
 
       {/* Breadcrumbs */}
       <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
+        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
         <span className="text-slate-900 dark:text-slate-100 font-semibold">{detail.code}</span>
       </nav>
 
@@ -239,14 +240,14 @@ export default async function LevelIntroductionPage({ params }: LevelPageProps):
 
         {/* CTA Buttons */}
         <div className="flex flex-wrap gap-3 pt-2">
-          <a href={`/${normalized}/de-thi`} style={{ textDecoration: 'none' }}>
+          <a className="no-underline" href={`/${normalized}/de-thi`}>
             <Button size="md" variant="primary" data-testid="level-view-exams-btn">
-              📚 Xem danh sách đề thi {detail.code}
+              <BookOpen className="size-4" aria-hidden="true" /> Xem danh sách đề thi {detail.code}
             </Button>
           </a>
-          <a href={`/luyen-tap?level=${detail.code}`} style={{ textDecoration: 'none' }}>
+          <a className="no-underline" href={`/luyen-tap?level=${detail.code}`}>
             <Button size="md" variant="outline" data-testid="level-start-practice-btn">
-              🎯 Luyện tập theo chuyên đề {detail.code}
+              <Target className="size-4" aria-hidden="true" /> Luyện tập theo chuyên đề {detail.code}
             </Button>
           </a>
         </div>
@@ -314,8 +315,7 @@ export default async function LevelIntroductionPage({ params }: LevelPageProps):
           {detail.sections.map((sec, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-sm"
-            >
+              className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-sm">
               <div className="flex items-center gap-3">
                 <span className="w-7 h-7 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300 flex items-center justify-center font-bold text-xs">
                   {idx + 1}
@@ -325,7 +325,7 @@ export default async function LevelIntroductionPage({ params }: LevelPageProps):
                 </span>
               </div>
               <Badge variant="neutral" size="md">
-                ⏱️ {sec.durationMin} phút
+                <Timer className="inline size-4 align-[-2px]" aria-hidden="true" /> {sec.durationMin} phút
               </Badge>
             </div>
           ))}

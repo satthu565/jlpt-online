@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/ca
 import { Button } from '@jlpt/ui/components/button';
 import { Badge } from '@jlpt/ui/components/badge';
 import { Alert } from '@jlpt/ui/components/alert';
+import { Check, AlertTriangle, X, Ban, Info, RefreshCw } from 'lucide-react';
 import type { UserSubscription } from '../types';
 import { useI18n } from '../../../lib/i18n';
 
@@ -27,13 +28,33 @@ export function SubscriptionStatusCard({
   const getStatusBadge = () => {
     switch (subscription.status) {
       case 'active':
-        return <Badge variant="success">✓ {t('billing.subscription.statusActive')}</Badge>;
+        return (
+          <Badge variant="success" className="flex items-center gap-1">
+            <Check className="size-3" />
+            <span>{t('billing.subscription.statusActive')}</span>
+          </Badge>
+        );
       case 'past_due':
-        return <Badge variant="warning">⚠️ {t('billing.subscription.statusPastDue')}</Badge>;
+        return (
+          <Badge variant="warning" className="flex items-center gap-1">
+            <AlertTriangle className="size-3" />
+            <span>{t('billing.subscription.statusPastDue')}</span>
+          </Badge>
+        );
       case 'cancelled':
-        return <Badge variant="default">✕ {t('billing.subscription.statusCancelled')}</Badge>;
+        return (
+          <Badge variant="default" className="flex items-center gap-1">
+            <X className="size-3" />
+            <span>{t('billing.subscription.statusCancelled')}</span>
+          </Badge>
+        );
       case 'expired':
-        return <Badge variant="error">⛔ {t('billing.subscription.statusExpired')}</Badge>;
+        return (
+          <Badge variant="error" className="flex items-center gap-1">
+            <Ban className="size-3" />
+            <span>{t('billing.subscription.statusExpired')}</span>
+          </Badge>
+        );
       default:
         return <Badge variant="secondary">{t('billing.subscription.statusNone')}</Badge>;
     }
@@ -69,35 +90,36 @@ export function SubscriptionStatusCard({
 
   return (
     <Card data-testid="subscription-status-card">
-      <CardHeader style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <CardHeader className="flex flex-row justify-between items-center">
         <CardTitle>{t('billing.subscription.cardTitle')}</CardTitle>
         {getStatusBadge()}
       </CardHeader>
 
-      <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <CardContent className="flex flex-col gap-4">
         {feedback && (
           <Alert variant="info" onClose={() => setFeedback(null)}>
             {feedback}
           </Alert>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem' }}>
+        <div className="flex flex-col gap-2 text-sm">
           {subscription.currentPeriodEnd && (
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>{t('billing.subscription.expiresAt')}:</span>
+            <div className="flex justify-between">
+              <span className="text-[var(--text-secondary)]">{t('billing.subscription.expiresAt')}:</span>
               <strong>{new Date(subscription.currentPeriodEnd).toLocaleDateString()}</strong>
             </div>
           )}
 
           {subscription.cancelAtPeriodEnd && (
-            <div style={{ color: 'var(--color-warning)' }}>
-              ℹ️ {t('billing.subscription.cancelAtPeriodEndNotice')}
+            <div className="text-[var(--color-warning)] flex items-center gap-1.5">
+              <Info className="size-4 shrink-0" />
+              <span>{t('billing.subscription.cancelAtPeriodEndNotice')}</span>
             </div>
           )}
         </div>
 
         {/* Actions */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+        <div className="flex justify-end gap-3 mt-2">
           {subscription.status === 'active' && !subscription.cancelAtPeriodEnd && onCancel && (
             <Button
               variant="outline"
@@ -117,8 +139,10 @@ export function SubscriptionStatusCard({
               onClick={handleRenew}
               loading={loading}
               data-testid="renew-subscription-button"
+              className="flex items-center gap-1.5"
             >
-              🔄 {t('billing.subscription.renewAction')}
+              <RefreshCw className="size-3.5" />
+              <span>{t('billing.subscription.renewAction')}</span>
             </Button>
           )}
         </div>

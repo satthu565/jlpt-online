@@ -180,7 +180,7 @@ export default function FaqPage(): React.JSX.Element {
 
       {/* Breadcrumbs */}
       <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
+        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
         <span className="text-slate-900 dark:text-slate-100 font-semibold">Câu hỏi thường gặp</span>
       </nav>
 

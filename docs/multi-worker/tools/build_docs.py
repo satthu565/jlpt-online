@@ -648,7 +648,8 @@ task('D07','W4',9,1,'Admin: bỏ mã tính năng nội bộ khỏi giao diện',
 # native selects. Admin (D03) has none. Restyle apps/web for real, in three disjoint path groups.
 SHADCN = ('Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, '
  'icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy '
- '(ví dụ width của thanh tiến độ) có comment "ui-allow-style". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi.')
+ '(ví dụ width của thanh tiến độ) có comment "ui-allow-style". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi. '
+ 'Dùng PageHeader (@jlpt/ui/components/page-header), EmptyState (@jlpt/ui/components/empty-state) và icon lucide-react đã có sẵn; import @jlpt/ui theo từng thành phần, không qua barrel.')
 task('D08','W3',9,4,'Web: khung trang và các trang chính theo shadcn/ui','D02 D07',
  SHADCN+' Phạm vi: khung trang (header, menu điện thoại, footer, nav-shell), trang chủ, thư viện đề, phòng thi, trang cấp độ/SEO, đăng nhập/đăng ký, trang thông tin. '
  'Thêm lucide-react vào @jlpt/ui, thêm PageHeader và EmptyState dùng chung; mở rộng pnpm check:ui-primitives đếm style={{ trong apps/web theo baseline giảm dần (ratchet). '
@@ -657,21 +658,21 @@ task('D08','W3',9,4,'Web: khung trang và các trang chính theo shadcn/ui','D02
  'apps/web/app/page.tsx|apps/web/app/layout.tsx|apps/web/app/nav-shell.tsx|apps/web/app/globals.css|apps/web/app/(auth)/|apps/web/app/(exam)/|apps/web/app/(info)/|apps/web/app/(library)/|apps/web/app/(seo)/|apps/web/features/exam/|apps/web/features/library/|packages/ui/',
  'Các trang trong phạm vi không còn style={{}} viết tay|Ảnh trước/sau 390/1366px trong docs/release/|check:ui-primitives đếm inline style và chặn tăng|Lighthouse mobile LCP < 2,5 s cho /, /de-thi, /phong-thi, /n5, /dang-nhap|'+NO_REGRESS,
  'pnpm test:web|pnpm check:ui-primitives|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ docs/release/')
-task('D09','W3',9,4,'Web: trang học tập, luyện tập, kế hoạch, kết quả theo shadcn/ui','D08',
+task('D09','W3',9,4,'Web: trang học tập, luyện tập, kế hoạch, kết quả theo shadcn/ui','D02 D07',
  SHADCN+' Phạm vi: sổ tay, flashcard/SRS, luyện tập, kế hoạch học, kết quả bài thi, thống kê, kho từ vựng/ngữ pháp.',
  'apps/web/app/(learning)/|apps/web/app/(practice)/|apps/web/app/(planner)/|apps/web/app/(results)/|apps/web/app/(corpus)/|apps/web/app/(analytics)/|apps/web/features/learning/|apps/web/features/practice/|apps/web/features/planner/|apps/web/features/results/|apps/web/features/corpus/|apps/web/features/analytics/',
  'Các trang trong phạm vi không còn style={{}} viết tay|Ảnh trước/sau 390/1366px trong docs/release/|'+NO_REGRESS,
  'pnpm test:web|pnpm check:ui-primitives|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ docs/release/')
-task('D10','W3',9,4,'Web: tài khoản, gói học, lớp học, cộng đồng theo shadcn/ui','D08',
+task('D10','W3',9,4,'Web: tài khoản, gói học, lớp học, cộng đồng theo shadcn/ui','D02 D07',
  SHADCN+' Phạm vi: tài khoản và cài đặt, gói học/thanh toán, lớp học, cộng đồng/thảo luận, chia sẻ, lời giải, huy hiệu, AI, đề trộn.',
  'apps/web/app/(account)/|apps/web/app/(billing)/|apps/web/app/(classroom)/|apps/web/app/(community)/|apps/web/app/(share)/|apps/web/features/account/|apps/web/features/billing/|apps/web/features/classroom/|apps/web/features/community/|apps/web/features/explanations/|apps/web/features/gamification/|apps/web/features/ai/|apps/web/features/mix/',
  'Các trang trong phạm vi không còn style={{}} viết tay|Ảnh trước/sau 390/1366px trong docs/release/|'+NO_REGRESS,
  'pnpm test:web|pnpm check:ui-primitives|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ docs/release/')
-task('D05','W6',9,3,'Nghiệm thu giao diện thống nhất và hiệu năng','D02 D03 D07 D08 D09 D10',
+task('D05','W6',9,3,'Nghiệm thu giao diện thống nhất và hiệu năng','D02 D03 D07 D09 D10',
  'Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau. '
  'E2E tích hợp chạy qua jlpt-stage-test check-all; Lighthouse chạy trong CI staging trên GitHub (không chạy thẳng trên VM). '
  'Bỏ LCP khỏi WARN_ONLY_METRICS trong tests/lighthouse/budgets.ts để LCP chặn trở lại (tạm cảnh báo từ 2026-10-20 chờ D08). '
- 'D04, D06, I22 do Claude làm trực tiếp và đã ghép (#79, #86, #88, #83); coordinator ghi CANCELLED nên không còn là phụ thuộc.',
+ 'D04, D06, D08, I19, I20, I22 do Claude làm trực tiếp và ghép qua PR (coordinator ghi CANCELLED nên không còn là phụ thuộc); D05 kiểm tra cả phần của D08.',
  'tests/|.github/|docs/release/',
  'docs/release/DESIGN_PERF_REPORT.md có số đo trước/sau và ảnh từng trang|tests/lighthouse/budgets.ts không còn chỉ số chỉ cảnh báo|Không trang nào cuộn ngang, hiện key dịch thô hoặc mã tính năng nội bộ|check:ui-primitives và test:lighthouse chặn trong CI',
  'pnpm check:ui-primitives|pnpm check:no-mock-ui',resources='ci-workflow staging-deploy',kind='verification')

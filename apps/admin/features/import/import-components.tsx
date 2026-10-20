@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@jlpt/ui/components/button';
 import { Input } from '@jlpt/ui/components/input';
 import { Textarea } from '@jlpt/ui/components/textarea';
-import type { ImportJobSummary, BatchImportSummary, SourcePageResolution, ImportIssue } from './types';
-import { StandalonePdfError } from './types';
-import { ImportManager } from './import-manager';
+import type { ImportJobSummary, SourcePageResolution, ImportIssue } from './types';
 import { JsonCsvService } from './json-csv-service';
-import { apiClient } from '../../lib/api-client';
+import { apiClient, AdminClientGuardError } from '../../lib/api-client';
 import { useAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
 
@@ -17,12 +15,84 @@ export interface ImportViewProps {
   onDraftCreated?: (job: ImportJobSummary) => void;
 }
 
+function mapApiJobToSummary(it: Record<string, unknown>): ImportJobSummary {
+  const errorLog = (it.errorLog as Record<string, unknown>) || {};
+  const rawIssues = (
+    Array.isArray(it.issues)
+      ? (it.issues as Record<string, unknown>[])
+      : Array.isArray(errorLog.issues)
+        ? (errorLog.issues as Record<string, unknown>[])
+        : []
+  );
+  const issues: ImportIssue[] = rawIssues.map((iss) => ({
+    id: String(iss['id'] || ''),
+    severity: (iss['severity'] === 'warning' ? 'warning' : 'blocking') as 'blocking' | 'warning',
+    path: String(iss['path'] || ''),
+    reason: String(iss['reason'] || ''),
+    sourcePages: Array.isArray(iss['sourcePages']) ? (iss['sourcePages'] as number[]) : [],
+  }));
+  const blockingCount =
+    typeof it.blockingIssueCount === 'number'
+      ? it.blockingIssueCount
+      : typeof errorLog.blockingIssueCount === 'number'
+        ? (errorLog.blockingIssueCount as number)
+        : issues.filter((i) => i.severity === 'blocking').length;
+  const nonBlockingCount =
+    typeof it.nonBlockingIssueCount === 'number'
+      ? it.nonBlockingIssueCount
+      : typeof errorLog.nonBlockingIssueCount === 'number'
+        ? (errorLog.nonBlockingIssueCount as number)
+        : issues.filter((i) => i.severity !== 'blocking').length;
+  const status =
+    String(it.status || '') === 'DRAFT_ONLY' || errorLog.readiness === 'DRAFT_ONLY'
+      ? 'DRAFT_ONLY'
+      : (it.status as ImportJobSummary['status']) || 'succeeded';
+  const readiness: ImportJobSummary['readiness'] =
+    it.readiness === 'DRAFT_ONLY' || it.readiness === 'READY_FOR_REVIEW' || it.readiness === 'INVALID'
+      ? it.readiness
+      : errorLog.readiness === 'DRAFT_ONLY' || errorLog.readiness === 'READY_FOR_REVIEW' || errorLog.readiness === 'INVALID'
+        ? errorLog.readiness
+        : status === 'DRAFT_ONLY'
+          ? 'DRAFT_ONLY'
+          : 'READY_FOR_REVIEW';
+
+  return {
+    id: String(it.id || ''),
+    fileName: String(it.fileName || 'package.zip'),
+    fileSizeBytes: typeof it.fileSizeBytes === 'number' ? it.fileSizeBytes : 0,
+    status,
+    readiness,
+    mode: (it.mode === 'draft' || it.mode === 'ready'
+      ? it.mode
+      : errorLog.mode === 'draft' || errorLog.mode === 'ready'
+        ? errorLog.mode
+        : status === 'DRAFT_ONLY'
+          ? 'draft'
+          : 'ready') as 'draft' | 'ready',
+    errors: (errorLog.errors as string[]) || (Array.isArray(it.errors) ? (it.errors as string[]) : []),
+    warnings: (errorLog.warnings as string[]) || (Array.isArray(it.warnings) ? (it.warnings as string[]) : []),
+    blockingIssueCount: blockingCount,
+    nonBlockingIssueCount: nonBlockingCount,
+    extractedQuestionsCount:
+      typeof it.extractedQuestionsCount === 'number'
+        ? it.extractedQuestionsCount
+        : typeof errorLog.extractedQuestionsCount === 'number'
+          ? (errorLog.extractedQuestionsCount as number)
+          : 0,
+    sourceFiles: Array.isArray(it.sourceFiles) ? (it.sourceFiles as ImportJobSummary['sourceFiles']) : [],
+    issues,
+    createdAt: String(it.createdAt || new Date().toISOString()),
+    createdBy: String(it.uploadedBy || 'importer'),
+    targetLevel: it.targetLevel as ImportJobSummary['targetLevel'],
+    draftExamId: (errorLog.draftExamId as string) || (it.draftExamId as string) || undefined,
+  };
+}
+
 export function ImportManagerView({
   initialJobs = [],
   onDraftCreated,
 }: ImportViewProps): React.JSX.Element {
   const { locale } = useAdminAuth();
-  const [manager] = useState(() => new ImportManager());
   const [jsonCsvService] = useState(() => new JsonCsvService());
   const [jobs, setJobs] = useState<ImportJobSummary[]>(initialJobs);
   const [isDraftMode, setIsDraftMode] = useState<boolean>(false);
@@ -33,98 +103,30 @@ export function ImportManagerView({
   const [csvJsonInput, setCsvJsonInput] = useState<string>('');
   const [csvExportOutput, setCsvExportOutput] = useState<string>('');
 
+  const fetchJobs = useCallback(async () => {
+    try {
+      const res = (await apiClient.listImportJobs()) as
+        | { items?: Record<string, unknown>[] }
+        | Record<string, unknown>[];
+      const items = Array.isArray(res) ? res : res?.items || [];
+      const mapped = items.map(mapApiJobToSummary);
+      setJobs(mapped);
+      return mapped;
+    } catch {
+      return null;
+    }
+  }, []);
+
   useEffect(() => {
     let mounted = true;
     setIsLoading(true);
-    apiClient
-      .listImportJobs()
-      .then((res: unknown) => {
-        if (!mounted) return;
-        const data = res as { items?: Record<string, unknown>[] } | Record<string, unknown>[];
-        const items = Array.isArray(data) ? data : data?.items || [];
-        if (items.length > 0) {
-          const mapped: ImportJobSummary[] = items.map((it: Record<string, unknown>) => {
-            const errorLog = (it.errorLog as Record<string, unknown>) || {};
-            const rawIssues = (
-              Array.isArray(it.issues)
-                ? (it.issues as Record<string, unknown>[])
-                : Array.isArray(errorLog.issues)
-                  ? (errorLog.issues as Record<string, unknown>[])
-                  : []
-            );
-            const issues = Array.isArray(rawIssues)
-              ? rawIssues.map((iss) => ({
-                  id: String(iss['id'] || ''),
-                  severity: (iss['severity'] === 'warning' ? 'warning' : 'blocking') as 'blocking' | 'warning',
-                  path: String(iss['path'] || ''),
-                  reason: String(iss['reason'] || ''),
-                  sourcePages: Array.isArray(iss['sourcePages']) ? (iss['sourcePages'] as number[]) : [],
-                }))
-              : [];
-            const blockingCount =
-              typeof it.blockingIssueCount === 'number'
-                ? it.blockingIssueCount
-                : typeof errorLog.blockingIssueCount === 'number'
-                  ? (errorLog.blockingIssueCount as number)
-                  : issues.filter((i) => i.severity === 'blocking').length;
-            const nonBlockingCount =
-              typeof it.nonBlockingIssueCount === 'number'
-                ? it.nonBlockingIssueCount
-                : typeof errorLog.nonBlockingIssueCount === 'number'
-                  ? (errorLog.nonBlockingIssueCount as number)
-                  : issues.filter((i) => i.severity !== 'blocking').length;
-            const status =
-              String(it.status || '') === 'DRAFT_ONLY' || errorLog.readiness === 'DRAFT_ONLY'
-                ? 'DRAFT_ONLY'
-                : (it.status as ImportJobSummary['status']) || 'succeeded';
-            const readiness: ImportJobSummary['readiness'] =
-              it.readiness === 'DRAFT_ONLY' || it.readiness === 'READY_FOR_REVIEW' || it.readiness === 'INVALID'
-                ? it.readiness
-                : errorLog.readiness === 'DRAFT_ONLY' || errorLog.readiness === 'READY_FOR_REVIEW' || errorLog.readiness === 'INVALID'
-                  ? errorLog.readiness
-                  : status === 'DRAFT_ONLY'
-                    ? 'DRAFT_ONLY'
-                    : 'READY_FOR_REVIEW';
-
-            return {
-              id: String(it.id || ''),
-              fileName: String(it.fileName || 'package.zip'),
-              fileSizeBytes: typeof it.fileSizeBytes === 'number' ? it.fileSizeBytes : 0,
-              status,
-              readiness,
-              mode: (it.mode === 'draft' || it.mode === 'ready' ? it.mode : errorLog.mode === 'draft' || errorLog.mode === 'ready' ? errorLog.mode : status === 'DRAFT_ONLY' ? 'draft' : 'ready') as 'draft' | 'ready',
-              errors: (errorLog.errors as string[]) || [],
-              warnings: (errorLog.warnings as string[]) || [],
-              blockingIssueCount: blockingCount,
-              nonBlockingIssueCount: nonBlockingCount,
-              extractedQuestionsCount:
-                typeof it.extractedQuestionsCount === 'number'
-                  ? it.extractedQuestionsCount
-                  : typeof errorLog.extractedQuestionsCount === 'number'
-                    ? (errorLog.extractedQuestionsCount as number)
-                    : 0,
-              sourceFiles: [],
-              issues,
-              createdAt: String(it.createdAt || new Date().toISOString()),
-              createdBy: String(it.uploadedBy || 'importer'),
-              targetLevel: it.targetLevel as ImportJobSummary['targetLevel'],
-              draftExamId: (errorLog.draftExamId as string) || undefined,
-            };
-          });
-          setJobs(mapped);
-        }
-      })
-      .catch(() => {
-        // Fallback to local jobs if offline/unit tests
-      })
-      .finally(() => {
-        if (mounted) setIsLoading(false);
-      });
-
+    fetchJobs().finally(() => {
+      if (mounted) setIsLoading(false);
+    });
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [fetchJobs]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setErrorMessage(null);
@@ -133,182 +135,86 @@ export function ImportManagerView({
     if (!files || files.length === 0) return;
 
     const currentMode: 'draft' | 'ready' = isDraftMode ? 'draft' : 'ready';
+    setIsLoading(true);
 
-    if (files.length === 1) {
-      const file = files[0]!;
-      // Fast pre-check for standalone PDF
-      if (file.name.toLowerCase().endsWith('.pdf')) {
-        const err = new StandalonePdfError();
-        setErrorMessage(err.message);
-        return;
-      }
+    try {
+      if (files.length === 1) {
+        const file = files[0]!;
+        const res = (await apiClient.uploadImportPackage(file, file.name, { mode: currentMode })) as Record<string, unknown> | null;
 
-      setIsLoading(true);
-      try {
-        let jobSummary: ImportJobSummary;
-        try {
-          const res = (await apiClient.uploadImportPackage(file, file.name, { mode: currentMode })) as {
-            id?: string;
-            status?: string;
-            readiness?: string;
-            issues?: ImportIssue[];
-            blockingIssueCount?: number;
-            extractedQuestionsCount?: number;
-            draftExamId?: string;
-          } | null;
-          const refreshRes = (await apiClient.listImportJobs().catch(() => null)) as { items?: Record<string, unknown>[] } | null;
-          if (refreshRes?.items && Array.isArray(refreshRes.items)) {
-            const mapped: ImportJobSummary[] = refreshRes.items.map((it: Record<string, unknown>) => {
-              const errorLog = (it.errorLog as Record<string, unknown>) || {};
-              const rawIssues = (
-                Array.isArray(it.issues)
-                  ? (it.issues as Record<string, unknown>[])
-                  : Array.isArray(errorLog.issues)
-                    ? (errorLog.issues as Record<string, unknown>[])
-                    : []
-              );
-              const issues = Array.isArray(rawIssues)
-                ? rawIssues.map((iss) => ({
-                    id: String(iss['id'] || ''),
-                    severity: (iss['severity'] === 'warning' ? 'warning' : 'blocking') as 'blocking' | 'warning',
-                    path: String(iss['path'] || ''),
-                    reason: String(iss['reason'] || ''),
-                    sourcePages: Array.isArray(iss['sourcePages']) ? (iss['sourcePages'] as number[]) : [],
-                  }))
-                : [];
-              const blockingCount =
-                typeof it.blockingIssueCount === 'number'
-                  ? it.blockingIssueCount
-                  : typeof errorLog.blockingIssueCount === 'number'
-                    ? (errorLog.blockingIssueCount as number)
-                    : issues.filter((i) => i.severity === 'blocking').length;
-              const nonBlockingCount =
-                typeof it.nonBlockingIssueCount === 'number'
-                  ? it.nonBlockingIssueCount
-                  : typeof errorLog.nonBlockingIssueCount === 'number'
-                    ? (errorLog.nonBlockingIssueCount as number)
-                    : issues.filter((i) => i.severity !== 'blocking').length;
-              const status =
-                String(it.status || '') === 'DRAFT_ONLY' || errorLog.readiness === 'DRAFT_ONLY'
-                  ? 'DRAFT_ONLY'
-                  : (it.status as ImportJobSummary['status']) || 'succeeded';
-              const readiness: ImportJobSummary['readiness'] =
-                it.readiness === 'DRAFT_ONLY' || it.readiness === 'READY_FOR_REVIEW' || it.readiness === 'INVALID'
-                  ? it.readiness
-                  : errorLog.readiness === 'DRAFT_ONLY' || errorLog.readiness === 'READY_FOR_REVIEW' || errorLog.readiness === 'INVALID'
-                    ? errorLog.readiness
-                    : status === 'DRAFT_ONLY'
-                      ? 'DRAFT_ONLY'
-                      : 'READY_FOR_REVIEW';
+        const refreshedJobs = await fetchJobs();
 
-              return {
-                id: String(it.id || ''),
-                fileName: String(it.fileName || file.name),
-                fileSizeBytes: typeof it.fileSizeBytes === 'number' ? it.fileSizeBytes : file.size,
-                status,
-                readiness,
-                mode: (it.mode === 'draft' || it.mode === 'ready' ? it.mode : errorLog.mode === 'draft' || errorLog.mode === 'ready' ? errorLog.mode : status === 'DRAFT_ONLY' ? 'draft' : 'ready') as 'draft' | 'ready',
-                errors: (errorLog.errors as string[]) || [],
-                warnings: (errorLog.warnings as string[]) || [],
-                blockingIssueCount: blockingCount,
-                nonBlockingIssueCount: nonBlockingCount,
-                extractedQuestionsCount:
-                  typeof it.extractedQuestionsCount === 'number'
-                    ? it.extractedQuestionsCount
-                    : typeof errorLog.extractedQuestionsCount === 'number'
-                      ? (errorLog.extractedQuestionsCount as number)
-                      : 0,
-                sourceFiles: [],
-                issues,
-                createdAt: String(it.createdAt || new Date().toISOString()),
-                createdBy: String(it.uploadedBy || 'importer'),
-                targetLevel: it.targetLevel as ImportJobSummary['targetLevel'],
-                draftExamId: (errorLog.draftExamId as string) || undefined,
-              };
-            });
-            setJobs(mapped);
-          }
+        const isDraftJob = res?.status === 'DRAFT_ONLY' || res?.readiness === 'DRAFT_ONLY' || currentMode === 'draft';
+        const examId = (res?.draftExamId as string) || (res?.id as string) || '';
 
-          const isDraftJob = res?.status === 'DRAFT_ONLY' || res?.readiness === 'DRAFT_ONLY' || currentMode === 'draft';
-          jobSummary = {
-            id: res?.id || `job_${Date.now()}`,
-            fileName: file.name,
-            fileSizeBytes: file.size,
-            status: isDraftJob ? 'DRAFT_ONLY' : 'succeeded',
-            readiness: isDraftJob ? 'DRAFT_ONLY' : 'READY_FOR_REVIEW',
-            mode: currentMode,
-            errors: [],
-            warnings: [],
-            blockingIssueCount: res?.blockingIssueCount ?? (res?.issues?.filter((i: ImportIssue) => i.severity === 'blocking').length || 0),
-            nonBlockingIssueCount: 0,
-            extractedQuestionsCount: res?.extractedQuestionsCount || 0,
-            sourceFiles: [],
-            issues: Array.isArray(res?.issues) ? res!.issues : [],
-            createdAt: new Date().toISOString(),
-            createdBy: 'importer',
-            draftExamId: res?.draftExamId || res?.id,
-          };
-
-          // Do NOT submit for review if in draft mode or if DRAFT_ONLY!
-          if (!isDraftJob) {
-            try {
-              const groupsRes = (await apiClient.listQuestionGroups().catch(() => null)) as { items?: { id?: string; groupId?: string; status?: string; version?: number }[] } | null;
-              const groupList = Array.isArray(groupsRes) ? groupsRes : groupsRes?.items || [];
-              for (const grp of groupList) {
-                const gid = grp.groupId || grp.id;
-                if (gid) {
-                  await apiClient.submitTargetForReview('group_version', gid, grp.version || 1).catch(() => null);
-                }
-              }
-            } catch {
-              // ignore
-            }
-          }
-        } catch (apiErr: unknown) {
-          // If server returned an error (e.g. 400 rejected ready mode with blocking issue), rethrow directly!
-          const errMsg = apiErr instanceof Error ? apiErr.message : String(apiErr);
-          if (errMsg.includes('blocking') || errMsg.includes('ready') || errMsg.includes('400')) {
-            throw apiErr;
-          }
-          // Fallback to local import manager in offline/unit tests
-          const arrayBuf = await file.arrayBuffer();
-          const buffer = new Uint8Array(arrayBuf);
-          jobSummary = await manager.importPackage(buffer, file.name, 'importer', { mode: currentMode });
-          setJobs(manager.listJobs());
-        }
-
-        if (currentMode === 'draft' || jobSummary.status === 'DRAFT_ONLY') {
-          setStatusMessage(`Nạp bản nháp (DRAFT_ONLY) thành công! Bản thảo đề thi: ${jobSummary.draftExamId || jobSummary.id}`);
+        if (isDraftJob) {
+          setStatusMessage(`Nạp bản nháp (DRAFT_ONLY) thành công! Bản thảo đề thi: ${examId}`);
         } else {
-          setStatusMessage(`Tải lên thành công! Tạo bản thảo đề thi: ${jobSummary.draftExamId || jobSummary.id}`);
+          setStatusMessage(`Tải lên thành công! Tạo bản thảo đề thi: ${examId}`);
         }
-        onDraftCreated?.(jobSummary);
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : String(err);
-        setErrorMessage(msg);
-        if (manager.listJobs().length > 0) {
-          setJobs(manager.listJobs());
-        }
-      } finally {
-        setIsLoading(false);
-        if (event.target) {
-          event.target.value = '';
-        }
-      }
-    } else {
-      // Batch upload
-      const packageList: { buffer: Uint8Array; fileName: string }[] = [];
-      for (let i = 0; i < files.length; i++) {
-        const f = files[i]!;
-        const arrayBuf = await f.arrayBuffer();
-        packageList.push({ buffer: new Uint8Array(arrayBuf), fileName: f.name });
-      }
 
-      const batchResult: BatchImportSummary = await manager.importBatch(packageList);
-      setJobs(manager.listJobs());
-      setStatusMessage(
-        `Xử lý lô hoàn tất: ${batchResult.succeededCount}/${batchResult.totalPackages} gói hợp lệ, ${batchResult.failedCount} gói lỗi.`,
-      );
+        if (!isDraftJob) {
+          try {
+            const groupsRes = (await apiClient.listQuestionGroups().catch(() => null)) as { items?: { id?: string; groupId?: string; status?: string; version?: number }[] } | null;
+            const groupList = Array.isArray(groupsRes) ? groupsRes : groupsRes?.items || [];
+            for (const grp of groupList) {
+              const gid = grp.groupId || grp.id;
+              if (gid) {
+                await apiClient.submitTargetForReview('group_version', gid, grp.version || 1).catch(() => null);
+              }
+            }
+          } catch {
+            // ignore
+          }
+        }
+
+        if (res && typeof onDraftCreated === 'function') {
+          const createdJob = refreshedJobs?.find((j) => j.id === res.id) || mapApiJobToSummary(res);
+          onDraftCreated(createdJob);
+        }
+      } else {
+        // Multiple files (batch upload)
+        let succeededCount = 0;
+        let failedCount = 0;
+        const uploadErrors: string[] = [];
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i]!;
+          try {
+            await apiClient.uploadImportPackage(file, file.name, { mode: currentMode });
+            succeededCount++;
+          } catch (itemErr: unknown) {
+            failedCount++;
+            const e = itemErr as AdminClientGuardError;
+            const statusPrefix = e.status ? `[${e.status}] ` : '';
+            uploadErrors.push(`${file.name}: ${statusPrefix}${e.message || String(itemErr)}`);
+          }
+        }
+        await fetchJobs();
+        if (uploadErrors.length > 0) {
+          setErrorMessage(`Xử lý tải lên có lỗi (${failedCount}/${files.length} gói lỗi): ${uploadErrors.join('; ')}`);
+        }
+        if (succeededCount > 0) {
+          setStatusMessage(`Tải lên hoàn tất: ${succeededCount}/${files.length} gói thành công.`);
+        }
+      }
+    } catch (err: unknown) {
+      // API error: strictly clear success message and display verbatim API error
+      setStatusMessage(null);
+      const e = err as AdminClientGuardError;
+      const statusPrefix = e.status ? `[${e.status}] ` : '';
+      let msg = `${statusPrefix}${e.message || String(err)}`;
+      const details = e.details as Record<string, unknown> | undefined;
+      if (details && Array.isArray(details.errors) && details.errors.length > 0) {
+        const errorList = (details.errors as string[]).join('; ');
+        if (!msg.includes(errorList)) {
+          msg += `: ${errorList}`;
+        }
+      }
+      setErrorMessage(msg);
+      // Re-fetch jobs from API to ensure no mock or fake row was added
+      await fetchJobs();
+    } finally {
+      setIsLoading(false);
       if (event.target) {
         event.target.value = '';
       }
@@ -316,32 +222,33 @@ export function ImportManagerView({
   };
 
   const handleResolveSourcePage = (job: ImportJobSummary) => {
-    const draft = manager.getConvertedDraft(job.id);
-    if (!draft || draft.groups.length === 0) {
+    if (job.sourceFiles && job.sourceFiles.length > 0) {
+      const firstSf = job.sourceFiles[0]!;
       setSourceResolution({
-        sourceFileId: '',
-        pageNumber: 0,
-        url: '',
-        available: false,
-        error: 'Không tìm thấy nhóm câu hỏi trong bản thảo gói nhập.',
+        sourceFileId: firstSf.id,
+        pageNumber: 1,
+        url: `/api/v1/admin/imports/${job.id}/sources/${firstSf.id}`,
+        available: true,
       });
       return;
     }
-
-    const firstGroupWithPage = draft.groups.find((g) => g.sourcePage !== undefined) || draft.groups[0]!;
-    const res = manager.resolveSourcePage(job.id, firstGroupWithPage);
-    setSourceResolution(res);
+    setSourceResolution({
+      sourceFileId: '',
+      pageNumber: 0,
+      url: '',
+      available: false,
+      error: 'Không tìm thấy tệp nguồn đối chiếu cho gói nhập này.',
+    });
   };
 
   const handleCsvExport = (job: ImportJobSummary) => {
-    const draft = manager.getConvertedDraft(job.id);
-    if (!draft) {
+    if (!job.draftExamId && !job.id) {
       setErrorMessage('Không tìm thấy dữ liệu câu hỏi để trích xuất CSV.');
       return;
     }
-    const csv = jsonCsvService.exportQuestionsToCsv(draft.groups);
-    setCsvExportOutput(csv);
-    setStatusMessage(`Đã xuất CSV (${draft.groups.length} nhóm câu hỏi).`);
+    const header = 'groupId,version,level,sectionCode,mondaiType,skill,instructions,sourceRef,sourcePages,status,questionNumber,stem,option1,option2,option3,option4,correctOption,explanation';
+    setCsvExportOutput(`${header}\n# Gói đề: ${job.fileName} (${job.id})\n`);
+    setStatusMessage(`Đã xuất CSV mẫu cho gói ${job.fileName}.`);
   };
 
   const handleCsvImport = () => {
@@ -351,7 +258,10 @@ export function ImportManagerView({
     }
     try {
       const parsedGroups = jsonCsvService.importQuestionsFromCsv(csvJsonInput);
-      setStatusMessage(`Đã nạp ${parsedGroups.length} nhóm câu hỏi từ dữ liệu CSV.`);
+      // Chỉ kiểm tra cú pháp ở trình duyệt; chưa có API nhận CSV nên không báo là đã lưu.
+      setStatusMessage(
+        `CSV hợp lệ: đọc được ${parsedGroups.length} nhóm câu hỏi. Dữ liệu chưa được lưu; hãy nạp bằng gói ZIP.`,
+      );
       setErrorMessage(null);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);

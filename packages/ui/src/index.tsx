@@ -41,3 +41,6 @@ export * from './components/json-ld.js';
 export * from './components/tts-audio-player.js';
 export * from './components/watermark-badge.js';
 export * from './components/furigana-toggle.js';
+export * from './components/page-header.js';
+export * from './components/empty-state.js';
+export * from './components/table.js';

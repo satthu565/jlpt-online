@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Bot, Sparkles, Search, Info, AlertTriangle } from 'lucide-react';
 import { Button } from '@jlpt/ui/components/button';
 import { Input } from '@jlpt/ui/components/input';
 import { Card } from '@jlpt/ui/components/card';
@@ -110,15 +111,14 @@ export function AiChatAssistant({
       <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
         <div>
           <div className="flex items-center gap-2">
-            <span role="img" aria-label="AI">
-              🤖
-            </span>
+            <Bot className="h-5 w-5 text-blue-600" aria-label="AI" />
             <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
               {t('seo.ai.title')}
             </h3>
             {/* AI Generation Transparency Label */}
-            <Badge variant="info" size="sm" data-testid="ai-generated-badge">
-              ✨ {t('seo.ai.labelGenerated')}
+            <Badge variant="info" size="sm" data-testid="ai-generated-badge" className="inline-flex items-center gap-1">
+              <Sparkles className="h-3 w-3" aria-hidden="true" />
+              <span>{t('seo.ai.labelGenerated')}</span>
             </Badge>
           </div>
           {contextTitle && (
@@ -146,9 +146,10 @@ export function AiChatAssistant({
             size="sm"
             onClick={() => setDepth('deep')}
             data-testid="ai-depth-deep-btn"
-            className="px-2.5 py-1 h-auto text-xs font-medium rounded"
+            className="px-2.5 py-1 h-auto text-xs font-medium rounded inline-flex items-center gap-1"
           >
-            🔬 {t('seo.ai.deepDepth')}
+            <Search className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>{t('seo.ai.deepDepth')}</span>
           </Button>
         </div>
       </div>
@@ -156,9 +157,10 @@ export function AiChatAssistant({
       {/* Transparency Disclaimer */}
       <div
         data-testid="ai-disclaimer"
-        className="text-[11px] leading-relaxed text-slate-500 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-800"
+        className="text-[11px] leading-relaxed text-slate-500 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-800 flex items-start gap-1.5"
       >
-        ℹ️ {t('seo.ai.disclaimer')}
+        <Info className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" aria-hidden="true" />
+        <span>{t('seo.ai.disclaimer')}</span>
       </div>
 
       {/* Quota Counter */}
@@ -168,8 +170,9 @@ export function AiChatAssistant({
             {t('seo.ai.quotaLabel', { remaining: usage.remainingTokensQuota })}
           </span>
           {usage.isBudgetExhausted && (
-            <span className="text-rose-600 font-semibold">
-              ⚠️ {t('seo.ai.budgetExhausted')}
+            <span className="text-rose-600 font-semibold inline-flex items-center gap-1">
+              <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>{t('seo.ai.budgetExhausted')}</span>
             </span>
           )}
         </div>
@@ -185,7 +188,7 @@ export function AiChatAssistant({
           >
             <div className="flex items-center justify-between text-[11px] text-blue-800 dark:text-blue-300 font-medium">
               <span className="flex items-center gap-1">
-                <span>🤖</span>
+                <Bot className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
                 <span>{resp.action}</span>
               </span>
               <span className="text-slate-400">

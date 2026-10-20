@@ -1,5 +1,6 @@
 'use client';
 
+import { Star } from 'lucide-react';
 import React from 'react';
 import type { ExamWithUserStatus } from '../types';
 import { Card } from '@jlpt/ui/components/card';
@@ -125,7 +126,7 @@ export function ExamCard({
                   : 'text-slate-400 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
-              {favorite ? '★' : '☆'}
+              <Star className={favorite ? 'size-4 fill-current' : 'size-4'} aria-hidden="true" />
             </Button>
 
             {renderStatusBadge()}

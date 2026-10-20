@@ -1,5 +1,6 @@
 'use client';
 
+import { Eye, Focus, Headphones } from 'lucide-react';
 import React from 'react';
 import { Button } from '@jlpt/ui/components/button';
 import { FuriganaToggle } from '@jlpt/ui/components/furigana-toggle';
@@ -77,7 +78,7 @@ export function ExamToolbar({
             title="Kiểm tra tai nghe / loa"
             aria-label="Kiểm tra loa"
           >
-            🎧 Thử loa
+            <Headphones className="size-4" aria-hidden="true" /> Thử loa
           </Button>
         )}
 
@@ -89,7 +90,7 @@ export function ExamToolbar({
           title={isZenMode ? 'Thoát chế độ tập trung (Z)' : 'Bật chế độ tối giản tập trung (Z)'}
           aria-label={isZenMode ? 'Thoát chế độ tập trung' : 'Chế độ tập trung (Zen Mode)'}
         >
-          {isZenMode ? '👁 Hiện thanh công cụ' : '🎯 Tập trung (Zen)'}
+          {isZenMode ? <><Eye className="size-4" aria-hidden="true" /> Hiện thanh công cụ</> : <><Focus className="size-4" aria-hidden="true" /> Tập trung (Zen)</>}
         </Button>
 
         <Button
