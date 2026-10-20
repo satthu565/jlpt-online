@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Button, Card } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Card } from '@jlpt/ui/components/card';
 import { AdminGuard } from '../lib/ui-guard';
 import { useAdminAuth } from '../lib/auth-context';
 import { getNavigationSections } from '../lib/navigation';
