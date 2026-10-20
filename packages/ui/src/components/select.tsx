@@ -54,7 +54,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         aria-invalid={error ? 'true' : 'false'}
         aria-describedby={describedBy}
         className={cn(
-          'jlpt-select flex w-full rounded-md border border-[var(--border-default,#cbd5e1)] bg-[var(--bg-surface,#ffffff)] px-3.5 py-2.5 text-base text-[var(--text-primary,#0f172a)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color,#2563eb)] focus-visible:ring-offset-1 focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] cursor-pointer dark:border-[var(--border-default,#475569)] dark:bg-[var(--bg-surface,#1e293b)] dark:text-[var(--text-primary,#f8fafc)]',
+          'jlpt-select flex w-full rounded-[var(--field-radius)] border-0 bg-[var(--field-background)] text-[var(--field-foreground)] shadow-[var(--field-shadow)] hover:bg-[var(--field-hover)] px-3.5 py-2.5 text-base text-[var(--text-primary,#0f172a)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color,#2563eb)] focus-visible:ring-offset-1 focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] cursor-pointer dark:border-[var(--border-default,#475569)] dark:bg-[var(--bg-surface,#1e293b)] dark:text-[var(--text-primary,#f8fafc)]',
           error && 'border-[var(--color-danger,#dc2626)] focus-visible:ring-[var(--color-danger,#dc2626)] dark:border-[var(--color-danger,#ef4444)]',
           className,
         )}
@@ -128,7 +128,7 @@ export const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'flex h-11 w-full items-center justify-between rounded-md border border-[var(--border-default,#cbd5e1)] bg-[var(--bg-surface,#ffffff)] px-3.5 py-2 text-base ring-offset-background placeholder:text-[var(--text-muted,#64748b)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring-color,#2563eb)] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-[var(--border-default,#475569)] dark:bg-[var(--bg-surface,#1e293b)] dark:text-[var(--text-primary,#f8fafc)]',
+      'flex h-11 w-full items-center justify-between rounded-[var(--field-radius)] border-0 bg-[var(--field-background)] text-[var(--field-foreground)] shadow-[var(--field-shadow)] hover:bg-[var(--field-hover)] px-3.5 py-2 text-base ring-offset-background placeholder:text-[var(--text-muted,#64748b)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring-color,#2563eb)] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-[var(--border-default,#475569)] dark:bg-[var(--bg-surface,#1e293b)] dark:text-[var(--text-primary,#f8fafc)]',
       className,
     )}
     {...props}
@@ -149,7 +149,7 @@ export const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-[var(--border-default,#cbd5e1)] bg-[var(--bg-surface-elevated,#ffffff)] text-[var(--text-primary,#0f172a)] shadow-md animate-in fade-in-80 dark:border-[var(--border-default,#475569)] dark:bg-[var(--bg-surface-elevated,#334155)] dark:text-[var(--text-primary,#f8fafc)]',
+        'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-2xl border-0 bg-[var(--overlay)] shadow-[var(--overlay-shadow)] text-[var(--text-primary,#0f172a)] shadow-md animate-in fade-in-80 dark:border-[var(--border-default,#475569)] dark:bg-[var(--bg-surface-elevated,#334155)] dark:text-[var(--text-primary,#f8fafc)]',
         position === 'popper' &&
           'data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1',
         className,
@@ -184,7 +184,7 @@ export const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-[var(--bg-hover,#e2e8f0)] focus:text-[var(--text-primary,#0f172a)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:bg-[var(--bg-hover,#334155)] dark:focus:text-[var(--text-primary,#f8fafc)]',
+      'relative flex w-full cursor-default rounded-xl py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-[var(--bg-hover,#e2e8f0)] focus:text-[var(--text-primary,#0f172a)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:bg-[var(--bg-hover,#334155)] dark:focus:text-[var(--text-primary,#f8fafc)]',
       className,
     )}
     {...props}

@@ -5,43 +5,33 @@ import { Slot, Slottable } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils.js';
 
-export const buttonVariants = cva(
-  'jlpt-button inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color,#2563eb)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60 cursor-pointer min-h-[44px] select-none',
-  {
-    variants: {
-      variant: {
-        primary:
-          'bg-[var(--color-primary,#16a34a)] text-[var(--text-inverse,#ffffff)] hover:bg-[var(--color-primary-hover,#15803d)] border border-transparent shadow-sm dark:bg-[var(--color-primary,#22c55e)] dark:hover:bg-[var(--color-primary-hover,#4ade80)] dark:text-[var(--text-inverse,#0f172a)]',
-        default:
-          'bg-[var(--color-primary,#16a34a)] text-[var(--text-inverse,#ffffff)] hover:bg-[var(--color-primary-hover,#15803d)] border border-transparent shadow-sm dark:bg-[var(--color-primary,#22c55e)] dark:hover:bg-[var(--color-primary-hover,#4ade80)] dark:text-[var(--text-inverse,#0f172a)]',
-        success:
-          'bg-[var(--color-primary,#16a34a)] text-[var(--text-inverse,#ffffff)] hover:bg-[var(--color-primary-hover,#15803d)] border border-transparent shadow-sm dark:bg-[var(--color-primary,#22c55e)] dark:hover:bg-[var(--color-primary-hover,#4ade80)] dark:text-[var(--text-inverse,#0f172a)]',
-        secondary:
-          'bg-[var(--bg-muted,#f1f5f9)] text-[var(--text-primary,#0f172a)] hover:bg-[var(--bg-hover,#e2e8f0)] border border-[var(--border-default,#cbd5e1)] dark:bg-[var(--bg-muted,#1e293b)] dark:text-[var(--text-primary,#f8fafc)] dark:border-[var(--border-default,#475569)] dark:hover:bg-[var(--bg-hover,#334155)]',
-        outline:
-          'bg-transparent text-[var(--color-primary,#16a34a)] border border-[var(--color-primary,#16a34a)] hover:bg-[var(--color-primary-light,#dcfce7)]/25 dark:text-[var(--color-primary,#22c55e)] dark:border-[var(--color-primary,#22c55e)] dark:hover:bg-[var(--color-primary-light,#14532d)]/40',
-        ghost:
-          'bg-transparent text-[var(--text-primary,#0f172a)] border border-transparent hover:bg-[var(--bg-hover,#e2e8f0)] dark:text-[var(--text-primary,#f8fafc)] dark:hover:bg-[var(--bg-hover,#334155)]',
-        danger:
-          'bg-[var(--color-danger,#dc2626)] text-[var(--text-inverse,#ffffff)] hover:bg-[var(--color-danger-hover,#b91c1c)] border border-transparent shadow-sm dark:bg-[var(--color-danger,#ef4444)] dark:hover:bg-[var(--color-danger-hover,#f87171)] dark:text-[var(--text-inverse,#ffffff)]',
-        destructive:
-          'bg-[var(--color-danger,#dc2626)] text-[var(--text-inverse,#ffffff)] hover:bg-[var(--color-danger-hover,#b91c1c)] border border-transparent shadow-sm dark:bg-[var(--color-danger,#ef4444)] dark:hover:bg-[var(--color-danger-hover,#f87171)] dark:text-[var(--text-inverse,#ffffff)]',
-        link: 'bg-transparent text-[var(--color-primary,#16a34a)] underline-offset-4 hover:underline border-0 p-0 min-h-0 dark:text-[var(--color-primary,#22c55e)]',
-      },
-      size: {
-        sm: 'px-3 py-1.5 text-sm min-h-[36px]',
-        md: 'px-5 py-2 text-base min-h-[44px]',
-        lg: 'px-7 py-3 text-lg min-h-[52px]',
-        default: 'px-5 py-2 text-base min-h-[44px]',
-        icon: 'h-11 w-11 p-0 min-h-[44px] min-w-[44px]',
-      },
+// HeroUI v3 button styles (@heroui/styles): the look comes from the .button / .button--* classes.
+export const buttonVariants = cva('jlpt-button button', {
+  variants: {
+    variant: {
+      primary: 'button--primary',
+      default: 'button--primary',
+      success: 'button--primary',
+      secondary: 'button--secondary',
+      outline: 'button--outline',
+      ghost: 'button--ghost',
+      danger: 'button--danger',
+      destructive: 'button--danger',
+      link: 'button--ghost underline-offset-4 hover:underline text-[var(--accent)]',
     },
-    defaultVariants: {
-      variant: 'primary',
-      size: 'md',
+    size: {
+      sm: 'button--sm',
+      md: 'button--md',
+      lg: 'button--lg',
+      default: 'button--md',
+      icon: 'button--icon-only',
     },
   },
-);
+  defaultVariants: {
+    variant: 'primary',
+    size: 'md',
+  },
+});
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -84,7 +74,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {loading && (
           <span
             aria-hidden="true"
-            className="inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-r-transparent"
+            className="spinner spinner--sm spinner--current"
           />
         )}
         {!loading && leftIcon && <span aria-hidden="true" className="shrink-0">{leftIcon}</span>}

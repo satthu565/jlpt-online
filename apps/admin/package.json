@@ -21,6 +21,7 @@
     "test:reconciliation": "vitest run tests/reconciliation.test.ts"
   },
   "dependencies": {
+    "@heroui/styles": "3.2.6",
     "@jlpt/config": "workspace:*",
     "@jlpt/schema": "workspace:*",
     "@jlpt/ui": "workspace:*",

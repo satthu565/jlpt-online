@@ -1,8 +1,7 @@
-/* Tailwind utilities for the className strings used across the app. Preflight is left out on
-   purpose: the shared UI stylesheet below owns base element styles. */
+/* HeroUI v3 (@heroui/styles) brings Tailwind v4 with its base layer; the shared UI stylesheet
+   below maps the JLPT tokens onto the HeroUI theme. */
 @layer theme, base, components, utilities;
-@import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(utilities);
+@import "@heroui/styles";
 @import '@jlpt/ui/styles.css';
 
 @source "../../../packages/ui/src";

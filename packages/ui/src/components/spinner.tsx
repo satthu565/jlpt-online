@@ -25,7 +25,7 @@ export function Spinner({
       role="status"
       aria-label={ariaLabel}
       className={cn(
-        'jlpt-spinner inline-block rounded-full animate-spin border-[var(--border-subtle,#e2e8f0)] border-t-[var(--color-primary,#16a34a)] dark:border-[var(--border-subtle,#334155)] dark:border-t-[var(--color-primary,#22c55e)]',
+        'jlpt-spinner inline-block rounded-full animate-spin border-[var(--default)] border-t-[var(--accent)]',
         sizeClasses[size] || sizeClasses.md,
         className,
       )}

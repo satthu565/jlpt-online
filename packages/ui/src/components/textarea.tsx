@@ -44,8 +44,8 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         aria-invalid={error ? 'true' : 'false'}
         aria-describedby={describedBy}
         className={cn(
-          'jlpt-textarea flex min-h-[80px] w-full rounded-md border border-[var(--border-default,#cbd5e1)] bg-[var(--bg-surface,#ffffff)] px-3.5 py-2.5 text-base text-[var(--text-primary,#0f172a)] transition-colors placeholder:text-[var(--text-muted,#64748b)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color,#2563eb)] focus-visible:ring-offset-1 focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50 dark:border-[var(--border-default,#475569)] dark:bg-[var(--bg-surface,#1e293b)] dark:text-[var(--text-primary,#f8fafc)] dark:placeholder:text-[var(--text-muted,#94a3b8)]',
-          error && 'border-[var(--color-danger,#dc2626)] focus-visible:ring-[var(--color-danger,#dc2626)] dark:border-[var(--color-danger,#ef4444)]',
+          'jlpt-textarea textarea textarea--primary textarea--full-width',
+          error && 'border-[var(--danger)]',
           className,
         )}
         {...rest}
@@ -61,7 +61,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             htmlFor={textareaId}
-            className="flex items-center gap-1 text-sm font-semibold text-[var(--text-primary,#0f172a)] dark:text-[var(--text-primary,#f8fafc)]"
+            className="label flex items-center gap-1"
           >
             {label}
             {(required || requiredIndicator) && (
