@@ -5,6 +5,7 @@ import { StandalonePdfError } from './types';
 export interface PackageValidationInput {
   files: Record<string, Uint8Array>;
   fileName: string;
+  mode?: 'draft' | 'ready';
 }
 
 export interface PackageValidationOutput {
@@ -15,6 +16,7 @@ export interface PackageValidationOutput {
   warnings: string[];
   blockingIssueCount: number;
   nonBlockingIssueCount: number;
+  readiness?: 'DRAFT_ONLY' | 'READY_FOR_REVIEW' | 'INVALID';
 }
 
 const PDF_MAGIC_BYTES = [0x25, 0x50, 0x44, 0x46]; // %PDF
@@ -146,10 +148,14 @@ export function validateImportV2Package(input: PackageValidationInput): PackageV
   const mediaManifest = Array.isArray(parsed['media']) ? (parsed['media'] as Record<string, unknown>[]) : [];
   const mediaKeysInManifest = new Set<string>();
   for (const m of mediaManifest) {
-    if (typeof m['key'] === 'string') {
-      mediaKeysInManifest.add(m['key']);
+    const mKey =
+      (typeof m['key'] === 'string' && m['key']) ||
+      (typeof m['path'] === 'string' && m['path']) ||
+      '';
+    if (mKey) {
+      mediaKeysInManifest.add(mKey);
     }
-    const mediaPath = String(m['path'] || '');
+    const mediaPath = String(m['path'] || m['key'] || '');
     if (mediaPath && !files[mediaPath]) {
       errors.push(`Tệp media được khai báo trong manifest (${mediaPath}) không tồn tại trong gói nén.`);
     }
@@ -160,12 +166,11 @@ export function validateImportV2Package(input: PackageValidationInput): PackageV
   if (groups.length === 0) {
     errors.push('Gói nhập không chứa nhóm câu hỏi nào (groups rỗng).');
   }
-
   const sourceFiles = Array.isArray(parsed['sourceFiles'])
     ? (parsed['sourceFiles'] as Record<string, unknown>[])
     : [];
 
-  let blockingIssues = 0;
+  let missingAnswerCount = 0;
   let nonBlockingIssues = 0;
 
   for (const g of groups) {
@@ -212,7 +217,7 @@ export function validateImportV2Package(input: PackageValidationInput): PackageV
 
       const correctOption = q['correctOption'];
       if (correctOption === null || correctOption === undefined) {
-        blockingIssues++;
+        missingAnswerCount++;
       } else if (
         typeof correctOption !== 'number' ||
         correctOption < 1 ||
@@ -227,12 +232,25 @@ export function validateImportV2Package(input: PackageValidationInput): PackageV
 
   // 8. Issues in package
   const issues = Array.isArray(parsed['issues']) ? (parsed['issues'] as Record<string, unknown>[]) : [];
-  for (const iss of issues) {
-    if (iss['severity'] === 'blocking' || iss['blocking'] === true) {
-      blockingIssues++;
-    } else {
-      nonBlockingIssues++;
-    }
+  const packageBlockingIssues = issues.filter(
+    (iss: Record<string, unknown>) => iss['severity'] === 'blocking' || iss['blocking'] === true,
+  ).length;
+  nonBlockingIssues = issues.length - packageBlockingIssues;
+
+  // Count how many missing answers are already declared in package issues
+  const coveredMissingAnswers = issues.filter(
+    (iss: Record<string, unknown>) =>
+      (iss['severity'] === 'blocking' || iss['blocking'] === true) &&
+      typeof iss['path'] === 'string' &&
+      iss['path'].endsWith('/correctOption'),
+  ).length;
+
+  // Accurately count all blocking issues: package declared blocking issues plus all undeclared missing answers
+  const undeclaredMissingAnswers = Math.max(0, missingAnswerCount - coveredMissingAnswers);
+  const blockingIssues = packageBlockingIssues + undeclaredMissingAnswers;
+
+  if (input.mode === 'ready' && blockingIssues > 0) {
+    errors.push(`Gói nhập có ${blockingIssues} issue blocking; không thể nạp ở chế độ ready`);
   }
 
   // 9. Content hash computation (SHA-256)
@@ -240,13 +258,17 @@ export function validateImportV2Package(input: PackageValidationInput): PackageV
   hasher.update(importJsonBytes);
   const contentHash = hasher.digest('hex');
 
+  const valid = errors.length === 0;
+  const readiness = valid ? (blockingIssues > 0 ? 'DRAFT_ONLY' : 'READY_FOR_REVIEW') : 'INVALID';
+
   return {
-    valid: errors.length === 0,
+    valid,
     packageJson: parsed,
     contentHash,
     errors,
     warnings,
     blockingIssueCount: blockingIssues,
     nonBlockingIssueCount: nonBlockingIssues,
+    readiness,
   };
 }

@@ -450,3 +450,11 @@ button, input, select, textarea, a {
 .safe-area-pr {
   padding-right: env(safe-area-inset-right, 0px);
 }
+
+/* Furigana toggle visibility rules (P04) */
+[data-furigana="off"] rt,
+[data-furigana="off"] .jlpt-ruby rt,
+.hide-furigana rt,
+.hide-furigana .jlpt-ruby rt {
+  display: none !important;
+}

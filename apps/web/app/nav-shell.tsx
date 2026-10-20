@@ -42,6 +42,7 @@ export function NavigationHeader(): React.JSX.Element {
     { label: t('common.nav.planner'), href: '/ke-hoach' },
     { label: t('common.nav.classroom'), href: '/lop-hoc' },
     { label: t('common.nav.events'), href: '/su-kien' },
+    { label: t('common.nav.schedules'), href: '/lich-thi' },
     { label: t('common.nav.pricing'), href: '/goi-thanh-vien' },
   ];
 
@@ -207,5 +208,4 @@ export function NavigationHeader(): React.JSX.Element {
     />
   );
 }
-
 

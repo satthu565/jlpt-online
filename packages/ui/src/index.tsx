@@ -39,3 +39,4 @@ export * from './components/share-dialog.js';
 export * from './components/json-ld.js';
 export * from './components/tts-audio-player.js';
 export * from './components/watermark-badge.js';
+export * from './components/furigana-toggle.js';

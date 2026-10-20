@@ -14,6 +14,7 @@ export interface LearnerExplanation {
   translation: string | null;
   vocabTags: string[];
   grammarTags: string[];
+  hanViet?: string | string[] | Array<{ kanji: string; reading: string }> | null;
   transcript: string | null;
   evidenceRanges: EvidenceRange[];
   sourceLabel?: string | null;

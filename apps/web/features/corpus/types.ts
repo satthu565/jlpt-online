@@ -4,6 +4,7 @@ export interface VocabTermDto {
   meaning: string;
   level: 'N1' | 'N2' | 'N3' | 'N4' | 'N5';
   frequency: number;
+  hanViet?: string;
   partOfSpeech?: string;
   exampleSentence?: string;
   exampleReading?: string;
