@@ -548,6 +548,23 @@ task('I18','W2',8,1,'API: giới hạn kích thước body cho multipart, zip v�
  'Test: body 2 MB application/octet-stream vào route không phải nhập gói trả 413 mà không cần đăng nhập|'
  'Test: gói vượt IMPORT_MAX_BYTES vào /api/v1/admin/imports trả 413; gói fixtures hợp lệ vẫn nhập được ở chế độ draft và ready',
  'pnpm test',contracts='API')
+# Owner tried the N3 package on the preview (2026-10-20): every upload got 415 in the container, yet the admin page said "thành công".
+task('I19','W2',8,1,'API trong container nhận gói ZIP tải lên (lỗi 415)','I18',
+ 'Image API (infra/docker/api.Dockerfile) chép đè dist/src/main.js bằng infra/docker/entrypoint.js, nên các addContentTypeParser và hook bodyLimit của apps/api/src/main.ts '
+ '(I16, I18) không chạy: trên staging và bản xem thử, POST /api/v1/admin/imports với multipart/form-data hoặc application/zip luôn trả 415 Unsupported Media Type. '
+ 'Tách phần cấu hình HTTP (parser buffer cho multipart/zip/octet-stream, bodyLimit 1 MB mặc định, IMPORT_MAX_BYTES 50 MB cho route nhập gói) thành một hàm dùng chung, '
+ 'gọi từ cả main.ts và entrypoint.js; bỏ bodyLimit 50 MB toàn cục của entrypoint. Test chạy trên image thật, không chỉ createApp() của main.ts.',
+ 'apps/api/src/main.ts|apps/api/src/modules/import/',
+ 'E2E trên staging (jlpt-stage-test): nhân sự tải fixtures/imports/draft.zip qua multipart ở chế độ draft -> 201, GET /api/v1/admin/imports trả job đó sau khi tải lại trang|'
+ 'Gói 12 MB vào /api/v1/admin/imports đạt; body 2 MB vào route khác trả 413',
+ 'pnpm test',contracts='API',grants='infra/docker/ tests/playwright/')
+task('I20','W4',8,1,'Trang nhập gói: bỏ nhập giả trong trình duyệt, chỉ hiện kết quả thật từ API','I16',
+ 'apps/admin/features/import/import-manager.ts tự đọc ZIP, tự kiểm tra và tạo job/mã đề giả (job_${Date.now()}, exam_${Date.now()}) trong bộ nhớ trình duyệt, nên khi API lỗi '
+ 'trang vẫn báo "Nạp bản nháp thành công" và hiện bảng issue như đã lưu. Trang nhập gói chỉ gọi API: hiện trạng thái tải lên, lỗi API nguyên văn (415/413/400 kèm danh sách lỗi), '
+ 'và danh sách job lấy lại từ GET /api/v1/admin/imports; không tạo id hay dữ liệu giả ở client. Kiểm tra trước khi tải lên ở client (nếu giữ) chỉ là gợi ý, ghi rõ chưa lưu.',
+ 'apps/admin/',
+ 'E2E: API trả lỗi -> trang hiện lỗi, không có thông báo thành công, danh sách không thêm dòng|E2E: tải gói thật -> dòng mới đến từ API và còn sau khi tải lại trang|'+NO_MOCK+'|'+REAL_E2E,
+ 'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/')
 task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I11 I12 I13 I09 I03 I04 I05 I06 I14 I15',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo. Ghi chú của người vận hành (20/10): lần kiểm tra 1 trượt vì chạy pnpm test:e2e:integration thẳng trên VM (thiếu thư viện WebKit, không có stack staging nên API 500, Mailpit 404); lệnh đó đã bỏ khỏi kiểm tra, E2E chạy qua jlpt-stage-test check-all. Không sửa code để chiều các lỗi môi trường đó; chỉ sửa lỗi E2E thật thấy trong jlpt-stage-test check-all.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',
@@ -655,7 +672,7 @@ task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05 D05',
 
 # Staging E2E on jlpt-vm (same suite as CI) is a required check for tasks that touch the UI or APIs it uses.
 for _t in TASKS:
-    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','I17','D02','D03','D04','D06','D07','P03','P04','P05'}:
+    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','I17','I19','I20','D02','D03','D04','D06','D07','P03','P04','P05'}:
         _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check')
     # Per-task runs cover Chromium + Mobile Safari; final acceptance runs every browser.
     # The integration E2E suite needs the staging stack and browser deps, so it only runs through
