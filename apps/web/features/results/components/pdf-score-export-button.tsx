@@ -1,5 +1,6 @@
 'use client';
 
+import { CircleCheck, CircleX, FileText } from 'lucide-react';
 import React, { useState } from 'react';
 import { Button } from '@jlpt/ui/components/button';
 import { WatermarkBadge } from '@jlpt/ui/components/watermark-badge';
@@ -114,7 +115,7 @@ export function PdfScoreExportButton({
           onClick={handleExportPdf}
           data-testid="export-pdf-score-btn"
         >
-          📄 {exporting ? t('seo.watermark.exportingPdf') : t('seo.watermark.downloadPdf')}
+          <FileText className="inline size-4 align-[-2px]" aria-hidden="true" /> {exporting ? t('seo.watermark.exportingPdf') : t('seo.watermark.downloadPdf')}
         </Button>
 
         {downloadSuccess && (
@@ -122,7 +123,7 @@ export function PdfScoreExportButton({
             data-testid="pdf-export-success"
             className="text-xs font-semibold text-emerald-600 dark:text-emerald-400"
           >
-            ✅ {t('seo.watermark.exportSuccess')}
+            <CircleCheck className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('seo.watermark.exportSuccess')}
           </span>
         )}
 
@@ -131,7 +132,7 @@ export function PdfScoreExportButton({
             data-testid="pdf-export-error"
             className="text-xs font-semibold text-rose-600 dark:text-rose-400"
           >
-            ❌ {errorMessage}
+            <CircleX className="inline size-4 align-[-2px]" aria-hidden="true" /> {errorMessage}
           </span>
         )}
       </div>

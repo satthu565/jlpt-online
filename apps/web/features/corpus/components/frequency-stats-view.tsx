@@ -1,5 +1,6 @@
 'use client';
 
+import { BarChart3, BookOpen, Download, Scale, TrendingUp } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Card } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
@@ -140,14 +141,13 @@ export function FrequencyStatsView({
               onClick={handleCreateStudyList}
               data-testid="create-study-list-btn"
             >
-              📚 {t('seo.corpus.createStudyList')}
+              <BookOpen className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('seo.corpus.createStudyList')}
             </Button>
 
-            <a
+            <a className="no-underline"
               href={datasetId ? `/api/v1/datasets/${datasetId}/export?format=csv` : undefined}
               download={datasetId ? 'jlpt-frequent-vocabulary.csv' : undefined}
               aria-disabled={!datasetId}
-              style={{ textDecoration: 'none' }}
             >
               <Button
                 type="button"
@@ -156,15 +156,14 @@ export function FrequencyStatsView({
                 data-testid="export-csv-btn"
                 disabled={!datasetId}
               >
-                📥 {t('seo.corpus.exportCsv')}
+                <Download className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('seo.corpus.exportCsv')}
               </Button>
             </a>
 
-            <a
+            <a className="no-underline"
               href={datasetId ? `/api/v1/datasets/${datasetId}/export?format=excel` : undefined}
               download={datasetId ? 'jlpt-frequent-vocabulary.xlsx' : undefined}
               aria-disabled={!datasetId}
-              style={{ textDecoration: 'none' }}
             >
               <Button
                 type="button"
@@ -173,7 +172,7 @@ export function FrequencyStatsView({
                 data-testid="export-excel-btn"
                 disabled={!datasetId}
               >
-                📊 {t('seo.corpus.exportExcel')}
+                <BarChart3 className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('seo.corpus.exportExcel')}
               </Button>
             </a>
           </div>
@@ -208,7 +207,7 @@ export function FrequencyStatsView({
       <Card className="p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <span>📈</span> Bảng xếp hạng từ vựng có tần suất xuất hiện cao nhất
+            <TrendingUp className="size-4" aria-hidden="true" /> Bảng xếp hạng từ vựng có tần suất xuất hiện cao nhất
           </h3>
           <span className="text-xs text-slate-400">
             Dữ liệu tổng hợp từ kỳ thi JLPT 2010–2024
@@ -217,9 +216,8 @@ export function FrequencyStatsView({
 
         <div className="overflow-x-auto">
           <table
-            className="w-full text-left text-xs"
+            className="w-full text-left text-xs border-collapse"
             data-testid="frequency-table"
-            style={{ borderCollapse: 'collapse' }}
           >
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase tracking-wider">
@@ -274,14 +272,13 @@ export function FrequencyStatsView({
         {/* Cross Level Comparison */}
         <Card className="p-6 space-y-4">
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <span>⚖️</span> So sánh phân bổ từ vựng qua các cấp độ (N1–N5)
+            <Scale className="size-4" aria-hidden="true" /> So sánh phân bổ từ vựng qua các cấp độ (N1–N5)
           </h3>
           <div className="space-y-3" data-testid="cross-level-list">
             {levelComparisons.map((comp) => (
               <div
                 key={comp.term}
-                className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 text-xs space-y-2"
-              >
+                className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 text-xs space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-japanese font-bold text-base text-slate-900 dark:text-slate-100">
                     {comp.term}
@@ -291,8 +288,7 @@ export function FrequencyStatsView({
                   {Object.entries(comp.counts).map(([lvl, cnt]) => (
                     <div
                       key={lvl}
-                      className="flex-1 text-center p-2 rounded-lg bg-slate-50 dark:bg-slate-900/60"
-                    >
+                      className="flex-1 text-center p-2 rounded-lg bg-slate-50 dark:bg-slate-900/60">
                       <span className="block font-bold text-slate-500 text-[10px]">{lvl}</span>
                       <span className="font-extrabold text-blue-600 dark:text-blue-400 text-sm">
                         {cnt}
@@ -308,14 +304,13 @@ export function FrequencyStatsView({
         {/* Yearly Trends */}
         <Card className="p-6 space-y-4">
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <span>📊</span> Xu hướng xuất hiện qua các năm
+            <BarChart3 className="size-4" aria-hidden="true" /> Xu hướng xuất hiện qua các năm
           </h3>
           <div className="space-y-3" data-testid="yearly-trends-list">
             {yearlyTrends.map((trend, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 text-xs"
-              >
+                className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 text-xs">
                 <div className="flex items-center gap-3">
                   <span className="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 font-bold">
                     {trend.year}

@@ -1,5 +1,6 @@
 'use client';
 
+import { Layers, NotebookPen, PencilLine } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   NotebookView,
@@ -134,25 +135,18 @@ export default function NotebookPage(): React.JSX.Element {
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4 w-full">
-      <div style={{ marginBottom: '2rem' }}>
-        <h1
-          style={{
-            fontSize: '2rem',
-            fontWeight: 800,
-            color: 'var(--text-primary)',
-            margin: '0 0 0.5rem 0',
-          }}
-        >
+      <div className="mb-8">
+        <h1 className="text-[2rem] font-extrabold text-[var(--text-primary)] mt-0 mx-0 mb-2">
           {t('notebook.page.title')}
         </h1>
-        <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
+        <p className="text-[var(--text-secondary)] m-0">
           {t('notebook.page.subtitle')}
         </p>
       </div>
 
       {(!user || isUnauthorized) && (
-        <Alert variant="warning" style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <Alert className="mb-6" variant="warning">
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <span>Bạn cần đăng nhập để xem và lưu sổ tay học tập cá nhân.</span>
             <Link href="/dang-nhap?redirect=/so-tay">
               <Button size="sm" variant="primary">Đăng nhập ngay</Button>
@@ -162,8 +156,8 @@ export default function NotebookPage(): React.JSX.Element {
       )}
 
       {error && !isUnauthorized && (
-        <Alert variant="error" onClose={() => setError(null)} style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <Alert className="mb-6" variant="error" onClose={() => setError(null)}>
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <span>{error}</span>
             <Button size="sm" variant="outline" onClick={loadNotebookData}>
               {t('common.buttons.retry')}
@@ -173,16 +167,9 @@ export default function NotebookPage(): React.JSX.Element {
       )}
 
       {/* Navigation Tabs */}
-      <div
+      <div className="flex flex-wrap gap-2 border-b border-[var(--border-subtle)] mb-8"
         role="tablist"
         aria-label={t('notebook.page.tabsAria')}
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '0.5rem',
-          borderBottom: '1px solid var(--border-subtle)',
-          marginBottom: '2rem',
-        }}
       >
         <Button
           type="button"
@@ -192,21 +179,9 @@ export default function NotebookPage(): React.JSX.Element {
           aria-controls="panel-notebook"
           id="tab-notebook"
           onClick={() => setActiveTab('notebook')}
-          style={{
-            padding: '0.75rem 1.25rem',
-            fontWeight: 600,
-            fontSize: '0.9375rem',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            color: activeTab === 'notebook' ? 'var(--color-primary)' : 'var(--text-muted)',
-            borderBottom: activeTab === 'notebook' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            marginBottom: '-1px',
-            minHeight: '44px',
-            borderRadius: 0,
-          }}
+          className={`-mb-px min-h-11 cursor-pointer rounded-none border-0 border-b-2 bg-transparent px-5 py-3 text-[0.9375rem] font-semibold ${activeTab === 'notebook' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--text-muted)]'}`}
         >
-          📓 {t('notebook.tabs.notebook')} ({items.length})
+          <NotebookPen className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.tabs.notebook')} ({items.length})
         </Button>
 
         <Button
@@ -217,21 +192,9 @@ export default function NotebookPage(): React.JSX.Element {
           aria-controls="panel-srs"
           id="tab-srs"
           onClick={() => setActiveTab('srs')}
-          style={{
-            padding: '0.75rem 1.25rem',
-            fontWeight: 600,
-            fontSize: '0.9375rem',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            color: activeTab === 'srs' ? 'var(--color-primary)' : 'var(--text-muted)',
-            borderBottom: activeTab === 'srs' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            marginBottom: '-1px',
-            minHeight: '44px',
-            borderRadius: 0,
-          }}
+          className={`-mb-px min-h-11 cursor-pointer rounded-none border-0 border-b-2 bg-transparent px-5 py-3 text-[0.9375rem] font-semibold ${activeTab === 'srs' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--text-muted)]'}`}
         >
-          🗂️ {t('notebook.tabs.srsReview')} ({dueCards.length})
+          <Layers className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.tabs.srsReview')} ({dueCards.length})
         </Button>
 
         <Button
@@ -245,28 +208,16 @@ export default function NotebookPage(): React.JSX.Element {
             if (!activeQuiz) handleStartQuiz();
             else setActiveTab('quiz');
           }}
-          style={{
-            padding: '0.75rem 1.25rem',
-            fontWeight: 600,
-            fontSize: '0.9375rem',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            color: activeTab === 'quiz' ? 'var(--color-primary)' : 'var(--text-muted)',
-            borderBottom: activeTab === 'quiz' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            marginBottom: '-1px',
-            minHeight: '44px',
-            borderRadius: 0,
-          }}
+          className={`-mb-px min-h-11 cursor-pointer rounded-none border-0 border-b-2 bg-transparent px-5 py-3 text-[0.9375rem] font-semibold ${activeTab === 'quiz' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--text-muted)]'}`}
         >
-          📝 {t('notebook.tabs.quiz')}
+          <PencilLine className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.tabs.quiz')}
         </Button>
       </div>
 
       {loading && items.length === 0 && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem 0', alignItems: 'center', gap: '0.75rem' }}>
+        <div className="flex justify-center py-12 px-0 items-center gap-3">
           <Spinner size="md" />
-          <span style={{ color: 'var(--text-secondary)' }}>{t('common.status.loading')}</span>
+          <span className="text-[var(--text-secondary)]">{t('common.status.loading')}</span>
         </div>
       )}
 

@@ -1,3 +1,4 @@
+import { AlertTriangle } from 'lucide-react';
 import React from 'react';
 import type { Result } from '@jlpt/schema';
 import { Card } from '@jlpt/ui/components/card';
@@ -62,7 +63,7 @@ export function ScoreSummaryCard({
             }`}
           >
             <span role="img" aria-label={isPassed ? 'Đạt' : 'Chưa đạt'}>
-              {isPassed ? '🎉 ĐỖ (PASS)' : '⚠️ CHƯA ĐẠT (FAIL)'}
+              {isPassed ? 'ĐỖ (PASS)' : 'CHƯA ĐẠT (FAIL)'}
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
@@ -150,7 +151,7 @@ export function ScoreSummaryCard({
             data-testid="failed-sections-alert"
             className="mb-4 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-xs text-rose-900 dark:text-rose-200"
           >
-            <span className="font-bold">⚠️ Phần thi dưới điểm sàn (điểm liệt):</span> Bài thi có{' '}
+            <span className="font-bold"><AlertTriangle className="inline size-4 align-[-2px]" aria-hidden="true" /> Phần thi dưới điểm sàn (điểm liệt):</span> Bài thi có{' '}
             {result.scoring.failedSections.length} phần chưa đạt mức sàn tối thiểu. Dù tổng điểm có thể đạt ngưỡng đỗ, theo quy định chính thức của JLPT, kết quả chung cuộc vẫn tính là Chưa đạt.
           </div>
         )}

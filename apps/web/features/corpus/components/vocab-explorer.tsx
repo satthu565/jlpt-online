@@ -1,5 +1,6 @@
 'use client';
 
+import { ArrowRight, NotebookPen } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card } from '@jlpt/ui/components/card';
 import { Input } from '@jlpt/ui/components/input';
@@ -248,7 +249,7 @@ export function VocabExplorer({
                 </p>
                 {item.exampleMeaning && (
                   <p className="text-slate-500 text-[11px]">
-                    👉 {item.exampleMeaning}
+                    <ArrowRight className="inline size-4 align-[-2px]" aria-hidden="true" /> {item.exampleMeaning}
                   </p>
                 )}
               </div>
@@ -279,7 +280,7 @@ export function VocabExplorer({
                 onClick={() => handleSaveToNotebook(item)}
                 data-testid="add-to-notebook-btn"
               >
-                📓 {t('seo.corpus.addToNotebook')}
+                <NotebookPen className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('seo.corpus.addToNotebook')}
               </Button>
             </div>
           </Card>

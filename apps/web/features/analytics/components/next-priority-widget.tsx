@@ -1,5 +1,6 @@
 'use client';
 
+import { Lightbulb } from 'lucide-react';
 import React from 'react';
 import type { PriorityRecommendation } from '../types';
 import { Card } from '@jlpt/ui/components/card';
@@ -28,7 +29,7 @@ export function NextPriorityWidget({
             Khuyến nghị học tập cá nhân hóa
           </span>
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 mt-0.5">
-            <span>💡</span> Kỹ năng nên ưu tiên học tiếp: <span className="text-indigo-600 dark:text-indigo-400">{skillLabel}</span>
+            <Lightbulb className="size-4" aria-hidden="true" /> Kỹ năng nên ưu tiên học tiếp: <span className="text-indigo-600 dark:text-indigo-400">{skillLabel}</span>
           </h3>
         </div>
 

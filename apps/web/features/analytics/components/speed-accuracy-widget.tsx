@@ -1,5 +1,6 @@
 'use client';
 
+import { Zap } from 'lucide-react';
 import React from 'react';
 import type { SpeedAccuracySummary } from '../types';
 import { Card } from '@jlpt/ui/components/card';
@@ -40,7 +41,7 @@ export function SpeedAccuracyWidget({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
         <div>
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <span>⚡</span> Phân tích tốc độ & thời gian trung bình
+            <Zap className="size-4" aria-hidden="true" /> Phân tích tốc độ & thời gian trung bình
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Đánh giá mối tương quan giữa thời gian làm bài trung bình mỗi câu và tỷ lệ làm đúng.

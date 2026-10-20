@@ -1,5 +1,6 @@
 'use client';
 
+import { PartyPopper } from 'lucide-react';
 import React, { useState, useRef } from 'react';
 import type { PublicExamSnapshot } from '@jlpt/schema';
 import { flattenExamQuestions } from '../../exam/utils/flatten-questions';
@@ -210,7 +211,7 @@ export function PracticeRunner({
         data-testid="practice-session-complete"
         className={`bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 text-center space-y-6 shadow-sm ${className}`}
       >
-        <div className="text-4xl">🎉</div>
+        <PartyPopper className="mx-auto size-10" aria-hidden="true" />
         <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
           Hoàn thành buổi luyện tập!
         </h2>
@@ -399,7 +400,7 @@ export function PracticeRunner({
                 : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
             }`}
           >
-            <span>{isCorrect ? '✅ Chính xác! Bạn đã chọn đúng.' : '❌ Chưa chính xác. Hãy xem lời giải chi tiết bên dưới.'}</span>
+            <span>{isCorrect ? 'Chính xác! Bạn đã chọn đúng.' : 'Chưa chính xác. Hãy xem lời giải chi tiết bên dưới.'}</span>
           </div>
 
           <ExplanationView

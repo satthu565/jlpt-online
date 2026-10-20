@@ -1,5 +1,6 @@
 'use client';
 
+import { Share2 } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 import type { AttemptReviewData, ReviewFilter } from '../types';
 import { flattenExamQuestions } from '../../exam/utils/flatten-questions';
@@ -110,7 +111,7 @@ export function ReviewView({
           onClick={() => setShareModalOpen(true)}
           data-testid="share-result-btn"
         >
-          🔗 Chia sẻ kết quả thi
+          <Share2 className="inline size-4 align-[-2px]" aria-hidden="true" /> Chia sẻ kết quả thi
         </Button>
       </div>
 

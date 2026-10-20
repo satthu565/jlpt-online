@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertTriangle, Check, Target } from 'lucide-react';
 import React from 'react';
 import type { TrueProgressComparison } from '@jlpt/schema';
 import { Card } from '@jlpt/ui/components/card';
@@ -47,7 +48,7 @@ export function TrueProgressWidget({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xl" aria-hidden="true">🎯</span>
+            <Target className="size-5" aria-hidden="true" />
             <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
               Đối sánh tiến độ thực chất (Không trộn câu quen với câu mới)
             </h3>
@@ -60,11 +61,11 @@ export function TrueProgressWidget({
         <div>
           {isInflatedByFamiliarity ? (
             <Badge variant="warning" size="sm">
-              ⚠️ Có dấu hiệu lạm phát điểm (+{familiarityDelta}%)
+              <AlertTriangle className="inline size-4 align-[-2px]" aria-hidden="true" /> Có dấu hiệu lạm phát điểm (+{familiarityDelta}%)
             </Badge>
           ) : (
             <Badge variant="success" size="sm">
-              ✓ Tiến độ thực chất đáng tin cậy
+              <Check className="inline size-4 align-[-2px]" aria-hidden="true" /> Tiến độ thực chất đáng tin cậy
             </Badge>
           )}
         </div>

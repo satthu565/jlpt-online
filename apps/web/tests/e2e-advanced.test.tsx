@@ -374,7 +374,7 @@ describe('E2E Advanced Suite: SRS Sync, Notifications, Classroom & Community (A0
       );
 
       expect(html).toContain('N3');
-      expect(html).toContain('🔥 7');
+      expect(html).toContain('data-testid="streak-count">7<');
       expect(html).toContain('33%');
       expect(html).toContain('data-testid="replan-button"');
       expect(html).toContain('data-testid="today-session-card"');
