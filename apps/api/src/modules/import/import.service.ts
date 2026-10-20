@@ -32,6 +32,7 @@ import {
   type ImportPackageV2,
   type PackageIdentity,
 } from '@jlpt/content-tools';
+import { parsePackageExplanation } from './explanation-parser.js';
 
 @Injectable()
 export class ImportService {
@@ -495,6 +496,61 @@ export class ImportService {
                 explanationNotes: null,
               })
               .onConflictDoNothing();
+          }
+
+          // I17: Parse explanation & script transcript into explanation_versions draft
+          const groupTranscript = (Array.isArray(group.transcript) && group.transcript.length > 0)
+            ? (group.transcript as unknown as import('@jlpt/schema').RichText)
+            : null;
+
+          const parsedExpl = parsePackageExplanation(
+            q.explanation ? (q.explanation as { locale?: string; blocks?: import('@jlpt/schema').RichBlock[] }) : null,
+            groupTranscript,
+          );
+
+          if (parsedExpl) {
+            const explanationId = toDeterministicUuid(`${pkg.packageId}:expl:${q.id || q.number}:${pkg.revision}`);
+            const explLocale = q.explanation?.locale || 'vi';
+
+            const explanationContent = {
+              questionId,
+              contentVersion: pkg.revision,
+              language: explLocale,
+              origin: pkg.source.provenance || 'self_authored',
+              humanReviewed: false,
+              correctReason: parsedExpl.correctReason,
+              ...(parsedExpl.wrongReasonsByOption ? { wrongReasonsByOption: parsedExpl.wrongReasonsByOption } : {}),
+              ...(parsedExpl.translation ? { translation: parsedExpl.translation } : {}),
+              ...(parsedExpl.blocks ? { blocks: parsedExpl.blocks } : {}),
+              ...(parsedExpl.transcript ? { transcript: parsedExpl.transcript } : {}),
+              explanationMarkdown: parsedExpl.explanationMarkdown,
+              translationVi: parsedExpl.translationVi,
+            };
+
+            await tx
+              .insert(schema.explanationVersions)
+              .values({
+                id: explanationId,
+                questionId,
+                version: pkg.revision,
+                content: explanationContent,
+                locale: explLocale,
+                authorId: uploadedByUserId,
+                aiGenerated: false,
+                status: 'draft',
+                createdAt: now,
+              })
+              .onConflictDoNothing();
+
+            await tx
+              .insert(schema.importArtifacts)
+              .values({
+                id: generateUuidV7(),
+                jobId,
+                artifactType: 'explanation',
+                storageKey: explanationId,
+                createdAt: now,
+              });
           }
         }
       }
