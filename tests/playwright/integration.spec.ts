@@ -1807,6 +1807,95 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
       }
     }
   });
+
+  test('I20 E2E: API từ chối gói -> trang hiện lỗi, không có thông báo thành công, danh sách không thêm dòng', async ({
+    browser,
+  }, testInfo) => {
+    test.setTimeout(120_000);
+    test.skip(testInfo.project.name !== 'chromium', 'I20 flow runs on chromium');
+    const clientIp = getProjectClientIp(testInfo, 78);
+    const headers = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+
+    // Tên file duy nhất: mọi dòng mang tên này chỉ có thể do trang tự thêm.
+    const brokenName = `i20-broken-${Date.now()}.zip`;
+    const editorCtx = await browser.newContext({ extraHTTPHeaders: headers });
+    const editorPage = await editorCtx.newPage();
+    try {
+      await loginAsStaff(editorPage, adminOrigin, SEEDED_STAFF_ACCOUNTS.editor);
+      await editorPage.goto(`${adminOrigin}/imports`, { waitUntil: 'domcontentloaded' });
+      await expect(editorPage.locator('[data-testid="import-title"]').first()).toBeVisible({ timeout: 15000 });
+
+      const [uploadResponse] = await Promise.all([
+        editorPage.waitForResponse((resp) => resp.url().includes('/api/v1/admin/imports') && resp.request().method() === 'POST'),
+        editorPage.locator('[data-testid="package-file-input"]').first().setInputFiles({
+          name: brokenName,
+          mimeType: 'application/zip',
+          buffer: Buffer.from('không phải file zip'),
+        }),
+      ]);
+      expect(uploadResponse.status()).toBeGreaterThanOrEqual(400);
+
+      await expect(editorPage.locator('[data-testid="error-alert"]').first()).toBeVisible({ timeout: 15000 });
+      await expect(editorPage.locator('[data-testid="status-alert"]')).toHaveCount(0);
+      await expect(editorPage.locator('tr').filter({ hasText: brokenName })).toHaveCount(0);
+
+      await editorPage.reload({ waitUntil: 'domcontentloaded' });
+      await expect(editorPage.locator('[data-testid="import-title"]').first()).toBeVisible({ timeout: 15000 });
+      await expect(editorPage.locator('tr').filter({ hasText: brokenName })).toHaveCount(0);
+    } finally {
+      await editorCtx.close();
+    }
+  });
+
+  test('I20 E2E: tải gói thật -> dòng mới đến từ API và còn sau khi tải lại trang', async ({ browser }, testInfo) => {
+    test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'I20 flow runs on chromium');
+    const clientIp = getProjectClientIp(testInfo, 79);
+    const headers = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+
+    const draftZipPath = path.resolve(process.cwd(), 'fixtures/imports/draft.zip');
+    expect(fs.existsSync(draftZipPath)).toBe(true);
+    const uploadName = `i20-draft-${Date.now()}.zip`;
+
+    const editorCtx = await browser.newContext({ extraHTTPHeaders: headers });
+    const editorPage = await editorCtx.newPage();
+    try {
+      await loginAsStaff(editorPage, adminOrigin, SEEDED_STAFF_ACCOUNTS.editor);
+      await editorPage.goto(`${adminOrigin}/imports`, { waitUntil: 'domcontentloaded' });
+      await expect(editorPage.locator('[data-testid="import-title"]').first()).toBeVisible({ timeout: 15000 });
+
+      const draftCheckbox = editorPage.locator('[data-testid="draft-mode-checkbox"]').first();
+      if (!(await draftCheckbox.isChecked())) await draftCheckbox.check();
+
+      const [uploadResponse] = await Promise.all([
+        editorPage.waitForResponse((resp) => resp.url().includes('/api/v1/admin/imports') && resp.request().method() === 'POST'),
+        editorPage.locator('[data-testid="package-file-input"]').first().setInputFiles({
+          name: uploadName,
+          mimeType: 'application/zip',
+          buffer: fs.readFileSync(draftZipPath),
+        }),
+      ]);
+      expect(uploadResponse.status()).toBe(201);
+      const created = (await uploadResponse.json()) as { id?: string };
+      expect(created.id).toBeTruthy();
+      await expect(editorPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 15000 });
+
+      // Sau khi tải lại, dòng phải đến từ GET /api/v1/admin/imports, không từ trạng thái cục bộ của trang.
+      const [listResponse] = await Promise.all([
+        editorPage.waitForResponse((resp) => resp.url().includes('/api/v1/admin/imports') && resp.request().method() === 'GET'),
+        editorPage.reload({ waitUntil: 'domcontentloaded' }),
+      ]);
+      const list = (await listResponse.json()) as { items?: Array<{ id?: string; fileName?: string }> };
+      // Gói trùng nội dung với lần nạp trước trả lại job cũ (idempotent), nên so theo id API trả về.
+      const createdJob = (list.items || []).find((j) => j.id === created.id);
+      expect(createdJob).toBeDefined();
+      await expect(editorPage.locator('tr').filter({ hasText: createdJob?.fileName || uploadName }).first()).toBeVisible({
+        timeout: 15000,
+      });
+    } finally {
+      await editorCtx.close();
+    }
+  });
 });
 
 /**
