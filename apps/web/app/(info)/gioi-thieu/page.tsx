@@ -74,6 +74,22 @@ export default function AboutPage(): React.JSX.Element {
           </a>
         </div>
       </Card>
+
+      <Card className="space-y-3 p-6 text-sm leading-relaxed text-slate-700 dark:text-slate-300" id="nguon-du-lieu">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Nguồn dữ liệu và giấy phép</h2>
+        <p>
+          Từ điển (cách đọc, từ loại, nghĩa) và dữ liệu kanji lấy từ{' '}
+          <a href="https://www.edrdg.org/wiki/index.php/JMdict-EDICT_Dictionary_Project">JMdict</a> và{' '}
+          <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project">KANJIDIC2</a> của Electronic Dictionary
+          Research and Development Group (EDRDG), dùng theo giấy phép{' '}
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0</a>.
+        </p>
+        <p className="text-xs text-slate-500" lang="en">
+          This publication has included material from the JMdict and KANJIDIC2 dictionary files in accordance with the
+          licence provisions of the Electronic Dictionaries Research Group. See{' '}
+          <a href="https://www.edrdg.org/edrdg/licence.html">www.edrdg.org/edrdg/licence.html</a>.
+        </p>
+      </Card>
     </div>
   );
 }

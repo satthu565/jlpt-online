@@ -68,6 +68,11 @@ export default function VocabCorpusPage(): React.JSX.Element {
       </div>
 
       <VocabExplorer />
+
+      <p className="text-xs text-slate-500">
+        Dữ liệu từ điển: JMdict và KANJIDIC2 của EDRDG, giấy phép CC BY-SA 4.0 —{' '}
+        <a href="/gioi-thieu#nguon-du-lieu">xem nguồn và giấy phép</a>.
+      </p>
     </div>
   );
 }
