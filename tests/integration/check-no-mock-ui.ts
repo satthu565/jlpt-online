@@ -285,7 +285,7 @@ export function runNoMockUiCheck(
  * Internal feature codes such as "(LIB-06)" or "(EXAM-24)" must not reach users. They may stay in
  * comments, data-testid values and tests. Apps listed here are enforced; apps/admin joins after D07.
  */
-export const FEATURE_CODE_APPS: Array<'web' | 'admin'> = ['web'];
+export const FEATURE_CODE_APPS: Array<'web' | 'admin'> = ['web', 'admin'];
 const FEATURE_CODE_RE = /\((?:[A-Z]{2,5}-\d{2,3})(?:\s*[,/&]\s*[A-Z]{2,5}-\d{2,3})*\)/;
 
 export function findVisibleFeatureCodes(rootDir = process.cwd()): string[] {
