@@ -1707,9 +1707,9 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
       ]);
       expect(jobsResponse.status()).toBe(200);
 
-      const jobsData = (await jobsResponse.json()) as { items?: Array<{ filename?: string; status?: string }> };
+      const jobsData = (await jobsResponse.json()) as { items?: Array<{ fileName?: string; status?: string }> };
       const items = jobsData.items || [];
-      const draftJob = items.find((j) => (j.filename || '').includes('draft.zip'));
+      const draftJob = items.find((j) => (j.fileName || '').includes('draft.zip'));
       expect(draftJob).toBeDefined();
       expect(draftJob?.status).toBe('DRAFT_ONLY');
 
