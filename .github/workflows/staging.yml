@@ -136,8 +136,14 @@ jobs:
 
       # Browsers for the Playwright projects in tests/playwright.config.ts (chromium, firefox, webkit).
       # The version comes from tests/node_modules, the same binary the runner uses.
+      # PRs run the E2E suite on Chromium only (~4 min instead of ~19); main keeps all five browser projects.
       - name: Install Playwright browsers
-        run: pnpm --filter @jlpt/tests exec playwright install --with-deps chromium firefox webkit
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            pnpm --filter @jlpt/tests exec playwright install --with-deps chromium
+          else
+            pnpm --filter @jlpt/tests exec playwright install --with-deps chromium firefox webkit
+          fi
 
       # Acceptance (I00): "pnpm test:e2e:integration chạy Playwright thật trên staging CI; có fixture đăng ký qua Mailpit và tài khoản staff seed có mật khẩu và TOTP"
       - name: Run Playwright Real API Integration Suite (I00)
@@ -147,7 +153,11 @@ jobs:
           STAGING_API_URL: http://127.0.0.1:4000
           MAILPIT_URL: http://127.0.0.1:8025
         run: |
-          pnpm test:e2e:integration
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            pnpm test:e2e:integration -- --project=chromium
+          else
+            pnpm test:e2e:integration
+          fi
 
       # Acceptance (N06): "Gói demo docs/multi-worker/demo-data: validate->review->publish->thi->review chạy thật trên staging tạm trong CI"
       # Acceptance (N06): "Cross-tenant/IDOR negative matrix pass"
@@ -198,6 +208,8 @@ jobs:
           if-no-files-found: ignore
 
       - name: Run Stepped Load Capacity Runner (SYS-10 / V06)
+        # Load and restore drills run on main only; they do not depend on a PR's diff.
+        if: github.event_name != 'pull_request'
         env:
           MEDIA_TOKEN_SECRET: staging_media_token_secret_for_reproducible_smoke_tests
         run: |
@@ -205,11 +217,15 @@ jobs:
           pnpm test:load
 
       - name: Run Load Baseline & Record Actual Measured Metrics (N06)
+        # Load and restore drills run on main only; they do not depend on a PR's diff.
+        if: github.event_name != 'pull_request'
         run: |
           pnpm test:load:baseline
 
       # Acceptance: "Backup PITR khôi phục trên staging tạm có RPO/RTO đo trong log CI"
       - name: Execute Backup PITR Restore Drill & Log RPO/RTO Measurements
+        # Load and restore drills run on main only; they do not depend on a PR's diff.
+        if: github.event_name != 'pull_request'
         run: |
           echo "=========================================================="
           echo " Executing Staging PITR Restore Drill in CI Environment"
