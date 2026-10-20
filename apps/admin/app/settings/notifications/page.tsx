@@ -149,7 +149,7 @@ export default function NotificationsSettingsPage({
       <div className="w-full max-w-6xl mx-auto p-4 md:p-8 space-y-6 overflow-x-hidden">
         <div>
           <h1 data-testid="page-title" className="text-2xl font-bold text-gray-900">
-            Cấu hình Thông báo &amp; Email Tự động (ADM-18)
+            Cấu hình Thông báo &amp; Email Tự động
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             Quản lý mẫu thông báo transactional (OTP, nhắc học tập SRS, kết quả thi, biên lai thanh toán).

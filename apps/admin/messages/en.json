@@ -140,7 +140,7 @@
     "emptyReconciliation": "No reconciliation runs recorded."
   },
   "reports": {
-    "hubTitle": "System Analytics & Reports Hub (ADM-17)",
+    "hubTitle": "System Analytics & Reports Hub",
     "hubSubtitle": "Comprehensive real-time tracking across 15 operational, content, user, and commercial metrics.",
     "revenueTitle": "Financial Revenue Reports",
     "revenueSubtitle": "Gross revenue, refunds, and net revenue segregated strictly by currency units.",
@@ -162,7 +162,7 @@
     "empty": "No A/B experiments defined."
   },
   "contentReports": {
-    "title": "User Question Issue Reports (ADM-09)",
+    "title": "User Question Issue Reports",
     "subtitle": "Moderate and resolve question content, answer key, and audio issues reported by learners.",
     "empty": "No question issue reports found.",
     "resolve": "Resolve Issue",
@@ -179,7 +179,7 @@
       "sourcePage": "Source Page",
       "exportCsv": "Export CSV",
       "submitReviewBtn": "Submit for Review",
-      "csvToolTitle": "Question Bank: Import / Export JSON & CSV Tools (PDF-30)",
+      "csvToolTitle": "Question Bank: Import / Export JSON & CSV Tools",
       "importCsvBtn": "Load Questions from CSV",
       "csvInputLabel": "Input CSV Data:",
       "csvOutputLabel": "Exported CSV Data:"
@@ -205,7 +205,7 @@
       "filterLevel": "Filter Level"
     },
     "mixedExams": {
-      "title": "Mixed Exams Management (ADM-11)",
+      "title": "Mixed Exams Management",
       "subtitle": "Monitor and generate automated mixed exams tailored to levels and weakness matrices.",
       "empty": "No mixed exams have been generated yet.",
       "createBtn": "+ Create Mixed Exam",
@@ -228,7 +228,7 @@
       "compareBtn": "Compare with Source PDF"
     },
     "explanationReviews": {
-      "title": "Explanation & Translation Review (ADM-10)",
+      "title": "Explanation & Translation Review",
       "subtitle": "Two-person quality rule: Explanations and Vietnamese translations require independent review.",
       "empty": "No explanations pending review.",
       "approveBtn": "Approve",
@@ -244,7 +244,7 @@
       "imageTitle": "Image Assets"
     },
     "vocab": {
-      "title": "Vocabulary & Grammar Management (ADM-12)",
+      "title": "Vocabulary & Grammar Management",
       "subtitle": "Dictionary lookup and JLPT N1-N5 vocabulary for study, SRS flashcards, and exams.",
       "empty": "No matching vocabulary entries found.",
       "addBtn": "+ Add New Word",
@@ -252,7 +252,7 @@
       "searchPlaceholder": "Search by word, reading, or translation..."
     },
     "cms": {
-      "title": "CMS Content & Articles (ADM-13)",
+      "title": "CMS Content & Articles",
       "subtitle": "Author SEO blog articles, campaign landing pages, and manage content versions.",
       "empty": "No articles have been created yet.",
       "listTab": "Article List",
@@ -269,7 +269,7 @@
       "filterLabel": "Show only safety flagged requests"
     },
     "contentReports": {
-      "title": "User Question Incident Reports (ADM-09)",
+      "title": "User Question Incident Reports",
       "subtitle": "Review and resolve question discrepancies, answer issues, and audio errors reported by learners.",
       "empty": "No incident reports found.",
       "resolveBtn": "Resolve Issue",

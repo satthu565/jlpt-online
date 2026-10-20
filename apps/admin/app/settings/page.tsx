@@ -8,7 +8,7 @@ export default function SettingsHubPage(): React.JSX.Element {
   const sections = [
     {
       id: 'notifications',
-      title: 'Cấu hình Thông báo & Email (ADM-18)',
+      title: 'Cấu hình Thông báo & Email',
       desc: 'Quản lý các mẫu thông báo, email tự động gửi khi học viên hoàn thành bài thi hoặc thanh toán.',
       href: '/settings/notifications',
       badge: 'Cấu hình',
@@ -22,7 +22,7 @@ export default function SettingsHubPage(): React.JSX.Element {
     },
     {
       id: 'backup',
-      title: 'Sao lưu & Phục hồi Quản trị (ADM-20 / SYS-08)',
+      title: 'Sao lưu & Phục hồi Quản trị',
       desc: 'Quản lý các operator job sao lưu WAL-G, diễn tập PITR và xuất gói dữ liệu vận hành.',
       href: '/settings/backup',
       badge: 'Hạ tầng',
