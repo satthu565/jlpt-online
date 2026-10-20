@@ -1,3 +1,4 @@
+import {  } from 'lucide-react';
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
@@ -285,8 +286,8 @@ describe('Exam UI & Interaction Suite (C03)', () => {
     expect(html).toContain('Đánh dấu');
     expect(html).toContain('Đang chọn');
 
-    // Contains flag stars
-    expect(html).toContain('★');
+        // Contains flag icons
+    expect(html).toContain('data-icon="flag"');
     expect(html).toContain('data-answered="true"');
     expect(html).toContain('data-flagged="true"');
   });
@@ -451,7 +452,7 @@ describe('Exam UI & Interaction Suite (C03)', () => {
         onSelectQuestion={() => {}}
       />,
     );
-    expect(htmlPalette).toContain('🔒');
+    expect(htmlPalette).toContain('data-icon="lock"');
     expect(htmlPalette).toContain('Phần thi đã khóa');
   });
 });

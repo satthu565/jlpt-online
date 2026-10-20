@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Globe } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
 import { Input } from '@jlpt/ui/components/input';
 import { Button } from '@jlpt/ui/components/button';
@@ -71,9 +72,9 @@ export default function LoginPage(): React.JSX.Element {
   return (
     <div className="auth-card-container">
       <Card elevated>
-        <CardHeader style={{ textAlign: 'center' }}>
+        <CardHeader className="text-center">
           <CardTitle as="h1">{t('auth.login.title')}</CardTitle>
-          <p style={{ margin: '0.25rem 0 0 0', color: 'var(--text-secondary)' }}>
+          <p className="mt-1 mb-0 text-[var(--text-secondary)]">
             {t('auth.login.subtitle')}
           </p>
         </CardHeader>
@@ -112,42 +113,19 @@ export default function LoginPage(): React.JSX.Element {
               autoComplete="current-password"
             />
 
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '1.25rem',
-                fontSize: '0.875rem',
-              }}
-            >
-              <label
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  cursor: 'pointer',
-                  color: 'var(--text-secondary)',
-                }}
-              >
+            <div className="mb-5 flex items-center justify-between text-sm">
+              <label className="inline-flex cursor-pointer items-center gap-2 text-[var(--text-secondary)]">
                 <Input
                   type="checkbox"
                   id="remember-me"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  style={{ width: '1rem', height: '1rem', minHeight: 'auto', cursor: 'pointer' }}
+                  className="!min-h-0 size-4 cursor-pointer"
                 />
                 <span>{t('auth.login.rememberMe')}</span>
               </label>
 
-              <a
-                href="/quen-mat-khau"
-                style={{
-                  color: 'var(--color-primary)',
-                  textDecoration: 'none',
-                  fontWeight: 500,
-                }}
-              >
+              <a href="/quen-mat-khau" className="font-medium text-[var(--color-primary)] no-underline hover:underline">
                 {t('auth.login.forgotPasswordLink')}
               </a>
             </div>
@@ -156,55 +134,28 @@ export default function LoginPage(): React.JSX.Element {
               type="submit"
               variant="primary"
               loading={loading}
-              style={{ width: '100%', marginBottom: '1rem' }}
+              className="mb-4 w-full"
             >
               {loading ? t('auth.login.submitting') : t('auth.login.submitButton')}
             </Button>
           </form>
 
           {/* Social login divider */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              margin: '1.5rem 0',
-              color: 'var(--text-muted)',
-              fontSize: '0.8125rem',
-            }}
-          >
-            <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-subtle)' }} />
-            <span style={{ padding: '0 0.75rem' }}>{t('auth.login.orContinueWith')}</span>
-            <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-subtle)' }} />
+          <div className="my-6 flex items-center text-[0.8125rem] text-[var(--text-muted)]">
+            <div className="h-px flex-1 bg-[var(--border-subtle)]" />
+            <span className="px-3">{t('auth.login.orContinueWith')}</span>
+            <div className="h-px flex-1 bg-[var(--border-subtle)]" />
           </div>
 
-          <a href="/api/v1/auth/google" style={{ textDecoration: 'none', display: 'block' }}>
-            <Button
-              type="button"
-              variant="secondary"
-              style={{ width: '100%' }}
-              leftIcon={<span aria-hidden="true">🌐</span>}
-            >
+          <a href="/api/v1/auth/google" className="block no-underline">
+            <Button type="button" variant="secondary" className="w-full" leftIcon={<Globe className="size-4" aria-hidden="true" />}>
               {t('auth.login.googleSignIn')}
             </Button>
           </a>
 
-          <div
-            style={{
-              marginTop: '1.5rem',
-              textAlign: 'center',
-              fontSize: '0.875rem',
-              color: 'var(--text-secondary)',
-            }}
-          >
+          <div className="mt-6 text-center text-sm text-[var(--text-secondary)]">
             <span>{t('auth.login.noAccount')} </span>
-            <a
-              href="/dang-ky"
-              style={{
-                color: 'var(--color-primary)',
-                fontWeight: 600,
-                textDecoration: 'none',
-              }}
-            >
+            <a href="/dang-ky" className="font-semibold text-[var(--color-primary)] no-underline hover:underline">
               {t('auth.login.registerNow')}
             </a>
           </div>

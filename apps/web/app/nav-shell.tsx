@@ -1,5 +1,6 @@
 'use client';
 
+import { BarChart3, ChevronDown, Globe, History, LogOut, UserRound } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { Header, type NavItem } from '@jlpt/ui/components/header';
 import { Button } from '@jlpt/ui/components/button';
@@ -52,7 +53,7 @@ export function NavigationHeader(): React.JSX.Element {
 
   // Account menu with integrated Language & Theme switchers
   const userMenu = user ? (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+    <div className="flex items-center gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -61,11 +62,11 @@ export function NavigationHeader(): React.JSX.Element {
             className="flex items-center gap-1.5 font-semibold text-sm px-3 py-1.5 rounded-lg bg-[var(--bg-muted)] hover:bg-[var(--bg-hover)]"
             aria-label={t('common.nav.account')}
           >
-            <span>👤</span>
-            <span style={{ maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <UserRound className="size-4" aria-hidden="true" />
+            <span className="max-w-[110px] truncate">
               {user.name || user.email.split('@')[0]}
             </span>
-            <span aria-hidden="true" style={{ fontSize: '0.625rem', opacity: 0.7 }}>▼</span>
+            <ChevronDown className="size-3.5 opacity-70" aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-60 p-2 space-y-2">
@@ -74,19 +75,19 @@ export function NavigationHeader(): React.JSX.Element {
           </div>
           <DropdownMenuItem asChild>
             <a href="/tai-khoan" className="flex items-center gap-2 cursor-pointer w-full text-sm">
-              <span>👤</span>
+              <UserRound className="size-4" aria-hidden="true" />
               <span>{t('common.nav.account')}</span>
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <a href="/lich-su" className="flex items-center gap-2 cursor-pointer w-full text-sm">
-              <span>📊</span>
+              <History className="size-4" aria-hidden="true" />
               <span>{t('common.nav.examHistory')}</span>
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <a href="/thong-ke" className="flex items-center gap-2 cursor-pointer w-full text-sm">
-              <span>📈</span>
+              <BarChart3 className="size-4" aria-hidden="true" />
               <span>{t('common.nav.analytics')}</span>
             </a>
           </DropdownMenuItem>
@@ -127,21 +128,21 @@ export function NavigationHeader(): React.JSX.Element {
             className="text-red-600 focus:text-red-700 cursor-pointer flex items-center gap-2 w-full text-sm font-medium"
             aria-label={t('common.nav.logout')}
           >
-            <span>🚪</span>
+            <LogOut className="size-4" aria-hidden="true" />
             <span>{t('common.nav.logout')}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
   ) : (
-    <div className="header-auth-buttons" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+    <div className="header-auth-buttons flex items-center gap-1.5">
       <Button variant="ghost" size="sm" asChild>
-        <a href="/dang-nhap" style={{ textDecoration: 'none' }}>
+        <a className="no-underline" href="/dang-nhap">
           {t('common.nav.login')}
         </a>
       </Button>
       <Button variant="primary" size="sm" asChild>
-        <a href="/dang-ky" style={{ textDecoration: 'none' }}>
+        <a className="no-underline" href="/dang-ky">
           {t('common.nav.register')}
         </a>
       </Button>
@@ -153,7 +154,7 @@ export function NavigationHeader(): React.JSX.Element {
             className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300"
             aria-label={t('locale.select') || 'Cài đặt giao diện và ngôn ngữ'}
           >
-            <span aria-hidden="true" style={{ fontSize: '1.1rem' }}>🌐</span>
+            <Globe className="size-[1.1rem]" aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56 p-2 space-y-2">

@@ -1,5 +1,6 @@
 'use client';
 
+import { Loader2 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import type { PublicExamSnapshot, AttemptMode } from '@jlpt/schema';
@@ -13,7 +14,7 @@ const ExamRoom = dynamic(
     ssr: false,
     loading: () => (
       <div className="max-w-2xl mx-auto py-20 px-4 text-center">
-        <div className="animate-spin text-4xl mb-4">⏳</div>
+        <Loader2 className="mx-auto mb-4 size-10 animate-spin" aria-hidden="true" />
         <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
           Đang chuẩn bị phòng thi...
         </h2>
@@ -276,7 +277,7 @@ export default function ExamRoomPage(): React.JSX.Element {
   if (loadingAttempt) {
     return (
       <div className="max-w-2xl mx-auto py-20 px-4 text-center">
-        <div className="animate-spin text-4xl mb-4">⏳</div>
+        <Loader2 className="mx-auto mb-4 size-10 animate-spin" aria-hidden="true" />
         <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
           {loadingMessage}
         </h2>

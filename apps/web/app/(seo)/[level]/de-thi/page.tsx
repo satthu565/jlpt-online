@@ -102,7 +102,7 @@ export default async function LevelExamsPage({ params }: LevelExamsPageProps): P
 
       {/* Breadcrumbs */}
       <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
+        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
         <a href={`/${normalized}`} className="hover:underline">{upper}</a> &gt;{' '}
         <span className="text-slate-900 dark:text-slate-100 font-semibold">Đề thi {upper}</span>
       </nav>

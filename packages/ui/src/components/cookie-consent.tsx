@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Cookie } from 'lucide-react';
 import { Button } from './button.js';
 
 export interface CookieConsentBannerProps {
@@ -69,9 +70,7 @@ export function CookieConsentBanner({
               gap: '0.5rem',
             }}
           >
-            <span role="img" aria-hidden="true">
-              🍪
-            </span>
+            <Cookie className="size-5 shrink-0" aria-hidden="true" />
             {labels.title}
           </h3>
           <p

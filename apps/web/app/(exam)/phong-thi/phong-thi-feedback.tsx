@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertTriangle, Info, Lock, X } from 'lucide-react';
 import React from 'react';
 import { Button } from '@jlpt/ui/components/button';
 
@@ -60,7 +61,7 @@ export function ExamErrorCard({ errorInfo, onRetry, onDismiss }: ExamErrorCardPr
     <div className="max-w-2xl mx-auto py-16 px-4">
       <div className="jlpt-card rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-8 shadow-sm text-center">
         <div className="text-4xl mb-3" role="img" aria-label="Lỗi phòng thi">
-          {errorInfo.requiresAuth ? '🔒' : '⚠️'}
+          {errorInfo.requiresAuth ? <Lock className="mx-auto size-10" aria-hidden="true" /> : <AlertTriangle className="mx-auto size-10" aria-hidden="true" />}
         </div>
         <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
           {errorInfo.requiresAuth ? 'Yêu cầu đăng nhập' : 'Không thể bắt đầu làm bài'}
@@ -73,7 +74,7 @@ export function ExamErrorCard({ errorInfo, onRetry, onDismiss }: ExamErrorCardPr
               : 'jlpt-alert-error bg-red-50 dark:bg-red-950 border-l-red-600 dark:border-l-red-500 text-red-900 dark:text-red-200'
           }`}
         >
-          <span>{errorInfo.requiresAuth ? 'ℹ' : '✕'}</span>
+          {errorInfo.requiresAuth ? <Info className="size-4" aria-hidden="true" /> : <X className="size-4" aria-hidden="true" />}
           <div className="flex-1">{errorInfo.message}</div>
         </div>
 

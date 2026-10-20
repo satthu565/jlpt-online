@@ -1,5 +1,6 @@
 'use client';
 
+import { CircleCheck, CircleX, Send } from 'lucide-react';
 import React, { useState } from 'react';
 import { Card } from '@jlpt/ui/components/card';
 import { Input } from '@jlpt/ui/components/input';
@@ -76,7 +77,7 @@ export default function ContactPage(): React.JSX.Element {
 
       {/* Breadcrumbs */}
       <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
+        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
         <span className="text-slate-900 dark:text-slate-100 font-semibold">Liên hệ hỗ trợ</span>
       </nav>
 
@@ -92,19 +93,19 @@ export default function ContactPage(): React.JSX.Element {
       <Card className="p-6 md:p-8 border border-slate-200 dark:border-slate-800 space-y-6">
         {success && (
           <Alert variant="success" className="text-sm" data-testid="contact-success-alert">
-            ✅ {t('seo.contact.successNotice')}
+            <CircleCheck className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('seo.contact.successNotice')}
           </Alert>
         )}
 
         {errorMessage && (
           <Alert variant="error" className="text-sm" data-testid="contact-error-alert">
-            ❌ {errorMessage}
+            <CircleX className="inline size-4 align-[-2px]" aria-hidden="true" /> {errorMessage}
           </Alert>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4" data-testid="contact-form">
           {/* Honeypot field for bot protection */}
-          <div style={{ display: 'none' }} aria-hidden="true">
+          <div className="hidden" aria-hidden="true">
             <Input
               type="text"
               name="website_hp"
@@ -154,8 +155,7 @@ export default function ContactPage(): React.JSX.Element {
           <div>
             <label
               htmlFor="contact-message"
-              className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
-            >
+              className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               {t('seo.contact.messageLabel')} *
             </label>
             <Textarea
@@ -166,8 +166,7 @@ export default function ContactPage(): React.JSX.Element {
               placeholder="Nêu rõ câu hỏi hoặc vấn đề bạn gặp phải..."
               required
               data-testid="contact-message-input"
-              className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
+              className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"/>
           </div>
 
           <Button
@@ -177,7 +176,7 @@ export default function ContactPage(): React.JSX.Element {
             loading={loading}
             data-testid="contact-submit-btn"
           >
-            ✉️ {t('seo.contact.submitBtn')}
+            <Send className="size-4" aria-hidden="true" /> {t('seo.contact.submitBtn')}
           </Button>
         </form>
       </Card>
