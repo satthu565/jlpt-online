@@ -135,13 +135,21 @@ export default function ExamRoomPage(): React.JSX.Element {
 
       const apiClient = await getApiClient();
       const resumeRes = await apiClient.resumeAttempt(attemptId);
+      // An attempt left before its first section started has no running section; start it like a new attempt.
+      let sectionIndex = resumeRes.currentSection;
+      let serverNow = resumeRes.serverNow;
+      if (sectionIndex === null) {
+        const started = await apiClient.nextSection(attemptId, { lease: resumeRes.lease });
+        sectionIndex = started.sectionIndex;
+        serverNow = started.serverNow;
+      }
       const snapshot = await apiClient.fetchSnapshot(resumeRes.snapshotUrl);
 
       setActiveSnapshot(snapshot);
       setActiveAttemptId(attemptId);
       setActiveLease(resumeRes.lease);
-      setActiveServerNow(resumeRes.serverNow);
-      setInitialSectionIndex(resumeRes.currentSection ?? 0);
+      setActiveServerNow(serverNow);
+      setInitialSectionIndex(sectionIndex ?? 0);
       setInitialAnswers(resumeRes.answers);
       setInitialFlags(resumeRes.flags);
       const { createExamStorage } = await import('../../../features/exam/storage/indexeddb');
@@ -236,16 +244,26 @@ export default function ExamRoomPage(): React.JSX.Element {
         throw err;
       }
 
+      // A new attempt has no running section: start the first one on the server before answers are saved,
+      // otherwise every sheet save is rejected with SECTION_NOT_STARTED (same as the practice page).
+      const apiClient = await getApiClient();
+      let sectionIndex = initRes.currentSection ?? null;
+      let serverNow = initRes.serverNow;
+      if (sectionIndex === null) {
+        const started = await apiClient.nextSection(initRes.attemptId, { lease: initRes.lease });
+        sectionIndex = started.sectionIndex;
+        serverNow = started.serverNow;
+      }
+
       // Fetch verified snapshot
       setLoadingMessage('Đang tải nội dung đề thi bảo mật...');
-      const apiClient = await getApiClient();
       const snapshot = await apiClient.fetchSnapshot(initRes.snapshotUrl);
 
       setActiveSnapshot(snapshot);
       setActiveAttemptId(initRes.attemptId);
       setActiveLease(initRes.lease);
-      setActiveServerNow(initRes.serverNow);
-      setInitialSectionIndex(initRes.currentSection ?? 0);
+      setActiveServerNow(serverNow);
+      setInitialSectionIndex(sectionIndex);
       setInitialAnswers(undefined);
       setInitialFlags(undefined);
       const { createExamStorage } = await import('../../../features/exam/storage/indexeddb');

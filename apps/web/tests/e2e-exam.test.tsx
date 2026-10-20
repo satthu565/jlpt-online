@@ -527,5 +527,35 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
       expect(conflictEngine.getSyncState()).toBe('conflict');
       conflictEngine.stop();
     });
+
+    it('a 409 that is not LEASE_INVALID (SECTION_NOT_STARTED) is an error to retry, not a session conflict', async () => {
+      const storage = new MemoryExamStorage();
+      let conflictCallbackInvoked = false;
+      const engine = new ExamSyncEngine({
+        attemptId: '0192f000-0000-7000-8000-000000000098',
+        examId: '0192f000-0000-7000-8000-000000000001',
+        lease: '0192f000-0000-7000-8000-000000000087',
+        initialAnswers: [0, 0, 0, 0],
+        initialFlags: [0, 0, 0, 0],
+        storage,
+        apiClient: {
+          updateAnswerSheet: vi.fn().mockRejectedValue({
+            code: 'SECTION_NOT_STARTED',
+            status: 409,
+            message: 'Chưa bắt đầu phần thi nào.',
+          }),
+        } as unknown as ExamApiClient,
+        onLeaseConflict: () => {
+          conflictCallbackInvoked = true;
+        },
+      });
+
+      await engine.recordAnswerChange(0, 1);
+      await engine.flush();
+
+      expect(conflictCallbackInvoked).toBe(false);
+      expect(engine.getSyncState()).toBe('error');
+      engine.stop();
+    });
   });
 });

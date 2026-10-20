@@ -312,7 +312,9 @@ export class ExamSyncEngine {
       this.inFlight = false;
 
       const error = err as { code?: string; message?: string; status?: number };
-      const isConflict = error.code === 'LEASE_INVALID' || error.status === 409;
+      // Only a lost lease means another window owns the attempt. Other 409s (SECTION_NOT_STARTED, SECTION_CLOSED…)
+      // are reported as errors and retried, not as a session conflict that ends the exam.
+      const isConflict = error.code === 'LEASE_INVALID' || (error.status === 409 && !error.code);
 
       if (isConflict) {
         this.isStopped = true;
