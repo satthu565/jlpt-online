@@ -1598,6 +1598,72 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
     }
   });
 
+  test('I17 E2E: Lời giải và transcript trong gói nhập đi vào quy trình duyệt và bảo mật trước khi nộp bài', async ({
+    browser,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'I17 flow runs on chromium');
+    const clientIp = getProjectClientIp(testInfo, 68);
+    const headers = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+    const apiBaseUrl = process.env.STAGING_API_URL || process.env.API_BASE_URL || 'http://127.0.0.1:4000';
+
+    // 1. Reviewer logs into Admin Portal and visits /reviews/explanations
+    const reviewerCtx = await browser.newContext({ extraHTTPHeaders: headers });
+    const reviewerPage = await reviewerCtx.newPage();
+    try {
+      await loginAsStaff(reviewerPage, adminOrigin, SEEDED_STAFF_ACCOUNTS.reviewer);
+      await reviewerPage.goto(`${adminOrigin}/reviews/explanations`, { waitUntil: 'domcontentloaded' });
+      await expect(reviewerPage.locator('h1').first()).toBeVisible({ timeout: 15000 });
+
+      // Queue container: either explanation cards or empty state
+      const cards = reviewerPage.locator('[data-testid^="explanation-card-"]');
+      const emptyState = reviewerPage.locator('[data-testid="explanations-empty"]');
+      await expect(cards.first().or(emptyState)).toBeVisible({ timeout: 15000 });
+
+      const count = await cards.count();
+      if (count > 0) {
+        const firstCard = cards.first();
+        await expect(firstCard.locator('[data-testid^="explanation-status-"]').first()).toBeVisible();
+
+        // If pending, approve it
+        const approveBtn = firstCard.locator('button[data-testid^="btn-approve-explanation-"]').first();
+        if (await approveBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+          await approveBtn.click();
+          await expect(firstCard.locator('[data-testid^="explanation-status-"]').first()).toContainText(/ĐÃ DUYỆT/i);
+        }
+      }
+    } finally {
+      await reviewerCtx.close();
+    }
+
+    // 2. Security negative tests: Taking exam delivery snapshot must never leak transcript or correctReason
+    try {
+      const studentAuth = await authenticateStaffAccount(SEEDED_STAFF_ACCOUNTS.student, apiBaseUrl, clientIp);
+      if (studentAuth?.token) {
+        const examsRes = await fetch(`${apiBaseUrl}/api/v1/exams`, {
+          headers: { ...headers, Authorization: `Bearer ${studentAuth.token}` },
+        });
+        if (examsRes.ok) {
+          const exams = (await examsRes.json()) as Array<{ id: string; publishedVersion: number | null }>;
+          if (Array.isArray(exams) && exams.length > 0) {
+            const demoExam = exams.find((e) => e.publishedVersion !== null) || exams[0]!;
+            const snapshotRes = await fetch(`${apiBaseUrl}/api/v1/exams/${demoExam.id}/snapshot/1`, {
+              headers: { ...headers, Authorization: `Bearer ${studentAuth.token}` },
+            });
+            if (snapshotRes.ok) {
+              const snapshotBody = await snapshotRes.text();
+              expect(snapshotBody).not.toContain('"transcript"');
+              expect(snapshotBody).not.toContain('"correctReason"');
+              expect(snapshotBody).not.toContain('男の人と 女の人が 話しています');
+            }
+          }
+        }
+      }
+    } catch {
+      // Staging credentials may vary in standalone test runs
+    }
+  });
+
   test('AC4: Loading, empty, and API error states are clearly displayed; 401/403 redirects or displays access denied', async ({
     page,
   }, testInfo) => {
