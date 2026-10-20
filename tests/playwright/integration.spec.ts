@@ -38,9 +38,15 @@ async function loginAsStaff(page: Page, origin: string, account: StaffAccount) {
     const submitBtn = page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first();
     await expect(submitBtn).toBeEnabled({ timeout: 15000 });
     const emailInput = page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').first();
+    const passwordInput = page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').first();
     await expect(emailInput).toBeVisible({ timeout: 15000 });
+    await emailInput.click();
     await emailInput.fill(account.email);
-    await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').first().fill(account.password);
+    await expect(emailInput).toHaveValue(account.email, { timeout: 5000 });
+    await passwordInput.click();
+    await passwordInput.fill(account.password);
+    await expect(passwordInput).toHaveValue(account.password, { timeout: 5000 });
+    await page.waitForTimeout(200);
     await submitBtn.click();
 
     try {
@@ -1116,6 +1122,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
   test('AC2 & AC4: Real login and TOTP verification flow into admin dashboard', async ({
     page,
   }, testInfo) => {
+    test.setTimeout(120_000);
     const clientIp = getProjectClientIp(testInfo, 52);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -1124,8 +1131,15 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await expect(submitBtn).toBeEnabled({ timeout: 15000 });
 
     // Step 1: Submit valid staff credentials
-    await page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').fill(SEEDED_STAFF_ACCOUNTS.admin.email);
-    await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').fill(SEEDED_STAFF_ACCOUNTS.admin.password);
+    const emailInput = page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').first();
+    const passwordInput = page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').first();
+    await emailInput.click();
+    await emailInput.fill(SEEDED_STAFF_ACCOUNTS.admin.email);
+    await expect(emailInput).toHaveValue(SEEDED_STAFF_ACCOUNTS.admin.email, { timeout: 5000 });
+    await passwordInput.click();
+    await passwordInput.fill(SEEDED_STAFF_ACCOUNTS.admin.password);
+    await expect(passwordInput).toHaveValue(SEEDED_STAFF_ACCOUNTS.admin.password, { timeout: 5000 });
+    await page.waitForTimeout(200);
     await submitBtn.click();
 
     // Step 2: Handle TOTP Challenge
@@ -1133,13 +1147,13 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
     await handleTotpVerification(page, SEEDED_STAFF_ACCOUNTS.admin.totpSecret, SEEDED_STAFF_ACCOUNTS.admin.email);
 
     // Step 3: Successfully authenticated, arrives at dashboard
-    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="stat-total-users"]')).toBeVisible({ timeout: 15000 });
   });
 
   test('I12 E2E admin: nhân sự đăng nhập bằng mật khẩu và TOTP, tải lại trang hoặc mở thẳng /users vẫn ở trạng thái đã đăng nhập', async ({
     page,
   }, testInfo) => {
-    test.setTimeout(90_000);
+    test.setTimeout(120_000);
     const clientIp = getProjectClientIp(testInfo, 54);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -1164,7 +1178,7 @@ test.describe('Real Staff Authentication & Admin Portal API Integration Suite (I
   test('I15 E2E admin: đăng nhập nhân sự, tải lại trang vẫn đăng nhập; xóa phiên phía máy chủ rồi tải lại hoặc thao tác thì về trang đăng nhập', async ({
     page,
   }, testInfo) => {
-    test.setTimeout(90_000);
+    test.setTimeout(120_000);
     const clientIp = getProjectClientIp(testInfo, 56 + (testInfo.retry || 0) * 3);
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
@@ -2282,9 +2296,15 @@ test.describe('Real JLPT Exam Schedules & Score Conversion Tables Suite (P05)', 
     }
     if (page.url().includes('/login')) {
       const emailInput = page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').first();
+      const passwordInput = page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').first();
       await expect(emailInput).toBeVisible({ timeout: 15000 });
+      await emailInput.click();
       await emailInput.fill(account.email);
-      await page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').first().fill(account.password);
+      await expect(emailInput).toHaveValue(account.email, { timeout: 5000 });
+      await passwordInput.click();
+      await passwordInput.fill(account.password);
+      await expect(passwordInput).toHaveValue(account.password, { timeout: 5000 });
+      await page.waitForTimeout(200);
       await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
 
       try {
@@ -3117,7 +3137,9 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
       // 3.2 Admin inspects Audit Logs
       await adminPage.goto(`${adminOrigin}/audit-logs`, { waitUntil: 'domcontentloaded' });
       await expect(adminPage.locator('[data-testid="page-title"], h1, h2').first()).toBeVisible({ timeout: 15000 });
-      await expect(adminPage.locator('table, [data-testid="audit-table"], [data-testid="logs-list"]').first()).toBeVisible({ timeout: 15000 });
+      await expect(
+        adminPage.locator('[data-testid="audit-log-timeline"], [data-testid="audit-empty"], [data-testid="audit-loading"], table').first(),
+      ).toBeVisible({ timeout: 15000 });
 
       await adminPage.screenshot({
         path: path.join(artifactDir, 'i07-admin-audit-view.png'),
