@@ -1699,6 +1699,8 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
         fileInput.setInputFiles(draftZipPath),
       ]);
       expect(uploadResponse.status()).toBe(201);
+      // Trang tự tải lại danh sách sau khi nạp; chờ xong để GET bắt bên dưới là của lần tải lại trang.
+      await expect(editorPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 15000 });
 
       // Reload page and verify GET /api/v1/admin/imports returns the job after reload
       const [jobsResponse] = await Promise.all([
