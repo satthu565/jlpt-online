@@ -10,6 +10,7 @@ import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
+import { selectCurrentBlueprint } from '../blueprint/blueprint.service.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import {
   MixConfigSchema,
@@ -50,11 +51,11 @@ export class MixService {
           version ? eq(schema.blueprints.version, version) : undefined,
           eq(schema.blueprints.status, 'active'),
         ),
-      )
-      .limit(1);
+      );
 
-    if (bpRows.length > 0) {
-      const row = bpRows[0]!;
+    // Several blueprints can be active for one level (demo, official 2010, official 2020): use the current one.
+    const row = selectCurrentBlueprint(bpRows);
+    if (row) {
       return {
         level: row.level as Level,
         version: row.version,
@@ -224,11 +225,11 @@ export class MixService {
       });
 
       // Find or create blueprint for this level
-      const [bp] = await db
-        .select({ id: schema.blueprints.id })
+      const levelBlueprints = await db
+        .select()
         .from(schema.blueprints)
-        .where(eq(schema.blueprints.level, config.level))
-        .limit(1);
+        .where(eq(schema.blueprints.level, config.level));
+      const bp = selectCurrentBlueprint(levelBlueprints) ?? levelBlueprints[0];
 
       let bpId = bp?.id;
       if (!bpId) {
