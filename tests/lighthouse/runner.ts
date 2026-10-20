@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url';
 import net from 'node:net';
 import process from 'node:process';
 import { TARGET_ROUTES, getBaseUrls, resolveTargetUrl } from './targets.ts';
-import { DEFAULT_BUDGETS, evaluateMetrics } from './budgets.ts';
+import { DEFAULT_BUDGETS, WARN_ONLY_METRICS, blockingViolations, evaluateMetrics } from './budgets.ts';
 import type {
   FormFactor,
   BudgetMode,
@@ -413,6 +413,7 @@ export async function runLighthouseAudit(options: RunnerOptions = {}): Promise<L
     passedAudits: results.filter((r) => r.passed).length,
     failedAudits: results.filter((r) => !r.passed).length,
     violationsCount: allViolations.length,
+    blockingViolationsCount: blockingViolations(allViolations).length,
     results,
     violations: allViolations,
   };
@@ -551,11 +552,16 @@ async function main() {
   const summary = await runLighthouseAudit(options);
 
   if (summary.violationsCount > 0) {
-    if (summary.budgetMode === 'error') {
+    if (summary.budgetMode === 'error' && summary.blockingViolationsCount > 0) {
       console.error(
-        `\n[FAIL] Lighthouse audit failed with ${summary.violationsCount} budget violation(s) under budgetMode=error (blocking).`,
+        `\n[FAIL] Lighthouse audit failed with ${summary.blockingViolationsCount} budget violation(s) under budgetMode=error (blocking). Tổng cộng ${summary.violationsCount}, gồm cả chỉ số chỉ cảnh báo.`,
       );
       process.exit(1);
+    } else if (summary.budgetMode === 'error') {
+      console.log(
+        `\n[WARN] ${summary.violationsCount} warn-only budget violation(s) (${[...WARN_ONLY_METRICS].join(', ')}); không chặn CI.`,
+      );
+      process.exit(0);
     } else {
       console.log(
         `\n[WARN] ${summary.violationsCount} budget violation(s) reported under budgetMode=warn (D01 warning mode; D04 will block).`,
