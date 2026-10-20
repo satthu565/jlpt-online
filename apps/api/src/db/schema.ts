@@ -417,6 +417,8 @@ export const examSections = pgTable('exam_sections', {
   title: text('title').notNull(),
   durationSec: integer('duration_sec').notNull(),
   orderIndex: smallint('order_index').notNull(),
+  // Listening timeline from the import package; groupId already mapped to question_groups.id.
+  listeningTimeline: jsonb('listening_timeline'),
 });
 
 export const examItems = pgTable('exam_items', {

@@ -43,6 +43,13 @@
       "when": 1792478000000,
       "tag": "0005_blueprint_effective_to",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792500000000,
+      "tag": "0006_section_listening_timeline",
+      "breakpoints": true
     }
   ]
 }

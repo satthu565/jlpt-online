@@ -45,6 +45,11 @@ const nextConfig = {
         source: '/api/:path*',
         destination: `${apiUrl}/api/:path*`,
       },
+      {
+        // Snapshot media keys are rendered as `/media/<file>` (images, listening audio).
+        source: '/media/:path*',
+        destination: `${apiUrl}/api/v1/media/:path*`,
+      },
     ];
   },
 };

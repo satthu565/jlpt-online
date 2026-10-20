@@ -43,6 +43,7 @@ import {
   type MondaiType,
   type RichText,
   type RichBlock,
+  type ListeningTimelineItem,
 } from '@jlpt/schema';
 import { StorageService } from '../storage/storage.service.js';
 import { OutboxService, type DbTx } from '../outbox/outbox.service.js';
@@ -50,6 +51,30 @@ import { BlueprintService } from '../blueprint/blueprint.service.js';
 import { ReviewService } from '../review/review.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import type { ExamFilterQuery, PublishExamResponse } from './exam.types.js';
+
+/**
+ * Public listening timeline of a section, kept only for groups that are in the snapshot.
+ * The timeline is stored at import time (exam_sections.listening_timeline).
+ */
+export function toPublicTimeline(
+  stored: unknown,
+  groups: PublicQuestionGroup[],
+): ListeningTimelineItem[] | null {
+  if (!Array.isArray(stored) || stored.length === 0) return null;
+  const groupIds = new Set(groups.map((g) => g.groupId));
+  const items = (stored as ListeningTimelineItem[])
+    .filter((t) => t && typeof t.mediaKey === 'string' && groupIds.has(t.groupId))
+    .map((t) => ({
+      groupId: t.groupId,
+      mediaKey: t.mediaKey,
+      startMs: t.startMs,
+      endMs: t.endMs,
+      audioStartMs: t.audioStartMs,
+      audioEndMs: t.audioEndMs,
+      gapAfterMs: t.gapAfterMs,
+    }));
+  return items.length > 0 ? items : null;
+}
 
 @Injectable()
 export class ExamService {
@@ -648,7 +673,7 @@ export class ExamService {
         durationSec: sec.durationSec,
         questionRange: [startRange, endRange],
         groups: publicGroups,
-        listeningTimeline: null,
+        listeningTimeline: toPublicTimeline(sec.listeningTimeline, publicGroups),
       });
     }
 
@@ -1112,7 +1137,7 @@ export class ExamService {
         durationSec: sec.durationSec,
         questionRange: [startRange, endRange],
         groups: publicGroups,
-        listeningTimeline: null,
+        listeningTimeline: toPublicTimeline(sec.listeningTimeline, publicGroups),
       });
     }
 
