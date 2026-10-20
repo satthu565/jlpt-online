@@ -1,3 +1,4 @@
+import { AlertTriangle, CircleCheck, CircleX, Info, X, type LucideIcon } from 'lucide-react';
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils.js';
@@ -27,13 +28,13 @@ export const alertVariants = cva(
   },
 );
 
-const iconMap: Record<string, string> = {
-  info: 'ℹ',
-  default: 'ℹ',
-  success: '✓',
-  warning: '⚠',
-  error: '✕',
-  destructive: '✕',
+const iconMap: Record<string, LucideIcon> = {
+  info: Info,
+  default: Info,
+  success: CircleCheck,
+  warning: AlertTriangle,
+  error: CircleX,
+  destructive: CircleX,
 };
 
 export interface AlertProps
@@ -53,7 +54,7 @@ export function Alert({
   className,
   ...props
 }: AlertProps): React.JSX.Element {
-  const icon = iconMap[variant || 'info'] || 'ℹ';
+  const Icon = iconMap[variant || 'info'] || Info;
 
   return (
     <div
@@ -62,9 +63,7 @@ export function Alert({
       className={cn(alertVariants({ variant }), className)}
       {...props}
     >
-      <span aria-hidden="true" className="text-lg font-bold leading-none select-none">
-        {icon}
-      </span>
+      <Icon aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
       <div className="flex-1">
         {title && <div className="font-semibold mb-1">{title}</div>}
         <div>{children}</div>
@@ -76,7 +75,7 @@ export function Alert({
           aria-label={closeLabel}
           className="cursor-pointer px-2 py-1 text-base leading-none rounded min-h-[32px] min-w-[32px] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
         >
-          ✕
+          <X className="size-4" aria-hidden="true" />
         </button>
       )}
     </div>

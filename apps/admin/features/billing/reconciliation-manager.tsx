@@ -1,5 +1,6 @@
 'use client';
 
+import { Check, X } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@jlpt/ui/components/button';
 import type { BillingManager } from './billing-service';
@@ -274,13 +275,13 @@ export function ReconciliationManager({
               onClick={() => setSelectedRun(null)}
               className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 font-medium h-7 px-2"
             >
-              Đóng ✕
+              Đóng <X className="size-3.5" aria-hidden="true" />
             </Button>
           </div>
 
           {selectedRun.discrepanciesFound === 0 ? (
             <div data-testid="reconciliation-no-discrepancy" className="p-3 bg-white dark:bg-gray-900 border border-green-200 dark:border-green-800 rounded text-xs text-green-700 dark:text-green-300">
-              ✓ Toàn bộ đơn hàng và khoản hoàn tiền khớp 100% với chứng từ cổng thanh toán. Không có giao dịch thất thoát.
+              <Check className="inline size-4 align-[-2px]" aria-hidden="true" /> Toàn bộ đơn hàng và khoản hoàn tiền khớp 100% với chứng từ cổng thanh toán. Không có giao dịch thất thoát.
             </div>
           ) : (
             <div data-testid="reconciliation-discrepancies-list" className="space-y-2">

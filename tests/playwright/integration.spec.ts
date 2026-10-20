@@ -402,9 +402,14 @@ test.describe('Real Staging User Journey & Exam Flow (I05)', () => {
     // 7. Exam room rendered - answer at least one question
     await expect(page.locator('[role="radiogroup"], [data-testid="exam-room"], main').first()).toBeVisible({ timeout: 15000 });
     const firstOption = page.locator('[role="radio"]').first();
-    if (await firstOption.isVisible()) {
-      await firstOption.click();
-    }
+    await expect(firstOption).toBeVisible({ timeout: 15000 });
+    // The answer must reach the server: a new attempt starts its first section, so the sheet save is accepted
+    // (it used to be rejected with 409 SECTION_NOT_STARTED while the UI kept going).
+    const [sheetSave] = await Promise.all([
+      page.waitForResponse((r) => r.url().includes('/sheet') && r.request().method() === 'PUT', { timeout: 15000 }),
+      firstOption.click(),
+    ]);
+    expect(sheetSave.status()).toBe(200);
 
     // 8. Submit exam via navigation or toolbar
     const submitBtn = page.locator('button:has-text("Nộp bài")').first();

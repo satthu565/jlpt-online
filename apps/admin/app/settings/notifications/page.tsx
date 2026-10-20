@@ -1,5 +1,6 @@
 'use client';
 
+import { Check } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@jlpt/ui/components/button';
 import { Input } from '@jlpt/ui/components/input';
@@ -164,7 +165,7 @@ export default function NotificationsSettingsPage({
             data-testid="notification-success-alert"
             className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-sm"
           >
-            ✓ {sendSuccess}
+            <Check className="inline size-4 align-[-2px]" aria-hidden="true" /> {sendSuccess}
           </div>
         )}
 

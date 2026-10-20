@@ -1,5 +1,6 @@
 'use client';
 
+import { KeyRound } from 'lucide-react';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@jlpt/ui/components/button';
@@ -57,7 +58,7 @@ export default function Verify2faChallengePage(): React.JSX.Element {
         className="w-full max-w-[440px] bg-[var(--bg-surface,#ffffff)] dark:bg-[var(--bg-surface,#1e293b)] rounded-2xl shadow-xl p-8 border border-[var(--border-default,#cbd5e1)] dark:border-[var(--border-default,#475569)]"
       >
         <div className="text-center mb-8">
-          <div className="text-4xl mb-2">🔑</div>
+          <KeyRound className="mx-auto mb-2 size-10" aria-hidden="true" />
           <h1 className="text-2xl font-bold m-0 mb-2 text-[var(--text-primary,#0f172a)] dark:text-[var(--text-primary,#f8fafc)]">
             {useRecovery ? t('totp.recoveryCodeTitle', locale) : t('totp.challengeTitle', locale)}
           </h1>

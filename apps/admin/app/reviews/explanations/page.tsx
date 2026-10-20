@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertTriangle, Check } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@jlpt/ui/components/button';
 import { Textarea } from '@jlpt/ui/components/textarea';
@@ -131,7 +132,7 @@ export default function ExplanationReviewsPage({ initialItems }: { initialItems?
             data-testid="error-two-person-rule"
             className="p-4 bg-red-50 border border-red-300 text-red-700 rounded-md text-sm font-semibold"
           >
-            <span data-testid="explanations-error-alert">⚠️ {errorMessage}</span>
+            <span data-testid="explanations-error-alert"><AlertTriangle className="inline size-4 align-[-2px]" aria-hidden="true" /> {errorMessage}</span>
           </div>
         )}
 
@@ -203,7 +204,7 @@ export default function ExplanationReviewsPage({ initialItems }: { initialItems?
 
                   {item.reviewerNote && (
                     <div className="text-xs text-green-800 bg-green-50 p-3 rounded-md">
-                      ✓ <strong>Ghi chú người duyệt:</strong> {item.reviewerNote}
+                      <Check className="inline size-4 align-[-2px]" aria-hidden="true" /> <strong>Ghi chú người duyệt:</strong> {item.reviewerNote}
                     </div>
                   )}
 

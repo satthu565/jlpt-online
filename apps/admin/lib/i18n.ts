@@ -1,17 +1,36 @@
 import viMessages from '../messages/vi.json';
-import jaMessages from '../messages/ja.json';
-import enMessages from '../messages/en.json';
 
 export type Locale = 'vi' | 'ja' | 'en';
 
 export const SUPPORTED_LOCALES: Locale[] = ['vi', 'ja', 'en'];
 export const DEFAULT_LOCALE: Locale = 'vi';
 
+// Only Vietnamese ships with every page; ja/en (~11 KB gzip) load when chosen. Missing keys fall back to vi.
 export const messages: Record<Locale, typeof viMessages> = {
   vi: viMessages,
-  ja: jaMessages as typeof viMessages,
-  en: enMessages as typeof viMessages,
+  ja: {} as typeof viMessages,
+  en: {} as typeof viMessages,
 };
+
+export function isLocaleLoaded(locale: Locale): boolean {
+  return Object.keys(messages[locale] ?? {}).length > 0;
+}
+
+/** Installs a locale's messages (used by loadLocaleMessages and by the test setup). */
+export function registerLocaleMessages(locale: Locale, dict: unknown): void {
+  if (!isLocaleLoaded(locale)) messages[locale] = dict as typeof viMessages;
+}
+
+const LOCALE_LOADERS: Record<Exclude<Locale, 'vi'>, () => Promise<{ default: unknown }>> = {
+  ja: () => import('../messages/ja.json'),
+  en: () => import('../messages/en.json'),
+};
+
+export async function loadLocaleMessages(locale: Locale): Promise<void> {
+  if (locale === 'vi' || isLocaleLoaded(locale)) return;
+  const mod = await LOCALE_LOADERS[locale]();
+  registerLocaleMessages(locale, mod.default ?? mod);
+}
 
 type NestedKeyOf<T> = T extends object
   ? {
