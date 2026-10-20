@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Dices, Scale, Target, Sparkles, Flame, RotateCcw, Sliders, Rocket } from 'lucide-react';
 import type { Level, MixMode } from '@jlpt/schema';
 import type { MixFormState, MixShortageInfo } from '../types';
 import { INITIAL_MIX_CONFIG } from '../types';
@@ -28,48 +29,48 @@ export function MixGenerator({
   const levels: Level[] = ['N1', 'N2', 'N3', 'N4', 'N5'];
 
   // All 7 generator modes (Acceptance 1)
-  const modes: Array<{ id: MixMode; label: string; desc: string; icon: string }> = [
+  const modes: Array<{ id: MixMode; label: string; desc: string; icon: React.ReactNode }> = [
     {
       id: 'Random',
       label: 'Ngẫu nhiên (Random)',
       desc: 'Trộn ngẫu nhiên câu hỏi theo đúng tỷ lệ các phần thi',
-      icon: '🎲',
+      icon: <Dices className="h-4 w-4 text-blue-500" aria-hidden="true" />,
     },
     {
       id: 'Balanced',
       label: 'Cân bằng (Balanced)',
       desc: 'Phân bổ đồng đều giữa các kỳ thi quá khứ và ngân hàng',
-      icon: '⚖️',
+      icon: <Scale className="h-4 w-4 text-emerald-500" aria-hidden="true" />,
     },
     {
       id: 'Weakness',
       label: 'Điểm yếu (Weakness)',
       desc: 'Tập trung vào các kỹ năng và dạng câu bạn thường làm sai',
-      icon: '🎯',
+      icon: <Target className="h-4 w-4 text-rose-500" aria-hidden="true" />,
     },
     {
       id: 'Unseen',
       label: 'Câu mới (Unseen)',
       desc: 'Tuyệt đối chỉ lấy các câu bạn chưa từng làm để tránh lạm phát điểm',
-      icon: '✨',
+      icon: <Sparkles className="h-4 w-4 text-amber-500" aria-hidden="true" />,
     },
     {
       id: 'Challenge',
       label: 'Thử thách (Challenge)',
       desc: 'Ưu tiên các câu hỏi có độ khó cao để bứt phá mục tiêu điểm số',
-      icon: '🔥',
+      icon: <Flame className="h-4 w-4 text-orange-500" aria-hidden="true" />,
     },
     {
       id: 'Revision',
       label: 'Ôn tập (Revision)',
       desc: 'Tổng hợp các câu hỏi cần ôn lại định kỳ theo chu kỳ trí nhớ',
-      icon: '🔄',
+      icon: <RotateCcw className="h-4 w-4 text-indigo-500" aria-hidden="true" />,
     },
     {
       id: 'Custom',
       label: 'Tùy chỉnh (Custom)',
       desc: 'Tự do tùy chỉnh tỷ lệ phần trăm từng nguồn và các dạng bài',
-      icon: '⚙️',
+      icon: <Sliders className="h-4 w-4 text-slate-500" aria-hidden="true" />,
     },
   ];
 
@@ -176,7 +177,7 @@ export function MixGenerator({
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-base">{m.icon}</span>
+                    <span className="shrink-0">{m.icon}</span>
                     <strong className="text-xs font-bold">{m.label}</strong>
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
@@ -296,8 +297,10 @@ export function MixGenerator({
                 size="sm"
                 onClick={handleRandomizeSeed}
                 data-testid="mix-random-seed-btn"
+                className="inline-flex items-center gap-1.5"
               >
-                🎲 Random
+                <Dices className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>Random</span>
               </Button>
             </div>
           </div>
@@ -326,11 +329,18 @@ export function MixGenerator({
             type="submit"
             variant="primary"
             size="lg"
-            className="w-full"
+            className="w-full inline-flex items-center justify-center gap-2"
             loading={isGenerating}
             data-testid="generate-mix-btn"
           >
-            {isGenerating ? 'Đang chạy thuật toán trộn đề...' : `🚀 Tạo đề thi trộn (${config.mode})`}
+            {isGenerating ? (
+              <span>Đang chạy thuật toán trộn đề...</span>
+            ) : (
+              <>
+                <Rocket className="h-4 w-4" aria-hidden="true" />
+                <span>Tạo đề thi trộn ({config.mode})</span>
+              </>
+            )}
           </Button>
         </div>
       </form>

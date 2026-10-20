@@ -20,6 +20,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    setupFiles: ['./tests/setup-i18n.ts'],
     exclude: ['**/node_modules/**', '**/.next/**'],
     maxWorkers: 1,
     fileParallelism: false,

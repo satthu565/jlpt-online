@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/ca
 import { Button } from '@jlpt/ui/components/button';
 import { Input } from '@jlpt/ui/components/input';
 import { Alert } from '@jlpt/ui/components/alert';
+import { Moon } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 
 export interface NotificationPreferences {
@@ -87,7 +88,7 @@ export function NotificationSettings({
       </CardHeader>
 
       <CardContent>
-        <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <form onSubmit={handleSave} className="flex flex-col gap-6">
           {feedback && (
             <Alert variant={feedback.type} onClose={() => setFeedback(null)}>
               {feedback.message}
@@ -95,77 +96,56 @@ export function NotificationSettings({
           )}
 
           {/* Toggle options */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <label
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '0.75rem',
-                cursor: 'pointer',
-              }}
-            >
+          <div className="flex flex-col gap-4">
+            <label className="flex items-start gap-3 cursor-pointer">
               <Input
                 type="checkbox"
                 checked={emailUpdates}
                 onChange={(e) => setEmailUpdates(e.target.checked)}
                 data-testid="toggle-email-updates"
-                style={{ marginTop: '0.25rem', width: '1rem', height: '1rem', minHeight: 'auto' }}
+                className="mt-1 size-4 min-h-0"
               />
               <div>
-                <span style={{ fontWeight: 600, display: 'block', color: 'var(--text-primary)' }}>
+                <span className="font-semibold block text-[var(--text-primary)]">
                   {t('account.notifications.emailUpdates')}
                 </span>
-                <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                <span className="text-sm text-[var(--text-secondary)]">
                   {t('account.notifications.emailUpdatesDesc')}
                 </span>
               </div>
             </label>
 
-            <label
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '0.75rem',
-                cursor: 'pointer',
-              }}
-            >
+            <label className="flex items-start gap-3 cursor-pointer">
               <Input
                 type="checkbox"
                 checked={examReminders}
                 onChange={(e) => setExamReminders(e.target.checked)}
                 data-testid="toggle-exam-reminders"
-                style={{ marginTop: '0.25rem', width: '1rem', height: '1rem', minHeight: 'auto' }}
+                className="mt-1 size-4 min-h-0"
               />
               <div>
-                <span style={{ fontWeight: 600, display: 'block', color: 'var(--text-primary)' }}>
+                <span className="font-semibold block text-[var(--text-primary)]">
                   {t('account.notifications.examReminders')}
                 </span>
-                <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                <span className="text-sm text-[var(--text-secondary)]">
                   {t('account.notifications.examRemindersDesc')}
                 </span>
               </div>
             </label>
 
-            <label
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '0.75rem',
-                cursor: 'pointer',
-              }}
-            >
+            <label className="flex items-start gap-3 cursor-pointer">
               <Input
                 type="checkbox"
                 checked={studyStreakAlerts}
                 onChange={(e) => setStudyStreakAlerts(e.target.checked)}
                 data-testid="toggle-streak-alerts"
-                style={{ marginTop: '0.25rem', width: '1rem', height: '1rem', minHeight: 'auto' }}
+                className="mt-1 size-4 min-h-0"
               />
               <div>
-                <span style={{ fontWeight: 600, display: 'block', color: 'var(--text-primary)' }}>
+                <span className="font-semibold block text-[var(--text-primary)]">
                   {t('account.notifications.streakAlerts')}
                 </span>
-                <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                <span className="text-sm text-[var(--text-secondary)]">
                   {t('account.notifications.streakAlertsDesc')}
                 </span>
               </div>
@@ -173,28 +153,20 @@ export function NotificationSettings({
           </div>
 
           {/* Quiet Hours */}
-          <div
-            style={{
-              padding: '1.25rem',
-              borderRadius: '8px',
-              backgroundColor: 'var(--bg-muted)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem',
-            }}
-          >
-            <div>
-              <span style={{ fontWeight: 700, display: 'block', color: 'var(--text-primary)' }}>
-                🌙 {t('account.notifications.quietHoursTitle')}
-              </span>
-              <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                {t('account.notifications.quietHoursDesc')}
+          <div className="p-5 rounded-lg bg-[var(--bg-muted)] flex flex-col gap-4">
+            <div className="flex items-center gap-2">
+              <Moon className="size-4 text-[var(--color-primary)]" />
+              <span className="font-bold text-[var(--text-primary)]">
+                {t('account.notifications.quietHoursTitle')}
               </span>
             </div>
+            <span className="text-sm text-[var(--text-secondary)]">
+              {t('account.notifications.quietHoursDesc')}
+            </span>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="quiet-start-input" style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+                <label htmlFor="quiet-start-input" className="block text-xs font-semibold mb-1 text-[var(--text-primary)]">
                   {t('account.notifications.quietStart')}
                 </label>
                 <Input
@@ -207,7 +179,7 @@ export function NotificationSettings({
               </div>
 
               <div>
-                <label htmlFor="quiet-end-input" style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+                <label htmlFor="quiet-end-input" className="block text-xs font-semibold mb-1 text-[var(--text-primary)]">
                   {t('account.notifications.quietEnd')}
                 </label>
                 <Input
@@ -221,7 +193,7 @@ export function NotificationSettings({
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <div className="flex justify-end">
             <Button
               type="submit"
               variant="primary"

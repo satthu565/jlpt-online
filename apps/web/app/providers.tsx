@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import { ThemeProvider } from '@jlpt/ui/theme-context';
 import { SkipToContent } from '@jlpt/ui/components/skip-to-content';
-import { I18nProvider, useI18n } from '../lib/i18n';
+import { I18nProvider, useI18n, type MessageTree } from '../lib/i18n';
 import { AuthProvider } from '../lib/auth-context';
 import { NavigationHeader } from './nav-shell';
 
@@ -24,10 +24,16 @@ function LocalizedSkipToContent(): React.JSX.Element {
   return <SkipToContent targetId="main-content" label={t('a11y.skipToContent')} />;
 }
 
-export function Providers({ children }: { children: React.ReactNode }): React.JSX.Element {
+export function Providers({
+  children,
+  messages,
+}: {
+  children: React.ReactNode;
+  messages: MessageTree;
+}): React.JSX.Element {
   return (
     <ThemeProvider defaultTheme="system">
-      <I18nProvider initialLocale="vi">
+      <I18nProvider initialLocale="vi" messages={messages}>
         <AuthProvider>
           <WebVitalsReporter />
           <LocalizedSkipToContent />
