@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
 import type { BackupService } from './backup-service';
 import type { OperatorBackupJob, BackupSummary } from './types';
 import type { StaffUser } from '../../lib/auth-context';

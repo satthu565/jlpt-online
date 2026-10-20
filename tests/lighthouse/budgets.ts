@@ -32,6 +32,18 @@ export const DEFAULT_BUDGETS: PresetBudgets = {
 };
 
 /**
+ * Chỉ số chỉ cảnh báo, không làm trượt CI khi budgetMode=error. LCP mobile (Lighthouse giả lập
+ * CPU x4) phụ thuộc vào việc các trang chính được dựng nội dung ở máy chủ, phần này thuộc D08.
+ * D05 bỏ LCP khỏi danh sách để chặn lại. Chủ dự án duyệt ngày 2026-10-20.
+ */
+export const WARN_ONLY_METRICS: ReadonlySet<string> = new Set(['LCP']);
+
+/** Vi phạm làm trượt CI khi budgetMode=error (không tính các chỉ số trong WARN_ONLY_METRICS). */
+export function blockingViolations(violations: BudgetViolation[]): BudgetViolation[] {
+  return violations.filter((v) => !WARN_ONLY_METRICS.has(v.metric));
+}
+
+/**
  * Evaluates measured metrics against the specified budget.
  * Returns an array of violations found.
  */

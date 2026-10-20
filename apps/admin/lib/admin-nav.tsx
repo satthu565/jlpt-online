@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Button, ThemeToggle, cn } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { ThemeToggle } from '@jlpt/ui/components/theme-toggle';
+import { cn } from '@jlpt/ui/utils';
 import { useAdminAuth } from './auth-context';
 import { getNavigationSections } from './navigation';
 import { t, SUPPORTED_LOCALES, type Locale } from './i18n';

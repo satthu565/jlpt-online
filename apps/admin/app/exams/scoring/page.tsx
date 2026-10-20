@@ -5,7 +5,12 @@ import { AdminGuard } from '../../../lib/ui-guard';
 import { useAdminAuth } from '../../../lib/auth-context';
 import { apiClient } from '../../../lib/api-client';
 import { t } from '../../../lib/i18n';
-import { Button, Input, Card, CardHeader, CardTitle, CardContent, Badge, Alert, Spinner } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Spinner } from '@jlpt/ui/components/spinner';
 import type { Blueprint, Skill } from '@jlpt/schema';
 
 export interface ScoreConversionSection {

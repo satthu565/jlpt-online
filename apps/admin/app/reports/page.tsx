@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Select } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Select } from '@jlpt/ui/components/select';
 import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';

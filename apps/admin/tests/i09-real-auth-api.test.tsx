@@ -136,46 +136,16 @@ describe('I09 Real Staff Authentication & Admin Portal API Suite', () => {
       await expect(client.verifyRecoveryCode('INVALID-CODE')).rejects.toThrow(AdminClientGuardError);
     });
 
-    it('Enrolls 2FA and verifies TOTP confirmation via API', async () => {
-      const mockFetch = vi.fn().mockImplementation((url: string) => {
-        if (url.includes('/api/v1/auth/totp/setup')) {
-          return Promise.resolve({
-            ok: true,
-            status: 200,
-            json: async () => ({
-              secret: 'JBSWY3DPEHPK3PXP',
-              formattedSecret: 'JBSW Y3DP EHPK 3PXP',
-              otpauthUri: 'otpauth://totp/JLPT:publisher@jlpt.local?secret=JBSWY3DPEHPK3PXP',
-              recoveryCodes: ['REC-1', 'REC-2', 'REC-3', 'REC-4', 'REC-5', 'REC-6', 'REC-7', 'REC-8'],
-              qrSvg: '<svg>mock qr</svg>',
-            }),
-          });
-        }
-        if (url.includes('/api/v1/auth/totp/confirm')) {
-          return Promise.resolve({
-            ok: true,
-            status: 200,
-            json: async () => ({
-              success: true,
-              verified: true,
-            }),
-          });
-        }
-        return Promise.reject(new Error(`Unexpected url: ${url}`));
-      });
-
+    it('Admin client has no client-side 2FA enrollment; setup and confirmation go through the API', () => {
       const client = new AdminApiClient({
         baseUrl: 'http://localhost:4000',
         token: 'setup_session_tok',
         user: { ...adminUser, twoFactorEnabled: false, twoFactorStatus: 'setup_required' },
-        fetchFn: mockFetch as unknown as typeof fetch,
       });
 
-      const setupRes = client.initiate2faSetup();
-      expect(setupRes.secret).toBeDefined();
-      expect(setupRes.recoveryCodes).toHaveLength(8);
-
-      expect(() => client.confirm2faSetup(setupRes.secret, '000000')).toThrow(AdminClientGuardError);
+      // Secret generation and code checks live on the server (/api/v1/auth/totp/setup, /confirm).
+      expect('initiate2faSetup' in client).toBe(false);
+      expect('confirm2faSetup' in client).toBe(false);
     });
   });
 

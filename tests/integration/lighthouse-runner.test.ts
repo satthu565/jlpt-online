@@ -12,7 +12,7 @@ import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { TARGET_ROUTES, resolveTargetUrl } from '../lighthouse/targets.ts';
-import { DEFAULT_BUDGETS, evaluateMetrics } from '../lighthouse/budgets.ts';
+import { DEFAULT_BUDGETS, blockingViolations, evaluateMetrics } from '../lighthouse/budgets.ts';
 import {
   parseCliArgs,
   runLighthouseAudit,
@@ -193,6 +193,27 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
       const jsViolation = violations.find((v) => v.metric === 'InitialJS');
       expect(jsViolation).toBeDefined();
       expect(jsViolation?.actual).toBe(185.4);
+    });
+
+    it('treats LCP as warn-only: an LCP-only violation does not block, other metrics still do', () => {
+      const base: PageMetrics = {
+        url: 'http://127.0.0.1:3000/',
+        formFactor: 'mobile',
+        performance: 85,
+        accessibility: 98,
+        seo: 100,
+        lcpMs: 2850,
+        cls: 0.02,
+        tbtMs: 100,
+        initialJsKb: 170,
+      };
+
+      const lcpOnly = evaluateMetrics(base, DEFAULT_BUDGETS.mobile, dummyTarget);
+      expect(lcpOnly.map((v) => v.metric)).toEqual(['LCP']);
+      expect(blockingViolations(lcpOnly)).toHaveLength(0);
+
+      const withCls = evaluateMetrics({ ...base, cls: 0.2 }, DEFAULT_BUDGETS.mobile, dummyTarget);
+      expect(blockingViolations(withCls).map((v) => v.metric)).toEqual(['CLS']);
     });
 
     it('detects Desktop performance score violation when performance < 98', () => {
