@@ -205,7 +205,8 @@ describe('I09 Real Staff Authentication & Admin Portal API Suite', () => {
 
     it('Dashboard (/) renders live system overview and empty states correctly', () => {
       const html = renderWithAuth(<AdminDashboardPage />);
-      expect(html).toContain('Tổng quan chỉ số hoạt động hệ thống (ADM-01)');
+      expect(html).toContain('data-testid="page-title"');
+      expect(html).toContain('Tổng quan chỉ số hoạt động hệ thống');
       expect(html).toContain('data-testid="stat-total-users"');
       expect(html).toContain('data-testid="stat-total-exams"');
       expect(html).toContain('data-testid="stat-completion-rate"');
