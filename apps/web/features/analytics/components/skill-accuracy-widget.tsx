@@ -26,7 +26,7 @@ export function SkillAccuracyWidget({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
         <div>
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <span>📊</span> Độ chính xác từng kỹ năng & dạng câu (STAT-03, STAT-04)
+            <span>📊</span> Độ chính xác từng kỹ năng & dạng câu
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Tỷ lệ làm đúng phân bổ theo từng kỹ năng JLPT chuẩn và các dạng mondai.
@@ -42,7 +42,7 @@ export function SkillAccuracyWidget({
             onClick={() => setViewMode('skills')}
             className="px-3 py-1 h-auto text-xs font-bold rounded-lg"
           >
-            Theo kỹ năng (STAT-03)
+            Theo kỹ năng
           </Button>
           <Button
             type="button"
@@ -52,7 +52,7 @@ export function SkillAccuracyWidget({
             onClick={() => setViewMode('mondais')}
             className="px-3 py-1 h-auto text-xs font-bold rounded-lg"
           >
-            Theo dạng câu (STAT-04)
+            Theo dạng câu
           </Button>
         </div>
       </div>

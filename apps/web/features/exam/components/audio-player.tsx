@@ -322,7 +322,7 @@ export function AudioPlayer({
         </div>
       </div>
 
-      {/* Error state (AUDIO-10) */}
+      {/* Error state */}
       {errorMessage && (
         <Alert variant="error" className="mb-3">
           <div className="flex items-center justify-between gap-2">
@@ -366,7 +366,7 @@ export function AudioPlayer({
           </span>
         </div>
 
-        {/* Progress bar: in real mode seek is disabled (AUDIO-04) */}
+        {/* Progress bar: in real mode seek is disabled */}
         <div
           className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden relative"
           role="progressbar"
@@ -409,7 +409,7 @@ export function AudioPlayer({
               </Button>
             </div>
 
-            {/* Speed selector (AUDIO-06) */}
+            {/* Speed selector */}
             <div className="flex items-center gap-1 text-xs">
               <span className="text-slate-500 mr-1">Tốc độ:</span>
               {([0.75, 1.0, 1.25] as const).map((rate) => (

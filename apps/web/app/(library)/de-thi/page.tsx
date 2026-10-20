@@ -9,16 +9,30 @@ import { Card } from '@jlpt/ui/components/card';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Button } from '@jlpt/ui/components/button';
 
+// Khung chờ có cùng bố cục với bộ lọc và lưới đề để danh sách hiện ra không đẩy nội dung (CLS).
+function LibrarySkeleton(): React.JSX.Element {
+  return (
+    <div className="space-y-6" data-testid="library-loading" role="status" aria-live="polite">
+      <span className="sr-only">Đang tải thư viện đề thi đã xuất bản...</span>
+      <div className="h-24 rounded-xl bg-slate-100 dark:bg-slate-800/60 animate-pulse" />
+      <div className="h-40 rounded-xl bg-slate-100 dark:bg-slate-800/60 animate-pulse" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {Array.from({ length: 6 }, (_, i) => (
+          <div
+            key={i}
+            className="h-56 rounded-xl bg-slate-100 dark:bg-slate-800/60 animate-pulse"
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const LibraryView = dynamic(
   () => import('../../../features/library/components/library-view').then((m) => m.LibraryView),
   {
     ssr: false,
-    loading: () => (
-      <div className="py-20 text-center text-slate-500" data-testid="library-loading">
-        <div className="animate-spin text-3xl mb-3">⏳</div>
-        Đang tải thư viện đề thi đã xuất bản...
-      </div>
-    ),
+    loading: () => <LibrarySkeleton />,
   },
 );
 
@@ -42,9 +56,7 @@ export default function ExamLibraryPage(): React.JSX.Element {
           : Promise.resolve({ items: [] }),
       ]);
 
-      const statusMap = new Map(
-        (userStatusRes.items || []).map((s) => [s.examId, s]),
-      );
+      const statusMap = new Map((userStatusRes.items || []).map((s) => [s.examId, s]));
 
       const mappedExams: ExamWithUserStatus[] = examsRes.items.map((e) => {
         const userStat = statusMap.get(e.id);
@@ -79,36 +91,39 @@ export default function ExamLibraryPage(): React.JSX.Element {
           Thư viện đề thi JLPT N1–N5
         </h1>
         <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-2xl">
-          Tổng hợp đề thi thật chính thức và đề thi thử nghiệm chuẩn cấu trúc đề thi năng lực tiếng Nhật quốc tế từ N1 đến N5.
+          Tổng hợp đề thi thật chính thức và đề thi thử nghiệm chuẩn cấu trúc đề thi năng lực tiếng
+          Nhật quốc tế từ N1 đến N5.
         </p>
       </div>
 
-      {loading ? (
-        <div className="py-20 text-center text-slate-500" data-testid="library-loading">
-          <div className="animate-spin text-3xl mb-3">⏳</div>
-          Đang tải thư viện đề thi đã xuất bản...
-        </div>
-      ) : error ? (
-        <Card className="p-8 text-center border border-slate-200 dark:border-slate-800" data-testid="library-error">
-          <div className="text-4xl mb-3" role="img" aria-label="Lỗi tải đề thi">
-            ⚠️
-          </div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
-            Không thể tải thư viện đề thi
-          </h2>
-          <Alert variant="error" className="mb-6 text-left max-w-md mx-auto">
-            {error}
-          </Alert>
-          <div className="flex justify-center gap-3">
-            <Button variant="primary" size="md" onClick={loadExams}>
-              Thử lại
-            </Button>
-          </div>
-        </Card>
-      ) : (
-        /* Library View with full filters and search (LIB-01..08, LIB-15) */
-        <LibraryView exams={exams} />
-      )}
+      <div className="min-h-[100svh]">
+        {loading ? (
+          <LibrarySkeleton />
+        ) : error ? (
+          <Card
+            className="p-8 text-center border border-slate-200 dark:border-slate-800"
+            data-testid="library-error"
+          >
+            <div className="text-4xl mb-3" role="img" aria-label="Lỗi tải đề thi">
+              ⚠️
+            </div>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
+              Không thể tải thư viện đề thi
+            </h2>
+            <Alert variant="error" className="mb-6 text-left max-w-md mx-auto">
+              {error}
+            </Alert>
+            <div className="flex justify-center gap-3">
+              <Button variant="primary" size="md" onClick={loadExams}>
+                Thử lại
+              </Button>
+            </div>
+          </Card>
+        ) : (
+          /* Library View with full filters and search (LIB-01..08, LIB-15) */
+          <LibraryView exams={exams} />
+        )}
+      </div>
     </div>
   );
 }

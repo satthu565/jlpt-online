@@ -114,7 +114,7 @@ export function QuestionPalette({
         })}
       </div>
 
-      {/* Visual Legend explaining states (EXAM-15) */}
+      {/* Visual Legend explaining states */}
       <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-2">
         <div className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Chú thích trạng thái:</div>
         <div className="grid grid-cols-2 gap-2">

@@ -97,7 +97,7 @@ export default async function ShareResultPage({ params }: ShareResultPageProps):
           </div>
         </div>
 
-        {/* Security Watermark (SYS-17) */}
+        {/* Security Watermark */}
         <WatermarkBadge
           userId={id.slice(0, 8)}
           notice="XÁC THỰC KẾT QUẢ THI TRỰC TUYẾN - JLPT ONLINE"

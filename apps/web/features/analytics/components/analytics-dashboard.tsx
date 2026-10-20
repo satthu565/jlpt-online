@@ -101,7 +101,7 @@ export function AnalyticsDashboard({
       data-testid="analytics-dashboard"
       className={`jlpt-analytics-dashboard space-y-6 ${className}`}
     >
-      {/* 1. Target Tracking Header & Priority Action (STAT-10, STAT-11) */}
+      {/* 1. Target Tracking Header & Priority Action */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-7">
           <TargetProgressTracker summary={targetProgress} />
@@ -114,7 +114,7 @@ export function AnalyticsDashboard({
       {/* 2. Acceptance 3: True Progress Widget (Unseen vs Familiar - NO MIXING) */}
       <TrueProgressWidget progress={trueProgress} />
 
-      {/* 3. Score Over Time & Speed-Accuracy (STAT-02, SCORE-15) */}
+      {/* 3. Score Over Time & Speed-Accuracy */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-7">
           <ScoreProgressionChart attempts={progression} />
@@ -124,10 +124,10 @@ export function AnalyticsDashboard({
         </div>
       </div>
 
-      {/* 4. Skills & Mondai Accuracy (STAT-03, STAT-04) */}
+      {/* 4. Skills & Mondai Accuracy */}
       <SkillAccuracyWidget skills={skillStats} mondais={mondaiStats} />
 
-      {/* 5. Repeated Mistakes & Common Error Analysis (STAT-05, STAT-06) */}
+      {/* 5. Repeated Mistakes & Common Error Analysis */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-7">
           <RepeatedMistakesWidget mistakes={repeatedMistakes} />
@@ -137,7 +137,7 @@ export function AnalyticsDashboard({
         </div>
       </div>
 
-      {/* 6. Monthly Comparison & Study Time Stats (STAT-07, STAT-08) */}
+      {/* 6. Monthly Comparison & Study Time Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-7">
           <MonthlyComparisonWidget monthlyStats={monthlyStats} />

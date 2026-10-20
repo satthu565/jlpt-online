@@ -371,7 +371,7 @@ export function PracticeRunner({
         })}
       </div>
 
-      {/* Check Answer Action (PRA-10) */}
+      {/* Check Answer Action */}
       {!isChecked && (
         <div className="pt-2 flex justify-end">
           <Button
@@ -383,7 +383,7 @@ export function PracticeRunner({
             onClick={handleCheckAnswer}
             data-testid="practice-check-answer-btn"
           >
-            {isChecking ? 'Đang kiểm tra...' : 'Kiểm tra đáp án ngay (PRA-10)'}
+            {isChecking ? 'Đang kiểm tra...' : 'Kiểm tra đáp án ngay'}
           </Button>
         </div>
       )}

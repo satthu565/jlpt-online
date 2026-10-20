@@ -76,14 +76,14 @@ export function ExplanationView({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Bookmark Button (PRA-13, EXPL-10) */}
+          {/* Bookmark Button */}
           <QuestionBookmarkButton
             questionId={explanation.questionId}
             initialBookmarked={isBookmarked}
             onToggle={onToggleBookmark}
           />
 
-          {/* Report Button (EXPL-12) */}
+          {/* Report Button */}
           <Button
             type="button"
             variant="ghost"
@@ -110,7 +110,7 @@ export function ExplanationView({
         </div>
       )}
 
-      {/* 2. Wrong Reasons By Option (EXPL-03) */}
+      {/* 2. Wrong Reasons By Option */}
       {explanation.wrongReasonsByOption &&
         Object.keys(explanation.wrongReasonsByOption).length > 0 && (
           <div data-testid="explanation-wrong-reasons" className="space-y-2">
@@ -146,7 +146,7 @@ export function ExplanationView({
           </div>
         )}
 
-      {/* 3. Translation (EXPL-05) */}
+      {/* 3. Translation */}
       {explanation.translation && (
         <div data-testid="explanation-translation" className="space-y-1">
           <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
@@ -189,7 +189,7 @@ export function ExplanationView({
         </div>
       )}
 
-      {/* 4. Vocabulary and Grammar Tags (EXPL-06, EXPL-07) */}
+      {/* 4. Vocabulary and Grammar Tags */}
       {((explanation.vocabTags && explanation.vocabTags.length > 0) ||
         (explanation.grammarTags && explanation.grammarTags.length > 0)) && (
         <div data-testid="explanation-tags" className="flex flex-wrap gap-2 pt-1">
@@ -212,7 +212,7 @@ export function ExplanationView({
         </div>
       )}
 
-      {/* 5. Transcript and Evidence (AUDIO-08, AUDIO-09) */}
+      {/* 5. Transcript and Evidence */}
       {(explanation.transcript || explanation.isLicensed) && (
         <TranscriptView
           transcript={explanation.transcript}

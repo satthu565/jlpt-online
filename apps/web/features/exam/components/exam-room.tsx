@@ -458,7 +458,7 @@ export function ExamRoom({
         />
       )}
 
-      {/* Exam Toolbar: Font scale (EXAM-23), Zen toggle (EXAM-25), Speaker test (EXAM-05), Shortcuts (EXAM-24) */}
+      {/* Exam Toolbar: Font scale, Zen toggle, Speaker test, Shortcuts */}
       <div className="max-w-7xl w-full mx-auto px-4 pt-3">
         <ExamToolbar
           fontSize={fontSize}

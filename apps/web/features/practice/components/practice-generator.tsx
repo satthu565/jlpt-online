@@ -70,7 +70,7 @@ export function PracticeGenerator({
     >
       <div>
         <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-          Thiết lập chế độ luyện tập chuyên đề (PRA-10)
+          Thiết lập chế độ luyện tập chuyên đề
         </h2>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
           Chọn nguồn câu hỏi, kỹ năng và số lượng câu để tạo đề luyện tập tức thì có giải thích chi tiết.

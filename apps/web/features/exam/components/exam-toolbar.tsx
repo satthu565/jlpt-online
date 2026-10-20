@@ -40,7 +40,7 @@ export function ExamToolbar({
       role="toolbar"
       aria-label="Thanh công cụ làm bài thi"
     >
-      {/* Left: Japanese font size zoom (EXAM-23) */}
+      {/* Left: Japanese font size zoom */}
       <div className="flex items-center gap-1.5">
         <span className="text-slate-600 dark:text-slate-400 font-medium">
           Cỡ chữ tiếng Nhật:

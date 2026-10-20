@@ -592,7 +592,7 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
             </div>
           ) : (
             <div className="space-y-6">
-              {/* In-progress practice sessions list (PRA-17) */}
+              {/* In-progress practice sessions list */}
               {loadingInProgress && (
                 <div className="flex items-center gap-2 text-xs text-slate-500 py-2">
                   <Spinner size="sm" />

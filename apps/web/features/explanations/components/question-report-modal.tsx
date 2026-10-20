@@ -69,7 +69,7 @@ export function QuestionReportModal({
     <Modal
       isOpen={isOpen}
       onClose={handleResetAndClose}
-      title="Báo cáo sai sót câu hỏi & lời giải (EXPL-12)"
+      title="Báo cáo sai sót câu hỏi & lời giải"
       closeLabel="Đóng"
     >
       <div data-testid="question-report-modal-content" className="space-y-4 text-xs">

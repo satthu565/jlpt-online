@@ -20,10 +20,10 @@ export function HistoryView({
       <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-slate-100">
-            Lịch sử các lần làm bài thi (STAT-01)
+            Lịch sử các lần làm bài thi
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Kết quả của bạn được lưu trữ vĩnh viễn theo tài khoản (SCORE-11) để theo dõi tiến độ học tập.
+            Kết quả của bạn được lưu trữ vĩnh viễn theo tài khoản để theo dõi tiến độ học tập.
           </p>
         </div>
 
