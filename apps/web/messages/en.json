@@ -21,6 +21,7 @@
       "pricing": "Membership",
       "vocabulary": "Vocabulary",
       "grammar": "Grammar",
+      "schedules": "Exam Schedules",
       "more": "More"
     },
     "footer": {
@@ -28,6 +29,7 @@
       "levels": "Levels N1–N5",
       "vocabAndGrammar": "Vocabulary & Grammar",
       "vocabStats": "Vocabulary Statistics",
+      "schedules": "Exam Schedules",
       "technicalSupport": "Technical Support",
       "terms": "Terms of Service",
       "privacy": "Privacy Policy",
@@ -923,5 +925,25 @@
       "toExams": "Go to Exam Library",
       "toPractice": "Practice Questions"
     }
+  },
+  "schedules": {
+    "title": "JLPT Exam Schedule in Vietnam",
+    "subtitle": "Official Japanese-Language Proficiency Test dates, venues, and registration deadlines in Vietnam",
+    "loading": "Loading JLPT exam schedules...",
+    "empty": "No official exam schedules published yet.",
+    "emptyDescription": "The organizers have not published new exam dates yet. Please check back later or enable registration reminders.",
+    "errorTitle": "Unable to load exam schedules",
+    "examDate": "Exam Date",
+    "registrationDeadline": "Registration Deadline",
+    "registrationOpens": "Registration Opens",
+    "locations": "Exam Locations",
+    "levels": "Levels Offered",
+    "officialLink": "Official Registration Website",
+    "reminderToggle": "Notify me before registration deadline",
+    "reminderEnabled": "Registration reminder enabled",
+    "reminderDisabled": "Registration reminder disabled",
+    "filterLevel": "Filter by Level",
+    "allLevels": "All Levels",
+    "notes": "Organizer Notes"
   }
 }

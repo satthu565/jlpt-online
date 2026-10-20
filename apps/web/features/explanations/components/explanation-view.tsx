@@ -158,6 +158,37 @@ export function ExplanationView({
         </div>
       )}
 
+      {/* Sino-Vietnamese (Hán Việt) Readings (P04) */}
+      {explanation.hanViet && (
+        <div data-testid="explanation-hanviet" className="space-y-1">
+          <h4 className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1">
+            <span>🇨🇳🇻🇳</span> Âm Hán Việt:
+          </h4>
+          <div className="flex flex-wrap gap-2 text-xs">
+            {Array.isArray(explanation.hanViet) ? (
+              explanation.hanViet.map((item, idx) => {
+                const isObj = typeof item === 'object' && item !== null;
+                const kanji = isObj ? (item as { kanji: string }).kanji : String(item);
+                const reading = isObj ? (item as { reading: string }).reading : '';
+                return (
+                  <span
+                    key={idx}
+                    className="px-2 py-0.5 rounded-md font-medium bg-amber-50 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200 border border-amber-200 dark:border-amber-800"
+                  >
+                    <strong className="font-japanese mr-1">{kanji}</strong>
+                    {reading ? `(${reading})` : ''}
+                  </span>
+                );
+              })
+            ) : (
+              <span className="px-2 py-0.5 rounded-md font-medium bg-amber-50 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200 border border-amber-200 dark:border-amber-800">
+                {explanation.hanViet}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* 4. Vocabulary and Grammar Tags (EXPL-06, EXPL-07) */}
       {((explanation.vocabTags && explanation.vocabTags.length > 0) ||
         (explanation.grammarTags && explanation.grammarTags.length > 0)) && (
