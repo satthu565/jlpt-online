@@ -1216,6 +1216,22 @@ export class ExamService {
   /**
    * Admin: Get full details of an exam (ADM-03).
    */
+  /**
+   * Staff preview: builds the same public snapshot learners get (assertNoAnswerLeak applies) from the exam's current
+   * questions, before or after publishing. Nothing is stored.
+   */
+  async getAdminExamPreview(id: string): Promise<PublicExamSnapshot> {
+    const [exam] = await this.dbClient.db
+      .select()
+      .from(schema.exams)
+      .where(and(eq(schema.exams.id, id), isNull(schema.exams.deletedAt)))
+      .limit(1);
+    if (!exam) {
+      throw new NotFoundException(`Đề thi không tồn tại: ${id}`);
+    }
+    return this.constructPublicSnapshot(exam, exam.publishedVersion ?? 1);
+  }
+
   async getAdminExam(id: string): Promise<unknown> {
     const [exam] = await this.dbClient.db
       .select()

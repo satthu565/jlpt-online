@@ -6,7 +6,6 @@ import { Checkbox } from '@jlpt/ui/components/checkbox';
 import { Input } from '@jlpt/ui/components/input';
 import type { PublicExamSnapshot } from '@jlpt/schema';
 import type { AdminExam, StaffOperator, PublishedVersionRecord } from './types';
-import { ExamService } from './exam-service';
 import { richTextToPlainText } from '../content/types';
 import { apiClient } from '../../lib/api-client';
 import { useAdminAuth } from '../../lib/auth-context';
@@ -31,7 +30,6 @@ export function ExamListView({
   onExamPublished,
 }: ExamListViewProps): React.JSX.Element {
   const { locale } = useAdminAuth();
-  const [service] = useState(() => new ExamService(initialExams));
   const [exams, setExams] = useState<AdminExam[]>(initialExams);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -77,9 +75,9 @@ export function ExamListView({
     fetchExams();
   }, []);
 
-  const handlePreview = (exam: AdminExam) => {
+  const handlePreview = async (exam: AdminExam) => {
     try {
-      const snapshot = service.getExamPreview(exam.id, exam.publishedVersion ?? undefined);
+      const snapshot = await apiClient.getExamPreview(exam.id);
       setPreviewSnapshot(snapshot);
       setErrorMessage(null);
     } catch (err: unknown) {
@@ -134,11 +132,25 @@ export function ExamListView({
     }
   };
 
-  const handleViewHistory = (exam: AdminExam) => {
-    const history = service.getVersionHistory(exam.id);
-    setVersionHistory(history);
-    setHistoryExamId(exam.id);
-    setErrorMessage(null);
+  const handleViewHistory = async (exam: AdminExam) => {
+    try {
+      // Published versions come from exam_versions via the API (takedowns are not stored per version).
+      const detail = (await apiClient.getExam(exam.id)) as {
+        versions?: Array<{ version: number; publishedAt: string; publishedBy: string }>;
+      };
+      const history = (detail.versions ?? []).map((v) => ({
+        version: v.version,
+        publishedAt: new Date(v.publishedAt).toLocaleString('vi-VN'),
+        publishedBy: v.publishedBy,
+        takedownAt: null,
+        takedownReason: null,
+      })) as unknown as PublishedVersionRecord[];
+      setVersionHistory(history);
+      setHistoryExamId(exam.id);
+      setErrorMessage(null);
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : String(err));
+    }
   };
 
   return (
