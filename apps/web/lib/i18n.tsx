@@ -1,29 +1,75 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
-import {
-  type Locale,
-  type MessageTree,
-  DEFAULT_LOCALE,
-  SUPPORTED_LOCALES,
-  LOCALE_STORAGE_KEY,
-  MESSAGES_BY_LOCALE,
-  loadLocaleMessages,
-  getNestedValue,
-  translate,
-} from './i18n-core';
+import viMessages from '../messages/vi.json' with { type: 'json' };
+import jaMessages from '../messages/ja.json' with { type: 'json' };
+import enMessages from '../messages/en.json' with { type: 'json' };
 
-export {
-  type Locale,
-  type MessageTree,
-  DEFAULT_LOCALE,
-  SUPPORTED_LOCALES,
-  LOCALE_STORAGE_KEY,
-  MESSAGES_BY_LOCALE,
-  loadLocaleMessages,
-  getNestedValue,
-  translate,
+export type Locale = 'vi' | 'ja' | 'en';
+
+export const DEFAULT_LOCALE: Locale = 'vi';
+export const SUPPORTED_LOCALES: readonly Locale[] = ['vi', 'ja', 'en'] as const;
+
+export const LOCALE_STORAGE_KEY = 'jlpt_locale';
+
+export type MessageTree = Record<string, unknown>;
+
+export const MESSAGES_BY_LOCALE: Record<Locale, MessageTree> = {
+  vi: viMessages as MessageTree,
+  ja: jaMessages as MessageTree,
+  en: enMessages as MessageTree,
 };
+
+export async function loadLocaleMessages(locale: Locale): Promise<MessageTree> {
+  return MESSAGES_BY_LOCALE[locale] || MESSAGES_BY_LOCALE.vi;
+}
+
+/**
+ * Traverses nested object using dot notation (e.g. "auth.login.title")
+ */
+export function getNestedValue(obj: MessageTree, path: string): unknown {
+  const parts = path.split('.');
+  let current: unknown = obj;
+  for (const part of parts) {
+    if (current && typeof current === 'object' && part in (current as Record<string, unknown>)) {
+      current = (current as Record<string, unknown>)[part];
+    } else {
+      return undefined;
+    }
+  }
+  return current;
+}
+
+/**
+ * Resolves a translated string with clear fallback to DEFAULT_LOCALE (vi), then key itself.
+ */
+export function translate(
+  locale: Locale,
+  key: string,
+  params?: Record<string, string | number>,
+): string {
+  // 1. Try specified locale
+  let value = getNestedValue(MESSAGES_BY_LOCALE[locale], key);
+
+  // 2. Clear fallback to default locale if missing or empty
+  if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
+    value = getNestedValue(MESSAGES_BY_LOCALE[DEFAULT_LOCALE], key);
+  }
+
+  // 3. Fallback to key path itself if not found anywhere
+  if (typeof value !== 'string') {
+    return key;
+  }
+
+  // 4. Parameter interpolation: replace {name} with params.name
+  if (params) {
+    return value.replace(/{(\w+)}/g, (_, paramName: string) => {
+      return paramName in params ? String(params[paramName]) : `{${paramName}}`;
+    });
+  }
+
+  return value;
+}
 
 interface I18nContextValue {
   locale: Locale;
@@ -64,19 +110,9 @@ export function I18nProvider({
     return initialLocale;
   });
 
-  const [revision, setRevision] = useState<number>(0);
-
   const setLocale = (newLocale: Locale) => {
     if (!SUPPORTED_LOCALES.includes(newLocale)) return;
-    if (newLocale !== 'vi') {
-      loadLocaleMessages(newLocale).then(() => {
-        setLocaleState(newLocale);
-        setRevision((r) => r + 1);
-      });
-    } else {
-      setLocaleState(newLocale);
-      setRevision((r) => r + 1);
-    }
+    setLocaleState(newLocale);
     try {
       localStorage.setItem(LOCALE_STORAGE_KEY, newLocale);
       document.cookie = `${LOCALE_STORAGE_KEY}=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
@@ -86,14 +122,6 @@ export function I18nProvider({
   };
 
   useEffect(() => {
-    let active = true;
-    if (locale !== 'vi' && (!MESSAGES_BY_LOCALE[locale] || Object.keys(MESSAGES_BY_LOCALE[locale]).length === 0)) {
-      loadLocaleMessages(locale).then(() => {
-        if (active) {
-          setRevision((r) => r + 1);
-        }
-      });
-    }
     if (typeof document !== 'undefined') {
       document.documentElement.lang = locale;
       // Add or remove font-japanese class on body or html
@@ -103,9 +131,6 @@ export function I18nProvider({
         document.documentElement.classList.remove('font-japanese');
       }
     }
-    return () => {
-      active = false;
-    };
   }, [locale]);
 
   const value = useMemo<I18nContextValue>(() => {
@@ -115,7 +140,7 @@ export function I18nProvider({
       t: (key: string, params?: Record<string, string | number>) =>
         translate(locale, key, params),
     };
-  }, [locale, revision]);
+  }, [locale]);
 
   return React.createElement(I18nContext.Provider, { value }, children);
 }
