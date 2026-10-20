@@ -5,7 +5,8 @@ import type { Level, MixMode } from '@jlpt/schema';
 import type { MixFormState, MixShortageInfo } from '../types';
 import { INITIAL_MIX_CONFIG } from '../types';
 import { MixShortageNotice } from './mix-shortage-notice';
-import { Button, Input } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
 
 export interface MixGeneratorProps {
   onGenerate: (config: MixFormState) => Promise<void> | void;

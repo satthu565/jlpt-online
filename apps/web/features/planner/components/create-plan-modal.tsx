@@ -1,7 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Modal, Button, Input, Select, Alert } from '@jlpt/ui';
+import { Modal } from '@jlpt/ui/components/modal';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
+import { Select } from '@jlpt/ui/components/select';
+import { Alert } from '@jlpt/ui/components/alert';
 import type { JLPTLevel, JLPTSkill, CreateStudyPlanInput } from '../types';
 import { useI18n } from '../../../lib/i18n';
 

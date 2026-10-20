@@ -5,7 +5,9 @@ import type { Level, Skill, PracticePool } from '@jlpt/schema';
 import type { PracticeFilterState, PracticeShortageInfo } from '../types';
 import { INITIAL_PRACTICE_CONFIG } from '../types';
 import { PracticeShortageNotice } from './practice-shortage-notice';
-import { Button, Input, Select } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
+import { Select } from '@jlpt/ui/components/select';
 
 export interface PracticeGeneratorProps {
   onGenerate: (config: PracticeFilterState) => Promise<void> | void;

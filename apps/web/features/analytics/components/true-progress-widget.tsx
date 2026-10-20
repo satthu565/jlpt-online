@@ -2,7 +2,8 @@
 
 import React from 'react';
 import type { TrueProgressComparison } from '@jlpt/schema';
-import { Card, Badge } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
 
 export interface TrueProgressWidgetProps {
   progress: TrueProgressComparison;

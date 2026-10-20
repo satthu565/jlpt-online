@@ -1,9 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
+// Only the default locale ships with every page; ja/en (≈90 KB of JSON) load on demand.
 import viMessages from '../messages/vi.json' with { type: 'json' };
-import jaMessages from '../messages/ja.json' with { type: 'json' };
-import enMessages from '../messages/en.json' with { type: 'json' };
 
 export type Locale = 'vi' | 'ja' | 'en';
 
@@ -16,12 +15,25 @@ export type MessageTree = Record<string, unknown>;
 
 export const MESSAGES_BY_LOCALE: Record<Locale, MessageTree> = {
   vi: viMessages as MessageTree,
-  ja: jaMessages as MessageTree,
-  en: enMessages as MessageTree,
+  ja: {},
+  en: {},
 };
 
+const LOCALE_LOADERS: Record<Exclude<Locale, 'vi'>, () => Promise<unknown>> = {
+  ja: () => import('../messages/ja.json', { with: { type: 'json' } }),
+  en: () => import('../messages/en.json', { with: { type: 'json' } }),
+};
+
+export function isLocaleLoaded(locale: Locale): boolean {
+  return Object.keys(MESSAGES_BY_LOCALE[locale] ?? {}).length > 0;
+}
+
+/** Loads a locale's messages once; until then translate() falls back to Vietnamese. */
 export async function loadLocaleMessages(locale: Locale): Promise<MessageTree> {
-  return MESSAGES_BY_LOCALE[locale] || MESSAGES_BY_LOCALE.vi;
+  if (locale === 'vi' || isLocaleLoaded(locale)) return MESSAGES_BY_LOCALE[locale];
+  const mod = (await LOCALE_LOADERS[locale]()) as { default?: MessageTree } & MessageTree;
+  MESSAGES_BY_LOCALE[locale] = (mod.default ?? mod) as MessageTree;
+  return MESSAGES_BY_LOCALE[locale];
 }
 
 /**
@@ -121,6 +133,23 @@ export function I18nProvider({
     }
   };
 
+  // Bumped when a lazily loaded locale arrives so the tree re-renders in that language.
+  const [loadedVersion, setLoadedVersion] = useState(0);
+  useEffect(() => {
+    if (isLocaleLoaded(locale)) return;
+    let cancelled = false;
+    loadLocaleMessages(locale)
+      .then(() => {
+        if (!cancelled) setLoadedVersion((v) => v + 1);
+      })
+      .catch(() => {
+        // Keep the Vietnamese fallback if the locale bundle cannot be fetched.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
+
   useEffect(() => {
     if (typeof document !== 'undefined') {
       document.documentElement.lang = locale;
@@ -140,7 +169,7 @@ export function I18nProvider({
       t: (key: string, params?: Record<string, string | number>) =>
         translate(locale, key, params),
     };
-  }, [locale]);
+  }, [locale, loadedVersion]);
 
   return React.createElement(I18nContext.Provider, { value }, children);
 }

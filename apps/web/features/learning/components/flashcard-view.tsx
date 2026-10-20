@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, Button, Badge } from '@jlpt/ui';
+import { Card, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Badge } from '@jlpt/ui/components/badge';
 import type { DueFlashcard, ReviewRating } from '../types';
 import { useI18n } from '../../../lib/i18n';
 

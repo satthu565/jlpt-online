@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import type { Level, AttemptMode } from '@jlpt/schema';
-import { Badge, Button } from '@jlpt/ui';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Button } from '@jlpt/ui/components/button';
 
 export type ExamPickerExam = {
   id?: string;

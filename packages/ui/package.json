@@ -21,6 +21,26 @@
       "import": "./dist/rich-text/index.js",
       "require": "./dist/rich-text/index.cjs"
     },
+    "./components/*": {
+      "types": "./dist/components/*.d.ts",
+      "import": "./dist/components/*.js",
+      "require": "./dist/components/*.cjs"
+    },
+    "./tokens": {
+      "types": "./dist/tokens.d.ts",
+      "import": "./dist/tokens.js",
+      "require": "./dist/tokens.cjs"
+    },
+    "./theme-context": {
+      "types": "./dist/theme-context.d.ts",
+      "import": "./dist/theme-context.js",
+      "require": "./dist/theme-context.cjs"
+    },
+    "./utils": {
+      "types": "./dist/lib/utils.d.ts",
+      "import": "./dist/lib/utils.js",
+      "require": "./dist/lib/utils.cjs"
+    },
     "./styles.css": "./src/styles.css"
   },
   "scripts": {

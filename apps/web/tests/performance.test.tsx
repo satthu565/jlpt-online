@@ -8,7 +8,8 @@ import { fileURLToPath } from 'node:url';
 
 import { reportWebVitals, type WebVitalMetric } from '../lib/web-vitals';
 import { setConsentStatus, hasAnalyticsConsent } from '../lib/consent';
-import { TTSAudioPlayer, WatermarkBadge } from '@jlpt/ui';
+import { TTSAudioPlayer } from '@jlpt/ui/components/tts-audio-player';
+import { WatermarkBadge } from '@jlpt/ui/components/watermark-badge';
 import { PdfScoreExportButton } from '../features/results';
 import { generateScoreReportPdf } from '@jlpt/exam-engine';
 import { SAMPLE_EXAM_SUMMARIES } from './fixtures/exam-fixtures';

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from 'vitest';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { ExamApiClient } from '../features/exam/api/exam-api';
@@ -15,6 +15,7 @@ import viMessages from '../messages/vi.json' with { type: 'json' };
 import jaMessages from '../messages/ja.json' with { type: 'json' };
 import enMessages from '../messages/en.json' with { type: 'json' };
 import { translate } from '../lib/i18n';
+import { loadLocaleMessages as preloadLocale } from '../lib/i18n';
 
 // Components & Views under scope
 import { ExamCard } from '../features/library/components/exam-card';
@@ -133,6 +134,13 @@ const MOCK_TEST_RESULT: Result = {
   },
   flags: [],
 };
+
+
+// ja/en messages load on demand in the app; load them up front for these tests.
+beforeAll(async () => {
+  await preloadLocale('ja');
+  await preloadLocale('en');
+});
 
 describe('ExamApiClient Unit & SDK Contract Suite', () => {
   let mockFetch: ReturnType<typeof vi.fn>;

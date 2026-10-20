@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import { FrequencyStatsView } from '../../../features/corpus';
-import { JsonLd } from '@jlpt/ui';
+import { JsonLd } from '@jlpt/ui/components/json-ld';
 
 export const metadata: Metadata = {
   title: 'Thống kê Từ vựng thường gặp & Xu hướng đề thi JLPT - JLPT Online',

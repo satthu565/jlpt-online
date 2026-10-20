@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { examApiClient } from '../../../../../features/exam/api/exam-api';
 import { LibraryView } from '../../../../../features/library';
-import { JsonLd } from '@jlpt/ui';
+import { JsonLd } from '@jlpt/ui/components/json-ld';
 import type { ExamSummary } from '@jlpt/schema';
 
 export interface SessionExamsPageProps {

@@ -1,25 +1,19 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import {
-  Header,
-  Button,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  type NavItem,
-} from '@jlpt/ui';
+import { Header, type NavItem } from '@jlpt/ui/components/header';
+import { Button } from '@jlpt/ui/components/button';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@jlpt/ui/components/dropdown-menu';
 import { useI18n, type Locale } from '../lib/i18n';
 import { useAuth } from '../lib/auth-context';
 
 const ThemeToggle = dynamic(
-  () => import('@jlpt/ui').then((m) => m.ThemeToggle),
+  () => import('@jlpt/ui/components/theme-toggle').then((m) => m.ThemeToggle),
   { ssr: false },
 );
 
 const LocaleSwitcher = dynamic(
-  () => import('@jlpt/ui').then((m) => m.LocaleSwitcher),
+  () => import('@jlpt/ui/components/locale-switcher').then((m) => m.LocaleSwitcher),
   { ssr: false },
 );
 

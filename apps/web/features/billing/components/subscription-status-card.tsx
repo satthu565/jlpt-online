@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Button, Badge, Alert } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
 import type { UserSubscription } from '../types';
 import { useI18n } from '../../../lib/i18n';
 

@@ -3,7 +3,9 @@
 import React, { use, useState, useEffect } from 'react';
 import { ExamApiClient, ExamApiError } from '../../../../features/exam/api/exam-api';
 import { ReviewView, type AttemptReviewData } from '../../../../features/results';
-import { Alert, Button, Card } from '@jlpt/ui';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Button } from '@jlpt/ui/components/button';
+import { Card } from '@jlpt/ui/components/card';
 import type { PublicExamSnapshot } from '@jlpt/schema';
 
 export interface ResultReviewPageProps {

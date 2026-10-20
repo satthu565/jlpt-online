@@ -3,7 +3,9 @@
 import React from 'react';
 import type { Level, ExamKind, Session } from '@jlpt/schema';
 import type { LibraryFilterState, UserExamStatus } from '../types';
-import { Button, Input, Select } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
+import { Select } from '@jlpt/ui/components/select';
 
 export interface LibraryFiltersProps {
   filters: LibraryFilterState;

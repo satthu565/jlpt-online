@@ -1,18 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  Button,
-  Input,
-  Select,
-  Badge,
-  Alert,
-  Modal,
-} from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
+import { Select } from '@jlpt/ui/components/select';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Modal } from '@jlpt/ui/components/modal';
 import type {
   NotebookItem,
   NotebookItemKind,

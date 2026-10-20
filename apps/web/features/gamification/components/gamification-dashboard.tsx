@@ -1,7 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button, Card, Badge, Alert, ShareDialog, Input } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Card } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
+import { ShareDialog } from '@jlpt/ui/components/share-dialog';
+import { Input } from '@jlpt/ui/components/input';
 import { GamificationClient } from '../services/gamification-client';
 import type {
   StreakResponseDto,

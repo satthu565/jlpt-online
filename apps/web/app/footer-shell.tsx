@@ -2,16 +2,16 @@
 
 import React from 'react';
 import dynamic from 'next/dynamic';
-import { Footer } from '@jlpt/ui';
+import { Footer } from '@jlpt/ui/components/footer';
 import { useI18n, type Locale } from '../lib/i18n';
 
 const ThemeToggle = dynamic(
-  () => import('@jlpt/ui').then((m) => m.ThemeToggle),
+  () => import('@jlpt/ui/components/theme-toggle').then((m) => m.ThemeToggle),
   { ssr: false },
 );
 
 const LocaleSwitcher = dynamic(
-  () => import('@jlpt/ui').then((m) => m.LocaleSwitcher),
+  () => import('@jlpt/ui/components/locale-switcher').then((m) => m.LocaleSwitcher),
   { ssr: false },
 );
 

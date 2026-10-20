@@ -2,7 +2,9 @@
 
 import React from 'react';
 import type { FlatQuestionItem } from '../types';
-import { RichTextView, PassageView, Button } from '@jlpt/ui';
+import { RichTextView } from '@jlpt/ui/components/rich-text-view';
+import { PassageView } from '@jlpt/ui/components/rich-block-view';
+import { Button } from '@jlpt/ui/components/button';
 import type { JapaneseFontSize } from './exam-toolbar';
 
 export interface QuestionViewProps {

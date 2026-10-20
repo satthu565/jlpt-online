@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, WatermarkBadge } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { WatermarkBadge } from '@jlpt/ui/components/watermark-badge';
 import type { Result, Level } from '@jlpt/schema';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';

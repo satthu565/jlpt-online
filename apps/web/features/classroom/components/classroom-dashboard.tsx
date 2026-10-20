@@ -1,7 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Button, Badge, Alert, Select } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Select } from '@jlpt/ui/components/select';
 import type {
   Organization,
   ClassRoom,

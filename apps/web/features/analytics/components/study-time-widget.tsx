@@ -2,7 +2,7 @@
 
 import React from 'react';
 import type { StudyTimeSummary } from '../types';
-import { Card } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
 import { SKILL_LABELS } from '../utils/calculator';
 import type { Skill } from '@jlpt/schema';
 

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import vi from '../messages/vi.json' with { type: 'json' };
 import ja from '../messages/ja.json' with { type: 'json' };
 import en from '../messages/en.json' with { type: 'json' };
@@ -26,6 +26,13 @@ function extractLeafKeys(obj: Record<string, unknown>, prefix = ''): string[] {
   }
   return keys.sort();
 }
+
+
+// ja/en messages load on demand in the app; load them up front for these tests.
+beforeAll(async () => {
+  await loadLocaleMessages('ja');
+  await loadLocaleMessages('en');
+});
 
 describe('Internationalization System (ACC-14 & Acceptance 1)', () => {
   const viKeys = extractLeafKeys(vi as Record<string, unknown>);

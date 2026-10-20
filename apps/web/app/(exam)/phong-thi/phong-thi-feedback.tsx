@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface ExamResultViewProps {
   activeAttemptId: string;

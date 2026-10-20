@@ -1,7 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Card, Badge, Alert } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
+import { Card } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
 import { AiClient } from '../services/ai-client';
 import type { AiRequestResponseDto, AiUsageDto } from '../types';
 import { useI18n } from '../../../lib/i18n';

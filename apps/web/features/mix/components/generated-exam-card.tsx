@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react';
 import type { GeneratedExam } from '@jlpt/schema';
-import { Card, Badge, Button } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Button } from '@jlpt/ui/components/button';
 import { ShareExamModal } from './share-exam-modal';
 
 export interface GeneratedExamCardProps {
