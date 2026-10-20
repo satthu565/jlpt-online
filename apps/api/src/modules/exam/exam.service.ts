@@ -290,6 +290,39 @@ export class ExamService {
     const allQuestions = await this.dbClient.db.select().from(schema.questions);
     const examQuestions = allQuestions.filter((q: typeof schema.questions.$inferSelect) => questionIds.includes(q.id));
 
+    // Check if exam is from a DRAFT_ONLY package
+    const importJobsForExam = await this.dbClient.db
+      .select({
+        id: schema.importJobs.id,
+        status: schema.importJobs.status,
+        errorLog: schema.importJobs.errorLog,
+        createdAt: schema.importJobs.createdAt,
+      })
+      .from(schema.importArtifacts)
+      .innerJoin(schema.importJobs, eq(schema.importArtifacts.jobId, schema.importJobs.id))
+      .where(
+        and(
+          eq(schema.importArtifacts.artifactType, 'exam'),
+          eq(schema.importArtifacts.storageKey, examId),
+        ),
+      )
+      .orderBy(desc(schema.importJobs.createdAt));
+
+    if (importJobsForExam.length > 0) {
+      const latestJob = importJobsForExam[0]!;
+      const errLog = latestJob.errorLog as Record<string, unknown> | null;
+      if (
+        latestJob.status === 'DRAFT_ONLY' ||
+        errLog?.['readiness'] === 'DRAFT_ONLY' ||
+        errLog?.['mode'] === 'draft' ||
+        (typeof errLog?.['blockingIssueCount'] === 'number' && (errLog['blockingIssueCount'] as number) > 0)
+      ) {
+        throw new ConflictException(
+          `Đề thi ${examId} thuộc gói nháp (DRAFT_ONLY); không thể xuất bản cho tới khi nạp lại bản ready cùng packageId với revision cao hơn`,
+        );
+      }
+    }
+
     // Check question versions status
     for (const q of examQuestions) {
       const qvRows = await this.dbClient.db
@@ -302,6 +335,21 @@ export class ExamService {
       if (qvRows.length === 0 || qvRows[0]?.status !== 'approved') {
         throw new ConflictException(
           `Câu hỏi ${q.id} chưa được duyệt (status: ${qvRows[0]?.status ?? 'none'}); không thể xuất bản`,
+        );
+      }
+
+      const answers = await this.dbClient.db
+        .select()
+        .from(schema.correctAnswers)
+        .where(
+          and(
+            eq(schema.correctAnswers.questionId, q.id),
+            eq(schema.correctAnswers.questionVersion, qvRows[0].version),
+          ),
+        );
+      if (answers.length === 0 || answers[0]?.correctOption === null) {
+        throw new ConflictException(
+          `Câu hỏi ${q.id} chưa có đáp án đúng (bản nháp); không thể xuất bản`,
         );
       }
     }

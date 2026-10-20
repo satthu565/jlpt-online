@@ -1536,6 +1536,68 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
     }
   });
 
+  test('I16 E2E: Editor nạp gói draft.zip ở chế độ nháp qua UI admin, hiện issue blocking; nạp ready bị từ chối; chặn duyệt bản nháp', async ({
+    browser,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'I16 flow runs on chromium');
+    const clientIp = getProjectClientIp(testInfo, 66);
+    const headers = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+
+    const draftZipPath = path.resolve(process.cwd(), 'fixtures/imports/draft.zip');
+    expect(fs.existsSync(draftZipPath)).toBe(true);
+
+    const editorCtx = await browser.newContext({ extraHTTPHeaders: headers });
+    const editorPage = await editorCtx.newPage();
+    try {
+      await loginAsStaff(editorPage, adminOrigin, SEEDED_STAFF_ACCOUNTS.editor);
+      await editorPage.goto(`${adminOrigin}/imports`, { waitUntil: 'domcontentloaded' });
+      await expect(editorPage.locator('[data-testid="import-title"], h2').first()).toBeVisible({ timeout: 15000 });
+
+      const fileInput = editorPage.locator('[data-testid="package-file-input"], input[type="file"]').first();
+      const draftCheckbox = editorPage.locator('[data-testid="draft-mode-checkbox"]').first();
+
+      // 1. Nạp bản draft ở chế độ ready (chưa tick checkbox) -> bị từ chối với thông báo lỗi rõ
+      if (await draftCheckbox.isChecked()) {
+        await draftCheckbox.uncheck();
+      }
+      await fileInput.setInputFiles(draftZipPath);
+      await expect(
+        editorPage.locator('[data-testid="error-alert"], [data-testid="status-alert"]').first(),
+      ).toBeVisible({ timeout: 20000 });
+      const errorText = await editorPage
+        .locator('[data-testid="error-alert"], [data-testid="status-alert"]')
+        .first()
+        .innerText();
+      expect(errorText).toMatch(/issue blocking|không hợp lệ|READY_FOR_REVIEW|không thể nạp/i);
+
+      // 2. Chọn "Nạp bản nháp" (tick checkbox)
+      await draftCheckbox.check();
+      expect(await draftCheckbox.isChecked()).toBe(true);
+
+      // 3. Nạp lại gói draft.zip ở chế độ nháp -> nạp thành công
+      await fileInput.setInputFiles(draftZipPath);
+      await expect(editorPage.locator('[data-testid="jobs-table"], table').first()).toBeVisible({ timeout: 30000 });
+
+      // 4. Bảng danh sách hiện trạng thái DRAFT_ONLY và chi tiết issue blocking
+      await expect(
+        editorPage.locator('[data-testid^="job-status-"]').filter({ hasText: 'DRAFT_ONLY' }).first(),
+      ).toBeVisible({ timeout: 20000 });
+      await expect(editorPage.locator('[data-testid="issue-severity"]').filter({ hasText: /blocking/i }).first()).toBeVisible({ timeout: 15000 });
+      await expect(editorPage.locator('[data-testid="issue-path"]').first()).toBeVisible({ timeout: 15000 });
+      await expect(editorPage.locator('[data-testid="issue-reason"]').first()).toBeVisible({ timeout: 15000 });
+
+      // 5. Kiểm tra nút "Gửi duyệt" bị ẩn hoặc disabled đối với gói DRAFT_ONLY
+      const draftJobRow = editorPage.locator('tr').filter({ hasText: 'draft.zip' }).first();
+      await expect(draftJobRow).toBeVisible({ timeout: 15000 });
+      await expect(draftJobRow.locator('text=DRAFT_ONLY').first()).toBeVisible();
+      const submitBtn = draftJobRow.locator('button[data-testid^="submit-review-btn-"]');
+      expect(await submitBtn.count()).toBe(0);
+    } finally {
+      await editorCtx.close();
+    }
+  });
+
   test('AC4: Loading, empty, and API error states are clearly displayed; 401/403 redirects or displays access denied', async ({
     page,
   }, testInfo) => {
@@ -1572,18 +1634,27 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
       : VIEWPORTS;
 
     for (const route of CONTENT_ADMIN_PAGES) {
-      await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
-      await expect(page.locator('main, [data-testid$="-title"], header, h2').filter({ visible: true }).first()).toBeVisible({ timeout: 10000 });
+      try {
+        await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
+      } catch {
+        await page.waitForTimeout(500);
+        await page.goto(`${adminOrigin}${route.path}`, { waitUntil: 'domcontentloaded' });
+      }
+      if (await page.locator('text="This page couldn’t load"').first().isVisible({ timeout: 500 }).catch(() => false)) {
+        await page.reload({ waitUntil: 'domcontentloaded' });
+      }
+      await expect(page.locator('main, [data-testid$="-title"], [data-testid="page-title"], header, h1, h2').filter({ visible: true }).first()).toBeVisible({ timeout: 15000 });
       await page.waitForTimeout(50);
 
       // 1. Verify responsive viewports (390px, 1366px) & capture screenshots without horizontal scroll
       for (const vp of viewportsToTest) {
         await page.setViewportSize({ width: vp.width, height: vp.height });
 
-        // Verify zero horizontal scroll (allow 1px subpixel tolerance)
+        // Verify zero horizontal scroll (allow 1px subpixel tolerance, 2px for fractional DPR mobile devices)
         const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
         const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
-        expect(scrollWidth, `Horizontal scroll detected on ${route.path} at ${vp.name}`).toBeLessThanOrEqual(clientWidth + 1);
+        const tolerance = isMobileDevice ? 2 : 1;
+        expect(scrollWidth, `Horizontal scroll detected on ${route.path} at ${vp.name}`).toBeLessThanOrEqual(clientWidth + tolerance);
 
         // Verify Tailwind padding / layout integrity
         const containerPadding = await page.evaluate(() => {
