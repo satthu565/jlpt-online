@@ -46,8 +46,8 @@ Do cơ chế cũ coi mọi sự khác biệt về số lượng câu hỏi là l
 
 ## Nghiệm thu và Bằng chứng kiểm thử
 
-Bổ sung test suite toàn diện tại `packages/content-tools/tests/blueprint-deviation.test.ts` đáp ứng trọn vẹn 4 tiêu chí nghiệm thu của task I21:
-1. Đề N3 có 問題3 gồm 10 câu (tham chiếu 11 câu) nhập thành công, `valid: true`, `readiness: READY_FOR_REVIEW`, sinh warning nêu rõ `10/11`.
-2. Đề N3 thiếu phần `listening` hoặc có `mondaiType` lạ (`task_based` trong phần từ vựng) bị báo lỗi, `valid: false`, `readiness: INVALID`.
-3. Bộ sinh đề trộn `generateMixedExam` cho đề N3 sinh đúng chính xác số câu tham chiếu (tổng 96 câu, 問題3 đúng 11 câu).
-4. Chấm điểm đề gốc sử dụng số câu thực tế (`rawMax = 10`), điểm quy đổi hoàn hảo đạt 60/60 (thay vì bị giảm còn 55 nếu chia sai cho 11).
+Bổ sung test suite toàn diện tại `packages/content-tools/tests/blueprint-deviation.test.ts` và `apps/api/src/modules/scoring/blueprint-deviation.test.ts` đáp ứng trọn vẹn 4 tiêu chí nghiệm thu của task I21:
+1. Đề N3 có 問題3 gồm 10 câu (tham chiếu 11 câu) nhập thành công, `valid: true`, `readiness: READY_FOR_REVIEW`, sinh warning nêu rõ `10/11` (`packages/content-tools/tests/blueprint-deviation.test.ts`).
+2. Đề N3 thiếu phần `listening` hoặc có `mondaiType` lạ (`task_based` trong phần từ vựng) bị báo lỗi, `valid: false`, `readiness: INVALID` (`packages/content-tools/tests/blueprint-deviation.test.ts`).
+3. Bộ sinh đề trộn `generateMixedExam` cho đề N3 sinh đúng chính xác số câu tham chiếu (tổng 96 câu, 問題3 đúng 11 câu) (`apps/api/src/modules/scoring/blueprint-deviation.test.ts`).
+4. Chấm điểm đề gốc sử dụng số câu thực tế (`rawMax = 10`), điểm quy đổi hoàn hảo đạt 60/60 (thay vì bị giảm còn 55 nếu chia sai cho 11) (`apps/api/src/modules/scoring/blueprint-deviation.test.ts`).
