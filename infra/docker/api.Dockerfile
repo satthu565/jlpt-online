@@ -18,13 +18,9 @@ COPY infra/ ./infra/
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
-# Configure Fastify 50MB bodyLimit for ZIP uploads and tenantId resolution from org_memberships
+# Configure tenantId resolution from org_memberships
 RUN node -e " \
   const fs = require('fs'); \
-  const mainPath = 'apps/api/src/main.ts'; \
-  let main = fs.readFileSync(mainPath, 'utf8'); \
-  main = main.replace('new FastifyAdapter()', 'new FastifyAdapter({ bodyLimit: 52428800 })'); \
-  fs.writeFileSync(mainPath, main); \
   const authPath = 'apps/api/src/modules/auth/auth.service.ts'; \
   let auth = fs.readFileSync(authPath, 'utf8'); \
   const target = 'if (!row || row.blockedAt) {\n      return null;\n    }'; \
