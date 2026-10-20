@@ -95,3 +95,8 @@ main#main-content {
   display: none !important;
 }
 
+
+/* Server-rendered cookie banner, hidden before paint once a choice is stored (lib/consent-keys.ts). */
+html[data-consent='set'] .jlpt-cookie-consent {
+  display: none;
+}

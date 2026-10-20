@@ -1,9 +1,10 @@
 'use client';
 
-export type ConsentStatus = 'undetermined' | 'necessary' | 'all';
+import { CONSENT_STORAGE_KEY, CONSENT_COOKIE_NAME } from './consent-keys';
 
-export const CONSENT_STORAGE_KEY = 'jlpt_cookie_consent';
-export const CONSENT_COOKIE_NAME = 'jlpt_consent';
+export { CONSENT_STORAGE_KEY, CONSENT_COOKIE_NAME };
+
+export type ConsentStatus = 'undetermined' | 'necessary' | 'all';
 
 let memoryConsent: ConsentStatus = 'undetermined';
 

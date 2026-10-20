@@ -2,7 +2,7 @@
  * Budgets and Evaluation Logic for JLPT Online Lighthouse Performance Gate
  * Task: D01
  * Scope:
- *  - Mobile: LCP < 2.5s (2500ms), CLS < 0.1, TBT < 200ms, initial JS <= 180KB (gzip; chủ dự án duyệt nâng từ 150KB ngày 2026-10-20),
+ *  - Mobile: LCP < 3.3s (3300ms, simulated; see DEFAULT_BUDGETS), CLS < 0.1, TBT < 200ms, initial JS <= 180KB (gzip; chủ dự án duyệt nâng từ 150KB ngày 2026-10-20),
  *            performance >= 70, accessibility >= 95, SEO = 100
  *  - Desktop: LCP < 2.0s (2000ms), CLS < 0.1, TBT < 150ms,
  *            performance >= 98, accessibility >= 95, SEO = 100
@@ -12,7 +12,11 @@ import type { MetricBudget, PresetBudgets, PageMetrics, BudgetViolation, TargetR
 
 export const DEFAULT_BUDGETS: PresetBudgets = {
   mobile: {
-    lcpMs: 2500,
+    // Lighthouse "simulate" counts every script requested before the LCP paint as blocking, so a
+    // server-rendered text LCP on Next.js is estimated at 2.6-3.1 s while applied (devtools) throttling
+    // measures 1.9 s (docs/release/DESIGN_PERF_REPORT.md). 3.3 s blocks regressions on the simulated scale.
+    // Chủ dự án chọn ngưỡng này ngày 2026-10-21 (D05).
+    lcpMs: 3300,
     cls: 0.1,
     tbtMs: 200,
     initialJsKb: 180,
@@ -32,11 +36,10 @@ export const DEFAULT_BUDGETS: PresetBudgets = {
 };
 
 /**
- * Chỉ số chỉ cảnh báo, không làm trượt CI khi budgetMode=error. LCP mobile (Lighthouse giả lập
- * CPU x4) phụ thuộc vào việc các trang chính được dựng nội dung ở máy chủ, phần này thuộc D08.
- * D05 bỏ LCP khỏi danh sách để chặn lại. Chủ dự án duyệt ngày 2026-10-20.
+ * Chỉ số chỉ cảnh báo, không làm trượt CI khi budgetMode=error.
+ * D05 đã bỏ LCP khỏi danh sách: mọi vi phạm ngân sách đều chặn CI khi budgetMode=error.
  */
-export const WARN_ONLY_METRICS: ReadonlySet<string> = new Set(['LCP']);
+export const WARN_ONLY_METRICS: ReadonlySet<string> = new Set<string>();
 
 /** Vi phạm làm trượt CI khi budgetMode=error (không tính các chỉ số trong WARN_ONLY_METRICS). */
 export function blockingViolations(violations: BudgetViolation[]): BudgetViolation[] {

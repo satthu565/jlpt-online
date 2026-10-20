@@ -8,12 +8,13 @@ import { useI18n } from '../lib/i18n';
 
 export function CookieConsentManager(): React.JSX.Element | null {
   const { t } = useI18n();
-  const [isOpen, setIsOpen] = useState(false);
+  // Open on the server and in the first client render so the banner is part of the first paint;
+  // CONSENT_HEAD_SCRIPT hides it before paint when a choice is already stored.
+  const [isOpen, setIsOpen] = useState(true);
 
   useEffect(() => {
-    const status = getConsentStatus();
-    if (status === 'undetermined') {
-      setIsOpen(true);
+    if (getConsentStatus() !== 'undetermined') {
+      setIsOpen(false);
     }
   }, []);
 

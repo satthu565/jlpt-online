@@ -44,6 +44,12 @@ jobs:
       - name: Run Infrastructure & Profile Verification Gate (A12 / A13)
         run: pnpm infra:check
 
+      - name: Run UI Primitives & Design System Ratchet Gate (D00 / D05)
+        run: pnpm check:ui-primitives
+
+      - name: Run Mock UI Data & Baseline Gate (I00 / D05)
+        run: pnpm check:no-mock-ui
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -188,14 +194,14 @@ jobs:
         run: |
           pnpm test:e2e:all-browsers
 
-      # Acceptance (D01): "pnpm test:lighthouse chạy được trên staging CI và fail khi vượt ngân sách"
-      # Acceptance (D01): "Số đo gốc lưu kèm commit SHA; không lấy số máy ảo làm số production"
-      # Acceptance (D01): "Ngân sách ban đầu ở chế độ cảnh báo, D04 chuyển thành chặn"
-      - name: Run Lighthouse Performance Audit on Staging (D01)
+      # Acceptance (D01 / D05): "pnpm test:lighthouse chạy được trên staging CI và fail khi vượt ngân sách"
+      # Acceptance (D01 / D05): "Số đo gốc lưu kèm commit SHA; không lấy số máy ảo làm số production"
+      # Acceptance (D01 / D05): "test:lighthouse chặn trong CI (chuyển sang error/enforce)"
+      - name: Run Lighthouse Performance Audit on Staging (D01 / D05)
         env:
           PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
           ADMIN_URL: http://127.0.0.1:3001
-          LIGHTHOUSE_BUDGET_MODE: warn
+          LIGHTHOUSE_BUDGET_MODE: error
         run: |
           pnpm test:lighthouse
 
