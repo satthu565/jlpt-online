@@ -2209,9 +2209,9 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### P06 Nghiệm thu 5 tính năng bổ sung
 
 - Worker: **W6**. Ngày mục tiêu: 10. Ước lượng chưa đo: 2 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: P04, P05, D05. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: P04, P05. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: E2E trên staging cho NEW-01..05, ảnh chụp 390/1366px, cập nhật danh sách tính năng và báo cáo.
+- Phạm vi: E2E trên staging cho NEW-01..05, ảnh chụp 390/1366px, cập nhật danh sách tính năng và báo cáo. D05 do Claude làm trực tiếp (PR #106, coordinator ghi CANCELLED) nên không còn là phụ thuộc.
 - Bàn giao: tests/; docs/release/.
 - Hợp đồng: quy tắc chung.
 - Khóa tài nguyên: staging-deploy.

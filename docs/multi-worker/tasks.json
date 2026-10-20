@@ -4831,11 +4831,10 @@
       "title": "Nghiệm thu 5 tính năng bổ sung",
       "dependencies": [
         "P04",
-        "P05",
-        "D05"
+        "P05"
       ],
       "featureIds": [],
-      "scope": "E2E trên staging cho NEW-01..05, ảnh chụp 390/1366px, cập nhật danh sách tính năng và báo cáo.",
+      "scope": "E2E trên staging cho NEW-01..05, ảnh chụp 390/1366px, cập nhật danh sách tính năng và báo cáo. D05 do Claude làm trực tiếp (PR #106, coordinator ghi CANCELLED) nên không còn là phụ thuộc.",
       "outputs": [
         "tests/",
         "docs/release/"
