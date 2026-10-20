@@ -308,9 +308,14 @@ export class ExamService {
       )
       .orderBy(desc(schema.importJobs.createdAt));
 
+    let packageBlueprintRef: { id: string; version: number } | null = null;
     if (importJobsForExam.length > 0) {
       const latestJob = importJobsForExam[0]!;
       const errLog = latestJob.errorLog as Record<string, unknown> | null;
+      const ref = errLog?.['blueprintRef'] as { id?: unknown; version?: unknown } | null | undefined;
+      if (ref && typeof ref.id === 'string' && typeof ref.version === 'number') {
+        packageBlueprintRef = { id: ref.id, version: ref.version };
+      }
       if (
         latestJob.status === 'DRAFT_ONLY' ||
         errLog?.['readiness'] === 'DRAFT_ONLY' ||
@@ -374,7 +379,11 @@ export class ExamService {
     // 4. Verify / find blueprint
     let blueprint: typeof schema.blueprints.$inferSelect;
     try {
-      blueprint = await this.blueprintService.getActiveBlueprintByLevel(exam.level as Level);
+      // An imported past exam uses the blueprint named in its package (for example N5 12/2019 uses the
+      // pre-2020 N5 blueprint); other exams use the level's current blueprint.
+      blueprint = packageBlueprintRef
+        ? await this.blueprintService.getBlueprintById(packageBlueprintRef.id, packageBlueprintRef.version)
+        : await this.blueprintService.getActiveBlueprintByLevel(exam.level as Level);
     } catch {
       // Try finding any blueprint matching level
       const allBp = await this.dbClient.db

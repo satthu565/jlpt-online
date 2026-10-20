@@ -9,7 +9,9 @@ import {
   type CreateStudyPlanInput,
 } from '../../../features/planner';
 import { useI18n } from '../../../lib/i18n';
-import { Alert, Button, Spinner } from '@jlpt/ui';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Button } from '@jlpt/ui/components/button';
+import { Spinner } from '@jlpt/ui/components/spinner';
 import Link from 'next/link';
 
 export default function PlannerPage(): React.JSX.Element {

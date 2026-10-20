@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Button, FuriganaToggle } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { FuriganaToggle } from '@jlpt/ui/components/furigana-toggle';
 
 export type JapaneseFontSize = 'sm' | 'base' | 'lg' | 'xl';
 

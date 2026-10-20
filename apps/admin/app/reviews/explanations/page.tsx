@@ -108,7 +108,7 @@ export default function ExplanationReviewsPage({ initialItems }: { initialItems?
     <AdminGuard pathname="/reviews/explanations">
       <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
         <header className="border-b border-gray-200 pb-4">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 data-testid="page-title" className="text-2xl font-bold text-gray-900">
             {t('content.explanationReviews.title', locale)}
           </h1>
           <p className="text-sm text-gray-500 mt-1">

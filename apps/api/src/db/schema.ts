@@ -372,6 +372,8 @@ export const blueprints = pgTable('blueprints', {
   confirmedBy: uuid('confirmed_by').references(() => users.id),
   confirmedAt: timestamp('confirmed_at', { withTimezone: true }),
   effectiveFrom: text('effective_from').notNull(),
+  // Last exam session (YYYY-MM) this blueprint applies to; null = still current.
+  effectiveTo: text('effective_to'),
   sourceRef: jsonb('source_ref').notNull(),
   note: text('note'),
   sections: jsonb('sections').notNull(),

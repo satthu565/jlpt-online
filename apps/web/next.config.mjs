@@ -3,9 +3,28 @@ import process from 'node:process';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 86400,
+  },
+  experimental: {
+    optimizePackageImports: ['@jlpt/ui'],
+  },
+  async headers() {
+    return [
+      {
+        source: '/fonts/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ];
   },
   turbopack: {
     resolveAlias: {

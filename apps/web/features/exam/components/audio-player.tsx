@@ -3,7 +3,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { ListeningTimelineItem, AttemptMode } from '@jlpt/schema';
 import { getListeningPlaybackPosition } from '../utils/listening';
-import { Button, Badge, Alert } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
 
 export interface AudioPlayerProps {
   timeline: ListeningTimelineItem[] | null;

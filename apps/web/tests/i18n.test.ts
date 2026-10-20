@@ -1,12 +1,17 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import vi from '../messages/vi.json' with { type: 'json' };
 import ja from '../messages/ja.json' with { type: 'json' };
 import en from '../messages/en.json' with { type: 'json' };
+import React from 'react';
+import { renderToString } from 'react-dom/server';
+import HomePage from '../app/page';
 import {
   translate,
   DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
   type Locale,
+  I18nProvider,
+  loadLocaleMessages,
 } from '../lib/i18n';
 
 function extractLeafKeys(obj: Record<string, unknown>, prefix = ''): string[] {
@@ -21,6 +26,13 @@ function extractLeafKeys(obj: Record<string, unknown>, prefix = ''): string[] {
   }
   return keys.sort();
 }
+
+
+// ja/en messages load on demand in the app; load them up front for these tests.
+beforeAll(async () => {
+  await loadLocaleMessages('ja');
+  await loadLocaleMessages('en');
+});
 
 describe('Internationalization System (ACC-14 & Acceptance 1)', () => {
   const viKeys = extractLeafKeys(vi as Record<string, unknown>);
@@ -123,5 +135,34 @@ describe('Internationalization System (ACC-14 & Acceptance 1)', () => {
       // Value should equal its NFC normalized form
       expect(val).toBe(val.normalize('NFC'));
     }
+  });
+
+  it('HomePage translates correctly based on selected locale in I18nProvider', () => {
+    // Default Vietnamese
+    const htmlVi = renderToString(React.createElement(I18nProvider, { initialLocale: 'vi' }, React.createElement(HomePage)));
+    expect(htmlVi).toContain('Luyện thi JLPT Trực tuyến Chuẩn Nhật');
+    expect(htmlVi).toContain('Làm bài thi thử ngay');
+
+    // Japanese
+    const htmlJa = renderToString(React.createElement(I18nProvider, { initialLocale: 'ja' }, React.createElement(HomePage)));
+    expect(htmlJa).toContain('公式JLPT準拠 オンライン日本語能力試験');
+    expect(htmlJa).toContain('今すぐ無料体験する');
+
+    // English
+    const htmlEn = renderToString(React.createElement(I18nProvider, { initialLocale: 'en' }, React.createElement(HomePage)));
+    expect(htmlEn).toContain('Standard Online JLPT Practice Platform');
+    expect(htmlEn).toContain('Start Free Mock Exam');
+  });
+
+  it('loadLocaleMessages dynamically loads non-default locales and caches them', async () => {
+    const jaMessages = await loadLocaleMessages('ja');
+    expect(jaMessages).toBeDefined();
+    expect(typeof jaMessages).toBe('object');
+    expect(jaMessages['home']).toBeDefined();
+
+    const enMessages = await loadLocaleMessages('en');
+    expect(enMessages).toBeDefined();
+    expect(typeof enMessages).toBe('object');
+    expect(enMessages['home']).toBeDefined();
   });
 });

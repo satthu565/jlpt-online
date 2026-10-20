@@ -1,17 +1,44 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import type { PublicExamSnapshot, AttemptMode } from '@jlpt/schema';
-import {
-  ExamPicker,
-  InstructionsModal,
-  ExamRoom,
-  createExamStorage,
-  ExamApiClient,
-  ExamApiError,
-  type ExamPickerExam,
-} from '../../../features/exam';
-import { Card, Alert, Button } from '@jlpt/ui';
+import { ExamPicker, type ExamPickerExam } from '../../../features/exam/components/exam-picker';
+import type { ExamStorageAdapter } from '../../../features/exam/storage/indexeddb';
+import type { ExamApiClient } from '../../../features/exam/api/exam-api';
+
+const ExamRoom = dynamic(
+  () => import('../../../features/exam/components/exam-room').then((m) => m.ExamRoom),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="max-w-2xl mx-auto py-20 px-4 text-center">
+        <div className="animate-spin text-4xl mb-4">⏳</div>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+          Đang chuẩn bị phòng thi...
+        </h2>
+        <p className="text-sm text-slate-500">
+          Vui lòng đợi trong giây lát. Hệ thống đang tải nội dung bài thi.
+        </p>
+      </div>
+    ),
+  },
+);
+
+const InstructionsModal = dynamic(
+  () => import('../../../features/exam/components/modals/instructions-modal').then((m) => m.InstructionsModal),
+  { ssr: false },
+);
+
+const ExamResultView = dynamic(
+  () => import('./phong-thi-feedback').then((m) => m.ExamResultView),
+  { ssr: false },
+);
+
+const ExamErrorCard = dynamic(
+  () => import('./phong-thi-feedback').then((m) => m.ExamErrorCard),
+  { ssr: false },
+);
 
 export default function ExamRoomPage(): React.JSX.Element {
   const [availableExams, setAvailableExams] = useState<ExamPickerExam[]>([]);
@@ -43,21 +70,29 @@ export default function ExamRoomPage(): React.JSX.Element {
   } | null>(null);
 
   // Storage and API Client instances
-  const storage = React.useMemo(() => createExamStorage(), []);
-  const apiClient = React.useMemo(() => new ExamApiClient(), []);
+  const [storage, setStorage] = useState<ExamStorageAdapter | null>(null);
+  const apiClientRef = React.useRef<ExamApiClient | null>(null);
+
+  const getApiClient = async () => {
+    if (apiClientRef.current) return apiClientRef.current;
+    const { ExamApiClient } = await import('../../../features/exam/api/exam-api');
+    const client = new ExamApiClient();
+    apiClientRef.current = client;
+    return client;
+  };
 
   // 1. Fetch available exams on mount
   const loadAvailableExams = async () => {
     try {
       setLoadingExams(true);
       setErrorInfo(null);
-      const res = await apiClient.getExams();
-      setAvailableExams(res.items);
-      return res.items;
-    } catch (err: unknown) {
-      const msg = err instanceof ExamApiError ? err.message : 'Không thể tải danh sách đề thi. Vui lòng thử lại sau.';
+      const res = await fetch('/api/v1/exams').then((r) => r.json());
+      const items = res.items || [];
+      setAvailableExams(items);
+      return items;
+    } catch {
       setErrorInfo({
-        message: msg,
+        message: 'Không thể tải danh sách đề thi. Vui lòng thử lại sau.',
       });
       return [];
     } finally {
@@ -80,7 +115,7 @@ export default function ExamRoomPage(): React.JSX.Element {
         if (attemptIdParam) {
           handleResumeAttempt(attemptIdParam);
         } else if (examIdParam && exams.length > 0) {
-          const found = exams.find((e) => e.id === examIdParam || (e as { examId?: string }).examId === examIdParam || e.slug === examIdParam);
+          const found = exams.find((e: ExamPickerExam) => e.id === examIdParam || (e as { examId?: string }).examId === examIdParam || e.slug === examIdParam);
           if (found) {
             setSelectedExam(found);
             setIsInstructionsOpen(true);
@@ -97,6 +132,7 @@ export default function ExamRoomPage(): React.JSX.Element {
       setLoadingMessage('Đang khôi phục phiên làm bài thi...');
       setErrorInfo(null);
 
+      const apiClient = await getApiClient();
       const resumeRes = await apiClient.resumeAttempt(attemptId);
       const snapshot = await apiClient.fetchSnapshot(resumeRes.snapshotUrl);
 
@@ -107,16 +143,19 @@ export default function ExamRoomPage(): React.JSX.Element {
       setInitialSectionIndex(resumeRes.currentSection ?? 0);
       setInitialAnswers(resumeRes.answers);
       setInitialFlags(resumeRes.flags);
+      const { createExamStorage } = await import('../../../features/exam/storage/indexeddb');
+      setStorage(createExamStorage());
       setIsExamStarted(true);
     } catch (err: unknown) {
-      if (err instanceof ExamApiError) {
-        if (err.status === 409 && (err.code === 'ATTEMPT_ALREADY_SUBMITTED' || err.code === 'ATTEMPT_NOT_SUBMITTED')) {
+      const apiErr = err as { status?: number; code?: string; message?: string } | undefined;
+      if (apiErr && typeof apiErr === 'object' && apiErr.status) {
+        if (apiErr.status === 409 && (apiErr.code === 'ATTEMPT_ALREADY_SUBMITTED' || apiErr.code === 'ATTEMPT_NOT_SUBMITTED')) {
           window.location.href = `/ket-qua/${attemptId}`;
           return;
         }
-        if (err.status === 401 || err.status === 403) {
+        if (apiErr.status === 401 || apiErr.status === 403) {
           setErrorInfo({
-            code: err.code,
+            code: apiErr.code,
             message: 'Bạn không có quyền truy cập vào lượt thi này. Vui lòng đăng nhập tài khoản sở hữu.',
             requiresAuth: true,
             redirectUrl: `/dang-nhap?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`,
@@ -156,14 +195,16 @@ export default function ExamRoomPage(): React.JSX.Element {
 
       let initRes;
       try {
+        const apiClient = await getApiClient();
         initRes = await apiClient.initAttempt({
           examId: targetExamId,
           mode: selectedMode,
         });
       } catch (err: unknown) {
-        if (err instanceof ExamApiError) {
+        const apiErr = err as { status?: number; code?: string; message?: string; details?: { attemptId?: string } } | undefined;
+        if (apiErr && typeof apiErr === 'object' && apiErr.status) {
           // Negative check: guest trying to take non-guest trial exam (Acceptance 2)
-          if (err.status === 401 || err.code === 'AUTH_REQUIRED') {
+          if (apiErr.status === 401 || apiErr.code === 'AUTH_REQUIRED') {
             setErrorInfo({
               code: 'AUTH_REQUIRED',
               message: 'Đề thi này yêu cầu đăng nhập tài khoản học viên. Khách chỉ được làm thử đề demo guest_trial.',
@@ -174,7 +215,7 @@ export default function ExamRoomPage(): React.JSX.Element {
           }
 
           // Negative check: unverified email account (Acceptance 1)
-          if (err.status === 403 && (err.code === 'EMAIL_NOT_VERIFIED' || err.message.includes('xác minh'))) {
+          if (apiErr.status === 403 && (apiErr.code === 'EMAIL_NOT_VERIFIED' || apiErr.message?.includes('xác minh'))) {
             setErrorInfo({
               code: 'EMAIL_NOT_VERIFIED',
               message: 'Tài khoản của bạn chưa xác minh email. Vui lòng kiểm tra hòm thư Mailpit để kích hoạt trước khi thi.',
@@ -183,8 +224,8 @@ export default function ExamRoomPage(): React.JSX.Element {
           }
 
           // Already open attempt conflict -> resume it
-          if (err.status === 409 && err.code === 'ATTEMPT_ALREADY_OPEN') {
-            const conflictAttemptId = (err.details as { attemptId?: string } | undefined)?.attemptId;
+          if (apiErr.status === 409 && apiErr.code === 'ATTEMPT_ALREADY_OPEN') {
+            const conflictAttemptId = (apiErr.details as { attemptId?: string } | undefined)?.attemptId;
             if (conflictAttemptId) {
               await handleResumeAttempt(conflictAttemptId);
               return;
@@ -196,6 +237,7 @@ export default function ExamRoomPage(): React.JSX.Element {
 
       // Fetch verified snapshot
       setLoadingMessage('Đang tải nội dung đề thi bảo mật...');
+      const apiClient = await getApiClient();
       const snapshot = await apiClient.fetchSnapshot(initRes.snapshotUrl);
 
       setActiveSnapshot(snapshot);
@@ -205,6 +247,8 @@ export default function ExamRoomPage(): React.JSX.Element {
       setInitialSectionIndex(initRes.currentSection ?? 0);
       setInitialAnswers(undefined);
       setInitialFlags(undefined);
+      const { createExamStorage } = await import('../../../features/exam/storage/indexeddb');
+      setStorage(createExamStorage());
       setIsExamStarted(true);
     } catch (err: unknown) {
       setErrorInfo({
@@ -245,79 +289,22 @@ export default function ExamRoomPage(): React.JSX.Element {
 
   // If exam has been completed / submitted
   if (examResult) {
-    return (
-      <div className="max-w-3xl mx-auto py-12 px-4">
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm text-center">
-          <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-            Nộp bài thi thành công!
-          </h2>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
-            Bài làm của bạn đã được ghi nhận an toàn trên máy chủ và chấm điểm theo thang chuẩn JLPT.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <a
-              href={`/ket-qua/${activeAttemptId}`}
-              className="px-6 py-2.5 rounded-xl font-semibold text-sm bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-all"
-            >
-              Xem lại bài làm &amp; Bảng điểm (Review)
-            </a>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleExit}
-              className="px-6 py-2.5 rounded-xl font-semibold text-sm shadow-sm transition-all"
-            >
-              Trở về danh sách đề thi
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
+    return <ExamResultView activeAttemptId={activeAttemptId} onExit={handleExit} />;
   }
 
   // Error Card (401/403/Other)
   if (errorInfo) {
     return (
-      <div className="max-w-2xl mx-auto py-16 px-4">
-        <Card className="p-8 border border-slate-200 dark:border-slate-800 text-center">
-          <div className="text-4xl mb-3" role="img" aria-label="Lỗi phòng thi">
-            {errorInfo.requiresAuth ? '🔒' : '⚠️'}
-          </div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-            {errorInfo.requiresAuth ? 'Yêu cầu đăng nhập' : 'Không thể bắt đầu làm bài'}
-          </h2>
-          <Alert variant={errorInfo.requiresAuth ? 'info' : 'error'} className="mb-6 text-left">
-            {errorInfo.message}
-          </Alert>
-
-          <div className="flex justify-center gap-3">
-            {errorInfo.requiresAuth ? (
-              <a href={errorInfo.redirectUrl || '/dang-nhap'}>
-                <Button variant="primary" size="md">
-                  Đăng nhập tài khoản
-                </Button>
-              </a>
-            ) : (
-              <Button variant="primary" size="md" onClick={loadAvailableExams}>
-                Thử lại
-              </Button>
-            )}
-            <Button variant="secondary" size="md" onClick={() => setErrorInfo(null)}>
-              Trở về danh sách đề
-            </Button>
-          </div>
-        </Card>
-      </div>
+      <ExamErrorCard
+        errorInfo={errorInfo}
+        onRetry={loadAvailableExams}
+        onDismiss={() => setErrorInfo(null)}
+      />
     );
   }
 
   // If currently taking the exam
-  if (isExamStarted && activeSnapshot && activeAttemptId && activeLease) {
+  if (isExamStarted && activeSnapshot && activeAttemptId && activeLease && storage && apiClientRef.current) {
     return (
       <ExamRoom
         snapshot={activeSnapshot}
@@ -329,7 +316,7 @@ export default function ExamRoomPage(): React.JSX.Element {
         initialAnswers={initialAnswers}
         initialFlags={initialFlags}
         storage={storage}
-        apiClient={apiClient}
+        apiClient={apiClientRef.current}
         onFinish={handleFinish}
         onExit={handleExit}
       />
@@ -348,21 +335,11 @@ export default function ExamRoomPage(): React.JSX.Element {
         </p>
       </div>
 
-      {loadingExams ? (
-        <div className="py-16 text-center text-slate-500">
-          <div className="animate-spin text-3xl mb-3">⏳</div>
-          Đang tải danh sách đề thi đã xuất bản...
-        </div>
-      ) : availableExams.length === 0 ? (
-        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-500">
-          Hiện tại chưa có đề thi nào sẵn sàng trong phòng thi.
-        </div>
-      ) : (
-        <ExamPicker
-          exams={availableExams}
-          onSelectExam={handleSelectExam}
-        />
-      )}
+      <ExamPicker
+        exams={availableExams}
+        loading={loadingExams}
+        onSelectExam={handleSelectExam}
+      />
 
       {selectedExam && (
         <InstructionsModal

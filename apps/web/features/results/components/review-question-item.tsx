@@ -2,7 +2,9 @@
 
 import React from 'react';
 import type { FlatQuestionItem } from '../../exam/types';
-import { RichTextView, PassageView, Button } from '@jlpt/ui';
+import { RichTextView } from '@jlpt/ui/components/rich-text-view';
+import { PassageView } from '@jlpt/ui/components/rich-block-view';
+import { Button } from '@jlpt/ui/components/button';
 import { QuestionAudioPlayer } from '../../exam/components/audio-player';
 import type { LearnerExplanation } from '../../explanations/types';
 import { ExplanationView } from '../../explanations/components/explanation-view';

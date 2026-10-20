@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Input, Button, Alert } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Input } from '@jlpt/ui/components/input';
+import { Button } from '@jlpt/ui/components/button';
+import { Alert } from '@jlpt/ui/components/alert';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import { AuthClientError } from '../../../lib/auth-client';

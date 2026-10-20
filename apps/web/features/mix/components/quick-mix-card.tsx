@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import type { Level } from '@jlpt/schema';
-import { Card, Button } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface QuickMixCardProps {
   onQuickMix: (level: Level) => Promise<void> | void;

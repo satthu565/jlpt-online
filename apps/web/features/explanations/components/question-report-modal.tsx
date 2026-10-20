@@ -1,7 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Modal, Button, Alert, Select, Textarea } from '@jlpt/ui';
+import { Modal } from '@jlpt/ui/components/modal';
+import { Button } from '@jlpt/ui/components/button';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Select } from '@jlpt/ui/components/select';
+import { Textarea } from '@jlpt/ui/components/textarea';
 import type { QuestionReportReason } from '../types';
 
 export interface QuestionReportModalProps {

@@ -2,7 +2,8 @@
 
 import React from 'react';
 import type { SpeedAccuracySummary } from '../types';
-import { Card, Badge } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
 import { SKILL_LABELS } from '../utils/calculator';
 import type { Skill } from '@jlpt/schema';
 

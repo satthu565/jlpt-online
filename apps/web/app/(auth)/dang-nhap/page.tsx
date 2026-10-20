@@ -1,14 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Input, Button, Alert } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Input } from '@jlpt/ui/components/input';
+import { Button } from '@jlpt/ui/components/button';
+import { Alert } from '@jlpt/ui/components/alert';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import { AuthClientError } from '../../../lib/auth-client';
 
 export default function LoginPage(): React.JSX.Element {
   const { t } = useI18n();
-  const { client, refreshUser } = useAuth();
+  const { client } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,13 +36,17 @@ export default function LoginPage(): React.JSX.Element {
 
     setLoading(true);
     try {
-      await client.signInEmail({ email, password });
+      const res = await client.signInEmail({ email, password });
+      if (typeof window !== 'undefined' && res?.user) {
+        try {
+          localStorage.setItem('jlpt_cached_user', JSON.stringify(res.user));
+        } catch {
+          // Ignore storage access error
+        }
+      }
       setSuccessMessage(t('auth.login.success'));
-      await refreshUser();
-      // Client-side redirect after successful login
-      setTimeout(() => {
-        window.location.href = '/tai-khoan';
-      }, 500);
+      // Immediate redirect to user profile on successful login
+      window.location.href = '/tai-khoan';
     } catch (err: unknown) {
       if (err instanceof AuthClientError) {
         if (err.code === 'INVALID_CREDENTIALS') {

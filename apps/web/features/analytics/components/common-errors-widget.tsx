@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
 
 export interface CommonErrorItem {
   category: string;

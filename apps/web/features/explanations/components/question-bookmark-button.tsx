@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
 import type { QuestionMarkType } from '../types';
 
 export interface QuestionBookmarkButtonProps {

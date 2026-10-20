@@ -132,7 +132,7 @@ export default function OrgSettingsPage({
     <AdminGuard pathname="/settings/org" requiredRoles={['admin', 'editor']}>
       <div className="w-full max-w-6xl mx-auto p-4 md:p-8 space-y-6 overflow-x-hidden">
         <header>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
+          <h1 data-testid="page-title" className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
             Cài đặt Tổ chức &amp; Hồ sơ Giáo viên (Teacher / Org)
           </h1>
           <p className="mt-1 text-sm text-gray-500">

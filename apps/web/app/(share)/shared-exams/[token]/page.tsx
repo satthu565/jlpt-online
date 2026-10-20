@@ -2,7 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card, Badge, Button, Spinner, Alert } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Button } from '@jlpt/ui/components/button';
+import { Spinner } from '@jlpt/ui/components/spinner';
+import { Alert } from '@jlpt/ui/components/alert';
 import { useI18n } from '../../../../lib/i18n';
 import Link from 'next/link';
 

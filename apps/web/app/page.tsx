@@ -1,7 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter, Badge, Button, JsonLd } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Button } from '@jlpt/ui/components/button';
+import { JsonLd } from '@jlpt/ui/components/json-ld';
 import { useI18n } from '../lib/i18n';
 
 export default function HomePage(): React.JSX.Element {

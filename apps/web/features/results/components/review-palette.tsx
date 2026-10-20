@@ -3,7 +3,7 @@
 import React from 'react';
 import type { FlatQuestionItem } from '../../exam/types';
 import type { ReviewFilter } from '../types';
-import { Button } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface ReviewPaletteProps {
   questions: FlatQuestionItem[];

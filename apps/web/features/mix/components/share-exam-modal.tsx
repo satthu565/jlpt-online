@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Modal, Button, Input } from '@jlpt/ui';
+import { Modal } from '@jlpt/ui/components/modal';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
 
 export interface ShareExamModalProps {
   isOpen: boolean;

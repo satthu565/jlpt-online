@@ -81,12 +81,12 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
       path: '/',
     };
 
-    it('validates mobile budgets according to specification (LCP < 2.5s, CLS < 0.1, TBT < 200ms, JS <= 150KB)', () => {
+    it('validates mobile budgets according to specification (LCP < 2.5s, CLS < 0.1, TBT < 200ms, JS <= 180KB)', () => {
       const b = DEFAULT_BUDGETS.mobile;
       expect(b.lcpMs).toBe(2500);
       expect(b.cls).toBe(0.1);
       expect(b.tbtMs).toBe(200);
-      expect(b.initialJsKb).toBe(150);
+      expect(b.initialJsKb).toBe(180);
       expect(b.minPerformance).toBe(70);
       expect(b.minAccessibility).toBe(95);
       expect(b.minSeo).toBe(100);
@@ -176,7 +176,7 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
       expect(tbtViolation?.actual).toBe(340);
     });
 
-    it('detects Initial JS size ceiling violation when initial JS > 150KB on mobile', () => {
+    it('detects Initial JS size ceiling violation when initial JS > 180KB on mobile', () => {
       const metrics: PageMetrics = {
         url: 'http://127.0.0.1:3000/',
         formFactor: 'mobile',
@@ -186,7 +186,7 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
         lcpMs: 2000,
         cls: 0.02,
         tbtMs: 100,
-        initialJsKb: 185.4, // Exceeds 150 KB
+        initialJsKb: 185.4, // Exceeds 180 KB
       };
 
       const violations = evaluateMetrics(metrics, DEFAULT_BUDGETS.mobile, dummyTarget);
@@ -231,7 +231,7 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
       expect(output).toContain('LCP (Largest Contentful Paint): < 2500 ms');
       expect(output).toContain('CLS (Cumulative Layout Shift):  < 0.1');
       expect(output).toContain('TBT (Total Blocking Time):      < 200 ms');
-      expect(output).toContain('Initial JS size (per page):     <= 150 KB');
+      expect(output).toContain('Initial JS size (per page):     <= 180 KB');
       expect(output).toContain('Preset Desktop:');
       expect(output).toContain('Performance score:              >= 98');
     });
@@ -456,7 +456,7 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
         lcpMs: 3400, // Exceeds 2500ms
         cls: 0.18, // Exceeds 0.1
         tbtMs: 450, // Exceeds 200ms
-        initialJsKb: 180, // Exceeds 150KB
+        initialJsKb: 195, // Exceeds 180KB
       };
 
       const violations = evaluateMetrics(failingMetrics, DEFAULT_BUDGETS.mobile, customTarget);

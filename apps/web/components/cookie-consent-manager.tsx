@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { CookieConsentBanner } from '@jlpt/ui';
+import { CookieConsentBanner } from '@jlpt/ui/components/cookie-consent';
 import { getConsentStatus, setConsentStatus } from '../lib/consent';
 import { captureTrafficAttribution } from '../lib/attribution';
 import { useI18n } from '../lib/i18n';

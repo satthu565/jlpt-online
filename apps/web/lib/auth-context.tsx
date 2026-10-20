@@ -27,7 +27,17 @@ export function AuthProvider({
   children: React.ReactNode;
   client?: AuthClient;
 }): React.JSX.Element {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('jlpt_cached_user');
+        if (cached) return JSON.parse(cached);
+      } catch {
+        // Ignore storage access error
+      }
+    }
+    return null;
+  });
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -37,13 +47,34 @@ export function AuthProvider({
       if (res?.user) {
         setUser(res.user);
         setSession(res.session);
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('jlpt_cached_user', JSON.stringify(res.user));
+          } catch {
+            // Ignore storage access error
+          }
+        }
       } else {
         setUser(null);
         setSession(null);
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.removeItem('jlpt_cached_user');
+          } catch {
+            // Ignore storage access error
+          }
+        }
       }
     } catch {
       setUser(null);
       setSession(null);
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem('jlpt_cached_user');
+        } catch {
+          // Ignore storage access error
+        }
+      }
     } finally {
       setIsLoading(false);
     }
@@ -59,6 +90,13 @@ export function AuthProvider({
     } finally {
       setUser(null);
       setSession(null);
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem('jlpt_cached_user');
+        } catch {
+          // Ignore storage access error
+        }
+      }
     }
   };
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
 import type { FlatQuestionItem } from '../types';
 
 export interface QuestionPaletteProps {

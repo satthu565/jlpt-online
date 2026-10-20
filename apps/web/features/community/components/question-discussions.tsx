@@ -1,7 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Button, Input, Modal, Alert, Select } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
+import { Modal } from '@jlpt/ui/components/modal';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Select } from '@jlpt/ui/components/select';
 import type { DiscussionComment } from '../types';
 import { useI18n } from '../../../lib/i18n';
 

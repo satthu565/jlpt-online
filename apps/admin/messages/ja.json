@@ -140,7 +140,7 @@
     "emptyReconciliation": "照合実行履歴はありません。"
   },
   "reports": {
-    "hubTitle": "システム分析・レポートハブ (ADM-17)",
+    "hubTitle": "システム分析・レポートハブ",
     "hubSubtitle": "運用、コンテンツ、学習者、収益に関する全15指標のリアルタイム監視。",
     "revenueTitle": "財務収益レポート",
     "revenueSubtitle": "通貨単位ごとに分離された総売上（Gross）、返金額（Refunds）、純売上（Net）。",
@@ -162,7 +162,7 @@
     "empty": "登録されているA/Bテストはありません。"
   },
   "contentReports": {
-    "title": "問題通報対応管理 (ADM-09)",
+    "title": "問題通報対応管理",
     "subtitle": "学習者から報告された問題内容、正解、音声の不具合を審査・修正します。",
     "empty": "対応が必要な通報はありません。",
     "resolve": "解決済みにする",
@@ -179,7 +179,7 @@
       "sourcePage": "出典ページ",
       "exportCsv": "CSV出力",
       "submitReviewBtn": "レビュー提出",
-      "csvToolTitle": "問題バンク: JSON & CSV インポート／エクスポートツール (PDF-30)",
+      "csvToolTitle": "問題バンク: JSON & CSV インポート／エクスポートツール",
       "importCsvBtn": "CSVから問題を読み込む",
       "csvInputLabel": "入力CSVデータ：",
       "csvOutputLabel": "出力CSVデータ："
@@ -205,7 +205,7 @@
       "filterLevel": "レベルで絞り込み"
     },
     "mixedExams": {
-      "title": "自動ミックス試験管理 (ADM-11)",
+      "title": "自動ミックス試験管理",
       "subtitle": "レベルや弱点項目に合わせた自動シャッフル試験の監視と生成。",
       "empty": "生成されたミックス試験はありません。",
       "createBtn": "+ 新規ミックス試験を生成",
@@ -228,7 +228,7 @@
       "compareBtn": "原本PDFと照合"
     },
     "explanationReviews": {
-      "title": "解説・翻訳レビュー (ADM-10)",
+      "title": "解説・翻訳レビュー",
       "subtitle": "二人制品質管理規則：解説およびベトナム語訳は独立したレビュー担当者の承認が必要です。",
       "empty": "承認待ちの解説はありません。",
       "approveBtn": "承認する",
@@ -244,7 +244,7 @@
       "imageTitle": "画像ファイル"
     },
     "vocab": {
-      "title": "語彙・文法管理 (ADM-12)",
+      "title": "語彙・文法管理",
       "subtitle": "JLPT N1〜N5レベル別の語彙・辞書引き、SRS暗記カードおよび試験用の語彙データ。",
       "empty": "一致する語彙データが見つかりません。",
       "addBtn": "+ 新規単語を追加",
@@ -252,7 +252,7 @@
       "searchPlaceholder": "単語、読み、または訳で検索..."
     },
     "cms": {
-      "title": "CMS記事・コンテンツ管理 (ADM-13)",
+      "title": "CMS記事・コンテンツ管理",
       "subtitle": "SEO対応ブログ記事、ランディングページの作成およびバージョン管理。",
       "empty": "作成された記事はありません。",
       "listTab": "記事一覧",
@@ -269,7 +269,7 @@
       "filterLabel": "安全性警告のあるリクエストのみ表示"
     },
     "contentReports": {
-      "title": "ユーザー問題不備報告管理 (ADM-09)",
+      "title": "ユーザー問題不備報告管理",
       "subtitle": "受講生から寄せられた問題文、解答、音声の不具合報告の審査と対応。",
       "empty": "不備報告はありません。",
       "resolveBtn": "解決して更新",

@@ -16,7 +16,10 @@ import {
 } from '../../../features/mix';
 import { ExamApiClient } from '../../../features/exam';
 import type { GeneratedExam, Level, PublicExamSnapshot } from '@jlpt/schema';
-import { Button, Alert, Spinner, Badge } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Spinner } from '@jlpt/ui/components/spinner';
+import { Badge } from '@jlpt/ui/components/badge';
 import Link from 'next/link';
 import { useI18n } from '../../../lib/i18n';
 

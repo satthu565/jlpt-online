@@ -151,6 +151,20 @@ export default function BlueprintsPage(): React.JSX.Element {
                       >
                         {bp.status}
                       </span>
+                      {(bp as Blueprint & { isCurrent?: boolean }).isCurrent && (
+                        <span
+                          data-testid={`bp-current-${bp.level}`}
+                          className="ml-2 px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-800"
+                        >
+                          Đang áp dụng
+                        </span>
+                      )}
+                      <div className="mt-1 text-xs text-gray-500">
+                        Đề từ {bp.effectiveFrom}
+                        {(bp as Blueprint & { effectiveTo?: string | null }).effectiveTo
+                          ? ` đến ${(bp as Blueprint & { effectiveTo?: string | null }).effectiveTo}`
+                          : ' trở đi'}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-xs text-gray-500">
                       {bp.sourceRef?.[0]?.url || 'Không có nguồn'}

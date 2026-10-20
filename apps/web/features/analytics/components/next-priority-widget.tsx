@@ -2,7 +2,8 @@
 
 import React from 'react';
 import type { PriorityRecommendation } from '../types';
-import { Card, Button } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface NextPriorityWidgetProps {
   recommendation: PriorityRecommendation;

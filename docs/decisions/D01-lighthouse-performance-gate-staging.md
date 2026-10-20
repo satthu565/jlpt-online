@@ -11,7 +11,7 @@
 ## 1. Bối cảnh và mục tiêu
 
 Theo yêu cầu Ngày 9 của chủ dự án (xem `KE_HOACH_TRIEN_KHAI.md` mục D01/D04/D05), dự án JLPT Online cần thiết lập cổng kiểm soát hiệu năng tự động bằng Google Lighthouse CI trên môi trường staging thật:
-1. Đảm bảo tốc độ tải trang trên thiết bị di động (LCP < 2,5 s, CLS < 0,1, TBT < 200 ms, trần JS tải lần đầu ≤ 150 KB gzip).
+1. Đảm bảo tốc độ tải trang trên thiết bị di động (LCP < 2,5 s, CLS < 0,1, TBT < 200 ms, trần JS tải lần đầu ≤ 180 KB gzip — chủ dự án duyệt nâng từ 150 KB ngày 20/10/2026).
 2. Đảm bảo chất lượng trải nghiệm trên máy tính (Performance ≥ 98, Accessibility ≥ 95, SEO 100).
 3. Thiết lập số đo gốc trước đợt (baseline) lưu tại `docs/release/performance-baseline.json` gắn kèm commit SHA gốc.
 4. Ngân sách ban đầu chạy ở chế độ cảnh báo (`warn`), sau đó task D04 sẽ tối ưu web mobile và chuyển thành chế độ chặn (`error`).
@@ -50,7 +50,7 @@ Theo yêu cầu Ngày 9 của chủ dự án (xem `KE_HOACH_TRIEN_KHAI.md` mục
 - **Preset Mobile**:
   - Viewport mô phỏng: 390x844 (tỉ lệ thiết bị 3x, Mobile User Agent).
   - Giới hạn mạng và CPU: Throttling mô phỏng mạng di động 4G (RTT 150ms, 1,6 Mbps download) và 4x CPU slowdown.
-  - Ngân sách: LCP < 2.500 ms, CLS < 0,1, TBT < 200 ms, Initial JS ≤ 150 KB (gzip), Performance ≥ 70, Accessibility ≥ 95, SEO = 100.
+  - Ngân sách: LCP < 2.500 ms, CLS < 0,1, TBT < 200 ms, Initial JS ≤ 180 KB (gzip), Performance ≥ 70, Accessibility ≥ 95, SEO = 100.
 - **Preset Desktop**:
   - Viewport: 1366x768 (Desktop User Agent).
   - Throttling: Không áp dụng CPU slowdown (1x).

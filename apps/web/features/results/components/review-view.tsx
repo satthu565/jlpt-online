@@ -9,7 +9,9 @@ import { ReviewPalette } from './review-palette';
 import { ReviewQuestionItem } from './review-question-item';
 import { PdfScoreExportButton } from './pdf-score-export-button';
 import { PacingAnalysisWidget } from './pacing-analysis-widget';
-import { Button, ShareDialog, FuriganaToggle, useFurigana } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { ShareDialog } from '@jlpt/ui/components/share-dialog';
+import { FuriganaToggle, useFurigana } from '@jlpt/ui/components/furigana-toggle';
 import { AiChatAssistant } from '../../ai/components/ai-chat-assistant';
 
 export interface ReviewViewProps {

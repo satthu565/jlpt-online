@@ -1,6 +1,10 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { Card, Badge, Button, WatermarkBadge, JsonLd } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Button } from '@jlpt/ui/components/button';
+import { WatermarkBadge } from '@jlpt/ui/components/watermark-badge';
+import { JsonLd } from '@jlpt/ui/components/json-ld';
 
 export interface ShareResultPageProps {
   params: Promise<{ id: string }>;

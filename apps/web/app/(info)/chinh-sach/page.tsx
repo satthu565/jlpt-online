@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { Card, JsonLd } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { JsonLd } from '@jlpt/ui/components/json-ld';
 
 export const metadata: Metadata = {
   title: 'Chính sách Quyền riêng tư & Bảo mật Dữ liệu - JLPT Online',

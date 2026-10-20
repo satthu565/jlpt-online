@@ -19,6 +19,35 @@ export function toDeterministicUuid(slugOrId: string): string {
   return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-a${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
 }
 
+
+type BlueprintRow = typeof schema.blueprints.$inferSelect;
+
+/** Current exam session as YYYY-MM, the format of effectiveFrom / effectiveTo. */
+export function currentSession(now = new Date()): string {
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
+}
+
+/**
+ * Picks the blueprint that applies today to a level when several are active (for example a demo
+ * synthetic one plus the official 2010 and 2020 versions of N5): official before synthetic, then the
+ * newest effectiveFrom, then the highest version. A blueprint whose effectiveTo is already past is
+ * skipped, unless nothing else is left. Original past exams keep using the blueprintRef of their
+ * import package instead.
+ */
+export function selectCurrentBlueprint(rows: BlueprintRow[], now = new Date()): BlueprintRow | undefined {
+  const session = currentSession(now);
+  const active = rows.filter((r) => r.status === 'active');
+  const valid = active.filter((r) => !r.effectiveTo || r.effectiveTo >= session);
+  const pool = valid.length > 0 ? valid : active;
+  const official = (r: BlueprintRow) => (r.isOfficial || r.kind === 'official' ? 1 : 0);
+  return [...pool].sort(
+    (a, b) =>
+      official(b) - official(a) ||
+      (b.effectiveFrom ?? '').localeCompare(a.effectiveFrom ?? '') ||
+      b.version - a.version,
+  )[0];
+}
+
 @Injectable()
 export class BlueprintService {
   constructor(@Inject(DB_CLIENT) private readonly dbClient: DbClientInstance) {}
@@ -70,15 +99,14 @@ export class BlueprintService {
           eq(schema.blueprints.level, level),
           eq(schema.blueprints.status, 'active'),
         ),
-      )
-      .orderBy(desc(schema.blueprints.version))
-      .limit(1);
+      );
 
-    if (rows.length === 0) {
+    const current = selectCurrentBlueprint(rows);
+    if (!current) {
       throw new NotFoundException(`Không tìm thấy blueprint active cho cấp độ ${level}`);
     }
 
-    return rows[0]!;
+    return current;
   }
 
   /**
@@ -132,6 +160,7 @@ export class BlueprintService {
         confirmedBy: confirmedByUserId || null,
         confirmedAt: activated.confirmedAt ? new Date(activated.confirmedAt) : null,
         effectiveFrom: String(blueprintData['effectiveFrom'] || '2026-10'),
+        effectiveTo: typeof blueprintData['effectiveTo'] === 'string' ? blueprintData['effectiveTo'] : null,
         sourceRef: (blueprintData['sourceRef'] as unknown) ?? [],
         note: (blueprintData['note'] as string) || (rawId !== blueprintId ? `id:${rawId}` : ''),
         sections: blueprintData['sections'] as unknown,
@@ -145,12 +174,17 @@ export class BlueprintService {
   /**
    * Admin: List all blueprints (ADM-04).
    */
-  async listBlueprints(): Promise<{ items: (typeof schema.blueprints.$inferSelect)[] }> {
+  async listBlueprints(): Promise<{ items: (typeof schema.blueprints.$inferSelect & { isCurrent: boolean })[] }> {
     const rows = await this.dbClient.db
       .select()
       .from(schema.blueprints)
       .orderBy(desc(schema.blueprints.level), desc(schema.blueprints.version));
-    return { items: rows };
+    const currentIds = new Set<string>();
+    for (const level of new Set(rows.map((r: BlueprintRow) => r.level))) {
+      const current = selectCurrentBlueprint(rows.filter((r: BlueprintRow) => r.level === level));
+      if (current) currentIds.add(current.id);
+    }
+    return { items: rows.map((r: BlueprintRow) => ({ ...r, isCurrent: currentIds.has(r.id) })) };
   }
 
   /**
