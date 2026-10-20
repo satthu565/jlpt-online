@@ -4370,7 +4370,7 @@
         "D07"
       ],
       "featureIds": [],
-      "scope": "Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy (ví dụ width của thanh tiến độ) có comment \"ui-allow-style\". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi. Phạm vi: khung trang (header, menu điện thoại, footer, nav-shell), trang chủ, thư viện đề, phòng thi, trang cấp độ/SEO, đăng nhập/đăng ký, trang thông tin. Thêm lucide-react vào @jlpt/ui, thêm PageHeader và EmptyState dùng chung; mở rộng pnpm check:ui-primitives đếm style={{ trong apps/web theo baseline giảm dần (ratchet). Tốc độ: trang chủ, trang cấp độ, đăng nhập/đăng ký, thư viện đề và phòng thi dựng nội dung ở máy chủ (Server Component; chỉ phần tương tác là \"use client\", chữ i18n lấy ở máy chủ theo locale), để LCP mobile trong Lighthouse giả lập (CPU x4, 150 ms RTT) dưới 2,5 s. Ghi số đo trước/sau vào docs/decisions/. Không thêm JS tải ban đầu quá 180 KB gzip.",
+      "scope": "Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy (ví dụ width của thanh tiến độ) có comment \"ui-allow-style\". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi. Dùng PageHeader (@jlpt/ui/components/page-header), EmptyState (@jlpt/ui/components/empty-state) và icon lucide-react đã có sẵn; import @jlpt/ui theo từng thành phần, không qua barrel. Phạm vi: khung trang (header, menu điện thoại, footer, nav-shell), trang chủ, thư viện đề, phòng thi, trang cấp độ/SEO, đăng nhập/đăng ký, trang thông tin. Thêm lucide-react vào @jlpt/ui, thêm PageHeader và EmptyState dùng chung; mở rộng pnpm check:ui-primitives đếm style={{ trong apps/web theo baseline giảm dần (ratchet). Tốc độ: trang chủ, trang cấp độ, đăng nhập/đăng ký, thư viện đề và phòng thi dựng nội dung ở máy chủ (Server Component; chỉ phần tương tác là \"use client\", chữ i18n lấy ở máy chủ theo locale), để LCP mobile trong Lighthouse giả lập (CPU x4, 150 ms RTT) dưới 2,5 s. Ghi số đo trước/sau vào docs/decisions/. Không thêm JS tải ban đầu quá 180 KB gzip.",
       "outputs": [
         "apps/web/app/page.tsx",
         "apps/web/app/layout.tsx",
@@ -4423,10 +4423,11 @@
       "estimatedWorkerHours": 4,
       "title": "Web: trang học tập, luyện tập, kế hoạch, kết quả theo shadcn/ui",
       "dependencies": [
-        "D08"
+        "D02",
+        "D07"
       ],
       "featureIds": [],
-      "scope": "Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy (ví dụ width của thanh tiến độ) có comment \"ui-allow-style\". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi. Phạm vi: sổ tay, flashcard/SRS, luyện tập, kế hoạch học, kết quả bài thi, thống kê, kho từ vựng/ngữ pháp.",
+      "scope": "Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy (ví dụ width của thanh tiến độ) có comment \"ui-allow-style\". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi. Dùng PageHeader (@jlpt/ui/components/page-header), EmptyState (@jlpt/ui/components/empty-state) và icon lucide-react đã có sẵn; import @jlpt/ui theo từng thành phần, không qua barrel. Phạm vi: sổ tay, flashcard/SRS, luyện tập, kế hoạch học, kết quả bài thi, thống kê, kho từ vựng/ngữ pháp.",
       "outputs": [
         "apps/web/app/(learning)/",
         "apps/web/app/(practice)/",
@@ -4477,10 +4478,11 @@
       "estimatedWorkerHours": 4,
       "title": "Web: tài khoản, gói học, lớp học, cộng đồng theo shadcn/ui",
       "dependencies": [
-        "D08"
+        "D02",
+        "D07"
       ],
       "featureIds": [],
-      "scope": "Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy (ví dụ width của thanh tiến độ) có comment \"ui-allow-style\". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi. Phạm vi: tài khoản và cài đặt, gói học/thanh toán, lớp học, cộng đồng/thảo luận, chia sẻ, lời giải, huy hiệu, AI, đề trộn.",
+      "scope": "Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy (ví dụ width của thanh tiến độ) có comment \"ui-allow-style\". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi. Dùng PageHeader (@jlpt/ui/components/page-header), EmptyState (@jlpt/ui/components/empty-state) và icon lucide-react đã có sẵn; import @jlpt/ui theo từng thành phần, không qua barrel. Phạm vi: tài khoản và cài đặt, gói học/thanh toán, lớp học, cộng đồng/thảo luận, chia sẻ, lời giải, huy hiệu, AI, đề trộn.",
       "outputs": [
         "apps/web/app/(account)/",
         "apps/web/app/(billing)/",
@@ -4535,12 +4537,11 @@
         "D02",
         "D03",
         "D07",
-        "D08",
         "D09",
         "D10"
       ],
       "featureIds": [],
-      "scope": "Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau. E2E tích hợp chạy qua jlpt-stage-test check-all; Lighthouse chạy trong CI staging trên GitHub (không chạy thẳng trên VM). Bỏ LCP khỏi WARN_ONLY_METRICS trong tests/lighthouse/budgets.ts để LCP chặn trở lại (tạm cảnh báo từ 2026-10-20 chờ D08). D04, D06, I22 do Claude làm trực tiếp và đã ghép (#79, #86, #88, #83); coordinator ghi CANCELLED nên không còn là phụ thuộc.",
+      "scope": "Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau. E2E tích hợp chạy qua jlpt-stage-test check-all; Lighthouse chạy trong CI staging trên GitHub (không chạy thẳng trên VM). Bỏ LCP khỏi WARN_ONLY_METRICS trong tests/lighthouse/budgets.ts để LCP chặn trở lại (tạm cảnh báo từ 2026-10-20 chờ D08). D04, D06, D08, I19, I20, I22 do Claude làm trực tiếp và ghép qua PR (coordinator ghi CANCELLED nên không còn là phụ thuộc); D05 kiểm tra cả phần của D08.",
       "outputs": [
         "tests/",
         ".github/",
