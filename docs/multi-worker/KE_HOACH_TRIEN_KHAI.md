@@ -1737,6 +1737,29 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
 
+<a id="i22"></a>
+
+### I22 Chọn đúng blueprint hiện hành khi một cấp độ có nhiều blueprint
+
+- Worker: **W2**. Ngày mục tiêu: 8. Ước lượng chưa đo: 1 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: I16. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: getActiveBlueprintByLevel (blueprint.service.ts) và truy vấn blueprint trong mix.service.ts / practice.service.ts chỉ lọc status active và sắp theo version, nên khi một cấp có blueprint synthetic demo, blueprint chính thức 2010 (jlpt-n5-2010) và 2020 (jlpt-n5-2020) cùng version 1 thì kết quả không xác định. Sửa: blueprint hiện hành của một cấp = active, ưu tiên kind official hơn synthetic, rồi effectiveFrom mới nhất, bỏ bản có effectiveTo đã qua (lưu effectiveTo từ dữ liệu tạo blueprint; thêm cột nếu chưa có, kèm migration). Đề trộn, đề luyện và chấm điểm dùng blueprint hiện hành; đề gốc vẫn dùng đúng blueprintRef {id, version} ghi trong gói. Trang quản trị bản thiết kế đề hiện rõ bản nào đang là hiện hành của từng cấp.
+- Bàn giao: apps/api/src/modules/blueprint/; apps/api/src/modules/exam/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: apps/api/src/db/, apps/admin/.
+- Nghiệm thu:
+  - Test: N5 có synthetic + jlpt-n5-2010 + jlpt-n5-2020 cùng active -> hiện hành là jlpt-n5-2020.
+  - Test: đề gốc N5 12/2019 gắn jlpt-n5-2010 vẫn chấm theo bản 2010.
+  - Test: đề trộn N5 dùng số câu của bản 2020.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
 <a id="i07"></a>
 
 ### I07 Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả

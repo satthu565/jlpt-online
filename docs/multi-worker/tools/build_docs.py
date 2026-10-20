@@ -577,6 +577,17 @@ task('I21','W5',8,1,'Blueprint: đề gốc được lệch số câu so với s
  'Test: đề N3 có 問題3 10 câu (tham chiếu 11) nhập được, readiness không giảm vì số câu, có warning nêu 10/11|'
  'Test: đề thiếu section listening hoặc có mondaiType lạ vẫn bị lỗi|Test: đề trộn N3 sinh đúng số câu tham chiếu|Test: chấm điểm đề gốc dùng số câu thật',
  'pnpm test',contracts='API',grants='apps/api/src/modules/scoring/ apps/api/src/modules/import/ docs/import-format/')
+# Official blueprints for N1–N5 were added on 2026-10-20, including two N4/N5 versions (before and after the
+# December 2020 change). Several blueprints per level are now active, so "the active blueprint" is ambiguous.
+task('I22','W2',8,1,'Chọn đúng blueprint hiện hành khi một cấp độ có nhiều blueprint','I16',
+ 'getActiveBlueprintByLevel (blueprint.service.ts) và truy vấn blueprint trong mix.service.ts / practice.service.ts chỉ lọc status active và sắp theo version, '
+ 'nên khi một cấp có blueprint synthetic demo, blueprint chính thức 2010 (jlpt-n5-2010) và 2020 (jlpt-n5-2020) cùng version 1 thì kết quả không xác định. '
+ 'Sửa: blueprint hiện hành của một cấp = active, ưu tiên kind official hơn synthetic, rồi effectiveFrom mới nhất, bỏ bản có effectiveTo đã qua '
+ '(lưu effectiveTo từ dữ liệu tạo blueprint; thêm cột nếu chưa có, kèm migration). Đề trộn, đề luyện và chấm điểm dùng blueprint hiện hành; '
+ 'đề gốc vẫn dùng đúng blueprintRef {id, version} ghi trong gói. Trang quản trị bản thiết kế đề hiện rõ bản nào đang là hiện hành của từng cấp.',
+ 'apps/api/src/modules/blueprint/|apps/api/src/modules/exam/',
+ 'Test: N5 có synthetic + jlpt-n5-2010 + jlpt-n5-2020 cùng active -> hiện hành là jlpt-n5-2020|Test: đề gốc N5 12/2019 gắn jlpt-n5-2010 vẫn chấm theo bản 2010|Test: đề trộn N5 dùng số câu của bản 2020',
+ 'pnpm test',contracts='API',grants='apps/api/src/db/ apps/admin/')
 task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I11 I12 I13 I09 I03 I04 I05 I06 I14 I15',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo. Ghi chú của người vận hành (20/10): lần kiểm tra 1 trượt vì chạy pnpm test:e2e:integration thẳng trên VM (thiếu thư viện WebKit, không có stack staging nên API 500, Mailpit 404); lệnh đó đã bỏ khỏi kiểm tra, E2E chạy qua jlpt-stage-test check-all. Không sửa code để chiều các lỗi môi trường đó; chỉ sửa lỗi E2E thật thấy trong jlpt-stage-test check-all.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',

@@ -3972,6 +3972,47 @@
       "originalTaskRefs": []
     },
     {
+      "id": "I22",
+      "owner": "W2",
+      "day": 8,
+      "notBeforeHour": 168,
+      "targetByHour": 192,
+      "estimatedWorkerHours": 1,
+      "title": "Chọn đúng blueprint hiện hành khi một cấp độ có nhiều blueprint",
+      "dependencies": [
+        "I16"
+      ],
+      "featureIds": [],
+      "scope": "getActiveBlueprintByLevel (blueprint.service.ts) và truy vấn blueprint trong mix.service.ts / practice.service.ts chỉ lọc status active và sắp theo version, nên khi một cấp có blueprint synthetic demo, blueprint chính thức 2010 (jlpt-n5-2010) và 2020 (jlpt-n5-2020) cùng version 1 thì kết quả không xác định. Sửa: blueprint hiện hành của một cấp = active, ưu tiên kind official hơn synthetic, rồi effectiveFrom mới nhất, bỏ bản có effectiveTo đã qua (lưu effectiveTo từ dữ liệu tạo blueprint; thêm cột nếu chưa có, kèm migration). Đề trộn, đề luyện và chấm điểm dùng blueprint hiện hành; đề gốc vẫn dùng đúng blueprintRef {id, version} ghi trong gói. Trang quản trị bản thiết kế đề hiện rõ bản nào đang là hiện hành của từng cấp.",
+      "outputs": [
+        "apps/api/src/modules/blueprint/",
+        "apps/api/src/modules/exam/"
+      ],
+      "acceptance": [
+        "Test: N5 có synthetic + jlpt-n5-2010 + jlpt-n5-2020 cùng active -> hiện hành là jlpt-n5-2020",
+        "Test: đề gốc N5 12/2019 gắn jlpt-n5-2010 vẫn chấm theo bản 2010",
+        "Test: đề trộn N5 dùng số câu của bản 2020"
+      ],
+      "checks": [
+        "pnpm test"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [
+        "apps/api/src/db/",
+        "apps/admin/"
+      ],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
       "id": "I07",
       "owner": "W6",
       "day": 8,

@@ -64,6 +64,7 @@
       "I19",
       "I20",
       "I21",
+      "I22",
       "L01",
       "L02",
       "L03",
@@ -150,6 +151,7 @@
       "I19",
       "I20",
       "I21",
+      "I22",
       "L01",
       "L02",
       "L03",
@@ -236,6 +238,7 @@
       "I19",
       "I20",
       "I21",
+      "I22",
       "L01",
       "L02",
       "L03",
@@ -271,14 +274,14 @@
       "F07"
     ]
   },
-  "workPackageCount": 84,
+  "workPackageCount": 85,
   "originalV1TaskCount": 106,
   "workerCount": 6,
   "localLinksChecked": 427,
   "errors": [],
   "warnings": [
     "Optimistic schedule exceeds 168h: 233h",
-    "Daily target overruns: I04 +4h, I16 +3h, I17 +6h, I21 +4h, I15 +6h, I18 +7h, I20 +7h, I07 +10h, I19 +8h, D09 +1h, D10 +5h, D05 +8h",
+    "Daily target overruns: I04 +4h, I16 +3h, I17 +6h, I21 +4h, I15 +6h, I18 +7h, I20 +7h, I07 +10h, I19 +8h, I22 +9h, D09 +1h, D10 +5h, D05 +8h",
     "Work duration estimates are speculative and exclude independent review, repair loops, provider waits and complete build contention.",
     "Application requirements remain TODO; twelve source requirements are manual preparation outside the product, not implemented features.",
     "Coding accounts quota/usage permission and external service readiness are not verified.",
@@ -368,6 +371,15 @@
         "finishHour": 200,
         "targetByHour": 192,
         "lateToDailyTargetHours": 8
+      },
+      {
+        "taskId": "I22",
+        "worker": "W2",
+        "plannedDay": 8,
+        "startHour": 200,
+        "finishHour": 201,
+        "targetByHour": 192,
+        "lateToDailyTargetHours": 9
       },
       {
         "taskId": "D09",
@@ -1036,6 +1048,15 @@
         "finishHour": 203,
         "targetByHour": 216,
         "lateToDailyTargetHours": 0
+      },
+      {
+        "taskId": "I22",
+        "worker": "W2",
+        "plannedDay": 8,
+        "startHour": 200,
+        "finishHour": 201,
+        "targetByHour": 192,
+        "lateToDailyTargetHours": 9
       },
       {
         "taskId": "D04",
