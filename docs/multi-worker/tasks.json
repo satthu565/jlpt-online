@@ -4317,6 +4317,170 @@
       "originalTaskRefs": []
     },
     {
+      "id": "D08",
+      "owner": "W3",
+      "day": 9,
+      "notBeforeHour": 192,
+      "targetByHour": 216,
+      "estimatedWorkerHours": 4,
+      "title": "Web: khung trang và các trang chính theo shadcn/ui",
+      "dependencies": [
+        "D06"
+      ],
+      "featureIds": [],
+      "scope": "Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy (ví dụ width của thanh tiến độ) có comment \"ui-allow-style\". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi. Phạm vi: khung trang (header, menu điện thoại, footer, nav-shell), trang chủ, thư viện đề, phòng thi, trang cấp độ/SEO, đăng nhập/đăng ký, trang thông tin. Thêm lucide-react vào @jlpt/ui, thêm PageHeader và EmptyState dùng chung; mở rộng pnpm check:ui-primitives đếm style={{ trong apps/web theo baseline giảm dần (ratchet).",
+      "outputs": [
+        "apps/web/app/page.tsx",
+        "apps/web/app/layout.tsx",
+        "apps/web/app/nav-shell.tsx",
+        "apps/web/app/globals.css",
+        "apps/web/app/(auth)/",
+        "apps/web/app/(exam)/",
+        "apps/web/app/(info)/",
+        "apps/web/app/(library)/",
+        "apps/web/app/(seo)/",
+        "apps/web/features/exam/",
+        "apps/web/features/library/",
+        "packages/ui/"
+      ],
+      "acceptance": [
+        "Các trang trong phạm vi không còn style={{}} viết tay",
+        "Ảnh trước/sau 390/1366px trong docs/release/",
+        "check:ui-primitives đếm inline style và chặn tăng",
+        "Lighthouse trên staging CI không giảm so với số đo trước đợt (máy tính hiệu năng ≥98, điện thoại ≥70, trợ năng ≥95, SEO 100); ảnh chụp 390px và 1366px của các trang đã đổi lưu làm artifact"
+      ],
+      "checks": [
+        "pnpm test:web",
+        "pnpm check:ui-primitives",
+        "pnpm check:no-mock-ui",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [
+        "tests/playwright/",
+        "docs/release/"
+      ],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
+      "id": "D09",
+      "owner": "W3",
+      "day": 9,
+      "notBeforeHour": 192,
+      "targetByHour": 216,
+      "estimatedWorkerHours": 4,
+      "title": "Web: trang học tập, luyện tập, kế hoạch, kết quả theo shadcn/ui",
+      "dependencies": [
+        "D08"
+      ],
+      "featureIds": [],
+      "scope": "Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy (ví dụ width của thanh tiến độ) có comment \"ui-allow-style\". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi. Phạm vi: sổ tay, flashcard/SRS, luyện tập, kế hoạch học, kết quả bài thi, thống kê, kho từ vựng/ngữ pháp.",
+      "outputs": [
+        "apps/web/app/(learning)/",
+        "apps/web/app/(practice)/",
+        "apps/web/app/(planner)/",
+        "apps/web/app/(results)/",
+        "apps/web/app/(corpus)/",
+        "apps/web/app/(analytics)/",
+        "apps/web/features/learning/",
+        "apps/web/features/practice/",
+        "apps/web/features/planner/",
+        "apps/web/features/results/",
+        "apps/web/features/corpus/",
+        "apps/web/features/analytics/"
+      ],
+      "acceptance": [
+        "Các trang trong phạm vi không còn style={{}} viết tay",
+        "Ảnh trước/sau 390/1366px trong docs/release/",
+        "Lighthouse trên staging CI không giảm so với số đo trước đợt (máy tính hiệu năng ≥98, điện thoại ≥70, trợ năng ≥95, SEO 100); ảnh chụp 390px và 1366px của các trang đã đổi lưu làm artifact"
+      ],
+      "checks": [
+        "pnpm test:web",
+        "pnpm check:ui-primitives",
+        "pnpm check:no-mock-ui",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [
+        "tests/playwright/",
+        "docs/release/"
+      ],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
+      "id": "D10",
+      "owner": "W3",
+      "day": 9,
+      "notBeforeHour": 192,
+      "targetByHour": 216,
+      "estimatedWorkerHours": 4,
+      "title": "Web: tài khoản, gói học, lớp học, cộng đồng theo shadcn/ui",
+      "dependencies": [
+        "D08"
+      ],
+      "featureIds": [],
+      "scope": "Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy (ví dụ width của thanh tiến độ) có comment \"ui-allow-style\". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi. Phạm vi: tài khoản và cài đặt, gói học/thanh toán, lớp học, cộng đồng/thảo luận, chia sẻ, lời giải, huy hiệu, AI, đề trộn.",
+      "outputs": [
+        "apps/web/app/(account)/",
+        "apps/web/app/(billing)/",
+        "apps/web/app/(classroom)/",
+        "apps/web/app/(community)/",
+        "apps/web/app/(share)/",
+        "apps/web/features/account/",
+        "apps/web/features/billing/",
+        "apps/web/features/classroom/",
+        "apps/web/features/community/",
+        "apps/web/features/explanations/",
+        "apps/web/features/gamification/",
+        "apps/web/features/ai/",
+        "apps/web/features/mix/"
+      ],
+      "acceptance": [
+        "Các trang trong phạm vi không còn style={{}} viết tay",
+        "Ảnh trước/sau 390/1366px trong docs/release/",
+        "Lighthouse trên staging CI không giảm so với số đo trước đợt (máy tính hiệu năng ≥98, điện thoại ≥70, trợ năng ≥95, SEO 100); ảnh chụp 390px và 1366px của các trang đã đổi lưu làm artifact"
+      ],
+      "checks": [
+        "pnpm test:web",
+        "pnpm check:ui-primitives",
+        "pnpm check:no-mock-ui",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [
+        "tests/playwright/",
+        "docs/release/"
+      ],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
       "id": "D05",
       "owner": "W6",
       "day": 9,
@@ -4329,7 +4493,10 @@
         "D03",
         "D04",
         "D06",
-        "D07"
+        "D07",
+        "D08",
+        "D09",
+        "D10"
       ],
       "featureIds": [],
       "scope": "Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau. E2E tích hợp chạy qua jlpt-stage-test check-all; Lighthouse chạy trong CI staging trên GitHub (không chạy thẳng trên VM).",

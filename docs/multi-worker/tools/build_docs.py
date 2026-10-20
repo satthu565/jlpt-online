@@ -632,7 +632,29 @@ task('D07','W4',9,1,'Admin: bỏ mã tính năng nội bộ khỏi giao diện',
  'apps/admin/',
  'Không trang quản trị nào hiện mã dạng (ADM-01) ở vi/ja/en|'+NO_REGRESS,
  'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/')
-task('D05','W6',9,3,'Nghiệm thu giao diện thống nhất và hiệu năng','D02 D03 D04 D06 D07',
+# Owner review (2026-10-20): student pages still look like the old UI. D02 swapped raw controls for
+# @jlpt/ui primitives but kept page layouts: 661 inline style={{}} in 53/125 apps/web files, emoji icons,
+# native selects. Admin (D03) has none. Restyle apps/web for real, in three disjoint path groups.
+SHADCN = ('Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, '
+ 'icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy '
+ '(ví dụ width của thanh tiến độ) có comment "ui-allow-style". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi.')
+task('D08','W3',9,4,'Web: khung trang và các trang chính theo shadcn/ui','D06',
+ SHADCN+' Phạm vi: khung trang (header, menu điện thoại, footer, nav-shell), trang chủ, thư viện đề, phòng thi, trang cấp độ/SEO, đăng nhập/đăng ký, trang thông tin. '
+ 'Thêm lucide-react vào @jlpt/ui, thêm PageHeader và EmptyState dùng chung; mở rộng pnpm check:ui-primitives đếm style={{ trong apps/web theo baseline giảm dần (ratchet).',
+ 'apps/web/app/page.tsx|apps/web/app/layout.tsx|apps/web/app/nav-shell.tsx|apps/web/app/globals.css|apps/web/app/(auth)/|apps/web/app/(exam)/|apps/web/app/(info)/|apps/web/app/(library)/|apps/web/app/(seo)/|apps/web/features/exam/|apps/web/features/library/|packages/ui/',
+ 'Các trang trong phạm vi không còn style={{}} viết tay|Ảnh trước/sau 390/1366px trong docs/release/|check:ui-primitives đếm inline style và chặn tăng|'+NO_REGRESS,
+ 'pnpm test:web|pnpm check:ui-primitives|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ docs/release/')
+task('D09','W3',9,4,'Web: trang học tập, luyện tập, kế hoạch, kết quả theo shadcn/ui','D08',
+ SHADCN+' Phạm vi: sổ tay, flashcard/SRS, luyện tập, kế hoạch học, kết quả bài thi, thống kê, kho từ vựng/ngữ pháp.',
+ 'apps/web/app/(learning)/|apps/web/app/(practice)/|apps/web/app/(planner)/|apps/web/app/(results)/|apps/web/app/(corpus)/|apps/web/app/(analytics)/|apps/web/features/learning/|apps/web/features/practice/|apps/web/features/planner/|apps/web/features/results/|apps/web/features/corpus/|apps/web/features/analytics/',
+ 'Các trang trong phạm vi không còn style={{}} viết tay|Ảnh trước/sau 390/1366px trong docs/release/|'+NO_REGRESS,
+ 'pnpm test:web|pnpm check:ui-primitives|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ docs/release/')
+task('D10','W3',9,4,'Web: tài khoản, gói học, lớp học, cộng đồng theo shadcn/ui','D08',
+ SHADCN+' Phạm vi: tài khoản và cài đặt, gói học/thanh toán, lớp học, cộng đồng/thảo luận, chia sẻ, lời giải, huy hiệu, AI, đề trộn.',
+ 'apps/web/app/(account)/|apps/web/app/(billing)/|apps/web/app/(classroom)/|apps/web/app/(community)/|apps/web/app/(share)/|apps/web/features/account/|apps/web/features/billing/|apps/web/features/classroom/|apps/web/features/community/|apps/web/features/explanations/|apps/web/features/gamification/|apps/web/features/ai/|apps/web/features/mix/',
+ 'Các trang trong phạm vi không còn style={{}} viết tay|Ảnh trước/sau 390/1366px trong docs/release/|'+NO_REGRESS,
+ 'pnpm test:web|pnpm check:ui-primitives|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ docs/release/')
+task('D05','W6',9,3,'Nghiệm thu giao diện thống nhất và hiệu năng','D02 D03 D04 D06 D07 D08 D09 D10',
  'Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau. '
  'E2E tích hợp chạy qua jlpt-stage-test check-all; Lighthouse chạy trong CI staging trên GitHub (không chạy thẳng trên VM).',
  'tests/|.github/|docs/release/',
@@ -684,7 +706,7 @@ task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05 D05',
 
 # Staging E2E on jlpt-vm (same suite as CI) is a required check for tasks that touch the UI or APIs it uses.
 for _t in TASKS:
-    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','I17','I19','I20','D02','D03','D04','D06','D07','P03','P04','P05'}:
+    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','I17','I19','I20','D02','D03','D04','D06','D07','D08','D09','D10','P03','P04','P05'}:
         _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check')
     # Per-task runs cover Chromium + Mobile Safari; final acceptance runs every browser.
     # The integration E2E suite needs the staging stack and browser deps, so it only runs through
