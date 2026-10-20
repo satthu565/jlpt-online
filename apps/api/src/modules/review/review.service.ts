@@ -329,6 +329,12 @@ export class ReviewService {
     decisionDto: ReviewDecisionDto,
     reviewerId: string,
     tx?: DbTx,
+    /**
+     * adminOverride: an admin approving a whole exam in one action (owner decision 2026-10-20, single-operator
+     * phase). Skips only the editor != reviewer rule; the DRAFT_ONLY and missing-answer guards still apply.
+     * Callers must check the admin role and write an audit entry.
+     */
+    opts: { adminOverride?: boolean } = {},
   ): Promise<{ id: string; status: string; reviewedAt: Date }> {
     const db = tx ?? this.dbClient.db;
 
@@ -427,7 +433,9 @@ export class ReviewService {
     }
 
     // 2. Check editor != reviewer
-    const lastEditorId = await this.getLastEditor(targetType, targetId, version);
+    // An explicit admin override records the admin as editor when the editor is unknown.
+    const lastEditorId =
+      (await this.getLastEditor(targetType, targetId, version)) ?? (opts.adminOverride ? reviewerId : null);
 
     // If lastEditorId cannot be determined, strictly reject to preserve 4-eyes integrity
     if (!lastEditorId) {
@@ -437,7 +445,7 @@ export class ReviewService {
     }
 
     // Strictly enforce 4-eyes separation of duties: editor != reviewer
-    if (lastEditorId === reviewerId) {
+    if (lastEditorId === reviewerId && !opts.adminOverride) {
       throw new ForbiddenException(
         'Người duyệt không được là người sửa cuối cùng của nội dung này (tách biệt vai trò editor!=reviewer - Acceptance 3)',
       );
