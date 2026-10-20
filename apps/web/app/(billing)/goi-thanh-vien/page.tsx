@@ -13,8 +13,9 @@ import {
 import { useI18n } from '../../../lib/i18n';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Button } from '@jlpt/ui/components/button';
-import { Card, CardContent } from '@jlpt/ui/components/card';
-import { Spinner } from '@jlpt/ui/components/spinner';
+import { PageHeader } from '@jlpt/ui/components/page-header';
+import { EmptyState } from '@jlpt/ui/components/empty-state';
+import { Gem } from 'lucide-react';
 import Link from 'next/link';
 
 const DEFAULT_PLANS: Plan[] = [
@@ -129,29 +130,21 @@ export default function MembershipPage(): React.JSX.Element {
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4 w-full flex flex-col gap-8">
-      <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto' }}>
-        <h1
-          style={{
-            fontSize: '2.25rem',
-            fontWeight: 800,
-            color: 'var(--text-primary)',
-            margin: '0 0 0.75rem 0',
-          }}
-        >
-          {t('billing.page.title')}
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '1.125rem', margin: 0 }}>
-          {t('billing.page.subtitle')}
-        </p>
+      <div className="text-center max-w-2xl mx-auto">
+        <PageHeader
+          title={t('billing.page.title')}
+          description={t('billing.page.subtitle')}
+          className="border-none pb-0 text-center items-center justify-center"
+        />
       </div>
 
       {subscription && subscription.status === 'active' && (
         <Alert variant="info">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <div>
               <strong>Gói hiện tại của bạn:</strong> {plans.find((p) => p.id === subscription.planId)?.name || subscription.planId} (Đang hoạt động)
               {subscription.currentPeriodEnd && (
-                <span style={{ display: 'block', fontSize: '0.8125rem', marginTop: '0.25rem' }}>
+                <span className="block text-xs mt-1">
                   Hiệu lực đến: {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
                 </span>
               )}
@@ -165,7 +158,7 @@ export default function MembershipPage(): React.JSX.Element {
 
       {error && (
         <Alert variant="error" onClose={() => setError(null)}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <span>{error}</span>
             <Button size="sm" variant="outline" onClick={loadPlans}>
               {t('common.buttons.retry')}
@@ -175,27 +168,27 @@ export default function MembershipPage(): React.JSX.Element {
       )}
 
       {loading && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem 0', alignItems: 'center', gap: '0.75rem' }}>
-          <Spinner size="md" />
-          <span style={{ color: 'var(--text-secondary)' }}>{t('common.status.loading')}</span>
-        </div>
+        <EmptyState
+          variant="loading"
+          title={t('common.status.loading')}
+          description="Đang tải danh sách gói thành viên..."
+          minHeight="sm"
+        />
       )}
 
       {!loading && plans.length === 0 && (
-        <Card>
-          <CardContent style={{ padding: '3.5rem 2rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💎</div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>
-              Hiện chưa có gói thành viên mở bán
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', maxWidth: '500px', margin: '0 auto 1.5rem auto' }}>
-              Hệ thống đang cập nhật bảng giá ưu đãi mới. Trong lúc chờ đợi, bạn vẫn có thể làm thử các đề thi mẫu miễn phí.
-            </p>
+        <EmptyState
+          variant="empty"
+          icon={Gem}
+          title="Hiện chưa có gói thành viên mở bán"
+          description="Hệ thống đang cập nhật bảng giá ưu đãi mới. Trong lúc chờ đợi, bạn vẫn có thể làm thử các đề thi mẫu miễn phí."
+          action={
             <Link href="/de-thi">
               <Button variant="primary">Làm thử đề thi</Button>
             </Link>
-          </CardContent>
-        </Card>
+          }
+          minHeight="md"
+        />
       )}
 
       {plans.length > 0 && (
@@ -209,7 +202,7 @@ export default function MembershipPage(): React.JSX.Element {
 
           {/* Checkout Card for Selected Plan */}
           {selectedPlan && (
-            <div style={{ width: '100%' }}>
+            <div className="w-full">
               <CheckoutCard
                 plan={selectedPlan}
                 onApplyCoupon={handleApplyCoupon}
