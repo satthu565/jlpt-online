@@ -41,6 +41,7 @@ export function EarlySubmitModal({
             onClick={onConfirmSubmit}
             loading={isSubmitting}
             disabled={isSubmitting}
+            data-testid="modal-confirm-submit-btn"
           >
             Xác nhận nộp bài
           </Button>

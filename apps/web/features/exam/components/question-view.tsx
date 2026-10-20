@@ -13,6 +13,7 @@ export interface QuestionViewProps {
   onToggleFlag: () => void;
   fontSize?: JapaneseFontSize;
   showKeyboardHints?: boolean;
+  showFurigana?: boolean;
   className?: string;
 }
 
@@ -24,6 +25,7 @@ export function QuestionView({
   onToggleFlag,
   fontSize = 'base',
   showKeyboardHints = true,
+  showFurigana,
   className = '',
 }: QuestionViewProps): React.JSX.Element {
   const handleOptionClick = (optionIndex: number) => {
@@ -63,14 +65,14 @@ export function QuestionView({
     >
       {/* Passage / Reading material if present */}
       {question.passage && question.passage.length > 0 && (
-        <PassageView passage={question.passage} className="mb-6" />
+        <PassageView passage={question.passage} showFurigana={showFurigana} className="mb-6" />
       )}
 
       {/* Group instructions if present */}
       {question.instructions && question.instructions.length > 0 && (
         <div className="mb-4 text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
           <span className="font-semibold text-slate-700 dark:text-slate-300 mr-2">Hướng dẫn:</span>
-          <RichTextView segments={question.instructions} />
+          <RichTextView segments={question.instructions} showFurigana={showFurigana} />
         </div>
       )}
 
@@ -140,7 +142,7 @@ export function QuestionView({
 
       {/* Question stem with font scaling (EXAM-23) */}
       <div className={`mb-6 ${stemFontSizeClass} font-japanese leading-relaxed text-slate-900 dark:text-slate-100`}>
-        <RichTextView segments={question.stem} />
+        <RichTextView segments={question.stem} showFurigana={showFurigana} />
       </div>
 
       {/* Options list (1..4) */}
@@ -185,7 +187,7 @@ export function QuestionView({
 
               {/* Option rich text content with font scaling (EXAM-23) */}
               <div className={`flex-1 pt-1 font-japanese ${optionFontSizeClass} leading-relaxed`}>
-                <RichTextView segments={opt.content} />
+                <RichTextView segments={opt.content} showFurigana={showFurigana} />
               </div>
             </Button>
           );

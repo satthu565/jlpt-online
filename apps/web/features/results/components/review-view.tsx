@@ -8,7 +8,8 @@ import { ScoreComparisonCard } from './score-comparison-card';
 import { ReviewPalette } from './review-palette';
 import { ReviewQuestionItem } from './review-question-item';
 import { PdfScoreExportButton } from './pdf-score-export-button';
-import { Button, ShareDialog } from '@jlpt/ui';
+import { PacingAnalysisWidget } from './pacing-analysis-widget';
+import { Button, ShareDialog, FuriganaToggle, useFurigana } from '@jlpt/ui';
 import { AiChatAssistant } from '../../ai/components/ai-chat-assistant';
 
 export interface ReviewViewProps {
@@ -24,6 +25,9 @@ export function ReviewView({
 
   const [activeFilter, setActiveFilter] = useState<ReviewFilter>('all');
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [showFurigana] = useFurigana();
+
+  const timeSpentArray = (result.scoring as { timeSpentMs?: number[] }).timeSpentMs || (result as { timeSpentMs?: number[] }).timeSpentMs;
 
   const flatQuestions = useMemo(() => {
     return flattenExamQuestions(snapshot);
@@ -66,24 +70,36 @@ export function ReviewView({
         submittedAt={submittedAt}
       />
 
-      {/* 2. Previous attempt comparison card (SCORE-10) */}
+      {/* 2. Pacing analysis widget (P04: sau bài có phân tích câu tốn thời gian) */}
+      <PacingAnalysisWidget
+        timeSpentMs={timeSpentArray}
+        questions={flatQuestions}
+        level={snapshot.level}
+      />
+
+      {/* 3. Previous attempt comparison card (SCORE-10) */}
       <ScoreComparisonCard
         currentResult={result}
         previousResult={previousResult}
       />
 
-      {/* Action Bar: PDF Score Export & Share Link (SYS-17, SEO-08) */}
+      {/* Action Bar: PDF Score Export, Furigana Toggle & Share Link (SYS-17, SEO-08, P04) */}
       <div
         data-testid="review-actions-bar"
         className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
       >
-        <PdfScoreExportButton
-          result={result}
-          examTitle={snapshot.title}
-          level={snapshot.level}
-          attemptId={attemptId}
-          submittedAt={submittedAt}
-        />
+        <div className="flex items-center gap-3">
+          <PdfScoreExportButton
+            result={result}
+            examTitle={snapshot.title}
+            level={snapshot.level}
+            attemptId={attemptId}
+            submittedAt={submittedAt}
+          />
+
+          {/* Furigana toggle in review mode (P04) */}
+          <FuriganaToggle />
+        </div>
 
         <Button
           type="button"
@@ -96,7 +112,7 @@ export function ReviewView({
         </Button>
       </div>
 
-      {/* 3. Main review section: Questions list + Sticky Palette */}
+      {/* 4. Main review section: Questions list + Sticky Palette */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Questions list (SCORE-07, SCORE-08) */}
         <div className="lg:col-span-8 space-y-6">
@@ -124,6 +140,8 @@ export function ReviewView({
               userAnswer={answers[q.globalIndex] ?? 0}
               correctAnswer={correct[q.globalIndex] ?? 0}
               isFlagged={Boolean(flags[q.globalIndex])}
+              showFurigana={showFurigana}
+              timeSpentMs={timeSpentArray?.[q.globalIndex]}
             />
           ))}
 
