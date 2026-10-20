@@ -6,11 +6,16 @@ const currentDir = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
   resolve: {
-    alias: {
-      '@jlpt/schema': resolve(currentDir, '../../packages/schema/src/index.ts'),
-      '@jlpt/ui': resolve(currentDir, '../../packages/ui/src/index.tsx'),
-      '@jlpt/content-tools': resolve(currentDir, '../../packages/content-tools/src/index.ts'),
-    },
+    alias: [
+      { find: '@jlpt/schema', replacement: resolve(currentDir, '../../packages/schema/src/index.ts') },
+      // Per-component entry points of @jlpt/ui (D04: pages load only the components they use).
+      { find: /^@jlpt\/ui\/components\/(.*)$/, replacement: resolve(currentDir, '../../packages/ui/src/components/$1.tsx') },
+      { find: /^@jlpt\/ui\/tokens$/, replacement: resolve(currentDir, '../../packages/ui/src/tokens.ts') },
+      { find: /^@jlpt\/ui\/theme-context$/, replacement: resolve(currentDir, '../../packages/ui/src/theme-context.tsx') },
+      { find: /^@jlpt\/ui\/utils$/, replacement: resolve(currentDir, '../../packages/ui/src/lib/utils.ts') },
+      { find: /^@jlpt\/ui$/, replacement: resolve(currentDir, '../../packages/ui/src/index.tsx') },
+      { find: '@jlpt/content-tools', replacement: resolve(currentDir, '../../packages/content-tools/src/index.ts') },
+    ],
   },
   oxc: {
     jsx: {

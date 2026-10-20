@@ -1,9 +1,12 @@
 'use client';
 
+import { AlertTriangle, Hourglass, Lock } from 'lucide-react';
 import React, { use, useState, useEffect } from 'react';
 import { ExamApiClient, ExamApiError } from '../../../../features/exam/api/exam-api';
 import { ReviewView, type AttemptReviewData } from '../../../../features/results';
-import { Alert, Button, Card } from '@jlpt/ui';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Button } from '@jlpt/ui/components/button';
+import { Card } from '@jlpt/ui/components/card';
 import type { PublicExamSnapshot } from '@jlpt/schema';
 
 export interface ResultReviewPageProps {
@@ -113,7 +116,7 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto py-20 px-4 text-center text-slate-500" data-testid="review-loading">
-        <div className="animate-spin text-3xl mb-3">⏳</div>
+        <Hourglass className="mx-auto animate-spin mb-3 size-8" aria-hidden="true" />
         Đang tải kết quả và dữ liệu đối chiếu bài thi...
       </div>
     );
@@ -125,7 +128,7 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
       <div className="max-w-2xl mx-auto py-16 px-4" data-testid="review-error">
         <Card className="p-8 border border-slate-200 dark:border-slate-800 text-center">
           <div className="text-4xl mb-3" role="img" aria-label="Cảnh báo quyền xem lại">
-            {errorInfo.code === 'FORBIDDEN' ? '🔒' : '⚠️'}
+            {errorInfo.code === 'FORBIDDEN' ? <Lock className="mx-auto size-10" aria-hidden="true" /> : <AlertTriangle className="mx-auto size-10" aria-hidden="true" />}
           </div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
             {errorInfo.code === 'FORBIDDEN' ? 'Yêu cầu đăng nhập' : 'Không thể xem lại bài thi'}

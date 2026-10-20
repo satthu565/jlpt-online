@@ -1,18 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  Button,
-  Input,
-  Select,
-  Badge,
-  Alert,
-  Modal,
-} from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
+import { Select } from '@jlpt/ui/components/select';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Modal } from '@jlpt/ui/components/modal';
+import { PageHeader } from '@jlpt/ui/components/page-header';
+import { EmptyState } from '@jlpt/ui/components/empty-state';
+import { Laptop, Smartphone } from 'lucide-react';
 import Link from 'next/link';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
@@ -137,8 +135,8 @@ export default function AccountPage(): React.JSX.Element {
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 w-full">
       {!user && (
-        <Alert variant="warning" style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <Alert variant="warning" className="mb-6">
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <span>{t('account.auth.required')}</span>
             <Link href="/dang-nhap?redirect=/tai-khoan">
               <Button size="sm" variant="primary">{t('account.auth.signIn')}</Button>
@@ -146,27 +144,18 @@ export default function AccountPage(): React.JSX.Element {
           </div>
         </Alert>
       )}
-      <div style={{ marginBottom: '2rem' }}>
-        <h1
-          style={{
-            fontSize: '2rem',
-            fontWeight: 800,
-            color: 'var(--text-primary)',
-            margin: '0 0 0.5rem 0',
-          }}
-        >
-          {t('account.title')}
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
-          {t('account.subtitle')}
-        </p>
-      </div>
+
+      <PageHeader
+        title={t('account.title')}
+        description={t('account.subtitle')}
+        className="mb-8"
+      />
 
       {feedback && (
         <Alert
           variant={feedback.type}
           onClose={() => setFeedback(null)}
-          style={{ marginBottom: '1.5rem' }}
+          className="mb-6"
         >
           {feedback.message}
         </Alert>
@@ -176,13 +165,7 @@ export default function AccountPage(): React.JSX.Element {
       <div
         role="tablist"
         aria-label={t('account.tabs.ariaLabel')}
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '0.5rem',
-          borderBottom: '1px solid var(--border-subtle)',
-          marginBottom: '2rem',
-        }}
+        className="flex flex-wrap gap-2 border-b border-[var(--border-subtle)] mb-8"
       >
         <Button
           type="button"
@@ -192,19 +175,11 @@ export default function AccountPage(): React.JSX.Element {
           aria-controls="profile-panel"
           id="profile-tab"
           onClick={() => setActiveTab('profile')}
-          style={{
-            padding: '0.75rem 1.25rem',
-            fontWeight: 600,
-            fontSize: '0.9375rem',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            color: activeTab === 'profile' ? 'var(--color-primary)' : 'var(--text-muted)',
-            borderBottom: activeTab === 'profile' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            marginBottom: '-1px',
-            minHeight: '44px',
-            borderRadius: 0,
-          }}
+          className={`px-5 py-3 font-semibold text-sm border-none bg-transparent cursor-pointer min-h-[44px] rounded-none mb-[-1px] ${
+            activeTab === 'profile'
+              ? 'text-[var(--color-primary)] border-b-2 border-b-[var(--color-primary)]'
+              : 'text-[var(--text-muted)] border-b-2 border-b-transparent hover:text-[var(--text-primary)]'
+          }`}
         >
           {t('account.tabs.profile')}
         </Button>
@@ -217,19 +192,11 @@ export default function AccountPage(): React.JSX.Element {
           aria-controls="notifications-panel"
           id="notifications-tab"
           onClick={() => setActiveTab('notifications')}
-          style={{
-            padding: '0.75rem 1.25rem',
-            fontWeight: 600,
-            fontSize: '0.9375rem',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            color: activeTab === 'notifications' ? 'var(--color-primary)' : 'var(--text-muted)',
-            borderBottom: activeTab === 'notifications' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            marginBottom: '-1px',
-            minHeight: '44px',
-            borderRadius: 0,
-          }}
+          className={`px-5 py-3 font-semibold text-sm border-none bg-transparent cursor-pointer min-h-[44px] rounded-none mb-[-1px] ${
+            activeTab === 'notifications'
+              ? 'text-[var(--color-primary)] border-b-2 border-b-[var(--color-primary)]'
+              : 'text-[var(--text-muted)] border-b-2 border-b-transparent hover:text-[var(--text-primary)]'
+          }`}
         >
           {t('account.tabs.notifications')}
         </Button>
@@ -242,19 +209,11 @@ export default function AccountPage(): React.JSX.Element {
           aria-controls="billing-panel"
           id="billing-tab"
           onClick={() => setActiveTab('billing')}
-          style={{
-            padding: '0.75rem 1.25rem',
-            fontWeight: 600,
-            fontSize: '0.9375rem',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            color: activeTab === 'billing' ? 'var(--color-primary)' : 'var(--text-muted)',
-            borderBottom: activeTab === 'billing' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            marginBottom: '-1px',
-            minHeight: '44px',
-            borderRadius: 0,
-          }}
+          className={`px-5 py-3 font-semibold text-sm border-none bg-transparent cursor-pointer min-h-[44px] rounded-none mb-[-1px] ${
+            activeTab === 'billing'
+              ? 'text-[var(--color-primary)] border-b-2 border-b-[var(--color-primary)]'
+              : 'text-[var(--text-muted)] border-b-2 border-b-transparent hover:text-[var(--text-primary)]'
+          }`}
         >
           {t('account.tabs.billing')}
         </Button>
@@ -267,19 +226,11 @@ export default function AccountPage(): React.JSX.Element {
           aria-controls="sessions-panel"
           id="sessions-tab"
           onClick={() => setActiveTab('sessions')}
-          style={{
-            padding: '0.75rem 1.25rem',
-            fontWeight: 600,
-            fontSize: '0.9375rem',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            color: activeTab === 'sessions' ? 'var(--color-primary)' : 'var(--text-muted)',
-            borderBottom: activeTab === 'sessions' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            marginBottom: '-1px',
-            minHeight: '44px',
-            borderRadius: 0,
-          }}
+          className={`px-5 py-3 font-semibold text-sm border-none bg-transparent cursor-pointer min-h-[44px] rounded-none mb-[-1px] ${
+            activeTab === 'sessions'
+              ? 'text-[var(--color-primary)] border-b-2 border-b-[var(--color-primary)]'
+              : 'text-[var(--text-muted)] border-b-2 border-b-transparent hover:text-[var(--text-primary)]'
+          }`}
         >
           {t('account.tabs.sessions')}
         </Button>
@@ -292,19 +243,11 @@ export default function AccountPage(): React.JSX.Element {
           aria-controls="privacy-panel"
           id="privacy-tab"
           onClick={() => setActiveTab('privacy')}
-          style={{
-            padding: '0.75rem 1.25rem',
-            fontWeight: 600,
-            fontSize: '0.9375rem',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            color: activeTab === 'privacy' ? 'var(--color-primary)' : 'var(--text-muted)',
-            borderBottom: activeTab === 'privacy' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            marginBottom: '-1px',
-            minHeight: '44px',
-            borderRadius: 0,
-          }}
+          className={`px-5 py-3 font-semibold text-sm border-none bg-transparent cursor-pointer min-h-[44px] rounded-none mb-[-1px] ${
+            activeTab === 'privacy'
+              ? 'text-[var(--color-primary)] border-b-2 border-b-[var(--color-primary)]'
+              : 'text-[var(--text-muted)] border-b-2 border-b-transparent hover:text-[var(--text-primary)]'
+          }`}
         >
           {t('account.tabs.privacy')}
         </Button>
@@ -318,17 +261,11 @@ export default function AccountPage(): React.JSX.Element {
               <CardTitle>{t('account.profile.title')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleUpdateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <form onSubmit={handleUpdateProfile} className="flex flex-col gap-6">
                 <div>
                   <label
                     htmlFor="user-email"
-                    style={{
-                      display: 'block',
-                      fontSize: '0.875rem',
-                      fontWeight: 600,
-                      marginBottom: '0.5rem',
-                      color: 'var(--text-primary)',
-                    }}
+                    className="block text-sm font-semibold mb-2 text-[var(--text-primary)]"
                   >
                     {t('account.profile.email')}
                   </label>
@@ -337,9 +274,9 @@ export default function AccountPage(): React.JSX.Element {
                     value={user?.email || ''}
                     disabled
                     aria-readonly="true"
-                    style={{ backgroundColor: 'var(--bg-muted)' }}
+                    className="bg-[var(--bg-muted)]"
                   />
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'block' }}>
+                  <span className="text-xs text-[var(--text-muted)] mt-1 block">
                     {t('account.profile.emailNotice')}
                   </span>
                 </div>
@@ -347,13 +284,7 @@ export default function AccountPage(): React.JSX.Element {
                 <div>
                   <label
                     htmlFor="user-name"
-                    style={{
-                      display: 'block',
-                      fontSize: '0.875rem',
-                      fontWeight: 600,
-                      marginBottom: '0.5rem',
-                      color: 'var(--text-primary)',
-                    }}
+                    className="block text-sm font-semibold mb-2 text-[var(--text-primary)]"
                   >
                     {t('account.profile.name')}
                   </label>
@@ -368,13 +299,7 @@ export default function AccountPage(): React.JSX.Element {
                 <div>
                   <label
                     htmlFor="target-level-select"
-                    style={{
-                      display: 'block',
-                      fontSize: '0.875rem',
-                      fontWeight: 600,
-                      marginBottom: '0.5rem',
-                      color: 'var(--text-primary)',
-                    }}
+                    className="block text-sm font-semibold mb-2 text-[var(--text-primary)]"
                   >
                     {t('account.profile.targetLevel')}
                   </label>
@@ -384,32 +309,23 @@ export default function AccountPage(): React.JSX.Element {
                     onChange={(e) => setTargetLevel(e.target.value as 'N1' | 'N2' | 'N3' | 'N4' | 'N5')}
                     options={levelOptions}
                   />
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'block' }}>
+                  <span className="text-xs text-[var(--text-muted)] mt-1 block">
                     {t('account.profile.targetLevelDesc')}
                   </span>
                 </div>
 
                 {user?.completedExams !== undefined && (
-                  <div
-                    style={{
-                      padding: '1rem',
-                      borderRadius: '8px',
-                      backgroundColor: 'var(--bg-muted)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                  <div className="p-4 rounded-lg bg-[var(--bg-muted)] flex items-center justify-between">
+                    <span className="text-sm font-semibold text-[var(--text-secondary)]">
                       {t('account.profile.completedExams')}
                     </span>
-                    <Badge variant="primary" style={{ fontSize: '1rem', padding: '4px 12px' }}>
+                    <Badge variant="primary" className="text-base px-3 py-1">
                       {user.completedExams} {t('account.profile.completedExamsUnit')}
                     </Badge>
                   </div>
                 )}
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                <div className="flex justify-end mt-4">
                   <Button
                     type="submit"
                     variant="primary"
@@ -449,7 +365,7 @@ export default function AccountPage(): React.JSX.Element {
 
       {/* Tab 3: Billing & Transactions */}
       {activeTab === 'billing' && (
-        <div id="billing-panel" role="tabpanel" aria-labelledby="billing-tab" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div id="billing-panel" role="tabpanel" aria-labelledby="billing-tab" className="flex flex-col gap-6">
           <SubscriptionStatusCard
             subscription={subscription}
             onCancel={async () => {
@@ -475,10 +391,10 @@ export default function AccountPage(): React.JSX.Element {
       {activeTab === 'sessions' && (
         <div id="sessions-panel" role="tabpanel" aria-labelledby="sessions-tab">
           <Card>
-            <CardHeader style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <CardHeader className="flex flex-row justify-between items-center">
               <div>
                 <CardTitle>{t('account.sessions.title')}</CardTitle>
-                <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                <p className="mt-1 mb-0 text-sm text-[var(--text-secondary)]">
                   {t('account.sessions.description')}
                 </p>
               </div>
@@ -496,35 +412,37 @@ export default function AccountPage(): React.JSX.Element {
 
             <CardContent>
               {sessionsLoading ? (
-                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                  {t('common.status.loading')}
-                </div>
+                <EmptyState
+                  variant="loading"
+                  title={t('common.status.loading')}
+                  minHeight="sm"
+                />
               ) : sessions.length === 0 ? (
-                <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem 0' }}>
-                  {t('account.sessions.empty')}
-                </p>
+                <EmptyState
+                  variant="empty"
+                  title={t('account.sessions.empty')}
+                  minHeight="sm"
+                />
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="flex flex-col gap-4">
                   {sessions.map((item) => (
                     <div
                       key={item.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '1rem',
-                        borderRadius: '8px',
-                        border: '1px solid var(--border-subtle)',
-                        backgroundColor: item.isCurrent ? 'var(--bg-muted)' : 'transparent',
-                      }}
+                      className={`flex items-center justify-between p-4 rounded-lg border border-[var(--border-subtle)] ${
+                        item.isCurrent ? 'bg-[var(--bg-muted)]' : 'bg-transparent'
+                      }`}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <span style={{ fontSize: '1.5rem' }}>
-                          {item.userAgent?.includes('Mobile') ? '📱' : '💻'}
+                      <div className="flex items-center gap-4">
+                        <span className="flex size-10 items-center justify-center rounded-lg bg-[var(--bg-muted)] text-[var(--text-muted)]">
+                          {item.userAgent?.includes('Mobile') ? (
+                            <Smartphone className="size-5" />
+                          ) : (
+                            <Laptop className="size-5" />
+                          )}
                         </span>
                         <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <span style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-sm text-[var(--text-primary)]">
                               {item.userAgent || t('account.sessions.defaultBrowser')}
                             </span>
                             {item.isCurrent && (
@@ -533,7 +451,7 @@ export default function AccountPage(): React.JSX.Element {
                               </Badge>
                             )}
                           </div>
-                          <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+                          <span className="text-xs text-[var(--text-muted)]">
                             IP: {item.ipAddress || '127.0.0.1'} • {t('account.sessions.createdAt')}: {new Date(item.createdAt).toLocaleDateString()}
                           </span>
                         </div>

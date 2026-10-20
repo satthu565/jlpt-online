@@ -1,20 +1,22 @@
 'use client';
 
-import React from 'react';
-import {
-  Header,
-  Footer,
-  ThemeToggle,
-  LocaleSwitcher,
-  Button,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  type NavItem,
-} from '@jlpt/ui';
+import { BarChart3, ChevronDown, Globe, History, LogOut, UserRound } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { Header, type NavItem } from '@jlpt/ui/components/header';
+import { Button } from '@jlpt/ui/components/button';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@jlpt/ui/components/dropdown-menu';
 import { useI18n, type Locale } from '../lib/i18n';
 import { useAuth } from '../lib/auth-context';
+
+const ThemeToggle = dynamic(
+  () => import('@jlpt/ui/components/theme-toggle').then((m) => m.ThemeToggle),
+  { ssr: false },
+);
+
+const LocaleSwitcher = dynamic(
+  () => import('@jlpt/ui/components/locale-switcher').then((m) => m.LocaleSwitcher),
+  { ssr: false },
+);
 
 export function NavigationHeader(): React.JSX.Element {
   const { t, locale, setLocale } = useI18n();
@@ -51,7 +53,7 @@ export function NavigationHeader(): React.JSX.Element {
 
   // Account menu with integrated Language & Theme switchers
   const userMenu = user ? (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+    <div className="flex items-center gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -60,11 +62,11 @@ export function NavigationHeader(): React.JSX.Element {
             className="flex items-center gap-1.5 font-semibold text-sm px-3 py-1.5 rounded-lg bg-[var(--bg-muted)] hover:bg-[var(--bg-hover)]"
             aria-label={t('common.nav.account')}
           >
-            <span>👤</span>
-            <span style={{ maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <UserRound className="size-4" aria-hidden="true" />
+            <span className="max-w-[110px] truncate">
               {user.name || user.email.split('@')[0]}
             </span>
-            <span aria-hidden="true" style={{ fontSize: '0.625rem', opacity: 0.7 }}>▼</span>
+            <ChevronDown className="size-3.5 opacity-70" aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-60 p-2 space-y-2">
@@ -73,19 +75,19 @@ export function NavigationHeader(): React.JSX.Element {
           </div>
           <DropdownMenuItem asChild>
             <a href="/tai-khoan" className="flex items-center gap-2 cursor-pointer w-full text-sm">
-              <span>👤</span>
+              <UserRound className="size-4" aria-hidden="true" />
               <span>{t('common.nav.account')}</span>
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <a href="/lich-su" className="flex items-center gap-2 cursor-pointer w-full text-sm">
-              <span>📊</span>
+              <History className="size-4" aria-hidden="true" />
               <span>{t('common.nav.examHistory')}</span>
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <a href="/thong-ke" className="flex items-center gap-2 cursor-pointer w-full text-sm">
-              <span>📈</span>
+              <BarChart3 className="size-4" aria-hidden="true" />
               <span>{t('common.nav.analytics')}</span>
             </a>
           </DropdownMenuItem>
@@ -126,21 +128,21 @@ export function NavigationHeader(): React.JSX.Element {
             className="text-red-600 focus:text-red-700 cursor-pointer flex items-center gap-2 w-full text-sm font-medium"
             aria-label={t('common.nav.logout')}
           >
-            <span>🚪</span>
+            <LogOut className="size-4" aria-hidden="true" />
             <span>{t('common.nav.logout')}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
   ) : (
-    <div className="header-auth-buttons" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+    <div className="header-auth-buttons flex items-center gap-1.5">
       <Button variant="ghost" size="sm" asChild>
-        <a href="/dang-nhap" style={{ textDecoration: 'none' }}>
+        <a className="no-underline" href="/dang-nhap">
           {t('common.nav.login')}
         </a>
       </Button>
       <Button variant="primary" size="sm" asChild>
-        <a href="/dang-ky" style={{ textDecoration: 'none' }}>
+        <a className="no-underline" href="/dang-ky">
           {t('common.nav.register')}
         </a>
       </Button>
@@ -152,7 +154,7 @@ export function NavigationHeader(): React.JSX.Element {
             className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300"
             aria-label={t('locale.select') || 'Cài đặt giao diện và ngôn ngữ'}
           >
-            <span aria-hidden="true" style={{ fontSize: '1.1rem' }}>🌐</span>
+            <Globe className="size-[1.1rem]" aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56 p-2 space-y-2">
@@ -202,51 +204,3 @@ export function NavigationHeader(): React.JSX.Element {
   );
 }
 
-export function NavigationFooter(): React.JSX.Element {
-  const { t, locale, setLocale } = useI18n();
-
-  const footerLinks = [
-    { label: t('common.footer.about'), href: '/gioi-thieu' },
-    { label: t('common.footer.levels'), href: '/n3' },
-    { label: t('common.footer.vocabAndGrammar'), href: '/tu-vung' },
-    { label: t('common.footer.vocabStats'), href: '/thong-ke-tu-vung' },
-    { label: t('common.footer.schedules'), href: '/lich-thi' },
-    { label: t('common.footer.faq'), href: '/faq' },
-    { label: t('common.footer.technicalSupport'), href: '/ho-tro' },
-    { label: t('common.footer.terms'), href: '/dieu-khoan' },
-    { label: t('common.footer.privacy'), href: '/chinh-sach' },
-    { label: t('common.footer.contact'), href: '/lien-he' },
-  ];
-
-  return (
-    <Footer
-      brandName={t('common.brand')}
-      tagline={t('common.tagline')}
-      links={footerLinks}
-      copyright={t('common.footer.copyright')}
-      a11yNotice={t('common.footer.accessibilityNotice')}
-      localeControl={
-        <LocaleSwitcher
-          currentLocale={locale}
-          onLocaleChange={(newLoc: Locale) => setLocale(newLoc)}
-          labels={{
-            selectLanguage: t('locale.select'),
-            vi: t('locale.vi'),
-            ja: t('locale.ja'),
-            en: t('locale.en'),
-          }}
-        />
-      }
-      themeControl={
-        <ThemeToggle
-          labels={{
-            toggleTheme: t('theme.toggle'),
-            light: t('theme.light'),
-            dark: t('theme.dark'),
-            system: t('theme.system'),
-          }}
-        />
-      }
-    />
-  );
-}

@@ -1,6 +1,10 @@
+import { BookOpen, Target } from 'lucide-react';
 import React from 'react';
 import type { Metadata } from 'next';
-import { Card, Badge, Button, JsonLd } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Button } from '@jlpt/ui/components/button';
+import { JsonLd } from '@jlpt/ui/components/json-ld';
 
 export const metadata: Metadata = {
   title: 'Giới thiệu Nền tảng Luyện thi JLPT Online Chuẩn Quốc tế',
@@ -30,7 +34,7 @@ export default function AboutPage(): React.JSX.Element {
 
       {/* Breadcrumbs */}
       <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
+        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
         <span className="text-slate-900 dark:text-slate-100 font-semibold">Giới thiệu</span>
       </nav>
 
@@ -58,14 +62,14 @@ export default function AboutPage(): React.JSX.Element {
         </p>
 
         <div className="pt-4 flex flex-wrap gap-3">
-          <a href="/n3" style={{ textDecoration: 'none' }}>
+          <a className="no-underline" href="/n3">
             <Button variant="primary" size="md">
-              🎯 Khám phá cấp độ JLPT N3
+              <Target className="size-4" aria-hidden="true" /> Khám phá cấp độ JLPT N3
             </Button>
           </a>
-          <a href="/de-thi" style={{ textDecoration: 'none' }}>
+          <a className="no-underline" href="/de-thi">
             <Button variant="outline" size="md">
-              📚 Xem thư viện đề thi
+              <BookOpen className="size-4" aria-hidden="true" /> Xem thư viện đề thi
             </Button>
           </a>
         </div>

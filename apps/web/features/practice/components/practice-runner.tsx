@@ -1,9 +1,14 @@
 'use client';
 
+import { PartyPopper } from 'lucide-react';
 import React, { useState, useRef } from 'react';
 import type { PublicExamSnapshot } from '@jlpt/schema';
 import { flattenExamQuestions } from '../../exam/utils/flatten-questions';
-import { RichTextView, PassageView, Button, Alert, FuriganaToggle, useFurigana } from '@jlpt/ui';
+import { RichTextView } from '@jlpt/ui/components/rich-text-view';
+import { PassageView } from '@jlpt/ui/components/rich-block-view';
+import { Button } from '@jlpt/ui/components/button';
+import { Alert } from '@jlpt/ui/components/alert';
+import { FuriganaToggle, useFurigana } from '@jlpt/ui/components/furigana-toggle';
 import { ExplanationView } from '../../explanations/components/explanation-view';
 import type { LearnerExplanation } from '../../explanations/types';
 import type { ExamApiClient } from '../../exam';
@@ -206,7 +211,7 @@ export function PracticeRunner({
         data-testid="practice-session-complete"
         className={`bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 text-center space-y-6 shadow-sm ${className}`}
       >
-        <div className="text-4xl">🎉</div>
+        <PartyPopper className="mx-auto size-10" aria-hidden="true" />
         <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
           Hoàn thành buổi luyện tập!
         </h2>
@@ -367,7 +372,7 @@ export function PracticeRunner({
         })}
       </div>
 
-      {/* Check Answer Action (PRA-10) */}
+      {/* Check Answer Action */}
       {!isChecked && (
         <div className="pt-2 flex justify-end">
           <Button
@@ -379,7 +384,7 @@ export function PracticeRunner({
             onClick={handleCheckAnswer}
             data-testid="practice-check-answer-btn"
           >
-            {isChecking ? 'Đang kiểm tra...' : 'Kiểm tra đáp án ngay (PRA-10)'}
+            {isChecking ? 'Đang kiểm tra...' : 'Kiểm tra đáp án ngay'}
           </Button>
         </div>
       )}
@@ -395,7 +400,7 @@ export function PracticeRunner({
                 : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
             }`}
           >
-            <span>{isCorrect ? '✅ Chính xác! Bạn đã chọn đúng.' : '❌ Chưa chính xác. Hãy xem lời giải chi tiết bên dưới.'}</span>
+            <span>{isCorrect ? 'Chính xác! Bạn đã chọn đúng.' : 'Chưa chính xác. Hãy xem lời giải chi tiết bên dưới.'}</span>
           </div>
 
           <ExplanationView

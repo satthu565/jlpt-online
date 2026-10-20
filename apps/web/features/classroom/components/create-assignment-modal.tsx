@@ -1,7 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Modal, Button, Input, Select, Alert } from '@jlpt/ui';
+import { Modal } from '@jlpt/ui/components/modal';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
+import { Select } from '@jlpt/ui/components/select';
+import { Alert } from '@jlpt/ui/components/alert';
 import type { ClassMember, CreateAssignmentInput } from '../types';
 import { useI18n } from '../../../lib/i18n';
 
@@ -69,7 +73,7 @@ export function CreateAssignmentModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={t('classroom.assignment.modalTitle')}>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {error && (
           <Alert variant="error" onClose={() => setError(null)}>
             {error}
@@ -77,7 +81,7 @@ export function CreateAssignmentModal({
         )}
 
         <div>
-          <label htmlFor="assign-title-input" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 600 }}>
+          <label htmlFor="assign-title-input" className="block mb-1 font-semibold text-sm">
             {t('classroom.assignment.titleLabel')} *
           </label>
           <Input
@@ -91,7 +95,7 @@ export function CreateAssignmentModal({
         </div>
 
         <div>
-          <label htmlFor="assign-exam-select" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 600 }}>
+          <label htmlFor="assign-exam-select" className="block mb-1 font-semibold text-sm">
             {t('classroom.assignment.examLabel')}
           </label>
           <Select
@@ -107,9 +111,9 @@ export function CreateAssignmentModal({
           />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="assign-opens-at" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 600 }}>
+            <label htmlFor="assign-opens-at" className="block mb-1 font-semibold text-sm">
               {t('classroom.assignment.opensAtLabel')}
             </label>
             <Input
@@ -122,7 +126,7 @@ export function CreateAssignmentModal({
           </div>
 
           <div>
-            <label htmlFor="assign-due-at" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 600 }}>
+            <label htmlFor="assign-due-at" className="block mb-1 font-semibold text-sm">
               {t('classroom.assignment.dueAtLabel')}
             </label>
             <Input
@@ -136,7 +140,7 @@ export function CreateAssignmentModal({
         </div>
 
         <div>
-          <label htmlFor="assign-scope-select" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 600 }}>
+          <label htmlFor="assign-scope-select" className="block mb-1 font-semibold text-sm">
             {t('classroom.assignment.targetScope')}
           </label>
           <Select
@@ -151,40 +155,26 @@ export function CreateAssignmentModal({
         </div>
 
         {targetScope === 'custom' && (
-          <div
-            style={{
-              maxHeight: '180px',
-              overflowY: 'auto',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '6px',
-              padding: '0.5rem',
-            }}
-          >
+          <div className="max-h-44 overflow-y-auto border border-[var(--border-subtle)] rounded-md p-2">
             {members.map((m) => (
               <label
                 key={m.userId}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  padding: '0.375rem 0.5rem',
-                  cursor: 'pointer',
-                }}
+                className="flex items-center gap-2 p-1.5 cursor-pointer hover:bg-[var(--bg-muted)] rounded"
               >
                 <Input
                   type="checkbox"
                   checked={selectedLearnerIds.includes(m.userId)}
                   onChange={() => toggleLearner(m.userId)}
                   aria-label={m.name || m.email}
-                  className="h-4 w-4 min-h-0 cursor-pointer"
+                  className="size-4 min-h-0 cursor-pointer"
                 />
-                <span style={{ fontSize: '0.875rem' }}>{m.name || m.email}</span>
+                <span className="text-sm">{m.name || m.email}</span>
               </label>
             ))}
           </div>
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
+        <div className="flex justify-end gap-3 mt-4">
           <Button type="button" variant="outline" onClick={onClose}>
             {t('common.buttons.cancel')}
           </Button>

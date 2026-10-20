@@ -1,8 +1,11 @@
 'use client';
 
+import { Star } from 'lucide-react';
 import React from 'react';
 import type { ExamWithUserStatus } from '../types';
-import { Card, Badge, Button } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface ExamCardProps {
   exam: ExamWithUserStatus;
@@ -109,7 +112,7 @@ export function ExamCard({
               </span>
             )}
 
-            {/* Favorite Star Button (LIB-11) */}
+            {/* Favorite Star Button */}
             <Button
               type="button"
               variant="ghost"
@@ -123,7 +126,7 @@ export function ExamCard({
                   : 'text-slate-400 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
-              {favorite ? '★' : '☆'}
+              <Star className={favorite ? 'size-4 fill-current' : 'size-4'} aria-hidden="true" />
             </Button>
 
             {renderStatusBadge()}
@@ -135,23 +138,23 @@ export function ExamCard({
           {exam.title}
         </h3>
 
-        {/* User Stats: Best Score (LIB-09) and Attempts count (LIB-10) */}
+        {/* User Stats: Best Score and Attempts count */}
         <div className="grid grid-cols-2 gap-2 text-xs mb-3 p-2 bg-blue-50/60 dark:bg-slate-800/60 rounded-xl border border-blue-100 dark:border-slate-800">
           <div data-testid="exam-card-best-score">
-            <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Điểm cao nhất (LIB-09):</span>
+            <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Điểm cao nhất:</span>
             <strong className="text-slate-900 dark:text-slate-100 font-mono">
               {exam.bestScore !== undefined && exam.bestScore !== null ? `${exam.bestScore} / 180` : 'Chưa có điểm'}
             </strong>
           </div>
           <div data-testid="exam-card-attempts">
-            <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Số lần đã làm (LIB-10):</span>
+            <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Số lần đã làm:</span>
             <strong className="text-slate-900 dark:text-slate-100 font-mono">
               {exam.attemptsCount !== undefined ? `${exam.attemptsCount} lần` : '0 lần'}
             </strong>
           </div>
         </div>
 
-        {/* Exam stats: Question count, Duration, Sections (LIB-07) */}
+        {/* Exam stats: Question count, Duration, Sections */}
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400 mb-4 bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
           <div>
             Số câu: <strong className="text-slate-900 dark:text-slate-100">{exam.totalQuestions} câu</strong>
@@ -164,7 +167,7 @@ export function ExamCard({
           </div>
         </div>
 
-        {/* Sections Breakdown (LIB-07) */}
+        {/* Sections Breakdown */}
         <div className="space-y-1 mb-4 text-xs">
           {exam.sections.map((sec, idx) => (
             <div key={idx} className="flex justify-between text-slate-600 dark:text-slate-400">
@@ -174,7 +177,7 @@ export function ExamCard({
           ))}
         </div>
 
-        {/* Source attribution and License details (LIB-15) */}
+        {/* Source attribution and License details */}
         <div className="pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 space-y-0.5 mb-4">
           {exam.sourceLabel && (
             <div>

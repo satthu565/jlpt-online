@@ -1,18 +1,14 @@
 'use client';
 
+import { Check, Download, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
 import React, { useState } from 'react';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  Button,
-  Input,
-  Select,
-  Badge,
-  Alert,
-  Modal,
-} from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
+import { Select } from '@jlpt/ui/components/select';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Modal } from '@jlpt/ui/components/modal';
 import type {
   NotebookItem,
   NotebookItemKind,
@@ -148,23 +144,11 @@ export function NotebookView({
   };
 
   return (
-    <div className="notebook-container" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="notebook-container flex flex-col gap-6">
       {/* Controls & Filter Bar */}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '1rem',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '1.25rem',
-          backgroundColor: 'var(--bg-card)',
-          borderRadius: '8px',
-          border: '1px solid var(--border-subtle)',
-        }}
-      >
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center', flex: 1 }}>
-          <div style={{ minWidth: '220px', flex: '1 1 200px' }}>
+      <div className="flex flex-wrap gap-4 items-center justify-between p-5 bg-[var(--bg-card)] rounded-[8px] border border-[var(--border-subtle)]">
+        <div className="flex flex-wrap gap-3 items-center flex-1">
+          <div className="min-w-[220px] flex-[1_1_200px]">
             <Input
               id="notebook-search"
               aria-label={t('notebook.filters.searchLabel')}
@@ -174,7 +158,7 @@ export function NotebookView({
             />
           </div>
 
-          <div style={{ width: '140px' }}>
+          <div className="w-[140px]">
             <Select
               id="notebook-kind-filter"
               aria-label={t('notebook.filters.kindLabel')}
@@ -189,7 +173,7 @@ export function NotebookView({
             />
           </div>
 
-          <div style={{ width: '160px' }}>
+          <div className="w-[160px]">
             <Select
               id="notebook-mastered-filter"
               aria-label={t('notebook.filters.statusLabel')}
@@ -204,14 +188,14 @@ export function NotebookView({
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div className="flex gap-3 items-center">
           <Button
             variant="outline"
             onClick={() => onExportCsv(filterKind === 'all' ? undefined : (filterKind as NotebookItemKind))}
             aria-label={t('notebook.actions.exportCsv')}
             data-testid="export-csv-button"
           >
-            📥 {t('notebook.actions.exportCsv')}
+            <Download className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.actions.exportCsv')}
           </Button>
 
           <Button
@@ -226,8 +210,8 @@ export function NotebookView({
       </div>
 
       {/* Items Count Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9375rem' }}>
+      <div className="flex justify-between items-center">
+        <p className="m-0 text-[var(--text-secondary)] text-[0.9375rem]">
           {t('notebook.countSummary', { count: String(filteredItems.length), total: String(totalCount) })}
         </p>
       </div>
@@ -235,12 +219,12 @@ export function NotebookView({
       {/* Empty State */}
       {!loading && filteredItems.length === 0 && (
         <Card>
-          <CardContent style={{ padding: '3rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📓</div>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>
+          <CardContent className="p-12 text-center">
+            <NotebookPen className="mx-auto mb-4 size-10" aria-hidden="true" />
+            <h3 className="mt-0 mx-0 mb-2 text-[var(--text-primary)]">
               {t('notebook.empty.title')}
             </h3>
-            <p style={{ color: 'var(--text-secondary)', margin: '0 0 1.5rem 0' }}>
+            <p className="text-[var(--text-secondary)] mt-0 mx-0 mb-6">
               {t('notebook.empty.description')}
             </p>
             <Button variant="primary" onClick={() => setIsAddModalOpen(true)}>
@@ -251,41 +235,32 @@ export function NotebookView({
       )}
 
       {/* Items List */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
         {filteredItems.map((item) => (
           <Card key={item.id} data-testid={`notebook-item-${item.id}`}>
-            <CardHeader style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <CardHeader className="flex justify-between items-start">
               <div>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.25rem' }}>
+                <div className="flex gap-2 items-center mb-1">
                   <Badge variant={kindBadgeVariant(item.kind)}>
                     {t(`notebook.kinds.${item.kind}`)}
                   </Badge>
                   {item.mastered && (
-                    <Badge variant="success">✓ {t('notebook.status.mastered')}</Badge>
+                    <Badge variant="success"><Check className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.status.mastered')}</Badge>
                   )}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <CardTitle style={{ fontSize: '1.25rem', margin: '0.25rem 0 0 0' }}>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <CardTitle className="text-xl mt-1 mx-0 mb-0">
                     {item.term}
                   </CardTitle>
                   {item.hanViet && (
-                    <span
+                    <span className="text-xs font-semibold py-[2px] px-[6px] rounded-[4px] bg-[rgba(245,158,11,0.15)] text-[#b45309] inline-block"
                       data-testid="notebook-item-hanviet"
-                      style={{
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        backgroundColor: 'rgba(245, 158, 11, 0.15)',
-                        color: '#b45309',
-                        display: 'inline-block',
-                      }}
                     >
                       {item.hanViet}
                     </span>
                   )}
                   {item.reading && (
-                    <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                    <span className="text-sm text-[var(--text-muted)]">
                       [{item.reading}]
                     </span>
                   )}
@@ -300,34 +275,27 @@ export function NotebookView({
                   aria-label={t('notebook.actions.playAudio', { term: item.term })}
                   title={t('notebook.actions.playAudio', { term: item.term })}
                 >
-                  🔊
+                  <Volume2 className="size-4" aria-hidden="true" />
                 </Button>
               )}
             </CardHeader>
 
             <CardContent>
-              <p style={{ margin: '0 0 0.75rem 0', fontWeight: 500, color: 'var(--text-primary)' }}>
+              <p className="mt-0 mx-0 mb-3 font-medium text-[var(--text-primary)]">
                 {item.meaning}
               </p>
 
               {item.notes && (
-                <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', margin: '0 0 0.75rem 0', fontStyle: 'italic' }}>
-                  💡 {item.notes}
+                <p className="text-sm text-[var(--text-secondary)] mt-0 mx-0 mb-3 italic">
+                  <Lightbulb className="inline size-4 align-[-2px]" aria-hidden="true" /> {item.notes}
                 </p>
               )}
 
               {item.tags.length > 0 && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem', marginBottom: '1rem' }}>
+                <div className="flex flex-wrap gap-1 mb-4">
                   {item.tags.map((tag) => (
-                    <span
+                    <span className="text-xs py-[2px] px-[6px] rounded-[4px] bg-[var(--bg-muted)] text-[var(--text-secondary)]"
                       key={tag}
-                      style={{
-                        fontSize: '0.75rem',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        backgroundColor: 'var(--bg-muted)',
-                        color: 'var(--text-secondary)',
-                      }}
                     >
                       #{tag}
                     </span>
@@ -335,16 +303,8 @@ export function NotebookView({
                 </div>
               )}
 
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  paddingTop: '0.75rem',
-                  borderTop: '1px solid var(--border-subtle)',
-                }}
-              >
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div className="flex justify-between items-center pt-3 border-t border-[var(--border-subtle)]">
+                <div className="flex gap-2">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -360,18 +320,17 @@ export function NotebookView({
                     onClick={() => handleOpenExamples(item)}
                     aria-label={t('notebook.actions.viewExamples')}
                   >
-                    🔍 {t('notebook.actions.viewExamples')}
+                    <Search className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.actions.viewExamples')}
                   </Button>
                 </div>
 
-                <Button
+                <Button className="text-[var(--color-error)]"
                   variant="ghost"
                   size="sm"
                   onClick={() => onDeleteItem(item.id)}
                   aria-label={t('notebook.actions.deleteItem', { term: item.term })}
-                  style={{ color: 'var(--color-error)' }}
                 >
-                  🗑️
+                  <Trash2 className="size-4" aria-hidden="true" />
                 </Button>
               </div>
             </CardContent>
@@ -386,7 +345,7 @@ export function NotebookView({
           onClose={() => setIsAddModalOpen(false)}
           title={t('notebook.modal.addTitle')}
         >
-          <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <form className="flex flex-col gap-4" onSubmit={handleCreateSubmit}>
             {formError && (
               <Alert variant="error" onClose={() => setFormError(null)}>
                 {formError}
@@ -394,7 +353,7 @@ export function NotebookView({
             )}
 
             <div>
-              <label htmlFor="modal-kind-select" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 600 }}>
+              <label className="block mb-1 font-semibold" htmlFor="modal-kind-select">
                 {t('notebook.form.kind')}
               </label>
               <Select
@@ -410,7 +369,7 @@ export function NotebookView({
             </div>
 
             <div>
-              <label htmlFor="modal-term-input" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 600 }}>
+              <label className="block mb-1 font-semibold" htmlFor="modal-term-input">
                 {t('notebook.form.term')} *
               </label>
               <Input
@@ -423,7 +382,7 @@ export function NotebookView({
             </div>
 
             <div>
-              <label htmlFor="modal-reading-input" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 600 }}>
+              <label className="block mb-1 font-semibold" htmlFor="modal-reading-input">
                 {t('notebook.form.reading')}
               </label>
               <Input
@@ -435,7 +394,7 @@ export function NotebookView({
             </div>
 
             <div>
-              <label htmlFor="modal-meaning-input" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 600 }}>
+              <label className="block mb-1 font-semibold" htmlFor="modal-meaning-input">
                 {t('notebook.form.meaning')} *
               </label>
               <Input
@@ -448,7 +407,7 @@ export function NotebookView({
             </div>
 
             <div>
-              <label htmlFor="modal-notes-input" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 600 }}>
+              <label className="block mb-1 font-semibold" htmlFor="modal-notes-input">
                 {t('notebook.form.notes')}
               </label>
               <Input
@@ -460,7 +419,7 @@ export function NotebookView({
             </div>
 
             <div>
-              <label htmlFor="modal-tags-input" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 600 }}>
+              <label className="block mb-1 font-semibold" htmlFor="modal-tags-input">
                 {t('notebook.form.tags')}
               </label>
               <Input
@@ -471,7 +430,7 @@ export function NotebookView({
               />
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
+            <div className="flex justify-end gap-3 mt-4">
               <Button type="button" variant="outline" onClick={() => setIsAddModalOpen(false)}>
                 {t('common.buttons.cancel')}
               </Button>
@@ -491,12 +450,12 @@ export function NotebookView({
           title={t('notebook.examples.title', { term: activeItemForExamples.term })}
         >
           <div>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
+            <p className="text-[var(--text-secondary)] mb-5">
               {t('notebook.examples.subtitle', { term: activeItemForExamples.term })}
             </p>
 
             {examplesLoading && (
-              <p style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)' }}>
+              <p className="text-center p-6 text-[var(--text-muted)]">
                 {t('common.status.loading')}
               </p>
             )}
@@ -508,27 +467,21 @@ export function NotebookView({
             )}
 
             {!examplesLoading && examplesList.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '400px', overflowY: 'auto' }}>
+              <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto">
                 {examplesList.map((eg, idx) => (
-                  <div
+                  <div className="p-4 rounded-[6px] bg-[var(--bg-muted)] border border-[var(--border-subtle)]"
                     key={eg.questionId || idx}
-                    style={{
-                      padding: '1rem',
-                      borderRadius: '6px',
-                      backgroundColor: 'var(--bg-muted)',
-                      border: '1px solid var(--border-subtle)',
-                    }}
                   >
-                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <div className="flex gap-2 mb-2">
                       <Badge variant="primary">{eg.level}</Badge>
                       <Badge variant="secondary">{eg.skill}</Badge>
                     </div>
                     {eg.passage && (
-                      <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                      <p className="text-sm text-[var(--text-muted)] mb-2">
                         {eg.passage}
                       </p>
                     )}
-                    <p style={{ margin: 0, fontWeight: 500 }}>
+                    <p className="m-0 font-medium">
                       {eg.stem}
                     </p>
                   </div>
@@ -536,7 +489,7 @@ export function NotebookView({
               </div>
             )}
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
+            <div className="flex justify-end mt-6">
               <Button variant="outline" onClick={() => setActiveItemForExamples(null)}>
                 {t('common.buttons.close')}
               </Button>

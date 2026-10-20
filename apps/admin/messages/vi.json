@@ -140,7 +140,7 @@
     "emptyReconciliation": "Chưa có phiên đối soát nào được ghi nhận."
   },
   "reports": {
-    "hubTitle": "Trung tâm Báo cáo & Phân tích Hệ thống (ADM-17)",
+    "hubTitle": "Trung tâm Báo cáo & Phân tích Hệ thống",
     "hubSubtitle": "Hệ thống theo dõi đầy đủ 15 chỉ số nghiệp vụ từ vận hành, nội dung, người dùng đến thương mại.",
     "revenueTitle": "Báo cáo doanh thu tài chính",
     "revenueSubtitle": "Doanh thu gộp (Gross), tiền hoàn trả (Refunds) và doanh thu thuần (Net) tách theo đơn vị tiền tệ.",
@@ -162,7 +162,7 @@
     "empty": "Chưa có thử nghiệm A/B nào."
   },
   "contentReports": {
-    "title": "Quản lý Báo lỗi Câu hỏi từ Người dùng (ADM-09)",
+    "title": "Quản lý Báo lỗi Câu hỏi từ Người dùng",
     "subtitle": "Kiểm duyệt và xử lý các sự cố nội dung, đáp án và file âm thanh được người học gửi về.",
     "empty": "Không có báo cáo lỗi câu hỏi nào.",
     "resolve": "Duyệt & Giải Quyết",
@@ -179,7 +179,7 @@
       "sourcePage": "Trang nguồn",
       "exportCsv": "Xuất CSV",
       "submitReviewBtn": "Gửi duyệt",
-      "csvToolTitle": "Ngân hàng câu hỏi: Công cụ Import / Export JSON & CSV (PDF-30)",
+      "csvToolTitle": "Ngân hàng câu hỏi: Công cụ Import / Export JSON & CSV",
       "importCsvBtn": "Nạp câu hỏi từ CSV",
       "csvInputLabel": "Dữ liệu CSV nhập:",
       "csvOutputLabel": "Dữ liệu CSV xuất:"
@@ -205,7 +205,7 @@
       "filterLevel": "Lọc cấp độ"
     },
     "mixedExams": {
-      "title": "Quản lý Đề thi Trộn Ngẫu nhiên (ADM-11)",
+      "title": "Quản lý Đề thi Trộn Ngẫu nhiên",
       "subtitle": "Theo dõi và khởi tạo các đề thi được thuật toán trộn tự động theo cấp độ và ma trận kiến thức.",
       "empty": "Chưa có đề trộn nào được khởi tạo.",
       "createBtn": "+ Khởi tạo Đề Trộn Mới",
@@ -228,7 +228,7 @@
       "compareBtn": "Đối chiếu PDF gốc"
     },
     "explanationReviews": {
-      "title": "Kiểm duyệt Lời giải & Bản dịch (ADM-10)",
+      "title": "Kiểm duyệt Lời giải & Bản dịch",
       "subtitle": "Quy tắc kiểm soát chất lượng 2 người: Lời giải và bản dịch tiếng Việt phải được người duyệt độc lập phê duyệt.",
       "empty": "Không có lời giải nào đang chờ duyệt.",
       "approveBtn": "Phê Duyệt",
@@ -244,7 +244,7 @@
       "imageTitle": "Tệp Hình ảnh"
     },
     "vocab": {
-      "title": "Quản lý Từ vựng & Ngữ pháp (ADM-12)",
+      "title": "Quản lý Từ vựng & Ngữ pháp",
       "subtitle": "Từ điển tra cứu, từ vựng theo cấp độ JLPT N1 - N5 phục vụ học tập, SRS flashcards và bài thi.",
       "empty": "Không tìm thấy từ vựng nào phù hợp.",
       "addBtn": "+ Thêm Từ Vựng Mới",
@@ -252,7 +252,7 @@
       "searchPlaceholder": "Tìm theo từ, cách đọc hoặc nghĩa tiếng Việt..."
     },
     "cms": {
-      "title": "Quản trị Nội dung CMS & Bài viết (ADM-13)",
+      "title": "Quản trị Nội dung CMS & Bài viết",
       "subtitle": "Soạn thảo bài viết blog chuẩn SEO, trang đích chiến dịch và quản lý phiên bản nội dung.",
       "empty": "Chưa có bài viết nào được tạo.",
       "listTab": "Danh sách bài viết",
@@ -269,7 +269,7 @@
       "filterLabel": "Chỉ hiển thị yêu cầu bị cảnh báo an toàn"
     },
     "contentReports": {
-      "title": "Quản lý Báo lỗi Câu hỏi từ Người dùng (ADM-09)",
+      "title": "Quản lý Báo lỗi Câu hỏi từ Người dùng",
       "subtitle": "Kiểm duyệt và xử lý các sự cố nội dung, đáp án và file âm thanh được người học gửi về.",
       "empty": "Không có báo cáo lỗi nào.",
       "resolveBtn": "Duyệt & Giải Quyết",

@@ -1,7 +1,12 @@
 'use client';
 
+import { CircleCheck, Headphones, Volume2 } from 'lucide-react';
 import React, { useState } from 'react';
-import { Card, Button, Badge, Alert, JsonLd } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
+import { JsonLd } from '@jlpt/ui/components/json-ld';
 import { useI18n } from '../../../lib/i18n';
 
 export default function SupportCenterPage(): React.JSX.Element {
@@ -53,7 +58,7 @@ export default function SupportCenterPage(): React.JSX.Element {
 
       {/* Breadcrumbs */}
       <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
+        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
         <span className="text-slate-900 dark:text-slate-100 font-semibold">Trung tâm hỗ trợ</span>
       </nav>
 
@@ -87,7 +92,7 @@ export default function SupportCenterPage(): React.JSX.Element {
       {/* Device & Audio Check Card */}
       <Card className="p-6 border border-slate-200 dark:border-slate-800 space-y-4">
         <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base flex items-center gap-2">
-          <span>🎧</span> {t('seo.support.deviceCheck')}
+          <Headphones className="size-4" aria-hidden="true" /> {t('seo.support.deviceCheck')}
         </h3>
         <p className="text-xs text-slate-500 leading-relaxed">
           Trước khi vào phòng thi chính thức, bạn nên kiểm tra âm lượng tai nghe và micro để tránh sự cố trong phần thi nghe hiểu (聴解).
@@ -102,13 +107,13 @@ export default function SupportCenterPage(): React.JSX.Element {
             onClick={handleTestAudio}
             data-testid="test-audio-btn"
           >
-            🔊 Phát âm thanh thử nghiệm (440Hz)
+            <Volume2 className="size-4" aria-hidden="true" /> Phát âm thanh thử nghiệm (440Hz)
           </Button>
         </div>
 
         {audioResult && (
           <Alert variant="success" className="text-xs" data-testid="audio-result-alert">
-            ✅ {audioResult}
+            <CircleCheck className="inline size-4 align-[-2px]" aria-hidden="true" /> {audioResult}
           </Alert>
         )}
       </Card>

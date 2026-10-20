@@ -1,7 +1,13 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Card, Input, Badge, JsonLd, Spinner, Alert, Button } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Input } from '@jlpt/ui/components/input';
+import { Badge } from '@jlpt/ui/components/badge';
+import { JsonLd } from '@jlpt/ui/components/json-ld';
+import { Spinner } from '@jlpt/ui/components/spinner';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Button } from '@jlpt/ui/components/button';
 import { useI18n } from '../../../lib/i18n';
 
 interface FaqItem {
@@ -174,7 +180,7 @@ export default function FaqPage(): React.JSX.Element {
 
       {/* Breadcrumbs */}
       <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
+        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
         <span className="text-slate-900 dark:text-slate-100 font-semibold">Câu hỏi thường gặp</span>
       </nav>
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { Target, Timer } from 'lucide-react';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import type { PublicExamSnapshot, AttemptMode } from '@jlpt/schema';
 import { flattenExamQuestions } from '../utils/flatten-questions';
@@ -24,7 +25,8 @@ import { LeaseConflictModal } from './modals/lease-conflict-modal';
 import { SpeakerTestModal } from './modals/speaker-test-modal';
 import { ShortcutsHelpModal } from './modals/shortcuts-help-modal';
 import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts';
-import { Button, useFurigana } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { useFurigana } from '@jlpt/ui/components/furigana-toggle';
 import { evaluatePacing } from '../pacing';
 
 export interface ExamRoomProps {
@@ -409,7 +411,7 @@ export function ExamRoom({
                 className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-mono bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700"
                 title="Mốc tiến độ chuẩn JLPT"
               >
-                <span>🎯 Mốc {pacingEvaluation.currentMilestone.label || `Câu ${firstQuestionOfSection + pacingEvaluation.currentMilestone.targetQuestionIndex}`} ({Math.round(pacingEvaluation.currentMilestone.targetElapsedSec / 60)}p)</span>
+                <span className="inline-flex items-center gap-1"><Target className="size-4" aria-hidden="true" /> Mốc  {pacingEvaluation.currentMilestone.label || `Câu ${firstQuestionOfSection + pacingEvaluation.currentMilestone.targetQuestionIndex}`} ({Math.round(pacingEvaluation.currentMilestone.targetElapsedSec / 60)}p)</span>
               </div>
             )}
 
@@ -457,7 +459,7 @@ export function ExamRoom({
         />
       )}
 
-      {/* Exam Toolbar: Font scale (EXAM-23), Zen toggle (EXAM-25), Speaker test (EXAM-05), Shortcuts (EXAM-24) */}
+      {/* Exam Toolbar: Font scale, Zen toggle, Speaker test, Shortcuts */}
       <div className="max-w-7xl w-full mx-auto px-4 pt-3">
         <ExamToolbar
           fontSize={fontSize}
@@ -505,7 +507,7 @@ export function ExamRoom({
                 className="mb-4 p-3.5 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 text-xs font-semibold flex items-center gap-2 shadow-xs"
                 role="alert"
               >
-                <span className="text-base" aria-hidden="true">⏱️</span>
+                <Timer className="size-4" aria-hidden="true" />
                 <span className="flex-1">{pacingEvaluation.message}</span>
               </div>
             )}

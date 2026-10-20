@@ -1,7 +1,10 @@
 'use client';
 
+import { Bell, Settings } from 'lucide-react';
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Badge, Button } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Button } from '@jlpt/ui/components/button';
 import type { StudyPlan } from '../types';
 import { useI18n } from '../../../lib/i18n';
 
@@ -14,49 +17,39 @@ export function ReminderSettingsCard({ plan }: ReminderSettingsCardProps): React
 
   return (
     <Card data-testid="reminder-settings-card">
-      <CardHeader style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <CardHeader className="flex justify-between items-center">
         <CardTitle>{t('planner.reminders.cardTitle')}</CardTitle>
-        <Badge variant="primary">🔔 {t('planner.reminders.activeBadge')}</Badge>
+        <Badge variant="primary"><Bell className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('planner.reminders.activeBadge')}</Badge>
       </CardHeader>
 
-      <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9375rem' }}>
+      <CardContent className="flex flex-col gap-4">
+        <p className="m-0 text-[var(--text-secondary)] text-[0.9375rem]">
           {t('planner.reminders.description')}
         </p>
 
-        <div
-          style={{
-            padding: '1rem',
-            borderRadius: '6px',
-            backgroundColor: 'var(--bg-muted)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.5rem',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-            <span style={{ color: 'var(--text-muted)' }}>{t('planner.reminders.dailyTime')}:</span>
-            <strong style={{ color: 'var(--text-primary)' }}>20:00 ({plan.config.timezone})</strong>
+        <div className="p-4 rounded-[6px] bg-[var(--bg-muted)] flex flex-col gap-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-[var(--text-muted)]">{t('planner.reminders.dailyTime')}:</span>
+            <strong className="text-[var(--text-primary)]">20:00 ({plan.config.timezone})</strong>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-            <span style={{ color: 'var(--text-muted)' }}>{t('planner.reminders.recommendedSession')}:</span>
-            <strong style={{ color: 'var(--text-primary)' }}>{plan.config.dailyMinutes} {t('planner.overview.minutesUnit')}</strong>
+          <div className="flex justify-between text-sm">
+            <span className="text-[var(--text-muted)]">{t('planner.reminders.recommendedSession')}:</span>
+            <strong className="text-[var(--text-primary)]">{plan.config.dailyMinutes} {t('planner.overview.minutesUnit')}</strong>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-            <span style={{ color: 'var(--text-muted)' }}>{t('planner.reminders.mockInterval')}:</span>
-            <strong style={{ color: 'var(--text-primary)' }}>
+          <div className="flex justify-between text-sm">
+            <span className="text-[var(--text-muted)]">{t('planner.reminders.mockInterval')}:</span>
+            <strong className="text-[var(--text-primary)]">
               {t('planner.reminders.everyXDays', { days: String(plan.config.mockExamIntervalDays) })}
             </strong>
           </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <a
+        <div className="flex justify-end">
+          <a className="no-underline"
             href="/tai-khoan#notifications"
-            style={{ textDecoration: 'none' }}
           >
             <Button variant="ghost" size="sm">
-              ⚙️ {t('planner.reminders.customizeInSettings')}
+              <Settings className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('planner.reminders.customizeInSettings')}
             </Button>
           </a>
         </div>

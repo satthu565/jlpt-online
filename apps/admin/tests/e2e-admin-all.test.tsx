@@ -55,7 +55,8 @@ describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
   describe('1. Tổng quan & Giám sát vận hành (Dashboard & Settings)', () => {
     it('AdminDashboardPage hiển thị đầy đủ các thẻ chỉ số KPI hoạt động', () => {
       const html = renderWithAdmin(<AdminDashboardPage />);
-      expect(html).toContain('Tổng quan chỉ số hoạt động hệ thống (ADM-01)');
+      expect(html).toContain('data-testid="page-title"');
+      expect(html).toContain('Tổng quan chỉ số hoạt động hệ thống');
       expect(html).toContain('data-testid="stat-total-users"');
       expect(html).toContain('data-testid="stat-gross-revenue"');
     });
@@ -70,7 +71,8 @@ describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
 
     it('BackupSettingsPage hiển thị quản trị sao lưu phục hồi với zero raw secrets trong browser', () => {
       const html = renderWithAdmin(<BackupSettingsPage />);
-      expect(html).toContain('Sao lưu &amp; Phục hồi Hệ thống (ADM-20 / SYS-08)');
+      expect(html).toContain('data-testid="page-title"');
+      expect(html).toContain('Sao lưu &amp; Phục hồi Hệ thống');
       expect(html).toContain('data-testid="btn-trigger-base-backup"');
       expect(html).toContain('data-testid="btn-trigger-restore-pitr"');
       expect(html).toContain('Chính sách bảo vệ an toàn &amp; vận hành sao lưu');
@@ -105,17 +107,17 @@ describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
 
     it('MixedExamsPage hiển thị quản lý đề thi trộn', () => {
       const html = renderWithAdmin(<MixedExamsPage />);
-      expect(html).toContain('Quản lý Đề thi Trộn Ngẫu nhiên (ADM-11)');
+      expect(html).toContain('Quản lý Đề thi Trộn Ngẫu nhiên');
     });
 
     it('CmsManagementPage hiển thị quản trị nội dung CMS', () => {
       const html = renderWithAdmin(<CmsManagementPage />);
-      expect(html).toContain('Quản trị Nội dung CMS &amp; Bài viết (ADM-13)');
+      expect(html).toContain('Quản trị Nội dung CMS &amp; Bài viết');
     });
 
     it('VocabManagementPage hiển thị quản trị từ vựng và ngữ pháp', () => {
       const html = renderWithAdmin(<VocabManagementPage />);
-      expect(html).toContain('Quản lý Từ vựng &amp; Ngữ pháp (ADM-12)');
+      expect(html).toContain('Quản lý Từ vựng &amp; Ngữ pháp');
     });
   });
 
@@ -127,12 +129,12 @@ describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
 
     it('ExplanationReviewsPage hiển thị kiểm duyệt lời giải', () => {
       const html = renderWithAdmin(<ExplanationReviewsPage />);
-      expect(html).toContain('Kiểm duyệt Lời giải &amp; Bản dịch (ADM-10)');
+      expect(html).toContain('Kiểm duyệt Lời giải &amp; Bản dịch');
     });
 
     it('ContentReportsPage hiển thị quản lý báo lỗi câu hỏi', () => {
       const html = renderWithAdmin(<ContentReportsPage />);
-      expect(html).toContain('Quản lý Báo lỗi Câu hỏi từ Người dùng (ADM-09)');
+      expect(html).toContain('Quản lý Báo lỗi Câu hỏi từ Người dùng');
     });
 
     it('AiModerationPage hiển thị kiểm duyệt nội dung AI', () => {
@@ -168,7 +170,7 @@ describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
   describe('5. Báo cáo phân tích & Kiểm toán (Analytics & Audit Logs)', () => {
     it('ReportsHubPage hiển thị trung tâm báo cáo với các tab phân tích', () => {
       const html = renderWithAdmin(<ReportsHubPage />);
-      expect(html).toContain('Trung tâm Báo cáo &amp; Phân tích Hệ thống (ADM-17)');
+      expect(html).toContain('Trung tâm Báo cáo &amp; Phân tích Hệ thống');
     });
 
     it('RevenueReportPage hiển thị báo cáo doanh thu tài chính', () => {
@@ -199,7 +201,7 @@ describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
           ]}
         />,
       );
-      expect(html).toContain('Nhật ký kiểm toán hệ thống (Audit Logs - ADM-14)');
+      expect(html).toContain('Nhật ký kiểm toán hệ thống (Audit Logs)');
       expect(html).toContain('Người thực hiện (Actor):');
       expect(html).toContain('Đơn vị (Tenant):');
     });
@@ -216,7 +218,7 @@ describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
 
     it('NotificationsSettingsPage hiển thị cấu hình mẫu thông báo', () => {
       const html = renderWithAdmin(<NotificationsSettingsPage />);
-      expect(html).toContain('Cấu hình Thông báo &amp; Email Tự động (ADM-18)');
+      expect(html).toContain('Cấu hình Thông báo &amp; Email Tự động');
     });
   });
 

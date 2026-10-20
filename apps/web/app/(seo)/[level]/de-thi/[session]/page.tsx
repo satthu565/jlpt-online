@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { examApiClient } from '../../../../../features/exam/api/exam-api';
 import { LibraryView } from '../../../../../features/library';
-import { JsonLd } from '@jlpt/ui';
+import { JsonLd } from '@jlpt/ui/components/json-ld';
 import type { ExamSummary } from '@jlpt/schema';
 
 export interface SessionExamsPageProps {
@@ -112,12 +112,12 @@ export default async function SessionExamsPage({ params }: SessionExamsPageProps
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 space-y-6" data-testid="session-exams-page">
+    <div className="mx-auto w-full max-w-7xl py-8 px-4 space-y-6" data-testid="session-exams-page">
       <JsonLd id={`breadcrumb-schema-${level}-${session}`} data={breadcrumbStructuredData} />
 
       {/* Breadcrumbs */}
       <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
+        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
         <a href={`/${level.toLowerCase()}`} className="hover:underline">{upper}</a> &gt;{' '}
         <a href={`/${level.toLowerCase()}/de-thi`} className="hover:underline">Đề thi {upper}</a> &gt;{' '}
         <span className="text-slate-900 dark:text-slate-100 font-semibold">Kỳ {session}</span>

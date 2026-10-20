@@ -42,6 +42,12 @@ export function maskPii<T>(data: T): T {
     return maskPiiString(data) as unknown as T;
   }
 
+  // Binary payloads (ZIP uploads, media) carry no maskable fields. Walking them with Object.entries
+  // creates one entry per byte: a 33 MB package grew the API past 2.7 GB and crashed it.
+  if (Buffer.isBuffer(data) || ArrayBuffer.isView(data) || data instanceof ArrayBuffer) {
+    return data;
+  }
+
   if (Array.isArray(data)) {
     return data.map((item) => maskPii(item)) as unknown as T;
   }

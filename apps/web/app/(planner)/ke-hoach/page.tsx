@@ -9,7 +9,9 @@ import {
   type CreateStudyPlanInput,
 } from '../../../features/planner';
 import { useI18n } from '../../../lib/i18n';
-import { Alert, Button, Spinner } from '@jlpt/ui';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Button } from '@jlpt/ui/components/button';
+import { Spinner } from '@jlpt/ui/components/spinner';
 import Link from 'next/link';
 
 export default function PlannerPage(): React.JSX.Element {
@@ -115,25 +117,18 @@ export default function PlannerPage(): React.JSX.Element {
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4 w-full">
-      <div style={{ marginBottom: '2rem' }}>
-        <h1
-          style={{
-            fontSize: '2rem',
-            fontWeight: 800,
-            color: 'var(--text-primary)',
-            margin: '0 0 0.5rem 0',
-          }}
-        >
+      <div className="mb-8">
+        <h1 className="text-[2rem] font-extrabold text-[var(--text-primary)] mt-0 mx-0 mb-2">
           {t('planner.page.title')}
         </h1>
-        <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
+        <p className="text-[var(--text-secondary)] m-0">
           {t('planner.page.subtitle')}
         </p>
       </div>
 
       {isUnauthorized && (
-        <Alert variant="warning" style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <Alert className="mb-6" variant="warning">
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <span>Bạn cần đăng nhập để xem và quản lý kế hoạch học tập cá nhân.</span>
             <Link href="/dang-nhap?redirect=/ke-hoach">
               <Button size="sm" variant="primary">Đăng nhập ngay</Button>
@@ -143,8 +138,8 @@ export default function PlannerPage(): React.JSX.Element {
       )}
 
       {error && !isUnauthorized && (
-        <Alert variant="error" onClose={() => setError(null)} style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <Alert className="mb-6" variant="error" onClose={() => setError(null)}>
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <span>{error}</span>
             <Button size="sm" variant="outline" onClick={loadPlannerData}>
               {t('common.buttons.retry')}
@@ -154,9 +149,9 @@ export default function PlannerPage(): React.JSX.Element {
       )}
 
       {loading && !plan && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem 0', alignItems: 'center', gap: '0.75rem' }}>
+        <div className="flex justify-center py-12 px-0 items-center gap-3">
           <Spinner size="md" />
-          <span style={{ color: 'var(--text-secondary)' }}>{t('common.status.loading')}</span>
+          <span className="text-[var(--text-secondary)]">{t('common.status.loading')}</span>
         </div>
       )}
 

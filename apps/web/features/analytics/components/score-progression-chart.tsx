@@ -1,8 +1,9 @@
 'use client';
 
+import { TrendingUp } from 'lucide-react';
 import React from 'react';
 import type { AttemptRecord } from '../types';
-import { Card } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
 
 export interface ScoreProgressionChartProps {
   attempts: AttemptRecord[];
@@ -38,7 +39,7 @@ export function ScoreProgressionChart({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
         <div>
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <span>📈</span> Biểu đồ tiến độ điểm số theo thời gian (STAT-02)
+            <TrendingUp className="size-4" aria-hidden="true" /> Biểu đồ tiến độ điểm số theo thời gian
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Theo dõi xu hướng điểm số và mức độ tăng trưởng qua từng lượt thi thử.
@@ -74,8 +75,7 @@ export function ScoreProgressionChart({
             <div
               key={attempt.id || idx}
               data-testid={`score-item-${idx}`}
-              className="p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-1.5"
-            >
+              className="p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-1.5">
               <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                 <div className="flex items-center gap-2">
                   <span className="font-mono text-slate-400 font-semibold">#{idx + 1}</span>
@@ -100,6 +100,7 @@ export function ScoreProgressionChart({
               <div className="relative w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
                 <div
                   className={`h-2.5 rounded-full transition-all ${isPassed ? 'bg-emerald-500' : 'bg-blue-600'}`}
+                  // ui-allow-style: chiều rộng theo số liệu, tính lúc chạy
                   style={{ width: `${pct}%` }}
                 />
               </div>

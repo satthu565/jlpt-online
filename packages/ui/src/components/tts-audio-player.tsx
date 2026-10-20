@@ -137,7 +137,7 @@ export function TTSAudioPlayer({
         )}
       </div>
 
-      {/* Audio element with optimized metadata preloading (SYS-02) */}
+      {/* Audio element with optimized metadata preloading */}
       {currentAudioUrl && (
         <audio
           ref={audioRef}

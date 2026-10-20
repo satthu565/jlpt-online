@@ -1,7 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Button, Input, Modal, Alert, Select } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
+import { Modal } from '@jlpt/ui/components/modal';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Select } from '@jlpt/ui/components/select';
+import { EmptyState } from '@jlpt/ui/components/empty-state';
+import { Lock, MessageSquare, Flag, Trash2 } from 'lucide-react';
 import type { DiscussionComment } from '../types';
 import { useI18n } from '../../../lib/i18n';
 
@@ -37,14 +44,14 @@ export function QuestionDiscussions({
   if (!isCompleted) {
     return (
       <Card data-testid="discussion-gated-card">
-        <CardContent style={{ padding: '2.5rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🔒</div>
-          <h3 style={{ fontSize: '1.25rem', margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>
-            {t('community.discussions.gatedTitle')}
-          </h3>
-          <p style={{ color: 'var(--text-secondary)', maxWidth: '480px', margin: '0 auto' }}>
-            {t('community.discussions.gatedDescription')}
-          </p>
+        <CardContent className="p-10 text-center">
+          <EmptyState
+            variant="empty"
+            icon={Lock}
+            title={t('community.discussions.gatedTitle')}
+            description={t('community.discussions.gatedDescription')}
+            minHeight="sm"
+          />
         </CardContent>
       </Card>
     );
@@ -81,12 +88,13 @@ export function QuestionDiscussions({
   return (
     <Card data-testid="question-discussions-view">
       <CardHeader>
-        <CardTitle style={{ fontSize: '1.25rem' }}>
-          💬 {t('community.discussions.title', { count: String(comments.length) })}
+        <CardTitle className="text-xl flex items-center gap-2">
+          <MessageSquare className="size-5 text-[var(--color-primary)]" />
+          <span>{t('community.discussions.title', { count: String(comments.length) })}</span>
         </CardTitle>
       </CardHeader>
 
-      <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      <CardContent className="flex flex-col gap-5">
         {feedback && (
           <Alert variant="info" onClose={() => setFeedback(null)}>
             {feedback}
@@ -94,8 +102,8 @@ export function QuestionDiscussions({
         )}
 
         {/* Add Comment Box */}
-        <form onSubmit={handlePost} style={{ display: 'flex', gap: '0.75rem' }}>
-          <div style={{ flex: 1 }}>
+        <form onSubmit={handlePost} className="flex gap-3">
+          <div className="flex-1">
             <Input
               id="discussion-comment-input"
               value={commentText}
@@ -117,58 +125,48 @@ export function QuestionDiscussions({
 
         {/* Comments List */}
         {comments.length === 0 ? (
-          <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '1.5rem 0' }}>
-            {t('community.discussions.noCommentsYet')}
-          </p>
+          <EmptyState
+            variant="empty"
+            title={t('community.discussions.noCommentsYet')}
+            minHeight="sm"
+          />
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="flex flex-col gap-4">
             {comments.map((c) => (
               <div
                 key={c.id}
-                style={{
-                  padding: '1rem',
-                  borderRadius: '6px',
-                  backgroundColor: 'var(--bg-muted)',
-                  border: '1px solid var(--border-subtle)',
-                }}
+                className="p-4 rounded-lg bg-[var(--bg-muted)] border border-[var(--border-subtle)]"
                 data-testid={`comment-item-${c.id}`}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>{c.userName}</span>
+                <div className="flex justify-between items-center mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-sm">{c.userName}</span>
                     {c.isModerator && (
-                      <span
-                        style={{
-                          fontSize: '0.75rem',
-                          padding: '1px 6px',
-                          borderRadius: '4px',
-                          backgroundColor: 'var(--color-primary)',
-                          color: '#fff',
-                        }}
-                      >
+                      <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--color-primary)] text-white">
                         {t('community.discussions.moderatorBadge')}
                       </span>
                     )}
                   </div>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  <span className="text-xs text-[var(--text-muted)]">
                     {new Date(c.createdAt).toLocaleDateString()}
                   </span>
                 </div>
 
-                <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.9375rem', color: 'var(--text-primary)' }}>
+                <p className="m-0 mb-3 text-sm text-[var(--text-primary)]">
                   {c.content}
                 </p>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                <div className="flex justify-end gap-2">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setReportingCommentId(c.id)}
                     aria-label={t('community.discussions.reportButton')}
                     data-testid={`report-comment-${c.id}`}
-                    style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}
+                    className="text-xs text-[var(--text-muted)] hover:text-amber-500 flex items-center gap-1"
                   >
-                    🚩 {t('community.discussions.reportButton')}
+                    <Flag className="size-3" />
+                    <span>{t('community.discussions.reportButton')}</span>
                   </Button>
 
                   {onDeleteComment && (
@@ -177,9 +175,9 @@ export function QuestionDiscussions({
                       size="sm"
                       onClick={() => onDeleteComment(c.id)}
                       aria-label={t('common.buttons.delete')}
-                      style={{ fontSize: '0.75rem', color: 'var(--color-error)' }}
+                      className="text-xs text-destructive hover:bg-destructive/10"
                     >
-                      🗑️
+                      <Trash2 className="size-3" />
                     </Button>
                   )}
                 </div>
@@ -195,9 +193,9 @@ export function QuestionDiscussions({
             onClose={() => setReportingCommentId(null)}
             title={t('community.discussions.reportModalTitle')}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="flex flex-col gap-4">
               <div>
-                <label htmlFor="report-reason-select" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 600 }}>
+                <label htmlFor="report-reason-select" className="block mb-1 font-semibold text-sm">
                   {t('community.discussions.reportReasonLabel')}
                 </label>
                 <Select
@@ -215,7 +213,7 @@ export function QuestionDiscussions({
               </div>
 
               <div>
-                <label htmlFor="report-detail-input" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 600 }}>
+                <label htmlFor="report-detail-input" className="block mb-1 font-semibold text-sm">
                   {t('community.discussions.reportDetailLabel')}
                 </label>
                 <Input
@@ -226,7 +224,7 @@ export function QuestionDiscussions({
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+              <div className="flex justify-end gap-3 mt-2">
                 <Button type="button" variant="outline" onClick={() => setReportingCommentId(null)}>
                   {t('common.buttons.cancel')}
                 </Button>

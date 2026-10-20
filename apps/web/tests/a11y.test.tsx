@@ -200,7 +200,7 @@ describe('Web Application Accessibility (SYS-14 & WCAG 2.1 AA)', () => {
     );
 
     expect(emptyHtml).toContain('<h1');
-    expect(emptyHtml).toContain('🔑 Gia nhập lớp học bằng mã mời:');
+    expect(emptyHtml).toContain('Gia nhập lớp học bằng mã mời:');
 
     const dashboardHtml = renderToString(
       h(Providers, null, h(ClassroomDashboard, {

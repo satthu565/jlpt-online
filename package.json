@@ -105,10 +105,10 @@
     "test:e2e:full": "vitest run -c tests/vitest.config.ts tests/e2e/full/ --fileParallelism=false --testTimeout=60000 --hookTimeout=60000",
     "features:verify": "node --no-warnings --experimental-strip-types infra/features-verify.ts",
     "test:release": "vitest run -c tests/vitest.config.ts tests/integration/release-acceptance.test.ts",
-    "check:no-mock-ui": "node --no-warnings --experimental-strip-types tests/integration/check-no-mock-ui.ts",
+    "check:no-mock-ui": "node --no-warnings --experimental-strip-types tests/integration/check-no-mock-ui.ts && node --no-warnings --experimental-strip-types apps/admin/scripts/check-no-internal-codes.ts",
     "test:e2e:integration": "node tests/playwright/runner.mjs",
-    "test:lighthouse": "node --no-warnings --experimental-strip-types tests/lighthouse/runner.ts",
-    "check:ui-primitives": "node --no-warnings --experimental-strip-types packages/ui/scripts/check-ui-primitives.ts"
+    "test:lighthouse": "node --no-warnings --experimental-strip-types tests/lighthouse/runner.ts --enforce",
+    "check:ui-primitives": "node --no-warnings --experimental-strip-types packages/ui/scripts/check-ui-primitives.ts && node --no-warnings --experimental-strip-types packages/ui/scripts/check-inline-styles.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",

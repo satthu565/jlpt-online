@@ -1,5 +1,8 @@
+import { CircleCheck, Headphones } from 'lucide-react';
 import React, { useState, useRef } from 'react';
-import { Modal, Button, Alert } from '@jlpt/ui';
+import { Modal } from '@jlpt/ui/components/modal';
+import { Button } from '@jlpt/ui/components/button';
+import { Alert } from '@jlpt/ui/components/alert';
 
 export interface SpeakerTestModalProps {
   isOpen: boolean;
@@ -69,7 +72,7 @@ export function SpeakerTestModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Kiểm tra tai nghe / loa (EXAM-05)"
+      title="Kiểm tra tai nghe / loa"
       className={className}
     >
       <div className="space-y-4 text-slate-800 dark:text-slate-200">
@@ -84,9 +87,7 @@ export function SpeakerTestModal({
         )}
 
         <div className="bg-slate-100 dark:bg-slate-800/60 p-4 rounded-xl flex flex-col items-center justify-center gap-3 border border-slate-200 dark:border-slate-700">
-          <div className="text-3xl" role="img" aria-label="Biểu tượng tai nghe">
-            🎧
-          </div>
+          <Headphones className="size-8" role="img" aria-label="Biểu tượng tai nghe" />
 
           <audio
             ref={audioRef}
@@ -115,7 +116,7 @@ export function SpeakerTestModal({
 
         {testCompleted && (
           <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 rounded-lg text-xs font-medium flex items-center gap-2">
-            <span>✓</span> Đã hoàn tất kiểm tra âm thanh.
+            <CircleCheck className="size-4" aria-hidden="true" /> Đã hoàn tất kiểm tra âm thanh.
           </div>
         )}
 

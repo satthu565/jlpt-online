@@ -1,8 +1,11 @@
 'use client';
 
+import { Check, ChevronDown, ChevronRight, Flag, Timer, X } from 'lucide-react';
 import React from 'react';
 import type { FlatQuestionItem } from '../../exam/types';
-import { RichTextView, PassageView, Button } from '@jlpt/ui';
+import { RichTextView } from '@jlpt/ui/components/rich-text-view';
+import { PassageView } from '@jlpt/ui/components/rich-block-view';
+import { Button } from '@jlpt/ui/components/button';
 import { QuestionAudioPlayer } from '../../exam/components/audio-player';
 import type { LearnerExplanation } from '../../explanations/types';
 import { ExplanationView } from '../../explanations/components/explanation-view';
@@ -69,7 +72,7 @@ export function ReviewQuestionItem({
         </div>
       )}
 
-      {/* Top row: Number, Correctness status, Audio player (AUDIO-07), Flag badge */}
+      {/* Top row: Number, Correctness status, Audio player, Flag badge */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800 mb-5">
         <div className="flex items-center gap-3">
           <span className="text-xl font-bold font-mono text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg">
@@ -79,10 +82,10 @@ export function ReviewQuestionItem({
             (Tổng hợp #{question.globalIndex + 1})
           </span>
 
-          {/* Correctness badge (SCORE-07) */}
+          {/* Correctness badge */}
           {isCorrect ? (
             <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold flex items-center gap-1">
-              <span>✓</span> Làm đúng
+              <Check className="size-4" aria-hidden="true" /> Làm đúng
             </span>
           ) : isBlank ? (
             <span className="text-xs px-2.5 py-1 rounded-full bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 font-bold">
@@ -90,13 +93,13 @@ export function ReviewQuestionItem({
             </span>
           ) : (
             <span className="text-xs px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 font-bold flex items-center gap-1">
-              <span>✗</span> Làm sai
+              <X className="size-4" aria-hidden="true" /> Làm sai
             </span>
           )}
 
           {isFlagged && (
             <span className="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 font-semibold">
-              🚩 Có gắn cờ
+              <Flag className="inline size-4 align-[-2px]" aria-hidden="true" /> Có gắn cờ
             </span>
           )}
 
@@ -106,12 +109,12 @@ export function ReviewQuestionItem({
               className="text-xs px-2.5 py-0.5 rounded-full font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700"
               title="Thời gian làm bài cho câu này"
             >
-              ⏱️ {Math.round(timeSpentMs / 1000)}s
+              <Timer className="inline size-4 align-[-2px]" aria-hidden="true" /> {Math.round(timeSpentMs / 1000)}s
             </span>
           )}
         </div>
 
-        {/* Audio Replay for Listening Question (AUDIO-07) */}
+        {/* Audio Replay for Listening Question */}
         {audioMediaKey && (
           <QuestionAudioPlayer
             mediaKey={audioMediaKey}
@@ -120,7 +123,7 @@ export function ReviewQuestionItem({
         )}
       </div>
 
-      {/* Illustration image if available (AUDIO-03) */}
+      {/* Illustration image if available */}
       {imageMedia.length > 0 && (
         <div className="jlpt-question-illustration my-4 text-center">
           {imageMedia.map((imgSrc: string, idx: number) => (
@@ -140,7 +143,7 @@ export function ReviewQuestionItem({
         <RichTextView segments={question.stem} showFurigana={showFurigana} />
       </div>
 
-      {/* Options list with correct/selected highlighting (SCORE-07, SCORE-08) */}
+      {/* Options list with correct/selected highlighting */}
       <div className="space-y-3" role="group" aria-label={`Các phương án câu ${question.number}`}>
         {question.options.map((opt, optIdx) => {
           const optionValue = optIdx + 1;
@@ -206,7 +209,8 @@ export function ReviewQuestionItem({
             data-testid={`toggle-explanation-btn-${question.number}`}
             className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5 p-0 h-auto min-h-0"
           >
-            <span>{showExplanation ? '▼ Ẩn lời giải chi tiết' : '▶ Xem lời giải chi tiết (EXPL-01..09)'}</span>
+            {showExplanation ? <ChevronDown className="size-4" aria-hidden="true" /> : <ChevronRight className="size-4" aria-hidden="true" />}
+            <span>{showExplanation ? 'Ẩn lời giải chi tiết' : 'Xem lời giải chi tiết'}</span>
           </Button>
         </div>
 

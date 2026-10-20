@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Result } from '@jlpt/schema';
-import { Card } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
 
 export interface ScoreComparisonCardProps {
   currentResult: Result;
@@ -34,11 +34,11 @@ export function ScoreComparisonCard({
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-            So sánh với lần làm trước (SCORE-10)
+            So sánh với lần làm trước
           </span>
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
             {isImproved
-              ? `🎉 Bạn đã tiến bộ +${scoreDiff} điểm so với lần trước!`
+              ? `Bạn đã tiến bộ +${scoreDiff} điểm so với lần trước!`
               : scoreDiff === 0
               ? 'Điểm số của bạn tương đương với lần làm trước.'
               : `Điểm số giảm ${Math.abs(scoreDiff)} điểm so với lần trước.`}

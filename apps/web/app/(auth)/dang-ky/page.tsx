@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Input, Button, Alert } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Input } from '@jlpt/ui/components/input';
+import { Button } from '@jlpt/ui/components/button';
+import { Alert } from '@jlpt/ui/components/alert';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import { AuthClientError } from '../../../lib/auth-client';
@@ -72,9 +75,9 @@ export default function RegisterPage(): React.JSX.Element {
   return (
     <div className="auth-card-container">
       <Card elevated>
-        <CardHeader style={{ textAlign: 'center' }}>
+        <CardHeader className="text-center">
           <CardTitle as="h1">{t('auth.register.title')}</CardTitle>
-          <p style={{ margin: '0.25rem 0 0 0', color: 'var(--text-secondary)' }}>
+          <p className="mt-1 mx-0 mb-0 text-[var(--text-secondary)]">
             {t('auth.register.subtitle')}
           </p>
         </CardHeader>
@@ -133,55 +136,32 @@ export default function RegisterPage(): React.JSX.Element {
               autoComplete="new-password"
             />
 
-            <div style={{ marginBottom: '1.25rem' }}>
-              <label
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '0.5rem',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  color: 'var(--text-secondary)',
-                }}
-              >
-                <Input
+            <div className="mb-5">
+              <label className="flex items-start gap-2 cursor-pointer text-sm text-[var(--text-secondary)]">
+                <Input className="w-[1rem] h-[1rem] !min-h-0 mt-[0.2rem] cursor-pointer"
                   type="checkbox"
                   id="agree-terms"
                   checked={agreeTerms}
                   onChange={(e) => setAgreeTerms(e.target.checked)}
-                  style={{ width: '1rem', height: '1rem', minHeight: 'auto', marginTop: '0.2rem', cursor: 'pointer' }}
                   required
                 />
                 <span>{t('auth.register.termsAgree')}</span>
               </label>
             </div>
 
-            <Button
+            <Button className="w-full mb-4"
               type="submit"
               variant="primary"
               loading={loading}
-              style={{ width: '100%', marginBottom: '1rem' }}
             >
               {loading ? t('auth.register.submitting') : t('auth.register.submitButton')}
             </Button>
           </form>
 
-          <div
-            style={{
-              marginTop: '1.5rem',
-              textAlign: 'center',
-              fontSize: '0.875rem',
-              color: 'var(--text-secondary)',
-            }}
-          >
+          <div className="mt-6 text-center text-sm text-[var(--text-secondary)]">
             <span>{t('auth.register.haveAccount')} </span>
-            <a
+            <a className="text-[var(--color-primary)] font-semibold no-underline"
               href="/dang-nhap"
-              style={{
-                color: 'var(--color-primary)',
-                fontWeight: 600,
-                textDecoration: 'none',
-              }}
             >
               {t('auth.register.loginNow')}
             </a>

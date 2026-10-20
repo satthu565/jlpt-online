@@ -7,6 +7,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { and, desc, eq, isNotNull, isNull } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
@@ -46,6 +47,8 @@ import {
 import { StorageService } from '../storage/storage.service.js';
 import { OutboxService, type DbTx } from '../outbox/outbox.service.js';
 import { BlueprintService } from '../blueprint/blueprint.service.js';
+import { ReviewService } from '../review/review.service.js';
+import { AuditService } from '../audit/audit.service.js';
 import type { ExamFilterQuery, PublishExamResponse } from './exam.types.js';
 
 @Injectable()
@@ -57,7 +60,64 @@ export class ExamService {
     private readonly storageService: StorageService,
     private readonly outboxService: OutboxService,
     private readonly blueprintService: BlueprintService,
+    @Optional() private readonly reviewService?: ReviewService,
+    @Optional() private readonly auditService?: AuditService,
   ) {}
+
+  /**
+   * Admin one-click "Duyệt & xuất bản" (owner decision 2026-10-20, single-operator phase): approves every question
+   * group of the exam whose latest version is not approved yet, then publishes. The four-eyes rule is waived only
+   * through ReviewService's adminOverride; DRAFT_ONLY and missing-answer guards still apply. The controller restricts
+   * this to the admin role; the action is written to the audit log.
+   */
+  async approveAndPublishExam(
+    examId: string,
+    adminUserId: string,
+  ): Promise<PublishExamResponse & { approvedGroups: number }> {
+    if (!this.reviewService) {
+      throw new BadRequestException('Chức năng duyệt chưa sẵn sàng trên máy chủ này');
+    }
+    const db = this.dbClient.db;
+    const groupRows: { groupId: string }[] = await db
+      .selectDistinct({ groupId: schema.questions.groupId })
+      .from(schema.examItems)
+      .innerJoin(schema.questions, eq(schema.questions.id, schema.examItems.questionId))
+      .where(eq(schema.examItems.examId, examId));
+    if (groupRows.length === 0) {
+      throw new BadRequestException(`Đề thi ${examId} không có câu hỏi`);
+    }
+
+    let approvedGroups = 0;
+    for (const { groupId } of groupRows) {
+      const [latest] = await db
+        .select({ version: schema.questionGroupVersions.version, status: schema.questionGroupVersions.status })
+        .from(schema.questionGroupVersions)
+        .where(eq(schema.questionGroupVersions.groupId, groupId))
+        .orderBy(desc(schema.questionGroupVersions.version))
+        .limit(1);
+      if (!latest || latest.status === 'approved') continue;
+      await this.reviewService.reviewDecision(
+        'group_version',
+        groupId,
+        latest.version,
+        { decision: 'approved', comments: 'Admin duyệt cả đề và xuất bản' },
+        adminUserId,
+        undefined,
+        { adminOverride: true },
+      );
+      approvedGroups++;
+    }
+
+    const published = await this.publishExam(examId, adminUserId);
+    await this.auditService?.recordAction({
+      operatorId: adminUserId,
+      action: 'exam.approve_and_publish',
+      targetResource: `exam:${examId}`,
+      details: { approvedGroups, version: published.version },
+    });
+    this.logger.log(`Admin ${adminUserId} duyệt ${approvedGroups} nhóm và xuất bản đề ${examId} v${published.version}`);
+    return { ...published, approvedGroups };
+  }
 
   private isExamGuestTrialEligible(exam: typeof schema.exams.$inferSelect, scoring?: Record<string, unknown>): boolean {
     const descLower = (exam.description || '').toLowerCase();
@@ -308,9 +368,14 @@ export class ExamService {
       )
       .orderBy(desc(schema.importJobs.createdAt));
 
+    let packageBlueprintRef: { id: string; version: number } | null = null;
     if (importJobsForExam.length > 0) {
       const latestJob = importJobsForExam[0]!;
       const errLog = latestJob.errorLog as Record<string, unknown> | null;
+      const ref = errLog?.['blueprintRef'] as { id?: unknown; version?: unknown } | null | undefined;
+      if (ref && typeof ref.id === 'string' && typeof ref.version === 'number') {
+        packageBlueprintRef = { id: ref.id, version: ref.version };
+      }
       if (
         latestJob.status === 'DRAFT_ONLY' ||
         errLog?.['readiness'] === 'DRAFT_ONLY' ||
@@ -374,7 +439,11 @@ export class ExamService {
     // 4. Verify / find blueprint
     let blueprint: typeof schema.blueprints.$inferSelect;
     try {
-      blueprint = await this.blueprintService.getActiveBlueprintByLevel(exam.level as Level);
+      // An imported past exam uses the blueprint named in its package (for example N5 12/2019 uses the
+      // pre-2020 N5 blueprint); other exams use the level's current blueprint.
+      blueprint = packageBlueprintRef
+        ? await this.blueprintService.getBlueprintById(packageBlueprintRef.id, packageBlueprintRef.version)
+        : await this.blueprintService.getActiveBlueprintByLevel(exam.level as Level);
     } catch {
       // Try finding any blueprint matching level
       const allBp = await this.dbClient.db
@@ -389,7 +458,15 @@ export class ExamService {
     }
 
     // 5. Construct Snapshot, Answer Key, and Manifest
-    const nextVersion = (exam.publishedVersion ?? 0) + 1;
+    // Takedown and re-import reset exams.publishedVersion to null while exam_versions keeps the old rows, so the
+    // next version must follow the highest stored version, not publishedVersion (else: duplicate (exam_id, version)).
+    const [latestStored] = await this.dbClient.db
+      .select({ version: schema.examVersions.version })
+      .from(schema.examVersions)
+      .where(eq(schema.examVersions.examId, examId))
+      .orderBy(desc(schema.examVersions.version))
+      .limit(1);
+    const nextVersion = Math.max(exam.publishedVersion ?? 0, latestStored?.version ?? 0) + 1;
     const mediaSet = new Set<string>();
 
     const answerKeys: number[] = [];

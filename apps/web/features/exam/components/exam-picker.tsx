@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import type { Level, AttemptMode } from '@jlpt/schema';
-import { Card, Badge, Button } from '@jlpt/ui';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Button } from '@jlpt/ui/components/button';
 
 export type ExamPickerExam = {
   id?: string;
@@ -20,12 +21,14 @@ export interface ExamPickerProps {
   exams: ExamPickerExam[];
   onSelectExam: (exam: ExamPickerExam, mode: AttemptMode) => void;
   className?: string;
+  loading?: boolean;
 }
 
 export function ExamPicker({
   exams,
   onSelectExam,
   className = '',
+  loading = false,
 }: ExamPickerProps): React.JSX.Element {
   const [selectedLevel, setSelectedLevel] = useState<Level | 'ALL'>('ALL');
   const [selectedMode, setSelectedMode] = useState<AttemptMode>('real');
@@ -33,6 +36,8 @@ export function ExamPicker({
   const levels: Array<Level | 'ALL'> = ['ALL', 'N1', 'N2', 'N3', 'N4', 'N5'];
 
   const filteredExams = exams.filter((ex) => {
+    // An exam with no questions (for example an empty generated mix) cannot be taken.
+    if (!(ex.totalQuestions > 0)) return false;
     if (selectedLevel === 'ALL') return true;
     return ex.level === selectedLevel;
   });
@@ -116,7 +121,26 @@ export function ExamPicker({
           </div>
         </div>
 
-        {filteredExams.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between min-h-[160px] animate-pulse space-y-4"
+              >
+                <div className="space-y-2.5">
+                  <div className="flex gap-2">
+                    <div className="h-5 w-12 rounded bg-slate-200 dark:bg-slate-800" />
+                    <div className="h-5 w-24 rounded bg-slate-200 dark:bg-slate-800" />
+                  </div>
+                  <div className="h-5 w-3/4 rounded bg-slate-200 dark:bg-slate-800" />
+                  <div className="h-4 w-1/2 rounded bg-slate-100 dark:bg-slate-800" />
+                </div>
+                <div className="h-9 w-28 rounded-lg bg-slate-200 dark:bg-slate-800" />
+              </div>
+            ))}
+          </div>
+        ) : filteredExams.length === 0 ? (
           <div className="text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-500">
             Không tìm thấy đề thi phù hợp với bộ lọc.
           </div>
@@ -128,9 +152,9 @@ export function ExamPicker({
 
               const examKey = exam.id || exam.examId || exam.slug || `exam-${exam.level}`;
               return (
-                <Card
+                <div
                   key={examKey}
-                  className="hover:shadow-md transition-shadow flex flex-col justify-between"
+                  className="jlpt-card rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-2">
@@ -178,7 +202,7 @@ export function ExamPicker({
                   >
                     Bắt đầu làm bài
                   </Button>
-                </Card>
+                </div>
               );
             })}
           </div>

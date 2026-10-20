@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Select, Textarea } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
+import { Select } from '@jlpt/ui/components/select';
+import { Textarea } from '@jlpt/ui/components/textarea';
 import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 import { apiClient } from '../../lib/api-client';
@@ -180,7 +183,7 @@ export default function CmsManagementPage({
       <div className="overflow-x-hidden p-4 md:p-8 space-y-6 max-w-7xl mx-auto font-sans">
         <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-200 pb-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 data-testid="page-title" className="text-2xl font-bold text-gray-900">
               {t('content.cms.title', locale)}
             </h1>
             <p className="text-sm text-gray-500 mt-1">

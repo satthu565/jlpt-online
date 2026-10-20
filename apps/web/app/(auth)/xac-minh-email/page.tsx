@@ -1,7 +1,10 @@
 'use client';
 
+import { CircleCheck, CircleX, Loader2 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Button, Alert } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Alert } from '@jlpt/ui/components/alert';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 
@@ -46,25 +49,15 @@ export default function VerifyEmailPage(): React.JSX.Element {
 
   return (
     <div className="auth-card-container">
-      <Card elevated style={{ textAlign: 'center' }}>
+      <Card className="text-center" elevated>
         <CardHeader>
           <CardTitle as="h1">{t('auth.verifyEmail.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           {loading && (
-            <div style={{ padding: '2rem 1rem' }}>
-              <div
-                style={{
-                  width: '2.5rem',
-                  height: '2.5rem',
-                  border: '3px solid var(--border-default)',
-                  borderTopColor: 'var(--color-primary)',
-                  borderRadius: '50%',
-                  margin: '0 auto 1rem auto',
-                  animation: 'spin 0.8s linear infinite',
-                }}
-              />
-              <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
+            <div className="py-8 px-4">
+              <Loader2 className="mx-auto mb-4 size-10 animate-spin text-[var(--color-primary)]" aria-hidden="true" />
+              <p className="text-[var(--text-secondary)] m-0">
                 {t('auth.verifyEmail.verifying')}
               </p>
             </div>
@@ -72,15 +65,13 @@ export default function VerifyEmailPage(): React.JSX.Element {
 
           {!loading && success && (
             <div>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem', color: 'var(--color-primary)' }}>
-                ✓
-              </div>
-              <Alert variant="success" style={{ textAlign: 'left' }}>
+              <CircleCheck className="mx-auto mb-4 size-12 text-[var(--color-primary)]" aria-hidden="true" />
+              <Alert className="text-left" variant="success">
                 {t('auth.verifyEmail.success')}
               </Alert>
-              <div style={{ marginTop: '2rem' }}>
-                <a href="/dang-nhap" style={{ textDecoration: 'none' }}>
-                  <Button variant="primary" size="lg" style={{ width: '100%' }}>
+              <div className="mt-8">
+                <a className="no-underline" href="/dang-nhap">
+                  <Button className="w-full" variant="primary" size="lg">
                     {t('auth.verifyEmail.loginButton')}
                   </Button>
                 </a>
@@ -90,15 +81,13 @@ export default function VerifyEmailPage(): React.JSX.Element {
 
           {!loading && !success && (
             <div>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem', color: 'var(--color-danger)' }}>
-                ✕
-              </div>
-              <Alert variant="error" style={{ textAlign: 'left' }}>
+              <CircleX className="mx-auto mb-4 size-12 text-[var(--color-danger)]" aria-hidden="true" />
+              <Alert className="text-left" variant="error">
                 {error || t('auth.verifyEmail.failed')}
               </Alert>
-              <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <a href="/dang-nhap" style={{ textDecoration: 'none' }}>
-                  <Button variant="outline" style={{ width: '100%' }}>
+              <div className="mt-8 flex flex-col gap-3">
+                <a className="no-underline" href="/dang-nhap">
+                  <Button className="w-full" variant="outline">
                     {t('auth.login.submitButton')}
                   </Button>
                 </a>

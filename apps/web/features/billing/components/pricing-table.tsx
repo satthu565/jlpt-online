@@ -1,7 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Button, Badge } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Check } from 'lucide-react';
 import type { Plan } from '../types';
 import { useI18n } from '../../../lib/i18n';
 
@@ -46,11 +49,7 @@ export function PricingTable({
 
   return (
     <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-        gap: '1.5rem',
-      }}
+      className="grid grid-cols-1 md:grid-cols-3 gap-6"
       data-testid="pricing-table"
     >
       {plans.map((plan) => {
@@ -60,71 +59,62 @@ export function PricingTable({
         return (
           <Card
             key={plan.id}
-            style={{
-              position: 'relative',
-              borderColor: isSelected
-                ? 'var(--color-primary)'
+            className={`relative transition-all ${
+              isSelected
+                ? 'border-2 border-[var(--color-primary)] shadow-md'
                 : isPopular
-                ? 'var(--color-primary)'
-                : 'var(--border-subtle)',
-              borderWidth: isSelected || isPopular ? '2px' : '1px',
-              boxShadow: isPopular ? 'var(--shadow-lg)' : 'var(--shadow-sm)',
-            }}
+                ? 'border-2 border-[var(--color-primary)]/80 shadow-md'
+                : 'border border-[var(--border-subtle)] shadow-sm'
+            }`}
             data-testid={`pricing-card-${plan.id}`}
           >
             {isPopular && (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '-12px',
-                  right: '20px',
-                }}
-              >
+              <div className="absolute -top-3 right-5">
                 <Badge variant="primary">{t('billing.pricing.mostPopular')}</Badge>
               </div>
             )}
 
             <CardHeader>
-              <CardTitle style={{ fontSize: '1.375rem', margin: '0 0 0.5rem 0' }}>
+              <CardTitle className="text-xl mb-2">
                 {plan.name}
               </CardTitle>
               {plan.description && (
-                <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                <p className="m-0 text-sm text-[var(--text-secondary)]">
                   {plan.description}
                 </p>
               )}
             </CardHeader>
 
-            <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <CardContent className="flex flex-col gap-6">
               <div>
-                <span style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--text-primary)' }}>
+                <span className="text-3xl font-extrabold text-[var(--text-primary)]">
                   {formatPrice(plan.priceMinor, plan.currency)}
                 </span>
-                <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginLeft: '0.375rem' }}>
+                <span className="text-sm text-[var(--text-muted)] ml-1.5">
                   / {getPlanIntervalLabel(plan.interval)}
                 </span>
               </div>
 
               {/* Features Matrix */}
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ color: 'var(--color-success, #16a34a)' }}>✓</span>
+              <ul className="list-none p-0 m-0 flex flex-col gap-2 text-sm">
+                <li className="flex items-center gap-2">
+                  <Check className="size-4 text-[var(--color-success,#16a34a)] shrink-0" />
                   <span>{t('billing.features.unlimitedExams')}</span>
                 </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ color: 'var(--color-success, #16a34a)' }}>✓</span>
+                <li className="flex items-center gap-2">
+                  <Check className="size-4 text-[var(--color-success,#16a34a)] shrink-0" />
                   <span>{t('billing.features.intelligentMix')}</span>
                 </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ color: 'var(--color-success, #16a34a)' }}>✓</span>
+                <li className="flex items-center gap-2">
+                  <Check className="size-4 text-[var(--color-success,#16a34a)] shrink-0" />
                   <span>{t('billing.features.aiExplanations')}</span>
                 </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ color: 'var(--color-success, #16a34a)' }}>✓</span>
+                <li className="flex items-center gap-2">
+                  <Check className="size-4 text-[var(--color-success,#16a34a)] shrink-0" />
                   <span>{t('billing.features.audioTranscripts')}</span>
                 </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ color: 'var(--color-success, #16a34a)' }}>✓</span>
+                <li className="flex items-center gap-2">
+                  <Check className="size-4 text-[var(--color-success,#16a34a)] shrink-0" />
                   <span>{t('billing.features.srsSync')}</span>
                 </li>
               </ul>
@@ -134,9 +124,10 @@ export function PricingTable({
                 onClick={() => onSelectPlan(plan)}
                 aria-label={t('billing.pricing.selectPlanAria', { name: plan.name })}
                 data-testid={`select-plan-${plan.id}`}
-                style={{ width: '100%' }}
+                className="w-full flex items-center justify-center gap-1.5"
               >
-                {isSelected ? `✓ ${t('billing.pricing.selected')}` : t('billing.pricing.selectPlan')}
+                {isSelected && <Check className="size-4" />}
+                <span>{isSelected ? t('billing.pricing.selected') : t('billing.pricing.selectPlan')}</span>
               </Button>
             </CardContent>
           </Card>

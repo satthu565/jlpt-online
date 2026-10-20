@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react';
 import type { RichBlock, RichText } from '@jlpt/schema';
-import { RichTextView, Button, Input } from '@jlpt/ui';
+import { RichTextView } from '@jlpt/ui/components/rich-text-view';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
 import {
   createBlankSegment,
   createImageBlock,

@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button, Input } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
 import type { ReviewItem, StaffOperator, ReviewTargetType, ReviewItemStatus } from './types';
 import { SelfReviewForbiddenError } from './types';
 import { ReviewService } from './review-service';

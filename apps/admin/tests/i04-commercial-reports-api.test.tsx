@@ -153,7 +153,7 @@ describe('I04 Commercial, Reports & Experiments Real API Integration Suite', () 
     it('ReportsHubPage renders all 15 report tabs, dateRange selector, and export button', () => {
       const html = renderWithAuth(<ReportsHubPage />);
       expect(html).toContain('data-testid="page-title"');
-      expect(html).toContain('Trung tâm Báo cáo &amp; Phân tích Hệ thống (ADM-17)');
+      expect(html).toContain('Trung tâm Báo cáo &amp; Phân tích Hệ thống');
       expect(html).toContain('data-testid="btn-export-csv"');
       expect(html).toContain('data-testid="reports-tab-nav"');
       expect(html).toContain('data-testid="report-tab-acquisition"');
@@ -194,7 +194,7 @@ describe('I04 Commercial, Reports & Experiments Real API Integration Suite', () 
       ];
       const html = renderWithAuth(<ContentReportsPage initialReports={testReports} />);
       expect(html).toContain('data-testid="page-title"');
-      expect(html).toContain('Quản lý Báo lỗi Câu hỏi từ Người dùng (ADM-09)');
+      expect(html).toContain('Quản lý Báo lỗi Câu hỏi từ Người dùng');
       expect(html).toContain('data-testid="select-report-filter"');
       expect(html).toContain('data-testid="report-card-rep-01"');
       expect(html).toContain('data-testid="btn-resolve-rep-01"');

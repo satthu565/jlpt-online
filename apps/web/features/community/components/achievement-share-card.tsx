@@ -1,7 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Button, Badge, Input } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Input } from '@jlpt/ui/components/input';
+import { Trophy, Shield, Check, Link2 } from 'lucide-react';
 import type { AchievementShareData } from '../types';
 import { useI18n } from '../../../lib/i18n';
 
@@ -37,32 +41,25 @@ export function AchievementShareCard({
 
   return (
     <Card data-testid="achievement-share-card">
-      <CardHeader style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <CardHeader className="flex flex-row justify-between items-center">
         <CardTitle>{t('community.share.cardTitle')}</CardTitle>
         <Badge variant="primary">{data.badge}</Badge>
       </CardHeader>
 
-      <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      <CardContent className="flex flex-col gap-5">
         {/* Visual Achievement Card */}
-        <div
-          style={{
-            padding: '2rem',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-            color: '#ffffff',
-            textAlign: 'center',
-            boxShadow: 'var(--shadow-md)',
-          }}
-        >
-          <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🏆</div>
-          <h3 style={{ fontSize: '1.5rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: '#ffffff' }}>
+        <div className="p-8 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white text-center shadow-md flex flex-col items-center">
+          <div className="flex size-14 items-center justify-center rounded-full bg-white/20 mb-2">
+            <Trophy className="size-8 text-amber-300" />
+          </div>
+          <h3 className="text-2xl font-extrabold m-0 mb-2 text-white">
             {data.title}
           </h3>
-          <p style={{ margin: '0 0 1rem 0', opacity: 0.9 }}>
+          <p className="m-0 mb-4 opacity-90 text-sm">
             {t('community.share.congratulations', { name: displayName })}
           </p>
 
-          <div style={{ display: 'inline-flex', gap: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.2)', padding: '0.5rem 1rem', borderRadius: '8px' }}>
+          <div className="inline-flex gap-4 bg-white/20 px-4 py-2 rounded-lg text-sm">
             {data.level && <span><strong>{data.level}</strong></span>}
             {data.score !== undefined && <span>{t('community.share.scoreLabel', { score: String(data.score) })}</span>}
             {data.streakDays !== undefined && <span>{t('community.share.streakLabel', { days: String(data.streakDays) })}</span>}
@@ -70,34 +67,39 @@ export function AchievementShareCard({
         </div>
 
         {/* Privacy Option */}
-        <label
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            cursor: 'pointer',
-            fontSize: '0.875rem',
-            color: 'var(--text-secondary)',
-          }}
-        >
+        <label className="flex items-center gap-2 cursor-pointer text-sm text-[var(--text-secondary)]">
           <Input
             type="checkbox"
             checked={hideRealName}
             onChange={(e) => setHideRealName(e.target.checked)}
             data-testid="hide-name-toggle"
-            className="h-4 w-4 min-h-0 cursor-pointer"
+            className="size-4 min-h-0 cursor-pointer"
           />
-          <span>🛡️ {t('community.share.hideNameOption')}</span>
+          <span className="flex items-center gap-1.5">
+            <Shield className="size-4 text-[var(--color-primary)]" />
+            <span>{t('community.share.hideNameOption')}</span>
+          </span>
         </label>
 
         {/* Share Action */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+        <div className="flex justify-end gap-3">
           <Button
             variant="primary"
             onClick={handleCopy}
             data-testid="copy-share-link-button"
+            className="flex items-center gap-1.5"
           >
-            {copied ? `✓ ${t('community.share.copied')}` : `🔗 ${t('community.share.copyLink')}`}
+            {copied ? (
+              <>
+                <Check className="size-4" />
+                <span>{t('community.share.copied')}</span>
+              </>
+            ) : (
+              <>
+                <Link2 className="size-4" />
+                <span>{t('community.share.copyLink')}</span>
+              </>
+            )}
           </Button>
         </div>
       </CardContent>

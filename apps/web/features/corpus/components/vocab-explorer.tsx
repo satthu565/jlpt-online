@@ -1,7 +1,14 @@
 'use client';
 
+import { ArrowRight, NotebookPen } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Input, Button, Badge, Alert, TTSAudioPlayer, Spinner } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Input } from '@jlpt/ui/components/input';
+import { Button } from '@jlpt/ui/components/button';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
+import { TTSAudioPlayer } from '@jlpt/ui/components/tts-audio-player';
+import { Spinner } from '@jlpt/ui/components/spinner';
 import { CorpusClient } from '../services/corpus-client';
 import type { VocabTermDto } from '../types';
 import { useI18n } from '../../../lib/i18n';
@@ -242,7 +249,7 @@ export function VocabExplorer({
                 </p>
                 {item.exampleMeaning && (
                   <p className="text-slate-500 text-[11px]">
-                    👉 {item.exampleMeaning}
+                    <ArrowRight className="inline size-4 align-[-2px]" aria-hidden="true" /> {item.exampleMeaning}
                   </p>
                 )}
               </div>
@@ -273,7 +280,7 @@ export function VocabExplorer({
                 onClick={() => handleSaveToNotebook(item)}
                 data-testid="add-to-notebook-btn"
               >
-                📓 {t('seo.corpus.addToNotebook')}
+                <NotebookPen className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('seo.corpus.addToNotebook')}
               </Button>
             </div>
           </Card>

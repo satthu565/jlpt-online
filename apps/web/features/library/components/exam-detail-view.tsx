@@ -2,7 +2,8 @@
 
 import React from 'react';
 import type { ExamSummary } from '@jlpt/schema';
-import { Card, Button } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface ExamDetailViewProps {
   exam: ExamSummary & { description?: string };
@@ -27,7 +28,7 @@ export function ExamDetailView({
     <div className={`jlpt-exam-detail max-w-4xl mx-auto space-y-6 ${className}`}>
       {/* Breadcrumb */}
       <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
+        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
         <a href="/de-thi" className="hover:underline">Thư viện đề thi</a> &gt;{' '}
         <span className="text-slate-900 dark:text-slate-100 font-semibold">{exam.title}</span>
       </nav>
@@ -59,7 +60,7 @@ export function ExamDetailView({
           {exam.description || 'Đề thi được số hóa đầy đủ định dạng rich text, furigana ruby, bài đọc đối chiếu và âm thanh chuẩn theo khung năng lực tiếng Nhật quốc tế JLPT.'}
         </p>
 
-        {/* Key Metrics (LIB-07) */}
+        {/* Key Metrics */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 mb-6">
           <div>
             <span className="block text-xs text-slate-500 mb-0.5">Tổng số câu</span>
@@ -87,7 +88,7 @@ export function ExamDetailView({
           </div>
         </div>
 
-        {/* Sections Breakdown (LIB-07) */}
+        {/* Sections Breakdown */}
         <div className="space-y-3 mb-6">
           <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
             Cấu trúc các phần thi
@@ -106,7 +107,7 @@ export function ExamDetailView({
           </div>
         </div>
 
-        {/* Source attribution and License details (LIB-15) */}
+        {/* Source attribution and License details */}
         <div className="p-4 rounded-xl bg-slate-100/70 dark:bg-slate-800/60 text-xs text-slate-600 dark:text-slate-400 space-y-1 mb-6">
           {exam.sourceLabel && (
             <div>

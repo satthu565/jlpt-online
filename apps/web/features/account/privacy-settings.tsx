@@ -1,7 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Button, Modal, Alert } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Modal } from '@jlpt/ui/components/modal';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Download, AlertTriangle } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 
 export interface PrivacySettingsProps {
@@ -53,7 +57,7 @@ export function PrivacySettings({
         <CardTitle>{t('account.privacy.cardTitle')}</CardTitle>
       </CardHeader>
 
-      <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <CardContent className="flex flex-col gap-6">
         {feedback && (
           <Alert variant={feedback.type} onClose={() => setFeedback(null)}>
             {feedback.message}
@@ -61,21 +65,13 @@ export function PrivacySettings({
         )}
 
         {/* Data Export (GDPR Portability) */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '1.25rem',
-            borderRadius: '8px',
-            backgroundColor: 'var(--bg-muted)',
-          }}
-        >
+        <div className="flex justify-between items-center p-5 rounded-lg bg-[var(--bg-muted)]">
           <div>
-            <span style={{ fontWeight: 600, display: 'block', color: 'var(--text-primary)' }}>
-              📥 {t('account.privacy.exportTitle')}
+            <span className="font-semibold flex items-center gap-2 text-[var(--text-primary)]">
+              <Download className="size-4 text-[var(--color-primary)]" />
+              {t('account.privacy.exportTitle')}
             </span>
-            <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            <span className="text-sm text-[var(--text-secondary)]">
               {t('account.privacy.exportDesc')}
             </span>
           </div>
@@ -90,21 +86,13 @@ export function PrivacySettings({
         </div>
 
         {/* Retention-safe Account Deletion */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '1.25rem',
-            borderRadius: '8px',
-            border: '1px solid var(--border-subtle)',
-          }}
-        >
+        <div className="flex justify-between items-center p-5 rounded-lg border border-destructive/30 bg-destructive/5">
           <div>
-            <span style={{ fontWeight: 600, display: 'block', color: 'var(--color-error)' }}>
-              ⚠️ {t('account.privacy.deleteAccountTitle')}
+            <span className="font-semibold flex items-center gap-2 text-destructive">
+              <AlertTriangle className="size-4" />
+              {t('account.privacy.deleteAccountTitle')}
             </span>
-            <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            <span className="text-sm text-[var(--text-secondary)]">
               {t('account.privacy.deleteAccountDesc')}
             </span>
           </div>
@@ -112,7 +100,7 @@ export function PrivacySettings({
             variant="outline"
             onClick={() => setIsDeleteModalOpen(true)}
             data-testid="request-account-deletion-button"
-            style={{ color: 'var(--color-error)', borderColor: 'var(--color-error)' }}
+            className="text-destructive border-destructive hover:bg-destructive/10"
           >
             {t('account.privacy.deleteAccountButton')}
           </Button>
@@ -125,21 +113,20 @@ export function PrivacySettings({
             onClose={() => setIsDeleteModalOpen(false)}
             title={t('account.privacy.deleteModalTitle')}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9375rem' }}>
+            <div className="flex flex-col gap-4">
+              <p className="m-0 text-[var(--text-secondary)] text-sm">
                 {t('account.privacy.deleteModalWarning')}
               </p>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+              <div className="flex justify-end gap-3 mt-2">
                 <Button type="button" variant="outline" onClick={() => setIsDeleteModalOpen(false)}>
                   {t('common.buttons.cancel')}
                 </Button>
                 <Button
-                  variant="primary"
+                  variant="danger"
                   onClick={handleDelete}
                   loading={deleting}
                   data-testid="confirm-deletion-button"
-                  style={{ backgroundColor: 'var(--color-error)', borderColor: 'var(--color-error)' }}
                 >
                   {t('account.privacy.confirmDeletionButton')}
                 </Button>

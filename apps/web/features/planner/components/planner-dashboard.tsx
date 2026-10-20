@@ -1,7 +1,11 @@
 'use client';
 
+import { CalendarDays, Flame, Scale } from 'lucide-react';
 import React, { useState } from 'react';
-import { Card, CardHeader, CardContent, Button, Badge, Alert } from '@jlpt/ui';
+import { Card, CardHeader, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
 import type { StudyPlan, StudySession, CreateStudyPlanInput } from '../types';
 import { TodaySessionRunner } from './today-session-runner';
 import { ReplanModal } from './replan-modal';
@@ -34,7 +38,7 @@ export function PlannerDashboard({
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+      <div className="text-center p-12 text-[var(--text-muted)]">
         {t('common.status.loading')}
       </div>
     );
@@ -43,12 +47,12 @@ export function PlannerDashboard({
   if (!plan) {
     return (
       <Card data-testid="planner-no-plan-card">
-        <CardContent style={{ padding: '3.5rem 2rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📅</div>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>
+        <CardContent className="py-14 px-8 text-center">
+          <CalendarDays className="mx-auto mb-4 size-12" aria-hidden="true" />
+          <h2 className="text-[1.75rem] font-extrabold mt-0 mx-0 mb-2 text-[var(--text-primary)]">
             {t('planner.empty.title')}
           </h2>
-          <p style={{ color: 'var(--text-secondary)', maxWidth: '500px', margin: '0 auto 1.5rem auto' }}>
+          <p className="text-[var(--text-secondary)] max-w-[500px] mt-0 mx-auto mb-6">
             {t('planner.empty.description')}
           </p>
           <Button
@@ -75,11 +79,11 @@ export function PlannerDashboard({
   }
 
   return (
-    <div className="planner-dashboard" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="planner-dashboard flex flex-col gap-6">
       {/* Final Sprint Warning Banner */}
       {plan.isFinalSprint && (
         <Alert variant="warning" data-testid="final-sprint-banner">
-          🔥 <strong>{t('planner.finalSprint.title')}</strong>: {t('planner.finalSprint.description')}
+          <Flame className="inline size-4 align-[-2px]" aria-hidden="true" /> <strong>{t('planner.finalSprint.title')}</strong>: {t('planner.finalSprint.description')}
         </Alert>
       )}
 
@@ -91,29 +95,25 @@ export function PlannerDashboard({
 
       {/* Top Overview Cards */}
       <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '1rem',
-        }}
+        className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4"
       >
         {/* Target Level & Countdown */}
         <Card>
-          <CardHeader style={{ paddingBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+          <CardHeader className="pb-2">
+            <span className="text-sm text-[var(--text-muted)]">
               {t('planner.overview.target')}
             </span>
           </CardHeader>
           <CardContent>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-              <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-primary)' }}>
+            <div className="flex items-baseline gap-2">
+              <span className="text-[2rem] font-extrabold text-[var(--color-primary)]">
                 {plan.targetLevel}
               </span>
-              <span style={{ fontSize: '0.9375rem', color: 'var(--text-secondary)' }}>
+              <span className="text-[0.9375rem] text-[var(--text-secondary)]">
                 ({plan.targetDate})
               </span>
             </div>
-            <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            <p className="mt-2 mx-0 mb-0 text-sm text-[var(--text-secondary)]">
               {t('planner.overview.daysRemaining', { count: String(plan.daysRemaining) })}
             </p>
           </CardContent>
@@ -121,21 +121,22 @@ export function PlannerDashboard({
 
         {/* Current Streak */}
         <Card>
-          <CardHeader style={{ paddingBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+          <CardHeader className="pb-2">
+            <span className="text-sm text-[var(--text-muted)]">
               {t('planner.overview.streak')}
             </span>
           </CardHeader>
           <CardContent>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-              <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-warning)' }}>
-                🔥 {plan.currentStreak}
+            <div className="flex items-baseline gap-2">
+              <span className="text-[2rem] font-extrabold text-[var(--color-warning)]">
+                <Flame className="inline size-7 align-[-4px]" aria-hidden="true" />{' '}
+                <span data-testid="streak-count">{plan.currentStreak}</span>
               </span>
-              <span style={{ fontSize: '0.9375rem', color: 'var(--text-secondary)' }}>
+              <span className="text-[0.9375rem] text-[var(--text-secondary)]">
                 {t('planner.overview.daysUnit')}
               </span>
             </div>
-            <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            <p className="mt-2 mx-0 mb-0 text-sm text-[var(--text-secondary)]">
               {t('planner.overview.streakMotivation')}
             </p>
           </CardContent>
@@ -143,38 +144,25 @@ export function PlannerDashboard({
 
         {/* Progress & Completion Rate */}
         <Card>
-          <CardHeader style={{ paddingBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+          <CardHeader className="pb-2">
+            <span className="text-sm text-[var(--text-muted)]">
               {t('planner.overview.completionRate')}
             </span>
           </CardHeader>
           <CardContent>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-              <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-success)' }}>
+            <div className="flex items-baseline gap-2">
+              <span className="text-[2rem] font-extrabold text-[var(--color-success)]">
                 {plan.completionRate}%
               </span>
-              <span style={{ fontSize: '0.9375rem', color: 'var(--text-secondary)' }}>
+              <span className="text-[0.9375rem] text-[var(--text-secondary)]">
                 ({plan.completedSessions}/{plan.totalSessions})
               </span>
             </div>
-            <div
-              style={{
-                width: '100%',
-                height: '8px',
-                backgroundColor: 'var(--bg-muted)',
-                borderRadius: '4px',
-                marginTop: '0.5rem',
-                overflow: 'hidden',
-              }}
-            >
+            <div className="w-full h-[8px] bg-[var(--bg-muted)] rounded-[4px] mt-2 overflow-hidden">
               <div
-                style={{
-                  width: `${Math.min(plan.completionRate, 100)}%`,
-                  height: '100%',
-                  backgroundColor: 'var(--color-success)',
-                  borderRadius: '4px',
-                  transition: 'width 0.3s ease',
-                }}
+                className="h-full rounded-[4px] bg-[var(--color-success)] transition-[width] duration-300"
+                    // ui-allow-style: chiều rộng theo tỉ lệ hoàn thành, tính lúc chạy
+                    style={{ width: `${Math.min(plan.completionRate, 100)}%` }}
               />
             </div>
           </CardContent>
@@ -182,13 +170,13 @@ export function PlannerDashboard({
 
         {/* Plan Version & Replan Trigger */}
         <Card>
-          <CardHeader style={{ paddingBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+          <CardHeader className="pb-2">
+            <span className="text-sm text-[var(--text-muted)]">
               {t('planner.overview.version')}
             </span>
           </CardHeader>
           <CardContent>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div className="flex items-center justify-between">
               <Badge variant="secondary">v{plan.currentVersion}</Badge>
               <Button
                 variant="outline"
@@ -197,10 +185,10 @@ export function PlannerDashboard({
                 aria-label={t('planner.actions.replan')}
                 data-testid="replan-button"
               >
-                ⚖️ {t('planner.actions.replan')}
+                <Scale className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('planner.actions.replan')}
               </Button>
             </div>
-            <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+            <p className="mt-2 mx-0 mb-0 text-[0.8125rem] text-[var(--text-muted)]">
               {t('planner.overview.replanHint')}
             </p>
           </CardContent>
@@ -208,7 +196,7 @@ export function PlannerDashboard({
       </div>
 
       {/* Main Grid: Today's Session Runner & Reminders */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-6">
         <div>
           <TodaySessionRunner
             session={todaySession}

@@ -1,8 +1,10 @@
 'use client';
 
+import { Flag, Lightbulb, Timer } from 'lucide-react';
 import React from 'react';
 import type { FlatQuestionItem } from '../../exam/types';
-import { Card, Badge } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
 
 export interface PacingAnalysisWidgetProps {
   timeSpentMs?: number[];
@@ -87,7 +89,7 @@ export function PacingAnalysisWidget({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xl">⏱️</span>
+            <Timer className="size-5" aria-hidden="true" />
             <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
               Phân tích nhịp làm bài (Pacing Analysis)
             </h3>
@@ -155,7 +157,7 @@ export function PacingAnalysisWidget({
       </div>
 
       <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 text-xs text-amber-900 dark:text-amber-200">
-        💡 <strong>Lời khuyên tối ưu tốc độ:</strong> Hãy phân bổ tối đa 40–50 giây cho các câu Từ vựng/Ngữ pháp. Nếu gặp câu khó vượt quá 1.5 phút, hãy đánh dấu gắn cờ 🚩 và chuyển câu kế tiếp để đảm bảo đủ thời gian làm bài Đọc hiểu.
+        <Lightbulb className="inline size-4 align-[-2px]" aria-hidden="true" /> <strong>Lời khuyên tối ưu tốc độ:</strong> Hãy phân bổ tối đa 40–50 giây cho các câu Từ vựng/Ngữ pháp. Nếu gặp câu khó vượt quá 1.5 phút, hãy đánh dấu gắn cờ <Flag className="inline size-3.5 align-[-2px]" aria-hidden="true" /> và chuyển câu kế tiếp để đảm bảo đủ thời gian làm bài Đọc hiểu.
       </div>
     </Card>
   );

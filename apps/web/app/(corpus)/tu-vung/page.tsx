@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import { VocabExplorer } from '../../../features/corpus';
-import { JsonLd } from '@jlpt/ui';
+import { JsonLd } from '@jlpt/ui/components/json-ld';
 
 export const metadata: Metadata = {
   title: 'Thư viện Từ vựng JLPT N1–N5 theo ngữ cảnh & cấp độ - JLPT Online',

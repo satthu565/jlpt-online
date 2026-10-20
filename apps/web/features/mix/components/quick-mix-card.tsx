@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Zap } from 'lucide-react';
 import type { Level } from '@jlpt/schema';
-import { Card, Button } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface QuickMixCardProps {
   onQuickMix: (level: Level) => Promise<void> | void;
@@ -30,7 +32,7 @@ export function QuickMixCard({
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
         <div className="space-y-1.5 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-xl">⚡</span>
+            <Zap className="h-5 w-5 text-amber-500 shrink-0" aria-hidden="true" />
             <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
               Trộn đề nhanh 1 chạm (Quick Mix)
             </h3>

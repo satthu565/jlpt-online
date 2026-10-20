@@ -338,6 +338,12 @@ body {
   justify-content: center;
 }
 
+@media (max-width: 768px) {
+  .header-auth-buttons {
+    display: none !important;
+  }
+}
+
 @media (max-width: 1279px) {
   .header-desktop-controls {
     display: none !important;

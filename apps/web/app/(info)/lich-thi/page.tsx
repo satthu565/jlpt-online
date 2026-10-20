@@ -1,7 +1,12 @@
 'use client';
 
+import { AlarmClock, AlertTriangle, BadgeCheck, Bell, BellOff, CalendarDays, MapPin } from 'lucide-react';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Card, Button, Badge, Alert, Spinner } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Spinner } from '@jlpt/ui/components/spinner';
 import { useI18n } from '../../../lib/i18n';
 
 export interface JlptLocation {
@@ -167,7 +172,7 @@ export default function ExamSchedulePage(): React.JSX.Element {
             aria-pressed={remindersEnabled}
             className="flex items-center gap-2 text-xs font-semibold"
           >
-            <span>{remindersEnabled ? '🔔' : '🔕'}</span>
+            {remindersEnabled ? <Bell className="size-4" aria-hidden="true" /> : <BellOff className="size-4" aria-hidden="true" />}
             <span>{t('schedules.reminderToggle')}</span>
           </Button>
         </div>
@@ -223,7 +228,7 @@ export default function ExamSchedulePage(): React.JSX.Element {
           data-testid="schedule-error"
           className="p-8 text-center border-rose-200 dark:border-rose-900/50 bg-rose-50/50 dark:bg-rose-950/20"
         >
-          <div className="text-4xl mb-3" aria-hidden="true">⚠️</div>
+          <AlertTriangle className="mx-auto mb-3 size-10 text-[var(--color-danger)]" aria-hidden="true" />
           <h2 className="text-lg font-bold text-rose-800 dark:text-rose-300 mb-2">
             {t('schedules.errorTitle')}
           </h2>
@@ -245,7 +250,7 @@ export default function ExamSchedulePage(): React.JSX.Element {
           data-testid="schedule-empty-state"
           className="p-12 text-center border-dashed border-2 border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20 space-y-4"
         >
-          <div className="text-5xl" aria-hidden="true">📅</div>
+          <CalendarDays className="mx-auto size-12 text-[var(--text-muted)]" aria-hidden="true" />
           <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">
             {t('schedules.empty')}
           </h2>
@@ -259,7 +264,7 @@ export default function ExamSchedulePage(): React.JSX.Element {
               onClick={handleToggleReminder}
               className="text-xs font-semibold"
             >
-              🔔 {t('schedules.reminderToggle')}
+              <Bell className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('schedules.reminderToggle')}
             </Button>
           </div>
         </Card>
@@ -300,7 +305,7 @@ export default function ExamSchedulePage(): React.JSX.Element {
                     Trạng thái đợt thi
                   </span>
                   <Badge variant="success" className="text-xs font-semibold">
-                    ✓ Chính thức
+                    <BadgeCheck className="inline size-3.5 align-[-2px]" aria-hidden="true" /> Chính thức
                   </Badge>
                 </div>
               </div>
@@ -309,7 +314,7 @@ export default function ExamSchedulePage(): React.JSX.Element {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40">
                   <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 block mb-1">
-                    🗓️ {t('schedules.examDate')}
+                    <CalendarDays className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('schedules.examDate')}
                   </span>
                   <strong
                     data-testid="schedule-exam-date"
@@ -321,7 +326,7 @@ export default function ExamSchedulePage(): React.JSX.Element {
 
                 <div className="p-4 rounded-xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/40">
                   <span className="text-xs font-semibold text-amber-700 dark:text-amber-300 block mb-1">
-                    ⏰ {t('schedules.registrationDeadline')}
+                    <AlarmClock className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('schedules.registrationDeadline')}
                   </span>
                   <strong
                     data-testid="schedule-registration-deadline"
@@ -341,7 +346,7 @@ export default function ExamSchedulePage(): React.JSX.Element {
               {schedule.locations && schedule.locations.length > 0 && (
                 <div className="space-y-3" data-testid="schedule-locations">
                   <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                    <span>📍</span> {t('schedules.locations')}:
+                    <MapPin className="size-4" aria-hidden="true" /> {t('schedules.locations')}:
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {schedule.locations.map((loc, idx) => (

@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Modal, Button } from '@jlpt/ui';
+import { Modal } from '@jlpt/ui/components/modal';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface SectionTransitionModalProps {
   isOpen: boolean;

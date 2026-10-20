@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button, Input } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Checkbox } from '@jlpt/ui/components/checkbox';
+import { Input } from '@jlpt/ui/components/input';
 import type { PublicExamSnapshot } from '@jlpt/schema';
 import type { AdminExam, StaffOperator, PublishedVersionRecord } from './types';
 import { ExamService } from './exam-service';
@@ -15,6 +17,13 @@ export interface ExamListViewProps {
   currentOperator: StaffOperator;
   onExamPublished?: (exam: AdminExam) => void;
 }
+
+const STATUS_LABEL: Record<string, string> = {
+  published: 'Đã xuất bản',
+  draft: 'Chưa xuất bản',
+  takedown: 'Đã gỡ',
+  archived: 'Lưu trữ',
+};
 
 export function ExamListView({
   initialExams = [],
@@ -34,13 +43,20 @@ export function ExamListView({
   const [takedownReason, setTakedownReason] = useState<string>('');
 
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  // Đề 0 câu (thường do test hoặc đề trộn rỗng tạo ra) ẩn mặc định để bảng dễ đọc.
+  const [showEmptyExams, setShowEmptyExams] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const fetchExams = async () => {
     setIsLoading(true);
     try {
       const res = (await apiClient.listExams()) as { items?: AdminExam[] } | AdminExam[];
-      const items = Array.isArray(res) ? res : res?.items || [];
+      const raw = Array.isArray(res) ? res : res?.items || [];
+      // API trả publishedVersion nhưng không trả status; suy ra để cột trạng thái không trống.
+      const items = raw.map((e) => ({
+        ...e,
+        status: e.status ?? (e.publishedVersion ? 'published' : 'draft'),
+      })) as AdminExam[];
       if (Array.isArray(items) && items.length > 0) {
         setExams(items);
       } else if (initialExams.length > 0) {
@@ -76,9 +92,17 @@ export function ExamListView({
     setErrorMessage(null);
     setStatusMessage(null);
     try {
-      await apiClient.publishExam(exam.id);
+      if (
+        typeof window !== 'undefined' &&
+        typeof window.confirm === 'function' &&
+        !window.confirm(`Duyệt toàn bộ câu hỏi và xuất bản "${exam.title}"? Thao tác được ghi vào nhật ký kiểm toán.`)
+      ) {
+        return;
+      }
+      const res = await apiClient.approveAndPublishExam(exam.id);
+      const approvedNote = res.approvedGroups > 0 ? ` Đã duyệt ${res.approvedGroups} nhóm câu.` : '';
       setStatusMessage(
-        `Xuất bản thành công! Đề thi đạt phiên bản v${exam.publishedVersion ? exam.publishedVersion + 1 : 1}. Snapshot không lộ đáp án.`,
+        `Xuất bản thành công! Đề thi đạt phiên bản v${res.version ?? (exam.publishedVersion ? exam.publishedVersion + 1 : 1)}.${approvedNote} Snapshot không lộ đáp án.`,
       );
       onExamPublished?.(exam);
       await fetchExams();
@@ -159,6 +183,15 @@ export function ExamListView({
         </div>
       )}
 
+      <label className="flex items-center gap-2 text-sm text-gray-600">
+        <Checkbox
+          data-testid="show-empty-exams"
+          checked={showEmptyExams}
+          onCheckedChange={(v) => setShowEmptyExams(v === true)}
+        />
+        Hiện cả đề 0 câu
+      </label>
+
       {/* Exam Table */}
       <div className="overflow-x-auto w-full border border-gray-200 rounded-lg shadow-xs mb-6">
         <table data-testid="exam-table" className="w-full text-left text-sm border-collapse">
@@ -180,7 +213,7 @@ export function ExamListView({
                 </td>
               </tr>
             ) : (
-              exams.map((exam) => (
+              exams.filter((exam) => showEmptyExams || (exam.totalQuestions ?? 0) > 0).map((exam) => (
                 <tr key={exam.id} data-testid={`exam-row-${exam.id}`} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="p-3 font-medium text-gray-900">{exam.title}</td>
                   <td className="p-3">{exam.level}</td>
@@ -195,7 +228,7 @@ export function ExamListView({
                             : 'bg-gray-100 text-gray-800'
                       }`}
                     >
-                      {exam.status}
+                      {STATUS_LABEL[exam.status as string] ?? exam.status}
                     </span>
                   </td>
                   <td className="p-3">
@@ -230,7 +263,7 @@ export function ExamListView({
                         data-testid={`publish-exam-btn-${exam.id}`}
                         onClick={() => handlePublish(exam)}
                       >
-                        {t('content.exams.publishBtn', locale)}
+                        Duyệt &amp; xuất bản
                       </Button>
                     )}
                     <Button

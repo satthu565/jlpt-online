@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
 import type { BillingManager } from './billing-service';
 import type { AdminReconciliationRun, AdminDiscrepancyItem } from './types';
 import type { StaffUser } from '../../lib/auth-context';
@@ -138,7 +138,7 @@ export function ReconciliationManager({
       <div className="p-4 md:p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-xs">
         <div>
           <h2 data-testid="reconciliation-heading" className="text-base font-bold text-gray-900 dark:text-gray-100">
-            Đối soát Giao dịch &amp; Hoàn tiền (Payment Reconciliation - ADM-16)
+            Đối soát Giao dịch &amp; Hoàn tiền (Payment Reconciliation)
           </h2>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             {t('commercial.reconciliationSubtitle', locale)}

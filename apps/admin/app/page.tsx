@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button } from '@jlpt/ui';
+import Link from 'next/link';
+import { Button } from '@jlpt/ui/components/button';
+import { Card } from '@jlpt/ui/components/card';
 import { AdminGuard } from '../lib/ui-guard';
 import { useAdminAuth } from '../lib/auth-context';
 import { getNavigationSections } from '../lib/navigation';
@@ -117,8 +119,8 @@ export default function AdminDashboardPage(): React.JSX.Element {
         {/* Header */}
         <header className="bg-white p-6 rounded-xl border border-gray-200 flex flex-wrap items-center justify-between gap-4 shadow-xs">
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
-              Tổng quan chỉ số hoạt động hệ thống (ADM-01)
+            <h1 data-testid="page-title" className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
+              Tổng quan chỉ số hoạt động hệ thống
             </h1>
             <p className="mt-1 text-sm text-gray-500">
               Xin chào <strong>{user?.name || user?.email}</strong> — Chúc bạn một ngày làm việc hiệu quả!
@@ -247,22 +249,35 @@ export default function AdminDashboardPage(): React.JSX.Element {
               .filter((sec) => sec.id !== 'overview')
               .flatMap((sec) => sec.items)
               .map((item) => (
-                <a
+                <Card
                   key={item.id}
-                  href={item.href}
                   data-testid={`dashboard-card-${item.id}`}
-                  className="block bg-white p-5 rounded-xl border border-gray-200 shadow-xs hover:border-blue-500 hover:shadow-md transition duration-150"
+                  className="p-5 hover:border-blue-500 hover:shadow-md transition duration-150 flex flex-col justify-between"
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-base font-bold text-gray-900">
-                      {t(item.labelKey, locale)}
-                    </h3>
-                    <span className="text-blue-600 text-lg font-bold">→</span>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">
+                        <Link
+                          href={item.href}
+                          className="hover:text-blue-600 no-underline hover:underline text-gray-900 dark:text-gray-100 focus:outline-none"
+                        >
+                          {t(item.labelKey, locale)}
+                        </Link>
+                      </h3>
+                      <Link
+                        href={item.href}
+                        tabIndex={-1}
+                        aria-hidden="true"
+                        className="text-blue-600 text-lg font-bold no-underline"
+                      >
+                        →
+                      </Link>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed no-underline">
+                      Truy cập mô-đun {t(item.labelKey, locale).toLowerCase()} theo thẩm quyền của bạn.
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-500 leading-relaxed">
-                    Truy cập mô-đun {t(item.labelKey, locale).toLowerCase()} theo thẩm quyền của bạn.
-                  </p>
-                </a>
+                </Card>
               ))}
           </div>
         </section>

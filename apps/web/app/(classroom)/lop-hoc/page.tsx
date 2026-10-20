@@ -14,7 +14,13 @@ import {
 } from '../../../features/classroom';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
-import { Alert, Button, Card, CardContent, Input, Spinner } from '@jlpt/ui';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Button } from '@jlpt/ui/components/button';
+import { Card, CardContent } from '@jlpt/ui/components/card';
+import { Input } from '@jlpt/ui/components/input';
+import { PageHeader } from '@jlpt/ui/components/page-header';
+import { EmptyState } from '@jlpt/ui/components/empty-state';
+import { KeyRound, School } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ClassroomPage(): React.JSX.Element {
@@ -209,25 +215,15 @@ export default function ClassroomPage(): React.JSX.Element {
 
   return (
     <div className="max-w-6xl mx-auto py-8 px-4 w-full">
-      <div style={{ marginBottom: '2rem' }}>
-        <h1
-          style={{
-            fontSize: '2rem',
-            fontWeight: 800,
-            color: 'var(--text-primary)',
-            margin: '0 0 0.5rem 0',
-          }}
-        >
-          {t('classroom.page.title')}
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
-          {t('classroom.page.subtitle')}
-        </p>
-      </div>
+      <PageHeader
+        title={t('classroom.page.title')}
+        description={t('classroom.page.subtitle')}
+        className="mb-8"
+      />
 
       {(!user || isUnauthorized) && (
-        <Alert variant="warning" style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <Alert variant="warning" className="mb-6">
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <span>Bạn cần đăng nhập tài khoản học viên hoặc giáo viên để truy cập lớp học.</span>
             <Link href="/dang-nhap?redirect=/lop-hoc">
               <Button size="sm" variant="primary">Đăng nhập ngay</Button>
@@ -237,8 +233,8 @@ export default function ClassroomPage(): React.JSX.Element {
       )}
 
       {error && !isUnauthorized && (
-        <Alert variant="error" onClose={() => setError(null)} style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <Alert variant="error" onClose={() => setError(null)} className="mb-6">
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <span>{error}</span>
             <Button size="sm" variant="outline" onClick={loadData}>
               {t('common.buttons.retry')}
@@ -248,13 +244,14 @@ export default function ClassroomPage(): React.JSX.Element {
       )}
 
       {/* Invitation Token Card for Learner */}
-      <Card style={{ marginBottom: '2rem' }}>
-        <CardContent style={{ padding: '1.25rem' }}>
-          <form onSubmit={handleJoinByToken} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>
-              🔑 Gia nhập lớp học bằng mã mời:
+      <Card className="mb-8">
+        <CardContent className="p-5">
+          <form onSubmit={handleJoinByToken} className="flex gap-3 items-center flex-wrap">
+            <span className="font-semibold text-sm flex items-center gap-1.5 text-[var(--text-primary)]">
+              <KeyRound className="size-4 text-[var(--color-primary)]" />
+              Gia nhập lớp học bằng mã mời:
             </span>
-            <div style={{ flex: 1, minWidth: '220px' }}>
+            <div className="flex-1 min-w-[220px]">
               <Input
                 id="classroom-invite-token"
                 data-testid="classroom-invite-input"
@@ -269,7 +266,7 @@ export default function ClassroomPage(): React.JSX.Element {
             </Button>
           </form>
           {joinMessage && (
-            <div style={{ marginTop: '0.75rem' }}>
+            <div className="mt-3">
               <Alert variant={joinMessage.type === 'success' ? 'success' : 'error'}>
                 {joinMessage.text}
               </Alert>
@@ -279,24 +276,22 @@ export default function ClassroomPage(): React.JSX.Element {
       </Card>
 
       {loading && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem 0', alignItems: 'center', gap: '0.75rem' }}>
-          <Spinner size="md" />
-          <span style={{ color: 'var(--text-secondary)' }}>{t('common.status.loading')}</span>
-        </div>
+        <EmptyState
+          variant="loading"
+          title={t('common.status.loading')}
+          description="Đang tải dữ liệu lớp học..."
+          minHeight="sm"
+        />
       )}
 
       {!loading && classes.length === 0 && (
-        <Card>
-          <CardContent style={{ padding: '3.5rem 2rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏫</div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>
-              {t('classroom.empty.title')}
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', maxWidth: '500px', margin: '0 auto 1.5rem auto' }}>
-              {t('classroom.empty.description')}
-            </p>
-          </CardContent>
-        </Card>
+        <EmptyState
+          variant="empty"
+          icon={School}
+          title={t('classroom.empty.title')}
+          description={t('classroom.empty.description')}
+          minHeight="md"
+        />
       )}
 
       {classes.length > 0 && (

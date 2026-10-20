@@ -1,7 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Button, Badge, Alert } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@jlpt/ui/components/table';
+import { EmptyState } from '@jlpt/ui/components/empty-state';
+import { X, AlertTriangle, FileText } from 'lucide-react';
 import type { AssignmentAnalytics } from '../types';
 import { useI18n } from '../../../lib/i18n';
 
@@ -42,21 +48,22 @@ export function AssignmentProgressView({
 
   return (
     <Card data-testid="assignment-progress-view">
-      <CardHeader style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <CardHeader className="flex flex-row justify-between items-center">
         <div>
           <CardTitle>{t('classroom.analytics.title')}</CardTitle>
-          <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+          <span className="text-sm text-[var(--text-muted)]">
             ID: {analytics.assignmentId}
           </span>
         </div>
         {onClose && (
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            ✕ {t('common.buttons.close')}
+          <Button variant="ghost" size="sm" onClick={onClose} className="flex items-center gap-1">
+            <X className="size-4" />
+            <span>{t('common.buttons.close')}</span>
           </Button>
         )}
       </CardHeader>
 
-      <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <CardContent className="flex flex-col gap-6">
         {supplementFeedback && (
           <Alert variant="info" onClose={() => setSupplementFeedback(null)}>
             {supplementFeedback}
@@ -64,51 +71,45 @@ export function AssignmentProgressView({
         )}
 
         {/* Analytics Summary Badges */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-            gap: '1rem',
-          }}
-        >
-          <div style={{ padding: '1rem', borderRadius: '6px', backgroundColor: 'var(--bg-muted)', textAlign: 'center' }}>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="p-4 rounded-lg bg-[var(--bg-muted)] text-center">
+            <span className="text-xs text-[var(--text-muted)] block">
               {t('classroom.analytics.submissionRate')}
             </span>
-            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-primary)' }}>
+            <span className="text-2xl font-extrabold text-[var(--color-primary)]">
               {analytics.submissionRate}%
             </span>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block' }}>
+            <span className="text-xs text-[var(--text-secondary)] block">
               ({analytics.submissionCount}/{analytics.totalLearners})
             </span>
           </div>
 
-          <div style={{ padding: '1rem', borderRadius: '6px', backgroundColor: 'var(--bg-muted)', textAlign: 'center' }}>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>
+          <div className="p-4 rounded-lg bg-[var(--bg-muted)] text-center">
+            <span className="text-xs text-[var(--text-muted)] block">
               {t('classroom.analytics.averageScore')}
             </span>
-            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+            <span className="text-2xl font-extrabold text-[var(--color-primary)]">
               {analytics.averageScore}
             </span>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block' }}>
+            <span className="text-xs text-[var(--text-secondary)] block">
               / 180
             </span>
           </div>
 
-          <div style={{ padding: '1rem', borderRadius: '6px', backgroundColor: 'var(--bg-muted)', textAlign: 'center' }}>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>
+          <div className="p-4 rounded-lg bg-[var(--bg-muted)] text-center">
+            <span className="text-xs text-[var(--text-muted)] block">
               {t('classroom.analytics.passRate')}
             </span>
-            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-success)' }}>
+            <span className="text-2xl font-extrabold text-[var(--color-success,#16a34a)]">
               {analytics.passRate}%
             </span>
           </div>
 
-          <div style={{ padding: '1rem', borderRadius: '6px', backgroundColor: 'var(--bg-muted)', textAlign: 'center' }}>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>
+          <div className="p-4 rounded-lg bg-[var(--bg-muted)] text-center">
+            <span className="text-xs text-[var(--text-muted)] block">
               {t('classroom.analytics.scoreRange')}
             </span>
-            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-secondary)' }}>
+            <span className="text-2xl font-extrabold text-[var(--text-secondary)]">
               {analytics.lowestScore} - {analytics.highestScore}
             </span>
           </div>
@@ -116,19 +117,10 @@ export function AssignmentProgressView({
 
         {/* Action: Create Supplement for Failing Learners */}
         {failingLearnerIds.length > 0 && onSupplement && (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '0.75rem 1rem',
-              borderRadius: '6px',
-              backgroundColor: 'rgba(234, 179, 8, 0.1)',
-              border: '1px solid rgba(234, 179, 8, 0.3)',
-            }}
-          >
-            <span style={{ fontSize: '0.875rem', color: 'var(--text-primary)' }}>
-              ⚠️ {t('classroom.analytics.failingNotice', { count: String(failingLearnerIds.length) })}
+          <div className="flex justify-between items-center p-3 sm:px-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
+            <span className="text-sm text-[var(--text-primary)] flex items-center gap-1.5">
+              <AlertTriangle className="size-4 text-amber-500 shrink-0" />
+              {t('classroom.analytics.failingNotice', { count: String(failingLearnerIds.length) })}
             </span>
             <Button
               variant="outline"
@@ -136,59 +128,60 @@ export function AssignmentProgressView({
               onClick={handleCreateSupplement}
               loading={supplementing}
               data-testid="create-supplement-button"
+              className="flex items-center gap-1.5"
             >
-              📝 {t('classroom.analytics.createSupplement')}
+              <FileText className="size-3.5" />
+              <span>{t('classroom.analytics.createSupplement')}</span>
             </Button>
           </div>
         )}
 
         {/* Submissions Table */}
         <div>
-          <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--text-primary)', fontSize: '1rem' }}>
+          <h4 className="m-0 mb-3 text-[var(--text-primary)] text-base font-semibold">
             {t('classroom.analytics.submissionsList')}
           </h4>
 
           {analytics.submissions.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-              {t('classroom.analytics.noSubmissionsYet')}
-            </p>
+            <EmptyState
+              variant="empty"
+              title={t('classroom.analytics.noSubmissionsYet')}
+              minHeight="sm"
+            />
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid var(--border-subtle)', textAlign: 'left' }}>
-                    <th style={{ padding: '0.5rem' }}>{t('classroom.analytics.learner')}</th>
-                    <th style={{ padding: '0.5rem' }}>{t('classroom.analytics.score')}</th>
-                    <th style={{ padding: '0.5rem' }}>{t('classroom.analytics.result')}</th>
-                    <th style={{ padding: '0.5rem' }}>{t('classroom.analytics.submittedAt')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {analytics.submissions.map((sub) => (
-                    <tr
-                      key={sub.attemptId}
-                      style={{ borderBottom: '1px solid var(--border-subtle)' }}
-                      data-testid={`submission-row-${sub.learnerId}`}
-                    >
-                      <td style={{ padding: '0.5rem' }}>
-                        <div>{sub.learnerName || sub.learnerEmail || sub.learnerId}</div>
-                      </td>
-                      <td style={{ padding: '0.5rem', fontWeight: 600 }}>
-                        {sub.score !== undefined ? `${sub.score}/180` : '-'}
-                      </td>
-                      <td style={{ padding: '0.5rem' }}>
-                        <Badge variant={sub.passed ? 'success' : 'error'}>
-                          {sub.passed ? t('classroom.analytics.passed') : t('classroom.analytics.failed')}
-                        </Badge>
-                      </td>
-                      <td style={{ padding: '0.5rem', color: 'var(--text-muted)' }}>
-                        {sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString() : '-'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('classroom.analytics.learner')}</TableHead>
+                  <TableHead>{t('classroom.analytics.score')}</TableHead>
+                  <TableHead>{t('classroom.analytics.result')}</TableHead>
+                  <TableHead>{t('classroom.analytics.submittedAt')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {analytics.submissions.map((sub) => (
+                  <TableRow
+                    key={sub.attemptId}
+                    data-testid={`submission-row-${sub.learnerId}`}
+                  >
+                    <TableCell>
+                      <div>{sub.learnerName || sub.learnerEmail || sub.learnerId}</div>
+                    </TableCell>
+                    <TableCell className="font-semibold">
+                      {sub.score !== undefined ? `${sub.score}/180` : '-'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={sub.passed ? 'success' : 'error'}>
+                        {sub.passed ? t('classroom.analytics.passed') : t('classroom.analytics.failed')}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-[var(--text-muted)]">
+                      {sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString() : '-'}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </div>
       </CardContent>

@@ -286,6 +286,35 @@ export function runNoMockUiCheck(
   };
 }
 
+
+/**
+ * Internal feature codes such as "(LIB-06)" or "(EXAM-24)" must not reach users. They may stay in
+ * comments, data-testid values and tests. Apps listed here are enforced; apps/admin joins after D07.
+ */
+export const FEATURE_CODE_APPS: Array<'web' | 'admin'> = ['web', 'admin'];
+const FEATURE_CODE_RE = /\((?:[A-Z]{2,5}-\d{2,3})(?:\s*[,/&]\s*[A-Z]{2,5}-\d{2,3})*\)/;
+
+export function findVisibleFeatureCodes(rootDir = process.cwd()): string[] {
+  const hits: string[] = [];
+  const walk = (dir: string): void => {
+    if (!fs.existsSync(dir)) return;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (['node_modules', '.next', 'dist', 'tests', '.turbo'].includes(entry.name)) continue;
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (/\.(tsx|json)$/.test(entry.name) && !/\.test\./.test(entry.name)) {
+        fs.readFileSync(full, 'utf8').split('\n').forEach((line, i) => {
+          const t = line.trim();
+          if (t.startsWith('//') || t.startsWith('*') || t.startsWith('/*') || t.startsWith('{/*') || line.includes('data-testid')) return;
+          if (FEATURE_CODE_RE.test(line)) hits.push(`${path.relative(rootDir, full)}:${i + 1}: ${t.slice(0, 120)}`);
+        });
+      }
+    }
+  };
+  for (const app of FEATURE_CODE_APPS) walk(path.join(rootDir, 'apps', app));
+  return hits;
+}
+
 /**
  * CLI Entrypoint
  */
@@ -309,6 +338,14 @@ export function main(): void {
   if (result.baselineCount > 0) {
     console.error(`\n❌ LỖI BẢO MẬT/CHẤT LƯỢNG (I07): mock-ui-baseline.json phải hoàn toàn rỗng nhưng hiện có ${result.baselineCount} mục!`);
     console.error('Không cho phép bất kỳ dữ liệu giả hoặc ngoại lệ mock UI nào trong baseline sau khi nghiệm thu.');
+    process.exit(1);
+  }
+
+  const codeHits = findVisibleFeatureCodes(rootDir);
+  if (codeHits.length > 0) {
+    console.error(`\n❌ GIAO DIỆN CÒN MÃ TÍNH NĂNG NỘI BỘ (${codeHits.length} chỗ):`);
+    for (const hit of codeHits.slice(0, 50)) console.error(`  - ${hit}`);
+    console.error('\nKiểm tra check:no-mock-ui KHÔNG ĐẠT!');
     process.exit(1);
   }
 

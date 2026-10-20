@@ -1,12 +1,15 @@
 'use client';
 
+import { BarChart3 } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { AnalyticsDashboard } from '../../../features/analytics';
 import type { AttemptRecord, QuestionAttemptRecord } from '../../../features/analytics/types';
 import type { Level, Skill, MondaiType } from '@jlpt/schema';
 import { useAuth } from '../../../lib/auth-context';
-import { Alert, Button, Spinner } from '@jlpt/ui';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Button } from '@jlpt/ui/components/button';
+import { Spinner } from '@jlpt/ui/components/spinner';
 import { useI18n } from '../../../lib/i18n';
 
 export default function AnalyticsPage(): React.JSX.Element {
@@ -162,7 +165,7 @@ export default function AnalyticsPage(): React.JSX.Element {
           data-testid="analytics-empty-state"
           className="p-12 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4"
         >
-          <div className="text-4xl">📊</div>
+          <BarChart3 className="mx-auto size-10" aria-hidden="true" />
           <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">
             {t('analytics.empty.title')}
           </h2>

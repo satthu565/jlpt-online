@@ -1,7 +1,10 @@
 'use client';
 
+import { Pointer, Volume2 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, Button, Badge } from '@jlpt/ui';
+import { Card, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Badge } from '@jlpt/ui/components/badge';
 import type { DueFlashcard, ReviewRating } from '../types';
 import { useI18n } from '../../../lib/i18n';
 
@@ -57,26 +60,19 @@ export function FlashcardView({
 
   return (
     <div
-      className="flashcard-container"
-      style={{
-        maxWidth: '560px',
-        margin: '0 auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1.25rem',
-      }}
+      className="flashcard-container max-w-[560px] mx-auto flex flex-col gap-5"
       data-testid="flashcard-view"
     >
       {/* Progress & State Indicator */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+      <div className="flex justify-between items-center">
+        <span className="text-sm text-[var(--text-secondary)]">
           {t('flashcards.progress', { current: String(cardIndex), total: String(totalCards) })}
         </span>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="flex gap-2">
           <Badge variant={card.state === 'new' ? 'primary' : 'secondary'}>
             {t(`flashcards.state.${card.state}`)}
           </Badge>
-          <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+          <span className="text-[0.8125rem] text-[var(--text-muted)]">
             {t('flashcards.interval', { days: String(card.intervalDays) })}
           </span>
         </div>
@@ -85,41 +81,22 @@ export function FlashcardView({
       {/* Flip Card Card */}
       <Card
         onClick={() => setIsFlipped(!isFlipped)}
-        style={{
-          minHeight: '280px',
-          cursor: 'pointer',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          textAlign: 'center',
-          padding: '2rem',
-          boxShadow: 'var(--shadow-md)',
-          transition: 'transform 0.2s ease',
-          userSelect: 'none',
-        }}
+        className="flex min-h-[280px] cursor-pointer select-none flex-col items-center justify-center p-8 text-center shadow-[var(--shadow-md)] transition-transform duration-200"
         data-testid="flashcard-card"
         role="button"
         tabIndex={0}
         aria-label={isFlipped ? t('flashcards.flipToFront') : t('flashcards.flipToBack')}
       >
-        <CardContent style={{ width: '100%' }}>
+        <CardContent className="w-full">
           {/* Front Content */}
-          <div style={{ marginBottom: isFlipped ? '1.5rem' : '0' }}>
+          <div className={isFlipped ? 'mb-6' : 'mb-0'}>
             {frontReading && isFlipped && (
-              <p style={{ color: 'var(--text-muted)', fontSize: '1rem', margin: '0 0 0.5rem 0' }}>
+              <p className="text-[var(--text-muted)] text-base mt-0 mx-0 mb-2">
                 {frontReading}
               </p>
             )}
 
-            <h2
-              style={{
-                fontSize: '2.5rem',
-                fontWeight: 800,
-                color: 'var(--text-primary)',
-                margin: '0 0 1rem 0',
-              }}
-            >
+            <h2 className="text-[2.5rem] font-extrabold text-[var(--text-primary)] mt-0 mx-0 mb-4">
               {frontTerm}
             </h2>
 
@@ -133,64 +110,42 @@ export function FlashcardView({
                 }}
                 aria-label={t('flashcards.playAudio')}
               >
-                🔊 {t('flashcards.playAudio')}
+                <Volume2 className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('flashcards.playAudio')}
               </Button>
             )}
           </div>
 
           {/* Hint before flip */}
           {!isFlipped && (
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '1.5rem' }}>
-              👆 {t('flashcards.clickOrSpaceToFlip')}
+            <p className="text-[var(--text-muted)] text-sm mt-6">
+              <Pointer className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('flashcards.clickOrSpaceToFlip')}
             </p>
           )}
 
           {/* Back Content */}
           {isFlipped && (
-            <div
-              style={{
-                paddingTop: '1.25rem',
-                borderTop: '1px dashed var(--border-subtle)',
-                marginTop: '1rem',
-              }}
+            <div className="pt-5 border-t border-dashed border-[var(--border-subtle)] mt-4"
               data-testid="flashcard-back"
             >
               {backHanViet && (
-                <div
+                <div className="text-base font-semibold text-[#b45309] bg-[rgba(245,158,11,0.12)] py-[4px] px-[12px] rounded-[8px] inline-block mb-3"
                   data-testid="flashcard-hanviet"
-                  style={{
-                    fontSize: '1rem',
-                    fontWeight: 600,
-                    color: '#b45309',
-                    backgroundColor: 'rgba(245, 158, 11, 0.12)',
-                    padding: '4px 12px',
-                    borderRadius: '8px',
-                    display: 'inline-block',
-                    marginBottom: '0.75rem',
-                  }}
                 >
                   Âm Hán Việt: {backHanViet}
                 </div>
               )}
 
-              <h3
-                style={{
-                  fontSize: '1.5rem',
-                  fontWeight: 600,
-                  color: 'var(--color-primary)',
-                  margin: '0 0 1rem 0',
-                }}
-              >
+              <h3 className="text-2xl font-semibold text-[var(--color-primary)] mt-0 mx-0 mb-4">
                 {backMeaning}
               </h3>
 
               {backExamples.length > 0 && (
-                <div style={{ textAlign: 'left', marginTop: '1rem' }}>
-                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-muted)', margin: '0 0 0.25rem 0' }}>
+                <div className="text-left mt-4">
+                  <p className="text-sm font-semibold text-[var(--text-muted)] mt-0 mx-0 mb-1">
                     {t('flashcards.examplesTitle')}:
                   </p>
                   {backExamples.map((eg, idx) => (
-                    <p key={idx} style={{ fontSize: '0.9375rem', color: 'var(--text-secondary)', margin: '0 0 0.25rem 0' }}>
+                    <p className="text-[0.9375rem] text-[var(--text-secondary)] mt-0 mx-0 mb-1" key={idx}>
                       • {eg}
                     </p>
                   ))}
@@ -203,50 +158,42 @@ export function FlashcardView({
 
       {/* Ratings Controls (Visible after flip) */}
       {isFlipped ? (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '0.5rem',
-          }}
+        <div className="grid grid-cols-4 gap-2"
           data-testid="flashcard-rating-buttons"
         >
-          <Button
+          <Button className="border-[var(--color-error)] text-[var(--color-error)]"
             variant="outline"
             onClick={() => onRate(1)}
             aria-label={t('flashcards.rating.again')}
             data-testid="rating-again-button"
-            style={{ borderColor: 'var(--color-error)', color: 'var(--color-error)' }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <span style={{ fontWeight: 700 }}>{t('flashcards.rating.again')}</span>
-              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>(1) &lt; 10m</span>
+            <div className="flex flex-col items-center">
+              <span className="font-bold">{t('flashcards.rating.again')}</span>
+              <span className="text-xs opacity-80">(1) &lt; 10m</span>
             </div>
           </Button>
 
-          <Button
+          <Button className="border-[var(--color-warning)] text-[var(--color-warning)]"
             variant="outline"
             onClick={() => onRate(2)}
             aria-label={t('flashcards.rating.hard')}
             data-testid="rating-hard-button"
-            style={{ borderColor: 'var(--color-warning)', color: 'var(--color-warning)' }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <span style={{ fontWeight: 700 }}>{t('flashcards.rating.hard')}</span>
-              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>(2) 1d</span>
+            <div className="flex flex-col items-center">
+              <span className="font-bold">{t('flashcards.rating.hard')}</span>
+              <span className="text-xs opacity-80">(2) 1d</span>
             </div>
           </Button>
 
-          <Button
+          <Button className="border-[var(--color-primary)] text-[var(--color-primary)]"
             variant="outline"
             onClick={() => onRate(3)}
             aria-label={t('flashcards.rating.good')}
             data-testid="rating-good-button"
-            style={{ borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <span style={{ fontWeight: 700 }}>{t('flashcards.rating.good')}</span>
-              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>(3) 3d</span>
+            <div className="flex flex-col items-center">
+              <span className="font-bold">{t('flashcards.rating.good')}</span>
+              <span className="text-xs opacity-80">(3) 3d</span>
             </div>
           </Button>
 
@@ -256,19 +203,18 @@ export function FlashcardView({
             aria-label={t('flashcards.rating.easy')}
             data-testid="rating-easy-button"
           >
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <span style={{ fontWeight: 700 }}>{t('flashcards.rating.easy')}</span>
-              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>(4) 7d</span>
+            <div className="flex flex-col items-center">
+              <span className="font-bold">{t('flashcards.rating.easy')}</span>
+              <span className="text-xs opacity-80">(4) 7d</span>
             </div>
           </Button>
         </div>
       ) : (
-        <div style={{ textAlign: 'center' }}>
-          <Button
+        <div className="text-center">
+          <Button className="w-full min-h-[44px]"
             variant="outline"
             onClick={() => setIsFlipped(true)}
             aria-label={t('flashcards.showAnswer')}
-            style={{ width: '100%', minHeight: '44px' }}
           >
             {t('flashcards.showAnswer')}
           </Button>

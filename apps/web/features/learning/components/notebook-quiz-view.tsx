@@ -1,7 +1,11 @@
 'use client';
 
+import { RotateCcw, Trophy } from 'lucide-react';
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Button, Badge, Alert } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
 import type { NotebookQuiz, NotebookQuizQuestion } from '../types';
 import { useI18n } from '../../../lib/i18n';
 
@@ -51,14 +55,13 @@ export function NotebookQuizView({
 
   return (
     <div
-      className="quiz-container"
-      style={{ maxWidth: '640px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+      className="quiz-container max-w-[640px] mx-auto flex flex-col gap-6"
       data-testid="notebook-quiz-view"
     >
       {/* Quiz Progress Header */}
       {!isFinished && currentQ && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-[var(--text-secondary)]">
             {t('notebook.quiz.questionProgress', {
               current: String(currentIndex + 1),
               total: String(questions.length),
@@ -74,12 +77,12 @@ export function NotebookQuizView({
       {!isFinished && currentQ ? (
         <Card>
           <CardHeader>
-            <CardTitle style={{ fontSize: '1.25rem', lineHeight: 1.5 }}>
+            <CardTitle className="text-xl leading-normal">
               {currentQ.stem}
             </CardTitle>
           </CardHeader>
 
-          <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <CardContent className="flex flex-col gap-3">
             {currentQ.options.map((optionText, idx) => {
               let btnVariant: 'outline' | 'primary' | 'success' | 'danger' = 'outline';
               let customStyle: React.CSSProperties = {
@@ -116,7 +119,7 @@ export function NotebookQuizView({
                   style={customStyle}
                   data-testid={`quiz-option-${idx}`}
                 >
-                  <span style={{ fontWeight: 700, marginRight: '0.75rem' }}>
+                  <span className="font-bold mr-3">
                     {String.fromCharCode(65 + idx)}.
                   </span>
                   <span>{optionText}</span>
@@ -125,19 +128,19 @@ export function NotebookQuizView({
             })}
 
             {isAnswered && (
-              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="mt-4 flex flex-col gap-4">
                 <Alert variant={selectedOption === currentQ.correctOptionIndex ? 'success' : 'error'}>
                   {selectedOption === currentQ.correctOptionIndex
-                    ? `✓ ${t('notebook.quiz.correct')}`
-                    : `✗ ${t('notebook.quiz.incorrect')}`}
+                    ? `${t('notebook.quiz.correct')}`
+                    : `${t('notebook.quiz.incorrect')}`}
                   {currentQ.explanation && (
-                    <div style={{ marginTop: '0.5rem', fontSize: '0.875rem' }}>
+                    <div className="mt-2 text-sm">
                       {currentQ.explanation}
                     </div>
                   )}
                 </Alert>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <div className="flex justify-end">
                   <Button variant="primary" onClick={handleNext} data-testid="quiz-next-button">
                     {currentIndex + 1 < questions.length
                       ? t('common.buttons.next')
@@ -151,12 +154,12 @@ export function NotebookQuizView({
       ) : (
         /* Results Card */
         <Card data-testid="quiz-results-card">
-          <CardContent style={{ padding: '3rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
-            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>
+          <CardContent className="p-12 text-center">
+            <Trophy className="mx-auto mb-4 size-12" aria-hidden="true" />
+            <h2 className="text-[1.75rem] font-extrabold mt-0 mx-0 mb-2 text-[var(--text-primary)]">
               {t('notebook.quiz.completedTitle')}
             </h2>
-            <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', margin: '0 0 1.5rem 0' }}>
+            <p className="text-xl text-[var(--text-secondary)] mt-0 mx-0 mb-6">
               {t('notebook.quiz.scoreSummary', {
                 score: String(score),
                 total: String(questions.length),
@@ -164,10 +167,10 @@ export function NotebookQuizView({
               })}
             </p>
 
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+            <div className="flex justify-center gap-4">
               {onRetake && (
                 <Button variant="outline" onClick={onRetake}>
-                  🔄 {t('notebook.quiz.retake')}
+                  <RotateCcw className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.quiz.retake')}
                 </Button>
               )}
               {onExit && (

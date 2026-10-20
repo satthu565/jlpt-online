@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
 
 import { AppModule } from './app.module.js';
+import { configureImportFastify } from './modules/import/fastify-http-config.js';
 import { PaymentModule } from './modules/payment/payment.module.js';
 import { PaymentService } from './modules/payment/payment.service.js';
 import { EntitlementModule } from './modules/entitlement/entitlement.module.js';
@@ -53,7 +54,8 @@ Module({
 })(StagingAppModule);
 
 export async function createApp() {
-  const adapter = new FastifyAdapter({ bodyLimit: 52428800 });
+  const adapter = new FastifyAdapter();
+  configureImportFastify(adapter.getInstance());
   const app = await NestFactory.create(StagingAppModule, adapter, {
     logger: ['error', 'warn'],
   });

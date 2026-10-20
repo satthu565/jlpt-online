@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Input, Button, Alert } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Input } from '@jlpt/ui/components/input';
+import { Button } from '@jlpt/ui/components/button';
+import { Alert } from '@jlpt/ui/components/alert';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 
@@ -41,9 +44,9 @@ export default function ForgotPasswordPage(): React.JSX.Element {
   return (
     <div className="auth-card-container">
       <Card elevated>
-        <CardHeader style={{ textAlign: 'center' }}>
+        <CardHeader className="text-center">
           <CardTitle as="h1">{t('auth.forgotPassword.title')}</CardTitle>
-          <p style={{ margin: '0.25rem 0 0 0', color: 'var(--text-secondary)' }}>
+          <p className="mt-1 mx-0 mb-0 text-[var(--text-secondary)]">
             {t('auth.forgotPassword.subtitle')}
           </p>
         </CardHeader>
@@ -59,14 +62,9 @@ export default function ForgotPasswordPage(): React.JSX.Element {
               <Alert variant="success">
                 {t('auth.forgotPassword.sentSuccess')}
               </Alert>
-              <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-                <a
+              <div className="mt-6 text-center">
+                <a className="text-[var(--color-primary)] font-semibold no-underline"
                   href="/dang-nhap"
-                  style={{
-                    color: 'var(--color-primary)',
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                  }}
                 >
                   ← {t('auth.forgotPassword.backToLogin')}
                 </a>
@@ -85,23 +83,17 @@ export default function ForgotPasswordPage(): React.JSX.Element {
                 autoComplete="email"
               />
 
-              <Button
+              <Button className="w-full mb-4"
                 type="submit"
                 variant="primary"
                 loading={loading}
-                style={{ width: '100%', marginBottom: '1rem' }}
               >
                 {loading ? t('auth.forgotPassword.submitting') : t('auth.forgotPassword.submitButton')}
               </Button>
 
-              <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
-                <a
+              <div className="text-center mt-5">
+                <a className="text-[var(--text-secondary)] text-sm no-underline"
                   href="/dang-nhap"
-                  style={{
-                    color: 'var(--text-secondary)',
-                    fontSize: '0.875rem',
-                    textDecoration: 'none',
-                  }}
                 >
                   ← {t('auth.forgotPassword.backToLogin')}
                 </a>

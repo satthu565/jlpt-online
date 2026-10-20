@@ -1,3 +1,4 @@
+import {  } from 'lucide-react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
@@ -166,7 +167,7 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
       // Verify explicit audio loading error message and retry button (AUDIO-10)
       expect(html).toContain('Lỗi âm thanh');
       expect(html).toContain(errorMsg);
-      expect(html).toContain('🔄 Thử lại');
+      expect(html).toContain('Thử lại');
       expect(html).toContain('Thử tải lại âm thanh');
     });
   });
@@ -184,7 +185,7 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
         />,
       );
 
-      expect(html).toContain('Kiểm tra tai nghe / loa (EXAM-05)');
+      expect(html).toContain('Kiểm tra tai nghe / loa');
       expect(html).toContain('Phát âm thanh thử nghiệm');
       expect(html).toContain('Tôi đã nghe rõ &amp; Bắt đầu phần nghe');
     });
@@ -269,7 +270,7 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
         />,
       );
 
-      expect(html).toContain('Phím tắt phòng thi (EXAM-24)');
+      expect(html).toContain('Phím tắt phòng thi');
       expect(html).toContain('1, 2, 3, 4');
       expect(html).toContain('← hoặc J');
       expect(html).toContain('→ hoặc K');

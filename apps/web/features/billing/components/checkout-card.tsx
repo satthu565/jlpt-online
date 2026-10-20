@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Button, Alert } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Lock } from 'lucide-react';
 import type { Plan, CouponDiscount, CheckoutSession } from '../types';
 import { CouponInput } from './coupon-input';
 import { useI18n } from '../../../lib/i18n';
@@ -48,12 +51,12 @@ export function CheckoutCard({
   };
 
   return (
-    <Card data-testid="checkout-card" style={{ maxWidth: '480px', margin: '0 auto' }}>
+    <Card data-testid="checkout-card" className="max-w-lg mx-auto">
       <CardHeader>
         <CardTitle>{t('billing.checkout.title')}</CardTitle>
       </CardHeader>
 
-      <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      <CardContent className="flex flex-col gap-5">
         {error && (
           <Alert variant="error" onClose={() => setError(null)}>
             {error}
@@ -61,23 +64,23 @@ export function CheckoutCard({
         )}
 
         {/* Plan summary */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="flex justify-between items-center">
           <div>
-            <span style={{ fontWeight: 700, fontSize: '1.125rem', color: 'var(--text-primary)' }}>
+            <span className="font-bold text-lg text-[var(--text-primary)]">
               {plan.name}
             </span>
-            <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)', display: 'block' }}>
+            <span className="text-sm text-[var(--text-muted)] block">
               ({plan.interval})
             </span>
           </div>
-          <span style={{ fontWeight: 700, fontSize: '1.125rem' }}>
+          <span className="font-bold text-lg">
             {originalPrice.toLocaleString('vi-VN')}₫
           </span>
         </div>
 
         {/* Coupon Section */}
         <div>
-          <span style={{ fontSize: '0.875rem', fontWeight: 600, display: 'block', marginBottom: '0.375rem' }}>
+          <span className="text-sm font-semibold block mb-1.5">
             {t('billing.coupon.sectionTitle')}
           </span>
           <CouponInput
@@ -92,42 +95,22 @@ export function CheckoutCard({
         </div>
 
         {/* Price Breakdown */}
-        <div
-          style={{
-            padding: '1rem',
-            borderRadius: '6px',
-            backgroundColor: 'var(--bg-muted)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.5rem',
-            fontSize: '0.875rem',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ color: 'var(--text-secondary)' }}>{t('billing.checkout.subtotal')}:</span>
+        <div className="p-4 rounded-lg bg-[var(--bg-muted)] flex flex-col gap-2 text-sm">
+          <div className="flex justify-between">
+            <span className="text-[var(--text-secondary)]">{t('billing.checkout.subtotal')}:</span>
             <span>{originalPrice.toLocaleString('vi-VN')}₫</span>
           </div>
 
           {appliedCoupon && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-success, #16a34a)' }}>
+            <div className="flex justify-between text-[var(--color-success,#16a34a)]">
               <span>{t('billing.checkout.discount')}:</span>
               <span>-{discount.toLocaleString('vi-VN')}₫</span>
             </div>
           )}
 
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              fontWeight: 800,
-              fontSize: '1.125rem',
-              borderTop: '1px solid var(--border-subtle)',
-              paddingTop: '0.5rem',
-              marginTop: '0.25rem',
-            }}
-          >
+          <div className="flex justify-between font-extrabold text-lg border-t border-[var(--border-subtle)] pt-2 mt-1">
             <span>{t('billing.checkout.total')}:</span>
-            <span style={{ color: 'var(--color-primary)' }} data-testid="checkout-final-price">
+            <span className="text-[var(--color-primary)]" data-testid="checkout-final-price">
               {finalPrice.toLocaleString('vi-VN')}₫
             </span>
           </div>
@@ -146,9 +129,10 @@ export function CheckoutCard({
           onClick={handleCheckout}
           loading={checkingOut}
           data-testid="confirm-checkout-button"
-          style={{ width: '100%' }}
+          className="w-full flex items-center justify-center gap-2"
         >
-          🔒 {t('billing.checkout.payNowButton')}
+          <Lock className="size-4" />
+          <span>{t('billing.checkout.payNowButton')}</span>
         </Button>
       </CardContent>
     </Card>

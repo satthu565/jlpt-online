@@ -1,7 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Button, Badge, Alert, Select } from '@jlpt/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Select } from '@jlpt/ui/components/select';
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@jlpt/ui/components/table';
+import { EmptyState } from '@jlpt/ui/components/empty-state';
+import { Download, Plus, BarChart2 } from 'lucide-react';
 import type {
   Organization,
   ClassRoom,
@@ -69,27 +76,15 @@ export function ClassroomDashboard({
   };
 
   return (
-    <div className="classroom-dashboard" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="classroom-dashboard flex flex-col gap-6">
       {/* Top Header & Selector */}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '1rem',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '1.25rem',
-          backgroundColor: 'var(--bg-card)',
-          borderRadius: '8px',
-          border: '1px solid var(--border-subtle)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+      <div className="flex flex-wrap gap-4 items-center justify-between p-5 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)]">
+        <div className="flex items-center gap-4 flex-wrap">
           <div>
-            <label htmlFor="select-class-dropdown" style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>
+            <label htmlFor="select-class-dropdown" className="text-xs text-[var(--text-muted)] block mb-1">
               {t('classroom.dashboard.selectClass')}
             </label>
-            <div style={{ minWidth: '220px' }}>
+            <div className="min-w-[220px]">
               <Select
                 id="select-class-dropdown"
                 value={activeClass?.id || ''}
@@ -106,21 +101,25 @@ export function ClassroomDashboard({
         </div>
 
         {isTeacher && activeClass && (
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <div className="flex gap-3 items-center">
             <Button
               variant="outline"
               onClick={() => setIsExportModalOpen(true)}
               data-testid="open-export-modal-button"
+              className="flex items-center gap-1.5"
             >
-              📥 {t('classroom.dashboard.exportGrades')}
+              <Download className="size-4" />
+              <span>{t('classroom.dashboard.exportGrades')}</span>
             </Button>
 
             <Button
               variant="primary"
               onClick={() => setIsAssignModalOpen(true)}
               data-testid="open-create-assignment-button"
+              className="flex items-center gap-1.5"
             >
-              + {t('classroom.dashboard.createAssignment')}
+              <Plus className="size-4" />
+              <span>{t('classroom.dashboard.createAssignment')}</span>
             </Button>
           </div>
         )}
@@ -136,11 +135,7 @@ export function ClassroomDashboard({
       <div
         role="tablist"
         aria-label={t('classroom.dashboard.tabsAria')}
-        style={{
-          display: 'flex',
-          gap: '0.5rem',
-          borderBottom: '1px solid var(--border-subtle)',
-        }}
+        className="flex gap-2 border-b border-[var(--border-subtle)]"
       >
         <Button
           type="button"
@@ -150,16 +145,11 @@ export function ClassroomDashboard({
           aria-controls="assignments-panel"
           id="tab-assignments"
           onClick={() => setActiveTab('assignments')}
-          style={{
-            padding: '0.75rem 1.25rem',
-            fontWeight: 600,
-            fontSize: '0.9375rem',
-            color: activeTab === 'assignments' ? 'var(--color-primary)' : 'var(--text-muted)',
-            borderBottom: activeTab === 'assignments' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            marginBottom: '-1px',
-            minHeight: '44px',
-            borderRadius: 0,
-          }}
+          className={`px-5 py-3 font-semibold text-sm border-none bg-transparent cursor-pointer min-h-[44px] rounded-none mb-[-1px] ${
+            activeTab === 'assignments'
+              ? 'text-[var(--color-primary)] border-b-2 border-b-[var(--color-primary)]'
+              : 'text-[var(--text-muted)] border-b-2 border-b-transparent hover:text-[var(--text-primary)]'
+          }`}
         >
           {t('classroom.dashboard.tabAssignments', { count: String(assignments.length) })}
         </Button>
@@ -172,16 +162,11 @@ export function ClassroomDashboard({
           aria-controls="members-panel"
           id="tab-members"
           onClick={() => setActiveTab('members')}
-          style={{
-            padding: '0.75rem 1.25rem',
-            fontWeight: 600,
-            fontSize: '0.9375rem',
-            color: activeTab === 'members' ? 'var(--color-primary)' : 'var(--text-muted)',
-            borderBottom: activeTab === 'members' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            marginBottom: '-1px',
-            minHeight: '44px',
-            borderRadius: 0,
-          }}
+          className={`px-5 py-3 font-semibold text-sm border-none bg-transparent cursor-pointer min-h-[44px] rounded-none mb-[-1px] ${
+            activeTab === 'members'
+              ? 'text-[var(--color-primary)] border-b-2 border-b-[var(--color-primary)]'
+              : 'text-[var(--text-muted)] border-b-2 border-b-transparent hover:text-[var(--text-primary)]'
+          }`}
         >
           {t('classroom.dashboard.tabMembers', { count: String(members.length) })}
         </Button>
@@ -207,29 +192,34 @@ export function ClassroomDashboard({
         <div id="assignments-panel" role="tabpanel" aria-labelledby="tab-assignments">
           {assignments.length === 0 ? (
             <Card>
-              <CardContent style={{ padding: '3rem', textAlign: 'center' }}>
-                <p style={{ color: 'var(--text-secondary)', margin: '0 0 1rem 0' }}>
-                  {t('classroom.dashboard.noAssignments')}
-                </p>
-                {isTeacher && (
-                  <Button variant="primary" onClick={() => setIsAssignModalOpen(true)}>
-                    + {t('classroom.dashboard.createAssignment')}
-                  </Button>
-                )}
+              <CardContent className="p-12 text-center">
+                <EmptyState
+                  variant="empty"
+                  title={t('classroom.dashboard.noAssignments')}
+                  action={
+                    isTeacher ? (
+                      <Button variant="primary" onClick={() => setIsAssignModalOpen(true)} className="flex items-center gap-1.5">
+                        <Plus className="size-4" />
+                        <span>{t('classroom.dashboard.createAssignment')}</span>
+                      </Button>
+                    ) : undefined
+                  }
+                  minHeight="sm"
+                />
               </CardContent>
             </Card>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {assignments.map((asgn) => {
                 const isDue = new Date(asgn.dueAtUTC) < new Date();
                 return (
                   <Card key={asgn.id} data-testid={`assignment-card-${asgn.id}`}>
-                    <CardHeader style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <CardHeader className="flex flex-row justify-between items-start">
                       <div>
-                        <CardTitle style={{ fontSize: '1.125rem', margin: '0 0 0.25rem 0' }}>
+                        <CardTitle className="text-lg mb-1">
                           {asgn.title}
                         </CardTitle>
-                        <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+                        <span className="text-xs text-[var(--text-muted)]">
                           {t('classroom.dashboard.due')}: {new Date(asgn.dueAtUTC).toLocaleString()}
                         </span>
                       </div>
@@ -239,17 +229,8 @@ export function ClassroomDashboard({
                     </CardHeader>
 
                     <CardContent>
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          padding: '0.5rem 0',
-                          borderTop: '1px solid var(--border-subtle)',
-                          marginTop: '0.5rem',
-                        }}
-                      >
-                        <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                      <div className="flex justify-between items-center py-2 border-t border-[var(--border-subtle)] mt-2">
+                        <span className="text-sm text-[var(--text-secondary)]">
                           {t('classroom.dashboard.submissionsCount', {
                             submitted: String(asgn.submittedCount || 0),
                             total: String(asgn.totalAssigned || members.length),
@@ -262,8 +243,10 @@ export function ClassroomDashboard({
                           onClick={() => handleViewAnalytics(asgn.id)}
                           loading={analyticsLoading}
                           data-testid={`view-analytics-${asgn.id}`}
+                          className="flex items-center gap-1.5"
                         >
-                          📊 {t('classroom.dashboard.viewProgress')}
+                          <BarChart2 className="size-3.5" />
+                          <span>{t('classroom.dashboard.viewProgress')}</span>
                         </Button>
                       </div>
                     </CardContent>
@@ -279,31 +262,29 @@ export function ClassroomDashboard({
       {activeTab === 'members' && (
         <div id="members-panel" role="tabpanel" aria-labelledby="tab-members">
           <Card>
-            <CardContent style={{ padding: '1rem' }}>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid var(--border-subtle)', textAlign: 'left' }}>
-                      <th style={{ padding: '0.75rem' }}>{t('classroom.members.name')}</th>
-                      <th style={{ padding: '0.75rem' }}>{t('classroom.members.email')}</th>
-                      <th style={{ padding: '0.75rem' }}>{t('classroom.members.status')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {members.map((m) => (
-                      <tr key={m.userId} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                        <td style={{ padding: '0.75rem', fontWeight: 600 }}>{m.name || t('classroom.members.unknown')}</td>
-                        <td style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>{m.email}</td>
-                        <td style={{ padding: '0.75rem' }}>
-                          <Badge variant={m.status === 'active' ? 'success' : 'default'}>
-                            {m.status}
-                          </Badge>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            <CardContent className="p-4">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t('classroom.members.name')}</TableHead>
+                    <TableHead>{t('classroom.members.email')}</TableHead>
+                    <TableHead>{t('classroom.members.status')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {members.map((m) => (
+                    <TableRow key={m.userId}>
+                      <TableCell className="font-semibold">{m.name || t('classroom.members.unknown')}</TableCell>
+                      <TableCell className="text-[var(--text-secondary)]">{m.email}</TableCell>
+                      <TableCell>
+                        <Badge variant={m.status === 'active' ? 'success' : 'default'}>
+                          {m.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </div>

@@ -1,8 +1,11 @@
 'use client';
 
+import { ScrollText } from 'lucide-react';
 import React from 'react';
 import type { ExamHistoryItem } from '../types';
-import { Card, Badge, Button } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface HistoryViewProps {
   historyItems: ExamHistoryItem[];
@@ -18,10 +21,10 @@ export function HistoryView({
       <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-slate-100">
-            Lịch sử các lần làm bài thi (STAT-01)
+            Lịch sử các lần làm bài thi
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Kết quả của bạn được lưu trữ vĩnh viễn theo tài khoản (SCORE-11) để theo dõi tiến độ học tập.
+            Kết quả của bạn được lưu trữ vĩnh viễn theo tài khoản để theo dõi tiến độ học tập.
           </p>
         </div>
 
@@ -34,9 +37,7 @@ export function HistoryView({
 
       {historyItems.length === 0 ? (
         <Card className="text-center py-16 p-8 border border-slate-200 dark:border-slate-800">
-          <div className="text-4xl mb-3" role="img" aria-label="Biểu tượng lịch sử">
-            📜
-          </div>
+          <ScrollText className="mx-auto mb-3 size-10" role="img" aria-label="Biểu tượng lịch sử" />
           <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">
             Chưa có lịch sử làm bài thi
           </h3>

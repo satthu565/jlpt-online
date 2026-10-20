@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Modal, Button, Input } from '@jlpt/ui';
+import { Modal } from '@jlpt/ui/components/modal';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
 
 export interface ShareExamModalProps {
   isOpen: boolean;
@@ -92,7 +94,7 @@ export function ShareExamModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Chia sẻ đề thi "${examTitle}" (MIX-14)`}
+      title={`Chia sẻ đề thi "${examTitle}"`}
       closeLabel="Đóng"
     >
       <div data-testid="share-exam-modal-content" className="space-y-4 text-xs">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
 import type { BackupService } from './backup-service';
 import type { OperatorBackupJob, BackupSummary } from './types';
 import type { StaffUser } from '../../lib/auth-context';
@@ -88,7 +88,7 @@ export function BackupManagerView({
       >
         <div className="font-bold uppercase tracking-wider flex items-center gap-1.5">
           <span>⚠️</span>
-          <span>Chính sách bảo vệ an toàn &amp; vận hành sao lưu (ADM-20 / SYS-08)</span>
+          <span>Chính sách bảo vệ an toàn &amp; vận hành sao lưu</span>
         </div>
         <p>
           Toàn bộ thao tác sao lưu hệ thống, diễn tập khôi phục PITR (Point-In-Time Recovery) và xuất gói dữ liệu kiểm toán

@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { Card, JsonLd } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { JsonLd } from '@jlpt/ui/components/json-ld';
 
 export const metadata: Metadata = {
   title: 'Điều khoản Dịch vụ & Quy chế thi - JLPT Online',
@@ -35,7 +36,7 @@ export default function TermsOfServicePage(): React.JSX.Element {
 
       {/* Breadcrumbs */}
       <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
+        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
         <span className="text-slate-900 dark:text-slate-100 font-semibold">Điều khoản dịch vụ</span>
       </nav>
 

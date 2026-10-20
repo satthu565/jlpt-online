@@ -1,8 +1,10 @@
 'use client';
 
+import { Trophy } from 'lucide-react';
 import React from 'react';
 import type { TargetProgressSummary } from '../types';
-import { Card, Badge } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
 
 export interface TargetProgressTrackerProps {
   summary: TargetProgressSummary;
@@ -33,9 +35,9 @@ export function TargetProgressTracker({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xl" aria-hidden="true">🏆</span>
+            <Trophy className="size-5" aria-hidden="true" />
             <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
-              Tiến độ so với mục tiêu JLPT (STAT-10)
+              Tiến độ so với mục tiêu JLPT
             </h3>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -69,8 +71,7 @@ export function TargetProgressTracker({
           <span className="text-[11px] text-slate-500 block">Điểm cao nhất hiện tại:</span>
           <strong
             data-testid="target-best-score"
-            className="text-sm font-bold text-blue-600 dark:text-blue-400 font-mono"
-          >
+            className="text-sm font-bold text-blue-600 dark:text-blue-400 font-mono">
             {currentBestScore} / 180đ
           </strong>
         </div>
@@ -81,7 +82,7 @@ export function TargetProgressTracker({
             data-testid="target-gap"
             className={`text-sm font-mono font-bold ${gapToTarget === 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}
           >
-            {gapToTarget === 0 ? 'Đã đạt mục tiêu! 🎯' : `Còn thiếu ${gapToTarget}đ`}
+            {gapToTarget === 0 ? 'Đã đạt mục tiêu!' : `Còn thiếu ${gapToTarget}đ`}
           </strong>
         </div>
       </div>
@@ -99,6 +100,7 @@ export function TargetProgressTracker({
         <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
           <div
             className={`h-3 rounded-full transition-all ${isAchieved ? 'bg-emerald-500' : 'bg-blue-600'}`}
+            // ui-allow-style: chiều rộng theo số liệu, tính lúc chạy
             style={{ width: `${progressPercentage}%` }}
           />
         </div>
@@ -116,8 +118,7 @@ export function TargetProgressTracker({
         </div>
         <div
           data-testid="pass-probability-value"
-          className="text-2xl font-black text-blue-900 dark:text-blue-300 font-mono"
-        >
+          className="text-2xl font-black text-blue-900 dark:text-blue-300 font-mono">
           {passProbability}%
         </div>
       </div>

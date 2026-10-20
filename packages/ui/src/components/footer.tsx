@@ -31,40 +31,17 @@ export function Footer({
 
   return (
     <footer
-      style={{
-        backgroundColor: 'var(--bg-surface, #ffffff)',
-        borderTop: '1px solid var(--border-subtle, #e2e8f0)',
-        paddingTop: '2.5rem',
-        paddingBottom: '2.5rem',
-        marginTop: 'auto',
-        color: 'var(--text-secondary, #475569)',
-        fontSize: '0.875rem',
-      }}
-      className={`jlpt-footer ${className}`}
+      className={`jlpt-footer mt-auto border-t border-[var(--border-subtle,#e2e8f0)] bg-[var(--bg-surface,#ffffff)] py-10 text-sm text-[var(--text-secondary,#475569)] ${className}`}
     >
       <div className="container">
         <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.5rem',
-            justifyContent: 'space-between',
-          }}
-          className="footer-grid"
-        >
+          className="footer-grid flex flex-col justify-between gap-6 md:flex-row md:items-start">
           {/* Brand & Tagline */}
-          <div style={{ maxWidth: '400px' }}>
-            <div
-              style={{
-                fontWeight: 700,
-                fontSize: '1.125rem',
-                color: 'var(--text-primary, #0f172a)',
-                marginBottom: '0.5rem',
-              }}
-            >
+          <div className="max-w-[400px]">
+            <div className="font-bold text-lg text-[var(--text-primary,#0f172a)] mb-2">
               {brandName}
             </div>
-            <p style={{ margin: 0, color: 'var(--text-muted, #64748b)', lineHeight: 1.5 }}>
+            <p className="m-0 text-[var(--text-muted,#64748b)] leading-normal">
               {tagline}
             </p>
           </div>
@@ -72,25 +49,12 @@ export function Footer({
           {/* Quick Links */}
           {links.length > 0 && (
             <nav aria-label="Footer Navigation">
-              <ul
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '1.25rem',
-                  listStyle: 'none',
-                  padding: 0,
-                  margin: 0,
-                }}
-              >
+              <ul className="flex flex-wrap gap-5 list-none p-0 m-0">
                 {links.map((link) => (
                   <li key={link.href}>
                     <a
                       href={link.href}
-                      style={{
-                        color: 'var(--text-secondary, #475569)',
-                        textDecoration: 'none',
-                        transition: 'color 0.15s ease',
-                      }}
+                      className="text-[var(--text-secondary,#475569)] no-underline transition-colors hover:text-[var(--color-primary,#16a34a)]"
                     >
                       {link.label}
                     </a>
@@ -102,7 +66,7 @@ export function Footer({
 
           {/* Footer Controls (Locale + Theme) */}
           {(localeControl || themeControl) && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <div className="flex items-center gap-4 flex-wrap">
               {localeControl}
               {themeControl}
             </div>
@@ -110,31 +74,11 @@ export function Footer({
         </div>
 
         {/* Bottom Bar */}
-        <div
-          style={{
-            marginTop: '2rem',
-            paddingTop: '1.5rem',
-            borderTop: '1px solid var(--border-subtle, #e2e8f0)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.5rem',
-            color: 'var(--text-muted, #64748b)',
-            fontSize: '0.8125rem',
-          }}
-        >
+        <div className="mt-8 flex flex-col gap-2 border-t border-[var(--border-subtle,#e2e8f0)] pt-6 text-[0.8125rem] text-[var(--text-muted,#64748b)]">
           <div>{copyright || defaultCopyright}</div>
           {a11yNotice && <div>{a11yNotice}</div>}
         </div>
       </div>
-
-      <style>{`
-        @media (min-width: 768px) {
-          .footer-grid {
-            flex-direction: row !important;
-            align-items: flex-start !important;
-          }
-        }
-      `}</style>
     </footer>
   );
 }

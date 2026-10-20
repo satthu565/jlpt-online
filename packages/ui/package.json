@@ -21,6 +21,26 @@
       "import": "./dist/rich-text/index.js",
       "require": "./dist/rich-text/index.cjs"
     },
+    "./components/*": {
+      "types": "./dist/components/*.d.ts",
+      "import": "./dist/components/*.js",
+      "require": "./dist/components/*.cjs"
+    },
+    "./tokens": {
+      "types": "./dist/tokens.d.ts",
+      "import": "./dist/tokens.js",
+      "require": "./dist/tokens.cjs"
+    },
+    "./theme-context": {
+      "types": "./dist/theme-context.d.ts",
+      "import": "./dist/theme-context.js",
+      "require": "./dist/theme-context.cjs"
+    },
+    "./utils": {
+      "types": "./dist/lib/utils.d.ts",
+      "import": "./dist/lib/utils.js",
+      "require": "./dist/lib/utils.cjs"
+    },
     "./styles.css": "./src/styles.css"
   },
   "scripts": {
@@ -30,7 +50,7 @@
     "test": "vitest run",
     "test:a11y": "vitest run tests/a11y.test.tsx",
     "test:rich-text": "vitest run tests/rich-text.test.tsx",
-    "check:ui-primitives": "node --no-warnings --experimental-strip-types scripts/check-ui-primitives.ts"
+    "check:ui-primitives": "node --no-warnings --experimental-strip-types scripts/check-ui-primitives.ts && node --no-warnings --experimental-strip-types scripts/check-inline-styles.ts"
   },
   "peerDependencies": {
     "react": "^19.0.0",
@@ -52,6 +72,7 @@
     "@radix-ui/react-tooltip": "^1.4.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "lucide-react": "^1.59.0",
     "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {

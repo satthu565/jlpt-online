@@ -221,5 +221,41 @@ describe('I18 Body Size Limits (multipart, zip, octet-stream)', () => {
       expect(body.status).toBe('DRAFT_ONLY');
       expect(body.readiness).toBe('DRAFT_ONLY');
     });
+
+    it('I19: gói 12 MB vào /api/v1/admin/imports đạt; body 2 MB vào route khác trả 413 (với IMPORT_MAX_BYTES mặc định 50 MB)', async () => {
+      delete process.env.IMPORT_MAX_BYTES;
+      const defaultApp = await createApp();
+      await defaultApp.init();
+      await defaultApp.getHttpAdapter().getInstance().ready();
+
+      try {
+        // 1. Body 2 MB to non-import route returns 413
+        const payload2Mb = Buffer.alloc(2 * 1024 * 1024, 0xaa);
+        const resNonImport = await defaultApp.inject({
+          method: 'POST',
+          url: '/api/v1/auth/sign-in/email',
+          headers: {
+            'content-type': 'application/octet-stream',
+          },
+          payload: payload2Mb,
+        });
+        expect(resNonImport.statusCode).toBe(413);
+
+        // 2. Gói 12 MB to /api/v1/admin/imports is accepted by Fastify (not 413)
+        const payload12Mb = Buffer.alloc(12 * 1024 * 1024, 0xbb);
+        const resImport = await defaultApp.inject({
+          method: 'POST',
+          url: '/api/v1/admin/imports',
+          headers: {
+            ...adminHeaders,
+            'content-type': 'application/zip',
+          },
+          payload: payload12Mb,
+        });
+        expect(resImport.statusCode).not.toBe(413);
+      } finally {
+        await defaultApp.close();
+      }
+    }, 30_000);
   });
 });

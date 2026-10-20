@@ -1,8 +1,9 @@
 'use client';
 
+import { AlertTriangle } from 'lucide-react';
 import React from 'react';
 import type { PracticeShortageInfo } from '../types';
-import { Button } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface PracticeShortageNoticeProps {
   shortage: PracticeShortageInfo;
@@ -24,7 +25,7 @@ export function PracticeShortageNotice({
       role="alert"
     >
       <div className="flex items-center gap-2">
-        <span className="text-xl" aria-hidden="true">⚠️</span>
+        <AlertTriangle className="size-5" aria-hidden="true" />
         <h4 className="text-sm font-bold text-amber-900 dark:text-amber-200">
           Số lượng câu hỏi trong ngân hàng không đủ theo yêu cầu (Shortage UX)
         </h4>

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { RichTextView } from '@jlpt/ui';
+import { RichTextView } from '@jlpt/ui/components/rich-text-view';
 import type { RichBlock } from '@jlpt/schema';
 import type { AdminQuestionGroup, ListeningTimelineItem } from './types';
 

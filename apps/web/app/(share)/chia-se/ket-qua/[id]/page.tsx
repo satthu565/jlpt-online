@@ -1,6 +1,12 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { Card, Badge, Button, WatermarkBadge, JsonLd } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Badge } from '@jlpt/ui/components/badge';
+import { Button } from '@jlpt/ui/components/button';
+import { WatermarkBadge } from '@jlpt/ui/components/watermark-badge';
+import { JsonLd } from '@jlpt/ui/components/json-ld';
+import { Award, Rocket } from 'lucide-react';
+import Link from 'next/link';
 
 export interface ShareResultPageProps {
   params: Promise<{ id: string }>;
@@ -56,55 +62,56 @@ export default async function ShareResultPage({ params }: ShareResultPageProps):
         <Badge variant="success" size="md">
           Chứng nhận kết quả thi trực tuyến
         </Badge>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-[var(--text-primary)] tracking-tight">
           Bảng Điểm Đánh Giá Năng Lực JLPT
         </h1>
-        <p className="text-xs text-slate-500">
-          Mã xác thực kết quả: <code className="font-mono text-blue-600">{id}</code>
+        <p className="text-xs text-[var(--text-muted)]">
+          Mã xác thực kết quả: <code className="font-mono text-[var(--color-primary)]">{id}</code>
         </p>
       </div>
 
-      <Card className="p-8 border border-slate-200 dark:border-slate-800 text-center space-y-6">
-        <div className="inline-flex p-4 rounded-full bg-emerald-100 dark:bg-emerald-950 text-4xl">
-          🎉
+      <Card className="p-8 border border-[var(--border-subtle)] text-center space-y-6">
+        <div className="inline-flex size-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 mx-auto">
+          <Award className="size-8" />
         </div>
 
         <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+          <h2 className="text-xl font-bold text-[var(--text-primary)]">
             Kỳ thi Năng lực Tiếng Nhật Chuẩn Hóa
           </h2>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-[var(--text-secondary)] mt-1">
             Thí sinh đã hoàn thành bài thi với kết quả xuất sắc.
           </p>
         </div>
 
-        <div className="py-4 border-y border-slate-100 dark:border-slate-800 flex justify-around">
+        <div className="py-4 border-y border-[var(--border-subtle)] flex justify-around">
           <div>
-            <span className="text-xs text-slate-400 block uppercase font-bold">Cấp độ</span>
-            <span className="text-2xl font-extrabold text-blue-600">N3</span>
+            <span className="text-xs text-[var(--text-muted)] block uppercase font-bold">Cấp độ</span>
+            <span className="text-2xl font-extrabold text-[var(--color-primary)]">N3</span>
           </div>
           <div>
-            <span className="text-xs text-slate-400 block uppercase font-bold">Kết quả</span>
-            <span className="text-2xl font-extrabold text-emerald-600">ĐỖ (PASS)</span>
+            <span className="text-xs text-[var(--text-muted)] block uppercase font-bold">Kết quả</span>
+            <span className="text-2xl font-extrabold text-[var(--color-success,#16a34a)]">ĐỖ (PASS)</span>
           </div>
           <div>
-            <span className="text-xs text-slate-400 block uppercase font-bold">Độ chính xác</span>
-            <span className="text-2xl font-extrabold text-indigo-600">85%</span>
+            <span className="text-xs text-[var(--text-muted)] block uppercase font-bold">Độ chính xác</span>
+            <span className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">85%</span>
           </div>
         </div>
 
-        {/* Security Watermark (SYS-17) */}
+        {/* Security Watermark */}
         <WatermarkBadge
           userId={id.slice(0, 8)}
           notice="XÁC THỰC KẾT QUẢ THI TRỰC TUYẾN - JLPT ONLINE"
         />
 
         <div className="pt-4 flex justify-center gap-3">
-          <a href="/de-thi" style={{ textDecoration: 'none' }}>
-            <Button variant="primary" size="md" data-testid="share-start-exam-btn">
-              🚀 Thử sức ngay với đề thi thật
+          <Link href="/de-thi" className="no-underline">
+            <Button variant="primary" size="md" data-testid="share-start-exam-btn" className="flex items-center gap-2">
+              <Rocket className="size-4" />
+              <span>Thử sức ngay với đề thi thật</span>
             </Button>
-          </a>
+          </Link>
         </div>
       </Card>
     </div>

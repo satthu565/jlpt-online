@@ -1,5 +1,3 @@
-'use client';
-
 /**
  * @jlpt/ui - Design System and Reusable Components
  * Built on shadcn/ui and Radix UI primitives.
@@ -14,6 +12,7 @@ export * from './components/input.js';
 export * from './components/textarea.js';
 export * from './components/label.js';
 export * from './components/select.js';
+export * from './components/select-primitives.js';
 export * from './components/checkbox.js';
 export * from './components/radio-group.js';
 export * from './components/switch.js';
@@ -42,3 +41,6 @@ export * from './components/json-ld.js';
 export * from './components/tts-audio-player.js';
 export * from './components/watermark-badge.js';
 export * from './components/furigana-toggle.js';
+export * from './components/page-header.js';
+export * from './components/empty-state.js';
+export * from './components/table.js';

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
 import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 import type { AuditLogEntry } from '../../features/users/types';
@@ -61,7 +61,7 @@ export default function AuditLogsPage({ initialLogs = [] }: AuditLogsPageProps =
       <div className="w-full max-w-6xl mx-auto p-4 md:p-8 space-y-6 overflow-x-hidden">
         <div>
           <h1 data-testid="page-title" className="text-2xl font-bold text-gray-900">
-            Nhật ký kiểm toán hệ thống (Audit Logs - ADM-14)
+            Nhật ký kiểm toán hệ thống (Audit Logs)
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             Ghi vết bất biến toàn bộ hành động phân quyền, xuất bản đề thi và cấu hình quan trọng.

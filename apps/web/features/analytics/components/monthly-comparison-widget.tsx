@@ -1,8 +1,9 @@
 'use client';
 
+import { CalendarDays } from 'lucide-react';
 import React from 'react';
 import type { MonthlyProgressStat } from '../types';
-import { Card } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
 
 export interface MonthlyComparisonWidgetProps {
   monthlyStats: MonthlyProgressStat[];
@@ -20,7 +21,7 @@ export function MonthlyComparisonWidget({
     >
       <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
         <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-          <span>📅</span> So sánh kết quả theo từng tháng (STAT-07)
+          <CalendarDays className="size-4" aria-hidden="true" /> So sánh kết quả theo từng tháng
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
           Theo dõi mức độ tăng trưởng điểm trung bình và thời lượng ôn luyện qua từng tháng.

@@ -1,8 +1,10 @@
 'use client';
 
+import { CircleX } from 'lucide-react';
 import React from 'react';
 import type { RepeatedMistakeItem } from '../types';
-import { Card, Button } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface RepeatedMistakesWidgetProps {
   mistakes: RepeatedMistakeItem[];
@@ -23,7 +25,7 @@ export function RepeatedMistakesWidget({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
         <div>
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <span>❌</span> Các câu làm sai nhiều lần (STAT-05)
+            <CircleX className="size-4" aria-hidden="true" /> Các câu làm sai nhiều lần
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Danh sách những câu hỏi bạn đã làm sai từ 2 lần trở lên qua các lượt thi.

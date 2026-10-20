@@ -1,7 +1,4 @@
-'use client';
-
 import * as React from 'react';
-import { Slot, Slottable } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils.js';
 
@@ -69,14 +66,42 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref,
   ) => {
-    const Comp = asChild ? Slot : 'button';
     const isDisabled = disabled || loading;
 
+    if (asChild && React.isValidElement(children)) {
+      const child = children as React.ReactElement<{
+        ref?: React.Ref<unknown>;
+        className?: string;
+        children?: React.ReactNode;
+        disabled?: boolean;
+      }>;
+      return React.cloneElement(child, {
+        ref,
+        disabled: child.props.disabled ?? (isDisabled || undefined),
+        'aria-busy': loading ? 'true' : undefined,
+        className: cn(buttonVariants({ variant, size }), className, child.props.className),
+        children: (
+          <>
+            {loading && (
+              <span
+                aria-hidden="true"
+                className="inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-r-transparent"
+              />
+            )}
+            {!loading && leftIcon && <span aria-hidden="true" className="shrink-0">{leftIcon}</span>}
+            {child.props.children}
+            {!loading && rightIcon && <span aria-hidden="true" className="shrink-0">{rightIcon}</span>}
+          </>
+        ),
+        ...props,
+      });
+    }
+
     return (
-      <Comp
+      <button
         ref={ref}
-        type={asChild ? undefined : type}
-        disabled={asChild ? undefined : isDisabled}
+        type={type}
+        disabled={isDisabled}
         aria-busy={loading ? 'true' : undefined}
         className={cn(buttonVariants({ variant, size }), className)}
         {...props}
@@ -88,9 +113,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           />
         )}
         {!loading && leftIcon && <span aria-hidden="true" className="shrink-0">{leftIcon}</span>}
-        <Slottable>{children}</Slottable>
+        {children}
         {!loading && rightIcon && <span aria-hidden="true" className="shrink-0">{rightIcon}</span>}
-      </Comp>
+      </button>
     );
   },
 );

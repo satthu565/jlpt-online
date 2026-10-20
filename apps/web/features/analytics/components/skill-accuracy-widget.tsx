@@ -1,8 +1,10 @@
 'use client';
 
+import { BarChart3 } from 'lucide-react';
 import React, { useState } from 'react';
 import type { SkillAccuracyStat, MondaiAccuracyStat } from '../types';
-import { Card, Button } from '@jlpt/ui';
+import { Card } from '@jlpt/ui/components/card';
+import { Button } from '@jlpt/ui/components/button';
 
 export interface SkillAccuracyWidgetProps {
   skills: SkillAccuracyStat[];
@@ -25,7 +27,7 @@ export function SkillAccuracyWidget({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
         <div>
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <span>📊</span> Độ chính xác từng kỹ năng & dạng câu (STAT-03, STAT-04)
+            <BarChart3 className="size-4" aria-hidden="true" /> Độ chính xác từng kỹ năng & dạng câu
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Tỷ lệ làm đúng phân bổ theo từng kỹ năng JLPT chuẩn và các dạng mondai.
@@ -39,9 +41,8 @@ export function SkillAccuracyWidget({
             size="sm"
             data-testid="tab-skills-btn"
             onClick={() => setViewMode('skills')}
-            className="px-3 py-1 h-auto text-xs font-bold rounded-lg"
-          >
-            Theo kỹ năng (STAT-03)
+            className="px-3 py-1 h-auto text-xs font-bold rounded-lg">
+            Theo kỹ năng
           </Button>
           <Button
             type="button"
@@ -49,9 +50,8 @@ export function SkillAccuracyWidget({
             size="sm"
             data-testid="tab-mondais-btn"
             onClick={() => setViewMode('mondais')}
-            className="px-3 py-1 h-auto text-xs font-bold rounded-lg"
-          >
-            Theo dạng câu (STAT-04)
+            className="px-3 py-1 h-auto text-xs font-bold rounded-lg">
+            Theo dạng câu
           </Button>
         </div>
       </div>
@@ -66,8 +66,7 @@ export function SkillAccuracyWidget({
               <div
                 key={s.skill}
                 data-testid={`skill-item-${s.skill}`}
-                className="p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-1.5"
-              >
+                className="p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-slate-800 dark:text-slate-200">
                     {s.skillLabel}
@@ -88,6 +87,7 @@ export function SkillAccuracyWidget({
                 <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                   <div
                     className={`h-2 rounded-full ${isHigh ? 'bg-emerald-500' : isMedium ? 'bg-blue-600' : 'bg-rose-500'}`}
+                    // ui-allow-style: chiều rộng theo số liệu, tính lúc chạy
                     style={{ width: `${s.accuracy}%` }}
                   />
                 </div>
@@ -106,8 +106,7 @@ export function SkillAccuracyWidget({
               <div
                 key={m.mondaiType}
                 data-testid={`mondai-item-${m.mondaiType}`}
-                className="p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-1"
-              >
+                className="p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-1">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-mono font-bold text-slate-700 dark:text-slate-300">
                     {m.label}

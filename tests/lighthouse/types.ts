@@ -74,6 +74,8 @@ export interface LighthouseAuditSummary {
   passedAudits: number;
   failedAudits: number;
   violationsCount: number;
+  /** Vi phạm làm trượt CI (không tính chỉ số chỉ cảnh báo, xem WARN_ONLY_METRICS). */
+  blockingViolationsCount: number;
   results: RouteAuditResult[];
   violations: BudgetViolation[];
 }

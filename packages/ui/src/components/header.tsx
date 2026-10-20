@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import { ChevronDown, Menu, X } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from './dropdown-menu.js';
+import { cn } from '../lib/utils.js';
 
 export interface NavItem {
   label: string;
@@ -26,6 +28,25 @@ export interface HeaderProps {
   className?: string;
 }
 
+const PRIMARY = 'text-[var(--color-primary,#16a34a)]';
+
+function desktopLinkClass(active: boolean | undefined): string {
+  return cn(
+    'whitespace-nowrap rounded-md px-2 py-1.5 text-sm no-underline transition-colors hover:text-[var(--color-primary,#16a34a)]',
+    active ? `font-semibold ${PRIMARY}` : 'font-medium text-[var(--text-secondary,#475569)]',
+  );
+}
+
+function mobileLinkClass(active: boolean | undefined, nested: boolean): string {
+  return cn(
+    'flex min-h-11 items-center rounded-md text-base no-underline',
+    nested ? 'py-2.5 pl-6 pr-4' : 'px-4 py-3',
+    active
+      ? `bg-[var(--color-primary-light,#dcfce7)] font-semibold ${PRIMARY}`
+      : 'font-medium text-[var(--text-primary,#0f172a)] hover:bg-[var(--bg-muted,#f1f5f9)]',
+  );
+}
+
 export function Header({
   brandName = 'JLPT Online',
   brandHref = '/',
@@ -40,72 +61,24 @@ export function Header({
 
   return (
     <header
-      style={{
-        backgroundColor: 'var(--bg-surface, #ffffff)',
-        borderBottom: '1px solid var(--border-subtle, #e2e8f0)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 40,
-        boxShadow: 'var(--shadow-sm)',
-        transition: 'background-color 0.2s ease, border-color 0.2s ease',
-        maxWidth: '100vw',
-        overflowX: 'clip',
-      }}
-      className={`jlpt-header ${className}`}
+      className={cn(
+        'jlpt-header sticky top-0 z-40 max-w-[100vw] overflow-x-clip border-b border-[var(--border-subtle,#e2e8f0)] bg-[var(--bg-surface,#ffffff)] shadow-[var(--shadow-sm)] transition-colors',
+        className,
+      )}
     >
-      <div
-        className="container"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          height: '64px',
-          maxWidth: '100%',
-          width: '100%',
-          boxSizing: 'border-box',
-        }}
-      >
-        {/* Brand / Logo */}
-        <div className="header-brand-nav" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+      <div className="container box-border flex h-16 w-full max-w-full items-center justify-between">
+        <div className="header-brand-nav flex items-center gap-5">
           <a
             href={brandHref}
-            className="header-brand-logo"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              fontWeight: 800,
-              fontSize: '1.25rem',
-              color: 'var(--color-primary, #16a34a)',
-              textDecoration: 'none',
-              letterSpacing: '-0.025em',
-              flexShrink: 0,
-            }}
+            className={cn('header-brand-logo flex shrink-0 items-center gap-2 text-xl font-extrabold tracking-tight no-underline', PRIMARY)}
           >
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                backgroundColor: 'var(--color-primary, #16a34a)',
-                color: 'var(--text-inverse, #ffffff)',
-                fontSize: '1rem',
-                fontWeight: 'bold',
-              }}
-            >
+            <span className="inline-flex size-8 items-center justify-center rounded-lg bg-[var(--color-primary,#16a34a)] text-base font-bold text-[var(--text-inverse,#ffffff)]">
               J
             </span>
             <span>{brandName}</span>
           </a>
 
-          {/* Desktop Navigation */}
-          <nav
-            aria-label="Main Navigation"
-            className="desktop-nav"
-          >
+          <nav aria-label="Main Navigation" className="desktop-nav">
             {navItems.map((item) => {
               if (item.children && item.children.length > 0) {
                 const isChildActive = item.children.some((c) => c.active);
@@ -114,26 +87,13 @@ export function Header({
                     <DropdownMenuTrigger asChild>
                       <button
                         type="button"
-                        className="header-nav-link header-nav-dropdown-trigger"
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '0.25rem',
-                          fontSize: '0.875rem',
-                          fontWeight: isChildActive ? 600 : 500,
-                          color: isChildActive ? 'var(--color-primary, #16a34a)' : 'var(--text-secondary, #475569)',
-                          background: 'transparent',
-                          border: 'none',
-                          cursor: 'pointer',
-                          padding: '0.375rem 0.5rem',
-                          borderRadius: '6px',
-                          fontFamily: 'inherit',
-                          whiteSpace: 'nowrap',
-                          transition: 'color 0.15s ease',
-                        }}
+                        className={cn(
+                          'header-nav-link header-nav-dropdown-trigger inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent font-[inherit]',
+                          desktopLinkClass(isChildActive),
+                        )}
                       >
                         <span>{item.label}</span>
-                        <span aria-hidden="true" style={{ fontSize: '0.625rem', opacity: 0.7 }}>▼</span>
+                        <ChevronDown className="size-3.5 opacity-70" aria-hidden="true" />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="min-w-[11rem] p-1.5 shadow-md">
@@ -141,13 +101,11 @@ export function Header({
                         <DropdownMenuItem key={subItem.href || subItem.label} asChild>
                           <a
                             href={subItem.href}
-                            className="flex items-center w-full px-2.5 py-1.5 text-sm cursor-pointer rounded-sm"
+                            className={cn(
+                              'flex w-full cursor-pointer items-center rounded-sm px-2.5 py-1.5 text-sm no-underline',
+                              subItem.active && `font-semibold ${PRIMARY}`,
+                            )}
                             aria-current={subItem.active ? 'page' : undefined}
-                            style={{
-                              color: subItem.active ? 'var(--color-primary, #16a34a)' : undefined,
-                              fontWeight: subItem.active ? 600 : undefined,
-                              textDecoration: 'none',
-                            }}
                           >
                             {subItem.label}
                           </a>
@@ -162,18 +120,8 @@ export function Header({
                 <a
                   key={item.href || item.label}
                   href={item.href}
-                  className="header-nav-link"
+                  className={cn('header-nav-link', desktopLinkClass(item.active))}
                   aria-current={item.active ? 'page' : undefined}
-                  style={{
-                    fontSize: '0.875rem',
-                    fontWeight: item.active ? 600 : 500,
-                    color: item.active ? 'var(--color-primary, #16a34a)' : 'var(--text-secondary, #475569)',
-                    textDecoration: 'none',
-                    whiteSpace: 'nowrap',
-                    padding: '0.375rem 0.5rem',
-                    borderRadius: '6px',
-                    transition: 'color 0.15s ease',
-                  }}
                 >
                   {item.label}
                 </a>
@@ -182,79 +130,36 @@ export function Header({
           </nav>
         </div>
 
-        {/* Right Controls & Auth */}
-        <div className="header-right-group" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
-          {rightControls && (
-            <div className="header-desktop-controls">
-              {rightControls}
-            </div>
-          )}
+        <div className="header-right-group flex shrink-0 items-center gap-3">
+          {rightControls && <div className="header-desktop-controls">{rightControls}</div>}
           {userMenu}
 
-          {/* Mobile Menu Hamburger Button */}
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-expanded={isMobileMenuOpen}
             aria-controls="mobile-navigation-drawer"
             aria-label={isMobileMenuOpen ? mobileMenuCloseLabel : mobileMenuOpenLabel}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '8px',
-              borderRadius: '6px',
-              border: '1px solid var(--border-default, #cbd5e1)',
-              backgroundColor: 'var(--bg-surface, #ffffff)',
-              color: 'var(--text-primary, #0f172a)',
-              cursor: 'pointer',
-              minHeight: '40px',
-              minWidth: '40px',
-            }}
-            className="mobile-menu-button"
+            className="mobile-menu-button inline-flex min-h-10 min-w-10 cursor-pointer items-center justify-center rounded-md border border-[var(--border-default,#cbd5e1)] bg-[var(--bg-surface,#ffffff)] p-2 text-[var(--text-primary,#0f172a)]"
           >
-            <span aria-hidden="true" style={{ fontSize: '1.25rem', lineHeight: 1 }}>
-              {isMobileMenuOpen ? '✕' : '☰'}
-            </span>
+            {isMobileMenuOpen ? <X className="size-5" aria-hidden="true" /> : <Menu className="size-5" aria-hidden="true" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Drawer Navigation (SYS-01) */}
       {isMobileMenuOpen && (
         <div
           id="mobile-navigation-drawer"
           role="region"
           aria-label="Mobile Navigation"
-          style={{
-            borderTop: '1px solid var(--border-subtle, #e2e8f0)',
-            backgroundColor: 'var(--bg-surface, #ffffff)',
-            padding: '1rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.75rem',
-            boxShadow: 'var(--shadow-md)',
-          }}
-          className="mobile-drawer"
+          className="mobile-drawer flex flex-col gap-3 border-t border-[var(--border-subtle,#e2e8f0)] bg-[var(--bg-surface,#ffffff)] p-4 shadow-[var(--shadow-md)]"
         >
-          <nav
-            aria-label="Mobile Links"
-            style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
-          >
+          <nav className="flex flex-col gap-2" aria-label="Mobile Links">
             {navItems.map((item) => {
               if (item.children && item.children.length > 0) {
                 return (
-                  <div key={item.label} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                    <div
-                      style={{
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        color: 'var(--text-muted, #94a3b8)',
-                        padding: '0.5rem 1rem 0.25rem',
-                      }}
-                    >
+                  <div className="flex flex-col gap-1" key={item.label}>
+                    <div className="px-4 pb-1 pt-2 text-xs font-bold uppercase tracking-wider text-[var(--text-muted,#94a3b8)]">
                       {item.label}
                     </div>
                     {item.children.map((subItem) => (
@@ -263,18 +168,7 @@ export function Header({
                         href={subItem.href}
                         onClick={() => setIsMobileMenuOpen(false)}
                         aria-current={subItem.active ? 'page' : undefined}
-                        style={{
-                          fontSize: '1rem',
-                          fontWeight: subItem.active ? 600 : 500,
-                          color: subItem.active ? 'var(--color-primary, #16a34a)' : 'var(--text-primary, #0f172a)',
-                          textDecoration: 'none',
-                          padding: '0.625rem 1rem 0.625rem 1.5rem',
-                          borderRadius: '6px',
-                          backgroundColor: subItem.active ? 'var(--color-primary-light, #dcfce7)' : 'transparent',
-                          minHeight: '44px',
-                          display: 'flex',
-                          alignItems: 'center',
-                        }}
+                        className={mobileLinkClass(subItem.active, true)}
                       >
                         {subItem.label}
                       </a>
@@ -289,18 +183,7 @@ export function Header({
                   href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   aria-current={item.active ? 'page' : undefined}
-                  style={{
-                    fontSize: '1rem',
-                    fontWeight: item.active ? 600 : 500,
-                    color: item.active ? 'var(--color-primary, #16a34a)' : 'var(--text-primary, #0f172a)',
-                    textDecoration: 'none',
-                    padding: '0.75rem 1rem',
-                    borderRadius: '6px',
-                    backgroundColor: item.active ? 'var(--color-primary-light, #dcfce7)' : 'transparent',
-                    minHeight: '44px',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
+                  className={mobileLinkClass(item.active, false)}
                 >
                   {item.label}
                 </a>
@@ -308,55 +191,12 @@ export function Header({
             })}
           </nav>
           {rightControls && (
-            <div
-              style={{
-                borderTop: '1px solid var(--border-subtle, #e2e8f0)',
-                paddingTop: '0.75rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
+            <div className="flex items-center justify-between border-t border-[var(--border-subtle,#e2e8f0)] pt-3">
               {rightControls}
             </div>
           )}
         </div>
       )}
-
-      <style>{`
-        @media (max-width: 1400px) {
-          .theme-toggle-label {
-            display: none !important;
-          }
-        }
-        @media (max-width: 768px) {
-          .theme-toggle-label {
-            display: none !important;
-          }
-          .header-auth-buttons {
-            display: none !important;
-          }
-        }
-        @media (max-width: 1279px) {
-          .desktop-nav {
-            display: none !important;
-          }
-          .mobile-menu-button {
-            display: inline-flex !important;
-          }
-        }
-        @media (min-width: 1280px) {
-          .desktop-nav {
-            display: flex !important;
-          }
-          .mobile-menu-button {
-            display: none !important;
-          }
-          .mobile-drawer {
-            display: none !important;
-          }
-        }
-      `}</style>
     </header>
   );
 }

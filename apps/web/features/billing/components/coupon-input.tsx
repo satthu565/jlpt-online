@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Input, Alert } from '@jlpt/ui';
+import { Button } from '@jlpt/ui/components/button';
+import { Input } from '@jlpt/ui/components/input';
+import { Alert } from '@jlpt/ui/components/alert';
+import { Tag, X } from 'lucide-react';
 import type { CouponDiscount } from '../types';
 import { useI18n } from '../../../lib/i18n';
 
@@ -41,22 +44,15 @@ export function CouponInput({
   if (appliedCoupon) {
     return (
       <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '0.75rem 1rem',
-          borderRadius: '6px',
-          backgroundColor: 'rgba(22, 163, 74, 0.1)',
-          border: '1px solid var(--color-success, #16a34a)',
-        }}
+        className="flex justify-between items-center px-4 py-3 rounded-lg bg-[var(--color-success,#16a34a)]/10 border border-[var(--color-success,#16a34a)]"
         data-testid="applied-coupon-card"
       >
-        <div>
-          <span style={{ fontWeight: 700, color: 'var(--color-success, #16a34a)' }}>
-            🏷️ {appliedCoupon.code}
+        <div className="flex items-center gap-2">
+          <Tag className="size-4 text-[var(--color-success,#16a34a)]" />
+          <span className="font-bold text-[var(--color-success,#16a34a)]">
+            {appliedCoupon.code}
           </span>
-          <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>
+          <span className="text-sm text-[var(--text-secondary)]">
             ({t('billing.coupon.appliedDiscount', { amount: `${appliedCoupon.discountMinor.toLocaleString('vi-VN')}₫` })})
           </span>
         </div>
@@ -66,17 +62,19 @@ export function CouponInput({
           onClick={onRemoveCoupon}
           aria-label={t('billing.coupon.remove')}
           data-testid="remove-coupon-button"
+          className="flex items-center gap-1 text-[var(--text-muted)] hover:text-destructive"
         >
-          ✕ {t('billing.coupon.remove')}
+          <X className="size-4" />
+          <span>{t('billing.coupon.remove')}</span>
         </Button>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-      <form onSubmit={handleApply} style={{ display: 'flex', gap: '0.5rem' }}>
-        <div style={{ flex: 1 }}>
+    <div className="flex flex-col gap-2">
+      <form onSubmit={handleApply} className="flex gap-2">
+        <div className="flex-1">
           <Input
             id="coupon-code-input"
             value={code}

@@ -1968,9 +1968,9 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### D08 Web: khung trang và các trang chính theo shadcn/ui
 
 - Worker: **W3**. Ngày mục tiêu: 9. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: D06. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: D02, D07. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy (ví dụ width của thanh tiến độ) có comment "ui-allow-style". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi. Phạm vi: khung trang (header, menu điện thoại, footer, nav-shell), trang chủ, thư viện đề, phòng thi, trang cấp độ/SEO, đăng nhập/đăng ký, trang thông tin. Thêm lucide-react vào @jlpt/ui, thêm PageHeader và EmptyState dùng chung; mở rộng pnpm check:ui-primitives đếm style={{ trong apps/web theo baseline giảm dần (ratchet).
+- Phạm vi: Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy (ví dụ width của thanh tiến độ) có comment "ui-allow-style". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi. Dùng PageHeader (@jlpt/ui/components/page-header), EmptyState (@jlpt/ui/components/empty-state) và icon lucide-react đã có sẵn; import @jlpt/ui theo từng thành phần, không qua barrel. Phạm vi: khung trang (header, menu điện thoại, footer, nav-shell), trang chủ, thư viện đề, phòng thi, trang cấp độ/SEO, đăng nhập/đăng ký, trang thông tin. Thêm lucide-react vào @jlpt/ui, thêm PageHeader và EmptyState dùng chung; mở rộng pnpm check:ui-primitives đếm style={{ trong apps/web theo baseline giảm dần (ratchet). Tốc độ: trang chủ, trang cấp độ, đăng nhập/đăng ký, thư viện đề và phòng thi dựng nội dung ở máy chủ (Server Component; chỉ phần tương tác là "use client", chữ i18n lấy ở máy chủ theo locale), để LCP mobile trong Lighthouse giả lập (CPU x4, 150 ms RTT) dưới 2,5 s. Ghi số đo trước/sau vào docs/decisions/. Không thêm JS tải ban đầu quá 180 KB gzip.
 - Bàn giao: apps/web/app/page.tsx; apps/web/app/layout.tsx; apps/web/app/nav-shell.tsx; apps/web/app/globals.css; apps/web/app/(auth)/; apps/web/app/(exam)/; apps/web/app/(info)/; apps/web/app/(library)/; apps/web/app/(seo)/; apps/web/features/exam/; apps/web/features/library/; packages/ui/.
 - Hợp đồng: API.
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
@@ -1981,6 +1981,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - Các trang trong phạm vi không còn style={{}} viết tay.
   - Ảnh trước/sau 390/1366px trong docs/release/.
   - check:ui-primitives đếm inline style và chặn tăng.
+  - Lighthouse mobile LCP < 2,5 s cho /, /de-thi, /phong-thi, /n5, /dang-nhap.
   - Lighthouse trên staging CI không giảm so với số đo trước đợt (máy tính hiệu năng ≥98, điện thoại ≥70, trợ năng ≥95, SEO 100); ảnh chụp 390px và 1366px của các trang đã đổi lưu làm artifact.
 - Lệnh cần cung cấp và chạy:
   - `pnpm test:web`
@@ -1995,9 +1996,9 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### D09 Web: trang học tập, luyện tập, kế hoạch, kết quả theo shadcn/ui
 
 - Worker: **W3**. Ngày mục tiêu: 9. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: D08. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: D02, D07. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy (ví dụ width của thanh tiến độ) có comment "ui-allow-style". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi. Phạm vi: sổ tay, flashcard/SRS, luyện tập, kế hoạch học, kết quả bài thi, thống kê, kho từ vựng/ngữ pháp.
+- Phạm vi: Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy (ví dụ width của thanh tiến độ) có comment "ui-allow-style". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi. Dùng PageHeader (@jlpt/ui/components/page-header), EmptyState (@jlpt/ui/components/empty-state) và icon lucide-react đã có sẵn; import @jlpt/ui theo từng thành phần, không qua barrel. Phạm vi: sổ tay, flashcard/SRS, luyện tập, kế hoạch học, kết quả bài thi, thống kê, kho từ vựng/ngữ pháp.
 - Bàn giao: apps/web/app/(learning)/; apps/web/app/(practice)/; apps/web/app/(planner)/; apps/web/app/(results)/; apps/web/app/(corpus)/; apps/web/app/(analytics)/; apps/web/features/learning/; apps/web/features/practice/; apps/web/features/planner/; apps/web/features/results/; apps/web/features/corpus/; apps/web/features/analytics/.
 - Hợp đồng: API.
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
@@ -2021,9 +2022,9 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### D10 Web: tài khoản, gói học, lớp học, cộng đồng theo shadcn/ui
 
 - Worker: **W3**. Ngày mục tiêu: 9. Ước lượng chưa đo: 4 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: D08. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: D02, D07. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy (ví dụ width của thanh tiến độ) có comment "ui-allow-style". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi. Phạm vi: tài khoản và cài đặt, gói học/thanh toán, lớp học, cộng đồng/thảo luận, chia sẻ, lời giải, huy hiệu, AI, đề trộn.
+- Phạm vi: Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy (ví dụ width của thanh tiến độ) có comment "ui-allow-style". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi. Dùng PageHeader (@jlpt/ui/components/page-header), EmptyState (@jlpt/ui/components/empty-state) và icon lucide-react đã có sẵn; import @jlpt/ui theo từng thành phần, không qua barrel. Phạm vi: tài khoản và cài đặt, gói học/thanh toán, lớp học, cộng đồng/thảo luận, chia sẻ, lời giải, huy hiệu, AI, đề trộn.
 - Bàn giao: apps/web/app/(account)/; apps/web/app/(billing)/; apps/web/app/(classroom)/; apps/web/app/(community)/; apps/web/app/(share)/; apps/web/features/account/; apps/web/features/billing/; apps/web/features/classroom/; apps/web/features/community/; apps/web/features/explanations/; apps/web/features/gamification/; apps/web/features/ai/; apps/web/features/mix/.
 - Hợp đồng: API.
 - Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
@@ -2047,9 +2048,9 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 ### D05 Nghiệm thu giao diện thống nhất và hiệu năng
 
 - Worker: **W6**. Ngày mục tiêu: 9. Ước lượng chưa đo: 3 giờ worker; không gồm mọi vòng sửa/review.
-- Phụ thuộc: D02, D03, D04, D06, D07, D08, D09, D10. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Phụ thuộc: D02, D03, D07, D10. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
 - Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
-- Phạm vi: Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau. E2E tích hợp chạy qua jlpt-stage-test check-all; Lighthouse chạy trong CI staging trên GitHub (không chạy thẳng trên VM).
+- Phạm vi: Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau. E2E tích hợp chạy qua jlpt-stage-test check-all; Lighthouse chạy trong CI staging trên GitHub (không chạy thẳng trên VM). Bỏ LCP khỏi WARN_ONLY_METRICS trong tests/lighthouse/budgets.ts để LCP chặn trở lại (tạm cảnh báo từ 2026-10-20 chờ D08). D04, D06, D08, D09, I19, I20, I22 do Claude làm trực tiếp và ghép qua PR (coordinator ghi CANCELLED nên không còn là phụ thuộc); D05 kiểm tra cả phần của D08.
 - Bàn giao: tests/; .github/; docs/release/.
 - Hợp đồng: quy tắc chung.
 - Khóa tài nguyên: ci-workflow, staging-deploy.
@@ -2058,6 +2059,7 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
 - Quyền ghi tạm ngoài thư mục của worker: không.
 - Nghiệm thu:
   - docs/release/DESIGN_PERF_REPORT.md có số đo trước/sau và ảnh từng trang.
+  - tests/lighthouse/budgets.ts không còn chỉ số chỉ cảnh báo.
   - Không trang nào cuộn ngang, hiện key dịch thô hoặc mã tính năng nội bộ.
   - check:ui-primitives và test:lighthouse chặn trong CI.
 - Lệnh cần cung cấp và chạy:
