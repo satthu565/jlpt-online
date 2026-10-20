@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Flame, Check, Pin, Trophy, Medal, Share2, Target, BarChart2 } from 'lucide-react';
 import { Button } from '@jlpt/ui/components/button';
 import { Card } from '@jlpt/ui/components/card';
 import { Badge } from '@jlpt/ui/components/badge';
@@ -219,9 +220,7 @@ export function GamificationDashboard({
       <Card className="p-6 border border-amber-200 dark:border-amber-900/60 bg-amber-50/30 dark:bg-slate-900/40">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span style={{ fontSize: '2.5rem' }} role="img" aria-label="Streak Fire">
-              🔥
-            </span>
+            <Flame className="h-10 w-10 text-amber-500 shrink-0" aria-label="Streak Fire" />
             <div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                 {t('seo.gamification.streakTitle')}
@@ -246,7 +245,17 @@ export function GamificationDashboard({
             onClick={handleCheckIn}
             data-testid="streak-checkin-btn"
           >
-            {streak?.isActiveToday ? '✅ Đã điểm danh hôm nay' : '📌 ' + t('seo.gamification.checkInButton')}
+            {streak?.isActiveToday ? (
+              <span className="inline-flex items-center gap-1.5">
+                <Check className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+                <span>Đã điểm danh hôm nay</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5">
+                <Pin className="h-4 w-4" aria-hidden="true" />
+                <span>{t('seo.gamification.checkInButton')}</span>
+              </span>
+            )}
           </Button>
         </div>
 
@@ -268,7 +277,8 @@ export function GamificationDashboard({
         {/* Achievements List */}
         <Card className="p-6 space-y-4">
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <span>🏆</span> {t('seo.gamification.achievementsTitle')}
+            <Trophy className="h-5 w-5 text-amber-500" aria-hidden="true" />
+            <span>{t('seo.gamification.achievementsTitle')}</span>
           </h3>
           <div className="space-y-3" data-testid="achievements-list">
             {achievements.map((ach) => (
@@ -279,7 +289,16 @@ export function GamificationDashboard({
               >
                 <div>
                   <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200">
-                    <span>{ach.tier === 'bronze' ? '🥉' : ach.tier === 'silver' ? '🥈' : '🥇'}</span>
+                    <Medal
+                      className={`h-4 w-4 ${
+                        ach.tier === 'bronze'
+                          ? 'text-amber-700'
+                          : ach.tier === 'silver'
+                            ? 'text-slate-400'
+                            : 'text-amber-500'
+                      }`}
+                      aria-hidden="true"
+                    />
                     <span>{ach.title}</span>
                     {ach.unlockedAt && (
                       <Badge variant="success" size="sm">
@@ -295,8 +314,10 @@ export function GamificationDashboard({
                   size="sm"
                   onClick={() => handleShareAchievement(ach)}
                   data-testid="achievement-share-btn"
+                  className="inline-flex items-center gap-1.5"
                 >
-                  🔗 {t('seo.gamification.shareAchievement')}
+                  <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>{t('seo.gamification.shareAchievement')}</span>
                 </Button>
               </div>
             ))}
@@ -306,7 +327,8 @@ export function GamificationDashboard({
         {/* Challenges List */}
         <Card className="p-6 space-y-4">
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <span>🎯</span> {t('seo.gamification.challengesTitle')}
+            <Target className="h-5 w-5 text-indigo-500" aria-hidden="true" />
+            <span>{t('seo.gamification.challengesTitle')}</span>
           </h3>
           <div className="space-y-3" data-testid="challenges-list">
             {challenges.map((ch) => (
@@ -332,7 +354,14 @@ export function GamificationDashboard({
                     onClick={() => handleJoinChallenge(ch.id)}
                     data-testid="challenge-join-btn"
                   >
-                    {ch.joined ? '✅ Đã tham gia' : t('seo.gamification.joinChallenge')}
+                    {ch.joined ? (
+                      <span className="inline-flex items-center gap-1">
+                        <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
+                        <span>Đã tham gia</span>
+                      </span>
+                    ) : (
+                      t('seo.gamification.joinChallenge')
+                    )}
                   </Button>
                 </div>
               </div>
@@ -345,7 +374,8 @@ export function GamificationDashboard({
       <Card className="p-6 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <span>📊</span> {t('seo.gamification.leaderboardTitle')}
+            <BarChart2 className="h-5 w-5 text-blue-500" aria-hidden="true" />
+            <span>{t('seo.gamification.leaderboardTitle')}</span>
           </h3>
 
           <label className="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
@@ -372,8 +402,16 @@ export function GamificationDashboard({
               }`}
             >
               <div className="flex items-center gap-3">
-                <span className="w-6 text-center font-bold text-slate-400">
-                  {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : entry.rank === 3 ? '🥉' : `#${entry.rank}`}
+                <span className="w-6 text-center font-bold text-slate-400 flex items-center justify-center">
+                  {entry.rank === 1 ? (
+                    <Medal className="h-4 w-4 text-amber-500" aria-label="Hạng 1" />
+                  ) : entry.rank === 2 ? (
+                    <Medal className="h-4 w-4 text-slate-400" aria-label="Hạng 2" />
+                  ) : entry.rank === 3 ? (
+                    <Medal className="h-4 w-4 text-amber-700" aria-label="Hạng 3" />
+                  ) : (
+                    `#${entry.rank}`
+                  )}
                 </span>
                 <span className="text-slate-800 dark:text-slate-200">{entry.displayName}</span>
               </div>
