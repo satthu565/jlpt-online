@@ -548,6 +548,35 @@ task('I18','W2',8,1,'API: giới hạn kích thước body cho multipart, zip v�
  'Test: body 2 MB application/octet-stream vào route không phải nhập gói trả 413 mà không cần đăng nhập|'
  'Test: gói vượt IMPORT_MAX_BYTES vào /api/v1/admin/imports trả 413; gói fixtures hợp lệ vẫn nhập được ở chế độ draft và ready',
  'pnpm test',contracts='API')
+# Owner tried the N3 package on the preview (2026-10-20): every upload got 415 in the container, yet the admin page said "thành công".
+task('I19','W2',8,1,'API trong container nhận gói ZIP tải lên (lỗi 415)','I18',
+ 'Image API (infra/docker/api.Dockerfile) chép đè dist/src/main.js bằng infra/docker/entrypoint.js, nên các addContentTypeParser và hook bodyLimit của apps/api/src/main.ts '
+ '(I16, I18) không chạy: trên staging và bản xem thử, POST /api/v1/admin/imports với multipart/form-data hoặc application/zip luôn trả 415 Unsupported Media Type. '
+ 'Tách phần cấu hình HTTP (parser buffer cho multipart/zip/octet-stream, bodyLimit 1 MB mặc định, IMPORT_MAX_BYTES 50 MB cho route nhập gói) thành một hàm dùng chung, '
+ 'gọi từ cả main.ts và entrypoint.js; bỏ bodyLimit 50 MB toàn cục của entrypoint. Test chạy trên image thật, không chỉ createApp() của main.ts.',
+ 'apps/api/src/main.ts|apps/api/src/modules/import/',
+ 'E2E trên staging (jlpt-stage-test): nhân sự tải fixtures/imports/draft.zip qua multipart ở chế độ draft -> 201, GET /api/v1/admin/imports trả job đó sau khi tải lại trang|'
+ 'Gói 12 MB vào /api/v1/admin/imports đạt; body 2 MB vào route khác trả 413',
+ 'pnpm test',contracts='API',grants='infra/docker/ tests/playwright/')
+task('I20','W4',8,1,'Trang nhập gói: bỏ nhập giả trong trình duyệt, chỉ hiện kết quả thật từ API','I16',
+ 'apps/admin/features/import/import-manager.ts tự đọc ZIP, tự kiểm tra và tạo job/mã đề giả (job_${Date.now()}, exam_${Date.now()}) trong bộ nhớ trình duyệt, nên khi API lỗi '
+ 'trang vẫn báo "Nạp bản nháp thành công" và hiện bảng issue như đã lưu. Trang nhập gói chỉ gọi API: hiện trạng thái tải lên, lỗi API nguyên văn (415/413/400 kèm danh sách lỗi), '
+ 'và danh sách job lấy lại từ GET /api/v1/admin/imports; không tạo id hay dữ liệu giả ở client. Kiểm tra trước khi tải lên ở client (nếu giữ) chỉ là gợi ý, ghi rõ chưa lưu.',
+ 'apps/admin/',
+ 'E2E: API trả lỗi -> trang hiện lỗi, không có thông báo thành công, danh sách không thêm dòng|E2E: tải gói thật -> dòng mới đến từ API và còn sau khi tải lại trang|'+NO_MOCK+'|'+REAL_E2E,
+ 'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/')
+# Owner (2026-10-20): JLPT question counts per 問題 vary by year (jlpt.jp lists them as 目安), so an
+# official blueprint must not reject a real past exam that is off by a few questions.
+task('I21','W5',8,1,'Blueprint: đề gốc được lệch số câu so với số tham chiếu','I16',
+ 'validateExamAgainstBlueprint (packages/content-tools/src/blueprint-validator.ts) đang báo lỗi khi tổng số câu hoặc số câu từng mondaiType khác blueprint, nên đề JLPT thật của năm khác '
+ '(số câu từng 問題 trên jlpt.jp chỉ là 目安) bị từ chối. Sửa: với exam.kind "original", blueprint chỉ bắt buộc khung đề (đủ section, đúng thứ tự, mondaiType có trong blueprint); '
+ 'số câu từng mondaiType, tổng số câu và durationSec khác số tham chiếu chỉ là warning có ghi số thực tế và số tham chiếu, không chặn nhập/duyệt/xuất bản. '
+ 'mondaiType không có trong blueprint hoặc thiếu hẳn một section vẫn là lỗi. Với đề trộn (kind "mixed"), generator vẫn ra đúng số câu tham chiếu. '
+ 'Điểm quy đổi của đề gốc tính theo số câu thật của đề, không theo questionCount của blueprint. Cập nhật docs/import-format/README.md.',
+ 'packages/content-tools/',
+ 'Test: đề N3 có 問題3 10 câu (tham chiếu 11) nhập được, readiness không giảm vì số câu, có warning nêu 10/11|'
+ 'Test: đề thiếu section listening hoặc có mondaiType lạ vẫn bị lỗi|Test: đề trộn N3 sinh đúng số câu tham chiếu|Test: chấm điểm đề gốc dùng số câu thật',
+ 'pnpm test',contracts='API',grants='apps/api/src/modules/scoring/ apps/api/src/modules/import/ docs/import-format/')
 task('I07','W6',8,4,'Nghiệm thu tích hợp toàn bộ và khóa chặn dữ liệu giả','I01 I08 I10 I11 I12 I13 I09 I03 I04 I05 I06 I14 I15',
  'Chạy E2E tích hợp đầy đủ hai ứng dụng trên staging CI; baseline mock-ui phải rỗng và check:no-mock-ui thành cổng chặn vĩnh viễn trong CI; cập nhật bản demo và báo cáo. Ghi chú của người vận hành (20/10): lần kiểm tra 1 trượt vì chạy pnpm test:e2e:integration thẳng trên VM (thiếu thư viện WebKit, không có stack staging nên API 500, Mailpit 404); lệnh đó đã bỏ khỏi kiểm tra, E2E chạy qua jlpt-stage-test check-all. Không sửa code để chiều các lỗi môi trường đó; chỉ sửa lỗi E2E thật thấy trong jlpt-stage-test check-all.',
  'tests/|.github/|infra/|docs/release/|docs/runbooks/',
@@ -589,11 +618,48 @@ task('D04','W3',9,5,'Tối ưu tốc độ web trên điện thoại','D01 D02',
  'apps/web/|packages/ui/',
  'Lighthouse điện thoại trên staging: LCP < 2,5 s, CLS < 0,1, TBT < 200 ms ở /, /de-thi, /phong-thi, /n5, /dang-nhap|Ngân sách D01 chuyển sang chặn và pass|Không đổi hành vi; E2E tích hợp vẫn pass',
  'pnpm test:web|pnpm build',contracts='API')
-task('D05','W6',9,3,'Nghiệm thu giao diện thống nhất và hiệu năng','D02 D03 D04',
- 'Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau.',
+# Owner review of the preview (2026-10-20): pages show internal feature codes such as "(ADM-01)", "(LIB-06)".
+UI_CODES = ('Bỏ mọi mã tính năng nội bộ hiện ra cho người dùng (ví dụ "(ADM-01)", "(LIB-06)", "LIB-14", "(EXAM-03)") khỏi tiêu đề, nhãn, '
+ 'chuỗi dịch vi/ja/en và thuộc tính hiển thị; mã chỉ được nằm trong data-testid, comment hoặc test. Sửa test đang so khớp chuỗi có mã sang data-testid. '
+ 'Thêm kiểm tra trong pnpm check:no-mock-ui: fail nếu chuỗi dịch hoặc JSX text chứa mẫu \\([A-Z]{2,5}-\\d{2,3}\\).')
+task('D06','W3',9,1,'Web: bỏ mã tính năng nội bộ khỏi giao diện, ẩn đề trộn 0 câu','D04',
+ UI_CODES+' Thẻ "Đề xuất tiếp theo" và danh sách đề không hiện đề trộn có 0 câu (ví dụ "Đề trộn N5 (0 câu)"); không đủ câu thì ẩn hoặc hiện trạng thái trống có hướng dẫn.',
+ 'apps/web/|packages/ui/',
+ 'Không trang web nào hiện mã dạng (LIB-06) ở vi/ja/en|Không hiện đề trộn 0 câu|'+NO_REGRESS,
+ 'pnpm test:web|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/')
+task('D07','W4',9,1,'Admin: bỏ mã tính năng nội bộ khỏi giao diện','D03',
+ UI_CODES+' Thẻ chức năng trên bảng điều khiển dùng thành phần Card/Link của @jlpt/ui, không gạch chân toàn bộ chữ mô tả.',
+ 'apps/admin/',
+ 'Không trang quản trị nào hiện mã dạng (ADM-01) ở vi/ja/en|'+NO_REGRESS,
+ 'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/')
+# Owner review (2026-10-20): student pages still look like the old UI. D02 swapped raw controls for
+# @jlpt/ui primitives but kept page layouts: 661 inline style={{}} in 53/125 apps/web files, emoji icons,
+# native selects. Admin (D03) has none. Restyle apps/web for real, in three disjoint path groups.
+SHADCN = ('Giao diện theo đúng phong cách shadcn/ui: nền trung tính, Card/Tabs/Select/Dialog/Table/Badge/Skeleton của @jlpt/ui, khoảng cách và cỡ chữ theo thang Tailwind, '
+ 'icon lucide-react (không emoji làm icon), trạng thái trống/đang tải/lỗi dùng chung một thành phần. Không còn style={{}} viết tay trong phạm vi task, trừ giá trị tính lúc chạy '
+ '(ví dụ width của thanh tiến độ) có comment "ui-allow-style". Không đổi hành vi, route, data-testid, API. Chụp ảnh trước/sau ở 390 và 1366 px cho từng trang trong phạm vi.')
+task('D08','W3',9,4,'Web: khung trang và các trang chính theo shadcn/ui','D06',
+ SHADCN+' Phạm vi: khung trang (header, menu điện thoại, footer, nav-shell), trang chủ, thư viện đề, phòng thi, trang cấp độ/SEO, đăng nhập/đăng ký, trang thông tin. '
+ 'Thêm lucide-react vào @jlpt/ui, thêm PageHeader và EmptyState dùng chung; mở rộng pnpm check:ui-primitives đếm style={{ trong apps/web theo baseline giảm dần (ratchet).',
+ 'apps/web/app/page.tsx|apps/web/app/layout.tsx|apps/web/app/nav-shell.tsx|apps/web/app/globals.css|apps/web/app/(auth)/|apps/web/app/(exam)/|apps/web/app/(info)/|apps/web/app/(library)/|apps/web/app/(seo)/|apps/web/features/exam/|apps/web/features/library/|packages/ui/',
+ 'Các trang trong phạm vi không còn style={{}} viết tay|Ảnh trước/sau 390/1366px trong docs/release/|check:ui-primitives đếm inline style và chặn tăng|'+NO_REGRESS,
+ 'pnpm test:web|pnpm check:ui-primitives|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ docs/release/')
+task('D09','W3',9,4,'Web: trang học tập, luyện tập, kế hoạch, kết quả theo shadcn/ui','D08',
+ SHADCN+' Phạm vi: sổ tay, flashcard/SRS, luyện tập, kế hoạch học, kết quả bài thi, thống kê, kho từ vựng/ngữ pháp.',
+ 'apps/web/app/(learning)/|apps/web/app/(practice)/|apps/web/app/(planner)/|apps/web/app/(results)/|apps/web/app/(corpus)/|apps/web/app/(analytics)/|apps/web/features/learning/|apps/web/features/practice/|apps/web/features/planner/|apps/web/features/results/|apps/web/features/corpus/|apps/web/features/analytics/',
+ 'Các trang trong phạm vi không còn style={{}} viết tay|Ảnh trước/sau 390/1366px trong docs/release/|'+NO_REGRESS,
+ 'pnpm test:web|pnpm check:ui-primitives|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ docs/release/')
+task('D10','W3',9,4,'Web: tài khoản, gói học, lớp học, cộng đồng theo shadcn/ui','D08',
+ SHADCN+' Phạm vi: tài khoản và cài đặt, gói học/thanh toán, lớp học, cộng đồng/thảo luận, chia sẻ, lời giải, huy hiệu, AI, đề trộn.',
+ 'apps/web/app/(account)/|apps/web/app/(billing)/|apps/web/app/(classroom)/|apps/web/app/(community)/|apps/web/app/(share)/|apps/web/features/account/|apps/web/features/billing/|apps/web/features/classroom/|apps/web/features/community/|apps/web/features/explanations/|apps/web/features/gamification/|apps/web/features/ai/|apps/web/features/mix/',
+ 'Các trang trong phạm vi không còn style={{}} viết tay|Ảnh trước/sau 390/1366px trong docs/release/|'+NO_REGRESS,
+ 'pnpm test:web|pnpm check:ui-primitives|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ docs/release/')
+task('D05','W6',9,3,'Nghiệm thu giao diện thống nhất và hiệu năng','D02 D03 D04 D06 D07 D08 D09 D10',
+ 'Chạy E2E tích hợp, Lighthouse và chụp toàn bộ trang web/admin ở 390, 1366, 1920px; check:ui-primitives và check:no-mock-ui thành cổng chặn vĩnh viễn; báo cáo trước/sau. '
+ 'E2E tích hợp chạy qua jlpt-stage-test check-all; Lighthouse chạy trong CI staging trên GitHub (không chạy thẳng trên VM).',
  'tests/|.github/|docs/release/',
- 'docs/release/DESIGN_PERF_REPORT.md có số đo trước/sau và ảnh từng trang|Không trang nào cuộn ngang hoặc hiện key dịch thô|check:ui-primitives và test:lighthouse chặn trong CI',
- 'pnpm test:e2e:integration|pnpm test:lighthouse|pnpm check:ui-primitives',resources='ci-workflow staging-deploy',kind='verification')
+ 'docs/release/DESIGN_PERF_REPORT.md có số đo trước/sau và ảnh từng trang|Không trang nào cuộn ngang, hiện key dịch thô hoặc mã tính năng nội bộ|check:ui-primitives và test:lighthouse chặn trong CI',
+ 'pnpm check:ui-primitives|pnpm check:no-mock-ui',resources='ci-workflow staging-deploy',kind='verification')
 
 # Day 10 (owner request 2026-10-18): five features a Vietnamese JLPT candidate asks for first.
 # NEW-01 scaled score + sectional pass marks, NEW-02 Hán-Việt readings, NEW-03 furigana toggle,
@@ -640,7 +706,7 @@ task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05 D05',
 
 # Staging E2E on jlpt-vm (same suite as CI) is a required check for tasks that touch the UI or APIs it uses.
 for _t in TASKS:
-    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','I17','D02','D03','D04','P03','P04','P05'}:
+    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','I17','I19','I20','D02','D03','D04','D06','D07','D08','D09','D10','P03','P04','P05'}:
         _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check')
     # Per-task runs cover Chromium + Mobile Safari; final acceptance runs every browser.
     # The integration E2E suite needs the staging stack and browser deps, so it only runs through

@@ -7,14 +7,18 @@ export async function createApp(): Promise<NestFastifyApplication> {
   const adapter = new FastifyAdapter();
   const fastify = adapter.getInstance();
 
-  const maxImportBytes = process.env['IMPORT_MAX_BYTES']
-    ? parseInt(process.env['IMPORT_MAX_BYTES'], 10)
-    : 50 * 1024 * 1024; // 50MB default
+  const rawMaxImport = process.env['IMPORT_MAX_BYTES'];
+  const parsedMaxImport = rawMaxImport ? parseInt(rawMaxImport, 10) : NaN;
+  const maxImportBytes =
+    Number.isInteger(parsedMaxImport) && parsedMaxImport > 0
+      ? parsedMaxImport
+      : 50 * 1024 * 1024; // 50MB default
 
   // Route POST /api/v1/admin/imports receives bodyLimit from IMPORT_MAX_BYTES (default 50 MB)
   fastify.addHook('onRoute', (routeOptions) => {
+    const normalizedUrl = routeOptions.url.replace(/\/+$/, '');
     const isImportRoute =
-      routeOptions.url === '/api/v1/admin/imports' || routeOptions.url === '/admin/imports';
+      normalizedUrl === '/api/v1/admin/imports' || normalizedUrl === '/admin/imports';
     const isPostMethod =
       routeOptions.method === 'POST' ||
       (Array.isArray(routeOptions.method) && routeOptions.method.includes('POST'));
@@ -26,7 +30,7 @@ export async function createApp(): Promise<NestFastifyApplication> {
 
   // Register common buffer parsers with default bodyLimit (1 MB) to prevent memory exhaustion (DoS/OOM)
   fastify.addContentTypeParser(
-    ['multipart/form-data', 'application/zip', 'application/octet-stream'],
+    ['multipart/form-data', 'application/zip', 'application/octet-stream', 'application/x-zip-compressed'],
     { parseAs: 'buffer', bodyLimit: 1024 * 1024 },
     (_req: unknown, body: Buffer, done: (err: Error | null, res?: Buffer) => void) => {
       done(null, body);

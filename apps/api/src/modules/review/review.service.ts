@@ -14,6 +14,7 @@ import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { ExplanationDraftSchema, type ExplanationDraft } from '@jlpt/schema';
+import { extractPlainTextFromRichText } from '../import/explanation-parser.js';
 import { OutboxService, type DbTx } from '../outbox/outbox.service.js';
 import { LicenseService } from '../license/license.service.js';
 import type { ReviewDecisionDto, ReviewTargetType } from './review.types.js';
@@ -693,14 +694,90 @@ export class ReviewService {
       conditions.push(eq(schema.explanationVersions.questionId, filters.questionId));
     }
     if (filters?.status) {
-      conditions.push(eq(schema.explanationVersions.status, filters.status));
+      if (filters.status === 'pending' || filters.status === 'draft') {
+        conditions.push(inArray(schema.explanationVersions.status, ['draft', 'pending']));
+      } else {
+        conditions.push(eq(schema.explanationVersions.status, filters.status));
+      }
     }
 
-    const items = await db
-      .select()
+    const rows = await db
+      .select({
+        id: schema.explanationVersions.id,
+        questionId: schema.explanationVersions.questionId,
+        version: schema.explanationVersions.version,
+        content: schema.explanationVersions.content,
+        locale: schema.explanationVersions.locale,
+        authorId: schema.explanationVersions.authorId,
+        aiGenerated: schema.explanationVersions.aiGenerated,
+        status: schema.explanationVersions.status,
+        createdAt: schema.explanationVersions.createdAt,
+        questionLevel: schema.questions.level,
+        authorName: schema.users.name,
+        authorEmail: schema.users.email,
+      })
       .from(schema.explanationVersions)
+      .leftJoin(schema.questions, eq(schema.explanationVersions.questionId, schema.questions.id))
+      .leftJoin(schema.users, eq(schema.explanationVersions.authorId, schema.users.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(schema.explanationVersions.createdAt));
+
+    const items = rows.map((r: {
+      id: string;
+      questionId: string;
+      version: number;
+      content: unknown;
+      locale: string;
+      authorId: string;
+      aiGenerated: boolean;
+      status: string;
+      createdAt: Date;
+      questionLevel: string | null;
+      authorName: string | null;
+      authorEmail: string | null;
+    }) => {
+      const content = (r.content || {}) as Record<string, unknown>;
+
+      let explanationMarkdown = (content['explanationMarkdown'] as string) || '';
+      if (!explanationMarkdown) {
+        const correctText = extractPlainTextFromRichText(content['correctReason']);
+        const wrongMap = content['wrongReasonsByOption'] as Record<string, unknown> | undefined;
+        const parts: string[] = [];
+        if (correctText) {
+          parts.push(`**Lý do đúng**:\n${correctText}`);
+        }
+        if (wrongMap && typeof wrongMap === 'object') {
+          const wrongParts = Object.entries(wrongMap).map(([opt, reason]) => {
+            return `- [${opt}] Phương án ${opt}: ${extractPlainTextFromRichText(reason)}`;
+          });
+          if (wrongParts.length > 0) {
+            parts.push(`**Phân tích các phương án còn lại**:\n${wrongParts.join('\n')}`);
+          }
+        }
+        explanationMarkdown = parts.join('\n\n') || correctText;
+      }
+
+      const translationVi =
+        (content['translationVi'] as string) ||
+        (content['translation'] ? extractPlainTextFromRichText(content['translation']) : '');
+
+      return {
+        id: r.id,
+        questionId: r.questionId,
+        version: r.version,
+        content: r.content,
+        locale: r.locale,
+        authorId: r.authorId,
+        aiGenerated: r.aiGenerated,
+        status: r.status === 'draft' ? 'pending' : r.status,
+        rawStatus: r.status,
+        createdAt: r.createdAt,
+        level: r.questionLevel || 'N5',
+        authorName: r.authorName || r.authorEmail || 'Biên tập viên',
+        explanationMarkdown,
+        translationVi,
+      };
+    });
 
     return { items };
   }
