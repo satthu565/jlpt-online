@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { cn } from '../src/lib/utils';
+import { cn } from '../src/lib/utils.js';
 
 // A hand-written merger once dropped one of these pairs (font size vs colour, border width vs colour),
 // which removed borders and font sizes across the app.
