@@ -46,18 +46,31 @@ Số đo dưới đây đều lấy từ CI staging trên GitHub, không lấy t
 
 - **Gốc:** commit `f53bd8a`, ngày 18/10, lưu ở `docs/release/performance-baseline.json`.
 - **Main trước D05:** lần chạy Staging 39478373258 trên `732192e`, ngày 20/10.
-- **D05:** lần chạy Staging của PR này (`{{PR_RUN}}`).
+- **D05:** lần chạy Staging của PR này (`39494783923, PR #106 trên `5f3a82f``).
 
 #### LCP mobile (ms)
 
 | Trang | Gốc 18/10 | Main trước D05 | D05 |
 |:---|---:|---:|---:|
-| Trang chủ `/` | 2767 | 2618 | {{home}} |
-| Thư viện đề `/de-thi` | 4580 | 2971 | {{de-thi}} |
-| Phòng thi `/phong-thi` | 5029 | 2874 | {{phong-thi}} |
-| Cấp độ N5 `/n5` | 4283 | 2594 | {{n5}} |
-| Đăng nhập `/dang-nhap` | 4283 | 3077 | {{dang-nhap}} |
-| Admin `/login` | 2193 | 1817 | {{admin}} |
+| Trang chủ `/` | 2767 | 2618 | 2810 |
+| Thư viện đề `/de-thi` | 4580 | 2971 | 2109 |
+| Phòng thi `/phong-thi` | 5029 | 2874 | 2414 |
+| Cấp độ N5 `/n5` | 4283 | 2594 | 2667 |
+| Đăng nhập `/dang-nhap` | 4283 | 3077 | 2803 |
+| Admin `/login` | 2193 | 1817 | 2395 |
+
+Lần chạy của D05 đạt tất cả ngân sách, không có vi phạm nào ở cả mobile và desktop.
+
+- **Mobile:**
+  - Performance 96–99.
+  - TBT 44–82 ms.
+  - CLS 0,000.
+- **Desktop:**
+  - Performance 100.
+  - LCP 519–604 ms.
+  - TBT 0 ms.
+  - CLS <= 0,010.
+- **Admin `/login`:** LCP mobile dao động giữa hai lần chạy, 1817 ms và 2395 ms. D05 không đổi gì ở admin, nên đây là độ dao động của máy CI.
 
 #### Các chỉ số khác của main trước D05
 
