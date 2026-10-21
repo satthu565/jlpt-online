@@ -5,6 +5,7 @@ import {
   Get,
   Injectable,
   Param,
+  Patch,
   PipeTransform,
   Post,
   Query,
@@ -16,8 +17,9 @@ import type { AuthUserContext } from '../../common/types/auth.types.js';
 import { CorpusService } from './corpus.service.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
 import { VocabService, type LexiconListResult } from './vocab.service.js';
+import { RateLimit } from '../../common/decorators/rate-limit.decorator.js';
 import { isUuid } from '../../common/pipes/uuid-param.pipe.js';
-import { getHanVietForWord, getHanVietForKanji, getHanVietLicenseInfo } from './nlp/index.js';
+import { computeHanViet, getHanVietForWord, getHanVietForKanji, getHanVietLicenseInfo } from './nlp/index.js';
 
 @Injectable()
 export class DatasetIdPipe implements PipeTransform<string, string> {
@@ -95,9 +97,12 @@ export class VocabController {
   async getHanViet(
     @Query('text') text?: string,
     @Query('q') q?: string,
+    @Query('reading') reading?: string,
   ) {
     const rawText = text || q || '';
-    const hanViet = getHanVietForWord(rawText);
+    const readingText = reading?.trim() || undefined;
+    const hanViet = getHanVietForWord(rawText, readingText);
+    const computed = computeHanViet(rawText, readingText);
     const kanjiChars = Array.from(rawText).filter((c) => /[\u4e00-\u9faf\u3400-\u4dbf]/.test(c));
     const entries = kanjiChars.map((k) => ({
       kanji: k,
@@ -107,9 +112,42 @@ export class VocabController {
       query: rawText,
       text: rawText,
       hanViet,
+      confidence: computed.confidence,
+      perKanji: computed.perKanji,
       entries,
       license: getHanVietLicenseInfo(),
     };
+  }
+
+  // H01: Hán Việt review (H03 admin) and learner reports (H02).
+  @Roles('admin', 'editor', 'reviewer')
+  @Get('admin/lexicon/hanviet')
+  async adminListHanViet(
+    @Query('confidence') confidence?: string,
+    @Query('q') q?: string,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+  ) {
+    return this.vocabService.listHanVietForReview({ confidence, q, page: Number(page) || 1, pageSize: Number(pageSize) || 50 });
+  }
+
+  @Roles('admin', 'editor', 'reviewer')
+  @Patch('admin/lexicon/:id/hanviet')
+  async adminUpdateHanViet(
+    @Param('id') id: string,
+    @Body() body: { hanViet?: unknown },
+    @CurrentUser() user?: AuthUserContext,
+  ) {
+    return this.vocabService.updateEntryHanViet(id, body?.hanViet, user?.userId);
+  }
+
+  @RateLimit({ limit: 10, windowSec: 3600, keyPrefix: 'hanviet-reports' })
+  @Post('dictionary/hanviet-reports')
+  async reportHanViet(
+    @Body() body: { entry?: unknown; reading?: unknown; suggestion?: unknown; note?: unknown },
+    @CurrentUser() user?: AuthUserContext,
+  ) {
+    return this.vocabService.reportHanViet(body ?? {}, user?.userId);
   }
 
   // ---------------------------------------------------------------------------

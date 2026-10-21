@@ -20,6 +20,10 @@ export interface DictionaryLookupResponseDto {
   partOfSpeech?: string;
   status: 'READY' | 'SANDBOX' | 'MISSING';
   hanViet?: string;
+  /** H01: high = âm Hán Việt của từ; review = chờ người duyệt; kun = âm của từng chữ (từ đọc âm Kun). */
+  hanVietConfidence?: 'high' | 'review' | 'kun';
+  hanVietSource?: 'rule' | 'override' | 'manual';
+  hanVietPerKanji?: Array<{ kanji: string; onyomi?: string; hanViet: string }>;
 }
 
 export interface DatasetItemDto {

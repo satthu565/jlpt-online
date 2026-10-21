@@ -636,8 +636,30 @@ export const lexicalEntries = pgTable('lexical_entries', {
   term: text('term').notNull(),
   level: text('level'),
   partOfSpeech: text('part_of_speech'),
+  // H01: Hán Việt per dictionary entry. confidence high | review | kun; source rule | override | manual.
+  hanViet: text('han_viet'),
+  hanVietConfidence: text('han_viet_confidence'),
+  hanVietSource: text('han_viet_source'),
+  hanVietUpdatedAt: timestamp('han_viet_updated_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
+
+/** H01: learner reports that an entry's Hán Việt is wrong; reviewed in the admin (H03). */
+export const lexiconHanvietReports = pgTable(
+  'lexicon_hanviet_reports',
+  {
+    id: uuid('id').primaryKey(),
+    entryId: uuid('entry_id').references(() => lexicalEntries.id, { onDelete: 'set null' }),
+    term: text('term').notNull(),
+    reading: text('reading'),
+    suggestion: text('suggestion'),
+    note: text('note'),
+    userId: uuid('user_id'),
+    status: text('status').notNull().default('open'),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [index('lexicon_hanviet_reports_entry_idx').on(t.entryId)],
+);
 
 export const entryReadings = pgTable('entry_readings', {
   id: uuid('id').primaryKey(),

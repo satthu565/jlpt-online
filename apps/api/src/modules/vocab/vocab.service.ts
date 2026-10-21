@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  type OnModuleInit,
 } from '@nestjs/common';
 import { and, asc, count, eq, ilike, inArray, or, sql, type SQL } from 'drizzle-orm';
 import {
@@ -10,7 +11,18 @@ import {
   tagQuestion,
   type QuestionTagItem,
   getHanVietForWord,
+  computeHanViet,
 } from './nlp/index.js';
+import {
+  backfillHanViet,
+  listHanVietForReview,
+  loadStoredHanViet,
+  perKanjiFor,
+  reportHanViet,
+  updateEntryHanViet,
+  type HanVietBackfillResult,
+  type HanVietReviewList,
+} from './hanviet-entries.js';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import {
@@ -44,10 +56,35 @@ export interface LexiconListResult {
 }
 
 @Injectable()
-export class VocabService {
+export class VocabService implements OnModuleInit {
   private dictionaryAdapter = new DictionaryAdapter({ providerType: 'sandbox' });
 
   constructor(@Inject(DB_CLIENT) private readonly dbClient: DbClientInstance) {}
+
+  /** H01: load stored Hán Việt so notebook, flashcards and quizzes use the per-entry value. */
+  async onModuleInit(): Promise<void> {
+    try {
+      await loadStoredHanViet(this.dbClient);
+    } catch {
+      // Dictionary tables missing or empty: callers fall back to the computed value.
+    }
+  }
+
+  backfillHanViet(): Promise<HanVietBackfillResult> {
+    return backfillHanViet(this.dbClient);
+  }
+
+  listHanVietForReview(params: { confidence?: string; q?: string; page?: number; pageSize?: number }): Promise<HanVietReviewList> {
+    return listHanVietForReview(this.dbClient, params);
+  }
+
+  updateEntryHanViet(entryId: string, hanViet: unknown, operatorId?: string) {
+    return updateEntryHanViet(this.dbClient, entryId, hanViet, operatorId);
+  }
+
+  reportHanViet(body: { entry?: unknown; reading?: unknown; suggestion?: unknown; note?: unknown }, userId?: string) {
+    return reportHanViet(this.dbClient, body, userId);
+  }
 
   /**
    * Tra cứu từ vựng trong từ điển có bản quyền (Acceptance 4).
@@ -79,6 +116,10 @@ export class VocabService {
             term: lexicalEntries.term,
             level: lexicalEntries.level,
             partOfSpeech: lexicalEntries.partOfSpeech,
+            hanViet: lexicalEntries.hanViet,
+            hanVietConfidence: lexicalEntries.hanVietConfidence,
+            hanVietSource: lexicalEntries.hanVietSource,
+            hanVietUpdatedAt: lexicalEntries.hanVietUpdatedAt,
             createdAt: lexicalEntries.createdAt,
           })
           .from(entryReadings)
@@ -114,7 +155,13 @@ export class VocabService {
           }
         }
 
-        const hanViet = getHanVietForWord(entry.term) || '';
+        const primary =
+          (readings as Array<{ reading: string; isPrimary: boolean }>).find((r) => r.isPrimary)?.reading ??
+          (readings[0] as { reading: string } | undefined)?.reading;
+        const computed = computeHanViet(entry.term, primary);
+        const hanViet = entry.hanViet ?? computed.hanViet;
+        const hanVietConfidence = (entry.hanVietConfidence ?? computed.confidence) as 'high' | 'review' | 'kun';
+        const hanVietSource = (entry.hanVietSource ?? computed.source) as 'rule' | 'override' | 'manual';
         return {
           entry: entry.term,
           readings: readings.map((r: { reading: string }) => r.reading),
@@ -126,6 +173,9 @@ export class VocabService {
           partOfSpeech: entry.partOfSpeech ?? undefined,
           status: 'READY',
           hanViet,
+          hanVietConfidence,
+          hanVietSource,
+          hanVietPerKanji: perKanjiFor(entry.term, primary, entry.hanViet, entry.hanVietSource),
         };
       }
     } catch {
@@ -148,7 +198,11 @@ export class VocabService {
       level: result.level,
       partOfSpeech: result.partOfSpeech,
       status: result.status,
-      hanViet: result.hanViet || getHanVietForWord(result.entry) || '',
+      hanViet: result.hanViet || getHanVietForWord(result.entry, result.readings[0]) || '',
+      ...(() => {
+        const c = computeHanViet(result.entry, result.readings[0]);
+        return { hanVietConfidence: c.confidence, hanVietSource: c.source, hanVietPerKanji: c.perKanji };
+      })(),
     };
   }
 

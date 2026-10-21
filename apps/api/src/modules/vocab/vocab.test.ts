@@ -1,4 +1,7 @@
+import 'reflect-metadata';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
 import {
@@ -6,7 +9,9 @@ import {
   entryMeanings,
   entryReadings,
   lexicalEntries,
+  lexiconHanvietReports,
   lexiconLicenses,
+  operatorActions,
   questions,
   questionGroups,
   users,
@@ -15,6 +20,11 @@ import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { CorpusService, DEFAULT_CORPUS_DATASET_ID } from './corpus.service.js';
 import { VocabController } from './vocab.controller.js';
 import { VocabService } from './vocab.service.js';
+import { clearStoredHanViet, getHanVietForWord } from './hanviet-store.js';
+import { IS_PUBLIC_KEY } from '../../common/decorators/public.decorator.js';
+import { RATE_LIMIT_KEY } from '../../common/decorators/rate-limit.decorator.js';
+import { ROLES_KEY } from '../../common/decorators/roles.decorator.js';
+import type { AuthUserContext } from '../../common/types/auth.types.js';
 
 describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DATA-01..10, DATA-19..23, QB-09)', () => {
   let dbClient: DbClientInstance;
@@ -625,6 +635,122 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
     it('returns an empty list when no dictionary is loaded', async () => {
       const r = await vocabController.adminListLexicon();
       expect(r).toMatchObject({ total: 0, items: [] });
+    });
+  });
+
+  describe('H01: Hán Việt lưu cho từng mục từ điển, duyệt và báo sai', () => {
+    async function seed(term: string, reading: string, meaning: string, pos = 'n') {
+      const id = generateUuidV7();
+      await dbClient.db.insert(lexicalEntries).values({ id, term, partOfSpeech: pos });
+      await dbClient.db.insert(entryReadings).values({ id: generateUuidV7(), entryId: id, reading, isPrimary: true });
+      await dbClient.db.insert(entryMeanings).values({ id: generateUuidV7(), entryId: id, locale: 'en', meaning });
+      return id;
+    }
+    async function row(id: string) {
+      const [r] = await dbClient.db.select().from(lexicalEntries).where(eq(lexicalEntries.id, id));
+      return r!;
+    }
+
+    afterEach(() => clearStoredHanViet());
+
+    it('lookup 要約 trả YẾU ƯỚC, high, perKanji 要 ヨウ YẾU, 約 ヤク ƯỚC (cả trước và sau backfill)', async () => {
+      await seed('要約', 'ようやく', 'summary');
+      const before = await vocabController.lookupDictionary({ text: '要約' });
+      expect(before.hanViet).toBe('YẾU ƯỚC');
+      expect(before.hanVietConfidence).toBe('high');
+      expect(before.hanVietPerKanji).toEqual([
+        { kanji: '要', onyomi: 'ヨウ', hanViet: 'YẾU' },
+        { kanji: '約', onyomi: 'ヤク', hanViet: 'ƯỚC' },
+      ]);
+      await vocabService.backfillHanViet();
+      const after = await vocabController.lookupDictionary({ text: '要約' });
+      expect(after).toMatchObject({ hanViet: 'YẾU ƯỚC', hanVietConfidence: 'high', hanVietSource: 'override' });
+    });
+
+    it('backfill tính cho mọi mục, thống kê high/review/kun, giữ dòng manual, chạy lại không đổi', async () => {
+      const yoyaku = await seed('予約', 'よやく', 'reservation');
+      const yama = await seed('山', 'やま', 'mountain');
+      const choshin = await seed('長身', 'ちょうしん', 'tall');
+      const ongaku = await seed('音楽', 'おんがく', 'music');
+
+      const first = await vocabService.backfillHanViet();
+      expect(first.total).toBe(4);
+      expect(first.updated).toBe(4);
+      expect(first.stats).toEqual({ high: 2, review: 1, kun: 1 });
+      expect(await row(yoyaku)).toMatchObject({ hanViet: 'DỰ ƯỚC', hanVietConfidence: 'high' });
+      expect(await row(yama)).toMatchObject({ hanViet: 'SƠN', hanVietConfidence: 'kun' });
+      expect(await row(choshin)).toMatchObject({ hanViet: 'TRƯỜNG THÂN', hanVietConfidence: 'review' });
+      // Without a reading, notebook/quiz callers now get the stored per-entry value (音楽 = ÂM NHẠC, not ÂM LẠC).
+      expect(getHanVietForWord('音楽')).toBe('ÂM NHẠC');
+
+      await vocabController.adminUpdateHanViet(choshin, { hanViet: 'trường thân' });
+      const second = await vocabService.backfillHanViet();
+      expect(second.updated).toBe(0);
+      expect(second.keptManual).toBe(1);
+      expect(await row(choshin)).toMatchObject({ hanViet: 'TRƯỜNG THÂN', hanVietConfidence: 'high', hanVietSource: 'manual' });
+      expect((await row(ongaku)).hanViet).toBe('ÂM NHẠC');
+    });
+
+    it('PATCH admin đổi âm: lookup trả âm mới, source manual, ghi audit log', async () => {
+      const id = await seed('重複', 'ちょうふく', 'duplication');
+      await vocabService.backfillHanViet();
+      const userId = generateUuidV7();
+      await dbClient.db.insert(users).values({ id: userId, email: 'editor-h01@example.com', role: 'editor' });
+
+      const res = await vocabController.adminUpdateHanViet(id, { hanViet: 'Trùng  phức' }, { userId } as AuthUserContext);
+      expect(res).toMatchObject({ hanViet: 'TRÙNG PHỨC', confidence: 'high', source: 'manual' });
+      const lookup = await vocabController.lookupDictionary({ text: '重複' });
+      expect(lookup).toMatchObject({ hanViet: 'TRÙNG PHỨC', hanVietConfidence: 'high', hanVietSource: 'manual' });
+      const audit = await dbClient.db.select().from(operatorActions).where(eq(operatorActions.operatorId, userId));
+      expect(audit).toHaveLength(1);
+      expect(audit[0]).toMatchObject({ action: 'lexicon.hanviet.update', targetResource: `lexical_entries:${id}` });
+
+      await expect(vocabController.adminUpdateHanViet(id, { hanViet: '' })).rejects.toBeInstanceOf(BadRequestException);
+      await expect(vocabController.adminUpdateHanViet(generateUuidV7(), { hanViet: 'X' })).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('báo sai chuyển mục sang review, có trong danh sách duyệt, backfill giữ review; PATCH xử lý báo cáo', async () => {
+      const id = await seed('番号', 'ばんごう', 'number');
+      await vocabService.backfillHanViet();
+      expect((await row(id)).hanVietConfidence).toBe('high');
+
+      const userId = generateUuidV7();
+      const report = await vocabController.reportHanViet({ entry: '番号', reading: 'ばんごう', suggestion: 'phiên hiệu', note: 'thử' }, { userId } as AuthUserContext);
+      expect(report).toMatchObject({ entryId: id, status: 'open' });
+      expect((await row(id)).hanVietConfidence).toBe('review');
+
+      const list = await vocabController.adminListHanViet('review');
+      expect(list.total).toBe(1);
+      expect(list.items[0]).toMatchObject({ term: '番号', reading: 'ばんごう', meaning: 'number', hanViet: 'PHIÊN HIỆU', confidence: 'review', reportCount: 1 });
+      expect(list.items[0]!.perKanji.map((p) => p.hanViet)).toEqual(['PHIÊN', 'HIỆU']);
+
+      const again = await vocabService.backfillHanViet();
+      expect(again.keptReported).toBe(1);
+      expect((await row(id)).hanVietConfidence).toBe('review');
+
+      await vocabController.adminUpdateHanViet(id, { hanViet: 'PHIÊN HIỆU' });
+      expect((await vocabController.adminListHanViet('review')).total).toBe(0);
+      const [r] = await dbClient.db.select().from(lexiconHanvietReports).where(eq(lexiconHanvietReports.entryId, id));
+      expect(r!.status).toBe('resolved');
+
+      await expect(vocabController.reportHanViet({})).rejects.toBeInstanceOf(BadRequestException);
+      await expect(vocabController.adminListHanViet('bad')).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('báo sai cần đăng nhập và có giới hạn tần suất; route duyệt chỉ cho editor, reviewer, admin', () => {
+      const report = VocabController.prototype.reportHanViet;
+      expect(Reflect.getMetadata(IS_PUBLIC_KEY, report)).toBeUndefined();
+      expect(Reflect.getMetadata(RATE_LIMIT_KEY, report)).toMatchObject({ limit: 10, windowSec: 3600 });
+      for (const fn of [VocabController.prototype.adminListHanViet, VocabController.prototype.adminUpdateHanViet]) {
+        expect(Reflect.getMetadata(ROLES_KEY, fn)).toEqual(['admin', 'editor', 'reviewer']);
+      }
+    });
+
+    it('GET /dictionary/hanviet nhận reading và trả độ tin cậy', async () => {
+      const res = await vocabController.getHanViet('楽しい', undefined, 'たのしい');
+      expect(res).toMatchObject({ hanViet: 'LẠC', confidence: 'kun' });
+      const gaku = await vocabController.getHanViet('音楽', undefined, 'おんがく');
+      expect(gaku).toMatchObject({ hanViet: 'ÂM NHẠC', confidence: 'high' });
     });
   });
 });

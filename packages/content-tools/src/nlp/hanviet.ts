@@ -6,8 +6,7 @@ import {
   MEANING_DEPENDENT_KANJI,
 } from './hanviet-tables.js';
 
-export const KANJI_CHAR_REGEX = /[\u4e00-\u9fff\u3400-\u4dbf]/;
-export const KANJI_GLOBAL_REGEX = /[\u4e00-\u9fff\u3400-\u4dbf]/g;
+const KANJI_CHAR_REGEX = /[\u4e00-\u9fff\u3400-\u4dbf]/;
 
 export interface HanVietPerKanji {
   kanji: string;
@@ -66,7 +65,7 @@ function getPhoneticRealizations(on: string): string[] {
   // Áp dụng cho cả dạng gốc và dạng biến âm đầu
   const currentForms = Array.from(forms);
   for (const f of currentForms) {
-    const lastChar = f[f.length - 1];
+    const lastChar = f[f.length - 1] ?? '';
     if (['ク', 'キ', 'ツ', 'チ'].includes(lastChar)) {
       forms.add(f.slice(0, -1) + 'ッ');
     }
