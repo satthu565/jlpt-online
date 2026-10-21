@@ -1,49 +1,127 @@
-# Quy tắc triển khai JLPT với sáu worker
+# JLPT Online: hướng dẫn cho agent
 
-> Bản ở gốc repo của `docs/multi-worker/AGENTS.md`. Sửa bản trong `docs/multi-worker/` rồi chép lại; hai bản phải giống nhau trừ đường dẫn link.
+File này dành cho mọi agent làm việc trong repo (Claude Code, Codex, Antigravity/Gemini, Cursor, Copilot…). Đọc file này trước. Các file sâu hơn chỉ đọc khi việc đang làm cần đến.
 
-## Phạm vi và ưu tiên
+## Sản phẩm
 
-Phạm vi V1–V4 và lịch 6 worker/7 ngày giữ nguyên, nhưng theo chỉ thị mới KHÔNG xây OCR, parser PDF hay model trích xuất trong ứng dụng. Bạn tự chuẩn bị import v2 rồi tải lên; không tích hợp agent đọc PDF vào hệ thống. Trong 375 mã nguồn,363 yêu cầu là phần ứng dụng và 12 yêu cầu trích xuất là EXTERNAL_PREPARATION. Không tính chúng vào code hoàn tất. Hợp đồng đầu vào là [CHUAN_DU_LIEU_NHAP.md](docs/multi-worker/CHUAN_DU_LIEU_NHAP.md). Không áp dụng lại yêu cầu cũ trong nguon/.
+Web luyện thi JLPT (N5–N1) cho người Việt, gồm:
 
-Ưu tiên: chỉ thị chủ dự án > phạm vi/tiêu chí nghiệm thu trong thư mục này > schema/OpenAPI/events được duyệt ở F02 và cập nhật có version > task hiện hành > nguyên tắc kiến trúc > chi tiết gốc để truy vết. Mâu thuẫn không giải quyết bằng bỏ test hay bỏ quyền. Đổi hợp đồng ảnh hưởng worker khác phải có PR hợp đồng và danh sách tác động trước khi triển khai consumer.
+- Làm đề và thi thử có giờ, chấm điểm, nghe có audio.
+- Học: sổ tay, flashcard SRS, kế hoạch học.
+- Tra từ điển, có âm Hán Việt theo từng từ.
+- Trang quản trị để nhập đề, duyệt nội dung, quản lý người dùng và thanh toán.
 
-## Một task một lần cấp việc
+Giao diện có ba ngôn ngữ vi/ja/en. Tiếng Việt là ngôn ngữ chính.
 
-Coordinator là nơi cấp task và trạng thái duy nhất. Worker chỉ làm task được cấp có taskId, workerId, assignmentId, baseSHA, branch, allowedPaths, locks và acceptance. Không tự nhận việc từ bảng Markdown hoặc file nguồn. Không spawn agent phụ vượt sáu worker hoạt động; phân tích/review cũng tính tài nguyên và quota. Một worker không sửa hai task cùng lúc.
+## Bắt buộc khi làm việc
 
-Worker sửa và commit trong clone riêng; coordinator push/PR/merge bằng credential riêng. Không dùng `gh`, push/tag/merge, SSH production, đọc secret coordinator hoặc tài khoản worker khác. User worker không có sudo hoặc Docker socket toàn host. Build cần Docker qua executor có policy/namespace; không xem user khác là sandbox nếu còn chung quyền root qua Docker.
+1. **Trước khi làm tính năng mới:** đọc [docs/agents/FEATURES.md](docs/agents/FEATURES.md) để biết tính năng đã có, đang ẩn hay đang làm. Không làm trùng.
+2. **Khi xong:** cập nhật `FEATURES.md`. Gặp bẫy mới thì ghi vào [docs/agents/PITFALLS.md](docs/agents/PITFALLS.md) theo dạng triệu chứng → nguyên nhân → cách đúng.
+3. **Tuân thủ** [docs/agents/SECURITY_RULES.md](docs/agents/SECURITY_RULES.md). Nhất là: không tự merge PR, không force-push, không đọc hay in secret.
+4. **Chạy các cổng kiểm tra** ở mục dưới trước khi nộp. Thiếu lệnh hoặc lệnh lỗi nghĩa là chưa đạt, không bỏ qua.
+5. **Ưu tiên khi có mâu thuẫn:** chỉ thị chủ dự án > phiếu việc > tài liệu này > thói quen của agent.
 
-## Quy trình
+## Công nghệ
 
-1. Đọc task, contract, feature rows và quyết định provider liên quan; xác nhận deps đã merge.
-2. Viết test logic theo acceptance; dùng schema và fixtures chung, không tự bịa API.
-3. Code trong allowedPaths. Ngoài quyền: tạo yêu cầu owner; coordinator cấp quyền tạm có log hoặc tách task hợp đồng.
-4. Commit thường xuyên; trước pause/timeout/quota lưu patch, untracked manifest và checkpoint qua coordinator. Không reset/clean workspace còn checkpoint chưa nhận.
-5. Chạy task checks và common gates. Missing command/test/provider là trạng thái chưa đạt, không bỏ qua âm thầm.
-6. Gửi kết quả JSON và evidence; reviewer khác tác giả kiểm tra đúng headSHA/baseSHA. Thay code hoặc base cần rerun/review phù hợp. Unclear không phải approve.
-7. Chỉ coordinator đặt DONE khi PR merge và các kiểm tra liên quan đạt; feature DONE cần đủ evidence của riêng feature.
+| Phần | Công nghệ |
+|---|---|
+| Ngôn ngữ | TypeScript strict. Python chỉ dùng cho công cụ dữ liệu (`tools/`). |
+| Monorepo | pnpm 12.11, Turborepo 2.11 |
+| Web học viên và admin | Next.js 16.4, React 19.3, Tailwind 4.1, HeroUI styles 3.2 (chỉ CSS, **không** dùng `@heroui/react`) |
+| API | NestJS 12 trên Fastify 5, Drizzle ORM 0.45, PostgreSQL 17, Redis 7 |
+| Test | Vitest 5 (API dùng PGlite, một Postgres chạy trong bộ nhớ), Playwright 1.64 (E2E trên staging) |
 
-## Quy tắc code và dữ liệu
+Chi tiết ở [docs/agents/ARCHITECTURE.md](docs/agents/ARCHITECTURE.md).
 
-- TypeScript strict, không dùng any/ts-ignore để qua lỗi; tên ASCII, commit Conventional Commits, body `Task: <taskId>` và `Features: ...`.
-- Công cụ kiểm tra gói bàn giao có thể dùng Python chuẩn trên máy chủ dự án; ứng dụng dùng schema/validator TypeScript, không cài thư viện nhận dạng PDF. F01 xác minh và ghim dependencies thực tế, không latest trong CI production. Worker không tự sửa `pnpm-lock.yaml`/package manifests ngoài task giữ khóa `dependency-lock`: cần thêm thư viện thì ghi yêu cầu trong kết quả task, coordinator gộp các yêu cầu thành một bước ngắn có khóa.
-- UTC trong DB/events, timezone người dùng cho SRS/planner/streak. Nội dung Nhật NFC, không biến NFKC vào nội dung gốc.
-- Snapshot/answer key/content version bất biến; không lộ đáp án trước quyền xem, bao gồm qua AI/export/transcript/cache.
-- Thi thật dùng deadline server, lease, seq, transaction ACK; event thi đồng loạt giữ embargo đến lúc công bố.
-- Outbox cùng transaction, consumers idempotent, retry có backoff; không tự đồng nhất exactly-once với network delivery.
-- Sáu coding worker độc lập với service app `worker`, `media-worker` và `API_WORKERS`; không tạo `apps/ocr-worker`.
-- Các phần SRS, mix, scoring là hàm thuần; AI không quyết định điểm thi.
-- Toàn bộ UI vi/ja/en có key, không nút giả, trợ năng cơ bản và trạng thái loading/error/empty đúng.
+## Sơ đồ thư mục
 
-## Những việc cần chủ dự án
-
-Tài khoản/dịch vụ/tăng chi phí, legal/license, production/DNS/merchant live, ngày thi chính thức và rủi ro ảnh hưởng người dùng thật. Làm phần độc lập trước, báo `BLOCKED_EXTERNAL` rõ externalId và task ảnh hưởng. Không lấy im lặng làm phê duyệt. Quota dùng theo tài khoản đúng quyền; không tự động đổi danh tính để né hạn mức.
-
-## Báo cáo cuối phiên
-
-```json
-{"taskId":"N02","assignmentId":"from-coordinator","status":"REVIEW","headSha":"actual","baseSha":"actual","featureIds":[],"testFiles":[],"runs":[],"artifacts":[],"blockers":[],"checkpoint":"path-or-null","summary":"kết quả thực tế"}
+```
+apps/
+  api/            NestJS. src/modules/<31 module>, src/db (schema.ts, migrations), src/common (guard, decorator)
+  web/            Next.js, trang học viên. app/(nhóm)/<route tiếng Việt>, features/<miền>, messages/{vi,ja,en}.json
+  admin/          Next.js, trang quản trị. app/<route>, lib/navigation.ts (menu và quyền), lib/api-client.ts
+  media-worker/   Cloudflare Worker phục vụ media có token
+packages/
+  ui/             Component HeroUI dùng chung (@jlpt/ui)
+  schema/         Zod schema và kiểu dùng chung (@jlpt/schema); sinh api-client từ contracts/
+  api-client/     Client tự sinh, KHÔNG sửa tay (pnpm contracts:generate)
+  exam-engine/    Chấm điểm, thời gian, trộn đề: hàm thuần
+  srs/            Lập lịch flashcard (FSRS): hàm thuần
+  content-tools/  Kiểm tra gói nhập đề, NLP tiếng Nhật, Hán Việt
+  media-token/    Ký token media
+  config/         Cấu hình dùng chung
+contracts/        openapi.yaml, events.schema.json
+infra/            Docker, compose (dev/staging/prod/demo), Caddy, backup
+tests/            E2E (vitest + Playwright), load, Lighthouse
+tools/            import-data (kiểm tra gói đề), kanji-dataset
+data/             Dữ liệu tĩnh (kanji)
+docs/             agents/ (bộ tài liệu này), decisions/, runbooks/, import-format/, multi-worker/ (kế hoạch và coordinator)
 ```
 
-Không sửa checklist tiến độ dùng chung, catalog hoặc `nguon/` trong PR tính năng. Quyết định riêng lưu `docs/decisions/<taskId>-<slug>.md`; coordinator tổng hợp thay vì tất cả append một file.
+Một số thư mục con có `AGENTS.md` riêng. Khi sửa code trong thư mục đó, đọc file của thư mục ấy: `apps/api`, `apps/web`, `apps/admin`, `packages/ui`, `packages/content-tools`, `infra`.
+
+## Lệnh thường dùng
+
+```bash
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm typecheck
+pnpm test                       # toàn bộ unit test (chạy tuần tự từng gói để đỡ tốn RAM)
+pnpm build
+pnpm check:ui-primitives        # cấm thẻ thô và style inline
+pnpm check:no-mock-ui           # cấm dữ liệu giả trong giao diện
+pnpm --filter @jlpt/admin test  # test admin (không dùng `pnpm test:admin` ở gốc)
+pnpm test:web                   # test web
+pnpm test:db                    # test migration và schema
+```
+
+## Cổng kiểm tra trước khi nộp
+
+Bắt buộc: `lint`, `typecheck`, `test`, `build`, `check:ui-primitives`, `check:no-mock-ui`.
+
+Có giao diện, E2E hoặc API mà staging dùng thì chạy thêm E2E trên staging. Cách chạy xem [docs/agents/OPERATIONS.md](docs/agents/OPERATIONS.md). CI GitHub chạy lại tất cả, và mỗi vòng CI mất khoảng 30 phút, nên phải tự kiểm tra kỹ trước khi đẩy.
+
+## Quy ước code
+
+- Không dùng `any` hay `@ts-ignore` để qua lỗi.
+- Tên biến và file viết ASCII. Route web bằng tiếng Việt không dấu (`/tu-vung`, `/de-thi`).
+- Commit theo Conventional Commits (`feat(H06): …`, `fix(api): …`). Thân commit có thể ghi `Task: <mã>`.
+- **Không chạy `prettier --write`.** Repo không có cấu hình prettier, nên chạy sẽ đổi toàn bộ nháy đơn thành nháy kép. Viết theo phong cách của code xung quanh.
+- Mọi chuỗi giao diện phải có key trong đủ ba file `messages/vi.json`, `ja.json` và `en.json`.
+- Giao diện chỉ dùng component của `@jlpt/ui`. Không dùng thẻ thô `<button>`, `<input>`, `<select>`, `<textarea>`, không dùng `style={{}}`.
+- Giao diện gọi API thật. Không viết cứng mảng dữ liệu, không đăng nhập giả, không mock fetch trong code chạy thật.
+- Thời gian lưu UTC. Chữ Nhật lưu chuẩn NFC, không chuyển sang NFKC.
+- Đề đã xuất bản và đáp án không được sửa. Không lộ đáp án trước khi người dùng được phép xem.
+- Thêm migration thì phải sửa các số đếm cứng trong `apps/api/src/db/db.test.ts`. Xem [PITFALLS](docs/agents/PITFALLS.md).
+
+## Muốn làm X thì xem đâu
+
+| Việc | Xem |
+|---|---|
+| Thêm hoặc sửa API | [apps/api/AGENTS.md](apps/api/AGENTS.md), [docs/agents/API.md](docs/agents/API.md) |
+| Thêm bảng hoặc cột | [docs/agents/DATABASE.md](docs/agents/DATABASE.md) |
+| Thêm trang học viên | [apps/web/AGENTS.md](apps/web/AGENTS.md) |
+| Thêm trang quản trị | [apps/admin/AGENTS.md](apps/admin/AGENTS.md); mẫu từng bước: [docs/multi-worker/guides/H07-admin-lexicon.md](docs/multi-worker/guides/H07-admin-lexicon.md) |
+| Component giao diện | [packages/ui/AGENTS.md](packages/ui/AGENTS.md) |
+| Tiếng Nhật, Hán Việt, từ điển | [packages/content-tools/AGENTS.md](packages/content-tools/AGENTS.md) |
+| Ẩn hoặc hiện tính năng | `apps/web/lib/features.ts`, [docs/decisions/feature-flags-phase-1.md](docs/decisions/feature-flags-phase-1.md) |
+| Định dạng gói nhập đề | [docs/import-format/README.md](docs/import-format/README.md) |
+| Docker, staging, E2E | [infra/AGENTS.md](infra/AGENTS.md), [docs/agents/OPERATIONS.md](docs/agents/OPERATIONS.md) |
+| Vì sao code lại làm thế này | [docs/agents/DECISIONS.md](docs/agents/DECISIONS.md), `docs/decisions/<mã task>-*.md` |
+| Viết phiếu giao việc | [docs/agents/TASK_TEMPLATE.md](docs/agents/TASK_TEMPLATE.md) |
+| Làm việc qua coordinator (worker W1–W6) | [docs/agents/WORKFLOW-6-WORKER.md](docs/agents/WORKFLOW-6-WORKER.md) |
+
+## Tài liệu sâu (`docs/agents/`)
+
+| File | Nội dung |
+|---|---|
+| `ARCHITECTURE.md` | Công nghệ, luồng hệ thống, đăng nhập và quyền, triển khai |
+| `DATABASE.md` | Nhóm bảng, quy ước, cách thêm bảng hoặc cột |
+| `API.md` | Quy ước API, module, quyền |
+| `FEATURES.md` | Tính năng theo trạng thái |
+| `DECISIONS.md` | Quyết định và ý muốn của chủ dự án |
+| `PITFALLS.md` | Các bẫy đã gặp |
+| `OPERATIONS.md` | Máy ảo, preview, staging, quy trình PR |
+| `SECURITY_RULES.md` | Những việc cấm |
+| `TASK_TEMPLATE.md` | Mẫu phiếu giao việc |
+| `WORKFLOW-6-WORKER.md` | Quy trình coordinator và 6 worker |
