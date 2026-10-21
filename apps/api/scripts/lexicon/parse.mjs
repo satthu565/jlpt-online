@@ -29,11 +29,21 @@ export function* parseJmdict(xml, { commonOnly = true } = {}) {
     if (rebs.length === 0) continue;
     const senses = all(block, 'sense');
     const pos = [...new Set(senses.flatMap((s) => [...s.matchAll(/<pos>&([\w-]+);<\/pos>/g)].map((p) => p[1])))];
-    const meanings = senses
-      .map((s) => all(s, 'gloss').map(decode).join('; '))
-      .filter(Boolean);
+    const parsedSenses = senses
+      .map((s, idx) => {
+        const sensePos = [...s.matchAll(/<pos>&([\w-]+);<\/pos>/g)].map((p) => p[1]);
+        const glosses = all(s, 'gloss').map(decode);
+        return {
+          index: idx,
+          pos: sensePos.join(','),
+          meanings: glosses,
+          gloss: glosses.join('; '),
+        };
+      })
+      .filter((s) => s.gloss.length > 0);
+    const meanings = parsedSenses.map((s) => s.gloss);
     if (meanings.length === 0) continue;
-    yield { term: kebs[0] ?? rebs[0], readings: rebs, pos, meanings, common };
+    yield { term: kebs[0] ?? rebs[0], readings: rebs, pos, meanings, senses: parsedSenses, common };
   }
 }
 

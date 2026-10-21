@@ -79,7 +79,29 @@ export async function importLexicon(sql, { jmdictXml, kanjidicXml, commonOnly = 
         han_viet_updated_at: new Date(),
       });
       e.readings.forEach((r, i) => readings.push({ id: crypto.randomUUID(), entry_id: id, reading: r, is_primary: i === 0 }));
-      for (const m of e.meanings) meanings.push({ id: crypto.randomUUID(), entry_id: id, locale: 'en', meaning: m });
+      if (e.senses && e.senses.length > 0) {
+        for (const s of e.senses) {
+          meanings.push({
+            id: crypto.randomUUID(),
+            entry_id: id,
+            locale: 'en',
+            meaning: s.gloss,
+            sense_index: s.index,
+            pos: s.pos || null,
+          });
+        }
+      } else {
+        for (let i = 0; i < e.meanings.length; i++) {
+          meanings.push({
+            id: crypto.randomUUID(),
+            entry_id: id,
+            locale: 'en',
+            meaning: e.meanings[i],
+            sense_index: i,
+            pos: null,
+          });
+        }
+      }
     }
     await insertBatched(tx, 'lexical_entries', entries);
     await insertBatched(tx, 'entry_readings', readings);

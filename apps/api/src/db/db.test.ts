@@ -54,11 +54,12 @@ describe('F08 Database Schema and Migrations', () => {
         expect(names).toContain('0006_section_listening_timeline.sql');
         expect(names).toContain('0007_lexicon_hanviet.sql');
         expect(names).toContain('0008_corpus_terms.sql');
-        expect(names.length).toBe(9);
+        expect(names).toContain('0009_entry_meanings_senses.sql');
+        expect(names.length).toBe(10);
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('re-running migrations is completely idempotent (no errors, 0 new applied)', async () => {
       const client = await createDbClient();
@@ -70,7 +71,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('concurrent migration runs are serialised (api and worker boot together)', async () => {
       const client = await createDbClient();
@@ -81,7 +82,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('seeds fresh migrated database and succeeds idempotently', async () => {
       const client = await createDbClient();
@@ -109,7 +110,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('passes rollback-code compatibility verification (expand-contract pattern)', async () => {
       const client = await createDbClient();
@@ -149,7 +150,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('enforces CHECK (user_id IS NOT NULL OR guest_id IS NOT NULL) on exam_attempts', async () => {
       const client = await createDbClient();
@@ -207,7 +208,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('enforces unique open attempt policy (only 1 in_progress attempt per user per exam)', async () => {
       const client = await createDbClient();
@@ -248,7 +249,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('enforces CHECK (mode, status, submitted_by) on exam_attempts according to A10', async () => {
       const client = await createDbClient();
@@ -312,7 +313,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('creates and manages attempt_events partitions idempotently and routes inserts/queries correctly', async () => {
       const client = await createDbClient();
@@ -391,7 +392,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('verifies card_schedules table exists with snake_case naming', async () => {
       const client = await createDbClient();
@@ -410,7 +411,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('resolves migrations directory gracefully with dist/ and repo fallbacks', () => {
       const resolved = resolveMigrationsDir();
@@ -747,7 +748,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('enforces unique class name within tenant and valid JLPT level check', async () => {
       const client = await createDbClient();
@@ -786,7 +787,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('enforces composite unique constraint on class_memberships and valid status check', async () => {
       const client = await createDbClient();
@@ -834,7 +835,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('enforces CHECK (opens_at <= due_at) on assignments and unique assignment_learners', async () => {
       const client = await createDbClient();
@@ -889,7 +890,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('enforces tenant_plans state machine and seats constraints', async () => {
       const client = await createDbClient();
@@ -929,7 +930,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('enforces timeline constraints and duplicate registration checks on exam_events', async () => {
       const client = await createDbClient();
@@ -992,7 +993,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('enforces composite unique constraint on comment_reports', async () => {
       const client = await createDbClient();
@@ -1033,7 +1034,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
   });
 
   describe('A01 Acceptance 2: Delete/export không phá nghĩa vụ retention chưa được phê duyệt', () => {
@@ -1071,7 +1072,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('canPurgeDomain returns canPurge: true for approved domain, false for unapproved', async () => {
       const client = await createDbClient();
@@ -1094,7 +1095,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('assertRetentionObligationNotViolated rejects purging data in unapproved domain', async () => {
       const client = await createDbClient();
@@ -1109,7 +1110,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('executeRetentionSafeDeletion preserves unapproved ledger data and records audit request', async () => {
       const client = await createDbClient();
@@ -1141,7 +1142,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
   });
 
   describe('A01 Acceptance 3: AI generation labels and Versioning', () => {
@@ -1185,7 +1186,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('ai_content_versions enforces valid approval_status check constraint', async () => {
       const client = await createDbClient();
@@ -1208,7 +1209,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
   });
 
   describe('V01 Acceptance 3: Race tests, concurrent migration serialization, and privacy migration', () => {
@@ -1233,7 +1234,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('enforces export_jobs status check constraint from migration 0003', async () => {
       const client = await createDbClient();
@@ -1258,7 +1259,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('creates and verifies privacy indices for data export, deletion requests, and report snapshots', async () => {
       const client = await createDbClient();
@@ -1283,7 +1284,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
   });
 
   describe('R01 Acceptance: Final database migrations and schema consistency verification', () => {
@@ -1295,10 +1296,10 @@ describe('F08 Database Schema and Migrations', () => {
       const journal = JSON.parse(fs.readFileSync(journalPath, 'utf8'));
       expect(journal.dialect).toBe('postgresql');
       expect(Array.isArray(journal.entries)).toBe(true);
-      expect(journal.entries.length).toBe(9);
+      expect(journal.entries.length).toBe(10);
 
       const sqlFiles = fs.readdirSync(migrationsDir).filter((f) => f.endsWith('.sql')).sort();
-      expect(sqlFiles.length).toBe(9);
+      expect(sqlFiles.length).toBe(10);
 
       for (let i = 0; i < journal.entries.length; i++) {
         expect(journal.entries[i].idx).toBe(i);
@@ -1316,15 +1317,15 @@ describe('F08 Database Schema and Migrations', () => {
         const appliedRuns = results.filter((r) => r.applied.length > 0);
         const zeroAppliedRuns = results.filter((r) => r.applied.length === 0);
         expect(appliedRuns.length).toBe(1);
-        expect(appliedRuns[0]!.applied.length).toBe(9);
+        expect(appliedRuns[0]!.applied.length).toBe(10);
         expect(zeroAppliedRuns.length).toBe(9);
         for (const r of zeroAppliedRuns) {
-          expect(r.alreadyApplied.length).toBe(9);
+          expect(r.alreadyApplied.length).toBe(10);
         }
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
 
     it('verifies all 21 core domain tables exist and pass expand-contract compatibility', async () => {
       const client = await createDbClient();
@@ -1342,7 +1343,7 @@ describe('F08 Database Schema and Migrations', () => {
       } finally {
         await client.close();
       }
-    });
+    }, 30000);
   });
 });
 

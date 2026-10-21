@@ -64,6 +64,13 @@
       "when": 1792650000000,
       "tag": "0008_corpus_terms",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792700000000,
+      "tag": "0009_entry_meanings_senses",
+      "breakpoints": true
     }
   ]
 }

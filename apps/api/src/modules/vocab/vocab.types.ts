@@ -20,12 +20,53 @@ export interface DictionaryLookupResponseDto {
   attribution: string;
   level?: string;
   partOfSpeech?: string;
+  posLabels?: string[];
+  matchedText?: string;
+  lemma?: string;
   status: 'READY' | 'SANDBOX' | 'MISSING';
   hanViet?: string;
   /** H01: high = âm Hán Việt của từ; review = chờ người duyệt; kun = âm của từng chữ (từ đọc âm Kun). */
   hanVietConfidence?: 'high' | 'review' | 'kun';
   hanVietSource?: 'rule' | 'override' | 'manual';
   hanVietPerKanji?: Array<{ kanji: string; onyomi?: string; hanViet: string }>;
+}
+
+export interface DictionarySenseDto {
+  index: number;
+  pos?: string;
+  posLabels: string[];
+  meanings: string[];
+  gloss?: string;
+}
+
+export interface DictionaryKanjiDetailDto {
+  kanji: string;
+  onyomi: string[];
+  kunyomi: string[];
+  strokeCount?: number | null;
+  meanings: string[];
+  level?: string | null;
+  hanViet?: string;
+}
+
+export interface DictionaryEntryDetailDto {
+  entry: string;
+  term?: string;
+  level?: string | null;
+  readings: string[];
+  meanings: string[];
+  senses: DictionarySenseDto[];
+  posLabels: string[];
+  partOfSpeech?: string;
+  hanViet?: string;
+  hanVietConfidence?: 'high' | 'review' | 'kun';
+  hanVietSource?: 'rule' | 'override' | 'manual';
+  hanVietPerKanji?: Array<{ kanji: string; onyomi?: string; hanViet: string }>;
+  kanji: DictionaryKanjiDetailDto[];
+  corpusOccurrences: Array<{ level: string; count: number }>;
+  occurrences?: Array<{ level: string; count: number }>;
+  license: string;
+  attribution: string;
 }
 
 export interface DatasetItemDto {
