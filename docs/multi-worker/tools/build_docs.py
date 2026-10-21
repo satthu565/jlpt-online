@@ -810,7 +810,7 @@ task('H04','W5',11,6,'Bộ ngữ liệu đề thi lưu vào database, tự tách
  'Khởi động lại API dữ liệu vẫn còn|Xuất bản một đề mới thì từ của đề đó có trong danh sách; gỡ xuất bản thì biến mất|Chạy backfill hai lần không tạo dòng trùng|'
  'Từ dạng chia (食べた) được gom về dạng từ điển (食べる); không có dòng nào là trợ từ hay dấu câu|Test không lộ đáp án: danh sách không có trường đáp án hay đánh dấu đáp án đúng|'
  '/tu-vung, /thong-ke-tu-vung và admin Từ vựng hiện dữ liệu thật (E2E staging dùng đề demo N5 được seed và xuất bản)',
- 'pnpm test:vocab-data|pnpm test:learning:all',contracts='API DB',grants='apps/api/src/db/ apps/api/src/modules/exam/ tests/playwright/')
+ 'pnpm test:vocab-data|pnpm test:learning:all',contracts='API DB',grants='apps/api/src/db/ apps/api/src/modules/exam/ apps/api/scripts/lexicon/ tests/playwright/')
 task('H05','W5',11,4,'API từ điển cho tra nhanh khi bôi đen và trang chi tiết từ vựng','H01',
  'Phục vụ H06 (bôi đen chữ trong bài thi để tra). '
  '(1) GET /api/v1/dictionary/lookup?text=: nếu không khớp mặt chữ/cách đọc thì thử dạng từ điển qua lemmatizer có sẵn (食べた, 食べます -> 食べる; 高かった -> 高い; 勉強して -> 勉強する/勉強), '
@@ -826,7 +826,7 @@ task('H05','W5',11,4,'API từ điển cho tra nhanh khi bôi đen và trang chi
  'lookup 食べた trả entry 食べる, lemma 食べる, posLabels có Động từ|lookup 高かった trả 高い, posLabels có Tính từ đuôi い; lookup 静か trả posLabels có Tính từ đuôi な; lookup 予約 trả Danh từ và Danh động từ|'
  'Bôi đen dư okurigana (予約す) vẫn khớp 予約 và matchedText là 予約|GET /dictionary/entries/要約 trả các nghĩa theo sense, thông tin chữ 要 và 約 từ KANJIDIC2, hanViet của H01; từ không có trả 404|'
  'Chuỗi dài hơn 20 ký tự hoặc không có chữ Nhật trả 400, không bao giờ 500|Test ánh xạ từ loại phủ mọi mã nêu trên',
- 'pnpm test:vocab-data',contracts='API DB',grants='apps/api/src/db/')
+ 'pnpm test:vocab-data',contracts='API DB',grants='apps/api/src/db/ apps/api/scripts/lexicon/')
 task('H06','W3',11,8,'Web: bôi đen từ khi làm bài để xem nghĩa, cách đọc, Hán Việt, từ loại; nút Xem chi tiết; trang chi tiết từ vựng','H05 H02',
  'CHỦ DỰ ÁN QUYẾT ĐỊNH: tính năng chạy ở MỌI chế độ, KỂ CẢ THI THẬT; có công tắc để học viên bật/tắt ngay trong lúc làm bài. '
  '(1) PHẠM VI BÔI ĐEN: nội dung câu hỏi, các lựa chọn, đoạn văn đọc hiểu và lời giải ở: phòng thi /phong-thi (thi thật và luyện tập), luyện tập /luyen-tap, xem lại kết quả /ket-qua/[id]. '
@@ -859,6 +859,7 @@ task('H06','W3',11,8,'Web: bôi đen từ khi làm bài để xem nghĩa, cách 
  'pnpm test:web|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/')
 # Owner 2026-10-21: an admin page that lists every vocabulary entry in the database, as fast as possible (no dependencies).
 task('H07','W4',11,3,'Quản trị: trang "Từ điển" liệt kê toàn bộ từ vựng trong database','',
+ 'LÀM ĐÚNG THEO HƯỚNG DẪN TỪNG BƯỚC docs/multi-worker/guides/H07-admin-lexicon.md (có sẵn toàn bộ code mẫu, đường dẫn file, chuỗi vi/ja/en và lệnh kiểm tra; Claude đã chạy thử: typecheck, lint, test đều qua). KHÔNG cần đọc thêm code ngoài các file được nhắc trong hướng dẫn; chỉ sửa tối thiểu nếu có điểm không khớp và ghi lại trong mô tả PR. '
  'CHỦ DỰ ÁN CẦN NHANH: task nhỏ, không phụ thuộc task khác, làm gọn trong phạm vi dưới đây. '
  'DỮ LIỆU: từ điển JMdict + KANJIDIC2 đã nạp vào các bảng lexical_entries (id, term, level, part_of_speech, license_id), entry_readings (entry_id, reading, is_primary), '
  'entry_meanings (entry_id, locale "en", meaning), lexicon_licenses (provider, license); trên preview có 22.647 mục, CI staging có thể rỗng. '
