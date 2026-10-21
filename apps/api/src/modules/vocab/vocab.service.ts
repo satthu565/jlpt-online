@@ -166,7 +166,11 @@ export class VocabService implements OnModuleInit {
           (readings[0] as { reading: string } | undefined)?.reading;
         const computed = computeHanViet(entry.term, primary);
         const hanViet = entry.hanViet ?? computed.hanViet;
-        const hanVietConfidence = (entry.hanVietConfidence ?? computed.confidence) as 'high' | 'review' | 'kun';
+        // Kana-only headwords have no Hán Việt, so no confidence either.
+        const hasKanji = computed.perKanji.length > 0;
+        const hanVietConfidence = hasKanji
+          ? ((entry.hanVietConfidence ?? computed.confidence) as 'high' | 'review' | 'kun')
+          : undefined;
         const hanVietSource = (entry.hanVietSource ?? computed.source) as 'rule' | 'override' | 'manual';
         return {
           entry: entry.term,

@@ -673,11 +673,15 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       const yama = await seed('山', 'やま', 'mountain');
       const choshin = await seed('長身', 'ちょうしん', 'tall');
       const ongaku = await seed('音楽', 'おんがく', 'music');
+      const sports = await seed('スポーツ', 'スポーツ', 'sport');
 
       const first = await vocabService.backfillHanViet();
-      expect(first.total).toBe(4);
-      expect(first.updated).toBe(4);
+      expect(first.total).toBe(5);
+      expect(first.updated).toBe(5);
+      expect(first.noKanji).toBe(1);
       expect(first.stats).toEqual({ high: 2, review: 1, kun: 1 });
+      expect(await row(sports)).toMatchObject({ hanViet: '', hanVietConfidence: null });
+      expect((await vocabController.lookupDictionary({ text: 'スポーツ' })).hanVietConfidence).toBeUndefined();
       expect(await row(yoyaku)).toMatchObject({ hanViet: 'DỰ ƯỚC', hanVietConfidence: 'high' });
       expect(await row(yama)).toMatchObject({ hanViet: 'SƠN', hanVietConfidence: 'kun' });
       expect(await row(choshin)).toMatchObject({ hanViet: 'TRƯỜNG THÂN', hanVietConfidence: 'review' });
