@@ -304,3 +304,15 @@ export function getHanVietLicenseInfo() {
     entryCount: metadata.totalEntries ?? Object.keys(HANVIET_DATA.entries).length,
   };
 }
+
+/**
+ * Âm Hán Việt theo từng âm On của một chữ (bảng lớp 1 của H01), ví dụ 楽 -> [ガク NHẠC, ラク LẠC].
+ * Chữ ngoài 2.136 chữ Jōyō trả mảng rỗng.
+ */
+export function getHanVietByOnyomi(kanji: string): Array<{ onyomi: string; hanViet: string }> {
+  const onMap = HANVIET_ONYOMI_TABLE[kanji];
+  if (!onMap) return [];
+  return Object.entries(onMap)
+    .filter(([on, hv]) => on && on !== '-' && hv)
+    .map(([onyomi, hanViet]) => ({ onyomi, hanViet }));
+}

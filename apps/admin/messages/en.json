@@ -46,7 +46,8 @@
       "analytics": "Reports & Analytics",
       "admin": "System Administration"
     },
-    "lexicon": "Dictionary"
+    "lexicon": "Dictionary",
+    "kanji": "Kanji"
   },
   "auth": {
     "loginTitle": "Staff Sign In",
@@ -392,5 +393,30 @@
     "next": "Next",
     "page": "Page",
     "attribution": "Source: JMdict/KANJIDIC2 – EDRDG, CC BY-SA 4.0"
+  },
+  "kanji": {
+    "title": "Kanji (KANJIDIC2)",
+    "subtitle": "Every kanji in the database with its Sino-Vietnamese reading.",
+    "total": "Characters",
+    "searchPlaceholder": "Search by kanji, on/kun reading, Sino-Vietnamese or English meaning",
+    "search": "Search",
+    "level": "Level",
+    "levelAll": "All",
+    "levelNone": "No level",
+    "colKanji": "Kanji",
+    "colHanViet": "Sino-Vietnamese",
+    "colOnyomi": "On reading",
+    "colKunyomi": "Kun reading",
+    "colMeaning": "Meaning (English)",
+    "colStrokes": "Strokes",
+    "colLevel": "Level",
+    "empty": "No matching kanji.",
+    "emptyDb": "KANJIDIC2 is not loaded yet.",
+    "error": "Could not load kanji.",
+    "retry": "Retry",
+    "prev": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "attribution": "Source: KANJIDIC2 – EDRDG, CC BY-SA 4.0"
   }
 }
