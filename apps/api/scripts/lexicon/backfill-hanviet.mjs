@@ -18,7 +18,7 @@ if (!process.env.DATABASE_URL) {
 const dbClient = await createDbClient();
 try {
   const r = await backfillHanViet(dbClient);
-  console.log(`Tổng ${r.total} mục; cập nhật ${r.updated}; giữ nguyên ${r.keptManual} mục sửa tay, ${r.keptReported} mục đang bị báo sai.`);
+  console.log(`Tổng ${r.total} mục; cập nhật ${r.updated}; giữ nguyên ${r.keptManual} mục sửa tay, ${r.keptReported} mục đang bị báo sai; ${r.noKanji} mục toàn kana (không có Hán Việt).`);
   console.log(`high ${r.stats.high} · review ${r.stats.review} · kun ${r.stats.kun}`);
 } finally {
   await dbClient.close();

@@ -91,6 +91,12 @@ export const ALL_NAV_SECTIONS: NavSection[] = [
         href: '/lexicon',
         requiredRoles: ['admin', 'editor', 'reviewer'],
       },
+      {
+        id: 'kanji',
+        labelKey: 'nav.kanji',
+        href: '/kanji',
+        requiredRoles: ['admin', 'editor', 'reviewer'],
+      },
     ],
   },
   {

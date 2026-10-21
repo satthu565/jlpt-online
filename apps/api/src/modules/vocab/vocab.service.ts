@@ -23,6 +23,7 @@ import {
   type HanVietBackfillResult,
   type HanVietReviewList,
 } from './hanviet-entries.js';
+import { listKanjiEntries, type KanjiListResult } from './kanji-list.js';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import {
@@ -84,6 +85,11 @@ export class VocabService implements OnModuleInit {
 
   reportHanViet(body: { entry?: unknown; reading?: unknown; suggestion?: unknown; note?: unknown }, userId?: string) {
     return reportHanViet(this.dbClient, body, userId);
+  }
+
+  /** Admin "Kanji" page: every KANJIDIC2 character with its Hán Việt. */
+  listKanjiEntries(params: { q?: string; level?: string; page?: number; pageSize?: number }): Promise<KanjiListResult> {
+    return listKanjiEntries(this.dbClient, params);
   }
 
   /**
@@ -160,7 +166,11 @@ export class VocabService implements OnModuleInit {
           (readings[0] as { reading: string } | undefined)?.reading;
         const computed = computeHanViet(entry.term, primary);
         const hanViet = entry.hanViet ?? computed.hanViet;
-        const hanVietConfidence = (entry.hanVietConfidence ?? computed.confidence) as 'high' | 'review' | 'kun';
+        // Kana-only headwords have no Hán Việt, so no confidence either.
+        const hasKanji = computed.perKanji.length > 0;
+        const hanVietConfidence = hasKanji
+          ? ((entry.hanVietConfidence ?? computed.confidence) as 'high' | 'review' | 'kun')
+          : undefined;
         const hanVietSource = (entry.hanVietSource ?? computed.source) as 'rule' | 'override' | 'manual';
         return {
           entry: entry.term,
@@ -249,66 +259,66 @@ export class VocabService implements OnModuleInit {
     }));
   }
 
-    /** H07: paginated list of every dictionary entry for the admin "Từ điển" page. */
-    async listLexiconEntries(params: { q?: string; pos?: string; page?: number; pageSize?: number }): Promise<LexiconListResult> {
-      const pageSize = Math.min(Math.max(Number(params.pageSize) || 50, 1), 200);
-      const page = Math.max(Number(params.page) || 1, 1);
-      const q = params.q?.trim();
-      const pos = params.pos?.trim();
+  /** H07: paginated list of every dictionary entry for the admin "Từ điển" page. */
+  async listLexiconEntries(params: { q?: string; pos?: string; page?: number; pageSize?: number }): Promise<LexiconListResult> {
+    const pageSize = Math.min(Math.max(Number(params.pageSize) || 50, 1), 200);
+    const page = Math.max(Number(params.page) || 1, 1);
+    const q = params.q?.trim();
+    const pos = params.pos?.trim();
 
-      const conditions: SQL[] = [];
-      if (q) {
-        const like = `%${q}%`;
-        conditions.push(
-          or(
-            ilike(lexicalEntries.term, like),
-            sql`exists (select 1 from entry_readings r where r.entry_id = ${lexicalEntries.id} and r.reading ilike ${like})`,
-            sql`exists (select 1 from entry_meanings m where m.entry_id = ${lexicalEntries.id} and m.meaning ilike ${like})`,
-          )!,
-        );
-      }
-      if (pos) {
-        // part_of_speech is "n,vs,vt"; match a whole code or a code family (v5 matches v5k, v5r...).
-        conditions.push(sql`(',' || coalesce(${lexicalEntries.partOfSpeech}, '') || ',') like ${`%,${pos}%`}`);
-      }
-      const where = conditions.length > 0 ? and(...conditions) : undefined;
-
-      const [{ value: total }] = await this.dbClient.db.select({ value: count() }).from(lexicalEntries).where(where);
-      const rows: Array<{ id: string; term: string; partOfSpeech: string | null; provider: string | null }> = await this.dbClient.db
-        .select({
-          id: lexicalEntries.id,
-          term: lexicalEntries.term,
-          partOfSpeech: lexicalEntries.partOfSpeech,
-          provider: lexiconLicenses.provider,
-        })
-        .from(lexicalEntries)
-        .leftJoin(lexiconLicenses, eq(lexicalEntries.licenseId, lexiconLicenses.id))
-        .where(where)
-        .orderBy(asc(lexicalEntries.term))
-        .limit(pageSize)
-        .offset((page - 1) * pageSize);
-
-      const ids = rows.map((r) => r.id);
-      const readings: Array<{ entryId: string; reading: string }> = ids.length
-        ? await this.dbClient.db.select().from(entryReadings).where(inArray(entryReadings.entryId, ids))
-        : [];
-      const meanings: Array<{ entryId: string; meaning: string }> = ids.length
-        ? await this.dbClient.db.select().from(entryMeanings).where(inArray(entryMeanings.entryId, ids))
-        : [];
-
-      return {
-        total: Number(total),
-        page,
-        pageSize,
-        items: rows.map((r) => ({
-          id: r.id,
-          term: r.term,
-          readings: readings.filter((x) => x.entryId === r.id).map((x) => x.reading),
-          meanings: meanings.filter((x) => x.entryId === r.id).slice(0, 3).map((x) => x.meaning),
-          partOfSpeech: r.partOfSpeech ?? '',
-          hanViet: getHanVietForWord(r.term) || '',
-          provider: r.provider ?? '',
-        })),
-      };
+    const conditions: SQL[] = [];
+    if (q) {
+      const like = `%${q}%`;
+      conditions.push(
+        or(
+          ilike(lexicalEntries.term, like),
+          sql`exists (select 1 from entry_readings r where r.entry_id = ${lexicalEntries.id} and r.reading ilike ${like})`,
+          sql`exists (select 1 from entry_meanings m where m.entry_id = ${lexicalEntries.id} and m.meaning ilike ${like})`,
+        )!,
+      );
     }
+    if (pos) {
+      // part_of_speech is "n,vs,vt"; match a whole code or a code family (v5 matches v5k, v5r...).
+      conditions.push(sql`(',' || coalesce(${lexicalEntries.partOfSpeech}, '') || ',') like ${`%,${pos}%`}`);
+    }
+    const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const [{ value: total }] = await this.dbClient.db.select({ value: count() }).from(lexicalEntries).where(where);
+    const rows: Array<{ id: string; term: string; partOfSpeech: string | null; provider: string | null }> = await this.dbClient.db
+      .select({
+        id: lexicalEntries.id,
+        term: lexicalEntries.term,
+        partOfSpeech: lexicalEntries.partOfSpeech,
+        provider: lexiconLicenses.provider,
+      })
+      .from(lexicalEntries)
+      .leftJoin(lexiconLicenses, eq(lexicalEntries.licenseId, lexiconLicenses.id))
+      .where(where)
+      .orderBy(asc(lexicalEntries.term))
+      .limit(pageSize)
+      .offset((page - 1) * pageSize);
+
+    const ids = rows.map((r) => r.id);
+    const readings: Array<{ entryId: string; reading: string }> = ids.length
+      ? await this.dbClient.db.select().from(entryReadings).where(inArray(entryReadings.entryId, ids))
+      : [];
+    const meanings: Array<{ entryId: string; meaning: string }> = ids.length
+      ? await this.dbClient.db.select().from(entryMeanings).where(inArray(entryMeanings.entryId, ids))
+      : [];
+
+    return {
+      total: Number(total),
+      page,
+      pageSize,
+      items: rows.map((r) => ({
+        id: r.id,
+        term: r.term,
+        readings: readings.filter((x) => x.entryId === r.id).map((x) => x.reading),
+        meanings: meanings.filter((x) => x.entryId === r.id).slice(0, 3).map((x) => x.meaning),
+        partOfSpeech: r.partOfSpeech ?? '',
+        hanViet: getHanVietForWord(r.term) || '',
+        provider: r.provider ?? '',
+      })),
+    };
+  }
 }
