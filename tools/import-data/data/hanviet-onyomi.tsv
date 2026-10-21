@@ -22,23 +22,23 @@
 依	エ	Y	
 偉	イ	VĨ	
 囲	イ	VY	
-委	イ	UỶ	
+委	イ	ỦY	
 威	イ	UY	
-尉	イ	UÝ	
-尉	ジョウ	UÝ	
+尉	イ	ÚY	
+尉	ジョウ	ÚY	
 意	イ	Ý	
-慰	イ	UỶ	
+慰	イ	ỦY	
 易	エキ	DỊCH	
 易	イ	DỊ	
 椅	イ	Ỷ	
 為	イ	VI	
-畏	イ	UÝ	
+畏	イ	ÚY	
 異	イ	DỊ	
 移	イ	DI	
 維	イ	DUY	
 緯	イ	VĨ	
 胃	イ	VỊ	
-萎	イ	UỶ	
+萎	イ	ỦY	
 衣	イ	Y	
 衣	エ	Y	
 違	イ	VI	
@@ -194,7 +194,7 @@
 歌	カ	CA	
 河	カ	HÀ	
 火	カ	HỎA	
-禍	カ	HOẠ	
+禍	カ	HỌA	
 稼	カ	GIÁ	
 箇	カ	CÁ	
 箇	コ	CÁ	
@@ -205,8 +205,8 @@
 華	カ	HOA	
 華	ケ	HOA	
 菓	カ	QUẢ	
-課	カ	KHOÁ	
-貨	カ	HOÁ	
+課	カ	KHÓA	
+貨	カ	HÓA	
 過	カ	QUÁ	
 蚊	ブン	VĂN	
 我	ガ	NGÃ	
@@ -324,7 +324,7 @@
 鎌	ケン	LIÊM	
 刈	ガイ	NGẢI	
 刈	カイ	NGẢI	
-瓦	ガ	NGOÃ	
+瓦	ガ	NGÕA	
 乾	カン	CÀN	
 乾	ケン	CÀN	
 冠	カン	QUAN	
@@ -430,8 +430,8 @@
 亀	キ	QUY	
 亀	キュウ	QUY	
 亀	キン	QUY	
-偽	ギ	NGUỴ	
-偽	カ	NGUỴ	
+偽	ギ	NGỤY	
+偽	カ	NGỤY	
 儀	ギ	NGHI	
 宜	ギ	NGHI	
 戯	ギ	HÍ	
@@ -842,7 +842,7 @@
 酵	コウ	DIẾU	
 鉱	コウ	KHOÁNG	
 鋼	コウ	CƯƠNG	
-降	コウ	HÀNG	
+降	コウ	GIÁNG	
 降	ゴ	GIÁNG	
 項	コウ	HẠNG	
 香	コウ	HƯƠNG	
@@ -865,7 +865,7 @@
 獄	ゴク	NGỤC	
 腰	ヨウ	YÊU	
 骨	コツ	CỐT	
-込	-	NHẬP	Kokuji
+込	-		Kokuji (chữ Nhật tự tạo, không có âm Hán Việt)
 頃	ケイ	KHUYNH	
 頃	キョウ	KHUYNH	
 今	コン	KIM	
@@ -892,10 +892,10 @@
 砂	サ	SA	
 砂	シャ	SA	
 詐	サ	TRÁ	
-鎖	サ	TOẢ	
-座	ザ	TOẠ	
-挫	ザ	TOẢ	
-挫	サ	TOẢ	
+鎖	サ	TỎA	
+座	ザ	TỌA	
+挫	ザ	TỎA	
+挫	サ	TỎA	
 債	サイ	TRÁI	
 催	サイ	THÔI	
 再	サイ	TÁI	
@@ -1000,7 +1000,7 @@
 嗣	シ	TỰ	
 四	シ	TỨ	
 士	シ	SĨ	
-始	シ	THUỶ	
+始	シ	THỦY	
 姉	シ	TỶ	
 姿	シ	TƯ	
 子	シ	TỬ	
@@ -1399,18 +1399,18 @@
 図	ズ	ĐỒ	
 図	ト	ĐỒ	
 吹	スイ	XUY	
-垂	スイ	THUỲ	
+垂	スイ	THÙY	
 帥	スイ	SOÁI	
 推	スイ	SUY	
 水	スイ	THỦY	
 炊	スイ	XUY	
-睡	スイ	THUỴ	
-粋	スイ	TUÝ	
+睡	スイ	THỤY	
+粋	スイ	TÚY	
 衰	スイ	SUY	
 遂	スイ	TOẠI	
-酔	スイ	TUÝ	
-随	ズイ	TUỲ	
-髄	ズイ	TUỶ	
+酔	スイ	TÚY	
+随	ズイ	TÙY	
+髄	ズイ	TỦY	
 崇	スウ	SÙNG	
 数	スウ	SỐ	
 数	ス	SỐ	
@@ -1683,11 +1683,11 @@
 太	タ	THÁI	
 汰	タ	THẢI	
 汰	タイ	THẢI	
-唾	ダ	THOÁ	
-唾	タ	THOÁ	
-堕	ダ	ĐOẠ	
-妥	ダ	THOẢ	
-惰	ダ	ĐOẠ	
+唾	ダ	THÓA	
+唾	タ	THÓA	
+堕	ダ	ĐỌA	
+妥	ダ	THỎA	
+惰	ダ	ĐỌA	
 打	ダ	ĐẢ	
 打	ダース	ĐẢ	
 駄	ダ	ĐÀ	
@@ -1743,7 +1743,7 @@
 脱	ダツ	THOÁT	
 棚	ホウ	BẰNG	
 谷	コク	CỐC	
-誰	スイ	THUỲ	
+誰	スイ	THÙY	
 丹	タン	ĐAN	
 単	タン	ĐƠN	
 嘆	タン	THÁN	
@@ -1862,9 +1862,9 @@
 鎮	チン	TRẤN	
 陳	チン	TRẦN	
 津	シン	TÂN	
-墜	ツイ	TRUỴ	
-椎	ツイ	CHUỲ	
-椎	スイ	CHUỲ	
+墜	ツイ	TRỤY	
+椎	ツイ	CHÙY	
+椎	スイ	CHÙY	
 追	ツイ	TRUY	
 痛	ツウ	THỐNG	
 通	ツウ	THÔNG	
@@ -2023,7 +2023,7 @@
 道	ドウ	ĐẠO	
 道	トウ	ĐẠO	
 銅	ドウ	ĐỒNG	
-峠	-	ĐÈO	Kokuji
+峠	-		Kokuji (chữ Nhật tự tạo, không có âm Hán Việt)
 匿	トク	NẶC	
 得	トク	ĐẮC	
 徳	トク	ĐỨC	
@@ -2036,7 +2036,7 @@
 読	ドク	ĐỘC	
 読	トク	ĐỘC	
 読	トウ	ĐẬU	
-栃	-	LỆ	Kokuji
+栃	-		Kokuji (chữ Nhật tự tạo, không có âm Hán Việt)
 凸	トツ	ĐỘT	
 突	トツ	ĐỘT	
 突	カ	ĐỘT	
@@ -2067,7 +2067,7 @@
 尼	ニ	NI	
 弐	ニ	NHỊ	
 弐	ジ	NHỊ	
-匂	-	MÙI	Kokuji
+匂	-		Kokuji (chữ Nhật tự tạo, không có âm Hán Việt)
 肉	ニク	NHỤC	
 虹	コウ	HỒNG	
 日	ニチ	NHẬT	
@@ -2154,7 +2154,7 @@
 箸	チョ	TRỢ	
 箸	チャク	TRỢ	
 肌	キ	CƠ	
-畑	-	ĐIỀN	Kokuji
+畑	-		Kokuji (chữ Nhật tự tạo, không có âm Hán Việt)
 八	ハチ	BÁT	
 八	ハツ	BÁT	
 鉢	ハチ	BÁT	
@@ -2656,7 +2656,7 @@
 翌	ヨク	DỰC	
 翼	ヨク	DỰC	
 羅	ラ	LA	
-裸	ラ	LOÃ	
+裸	ラ	LÕA	
 来	ライ	LAI	
 来	タイ	LAI	
 頼	ライ	LẠI	
@@ -2687,9 +2687,9 @@
 律	リツ	LUẬT	
 律	リチ	LUẬT	
 律	レツ	LUẬT	
-率	ソツ	LUẬT	
-率	リツ	LUẬT	
-率	シュツ	LUẬT	
+率	ソツ	SUẤT	
+率	リツ	SUẤT	
+率	シュツ	SUẤT	
 立	リツ	LẬP	
 立	リュウ	LẬP	
 立	リットル	LẬP	
@@ -2738,12 +2738,12 @@
 隣	リン	LÂN	
 瑠	ル	LƯU	
 瑠	リュウ	LƯU	
-塁	ルイ	LUỸ	
-塁	ライ	LUỸ	
-塁	スイ	LUỸ	
+塁	ルイ	LŨY	
+塁	ライ	LŨY	
+塁	スイ	LŨY	
 涙	ルイ	LỆ	
 涙	レイ	LỆ	
-累	ルイ	LUỴ	
+累	ルイ	LỤY	
 類	ルイ	LOẠI	
 令	レイ	LỆNH	
 例	レイ	LỆ	
@@ -2797,14 +2797,14 @@
 麓	ロク	LỘC	
 録	ロク	LỤC	
 論	ロン	LUẬN	
-和	ワ	HOÀ	
-和	オ	HOÀ	
-和	カ	HOÀ	
+和	ワ	HÒA	
+和	オ	HÒA	
+和	カ	HÒA	
 話	ワ	THOẠI	
 賄	ワイ	HỐI	
 脇	キョウ	HIẾP	
 惑	ワク	HOẶC	
-枠	-	KHUNG	Kokuji
+枠	-		Kokuji (chữ Nhật tự tạo, không có âm Hán Việt)
 湾	ワン	LOAN	
 腕	ワン	OẢN	
 丼	トン	ĐẢM	
@@ -2820,7 +2820,7 @@
 嗅	キュウ	KHỨU	
 嘲	チョウ	TRÀO	
 嘲	トウ	TRÀO	
-毀	キ	HUỶ	
+毀	キ	HỦY	
 彙	イ	HỘI	
 恣	シ	TỨ	
 惧	ク	CỤ	

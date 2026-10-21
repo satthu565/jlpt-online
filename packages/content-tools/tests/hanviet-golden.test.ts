@@ -538,10 +538,10 @@ describe('H01: Dữ liệu âm Hán Việt theo từng từ vựng và độ tin
 
     it('từ có chữ đổi âm theo nghĩa không có trong ngoại lệ cho confidence review', () => {
       // Giả sử có từ ghép mới chứa chữ '長' hoặc '重' hoặc '行' mà không nằm trong bảng overrides:
-      // Ví dụ: '長身' (ちょうしん: thân dài/chiều cao lớn, không có trong overrides)
+      // Ví dụ: '長身' (ちょうしん: dáng cao, không có trong overrides)
       // Chữ '長' thuộc MEANING_DEPENDENT_KANJI -> thuật toán tách được âm On nhưng vì không có trong overrides nên phải gắn cờ review
-      const res = computeHanViet('長躯', 'ちょうく');
-      expect(res.hanViet).toBe('TRƯỜNG KHU');
+      const res = computeHanViet('長身', 'ちょうしん');
+      expect(res.hanViet).toBe('TRƯỜNG THÂN');
       expect(res.confidence).toBe('review');
       expect(res.source).toBe('rule');
 

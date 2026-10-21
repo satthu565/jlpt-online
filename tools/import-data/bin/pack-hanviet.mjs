@@ -72,9 +72,8 @@ export const HANVIET_WORD_OVERRIDES: Record<string, HanVietOverrideEntry> = ${JS
 
 /** Danh sách chữ Hán đổi âm theo nghĩa: khi gặp chữ trong danh sách mà không có trong ngoại lệ -> review */
 export const MEANING_DEPENDENT_KANJI: ReadonlySet<string> = new Set([
-  '長', '行', '重', '楽', '易', '悪', '説', '画', '分', '降',
-  '処', '著', '卒', '質', '創', '丁', '読', '否', '塞', '仮',
-  '正', '生', '伝', '担', '結', '便', '復'
+  '長', '行', '重', '分', '降', '処', '著', '卒', '質', '創',
+  '丁', '否', '正', '伝', '便', '復', '説'
 ]);
 `;
 
