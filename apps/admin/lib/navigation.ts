@@ -1,4 +1,4 @@
-import type { Role } from "@jlpt/schema";
+import type { Role } from '@jlpt/schema';
 
 export interface NavItem {
   id: string;
@@ -16,11 +16,11 @@ export interface NavSection {
 }
 
 export const STAFF_ROLES: Role[] = [
-  "admin",
-  "editor",
-  "reviewer",
-  "moderator",
-  "billing_admin",
+  'admin',
+  'editor',
+  'reviewer',
+  'moderator',
+  'billing_admin',
 ];
 
 export function isStaffRole(role: string | null | undefined): role is Role {
@@ -34,248 +34,242 @@ export function isStaffRole(role: string | null | undefined): role is Role {
  */
 export const ALL_NAV_SECTIONS: NavSection[] = [
   {
-    id: "overview",
-    titleKey: "nav.sections.overview",
+    id: 'overview',
+    titleKey: 'nav.sections.overview',
     items: [
       {
-        id: "dashboard",
-        labelKey: "nav.dashboard",
-        href: "/",
-        requiredRoles: [
-          "admin",
-          "editor",
-          "reviewer",
-          "moderator",
-          "billing_admin",
-        ],
+        id: 'dashboard',
+        labelKey: 'nav.dashboard',
+        href: '/',
+        requiredRoles: ['admin', 'editor', 'reviewer', 'moderator', 'billing_admin'],
       },
     ],
   },
   {
-    id: "authoring",
-    titleKey: "nav.sections.authoring",
+    id: 'authoring',
+    titleKey: 'nav.sections.authoring',
     items: [
       {
-        id: "questionBank",
-        labelKey: "nav.questionBank",
-        href: "/questions",
-        requiredRoles: ["admin", "editor"],
+        id: 'questionBank',
+        labelKey: 'nav.questionBank',
+        href: '/questions',
+        requiredRoles: ['admin', 'editor'],
       },
       {
-        id: "blueprints",
-        labelKey: "nav.blueprints",
-        href: "/blueprints",
-        requiredRoles: ["admin", "editor"],
+        id: 'blueprints',
+        labelKey: 'nav.blueprints',
+        href: '/blueprints',
+        requiredRoles: ['admin', 'editor'],
       },
       {
-        id: "media",
-        labelKey: "nav.media",
-        href: "/media",
-        requiredRoles: ["admin", "editor"],
+        id: 'media',
+        labelKey: 'nav.media',
+        href: '/media',
+        requiredRoles: ['admin', 'editor'],
       },
       {
-        id: "imports",
-        labelKey: "nav.imports",
-        href: "/imports",
-        requiredRoles: ["admin", "editor"],
+        id: 'imports',
+        labelKey: 'nav.imports',
+        href: '/imports',
+        requiredRoles: ['admin', 'editor'],
       },
       {
-        id: "cms",
-        labelKey: "nav.cms",
-        href: "/cms",
-        requiredRoles: ["admin", "editor"],
+        id: 'cms',
+        labelKey: 'nav.cms',
+        href: '/cms',
+        requiredRoles: ['admin', 'editor'],
       },
       {
-        id: "vocab",
-        labelKey: "nav.vocab",
-        href: "/vocab",
-        requiredRoles: ["admin", "editor"],
+        id: 'vocab',
+        labelKey: 'nav.vocab',
+        href: '/vocab',
+        requiredRoles: ['admin', 'editor'],
       },
       {
-        id: "lexicon",
-        labelKey: "nav.lexicon",
-        href: "/lexicon",
-        requiredRoles: ["admin", "editor", "reviewer"],
+        id: 'lexicon',
+        labelKey: 'nav.lexicon',
+        href: '/lexicon',
+        requiredRoles: ['admin', 'editor', 'reviewer'],
       },
     ],
   },
   {
-    id: "quality",
-    titleKey: "nav.sections.quality",
+    id: 'quality',
+    titleKey: 'nav.sections.quality',
     items: [
       {
-        id: "reviews",
-        labelKey: "nav.reviews",
-        href: "/reviews",
-        requiredRoles: ["admin", "reviewer"],
+        id: 'reviews',
+        labelKey: 'nav.reviews',
+        href: '/reviews',
+        requiredRoles: ['admin', 'reviewer'],
       },
       {
-        id: "explanationReviews",
-        labelKey: "nav.explanationReviews",
-        href: "/reviews/explanations",
-        requiredRoles: ["admin", "reviewer"],
+        id: 'explanationReviews',
+        labelKey: 'nav.explanationReviews',
+        href: '/reviews/explanations',
+        requiredRoles: ['admin', 'reviewer'],
       },
       {
-        id: "contentReports",
-        labelKey: "nav.contentReports",
-        href: "/reports/content",
-        requiredRoles: ["admin", "reviewer", "moderator"],
+        id: 'contentReports',
+        labelKey: 'nav.contentReports',
+        href: '/reports/content',
+        requiredRoles: ['admin', 'reviewer', 'moderator'],
       },
       {
-        id: "aiModeration",
-        labelKey: "nav.aiModeration",
-        href: "/moderation/ai",
-        requiredRoles: ["admin", "moderator"],
+        id: 'aiModeration',
+        labelKey: 'nav.aiModeration',
+        href: '/moderation/ai',
+        requiredRoles: ['admin', 'moderator'],
       },
     ],
   },
   {
-    id: "exams",
-    titleKey: "nav.sections.exams",
+    id: 'exams',
+    titleKey: 'nav.sections.exams',
     items: [
       {
-        id: "exams",
-        labelKey: "nav.exams",
-        href: "/exams",
-        requiredRoles: ["admin", "editor", "reviewer"],
+        id: 'exams',
+        labelKey: 'nav.exams',
+        href: '/exams',
+        requiredRoles: ['admin', 'editor', 'reviewer'],
       },
       {
-        id: "mixedExams",
-        labelKey: "nav.mixedExams",
-        href: "/exams/mixed",
-        requiredRoles: ["admin", "editor", "reviewer"],
+        id: 'mixedExams',
+        labelKey: 'nav.mixedExams',
+        href: '/exams/mixed',
+        requiredRoles: ['admin', 'editor', 'reviewer'],
       },
       {
-        id: "jlptSchedules",
-        labelKey: "nav.schedules",
-        href: "/exams/schedules",
-        requiredRoles: ["admin", "editor"],
+        id: 'jlptSchedules',
+        labelKey: 'nav.schedules',
+        href: '/exams/schedules',
+        requiredRoles: ['admin', 'editor'],
       },
       {
-        id: "scoringTables",
-        labelKey: "nav.scoringTables",
-        href: "/exams/scoring",
-        requiredRoles: ["admin", "editor"],
+        id: 'scoringTables',
+        labelKey: 'nav.scoringTables',
+        href: '/exams/scoring',
+        requiredRoles: ['admin', 'editor'],
       },
     ],
   },
   {
-    id: "community",
-    titleKey: "nav.sections.community",
+    id: 'community',
+    titleKey: 'nav.sections.community',
     items: [
       {
-        id: "discussions",
-        labelKey: "nav.discussions",
-        href: "/moderation/discussions",
-        requiredRoles: ["admin", "moderator"],
+        id: 'discussions',
+        labelKey: 'nav.discussions',
+        href: '/moderation/discussions',
+        requiredRoles: ['admin', 'moderator'],
       },
     ],
   },
   {
-    id: "commercial",
-    titleKey: "nav.sections.commercial",
+    id: 'commercial',
+    titleKey: 'nav.sections.commercial',
     items: [
       {
-        id: "plans",
-        labelKey: "nav.plans",
-        href: "/commercial/plans",
-        requiredRoles: ["admin", "billing_admin"],
+        id: 'plans',
+        labelKey: 'nav.plans',
+        href: '/commercial/plans',
+        requiredRoles: ['admin', 'billing_admin'],
       },
       {
-        id: "subscriptions",
-        labelKey: "nav.subscriptions",
-        href: "/commercial/subscriptions",
-        requiredRoles: ["admin", "billing_admin"],
+        id: 'subscriptions',
+        labelKey: 'nav.subscriptions',
+        href: '/commercial/subscriptions',
+        requiredRoles: ['admin', 'billing_admin'],
       },
       {
-        id: "payments",
-        labelKey: "nav.payments",
-        href: "/commercial/payments",
-        requiredRoles: ["admin", "billing_admin"],
+        id: 'payments',
+        labelKey: 'nav.payments',
+        href: '/commercial/payments',
+        requiredRoles: ['admin', 'billing_admin'],
       },
       {
-        id: "refunds",
-        labelKey: "nav.refunds",
-        href: "/commercial/refunds",
-        requiredRoles: ["admin", "billing_admin"],
+        id: 'refunds',
+        labelKey: 'nav.refunds',
+        href: '/commercial/refunds',
+        requiredRoles: ['admin', 'billing_admin'],
       },
       {
-        id: "coupons",
-        labelKey: "nav.coupons",
-        href: "/commercial/coupons",
-        requiredRoles: ["admin", "billing_admin"],
+        id: 'coupons',
+        labelKey: 'nav.coupons',
+        href: '/commercial/coupons',
+        requiredRoles: ['admin', 'billing_admin'],
       },
       {
-        id: "reconciliation",
-        labelKey: "nav.reconciliation",
-        href: "/commercial/reconciliation",
-        requiredRoles: ["admin", "billing_admin"],
+        id: 'reconciliation',
+        labelKey: 'nav.reconciliation',
+        href: '/commercial/reconciliation',
+        requiredRoles: ['admin', 'billing_admin'],
       },
     ],
   },
   {
-    id: "analytics",
-    titleKey: "nav.sections.analytics",
+    id: 'analytics',
+    titleKey: 'nav.sections.analytics',
     items: [
       {
-        id: "reportsOverview",
-        labelKey: "nav.reports",
-        href: "/reports",
-        requiredRoles: ["admin", "billing_admin"],
+        id: 'reportsOverview',
+        labelKey: 'nav.reports',
+        href: '/reports',
+        requiredRoles: ['admin', 'billing_admin'],
       },
       {
-        id: "revenueReport",
-        labelKey: "nav.revenueReport",
-        href: "/reports/revenue",
-        requiredRoles: ["admin", "billing_admin"],
+        id: 'revenueReport',
+        labelKey: 'nav.revenueReport',
+        href: '/reports/revenue',
+        requiredRoles: ['admin', 'billing_admin'],
       },
     ],
   },
   {
-    id: "admin",
-    titleKey: "nav.sections.admin",
+    id: 'admin',
+    titleKey: 'nav.sections.admin',
     items: [
       {
-        id: "users",
-        labelKey: "nav.users",
-        href: "/users",
-        requiredRoles: ["admin"],
+        id: 'users',
+        labelKey: 'nav.users',
+        href: '/users',
+        requiredRoles: ['admin'],
       },
       {
-        id: "auditLogs",
-        labelKey: "nav.auditLogs",
-        href: "/audit-logs",
-        requiredRoles: ["admin"],
+        id: 'auditLogs',
+        labelKey: 'nav.auditLogs',
+        href: '/audit-logs',
+        requiredRoles: ['admin'],
       },
       {
-        id: "experiments",
-        labelKey: "nav.experiments",
-        href: "/experiments",
-        requiredRoles: ["admin"],
+        id: 'experiments',
+        labelKey: 'nav.experiments',
+        href: '/experiments',
+        requiredRoles: ['admin'],
       },
       {
-        id: "notifications",
-        labelKey: "nav.notifications",
-        href: "/settings/notifications",
-        requiredRoles: ["admin"],
+        id: 'notifications',
+        labelKey: 'nav.notifications',
+        href: '/settings/notifications',
+        requiredRoles: ['admin'],
       },
       {
-        id: "orgSettings",
-        labelKey: "nav.orgSettings",
-        href: "/settings/org",
-        requiredRoles: ["admin"],
+        id: 'orgSettings',
+        labelKey: 'nav.orgSettings',
+        href: '/settings/org',
+        requiredRoles: ['admin'],
       },
       {
-        id: "settings",
-        labelKey: "nav.settings",
-        href: "/settings",
-        requiredRoles: ["admin"],
+        id: 'settings',
+        labelKey: 'nav.settings',
+        href: '/settings',
+        requiredRoles: ['admin'],
       },
       {
-        id: "backup",
-        labelKey: "nav.backup",
-        href: "/settings/backup",
-        requiredRoles: ["admin"],
+        id: 'backup',
+        labelKey: 'nav.backup',
+        href: '/settings/backup',
+        requiredRoles: ['admin'],
       },
     ],
   },
@@ -291,15 +285,13 @@ export function getNavigationSections(role?: Role | null): NavSection[] {
   }
 
   // Admin sees all items
-  if (role === "admin") {
+  if (role === 'admin') {
     return ALL_NAV_SECTIONS;
   }
 
   const filteredSections: NavSection[] = [];
   for (const section of ALL_NAV_SECTIONS) {
-    const permittedItems = section.items.filter((item) =>
-      item.requiredRoles.includes(role),
-    );
+    const permittedItems = section.items.filter((item) => item.requiredRoles.includes(role));
     if (permittedItems.length > 0) {
       filteredSections.push({
         ...section,
@@ -334,28 +326,25 @@ export function getAllowedRoutes(role?: Role | null): string[] {
 /**
  * Route-level capability check: returns true if the user's role allows visiting this pathname.
  */
-export function canAccessRoute(
-  role: Role | null | undefined,
-  pathname: string,
-): boolean {
+export function canAccessRoute(role: Role | null | undefined, pathname: string): boolean {
   if (!role || !isStaffRole(role)) {
     return false;
   }
 
-  if (role === "admin") {
+  if (role === 'admin') {
     return true; // Admin has superuser access
   }
 
   // Exact match or sub-route match
   const allowed = getAllowedRoutes(role);
-  const normalizedPath = pathname.split("?")[0] ?? "";
+  const normalizedPath = pathname.split('?')[0] ?? '';
 
-  if (normalizedPath === "/" || normalizedPath === "") {
-    return allowed.includes("/");
+  if (normalizedPath === '/' || normalizedPath === '') {
+    return allowed.includes('/');
   }
 
   return allowed.some((route) => {
-    if (route === "/") return false;
+    if (route === '/') return false;
     return normalizedPath === route || normalizedPath.startsWith(`${route}/`);
   });
 }
@@ -364,19 +353,16 @@ export function canAccessRoute(
  * Identifies the required roles for a given pathname.
  */
 export function getRequiredRolesForRoute(pathname: string): Role[] {
-  const normalizedPath = pathname.split("?")[0] ?? "";
+  const normalizedPath = pathname.split('?')[0] ?? '';
 
   for (const section of ALL_NAV_SECTIONS) {
     for (const item of section.items) {
-      if (
-        item.href === normalizedPath ||
-        (item.href !== "/" && normalizedPath.startsWith(`${item.href}/`))
-      ) {
+      if (item.href === normalizedPath || (item.href !== '/' && normalizedPath.startsWith(`${item.href}/`))) {
         return item.requiredRoles;
       }
     }
   }
 
   // Default to admin for undefined admin routes
-  return ["admin"];
+  return ['admin'];
 }
