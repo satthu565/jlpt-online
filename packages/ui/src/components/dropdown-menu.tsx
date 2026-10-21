@@ -200,7 +200,7 @@ export const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenu
           ...style,
         }}
         className={cn(
-          'z-50 min-w-[8rem] overflow-hidden rounded-md border border-[var(--border-default,#cbd5e1)] bg-[var(--bg-surface-elevated,#ffffff)] p-1 text-[var(--text-primary,#0f172a)] shadow-md dark:border-[var(--border-default,#475569)] dark:bg-[var(--bg-surface-elevated,#1e293b)] dark:text-[var(--text-primary,#f8fafc)]',
+          'z-50 min-w-[8rem] overflow-hidden rounded-2xl bg-[var(--overlay)] p-1 text-[var(--foreground)] shadow-[var(--overlay-shadow)]',
           className,
         )}
         {...props}

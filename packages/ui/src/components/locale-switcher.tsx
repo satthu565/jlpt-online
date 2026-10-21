@@ -32,12 +32,7 @@ export function LocaleSwitcher({
 
   return (
     <div
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '0.25rem',
-      }}
-      className={`jlpt-locale-switcher ${className}`}
+      className={`jlpt-locale-switcher inline-flex items-center gap-1 ${className}`}
     >
       <label htmlFor="jlpt-locale-select" className="sr-only">
         {labels.selectLanguage || 'Chọn ngôn ngữ giao diện'}
@@ -47,19 +42,7 @@ export function LocaleSwitcher({
         value={currentLocale}
         onChange={(e) => onLocaleChange(e.target.value as SupportedLocale)}
         aria-label={labels.selectLanguage || 'Chọn ngôn ngữ giao diện'}
-        style={{
-          padding: compact ? '0.375rem 0.5rem' : '0.375rem 0.625rem',
-          borderRadius: '6px',
-          border: '1px solid var(--border-default, #cbd5e1)',
-          backgroundColor: 'var(--bg-surface, #ffffff)',
-          color: 'var(--text-primary, #0f172a)',
-          fontSize: compact ? '0.8125rem' : '0.875rem',
-          fontWeight: 500,
-          cursor: 'pointer',
-          minHeight: '36px',
-          maxWidth: compact ? '110px' : undefined,
-          fontFamily: 'inherit',
-        }}
+        className={`input input--primary min-h-9 cursor-pointer font-medium ${compact ? 'max-w-[110px] px-2 py-1.5 text-[0.8125rem]' : 'px-2.5 py-1.5 text-sm'}`}
       >
         {languageOptions.map(({ code, name, flag }) => (
           <option key={code} value={code}>

@@ -8,6 +8,17 @@
  * --accent, --muted, --border, …) for light and dark mode; the legacy JLPT variables used across
  * the apps (including inline styles) are derived from them so every page follows the theme.
  */
+/* Brand accent: JLPT Online green on top of the HeroUI theme (hover/soft/focus derive from --accent). */
+:root {
+  --accent: oklch(0.627 0.194 149.214);
+  --accent-foreground: oklch(1 0 0);
+}
+.dark,
+[data-theme='dark'] {
+  --accent: oklch(0.723 0.219 149.579);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+}
+
 :root,
 .dark,
 [data-theme='dark'] {

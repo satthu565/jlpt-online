@@ -1,6 +1,23 @@
-/* Tailwind utilities for the className strings used in admin pages. */
 @layer theme, base, components, utilities;
-@import "@heroui/styles";
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+/* HeroUI v3 (@heroui/styles): theme tokens, base, helpers and only the component styles @jlpt/ui uses.
+   Importing the whole package pulled every HeroUI component in (CSS 18 -> 55 KB gzip, render-blocking). */
+@import "@heroui/styles/themes/default";
+@import "@heroui/styles/base" layer(base);
+@import "@heroui/styles/utilities";
+@import "@heroui/styles/variants";
+@import "@heroui/styles/components/alert.css" layer(components);
+@import "@heroui/styles/components/badge.css" layer(components);
+@import "@heroui/styles/components/button.css" layer(components);
+@import "@heroui/styles/components/card.css" layer(components);
+@import "@heroui/styles/components/chip.css" layer(components);
+@import "@heroui/styles/components/input.css" layer(components);
+@import "@heroui/styles/components/label.css" layer(components);
+@import "@heroui/styles/components/skeleton.css" layer(components);
+@import "@heroui/styles/components/spinner.css" layer(components);
+@import "@heroui/styles/components/textarea.css" layer(components);
 @import "@jlpt/ui/styles.css";
 
 @source "../../../packages/ui/src";

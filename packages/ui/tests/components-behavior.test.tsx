@@ -627,7 +627,7 @@ describe('D00: @jlpt/ui Component Suite - Keyboard, Focus & ARIA Behaviors', () 
 
       const card = screen.getByTestId('exam-card');
       expect(card.classList.contains('jlpt-card')).toBe(true);
-      expect(card.classList.contains('shadow-md')).toBe(true);
+      expect(card.classList.contains('card')).toBe(true);
       expect(card.getAttribute('style')).toBeNull();
 
       const heading = screen.getByRole('heading', { level: 3, name: 'Đề thi thử số 1' });
@@ -725,7 +725,7 @@ describe('D00: @jlpt/ui Component Suite - Keyboard, Focus & ARIA Behaviors', () 
 
       render(<Skeleton data-testid="loading-box" className="h-6 w-32" />);
       const skeleton = screen.getByTestId('loading-box');
-      expect(skeleton.classList.contains('animate-pulse')).toBe(true);
+      expect(skeleton.classList.contains('skeleton')).toBe(true);
       expect(skeleton.getAttribute('style')).toBeNull();
     });
   });
