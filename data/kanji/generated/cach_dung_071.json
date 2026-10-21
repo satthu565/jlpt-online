@@ -1,0 +1,413 @@
+{
+"齊": {
+"nghia": "Đều nhau; nước Tề",
+"cach_dung": [
+{
+"y_nghia": "Nước Tề",
+"vi_du": [
+{
+"tu": "齊",
+"doc": "せい",
+"nghia": "nước Tề"
+}
+]
+}
+]
+},
+"欄": {
+"nghia": "Lan can; cột mục (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Lan can; cột mục",
+"vi_du": []
+}
+]
+},
+"廊": {
+"nghia": "Hành lang (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Hành lang",
+"vi_du": []
+}
+]
+},
+"朗": {
+"nghia": "Sáng sủa; vang rõ (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Sáng sủa; vang rõ",
+"vi_du": []
+}
+]
+},
+"虜": {
+"nghia": "Tù binh (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Tù binh",
+"vi_du": []
+}
+]
+},
+"類": {
+"nghia": "Loài, loại (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Loài, loại",
+"vi_du": []
+}
+]
+},
+"猪": {
+"nghia": "Con lợn rừng (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Con lợn rừng",
+"vi_du": []
+}
+]
+},
+"神": {
+"nghia": "Thần (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Thần",
+"vi_du": []
+}
+]
+},
+"祥": {
+"nghia": "Điềm lành (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Điềm lành",
+"vi_du": []
+}
+]
+},
+"福": {
+"nghia": "Phúc (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Phúc",
+"vi_du": []
+}
+]
+},
+"諸": {
+"nghia": "Các, nhiều (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Các, nhiều",
+"vi_du": []
+}
+]
+},
+"都": {
+"nghia": "Kinh đô; tất cả (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Kinh đô; tất cả",
+"vi_du": []
+}
+]
+},
+"侮": {
+"nghia": "Khinh rẻ (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Khinh rẻ",
+"vi_du": []
+}
+]
+},
+"僧": {
+"nghia": "Nhà sư (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Nhà sư",
+"vi_du": []
+}
+]
+},
+"勉": {
+"nghia": "Cố gắng (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Cố gắng",
+"vi_du": []
+}
+]
+},
+"勤": {
+"nghia": "Chăm chỉ; làm việc (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Chăm chỉ; làm việc",
+"vi_du": []
+}
+]
+},
+"卑": {
+"nghia": "Thấp hèn (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Thấp hèn",
+"vi_du": []
+}
+]
+},
+"嘆": {
+"nghia": "Than thở (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Than thở",
+"vi_du": []
+}
+]
+},
+"器": {
+"nghia": "Đồ dùng; tài năng (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Đồ dùng; tài năng",
+"vi_du": []
+}
+]
+},
+"墨": {
+"nghia": "Mực tàu (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Mực tàu",
+"vi_du": []
+}
+]
+},
+"層": {
+"nghia": "Tầng lớp (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Tầng lớp",
+"vi_du": []
+}
+]
+},
+"悔": {
+"nghia": "Hối hận (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Hối hận",
+"vi_du": []
+}
+]
+},
+"憎": {
+"nghia": "Ghét (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Ghét",
+"vi_du": []
+}
+]
+},
+"懲": {
+"nghia": "Trừng phạt (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Trừng phạt",
+"vi_du": []
+}
+]
+},
+"敏": {
+"nghia": "Nhanh nhẹn (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Nhanh nhẹn",
+"vi_du": []
+}
+]
+},
+"暑": {
+"nghia": "Nóng (thời tiết) (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Nóng (thời tiết)",
+"vi_du": []
+}
+]
+},
+"梅": {
+"nghia": "Cây mơ (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Cây mơ",
+"vi_du": []
+}
+]
+},
+"海": {
+"nghia": "Biển (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Biển",
+"vi_du": []
+}
+]
+},
+"渚": {
+"nghia": "Bờ nước (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Bờ nước",
+"vi_du": []
+}
+]
+},
+"漢": {
+"nghia": "Hán; nam nhi (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Hán; nam nhi",
+"vi_du": []
+}
+]
+},
+"煮": {
+"nghia": "Nấu, luộc (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Nấu, luộc",
+"vi_du": []
+}
+]
+},
+"琢": {
+"nghia": "Mài giũa (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Mài giũa",
+"vi_du": []
+}
+]
+},
+"碑": {
+"nghia": "Bia đá (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Bia đá",
+"vi_du": []
+}
+]
+},
+"社": {
+"nghia": "Đền thờ; công ty (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Đền thờ; công ty",
+"vi_du": []
+}
+]
+},
+"祉": {
+"nghia": "Phúc lộc (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Phúc lộc",
+"vi_du": []
+}
+]
+},
+"祈": {
+"nghia": "Cầu nguyện (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Cầu nguyện",
+"vi_du": []
+}
+]
+},
+"祐": {
+"nghia": "Giúp đỡ (trời giúp) (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Giúp đỡ (trời giúp)",
+"vi_du": []
+}
+]
+},
+"祖": {
+"nghia": "Tổ tiên (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Tổ tiên",
+"vi_du": []
+}
+]
+},
+"祝": {
+"nghia": "Chúc mừng (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Chúc mừng",
+"vi_du": []
+}
+]
+},
+"禍": {
+"nghia": "Tai họa (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Tai họa",
+"vi_du": []
+}
+]
+},
+"禎": {
+"nghia": "Điềm lành (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Điềm lành",
+"vi_du": []
+}
+]
+},
+"穀": {
+"nghia": "Ngũ cốc (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Ngũ cốc",
+"vi_du": []
+}
+]
+},
+"突": {
+"nghia": "Đột ngột; đâm (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Đột ngột; đâm",
+"vi_du": []
+}
+]
+},
+"節": {
+"nghia": "Đốt, tiết; mùa (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Đốt, tiết; mùa",
+"vi_du": []
+}
+]
+},
+"練": {
+"nghia": "Luyện tập (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Luyện tập",
+"vi_du": []
+}
+]
+}
+}

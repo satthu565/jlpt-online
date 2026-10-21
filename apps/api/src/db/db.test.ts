@@ -55,7 +55,8 @@ describe('F08 Database Schema and Migrations', () => {
         expect(names).toContain('0007_lexicon_hanviet.sql');
         expect(names).toContain('0008_corpus_terms.sql');
         expect(names).toContain('0009_entry_meanings_senses.sql');
-        expect(names.length).toBe(10);
+        expect(names).toContain('0010_kanji_dataset.sql');
+        expect(names.length).toBe(11);
       } finally {
         await client.close();
       }
@@ -1296,10 +1297,10 @@ describe('F08 Database Schema and Migrations', () => {
       const journal = JSON.parse(fs.readFileSync(journalPath, 'utf8'));
       expect(journal.dialect).toBe('postgresql');
       expect(Array.isArray(journal.entries)).toBe(true);
-      expect(journal.entries.length).toBe(10);
+      expect(journal.entries.length).toBe(11);
 
       const sqlFiles = fs.readdirSync(migrationsDir).filter((f) => f.endsWith('.sql')).sort();
-      expect(sqlFiles.length).toBe(10);
+      expect(sqlFiles.length).toBe(11);
 
       for (let i = 0; i < journal.entries.length; i++) {
         expect(journal.entries[i].idx).toBe(i);
@@ -1317,10 +1318,10 @@ describe('F08 Database Schema and Migrations', () => {
         const appliedRuns = results.filter((r) => r.applied.length > 0);
         const zeroAppliedRuns = results.filter((r) => r.applied.length === 0);
         expect(appliedRuns.length).toBe(1);
-        expect(appliedRuns[0]!.applied.length).toBe(10);
+        expect(appliedRuns[0]!.applied.length).toBe(11);
         expect(zeroAppliedRuns.length).toBe(9);
         for (const r of zeroAppliedRuns) {
-          expect(r.alreadyApplied.length).toBe(10);
+          expect(r.alreadyApplied.length).toBe(11);
         }
       } finally {
         await client.close();

@@ -1,0 +1,154 @@
+{
+"繁": {
+"nghia": "Nhiều, phồn thịnh (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Nhiều, phồn thịnh",
+"vi_du": []
+}
+]
+},
+"署": {
+"nghia": "Ký tên; cơ quan (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Ký tên; cơ quan",
+"vi_du": []
+}
+]
+},
+"者": {
+"nghia": "Người (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Người",
+"vi_du": []
+}
+]
+},
+"臭": {
+"nghia": "Mùi hôi (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Mùi hôi",
+"vi_du": []
+}
+]
+},
+"著": {
+"nghia": "Trứ danh; viết (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Trứ danh; viết",
+"vi_du": []
+}
+]
+},
+"視": {
+"nghia": "Nhìn (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Nhìn",
+"vi_du": []
+}
+]
+},
+"謁": {
+"nghia": "Yết kiến (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Yết kiến",
+"vi_du": []
+}
+]
+},
+"謹": {
+"nghia": "Kính cẩn (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Kính cẩn",
+"vi_du": []
+}
+]
+},
+"賓": {
+"nghia": "Khách (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Khách",
+"vi_du": []
+}
+]
+},
+"贈": {
+"nghia": "Tặng (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Tặng",
+"vi_du": []
+}
+]
+},
+"逸": {
+"nghia": "Lạc mất; vượt trội (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Lạc mất; vượt trội",
+"vi_du": []
+}
+]
+},
+"難": {
+"nghia": "Khó khăn (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Khó khăn",
+"vi_du": []
+}
+]
+},
+"響": {
+"nghia": "Vang dội (dạng tương thích)",
+"cach_dung": [
+{
+"y_nghia": "Vang dội",
+"vi_du": []
+}
+]
+},
+"𠮟": {
+"nghia": "Mắng (dị thể của 叱)",
+"cach_dung": [
+{
+"y_nghia": "Mắng",
+"vi_du": [
+{
+"tu": "𠮟る",
+"doc": "しかる",
+"nghia": "mắng"
+},
+{
+"tu": "𠮟責",
+"doc": "しっせき",
+"nghia": "khiển trách"
+},
+{
+"tu": "𠮟咤",
+"doc": "しった",
+"nghia": "quát mắng; thúc giục"
+}
+]
+},
+{
+"y_nghia": "Suỵt",
+"vi_du": [
+{
+"tu": "𠮟",
+"doc": "しっ",
+"nghia": "suỵt!"
+}
+]
+}
+]
+}
+}
