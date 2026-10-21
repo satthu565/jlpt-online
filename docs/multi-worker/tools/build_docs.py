@@ -721,32 +721,45 @@ task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05',
  'pnpm check:no-mock-ui',resources='staging-deploy',kind='verification')
 
 # Owner 2026-10-21: P06 found Hán Việt readings wrong for multi-reading kanji and /tu-vung empty. Two follow-up tasks.
-task('H01','W5',11,5,'Sửa dữ liệu âm Hán Việt: âm chuẩn cho Kanji thường dụng và ngoại lệ theo từ','',
- 'HIỆN TRẠNG: packages/content-tools/src/nlp/hanviet-data.json có 19.403 chữ, MỖI CHỮ MỘT ÂM, dựng từ tools/import-data/data/unihan-hanviet-seed.json (không rõ nguồn; khác Unihan gốc ở 1.371 chữ). '
- 'Trường kVietnamese của Unihan lẫn cả âm Nôm (予 = "nhừ"), nên không dùng làm nguồn âm Hán Việt chuẩn. '
- 'getHanVietForWord (packages/content-tools/src/nlp/hanviet.ts) ghép âm từng chữ nên sai khoảng 15% từ JLPT thông dụng: '
- '予約 ra DƯ YÊU (đúng DỰ ƯỚC), 約束 ra YÊU THÚC (ƯỚC THÚC), 重要 ra TRÙNG YÊU (TRỌNG YẾU), 必要 ra TẤT YÊU (TẤT YẾU), 番号 ra PHAN HIỆU (PHIÊN HIỆU), '
- '音楽 ra ÂM LẠC (ÂM NHẠC), 部長/社長 ra BỘ/XÃ TRƯỜNG (TRƯỞNG). '
- 'VIỆC CẦN LÀM: '
- '(1) Tạo tools/import-data/data/hanviet-curated.tsv: mỗi dòng "kanji<TAB>âm chính<TAB>các âm khác (cách nhau bằng dấu phẩy, có thể trống)", '
- 'phủ TOÀN BỘ 2.136 chữ Jōyō (lấy danh sách từ KANJIDIC2: chữ có grade 1–8; bảng kanji_entries trên preview đã nạp sẵn). '
- 'Âm chính là âm Hán Việt thông dụng nhất khi chữ đó đứng trong từ Hán–Nhật (ví dụ 予 DỰ, 約 ƯỚC, 要 YẾU, 番 PHIÊN, 長 TRƯỜNG, 重 TRỌNG, 楽 LẠC, 行 HÀNH). '
- 'Chữ thường viết HOA có dấu, chuẩn hóa NFC, dấu đặt theo kiểu cũ thống nhất trong cả file (ví dụ HOÀ hoặc HÒA, chọn một). '
- '(2) Tạo tools/import-data/data/hanviet-word-overrides.tsv: "từ<TAB>âm cả từ" cho từ mà chữ đổi âm theo nghĩa, tối thiểu 300 từ JLPT N5–N1, '
- 'gồm các cặp như 重要 TRỌNG YẾU / 重複 TRÙNG PHỨC; 音楽 ÂM NHẠC / 楽園 LẠC VIÊN; 社長 XÃ TRƯỞNG / 長期 TRƯỜNG KỲ; 銀行 NGÂN HÀNG / 旅行 LỮ HÀNH; 番号 PHIÊN HIỆU. '
- '(3) Sửa tools/import-data/bin/import-hanviet.js: ưu tiên âm chính trong hanviet-curated.tsv, chỉ dùng dữ liệu cũ cho chữ ngoài danh sách Jōyō; '
- 'sinh lại hanviet-data.json/hanviet-data.ts; chạy lại cho kết quả giống hệt; in số chữ Jōyō còn thiếu âm (phải bằng 0). '
- '(4) Sửa getHanVietForWord: tra hanviet-word-overrides theo cả từ trước (khớp nguyên từ, rồi khớp phần Kanji liền nhau của từ, ví dụ 楽しい dùng âm của 楽), sau đó mới ghép âm chính từng chữ. getHanVietForKanji trả âm chính. '
- '(5) KHÔNG đoán: chữ nào không chắc âm thì ghi vào docs/decisions/H01-hanviet-data.md mục "cần chủ dự án xác nhận" thay vì tự đặt. '
- 'Không đổi API hay kiểu dữ liệu: các nơi đang dùng (tra từ, /dictionary/hanviet, sổ tay, flashcard, quiz, danh sách ôn tập) tự nhận âm mới.',
- 'tools/import-data/|packages/content-tools/|apps/api/src/modules/vocab/|apps/api/src/modules/learning/|docs/decisions/',
- 'hanviet-curated.tsv phủ đủ 2.136 chữ Jōyō, script báo 0 chữ thiếu, chạy lại không đổi kết quả|'
- 'Test bộ từ chuẩn (packages/content-tools/tests/hanviet-golden.test.ts) gồm ít nhất 200 từ JLPT N5–N1 đạt 100%, trong đó có đúng các ví dụ: '
- '予約 DỰ ƯỚC, 約束 ƯỚC THÚC, 重要 TRỌNG YẾU, 重複 TRÙNG PHỨC, 必要 TẤT YẾU, 番号 PHIÊN HIỆU, 音楽 ÂM NHẠC, 楽園 LẠC VIÊN, 社長 XÃ TRƯỞNG, 部長 BỘ TRƯỞNG, 長期 TRƯỜNG KỲ, 銀行 NGÂN HÀNG, 旅行 LỮ HÀNH, 学生 HỌC SINH, 経済 KINH TẾ, 勉強 MIỄN CƯỜNG|'
- 'GET /api/v1/dictionary/hanviet?text=予約 trả DỰ ƯỚC và từng chữ 予 DỰ, 約 ƯỚC; tra từ /dictionary/lookup trả hanViet mới|'
- 'docs/decisions/H01-hanviet-data.md ghi nguồn, quy tắc chọn âm chính, cách thêm ngoại lệ theo từ và danh sách chữ cần xác nhận (nếu có)',
- 'pnpm test:import-validation|pnpm --filter @jlpt/content-tools test|pnpm test:vocab-data|pnpm test:learning:all',contracts='API')
-task('H02','W3',11,4,'Trang /tu-vung: tra từ trong từ điển JMdict, hiện cách đọc, nghĩa và âm Hán Việt','',
+task('H01','W5',11,8,'Âm Hán Việt theo từng từ vựng: bảng chữ + âm On, ngoại lệ theo nghĩa, độ tin cậy, lưu cho mọi mục từ điển','',
+ 'MỤC TIÊU: mỗi từ vựng có âm Hán Việt đúng theo nghĩa của từ, kèm độ tin cậy; từ chưa chắc thì đánh dấu để người duyệt (H03) thay vì hiện âm sai. '
+ 'HIỆN TRẠNG: packages/content-tools/src/nlp/hanviet-data.json lưu MỘT âm cho mỗi chữ (19.403 chữ, nguồn không đáng tin: kVietnamese của Unihan lẫn âm Nôm, 予 = "nhừ"); '
+ 'getHanVietForWord ghép âm từng chữ nên sai khoảng 15% từ JLPT: 予約 ra DƯ YÊU (đúng DỰ ƯỚC), 要約 ra YÊU YÊU (YẾU ƯỚC), 重要 ra TRÙNG YÊU (TRỌNG YẾU), 必要 ra TẤT YÊU (TẤT YẾU), '
+ '番号 ra PHAN HIỆU (PHIÊN HIỆU), 音楽 ra ÂM LẠC (ÂM NHẠC), 社長 ra XÃ TRƯỜNG (XÃ TRƯỞNG). '
+ 'Từ điển JMdict + KANJIDIC2 đã nạp (bảng lexical_entries, entry_readings, kanji_entries; script apps/api/scripts/lexicon/). kanji_entries.onyomi có âm On (katakana) của từng chữ. '
+ 'LỚP 1 - BẢNG CHỮ + ÂM ON: tạo tools/import-data/data/hanviet-onyomi.tsv, mỗi dòng "kanji<TAB>âm On (katakana)<TAB>âm Hán Việt<TAB>ghi chú", '
+ 'phủ mọi âm On trong KANJIDIC2 của TOÀN BỘ 2.136 chữ Jōyō (grade 1-8). Âm Hán Việt viết HOA có dấu, NFC, một kiểu đặt dấu thống nhất. '
+ 'Ví dụ đúng: 楽 ガク NHẠC / 楽 ラク LẠC; 易 エキ DỊCH / 易 イ DỊ; 悪 アク ÁC / 悪 オ Ố; 説 セツ THUYẾT / 説 ゼイ THUẾ; 要 ヨウ YẾU; 約 ヤク ƯỚC; 予 ヨ DỰ; 番 バン PHIÊN. '
+ 'Thêm tools/import-data/data/hanviet-primary.tsv (một âm chính cho mỗi chữ) dùng khi không xác định được âm On (từ đọc âm Kun, chữ ngoài danh sách). '
+ 'LỚP 2 - NGOẠI LỆ THEO NGHĨA: tools/import-data/data/hanviet-word-overrides.tsv "từ<TAB>âm cả từ<TAB>lý do", tối thiểu 300 từ JLPT N5-N1 mà cùng âm On nhưng tiếng Việt đổi âm theo nghĩa, '
+ 'ví dụ 長 チョウ: 社長 XÃ TRƯỞNG / 長期 TRƯỜNG KỲ; 行 コウ: 銀行 NGÂN HÀNG / 旅行 LỮ HÀNH; 重 チョウ: 重複 TRÙNG PHỨC / 貴重 QUÝ TRỌNG. '
+ 'Lập danh sách chữ "đổi âm theo nghĩa" (長, 行, 重, ...) trong docs/decisions/H01-hanviet-word-level.md. '
+ 'LỚP 3 - THUẬT TOÁN VÀ ĐỘ TIN CẬY: thêm vào packages/content-tools hàm computeHanViet(term, reading) trả '
+ '{ hanViet, perKanji: [{ kanji, onyomi, hanViet }], confidence: "high" | "review" | "kun", source: "override" | "rule" }. '
+ 'Thứ tự: (a) có trong ngoại lệ thì dùng, confidence high, source override; '
+ '(b) đổi reading hiragana sang katakana, tách theo từng chữ bằng cách thử các âm On của chữ đó, chấp nhận biến âm (đục hóa ハ->バ/パ, カ->ガ...; âm ngắt ク/キ/チ/ツ->ッ), kana trong từ (okurigana) đi qua nguyên; '
+ 'tách được hết bằng âm On thì ghép Hán Việt theo bảng lớp 1; nếu có chữ thuộc danh sách "đổi âm theo nghĩa" mà từ không nằm trong ngoại lệ thì confidence review, ngược lại high; '
+ '(c) không tách được bằng âm On (đọc âm Kun như 山 やま, 食べる) thì ghép âm chính của chữ, confidence kun (hiển thị là "âm của chữ", không phải từ Hán Việt). '
+ 'Không đoán: chữ không có trong bảng thì để trống và confidence review. '
+ 'LƯU CHO MỌI MỤC TỪ ĐIỂN: migration thêm vào lexical_entries các cột han_viet, han_viet_confidence, han_viet_source (rule | override | manual), han_viet_updated_at; '
+ 'script apps/api/scripts/lexicon/backfill-hanviet.mjs tính cho toàn bộ mục (dùng reading chính), KHÔNG ghi đè dòng có source manual, chạy lại không đổi kết quả, in thống kê số mục high/review/kun; '
+ 'script nạp từ điển (import-lexicon.mjs) tính Hán Việt cho mục mới. '
+ 'API: GET /dictionary/lookup trả thêm hanVietConfidence và hanVietPerKanji (giữ trường hanViet); GET /dictionary/hanviet nhận thêm tham số reading tùy chọn; '
+ 'getHanVietForWord(term) dùng giá trị đã lưu của mục từ điển khớp từ nếu có (sổ tay, flashcard, quiz, danh sách ôn tập tự nhận âm mới), không có thì tính theo lớp 1-3. '
+ 'API CHO DUYỆT (H02, H03 dùng): GET /admin/lexicon/hanviet?confidence=review|kun|high&q=&page= (editor, reviewer, admin) trả mục từ kèm reading, nghĩa đầu, hanViet, confidence, source, perKanji, số báo sai; '
+ 'PATCH /admin/lexicon/:id/hanviet { hanViet } đặt source manual, confidence high, ghi audit log; '
+ 'POST /dictionary/hanviet-reports { entry, reading?, suggestion?, note? } (học viên đã đăng nhập, giới hạn tần suất) chuyển mục sang confidence review và lưu báo cáo cho H03.',
+ 'tools/import-data/|packages/content-tools/|apps/api/src/modules/vocab/|apps/api/src/modules/learning/|apps/api/scripts/lexicon/|docs/decisions/',
+ 'hanviet-onyomi.tsv phủ mọi âm On của 2.136 chữ Jōyō; script kiểm tra báo 0 chữ thiếu|'
+ 'Bộ từ chuẩn packages/content-tools/tests/hanviet-golden.test.ts (từ + reading + âm đúng) gồm ít nhất 200 từ JLPT N5-N1 đạt 100%, trong đó có: '
+ '予約 DỰ ƯỚC, 要約 YẾU ƯỚC, 約束 ƯỚC THÚC, 重要 TRỌNG YẾU, 重複 TRÙNG PHỨC, 貴重 QUÝ TRỌNG, 必要 TẤT YẾU, 番号 PHIÊN HIỆU, 音楽 ÂM NHẠC, 楽園 LẠC VIÊN, 貿易 MẬU DỊCH, 容易 DUNG DỊ, '
+ '社長 XÃ TRƯỞNG, 部長 BỘ TRƯỞNG, 長期 TRƯỜNG KỲ, 銀行 NGÂN HÀNG, 旅行 LỮ HÀNH, 学生 HỌC SINH, 経済 KINH TẾ, 勉強 MIỄN CƯỜNG|'
+ 'Test thuật toán: 楽しい và 山 cho confidence kun; từ có chữ đổi âm theo nghĩa không có trong ngoại lệ cho review; biến âm (学校 がっこう, 一本 いっぽん) tách đúng|'
+ 'Backfill trên DB có JMdict: mọi mục có han_viet hoặc confidence review, dòng manual giữ nguyên; thống kê high/review/kun ghi trong docs/decisions/H01-hanviet-word-level.md|'
+ 'GET /dictionary/lookup?text=要約 trả hanViet YẾU ƯỚC, hanVietConfidence high, perKanji 要 ヨウ YẾU, 約 ヤク ƯỚC|PATCH admin đổi âm thì lookup trả âm mới; nạp lại từ điển không ghi đè|'
+ 'POST báo sai cần đăng nhập, chuyển mục sang review, có giới hạn tần suất',
+ 'pnpm test:import-validation|pnpm --filter @jlpt/content-tools test|pnpm test:vocab-data|pnpm test:learning:all',contracts='API DB',grants='apps/api/src/db/ apps/api/scripts/lexicon/')
+task('H02','W3',11,4,'Trang /tu-vung: tra từ trong từ điển JMdict, hiện cách đọc, nghĩa và âm Hán Việt','H01',
  'HIỆN TRẠNG: /tu-vung (apps/web/features/corpus/components/vocab-explorer.tsx) chỉ lọc tại chỗ bộ ngữ liệu jlpt-official, bộ này đang có 0 từ nên trang TRỐNG. '
  'Từ điển JMdict + KANJIDIC2 (22.647 mục thông dụng) đã nạp vào DB; API GET /api/v1/dictionary/lookup?text=<từ> trả MỘT mục: entry, readings[], meanings[] (tiếng Anh), partOfSpeech, hanViet, license, attribution; '
  'tra được theo mặt chữ (予約) hoặc theo cách đọc kana (よやく); không có thì 404. corpus-client.lookupDictionary(query) đã gửi đúng tham số text. '
@@ -754,19 +767,32 @@ task('H02','W3',11,4,'Trang /tu-vung: tra từ trong từ điển JMdict, hiện
  '(1) Thêm khu "Tra từ điển" ở đầu /tu-vung: ô nhập (Input của @jlpt/ui) + nút Tra; tra khi bấm Enter/nút (không tra mỗi phím gõ). '
  '(2) Thẻ kết quả (Card của @jlpt/ui) hiện: từ (cỡ lớn, font Nhật), các cách đọc, nhãn âm Hán Việt (data-testid="dictionary-hanviet"), từ loại, danh sách nghĩa có tiêu đề "Nghĩa tiếng Anh (JMdict)", '
  'dòng ghi nguồn "Từ điển JMdict/KANJIDIC2 – EDRDG, CC BY-SA 4.0" có link tới /gioi-thieu#nguon-du-lieu, nút "Lưu vào sổ tay" gọi POST /api/v1/me/notebook-items (learning-client.createNotebookItem) với term, reading, meaning (nghĩa đầu tiên), hanViet; chưa đăng nhập thì nút dẫn tới /dang-nhap. '
+ '(2b) Âm Hán Việt theo H01: confidence high hiện bình thường; review hiện kèm nhãn "Đang chờ xác nhận"; kun hiện là "Âm của chữ:" (không phải từ Hán Việt); có thể mở xem phân tách theo chữ (chữ - âm On - Hán Việt). '
+ '(2c) Nút "Báo sai âm Hán Việt" (học viên đã đăng nhập) mở hộp thoại nhập âm đề xuất và ghi chú, gọi POST /api/v1/dictionary/hanviet-reports, báo đã gửi; chưa đăng nhập thì dẫn tới /dang-nhap. '
  '(3) Trạng thái: chưa tra → gợi ý kèm ví dụ bấm được (学生, 勉強, よやく); đang tra → Skeleton; 404 → "Không tìm thấy từ … trong từ điển"; lỗi mạng/5xx → Alert kèm nút Thử lại. '
  '(4) Danh sách ngữ liệu bên dưới giữ nguyên; khi bộ ngữ liệu trống thì KHÔNG hiện thông báo trống chiếm chỗ, chỉ còn khu tra từ. '
  '(5) Chỉ dùng component @jlpt/ui (giao diện HeroUI), class Tailwind, không style={{}}; không hiện nút đọc TTS (đang ẩn bằng FEATURES.tts); chuỗi giao diện đưa vào messages vi/ja/en. '
  'CI staging KHÔNG nạp JMdict, API dùng từ điển sandbox: E2E phải dùng từ có trong sandbox (学生 → がくせい, HỌC SINH; 学校; 先生).',
  'apps/web/|packages/ui/',
- 'Gõ 学生 rồi Enter: thẻ hiện 学生, がくせい, nhãn HỌC SINH, có nghĩa và dòng ghi nguồn EDRDG|Gõ chuỗi không có trong từ điển: hiện "Không tìm thấy", không lỗi 500|'
+ 'Gõ 学生 rồi Enter: thẻ hiện 学生, がくせい, nhãn HỌC SINH, có nghĩa và dòng ghi nguồn EDRDG|Gõ chuỗi không có trong từ điển: hiện "Không tìm thấy", không lỗi 500|Báo sai âm Hán Việt gửi được khi đã đăng nhập, chưa đăng nhập thì dẫn tới /dang-nhap|'
  'Đã đăng nhập bấm "Lưu vào sổ tay" thì /so-tay có từ đó; chưa đăng nhập thì dẫn tới /dang-nhap|Khi bộ ngữ liệu trống, trang không còn trống: khu tra từ hiện đầu trang|'
  +NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:web|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/')
 
+task('H03','W4',11,4,'Quản trị: màn hình "Duyệt Hán Việt" cho từ vựng','H01',
+ 'Màn hình mới trong admin, mục menu "Duyệt Hán Việt" thuộc nhóm Nội dung, vai trò editor, reviewer, admin. Dùng API của H01: '
+ 'GET /api/v1/admin/lexicon/hanviet (lọc confidence review | kun | high, tìm theo từ hoặc cách đọc, phân trang) và PATCH /api/v1/admin/lexicon/:id/hanviet. '
+ 'Bảng (Table của @jlpt/ui): từ, cách đọc, nghĩa đầu, âm Hán Việt hiện tại, phân tách theo chữ (chữ - âm On - Hán Việt), độ tin cậy (nhãn màu), nguồn (máy tính / ngoại lệ / người sửa), số báo sai từ học viên. '
+ 'Mặc định mở bộ lọc "Cần xem lại" (review), sắp theo số báo sai giảm dần. '
+ 'Sửa: bấm ô Hán Việt để sửa tại chỗ (Input), Lưu gọi PATCH, cập nhật dòng, nhãn nguồn đổi thành "người sửa"; nút "Xác nhận đúng" lưu nguyên âm hiện tại để chuyển sang high. '
+ 'Lỗi API hiện Alert, không mất dữ liệu đang gõ. Dùng component @jlpt/ui, không style={{}}, chuỗi vi/ja/en.',
+ 'apps/admin/',
+ 'Editor lọc "Cần xem lại", sửa 1 từ, lưu; tra từ đó ở /api/v1/dictionary/lookup trả âm mới và nguồn người sửa|"Xác nhận đúng" chuyển mục sang high|Vai trò không có quyền sửa thì nút bị ẩn hoặc lỗi 403 hiển thị rõ|'
+ +NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
+ 'pnpm test:admin|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/')
 # Staging E2E on jlpt-vm (same suite as CI) is a required check for tasks that touch the UI or APIs it uses.
 for _t in TASKS:
-    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','I17','I19','I20','D02','D03','D04','D06','D07','D08','D09','D10','P03','P04','P05','H01','H02'}:
+    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','I17','I19','I20','D02','D03','D04','D06','D07','D08','D09','D10','P03','P04','P05','H01','H02','H03'}:
         _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check')
     # Per-task runs cover Chromium + Mobile Safari; final acceptance runs every browser.
     # The integration E2E suite needs the staging stack and browser deps, so it only runs through
