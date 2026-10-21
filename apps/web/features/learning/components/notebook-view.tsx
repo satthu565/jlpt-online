@@ -16,6 +16,7 @@ import type {
   QuestionExample,
 } from '../types';
 import { useI18n } from '../../../lib/i18n';
+import { FEATURES } from '../../../lib/features';
 
 export interface NotebookViewProps {
   items: NotebookItem[];
@@ -267,7 +268,7 @@ export function NotebookView({
                 </div>
               </div>
 
-              {onPlayTts && (
+              {FEATURES.tts && onPlayTts && (
                 <Button
                   variant="ghost"
                   size="sm"

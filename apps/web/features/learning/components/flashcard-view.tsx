@@ -7,6 +7,7 @@ import { Button } from '@jlpt/ui/components/button';
 import { Badge } from '@jlpt/ui/components/badge';
 import type { DueFlashcard, ReviewRating } from '../types';
 import { useI18n } from '../../../lib/i18n';
+import { FEATURES } from '../../../lib/features';
 
 export interface FlashcardViewProps {
   card: DueFlashcard;
@@ -100,7 +101,7 @@ export function FlashcardView({
               {frontTerm}
             </h2>
 
-            {onPlayTts && frontTerm && (
+            {FEATURES.tts && onPlayTts && frontTerm && (
               <Button
                 variant="ghost"
                 size="sm"

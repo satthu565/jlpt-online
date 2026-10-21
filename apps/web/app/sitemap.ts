@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { examApiClient } from '../features/exam/api/exam-api';
+import { FEATURES } from '../lib/features';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://jlpt.vn';
@@ -27,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/lien-he',
     '/ho-tro',
     '/dieu-khoan',
-    '/chinh-sach',
+    ...(FEATURES.privacyPolicyPage ? ['/chinh-sach'] : []),
   ];
 
   const entries: MetadataRoute.Sitemap = staticRoutes.map((route) => ({

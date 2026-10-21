@@ -62,8 +62,13 @@ export const ALL_WEB_PAGES = [
   { path: '/tai-khoan', slug: 'tai-khoan', name: 'Tài khoản & bảo mật' },
   { path: '/lich-su', slug: 'lich-su', name: 'Lịch sử làm bài' },
   { path: '/gioi-thieu', slug: 'gioi-thieu', name: 'Giới thiệu nền tảng' },
-  { path: '/chinh-sach', slug: 'chinh-sach', name: 'Chính sách dịch vụ' },
-  { path: '/chinh-sach-bao-mat', slug: 'chinh-sach-bao-mat', name: 'Chính sách bảo mật' },
+  // Privacy policy pages are hidden unless NEXT_PUBLIC_FEATURE_PRIVACY_POLICY=1 (apps/web/lib/features.ts).
+  ...(process.env.NEXT_PUBLIC_FEATURE_PRIVACY_POLICY === '1'
+    ? [
+        { path: '/chinh-sach', slug: 'chinh-sach', name: 'Chính sách dịch vụ' },
+        { path: '/chinh-sach-bao-mat', slug: 'chinh-sach-bao-mat', name: 'Chính sách bảo mật' },
+      ]
+    : []),
   { path: '/dieu-khoan', slug: 'dieu-khoan', name: 'Điều khoản sử dụng' },
   { path: '/faq', slug: 'faq', name: 'Câu hỏi thường gặp' },
   { path: '/ho-tro', slug: 'ho-tro', name: 'Trung tâm hỗ trợ' },

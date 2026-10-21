@@ -12,6 +12,7 @@ import { Spinner } from '@jlpt/ui/components/spinner';
 import { CorpusClient } from '../services/corpus-client';
 import type { VocabTermDto } from '../types';
 import { useI18n } from '../../../lib/i18n';
+import { FEATURES } from '../../../lib/features';
 
 export interface VocabExplorerProps {
   initialLevel?: string;
@@ -257,7 +258,8 @@ export function VocabExplorer({
 
             {/* Bottom Actions: TTS & Add to Notebook */}
             <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-              <TTSAudioPlayer
+              {FEATURES.tts && (
+                <TTSAudioPlayer
                 text={item.term}
                 voice="ja-JP-Standard-A"
                 status="SANDBOX"
@@ -271,6 +273,7 @@ export function VocabExplorer({
                   errorNotice: t('seo.tts.errorNotice'),
                 }}
               />
+              )}
 
               <Button
                 type="button"

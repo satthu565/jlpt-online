@@ -13,7 +13,8 @@ import FaqPage from '../app/(info)/faq/page';
 import ContactPage from '../app/(info)/lien-he/page';
 import SupportCenterPage from '../app/(info)/ho-tro/page';
 import TermsOfServicePage from '../app/(info)/dieu-khoan/page';
-import PrivacyPolicyPage from '../app/(info)/chinh-sach/page';
+import { PrivacyPolicyContent } from '../app/(info)/chinh-sach/privacy-policy-content';
+import { FEATURES } from '../lib/features';
 import AboutPage from '../app/(info)/gioi-thieu/page';
 import ShareResultPage from '../app/(share)/chia-se/ket-qua/[id]/page';
 
@@ -244,7 +245,8 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
       expect(urls).toContain('https://jlpt.vn/faq');
       expect(urls).toContain('https://jlpt.vn/lien-he');
       expect(urls).toContain('https://jlpt.vn/dieu-khoan');
-      expect(urls).toContain('https://jlpt.vn/chinh-sach');
+      // Hidden in this release phase unless NEXT_PUBLIC_FEATURE_PRIVACY_POLICY=1.
+      expect(urls.includes('https://jlpt.vn/chinh-sach')).toBe(FEATURES.privacyPolicyPage);
 
       // Verify hreflang alternates (vi, ja, en)
       const homeEntry = entries.find((e) => e.url === 'https://jlpt.vn');
@@ -338,7 +340,7 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
     });
 
     it('renders Privacy Policy with cookie consent disclosures', () => {
-      const html = renderClean(<PrivacyPolicyPage />);
+      const html = renderClean(<PrivacyPolicyContent />);
       expect(html).toContain('Chính sách Quyền riêng tư &amp; Bảo vệ Dữ liệu Học viên');
       expect(html).toContain('Chính sách Cookie &amp; Quyền từ chối');
       expect(html).toContain('GDPR / APPI');

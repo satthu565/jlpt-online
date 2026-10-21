@@ -20,6 +20,13 @@ RUN mkdir -p /app/apps/web/public
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 ARG NEXT_PUBLIC_API_URL=/api/v1
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+# Features hidden in this release phase (apps/web/lib/features.ts); build with =1 to show one again.
+ARG NEXT_PUBLIC_FEATURE_PRIVACY_POLICY=0
+ARG NEXT_PUBLIC_FEATURE_TTS=0
+ARG NEXT_PUBLIC_FEATURE_AI_EXPLANATION=0
+ENV NEXT_PUBLIC_FEATURE_PRIVACY_POLICY=$NEXT_PUBLIC_FEATURE_PRIVACY_POLICY
+ENV NEXT_PUBLIC_FEATURE_TTS=$NEXT_PUBLIC_FEATURE_TTS
+ENV NEXT_PUBLIC_FEATURE_AI_EXPLANATION=$NEXT_PUBLIC_FEATURE_AI_EXPLANATION
 RUN pnpm --filter @jlpt/schema build && pnpm --filter "./packages/*" build && pnpm --filter @jlpt/web build
 
 FROM base AS runner
