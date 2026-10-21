@@ -4100,6 +4100,62 @@ test.describe('Real Han Viet Review Admin Flow Suite (H03)', () => {
     await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 20000 });
   }
 
+  async function ensureReviewEntry(
+    page: Page,
+    origin: string,
+    term: string,
+    reading: string,
+    meaning: string,
+    initialHanViet: string,
+    clientIp: string,
+  ) {
+    const headers = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+    // 1. Create or ensure vocab entry exists in lexical_entries
+    const createRes = await page.request.post(`${origin}/api/v1/admin/vocab`, {
+      headers,
+      data: {
+        word: term,
+        reading,
+        meaningVi: meaning,
+        level: 'N2',
+        partOfSpeech: 'Danh từ',
+      },
+    });
+    let entryId: string | null = null;
+    if (createRes.ok()) {
+      const json = await createRes.json();
+      entryId = json.id;
+    }
+    if (!entryId) {
+      const listRes = await page.request.get(
+        `${origin}/api/v1/admin/lexicon/hanviet?q=${encodeURIComponent(term)}`,
+        { headers },
+      );
+      if (listRes.ok()) {
+        const listJson = await listRes.json();
+        const found = listJson.items?.find((it: { term: string }) => it.term === term);
+        if (found) entryId = found.id;
+      }
+    }
+    // 2. Set initial Han Viet if entry was found
+    if (entryId) {
+      await page.request.patch(`${origin}/api/v1/admin/lexicon/${entryId}/hanviet`, {
+        headers,
+        data: { hanViet: initialHanViet },
+      });
+    }
+    // 3. Report Han Viet so that it has confidence 'review' and reportCount >= 1
+    await page.request.post(`${origin}/api/v1/dictionary/hanviet-reports`, {
+      headers,
+      data: {
+        entry: term,
+        reading,
+        suggestion: initialHanViet,
+        note: 'Yêu cầu kiểm duyệt H03',
+      },
+    });
+  }
+
   test('H03-AC1: Editor lọc "Cần xem lại", sửa 1 từ, lưu; tra từ đó ở /api/v1/dictionary/lookup trả âm mới và nguồn người sửa', async ({
     page,
     request,
@@ -4113,6 +4169,13 @@ test.describe('Real Han Viet Review Admin Flow Suite (H03)', () => {
     // 1. Editor logs in
     await loginAsStaffH03(page, adminOrigin, SEEDED_STAFF_ACCOUNTS.editor);
 
+    // Ensure review entry exists for testing
+    const testTerm = '予約';
+    const testReading = 'よやく';
+    const testMeaning = 'Đặt chỗ, đặt trước';
+    const initialHanViet = 'DỰ ƯỚC';
+    await ensureReviewEntry(page, adminOrigin, testTerm, testReading, testMeaning, initialHanViet, clientIp);
+
     // 2. Navigate to Han Viet review page
     await page.goto(`${adminOrigin}/lexicon/hanviet`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-testid="page-title"], h1').first()).toBeVisible({ timeout: 20000 });
@@ -4121,49 +4184,50 @@ test.describe('Real Han Viet Review Admin Flow Suite (H03)', () => {
     const confidenceSelect = page.locator('[data-testid="hanviet-confidence"]');
     await expect(confidenceSelect).toHaveValue('review');
 
+    // Filter by searching for testTerm
+    const searchInput = page.locator('[data-testid="hanviet-search"]');
+    await searchInput.fill(testTerm);
+    await page.locator('[data-testid="hanviet-search-btn"]').click();
+
     // Wait for table to load
     await expect(page.locator('[data-testid="hanviet-loading"]')).not.toBeVisible({ timeout: 20000 });
     const table = page.locator('[data-testid="hanviet-table"]');
     await expect(table).toBeVisible({ timeout: 15000 });
 
-    // Pick first entry
-    const firstRow = page.locator('[data-testid="hanviet-row"]').first();
-    await expect(firstRow).toBeVisible({ timeout: 15000 });
-
-    const termCell = firstRow.locator('[data-testid^="cell-term-"]');
-    const term = (await termCell.innerText()).trim();
-    expect(term.length).toBeGreaterThan(0);
+    // Locate the row for testTerm
+    const targetRow = page.locator('[data-testid="hanviet-row"]', { hasText: testTerm }).first();
+    await expect(targetRow).toBeVisible({ timeout: 15000 });
 
     // Click edit button
-    const editBtn = firstRow.locator('[data-testid^="btn-edit-"]');
+    const editBtn = targetRow.locator('[data-testid^="btn-edit-"]');
     await editBtn.click();
 
     // Input appears
-    const input = firstRow.locator('[data-testid^="input-hanviet-"]');
+    const input = targetRow.locator('[data-testid^="input-hanviet-"]');
     await expect(input).toBeVisible({ timeout: 5000 });
 
     // Modify Han Viet value to a specific uppercase phrase
-    const updatedHanViet = 'HÁN VIỆT ĐÃ SỬA';
+    const updatedHanViet = 'DỰ ƯỚC ĐÃ SỬA';
     await input.fill(updatedHanViet);
 
     // Click Save
-    const saveBtn = firstRow.locator('[data-testid^="btn-save-"]');
+    const saveBtn = targetRow.locator('[data-testid^="btn-save-"]');
     await saveBtn.click();
 
     // Verify success banner or row updated
-    const hanvietCell = firstRow.locator('[data-testid^="cell-hanviet-"]');
+    const hanvietCell = targetRow.locator('[data-testid^="cell-hanviet-"]');
     await expect(hanvietCell).toContainText(updatedHanViet, { timeout: 10000 });
 
     // Verify confidence badge is high and source badge is manual
-    const confCell = firstRow.locator('[data-testid^="cell-confidence-"]');
+    const confCell = targetRow.locator('[data-testid^="cell-confidence-"]');
     await expect(confCell).toContainText(/Độ tin cậy cao|High Confidence|高信頼度/i);
 
-    const srcCell = firstRow.locator('[data-testid^="cell-source-"]');
+    const srcCell = targetRow.locator('[data-testid^="cell-source-"]');
     await expect(srcCell).toContainText(/Người sửa|Manual edit|手動修正/i);
 
     // 3. Query dictionary lookup via public web API
     const lookupRes = await request.get(
-      `${webOrigin}/api/v1/dictionary/lookup?text=${encodeURIComponent(term)}`,
+      `${webOrigin}/api/v1/dictionary/lookup?text=${encodeURIComponent(testTerm)}`,
       { headers: ipHeaders, timeout: 15000 },
     );
     expect(lookupRes.status()).toBe(200);
@@ -4182,22 +4246,35 @@ test.describe('Real Han Viet Review Admin Flow Suite (H03)', () => {
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
     await loginAsStaffH03(page, adminOrigin, SEEDED_STAFF_ACCOUNTS.editor);
+
+    // Ensure review entry exists for testing
+    const testTerm = '契約';
+    const testReading = 'けいやく';
+    const testMeaning = 'Hợp đồng, khế ước';
+    const initialHanViet = 'KHẾ ƯỚC';
+    await ensureReviewEntry(page, adminOrigin, testTerm, testReading, testMeaning, initialHanViet, clientIp);
+
     await page.goto(`${adminOrigin}/lexicon/hanviet`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-testid="page-title"]').first()).toBeVisible({ timeout: 20000 });
 
+    // Filter by searching for testTerm
+    const searchInput = page.locator('[data-testid="hanviet-search"]');
+    await searchInput.fill(testTerm);
+    await page.locator('[data-testid="hanviet-search-btn"]').click();
+
     await expect(page.locator('[data-testid="hanviet-loading"]')).not.toBeVisible({ timeout: 20000 });
-    const firstRow = page.locator('[data-testid="hanviet-row"]').first();
-    await expect(firstRow).toBeVisible({ timeout: 15000 });
+    const targetRow = page.locator('[data-testid="hanviet-row"]', { hasText: testTerm }).first();
+    await expect(targetRow).toBeVisible({ timeout: 15000 });
 
     // Click "Xác nhận đúng"
-    const confirmBtn = firstRow.locator('[data-testid^="btn-confirm-"]');
+    const confirmBtn = targetRow.locator('[data-testid^="btn-confirm-"]');
     await expect(confirmBtn).toBeVisible({ timeout: 5000 });
     await confirmBtn.click();
 
     // Verify row confidence promoted to high and source to manual
-    const confCell = firstRow.locator('[data-testid^="cell-confidence-"]');
+    const confCell = targetRow.locator('[data-testid^="cell-confidence-"]');
     await expect(confCell).toContainText(/Độ tin cậy cao|High Confidence|高信頼度/i, { timeout: 10000 });
-    const srcCell = firstRow.locator('[data-testid^="cell-source-"]');
+    const srcCell = targetRow.locator('[data-testid^="cell-source-"]');
     await expect(srcCell).toContainText(/Người sửa|Manual edit|手動修正/i);
   });
 
