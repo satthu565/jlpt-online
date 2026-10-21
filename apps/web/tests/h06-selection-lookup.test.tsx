@@ -13,12 +13,18 @@ import type { DictionaryEntryDetailDto } from '../features/corpus/types';
 import { I18nProvider } from '../lib/i18n';
 import viMessages from '../messages/vi.json';
 
+// Dấu comment React chèn khi render (ngăn cách text, Suspense); bỏ đúng các chuỗi này thay vì lọc HTML bằng regex.
+const REACT_MARKERS = ['<!-- -->', '<!--$-->', '<!--/$-->', '<!--$?-->', '<!--$!-->'];
+
 const renderClean = (element: React.JSX.Element): string =>
-  renderToString(
-    <I18nProvider initialLocale="vi" messages={viMessages}>
-      {element}
-    </I18nProvider>,
-  ).replace(/<!--.*?-->/g, '');
+  REACT_MARKERS.reduce(
+    (html, marker) => html.split(marker).join(''),
+    renderToString(
+      <I18nProvider initialLocale="vi" messages={viMessages}>
+        {element}
+      </I18nProvider>,
+    ),
+  );
 
 const mockDomRect = {
   width: 50,
