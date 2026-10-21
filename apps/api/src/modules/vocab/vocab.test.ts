@@ -753,4 +753,158 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       expect(gaku).toMatchObject({ hanViet: 'ÂM NHẠC', confidence: 'high' });
     });
   });
+
+  describe('H05: API từ điển cho tra nhanh khi bôi đen và trang chi tiết từ vựng', () => {
+    it('Acceptance 1: lookup 食べた trả entry 食べる, lemma 食べる, posLabels có Động từ', async () => {
+      const res = await vocabController.lookupDictionary({ text: '食べた' });
+      expect(res.entry).toBe('食べる');
+      expect(res.lemma).toBe('食べる');
+      expect(res.matchedText).toBe('食べた');
+      expect(res.posLabels).toContain('Động từ');
+    });
+
+    it('Acceptance 2: lookup 高かった trả 高い, posLabels có Tính từ đuôi い; lookup 静か trả posLabels có Tính từ đuôi な; lookup 予約 trả Danh từ và Danh động từ', async () => {
+      // 1. 高かった -> 高い, Tính từ đuôi い
+      const takai = await vocabController.lookupDictionary({ text: '高かった' });
+      expect(takai.entry).toBe('高い');
+      expect(takai.lemma).toBe('高い');
+      expect(takai.posLabels).toContain('Tính từ đuôi い');
+
+      // 2. 静か -> Tính từ đuôi な
+      const shizuka = await vocabController.lookupDictionary({ text: '静か' });
+      expect(shizuka.entry).toBe('静か');
+      expect(shizuka.posLabels).toContain('Tính từ đuôi な');
+
+      // 3. 予約 -> Danh từ và Danh động từ
+      const yoyaku = await vocabController.lookupDictionary({ text: '予約' });
+      expect(yoyaku.entry).toBe('予約');
+      expect(yoyaku.posLabels).toContain('Danh từ');
+      expect(yoyaku.posLabels?.some((p) => p.includes('Danh động từ'))).toBe(true);
+    });
+
+    it('Acceptance 3: Bôi đen dư okurigana (予約す) vẫn khớp 予約 và matchedText là 予約', async () => {
+      const res = await vocabController.lookupDictionary({ text: '予約す' });
+      expect(res.entry).toBe('予約');
+      expect(res.matchedText).toBe('予約');
+      expect(res.lemma).toBe('予約');
+      expect(res.posLabels).toContain('Danh từ');
+    });
+
+    it('Acceptance 4: GET /dictionary/entries/要約 trả các nghĩa theo sense, thông tin chữ 要 và 約 từ KANJIDIC2, hanViet của H01; từ không có trả 404', async () => {
+      // First seed 要約 with senses if not present
+      const entryId = generateUuidV7();
+      await dbClient.db.insert(lexicalEntries).values({
+        id: entryId,
+        term: '要約',
+        partOfSpeech: 'n,vs',
+        hanViet: 'YẾU ƯỚC',
+        hanVietConfidence: 'high',
+        hanVietSource: 'override',
+      });
+      await dbClient.db.insert(entryReadings).values({
+        id: generateUuidV7(),
+        entryId,
+        reading: 'ようやく',
+        isPrimary: true,
+      });
+      await dbClient.db.insert(entryMeanings).values([
+        {
+          id: generateUuidV7(),
+          entryId,
+          locale: 'en',
+          meaning: 'summary; digest',
+          senseIndex: 0,
+          pos: 'n,vs',
+        },
+        {
+          id: generateUuidV7(),
+          entryId,
+          locale: 'en',
+          meaning: 'outline',
+          senseIndex: 1,
+          pos: 'n',
+        },
+      ]);
+
+      const res = await vocabController.getEntryDetails('要約');
+      expect(res.entry).toBe('要約');
+      expect(res.readings).toContain('ようやく');
+      expect(res.hanViet).toBe('YẾU ƯỚC');
+      expect(res.hanVietConfidence).toBe('high');
+      expect(res.hanVietPerKanji).toEqual([
+        { kanji: '要', onyomi: 'ヨウ', hanViet: 'YẾU' },
+        { kanji: '約', onyomi: 'ヤク', hanViet: 'ƯỚC' },
+      ]);
+
+      // Verify senses
+      expect(res.senses).toHaveLength(2);
+      expect(res.senses[0]!.index).toBe(0);
+      expect(res.senses[0]!.posLabels).toContain('Danh từ');
+      expect(res.senses[0]!.posLabels?.some((p) => p.includes('Danh động từ'))).toBe(true);
+      expect(res.senses[0]!.meanings).toContain('summary; digest');
+      expect(res.senses[1]!.index).toBe(1);
+      expect(res.senses[1]!.posLabels).toContain('Danh từ');
+
+      // Verify KANJIDIC2 information for 要 and 約
+      expect(res.kanji).toHaveLength(2);
+      const kanjiYou = res.kanji.find((k) => k.kanji === '要');
+      const kanjiYaku = res.kanji.find((k) => k.kanji === '約');
+      expect(kanjiYou).toBeDefined();
+      expect(kanjiYou!.onyomi).toContain('ヨウ');
+      expect(kanjiYou!.strokeCount).toBe(9);
+      expect(kanjiYou!.hanViet).toBe('YẾU');
+      expect(kanjiYou!.meanings.length).toBeGreaterThan(0);
+
+      expect(kanjiYaku).toBeDefined();
+      expect(kanjiYaku!.onyomi).toContain('ヤク');
+      expect(kanjiYaku!.strokeCount).toBe(9);
+      expect(kanjiYaku!.hanViet).toBe('ƯỚC');
+      expect(kanjiYaku!.meanings.length).toBeGreaterThan(0);
+
+      // 404 for unknown word
+      await expect(
+        vocabController.getEntryDetails('存在しない単語xyz'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('Acceptance 5: Chuỗi dài hơn 20 ký tự hoặc không có chữ Nhật trả 400, không bao giờ 500', async () => {
+      // Dài hơn 20 ký tự
+      await expect(
+        vocabController.lookupDictionary({ text: 'これはにじゅうもじをこえるながいテキストです' }), // 22 chars
+      ).rejects.toThrow(BadRequestException);
+
+      // Không có chữ Nhật
+      await expect(
+        vocabController.lookupDictionary({ text: 'englishonlyword' }),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        vocabController.lookupDictionary({ text: '123456789' }),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        vocabController.lookupDictionary({ text: '   ' }),
+      ).rejects.toThrow(BadRequestException);
+
+      // getEntryDetails checks
+      await expect(
+        vocabController.getEntryDetails('toolongwordovertwentycharactershere'),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        vocabController.getEntryDetails('englishword'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('Acceptance 4 (cache & rate limit metadata): Public and RateLimit decorators are configured', () => {
+      const isPublicLookup = Reflect.getMetadata(IS_PUBLIC_KEY, VocabController.prototype.lookupDictionary);
+      expect(isPublicLookup).toBe(true);
+
+      const rateLimitLookup = Reflect.getMetadata(RATE_LIMIT_KEY, VocabController.prototype.lookupDictionary);
+      expect(rateLimitLookup).toMatchObject({ keyPrefix: 'dictionary-lookup', limit: 120, windowSec: 60 });
+
+      const isPublicEntries = Reflect.getMetadata(IS_PUBLIC_KEY, VocabController.prototype.getEntryDetails);
+      expect(isPublicEntries).toBe(true);
+
+      const rateLimitEntries = Reflect.getMetadata(RATE_LIMIT_KEY, VocabController.prototype.getEntryDetails);
+      expect(rateLimitEntries).toMatchObject({ keyPrefix: 'dictionary-entries', limit: 120, windowSec: 60 });
+    });
+  });
 });

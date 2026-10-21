@@ -87,9 +87,17 @@ export class VocabController {
     }
 
   @Public()
+  @RateLimit({ limit: 120, windowSec: 60, keyPrefix: 'dictionary-lookup' })
   @Get('dictionary/lookup')
   async lookupDictionary(@Query() query: DictionaryLookupQueryDto) {
     return this.vocabService.lookupDictionary(query);
+  }
+
+  @Public()
+  @RateLimit({ limit: 120, windowSec: 60, keyPrefix: 'dictionary-entries' })
+  @Get('dictionary/entries/:term')
+  async getEntryDetails(@Param('term') term: string) {
+    return this.vocabService.getEntryDetails(term);
   }
 
   @Public()

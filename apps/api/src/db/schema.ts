@@ -673,6 +673,8 @@ export const entryMeanings = pgTable('entry_meanings', {
   entryId: uuid('entry_id').notNull().references(() => lexicalEntries.id),
   locale: text('locale').notNull().default('vi'),
   meaning: text('meaning').notNull(),
+  senseIndex: integer('sense_index').default(0).notNull(),
+  pos: text('pos'),
 });
 
 export const kanjiEntries = pgTable('kanji_entries', {

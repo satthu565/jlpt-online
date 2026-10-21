@@ -32,6 +32,10 @@ describe('EDRDG parsers', () => {
       readings: ['よやく'],
       pos: ['n', 'vs'],
       meanings: ['reservation; booking', 'appointment & promise'],
+      senses: [
+        { index: 0, pos: 'n,vs', meanings: ['reservation', 'booking'], gloss: 'reservation; booking' },
+        { index: 1, pos: '', meanings: ['appointment & promise'], gloss: 'appointment & promise' },
+      ],
       common: true,
     });
   });
