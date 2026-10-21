@@ -44,7 +44,7 @@ export function SelectionLookupPopover({
     }
   }, [virtualRect]);
 
-  if (!isOpen && status === 'idle') {
+  if (!isOpen) {
     return null;
   }
 

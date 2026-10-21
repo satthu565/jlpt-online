@@ -126,7 +126,7 @@ export function AudioPlayer({
 
   // Synchronize playback position based on timeline (Acceptance 2 & AUDIO-01/04)
   const syncWithTimeline = useCallback(() => {
-    if (!timeline || timeline.length === 0 || isLocked) return;
+    if (!sectionStartedAt || !timeline || timeline.length === 0 || isLocked) return;
 
     const elapsedMs = computeElapsedMs();
     const position = getListeningPlaybackPosition(timeline, elapsedMs);
@@ -184,7 +184,7 @@ export function AudioPlayer({
 
   // Periodic timeline check and mobile device wake-up / visibilitychange resync in real exam mode
   useEffect(() => {
-    if (mode !== 'real' || !timeline || timeline.length === 0 || isLocked) return;
+    if (mode !== 'real' || !sectionStartedAt || !timeline || timeline.length === 0 || isLocked) return;
 
     syncWithTimeline();
     const timer = setInterval(() => {

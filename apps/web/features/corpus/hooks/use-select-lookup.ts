@@ -159,6 +159,18 @@ export function useSelectLookup({
 
   const lastLookupRef = useRef<string>('');
   const activeLookupAbortRef = useRef<(() => void) | null>(null);
+  const enabledRef = useRef<boolean>(enabled);
+
+  useEffect(() => {
+    enabledRef.current = enabled;
+    if (!enabled) {
+      setIsOpen(false);
+      setStatus('idle');
+      if (activeLookupAbortRef.current) {
+        activeLookupAbortRef.current();
+      }
+    }
+  }, [enabled]);
 
   const close = useCallback(() => {
     setIsOpen(false);
@@ -170,6 +182,8 @@ export function useSelectLookup({
   }, [questionIndex]);
 
   const performLookup = useCallback(async (textToLookup: string, rect: DOMRect) => {
+    if (!enabledRef.current) return;
+
     setQueryText(textToLookup);
     setVirtualRect(rect);
     setIsOpen(true);
@@ -184,11 +198,11 @@ export function useSelectLookup({
 
     try {
       const data = await clientRef.current!.lookupDictionary(textToLookup);
-      if (!isSubscribed) return;
+      if (!isSubscribed || !enabledRef.current) return;
       setResult(data);
       setStatus('success');
     } catch (err: unknown) {
-      if (!isSubscribed) return;
+      if (!isSubscribed || !enabledRef.current) return;
       const statusNum = (err as { status?: number })?.status;
       const errMsg = err instanceof Error ? err.message : '';
       if (
@@ -205,7 +219,7 @@ export function useSelectLookup({
   }, []);
 
   const retry = useCallback(() => {
-    if (queryText && virtualRect) {
+    if (queryText && virtualRect && enabledRef.current) {
       performLookup(queryText, virtualRect);
     }
   }, [queryText, virtualRect, performLookup]);
@@ -213,10 +227,16 @@ export function useSelectLookup({
   useEffect(() => {
     if (!enabled || typeof window === 'undefined') return;
 
+    let mouseTimeout: ReturnType<typeof setTimeout> | null = null;
+    let touchTimeout: ReturnType<typeof setTimeout> | null = null;
+
     // Mouse selection handler
     const handleMouseUp = () => {
+      if (!enabledRef.current) return;
+      if (mouseTimeout) clearTimeout(mouseTimeout);
       // Delay slightly so selection object has fully updated in browser
-      setTimeout(() => {
+      mouseTimeout = setTimeout(() => {
+        if (!enabledRef.current) return;
         const selection = window.getSelection();
         if (!selection) return;
         const eligible = getEligibleSelection(selection);
@@ -227,10 +247,11 @@ export function useSelectLookup({
     };
 
     // Touch selection handler with 300ms debounce
-    let touchTimeout: ReturnType<typeof setTimeout> | null = null;
     const handleSelectionChange = () => {
+      if (!enabledRef.current) return;
       if (touchTimeout) clearTimeout(touchTimeout);
       touchTimeout = setTimeout(() => {
+        if (!enabledRef.current) return;
         const selection = window.getSelection();
         if (!selection) return;
         const eligible = getEligibleSelection(selection);
@@ -252,6 +273,7 @@ export function useSelectLookup({
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
+      if (mouseTimeout) clearTimeout(mouseTimeout);
       if (touchTimeout) clearTimeout(touchTimeout);
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('selectionchange', handleSelectionChange);

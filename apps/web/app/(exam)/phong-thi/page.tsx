@@ -155,6 +155,10 @@ export default function ExamRoomPage(): React.JSX.Element {
       const { createExamStorage } = await import('../../../features/exam/storage/indexeddb');
       setStorage(createExamStorage());
       setIsExamStarted(true);
+      if (typeof window !== 'undefined') {
+        const nextUrl = `/phong-thi?attemptId=${encodeURIComponent(attemptId)}&mode=${selectedMode}`;
+        window.history.replaceState(null, '', nextUrl);
+      }
     } catch (err: unknown) {
       const apiErr = err as { status?: number; code?: string; message?: string } | undefined;
       if (apiErr && typeof apiErr === 'object' && apiErr.status) {
@@ -269,6 +273,10 @@ export default function ExamRoomPage(): React.JSX.Element {
       const { createExamStorage } = await import('../../../features/exam/storage/indexeddb');
       setStorage(createExamStorage());
       setIsExamStarted(true);
+      if (typeof window !== 'undefined') {
+        const nextUrl = `/phong-thi?examId=${encodeURIComponent(targetExamId)}&attemptId=${encodeURIComponent(initRes.attemptId)}&mode=${selectedMode}`;
+        window.history.replaceState(null, '', nextUrl);
+      }
     } catch (err: unknown) {
       setErrorInfo({
         message: err instanceof Error ? err.message : 'Có lỗi xảy ra khi bắt đầu làm bài thi.',

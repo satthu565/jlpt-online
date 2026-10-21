@@ -4620,11 +4620,13 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await expect(emailInput).toBeVisible({ timeout: 15000 });
     await emailInput.click();
     await emailInput.fill(studentUser.email);
+    await expect(emailInput).toHaveValue(studentUser.email, { timeout: 5000 });
     await passwordInput.click();
     await passwordInput.fill(studentUser.password);
+    await expect(passwordInput).toHaveValue(studentUser.password, { timeout: 5000 });
     const submitBtn = page.locator('button[type="submit"]').first();
     await expect(submitBtn).toBeVisible({ timeout: 15000 });
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
     await submitBtn.click();
     try {
       await page.waitForURL(/\/tai-khoan/, { timeout: 25000, waitUntil: 'commit' });
@@ -4632,6 +4634,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
       if (page.url().includes('/dang-nhap')) {
         await emailInput.fill(studentUser.email);
         await passwordInput.fill(studentUser.password);
+        await page.waitForTimeout(500);
         await submitBtn.click();
         await page.waitForURL(/\/tai-khoan/, { timeout: 25000, waitUntil: 'commit' });
       }
@@ -4642,6 +4645,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     const modalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
     for (let i = 0; i < 4; i++) {
       await page.goto(`${webOrigin}/phong-thi?examId=demo-n5-1&mode=${mode}`, { waitUntil: 'domcontentloaded' });
+      if (await page.locator('[data-testid="exam-room"]').isVisible({ timeout: 1000 }).catch(() => false)) break;
       if (await modalBtn.isVisible({ timeout: 6000 }).catch(() => false)) break;
       await page.waitForTimeout(2000);
     }
@@ -4661,14 +4665,24 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
 
   async function triggerSelectText(page: Page, textToSelect: string) {
     return page.evaluate((targetText) => {
-      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      const root =
+        document.querySelector('[data-select-lookup-area="true"], .jlpt-question-card, .jlpt-practice-area, .jlpt-review-question-card') ||
+        document.body;
+
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode: (n) => {
+          const p = n.parentElement;
+          if (!p || p.closest('script, style, noscript, [role="toolbar"], .jlpt-exam-toolbar')) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
+
       let node: Text | null = null;
       while ((node = walker.nextNode() as Text | null)) {
         if (node.textContent && node.textContent.includes(targetText)) {
-          const parent = node.parentElement;
-          if (parent && !parent.closest('[role="toolbar"], .jlpt-exam-toolbar')) {
-            break;
-          }
+          break;
         }
       }
       if (!node || !node.textContent) return false;
@@ -4703,8 +4717,10 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     // Jump to Question 24 (which contains "学生は あした 何時に 学校に 来ますか。")
     const q24Btn = page.locator('[data-testid="question-palette"] button, .jlpt-question-palette button').filter({ hasText: /^24$/ }).first();
     await expect(q24Btn).toBeVisible({ timeout: 15000 });
+    await q24Btn.scrollIntoViewIfNeeded();
     await q24Btn.click();
-    await page.waitForTimeout(500);
+    await expect(page.locator('[data-select-lookup-area="true"]')).toContainText('学生', { timeout: 10000 });
+    await page.waitForTimeout(300);
 
     // Select Option 1
     const firstOption = page.locator('[data-testid="exam-room"] [role="radio"]').first();
@@ -4750,6 +4766,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     // Turn switch OFF
     await switchEl.click();
     await expect(switchEl).toHaveAttribute('data-state', 'unchecked');
+    await page.waitForTimeout(300);
 
     // Select text -> popover does not appear
     await triggerSelectText(page, '山');
@@ -4758,6 +4775,10 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
 
     // Reload page -> stays unchecked
     await page.reload({ waitUntil: 'domcontentloaded' });
+    const modalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
+    if (await modalBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
+      await modalBtn.click();
+    }
     await expect(page.locator('[data-testid="exam-room"]')).toBeVisible({ timeout: 20000 });
     const switchAfterReload = page.locator('[data-testid="select-lookup-switch"]');
     await expect(switchAfterReload).toHaveAttribute('data-state', 'unchecked');
@@ -4770,6 +4791,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     // Turn switch back ON
     await switchAfterReload.click();
     await expect(switchAfterReload).toHaveAttribute('data-state', 'checked');
+    await page.waitForTimeout(300);
 
     // Select text -> popover appears
     await triggerSelectText(page, '山');
@@ -4789,8 +4811,10 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     // Jump to Question 24
     const q24Btn = page.locator('[data-testid="question-palette"] button, .jlpt-question-palette button').filter({ hasText: /^24$/ }).first();
     await expect(q24Btn).toBeVisible({ timeout: 15000 });
+    await q24Btn.scrollIntoViewIfNeeded();
     await q24Btn.click();
-    await page.waitForTimeout(500);
+    await expect(page.locator('[data-select-lookup-area="true"]')).toContainText('学生', { timeout: 10000 });
+    await page.waitForTimeout(300);
 
     // Select text "学生"
     await triggerSelectText(page, '学生');
@@ -4808,7 +4832,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
 
     // In original exam room tab: exam room is still open, clock is still ticking
     await expect(page.locator('[data-testid="exam-room"]')).toBeVisible();
-    await expect(page.locator('.jlpt-exam-clock, [data-testid="exam-clock"]').first()).toBeVisible();
+    await expect(page.locator('.jlpt-exam-clock, .jlpt-clock-unlimited, [data-testid="exam-clock"]').first()).toBeVisible();
 
     await newPage.close();
   });
