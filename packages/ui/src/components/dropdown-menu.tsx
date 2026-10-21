@@ -55,7 +55,8 @@ export function DropdownMenu({
 
   return (
     <DropdownMenuContext.Provider value={{ open, setOpen, triggerRef, contentRef }}>
-      {children}
+      {/* Positioning context for the absolutely placed content below the trigger. */}
+      <span className="jlpt-dropdown relative inline-flex">{children}</span>
     </DropdownMenuContext.Provider>
   );
 }
@@ -200,7 +201,11 @@ export const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenu
           ...style,
         }}
         className={cn(
-          'z-50 min-w-[8rem] overflow-hidden rounded-2xl bg-[var(--overlay)] p-1 text-[var(--foreground)] shadow-[var(--overlay-shadow)]',
+          // Drops below the trigger; without position the menu sat in the header's flex row and was
+          // centred vertically, pushing its top above the viewport.
+          'absolute top-full z-50 min-w-[8rem] max-h-[calc(100vh-5rem)] overflow-y-auto rounded-2xl bg-[var(--overlay)] p-1 text-[var(--foreground)] shadow-[var(--overlay-shadow)]',
+          align === 'start' && 'left-0',
+          align === 'center' && 'left-1/2 -translate-x-1/2',
           className,
         )}
         {...props}
