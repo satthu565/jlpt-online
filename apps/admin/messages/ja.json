@@ -45,7 +45,8 @@
       "commercial": "決済・財務",
       "analytics": "分析・レポート",
       "admin": "システム運用管理"
-    }
+    },
+    "lexicon": "辞書"
   },
   "auth": {
     "loginTitle": "スタッフログイン",
@@ -369,5 +370,27 @@
     "deleted": "(非表示のコメント)",
     "done": "通報を更新しました。",
     "refresh": "再読み込み"
+  },
+  "lexicon": {
+    "title": "辞書 (JMdict)",
+    "subtitle": "データベースにある全見出し語",
+    "total": "件数",
+    "searchPlaceholder": "見出し・読み・英語の意味で検索",
+    "search": "検索",
+    "pos": "品詞",
+    "posAll": "すべて",
+    "colTerm": "見出し",
+    "colReading": "読み",
+    "colHanViet": "漢越音",
+    "colPos": "品詞",
+    "colMeaning": "意味（英語）",
+    "empty": "該当なし",
+    "emptyDb": "辞書が未登録です",
+    "error": "読み込みに失敗しました",
+    "retry": "再試行",
+    "prev": "前へ",
+    "next": "次へ",
+    "page": "ページ",
+    "attribution": "出典: JMdict/KANJIDIC2 – EDRDG, CC BY-SA 4.0"
   }
 }
