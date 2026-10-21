@@ -3531,8 +3531,13 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
     { path: '/tai-khoan', slug: 'tai-khoan', name: 'Account Profile' },
     { path: '/lich-su', slug: 'lich-su', name: 'Exam History' },
     { path: '/gioi-thieu', slug: 'gioi-thieu', name: 'About Platform' },
-    { path: '/chinh-sach', slug: 'chinh-sach', name: 'General Platform Policy' },
-    { path: '/chinh-sach-bao-mat', slug: 'chinh-sach-bao-mat', name: 'Privacy Policy' },
+    // Privacy policy pages are hidden unless NEXT_PUBLIC_FEATURE_PRIVACY_POLICY=1 (apps/web/lib/features.ts).
+    ...(process.env.NEXT_PUBLIC_FEATURE_PRIVACY_POLICY === '1'
+      ? [
+          { path: '/chinh-sach', slug: 'chinh-sach', name: 'General Platform Policy' },
+          { path: '/chinh-sach-bao-mat', slug: 'chinh-sach-bao-mat', name: 'Privacy Policy' },
+        ]
+      : []),
     { path: '/dieu-khoan', slug: 'dieu-khoan', name: 'Terms of Service' },
     { path: '/faq', slug: 'faq', name: 'Frequently Asked Questions' },
     { path: '/ho-tro', slug: 'ho-tro', name: 'Help & Support' },

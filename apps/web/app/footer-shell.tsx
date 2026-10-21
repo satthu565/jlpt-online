@@ -4,6 +4,7 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import { Footer } from '@jlpt/ui/components/footer';
 import { useI18n, type Locale } from '../lib/i18n';
+import { FEATURES } from '../lib/features';
 
 const ThemeToggle = dynamic(
   () => import('@jlpt/ui/components/theme-toggle').then((m) => m.ThemeToggle),
@@ -27,7 +28,7 @@ export function NavigationFooter(): React.JSX.Element {
     { label: t('common.footer.faq'), href: '/faq' },
     { label: t('common.footer.technicalSupport'), href: '/ho-tro' },
     { label: t('common.footer.terms'), href: '/dieu-khoan' },
-    { label: t('common.footer.privacy'), href: '/chinh-sach' },
+    ...(FEATURES.privacyPolicyPage ? [{ label: t('common.footer.privacy'), href: '/chinh-sach' }] : []),
     { label: t('common.footer.contact'), href: '/lien-he' },
   ];
 

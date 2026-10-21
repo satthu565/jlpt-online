@@ -294,7 +294,7 @@ describe('Performance, Web Vitals, Bundle Budgets & Media Security (SYS-02, SYS-
       expect(routes).toContain('/thong-ke-tu-vung');
       expect(routes).toContain('/faq');
       expect(routes).toContain('/dieu-khoan');
-      expect(routes).toContain('/chinh-sach');
+      // /chinh-sach is hidden in this release phase (feature-flags.test.tsx covers it).
     });
 
     it('verifies JavaScript chunk sizes meet initial bundle budget (< 350KB uncompressed / < 150KB gzip)', () => {

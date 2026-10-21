@@ -12,6 +12,7 @@ import { Alert } from '@jlpt/ui/components/alert';
 import { CorpusClient } from '../services/corpus-client';
 import type { GrammarPatternDto } from '../types';
 import { useI18n } from '../../../lib/i18n';
+import { FEATURES } from '../../../lib/features';
 
 export interface GrammarExplorerProps {
   initialLevel?: string;
@@ -218,7 +219,8 @@ export function GrammarExplorer({
                       <p className="font-japanese font-medium text-slate-800 dark:text-slate-200">
                         {ex.sentence}
                       </p>
-                      <TTSAudioPlayer
+                      {FEATURES.tts && (
+                        <TTSAudioPlayer
                         text={ex.sentence}
                         status="SANDBOX"
                         isExternal={false}
@@ -230,6 +232,7 @@ export function GrammarExplorer({
                           errorNotice: t('seo.tts.errorNotice'),
                         }}
                       />
+                      )}
                     </div>
                     <p className="text-slate-500 text-[11px]">
                       <ArrowRight className="inline size-4 align-[-2px]" aria-hidden="true" /> {ex.meaning}

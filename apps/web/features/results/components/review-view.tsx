@@ -14,6 +14,7 @@ import { Button } from '@jlpt/ui/components/button';
 import { ShareDialog } from '@jlpt/ui/components/share-dialog';
 import { FuriganaToggle, useFurigana } from '@jlpt/ui/components/furigana-toggle';
 import { AiChatAssistant } from '../../ai/components/ai-chat-assistant';
+import { FEATURES } from '../../../lib/features';
 
 export interface ReviewViewProps {
   reviewData: AttemptReviewData;
@@ -155,10 +156,12 @@ export function ReviewView({
           )}
 
           {/* AI Study & Explanation Assistant with Transparency Labels */}
-          <AiChatAssistant
-            attemptId={attemptId}
-            contextTitle={`Giải đáp thắc mắc bài thi: ${snapshot.title} (${snapshot.level})`}
-          />
+          {FEATURES.aiExplanation && (
+            <AiChatAssistant
+              attemptId={attemptId}
+              contextTitle={`Giải đáp thắc mắc bài thi: ${snapshot.title} (${snapshot.level})`}
+            />
+          )}
         </div>
 
         {/* Right column: Sticky review palette */}
