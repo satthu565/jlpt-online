@@ -1209,6 +1209,15 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
         vocabController.getEntryDetails('englishword'),
       ).rejects.toThrow(BadRequestException);
 
+      // Romaji valid syllables (e.g. 'nihon') are accepted and transliterated to Japanese;
+      // if not found, they return 404 (NotFoundException), NOT 400 (BadRequestException)
+      await expect(
+        vocabController.lookupDictionary({ text: 'nihon' }),
+      ).rejects.toThrow(NotFoundException);
+      await expect(
+        vocabController.getEntryDetails('nihon'),
+      ).rejects.toThrow(NotFoundException);
+
       // Verify DictionaryLookupValidationFilter formats 400/404 response with 'No dictionary entry found'
       const filter = new DictionaryLookupValidationFilter();
       let sentBody: unknown = null;

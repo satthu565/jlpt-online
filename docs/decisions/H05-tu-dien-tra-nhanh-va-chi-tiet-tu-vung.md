@@ -93,6 +93,14 @@ Module `apps/api/src/modules/vocab/kanjidic-data.ts` cung cấp hàm `getKanjiDe
 - Khi client truyền chuỗi không hợp lệ (> 20 ký tự hoặc không có chữ Nhật như `tuvungkhongtontaixyz999`), endpoint trả HTTP 400 và cấu trúc lỗi tuân thủ chuẩn `ApiErrorResponse` (`code: 'VALIDATION_ERROR'`), đồng thời bổ sung thông điệp `message: "No dictionary entry found: ..."` ở cấp cao nhất.
 - Nhờ đó, client web (`corpus-client.ts` và `vocab-explorer.tsx`) nhận biết đây là trạng thái không tìm thấy mục từ và hiển thị đúng khối thông báo "Không tìm thấy" (`[data-testid="dict-not-found"]`), không gây hiểu lầm là lỗi hệ thống mạng (Alert đỏ), đáp ứng trọn vẹn cả H05 và E2E H02-AC2.
 
+### 2.6. Hỗ trợ chuyển tự Romaji hợp lệ và tuân thủ Acceptance 5 (`romaji.ts`)
+
+Trong thực tế tra cứu từ vựng và các kịch bản kiểm thử E2E toàn diện (`tests/e2e/full/practice-mix-learning.test.ts: performs dictionary lookup without answer leaks`):
+- Tham số tra cứu có thể là dạng phiên âm Romaji chuẩn mực (ví dụ `text=nihon`).
+- Bộ giải mã `romajiToHiragana` (`apps/api/src/modules/vocab/romaji.ts`) nhận diện các âm tiết Romaji chuẩn mực (Hepburn & Kunrei) và chuyển tự sang Hiragana (`nihon` -> `にほん`).
+- Khi chuỗi Romaji hợp lệ được chuyển sang Hiragana, hệ thống tra cứu theo Hiragana trong từ điển: nếu tìm thấy trả 200, nếu không tìm thấy trả 404 (`NotFoundException`), đáp ứng kỳ vọng `expect([200, 404]).toContain(res.status)`.
+- Ngược lại, với các chuỗi tiếng Anh hoặc phi ký tự tiếng Nhật (như `englishonlyword`, `englishword`, `123456789`), `romajiToHiragana` trả về `null`. Hệ thống xác định đây là văn bản không chứa chữ Nhật và trả về HTTP 400 (`BadRequestException`) theo đúng tiêu chí Acceptance 5 ("Chuỗi dài hơn 20 ký tự hoặc không có chữ Nhật trả 400, không bao giờ 500").
+
 ---
 
 ## 3. Nghiệm thu và Bằng chứng

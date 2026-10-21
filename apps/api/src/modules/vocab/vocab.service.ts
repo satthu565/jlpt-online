@@ -15,6 +15,7 @@ import {
   containsJapanese,
   lemmatize,
 } from './nlp/index.js';
+import { romajiToHiragana } from './romaji.js';
 import { getPosLabels } from './pos-labels.js';
 import { getKanjiDetailsForWord } from './kanjidic-data.js';
 import {
@@ -250,8 +251,14 @@ export class VocabService implements OnModuleInit {
     if (trimmed.length > 20) {
       throw new BadRequestException('Query text exceeds maximum length of 20 characters');
     }
+    let queryText = trimmed;
     if (!containsJapanese(trimmed)) {
-      throw new BadRequestException('Query text must contain Japanese characters');
+      const hiragana = romajiToHiragana(trimmed);
+      if (hiragana && containsJapanese(hiragana)) {
+        queryText = hiragana;
+      } else {
+        throw new BadRequestException('Query text must contain Japanese characters');
+      }
     }
 
     const locale = dto.locale ?? 'vi';
@@ -263,12 +270,15 @@ export class VocabService implements OnModuleInit {
     }
 
     let matchedText = trimmed;
-    let raw = await this.findRawEntry(trimmed, locale);
+    let raw = await this.findRawEntry(queryText, locale);
+    if (!raw && queryText !== trimmed) {
+      raw = await this.findRawEntry(trimmed, locale);
+    }
 
     // 2. If no direct match, try lemmatizer
     if (!raw) {
-      const lemmaResult = lemmatize(trimmed);
-      if (lemmaResult.baseForm && lemmaResult.baseForm !== trimmed) {
+      const lemmaResult = lemmatize(queryText);
+      if (lemmaResult.baseForm && lemmaResult.baseForm !== queryText) {
         raw = await this.findRawEntry(lemmaResult.baseForm, locale);
         if (raw) {
           matchedText = trimmed;
@@ -287,7 +297,7 @@ export class VocabService implements OnModuleInit {
 
     // 3. If still no match, strip trailing kana (okurigana thừa khi bôi đen dư)
     if (!raw) {
-      let candidate = trimmed;
+      let candidate = queryText;
       const isKana = (char: string) => /[\u3040-\u309f\u30a0-\u30ff]/.test(char);
       while (!raw && candidate.length > 1 && isKana(candidate.charAt(candidate.length - 1))) {
         candidate = candidate.slice(0, -1);
@@ -369,8 +379,14 @@ export class VocabService implements OnModuleInit {
     if (decoded.length === 0 || decoded.length > 20) {
       throw new BadRequestException('Dictionary term must be between 1 and 20 characters');
     }
+    let queryTerm = decoded;
     if (!containsJapanese(decoded)) {
-      throw new BadRequestException('Dictionary term must contain Japanese characters');
+      const hiragana = romajiToHiragana(decoded);
+      if (hiragana && containsJapanese(hiragana)) {
+        queryTerm = hiragana;
+      } else {
+        throw new BadRequestException('Dictionary term must contain Japanese characters');
+      }
     }
 
     let entryId: string | undefined;
@@ -391,8 +407,16 @@ export class VocabService implements OnModuleInit {
       let dbEntries = await this.dbClient.db
         .select()
         .from(lexicalEntries)
-        .where(eq(lexicalEntries.term, decoded))
+        .where(eq(lexicalEntries.term, queryTerm))
         .limit(1);
+
+      if (dbEntries.length === 0 && queryTerm !== decoded) {
+        dbEntries = await this.dbClient.db
+          .select()
+          .from(lexicalEntries)
+          .where(eq(lexicalEntries.term, decoded))
+          .limit(1);
+      }
 
       if (dbEntries.length === 0) {
         dbEntries = await this.dbClient.db
@@ -410,7 +434,7 @@ export class VocabService implements OnModuleInit {
           })
           .from(entryReadings)
           .innerJoin(lexicalEntries, eq(entryReadings.entryId, lexicalEntries.id))
-          .where(eq(entryReadings.reading, decoded))
+          .where(eq(entryReadings.reading, queryTerm))
           .limit(1);
       }
 
@@ -453,7 +477,9 @@ export class VocabService implements OnModuleInit {
 
     // 2. If not in DB, fallback to sandbox dictionary
     if (!entryId && readingsList.length === 0) {
-      const sandbox = this.dictionaryAdapter.lookup(decoded, 'en');
+      const sandbox =
+        this.dictionaryAdapter.lookup(queryTerm, 'en') ||
+        (queryTerm !== decoded ? this.dictionaryAdapter.lookup(decoded, 'en') : null);
       if (!sandbox) {
         throw new NotFoundException(`No dictionary entry found for '${decoded}'`);
       }
