@@ -790,9 +790,76 @@ task('H03','W4',11,4,'Quản trị: màn hình "Duyệt Hán Việt" cho từ v�
  'Editor lọc "Cần xem lại", sửa 1 từ, lưu; tra từ đó ở /api/v1/dictionary/lookup trả âm mới và nguồn người sửa|"Xác nhận đúng" chuyển mục sang high|Vai trò không có quyền sửa thì nút bị ẩn hoặc lỗi 403 hiển thị rõ|'
  +NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:admin|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/')
+# Owner 2026-10-21: vocabulary list from real exams (H04) and select-to-look-up while taking exams with a word detail page (H05, H06).
+task('H04','W5',11,6,'Bộ ngữ liệu đề thi lưu vào database, tự tách từ khi xuất bản đề; /tu-vung liệt kê từ của các đề thật','H01',
+ 'HIỆN TRẠNG (lỗi thiết kế): corpus.service (apps/api/src/modules/vocab/corpus.service.ts) giữ bộ ngữ liệu "Tập ngữ liệu đề thi JLPT N1–N5" (slug jlpt-official) '
+ 'trong Map aggregators ở BỘ NHỚ; chỉ có dữ liệu khi gọi API nạp thủ công một gói đề, MẤT HẾT khi API khởi động lại; đề đã xuất bản không tự vào. '
+ 'Vì vậy GET /api/v1/datasets/jlpt-official/vocabulary trả {"total":0} và /tu-vung, /thong-ke-tu-vung, admin "Từ vựng & Ngữ pháp" đều trống. '
+ 'VIỆC CẦN LÀM: '
+ '(1) Bảng mới (migration) corpus_terms: dataset_id, term (dạng từ điển), reading, level (N1..N5 theo cấp của đề), exam_id, question_id, section/skill, count; '
+ 'khóa duy nhất (dataset_id, term, exam_id, question_id) để chạy lại không trùng. Tổng hợp theo từ để trả danh sách và tần suất. '
+ '(2) Tách từ bằng tokenizer/lemmatizer có sẵn trong apps/api/src/modules/vocab/nlp (đưa về dạng từ điển: 食べた -> 食べる), bỏ trợ từ, dấu câu, kana đơn lẻ. '
+ 'Nguồn chữ: đề bài (stem), lựa chọn, đoạn văn đọc hiểu, transcript nghe nếu có; KHÔNG lấy đáp án đúng riêng ra (không lộ đáp án). '
+ '(3) Khi một đề được xuất bản (ExamService.publishExam / approveAndPublishExam) thì tách từ của phiên bản vừa xuất bản vào corpus (qua outbox event content.published hoặc gọi trực tiếp trong transaction); '
+ 'gỡ xuất bản thì bỏ các dòng của đề đó khỏi corpus. Script bù apps/api/scripts/lexicon/backfill-corpus.mjs chạy cho mọi đề đang xuất bản, chạy lại không đổi kết quả. '
+ '(4) Mỗi từ trong danh sách lấy thêm từ JMdict (lexical_entries): cách đọc, nghĩa đầu (tiếng Anh), từ loại, hanViet và hanVietConfidence của H01; từ không có trong JMdict vẫn hiện với cách đọc từ tokenizer. '
+ '(5) API giữ nguyên đường dẫn và dạng trả hiện có (GET /datasets, /datasets/:id/vocabulary?level=&q=&page=, thống kê tần suất cho /thong-ke-tu-vung) để web và admin tự có dữ liệu; totalWords của dataset là số từ khác nhau. '
+ 'Bỏ Map trong bộ nhớ làm nguồn chính.',
+ 'apps/api/src/modules/vocab/|apps/api/src/modules/learning/|apps/api/scripts/lexicon/|docs/decisions/',
+ 'Sau khi chạy backfill trên preview (N3 12/2019 và đề demo N5 đã xuất bản), GET /datasets/jlpt-official/vocabulary trả danh sách khác rỗng, lọc level=N3 chỉ còn từ của đề N3|'
+ 'Khởi động lại API dữ liệu vẫn còn|Xuất bản một đề mới thì từ của đề đó có trong danh sách; gỡ xuất bản thì biến mất|Chạy backfill hai lần không tạo dòng trùng|'
+ 'Từ dạng chia (食べた) được gom về dạng từ điển (食べる); không có dòng nào là trợ từ hay dấu câu|Test không lộ đáp án: danh sách không có trường đáp án hay đánh dấu đáp án đúng|'
+ '/tu-vung, /thong-ke-tu-vung và admin Từ vựng hiện dữ liệu thật (E2E staging dùng đề demo N5 được seed và xuất bản)',
+ 'pnpm test:vocab-data|pnpm test:learning:all',contracts='API DB',grants='apps/api/src/db/ apps/api/src/modules/exam/ tests/playwright/')
+task('H05','W5',11,4,'API từ điển cho tra nhanh khi bôi đen và trang chi tiết từ vựng','H01',
+ 'Phục vụ H06 (bôi đen chữ trong bài thi để tra). '
+ '(1) GET /api/v1/dictionary/lookup?text=: nếu không khớp mặt chữ/cách đọc thì thử dạng từ điển qua lemmatizer có sẵn (食べた, 食べます -> 食べる; 高かった -> 高い; 勉強して -> 勉強する/勉強), '
+ 'rồi thử bỏ dần ký tự cuối là kana (okurigana thừa khi bôi đen dư); trả thêm matchedText (chuỗi đã khớp) và lemma. Bôi đen dài hơn 20 ký tự hoặc không có chữ Nhật trả 400. '
+ '(2) Trả thêm posLabels: nhãn từ loại tiếng Việt suy từ mã JMdict trong partOfSpeech: n -> Danh từ; v1, v5* -> Động từ; vs -> Danh động từ (đi với する); vt/vi -> Ngoại động từ/Nội động từ (bổ sung); '
+ 'adj-i -> Tính từ đuôi い; adj-na -> Tính từ đuôi な; adv -> Phó từ; prt -> Trợ từ; conj -> Liên từ; int -> Thán từ; pn -> Đại từ; ctr -> Trợ số từ; exp -> Cụm từ; mã khác giữ nguyên trong ngoặc. '
+ 'Bảng ánh xạ đặt trong một file dùng chung, có test cho từng mã. '
+ '(3) GET /api/v1/dictionary/entries/:term (term mã hóa URL): chi tiết một mục: mọi cách đọc, mọi nghĩa theo từng nghĩa (sense) kèm từ loại của nghĩa đó, posLabels, hanViet, hanVietConfidence, '
+ 'hanVietPerKanji, thông tin từng chữ Hán trong từ từ KANJIDIC2 (âm On, âm Kun, số nét, nghĩa tiếng Anh, cấp JLPT cũ nếu có), số lần xuất hiện trong đề thi theo cấp (dùng bảng corpus của H04 nếu đã có, chưa có thì trả mảng rỗng), license và attribution; không có thì 404. '
+ 'Nếu cần lưu nghĩa theo sense mà bảng entry_meanings chưa đủ, thêm cột sense_index/pos vào entry_meanings bằng migration và cập nhật import-lexicon.mjs. '
+ '(4) Cache trong bộ nhớ có giới hạn cho lookup (tra lặp lại khi bôi đen) và giới hạn tần suất hợp lý. Công khai, không cần đăng nhập.',
+ 'apps/api/src/modules/vocab/|apps/api/scripts/lexicon/|docs/decisions/',
+ 'lookup 食べた trả entry 食べる, lemma 食べる, posLabels có Động từ|lookup 高かった trả 高い, posLabels có Tính từ đuôi い; lookup 静か trả posLabels có Tính từ đuôi な; lookup 予約 trả Danh từ và Danh động từ|'
+ 'Bôi đen dư okurigana (予約す) vẫn khớp 予約 và matchedText là 予約|GET /dictionary/entries/要約 trả các nghĩa theo sense, thông tin chữ 要 và 約 từ KANJIDIC2, hanViet của H01; từ không có trả 404|'
+ 'Chuỗi dài hơn 20 ký tự hoặc không có chữ Nhật trả 400, không bao giờ 500|Test ánh xạ từ loại phủ mọi mã nêu trên',
+ 'pnpm test:vocab-data',contracts='API DB',grants='apps/api/src/db/')
+task('H06','W3',11,8,'Web: bôi đen từ khi làm bài để xem nghĩa, cách đọc, Hán Việt, từ loại; nút Xem chi tiết; trang chi tiết từ vựng','H05 H02',
+ 'CHỦ DỰ ÁN QUYẾT ĐỊNH: tính năng chạy ở MỌI chế độ, KỂ CẢ THI THẬT; có công tắc để học viên bật/tắt ngay trong lúc làm bài. '
+ '(1) PHẠM VI BÔI ĐEN: nội dung câu hỏi, các lựa chọn, đoạn văn đọc hiểu và lời giải ở: phòng thi /phong-thi (thi thật và luyện tập), luyện tập /luyen-tap, xem lại kết quả /ket-qua/[id]. '
+ 'Không áp dụng cho thanh công cụ, đồng hồ, phiếu trả lời. '
+ '(2) CÁCH HOẠT ĐỘNG: khi người dùng bôi đen (chuột: mouseup; cảm ứng: chọn văn bản bằng nhấn giữ, sự kiện selectionchange có debounce 300ms) một chuỗi 1-20 ký tự có chữ Nhật trong vùng trên, '
+ 'lấy văn bản đã chọn BỎ chữ furigana (thẻ rt), gọi GET /api/v1/dictionary/lookup?text= (API của H05, có cache phía client theo chuỗi), '
+ 'hiện một khung nổi (Popover của @jlpt/ui, giao diện HeroUI) sát ngay vùng chọn, không che vùng chọn, tự lật lên/xuống cho vừa màn hình, dùng được ở 390px. '
+ 'NỘI DUNG KHUNG: từ (dạng từ điển, font Nhật cỡ lớn) và dạng đã bôi nếu khác (ví dụ "食べた -> 食べる"); cách đọc (hiragana); âm Hán Việt (theo độ tin cậy của H01: review thêm nhãn "Đang chờ xác nhận", kun hiện "Âm của chữ:"); '
+ 'nhãn từ loại tiếng Việt (posLabels, ví dụ "Động từ", "Tính từ đuôi な"); tối đa 3 nghĩa đầu với tiêu đề "Nghĩa tiếng Anh (JMdict)"; nút "Xem chi tiết"; dòng ghi nguồn EDRDG nhỏ. '
+ 'Đang tra: Skeleton; không tìm thấy: "Không tìm thấy trong từ điển"; lỗi: thông báo ngắn kèm Thử lại. '
+ 'ĐÓNG KHUNG: Esc, bấm ra ngoài, bỏ chọn văn bản, chuyển câu. '
+ 'KHÔNG ĐƯỢC ẢNH HƯỞNG BÀI THI: bôi đen/khung nổi không chọn hay đổi đáp án, không kích hoạt phím tắt phòng thi (1-4, F, mũi tên) khi đang gõ trong khung, không làm mất phiên, không ghi vào đáp án. '
+ '(3) NÚT "XEM CHI TIẾT": trong phòng thi và luyện tập MỞ TAB MỚI tới /tu-vung/[term] (target _blank, rel noopener) để không rời bài đang làm; ở trang kết quả mở trong cùng tab. '
+ '(4) CÔNG TẮC: thêm vào thanh công cụ phòng thi (exam-toolbar) và luyện tập một công tắc "Tra từ khi bôi đen" (Switch của @jlpt/ui) có nhãn rõ; mặc định BẬT; ghi nhớ trong localStorage (khóa jlpt_select_lookup) và áp dụng mọi trang trên; '
+ 'đọc giá trị lưu sau khi hydrate (không đọc localStorage trong useState để tránh lỗi hydration React #418). Trên 390px công tắc nằm trong hàng nút có xuống dòng, không tràn. '
+ '(5) TRANG CHI TIẾT /tu-vung/[term] (Next.js App Router, decodeURIComponent): gọi GET /api/v1/dictionary/entries/:term của H05; hiện từ, mọi cách đọc, nhãn từ loại, các nghĩa đánh số theo từng nghĩa kèm từ loại của nghĩa, '
+ 'âm Hán Việt và bảng phân tách theo chữ (chữ - âm On - Hán Việt); với mỗi chữ Hán: âm On, âm Kun, số nét, nghĩa; số lần xuất hiện trong đề thi theo cấp (nếu có dữ liệu H04); '
+ 'nút "Lưu vào sổ tay" và nút "Báo sai âm Hán Việt" (dùng lại thành phần đã có ở H02); dòng ghi nguồn EDRDG có link /gioi-thieu#nguon-du-lieu; '
+ 'metadata SEO (title "<từ> - nghĩa, cách đọc, Hán Việt | JLPT Online", canonical); từ không có trả trang 404 của Next (notFound()). '
+ '(6) Chỉ dùng component @jlpt/ui (HeroUI) và class Tailwind, không style={{}}, chuỗi giao diện đưa vào messages vi/ja/en, không hiện nút TTS (đang ẩn bằng FEATURES.tts). '
+ 'CI staging dùng từ điển sandbox: E2E dùng từ có trong sandbox (学生, 学校, 先生, 食べる).',
+ 'apps/web/|packages/ui/',
+ 'Trong phòng thi THI THẬT, bôi đen 学生 trong câu hỏi: khung nổi hiện 学生, がくせい, HỌC SINH, nhãn Danh từ, nghĩa và nút Xem chi tiết; đáp án đang chọn không đổi|'
+ 'Tắt công tắc "Tra từ khi bôi đen" thì bôi đen không hiện khung; tải lại trang vẫn giữ trạng thái tắt; bật lại thì hoạt động|'
+ 'Bấm Xem chi tiết trong phòng thi mở tab mới /tu-vung/学生, tab bài thi vẫn ở nguyên câu đang làm và đồng hồ vẫn chạy|'
+ 'Trang /tu-vung/学生 hiện đủ cách đọc, nghĩa, từ loại, Hán Việt và bảng theo chữ; /tu-vung/<chuỗi lạ> trả 404|'
+ 'Bôi đen trong luyện tập và trang xem lại kết quả cũng hoạt động; Esc và bấm ra ngoài đóng khung|'
+ 'Ở 390px khung nổi nằm trong màn hình, không tràn ngang; không có lỗi hydration trong console|'
+ +NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
+ 'pnpm test:web|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/')
 # Staging E2E on jlpt-vm (same suite as CI) is a required check for tasks that touch the UI or APIs it uses.
 for _t in TASKS:
-    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','I17','I19','I20','D02','D03','D04','D06','D07','D08','D09','D10','P03','P04','P05','H01','H02','H03'}:
+    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','I17','I19','I20','D02','D03','D04','D06','D07','D08','D09','D10','P03','P04','P05','H01','H02','H03','H04','H05','H06'}:
         _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check')
     # Per-task runs cover Chromium + Mobile Safari; final acceptance runs every browser.
     # The integration E2E suite needs the staging stack and browser deps, so it only runs through
