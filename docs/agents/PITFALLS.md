@@ -16,6 +16,7 @@ Mỗi bẫy ghi theo dạng triệu chứng → nguyên nhân → cách đúng. 
 | Subquery đếm sai, luôn ra 0 | Trong `select` của Drizzle, `${table.id}` không kèm tên bảng | Viết rõ `"lexical_entries"."id"` trong `sql\`\``. |
 | API báo "Body cannot be empty when content-type is set to 'application/json'" | POST/PUT/PATCH không có body nhưng vẫn đặt `Content-Type: application/json` | Bỏ header, hoặc gửi `{}`. |
 | CodeQL báo lỗi mức cao trong test | Regex kiểu `/<!--.*?-->/g` để lọc HTML | Dùng chuỗi cố định với `split/join`, không dùng regex lọc HTML. |
+| CI đỏ ở bước "Check generated agent docs" | Đổi route, bảng, menu hoặc cờ mà không sinh lại tài liệu | Chạy `pnpm docs:map` rồi commit `docs/agents/*.generated.md`. Gộp main có xung đột trong file này thì chạy lại lệnh, không sửa tay. |
 | Test đỏ trên Windows (`python3`, đường dẫn `d:`) | Môi trường Windows | Chạy lại trên Linux (máy ảo hoặc CI). |
 | `pnpm test:admin` ở gốc lỗi "setup-i18n" | Script ở gốc trỏ sai file setup | Dùng `pnpm --filter @jlpt/admin test`. |
 

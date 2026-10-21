@@ -68,11 +68,10 @@ Chủ dự án cung cấp tài khoản hoặc dịch vụ thì mới nghiệm th
 | Việc | Trạng thái |
 |---|---|
 | Bộ dữ liệu kanji chuẩn (`data/kanji`, bảng `kanji_dataset`, migration 0010) | PR #127 chờ CI |
-| Bộ tài liệu cho agent (`AGENTS.md`, `docs/agents/`) | Đang viết |
+| Bộ tài liệu cho agent (`AGENTS.md`, `docs/agents/`, `docs/agent-guides/`, `pnpm docs:map`) | PR #128 và PR tiếp theo chờ merge |
 | Trích xuất đề N2 từ PDF thành gói nhập (ngoài repo, chạy trên máy ảo) | 3/31 đề xong |
 
 ## 📋 Dự kiến
 
 - Trang Kanji mức 2: sửa âm Hán Việt từng chữ ngay trong database.
 - Bộ chuyển đổi để coordinator giao việc cho Codex.
-- Sổ tay từng bước (`docs/agent-guides/`) và các file tự sinh từ code (`*.generated.md`).

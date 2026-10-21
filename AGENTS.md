@@ -73,11 +73,12 @@ pnpm check:no-mock-ui           # cấm dữ liệu giả trong giao diện
 pnpm --filter @jlpt/admin test  # test admin (không dùng `pnpm test:admin` ở gốc)
 pnpm test:web                   # test web
 pnpm test:db                    # test migration và schema
+pnpm docs:map                   # sinh lại docs/agents/*.generated.md
 ```
 
 ## Cổng kiểm tra trước khi nộp
 
-Bắt buộc: `lint`, `typecheck`, `test`, `build`, `check:ui-primitives`, `check:no-mock-ui`.
+Bắt buộc: `lint`, `typecheck`, `test`, `build`, `check:ui-primitives`, `check:no-mock-ui`, `docs:map` (file tự sinh phải khớp code).
 
 Có giao diện, E2E hoặc API mà staging dùng thì chạy thêm E2E trên staging. Cách chạy xem [docs/agents/OPERATIONS.md](docs/agents/OPERATIONS.md). CI GitHub chạy lại tất cả, và mỗi vòng CI mất khoảng 30 phút, nên phải tự kiểm tra kỹ trước khi đẩy.
 
@@ -125,3 +126,19 @@ Có giao diện, E2E hoặc API mà staging dùng thì chạy thêm E2E trên st
 | `SECURITY_RULES.md` | Những việc cấm |
 | `TASK_TEMPLATE.md` | Mẫu phiếu giao việc |
 | `WORKFLOW-6-WORKER.md` | Quy trình coordinator và 6 worker |
+| `ONBOARDING_CHECK.md` | Bài kiểm tra cho agent mới |
+| `PROJECT_MAP.generated.md` | **Tự sinh:** mọi trang web và admin, menu admin, mọi route API kèm quyền, cờ tính năng, phiên bản |
+| `DATABASE.generated.md` | **Tự sinh:** mọi bảng kèm cột, kiểu, khóa ngoại |
+
+File `*.generated.md` sinh bằng `pnpm docs:map`. Không sửa tay. Đổi route, bảng, menu hay cờ thì chạy lại lệnh và commit kết quả; CI sẽ báo lỗi nếu file lệch với code.
+
+## Sổ tay từng bước (`docs/agent-guides/`)
+
+| File | Việc |
+|---|---|
+| `them-trang-admin.md` | Thêm trang quản trị |
+| `them-trang-hoc-vien.md` | Thêm trang học viên |
+| `them-api.md` | Thêm API kèm test |
+| `them-bang-cot-db.md` | Thêm bảng hoặc cột |
+| `them-chuoi-giao-dien.md` | Thêm chuỗi vi/ja/en |
+| `kiem-tra-truoc-khi-nop.md` | Các bước kiểm tra trước khi nộp |
