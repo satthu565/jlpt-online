@@ -32,14 +32,15 @@ Trong bài thi và luyện tập JLPT, học viên cần tra cứu nhanh từ v�
 
 ## 2. Thiết kế và Quyết định kỹ thuật
 
-### 2.1. Cấu trúc cơ sở dữ liệu và Migration `0008_entry_meanings_senses`
+### 2.1. Cấu trúc cơ sở dữ liệu và Migration `0009_entry_meanings_senses`
 
 Để lưu trữ nghĩa theo từng sense và từ loại của sense đó:
 - Bảng `entry_meanings` được bổ sung hai cột:
   - `sense_index`: `integer DEFAULT 0 NOT NULL` (đánh số thứ tự nhóm nghĩa).
   - `pos`: `text` (mã từ loại JMdict riêng của sense đó nếu có).
-- Migration `apps/api/src/db/migrations/0008_entry_meanings_senses.sql` được tạo và đăng ký tại `_journal.json`.
+- Migration ban đầu đánh số 0008, sau khi hợp nhất với nhánh main (đã có migration `0008_corpus_terms.sql` từ H04), đã được chuẩn hóa thành `apps/api/src/db/migrations/0009_entry_meanings_senses.sql` và cập nhật journal meta tương ứng.
 - Cập nhật `import-lexicon.mjs` và bộ parser `parse.mjs` để khi import dữ liệu JMdict, các sense được lưu tương ứng vào `sense_index` và `pos`.
+- Kết nối `corpusOccurrences` / `occurrences` với bảng `corpus_terms` của H04: tổng hợp số lần xuất hiện của từ theo cấp JLPT từ đề thi đã xuất bản, trả về danh sách thực tế hoặc mảng rỗng nếu chưa có đề thi.
 
 ### 2.2. Bảng ánh xạ mã từ loại JMdict (`pos-labels.ts`)
 

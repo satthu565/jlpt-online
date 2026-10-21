@@ -31,6 +31,7 @@ import { listKanjiEntries, type KanjiListResult } from './kanji-list.js';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import {
+  corpusTerms,
   entryMeanings,
   entryReadings,
   lexicalEntries,
@@ -510,6 +511,26 @@ export class VocabService implements OnModuleInit {
     const overallPosLabels = getPosLabels(entryPos);
     const allMeanings = meaningRows.map((m) => m.meaning);
 
+    // Query occurrences from corpusTerms (H04) if table is populated
+    let occurrencesList: Array<{ level: string; count: number }> = [];
+    try {
+      const rows = await this.dbClient.db
+        .select({
+          level: corpusTerms.level,
+          count: sql<number>`cast(sum(${corpusTerms.count}) as integer)`,
+        })
+        .from(corpusTerms)
+        .where(eq(corpusTerms.term, entryTerm))
+        .groupBy(corpusTerms.level);
+
+      occurrencesList = rows.map((r: { level: string; count: number | string }) => ({
+        level: r.level,
+        count: Number(r.count) || 0,
+      }));
+    } catch {
+      occurrencesList = [];
+    }
+
     return {
       entry: entryTerm,
       term: entryTerm,
@@ -524,8 +545,8 @@ export class VocabService implements OnModuleInit {
       hanVietSource,
       hanVietPerKanji,
       kanji: kanjiDetails,
-      corpusOccurrences: [],
-      occurrences: [],
+      corpusOccurrences: occurrencesList,
+      occurrences: occurrencesList,
       license: licenseName,
       attribution,
     };
