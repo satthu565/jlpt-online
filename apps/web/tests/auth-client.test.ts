@@ -306,4 +306,29 @@ describe('AuthClient Integration with F03 API (ACC-01..12)', () => {
       expect(err.statusCode).toBe(401);
     }
   });
+
+  it('reads code and message from the API error envelope { error: { code, message } }', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: async () => ({
+        error: {
+          code: 'UNAUTHENTICATED',
+          message: 'Email hoặc mật khẩu không chính xác.',
+          details: {},
+          requestId: 'req_1',
+        },
+      }),
+    });
+    const client = new AuthClient({
+      baseUrl: 'http://127.0.0.1:4000/api/v1',
+      fetchFn: mockFetch as unknown as typeof fetch,
+    });
+
+    const err = await client.signInEmail({ email: 'a@b.vn', password: 'bad' }).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(AuthClientError);
+    expect((err as AuthClientError).code).toBe('UNAUTHENTICATED');
+    expect((err as AuthClientError).message).toBe('Email hoặc mật khẩu không chính xác.');
+    expect((err as AuthClientError).statusCode).toBe(401);
+  });
 });

@@ -50,7 +50,7 @@ export default function LoginPage(): React.JSX.Element {
       window.location.href = '/tai-khoan';
     } catch (err: unknown) {
       if (err instanceof AuthClientError) {
-        if (err.code === 'INVALID_CREDENTIALS') {
+        if (err.code === 'INVALID_CREDENTIALS' || err.code === 'UNAUTHENTICATED') {
           setErrorMessage(t('auth.login.errors.invalidCredentials'));
         } else if (err.code === 'EMAIL_NOT_VERIFIED') {
           setErrorMessage(t('auth.login.errors.unverifiedEmail'));

@@ -57,7 +57,7 @@ export default function VocabManagementPage({
       if (levelFilter !== 'all') query.level = levelFilter;
       if (searchTerm) query.query = searchTerm;
 
-      const res = (await apiClient.listVocab('official-corpus', query)) as { items?: Record<string, unknown>[]; vocabulary?: Record<string, unknown>[] } | Record<string, unknown>[];
+      const res = (await apiClient.listVocab('jlpt-official', query)) as { items?: Record<string, unknown>[]; vocabulary?: Record<string, unknown>[] } | Record<string, unknown>[];
       const raw = Array.isArray(res) ? res : (res?.items || res?.vocabulary || []);
       if (Array.isArray(raw)) {
         const mapped: VocabEntry[] = raw.map((it: Record<string, unknown>, idx: number) => ({

@@ -137,7 +137,11 @@
     "emptyPayments": "No payment transactions recorded.",
     "emptySubscriptions": "No subscriptions recorded.",
     "emptyRefunds": "No refund requests pending.",
-    "emptyReconciliation": "No reconciliation runs recorded."
+    "emptyReconciliation": "No reconciliation runs recorded.",
+    "couponsTitle": "Coupon management",
+    "couponsSubtitle": "Create coupons and set usage limits and expiry dates.",
+    "subscriptionsTitle": "Subscription management",
+    "subscriptionsSubtitle": "Track learners’ active plans, status and renewal dates."
   },
   "reports": {
     "hubTitle": "System Analytics & Reports Hub",
@@ -345,5 +349,25 @@
       "versionActivatedSuccess": "Score conversion version activated successfully!",
       "immutableNotice": "Immutability principle: Attempts submitted prior to this version maintain their original scoring and results, completely unaffected by newly activated versions."
     }
+  },
+  "communityModeration": {
+    "title": "Discussion and comment moderation",
+    "subtitle": "Handle comments reported by learners.",
+    "empty": "No reports yet.",
+    "loadError": "Could not load the reports.",
+    "reason": "Report reason",
+    "content": "Comment",
+    "status": "Status",
+    "reportedAt": "Reported at",
+    "actions": "Action",
+    "hide": "Hide comment",
+    "dismiss": "Dismiss",
+    "resolved": "Resolved",
+    "dismissed": "Dismissed",
+    "pending": "Pending",
+    "in_review": "In review",
+    "deleted": "(hidden comment)",
+    "done": "Report updated.",
+    "refresh": "Reload"
   }
 }

@@ -450,6 +450,12 @@ export class AdminApiClient {
     });
   }
 
+  public async getQuestionGroup(id: string): Promise<unknown> {
+    return this.request<unknown>('GET', `/api/v1/admin/groups/${encodeURIComponent(id)}`, {
+      requiredRoles: ['editor', 'reviewer', 'admin'],
+    });
+  }
+
   public async createQuestionGroup(data: unknown): Promise<{ id: string }> {
     return this.request<{ id: string }>('POST', '/api/v1/admin/groups', {
       requiredRoles: ['editor', 'admin'],
@@ -1033,7 +1039,7 @@ export class AdminApiClient {
   }
 
   public async listVocab(
-    datasetId = 'official-corpus',
+    datasetId = 'jlpt-official',
     query?: Record<string, string>,
   ): Promise<{ items: unknown[] } | unknown[]> {
     const searchParams = new URLSearchParams(query);

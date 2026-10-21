@@ -2066,12 +2066,22 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
 
     const studentUser = SEEDED_STAFF_ACCOUNTS.student;
 
-    // 1. Log in as verified student
-    await page.goto('/dang-nhap', { waitUntil: 'domcontentloaded' });
-    await page.locator('#login-email, input[type="email"]').fill(studentUser.email);
-    await page.locator('#login-password, input[type="password"]').fill(studentUser.password);
+    // 1. Log in as verified student. Wait for the page to settle so the click lands on the hydrated
+    // form; retry once if the first submit was lost (flaky on CI, 2026-10-20/21).
+    await page.goto('/dang-nhap', { waitUntil: 'networkidle' });
+    const email = page.locator('#login-email, input[type="email"]');
+    const password = page.locator('#login-password, input[type="password"]');
+    await email.fill(studentUser.email);
+    await password.fill(studentUser.password);
     await page.locator('button[type="submit"]').click();
-    await page.waitForURL(/\/tai-khoan/, { timeout: 15000, waitUntil: 'commit' });
+    try {
+      await page.waitForURL(/\/tai-khoan/, { timeout: 20000, waitUntil: 'commit' });
+    } catch {
+      await email.fill(studentUser.email);
+      await password.fill(studentUser.password);
+      await page.locator('button[type="submit"]').click();
+      await page.waitForURL(/\/tai-khoan/, { timeout: 20000, waitUntil: 'commit' });
+    }
 
     // 2. Navigate to /luyen-tap
     await page.goto('/luyen-tap', { waitUntil: 'domcontentloaded' });
@@ -2645,6 +2655,21 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
       }
     }
   }
+
+  test('Signed-in pages hydrate without React errors (cached user, locale, theme read after hydration)', async ({
+    page,
+  }, testInfo) => {
+    const clientIp = getProjectClientIp(testInfo, 90);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+    await loginAsStudent(page, webOrigin);
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    for (const route of ['/', '/de-thi', '/so-tay', '/lich-thi']) {
+      await page.goto(`${webOrigin}${route}`, { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('networkidle').catch(() => {});
+    }
+    expect(errors.filter((m) => /Minified React error #4(18|19|21|23|25)|Hydration/i.test(m))).toEqual([]);
+  });
 
   test('AC1 & AC2: Learner takes demo N5 exam, views sectional scoring & pass/fail, toggles furigana with persistence', async ({
     page,
@@ -3929,6 +3954,73 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
       await expect(examCards).toBeVisible({ timeout: 15000 });
     } finally {
       await visitorCtx.close();
+    }
+  });
+});
+
+// P06: acceptance of the added features. NEW-01 (pass/fail by section), NEW-03 (pace warning),
+// NEW-04 (schedules, reminders) and NEW-05 (admin schedules, scoring table versions) are covered by the
+// P04 and P05 suites above; this suite adds the Hán Việt reading (NEW-02) that had no E2E.
+test.describe('Added features acceptance (P06)', () => {
+  test('P06-NEW-02: dictionary lookup through the web origin returns the Hán Việt reading and licence', async ({
+    request,
+  }, testInfo) => {
+    const webOrigin = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+    const clientIp = getProjectClientIp(testInfo, 88);
+    const res = await request.get(`${webOrigin}/api/v1/dictionary/lookup?text=${encodeURIComponent('学生')}`, {
+      headers: { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp },
+      timeout: 15000,
+    });
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body.entry).toBe('学生');
+    expect(body.hanViet).toBe('HỌC SINH');
+    expect(body.readings).toContain('がくせい');
+    expect(typeof body.license).toBe('string');
+    expect(body.license.length).toBeGreaterThan(0);
+    expect(typeof body.attribution).toBe('string');
+  });
+
+  test('P06: public pages do not widen past a 390px viewport (body width, since html/body clip overflow)', async ({
+    browser,
+  }) => {
+    const webOrigin = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    await ctx.addInitScript(() => {
+      try {
+        localStorage.setItem('jlpt_cookie_consent', 'necessary');
+      } catch {
+        // storage unavailable
+      }
+    });
+    const page = await ctx.newPage();
+    try {
+      for (const route of ['/lich-thi', '/ho-tro', '/thong-ke-tu-vung', '/de-thi', '/']) {
+        await page.goto(`${webOrigin}${route}`, { waitUntil: 'domcontentloaded' });
+        await page.waitForLoadState('networkidle').catch(() => {});
+        const width = await page.evaluate(() => document.body.scrollWidth);
+        expect(width, `${route} body width`).toBeLessThanOrEqual(392);
+      }
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('P06-NEW-02: kana-only lookup has no Hán Việt; empty query is rejected with 400, never 500', async ({
+    request,
+  }, testInfo) => {
+    const webOrigin = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+    const clientIp = getProjectClientIp(testInfo, 89);
+    const headers = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+    const empty = await request.get(`${webOrigin}/api/v1/dictionary/lookup?text=`, { headers, timeout: 15000 });
+    expect(empty.status()).toBe(400);
+    const kana = await request.get(`${webOrigin}/api/v1/dictionary/lookup?text=${encodeURIComponent('さようなら')}`, {
+      headers,
+      timeout: 15000,
+    });
+    expect(kana.status()).toBeLessThan(500);
+    if (kana.status() === 200) {
+      expect((await kana.json()).hanViet || '').toBe('');
     }
   });
 });

@@ -714,8 +714,8 @@ task('P05','W4',10,3,'Quản trị: lịch thi JLPT và bảng quy đổi điể
  'apps/admin/',
  'Admin nhập kỳ thi tháng 12, xuất bản, trang web công khai hiện ngay|Đổi bảng quy đổi tạo phiên bản mới, kết quả cũ giữ phiên bản đã dùng|'+NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:admin|pnpm check:no-mock-ui',contracts='API',grants='tests/playwright/ tests/integration/mock-ui-baseline.json')
-task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05 D05',
- 'E2E trên staging cho NEW-01..05, ảnh chụp 390/1366px, cập nhật danh sách tính năng và báo cáo.',
+task('P06','W6',10,2,'Nghiệm thu 5 tính năng bổ sung','P04 P05',
+ 'E2E trên staging cho NEW-01..05, ảnh chụp 390/1366px, cập nhật danh sách tính năng và báo cáo. D05 do Claude làm trực tiếp (PR #106, coordinator ghi CANCELLED) nên không còn là phụ thuộc.',
  'tests/|docs/release/',
  'E2E: làm đề N5 → đỗ/trượt từng phần; Hán Việt và furigana; cảnh báo nhịp; lịch thi và nhắc hạn đăng ký|docs/release/NEW_FEATURES_REPORT.md có ảnh và bằng chứng từng tính năng',
  'pnpm check:no-mock-ui',resources='staging-deploy',kind='verification')
