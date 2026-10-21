@@ -104,9 +104,9 @@ export function PdfScoreExportButton({
   return (
     <div
       data-testid="pdf-score-export"
-      className={`jlpt-pdf-export inline-flex flex-col gap-2 ${className}`}
+      className={`jlpt-pdf-export inline-flex flex-col gap-2 max-w-full min-w-0 ${className}`}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Button
           type="button"
           variant="outline"
@@ -114,6 +114,7 @@ export function PdfScoreExportButton({
           loading={exporting}
           onClick={handleExportPdf}
           data-testid="export-pdf-score-btn"
+          className="h-auto min-h-10 whitespace-normal text-left"
         >
           <FileText className="inline size-4 align-[-2px]" aria-hidden="true" /> {exporting ? t('seo.watermark.exportingPdf') : t('seo.watermark.downloadPdf')}
         </Button>

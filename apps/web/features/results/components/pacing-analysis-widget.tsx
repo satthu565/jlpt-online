@@ -3,6 +3,7 @@
 import { Flag, Lightbulb, Timer } from 'lucide-react';
 import React from 'react';
 import type { FlatQuestionItem } from '../../exam/types';
+import { mondaiLabel } from '../../exam/mondai-labels';
 import { Card } from '@jlpt/ui/components/card';
 import { Badge } from '@jlpt/ui/components/badge';
 
@@ -121,7 +122,7 @@ export function PacingAnalysisWidget({
                 </span>
                 <div>
                   <span className="font-medium text-slate-800 dark:text-slate-200 block">
-                    {q.mondaiType ? `Dạng bài: ${q.mondaiType}` : `Câu hỏi #${q.globalIndex + 1}`}
+                    {mondaiLabel(q.mondaiType) ? `Dạng bài: ${mondaiLabel(q.mondaiType)}` : `Câu hỏi #${q.globalIndex + 1}`}
                   </span>
                   <span className="text-slate-400 text-[11px]">
                     Khuyến nghị: ~{formatDuration(q.recommendedSec)}

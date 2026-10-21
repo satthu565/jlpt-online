@@ -153,7 +153,9 @@ async function auditPage(
 
   const overflow = await page.evaluate(() => {
     return {
-      scrollWidth: document.documentElement.scrollWidth,
+      // html and body use overflow-x: hidden, so documentElement never reports overflow; content pushed
+      // past the viewport still widens body (clipped on screen). Measure the widest of the two.
+      scrollWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
       clientWidth: document.documentElement.clientWidth,
       innerWidth: window.innerWidth,
     };

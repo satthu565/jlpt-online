@@ -3932,3 +3932,70 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
     }
   });
 });
+
+// P06: acceptance of the added features. NEW-01 (pass/fail by section), NEW-03 (pace warning),
+// NEW-04 (schedules, reminders) and NEW-05 (admin schedules, scoring table versions) are covered by the
+// P04 and P05 suites above; this suite adds the Hán Việt reading (NEW-02) that had no E2E.
+test.describe('Added features acceptance (P06)', () => {
+  test('P06-NEW-02: dictionary lookup through the web origin returns the Hán Việt reading and licence', async ({
+    request,
+  }, testInfo) => {
+    const webOrigin = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+    const clientIp = getProjectClientIp(testInfo, 88);
+    const res = await request.get(`${webOrigin}/api/v1/dictionary/lookup?text=${encodeURIComponent('学生')}`, {
+      headers: { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp },
+      timeout: 15000,
+    });
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body.entry).toBe('学生');
+    expect(body.hanViet).toBe('HỌC SINH');
+    expect(body.readings).toContain('がくせい');
+    expect(typeof body.license).toBe('string');
+    expect(body.license.length).toBeGreaterThan(0);
+    expect(typeof body.attribution).toBe('string');
+  });
+
+  test('P06: public pages do not widen past a 390px viewport (body width, since html/body clip overflow)', async ({
+    browser,
+  }) => {
+    const webOrigin = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    await ctx.addInitScript(() => {
+      try {
+        localStorage.setItem('jlpt_cookie_consent', 'necessary');
+      } catch {
+        // storage unavailable
+      }
+    });
+    const page = await ctx.newPage();
+    try {
+      for (const route of ['/lich-thi', '/ho-tro', '/thong-ke-tu-vung', '/de-thi', '/']) {
+        await page.goto(`${webOrigin}${route}`, { waitUntil: 'domcontentloaded' });
+        await page.waitForLoadState('networkidle').catch(() => {});
+        const width = await page.evaluate(() => document.body.scrollWidth);
+        expect(width, `${route} body width`).toBeLessThanOrEqual(392);
+      }
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('P06-NEW-02: kana-only lookup has no Hán Việt; empty query is rejected with 400, never 500', async ({
+    request,
+  }, testInfo) => {
+    const webOrigin = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+    const clientIp = getProjectClientIp(testInfo, 89);
+    const headers = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+    const empty = await request.get(`${webOrigin}/api/v1/dictionary/lookup?text=`, { headers, timeout: 15000 });
+    expect(empty.status()).toBe(400);
+    const kana = await request.get(`${webOrigin}/api/v1/dictionary/lookup?text=${encodeURIComponent('さようなら')}`, {
+      headers,
+      timeout: 15000,
+    });
+    expect(kana.status()).toBeLessThan(500);
+    if (kana.status() === 200) {
+      expect((await kana.json()).hanViet || '').toBe('');
+    }
+  });
+});
