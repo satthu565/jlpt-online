@@ -119,9 +119,9 @@ export function LibraryView({
                   {recommendedExam.level}
                 </span>
               </div>
-              <h3 className="text-lg font-bold text-white leading-tight">
+              <h2 className="text-lg font-bold text-white leading-tight">
                 {recommendedExam.title}
-              </h3>
+              </h2>
               <p className="text-xs text-blue-100 max-w-xl">
                 Dựa trên tiến độ học tập của bạn, đề thi này giúp tối ưu hóa khả năng làm quen đề mới và lấp lỗ hổng kiến thức hiệu quả.
               </p>

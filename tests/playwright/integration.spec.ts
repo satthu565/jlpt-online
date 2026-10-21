@@ -1545,6 +1545,18 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
 
       const demoRow = adminPage.locator('tr:has-text("demo-n5-1"), tr:has-text("Đề demo N5")').first();
       await expect(demoRow).toBeVisible({ timeout: 15000 });
+
+      // Another suite in the same run may already have published the demo exam: take it down first.
+      const takedownBtn = demoRow.locator('button[data-testid^="takedown-exam-btn-"]').first();
+      if (await takedownBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+        adminPage.once('dialog', (dialog) => void dialog.accept());
+        await takedownBtn.click();
+        const confirmTakedown = adminPage.locator('button[data-testid="confirm-takedown-btn"]').first();
+        if (await confirmTakedown.isVisible({ timeout: 3000 }).catch(() => false)) {
+          await confirmTakedown.click();
+        }
+      }
+
       const publishBtn = demoRow.locator('button[data-testid^="publish-exam-btn-"]').first();
       await expect(publishBtn).toBeVisible({ timeout: 15000 });
       // "Duyệt & xuất bản" asks for confirmation; Playwright dismisses dialogs unless told otherwise.

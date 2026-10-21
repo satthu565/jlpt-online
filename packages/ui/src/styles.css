@@ -8,15 +8,27 @@
  * --accent, --muted, --border, …) for light and dark mode; the legacy JLPT variables used across
  * the apps (including inline styles) are derived from them so every page follows the theme.
  */
-/* Brand accent: JLPT Online green on top of the HeroUI theme (hover/soft/focus derive from --accent). */
+/* Brand accent: JLPT Online green on top of the HeroUI theme (hover/soft/focus derive from --accent).
+   Light mode uses green-700 so white button text and green links on white reach WCAG AA (about 5:1);
+   green-600 gave 3.2:1 and failed the Lighthouse accessibility budget. Muted text is zinc-600 (HeroUI's
+   default zinc-500 gave 4.2:1 on its grey surfaces). */
 :root {
-  --accent: oklch(0.627 0.194 149.214);
+  --accent: oklch(0.527 0.154 150.069);
   --accent-foreground: oklch(1 0 0);
+  --muted: oklch(0.442 0.017 285.786);
+  /* Secondary page text (text-slate-500 / text-gray-500) sits on HeroUI's grey background (#f5f5f5),
+     where Tailwind's 500 shades give 4.36:1; one step darker keeps AA. */
+  --color-slate-500: oklch(0.48 0.041 257.281);
+  --color-gray-500: oklch(0.48 0.027 264.364);
 }
 .dark,
 [data-theme='dark'] {
   --accent: oklch(0.723 0.219 149.579);
   --accent-foreground: oklch(0.21 0.006 285.885);
+  /* HeroUI and Tailwind defaults: on dark backgrounds the lighter shades read better. */
+  --muted: oklch(70.5% 0.015 286.067);
+  --color-slate-500: oklch(0.554 0.046 257.417);
+  --color-gray-500: oklch(0.551 0.027 264.364);
 }
 
 :root,

@@ -38,10 +38,10 @@ export function CookieConsentBanner({
     >
       <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4">
         <div className="max-w-[800px] flex-[1_1_500px]">
-          <h3 className="mb-1.5 flex items-center gap-2 text-base font-bold">
+          <h2 className="mb-1.5 flex items-center gap-2 text-base font-bold">
             <Cookie className="size-5 shrink-0" aria-hidden="true" />
             {labels.title}
-          </h3>
+          </h2>
           <p className="m-0 text-sm leading-normal text-[var(--muted)]">{labels.description}</p>
         </div>
 
