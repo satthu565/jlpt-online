@@ -1064,21 +1064,47 @@ export class AdminApiClient {
     });
   }
 
-    public async listLexiconEntries(params: { q?: string; pos?: string; page?: number; pageSize?: number } = {}): Promise<{
-      total: number;
-      page: number;
-      pageSize: number;
-      items: Array<{ id: string; term: string; readings: string[]; meanings: string[]; partOfSpeech: string; hanViet: string; provider: string }>;
-    }> {
-      const qs = new URLSearchParams();
-      if (params.q) qs.set('q', params.q);
-      if (params.pos) qs.set('pos', params.pos);
-      qs.set('page', String(params.page ?? 1));
-      qs.set('pageSize', String(params.pageSize ?? 50));
-      return this.request('GET', `/api/v1/admin/lexicon/entries?${qs.toString()}`, {
-        requiredRoles: ['admin', 'editor', 'reviewer'],
-      });
-    }
+  public async listLexiconEntries(params: { q?: string; pos?: string; page?: number; pageSize?: number } = {}): Promise<{
+    total: number;
+    page: number;
+    pageSize: number;
+    items: Array<{ id: string; term: string; readings: string[]; meanings: string[]; partOfSpeech: string; hanViet: string; provider: string }>;
+  }> {
+    const qs = new URLSearchParams();
+    if (params.q) qs.set('q', params.q);
+    if (params.pos) qs.set('pos', params.pos);
+    qs.set('page', String(params.page ?? 1));
+    qs.set('pageSize', String(params.pageSize ?? 50));
+    return this.request('GET', `/api/v1/admin/lexicon/entries?${qs.toString()}`, {
+      requiredRoles: ['admin', 'editor', 'reviewer'],
+    });
+  }
+
+  public async listKanjiEntries(params: { q?: string; level?: string; page?: number; pageSize?: number } = {}): Promise<{
+    total: number;
+    page: number;
+    pageSize: number;
+    items: Array<{
+      id: string;
+      kanji: string;
+      hanViet: string;
+      hanVietByOnyomi: Array<{ onyomi: string; hanViet: string }>;
+      onyomi: string[];
+      kunyomi: string[];
+      meanings: string[];
+      strokeCount: number | null;
+      level: string | null;
+    }>;
+  }> {
+    const qs = new URLSearchParams();
+    if (params.q) qs.set('q', params.q);
+    if (params.level) qs.set('level', params.level);
+    qs.set('page', String(params.page ?? 1));
+    qs.set('pageSize', String(params.pageSize ?? 60));
+    return this.request('GET', `/api/v1/admin/lexicon/kanji?${qs.toString()}`, {
+      requiredRoles: ['admin', 'editor', 'reviewer'],
+    });
+  }
 
   public async listHanVietReview(params: {
     confidence?: string;

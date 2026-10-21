@@ -4,6 +4,8 @@ import type {
   CorpusFrequencyStatDto,
   LevelComparisonItemDto,
   YearlyTrendItemDto,
+  DictionaryLookupResultDto,
+  HanVietReportInput,
 } from '../types';
 
 interface RawVocabItem {
@@ -68,17 +70,24 @@ export class CorpusClient {
     const headers = new Headers(options.headers || {});
     headers.set('Content-Type', 'application/json');
 
-    if (this.getAuthToken) {
-      const token = this.getAuthToken();
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
+    let token = this.getAuthToken ? this.getAuthToken() : undefined;
+    if (!token && typeof window !== 'undefined') {
+      try {
+        token = localStorage.getItem('jlpt_auth_token') || sessionStorage.getItem('jlpt_auth_token') || undefined;
+      } catch {
+        // Ignore storage access error
       }
     }
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
 
-    const res = await this.fetchFn(url, { ...options, headers });
+    const res = await this.fetchFn(url, { credentials: 'include', ...options, headers });
     if (!res.ok) {
-      const errBody = (await res.json().catch(() => ({}))) as { message?: string };
-      throw new Error(errBody.message || `Request failed with status ${res.status}`);
+      const errBody = (await res.json().catch(() => ({}))) as { message?: string; statusCode?: number };
+      const err = new Error(errBody.message || `Request failed with status ${res.status}`);
+      (err as { status?: number }).status = res.status;
+      throw err;
     }
     return res.json() as Promise<T>;
   }
@@ -89,9 +98,16 @@ export class CorpusClient {
     });
   }
 
-  async lookupDictionary(query: string): Promise<VocabTermDto[]> {
+  async lookupDictionary(query: string): Promise<DictionaryLookupResultDto> {
     const qs = new URLSearchParams({ text: query }).toString();
-    return this.request<VocabTermDto[]>(`/dictionary/lookup?${qs}`, { method: 'GET' });
+    return this.request<DictionaryLookupResultDto>(`/dictionary/lookup?${qs}`, { method: 'GET' });
+  }
+
+  async reportHanViet(payload: HanVietReportInput): Promise<{ id: string; entryId: string | null; status: string }> {
+    return this.request<{ id: string; entryId: string | null; status: string }>('/dictionary/hanviet-reports', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
   }
 
   async getVocabulary(datasetId: string, level?: string): Promise<VocabTermDto[]> {

@@ -4042,6 +4042,238 @@ test.describe('Added features acceptance (P06)', () => {
       expect((await kana.json()).hanViet || '').toBe('');
     }
   });
+
+  // =========================================================================
+  // H02: /tu-vung JMdict dictionary lookup, reading, meaning, Han-Viet & notebook
+  // =========================================================================
+  test.describe('H02: /tu-vung JMdict dictionary lookup, reading, meaning, Han-Viet & notebook (H02)', () => {
+    const webOrigin = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+
+    async function loginAsStudentUser(page: Page) {
+      const studentUser = SEEDED_STAFF_ACCOUNTS.student;
+      await page.goto(`${webOrigin}/dang-nhap`, { waitUntil: 'domcontentloaded' });
+      if (!page.url().includes('/dang-nhap')) {
+        return;
+      }
+      const emailInput = page.locator('#login-email, input[type="email"]').first();
+      const passwordInput = page.locator('#login-password, input[type="password"]').first();
+      await expect(emailInput).toBeVisible({ timeout: 15000 });
+      await emailInput.click();
+      await emailInput.fill(studentUser.email);
+      await expect(emailInput).toHaveValue(studentUser.email, { timeout: 5000 });
+      await passwordInput.click();
+      await passwordInput.fill(studentUser.password);
+      await expect(passwordInput).toHaveValue(studentUser.password, { timeout: 5000 });
+      const submitBtn = page.locator('button[type="submit"]').first();
+      await expect(submitBtn).toBeVisible({ timeout: 15000 });
+      await page.waitForTimeout(300);
+      await submitBtn.click();
+      try {
+        await page.waitForURL(/\/tai-khoan/, { timeout: 25000, waitUntil: 'commit' });
+      } catch {
+        if (page.url().includes('/dang-nhap')) {
+          await emailInput.fill(studentUser.email);
+          await passwordInput.fill(studentUser.password);
+          await submitBtn.click();
+          await page.waitForURL(/\/tai-khoan/, { timeout: 25000, waitUntil: 'commit' });
+        }
+      }
+    }
+
+    test('H02-AC1 & AC5: Gõ 学生 rồi Enter: thẻ hiện 学生, がくせい, nhãn HỌC SINH, nghĩa và EDRDG attribution; khu tra từ hiện đầu trang', async ({
+      page,
+    }, testInfo) => {
+      const clientIp = getProjectClientIp(testInfo, 101);
+      await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+      await page.goto(`${webOrigin}/tu-vung`, { waitUntil: 'domcontentloaded' });
+
+      // AC5: dictionary lookup section is visible at top of page
+      const lookupSection = page.locator('[data-testid="dictionary-lookup-section"]');
+      await expect(lookupSection).toBeVisible({ timeout: 15000 });
+
+      // AC1: type 学生 and press Enter
+      const input = page.locator('[data-testid="dict-search-input"]');
+      await expect(input).toBeVisible({ timeout: 15000 });
+      await input.click();
+      await input.fill('学生');
+      await expect(input).toHaveValue('学生', { timeout: 5000 });
+      await input.press('Enter');
+
+      // Result card appears
+      const resultCard = page.locator('[data-testid="dict-result-card"]');
+      await expect(resultCard).toBeVisible({ timeout: 15000 });
+
+      // Entry, readings, Han-Viet, meanings, attribution
+      await expect(page.locator('[data-testid="dictionary-entry"]')).toHaveText('学生');
+      await expect(page.locator('[data-testid="dictionary-readings"]')).toContainText('がくせい');
+      await expect(page.locator('[data-testid="dictionary-hanviet"]')).toContainText('HỌC SINH');
+      await expect(page.locator('[data-testid="dictionary-meanings"]')).toBeVisible();
+      await expect(page.locator('[data-testid="dictionary-attribution"]')).toContainText('EDRDG');
+    });
+
+    test('H02-AC2: Gõ chuỗi không có trong từ điển: hiện "Không tìm thấy", không lỗi 500', async ({
+      page,
+    }, testInfo) => {
+      const clientIp = getProjectClientIp(testInfo, 102);
+      await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+      const serverErrors: Array<{ url: string; status: number }> = [];
+      page.on('response', (response) => {
+        if (response.status() >= 500) {
+          serverErrors.push({ url: response.url(), status: response.status() });
+        }
+      });
+
+      await page.goto(`${webOrigin}/tu-vung`, { waitUntil: 'domcontentloaded' });
+      const input = page.locator('[data-testid="dict-search-input"]');
+      await expect(input).toBeVisible({ timeout: 15000 });
+      await input.click();
+      await input.fill('tuvungkhongtontaixyz999');
+      await expect(input).toHaveValue('tuvungkhongtontaixyz999', { timeout: 5000 });
+      await input.press('Enter');
+
+      const notFoundEl = page.locator('[data-testid="dict-not-found"]');
+      await expect(notFoundEl).toBeVisible({ timeout: 15000 });
+      await expect(notFoundEl).toContainText('Không tìm thấy');
+
+      expect(serverErrors).toHaveLength(0);
+    });
+
+    test('H02-AC3 & AC4: Chưa đăng nhập bấm Lưu hoặc Báo sai dẫn tới /dang-nhap', async ({
+      page,
+    }, testInfo) => {
+      const clientIp = getProjectClientIp(testInfo, 103);
+      await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+      // 1. Visit as guest
+      await page.goto(`${webOrigin}/tu-vung`, { waitUntil: 'domcontentloaded' });
+      const input = page.locator('[data-testid="dict-search-input"]');
+      await expect(input).toBeVisible({ timeout: 15000 });
+      await input.click();
+      await input.fill('学生');
+      await expect(input).toHaveValue('学生', { timeout: 5000 });
+      await input.press('Enter');
+      await expect(page.locator('[data-testid="dict-result-card"]')).toBeVisible({ timeout: 15000 });
+
+      // AC4 guest click Save -> redirected to /dang-nhap
+      const saveBtn = page.locator('[data-testid="save-to-notebook-btn"]');
+      await saveBtn.click();
+      await page.waitForURL((url) => url.pathname.includes('/dang-nhap'), { timeout: 15000 });
+
+      // AC3 guest click Report -> redirected to /dang-nhap
+      await page.goto(`${webOrigin}/tu-vung`, { waitUntil: 'domcontentloaded' });
+      const input2 = page.locator('[data-testid="dict-search-input"]');
+      await expect(input2).toBeVisible({ timeout: 15000 });
+      await input2.click();
+      await input2.fill('学生');
+      await expect(input2).toHaveValue('学生', { timeout: 5000 });
+      await input2.press('Enter');
+      await expect(page.locator('[data-testid="dict-result-card"]')).toBeVisible({ timeout: 15000 });
+
+      const reportBtn = page.locator('[data-testid="report-hanviet-btn"]');
+      await reportBtn.click();
+      await page.waitForURL((url) => url.pathname.includes('/dang-nhap'), { timeout: 15000 });
+    });
+
+    test('H02-AC3 & AC4: Đã đăng nhập lưu vào sổ tay thì /so-tay có từ đó; báo sai âm Hán Việt gửi thành công', async ({
+      page,
+    }, testInfo) => {
+      const clientIp = getProjectClientIp(testInfo, 104);
+      await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+      // 1. Log in as student
+      await loginAsStudentUser(page);
+
+      // 2. Look up 学生
+      await page.goto(`${webOrigin}/tu-vung`, { waitUntil: 'domcontentloaded' });
+      const input = page.locator('[data-testid="dict-search-input"]');
+      await expect(input).toBeVisible({ timeout: 15000 });
+      await input.click();
+      await input.fill('学生');
+      await expect(input).toHaveValue('学生', { timeout: 5000 });
+      await input.press('Enter');
+      await expect(page.locator('[data-testid="dict-result-card"]')).toBeVisible({ timeout: 15000 });
+
+      // 3. Save to notebook
+      const saveBtn = page.locator('[data-testid="save-to-notebook-btn"]');
+      await expect(saveBtn).toBeVisible({ timeout: 15000 });
+      await saveBtn.click();
+      await expect(page.locator('[data-testid="notebook-save-success"]')).toBeVisible({ timeout: 15000 });
+
+      // 4. Verify word is present in /so-tay
+      await page.goto(`${webOrigin}/so-tay`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('main')).toContainText('学生', { timeout: 20000 });
+
+      // 5. Submit Han-Viet report
+      await page.goto(`${webOrigin}/tu-vung`, { waitUntil: 'domcontentloaded' });
+      const searchInput = page.locator('[data-testid="dict-search-input"]');
+      await expect(searchInput).toBeVisible({ timeout: 15000 });
+      await searchInput.click();
+      await searchInput.fill('学生');
+      await expect(searchInput).toHaveValue('学生', { timeout: 5000 });
+      await searchInput.press('Enter');
+      await expect(page.locator('[data-testid="dict-result-card"]')).toBeVisible({ timeout: 15000 });
+
+      const reportBtn = page.locator('[data-testid="report-hanviet-btn"]');
+      await expect(reportBtn).toBeVisible({ timeout: 15000 });
+      await reportBtn.click();
+      await expect(page.locator('[data-testid="report-hanviet-modal"]')).toBeVisible({ timeout: 10000 });
+
+      const suggestionInput = page.locator('[data-testid="hanviet-suggestion-input"]');
+      await expect(suggestionInput).toBeVisible({ timeout: 5000 });
+      await suggestionInput.fill('HỌC SINH');
+      const noteInput = page.locator('[data-testid="hanviet-note-input"]');
+      await noteInput.fill('Đề xuất kiểm tra âm Hán Việt');
+      await page.locator('[data-testid="submit-hanviet-report-btn"]').click();
+      await expect(page.locator('[data-testid="report-hanviet-success"]')).toBeVisible({ timeout: 15000 });
+    });
+
+    test('H02-AC9: Responsive viewports (390px, 1366px), zero horizontal overflow, 3 locales (vi, ja, en), no raw translation keys', async ({
+      page,
+    }, testInfo) => {
+      test.skip(testInfo.project.name !== 'chromium', 'Responsive & screenshot verification runs on chromium');
+      const clientIp = getProjectClientIp(testInfo, 105);
+      await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+      const viewports = [
+        { name: 'mobile-390px', width: 390, height: 844 },
+        { name: 'desktop-1366px', width: 1366, height: 768 },
+      ];
+      const locales = ['vi', 'ja', 'en'] as const;
+      const screenshotDir = path.resolve(process.cwd(), 'playwright-report/artifacts/h02');
+      fs.mkdirSync(screenshotDir, { recursive: true });
+
+      for (const vp of viewports) {
+        await page.setViewportSize({ width: vp.width, height: vp.height });
+
+        for (const loc of locales) {
+          await page.goto(`${webOrigin}/tu-vung`, { waitUntil: 'domcontentloaded' });
+          await page.evaluate((l) => {
+            localStorage.setItem('jlpt_locale', l);
+          }, loc);
+          await page.reload({ waitUntil: 'domcontentloaded' });
+
+          // Zero horizontal overflow
+          const isOverflowing = await page.evaluate(() => {
+            return document.documentElement.scrollWidth > window.innerWidth + 2;
+          });
+          expect(isOverflowing, `Horizontal overflow on /tu-vung at ${vp.name} [${loc}]`).toBe(false);
+
+          // No raw translation keys
+          const bodyText = await page.evaluate(() => document.body.innerText);
+          const rawKeyMatches = bodyText.match(/\b(dictionary|corpus|seo|common|auth|account)\.[a-zA-Z0-9_.]+\b/g) || [];
+          expect(rawKeyMatches, `Raw translation keys found on /tu-vung [${loc}]`).toEqual([]);
+
+          // Capture screenshot
+          await page.screenshot({
+            path: path.join(screenshotDir, `tu-vung-${vp.name}-${loc}.png`),
+            fullPage: false,
+          });
+        }
+      }
+    });
+  });
 });
 
 /**

@@ -47,6 +47,7 @@
       "admin": "システム運用管理"
     },
     "lexicon": "辞書",
+    "kanji": "漢字",
     "hanviet": "漢越音審査"
   },
   "auth": {
@@ -393,6 +394,31 @@
     "next": "次へ",
     "page": "ページ",
     "attribution": "出典: JMdict/KANJIDIC2 – EDRDG, CC BY-SA 4.0"
+  },
+  "kanji": {
+    "title": "漢字 (KANJIDIC2)",
+    "subtitle": "データベースにある全漢字と漢越音",
+    "total": "件数",
+    "searchPlaceholder": "漢字・音読み・訓読み・漢越音・英語の意味で検索",
+    "search": "検索",
+    "level": "レベル",
+    "levelAll": "すべて",
+    "levelNone": "レベルなし",
+    "colKanji": "漢字",
+    "colHanViet": "漢越音",
+    "colOnyomi": "音読み",
+    "colKunyomi": "訓読み",
+    "colMeaning": "意味（英語）",
+    "colStrokes": "画数",
+    "colLevel": "レベル",
+    "empty": "該当なし",
+    "emptyDb": "KANJIDIC2 が未登録です",
+    "error": "読み込みに失敗しました",
+    "retry": "再試行",
+    "prev": "前へ",
+    "next": "次へ",
+    "page": "ページ",
+    "attribution": "出典: KANJIDIC2 – EDRDG, CC BY-SA 4.0"
   },
   "hanvietReview": {
     "title": "漢越音審査",

@@ -8,6 +8,7 @@ import {
   datasets,
   entryMeanings,
   entryReadings,
+  kanjiEntries,
   lexicalEntries,
   lexiconHanvietReports,
   lexiconLicenses,
@@ -672,11 +673,15 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       const yama = await seed('山', 'やま', 'mountain');
       const choshin = await seed('長身', 'ちょうしん', 'tall');
       const ongaku = await seed('音楽', 'おんがく', 'music');
+      const sports = await seed('スポーツ', 'スポーツ', 'sport');
 
       const first = await vocabService.backfillHanViet();
-      expect(first.total).toBe(4);
-      expect(first.updated).toBe(4);
+      expect(first.total).toBe(5);
+      expect(first.updated).toBe(5);
+      expect(first.noKanji).toBe(1);
       expect(first.stats).toEqual({ high: 2, review: 1, kun: 1 });
+      expect(await row(sports)).toMatchObject({ hanViet: '', hanVietConfidence: null });
+      expect((await vocabController.lookupDictionary({ text: 'スポーツ' })).hanVietConfidence).toBeUndefined();
       expect(await row(yoyaku)).toMatchObject({ hanViet: 'DỰ ƯỚC', hanVietConfidence: 'high' });
       expect(await row(yama)).toMatchObject({ hanViet: 'SƠN', hanVietConfidence: 'kun' });
       expect(await row(choshin)).toMatchObject({ hanViet: 'TRƯỜNG THÂN', hanVietConfidence: 'review' });
@@ -751,6 +756,45 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       expect(res).toMatchObject({ hanViet: 'LẠC', confidence: 'kun' });
       const gaku = await vocabController.getHanViet('音楽', undefined, 'おんがく');
       expect(gaku).toMatchObject({ hanViet: 'ÂM NHẠC', confidence: 'high' });
+    });
+  });
+
+  describe('Admin Kanji: danh sách chữ kanji kèm Hán Việt', () => {
+    async function seedKanji(kanji: string, level: string | null, strokeCount: number, onyomi: string[], kunyomi: string[], meanings: string[]) {
+      await dbClient.db.insert(kanjiEntries).values({ id: generateUuidV7(), kanji, level, strokeCount, onyomi, kunyomi, meanings: JSON.stringify(meanings) });
+    }
+
+    it('liệt kê, tìm theo chữ, âm đọc, Hán Việt, nghĩa; lọc cấp độ; phân trang', async () => {
+      await seedKanji('楽', 'N4', 13, ['ガク', 'ラク'], ['たの.しい'], ['music', 'comfort']);
+      await seedKanji('山', 'N5', 3, ['サン', 'セン'], ['やま'], ['mountain']);
+      await seedKanji('亜', 'N1', 7, ['ア'], ['つ.ぐ'], ['Asia']);
+
+      const all = await vocabController.adminListKanji();
+      expect(all.total).toBe(3);
+      expect(all.items.map((i) => i.kanji)).toEqual(['山', '楽', '亜']);
+      const gaku = all.items.find((i) => i.kanji === '楽')!;
+      expect(gaku).toMatchObject({ strokeCount: 13, level: 'N4', meanings: ['music', 'comfort'], onyomi: ['ガク', 'ラク'] });
+      expect(gaku.hanVietByOnyomi).toEqual([
+        { onyomi: 'ガク', hanViet: 'NHẠC' },
+        { onyomi: 'ラク', hanViet: 'LẠC' },
+        { onyomi: 'ゴウ', hanViet: 'NHẠO' },
+      ]);
+
+      expect((await vocabController.adminListKanji('音楽')).items.map((i) => i.kanji)).toEqual(['楽']);
+      expect((await vocabController.adminListKanji('がく')).items.map((i) => i.kanji)).toEqual(['楽']);
+      expect((await vocabController.adminListKanji('やま')).items.map((i) => i.kanji)).toEqual(['山']);
+      expect((await vocabController.adminListKanji('nhạc')).items.map((i) => i.kanji)).toEqual(['楽']);
+      expect((await vocabController.adminListKanji('mountain')).items.map((i) => i.kanji)).toEqual(['山']);
+      expect((await vocabController.adminListKanji(undefined, 'N1')).items.map((i) => i.kanji)).toEqual(['亜']);
+
+      const p2 = await vocabController.adminListKanji(undefined, undefined, '2', '2');
+      expect(p2).toMatchObject({ total: 3, page: 2 });
+      expect(p2.items).toHaveLength(1);
+    });
+
+    it('chưa nạp KANJIDIC2 thì trả danh sách rỗng; route chỉ cho editor, reviewer, admin', async () => {
+      expect(await vocabController.adminListKanji()).toMatchObject({ total: 0, items: [] });
+      expect(Reflect.getMetadata(ROLES_KEY, VocabController.prototype.adminListKanji)).toEqual(['admin', 'editor', 'reviewer']);
     });
   });
 });

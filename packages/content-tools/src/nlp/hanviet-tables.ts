@@ -750,7 +750,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
   "楽": {
     "ガク": "NHẠC",
     "ラク": "LẠC",
-    "ゴウ": "LẠC"
+    "ゴウ": "NHẠO"
   },
   "額": {
     "ガク": "NGẠCH"
