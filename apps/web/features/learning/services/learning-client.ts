@@ -37,8 +37,17 @@ export class LearningClient {
       ...headers,
     };
 
-    if (this.authToken && !reqHeaders['Authorization']) {
-      reqHeaders['Authorization'] = `Bearer ${this.authToken}`;
+    let token = this.authToken;
+    if (!token && typeof window !== 'undefined') {
+      try {
+        token = localStorage.getItem('jlpt_auth_token') || sessionStorage.getItem('jlpt_auth_token') || undefined;
+      } catch {
+        // Ignore storage access error
+      }
+    }
+
+    if (token && !reqHeaders['Authorization']) {
+      reqHeaders['Authorization'] = `Bearer ${token}`;
     }
 
     const response = await this.fetchFn(url, {
