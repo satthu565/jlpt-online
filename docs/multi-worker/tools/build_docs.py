@@ -859,6 +859,7 @@ task('H06','W3',11,8,'Web: bôi đen từ khi làm bài để xem nghĩa, cách 
  'pnpm test:web|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/')
 # Owner 2026-10-21: an admin page that lists every vocabulary entry in the database, as fast as possible (no dependencies).
 task('H07','W4',11,3,'Quản trị: trang "Từ điển" liệt kê toàn bộ từ vựng trong database','',
+ 'LÀM ĐÚNG THEO HƯỚNG DẪN TỪNG BƯỚC docs/multi-worker/guides/H07-admin-lexicon.md (có sẵn toàn bộ code mẫu, đường dẫn file, chuỗi vi/ja/en và lệnh kiểm tra; Claude đã chạy thử: typecheck, lint, test đều qua). KHÔNG cần đọc thêm code ngoài các file được nhắc trong hướng dẫn; chỉ sửa tối thiểu nếu có điểm không khớp và ghi lại trong mô tả PR. '
  'CHỦ DỰ ÁN CẦN NHANH: task nhỏ, không phụ thuộc task khác, làm gọn trong phạm vi dưới đây. '
  'DỮ LIỆU: từ điển JMdict + KANJIDIC2 đã nạp vào các bảng lexical_entries (id, term, level, part_of_speech, license_id), entry_readings (entry_id, reading, is_primary), '
  'entry_meanings (entry_id, locale "en", meaning), lexicon_licenses (provider, license); trên preview có 22.647 mục, CI staging có thể rỗng. '
