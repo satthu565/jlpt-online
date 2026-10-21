@@ -57,6 +57,13 @@
       "when": 1792600000000,
       "tag": "0007_lexicon_hanviet",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792650000000,
+      "tag": "0008_corpus_terms",
+      "breakpoints": true
     }
   ]
 }

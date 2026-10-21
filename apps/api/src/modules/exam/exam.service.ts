@@ -48,6 +48,7 @@ import {
 import { StorageService } from '../storage/storage.service.js';
 import { OutboxService, type DbTx } from '../outbox/outbox.service.js';
 import { BlueprintService } from '../blueprint/blueprint.service.js';
+import { indexExamForCorpus, removeExamFromCorpus } from '../vocab/corpus-indexer.js';
 import { ReviewService } from '../review/review.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import type { ExamFilterQuery, PublishExamResponse } from './exam.types.js';
@@ -770,6 +771,9 @@ export class ExamService {
         })
         .where(eq(schema.exams.id, examId));
 
+      // Index vocabulary into corpus (H04)
+      await indexExamForCorpus(this.dbClient, examId, tx);
+
       // Emit outbox event (Acceptance 3)
       await this.outboxService.emitEvent(
         'content.published',
@@ -822,6 +826,9 @@ export class ExamService {
         .update(schema.exams)
         .set({ publishedVersion: null, updatedAt: new Date() })
         .where(eq(schema.exams.id, examId));
+
+      // Remove vocabulary from corpus (H04)
+      await removeExamFromCorpus(this.dbClient, examId, tx);
 
       await this.outboxService.emitEvent(
         'content.taken_down',

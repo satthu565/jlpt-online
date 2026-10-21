@@ -5,9 +5,15 @@ import { eq } from 'drizzle-orm';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
 import {
+  answerOptions,
+  correctAnswers,
+  corpusTerms,
   datasets,
   entryMeanings,
   entryReadings,
+  examItems,
+  exams,
+  examSections,
   kanjiEntries,
   lexicalEntries,
   lexiconHanvietReports,
@@ -15,6 +21,7 @@ import {
   operatorActions,
   questions,
   questionGroups,
+  questionVersions,
   users,
 } from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
@@ -22,6 +29,8 @@ import { CorpusService, DEFAULT_CORPUS_DATASET_ID } from './corpus.service.js';
 import { VocabController } from './vocab.controller.js';
 import { VocabService } from './vocab.service.js';
 import { clearStoredHanViet, getHanVietForWord } from './hanviet-store.js';
+import { backfillCorpus } from './corpus-backfill.js';
+import { indexExamForCorpus, removeExamFromCorpus } from './corpus-indexer.js';
 import { IS_PUBLIC_KEY } from '../../common/decorators/public.decorator.js';
 import { RATE_LIMIT_KEY } from '../../common/decorators/rate-limit.decorator.js';
 import { ROLES_KEY } from '../../common/decorators/roles.decorator.js';
@@ -756,6 +765,308 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       expect(res).toMatchObject({ hanViet: 'LẠC', confidence: 'kun' });
       const gaku = await vocabController.getHanViet('音楽', undefined, 'おんがく');
       expect(gaku).toMatchObject({ hanViet: 'ÂM NHẠC', confidence: 'high' });
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // H04: Bộ ngữ liệu đề thi lưu vào database, tự tách từ khi xuất bản đề
+  // ---------------------------------------------------------------------------
+  describe('H04: Bộ ngữ liệu đề thi lưu vào database (Corpus DB Persistence & Indexing)', () => {
+    async function seedTestExam(opts: {
+      id: string;
+      slug: string;
+      level: string;
+      title: string;
+      status: 'published' | 'draft';
+      year?: number;
+      stemText: string;
+      optionTexts?: string[];
+      correctIndex?: number;
+    }) {
+      const now = new Date();
+      await dbClient.db.insert(exams).values({
+        id: opts.id,
+        slug: opts.slug,
+        level: opts.level,
+        title: opts.title,
+        kind: 'official',
+        year: opts.year ?? 2023,
+        session: '12',
+        totalQuestions: 1,
+        publishedVersion: opts.status === 'published' ? 1 : null,
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      const sectionId = generateUuidV7();
+      await dbClient.db.insert(examSections).values({
+        id: sectionId,
+        examId: opts.id,
+        code: 'language_knowledge',
+        title: 'Language Knowledge',
+        durationSec: 3600,
+        orderIndex: 1,
+      });
+
+      const questionId = generateUuidV7();
+      await dbClient.db.insert(questions).values({
+        id: questionId,
+        level: opts.level,
+        skill: 'vocabulary',
+        mondaiType: 'vocab_reading',
+        origin: 'official',
+        createdAt: now,
+      });
+
+      await dbClient.db.insert(examItems).values({
+        id: generateUuidV7(),
+        examId: opts.id,
+        sectionId,
+        questionId,
+        orderIndex: 1,
+      });
+
+      await dbClient.db.insert(questionVersions).values({
+        questionId,
+        version: 1,
+        stem: opts.stemText,
+        status: opts.status === 'published' ? 'published' : 'draft',
+        createdAt: now,
+      });
+
+      if (opts.optionTexts && opts.optionTexts.length > 0) {
+        for (let i = 0; i < opts.optionTexts.length; i++) {
+          await dbClient.db.insert(answerOptions).values({
+            questionId,
+            questionVersion: 1,
+            orderIndex: i + 1,
+            content: opts.optionTexts[i],
+          });
+        }
+      }
+
+      if (opts.correctIndex !== undefined) {
+        await dbClient.db.insert(correctAnswers).values({
+          questionId,
+          questionVersion: 1,
+          correctOption: opts.correctIndex,
+          explanationNotes: 'Test explanation notes',
+        });
+      }
+
+      return { examId: opts.id, sectionId, questionId };
+    }
+
+    it('Acceptance 1, 4, 5, 6: backfill đề published, lemmatize 食べた->食べる, lọc N3, chạy lại không trùng, không lộ đáp án', async () => {
+      const examN3Id = generateUuidV7();
+      const examN5Id = generateUuidV7();
+
+      // Seed N3 published exam (simulating N3 12/2019)
+      await seedTestExam({
+        id: examN3Id,
+        slug: 'n3-2019-12',
+        level: 'N3',
+        title: 'JLPT N3 12/2019',
+        status: 'published',
+        year: 2019,
+        stemText: '昨日、美味しいリンゴを食べた。',
+        optionTexts: ['食べた', '飲んだ', '走った'],
+        correctIndex: 1,
+      });
+
+      // Seed N5 published exam (simulating N5 demo)
+      await seedTestExam({
+        id: examN5Id,
+        slug: 'n5-demo',
+        level: 'N5',
+        title: 'JLPT N5 Demo',
+        status: 'published',
+        year: 2023,
+        stemText: '先生が教室で日本語を教える。',
+        optionTexts: ['教える', '習う'],
+        correctIndex: 1,
+      });
+
+      // Run backfill
+      const backfillResult = await backfillCorpus(dbClient);
+      expect(backfillResult.publishedExamsCount).toBe(2);
+      expect(backfillResult.totalTerms).toBeGreaterThan(0);
+
+      // Verify corpus_terms populated in DB
+      const dbRows = await dbClient.db.select().from(corpusTerms);
+      expect(dbRows.length).toBeGreaterThan(0);
+
+      // Acceptance 1: GET /datasets/jlpt-official/vocabulary trả danh sách khác rỗng
+      const allVocab = await vocabController.getDatasetVocabulary('jlpt-official');
+      expect(allVocab.total).toBeGreaterThan(0);
+      expect(allVocab.items.length).toBeGreaterThan(0);
+
+      // Acceptance 5: Lemmatized form (食べた -> 食べる), no particles/punctuation/single kana
+      const terms = allVocab.items.map((i) => i.term);
+      expect(terms).toContain('食べる'); // Lemmatized from 食べた
+      expect(terms).toContain('飲む'); // Lemmatized from 飲んだ
+      expect(terms).toContain('教える');
+      expect(terms).toContain('教室');
+      expect(terms).toContain('日本語');
+
+      // Particles & punctuation must be excluded
+      expect(terms).not.toContain('が');
+      expect(terms).not.toContain('を');
+      expect(terms).not.toContain('で');
+      expect(terms).not.toContain('、');
+      expect(terms).not.toContain('。');
+
+      // Acceptance 1 (cont): Filtering level=N3 only returns terms from N3
+      const n3Vocab = await vocabController.getDatasetVocabulary('jlpt-official', { level: 'N3' });
+      expect(n3Vocab.total).toBeGreaterThan(0);
+      for (const item of n3Vocab.items) {
+        expect(item.level).toBe('N3');
+      }
+      const n3Terms = n3Vocab.items.map((i) => i.term);
+      expect(n3Terms).toContain('食べる');
+      expect(n3Terms).not.toContain('教室'); // N5 word must not be in N3
+
+      // Acceptance 6: Test không lộ đáp án
+      const jsonString = JSON.stringify(allVocab);
+      expect(jsonString).not.toContain('correctOption');
+      expect(jsonString).not.toContain('correctAnswer');
+      expect(jsonString).not.toContain('answerKey');
+      expect(jsonString).not.toContain('Test explanation notes');
+
+      // Acceptance 4: Chạy backfill hai lần không tạo dòng trùng
+      const countBefore = dbRows.length;
+      const secondBackfill = await backfillCorpus(dbClient);
+      expect(secondBackfill.publishedExamsCount).toBe(2);
+
+      const dbRowsAfter = await dbClient.db.select().from(corpusTerms);
+      expect(dbRowsAfter.length).toBe(countBefore);
+
+      const allVocabAfter = await vocabController.getDatasetVocabulary('jlpt-official');
+      expect(allVocabAfter.total).toBe(allVocab.total);
+    });
+
+    it('Acceptance 2: Khởi động lại API dữ liệu vẫn còn (persistence in database)', async () => {
+      const examId = generateUuidV7();
+      await seedTestExam({
+        id: examId,
+        slug: 'n3-persist-test',
+        level: 'N3',
+        title: 'JLPT N3 Persist Test',
+        status: 'published',
+        stemText: '昨日、美味しいリンゴを食べた。',
+        optionTexts: ['食べた', '飲んだ'],
+      });
+      await backfillCorpus(dbClient);
+
+      // Re-instantiate CorpusService and VocabController completely fresh
+      const freshCorpusService = new CorpusService(dbClient);
+      const freshVocabController = new VocabController(vocabService, freshCorpusService);
+
+      const vocab = await freshVocabController.getDatasetVocabulary('jlpt-official');
+      expect(vocab.total).toBeGreaterThan(0);
+      expect(vocab.items.some((i) => i.term === '食べる')).toBe(true);
+
+      const stats = await freshVocabController.getWordStatistics('jlpt-official', '食べる');
+      expect(stats.term).toBe('食べる');
+      expect(stats.totalCount).toBeGreaterThan(0);
+    });
+
+    it('Acceptance 3: Xuất bản một đề mới thì từ của đề đó có trong danh sách; gỡ xuất bản thì biến mất', async () => {
+      const newExamId = generateUuidV7();
+      await seedTestExam({
+        id: newExamId,
+        slug: 'n2-special-test',
+        level: 'N2',
+        title: 'JLPT N2 Special',
+        status: 'draft',
+        year: 2024,
+        stemText: '貿易と経済が急速に発展する。',
+        optionTexts: ['発展', '衰退'],
+      });
+
+      // Before publish: N2 term '発展' not in corpus
+      let vocab = await vocabController.getDatasetVocabulary('jlpt-official', { level: 'N2' });
+      const termsBefore = vocab.items.map((i) => i.term);
+      expect(termsBefore).not.toContain('発展');
+
+      // Publish exam: calls indexExamForCorpus
+      const indexResult = await indexExamForCorpus(dbClient, newExamId);
+      expect(indexResult.indexedTerms).toBeGreaterThan(0);
+
+      // After publish: term '発展' is in list
+      vocab = await vocabController.getDatasetVocabulary('jlpt-official', { level: 'N2' });
+      const termsAfter = vocab.items.map((i) => i.term);
+      expect(termsAfter).toContain('発展');
+      expect(termsAfter).toContain('経済');
+
+      // Unpublish: calls removeExamFromCorpus
+      await removeExamFromCorpus(dbClient, newExamId);
+
+      const rowsRemaining = await dbClient.db
+        .select()
+        .from(corpusTerms)
+        .where(eq(corpusTerms.examId, newExamId));
+      expect(rowsRemaining.length).toBe(0);
+
+      // After unpublish: terms are gone
+      vocab = await vocabController.getDatasetVocabulary('jlpt-official', { level: 'N2' });
+      const termsAfterUnpublish = vocab.items.map((i) => i.term);
+      expect(termsAfterUnpublish).not.toContain('発展');
+    });
+
+    it('Acceptance 7 & JMdict + H01 Han-Viet enrichment: từ vựng lấy cách đọc, nghĩa tiếng Anh, Hán Việt', async () => {
+      const examId = generateUuidV7();
+      await seedTestExam({
+        id: examId,
+        slug: 'n5-enrich-test',
+        level: 'N5',
+        title: 'JLPT N5 Enrich',
+        status: 'published',
+        stemText: '先生が教室で日本語を教える。美味しいリンゴ。',
+      });
+      await indexExamForCorpus(dbClient, examId);
+
+      // Seed a JMdict lexical entry for '教室'
+      const licenseId = generateUuidV7();
+      const entryId = generateUuidV7();
+      await dbClient.db.insert(lexiconLicenses).values({
+        id: licenseId,
+        provider: 'JMdict',
+        license: 'CC-BY-SA-4.0',
+      });
+      await dbClient.db.insert(lexicalEntries).values({
+        id: entryId,
+        licenseId,
+        term: '教室',
+        partOfSpeech: 'noun',
+        hanViet: 'GIÁO THẤT',
+        hanVietConfidence: 'high',
+      });
+      await dbClient.db.insert(entryReadings).values({
+        id: generateUuidV7(),
+        entryId,
+        reading: 'きょうしつ',
+        isPrimary: true,
+      });
+      await dbClient.db.insert(entryMeanings).values({
+        id: generateUuidV7(),
+        entryId,
+        locale: 'en',
+        meaning: 'classroom',
+      });
+
+      const vocab = await vocabController.getDatasetVocabulary('jlpt-official');
+      const kyoushitsu = vocab.items.find((i) => i.term === '教室');
+      expect(kyoushitsu).toBeDefined();
+      expect(kyoushitsu?.reading).toBe('きょうしつ');
+      expect(kyoushitsu?.meaning).toBe('classroom');
+      expect(kyoushitsu?.hanViet).toBe('GIÁO THẤT');
+      expect(kyoushitsu?.hanVietConfidence).toBe('high');
+
+      // Word not in JMdict (e.g. 'リンゴ') still has valid reading and doesn't crash
+      const ringo = vocab.items.find((i) => i.term === 'リンゴ');
+      expect(ringo).toBeDefined();
+      expect(ringo?.reading).toBeTruthy();
     });
   });
 
