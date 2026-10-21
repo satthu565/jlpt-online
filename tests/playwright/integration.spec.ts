@@ -4663,6 +4663,22 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await expect(page.locator('[data-testid="exam-room"]')).toBeVisible({ timeout: 25000 });
   }
 
+  // Nộp bài để không để lại lượt thi đang mở của học viên mẫu trên demo-n5-1:
+  // bước "Core Vertical Slice E2E" chạy sau và cần tự tạo lượt thi mới từ phần đầu.
+  test.afterEach(async ({ page }) => {
+    const examRoom = page.locator('[data-testid="exam-room"]');
+    if (!(await examRoom.isVisible().catch(() => false))) return;
+    const submitBtn = page.locator('[data-testid="submit-exam-btn"], button:has-text("Nộp bài")').first();
+    if (!(await submitBtn.isVisible({ timeout: 5000 }).catch(() => false))) return;
+    await submitBtn.click();
+    const confirmBtn = page
+      .locator('[data-testid="modal-confirm-submit-btn"], button:has-text("Xác nhận nộp bài")')
+      .first();
+    await expect(confirmBtn).toBeVisible({ timeout: 10000 });
+    await confirmBtn.click();
+    await expect(page.locator('a[href*="/ket-qua/"]').first()).toBeVisible({ timeout: 15000 });
+  });
+
   async function triggerSelectText(page: Page, textToSelect: string) {
     return page.evaluate((targetText) => {
       const root =
