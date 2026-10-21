@@ -13,7 +13,7 @@ export const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      'inline-flex h-11 items-center justify-center rounded-lg bg-[var(--bg-muted,#f1f5f9)] p-1 text-[var(--text-secondary,#475569)] dark:bg-[var(--bg-muted,#1e293b)] dark:text-[var(--text-muted,#94a3b8)]',
+      'jlpt-tabs-list inline-flex items-center gap-1 rounded-3xl bg-[var(--default)] p-1 text-[var(--muted)]',
       className,
     )}
     {...props}
@@ -28,7 +28,7 @@ export const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3.5 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color,#2563eb)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-[var(--bg-surface,#ffffff)] data-[state=active]:text-[var(--text-primary,#0f172a)] data-[state=active]:shadow-sm dark:data-[state=active]:bg-[var(--bg-surface-elevated,#334155)] dark:data-[state=active]:text-[var(--text-primary,#f8fafc)] min-h-[36px]',
+      'jlpt-tabs-trigger inline-flex h-8 items-center justify-center whitespace-nowrap rounded-3xl px-3.5 text-sm font-medium transition-colors outline-none hover:text-[var(--foreground)] focus-visible:ring-2 focus-visible:ring-[var(--focus)] disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-[var(--surface)] data-[state=active]:text-[var(--foreground)] data-[state=active]:shadow-[var(--surface-shadow)]',
       className,
     )}
     {...props}
@@ -43,7 +43,7 @@ export const TabsContent = React.forwardRef<
   <TabsPrimitive.Content
     ref={ref}
     className={cn(
-      'mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color,#2563eb)] focus-visible:ring-offset-2',
+      'mt-3 outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)]',
       className,
     )}
     {...props}

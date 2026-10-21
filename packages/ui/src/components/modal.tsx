@@ -108,7 +108,7 @@ export function Modal({
         aria-labelledby={titleId}
         tabIndex={-1}
         className={cn(
-          'jlpt-modal w-full max-w-[520px] bg-[var(--bg-surface-elevated,#ffffff)] rounded-xl border border-[var(--border-default,#cbd5e1)] shadow-lg overflow-hidden flex flex-col max-h-[90vh] dark:border-[var(--border-default,#475569)] dark:bg-[var(--bg-surface-elevated,#1e293b)]',
+          'jlpt-modal w-full max-w-[520px] bg-[var(--overlay)] rounded-3xl border-0 shadow-[var(--overlay-shadow)] overflow-hidden flex flex-col max-h-[90vh] dark:border-[var(--border-default,#475569)] dark:bg-[var(--bg-surface-elevated,#1e293b)]',
           className,
         )}
       >

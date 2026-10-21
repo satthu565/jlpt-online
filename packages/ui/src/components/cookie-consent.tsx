@@ -34,65 +34,18 @@ export function CookieConsentBanner({
       role="region"
       aria-label={labels.title}
       data-testid="cookie-consent-banner"
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 9999,
-        padding: '1.25rem 1.5rem',
-        backgroundColor: 'var(--bg-surface, #ffffff)',
-        color: 'var(--text-primary, #0f172a)',
-        borderTop: '1px solid var(--border-subtle, #e2e8f0)',
-        boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.08)',
-      }}
-      className={`jlpt-cookie-consent ${className}`}
+      className={`jlpt-cookie-consent fixed inset-x-0 bottom-0 z-[9999] border-t border-[var(--separator)] bg-[var(--surface)] px-6 py-5 text-[var(--foreground)] shadow-[var(--overlay-shadow)] ${className}`}
     >
-      <div
-        style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '1rem',
-        }}
-      >
-        <div style={{ flex: '1 1 500px', maxWidth: '800px' }}>
-          <h3
-            style={{
-              margin: '0 0 0.375rem 0',
-              fontSize: '1rem',
-              fontWeight: 700,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}
-          >
+      <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4">
+        <div className="max-w-[800px] flex-[1_1_500px]">
+          <h2 className="mb-1.5 flex items-center gap-2 text-base font-bold">
             <Cookie className="size-5 shrink-0" aria-hidden="true" />
             {labels.title}
-          </h3>
-          <p
-            style={{
-              margin: 0,
-              fontSize: '0.875rem',
-              lineHeight: 1.5,
-              color: 'var(--text-secondary, #475569)',
-            }}
-          >
-            {labels.description}
-          </p>
+          </h2>
+          <p className="m-0 text-sm leading-normal text-[var(--muted)]">{labels.description}</p>
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            flexWrap: 'wrap',
-          }}
-        >
+        <div className="flex flex-wrap items-center gap-2">
           {onCustomize && labels.customize && (
             <Button
               variant="outline"

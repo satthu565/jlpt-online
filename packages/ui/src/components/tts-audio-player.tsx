@@ -105,14 +105,9 @@ export function TTSAudioPlayer({
     <div
       data-testid="tts-audio-player"
       data-text={text}
-      className={`jlpt-tts-player ${className}`}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5rem',
-      }}
+      className={`jlpt-tts-player flex flex-col gap-2 ${className}`}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      <div className="flex items-center gap-3">
         <Button
           type="button"
           size="sm"
@@ -129,10 +124,7 @@ export function TTSAudioPlayer({
 
         {voice && (
           <span
-            style={{
-              fontSize: '0.75rem',
-              color: 'var(--text-muted, #64748b)',
-            }}
+            className="text-xs text-[var(--muted)]"
           >
             Voice: {voice}
           </span>

@@ -24,23 +24,7 @@ export function WatermarkBadge({
   return (
     <div
       data-testid="security-watermark"
-      className={`jlpt-watermark ${className}`}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        padding: '0.375rem 0.75rem',
-        backgroundColor: 'rgba(241, 245, 249, 0.8)',
-        border: '1px dashed #cbd5e1',
-        borderRadius: '6px',
-        fontSize: '0.6875rem',
-        color: '#64748b',
-        fontFamily: 'monospace',
-        letterSpacing: '0.025em',
-        userSelect: 'none',
-        maxWidth: '100%',
-        overflowWrap: 'anywhere',
-      }}
+      className={`jlpt-watermark inline-flex max-w-full select-none items-center gap-2 rounded-md border border-dashed border-[var(--border)] bg-[var(--surface-secondary)] px-3 py-1.5 font-mono text-[0.6875rem] tracking-wide text-[var(--muted)] [overflow-wrap:anywhere] ${className}`}
     >
       <ShieldCheck className="size-3.5" aria-hidden="true" />
       <span>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Check } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 import * as React from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { cn } from '../lib/utils.js';
@@ -17,16 +17,14 @@ export const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'flex h-11 w-full items-center justify-between rounded-md border border-[var(--border-default,#cbd5e1)] bg-[var(--bg-surface,#ffffff)] px-3.5 py-2 text-base ring-offset-background placeholder:text-[var(--text-muted,#64748b)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring-color,#2563eb)] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-[var(--border-default,#475569)] dark:bg-[var(--bg-surface,#1e293b)] dark:text-[var(--text-primary,#f8fafc)]',
+      'input input--primary input--full-width flex h-11 items-center justify-between cursor-pointer focus:outline-none disabled:cursor-not-allowed disabled:opacity-50',
       className,
     )}
     {...props}
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <span aria-hidden="true" className="h-4 w-4 opacity-50">
-        ▼
-      </span>
+      <ChevronDown aria-hidden="true" className="size-4 opacity-60" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ));
@@ -40,7 +38,7 @@ export const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-[var(--border-default,#cbd5e1)] bg-[var(--bg-surface-elevated,#ffffff)] text-[var(--text-primary,#0f172a)] shadow-md animate-in fade-in-80 dark:border-[var(--border-default,#475569)] dark:bg-[var(--bg-surface-elevated,#334155)] dark:text-[var(--text-primary,#f8fafc)]',
+        'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-2xl bg-[var(--overlay)] text-[var(--overlay-foreground,var(--foreground))] shadow-[var(--overlay-shadow)] animate-in fade-in-80',
         position === 'popper' && 'data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1',
         className,
       )}
@@ -72,7 +70,7 @@ export const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-[var(--bg-hover,#e2e8f0)] focus:text-[var(--text-primary,#0f172a)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:bg-[var(--bg-hover,#334155)] dark:focus:text-[var(--text-primary,#f8fafc)]',
+      'relative flex w-full cursor-default select-none items-center rounded-xl py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-[var(--default)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className,
     )}
     {...props}

@@ -10,8 +10,8 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
     <div
       ref={ref}
       className={cn(
-        'jlpt-card rounded-xl border border-[var(--border-subtle,#e2e8f0)] bg-[var(--bg-surface,#ffffff)] text-[var(--text-primary,#0f172a)] transition-colors p-6 shadow-sm dark:border-[var(--border-subtle,#334155)] dark:bg-[var(--bg-surface,#1e293b)] dark:text-[var(--text-primary,#f8fafc)]',
-        elevated && 'shadow-md bg-[var(--bg-surface-elevated,#ffffff)] dark:bg-[var(--bg-surface-elevated,#334155)]',
+        'jlpt-card card card--default',
+        elevated && 'shadow-[var(--overlay-shadow)]',
         className,
       )}
       {...props}
@@ -26,7 +26,7 @@ export const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('jlpt-card-header flex flex-col gap-1 mb-4', className)}
+    className={cn('jlpt-card-header card__header', className)}
     {...props}
   />
 ));
@@ -42,7 +42,7 @@ export const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
     <Component
       ref={ref}
       className={cn(
-        'jlpt-card-title m-0 text-xl font-bold leading-tight text-[var(--text-primary,#0f172a)] dark:text-[var(--text-primary,#f8fafc)]',
+        'jlpt-card-title card__title m-0 text-lg font-semibold leading-tight',
         className,
       )}
       {...props}
@@ -57,7 +57,7 @@ export const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn('text-sm text-[var(--text-muted,#64748b)] dark:text-[var(--text-muted,#94a3b8)] m-0', className)}
+    className={cn('card__description m-0', className)}
     {...props}
   />
 ));
@@ -70,7 +70,7 @@ export const CardContent = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'jlpt-card-content text-sm leading-relaxed text-[var(--text-secondary,#475569)] dark:text-[var(--text-muted,#94a3b8)]',
+      'jlpt-card-content card__content text-sm leading-relaxed',
       className,
     )}
     {...props}
@@ -85,7 +85,7 @@ export const CardFooter = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'jlpt-card-footer mt-5 flex items-center justify-end gap-3 border-t border-[var(--border-subtle,#e2e8f0)] pt-4 dark:border-[var(--border-subtle,#334155)]',
+      'jlpt-card-footer card__footer justify-end',
       className,
     )}
     {...props}

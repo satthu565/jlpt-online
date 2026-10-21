@@ -8,7 +8,7 @@ export function Skeleton({
   return (
     <div
       className={cn(
-        'animate-pulse rounded-md bg-[var(--bg-muted,#f1f5f9)] dark:bg-[var(--bg-surface-elevated,#334155)]',
+        'skeleton skeleton--shimmer rounded-lg',
         className,
       )}
       {...props}

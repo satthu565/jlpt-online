@@ -3,198 +3,86 @@
  * Features: EXAM-26 (Dark/Light mode), SYS-01 (Responsive), SYS-14 (Accessibility)
  */
 
+/*
+ * Theme: HeroUI v3 (@heroui/styles). HeroUI owns the colour tokens (--background, --surface,
+ * --accent, --muted, --border, …) for light and dark mode; the legacy JLPT variables used across
+ * the apps (including inline styles) are derived from them so every page follows the theme.
+ */
+/* Brand accent: JLPT Online green on top of the HeroUI theme (hover/soft/focus derive from --accent).
+   Light mode uses green-700 so white button text and green links on white reach WCAG AA (about 5:1);
+   green-600 gave 3.2:1 and failed the Lighthouse accessibility budget. Muted text is zinc-600 (HeroUI's
+   default zinc-500 gave 4.2:1 on its grey surfaces). */
 :root {
-  /* Default Light Mode Colors */
-  --bg-page: #f8fafc;
-  --bg-surface: #ffffff;
-  --bg-surface-elevated: #ffffff;
-  --bg-muted: #f1f5f9;
-  --bg-hover: #e2e8f0;
+  --accent: oklch(0.527 0.154 150.069);
+  --accent-foreground: oklch(1 0 0);
+  --muted: oklch(0.442 0.017 285.786);
+  /* Secondary page text (text-slate-500 / text-gray-500) sits on HeroUI's grey background (#f5f5f5),
+     where Tailwind's 500 shades give 4.36:1; one step darker keeps AA. */
+  --color-slate-500: oklch(0.48 0.041 257.281);
+  --color-gray-500: oklch(0.48 0.027 264.364);
+}
+.dark,
+[data-theme='dark'] {
+  --accent: oklch(0.723 0.219 149.579);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+  /* HeroUI and Tailwind defaults: on dark backgrounds the lighter shades read better. */
+  --muted: oklch(70.5% 0.015 286.067);
+  --color-slate-500: oklch(0.554 0.046 257.417);
+  --color-gray-500: oklch(0.551 0.027 264.364);
+}
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --text-inverse: #ffffff;
+:root,
+.dark,
+[data-theme='dark'] {
+  --bg-page: var(--background);
+  --bg-surface: var(--surface);
+  --bg-surface-elevated: var(--overlay);
+  --bg-card: var(--surface);
+  --bg-secondary: var(--surface-secondary);
+  --bg-muted: var(--surface-secondary);
+  --bg-hover: var(--default);
 
-  --border-subtle: #e2e8f0;
-  --border-default: #cbd5e1;
-  --border-strong: #94a3b8;
+  --text-primary: var(--foreground);
+  --text-secondary: color-mix(in oklab, var(--foreground) 72%, var(--muted));
+  --text-muted: var(--muted);
+  --text-inverse: var(--accent-foreground);
 
-  --color-primary: #16a34a;
-  --color-primary-hover: #15803d;
-  --color-primary-light: #dcfce7;
-  --color-primary-text: #14532d;
+  --border-subtle: var(--separator);
+  --border-default: var(--border);
+  --border-color: var(--border);
+  --border-neutral: var(--border);
+  --border-strong: var(--border-secondary);
 
-  --color-danger: #dc2626;
-  --color-danger-hover: #b91c1c;
-  --color-danger-light: #fee2e2;
-  --color-danger-text: #991b1b;
+  --color-primary: var(--accent);
+  --color-primary-hover: var(--accent-hover);
+  --color-primary-light: var(--accent-soft);
+  --color-primary-text: var(--accent-soft-foreground);
 
-  --color-warning: #d97706;
-  --color-warning-light: #fef3c7;
-  --color-warning-text: #92400e;
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-error: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-light: var(--danger-soft);
+  --color-danger-text: var(--danger-soft-foreground);
 
-  --color-info: #2563eb;
-  --color-info-light: #dbeafe;
-  --color-info-text: #1e40af;
+  --color-warning: var(--warning);
+  --color-warning-light: var(--warning-soft);
+  --color-warning-text: var(--warning-soft-foreground);
 
-  /* Shadcn UI CSS variable mappings */
-  --background: var(--bg-page);
-  --foreground: var(--text-primary);
-  --card: var(--bg-surface);
-  --card-foreground: var(--text-primary);
-  --popover: var(--bg-surface-elevated);
-  --popover-foreground: var(--text-primary);
-  --primary: var(--color-primary);
-  --primary-foreground: var(--text-inverse);
-  --secondary: var(--bg-muted);
-  --secondary-foreground: var(--text-primary);
-  --muted: var(--bg-muted);
-  --muted-foreground: var(--text-muted);
-  --accent: var(--bg-hover);
-  --accent-foreground: var(--text-primary);
-  --destructive: var(--color-danger);
-  --destructive-foreground: var(--text-inverse);
-  --border: var(--border-default);
-  --input: var(--border-default);
-  --ring: var(--focus-ring-color);
-  --radius: 0.5rem;
+  --color-info: var(--accent);
+  --color-info-light: var(--accent-soft);
+  --color-info-text: var(--accent-soft-foreground);
 
-  /* Focus ring for WCAG 2.1 AA Keyboard accessibility */
-  --focus-ring-color: #2563eb;
+  --focus-ring-color: var(--focus);
   --focus-ring-offset: 2px;
-  --focus-ring-width: 3px;
+  --focus-ring-width: 2px;
 
-  /* Elevation */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --shadow-sm: var(--surface-shadow);
+  --shadow-md: var(--surface-shadow);
+  --shadow-lg: var(--overlay-shadow);
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-japanese: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
-}
-
-/* Dark mode theme: support both .dark class and [data-theme='dark'] */
-.dark,
-[data-theme='dark'] {
-  --bg-page: #0b1120;
-  --bg-surface: #1e293b;
-  --bg-surface-elevated: #334155;
-  --bg-muted: #1e293b;
-  --bg-hover: #334155;
-
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  --text-inverse: #0f172a;
-
-  --border-subtle: #334155;
-  --border-default: #475569;
-  --border-strong: #64748b;
-
-  --color-primary: #22c55e;
-  --color-primary-hover: #4ade80;
-  --color-primary-light: #14532d;
-  --color-primary-text: #bbf7d0;
-
-  --color-danger: #ef4444;
-  --color-danger-hover: #f87171;
-  --color-danger-light: #7f1d1d;
-  --color-danger-text: #fecaca;
-
-  --color-warning: #f59e0b;
-  --color-warning-light: #78350f;
-  --color-warning-text: #fde68a;
-
-  --color-info: #60a5fa;
-  --color-info-light: #1e3a8a;
-  --color-info-text: #bfdbfe;
-
-  --background: var(--bg-page);
-  --foreground: var(--text-primary);
-  --card: var(--bg-surface);
-  --card-foreground: var(--text-primary);
-  --popover: var(--bg-surface-elevated);
-  --popover-foreground: var(--text-primary);
-  --primary: var(--color-primary);
-  --primary-foreground: var(--text-inverse);
-  --secondary: var(--bg-muted);
-  --secondary-foreground: var(--text-primary);
-  --muted: var(--bg-muted);
-  --muted-foreground: var(--text-muted);
-  --accent: var(--bg-hover);
-  --accent-foreground: var(--text-primary);
-  --destructive: var(--color-danger);
-  --destructive-foreground: var(--text-inverse);
-  --border: var(--border-default);
-  --input: var(--border-default);
-  --ring: var(--focus-ring-color);
-
-  --focus-ring-color: #60a5fa;
-
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-}
-
-/* Fallback for system dark mode when theme is system */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --bg-page: #0b1120;
-    --bg-surface: #1e293b;
-    --bg-surface-elevated: #334155;
-    --bg-muted: #1e293b;
-    --bg-hover: #334155;
-
-    --text-primary: #f8fafc;
-    --text-secondary: #cbd5e1;
-    --text-muted: #94a3b8;
-    --text-inverse: #0f172a;
-
-    --border-subtle: #334155;
-    --border-default: #475569;
-    --border-strong: #64748b;
-
-    --color-primary: #22c55e;
-    --color-primary-hover: #4ade80;
-    --color-primary-light: #14532d;
-    --color-primary-text: #bbf7d0;
-
-    --color-danger: #ef4444;
-    --color-danger-hover: #f87171;
-    --color-danger-light: #7f1d1d;
-    --color-danger-text: #fecaca;
-
-    --color-warning: #f59e0b;
-    --color-warning-light: #78350f;
-    --color-warning-text: #fde68a;
-
-    --color-info: #60a5fa;
-    --color-info-light: #1e3a8a;
-    --color-info-text: #bfdbfe;
-
-    --background: var(--bg-page);
-    --foreground: var(--text-primary);
-    --card: var(--bg-surface);
-    --card-foreground: var(--text-primary);
-    --popover: var(--bg-surface-elevated);
-    --popover-foreground: var(--text-primary);
-    --primary: var(--color-primary);
-    --primary-foreground: var(--text-inverse);
-    --secondary: var(--bg-muted);
-    --secondary-foreground: var(--text-primary);
-    --muted: var(--bg-muted);
-    --muted-foreground: var(--text-muted);
-    --accent: var(--bg-hover);
-    --accent-foreground: var(--text-primary);
-    --destructive: var(--color-danger);
-    --destructive-foreground: var(--text-inverse);
-    --border: var(--border-default);
-    --input: var(--border-default);
-    --ring: var(--focus-ring-color);
-
-    --focus-ring-color: #60a5fa;
-  }
 }
 
 /* Reset & Base Elements */
