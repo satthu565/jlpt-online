@@ -12,6 +12,7 @@
   "scripts": {
     "validate": "node ./bin/validate.js",
     "pack": "node ./bin/pack.js",
-    "import-hanviet": "node ./bin/import-hanviet.js"
+    "import-hanviet": "node ./bin/import-hanviet.js",
+    "check-onyomi": "node ./bin/check-hanviet-onyomi.mjs"
   }
 }
