@@ -2411,3 +2411,35 @@ Mỗi worker chỉ thực hiện một task ghi tại một thời điểm. Task
   - `sudo -n /usr/local/bin/jlpt-stage-test check`
 - Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
 - Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.
+
+<a id="h07"></a>
+
+### H07 Quản trị: trang "Từ điển" liệt kê toàn bộ từ vựng trong database
+
+- Worker: **W4**. Ngày mục tiêu: 11. Ước lượng chưa đo: 3 giờ worker; không gồm mọi vòng sửa/review.
+- Phụ thuộc: không. Task chỉ DONE khi dependencies đã merge và nghiệm thu liên quan đầy đủ.
+- Tính năng chính: nền tảng hoặc tích hợp, hỗ trợ toàn bộ phạm vi.
+- Phạm vi: CHỦ DỰ ÁN CẦN NHANH: task nhỏ, không phụ thuộc task khác, làm gọn trong phạm vi dưới đây. DỮ LIỆU: từ điển JMdict + KANJIDIC2 đã nạp vào các bảng lexical_entries (id, term, level, part_of_speech, license_id), entry_readings (entry_id, reading, is_primary), entry_meanings (entry_id, locale "en", meaning), lexicon_licenses (provider, license); trên preview có 22.647 mục, CI staging có thể rỗng. (1) API mới trong apps/api/src/modules/vocab (controller + service hiện có): GET /api/v1/admin/lexicon/entries?q=&pos=&page=&pageSize= (vai trò editor, reviewer, admin; pageSize mặc định 50, tối đa 200). q tìm theo mặt chữ (bắt đầu bằng hoặc chứa), cách đọc kana, hoặc nghĩa tiếng Anh (chứa, không phân biệt hoa thường). pos lọc theo mã từ loại JMdict (n, v1, v5, vs, adj-i, adj-na, adv...). Trả { total, page, pageSize, items: [{ id, term, readings[], meanings[] (tối đa 3), partOfSpeech, hanViet, provider }] }; hanViet lấy bằng getHanVietForWord(term) như tra từ hiện tại (khi H01 xong sẽ tự đúng hơn). Truy vấn phân trang ở database (limit/offset, đếm tổng), không nạp hết vào bộ nhớ; có index phù hợp nếu thiếu. Thêm hàm vào apps/admin/lib/api-client.ts. (2) Trang admin mới /lexicon, mục menu "Từ điển" trong nhóm "Nội dung & biên tập" (apps/admin/lib/navigation.ts), vai trò editor, reviewer, admin: tiêu đề, tổng số mục; ô tìm kiếm (Input) tra khi Enter/nút; bộ lọc từ loại (Select: Tất cả, Danh từ n, Động từ v1/v5, Danh động từ vs, Tính từ đuôi い adj-i, Tính từ đuôi な adj-na, Phó từ adv); bảng (Table của @jlpt/ui) cột: Từ (font Nhật), Cách đọc, Hán Việt, Từ loại, Nghĩa (tiếng Anh, tối đa 3); phân trang Trước/Sau và số trang; trạng thái: đang tải (Skeleton), không có kết quả, lỗi API (Alert + Thử lại); chân trang ghi nguồn "JMdict/KANJIDIC2 – EDRDG, CC BY-SA 4.0". Chỉ dùng component @jlpt/ui (giao diện HeroUI), không style={{}}, chuỗi vi/ja/en trong apps/admin/messages. Chỉ xem, không sửa (sửa Hán Việt là việc của H03).
+- Bàn giao: apps/admin/; apps/api/src/modules/vocab/.
+- Hợp đồng: API.
+- Khóa tài nguyên: theo đường dẫn task và quyền sở hữu worker.
+- Điều kiện ngoài chặn bắt đầu: không.
+- Điều kiện ngoài chặn nghiệm thu (không chặn giao việc): không.
+- Quyền ghi tạm ngoài thư mục của worker: apps/api/src/modules/vocab/, tests/playwright/.
+- Nghiệm thu:
+  - Đăng nhập admin, menu Từ điển mở /lexicon, bảng hiện mục từ với tổng số đúng bằng số dòng lexical_entries; trên preview tổng là 22.647.
+  - Tìm 予約 thấy 予約; tìm よやく thấy 予約; tìm "reservation" thấy 予約; lọc adj-na chỉ còn tính từ đuôi な.
+  - Chuyển trang hoạt động, mỗi trang tối đa pageSize mục, phản hồi API dưới 1 giây trên 22.647 mục.
+  - Vai trò không phải editor/reviewer/admin bị chặn (403 hoặc ẩn menu).
+  - Database chưa nạp từ điển thì trang hiện trạng thái trống rõ ràng, không lỗi.
+  - Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass.
+  - Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền.
+  - E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en.
+- Lệnh cần cung cấp và chạy:
+  - `pnpm test:admin`
+  - `pnpm test:vocab-data`
+  - `pnpm check:no-mock-ui`
+  - `pnpm check:ui-primitives`
+  - `sudo -n /usr/local/bin/jlpt-stage-test check`
+- Ngoài phạm vi: không đổi hợp đồng chung, sửa file worker khác hoặc nâng chi phí nếu chưa có quyết định. Không bỏ tính năng được giao.
+- Bằng chứng bắt buộc: commitSHA/baseSHA, đường dẫn test, command, exitCode, timestamp, artifact/report và kết quả từng feature.

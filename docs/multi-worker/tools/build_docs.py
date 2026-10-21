@@ -857,9 +857,30 @@ task('H06','W3',11,8,'Web: bôi đen từ khi làm bài để xem nghĩa, cách 
  'Ở 390px khung nổi nằm trong màn hình, không tràn ngang; không có lỗi hydration trong console|'
  +NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:web|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/')
+# Owner 2026-10-21: an admin page that lists every vocabulary entry in the database, as fast as possible (no dependencies).
+task('H07','W4',11,3,'Quản trị: trang "Từ điển" liệt kê toàn bộ từ vựng trong database','',
+ 'CHỦ DỰ ÁN CẦN NHANH: task nhỏ, không phụ thuộc task khác, làm gọn trong phạm vi dưới đây. '
+ 'DỮ LIỆU: từ điển JMdict + KANJIDIC2 đã nạp vào các bảng lexical_entries (id, term, level, part_of_speech, license_id), entry_readings (entry_id, reading, is_primary), '
+ 'entry_meanings (entry_id, locale "en", meaning), lexicon_licenses (provider, license); trên preview có 22.647 mục, CI staging có thể rỗng. '
+ '(1) API mới trong apps/api/src/modules/vocab (controller + service hiện có): GET /api/v1/admin/lexicon/entries?q=&pos=&page=&pageSize= '
+ '(vai trò editor, reviewer, admin; pageSize mặc định 50, tối đa 200). q tìm theo mặt chữ (bắt đầu bằng hoặc chứa), cách đọc kana, hoặc nghĩa tiếng Anh (chứa, không phân biệt hoa thường). '
+ 'pos lọc theo mã từ loại JMdict (n, v1, v5, vs, adj-i, adj-na, adv...). Trả { total, page, pageSize, items: [{ id, term, readings[], meanings[] (tối đa 3), partOfSpeech, hanViet, provider }] }; '
+ 'hanViet lấy bằng getHanVietForWord(term) như tra từ hiện tại (khi H01 xong sẽ tự đúng hơn). Truy vấn phân trang ở database (limit/offset, đếm tổng), không nạp hết vào bộ nhớ; có index phù hợp nếu thiếu. '
+ 'Thêm hàm vào apps/admin/lib/api-client.ts. '
+ '(2) Trang admin mới /lexicon, mục menu "Từ điển" trong nhóm "Nội dung & biên tập" (apps/admin/lib/navigation.ts), vai trò editor, reviewer, admin: '
+ 'tiêu đề, tổng số mục; ô tìm kiếm (Input) tra khi Enter/nút; bộ lọc từ loại (Select: Tất cả, Danh từ n, Động từ v1/v5, Danh động từ vs, Tính từ đuôi い adj-i, Tính từ đuôi な adj-na, Phó từ adv); '
+ 'bảng (Table của @jlpt/ui) cột: Từ (font Nhật), Cách đọc, Hán Việt, Từ loại, Nghĩa (tiếng Anh, tối đa 3); phân trang Trước/Sau và số trang; '
+ 'trạng thái: đang tải (Skeleton), không có kết quả, lỗi API (Alert + Thử lại); chân trang ghi nguồn "JMdict/KANJIDIC2 – EDRDG, CC BY-SA 4.0". '
+ 'Chỉ dùng component @jlpt/ui (giao diện HeroUI), không style={{}}, chuỗi vi/ja/en trong apps/admin/messages. Chỉ xem, không sửa (sửa Hán Việt là việc của H03).',
+ 'apps/admin/|apps/api/src/modules/vocab/',
+ 'Đăng nhập admin, menu Từ điển mở /lexicon, bảng hiện mục từ với tổng số đúng bằng số dòng lexical_entries; trên preview tổng là 22.647|'
+ 'Tìm 予約 thấy 予約; tìm よやく thấy 予約; tìm "reservation" thấy 予約; lọc adj-na chỉ còn tính từ đuôi な|Chuyển trang hoạt động, mỗi trang tối đa pageSize mục, phản hồi API dưới 1 giây trên 22.647 mục|'
+ 'Vai trò không phải editor/reviewer/admin bị chặn (403 hoặc ẩn menu)|Database chưa nạp từ điển thì trang hiện trạng thái trống rõ ràng, không lỗi|'
+ +NO_MOCK+'|'+STATES+'|'+LAYOUT,
+ 'pnpm test:admin|pnpm test:vocab-data|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='apps/api/src/modules/vocab/ tests/playwright/')
 # Staging E2E on jlpt-vm (same suite as CI) is a required check for tasks that touch the UI or APIs it uses.
 for _t in TASKS:
-    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','I17','I19','I20','D02','D03','D04','D06','D07','D08','D09','D10','P03','P04','P05','H01','H02','H03','H04','H05','H06'}:
+    if _t['id'] in {'I05','I09','I03','I04','I10','I11','I12','I13','I14','I15','I16','I17','I19','I20','D02','D03','D04','D06','D07','D08','D09','D10','P03','P04','P05','H01','H02','H03','H04','H05','H06','H07'}:
         _t['checks'].append('sudo -n /usr/local/bin/jlpt-stage-test check')
     # Per-task runs cover Chromium + Mobile Safari; final acceptance runs every browser.
     # The integration E2E suite needs the staging stack and browser deps, so it only runs through
