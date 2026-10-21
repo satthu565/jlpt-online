@@ -644,6 +644,27 @@ export const lexicalEntries = pgTable('lexical_entries', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
+/**
+ * Standard kanji dataset (data/kanji/kanji_chuan_v1.json): one row per kanji, the full record in `data`.
+ * A few fields are copied into columns for filtering and sorting. Rows whose `source` is manual are not
+ * overwritten by a re-import.
+ */
+export const kanjiDataset = pgTable(
+  'kanji_dataset',
+  {
+    kanji: text('kanji').primaryKey(),
+    data: jsonb('data').notNull(),
+    jlptLevel: text('jlpt_level'),
+    strokeCount: smallint('stroke_count'),
+    hanViet: text('han_viet'),
+    meaningVi: text('meaning_vi'),
+    datasetVersion: text('dataset_version').notNull(),
+    source: text('source').notNull().default('dataset'),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [index('kanji_dataset_jlpt_level_idx').on(t.jlptLevel)],
+);
+
 /** H01: learner reports that an entry's Hán Việt is wrong; reviewed in the admin (H03). */
 export const lexiconHanvietReports = pgTable(
   'lexicon_hanviet_reports',

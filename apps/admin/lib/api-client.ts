@@ -1094,6 +1094,8 @@ export class AdminApiClient {
       meanings: string[];
       strokeCount: number | null;
       level: string | null;
+      meaningVi: string;
+      levels: string[];
     }>;
   }> {
     const qs = new URLSearchParams();

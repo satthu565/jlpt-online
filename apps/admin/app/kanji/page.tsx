@@ -22,6 +22,8 @@ type KanjiItem = {
   meanings: string[];
   strokeCount: number | null;
   level: string | null;
+  meaningVi: string;
+  levels: string[];
 };
 const PAGE_SIZE = 60;
 const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'];
@@ -141,6 +143,7 @@ export default function KanjiPage(): React.JSX.Element {
                 <TableHead>{t('kanji.colHanViet', locale)}</TableHead>
                 <TableHead>{t('kanji.colOnyomi', locale)}</TableHead>
                 <TableHead>{t('kanji.colKunyomi', locale)}</TableHead>
+                <TableHead>{t('kanji.colMeaningVi', locale)}</TableHead>
                 <TableHead>{t('kanji.colMeaning', locale)}</TableHead>
                 <TableHead>{t('kanji.colStrokes', locale)}</TableHead>
                 <TableHead>{t('kanji.colLevel', locale)}</TableHead>
@@ -153,9 +156,10 @@ export default function KanjiPage(): React.JSX.Element {
                   <TableCell className="font-semibold">{hanVietLabel(it)}</TableCell>
                   <TableCell className="font-japanese">{it.onyomi.join('、')}</TableCell>
                   <TableCell className="font-japanese">{it.kunyomi.join('、')}</TableCell>
+                  <TableCell className="max-w-xs">{it.meaningVi}</TableCell>
                   <TableCell className="max-w-xs">{it.meanings.join(', ')}</TableCell>
                   <TableCell>{it.strokeCount ?? ''}</TableCell>
-                  <TableCell>{it.level ?? ''}</TableCell>
+                  <TableCell>{it.levels.length > 1 ? it.levels.join(', ') : (it.level ?? '')}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
