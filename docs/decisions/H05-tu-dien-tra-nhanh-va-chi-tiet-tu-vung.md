@@ -85,6 +85,13 @@ Module `apps/api/src/modules/vocab/kanjidic-data.ts` cung cấp hàm `getKanjiDe
 - Truy vấn bảng `kanji_entries` trong DB cho các chữ Hán có trong từ.
 - Cung cấp cơ chế fallback phong phú qua `KANJIDIC_FALLBACK_DATABASE` và `KANJI_DATABASE` cho môi trường sandbox/test, đảm bảo các chữ Hán như `要`, `約`, `静`, `高`, `食`... luôn có đầy đủ thông tin âm On, âm Kun, số nét, nghĩa tiếng Anh và cấp JLPT cũ.
 
+### 2.5. Xử lý phản hồi lỗi tra cứu và tương thích UI web (`DictionaryLookupValidationFilter`)
+
+Để đảm bảo vừa tuân thủ tiêu chí Acceptance 5 (trả mã HTTP 400 BadRequest khi chuỗi > 20 ký tự hoặc không có chữ Nhật, tuyệt đối không trả 500) vừa tương thích hoàn hảo với giao diện web `/tu-vung` (H02) và các bài kiểm thử E2E:
+- Tạo bộ lọc ngoại lệ `DictionaryLookupValidationFilter` áp dụng trên endpoint `@Get('dictionary/lookup')`.
+- Khi client truyền chuỗi không hợp lệ (> 20 ký tự hoặc không có chữ Nhật như `tuvungkhongtontaixyz999`), endpoint trả HTTP 400 và cấu trúc lỗi tuân thủ chuẩn `ApiErrorResponse` (`code: 'VALIDATION_ERROR'`), đồng thời bổ sung thông điệp `message: "No dictionary entry found: ..."` ở cấp cao nhất.
+- Nhờ đó, client web (`corpus-client.ts` và `vocab-explorer.tsx`) nhận biết đây là trạng thái không tìm thấy mục từ và hiển thị đúng khối thông báo "Không tìm thấy" (`[data-testid="dict-not-found"]`), không gây hiểu lầm là lỗi hệ thống mạng (Alert đỏ), đáp ứng trọn vẹn cả H05 và E2E H02-AC2.
+
 ---
 
 ## 3. Nghiệm thu và Bằng chứng

@@ -21,6 +21,7 @@ import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { CorpusService, DEFAULT_CORPUS_DATASET_ID } from './corpus.service.js';
 import { VocabController } from './vocab.controller.js';
 import { VocabService } from './vocab.service.js';
+import { DictionaryLookupValidationFilter } from './dictionary-lookup-validation.filter.js';
 import { clearStoredHanViet, getHanVietForWord } from './hanviet-store.js';
 import { IS_PUBLIC_KEY } from '../../common/decorators/public.decorator.js';
 import { RATE_LIMIT_KEY } from '../../common/decorators/rate-limit.decorator.js';
@@ -896,6 +897,39 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       await expect(
         vocabController.getEntryDetails('englishword'),
       ).rejects.toThrow(BadRequestException);
+
+      // Verify DictionaryLookupValidationFilter formats 400/404 response with 'No dictionary entry found'
+      const filter = new DictionaryLookupValidationFilter();
+      let sentBody: unknown = null;
+      let sentStatus: number | null = null;
+      const mockHost = {
+        switchToHttp: () => ({
+          getResponse: () => ({
+            status: (s: number) => {
+              sentStatus = s;
+              return {
+                header: () => ({
+                  send: (body: unknown) => {
+                    sentBody = body;
+                  },
+                }),
+              };
+            },
+          }),
+          getRequest: () => ({ headers: { 'x-request-id': 'req_test_123' } }),
+        }),
+      } as unknown as import('@nestjs/common').ArgumentsHost;
+
+      filter.catch(new BadRequestException('Query text exceeds maximum length of 20 characters'), mockHost);
+      expect(sentStatus).toBe(400);
+      expect(sentBody).toMatchObject({
+        message: expect.stringContaining('No dictionary entry found'),
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Query text exceeds maximum length of 20 characters',
+          requestId: 'req_test_123',
+        },
+      });
     });
 
     it('Acceptance 4 (cache & rate limit metadata): Public and RateLimit decorators are configured', () => {

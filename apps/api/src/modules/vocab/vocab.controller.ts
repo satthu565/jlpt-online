@@ -10,6 +10,7 @@ import {
   Post,
   Query,
   UnauthorizedException,
+  UseFilters,
 } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { Public } from '../../common/decorators/public.decorator.js';
@@ -21,6 +22,7 @@ import type { KanjiListResult } from './kanji-list.js';
 import { RateLimit } from '../../common/decorators/rate-limit.decorator.js';
 import { isUuid } from '../../common/pipes/uuid-param.pipe.js';
 import { computeHanViet, getHanVietForWord, getHanVietForKanji, getHanVietLicenseInfo } from './nlp/index.js';
+import { DictionaryLookupValidationFilter } from './dictionary-lookup-validation.filter.js';
 
 @Injectable()
 export class DatasetIdPipe implements PipeTransform<string, string> {
@@ -99,6 +101,7 @@ export class VocabController {
   }
 
   @Public()
+  @UseFilters(DictionaryLookupValidationFilter)
   @RateLimit({ limit: 120, windowSec: 60, keyPrefix: 'dictionary-lookup' })
   @Get('dictionary/lookup')
   async lookupDictionary(@Query() query: DictionaryLookupQueryDto) {
