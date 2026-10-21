@@ -46,7 +46,8 @@
       "analytics": "Báo cáo & Phân tích",
       "admin": "Quản trị hệ thống"
     },
-    "lexicon": "Từ điển"
+    "lexicon": "Từ điển",
+    "kanji": "Kanji"
   },
   "auth": {
     "loginTitle": "Đăng nhập nhân sự",
@@ -392,5 +393,30 @@
     "next": "Trang sau",
     "page": "Trang",
     "attribution": "Nguồn: JMdict/KANJIDIC2 – EDRDG, giấy phép CC BY-SA 4.0"
+  },
+  "kanji": {
+    "title": "Kanji (KANJIDIC2)",
+    "subtitle": "Toàn bộ chữ Hán trong cơ sở dữ liệu, kèm âm Hán Việt.",
+    "total": "Tổng số chữ",
+    "searchPlaceholder": "Tìm theo chữ, âm On/Kun, Hán Việt hoặc nghĩa tiếng Anh",
+    "search": "Tìm",
+    "level": "Cấp độ",
+    "levelAll": "Tất cả",
+    "levelNone": "Chưa xếp cấp",
+    "colKanji": "Chữ",
+    "colHanViet": "Hán Việt",
+    "colOnyomi": "Âm On",
+    "colKunyomi": "Âm Kun",
+    "colMeaning": "Nghĩa (tiếng Anh)",
+    "colStrokes": "Số nét",
+    "colLevel": "Cấp",
+    "empty": "Không có chữ nào phù hợp.",
+    "emptyDb": "Cơ sở dữ liệu chưa nạp KANJIDIC2.",
+    "error": "Không tải được danh sách kanji.",
+    "retry": "Thử lại",
+    "prev": "Trang trước",
+    "next": "Trang sau",
+    "page": "Trang",
+    "attribution": "Nguồn: KANJIDIC2 – EDRDG, giấy phép CC BY-SA 4.0"
   }
 }

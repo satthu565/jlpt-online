@@ -74,7 +74,7 @@ export async function importLexicon(sql, { jmdictXml, kanjidicXml, commonOnly = 
         level: null,
         part_of_speech: e.pos.join(',') || null,
         han_viet: manualHanViet ?? hv.hanViet,
-        han_viet_confidence: manualHanViet ? 'high' : hv.confidence,
+        han_viet_confidence: manualHanViet ? 'high' : hv.perKanji.length > 0 ? hv.confidence : null,
         han_viet_source: manualHanViet ? 'manual' : hv.source,
         han_viet_updated_at: new Date(),
       });

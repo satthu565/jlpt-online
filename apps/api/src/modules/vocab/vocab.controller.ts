@@ -17,6 +17,7 @@ import type { AuthUserContext } from '../../common/types/auth.types.js';
 import { CorpusService } from './corpus.service.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
 import { VocabService, type LexiconListResult } from './vocab.service.js';
+import type { KanjiListResult } from './kanji-list.js';
 import { RateLimit } from '../../common/decorators/rate-limit.decorator.js';
 import { isUuid } from '../../common/pipes/uuid-param.pipe.js';
 import { computeHanViet, getHanVietForWord, getHanVietForKanji, getHanVietLicenseInfo } from './nlp/index.js';
@@ -75,16 +76,27 @@ export class VocabController {
   // 1. Dictionary Lookup (Acceptance 4)
   // ---------------------------------------------------------------------------
 
-    @Roles('admin', 'editor', 'reviewer')
-    @Get('admin/lexicon/entries')
-    async adminListLexicon(
-      @Query('q') q?: string,
-      @Query('pos') pos?: string,
-      @Query('page') page?: string,
-      @Query('pageSize') pageSize?: string,
-    ): Promise<LexiconListResult> {
-      return this.vocabService.listLexiconEntries({ q, pos, page: Number(page) || 1, pageSize: Number(pageSize) || 50 });
-    }
+  @Roles('admin', 'editor', 'reviewer')
+  @Get('admin/lexicon/entries')
+  async adminListLexicon(
+    @Query('q') q?: string,
+    @Query('pos') pos?: string,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+  ): Promise<LexiconListResult> {
+    return this.vocabService.listLexiconEntries({ q, pos, page: Number(page) || 1, pageSize: Number(pageSize) || 50 });
+  }
+
+  @Roles('admin', 'editor', 'reviewer')
+  @Get('admin/lexicon/kanji')
+  async adminListKanji(
+    @Query('q') q?: string,
+    @Query('level') level?: string,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+  ): Promise<KanjiListResult> {
+    return this.vocabService.listKanjiEntries({ q, level, page: Number(page) || 1, pageSize: Number(pageSize) || 60 });
+  }
 
   @Public()
   @RateLimit({ limit: 120, windowSec: 60, keyPrefix: 'dictionary-lookup' })
