@@ -91,6 +91,12 @@ export const ALL_NAV_SECTIONS: NavSection[] = [
         href: '/lexicon',
         requiredRoles: ['admin', 'editor', 'reviewer'],
       },
+      {
+        id: 'hanviet',
+        labelKey: 'nav.hanviet',
+        href: '/lexicon/hanviet',
+        requiredRoles: ['admin', 'editor', 'reviewer'],
+      },
     ],
   },
   {
@@ -343,6 +349,10 @@ export function canAccessRoute(role: Role | null | undefined, pathname: string):
     return allowed.includes('/');
   }
 
+  if (normalizedPath === '/hanviet' || normalizedPath.startsWith('/hanviet/')) {
+    return allowed.includes('/lexicon/hanviet');
+  }
+
   return allowed.some((route) => {
     if (route === '/') return false;
     return normalizedPath === route || normalizedPath.startsWith(`${route}/`);
@@ -354,6 +364,10 @@ export function canAccessRoute(role: Role | null | undefined, pathname: string):
  */
 export function getRequiredRolesForRoute(pathname: string): Role[] {
   const normalizedPath = pathname.split('?')[0] ?? '';
+
+  if (normalizedPath === '/hanviet' || normalizedPath.startsWith('/hanviet/')) {
+    return ['admin', 'editor', 'reviewer'];
+  }
 
   for (const section of ALL_NAV_SECTIONS) {
     for (const item of section.items) {

@@ -46,7 +46,8 @@
       "analytics": "Reports & Analytics",
       "admin": "System Administration"
     },
-    "lexicon": "Dictionary"
+    "lexicon": "Dictionary",
+    "hanviet": "Sino-Vietnamese Review"
   },
   "auth": {
     "loginTitle": "Staff Sign In",
@@ -392,5 +393,42 @@
     "next": "Next",
     "page": "Page",
     "attribution": "Source: JMdict/KANJIDIC2 – EDRDG, CC BY-SA 4.0"
+  },
+  "hanvietReview": {
+    "title": "Sino-Vietnamese Review",
+    "subtitle": "Review, edit, and approve Sino-Vietnamese readings for lexicon entries.",
+    "searchPlaceholder": "Search by word, reading, or Sino-Vietnamese...",
+    "search": "Search",
+    "confidence": "Confidence",
+    "confidenceAll": "All Confidences",
+    "confidenceReview": "Needs Review",
+    "confidenceKun": "Kun Reading",
+    "confidenceHigh": "High Confidence",
+    "sourceRule": "Rule-based",
+    "sourceOverride": "Override",
+    "sourceManual": "Manual edit",
+    "colTerm": "Term",
+    "colReading": "Reading",
+    "colMeaning": "Primary Meaning",
+    "colHanViet": "Sino-Vietnamese",
+    "colPerKanji": "Per-Kanji Breakdown",
+    "colConfidence": "Confidence",
+    "colSource": "Source",
+    "colReports": "Reports",
+    "colActions": "Actions",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirmCorrect": "Confirm Correct",
+    "saving": "Saving...",
+    "saveSuccess": "Sino-Vietnamese reading updated.",
+    "empty": "No vocabulary entries found.",
+    "error": "Could not load Sino-Vietnamese review list.",
+    "retry": "Retry",
+    "prev": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "total": "Total entries",
+    "noPermission": "You do not have permission to edit Sino-Vietnamese readings."
   }
 }

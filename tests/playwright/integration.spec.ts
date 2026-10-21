@@ -4043,3 +4043,250 @@ test.describe('Added features acceptance (P06)', () => {
     }
   });
 });
+
+/**
+ * ============================================================================
+ * Task H03: Quản trị: màn hình "Duyệt Hán Việt" cho từ vựng
+ * ============================================================================
+ */
+test.describe('Real Han Viet Review Admin Flow Suite (H03)', () => {
+  test.skip(({ browserName }) => browserName === 'webkit' || browserName === 'firefox', 'Firefox and WebKit host libraries are missing on Linux runners');
+
+  const adminOrigin = process.env.ADMIN_URL || 'http://127.0.0.1:3001';
+  const webOrigin = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+  const artifactDir = path.resolve(process.cwd(), 'playwright-report/artifacts/h03');
+
+  const H03_VIEWPORTS = [
+    { width: 390, height: 844, name: '390px' },
+    { width: 1366, height: 768, name: '1366px' },
+  ];
+
+  async function loginAsStaffH03(page: Page, origin: string, account: StaffAccount) {
+    await page.goto(`${origin}/login`, { waitUntil: 'domcontentloaded' });
+    if (!page.url().includes('/login') && !page.url().includes('/verify-2fa')) {
+      return;
+    }
+    if (page.url().includes('/login')) {
+      const emailInput = page.locator('[data-testid="email-input"], [data-testid="input-email"], input[type="email"]').first();
+      const passwordInput = page.locator('[data-testid="password-input"], [data-testid="input-password"], input[type="password"]').first();
+      await expect(emailInput).toBeVisible({ timeout: 15000 });
+      await emailInput.click();
+      await emailInput.fill(account.email);
+      await expect(emailInput).toHaveValue(account.email, { timeout: 5000 });
+      await passwordInput.click();
+      await passwordInput.fill(account.password);
+      await expect(passwordInput).toHaveValue(account.password, { timeout: 5000 });
+      await page.waitForTimeout(200);
+      await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
+
+      try {
+        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 30000, waitUntil: 'commit' });
+      } catch {
+        const errAlert = page.locator('[data-testid="login-error-alert"]');
+        if (await errAlert.isVisible({ timeout: 1000 }).catch(() => false)) {
+          await page.waitForTimeout(1000);
+          await page.locator('[data-testid="submit-login-button"], [data-testid="btn-login-submit"], button[type="submit"]').first().click();
+        }
+        await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 30000, waitUntil: 'commit' });
+      }
+    }
+
+    if (page.url().includes('/verify-2fa')) {
+      await handleTotpVerification(page, account.totpSecret, account.email);
+    }
+
+    expect(page.url()).not.toContain('/login');
+    expect(page.url()).not.toContain('/verify-2fa');
+    await expect(page.locator('main, [data-testid="page-title"], header, h1').first()).toBeVisible({ timeout: 20000 });
+  }
+
+  test('H03-AC1: Editor lọc "Cần xem lại", sửa 1 từ, lưu; tra từ đó ở /api/v1/dictionary/lookup trả âm mới và nguồn người sửa', async ({
+    page,
+    request,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'H03 editor flow runs on chromium');
+    const clientIp = getProjectClientIp(testInfo, 90);
+    const ipHeaders = { 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp };
+    await page.setExtraHTTPHeaders(ipHeaders);
+
+    // 1. Editor logs in
+    await loginAsStaffH03(page, adminOrigin, SEEDED_STAFF_ACCOUNTS.editor);
+
+    // 2. Navigate to Han Viet review page
+    await page.goto(`${adminOrigin}/lexicon/hanviet`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"], h1').first()).toBeVisible({ timeout: 20000 });
+
+    // Verify default filter is "review"
+    const confidenceSelect = page.locator('[data-testid="hanviet-confidence"]');
+    await expect(confidenceSelect).toHaveValue('review');
+
+    // Wait for table to load
+    await expect(page.locator('[data-testid="hanviet-loading"]')).not.toBeVisible({ timeout: 20000 });
+    const table = page.locator('[data-testid="hanviet-table"]');
+    await expect(table).toBeVisible({ timeout: 15000 });
+
+    // Pick first entry
+    const firstRow = page.locator('[data-testid="hanviet-row"]').first();
+    await expect(firstRow).toBeVisible({ timeout: 15000 });
+
+    const termCell = firstRow.locator('[data-testid^="cell-term-"]');
+    const term = (await termCell.innerText()).trim();
+    expect(term.length).toBeGreaterThan(0);
+
+    // Click edit button
+    const editBtn = firstRow.locator('[data-testid^="btn-edit-"]');
+    await editBtn.click();
+
+    // Input appears
+    const input = firstRow.locator('[data-testid^="input-hanviet-"]');
+    await expect(input).toBeVisible({ timeout: 5000 });
+
+    // Modify Han Viet value to a specific uppercase phrase
+    const updatedHanViet = 'HÁN VIỆT ĐÃ SỬA';
+    await input.fill(updatedHanViet);
+
+    // Click Save
+    const saveBtn = firstRow.locator('[data-testid^="btn-save-"]');
+    await saveBtn.click();
+
+    // Verify success banner or row updated
+    const hanvietCell = firstRow.locator('[data-testid^="cell-hanviet-"]');
+    await expect(hanvietCell).toContainText(updatedHanViet, { timeout: 10000 });
+
+    // Verify confidence badge is high and source badge is manual
+    const confCell = firstRow.locator('[data-testid^="cell-confidence-"]');
+    await expect(confCell).toContainText(/Độ tin cậy cao|High Confidence|高信頼度/i);
+
+    const srcCell = firstRow.locator('[data-testid^="cell-source-"]');
+    await expect(srcCell).toContainText(/Người sửa|Manual edit|手動修正/i);
+
+    // 3. Query dictionary lookup via public web API
+    const lookupRes = await request.get(
+      `${webOrigin}/api/v1/dictionary/lookup?text=${encodeURIComponent(term)}`,
+      { headers: ipHeaders, timeout: 15000 },
+    );
+    expect(lookupRes.status()).toBe(200);
+    const lookupBody = await lookupRes.json();
+    expect(lookupBody.hanViet).toBe(updatedHanViet);
+    expect(lookupBody.hanVietConfidence).toBe('high');
+    expect(lookupBody.hanVietSource).toBe('manual');
+  });
+
+  test('H03-AC2: "Xác nhận đúng" chuyển mục sang high', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'H03 confirm flow runs on chromium');
+    const clientIp = getProjectClientIp(testInfo, 91);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    await loginAsStaffH03(page, adminOrigin, SEEDED_STAFF_ACCOUNTS.editor);
+    await page.goto(`${adminOrigin}/lexicon/hanviet`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="page-title"]').first()).toBeVisible({ timeout: 20000 });
+
+    await expect(page.locator('[data-testid="hanviet-loading"]')).not.toBeVisible({ timeout: 20000 });
+    const firstRow = page.locator('[data-testid="hanviet-row"]').first();
+    await expect(firstRow).toBeVisible({ timeout: 15000 });
+
+    // Click "Xác nhận đúng"
+    const confirmBtn = firstRow.locator('[data-testid^="btn-confirm-"]');
+    await expect(confirmBtn).toBeVisible({ timeout: 5000 });
+    await confirmBtn.click();
+
+    // Verify row confidence promoted to high and source to manual
+    const confCell = firstRow.locator('[data-testid^="cell-confidence-"]');
+    await expect(confCell).toContainText(/Độ tin cậy cao|High Confidence|高信頼度/i, { timeout: 10000 });
+    const srcCell = firstRow.locator('[data-testid^="cell-source-"]');
+    await expect(srcCell).toContainText(/Người sửa|Manual edit|手動修正/i);
+  });
+
+  test('H03-AC3: Vai trò không có quyền sửa thì nút bị ẩn hoặc lỗi 403 hiển thị rõ', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(180_000);
+    test.skip(testInfo.project.name !== 'chromium', 'H03 role permissions test runs on chromium');
+    const clientIp = getProjectClientIp(testInfo, 92);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    // 1. Student / unauthenticated visitor -> blocked
+    await page.goto(`${adminOrigin}/lexicon/hanviet`, { waitUntil: 'domcontentloaded' });
+    const unauthOrForbidden = page.locator('[data-testid="guard-unauthenticated"], [data-testid="guard-non-staff"], [data-testid="guard-forbidden"]');
+    await expect(unauthOrForbidden.first()).toBeVisible({ timeout: 15000 });
+
+    // 2. Billing Admin (non-editor role) -> guard-forbidden (403)
+    await loginAsStaffH03(page, adminOrigin, SEEDED_STAFF_ACCOUNTS.billing_admin);
+    await page.goto(`${adminOrigin}/lexicon/hanviet`, { waitUntil: 'domcontentloaded' });
+    const forbidden = page.locator('[data-testid="guard-forbidden"]');
+    await expect(forbidden).toBeVisible({ timeout: 15000 });
+  });
+
+  test('H03-AC6 & AC7: Responsive viewports (390px, 1366px), zero horizontal overflow, and tri-locale i18n', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(240_000);
+    test.skip(testInfo.project.name !== 'chromium', 'H03 responsive and tri-locale tests run on chromium');
+    const clientIp = getProjectClientIp(testInfo, 93);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    await loginAsStaffH03(page, adminOrigin, SEEDED_STAFF_ACCOUNTS.editor);
+
+    if (!fs.existsSync(artifactDir)) {
+      fs.mkdirSync(artifactDir, { recursive: true });
+    }
+
+    const isMobileDevice = Boolean(testInfo.project.use?.isMobile);
+    const viewportsToTest = isMobileDevice
+      ? H03_VIEWPORTS.filter((v) => v.width <= 500)
+      : H03_VIEWPORTS;
+
+    // Viewport & horizontal overflow checks
+    for (const vp of viewportsToTest) {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await page.goto(`${adminOrigin}/lexicon/hanviet`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('[data-testid="page-title"], h1').first()).toBeVisible({ timeout: 20000 });
+      await page.waitForTimeout(200);
+
+      const overflow = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        innerWidth: window.innerWidth,
+      }));
+
+      expect(
+        overflow.scrollWidth,
+        `Horizontal scroll detected on /lexicon/hanviet at ${vp.name}: ${overflow.scrollWidth} > ${overflow.innerWidth}`,
+      ).toBeLessThanOrEqual(overflow.innerWidth + 1);
+
+      await page.screenshot({
+        path: path.join(artifactDir, `admin-hanviet-${vp.name}.png`),
+        fullPage: true,
+      });
+    }
+
+    // Tri-locale verification across vi, ja, en
+    const locales = ['vi', 'ja', 'en'] as const;
+    for (const locale of locales) {
+      await page.evaluate((loc) => {
+        try {
+          localStorage.setItem('jlpt_admin_locale_v1', loc);
+          localStorage.setItem('locale', loc);
+          document.cookie = `locale=${loc}; path=/; SameSite=Lax`;
+          document.cookie = `jlpt_admin_locale_v1=${loc}; path=/; SameSite=Lax`;
+        } catch {
+          // ignore
+        }
+      }, locale);
+
+      await page.goto(`${adminOrigin}/lexicon/hanviet`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('[data-testid="page-title"], h1').first()).toBeVisible({ timeout: 20000 });
+
+      const bodyText = await page.innerText('body');
+      expect(bodyText).not.toMatch(/\bhanvietReview\.[a-zA-Z0-9_.-]+\b/);
+      expect(bodyText).not.toMatch(/\bnav\.hanviet\b/);
+
+      await page.screenshot({
+        path: path.join(artifactDir, `admin-hanviet-1366px-${locale}.png`),
+      });
+    }
+  });
+});

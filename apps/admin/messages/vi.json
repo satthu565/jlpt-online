@@ -46,7 +46,8 @@
       "analytics": "Báo cáo & Phân tích",
       "admin": "Quản trị hệ thống"
     },
-    "lexicon": "Từ điển"
+    "lexicon": "Từ điển",
+    "hanviet": "Duyệt Hán Việt"
   },
   "auth": {
     "loginTitle": "Đăng nhập nhân sự",
@@ -392,5 +393,42 @@
     "next": "Trang sau",
     "page": "Trang",
     "attribution": "Nguồn: JMdict/KANJIDIC2 – EDRDG, giấy phép CC BY-SA 4.0"
+  },
+  "hanvietReview": {
+    "title": "Duyệt Hán Việt",
+    "subtitle": "Kiểm duyệt, chỉnh sửa và xác nhận âm Hán Việt cho từ vựng từ điển.",
+    "searchPlaceholder": "Tìm theo từ, cách đọc hoặc âm Hán Việt...",
+    "search": "Tìm kiếm",
+    "confidence": "Độ tin cậy",
+    "confidenceAll": "Tất cả độ tin cậy",
+    "confidenceReview": "Cần xem lại",
+    "confidenceKun": "Âm Kun",
+    "confidenceHigh": "Độ tin cậy cao",
+    "sourceRule": "Máy tính",
+    "sourceOverride": "Ngoại lệ",
+    "sourceManual": "Người sửa",
+    "colTerm": "Từ",
+    "colReading": "Cách đọc",
+    "colMeaning": "Nghĩa đầu",
+    "colHanViet": "Âm Hán Việt",
+    "colPerKanji": "Phân tách theo chữ",
+    "colConfidence": "Độ tin cậy",
+    "colSource": "Nguồn",
+    "colReports": "Số báo sai",
+    "colActions": "Thao tác",
+    "edit": "Sửa",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "confirmCorrect": "Xác nhận đúng",
+    "saving": "Đang lưu...",
+    "saveSuccess": "Đã cập nhật âm Hán Việt.",
+    "empty": "Không có mục từ nào phù hợp.",
+    "error": "Không tải được danh sách duyệt Hán Việt.",
+    "retry": "Thử lại",
+    "prev": "Trang trước",
+    "next": "Trang sau",
+    "page": "Trang",
+    "total": "Tổng số mục",
+    "noPermission": "Bạn không có quyền chỉnh sửa âm Hán Việt."
   }
 }
