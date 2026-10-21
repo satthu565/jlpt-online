@@ -254,6 +254,13 @@ export function useSelectLookup({
         if (!enabledRef.current) return;
         const selection = window.getSelection();
         if (!selection) return;
+        // Bỏ chọn văn bản thì đóng khung, trừ khi người dùng đang bấm nút trong khung
+        if (selection.isCollapsed) {
+          if (!document.activeElement?.closest('[data-select-lookup-popover="true"]')) {
+            setIsOpen(false);
+          }
+          return;
+        }
         const eligible = getEligibleSelection(selection);
         if (eligible) {
           performLookup(eligible.text, eligible.rect);

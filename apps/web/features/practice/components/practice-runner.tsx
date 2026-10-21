@@ -349,16 +349,26 @@ export function PracticeRunner({
 
       {/* Passage if present */}
       {currentQ.passage && currentQ.passage.length > 0 && (
-        <PassageView passage={currentQ.passage} showFurigana={showFurigana} className="mb-4" />
+        <div data-select-lookup-area="true">
+          <PassageView passage={currentQ.passage} showFurigana={showFurigana} className="mb-4" />
+        </div>
       )}
 
       {/* Stem */}
-      <div className="text-lg font-japanese leading-relaxed text-slate-900 dark:text-slate-100 p-2">
+      <div
+        data-select-lookup-area="true"
+        className="text-lg font-japanese leading-relaxed text-slate-900 dark:text-slate-100 p-2"
+      >
         <RichTextView segments={currentQ.stem} showFurigana={showFurigana} />
       </div>
 
       {/* Options List */}
-      <div className="space-y-3" role="radiogroup" aria-label={`Phương án câu ${currentQ.number}`}>
+      <div
+        data-select-lookup-area="true"
+        className="space-y-3"
+        role="radiogroup"
+        aria-label={`Phương án câu ${currentQ.number}`}
+      >
         {currentQ.options.map((opt, optIdx) => {
           const optValue = optIdx + 1;
           const isSelected = userChoice === optValue;
