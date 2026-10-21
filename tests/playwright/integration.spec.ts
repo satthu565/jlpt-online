@@ -4057,10 +4057,27 @@ test.describe('Added features acceptance (P06)', () => {
       }
       const emailInput = page.locator('#login-email, input[type="email"]').first();
       const passwordInput = page.locator('#login-password, input[type="password"]').first();
+      await expect(emailInput).toBeVisible({ timeout: 15000 });
+      await emailInput.click();
       await emailInput.fill(studentUser.email);
+      await expect(emailInput).toHaveValue(studentUser.email, { timeout: 5000 });
+      await passwordInput.click();
       await passwordInput.fill(studentUser.password);
-      await page.locator('button[type="submit"]').first().click();
-      await page.waitForURL((url) => !url.pathname.includes('/dang-nhap'), { timeout: 30000 }).catch(() => {});
+      await expect(passwordInput).toHaveValue(studentUser.password, { timeout: 5000 });
+      const submitBtn = page.locator('button[type="submit"]').first();
+      await expect(submitBtn).toBeVisible({ timeout: 15000 });
+      await page.waitForTimeout(300);
+      await submitBtn.click();
+      try {
+        await page.waitForURL(/\/tai-khoan/, { timeout: 25000, waitUntil: 'commit' });
+      } catch {
+        if (page.url().includes('/dang-nhap')) {
+          await emailInput.fill(studentUser.email);
+          await passwordInput.fill(studentUser.password);
+          await submitBtn.click();
+          await page.waitForURL(/\/tai-khoan/, { timeout: 25000, waitUntil: 'commit' });
+        }
+      }
     }
 
     test('H02-AC1 & AC5: Gõ 学生 rồi Enter: thẻ hiện 学生, がくせい, nhãn HỌC SINH, nghĩa và EDRDG attribution; khu tra từ hiện đầu trang', async ({
@@ -4077,8 +4094,10 @@ test.describe('Added features acceptance (P06)', () => {
 
       // AC1: type 学生 and press Enter
       const input = page.locator('[data-testid="dict-search-input"]');
-      await expect(input).toBeVisible();
+      await expect(input).toBeVisible({ timeout: 15000 });
+      await input.click();
       await input.fill('学生');
+      await expect(input).toHaveValue('学生', { timeout: 5000 });
       await input.press('Enter');
 
       // Result card appears
@@ -4108,7 +4127,10 @@ test.describe('Added features acceptance (P06)', () => {
 
       await page.goto(`${webOrigin}/tu-vung`, { waitUntil: 'domcontentloaded' });
       const input = page.locator('[data-testid="dict-search-input"]');
+      await expect(input).toBeVisible({ timeout: 15000 });
+      await input.click();
       await input.fill('tuvungkhongtontaixyz999');
+      await expect(input).toHaveValue('tuvungkhongtontaixyz999', { timeout: 5000 });
       await input.press('Enter');
 
       const notFoundEl = page.locator('[data-testid="dict-not-found"]');
@@ -4127,7 +4149,10 @@ test.describe('Added features acceptance (P06)', () => {
       // 1. Visit as guest
       await page.goto(`${webOrigin}/tu-vung`, { waitUntil: 'domcontentloaded' });
       const input = page.locator('[data-testid="dict-search-input"]');
+      await expect(input).toBeVisible({ timeout: 15000 });
+      await input.click();
       await input.fill('学生');
+      await expect(input).toHaveValue('学生', { timeout: 5000 });
       await input.press('Enter');
       await expect(page.locator('[data-testid="dict-result-card"]')).toBeVisible({ timeout: 15000 });
 
@@ -4139,7 +4164,10 @@ test.describe('Added features acceptance (P06)', () => {
       // AC3 guest click Report -> redirected to /dang-nhap
       await page.goto(`${webOrigin}/tu-vung`, { waitUntil: 'domcontentloaded' });
       const input2 = page.locator('[data-testid="dict-search-input"]');
+      await expect(input2).toBeVisible({ timeout: 15000 });
+      await input2.click();
       await input2.fill('学生');
+      await expect(input2).toHaveValue('学生', { timeout: 5000 });
       await input2.press('Enter');
       await expect(page.locator('[data-testid="dict-result-card"]')).toBeVisible({ timeout: 15000 });
 
@@ -4160,12 +4188,16 @@ test.describe('Added features acceptance (P06)', () => {
       // 2. Look up 学生
       await page.goto(`${webOrigin}/tu-vung`, { waitUntil: 'domcontentloaded' });
       const input = page.locator('[data-testid="dict-search-input"]');
+      await expect(input).toBeVisible({ timeout: 15000 });
+      await input.click();
       await input.fill('学生');
+      await expect(input).toHaveValue('学生', { timeout: 5000 });
       await input.press('Enter');
       await expect(page.locator('[data-testid="dict-result-card"]')).toBeVisible({ timeout: 15000 });
 
       // 3. Save to notebook
       const saveBtn = page.locator('[data-testid="save-to-notebook-btn"]');
+      await expect(saveBtn).toBeVisible({ timeout: 15000 });
       await saveBtn.click();
       await expect(page.locator('[data-testid="notebook-save-success"]')).toBeVisible({ timeout: 15000 });
 
@@ -4176,16 +4208,23 @@ test.describe('Added features acceptance (P06)', () => {
       // 5. Submit Han-Viet report
       await page.goto(`${webOrigin}/tu-vung`, { waitUntil: 'domcontentloaded' });
       const searchInput = page.locator('[data-testid="dict-search-input"]');
+      await expect(searchInput).toBeVisible({ timeout: 15000 });
+      await searchInput.click();
       await searchInput.fill('学生');
+      await expect(searchInput).toHaveValue('学生', { timeout: 5000 });
       await searchInput.press('Enter');
       await expect(page.locator('[data-testid="dict-result-card"]')).toBeVisible({ timeout: 15000 });
 
       const reportBtn = page.locator('[data-testid="report-hanviet-btn"]');
+      await expect(reportBtn).toBeVisible({ timeout: 15000 });
       await reportBtn.click();
       await expect(page.locator('[data-testid="report-hanviet-modal"]')).toBeVisible({ timeout: 10000 });
 
-      await page.locator('[data-testid="hanviet-suggestion-input"]').fill('HỌC SINH');
-      await page.locator('[data-testid="hanviet-note-input"]').fill('Đề xuất kiểm tra âm Hán Việt');
+      const suggestionInput = page.locator('[data-testid="hanviet-suggestion-input"]');
+      await expect(suggestionInput).toBeVisible({ timeout: 5000 });
+      await suggestionInput.fill('HỌC SINH');
+      const noteInput = page.locator('[data-testid="hanviet-note-input"]');
+      await noteInput.fill('Đề xuất kiểm tra âm Hán Việt');
       await page.locator('[data-testid="submit-hanviet-report-btn"]').click();
       await expect(page.locator('[data-testid="report-hanviet-success"]')).toBeVisible({ timeout: 15000 });
     });
