@@ -53,8 +53,9 @@ describe('F08 Database Schema and Migrations', () => {
         expect(names).toContain('0005_blueprint_effective_to.sql');
         expect(names).toContain('0006_section_listening_timeline.sql');
         expect(names).toContain('0007_lexicon_hanviet.sql');
-        expect(names).toContain('0008_entry_meanings_senses.sql');
-        expect(names.length).toBe(9);
+        expect(names).toContain('0008_corpus_terms.sql');
+        expect(names).toContain('0009_entry_meanings_senses.sql');
+        expect(names.length).toBe(10);
       } finally {
         await client.close();
       }

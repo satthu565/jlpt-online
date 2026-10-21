@@ -1,3 +1,5 @@
+import type { CorpusRankingItem, VocabOccurrenceItem } from '@jlpt/content-tools';
+
 export type JlptLevel = 'N1' | 'N2' | 'N3' | 'N4' | 'N5';
 
 export type QuestionSkill = 'kanji' | 'vocabulary' | 'grammar' | 'reading' | 'listening';
@@ -101,6 +103,23 @@ export interface CorpusFilterQueryDto {
   offset?: number;
   dataType?: 'observed' | 'synthetic' | 'all';
   provenance?: string;
+}
+
+export interface CorpusVocabularyItem extends VocabOccurrenceItem {
+  id?: string;
+  word?: string;
+  reading?: string;
+  meaning?: string;
+  meaningVi?: string;
+  relativeFrequencyPerThousand?: number;
+  hanViet?: string;
+  hanVietConfidence?: 'high' | 'review' | 'kun';
+}
+
+export interface CorpusVocabularyResponseDto {
+  total: number;
+  items: CorpusVocabularyItem[];
+  rankings: CorpusRankingItem[];
 }
 
 export interface TagQuestionDto {

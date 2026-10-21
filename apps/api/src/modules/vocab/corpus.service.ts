@@ -7,8 +7,9 @@ import {
   NotFoundException,
   Optional,
 } from '@nestjs/common';
-import { and, eq, gt } from 'drizzle-orm';
+import { and, desc, eq, gt, inArray } from 'drizzle-orm';
 import {
+  computeHanViet,
   CorpusAggregator,
   exportDatasetToCsv,
   exportDatasetToXlsx,
@@ -18,13 +19,21 @@ import {
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import {
+  answerOptions,
   corpusAggregates,
+  corpusTerms,
   datasetDocuments,
   datasets,
+  entryMeanings,
+  entryReadings,
   examAttempts,
   examEvents,
+  exams,
+  lexicalEntries,
   lexiconLicenses,
   notebookItems,
+  questions,
+  questionVersions,
 } from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { isUuid } from '../../common/pipes/uuid-param.pipe.js';
@@ -34,6 +43,8 @@ import type {
   CompareWithLearnedResponseDto,
   CorpusFilterQueryDto,
   CorpusQuestionDto,
+  CorpusVocabularyItem,
+  CorpusVocabularyResponseDto,
   CreateDatasetDto,
   DatasetDetailDto,
   DatasetExportQueryDto,
@@ -42,9 +53,11 @@ import type {
   GrammarPracticeResponseDto,
   JlptLevel,
   LevelComparisonResponseDto,
+  QuestionSkill,
   RecommendationItemDto,
   RecommendationQueryDto,
   RecommendationResponseDto,
+  SentenceRole,
   StudyListQueryDto,
   StudyListResponseDto,
   TimeSeriesResponseDto,
@@ -224,10 +237,37 @@ export class CorpusService {
       }
     }
 
+    // Query distinct terms count per dataset from corpus_terms
+    let dbTerms: Array<{ datasetId: string; term: string }> = [];
+    try {
+      dbTerms = await this.dbClient.db
+        .select({
+          datasetId: corpusTerms.datasetId,
+          term: corpusTerms.term,
+        })
+        .from(corpusTerms);
+    } catch {
+      // Table may not yet exist in memory tests
+    }
+
+    const termsCountMap = new Map<string, Set<string>>();
+    for (const t of dbTerms) {
+      if (!termsCountMap.has(t.datasetId)) {
+        termsCountMap.set(t.datasetId, new Set());
+      }
+      termsCountMap.get(t.datasetId)!.add(t.term);
+    }
+
     const items: DatasetItemDto[] = rows.map(
       (r: { id: string; slug?: string | null; name: string; version: string }) => {
+        const dbUniqueCount = termsCountMap.get(r.id)?.size ?? 0;
         const agg = this.aggregators.get(r.id);
-        const totalWords = agg ? agg.getMetadata().totalTokens : 0;
+        const totalWords =
+          dbUniqueCount > 0
+            ? dbUniqueCount
+            : agg
+              ? agg.getMetadata().uniqueVocabCount || agg.getMetadata().totalTokens
+              : 0;
         return {
           id: r.id,
           slug: r.slug ?? (r.id === DEFAULT_CORPUS_DATASET_ID ? 'jlpt-official' : undefined),
@@ -275,8 +315,27 @@ export class CorpusService {
       }
     }
 
+    let dbTermsForDataset: Array<{ examId: string; count: number }> = [];
+    try {
+      dbTermsForDataset = await this.dbClient.db
+        .select({
+          examId: corpusTerms.examId,
+          count: corpusTerms.count,
+        })
+        .from(corpusTerms)
+        .where(eq(corpusTerms.datasetId, d.id));
+    } catch {
+      // Table may not yet exist
+    }
+
+    const distinctExams = new Set(dbTermsForDataset.map((t) => t.examId));
+    const totalDbTokens = dbTermsForDataset.reduce((sum, t) => sum + t.count, 0);
+
     const agg = this.getOrCreateAggregator(d.id, { name: d.name, version: d.version });
     const meta = agg.getMetadata();
+
+    const documentCount = distinctExams.size > 0 ? distinctExams.size : meta.documentCount;
+    const totalTokens = totalDbTokens > 0 ? totalDbTokens : meta.totalTokens;
 
     return {
       id: d.id,
@@ -285,8 +344,8 @@ export class CorpusService {
       version: d.version,
       license,
       licenseId: d.licenseId,
-      documentCount: meta.documentCount,
-      totalTokens: meta.totalTokens,
+      documentCount,
+      totalTokens,
       source: meta.source,
       date: meta.date,
       createdAt: d.createdAt?.toISOString(),
@@ -370,15 +429,256 @@ export class CorpusService {
   /**
    * Thống kê từ vựng theo cấp độ và tần suất xuất hiện (GET /api/v1/datasets/:id/vocabulary).
    */
-  async getDatasetVocabulary(id: string, filter: CorpusFilterQueryDto = {}) {
+  async getDatasetVocabulary(
+    id: string,
+    filter: CorpusFilterQueryDto = {},
+  ): Promise<CorpusVocabularyResponseDto> {
     const detail = await this.getDataset(id);
-    const agg = this.getOrCreateAggregator(detail.id, {
+    const realDatasetId = detail.id;
+
+    try {
+      const dbTerms = await this.dbClient.db
+        .select()
+        .from(corpusTerms)
+        .where(eq(corpusTerms.datasetId, realDatasetId));
+
+      if (dbTerms.length > 0) {
+        return await this.getVocabularyFromDb(realDatasetId, dbTerms, filter);
+      }
+    } catch {
+      // Table may not yet exist in memory tests
+    }
+
+    const agg = this.getOrCreateAggregator(realDatasetId, {
       name: detail.name,
       version: detail.version,
       source: detail.source,
       date: detail.date,
     });
-    return agg.getVocabularyAnalysis(filter);
+    const analysis = agg.getVocabularyAnalysis(filter);
+    const items: CorpusVocabularyItem[] = analysis.items.map((item) => ({
+      ...item,
+      word: item.term,
+      reading: item.term,
+      meaning: '',
+      hanViet: getHanVietForWord(item.term) || undefined,
+      hanVietConfidence: computeHanViet(item.term, item.term).confidence,
+    }));
+    return {
+      total: analysis.total,
+      items,
+      rankings: analysis.rankings,
+    };
+  }
+
+  private async getVocabularyFromDb(
+    _datasetId: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    allDbTerms: any[],
+    filter: CorpusFilterQueryDto,
+  ) {
+    let rows = allDbTerms;
+
+    // 1. Filter by level
+    if (filter.level && (filter.level as unknown) !== 'ALL') {
+      rows = rows.filter((r) => r.level === filter.level);
+    }
+
+    // 2. Filter by skill
+    if (filter.skill) {
+      rows = rows.filter((r) => r.skill === filter.skill);
+    }
+
+    // 3. Filter by search query (supports filter.search, q, query)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rawSearch = filter.search || (filter as any).q || (filter as any).query;
+    if (rawSearch && typeof rawSearch === 'string' && rawSearch.trim()) {
+      const q = rawSearch.trim().toLowerCase();
+      rows = rows.filter(
+        (r) =>
+          r.term.toLowerCase().includes(q) ||
+          (r.reading && r.reading.toLowerCase().includes(q)),
+      );
+    }
+
+    // Group rows by term
+    const termMap = new Map<
+      string,
+      {
+        term: string;
+        reading?: string;
+        level: string;
+        count: number;
+        distinctExams: Set<string>;
+        byLevel: Record<JlptLevel, number>;
+        bySkill: Record<QuestionSkill, number>;
+        byRole: Record<SentenceRole, number>;
+        bySession: Record<string, number>;
+        bySource: Record<string, number>;
+        targetCount: number;
+        incidentalCount: number;
+      }
+    >();
+
+    let totalTokens = 0;
+    for (const r of rows) {
+      totalTokens += r.count;
+      const key = r.term;
+      let entry = termMap.get(key);
+      if (!entry) {
+        entry = {
+          term: r.term,
+          reading: r.reading || undefined,
+          level: r.level,
+          count: 0,
+          distinctExams: new Set<string>(),
+          byLevel: { N1: 0, N2: 0, N3: 0, N4: 0, N5: 0 },
+          bySkill: { kanji: 0, vocabulary: 0, grammar: 0, reading: 0, listening: 0 },
+          byRole: { stem: 0, option: 0, passage: 0, instruction: 0, transcript: 0 },
+          bySession: {},
+          bySource: {},
+          targetCount: 0,
+          incidentalCount: 0,
+        };
+        termMap.set(key, entry);
+      }
+
+      entry.count += r.count;
+      if (!entry.reading && r.reading) {
+        entry.reading = r.reading;
+      }
+      if (r.examId) {
+        entry.distinctExams.add(r.examId);
+      }
+      if (r.level && entry.byLevel[r.level as JlptLevel] !== undefined) {
+        entry.byLevel[r.level as JlptLevel] += r.count;
+      }
+      if (r.skill && entry.bySkill[r.skill as QuestionSkill] !== undefined) {
+        entry.bySkill[r.skill as QuestionSkill] += r.count;
+      }
+      if (r.skill === 'vocabulary' || r.skill === 'kanji') {
+        entry.targetCount += r.count;
+      } else {
+        entry.incidentalCount += r.count;
+      }
+    }
+
+    // Sort by count descending, then term ascending
+    const sorted = Array.from(termMap.values()).sort(
+      (a, b) => b.count - a.count || a.term.localeCompare(b.term),
+    );
+
+    // Pagination
+    const limit = Number(filter.limit) || 50;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pageNum = Number((filter as any).page);
+    const offset = pageNum > 0 ? (pageNum - 1) * limit : Number(filter.offset) || 0;
+    const pageItems = sorted.slice(offset, offset + limit);
+
+    // Enrich from JMdict (lexical_entries, entry_readings, entry_meanings)
+    const termsToEnrich = pageItems.map((p) => p.term);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const lexicalMap = new Map<string, any>();
+
+    if (termsToEnrich.length > 0) {
+      try {
+        const lexRows = await this.dbClient.db
+          .select({
+            term: lexicalEntries.term,
+            partOfSpeech: lexicalEntries.partOfSpeech,
+            hanViet: lexicalEntries.hanViet,
+            hanVietConfidence: lexicalEntries.hanVietConfidence,
+            reading: entryReadings.reading,
+            meaning: entryMeanings.meaning,
+          })
+          .from(lexicalEntries)
+          .leftJoin(
+            entryReadings,
+            and(
+              eq(entryReadings.entryId, lexicalEntries.id),
+              eq(entryReadings.isPrimary, true),
+            ),
+          )
+          .leftJoin(
+            entryMeanings,
+            and(
+              eq(entryMeanings.entryId, lexicalEntries.id),
+              eq(entryMeanings.locale, 'en'),
+            ),
+          )
+          .where(inArray(lexicalEntries.term, termsToEnrich));
+
+        for (const lr of lexRows) {
+          if (!lexicalMap.has(lr.term)) {
+            lexicalMap.set(lr.term, lr);
+          }
+        }
+      } catch {
+        // Fallback if tables not yet seeded
+      }
+    }
+
+    const enrichedItems = pageItems.map((item) => {
+      const lex = lexicalMap.get(item.term);
+      const reading = lex?.reading || item.reading || item.term;
+      const meaning = lex?.meaning || '';
+      const partOfSpeech = lex?.partOfSpeech || 'noun';
+      const hanViet = lex?.hanViet || getHanVietForWord(item.term) || undefined;
+      const hanVietConfidence =
+        lex?.hanVietConfidence || computeHanViet(item.term, reading).confidence;
+
+      const safeTotalTokens = totalTokens > 0 ? totalTokens : 1;
+      const relativeFrequencyPerThousand =
+        Math.round((item.count / safeTotalTokens) * 100000) / 100;
+
+      return {
+        id: `ct_${item.term}`,
+        term: item.term,
+        word: item.term,
+        baseForm: item.term,
+        reading,
+        meaning,
+        meaningVi: meaning,
+        level: item.level as JlptLevel,
+        partOfSpeech,
+        count: item.count,
+        frequency: item.count,
+        occurrences: item.count,
+        relativeFrequencyPerThousand,
+        targetCount: item.targetCount,
+        incidentalCount: item.incidentalCount,
+        distinctExamsCount: item.distinctExams.size,
+        examIds: Array.from(item.distinctExams),
+        byLevel: item.byLevel,
+        bySkill: item.bySkill,
+        byRole: item.byRole,
+        bySession: item.bySession,
+        bySource: item.bySource,
+        observedCount: item.count,
+        syntheticCount: 0,
+        byProvenance: {},
+        hanViet,
+        hanVietConfidence,
+      };
+    });
+
+    const rankings = pageItems.map((item, idx) => ({
+      rank: offset + idx + 1,
+      baseForm: item.term,
+      surface: item.term,
+      level: item.level as JlptLevel,
+      partOfSpeech: lexicalMap.get(item.term)?.partOfSpeech || 'noun',
+      frequency: item.count,
+      targetFrequency: item.targetCount,
+      incidentalFrequency: item.incidentalCount,
+      distinctExamsCount: item.distinctExams.size,
+    }));
+
+    return {
+      total: sorted.length,
+      items: enrichedItems,
+      rankings,
+    };
   }
 
   /**
@@ -445,13 +745,115 @@ export class CorpusService {
       }
     }
 
+    try {
+      const matchingTerms = await this.dbClient.db
+        .select({
+          questionId: corpusTerms.questionId,
+          examId: corpusTerms.examId,
+          level: corpusTerms.level,
+        })
+        .from(corpusTerms)
+        .where(
+          and(
+            eq(corpusTerms.datasetId, detail.id),
+            eq(corpusTerms.term, word),
+          ),
+        );
+
+      if (matchingTerms.length > 0) {
+        let embargoedEventIds = new Set<string>();
+        try {
+          const embargoedEvents = await this.dbClient.db
+            .select({ id: examEvents.id, releaseAt: examEvents.resultReleaseAt })
+            .from(examEvents)
+            .where(gt(examEvents.resultReleaseAt, new Date()));
+          embargoedEventIds = new Set(embargoedEvents.map((e: { id: string }) => e.id));
+        } catch {
+          // Table may be empty
+        }
+
+        const validMatching = matchingTerms.filter(
+          (t: { questionId: string | null; examId: string; level: string }) =>
+            !embargoedEventIds.has(t.examId) &&
+            (!options?.level || t.level === options.level) &&
+            Boolean(t.questionId),
+        );
+
+        const qIds: string[] = Array.from(
+          new Set(validMatching.map((t: { questionId: string | null }) => t.questionId!)),
+        );
+        const limit = options?.limit ?? 10;
+        const limitedQIds: string[] = qIds.slice(0, limit);
+
+        if (limitedQIds.length > 0) {
+          const qRows = await this.dbClient.db
+            .select()
+            .from(questions)
+            .where(inArray(questions.id, limitedQIds));
+
+          const result: CorpusQuestionDto[] = [];
+          for (const q of qRows) {
+            const examRows = await this.dbClient.db
+              .select({ title: exams.title })
+              .from(exams)
+              .where(eq(exams.id, q.examId || matchingTerms[0]!.examId))
+              .limit(1);
+
+            const qvRows = await this.dbClient.db
+              .select()
+              .from(questionVersions)
+              .where(eq(questionVersions.questionId, q.id))
+              .orderBy(desc(questionVersions.version))
+              .limit(1);
+
+            const qvRow = qvRows[0];
+            const opts = await this.dbClient.db
+              .select()
+              .from(answerOptions)
+              .where(
+                and(
+                  eq(answerOptions.questionId, q.id),
+                  eq(answerOptions.questionVersion, qvRow?.version ?? 1),
+                ),
+              );
+
+            const stemText =
+              typeof qvRow?.stem === 'string'
+                ? qvRow.stem
+                : Array.isArray(qvRow?.stem)
+                  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    qvRow.stem.map((s: any) => (typeof s === 'string' ? s : s?.text || '')).join(' ')
+                  : '';
+
+            result.push({
+              id: q.id,
+              examId: q.examId || matchingTerms[0]!.examId,
+              examTitle: examRows[0]?.title || 'JLPT Exam',
+              level: (q.level || matchingTerms[0]!.level) as JlptLevel,
+              skill: (q.skill || 'vocabulary') as QuestionSkill,
+              stem: qvRow?.stem || [],
+              stemText,
+              options: opts.map((opt: { id: string; content: unknown }) => ({
+                id: opt.id,
+                content: opt.content,
+              })),
+              terms: [word],
+            });
+          }
+          return result;
+        }
+      }
+    } catch {
+      // Fallback
+    }
+
     const agg = this.getOrCreateAggregator(detail.id, {
       name: detail.name,
       version: detail.version,
       source: detail.source,
       date: detail.date,
     });
-    let questions = agg.getQuestionsForWord(word, options);
+    let questionsList = agg.getQuestionsForWord(word, options);
 
     // Embargo Guard: Filter out any questions associated with embargoed exam events
     try {
@@ -462,14 +864,14 @@ export class CorpusService {
       const embargoedEventIds = new Set(embargoedEvents.map((e: { id: string }) => e.id));
 
       if (embargoedEventIds.size > 0) {
-        questions = questions.filter((q) => !embargoedEventIds.has(q.examId));
+        questionsList = questionsList.filter((q) => !embargoedEventIds.has(q.examId));
       }
     } catch {
       // Table may be empty in test environments
     }
 
     // Zero Answer Leak: Guarantee no correct answers or answer keys in response
-    return questions.map((q) => ({
+    return questionsList.map((q) => ({
       id: q.id,
       examId: q.examId,
       examTitle: q.examTitle,
@@ -491,7 +893,90 @@ export class CorpusService {
    */
   async getWordStatistics(datasetId: string, term: string): Promise<VocabStatsResponseDto> {
     const detail = await this.getDataset(datasetId);
-    const agg = this.getOrCreateAggregator(detail.id, {
+    const realDatasetId = detail.id;
+
+    try {
+      const dbTerms = await this.dbClient.db
+        .select({
+          term: corpusTerms.term,
+          reading: corpusTerms.reading,
+          level: corpusTerms.level,
+          skill: corpusTerms.skill,
+          section: corpusTerms.section,
+          examId: corpusTerms.examId,
+          count: corpusTerms.count,
+        })
+        .from(corpusTerms)
+        .where(eq(corpusTerms.datasetId, realDatasetId));
+
+      if (dbTerms.length > 0) {
+        const qTerm = term.trim().toLowerCase();
+        const matching = dbTerms.filter((t: { term: string }) => t.term.toLowerCase() === qTerm);
+        if (matching.length > 0) {
+          let totalCount = 0;
+          let targetCount = 0;
+          const examIds = new Set<string>();
+          const byLevel: Record<JlptLevel, number> = { N1: 0, N2: 0, N3: 0, N4: 0, N5: 0 };
+          const bySkill: Record<QuestionSkill, number> = {
+            kanji: 0,
+            vocabulary: 0,
+            grammar: 0,
+            reading: 0,
+            listening: 0,
+          };
+          const byRole: Record<SentenceRole, number> = {
+            stem: 0,
+            option: 0,
+            passage: 0,
+            instruction: 0,
+            transcript: 0,
+          };
+
+          for (const m of matching) {
+            totalCount += m.count;
+            if (m.examId) examIds.add(m.examId);
+            if (m.level && byLevel[m.level as JlptLevel] !== undefined) {
+              byLevel[m.level as JlptLevel] += m.count;
+            }
+            if (m.skill && bySkill[m.skill as QuestionSkill] !== undefined) {
+              bySkill[m.skill as QuestionSkill] += m.count;
+            }
+            if (m.skill === 'vocabulary' || m.skill === 'kanji') {
+              targetCount += m.count;
+            }
+          }
+
+          const freqMap = new Map<string, number>();
+          for (const t of dbTerms) {
+            freqMap.set(t.term, (freqMap.get(t.term) ?? 0) + t.count);
+          }
+          const sorted = Array.from(freqMap.entries()).sort((a, b) => b[1] - a[1]);
+          const rank = sorted.findIndex(([t]) => t.toLowerCase() === qTerm) + 1;
+
+          return {
+            term: matching[0]!.term,
+            baseForm: matching[0]!.term,
+            level: (matching[0]!.level || 'N5') as JlptLevel,
+            totalCount,
+            targetCount,
+            incidentalCount: totalCount - targetCount,
+            distinctExamsCount: examIds.size,
+            examIds: Array.from(examIds),
+            byLevel,
+            bySkill,
+            byRole,
+            bySession: {},
+            bySource: {},
+            rank: rank > 0 ? rank : 1,
+            percentageOfLevel: 0,
+          };
+        }
+      }
+    } catch {
+      // Fallback
+    }
+
+    const agg = this.getOrCreateAggregator(realDatasetId, {
       name: detail.name,
       version: detail.version,
       source: detail.source,
@@ -511,7 +996,113 @@ export class CorpusService {
    */
   async compareLevels(datasetId: string, terms?: string[]): Promise<LevelComparisonResponseDto> {
     const detail = await this.getDataset(datasetId);
-    const agg = this.getOrCreateAggregator(detail.id, {
+    const realDatasetId = detail.id;
+
+    try {
+      const dbTerms = await this.dbClient.db
+        .select({
+          term: corpusTerms.term,
+          level: corpusTerms.level,
+          count: corpusTerms.count,
+        })
+        .from(corpusTerms)
+        .where(eq(corpusTerms.datasetId, realDatasetId));
+
+      if (dbTerms.length > 0) {
+        const levelBreakdown: Record<
+          JlptLevel,
+          { level: JlptLevel; totalTokens: number; uniqueVocabCount: number }
+        > = {
+          N1: { level: 'N1', totalTokens: 0, uniqueVocabCount: 0 },
+          N2: { level: 'N2', totalTokens: 0, uniqueVocabCount: 0 },
+          N3: { level: 'N3', totalTokens: 0, uniqueVocabCount: 0 },
+          N4: { level: 'N4', totalTokens: 0, uniqueVocabCount: 0 },
+          N5: { level: 'N5', totalTokens: 0, uniqueVocabCount: 0 },
+        };
+
+        const termsPerLevel: Record<JlptLevel, Set<string>> = {
+          N1: new Set(),
+          N2: new Set(),
+          N3: new Set(),
+          N4: new Set(),
+          N5: new Set(),
+        };
+
+        const termCounts = new Map<string, Record<JlptLevel, number>>();
+        for (const t of dbTerms) {
+          const lvl = t.level as JlptLevel;
+          if (levelBreakdown[lvl]) {
+            levelBreakdown[lvl].totalTokens += t.count;
+            termsPerLevel[lvl].add(t.term);
+          }
+          if (!termCounts.has(t.term)) {
+            termCounts.set(t.term, { N1: 0, N2: 0, N3: 0, N4: 0, N5: 0 });
+          }
+          if (termCounts.get(t.term)![lvl] !== undefined) {
+            termCounts.get(t.term)![lvl] += t.count;
+          }
+        }
+
+        const totalTokensAll = Object.values(levelBreakdown).reduce((s, x) => s + x.totalTokens, 0);
+        const finalLevels: Record<
+          JlptLevel,
+          { level: JlptLevel; totalTokens: number; uniqueVocabCount: number; percentage: number }
+        > = {
+          N1: { ...levelBreakdown.N1, percentage: 0 },
+          N2: { ...levelBreakdown.N2, percentage: 0 },
+          N3: { ...levelBreakdown.N3, percentage: 0 },
+          N4: { ...levelBreakdown.N4, percentage: 0 },
+          N5: { ...levelBreakdown.N5, percentage: 0 },
+        };
+        for (const lvl of ['N1', 'N2', 'N3', 'N4', 'N5'] as JlptLevel[]) {
+          finalLevels[lvl].uniqueVocabCount = termsPerLevel[lvl].size;
+          finalLevels[lvl].percentage =
+            totalTokensAll > 0
+              ? Math.round((finalLevels[lvl].totalTokens / totalTokensAll) * 10000) / 100
+              : 0;
+        }
+
+        let targetTerms = terms;
+        if (!targetTerms || targetTerms.length === 0) {
+          const sorted = Array.from(termCounts.entries())
+            .map(([termStr, counts]) => ({
+              term: termStr,
+              total: Object.values(counts).reduce((a, b) => a + b, 0),
+              counts,
+            }))
+            .sort((a, b) => b.total - a.total)
+            .slice(0, 50);
+          targetTerms = sorted.map((s) => s.term);
+        }
+
+        const termDistributions = targetTerms.map((tStr) => {
+          const counts = termCounts.get(tStr) || { N1: 0, N2: 0, N3: 0, N4: 0, N5: 0 };
+          let primaryLevel: JlptLevel = 'N5';
+          let maxCount = -1;
+          for (const lvl of ['N1', 'N2', 'N3', 'N4', 'N5'] as JlptLevel[]) {
+            if (counts[lvl] > maxCount) {
+              maxCount = counts[lvl];
+              primaryLevel = lvl;
+            }
+          }
+          return {
+            term: tStr,
+            counts,
+            primaryLevel,
+          };
+        });
+
+        return {
+          datasetId,
+          levels: finalLevels,
+          termDistributions,
+        };
+      }
+    } catch {
+      // Fallback
+    }
+
+    const agg = this.getOrCreateAggregator(realDatasetId, {
       name: detail.name,
       version: detail.version,
       source: detail.source,
@@ -546,7 +1137,79 @@ export class CorpusService {
     options: StudyListQueryDto = {},
   ): Promise<StudyListResponseDto> {
     const detail = await this.getDataset(datasetId);
-    const agg = this.getOrCreateAggregator(detail.id, {
+    const realDatasetId = detail.id;
+
+    try {
+      const dbTerms = await this.dbClient.db
+        .select({
+          term: corpusTerms.term,
+          reading: corpusTerms.reading,
+          level: corpusTerms.level,
+          examId: corpusTerms.examId,
+          count: corpusTerms.count,
+        })
+        .from(corpusTerms)
+        .where(eq(corpusTerms.datasetId, realDatasetId));
+
+      if (dbTerms.length > 0) {
+        const termMap = new Map<
+          string,
+          {
+            term: string;
+            reading?: string;
+            level: string;
+            count: number;
+            distinctExams: Set<string>;
+          }
+        >();
+        for (const t of dbTerms) {
+          if (options.level && (options.level as unknown) !== 'ALL' && t.level !== options.level) {
+            continue;
+          }
+          let entry = termMap.get(t.term);
+          if (!entry) {
+            entry = {
+              term: t.term,
+              reading: t.reading || undefined,
+              level: t.level,
+              count: 0,
+              distinctExams: new Set(),
+            };
+            termMap.set(t.term, entry);
+          }
+          entry.count += t.count;
+          if (!entry.reading && t.reading) entry.reading = t.reading;
+          if (t.examId) entry.distinctExams.add(t.examId);
+        }
+
+        const sorted = Array.from(termMap.values()).sort((a, b) => b.count - a.count);
+        const limit = options.limit ?? 50;
+        const items = sorted.slice(0, limit).map((s, idx) => {
+          const rank = idx + 1;
+          const priorityTier: 'TIER_1_CRITICAL' | 'TIER_2_HIGH' | 'TIER_3_MODERATE' =
+            rank <= 20 ? 'TIER_1_CRITICAL' : rank <= 50 ? 'TIER_2_HIGH' : 'TIER_3_MODERATE';
+          return {
+            rank,
+            baseForm: s.term,
+            surface: s.term,
+            level: s.level as JlptLevel,
+            frequency: s.count,
+            targetFrequency: s.count,
+            distinctExamsCount: s.distinctExams.size,
+            priorityTier,
+          };
+        });
+
+        return {
+          total: sorted.length,
+          items,
+        };
+      }
+    } catch {
+      // Fallback
+    }
+
+    const agg = this.getOrCreateAggregator(realDatasetId, {
       name: detail.name,
       version: detail.version,
       source: detail.source,
@@ -753,7 +1416,113 @@ export class CorpusService {
     options?: { minOccurrences?: number },
   ): Promise<YearlyTrendsResponseDto> {
     const detail = await this.getDataset(datasetId);
-    const agg = this.getOrCreateAggregator(detail.id, {
+    const realDatasetId = detail.id;
+
+    try {
+      const rows = await this.dbClient.db
+        .select({
+          term: corpusTerms.term,
+          level: corpusTerms.level,
+          count: corpusTerms.count,
+          examId: corpusTerms.examId,
+          examYear: exams.year,
+        })
+        .from(corpusTerms)
+        .leftJoin(exams, eq(corpusTerms.examId, exams.id))
+        .where(eq(corpusTerms.datasetId, realDatasetId));
+
+      if (rows.length > 0) {
+        const minOcc = options?.minOccurrences ?? 1;
+        const termData = new Map<
+          string,
+          {
+            term: string;
+            level: JlptLevel;
+            totalFrequency: number;
+            yearlyCounts: Record<string, number>;
+          }
+        >();
+
+        for (const r of rows) {
+          let entry = termData.get(r.term);
+          if (!entry) {
+            entry = {
+              term: r.term,
+              level: (r.level || 'N5') as JlptLevel,
+              totalFrequency: 0,
+              yearlyCounts: {},
+            };
+            termData.set(r.term, entry);
+          }
+          entry.totalFrequency += r.count;
+          const year = r.examYear ? String(r.examYear) : 'unknown';
+          entry.yearlyCounts[year] = (entry.yearlyCounts[year] ?? 0) + r.count;
+        }
+
+        const topByLevel: Record<
+          JlptLevel,
+          Array<{
+            term: string;
+            level: JlptLevel;
+            totalFrequency: number;
+            distinctYearsCount: number;
+            yearlyCounts: Record<string, number>;
+            trend: 'increasing' | 'decreasing' | 'stable' | 'emerging';
+          }>
+        > = {
+          N1: [],
+          N2: [],
+          N3: [],
+          N4: [],
+          N5: [],
+        };
+
+        const trends: YearlyTrendsResponseDto['trends'] = [];
+
+        for (const v of termData.values()) {
+          if (v.totalFrequency < minOcc) continue;
+
+          const years = Object.keys(v.yearlyCounts).filter((y) => y !== 'unknown').sort();
+          let trend: 'increasing' | 'decreasing' | 'stable' | 'emerging' = 'stable';
+          if (years.length >= 2) {
+            const firstHalf = years.slice(0, Math.floor(years.length / 2));
+            const secondHalf = years.slice(Math.floor(years.length / 2));
+            const firstSum = firstHalf.reduce((sum, y) => sum + (v.yearlyCounts[y] ?? 0), 0);
+            const secondSum = secondHalf.reduce((sum, y) => sum + (v.yearlyCounts[y] ?? 0), 0);
+            if (secondSum > firstSum * 1.5) {
+              trend = firstSum === 0 ? 'emerging' : 'increasing';
+            } else if (firstSum > secondSum * 1.5) {
+              trend = 'decreasing';
+            }
+          }
+
+          const item = {
+            term: v.term,
+            level: v.level,
+            totalFrequency: v.totalFrequency,
+            distinctYearsCount: Object.keys(v.yearlyCounts).length,
+            yearlyCounts: v.yearlyCounts,
+            trend,
+          };
+
+          trends.push(item);
+          if (topByLevel[v.level]) {
+            topByLevel[v.level].push(item);
+          }
+        }
+
+        trends.sort((a, b) => b.totalFrequency - a.totalFrequency);
+        for (const lvl of ['N1', 'N2', 'N3', 'N4', 'N5'] as JlptLevel[]) {
+          topByLevel[lvl].sort((a, b) => b.totalFrequency - a.totalFrequency);
+        }
+
+        return { trends, topByLevel };
+      }
+    } catch {
+      // Fallback
+    }
+
+    const agg = this.getOrCreateAggregator(realDatasetId, {
       name: detail.name,
       version: detail.version,
       source: detail.source,

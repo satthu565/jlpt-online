@@ -47,7 +47,8 @@
       "admin": "システム運用管理"
     },
     "lexicon": "辞書",
-    "kanji": "漢字"
+    "kanji": "漢字",
+    "hanviet": "漢越音審査"
   },
   "auth": {
     "loginTitle": "スタッフログイン",
@@ -418,5 +419,42 @@
     "next": "次へ",
     "page": "ページ",
     "attribution": "出典: KANJIDIC2 – EDRDG, CC BY-SA 4.0"
+  },
+  "hanvietReview": {
+    "title": "漢越音審査",
+    "subtitle": "辞書語彙の漢越音データの確認・編集・承認を行います。",
+    "searchPlaceholder": "単語、読み、または漢越音で検索...",
+    "search": "検索",
+    "confidence": "信頼度",
+    "confidenceAll": "すべての信頼度",
+    "confidenceReview": "要確認",
+    "confidenceKun": "訓読み",
+    "confidenceHigh": "高信頼度",
+    "sourceRule": "自動計算",
+    "sourceOverride": "例外ルール",
+    "sourceManual": "手動修正",
+    "colTerm": "単語",
+    "colReading": "読み",
+    "colMeaning": "第一義",
+    "colHanViet": "漢越音",
+    "colPerKanji": "漢字別構成",
+    "colConfidence": "信頼度",
+    "colSource": "情報源",
+    "colReports": "通報件数",
+    "colActions": "操作",
+    "edit": "編集",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "confirmCorrect": "正しいと承認",
+    "saving": "保存中...",
+    "saveSuccess": "漢越音を更新しました。",
+    "empty": "該当する語彙が見つかりません。",
+    "error": "漢越音レビュー一覧の取得に失敗しました。",
+    "retry": "再試行",
+    "prev": "前へ",
+    "next": "次へ",
+    "page": "ページ",
+    "total": "合計",
+    "noPermission": "漢越音を編集する権限がありません。"
   }
 }

@@ -24,7 +24,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    setupFiles: ['./tests/setup-i18n.ts'],
+    setupFiles: [resolve(currentDir, 'tests/setup-i18n.ts')],
     exclude: ['**/node_modules/**', '**/.next/**', '**/dist/**'],
   },
 });
