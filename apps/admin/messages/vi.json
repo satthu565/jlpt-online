@@ -45,7 +45,8 @@
       "commercial": "Thương mại & Doanh thu",
       "analytics": "Báo cáo & Phân tích",
       "admin": "Quản trị hệ thống"
-    }
+    },
+    "lexicon": "Từ điển"
   },
   "auth": {
     "loginTitle": "Đăng nhập nhân sự",
@@ -369,5 +370,27 @@
     "deleted": "(bình luận đã ẩn)",
     "done": "Đã cập nhật báo cáo.",
     "refresh": "Tải lại"
+  },
+  "lexicon": {
+    "title": "Từ điển (JMdict)",
+    "subtitle": "Toàn bộ mục từ đang có trong cơ sở dữ liệu.",
+    "total": "Tổng số mục",
+    "searchPlaceholder": "Tìm theo chữ, cách đọc hoặc nghĩa tiếng Anh",
+    "search": "Tìm",
+    "pos": "Từ loại",
+    "posAll": "Tất cả",
+    "colTerm": "Từ",
+    "colReading": "Cách đọc",
+    "colHanViet": "Hán Việt",
+    "colPos": "Từ loại",
+    "colMeaning": "Nghĩa (tiếng Anh)",
+    "empty": "Không có mục từ nào phù hợp.",
+    "emptyDb": "Cơ sở dữ liệu chưa nạp từ điển.",
+    "error": "Không tải được danh sách từ.",
+    "retry": "Thử lại",
+    "prev": "Trang trước",
+    "next": "Trang sau",
+    "page": "Trang",
+    "attribution": "Nguồn: JMdict/KANJIDIC2 – EDRDG, giấy phép CC BY-SA 4.0"
   }
 }

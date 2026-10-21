@@ -45,7 +45,8 @@
       "commercial": "Commercial & Billing",
       "analytics": "Reports & Analytics",
       "admin": "System Administration"
-    }
+    },
+    "lexicon": "Dictionary"
   },
   "auth": {
     "loginTitle": "Staff Sign In",
@@ -369,5 +370,27 @@
     "deleted": "(hidden comment)",
     "done": "Report updated.",
     "refresh": "Reload"
+  },
+  "lexicon": {
+    "title": "Dictionary (JMdict)",
+    "subtitle": "Every entry in the database.",
+    "total": "Entries",
+    "searchPlaceholder": "Search by headword, reading or English meaning",
+    "search": "Search",
+    "pos": "Part of speech",
+    "posAll": "All",
+    "colTerm": "Headword",
+    "colReading": "Reading",
+    "colHanViet": "Sino-Vietnamese",
+    "colPos": "Part of speech",
+    "colMeaning": "Meaning (English)",
+    "empty": "No matching entries.",
+    "emptyDb": "No dictionary loaded yet.",
+    "error": "Could not load entries.",
+    "retry": "Retry",
+    "prev": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "attribution": "Source: JMdict/KANJIDIC2 – EDRDG, CC BY-SA 4.0"
   }
 }
