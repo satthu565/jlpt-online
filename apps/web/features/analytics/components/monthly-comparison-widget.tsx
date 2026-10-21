@@ -4,6 +4,7 @@ import { CalendarDays } from 'lucide-react';
 import React from 'react';
 import type { MonthlyProgressStat } from '../types';
 import { Card } from '@jlpt/ui/components/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface MonthlyComparisonWidgetProps {
   monthlyStats: MonthlyProgressStat[];
@@ -37,45 +38,38 @@ export function MonthlyComparisonWidget({
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table
-            data-testid="monthly-comparison-table"
-            className="w-full text-xs text-left border-collapse"
-          >
-            <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-500 text-[11px] uppercase tracking-wider">
-                <th className="py-2.5 px-3">Tháng</th>
-                <th className="py-2.5 px-3 text-center">Số bài đã thi</th>
-                <th className="py-2.5 px-3 text-right">Điểm TB</th>
-                <th className="py-2.5 px-3 text-right">Độ chính xác TB</th>
-                <th className="py-2.5 px-3 text-right">Thời lượng</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+          <Table data-testid="monthly-comparison-table" className="text-left">
+            <TableHeader>
+              <TableRow className="text-[11px]">
+                <TableHead>Tháng</TableHead>
+                <TableHead className="text-center">Số bài đã thi</TableHead>
+                <TableHead className="text-right">Điểm TB</TableHead>
+                <TableHead className="text-right">Độ chính xác TB</TableHead>
+                <TableHead className="text-right">Thời lượng</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {monthlyStats.map((item) => (
-                <tr
-                  key={item.monthKey}
-                  data-testid={`monthly-row-${item.monthKey}`}
-                  className="hover:bg-slate-50 dark:hover:bg-slate-800/40"
-                >
-                  <td className="py-3 px-3 font-bold text-slate-900 dark:text-slate-100">
+                <TableRow key={item.monthKey} data-testid={`monthly-row-${item.monthKey}`}>
+                  <TableCell className="font-bold">
                     {item.monthLabel}
-                  </td>
-                  <td className="py-3 px-3 text-center text-slate-600 dark:text-slate-400 font-mono">
+                  </TableCell>
+                  <TableCell className="text-center font-mono">
                     {item.attemptCount} bài
-                  </td>
-                  <td className="py-3 px-3 text-right font-mono font-bold text-blue-600 dark:text-blue-400">
+                  </TableCell>
+                  <TableCell className="text-right font-mono font-bold">
                     {item.avgScore} / 180đ
-                  </td>
-                  <td className="py-3 px-3 text-right font-mono font-bold text-slate-800 dark:text-slate-200">
+                  </TableCell>
+                  <TableCell className="text-right font-mono font-bold">
                     {item.avgAccuracy}%
-                  </td>
-                  <td className="py-3 px-3 text-right text-slate-500 font-mono">
+                  </TableCell>
+                  <TableCell className="text-right font-mono">
                     {item.totalDurationMin} phút
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       )}
     </Card>

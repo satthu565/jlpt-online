@@ -233,7 +233,7 @@ export function ScoreSummaryCard({
             return (
               <div
                 key={idx}
-                className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 text-center"
+                className="surface surface--secondary rounded-2xl p-3 text-center"
               >
                 <span className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 truncate">
                   {skillName}

@@ -12,6 +12,7 @@ import { Badge } from '@jlpt/ui/components/badge';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Spinner } from '@jlpt/ui/components/spinner';
 import type { Blueprint, Skill } from '@jlpt/schema';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface ScoreConversionSection {
   code: string;
@@ -260,7 +261,7 @@ export default function ScoreConversionTablesPage(): React.JSX.Element {
                     <label className="block text-xs font-semibold text-gray-700 uppercase mb-2">
                       {t('content.scoringTables.colSections', locale)} (Điểm sàn từng phần)
                     </label>
-                    <div className="space-y-3 bg-white p-4 rounded-md border border-gray-200">
+                    <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] space-y-3 p-4">
                       {formSections.map((sec, idx) => (
                         <div key={sec.code} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 bg-gray-50 rounded">
                           <div>
@@ -333,7 +334,7 @@ export default function ScoreConversionTablesPage(): React.JSX.Element {
 
         {/* Loading State */}
         {isLoading && (
-          <div data-testid="scoring-loading" className="flex items-center justify-center p-12 bg-white border border-gray-200 rounded-lg">
+          <div data-testid="scoring-loading" className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] flex items-center justify-center p-12">
             <Spinner size="lg" />
             <span className="ml-3 text-sm text-gray-500">{t('content.scoringTables.loading', locale)}</span>
           </div>
@@ -341,62 +342,58 @@ export default function ScoreConversionTablesPage(): React.JSX.Element {
 
         {/* Score Conversion Tables List */}
         {!isLoading && (
-          <div className="w-full bg-white border border-gray-200 rounded-lg shadow-xs overflow-hidden">
+          <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] w-full overflow-hidden">
             <div className="overflow-x-auto w-full">
-              <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead className="bg-gray-50 text-gray-700">
-                  <tr>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-left font-semibold">
                       {t('content.scoringTables.colLevel', locale)}
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-left font-semibold">
                       {t('content.scoringTables.colVersion', locale)}
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-left font-semibold">
                       {t('content.scoringTables.colStatus', locale)}
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-left font-semibold">
                       {t('content.scoringTables.colTotalPass', locale)}
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-left font-semibold">
                       {t('content.scoringTables.colTotalMax', locale)}
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-left font-semibold">
                       {t('content.scoringTables.colSections', locale)}
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-left font-semibold">
                       {t('content.scoringTables.colMethod', locale)}
-                    </th>
-                    <th className="px-4 py-3 text-right font-semibold text-xs uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-right font-semibold">
                       {t('content.scoringTables.colActions', locale)}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {blueprints.length === 0 ? (
-                    <tr>
-                      <td colSpan={8} data-testid="scoring-empty" className="p-8 text-center text-gray-400">
+                    <TableRow>
+                      <TableCell colSpan={8} data-testid="scoring-empty" className="text-center">
                         {t('content.scoringTables.empty', locale)}
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ) : (
                     blueprints.map((bp) => {
                       const sections = bp.scoring?.scoringSections || [];
                       const rowKey = `${bp.level}_v${bp.version}`;
                       const isRowActive = !draftVersionKeys.has(rowKey) && bp.status === 'active';
                       return (
-                        <tr
-                          key={`${bp.id || bp.level}_v${bp.version}`}
-                          data-testid={`scoring-row-${bp.level}-v${bp.version}`}
-                          className="hover:bg-gray-50/70 transition-colors"
-                        >
-                          <td className="px-4 py-3 font-bold text-blue-700">
+                        <TableRow key={`${bp.id || bp.level}_v${bp.version}`} data-testid={`scoring-row-${bp.level}-v${bp.version}`}>
+                          <TableCell className="font-bold">
                             {bp.level}
-                          </td>
-                          <td className="px-4 py-3 font-mono text-gray-900 font-semibold whitespace-nowrap">
+                          </TableCell>
+                          <TableCell className="font-mono font-semibold whitespace-nowrap">
                             v{bp.version}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">
                             <span data-testid={`scoring-status-${bp.level}-v${bp.version}`}>
                               {isRowActive ? (
                                 <Badge variant="success" size="sm">
@@ -408,14 +405,14 @@ export default function ScoreConversionTablesPage(): React.JSX.Element {
                                 </Badge>
                               )}
                             </span>
-                          </td>
-                          <td className="px-4 py-3 font-bold text-gray-900" data-testid={`scoring-total-pass-${bp.level}-v${bp.version}`}>
+                          </TableCell>
+                          <TableCell className="font-bold" data-testid={`scoring-total-pass-${bp.level}-v${bp.version}`}>
                             {bp.scoring?.totalPass ?? 80}
-                          </td>
-                          <td className="px-4 py-3 font-mono text-gray-600">
+                          </TableCell>
+                          <TableCell className="font-mono">
                             {bp.scoring?.totalMax ?? 180}
-                          </td>
-                          <td className="px-4 py-3 text-xs">
+                          </TableCell>
+                          <TableCell>
                             <div className="space-y-1">
                               {sections.map((sec) => (
                                 <div key={sec.code} className="text-gray-700 flex items-center gap-1.5">
@@ -424,11 +421,11 @@ export default function ScoreConversionTablesPage(): React.JSX.Element {
                                 </div>
                               ))}
                             </div>
-                          </td>
-                          <td className="px-4 py-3 text-xs font-mono text-gray-500 whitespace-nowrap">
+                          </TableCell>
+                          <TableCell className="font-mono whitespace-nowrap">
                             {bp.scoring?.method || 'linear_reference'}
-                          </td>
-                          <td className="px-4 py-3 text-right space-x-1.5 whitespace-nowrap">
+                          </TableCell>
+                          <TableCell className="text-right space-x-1.5 whitespace-nowrap">
                             {user?.role === 'admin' && (
                               <>
                                 <Button
@@ -453,13 +450,13 @@ export default function ScoreConversionTablesPage(): React.JSX.Element {
                                 )}
                               </>
                             )}
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       );
                     })
                   )}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           </div>
         )}

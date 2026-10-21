@@ -19,7 +19,7 @@ export const TooltipContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        'z-50 overflow-hidden rounded-md bg-[var(--text-primary,#0f172a)] px-3 py-1.5 text-xs text-[var(--text-inverse,#ffffff)] shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 dark:bg-[var(--bg-muted,#f1f5f9)] dark:text-[var(--text-primary,#0f172a)]',
+        'tooltip z-50 overflow-hidden text-[var(--foreground)] animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 dark:bg-[var(--bg-muted,#f1f5f9)] dark:text-[var(--text-primary,#0f172a)]',
         className,
       )}
       {...props}

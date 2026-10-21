@@ -52,7 +52,7 @@ export function TargetProgressTracker({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-xs">
+      <div className="surface surface--secondary rounded-2xl grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 text-xs">
         <div>
           <span className="text-[11px] text-slate-500 block">Cấp độ mục tiêu:</span>
           <strong className="text-sm font-bold text-slate-800 dark:text-slate-200">

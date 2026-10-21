@@ -45,7 +45,7 @@ export function StudyTimeWidget({
           <span className="text-[10px] text-slate-400 block mt-0.5">({summary.totalMinutes} phút)</span>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-center">
+        <div className="surface surface--secondary rounded-2xl p-3.5 text-center">
           <span className="text-[11px] text-slate-500 block">Số phiên học & thi:</span>
           <strong
             data-testid="total-study-sessions"
@@ -55,7 +55,7 @@ export function StudyTimeWidget({
           </strong>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-center">
+        <div className="surface surface--secondary rounded-2xl p-3.5 text-center">
           <span className="text-[11px] text-slate-500 block">Thời lượng TB/phiên:</span>
           <strong
             data-testid="avg-session-minutes"

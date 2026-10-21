@@ -66,7 +66,7 @@ export function ReviewQuestionItem({
 
       {/* Group instructions if present */}
       {question.instructions && question.instructions.length > 0 && (
-        <div className="mb-4 text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
+        <div className="surface surface--secondary rounded-2xl mb-4 text-sm text-slate-600 dark:text-slate-400 p-3">
           <span className="font-semibold text-slate-700 dark:text-slate-300 mr-2">Hướng dẫn:</span>
           <RichTextView segments={question.instructions} showFurigana={showFurigana} />
         </div>
@@ -227,7 +227,7 @@ export function ReviewQuestionItem({
             ) : (
               <div
                 data-testid="explanation-placeholder"
-                className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 text-xs text-slate-500 text-center"
+                className="surface surface--secondary rounded-2xl p-4 text-xs text-slate-500 text-center"
               >
                 Chưa có dữ liệu lời giải chi tiết cho câu hỏi này.
               </div>

@@ -574,7 +574,7 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
                       <div
                         key={session.id}
                         data-testid={`in-progress-item-${session.id}`}
-                        className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-blue-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+                        className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-3 border-blue-100 flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-xs text-slate-900 dark:text-slate-100">

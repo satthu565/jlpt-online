@@ -12,7 +12,7 @@ export interface ExamResultViewProps {
 export function ExamResultView({ activeAttemptId, onExit }: ExamResultViewProps): React.JSX.Element {
   return (
     <div className="mx-auto w-full max-w-3xl py-12 px-4">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm text-center">
+      <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-8 text-center">
         <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
@@ -59,7 +59,7 @@ export interface ExamErrorCardProps {
 export function ExamErrorCard({ errorInfo, onRetry, onDismiss }: ExamErrorCardProps): React.JSX.Element {
   return (
     <div className="mx-auto w-full max-w-2xl py-16 px-4">
-      <div className="jlpt-card rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-8 shadow-sm text-center">
+      <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] jlpt-card text-slate-900 dark:text-slate-100 p-8 text-center">
         <div className="text-4xl mb-3" role="img" aria-label="Lỗi phòng thi">
           {errorInfo.requiresAuth ? <Lock className="mx-auto size-10" aria-hidden="true" /> : <AlertTriangle className="mx-auto size-10" aria-hidden="true" />}
         </div>

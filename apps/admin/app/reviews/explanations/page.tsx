@@ -153,7 +153,7 @@ export default function ExplanationReviewsPage({ initialItems }: { initialItems?
                 <div
                   key={item.id}
                   data-testid={`explanation-card-${item.id}`}
-                  className="bg-white border border-gray-200 rounded-lg p-5 shadow-xs space-y-4"
+                  className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 space-y-4"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-2">

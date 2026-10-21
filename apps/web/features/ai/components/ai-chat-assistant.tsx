@@ -157,7 +157,7 @@ export function AiChatAssistant({
       {/* Transparency Disclaimer */}
       <div
         data-testid="ai-disclaimer"
-        className="text-[11px] leading-relaxed text-slate-500 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-800 flex items-start gap-1.5"
+        className="surface surface--secondary rounded-2xl text-[11px] leading-relaxed text-slate-500 p-2.5 flex items-start gap-1.5"
       >
         <Info className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" aria-hidden="true" />
         <span>{t('seo.ai.disclaimer')}</span>

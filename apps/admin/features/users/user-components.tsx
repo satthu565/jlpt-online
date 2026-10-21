@@ -8,6 +8,7 @@ import type { Role } from '@jlpt/schema';
 import type { StaffUser } from '../../lib/auth-context';
 import type { AdminManagedUser, AuditLogEntry } from './types';
 import { UserManager } from './user-service';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface UserListTableProps {
   currentUser: StaffUser;
@@ -101,7 +102,7 @@ export function UserListTable({
       )}
 
       {/* Filter toolbar */}
-      <div className="flex flex-wrap gap-3 items-center justify-between bg-white dark:bg-slate-900 p-3 border border-gray-200 dark:border-slate-800 rounded-lg">
+      <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] flex flex-wrap gap-3 items-center justify-between p-3">
         <div className="flex items-center space-x-2">
           <Input
             type="text"
@@ -131,34 +132,34 @@ export function UserListTable({
       </div>
 
       {/* Users table */}
-      <div className="overflow-x-auto bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-800 text-sm">
-          <thead className="bg-gray-50 dark:bg-slate-800/50">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Người dùng</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Vai trò</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">2FA</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Trạng thái</th>
-              <th className="px-4 py-3 text-right font-medium text-gray-500 uppercase tracking-wider text-xs">Hành động</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-slate-800">
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-left font-medium">Người dùng</TableHead>
+              <TableHead className="text-left font-medium">Vai trò</TableHead>
+              <TableHead className="text-left font-medium">2FA</TableHead>
+              <TableHead className="text-left font-medium">Trạng thái</TableHead>
+              <TableHead className="text-right font-medium">Hành động</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {users.length === 0 ? (
-              <tr>
-                <td colSpan={5} data-testid="users-empty" className="px-4 py-6 text-center text-gray-400 italic">
+              <TableRow>
+                <TableCell colSpan={5} data-testid="users-empty" className="text-center italic">
                   Không tìm thấy người dùng phù hợp.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : (
               users.map((u) => {
                 const isBlocked = Boolean(u.blockedAt);
                 return (
-                  <tr key={u.id} data-testid={`user-row-${u.id}`} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
-                    <td className="px-4 py-3">
+                  <TableRow key={u.id} data-testid={`user-row-${u.id}`}>
+                    <TableCell>
                       <div className="font-medium text-gray-900 dark:text-slate-100">{u.name}</div>
                       <div className="text-xs text-gray-500">{u.email}</div>
-                    </td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell>
                       <span
                         data-testid={`user-role-badge-${u.id}`}
                         className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${
@@ -173,8 +174,8 @@ export function UserListTable({
                       >
                         {u.role}
                       </span>
-                    </td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell>
                       <span
                         className={`text-xs px-2 py-0.5 rounded font-medium ${
                           u.twoFactorEnabled
@@ -184,8 +185,8 @@ export function UserListTable({
                       >
                         {u.twoFactorEnabled ? 'Đã bật' : 'Chưa bật'}
                       </span>
-                    </td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell>
                       <span
                         data-testid={`user-status-${u.id}`}
                         className={`text-xs px-2 py-0.5 rounded font-medium ${
@@ -194,8 +195,8 @@ export function UserListTable({
                       >
                         {isBlocked ? 'Bị khóa' : 'Hoạt động'}
                       </span>
-                    </td>
-                    <td className="px-4 py-3 text-right space-x-2">
+                    </TableCell>
+                    <TableCell className="text-right space-x-2">
                       <Button
                         type="button"
                         variant="secondary"
@@ -214,13 +215,13 @@ export function UserListTable({
                       >
                         {isBlocked ? 'Mở khóa' : 'Khóa'}
                       </Button>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 );
               })
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {/* Role Change Modal */}
@@ -287,18 +288,18 @@ export interface AuditLogTimelineProps {
 export function AuditLogTimeline({ logs }: AuditLogTimelineProps): React.JSX.Element {
   if (logs.length === 0) {
     return (
-      <div data-testid="audit-empty" className="p-6 bg-white border rounded-lg text-center text-gray-400 text-sm">
+      <div data-testid="audit-empty" className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-6 text-center text-gray-400 text-sm">
         Chưa có nhật ký hoạt động nào.
       </div>
     );
   }
 
   return (
-    <div data-testid="audit-log-timeline" className="bg-white border rounded-lg p-4 space-y-3">
+    <div data-testid="audit-log-timeline" className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4 space-y-3">
       <h3 className="text-sm font-bold text-gray-800 border-b pb-2">Nhật ký kiểm toán hệ thống ({logs.length})</h3>
       <div className="space-y-2">
         {logs.map((log) => (
-          <div key={log.id} data-testid={`audit-entry-${log.id}`} className="text-xs p-2.5 rounded bg-gray-50 border space-y-1">
+          <div key={log.id} data-testid={`audit-entry-${log.id}`} className="surface surface--secondary rounded-2xl text-xs p-2.5 space-y-1">
             <div className="flex items-center justify-between text-gray-500">
               <span className="font-semibold text-gray-800">
                 Thao tác: <code className="bg-gray-200 px-1 rounded text-purple-700">{log.action}</code>

@@ -254,7 +254,7 @@ export default function CmsManagementPage({
                   <div
                     key={art.id}
                     data-testid={`cms-article-card-${art.id}`}
-                    className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
+                    className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"
                   >
                     <div>
                       <div className="flex items-center gap-2 mb-1">
@@ -303,7 +303,7 @@ export default function CmsManagementPage({
         )}
 
         {activeTab === 'editor' && (
-          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-6 shadow-xs space-y-4">
+          <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-6 space-y-4">
             <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 border-b border-gray-100 dark:border-slate-800 pb-2">
               {selectedArticle ? `Chỉnh sửa: ${selectedArticle.title}` : 'Soạn bài viết mới'}
             </h3>
@@ -404,7 +404,7 @@ export default function CmsManagementPage({
                 </label>
                 <div
                   data-testid="markdown-preview"
-                  className="w-full h-[250px] md:h-[268px] overflow-y-auto p-3 border border-gray-200 dark:border-slate-800 rounded bg-gray-50 dark:bg-slate-800/50 text-xs text-gray-800 dark:text-slate-200 whitespace-pre-wrap font-sans"
+                  className="surface surface--secondary rounded-2xl w-full h-[250px] md:h-[268px] overflow-y-auto p-3 text-xs text-gray-800 dark:text-slate-200 whitespace-pre-wrap font-sans"
                 >
                   {editMarkdown
                     .replace(/<\s*\/?\s*(script|iframe|object|embed)[^>]*>/gi, '')

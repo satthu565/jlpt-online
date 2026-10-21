@@ -107,7 +107,7 @@ export function TrueProgressWidget({
         {/* 2. Familiar Repeated Questions (Câu quen thuộc đã từng làm) */}
         <div
           data-testid="familiar-stats-card"
-          className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 space-y-2"
+          className="surface surface--secondary rounded-2xl p-4 space-y-2"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
@@ -137,7 +137,7 @@ export function TrueProgressWidget({
       </div>
 
       {/* Delta & Inflation Metrics */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-xs">
+      <div className="surface surface--secondary rounded-2xl grid grid-cols-2 sm:grid-cols-3 gap-3 p-3 text-xs">
         <div>
           <span className="text-[11px] text-slate-500 block">Chênh lệch do quen câu (Delta):</span>
           <strong
@@ -172,7 +172,7 @@ export function TrueProgressWidget({
       {/* Assessment narrative */}
       <div
         data-testid="progress-assessment-text"
-        className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 leading-relaxed"
+        className="surface surface--secondary rounded-2xl p-3.5 text-xs text-slate-800 dark:text-slate-200 leading-relaxed"
       >
         <span className="font-bold block mb-1">Đánh giá thực chất:</span>
         {assessment}

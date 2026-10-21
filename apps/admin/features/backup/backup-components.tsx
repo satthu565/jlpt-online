@@ -4,6 +4,7 @@ import { Button } from '@jlpt/ui/components/button';
 import type { BackupService } from './backup-service';
 import type { OperatorBackupJob, BackupSummary } from './types';
 import type { StaffUser } from '../../lib/auth-context';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface BackupManagerViewProps {
   backupService?: BackupService;
@@ -139,7 +140,7 @@ export function BackupManagerView({
 
       {/* SLA & Status Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-gray-200 dark:border-slate-800 shadow-xs">
+        <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4">
           <div className="text-xs text-gray-500">Mục tiêu Điểm khôi phục (RPO)</div>
           <div data-testid="backup-rpo-indicator" className="text-lg font-bold text-gray-900 dark:text-slate-100 mt-1 flex items-center gap-1.5">
             <span className={`w-2.5 h-2.5 rounded-full ${summary.isRpoMet ? 'bg-emerald-500' : 'bg-amber-500'}`} />
@@ -150,7 +151,7 @@ export function BackupManagerView({
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-gray-200 dark:border-slate-800 shadow-xs">
+        <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4">
           <div className="text-xs text-gray-500">Bản sao lưu Base gần nhất</div>
           <div data-testid="last-base-backup" className="text-sm font-semibold text-gray-900 dark:text-slate-100 mt-1">
             {summary.lastSuccessfulBaseBackup ? new Date(summary.lastSuccessfulBaseBackup).toLocaleString('vi-VN') : 'Chưa ghi nhận'}
@@ -158,7 +159,7 @@ export function BackupManagerView({
           <div className="text-[11px] text-gray-500 mt-0.5">Tần suất: Hằng ngày (03:00 UTC)</div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-gray-200 dark:border-slate-800 shadow-xs">
+        <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4">
           <div className="text-xs text-gray-500">Lần diễn tập PITR gần nhất</div>
           <div data-testid="last-pitr-drill" className="text-sm font-semibold text-gray-900 dark:text-slate-100 mt-1">
             {summary.lastSuccessfulPitrDrill ? new Date(summary.lastSuccessfulPitrDrill).toLocaleString('vi-VN') : 'Chưa ghi nhận'}
@@ -166,7 +167,7 @@ export function BackupManagerView({
           <div className="text-[11px] text-gray-500 mt-0.5">Môi trường: Staging Isolated DB</div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-gray-200 dark:border-slate-800 shadow-xs">
+        <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4">
           <div className="text-xs text-gray-500">Tổng dung lượng sao lưu</div>
           <div data-testid="total-backup-size" className="text-lg font-bold text-gray-900 dark:text-slate-100 mt-1">
             {Math.round((summary.totalSizeBytes / 1024 / 1024) * 10) / 10} MB
@@ -176,7 +177,7 @@ export function BackupManagerView({
       </div>
 
       {/* Operator Trigger Actions */}
-      <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-gray-200 dark:border-slate-800 space-y-3 shadow-xs">
+      <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4 space-y-3">
         <h3 className="text-sm font-bold text-gray-800 dark:text-slate-200">Kích hoạt tác vụ sao lưu / diễn tập thủ công</h3>
         <div className="flex flex-wrap gap-2">
           <Button
@@ -210,59 +211,59 @@ export function BackupManagerView({
       </div>
 
       {/* Backup Jobs History Table */}
-      <div className="bg-white border rounded-lg overflow-x-auto shadow-xs">
-        <table data-testid="backup-jobs-table" className="w-full text-left text-xs">
-          <thead className="bg-gray-50 border-b text-gray-600 font-semibold">
-            <tr>
-              <th className="px-4 py-3">Mã Job</th>
-              <th className="px-4 py-3">Loại tác vụ</th>
-              <th className="px-4 py-3">Người vận hành</th>
-              <th className="px-4 py-3">Đơn vị</th>
-              <th className="px-4 py-3">Trạng thái</th>
-              <th className="px-4 py-3">Dung lượng</th>
-              <th className="px-4 py-3">Vị trí lưu trữ</th>
-              <th className="px-4 py-3">Thời gian hoàn thành</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
+      <div className="overflow-x-auto">
+        <Table data-testid="backup-jobs-table" className="text-left">
+          <TableHeader className="font-semibold">
+            <TableRow>
+              <TableHead>Mã Job</TableHead>
+              <TableHead>Loại tác vụ</TableHead>
+              <TableHead>Người vận hành</TableHead>
+              <TableHead>Đơn vị</TableHead>
+              <TableHead>Trạng thái</TableHead>
+              <TableHead>Dung lượng</TableHead>
+              <TableHead>Vị trí lưu trữ</TableHead>
+              <TableHead>Thời gian hoàn thành</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {summary.jobs.length === 0 ? (
-              <tr>
-                <td colSpan={8} data-testid="backup-empty" className="px-4 py-8 text-center text-gray-500 text-sm italic">
+              <TableRow>
+                <TableCell colSpan={8} data-testid="backup-empty" className="text-center italic">
                   Chưa có tác vụ sao lưu nào được thực thi. Nhấn nút bên trên để khởi tạo bản sao lưu mới.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : (
               summary.jobs.map((job) => (
-                <tr key={job.id} data-testid={`backup-job-${job.id}`}>
-                  <td className="px-4 py-3 font-mono font-medium text-gray-900">{job.id}</td>
-                  <td className="px-4 py-3">
+                <TableRow key={job.id} data-testid={`backup-job-${job.id}`}>
+                  <TableCell className="font-mono font-medium">{job.id}</TableCell>
+                  <TableCell>
                     <span className="px-2 py-0.5 rounded font-mono bg-blue-50 text-blue-700 font-semibold">
                       {job.jobType}
                     </span>
-                  </td>
-                  <td data-testid={`backup-actor-${job.id}`} className="px-4 py-3 font-medium text-gray-800">
+                  </TableCell>
+                  <TableCell data-testid={`backup-actor-${job.id}`} className="font-medium">
                     {job.operatorEmail || job.initiatedBy || 'admin@jlpt.local'}
-                  </td>
-                  <td data-testid={`backup-tenant-${job.id}`} className="px-4 py-3 text-emerald-700 font-semibold">
+                  </TableCell>
+                  <TableCell data-testid={`backup-tenant-${job.id}`} className="font-semibold">
                     {job.tenantId || 'global'}
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell>
                     <span className="px-2 py-0.5 rounded bg-green-50 text-green-700 font-medium">
                       {job.status}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600 font-mono">
+                  </TableCell>
+                  <TableCell className="font-mono">
                     {job.sizeBytes ? `${Math.round((job.sizeBytes / 1024 / 1024) * 10) / 10} MB` : '—'}
-                  </td>
-                  <td className="px-4 py-3 font-mono text-gray-500 truncate max-w-xs">{job.outputLocation || '—'}</td>
-                  <td className="px-4 py-3 text-gray-500">
+                  </TableCell>
+                  <TableCell className="font-mono truncate max-w-xs">{job.outputLocation || '—'}</TableCell>
+                  <TableCell>
                     {job.completedAt ? new Date(job.completedAt).toLocaleString('vi-VN') : '—'}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

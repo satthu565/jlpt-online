@@ -14,6 +14,7 @@ import type {
   YearlyTrendItemDto,
 } from '../types';
 import { useI18n } from '../../../lib/i18n';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface FrequencyStatsViewProps {
   className?: string;
@@ -215,55 +216,52 @@ export function FrequencyStatsView({
         </div>
 
         <div className="overflow-x-auto">
-          <table
-            className="w-full text-left text-xs border-collapse"
-            data-testid="frequency-table"
-          >
-            <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase tracking-wider">
-                <th className="py-2.5 px-3">Từ vựng (Kanji)</th>
-                <th className="py-2.5 px-3">Cách đọc (Hiragana)</th>
-                <th className="py-2.5 px-3">Ý nghĩa tiếng Việt</th>
-                <th className="py-2.5 px-3">Cấp độ</th>
-                <th className="py-2.5 px-3 text-right">Số lần xuất hiện</th>
-                <th className="py-2.5 px-3 text-right">Tần suất tương đối</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+          <Table className="text-left" data-testid="frequency-table">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Từ vựng (Kanji)</TableHead>
+                <TableHead>Cách đọc (Hiragana)</TableHead>
+                <TableHead>Ý nghĩa tiếng Việt</TableHead>
+                <TableHead>Cấp độ</TableHead>
+                <TableHead className="text-right">Số lần xuất hiện</TableHead>
+                <TableHead className="text-right">Tần suất tương đối</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {frequencyStats.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate-500">
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center">
                     Chưa có dữ liệu tần suất từ vựng
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ) : (
                 frequencyStats.map((item) => (
-                  <tr key={item.term} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                    <td className="py-3 px-3 font-japanese font-bold text-sm text-slate-900 dark:text-slate-100">
+                  <TableRow key={item.term}>
+                    <TableCell className="font-japanese font-bold">
                       {item.term}
-                    </td>
-                    <td className="py-3 px-3 font-japanese text-slate-600 dark:text-slate-400">
+                    </TableCell>
+                    <TableCell className="font-japanese">
                       {item.reading}
-                    </td>
-                    <td className="py-3 px-3 text-slate-700 dark:text-slate-300">
+                    </TableCell>
+                    <TableCell>
                       {item.meaning}
-                    </td>
-                    <td className="py-3 px-3">
+                    </TableCell>
+                    <TableCell>
                       <Badge variant="primary" size="sm">
                         {item.level}
                       </Badge>
-                    </td>
-                    <td className="py-3 px-3 text-right font-extrabold text-blue-600 dark:text-blue-400">
+                    </TableCell>
+                    <TableCell className="text-right font-extrabold">
                       {item.occurrences} lần
-                    </td>
-                    <td className="py-3 px-3 text-right text-slate-500">
+                    </TableCell>
+                    <TableCell className="text-right">
                       {item.relativeFrequencyPerThousand} ‰
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </Card>
 
@@ -278,7 +276,7 @@ export function FrequencyStatsView({
             {levelComparisons.map((comp) => (
               <div
                 key={comp.term}
-                className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 text-xs space-y-2">
+                className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-3.5 text-xs space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-japanese font-bold text-base text-slate-900 dark:text-slate-100">
                     {comp.term}
@@ -310,7 +308,7 @@ export function FrequencyStatsView({
             {yearlyTrends.map((trend, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 text-xs">
+                className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] flex items-center justify-between p-3 text-xs">
                 <div className="flex items-center gap-3">
                   <span className="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 font-bold">
                     {trend.year}

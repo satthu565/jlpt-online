@@ -175,7 +175,7 @@ export default function OrgSettingsPage({
 
           <div className="grid gap-4">
             {applications.length === 0 ? (
-              <div data-testid="org-empty" className="p-8 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl text-center text-sm text-gray-400 italic">
+              <div data-testid="org-empty" className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-8 text-center text-sm text-gray-400 italic">
                 {t('common.empty', locale)}
               </div>
             ) : (
@@ -183,7 +183,7 @@ export default function OrgSettingsPage({
                 <div
                   key={app.id}
                   data-testid={`teacher-app-${app.id}`}
-                  className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-5 flex flex-wrap items-center justify-between gap-4 shadow-xs hover:border-gray-300 dark:hover:border-slate-700 transition"
+                  className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 flex flex-wrap items-center justify-between gap-4 hover:border-gray-300 dark:hover:border-slate-700 transition"
                 >
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">

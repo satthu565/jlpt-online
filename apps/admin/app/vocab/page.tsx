@@ -8,6 +8,7 @@ import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 import { apiClient } from '../../lib/api-client';
 import { t } from '../../lib/i18n';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface VocabEntry {
   id: string;
@@ -186,40 +187,40 @@ export default function VocabManagementPage({
         </div>
 
         {/* Vocab Table */}
-        <div className="overflow-x-auto w-full border border-gray-200 rounded-lg shadow-xs bg-white">
-          <table data-testid="vocab-table" className="w-full text-left text-sm border-collapse">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200 text-gray-700">
-                <th className="p-3">Từ vựng (Kanji)</th>
-                <th className="p-3">Cách đọc (Kana)</th>
-                <th className="p-3">Ý nghĩa tiếng Việt</th>
-                <th className="p-3">Cấp độ</th>
-                <th className="p-3">Từ loại</th>
-                <th className="p-3">Ví dụ minh họa</th>
-                <th className="p-3 text-right">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
+        <div className="overflow-x-auto w-full">
+          <Table data-testid="vocab-table" className="text-left">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Từ vựng (Kanji)</TableHead>
+                <TableHead>Cách đọc (Kana)</TableHead>
+                <TableHead>Ý nghĩa tiếng Việt</TableHead>
+                <TableHead>Cấp độ</TableHead>
+                <TableHead>Từ loại</TableHead>
+                <TableHead>Ví dụ minh họa</TableHead>
+                <TableHead className="text-right">Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {!isLoading && filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={7} data-testid="vocab-empty" className="p-8 text-center text-gray-400">
+                <TableRow>
+                  <TableCell colSpan={7} data-testid="vocab-empty" className="text-center">
                     {t('content.vocab.empty', locale)}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ) : (
                 filtered.map((item) => (
-                  <tr key={item.id} data-testid={`vocab-row-${item.id}`} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="p-3 font-bold text-gray-900 text-base">{item.word}</td>
-                    <td className="p-3 text-gray-600">{item.reading}</td>
-                    <td className="p-3 text-gray-800">{item.meaningVi}</td>
-                    <td className="p-3">
+                  <TableRow key={item.id} data-testid={`vocab-row-${item.id}`}>
+                    <TableCell className="font-bold text-base">{item.word}</TableCell>
+                    <TableCell>{item.reading}</TableCell>
+                    <TableCell>{item.meaningVi}</TableCell>
+                    <TableCell>
                       <span className="px-2 py-0.5 rounded text-xs font-bold bg-indigo-100 text-indigo-800">
                         {item.level}
                       </span>
-                    </td>
-                    <td className="p-3 text-xs text-gray-500">{item.partOfSpeech}</td>
-                    <td className="p-3 text-xs text-gray-600 italic">{item.exampleSentence || '—'}</td>
-                    <td className="p-3 text-right">
+                    </TableCell>
+                    <TableCell>{item.partOfSpeech}</TableCell>
+                    <TableCell className="italic">{item.exampleSentence || '—'}</TableCell>
+                    <TableCell className="text-right">
                       <Button
                         type="button"
                         variant="ghost"
@@ -230,12 +231,12 @@ export default function VocabManagementPage({
                       >
                         {t('content.vocab.deleteBtn', locale)}
                       </Button>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
 
         {/* Add Modal */}

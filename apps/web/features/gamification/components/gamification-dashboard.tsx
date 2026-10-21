@@ -285,7 +285,7 @@ export function GamificationDashboard({
               <div
                 key={ach.id}
                 data-testid="achievement-item"
-                className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 text-xs"
+                className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] flex items-center justify-between p-3 text-xs"
               >
                 <div>
                   <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200">
@@ -335,7 +335,7 @@ export function GamificationDashboard({
               <div
                 key={ch.id}
                 data-testid="challenge-item"
-                className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 space-y-2 text-xs"
+                className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-3.5 space-y-2 text-xs"
               >
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-slate-900 dark:text-slate-100">{ch.title}</span>

@@ -17,6 +17,7 @@ import {
   createUnderlineSegment,
 } from './types';
 import { PassageBlockViewer } from './preview';
+import { Table, TableBody, TableCell, TableRow } from '@jlpt/ui/components/table';
 
 export interface RichTextSegmentEditorProps {
   value: RichText;
@@ -83,7 +84,7 @@ export function RichTextSegmentEditor({
   };
 
   return (
-    <div data-testid="richtext-segment-editor" className="border border-gray-300 rounded-md p-3 bg-white space-y-3">
+    <div data-testid="richtext-segment-editor" className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-3 space-y-3">
       <div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-800 pb-2">
         <label className="text-sm font-semibold text-gray-700 dark:text-slate-300">{label || 'Soạn thảo đoạn (RichText)'}</label>
         <div className="flex space-x-2">
@@ -109,7 +110,7 @@ export function RichTextSegmentEditor({
       </div>
 
       {activeTab === 'preview' ? (
-        <div data-testid="segment-preview" className="p-3 bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-800 rounded min-h-[4rem] text-sm">
+        <div data-testid="segment-preview" className="surface surface--secondary rounded-2xl p-3 min-h-[4rem] text-sm">
           {value.length === 0 ? (
             <span className="text-gray-400 italic">Chưa có nội dung.</span>
           ) : (
@@ -119,7 +120,7 @@ export function RichTextSegmentEditor({
       ) : (
         <div className="space-y-3">
           {/* List of current segments */}
-          <div data-testid="segments-list" className="flex flex-wrap gap-1.5 p-2 bg-gray-50 dark:bg-slate-800/50 rounded border border-gray-200 dark:border-slate-800 min-h-[3rem] items-center">
+          <div data-testid="segments-list" className="surface surface--secondary rounded-2xl flex flex-wrap gap-1.5 p-2 min-h-[3rem] items-center">
             {value.length === 0 ? (
               <span className="text-xs text-gray-400 italic">Thêm các đoạn chữ, ruby, hoặc dấu sao bên dưới...</span>
             ) : (
@@ -353,7 +354,7 @@ export function PassageBlocksEditor({ blocks, onChange }: PassageBlocksEditorPro
   };
 
   return (
-    <div data-testid="passage-blocks-editor" className="border border-slate-300 rounded-lg p-4 bg-white space-y-4">
+    <div data-testid="passage-blocks-editor" className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4 space-y-4">
       <div className="flex items-center justify-between border-b pb-2">
         <h4 className="text-sm font-bold text-gray-800">Biên tập bài đọc hiểu (Reading Passage)</h4>
         <div className="flex space-x-2">
@@ -379,7 +380,7 @@ export function PassageBlocksEditor({ blocks, onChange }: PassageBlocksEditorPro
       </div>
 
       {activeTab === 'preview' ? (
-        <div className="p-4 bg-slate-50 border rounded-md">
+        <div className="surface surface--secondary rounded-2xl p-4">
           <PassageBlockViewer blocks={blocks} />
         </div>
       ) : (
@@ -393,7 +394,7 @@ export function PassageBlocksEditor({ blocks, onChange }: PassageBlocksEditorPro
               <div
                 key={bIdx}
                 data-testid={`block-item-${bIdx}`}
-                className="border border-gray-200 rounded p-3 bg-gray-50 space-y-2"
+                className="surface surface--secondary rounded-2xl p-3 space-y-2"
               >
                 <div className="flex items-center justify-between text-xs font-semibold text-gray-600">
                   <span>
@@ -423,12 +424,12 @@ export function PassageBlocksEditor({ blocks, onChange }: PassageBlocksEditorPro
                   <div className="space-y-2 text-xs">
                     <p className="font-medium text-gray-700">Các ô trong bảng:</p>
                     <div className="overflow-x-auto">
-                      <table className="border-collapse border border-gray-300 w-full text-xs">
-                        <tbody>
+                      <Table>
+                        <TableBody>
                           {block.rows.map((row, rIdx) => (
-                            <tr key={rIdx}>
+                            <TableRow key={rIdx}>
                               {row.map((cell, cIdx) => (
-                                <td key={cIdx} className="border border-gray-300 p-2">
+                                <TableCell key={cIdx}>
                                   <div className="mb-1 text-[10px] text-gray-400 font-mono">
                                     Ô [{rIdx + 1},{cIdx + 1}]
                                   </div>
@@ -436,12 +437,12 @@ export function PassageBlocksEditor({ blocks, onChange }: PassageBlocksEditorPro
                                     value={cell}
                                     onChange={(newCell) => updateTableCell(bIdx, rIdx, cIdx, newCell)}
                                   />
-                                </td>
+                                </TableCell>
                               ))}
-                            </tr>
+                            </TableRow>
                           ))}
-                        </tbody>
-                      </table>
+                        </TableBody>
+                      </Table>
                     </div>
                   </div>
                 )}

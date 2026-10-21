@@ -6,6 +6,7 @@ import type { AdminPaymentItem, AdminSubscriptionItem } from './types';
 import type { BillingManager } from './billing-service';
 import { useOptionalAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface PaymentsManagerProps {
   billingManager?: BillingManager;
@@ -78,7 +79,7 @@ export function PaymentsManager({ billingManager, initialTab = 'payments' }: Pay
   }, [fetchData]);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6 space-y-4 font-sans shadow-xs">
+    <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4 md:p-6 space-y-4 font-sans">
       <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700 pb-3">
         <Button
           type="button"
@@ -134,22 +135,22 @@ export function PaymentsManager({ billingManager, initialTab = 'payments' }: Pay
       {tab === 'payments' && (
         <>
           {payments.length === 0 && !isLoading && !errorMsg ? (
-            <div data-testid="payments-empty" className="p-6 text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 rounded border border-gray-100 dark:border-gray-700 text-xs">
+            <div data-testid="payments-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 dark:text-gray-400 text-xs">
               {t('commercial.emptyPayments', locale)}
             </div>
           ) : (
-            <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
-              <table data-testid="payments-table" className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs">
-                <thead className="bg-gray-50 dark:bg-gray-800">
-                  <tr>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Mã đơn hàng</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Học viên (ID)</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Số tiền</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Trạng thái</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Thời gian</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
+            <div className="overflow-x-auto">
+              <Table data-testid="payments-table">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-left font-semibold">Mã đơn hàng</TableHead>
+                    <TableHead className="text-left font-semibold">Học viên (ID)</TableHead>
+                    <TableHead className="text-left font-semibold">Số tiền</TableHead>
+                    <TableHead className="text-left font-semibold">Trạng thái</TableHead>
+                    <TableHead className="text-left font-semibold">Thời gian</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {payments.map((p) => {
                     const orderId = p.orderId || '';
                     const userId = p.userId || '';
@@ -158,13 +159,13 @@ export function PaymentsManager({ billingManager, initialTab = 'payments' }: Pay
                     const status = p.status || 'created';
                     const createdAtStr = p.createdAt ? new Date(p.createdAt).toLocaleString('vi-VN') : '';
                     return (
-                      <tr key={orderId} data-testid={`payment-row-${orderId}`} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                        <td className="px-4 py-3 font-mono text-gray-900 dark:text-gray-100">{orderId.slice(0, 13)}...</td>
-                        <td className="px-4 py-3 font-mono text-gray-600 dark:text-gray-400">{userId.slice(0, 13)}...</td>
-                        <td className="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">
+                      <TableRow key={orderId} data-testid={`payment-row-${orderId}`}>
+                        <TableCell className="font-mono">{orderId.slice(0, 13)}...</TableCell>
+                        <TableCell className="font-mono">{userId.slice(0, 13)}...</TableCell>
+                        <TableCell className="font-semibold">
                           {amount.toLocaleString('vi-VN')} {currency}
-                        </td>
-                        <td className="px-4 py-3">
+                        </TableCell>
+                        <TableCell>
                           <span
                             className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
                               status === 'paid'
@@ -174,13 +175,13 @@ export function PaymentsManager({ billingManager, initialTab = 'payments' }: Pay
                           >
                             {status}
                           </span>
-                        </td>
-                        <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{createdAtStr}</td>
-                      </tr>
+                        </TableCell>
+                        <TableCell>{createdAtStr}</TableCell>
+                      </TableRow>
                     );
                   })}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </>
@@ -189,22 +190,22 @@ export function PaymentsManager({ billingManager, initialTab = 'payments' }: Pay
       {tab === 'subscriptions' && (
         <>
           {subscriptions.length === 0 && !isLoading && !errorMsg ? (
-            <div data-testid="subscriptions-empty" className="p-6 text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 rounded border border-gray-100 dark:border-gray-700 text-xs">
+            <div data-testid="subscriptions-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 dark:text-gray-400 text-xs">
               {t('commercial.emptySubscriptions', locale)}
             </div>
           ) : (
-            <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
-              <table data-testid="subscriptions-table" className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs">
-                <thead className="bg-gray-50 dark:bg-gray-800">
-                  <tr>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Mã thuê bao</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Gói</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Trạng thái</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Kỳ hiện tại</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Tự gia hạn</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
+            <div className="overflow-x-auto">
+              <Table data-testid="subscriptions-table">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-left font-semibold">Mã thuê bao</TableHead>
+                    <TableHead className="text-left font-semibold">Gói</TableHead>
+                    <TableHead className="text-left font-semibold">Trạng thái</TableHead>
+                    <TableHead className="text-left font-semibold">Kỳ hiện tại</TableHead>
+                    <TableHead className="text-left font-semibold">Tự gia hạn</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {subscriptions.map((s) => {
                     const subId = s.id || '';
                     const planId = s.planId || '';
@@ -212,10 +213,10 @@ export function PaymentsManager({ billingManager, initialTab = 'payments' }: Pay
                     const startStr = s.currentPeriodStart ? new Date(s.currentPeriodStart).toLocaleDateString('vi-VN') : '';
                     const endStr = s.currentPeriodEnd ? new Date(s.currentPeriodEnd).toLocaleDateString('vi-VN') : '';
                     return (
-                      <tr key={subId} data-testid={`sub-row-${subId}`} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                        <td className="px-4 py-3 font-mono text-gray-900 dark:text-gray-100">{subId.slice(0, 13)}...</td>
-                        <td className="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">{planId}</td>
-                        <td className="px-4 py-3">
+                      <TableRow key={subId} data-testid={`sub-row-${subId}`}>
+                        <TableCell className="font-mono">{subId.slice(0, 13)}...</TableCell>
+                        <TableCell className="font-semibold">{planId}</TableCell>
+                        <TableCell>
                           <span
                             className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
                               status === 'active'
@@ -225,18 +226,18 @@ export function PaymentsManager({ billingManager, initialTab = 'payments' }: Pay
                           >
                             {status}
                           </span>
-                        </td>
-                        <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                        </TableCell>
+                        <TableCell>
                           {startStr} - {endStr}
-                        </td>
-                        <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                        </TableCell>
+                        <TableCell>
                           {s.cancelAtPeriodEnd ? 'Không (đã hủy)' : 'Có'}
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     );
                   })}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </>

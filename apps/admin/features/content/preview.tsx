@@ -5,6 +5,7 @@ import React from 'react';
 import { RichTextView } from '@jlpt/ui/components/rich-text-view';
 import type { RichBlock } from '@jlpt/schema';
 import type { AdminQuestionGroup, ListeningTimelineItem } from './types';
+import { Table, TableBody, TableCell, TableRow } from '@jlpt/ui/components/table';
 
 export interface PreviewPassageProps {
   blocks: RichBlock[] | null | undefined;
@@ -55,19 +56,19 @@ export function PassageBlockViewer({
         if (block.type === 'table') {
           return (
             <div key={bIdx} data-testid={`passage-table-${bIdx}`} className="overflow-x-auto my-3">
-              <table className="min-w-full border-collapse border border-gray-300 text-sm">
-                <tbody>
+              <Table>
+                <TableBody>
                   {block.rows.map((row, rIdx) => (
-                    <tr key={rIdx} className={rIdx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <TableRow key={rIdx} className={rIdx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                       {row.map((cell, cIdx) => (
-                        <td key={cIdx} className="border border-gray-300 px-3 py-2 align-top">
+                        <TableCell key={cIdx} className="align-top">
                           <RichTextView segments={cell} />
-                        </td>
+                        </TableCell>
                       ))}
-                    </tr>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           );
         }
@@ -144,7 +145,7 @@ export function QuestionGroupPreview({
   resolveMediaUrl = (key) => `/api/v1/media/${encodeURIComponent(key)}`,
 }: QuestionGroupPreviewProps): React.JSX.Element {
   return (
-    <div data-testid="question-group-preview" className="border border-gray-200 rounded-lg p-6 bg-white shadow-sm space-y-6">
+    <div data-testid="question-group-preview" className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-6 space-y-6">
       {/* Group header */}
       <div className="border-b border-gray-100 pb-3">
         <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
@@ -173,7 +174,7 @@ export function QuestionGroupPreview({
 
       {/* Reading passage if present */}
       {group.passage && group.passage.length > 0 && (
-        <div className="bg-slate-50 border border-slate-200 rounded p-4">
+        <div className="surface surface--secondary rounded-2xl p-4">
           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Đoạn văn đọc hiểu</h4>
           <PassageBlockViewer blocks={group.passage} resolveMediaUrl={resolveMediaUrl} />
         </div>
