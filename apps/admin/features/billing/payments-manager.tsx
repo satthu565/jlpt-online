@@ -9,9 +9,10 @@ import { t } from '../../lib/i18n';
 
 export interface PaymentsManagerProps {
   billingManager?: BillingManager;
+  initialTab?: 'payments' | 'subscriptions';
 }
 
-export function PaymentsManager({ billingManager }: PaymentsManagerProps): React.JSX.Element {
+export function PaymentsManager({ billingManager, initialTab = 'payments' }: PaymentsManagerProps): React.JSX.Element {
   const auth = useOptionalAdminAuth();
   const token = auth?.token ?? null;
   const locale = auth?.locale ?? 'vi';
@@ -21,7 +22,7 @@ export function PaymentsManager({ billingManager }: PaymentsManagerProps): React
   const [subscriptions, setSubscriptions] = useState<AdminSubscriptionItem[]>(() =>
     billingManager ? billingManager.listSubscriptions() : [],
   );
-  const [tab, setTab] = useState<'payments' | 'subscriptions'>('payments');
+  const [tab, setTab] = useState<'payments' | 'subscriptions'>(initialTab);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 

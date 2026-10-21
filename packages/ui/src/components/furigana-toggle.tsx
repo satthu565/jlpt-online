@@ -58,7 +58,8 @@ export function setFuriganaSetting(enabled: boolean): void {
  * Hook to read and subscribe to furigana state.
  */
 export function useFurigana(): [boolean, (nextState: boolean | ((prev: boolean) => boolean)) => void] {
-  const [enabled, setEnabledState] = useState<boolean>(() => getFuriganaSetting());
+  // Server renders furigana on; the stored setting is synced in the mount effect below.
+  const [enabled, setEnabledState] = useState<boolean>(true);
 
   useEffect(() => {
     // Sync initial state to document DOM on mount

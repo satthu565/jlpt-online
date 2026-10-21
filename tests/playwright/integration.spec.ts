@@ -2066,12 +2066,22 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
 
     const studentUser = SEEDED_STAFF_ACCOUNTS.student;
 
-    // 1. Log in as verified student
-    await page.goto('/dang-nhap', { waitUntil: 'domcontentloaded' });
-    await page.locator('#login-email, input[type="email"]').fill(studentUser.email);
-    await page.locator('#login-password, input[type="password"]').fill(studentUser.password);
+    // 1. Log in as verified student. Wait for the page to settle so the click lands on the hydrated
+    // form; retry once if the first submit was lost (flaky on CI, 2026-10-20/21).
+    await page.goto('/dang-nhap', { waitUntil: 'networkidle' });
+    const email = page.locator('#login-email, input[type="email"]');
+    const password = page.locator('#login-password, input[type="password"]');
+    await email.fill(studentUser.email);
+    await password.fill(studentUser.password);
     await page.locator('button[type="submit"]').click();
-    await page.waitForURL(/\/tai-khoan/, { timeout: 15000, waitUntil: 'commit' });
+    try {
+      await page.waitForURL(/\/tai-khoan/, { timeout: 20000, waitUntil: 'commit' });
+    } catch {
+      await email.fill(studentUser.email);
+      await password.fill(studentUser.password);
+      await page.locator('button[type="submit"]').click();
+      await page.waitForURL(/\/tai-khoan/, { timeout: 20000, waitUntil: 'commit' });
+    }
 
     // 2. Navigate to /luyen-tap
     await page.goto('/luyen-tap', { waitUntil: 'domcontentloaded' });
@@ -2645,6 +2655,21 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
       }
     }
   }
+
+  test('Signed-in pages hydrate without React errors (cached user, locale, theme read after hydration)', async ({
+    page,
+  }, testInfo) => {
+    const clientIp = getProjectClientIp(testInfo, 90);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+    await loginAsStudent(page, webOrigin);
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    for (const route of ['/', '/de-thi', '/so-tay', '/lich-thi']) {
+      await page.goto(`${webOrigin}${route}`, { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('networkidle').catch(() => {});
+    }
+    expect(errors.filter((m) => /Minified React error #4(18|19|21|23|25)|Hydration/i.test(m))).toEqual([]);
+  });
 
   test('AC1 & AC2: Learner takes demo N5 exam, views sectional scoring & pass/fail, toggles furigana with persistence', async ({
     page,

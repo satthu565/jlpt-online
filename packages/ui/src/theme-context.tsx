@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useLayoutEffect, useState } from 'react';
 import type { ThemeMode, ActiveTheme } from './tokens.js';
 
 interface ThemeContextValue {
@@ -13,6 +13,9 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 const THEME_STORAGE_KEY = 'jlpt_theme_mode';
+
+// Runs before paint on the client and is skipped on the server.
+const useClientLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 function getSystemTheme(): ActiveTheme {
   if (typeof window === 'undefined') return 'light';
@@ -32,21 +35,21 @@ export function ThemeProvider({
   defaultTheme = 'system',
   storageKey = THEME_STORAGE_KEY,
 }: ThemeProviderProps): React.JSX.Element {
-  const [theme, setThemeState] = useState<ThemeMode>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem(storageKey) as ThemeMode | null;
-        if (saved && ['light', 'dark', 'system'].includes(saved)) {
-          return saved;
-        }
-      } catch {
-        // Fallback if localStorage is inaccessible
-      }
-    }
-    return defaultTheme;
-  });
+  // Server and first client render agree (defaultTheme, light system theme); stored and system values
+  // are applied before paint to avoid a hydration mismatch.
+  const [theme, setThemeState] = useState<ThemeMode>(defaultTheme);
 
-  const [systemTheme, setSystemTheme] = useState<ActiveTheme>(getSystemTheme);
+  const [systemTheme, setSystemTheme] = useState<ActiveTheme>('light');
+
+  useClientLayoutEffect(() => {
+    try {
+      const saved = localStorage.getItem(storageKey) as ThemeMode | null;
+      if (saved && ['light', 'dark', 'system'].includes(saved)) setThemeState(saved);
+    } catch {
+      // Fallback if localStorage is inaccessible
+    }
+    setSystemTheme(getSystemTheme());
+  }, [storageKey]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;

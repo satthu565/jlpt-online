@@ -137,7 +137,11 @@
     "emptyPayments": "決済履歴はありません。",
     "emptySubscriptions": "サブスクリプション履歴はありません。",
     "emptyRefunds": "処理待ちの返金リクエストはありません。",
-    "emptyReconciliation": "照合実行履歴はありません。"
+    "emptyReconciliation": "照合実行履歴はありません。",
+    "couponsTitle": "クーポン管理",
+    "couponsSubtitle": "クーポンの作成、利用回数と有効期限の設定。",
+    "subscriptionsTitle": "サブスクリプション管理",
+    "subscriptionsSubtitle": "学習者の利用中プラン、状態、更新日を確認します。"
   },
   "reports": {
     "hubTitle": "システム分析・レポートハブ",
@@ -345,5 +349,25 @@
       "versionActivatedSuccess": "得点換算表バージョンを有効化しました！",
       "immutableNotice": "不変性の原則: 過去に提出された受験結果は、当時の換算表バージョンを永久に保持し、新バージョンの有効化による影響を受けません。"
     }
+  },
+  "communityModeration": {
+    "title": "ディスカッションとコメントのモデレーション",
+    "subtitle": "学習者から通報されたコメントを処理します。",
+    "empty": "通報はまだありません。",
+    "loadError": "通報一覧を読み込めませんでした。",
+    "reason": "通報理由",
+    "content": "コメント内容",
+    "status": "状態",
+    "reportedAt": "日時",
+    "actions": "処理",
+    "hide": "コメントを非表示",
+    "dismiss": "却下",
+    "resolved": "処理済み",
+    "dismissed": "却下済み",
+    "pending": "未処理",
+    "in_review": "確認中",
+    "deleted": "(非表示のコメント)",
+    "done": "通報を更新しました。",
+    "refresh": "再読み込み"
   }
 }

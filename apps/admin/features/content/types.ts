@@ -199,3 +199,61 @@ export interface BlueprintValidationResult {
   valid: boolean;
   violations: string[];
 }
+
+/** Raw shape of GET /admin/groups/:id (question-bank.service getGroup). */
+interface ApiGroupDetail {
+  id: string;
+  level?: string;
+  sectionCode?: string;
+  title?: string | null;
+  sourceId?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  version?: { version?: number; passage?: unknown; status?: string; audioSha256?: string | null } | null;
+  questions?: Array<{
+    id: string;
+    mondaiType?: string;
+    skill?: string;
+    version?: { stem?: unknown; explanation?: unknown } | null;
+    options?: Array<{ orderIndex: number; content: unknown }>;
+    correctAnswer?: { correctOption?: number } | null;
+  }>;
+}
+
+/** Maps the question-bank API group (versions and options in separate rows) to the editor model. */
+export function toAdminQuestionGroup(raw: unknown): AdminQuestionGroup {
+  const g = raw as ApiGroupDetail;
+  const qs = Array.isArray(g.questions) ? g.questions : [];
+  const first = qs[0];
+  return {
+    id: g.id,
+    version: g.version?.version ?? 1,
+    level: (g.level ?? 'N5') as Level,
+    sectionCode: g.sectionCode ?? '',
+    mondaiType: (first?.mondaiType ?? 'kanji_reading') as MondaiType,
+    skill: (first?.skill ?? 'vocabulary') as Skill,
+    title: g.title ?? undefined,
+    instructions: [],
+    passage: (g.version?.passage as RichBlock[] | null | undefined) ?? null,
+    audioSha256: g.version?.audioSha256 ?? null,
+    mediaIds: [],
+    questions: qs.map((q, i) => ({
+      questionId: q.id,
+      number: String(i + 1),
+      stem: (q.version?.stem as RichText) ?? [],
+      explanation: (q.version?.explanation as RichText | undefined) ?? undefined,
+      options: (q.options ?? []).map((o) => ({
+        label: String(o.orderIndex),
+        content: o.content as RichText,
+        isCorrect: q.correctAnswer?.correctOption === o.orderIndex,
+      })),
+      correctOption: q.correctAnswer?.correctOption ?? 1,
+    })),
+    sourceRef: g.sourceId ?? '',
+    status: (g.version?.status ?? 'draft') as ContentStatus,
+    lastEditedBy: '',
+    authorId: '',
+    createdAt: g.createdAt ?? '',
+    updatedAt: g.updatedAt ?? '',
+  };
+}

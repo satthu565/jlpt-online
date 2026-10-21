@@ -90,7 +90,7 @@ export class CorpusClient {
   }
 
   async lookupDictionary(query: string): Promise<VocabTermDto[]> {
-    const qs = new URLSearchParams({ q: query }).toString();
+    const qs = new URLSearchParams({ text: query }).toString();
     return this.request<VocabTermDto[]>(`/dictionary/lookup?${qs}`, { method: 'GET' });
   }
 

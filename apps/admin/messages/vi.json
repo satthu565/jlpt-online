@@ -137,7 +137,11 @@
     "emptyPayments": "Chưa có giao dịch thanh toán nào.",
     "emptySubscriptions": "Chưa có thuê bao nào.",
     "emptyRefunds": "Không có yêu cầu hoàn tiền nào cần xử lý.",
-    "emptyReconciliation": "Chưa có phiên đối soát nào được ghi nhận."
+    "emptyReconciliation": "Chưa có phiên đối soát nào được ghi nhận.",
+    "couponsTitle": "Quản trị mã giảm giá",
+    "couponsSubtitle": "Tạo mã giảm giá, giới hạn lượt dùng và hạn sử dụng.",
+    "subscriptionsTitle": "Quản trị thuê bao",
+    "subscriptionsSubtitle": "Theo dõi gói đang dùng, trạng thái và ngày gia hạn của học viên."
   },
   "reports": {
     "hubTitle": "Trung tâm Báo cáo & Phân tích Hệ thống",
@@ -345,5 +349,25 @@
       "versionActivatedSuccess": "Đã kích hoạt phiên bản bảng quy đổi thành công!",
       "immutableNotice": "Lưu ý bất biến: Điểm số của các lượt thi đã nộp trước đây sẽ giữ nguyên phiên bản quy đổi đã dùng, không bị ảnh hưởng khi kích hoạt phiên bản mới."
     }
+  },
+  "communityModeration": {
+    "title": "Kiểm duyệt thảo luận và bình luận",
+    "subtitle": "Xử lý các bình luận bị học viên báo cáo vi phạm.",
+    "empty": "Chưa có báo cáo vi phạm nào.",
+    "loadError": "Không thể tải danh sách báo cáo.",
+    "reason": "Lý do báo cáo",
+    "content": "Nội dung bình luận",
+    "status": "Trạng thái",
+    "reportedAt": "Thời gian",
+    "actions": "Xử lý",
+    "hide": "Ẩn bình luận",
+    "dismiss": "Bỏ qua",
+    "resolved": "Đã xử lý",
+    "dismissed": "Đã bỏ qua",
+    "pending": "Chờ xử lý",
+    "in_review": "Đang xem",
+    "deleted": "(bình luận đã ẩn)",
+    "done": "Đã cập nhật báo cáo.",
+    "refresh": "Tải lại"
   }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useLayoutEffect, useState, useMemo } from 'react';
 // No dictionary is bundled here: the root layout (a Server Component) passes the Vietnamese messages to
 // I18nProvider, so they travel in the RSC payload instead of the JS bundle (≈13 KB gzip off every page);
 // ja/en load on demand.
@@ -104,33 +104,38 @@ export interface I18nProviderProps {
   messages?: MessageTree;
 }
 
+// Runs before paint on the client and is skipped on the server.
+const useClientLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
+/** Locale saved by the learner (localStorage, then cookie), or null. */
+function readSavedLocale(): Locale | null {
+  try {
+    const saved = localStorage.getItem(LOCALE_STORAGE_KEY) as Locale | null;
+    if (saved && SUPPORTED_LOCALES.includes(saved)) return saved;
+  } catch {
+    // storage unavailable
+  }
+  try {
+    const match = document.cookie.match(new RegExp('(?:^|; )' + LOCALE_STORAGE_KEY + '=([^;]*)'));
+    if (match && match[1] && SUPPORTED_LOCALES.includes(match[1] as Locale)) return match[1] as Locale;
+  } catch {
+    // cookies unavailable
+  }
+  return null;
+}
+
 export function I18nProvider({
   children,
   initialLocale = DEFAULT_LOCALE,
   messages,
 }: I18nProviderProps): React.JSX.Element {
   if (messages) registerLocaleMessages(DEFAULT_LOCALE, messages);
-  const [locale, setLocaleState] = useState<Locale>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem(LOCALE_STORAGE_KEY) as Locale | null;
-        if (saved && SUPPORTED_LOCALES.includes(saved)) {
-          return saved;
-        }
-      } catch {
-        // Fallback
-      }
-      try {
-        const match = document.cookie.match(new RegExp('(?:^|; )' + LOCALE_STORAGE_KEY + '=([^;]*)'));
-        if (match && match[1] && SUPPORTED_LOCALES.includes(match[1] as Locale)) {
-          return match[1] as Locale;
-        }
-      } catch {
-        // Fallback
-      }
-    }
-    return initialLocale;
-  });
+  // Server and first client render use initialLocale; the saved locale is applied before paint.
+  const [locale, setLocaleState] = useState<Locale>(initialLocale);
+  useClientLayoutEffect(() => {
+    const saved = readSavedLocale();
+    if (saved && saved !== initialLocale) setLocaleState(saved);
+  }, []);
 
   const setLocale = (newLocale: Locale) => {
     if (!SUPPORTED_LOCALES.includes(newLocale)) return;
