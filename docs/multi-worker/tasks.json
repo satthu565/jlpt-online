@@ -4859,6 +4859,349 @@
       "reviewRequired": true,
       "evidence": [],
       "originalTaskRefs": []
+    },
+    {
+      "id": "H01",
+      "owner": "W5",
+      "day": 11,
+      "notBeforeHour": 240,
+      "targetByHour": 264,
+      "estimatedWorkerHours": 8,
+      "title": "Âm Hán Việt theo từng từ vựng: bảng chữ + âm On, ngoại lệ theo nghĩa, độ tin cậy, lưu cho mọi mục từ điển",
+      "dependencies": [],
+      "featureIds": [],
+      "scope": "MỤC TIÊU: mỗi từ vựng có âm Hán Việt đúng theo nghĩa của từ, kèm độ tin cậy; từ chưa chắc thì đánh dấu để người duyệt (H03) thay vì hiện âm sai. HIỆN TRẠNG: packages/content-tools/src/nlp/hanviet-data.json lưu MỘT âm cho mỗi chữ (19.403 chữ, nguồn không đáng tin: kVietnamese của Unihan lẫn âm Nôm, 予 = \"nhừ\"); getHanVietForWord ghép âm từng chữ nên sai khoảng 15% từ JLPT: 予約 ra DƯ YÊU (đúng DỰ ƯỚC), 要約 ra YÊU YÊU (YẾU ƯỚC), 重要 ra TRÙNG YÊU (TRỌNG YẾU), 必要 ra TẤT YÊU (TẤT YẾU), 番号 ra PHAN HIỆU (PHIÊN HIỆU), 音楽 ra ÂM LẠC (ÂM NHẠC), 社長 ra XÃ TRƯỜNG (XÃ TRƯỞNG). Từ điển JMdict + KANJIDIC2 đã nạp (bảng lexical_entries, entry_readings, kanji_entries; script apps/api/scripts/lexicon/). kanji_entries.onyomi có âm On (katakana) của từng chữ. LỚP 1 - BẢNG CHỮ + ÂM ON: tạo tools/import-data/data/hanviet-onyomi.tsv, mỗi dòng \"kanji<TAB>âm On (katakana)<TAB>âm Hán Việt<TAB>ghi chú\", phủ mọi âm On trong KANJIDIC2 của TOÀN BỘ 2.136 chữ Jōyō (grade 1-8). Âm Hán Việt viết HOA có dấu, NFC, một kiểu đặt dấu thống nhất. Ví dụ đúng: 楽 ガク NHẠC / 楽 ラク LẠC; 易 エキ DỊCH / 易 イ DỊ; 悪 アク ÁC / 悪 オ Ố; 説 セツ THUYẾT / 説 ゼイ THUẾ; 要 ヨウ YẾU; 約 ヤク ƯỚC; 予 ヨ DỰ; 番 バン PHIÊN. Thêm tools/import-data/data/hanviet-primary.tsv (một âm chính cho mỗi chữ) dùng khi không xác định được âm On (từ đọc âm Kun, chữ ngoài danh sách). LỚP 2 - NGOẠI LỆ THEO NGHĨA: tools/import-data/data/hanviet-word-overrides.tsv \"từ<TAB>âm cả từ<TAB>lý do\", tối thiểu 300 từ JLPT N5-N1 mà cùng âm On nhưng tiếng Việt đổi âm theo nghĩa, ví dụ 長 チョウ: 社長 XÃ TRƯỞNG / 長期 TRƯỜNG KỲ; 行 コウ: 銀行 NGÂN HÀNG / 旅行 LỮ HÀNH; 重 チョウ: 重複 TRÙNG PHỨC / 貴重 QUÝ TRỌNG. Lập danh sách chữ \"đổi âm theo nghĩa\" (長, 行, 重, ...) trong docs/decisions/H01-hanviet-word-level.md. LỚP 3 - THUẬT TOÁN VÀ ĐỘ TIN CẬY: thêm vào packages/content-tools hàm computeHanViet(term, reading) trả { hanViet, perKanji: [{ kanji, onyomi, hanViet }], confidence: \"high\" | \"review\" | \"kun\", source: \"override\" | \"rule\" }. Thứ tự: (a) có trong ngoại lệ thì dùng, confidence high, source override; (b) đổi reading hiragana sang katakana, tách theo từng chữ bằng cách thử các âm On của chữ đó, chấp nhận biến âm (đục hóa ハ->バ/パ, カ->ガ...; âm ngắt ク/キ/チ/ツ->ッ), kana trong từ (okurigana) đi qua nguyên; tách được hết bằng âm On thì ghép Hán Việt theo bảng lớp 1; nếu có chữ thuộc danh sách \"đổi âm theo nghĩa\" mà từ không nằm trong ngoại lệ thì confidence review, ngược lại high; (c) không tách được bằng âm On (đọc âm Kun như 山 やま, 食べる) thì ghép âm chính của chữ, confidence kun (hiển thị là \"âm của chữ\", không phải từ Hán Việt). Không đoán: chữ không có trong bảng thì để trống và confidence review. LƯU CHO MỌI MỤC TỪ ĐIỂN: migration thêm vào lexical_entries các cột han_viet, han_viet_confidence, han_viet_source (rule | override | manual), han_viet_updated_at; script apps/api/scripts/lexicon/backfill-hanviet.mjs tính cho toàn bộ mục (dùng reading chính), KHÔNG ghi đè dòng có source manual, chạy lại không đổi kết quả, in thống kê số mục high/review/kun; script nạp từ điển (import-lexicon.mjs) tính Hán Việt cho mục mới. API: GET /dictionary/lookup trả thêm hanVietConfidence và hanVietPerKanji (giữ trường hanViet); GET /dictionary/hanviet nhận thêm tham số reading tùy chọn; getHanVietForWord(term) dùng giá trị đã lưu của mục từ điển khớp từ nếu có (sổ tay, flashcard, quiz, danh sách ôn tập tự nhận âm mới), không có thì tính theo lớp 1-3. API CHO DUYỆT (H02, H03 dùng): GET /admin/lexicon/hanviet?confidence=review|kun|high&q=&page= (editor, reviewer, admin) trả mục từ kèm reading, nghĩa đầu, hanViet, confidence, source, perKanji, số báo sai; PATCH /admin/lexicon/:id/hanviet { hanViet } đặt source manual, confidence high, ghi audit log; POST /dictionary/hanviet-reports { entry, reading?, suggestion?, note? } (học viên đã đăng nhập, giới hạn tần suất) chuyển mục sang confidence review và lưu báo cáo cho H03.",
+      "outputs": [
+        "tools/import-data/",
+        "packages/content-tools/",
+        "apps/api/src/modules/vocab/",
+        "apps/api/src/modules/learning/",
+        "apps/api/scripts/lexicon/",
+        "docs/decisions/"
+      ],
+      "acceptance": [
+        "hanviet-onyomi.tsv phủ mọi âm On của 2.136 chữ Jōyō; script kiểm tra báo 0 chữ thiếu",
+        "Bộ từ chuẩn packages/content-tools/tests/hanviet-golden.test.ts (từ + reading + âm đúng) gồm ít nhất 200 từ JLPT N5-N1 đạt 100%, trong đó có: 予約 DỰ ƯỚC, 要約 YẾU ƯỚC, 約束 ƯỚC THÚC, 重要 TRỌNG YẾU, 重複 TRÙNG PHỨC, 貴重 QUÝ TRỌNG, 必要 TẤT YẾU, 番号 PHIÊN HIỆU, 音楽 ÂM NHẠC, 楽園 LẠC VIÊN, 貿易 MẬU DỊCH, 容易 DUNG DỊ, 社長 XÃ TRƯỞNG, 部長 BỘ TRƯỞNG, 長期 TRƯỜNG KỲ, 銀行 NGÂN HÀNG, 旅行 LỮ HÀNH, 学生 HỌC SINH, 経済 KINH TẾ, 勉強 MIỄN CƯỜNG",
+        "Test thuật toán: 楽しい và 山 cho confidence kun; từ có chữ đổi âm theo nghĩa không có trong ngoại lệ cho review; biến âm (学校 がっこう, 一本 いっぽん) tách đúng",
+        "Backfill trên DB có JMdict: mọi mục có han_viet hoặc confidence review, dòng manual giữ nguyên; thống kê high/review/kun ghi trong docs/decisions/H01-hanviet-word-level.md",
+        "GET /dictionary/lookup?text=要約 trả hanViet YẾU ƯỚC, hanVietConfidence high, perKanji 要 ヨウ YẾU, 約 ヤク ƯỚC",
+        "PATCH admin đổi âm thì lookup trả âm mới; nạp lại từ điển không ghi đè",
+        "POST báo sai cần đăng nhập, chuyển mục sang review, có giới hạn tần suất"
+      ],
+      "checks": [
+        "pnpm test:import-validation",
+        "pnpm --filter @jlpt/content-tools test",
+        "pnpm test:vocab-data",
+        "pnpm test:learning:all",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
+      ],
+      "contracts": [
+        "API",
+        "DB"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [
+        "apps/api/src/db/",
+        "apps/api/scripts/lexicon/"
+      ],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
+      "id": "H02",
+      "owner": "W3",
+      "day": 11,
+      "notBeforeHour": 240,
+      "targetByHour": 264,
+      "estimatedWorkerHours": 4,
+      "title": "Trang /tu-vung: tra từ trong từ điển JMdict, hiện cách đọc, nghĩa và âm Hán Việt",
+      "dependencies": [
+        "H01"
+      ],
+      "featureIds": [],
+      "scope": "HIỆN TRẠNG: /tu-vung (apps/web/features/corpus/components/vocab-explorer.tsx) chỉ lọc tại chỗ bộ ngữ liệu jlpt-official, bộ này đang có 0 từ nên trang TRỐNG. Từ điển JMdict + KANJIDIC2 (22.647 mục thông dụng) đã nạp vào DB; API GET /api/v1/dictionary/lookup?text=<từ> trả MỘT mục: entry, readings[], meanings[] (tiếng Anh), partOfSpeech, hanViet, license, attribution; tra được theo mặt chữ (予約) hoặc theo cách đọc kana (よやく); không có thì 404. corpus-client.lookupDictionary(query) đã gửi đúng tham số text. VIỆC CẦN LÀM: (1) Thêm khu \"Tra từ điển\" ở đầu /tu-vung: ô nhập (Input của @jlpt/ui) + nút Tra; tra khi bấm Enter/nút (không tra mỗi phím gõ). (2) Thẻ kết quả (Card của @jlpt/ui) hiện: từ (cỡ lớn, font Nhật), các cách đọc, nhãn âm Hán Việt (data-testid=\"dictionary-hanviet\"), từ loại, danh sách nghĩa có tiêu đề \"Nghĩa tiếng Anh (JMdict)\", dòng ghi nguồn \"Từ điển JMdict/KANJIDIC2 – EDRDG, CC BY-SA 4.0\" có link tới /gioi-thieu#nguon-du-lieu, nút \"Lưu vào sổ tay\" gọi POST /api/v1/me/notebook-items (learning-client.createNotebookItem) với term, reading, meaning (nghĩa đầu tiên), hanViet; chưa đăng nhập thì nút dẫn tới /dang-nhap. (2b) Âm Hán Việt theo H01: confidence high hiện bình thường; review hiện kèm nhãn \"Đang chờ xác nhận\"; kun hiện là \"Âm của chữ:\" (không phải từ Hán Việt); có thể mở xem phân tách theo chữ (chữ - âm On - Hán Việt). (2c) Nút \"Báo sai âm Hán Việt\" (học viên đã đăng nhập) mở hộp thoại nhập âm đề xuất và ghi chú, gọi POST /api/v1/dictionary/hanviet-reports, báo đã gửi; chưa đăng nhập thì dẫn tới /dang-nhap. (3) Trạng thái: chưa tra → gợi ý kèm ví dụ bấm được (学生, 勉強, よやく); đang tra → Skeleton; 404 → \"Không tìm thấy từ … trong từ điển\"; lỗi mạng/5xx → Alert kèm nút Thử lại. (4) Danh sách ngữ liệu bên dưới giữ nguyên; khi bộ ngữ liệu trống thì KHÔNG hiện thông báo trống chiếm chỗ, chỉ còn khu tra từ. (5) Chỉ dùng component @jlpt/ui (giao diện HeroUI), class Tailwind, không style={{}}; không hiện nút đọc TTS (đang ẩn bằng FEATURES.tts); chuỗi giao diện đưa vào messages vi/ja/en. CI staging KHÔNG nạp JMdict, API dùng từ điển sandbox: E2E phải dùng từ có trong sandbox (学生 → がくせい, HỌC SINH; 学校; 先生).",
+      "outputs": [
+        "apps/web/",
+        "packages/ui/"
+      ],
+      "acceptance": [
+        "Gõ 学生 rồi Enter: thẻ hiện 学生, がくせい, nhãn HỌC SINH, có nghĩa và dòng ghi nguồn EDRDG",
+        "Gõ chuỗi không có trong từ điển: hiện \"Không tìm thấy\", không lỗi 500",
+        "Báo sai âm Hán Việt gửi được khi đã đăng nhập, chưa đăng nhập thì dẫn tới /dang-nhap",
+        "Đã đăng nhập bấm \"Lưu vào sổ tay\" thì /so-tay có từ đó; chưa đăng nhập thì dẫn tới /dang-nhap",
+        "Khi bộ ngữ liệu trống, trang không còn trống: khu tra từ hiện đầu trang",
+        "Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass",
+        "E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt",
+        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền",
+        "E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en"
+      ],
+      "checks": [
+        "pnpm test:web",
+        "pnpm check:no-mock-ui",
+        "pnpm check:ui-primitives",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [
+        "tests/playwright/"
+      ],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
+      "id": "H03",
+      "owner": "W4",
+      "day": 11,
+      "notBeforeHour": 240,
+      "targetByHour": 264,
+      "estimatedWorkerHours": 4,
+      "title": "Quản trị: màn hình \"Duyệt Hán Việt\" cho từ vựng",
+      "dependencies": [
+        "H01"
+      ],
+      "featureIds": [],
+      "scope": "Màn hình mới trong admin, mục menu \"Duyệt Hán Việt\" thuộc nhóm Nội dung, vai trò editor, reviewer, admin. Dùng API của H01: GET /api/v1/admin/lexicon/hanviet (lọc confidence review | kun | high, tìm theo từ hoặc cách đọc, phân trang) và PATCH /api/v1/admin/lexicon/:id/hanviet. Bảng (Table của @jlpt/ui): từ, cách đọc, nghĩa đầu, âm Hán Việt hiện tại, phân tách theo chữ (chữ - âm On - Hán Việt), độ tin cậy (nhãn màu), nguồn (máy tính / ngoại lệ / người sửa), số báo sai từ học viên. Mặc định mở bộ lọc \"Cần xem lại\" (review), sắp theo số báo sai giảm dần. Sửa: bấm ô Hán Việt để sửa tại chỗ (Input), Lưu gọi PATCH, cập nhật dòng, nhãn nguồn đổi thành \"người sửa\"; nút \"Xác nhận đúng\" lưu nguyên âm hiện tại để chuyển sang high. Lỗi API hiện Alert, không mất dữ liệu đang gõ. Dùng component @jlpt/ui, không style={{}}, chuỗi vi/ja/en.",
+      "outputs": [
+        "apps/admin/"
+      ],
+      "acceptance": [
+        "Editor lọc \"Cần xem lại\", sửa 1 từ, lưu; tra từ đó ở /api/v1/dictionary/lookup trả âm mới và nguồn người sửa",
+        "\"Xác nhận đúng\" chuyển mục sang high",
+        "Vai trò không có quyền sửa thì nút bị ẩn hoặc lỗi 403 hiển thị rõ",
+        "Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass",
+        "E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt",
+        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền",
+        "E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en"
+      ],
+      "checks": [
+        "pnpm test:admin",
+        "pnpm check:no-mock-ui",
+        "pnpm check:ui-primitives",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [
+        "tests/playwright/"
+      ],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
+      "id": "H04",
+      "owner": "W5",
+      "day": 11,
+      "notBeforeHour": 240,
+      "targetByHour": 264,
+      "estimatedWorkerHours": 6,
+      "title": "Bộ ngữ liệu đề thi lưu vào database, tự tách từ khi xuất bản đề; /tu-vung liệt kê từ của các đề thật",
+      "dependencies": [
+        "H01"
+      ],
+      "featureIds": [],
+      "scope": "HIỆN TRẠNG (lỗi thiết kế): corpus.service (apps/api/src/modules/vocab/corpus.service.ts) giữ bộ ngữ liệu \"Tập ngữ liệu đề thi JLPT N1–N5\" (slug jlpt-official) trong Map aggregators ở BỘ NHỚ; chỉ có dữ liệu khi gọi API nạp thủ công một gói đề, MẤT HẾT khi API khởi động lại; đề đã xuất bản không tự vào. Vì vậy GET /api/v1/datasets/jlpt-official/vocabulary trả {\"total\":0} và /tu-vung, /thong-ke-tu-vung, admin \"Từ vựng & Ngữ pháp\" đều trống. VIỆC CẦN LÀM: (1) Bảng mới (migration) corpus_terms: dataset_id, term (dạng từ điển), reading, level (N1..N5 theo cấp của đề), exam_id, question_id, section/skill, count; khóa duy nhất (dataset_id, term, exam_id, question_id) để chạy lại không trùng. Tổng hợp theo từ để trả danh sách và tần suất. (2) Tách từ bằng tokenizer/lemmatizer có sẵn trong apps/api/src/modules/vocab/nlp (đưa về dạng từ điển: 食べた -> 食べる), bỏ trợ từ, dấu câu, kana đơn lẻ. Nguồn chữ: đề bài (stem), lựa chọn, đoạn văn đọc hiểu, transcript nghe nếu có; KHÔNG lấy đáp án đúng riêng ra (không lộ đáp án). (3) Khi một đề được xuất bản (ExamService.publishExam / approveAndPublishExam) thì tách từ của phiên bản vừa xuất bản vào corpus (qua outbox event content.published hoặc gọi trực tiếp trong transaction); gỡ xuất bản thì bỏ các dòng của đề đó khỏi corpus. Script bù apps/api/scripts/lexicon/backfill-corpus.mjs chạy cho mọi đề đang xuất bản, chạy lại không đổi kết quả. (4) Mỗi từ trong danh sách lấy thêm từ JMdict (lexical_entries): cách đọc, nghĩa đầu (tiếng Anh), từ loại, hanViet và hanVietConfidence của H01; từ không có trong JMdict vẫn hiện với cách đọc từ tokenizer. (5) API giữ nguyên đường dẫn và dạng trả hiện có (GET /datasets, /datasets/:id/vocabulary?level=&q=&page=, thống kê tần suất cho /thong-ke-tu-vung) để web và admin tự có dữ liệu; totalWords của dataset là số từ khác nhau. Bỏ Map trong bộ nhớ làm nguồn chính.",
+      "outputs": [
+        "apps/api/src/modules/vocab/",
+        "apps/api/src/modules/learning/",
+        "apps/api/scripts/lexicon/",
+        "docs/decisions/"
+      ],
+      "acceptance": [
+        "Sau khi chạy backfill trên preview (N3 12/2019 và đề demo N5 đã xuất bản), GET /datasets/jlpt-official/vocabulary trả danh sách khác rỗng, lọc level=N3 chỉ còn từ của đề N3",
+        "Khởi động lại API dữ liệu vẫn còn",
+        "Xuất bản một đề mới thì từ của đề đó có trong danh sách; gỡ xuất bản thì biến mất",
+        "Chạy backfill hai lần không tạo dòng trùng",
+        "Từ dạng chia (食べた) được gom về dạng từ điển (食べる); không có dòng nào là trợ từ hay dấu câu",
+        "Test không lộ đáp án: danh sách không có trường đáp án hay đánh dấu đáp án đúng",
+        "/tu-vung, /thong-ke-tu-vung và admin Từ vựng hiện dữ liệu thật (E2E staging dùng đề demo N5 được seed và xuất bản)"
+      ],
+      "checks": [
+        "pnpm test:vocab-data",
+        "pnpm test:learning:all",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
+      ],
+      "contracts": [
+        "API",
+        "DB"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [
+        "apps/api/src/db/",
+        "apps/api/src/modules/exam/",
+        "tests/playwright/"
+      ],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
+      "id": "H05",
+      "owner": "W5",
+      "day": 11,
+      "notBeforeHour": 240,
+      "targetByHour": 264,
+      "estimatedWorkerHours": 4,
+      "title": "API từ điển cho tra nhanh khi bôi đen và trang chi tiết từ vựng",
+      "dependencies": [
+        "H01"
+      ],
+      "featureIds": [],
+      "scope": "Phục vụ H06 (bôi đen chữ trong bài thi để tra). (1) GET /api/v1/dictionary/lookup?text=: nếu không khớp mặt chữ/cách đọc thì thử dạng từ điển qua lemmatizer có sẵn (食べた, 食べます -> 食べる; 高かった -> 高い; 勉強して -> 勉強する/勉強), rồi thử bỏ dần ký tự cuối là kana (okurigana thừa khi bôi đen dư); trả thêm matchedText (chuỗi đã khớp) và lemma. Bôi đen dài hơn 20 ký tự hoặc không có chữ Nhật trả 400. (2) Trả thêm posLabels: nhãn từ loại tiếng Việt suy từ mã JMdict trong partOfSpeech: n -> Danh từ; v1, v5* -> Động từ; vs -> Danh động từ (đi với する); vt/vi -> Ngoại động từ/Nội động từ (bổ sung); adj-i -> Tính từ đuôi い; adj-na -> Tính từ đuôi な; adv -> Phó từ; prt -> Trợ từ; conj -> Liên từ; int -> Thán từ; pn -> Đại từ; ctr -> Trợ số từ; exp -> Cụm từ; mã khác giữ nguyên trong ngoặc. Bảng ánh xạ đặt trong một file dùng chung, có test cho từng mã. (3) GET /api/v1/dictionary/entries/:term (term mã hóa URL): chi tiết một mục: mọi cách đọc, mọi nghĩa theo từng nghĩa (sense) kèm từ loại của nghĩa đó, posLabels, hanViet, hanVietConfidence, hanVietPerKanji, thông tin từng chữ Hán trong từ từ KANJIDIC2 (âm On, âm Kun, số nét, nghĩa tiếng Anh, cấp JLPT cũ nếu có), số lần xuất hiện trong đề thi theo cấp (dùng bảng corpus của H04 nếu đã có, chưa có thì trả mảng rỗng), license và attribution; không có thì 404. Nếu cần lưu nghĩa theo sense mà bảng entry_meanings chưa đủ, thêm cột sense_index/pos vào entry_meanings bằng migration và cập nhật import-lexicon.mjs. (4) Cache trong bộ nhớ có giới hạn cho lookup (tra lặp lại khi bôi đen) và giới hạn tần suất hợp lý. Công khai, không cần đăng nhập.",
+      "outputs": [
+        "apps/api/src/modules/vocab/",
+        "apps/api/scripts/lexicon/",
+        "docs/decisions/"
+      ],
+      "acceptance": [
+        "lookup 食べた trả entry 食べる, lemma 食べる, posLabels có Động từ",
+        "lookup 高かった trả 高い, posLabels có Tính từ đuôi い; lookup 静か trả posLabels có Tính từ đuôi な; lookup 予約 trả Danh từ và Danh động từ",
+        "Bôi đen dư okurigana (予約す) vẫn khớp 予約 và matchedText là 予約",
+        "GET /dictionary/entries/要約 trả các nghĩa theo sense, thông tin chữ 要 và 約 từ KANJIDIC2, hanViet của H01; từ không có trả 404",
+        "Chuỗi dài hơn 20 ký tự hoặc không có chữ Nhật trả 400, không bao giờ 500",
+        "Test ánh xạ từ loại phủ mọi mã nêu trên"
+      ],
+      "checks": [
+        "pnpm test:vocab-data",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
+      ],
+      "contracts": [
+        "API",
+        "DB"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [
+        "apps/api/src/db/"
+      ],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
+      "id": "H06",
+      "owner": "W3",
+      "day": 11,
+      "notBeforeHour": 240,
+      "targetByHour": 264,
+      "estimatedWorkerHours": 8,
+      "title": "Web: bôi đen từ khi làm bài để xem nghĩa, cách đọc, Hán Việt, từ loại; nút Xem chi tiết; trang chi tiết từ vựng",
+      "dependencies": [
+        "H05",
+        "H02"
+      ],
+      "featureIds": [],
+      "scope": "CHỦ DỰ ÁN QUYẾT ĐỊNH: tính năng chạy ở MỌI chế độ, KỂ CẢ THI THẬT; có công tắc để học viên bật/tắt ngay trong lúc làm bài. (1) PHẠM VI BÔI ĐEN: nội dung câu hỏi, các lựa chọn, đoạn văn đọc hiểu và lời giải ở: phòng thi /phong-thi (thi thật và luyện tập), luyện tập /luyen-tap, xem lại kết quả /ket-qua/[id]. Không áp dụng cho thanh công cụ, đồng hồ, phiếu trả lời. (2) CÁCH HOẠT ĐỘNG: khi người dùng bôi đen (chuột: mouseup; cảm ứng: chọn văn bản bằng nhấn giữ, sự kiện selectionchange có debounce 300ms) một chuỗi 1-20 ký tự có chữ Nhật trong vùng trên, lấy văn bản đã chọn BỎ chữ furigana (thẻ rt), gọi GET /api/v1/dictionary/lookup?text= (API của H05, có cache phía client theo chuỗi), hiện một khung nổi (Popover của @jlpt/ui, giao diện HeroUI) sát ngay vùng chọn, không che vùng chọn, tự lật lên/xuống cho vừa màn hình, dùng được ở 390px. NỘI DUNG KHUNG: từ (dạng từ điển, font Nhật cỡ lớn) và dạng đã bôi nếu khác (ví dụ \"食べた -> 食べる\"); cách đọc (hiragana); âm Hán Việt (theo độ tin cậy của H01: review thêm nhãn \"Đang chờ xác nhận\", kun hiện \"Âm của chữ:\"); nhãn từ loại tiếng Việt (posLabels, ví dụ \"Động từ\", \"Tính từ đuôi な\"); tối đa 3 nghĩa đầu với tiêu đề \"Nghĩa tiếng Anh (JMdict)\"; nút \"Xem chi tiết\"; dòng ghi nguồn EDRDG nhỏ. Đang tra: Skeleton; không tìm thấy: \"Không tìm thấy trong từ điển\"; lỗi: thông báo ngắn kèm Thử lại. ĐÓNG KHUNG: Esc, bấm ra ngoài, bỏ chọn văn bản, chuyển câu. KHÔNG ĐƯỢC ẢNH HƯỞNG BÀI THI: bôi đen/khung nổi không chọn hay đổi đáp án, không kích hoạt phím tắt phòng thi (1-4, F, mũi tên) khi đang gõ trong khung, không làm mất phiên, không ghi vào đáp án. (3) NÚT \"XEM CHI TIẾT\": trong phòng thi và luyện tập MỞ TAB MỚI tới /tu-vung/[term] (target _blank, rel noopener) để không rời bài đang làm; ở trang kết quả mở trong cùng tab. (4) CÔNG TẮC: thêm vào thanh công cụ phòng thi (exam-toolbar) và luyện tập một công tắc \"Tra từ khi bôi đen\" (Switch của @jlpt/ui) có nhãn rõ; mặc định BẬT; ghi nhớ trong localStorage (khóa jlpt_select_lookup) và áp dụng mọi trang trên; đọc giá trị lưu sau khi hydrate (không đọc localStorage trong useState để tránh lỗi hydration React #418). Trên 390px công tắc nằm trong hàng nút có xuống dòng, không tràn. (5) TRANG CHI TIẾT /tu-vung/[term] (Next.js App Router, decodeURIComponent): gọi GET /api/v1/dictionary/entries/:term của H05; hiện từ, mọi cách đọc, nhãn từ loại, các nghĩa đánh số theo từng nghĩa kèm từ loại của nghĩa, âm Hán Việt và bảng phân tách theo chữ (chữ - âm On - Hán Việt); với mỗi chữ Hán: âm On, âm Kun, số nét, nghĩa; số lần xuất hiện trong đề thi theo cấp (nếu có dữ liệu H04); nút \"Lưu vào sổ tay\" và nút \"Báo sai âm Hán Việt\" (dùng lại thành phần đã có ở H02); dòng ghi nguồn EDRDG có link /gioi-thieu#nguon-du-lieu; metadata SEO (title \"<từ> - nghĩa, cách đọc, Hán Việt | JLPT Online\", canonical); từ không có trả trang 404 của Next (notFound()). (6) Chỉ dùng component @jlpt/ui (HeroUI) và class Tailwind, không style={{}}, chuỗi giao diện đưa vào messages vi/ja/en, không hiện nút TTS (đang ẩn bằng FEATURES.tts). CI staging dùng từ điển sandbox: E2E dùng từ có trong sandbox (学生, 学校, 先生, 食べる).",
+      "outputs": [
+        "apps/web/",
+        "packages/ui/"
+      ],
+      "acceptance": [
+        "Trong phòng thi THI THẬT, bôi đen 学生 trong câu hỏi: khung nổi hiện 学生, がくせい, HỌC SINH, nhãn Danh từ, nghĩa và nút Xem chi tiết; đáp án đang chọn không đổi",
+        "Tắt công tắc \"Tra từ khi bôi đen\" thì bôi đen không hiện khung; tải lại trang vẫn giữ trạng thái tắt; bật lại thì hoạt động",
+        "Bấm Xem chi tiết trong phòng thi mở tab mới /tu-vung/学生, tab bài thi vẫn ở nguyên câu đang làm và đồng hồ vẫn chạy",
+        "Trang /tu-vung/学生 hiện đủ cách đọc, nghĩa, từ loại, Hán Việt và bảng theo chữ; /tu-vung/<chuỗi lạ> trả 404",
+        "Bôi đen trong luyện tập và trang xem lại kết quả cũng hoạt động; Esc và bấm ra ngoài đóng khung",
+        "Ở 390px khung nổi nằm trong màn hình, không tràn ngang; không có lỗi hydration trong console",
+        "Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass",
+        "E2E Playwright chạy trên staging thật trong CI (API + Postgres + Redis + Mailpit), đi đúng luồng người dùng qua giao diện; cấm page.route, mock fetch hay dữ liệu giả ở tầng trình duyệt",
+        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền",
+        "E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en"
+      ],
+      "checks": [
+        "pnpm test:web",
+        "pnpm check:no-mock-ui",
+        "pnpm check:ui-primitives",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [
+        "tests/playwright/"
+      ],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
+    },
+    {
+      "id": "H07",
+      "owner": "W4",
+      "day": 11,
+      "notBeforeHour": 240,
+      "targetByHour": 264,
+      "estimatedWorkerHours": 3,
+      "title": "Quản trị: trang \"Từ điển\" liệt kê toàn bộ từ vựng trong database",
+      "dependencies": [],
+      "featureIds": [],
+      "scope": "CHỦ DỰ ÁN CẦN NHANH: task nhỏ, không phụ thuộc task khác, làm gọn trong phạm vi dưới đây. DỮ LIỆU: từ điển JMdict + KANJIDIC2 đã nạp vào các bảng lexical_entries (id, term, level, part_of_speech, license_id), entry_readings (entry_id, reading, is_primary), entry_meanings (entry_id, locale \"en\", meaning), lexicon_licenses (provider, license); trên preview có 22.647 mục, CI staging có thể rỗng. (1) API mới trong apps/api/src/modules/vocab (controller + service hiện có): GET /api/v1/admin/lexicon/entries?q=&pos=&page=&pageSize= (vai trò editor, reviewer, admin; pageSize mặc định 50, tối đa 200). q tìm theo mặt chữ (bắt đầu bằng hoặc chứa), cách đọc kana, hoặc nghĩa tiếng Anh (chứa, không phân biệt hoa thường). pos lọc theo mã từ loại JMdict (n, v1, v5, vs, adj-i, adj-na, adv...). Trả { total, page, pageSize, items: [{ id, term, readings[], meanings[] (tối đa 3), partOfSpeech, hanViet, provider }] }; hanViet lấy bằng getHanVietForWord(term) như tra từ hiện tại (khi H01 xong sẽ tự đúng hơn). Truy vấn phân trang ở database (limit/offset, đếm tổng), không nạp hết vào bộ nhớ; có index phù hợp nếu thiếu. Thêm hàm vào apps/admin/lib/api-client.ts. (2) Trang admin mới /lexicon, mục menu \"Từ điển\" trong nhóm \"Nội dung & biên tập\" (apps/admin/lib/navigation.ts), vai trò editor, reviewer, admin: tiêu đề, tổng số mục; ô tìm kiếm (Input) tra khi Enter/nút; bộ lọc từ loại (Select: Tất cả, Danh từ n, Động từ v1/v5, Danh động từ vs, Tính từ đuôi い adj-i, Tính từ đuôi な adj-na, Phó từ adv); bảng (Table của @jlpt/ui) cột: Từ (font Nhật), Cách đọc, Hán Việt, Từ loại, Nghĩa (tiếng Anh, tối đa 3); phân trang Trước/Sau và số trang; trạng thái: đang tải (Skeleton), không có kết quả, lỗi API (Alert + Thử lại); chân trang ghi nguồn \"JMdict/KANJIDIC2 – EDRDG, CC BY-SA 4.0\". Chỉ dùng component @jlpt/ui (giao diện HeroUI), không style={{}}, chuỗi vi/ja/en trong apps/admin/messages. Chỉ xem, không sửa (sửa Hán Việt là việc của H03).",
+      "outputs": [
+        "apps/admin/",
+        "apps/api/src/modules/vocab/"
+      ],
+      "acceptance": [
+        "Đăng nhập admin, menu Từ điển mở /lexicon, bảng hiện mục từ với tổng số đúng bằng số dòng lexical_entries; trên preview tổng là 22.647",
+        "Tìm 予約 thấy 予約; tìm よやく thấy 予約; tìm \"reservation\" thấy 予約; lọc adj-na chỉ còn tính từ đuôi な",
+        "Chuyển trang hoạt động, mỗi trang tối đa pageSize mục, phản hồi API dưới 1 giây trên 22.647 mục",
+        "Vai trò không phải editor/reviewer/admin bị chặn (403 hoặc ẩn menu)",
+        "Database chưa nạp từ điển thì trang hiện trạng thái trống rõ ràng, không lỗi",
+        "Không còn dữ liệu viết cứng, mảng mẫu hay đăng nhập giả trong các trang thuộc phạm vi; route đã sửa bị xóa khỏi tests/integration/mock-ui-baseline.json và pnpm check:no-mock-ui pass",
+        "Trang có trạng thái đang tải, rỗng và lỗi API hiển thị rõ; lỗi 401/403 đưa về đăng nhập hoặc báo thiếu quyền",
+        "E2E chụp màn hình mỗi trang trong phạm vi ở 390px và 1366px (lưu artifact CI) và kiểm tra không cuộn ngang; class Tailwind phải có tác dụng (PR #53 đã cài Tailwind), không để chữ dính liền hay nội dung dính mép; không hiện key dịch thô (ví dụ account.profile.title trên /tai-khoan), E2E kiểm tra cả ba locale vi ja en"
+      ],
+      "checks": [
+        "pnpm test:admin",
+        "pnpm test:vocab-data",
+        "pnpm check:no-mock-ui",
+        "pnpm check:ui-primitives",
+        "sudo -n /usr/local/bin/jlpt-stage-test check"
+      ],
+      "contracts": [
+        "API"
+      ],
+      "exclusiveResources": [],
+      "startPrerequisites": [],
+      "acceptancePrerequisites": [],
+      "temporaryGrants": [
+        "apps/api/src/modules/vocab/",
+        "tests/playwright/"
+      ],
+      "kind": "implementation",
+      "status": "TODO",
+      "reviewRequired": true,
+      "evidence": [],
+      "originalTaskRefs": []
     }
   ]
 }
