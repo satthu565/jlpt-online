@@ -15,6 +15,7 @@ import ExamsPage from '../app/exams/page';
 import MixedExamsPage from '../app/exams/mixed/page';
 import CmsManagementPage from '../app/cms/page';
 import VocabManagementPage from '../app/vocab/page';
+import HanVietReviewPage from '../app/lexicon/hanviet/page';
 import PlansPage from '../app/commercial/plans/page';
 import PaymentsPage from '../app/commercial/payments/page';
 import RefundsPage from '../app/commercial/refunds/page';
@@ -118,6 +119,13 @@ describe('Admin E2E Full Flows Suite (test:e2e:admin-all)', () => {
     it('VocabManagementPage hiển thị quản trị từ vựng và ngữ pháp', () => {
       const html = renderWithAdmin(<VocabManagementPage />);
       expect(html).toContain('Quản lý Từ vựng &amp; Ngữ pháp');
+    });
+
+    it('HanVietReviewPage hiển thị quản trị duyệt Hán Việt (H03)', () => {
+      const html = renderWithAdmin(<HanVietReviewPage />);
+      expect(html).toContain('Duyệt Hán Việt');
+      expect(html).toContain('data-testid="hanviet-search"');
+      expect(html).toContain('data-testid="hanviet-confidence"');
     });
   });
 

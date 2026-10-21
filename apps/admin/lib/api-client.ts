@@ -24,6 +24,32 @@ export class AdminClientGuardError extends Error {
   }
 }
 
+export interface HanVietPerKanjiItem {
+  kanji: string;
+  onyomi?: string;
+  hanViet: string;
+}
+
+export interface HanVietReviewItem {
+  id: string;
+  term: string;
+  reading: string;
+  meaning: string;
+  hanViet: string;
+  confidence: 'high' | 'review' | 'kun';
+  source: 'rule' | 'override' | 'manual';
+  perKanji: HanVietPerKanjiItem[];
+  reportCount: number;
+  updatedAt: string | null;
+}
+
+export interface HanVietReviewList {
+  total: number;
+  page: number;
+  pageSize: number;
+  items: HanVietReviewItem[];
+}
+
 export interface AdminApiClientOptions {
   baseUrl?: string;
   adminHost?: string;
@@ -1080,6 +1106,36 @@ export class AdminApiClient {
     });
   }
 
+  public async listHanVietReview(params: {
+    confidence?: string;
+    q?: string;
+    page?: number;
+    pageSize?: number;
+  } = {}): Promise<HanVietReviewList> {
+    const qs = new URLSearchParams();
+    if (params.confidence) qs.set('confidence', params.confidence);
+    if (params.q) qs.set('q', params.q);
+    qs.set('page', String(params.page ?? 1));
+    qs.set('pageSize', String(params.pageSize ?? 50));
+    return this.request<HanVietReviewList>('GET', `/api/v1/admin/lexicon/hanviet?${qs.toString()}`, {
+      requiredRoles: ['admin', 'editor', 'reviewer'],
+    });
+  }
+
+  public async updateHanVietEntry(
+    id: string,
+    hanViet: string,
+  ): Promise<{ id: string; term: string; hanViet: string; confidence: 'high'; source: 'manual' }> {
+    return this.request<{ id: string; term: string; hanViet: string; confidence: 'high'; source: 'manual' }>(
+      'PATCH',
+      `/api/v1/admin/lexicon/${encodeURIComponent(id)}/hanviet`,
+      {
+        requiredRoles: ['admin', 'editor', 'reviewer'],
+        body: { hanViet },
+      },
+    );
+  }
+
   public async listVocab(
     datasetId = 'jlpt-official',
     query?: Record<string, string>,
@@ -1236,6 +1292,19 @@ export class AdminApiClient {
   }
 
   private handleMockRequest<T>(_method: string, path: string, _body?: unknown): T {
+    if (path.includes('/admin/lexicon/hanviet')) {
+      if (_method === 'PATCH') {
+        const payload = _body as { hanViet?: string } | undefined;
+        return {
+          id: 'mock-hanviet-1',
+          term: '要約',
+          hanViet: payload?.hanViet || 'YẾU ƯỚC',
+          confidence: 'high',
+          source: 'manual',
+        } as T;
+      }
+      return { total: 0, page: 1, pageSize: 50, items: [] } as T;
+    }
     if (path.includes('/jlpt-schedules')) {
       return { items: [] } as T;
     }

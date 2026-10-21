@@ -32,7 +32,9 @@ describe('Admin Navigation & Role-Based Access (Acceptance 1: Editor reviewer ad
       expect(allHrefs).toContain('/blueprints');
       expect(allHrefs).toContain('/media');
       expect(allHrefs).toContain('/imports');
+      expect(allHrefs).toContain('/lexicon/hanviet');
       expect(allHrefs).toContain('/exams');
+      expect(allHrefs).toContain('/lexicon/hanviet');
 
       // Allowed routes capability check
       expect(canAccessRoute('editor', '/')).toBe(true);
@@ -42,6 +44,8 @@ describe('Admin Navigation & Role-Based Access (Acceptance 1: Editor reviewer ad
       expect(canAccessRoute('editor', '/media')).toBe(true);
       expect(canAccessRoute('editor', '/imports')).toBe(true);
       expect(canAccessRoute('editor', '/exams')).toBe(true);
+      expect(canAccessRoute('editor', '/lexicon/hanviet')).toBe(true);
+      expect(canAccessRoute('editor', '/hanviet')).toBe(true);
     });
 
     it('Editor CANNOT see or access Review Queue, Moderation, Commercial, Audit Logs or Users', () => {
@@ -78,12 +82,15 @@ describe('Admin Navigation & Role-Based Access (Acceptance 1: Editor reviewer ad
       expect(allHrefs).toContain('/reviews/explanations');
       expect(allHrefs).toContain('/reports/content');
       expect(allHrefs).toContain('/exams');
+      expect(allHrefs).toContain('/lexicon/hanviet');
 
       expect(canAccessRoute('reviewer', '/')).toBe(true);
       expect(canAccessRoute('reviewer', '/reviews')).toBe(true);
       expect(canAccessRoute('reviewer', '/reviews/explanations')).toBe(true);
       expect(canAccessRoute('reviewer', '/reports/content')).toBe(true);
       expect(canAccessRoute('reviewer', '/exams')).toBe(true);
+      expect(canAccessRoute('reviewer', '/lexicon/hanviet')).toBe(true);
+      expect(canAccessRoute('reviewer', '/hanviet')).toBe(true);
     });
 
     it('Reviewer CANNOT see or access Question authoring, Imports, Media, Commercial, Audit Logs or Users', () => {
@@ -116,6 +123,7 @@ describe('Admin Navigation & Role-Based Access (Acceptance 1: Editor reviewer ad
       expect(allHrefs).toContain('/blueprints');
       expect(allHrefs).toContain('/media');
       expect(allHrefs).toContain('/imports');
+      expect(allHrefs).toContain('/lexicon/hanviet');
 
       // Review & Quality
       expect(allHrefs).toContain('/reviews');
@@ -164,6 +172,8 @@ describe('Admin Navigation & Role-Based Access (Acceptance 1: Editor reviewer ad
       expect(canAccessRoute('student', '/questions')).toBe(false);
       expect(canAccessRoute('student', '/reviews')).toBe(false);
       expect(canAccessRoute('student', '/audit-logs')).toBe(false);
+      expect(canAccessRoute('student', '/lexicon/hanviet')).toBe(false);
+      expect(canAccessRoute('student', '/hanviet')).toBe(false);
       expect(canAccessRoute(null, '/')).toBe(false);
     });
   });
@@ -171,6 +181,8 @@ describe('Admin Navigation & Role-Based Access (Acceptance 1: Editor reviewer ad
   describe('Route Requirements Mapping', () => {
     it('returns expected required roles for each route', () => {
       expect(getRequiredRolesForRoute('/questions')).toEqual(['admin', 'editor']);
+      expect(getRequiredRolesForRoute('/lexicon/hanviet')).toEqual(['admin', 'editor', 'reviewer']);
+      expect(getRequiredRolesForRoute('/hanviet')).toEqual(['admin', 'editor', 'reviewer']);
       expect(getRequiredRolesForRoute('/reviews')).toEqual(['admin', 'reviewer']);
       expect(getRequiredRolesForRoute('/audit-logs')).toEqual(['admin']);
       expect(getRequiredRolesForRoute('/users')).toEqual(['admin']);
