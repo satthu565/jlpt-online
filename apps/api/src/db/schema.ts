@@ -751,6 +751,34 @@ export const corpusAggregates = pgTable('corpus_aggregates', {
   calculatedAt: timestamp('calculated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const corpusTerms = pgTable(
+  'corpus_terms',
+  {
+    id: uuid('id').primaryKey(),
+    datasetId: uuid('dataset_id')
+      .notNull()
+      .references(() => datasets.id, { onDelete: 'cascade' }),
+    term: text('term').notNull(),
+    reading: text('reading'),
+    level: text('level').notNull(),
+    examId: uuid('exam_id')
+      .notNull()
+      .references(() => exams.id, { onDelete: 'cascade' }),
+    questionId: uuid('question_id').references(() => questions.id, { onDelete: 'cascade' }),
+    section: text('section'),
+    skill: text('skill'),
+    count: integer('count').default(1).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex('corpus_terms_unique_idx').on(t.datasetId, t.term, t.examId, t.questionId),
+    index('corpus_terms_term_idx').on(t.term),
+    index('corpus_terms_level_idx').on(t.level),
+    index('corpus_terms_dataset_idx').on(t.datasetId),
+    index('corpus_terms_exam_idx').on(t.examId),
+  ],
+);
+
 // ---------------------------------------------------------------------------
 // 11. Notebook & SRS (W5)
 // ---------------------------------------------------------------------------
