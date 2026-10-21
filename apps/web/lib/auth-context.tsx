@@ -1,6 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useLayoutEffect, useState } from 'react';
+
+// Runs before paint on the client and is skipped on the server.
+const useClientLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 import {
   AuthClient,
   defaultAuthClient,
@@ -27,17 +30,17 @@ export function AuthProvider({
   children: React.ReactNode;
   client?: AuthClient;
 }): React.JSX.Element {
-  const [user, setUser] = useState<User | null>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const cached = localStorage.getItem('jlpt_cached_user');
-        if (cached) return JSON.parse(cached);
-      } catch {
-        // Ignore storage access error
-      }
+  // Starts as the server rendered it (signed out); the cached user is applied before the first paint,
+  // so hydration matches and the header does not flash (React #418 otherwise).
+  const [user, setUser] = useState<User | null>(null);
+  useClientLayoutEffect(() => {
+    try {
+      const cached = localStorage.getItem('jlpt_cached_user');
+      if (cached) setUser((current) => current ?? (JSON.parse(cached) as User));
+    } catch {
+      // Ignore storage access error
     }
-    return null;
-  });
+  }, []);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 

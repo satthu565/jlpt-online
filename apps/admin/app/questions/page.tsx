@@ -7,7 +7,7 @@ import { useAdminAuth } from '../../lib/auth-context';
 import { apiClient } from '../../lib/api-client';
 import { t } from '../../lib/i18n';
 import type { RichBlock, RichText } from '@jlpt/schema';
-import { createTextSegment } from '../../features/content/types';
+import { createTextSegment, toAdminQuestionGroup } from '../../features/content/types';
 import type { AdminQuestionGroup } from '../../features/content/types';
 import {
   PassageBlocksEditor,
@@ -33,12 +33,17 @@ export default function QuestionsPage(): React.JSX.Element {
       .listQuestionGroups()
       .then((res: unknown) => {
         if (!mounted) return;
-        const data = res as { items?: AdminQuestionGroup[] } | AdminQuestionGroup[];
-        const items = Array.isArray(data) ? data : data?.items || [];
-        if (items.length > 0) {
-          setGroupsList(items);
-          setCurrentGroup(items[0] || null);
-        }
+        // The list holds summaries ({ groupId, version, passage, ... }); load the first group in full.
+        const data = res as { items?: Array<{ groupId?: string; id?: string }> };
+        const items = Array.isArray(data?.items) ? data.items : [];
+        const firstId = items[0]?.groupId ?? items[0]?.id;
+        if (!firstId) return null;
+        return apiClient.getQuestionGroup(firstId).then((detail) => {
+          if (!mounted) return;
+          const group = toAdminQuestionGroup(detail);
+          setGroupsList([group]);
+          setCurrentGroup(group);
+        });
       })
       .catch((err: unknown) => {
         if (!mounted) return;
@@ -233,7 +238,7 @@ export default function QuestionsPage(): React.JSX.Element {
                     {t('content.questions.stemTitle', locale)}
                   </h2>
                   <RichTextSegmentEditor
-                    value={currentGroup.questions[0]?.stem ?? []}
+                    value={currentGroup.questions?.[0]?.stem ?? []}
                     onChange={handleUpdateStem}
                     label="Đề bài câu hỏi số 1"
                   />
