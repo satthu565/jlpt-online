@@ -977,6 +977,16 @@
     "cancel": "Hủy",
     "sendReport": "Gửi báo cáo",
     "reportSent": "Đã gửi báo cáo thành công! Cảm ơn bạn đã đóng góp.",
-    "reportFailed": "Không thể gửi báo cáo. Vui lòng thử lại sau."
+    "reportFailed": "Không thể gửi báo cáo. Vui lòng thử lại sau.",
+    "selectLookupLabel": "Tra từ khi bôi đen",
+    "viewDetails": "Xem chi tiết",
+    "notFoundInDict": "Không tìm thấy trong từ điển",
+    "detailTitle": "Chi tiết từ vựng",
+    "examOccurrences": "Xuất hiện trong đề thi",
+    "kanjiDetails": "Chi tiết chữ Hán cấu thành",
+    "strokes": "nét",
+    "noOccurrences": "Chưa có dữ liệu xuất hiện trong đề thi",
+    "edrdgSource": "Nguồn dữ liệu: EDRDG (JMdict / KANJIDIC2)",
+    "loadingDetails": "Đang tải chi tiết từ vựng..."
   }
 }

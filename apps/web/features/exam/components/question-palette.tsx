@@ -25,6 +25,7 @@ export function QuestionPalette({
   return (
     <aside
       aria-label="Phiếu trả lời và danh sách câu hỏi"
+      data-testid="question-palette"
       className={`jlpt-question-palette bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm ${className}`}
     >
       <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">

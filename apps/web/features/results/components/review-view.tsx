@@ -15,6 +15,7 @@ import { ShareDialog } from '@jlpt/ui/components/share-dialog';
 import { FuriganaToggle, useFurigana } from '@jlpt/ui/components/furigana-toggle';
 import { AiChatAssistant } from '../../ai/components/ai-chat-assistant';
 import { FEATURES } from '../../../lib/features';
+import { useSelectLookup, useSelectLookupSetting, SelectionLookupPopover } from '../../corpus';
 
 export interface ReviewViewProps {
   reviewData: AttemptReviewData;
@@ -30,6 +31,11 @@ export function ReviewView({
   const [activeFilter, setActiveFilter] = useState<ReviewFilter>('all');
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [showFurigana] = useFurigana();
+
+  const [selectLookupEnabled] = useSelectLookupSetting();
+  const selectLookupState = useSelectLookup({
+    enabled: selectLookupEnabled,
+  });
 
   const timeSpentArray = (result.scoring as { timeSpentMs?: number[] }).timeSpentMs || (result as { timeSpentMs?: number[] }).timeSpentMs;
 
@@ -194,6 +200,9 @@ export function ReviewView({
           shareToFacebook: 'Facebook',
         }}
       />
+
+      {/* H06: Khung tra từ nổi khi bôi đen trong trang xem lại kết quả (mở cùng tab) */}
+      <SelectionLookupPopover state={selectLookupState} openInNewTab={false} />
     </div>
   );
 }

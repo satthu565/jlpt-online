@@ -3,7 +3,10 @@
 import { Eye, Focus, Headphones, Keyboard } from 'lucide-react';
 import React from 'react';
 import { Button } from '@jlpt/ui/components/button';
+import { Switch } from '@jlpt/ui/components/switch';
 import { FuriganaToggle } from '@jlpt/ui/components/furigana-toggle';
+import { useSelectLookupSetting } from '../../corpus';
+import { useI18n } from '../../../lib/i18n';
 
 export type JapaneseFontSize = 'sm' | 'base' | 'lg' | 'xl';
 
@@ -15,6 +18,8 @@ export interface ExamToolbarProps {
   onOpenShortcutsHelp: () => void;
   onOpenSpeakerTest: () => void;
   hasListeningTimeline?: boolean;
+  selectLookupEnabled?: boolean;
+  onSelectLookupChange?: (enabled: boolean) => void;
   className?: string;
 }
 
@@ -26,8 +31,14 @@ export function ExamToolbar({
   onOpenShortcutsHelp,
   onOpenSpeakerTest,
   hasListeningTimeline = false,
+  selectLookupEnabled,
+  onSelectLookupChange,
   className = '',
 }: ExamToolbarProps): React.JSX.Element {
+  const { t } = useI18n();
+  const [defaultLookupEnabled, setDefaultLookupEnabled] = useSelectLookupSetting();
+  const isLookupActive = selectLookupEnabled !== undefined ? selectLookupEnabled : defaultLookupEnabled;
+  const handleLookupChange = onSelectLookupChange || setDefaultLookupEnabled;
   const fontSizes: Array<{ id: JapaneseFontSize; label: string; title: string }> = [
     { id: 'sm', label: 'A-', title: 'Cỡ chữ nhỏ (14px)' },
     { id: 'base', label: 'A', title: 'Cỡ chữ tiêu chuẩn (16px)' },
@@ -65,9 +76,26 @@ export function ExamToolbar({
         </div>
       </div>
 
-      {/* Right: Furigana toggle, Zen Mode, Speaker test, Shortcuts help */}
+      {/* Right: Furigana toggle, Select Lookup toggle, Zen Mode, Speaker test, Shortcuts help */}
       <div className="flex flex-wrap items-center gap-2">
         <FuriganaToggle size="sm" />
+
+        {/* H06: Switch Tra từ khi bôi đen */}
+        <div className="flex items-center gap-1.5 px-1 py-0.5" data-testid="select-lookup-toggle-wrap">
+          <Switch
+            id="exam-select-lookup-switch"
+            data-testid="select-lookup-switch"
+            checked={isLookupActive}
+            onCheckedChange={handleLookupChange}
+            aria-label={t('dictionary.selectLookupLabel')}
+          />
+          <label
+            htmlFor="exam-select-lookup-switch"
+            className="text-xs font-medium text-slate-600 dark:text-slate-400 cursor-pointer select-none"
+          >
+            {t('dictionary.selectLookupLabel')}
+          </label>
+        </div>
 
         {hasListeningTimeline && (
           <Button

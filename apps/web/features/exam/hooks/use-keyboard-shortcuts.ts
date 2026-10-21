@@ -25,13 +25,14 @@ export function useKeyboardShortcuts({
     if (!isEnabled || typeof window === 'undefined') return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't trigger if user is typing in an input, textarea or select
+      // Don't trigger if user is typing in an input, textarea or select, or focusing in lookup popover
       const activeTag = document.activeElement?.tagName?.toLowerCase();
       if (
         activeTag === 'input' ||
         activeTag === 'textarea' ||
         activeTag === 'select' ||
-        (document.activeElement as HTMLElement)?.isContentEditable
+        (document.activeElement as HTMLElement)?.isContentEditable ||
+        Boolean(document.activeElement?.closest('[data-select-lookup-popover="true"], [role="dialog"], [data-radix-popper-content-wrapper]'))
       ) {
         return;
       }

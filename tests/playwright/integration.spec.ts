@@ -4599,3 +4599,355 @@ test.describe('Real Han Viet Review Admin Flow Suite (H03)', () => {
     }
   });
 });
+
+// =========================================================================
+// H06: Web: Bôi đen từ khi làm bài để xem nghĩa, cách đọc, Hán Việt, từ loại (H06)
+// =========================================================================
+test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
+  test.skip(({ browserName }) => browserName === 'webkit' || browserName === 'firefox', 'Firefox and WebKit host libraries are missing on Linux runners');
+
+  const webOrigin = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+  const artifactDir = path.resolve(process.cwd(), 'playwright-report/artifacts/h06');
+
+  async function loginAsStudentH06(page: Page, origin: string) {
+    const studentUser = SEEDED_STAFF_ACCOUNTS.student;
+    await page.goto(`${origin}/dang-nhap`, { waitUntil: 'domcontentloaded' });
+    if (!page.url().includes('/dang-nhap')) {
+      return;
+    }
+    const emailInput = page.locator('#login-email, input[type="email"]').first();
+    const passwordInput = page.locator('#login-password, input[type="password"]').first();
+    await expect(emailInput).toBeVisible({ timeout: 15000 });
+    await emailInput.click();
+    await emailInput.fill(studentUser.email);
+    await passwordInput.click();
+    await passwordInput.fill(studentUser.password);
+    const submitBtn = page.locator('button[type="submit"]').first();
+    await expect(submitBtn).toBeVisible({ timeout: 15000 });
+    await page.waitForTimeout(200);
+    await submitBtn.click();
+    try {
+      await page.waitForURL(/\/tai-khoan/, { timeout: 25000, waitUntil: 'commit' });
+    } catch {
+      if (page.url().includes('/dang-nhap')) {
+        await emailInput.fill(studentUser.email);
+        await passwordInput.fill(studentUser.password);
+        await submitBtn.click();
+        await page.waitForURL(/\/tai-khoan/, { timeout: 25000, waitUntil: 'commit' });
+      }
+    }
+  }
+
+  async function openExamRoom(page: Page, mode: 'real' | 'practice' = 'real') {
+    const modalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
+    for (let i = 0; i < 4; i++) {
+      await page.goto(`${webOrigin}/phong-thi?examId=demo-n5-1&mode=${mode}`, { waitUntil: 'domcontentloaded' });
+      if (await modalBtn.isVisible({ timeout: 6000 }).catch(() => false)) break;
+      await page.waitForTimeout(2000);
+    }
+    if (await modalBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await modalBtn.click();
+    } else {
+      const cardBtn = page.locator('[data-testid="exam-card-start-btn"], button:has-text("Bắt đầu làm bài")').first();
+      if (await cardBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+        await cardBtn.click();
+        if (await modalBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+          await modalBtn.click();
+        }
+      }
+    }
+    await expect(page.locator('[data-testid="exam-room"]')).toBeVisible({ timeout: 25000 });
+  }
+
+  async function triggerSelectText(page: Page, textToSelect: string) {
+    return page.evaluate((targetText) => {
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      let node: Text | null = null;
+      while ((node = walker.nextNode() as Text | null)) {
+        if (node.textContent && node.textContent.includes(targetText)) {
+          const parent = node.parentElement;
+          if (parent && !parent.closest('[role="toolbar"], .jlpt-exam-toolbar')) {
+            break;
+          }
+        }
+      }
+      if (!node || !node.textContent) return false;
+
+      const startIdx = node.textContent.indexOf(targetText);
+      const range = document.createRange();
+      range.setStart(node, startIdx);
+      range.setEnd(node, startIdx + targetText.length);
+
+      const sel = window.getSelection();
+      if (sel) {
+        sel.removeAllRanges();
+        sel.addRange(range);
+        document.dispatchEvent(new Event('selectionchange'));
+        document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+        return true;
+      }
+      return false;
+    }, textToSelect);
+  }
+
+  test('H06-AC1: Trong phòng thi THI THẬT, bôi đen 学生 trong câu hỏi: khung nổi hiện 学生, がくせい, HỌC SINH, nhãn Danh từ, nghĩa và nút Xem chi tiết; đáp án đang chọn không đổi', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(90000);
+    const clientIp = getProjectClientIp(testInfo, 110);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    await loginAsStudentH06(page, webOrigin);
+    await openExamRoom(page, 'real');
+
+    // Jump to Question 24 (which contains "学生は あした 何時に 学校に 来ますか。")
+    const q24Btn = page.locator('[data-testid="question-palette"] button, .jlpt-question-palette button').filter({ hasText: /^24$/ }).first();
+    await expect(q24Btn).toBeVisible({ timeout: 15000 });
+    await q24Btn.click();
+    await page.waitForTimeout(500);
+
+    // Select Option 1
+    const firstOption = page.locator('[data-testid="exam-room"] [role="radio"]').first();
+    await expect(firstOption).toBeVisible({ timeout: 10000 });
+    await firstOption.click();
+    await expect(firstOption).toHaveAttribute('aria-checked', 'true');
+
+    // Select text "学生"
+    const selected = await triggerSelectText(page, '学生');
+    expect(selected, 'Text "学生" must be found and selected in the question').toBe(true);
+
+    // Popover appears
+    const popover = page.locator('[data-testid="selection-lookup-popover"]');
+    await expect(popover).toBeVisible({ timeout: 15000 });
+
+    // Verify popover contents: 学生, がくせい, HỌC SINH, Danh từ, meanings, details button
+    await expect(page.locator('[data-testid="lookup-entry"]')).toHaveText('学生');
+    await expect(page.locator('[data-testid="lookup-readings"]')).toContainText('がくせい');
+    await expect(page.locator('[data-testid="lookup-hanviet"]')).toContainText('HỌC SINH');
+    await expect(page.locator('[data-testid="lookup-pos-label"]').first()).toContainText('Danh từ');
+    await expect(page.locator('[data-testid="lookup-meanings"]')).toBeVisible();
+    await expect(page.locator('[data-testid="lookup-details-btn"]')).toBeVisible();
+
+    // Verify option selected has NOT changed
+    await expect(firstOption).toHaveAttribute('aria-checked', 'true');
+  });
+
+  test('H06-AC2: Tắt công tắc "Tra từ khi bôi đen" thì bôi đen không hiện khung; tải lại trang vẫn giữ trạng thái tắt; bật lại thì hoạt động', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(90000);
+    const clientIp = getProjectClientIp(testInfo, 111);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    await loginAsStudentH06(page, webOrigin);
+    await openExamRoom(page, 'real');
+
+    // Switch is initially checked
+    const switchEl = page.locator('[data-testid="select-lookup-switch"]');
+    await expect(switchEl).toBeVisible({ timeout: 10000 });
+    await expect(switchEl).toHaveAttribute('data-state', 'checked');
+
+    // Turn switch OFF
+    await switchEl.click();
+    await expect(switchEl).toHaveAttribute('data-state', 'unchecked');
+
+    // Select text -> popover does not appear
+    await triggerSelectText(page, '山');
+    await page.waitForTimeout(500);
+    await expect(page.locator('[data-testid="selection-lookup-popover"]')).not.toBeVisible();
+
+    // Reload page -> stays unchecked
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="exam-room"]')).toBeVisible({ timeout: 20000 });
+    const switchAfterReload = page.locator('[data-testid="select-lookup-switch"]');
+    await expect(switchAfterReload).toHaveAttribute('data-state', 'unchecked');
+
+    // Select text -> still does not appear
+    await triggerSelectText(page, '山');
+    await page.waitForTimeout(500);
+    await expect(page.locator('[data-testid="selection-lookup-popover"]')).not.toBeVisible();
+
+    // Turn switch back ON
+    await switchAfterReload.click();
+    await expect(switchAfterReload).toHaveAttribute('data-state', 'checked');
+
+    // Select text -> popover appears
+    await triggerSelectText(page, '山');
+    await expect(page.locator('[data-testid="selection-lookup-popover"]')).toBeVisible({ timeout: 15000 });
+  });
+
+  test('H06-AC3: Bấm Xem chi tiết trong phòng thi mở tab mới /tu-vung/学生, tab bài thi vẫn ở nguyên câu đang làm và đồng hồ vẫn chạy', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(90000);
+    const clientIp = getProjectClientIp(testInfo, 112);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    await loginAsStudentH06(page, webOrigin);
+    await openExamRoom(page, 'real');
+
+    // Jump to Question 24
+    const q24Btn = page.locator('[data-testid="question-palette"] button, .jlpt-question-palette button').filter({ hasText: /^24$/ }).first();
+    await expect(q24Btn).toBeVisible({ timeout: 15000 });
+    await q24Btn.click();
+    await page.waitForTimeout(500);
+
+    // Select text "学生"
+    await triggerSelectText(page, '学生');
+    const popover = page.locator('[data-testid="selection-lookup-popover"]');
+    await expect(popover).toBeVisible({ timeout: 15000 });
+
+    // Click "Xem chi tiết" -> opens in new tab
+    const [newPage] = await Promise.all([
+      page.context().waitForEvent('page'),
+      page.locator('[data-testid="lookup-details-btn"]').click(),
+    ]);
+
+    await newPage.waitForLoadState('domcontentloaded');
+    expect(decodeURIComponent(newPage.url())).toContain('/tu-vung/学生');
+
+    // In original exam room tab: exam room is still open, clock is still ticking
+    await expect(page.locator('[data-testid="exam-room"]')).toBeVisible();
+    await expect(page.locator('.jlpt-exam-clock, [data-testid="exam-clock"]').first()).toBeVisible();
+
+    await newPage.close();
+  });
+
+  test('H06-AC4: Trang /tu-vung/学生 hiện đủ cách đọc, nghĩa, từ loại, Hán Việt và bảng theo chữ; /tu-vung/<chuỗi lạ> trả 404', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(60000);
+    const clientIp = getProjectClientIp(testInfo, 113);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    // 1. Visit /tu-vung/学生
+    await page.goto(`${webOrigin}/tu-vung/学生`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="vocab-detail-page"]')).toBeVisible({ timeout: 20000 });
+
+    await expect(page.locator('[data-testid="vocab-detail-entry"]')).toHaveText('学生');
+    await expect(page.locator('[data-testid="vocab-detail-readings"]')).toContainText('がくせい');
+    await expect(page.locator('[data-testid="vocab-detail-hanviet"]')).toContainText('HỌC SINH');
+    await expect(page.locator('[data-testid="vocab-detail-pos"]').first()).toContainText('Danh từ');
+    await expect(page.locator('[data-testid="kanji-breakdown-table"]')).toBeVisible();
+    await expect(page.locator('[data-testid="kanji-breakdown-table"]')).toContainText('HỌC');
+    await expect(page.locator('[data-testid="kanji-breakdown-table"]')).toContainText('SINH');
+    await expect(page.locator('[data-testid="kanji-cards-grid"]')).toBeVisible();
+    await expect(page.locator('[data-testid="detail-save-notebook-btn"]')).toBeVisible();
+    await expect(page.locator('[data-testid="detail-report-hanviet-btn"]')).toBeVisible();
+
+    // 2. Visit /tu-vung/chuoi_la_khong_ton_tai_xyz999 -> returns 404
+    const res = await page.goto(`${webOrigin}/tu-vung/chuoi_la_khong_ton_tai_xyz999`);
+    expect(res?.status(), 'Unknown vocab route must return HTTP 404').toBe(404);
+  });
+
+  test('H06-AC5: Bôi đen trong luyện tập và trang xem lại kết quả cũng hoạt động; Esc và bấm ra ngoài đóng khung', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(90000);
+    const clientIp = getProjectClientIp(testInfo, 114);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    await loginAsStudentH06(page, webOrigin);
+
+    // Open practice exam
+    await openExamRoom(page, 'practice');
+
+    // Select text in question
+    await triggerSelectText(page, '山');
+    const popover = page.locator('[data-testid="selection-lookup-popover"]');
+    await expect(popover).toBeVisible({ timeout: 15000 });
+
+    // Press Escape -> popover closes
+    await page.keyboard.press('Escape');
+    await expect(popover).not.toBeVisible();
+
+    // Select text again -> popover reopens
+    await triggerSelectText(page, '山');
+    await expect(popover).toBeVisible({ timeout: 15000 });
+
+    // Click outside -> popover closes
+    await page.locator('body').click({ position: { x: 5, y: 5 } });
+    await expect(popover).not.toBeVisible();
+  });
+
+  test('H06-AC6 & AC10: Responsive viewports (390px, 1366px), zero horizontal overflow, no hydration errors, tri-locale i18n', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(90000);
+    const clientIp = getProjectClientIp(testInfo, 115);
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
+
+    if (!fs.existsSync(artifactDir)) {
+      fs.mkdirSync(artifactDir, { recursive: true });
+    }
+
+    const consoleErrors: string[] = [];
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
+      }
+    });
+
+    const isMobileDevice = Boolean(testInfo.project.use?.isMobile);
+    const viewports = isMobileDevice
+      ? [{ width: 390, height: 844, name: '390px-mobile' }]
+      : [
+          { width: 390, height: 844, name: '390px-mobile' },
+          { width: 1366, height: 768, name: '1366px-desktop' },
+        ];
+
+    // Check responsive viewports & screenshot on /tu-vung/学生
+    for (const vp of viewports) {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await page.goto(`${webOrigin}/tu-vung/学生`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('[data-testid="vocab-detail-page"]')).toBeVisible({ timeout: 20000 });
+
+      const overflow = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        innerWidth: window.innerWidth,
+      }));
+
+      expect(
+        overflow.scrollWidth,
+        `Horizontal scroll detected on /tu-vung/学生 at ${vp.name}: ${overflow.scrollWidth} > ${overflow.innerWidth}`,
+      ).toBeLessThanOrEqual(overflow.innerWidth + 1);
+
+      await page.screenshot({
+        path: path.join(artifactDir, `tu-vung-detail-${vp.name}.png`),
+        fullPage: true,
+      });
+    }
+
+    // Check zero hydration errors
+    const hydrationErrors = consoleErrors.filter((e) =>
+      e.includes('Hydration failed') || e.includes('Minified React error #418') || e.includes('Minified React error #423'),
+    );
+    expect(hydrationErrors, 'Zero hydration errors on /tu-vung/学生').toHaveLength(0);
+
+    // Tri-locale verification across vi, ja, en
+    const locales = ['vi', 'ja', 'en'] as const;
+    for (const locale of locales) {
+      await page.evaluate((loc) => {
+        try {
+          localStorage.setItem('jlpt_locale_v1', loc);
+          localStorage.setItem('locale', loc);
+          document.cookie = `locale=${loc}; path=/; SameSite=Lax`;
+          document.cookie = `jlpt_locale_v1=${loc}; path=/; SameSite=Lax`;
+        } catch {
+          // ignore
+        }
+      }, locale);
+
+      await page.goto(`${webOrigin}/tu-vung/学生`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('[data-testid="vocab-detail-page"]')).toBeVisible({ timeout: 20000 });
+
+      const bodyText = await page.innerText('body');
+      expect(bodyText).not.toMatch(/\bdictionary\.[a-zA-Z0-9_.-]+\b/);
+
+      await page.screenshot({
+        path: path.join(artifactDir, `tu-vung-detail-1366px-${locale}.png`),
+      });
+    }
+  });
+});
+

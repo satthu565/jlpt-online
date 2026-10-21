@@ -32,6 +32,13 @@ export function QuestionView({
 }: QuestionViewProps): React.JSX.Element {
   const handleOptionClick = (optionIndex: number) => {
     if (question.isLocked) return;
+    // H06: If the user was selecting text, do not alter or toggle option selection
+    if (typeof window !== 'undefined') {
+      const selection = window.getSelection();
+      if (selection && !selection.isCollapsed && (selection.toString() || '').trim().length > 0) {
+        return;
+      }
+    }
     // EXAM-11: If clicking the currently selected option, deselect it (set to 0 / blank)
     if (selectedOption === optionIndex) {
       onSelectOption(0);
@@ -63,6 +70,7 @@ export function QuestionView({
   return (
     <article
       aria-label={`Câu hỏi số ${question.number}`}
+      data-select-lookup-area="true"
       className={`jlpt-question-card bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm transition-all ${className}`}
     >
       {/* Passage / Reading material if present */}

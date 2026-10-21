@@ -28,6 +28,7 @@ import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts';
 import { Button } from '@jlpt/ui/components/button';
 import { useFurigana } from '@jlpt/ui/components/furigana-toggle';
 import { evaluatePacing } from '../pacing';
+import { useSelectLookup, useSelectLookupSetting, SelectionLookupPopover } from '../../corpus';
 
 export interface ExamRoomProps {
   snapshot: PublicExamSnapshot;
@@ -135,6 +136,13 @@ export function ExamRoom({
   const lastQuestionOfSection = currentSection ? currentSection.questionRange[1] : totalQuestions - 1;
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(firstQuestionOfSection);
+
+  // Select lookup setting & state (H06)
+  const [selectLookupEnabled, setSelectLookupEnabled] = useSelectLookupSetting();
+  const selectLookupState = useSelectLookup({
+    enabled: selectLookupEnabled,
+    questionIndex: currentQuestionIndex,
+  });
 
   // Furigana toggle preference (P04)
   const [showFurigana] = useFurigana();
@@ -270,6 +278,9 @@ export function ExamRoom({
     const targetQ = flatQuestions[globalIdx];
     if (targetQ && !targetQ.isLocked) {
       setCurrentQuestionIndex(globalIdx);
+      if (targetQ.sectionIndex !== currentSectionIndex) {
+        setCurrentSectionIndex(targetQ.sectionIndex);
+      }
     }
   };
 
@@ -469,6 +480,8 @@ export function ExamRoom({
           onOpenShortcutsHelp={() => setIsShortcutsHelpOpen(true)}
           onOpenSpeakerTest={() => setIsSpeakerTestOpen(true)}
           hasListeningTimeline={hasListening}
+          selectLookupEnabled={selectLookupEnabled}
+          onSelectLookupChange={setSelectLookupEnabled}
         />
       </div>
 
@@ -601,6 +614,9 @@ export function ExamRoom({
         isOpen={isShortcutsHelpOpen}
         onClose={() => setIsShortcutsHelpOpen(false)}
       />
+
+      {/* H06: Khung tra từ nổi khi bôi đen trong phòng thi (mở tab mới tới /tu-vung/:term) */}
+      <SelectionLookupPopover state={selectLookupState} openInNewTab={true} />
     </div>
   );
 }
