@@ -216,13 +216,13 @@ export function PracticeRunner({
           Hoàn thành buổi luyện tập!
         </h2>
         <div className="flex justify-center gap-6">
-          <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 min-w-[120px]">
+          <div className="surface surface--secondary rounded-2xl p-4 min-w-[120px]">
             <span className="text-xs text-slate-500 block">Số câu đúng</span>
             <strong className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
               {correctCount} / {flatQuestions.length}
             </strong>
           </div>
-          <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 min-w-[120px]">
+          <div className="surface surface--secondary rounded-2xl p-4 min-w-[120px]">
             <span className="text-xs text-slate-500 block">Tỷ lệ chính xác</span>
             <strong className="text-2xl font-bold text-blue-600 dark:text-blue-400">
               {percentage}%

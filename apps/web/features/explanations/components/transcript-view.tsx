@@ -89,7 +89,7 @@ export function TranscriptView({
       {/* Transcript Text */}
       <div
         data-testid="transcript-content"
-        className="font-japanese text-sm leading-relaxed text-slate-800 dark:text-slate-200 whitespace-pre-line p-3 rounded-lg bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800"
+        className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] font-japanese text-sm leading-relaxed text-slate-800 dark:text-slate-200 whitespace-pre-line p-3"
       >
         {transcript}
       </div>

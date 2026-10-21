@@ -10,6 +10,7 @@ import { richTextToPlainText, createTextSegment } from '../content/types';
 import { apiClient } from '../../lib/api-client';
 import { useAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface ReviewQueueProps {
   initialItems?: ReviewItem[];
@@ -239,32 +240,32 @@ export function ReviewQueueView({
       )}
 
       {/* Main Review Table */}
-      <div className="overflow-x-auto w-full border border-gray-200 rounded-lg shadow-xs mb-6">
-        <table data-testid="review-table" className="w-full text-left text-sm border-collapse">
-          <thead>
-            <tr className="bg-gray-100 border-b border-gray-200 text-gray-700">
-              <th className="p-3">Mục kiểm duyệt</th>
-              <th className="p-3">Phiên bản</th>
-              <th className="p-3">Tác giả (Editor)</th>
-              <th className="p-3">Trạng thái</th>
-              <th className="p-3">Trang nguồn PDF</th>
-              <th className="p-3">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div className="overflow-x-auto w-full mb-6">
+        <Table data-testid="review-table" className="text-left">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Mục kiểm duyệt</TableHead>
+              <TableHead>Phiên bản</TableHead>
+              <TableHead>Tác giả (Editor)</TableHead>
+              <TableHead>Trạng thái</TableHead>
+              <TableHead>Trang nguồn PDF</TableHead>
+              <TableHead>Thao tác</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {!isLoading && items.length === 0 ? (
-              <tr>
-                <td colSpan={6} data-testid="reviews-empty" className="p-8 text-center text-gray-400">
+              <TableRow>
+                <TableCell colSpan={6} data-testid="reviews-empty" className="text-center">
                   {t('content.reviews.empty', locale)}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : (
               items.map((item) => (
-                <tr key={`${item.targetId}_v${item.version}`} data-testid={`review-row-${item.targetId}`} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="p-3 font-medium text-gray-900">{item.title}</td>
-                  <td className="p-3">v{item.version}</td>
-                  <td className="p-3">{item.lastEditedBy}</td>
-                  <td className="p-3">
+                <TableRow key={`${item.targetId}_v${item.version}`} data-testid={`review-row-${item.targetId}`}>
+                  <TableCell className="font-medium">{item.title}</TableCell>
+                  <TableCell>v{item.version}</TableCell>
+                  <TableCell>{item.lastEditedBy}</TableCell>
+                  <TableCell>
                     <span
                       data-testid={`review-status-${item.targetId}`}
                       className={`px-2 py-0.5 rounded text-xs font-semibold ${
@@ -277,9 +278,9 @@ export function ReviewQueueView({
                     >
                       {item.status}
                     </span>
-                  </td>
-                  <td className="p-3">{item.sourcePage ? `Trang ${item.sourcePage}` : '—'}</td>
-                  <td className="p-3 space-x-2">
+                  </TableCell>
+                  <TableCell>{item.sourcePage ? `Trang ${item.sourcePage}` : '—'}</TableCell>
+                  <TableCell className="space-x-2">
                     <Button
                       type="button"
                       variant="outline"
@@ -298,12 +299,12 @@ export function ReviewQueueView({
                     >
                       Sửa
                     </Button>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {/* Side-by-Side PDF Comparison */}
@@ -330,7 +331,7 @@ export function ReviewQueueView({
             {/* Left Column: Data extracted */}
             <div
               data-testid="left-data-pane"
-              className="bg-white border border-gray-200 rounded-md p-4 space-y-3"
+              className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4 space-y-3"
             >
               <h4 className="font-semibold text-gray-900">Dữ liệu số hóa (JSON)</h4>
               <div className="text-xs text-gray-600">
@@ -359,7 +360,7 @@ export function ReviewQueueView({
             {/* Right Column: PDF Source reference & viewer */}
             <div
               data-testid="right-pdf-pane"
-              className="bg-white border border-gray-200 rounded-md p-4 space-y-2"
+              className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4 space-y-2"
             >
               <h4 className="font-semibold text-gray-900">Tệp PDF Gốc (Đối chiếu thủ công)</h4>
               <div className="text-xs text-gray-600">
@@ -371,7 +372,7 @@ export function ReviewQueueView({
               </div>
               <div
                 data-testid="pdf-viewer-frame"
-                className="mt-3 h-60 border-2 border-dashed border-gray-300 rounded bg-gray-50 flex items-center justify-center text-xs text-gray-500"
+                className="surface surface--secondary rounded-2xl mt-3 h-60 border-dashed flex items-center justify-center text-xs text-gray-500"
               >
                 [Khu vực hiển thị trang PDF gốc: Trang {selectedItem.sourcePage || 1}]
               </div>
@@ -416,7 +417,7 @@ export function ReviewQueueView({
       {isEditing && selectedItem && (
         <div
           data-testid="edit-modal"
-          className="border-2 border-indigo-500 rounded-lg p-6 bg-white mb-6 shadow-sm space-y-4"
+          className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] border-indigo-500 p-6 mb-6 space-y-4"
         >
           <h3 className="text-base font-bold text-indigo-900">
             Biên tập viên Chỉnh sửa Câu hỏi

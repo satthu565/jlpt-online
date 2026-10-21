@@ -8,6 +8,7 @@ import type { AdminPlanItem } from './types';
 import type { BillingManager } from './billing-service';
 import { useOptionalAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface PlansManagerProps {
   billingManager?: BillingManager;
@@ -130,7 +131,7 @@ export function PlansManager({ billingManager, onPlanCreated }: PlansManagerProp
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6 shadow-xs font-sans">
+    <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4 md:p-6 font-sans">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
         <div>
           <h2 data-testid="plans-heading" className="text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -194,31 +195,31 @@ export function PlansManager({ billingManager, onPlanCreated }: PlansManagerProp
       )}
 
       {plans.length === 0 && !isLoading && !fetchError ? (
-        <div data-testid="plans-empty" className="p-6 text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 rounded border border-gray-100 dark:border-gray-700 text-xs">
+        <div data-testid="plans-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 dark:text-gray-400 text-xs">
           {t('commercial.emptyPlans', locale)}
         </div>
       ) : (
-        <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg shadow-xs">
-          <table data-testid="plans-table" className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Mã gói</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Tên gói</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Thời hạn</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Giá (VND)</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Phiên bản</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Trạng thái</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
+        <div className="overflow-x-auto">
+          <Table data-testid="plans-table">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-left font-semibold">Mã gói</TableHead>
+                <TableHead className="text-left font-semibold">Tên gói</TableHead>
+                <TableHead className="text-left font-semibold">Thời hạn</TableHead>
+                <TableHead className="text-left font-semibold">Giá (VND)</TableHead>
+                <TableHead className="text-left font-semibold">Phiên bản</TableHead>
+                <TableHead className="text-left font-semibold">Trạng thái</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {plans.map((p) => (
-                <tr key={p.id} data-testid={`plan-row-${p.id}`} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                  <td className="px-4 py-3 font-mono font-medium text-gray-900 dark:text-gray-100">{p.id}</td>
-                  <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{p.name}</td>
-                  <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{p.interval}</td>
-                  <td className="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">{p.priceMinor.toLocaleString('vi-VN')} đ</td>
-                  <td className="px-4 py-3 text-gray-500 dark:text-gray-400">v{p.version}</td>
-                  <td className="px-4 py-3">
+                <TableRow key={p.id} data-testid={`plan-row-${p.id}`}>
+                  <TableCell className="font-mono font-medium">{p.id}</TableCell>
+                  <TableCell className="font-medium">{p.name}</TableCell>
+                  <TableCell>{p.interval}</TableCell>
+                  <TableCell className="font-semibold">{p.priceMinor.toLocaleString('vi-VN')} đ</TableCell>
+                  <TableCell>v{p.version}</TableCell>
+                  <TableCell>
                     <span
                       className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
                         p.isActive
@@ -228,11 +229,11 @@ export function PlansManager({ billingManager, onPlanCreated }: PlansManagerProp
                     >
                       {p.isActive ? 'Đang hoạt động' : 'Tạm dừng'}
                     </span>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       )}
 

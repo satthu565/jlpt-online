@@ -51,7 +51,7 @@ export function HistoryView({
           </a>
         </Card>
       ) : (
-        <div className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
           {historyItems.map((item) => {
             const isSubmitted = item.status === 'submitted';
             const isPassed = item.passed;

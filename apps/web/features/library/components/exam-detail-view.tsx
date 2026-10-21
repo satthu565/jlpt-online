@@ -61,7 +61,7 @@ export function ExamDetailView({
         </p>
 
         {/* Key Metrics */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 mb-6">
+        <div className="surface surface--secondary rounded-2xl grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 mb-6">
           <div>
             <span className="block text-xs text-slate-500 mb-0.5">Tổng số câu</span>
             <span className="text-lg font-extrabold text-slate-900 dark:text-slate-100">

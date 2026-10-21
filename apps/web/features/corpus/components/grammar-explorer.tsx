@@ -111,7 +111,7 @@ export function GrammarExplorer({
       className={`jlpt-grammar-explorer space-y-6 ${className}`}
     >
       {/* Search and Tabs */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+      <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] flex flex-col md:flex-row gap-4 justify-between items-center p-4">
         <div className="w-full md:w-96">
           <Input
             id="grammar-search-input"

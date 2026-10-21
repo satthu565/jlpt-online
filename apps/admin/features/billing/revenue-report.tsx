@@ -79,7 +79,7 @@ export function RevenueReportView({ billingManager }: RevenueReportProps): React
   }, [fetchRevenue]);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6 space-y-6 shadow-xs font-sans">
+    <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4 md:p-6 space-y-6 font-sans">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 data-testid="revenue-heading" className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -134,7 +134,7 @@ export function RevenueReportView({ billingManager }: RevenueReportProps): React
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div data-testid="card-gross" className="bg-slate-50 dark:bg-gray-700/50 p-4 rounded-lg border border-slate-200 dark:border-gray-700">
+        <div data-testid="card-gross" className="surface surface--secondary rounded-2xl p-4">
           <div className="text-xs text-slate-500 dark:text-gray-400 font-medium mb-1">{t('reports.grossRevenue', locale)}</div>
           <div data-testid="gross-amount" className="text-xl md:text-2xl font-bold text-slate-900 dark:text-gray-100">
             {report.grossMinor.toLocaleString('vi-VN')} {report.currency}
@@ -156,7 +156,7 @@ export function RevenueReportView({ billingManager }: RevenueReportProps): React
         </div>
       </div>
 
-      <div className="p-3 bg-slate-50 dark:bg-gray-700/60 border border-slate-200 dark:border-gray-700 rounded text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
+      <div className="surface surface--secondary rounded-2xl p-3 text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
         <strong>Lưu ý đối soát kế toán:</strong> Số liệu doanh thu tuân thủ nguyên tắc minor units (số nguyên), tách riêng từng loại tiền tệ và không quy đổi gộp tránh sai lệch tỷ giá.
       </div>
     </div>

@@ -8,6 +8,7 @@ import type { AdminReconciliationRun, AdminDiscrepancyItem } from './types';
 import type { StaffUser } from '../../lib/auth-context';
 import { useOptionalAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface ReconciliationManagerProps {
   initialRuns?: AdminReconciliationRun[];
@@ -136,7 +137,7 @@ export function ReconciliationManager({
 
   return (
     <div data-testid="reconciliation-panel" className="space-y-6 font-sans">
-      <div className="p-4 md:p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-xs">
+      <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4 md:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 data-testid="reconciliation-heading" className="text-base font-bold text-gray-900 dark:text-gray-100">
             Đối soát Giao dịch &amp; Hoàn tiền (Payment Reconciliation)
@@ -193,33 +194,33 @@ export function ReconciliationManager({
       )}
 
       {runs.length === 0 && !isLoading && !errorMsg ? (
-        <div data-testid="reconciliation-empty" className="p-6 text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 rounded border border-gray-100 dark:border-gray-700 text-xs">
+        <div data-testid="reconciliation-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 dark:text-gray-400 text-xs">
           {t('commercial.emptyReconciliation', locale)}
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-x-auto shadow-xs">
-          <table data-testid="reconciliation-runs-table" className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Mã phiên</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Cổng thanh toán</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Kỳ đối soát</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Số sai lệch</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Trạng thái</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Thời gian chạy</th>
-                <th className="px-4 py-3 text-right font-semibold text-gray-600 dark:text-gray-300 uppercase">Chi tiết</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
+        <div className="overflow-x-auto">
+          <Table data-testid="reconciliation-runs-table">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-left font-semibold">Mã phiên</TableHead>
+                <TableHead className="text-left font-semibold">Cổng thanh toán</TableHead>
+                <TableHead className="text-left font-semibold">Kỳ đối soát</TableHead>
+                <TableHead className="text-left font-semibold">Số sai lệch</TableHead>
+                <TableHead className="text-left font-semibold">Trạng thái</TableHead>
+                <TableHead className="text-left font-semibold">Thời gian chạy</TableHead>
+                <TableHead className="text-right font-semibold">Chi tiết</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {runs.map((r) => (
-                <tr key={r.id} data-testid={`reconciliation-row-${r.id}`} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                  <td className="px-4 py-3 font-mono font-medium text-gray-900 dark:text-gray-100">{r.id}</td>
-                  <td className="px-4 py-3 font-semibold uppercase text-gray-900 dark:text-gray-100">{r.provider}</td>
-                  <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                <TableRow key={r.id} data-testid={`reconciliation-row-${r.id}`}>
+                  <TableCell className="font-mono font-medium">{r.id}</TableCell>
+                  <TableCell className="font-semibold">{r.provider}</TableCell>
+                  <TableCell>
                     {new Date(r.periodStart).toLocaleDateString('vi-VN')} –{' '}
                     {new Date(r.periodEnd).toLocaleDateString('vi-VN')}
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell>
                     <span
                       data-testid={`discrepancy-badge-${r.id}`}
                       className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
@@ -230,8 +231,8 @@ export function ReconciliationManager({
                     >
                       {r.discrepanciesFound} sai lệch
                     </span>
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell>
                     <span
                       className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
                         r.status === 'reconciled'
@@ -241,9 +242,9 @@ export function ReconciliationManager({
                     >
                       {r.status === 'reconciled' ? 'Khớp hoàn toàn' : 'Phát hiện lệch'}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{new Date(r.runAt).toLocaleString('vi-VN')}</td>
-                  <td className="px-4 py-3 text-right">
+                  </TableCell>
+                  <TableCell>{new Date(r.runAt).toLocaleString('vi-VN')}</TableCell>
+                  <TableCell className="text-right">
                     <Button
                       type="button"
                       variant="ghost"
@@ -254,16 +255,16 @@ export function ReconciliationManager({
                     >
                       Xem
                     </Button>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       )}
 
       {selectedRun && (
-        <div data-testid="reconciliation-detail-modal" className="p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg space-y-3">
+        <div data-testid="reconciliation-detail-modal" className="surface surface--secondary rounded-2xl p-4 space-y-3">
           <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
             <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200">
               Chi tiết đối soát phiên: <code className="text-blue-700 dark:text-blue-400">{selectedRun.id}</code>
@@ -280,7 +281,7 @@ export function ReconciliationManager({
           </div>
 
           {selectedRun.discrepanciesFound === 0 ? (
-            <div data-testid="reconciliation-no-discrepancy" className="p-3 bg-white dark:bg-gray-900 border border-green-200 dark:border-green-800 rounded text-xs text-green-700 dark:text-green-300">
+            <div data-testid="reconciliation-no-discrepancy" className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-3 border-green-200 dark:border-green-800 text-xs text-green-700 dark:text-green-300">
               <Check className="inline size-4 align-[-2px]" aria-hidden="true" /> Toàn bộ đơn hàng và khoản hoàn tiền khớp 100% với chứng từ cổng thanh toán. Không có giao dịch thất thoát.
             </div>
           ) : (

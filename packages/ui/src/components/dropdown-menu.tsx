@@ -243,7 +243,7 @@ export const DropdownMenuItem = React.forwardRef<HTMLDivElement, DropdownMenuIte
     };
 
     const itemClasses = cn(
-      'relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-[var(--bg-hover,#e2e8f0)] focus:bg-[var(--bg-hover,#e2e8f0)] focus:text-[var(--text-primary,#0f172a)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:hover:bg-[var(--bg-hover,#334155)] dark:focus:bg-[var(--bg-hover,#334155)] dark:focus:text-[var(--text-primary,#f8fafc)]',
+      'menu-item menu-item--default text-sm focus:bg-[var(--default)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       inset && 'pl-8',
       disabled && 'pointer-events-none opacity-50',
       className,

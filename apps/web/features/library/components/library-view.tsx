@@ -166,7 +166,7 @@ export function LibraryView({
 
       {/* Exams Grid */}
       {filteredExams.length === 0 ? (
-        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+        <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] text-center py-16 p-8">
           <FolderOpen className="mx-auto mb-3 size-10 text-slate-400" role="img" aria-label="Không có kết quả" />
           <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">
             Không tìm thấy đề thi phù hợp

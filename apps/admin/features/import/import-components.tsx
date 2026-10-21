@@ -9,6 +9,8 @@ import { JsonCsvService } from './json-csv-service';
 import { apiClient, AdminClientGuardError } from '../../lib/api-client';
 import { useAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
+import { Checkbox } from '@jlpt/ui/components/checkbox';
 
 export interface ImportViewProps {
   initialJobs?: ImportJobSummary[];
@@ -337,7 +339,7 @@ export function ImportManagerView({
       {/* Upload Box */}
       <div
         data-testid="upload-container"
-        className="w-full max-w-full overflow-hidden border-2 border-dashed border-gray-300 rounded-lg p-4 md:p-8 text-center bg-gray-50 mb-6"
+        className="surface surface--secondary rounded-2xl w-full max-w-full overflow-hidden border-dashed p-4 md:p-8 text-center mb-6"
       >
         <p className="text-gray-700 font-medium mb-3">
           {t('content.imports.uploadPrompt', locale)}
@@ -352,12 +354,11 @@ export function ImportManagerView({
             className="inline-block max-w-full text-sm text-gray-600 file:mr-2 md:file:mr-4 file:py-1.5 md:file:py-2 file:px-3 md:file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
           />
           <label className="inline-flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-md border border-gray-300 hover:bg-gray-100 transition-colors shadow-2xs max-w-full">
-            <input
-              type="checkbox"
+            <Checkbox
               data-testid="draft-mode-checkbox"
               checked={isDraftMode}
-              onChange={(e) => setIsDraftMode(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
+              onCheckedChange={(v) => setIsDraftMode(v === true)}
+              className="shrink-0"
             />
             <span className="text-sm font-semibold text-gray-800">Nạp bản nháp</span>
             <span className="text-xs text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 font-mono">DRAFT_ONLY</span>
@@ -413,31 +414,31 @@ export function ImportManagerView({
       <h3 className="text-lg font-semibold text-gray-800 mb-3">
         {t('content.imports.jobsTitle', locale)} ({jobs.length})
       </h3>
-      <div className="overflow-x-auto w-full max-w-full border border-gray-200 rounded-lg shadow-xs mb-8">
-        <table data-testid="jobs-table" className="w-full text-left text-sm border-collapse min-w-full">
-          <thead>
-            <tr className="bg-gray-100 border-b border-gray-200 text-gray-700">
-              <th className="p-3">Tên tệp</th>
-              <th className="p-3">Cấp độ</th>
-              <th className="p-3">Trạng thái</th>
-              <th className="p-3">Số câu</th>
-              <th className="p-3">Blocking</th>
-              <th className="p-3">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div className="overflow-x-auto w-full max-w-full mb-8">
+        <Table data-testid="jobs-table" className="text-left">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Tên tệp</TableHead>
+              <TableHead>Cấp độ</TableHead>
+              <TableHead>Trạng thái</TableHead>
+              <TableHead>Số câu</TableHead>
+              <TableHead>Blocking</TableHead>
+              <TableHead>Thao tác</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {jobs.length === 0 ? (
-              <tr>
-                <td colSpan={6} data-testid="imports-empty" className="p-6 text-center text-gray-400">
+              <TableRow>
+                <TableCell colSpan={6} data-testid="imports-empty" className="text-center">
                   {t('content.imports.empty', locale)}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : (
               jobs.map((job) => (
-                <tr key={job.id} data-testid={`job-row-${job.id}`} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="p-3 font-medium text-gray-900">{job.fileName}</td>
-                  <td className="p-3">{job.targetLevel || '—'}</td>
-                  <td className="p-3">
+                <TableRow key={job.id} data-testid={`job-row-${job.id}`}>
+                  <TableCell className="font-medium">{job.fileName}</TableCell>
+                  <TableCell>{job.targetLevel || '—'}</TableCell>
+                  <TableCell>
                     <span
                       data-testid={`job-status-${job.id}`}
                       className={`px-2 py-0.5 rounded text-xs font-semibold ${
@@ -450,9 +451,9 @@ export function ImportManagerView({
                     >
                       {job.status}
                     </span>
-                  </td>
-                  <td className="p-3">{job.extractedQuestionsCount}</td>
-                  <td className="p-3">
+                  </TableCell>
+                  <TableCell>{job.extractedQuestionsCount}</TableCell>
+                  <TableCell>
                     {job.blockingIssueCount > 0 ? (
                       <div className="space-y-1">
                         <span className="text-red-600 font-bold">{job.blockingIssueCount}</span>
@@ -500,8 +501,8 @@ export function ImportManagerView({
                     ) : (
                       <span className="text-gray-500">0</span>
                     )}
-                  </td>
-                  <td className="p-3 space-x-2">
+                  </TableCell>
+                  <TableCell className="space-x-2">
                     {job.status === 'DRAFT_ONLY' ? (
                       <span
                         data-testid={`draft-blocked-badge-${job.id}`}
@@ -539,18 +540,18 @@ export function ImportManagerView({
                     >
                       {t('content.imports.exportCsv', locale)}
                     </Button>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {/* CSV / JSON Roundtrip Tool */}
       <div
         data-testid="csv-tool-container"
-        className="border border-gray-200 rounded-lg p-5 bg-gray-50"
+        className="surface surface--secondary rounded-2xl p-5"
       >
         <h4 className="font-semibold text-gray-800 mb-3 text-base">
           {t('content.imports.csvToolTitle', locale)}

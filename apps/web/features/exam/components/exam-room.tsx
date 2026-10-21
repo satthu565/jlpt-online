@@ -408,7 +408,7 @@ export function ExamRoom({
             {mode === 'real' && pacingEvaluation?.currentMilestone && (
               <div
                 data-testid="discreet-pacing-milestone"
-                className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-mono bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700"
+                className="surface surface--secondary rounded-2xl flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-mono px-2.5 py-1"
                 title="Mốc tiến độ chuẩn JLPT"
               >
                 <span className="inline-flex items-center gap-1"><Target className="size-4" aria-hidden="true" /> Mốc  {pacingEvaluation.currentMilestone.label || `Câu ${firstQuestionOfSection + pacingEvaluation.currentMilestone.targetQuestionIndex}`} ({Math.round(pacingEvaluation.currentMilestone.targetElapsedSec / 60)}p)</span>
@@ -544,7 +544,7 @@ export function ExamRoom({
         {/* Right column: Progress bar & Answer sheet palette (Hidden in Zen Mode to prevent distraction) */}
         {!isZenMode && (
           <div className="lg:col-span-4 space-y-4">
-            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
+            <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4">
               <ExamProgressBar
                 answeredCount={answeredCount}
                 totalQuestions={totalQuestions}

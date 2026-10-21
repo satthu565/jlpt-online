@@ -35,7 +35,7 @@ export function ExamProgressBar({
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label="Thanh tiến độ làm bài"
-        className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700">
+        className="surface surface--secondary rounded-2xl w-full h-2.5 overflow-hidden">
         <div
           className="h-full bg-blue-600 rounded-full transition-all duration-300 ease-out"
           // ui-allow-style: chiều rộng theo tiến độ, tính lúc chạy

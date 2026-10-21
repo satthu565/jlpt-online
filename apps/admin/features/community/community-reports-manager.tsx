@@ -7,6 +7,7 @@ import { Button } from '@jlpt/ui/components/button';
 import { apiClient } from '../../lib/api-client';
 import { useAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface CommunityReport {
   id: string;
@@ -85,30 +86,30 @@ export function CommunityReportsManager(): React.JSX.Element {
         </p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-gray-500">
-                <th className="p-2">{t('communityModeration.content', locale)}</th>
-                <th className="p-2">{t('communityModeration.reason', locale)}</th>
-                <th className="p-2">{t('communityModeration.status', locale)}</th>
-                <th className="p-2">{t('communityModeration.reportedAt', locale)}</th>
-                <th className="p-2">{t('communityModeration.actions', locale)}</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table>
+            <TableHeader>
+              <TableRow className="text-left">
+                <TableHead>{t('communityModeration.content', locale)}</TableHead>
+                <TableHead>{t('communityModeration.reason', locale)}</TableHead>
+                <TableHead>{t('communityModeration.status', locale)}</TableHead>
+                <TableHead>{t('communityModeration.reportedAt', locale)}</TableHead>
+                <TableHead>{t('communityModeration.actions', locale)}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {reports.map((r) => {
                 const open = r.status === 'pending' || r.status === 'in_review';
                 return (
-                  <tr key={r.id} className="border-t border-gray-200 dark:border-gray-700" data-testid="community-report-row">
-                    <td className="p-2 max-w-xs break-words">
+                  <TableRow key={r.id} data-testid="community-report-row">
+                    <TableCell className="max-w-xs break-words">
                       {r.isDeleted ? t('communityModeration.deleted', locale) : r.content}
-                    </td>
-                    <td className="p-2 max-w-xs break-words">{r.reason}</td>
-                    <td className="p-2">
+                    </TableCell>
+                    <TableCell className="max-w-xs break-words">{r.reason}</TableCell>
+                    <TableCell>
                       <Badge variant={open ? 'warning' : 'default'}>{t(`communityModeration.${r.status}`, locale)}</Badge>
-                    </td>
-                    <td className="p-2 whitespace-nowrap">{new Date(r.createdAt).toLocaleString('vi-VN')}</td>
-                    <td className="p-2">
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">{new Date(r.createdAt).toLocaleString('vi-VN')}</TableCell>
+                    <TableCell>
                       {open && (
                         <div className="flex flex-wrap gap-2">
                           <Button
@@ -131,12 +132,12 @@ export function CommunityReportsManager(): React.JSX.Element {
                           </Button>
                         </div>
                       )}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       )}
     </div>

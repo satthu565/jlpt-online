@@ -72,7 +72,7 @@ export function QuestionView({
 
       {/* Group instructions if present */}
       {question.instructions && question.instructions.length > 0 && (
-        <div className="mb-4 text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
+        <div className="surface surface--secondary rounded-2xl mb-4 text-sm text-slate-600 dark:text-slate-400 p-3">
           <span className="font-semibold text-slate-700 dark:text-slate-300 mr-2">Hướng dẫn:</span>
           <RichTextView segments={question.instructions} showFurigana={showFurigana} />
         </div>

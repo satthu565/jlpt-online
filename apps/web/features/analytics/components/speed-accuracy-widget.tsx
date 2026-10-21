@@ -57,7 +57,7 @@ export function SpeedAccuracyWidget({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Metric 1: Average time per question */}
-        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-center space-y-1">
+        <div className="surface surface--secondary rounded-2xl p-4 text-center space-y-1">
           <span className="text-[11px] text-slate-500 block uppercase tracking-wider">
             Thời gian trung bình mỗi câu:
           </span>
@@ -73,7 +73,7 @@ export function SpeedAccuracyWidget({
         </div>
 
         {/* Metric 2: Overall Accuracy */}
-        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-center space-y-1">
+        <div className="surface surface--secondary rounded-2xl p-4 text-center space-y-1">
           <span className="text-[11px] text-slate-500 block uppercase tracking-wider">
             Độ chính xác tương ứng:
           </span>
@@ -102,7 +102,7 @@ export function SpeedAccuracyWidget({
                 <div
                   key={sec}
                   data-testid={`section-time-${sec}`}
-                  className="p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800/40 text-xs flex justify-between items-center"
+                  className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-2.5 text-xs flex justify-between items-center"
                 >
                   <span className="text-slate-700 dark:text-slate-300 font-medium truncate max-w-[150px]">
                     {label}
@@ -120,7 +120,7 @@ export function SpeedAccuracyWidget({
       {/* Quadrant assessment narrative */}
       <div
         data-testid="speed-assessment-text"
-        className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 leading-relaxed"
+        className="surface surface--secondary rounded-2xl p-3.5 text-xs text-slate-800 dark:text-slate-200 leading-relaxed"
       >
         <span className="font-bold block mb-1">Nhận xét tốc độ làm bài:</span>
         {assessment}

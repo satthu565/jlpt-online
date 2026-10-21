@@ -191,7 +191,7 @@ export default function ExamSchedulePage(): React.JSX.Element {
       {/* Level Filter Bar */}
       <div
         data-testid="schedule-level-filter"
-        className="flex flex-wrap items-center gap-2 p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800"
+        className="surface surface--secondary rounded-2xl flex flex-wrap items-center gap-2 p-3"
       >
         <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 mr-2">
           {t('schedules.filterLevel')}:
@@ -383,7 +383,7 @@ export default function ExamSchedulePage(): React.JSX.Element {
 
               {/* Notes from organizer */}
               {schedule.notes && (
-                <div className="text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800">
+                <div className="surface surface--secondary rounded-2xl text-xs text-slate-600 dark:text-slate-400 p-3.5">
                   <span className="font-semibold text-slate-700 dark:text-slate-300 mr-1.5">
                     ℹ️ {t('schedules.notes')}:
                   </span>

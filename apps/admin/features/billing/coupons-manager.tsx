@@ -7,6 +7,7 @@ import type { AdminCouponItem } from './types';
 import type { BillingManager } from './billing-service';
 import { useOptionalAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface CouponsManagerProps {
   billingManager?: BillingManager;
@@ -129,7 +130,7 @@ export function CouponsManager({ billingManager, onCouponCreated }: CouponsManag
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6 space-y-4">
+    <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4 md:p-6 space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 data-testid="coupons-heading" className="text-lg font-bold text-gray-900 dark:text-gray-100">
@@ -192,37 +193,37 @@ export function CouponsManager({ billingManager, onCouponCreated }: CouponsManag
       )}
 
       {coupons.length === 0 && !isLoading && !fetchError ? (
-        <div data-testid="coupons-empty" className="p-6 text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 rounded border border-gray-100 dark:border-gray-700 text-xs">
+        <div data-testid="coupons-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 dark:text-gray-400 text-xs">
           {t('commercial.emptyCoupons', locale)}
         </div>
       ) : (
-        <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
-          <table data-testid="coupons-table" className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Mã giảm giá</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Mức giảm</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Đã dùng / Giới hạn</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Hết hạn</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50 bg-white dark:bg-gray-800">
+        <div className="overflow-x-auto">
+          <Table data-testid="coupons-table">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-left font-semibold">Mã giảm giá</TableHead>
+                <TableHead className="text-left font-semibold">Mức giảm</TableHead>
+                <TableHead className="text-left font-semibold">Đã dùng / Giới hạn</TableHead>
+                <TableHead className="text-left font-semibold">Hết hạn</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {coupons.map((c) => (
-                <tr key={c.code} data-testid={`coupon-row-${c.code}`} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td className="px-4 py-3 font-mono font-bold text-emerald-700 dark:text-emerald-400">{c.code}</td>
-                  <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">
+                <TableRow key={c.code} data-testid={`coupon-row-${c.code}`}>
+                  <TableCell className="font-mono font-bold">{c.code}</TableCell>
+                  <TableCell className="font-medium">
                     {c.discountPercent ? `${c.discountPercent}%` : `${c.discountAmount?.toLocaleString('vi-VN')} đ`}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
+                  </TableCell>
+                  <TableCell>
                     {c.timesRedeemed} / {c.maxRedemptions}
-                  </td>
-                  <td className="px-4 py-3 text-gray-500 dark:text-gray-400">
+                  </TableCell>
+                  <TableCell>
                     {c.validUntil ? new Date(c.validUntil).toLocaleDateString('vi-VN') : 'Vô thời hạn'}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       )}
 

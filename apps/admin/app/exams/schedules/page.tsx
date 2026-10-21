@@ -12,6 +12,8 @@ import { Badge } from '@jlpt/ui/components/badge';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Spinner } from '@jlpt/ui/components/spinner';
 import type { Level } from '@jlpt/schema';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
+import { Checkbox } from '@jlpt/ui/components/checkbox';
 
 export interface JlptScheduleLocation {
   city: string;
@@ -391,11 +393,9 @@ export default function JlptSchedulesPage(): React.JSX.Element {
                     <div className="flex flex-wrap gap-3 mt-1" data-testid="input-schedule-levels">
                       {ALL_LEVELS.map((lvl) => (
                         <label key={lvl} className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-800 cursor-pointer">
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={formLevels.includes(lvl)}
-                            onChange={() => handleToggleLevel(lvl)}
-                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            onCheckedChange={() => handleToggleLevel(lvl)}
                           />
                           <span>{lvl}</span>
                         </label>
@@ -407,7 +407,7 @@ export default function JlptSchedulesPage(): React.JSX.Element {
                     <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">
                       {t('content.schedules.inputLocations', locale)}
                     </label>
-                    <div className="space-y-2 bg-gray-50 p-3 rounded-md border border-gray-200" data-testid="input-schedule-locations">
+                    <div className="surface surface--secondary rounded-2xl space-y-2 p-3" data-testid="input-schedule-locations">
                       {formLocations.map((loc, idx) => (
                         <div key={idx} className="text-xs text-gray-700 flex items-center justify-between">
                           <div>
@@ -497,7 +497,7 @@ export default function JlptSchedulesPage(): React.JSX.Element {
 
         {/* Loading State */}
         {isLoading && (
-          <div data-testid="schedules-loading" className="flex items-center justify-center p-12 bg-white border border-gray-200 rounded-lg">
+          <div data-testid="schedules-loading" className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] flex items-center justify-center p-12">
             <Spinner size="lg" />
             <span className="ml-3 text-sm text-gray-500">{t('content.schedules.loading', locale)}</span>
           </div>
@@ -505,45 +505,45 @@ export default function JlptSchedulesPage(): React.JSX.Element {
 
         {/* Data Table */}
         {!isLoading && (
-          <div className="w-full bg-white border border-gray-200 rounded-lg shadow-xs overflow-hidden">
+          <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] w-full overflow-hidden">
             <div className="overflow-x-auto w-full">
-              <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead className="bg-gray-50 text-gray-700">
-                  <tr>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-left font-semibold">
                       {t('content.schedules.colTitle', locale)}
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-left font-semibold">
                       {t('content.schedules.colExamDate', locale)}
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-left font-semibold">
                       {t('content.schedules.colDeadline', locale)}
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-left font-semibold">
                       {t('content.schedules.colLevels', locale)}
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-left font-semibold">
                       {t('content.schedules.colLocations', locale)}
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-left font-semibold">
                       {t('content.schedules.colStatus', locale)}
-                    </th>
-                    <th className="px-4 py-3 text-right font-semibold text-xs uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-right font-semibold">
                       {t('content.schedules.colActions', locale)}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {schedules.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} data-testid="schedules-empty" className="p-8 text-center text-gray-400">
+                    <TableRow>
+                      <TableCell colSpan={7} data-testid="schedules-empty" className="text-center">
                         {t('content.schedules.empty', locale)}
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ) : (
                     schedules.map((item) => (
-                      <tr key={item.id} data-testid={`schedule-row-${item.id}`} className="hover:bg-gray-50/70 transition-colors">
-                        <td className="px-4 py-3 font-semibold text-gray-900">
+                      <TableRow key={item.id} data-testid={`schedule-row-${item.id}`}>
+                        <TableCell className="font-semibold">
                           <div data-testid={`schedule-title-${item.id}`} className="text-blue-900 font-medium">
                             {item.title}
                           </div>
@@ -557,14 +557,14 @@ export default function JlptSchedulesPage(): React.JSX.Element {
                               {item.officialUrl}
                             </a>
                           )}
-                        </td>
-                        <td className="px-4 py-3 text-gray-800 font-mono text-xs whitespace-nowrap">
+                        </TableCell>
+                        <TableCell className="font-mono whitespace-nowrap">
                           {formatShortDate(item.examDate)}
-                        </td>
-                        <td className="px-4 py-3 text-gray-600 font-mono text-xs whitespace-nowrap">
+                        </TableCell>
+                        <TableCell className="font-mono whitespace-nowrap">
                           {formatShortDate(item.registrationDeadline)}
-                        </td>
-                        <td className="px-4 py-3">
+                        </TableCell>
+                        <TableCell>
                           <div className="flex flex-wrap gap-1">
                             {item.levels?.map((lvl) => (
                               <Badge key={lvl} variant="neutral" size="sm">
@@ -572,13 +572,13 @@ export default function JlptSchedulesPage(): React.JSX.Element {
                               </Badge>
                             ))}
                           </div>
-                        </td>
-                        <td className="px-4 py-3 text-xs text-gray-600">
+                        </TableCell>
+                        <TableCell>
                           {item.locations && item.locations.length > 0
                             ? item.locations.map((loc) => loc.city).join(', ')
                             : 'Toàn quốc'}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
                           <span data-testid={`schedule-status-${item.id}`}>
                             {item.status === 'published' ? (
                               <Badge variant="success" size="sm">
@@ -594,8 +594,8 @@ export default function JlptSchedulesPage(): React.JSX.Element {
                               </Badge>
                             )}
                           </span>
-                        </td>
-                        <td className="px-4 py-3 text-right space-x-1.5 whitespace-nowrap">
+                        </TableCell>
+                        <TableCell className="text-right space-x-1.5 whitespace-nowrap">
                           {user?.role === 'admin' && (
                             <>
                               {item.status === 'draft' && (
@@ -651,12 +651,12 @@ export default function JlptSchedulesPage(): React.JSX.Element {
                               </Button>
                             </>
                           )}
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))
                   )}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           </div>
         )}
