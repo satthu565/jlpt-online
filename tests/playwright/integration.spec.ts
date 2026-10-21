@@ -1546,25 +1546,22 @@ test.describe('Real Content Administration API Integration Suite (I03)', () => {
       const demoRow = adminPage.locator('tr:has-text("demo-n5-1"), tr:has-text("Đề demo N5")').first();
       await expect(demoRow).toBeVisible({ timeout: 15000 });
 
-      // Another suite in the same run may already have published the demo exam: take it down first.
+      // Another suite in the same run (I07, other browsers) may already have published the demo exam.
+      // Taking it down here would hide it from learners mid-run (P04 on Mobile Safari then saw no exam),
+      // so an already published exam is accepted as the published state.
       const takedownBtn = demoRow.locator('button[data-testid^="takedown-exam-btn-"]').first();
-      if (await takedownBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      const alreadyPublished = await takedownBtn.isVisible({ timeout: 3000 }).catch(() => false);
+      if (!alreadyPublished) {
+        const publishBtn = demoRow.locator('button[data-testid^="publish-exam-btn-"]').first();
+        await expect(publishBtn).toBeVisible({ timeout: 15000 });
+        // "Duyệt & xuất bản" asks for confirmation; Playwright dismisses dialogs unless told otherwise.
         adminPage.once('dialog', (dialog) => void dialog.accept());
-        await takedownBtn.click();
-        const confirmTakedown = adminPage.locator('button[data-testid="confirm-takedown-btn"]').first();
-        if (await confirmTakedown.isVisible({ timeout: 3000 }).catch(() => false)) {
-          await confirmTakedown.click();
-        }
+        await publishBtn.click();
+
+        await expect(adminPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 15000 });
+        await expect(adminPage.locator('[data-testid="status-alert"]').first()).toContainText(/Xuất bản thành công/i);
       }
-
-      const publishBtn = demoRow.locator('button[data-testid^="publish-exam-btn-"]').first();
-      await expect(publishBtn).toBeVisible({ timeout: 15000 });
-      // "Duyệt & xuất bản" asks for confirmation; Playwright dismisses dialogs unless told otherwise.
-      adminPage.once('dialog', (dialog) => void dialog.accept());
-      await publishBtn.click();
-
-      await expect(adminPage.locator('[data-testid="status-alert"]').first()).toBeVisible({ timeout: 15000 });
-      await expect(adminPage.locator('[data-testid="status-alert"]').first()).toContainText(/Xuất bản thành công/i);
+      await expect(demoRow.locator('button[data-testid^="takedown-exam-btn-"]').first()).toBeVisible({ timeout: 15000 });
     } finally {
       await adminCtx.close();
     }
@@ -2693,9 +2690,14 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
     // Step 0: Log in as verified student to ensure valid exam session
     await loginAsStudent(page, webOrigin);
 
-    // Step 1: Open demo N5 exam room
-    await page.goto(`${webOrigin}/phong-thi?examId=demo-n5-1`, { waitUntil: 'domcontentloaded' });
+    // Step 1: Open demo N5 exam room. Other suites may republish the demo exam during the run, which
+    // briefly removes it from /exams; reload until the start dialog shows.
     const modalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
+    for (let i = 0; i < 4; i++) {
+      await page.goto(`${webOrigin}/phong-thi?examId=demo-n5-1`, { waitUntil: 'domcontentloaded' });
+      if (await modalBtn.isVisible({ timeout: 8000 }).catch(() => false)) break;
+      await page.waitForTimeout(3000);
+    }
     try {
       await modalBtn.waitFor({ state: 'visible', timeout: 10000 });
     } catch {
