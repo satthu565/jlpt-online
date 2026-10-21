@@ -759,7 +759,8 @@ task('H01','W5',11,8,'Âm Hán Việt theo từng từ vựng: bảng chữ + â
  'GET /dictionary/lookup?text=要約 trả hanViet YẾU ƯỚC, hanVietConfidence high, perKanji 要 ヨウ YẾU, 約 ヤク ƯỚC|PATCH admin đổi âm thì lookup trả âm mới; nạp lại từ điển không ghi đè|'
  'POST báo sai cần đăng nhập, chuyển mục sang review, có giới hạn tần suất',
  'pnpm test:import-validation|pnpm --filter @jlpt/content-tools test|pnpm test:vocab-data|pnpm test:learning:all',contracts='API DB',grants='apps/api/src/db/ apps/api/scripts/lexicon/')
-task('H02','W3',11,4,'Trang /tu-vung: tra từ trong từ điển JMdict, hiện cách đọc, nghĩa và âm Hán Việt','H01',
+task('H02','W3',11,4,'Trang /tu-vung: tra từ trong từ điển JMdict, hiện cách đọc, nghĩa và âm Hán Việt','',
+ 'H01 DO CLAUDE LÀM TRỰC TIẾP (coordinator ghi CANCELLED nên không còn là phụ thuộc). Đã có trên main: cột lexical_entries.han_viet/han_viet_confidence/han_viet_source, computeHanViet, GET /admin/lexicon/hanviet, PATCH /admin/lexicon/:id/hanviet, POST /dictionary/hanviet-reports, lookup trả hanVietConfidence/hanVietPerKanji; chi tiết trong docs/decisions/H01-hanviet-word-level.md. '
  'HIỆN TRẠNG: /tu-vung (apps/web/features/corpus/components/vocab-explorer.tsx) chỉ lọc tại chỗ bộ ngữ liệu jlpt-official, bộ này đang có 0 từ nên trang TRỐNG. '
  'Từ điển JMdict + KANJIDIC2 (22.647 mục thông dụng) đã nạp vào DB; API GET /api/v1/dictionary/lookup?text=<từ> trả MỘT mục: entry, readings[], meanings[] (tiếng Anh), partOfSpeech, hanViet, license, attribution; '
  'tra được theo mặt chữ (予約) hoặc theo cách đọc kana (よやく); không có thì 404. corpus-client.lookupDictionary(query) đã gửi đúng tham số text. '
@@ -779,7 +780,8 @@ task('H02','W3',11,4,'Trang /tu-vung: tra từ trong từ điển JMdict, hiện
  +NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:web|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/')
 
-task('H03','W4',11,4,'Quản trị: màn hình "Duyệt Hán Việt" cho từ vựng','H01',
+task('H03','W4',11,4,'Quản trị: màn hình "Duyệt Hán Việt" cho từ vựng','',
+ 'H01 DO CLAUDE LÀM TRỰC TIẾP (coordinator ghi CANCELLED nên không còn là phụ thuộc). Đã có trên main: cột lexical_entries.han_viet/han_viet_confidence/han_viet_source, computeHanViet, GET /admin/lexicon/hanviet, PATCH /admin/lexicon/:id/hanviet, POST /dictionary/hanviet-reports, lookup trả hanVietConfidence/hanVietPerKanji; chi tiết trong docs/decisions/H01-hanviet-word-level.md. '
  'Màn hình mới trong admin, mục menu "Duyệt Hán Việt" thuộc nhóm Nội dung, vai trò editor, reviewer, admin. Dùng API của H01: '
  'GET /api/v1/admin/lexicon/hanviet (lọc confidence review | kun | high, tìm theo từ hoặc cách đọc, phân trang) và PATCH /api/v1/admin/lexicon/:id/hanviet. '
  'Bảng (Table của @jlpt/ui): từ, cách đọc, nghĩa đầu, âm Hán Việt hiện tại, phân tách theo chữ (chữ - âm On - Hán Việt), độ tin cậy (nhãn màu), nguồn (máy tính / ngoại lệ / người sửa), số báo sai từ học viên. '
@@ -791,7 +793,8 @@ task('H03','W4',11,4,'Quản trị: màn hình "Duyệt Hán Việt" cho từ v�
  +NO_MOCK+'|'+REAL_E2E+'|'+STATES+'|'+LAYOUT,
  'pnpm test:admin|pnpm check:no-mock-ui|pnpm check:ui-primitives',contracts='API',grants='tests/playwright/')
 # Owner 2026-10-21: vocabulary list from real exams (H04) and select-to-look-up while taking exams with a word detail page (H05, H06).
-task('H04','W5',11,6,'Bộ ngữ liệu đề thi lưu vào database, tự tách từ khi xuất bản đề; /tu-vung liệt kê từ của các đề thật','H01',
+task('H04','W5',11,6,'Bộ ngữ liệu đề thi lưu vào database, tự tách từ khi xuất bản đề; /tu-vung liệt kê từ của các đề thật','',
+ 'H01 DO CLAUDE LÀM TRỰC TIẾP (coordinator ghi CANCELLED nên không còn là phụ thuộc). Đã có trên main: cột lexical_entries.han_viet/han_viet_confidence/han_viet_source, computeHanViet, GET /admin/lexicon/hanviet, PATCH /admin/lexicon/:id/hanviet, POST /dictionary/hanviet-reports, lookup trả hanVietConfidence/hanVietPerKanji; chi tiết trong docs/decisions/H01-hanviet-word-level.md. '
  'HIỆN TRẠNG (lỗi thiết kế): corpus.service (apps/api/src/modules/vocab/corpus.service.ts) giữ bộ ngữ liệu "Tập ngữ liệu đề thi JLPT N1–N5" (slug jlpt-official) '
  'trong Map aggregators ở BỘ NHỚ; chỉ có dữ liệu khi gọi API nạp thủ công một gói đề, MẤT HẾT khi API khởi động lại; đề đã xuất bản không tự vào. '
  'Vì vậy GET /api/v1/datasets/jlpt-official/vocabulary trả {"total":0} và /tu-vung, /thong-ke-tu-vung, admin "Từ vựng & Ngữ pháp" đều trống. '
@@ -811,7 +814,8 @@ task('H04','W5',11,6,'Bộ ngữ liệu đề thi lưu vào database, tự tách
  'Từ dạng chia (食べた) được gom về dạng từ điển (食べる); không có dòng nào là trợ từ hay dấu câu|Test không lộ đáp án: danh sách không có trường đáp án hay đánh dấu đáp án đúng|'
  '/tu-vung, /thong-ke-tu-vung và admin Từ vựng hiện dữ liệu thật (E2E staging dùng đề demo N5 được seed và xuất bản)',
  'pnpm test:vocab-data|pnpm test:learning:all',contracts='API DB',grants='apps/api/src/db/ apps/api/src/modules/exam/ apps/api/scripts/lexicon/ tests/playwright/')
-task('H05','W5',11,4,'API từ điển cho tra nhanh khi bôi đen và trang chi tiết từ vựng','H01',
+task('H05','W5',11,4,'API từ điển cho tra nhanh khi bôi đen và trang chi tiết từ vựng','',
+ 'H01 DO CLAUDE LÀM TRỰC TIẾP (coordinator ghi CANCELLED nên không còn là phụ thuộc). Đã có trên main: cột lexical_entries.han_viet/han_viet_confidence/han_viet_source, computeHanViet, GET /admin/lexicon/hanviet, PATCH /admin/lexicon/:id/hanviet, POST /dictionary/hanviet-reports, lookup trả hanVietConfidence/hanVietPerKanji; chi tiết trong docs/decisions/H01-hanviet-word-level.md. '
  'Phục vụ H06 (bôi đen chữ trong bài thi để tra). '
  '(1) GET /api/v1/dictionary/lookup?text=: nếu không khớp mặt chữ/cách đọc thì thử dạng từ điển qua lemmatizer có sẵn (食べた, 食べます -> 食べる; 高かった -> 高い; 勉強して -> 勉強する/勉強), '
  'rồi thử bỏ dần ký tự cuối là kana (okurigana thừa khi bôi đen dư); trả thêm matchedText (chuỗi đã khớp) và lemma. Bôi đen dài hơn 20 ký tự hoặc không có chữ Nhật trả 400. '

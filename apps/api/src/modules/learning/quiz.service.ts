@@ -6,7 +6,7 @@ import type {
   NotebookQuizResponseDto,
 } from './learning.types.js';
 import { NotebookService } from './notebook.service.js';
-import { getHanVietForWord } from '@jlpt/content-tools';
+import { getHanVietForWord } from '../vocab/hanviet-store.js';
 
 const FALLBACK_DISTRACTORS: Record<string, string[]> = {
   vocab: [

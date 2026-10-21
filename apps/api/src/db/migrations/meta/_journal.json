@@ -50,6 +50,13 @@
       "when": 1792500000000,
       "tag": "0006_section_listening_timeline",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792600000000,
+      "tag": "0007_lexicon_hanviet",
+      "breakpoints": true
     }
   ]
 }

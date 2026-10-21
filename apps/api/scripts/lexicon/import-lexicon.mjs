@@ -8,12 +8,15 @@
 // Licence: CC BY-SA 4.0, attribution required (https://www.edrdg.org/edrdg/licence.html).
 // By default only JMdict entries marked common (news1/ichi1/spec1/spec2/gai1) are imported; --all imports every entry.
 // Re-running with the same dataset date is a no-op; --replace removes this provider's earlier rows first.
+// H01: every new entry gets its Hán Việt (computeHanViet on the primary reading); with --replace, Hán Việt an
+// editor set by hand (han_viet_source = manual) is carried over to the re-imported entry with the same term and reading.
 import fs from 'node:fs';
 import zlib from 'node:zlib';
 import crypto from 'node:crypto';
 import process from 'node:process';
 import console from 'node:console';
 import postgres from 'postgres';
+import { computeHanViet } from '@jlpt/content-tools';
 import { parseJmdict, parseKanjidic, datasetDate } from './parse.mjs';
 
 export const PROVIDER = 'Electronic Dictionary Research and Development Group (EDRDG) — JMdict, KANJIDIC2';
@@ -39,8 +42,14 @@ export async function importLexicon(sql, { jmdictXml, kanjidicXml, commonOnly = 
     return { skipped: true, version };
   }
   return sql.begin(async (tx) => {
+    const manual = new Map();
     if (replace && existing.length > 0) {
       const ids = existing.map((r) => r.id);
+      const kept = await tx`select e.term, e.han_viet, coalesce(r.reading, '') as reading
+                              from lexical_entries e
+                              left join entry_readings r on r.entry_id = e.id and r.is_primary
+                             where e.license_id in ${tx(ids)} and e.han_viet_source = 'manual'`;
+      for (const k of kept) manual.set(`${k.term}\t${k.reading}`, k.han_viet);
       const entryIds = tx`select id from lexical_entries where license_id in ${tx(ids)}`;
       await tx`delete from entry_meanings where entry_id in (${entryIds})`;
       await tx`delete from entry_readings where entry_id in (${entryIds})`;
@@ -56,7 +65,19 @@ export async function importLexicon(sql, { jmdictXml, kanjidicXml, commonOnly = 
     const meanings = [];
     for (const e of parseJmdict(jmdictXml, { commonOnly })) {
       const id = crypto.randomUUID();
-      entries.push({ id, license_id: licenseId, term: e.term, level: null, part_of_speech: e.pos.join(',') || null });
+      const hv = computeHanViet(e.term, e.readings[0]);
+      const manualHanViet = manual.get(`${e.term}\t${e.readings[0] ?? ''}`);
+      entries.push({
+        id,
+        license_id: licenseId,
+        term: e.term,
+        level: null,
+        part_of_speech: e.pos.join(',') || null,
+        han_viet: manualHanViet ?? hv.hanViet,
+        han_viet_confidence: manualHanViet ? 'high' : hv.confidence,
+        han_viet_source: manualHanViet ? 'manual' : hv.source,
+        han_viet_updated_at: new Date(),
+      });
       e.readings.forEach((r, i) => readings.push({ id: crypto.randomUUID(), entry_id: id, reading: r, is_primary: i === 0 }));
       for (const m of e.meanings) meanings.push({ id: crypto.randomUUID(), entry_id: id, locale: 'en', meaning: m });
     }

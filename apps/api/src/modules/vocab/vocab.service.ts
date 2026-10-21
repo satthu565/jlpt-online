@@ -3,40 +3,42 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-} from "@nestjs/common";
-import {
-  and,
-  asc,
-  count,
-  eq,
-  ilike,
-  inArray,
-  or,
-  sql,
-  type SQL,
-} from "drizzle-orm";
+  type OnModuleInit,
+} from '@nestjs/common';
+import { and, asc, count, eq, ilike, inArray, or, sql, type SQL } from 'drizzle-orm';
 import {
   DictionaryAdapter,
   tagQuestion,
   type QuestionTagItem,
   getHanVietForWord,
-} from "./nlp/index.js";
-import { DB_CLIENT } from "../../common/database/database.module.js";
-import type { DbClientInstance } from "../../db/client.js";
+  computeHanViet,
+} from './nlp/index.js';
+import {
+  backfillHanViet,
+  listHanVietForReview,
+  loadStoredHanViet,
+  perKanjiFor,
+  reportHanViet,
+  updateEntryHanViet,
+  type HanVietBackfillResult,
+  type HanVietReviewList,
+} from './hanviet-entries.js';
+import { DB_CLIENT } from '../../common/database/database.module.js';
+import type { DbClientInstance } from '../../db/client.js';
 import {
   entryMeanings,
   entryReadings,
   lexicalEntries,
   lexiconLicenses,
   questionTags,
-} from "../../db/schema.js";
-import { generateUuidV7 } from "../../common/utils/uuid.js";
+} from '../../db/schema.js';
+import { generateUuidV7 } from '../../common/utils/uuid.js';
 import type {
   DictionaryLookupQueryDto,
   DictionaryLookupResponseDto,
   QuestionTagResultDto,
   TagQuestionDto,
-} from "./vocab.types.js";
+} from './vocab.types.js';
 
 export interface LexiconListResult {
   total: number;
@@ -54,12 +56,35 @@ export interface LexiconListResult {
 }
 
 @Injectable()
-export class VocabService {
-  private dictionaryAdapter = new DictionaryAdapter({
-    providerType: "sandbox",
-  });
+export class VocabService implements OnModuleInit {
+  private dictionaryAdapter = new DictionaryAdapter({ providerType: 'sandbox' });
 
   constructor(@Inject(DB_CLIENT) private readonly dbClient: DbClientInstance) {}
+
+  /** H01: load stored Hán Việt so notebook, flashcards and quizzes use the per-entry value. */
+  async onModuleInit(): Promise<void> {
+    try {
+      await loadStoredHanViet(this.dbClient);
+    } catch {
+      // Dictionary tables missing or empty: callers fall back to the computed value.
+    }
+  }
+
+  backfillHanViet(): Promise<HanVietBackfillResult> {
+    return backfillHanViet(this.dbClient);
+  }
+
+  listHanVietForReview(params: { confidence?: string; q?: string; page?: number; pageSize?: number }): Promise<HanVietReviewList> {
+    return listHanVietForReview(this.dbClient, params);
+  }
+
+  updateEntryHanViet(entryId: string, hanViet: unknown, operatorId?: string) {
+    return updateEntryHanViet(this.dbClient, entryId, hanViet, operatorId);
+  }
+
+  reportHanViet(body: { entry?: unknown; reading?: unknown; suggestion?: unknown; note?: unknown }, userId?: string) {
+    return reportHanViet(this.dbClient, body, userId);
+  }
 
   /**
    * Tra cứu từ vựng trong từ điển có bản quyền (Acceptance 4).
@@ -68,13 +93,11 @@ export class VocabService {
     dto: DictionaryLookupQueryDto,
   ): Promise<DictionaryLookupResponseDto> {
     if (!dto.text || dto.text.trim().length === 0) {
-      throw new BadRequestException(
-        "Query text is required for dictionary lookup",
-      );
+      throw new BadRequestException('Query text is required for dictionary lookup');
     }
 
     const trimmed = dto.text.trim();
-    const locale = dto.locale ?? "vi";
+    const locale = dto.locale ?? 'vi';
 
     // 1. Try DB lexical entries if populated
     try {
@@ -93,13 +116,14 @@ export class VocabService {
             term: lexicalEntries.term,
             level: lexicalEntries.level,
             partOfSpeech: lexicalEntries.partOfSpeech,
+            hanViet: lexicalEntries.hanViet,
+            hanVietConfidence: lexicalEntries.hanVietConfidence,
+            hanVietSource: lexicalEntries.hanVietSource,
+            hanVietUpdatedAt: lexicalEntries.hanVietUpdatedAt,
             createdAt: lexicalEntries.createdAt,
           })
           .from(entryReadings)
-          .innerJoin(
-            lexicalEntries,
-            eq(entryReadings.entryId, lexicalEntries.id),
-          )
+          .innerJoin(lexicalEntries, eq(entryReadings.entryId, lexicalEntries.id))
           .where(eq(entryReadings.reading, trimmed))
           .limit(1);
       }
@@ -115,9 +139,9 @@ export class VocabService {
           .from(entryMeanings)
           .where(eq(entryMeanings.entryId, entry.id));
 
-        let licenseName = "CC-BY-SA-4.0";
+        let licenseName = 'CC-BY-SA-4.0';
         let attribution =
-          "Electronic Dictionary Research and Development Group (EDRDG) JMdict / CC-BY-SA 4.0";
+          'Electronic Dictionary Research and Development Group (EDRDG) JMdict / CC-BY-SA 4.0';
 
         if (entry.licenseId) {
           const lic = await this.dbClient.db
@@ -131,7 +155,13 @@ export class VocabService {
           }
         }
 
-        const hanViet = getHanVietForWord(entry.term) || "";
+        const primary =
+          (readings as Array<{ reading: string; isPrimary: boolean }>).find((r) => r.isPrimary)?.reading ??
+          (readings[0] as { reading: string } | undefined)?.reading;
+        const computed = computeHanViet(entry.term, primary);
+        const hanViet = entry.hanViet ?? computed.hanViet;
+        const hanVietConfidence = (entry.hanVietConfidence ?? computed.confidence) as 'high' | 'review' | 'kun';
+        const hanVietSource = (entry.hanVietSource ?? computed.source) as 'rule' | 'override' | 'manual';
         return {
           entry: entry.term,
           readings: readings.map((r: { reading: string }) => r.reading),
@@ -141,8 +171,11 @@ export class VocabService {
           attribution,
           level: entry.level ?? undefined,
           partOfSpeech: entry.partOfSpeech ?? undefined,
-          status: "READY",
+          status: 'READY',
           hanViet,
+          hanVietConfidence,
+          hanVietSource,
+          hanVietPerKanji: perKanjiFor(entry.term, primary, entry.hanViet, entry.hanVietSource),
         };
       }
     } catch {
@@ -165,7 +198,11 @@ export class VocabService {
       level: result.level,
       partOfSpeech: result.partOfSpeech,
       status: result.status,
-      hanViet: result.hanViet || getHanVietForWord(result.entry) || "",
+      hanViet: result.hanViet || getHanVietForWord(result.entry, result.readings[0]) || '',
+      ...(() => {
+        const c = computeHanViet(result.entry, result.readings[0]);
+        return { hanVietConfidence: c.confidence, hanVietSource: c.source, hanVietPerKanji: c.perKanji };
+      })(),
     };
   }
 
@@ -208,99 +245,70 @@ export class VocabService {
       .where(eq(questionTags.questionId, questionId));
     return rows.map((r: { tag: string; category: string | null }) => ({
       tag: r.tag,
-      category: r.category ?? "general",
+      category: r.category ?? 'general',
     }));
   }
 
-  /** H07: paginated list of every dictionary entry for the admin "Từ điển" page. */
-  async listLexiconEntries(params: {
-    q?: string;
-    pos?: string;
-    page?: number;
-    pageSize?: number;
-  }): Promise<LexiconListResult> {
-    const pageSize = Math.min(Math.max(Number(params.pageSize) || 50, 1), 200);
-    const page = Math.max(Number(params.page) || 1, 1);
-    const q = params.q?.trim();
-    const pos = params.pos?.trim();
+    /** H07: paginated list of every dictionary entry for the admin "Từ điển" page. */
+    async listLexiconEntries(params: { q?: string; pos?: string; page?: number; pageSize?: number }): Promise<LexiconListResult> {
+      const pageSize = Math.min(Math.max(Number(params.pageSize) || 50, 1), 200);
+      const page = Math.max(Number(params.page) || 1, 1);
+      const q = params.q?.trim();
+      const pos = params.pos?.trim();
 
-    const conditions: SQL[] = [];
-    if (q) {
-      const like = `%${q}%`;
-      conditions.push(
-        or(
-          ilike(lexicalEntries.term, like),
-          sql`exists (select 1 from entry_readings r where r.entry_id = ${lexicalEntries.id} and r.reading ilike ${like})`,
-          sql`exists (select 1 from entry_meanings m where m.entry_id = ${lexicalEntries.id} and m.meaning ilike ${like})`,
-        )!,
-      );
+      const conditions: SQL[] = [];
+      if (q) {
+        const like = `%${q}%`;
+        conditions.push(
+          or(
+            ilike(lexicalEntries.term, like),
+            sql`exists (select 1 from entry_readings r where r.entry_id = ${lexicalEntries.id} and r.reading ilike ${like})`,
+            sql`exists (select 1 from entry_meanings m where m.entry_id = ${lexicalEntries.id} and m.meaning ilike ${like})`,
+          )!,
+        );
+      }
+      if (pos) {
+        // part_of_speech is "n,vs,vt"; match a whole code or a code family (v5 matches v5k, v5r...).
+        conditions.push(sql`(',' || coalesce(${lexicalEntries.partOfSpeech}, '') || ',') like ${`%,${pos}%`}`);
+      }
+      const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+      const [{ value: total }] = await this.dbClient.db.select({ value: count() }).from(lexicalEntries).where(where);
+      const rows: Array<{ id: string; term: string; partOfSpeech: string | null; provider: string | null }> = await this.dbClient.db
+        .select({
+          id: lexicalEntries.id,
+          term: lexicalEntries.term,
+          partOfSpeech: lexicalEntries.partOfSpeech,
+          provider: lexiconLicenses.provider,
+        })
+        .from(lexicalEntries)
+        .leftJoin(lexiconLicenses, eq(lexicalEntries.licenseId, lexiconLicenses.id))
+        .where(where)
+        .orderBy(asc(lexicalEntries.term))
+        .limit(pageSize)
+        .offset((page - 1) * pageSize);
+
+      const ids = rows.map((r) => r.id);
+      const readings: Array<{ entryId: string; reading: string }> = ids.length
+        ? await this.dbClient.db.select().from(entryReadings).where(inArray(entryReadings.entryId, ids))
+        : [];
+      const meanings: Array<{ entryId: string; meaning: string }> = ids.length
+        ? await this.dbClient.db.select().from(entryMeanings).where(inArray(entryMeanings.entryId, ids))
+        : [];
+
+      return {
+        total: Number(total),
+        page,
+        pageSize,
+        items: rows.map((r) => ({
+          id: r.id,
+          term: r.term,
+          readings: readings.filter((x) => x.entryId === r.id).map((x) => x.reading),
+          meanings: meanings.filter((x) => x.entryId === r.id).slice(0, 3).map((x) => x.meaning),
+          partOfSpeech: r.partOfSpeech ?? '',
+          hanViet: getHanVietForWord(r.term) || '',
+          provider: r.provider ?? '',
+        })),
+      };
     }
-    if (pos) {
-      // part_of_speech is "n,vs,vt"; match a whole code or a code family (v5 matches v5k, v5r...).
-      conditions.push(
-        sql`(',' || coalesce(${lexicalEntries.partOfSpeech}, '') || ',') like ${`%,${pos}%`}`,
-      );
-    }
-    const where = conditions.length > 0 ? and(...conditions) : undefined;
-
-    const [{ value: total }] = await this.dbClient.db
-      .select({ value: count() })
-      .from(lexicalEntries)
-      .where(where);
-    const rows: Array<{
-      id: string;
-      term: string;
-      partOfSpeech: string | null;
-      provider: string | null;
-    }> = await this.dbClient.db
-      .select({
-        id: lexicalEntries.id,
-        term: lexicalEntries.term,
-        partOfSpeech: lexicalEntries.partOfSpeech,
-        provider: lexiconLicenses.provider,
-      })
-      .from(lexicalEntries)
-      .leftJoin(
-        lexiconLicenses,
-        eq(lexicalEntries.licenseId, lexiconLicenses.id),
-      )
-      .where(where)
-      .orderBy(asc(lexicalEntries.term))
-      .limit(pageSize)
-      .offset((page - 1) * pageSize);
-
-    const ids = rows.map((r) => r.id);
-    const readings: Array<{ entryId: string; reading: string }> = ids.length
-      ? await this.dbClient.db
-          .select()
-          .from(entryReadings)
-          .where(inArray(entryReadings.entryId, ids))
-      : [];
-    const meanings: Array<{ entryId: string; meaning: string }> = ids.length
-      ? await this.dbClient.db
-          .select()
-          .from(entryMeanings)
-          .where(inArray(entryMeanings.entryId, ids))
-      : [];
-
-    return {
-      total: Number(total),
-      page,
-      pageSize,
-      items: rows.map((r) => ({
-        id: r.id,
-        term: r.term,
-        readings: readings
-          .filter((x) => x.entryId === r.id)
-          .map((x) => x.reading),
-        meanings: meanings
-          .filter((x) => x.entryId === r.id)
-          .slice(0, 3)
-          .map((x) => x.meaning),
-        partOfSpeech: r.partOfSpeech ?? "",
-        hanViet: getHanVietForWord(r.term) || "",
-        provider: r.provider ?? "",
-      })),
-    };
-  }
 }

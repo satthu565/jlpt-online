@@ -17,7 +17,7 @@ import type {
   QuestionExampleDto,
   UpdateNotebookItemDto,
 } from './learning.types.js';
-import { getHanVietForWord } from '@jlpt/content-tools';
+import { getHanVietForWord } from '../vocab/hanviet-store.js';
 
 @Injectable()
 export class NotebookService {

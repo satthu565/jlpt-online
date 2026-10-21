@@ -5,41 +5,39 @@ import {
   Get,
   Injectable,
   Param,
+  Patch,
   PipeTransform,
   Post,
   Query,
   UnauthorizedException,
-} from "@nestjs/common";
-import { CurrentUser } from "../../common/decorators/current-user.decorator.js";
-import { Public } from "../../common/decorators/public.decorator.js";
-import type { AuthUserContext } from "../../common/types/auth.types.js";
-import { CorpusService } from "./corpus.service.js";
-import { Roles } from "../../common/decorators/roles.decorator.js";
-import { VocabService, type LexiconListResult } from "./vocab.service.js";
-import { isUuid } from "../../common/pipes/uuid-param.pipe.js";
-import {
-  getHanVietForWord,
-  getHanVietForKanji,
-  getHanVietLicenseInfo,
-} from "./nlp/index.js";
+} from '@nestjs/common';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Public } from '../../common/decorators/public.decorator.js';
+import type { AuthUserContext } from '../../common/types/auth.types.js';
+import { CorpusService } from './corpus.service.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import { VocabService, type LexiconListResult } from './vocab.service.js';
+import { RateLimit } from '../../common/decorators/rate-limit.decorator.js';
+import { isUuid } from '../../common/pipes/uuid-param.pipe.js';
+import { computeHanViet, getHanVietForWord, getHanVietForKanji, getHanVietLicenseInfo } from './nlp/index.js';
 
 @Injectable()
 export class DatasetIdPipe implements PipeTransform<string, string> {
   transform(value: unknown): string {
-    if (typeof value !== "string") {
+    if (typeof value !== 'string') {
       throw new BadRequestException({
-        code: "INVALID_UUID",
-        message: "Mã dataset không hợp lệ",
+        code: 'INVALID_UUID',
+        message: 'Mã dataset không hợp lệ',
       });
     }
 
     const trimmed = value.trim();
-    if (isUuid(trimmed) || trimmed === "jlpt-official") {
+    if (isUuid(trimmed) || trimmed === 'jlpt-official') {
       return trimmed;
     }
 
     throw new BadRequestException({
-      code: "INVALID_UUID",
+      code: 'INVALID_UUID',
       message: `Mã dataset không đúng định dạng UUID hoặc slug hợp lệ: ${trimmed}`,
     });
   }
@@ -64,9 +62,9 @@ import type {
   TimeSeriesResponseDto,
   VocabStatsResponseDto,
   YearlyTrendsResponseDto,
-} from "./vocab.types.js";
+} from './vocab.types.js';
 
-@Controller("api/v1")
+@Controller('api/v1')
 export class VocabController {
   constructor(
     private readonly vocabService: VocabService,
@@ -77,36 +75,35 @@ export class VocabController {
   // 1. Dictionary Lookup (Acceptance 4)
   // ---------------------------------------------------------------------------
 
-  @Roles("admin", "editor", "reviewer")
-  @Get("admin/lexicon/entries")
-  async adminListLexicon(
-    @Query("q") q?: string,
-    @Query("pos") pos?: string,
-    @Query("page") page?: string,
-    @Query("pageSize") pageSize?: string,
-  ): Promise<LexiconListResult> {
-    return this.vocabService.listLexiconEntries({
-      q,
-      pos,
-      page: Number(page) || 1,
-      pageSize: Number(pageSize) || 50,
-    });
-  }
+    @Roles('admin', 'editor', 'reviewer')
+    @Get('admin/lexicon/entries')
+    async adminListLexicon(
+      @Query('q') q?: string,
+      @Query('pos') pos?: string,
+      @Query('page') page?: string,
+      @Query('pageSize') pageSize?: string,
+    ): Promise<LexiconListResult> {
+      return this.vocabService.listLexiconEntries({ q, pos, page: Number(page) || 1, pageSize: Number(pageSize) || 50 });
+    }
 
   @Public()
-  @Get("dictionary/lookup")
+  @Get('dictionary/lookup')
   async lookupDictionary(@Query() query: DictionaryLookupQueryDto) {
     return this.vocabService.lookupDictionary(query);
   }
 
   @Public()
-  @Get("dictionary/hanviet")
-  async getHanViet(@Query("text") text?: string, @Query("q") q?: string) {
-    const rawText = text || q || "";
-    const hanViet = getHanVietForWord(rawText);
-    const kanjiChars = Array.from(rawText).filter((c) =>
-      /[\u4e00-\u9faf\u3400-\u4dbf]/.test(c),
-    );
+  @Get('dictionary/hanviet')
+  async getHanViet(
+    @Query('text') text?: string,
+    @Query('q') q?: string,
+    @Query('reading') reading?: string,
+  ) {
+    const rawText = text || q || '';
+    const readingText = reading?.trim() || undefined;
+    const hanViet = getHanVietForWord(rawText, readingText);
+    const computed = computeHanViet(rawText, readingText);
+    const kanjiChars = Array.from(rawText).filter((c) => /[\u4e00-\u9faf\u3400-\u4dbf]/.test(c));
     const entries = kanjiChars.map((k) => ({
       kanji: k,
       hanViet: getHanVietForKanji(k),
@@ -115,9 +112,42 @@ export class VocabController {
       query: rawText,
       text: rawText,
       hanViet,
+      confidence: computed.confidence,
+      perKanji: computed.perKanji,
       entries,
       license: getHanVietLicenseInfo(),
     };
+  }
+
+  // H01: Hán Việt review (H03 admin) and learner reports (H02).
+  @Roles('admin', 'editor', 'reviewer')
+  @Get('admin/lexicon/hanviet')
+  async adminListHanViet(
+    @Query('confidence') confidence?: string,
+    @Query('q') q?: string,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+  ) {
+    return this.vocabService.listHanVietForReview({ confidence, q, page: Number(page) || 1, pageSize: Number(pageSize) || 50 });
+  }
+
+  @Roles('admin', 'editor', 'reviewer')
+  @Patch('admin/lexicon/:id/hanviet')
+  async adminUpdateHanViet(
+    @Param('id') id: string,
+    @Body() body: { hanViet?: unknown },
+    @CurrentUser() user?: AuthUserContext,
+  ) {
+    return this.vocabService.updateEntryHanViet(id, body?.hanViet, user?.userId);
+  }
+
+  @RateLimit({ limit: 10, windowSec: 3600, keyPrefix: 'hanviet-reports' })
+  @Post('dictionary/hanviet-reports')
+  async reportHanViet(
+    @Body() body: { entry?: unknown; reading?: unknown; suggestion?: unknown; note?: unknown },
+    @CurrentUser() user?: AuthUserContext,
+  ) {
+    return this.vocabService.reportHanViet(body ?? {}, user?.userId);
   }
 
   // ---------------------------------------------------------------------------
@@ -125,14 +155,14 @@ export class VocabController {
   // ---------------------------------------------------------------------------
 
   @Public()
-  @Get("datasets")
+  @Get('datasets')
   async listDatasets() {
     return this.corpusService.listDatasets();
   }
 
   @Public()
-  @Get("datasets/:id")
-  async getDataset(@Param("id", DatasetIdPipe) id: string) {
+  @Get('datasets/:id')
+  async getDataset(@Param('id', DatasetIdPipe) id: string) {
     return this.corpusService.getDataset(id);
   }
 
@@ -141,9 +171,9 @@ export class VocabController {
   // ---------------------------------------------------------------------------
 
   @Public()
-  @Get("datasets/:id/vocabulary")
+  @Get('datasets/:id/vocabulary')
   async getDatasetVocabulary(
-    @Param("id", DatasetIdPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Query() query: CorpusFilterQueryDto = {},
   ) {
     return this.corpusService.getDatasetVocabulary(id, query);
@@ -154,9 +184,9 @@ export class VocabController {
   // ---------------------------------------------------------------------------
 
   @Public()
-  @Get("datasets/:id/grammar")
+  @Get('datasets/:id/grammar')
   async getDatasetGrammar(
-    @Param("id", DatasetIdPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Query() query: CorpusFilterQueryDto = {},
   ) {
     return this.corpusService.getDatasetGrammar(id, query);
@@ -167,9 +197,9 @@ export class VocabController {
   // ---------------------------------------------------------------------------
 
   @Public()
-  @Get("datasets/:id/kanji")
+  @Get('datasets/:id/kanji')
   async getDatasetKanji(
-    @Param("id", DatasetIdPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Query() query: CorpusFilterQueryDto = {},
   ) {
     return this.corpusService.getDatasetKanji(id, query);
@@ -179,7 +209,7 @@ export class VocabController {
   // 6. Question Tagging (QB-09)
   // ---------------------------------------------------------------------------
 
-  @Post("vocab/tag-question")
+  @Post('vocab/tag-question')
   async tagQuestion(@Body() dto: TagQuestionDto) {
     const tags = await this.vocabService.tagQuestion(dto);
     return { tags };
@@ -190,12 +220,12 @@ export class VocabController {
   // ---------------------------------------------------------------------------
 
   @Public()
-  @Get("datasets/:id/vocabulary/:term/questions")
+  @Get('datasets/:id/vocabulary/:term/questions')
   async getQuestionsForWord(
-    @Param("id", DatasetIdPipe) id: string,
-    @Param("term") term: string,
-    @Query("level") level?: JlptLevel,
-    @Query("limit") limit?: number,
+    @Param('id', DatasetIdPipe) id: string,
+    @Param('term') term: string,
+    @Query('level') level?: JlptLevel,
+    @Query('limit') limit?: number,
     @CurrentUser() user?: AuthUserContext,
   ): Promise<CorpusQuestionDto[]> {
     return this.corpusService.getQuestionsForWord(id, term, {
@@ -210,10 +240,10 @@ export class VocabController {
   // ---------------------------------------------------------------------------
 
   @Public()
-  @Get("datasets/:id/vocabulary/:term/stats")
+  @Get('datasets/:id/vocabulary/:term/stats')
   async getWordStatistics(
-    @Param("id", DatasetIdPipe) id: string,
-    @Param("term") term: string,
+    @Param('id', DatasetIdPipe) id: string,
+    @Param('term') term: string,
   ): Promise<VocabStatsResponseDto> {
     return this.corpusService.getWordStatistics(id, term);
   }
@@ -223,15 +253,15 @@ export class VocabController {
   // ---------------------------------------------------------------------------
 
   @Public()
-  @Get("datasets/:id/compare/levels")
+  @Get('datasets/:id/compare/levels')
   async compareLevels(
-    @Param("id", DatasetIdPipe) id: string,
-    @Query("terms") terms?: string | string[],
+    @Param('id', DatasetIdPipe) id: string,
+    @Query('terms') terms?: string | string[],
   ): Promise<LevelComparisonResponseDto> {
     const termsArray = terms
       ? Array.isArray(terms)
         ? terms
-        : terms.split(",").map((t) => t.trim())
+        : terms.split(',').map((t) => t.trim())
       : undefined;
     return this.corpusService.compareLevels(id, termsArray);
   }
@@ -241,10 +271,8 @@ export class VocabController {
   // ---------------------------------------------------------------------------
 
   @Public()
-  @Get("datasets/:id/time-series")
-  async getTimeSeries(
-    @Param("id", DatasetIdPipe) id: string,
-  ): Promise<TimeSeriesResponseDto> {
+  @Get('datasets/:id/time-series')
+  async getTimeSeries(@Param('id', DatasetIdPipe) id: string): Promise<TimeSeriesResponseDto> {
     return this.corpusService.getTimeSeries(id);
   }
 
@@ -253,17 +281,17 @@ export class VocabController {
   // ---------------------------------------------------------------------------
 
   @Public()
-  @Get("datasets/:id/study-lists")
+  @Get('datasets/:id/study-lists')
   async getStudyList(
-    @Param("id", DatasetIdPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Query() query: StudyListQueryDto = {},
   ): Promise<StudyListResponseDto> {
     return this.corpusService.createStudyList(id, query);
   }
 
-  @Post("datasets/:id/study-lists")
+  @Post('datasets/:id/study-lists')
   async createStudyList(
-    @Param("id", DatasetIdPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Body() dto: StudyListQueryDto = {},
   ): Promise<StudyListResponseDto> {
     return this.corpusService.createStudyList(id, dto);
@@ -273,16 +301,14 @@ export class VocabController {
   // 12. DATA-16: Kết nối từ vựng với sổ tay cá nhân
   // ---------------------------------------------------------------------------
 
-  @Post("datasets/:id/add-to-notebook")
+  @Post('datasets/:id/add-to-notebook')
   async addToNotebook(
-    @Param("id", DatasetIdPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Body() dto: AddToNotebookDto,
     @CurrentUser() user: AuthUserContext | undefined,
   ): Promise<AddToNotebookResponseDto> {
     if (!user) {
-      throw new UnauthorizedException(
-        "Authentication required to save to notebook.",
-      );
+      throw new UnauthorizedException('Authentication required to save to notebook.');
     }
     return this.corpusService.addWordsToNotebook(user.userId, id, dto);
   }
@@ -291,17 +317,15 @@ export class VocabController {
   // 13. DATA-17: So sánh danh sách từ thường gặp với các từ đã học
   // ---------------------------------------------------------------------------
 
-  @Get("datasets/:id/compare-with-learned")
+  @Get('datasets/:id/compare-with-learned')
   async compareWithLearned(
-    @Param("id", DatasetIdPipe) id: string,
-    @Query("level") level?: JlptLevel,
-    @Query("limit") limit?: number,
+    @Param('id', DatasetIdPipe) id: string,
+    @Query('level') level?: JlptLevel,
+    @Query('limit') limit?: number,
     @CurrentUser() user?: AuthUserContext,
   ): Promise<CompareWithLearnedResponseDto> {
     if (!user) {
-      throw new UnauthorizedException(
-        "Authentication required to compare with learned words.",
-      );
+      throw new UnauthorizedException('Authentication required to compare with learned words.');
     }
     return this.corpusService.compareWithLearned(user.userId, id, {
       level,
@@ -314,18 +338,18 @@ export class VocabController {
   // ---------------------------------------------------------------------------
 
   @Public()
-  @Get("datasets/:id/export")
+  @Get('datasets/:id/export')
   async exportDatasetGet(
-    @Param("id", DatasetIdPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Query() query: DatasetExportQueryDto = {},
   ): Promise<DatasetExportResponseDto> {
     return this.corpusService.exportDataset(id, query);
   }
 
   @Public()
-  @Post("datasets/:id/exports")
+  @Post('datasets/:id/exports')
   async exportDatasetPost(
-    @Param("id", DatasetIdPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Body() dto: DatasetExportQueryDto = {},
   ): Promise<DatasetExportResponseDto> {
     return this.corpusService.exportDataset(id, dto);
@@ -336,10 +360,10 @@ export class VocabController {
   // ---------------------------------------------------------------------------
 
   @Public()
-  @Get("datasets/:id/trends")
+  @Get('datasets/:id/trends')
   async getYearlyTrends(
-    @Param("id", DatasetIdPipe) id: string,
-    @Query("minOccurrences") minOccurrences?: number,
+    @Param('id', DatasetIdPipe) id: string,
+    @Query('minOccurrences') minOccurrences?: number,
   ): Promise<YearlyTrendsResponseDto> {
     return this.corpusService.getYearlyTrends(id, {
       minOccurrences: minOccurrences ? Number(minOccurrences) : undefined,
@@ -351,10 +375,10 @@ export class VocabController {
   // ---------------------------------------------------------------------------
 
   @Public()
-  @Get("datasets/:id/grammar/:patternId/practice")
+  @Get('datasets/:id/grammar/:patternId/practice')
   async getGrammarPractice(
-    @Param("id", DatasetIdPipe) id: string,
-    @Param("patternId") patternId: string,
+    @Param('id', DatasetIdPipe) id: string,
+    @Param('patternId') patternId: string,
   ): Promise<GrammarPracticeResponseDto> {
     return this.corpusService.getGrammarPractice(id, patternId);
   }
@@ -363,16 +387,14 @@ export class VocabController {
   // 17. DATA-26: Gợi ý danh sách ôn tập dựa trên mức phổ biến và mức độ chưa thành thạo
   // ---------------------------------------------------------------------------
 
-  @Get("datasets/:id/recommendations")
+  @Get('datasets/:id/recommendations')
   async getRecommendations(
-    @Param("id", DatasetIdPipe) id: string,
+    @Param('id', DatasetIdPipe) id: string,
     @Query() query: RecommendationQueryDto = {},
     @CurrentUser() user?: AuthUserContext,
   ): Promise<RecommendationResponseDto> {
     if (!user) {
-      throw new UnauthorizedException(
-        "Authentication required for personalized recommendations.",
-      );
+      throw new UnauthorizedException('Authentication required for personalized recommendations.');
     }
     return this.corpusService.getRecommendations(user.userId, id, query);
   }
