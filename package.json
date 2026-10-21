@@ -109,6 +109,7 @@
     "test:e2e:integration": "node tests/playwright/runner.mjs",
     "test:lighthouse": "node --no-warnings --experimental-strip-types tests/lighthouse/runner.ts --enforce",
     "check:ui-primitives": "node --no-warnings --experimental-strip-types packages/ui/scripts/check-ui-primitives.ts && node --no-warnings --experimental-strip-types packages/ui/scripts/check-inline-styles.ts",
+    "docs:map": "node tools/agents/gen-project-map.mjs",
     "check:design-perf": "node --no-warnings --experimental-strip-types tests/integration/capture-design-perf.ts"
   },
   "devDependencies": {

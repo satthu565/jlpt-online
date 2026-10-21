@@ -28,6 +28,11 @@ jobs:
       - name: Install dependencies (frozen lockfile)
         run: pnpm install --frozen-lockfile
 
+      - name: Check generated agent docs are up to date
+        run: |
+          pnpm docs:map
+          git diff --exit-code -- docs/agents/ || { echo "::error::docs/agents/*.generated.md lệch với code. Chạy 'pnpm docs:map' rồi commit."; exit 1; }
+
       - name: Run linter
         run: pnpm lint
 
