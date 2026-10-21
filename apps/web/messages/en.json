@@ -977,6 +977,16 @@
     "cancel": "Cancel",
     "sendReport": "Send Report",
     "reportSent": "Report submitted successfully! Thank you for your contribution.",
-    "reportFailed": "Failed to submit report. Please try again later."
+    "reportFailed": "Failed to submit report. Please try again later.",
+    "selectLookupLabel": "Lookup on select",
+    "viewDetails": "View details",
+    "notFoundInDict": "Not found in dictionary",
+    "detailTitle": "Vocabulary Details",
+    "examOccurrences": "Exam Occurrences",
+    "kanjiDetails": "Kanji Breakdown & Details",
+    "strokes": "strokes",
+    "noOccurrences": "No exam occurrences recorded yet",
+    "edrdgSource": "Data source: EDRDG (JMdict / KANJIDIC2)",
+    "loadingDetails": "Loading vocabulary details..."
   }
 }

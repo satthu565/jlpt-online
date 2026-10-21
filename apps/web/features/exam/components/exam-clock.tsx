@@ -26,7 +26,10 @@ export function ExamClock({
 
   if (!deadline) {
     return (
-      <div className={`jlpt-clock-unlimited text-sm font-medium text-slate-500 ${className}`}>
+      <div
+        data-testid="exam-clock"
+        className={`jlpt-clock-unlimited text-sm font-medium text-slate-500 ${className}`}
+      >
         Không giới hạn thời gian
       </div>
     );
@@ -64,6 +67,7 @@ export function ExamClock({
       aria-label={`Thời gian làm bài còn lại: ${formattedTime}`}
       data-alert-level={alertLevel}
       data-remaining-sec={remainingSec}
+      data-testid="exam-clock"
       className={`jlpt-exam-clock inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-mono font-bold text-base shadow-sm transition-colors ${className}`}
       style={badgeStyle}
     >

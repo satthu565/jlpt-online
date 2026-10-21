@@ -9,9 +9,12 @@ import { PassageView } from '@jlpt/ui/components/rich-block-view';
 import { Button } from '@jlpt/ui/components/button';
 import { Alert } from '@jlpt/ui/components/alert';
 import { FuriganaToggle, useFurigana } from '@jlpt/ui/components/furigana-toggle';
+import { Switch } from '@jlpt/ui/components/switch';
 import { ExplanationView } from '../../explanations/components/explanation-view';
 import type { LearnerExplanation } from '../../explanations/types';
 import type { ExamApiClient } from '../../exam';
+import { useSelectLookup, useSelectLookupSetting, SelectionLookupPopover } from '../../corpus';
+import { useI18n } from '../../../lib/i18n';
 
 export interface PracticeRunnerProps {
   snapshot: PublicExamSnapshot;
@@ -42,7 +45,9 @@ export function PracticeRunner({
   className = '',
 }: PracticeRunnerProps): React.JSX.Element {
   const flatQuestions = flattenExamQuestions(snapshot);
+  const { t } = useI18n();
   const [showFurigana] = useFurigana();
+  const [selectLookupEnabled, setSelectLookupEnabled] = useSelectLookupSetting();
   const [currentIndex, setCurrentIndex] = useState(() => {
     if (initialAnswers && Array.isArray(initialAnswers)) {
       const firstUnanswered = initialAnswers.findIndex((a) => a === 0);
@@ -71,6 +76,11 @@ export function PracticeRunner({
   const lastSeqRef = useRef<number>(initialSeq ?? 0);
   const pendingSyncRef = useRef<Promise<unknown> | null>(null);
 
+  const selectLookupState = useSelectLookup({
+    enabled: selectLookupEnabled,
+    questionIndex: currentIndex,
+  });
+
   const currentQ = flatQuestions[currentIndex];
   const userChoice = currentQ ? selectedAnswers[currentQ.globalIndex] : undefined;
   const currentCheck = currentQ ? checkedState[currentQ.globalIndex] : undefined;
@@ -80,6 +90,12 @@ export function PracticeRunner({
   const handleSelectOption = async (optVal: number) => {
     if (isChecked) return; // Locked once checked
     if (!currentQ) return;
+    if (typeof window !== 'undefined') {
+      const selection = window.getSelection();
+      if (selection && !selection.isCollapsed && (selection.toString() || '').trim().length > 0) {
+        return;
+      }
+    }
 
     const newAnswers = {
       ...selectedAnswers,
@@ -287,8 +303,24 @@ export function PracticeRunner({
           </h3>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <FuriganaToggle size="sm" />
+          {/* H06: Switch Tra từ khi bôi đen */}
+          <div className="flex items-center gap-1.5 px-1 py-0.5" data-testid="select-lookup-toggle-wrap">
+            <Switch
+              id="practice-select-lookup-switch"
+              data-testid="select-lookup-switch"
+              checked={selectLookupEnabled}
+              onCheckedChange={setSelectLookupEnabled}
+              aria-label={t('dictionary.selectLookupLabel')}
+            />
+            <label
+              htmlFor="practice-select-lookup-switch"
+              className="text-xs font-medium text-slate-600 dark:text-slate-400 cursor-pointer select-none"
+            >
+              {t('dictionary.selectLookupLabel')}
+            </label>
+          </div>
           <Button
             variant="ghost"
             size="sm"
@@ -317,16 +349,26 @@ export function PracticeRunner({
 
       {/* Passage if present */}
       {currentQ.passage && currentQ.passage.length > 0 && (
-        <PassageView passage={currentQ.passage} showFurigana={showFurigana} className="mb-4" />
+        <div data-select-lookup-area="true">
+          <PassageView passage={currentQ.passage} showFurigana={showFurigana} className="mb-4" />
+        </div>
       )}
 
       {/* Stem */}
-      <div className="text-lg font-japanese leading-relaxed text-slate-900 dark:text-slate-100 p-2">
+      <div
+        data-select-lookup-area="true"
+        className="text-lg font-japanese leading-relaxed text-slate-900 dark:text-slate-100 p-2"
+      >
         <RichTextView segments={currentQ.stem} showFurigana={showFurigana} />
       </div>
 
       {/* Options List */}
-      <div className="space-y-3" role="radiogroup" aria-label={`Phương án câu ${currentQ.number}`}>
+      <div
+        data-select-lookup-area="true"
+        className="space-y-3"
+        role="radiogroup"
+        aria-label={`Phương án câu ${currentQ.number}`}
+      >
         {currentQ.options.map((opt, optIdx) => {
           const optValue = optIdx + 1;
           const isSelected = userChoice === optValue;
@@ -417,6 +459,9 @@ export function PracticeRunner({
           </div>
         </div>
       )}
+
+      {/* H06: Khung tra từ nổi khi bôi đen trong luyện tập */}
+      <SelectionLookupPopover state={selectLookupState} openInNewTab={true} />
     </div>
   );
 }

@@ -977,6 +977,16 @@
     "cancel": "キャンセル",
     "sendReport": "報告を送信",
     "reportSent": "報告を送信しました。ご協力ありがとうございます。",
-    "reportFailed": "報告の送信に失敗しました。後でもう一度お試しください。"
+    "reportFailed": "報告の送信に失敗しました。後でもう一度お試しください。",
+    "selectLookupLabel": "選択時に辞書検索",
+    "viewDetails": "詳細を見る",
+    "notFoundInDict": "辞書に見つかりません",
+    "detailTitle": "単語の詳細",
+    "examOccurrences": "試験での出現回数",
+    "kanjiDetails": "構成漢字の詳細",
+    "strokes": "画",
+    "noOccurrences": "試験での出現データはありません",
+    "edrdgSource": "データ出典：EDRDG (JMdict / KANJIDIC2)",
+    "loadingDetails": "単語の詳細を読み込み中..."
   }
 }

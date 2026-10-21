@@ -5,6 +5,7 @@ import type {
   LevelComparisonItemDto,
   YearlyTrendItemDto,
   DictionaryLookupResultDto,
+  DictionaryEntryDetailDto,
   HanVietReportInput,
 } from '../types';
 
@@ -51,6 +52,7 @@ export class CorpusClient {
   private baseUrl: string;
   private fetchFn: typeof fetch;
   private getAuthToken?: () => string | null;
+  private static lookupCache = new Map<string, DictionaryLookupResultDto>();
 
   constructor(options?: {
     baseUrl?: string;
@@ -99,8 +101,20 @@ export class CorpusClient {
   }
 
   async lookupDictionary(query: string): Promise<DictionaryLookupResultDto> {
-    const qs = new URLSearchParams({ text: query }).toString();
-    return this.request<DictionaryLookupResultDto>(`/dictionary/lookup?${qs}`, { method: 'GET' });
+    const trimmed = query.trim();
+    if (CorpusClient.lookupCache.has(trimmed)) {
+      return CorpusClient.lookupCache.get(trimmed)!;
+    }
+    const qs = new URLSearchParams({ text: trimmed }).toString();
+    const res = await this.request<DictionaryLookupResultDto>(`/dictionary/lookup?${qs}`, { method: 'GET' });
+    CorpusClient.lookupCache.set(trimmed, res);
+    return res;
+  }
+
+  async getEntryDetails(term: string): Promise<DictionaryEntryDetailDto> {
+    return this.request<DictionaryEntryDetailDto>(`/dictionary/entries/${encodeURIComponent(term.trim())}`, {
+      method: 'GET',
+    });
   }
 
   async reportHanViet(payload: HanVietReportInput): Promise<{ id: string; entryId: string | null; status: string }> {
