@@ -1319,7 +1319,7 @@ describe('F08 Database Schema and Migrations', () => {
         expect(appliedRuns[0]!.applied.length).toBe(9);
         expect(zeroAppliedRuns.length).toBe(9);
         for (const r of zeroAppliedRuns) {
-          expect(r.alreadyApplied.length).toBe(8);
+          expect(r.alreadyApplied.length).toBe(9);
         }
       } finally {
         await client.close();
