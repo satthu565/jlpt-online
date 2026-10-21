@@ -163,7 +163,7 @@ export default function AnalyticsPage(): React.JSX.Element {
       {!isLoading && !error && attempts.length === 0 && questionAttempts.length === 0 && (
         <div
           data-testid="analytics-empty-state"
-          className="p-12 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4"
+          className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-12 text-center space-y-4"
         >
           <BarChart3 className="mx-auto size-10" aria-hidden="true" />
           <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">

@@ -10,6 +10,7 @@ import { richTextToPlainText } from '../content/types';
 import { apiClient } from '../../lib/api-client';
 import { useAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface ExamListViewProps {
   initialExams?: AdminExam[];
@@ -205,31 +206,31 @@ export function ExamListView({
       </label>
 
       {/* Exam Table */}
-      <div className="overflow-x-auto w-full border border-gray-200 rounded-lg shadow-xs mb-6">
-        <table data-testid="exam-table" className="w-full text-left text-sm border-collapse">
-          <thead>
-            <tr className="bg-gray-100 border-b border-gray-200 text-gray-700">
-              <th className="p-3">Tiêu đề đề thi</th>
-              <th className="p-3">Cấp độ</th>
-              <th className="p-3">Trạng thái</th>
-              <th className="p-3">Phiên bản</th>
-              <th className="p-3">Số câu hỏi</th>
-              <th className="p-3">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div className="overflow-x-auto w-full mb-6">
+        <Table data-testid="exam-table" className="text-left">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Tiêu đề đề thi</TableHead>
+              <TableHead>Cấp độ</TableHead>
+              <TableHead>Trạng thái</TableHead>
+              <TableHead>Phiên bản</TableHead>
+              <TableHead>Số câu hỏi</TableHead>
+              <TableHead>Thao tác</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {!isLoading && exams.length === 0 ? (
-              <tr>
-                <td colSpan={6} data-testid="exams-empty" className="p-8 text-center text-gray-400">
+              <TableRow>
+                <TableCell colSpan={6} data-testid="exams-empty" className="text-center">
                   {t('content.exams.empty', locale)}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : (
               exams.filter((exam) => showEmptyExams || (exam.totalQuestions ?? 0) > 0).map((exam) => (
-                <tr key={exam.id} data-testid={`exam-row-${exam.id}`} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="p-3 font-medium text-gray-900">{exam.title}</td>
-                  <td className="p-3">{exam.level}</td>
-                  <td className="p-3">
+                <TableRow key={exam.id} data-testid={`exam-row-${exam.id}`}>
+                  <TableCell className="font-medium">{exam.title}</TableCell>
+                  <TableCell>{exam.level}</TableCell>
+                  <TableCell>
                     <span
                       data-testid={`exam-status-${exam.id}`}
                       className={`px-2 py-0.5 rounded text-xs font-semibold ${
@@ -242,12 +243,12 @@ export function ExamListView({
                     >
                       {STATUS_LABEL[exam.status as string] ?? exam.status}
                     </span>
-                  </td>
-                  <td className="p-3">
+                  </TableCell>
+                  <TableCell>
                     {exam.publishedVersion ? `v${exam.publishedVersion}` : 'Chưa có'}
-                  </td>
-                  <td className="p-3">{exam.totalQuestions}</td>
-                  <td className="p-3 space-x-2">
+                  </TableCell>
+                  <TableCell>{exam.totalQuestions}</TableCell>
+                  <TableCell className="space-x-2">
                     <Button
                       type="button"
                       variant="outline"
@@ -287,19 +288,19 @@ export function ExamListView({
                     >
                       Lịch sử
                     </Button>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {/* Exam Preview on Test Interface Simulation */}
       {previewSnapshot && (
         <div
           data-testid="exam-preview-modal"
-          className="border-2 border-blue-500 rounded-lg p-6 bg-white dark:bg-slate-900 mb-6 shadow-sm"
+          className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] border-blue-500 p-6 mb-6"
         >
           <div className="flex justify-between items-center mb-4">
             <div>
@@ -404,7 +405,7 @@ export function ExamListView({
       {historyExamId && (
         <div
           data-testid="version-history-modal"
-          className="border border-gray-300 dark:border-slate-800 rounded-lg p-6 bg-white dark:bg-slate-900 mb-6 shadow-sm"
+          className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-6 mb-6"
         >
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-base font-bold text-gray-900 dark:text-slate-100">
@@ -424,34 +425,34 @@ export function ExamListView({
             <p className="text-sm text-gray-400">Đề thi chưa có phiên bản xuất bản nào.</p>
           ) : (
             <div className="overflow-x-auto w-full">
-              <table className="w-full text-left text-sm border-collapse">
-                <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200 text-gray-600">
-                    <th className="p-2.5">Phiên bản</th>
-                    <th className="p-2.5">Thời điểm xuất bản</th>
-                    <th className="p-2.5">Người xuất bản</th>
-                    <th className="p-2.5">Trạng thái</th>
-                    <th className="p-2.5">Lý do gỡ</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table className="text-left">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Phiên bản</TableHead>
+                    <TableHead>Thời điểm xuất bản</TableHead>
+                    <TableHead>Người xuất bản</TableHead>
+                    <TableHead>Trạng thái</TableHead>
+                    <TableHead>Lý do gỡ</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {versionHistory.map((ver) => (
-                    <tr key={ver.version} data-testid={`version-row-${ver.version}`} className="border-b border-gray-100">
-                      <td className="p-2.5 font-semibold">v{ver.version}</td>
-                      <td className="p-2.5">{ver.publishedAt}</td>
-                      <td className="p-2.5">{ver.publishedBy}</td>
-                      <td className="p-2.5">
+                    <TableRow key={ver.version} data-testid={`version-row-${ver.version}`}>
+                      <TableCell className="font-semibold">v{ver.version}</TableCell>
+                      <TableCell>{ver.publishedAt}</TableCell>
+                      <TableCell>{ver.publishedBy}</TableCell>
+                      <TableCell>
                         {ver.takedownAt ? (
                           <span className="text-red-600 font-semibold">Đã gỡ ({ver.takedownAt})</span>
                         ) : (
                           <span className="text-green-600 font-semibold">Đang hiệu lực</span>
                         )}
-                      </td>
-                      <td className="p-2.5">{ver.takedownReason || '—'}</td>
-                    </tr>
+                      </TableCell>
+                      <TableCell>{ver.takedownReason || '—'}</TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </div>

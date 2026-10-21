@@ -58,7 +58,7 @@ export function ScoreComparisonCard({
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {/* Total Score Comparison */}
-        <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+        <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-3">
           <span className="block text-xs text-slate-500 mb-1">Điểm quy đổi</span>
           <div className="flex items-baseline justify-between">
             <span className="text-lg font-bold text-slate-900 dark:text-slate-100 font-mono">
@@ -71,7 +71,7 @@ export function ScoreComparisonCard({
         </div>
 
         {/* Accuracy Comparison */}
-        <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+        <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-3">
           <span className="block text-xs text-slate-500 mb-1">Tỷ lệ chính xác</span>
           <div className="flex items-baseline justify-between">
             <span className="text-lg font-bold text-slate-900 dark:text-slate-100 font-mono">
@@ -84,7 +84,7 @@ export function ScoreComparisonCard({
         </div>
 
         {/* Correct questions comparison */}
-        <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+        <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-3">
           <span className="block text-xs text-slate-500 mb-1">Số câu làm đúng</span>
           <div className="flex items-baseline justify-between">
             <span className="text-lg font-bold text-slate-900 dark:text-slate-100 font-mono">

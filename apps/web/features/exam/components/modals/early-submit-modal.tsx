@@ -55,7 +55,7 @@ export function EarlySubmitModal({
         </p>
 
         {/* Stats summary */}
-        <div className="grid grid-cols-3 gap-3 p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-center">
+        <div className="surface surface--secondary rounded-2xl grid grid-cols-3 gap-3 p-4 text-center">
           <div>
             <div className="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400">
               {answeredCount}

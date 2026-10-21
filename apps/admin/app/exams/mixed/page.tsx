@@ -185,7 +185,7 @@ export default function MixedExamsPage({ initialExams }: { initialExams?: MixedE
               <div
                 key={exam.id}
                 data-testid={`mixed-exam-card-${exam.id}`}
-                className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
+                className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"
               >
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
@@ -237,7 +237,7 @@ export default function MixedExamsPage({ initialExams }: { initialExams?: MixedE
         {/* Create Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-            <div className="bg-white dark:bg-slate-900 rounded-lg p-6 max-w-md w-full shadow-lg space-y-4 border border-gray-200 dark:border-slate-800">
+            <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-6 max-w-md w-full space-y-4">
               <h3 data-testid="create-modal-title" className="text-lg font-bold text-gray-900 dark:text-slate-100">
                 Khởi tạo Đề thi Trộn Mới
               </h3>

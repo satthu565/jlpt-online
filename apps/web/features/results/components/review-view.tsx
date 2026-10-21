@@ -89,7 +89,7 @@ export function ReviewView({
       {/* Action Bar: PDF Score Export, Furigana Toggle & Share Link (SYS-17, SEO-08, P04) */}
       <div
         data-testid="review-actions-bar"
-        className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+        className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] flex flex-wrap items-center justify-between gap-4 p-4"
       >
         <div className="flex flex-wrap items-center gap-3 min-w-0">
           <PdfScoreExportButton
@@ -149,7 +149,7 @@ export function ReviewView({
           ))}
 
           {displayedQuestions.length === 0 && (
-            <div className="p-12 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-500">
+            <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-12 text-center text-slate-500">
               Không có câu hỏi nào thỏa mãn bộ lọc &ldquo;{activeFilter}&rdquo;.
             </div>
           )}

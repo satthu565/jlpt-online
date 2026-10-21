@@ -203,7 +203,7 @@ export default function NotificationsSettingsPage({
             <h2 className="text-sm font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wide">Danh sách mẫu</h2>
             <div className="space-y-2">
               {templates.length === 0 ? (
-                <div data-testid="notifications-empty" className="p-6 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg text-center text-xs text-gray-400 italic">
+                <div data-testid="notifications-empty" className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-6 text-center text-xs text-gray-400 italic">
                   {t('common.empty', locale)}
                 </div>
               ) : (
@@ -243,7 +243,7 @@ export default function NotificationsSettingsPage({
           {selectedTemplate && (
             <div
               data-testid="template-editor-panel"
-              className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 p-6 space-y-4 shadow-xs"
+              className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] lg:col-span-2 p-6 space-y-4"
             >
               <h2 className="text-lg font-bold text-gray-900 dark:text-slate-100">
                 Chỉnh sửa mẫu: {selectedTemplate.name}

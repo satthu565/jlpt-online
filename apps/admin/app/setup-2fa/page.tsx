@@ -160,7 +160,7 @@ export default function Setup2faPage(): React.JSX.Element {
         <div className="flex flex-col items-center gap-4">
           <div
             data-testid="qr-code-container"
-            className="w-[180px] h-[180px] p-2 bg-white rounded-lg border border-gray-300 shadow-xs flex items-center justify-center overflow-hidden"
+            className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] w-[180px] h-[180px] p-2 flex items-center justify-center overflow-hidden"
             dangerouslySetInnerHTML={{ __html: qrSvg }}
           />
 

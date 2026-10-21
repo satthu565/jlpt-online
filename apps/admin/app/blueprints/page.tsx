@@ -8,6 +8,7 @@ import { apiClient } from '../../lib/api-client';
 import { t } from '../../lib/i18n';
 import type { Blueprint } from '@jlpt/schema';
 import { BlueprintManager } from '../../features/content/blueprint-manager';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export default function BlueprintsPage(): React.JSX.Element {
   const { user, locale } = useAdminAuth();
@@ -115,34 +116,34 @@ export default function BlueprintsPage(): React.JSX.Element {
           </div>
         )}
 
-        <div className="overflow-x-auto w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg shadow-xs">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-800 text-sm">
-            <thead className="bg-gray-50 dark:bg-slate-800/50 text-gray-700 dark:text-slate-300">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">Cấp độ</th>
-                <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">Phiên bản</th>
-                <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">Loại đề</th>
-                <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">Trạng thái</th>
-                <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">Nguồn tham chiếu</th>
-                <th className="px-4 py-3 text-right font-semibold text-xs uppercase tracking-wider">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-slate-800">
+        <div className="overflow-x-auto w-full">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-left font-semibold">Cấp độ</TableHead>
+                <TableHead className="text-left font-semibold">Phiên bản</TableHead>
+                <TableHead className="text-left font-semibold">Loại đề</TableHead>
+                <TableHead className="text-left font-semibold">Trạng thái</TableHead>
+                <TableHead className="text-left font-semibold">Nguồn tham chiếu</TableHead>
+                <TableHead className="text-right font-semibold">Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {!isLoading && blueprints.length === 0 ? (
-                <tr>
-                  <td colSpan={6} data-testid="blueprints-empty" className="p-8 text-center text-gray-400">
+                <TableRow>
+                  <TableCell colSpan={6} data-testid="blueprints-empty" className="text-center">
                     {t('content.blueprints.empty', locale)}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ) : (
                 blueprints.map((bp) => (
-                  <tr key={`${bp.id}_${bp.version}`} data-testid={`bp-row-${bp.level}-v${bp.version}`} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
-                    <td className="px-4 py-3 font-bold text-blue-700 dark:text-blue-400">{bp.level}</td>
-                    <td className="px-4 py-3 font-mono">v{bp.version}</td>
-                    <td className="px-4 py-3">
+                  <TableRow key={`${bp.id}_${bp.version}`} data-testid={`bp-row-${bp.level}-v${bp.version}`}>
+                    <TableCell className="font-bold">{bp.level}</TableCell>
+                    <TableCell className="font-mono">v{bp.version}</TableCell>
+                    <TableCell>
                       <span className="px-2 py-0.5 rounded text-xs bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300">{bp.kind}</span>
-                    </td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell>
                       <span
                         data-testid={`bp-status-${bp.level}-v${bp.version}`}
                         className={`px-2 py-0.5 rounded text-xs font-semibold ${
@@ -165,11 +166,11 @@ export default function BlueprintsPage(): React.JSX.Element {
                           ? ` đến ${(bp as Blueprint & { effectiveTo?: string | null }).effectiveTo}`
                           : ' trở đi'}
                       </div>
-                    </td>
-                    <td className="px-4 py-3 text-xs text-gray-500">
+                    </TableCell>
+                    <TableCell>
                       {bp.sourceRef?.[0]?.url || 'Không có nguồn'}
-                    </td>
-                    <td className="px-4 py-3 text-right space-x-2">
+                    </TableCell>
+                    <TableCell className="text-right space-x-2">
                       <Button
                         type="button"
                         variant="secondary"
@@ -190,12 +191,12 @@ export default function BlueprintsPage(): React.JSX.Element {
                           {t('content.blueprints.activateBtn', locale)}
                         </Button>
                       )}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
     </AdminGuard>

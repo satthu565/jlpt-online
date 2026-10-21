@@ -97,7 +97,7 @@ export function GeneratedExamCard({
       </div>
 
       {/* Metadata grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-xs">
+      <div className="surface surface--secondary rounded-2xl grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 text-xs">
         <div>
           <span className="text-[11px] text-slate-500 block">Mã sinh đề:</span>
           <span className="font-mono font-bold text-slate-800 dark:text-slate-200 truncate block">
@@ -140,7 +140,7 @@ export function GeneratedExamCard({
               <div
                 key={srcKey}
                 data-testid={`source-item-${srcKey}`}
-                className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 text-xs flex items-center justify-between gap-3"
+                className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-2.5 text-xs flex items-center justify-between gap-3"
               >
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">

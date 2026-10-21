@@ -7,6 +7,7 @@ import type { AdminRefundItem } from './types';
 import type { BillingManager } from './billing-service';
 import { useOptionalAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface RefundsManagerProps {
   billingManager?: BillingManager;
@@ -157,7 +158,7 @@ export function RefundsManager({ billingManager, onRefundUpdated }: RefundsManag
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6 space-y-4">
+    <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4 md:p-6 space-y-4">
       <div>
         <h2 data-testid="refunds-heading" className="text-lg font-bold text-gray-900 dark:text-gray-100">
           Quản lý yêu cầu hoàn tiền (Refund Requests)
@@ -209,34 +210,34 @@ export function RefundsManager({ billingManager, onRefundUpdated }: RefundsManag
       )}
 
       {refunds.length === 0 && !isLoading && !fetchError ? (
-        <div data-testid="refunds-empty" className="p-6 text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 rounded border border-gray-100 dark:border-gray-700 text-xs">
+        <div data-testid="refunds-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 dark:text-gray-400 text-xs">
           {t('commercial.emptyRefunds', locale)}
         </div>
       ) : (
-        <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
-          <table data-testid="refunds-table" className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Mã yêu cầu</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Mã đơn hàng</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Số tiền</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Lý do</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Trạng thái</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50 bg-white dark:bg-gray-800">
+        <div className="overflow-x-auto">
+          <Table data-testid="refunds-table">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-left font-semibold">Mã yêu cầu</TableHead>
+                <TableHead className="text-left font-semibold">Mã đơn hàng</TableHead>
+                <TableHead className="text-left font-semibold">Số tiền</TableHead>
+                <TableHead className="text-left font-semibold">Lý do</TableHead>
+                <TableHead className="text-left font-semibold">Trạng thái</TableHead>
+                <TableHead className="text-left font-semibold">Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {refunds.map((r) => {
                 const refId = r.id || '';
                 const ordId = r.orderId || '';
                 const amount = typeof r.amount === 'number' ? r.amount : Number(r.amount || 0);
                 return (
-                  <tr key={refId} data-testid={`refund-row-${refId}`} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                    <td className="px-4 py-3 font-mono text-gray-900 dark:text-gray-100">{refId.slice(0, 13)}...</td>
-                    <td className="px-4 py-3 font-mono text-gray-600 dark:text-gray-400">{ordId.slice(0, 13)}...</td>
-                    <td className="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">{amount.toLocaleString('vi-VN')} đ</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{r.reason || 'Không có'}</td>
-                    <td className="px-4 py-3">
+                  <TableRow key={refId} data-testid={`refund-row-${refId}`}>
+                    <TableCell className="font-mono">{refId.slice(0, 13)}...</TableCell>
+                    <TableCell className="font-mono">{ordId.slice(0, 13)}...</TableCell>
+                    <TableCell className="font-semibold">{amount.toLocaleString('vi-VN')} đ</TableCell>
+                    <TableCell>{r.reason || 'Không có'}</TableCell>
+                    <TableCell>
                       <span
                         className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
                           r.status === 'refunded'
@@ -248,8 +249,8 @@ export function RefundsManager({ billingManager, onRefundUpdated }: RefundsManag
                       >
                         {r.status}
                       </span>
-                    </td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell>
                       {r.status === 'requested' ? (
                         <div className="flex gap-2">
                           <Button
@@ -275,12 +276,12 @@ export function RefundsManager({ billingManager, onRefundUpdated }: RefundsManag
                       ) : (
                         <span className="text-gray-400 dark:text-gray-500 text-xs">Đã hoàn tất</span>
                       )}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       )}
 

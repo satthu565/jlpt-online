@@ -225,7 +225,7 @@ export function MixGenerator({
               return (
                 <div
                   key={src.id}
-                  className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                  className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
                 >
                   <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer">
                     <Input

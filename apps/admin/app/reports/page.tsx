@@ -7,6 +7,7 @@ import { Select } from '@jlpt/ui/components/select';
 import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface AcquisitionReportDto {
   totalNewUsers: number;
@@ -343,7 +344,7 @@ export default function ReportsHubPage(): React.JSX.Element {
         {/* Active Report Content Container */}
         <div
           data-testid="report-content-panel"
-          className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6 shadow-xs"
+          className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4 md:p-6"
         >
           {/* REPORT-01: Acquisition */}
           {activeReport === 'acquisition' && (
@@ -354,25 +355,25 @@ export default function ReportsHubPage(): React.JSX.Element {
               {acq ? (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <div className="surface surface--secondary rounded-2xl p-4">
                       <div className="text-xs text-gray-500 font-medium">Tổng người dùng mới</div>
                       <div className="text-2xl font-bold text-gray-900 mt-1">
                         {(acq.totalNewUsers ?? 0).toLocaleString('vi-VN')}
                       </div>
                     </div>
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <div className="surface surface--secondary rounded-2xl p-4">
                       <div className="text-xs text-gray-500 font-medium">Ngôn ngữ Tiếng Việt (vi)</div>
                       <div className="text-2xl font-bold text-blue-600 mt-1">
                         {(acq.byLocale?.['vi'] ?? 0).toLocaleString('vi-VN')}
                       </div>
                     </div>
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <div className="surface surface--secondary rounded-2xl p-4">
                       <div className="text-xs text-gray-500 font-medium">Ngôn ngữ Tiếng Nhật (ja)</div>
                       <div className="text-2xl font-bold text-emerald-600 mt-1">
                         {(acq.byLocale?.['ja'] ?? 0).toLocaleString('vi-VN')}
                       </div>
                     </div>
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <div className="surface surface--secondary rounded-2xl p-4">
                       <div className="text-xs text-gray-500 font-medium">Ngôn ngữ Tiếng Anh (en)</div>
                       <div className="text-2xl font-bold text-purple-600 mt-1">
                         {(acq.byLocale?.['en'] ?? 0).toLocaleString('vi-VN')}
@@ -380,29 +381,29 @@ export default function ReportsHubPage(): React.JSX.Element {
                     </div>
                   </div>
                   {acq.byPeriod && acq.byPeriod.length > 0 && (
-                    <div className="overflow-x-auto border rounded-lg mt-4">
-                      <table className="min-w-full divide-y divide-gray-200 text-xs">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-4 py-2 text-left font-semibold text-gray-600">Thời gian</th>
-                            <th className="px-4 py-2 text-right font-semibold text-gray-600">Số lượng đăng ký</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100 bg-white">
+                    <div className="overflow-x-auto mt-4">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="text-left font-semibold">Thời gian</TableHead>
+                            <TableHead className="text-right font-semibold">Số lượng đăng ký</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
                           {acq.byPeriod.map((p) => (
-                            <tr key={p.period} className="hover:bg-gray-50">
-                              <td className="px-4 py-2 font-mono text-gray-900">{p.period}</td>
-                              <td className="px-4 py-2 text-right font-semibold text-blue-600">{p.count}</td>
-                            </tr>
+                            <TableRow key={p.period}>
+                              <TableCell className="font-mono">{p.period}</TableCell>
+                              <TableCell className="text-right font-semibold">{p.count}</TableCell>
+                            </TableRow>
                           ))}
-                        </tbody>
-                      </table>
+                        </TableBody>
+                      </Table>
                     </div>
                   )}
                 </>
               ) : (
                 !isLoading && !errorMsg && (
-                  <div data-testid="reports-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+                  <div data-testid="reports-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 text-xs">
                     {t('reports.empty', locale)}
                   </div>
                 )
@@ -419,13 +420,13 @@ export default function ReportsHubPage(): React.JSX.Element {
               {act ? (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <div className="surface surface--secondary rounded-2xl p-4">
                       <div className="text-xs text-gray-500 font-medium">Hoạt động trong ngày (DAU)</div>
                       <div className="text-2xl font-bold text-blue-600 mt-1">
                         {(act.dau ?? 0).toLocaleString('vi-VN')}
                       </div>
                     </div>
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <div className="surface surface--secondary rounded-2xl p-4">
                       <div className="text-xs text-gray-500 font-medium">Hoạt động trong 30 ngày (MAU)</div>
                       <div className="text-2xl font-bold text-emerald-600 mt-1">
                         {(act.mau ?? 0).toLocaleString('vi-VN')}
@@ -433,29 +434,29 @@ export default function ReportsHubPage(): React.JSX.Element {
                     </div>
                   </div>
                   {act.dailyActiveUsers && act.dailyActiveUsers.length > 0 && (
-                    <div className="overflow-x-auto border rounded-lg mt-4">
-                      <table className="min-w-full divide-y divide-gray-200 text-xs">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-4 py-2 text-left font-semibold text-gray-600">Ngày</th>
-                            <th className="px-4 py-2 text-right font-semibold text-gray-600">Lượt hoạt động</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100 bg-white">
+                    <div className="overflow-x-auto mt-4">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="text-left font-semibold">Ngày</TableHead>
+                            <TableHead className="text-right font-semibold">Lượt hoạt động</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
                           {act.dailyActiveUsers.map((d) => (
-                            <tr key={d.date} className="hover:bg-gray-50">
-                              <td className="px-4 py-2 font-mono text-gray-900">{d.date}</td>
-                              <td className="px-4 py-2 text-right font-semibold text-gray-900">{d.count}</td>
-                            </tr>
+                            <TableRow key={d.date}>
+                              <TableCell className="font-mono">{d.date}</TableCell>
+                              <TableCell className="text-right font-semibold">{d.count}</TableCell>
+                            </TableRow>
                           ))}
-                        </tbody>
-                      </table>
+                        </TableBody>
+                      </Table>
                     </div>
                   )}
                 </>
               ) : (
                 !isLoading && !errorMsg && (
-                  <div data-testid="reports-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+                  <div data-testid="reports-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 text-xs">
                     {t('reports.empty', locale)}
                   </div>
                 )
@@ -471,26 +472,26 @@ export default function ReportsHubPage(): React.JSX.Element {
               </h2>
               {comp ? (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Bắt đầu làm bài</div>
                     <div className="text-2xl font-bold text-gray-900 mt-1">{comp.started ?? 0}</div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Đã hoàn thành</div>
                     <div className="text-2xl font-bold text-emerald-600 mt-1">{comp.completed ?? 0}</div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Đang làm dở</div>
                     <div className="text-2xl font-bold text-amber-600 mt-1">{comp.inProgress ?? 0}</div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Tỷ lệ hoàn thành</div>
                     <div className="text-2xl font-bold text-blue-600 mt-1">{comp.completionRate ?? 0}%</div>
                   </div>
                 </div>
               ) : (
                 !isLoading && !errorMsg && (
-                  <div data-testid="reports-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+                  <div data-testid="reports-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 text-xs">
                     {t('reports.empty', locale)}
                   </div>
                 )
@@ -506,26 +507,26 @@ export default function ReportsHubPage(): React.JSX.Element {
               </h2>
               {aban ? (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Lượt bắt đầu</div>
                     <div className="text-2xl font-bold text-gray-900 mt-1">{aban.started ?? 0}</div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Lượt hoàn thành</div>
                     <div className="text-2xl font-bold text-emerald-600 mt-1">{aban.completed ?? 0}</div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Lượt bỏ dở</div>
                     <div className="text-2xl font-bold text-red-600 mt-1">{aban.abandoned ?? 0}</div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Tỷ lệ bỏ dở</div>
                     <div className="text-2xl font-bold text-red-600 mt-1">{aban.abandonmentRate ?? 0}%</div>
                   </div>
                 </div>
               ) : (
                 !isLoading && !errorMsg && (
-                  <div data-testid="reports-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+                  <div data-testid="reports-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 text-xs">
                     {t('reports.empty', locale)}
                   </div>
                 )
@@ -544,40 +545,40 @@ export default function ReportsHubPage(): React.JSX.Element {
                   <div className="text-xs text-gray-600 font-medium">
                     Tổng lượt thi đánh giá: <strong className="text-gray-900">{lev.totalAttempts ?? 0}</strong>
                   </div>
-                  <div className="overflow-x-auto border rounded-lg">
-                    <table className="min-w-full divide-y divide-gray-200 text-xs">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-4 py-2 text-left font-semibold text-gray-600">Cấp độ</th>
-                          <th className="px-4 py-2 text-right font-semibold text-gray-600">Lượt thi</th>
-                          <th className="px-4 py-2 text-right font-semibold text-gray-600">Hoàn thành</th>
-                          <th className="px-4 py-2 text-right font-semibold text-gray-600">Điểm TB</th>
-                          <th className="px-4 py-2 text-right font-semibold text-gray-600">Tỷ lệ đỗ</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-100 bg-white">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-left font-semibold">Cấp độ</TableHead>
+                          <TableHead className="text-right font-semibold">Lượt thi</TableHead>
+                          <TableHead className="text-right font-semibold">Hoàn thành</TableHead>
+                          <TableHead className="text-right font-semibold">Điểm TB</TableHead>
+                          <TableHead className="text-right font-semibold">Tỷ lệ đỗ</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
                         {lev.levels && lev.levels.length > 0 ? (
                           lev.levels.map((l) => (
-                            <tr key={l.level} className="hover:bg-gray-50">
-                              <td className="px-4 py-2 font-bold text-gray-900">{l.level}</td>
-                              <td className="px-4 py-2 text-right">{l.attempts}</td>
-                              <td className="px-4 py-2 text-right">{l.completed}</td>
-                              <td className="px-4 py-2 text-right font-mono">{l.avgScore}</td>
-                              <td className="px-4 py-2 text-right font-semibold text-emerald-600">{l.passRate}%</td>
-                            </tr>
+                            <TableRow key={l.level}>
+                              <TableCell className="font-bold">{l.level}</TableCell>
+                              <TableCell className="text-right">{l.attempts}</TableCell>
+                              <TableCell className="text-right">{l.completed}</TableCell>
+                              <TableCell className="text-right font-mono">{l.avgScore}</TableCell>
+                              <TableCell className="text-right font-semibold">{l.passRate}%</TableCell>
+                            </TableRow>
                           ))
                         ) : (
-                          <tr>
-                            <td colSpan={5} className="px-4 py-4 text-center text-gray-400">Chưa có dữ liệu</td>
-                          </tr>
+                          <TableRow>
+                            <TableCell colSpan={5} className="text-center">Chưa có dữ liệu</TableCell>
+                          </TableRow>
                         )}
-                      </tbody>
-                    </table>
+                      </TableBody>
+                    </Table>
                   </div>
                 </>
               ) : (
                 !isLoading && !errorMsg && (
-                  <div data-testid="reports-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+                  <div data-testid="reports-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 text-xs">
                     {t('reports.empty', locale)}
                   </div>
                 )
@@ -596,42 +597,42 @@ export default function ReportsHubPage(): React.JSX.Element {
                   <div className="text-xs text-gray-600 font-medium">
                     Tổng số đề thi: <strong className="text-gray-900">{popEx.totalExamsEvaluated ?? 0}</strong>
                   </div>
-                  <div className="overflow-x-auto border rounded-lg">
-                    <table className="min-w-full divide-y divide-gray-200 text-xs">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-4 py-2 text-left font-semibold text-gray-600">Tên đề thi</th>
-                          <th className="px-4 py-2 text-left font-semibold text-gray-600">Cấp độ</th>
-                          <th className="px-4 py-2 text-right font-semibold text-gray-600">Lượt thi</th>
-                          <th className="px-4 py-2 text-right font-semibold text-gray-600">Hoàn thành</th>
-                          <th className="px-4 py-2 text-right font-semibold text-gray-600">Điểm TB</th>
-                          <th className="px-4 py-2 text-right font-semibold text-gray-600">Tỷ lệ đỗ</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-100 bg-white">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-left font-semibold">Tên đề thi</TableHead>
+                          <TableHead className="text-left font-semibold">Cấp độ</TableHead>
+                          <TableHead className="text-right font-semibold">Lượt thi</TableHead>
+                          <TableHead className="text-right font-semibold">Hoàn thành</TableHead>
+                          <TableHead className="text-right font-semibold">Điểm TB</TableHead>
+                          <TableHead className="text-right font-semibold">Tỷ lệ đỗ</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
                         {popEx.popularExams && popEx.popularExams.length > 0 ? (
                           popEx.popularExams.map((e) => (
-                            <tr key={e.examId} className="hover:bg-gray-50">
-                              <td className="px-4 py-2 font-medium text-gray-900">{e.title}</td>
-                              <td className="px-4 py-2 font-semibold text-blue-600">{e.level}</td>
-                              <td className="px-4 py-2 text-right">{e.attempts}</td>
-                              <td className="px-4 py-2 text-right">{e.completions}</td>
-                              <td className="px-4 py-2 text-right font-mono">{e.avgScore}</td>
-                              <td className="px-4 py-2 text-right font-semibold text-emerald-600">{e.passRate}%</td>
-                            </tr>
+                            <TableRow key={e.examId}>
+                              <TableCell className="font-medium">{e.title}</TableCell>
+                              <TableCell className="font-semibold">{e.level}</TableCell>
+                              <TableCell className="text-right">{e.attempts}</TableCell>
+                              <TableCell className="text-right">{e.completions}</TableCell>
+                              <TableCell className="text-right font-mono">{e.avgScore}</TableCell>
+                              <TableCell className="text-right font-semibold">{e.passRate}%</TableCell>
+                            </TableRow>
                           ))
                         ) : (
-                          <tr>
-                            <td colSpan={6} className="px-4 py-4 text-center text-gray-400">Chưa có dữ liệu</td>
-                          </tr>
+                          <TableRow>
+                            <TableCell colSpan={6} className="text-center">Chưa có dữ liệu</TableCell>
+                          </TableRow>
                         )}
-                      </tbody>
-                    </table>
+                      </TableBody>
+                    </Table>
                   </div>
                 </>
               ) : (
                 !isLoading && !errorMsg && (
-                  <div data-testid="reports-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+                  <div data-testid="reports-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 text-xs">
                     {t('reports.empty', locale)}
                   </div>
                 )
@@ -648,19 +649,19 @@ export default function ReportsHubPage(): React.JSX.Element {
               {dur ? (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <div className="surface surface--secondary rounded-2xl p-4">
                       <div className="text-xs text-gray-500 font-medium">Thời gian trung bình</div>
                       <div className="text-2xl font-bold text-blue-600 mt-1">
                         {Math.round((dur.avgDurationSeconds ?? 0) / 60)} phút
                       </div>
                     </div>
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <div className="surface surface--secondary rounded-2xl p-4">
                       <div className="text-xs text-gray-500 font-medium">Thời gian trung vị</div>
                       <div className="text-2xl font-bold text-emerald-600 mt-1">
                         {Math.round((dur.medianDurationSeconds ?? 0) / 60)} phút
                       </div>
                     </div>
-                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <div className="surface surface--secondary rounded-2xl p-4">
                       <div className="text-xs text-gray-500 font-medium">Tổng số phiên</div>
                       <div className="text-2xl font-bold text-gray-900 mt-1">
                         {(dur.totalSessions ?? 0).toLocaleString('vi-VN')}
@@ -668,31 +669,31 @@ export default function ReportsHubPage(): React.JSX.Element {
                     </div>
                   </div>
                   {dur.distribution && dur.distribution.length > 0 && (
-                    <div className="overflow-x-auto border rounded-lg mt-4">
-                      <table className="min-w-full divide-y divide-gray-200 text-xs">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-4 py-2 text-left font-semibold text-gray-600">Khoảng thời gian</th>
-                            <th className="px-4 py-2 text-right font-semibold text-gray-600">Số phiên</th>
-                            <th className="px-4 py-2 text-right font-semibold text-gray-600">Tỷ lệ</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100 bg-white">
+                    <div className="overflow-x-auto mt-4">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="text-left font-semibold">Khoảng thời gian</TableHead>
+                            <TableHead className="text-right font-semibold">Số phiên</TableHead>
+                            <TableHead className="text-right font-semibold">Tỷ lệ</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
                           {dur.distribution.map((d) => (
-                            <tr key={d.range} className="hover:bg-gray-50">
-                              <td className="px-4 py-2 text-gray-900">{d.range}</td>
-                              <td className="px-4 py-2 text-right">{d.count}</td>
-                              <td className="px-4 py-2 text-right font-semibold text-blue-600">{d.percentage}%</td>
-                            </tr>
+                            <TableRow key={d.range}>
+                              <TableCell>{d.range}</TableCell>
+                              <TableCell className="text-right">{d.count}</TableCell>
+                              <TableCell className="text-right font-semibold">{d.percentage}%</TableCell>
+                            </TableRow>
                           ))}
-                        </tbody>
-                      </table>
+                        </TableBody>
+                      </Table>
                     </div>
                   )}
                 </>
               ) : (
                 !isLoading && !errorMsg && (
-                  <div data-testid="reports-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+                  <div data-testid="reports-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 text-xs">
                     {t('reports.empty', locale)}
                   </div>
                 )
@@ -722,52 +723,52 @@ export default function ReportsHubPage(): React.JSX.Element {
               )}
 
               {ret && (
-                <div className="overflow-x-auto border rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-200 text-xs">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Cohort ngày</th>
-                        <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Quy mô cohort</th>
-                        <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Tỷ lệ D7 (7 ngày)</th>
-                        <th className="px-4 py-3 text-left font-semibold text-gray-600 uppercase">Tỷ lệ D30 (30 ngày)</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 bg-white">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-left font-semibold">Cohort ngày</TableHead>
+                        <TableHead className="text-left font-semibold">Quy mô cohort</TableHead>
+                        <TableHead className="text-left font-semibold">Tỷ lệ D7 (7 ngày)</TableHead>
+                        <TableHead className="text-left font-semibold">Tỷ lệ D30 (30 ngày)</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {ret.cohorts && ret.cohorts.length > 0 ? (
                         ret.cohorts.map((c) => (
-                          <tr key={c.cohortDate} className="hover:bg-gray-50">
-                            <td className="px-4 py-3 font-mono text-gray-900">{c.cohortDate} ({c.daysSinceCohort} ngày trước)</td>
-                            <td className="px-4 py-3 text-gray-600">{c.cohortSize} học viên</td>
-                            <td className="px-4 py-3 font-mono font-semibold">
+                          <TableRow key={c.cohortDate}>
+                            <TableCell className="font-mono">{c.cohortDate} ({c.daysSinceCohort} ngày trước)</TableCell>
+                            <TableCell>{c.cohortSize} học viên</TableCell>
+                            <TableCell className="font-mono font-semibold">
                               {c.d7Status === 'insufficient_data' ? (
                                 <span className="text-amber-600">insufficient-data</span>
                               ) : (
                                 <span className="text-emerald-600">{c.d7Rate}%</span>
                               )}
-                            </td>
-                            <td className="px-4 py-3 font-mono font-semibold">
+                            </TableCell>
+                            <TableCell className="font-mono font-semibold">
                               {c.d30Status === 'insufficient_data' ? (
                                 <span className="text-amber-600">insufficient-data</span>
                               ) : (
                                 <span className="text-emerald-600">{c.d30Rate}%</span>
                               )}
-                            </td>
-                          </tr>
+                            </TableCell>
+                          </TableRow>
                         ))
                       ) : (
-                        <tr>
-                          <td colSpan={4} className="px-4 py-4 text-center text-gray-400">
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center">
                             Chưa có cohort nào được ghi nhận.
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       )}
-                    </tbody>
-                  </table>
+                    </TableBody>
+                  </Table>
                 </div>
               )}
 
               {!ret && !isLoading && !errorMsg && (
-                <div data-testid="reports-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+                <div data-testid="reports-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 text-xs">
                   {t('reports.empty', locale)}
                 </div>
               )}
@@ -818,7 +819,7 @@ export default function ReportsHubPage(): React.JSX.Element {
                 </>
               ) : (
                 !isLoading && !errorMsg && (
-                  <div data-testid="reports-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+                  <div data-testid="reports-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 text-xs">
                     {t('reports.empty', locale)}
                   </div>
                 )
@@ -835,7 +836,7 @@ export default function ReportsHubPage(): React.JSX.Element {
               {rev ? (
                 <>
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                    <div className="bg-gray-50 p-3 rounded border text-center">
+                    <div className="surface surface--secondary rounded-2xl p-3 text-center">
                       <div className="text-xs text-gray-500">Tổng gói</div>
                       <div className="text-xl font-bold text-gray-900 mt-1">{rev.totalPackages ?? 0}</div>
                     </div>
@@ -857,33 +858,33 @@ export default function ReportsHubPage(): React.JSX.Element {
                     </div>
                   </div>
                   {rev.recentJobs && rev.recentJobs.length > 0 && (
-                    <div className="overflow-x-auto border rounded-lg mt-4">
-                      <table className="min-w-full divide-y divide-gray-200 text-xs">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-4 py-2 text-left font-semibold text-gray-600">Mã gói</th>
-                            <th className="px-4 py-2 text-left font-semibold text-gray-600">Nguồn</th>
-                            <th className="px-4 py-2 text-right font-semibold text-gray-600">Số câu</th>
-                            <th className="px-4 py-2 text-left font-semibold text-gray-600">Trạng thái</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100 bg-white">
+                    <div className="overflow-x-auto mt-4">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="text-left font-semibold">Mã gói</TableHead>
+                            <TableHead className="text-left font-semibold">Nguồn</TableHead>
+                            <TableHead className="text-right font-semibold">Số câu</TableHead>
+                            <TableHead className="text-left font-semibold">Trạng thái</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
                           {rev.recentJobs.map((j) => (
-                            <tr key={j.id} className="hover:bg-gray-50">
-                              <td className="px-4 py-2 font-mono text-gray-900">{(j.id || '').slice(0, 10)}...</td>
-                              <td className="px-4 py-2 text-gray-600">{j.source}</td>
-                              <td className="px-4 py-2 text-right">{j.totalQuestions}</td>
-                              <td className="px-4 py-2 font-semibold">{j.status}</td>
-                            </tr>
+                            <TableRow key={j.id}>
+                              <TableCell className="font-mono">{(j.id || '').slice(0, 10)}...</TableCell>
+                              <TableCell>{j.source}</TableCell>
+                              <TableCell className="text-right">{j.totalQuestions}</TableCell>
+                              <TableCell className="font-semibold">{j.status}</TableCell>
+                            </TableRow>
                           ))}
-                        </tbody>
-                      </table>
+                        </TableBody>
+                      </Table>
                     </div>
                   )}
                 </>
               ) : (
                 !isLoading && !errorMsg && (
-                  <div data-testid="reports-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+                  <div data-testid="reports-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 text-xs">
                     {t('reports.empty', locale)}
                   </div>
                 )
@@ -899,26 +900,26 @@ export default function ReportsHubPage(): React.JSX.Element {
               </h2>
               {inc ? (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Tổng số sự cố</div>
                     <div className="text-2xl font-bold text-red-600 mt-1">{inc.totalIncidents ?? 0}</div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Khiếu nại câu hỏi</div>
                     <div className="text-2xl font-bold text-gray-900 mt-1">{inc.questionReportsCount ?? 0}</div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Lỗi âm thanh</div>
                     <div className="text-2xl font-bold text-amber-600 mt-1">{inc.audioIncidentsCount ?? 0}</div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Cảnh báo kiểm định</div>
                     <div className="text-2xl font-bold text-blue-600 mt-1">{inc.importValidationWarnings ?? 0}</div>
                   </div>
                 </div>
               ) : (
                 !isLoading && !errorMsg && (
-                  <div data-testid="reports-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+                  <div data-testid="reports-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 text-xs">
                     {t('reports.empty', locale)}
                   </div>
                 )
@@ -934,18 +935,18 @@ export default function ReportsHubPage(): React.JSX.Element {
               </h2>
               {mix ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Tổng lượt tạo đề trộn</div>
                     <div className="text-2xl font-bold text-blue-600 mt-1">{mix.totalMixedExams ?? 0}</div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Trung bình câu / đề</div>
                     <div className="text-2xl font-bold text-gray-900 mt-1">{mix.avgQuestionCount ?? 0}</div>
                   </div>
                 </div>
               ) : (
                 !isLoading && !errorMsg && (
-                  <div data-testid="reports-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+                  <div data-testid="reports-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 text-xs">
                     {t('reports.empty', locale)}
                   </div>
                 )
@@ -961,25 +962,25 @@ export default function ReportsHubPage(): React.JSX.Element {
               </h2>
               {conv ? (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Học viên Miễn phí</div>
                     <div className="text-xl font-bold text-gray-900 mt-1">
                       {(conv.totalFreeUsers ?? 0).toLocaleString('vi-VN')}
                     </div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Học viên Trả phí</div>
                     <div className="text-xl font-bold text-emerald-600 mt-1">
                       {(conv.paidUsers ?? 0).toLocaleString('vi-VN')}
                     </div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Tỷ lệ chuyển đổi</div>
                     <div className="text-xl font-bold text-blue-600 mt-1">
                       {conv.conversionRate ?? 0}%
                     </div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Doanh thu thuần</div>
                     <div className="text-xl font-bold text-purple-600 mt-1">
                       {(conv.netRevenueMinor ?? 0).toLocaleString('vi-VN')} đ
@@ -988,7 +989,7 @@ export default function ReportsHubPage(): React.JSX.Element {
                 </div>
               ) : (
                 !isLoading && !errorMsg && (
-                  <div data-testid="reports-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+                  <div data-testid="reports-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 text-xs">
                     {t('reports.empty', locale)}
                   </div>
                 )
@@ -1004,23 +1005,23 @@ export default function ReportsHubPage(): React.JSX.Element {
               </h2>
               {costs ? (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Lượt gọi AI</div>
                     <div className="text-xl font-bold text-gray-900 mt-1">{costs.aiRequestsCount ?? 0}</div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Tổng token AI</div>
                     <div className="text-xl font-bold text-blue-600 mt-1">
                       {(costs.aiTokenUsage?.totalTokens ?? 0).toLocaleString('vi-VN')}
                     </div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Chi phí AI ước tính</div>
                     <div className="text-xl font-bold text-emerald-600 mt-1">
                       {(costs.estimatedAiCostVnd ?? 0).toLocaleString('vi-VN')} đ
                     </div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div className="surface surface--secondary rounded-2xl p-4">
                     <div className="text-xs text-gray-500 font-medium">Lưu trữ tệp</div>
                     <div className="text-xl font-bold text-purple-600 mt-1">
                       {costs.storageSizeMb ?? 0} MB
@@ -1029,7 +1030,7 @@ export default function ReportsHubPage(): React.JSX.Element {
                 </div>
               ) : (
                 !isLoading && !errorMsg && (
-                  <div data-testid="reports-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+                  <div data-testid="reports-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 text-xs">
                     {t('reports.empty', locale)}
                   </div>
                 )
@@ -1046,7 +1047,7 @@ export default function ReportsHubPage(): React.JSX.Element {
               {expPerf && expPerf.experiments && expPerf.experiments.length > 0 ? (
                 <div className="space-y-4">
                   {expPerf.experiments.map((e) => (
-                    <div key={e.experimentId} className="border rounded-lg p-4 bg-gray-50">
+                    <div key={e.experimentId} className="surface surface--secondary rounded-2xl p-4">
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-bold text-gray-900">{e.name}</span>
                         <span className={`px-2 py-0.5 rounded text-[11px] font-semibold ${e.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700'}`}>
@@ -1054,33 +1055,33 @@ export default function ReportsHubPage(): React.JSX.Element {
                         </span>
                       </div>
                       <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200 text-xs">
-                          <thead className="bg-white">
-                            <tr>
-                              <th className="px-3 py-2 text-left font-semibold">Biến thể</th>
-                              <th className="px-3 py-2 text-right font-semibold">Tiếp xúc</th>
-                              <th className="px-3 py-2 text-right font-semibold">Chuyển đổi</th>
-                              <th className="px-3 py-2 text-right font-semibold">Tỷ lệ chuyển đổi</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-100 bg-white">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="text-left font-semibold">Biến thể</TableHead>
+                              <TableHead className="text-right font-semibold">Tiếp xúc</TableHead>
+                              <TableHead className="text-right font-semibold">Chuyển đổi</TableHead>
+                              <TableHead className="text-right font-semibold">Tỷ lệ chuyển đổi</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
                             {e.variants.map((v) => (
-                              <tr key={v.variant}>
-                                <td className="px-3 py-2 font-mono">{v.variant}</td>
-                                <td className="px-3 py-2 text-right">{v.exposures}</td>
-                                <td className="px-3 py-2 text-right">{v.conversions}</td>
-                                <td className="px-3 py-2 text-right font-semibold text-emerald-600">{v.conversionRate}%</td>
-                              </tr>
+                              <TableRow key={v.variant}>
+                                <TableCell className="font-mono">{v.variant}</TableCell>
+                                <TableCell className="text-right">{v.exposures}</TableCell>
+                                <TableCell className="text-right">{v.conversions}</TableCell>
+                                <TableCell className="text-right font-semibold">{v.conversionRate}%</TableCell>
+                              </TableRow>
                             ))}
-                          </tbody>
-                        </table>
+                          </TableBody>
+                        </Table>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
                 !isLoading && !errorMsg && (
-                  <div data-testid="reports-empty" className="p-6 text-center text-gray-500 bg-gray-50 rounded border border-gray-100 text-xs">
+                  <div data-testid="reports-empty" className="surface surface--secondary rounded-2xl p-6 text-center text-gray-500 text-xs">
                     {t('reports.empty', locale)}
                   </div>
                 )

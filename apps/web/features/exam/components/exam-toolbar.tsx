@@ -46,7 +46,7 @@ export function ExamToolbar({
         <span className="text-slate-600 dark:text-slate-400 font-medium">
           Cỡ chữ tiếng Nhật:
         </span>
-        <div className="inline-flex rounded-lg border border-slate-300 dark:border-slate-600 p-0.5 bg-white dark:bg-slate-900">
+        <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] inline-flex p-0.5">
           {fontSizes.map((item) => (
             <Button
               key={item.id}

@@ -184,7 +184,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <div
               data-testid="stat-total-users"
-              className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs space-y-1"
+              className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 space-y-1"
             >
               <div className="text-xs text-gray-500 font-medium">Người dùng hệ thống</div>
               <div className="text-2xl font-extrabold text-gray-900">
@@ -195,7 +195,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
 
             <div
               data-testid="stat-total-exams"
-              className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs space-y-1"
+              className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 space-y-1"
             >
               <div className="text-xs text-gray-500 font-medium">Đề thi công bố</div>
               <div className="text-2xl font-extrabold text-blue-600">
@@ -206,7 +206,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
 
             <div
               data-testid="stat-completion-rate"
-              className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs space-y-1"
+              className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 space-y-1"
             >
               <div className="text-xs text-gray-500 font-medium">Tỷ lệ hoàn thành đề</div>
               <div className="text-2xl font-extrabold text-emerald-600">
@@ -217,7 +217,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
 
             <div
               data-testid="stat-open-reports"
-              className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs space-y-1"
+              className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 space-y-1"
             >
               <div className="text-xs text-gray-500 font-medium">Báo lỗi câu hỏi</div>
               <div className="text-2xl font-extrabold text-amber-600">
@@ -228,7 +228,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
 
             <div
               data-testid="stat-gross-revenue"
-              className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs space-y-1"
+              className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 space-y-1"
             >
               <div className="text-xs text-gray-500 font-medium">Doanh thu gói học</div>
               <div className="text-2xl font-extrabold text-purple-600 truncate">
@@ -288,7 +288,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
           <h2 id="activity-heading" className="text-lg font-bold text-gray-800">
             Nhật ký hoạt động trực tiếp gần đây
           </h2>
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden divide-y divide-gray-100 shadow-xs">
+          <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] overflow-hidden divide-y divide-gray-100">
             {activities.length === 0 ? (
               <div data-testid="activity-empty" className="p-6 text-center text-xs text-gray-400 italic">
                 {t('common.empty', locale)}

@@ -43,7 +43,7 @@ export function QuickMixCard({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1 bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+          <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] flex items-center gap-1 p-1">
             {levels.map((lvl) => (
               <Button
                 key={lvl}

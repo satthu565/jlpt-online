@@ -273,7 +273,7 @@ export default function FaqPage(): React.JSX.Element {
         })}
 
         {filteredFaqs.length === 0 && (
-          <div className="p-12 text-center text-slate-500 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-12 text-center text-slate-500">
             {t('seo.faq.empty')}
           </div>
         )}

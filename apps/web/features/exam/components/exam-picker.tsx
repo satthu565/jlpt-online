@@ -45,7 +45,7 @@ export function ExamPicker({
   return (
     <div className={`jlpt-exam-picker space-y-6 ${className}`}>
       {/* EXAM-02: Mode Selector */}
-      <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5">
         <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-3">
           1. Chọn chế độ làm bài thi
         </label>
@@ -126,7 +126,7 @@ export function ExamPicker({
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between min-h-[160px] animate-pulse space-y-4"
+                className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-6 flex flex-col justify-between min-h-[160px] animate-pulse space-y-4"
               >
                 <div className="space-y-2.5">
                   <div className="flex gap-2">
@@ -141,7 +141,7 @@ export function ExamPicker({
             ))}
           </div>
         ) : filteredExams.length === 0 ? (
-          <div className="text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-500">
+          <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] text-center py-12 text-slate-500">
             Không tìm thấy đề thi phù hợp với bộ lọc.
           </div>
         ) : (
@@ -154,7 +154,7 @@ export function ExamPicker({
               return (
                 <div
                   key={examKey}
-                  className="jlpt-card rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
+                  className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] jlpt-card text-slate-900 dark:text-slate-100 p-6 hover:shadow-md transition-shadow flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-2">

@@ -233,7 +233,7 @@ export default function QuestionsPage(): React.JSX.Element {
 
             {activeTab === 'editor' ? (
               <div className="space-y-6">
-                <div className="bg-white dark:bg-slate-900 p-5 border border-gray-200 dark:border-slate-800 rounded-lg shadow-xs space-y-4">
+                <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 space-y-4">
                   <h2 className="text-base font-bold text-gray-800 dark:text-slate-100">
                     {t('content.questions.stemTitle', locale)}
                   </h2>
@@ -244,7 +244,7 @@ export default function QuestionsPage(): React.JSX.Element {
                   />
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 p-5 border border-gray-200 dark:border-slate-800 rounded-lg shadow-xs space-y-4">
+                <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 space-y-4">
                   <h2 className="text-base font-bold text-gray-800 dark:text-slate-100">
                     {t('content.questions.passageTitle', locale)}
                   </h2>

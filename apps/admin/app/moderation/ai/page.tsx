@@ -7,6 +7,7 @@ import { AdminGuard } from '../../../lib/ui-guard';
 import { useAdminAuth } from '../../../lib/auth-context';
 import { apiClient } from '../../../lib/api-client';
 import { t } from '../../../lib/i18n';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface AiModerationLog {
   id: string;
@@ -118,41 +119,41 @@ export default function AiModerationPage(): React.JSX.Element {
           </label>
         </div>
 
-        <div className="overflow-x-auto w-full border border-gray-200 dark:border-slate-800 rounded-lg shadow-xs bg-white dark:bg-slate-900">
-          <table className="w-full text-left text-sm border-collapse">
-            <thead>
-              <tr className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-800 text-gray-700 dark:text-slate-300">
-                <th className="p-3">Mã yêu cầu</th>
-                <th className="p-3">Tác vụ</th>
-                <th className="p-3">Nhà cung cấp / Model</th>
-                <th className="p-3">Tokens</th>
-                <th className="p-3">Chi phí ước tính</th>
-                <th className="p-3">Trạng thái</th>
-                <th className="p-3 text-right">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
+        <div className="overflow-x-auto w-full">
+          <Table className="text-left">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Mã yêu cầu</TableHead>
+                <TableHead>Tác vụ</TableHead>
+                <TableHead>Nhà cung cấp / Model</TableHead>
+                <TableHead>Tokens</TableHead>
+                <TableHead>Chi phí ước tính</TableHead>
+                <TableHead>Trạng thái</TableHead>
+                <TableHead className="text-right">Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {!isLoading && filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={7} data-testid="ai-empty" className="p-8 text-center text-gray-400">
+                <TableRow>
+                  <TableCell colSpan={7} data-testid="ai-empty" className="text-center">
                     {t('content.aiModeration.empty', locale)}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ) : (
                 filtered.map((item) => (
-                  <tr key={item.id} data-testid={`ai-log-row-${item.id}`} className="border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50">
-                    <td className="p-3 font-mono text-xs">{item.id}</td>
-                    <td className="p-3 font-semibold text-gray-900 dark:text-slate-100">{item.actionType}</td>
-                    <td className="p-3 text-xs text-gray-600 dark:text-slate-400">
+                  <TableRow key={item.id} data-testid={`ai-log-row-${item.id}`}>
+                    <TableCell className="font-mono">{item.id}</TableCell>
+                    <TableCell className="font-semibold">{item.actionType}</TableCell>
+                    <TableCell>
                       {item.provider} / {item.model}
-                    </td>
-                    <td className="p-3 text-xs text-gray-600 dark:text-slate-400">
+                    </TableCell>
+                    <TableCell>
                       {item.promptTokens} in / {item.completionTokens} out
-                    </td>
-                    <td className="p-3 font-semibold text-emerald-600">
+                    </TableCell>
+                    <TableCell className="font-semibold">
                       {item.costVnd} đ
-                    </td>
-                    <td className="p-3">
+                    </TableCell>
+                    <TableCell>
                       <span
                         className={`px-2 py-0.5 rounded text-xs font-bold ${
                           item.flaggedUnsafe
@@ -162,8 +163,8 @@ export default function AiModerationPage(): React.JSX.Element {
                       >
                         {item.flaggedUnsafe ? 'CẢNH BÁO' : 'AN TOÀN'}
                       </span>
-                    </td>
-                    <td className="p-3 text-right">
+                    </TableCell>
+                    <TableCell className="text-right">
                       {item.flaggedUnsafe && (
                         <Button
                           type="button"
@@ -175,12 +176,12 @@ export default function AiModerationPage(): React.JSX.Element {
                           {t('content.aiModeration.unflagBtn', locale)}
                         </Button>
                       )}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
     </AdminGuard>

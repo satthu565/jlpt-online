@@ -24,16 +24,13 @@ export const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
 export const toastVariants = cva(
-  'group pointer-events-auto relative flex w-full items-center justify-between space-x-2 overflow-hidden rounded-lg border p-4 pr-6 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full sm:data-[state=open]:slide-in-from-bottom-full',
+  'group pointer-events-auto relative flex w-full items-center justify-between space-x-2 overflow-hidden rounded-3xl p-4 pr-6 shadow-[var(--overlay-shadow)] transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full sm:data-[state=open]:slide-in-from-bottom-full',
   {
     variants: {
       variant: {
-        default:
-          'border-[var(--border-default,#cbd5e1)] bg-[var(--bg-surface-elevated,#ffffff)] text-[var(--text-primary,#0f172a)] dark:border-[var(--border-default,#475569)] dark:bg-[var(--bg-surface-elevated,#1e293b)] dark:text-[var(--text-primary,#f8fafc)]',
-        destructive:
-          'destructive group border-[var(--color-danger,#dc2626)] bg-[var(--color-danger,#dc2626)] text-white dark:border-[var(--color-danger,#ef4444)] dark:bg-[var(--color-danger,#ef4444)]',
-        success:
-          'border-[var(--color-primary,#16a34a)] bg-[var(--color-primary,#16a34a)] text-white dark:border-[var(--color-primary,#22c55e)] dark:bg-[var(--color-primary,#22c55e)]',
+        default: 'bg-[var(--overlay)] text-[var(--foreground)]',
+        destructive: 'destructive group bg-[var(--danger)] text-[var(--danger-foreground)]',
+        success: 'bg-[var(--accent)] text-[var(--accent-foreground)]',
       },
     },
     defaultVariants: {

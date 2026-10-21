@@ -7,6 +7,7 @@ import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 import { apiClient } from '../../lib/api-client';
 import { t } from '../../lib/i18n';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface MediaAsset {
   id: string;
@@ -153,45 +154,45 @@ export default function MediaPage(): React.JSX.Element {
         </div>
 
         {/* Media Table */}
-        <div className="overflow-x-auto w-full border border-gray-200 dark:border-slate-800 rounded-lg shadow-xs bg-white dark:bg-slate-900">
-          <table data-testid="media-table" className="w-full text-left text-sm border-collapse">
-            <thead>
-              <tr className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-800 text-gray-700 dark:text-slate-300">
-                <th className="p-3">Khóa tệp (Key)</th>
-                <th className="p-3">Loại MIME</th>
-                <th className="p-3">Kích thước</th>
-                <th className="p-3">Thời lượng</th>
-                <th className="p-3">Mã SHA-256</th>
-              </tr>
-            </thead>
-            <tbody>
+        <div className="overflow-x-auto w-full">
+          <Table data-testid="media-table" className="text-left">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Khóa tệp (Key)</TableHead>
+                <TableHead>Loại MIME</TableHead>
+                <TableHead>Kích thước</TableHead>
+                <TableHead>Thời lượng</TableHead>
+                <TableHead>Mã SHA-256</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {!isLoading && filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={5} data-testid="media-empty" className="p-8 text-center text-gray-400">
+                <TableRow>
+                  <TableCell colSpan={5} data-testid="media-empty" className="text-center">
                     {t('content.media.empty', locale)}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ) : (
                 filtered.map((item) => (
-                  <tr key={item.id} data-testid={`media-row-${item.id}`} className="border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50">
-                    <td className="p-3 font-medium text-gray-900 font-mono text-xs">
+                  <TableRow key={item.id} data-testid={`media-row-${item.id}`}>
+                    <TableCell className="font-medium font-mono">
                       {item.key || item.filename || item.id}
-                    </td>
-                    <td className="p-3 text-xs text-gray-600">{item.mime}</td>
-                    <td className="p-3 text-xs text-gray-600">
+                    </TableCell>
+                    <TableCell>{item.mime}</TableCell>
+                    <TableCell>
                       {item.size ? `${(item.size / 1024).toFixed(1)} KB` : '—'}
-                    </td>
-                    <td className="p-3 text-xs text-gray-600">
+                    </TableCell>
+                    <TableCell>
                       {item.durationSec ? `${item.durationSec}s` : '—'}
-                    </td>
-                    <td className="p-3 text-xs text-gray-400 font-mono">
+                    </TableCell>
+                    <TableCell className="font-mono">
                       {item.sha256 ? `${item.sha256.slice(0, 12)}...` : '—'}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
     </AdminGuard>

@@ -5,6 +5,7 @@ import { Button } from '@jlpt/ui/components/button';
 import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 import { t } from '../../lib/i18n';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@jlpt/ui/components/table';
 
 export interface ExperimentVariant {
   key: string;
@@ -188,7 +189,7 @@ export default function ExperimentsAdminPage({ initialExperiments }: Experiments
         {experiments.length === 0 && !isLoading && !errorMsg ? (
           <div
             data-testid="experiments-empty"
-            className="p-6 text-center text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-xs"
+            className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-6 text-center text-gray-500 dark:text-gray-400 text-xs"
           >
             {t('experiments.empty', locale)}
           </div>
@@ -198,7 +199,7 @@ export default function ExperimentsAdminPage({ initialExperiments }: Experiments
               <div
                 key={exp.id}
                 data-testid={`experiment-card-${exp.id}`}
-                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-xs space-y-4"
+                className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 space-y-4"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
@@ -235,33 +236,33 @@ export default function ExperimentsAdminPage({ initialExperiments }: Experiments
                 </div>
 
                 {/* Variant Comparison Table */}
-                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs">
-                    <thead className="bg-gray-100 dark:bg-gray-800">
-                      <tr>
-                        <th className="px-4 py-2.5 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Biến thể (Variant)</th>
-                        <th className="px-4 py-2.5 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Tỷ lệ lưu lượng</th>
-                        <th className="px-4 py-2.5 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Lượt gán (Sticky)</th>
-                        <th className="px-4 py-2.5 text-left font-semibold text-gray-600 dark:text-gray-300 uppercase">Số chuyển đổi</th>
-                        <th className="px-4 py-2.5 text-right font-semibold text-gray-600 dark:text-gray-300 uppercase">Tỷ lệ chuyển đổi</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-900">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-left font-semibold">Biến thể (Variant)</TableHead>
+                        <TableHead className="text-left font-semibold">Tỷ lệ lưu lượng</TableHead>
+                        <TableHead className="text-left font-semibold">Lượt gán (Sticky)</TableHead>
+                        <TableHead className="text-left font-semibold">Số chuyển đổi</TableHead>
+                        <TableHead className="text-right font-semibold">Tỷ lệ chuyển đổi</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {exp.variants.map((v) => (
-                        <tr key={v.key} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                          <td className="px-4 py-2.5 font-semibold text-gray-900 dark:text-gray-100">
+                        <TableRow key={v.key}>
+                          <TableCell className="font-semibold">
                             <code>{v.key}</code> ({v.name})
-                          </td>
-                          <td className="px-4 py-2.5 text-gray-600 dark:text-gray-300">{v.weight}%</td>
-                          <td className="px-4 py-2.5 text-gray-600 dark:text-gray-300">{v.assignments.toLocaleString('vi-VN')}</td>
-                          <td className="px-4 py-2.5 text-gray-600 dark:text-gray-300">{v.conversions.toLocaleString('vi-VN')}</td>
-                          <td className="px-4 py-2.5 text-right font-bold text-blue-600 dark:text-blue-400">
+                          </TableCell>
+                          <TableCell>{v.weight}%</TableCell>
+                          <TableCell>{v.assignments.toLocaleString('vi-VN')}</TableCell>
+                          <TableCell>{v.conversions.toLocaleString('vi-VN')}</TableCell>
+                          <TableCell className="text-right font-bold">
                             {v.conversionRate}%
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </TableBody>
+                  </Table>
                 </div>
               </div>
             ))}

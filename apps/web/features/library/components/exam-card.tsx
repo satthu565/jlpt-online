@@ -155,7 +155,7 @@ export function ExamCard({
         </div>
 
         {/* Exam stats: Question count, Duration, Sections */}
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400 mb-4 bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
+        <div className="surface surface--secondary rounded-2xl flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400 mb-4 p-2.5">
           <div>
             Số câu: <strong className="text-slate-900 dark:text-slate-100">{exam.totalQuestions} câu</strong>
           </div>
