@@ -43,3 +43,33 @@ export interface YearlyTrendItemDto {
   term: string;
   count: number;
 }
+
+export interface KanjiHanVietBreakdown {
+  kanji: string;
+  reading?: string;
+  hanViet: string;
+  on?: string;
+}
+
+export interface DictionaryLookupResultDto {
+  entry: string;
+  readings: string[];
+  meanings: string[];
+  examples?: string[];
+  license: string;
+  attribution: string;
+  level?: string;
+  partOfSpeech?: string;
+  status?: string;
+  hanViet?: string;
+  hanVietConfidence?: 'high' | 'review' | 'kun';
+  hanVietSource?: 'rule' | 'override' | 'manual';
+  hanVietPerKanji?: KanjiHanVietBreakdown[];
+}
+
+export interface HanVietReportInput {
+  entry: string;
+  reading?: string;
+  suggestion?: string;
+  note?: string;
+}
