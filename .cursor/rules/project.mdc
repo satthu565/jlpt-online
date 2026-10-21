@@ -1,0 +1,6 @@
+---
+description: Hướng dẫn dự án JLPT Online
+alwaysApply: true
+---
+
+Đọc và làm theo `AGENTS.md` ở gốc repo. Đó là hướng dẫn chung cho mọi agent trong repo này.
