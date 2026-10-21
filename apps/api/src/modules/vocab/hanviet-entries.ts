@@ -21,6 +21,8 @@ export interface HanVietBackfillResult {
   updated: number;
   keptManual: number;
   keptReported: number;
+  /** Headwords written only in kana: no Hán Việt, no confidence, never in the review list. */
+  noKanji: number;
   stats: Record<HanVietConfidence, number>;
 }
 
@@ -44,6 +46,7 @@ export interface HanVietReviewList {
   items: HanVietReviewItem[];
 }
 
+const HAS_KANJI = /[一-鿿㐀-䶿]/;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Per-kanji breakdown for an entry; a manual value keeps the computed On readings but its own syllables. */
@@ -79,7 +82,7 @@ export async function backfillHanViet(dbClient: DbClientInstance, batchSize = 20
     .where(eq(lexiconHanvietReports.status, 'open'));
   const reportedIds = new Set(reported.map((r) => r.entryId).filter(Boolean) as string[]);
 
-  const result: HanVietBackfillResult = { total: 0, updated: 0, keptManual: 0, keptReported: 0, stats: { high: 0, review: 0, kun: 0 } };
+  const result: HanVietBackfillResult = { total: 0, updated: 0, keptManual: 0, keptReported: 0, noKanji: 0, stats: { high: 0, review: 0, kun: 0 } };
   let lastId = '';
   for (;;) {
     const rows: Array<{ id: string; term: string; hanViet: string | null; confidence: string | null; source: string | null }> = await db
@@ -97,12 +100,18 @@ export async function backfillHanViet(dbClient: DbClientInstance, batchSize = 20
     if (rows.length === 0) break;
     lastId = rows[rows.length - 1]!.id;
     const readings = await primaryReadings(db, rows.map((r) => r.id));
-    const changes: Array<{ id: string; hanViet: string; confidence: string; source: string }> = [];
+    const changes: Array<{ id: string; hanViet: string; confidence: string | null; source: string }> = [];
     for (const r of rows) {
       result.total += 1;
       if (r.source === 'manual') {
         result.keptManual += 1;
         result.stats[(r.confidence as HanVietConfidence) ?? 'high'] += 1;
+        continue;
+      }
+      if (!HAS_KANJI.test(r.term)) {
+        result.noKanji += 1;
+        if (r.hanViet === '' && r.confidence === null && r.source === 'rule') continue;
+        changes.push({ id: r.id, hanViet: '', confidence: null, source: 'rule' });
         continue;
       }
       const c = computeHanViet(r.term, readings.get(r.id));
@@ -117,7 +126,7 @@ export async function backfillHanViet(dbClient: DbClientInstance, batchSize = 20
     }
     if (changes.length > 0) {
       const values = sql.join(
-        changes.map((c) => sql`(${c.id}::uuid, ${c.hanViet}, ${c.confidence}, ${c.source})`),
+        changes.map((c) => sql`(${c.id}::uuid, ${c.hanViet}::text, ${c.confidence}::text, ${c.source}::text)`),
         sql`, `,
       );
       await db.execute(sql`
