@@ -1,6 +1,6 @@
 # API
 
-NestJS 12 trên Fastify, tiền tố toàn cục `/api/v1`, cổng 4000. Hợp đồng nằm ở `contracts/openapi.yaml`; sự kiện ở `contracts/events.schema.json`.
+NestJS 12 trên Fastify, tiền tố toàn cục `/api/v1`, cổng 4000. Hợp đồng nằm ở `contracts/openapi.yaml`; sự kiện ở `contracts/events.schema.json`. Danh sách mọi route kèm quyền: [PROJECT_MAP.generated.md](PROJECT_MAP.generated.md) (tự sinh).
 
 ## Module (`apps/api/src/modules/`)
 

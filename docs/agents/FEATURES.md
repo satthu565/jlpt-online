@@ -19,6 +19,7 @@ Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xon
 | Cảnh báo nhịp làm bài | phòng thi | `packages/exam-engine/src/pacing.ts` |
 | Bôi đen chữ trong đề để tra từ (H06) | phòng thi, luyện tập | `features/corpus/hooks/use-select-lookup.ts` |
 | Tra từ, chi tiết từ vựng | `/tu-vung`, `/tu-vung/[term]` | `features/corpus`, module `vocab` |
+| Bộ dữ liệu kanji chuẩn: 3.186 chữ, cách dùng và ví dụ (#127) | admin `/kanji` | `data/kanji/kanji_chuan_v1.json`, bảng `kanji_dataset`, `apps/api/scripts/lexicon/import-kanji-dataset.mjs` |
 | Ngữ pháp, thống kê từ vựng trong đề | `/ngu-phap`, `/thong-ke-tu-vung` | `features/corpus` |
 | Sổ tay, flashcard SRS | `/so-tay` | `features/learning`, `packages/srs` |
 | Kế hoạch học | `/ke-hoach` | `features/planner` |
@@ -67,12 +68,10 @@ Chủ dự án cung cấp tài khoản hoặc dịch vụ thì mới nghiệm th
 
 | Việc | Trạng thái |
 |---|---|
-| Bộ dữ liệu kanji chuẩn (`data/kanji`, bảng `kanji_dataset`, migration 0010) | PR #127 chờ CI |
-| Bộ tài liệu cho agent (`AGENTS.md`, `docs/agents/`) | Đang viết |
+| Sổ tay `docs/agent-guides/`, `pnpm docs:map`, bài kiểm tra đầu vào | PR #129 chờ merge |
 | Trích xuất đề N2 từ PDF thành gói nhập (ngoài repo, chạy trên máy ảo) | 3/31 đề xong |
 
 ## 📋 Dự kiến
 
 - Trang Kanji mức 2: sửa âm Hán Việt từng chữ ngay trong database.
 - Bộ chuyển đổi để coordinator giao việc cho Codex.
-- Sổ tay từng bước (`docs/agent-guides/`) và các file tự sinh từ code (`*.generated.md`).

@@ -23,7 +23,7 @@ PostgreSQL 17, Drizzle ORM 0.45. Toàn bộ bảng khai báo trong `apps/api/src
 | Thống kê, thử nghiệm | `analytics_events`, `analytics_consents`, `experiment_definitions`, `experiment_exposures` |
 | Vận hành | `operator_actions` (nhật ký thao tác của nhân sự), `dead_letter_events`, `backup_jobs`, bảng outbox |
 
-Muốn biết cột và quan hệ của một bảng, đọc `schema.ts` (tìm `pgTable('<tên_bảng>'`).
+Danh sách đầy đủ bảng, cột và khóa ngoại: [DATABASE.generated.md](DATABASE.generated.md) (tự sinh). Chi tiết hơn thì đọc `schema.ts`.
 
 ## Quy ước
 
