@@ -315,6 +315,18 @@ def load_h01(repo):
     return on, prim
 
 
+def load_hv_fixes(repo):
+    """data/kanji/han_viet_sua.tsv: reviewed primary Hán Việt per kanji (overrides the cda choice)."""
+    path = os.path.join(repo, 'data/kanji/han_viet_sua.tsv')
+    out = {}
+    if os.path.exists(path):
+        for l in open(path, encoding='utf-8'):
+            p = l.rstrip('\n').split('\t')
+            if len(p) >= 2 and p[1] and not l.startswith('#'):
+                out[p[0]] = nfc(p[1])
+    return out
+
+
 def image_size(path):
     try:
         with open(path, 'rb') as f:
@@ -400,6 +412,7 @@ def main():
     kvg = load_kvg(os.path.join(S, 'sources/kanjivg', kvg_file))
     hvd = load_hvdic(os.path.join(S, 'sources/hvdic/thieuchuu.jsonl'))
     h01_on, h01_prim = load_h01(a.repo)
+    hv_fixes = load_hv_fixes(a.repo)
     scope_db = [l.split('\t')[0] for l in open(a.scope, encoding='utf-8') if l.strip()]
     scope = list(dict.fromkeys(list(cda) + scope_db + list(joyo)))
     if a.only:
@@ -428,6 +441,8 @@ def main():
 
     # Final primary Hán Việt per kanji (for radicals, derived example readings).
     def primary_hv(k):
+        if k in hv_fixes:
+            return hv_fixes[k]
         r = cda.get(k)
         if r and r['han_viet'].strip():
             return regional(k, hv_syllable_style(split_list(r['han_viet'])[0]))
@@ -530,6 +545,10 @@ def main():
         else:
             mark('han_viet', '', 'thieu')
         hv_list = list(dict.fromkeys(hv_list))
+        if k in hv_fixes:
+            old_main = hv_list[0] if hv_list else ''
+            hv_list = [hv_fixes[k]] + [x for x in hv_list if x != hv_fixes[k]]
+            mark('han_viet', 'han_viet_sua', 'da_duyet')
         on_sec = sections(r.get('vi_du_am_on', ''), 'on')
         theo_on = {}
         for on_key, rows in on_sec.items():
@@ -545,6 +564,13 @@ def main():
         for x in am_on:
             if x['am'] not in theo_on and x['am'] in h01_on.get(k, {}):
                 theo_on[x['am']] = hv_syllable_style(h01_on[k][x['am']])
+        if k in hv_fixes:
+            # Readings voted from the same examples carry the same wrong choice; use the reviewed tables.
+            for on_key, val in list(theo_on.items()):
+                if on_key in h01_on.get(k, {}):
+                    theo_on[on_key] = hv_syllable_style(h01_on[k][on_key])
+                elif val == old_main:
+                    theo_on[on_key] = hv_fixes[k]
         tc_hv = [hv_syllable_style(x) for x in split_list(hvd.get(k, {}).get('am_han_viet_hvdic', ''))]
         han_viet = {'chinh': hv_list[0] if hv_list else '', 'khac': hv_list[1:], 'theo_am_on': theo_on, 'thieu_chuu': tc_hv}
 

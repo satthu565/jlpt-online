@@ -32,8 +32,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "オウ": "ÁP"
   },
   "扱": {
-    "ソウ": "HẤP",
-    "キュウ": "HẤP"
+    "ソウ": "TRÁP",
+    "キュウ": "TRÁP"
   },
   "宛": {
     "エン": "UYỂN"
@@ -65,7 +65,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "イ": "VĨ"
   },
   "囲": {
-    "イ": "VY"
+    "イ": "VI"
   },
   "委": {
     "イ": "ỦY"
@@ -112,7 +112,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "イ": "VỊ"
   },
   "萎": {
-    "イ": "ỦY"
+    "イ": "NUY"
   },
   "衣": {
     "イ": "Y",
@@ -233,8 +233,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ウン": "VÂN"
   },
   "餌": {
-    "ジ": "NHỬ",
-    "ニ": "NHỬ"
+    "ジ": "NHỊ",
+    "ニ": "NHỊ"
   },
   "営": {
     "エイ": "DOANH"
@@ -357,7 +357,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "オウ": "ƯƠNG"
   },
   "奥": {
-    "オウ": "ẢO"
+    "オウ": "ÁO"
   },
   "往": {
     "オウ": "VÃNG"
@@ -374,7 +374,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "オウ": "VƯỢNG"
   },
   "横": {
-    "オウ": "HOẠNH"
+    "オウ": "HOÀNH"
   },
   "欧": {
     "オウ": "ÂU"
@@ -426,7 +426,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "オン": "ÂN"
   },
   "温": {
-    "オン": "ỒN"
+    "オン": "ÔN"
   },
   "穏": {
     "オン": "ỔN"
@@ -766,10 +766,10 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "セキ": "TÍCH"
   },
   "割": {
-    "カツ": "CẮT"
+    "カツ": "CÁT"
   },
   "喝": {
-    "カツ": "HÚP"
+    "カツ": "HÁT"
   },
   "括": {
     "カツ": "QUÁT"
@@ -817,8 +817,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ガ": "NGÕA"
   },
   "乾": {
-    "カン": "CÀN",
-    "ケン": "CÀN"
+    "カン": "CAN",
+    "ケン": "CAN"
   },
   "冠": {
     "カン": "QUAN"
@@ -833,8 +833,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "カン": "KHÁM"
   },
   "勧": {
-    "カン": "CẦN",
-    "ケン": "CẦN"
+    "カン": "KHUYẾN",
+    "ケン": "KHUYẾN"
   },
   "巻": {
     "カン": "QUYỂN",
@@ -1005,7 +1005,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "キ": "CƠ"
   },
   "奇": {
-    "キ": "CƠ"
+    "キ": "KỲ"
   },
   "寄": {
     "キ": "KÝ"
@@ -1019,7 +1019,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ケ": "HY"
   },
   "幾": {
-    "キ": "CƠ"
+    "キ": "KỶ"
   },
   "忌": {
     "キ": "KỴ"
@@ -1028,7 +1028,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "キ": "HUY"
   },
   "机": {
-    "キ": "CƠ"
+    "キ": "KỶ"
   },
   "旗": {
     "キ": "KỲ"
@@ -1328,8 +1328,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "キョウ": "CUNG"
   },
   "挟": {
-    "キョウ": "GIÁP",
-    "ショウ": "GIÁP"
+    "キョウ": "HIỆP",
+    "ショウ": "HIỆP"
   },
   "教": {
     "キョウ": "GIÁO"
@@ -1344,8 +1344,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "キョウ": "CUỒNG"
   },
   "狭": {
-    "キョウ": "HẸP",
-    "コウ": "HẸP"
+    "キョウ": "HIỆP",
+    "コウ": "HIỆP"
   },
   "矯": {
     "キョウ": "KIỂU"
@@ -1428,7 +1428,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ゴン": "CẦM"
   },
   "禁": {
-    "キン": "CẦM"
+    "キン": "CẤM"
   },
   "筋": {
     "キン": "CÂN"
@@ -1465,12 +1465,12 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ク": "CỬU"
   },
   "句": {
-    "ク": "CÂU"
+    "ク": "CÚ"
   },
   "区": {
-    "ク": "ÂU",
-    "オウ": "ÂU",
-    "コウ": "ÂU"
+    "ク": "KHU",
+    "オウ": "KHU",
+    "コウ": "KHU"
   },
   "苦": {
     "ク": "KHỔ"
@@ -1565,7 +1565,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "キョウ": "HUYNH"
   },
   "啓": {
-    "ケイ": "KHỞI"
+    "ケイ": "KHẢI"
   },
   "型": {
     "ケイ": "HÌNH"
@@ -1646,8 +1646,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ケイ": "KÊ"
   },
   "芸": {
-    "ゲイ": "VÂN",
-    "ウン": "VÂN"
+    "ゲイ": "NGHỆ",
+    "ウン": "NGHỆ"
   },
   "迎": {
     "ゲイ": "NGHÊNH"
@@ -1718,7 +1718,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ケン": "KIẾM"
   },
   "圏": {
-    "ケン": "KHUYÊN"
+    "ケン": "QUYỂN"
   },
   "堅": {
     "ケン": "KIÊN"
@@ -2038,8 +2038,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "キョウ": "HIỆU"
   },
   "梗": {
-    "コウ": "CÀNH",
-    "キョウ": "CÀNH"
+    "コウ": "NGẠNH",
+    "キョウ": "NGẠNH"
   },
   "構": {
     "コウ": "CẤU"
@@ -2190,8 +2190,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "-": ""
   },
   "頃": {
-    "ケイ": "KHUYNH",
-    "キョウ": "KHUYNH"
+    "ケイ": "KHOẢNH",
+    "キョウ": "KHOẢNH"
   },
   "今": {
     "コン": "KIM",
@@ -2448,8 +2448,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "サン": "TẢN"
   },
   "参": {
-    "サン": "TAM",
-    "シン": "TAM"
+    "サン": "THAM",
+    "シン": "THAM"
   },
   "山": {
     "サン": "SƠN",
@@ -2473,8 +2473,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "サン": "TOÁN"
   },
   "蚕": {
-    "サン": "TẰM",
-    "テン": "TẰM"
+    "サン": "TÀM",
+    "テン": "TÀM"
   },
   "賛": {
     "サン": "TÁN"
@@ -2852,8 +2852,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "シュ": "CHỦNG"
   },
   "腫": {
-    "シュ": "TRŨNG",
-    "ショウ": "TRŨNG"
+    "シュ": "THŨNG",
+    "ショウ": "THŨNG"
   },
   "趣": {
     "シュ": "THÚ"
@@ -2868,7 +2868,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ジュ": "NHO"
   },
   "受": {
-    "ジュ": "THỌ"
+    "ジュ": "THỤ"
   },
   "呪": {
     "ジュ": "CHÚ",
@@ -2894,7 +2894,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "シュウ": "TÙ"
   },
   "収": {
-    "シュウ": "THÂU"
+    "シュウ": "THU"
   },
   "周": {
     "シュウ": "CHU"
@@ -3152,7 +3152,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ショウ": "THĂNG"
   },
   "召": {
-    "ショウ": "THIỆU"
+    "ショウ": "TRIỆU"
   },
   "商": {
     "ショウ": "THƯƠNG"
@@ -3240,7 +3240,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ショウ": "TIÊU"
   },
   "礁": {
-    "ショウ": "TIÊU"
+    "ショウ": "TIỀU"
   },
   "祥": {
     "ショウ": "TƯỜNG"
@@ -3261,7 +3261,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ショウ": "THIỆU"
   },
   "肖": {
-    "ショウ": "TIÊU"
+    "ショウ": "TIẾU"
   },
   "衝": {
     "ショウ": "XUNG"
@@ -3523,7 +3523,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "シュ": "TU"
   },
   "酢": {
-    "サク": "THỐ"
+    "サク": "TẠC"
   },
   "図": {
     "ズ": "ĐỒ",
@@ -3855,7 +3855,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "セン": "TUYỀN"
   },
   "浅": {
-    "セン": "TIÊN"
+    "セン": "THIỂN"
   },
   "洗": {
     "セン": "TẨY"
@@ -3867,10 +3867,10 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "セン": "TIỀM"
   },
   "煎": {
-    "セン": "CHIÊN"
+    "セン": "TIỄN"
   },
   "旋": {
-    "セン": "HOÀN"
+    "セン": "TOÀN"
   },
   "線": {
     "セン": "TUYẾN"
@@ -4027,7 +4027,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "シュ": "TẢO"
   },
   "挿": {
-    "ソウ": "THỌC"
+    "ソウ": "SÁP"
   },
   "操": {
     "ソウ": "THAO",
@@ -4116,8 +4116,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ゾウ": "TẠNG"
   },
   "蔵": {
-    "ゾウ": "TẠNG",
-    "ソウ": "TẠNG"
+    "ゾウ": "TÀNG",
+    "ソウ": "TÀNG"
   },
   "贈": {
     "ゾウ": "TẶNG",
@@ -4227,7 +4227,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ダ": "THỎA"
   },
   "惰": {
-    "ダ": "ĐỌA"
+    "ダ": "NỌA"
   },
   "打": {
     "ダ": "ĐẢ",
@@ -4242,8 +4242,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "テイ": "THỂ"
   },
   "堆": {
-    "タイ": "ĐỒI",
-    "ツイ": "ĐỒI"
+    "タイ": "ĐÔI",
+    "ツイ": "ĐÔI"
   },
   "対": {
     "タイ": "ĐỐI",
@@ -4265,7 +4265,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "タイ": "THÁI"
   },
   "戴": {
-    "タイ": "ĐỘI"
+    "タイ": "ĐÁI"
   },
   "替": {
     "タイ": "THẾ"
@@ -4316,8 +4316,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ダイ": "ĐỀ"
   },
   "滝": {
-    "ロウ": "LONG",
-    "ソウ": "LONG"
+    "ロウ": "LANG",
+    "ソウ": "LANG"
   },
   "卓": {
     "タク": "TRÁC"
@@ -4335,7 +4335,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "タク": "TRẠCH"
   },
   "濯": {
-    "タク": "TRẠO"
+    "タク": "TRẠC"
   },
   "託": {
     "タク": "THÁC"
@@ -4598,7 +4598,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "チョウ": "TRIỀU"
   },
   "潮": {
-    "チョウ": "TRÀO"
+    "チョウ": "TRIỀU"
   },
   "町": {
     "チョウ": "ĐINH"
@@ -4647,14 +4647,14 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "チン": "TRẪM"
   },
   "沈": {
-    "チン": "THẨM",
-    "ジン": "THẨM"
+    "チン": "TRẦM",
+    "ジン": "TRẦM"
   },
   "珍": {
     "チン": "TRÂN"
   },
   "賃": {
-    "チン": "LẪM"
+    "チン": "NHẪM"
   },
   "鎮": {
     "チン": "TRẤN"
@@ -5153,7 +5153,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "カ": "OA"
   },
   "縄": {
-    "ジョウ": "THỪNG"
+    "ジョウ": "THẰNG"
   },
   "南": {
     "ナン": "NAM",
@@ -5382,17 +5382,17 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "バク": "BỘC"
   },
   "縛": {
-    "バク": "BUỘC"
+    "バク": "PHƯỢC"
   },
   "麦": {
     "バク": "MẠCH"
   },
   "箱": {
-    "ソウ": "RƯƠNG"
+    "ソウ": "TƯƠNG"
   },
   "箸": {
-    "チョ": "TRỢ",
-    "チャク": "TRỢ"
+    "チョ": "TRỨ",
+    "チャク": "TRỨ"
   },
   "肌": {
     "キ": "CƠ"
@@ -5615,7 +5615,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "シツ": "TẤT"
   },
   "肘": {
-    "チュウ": "CHỎ"
+    "チュウ": "TRỬU"
   },
   "必": {
     "ヒツ": "TẤT"
@@ -5627,7 +5627,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "キ": "CƠ"
   },
   "媛": {
-    "エン": "VIÊN"
+    "エン": "VIỆN"
   },
   "百": {
     "ヒャク": "BÁCH",
@@ -5723,7 +5723,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ホ": "BỐ"
   },
   "扶": {
-    "フ": "PHÒ"
+    "フ": "PHÙ"
   },
   "敷": {
     "フ": "PHU"
@@ -5747,7 +5747,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "フ": "PHU"
   },
   "譜": {
-    "フ": "PHẢ"
+    "フ": "PHỔ"
   },
   "負": {
     "フ": "PHỤ"
@@ -5815,9 +5815,9 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "フク": "PHÚC"
   },
   "払": {
-    "フツ": "CHÀNG",
-    "ヒツ": "CHÀNG",
-    "ホツ": "CHÀNG"
+    "フツ": "PHẤT",
+    "ヒツ": "PHẤT",
+    "ホツ": "PHẤT"
   },
   "沸": {
     "フツ": "PHÍ"
@@ -5836,7 +5836,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ブ": "PHẦN"
   },
   "噴": {
-    "フン": "PHUN"
+    "フン": "PHÚN"
   },
   "墳": {
     "フン": "PHẦN"
@@ -5868,7 +5868,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ヘイ": "BÍNH"
   },
   "併": {
-    "ヘイ": "TÍNH"
+    "ヘイ": "TINH"
   },
   "兵": {
     "ヘイ": "BINH",
@@ -5964,7 +5964,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ホ": "PHỐ"
   },
   "捕": {
-    "ホ": "BẮT"
+    "ホ": "BỘ"
   },
   "歩": {
     "ホ": "BỘ",
@@ -6224,8 +6224,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "マイ": "MỖI"
   },
   "幕": {
-    "マク": "MÀN",
-    "バク": "MÀN"
+    "マク": "MẠC",
+    "バク": "MẠC"
   },
   "膜": {
     "マク": "MẠC"
@@ -6406,8 +6406,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ボク": "MỤC"
   },
   "餅": {
-    "ヘイ": "BÁNH",
-    "ヒョウ": "BÁNH"
+    "ヘイ": "BÍNH",
+    "ヒョウ": "BÍNH"
   },
   "戻": {
     "レイ": "LỆ"
@@ -6464,8 +6464,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ユ": "DU"
   },
   "油": {
-    "ユ": "DẦU",
-    "ユウ": "DẦU"
+    "ユ": "DU",
+    "ユウ": "DU"
   },
   "癒": {
     "ユ": "DŨ"
@@ -6789,7 +6789,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "リョウ": "LIỆU"
   },
   "涼": {
-    "リョウ": "LƯỢNG"
+    "リョウ": "LƯƠNG"
   },
   "猟": {
     "リョウ": "LIỆP"
@@ -6857,7 +6857,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "レイ": "LỆ"
   },
   "累": {
-    "ルイ": "LỤY"
+    "ルイ": "LŨY"
   },
   "類": {
     "ルイ": "LOẠI"
@@ -6869,7 +6869,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "レイ": "LỆ"
   },
   "冷": {
-    "レイ": "LẠNH"
+    "レイ": "LÃNH"
   },
   "励": {
     "レイ": "LỆ"
@@ -6939,7 +6939,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "リョ": "LỮ"
   },
   "炉": {
-    "ロ": "LÒ"
+    "ロ": "LÔ"
   },
   "賂": {
     "ロ": "LỘ"
@@ -7021,10 +7021,10 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "ワン": "OẢN"
   },
   "丼": {
-    "トン": "ĐẢM",
-    "タン": "ĐẢM",
-    "ショウ": "ĐẢM",
-    "セイ": "ĐẢM"
+    "トン": "TỈNH",
+    "タン": "TỈNH",
+    "ショウ": "TỈNH",
+    "セイ": "TỈNH"
   },
   "傲": {
     "ゴウ": "NGẠO"
@@ -7035,7 +7035,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "サツ": "SÁT"
   },
   "哺": {
-    "ホ": "BÚ"
+    "ホ": "BỘ"
   },
   "喩": {
     "ユ": "DỤ"
@@ -7051,7 +7051,7 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "キ": "HỦY"
   },
   "彙": {
-    "イ": "HỘI"
+    "イ": "VỰNG"
   },
   "恣": {
     "シ": "TỨ"
@@ -7093,8 +7093,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "セン": "TIÊN"
   },
   "籠": {
-    "ロウ": "LỒNG",
-    "ル": "LỒNG"
+    "ロウ": "LUNG",
+    "ル": "LUNG"
   },
   "緻": {
     "チ": "TRÍ"
@@ -7114,8 +7114,8 @@ export const HANVIET_ONYOMI_TABLE: Record<string, Record<string, string>> = {
     "トン": "THAM"
   },
   "踪": {
-    "ソウ": "TÔNG",
-    "ショウ": "TÔNG"
+    "ソウ": "TUNG",
+    "ショウ": "TUNG"
   },
   "辣": {
     "ラツ": "LẠT"
@@ -7535,7 +7535,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "丹": "ĐAN",
   "为": "VI",
   "主": "CHỦ",
-  "丼": "ĐẢM",
+  "丼": "TỈNH",
   "丽": "LY",
   "举": "CỬ",
   "丿": "PHẨY",
@@ -7577,7 +7577,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "乳": "NHŨ",
   "乴": "TÍCH",
   "乹": "CÀN",
-  "乾": "CÀN",
+  "乾": "CAN",
   "亀": "QUY",
   "亁": "CAN",
   "亂": "LOẠN",
@@ -7763,7 +7763,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "佰": "BÁCH",
   "佳": "GIAI",
   "佴": "NHỊ",
-  "併": "TÍNH",
+  "併": "TINH",
   "佶": "CÁT",
   "佷": "HẬN",
   "佸": "QUÁT",
@@ -8157,7 +8157,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "决": "QUYẾT",
   "况": "HUỐNG",
   "冶": "DÃ",
-  "冷": "LẠNH",
+  "冷": "LÃNH",
   "冻": "ĐÔNG",
   "冽": "LIỆT",
   "净": "TỊNH",
@@ -8296,7 +8296,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "剮": "QUẢ",
   "副": "PHÓ",
   "剰": "THẶNG",
-  "割": "CẮT",
+  "割": "CÁT",
   "剳": "TRÁP",
   "剴": "KHẢI",
   "創": "SÁNG",
@@ -8375,7 +8375,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "勣": "TÍCH",
   "勤": "CẦN",
   "勦": "TIỄU",
-  "勧": "CẦN",
+  "勧": "KHUYẾN",
   "勩": "DUỆ",
   "勯": "ĐAN",
   "勰": "HIỆP",
@@ -8431,7 +8431,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "匶": "CỮU",
   "匸": "HỆ",
   "匹": "THẤT",
-  "区": "ÂU",
+  "区": "KHU",
   "医": "Y",
   "匼": "HỘP",
   "匽": "YỂN",
@@ -8540,7 +8540,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "厾": "ĐÂU",
   "县": "HUYỆN",
   "叁": "TAM",
-  "参": "TAM",
+  "参": "THAM",
   "參": "TAM",
   "叄": "TAM",
   "叅": "THAM",
@@ -8552,13 +8552,13 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "友": "HỮU",
   "双": "SONG",
   "反": "PHẢN",
-  "収": "THÂU",
+  "収": "THU",
   "发": "PHÁT",
   "叒": "NHƯỢC",
   "叔": "THÚC",
   "叕": "CHUYẾT",
   "取": "THỦ",
-  "受": "THỌ",
+  "受": "THỤ",
   "变": "BIẾN",
   "叙": "TỰ",
   "叚": "GIẢ",
@@ -8570,13 +8570,13 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "叢": "TÙNG",
   "口": "KHẨU",
   "古": "CỔ",
-  "句": "CÂU",
+  "句": "CÚ",
   "另": "LÁNH",
   "叨": "ĐAO",
   "叩": "KHẤU",
   "只": "CHỈ",
   "叫": "KHIẾU",
-  "召": "THIỆU",
+  "召": "TRIỆU",
   "叭": "BÁ",
   "叮": "ĐINH",
   "可": "KHẢ",
@@ -8794,7 +8794,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "哳": "TRIẾT",
   "哴": "LƯỢNG",
   "哶": "MÃ",
-  "哺": "BÚ",
+  "哺": "BỘ",
   "哼": "HANH",
   "哽": "NGẠNH",
   "哿": "CẢ",
@@ -8860,7 +8860,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "啐": "THỐI",
   "啑": "ĐIỆP",
   "啒": "QUẮT",
-  "啓": "KHỞI",
+  "啓": "KHẢI",
   "啕": "ĐÀO",
   "啖": "ĐẠM",
   "啗": "ĐẠM",
@@ -8920,7 +8920,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "喙": "UẾ",
   "喚": "HOÁN",
   "喜": "HỶ",
-  "喝": "HÚP",
+  "喝": "HÁT",
   "喟": "VỊ",
   "喠": "GIÓNG",
   "喡": "VẦY",
@@ -9080,7 +9080,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "噱": "CƯỢC",
   "噲": "KHOÁI",
   "噳": "NGU",
-  "噴": "PHUN",
+  "噴": "PHÚN",
   "噶": "CÁT",
   "噷": "HÂM",
   "噸": "ĐỐN",
@@ -9162,7 +9162,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "囯": "QUỐC",
   "困": "KHỐN",
   "囱": "SONG",
-  "囲": "VY",
+  "囲": "VI",
   "図": "ĐỒ",
   "围": "VI",
   "囵": "LUÂN",
@@ -9187,7 +9187,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "國": "QUỐC",
   "圌": "THÙY",
   "圍": "VI",
-  "圏": "KHUYÊN",
+  "圏": "QUYỂN",
   "園": "VIÊN",
   "圓": "VIÊN",
   "圕": "THOAN",
@@ -9338,7 +9338,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "堃": "KHÔN",
   "堄": "NGHÊ",
   "堅": "KIÊN",
-  "堆": "ĐỒI",
+  "堆": "ĐÔI",
   "堇": "CẬN",
   "堈": "CANG",
   "堉": "DỤC",
@@ -9527,7 +9527,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "奁": "LIÊM",
   "奂": "HOÁN",
   "奄": "YỂM",
-  "奇": "CƠ",
+  "奇": "KỲ",
   "奈": "NẠI",
   "奉": "PHỤNG",
   "奋": "PHẤN",
@@ -9546,7 +9546,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "奠": "ĐIỆN",
   "奡": "NGẠO",
   "奢": "XA",
-  "奥": "ẢO",
+  "奥": "ÁO",
   "奧": "ẢO",
   "奨": "TƯỞNG",
   "奩": "LIÊM",
@@ -9702,7 +9702,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "媕": "AN",
   "媖": "ANH",
   "媚": "MỊ",
-  "媛": "VIÊN",
+  "媛": "VIỆN",
   "媞": "THỊ",
   "媟": "TIẾT",
   "媠": "NỌA",
@@ -10267,7 +10267,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "幏": "GIÁ",
   "幑": "HUY",
   "幔": "MẠN",
-  "幕": "MÀN",
+  "幕": "MẠC",
   "幗": "QUẮC",
   "幘": "TRÁCH",
   "幙": "MẠC",
@@ -10299,7 +10299,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "幻": "HUYỄN",
   "幼": "ẤU",
   "幽": "U",
-  "幾": "CƠ",
+  "幾": "KỶ",
   "广": "NGHIỄM",
   "庀": "PHỈ",
   "庁": "SẢNH",
@@ -10453,7 +10453,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "彖": "THOÁN",
   "彗": "TUỆ",
   "彘": "TRỆ",
-  "彙": "HỘI",
+  "彙": "VỰNG",
   "彛": "DI",
   "彝": "DI",
   "彞": "DI",
@@ -10742,7 +10742,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "惭": "TÀM",
   "惮": "ĐẠN",
   "惯": "QUÁN",
-  "惰": "ĐỌA",
+  "惰": "NỌA",
   "惱": "NÃO",
   "惲": "UẨN",
   "想": "TƯỞNG",
@@ -10953,7 +10953,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "戱": "HÍ",
   "戲": "HÍ",
   "戳": "TRẠC",
-  "戴": "ĐỘI",
+  "戴": "ĐÁI",
   "戶": "HỘ",
   "户": "HỘ",
   "戸": "HỘ",
@@ -10983,7 +10983,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "扒": "BÁI",
   "打": "ĐẢ",
   "扔": "NHƯNG",
-  "払": "CHÀNG",
+  "払": "PHẤT",
   "扗": "NHỔ",
   "托": "THÁC",
   "扙": "RƯỢN",
@@ -11006,11 +11006,11 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "扮": "BAN",
   "扯": "XẢ",
   "扰": "NHIỄU",
-  "扱": "HẤP",
+  "扱": "TRÁP",
   "扲": "CẦM",
   "扳": "BAN",
   "扵": "VU",
-  "扶": "PHÒ",
+  "扶": "PHÙ",
   "批": "PHÊ",
   "扺": "CHỈ",
   "扻": "TIẾT",
@@ -11149,7 +11149,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "挜": "Á",
   "挝": "QUA",
   "挞": "THÁT",
-  "挟": "GIÁP",
+  "挟": "HIỆP",
   "挠": "NẠO",
   "挡": "ĐẢNG",
   "挢": "KIỂU",
@@ -11176,7 +11176,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "挼": "NHOA",
   "挽": "VÃN",
   "挾": "GIÁP",
-  "挿": "THỌC",
+  "挿": "SÁP",
   "捁": "KÉO",
   "捂": "NGỘ",
   "捃": "QUẤN",
@@ -11193,7 +11193,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "捏": "NIẾT",
   "捐": "QUYÊN",
   "捓": "DA",
-  "捕": "BẮT",
+  "捕": "BỘ",
   "捗": "DUỆ",
   "捘": "TUẤN",
   "捛": "TRÃ",
@@ -11656,7 +11656,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "旈": "LƯU",
   "旉": "PHU",
   "旊": "PHƯỞNG",
-  "旋": "HOÀN",
+  "旋": "TOÀN",
   "旌": "TINH",
   "旎": "NỈ",
   "族": "TỘC",
@@ -11875,7 +11875,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "朴": "PHÁC",
   "朵": "ĐÓA",
   "朶": "ĐÓA",
-  "机": "CƠ",
+  "机": "KỶ",
   "朽": "HỦ",
   "朾": "TRANH",
   "朿": "THỨ",
@@ -12107,7 +12107,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "梓": "TỬ",
   "梔": "CHI",
   "梖": "VỐI",
-  "梗": "CÀNH",
+  "梗": "NGẠNH",
   "梛": "NỨA",
   "條": "ĐIỀU",
   "梞": "CẬY",
@@ -12356,7 +12356,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "樧": "SÁT",
   "樨": "TÊ",
   "権": "QUYỀN",
-  "横": "HOẠNH",
+  "横": "HOÀNH",
   "樯": "TƯỜNG",
   "樱": "ANH",
   "樲": "NHỊ",
@@ -12729,7 +12729,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "沅": "NGUYÊN",
   "沆": "HÃNG",
   "沇": "DUYỆN",
-  "沈": "THẨM",
+  "沈": "TRẦM",
   "沉": "TRẦM",
   "沌": "ĐỘN",
   "沍": "HỘ",
@@ -12763,7 +12763,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "河": "HÀ",
   "沴": "LỆ",
   "沸": "PHÍ",
-  "油": "DẦU",
+  "油": "DU",
   "沺": "ĐIỀN",
   "治": "TRỊ",
   "沼": "CHIỂU",
@@ -12865,7 +12865,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "流": "LƯU",
   "浃": "TIẾP",
   "浄": "TỊNH",
-  "浅": "TIÊN",
+  "浅": "THIỂN",
   "浆": "TƯƠNG",
   "浇": "KIÊU",
   "浈": "TRINH",
@@ -12948,7 +12948,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "涶": "THÓA",
   "涷": "ĐÔNG",
   "涸": "HẠC",
-  "涼": "LƯỢNG",
+  "涼": "LƯƠNG",
   "涿": "TRÁC",
   "淀": "ĐIẾN",
   "淁": "THIẾP",
@@ -13025,7 +13025,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "渥": "ÁC",
   "渦": "QUA",
   "渨": "ÔI",
-  "温": "ỒN",
+  "温": "ÔN",
   "渫": "TIẾT",
   "測": "TRẮC",
   "渭": "VỊ",
@@ -13139,7 +13139,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "滙": "HỐI",
   "滚": "CỔN",
   "滛": "DÂM",
-  "滝": "LONG",
+  "滝": "LANG",
   "滞": "TRỆ",
   "滠": "NHIẾP",
   "满": "MÃN",
@@ -13232,7 +13232,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "潨": "TÙNG",
   "潬": "THAN",
   "潭": "ĐÀM",
-  "潮": "TRÀO",
+  "潮": "TRIỀU",
   "潯": "TẦM",
   "潰": "HỘI",
   "潲": "SẢO",
@@ -13306,7 +13306,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "濫": "LẠM",
   "濬": "TUẤN",
   "濮": "BỘC",
-  "濯": "TRẠO",
+  "濯": "TRẠC",
   "濰": "DUY",
   "濱": "TÂN",
   "濲": "CỐC",
@@ -13392,7 +13392,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "炁": "KHÍ",
   "炅": "QUÝ",
   "炆": "VĂN",
-  "炉": "LÒ",
+  "炉": "LÔ",
   "炊": "XUY",
   "炎": "VIÊM",
   "炐": "PHỪNG",
@@ -13493,7 +13493,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "煉": "LUYỆN",
   "煊": "HUYÊN",
   "煌": "HOÀNG",
-  "煎": "CHIÊN",
+  "煎": "TIỄN",
   "煏": "PHỨC",
   "煑": "CHỬ",
   "煒": "VĨ",
@@ -13732,7 +13732,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "狩": "THÚ",
   "狫": "LÃO",
   "独": "ĐỘC",
-  "狭": "HẸP",
+  "狭": "HIỆP",
   "狮": "SƯ",
   "狯": "QUÁI",
   "狰": "TRANH",
@@ -14702,7 +14702,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "磻": "BÀN",
   "磽": "KHAO",
   "磾": "SẠN",
-  "礁": "TIÊU",
+  "礁": "TIỀU",
   "礄": "KIỀU",
   "礅": "ĐÔN",
   "礆": "KIỀM",
@@ -14772,7 +14772,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "祼": "QUÁN",
   "祿": "LỘC",
   "禀": "BẨM",
-  "禁": "CẦM",
+  "禁": "CẤM",
   "禂": "ĐẢO",
   "禄": "LỘC",
   "禅": "THIỀN",
@@ -15116,9 +15116,9 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "箬": "NHƯỢC",
   "箭": "TIỄN",
   "箯": "TIÊN",
-  "箱": "RƯƠNG",
+  "箱": "TƯƠNG",
   "箴": "CHÂM",
-  "箸": "TRỢ",
+  "箸": "TRỨ",
   "箾": "SÓC",
   "節": "TIẾT",
   "篁": "HOÀNG",
@@ -15214,7 +15214,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "籜": "THÁC",
   "籝": "DOANH",
   "籟": "LẠI",
-  "籠": "LỒNG",
+  "籠": "LUNG",
   "籢": "LIÊM",
   "籣": "LAN",
   "籤": "THIÊM",
@@ -15342,7 +15342,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "紫": "TỬ",
   "紬": "TRỪU",
   "紮": "TRÁT",
-  "累": "LỤY",
+  "累": "LŨY",
   "細": "TẾ",
   "紱": "PHẤT",
   "紲": "TIẾT",
@@ -15484,7 +15484,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "緻": "TRÍ",
   "縁": "DUYÊN",
   "縂": "TỔNG",
-  "縄": "THỪNG",
+  "縄": "THẰNG",
   "縆": "CĂNG",
   "縈": "OANH",
   "縉": "TẤN",
@@ -15497,7 +15497,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "縕": "UÂN",
   "縗": "THÔI",
   "縚": "THAO",
-  "縛": "BUỘC",
+  "縛": "PHƯỢC",
   "縝": "CHẨN",
   "縞": "CẢO",
   "縟": "NHỤC",
@@ -15972,8 +15972,8 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "肐": "CÁCH",
   "肓": "HOANG",
   "肕": "NHẬN",
-  "肖": "TIÊU",
-  "肘": "CHỎ",
+  "肖": "TIẾU",
+  "肘": "TRỬU",
   "肚": "ĐỖ",
   "肛": "GIANG",
   "肜": "DUNG",
@@ -16119,7 +16119,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "腦": "NÃO",
   "腧": "THÚ",
   "腩": "NẠM",
-  "腫": "TRŨNG",
+  "腫": "THŨNG",
   "腭": "NGẠC",
   "腮": "TAI",
   "腯": "ĐỘT",
@@ -16348,7 +16348,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "芳": "PHƯƠNG",
   "芴": "HỐT",
   "芷": "CHỈ",
-  "芸": "VÂN",
+  "芸": "NGHỆ",
   "芹": "CẦN",
   "芻": "SÔ",
   "芼": "MẠO",
@@ -16577,7 +16577,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "萋": "THÊ",
   "萌": "MANH",
   "萍": "BÌNH",
-  "萎": "ỦY",
+  "萎": "NUY",
   "萏": "ĐẠM",
   "萐": "TIỆP",
   "萑": "HOÀN",
@@ -16734,7 +16734,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "蔭": "ẤM",
   "蔯": "TRẦN",
   "蔴": "MA",
-  "蔵": "TẠNG",
+  "蔵": "TÀNG",
   "蔷": "TƯỜNG",
   "蔹": "LIỄM",
   "蔺": "LẬN",
@@ -16939,7 +16939,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "蚌": "BẠNG",
   "蚍": "TỲ",
   "蚓": "DẪN",
-  "蚕": "TẰM",
+  "蚕": "TÀM",
   "蚖": "NGOAN",
   "蚘": "HỒI",
   "蚛": "TRỌNG",
@@ -17697,7 +17697,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "識": "THỨC",
   "譙": "TIỀU",
   "譚": "ĐÀM",
-  "譜": "PHẢ",
+  "譜": "PHỔ",
   "譟": "TÁO",
   "警": "CẢNH",
   "譩": "Y",
@@ -17976,7 +17976,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "賀": "HẠ",
   "賁": "BÔN",
   "賂": "LỘ",
-  "賃": "LẪM",
+  "賃": "NHẪM",
   "賄": "HỐI",
   "賅": "CAI",
   "資": "TƯ",
@@ -18230,7 +18230,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "踦": "KỶ",
   "踧": "TÚC",
   "踩": "THẢI",
-  "踪": "TÔNG",
+  "踪": "TUNG",
   "踫": "BÍNH",
   "踬": "CHÍ",
   "踮": "ĐIỂM",
@@ -18821,7 +18821,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "酝": "UẤN",
   "酞": "THÁI",
   "酡": "ĐÀ",
-  "酢": "THỐ",
+  "酢": "TẠC",
   "酣": "HÀM",
   "酤": "CÔ",
   "酥": "TÔ",
@@ -19951,7 +19951,7 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "頀": "HỘ",
   "頁": "HIỆT",
   "頂": "ĐỈNH",
-  "頃": "KHUYNH",
+  "頃": "KHOẢNH",
   "頄": "CỪU",
   "項": "HẠNG",
   "順": "THUẬN",
@@ -20140,11 +20140,11 @@ export const HANVIET_PRIMARY_TABLE: Record<string, string> = {
   "餂": "THIỂM",
   "餃": "CẢO",
   "餄": "HỢP",
-  "餅": "BÁNH",
+  "餅": "BÍNH",
   "餈": "TƯ",
   "餉": "HƯỚNG",
   "養": "DƯỠNG",
-  "餌": "NHỬ",
+  "餌": "NHỊ",
   "餍": "YẾM",
   "餎": "LẠC",
   "餐": "XAN",

@@ -390,7 +390,7 @@
 丹	ĐAN
 为	VI
 主	CHỦ
-丼	ĐẢM
+丼	TỈNH
 丽	LY
 举	CỬ
 丿	PHẨY
@@ -432,7 +432,7 @@
 乳	NHŨ
 乴	TÍCH
 乹	CÀN
-乾	CÀN
+乾	CAN
 亀	QUY
 亁	CAN
 亂	LOẠN
@@ -618,7 +618,7 @@
 佰	BÁCH
 佳	GIAI
 佴	NHỊ
-併	TÍNH
+併	TINH
 佶	CÁT
 佷	HẬN
 佸	QUÁT
@@ -1012,7 +1012,7 @@
 决	QUYẾT
 况	HUỐNG
 冶	DÃ
-冷	LẠNH
+冷	LÃNH
 冻	ĐÔNG
 冽	LIỆT
 净	TỊNH
@@ -1151,7 +1151,7 @@
 剮	QUẢ
 副	PHÓ
 剰	THẶNG
-割	CẮT
+割	CÁT
 剳	TRÁP
 剴	KHẢI
 創	SÁNG
@@ -1230,7 +1230,7 @@
 勣	TÍCH
 勤	CẦN
 勦	TIỄU
-勧	CẦN
+勧	KHUYẾN
 勩	DUỆ
 勯	ĐAN
 勰	HIỆP
@@ -1286,7 +1286,7 @@
 匶	CỮU
 匸	HỆ
 匹	THẤT
-区	ÂU
+区	KHU
 医	Y
 匼	HỘP
 匽	YỂN
@@ -1395,7 +1395,7 @@
 厾	ĐÂU
 县	HUYỆN
 叁	TAM
-参	TAM
+参	THAM
 參	TAM
 叄	TAM
 叅	THAM
@@ -1407,13 +1407,13 @@
 友	HỮU
 双	SONG
 反	PHẢN
-収	THÂU
+収	THU
 发	PHÁT
 叒	NHƯỢC
 叔	THÚC
 叕	CHUYẾT
 取	THỦ
-受	THỌ
+受	THỤ
 变	BIẾN
 叙	TỰ
 叚	GIẢ
@@ -1425,13 +1425,13 @@
 叢	TÙNG
 口	KHẨU
 古	CỔ
-句	CÂU
+句	CÚ
 另	LÁNH
 叨	ĐAO
 叩	KHẤU
 只	CHỈ
 叫	KHIẾU
-召	THIỆU
+召	TRIỆU
 叭	BÁ
 叮	ĐINH
 可	KHẢ
@@ -1649,7 +1649,7 @@
 哳	TRIẾT
 哴	LƯỢNG
 哶	MÃ
-哺	BÚ
+哺	BỘ
 哼	HANH
 哽	NGẠNH
 哿	CẢ
@@ -1715,7 +1715,7 @@
 啐	THỐI
 啑	ĐIỆP
 啒	QUẮT
-啓	KHỞI
+啓	KHẢI
 啕	ĐÀO
 啖	ĐẠM
 啗	ĐẠM
@@ -1775,7 +1775,7 @@
 喙	UẾ
 喚	HOÁN
 喜	HỶ
-喝	HÚP
+喝	HÁT
 喟	VỊ
 喠	GIÓNG
 喡	VẦY
@@ -1935,7 +1935,7 @@
 噱	CƯỢC
 噲	KHOÁI
 噳	NGU
-噴	PHUN
+噴	PHÚN
 噶	CÁT
 噷	HÂM
 噸	ĐỐN
@@ -2017,7 +2017,7 @@
 囯	QUỐC
 困	KHỐN
 囱	SONG
-囲	VY
+囲	VI
 図	ĐỒ
 围	VI
 囵	LUÂN
@@ -2042,7 +2042,7 @@
 國	QUỐC
 圌	THÙY
 圍	VI
-圏	KHUYÊN
+圏	QUYỂN
 園	VIÊN
 圓	VIÊN
 圕	THOAN
@@ -2193,7 +2193,7 @@
 堃	KHÔN
 堄	NGHÊ
 堅	KIÊN
-堆	ĐỒI
+堆	ĐÔI
 堇	CẬN
 堈	CANG
 堉	DỤC
@@ -2382,7 +2382,7 @@
 奁	LIÊM
 奂	HOÁN
 奄	YỂM
-奇	CƠ
+奇	KỲ
 奈	NẠI
 奉	PHỤNG
 奋	PHẤN
@@ -2401,7 +2401,7 @@
 奠	ĐIỆN
 奡	NGẠO
 奢	XA
-奥	ẢO
+奥	ÁO
 奧	ẢO
 奨	TƯỞNG
 奩	LIÊM
@@ -2557,7 +2557,7 @@
 媕	AN
 媖	ANH
 媚	MỊ
-媛	VIÊN
+媛	VIỆN
 媞	THỊ
 媟	TIẾT
 媠	NỌA
@@ -3122,7 +3122,7 @@
 幏	GIÁ
 幑	HUY
 幔	MẠN
-幕	MÀN
+幕	MẠC
 幗	QUẮC
 幘	TRÁCH
 幙	MẠC
@@ -3154,7 +3154,7 @@
 幻	HUYỄN
 幼	ẤU
 幽	U
-幾	CƠ
+幾	KỶ
 广	NGHIỄM
 庀	PHỈ
 庁	SẢNH
@@ -3308,7 +3308,7 @@
 彖	THOÁN
 彗	TUỆ
 彘	TRỆ
-彙	HỘI
+彙	VỰNG
 彛	DI
 彝	DI
 彞	DI
@@ -3597,7 +3597,7 @@
 惭	TÀM
 惮	ĐẠN
 惯	QUÁN
-惰	ĐỌA
+惰	NỌA
 惱	NÃO
 惲	UẨN
 想	TƯỞNG
@@ -3808,7 +3808,7 @@
 戱	HÍ
 戲	HÍ
 戳	TRẠC
-戴	ĐỘI
+戴	ĐÁI
 戶	HỘ
 户	HỘ
 戸	HỘ
@@ -3838,7 +3838,7 @@
 扒	BÁI
 打	ĐẢ
 扔	NHƯNG
-払	CHÀNG
+払	PHẤT
 扗	NHỔ
 托	THÁC
 扙	RƯỢN
@@ -3861,11 +3861,11 @@
 扮	BAN
 扯	XẢ
 扰	NHIỄU
-扱	HẤP
+扱	TRÁP
 扲	CẦM
 扳	BAN
 扵	VU
-扶	PHÒ
+扶	PHÙ
 批	PHÊ
 扺	CHỈ
 扻	TIẾT
@@ -4004,7 +4004,7 @@
 挜	Á
 挝	QUA
 挞	THÁT
-挟	GIÁP
+挟	HIỆP
 挠	NẠO
 挡	ĐẢNG
 挢	KIỂU
@@ -4031,7 +4031,7 @@
 挼	NHOA
 挽	VÃN
 挾	GIÁP
-挿	THỌC
+挿	SÁP
 捁	KÉO
 捂	NGỘ
 捃	QUẤN
@@ -4048,7 +4048,7 @@
 捏	NIẾT
 捐	QUYÊN
 捓	DA
-捕	BẮT
+捕	BỘ
 捗	DUỆ
 捘	TUẤN
 捛	TRÃ
@@ -4511,7 +4511,7 @@
 旈	LƯU
 旉	PHU
 旊	PHƯỞNG
-旋	HOÀN
+旋	TOÀN
 旌	TINH
 旎	NỈ
 族	TỘC
@@ -4730,7 +4730,7 @@
 朴	PHÁC
 朵	ĐÓA
 朶	ĐÓA
-机	CƠ
+机	KỶ
 朽	HỦ
 朾	TRANH
 朿	THỨ
@@ -4962,7 +4962,7 @@
 梓	TỬ
 梔	CHI
 梖	VỐI
-梗	CÀNH
+梗	NGẠNH
 梛	NỨA
 條	ĐIỀU
 梞	CẬY
@@ -5211,7 +5211,7 @@
 樧	SÁT
 樨	TÊ
 権	QUYỀN
-横	HOẠNH
+横	HOÀNH
 樯	TƯỜNG
 樱	ANH
 樲	NHỊ
@@ -5584,7 +5584,7 @@
 沅	NGUYÊN
 沆	HÃNG
 沇	DUYỆN
-沈	THẨM
+沈	TRẦM
 沉	TRẦM
 沌	ĐỘN
 沍	HỘ
@@ -5618,7 +5618,7 @@
 河	HÀ
 沴	LỆ
 沸	PHÍ
-油	DẦU
+油	DU
 沺	ĐIỀN
 治	TRỊ
 沼	CHIỂU
@@ -5720,7 +5720,7 @@
 流	LƯU
 浃	TIẾP
 浄	TỊNH
-浅	TIÊN
+浅	THIỂN
 浆	TƯƠNG
 浇	KIÊU
 浈	TRINH
@@ -5803,7 +5803,7 @@
 涶	THÓA
 涷	ĐÔNG
 涸	HẠC
-涼	LƯỢNG
+涼	LƯƠNG
 涿	TRÁC
 淀	ĐIẾN
 淁	THIẾP
@@ -5880,7 +5880,7 @@
 渥	ÁC
 渦	QUA
 渨	ÔI
-温	ỒN
+温	ÔN
 渫	TIẾT
 測	TRẮC
 渭	VỊ
@@ -5994,7 +5994,7 @@
 滙	HỐI
 滚	CỔN
 滛	DÂM
-滝	LONG
+滝	LANG
 滞	TRỆ
 滠	NHIẾP
 满	MÃN
@@ -6087,7 +6087,7 @@
 潨	TÙNG
 潬	THAN
 潭	ĐÀM
-潮	TRÀO
+潮	TRIỀU
 潯	TẦM
 潰	HỘI
 潲	SẢO
@@ -6161,7 +6161,7 @@
 濫	LẠM
 濬	TUẤN
 濮	BỘC
-濯	TRẠO
+濯	TRẠC
 濰	DUY
 濱	TÂN
 濲	CỐC
@@ -6247,7 +6247,7 @@
 炁	KHÍ
 炅	QUÝ
 炆	VĂN
-炉	LÒ
+炉	LÔ
 炊	XUY
 炎	VIÊM
 炐	PHỪNG
@@ -6348,7 +6348,7 @@
 煉	LUYỆN
 煊	HUYÊN
 煌	HOÀNG
-煎	CHIÊN
+煎	TIỄN
 煏	PHỨC
 煑	CHỬ
 煒	VĨ
@@ -6587,7 +6587,7 @@
 狩	THÚ
 狫	LÃO
 独	ĐỘC
-狭	HẸP
+狭	HIỆP
 狮	SƯ
 狯	QUÁI
 狰	TRANH
@@ -7557,7 +7557,7 @@
 磻	BÀN
 磽	KHAO
 磾	SẠN
-礁	TIÊU
+礁	TIỀU
 礄	KIỀU
 礅	ĐÔN
 礆	KIỀM
@@ -7627,7 +7627,7 @@
 祼	QUÁN
 祿	LỘC
 禀	BẨM
-禁	CẦM
+禁	CẤM
 禂	ĐẢO
 禄	LỘC
 禅	THIỀN
@@ -7971,9 +7971,9 @@
 箬	NHƯỢC
 箭	TIỄN
 箯	TIÊN
-箱	RƯƠNG
+箱	TƯƠNG
 箴	CHÂM
-箸	TRỢ
+箸	TRỨ
 箾	SÓC
 節	TIẾT
 篁	HOÀNG
@@ -8069,7 +8069,7 @@
 籜	THÁC
 籝	DOANH
 籟	LẠI
-籠	LỒNG
+籠	LUNG
 籢	LIÊM
 籣	LAN
 籤	THIÊM
@@ -8197,7 +8197,7 @@
 紫	TỬ
 紬	TRỪU
 紮	TRÁT
-累	LỤY
+累	LŨY
 細	TẾ
 紱	PHẤT
 紲	TIẾT
@@ -8339,7 +8339,7 @@
 緻	TRÍ
 縁	DUYÊN
 縂	TỔNG
-縄	THỪNG
+縄	THẰNG
 縆	CĂNG
 縈	OANH
 縉	TẤN
@@ -8352,7 +8352,7 @@
 縕	UÂN
 縗	THÔI
 縚	THAO
-縛	BUỘC
+縛	PHƯỢC
 縝	CHẨN
 縞	CẢO
 縟	NHỤC
@@ -8827,8 +8827,8 @@
 肐	CÁCH
 肓	HOANG
 肕	NHẬN
-肖	TIÊU
-肘	CHỎ
+肖	TIẾU
+肘	TRỬU
 肚	ĐỖ
 肛	GIANG
 肜	DUNG
@@ -8974,7 +8974,7 @@
 腦	NÃO
 腧	THÚ
 腩	NẠM
-腫	TRŨNG
+腫	THŨNG
 腭	NGẠC
 腮	TAI
 腯	ĐỘT
@@ -9203,7 +9203,7 @@
 芳	PHƯƠNG
 芴	HỐT
 芷	CHỈ
-芸	VÂN
+芸	NGHỆ
 芹	CẦN
 芻	SÔ
 芼	MẠO
@@ -9432,7 +9432,7 @@
 萋	THÊ
 萌	MANH
 萍	BÌNH
-萎	ỦY
+萎	NUY
 萏	ĐẠM
 萐	TIỆP
 萑	HOÀN
@@ -9589,7 +9589,7 @@
 蔭	ẤM
 蔯	TRẦN
 蔴	MA
-蔵	TẠNG
+蔵	TÀNG
 蔷	TƯỜNG
 蔹	LIỄM
 蔺	LẬN
@@ -9794,7 +9794,7 @@
 蚌	BẠNG
 蚍	TỲ
 蚓	DẪN
-蚕	TẰM
+蚕	TÀM
 蚖	NGOAN
 蚘	HỒI
 蚛	TRỌNG
@@ -10552,7 +10552,7 @@
 識	THỨC
 譙	TIỀU
 譚	ĐÀM
-譜	PHẢ
+譜	PHỔ
 譟	TÁO
 警	CẢNH
 譩	Y
@@ -10831,7 +10831,7 @@
 賀	HẠ
 賁	BÔN
 賂	LỘ
-賃	LẪM
+賃	NHẪM
 賄	HỐI
 賅	CAI
 資	TƯ
@@ -11085,7 +11085,7 @@
 踦	KỶ
 踧	TÚC
 踩	THẢI
-踪	TÔNG
+踪	TUNG
 踫	BÍNH
 踬	CHÍ
 踮	ĐIỂM
@@ -11676,7 +11676,7 @@
 酝	UẤN
 酞	THÁI
 酡	ĐÀ
-酢	THỐ
+酢	TẠC
 酣	HÀM
 酤	CÔ
 酥	TÔ
@@ -12806,7 +12806,7 @@
 頀	HỘ
 頁	HIỆT
 頂	ĐỈNH
-頃	KHUYNH
+頃	KHOẢNH
 頄	CỪU
 項	HẠNG
 順	THUẬN
@@ -12995,11 +12995,11 @@
 餂	THIỂM
 餃	CẢO
 餄	HỢP
-餅	BÁNH
+餅	BÍNH
 餈	TƯ
 餉	HƯỚNG
 養	DƯỠNG
-餌	NHỬ
+餌	NHỊ
 餍	YẾM
 餎	LẠC
 餐	XAN
