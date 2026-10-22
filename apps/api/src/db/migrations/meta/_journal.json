@@ -71,6 +71,13 @@
       "when": 1792700000000,
       "tag": "0009_entry_meanings_senses",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792750000000,
+      "tag": "0010_kanji_dataset",
+      "breakpoints": true
     }
   ]
 }

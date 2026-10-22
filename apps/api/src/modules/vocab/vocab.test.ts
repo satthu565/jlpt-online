@@ -14,6 +14,7 @@ import {
   examItems,
   exams,
   examSections,
+  kanjiDataset,
   kanjiEntries,
   lexicalEntries,
   lexiconHanvietReports,
@@ -1303,6 +1304,28 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
     it('chưa nạp KANJIDIC2 thì trả danh sách rỗng; route chỉ cho editor, reviewer, admin', async () => {
       expect(await vocabController.adminListKanji()).toMatchObject({ total: 0, items: [] });
       expect(Reflect.getMetadata(ROLES_KEY, VocabController.prototype.adminListKanji)).toEqual(['admin', 'editor', 'reviewer']);
+    });
+  });
+
+  describe('Bộ dữ liệu kanji chuẩn: /kanji đọc bảng kanji_dataset khi đã nạp', () => {
+    it('trả nghĩa tiếng Việt, Hán Việt, cấp mới; tìm theo nghĩa Việt, âm đọc, Hán Việt; lọc cấp', async () => {
+      const rec = (han_tu: string, hv: string, nghia: string, cap: string, on: string[], kun: string[], en: string[], freq: number) => ({
+        han_tu, han_viet: { chinh: hv, theo_am_on: { [on[0]!]: hv } }, nghia, nghia_en: en, so_net: 4,
+        am_on: on.map((am) => ({ am })), am_kun: kun.map((am) => ({ am })), cap_do: { chinh: cap, tat_ca: [cap] }, tan_suat: freq,
+      });
+      const rows = [rec('日', 'NHẬT', 'Ngày, mặt trời', 'N5', ['ニチ', 'ジツ'], ['ひ'], ['day', 'sun'], 1), rec('楽', 'LẠC', 'Vui vẻ, âm nhạc', 'N4', ['ガク', 'ラク'], ['たの.しい'], ['music', 'comfort'], 373)];
+      for (const r of rows) {
+        await dbClient.db.insert(kanjiDataset).values({ kanji: r.han_tu, data: r, jlptLevel: r.cap_do.chinh, strokeCount: 4, hanViet: r.han_viet.chinh, meaningVi: r.nghia, datasetVersion: '1.0.0' });
+      }
+      const all = await vocabController.adminListKanji();
+      expect(all.total).toBe(2);
+      expect(all.items[0]).toMatchObject({ kanji: '日', hanViet: 'NHẬT', meaningVi: 'Ngày, mặt trời', level: 'N5', levels: ['N5'], onyomi: ['ニチ', 'ジツ'] });
+      expect((await vocabController.adminListKanji('mặt trời')).items.map((i) => i.kanji)).toEqual(['日']);
+      expect((await vocabController.adminListKanji('lạc')).items.map((i) => i.kanji)).toEqual(['楽']);
+      expect((await vocabController.adminListKanji('たのしい')).items.map((i) => i.kanji)).toEqual(['楽']);
+      expect((await vocabController.adminListKanji('ガク')).items.map((i) => i.kanji)).toEqual(['楽']);
+      expect((await vocabController.adminListKanji('music')).items.map((i) => i.kanji)).toEqual(['楽']);
+      expect((await vocabController.adminListKanji(undefined, 'N4')).items.map((i) => i.kanji)).toEqual(['楽']);
     });
   });
 });

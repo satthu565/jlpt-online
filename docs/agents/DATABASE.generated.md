@@ -2,7 +2,7 @@
 
 # Database (tự sinh)
 
-Nguồn: `apps/api/src/db/schema.ts`. 142 bảng, 10 migration.
+Nguồn: `apps/api/src/db/schema.ts`. 143 bảng, 11 migration.
 Quy ước và cách thêm bảng: [DATABASE.md](DATABASE.md).
 
 ## Migration
@@ -17,6 +17,7 @@ Quy ước và cách thêm bảng: [DATABASE.md](DATABASE.md).
 - `0007_lexicon_hanviet.sql`
 - `0008_corpus_terms.sql`
 - `0009_entry_meanings_senses.sql`
+- `0010_kanji_dataset.sql`
 
 ## Bảng
 
@@ -94,6 +95,7 @@ Quy ước và cách thêm bảng: [DATABASE.md](DATABASE.md).
 - [`import_artifacts`](#import_artifacts)
 - [`import_job_attempts`](#import_job_attempts)
 - [`import_jobs`](#import_jobs)
+- [`kanji_dataset`](#kanji_dataset)
 - [`kanji_entries`](#kanji_entries)
 - [`kanji_occurrences`](#kanji_occurrences)
 - [`landing_pages`](#landing_pages)
@@ -1011,6 +1013,20 @@ Quy ước và cách thêm bảng: [DATABASE.md](DATABASE.md).
 | `error_log` | jsonb |  |  |
 | `created_at` | timestamp | not null |  |
 | `completed_at` | timestamp |  |  |
+
+### kanji_dataset
+
+| Cột | Kiểu | Ràng buộc | Tham chiếu |
+|---|---|---|---|
+| `kanji` | text | PK |  |
+| `data` | jsonb | not null |  |
+| `jlpt_level` | text |  |  |
+| `stroke_count` | smallint |  |  |
+| `han_viet` | text |  |  |
+| `meaning_vi` | text |  |  |
+| `dataset_version` | text | not null |  |
+| `source` | text | not null |  |
+| `updated_at` | timestamp | not null |  |
 
 ### kanji_entries
 

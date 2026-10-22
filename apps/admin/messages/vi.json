@@ -397,9 +397,9 @@
   },
   "kanji": {
     "title": "Kanji (KANJIDIC2)",
-    "subtitle": "Toàn bộ chữ Hán trong cơ sở dữ liệu, kèm âm Hán Việt.",
+    "subtitle": "Toàn bộ chữ Hán trong bộ dữ liệu chuẩn, kèm âm Hán Việt và nghĩa tiếng Việt.",
     "total": "Tổng số chữ",
-    "searchPlaceholder": "Tìm theo chữ, âm On/Kun, Hán Việt hoặc nghĩa tiếng Anh",
+    "searchPlaceholder": "Tìm theo chữ, âm On/Kun, Hán Việt hoặc nghĩa (Việt/Anh)",
     "search": "Tìm",
     "level": "Cấp độ",
     "levelAll": "Tất cả",
@@ -418,7 +418,8 @@
     "prev": "Trang trước",
     "next": "Trang sau",
     "page": "Trang",
-    "attribution": "Nguồn: KANJIDIC2 – EDRDG, giấy phép CC BY-SA 4.0"
+    "attribution": "Nguồn: tiengnhatdongian.com; KANJIDIC2, KRADFILE, JMdict – EDRDG (CC BY-SA 4.0); KanjiVG (CC BY-SA 3.0); Thiều Chửu",
+    "colMeaningVi": "Nghĩa (tiếng Việt)"
   },
   "hanvietReview": {
     "title": "Duyệt Hán Việt",
