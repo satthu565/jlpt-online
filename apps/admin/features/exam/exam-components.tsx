@@ -41,6 +41,10 @@ export function ExamListView({
   const [takedownExamId, setTakedownExamId] = useState<string | null>(null);
   const [takedownReason, setTakedownReason] = useState<string>('');
 
+  const [deleteExam, setDeleteExam] = useState<AdminExam | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string>('');
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   // Đề 0 câu (thường do test hoặc đề trộn rỗng tạo ra) ẩn mặc định để bảng dễ đọc.
   const [showEmptyExams, setShowEmptyExams] = useState<boolean>(false);
@@ -130,6 +134,33 @@ export function ExamListView({
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setErrorMessage(msg);
+    }
+  };
+
+  const handleOpenDelete = (exam: AdminExam) => {
+    setDeleteExam(exam);
+    setDeleteConfirm('');
+    setErrorMessage(null);
+    setStatusMessage(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteExam || deleteConfirm.trim() !== deleteExam.slug) return;
+    setErrorMessage(null);
+    setIsDeleting(true);
+    try {
+      const res = await apiClient.deleteExam(deleteExam.id, deleteConfirm.trim());
+      setStatusMessage(
+        t('content.exams.deleteDone', locale)
+          .replace('{title}', deleteExam.title)
+          .replace('{attempts}', String(res.deletedAttempts)),
+      );
+      setDeleteExam(null);
+      await fetchExams();
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -288,6 +319,17 @@ export function ExamListView({
                     >
                       Lịch sử
                     </Button>
+                    {currentOperator.role === 'admin' && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        data-testid={`delete-exam-btn-${exam.id}`}
+                        onClick={() => handleOpenDelete(exam)}
+                      >
+                        {t('content.exams.deleteBtn', locale)}
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))
@@ -396,6 +438,44 @@ export function ExamListView({
               onClick={() => setTakedownExamId(null)}
             >
               Hủy
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Modal */}
+      {deleteExam && (
+        <div data-testid="delete-exam-modal" className="border-2 border-red-500 rounded-lg p-6 bg-red-50 mb-6">
+          <h3 className="text-base font-bold text-red-900 mb-2">
+            {t('content.exams.deleteTitle', locale).replace('{title}', deleteExam.title)}
+          </h3>
+          <p className="text-xs text-red-700 mb-4">{t('content.exams.deleteWarning', locale)}</p>
+          <div className="mb-4">
+            <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+              {t('content.exams.deleteConfirmLabel', locale)} <code>{deleteExam.slug}</code>
+            </label>
+            <Input
+              data-testid="delete-exam-confirm-input"
+              type="text"
+              value={deleteConfirm}
+              onChange={(e) => setDeleteConfirm(e.target.value)}
+              placeholder={deleteExam.slug}
+              className="w-full"
+            />
+          </div>
+          <div className="space-x-2">
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              data-testid="confirm-delete-exam-btn"
+              disabled={isDeleting || deleteConfirm.trim() !== deleteExam.slug}
+              onClick={handleConfirmDelete}
+            >
+              {t('content.exams.deleteConfirmBtn', locale)}
+            </Button>
+            <Button type="button" variant="secondary" size="sm" onClick={() => setDeleteExam(null)}>
+              {t('content.exams.deleteCancel', locale)}
             </Button>
           </div>
         </div>

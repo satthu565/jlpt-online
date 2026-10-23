@@ -9,7 +9,7 @@ import {
   NotFoundException,
   Optional,
 } from '@nestjs/common';
-import { and, desc, eq, isNotNull, isNull } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNotNull, isNull } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
@@ -844,6 +844,77 @@ export class ExamService {
     });
 
     return { status: 'unpublished' };
+  }
+
+  /**
+   * Admin hard delete (owner request 2026-10-23): removes the exam, its sections, items, published versions,
+   * answer keys, every attempt on it (answers, sheets, events) and links from favorites, shares, class assignments
+   * and the corpus. Questions stay in the question bank because other exams may reuse them. The caller must repeat
+   * the exam slug so a wrong click cannot delete anything.
+   */
+  async deleteExam(
+    examId: string,
+    operatorUserId: string,
+    confirmSlug: string,
+  ): Promise<{ status: 'deleted'; examId: string; slug: string; deletedAttempts: number }> {
+    const db = this.dbClient.db;
+    const [exam] = await db.select().from(schema.exams).where(eq(schema.exams.id, examId)).limit(1);
+    if (!exam) {
+      throw new NotFoundException(`Đề thi không tồn tại: ${examId}`);
+    }
+    if ((confirmSlug ?? '').trim() !== exam.slug) {
+      throw new BadRequestException(`Nhập đúng mã đề "${exam.slug}" để xác nhận xóa.`);
+    }
+
+    const versions = await db
+      .select({ snapshotKey: schema.examVersions.snapshotKey, manifestKey: schema.examVersions.manifestKey })
+      .from(schema.examVersions)
+      .where(eq(schema.examVersions.examId, examId));
+
+    let deletedAttempts = 0;
+    await db.transaction(async (tx: DbTx) => {
+      const attempts = await tx
+        .select({ id: schema.examAttempts.id })
+        .from(schema.examAttempts)
+        .where(eq(schema.examAttempts.examId, examId));
+      const attemptIds = attempts.map((a: { id: string }) => a.id);
+      deletedAttempts = attemptIds.length;
+
+      if (attemptIds.length > 0) {
+        await tx.delete(schema.userAnswers).where(inArray(schema.userAnswers.attemptId, attemptIds));
+        await tx.delete(schema.attemptAnswerSheets).where(inArray(schema.attemptAnswerSheets.attemptId, attemptIds));
+        await tx.delete(schema.attemptEvents).where(inArray(schema.attemptEvents.attemptId, attemptIds));
+        await tx.delete(schema.eventAttempts).where(inArray(schema.eventAttempts.attemptId, attemptIds));
+        await tx.delete(schema.assignmentAttempts).where(inArray(schema.assignmentAttempts.attemptId, attemptIds));
+        await tx.delete(schema.examAttempts).where(inArray(schema.examAttempts.id, attemptIds));
+      }
+      // assignment_learners and assignment_attempts of these assignments cascade.
+      await tx.delete(schema.assignments).where(eq(schema.assignments.examId, examId));
+      await tx.delete(schema.examFavorites).where(eq(schema.examFavorites.examId, examId));
+      await tx.delete(schema.examShares).where(eq(schema.examShares.resourceId, examId));
+      await removeExamFromCorpus(this.dbClient, examId, tx);
+      await tx.delete(schema.examItems).where(eq(schema.examItems.examId, examId));
+      await tx.delete(schema.examSections).where(eq(schema.examSections.examId, examId));
+      await tx.delete(schema.examAnswerKeys).where(eq(schema.examAnswerKeys.examId, examId));
+      await tx.delete(schema.examVersions).where(eq(schema.examVersions.examId, examId));
+      await tx.delete(schema.exams).where(eq(schema.exams.id, examId));
+    });
+
+    // Published snapshots are only read through exam_versions; removing the files is best effort.
+    for (const v of versions) {
+      for (const key of [v.snapshotKey, v.manifestKey]) {
+        await this.storageService.delete(key).catch(() => false);
+      }
+    }
+
+    await this.auditService?.recordAction({
+      operatorId: operatorUserId,
+      action: 'exam.delete',
+      targetResource: `exam:${examId}`,
+      details: { slug: exam.slug, title: exam.title, deletedAttempts, versions: versions.length },
+    });
+    this.logger.log(`Admin ${operatorUserId} xóa đề ${exam.slug} (${examId}), ${deletedAttempts} lượt làm bài`);
+    return { status: 'deleted', examId, slug: exam.slug, deletedAttempts };
   }
 
   /**

@@ -209,7 +209,14 @@
       "publishBtn": "公開する",
       "unpublishBtn": "公開を取り消す",
       "previewBtn": "プレビュー",
-      "filterLevel": "レベルで絞り込み"
+      "filterLevel": "レベルで絞り込み",
+      "deleteBtn": "試験を削除",
+      "deleteTitle": "試験「{title}」を完全に削除",
+      "deleteWarning": "試験、公開済みバージョン、正解、すべての受験記録と結果、お気に入り、クラス課題を完全に削除します。元に戻せません。問題バンクの問題は残ります。",
+      "deleteConfirmLabel": "確認のため試験コードを入力してください：",
+      "deleteConfirmBtn": "完全に削除",
+      "deleteCancel": "キャンセル",
+      "deleteDone": "試験「{title}」と受験記録{attempts}件を削除しました。"
     },
     "mixedExams": {
       "title": "自動ミックス試験管理",

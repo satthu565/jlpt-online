@@ -937,6 +937,16 @@ export class AdminApiClient {
     });
   }
 
+  public async deleteExam(
+    id: string,
+    confirmSlug: string,
+  ): Promise<{ status: 'deleted'; examId: string; slug: string; deletedAttempts: number }> {
+    return this.request('POST', `/api/v1/admin/exams/${encodeURIComponent(id)}/delete`, {
+      requiredRoles: ['admin'],
+      body: { confirmSlug },
+    });
+  }
+
   public async listImportJobs(): Promise<{ items: unknown[] }> {
     return this.request<{ items: unknown[] }>('GET', '/api/v1/admin/imports', {
       requiredRoles: ['editor', 'reviewer', 'admin'],

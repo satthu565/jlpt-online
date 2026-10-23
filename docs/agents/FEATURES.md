@@ -33,7 +33,7 @@ Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xon
 
 ### Quản trị (`apps/admin`)
 
-Ngân hàng câu hỏi `/questions` · blueprint `/blueprints` · media `/media` · nhập đề `/imports` · duyệt `/reviews`, `/reviews/explanations` · đề `/exams`, `/exams/mixed` · lịch thi `/schedules` · bảng quy đổi `/scoring-tables` · người dùng `/users` · CMS `/cms` · thương mại `/commercial/*` · báo cáo `/reports/*` · thử nghiệm `/experiments` · kiểm duyệt `/moderation/*` · nhật ký `/audit-logs` · cài đặt `/settings/*` · từ điển `/lexicon` · duyệt Hán Việt `/lexicon/hanviet` · Hán Việt `/hanviet` · kanji `/kanji` (sửa âm Hán Việt từng chữ, khôi phục bản gốc) · từ vựng `/vocab`.
+Ngân hàng câu hỏi `/questions` · blueprint `/blueprints` · media `/media` · nhập đề `/imports` · duyệt `/reviews`, `/reviews/explanations` · đề `/exams` (xuất bản, gỡ, xóa hẳn đề kèm lượt làm bài), `/exams/mixed` · lịch thi `/schedules` · bảng quy đổi `/scoring-tables` · người dùng `/users` · CMS `/cms` · thương mại `/commercial/*` · báo cáo `/reports/*` · thử nghiệm `/experiments` · kiểm duyệt `/moderation/*` · nhật ký `/audit-logs` · cài đặt `/settings/*` · từ điển `/lexicon` · duyệt Hán Việt `/lexicon/hanviet` · Hán Việt `/hanviet` · kanji `/kanji` (sửa âm Hán Việt từng chữ, khôi phục bản gốc) · từ vựng `/vocab`.
 
 Menu và quyền của từng mục khai báo ở `apps/admin/lib/navigation.ts`.
 
