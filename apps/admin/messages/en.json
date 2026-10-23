@@ -426,7 +426,20 @@
     "next": "Next",
     "page": "Page",
     "attribution": "Sources: tiengnhatdongian.com; KANJIDIC2, KRADFILE, JMdict – EDRDG (CC BY-SA 4.0); KanjiVG (CC BY-SA 3.0); Thiều Chửu",
-    "colMeaningVi": "Meaning (Vietnamese)"
+    "colMeaningVi": "Meaning (Vietnamese)",
+    "colActions": "Actions",
+    "edit": "Edit Hán Việt",
+    "editTitle": "Edit the Hán Việt reading of {kanji}",
+    "mainHanViet": "Main Hán Việt reading",
+    "byOnyomi": "Hán Việt per on'yomi (leave blank if none)",
+    "editHint": "After saving, this character is marked \"edited by hand\": re-importing the dataset will not overwrite it. The previous main reading is kept as an alternative, so search still finds it.",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "reset": "Restore original",
+    "edited": "Edited by hand",
+    "saved": "Saved the Hán Việt of {kanji}: {hanViet}",
+    "resetDone": "Restored the original Hán Việt of {kanji}: {hanViet}"
   },
   "hanvietReview": {
     "title": "Sino-Vietnamese Review",

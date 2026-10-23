@@ -1327,5 +1327,45 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       expect((await vocabController.adminListKanji('music')).items.map((i) => i.kanji)).toEqual(['楽']);
       expect((await vocabController.adminListKanji(undefined, 'N4')).items.map((i) => i.kanji)).toEqual(['楽']);
     });
+
+    it('mức 2: biên tập viên sửa Hán Việt một chữ; nạp lại không ghi đè; khôi phục được; có nhật ký', async () => {
+      const data = {
+        han_tu: '楽', han_viet: { chinh: 'LẠC', khac: [], theo_am_on: { ガク: 'LẠC', ラク: 'LẠC' } }, nghia: 'Vui vẻ',
+        nghia_en: ['music'], so_net: 13, am_on: [{ am: 'ガク' }, { am: 'ラク' }], am_kun: [], cap_do: { chinh: 'N4', tat_ca: ['N4'] },
+      };
+      await dbClient.db.insert(kanjiDataset).values({ kanji: '楽', data, jlptLevel: 'N4', strokeCount: 13, hanViet: 'LẠC', meaningVi: 'Vui vẻ', datasetVersion: '1.0.0' });
+      const userId = generateUuidV7();
+      await dbClient.db.insert(users).values({ id: userId, email: 'editor-kanji2@example.com', role: 'editor' });
+      const user = { userId } as AuthUserContext;
+
+      const res = await vocabController.adminUpdateKanjiHanViet('楽', { hanViet: ' nhạc ', hanVietByOnyomi: { ガク: 'nhạc' } }, user);
+      expect(res).toEqual({
+        kanji: '楽', hanViet: 'NHẠC', edited: true,
+        hanVietByOnyomi: [{ onyomi: 'ガク', hanViet: 'NHẠC' }, { onyomi: 'ラク', hanViet: 'LẠC' }],
+      });
+      const listed = await vocabController.adminListKanji('楽');
+      expect(listed.items[0]).toMatchObject({ hanViet: 'NHẠC', edited: true });
+      // The old main reading moves to "khac", so searching it still finds the character.
+      expect((await vocabController.adminListKanji('lạc')).items.map((i) => i.kanji)).toEqual(['楽']);
+      const [row] = await dbClient.db.select().from(kanjiDataset).where(eq(kanjiDataset.kanji, '楽'));
+      expect(row).toMatchObject({ hanViet: 'NHẠC', source: 'manual' });
+
+      await expect(vocabController.adminUpdateKanjiHanViet('楽', { hanViet: 'NHẠC', hanVietByOnyomi: { ニチ: 'NHẬT' } }, user)).rejects.toThrow(BadRequestException);
+      await expect(vocabController.adminUpdateKanjiHanViet('楽', { hanViet: 5 }, user)).rejects.toThrow(BadRequestException);
+      await expect(vocabController.adminUpdateKanjiHanViet('無', { hanViet: 'VÔ' }, user)).rejects.toThrow(NotFoundException);
+
+      const reset = await vocabController.adminResetKanjiHanViet('楽', user);
+      expect(reset).toMatchObject({ hanViet: 'LẠC', edited: false });
+      const [after] = await dbClient.db.select().from(kanjiDataset).where(eq(kanjiDataset.kanji, '楽'));
+      expect(after).toMatchObject({ hanViet: 'LẠC', source: 'dataset' });
+      expect((after!.data as { han_viet_goc?: unknown }).han_viet_goc).toBeUndefined();
+      await expect(vocabController.adminResetKanjiHanViet('楽', user)).rejects.toThrow(BadRequestException);
+
+      const audit = await dbClient.db.select().from(operatorActions).where(eq(operatorActions.operatorId, userId));
+      expect(audit.map((a: { action: string }) => a.action).sort()).toEqual(['kanji.hanviet.reset', 'kanji.hanviet.update']);
+      for (const fn of [VocabController.prototype.adminUpdateKanjiHanViet, VocabController.prototype.adminResetKanjiHanViet]) {
+        expect(Reflect.getMetadata(ROLES_KEY, fn)).toEqual(['admin', 'editor']);
+      }
+    });
   });
 });

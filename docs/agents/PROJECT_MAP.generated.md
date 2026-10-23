@@ -120,7 +120,7 @@ Mục menu và vai trò lấy từ `apps/admin/lib/navigation.ts`.
 | `/verify-2fa` |  |  | `apps/admin/app/verify-2fa/page.tsx` |
 | `/vocab` | Từ vựng & Ngữ pháp | admin, editor | `apps/admin/app/vocab/page.tsx` |
 
-## API (299 route, 26 module có controller)
+## API (301 route, 26 module có controller)
 
 Quyền: `công khai` = `@Public()`; `đăng nhập` = chỉ cần đăng nhập; còn lại là vai trò trong `@Roles`.
 
@@ -529,6 +529,8 @@ Quyền: `công khai` = `@Public()`; `đăng nhập` = chỉ cần đăng nhập
 | GET | `/api/v1/admin/lexicon/entries` | admin, editor, reviewer |  | `adminListLexicon` |
 | GET | `/api/v1/admin/lexicon/hanviet` | admin, editor, reviewer |  | `adminListHanViet` |
 | GET | `/api/v1/admin/lexicon/kanji` | admin, editor, reviewer |  | `adminListKanji` |
+| PATCH | `/api/v1/admin/lexicon/kanji/:kanji/hanviet` | admin, editor |  | `adminUpdateKanjiHanViet` |
+| POST | `/api/v1/admin/lexicon/kanji/:kanji/hanviet/reset` | admin, editor |  | `adminResetKanjiHanViet` |
 | GET | `/api/v1/datasets` | công khai |  | `listDatasets` |
 | GET | `/api/v1/datasets/:id` | công khai |  | `getDataset` |
 | POST | `/api/v1/datasets/:id/add-to-notebook` | đăng nhập |  | `addToNotebook` |

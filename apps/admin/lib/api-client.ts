@@ -1106,6 +1106,7 @@ export class AdminApiClient {
       level: string | null;
       meaningVi: string;
       levels: string[];
+      edited?: boolean;
     }>;
   }> {
     const qs = new URLSearchParams();
@@ -1115,6 +1116,24 @@ export class AdminApiClient {
     qs.set('pageSize', String(params.pageSize ?? 60));
     return this.request('GET', `/api/v1/admin/lexicon/kanji?${qs.toString()}`, {
       requiredRoles: ['admin', 'editor', 'reviewer'],
+    });
+  }
+
+  public async updateKanjiHanViet(
+    kanji: string,
+    body: { hanViet: string; hanVietByOnyomi?: Record<string, string> },
+  ): Promise<{ kanji: string; hanViet: string; hanVietByOnyomi: Array<{ onyomi: string; hanViet: string }>; edited: boolean }> {
+    return this.request('PATCH', `/api/v1/admin/lexicon/kanji/${encodeURIComponent(kanji)}/hanviet`, {
+      requiredRoles: ['admin', 'editor'],
+      body,
+    });
+  }
+
+  public async resetKanjiHanViet(
+    kanji: string,
+  ): Promise<{ kanji: string; hanViet: string; hanVietByOnyomi: Array<{ onyomi: string; hanViet: string }>; edited: boolean }> {
+    return this.request('POST', `/api/v1/admin/lexicon/kanji/${encodeURIComponent(kanji)}/hanviet/reset`, {
+      requiredRoles: ['admin', 'editor'],
     });
   }
 

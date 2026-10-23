@@ -17,6 +17,8 @@ export interface KanjiListItem {
   /** From the standard dataset (kanji_dataset); empty when only KANJIDIC2 is loaded. */
   meaningVi: string;
   levels: string[];
+  /** Hán Việt corrected by an editor in the admin (kanji_dataset.source = manual). */
+  edited?: boolean;
 }
 
 export interface KanjiListResult {
@@ -184,8 +186,13 @@ async function listFromDataset(
   }
   const where = conditions.length > 0 ? and(...conditions) : undefined;
   const [{ value: total }] = await db.select({ value: count() }).from(kanjiDataset).where(where);
-  const rows: Array<{ data: unknown; jlptLevel: string | null; strokeCount: number | null }> = await db
-    .select({ data: kanjiDataset.data, jlptLevel: kanjiDataset.jlptLevel, strokeCount: kanjiDataset.strokeCount })
+  const rows: Array<{ data: unknown; jlptLevel: string | null; strokeCount: number | null; source: string }> = await db
+    .select({
+      data: kanjiDataset.data,
+      jlptLevel: kanjiDataset.jlptLevel,
+      strokeCount: kanjiDataset.strokeCount,
+      source: kanjiDataset.source,
+    })
     .from(kanjiDataset)
     .where(where)
     .orderBy(
@@ -213,6 +220,7 @@ async function listFromDataset(
         level: r.jlptLevel,
         meaningVi: d.nghia ?? '',
         levels: d.cap_do?.tat_ca ?? [],
+        edited: r.source === 'manual',
       };
     }),
   };

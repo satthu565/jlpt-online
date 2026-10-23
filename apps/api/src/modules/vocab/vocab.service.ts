@@ -29,6 +29,7 @@ import {
   type HanVietReviewList,
 } from './hanviet-entries.js';
 import { listKanjiEntries, type KanjiListResult } from './kanji-list.js';
+import { resetKanjiHanViet, updateKanjiHanViet, type KanjiHanVietResult } from './kanji-edit.js';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import {
@@ -102,6 +103,18 @@ export class VocabService implements OnModuleInit {
   /** Admin "Kanji" page: every KANJIDIC2 character with its Hán Việt. */
   listKanjiEntries(params: { q?: string; level?: string; page?: number; pageSize?: number }): Promise<KanjiListResult> {
     return listKanjiEntries(this.dbClient, params);
+  }
+
+  updateKanjiHanViet(
+    kanji: string,
+    body: { hanViet?: unknown; hanVietByOnyomi?: unknown },
+    operatorId?: string,
+  ): Promise<KanjiHanVietResult> {
+    return updateKanjiHanViet(this.dbClient, kanji, body, operatorId);
+  }
+
+  resetKanjiHanViet(kanji: string, operatorId?: string): Promise<KanjiHanVietResult> {
+    return resetKanjiHanViet(this.dbClient, kanji, operatorId);
   }
 
   private async findRawEntry(

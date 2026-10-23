@@ -154,6 +154,22 @@ export class VocabController {
     return this.vocabService.listHanVietForReview({ confidence, q, page: Number(page) || 1, pageSize: Number(pageSize) || 50 });
   }
 
+  @Roles('admin', 'editor')
+  @Patch('admin/lexicon/kanji/:kanji/hanviet')
+  async adminUpdateKanjiHanViet(
+    @Param('kanji') kanji: string,
+    @Body() body: { hanViet?: unknown; hanVietByOnyomi?: unknown },
+    @CurrentUser() user?: AuthUserContext,
+  ) {
+    return this.vocabService.updateKanjiHanViet(kanji, body ?? {}, user?.userId);
+  }
+
+  @Roles('admin', 'editor')
+  @Post('admin/lexicon/kanji/:kanji/hanviet/reset')
+  async adminResetKanjiHanViet(@Param('kanji') kanji: string, @CurrentUser() user?: AuthUserContext) {
+    return this.vocabService.resetKanjiHanViet(kanji, user?.userId);
+  }
+
   @Roles('admin', 'editor', 'reviewer')
   @Patch('admin/lexicon/:id/hanviet')
   async adminUpdateHanViet(

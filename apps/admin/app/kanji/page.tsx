@@ -24,6 +24,7 @@ type KanjiItem = {
   level: string | null;
   meaningVi: string;
   levels: string[];
+  edited?: boolean;
 };
 const PAGE_SIZE = 60;
 const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'];
@@ -38,7 +39,8 @@ function hanVietLabel(it: KanjiItem): string {
 }
 
 export default function KanjiPage(): React.JSX.Element {
-  const { locale } = useAdminAuth();
+  const { locale, user } = useAdminAuth();
+  const canEdit = user?.role === 'admin' || user?.role === 'editor';
   const [query, setQuery] = useState('');
   const [submitted, setSubmitted] = useState('');
   const [level, setLevel] = useState('');
@@ -46,6 +48,12 @@ export default function KanjiPage(): React.JSX.Element {
   const [data, setData] = useState<{ total: number; items: KanjiItem[] } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editing, setEditing] = useState<KanjiItem | null>(null);
+  const [mainHv, setMainHv] = useState('');
+  const [byOn, setByOn] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -63,6 +71,57 @@ export default function KanjiPage(): React.JSX.Element {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const openEdit = (it: KanjiItem) => {
+    setEditing(it);
+    setMainHv(it.hanViet);
+    setByOn(Object.fromEntries(it.onyomi.map((on) => [on, it.hanVietByOnyomi.find((x) => x.onyomi === on)?.hanViet ?? ''])));
+    setEditError(null);
+    setNotice(null);
+  };
+
+  const applyResult = (res: { kanji: string; hanViet: string; hanVietByOnyomi: KanjiItem['hanVietByOnyomi']; edited: boolean }) =>
+    setData((d) =>
+      d
+        ? {
+            ...d,
+            items: d.items.map((x) =>
+              x.kanji === res.kanji ? { ...x, hanViet: res.hanViet, hanVietByOnyomi: res.hanVietByOnyomi, edited: res.edited } : x,
+            ),
+          }
+        : d,
+    );
+
+  const saveEdit = async () => {
+    if (!editing) return;
+    setSaving(true);
+    setEditError(null);
+    try {
+      const res = await apiClient.updateKanjiHanViet(editing.kanji, { hanViet: mainHv, hanVietByOnyomi: byOn });
+      applyResult(res);
+      setNotice(t('kanji.saved', locale).replace('{kanji}', res.kanji).replace('{hanViet}', res.hanViet || '—'));
+      setEditing(null);
+    } catch (err: unknown) {
+      setEditError((err as Error)?.message || t('kanji.error', locale));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const resetEdit = async (it: KanjiItem) => {
+    setSaving(true);
+    setEditError(null);
+    try {
+      const res = await apiClient.resetKanjiHanViet(it.kanji);
+      applyResult(res);
+      setNotice(t('kanji.resetDone', locale).replace('{kanji}', res.kanji).replace('{hanViet}', res.hanViet || '—'));
+      setEditing(null);
+    } catch (err: unknown) {
+      setEditError((err as Error)?.message || t('kanji.error', locale));
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const pages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1;
   const levelOptions = [
@@ -118,6 +177,56 @@ export default function KanjiPage(): React.JSX.Element {
           </p>
         )}
 
+        {notice && (
+          <Alert variant="success" data-testid="kanji-notice">
+            {notice}
+          </Alert>
+        )}
+
+        {editing && (
+          <div data-testid="kanji-edit-panel" className="rounded-xl border border-blue-300 bg-blue-50 p-4 space-y-3 dark:bg-slate-800">
+            <h2 className="text-base font-bold text-gray-900 dark:text-gray-100">
+              {t('kanji.editTitle', locale).replace('{kanji}', editing.kanji)}
+            </h2>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+              {t('kanji.mainHanViet', locale)}
+              <Input data-testid="kanji-edit-main" value={mainHv} onChange={(e) => setMainHv(e.target.value)} />
+            </label>
+            {editing.onyomi.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-200">{t('kanji.byOnyomi', locale)}</p>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {editing.onyomi.map((on) => (
+                    <label key={on} className="flex items-center gap-2 text-sm">
+                      <span className="font-japanese w-20 shrink-0">{on}</span>
+                      <Input
+                        data-testid={`kanji-edit-on-${on}`}
+                        value={byOn[on] ?? ''}
+                        onChange={(e) => setByOn((m) => ({ ...m, [on]: e.target.value }))}
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+            <p className="text-xs text-gray-600 dark:text-gray-300">{t('kanji.editHint', locale)}</p>
+            {editError && <Alert variant="error">{editError}</Alert>}
+            <div className="flex flex-wrap gap-2">
+              <Button data-testid="kanji-edit-save" disabled={saving} onClick={() => void saveEdit()}>
+                {saving ? t('kanji.saving', locale) : t('kanji.save', locale)}
+              </Button>
+              {editing.edited && (
+                <Button data-testid="kanji-edit-reset" variant="outline" disabled={saving} onClick={() => void resetEdit(editing)}>
+                  {t('kanji.reset', locale)}
+                </Button>
+              )}
+              <Button variant="secondary" disabled={saving} onClick={() => setEditing(null)}>
+                {t('kanji.cancel', locale)}
+              </Button>
+            </div>
+          </div>
+        )}
+
         {error ? (
           <Alert variant="error">
             {error}{' '}
@@ -147,19 +256,34 @@ export default function KanjiPage(): React.JSX.Element {
                 <TableHead>{t('kanji.colMeaning', locale)}</TableHead>
                 <TableHead>{t('kanji.colStrokes', locale)}</TableHead>
                 <TableHead>{t('kanji.colLevel', locale)}</TableHead>
+                {canEdit && <TableHead>{t('kanji.colActions', locale)}</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.items.map((it) => (
                 <TableRow key={it.id} data-testid="kanji-row">
                   <TableCell className="font-japanese text-2xl font-semibold">{it.kanji}</TableCell>
-                  <TableCell className="font-semibold">{hanVietLabel(it)}</TableCell>
+                  <TableCell className="font-semibold">
+                    {hanVietLabel(it)}
+                    {it.edited && (
+                      <span data-testid="kanji-edited-badge" className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">
+                        {t('kanji.edited', locale)}
+                      </span>
+                    )}
+                  </TableCell>
                   <TableCell className="font-japanese">{it.onyomi.join('、')}</TableCell>
                   <TableCell className="font-japanese">{it.kunyomi.join('、')}</TableCell>
                   <TableCell className="max-w-xs">{it.meaningVi}</TableCell>
                   <TableCell className="max-w-xs">{it.meanings.join(', ')}</TableCell>
                   <TableCell>{it.strokeCount ?? ''}</TableCell>
                   <TableCell>{it.levels.length > 1 ? it.levels.join(', ') : (it.level ?? '')}</TableCell>
+                  {canEdit && (
+                    <TableCell>
+                      <Button size="sm" variant="outline" data-testid={`kanji-edit-btn-${it.kanji}`} onClick={() => openEdit(it)}>
+                        {t('kanji.edit', locale)}
+                      </Button>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>

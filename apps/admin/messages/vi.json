@@ -426,7 +426,20 @@
     "next": "Trang sau",
     "page": "Trang",
     "attribution": "Nguồn: tiengnhatdongian.com; KANJIDIC2, KRADFILE, JMdict – EDRDG (CC BY-SA 4.0); KanjiVG (CC BY-SA 3.0); Thiều Chửu",
-    "colMeaningVi": "Nghĩa (tiếng Việt)"
+    "colMeaningVi": "Nghĩa (tiếng Việt)",
+    "colActions": "Thao tác",
+    "edit": "Sửa Hán Việt",
+    "editTitle": "Sửa âm Hán Việt của chữ {kanji}",
+    "mainHanViet": "Âm Hán Việt chính",
+    "byOnyomi": "Âm Hán Việt theo từng âm On (để trống nếu không có)",
+    "editHint": "Lưu xong, chữ này được đánh dấu \"đã sửa tay\": nạp lại bộ dữ liệu sẽ không ghi đè. Âm chính cũ được giữ trong danh sách âm khác nên vẫn tìm được.",
+    "save": "Lưu",
+    "saving": "Đang lưu...",
+    "cancel": "Hủy",
+    "reset": "Khôi phục bản gốc",
+    "edited": "Đã sửa tay",
+    "saved": "Đã lưu Hán Việt của {kanji}: {hanViet}",
+    "resetDone": "Đã khôi phục Hán Việt gốc của {kanji}: {hanViet}"
   },
   "hanvietReview": {
     "title": "Duyệt Hán Việt",
