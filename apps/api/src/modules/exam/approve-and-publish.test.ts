@@ -208,6 +208,21 @@ describe('Admin "Duyệt & xuất bản" cả đề (owner decision 2026-10-20)'
       expect(audit[0]!.targetResource).toBe(`exam:${examId}`);
     });
 
+    it('xóa xong nhập lại đúng gói đó thì tạo lại đề đủ câu (không bị bỏ qua vì trùng gói)', async () => {
+      const examId = await importDemoAsAdmin();
+      await examService.approveAndPublishExam(examId, adminUserId);
+      const [exam] = await dbClient.db.select().from(schema.exams).where(eq(schema.exams.id, examId));
+      await examService.deleteExam(examId, adminUserId, exam!.slug);
+
+      const againId = await importDemoAsAdmin();
+      const [again] = await dbClient.db.select().from(schema.exams).where(eq(schema.exams.id, againId));
+      expect(again?.slug).toBe(exam!.slug);
+      const items = await dbClient.db.select().from(schema.examItems).where(eq(schema.examItems.examId, againId));
+      expect(items.length).toBeGreaterThan(0);
+      const res = await examService.approveAndPublishExam(againId, adminUserId);
+      expect(res.totalQuestions).toBeGreaterThan(0);
+    });
+
     it('đề không tồn tại trả 404; route chỉ cho admin', async () => {
       await expect(
         examService.deleteExam('0192f000-0000-7000-8000-00000000dead', adminUserId, 'x'),
