@@ -246,5 +246,18 @@ export class ExamController {
       throw err;
     }
   }
+
+  @Post('admin/exams/:id/delete')
+  @Roles('admin')
+  async deleteExam(
+    @Param('id') id: string,
+    @Body('confirmSlug') confirmSlug: string,
+    @CurrentUser() user: { id?: string; userId?: string; role?: string },
+  ) {
+    if (user.role && user.role !== 'admin') {
+      throw new ForbiddenException('Chỉ admin được xóa đề');
+    }
+    return this.examService.deleteExam(id, user.userId || user.id || '', confirmSlug);
+  }
 }
 
