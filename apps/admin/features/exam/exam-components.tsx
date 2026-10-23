@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@jlpt/ui/components/button';
 import { Checkbox } from '@jlpt/ui/components/checkbox';
 import { Input } from '@jlpt/ui/components/input';
@@ -46,6 +46,8 @@ export function ExamListView({
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  // The confirm boxes render below a long exam table; bring them into view when they open.
+  const confirmBoxRef = useRef<HTMLDivElement | null>(null);
   // Đề 0 câu (thường do test hoặc đề trộn rỗng tạo ra) ẩn mặc định để bảng dễ đọc.
   const [showEmptyExams, setShowEmptyExams] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -79,6 +81,12 @@ export function ExamListView({
   useEffect(() => {
     fetchExams();
   }, []);
+
+  useEffect(() => {
+    if (deleteExam || takedownExamId) {
+      confirmBoxRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+    }
+  }, [deleteExam, takedownExamId]);
 
   const handlePreview = async (exam: AdminExam) => {
     try {
@@ -399,6 +407,7 @@ export function ExamListView({
       {/* Takedown Modal */}
       {takedownExamId && (
         <div
+          ref={confirmBoxRef}
           data-testid="takedown-modal"
           className="border-2 border-red-500 rounded-lg p-6 bg-red-50 mb-6"
         >
@@ -445,7 +454,7 @@ export function ExamListView({
 
       {/* Delete Modal */}
       {deleteExam && (
-        <div data-testid="delete-exam-modal" className="border-2 border-red-500 rounded-lg p-6 bg-red-50 mb-6">
+        <div ref={confirmBoxRef} data-testid="delete-exam-modal" className="border-2 border-red-500 rounded-lg p-6 bg-red-50 mb-6">
           <h3 className="text-base font-bold text-red-900 mb-2">
             {t('content.exams.deleteTitle', locale).replace('{title}', deleteExam.title)}
           </h3>
