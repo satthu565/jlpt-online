@@ -17,6 +17,7 @@ Mỗi bẫy ghi theo dạng triệu chứng → nguyên nhân → cách đúng. 
 | API báo "Body cannot be empty when content-type is set to 'application/json'" | POST/PUT/PATCH không có body nhưng vẫn đặt `Content-Type: application/json` | Bỏ header, hoặc gửi `{}`. |
 | CodeQL báo lỗi mức cao trong test | Regex kiểu `/<!--.*?-->/g` để lọc HTML | Dùng chuỗi cố định với `split/join`, không dùng regex lọc HTML. |
 | CI đỏ ở bước "Check generated agent docs" | Đổi route, bảng, menu hoặc cờ mà không sinh lại tài liệu | Chạy `pnpm docs:map` rồi commit `docs/agents/*.generated.md`. Gộp main có xung đột trong file này thì chạy lại lệnh, không sửa tay. |
+| Nhập gói đề trả 413 | Gói có audio nặng hơn giới hạn tải lên (trước đây 50 MB) | Mặc định nay là 150 MB; tăng `IMPORT_MAX_BYTES` và giới hạn body của proxy (nginx `client_max_body_size`) nếu gói lớn hơn |
 | Test đỏ trên Windows (`python3`, đường dẫn `d:`) | Môi trường Windows | Chạy lại trên Linux (máy ảo hoặc CI). |
 | `pnpm test:admin` ở gốc lỗi "setup-i18n" | Script ở gốc trỏ sai file setup | Dùng `pnpm --filter @jlpt/admin test`. |
 
@@ -39,6 +40,7 @@ Mỗi bẫy ghi theo dạng triệu chứng → nguyên nhân → cách đúng. 
 | Từ toàn kana bị đưa vào danh sách duyệt Hán Việt (#121) | Không tách riêng trường hợp "không có chữ Hán" | Không gán độ tin cậy cho từ không có chữ Hán. |
 | Chữ Nhật tự tạo (込, 峠) mang "âm Hán Việt" là nghĩa tiếng Việt | Đoán âm | Kokuji để trống, không đoán. |
 | Âm Hán Việt sai ở chữ nhiều âm (重要 → TRÙNG YÊU) | Bảng chỉ giữ một âm cho mỗi chữ | Dùng Hán Việt 4 lớp (ngoại lệ theo từ trước). Xem `packages/content-tools/AGENTS.md`. |
+| Nhập gói N2 báo "dạng mondai không có trong cấu trúc blueprint" | Agent trích xuất gắn `comprehension_long` cho 読解 問題12/13 | N2: 問題12 (văn bản A/B) = `integrated_reading`, 問題13 = `thematic`, 問題14 = `info_retrieval` |
 | Ký tự lạ U+F9xx/FAxx không khớp chữ thường | Ký tự tương thích CJK | Giữ nguyên ký tự gốc trong dữ liệu. Không chuẩn hóa NFKC. |
 
 ## Coordinator và vận hành
