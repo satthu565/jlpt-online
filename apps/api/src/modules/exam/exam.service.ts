@@ -9,7 +9,7 @@ import {
   NotFoundException,
   Optional,
 } from '@nestjs/common';
-import { and, desc, eq, inArray, isNotNull, isNull } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
@@ -898,6 +898,12 @@ export class ExamService {
       await tx.delete(schema.examAnswerKeys).where(eq(schema.examAnswerKeys.examId, examId));
       await tx.delete(schema.examVersions).where(eq(schema.examVersions.examId, examId));
       await tx.delete(schema.exams).where(eq(schema.exams.id, examId));
+      // Import jobs that created this exam would make re-importing the same package an idempotent no-op that
+      // points at the deleted exam; mark them so a fresh import creates the exam again.
+      await tx
+        .update(schema.importJobs)
+        .set({ status: 'exam_deleted' })
+        .where(sql`${schema.importJobs.errorLog} ->> 'draftExamId' = ${examId}`);
     });
 
     // Published snapshots are only read through exam_versions; removing the files is best effort.

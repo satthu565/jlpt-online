@@ -41,6 +41,9 @@ Mỗi bẫy ghi theo dạng triệu chứng → nguyên nhân → cách đúng. 
 | Chữ Nhật tự tạo (込, 峠) mang "âm Hán Việt" là nghĩa tiếng Việt | Đoán âm | Kokuji để trống, không đoán. |
 | Âm Hán Việt sai ở chữ nhiều âm (重要 → TRÙNG YÊU) | Bảng chỉ giữ một âm cho mỗi chữ | Dùng Hán Việt 4 lớp (ngoại lệ theo từ trước). Xem `packages/content-tools/AGENTS.md`. |
 | Nhập gói N2 báo "dạng mondai không có trong cấu trúc blueprint" | Agent trích xuất gắn `comprehension_long` cho 読解 問題12/13 | N2: 問題12 (văn bản A/B) = `integrated_reading`, 問題13 = `thematic`, 問題14 = `info_retrieval` |
+| Nhập lại gói đề vừa xóa thì API trả "idempotent", đề không được tạo lại | `import_jobs` cũ vẫn trỏ tới đề đã xóa, nên gói bị coi là đã nhập | Từ PR này, xóa đề sẽ đánh dấu các job đó `exam_deleted`. Với dữ liệu cũ thì tăng `revision` của gói |
+| Nhập gói báo "audio chưa được group khai báo" | Mỗi nhóm câu nghe phải khai báo audio của mình trong `mediaKeys`, `listeningTimeline` không tự gán | Thêm `mediaKey` của timeline vào `mediaKeys` của nhóm tương ứng |
+| Nhập gói báo "thiếu tệp import.json ở thư mục gốc" hoặc "file chưa khai báo: BAO_CAO.md" | ZIP đóng gói cả thư mục cha, hoặc đóng gói kèm file báo cáo | Trong ZIP chỉ có `import.json`, `media/`, `sources/` ở thư mục gốc |
 | Ký tự lạ U+F9xx/FAxx không khớp chữ thường | Ký tự tương thích CJK | Giữ nguyên ký tự gốc trong dữ liệu. Không chuẩn hóa NFKC. |
 
 ## Coordinator và vận hành
