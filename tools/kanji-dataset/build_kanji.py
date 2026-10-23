@@ -561,9 +561,11 @@ def main():
                         votes[regional(k, syl[ks.index(k)])] += 1
             if votes:
                 theo_on[kata(on_key)] = votes.most_common(1)[0][0]
-        for x in am_on:
-            if x['am'] not in theo_on and x['am'] in h01_on.get(k, {}):
-                theo_on[x['am']] = hv_syllable_style(h01_on[k][x['am']])
+        # The reviewed H01 table wins over example votes: votes follow the majority reading in the examples
+        # (楽 ガク came out LẠC, 予 ヨ came out DƯ), the table is per on'yomi (楽 ガク NHẠC, 予 ヨ DỰ).
+        for on_key in set(theo_on) | {x['am'] for x in am_on}:
+            if on_key in h01_on.get(k, {}):
+                theo_on[on_key] = hv_syllable_style(h01_on[k][on_key])
         if k in hv_fixes:
             # Readings voted from the same examples carry the same wrong choice; use the reviewed tables.
             for on_key, val in list(theo_on.items()):
