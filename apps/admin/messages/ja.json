@@ -419,7 +419,20 @@
     "next": "次へ",
     "page": "ページ",
     "attribution": "出典: tiengnhatdongian.com; KANJIDIC2・KRADFILE・JMdict – EDRDG (CC BY-SA 4.0); KanjiVG (CC BY-SA 3.0); Thiều Chửu",
-    "colMeaningVi": "意味（ベトナム語）"
+    "colMeaningVi": "意味（ベトナム語）",
+    "colActions": "操作",
+    "edit": "漢越音を編集",
+    "editTitle": "{kanji} の漢越音を編集",
+    "mainHanViet": "主な漢越音",
+    "byOnyomi": "音読みごとの漢越音（なければ空欄）",
+    "editHint": "保存すると「手動修正済み」になり、データセットを再取り込みしても上書きされません。以前の主な漢越音は別の読みとして残るため検索できます。",
+    "save": "保存",
+    "saving": "保存中...",
+    "cancel": "キャンセル",
+    "reset": "元に戻す",
+    "edited": "手動修正済み",
+    "saved": "{kanji} の漢越音を保存しました：{hanViet}",
+    "resetDone": "{kanji} の漢越音を元に戻しました：{hanViet}"
   },
   "hanvietReview": {
     "title": "漢越音審査",
