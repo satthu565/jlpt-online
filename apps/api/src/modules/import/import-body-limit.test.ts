@@ -222,7 +222,7 @@ describe('I18 Body Size Limits (multipart, zip, octet-stream)', () => {
       expect(body.readiness).toBe('DRAFT_ONLY');
     });
 
-    it('I19: gói 12 MB vào /api/v1/admin/imports đạt; body 2 MB vào route khác trả 413 (với IMPORT_MAX_BYTES mặc định 50 MB)', async () => {
+    it('I19: gói 12 MB vào /api/v1/admin/imports đạt; body 2 MB vào route khác trả 413 (với IMPORT_MAX_BYTES mặc định 150 MB)', async () => {
       delete process.env.IMPORT_MAX_BYTES;
       const defaultApp = await createApp();
       await defaultApp.init();
