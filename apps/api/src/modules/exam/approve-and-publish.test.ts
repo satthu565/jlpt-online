@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -16,6 +17,8 @@ import { ReviewService } from '../review/review.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { ImportService } from '../import/import.service.js';
 import { ExamService } from './exam.service.js';
+import { ExamController } from './exam.controller.js';
+import { ROLES_KEY } from '../../common/decorators/roles.decorator.js';
 
 describe('Admin "Duyệt & xuất bản" cả đề (owner decision 2026-10-20)', () => {
   let tempStorageDir: string;
@@ -143,5 +146,73 @@ describe('Admin "Duyệt & xuất bản" cả đề (owner decision 2026-10-20)'
     const job = await importService.processPackageImport(draftZip, 'draft.zip', adminUserId, { mode: 'draft' });
     expect(job.draftExamId).toBeTruthy();
     await expect(examService.approveAndPublishExam(job.draftExamId!, adminUserId)).rejects.toThrow();
+  });
+  describe('Admin xóa hẳn đề (chủ dự án yêu cầu 23/10/2026)', () => {
+    it('sai mã đề thì không xóa gì', async () => {
+      const examId = await importDemoAsAdmin();
+      await expect(examService.deleteExam(examId, adminUserId, 'sai-ma')).rejects.toThrow(/Nhập đúng mã đề/);
+      const rows = await dbClient.db.select().from(schema.exams).where(eq(schema.exams.id, examId));
+      expect(rows).toHaveLength(1);
+    });
+
+    it('xóa đề, phiên bản, đáp án, lượt làm bài và yêu thích; giữ câu hỏi và đề khác; ghi nhật ký', async () => {
+      const examId = await importDemoAsAdmin();
+      await examService.approveAndPublishExam(examId, adminUserId);
+      const [exam] = await dbClient.db.select().from(schema.exams).where(eq(schema.exams.id, examId));
+      const [item] = await dbClient.db.select().from(schema.examItems).where(eq(schema.examItems.examId, examId)).limit(1);
+
+      const attemptId = '0192f000-0000-7000-8000-00000000a771';
+      await dbClient.db.insert(schema.examAttempts).values({
+        id: attemptId,
+        userId: adminUserId,
+        examId,
+        examVersion: 1,
+        mode: 'practice',
+        status: 'submitted',
+        leaseId: '0192f000-0000-7000-8000-00000000a772',
+        attemptMonth: '2026-10-01',
+      });
+      await dbClient.db.insert(schema.userAnswers).values({
+        attemptId,
+        questionIndex: 0,
+        questionId: item!.questionId,
+        optionValue: 1,
+        isCorrect: true,
+        flagged: false,
+      });
+      await dbClient.db.insert(schema.examFavorites).values({ userId: adminUserId, examId });
+      const questionsBefore = await dbClient.db.select().from(schema.questions);
+
+      const res = await examService.deleteExam(examId, adminUserId, exam!.slug);
+      expect(res).toMatchObject({ status: 'deleted', slug: exam!.slug, deletedAttempts: 1 });
+
+      for (const [table, col] of [
+        [schema.exams, schema.exams.id],
+        [schema.examSections, schema.examSections.examId],
+        [schema.examItems, schema.examItems.examId],
+        [schema.examVersions, schema.examVersions.examId],
+        [schema.examAnswerKeys, schema.examAnswerKeys.examId],
+        [schema.examAttempts, schema.examAttempts.examId],
+        [schema.examFavorites, schema.examFavorites.examId],
+      ] as const) {
+        expect(await dbClient.db.select().from(table).where(eq(col, examId))).toHaveLength(0);
+      }
+      expect(await dbClient.db.select().from(schema.userAnswers).where(eq(schema.userAnswers.attemptId, attemptId))).toHaveLength(0);
+      expect(await dbClient.db.select().from(schema.questions)).toHaveLength(questionsBefore.length);
+
+      const audit = await dbClient.db
+        .select()
+        .from(schema.operatorActions)
+        .where(eq(schema.operatorActions.action, 'exam.delete'));
+      expect(audit).toHaveLength(1);
+      expect(audit[0]!.targetResource).toBe(`exam:${examId}`);
+    });
+
+    it('đề không tồn tại trả 404; route chỉ cho admin', async () => {
+      await expect(
+        examService.deleteExam('0192f000-0000-7000-8000-00000000dead', adminUserId, 'x'),
+      ).rejects.toThrow(/không tồn tại/);
+      expect(Reflect.getMetadata(ROLES_KEY, ExamController.prototype.deleteExam)).toEqual(['admin']);
+    });
   });
 });

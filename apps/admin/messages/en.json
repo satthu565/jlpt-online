@@ -209,7 +209,14 @@
       "publishBtn": "Publish",
       "unpublishBtn": "Unpublish",
       "previewBtn": "Preview",
-      "filterLevel": "Filter Level"
+      "filterLevel": "Filter Level",
+      "deleteBtn": "Delete exam",
+      "deleteTitle": "Permanently delete \"{title}\"",
+      "deleteWarning": "Permanently deletes the exam, its published versions, answer keys, every attempt and result, favorites and class assignments. This cannot be undone. Questions stay in the question bank.",
+      "deleteConfirmLabel": "Type the exam code to confirm:",
+      "deleteConfirmBtn": "Delete permanently",
+      "deleteCancel": "Cancel",
+      "deleteDone": "Deleted \"{title}\" and {attempts} attempts."
     },
     "mixedExams": {
       "title": "Mixed Exams Management",

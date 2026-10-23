@@ -209,7 +209,14 @@
       "publishBtn": "Xuất bản",
       "unpublishBtn": "Gỡ xuất bản",
       "previewBtn": "Xem trước",
-      "filterLevel": "Lọc cấp độ"
+      "filterLevel": "Lọc cấp độ",
+      "deleteBtn": "Xóa đề",
+      "deleteTitle": "Xóa hẳn đề \"{title}\"",
+      "deleteWarning": "Xóa vĩnh viễn đề, các phiên bản đã xuất bản, đáp án, mọi lượt làm bài và kết quả của học viên, yêu thích và bài giao trong lớp. Không hoàn tác được. Câu hỏi trong ngân hàng câu hỏi được giữ lại.",
+      "deleteConfirmLabel": "Gõ mã đề để xác nhận:",
+      "deleteConfirmBtn": "Xóa vĩnh viễn",
+      "deleteCancel": "Hủy",
+      "deleteDone": "Đã xóa đề \"{title}\" cùng {attempts} lượt làm bài."
     },
     "mixedExams": {
       "title": "Quản lý Đề thi Trộn Ngẫu nhiên",

@@ -120,7 +120,7 @@ Mục menu và vai trò lấy từ `apps/admin/lib/navigation.ts`.
 | `/verify-2fa` |  |  | `apps/admin/app/verify-2fa/page.tsx` |
 | `/vocab` | Từ vựng & Ngữ pháp | admin, editor | `apps/admin/app/vocab/page.tsx` |
 
-## API (298 route, 26 module có controller)
+## API (299 route, 26 module có controller)
 
 Quyền: `công khai` = `@Public()`; `đăng nhập` = chỉ cần đăng nhập; còn lại là vai trò trong `@Roles`.
 
@@ -293,6 +293,7 @@ Quyền: `công khai` = `@Public()`; `đăng nhập` = chỉ cần đăng nhập
 | GET | `/api/v1/admin/exams/:id` | admin, editor, reviewer |  | `getAdminExam` |
 | PATCH | `/api/v1/admin/exams/:id` | admin, editor |  | `updateAdminExam` |
 | POST | `/api/v1/admin/exams/:id/approve-and-publish` | admin |  | `approveAndPublishExam` |
+| POST | `/api/v1/admin/exams/:id/delete` | admin |  | `deleteExam` |
 | GET | `/api/v1/admin/exams/:id/preview` | admin, editor, reviewer |  | `getAdminExamPreview` |
 | POST | `/api/v1/admin/exams/:id/publish` | admin |  | `publishExam` |
 | POST | `/api/v1/admin/exams/:id/unpublish` | admin |  | `unpublishExam` |
