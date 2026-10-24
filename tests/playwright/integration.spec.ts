@@ -4694,6 +4694,14 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
         const title = await page.locator('.paper-section-nav [aria-current="step"]').innerText();
         await page.getByTestId('finish-section-btn').click();
         await page.getByTestId('modal-confirm-submit-btn').click();
+        const speaker = page.getByRole('dialog', { name: 'Kiểm tra tai nghe / loa' });
+        await expect.poll(async () => await speaker.isVisible() || await page.locator('.paper-section-nav [aria-current="step"]').innerText() !== title).toBe(true);
+        if (await speaker.isVisible()) {
+          await speaker.getByRole('button', { name: 'Phát âm thanh thử nghiệm', exact: true }).click();
+          const startListening = speaker.getByRole('button', { name: 'Tôi nghe rõ · Bắt đầu phần nghe', exact: true });
+          await expect(startListening).toBeEnabled();
+          await startListening.click();
+        }
         await expect(page.locator('.paper-section-nav [aria-current="step"]')).not.toHaveText(title);
       }
     }
