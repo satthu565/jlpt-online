@@ -38,6 +38,8 @@ export function registerExamContentTests(): void {
           await expect(page.locator('.jlpt-question-card')).toHaveCount(0);
           await card.getByRole('radio').first().click();
           await card.getByRole('button', { name: 'Đánh dấu xem lại câu 1', exact: true }).click();
+          await card.getByRole('button', { name: 'Ghi nháp', exact: true }).click();
+          await card.locator('textarea').fill('Review this word after the exam');
           await page.getByTestId('paper-question-1').getByRole('radio').nth(1).click();
           await expect(card.getByRole('radio').first()).toHaveAttribute('aria-checked', 'true');
           await expect(page.locator('[role="status"]').filter({ hasText: 'Đã lưu' })).toBeVisible({ timeout: 15000 });
@@ -45,6 +47,8 @@ export function registerExamContentTests(): void {
           await expect(card.getByRole('radio').first()).toHaveAttribute('aria-checked', 'true');
           await expect(page.getByTestId('paper-question-1').getByRole('radio').nth(1)).toHaveAttribute('aria-checked', 'true');
           await expect(card.getByRole('button', { name: /Bỏ đánh dấu xem lại/ })).toHaveAttribute('aria-pressed', 'true');
+          await card.getByRole('button', { name: 'Ghi nháp', exact: true }).click();
+          await expect(card.locator('textarea')).toHaveValue('Review this word after the exam');
           if (info.project.use.isMobile) await page.locator('.paper-mobile-bar').getByRole('button', { name: 'Phiếu trả lời', exact: true }).click();
           const sheet = info.project.use.isMobile ? page.getByRole('dialog').locator('.paper-answer-sheet') : page.locator('.paper-sticky-sheet .paper-answer-sheet');
           await expect(sheet).toBeVisible();
@@ -55,7 +59,12 @@ export function registerExamContentTests(): void {
             await page.evaluate(() => window.scrollBy(0, 900));
             const rect = await sheet.boundingBox();
             expect(rect!.y).toBeGreaterThanOrEqual(0);
-            expect(rect!.y).toBeLessThan(200);
+            const header = await page.locator('.exam-session-header').boundingBox();
+            const site = await page.locator('.jlpt-header').boundingBox();
+            expect(header!.y).toBeGreaterThanOrEqual(site!.y + site!.height - 1);
+            const sticky = await page.locator('.paper-sticky-sheet').boundingBox();
+            expect(sticky!.y).toBeCloseTo(header!.y + header!.height + 16, 0);
+            expect(rect!.y + rect!.height).toBeLessThanOrEqual(900);
           }
           expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
           await page.evaluate(() => window.scrollTo(0, 0));

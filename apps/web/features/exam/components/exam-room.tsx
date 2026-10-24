@@ -73,6 +73,26 @@ export function ExamRoom({
   className = '',
 }: ExamRoomProps): React.JSX.Element {
   const totalQuestions = snapshot.totalQuestions;
+  const roomRef = useRef<HTMLDivElement>(null);
+  const sessionHeaderRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const room = roomRef.current;
+    const sessionHeader = sessionHeaderRef.current;
+    const siteHeader = document.querySelector<HTMLElement>('.jlpt-header');
+    if (!room || !sessionHeader) return;
+    const measure = () => {
+      const siteHeight = siteHeader?.getBoundingClientRect().height ?? 0;
+      room.style.setProperty('--exam-site-header-height', `${siteHeight}px`);
+      room.style.setProperty('--exam-sticky-top', `${siteHeight + sessionHeader.getBoundingClientRect().height + 16}px`);
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(sessionHeader);
+    if (siteHeader) observer.observe(siteHeader);
+    return () => observer.disconnect();
+  }, []);
 
   // Answers & Flags state
   const [answers, setAnswers] = useState<number[]>(() => {
@@ -416,13 +436,14 @@ export function ExamRoom({
 
   return (
     <div
+      ref={roomRef}
       data-testid="exam-room"
       className={`jlpt-exam-room min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col ${
         isZenMode ? 'jlpt-zen-mode' : ''
       } ${className}`}
     >
       {/* Top sticky bar: Exam title, Clock, Sync status, Submit button */}
-      <header className="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-2.5">
+      <header ref={sessionHeaderRef} className="exam-session-header sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-2.5">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <h1 className="text-base font-bold text-slate-900 dark:text-slate-100 truncate max-w-xs sm:max-w-md">
