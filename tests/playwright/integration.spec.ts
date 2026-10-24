@@ -4671,6 +4671,8 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
   test.afterEach(async ({ page }) => {
     const examRoom = page.locator('[data-testid="exam-room"]');
     if (!(await examRoom.isVisible().catch(() => false))) return;
+    const speaker = page.getByRole('dialog', { name: 'Kiểm tra tai nghe / loa' });
+    if (await speaker.isVisible()) await speaker.getByRole('button', { name: 'Quay lại làm bài', exact: true }).click();
     const submitBtn = page.locator('[data-testid="submit-exam-btn"], button:has-text("Nộp bài")').first();
     if (!(await submitBtn.isVisible({ timeout: 5000 }).catch(() => false))) return;
     await submitBtn.click();
@@ -4683,22 +4685,30 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
   });
 
   async function jumpToBookletQuestion24(page: Page) {
+    const speaker = page.getByRole('dialog', { name: 'Kiểm tra tai nghe / loa' });
+    const completeSpeakerCheck = async () => {
+      await speaker.getByRole('button', { name: 'Phát âm thanh thử nghiệm', exact: true }).click();
+      const confirm = speaker.getByRole('button', { name: 'Tôi nghe rõ · Bắt đầu phần nghe', exact: true });
+      await expect(confirm).toBeEnabled();
+      await confirm.click();
+      await expect(speaker).not.toBeVisible();
+    };
+    if (await speaker.isVisible()) await completeSpeakerCheck();
     for (let step = 0; step < 3 && await page.getByTestId('paper-question-23').count() === 0; step++) {
       const active = page.locator('.jlpt-section-header [aria-current="step"]');
       const title = await active.innerText();
+      const sectionIndex = await page.locator('.jlpt-section-header button').evaluateAll((buttons) => buttons.findIndex((button) => button.getAttribute('aria-current') === 'step'));
       await page.getByTestId('finish-section-btn').click();
       await page.getByRole('button', { name: 'Xác nhận chuyển phần', exact: true }).click();
       await expect(active).not.toHaveText(title);
-      const speaker = page.getByRole('dialog', { name: 'Kiểm tra tai nghe / loa' });
-      if (await speaker.isVisible()) {
-        await speaker.getByRole('button', { name: 'Phát âm thanh thử nghiệm', exact: true }).click();
-        const confirm = speaker.getByRole('button', { name: 'Tôi nghe rõ · Bắt đầu phần nghe', exact: true });
-        await expect(confirm).toBeEnabled();
-        await confirm.click();
+      if (sectionIndex === 1) {
+        await expect(speaker).toBeVisible();
+        await completeSpeakerCheck();
       }
     }
     const question = page.getByTestId('paper-question-23');
     await expect(question).toBeAttached();
+    if (await speaker.isVisible()) await completeSpeakerCheck();
     await question.scrollIntoViewIfNeeded();
     await question.getByRole('radio').first().focus();
   }
