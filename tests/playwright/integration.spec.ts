@@ -4682,6 +4682,27 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await expect(page.locator('a[href*="/ket-qua/"]').first()).toBeVisible({ timeout: 15000 });
   });
 
+  async function jumpToBookletQuestion24(page: Page) {
+    for (let step = 0; step < 3 && await page.getByTestId('paper-question-23').count() === 0; step++) {
+      const active = page.locator('.jlpt-section-header [aria-current="step"]');
+      const title = await active.innerText();
+      await page.getByTestId('finish-section-btn').click();
+      await page.getByRole('button', { name: 'Xác nhận chuyển phần', exact: true }).click();
+      await expect(active).not.toHaveText(title);
+      const speaker = page.getByRole('dialog', { name: 'Kiểm tra tai nghe / loa' });
+      if (await speaker.isVisible()) {
+        await speaker.getByRole('button', { name: 'Phát âm thanh thử nghiệm', exact: true }).click();
+        const confirm = speaker.getByRole('button', { name: 'Tôi nghe rõ · Bắt đầu phần nghe', exact: true });
+        await expect(confirm).toBeEnabled();
+        await confirm.click();
+      }
+    }
+    const question = page.getByTestId('paper-question-23');
+    await expect(question).toBeAttached();
+    await question.scrollIntoViewIfNeeded();
+    await question.getByRole('radio').first().focus();
+  }
+
   async function triggerSelectText(page: Page, textToSelect: string) {
     return page.evaluate((targetText) => {
       const root =
@@ -4733,16 +4754,13 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await loginAsStudentH06(page, webOrigin);
     await openExamRoom(page, 'real');
 
-    // Jump to Question 24 (which contains "学生は あした 何時に 学校に 来ますか。")
-    const q24Btn = page.locator('[data-testid="question-palette"] button, .jlpt-question-palette button').filter({ hasText: /^24$/ }).first();
-    await expect(q24Btn).toBeVisible({ timeout: 15000 });
-    await q24Btn.scrollIntoViewIfNeeded();
-    await q24Btn.click();
+    // Advance sections through the real exam flow; future questions are not in this booklet.
+    await jumpToBookletQuestion24(page);
     await expect(page.locator('[data-select-lookup-area="true"]')).toContainText('学生', { timeout: 10000 });
     await page.waitForTimeout(300);
 
     // Select Option 1
-    const firstOption = page.locator('[data-testid="exam-room"] [role="radio"]').first();
+    const firstOption = page.getByTestId('paper-question-23').getByRole('radio').first();
     await expect(firstOption).toBeVisible({ timeout: 10000 });
     await firstOption.click();
     await expect(firstOption).toHaveAttribute('aria-checked', 'true');
@@ -4827,11 +4845,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await loginAsStudentH06(page, webOrigin);
     await openExamRoom(page, 'real');
 
-    // Jump to Question 24
-    const q24Btn = page.locator('[data-testid="question-palette"] button, .jlpt-question-palette button').filter({ hasText: /^24$/ }).first();
-    await expect(q24Btn).toBeVisible({ timeout: 15000 });
-    await q24Btn.scrollIntoViewIfNeeded();
-    await q24Btn.click();
+    await jumpToBookletQuestion24(page);
     await expect(page.locator('[data-select-lookup-area="true"]')).toContainText('学生', { timeout: 10000 });
     await page.waitForTimeout(300);
 

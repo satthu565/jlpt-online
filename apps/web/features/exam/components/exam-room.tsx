@@ -11,10 +11,7 @@ import type { SyncState, FlatQuestionItem } from '../types';
 
 import { ExamClock } from './exam-clock';
 import { SectionHeader } from './section-header';
-import { QuestionView } from './question-view';
-import { QuestionNavigation } from './question-navigation';
-import { QuestionPalette } from './question-palette';
-import { ExamProgressBar } from './exam-progress-bar';
+import { ExamWorkspace } from './exam-workspace';
 import { SyncStatusIndicator } from './sync-status-indicator';
 import { AudioPlayer } from './audio-player';
 import { ExamToolbar, type JapaneseFontSize } from './exam-toolbar';
@@ -84,6 +81,8 @@ export function ExamRoom({
   const [flags, setFlags] = useState<number[]>(() => {
     return initialFlags ? [...initialFlags] : new Array(totalQuestions).fill(0);
   });
+  const answersRef = useRef(answers);
+  const flagsRef = useRef(flags);
 
   // Current section and current question
   const [currentSectionIndex, setCurrentSectionIndex] = useState<number>(initialSectionIndex);
@@ -246,44 +245,51 @@ export function ExamRoom({
   }, [attemptId, lease, snapshot.examId, storage, apiClient]);
 
   // Options click handler
-  const handleSelectOption = async (optionValue: number) => {
-    const question = flatQuestions[currentQuestionIndex];
-    if (!question || question.isLocked) return;
+  const handleSelectOption = async (optionValue: number, index = currentQuestionIndex) => {
+    const question = flatQuestions[index];
+    if (!question || question.isLocked || question.sectionIndex !== currentSectionIndex || isSubmitting || isTransitioning || isConflictModalOpen) return;
 
-    const newAnswers = [...answers];
-    newAnswers[currentQuestionIndex] = optionValue;
+    if (mode === 'real' && deadlines[currentSectionIndex] && Date.now() + serverOffsetMs >= Date.parse(deadlines[currentSectionIndex]!)) return;
+    const newAnswers = [...answersRef.current];
+    if (optionValue < 0 || optionValue > question.options.length) return;
+    newAnswers[index] = optionValue;
+    answersRef.current = newAnswers;
+    setCurrentQuestionIndex(index);
     setAnswers(newAnswers);
 
     if (engineRef.current) {
-      await engineRef.current.recordAnswerChange(currentQuestionIndex, optionValue);
+      await engineRef.current.recordAnswerChange(index, optionValue).catch(() => setSyncState('local_error'));
     }
   };
 
   // Flag toggle handler
-  const handleToggleFlag = async () => {
-    const question = flatQuestions[currentQuestionIndex];
-    if (!question || question.isLocked) return;
+  const handleToggleFlag = async (index = currentQuestionIndex) => {
+    const question = flatQuestions[index];
+    if (!question || question.isLocked || question.sectionIndex !== currentSectionIndex || isSubmitting || isTransitioning || isConflictModalOpen) return;
 
-    const newFlags = [...flags];
-    const newFlagged = !flags[currentQuestionIndex];
-    newFlags[currentQuestionIndex] = newFlagged ? 1 : 0;
+    if (mode === 'real' && deadlines[currentSectionIndex] && Date.now() + serverOffsetMs >= Date.parse(deadlines[currentSectionIndex]!)) return;
+    const newFlags = [...flagsRef.current];
+    const newFlagged = !flagsRef.current[index];
+    newFlags[index] = newFlagged ? 1 : 0;
+    flagsRef.current = newFlags;
+    setCurrentQuestionIndex(index);
     setFlags(newFlags);
 
     if (engineRef.current) {
-      await engineRef.current.recordFlagChange(currentQuestionIndex, newFlagged);
+      await engineRef.current.recordFlagChange(index, newFlagged).catch(() => setSyncState('local_error'));
     }
   };
 
   // Question navigation handlers
   const handlePrevQuestion = () => {
     if (currentQuestionIndex > firstQuestionOfSection) {
-      setCurrentQuestionIndex((prev) => prev - 1);
+      handleJumpToQuestion(currentQuestionIndex - 1);
     }
   };
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < lastQuestionOfSection) {
-      setCurrentQuestionIndex((prev) => prev + 1);
+      handleJumpToQuestion(currentQuestionIndex + 1);
     }
   };
 
@@ -291,6 +297,7 @@ export function ExamRoom({
     const targetQ = flatQuestions[globalIdx];
     if (targetQ && !targetQ.isLocked) {
       setCurrentQuestionIndex(globalIdx);
+      requestAnimationFrame(() => document.getElementById(`paper-question-${targetQ.questionId}`)?.scrollIntoView({ block: 'start' }));
       if (targetQ.sectionIndex !== currentSectionIndex) {
         setCurrentSectionIndex(targetQ.sectionIndex);
       }
@@ -401,8 +408,6 @@ export function ExamRoom({
   const flaggedCount = flags.filter((f) => f === 1).length;
 
   const currentQ = flatQuestions[currentQuestionIndex];
-  const isFirstInSection = currentQuestionIndex <= firstQuestionOfSection;
-  const isLastInSection = currentQuestionIndex >= lastQuestionOfSection;
   const isLastSection = currentSectionIndex >= snapshot.sections.length - 1;
 
   const currentDeadline = deadlines[currentSectionIndex] || null;
@@ -521,12 +526,19 @@ export function ExamRoom({
         </div>
       )}
 
-      {/* Main exam content area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left column: Question view + Navigation */}
-        <div className={`${isZenMode ? 'lg:col-span-12' : 'lg:col-span-8'} min-w-0 flex flex-col justify-between`}>
-          <div>
-            {/* Pacing Warning in Practice Mode (P04) */}
+      {/* Only the red-box workspace changes; the original surrounding shell stays intact. */}
+      <ExamWorkspace
+        attemptId={attemptId} examId={snapshot.examId} version={snapshot.version}
+        title={currentSection?.title ?? snapshot.title}
+        questions={flatQuestions.filter((question) => question.sectionIndex === currentSectionIndex)}
+        answers={answers} flags={flags} currentIndex={currentQuestionIndex}
+        fontSize={fontSize} showFurigana={showFurigana} lookupEnabled={selectLookupEnabled}
+        disabled={isSubmitting || isTransitioning || isConflictModalOpen || lockedSections.includes(currentSectionIndex)}
+        isLastSection={isLastSection} onActivate={setCurrentQuestionIndex}
+        onAnswer={(index, value) => { void handleSelectOption(value, index); }}
+        onFlag={(index) => { void handleToggleFlag(index); }}
+        onFinishSection={() => isLastSection ? setIsSubmitModalOpen(true) : setIsTransitionModalOpen(true)}
+      >
             {mode === 'practice' && pacingEvaluation && (pacingEvaluation.paceStatus === 'BEHIND' || pacingEvaluation.paceStatus === 'CRITICAL') && (
               <div
                 data-testid="pacing-warning"
@@ -537,56 +549,7 @@ export function ExamRoom({
                 <span className="flex-1">{pacingEvaluation.message}</span>
               </div>
             )}
-
-            {currentQ ? (
-              <QuestionView
-                question={currentQ}
-                selectedOption={answers[currentQuestionIndex] || 0}
-                isFlagged={Boolean(flags[currentQuestionIndex])}
-                onSelectOption={handleSelectOption}
-                onToggleFlag={handleToggleFlag}
-                fontSize={fontSize}
-                showKeyboardHints={true}
-                showFurigana={showFurigana}
-              />
-            ) : (
-              <div className="p-8 text-center text-slate-500">Đang tải câu hỏi...</div>
-            )}
-          </div>
-
-          <QuestionNavigation
-            currentIndex={currentQuestionIndex}
-            totalQuestions={totalQuestions}
-            isFirstInSection={isFirstInSection}
-            isLastInSection={isLastInSection}
-            isLastSection={isLastSection}
-            onPrev={handlePrevQuestion}
-            onNext={handleNextQuestion}
-            onRequestNextSection={() => setIsTransitionModalOpen(true)}
-            onRequestSubmit={() => setIsSubmitModalOpen(true)}
-          />
-        </div>
-
-        {/* Right column: Progress bar & Answer sheet palette (Hidden in Zen Mode to prevent distraction) */}
-        {!isZenMode && (
-          <div className="lg:col-span-4 space-y-4">
-            <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4">
-              <ExamProgressBar
-                answeredCount={answeredCount}
-                totalQuestions={totalQuestions}
-              />
-            </div>
-
-            <QuestionPalette
-              questions={flatQuestions}
-              currentIndex={currentQuestionIndex}
-              answers={answers}
-              flags={flags}
-              onSelectQuestion={handleJumpToQuestion}
-            />
-          </div>
-        )}
-      </main>
+      </ExamWorkspace>
 
       {/* Modals */}
       <EarlySubmitModal
@@ -606,6 +569,7 @@ export function ExamRoom({
         onConfirm={handleConfirmSectionTransition}
         currentSectionTitle={currentSection?.title || 'Phần thi hiện tại'}
         nextSectionTitle={snapshot.sections[currentSectionIndex + 1]?.title || 'Phần thi tiếp theo'}
+        unansweredInSection={flatQuestions.filter((question) => question.sectionIndex === currentSectionIndex && !answers[question.globalIndex]).length}
         isLoading={isTransitioning}
       />
 

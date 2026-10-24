@@ -11,7 +11,7 @@ const test = base.extend({
 });
 
 export function registerExamContentTests(): void {
-  test.describe('Original exam UI with source HTML content', () => {
+  test.describe('Original shell with HTML booklet workspace', () => {
     for (const mode of ['real', 'practice'] as const) {
       test(`${mode}: original controls, source content, save and resume`, async ({ page, context, baseURL }, info) => {
         test.setTimeout(90000);
@@ -30,29 +30,48 @@ export function registerExamContentTests(): void {
         const passageIndex = published.sections.flatMap(section => section.groups.flatMap(group => group.questions.map(() => Boolean(group.passage?.length)))).indexOf(true);
         try {
           await page.goto(`${origin}/phong-thi?attemptId=${attempt.attemptId}&mode=${mode}`);
-          const card = page.locator('.jlpt-question-card');
-          await expect(card).toHaveCount(1);
+          const card = page.getByTestId('paper-question-0');
+          await expect(page.locator('.paper-question')).toHaveCount(published.sections[0]!.questionRange[1] + 1);
           await expect(page.locator('.jlpt-exam-toolbar')).toBeVisible();
-          await expect(page.locator('.paper-booklet')).toHaveCount(0);
-          await expect(card.locator('.jlpt-exam-source-text').first()).toBeVisible();
+          await expect(page.locator('.jlpt-section-header')).toBeVisible();
+          await expect(page.locator('.paper-booklet')).toBeVisible();
+          await expect(page.locator('.jlpt-question-card')).toHaveCount(0);
           await card.getByRole('radio').first().click();
-          await card.getByRole('button', { name: /Đánh dấu xem lại câu này/ }).click();
-          await page.getByRole('button', { name: 'Chuyển đến câu hỏi tiếp theo (Phím mũi tên phải)', exact: true }).click();
-          await expect(card).toHaveAttribute('aria-label', 'Câu hỏi số 2');
-          await page.getByRole('button', { name: 'Chuyển đến câu hỏi trước đó (Phím mũi tên trái)', exact: true }).click();
+          await card.getByRole('button', { name: 'Đánh dấu xem lại câu 1', exact: true }).click();
+          await page.getByTestId('paper-question-1').getByRole('radio').nth(1).click();
           await expect(card.getByRole('radio').first()).toHaveAttribute('aria-checked', 'true');
           await expect(page.locator('[role="status"]').filter({ hasText: 'Đã lưu' })).toBeVisible({ timeout: 15000 });
           await page.reload();
           await expect(card.getByRole('radio').first()).toHaveAttribute('aria-checked', 'true');
+          await expect(page.getByTestId('paper-question-1').getByRole('radio').nth(1)).toHaveAttribute('aria-checked', 'true');
           await expect(card.getByRole('button', { name: /Bỏ đánh dấu xem lại/ })).toHaveAttribute('aria-pressed', 'true');
+          if (info.project.use.isMobile) await page.locator('.paper-mobile-bar').getByRole('button', { name: 'Phiếu trả lời', exact: true }).click();
+          const sheet = info.project.use.isMobile ? page.getByRole('dialog').locator('.paper-answer-sheet') : page.locator('.paper-sticky-sheet .paper-answer-sheet');
+          await expect(sheet).toBeVisible();
+          await sheet.getByTestId('paper-answer-row-0').getByRole('button', { name: 'Câu 1, đáp án 1', exact: true }).click();
+          await expect(sheet.getByTestId('paper-answer-row-0').getByRole('button', { name: 'Câu 1, đáp án 1', exact: true })).toHaveAttribute('aria-pressed', 'true');
+          await sheet.getByRole('button', { name: 'Đến câu 2', exact: true }).click();
+          if (!info.project.use.isMobile) {
+            await page.evaluate(() => window.scrollBy(0, 900));
+            const rect = await sheet.boundingBox();
+            expect(rect!.y).toBeGreaterThanOrEqual(0);
+            expect(rect!.y).toBeLessThan(200);
+          }
           expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
-          await page.screenshot({ path: info.outputPath(`original-ui-${mode}.png`), fullPage: true });
+          await page.evaluate(() => window.scrollTo(0, 0));
+          await page.screenshot({ path: info.outputPath(`hybrid-ui-${mode}.png`), fullPage: false });
           if (mode === 'practice') {
             expect(passageIndex).toBeGreaterThanOrEqual(0);
-            await page.locator(`[data-question-index="${passageIndex}"]`).click();
-            await expect(card.locator('.jlpt-exam-source-passage')).toBeVisible();
+            const sectionIndex = published.sections.findIndex(section => section.questionRange[0] <= passageIndex && section.questionRange[1] >= passageIndex);
+            for (let index = 0; index < sectionIndex; index++) {
+              await page.getByTestId('finish-section-btn').click();
+              await page.getByRole('button', { name: 'Xác nhận chuyển phần', exact: true }).click();
+              await expect(page.locator('.jlpt-section-header button[aria-current="step"]')).toContainText(published.sections[index + 1]!.title);
+            }
+            await expect(page.locator('.paper-passage').first()).toBeAttached();
+            await page.locator('.paper-passage').first().scrollIntoViewIfNeeded();
             expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
-            await page.screenshot({ path: info.outputPath('original-ui-reading.png'), fullPage: true });
+            await page.screenshot({ path: info.outputPath('hybrid-ui-reading.png'), fullPage: false });
           }
           await page.getByTestId('submit-exam-btn').click();
           await page.getByTestId('modal-confirm-submit-btn').click();

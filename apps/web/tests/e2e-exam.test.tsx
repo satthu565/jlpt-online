@@ -277,7 +277,7 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
       expect(html).toContain('Zen Mode');
     });
 
-    it('[EXAM-25] ExamRoom Zen Mode hides navigation palette to prevent distraction', () => {
+    it('[EXAM-25] ExamRoom Zen Mode keeps the answer sheet available and hides section tabs', () => {
       const storage = new MemoryExamStorage();
       const apiClient = new ExamApiClient();
 
@@ -295,12 +295,12 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
         />,
       );
       expect(htmlNormal).toContain('jlpt-section-header');
-      expect(htmlNormal).toContain('jlpt-question-palette');
+      expect(htmlNormal).toContain('paper-answer-sheet');
       expect(htmlNormal).toContain('Phiếu trả lời');
       expect(htmlNormal).toContain('Tập trung (Zen)');
       expect(htmlNormal).not.toContain('jlpt-zen-mode');
 
-      // Zen Mode (EXAM-25): hides palette and section header to eliminate distraction
+      // Zen Mode keeps access to the answer sheet while hiding section tabs.
       const htmlZen = renderClean(
         <ExamRoom
           snapshot={SAMPLE_N5_EXAM_SNAPSHOT}
@@ -315,10 +315,10 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
       );
       expect(htmlZen).toContain('jlpt-zen-mode');
       expect(htmlZen).not.toContain('jlpt-section-header');
-      expect(htmlZen).not.toContain('jlpt-question-palette');
-      expect(htmlZen).not.toContain('Phiếu trả lời');
+      expect(htmlZen).toContain('paper-answer-sheet');
+      expect(htmlZen).toContain('Phiếu trả lời');
       expect(htmlZen).toContain('Hiện thanh công cụ');
-      expect(htmlZen).toContain('lg:col-span-12');
+      expect(htmlZen).toContain('paper-booklet');
     });
   });
 

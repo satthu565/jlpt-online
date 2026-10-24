@@ -1,16 +1,18 @@
-# Nội dung HTML trong giao diện phòng thi cũ
+# Cuốn đề HTML trong khung phòng thi cũ
 
-Ngày 24/10/2026, chủ dự án yêu cầu giữ giao diện cũ và chỉ nâng cấp nội dung. Quyết định này thay thế phương án cuốn đề dài và phiếu tô mới đã triển khai trước đó.
+Ngày 24/10/2026, chủ dự án xác định phạm vi bằng ảnh khoanh đỏ: giữ header, tab phần thi, thanh công cụ và footer hiện có; thay toàn bộ vùng làm bài ở giữa bằng cuốn đề HTML và phiếu tô đáp án mới.
 
 ## Giao diện được giữ lại
 
-Khôi phục ExamRoom cũ: một câu mỗi lần, khung câu hỏi, các nút đáp án, thanh công cụ, bảng số câu, tiến độ, đánh dấu và điều hướng trước/sau. Không dùng cuốn đề cuộn dài, phiếu tô dạng mới, thanh mở phiếu mobile hoặc vùng ghi nháp/tô đoạn của bản thiết kế đã bỏ.
+`ExamRoom` giữ khung ngoài, đồng hồ, đồng bộ, nút nộp, tab phần thi, thanh công cụ và audio. `ExamWorkspace` thay toàn bộ vùng câu hỏi đơn, bảng số câu và điều hướng trước/sau bằng nhiều câu liên tiếp trong phần thi hiện tại. Phím mũi tên cuộn đến câu thay vì thay nội dung bằng một câu.
+
+Máy tính có phiếu tô và tiến độ bám khi cuộn, danh sách đáp án cuộn riêng. Mobile có thanh mở phiếu cố định dưới màn hình. Có tô đáp án từ phiếu, nhảy tới câu, đánh dấu từng câu, tìm câu chưa làm/cần xem lại, tẩy đáp án riêng, ghi nháp, tô đoạn, mở lại bài đọc và phóng to hình. Zen vẫn giữ khả năng mở phiếu trả lời.
 
 ## Phần nội dung được nâng cấp
 
-QuestionView tiếp tục nhận snapshot thật và sử dụng ExamText, ExamPassage, ExamContentImage. Nội dung được dựng bằng HTML, giữ khoảng trắng và xuống dòng gốc, ruby, gạch chân, ★ và các đoạn bài đọc. Bảng cuộn trong vùng nội dung khi hẹp; hình không bị cắt chiều cao và có thể mở lớn. URL ảnh và audio dùng API cùng nguồn để hoạt động trong container và qua LAN.
+`PaperBooklet` nhận snapshot thật và dựng HTML giữ ruby, gạch chân, ★ và bài đọc. Chỉ gộp chỉ dẫn liên tiếp có cùng số 問題 và cấu trúc trùng nhau; bài đọc chung hiển thị một lần. Bảng cuộn trong vùng riêng khi hẹp; hình mở lớn được. URL ảnh và audio dùng API cùng nguồn để hoạt động trong container và qua LAN. Ghi nháp/tô đoạn lưu riêng theo lượt thi trên thiết bị, không đưa vào đáp án chấm điểm.
 
-CSS chỉ áp dụng trong nội dung câu hỏi; không áp theme hoặc bố cục mới cho toàn trang. Không thêm dữ liệu minh họa vào giao diện, không thay đề đã xuất bản. Định dạng chưa được lưu trong snapshot, như ô bảng gộp, vẫn cần bổ sung qua quy trình nội dung/schema.
+CSS cuốn đề không ẩn header/footer hoặc thay theme toàn trang. Overflow trang phòng thi chuyển từ hidden sang clip để sticky hoạt động. Không thêm dữ liệu minh họa, không thay đề đã xuất bản. Định dạng chưa lưu trong snapshot, như ô bảng gộp, cần bổ sung qua quy trình nội dung/schema.
 
 ## Tính tương thích
 
@@ -18,4 +20,4 @@ Giữ các sửa về countdown, guest cookie, sequence, deadline phục hồi v
 
 ## Kiểm tra
 
-Kiểm tra render nội dung nằm trong `apps/web/tests/exam-content.test.tsx`. Kịch bản API thật `tests/playwright/exam-content-journey.ts` kiểm tra khung cũ, chọn đáp án, đánh dấu, trước/sau, lưu, tải lại và nộp bài; có ảnh ở 390px và 1366px. Các bộ kiểm tra phòng thi cũ được khôi phục để kiểm tra hành vi cũ.
+Các test nội dung/cuốn đề kiểm tra ruby, gạch chân, bài đọc chung, phân nhóm, cờ, giá trị đáp án và tìm câu xem lại. Kịch bản API thật `tests/playwright/exam-content-journey.ts` kiểm tra khung cũ + nhiều câu mới, đáp án ở hai câu khác nhau, tô phiếu, đánh dấu, lưu/tải lại, sticky và nộp bài ở 390px/1366px.
