@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { test as base, expect } from '@playwright/test';
+import type { PublicExamSnapshot } from '@jlpt/schema';
 
 const test = base.extend({
   extraHTTPHeaders: async ({ baseURL }, use, info) => {
@@ -23,7 +24,10 @@ export function registerExamContentTests(): void {
         expect(exam).toBeDefined();
         const created = await context.request.post(`${origin}/api/v1/attempts`, { data: { examId: exam!.id, mode } });
         expect(created.status()).toBe(201);
-        const attempt = await created.json() as { attemptId: string };
+        const attempt = await created.json() as { attemptId: string; snapshotUrl: string };
+        const sourceUrl = new URL(attempt.snapshotUrl, origin);
+        const published = await (await context.request.get(`${origin}${sourceUrl.pathname}${sourceUrl.search}`)).json() as PublicExamSnapshot;
+        const passageIndex = published.sections.flatMap(section => section.groups.flatMap(group => group.questions.map(() => Boolean(group.passage?.length)))).indexOf(true);
         try {
           await page.goto(`${origin}/phong-thi?attemptId=${attempt.attemptId}&mode=${mode}`);
           const card = page.locator('.jlpt-question-card');
@@ -44,7 +48,8 @@ export function registerExamContentTests(): void {
           expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
           await page.screenshot({ path: info.outputPath(`original-ui-${mode}.png`), fullPage: true });
           if (mode === 'practice') {
-            await page.locator('[data-question-index="12"]').click();
+            expect(passageIndex).toBeGreaterThanOrEqual(0);
+            await page.locator(`[data-question-index="${passageIndex}"]`).click();
             await expect(card.locator('.jlpt-exam-source-passage')).toBeVisible();
             expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
             await page.screenshot({ path: info.outputPath('original-ui-reading.png'), fullPage: true });
