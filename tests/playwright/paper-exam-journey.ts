@@ -15,7 +15,7 @@ export function registerPaperExamTests(): void {
       const created = await context.request.post(`${origin}/api/v1/attempts`, { data: { examId: exam!.id, mode: 'practice' } });
       expect(created.status()).toBe(201);
       const attempt = await created.json() as { attemptId: string; snapshotUrl: string };
-      const snapshotUrl = new URL(attempt.snapshotUrl);
+      const snapshotUrl = new URL(attempt.snapshotUrl, origin);
       const snapshotResponse = await context.request.get(`${origin}${snapshotUrl.pathname}${snapshotUrl.search}`);
       expect(snapshotResponse.ok()).toBe(true);
       const published = await snapshotResponse.json() as { sections: Array<{ listeningTimeline: unknown[] | null }> };
