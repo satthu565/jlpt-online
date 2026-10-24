@@ -3,6 +3,7 @@
 import React from 'react';
 import { Button } from '@jlpt/ui/components/button';
 import type { SyncState } from '../types';
+import { useI18n } from '../../../lib/i18n';
 
 export interface SyncStatusIndicatorProps {
   syncState: SyncState;
@@ -15,7 +16,10 @@ export function SyncStatusIndicator({
   onRetry,
   className = '',
 }: SyncStatusIndicatorProps): React.JSX.Element {
+  const { t } = useI18n();
   switch (syncState) {
+    case 'local_error':
+      return <div role="alert" className={`flex items-center gap-2 text-xs text-red-700 dark:text-red-300 ${className}`}><span>{t('paperExam.localWriteError')}</span>{onRetry && <Button size="sm" variant="outline" onClick={onRetry}>{t('paperExam.retry')}</Button>}</div>;
     case 'saved':
       return (
         <div
@@ -26,7 +30,7 @@ export function SyncStatusIndicator({
           <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
           </svg>
-          <span>Đã lưu</span>
+          <span>{t('paperExam.syncSaved')}</span>
         </div>
       );
 
@@ -41,7 +45,7 @@ export function SyncStatusIndicator({
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          <span>Đang lưu...</span>
+          <span>{t('paperExam.syncSaving')}</span>
         </div>
       );
 
@@ -55,7 +59,7 @@ export function SyncStatusIndicator({
           <svg className="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
           </svg>
-          <span>Lưu local (Chưa đồng bộ)</span>
+          <span>{t('paperExam.syncLocal')}</span>
         </div>
       );
 
@@ -71,7 +75,7 @@ export function SyncStatusIndicator({
             <line x1="12" y1="8" x2="12" y2="12" strokeWidth="2" />
             <line x1="12" y1="16" x2="12.01" y2="16" strokeWidth="2" />
           </svg>
-          <span>Lỗi đồng bộ (đã lưu local)</span>
+          <span>{t('paperExam.syncError')}</span>
           {onRetry && (
             <Button
               type="button"
@@ -80,7 +84,7 @@ export function SyncStatusIndicator({
               onClick={onRetry}
               className="underline text-rose-800 dark:text-rose-300 hover:text-rose-900 ml-1 p-0 h-auto min-h-0 text-xs"
             >
-              Thử lại
+              {t('paperExam.retry')}
             </Button>
           )}
         </div>
@@ -95,7 +99,7 @@ export function SyncStatusIndicator({
           <svg className="w-3.5 h-3.5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <span>Xung đột lease (Mở ở nơi khác)</span>
+          <span>{t('paperExam.syncConflict')}</span>
         </div>
       );
 

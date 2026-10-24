@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useI18n } from '../../../../lib/i18n';
 import { Modal } from '@jlpt/ui/components/modal';
 import { Button } from '@jlpt/ui/components/button';
 
@@ -31,6 +32,7 @@ export function InstructionsModal({
   snapshot,
   mode,
 }: InstructionsModalProps): React.JSX.Element | null {
+  const { t } = useI18n();
   if (!isOpen) return null;
 
   return (
@@ -74,7 +76,7 @@ export function InstructionsModal({
         <div>
           <h4 className="font-bold text-slate-900 dark:text-slate-100 mb-2">2. Cách chọn và bỏ chọn đáp án</h4>
           <p>
-            Nhấp chuột vào phương án 1, 2, 3, hoặc 4 để chọn. Bạn có thể nhấp lại vào phương án đã chọn để bỏ chọn.
+            {t('paperExam.eraseInstructions')}
           </p>
         </div>
 

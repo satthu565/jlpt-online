@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { computeClientRemainingMs } from '../utils/timing';
+import { useState, useEffect, useMemo, useRef } from 'react';
 
 export interface UseCountdownTimerOptions {
   deadline: string | null;
@@ -46,11 +45,12 @@ export function useCountdownTimer({
   onExpireRef.current = onExpire;
 
   const hasExpiredRef = useRef(false);
+  // Retain the offset between ticks; recomputing it cancels elapsed time.
+  const anchor = useMemo(() => ({ server: Date.parse(serverNow), client: Date.now() }), [serverNow]);
 
   const calculateRemaining = (): number => {
     if (!deadline || !enabled) return 0;
-    const now = Date.now();
-    return computeClientRemainingMs(deadline, serverNow, now);
+    return Math.max(0, Date.parse(deadline) - (anchor.server + Date.now() - anchor.client));
   };
 
   const [remainingMs, setRemainingMs] = useState<number>(() => calculateRemaining());

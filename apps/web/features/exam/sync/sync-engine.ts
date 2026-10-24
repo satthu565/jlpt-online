@@ -11,6 +11,7 @@ export interface ExamSyncEngineOptions {
   initialTimeSpentMs?: number[];
   initialSeq?: number;
   initialLastAckedSeq?: number;
+  getContext?: () => Pick<StoredAttempt, 'mode' | 'currentSection' | 'sectionDeadlines'>;
   storage: ExamStorageAdapter;
   apiClient: ExamApiClient;
   debounceMs?: number; // Default 3000ms (3 seconds)
@@ -46,6 +47,9 @@ export class ExamSyncEngine {
 
   private syncState: SyncState = 'saved';
   private lastError?: string;
+  private pendingWrite: Promise<void> = Promise.resolve();
+  private getContext?: ExamSyncEngineOptions['getContext'];
+  private clientStartedAt = new Date().toISOString();
 
   private onSyncStateChange?: (state: SyncState, meta?: { lastAckedSeq: number; currentSeq: number; error?: string }) => void;
   private onLeaseConflict?: () => void;
@@ -56,6 +60,7 @@ export class ExamSyncEngine {
     this.lease = options.lease;
     this.storage = options.storage;
     this.apiClient = options.apiClient;
+    this.getContext = options.getContext;
 
     this.answers = options.initialAnswers ? [...options.initialAnswers] : [];
     this.flags = options.initialFlags ? [...options.initialFlags] : [];
@@ -176,25 +181,55 @@ export class ExamSyncEngine {
       clientStartedAt: new Date().toISOString(),
       sectionDeadlines: {},
       updatedAt: new Date().toISOString(),
+      ...this.getContext?.(),
     };
-
-    await this.storage.saveAttempt(storedAttempt);
+    storedAttempt.clientStartedAt = this.clientStartedAt;
 
     const outboxEntry: Omit<OutboxEntry, 'id'> = {
       attemptId: this.attemptId,
       lease: this.lease,
-      seq: this.currentSeq,
-      answers: [...this.answers],
-      flags: [...this.flags],
-      timeSpentMs: [...this.timeSpentMs],
+      seq: storedAttempt.currentSeq,
+      answers: [...storedAttempt.answers],
+      flags: [...storedAttempt.flags],
+      timeSpentMs: [...(storedAttempt.timeSpentMs ?? [])],
       changes,
       status: 'pending',
       createdAt: new Date().toISOString(),
       retries: 0,
     };
 
-    await this.storage.enqueueOutbox(outboxEntry);
+    const write = this.pendingWrite.catch(() => {}).then(async () => {
+      await this.storage.saveAttempt(storedAttempt);
+      await this.storage.enqueueOutbox(outboxEntry);
+    });
+    this.pendingWrite = write;
+    try { await write; }
+    catch (cause) { this.updateSyncState('local_error'); throw cause; }
     this.updateSyncState('saving');
+  }
+
+  async retry(): Promise<void> {
+    if (this.syncState === 'local_error') {
+      try { await this.persistToStorage([]); this.hasPendingChanges = true; }
+      catch { return; }
+    }
+    await this.flush();
+  }
+
+  /** Do not close a section until the local writes and final server ACK complete. */
+  async drain(): Promise<void> {
+    await this.pendingWrite;
+    const timeoutAt = Date.now() + 30000;
+    while (this.inFlight) {
+      if (Date.now() >= timeoutAt) throw new Error('SYNC_TIMEOUT');
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    await this.flush();
+    while (this.inFlight) {
+      if (Date.now() >= timeoutAt) throw new Error('SYNC_TIMEOUT');
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    if (this.isStopped || this.lastAckedSeq < this.currentSeq) throw new Error(this.lastError || 'SYNC_NOT_ACKNOWLEDGED');
   }
 
   /**
@@ -255,6 +290,9 @@ export class ExamSyncEngine {
    */
   async flush(): Promise<void> {
     if (this.isStopped) return;
+
+    try { await this.pendingWrite; }
+    catch (cause) { this.updateSyncState('local_error', cause instanceof Error ? cause.message : 'LOCAL_STORAGE_ERROR'); return; }
 
     this.clearTimers();
 
@@ -327,7 +365,7 @@ export class ExamSyncEngine {
       }
 
       // Network or other error: keep changes in IndexedDB, show error or offline_saved
-      this.updateSyncState('error', error.message || 'Lỗi kết nối máy chủ.');
+      this.updateSyncState(!error.status && typeof navigator !== 'undefined' && navigator.onLine === false ? 'offline_saved' : 'error', error.message || 'Lỗi kết nối máy chủ.');
 
       // Schedule retry with backoff if not stopped
       if (!this.isStopped) {

@@ -1,6 +1,6 @@
 # Tính năng theo trạng thái
 
-Cập nhật lần cuối: 22/10/2026. **Agent xong một tính năng thì sửa file này trong cùng PR.**
+Cập nhật lần cuối: 24/10/2026. **Agent xong một tính năng thì sửa file này trong cùng PR.**
 
 Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xong, chờ dịch vụ ngoài · 🚧 đang làm · 📋 dự kiến.
 
@@ -68,6 +68,7 @@ Chủ dự án cung cấp tài khoản hoặc dịch vụ thì mới nghiệm th
 
 | Việc | Trạng thái |
 |---|---|
+| Làm mới phòng thi bằng cuốn đề HTML và phiếu tô | Đã triển khai trên nhánh `feat/paper-exam-room`, có bản xem thử tại `http://localhost:3200/phong-thi` qua đường hầm tới máy ảo. Đang nghiệm thu staging, chưa thay bản 3000. Xem `docs/decisions/paper-exam-room.md`. |
 | Sổ tay `docs/agent-guides/`, `pnpm docs:map`, bài kiểm tra đầu vào | PR #129 chờ merge |
 | Trích xuất đề N2 từ PDF thành gói nhập (ngoài repo, chạy trên máy ảo) | 3/31 đề xong |
 

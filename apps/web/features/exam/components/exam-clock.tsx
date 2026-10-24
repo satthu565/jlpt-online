@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useCountdownTimer } from '../hooks/use-countdown-timer';
+import { useI18n } from '../../../lib/i18n';
 
 export interface ExamClockProps {
   deadline: string | null;
@@ -16,6 +17,7 @@ export function ExamClock({
   onExpire,
   className = '',
 }: ExamClockProps): React.JSX.Element {
+  const { t } = useI18n();
   const { formattedTime, isWarning5Min, isCritical1Min, isExpired, remainingSec } =
     useCountdownTimer({
       deadline,
@@ -30,49 +32,35 @@ export function ExamClock({
         data-testid="exam-clock"
         className={`jlpt-clock-unlimited text-sm font-medium text-slate-500 ${className}`}
       >
-        Không giới hạn thời gian
+        {t('paperExam.unlimited')}
       </div>
     );
   }
 
   let alertLevel = 'normal';
-  let badgeStyle: React.CSSProperties = {
-    backgroundColor: 'var(--bg-secondary, #f1f5f9)',
-    color: 'var(--text-primary, #0f172a)',
-    border: '1px solid var(--border-neutral, #cbd5e1)',
-  };
+  let badgeClass = 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700';
 
   if (isCritical1Min || isExpired) {
     alertLevel = 'critical';
-    badgeStyle = {
-      backgroundColor: '#fee2e2',
-      color: '#b91c1c',
-      border: '2px solid #ef4444',
-      animation: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-    };
+    badgeClass = 'bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-200 border-2 border-red-500';
   } else if (isWarning5Min) {
     alertLevel = 'warning';
-    badgeStyle = {
-      backgroundColor: '#fef3c7',
-      color: '#b45309',
-      border: '1px solid #f59e0b',
-    };
+    badgeClass = 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-200 border border-amber-500';
   }
 
   return (
     <div
       role="timer"
-      aria-live="polite"
+      aria-live="off"
       aria-atomic="true"
-      aria-label={`Thời gian làm bài còn lại: ${formattedTime}`}
+      aria-label={t('paperExam.timer', { time: formattedTime })}
       data-alert-level={alertLevel}
       data-remaining-sec={remainingSec}
       data-testid="exam-clock"
-      className={`jlpt-exam-clock inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-mono font-bold text-base shadow-sm transition-colors ${className}`}
-      style={badgeStyle}
+      className={`jlpt-exam-clock inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-mono font-bold text-base shadow-sm transition-colors ${badgeClass} ${className}`}
     >
       <svg
-        className={`w-5 h-5 ${isCritical1Min ? 'text-red-600 animate-spin' : isWarning5Min ? 'text-amber-600' : 'text-slate-600'}`}
+        className="w-5 h-5"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -84,17 +72,17 @@ export function ExamClock({
       <span className="tabular-nums tracking-wider">{formattedTime}</span>
       {isCritical1Min && !isExpired && (
         <span className="text-xs font-sans font-semibold text-red-600 ml-1 hidden sm:inline">
-          (Sắp hết giờ!)
+          ({t('paperExam.oneMinute')})
         </span>
       )}
       {isWarning5Min && !isCritical1Min && (
         <span className="text-xs font-sans font-semibold text-amber-700 ml-1 hidden sm:inline">
-          (&lt; 5 phút)
+          ({t('paperExam.fiveMinutes')})
         </span>
       )}
       {isExpired && (
         <span className="text-xs font-sans font-semibold text-red-700 ml-1">
-          (Hết giờ)
+          ({t('paperExam.timeUp')})
         </span>
       )}
     </div>

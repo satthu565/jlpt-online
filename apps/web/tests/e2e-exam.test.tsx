@@ -187,7 +187,8 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
 
       expect(html).toContain('Kiểm tra tai nghe / loa');
       expect(html).toContain('Phát âm thanh thử nghiệm');
-      expect(html).toContain('Tôi đã nghe rõ &amp; Bắt đầu phần nghe');
+      expect(html).toContain('Tôi nghe rõ · Bắt đầu phần nghe');
+      expect(html).toContain('Bạn sẽ nghe một tiếng bíp ngắn.');
     });
   });
 
@@ -272,12 +273,12 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
 
       expect(html).toContain('Phím tắt phòng thi');
       expect(html).toContain('1, 2, 3, 4');
-      expect(html).toContain('← hoặc J');
-      expect(html).toContain('→ hoặc K');
-      expect(html).toContain('Zen Mode');
+      expect(html).toContain('← / ↑ / J');
+      expect(html).toContain('→ / ↓ / K');
+      expect(html).toContain('Thu gọn hoặc mở rộng công cụ');
     });
 
-    it('[EXAM-25] ExamRoom Zen Mode hides navigation palette to prevent distraction', () => {
+    it('[EXAM-25] compact mode keeps the answer sheet available for paper-style exams', () => {
       const storage = new MemoryExamStorage();
       const apiClient = new ExamApiClient();
 
@@ -294,10 +295,10 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
           initialZenMode={false}
         />,
       );
-      expect(htmlNormal).toContain('jlpt-section-header');
-      expect(htmlNormal).toContain('jlpt-question-palette');
+      expect(htmlNormal).toContain('paper-session-header');
+      expect(htmlNormal).toContain('paper-answer-sheet');
       expect(htmlNormal).toContain('Phiếu trả lời');
-      expect(htmlNormal).toContain('Tập trung (Zen)');
+      expect(htmlNormal).toContain('Hiển thị');
       expect(htmlNormal).not.toContain('jlpt-zen-mode');
 
       // Zen Mode (EXAM-25): hides palette and section header to eliminate distraction
@@ -316,9 +317,9 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
       expect(htmlZen).toContain('jlpt-zen-mode');
       expect(htmlZen).not.toContain('jlpt-section-header');
       expect(htmlZen).not.toContain('jlpt-question-palette');
-      expect(htmlZen).not.toContain('Phiếu trả lời');
-      expect(htmlZen).toContain('Hiện thanh công cụ');
-      expect(htmlZen).toContain('lg:col-span-12');
+      expect(htmlZen).toContain('Phiếu trả lời');
+      expect(htmlZen).toContain('paper-sticky-sheet');
+      expect(htmlZen).toContain('paper-mobile-bar');
     });
   });
 

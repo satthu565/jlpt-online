@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { test, expect, type Page } from '@playwright/test';
+import { registerPaperExamTests } from './paper-exam-journey.js';
 import { MailpitClient } from './fixtures/mailpit.fixture.js';
 import {
   SEEDED_STAFF_ACCOUNTS,
@@ -78,6 +79,8 @@ async function loginAsStaff(page: Page, origin: string, account: StaffAccount) {
  * - Registration flow sends real email verified via Mailpit fixture.
  * - Seeded staff accounts login with real password and TOTP 2FA challenge.
  */
+registerPaperExamTests();
+
 test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
   const mailpit = new MailpitClient();
 
@@ -2822,7 +2825,8 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
       Date.now = () => originalNow() + 180_000;
     });
 
-    // Wait for periodic pacing evaluation interval (2000ms tick)
+    await page.getByRole('button', { name: 'Nhịp làm bài', exact: true }).click();
+    // Pacing is opened explicitly by the candidate.
     await page.waitForTimeout(2500);
 
     // Prominent pacing warning banner appears
@@ -2856,7 +2860,8 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
       await modalBtn.click();
     }
 
-    // In real mode, discreet milestone indicator is displayed
+    await page.getByRole('button', { name: 'Nhịp làm bài', exact: true }).click();
+    // Real mode keeps pacing collapsed until the candidate opens it.
     await expect(page.locator('[data-testid="exam-room"]')).toBeVisible({ timeout: 20000 });
     await expect(page.locator('[data-testid="discreet-pacing-milestone"]')).toBeVisible({ timeout: 15000 });
 
@@ -4661,6 +4666,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
       }
     }
     await expect(page.locator('[data-testid="exam-room"]')).toBeVisible({ timeout: 25000 });
+    if (mode === 'practice') await page.getByRole('button', { name: 'Hiển thị', exact: true }).click();
   }
 
   // Nộp bài để không để lại lượt thi đang mở của học viên mẫu trên demo-n5-1:
@@ -4678,6 +4684,26 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await confirmBtn.click();
     await expect(page.locator('a[href*="/ket-qua/"]').first()).toBeVisible({ timeout: 15000 });
   });
+
+  async function jumpToStudyQuestion24(page: Page) {
+    for (let step = 0; step < 3 && await page.getByTestId('paper-question-23').count() === 0; step++) {
+      const targetSection = page.locator('.paper-section-nav button').nth(2);
+      if (await targetSection.isEnabled()) {
+        await targetSection.click();
+      } else {
+        const title = await page.locator('.paper-section-nav [aria-current="step"]').innerText();
+        await page.getByTestId('finish-section-btn').click();
+        await page.getByTestId('modal-confirm-submit-btn').click();
+        await expect(page.locator('.paper-section-nav [aria-current="step"]')).not.toHaveText(title);
+      }
+    }
+    await expect(page.getByTestId('paper-question-23')).toBeAttached();
+    const mobileSheet = page.locator('.paper-mobile-bar');
+    if (await mobileSheet.isVisible()) await mobileSheet.getByRole('button', { name: 'Phiếu trả lời', exact: true }).click();
+    const q24 = page.locator('[data-testid="question-palette"]:visible').getByRole('button', { name: 'Đến câu 24', exact: true });
+    await q24.scrollIntoViewIfNeeded();
+    await q24.click();
+  }
 
   async function triggerSelectText(page: Page, textToSelect: string) {
     return page.evaluate((targetText) => {
@@ -4720,7 +4746,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     }, textToSelect);
   }
 
-  test('H06-AC1: Trong phòng thi THI THẬT, bôi đen 学生 trong câu hỏi: khung nổi hiện 学生, がくせい, HỌC SINH, nhãn Danh từ, nghĩa và nút Xem chi tiết; đáp án đang chọn không đổi', async ({
+  test('H06-AC1: Trong phòng luyện tập, bôi đen 学生 trong câu hỏi: khung nổi hiện 学生, がくせい, HỌC SINH, nhãn Danh từ, nghĩa và nút Xem chi tiết; đáp án đang chọn không đổi', async ({
     page,
   }, testInfo) => {
     test.setTimeout(90000);
@@ -4728,13 +4754,10 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
     await loginAsStudentH06(page, webOrigin);
-    await openExamRoom(page, 'real');
+    await openExamRoom(page, 'practice');
 
     // Jump to Question 24 (which contains "学生は あした 何時に 学校に 来ますか。")
-    const q24Btn = page.locator('[data-testid="question-palette"] button, .jlpt-question-palette button').filter({ hasText: /^24$/ }).first();
-    await expect(q24Btn).toBeVisible({ timeout: 15000 });
-    await q24Btn.scrollIntoViewIfNeeded();
-    await q24Btn.click();
+    await jumpToStudyQuestion24(page);
     await expect(page.locator('[data-select-lookup-area="true"]')).toContainText('学生', { timeout: 10000 });
     await page.waitForTimeout(300);
 
@@ -4772,7 +4795,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
     await loginAsStudentH06(page, webOrigin);
-    await openExamRoom(page, 'real');
+    await openExamRoom(page, 'practice');
 
     // Switch is initially checked
     const switchEl = page.locator('[data-testid="select-lookup-switch"]');
@@ -4796,6 +4819,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
       await modalBtn.click();
     }
     await expect(page.locator('[data-testid="exam-room"]')).toBeVisible({ timeout: 20000 });
+    await page.getByRole('button', { name: 'Hiển thị', exact: true }).click();
     const switchAfterReload = page.locator('[data-testid="select-lookup-switch"]');
     await expect(switchAfterReload).toHaveAttribute('data-state', 'unchecked');
 
@@ -4822,13 +4846,10 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': clientIp, 'cf-connecting-ip': clientIp });
 
     await loginAsStudentH06(page, webOrigin);
-    await openExamRoom(page, 'real');
+    await openExamRoom(page, 'practice');
 
     // Jump to Question 24
-    const q24Btn = page.locator('[data-testid="question-palette"] button, .jlpt-question-palette button').filter({ hasText: /^24$/ }).first();
-    await expect(q24Btn).toBeVisible({ timeout: 15000 });
-    await q24Btn.scrollIntoViewIfNeeded();
-    await q24Btn.click();
+    await jumpToStudyQuestion24(page);
     await expect(page.locator('[data-select-lookup-area="true"]')).toContainText('学生', { timeout: 10000 });
     await page.waitForTimeout(300);
 

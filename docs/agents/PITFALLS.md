@@ -55,3 +55,11 @@ Mỗi bẫy ghi theo dạng triệu chứng → nguyên nhân → cách đúng. 
 | `catalog_invalid` sau khi sửa plan | Đầu ra của task nằm ngoài thư mục được phép | Thêm `grants=` cho task. |
 | Coordinator không đồng bộ main trong một giờ | Vòng lặp treo | `systemctl restart jlpt-coordinator`. Dịch vụ tự khôi phục phiên. |
 | `scp` lên `/tmp` của máy ảo báo "Permission denied" | File cùng tên đã thuộc user khác | Dùng tên file mới. |
+# Bổ sung khi làm mới phòng thi ngày 24/10/2026
+
+- Đồng hồ đứng ở thời gian ban đầu → tính lại độ lệch từ cùng một `serverNow` ở mỗi tick khiến thời gian trôi bị triệt tiêu → chụp mốc client và server khi nhận phản hồi, sau đó trừ thời gian đã trôi tại client.
+- Đồng hồ và phiếu không bám khi cuộn → `overflow-x: hidden` trên tổ tiên tạo vùng cuộn khác với viewport → trong phiên thi dùng `overflow-x: clip` và kiểm tra thực tế cả header lẫn phiếu sau khi cuộn.
+- Nhiều thao tác nhanh có outbox trùng seq hoặc sai snapshot → đọc lại seq và answers sau một lần await ghi storage → chụp snapshot cùng seq trước await và tuần tự hóa ghi.
+- Khách tạo được lượt nhưng không lưu hoặc mở lại được → mỗi request không có guest cookie bị gán ID khách mới → tạo guest identity ổn định trước request của luồng làm bài.
+- Sau resume, bài vừa sửa bị máy chủ bỏ qua hoặc đồng hồ bị đặt lại → không truyền `lastSeq` và deadline từ phản hồi resume vào phòng thi → giữ mốc server và chỉ phục hồi phần chưa ACK trên phần đang được phép làm.
+- Có số 0 lẻ trước câu không có đoạn đọc → dùng `array.length && <Component />` trong JSX → chuyển điều kiện độ dài thành boolean trước khi render.
