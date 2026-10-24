@@ -20,33 +20,25 @@ export function SpeakerTestModal({ isOpen, onClose, onConfirm, className, isLoad
   const [playing, setPlaying] = useState(false);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState(false);
-  const context = useRef<AudioContext | null>(null);
+  const tone = useRef<HTMLAudioElement | null>(null);
   const media = useRef<HTMLAudioElement | null>(null);
   const [mediaReady, setMediaReady] = useState(!mediaSrc);
   const [mediaError, setMediaError] = useState(false);
   useEffect(() => {
-    setMediaReady(!mediaSrc); setMediaError(false);
+    setMediaReady(!mediaSrc || Boolean(media.current && media.current.readyState >= 3 && media.current.getAttribute('src') === mediaSrc)); setMediaError(false);
     if (!isOpen) { setReady(false); setPlaying(false); setError(false); }
-    return () => { void context.current?.close().catch(() => {}); context.current = null; };
+    return () => { tone.current?.pause(); tone.current = null; };
   }, [isOpen, mediaSrc]);
   const playTest = async () => {
     setError(false); setPlaying(true); setReady(false);
     if (mediaError) { setMediaError(false); media.current?.load(); }
     try {
-      await context.current?.close();
-      const audio = new AudioContext();
-      context.current = audio;
-      await audio.resume();
-      if (audio.state !== 'running') throw new Error('Audio blocked');
-      const oscillator = audio.createOscillator();
-      const gain = audio.createGain();
-      oscillator.frequency.value = 440;
-      gain.gain.setValueAtTime(0, audio.currentTime);
-      gain.gain.linearRampToValueAtTime(0.15, audio.currentTime + 0.05);
-      gain.gain.linearRampToValueAtTime(0, audio.currentTime + 0.65);
-      oscillator.connect(gain); gain.connect(audio.destination);
-      oscillator.onended = () => { if (context.current === audio) { setPlaying(false); setReady(true); } };
-      oscillator.start(); oscillator.stop(audio.currentTime + 0.7);
+      tone.current?.pause();
+      const audio = new Audio('/audio/speaker-check.wav');
+      tone.current = audio;
+      audio.onended = () => { if (tone.current === audio) { setPlaying(false); setReady(true); } };
+      audio.onerror = () => { if (tone.current === audio) { setPlaying(false); setError(true); } };
+      await audio.play();
     } catch { setPlaying(false); setError(true); }
   };
   return <Modal isOpen={isOpen} onClose={() => { if (!isLoading) onClose(); }} title={t('paperExam.speakerTitle')} closeLabel={t('paperExam.close')} className={className}>

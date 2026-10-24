@@ -24,7 +24,7 @@ Desktop hiển thị cuốn đề và phiếu tô bám màn hình. Tablet và mo
 - Deadline và sequence phục hồi từ server; giữ thay đổi cục bộ mới hơn chưa ACK trong phần hiện tại.
 - Chờ ghi cục bộ và ACK trước chuyển phần; khi nộp gửi toàn bộ phiếu tới API và chỉ báo thành công sau phản hồi.
 - Đối chiếu trạng thái server trước chuyển phần để retry không vô tình bỏ qua phần kế tiếp.
-- Thử loa bằng âm thanh thật do Web Audio tạo trước chuyển sang phần nghe; không giả lập thành công bằng timeout.
+- Thử loa bằng tệp WAV tiếng bíp thật, xác nhận bằng sự kiện phát xong trước chuyển sang phần nghe; không giả lập thành công bằng timeout.
 - Phần nghe có âm lượng và đường cho phép phát khi trình duyệt chặn. Thi thật không tự điều hướng theo audio và không có tua, tạm dừng hoặc đổi tốc độ.
 - Luyện tập có thể bật theo audio, furigana và tra từ. Thi thật giữ furigana gốc, không mở tra từ.
 

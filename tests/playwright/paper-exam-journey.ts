@@ -1,5 +1,13 @@
-import { randomUUID } from 'node:crypto';
-import { test, expect } from '@playwright/test';
+import { createHash, randomUUID } from 'node:crypto';
+import { test as base, expect } from '@playwright/test';
+
+const test = base.extend({
+  extraHTTPHeaders: async ({}, use, testInfo) => {
+    const hash = createHash('sha256').update(`${testInfo.testId}:${testInfo.retry}`).digest();
+    const ip = `198.18.${hash[0]}.${Math.max(1, hash[1]!)}`;
+    await use({ 'x-forwarded-for': ip, 'cf-connecting-ip': ip });
+  },
+});
 
 /** Runs only against published content and real attempt APIs; no browser response stubs. */
 export function registerPaperExamTests(): void {
