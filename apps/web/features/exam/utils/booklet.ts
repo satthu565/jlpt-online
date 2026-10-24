@@ -60,6 +60,9 @@ export function answeredIn(questions: FlatQuestionItem[], answers: number[]): nu
 }
 
 export function mediaUrl(value: string): string {
+  // Use the same-origin API proxy in both standalone previews and Docker staging.
+  // A /media rewrite baked at build time may point at the web container itself.
+  if (/^\/?media\//i.test(value)) return `/api/v1/${value.replace(/^\//, '')}`;
   return /^(https?:\/\/|\/)/i.test(value) ? value : `/${value}`;
 }
 

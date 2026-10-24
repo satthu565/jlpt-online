@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { SAMPLE_N5_EXAM_SNAPSHOT } from './fixtures/sample-exam';
 import { flattenExamQuestions } from '../features/exam/utils/flatten-questions';
-import { answeredIn, displayQuestionNumber, groupBookletQuestions, nextReviewQuestion } from '../features/exam/utils/booklet';
+import { answeredIn, displayQuestionNumber, groupBookletQuestions, mediaUrl, nextReviewQuestion } from '../features/exam/utils/booklet';
 import { PaperBooklet } from '../features/exam/components/paper-booklet';
 import { PaperAnswerSheet } from '../features/exam/components/paper-answer-sheet';
 import { PaperReviewModal } from '../features/exam/components/paper-review-modal';
@@ -15,6 +15,12 @@ const second = { ...first, questionId: 'second-question', number: 'V2', globalIn
 const noop = () => {};
 
 describe('Paper booklet and answer sheet', () => {
+  it('routes imported media through the same-origin API while preserving external and signed URLs', () => {
+    expect(mediaUrl('media/listening.wav')).toBe('/api/v1/media/listening.wav');
+    expect(mediaUrl('/media/figure.png?t=example')).toBe('/api/v1/media/figure.png?t=example');
+    expect(mediaUrl('/api/v1/media/listening.wav')).toBe('/api/v1/media/listening.wav');
+    expect(mediaUrl('https://cdn.example.test/listening.wav?t=example')).toBe('https://cdn.example.test/listening.wav?t=example');
+  });
   it('collapses repeated printed instructions but keeps separate unknown groups', () => {
     const instructions = [{ t: 'text' as const, text: '問題１　次の問いに答えてください。' }];
     expect(groupBookletQuestions([{ ...first, instructions }, { ...second, instructions }])).toHaveLength(1);
