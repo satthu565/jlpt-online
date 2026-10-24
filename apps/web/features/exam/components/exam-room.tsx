@@ -459,10 +459,11 @@ export function ExamRoom({
               <Chip size="sm" variant="soft"
                 data-testid="discreet-pacing-milestone"
                 title="Mốc tiến độ chuẩn JLPT"
+                aria-label={`Mốc ${pacingEvaluation.currentMilestone.label || `Câu ${firstQuestionOfSection + pacingEvaluation.currentMilestone.targetQuestionIndex}`} (${Math.round(pacingEvaluation.currentMilestone.targetElapsedSec / 60)}p)`}
               >
                 <Target className="size-4" aria-hidden="true" />
                 <span className="sm:hidden">{Math.floor(pacingEvaluation.currentMilestone.targetElapsedSec / 60)}:{String(pacingEvaluation.currentMilestone.targetElapsedSec % 60).padStart(2, '0')}</span>
-                <span className="sr-only sm:not-sr-only">Mốc {pacingEvaluation.currentMilestone.label || `Câu ${firstQuestionOfSection + pacingEvaluation.currentMilestone.targetQuestionIndex}`} ({Math.round(pacingEvaluation.currentMilestone.targetElapsedSec / 60)}p)</span>
+                <span className="hidden sm:inline">Mốc {pacingEvaluation.currentMilestone.label || `Câu ${firstQuestionOfSection + pacingEvaluation.currentMilestone.targetQuestionIndex}`} ({Math.round(pacingEvaluation.currentMilestone.targetElapsedSec / 60)}p)</span>
               </Chip>
             )}
 
