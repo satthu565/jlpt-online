@@ -16,7 +16,7 @@ CSS cuốn đề không ẩn header/footer hoặc thay theme toàn trang. Overfl
 
 ## Tính tương thích
 
-Giữ các sửa về countdown, guest cookie, sequence, deadline phục hồi và ghi hàng đợi đã thực hiện. Khôi phục hình thức điều khiển cũ, bao gồm các tùy chọn tra từ và furigana có sẵn. Thử loa vẫn phát tệp WAV thật; không dùng timeout để giả lập thành công.
+Giữ các sửa về countdown, guest cookie, sequence, deadline phục hồi và ghi hàng đợi đã thực hiện. Các tùy chọn tra từ, furigana và cỡ chữ nằm trong popover Hiển thị. Thử loa vẫn phát tệp WAV thật; không dùng timeout để giả lập thành công.
 
 ## Cập nhật HeroUI theo yêu cầu chủ dự án
 

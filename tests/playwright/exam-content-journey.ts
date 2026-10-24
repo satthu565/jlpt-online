@@ -73,6 +73,7 @@ export function registerExamContentTests(): void {
           await sheet.getByTestId('paper-answer-row-0').locator('.radio__content').first().click();
           await expect(sheet.getByTestId('paper-answer-row-0').getByRole('radio').first()).toBeChecked();
           await sheet.getByRole('button', { name: 'Đến câu 2', exact: true }).click();
+          if (info.project.use.isMobile) await expect(page.locator('.paper-bottom-sheet')).toHaveCount(0);
           if (!info.project.use.isMobile) {
             await page.evaluate(() => window.scrollBy(0, 900));
             const rect = await sheet.boundingBox();
