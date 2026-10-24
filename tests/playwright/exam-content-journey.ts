@@ -14,14 +14,21 @@ export function registerExamContentTests(): void {
   test.describe('Original shell with HTML booklet workspace', () => {
     for (const mode of ['real', 'practice'] as const) {
       test(`${mode}: original controls, source content, save and resume`, async ({ page, context, baseURL }, info) => {
-        test.setTimeout(90000);
+        test.setTimeout(120000);
         const origin = baseURL ?? 'http://127.0.0.1:3000';
         await page.setViewportSize({ width: info.project.use.isMobile ? 390 : 1366, height: 900 });
         await context.addCookies([{ name: 'guest_id', value: randomUUID(), url: origin }, { name: 'jlpt_consent', value: 'necessary', url: origin }]);
         await context.addInitScript(() => localStorage.setItem('jlpt_cookie_consent', 'necessary'));
-        const list = await (await context.request.get(`${origin}/api/v1/exams`)).json() as { items: Array<{ id: string; slug: string }> };
-        const exam = list.items.find(item => item.slug === 'demo-n5-1');
-        expect(exam).toBeDefined();
+        let exam: { id: string; slug: string } | undefined;
+        // I03 briefly takes down this shared fixture to verify the publish flow.
+        // Wait for its public state instead of racing that independent browser.
+        await expect.poll(async () => {
+          const response = await context.request.get(`${origin}/api/v1/exams`);
+          expect(response.ok()).toBe(true);
+          const list = await response.json() as { items: Array<{ id: string; slug: string }> };
+          exam = list.items.find(item => item.slug === 'demo-n5-1');
+          return Boolean(exam);
+        }, { timeout: 60000, intervals: [500, 1000, 2000] }).toBe(true);
         const created = await context.request.post(`${origin}/api/v1/attempts`, { data: { examId: exam!.id, mode } });
         expect(created.status()).toBe(201);
         const attempt = await created.json() as { attemptId: string; snapshotUrl: string };

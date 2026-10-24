@@ -58,6 +58,7 @@ Mỗi bẫy ghi theo dạng triệu chứng → nguyên nhân → cách đúng. 
 # Bổ sung khi làm mới phòng thi ngày 24/10/2026
 
 - Giữ khung cũ nhưng vô tình trả về làm từng câu → hiểu “chỉ nâng cấp nội dung” là giữ luôn component câu hỏi đơn → theo ảnh khoanh đỏ, giữ header/tab/toolbar/footer và thay toàn bộ workspace ở giữa bằng cuốn đề nhiều câu + phiếu tô; cần test đồng thời khung cũ và nhiều câu.
+- Test phòng thi đôi lúc không tìm thấy demo-n5-1 trên một trình duyệt → I03 ở trình duyệt khác đang tạm gỡ xuất bản đề chung để kiểm tra publish → poll API đọc với thời hạn rõ ràng để chờ đề trở lại; không xuất bản hộ, không thay dữ liệu, không bỏ qua test.
 
 - Đồng hồ đứng ở thời gian ban đầu → tính lại độ lệch từ cùng một `serverNow` ở mỗi tick khiến thời gian trôi bị triệt tiêu → chụp mốc client và server khi nhận phản hồi, sau đó trừ thời gian đã trôi tại client.
 - Đồng hồ và phiếu không bám khi cuộn → `overflow-x: hidden` trên tổ tiên tạo vùng cuộn khác với viewport → trong phiên thi dùng `overflow-x: clip` và kiểm tra thực tế cả header lẫn phiếu sau khi cuộn.
