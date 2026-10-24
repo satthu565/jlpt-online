@@ -17,7 +17,7 @@ Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xon
 | Nghe có audio và hình | trong phòng thi | `features/exam`, module `media` |
 | Furigana bật/tắt, Hán Việt theo từng từ | toàn site | `packages/content-tools/src/nlp` |
 | Cảnh báo nhịp làm bài | phòng thi | `packages/exam-engine/src/pacing.ts` |
-| Bôi đen chữ trong đề để tra từ (H06) | phòng thi, luyện tập | `features/corpus/hooks/use-select-lookup.ts` |
+| Bôi đen chữ trong đề để tra từ (H06), tab Kanji liệt kê chữ trong toàn bộ phần bôi đen, bỏ trùng theo thứ tự | phòng thi, luyện tập | `features/corpus/hooks/use-select-lookup.ts`, `components/selection-kanji-panel.tsx` |
 | Tra từ, chi tiết từ vựng | `/tu-vung`, `/tu-vung/[term]` | `features/corpus`, module `vocab` |
 | Bộ dữ liệu kanji chuẩn: 3.186 chữ, cách dùng và ví dụ (#127) | admin `/kanji` | `data/kanji/kanji_chuan_v1.json`, bảng `kanji_dataset`, `apps/api/scripts/lexicon/import-kanji-dataset.mjs` |
 | Ngữ pháp, thống kê từ vựng trong đề | `/ngu-phap`, `/thong-ke-tu-vung` | `features/corpus` |

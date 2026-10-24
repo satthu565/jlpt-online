@@ -26,6 +26,12 @@ Thanh công cụ gom cỡ chữ, furigana và tra từ vào popover Hiển thị
 
 ## Xác minh
 
+### Tab Kanji trong popup tra từ
+
+Popup có hai tab HeroUI: Từ vựng và Kanji. Tab Kanji tách chữ trực tiếp từ toàn bộ `queryText` đã bỏ furigana, giữ thứ tự xuất hiện và bỏ chữ trùng; không lấy danh sách chữ từ riêng headword được từ điển nhận diện. Hiển thị cả khi tra từ đang tải, lỗi hoặc không tìm thấy. Chỉ thêm âm Hán Việt từng chữ nếu kết quả tra từ hiện tại có dữ liệu tương ứng; không gọi API mới hoặc dựng dữ liệu giả. Chuỗi không có kanji có thông báo riêng. Đổi đoạn bôi đen hoặc mở lại popup thì trở về tab Từ vựng. Nội dung cuộn trong popup khi màn hình hẹp.
+
+Đã bổ sung kiểm tra chữ lặp, kana, chữ ngoài BMP, toàn bộ phần bôi đen, chuyển tab và trở lại tab mặc định khi chọn đoạn khác; kiểm tra trình duyệt ở 390px/1366px và WebKit iPhone.
+
 Các test nội dung/cuốn đề kiểm tra ruby, gạch chân, bài đọc chung, phân nhóm, cờ, giá trị đáp án và tìm câu xem lại. Kịch bản API thật `tests/playwright/exam-content-journey.ts` kiểm tra khung cũ + nhiều câu mới, đáp án ở hai câu khác nhau, tô phiếu, đánh dấu, lưu/tải lại, sticky và nộp bài ở 390px/1366px.
 
 Kịch bản này còn kiểm tra công tắc tra từ qua popover Hiển thị, khôi phục lựa chọn, mốc tiến độ trên mobile và việc Esc đóng khung tra từ vượt quá thời hạn debounce. Đã chạy đạt trên Chromium desktop/mobile và WebKit iPhone (thi thật và luyện tập), cùng 303 kiểm tra web; lint, typecheck và build đạt.

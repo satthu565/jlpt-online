@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { test as base, expect } from '@playwright/test';
+import { test as base, expect, type Page } from '@playwright/test';
 import type { PublicExamSnapshot } from '@jlpt/schema';
 
 const test = base.extend({
@@ -9,6 +9,26 @@ const test = base.extend({
     await use({ 'x-forwarded-for': ip, 'cf-connecting-ip': ip });
   },
 });
+
+async function selectBookletText(page: Page, text: string): Promise<void> {
+  const selected = await page.evaluate((textToSelect) => {
+    const walker = document.createTreeWalker(document.querySelector('.paper-booklet')!, NodeFilter.SHOW_TEXT);
+    let node: Node | null;
+    while ((node = walker.nextNode())) {
+      const index = node.textContent?.indexOf(textToSelect) ?? -1;
+      if (index < 0) continue;
+      const range = document.createRange();
+      range.setStart(node, index); range.setEnd(node, index + textToSelect.length);
+      const selection = window.getSelection()!;
+      selection.removeAllRanges(); selection.addRange(range);
+      document.dispatchEvent(new Event('selectionchange'));
+      document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+      return true;
+    }
+    return false;
+  }, text);
+  expect(selected).toBe(true);
+}
 
 export function registerExamContentTests(): void {
   test.describe('Original shell with HTML booklet workspace', () => {
@@ -44,24 +64,20 @@ export function registerExamContentTests(): void {
           await expect(page.locator('.paper-booklet')).toBeVisible();
           await expect(page.locator('.jlpt-question-card')).toHaveCount(0);
           if (mode === 'real') await expect(page.getByTestId('discreet-pacing-milestone')).toBeVisible();
-          await page.evaluate(() => {
-            const root = document.querySelector('.paper-booklet')!;
-            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-            let node: Node | null;
-            while ((node = walker.nextNode())) {
-              const index = node.textContent?.indexOf('山') ?? -1;
-              if (index < 0) continue;
-              const range = document.createRange();
-              range.setStart(node, index); range.setEnd(node, index + 1);
-              const selection = window.getSelection()!;
-              selection.removeAllRanges(); selection.addRange(range);
-              document.dispatchEvent(new Event('selectionchange'));
-              document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
-              break;
-            }
-          });
+          await selectBookletText(page, '先週');
           const lookupPopover = page.getByTestId('selection-lookup-popover');
           await expect(lookupPopover).toBeVisible();
+          await lookupPopover.getByRole('tab', { name: 'Kanji (2)', exact: true }).click();
+          await expect(lookupPopover.getByTestId('lookup-kanji-character')).toHaveText(['先', '週']);
+          expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+          await page.screenshot({ path: info.outputPath('lookup-kanji-tab.png') });
+          await lookupPopover.getByRole('tab', { name: 'Từ vựng', exact: true }).click();
+          await expect(lookupPopover.getByTestId('lookup-entry')).toBeVisible();
+          await lookupPopover.getByRole('tab', { name: 'Kanji (2)', exact: true }).click();
+          await selectBookletText(page, 'やま');
+          await expect(lookupPopover.getByRole('tab', { name: 'Từ vựng', exact: true })).toHaveAttribute('aria-selected', 'true');
+          await lookupPopover.getByRole('tab', { name: 'Kanji (0)', exact: true }).click();
+          await expect(lookupPopover.getByTestId('lookup-kanji-panel')).toContainText('Đoạn được bôi đen không có kanji.');
           await page.keyboard.press('Escape');
           await expect(lookupPopover).not.toBeVisible();
           // Closing must also cancel the 300ms touch-selection job queued with mouseup.

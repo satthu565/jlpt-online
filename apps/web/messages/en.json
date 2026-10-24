@@ -987,7 +987,13 @@
     "strokes": "strokes",
     "noOccurrences": "No exam occurrences recorded yet",
     "edrdgSource": "Data source: EDRDG (JMdict / KANJIDIC2)",
-    "loadingDetails": "Loading vocabulary details..."
+    "loadingDetails": "Loading vocabulary details...",
+    "lookupTabs": "Lookup content",
+    "vocabularyTab": "Vocabulary",
+    "kanjiTab": "Kanji",
+    "selectedText": "Selected text",
+    "selectedKanji": "Kanji in the selected text",
+    "noSelectedKanji": "The selected text contains no kanji."
   },
   "paperExam": {
     "booklet": "Question booklet",

@@ -987,7 +987,13 @@
     "strokes": "nét",
     "noOccurrences": "Chưa có dữ liệu xuất hiện trong đề thi",
     "edrdgSource": "Nguồn dữ liệu: EDRDG (JMdict / KANJIDIC2)",
-    "loadingDetails": "Đang tải chi tiết từ vựng..."
+    "loadingDetails": "Đang tải chi tiết từ vựng...",
+    "lookupTabs": "Nội dung tra cứu",
+    "vocabularyTab": "Từ vựng",
+    "kanjiTab": "Kanji",
+    "selectedText": "Đoạn được bôi đen",
+    "selectedKanji": "Kanji trong đoạn được bôi đen",
+    "noSelectedKanji": "Đoạn được bôi đen không có kanji."
   },
   "paperExam": {
     "booklet": "Cuốn đề",
