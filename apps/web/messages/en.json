@@ -1096,6 +1096,9 @@
     "sectionNavigation": "Exam sections",
     "speakerCancelled": "Listening start was cancelled. Reopen the attempt to continue.",
     "prepareAudioError": "The listening audio could not load. Check your connection and retry before starting.",
-    "missingAudio": "This listening section has no audio timeline. Exam mode requires complete listening data; practice can display the available questions."
+    "missingAudio": "This listening section has no audio timeline. Exam mode requires complete listening data; practice can display the available questions.",
+    "filterAll": "All",
+    "filterBlank": "Unanswered",
+    "filterFlagged": "Flagged"
   }
 }

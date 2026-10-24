@@ -2,8 +2,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Headphones } from 'lucide-react';
-import { Modal } from '@jlpt/ui/components/modal';
-import { Button } from '@jlpt/ui/components/button';
+import { Modal } from '@jlpt/ui/components/exam-controls';
+import { Button } from '@jlpt/ui/components/exam-controls';
 import { useI18n } from '../../../lib/i18n';
 
 export interface SpeakerTestModalProps {

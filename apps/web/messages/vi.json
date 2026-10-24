@@ -1096,6 +1096,9 @@
     "sectionNavigation": "Các phần thi",
     "speakerCancelled": "Đã hủy bắt đầu phần nghe. Bạn có thể mở lại lượt thi để tiếp tục.",
     "prepareAudioError": "Chưa tải được tệp bài nghe. Kiểm tra mạng rồi phát thử lại trước khi bắt đầu.",
-    "missingAudio": "Phần nghe này chưa có timeline âm thanh. Chế độ thi thật cần dữ liệu nghe đầy đủ; chế độ luyện tập chỉ hiển thị nội dung đề hiện có."
+    "missingAudio": "Phần nghe này chưa có timeline âm thanh. Chế độ thi thật cần dữ liệu nghe đầy đủ; chế độ luyện tập chỉ hiển thị nội dung đề hiện có.",
+    "filterAll": "Tất cả",
+    "filterBlank": "Chưa làm",
+    "filterFlagged": "Đánh dấu"
   }
 }

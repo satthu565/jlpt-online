@@ -210,11 +210,8 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
         />,
       );
 
-      expect(html).toContain('Cỡ chữ tiếng Nhật:');
-      expect(html).toContain('A-');
-      expect(html).toContain('A');
-      expect(html).toContain('A+');
-      expect(html).toContain('A++');
+      expect(html).toContain('Hiển thị');
+      expect(html).toContain('aria-expanded="false"');
     });
 
     it('[EXAM-23] QuestionView applies scaled typography classes', () => {
@@ -297,7 +294,7 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
       expect(htmlNormal).toContain('jlpt-section-header');
       expect(htmlNormal).toContain('paper-answer-sheet');
       expect(htmlNormal).toContain('Phiếu trả lời');
-      expect(htmlNormal).toContain('Tập trung (Zen)');
+      expect(htmlNormal).toContain('Thu gọn công cụ');
       expect(htmlNormal).not.toContain('jlpt-zen-mode');
 
       // Zen Mode keeps access to the answer sheet while hiding section tabs.
@@ -317,7 +314,7 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
       expect(htmlZen).not.toContain('jlpt-section-header');
       expect(htmlZen).toContain('paper-answer-sheet');
       expect(htmlZen).toContain('Phiếu trả lời');
-      expect(htmlZen).toContain('Hiện thanh công cụ');
+      expect(htmlZen).toContain('Thu gọn công cụ');
       expect(htmlZen).toContain('paper-booklet');
     });
   });

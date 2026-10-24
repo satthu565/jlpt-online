@@ -2,8 +2,8 @@
 
 import React, { useRef, useState } from 'react';
 import type { RichBlock, RichText } from '@jlpt/schema';
-import { Button } from '@jlpt/ui/components/button';
-import { Modal } from '@jlpt/ui/components/modal';
+import { Button } from '@jlpt/ui/components/exam-controls';
+import { Modal } from '@jlpt/ui/components/exam-controls';
 import { sanitizeUrl } from '@jlpt/ui/components/rich-text-view';
 import { RichTableView } from '@jlpt/ui/components/rich-block-view';
 import { useI18n } from '../../../lib/i18n';

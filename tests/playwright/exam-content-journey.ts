@@ -43,24 +43,35 @@ export function registerExamContentTests(): void {
           await expect(page.locator('.jlpt-section-header')).toBeVisible();
           await expect(page.locator('.paper-booklet')).toBeVisible();
           await expect(page.locator('.jlpt-question-card')).toHaveCount(0);
-          await card.getByRole('radio').first().click();
+          await page.getByRole('button', { name: 'Hiển thị', exact: true }).click();
+          const lookup = page.getByTestId('select-lookup-switch');
+          await expect(lookup.getByRole('switch')).toBeChecked();
+          await lookup.locator('.switch__control').click();
+          await expect(lookup.getByRole('switch')).not.toBeChecked();
+          await page.keyboard.press('Escape');
+          await card.locator('.radio__content').first().click();
           await card.getByRole('button', { name: 'Đánh dấu xem lại câu 1', exact: true }).click();
           await card.getByRole('button', { name: 'Ghi nháp', exact: true }).click();
           await card.locator('textarea').fill('Review this word after the exam');
-          await page.getByTestId('paper-question-1').getByRole('radio').nth(1).click();
-          await expect(card.getByRole('radio').first()).toHaveAttribute('aria-checked', 'true');
+          await page.getByTestId('paper-question-1').locator('.radio__content').nth(1).click();
+          await expect(card.getByRole('radio').first()).toBeChecked();
           await expect(page.locator('[role="status"]').filter({ hasText: 'Đã lưu' })).toBeVisible({ timeout: 15000 });
           await page.reload();
-          await expect(card.getByRole('radio').first()).toHaveAttribute('aria-checked', 'true');
-          await expect(page.getByTestId('paper-question-1').getByRole('radio').nth(1)).toHaveAttribute('aria-checked', 'true');
+          await page.getByRole('button', { name: 'Hiển thị', exact: true }).click();
+          await expect(lookup.getByRole('switch')).not.toBeChecked();
+          await lookup.locator('.switch__control').click();
+          await expect(lookup.getByRole('switch')).toBeChecked();
+          await page.keyboard.press('Escape');
+          await expect(card.getByRole('radio').first()).toBeChecked();
+          await expect(page.getByTestId('paper-question-1').getByRole('radio').nth(1)).toBeChecked();
           await expect(card.getByRole('button', { name: /Bỏ đánh dấu xem lại/ })).toHaveAttribute('aria-pressed', 'true');
           await card.getByRole('button', { name: 'Ghi nháp', exact: true }).click();
           await expect(card.locator('textarea')).toHaveValue('Review this word after the exam');
           if (info.project.use.isMobile) await page.locator('.paper-mobile-bar').getByRole('button', { name: 'Phiếu trả lời', exact: true }).click();
           const sheet = info.project.use.isMobile ? page.getByRole('dialog').locator('.paper-answer-sheet') : page.locator('.paper-sticky-sheet .paper-answer-sheet');
           await expect(sheet).toBeVisible();
-          await sheet.getByTestId('paper-answer-row-0').getByRole('button', { name: 'Câu 1, đáp án 1', exact: true }).click();
-          await expect(sheet.getByTestId('paper-answer-row-0').getByRole('button', { name: 'Câu 1, đáp án 1', exact: true })).toHaveAttribute('aria-pressed', 'true');
+          await sheet.getByTestId('paper-answer-row-0').locator('.radio__content').first().click();
+          await expect(sheet.getByTestId('paper-answer-row-0').getByRole('radio').first()).toBeChecked();
           await sheet.getByRole('button', { name: 'Đến câu 2', exact: true }).click();
           if (!info.project.use.isMobile) {
             await page.evaluate(() => window.scrollBy(0, 900));
@@ -82,7 +93,7 @@ export function registerExamContentTests(): void {
             for (let index = 0; index < sectionIndex; index++) {
               await page.getByTestId('finish-section-btn').click();
               await page.getByRole('button', { name: 'Xác nhận chuyển phần', exact: true }).click();
-              await expect(page.locator('.jlpt-section-header button[aria-current="step"]')).toContainText(published.sections[index + 1]!.title);
+              await expect(page.locator('.jlpt-section-header [role="tab"][aria-selected="true"]')).toContainText(published.sections[index + 1]!.title);
             }
             await expect(page.locator('.paper-passage').first()).toBeAttached();
             await page.locator('.paper-passage').first().scrollIntoViewIfNeeded();

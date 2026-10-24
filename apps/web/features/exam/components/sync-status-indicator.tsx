@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@jlpt/ui/components/button';
+import { Button } from '@jlpt/ui/components/exam-controls';
 import type { SyncState } from '../types';
 import { useI18n } from '../../../lib/i18n';
 

@@ -404,7 +404,7 @@ test.describe('Real Staging User Journey & Exam Flow (I05)', () => {
 
     // 7. Exam room rendered - answer at least one question
     await expect(page.locator('[role="radiogroup"], [data-testid="exam-room"], main').first()).toBeVisible({ timeout: 15000 });
-    const firstOption = page.locator('[role="radio"]').first();
+    const firstOption = page.locator('.paper-booklet .radio__content').first();
     await expect(firstOption).toBeVisible({ timeout: 15000 });
     // The answer must reach the server: a new attempt starts its first section, so the sheet save is accepted
     // (it used to be rejected with 409 SECTION_NOT_STARTED while the UI kept going).
@@ -2716,7 +2716,7 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
 
     // Step 2: In exam room, answer option 1 on question 1
     await expect(page.locator('[data-testid="exam-room"]')).toBeVisible({ timeout: 20000 });
-    const firstOption = page.locator('[data-testid="exam-room"] [role="radio"]').first();
+    const firstOption = page.locator('[data-testid="exam-room"] .paper-booklet .radio__content').first();
     await expect(firstOption).toBeVisible({ timeout: 10000 });
     await firstOption.click();
 
@@ -3819,7 +3819,7 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
       }
 
       await expect(studentPage.locator('[role="radiogroup"], [data-testid="exam-room"], main').first()).toBeVisible({ timeout: 15000 });
-      const radio = studentPage.locator('[role="radio"]').first();
+      const radio = studentPage.locator('.paper-booklet .radio__content').first();
       if (await radio.isVisible()) {
         await radio.click();
       }
@@ -4695,9 +4695,9 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     };
     if (await speaker.isVisible()) await completeSpeakerCheck();
     for (let step = 0; step < 3 && await page.getByTestId('paper-question-23').count() === 0; step++) {
-      const active = page.locator('.jlpt-section-header [aria-current="step"]');
+      const active = page.locator('.jlpt-section-header [role="tab"][aria-selected="true"]');
       const title = await active.innerText();
-      const sectionIndex = await page.locator('.jlpt-section-header button').evaluateAll((buttons) => buttons.findIndex((button) => button.getAttribute('aria-current') === 'step'));
+      const sectionIndex = await page.locator('.jlpt-section-header [role="tab"]').evaluateAll((tabs) => tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true'));
       await page.getByTestId('finish-section-btn').click();
       await page.getByRole('button', { name: 'Xác nhận chuyển phần', exact: true }).click();
       await expect(active).not.toHaveText(title);
@@ -4771,9 +4771,8 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
 
     // Select Option 1
     const firstOption = page.getByTestId('paper-question-23').getByRole('radio').first();
-    await expect(firstOption).toBeVisible({ timeout: 10000 });
-    await firstOption.click();
-    await expect(firstOption).toHaveAttribute('aria-checked', 'true');
+    await page.getByTestId('paper-question-23').locator('.radio__content').first().click();
+    await expect(firstOption).toBeChecked();
 
     // Select text "学生"
     const selected = await triggerSelectText(page, '学生');
@@ -4792,7 +4791,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await expect(page.locator('[data-testid="lookup-details-btn"]')).toBeVisible();
 
     // Verify option selected has NOT changed
-    await expect(firstOption).toHaveAttribute('aria-checked', 'true');
+    await expect(firstOption).toBeChecked();
   });
 
   test('H06-AC2: Tắt công tắc "Tra từ khi bôi đen" thì bôi đen không hiện khung; tải lại trang vẫn giữ trạng thái tắt; bật lại thì hoạt động', async ({
@@ -4806,13 +4805,15 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await openExamRoom(page, 'real');
 
     // Switch is initially checked
-    const switchEl = page.locator('[data-testid="select-lookup-switch"]');
-    await expect(switchEl).toBeVisible({ timeout: 10000 });
-    await expect(switchEl).toHaveAttribute('data-state', 'checked');
+    const display = page.getByRole('button', { name: 'Hiển thị', exact: true });
+    await display.click();
+    const switchEl = page.getByTestId('select-lookup-switch');
+    await expect(switchEl.getByRole('switch')).toBeChecked();
 
     // Turn switch OFF
-    await switchEl.click();
-    await expect(switchEl).toHaveAttribute('data-state', 'unchecked');
+    await switchEl.locator('.switch__control').click();
+    await expect(switchEl.getByRole('switch')).not.toBeChecked();
+    await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
 
     // Select text -> popover does not appear
@@ -4827,8 +4828,10 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
       await modalBtn.click();
     }
     await expect(page.locator('[data-testid="exam-room"]')).toBeVisible({ timeout: 20000 });
-    const switchAfterReload = page.locator('[data-testid="select-lookup-switch"]');
-    await expect(switchAfterReload).toHaveAttribute('data-state', 'unchecked');
+    await display.click();
+    const switchAfterReload = page.getByTestId('select-lookup-switch');
+    await expect(switchAfterReload.getByRole('switch')).not.toBeChecked();
+    await page.keyboard.press('Escape');
 
     // Select text -> still does not appear
     await triggerSelectText(page, '山');
@@ -4836,8 +4839,10 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await expect(page.locator('[data-testid="selection-lookup-popover"]')).not.toBeVisible();
 
     // Turn switch back ON
-    await switchAfterReload.click();
-    await expect(switchAfterReload).toHaveAttribute('data-state', 'checked');
+    await display.click();
+    await switchAfterReload.locator('.switch__control').click();
+    await expect(switchAfterReload.getByRole('switch')).toBeChecked();
+    await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
 
     // Select text -> popover appears

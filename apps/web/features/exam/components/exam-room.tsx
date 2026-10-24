@@ -22,7 +22,7 @@ import { LeaseConflictModal } from './modals/lease-conflict-modal';
 import { SpeakerTestModal } from './modals/speaker-test-modal';
 import { ShortcutsHelpModal } from './modals/shortcuts-help-modal';
 import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts';
-import { Button } from '@jlpt/ui/components/button';
+import { Button } from '@jlpt/ui/components/exam-controls';
 import { useFurigana } from '@jlpt/ui/components/furigana-toggle';
 import { evaluatePacing } from '../pacing';
 import { useSelectLookup, useSelectLookupSetting, SelectionLookupPopover } from '../../corpus';
@@ -458,7 +458,7 @@ export function ExamRoom({
             {mode === 'real' && pacingEvaluation?.currentMilestone && (
               <div
                 data-testid="discreet-pacing-milestone"
-                className="surface surface--secondary rounded-2xl flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-mono px-2.5 py-1"
+                className="hidden sm:flex surface surface--secondary rounded-2xl items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-mono px-2.5 py-1"
                 title="Mốc tiến độ chuẩn JLPT"
               >
                 <span className="inline-flex items-center gap-1"><Target className="size-4" aria-hidden="true" /> Mốc  {pacingEvaluation.currentMilestone.label || `Câu ${firstQuestionOfSection + pacingEvaluation.currentMilestone.targetQuestionIndex}`} ({Math.round(pacingEvaluation.currentMilestone.targetElapsedSec / 60)}p)</span>
@@ -483,7 +483,7 @@ export function ExamRoom({
               onClick={() => setIsSubmitModalOpen(true)}
               aria-label="Nộp bài thi"
               data-testid="submit-exam-btn"
-              className="px-4 py-1.5 text-xs font-bold"
+
             >
               Nộp bài
             </Button>

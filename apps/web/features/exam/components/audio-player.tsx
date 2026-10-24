@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { ListeningTimelineItem, AttemptMode } from '@jlpt/schema';
 import { getListeningPlaybackPosition } from '../utils/listening';
 import { mediaUrl } from '../utils/exam-media';
-import { Button } from '@jlpt/ui/components/button';
+import { Button } from '@jlpt/ui/components/exam-controls';
 import { Badge } from '@jlpt/ui/components/badge';
 import { Alert } from '@jlpt/ui/components/alert';
 

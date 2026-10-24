@@ -18,6 +18,12 @@ CSS cuốn đề không ẩn header/footer hoặc thay theme toàn trang. Overfl
 
 Giữ các sửa về countdown, guest cookie, sequence, deadline phục hồi và ghi hàng đợi đã thực hiện. Khôi phục hình thức điều khiển cũ, bao gồm các tùy chọn tra từ và furigana có sẵn. Thử loa vẫn phát tệp WAV thật; không dùng timeout để giả lập thành công.
 
-## Kiểm tra
+## Cập nhật HeroUI theo yêu cầu chủ dự án
+
+Phòng thi dùng component chính thức `@heroui/react` 3.2.6 qua `@jlpt/ui/components/exam-controls`: Button, Card, Tabs, RadioGroup, ProgressBar, Popover, Switch, TextArea và Modal. Adapter chỉ chuyển tên thuộc tính từ API cũ; không tự vẽ lại trạng thái hoặc kiểu dáng mà HeroUI đã cung cấp. CSS riêng giới hạn ở bố cục, sticky và định dạng nội dung đề Nhật. Các trang ngoài phòng thi giữ bộ UI hiện có.
+
+Thanh công cụ gom cỡ chữ, furigana và tra từ vào popover Hiển thị. Phiếu trả lời gộp tiến độ và lọc tất cả/chưa làm/đánh dấu; đáp án dài xếp dọc. Giữ bố cục nhiều câu liên tiếp và khung website. Trên mobile, phiếu mở bằng Modal của HeroUI từ thanh cố định.
+
+## Xác minh
 
 Các test nội dung/cuốn đề kiểm tra ruby, gạch chân, bài đọc chung, phân nhóm, cờ, giá trị đáp án và tìm câu xem lại. Kịch bản API thật `tests/playwright/exam-content-journey.ts` kiểm tra khung cũ + nhiều câu mới, đáp án ở hai câu khác nhau, tô phiếu, đánh dấu, lưu/tải lại, sticky và nộp bài ở 390px/1366px.

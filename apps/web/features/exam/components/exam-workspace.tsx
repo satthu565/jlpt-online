@@ -2,8 +2,8 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { BookOpen, Flag } from 'lucide-react';
-import { Button } from '@jlpt/ui/components/button';
-import { Modal } from '@jlpt/ui/components/modal';
+import { Button } from '@jlpt/ui/components/exam-controls';
+import { Modal } from '@jlpt/ui/components/exam-controls';
 import { useI18n } from '../../../lib/i18n';
 import type { FlatQuestionItem } from '../types';
 import { usePaperWorkspace } from '../hooks/use-paper-workspace';
@@ -12,7 +12,6 @@ import type { JapaneseFontSize } from './exam-toolbar';
 import { PaperBooklet } from './paper-booklet';
 import { PaperAnswerSheet } from './paper-answer-sheet';
 import { PaperPassage } from './paper-content';
-import { ExamProgressBar } from './exam-progress-bar';
 import './paper-exam.css';
 
 interface ExamWorkspaceProps {
@@ -88,7 +87,7 @@ export function ExamWorkspace(props: ExamWorkspaceProps): React.JSX.Element {
       <PaperBooklet questions={props.questions} title={props.title} answers={props.answers} flags={props.flags} currentIndex={props.currentIndex} workspace={workspace.workspace} showFurigana={props.showFurigana} lookupEnabled={props.lookupEnabled} disabled={props.disabled} onActivate={activate} onAnswer={props.onAnswer} onFlag={props.onFlag} onNote={workspace.setNote} onMark={workspace.mark} onClearMarks={workspace.clearMarks} onOpenPassage={setPassage} />
       <div className="paper-bottom-nav"><Button variant="outline" onClick={() => review('blank')}>{t('paperExam.nextBlank')}</Button><Button variant="primary" data-testid="finish-section-btn" disabled={props.disabled} onClick={props.onFinishSection}>{t(props.isLastSection ? 'paperExam.submit' : 'paperExam.submitSection')}</Button></div>
     </div>
-    <div className="paper-sticky-sheet"><div className="paper-progress"><ExamProgressBar answeredCount={answered} totalQuestions={props.questions.length} /></div><PaperAnswerSheet {...sheetProps} /></div>
+    <div className="paper-sticky-sheet"><PaperAnswerSheet {...sheetProps} /></div>
     <div className="paper-mobile-bar"><span>{t('paperExam.answeredCount', { done: answered, total: props.questions.length })}</span><Button size="sm" variant="outline" aria-label={t('paperExam.reviewFlags')} onClick={() => review('flagged')}><Flag className="size-4" aria-hidden="true" />{props.questions.filter((item) => props.flags[item.globalIndex]).length}</Button><Button size="sm" onClick={() => setSheetOpen(true)}><BookOpen className="size-4" aria-hidden="true" />{t('paperExam.sheet')}</Button></div>
     <Modal isOpen={sheetOpen} onClose={() => setSheetOpen(false)} title={t('paperExam.sheet')} closeLabel={t('paperExam.close')} className="paper-bottom-sheet"><div className="exam-workspace-modal"><PaperAnswerSheet {...sheetProps} /></div></Modal>
     <Modal isOpen={Boolean(passage)} onClose={() => setPassage(null)} title={t('paperExam.readPassage')} closeLabel={t('paperExam.close')} className="paper-reading-sheet"><div className={`exam-workspace-modal paper-font-mincho paper-size-${props.fontSize}`}>{passage?.passage && <PaperPassage id={passage.groupId} blocks={passage.passage} marks={workspace.workspace.marks} onMark={workspace.mark} onClear={workspace.clearMarks} showFurigana={props.showFurigana} disabled={props.disabled} />}</div></Modal>

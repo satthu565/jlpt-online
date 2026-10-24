@@ -68,7 +68,7 @@ Chủ dự án cung cấp tài khoản hoặc dịch vụ thì mới nghiệm th
 
 | Việc | Trạng thái |
 |---|---|
-| Cuốn đề HTML trong khung phòng thi cũ | Theo ảnh xác định phạm vi ngày 24/10: giữ header, tab, toolbar và footer; thay vùng làm bài bằng nhiều câu liên tiếp, phiếu tô bám khi cuộn, tiến độ, đánh dấu, tìm câu chưa làm, ghi nháp và tô đoạn. Mobile mở phiếu từ thanh cố định. Xem `docs/decisions/paper-exam-room.md`. |
+| Cuốn đề HTML và HeroUI React | Theo phương án được duyệt ngày 24/10: giữ khung website, dùng HeroUI gốc trong phòng thi: Tabs, Popover, RadioGroup, Card, ProgressBar, Modal, TextArea. Gộp phiếu và tiến độ; lọc câu trống/có cờ; đáp án dài xếp dọc; mobile mở phiếu cố định. CSS riêng chỉ bố cục và nội dung Nhật. Xem `docs/decisions/paper-exam-room.md`. |
 | Sổ tay `docs/agent-guides/`, `pnpm docs:map`, bài kiểm tra đầu vào | PR #129 chờ merge |
 | Trích xuất đề N2 từ PDF thành gói nhập (ngoài repo, chạy trên máy ảo) | 3/31 đề xong |
 
