@@ -338,16 +338,16 @@ describe('Exam UI & Interaction Suite (C03)', () => {
   // EXAM-17: Tự động lưu đáp án indicator
   it('[EXAM-17] SyncStatusIndicator reflects all states: saved, saving, offline, error', () => {
     const htmlSaved = renderClean(<SyncStatusIndicator syncState="saved" />);
-    expect(htmlSaved).toContain('Đã đồng bộ');
+    expect(htmlSaved).toContain('Đã lưu');
 
     const htmlSaving = renderClean(<SyncStatusIndicator syncState="saving" />);
     expect(htmlSaving).toContain('Đang lưu...');
 
     const htmlOffline = renderClean(<SyncStatusIndicator syncState="offline_saved" />);
-    expect(htmlOffline).toContain('Đã lưu trên máy · Chưa đồng bộ');
+    expect(htmlOffline).toContain('Lưu local (Chưa đồng bộ)');
 
     const htmlError = renderClean(<SyncStatusIndicator syncState="error" onRetry={() => {}} />);
-    expect(htmlError).toContain('Chưa đồng bộ được · Có bản lưu trên máy');
+    expect(htmlError).toContain('Lỗi đồng bộ (đã lưu local)');
     expect(htmlError).toContain('Thử lại');
   });
 

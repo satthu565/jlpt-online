@@ -1,7 +1,6 @@
 import React from 'react';
 import { Modal } from '@jlpt/ui/components/modal';
 import { Button } from '@jlpt/ui/components/button';
-import { useI18n } from '../../../../lib/i18n';
 
 export interface ShortcutsHelpModalProps {
   isOpen: boolean;
@@ -12,27 +11,26 @@ export function ShortcutsHelpModal({
   isOpen,
   onClose,
 }: ShortcutsHelpModalProps): React.JSX.Element | null {
-  const { t } = useI18n();
   if (!isOpen) return null;
 
   const shortcuts = [
-    { key: '1, 2, 3, 4', desc: t('paperExam.shortcutAnswer') },
-    { key: 'F', desc: t('paperExam.shortcutFlag') },
-    { key: '← / ↑ / J', desc: t('paperExam.shortcutPrevious') },
-    { key: '→ / ↓ / K', desc: t('paperExam.shortcutNext') },
-    { key: 'Z', desc: t('paperExam.shortcutCompact') },
-    { key: '?', desc: t('paperExam.shortcutHelp') },
+    { key: '1, 2, 3, 4', desc: 'Chọn phương án trả lời 1, 2, 3 hoặc 4' },
+    { key: 'F', desc: 'Đánh dấu / Hủy đánh dấu câu cần xem lại (Flag)' },
+    { key: '← hoặc J', desc: 'Chuyển về câu hỏi trước đó' },
+    { key: '→ hoặc K', desc: 'Chuyển sang câu hỏi kế tiếp' },
+    { key: 'Z', desc: 'Bật / Tắt chế độ tối giản tập trung (Zen Mode)' },
+    { key: '?', desc: 'Mở bảng hướng dẫn phím tắt này' },
   ];
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={t('paperExam.shortcutTitle')}
+      title="Phím tắt phòng thi"
     >
       <div className="space-y-4 text-slate-800 dark:text-slate-200">
         <p className="text-xs text-slate-600 dark:text-slate-400">
-          {t('paperExam.shortcutHint')}
+          Sử dụng phím tắt giúp bạn làm bài thi nhanh hơn và không cần dùng chuột liên tục:
         </p>
 
         <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-200 dark:divide-slate-800">
@@ -53,7 +51,7 @@ export function ShortcutsHelpModal({
 
         <div className="flex justify-end pt-3">
           <Button type="button" variant="primary" size="sm" onClick={onClose}>
-            {t('paperExam.close')}
+            Đã hiểu
           </Button>
         </div>
       </div>

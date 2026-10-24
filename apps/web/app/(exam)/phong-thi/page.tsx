@@ -8,7 +8,7 @@ import { ExamPicker, type ExamPickerExam } from '../../../features/exam/componen
 import type { ExamStorageAdapter } from '../../../features/exam/storage/indexeddb';
 import type { ExamApiClient } from '../../../features/exam/api/exam-api';
 import { useI18n } from '../../../lib/i18n';
-import { isListeningSection, mediaUrl } from '../../../features/exam/utils/booklet';
+import { isListeningSection, mediaUrl } from '../../../features/exam/utils/exam-media';
 
 const SpeakerTestModal = dynamic(
   () => import('../../../features/exam/components/modals/speaker-test-modal').then((module) => module.SpeakerTestModal),

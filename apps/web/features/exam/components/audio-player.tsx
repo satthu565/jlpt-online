@@ -4,12 +4,10 @@ import { Headphones, Lock, Pause, Play, RotateCcw, Square } from 'lucide-react';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { ListeningTimelineItem, AttemptMode } from '@jlpt/schema';
 import { getListeningPlaybackPosition } from '../utils/listening';
+import { mediaUrl } from '../utils/exam-media';
 import { Button } from '@jlpt/ui/components/button';
 import { Badge } from '@jlpt/ui/components/badge';
 import { Alert } from '@jlpt/ui/components/alert';
-import { Input } from '@jlpt/ui/components/input';
-import { useI18n } from '../../../lib/i18n';
-import { mediaUrl } from '../utils/booklet';
 
 export interface AudioPlayerProps {
   timeline: ListeningTimelineItem[] | null;
@@ -92,11 +90,7 @@ export function AudioPlayer({
   initialErrorMessage,
   className = '',
 }: AudioPlayerProps): React.JSX.Element | null {
-  const { t } = useI18n();
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [volume, setVolume] = useState(1);
-  const [playbackBlocked, setPlaybackBlocked] = useState(false);
-  const loadedMediaRef = useRef<string | null>(null);
 
   const initialIndex = (() => {
     if (activeGroupId && timeline && timeline.length > 0) {
@@ -177,14 +171,13 @@ export function AudioPlayer({
 
       // Audio sync check: if audio element drifted more than 2 seconds, re-sync (Acceptance 2)
       if (audioRef.current) {
-        // Wait for the matching resource, then seek after metadata is ready.
-        // A state update above does not immediately update the audio element's source.
-        if (loadedMediaRef.current !== position.mediaKey || audioRef.current.readyState < 1) return;
         const expectedSec = position.audioOffsetMs / 1000;
         syncAudioDrift(audioRef.current, expectedSec, 2.0);
 
         if (audioRef.current.paused && mode === 'real') {
-          audioRef.current.play().then(() => setPlaybackBlocked(false)).catch(() => setPlaybackBlocked(true));
+          audioRef.current.play().catch(() => {
+            // Autoplay prevention catch
+          });
         }
       }
     }
@@ -209,19 +202,6 @@ export function AudioPlayer({
     };
   }, [mode, timeline, isLocked, syncWithTimeline, retryCount]);
 
-  useEffect(() => {
-    if (isLocked) audioRef.current?.pause();
-  }, [isLocked]);
-
-  useEffect(() => {
-    if (mode !== 'practice' || !timeline || !activeGroupId) return;
-    const index = timeline.findIndex((item) => item.groupId === activeGroupId);
-    if (index < 0) return;
-    setCurrentItemIndex(index);
-    setCurrentMediaKey(timeline[index]!.mediaKey);
-    if (audioRef.current?.readyState) audioRef.current.currentTime = timeline[index]!.audioStartMs / 1000;
-  }, [mode, activeGroupId, timeline]);
-
   // Handle speed rate change (AUDIO-06: only practice mode)
   const handleRateChange = (rate: PlaybackRate) => {
     if (mode === 'real') return; // AUDIO-04: strict seek/rate restriction in real mode
@@ -235,7 +215,7 @@ export function AudioPlayer({
   const handleReplay = () => {
     if (mode === 'real') return; // Seek restriction in real mode
     if (audioRef.current) {
-      audioRef.current.currentTime = Math.max(0, (timeline?.[currentItemIndex]?.audioStartMs ?? 0) / 1000);
+      audioRef.current.currentTime = 0;
       audioRef.current.play().catch(() => {});
       setPlaybackStatus('playing');
     }
@@ -282,11 +262,6 @@ export function AudioPlayer({
     if (audioRef.current) {
       setCurrentTimeSec(audioRef.current.currentTime);
       setDurationSec(audioRef.current.duration || 0);
-      if (mode === 'practice' && onItemChange && timeline) {
-        const time = audioRef.current.currentTime * 1000;
-        const index = timeline.findIndex((item) => item.mediaKey === currentMediaKey && time >= item.audioStartMs && time < item.audioEndMs);
-        if (index >= 0 && index !== currentItemIndex) onItemChange(index, timeline[index]!.groupId);
-      }
     }
   };
 
@@ -366,14 +341,11 @@ export function AudioPlayer({
       )}
 
       {/* Hidden audio element */}
-      {playbackBlocked && <Alert variant="warning"><span>{t('paperExam.audioBlocked')}</span><Button size="sm" variant="outline" onClick={() => { if (isLocked) return; syncWithTimeline(); void audioRef.current?.play().then(() => setPlaybackBlocked(false)).catch(() => setPlaybackBlocked(true)); }}>{t('paperExam.allowAudio')}</Button></Alert>}
-      <label className="flex items-center gap-3 text-sm mb-3">{t('paperExam.volume')}<Input type="range" min={0} max={1} step={0.05} value={volume} aria-label={t('paperExam.volume')} onChange={(event) => { const value = Number(event.target.value); setVolume(value); if (audioRef.current) audioRef.current.volume = value; }} /></label>
       <audio
         ref={audioRef}
         src={audioSrc || undefined}
         onTimeUpdate={handleTimeUpdate}
         onError={handleAudioError}
-        onLoadedMetadata={() => { loadedMediaRef.current = currentMediaKey; if (mode === 'real') syncWithTimeline(); else if (audioRef.current) audioRef.current.currentTime = (timeline[currentItemIndex]?.audioStartMs ?? 0) / 1000; }}
         preload="auto"
         aria-label="Tệp âm thanh bài nghe"
       />
@@ -511,7 +483,7 @@ export function QuestionAudioPlayer({
     <div className={`inline-flex items-center gap-2 ${className}`}>
       <audio
         ref={audioRef}
-        src={`/${mediaKey}`}
+        src={mediaUrl(mediaKey)}
         onEnded={() => setIsPlaying(false)}
         preload="none"
       />
