@@ -22,7 +22,7 @@ import { LeaseConflictModal } from './modals/lease-conflict-modal';
 import { SpeakerTestModal } from './modals/speaker-test-modal';
 import { ShortcutsHelpModal } from './modals/shortcuts-help-modal';
 import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts';
-import { Button } from '@jlpt/ui/components/exam-controls';
+import { Button, Chip } from '@jlpt/ui/components/exam-controls';
 import { useFurigana } from '@jlpt/ui/components/furigana-toggle';
 import { evaluatePacing } from '../pacing';
 import { useSelectLookup, useSelectLookupSetting, SelectionLookupPopover } from '../../corpus';
@@ -454,15 +454,16 @@ export function ExamRoom({
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {mode === 'real' && pacingEvaluation?.currentMilestone && (
-              <div
+              <Chip size="sm" variant="soft"
                 data-testid="discreet-pacing-milestone"
-                className="hidden sm:flex surface surface--secondary rounded-2xl items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-mono px-2.5 py-1"
                 title="Mốc tiến độ chuẩn JLPT"
               >
-                <span className="inline-flex items-center gap-1"><Target className="size-4" aria-hidden="true" /> Mốc  {pacingEvaluation.currentMilestone.label || `Câu ${firstQuestionOfSection + pacingEvaluation.currentMilestone.targetQuestionIndex}`} ({Math.round(pacingEvaluation.currentMilestone.targetElapsedSec / 60)}p)</span>
-              </div>
+                <Target className="size-4" aria-hidden="true" />
+                <span className="sm:hidden">{Math.floor(pacingEvaluation.currentMilestone.targetElapsedSec / 60)}:{String(pacingEvaluation.currentMilestone.targetElapsedSec % 60).padStart(2, '0')}</span>
+                <span className="sr-only sm:not-sr-only">Mốc {pacingEvaluation.currentMilestone.label || `Câu ${firstQuestionOfSection + pacingEvaluation.currentMilestone.targetQuestionIndex}`} ({Math.round(pacingEvaluation.currentMilestone.targetElapsedSec / 60)}p)</span>
+              </Chip>
             )}
 
             <SyncStatusIndicator

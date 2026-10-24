@@ -27,3 +27,7 @@ Thanh công cụ gom cỡ chữ, furigana và tra từ vào popover Hiển thị
 ## Xác minh
 
 Các test nội dung/cuốn đề kiểm tra ruby, gạch chân, bài đọc chung, phân nhóm, cờ, giá trị đáp án và tìm câu xem lại. Kịch bản API thật `tests/playwright/exam-content-journey.ts` kiểm tra khung cũ + nhiều câu mới, đáp án ở hai câu khác nhau, tô phiếu, đánh dấu, lưu/tải lại, sticky và nộp bài ở 390px/1366px.
+
+Kịch bản này còn kiểm tra công tắc tra từ qua popover Hiển thị, khôi phục lựa chọn, mốc tiến độ trên mobile và việc Esc đóng khung tra từ vượt quá thời hạn debounce. Đã chạy đạt trên Chromium desktop/mobile và WebKit iPhone (thi thật và luyện tập), cùng 303 kiểm tra web; lint, typecheck và build đạt.
+
+Lượt staging toàn bộ tại `ba56f62` chưa đạt: lỗi ghi nháp WebKit, mốc tiến độ mobile, Esc tra từ và timeout đăng nhập ở I07. Ba lỗi phòng thi đã được sửa và chạy lại kịch bản liên quan trên Chromium/WebKit; chưa chạy lại toàn bộ staging sau các sửa này. Core E2E đạt 15 kiểm tra. `pnpm test` toàn repo còn hai lỗi đã gặp ở baseline: kiểm tra cô lập quyền worker và audit dependency (`undici`, mức high); không đánh dấu toàn bộ các cổng là xanh.

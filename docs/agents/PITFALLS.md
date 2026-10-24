@@ -72,6 +72,8 @@ Mỗi bẫy ghi theo dạng triệu chứng → nguyên nhân → cách đúng. 
 - Component hiện ra nhưng thiếu giao diện hoặc modal không thấy → chỉ import một phần `@heroui/styles` → import CSS chính thức tương ứng với từng component trong `apps/web/app/globals.css`, không dựng lại giao diện bằng CSS riêng.
 - TypeScript báo HeroUI không export component có thật → khai báo thư viện có đường dẫn không kèm extension khi chạy NodeNext → package UI dùng `module: ESNext` và `moduleResolution: Bundler` phù hợp tsup/Next.
 - Playwright không click được radio → input native được ẩn để dùng control có nhãn → click `.radio__content` hiển thị rồi xác minh input bằng `toBeChecked()`. Không ép click hoặc sửa kiểu dáng thư viện để test qua.
+- Safari không mở ghi nháp khi quay lại câu khác trong luyện tập → cập nhật câu đang chọn ở pointerdown làm cảnh báo nhịp xuất hiện, đẩy nút xuống trước pointerup và hủy press → kích hoạt câu sau click; chỉ cập nhật từ focus khi dùng bàn phím (`:focus-visible`). Dùng `onPress` cho thao tác HeroUI; xác minh bằng WebKit thật.
+- Bấm Esc đóng khung tra từ nhưng khung mở lại ngay → tác vụ debounce selectionchange 300ms vẫn chạy sau tác vụ mouseup 10ms → hủy cả hai tác vụ khi đóng hoặc đổi câu; kiểm tra khung vẫn đóng sau thời hạn debounce.
 
 ## Cấu hình API cho bản xem thử LAN
 

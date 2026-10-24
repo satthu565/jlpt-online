@@ -43,6 +43,31 @@ export function registerExamContentTests(): void {
           await expect(page.locator('.jlpt-section-header')).toBeVisible();
           await expect(page.locator('.paper-booklet')).toBeVisible();
           await expect(page.locator('.jlpt-question-card')).toHaveCount(0);
+          if (mode === 'real') await expect(page.getByTestId('discreet-pacing-milestone')).toBeVisible();
+          await page.evaluate(() => {
+            const root = document.querySelector('.paper-booklet')!;
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+            let node: Node | null;
+            while ((node = walker.nextNode())) {
+              const index = node.textContent?.indexOf('山') ?? -1;
+              if (index < 0) continue;
+              const range = document.createRange();
+              range.setStart(node, index); range.setEnd(node, index + 1);
+              const selection = window.getSelection()!;
+              selection.removeAllRanges(); selection.addRange(range);
+              document.dispatchEvent(new Event('selectionchange'));
+              document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+              break;
+            }
+          });
+          const lookupPopover = page.getByTestId('selection-lookup-popover');
+          await expect(lookupPopover).toBeVisible();
+          await page.keyboard.press('Escape');
+          await expect(lookupPopover).not.toBeVisible();
+          // Closing must also cancel the 300ms touch-selection job queued with mouseup.
+          await page.waitForTimeout(400);
+          await expect(lookupPopover).not.toBeVisible();
+          await page.evaluate(() => window.getSelection()?.removeAllRanges());
           await page.getByRole('button', { name: 'Hiển thị', exact: true }).click();
           const lookup = page.getByTestId('select-lookup-switch');
           await expect(lookup.getByRole('switch')).toBeChecked();
