@@ -1,5 +1,11 @@
 # Các bẫy đã gặp
 
+## Audit bị chặn bởi dependency bắc cầu của Wrangler
+
+- **Triệu chứng:** `pnpm audit --audit-level=high` làm CI đỏ dù ứng dụng không nhập `undici` trực tiếp.
+- **Nguyên nhân:** phiên bản `miniflare` do Wrangler khóa kéo một bản `undici` có cảnh báo bảo mật mức cao, trong khi Wrangler mới nhất vẫn chưa nâng dependency này.
+- **Cách đúng:** dùng `pnpm-workspace.yaml` để override đúng dải phiên bản lỗi lên bản vá tối thiểu; chạy lại `pnpm install --lockfile-only` và `pnpm audit --audit-level=high`. Bỏ override khi upstream đã kéo bản an toàn.
+
 Mỗi bẫy ghi theo dạng triệu chứng → nguyên nhân → cách đúng. **Gặp bẫy mới thì thêm một dòng vào đây trong cùng PR.**
 
 ## Code và test
