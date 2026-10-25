@@ -72,7 +72,7 @@ export function registerExamContentTests(): void {
           expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
           await page.screenshot({ path: info.outputPath('lookup-kanji-tab.png') });
           await lookupPopover.getByRole('tab', { name: 'Từ vựng', exact: true }).click();
-          await expect(lookupPopover.getByTestId('lookup-entry')).toBeVisible();
+          await expect(lookupPopover.getByTestId('lookup-not-found')).toBeVisible();
           await lookupPopover.getByRole('tab', { name: 'Kanji (2)', exact: true }).click();
           await selectBookletText(page, 'やま');
           await expect(lookupPopover.getByRole('tab', { name: 'Từ vựng', exact: true })).toHaveAttribute('aria-selected', 'true');
