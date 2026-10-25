@@ -17,7 +17,7 @@ Giao diện có ba ngôn ngữ vi/ja/en. Tiếng Việt là ngôn ngữ chính.
 
 1. **Trước khi làm tính năng mới:** đọc [docs/agents/FEATURES.md](docs/agents/FEATURES.md) để biết tính năng đã có, đang ẩn hay đang làm. Không làm trùng.
 2. **Khi xong:** cập nhật `FEATURES.md`. Gặp bẫy mới thì ghi vào [docs/agents/PITFALLS.md](docs/agents/PITFALLS.md) theo dạng triệu chứng → nguyên nhân → cách đúng.
-3. **Tuân thủ** [docs/agents/SECURITY_RULES.md](docs/agents/SECURITY_RULES.md). Nhất là: không tự merge PR, không force-push, không đọc hay in secret.
+3. **Tuân thủ** [docs/agents/SECURITY_RULES.md](docs/agents/SECURITY_RULES.md). Nhất là: không merge trực tiếp hoặc bỏ qua cổng CI, không force-push, không đọc hay in secret. PR nội bộ được workflow tự bật auto-merge và chỉ gộp khi các kiểm tra bắt buộc đạt.
 4. **Chạy các cổng kiểm tra** ở mục dưới trước khi nộp. Thiếu lệnh hoặc lệnh lỗi nghĩa là chưa đạt, không bỏ qua.
 5. **Ưu tiên khi có mâu thuẫn:** chỉ thị chủ dự án > phiếu việc > tài liệu này > thói quen của agent.
 
