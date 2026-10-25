@@ -7,6 +7,13 @@ import type { PublicExamSnapshot, AttemptMode } from '@jlpt/schema';
 import { ExamPicker, type ExamPickerExam } from '../../../features/exam/components/exam-picker';
 import type { ExamStorageAdapter } from '../../../features/exam/storage/indexeddb';
 import type { ExamApiClient } from '../../../features/exam/api/exam-api';
+import { useI18n } from '../../../lib/i18n';
+import { isListeningSection, mediaUrl } from '../../../features/exam/utils/exam-media';
+
+const SpeakerTestModal = dynamic(
+  () => import('../../../features/exam/components/modals/speaker-test-modal').then((module) => module.SpeakerTestModal),
+  { ssr: false },
+);
 
 const ExamRoom = dynamic(
   () => import('../../../features/exam/components/exam-room').then((m) => m.ExamRoom),
@@ -42,6 +49,15 @@ const ExamErrorCard = dynamic(
 );
 
 export default function ExamRoomPage(): React.JSX.Element {
+  const { t } = useI18n();
+  const [preflightMedia, setPreflightMedia] = useState<string | null>(null);
+  const preflight = React.useRef<{ resolve: () => void; reject: (error: Error) => void } | null>(null);
+  const prepareInitialAudio = (snapshot: PublicExamSnapshot, mode: AttemptMode) => {
+    const firstMedia = snapshot.sections[0]?.listeningTimeline?.[0]?.mediaKey;
+    if (!firstMedia && mode === 'real' && isListeningSection(snapshot.sections[0])) return Promise.reject(new Error(t('paperExam.missingAudio')));
+    if (!firstMedia) return Promise.resolve();
+    return new Promise<void>((resolve, reject) => { preflight.current = { resolve, reject }; setPreflightMedia(mediaUrl(firstMedia)); });
+  };
   const [availableExams, setAvailableExams] = useState<ExamPickerExam[]>([]);
   const [loadingExams, setLoadingExams] = useState(true);
   const [loadingAttempt, setLoadingAttempt] = useState(false);
@@ -58,9 +74,13 @@ export default function ExamRoomPage(): React.JSX.Element {
   const [activeAttemptId, setActiveAttemptId] = useState<string>('');
   const [activeLease, setActiveLease] = useState<string>('');
   const [activeServerNow, setActiveServerNow] = useState<string>(new Date().toISOString());
+  const [activeServerOffsetMs, setActiveServerOffsetMs] = useState(0);
   const [initialSectionIndex, setInitialSectionIndex] = useState(0);
   const [initialAnswers, setInitialAnswers] = useState<number[] | undefined>(undefined);
   const [initialFlags, setInitialFlags] = useState<number[] | undefined>(undefined);
+  const [initialDeadlines, setInitialDeadlines] = useState<Record<number, string>>({});
+  const [initialSeq, setInitialSeq] = useState(0);
+  const [initialLastAckedSeq, setInitialLastAckedSeq] = useState(0);
 
   // Error state
   const [errorInfo, setErrorInfo] = useState<{
@@ -73,6 +93,7 @@ export default function ExamRoomPage(): React.JSX.Element {
   // Storage and API Client instances
   const [storage, setStorage] = useState<ExamStorageAdapter | null>(null);
   const apiClientRef = React.useRef<ExamApiClient | null>(null);
+  const bootstrapStarted = React.useRef(false);
 
   const getApiClient = async () => {
     if (apiClientRef.current) return apiClientRef.current;
@@ -102,6 +123,8 @@ export default function ExamRoomPage(): React.JSX.Element {
   };
 
   useEffect(() => {
+    if (bootstrapStarted.current) return;
+    bootstrapStarted.current = true;
     loadAvailableExams().then((exams) => {
       if (typeof window !== 'undefined') {
         const searchParams = new URLSearchParams(window.location.search);
@@ -135,28 +158,53 @@ export default function ExamRoomPage(): React.JSX.Element {
 
       const apiClient = await getApiClient();
       const resumeRes = await apiClient.resumeAttempt(attemptId);
+      let responseReceivedAt = Date.now();
       // An attempt left before its first section started has no running section; start it like a new attempt.
       let sectionIndex = resumeRes.currentSection;
       let serverNow = resumeRes.serverNow;
+      let deadline = resumeRes.deadline;
+      const [snapshot, details] = await Promise.all([
+        apiClient.fetchSnapshot(resumeRes.snapshotUrl),
+        apiClient.getAttempt(attemptId),
+      ]);
       if (sectionIndex === null) {
+        await prepareInitialAudio(snapshot, details.mode);
         const started = await apiClient.nextSection(attemptId, { lease: resumeRes.lease });
         sectionIndex = started.sectionIndex;
         serverNow = started.serverNow;
+        deadline = started.deadline;
+        responseReceivedAt = Date.now();
       }
-      const snapshot = await apiClient.fetchSnapshot(resumeRes.snapshotUrl);
+      const { createExamStorage } = await import('../../../features/exam/storage/indexeddb');
+      const attemptStorage = createExamStorage();
+      const local = await attemptStorage.getAttempt(attemptId).catch(() => null);
+      const restoredAnswers = [...resumeRes.answers];
+      const restoredFlags = [...resumeRes.flags];
+      const hasPendingLocal = local?.examId === snapshot.examId && local.currentSeq > resumeRes.lastSeq;
+      if (hasPendingLocal && local) {
+        const range = snapshot.sections[sectionIndex ?? 0]?.questionRange;
+        if (range) for (let index = range[0]; index <= range[1]; index++) {
+          restoredAnswers[index] = local.answers[index] ?? restoredAnswers[index] ?? 0;
+          restoredFlags[index] = local.flags[index] ?? restoredFlags[index] ?? 0;
+        }
+      }
 
       setActiveSnapshot(snapshot);
       setActiveAttemptId(attemptId);
       setActiveLease(resumeRes.lease);
       setActiveServerNow(serverNow);
+      setActiveServerOffsetMs(Date.parse(serverNow) - responseReceivedAt);
       setInitialSectionIndex(sectionIndex ?? 0);
-      setInitialAnswers(resumeRes.answers);
-      setInitialFlags(resumeRes.flags);
-      const { createExamStorage } = await import('../../../features/exam/storage/indexeddb');
-      setStorage(createExamStorage());
+      setInitialAnswers(restoredAnswers);
+      setInitialFlags(restoredFlags);
+      setInitialSeq(hasPendingLocal && local ? local.currentSeq : resumeRes.lastSeq);
+      setInitialLastAckedSeq(resumeRes.lastSeq);
+      setInitialDeadlines(deadline ? { [sectionIndex ?? 0]: deadline } : {});
+      setSelectedMode(details.mode);
+      setStorage(attemptStorage);
       setIsExamStarted(true);
       if (typeof window !== 'undefined') {
-        const nextUrl = `/phong-thi?attemptId=${encodeURIComponent(attemptId)}&mode=${selectedMode}`;
+        const nextUrl = `/phong-thi?attemptId=${encodeURIComponent(attemptId)}&mode=${details.mode}`;
         window.history.replaceState(null, '', nextUrl);
       }
     } catch (err: unknown) {
@@ -251,25 +299,37 @@ export default function ExamRoomPage(): React.JSX.Element {
       // A new attempt has no running section: start the first one on the server before answers are saved,
       // otherwise every sheet save is rejected with SECTION_NOT_STARTED (same as the practice page).
       const apiClient = await getApiClient();
+      setLoadingMessage('Đang tải nội dung đề thi bảo mật...');
+      const snapshot = await apiClient.fetchSnapshot(initRes.snapshotUrl);
       let sectionIndex = initRes.currentSection ?? null;
       let serverNow = initRes.serverNow;
+      let responseReceivedAt = Date.now();
+      let deadline: string | null = null;
       if (sectionIndex === null) {
+        await prepareInitialAudio(snapshot, selectedMode);
         const started = await apiClient.nextSection(initRes.attemptId, { lease: initRes.lease });
         sectionIndex = started.sectionIndex;
         serverNow = started.serverNow;
+        deadline = started.deadline;
+        responseReceivedAt = Date.now();
+      } else {
+        const details = await apiClient.getAttempt(initRes.attemptId);
+        deadline = details.deadline;
+        serverNow = details.serverNow;
+        responseReceivedAt = Date.now();
       }
-
-      // Fetch verified snapshot
-      setLoadingMessage('Đang tải nội dung đề thi bảo mật...');
-      const snapshot = await apiClient.fetchSnapshot(initRes.snapshotUrl);
 
       setActiveSnapshot(snapshot);
       setActiveAttemptId(initRes.attemptId);
       setActiveLease(initRes.lease);
       setActiveServerNow(serverNow);
+      setActiveServerOffsetMs(Date.parse(serverNow) - responseReceivedAt);
       setInitialSectionIndex(sectionIndex);
       setInitialAnswers(undefined);
       setInitialFlags(undefined);
+      setInitialDeadlines(deadline ? { [sectionIndex]: deadline } : {});
+      setInitialSeq(0);
+      setInitialLastAckedSeq(0);
       const { createExamStorage } = await import('../../../features/exam/storage/indexeddb');
       setStorage(createExamStorage());
       setIsExamStarted(true);
@@ -298,6 +358,10 @@ export default function ExamRoomPage(): React.JSX.Element {
     setExamResult(null);
     setErrorInfo(null);
   };
+
+  if (preflightMedia !== null) {
+    return <SpeakerTestModal isOpen mediaSrc={preflightMedia} onClose={() => { setPreflightMedia(null); preflight.current?.reject(new Error(t('paperExam.speakerCancelled'))); preflight.current = null; }} onConfirm={() => { setPreflightMedia(null); preflight.current?.resolve(); preflight.current = null; }} />;
+  }
 
   // If loading attempt or snapshot
   if (loadingAttempt) {
@@ -339,9 +403,13 @@ export default function ExamRoomPage(): React.JSX.Element {
         lease={activeLease}
         mode={selectedMode}
         serverNow={activeServerNow}
+        serverOffsetMs={activeServerOffsetMs}
         initialSectionIndex={initialSectionIndex}
         initialAnswers={initialAnswers}
         initialFlags={initialFlags}
+        initialDeadlines={initialDeadlines}
+        initialSeq={initialSeq}
+        initialLastAckedSeq={initialLastAckedSeq}
         storage={storage}
         apiClient={apiClientRef.current}
         onFinish={handleFinish}

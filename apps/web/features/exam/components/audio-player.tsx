@@ -4,7 +4,8 @@ import { Headphones, Lock, Pause, Play, RotateCcw, Square } from 'lucide-react';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { ListeningTimelineItem, AttemptMode } from '@jlpt/schema';
 import { getListeningPlaybackPosition } from '../utils/listening';
-import { Button } from '@jlpt/ui/components/button';
+import { mediaUrl } from '../utils/exam-media';
+import { Button } from '@jlpt/ui/components/exam-controls';
 import { Badge } from '@jlpt/ui/components/badge';
 import { Alert } from '@jlpt/ui/components/alert';
 
@@ -270,7 +271,7 @@ export function AudioPlayer({
 
   const currentItem = currentItemIndex >= 0 ? timeline[currentItemIndex] : null;
   const totalItems = timeline.length;
-  const audioSrc = currentMediaKey ? `/${currentMediaKey}` : (currentItem?.mediaKey ? `/${currentItem.mediaKey}` : '');
+  const audioSrc = currentMediaKey ? mediaUrl(currentMediaKey) : (currentItem?.mediaKey ? mediaUrl(currentItem.mediaKey) : '');
 
   return (
     <section
@@ -482,7 +483,7 @@ export function QuestionAudioPlayer({
     <div className={`inline-flex items-center gap-2 ${className}`}>
       <audio
         ref={audioRef}
-        src={`/${mediaKey}`}
+        src={mediaUrl(mediaKey)}
         onEnded={() => setIsPlaying(false)}
         preload="none"
       />

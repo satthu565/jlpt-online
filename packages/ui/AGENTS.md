@@ -1,6 +1,6 @@
 # packages/ui: hướng dẫn cho agent
 
-Component giao diện dùng chung (`@jlpt/ui`) cho web và admin. Xây trên Radix UI, style bằng HeroUI styles 3.2 (chỉ CSS) và Tailwind 4, biến thể bằng `class-variance-authority`, icon từ `lucide-react`. **Không dùng `@heroui/react`.**
+Component giao diện dùng chung (`@jlpt/ui`) cho web và admin. Các trang hiện có dùng Radix UI + HeroUI styles 3.2. Theo yêu cầu chủ dự án ngày 24/10/2026, phòng thi dùng component chính thức `@heroui/react` 3.2.6 qua `components/exam-controls.tsx`. Adapter chỉ nối API cũ, không vẽ lại hoặc ghi đè kiểu dáng của HeroUI. Không chuyển các trang khác trong cùng đợt này. Icon dùng `lucide-react`.
 
 ## Component có sẵn (`src/components/`)
 

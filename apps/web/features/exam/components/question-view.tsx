@@ -2,8 +2,7 @@
 
 import React from 'react';
 import type { FlatQuestionItem } from '../types';
-import { RichTextView } from '@jlpt/ui/components/rich-text-view';
-import { PassageView } from '@jlpt/ui/components/rich-block-view';
+import { ExamText, ExamPassage, ExamContentImage } from './exam-content';
 import { Button } from '@jlpt/ui/components/button';
 import type { JapaneseFontSize } from './exam-toolbar';
 
@@ -75,14 +74,14 @@ export function QuestionView({
     >
       {/* Passage / Reading material if present */}
       {question.passage && question.passage.length > 0 && (
-        <PassageView passage={question.passage} showFurigana={showFurigana} className="mb-6" />
+        <ExamPassage blocks={question.passage} showFurigana={showFurigana} />
       )}
 
       {/* Group instructions if present */}
       {question.instructions && question.instructions.length > 0 && (
         <div className="surface surface--secondary rounded-2xl mb-4 text-sm text-slate-600 dark:text-slate-400 p-3">
           <span className="font-semibold text-slate-700 dark:text-slate-300 mr-2">Hướng dẫn:</span>
-          <RichTextView segments={question.instructions} showFurigana={showFurigana} />
+          <ExamText segments={question.instructions} showFurigana={showFurigana} />
         </div>
       )}
 
@@ -137,11 +136,7 @@ export function QuestionView({
         <div className="jlpt-question-illustration my-4 text-center">
           {imageMedia.map((imgSrc: string, idx: number) => (
             <figure key={idx} className="inline-block my-2">
-              <img
-                src={`/${imgSrc}`}
-                alt={`Hình ảnh minh họa câu ${question.number}`}
-                className="max-h-64 max-w-full rounded-lg border border-slate-200 dark:border-slate-700 object-contain mx-auto shadow-sm"
-              />
+              <ExamContentImage src={imgSrc} alt={`Hình ảnh minh họa câu ${question.number}`} />
               <figcaption className="text-xs text-slate-500 mt-1">
                 Hình minh họa câu {question.number}
               </figcaption>
@@ -152,7 +147,7 @@ export function QuestionView({
 
       {/* Question stem with font scaling */}
       <div className={`mb-6 ${stemFontSizeClass} font-japanese leading-relaxed text-slate-900 dark:text-slate-100`}>
-        <RichTextView segments={question.stem} showFurigana={showFurigana} />
+        <ExamText segments={question.stem} showFurigana={showFurigana} />
       </div>
 
       {/* Options list (1..4) */}
@@ -197,7 +192,7 @@ export function QuestionView({
 
               {/* Option rich text content with font scaling */}
               <div className={`flex-1 pt-1 font-japanese ${optionFontSizeClass} leading-relaxed`}>
-                <RichTextView segments={opt.content} showFurigana={showFurigana} />
+                <ExamText segments={opt.content} showFurigana={showFurigana} />
               </div>
             </Button>
           );

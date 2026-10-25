@@ -1,0 +1,29 @@
+/* Scope source formatting to question content; retain the existing room layout. */
+.jlpt-exam-source-text {
+  white-space: pre-wrap;
+  line-break: strict;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+.jlpt-exam-source-text ruby { ruby-position: over; }
+.jlpt-exam-source-text rt { font-size: 0.55em; }
+.jlpt-exam-source-text u { text-underline-offset: 0.18em; }
+.jlpt-exam-source-passage {
+  min-width: 0;
+  margin-bottom: 1.5rem;
+  padding: clamp(0.75rem, 2vw, 1.5rem);
+  border: 1px solid var(--separator);
+  border-radius: 0.5rem;
+  font-family: 'Yu Mincho', 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  line-height: 2.1;
+}
+.jlpt-exam-source-paragraph + .jlpt-exam-source-paragraph { margin-top: 1em; }
+.jlpt-exam-source-passage .jlpt-rich-table-container { max-width: 100%; }
+.jlpt-exam-source-passage .jlpt-rich-table { min-width: 24rem; }
+.jlpt-exam-source-passage .jlpt-table-cell { white-space: pre-wrap; }
+.jlpt-exam-source-image { margin: 1rem 0; min-width: 0; text-align: center; }
+.jlpt-exam-source-image-trigger { display: inline-flex; max-width: 100%; height: auto; padding: 0; }
+.jlpt-exam-source-image img, .jlpt-exam-source-image-full { display: block; max-width: 100%; height: auto; margin: 0 auto; object-fit: contain; }
+.jlpt-exam-source-image-full { max-height: 75vh; }
+.jlpt-question-card > [role='radiogroup'] > [role='radio'] { min-width: 0; }
+.jlpt-question-card > [role='radiogroup'] > [role='radio'] > :last-child { min-width: 0; }

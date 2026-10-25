@@ -1,0 +1,39 @@
+# Cuốn đề HTML trong khung phòng thi cũ
+
+Ngày 24/10/2026, chủ dự án xác định phạm vi bằng ảnh khoanh đỏ: giữ header, tab phần thi, thanh công cụ và footer hiện có; thay toàn bộ vùng làm bài ở giữa bằng cuốn đề HTML và phiếu tô đáp án mới.
+
+## Giao diện được giữ lại
+
+`ExamRoom` giữ khung ngoài, đồng hồ, đồng bộ, nút nộp, tab phần thi, thanh công cụ và audio. `ExamWorkspace` thay toàn bộ vùng câu hỏi đơn, bảng số câu và điều hướng trước/sau bằng nhiều câu liên tiếp trong phần thi hiện tại. Phím mũi tên cuộn đến câu thay vì thay nội dung bằng một câu.
+
+Máy tính có phiếu tô và tiến độ bám khi cuộn, danh sách đáp án cuộn riêng. Mobile có thanh mở phiếu cố định dưới màn hình. Có tô đáp án từ phiếu, nhảy tới câu, đánh dấu từng câu, tìm câu chưa làm/cần xem lại, tẩy đáp án riêng, ghi nháp, tô đoạn, mở lại bài đọc và phóng to hình. Zen vẫn giữ khả năng mở phiếu trả lời.
+
+## Phần nội dung được nâng cấp
+
+`PaperBooklet` nhận snapshot thật và dựng HTML giữ ruby, gạch chân, ★ và bài đọc. Chỉ gộp chỉ dẫn liên tiếp có cùng số 問題 và cấu trúc trùng nhau; bài đọc chung hiển thị một lần. Bảng cuộn trong vùng riêng khi hẹp; hình mở lớn được. URL ảnh và audio dùng API cùng nguồn để hoạt động trong container và qua LAN. Ghi nháp/tô đoạn lưu riêng theo lượt thi trên thiết bị, không đưa vào đáp án chấm điểm.
+
+CSS cuốn đề không ẩn header/footer hoặc thay theme toàn trang. Overflow trang phòng thi chuyển từ hidden sang clip để sticky hoạt động. Không thêm dữ liệu minh họa, không thay đề đã xuất bản. Định dạng chưa lưu trong snapshot, như ô bảng gộp, cần bổ sung qua quy trình nội dung/schema.
+
+## Tính tương thích
+
+Giữ các sửa về countdown, guest cookie, sequence, deadline phục hồi và ghi hàng đợi đã thực hiện. Các tùy chọn tra từ, furigana và cỡ chữ nằm trong popover Hiển thị. Thử loa vẫn phát tệp WAV thật; không dùng timeout để giả lập thành công.
+
+## Cập nhật HeroUI theo yêu cầu chủ dự án
+
+Phòng thi dùng component chính thức `@heroui/react` 3.2.6 qua `@jlpt/ui/components/exam-controls`: Button, Card, Tabs, RadioGroup, ProgressBar, Popover, Switch, TextArea và Modal. Adapter chỉ chuyển tên thuộc tính từ API cũ; không tự vẽ lại trạng thái hoặc kiểu dáng mà HeroUI đã cung cấp. CSS riêng giới hạn ở bố cục, sticky và định dạng nội dung đề Nhật. Các trang ngoài phòng thi giữ bộ UI hiện có.
+
+Thanh công cụ gom cỡ chữ, furigana và tra từ vào popover Hiển thị. Phiếu trả lời gộp tiến độ và lọc tất cả/chưa làm/đánh dấu; đáp án dài xếp dọc. Giữ bố cục nhiều câu liên tiếp và khung website. Trên mobile, phiếu mở bằng Modal của HeroUI từ thanh cố định.
+
+## Xác minh
+
+### Tab Kanji trong popup tra từ
+
+Popup có hai tab HeroUI: Từ vựng và Kanji. Tab Kanji tách chữ trực tiếp từ toàn bộ `queryText` đã bỏ furigana, giữ thứ tự xuất hiện và bỏ chữ trùng; không lấy danh sách chữ từ riêng headword được từ điển nhận diện. Hiển thị cả khi tra từ đang tải, lỗi hoặc không tìm thấy. Chỉ thêm âm Hán Việt từng chữ nếu kết quả tra từ hiện tại có dữ liệu tương ứng; không gọi API mới hoặc dựng dữ liệu giả. Chuỗi không có kanji có thông báo riêng. Đổi đoạn bôi đen hoặc mở lại popup thì trở về tab Từ vựng. Nội dung cuộn trong popup khi màn hình hẹp.
+
+Đã bổ sung kiểm tra chữ lặp, kana, chữ ngoài BMP, toàn bộ phần bôi đen, chuyển tab và trở lại tab mặc định khi chọn đoạn khác; kiểm tra trình duyệt ở 390px/1366px và WebKit iPhone.
+
+Các test nội dung/cuốn đề kiểm tra ruby, gạch chân, bài đọc chung, phân nhóm, cờ, giá trị đáp án và tìm câu xem lại. Kịch bản API thật `tests/playwright/exam-content-journey.ts` kiểm tra khung cũ + nhiều câu mới, đáp án ở hai câu khác nhau, tô phiếu, đánh dấu, lưu/tải lại, sticky và nộp bài ở 390px/1366px.
+
+Kịch bản này còn kiểm tra công tắc tra từ qua popover Hiển thị, khôi phục lựa chọn, mốc tiến độ trên mobile và việc Esc đóng khung tra từ vượt quá thời hạn debounce. Đã chạy đạt trên Chromium desktop/mobile và WebKit iPhone (thi thật và luyện tập), cùng 303 kiểm tra web; lint, typecheck và build đạt.
+
+Lượt staging toàn bộ tại `ba56f62` chưa đạt: lỗi ghi nháp WebKit, mốc tiến độ mobile, Esc tra từ và timeout đăng nhập ở I07. Ba lỗi phòng thi đã được sửa và chạy lại kịch bản liên quan trên Chromium/WebKit; chưa chạy lại toàn bộ staging sau các sửa này. Core E2E đạt 15 kiểm tra. `pnpm test` toàn repo còn hai lỗi đã gặp ở baseline: kiểm tra cô lập quyền worker và audit dependency (`undici`, mức high); không đánh dấu toàn bộ các cổng là xanh.

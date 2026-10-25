@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@jlpt/ui/components/button';
+import { Button } from '@jlpt/ui/components/exam-controls';
 import type { SyncState } from '../types';
+import { useI18n } from '../../../lib/i18n';
 
 export interface SyncStatusIndicatorProps {
   syncState: SyncState;
@@ -15,7 +16,10 @@ export function SyncStatusIndicator({
   onRetry,
   className = '',
 }: SyncStatusIndicatorProps): React.JSX.Element {
+  const { t } = useI18n();
   switch (syncState) {
+    case 'local_error':
+      return <div role="alert" className={`flex items-center gap-2 text-xs text-red-700 dark:text-red-300 ${className}`}><span>{t('paperExam.localWriteError')}</span>{onRetry && <Button size="sm" variant="outline" onClick={onRetry}>{t('paperExam.retry')}</Button>}</div>;
     case 'saved':
       return (
         <div

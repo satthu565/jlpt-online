@@ -1,5 +1,11 @@
 # Các bẫy đã gặp
 
+## Audit bị chặn bởi dependency bắc cầu của Wrangler
+
+- **Triệu chứng:** `pnpm audit --audit-level=high` làm CI đỏ dù ứng dụng không nhập `undici` trực tiếp.
+- **Nguyên nhân:** phiên bản `miniflare` do Wrangler khóa kéo một bản `undici` có cảnh báo bảo mật mức cao, trong khi Wrangler mới nhất vẫn chưa nâng dependency này.
+- **Cách đúng:** dùng `pnpm-workspace.yaml` để override đúng dải phiên bản lỗi lên bản vá tối thiểu; chạy lại `pnpm install --lockfile-only` và `pnpm audit --audit-level=high`. Bỏ override khi upstream đã kéo bản an toàn.
+
 Mỗi bẫy ghi theo dạng triệu chứng → nguyên nhân → cách đúng. **Gặp bẫy mới thì thêm một dòng vào đây trong cùng PR.**
 
 ## Code và test
@@ -55,3 +61,26 @@ Mỗi bẫy ghi theo dạng triệu chứng → nguyên nhân → cách đúng. 
 | `catalog_invalid` sau khi sửa plan | Đầu ra của task nằm ngoài thư mục được phép | Thêm `grants=` cho task. |
 | Coordinator không đồng bộ main trong một giờ | Vòng lặp treo | `systemctl restart jlpt-coordinator`. Dịch vụ tự khôi phục phiên. |
 | `scp` lên `/tmp` của máy ảo báo "Permission denied" | File cùng tên đã thuộc user khác | Dùng tên file mới. |
+# Bổ sung khi làm mới phòng thi ngày 24/10/2026
+
+- Giữ khung cũ nhưng vô tình trả về làm từng câu → hiểu “chỉ nâng cấp nội dung” là giữ luôn component câu hỏi đơn → theo ảnh khoanh đỏ, giữ header/tab/toolbar/footer và thay toàn bộ workspace ở giữa bằng cuốn đề nhiều câu + phiếu tô; cần test đồng thời khung cũ và nhiều câu.
+- Test phòng thi đôi lúc không tìm thấy demo-n5-1 trên một trình duyệt → I03 ở trình duyệt khác đang tạm gỡ xuất bản đề chung để kiểm tra publish → poll API đọc với thời hạn rõ ràng để chờ đề trở lại; không xuất bản hộ, không thay dữ liệu, không bỏ qua test.
+
+- Đồng hồ đứng ở thời gian ban đầu → tính lại độ lệch từ cùng một `serverNow` ở mỗi tick khiến thời gian trôi bị triệt tiêu → chụp mốc client và server khi nhận phản hồi, sau đó trừ thời gian đã trôi tại client.
+- Đồng hồ và phiếu không bám khi cuộn → `overflow-x: hidden` trên tổ tiên tạo vùng cuộn khác với viewport → trong phiên thi dùng `overflow-x: clip` và kiểm tra thực tế cả header lẫn phiếu sau khi cuộn.
+- Nhiều thao tác nhanh có outbox trùng seq hoặc sai snapshot → đọc lại seq và answers sau một lần await ghi storage → chụp snapshot cùng seq trước await và tuần tự hóa ghi.
+- Khách tạo được lượt nhưng không lưu hoặc mở lại được → mỗi request không có guest cookie bị gán ID khách mới → tạo guest identity ổn định trước request của luồng làm bài.
+- Sau resume, bài vừa sửa bị máy chủ bỏ qua hoặc đồng hồ bị đặt lại → không truyền `lastSeq` và deadline từ phản hồi resume vào phòng thi → giữ mốc server và chỉ phục hồi phần chưa ACK trên phần đang được phép làm.
+- Có số 0 lẻ trước câu không có đoạn đọc → dùng `array.length && <Component />` trong JSX → chuyển điều kiện độ dài thành boolean trước khi render.
+
+## HeroUI React trong phòng thi
+
+- Component hiện ra nhưng thiếu giao diện hoặc modal không thấy → chỉ import một phần `@heroui/styles` → import CSS chính thức tương ứng với từng component trong `apps/web/app/globals.css`, không dựng lại giao diện bằng CSS riêng.
+- TypeScript báo HeroUI không export component có thật → khai báo thư viện có đường dẫn không kèm extension khi chạy NodeNext → package UI dùng `module: ESNext` và `moduleResolution: Bundler` phù hợp tsup/Next.
+- Playwright không click được radio → input native được ẩn để dùng control có nhãn → click `.radio__content` hiển thị rồi xác minh input bằng `toBeChecked()`. Không ép click hoặc sửa kiểu dáng thư viện để test qua.
+- Safari không mở ghi nháp khi quay lại câu khác trong luyện tập → cập nhật câu đang chọn ở pointerdown làm cảnh báo nhịp xuất hiện, đẩy nút xuống trước pointerup và hủy press → kích hoạt câu sau click; chỉ cập nhật từ focus khi dùng bàn phím (`:focus-visible`). Dùng `onPress` cho thao tác HeroUI; xác minh bằng WebKit thật.
+- Bấm Esc đóng khung tra từ nhưng khung mở lại ngay → tác vụ debounce selectionchange 300ms vẫn chạy sau tác vụ mouseup 10ms → hủy cả hai tác vụ khi đóng hoặc đổi câu; kiểm tra khung vẫn đóng sau thời hạn debounce.
+
+## Cấu hình API cho bản xem thử LAN
+
+Triệu chứng: tạo lượt làm bằng request không có Origin được, nhưng trình duyệt qua IP LAN bị CSRF từ chối. Nguyên nhân: bản build đang chạy có rewrite API về 127.0.0.1:4000; một lệnh build khác trong cùng checkout có thể ghi lại routes-manifest với cấu hình mặc định. Cách đúng: hoàn tất các lệnh kiểm tra có build trước, sau đó build bản preview với API_INTERNAL_URL phù hợp; truyền cấu hình tương ứng khi khởi động và kiểm tra cả request ghi từ Origin LAN. Không bỏ OriginGuard để xử lý lỗi proxy.

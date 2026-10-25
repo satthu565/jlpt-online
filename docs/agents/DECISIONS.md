@@ -32,7 +32,7 @@ Tóm tắt những điều agent phải theo. Lý do chi tiết từng task nằ
 | Ý muốn | Ghi chú |
 |---|---|
 | Agent tự làm, chỉ hỏi khi thật sự cần: tài khoản, dịch vụ trả phí, quyết định sản phẩm. | Chủ dự án chỉ xem kết quả |
-| Agent không merge PR. Chủ dự án bật merge. | Xem [SECURITY_RULES.md](SECURITY_RULES.md) |
+| Agent không merge trực tiếp hoặc bỏ qua CI. Workflow tự bật squash auto-merge cho PR nội bộ; GitHub chỉ gộp khi các kiểm tra bắt buộc đạt. | Xem [SECURITY_RULES.md](SECURITY_RULES.md) |
 | Tự chạy E2E trên máy ảo trước khi đẩy, vì mỗi vòng CI mất khoảng 30 phút. | Xem [OPERATIONS.md](OPERATIONS.md) |
 | Báo giao diện xong chỉ khi đã mở trang thật và chụp màn hình. Test đạt chưa đủ. | |
 | Không chờ "hết ngày" theo kế hoạch: phần phụ thuộc gộp xong thì làm việc tiếp theo ngay. | |

@@ -25,6 +25,7 @@ export function useKeyboardShortcuts({
     if (!isEnabled || typeof window === 'undefined') return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.isComposing || e.ctrlKey || e.metaKey || e.altKey) return;
       // Don't trigger if user is typing in an input, textarea or select, or focusing in lookup popover
       const activeTag = document.activeElement?.tagName?.toLowerCase();
       if (
@@ -61,12 +62,14 @@ export function useKeyboardShortcuts({
           onToggleFlag?.();
           break;
         case 'ArrowLeft':
+        case 'ArrowUp':
         case 'j':
         case 'J':
           e.preventDefault();
           onPrev?.();
           break;
         case 'ArrowRight':
+        case 'ArrowDown':
         case 'k':
         case 'K':
           e.preventDefault();
