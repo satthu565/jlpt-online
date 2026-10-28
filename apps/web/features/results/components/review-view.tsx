@@ -123,9 +123,9 @@ export function ReviewView({
       </div>
 
       {/* 4. Main review section: Questions list + Sticky Palette */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
         {/* Questions list */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className="md:col-span-7 lg:col-span-8 space-y-6">
           <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
             <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
               Chi tiết bài làm từng câu hỏi ({displayedQuestions.length}/{flatQuestions.length})
@@ -171,7 +171,7 @@ export function ReviewView({
         </div>
 
         {/* Right column: Sticky review palette */}
-        <div className="lg:col-span-4 sticky top-20">
+        <div className="md:col-span-5 lg:col-span-4 sticky top-20 self-start z-20">
           <ReviewPalette
             questions={flatQuestions}
             answers={answers}
