@@ -84,8 +84,12 @@ export function ReviewPalette({
         ))}
       </div>
 
-      {/* Grid of question buttons */}
-      <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-5 lg:grid-cols-6 gap-2">
+      {/* Grid of question tiles with max-height and scrolling */}
+      <div
+        className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-5 lg:grid-cols-6 gap-2 max-h-[480px] overflow-y-auto pr-1 overscroll-contain"
+        role="navigation"
+        aria-label="Danh sách câu hỏi"
+      >
         {questions.map((q, idx) => {
           const userAns = answers[idx] ?? 0;
           const correctAns = correct[idx] ?? 0;
@@ -100,36 +104,35 @@ export function ReviewPalette({
           if (activeFilter === 'blank') matchesFilter = isBlank;
           if (activeFilter === 'flagged') matchesFilter = isFlag;
 
-          let btnClasses = 'border-slate-200 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
+          let btnClasses = 'border-slate-200 bg-slate-50 text-slate-600 dark:bg-slate-800/60 dark:text-slate-300 dark:border-slate-700';
           if (isCorrect) {
-            btnClasses = 'border-emerald-500 bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold';
+            btnClasses = 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-500 font-bold';
           } else if (!isBlank) {
-            btnClasses = 'border-rose-500 bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 font-bold';
+            btnClasses = 'border-rose-400 bg-rose-50 text-rose-700 dark:bg-rose-950/70 dark:text-rose-300 dark:border-rose-500 font-bold';
           }
 
           return (
-            <Button
+            <button
               key={idx}
               type="button"
-              variant="outline"
-              size="sm"
               onClick={() => onSelectQuestion(idx)}
               aria-label={`Câu ${q.number}: ${isCorrect ? 'Đúng' : isBlank ? 'Bỏ trống' : 'Sai'}`}
-              className={`relative h-10 min-h-[40px] p-0 rounded-xl border text-xs font-mono transition-all flex items-center justify-center ${btnClasses} ${
-                matchesFilter ? 'opacity-100 hover:scale-105' : 'opacity-30'
+              className={`relative w-full aspect-square min-w-0 min-h-0 p-0 rounded-lg border text-xs font-mono transition-all flex items-center justify-center cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${btnClasses} ${
+                matchesFilter ? 'opacity-100 hover:scale-105 active:scale-95 shadow-xs' : 'opacity-25 hover:opacity-60'
               }`}
             >
-              {q.number}
+              <span>{q.number}</span>
               {isFlag && (
                 <span
                   className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-500 ring-2 ring-white dark:ring-slate-900"
                   title="Có gắn cờ"
                 />
               )}
-            </Button>
+            </button>
           );
         })}
       </div>
     </div>
   );
 }
+
