@@ -45,7 +45,9 @@ describe('Vietnamese dictionary meanings editor', () => {
     expect(html).toContain('công việc\nviệc làm');
     expect(html).toContain('Công việc');
     expect(html).toContain('Việc cần thực hiện.');
-    expect(html).toContain('lexicon-vi-sense-2');
+    expect(html).toContain('lexicon-vi-sense-0');
+    expect(html).toContain('lexicon-add-independent-meaning-2');
+    expect(html).not.toContain('lexicon-vi-sense-2');
     expect(html).not.toMatch(/lexicon\.[A-Za-z]/);
   });
 
