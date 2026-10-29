@@ -210,7 +210,7 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
         />,
       );
 
-      expect(html).toContain('Hiển thị');
+      expect(html).toContain('Cài đặt');
       expect(html).toContain('aria-expanded="false"');
     });
 

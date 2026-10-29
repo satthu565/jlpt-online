@@ -93,9 +93,11 @@ describe('Paper booklet and answer sheet', () => {
     expect(html).toContain('paper-question-1');
     expect(html).toContain('Bỏ đánh dấu xem lại câu');
     expect(html).toContain('Tẩy đáp án câu');
-    const firstFooter = html.match(/<div class="paper-question-footer">([\s\S]*?)<\/div>/)?.[1] ?? '';
-    expect(firstFooter.indexOf('Tẩy đáp án câu')).toBeLessThan(firstFooter.indexOf('Ghi nháp'));
-    expect(firstFooter.indexOf('Ghi nháp')).toBeLessThan(firstFooter.indexOf('Bỏ đánh dấu xem lại câu'));
+    const firstFooter = html.slice(html.indexOf('paper-question-footer')).split('paper-note')[0] ?? '';
+    const draftAt = firstFooter.search(/Ghi nháp|Nháp thứ tự/);
+    expect(draftAt).toBeGreaterThan(-1);
+    expect(firstFooter.indexOf('Tẩy đáp án câu')).toBeLessThan(draftAt);
+    expect(draftAt).toBeLessThan(firstFooter.indexOf('Bỏ đánh dấu xem lại câu'));
     expect(html).not.toContain('Tổng hợp #');
   });
 
