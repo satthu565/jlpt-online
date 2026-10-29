@@ -10,6 +10,13 @@ const test = base.extend({
   },
 });
 
+/** Opening an attempt link now asks before taking over the attempt; click through when the card appears. */
+export async function confirmResumeIfShown(page: Page): Promise<void> {
+  const confirmResume = page.getByTestId('confirm-resume-attempt');
+  const shown = await confirmResume.waitFor({ state: 'visible', timeout: 5000 }).then(() => true, () => false);
+  if (shown) await confirmResume.click();
+}
+
 const pageErrors = new WeakMap<Page, string[]>();
 
 /** Temporary CI diagnostics: print what the page showed when a test failed (no screenshots are uploaded). */
@@ -74,8 +81,7 @@ export function registerExamContentTests(): void {
         const passageIndex = published.sections.flatMap(section => section.groups.flatMap(group => group.questions.map(() => Boolean(group.passage?.length)))).indexOf(true);
         try {
           await page.goto(`${origin}/phong-thi?attemptId=${attempt.attemptId}&mode=${mode}`);
-          const confirmResume = page.getByTestId('confirm-resume-attempt');
-          if (await confirmResume.isVisible({ timeout: 3000 }).catch(() => false)) await confirmResume.click();
+          await confirmResumeIfShown(page);
           const card = page.getByTestId('paper-question-0');
           await expect(page.locator('.paper-question')).toHaveCount(published.sections[0]!.questionRange[1] + 1);
           await expect(page.locator('.jlpt-exam-toolbar')).toBeVisible();

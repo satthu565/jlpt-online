@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { test, expect, type Page } from '@playwright/test';
-import { dumpPageOnFailure, registerExamContentTests, watchPageErrors } from './exam-content-journey.js';
+import { confirmResumeIfShown, dumpPageOnFailure, registerExamContentTests, watchPageErrors } from './exam-content-journey.js';
 import { MailpitClient } from './fixtures/mailpit.fixture.js';
 import {
   SEEDED_STAFF_ACCOUNTS,
@@ -2147,8 +2147,7 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
       expect(createRes.ok()).toBeTruthy();
     }
 
-    const confirmResume = page.getByTestId('confirm-resume-attempt');
-    if (await confirmResume.isVisible({ timeout: 3000 }).catch(() => false)) await confirmResume.click();
+    await confirmResumeIfShown(page);
     // 4. Verify PracticeRunner renders with questions
     await expect(page.locator('[data-testid="practice-runner-container"]')).toBeVisible({ timeout: 20000 });
 
@@ -4828,6 +4827,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
 
     // Reload page -> stays unchecked
     await page.reload({ waitUntil: 'domcontentloaded' });
+    await confirmResumeIfShown(page);
     const modalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
     if (await modalBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
       await modalBtn.click();
