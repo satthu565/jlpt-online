@@ -97,7 +97,8 @@ export function registerExamContentTests(): void {
           expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
           await page.screenshot({ path: info.outputPath('lookup-kanji-tab.png') });
           await lookupPopover.getByRole('tab', { name: 'Từ vựng', exact: true }).click();
-          await expect(lookupPopover.getByTestId('lookup-entry')).toBeVisible();
+          // Staging has no dictionary entry for this text, so the vocab tab shows either a result or the not-found state.
+          await expect(lookupPopover.locator('[data-testid="lookup-entry"], [data-testid="lookup-not-found"]').first()).toBeVisible();
           await lookupPopover.getByRole('tab', { name: 'Kanji (2)', exact: true }).click();
           await selectBookletText(page, 'やま');
           await expect(lookupPopover.getByRole('tab', { name: 'Từ vựng', exact: true })).toHaveAttribute('aria-selected', 'true');

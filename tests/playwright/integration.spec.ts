@@ -2179,6 +2179,7 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
     const resumeBtn = inProgressSection.locator('button[data-testid^="resume-practice-btn-"]').first();
     await expect(resumeBtn).toBeVisible();
     await resumeBtn.click();
+    await confirmResumeIfShown(page);
 
     // Verifies resumed session opens PracticeRunner
     await expect(page.locator('[data-testid="practice-runner-container"]')).toBeVisible({ timeout: 20000 });
