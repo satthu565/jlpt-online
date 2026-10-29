@@ -56,6 +56,8 @@ async function selectBookletText(page: Page, text: string): Promise<void> {
 
 export function registerExamContentTests(): void {
   test.describe('Original shell with HTML booklet workspace', () => {
+    // Playwright clicks have no timeout by default; fail fast instead of hanging until the test timeout.
+    test.use({ actionTimeout: 20000 });
     for (const mode of ['real', 'practice'] as const) {
       test(`${mode}: original controls, source content, save and resume`, async ({ page, context, baseURL }, info) => {
         test.setTimeout(240000);
@@ -124,6 +126,7 @@ export function registerExamContentTests(): void {
           await expect(card.getByRole('radio').first()).toBeChecked();
           await expect(page.locator('[role="status"]').filter({ hasText: 'Đã lưu' })).toBeVisible({ timeout: 15000 });
           await page.reload();
+          await confirmResumeIfShown(page);
           await page.getByRole('button', { name: 'Cài đặt', exact: true }).click();
           await expect(lookup.getByRole('switch')).not.toBeChecked();
           await lookup.locator('.switch__control').click();
@@ -137,9 +140,9 @@ export function registerExamContentTests(): void {
           if (info.project.use.isMobile) await page.locator('.paper-mobile-bar').getByRole('button', { name: 'Phiếu trả lời', exact: true }).click();
           const sheet = info.project.use.isMobile ? page.getByRole('dialog').locator('.paper-answer-sheet') : page.locator('.paper-sticky-sheet .paper-answer-sheet');
           await expect(sheet).toBeVisible();
-          await sheet.getByTestId('paper-answer-row-0').locator('.radio__content').first().click();
-          await expect(sheet.getByTestId('paper-answer-row-0').getByRole('radio').first()).toBeChecked();
-          await sheet.getByRole('button', { name: 'Đến câu 2', exact: true }).click();
+          await expect(sheet.getByTestId('paper-question-tile-0')).toHaveAttribute('data-answered', 'true');
+          await expect(sheet.getByTestId('paper-question-tile-0')).toHaveAttribute('data-flagged', 'true');
+          await sheet.getByTestId('paper-question-tile-1').click();
           if (info.project.use.isMobile) await expect(page.locator('.paper-bottom-sheet')).toHaveCount(0);
           if (!info.project.use.isMobile) {
             await page.evaluate(() => window.scrollBy(0, 900));
@@ -161,7 +164,8 @@ export function registerExamContentTests(): void {
             for (let index = 0; index < sectionIndex; index++) {
               await page.getByTestId('finish-section-btn').click();
               await page.getByRole('button', { name: 'Xác nhận chuyển phần', exact: true }).click();
-              await expect(page.locator('.jlpt-section-header [role="tab"][aria-selected="true"]')).toContainText(published.sections[index + 1]!.title);
+              // The header merges language-knowledge sections into one tab, so the selected tab does not change per section.
+              await expect(page.locator('.jlpt-section-header [role="tab"][aria-selected="true"]')).toContainText('言語知識');
             }
             await expect(page.locator('.paper-passage').first()).toBeAttached();
             await page.locator('.paper-passage').first().scrollIntoViewIfNeeded();
