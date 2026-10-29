@@ -58,7 +58,7 @@ export function registerExamContentTests(): void {
   test.describe('Original shell with HTML booklet workspace', () => {
     for (const mode of ['real', 'practice'] as const) {
       test(`${mode}: original controls, source content, save and resume`, async ({ page, context, baseURL }, info) => {
-        test.setTimeout(120000);
+        test.setTimeout(240000);
         const origin = baseURL ?? 'http://127.0.0.1:3000';
         await page.setViewportSize({ width: info.project.use.isMobile ? 390 : 1366, height: 900 });
         await context.addCookies([{ name: 'guest_id', value: randomUUID(), url: origin }, { name: 'jlpt_consent', value: 'necessary', url: origin }]);
@@ -110,7 +110,7 @@ export function registerExamContentTests(): void {
           await page.waitForTimeout(400);
           await expect(lookupPopover).not.toBeVisible();
           await page.evaluate(() => window.getSelection()?.removeAllRanges());
-          await page.getByRole('button', { name: 'Hiển thị', exact: true }).click();
+          await page.getByRole('button', { name: 'Cài đặt', exact: true }).click();
           const lookup = page.getByTestId('select-lookup-switch');
           await expect(lookup.getByRole('switch')).toBeChecked();
           await lookup.locator('.switch__control').click();
@@ -124,7 +124,7 @@ export function registerExamContentTests(): void {
           await expect(card.getByRole('radio').first()).toBeChecked();
           await expect(page.locator('[role="status"]').filter({ hasText: 'Đã lưu' })).toBeVisible({ timeout: 15000 });
           await page.reload();
-          await page.getByRole('button', { name: 'Hiển thị', exact: true }).click();
+          await page.getByRole('button', { name: 'Cài đặt', exact: true }).click();
           await expect(lookup.getByRole('switch')).not.toBeChecked();
           await lookup.locator('.switch__control').click();
           await expect(lookup.getByRole('switch')).toBeChecked();

@@ -4810,7 +4810,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await openExamRoom(page, 'real');
 
     // Switch is initially checked
-    const display = page.getByRole('button', { name: 'Hiển thị', exact: true });
+    const display = page.getByRole('button', { name: 'Cài đặt', exact: true });
     await display.click();
     const switchEl = page.getByTestId('select-lookup-switch');
     await expect(switchEl.getByRole('switch')).toBeChecked();
