@@ -37,7 +37,7 @@ Test đạt chưa đủ để báo giao diện đã xong. Phải mở trang th�
 1. Làm trên nhánh riêng tách từ `origin/main` mới nhất. Không commit thẳng vào `main`.
 2. Trước khi đẩy: chạy các cổng kiểm tra trong [AGENTS.md](../../AGENTS.md), rồi chạy E2E staging nếu cần.
 3. Mở PR. Mô tả PR ghi: làm gì, vì sao, đã kiểm tra những gì (lệnh và kết quả).
-4. **Agent không merge và không bật auto-merge.** Chủ dự án bật merge; CI đạt thì PR tự gộp.
+4. Workflow `auto-merge.yml` tự bật squash auto-merge cho PR không phải draft từ nhánh nội bộ. Agent không merge trực tiếp và không được bỏ qua ruleset; GitHub chỉ gộp sau khi mọi kiểm tra bắt buộc đạt.
 5. CI đỏ thì đọc log, sửa, rồi chạy lại staging trên máy ảo trước khi đẩy tiếp.
 
 ## Coordinator

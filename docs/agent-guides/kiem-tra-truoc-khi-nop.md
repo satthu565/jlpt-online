@@ -59,4 +59,4 @@ Có sửa giao diện thì mở trang thật và chụp ở 390 px và 1366 px. 
   - làm gì, vì sao;
   - danh sách lệnh đã chạy và kết quả;
   - điều chưa làm được.
-- Không merge, không bật auto-merge.
+- Không merge trực tiếp hoặc bỏ qua cổng CI. Workflow của repo tự bật auto-merge cho PR nội bộ hợp lệ.
