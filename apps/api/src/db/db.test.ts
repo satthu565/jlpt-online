@@ -1303,13 +1303,13 @@ describe('F08 Database Schema and Migrations', () => {
       const journal = JSON.parse(fs.readFileSync(journalPath, 'utf8'));
       expect(journal.dialect).toBe('postgresql');
       expect(Array.isArray(journal.entries)).toBe(true);
-      expect(journal.entries.length).toBe(12);
+      expect(journal.entries.length).toBe(13);
 
       const sqlFiles = fs
         .readdirSync(migrationsDir)
         .filter((f) => f.endsWith('.sql'))
         .sort();
-      expect(sqlFiles.length).toBe(12);
+      expect(sqlFiles.length).toBe(13);
 
       for (let i = 0; i < journal.entries.length; i++) {
         expect(journal.entries[i].idx).toBe(i);
@@ -1325,10 +1325,10 @@ describe('F08 Database Schema and Migrations', () => {
         const appliedRuns = results.filter((r) => r.applied.length > 0);
         const zeroAppliedRuns = results.filter((r) => r.applied.length === 0);
         expect(appliedRuns.length).toBe(1);
-        expect(appliedRuns[0]!.applied.length).toBe(12);
+        expect(appliedRuns[0]!.applied.length).toBe(13);
         expect(zeroAppliedRuns.length).toBe(9);
         for (const r of zeroAppliedRuns) {
-          expect(r.alreadyApplied.length).toBe(12);
+          expect(r.alreadyApplied.length).toBe(13);
         }
       } finally {
         await client.close();

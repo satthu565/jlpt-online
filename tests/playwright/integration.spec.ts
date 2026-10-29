@@ -2144,6 +2144,8 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
       expect(createRes.ok()).toBeTruthy();
     }
 
+    const confirmResume = page.getByTestId('confirm-resume-attempt');
+    if (await confirmResume.isVisible({ timeout: 3000 }).catch(() => false)) await confirmResume.click();
     // 4. Verify PracticeRunner renders with questions
     await expect(page.locator('[data-testid="practice-runner-container"]')).toBeVisible({ timeout: 20000 });
 

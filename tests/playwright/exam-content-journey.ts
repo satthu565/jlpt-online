@@ -57,6 +57,8 @@ export function registerExamContentTests(): void {
         const passageIndex = published.sections.flatMap(section => section.groups.flatMap(group => group.questions.map(() => Boolean(group.passage?.length)))).indexOf(true);
         try {
           await page.goto(`${origin}/phong-thi?attemptId=${attempt.attemptId}&mode=${mode}`);
+          const confirmResume = page.getByTestId('confirm-resume-attempt');
+          if (await confirmResume.isVisible({ timeout: 3000 }).catch(() => false)) await confirmResume.click();
           const card = page.getByTestId('paper-question-0');
           await expect(page.locator('.paper-question')).toHaveCount(published.sections[0]!.questionRange[1] + 1);
           await expect(page.locator('.jlpt-exam-toolbar')).toBeVisible();
