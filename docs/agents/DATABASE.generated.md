@@ -2,7 +2,7 @@
 
 # Database (tự sinh)
 
-Nguồn: `apps/api/src/db/schema.ts`. 143 bảng, 11 migration.
+Nguồn: `apps/api/src/db/schema.ts`. 143 bảng, 13 migration.
 Quy ước và cách thêm bảng: [DATABASE.md](DATABASE.md).
 
 ## Migration
@@ -18,6 +18,8 @@ Quy ước và cách thêm bảng: [DATABASE.md](DATABASE.md).
 - `0008_corpus_terms.sql`
 - `0009_entry_meanings_senses.sql`
 - `0010_kanji_dataset.sql`
+- `0011_entry_meanings_gloss_order.sql`
+- `0012_entry_meanings_content_type.sql`
 
 ## Bảng
 
@@ -699,6 +701,8 @@ Quy ước và cách thêm bảng: [DATABASE.md](DATABASE.md).
 | `locale` | text | not null |  |
 | `meaning` | text | not null |  |
 | `sense_index` | integer | not null |  |
+| `gloss_order` | integer | not null |  |
+| `content_type` | text | not null |  |
 | `pos` | text |  |  |
 
 ### entry_readings
