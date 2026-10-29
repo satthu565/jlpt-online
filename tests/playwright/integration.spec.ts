@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { test, expect, type Page } from '@playwright/test';
-import { registerExamContentTests } from './exam-content-journey.js';
+import { dumpPageOnFailure, registerExamContentTests, watchPageErrors } from './exam-content-journey.js';
 import { MailpitClient } from './fixtures/mailpit.fixture.js';
 import {
   SEEDED_STAFF_ACCOUNTS,
@@ -81,6 +81,9 @@ async function loginAsStaff(page: Page, origin: string, account: StaffAccount) {
  * - Registration flow sends real email verified via Mailpit fixture.
  * - Seeded staff accounts login with real password and TOTP 2FA challenge.
  */
+test.beforeEach(async ({ page }) => { watchPageErrors(page); });
+test.afterEach(async ({ page }, info) => { await dumpPageOnFailure(page, info.status, info.expectedStatus, info.title); });
+
 test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
   const mailpit = new MailpitClient();
 

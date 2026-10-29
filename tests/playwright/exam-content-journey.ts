@@ -10,6 +10,23 @@ const test = base.extend({
   },
 });
 
+const pageErrors = new WeakMap<Page, string[]>();
+
+/** Temporary CI diagnostics: print what the page showed when a test failed (no screenshots are uploaded). */
+export function watchPageErrors(page: Page): void {
+  const list: string[] = [];
+  pageErrors.set(page, list);
+  page.on('pageerror', (error) => list.push(`pageerror: ${error.message}`));
+  page.on('console', (message) => { if (message.type() === 'error') list.push(`console: ${message.text()}`); });
+  page.on('response', (response) => { if (response.status() >= 400) list.push(`http ${response.status()} ${response.request().method()} ${response.url()}`); });
+}
+
+export async function dumpPageOnFailure(page: Page, status: string | undefined, expected: string | undefined, title: string): Promise<void> {
+  if (status === expected) return;
+  const body = await page.locator('body').innerText({ timeout: 3000 }).catch(() => '<no body>');
+  console.log(`[diag] ${title}\n[diag] url=${page.url()}\n[diag] body=${body.replace(/\s+/g, ' ').slice(0, 1500)}\n[diag] errors=${(pageErrors.get(page) ?? []).slice(0, 25).join(' | ')}`);
+}
+
 async function selectBookletText(page: Page, text: string): Promise<void> {
   const selected = await page.evaluate((textToSelect) => {
     const walker = document.createTreeWalker(document.querySelector('.paper-booklet')!, NodeFilter.SHOW_TEXT);
