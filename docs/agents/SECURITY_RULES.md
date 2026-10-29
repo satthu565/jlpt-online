@@ -11,7 +11,7 @@ Mọi agent phải tuân theo các quy tắc dưới đây, kể cả khi phiế
 
 ## Git và GitHub
 
-- Không tự merge PR và không bật auto-merge. Việc này do chủ dự án làm.
+- Không merge trực tiếp, không bỏ qua ruleset hoặc cổng CI. Workflow `auto-merge.yml` tự bật squash auto-merge cho PR không phải draft từ nhánh nội bộ; GitHub chỉ gộp sau khi mọi kiểm tra bắt buộc đạt.
 - Không force-push, không xóa nhánh của người khác, không sửa lịch sử `main`.
 - Không bỏ qua hook (`--no-verify`) hay ký commit.
 - Không lách các chặn quyền. Bị chặn thì báo lại, không tìm đường vòng.

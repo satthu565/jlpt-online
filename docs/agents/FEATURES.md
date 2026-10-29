@@ -66,6 +66,8 @@ Chủ dự án cung cấp tài khoản hoặc dịch vụ thì mới nghiệm th
 
 ## 🚧 Đang làm
 
+Ngày 25/10/2026: thao tác của từng câu trong cuốn đề được gom xuống hàng dưới theo thứ tự Tẩy đáp án, Ghi nháp, Đánh dấu xem lại; trạng thái cờ và các nhãn trợ năng giữ nguyên.
+
 | Việc | Trạng thái |
 |---|---|
 | Cuốn đề HTML và HeroUI React | Theo phương án được duyệt ngày 24/10: giữ khung website, dùng HeroUI gốc trong phòng thi: Tabs, Popover, RadioGroup, Card, ProgressBar, Modal, TextArea. Gộp phiếu và tiến độ; lọc câu trống/có cờ; đáp án dài xếp dọc; mobile mở phiếu cố định. CSS riêng chỉ bố cục và nội dung Nhật. Xem `docs/decisions/paper-exam-room.md`. |

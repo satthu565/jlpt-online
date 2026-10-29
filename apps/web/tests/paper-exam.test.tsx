@@ -63,6 +63,12 @@ describe('Paper booklet and answer sheet', () => {
     expect(html).toContain('paper-question-1');
     expect(html).toContain('Bỏ đánh dấu xem lại câu');
     expect(html).toContain('Tẩy đáp án câu');
+    const firstFooter = html.match(/<div class="paper-question-footer">([\s\S]*?)<\/div>/)?.[1] ?? '';
+    expect(firstFooter).toContain('Tẩy đáp án câu');
+    expect(firstFooter).toContain('Ghi nháp');
+    expect(firstFooter).toContain('Bỏ đánh dấu xem lại câu');
+    expect(firstFooter.indexOf('Tẩy đáp án câu')).toBeLessThan(firstFooter.indexOf('Ghi nháp'));
+    expect(firstFooter.indexOf('Ghi nháp')).toBeLessThan(firstFooter.indexOf('Bỏ đánh dấu xem lại câu'));
     expect(html).not.toContain('Tổng hợp #');
   });
 

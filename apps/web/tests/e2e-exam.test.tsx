@@ -211,7 +211,7 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
       );
 
       expect(html).toContain('Hiển thị');
-      expect(html).toContain('popover');
+      expect(html).toContain('aria-expanded="false"');
     });
 
     it('[EXAM-23] QuestionView applies scaled typography classes', () => {
@@ -556,4 +556,3 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
     });
   });
 });
-

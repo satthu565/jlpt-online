@@ -3819,7 +3819,7 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
       }
 
       await expect(studentPage.locator('[role="radiogroup"], [data-testid="exam-room"], main').first()).toBeVisible({ timeout: 15000 });
-      const radio = studentPage.locator('[role="radio"]').first();
+      const radio = studentPage.locator('.paper-booklet .radio__content').first();
       if (await radio.isVisible()) {
         await radio.click();
       }
