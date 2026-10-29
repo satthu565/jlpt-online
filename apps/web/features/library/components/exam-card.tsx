@@ -9,22 +9,25 @@ import { Button } from '@jlpt/ui/components/button';
 
 export interface ExamCardProps {
   exam: ExamWithUserStatus;
-  onToggleFavorite?: (examId: string) => void;
+  onToggleFavorite?: (examId: string) => void | Promise<void>;
+  favoritePending?: boolean;
+  favoriteDisabled?: boolean;
   className?: string;
 }
 
 export function ExamCard({
   exam,
   onToggleFavorite,
+  favoritePending = false,
+  favoriteDisabled = false,
   className = '',
 }: ExamCardProps): React.JSX.Element {
-  const [favorite, setFavorite] = React.useState(Boolean(exam.isFavorite));
+  const favorite = Boolean(exam.isFavorite);
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setFavorite((prev) => !prev);
-    onToggleFavorite?.(exam.id);
+    void onToggleFavorite?.(exam.id);
   };
 
   const totalDurationSec = exam.sections.reduce((acc, s) => acc + s.durationSec, 0);
@@ -118,6 +121,9 @@ export function ExamCard({
               variant="ghost"
               size="sm"
               onClick={handleFavoriteClick}
+              loading={favoritePending}
+              disabled={favoriteDisabled || favoritePending}
+              aria-pressed={favorite}
               aria-label={favorite ? 'Bỏ yêu thích' : 'Đánh dấu yêu thích'}
               data-testid={`favorite-btn-${exam.id}`}
               className={`p-1 min-h-[32px] h-8 w-8 transition-colors text-sm ${

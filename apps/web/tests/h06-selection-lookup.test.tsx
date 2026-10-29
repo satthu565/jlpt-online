@@ -1,16 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
+import { extractCleanSelectionText, getEligibleSelection, JAPANESE_CHAR_REGEX, SELECT_LOOKUP_STORAGE_KEY } from '../features/corpus/hooks/use-select-lookup';
 import {
-  extractCleanSelectionText,
-  getEligibleSelection,
-  JAPANESE_CHAR_REGEX,
-  SELECT_LOOKUP_STORAGE_KEY,
-} from '../features/corpus/hooks/use-select-lookup';
-import { SelectionLookupPopover } from '../features/corpus/components/selection-lookup-popover';
+  SelectionLookupPopover,
+  StructuredMeaningContent,
+  findSavedNotebookTerms,
+  getVisibleLookupMeanings,
+  hasSavedNotebookTerm,
+} from '../features/corpus/components/selection-lookup-popover';
 import { SelectionKanjiPanel } from '../features/corpus/components/selection-kanji-panel';
 import { selectedKanji } from '../features/corpus/utils/selected-kanji';
 import { VocabDetailView } from '../features/corpus/components/vocab-detail-view';
+import { CorpusClient } from '../features/corpus/services/corpus-client';
 import type { DictionaryEntryDetailDto } from '../features/corpus/types';
 import { I18nProvider } from '../lib/i18n';
 import viMessages from '../messages/vi.json';
@@ -65,7 +67,13 @@ describe('H06: Selection Lookup & Dictionary Detail', () => {
       const mockFragment = {
         querySelectorAll: vi.fn().mockImplementation((selector: string) => {
           if (selector === 'rt, rp') {
-            return [{ remove: () => { removed = true; } }];
+            return [
+              {
+                remove: () => {
+                  removed = true;
+                },
+              },
+            ];
           }
           return [];
         }),
@@ -223,6 +231,28 @@ describe('H06: Selection Lookup & Dictionary Detail', () => {
   });
 
   describe('SelectionLookupPopover component', () => {
+    it('requests Vietnamese meanings for selected vocabulary', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          entry: '体育館',
+          readings: ['たいいくかん'],
+          meanings: ['Nhà thể chất; nhà thi đấu'],
+        }),
+      });
+      const client = new CorpusClient({
+        baseUrl: '/api/v1',
+        fetchFn: mockFetch as unknown as typeof fetch,
+      });
+
+      await client.lookupDictionary('体育館', 'vi');
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/v1/dictionary/lookup?text=%E4%BD%93%E8%82%B2%E9%A4%A8&locale=vi',
+        expect.objectContaining({ method: 'GET' }),
+      );
+    });
+
     it('extracts unique kanji from the whole selection in order, including supplementary characters', () => {
       expect(selectedKanji('学生と学生、駅へ。')).toEqual(['学', '生', '駅']);
       expect(selectedKanji('𠮷野・時々・〇')).toEqual(['𠮷', '野', '時', '〇']);
@@ -230,7 +260,15 @@ describe('H06: Selection Lookup & Dictionary Detail', () => {
     });
 
     it('lists selected characters independently of a matched vocabulary entry', () => {
-      const html = renderClean(<SelectionKanjiPanel text="学生と駅" breakdown={[{ kanji: '学', hanViet: 'HỌC' }, { kanji: '校', hanViet: 'HIỆU' }]} />);
+      const html = renderClean(
+        <SelectionKanjiPanel
+          text="学生と駅"
+          breakdown={[
+            { kanji: '学', hanViet: 'HỌC' },
+            { kanji: '校', hanViet: 'HIỆU' },
+          ]}
+        />,
+      );
       expect(html.match(/data-testid="lookup-kanji-item"/g)).toHaveLength(3);
       expect(html).toContain('HỌC');
       expect(html).not.toContain('HIỆU');
@@ -274,7 +312,7 @@ describe('H06: Selection Lookup & Dictionary Detail', () => {
             result: {
               entry: '食べる',
               readings: ['たべる'],
-              meanings: ['to eat', 'to live on'],
+              meanings: ['Ăn', 'Sinh sống bằng', 'Dùng làm thức ăn', 'Tiêu thụ'],
               hanViet: 'THỰC',
               hanVietConfidence: 'high',
               posLabels: ['Động từ'],
@@ -290,6 +328,32 @@ describe('H06: Selection Lookup & Dictionary Detail', () => {
       );
 
       expect(typeof html).toBe('string');
+    });
+
+    it('keeps every Vietnamese meaning for the scrollable popup', () => {
+      expect(getVisibleLookupMeanings(['Ăn', 'Sinh sống bằng', 'Dùng làm thức ăn', 'Tiêu thụ'])).toEqual([
+        'Ăn',
+        'Sinh sống bằng',
+        'Dùng làm thức ăn',
+        'Tiêu thụ',
+      ]);
+    });
+
+    it('renders a common meaning and its explanation as distinct labelled sections', () => {
+      const summary = 'Thời gian rỗi; lúc rỗi rãi; lúc rảnh rỗi';
+      const explanation = 'Khoảng thời gian còn dư có thể tự do sử dụng khi không làm việc.';
+      const html = renderClean(<StructuredMeaningContent sections={[{ senseIndex: 0, summary, meanings: [], explanation }]} />);
+
+      expect(html).toContain('Nghĩa thường dùng');
+      expect(html).toContain(summary);
+      expect(html).toContain('Giải thích');
+      expect(html).toContain(explanation);
+    });
+
+    it('recognizes an existing notebook item by exact normalized term', () => {
+      expect(hasSavedNotebookTerm([{ term: '体育館' }, { term: '仕事' }], '体育館')).toBe(true);
+      expect(hasSavedNotebookTerm([{ term: '体育館履き' }], '体育館')).toBe(false);
+      expect(findSavedNotebookTerms([{ term: '体育館' }, { term: '体育館' }, { term: '体育館履き' }], '体育館')).toHaveLength(2);
     });
   });
 

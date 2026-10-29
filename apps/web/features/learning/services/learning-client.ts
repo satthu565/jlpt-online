@@ -32,10 +32,8 @@ export class LearningClient {
     headers: Record<string, string> = {},
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-    const reqHeaders: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...headers,
-    };
+    const reqHeaders: Record<string, string> = { ...headers };
+    if (body !== undefined) reqHeaders['Content-Type'] = 'application/json';
 
     let token = this.authToken;
     if (!token && typeof window !== 'undefined') {
@@ -53,8 +51,9 @@ export class LearningClient {
     const response = await this.fetchFn(url, {
       method,
       headers: reqHeaders,
-      body: body ? JSON.stringify(body) : undefined,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
       credentials: 'include',
+      cache: method === 'GET' ? 'no-store' : undefined,
     });
 
     if (response.status === 204) {

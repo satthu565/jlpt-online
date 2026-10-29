@@ -78,6 +78,20 @@
       "when": 1792750000000,
       "tag": "0010_kanji_dataset",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792886400000,
+      "tag": "0011_entry_meanings_gloss_order",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792890000000,
+      "tag": "0012_entry_meanings_content_type",
+      "breakpoints": true
     }
   ]
 }

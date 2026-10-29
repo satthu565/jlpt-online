@@ -210,7 +210,7 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
         />,
       );
 
-      expect(html).toContain('Hiển thị');
+      expect(html).toContain('Cài đặt');
       expect(html).toContain('aria-expanded="false"');
     });
 
@@ -293,7 +293,7 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
       );
       expect(htmlNormal).toContain('jlpt-section-header');
       expect(htmlNormal).toContain('paper-answer-sheet');
-      expect(htmlNormal).toContain('Phiếu trả lời');
+      expect(htmlNormal).toContain('Danh sách câu hỏi');
       expect(htmlNormal).toContain('Thu gọn công cụ');
       expect(htmlNormal).not.toContain('jlpt-zen-mode');
 
@@ -313,7 +313,7 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
       expect(htmlZen).toContain('jlpt-zen-mode');
       expect(htmlZen).not.toContain('jlpt-section-header');
       expect(htmlZen).toContain('paper-answer-sheet');
-      expect(htmlZen).toContain('Phiếu trả lời');
+      expect(htmlZen).toContain('Danh sách câu hỏi');
       expect(htmlZen).toContain('Thu gọn công cụ');
       expect(htmlZen).toContain('paper-booklet');
     });

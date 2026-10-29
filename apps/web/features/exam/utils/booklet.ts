@@ -22,6 +22,11 @@ export interface BookletGroup {
   questions: FlatQuestionItem[];
 }
 
+/** A storage group is not necessarily a printed 問題. Never invent its number. */
+export function printedGroupLabel(instructions: RichText): string | undefined {
+  return richTextContent(instructions).match(/問題\s*[0-9０-９一二三四五六七八九十]+/)?.[0];
+}
+
 export function groupBookletQuestions(questions: FlatQuestionItem[]): BookletGroup[] {
   const groups: BookletGroup[] = [];
   for (const question of questions) {
@@ -29,8 +34,7 @@ export function groupBookletQuestions(questions: FlatQuestionItem[]): BookletGro
     const last = previous?.questions[previous.questions.length - 1];
     // Only collapse consecutive identical instructions with an explicit printed 問題 number.
     // Never infer a boundary from mondaiType alone or merge separate reading passages.
-    const instruction = richTextContent(question.instructions);
-    const samePrintedGroup = /問題\s*[0-9０-９一二三四五六七八九十]+/.test(instruction)
+    const samePrintedGroup = Boolean(printedGroupLabel(question.instructions))
       && last?.sectionIndex === question.sectionIndex
       && JSON.stringify(previous?.instructions) === JSON.stringify(question.instructions);
     if (previous && (last?.groupId === question.groupId || samePrintedGroup)) {

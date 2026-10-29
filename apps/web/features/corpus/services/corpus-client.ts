@@ -100,14 +100,15 @@ export class CorpusClient {
     });
   }
 
-  async lookupDictionary(query: string): Promise<DictionaryLookupResultDto> {
+  async lookupDictionary(query: string, locale = 'vi'): Promise<DictionaryLookupResultDto> {
     const trimmed = query.trim();
-    if (CorpusClient.lookupCache.has(trimmed)) {
-      return CorpusClient.lookupCache.get(trimmed)!;
+    const cacheKey = `${locale}:${trimmed}`;
+    if (CorpusClient.lookupCache.has(cacheKey)) {
+      return CorpusClient.lookupCache.get(cacheKey)!;
     }
-    const qs = new URLSearchParams({ text: trimmed }).toString();
+    const qs = new URLSearchParams({ text: trimmed, locale }).toString();
     const res = await this.request<DictionaryLookupResultDto>(`/dictionary/lookup?${qs}`, { method: 'GET' });
-    CorpusClient.lookupCache.set(trimmed, res);
+    CorpusClient.lookupCache.set(cacheKey, res);
     return res;
   }
 

@@ -195,16 +195,7 @@ export async function getApiBaseUrl(): Promise<string> {
   }
 
   startingPromise = (async () => {
-    // 2. Check if default staging/dev port 4000 is active
-    try {
-      const res = await fetch('http://127.0.0.1:4000/api/v1/health');
-      if (res.ok) {
-        activeBaseUrl = 'http://127.0.0.1:4000';
-        return activeBaseUrl;
-      }
-    } catch {
-      // Port 4000 not responding
-    }
+    // Never discover a running demo API; external targets require explicit URLs.
 
     // 3. Ensure API dist is built
     ensureApiBuilt();
@@ -218,6 +209,8 @@ export async function getApiBaseUrl(): Promise<string> {
         env: {
           ...process.env,
           PORT: String(port),
+          DATABASE_URL: '',
+          REDIS_URL: '',
           EMAIL_DRIVER: 'memory',
           MEDIA_TOKEN_SECRET:
             process.env.MEDIA_TOKEN_SECRET ||

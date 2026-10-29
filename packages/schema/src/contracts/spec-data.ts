@@ -38,12 +38,7 @@ export type OpenApiPaths = Record<string, Record<string, OpenApiOperation>>;
 
 const errorSchemaRef = { $ref: '#/components/schemas/ApiErrorResponse' };
 
-export function createErrorResponse(
-  description: string,
-  errorCode: string,
-  message: string,
-  details: Record<string, unknown> = {},
-): OpenApiResponse {
+export function createErrorResponse(description: string, errorCode: string, message: string, details: Record<string, unknown> = {}): OpenApiResponse {
   return {
     description,
     content: {
@@ -117,6 +112,96 @@ export const standardErrors = {
 
 export const openApiComponents = {
   schemas: {
+    LexiconMeaningSense: {
+      type: 'object',
+      required: ['senseIndex', 'english', 'vietnamese', 'summary', 'explanation', 'partOfSpeech'],
+      properties: {
+        senseIndex: { type: 'integer', minimum: 0 },
+        english: { type: 'array', items: { type: 'string' } },
+        vietnamese: { type: 'array', items: { type: 'string' } },
+        summary: { type: ['string', 'null'] },
+        explanation: { type: ['string', 'null'] },
+        partOfSpeech: { type: ['string', 'null'] },
+      },
+    },
+    DictionaryMeaningSection: {
+      type: 'object',
+      required: ['senseIndex', 'meanings'],
+      properties: {
+        senseIndex: { type: 'integer', minimum: 0 },
+        summary: { type: 'string' },
+        meanings: { type: 'array', items: { type: 'string' } },
+        explanation: { type: 'string' },
+      },
+    },
+    LexiconVietnameseInput: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['senses'],
+      properties: {
+        senses: {
+          type: 'array',
+          maxItems: 100,
+          items: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['senseIndex', 'meanings'],
+            properties: {
+              senseIndex: { type: 'integer', minimum: 0 },
+              meanings: {
+                type: 'array',
+                maxItems: 30,
+                items: { type: 'string', minLength: 1, maxLength: 2000 },
+              },
+              summary: { type: 'string', maxLength: 2000 },
+              explanation: { type: 'string', maxLength: 5000 },
+            },
+          },
+        },
+      },
+    },
+    LexiconVietnameseResponse: {
+      type: 'object',
+      required: ['id', 'meaningsVi', 'meaningSenses'],
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+        meaningsVi: { type: 'array', items: { type: 'string' } },
+        meaningSenses: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/LexiconMeaningSense' },
+        },
+      },
+    },
+    AdminLexiconList: {
+      type: 'object',
+      required: ['total', 'page', 'pageSize', 'items'],
+      properties: {
+        total: { type: 'integer' },
+        page: { type: 'integer' },
+        pageSize: { type: 'integer' },
+        items: {
+          type: 'array',
+          items: {
+            type: 'object',
+            required: ['id', 'term', 'readings', 'meanings', 'meaningsVi', 'meaningSenses', 'partOfSpeech', 'hanViet', 'provider'],
+            properties: {
+              id: { type: 'string', format: 'uuid' },
+              term: { type: 'string' },
+              readings: { type: 'array', items: { type: 'string' } },
+              meanings: { type: 'array', items: { type: 'string' } },
+              meaningsVi: { type: 'array', items: { type: 'string' } },
+              meaningSenses: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/LexiconMeaningSense' },
+              },
+              partOfSpeech: { type: 'string' },
+              hanViet: { type: 'string' },
+              provider: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
     ApiErrorDetail: {
       type: 'object',
       required: ['code', 'message', 'details', 'requestId'],
@@ -283,7 +368,10 @@ export const openApiComponents = {
         version: { type: 'integer', minimum: 1 },
         level: { type: 'string', enum: ['N1', 'N2', 'N3', 'N4', 'N5'] },
         title: { type: 'string' },
-        kind: { type: 'string', enum: ['original', 'practice', 'mixed', 'custom'] },
+        kind: {
+          type: 'string',
+          enum: ['original', 'practice', 'mixed', 'custom'],
+        },
         totalQuestions: { type: 'integer', minimum: 1 },
         sections: {
           type: 'array',
@@ -298,7 +386,10 @@ export const openApiComponents = {
       properties: {
         examId: { type: 'string', format: 'uuid' },
         version: { type: 'integer', minimum: 1 },
-        keys: { type: 'array', items: { type: 'integer', minimum: 1, maximum: 4 } },
+        keys: {
+          type: 'array',
+          items: { type: 'integer', minimum: 1, maximum: 4 },
+        },
         skills: { type: 'array', items: { type: 'string' } },
         mondaiTypes: { type: 'array', items: { type: 'string' } },
         sectionRanges: {
@@ -315,7 +406,10 @@ export const openApiComponents = {
         slug: { type: 'string' },
         level: { type: 'string', enum: ['N1', 'N2', 'N3', 'N4', 'N5'] },
         title: { type: 'string' },
-        kind: { type: 'string', enum: ['original', 'practice', 'mixed', 'custom'] },
+        kind: {
+          type: 'string',
+          enum: ['original', 'practice', 'mixed', 'custom'],
+        },
         year: { type: ['integer', 'null'] },
         session: { type: ['string', 'null'], enum: ['7', '12', null] },
         totalQuestions: { type: 'integer' },
@@ -324,7 +418,10 @@ export const openApiComponents = {
           items: {
             type: 'object',
             required: ['title', 'durationSec'],
-            properties: { title: { type: 'string' }, durationSec: { type: 'integer' } },
+            properties: {
+              title: { type: 'string' },
+              durationSec: { type: 'integer' },
+            },
           },
         },
         sourceLabel: { type: ['string', 'null'] },
@@ -397,10 +494,16 @@ export const openApiComponents = {
       properties: {
         lease: { type: 'string', format: 'uuid' },
         seq: { type: 'integer', minimum: 1 },
-        answers: { type: 'array', items: { type: 'integer', minimum: 0, maximum: 4 } },
+        answers: {
+          type: 'array',
+          items: { type: 'integer', minimum: 0, maximum: 4 },
+        },
         flags: { type: 'array', items: { type: 'integer' } },
         timeSpentMs: { type: 'array', items: { type: 'integer' } },
-        changes: { type: 'array', items: { $ref: '#/components/schemas/AnswerChange' } },
+        changes: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/AnswerChange' },
+        },
       },
     },
     AnswerSheetAck: {
@@ -417,7 +520,10 @@ export const openApiComponents = {
       properties: {
         lease: { type: 'string', format: 'uuid' },
         seq: { type: 'integer', minimum: 1 },
-        answers: { type: 'array', items: { type: 'integer', minimum: 0, maximum: 4 } },
+        answers: {
+          type: 'array',
+          items: { type: 'integer', minimum: 0, maximum: 4 },
+        },
         flags: { type: 'array', items: { type: 'integer' } },
         timeSpentMs: { type: 'array', items: { type: 'integer' } },
       },
@@ -443,7 +549,11 @@ export const openApiComponents = {
           items: {
             type: 'object',
             required: ['code', 'correct', 'total'],
-            properties: { code: { type: 'string' }, correct: { type: 'integer' }, total: { type: 'integer' } },
+            properties: {
+              code: { type: 'string' },
+              correct: { type: 'integer' },
+              total: { type: 'integer' },
+            },
           },
         },
         bySkill: {
@@ -451,7 +561,11 @@ export const openApiComponents = {
           items: {
             type: 'object',
             required: ['skill', 'correct', 'total'],
-            properties: { skill: { type: 'string' }, correct: { type: 'integer' }, total: { type: 'integer' } },
+            properties: {
+              skill: { type: 'string' },
+              correct: { type: 'integer' },
+              total: { type: 'integer' },
+            },
           },
         },
         scoring: {
@@ -525,7 +639,10 @@ export const openApiComponents = {
         id: { type: 'string', format: 'uuid' },
         email: { type: 'string', format: 'email' },
         name: { type: 'string' },
-        targetLevel: { type: ['string', 'null'], enum: ['N1', 'N2', 'N3', 'N4', 'N5', null] },
+        targetLevel: {
+          type: ['string', 'null'],
+          enum: ['N1', 'N2', 'N3', 'N4', 'N5', null],
+        },
         targetExamDate: { type: ['string', 'null'] },
         targetScore: { type: ['integer', 'null'] },
         locale: { type: 'string' },
@@ -549,7 +666,10 @@ export const openApiComponents = {
       required: ['id', 'status', 'progress', 'artifacts', 'retryable'],
       properties: {
         id: { type: 'string', format: 'uuid' },
-        status: { type: 'string', enum: ['queued', 'running', 'succeeded', 'failed', 'cancelled'] },
+        status: {
+          type: 'string',
+          enum: ['queued', 'running', 'succeeded', 'failed', 'cancelled'],
+        },
         progress: { type: 'number', minimum: 0, maximum: 100 },
         artifacts: { type: 'array', items: { type: 'string' } },
         errorCode: { type: 'string' },
@@ -575,10 +695,18 @@ export const openApiComponents = {
         mondaiTypes: { type: 'array', items: { type: 'string' } },
         questionCount: { type: 'integer', enum: [10, 20, 30, 50] },
         sourceIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
-        pool: { type: 'string', enum: ['wrong', 'unseen', 'marked', 'random', 'tagged', 'difficulty'] },
+        pool: {
+          type: 'string',
+          enum: ['wrong', 'unseen', 'marked', 'random', 'tagged', 'difficulty'],
+        },
         timeLimitSec: { type: 'integer' },
         tagIds: { type: 'array', items: { type: 'string' } },
-        difficultyRange: { type: 'array', items: { type: 'number' }, minItems: 2, maxItems: 2 },
+        difficultyRange: {
+          type: 'array',
+          items: { type: 'number' },
+          minItems: 2,
+          maxItems: 2,
+        },
       },
     },
     MixConfig: {
@@ -587,10 +715,16 @@ export const openApiComponents = {
       properties: {
         level: { type: 'string', enum: ['N1', 'N2', 'N3', 'N4', 'N5'] },
         sourceSessions: { type: 'array', items: { type: 'string' } },
-        sourceWeights: { type: 'object', additionalProperties: { type: 'number' } },
+        sourceWeights: {
+          type: 'object',
+          additionalProperties: { type: 'number' },
+        },
         skills: { type: 'array', items: { type: 'string' } },
         mondaiTypes: { type: 'array', items: { type: 'string' } },
-        mode: { type: 'string', enum: ['Random', 'Balanced', 'Weakness', 'Unseen', 'Challenge', 'Revision', 'Custom'] },
+        mode: {
+          type: 'string',
+          enum: ['Random', 'Balanced', 'Weakness', 'Unseen', 'Challenge', 'Revision', 'Custom'],
+        },
         seed: { type: 'integer' },
         blueprintVersion: { type: 'integer' },
         questionCount: { type: 'integer' },
@@ -608,7 +742,10 @@ export const openApiComponents = {
         seed: { type: 'integer' },
         engineVersion: { type: 'string' },
         configHash: { type: 'string' },
-        selectionGroupIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
+        selectionGroupIds: {
+          type: 'array',
+          items: { type: 'string', format: 'uuid' },
+        },
         sourceSummary: { type: 'object' },
         warnings: { type: 'array', items: { type: 'string' } },
         blueprintConformant: { type: 'boolean' },
@@ -634,7 +771,10 @@ export const openApiComponents = {
         timezone: { type: 'string' },
         minutesPerDay: { type: 'integer' },
         days: { type: 'integer', enum: [30, 60, 90] },
-        skillWeights: { type: 'object', additionalProperties: { type: 'number' } },
+        skillWeights: {
+          type: 'object',
+          additionalProperties: { type: 'number' },
+        },
         daysOff: { type: 'array', items: { type: 'integer' } },
         goals: { type: 'array', items: { type: 'string' } },
       },
@@ -688,7 +828,10 @@ export const openApiComponents = {
         dueAtUTC: { type: 'string', format: 'date-time' },
         opensAtUTC: { type: 'string', format: 'date-time' },
         attemptPolicy: { type: 'object' },
-        learnerIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
+        learnerIds: {
+          type: 'array',
+          items: { type: 'string', format: 'uuid' },
+        },
       },
     },
     EventCreate: {
@@ -728,16 +871,7 @@ export const openApiComponents = {
     },
     SourceRights: {
       type: 'object',
-      required: [
-        'sourceId',
-        'licenseId',
-        'displayAllowed',
-        'remixAllowed',
-        'commercialAllowed',
-        'transcriptAllowed',
-        'aiProcessingAllowed',
-        'exportAllowed',
-      ],
+      required: ['sourceId', 'licenseId', 'displayAllowed', 'remixAllowed', 'commercialAllowed', 'transcriptAllowed', 'aiProcessingAllowed', 'exportAllowed'],
       properties: {
         sourceId: { type: 'string', format: 'uuid' },
         licenseId: { type: 'string', format: 'uuid' },
@@ -822,7 +956,10 @@ export const openApiComponents = {
         level: { type: 'string', enum: ['N1', 'N2', 'N3', 'N4', 'N5'] },
         sectionCode: { type: 'string' },
         mondaiType: { type: 'string' },
-        skill: { type: 'string', enum: ['kanji_vocab', 'grammar', 'reading', 'listening'] },
+        skill: {
+          type: 'string',
+          enum: ['kanji_vocab', 'grammar', 'reading', 'listening'],
+        },
         instructions: { $ref: '#/components/schemas/RichText' },
         passage: { $ref: '#/components/schemas/RichText' },
         mediaIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
@@ -834,7 +971,10 @@ export const openApiComponents = {
             properties: {
               tempId: { type: 'string' },
               stem: { $ref: '#/components/schemas/RichText' },
-              options: { type: 'array', items: { $ref: '#/components/schemas/RichText' } },
+              options: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/RichText' },
+              },
               correctOption: { type: 'integer', minimum: 1, maximum: 4 },
               explanationId: { type: 'string', format: 'uuid' },
               tags: { type: 'array', items: { type: 'string' } },
@@ -852,7 +992,10 @@ export const openApiComponents = {
         level: { type: 'string', enum: ['N1', 'N2', 'N3', 'N4', 'N5'] },
         sectionCode: { type: 'string' },
         mondaiType: { type: 'string' },
-        skill: { type: 'string', enum: ['kanji_vocab', 'grammar', 'reading', 'listening'] },
+        skill: {
+          type: 'string',
+          enum: ['kanji_vocab', 'grammar', 'reading', 'listening'],
+        },
         instructions: { $ref: '#/components/schemas/RichText' },
         passage: { $ref: '#/components/schemas/RichText' },
         mediaIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
@@ -864,7 +1007,10 @@ export const openApiComponents = {
             properties: {
               tempId: { type: 'string' },
               stem: { $ref: '#/components/schemas/RichText' },
-              options: { type: 'array', items: { $ref: '#/components/schemas/RichText' } },
+              options: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/RichText' },
+              },
               correctOption: { type: 'integer', minimum: 1, maximum: 4 },
               explanationId: { type: 'string', format: 'uuid' },
               tags: { type: 'array', items: { type: 'string' } },
@@ -940,7 +1086,10 @@ export const openApiComponents = {
         title: { type: 'string' },
         slug: { type: 'string' },
         blueprintVersion: { type: 'integer', minimum: 1 },
-        sourceRefs: { type: 'array', items: { type: 'string', format: 'uuid' } },
+        sourceRefs: {
+          type: 'array',
+          items: { type: 'string', format: 'uuid' },
+        },
       },
     },
     ExamSetItemsInput: {
@@ -1004,7 +1153,10 @@ export const openApiComponents = {
       type: 'object',
       required: ['status', 'resolution'],
       properties: {
-        status: { type: 'string', enum: ['pending', 'in_review', 'resolved', 'dismissed'] },
+        status: {
+          type: 'string',
+          enum: ['pending', 'in_review', 'resolved', 'dismissed'],
+        },
         resolution: { type: 'string' },
         moderatorNotes: { type: 'string' },
       },
@@ -1013,8 +1165,14 @@ export const openApiComponents = {
       type: 'object',
       required: ['status', 'action', 'reason'],
       properties: {
-        status: { type: 'string', enum: ['pending', 'in_review', 'resolved', 'dismissed'] },
-        action: { type: 'string', enum: ['none', 'hide_comment', 'warn_user', 'ban_user'] },
+        status: {
+          type: 'string',
+          enum: ['pending', 'in_review', 'resolved', 'dismissed'],
+        },
+        action: {
+          type: 'string',
+          enum: ['none', 'hide_comment', 'warn_user', 'ban_user'],
+        },
         reason: { type: 'string' },
       },
     },

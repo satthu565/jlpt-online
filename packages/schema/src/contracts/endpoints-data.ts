@@ -1,8 +1,4 @@
-import {
-  OpenApiPaths,
-  standardErrors,
-  createErrorResponse,
-} from './spec-data.js';
+import { OpenApiPaths, standardErrors, createErrorResponse } from './spec-data.js';
 
 function jsonResp(description: string, schema: Record<string, unknown>) {
   return {
@@ -45,6 +41,59 @@ const adminDeleteErrors = {
 };
 
 export const endpointsData: OpenApiPaths = {
+  '/api/v1/admin/lexicon/entries': {
+    get: {
+      operationId: 'adminListLexiconEntries',
+      summary: 'Danh sách từ điển với nghĩa tiếng Anh và tiếng Việt theo nhóm nghĩa',
+      tags: ['AdminLexicon'],
+      parameters: [
+        { name: 'q', in: 'query', schema: { type: 'string' } },
+        { name: 'pos', in: 'query', schema: { type: 'string' } },
+        { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1 } },
+        {
+          name: 'pageSize',
+          in: 'query',
+          schema: { type: 'integer', minimum: 1, maximum: 200 },
+        },
+      ],
+      responses: {
+        '200': jsonResp('Các mục từ', {
+          $ref: '#/components/schemas/AdminLexiconList',
+        }),
+        ...adminBaseErrors,
+      },
+    },
+  },
+  '/api/v1/admin/lexicon/entries/{id}/meanings-vi': {
+    patch: {
+      operationId: 'adminUpdateVietnameseMeanings',
+      summary: 'Admin/editor thay thế nghĩa tiếng Việt, giữ nguyên nghĩa tiếng Anh và ghi nhật ký',
+      tags: ['AdminLexicon'],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/LexiconVietnameseInput' },
+          },
+        },
+      },
+      responses: {
+        '200': jsonResp('Nghĩa tiếng Việt đã lưu', {
+          $ref: '#/components/schemas/LexiconVietnameseResponse',
+        }),
+        '400': standardErrors.validationError,
+        ...adminEntityErrors,
+      },
+    },
+  },
   '/api/v1/health': {
     get: {
       operationId: 'getHealth',
@@ -122,19 +171,41 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Danh sách đề thi công khai với bộ lọc',
       tags: ['Exams'],
       parameters: [
-        { name: 'level', in: 'query', schema: { type: 'string', enum: ['N1', 'N2', 'N3', 'N4', 'N5'] } },
+        {
+          name: 'level',
+          in: 'query',
+          schema: { type: 'string', enum: ['N1', 'N2', 'N3', 'N4', 'N5'] },
+        },
         { name: 'year', in: 'query', schema: { type: 'integer' } },
-        { name: 'session', in: 'query', schema: { type: 'string', enum: ['7', '12'] } },
-        { name: 'kind', in: 'query', schema: { type: 'string', enum: ['original', 'practice', 'mixed', 'custom'] } },
+        {
+          name: 'session',
+          in: 'query',
+          schema: { type: 'string', enum: ['7', '12'] },
+        },
+        {
+          name: 'kind',
+          in: 'query',
+          schema: {
+            type: 'string',
+            enum: ['original', 'practice', 'mixed', 'custom'],
+          },
+        },
         { name: 'cursor', in: 'query', schema: { type: 'string' } },
-        { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
+        {
+          name: 'limit',
+          in: 'query',
+          schema: { type: 'integer', default: 20 },
+        },
       ],
       responses: {
         '200': jsonResp('Danh sách đề thi', {
           type: 'object',
           required: ['items'],
           properties: {
-            items: { type: 'array', items: { $ref: '#/components/schemas/ExamSummary' } },
+            items: {
+              type: 'array',
+              items: { $ref: '#/components/schemas/ExamSummary' },
+            },
             nextCursor: { type: ['string', 'null'] },
           },
         }),
@@ -148,9 +219,18 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'getExamBySlug',
       summary: 'Chi tiết thông tin đề thi công khai',
       tags: ['Exams'],
-      parameters: [{ name: 'slug', in: 'path', required: true, schema: { type: 'string' } }],
+      parameters: [
+        {
+          name: 'slug',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+        },
+      ],
       responses: {
-        '200': jsonResp('Chi tiết đề thi', { $ref: '#/components/schemas/ExamDetailPublic' }),
+        '200': jsonResp('Chi tiết đề thi', {
+          $ref: '#/components/schemas/ExamDetailPublic',
+        }),
         '404': standardErrors.notFound,
       },
     },
@@ -162,7 +242,9 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Lấy thông tin hồ sơ người dùng hiện tại',
       tags: ['User'],
       responses: {
-        '200': jsonResp('Hồ sơ người dùng', { $ref: '#/components/schemas/UserProfile' }),
+        '200': jsonResp('Hồ sơ người dùng', {
+          $ref: '#/components/schemas/UserProfile',
+        }),
         '401': standardErrors.unauthorized,
       },
     },
@@ -179,7 +261,9 @@ export const endpointsData: OpenApiPaths = {
         },
       },
       responses: {
-        '200': jsonResp('Hồ sơ sau khi cập nhật', { $ref: '#/components/schemas/UserProfile' }),
+        '200': jsonResp('Hồ sơ sau khi cập nhật', {
+          $ref: '#/components/schemas/UserProfile',
+        }),
         '400': standardErrors.badRequest,
         '401': standardErrors.unauthorized,
       },
@@ -268,11 +352,15 @@ export const endpointsData: OpenApiPaths = {
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/ExportRequest' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ExportRequest' },
+          },
         },
       },
       responses: {
-        '202': jsonResp('Yêu cầu xuất dữ liệu đã nhận', { $ref: '#/components/schemas/AsyncJob' }),
+        '202': jsonResp('Yêu cầu xuất dữ liệu đã nhận', {
+          $ref: '#/components/schemas/AsyncJob',
+        }),
         '401': standardErrors.unauthorized,
         '429': standardErrors.rateLimited,
       },
@@ -289,7 +377,10 @@ export const endpointsData: OpenApiPaths = {
           type: 'object',
           required: ['status'],
           properties: {
-            status: { type: 'string', enum: ['none', 'pending', 'processing', 'completed'] },
+            status: {
+              type: 'string',
+              enum: ['none', 'pending', 'processing', 'completed'],
+            },
             requestedAt: { type: 'string', format: 'date-time' },
           },
         }),
@@ -305,7 +396,10 @@ export const endpointsData: OpenApiPaths = {
           'application/json': {
             schema: {
               type: 'object',
-              properties: { reason: { type: 'string' }, confirmation: { type: 'string' } },
+              properties: {
+                reason: { type: 'string' },
+                confirmation: { type: 'string' },
+              },
             },
           },
         },
@@ -314,7 +408,10 @@ export const endpointsData: OpenApiPaths = {
         '201': jsonResp('Yêu cầu xóa tài khoản đã ghi nhận', {
           type: 'object',
           required: ['id', 'status'],
-          properties: { id: { type: 'string', format: 'uuid' }, status: { type: 'string' } },
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            status: { type: 'string' },
+          },
         }),
         '401': standardErrors.unauthorized,
       },
@@ -366,7 +463,11 @@ export const endpointsData: OpenApiPaths = {
                   items: {
                     type: 'object',
                     required: ['purpose', 'policyVersion', 'granted'],
-                    properties: { purpose: { type: 'string' }, policyVersion: { type: 'string' }, granted: { type: 'boolean' } },
+                    properties: {
+                      purpose: { type: 'string' },
+                      policyVersion: { type: 'string' },
+                      granted: { type: 'boolean' },
+                    },
                   },
                 },
               },
@@ -426,7 +527,10 @@ export const endpointsData: OpenApiPaths = {
       responses: {
         '200': jsonResp('Cấu hình đã cập nhật', {
           type: 'object',
-          properties: { emailUpdates: { type: 'boolean' }, examReminders: { type: 'boolean' } },
+          properties: {
+            emailUpdates: { type: 'boolean' },
+            examReminders: { type: 'boolean' },
+          },
         }),
         '401': standardErrors.unauthorized,
       },
@@ -438,7 +542,13 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'getUserExamStatuses',
       summary: 'Lấy trạng thái hoàn thành đề thi theo cấp độ',
       tags: ['User'],
-      parameters: [{ name: 'level', in: 'query', schema: { type: 'string', enum: ['N1', 'N2', 'N3', 'N4', 'N5'] } }],
+      parameters: [
+        {
+          name: 'level',
+          in: 'query',
+          schema: { type: 'string', enum: ['N1', 'N2', 'N3', 'N4', 'N5'] },
+        },
+      ],
       responses: {
         '200': jsonResp('Trạng thái đề thi của học viên', {
           type: 'object',
@@ -451,7 +561,10 @@ export const endpointsData: OpenApiPaths = {
                 required: ['examId', 'status', 'attemptsCount'],
                 properties: {
                   examId: { type: 'string', format: 'uuid' },
-                  status: { type: 'string', enum: ['not_started', 'in_progress', 'completed'] },
+                  status: {
+                    type: 'string',
+                    enum: ['not_started', 'in_progress', 'completed'],
+                  },
                   bestScore: { type: ['number', 'null'] },
                   attemptsCount: { type: 'integer' },
                 },
@@ -471,7 +584,11 @@ export const endpointsData: OpenApiPaths = {
       tags: ['User'],
       parameters: [
         { name: 'cursor', in: 'query', schema: { type: 'string' } },
-        { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
+        {
+          name: 'limit',
+          in: 'query',
+          schema: { type: 'integer', default: 20 },
+        },
       ],
       responses: {
         '200': jsonResp('Danh sách bài thi', {
@@ -507,20 +624,33 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'markQuestion',
       summary: 'Đánh dấu câu hỏi để luyện tập lại',
       tags: ['User'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         content: {
           'application/json': {
             schema: {
               type: 'object',
               required: ['questionVersionId'],
-              properties: { questionVersionId: { type: 'string', format: 'uuid' }, tag: { type: 'string' } },
+              properties: {
+                questionVersionId: { type: 'string', format: 'uuid' },
+                tag: { type: 'string' },
+              },
             },
           },
         },
       },
       responses: {
-        '200': jsonResp('Đã đánh dấu', { type: 'object', properties: { marked: { type: 'boolean' } } }),
+        '200': jsonResp('Đã đánh dấu', {
+          type: 'object',
+          properties: { marked: { type: 'boolean' } },
+        }),
         '401': standardErrors.unauthorized,
       },
     },
@@ -528,7 +658,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'unmarkQuestion',
       summary: 'Bỏ đánh dấu câu hỏi',
       tags: ['User'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '204': emptyResp('Đã bỏ đánh dấu'),
         '401': standardErrors.unauthorized,
@@ -541,9 +678,19 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'favoriteExam',
       summary: 'Thêm đề thi vào danh sách yêu thích',
       tags: ['User'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
-        '200': jsonResp('Đã thêm yêu thích', { type: 'object', properties: { favorited: { type: 'boolean' } } }),
+        '200': jsonResp('Đã thêm yêu thích', {
+          type: 'object',
+          properties: { favorited: { type: 'boolean' } },
+        }),
         '401': standardErrors.unauthorized,
       },
     },
@@ -551,7 +698,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'unfavoriteExam',
       summary: 'Xóa đề thi khỏi danh sách yêu thích',
       tags: ['User'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '204': emptyResp('Đã xóa yêu thích'),
         '401': standardErrors.unauthorized,
@@ -578,7 +732,11 @@ export const endpointsData: OpenApiPaths = {
               items: {
                 type: 'object',
                 required: ['type', 'title', 'reason'],
-                properties: { type: { type: 'string' }, title: { type: 'string' }, reason: { type: 'string' } },
+                properties: {
+                  type: { type: 'string' },
+                  title: { type: 'string' },
+                  reason: { type: 'string' },
+                },
               },
             },
           },
@@ -596,14 +754,20 @@ export const endpointsData: OpenApiPaths = {
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/AttemptInitInput' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/AttemptInitInput' },
+          },
         },
       },
       responses: {
-        '201': jsonResp('Lượt thi khởi tạo thành công', { $ref: '#/components/schemas/AttemptInitResponse' }),
+        '201': jsonResp('Lượt thi khởi tạo thành công', {
+          $ref: '#/components/schemas/AttemptInitResponse',
+        }),
         '400': standardErrors.badRequest,
         '401': standardErrors.unauthorized,
-        '409': createErrorResponse('Already open attempt', 'ATTEMPT_ALREADY_OPEN', 'Đang có bài thi mở.', { attemptId: '0192f0c0-0000-7000-8000-000000000001' }),
+        '409': createErrorResponse('Already open attempt', 'ATTEMPT_ALREADY_OPEN', 'Đang có bài thi mở.', {
+          attemptId: '0192f0c0-0000-7000-8000-000000000001',
+        }),
       },
     },
   },
@@ -613,7 +777,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'getAttempt',
       summary: 'Lấy trạng thái và tiến độ bài thi',
       tags: ['Attempts'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Thông tin bài thi', {
           type: 'object',
@@ -638,15 +809,26 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'nextSection',
       summary: 'Bắt đầu phần thi tiếp theo và kích hoạt đồng hồ deadline server',
       tags: ['Attempts'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/NextSectionInput' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/NextSectionInput' },
+          },
         },
       },
       responses: {
-        '200': jsonResp('Phần thi tiếp theo bắt đầu', { $ref: '#/components/schemas/NextSectionResponse' }),
+        '200': jsonResp('Phần thi tiếp theo bắt đầu', {
+          $ref: '#/components/schemas/NextSectionResponse',
+        }),
         '401': standardErrors.unauthorized,
         '409': createErrorResponse('No more sections or lease invalid', 'NO_MORE_SECTIONS', 'Không còn phần thi tiếp theo.'),
       },
@@ -658,15 +840,26 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'updateAnswerSheet',
       summary: 'Đồng bộ phiếu trả lời và nhật ký thay đổi đáp án',
       tags: ['Attempts'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/AnswerSheetUpdateInput' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/AnswerSheetUpdateInput' },
+          },
         },
       },
       responses: {
-        '200': jsonResp('Đồng bộ phiếu trả lời thành công', { $ref: '#/components/schemas/AnswerSheetAck' }),
+        '200': jsonResp('Đồng bộ phiếu trả lời thành công', {
+          $ref: '#/components/schemas/AnswerSheetAck',
+        }),
         '401': standardErrors.unauthorized,
         '409': standardErrors.conflict,
         '422': standardErrors.unprocessable,
@@ -679,11 +872,20 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'submitAttempt',
       summary: 'Nộp bài thi và nhận kết quả chấm điểm (idempotent)',
       tags: ['Attempts'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/AttemptSubmitInput' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/AttemptSubmitInput' },
+          },
         },
       },
       responses: {
@@ -704,7 +906,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'resumeAttempt',
       summary: 'Phục hồi bài thi đang làm dở (xin lease mới và lấy phiếu đáp án đã lưu)',
       tags: ['Attempts'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Khôi phục bài thi thành công', {
           type: 'object',
@@ -735,12 +944,22 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'refreshMediaToken',
       summary: 'Gia hạn mediaToken khi sắp hết hạn trong lúc làm bài',
       tags: ['Attempts'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Media token mới', {
           type: 'object',
           required: ['mediaToken', 'mediaTokenExp'],
-          properties: { mediaToken: { type: 'string' }, mediaTokenExp: { type: 'integer' } },
+          properties: {
+            mediaToken: { type: 'string' },
+            mediaTokenExp: { type: 'integer' },
+          },
         }),
         '401': standardErrors.unauthorized,
         '404': standardErrors.notFound,
@@ -753,9 +972,18 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'getAttemptReview',
       summary: 'Xem lại bài thi sau khi nộp (chỉ mở khi đã nộp và hết embargo)',
       tags: ['Attempts'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
-        '200': jsonResp('Thông tin xem lại bài thi', { $ref: '#/components/schemas/ReviewAttemptResponse' }),
+        '200': jsonResp('Thông tin xem lại bài thi', {
+          $ref: '#/components/schemas/ReviewAttemptResponse',
+        }),
         '401': standardErrors.unauthorized,
         '404': standardErrors.notFound,
         '409': createErrorResponse('Attempt not yet submitted or results embargoed', 'RESULTS_EMBARGOED', 'Kết quả chưa được công bố.'),
@@ -768,15 +996,26 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'checkSingleAnswer',
       summary: 'Kiểm tra ngay đáp án một câu trong chế độ luyện tập',
       tags: ['Attempts'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/CheckAnswerInput' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/CheckAnswerInput' },
+          },
         },
       },
       responses: {
-        '200': jsonResp('Kết quả kiểm tra', { $ref: '#/components/schemas/CheckAnswerResponse' }),
+        '200': jsonResp('Kết quả kiểm tra', {
+          $ref: '#/components/schemas/CheckAnswerResponse',
+        }),
         '401': standardErrors.unauthorized,
         '403': createErrorResponse('Check not allowed in real exam mode', 'FORBIDDEN', 'Không hỗ trợ kiểm tra đáp án ngay trong chế độ thi thật.'),
       },
@@ -789,8 +1028,18 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Lấy lời giải thích chi tiết cho câu hỏi sau khi nộp bài',
       tags: ['Attempts'],
       parameters: [
-        { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
-        { name: 'index', in: 'path', required: true, schema: { type: 'integer' } },
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+        {
+          name: 'index',
+          in: 'path',
+          required: true,
+          schema: { type: 'integer' },
+        },
       ],
       responses: {
         '200': jsonResp('Lời giải chi tiết', {
@@ -806,11 +1055,7 @@ export const endpointsData: OpenApiPaths = {
         }),
         '401': standardErrors.unauthorized,
         '404': standardErrors.notFound,
-        '409': createErrorResponse(
-          'Attempt not yet submitted or results embargoed',
-          'RESULTS_EMBARGOED',
-          'Kết quả chưa được công bố.',
-        ),
+        '409': createErrorResponse('Attempt not yet submitted or results embargoed', 'RESULTS_EMBARGOED', 'Kết quả chưa được công bố.'),
       },
     },
   },
@@ -820,15 +1065,26 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'exportAttemptResult',
       summary: 'Tạo phiếu báo điểm PDF cho lượt thi',
       tags: ['Attempts'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/ExportRequest' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ExportRequest' },
+          },
         },
       },
       responses: {
-        '202': jsonResp('Tiến trình xuất PDF đã khởi tạo', { $ref: '#/components/schemas/AsyncJob' }),
+        '202': jsonResp('Tiến trình xuất PDF đã khởi tạo', {
+          $ref: '#/components/schemas/AsyncJob',
+        }),
         '401': standardErrors.unauthorized,
         '404': standardErrors.notFound,
       },
@@ -843,11 +1099,15 @@ export const endpointsData: OpenApiPaths = {
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/PracticeConfig' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/PracticeConfig' },
+          },
         },
       },
       responses: {
-        '201': jsonResp('Đề luyện tập đã sinh', { $ref: '#/components/schemas/GeneratedExam' }),
+        '201': jsonResp('Đề luyện tập đã sinh', {
+          $ref: '#/components/schemas/GeneratedExam',
+        }),
         '400': standardErrors.badRequest,
         '401': standardErrors.unauthorized,
         '422': createErrorResponse('Pool shortage', 'POOL_SHORTAGE', 'Không đủ câu hỏi theo cấu hình.'),
@@ -863,11 +1123,15 @@ export const endpointsData: OpenApiPaths = {
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/MixConfig' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/MixConfig' },
+          },
         },
       },
       responses: {
-        '201': jsonResp('Đề trộn tổng hợp đã sinh', { $ref: '#/components/schemas/GeneratedExam' }),
+        '201': jsonResp('Đề trộn tổng hợp đã sinh', {
+          $ref: '#/components/schemas/GeneratedExam',
+        }),
         '400': standardErrors.badRequest,
         '401': standardErrors.unauthorized,
         '422': createErrorResponse('Pool shortage', 'POOL_SHORTAGE', 'Không đủ câu hỏi thỏa mãn blueprint.'),
@@ -882,14 +1146,21 @@ export const endpointsData: OpenApiPaths = {
       tags: ['Practice'],
       parameters: [
         { name: 'cursor', in: 'query', schema: { type: 'string' } },
-        { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
+        {
+          name: 'limit',
+          in: 'query',
+          schema: { type: 'integer', default: 20 },
+        },
       ],
       responses: {
         '200': jsonResp('Danh sách đề đã sinh', {
           type: 'object',
           required: ['items'],
           properties: {
-            items: { type: 'array', items: { $ref: '#/components/schemas/GeneratedExam' } },
+            items: {
+              type: 'array',
+              items: { $ref: '#/components/schemas/GeneratedExam' },
+            },
             nextCursor: { type: ['string', 'null'] },
           },
         }),
@@ -903,9 +1174,18 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'getGeneratedExam',
       summary: 'Lấy cấu hình chi tiết của đề đã sinh',
       tags: ['Practice'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
-        '200': jsonResp('Chi tiết đề sinh', { $ref: '#/components/schemas/GeneratedExam' }),
+        '200': jsonResp('Chi tiết đề sinh', {
+          $ref: '#/components/schemas/GeneratedExam',
+        }),
         '401': standardErrors.unauthorized,
         '404': standardErrors.notFound,
       },
@@ -917,16 +1197,28 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'regenerateExam',
       summary: 'Sinh lại đề với seed mới mà không làm thay đổi bản ghi cũ',
       tags: ['Practice'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         content: {
           'application/json': {
-            schema: { type: 'object', properties: { newSeed: { type: 'integer' } } },
+            schema: {
+              type: 'object',
+              properties: { newSeed: { type: 'integer' } },
+            },
           },
         },
       },
       responses: {
-        '201': jsonResp('Đề mới đã sinh', { $ref: '#/components/schemas/GeneratedExam' }),
+        '201': jsonResp('Đề mới đã sinh', {
+          $ref: '#/components/schemas/GeneratedExam',
+        }),
         '401': standardErrors.unauthorized,
       },
     },
@@ -937,7 +1229,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'shareGeneratedExam',
       summary: 'Tạo mã liên kết chia sẻ đề luyện tập',
       tags: ['Practice'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         content: {
           'application/json': {
@@ -945,7 +1244,10 @@ export const endpointsData: OpenApiPaths = {
               type: 'object',
               properties: {
                 expiresAt: { type: 'string', format: 'date-time' },
-                accessPolicy: { type: 'string', enum: ['public', 'enrolled_class'] },
+                accessPolicy: {
+                  type: 'string',
+                  enum: ['public', 'enrolled_class'],
+                },
               },
             },
           },
@@ -955,7 +1257,10 @@ export const endpointsData: OpenApiPaths = {
         '201': jsonResp('Share link created', {
           type: 'object',
           required: ['shareToken', 'shareUrl'],
-          properties: { shareToken: { type: 'string' }, shareUrl: { type: 'string', format: 'uri' } },
+          properties: {
+            shareToken: { type: 'string' },
+            shareUrl: { type: 'string', format: 'uri' },
+          },
         }),
         '401': standardErrors.unauthorized,
       },
@@ -967,12 +1272,23 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'getSharedExamMetadata',
       summary: 'Lấy siêu dữ liệu đề chia sẻ qua token',
       tags: ['Practice'],
-      parameters: [{ name: 'token', in: 'path', required: true, schema: { type: 'string' } }],
+      parameters: [
+        {
+          name: 'token',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+        },
+      ],
       responses: {
         '200': jsonResp('Thông tin đề chia sẻ', {
           type: 'object',
           required: ['title', 'level', 'totalQuestions'],
-          properties: { title: { type: 'string' }, level: { type: 'string' }, totalQuestions: { type: 'integer' } },
+          properties: {
+            title: { type: 'string' },
+            level: { type: 'string' },
+            totalQuestions: { type: 'integer' },
+          },
         }),
         '404': standardErrors.notFound,
       },
@@ -1005,7 +1321,10 @@ export const endpointsData: OpenApiPaths = {
         '201': jsonResp('Báo cáo đã ghi nhận', {
           type: 'object',
           required: ['reportId', 'status'],
-          properties: { reportId: { type: 'string', format: 'uuid' }, status: { type: 'string' } },
+          properties: {
+            reportId: { type: 'string', format: 'uuid' },
+            status: { type: 'string' },
+          },
         }),
         '400': standardErrors.badRequest,
         '401': standardErrors.unauthorized,
@@ -1020,8 +1339,17 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Tra cứu từ vựng và ngữ pháp trong từ điển có bản quyền',
       tags: ['Dictionary'],
       parameters: [
-        { name: 'text', in: 'query', required: true, schema: { type: 'string' } },
-        { name: 'locale', in: 'query', schema: { type: 'string', default: 'vi' } },
+        {
+          name: 'text',
+          in: 'query',
+          required: true,
+          schema: { type: 'string' },
+        },
+        {
+          name: 'locale',
+          in: 'query',
+          schema: { type: 'string', default: 'vi' },
+        },
       ],
       responses: {
         '200': jsonResp('Kết quả tra từ điển', {
@@ -1031,6 +1359,10 @@ export const endpointsData: OpenApiPaths = {
             entry: { type: 'string' },
             readings: { type: 'array', items: { type: 'string' } },
             meanings: { type: 'array', items: { type: 'string' } },
+            meaningSections: {
+              type: 'array',
+              items: { $ref: '#/components/schemas/DictionaryMeaningSection' },
+            },
             examples: { type: 'array', items: { type: 'string' } },
             license: { type: 'string' },
           },
@@ -1047,7 +1379,11 @@ export const endpointsData: OpenApiPaths = {
       tags: ['Notebook'],
       parameters: [
         { name: 'cursor', in: 'query', schema: { type: 'string' } },
-        { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
+        {
+          name: 'limit',
+          in: 'query',
+          schema: { type: 'integer', default: 20 },
+        },
       ],
       responses: {
         '200': jsonResp('Danh sách mục sổ tay', {
@@ -1059,7 +1395,12 @@ export const endpointsData: OpenApiPaths = {
               items: {
                 type: 'object',
                 required: ['id', 'kind', 'term', 'version'],
-                properties: { id: { type: 'string', format: 'uuid' }, kind: { type: 'string' }, term: { type: 'string' }, version: { type: 'integer' } },
+                properties: {
+                  id: { type: 'string', format: 'uuid' },
+                  kind: { type: 'string' },
+                  term: { type: 'string' },
+                  version: { type: 'integer' },
+                },
               },
             },
             nextCursor: { type: ['string', 'null'] },
@@ -1093,7 +1434,10 @@ export const endpointsData: OpenApiPaths = {
         '201': jsonResp('Mục sổ tay đã tạo', {
           type: 'object',
           required: ['id', 'kind'],
-          properties: { id: { type: 'string', format: 'uuid' }, kind: { type: 'string' } },
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            kind: { type: 'string' },
+          },
         }),
         '400': standardErrors.badRequest,
         '401': standardErrors.unauthorized,
@@ -1106,20 +1450,33 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'updateNotebookItem',
       summary: 'Cập nhật mục sổ tay (đã thành thạo, gắn nhãn)',
       tags: ['Notebook'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
           'application/json': {
             schema: {
               type: 'object',
-              properties: { mastered: { type: 'boolean' }, tags: { type: 'array', items: { type: 'string' } } },
+              properties: {
+                mastered: { type: 'boolean' },
+                tags: { type: 'array', items: { type: 'string' } },
+              },
             },
           },
         },
       },
       responses: {
-        '200': jsonResp('Đã cập nhật', { type: 'object', properties: { updated: { type: 'boolean' } } }),
+        '200': jsonResp('Đã cập nhật', {
+          type: 'object',
+          properties: { updated: { type: 'boolean' } },
+        }),
         '401': standardErrors.unauthorized,
         '404': standardErrors.notFound,
       },
@@ -1128,7 +1485,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'deleteNotebookItem',
       summary: 'Xóa mục khỏi sổ tay',
       tags: ['Notebook'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '204': emptyResp('Đã xóa'),
         '401': standardErrors.unauthorized,
@@ -1141,7 +1505,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'createCardFromNotebookItem',
       summary: 'Tạo thẻ ôn tập SRS từ mục trong sổ tay',
       tags: ['SRS'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         content: {
           'application/json': {
@@ -1169,8 +1540,16 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Lấy danh sách thẻ SRS đến hạn ôn tập hôm nay',
       tags: ['SRS'],
       parameters: [
-        { name: 'timezone', in: 'query', schema: { type: 'string', default: 'Asia/Ho_Chi_Minh' } },
-        { name: 'limit', in: 'query', schema: { type: 'integer', default: 50 } },
+        {
+          name: 'timezone',
+          in: 'query',
+          schema: { type: 'string', default: 'Asia/Ho_Chi_Minh' },
+        },
+        {
+          name: 'limit',
+          in: 'query',
+          schema: { type: 'integer', default: 50 },
+        },
       ],
       responses: {
         '200': jsonResp('Danh sách thẻ cần ôn', {
@@ -1205,7 +1584,9 @@ export const endpointsData: OpenApiPaths = {
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/CardReview' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/CardReview' },
+          },
         },
       },
       responses: {
@@ -1237,7 +1618,10 @@ export const endpointsData: OpenApiPaths = {
             schema: {
               type: 'object',
               required: ['count'],
-              properties: { count: { type: 'integer', minimum: 5, maximum: 50 }, tags: { type: 'array', items: { type: 'string' } } },
+              properties: {
+                count: { type: 'integer', minimum: 5, maximum: 50 },
+                tags: { type: 'array', items: { type: 'string' } },
+              },
             },
           },
         },
@@ -1246,7 +1630,10 @@ export const endpointsData: OpenApiPaths = {
         '201': jsonResp('Quiz đã tạo', {
           type: 'object',
           required: ['quizId', 'totalQuestions'],
-          properties: { quizId: { type: 'string', format: 'uuid' }, totalQuestions: { type: 'integer' } },
+          properties: {
+            quizId: { type: 'string', format: 'uuid' },
+            totalQuestions: { type: 'integer' },
+          },
         }),
         '401': standardErrors.unauthorized,
       },
@@ -1261,11 +1648,15 @@ export const endpointsData: OpenApiPaths = {
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/ExportRequest' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ExportRequest' },
+          },
         },
       },
       responses: {
-        '202': jsonResp('Tiến trình xuất đã khởi tạo', { $ref: '#/components/schemas/AsyncJob' }),
+        '202': jsonResp('Tiến trình xuất đã khởi tạo', {
+          $ref: '#/components/schemas/AsyncJob',
+        }),
         '401': standardErrors.unauthorized,
       },
     },
@@ -1286,7 +1677,11 @@ export const endpointsData: OpenApiPaths = {
               items: {
                 type: 'object',
                 required: ['id', 'version', 'active'],
-                properties: { id: { type: 'string', format: 'uuid' }, version: { type: 'integer' }, active: { type: 'boolean' } },
+                properties: {
+                  id: { type: 'string', format: 'uuid' },
+                  version: { type: 'integer' },
+                  active: { type: 'boolean' },
+                },
               },
             },
           },
@@ -1301,14 +1696,19 @@ export const endpointsData: OpenApiPaths = {
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/StudyPlanConfig' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/StudyPlanConfig' },
+          },
         },
       },
       responses: {
         '201': jsonResp('Kế hoạch đã lập', {
           type: 'object',
           required: ['planId', 'version'],
-          properties: { planId: { type: 'string', format: 'uuid' }, version: { type: 'integer' } },
+          properties: {
+            planId: { type: 'string', format: 'uuid' },
+            version: { type: 'integer' },
+          },
         }),
         '400': standardErrors.badRequest,
         '401': standardErrors.unauthorized,
@@ -1321,20 +1721,33 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'updateStudyPlan',
       summary: 'Cập nhật mục tiêu kế hoạch học tập',
       tags: ['Planner'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
           'application/json': {
             schema: {
               type: 'object',
-              properties: { minutesPerDay: { type: 'integer' }, daysOff: { type: 'array', items: { type: 'integer' } } },
+              properties: {
+                minutesPerDay: { type: 'integer' },
+                daysOff: { type: 'array', items: { type: 'integer' } },
+              },
             },
           },
         },
       },
       responses: {
-        '200': jsonResp('Đã cập nhật', { type: 'object', properties: { updated: { type: 'boolean' } } }),
+        '200': jsonResp('Đã cập nhật', {
+          type: 'object',
+          properties: { updated: { type: 'boolean' } },
+        }),
         '401': standardErrors.unauthorized,
       },
     },
@@ -1345,7 +1758,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'replanStudyPlan',
       summary: 'Tái lập lịch học khi bị lỡ buổi (sinh phiên bản kế hoạch mới)',
       tags: ['Planner'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
@@ -1362,7 +1782,10 @@ export const endpointsData: OpenApiPaths = {
         '201': jsonResp('Kế hoạch mới đã tái lập', {
           type: 'object',
           required: ['newPlanId', 'version'],
-          properties: { newPlanId: { type: 'string', format: 'uuid' }, version: { type: 'integer' } },
+          properties: {
+            newPlanId: { type: 'string', format: 'uuid' },
+            version: { type: 'integer' },
+          },
         }),
         '401': standardErrors.unauthorized,
       },
@@ -1374,7 +1797,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'completeStudySession',
       summary: 'Đánh dấu hoàn thành buổi học (tính chuỗi streak)',
       tags: ['Planner'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
@@ -1394,7 +1824,10 @@ export const endpointsData: OpenApiPaths = {
         '200': jsonResp('Buổi học đã hoàn thành', {
           type: 'object',
           required: ['completed', 'streakCount'],
-          properties: { completed: { type: 'boolean' }, streakCount: { type: 'integer' } },
+          properties: {
+            completed: { type: 'boolean' },
+            streakCount: { type: 'integer' },
+          },
         }),
         '401': standardErrors.unauthorized,
       },
@@ -1407,9 +1840,23 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Báo cáo tiến độ phân tích chi tiết theo kỹ năng và dạng câu',
       tags: ['Learning'],
       parameters: [
-        { name: 'from', in: 'query', required: true, schema: { type: 'string', format: 'date-time' } },
-        { name: 'to', in: 'query', required: true, schema: { type: 'string', format: 'date-time' } },
-        { name: 'timezone', in: 'query', schema: { type: 'string', default: 'Asia/Ho_Chi_Minh' } },
+        {
+          name: 'from',
+          in: 'query',
+          required: true,
+          schema: { type: 'string', format: 'date-time' },
+        },
+        {
+          name: 'to',
+          in: 'query',
+          required: true,
+          schema: { type: 'string', format: 'date-time' },
+        },
+        {
+          name: 'timezone',
+          in: 'query',
+          schema: { type: 'string', default: 'Asia/Ho_Chi_Minh' },
+        },
       ],
       responses: {
         '200': jsonResp('Báo cáo học tập', {
@@ -1441,7 +1888,12 @@ export const endpointsData: OpenApiPaths = {
               items: {
                 type: 'object',
                 required: ['id', 'name', 'version', 'totalWords'],
-                properties: { id: { type: 'string' }, name: { type: 'string' }, version: { type: 'string' }, totalWords: { type: 'integer' } },
+                properties: {
+                  id: { type: 'string' },
+                  name: { type: 'string' },
+                  version: { type: 'string' },
+                  totalWords: { type: 'integer' },
+                },
               },
             },
           },
@@ -1462,7 +1914,11 @@ export const endpointsData: OpenApiPaths = {
         '200': jsonResp('Chi tiết ngữ liệu', {
           type: 'object',
           required: ['id', 'name', 'license'],
-          properties: { id: { type: 'string' }, name: { type: 'string' }, license: { type: 'string' } },
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+            license: { type: 'string' },
+          },
         }),
         '404': standardErrors.notFound,
       },
@@ -1533,13 +1989,21 @@ export const endpointsData: OpenApiPaths = {
       tags: ['Corpus'],
       parameters: [
         { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
-        { name: 'entryId', in: 'path', required: true, schema: { type: 'string' } },
+        {
+          name: 'entryId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+        },
       ],
       responses: {
         '200': jsonResp('Chi tiết mục ngữ liệu', {
           type: 'object',
           required: ['entryId', 'occurrences'],
-          properties: { entryId: { type: 'string' }, occurrences: { type: 'integer' } },
+          properties: {
+            entryId: { type: 'string' },
+            occurrences: { type: 'integer' },
+          },
         }),
         '404': standardErrors.notFound,
       },
@@ -1551,7 +2015,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'getDatasetGaps',
       summary: 'Phát hiện từ vựng tần suất cao mà học viên chưa thành thạo',
       tags: ['Learning'],
-      parameters: [{ name: 'datasetId', in: 'query', required: true, schema: { type: 'string' } }],
+      parameters: [
+        {
+          name: 'datasetId',
+          in: 'query',
+          required: true,
+          schema: { type: 'string' },
+        },
+      ],
       responses: {
         '200': jsonResp('Danh sách từ cần bổ sung', {
           type: 'object',
@@ -1572,11 +2043,15 @@ export const endpointsData: OpenApiPaths = {
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/ExportRequest' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ExportRequest' },
+          },
         },
       },
       responses: {
-        '202': jsonResp('Export job queued', { $ref: '#/components/schemas/AsyncJob' }),
+        '202': jsonResp('Export job queued', {
+          $ref: '#/components/schemas/AsyncJob',
+        }),
         '401': standardErrors.unauthorized,
       },
     },
@@ -1594,7 +2069,11 @@ export const endpointsData: OpenApiPaths = {
             schema: {
               type: 'object',
               required: ['text', 'locale'],
-              properties: { text: { type: 'string' }, locale: { type: 'string', default: 'ja-JP' }, voice: { type: 'string' } },
+              properties: {
+                text: { type: 'string' },
+                locale: { type: 'string', default: 'ja-JP' },
+                voice: { type: 'string' },
+              },
             },
           },
         },
@@ -1603,7 +2082,10 @@ export const endpointsData: OpenApiPaths = {
         '200': jsonResp('Âm thanh đã sinh', {
           type: 'object',
           required: ['audioUrl', 'durationMs'],
-          properties: { audioUrl: { type: 'string', format: 'uri' }, durationMs: { type: 'integer' } },
+          properties: {
+            audioUrl: { type: 'string', format: 'uri' },
+            durationMs: { type: 'integer' },
+          },
         }),
         '401': standardErrors.unauthorized,
         '429': createErrorResponse('Quota exhausted', 'QUOTA_EXHAUSTED', 'Đã hết hạn mức TTS.'),
@@ -1619,11 +2101,15 @@ export const endpointsData: OpenApiPaths = {
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/AIRequest' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/AIRequest' },
+          },
         },
       },
       responses: {
-        '202': jsonResp('Yêu cầu AI đã nhận xử lý', { $ref: '#/components/schemas/AsyncJob' }),
+        '202': jsonResp('Yêu cầu AI đã nhận xử lý', {
+          $ref: '#/components/schemas/AsyncJob',
+        }),
         '400': standardErrors.badRequest,
         '401': standardErrors.unauthorized,
         '403': createErrorResponse('AI forbidden in active real attempt', 'FORBIDDEN', 'Cấm AI trong khi đang làm bài thi thật.'),
@@ -1637,12 +2123,23 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'getAIRequestStatus',
       summary: 'Xem kết quả hoặc tiến độ yêu cầu AI',
       tags: ['AI'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Trạng thái yêu cầu AI', {
           type: 'object',
           required: ['id', 'status'],
-          properties: { id: { type: 'string', format: 'uuid' }, status: { type: 'string' }, response: { type: 'string' } },
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            status: { type: 'string' },
+            response: { type: 'string' },
+          },
         }),
         '401': standardErrors.unauthorized,
         '404': standardErrors.notFound,
@@ -1652,9 +2149,19 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'cancelAIRequest',
       summary: 'Hủy yêu cầu AI đang xử lý (hoàn lại hạn mức)',
       tags: ['AI'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
-        '200': jsonResp('Đã hủy', { type: 'object', properties: { cancelled: { type: 'boolean' } } }),
+        '200': jsonResp('Đã hủy', {
+          type: 'object',
+          properties: { cancelled: { type: 'boolean' } },
+        }),
         '401': standardErrors.unauthorized,
       },
     },
@@ -1669,7 +2176,11 @@ export const endpointsData: OpenApiPaths = {
         '200': jsonResp('Hạn mức AI', {
           type: 'object',
           required: ['used', 'limit', 'resetAt'],
-          properties: { used: { type: 'integer' }, limit: { type: 'integer' }, resetAt: { type: 'string', format: 'date-time' } },
+          properties: {
+            used: { type: 'integer' },
+            limit: { type: 'integer' },
+            resetAt: { type: 'string', format: 'date-time' },
+          },
         }),
         '401': standardErrors.unauthorized,
       },
@@ -1691,7 +2202,12 @@ export const endpointsData: OpenApiPaths = {
               items: {
                 type: 'object',
                 required: ['id', 'name', 'priceMinor', 'currency'],
-                properties: { id: { type: 'string' }, name: { type: 'string' }, priceMinor: { type: 'integer' }, currency: { type: 'string' } },
+                properties: {
+                  id: { type: 'string' },
+                  name: { type: 'string' },
+                  priceMinor: { type: 'integer' },
+                  currency: { type: 'string' },
+                },
               },
             },
           },
@@ -1710,14 +2226,19 @@ export const endpointsData: OpenApiPaths = {
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/PaymentCreate' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/PaymentCreate' },
+          },
         },
       },
       responses: {
         '201': jsonResp('Phiên thanh toán đã tạo', {
           type: 'object',
           required: ['orderId', 'checkoutUrl'],
-          properties: { orderId: { type: 'string', format: 'uuid' }, checkoutUrl: { type: 'string', format: 'uri' } },
+          properties: {
+            orderId: { type: 'string', format: 'uuid' },
+            checkoutUrl: { type: 'string', format: 'uri' },
+          },
         }),
         '400': standardErrors.badRequest,
         '401': standardErrors.unauthorized,
@@ -1736,7 +2257,10 @@ export const endpointsData: OpenApiPaths = {
           required: ['status'],
           properties: {
             planId: { type: 'string' },
-            status: { type: 'string', enum: ['none', 'active', 'past_due', 'cancelled', 'expired'] },
+            status: {
+              type: 'string',
+              enum: ['none', 'active', 'past_due', 'cancelled', 'expired'],
+            },
             expiresAt: { type: ['string', 'null'], format: 'date-time' },
           },
         }),
@@ -1845,7 +2369,10 @@ export const endpointsData: OpenApiPaths = {
             schema: {
               type: 'object',
               required: ['transactionId', 'reason'],
-              properties: { transactionId: { type: 'string', format: 'uuid' }, reason: { type: 'string' } },
+              properties: {
+                transactionId: { type: 'string', format: 'uuid' },
+                reason: { type: 'string' },
+              },
             },
           },
         },
@@ -1854,7 +2381,10 @@ export const endpointsData: OpenApiPaths = {
         '201': jsonResp('Yêu cầu hoàn tiền đã ghi nhận', {
           type: 'object',
           required: ['refundId', 'status'],
-          properties: { refundId: { type: 'string', format: 'uuid' }, status: { type: 'string' } },
+          properties: {
+            refundId: { type: 'string', format: 'uuid' },
+            status: { type: 'string' },
+          },
         }),
         '400': standardErrors.badRequest,
         '401': standardErrors.unauthorized,
@@ -1867,7 +2397,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'handlePaymentWebhook',
       summary: 'Nhận webhook thanh toán từ cổng thanh toán đối tác (chữ ký số)',
       tags: ['Billing'],
-      parameters: [{ name: 'provider', in: 'path', required: true, schema: { type: 'string' } }],
+      parameters: [
+        {
+          name: 'provider',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+        },
+      ],
       responses: {
         '200': jsonResp('Webhook đã xử lý', {
           type: 'object',
@@ -1894,7 +2431,11 @@ export const endpointsData: OpenApiPaths = {
               items: {
                 type: 'object',
                 required: ['entitlement', 'active'],
-                properties: { entitlement: { type: 'string' }, active: { type: 'boolean' }, expiresAt: { type: ['string', 'null'] } },
+                properties: {
+                  entitlement: { type: 'string' },
+                  active: { type: 'boolean' },
+                  expiresAt: { type: ['string', 'null'] },
+                },
               },
             },
           },
@@ -1916,7 +2457,10 @@ export const endpointsData: OpenApiPaths = {
             schema: {
               type: 'object',
               required: ['intro'],
-              properties: { intro: { type: 'string' }, organizationName: { type: 'string' } },
+              properties: {
+                intro: { type: 'string' },
+                organizationName: { type: 'string' },
+              },
             },
           },
         },
@@ -1925,7 +2469,10 @@ export const endpointsData: OpenApiPaths = {
         '201': jsonResp('Đơn đăng ký đã gửi', {
           type: 'object',
           required: ['applicationId', 'status'],
-          properties: { applicationId: { type: 'string', format: 'uuid' }, status: { type: 'string' } },
+          properties: {
+            applicationId: { type: 'string', format: 'uuid' },
+            status: { type: 'string' },
+          },
         }),
         '401': standardErrors.unauthorized,
       },
@@ -1966,7 +2513,10 @@ export const endpointsData: OpenApiPaths = {
         '201': jsonResp('Tổ chức đã tạo', {
           type: 'object',
           required: ['id', 'name'],
-          properties: { id: { type: 'string', format: 'uuid' }, name: { type: 'string' } },
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            name: { type: 'string' },
+          },
         }),
         '401': standardErrors.unauthorized,
       },
@@ -1978,12 +2528,22 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'getOrganization',
       summary: 'Chi tiết tổ chức',
       tags: ['Classroom'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Chi tiết tổ chức', {
           type: 'object',
           required: ['id', 'name'],
-          properties: { id: { type: 'string', format: 'uuid' }, name: { type: 'string' } },
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            name: { type: 'string' },
+          },
         }),
         '401': standardErrors.unauthorized,
         '404': standardErrors.notFound,
@@ -1993,17 +2553,30 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'updateOrganization',
       summary: 'Cập nhật thông tin tổ chức (chỉ quản lý)',
       tags: ['Classroom'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
           'application/json': {
-            schema: { type: 'object', properties: { name: { type: 'string' } } },
+            schema: {
+              type: 'object',
+              properties: { name: { type: 'string' } },
+            },
           },
         },
       },
       responses: {
-        '200': jsonResp('Đã cập nhật tổ chức', { type: 'object', properties: { updated: { type: 'boolean' } } }),
+        '200': jsonResp('Đã cập nhật tổ chức', {
+          type: 'object',
+          properties: { updated: { type: 'boolean' } },
+        }),
         '401': standardErrors.unauthorized,
         '403': standardErrors.forbidden,
       },
@@ -2015,7 +2588,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'listOrganizationClasses',
       summary: 'Danh sách lớp học trong tổ chức',
       tags: ['Classroom'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Danh sách lớp', {
           type: 'object',
@@ -2029,7 +2609,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'createClass',
       summary: 'Tạo lớp học mới trong tổ chức',
       tags: ['Classroom'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
@@ -2037,7 +2624,10 @@ export const endpointsData: OpenApiPaths = {
             schema: {
               type: 'object',
               required: ['name', 'level'],
-              properties: { name: { type: 'string' }, level: { type: 'string' } },
+              properties: {
+                name: { type: 'string' },
+                level: { type: 'string' },
+              },
             },
           },
         },
@@ -2058,13 +2648,23 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'createClassInvitation',
       summary: 'Tạo mã mời học viên tham gia lớp',
       tags: ['Classroom'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         content: {
           'application/json': {
             schema: {
               type: 'object',
-              properties: { expiresAt: { type: 'string', format: 'date-time' }, maxUses: { type: 'integer' } },
+              properties: {
+                expiresAt: { type: 'string', format: 'date-time' },
+                maxUses: { type: 'integer' },
+              },
             },
           },
         },
@@ -2085,12 +2685,22 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'joinClassByInvitation',
       summary: 'Học viên tham gia lớp học qua mã mời (idempotent)',
       tags: ['Classroom'],
-      parameters: [{ name: 'token', in: 'path', required: true, schema: { type: 'string' } }],
+      parameters: [
+        {
+          name: 'token',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+        },
+      ],
       responses: {
         '200': jsonResp('Đã tham gia lớp', {
           type: 'object',
           required: ['success', 'classId'],
-          properties: { success: { type: 'boolean' }, classId: { type: 'string', format: 'uuid' } },
+          properties: {
+            success: { type: 'boolean' },
+            classId: { type: 'string', format: 'uuid' },
+          },
         }),
         '401': standardErrors.unauthorized,
         '404': standardErrors.notFound,
@@ -2103,7 +2713,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'listClassMembers',
       summary: 'Danh sách thành viên trong lớp học',
       tags: ['Classroom'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Danh sách thành viên', {
           type: 'object',
@@ -2121,8 +2738,18 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Rời lớp hoặc giáo viên xóa học viên khỏi lớp',
       tags: ['Classroom'],
       parameters: [
-        { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
-        { name: 'userId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+        {
+          name: 'userId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
       ],
       responses: {
         '204': emptyResp('Đã xóa thành viên'),
@@ -2136,18 +2763,30 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'createClassAssignment',
       summary: 'Giáo viên giao bài tập hoặc bài kiểm tra cho lớp',
       tags: ['Classroom'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/AssignmentCreate' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/AssignmentCreate' },
+          },
         },
       },
       responses: {
         '201': jsonResp('Bài tập đã giao', {
           type: 'object',
           required: ['assignmentId', 'dueAt'],
-          properties: { assignmentId: { type: 'string', format: 'uuid' }, dueAt: { type: 'string', format: 'date-time' } },
+          properties: {
+            assignmentId: { type: 'string', format: 'uuid' },
+            dueAt: { type: 'string', format: 'date-time' },
+          },
         }),
         '401': standardErrors.unauthorized,
       },
@@ -2159,12 +2798,22 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'getAssignment',
       summary: 'Xem chi tiết bài tập được giao',
       tags: ['Classroom'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Chi tiết bài tập', {
           type: 'object',
           required: ['id', 'dueAt'],
-          properties: { id: { type: 'string', format: 'uuid' }, dueAt: { type: 'string', format: 'date-time' } },
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            dueAt: { type: 'string', format: 'date-time' },
+          },
         }),
         '401': standardErrors.unauthorized,
       },
@@ -2176,7 +2825,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'listAssignmentSubmissions',
       summary: 'Danh sách bài nộp của học viên trong bài tập được giao',
       tags: ['Classroom'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Danh sách bài nộp', {
           type: 'object',
@@ -2193,12 +2849,22 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'getAssignmentAnalytics',
       summary: 'Báo cáo phân tích kết quả bài tập theo lớp và từng nhóm câu hỏi',
       tags: ['Classroom'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Phân tích kết quả lớp', {
           type: 'object',
           required: ['averageScore', 'completionRate'],
-          properties: { averageScore: { type: 'number' }, completionRate: { type: 'number' } },
+          properties: {
+            averageScore: { type: 'number' },
+            completionRate: { type: 'number' },
+          },
         }),
         '401': standardErrors.unauthorized,
       },
@@ -2210,7 +2876,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'createSupplementAssignment',
       summary: 'Giao bài tập bổ trợ cho nhóm học viên điểm yếu',
       tags: ['Classroom'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
@@ -2218,7 +2891,12 @@ export const endpointsData: OpenApiPaths = {
             schema: {
               type: 'object',
               required: ['learnerIds'],
-              properties: { learnerIds: { type: 'array', items: { type: 'string', format: 'uuid' } } },
+              properties: {
+                learnerIds: {
+                  type: 'array',
+                  items: { type: 'string', format: 'uuid' },
+                },
+              },
             },
           },
         },
@@ -2239,15 +2917,26 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'exportClassGrades',
       summary: 'Xuất bảng điểm lớp học ra file CSV/Excel',
       tags: ['Classroom'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/ExportRequest' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ExportRequest' },
+          },
         },
       },
       responses: {
-        '202': jsonResp('Tiến trình xuất bảng điểm đã nhận', { $ref: '#/components/schemas/AsyncJob' }),
+        '202': jsonResp('Tiến trình xuất bảng điểm đã nhận', {
+          $ref: '#/components/schemas/AsyncJob',
+        }),
         '401': standardErrors.unauthorized,
       },
     },
@@ -2275,14 +2964,19 @@ export const endpointsData: OpenApiPaths = {
       requestBody: {
         required: true,
         content: {
-          'application/json': { schema: { $ref: '#/components/schemas/EventCreate' } },
+          'application/json': {
+            schema: { $ref: '#/components/schemas/EventCreate' },
+          },
         },
       },
       responses: {
         '201': jsonResp('Sự kiện thi đã tạo', {
           type: 'object',
           required: ['eventId', 'startsAt'],
-          properties: { eventId: { type: 'string', format: 'uuid' }, startsAt: { type: 'string', format: 'date-time' } },
+          properties: {
+            eventId: { type: 'string', format: 'uuid' },
+            startsAt: { type: 'string', format: 'date-time' },
+          },
         }),
         '401': standardErrors.unauthorized,
         '403': standardErrors.forbidden,
@@ -2295,12 +2989,23 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'getExamEvent',
       summary: 'Chi tiết sự kiện thi đồng loạt',
       tags: ['Events'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Chi tiết sự kiện', {
           type: 'object',
           required: ['id', 'startsAt', 'endsAt'],
-          properties: { id: { type: 'string', format: 'uuid' }, startsAt: { type: 'string', format: 'date-time' }, endsAt: { type: 'string', format: 'date-time' } },
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            startsAt: { type: 'string', format: 'date-time' },
+            endsAt: { type: 'string', format: 'date-time' },
+          },
         }),
         '404': standardErrors.notFound,
       },
@@ -2312,7 +3017,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'registerExamEvent',
       summary: 'Đăng ký tham gia kỳ thi đồng loạt (nguyên tử kiểm tra sức chứa)',
       tags: ['Events'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '201': jsonResp('Đăng ký thành công', {
           type: 'object',
@@ -2330,7 +3042,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'getExamEventLobby',
       summary: 'Phòng chờ thi đồng loạt (đồng bộ giờ server, chưa lộ đề thi trước giờ)',
       tags: ['Events'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Thông tin phòng chờ', {
           type: 'object',
@@ -2351,9 +3070,18 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'startExamEventAttempt',
       summary: 'Bắt đầu làm bài thi sự kiện trong khung giờ quy định',
       tags: ['Events'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
-        '201': jsonResp('Khởi tạo bài thi sự kiện thành công', { $ref: '#/components/schemas/AttemptInitResponse' }),
+        '201': jsonResp('Khởi tạo bài thi sự kiện thành công', {
+          $ref: '#/components/schemas/AttemptInitResponse',
+        }),
         '401': standardErrors.unauthorized,
         '409': createErrorResponse('Event not started yet', 'EVENT_NOT_STARTED', 'Sự kiện thi chưa tới giờ bắt đầu.'),
       },
@@ -2365,7 +3093,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'getExamEventResults',
       summary: 'Bảng xếp hạng và kết quả sự kiện thi (chỉ trả về sau thời điểm công bố)',
       tags: ['Events'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Kết quả sự kiện thi', {
           type: 'object',
@@ -2403,7 +3138,10 @@ export const endpointsData: OpenApiPaths = {
         '200': jsonResp('Chuỗi học tập streak', {
           type: 'object',
           required: ['currentStreak', 'longestStreak'],
-          properties: { currentStreak: { type: 'integer' }, longestStreak: { type: 'integer' } },
+          properties: {
+            currentStreak: { type: 'integer' },
+            longestStreak: { type: 'integer' },
+          },
         }),
         '401': standardErrors.unauthorized,
       },
@@ -2432,7 +3170,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'joinChallenge',
       summary: 'Tham gia thử thách học tập',
       tags: ['Gamification'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Đã tham gia thử thách', {
           type: 'object',
@@ -2450,7 +3195,11 @@ export const endpointsData: OpenApiPaths = {
       tags: ['Gamification'],
       parameters: [
         { name: 'level', in: 'query', schema: { type: 'string' } },
-        { name: 'period', in: 'query', schema: { type: 'string', enum: ['weekly', 'monthly', 'all_time'] } },
+        {
+          name: 'period',
+          in: 'query',
+          schema: { type: 'string', enum: ['weekly', 'monthly', 'all_time'] },
+        },
       ],
       responses: {
         '200': jsonResp('Bảng xếp hạng', {
@@ -2497,7 +3246,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'listQuestionDiscussions',
       summary: 'Xem thảo luận và bình luận về câu hỏi (chỉ khi đề đã thi xong và công bố)',
       tags: ['Community'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Danh sách thảo luận', {
           type: 'object',
@@ -2511,7 +3267,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'postQuestionComment',
       summary: 'Đăng bình luận hỏi đáp về câu hỏi',
       tags: ['Community'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
@@ -2541,7 +3304,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'reportComment',
       summary: 'Báo cáo bình luận vi phạm',
       tags: ['Community'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
@@ -2569,7 +3339,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'deleteComment',
       summary: 'Xóa bình luận của mình hoặc do điều hành viên xóa',
       tags: ['Community'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '204': emptyResp('Đã xóa bình luận'),
         '401': standardErrors.unauthorized,
@@ -2598,12 +3375,22 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'getArticleBySlug',
       summary: 'Chi tiết bài viết',
       tags: ['CMS'],
-      parameters: [{ name: 'slug', in: 'path', required: true, schema: { type: 'string' } }],
+      parameters: [
+        {
+          name: 'slug',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+        },
+      ],
       responses: {
         '200': jsonResp('Nội dung bài viết', {
           type: 'object',
           required: ['title', 'content'],
-          properties: { title: { type: 'string' }, content: { type: 'string' } },
+          properties: {
+            title: { type: 'string' },
+            content: { type: 'string' },
+          },
         }),
         '404': standardErrors.notFound,
       },
@@ -2615,9 +3402,19 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'getLandingPage',
       summary: 'Dữ liệu landing page marketing',
       tags: ['CMS'],
-      parameters: [{ name: 'slug', in: 'path', required: true, schema: { type: 'string' } }],
+      parameters: [
+        {
+          name: 'slug',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+        },
+      ],
       responses: {
-        '200': jsonResp('Landing page content', { type: 'object', properties: { title: { type: 'string' } } }),
+        '200': jsonResp('Landing page content', {
+          type: 'object',
+          properties: { title: { type: 'string' } },
+        }),
         '404': standardErrors.notFound,
       },
     },
@@ -2663,7 +3460,9 @@ export const endpointsData: OpenApiPaths = {
             schema: {
               type: 'object',
               required: ['events'],
-              properties: { events: { type: 'array', items: { type: 'object' } } },
+              properties: {
+                events: { type: 'array', items: { type: 'object' } },
+              },
             },
           },
         },
@@ -2700,7 +3499,10 @@ export const endpointsData: OpenApiPaths = {
       tags: ['Internal'],
       parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
       responses: {
-        '200': jsonResp('Callback acknowledged', { type: 'object', properties: { ack: { type: 'boolean' } } }),
+        '200': jsonResp('Callback acknowledged', {
+          type: 'object',
+          properties: { ack: { type: 'boolean' } },
+        }),
         '401': standardErrors.unauthorized,
         '403': standardErrors.forbidden,
       },
@@ -2714,7 +3516,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Quản trị danh sách nguồn đề thi',
       tags: ['Admin Content'],
       responses: {
-        '200': jsonResp('Danh sách nguồn', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách nguồn', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -2722,9 +3527,19 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminCreateSource',
       summary: 'Tạo nguồn đề thi mới',
       tags: ['Admin Content'],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/SourceCreateInput' } } } },
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/SourceCreateInput' },
+          },
+        },
+      },
       responses: {
-        '201': jsonResp('Đã tạo nguồn', { type: 'object', properties: { id: { type: 'string', format: 'uuid' } } }),
+        '201': jsonResp('Đã tạo nguồn', {
+          type: 'object',
+          properties: { id: { type: 'string', format: 'uuid' } },
+        }),
         ...adminCreateErrors,
       },
     },
@@ -2735,7 +3550,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminGetSource',
       summary: 'Chi tiết nguồn đề thi',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Chi tiết nguồn', { type: 'object' }),
         ...adminEntityErrors,
@@ -2745,10 +3567,27 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminUpdateSource',
       summary: 'Cập nhật thông tin nguồn đề',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/SourceUpdateInput' } } } },
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/SourceUpdateInput' },
+          },
+        },
+      },
       responses: {
-        '200': jsonResp('Đã cập nhật', { type: 'object', properties: { updated: { type: 'boolean' } } }),
+        '200': jsonResp('Đã cập nhật', {
+          type: 'object',
+          properties: { updated: { type: 'boolean' } },
+        }),
         ...adminMutationErrors,
       },
     },
@@ -2756,7 +3595,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminDeleteSource',
       summary: 'Xóa mềm nguồn đề',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '204': emptyResp('Đã xóa'),
         ...adminDeleteErrors,
@@ -2770,7 +3616,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Quản trị giấy phép bản quyền nguồn',
       tags: ['Admin Content'],
       responses: {
-        '200': jsonResp('Danh sách giấy phép', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách giấy phép', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -2778,9 +3627,19 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminCreateLicense',
       summary: 'Khai báo giấy phép bản quyền mới',
       tags: ['Admin Content'],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/LicenseCreateInput' } } } },
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/LicenseCreateInput' },
+          },
+        },
+      },
       responses: {
-        '201': jsonResp('Đã tạo giấy phép', { type: 'object', properties: { id: { type: 'string', format: 'uuid' } } }),
+        '201': jsonResp('Đã tạo giấy phép', {
+          type: 'object',
+          properties: { id: { type: 'string', format: 'uuid' } },
+        }),
         ...adminCreateErrors,
       },
     },
@@ -2791,7 +3650,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminGetLicense',
       summary: 'Chi tiết giấy phép',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Chi tiết giấy phép', { type: 'object' }),
         ...adminEntityErrors,
@@ -2801,10 +3667,27 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminUpdateLicense',
       summary: 'Cập nhật giấy phép',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/LicenseUpdateInput' } } } },
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/LicenseUpdateInput' },
+          },
+        },
+      },
       responses: {
-        '200': jsonResp('Đã cập nhật', { type: 'object', properties: { updated: { type: 'boolean' } } }),
+        '200': jsonResp('Đã cập nhật', {
+          type: 'object',
+          properties: { updated: { type: 'boolean' } },
+        }),
         ...adminMutationErrors,
       },
     },
@@ -2831,7 +3714,10 @@ export const endpointsData: OpenApiPaths = {
         '201': jsonResp('File media đã tải lên', {
           type: 'object',
           required: ['mediaKey', 'sha256'],
-          properties: { mediaKey: { type: 'string' }, sha256: { type: 'string' } },
+          properties: {
+            mediaKey: { type: 'string' },
+            sha256: { type: 'string' },
+          },
         }),
         ...adminCreateErrors,
       },
@@ -2857,7 +3743,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Danh sách nhóm câu hỏi ngân hàng',
       tags: ['Admin Content'],
       responses: {
-        '200': jsonResp('Danh sách nhóm câu hỏi', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách nhóm câu hỏi', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -2865,9 +3754,19 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminCreateGroup',
       summary: 'Soạn thảo nhóm câu hỏi mới (kèm đáp án và giải thích cho staff)',
       tags: ['Admin Content'],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/GroupDraft' } } } },
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/GroupDraft' },
+          },
+        },
+      },
       responses: {
-        '201': jsonResp('Nhóm câu hỏi đã tạo', { type: 'object', properties: { groupId: { type: 'string', format: 'uuid' } } }),
+        '201': jsonResp('Nhóm câu hỏi đã tạo', {
+          type: 'object',
+          properties: { groupId: { type: 'string', format: 'uuid' } },
+        }),
         ...adminCreateErrors,
       },
     },
@@ -2878,7 +3777,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminGetGroup',
       summary: 'Xem chi tiết nhóm câu hỏi',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Chi tiết nhóm câu hỏi', { type: 'object' }),
         ...adminEntityErrors,
@@ -2888,10 +3794,27 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminUpdateGroup',
       summary: 'Cập nhật nhóm câu hỏi',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/GroupDraftUpdate' } } } },
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/GroupDraftUpdate' },
+          },
+        },
+      },
       responses: {
-        '200': jsonResp('Đã cập nhật', { type: 'object', properties: { updated: { type: 'boolean' } } }),
+        '200': jsonResp('Đã cập nhật', {
+          type: 'object',
+          properties: { updated: { type: 'boolean' } },
+        }),
         ...adminMutationErrors,
       },
     },
@@ -2899,7 +3822,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminDeleteGroup',
       summary: 'Xóa mềm nhóm câu hỏi',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '204': emptyResp('Đã xóa nhóm câu hỏi'),
         ...adminDeleteErrors,
@@ -2912,9 +3842,19 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminSubmitGroupReview',
       summary: 'Gửi nhóm câu hỏi lên hàng đợi duyệt',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
-        '200': jsonResp('Đã gửi duyệt', { type: 'object', properties: { status: { type: 'string' } } }),
+        '200': jsonResp('Đã gửi duyệt', {
+          type: 'object',
+          properties: { status: { type: 'string' } },
+        }),
         ...adminMutationErrors,
       },
     },
@@ -2925,7 +3865,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminReviewGroup',
       summary: 'Phê duyệt hoặc từ chối nhóm câu hỏi (người duyệt khác người soạn)',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
@@ -2933,13 +3880,19 @@ export const endpointsData: OpenApiPaths = {
             schema: {
               type: 'object',
               required: ['decision'],
-              properties: { decision: { type: 'string', enum: ['approved', 'rejected'] }, comment: { type: 'string' } },
+              properties: {
+                decision: { type: 'string', enum: ['approved', 'rejected'] },
+                comment: { type: 'string' },
+              },
             },
           },
         },
       },
       responses: {
-        '200': jsonResp('Đã duyệt nhóm câu hỏi', { type: 'object', properties: { approved: { type: 'boolean' } } }),
+        '200': jsonResp('Đã duyệt nhóm câu hỏi', {
+          type: 'object',
+          properties: { approved: { type: 'boolean' } },
+        }),
         ...adminMutationErrors,
       },
     },
@@ -2950,9 +3903,19 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminHideGroup',
       summary: 'Ẩn nhóm câu hỏi khỏi các đề tạo trong tương lai',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
-        '200': jsonResp('Đã ẩn', { type: 'object', properties: { hidden: { type: 'boolean' } } }),
+        '200': jsonResp('Đã ẩn', {
+          type: 'object',
+          properties: { hidden: { type: 'boolean' } },
+        }),
         ...adminMutationErrors,
       },
     },
@@ -2963,9 +3926,19 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminListGroupVersions',
       summary: 'Lịch sử các phiên bản bất biến của nhóm câu hỏi',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
-        '200': jsonResp('Lịch sử phiên bản', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Lịch sử phiên bản', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminEntityErrors,
       },
     },
@@ -2977,7 +3950,9 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Quét câu hỏi trùng lặp hoặc tương tự trong ngân hàng',
       tags: ['Admin Content'],
       responses: {
-        '202': jsonResp('Tiến trình quét đã chạy', { $ref: '#/components/schemas/AsyncJob' }),
+        '202': jsonResp('Tiến trình quét đã chạy', {
+          $ref: '#/components/schemas/AsyncJob',
+        }),
         ...adminCreateErrors,
       },
     },
@@ -2988,9 +3963,19 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminResolveDuplicate',
       summary: 'Xử lý cặp câu hỏi nghi trùng lặp',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
-        '200': jsonResp('Đã xử lý', { type: 'object', properties: { resolved: { type: 'boolean' } } }),
+        '200': jsonResp('Đã xử lý', {
+          type: 'object',
+          properties: { resolved: { type: 'boolean' } },
+        }),
         ...adminMutationErrors,
       },
     },
@@ -3002,7 +3987,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Danh sách blueprint chính thức',
       tags: ['Admin Content'],
       responses: {
-        '200': jsonResp('Danh sách blueprint', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách blueprint', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -3010,9 +3998,19 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminCreateBlueprint',
       summary: 'Tạo cấu trúc blueprint mới từ nguồn kiểm chứng',
       tags: ['Admin Content'],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/BlueprintCreateInput' } } } },
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/BlueprintCreateInput' },
+          },
+        },
+      },
       responses: {
-        '201': jsonResp('Blueprint đã tạo', { type: 'object', properties: { id: { type: 'string', format: 'uuid' } } }),
+        '201': jsonResp('Blueprint đã tạo', {
+          type: 'object',
+          properties: { id: { type: 'string', format: 'uuid' } },
+        }),
         ...adminCreateErrors,
       },
     },
@@ -3023,9 +4021,19 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminCreateBlueprintVersion',
       summary: 'Tạo phiên bản mới cho blueprint',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
-        '201': jsonResp('Phiên bản blueprint đã tạo', { type: 'object', properties: { version: { type: 'integer' } } }),
+        '201': jsonResp('Phiên bản blueprint đã tạo', {
+          type: 'object',
+          properties: { version: { type: 'integer' } },
+        }),
         ...adminMutationErrors,
       },
     },
@@ -3036,9 +4044,19 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminActivateBlueprint',
       summary: 'Kích hoạt phiên bản blueprint sử dụng chính thức',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
-        '200': jsonResp('Blueprint đã kích hoạt', { type: 'object', properties: { active: { type: 'boolean' } } }),
+        '200': jsonResp('Blueprint đã kích hoạt', {
+          type: 'object',
+          properties: { active: { type: 'boolean' } },
+        }),
         ...adminMutationErrors,
       },
     },
@@ -3050,7 +4068,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Quản trị danh sách đề thi (gồm cả bản nháp và đã xuất bản)',
       tags: ['Admin Content'],
       responses: {
-        '200': jsonResp('Danh sách đề thi admin', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách đề thi admin', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -3058,9 +4079,19 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminCreateExam',
       summary: 'Tạo bản thảo đề thi mới',
       tags: ['Admin Content'],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/ExamCreateInput' } } } },
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ExamCreateInput' },
+          },
+        },
+      },
       responses: {
-        '201': jsonResp('Đề thi đã tạo', { type: 'object', properties: { id: { type: 'string', format: 'uuid' } } }),
+        '201': jsonResp('Đề thi đã tạo', {
+          type: 'object',
+          properties: { id: { type: 'string', format: 'uuid' } },
+        }),
         ...adminCreateErrors,
       },
     },
@@ -3071,7 +4102,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminGetExam',
       summary: 'Xem chi tiết đề thi và danh sách các câu trong đề',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Chi tiết đề thi', { type: 'object' }),
         ...adminEntityErrors,
@@ -3081,10 +4119,27 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminUpdateExam',
       summary: 'Cập nhật tiêu đề, mô tả đề thi',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/ExamCreateInput' } } } },
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ExamCreateInput' },
+          },
+        },
+      },
       responses: {
-        '200': jsonResp('Đã cập nhật', { type: 'object', properties: { updated: { type: 'boolean' } } }),
+        '200': jsonResp('Đã cập nhật', {
+          type: 'object',
+          properties: { updated: { type: 'boolean' } },
+        }),
         ...adminMutationErrors,
       },
     },
@@ -3095,10 +4150,27 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminSetExamItems',
       summary: 'Cập nhật cấu trúc danh sách các câu hỏi trong đề',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/ExamSetItemsInput' } } } },
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ExamSetItemsInput' },
+          },
+        },
+      },
       responses: {
-        '200': jsonResp('Đã cập nhật cấu trúc đề', { type: 'object', properties: { updated: { type: 'boolean' } } }),
+        '200': jsonResp('Đã cập nhật cấu trúc đề', {
+          type: 'object',
+          properties: { updated: { type: 'boolean' } },
+        }),
         ...adminMutationErrors,
       },
     },
@@ -3109,12 +4181,22 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminValidateExam',
       summary: 'Kiểm tra tính hợp lệ của đề thi theo blueprint trước khi xuất bản',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Kết quả kiểm tra', {
           type: 'object',
           required: ['valid', 'violations'],
-          properties: { valid: { type: 'boolean' }, violations: { type: 'array', items: { type: 'string' } } },
+          properties: {
+            valid: { type: 'boolean' },
+            violations: { type: 'array', items: { type: 'string' } },
+          },
         }),
         ...adminMutationErrors,
       },
@@ -3126,12 +4208,22 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminPublishExam',
       summary: 'Xuất bản đề thi (sinh snapshot công khai nghiêm ngặt và lưu riêng answer key)',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Đề thi đã xuất bản', {
           type: 'object',
           required: ['version', 'publishedAt'],
-          properties: { version: { type: 'integer' }, publishedAt: { type: 'string', format: 'date-time' } },
+          properties: {
+            version: { type: 'integer' },
+            publishedAt: { type: 'string', format: 'date-time' },
+          },
         }),
         ...adminMutationErrors,
       },
@@ -3143,9 +4235,19 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminUnpublishExam',
       summary: 'Gỡ xuất bản đề thi (purge CDN)',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
-        '200': jsonResp('Đã gỡ xuất bản', { type: 'object', properties: { unpublished: { type: 'boolean' } } }),
+        '200': jsonResp('Đã gỡ xuất bản', {
+          type: 'object',
+          properties: { unpublished: { type: 'boolean' } },
+        }),
         ...adminMutationErrors,
       },
     },
@@ -3157,7 +4259,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Danh sách các gói nhập đề v2',
       tags: ['Admin Imports'],
       responses: {
-        '200': jsonResp('Danh sách gói nhập', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách gói nhập', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -3178,7 +4283,9 @@ export const endpointsData: OpenApiPaths = {
         },
       },
       responses: {
-        '202': jsonResp('Gói nhập đã tải lên và khởi động kiểm tra', { $ref: '#/components/schemas/AsyncJob' }),
+        '202': jsonResp('Gói nhập đã tải lên và khởi động kiểm tra', {
+          $ref: '#/components/schemas/AsyncJob',
+        }),
         ...adminCreateErrors,
       },
     },
@@ -3189,7 +4296,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminGetImport',
       summary: 'Chi tiết gói nhập và lỗi xác thực nếu có',
       tags: ['Admin Imports'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Chi tiết gói nhập', { type: 'object' }),
         ...adminEntityErrors,
@@ -3202,7 +4316,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminRetryImport',
       summary: 'Thử lại việc nhập gói',
       tags: ['Admin Imports'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Đã bắt đầu lại tiến trình', { type: 'object' }),
         ...adminMutationErrors,
@@ -3215,7 +4336,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminCancelImport',
       summary: 'Hủy gói nhập đang xử lý',
       tags: ['Admin Imports'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Đã hủy', { type: 'object' }),
         ...adminMutationErrors,
@@ -3229,8 +4357,18 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Xem chi tiết nhóm câu hỏi trong bản thảo gói nhập',
       tags: ['Admin Imports'],
       parameters: [
-        { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
-        { name: 'groupId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+        {
+          name: 'groupId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
       ],
       responses: {
         '200': jsonResp('Chi tiết câu hỏi trong bản thảo', { type: 'object' }),
@@ -3242,10 +4380,27 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Sửa lỗi nhóm câu hỏi trong bản thảo trước khi duyệt',
       tags: ['Admin Imports'],
       parameters: [
-        { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
-        { name: 'groupId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+        {
+          name: 'groupId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
       ],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/GroupDraftUpdate' } } } },
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/GroupDraftUpdate' },
+          },
+        },
+      },
       responses: {
         '200': jsonResp('Đã cập nhật câu hỏi bản thảo', { type: 'object' }),
         ...adminMutationErrors,
@@ -3258,7 +4413,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminUpdateImportListeningTimeline',
       summary: 'Cập nhật timeline audio nghe của đề',
       tags: ['Admin Imports'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
@@ -3266,13 +4428,21 @@ export const endpointsData: OpenApiPaths = {
             schema: {
               type: 'object',
               required: ['segments'],
-              properties: { segments: { type: 'array', items: { $ref: '#/components/schemas/ListeningTimelineItem' } } },
+              properties: {
+                segments: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/ListeningTimelineItem' },
+                },
+              },
             },
           },
         },
       },
       responses: {
-        '200': jsonResp('Đã cập nhật listening timeline', { type: 'object', properties: { updated: { type: 'boolean' } } }),
+        '200': jsonResp('Đã cập nhật listening timeline', {
+          type: 'object',
+          properties: { updated: { type: 'boolean' } },
+        }),
         ...adminMutationErrors,
       },
     },
@@ -3283,9 +4453,18 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminPreviewImport',
       summary: 'Xem trước đề thi dưới dạng học viên (snapshot sạch không đáp án)',
       tags: ['Admin Imports'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
-        '200': jsonResp('Snapshot xem trước', { $ref: '#/components/schemas/PublicExamSnapshot' }),
+        '200': jsonResp('Snapshot xem trước', {
+          $ref: '#/components/schemas/PublicExamSnapshot',
+        }),
         ...adminEntityErrors,
       },
     },
@@ -3297,7 +4476,9 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Nhập khẩu ngân hàng câu hỏi hàng loạt',
       tags: ['Admin Content'],
       responses: {
-        '202': jsonResp('Nhập ngân hàng câu hỏi đã chạy', { $ref: '#/components/schemas/AsyncJob' }),
+        '202': jsonResp('Nhập ngân hàng câu hỏi đã chạy', {
+          $ref: '#/components/schemas/AsyncJob',
+        }),
         ...adminCreateErrors,
       },
     },
@@ -3309,7 +4490,9 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Xuất ngân hàng câu hỏi ra file',
       tags: ['Admin Content'],
       responses: {
-        '202': jsonResp('Xuất ngân hàng đã chạy', { $ref: '#/components/schemas/AsyncJob' }),
+        '202': jsonResp('Xuất ngân hàng đã chạy', {
+          $ref: '#/components/schemas/AsyncJob',
+        }),
         ...adminCreateErrors,
       },
     },
@@ -3321,7 +4504,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Danh sách bản thảo lời giải chi tiết',
       tags: ['Admin Content'],
       responses: {
-        '200': jsonResp('Danh sách lời giải', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách lời giải', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -3329,9 +4515,19 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminCreateExplanation',
       summary: 'Soạn lời giải chi tiết cho câu hỏi',
       tags: ['Admin Content'],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/ExplanationDraft' } } } },
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ExplanationDraft' },
+          },
+        },
+      },
       responses: {
-        '201': jsonResp('Lời giải đã tạo', { type: 'object', properties: { id: { type: 'string', format: 'uuid' } } }),
+        '201': jsonResp('Lời giải đã tạo', {
+          type: 'object',
+          properties: { id: { type: 'string', format: 'uuid' } },
+        }),
         ...adminCreateErrors,
       },
     },
@@ -3342,8 +4538,22 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminUpdateExplanation',
       summary: 'Cập nhật lời giải',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/ExplanationDraftUpdate' } } } },
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ExplanationDraftUpdate' },
+          },
+        },
+      },
       responses: {
         '200': jsonResp('Đã cập nhật', { type: 'object' }),
         ...adminMutationErrors,
@@ -3356,7 +4566,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminReviewExplanation',
       summary: 'Phê duyệt lời giải chi tiết (kiểm duyệt trước khi mở public)',
       tags: ['Admin Content'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
@@ -3364,13 +4581,18 @@ export const endpointsData: OpenApiPaths = {
             schema: {
               type: 'object',
               required: ['decision'],
-              properties: { decision: { type: 'string', enum: ['approved', 'rejected'] } },
+              properties: {
+                decision: { type: 'string', enum: ['approved', 'rejected'] },
+              },
             },
           },
         },
       },
       responses: {
-        '200': jsonResp('Đã duyệt lời giải', { type: 'object', properties: { approved: { type: 'boolean' } } }),
+        '200': jsonResp('Đã duyệt lời giải', {
+          type: 'object',
+          properties: { approved: { type: 'boolean' } },
+        }),
         ...adminMutationErrors,
       },
     },
@@ -3382,7 +4604,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Danh sách báo cáo sự cố nội dung từ người dùng',
       tags: ['Admin Moderation'],
       responses: {
-        '200': jsonResp('Danh sách báo cáo nội dung', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách báo cáo nội dung', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -3393,10 +4618,27 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminResolveContentReport',
       summary: 'Xử lý báo cáo nội dung',
       tags: ['Admin Moderation'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/ContentReportResolveInput' } } } },
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ContentReportResolveInput' },
+          },
+        },
+      },
       responses: {
-        '200': jsonResp('Đã xử lý báo cáo', { type: 'object', properties: { resolved: { type: 'boolean' } } }),
+        '200': jsonResp('Đã xử lý báo cáo', {
+          type: 'object',
+          properties: { resolved: { type: 'boolean' } },
+        }),
         ...adminMutationErrors,
       },
     },
@@ -3408,7 +4650,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Danh sách báo cáo bình luận cộng đồng',
       tags: ['Admin Moderation'],
       responses: {
-        '200': jsonResp('Danh sách báo cáo bình luận', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách báo cáo bình luận', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -3419,8 +4664,24 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminResolveCommunityReport',
       summary: 'Xử lý vi phạm bình luận',
       tags: ['Admin Moderation'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/CommunityReportResolveInput' } } } },
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/CommunityReportResolveInput',
+            },
+          },
+        },
+      },
       responses: {
         '200': jsonResp('Đã xử lý bình luận', { type: 'object' }),
         ...adminMutationErrors,
@@ -3434,7 +4695,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Quản trị tài khoản người dùng',
       tags: ['Admin Users'],
       responses: {
-        '200': jsonResp('Danh sách người dùng', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách người dùng', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -3445,7 +4709,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminGetUser',
       summary: 'Chi tiết người dùng',
       tags: ['Admin Users'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       responses: {
         '200': jsonResp('Chi tiết người dùng', { type: 'object' }),
         ...adminEntityErrors,
@@ -3455,8 +4726,22 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminUpdateUser',
       summary: 'Phân vai trò hoặc khóa tài khoản',
       tags: ['Admin Users'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/UserAdminUpdateInput' } } } },
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/UserAdminUpdateInput' },
+          },
+        },
+      },
       responses: {
         '200': jsonResp('Đã cập nhật tài khoản', { type: 'object' }),
         ...adminMutationErrors,
@@ -3470,7 +4755,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Nhật ký kiểm toán các thao tác quản trị',
       tags: ['Admin Audit'],
       responses: {
-        '200': jsonResp('Danh sách audit logs', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách audit logs', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -3494,7 +4782,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Quản trị các gói dịch vụ',
       tags: ['Admin Billing'],
       responses: {
-        '200': jsonResp('Danh sách gói', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách gói', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -3502,7 +4793,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminCreatePlan',
       summary: 'Tạo gói dịch vụ mới',
       tags: ['Admin Billing'],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/AdminPlanCreateInput' } } } },
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/AdminPlanCreateInput' },
+          },
+        },
+      },
       responses: {
         '201': jsonResp('Gói đã tạo', { type: 'object' }),
         ...adminCreateErrors,
@@ -3516,7 +4814,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Quản lý mã giảm giá',
       tags: ['Admin Billing'],
       responses: {
-        '200': jsonResp('Danh sách coupon', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách coupon', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -3524,7 +4825,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminCreateCoupon',
       summary: 'Tạo mã giảm giá mới',
       tags: ['Admin Billing'],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/AdminCouponCreateInput' } } } },
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/AdminCouponCreateInput' },
+          },
+        },
+      },
       responses: {
         '201': jsonResp('Mã giảm giá đã tạo', { type: 'object' }),
         ...adminCreateErrors,
@@ -3538,7 +4846,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Danh sách giao dịch thanh toán trên hệ thống',
       tags: ['Admin Billing'],
       responses: {
-        '200': jsonResp('Danh sách giao dịch', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách giao dịch', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -3550,7 +4861,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Danh sách yêu cầu hoàn tiền',
       tags: ['Admin Billing'],
       responses: {
-        '200': jsonResp('Danh sách hoàn tiền', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách hoàn tiền', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -3562,7 +4876,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Danh sách thuê bao toàn hệ thống',
       tags: ['Admin Billing'],
       responses: {
-        '200': jsonResp('Danh sách thuê bao', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách thuê bao', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -3577,7 +4894,11 @@ export const endpointsData: OpenApiPaths = {
         '200': jsonResp('Báo cáo doanh thu', {
           type: 'object',
           required: ['grossMinor', 'netMinor', 'currency'],
-          properties: { grossMinor: { type: 'integer' }, netMinor: { type: 'integer' }, currency: { type: 'string' } },
+          properties: {
+            grossMinor: { type: 'integer' },
+            netMinor: { type: 'integer' },
+            currency: { type: 'string' },
+          },
         }),
         ...adminBaseErrors,
       },
@@ -3589,7 +4910,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminGetReportByKind',
       summary: 'Báo cáo vận hành theo chủ đề (retention, funnel, exam-completion...)',
       tags: ['Admin Reports'],
-      parameters: [{ name: 'kind', in: 'path', required: true, schema: { type: 'string' } }],
+      parameters: [
+        {
+          name: 'kind',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+        },
+      ],
       responses: {
         '200': jsonResp('Dữ liệu báo cáo vận hành', { type: 'object' }),
         ...adminEntityErrors,
@@ -3603,7 +4931,10 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Danh sách thử nghiệm A/B testing',
       tags: ['Admin Experiments'],
       responses: {
-        '200': jsonResp('Danh sách experiments', { type: 'object', properties: { items: { type: 'array', items: { type: 'object' } } } }),
+        '200': jsonResp('Danh sách experiments', {
+          type: 'object',
+          properties: { items: { type: 'array', items: { type: 'object' } } },
+        }),
         ...adminBaseErrors,
       },
     },
@@ -3611,7 +4942,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminCreateExperiment',
       summary: 'Tạo thử nghiệm A/B mới',
       tags: ['Admin Experiments'],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/AdminExperimentCreateInput' } } } },
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/AdminExperimentCreateInput' },
+          },
+        },
+      },
       responses: {
         '201': jsonResp('Experiment created', { type: 'object' }),
         ...adminCreateErrors,
@@ -3624,7 +4962,14 @@ export const endpointsData: OpenApiPaths = {
       operationId: 'adminReviewAIContent',
       summary: 'Kiểm duyệt nội dung do AI tạo trước khi lưu vào ngân hàng câu hỏi công khai',
       tags: ['Admin Moderation'],
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
       requestBody: {
         required: true,
         content: {
@@ -3632,13 +4977,19 @@ export const endpointsData: OpenApiPaths = {
             schema: {
               type: 'object',
               required: ['decision'],
-              properties: { decision: { type: 'string', enum: ['approve', 'reject'] }, comment: { type: 'string' } },
+              properties: {
+                decision: { type: 'string', enum: ['approve', 'reject'] },
+                comment: { type: 'string' },
+              },
             },
           },
         },
       },
       responses: {
-        '200': jsonResp('Đã kiểm duyệt nội dung AI', { type: 'object', properties: { reviewed: { type: 'boolean' } } }),
+        '200': jsonResp('Đã kiểm duyệt nội dung AI', {
+          type: 'object',
+          properties: { reviewed: { type: 'boolean' } },
+        }),
         ...adminMutationErrors,
       },
     },

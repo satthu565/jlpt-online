@@ -199,7 +199,7 @@ export function useSelectLookup({
     };
 
     try {
-      const data = await clientRef.current!.lookupDictionary(textToLookup);
+      const data = await clientRef.current!.lookupDictionary(textToLookup, 'vi');
       if (!isSubscribed || !enabledRef.current) return;
       setResult(data);
       setStatus('success');

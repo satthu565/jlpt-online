@@ -8,7 +8,7 @@ import type {
   RichText,
 } from '@jlpt/schema';
 
-export type SyncState = 'saved' | 'saving' | 'offline_saved' | 'local_error' | 'error' | 'conflict';
+export type SyncState = 'saved' | 'saving' | 'offline_saved' | 'local_error' | 'error' | 'conflict' | 'closed';
 
 export interface StoredAttempt {
   attemptId: string;

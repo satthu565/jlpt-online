@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ExamSyncEngine } from '../features/exam/sync/sync-engine';
 import { MemoryExamStorage } from '../features/exam/storage/indexeddb';
-import { ExamApiClient } from '../features/exam/api/exam-api';
+import { ExamApiClient, ExamApiError } from '../features/exam/api/exam-api';
 import type { AnswerSheetUpdateInput } from '@jlpt/schema';
 
 afterEach(() => vi.restoreAllMocks());
@@ -12,6 +12,25 @@ function createEngine(storage = new MemoryExamStorage(), apiClient = new ExamApi
 }
 
 describe('Paper exam persistence', () => {
+  it('stops retries after the server closes an attempt while retaining unacknowledged local answers', async () => {
+    vi.useFakeTimers();
+    const { engine, apiClient, storage } = createEngine();
+    apiClient.updateAnswerSheet = vi.fn(async () => { throw new ExamApiError('Attempt finalized', 'ATTEMPT_CLOSED', 409); });
+    try {
+      await engine.recordAnswerChange(0, 2);
+      await engine.flush();
+      expect(engine.getSyncState()).toBe('closed');
+      expect(engine.getLastAckedSeq()).toBe(0);
+      expect((await storage.getAttempt('attempt'))?.answers).toEqual([2, 0]);
+      expect(await storage.getPendingOutbox('attempt')).toHaveLength(1);
+      await engine.retry();
+      await vi.advanceTimersByTimeAsync(15000);
+      expect(apiClient.updateAnswerSheet).toHaveBeenCalledTimes(1);
+      await expect(engine.drain()).rejects.toThrow('Attempt finalized');
+      await engine.recordAnswerChange(1, 4);
+      expect((await storage.getAttempt('attempt'))?.answers).toEqual([2, 0]);
+    } finally { engine.stop(); vi.useRealTimers(); }
+  });
   it('reports a local write failure honestly and can retry without losing the in-memory answer', async () => {
     const { engine, apiClient, storage } = createEngine();
     vi.spyOn(storage, 'saveAttempt').mockRejectedValueOnce(new Error('quota exceeded'));

@@ -46,3 +46,13 @@ pnpm --filter @jlpt/web build
 - Không dùng dữ liệu giả trong code chạy thật. API lỗi thì hiện thông báo lỗi thật (`check:no-mock-ui`).
 - Không hiện mã nội bộ như `kanji_reading` cho học viên. Dùng nhãn tiếng Việt, ví dụ `features/exam/mondai-labels.ts`.
 - Vùng có chữ Nhật cho phép bôi đen để tra từ thì gắn `data-select-lookup-area="true"` (H06).
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

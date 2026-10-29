@@ -89,6 +89,16 @@ export class VocabController {
     return this.vocabService.listLexiconEntries({ q, pos, page: Number(page) || 1, pageSize: Number(pageSize) || 50 });
   }
 
+  @Roles('admin', 'editor')
+  @Patch('admin/lexicon/entries/:id/meanings-vi')
+  async adminUpdateVietnameseMeanings(
+    @Param('id') id: string,
+    @Body() body: unknown,
+    @CurrentUser() user: AuthUserContext,
+  ) {
+    return this.vocabService.updateVietnameseMeanings(id, body, user.userId);
+  }
+
   @Roles('admin', 'editor', 'reviewer')
   @Get('admin/lexicon/kanji')
   async adminListKanji(

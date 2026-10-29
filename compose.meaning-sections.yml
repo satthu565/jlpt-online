@@ -1,0 +1,3 @@
+services:
+  api:
+    image: jlpt/jlpt-api:meaning-sections-20261025

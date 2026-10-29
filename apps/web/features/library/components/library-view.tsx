@@ -7,6 +7,9 @@ import { INITIAL_LIBRARY_FILTERS } from '../types';
 import { LibraryFilters } from './library-filters';
 import { ExamCard } from './exam-card';
 import { Button } from '@jlpt/ui/components/button';
+import { Alert } from '@jlpt/ui/components/alert';
+import { useExamFavorites } from '../hooks/use-exam-favorites';
+import { useI18n } from '../../../lib/i18n';
 
 export interface LibraryViewProps {
   exams: ExamWithUserStatus[];
@@ -19,8 +22,10 @@ export function LibraryView({
   initialLevel,
   className = '',
 }: LibraryViewProps): React.JSX.Element {
+  const favorites = useExamFavorites();
+  const { t } = useI18n();
   // An exam with no questions (for example an empty generated mix) cannot be taken; never offer it.
-  const exams = useMemo(() => allExams.filter((e) => (e.totalQuestions ?? 0) > 0), [allExams]);
+  const exams = useMemo(() => allExams.filter((e) => (e.totalQuestions ?? 0) > 0).map(exam => ({ ...exam, isFavorite: favorites.ids.has(exam.id) })), [allExams, favorites.ids]);
   const [filters, setFilters] = useState<LibraryFilterState>(() => ({
     ...INITIAL_LIBRARY_FILTERS,
     level: (initialLevel as LibraryFilterState['level']) || 'ALL',
@@ -102,6 +107,7 @@ export function LibraryView({
 
   return (
     <div className={`jlpt-library-view space-y-6 ${className}`}>
+      {favorites.error && <Alert variant="error" role="alert"><p>{favorites.error}</p><Button size="sm" variant="outline" disabled={favorites.pendingIds.size > 0} onClick={favorites.reload}>{t('library.favoriteRetry')}</Button></Alert>}
       {/* Next Recommendation Banner */}
       {recommendedExam && (
         <section
@@ -187,7 +193,7 @@ export function LibraryView({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredExams.map((exam) => (
-            <ExamCard key={exam.id} exam={exam} />
+            <ExamCard key={exam.id} exam={exam} onToggleFavorite={favorites.toggleFavorite} favoritePending={favorites.pendingIds.has(exam.id)} favoriteDisabled={favorites.isLoading} />
           ))}
         </div>
       )}

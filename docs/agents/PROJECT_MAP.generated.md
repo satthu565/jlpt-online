@@ -120,7 +120,7 @@ Mục menu và vai trò lấy từ `apps/admin/lib/navigation.ts`.
 | `/verify-2fa` |  |  | `apps/admin/app/verify-2fa/page.tsx` |
 | `/vocab` | Từ vựng & Ngữ pháp | admin, editor | `apps/admin/app/vocab/page.tsx` |
 
-## API (301 route, 26 module có controller)
+## API (302 route, 26 module có controller)
 
 Quyền: `công khai` = `@Public()`; `đăng nhập` = chỉ cần đăng nhập; còn lại là vai trò trong `@Roles`.
 
@@ -527,6 +527,7 @@ Quyền: `công khai` = `@Public()`; `đăng nhập` = chỉ cần đăng nhập
 |---|---|---|---|---|
 | PATCH | `/api/v1/admin/lexicon/:id/hanviet` | admin, editor, reviewer |  | `adminUpdateHanViet` |
 | GET | `/api/v1/admin/lexicon/entries` | admin, editor, reviewer |  | `adminListLexicon` |
+| PATCH | `/api/v1/admin/lexicon/entries/:id/meanings-vi` | admin, editor |  | `adminUpdateVietnameseMeanings` |
 | GET | `/api/v1/admin/lexicon/hanviet` | admin, editor, reviewer |  | `adminListHanViet` |
 | GET | `/api/v1/admin/lexicon/kanji` | admin, editor, reviewer |  | `adminListKanji` |
 | PATCH | `/api/v1/admin/lexicon/kanji/:kanji/hanviet` | admin, editor |  | `adminUpdateKanjiHanViet` |

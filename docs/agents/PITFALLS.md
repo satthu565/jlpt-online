@@ -1,11 +1,5 @@
 # Các bẫy đã gặp
 
-## Audit bị chặn bởi dependency bắc cầu của Wrangler
-
-- **Triệu chứng:** `pnpm audit --audit-level=high` làm CI đỏ dù ứng dụng không nhập `undici` trực tiếp.
-- **Nguyên nhân:** phiên bản `miniflare` do Wrangler khóa kéo một bản `undici` có cảnh báo bảo mật mức cao, trong khi Wrangler mới nhất vẫn chưa nâng dependency này.
-- **Cách đúng:** dùng `pnpm-workspace.yaml` để override đúng dải phiên bản lỗi lên bản vá tối thiểu; chạy lại `pnpm install --lockfile-only` và `pnpm audit --audit-level=high`. Bỏ override khi upstream đã kéo bản an toàn.
-
 Mỗi bẫy ghi theo dạng triệu chứng → nguyên nhân → cách đúng. **Gặp bẫy mới thì thêm một dòng vào đây trong cùng PR.**
 
 ## Code và test
@@ -78,8 +72,6 @@ Mỗi bẫy ghi theo dạng triệu chứng → nguyên nhân → cách đúng. 
 - Component hiện ra nhưng thiếu giao diện hoặc modal không thấy → chỉ import một phần `@heroui/styles` → import CSS chính thức tương ứng với từng component trong `apps/web/app/globals.css`, không dựng lại giao diện bằng CSS riêng.
 - TypeScript báo HeroUI không export component có thật → khai báo thư viện có đường dẫn không kèm extension khi chạy NodeNext → package UI dùng `module: ESNext` và `moduleResolution: Bundler` phù hợp tsup/Next.
 - Playwright không click được radio → input native được ẩn để dùng control có nhãn → click `.radio__content` hiển thị rồi xác minh input bằng `toBeChecked()`. Không ép click hoặc sửa kiểu dáng thư viện để test qua.
-- Safari không mở ghi nháp khi quay lại câu khác trong luyện tập → cập nhật câu đang chọn ở pointerdown làm cảnh báo nhịp xuất hiện, đẩy nút xuống trước pointerup và hủy press → kích hoạt câu sau click; chỉ cập nhật từ focus khi dùng bàn phím (`:focus-visible`). Dùng `onPress` cho thao tác HeroUI; xác minh bằng WebKit thật.
-- Bấm Esc đóng khung tra từ nhưng khung mở lại ngay → tác vụ debounce selectionchange 300ms vẫn chạy sau tác vụ mouseup 10ms → hủy cả hai tác vụ khi đóng hoặc đổi câu; kiểm tra khung vẫn đóng sau thời hạn debounce.
 
 ## Cấu hình API cho bản xem thử LAN
 

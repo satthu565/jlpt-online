@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { test, expect, type Page } from '@playwright/test';
-import { registerExamContentTests } from './exam-content-journey.js';
+import { confirmResumeIfShown, dumpPageOnFailure, registerExamContentTests, watchPageErrors } from './exam-content-journey.js';
 import { MailpitClient } from './fixtures/mailpit.fixture.js';
 import {
   SEEDED_STAFF_ACCOUNTS,
@@ -81,6 +81,9 @@ async function loginAsStaff(page: Page, origin: string, account: StaffAccount) {
  * - Registration flow sends real email verified via Mailpit fixture.
  * - Seeded staff accounts login with real password and TOTP 2FA challenge.
  */
+test.beforeEach(async ({ page }) => { watchPageErrors(page); });
+test.afterEach(async ({ page }, info) => { await dumpPageOnFailure(page, info.status, info.expectedStatus, info.title); });
+
 test.describe('Real API & Infrastructure Integration Suite (I00)', () => {
   const mailpit = new MailpitClient();
 
@@ -2144,6 +2147,7 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
       expect(createRes.ok()).toBeTruthy();
     }
 
+    await confirmResumeIfShown(page);
     // 4. Verify PracticeRunner renders with questions
     await expect(page.locator('[data-testid="practice-runner-container"]')).toBeVisible({ timeout: 20000 });
 
@@ -2175,6 +2179,7 @@ test.describe('Real Practice & Mix Exam Integration Suite (I13)', () => {
     const resumeBtn = inProgressSection.locator('button[data-testid^="resume-practice-btn-"]').first();
     await expect(resumeBtn).toBeVisible();
     await resumeBtn.click();
+    await confirmResumeIfShown(page);
 
     // Verifies resumed session opens PracticeRunner
     await expect(page.locator('[data-testid="practice-runner-container"]')).toBeVisible({ timeout: 20000 });
@@ -4805,7 +4810,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await openExamRoom(page, 'real');
 
     // Switch is initially checked
-    const display = page.getByRole('button', { name: 'Hiển thị', exact: true });
+    const display = page.getByRole('button', { name: 'Cài đặt', exact: true });
     await display.click();
     const switchEl = page.getByTestId('select-lookup-switch');
     await expect(switchEl.getByRole('switch')).toBeChecked();
@@ -4823,6 +4828,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
 
     // Reload page -> stays unchecked
     await page.reload({ waitUntil: 'domcontentloaded' });
+    await confirmResumeIfShown(page);
     const modalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
     if (await modalBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
       await modalBtn.click();

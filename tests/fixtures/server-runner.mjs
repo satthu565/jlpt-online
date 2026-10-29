@@ -2,14 +2,18 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import console from 'node:console';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '../../');
+const importRepo = (modulePath) => import(pathToFileURL(path.join(REPO_ROOT, modulePath)).href);
 
 // Set NODE_ENV to test so main.js doesn't auto-bootstrap
 process.env.NODE_ENV = 'test';
+// This fixture owns a disposable in-memory database, including direct invocation.
+process.env.DATABASE_URL = '';
+process.env.REDIS_URL = '';
 process.env.MEDIA_TOKEN_SECRET =
   process.env.MEDIA_TOKEN_SECRET || 'staging_media_token_secret_for_reproducible_smoke_tests';
 
@@ -42,12 +46,8 @@ async function start() {
     execSync('pnpm --filter @jlpt/api... build', { cwd: REPO_ROOT, stdio: 'inherit' });
   }
 
-  const { getOrCreateDbClient, setTestDbClient } = await import(
-    path.join(REPO_ROOT, 'apps/api/dist/src/common/database/database.module.js')
-  );
-  const { runDemoSeed } = await import(
-    path.join(REPO_ROOT, 'apps/api/dist/src/modules/import/demo-seed.js')
-  );
+  const { getOrCreateDbClient, setTestDbClient } = await importRepo('apps/api/dist/src/common/database/database.module.js');
+  const { runDemoSeed } = await importRepo('apps/api/dist/src/modules/import/demo-seed.js');
 
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 4092;
 
@@ -59,7 +59,7 @@ async function start() {
     fs.cpSync(srcMigrations, distMigrations, { recursive: true });
   }
 
-  // 1. Initialize and cache DB client (in-memory PGlite or PostgreSQL)
+  // 1. Initialize and cache the fixture's in-memory PGlite client
   const client = await getOrCreateDbClient();
   setTestDbClient(client);
 
@@ -78,19 +78,19 @@ async function start() {
   const { NestFactory } = require('@nestjs/core');
   const { Module } = require('@nestjs/common');
   const { FastifyAdapter } = require('@nestjs/platform-fastify');
-  const { AppModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/app.module.js'));
-  const { PaymentModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/payment/payment.module.js'));
-  const { EntitlementModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/entitlement/entitlement.module.js'));
-  const { LearningModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/learning/learning.module.js'));
-  const { PlannerModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/planner/planner.module.js'));
-  const { AiModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/ai/ai.module.js'));
-  const { AiService } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/ai/ai.service.js'));
-  const { DB_CLIENT: DB_TOKEN } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/common/database/database.module.js'));
-  const { OutboxService } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/outbox/outbox.service.js'));
-  const { VocabModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/vocab/vocab.module.js'));
-  const { ReportingModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/reporting/reporting.module.js'));
-  const { CmsModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/cms/cms.module.js'));
-  const { ExperimentModule } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/experiment/experiment.module.js'));
+  const { AppModule } = await importRepo('apps/api/dist/src/app.module.js');
+  const { PaymentModule } = await importRepo('apps/api/dist/src/modules/payment/payment.module.js');
+  const { EntitlementModule } = await importRepo('apps/api/dist/src/modules/entitlement/entitlement.module.js');
+  const { LearningModule } = await importRepo('apps/api/dist/src/modules/learning/learning.module.js');
+  const { PlannerModule } = await importRepo('apps/api/dist/src/modules/planner/planner.module.js');
+  const { AiModule } = await importRepo('apps/api/dist/src/modules/ai/ai.module.js');
+  const { AiService } = await importRepo('apps/api/dist/src/modules/ai/ai.service.js');
+  const { DB_CLIENT: DB_TOKEN } = await importRepo('apps/api/dist/src/common/database/database.module.js');
+  const { OutboxService } = await importRepo('apps/api/dist/src/modules/outbox/outbox.service.js');
+  const { VocabModule } = await importRepo('apps/api/dist/src/modules/vocab/vocab.module.js');
+  const { ReportingModule } = await importRepo('apps/api/dist/src/modules/reporting/reporting.module.js');
+  const { CmsModule } = await importRepo('apps/api/dist/src/modules/cms/cms.module.js');
+  const { ExperimentModule } = await importRepo('apps/api/dist/src/modules/experiment/experiment.module.js');
 
   // AiService has an unannotated optional 3rd parameter customProvider?: AiProvider that causes NestJS dependency resolution to fail.
   // We explicitly override the AiModule provider using a factory with only dbClient and outboxService.
@@ -103,9 +103,9 @@ async function start() {
   ], AiModule);
   Reflect.defineMetadata('design:paramtypes', [Object, OutboxService], AiService);
 
-  const { AiController } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/ai/ai.controller.js'));
-  const { VocabController } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/vocab/vocab.controller.js'));
-  const { GamificationController } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/gamification/gamification.controller.js'));
+  const { AiController } = await importRepo('apps/api/dist/src/modules/ai/ai.controller.js');
+  const { VocabController } = await importRepo('apps/api/dist/src/modules/vocab/vocab.controller.js');
+  const { GamificationController } = await importRepo('apps/api/dist/src/modules/gamification/gamification.controller.js');
 
   // Normalize controllers that were declared with @Controller('api/v1') so they don't produce double prefix under app.setGlobalPrefix('api/v1')
   Reflect.defineMetadata('path', '', AiController);
@@ -145,16 +145,14 @@ async function start() {
   });
 
   // Initialize seed plans for payment
-  const { PaymentService } = await import(path.join(REPO_ROOT, 'apps/api/dist/src/modules/payment/payment.service.js'));
+  const { PaymentService } = await importRepo('apps/api/dist/src/modules/payment/payment.service.js');
   const paymentService = app.get(PaymentService);
   if (paymentService?.ensureInitialPlans) {
     await paymentService.ensureInitialPlans();
   }
 
   // 5. Enhance AuthService.getSession with user tenantId resolved from org_memberships table
-  const { AuthService } = await import(
-    path.join(REPO_ROOT, 'apps/api/dist/src/modules/auth/auth.service.js')
-  );
+  const { AuthService } = await importRepo('apps/api/dist/src/modules/auth/auth.service.js');
   const authService = app.get(AuthService);
   const origGetSession = authService.getSession.bind(authService);
   authService.getSession = async (token) => {

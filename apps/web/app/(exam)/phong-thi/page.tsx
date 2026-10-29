@@ -9,6 +9,8 @@ import type { ExamStorageAdapter } from '../../../features/exam/storage/indexedd
 import type { ExamApiClient } from '../../../features/exam/api/exam-api';
 import { useI18n } from '../../../lib/i18n';
 import { isListeningSection, mediaUrl } from '../../../features/exam/utils/exam-media';
+import { ResumeConfirmation } from '../../../features/exam/utils/resume-confirmation';
+import { ResumeConfirmationCard } from '../../../features/exam/components/resume-confirmation';
 
 const SpeakerTestModal = dynamic(
   () => import('../../../features/exam/components/modals/speaker-test-modal').then((module) => module.SpeakerTestModal),
@@ -94,6 +96,8 @@ export default function ExamRoomPage(): React.JSX.Element {
   const [storage, setStorage] = useState<ExamStorageAdapter | null>(null);
   const apiClientRef = React.useRef<ExamApiClient | null>(null);
   const bootstrapStarted = React.useRef(false);
+  const [pendingResumeId, setPendingResumeId] = useState<string | null>(null);
+  const [resumeConfirmation] = useState(() => new ResumeConfirmation(setPendingResumeId));
 
   const getApiClient = async () => {
     if (apiClientRef.current) return apiClientRef.current;
@@ -137,7 +141,7 @@ export default function ExamRoomPage(): React.JSX.Element {
         }
 
         if (attemptIdParam) {
-          handleResumeAttempt(attemptIdParam);
+          resumeConfirmation.request(attemptIdParam);
         } else if (examIdParam && exams.length > 0) {
           const found = exams.find((e: ExamPickerExam) => e.id === examIdParam || (e as { examId?: string }).examId === examIdParam || e.slug === examIdParam);
           if (found) {
@@ -158,6 +162,10 @@ export default function ExamRoomPage(): React.JSX.Element {
 
       const apiClient = await getApiClient();
       const resumeRes = await apiClient.resumeAttempt(attemptId);
+      if (resumeRes.status === 'submitted') {
+        window.location.replace(`/ket-qua/${encodeURIComponent(attemptId)}`);
+        return;
+      }
       let responseReceivedAt = Date.now();
       // An attempt left before its first section started has no running section; start it like a new attempt.
       let sectionIndex = resumeRes.currentSection;
@@ -167,6 +175,10 @@ export default function ExamRoomPage(): React.JSX.Element {
         apiClient.fetchSnapshot(resumeRes.snapshotUrl),
         apiClient.getAttempt(attemptId),
       ]);
+      if (details.status === 'submitted') {
+        window.location.replace(`/ket-qua/${encodeURIComponent(attemptId)}`);
+        return;
+      }
       if (sectionIndex === null) {
         await prepareInitialAudio(snapshot, details.mode);
         const started = await apiClient.nextSection(attemptId, { lease: resumeRes.lease });
@@ -288,7 +300,7 @@ export default function ExamRoomPage(): React.JSX.Element {
           if (apiErr.status === 409 && apiErr.code === 'ATTEMPT_ALREADY_OPEN') {
             const conflictAttemptId = (apiErr.details as { attemptId?: string } | undefined)?.attemptId;
             if (conflictAttemptId) {
-              await handleResumeAttempt(conflictAttemptId);
+              resumeConfirmation.request(conflictAttemptId);
               return;
             }
           }
@@ -358,6 +370,10 @@ export default function ExamRoomPage(): React.JSX.Element {
     setExamResult(null);
     setErrorInfo(null);
   };
+
+  if (pendingResumeId) {
+    return <ResumeConfirmationCard onConfirm={() => { void resumeConfirmation.confirm(handleResumeAttempt); }} onCancel={() => { resumeConfirmation.cancel(); window.location.replace('/de-thi'); }} />;
+  }
 
   if (preflightMedia !== null) {
     return <SpeakerTestModal isOpen mediaSrc={preflightMedia} onClose={() => { setPreflightMedia(null); preflight.current?.reject(new Error(t('paperExam.speakerCancelled'))); preflight.current = null; }} onConfirm={() => { setPreflightMedia(null); preflight.current?.resolve(); preflight.current = null; }} />;

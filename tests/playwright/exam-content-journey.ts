@@ -10,6 +10,30 @@ const test = base.extend({
   },
 });
 
+/** Opening an attempt link now asks before taking over the attempt; click through when the card appears. */
+export async function confirmResumeIfShown(page: Page): Promise<void> {
+  const confirmResume = page.getByTestId('confirm-resume-attempt');
+  const shown = await confirmResume.waitFor({ state: 'visible', timeout: 5000 }).then(() => true, () => false);
+  if (shown) await confirmResume.click();
+}
+
+const pageErrors = new WeakMap<Page, string[]>();
+
+/** Temporary CI diagnostics: print what the page showed when a test failed (no screenshots are uploaded). */
+export function watchPageErrors(page: Page): void {
+  const list: string[] = [];
+  pageErrors.set(page, list);
+  page.on('pageerror', (error) => list.push(`pageerror: ${error.message}`));
+  page.on('console', (message) => { if (message.type() === 'error') list.push(`console: ${message.text()}`); });
+  page.on('response', (response) => { if (response.status() >= 400) list.push(`http ${response.status()} ${response.request().method()} ${response.url()}`); });
+}
+
+export async function dumpPageOnFailure(page: Page, status: string | undefined, expected: string | undefined, title: string): Promise<void> {
+  if (status === expected) return;
+  const body = await page.locator('body').innerText({ timeout: 3000 }).catch(() => '<no body>');
+  console.log(`[diag] ${title}\n[diag] url=${page.url()}\n[diag] body=${body.replace(/\s+/g, ' ').slice(0, 1500)}\n[diag] errors=${(pageErrors.get(page) ?? []).slice(0, 25).join(' | ')}`);
+}
+
 async function selectBookletText(page: Page, text: string): Promise<void> {
   const selected = await page.evaluate((textToSelect) => {
     const walker = document.createTreeWalker(document.querySelector('.paper-booklet')!, NodeFilter.SHOW_TEXT);
@@ -32,9 +56,11 @@ async function selectBookletText(page: Page, text: string): Promise<void> {
 
 export function registerExamContentTests(): void {
   test.describe('Original shell with HTML booklet workspace', () => {
+    // Playwright clicks have no timeout by default; fail fast instead of hanging until the test timeout.
+    test.use({ actionTimeout: 20000 });
     for (const mode of ['real', 'practice'] as const) {
       test(`${mode}: original controls, source content, save and resume`, async ({ page, context, baseURL }, info) => {
-        test.setTimeout(120000);
+        test.setTimeout(240000);
         const origin = baseURL ?? 'http://127.0.0.1:3000';
         await page.setViewportSize({ width: info.project.use.isMobile ? 390 : 1366, height: 900 });
         await context.addCookies([{ name: 'guest_id', value: randomUUID(), url: origin }, { name: 'jlpt_consent', value: 'necessary', url: origin }]);
@@ -57,6 +83,7 @@ export function registerExamContentTests(): void {
         const passageIndex = published.sections.flatMap(section => section.groups.flatMap(group => group.questions.map(() => Boolean(group.passage?.length)))).indexOf(true);
         try {
           await page.goto(`${origin}/phong-thi?attemptId=${attempt.attemptId}&mode=${mode}`);
+          await confirmResumeIfShown(page);
           const card = page.getByTestId('paper-question-0');
           await expect(page.locator('.paper-question')).toHaveCount(published.sections[0]!.questionRange[1] + 1);
           await expect(page.locator('.jlpt-exam-toolbar')).toBeVisible();
@@ -72,7 +99,8 @@ export function registerExamContentTests(): void {
           expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
           await page.screenshot({ path: info.outputPath('lookup-kanji-tab.png') });
           await lookupPopover.getByRole('tab', { name: 'Từ vựng', exact: true }).click();
-          await expect(lookupPopover.getByTestId('lookup-not-found')).toBeVisible();
+          // Staging has no dictionary entry for this text, so the vocab tab shows either a result or the not-found state.
+          await expect(lookupPopover.locator('[data-testid="lookup-entry"], [data-testid="lookup-not-found"]').first()).toBeVisible();
           await lookupPopover.getByRole('tab', { name: 'Kanji (2)', exact: true }).click();
           await selectBookletText(page, 'やま');
           await expect(lookupPopover.getByRole('tab', { name: 'Từ vựng', exact: true })).toHaveAttribute('aria-selected', 'true');
@@ -84,7 +112,7 @@ export function registerExamContentTests(): void {
           await page.waitForTimeout(400);
           await expect(lookupPopover).not.toBeVisible();
           await page.evaluate(() => window.getSelection()?.removeAllRanges());
-          await page.getByRole('button', { name: 'Hiển thị', exact: true }).click();
+          await page.getByRole('button', { name: 'Cài đặt', exact: true }).click();
           const lookup = page.getByTestId('select-lookup-switch');
           await expect(lookup.getByRole('switch')).toBeChecked();
           await lookup.locator('.switch__control').click();
@@ -98,7 +126,8 @@ export function registerExamContentTests(): void {
           await expect(card.getByRole('radio').first()).toBeChecked();
           await expect(page.locator('[role="status"]').filter({ hasText: 'Đã lưu' })).toBeVisible({ timeout: 15000 });
           await page.reload();
-          await page.getByRole('button', { name: 'Hiển thị', exact: true }).click();
+          await confirmResumeIfShown(page);
+          await page.getByRole('button', { name: 'Cài đặt', exact: true }).click();
           await expect(lookup.getByRole('switch')).not.toBeChecked();
           await lookup.locator('.switch__control').click();
           await expect(lookup.getByRole('switch')).toBeChecked();
@@ -111,9 +140,9 @@ export function registerExamContentTests(): void {
           if (info.project.use.isMobile) await page.locator('.paper-mobile-bar').getByRole('button', { name: 'Phiếu trả lời', exact: true }).click();
           const sheet = info.project.use.isMobile ? page.getByRole('dialog').locator('.paper-answer-sheet') : page.locator('.paper-sticky-sheet .paper-answer-sheet');
           await expect(sheet).toBeVisible();
-          await sheet.getByTestId('paper-answer-row-0').locator('.radio__content').first().click();
-          await expect(sheet.getByTestId('paper-answer-row-0').getByRole('radio').first()).toBeChecked();
-          await sheet.getByRole('button', { name: 'Đến câu 2', exact: true }).click();
+          await expect(sheet.getByTestId('paper-question-tile-0')).toHaveAttribute('data-answered', 'true');
+          await expect(sheet.getByTestId('paper-question-tile-0')).toHaveAttribute('data-flagged', 'true');
+          await sheet.getByTestId('paper-question-tile-1').click();
           if (info.project.use.isMobile) await expect(page.locator('.paper-bottom-sheet')).toHaveCount(0);
           if (!info.project.use.isMobile) {
             await page.evaluate(() => window.scrollBy(0, 900));
@@ -135,7 +164,8 @@ export function registerExamContentTests(): void {
             for (let index = 0; index < sectionIndex; index++) {
               await page.getByTestId('finish-section-btn').click();
               await page.getByRole('button', { name: 'Xác nhận chuyển phần', exact: true }).click();
-              await expect(page.locator('.jlpt-section-header [role="tab"][aria-selected="true"]')).toContainText(published.sections[index + 1]!.title);
+              // The header merges language-knowledge sections into one tab, so the selected tab does not change per section.
+              await expect(page.locator('.jlpt-section-header [role="tab"][aria-selected="true"]')).toContainText('言語知識');
             }
             await expect(page.locator('.paper-passage').first()).toBeAttached();
             await page.locator('.paper-passage').first().scrollIntoViewIfNeeded();

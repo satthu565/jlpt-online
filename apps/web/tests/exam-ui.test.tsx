@@ -86,12 +86,10 @@ describe('Exam UI & Interaction Suite (C03)', () => {
       />,
     );
 
-    expect(html).toContain('Kiến thức ngôn ngữ (Từ vựng)');
-    expect(html).toContain('25');
-    expect(html).toContain('Ngữ pháp &amp; Đọc hiểu');
-    expect(html).toContain('50');
-    expect(html).toContain('Nghe hiểu');
-    expect(html).toContain('30');
+    expect(html).toContain('言語知識（文字・語彙・文法）・読解');
+    expect(html).toContain('75 phút');
+    expect(html).toContain('聴解');
+    expect(html).toContain('30 phút');
     expect(html).toContain('role="tab"');
   });
 
