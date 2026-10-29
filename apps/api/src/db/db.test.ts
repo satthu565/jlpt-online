@@ -2,12 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import {
-  BlueprintSchema,
-  ExamAnswerKeySchema,
-  type Blueprint,
-  RetentionViolationError,
-} from '@jlpt/schema';
+import { BlueprintSchema, ExamAnswerKeySchema, type Blueprint, RetentionViolationError } from '@jlpt/schema';
 
 // We import database utilities directly from local module
 import {
@@ -24,7 +19,6 @@ import {
   assertRetentionObligationNotViolated,
   executeRetentionSafeDeletion,
 } from './index.js';
-
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,7 +50,9 @@ describe('F08 Database Schema and Migrations', () => {
         expect(names).toContain('0008_corpus_terms.sql');
         expect(names).toContain('0009_entry_meanings_senses.sql');
         expect(names).toContain('0010_kanji_dataset.sql');
-        expect(names.length).toBe(11);
+        expect(names).toContain('0011_entry_meanings_gloss_order.sql');
+        expect(names).toContain('0012_entry_meanings_content_type.sql');
+        expect(names.length).toBe(13);
       } finally {
         await client.close();
       }
@@ -104,7 +100,6 @@ describe('F08 Database Schema and Migrations', () => {
         expect(adminUser.length).toBe(1);
         expect(adminUser[0].role).toBe('admin');
 
-
         // Verify seeding a second time is fully idempotent
         const secondSeed = await seedDatabase(client, fixturesDir);
         expect(secondSeed.examsSeeded).toBe(5);
@@ -147,7 +142,6 @@ describe('F08 Database Schema and Migrations', () => {
         for (const msg of Object.values(compatResult.details)) {
           expect(msg).not.toContain('FAILED');
         }
-
       } finally {
         await client.close();
       }
@@ -191,7 +185,6 @@ describe('F08 Database Schema and Migrations', () => {
           INSERT INTO "exam_versions" (exam_id, version, snapshot_key, manifest_key, blueprint_id, blueprint_version, scoring, total_questions, published_at, published_by)
           VALUES ('${examId}', 1, 'snap', 'man', '0192f000-00ee-7000-8000-000000000005', 1, '{}', 0, now(), '${adminId}');
         `);
-
 
         await client.query(`
           INSERT INTO "exam_attempts" (
@@ -305,8 +298,10 @@ describe('F08 Database Schema and Migrations', () => {
           );
         `);
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const queryRes = (await client.query(`SELECT mode, status, submitted_by FROM "exam_attempts" WHERE id = '0192f000-0aa4-7000-8000-000000000004';`)) as any;
+        const queryRes = (await client.query(
+          `SELECT mode, status, submitted_by FROM "exam_attempts" WHERE id = '0192f000-0aa4-7000-8000-000000000004';`,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        )) as any;
         const inserted = (queryRes.rows ?? queryRes)[0];
         expect(inserted.mode).toBe('practice');
         expect(inserted.status).toBe('submitted');
@@ -526,7 +521,12 @@ describe('F08 Database Schema and Migrations', () => {
         status: 'draft',
         isConfirmed: false,
         effectiveFrom: '2026-10',
-        sourceRef: [{ url: 'https://www.jlpt.jp/e/about/structure.html', accessedAt: '2026-10-15' }],
+        sourceRef: [
+          {
+            url: 'https://www.jlpt.jp/e/about/structure.html',
+            accessedAt: '2026-10-15',
+          },
+        ],
         sections: [
           {
             code: 'test',
@@ -539,7 +539,13 @@ describe('F08 Database Schema and Migrations', () => {
           method: 'linear_reference',
           rounding: 'round',
           scoringSections: [
-            { code: 's1', label: 'L1', skills: ['kanji'], maxScaled: 60, minPass: 19 },
+            {
+              code: 's1',
+              label: 'L1',
+              skills: ['kanji'],
+              maxScaled: 60,
+              minPass: 19,
+            },
           ],
           totalMax: 180,
           totalPass: 100,
@@ -547,9 +553,7 @@ describe('F08 Database Schema and Migrations', () => {
       };
 
       expect(() => activateBlueprint(officialDraft)).toThrow(BlueprintActivationError);
-      expect(() => activateBlueprint(officialDraft)).toThrow(
-        /xác nhận từ chủ dự án hoặc người vận hành/,
-      );
+      expect(() => activateBlueprint(officialDraft)).toThrow(/xác nhận từ chủ dự án hoặc người vận hành/);
     });
 
     it('rejects activating official blueprint with missing or non-jlpt.jp sourceRef', () => {
@@ -574,21 +578,25 @@ describe('F08 Database Schema and Migrations', () => {
           method: 'linear_reference',
           rounding: 'round',
           scoringSections: [
-            { code: 's1', label: 'L1', skills: ['kanji'], maxScaled: 60, minPass: 19 },
+            {
+              code: 's1',
+              label: 'L1',
+              skills: ['kanji'],
+              maxScaled: 60,
+              minPass: 19,
+            },
           ],
           totalMax: 180,
           totalPass: 90,
         },
       };
 
-      const confirmation = { confirmedBy: '0192f000-0000-7000-8000-000000000001' };
+      const confirmation = {
+        confirmedBy: '0192f000-0000-7000-8000-000000000001',
+      };
 
-      expect(() => activateBlueprint(invalidOfficial, confirmation)).toThrow(
-        BlueprintActivationError,
-      );
-      expect(() => activateBlueprint(invalidOfficial, confirmation)).toThrow(
-        /nguồn chính thức \(jlpt\.jp\)/,
-      );
+      expect(() => activateBlueprint(invalidOfficial, confirmation)).toThrow(BlueprintActivationError);
+      expect(() => activateBlueprint(invalidOfficial, confirmation)).toThrow(/nguồn chính thức \(jlpt\.jp\)/);
     });
 
     it('rejects activating official blueprint with zero placeholder values', () => {
@@ -600,7 +608,12 @@ describe('F08 Database Schema and Migrations', () => {
         status: 'draft',
         isConfirmed: false,
         effectiveFrom: '2026-10',
-        sourceRef: [{ url: 'https://www.jlpt.jp/e/about/structure.html', accessedAt: '2026-10-15' }],
+        sourceRef: [
+          {
+            url: 'https://www.jlpt.jp/e/about/structure.html',
+            accessedAt: '2026-10-15',
+          },
+        ],
         sections: [
           {
             code: 'vocab',
@@ -613,21 +626,25 @@ describe('F08 Database Schema and Migrations', () => {
           method: 'linear_reference',
           rounding: 'round',
           scoringSections: [
-            { code: 's1', label: 'L1', skills: ['kanji'], maxScaled: 60, minPass: 19 },
+            {
+              code: 's1',
+              label: 'L1',
+              skills: ['kanji'],
+              maxScaled: 60,
+              minPass: 19,
+            },
           ],
           totalMax: 180,
           totalPass: 95,
         },
       };
 
-      const confirmation = { confirmedBy: '0192f000-0000-7000-8000-000000000001' };
+      const confirmation = {
+        confirmedBy: '0192f000-0000-7000-8000-000000000001',
+      };
 
-      expect(() => activateBlueprint(blueprintWithZero, confirmation)).toThrow(
-        BlueprintActivationError,
-      );
-      expect(() => activateBlueprint(blueprintWithZero, confirmation)).toThrow(
-        /không được để placeholder 0/,
-      );
+      expect(() => activateBlueprint(blueprintWithZero, confirmation)).toThrow(BlueprintActivationError);
+      expect(() => activateBlueprint(blueprintWithZero, confirmation)).toThrow(/không được để placeholder 0/);
     });
 
     it('successfully activates official blueprint when official source and confirmation are both present', () => {
@@ -639,7 +656,12 @@ describe('F08 Database Schema and Migrations', () => {
         status: 'draft',
         isConfirmed: false,
         effectiveFrom: '2026-10',
-        sourceRef: [{ url: 'https://www.jlpt.jp/e/about/structure.html', accessedAt: '2026-10-15' }],
+        sourceRef: [
+          {
+            url: 'https://www.jlpt.jp/e/about/structure.html',
+            accessedAt: '2026-10-15',
+          },
+        ],
         sections: [
           {
             code: 'test',
@@ -652,7 +674,13 @@ describe('F08 Database Schema and Migrations', () => {
           method: 'linear_reference',
           rounding: 'round',
           scoringSections: [
-            { code: 's1', label: 'L1', skills: ['kanji'], maxScaled: 60, minPass: 19 },
+            {
+              code: 's1',
+              label: 'L1',
+              skills: ['kanji'],
+              maxScaled: 60,
+              minPass: 19,
+            },
           ],
           totalMax: 180,
           totalPass: 100,
@@ -693,7 +721,13 @@ describe('F08 Database Schema and Migrations', () => {
           method: 'linear_reference',
           rounding: 'round',
           scoringSections: [
-            { code: 's1', label: 'L1', skills: ['kanji'], maxScaled: 120, minPass: 38 },
+            {
+              code: 's1',
+              label: 'L1',
+              skills: ['kanji'],
+              maxScaled: 120,
+              minPass: 38,
+            },
           ],
           totalMax: 180,
           totalPass: 80,
@@ -718,12 +752,8 @@ describe('F08 Database Schema and Migrations', () => {
         const teacherId = '0192f000-0010-7000-8000-000000000002';
         const adminId = '0192f000-0000-7000-8000-000000000001';
 
-        await client.query(
-          `INSERT INTO "organizations" (id, name, slug) VALUES ('${orgId}', 'JLPT Academy', 'jlpt-academy');`,
-        );
-        await client.query(
-          `INSERT INTO "users" (id, email, role) VALUES ('${teacherId}', 'teacher@jlpt.local', 'user') ON CONFLICT DO NOTHING;`,
-        );
+        await client.query(`INSERT INTO "organizations" (id, name, slug) VALUES ('${orgId}', 'JLPT Academy', 'jlpt-academy');`);
+        await client.query(`INSERT INTO "users" (id, email, role) VALUES ('${teacherId}', 'teacher@jlpt.local', 'user') ON CONFLICT DO NOTHING;`);
 
         // First membership: succeeds
         await client.query(`
@@ -801,16 +831,9 @@ describe('F08 Database Schema and Migrations', () => {
         const studentId = '0192f000-0030-7000-8000-000000000003';
         const teacherId = '0192f000-0000-7000-8000-000000000001';
 
-        await client.query(
-          `INSERT INTO "organizations" (id, name, slug) VALUES ('${orgId}', 'Kyoto Center', 'kyoto-ctr');`,
-        );
-        await client.query(
-          `INSERT INTO "classes" (id, org_id, teacher_id, name, level) VALUES ('${classId}', '${orgId}', '${teacherId}', 'Class 1', 'N2');`,
-        );
-        await client.query(
-          `INSERT INTO "users" (id, email, role) VALUES ('${studentId}', 'student@jlpt.local', 'student') ON CONFLICT DO NOTHING;`,
-        );
-
+        await client.query(`INSERT INTO "organizations" (id, name, slug) VALUES ('${orgId}', 'Kyoto Center', 'kyoto-ctr');`);
+        await client.query(`INSERT INTO "classes" (id, org_id, teacher_id, name, level) VALUES ('${classId}', '${orgId}', '${teacherId}', 'Class 1', 'N2');`);
+        await client.query(`INSERT INTO "users" (id, email, role) VALUES ('${studentId}', 'student@jlpt.local', 'student') ON CONFLICT DO NOTHING;`);
 
         // First enrollment: succeeds
         await client.query(`
@@ -850,16 +873,11 @@ describe('F08 Database Schema and Migrations', () => {
         const studentId = '0192f000-0040-7000-8000-000000000003';
         const assignmentId = '0192f000-0040-7000-8000-000000000004';
 
-        await client.query(
-          `INSERT INTO "organizations" (id, name, slug) VALUES ('${orgId}', 'Osaka Center', 'osaka-ctr');`,
-        );
+        await client.query(`INSERT INTO "organizations" (id, name, slug) VALUES ('${orgId}', 'Osaka Center', 'osaka-ctr');`);
         await client.query(
           `INSERT INTO "classes" (id, org_id, teacher_id, name, level) VALUES ('${classId}', '${orgId}', '${teacherId}', 'Class Osaka', 'N3');`,
         );
-        await client.query(
-          `INSERT INTO "users" (id, email, role) VALUES ('${studentId}', 'student_osaka@jlpt.local', 'student') ON CONFLICT DO NOTHING;`,
-        );
-
+        await client.query(`INSERT INTO "users" (id, email, role) VALUES ('${studentId}', 'student_osaka@jlpt.local', 'student') ON CONFLICT DO NOTHING;`);
 
         // Invalid assignment timeline: opens_at > due_at must fail
         await expect(
@@ -1105,9 +1123,7 @@ describe('F08 Database Schema and Migrations', () => {
         await seedDatabase(client, fixturesDir);
 
         await expect(assertRetentionObligationNotViolated(client, 'billing')).resolves.not.toThrow();
-        await expect(assertRetentionObligationNotViolated(client, 'unapproved_sample')).rejects.toThrow(
-          RetentionViolationError,
-        );
+        await expect(assertRetentionObligationNotViolated(client, 'unapproved_sample')).rejects.toThrow(RetentionViolationError);
       } finally {
         await client.close();
       }
@@ -1122,11 +1138,7 @@ describe('F08 Database Schema and Migrations', () => {
         const userId = '0192f000-0000-7000-8000-000000000001';
 
         // When requesting deletion across approved ('billing', 'audit_logs') and unapproved ('unapproved_sample') domains
-        const result = await executeRetentionSafeDeletion(client, userId, [
-          'billing',
-          'audit_logs',
-          'unapproved_sample',
-        ]);
+        const result = await executeRetentionSafeDeletion(client, userId, ['billing', 'audit_logs', 'unapproved_sample']);
 
         expect(result.deletedDomains).toContain('billing');
         expect(result.deletedDomains).toContain('audit_logs');
@@ -1217,13 +1229,7 @@ describe('F08 Database Schema and Migrations', () => {
     it('concurrent migrations (5 parallel callers) are serialised and execute ledger once', async () => {
       const client = await createDbClient();
       try {
-        const results = await Promise.all([
-          runMigrations(client),
-          runMigrations(client),
-          runMigrations(client),
-          runMigrations(client),
-          runMigrations(client),
-        ]);
+        const results = await Promise.all([runMigrations(client), runMigrations(client), runMigrations(client), runMigrations(client), runMigrations(client)]);
         const appliedRuns = results.filter((r) => r.applied.length > 0);
         const zeroAppliedRuns = results.filter((r) => r.applied.length === 0);
         expect(appliedRuns.length).toBe(1);
@@ -1297,10 +1303,13 @@ describe('F08 Database Schema and Migrations', () => {
       const journal = JSON.parse(fs.readFileSync(journalPath, 'utf8'));
       expect(journal.dialect).toBe('postgresql');
       expect(Array.isArray(journal.entries)).toBe(true);
-      expect(journal.entries.length).toBe(11);
+      expect(journal.entries.length).toBe(12);
 
-      const sqlFiles = fs.readdirSync(migrationsDir).filter((f) => f.endsWith('.sql')).sort();
-      expect(sqlFiles.length).toBe(11);
+      const sqlFiles = fs
+        .readdirSync(migrationsDir)
+        .filter((f) => f.endsWith('.sql'))
+        .sort();
+      expect(sqlFiles.length).toBe(12);
 
       for (let i = 0; i < journal.entries.length; i++) {
         expect(journal.entries[i].idx).toBe(i);
@@ -1312,16 +1321,14 @@ describe('F08 Database Schema and Migrations', () => {
     it('serializes 10 concurrent migration callers with zero lock errors', async () => {
       const client = await createDbClient();
       try {
-        const results = await Promise.all(
-          Array.from({ length: 10 }, () => runMigrations(client)),
-        );
+        const results = await Promise.all(Array.from({ length: 10 }, () => runMigrations(client)));
         const appliedRuns = results.filter((r) => r.applied.length > 0);
         const zeroAppliedRuns = results.filter((r) => r.applied.length === 0);
         expect(appliedRuns.length).toBe(1);
-        expect(appliedRuns[0]!.applied.length).toBe(11);
+        expect(appliedRuns[0]!.applied.length).toBe(12);
         expect(zeroAppliedRuns.length).toBe(9);
         for (const r of zeroAppliedRuns) {
-          expect(r.alreadyApplied.length).toBe(11);
+          expect(r.alreadyApplied.length).toBe(12);
         }
       } finally {
         await client.close();
@@ -1347,4 +1354,3 @@ describe('F08 Database Schema and Migrations', () => {
     }, 30000);
   });
 });
-

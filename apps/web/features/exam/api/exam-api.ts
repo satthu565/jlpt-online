@@ -69,7 +69,7 @@ export class ExamApiClient {
 
   private async request<T>(
     endpoint: string,
-    method: 'GET' | 'POST' | 'PUT' | 'PATCH',
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     body?: unknown,
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
@@ -114,7 +114,9 @@ export class ExamApiClient {
         // Ignored if json parsing fails
       }
 
-      const code = errorBody.error?.code || (response.status === 409 ? 'LEASE_INVALID' : 'API_ERROR');
+      // A 409 can also mean a closed section/attempt or a proxy error. Only an
+      // explicit LEASE_INVALID response proves that another window owns the lease.
+      const code = errorBody.error?.code || 'API_ERROR';
       const message = errorBody.error?.message || `HTTP ${response.status} ${response.statusText}`;
       throw new ExamApiError(message, code, response.status, errorBody.error?.details);
     }
@@ -148,6 +150,14 @@ export class ExamApiClient {
 
   async getAttempt(attemptId: string): Promise<AttemptDetailResponse> {
     return this.request<AttemptDetailResponse>(`/attempts/${attemptId}`, 'GET');
+  }
+
+  async getFavoriteExams(): Promise<{ items: Array<{ examId: string; createdAt: string }> }> {
+    return this.request('/me/favorite-exams', 'GET');
+  }
+
+  async setExamFavorite(examId: string, favorite: boolean): Promise<{ favorited: boolean; examId: string }> {
+    return this.request(`/me/favorite-exams/${encodeURIComponent(examId)}`, favorite ? 'PUT' : 'DELETE', {});
   }
 
   async reviewAttempt(attemptId: string): Promise<ReviewAttemptResponse> {
@@ -230,7 +240,7 @@ export class ExamApiClient {
   async fetchSnapshot(snapshotUrl: string): Promise<PublicExamSnapshot> {
     const urlsToTry: string[] = [];
 
-    // 1. Direct snapshotUrl
+    // Keep direct URLs for external media/CDNs; API snapshots prefer the reachable app proxy below.
     urlsToTry.push(snapshotUrl);
 
     // 2. Relative & Same-Origin alternatives for staging/docker environments
@@ -251,13 +261,19 @@ export class ExamApiClient {
         : `/api/v1${pathnameAndSearch}`;
       if (!urlsToTry.includes(sameOrigin)) urlsToTry.push(sameOrigin);
 
+      // PUBLIC_HOST may name a private LAN host. API snapshot signatures bind to the resource path,
+      // so use the browser's current origin (or the configured internal API during SSR) first.
+      if (/^\/api\/v1\/(?:media\/)?exams\/[^/]+\/v?\d+\/snapshot\.json$/.test(parsed.pathname)) {
+        urlsToTry.unshift(typeof window === 'undefined' ? viaBase : sameOrigin);
+      }
+
       if (!urlsToTry.includes(pathnameAndSearch)) urlsToTry.push(pathnameAndSearch);
     } catch {
       // Ignore URL parse error
     }
 
     let lastError: Error | null = null;
-    for (const targetUrl of urlsToTry) {
+    for (const targetUrl of new Set(urlsToTry)) {
       try {
         const response = await this.fetcher(targetUrl, {
           credentials: 'include',

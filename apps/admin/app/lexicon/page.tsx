@@ -11,8 +11,10 @@ import { AdminGuard } from '../../lib/ui-guard';
 import { useAdminAuth } from '../../lib/auth-context';
 import { apiClient } from '../../lib/api-client';
 import { t } from '../../lib/i18n';
+import type { LexiconItem } from '../../features/lexicon/types';
+import { VietnameseMeaningPreview } from '../../features/lexicon/vietnamese-meaning-preview';
+import { VietnameseMeaningsEditor } from '../../features/lexicon/vietnamese-meanings-editor';
 
-type LexiconItem = { id: string; term: string; readings: string[]; meanings: string[]; partOfSpeech: string; hanViet: string };
 const PAGE_SIZE = 50;
 const POS_OPTIONS = [
   { value: '', label: '' }, // label filled with t('lexicon.posAll') at render
@@ -26,7 +28,9 @@ const POS_OPTIONS = [
 ];
 
 export default function LexiconPage(): React.JSX.Element {
-  const { locale } = useAdminAuth();
+  const { locale, user } = useAdminAuth();
+  const [editing, setEditing] = useState<LexiconItem | null>(null);
+  const canEdit = user?.role === 'admin' || user?.role === 'editor';
   const [query, setQuery] = useState('');
   const [submitted, setSubmitted] = useState('');
   const [pos, setPos] = useState('');
@@ -101,6 +105,11 @@ export default function LexiconPage(): React.JSX.Element {
           </p>
         )}
 
+        {editing && <VietnameseMeaningsEditor key={editing.id} item={editing} locale={locale} onCancel={() => setEditing(null)} onSaved={result => {
+          setData(previous => previous ? { ...previous, items: previous.items.map(item => item.id === editing.id ? { ...item, ...result } : item) } : previous);
+          setEditing(null);
+        }} />}
+
         {error ? (
           <Alert variant="error">
             {error}{' '}
@@ -127,16 +136,23 @@ export default function LexiconPage(): React.JSX.Element {
                 <TableHead>{t('lexicon.colHanViet', locale)}</TableHead>
                 <TableHead>{t('lexicon.colPos', locale)}</TableHead>
                 <TableHead>{t('lexicon.colMeaning', locale)}</TableHead>
+                <TableHead>{t('lexicon.colMeaningVi', locale)}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.items.map((it) => (
-                <TableRow key={it.id} data-testid="lexicon-row">
+                <TableRow key={it.id} data-testid="lexicon-row" data-entry-id={it.id}>
                   <TableCell className="font-japanese text-base font-semibold">{it.term}</TableCell>
                   <TableCell className="font-japanese">{it.readings.join('、')}</TableCell>
                   <TableCell>{it.hanViet}</TableCell>
                   <TableCell className="font-mono text-xs">{it.partOfSpeech}</TableCell>
                   <TableCell className="max-w-md">{it.meanings.join(' / ')}</TableCell>
+                  <TableCell className="min-w-48 max-w-md" data-testid="lexicon-vi-cell">
+                    <VietnameseMeaningPreview senses={it.meaningSenses} fallback={it.meaningsVi} locale={locale} />
+                    {canEdit && <Button size="sm" variant="secondary" onClick={() => setEditing(it)} aria-label={`${t('lexicon.editVi', locale)}: ${it.term}`}>
+                      {t('lexicon.editVi', locale)}
+                    </Button>}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

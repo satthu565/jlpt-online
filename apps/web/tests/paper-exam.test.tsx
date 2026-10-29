@@ -3,7 +3,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { SAMPLE_N5_EXAM_SNAPSHOT } from './fixtures/sample-exam';
 import { flattenExamQuestions } from '../features/exam/utils/flatten-questions';
-import { answeredIn, displayQuestionNumber, groupBookletQuestions, mediaUrl, nextReviewQuestion } from '../features/exam/utils/booklet';
+import { answeredIn, displayQuestionNumber, groupBookletQuestions, mediaUrl, nextReviewQuestion, printedGroupLabel } from '../features/exam/utils/booklet';
+import { ExamWorkspace } from '../features/exam/components/exam-workspace';
 import { PaperBooklet } from '../features/exam/components/paper-booklet';
 import { PaperAnswerSheet } from '../features/exam/components/paper-answer-sheet';
 import { MarkedText } from '../features/exam/components/paper-content';
@@ -44,6 +45,29 @@ describe('Paper booklet and answer sheet', () => {
     expect(groupBookletQuestions([{ ...first, instructions }, { ...second, instructions: [{ t: 'text', text: '問題２' }] }])).toHaveLength(2);
   });
 
+  it('does not present 35 storage groups without printed metadata as 35 mondai', () => {
+    const questions = Array.from({ length: 35 }, (_, index) => ({ ...first, instructions: [], globalIndex: index, groupId: `storage-${index}`, questionId: `question-${index}`, number: String(index + 1) }));
+    const html = renderToStaticMarkup(<ExamWorkspace attemptId="missing-metadata" examId="exam" version={1} title="N3" questions={questions} answers={Array(35).fill(0)} flags={Array(35).fill(0)} currentIndex={0} fontSize="base" showFurigana={false} lookupEnabled={false} disabled={false} isLastSection={false} onActivate={noop} onAnswer={noop} onFlag={noop} onFinishSection={noop} />);
+    expect(html).not.toContain('Nhóm ');
+    expect(html).not.toContain('paper-sheet-group');
+    expect(html).not.toContain('paper-group-end');
+    expect(html).toContain('Đến câu 1');
+    for (const question of questions) expect(html).toContain(`data-testid="paper-question-${question.globalIndex}"`);
+  });
+
+  it('shows one flat question grid even when printed mondai headings exist', () => {
+    const instructions = [{ t: 'text' as const, text: '問題５　次の問いに答えてください。' }];
+    expect(printedGroupLabel(instructions)).toBe('問題５');
+    expect(printedGroupLabel([])).toBeUndefined();
+    const html = renderToStaticMarkup(<PaperAnswerSheet questions={[{ ...first, instructions }, { ...second, instructions }]} answers={[0, 0]} flags={[0, 0]} currentIndex={0} disabled={false} onJump={noop} onAnswer={noop} onFlag={noop} onReview={noop} />);
+    expect(html).not.toContain('問題５');
+    expect(html).not.toContain('Nhóm ');
+    expect(html).toContain('paper-sheet-grid');
+    expect(html).toContain('data-testid="paper-question-tile-0"');
+    expect(html).toContain('data-testid="paper-question-tile-1"');
+    expect(html).not.toContain('type="radio"');
+  });
+
   it('preserves Japanese ruby and underlining without exposing imported number prefixes', () => {
     expect(displayQuestionNumber('V12')).toBe('12');
     expect(displayQuestionNumber('G1')).toBe('1');
@@ -51,6 +75,12 @@ describe('Paper booklet and answer sheet', () => {
     const html = renderToStaticMarkup(<MarkedText id="question" segments={[{ t: 'ruby', text: '予約', rt: 'よやく' }, { t: 'underline', children: [{ t: 'text', text: 'する' }] }]} marks={[{ start: 0, end: 1 }]} onMark={noop} onClear={noop} showFurigana />);
     expect(html).toContain('<mark>予</mark>約<rt>よやく</rt>');
     expect(html).toContain('<u>する</u>');
+  });
+
+  it('does not render a stray zero when a question has no passage', () => {
+    const html = renderToStaticMarkup(<PaperBooklet title="N5" questions={[{ ...first, passage: [] }]} answers={[0]} flags={[0]} currentIndex={0} workspace={{ fontSize: 'base', font: 'mincho', notes: {}, marks: {} }} showFurigana={false} disabled={false} onActivate={noop} onAnswer={noop} onFlag={noop} onNote={noop} onMark={noop} onClearMarks={noop} onOpenPassage={noop} />);
+    expect(html).not.toMatch(/<section[^>]*>\s*0\s*<div class="paper-stem"/);
+    expect(html).toContain('<div class="paper-stem"');
   });
 
   it('renders multiple questions, one shared passage, review flags and a distinct erase action', () => {
@@ -63,6 +93,9 @@ describe('Paper booklet and answer sheet', () => {
     expect(html).toContain('paper-question-1');
     expect(html).toContain('Bỏ đánh dấu xem lại câu');
     expect(html).toContain('Tẩy đáp án câu');
+    const firstFooter = html.match(/<div class="paper-question-footer">([\s\S]*?)<\/div>/)?.[1] ?? '';
+    expect(firstFooter.indexOf('Tẩy đáp án câu')).toBeLessThan(firstFooter.indexOf('Ghi nháp'));
+    expect(firstFooter.indexOf('Ghi nháp')).toBeLessThan(firstFooter.indexOf('Bỏ đánh dấu xem lại câu'));
     expect(html).not.toContain('Tổng hợp #');
   });
 
@@ -75,6 +108,12 @@ describe('Paper booklet and answer sheet', () => {
     expect(html).toContain('1 câu cần xem lại');
     expect(html).toContain('Đến câu 2');
     expect(html).not.toContain('Câu 2, đáp án 4');
+    expect(html).toContain('data-answered="true"');
+    expect(html).toContain('data-flagged="true"');
+    expect(html).toContain('aria-current="step"');
+    expect(html).toContain('Chưa làm');
+    expect(html).toContain('Đã làm');
+    expect(html).toContain('Đang xem');
   });
 
   it('cycles through blank or flagged questions and excludes locked questions', () => {
@@ -83,6 +122,26 @@ describe('Paper booklet and answer sheet', () => {
     expect(nextReviewQuestion(questions, 0, [1, 2, 0], [0, 1, 1], 'blank')).toBeUndefined();
     expect(nextReviewQuestion(questions, 0, [1, 2, 0], [0, 1, 1], 'flagged', -1)?.globalIndex).toBe(1);
     expect(nextReviewQuestion([], 0, [], [], 'blank')).toBeUndefined();
+  });
+
+  it('announces answered and current states together instead of replacing the answer state', () => {
+    const html = renderToStaticMarkup(<PaperAnswerSheet questions={[first, second]} answers={[2, 0]} flags={[0, 0]} currentIndex={0} disabled={false} onJump={noop} onAnswer={noop} onFlag={noop} onReview={noop} />);
+    expect(html).toContain('aria-describedby=');
+    expect(html).toContain('>Đã làm, Đang xem</span>');
+    expect(html).toContain('>Chưa làm</span>');
+  });
+
+  it('derives the circular progress, tab counts and review count from the active questions', () => {
+    const questions = Array.from({ length: 4 }, (_, index) => ({ ...first, questionId: `palette-${index}`, globalIndex: index, number: String(index + 1) }));
+    const html = renderToStaticMarkup(<PaperAnswerSheet questions={questions} answers={[2, 0, 3, 0]} flags={[0, 0, 0, 1]} currentIndex={0} disabled={false} onJump={noop} onAnswer={noop} onFlag={noop} onReview={noop} />).replace(/<!--.*?-->/g, '');
+    expect(html).toContain('palette-progress-circle');
+    expect(html).toContain('50%');
+    expect(html).toContain('2 / 4 câu');
+    expect(html).toContain('Tất cả (4)');
+    expect(html).toContain('Đã làm (2)');
+    expect(html).toContain('Chưa làm (2)');
+    expect(html).toContain('1 câu cần xem lại');
+    expect(html).toContain('Chọn câu để xem hoặc làm bài');
   });
 
 });

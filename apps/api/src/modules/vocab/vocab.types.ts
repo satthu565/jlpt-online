@@ -15,6 +15,7 @@ export interface DictionaryLookupResponseDto {
   entry: string;
   readings: string[];
   meanings: string[];
+  meaningSections?: DictionaryMeaningSectionDto[];
   examples: string[];
   license: string;
   attribution: string;
@@ -31,11 +32,20 @@ export interface DictionaryLookupResponseDto {
   hanVietPerKanji?: Array<{ kanji: string; onyomi?: string; hanViet: string }>;
 }
 
+export interface DictionaryMeaningSectionDto {
+  senseIndex: number;
+  summary?: string;
+  meanings: string[];
+  explanation?: string;
+}
+
 export interface DictionarySenseDto {
   index: number;
   pos?: string;
   posLabels: string[];
+  summary?: string;
   meanings: string[];
+  explanation?: string;
   gloss?: string;
 }
 
@@ -55,6 +65,7 @@ export interface DictionaryEntryDetailDto {
   level?: string | null;
   readings: string[];
   meanings: string[];
+  meaningSections?: DictionaryMeaningSectionDto[];
   senses: DictionarySenseDto[];
   posLabels: string[];
   partOfSpeech?: string;
@@ -355,4 +366,3 @@ export interface RecommendationResponseDto {
   totalRecommendations: number;
   recommendations: RecommendationItemDto[];
 }
-

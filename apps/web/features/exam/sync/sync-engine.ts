@@ -142,6 +142,7 @@ export class ExamSyncEngine {
 
     // 1. IndexedDB ghi trước gửi
     await this.persistToStorage([change]);
+    if (this.isStopped) return;
 
     // 2. Mark pending and schedule sync
     this.hasPendingChanges = true;
@@ -159,6 +160,7 @@ export class ExamSyncEngine {
 
     // 1. IndexedDB ghi trước gửi
     await this.persistToStorage([]);
+    if (this.isStopped) return;
 
     // 2. Mark pending and schedule sync
     this.hasPendingChanges = true;
@@ -205,7 +207,7 @@ export class ExamSyncEngine {
     this.pendingWrite = write;
     try { await write; }
     catch (cause) { this.updateSyncState('local_error'); throw cause; }
-    this.updateSyncState('saving');
+    if (!this.isStopped) this.updateSyncState('saving');
   }
 
   async retry(): Promise<void> {
@@ -350,9 +352,16 @@ export class ExamSyncEngine {
       this.inFlight = false;
 
       const error = err as { code?: string; message?: string; status?: number };
+      if (error.code === 'ATTEMPT_CLOSED' || error.code === 'ATTEMPT_ALREADY_SUBMITTED') {
+        this.isStopped = true;
+        this.clearTimers();
+        // Retain the unacknowledged local sheet and outbox. A closed attempt cannot accept retries.
+        this.updateSyncState('closed', error.message);
+        return;
+      }
       // Only a lost lease means another window owns the attempt. Other 409s (SECTION_NOT_STARTED, SECTION_CLOSED…)
       // are reported as errors and retried, not as a session conflict that ends the exam.
-      const isConflict = error.code === 'LEASE_INVALID' || (error.status === 409 && !error.code);
+      const isConflict = error.code === 'LEASE_INVALID';
 
       if (isConflict) {
         this.isStopped = true;

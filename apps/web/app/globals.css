@@ -31,6 +31,7 @@
 @import "@heroui/styles/components/modal.css" layer(components);
 @import "@heroui/styles/components/popover.css" layer(components);
 @import "@heroui/styles/components/progress-bar.css" layer(components);
+@import "@heroui/styles/components/progress-circle.css" layer(components);
 @import "@heroui/styles/components/switch.css" layer(components);
 @import "@heroui/styles/components/description.css" layer(components);
 @import "@heroui/styles/components/textfield.css" layer(components);

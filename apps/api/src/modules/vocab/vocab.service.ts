@@ -1,20 +1,6 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-  type OnModuleInit,
-} from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, type OnModuleInit } from '@nestjs/common';
 import { and, asc, count, eq, ilike, inArray, or, sql, type SQL } from 'drizzle-orm';
-import {
-  DictionaryAdapter,
-  tagQuestion,
-  type QuestionTagItem,
-  getHanVietForWord,
-  computeHanViet,
-  containsJapanese,
-  lemmatize,
-} from './nlp/index.js';
+import { DictionaryAdapter, tagQuestion, type QuestionTagItem, getHanVietForWord, computeHanViet, containsJapanese, lemmatize } from './nlp/index.js';
 import { romajiToHiragana } from './romaji.js';
 import { getPosLabels } from './pos-labels.js';
 import { getKanjiDetailsForWord } from './kanjidic-data.js';
@@ -28,18 +14,19 @@ import {
   type HanVietBackfillResult,
   type HanVietReviewList,
 } from './hanviet-entries.js';
+import {
+  groupMeaningSenses,
+  localizedMeaningSections,
+  localizedMeanings,
+  updateVietnameseMeanings,
+  type LexiconMeaningSense,
+  type MeaningRow,
+} from './vietnamese-meanings.js';
 import { listKanjiEntries, type KanjiListResult } from './kanji-list.js';
 import { resetKanjiHanViet, updateKanjiHanViet, type KanjiHanVietResult } from './kanji-edit.js';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
-import {
-  corpusTerms,
-  entryMeanings,
-  entryReadings,
-  lexicalEntries,
-  lexiconLicenses,
-  questionTags,
-} from '../../db/schema.js';
+import { corpusTerms, entryMeanings, entryReadings, lexicalEntries, lexiconLicenses, questionTags } from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import type {
   DictionaryEntryDetailDto,
@@ -59,6 +46,8 @@ export interface LexiconListResult {
     term: string;
     readings: string[];
     meanings: string[];
+    meaningsVi: string[];
+    meaningSenses: LexiconMeaningSense[];
     partOfSpeech: string;
     hanViet: string;
     provider: string;
@@ -67,7 +56,9 @@ export interface LexiconListResult {
 
 @Injectable()
 export class VocabService implements OnModuleInit {
-  private dictionaryAdapter = new DictionaryAdapter({ providerType: 'sandbox' });
+  private dictionaryAdapter = new DictionaryAdapter({
+    providerType: 'sandbox',
+  });
 
   private lookupCache = new Map<string, { data: DictionaryLookupResponseDto; expiresAt: number }>();
   private readonly MAX_LOOKUP_CACHE_SIZE = 2000;
@@ -96,8 +87,22 @@ export class VocabService implements OnModuleInit {
     return updateEntryHanViet(this.dbClient, entryId, hanViet, operatorId);
   }
 
-  reportHanViet(body: { entry?: unknown; reading?: unknown; suggestion?: unknown; note?: unknown }, userId?: string) {
+  reportHanViet(
+    body: {
+      entry?: unknown;
+      reading?: unknown;
+      suggestion?: unknown;
+      note?: unknown;
+    },
+    userId?: string,
+  ) {
     return reportHanViet(this.dbClient, body, userId);
+  }
+
+  async updateVietnameseMeanings(entryId: string, body: unknown, operatorId: string) {
+    const result = await updateVietnameseMeanings(this.dbClient, entryId, body, operatorId);
+    this.lookupCache.clear();
+    return result;
   }
 
   /** Admin "Kanji" page: every KANJIDIC2 character with its Hán Việt. */
@@ -105,11 +110,7 @@ export class VocabService implements OnModuleInit {
     return listKanjiEntries(this.dbClient, params);
   }
 
-  updateKanjiHanViet(
-    kanji: string,
-    body: { hanViet?: unknown; hanVietByOnyomi?: unknown },
-    operatorId?: string,
-  ): Promise<KanjiHanVietResult> {
+  updateKanjiHanViet(kanji: string, body: { hanViet?: unknown; hanVietByOnyomi?: unknown }, operatorId?: string): Promise<KanjiHanVietResult> {
     return updateKanjiHanViet(this.dbClient, kanji, body, operatorId);
   }
 
@@ -125,6 +126,12 @@ export class VocabService implements OnModuleInit {
     entry: string;
     readings: string[];
     meanings: string[];
+    meaningSections?: Array<{
+      senseIndex: number;
+      summary?: string;
+      meanings: string[];
+      explanation?: string;
+    }>;
     examples: string[];
     license: string;
     attribution: string;
@@ -134,15 +141,15 @@ export class VocabService implements OnModuleInit {
     hanViet?: string;
     hanVietConfidence?: 'high' | 'review' | 'kun';
     hanVietSource?: 'rule' | 'override' | 'manual';
-    hanVietPerKanji?: Array<{ kanji: string; onyomi?: string; hanViet: string }>;
+    hanVietPerKanji?: Array<{
+      kanji: string;
+      onyomi?: string;
+      hanViet: string;
+    }>;
   } | null> {
     // 1. Try DB lexical entries if populated
     try {
-      let dbEntries = await this.dbClient.db
-        .select()
-        .from(lexicalEntries)
-        .where(eq(lexicalEntries.term, text))
-        .limit(1);
+      let dbEntries = await this.dbClient.db.select().from(lexicalEntries).where(eq(lexicalEntries.term, text)).limit(1);
 
       // Kana input (よやく) matches the reading of a kanji headword (予約).
       if (dbEntries.length === 0) {
@@ -167,25 +174,18 @@ export class VocabService implements OnModuleInit {
 
       if (dbEntries.length > 0) {
         const entry = dbEntries[0]!;
-        const readings = await this.dbClient.db
-          .select()
-          .from(entryReadings)
-          .where(eq(entryReadings.entryId, entry.id));
-        const meanings = await this.dbClient.db
+        const readings = await this.dbClient.db.select().from(entryReadings).where(eq(entryReadings.entryId, entry.id));
+        const meanings: MeaningRow[] = await this.dbClient.db
           .select()
           .from(entryMeanings)
-          .where(eq(entryMeanings.entryId, entry.id));
+          .where(eq(entryMeanings.entryId, entry.id))
+          .orderBy(entryMeanings.senseIndex, entryMeanings.glossOrder, entryMeanings.id);
 
         let licenseName = 'CC-BY-SA-4.0';
-        let attribution =
-          'Electronic Dictionary Research and Development Group (EDRDG) JMdict / CC-BY-SA 4.0';
+        let attribution = 'Electronic Dictionary Research and Development Group (EDRDG) JMdict / CC-BY-SA 4.0';
 
         if (entry.licenseId) {
-          const lic = await this.dbClient.db
-            .select()
-            .from(lexiconLicenses)
-            .where(eq(lexiconLicenses.id, entry.licenseId))
-            .limit(1);
+          const lic = await this.dbClient.db.select().from(lexiconLicenses).where(eq(lexiconLicenses.id, entry.licenseId)).limit(1);
           if (lic.length > 0) {
             licenseName = lic[0]!.license;
             attribution = `${lic[0]!.provider} / ${lic[0]!.license}`;
@@ -199,15 +199,15 @@ export class VocabService implements OnModuleInit {
         const hanViet = entry.hanViet ?? computed.hanViet;
         // Kana-only headwords have no Hán Việt, so no confidence either.
         const hasKanji = computed.perKanji.length > 0;
-        const hanVietConfidence = hasKanji
-          ? ((entry.hanVietConfidence ?? computed.confidence) as 'high' | 'review' | 'kun')
-          : undefined;
+        const hanVietConfidence = hasKanji ? ((entry.hanVietConfidence ?? computed.confidence) as 'high' | 'review' | 'kun') : undefined;
         const hanVietSource = (entry.hanVietSource ?? computed.source) as 'rule' | 'override' | 'manual';
+        const meaningSections = localizedMeaningSections(meanings, locale);
         return {
           id: entry.id,
           entry: entry.term,
           readings: readings.map((r: { reading: string }) => r.reading),
-          meanings: meanings.map((m: { meaning: string }) => m.meaning),
+          meanings: localizedMeanings(meanings, locale).map((m) => m.meaning),
+          meaningSections,
           examples: [],
           license: licenseName,
           attribution,
@@ -253,9 +253,7 @@ export class VocabService implements OnModuleInit {
   /**
    * Tra cứu từ vựng trong từ điển có bản quyền (H05, phục vụ tra nhanh khi bôi đen).
    */
-  async lookupDictionary(
-    dto: DictionaryLookupQueryDto,
-  ): Promise<DictionaryLookupResponseDto> {
+  async lookupDictionary(dto: DictionaryLookupQueryDto): Promise<DictionaryLookupResponseDto> {
     if (!dto.text || dto.text.trim().length === 0) {
       throw new BadRequestException('Query text is required for dictionary lookup');
     }
@@ -353,6 +351,7 @@ export class VocabService implements OnModuleInit {
       entry: raw.entry,
       readings: raw.readings,
       meanings: raw.meanings,
+      meaningSections: raw.meaningSections,
       examples: raw.examples ?? [],
       license: raw.license,
       attribution: raw.attribution,
@@ -410,25 +409,24 @@ export class VocabService implements OnModuleInit {
     let entryHanVietConfidence: 'high' | 'review' | 'kun' | null = null;
     let entryHanVietSource: 'rule' | 'override' | 'manual' | null = null;
     let licenseName = 'CC-BY-SA-4.0';
-    let attribution =
-      'Electronic Dictionary Research and Development Group (EDRDG) JMdict / CC-BY-SA 4.0';
+    let attribution = 'Electronic Dictionary Research and Development Group (EDRDG) JMdict / CC-BY-SA 4.0';
     let readingsList: string[] = [];
-    let meaningRows: Array<{ id: string; meaning: string; locale: string; senseIndex: number; pos: string | null }> = [];
+    let meaningRows: Array<{
+      id: string;
+      meaning: string;
+      locale: string;
+      senseIndex: number;
+      glossOrder?: number;
+      contentType?: 'summary' | 'gloss' | 'explanation';
+      pos: string | null;
+    }> = [];
 
     // 1. Try DB
     try {
-      let dbEntries = await this.dbClient.db
-        .select()
-        .from(lexicalEntries)
-        .where(eq(lexicalEntries.term, queryTerm))
-        .limit(1);
+      let dbEntries = await this.dbClient.db.select().from(lexicalEntries).where(eq(lexicalEntries.term, queryTerm)).limit(1);
 
       if (dbEntries.length === 0 && queryTerm !== decoded) {
-        dbEntries = await this.dbClient.db
-          .select()
-          .from(lexicalEntries)
-          .where(eq(lexicalEntries.term, decoded))
-          .limit(1);
+        dbEntries = await this.dbClient.db.select().from(lexicalEntries).where(eq(lexicalEntries.term, decoded)).limit(1);
       }
 
       if (dbEntries.length === 0) {
@@ -461,23 +459,17 @@ export class VocabService implements OnModuleInit {
         entryHanVietConfidence = dbEntry.hanVietConfidence as 'high' | 'review' | 'kun' | null;
         entryHanVietSource = dbEntry.hanVietSource as 'rule' | 'override' | 'manual' | null;
 
-        const dbReadings = await this.dbClient.db
-          .select()
-          .from(entryReadings)
-          .where(eq(entryReadings.entryId, dbEntry.id));
+        const dbReadings = await this.dbClient.db.select().from(entryReadings).where(eq(entryReadings.entryId, dbEntry.id));
         readingsList = dbReadings.map((r: { reading: string }) => r.reading);
 
         meaningRows = await this.dbClient.db
           .select()
           .from(entryMeanings)
-          .where(eq(entryMeanings.entryId, dbEntry.id));
+          .where(eq(entryMeanings.entryId, dbEntry.id))
+          .orderBy(entryMeanings.senseIndex, entryMeanings.glossOrder, entryMeanings.id);
 
         if (dbEntry.licenseId) {
-          const lic = await this.dbClient.db
-            .select()
-            .from(lexiconLicenses)
-            .where(eq(lexiconLicenses.id, dbEntry.licenseId))
-            .limit(1);
+          const lic = await this.dbClient.db.select().from(lexiconLicenses).where(eq(lexiconLicenses.id, dbEntry.licenseId)).limit(1);
           if (lic.length > 0) {
             licenseName = lic[0]!.license;
             attribution = `${lic[0]!.provider} / ${lic[0]!.license}`;
@@ -490,9 +482,7 @@ export class VocabService implements OnModuleInit {
 
     // 2. If not in DB, fallback to sandbox dictionary
     if (!entryId && readingsList.length === 0) {
-      const sandbox =
-        this.dictionaryAdapter.lookup(queryTerm, 'en') ||
-        (queryTerm !== decoded ? this.dictionaryAdapter.lookup(decoded, 'en') : null);
+      const sandbox = this.dictionaryAdapter.lookup(queryTerm, 'en') || (queryTerm !== decoded ? this.dictionaryAdapter.lookup(decoded, 'en') : null);
       if (!sandbox) {
         throw new NotFoundException(`No dictionary entry found for '${decoded}'`);
       }
@@ -505,6 +495,8 @@ export class VocabService implements OnModuleInit {
         meaning: m,
         locale: 'en',
         senseIndex: idx,
+        glossOrder: idx,
+        contentType: 'gloss' as const,
         pos: sandbox.partOfSpeech ?? null,
       }));
       licenseName = sandbox.license;
@@ -512,8 +504,9 @@ export class VocabService implements OnModuleInit {
     }
 
     // Senses grouping
+    const structuredSections = localizedMeaningSections(meaningRows, 'vi');
     const sensesMap = new Map<number, Array<{ meaning: string; pos: string | null }>>();
-    for (const row of meaningRows) {
+    for (const row of localizedMeanings(meaningRows, 'vi')) {
       const idx = row.senseIndex ?? 0;
       if (!sensesMap.has(idx)) {
         sensesMap.set(idx, []);
@@ -528,11 +521,14 @@ export class VocabService implements OnModuleInit {
       const sensePos = items[0]?.pos || entryPos || undefined;
       const posLabels = getPosLabels(sensePos);
       const glosses = items.map((i) => i.meaning);
+      const section = structuredSections.find((item) => item.senseIndex === idx);
       senses.push({
         index: idx,
         pos: sensePos,
         posLabels,
-        meanings: glosses,
+        ...(section?.summary ? { summary: section.summary } : {}),
+        meanings: section?.meanings ?? glosses,
+        ...(section?.explanation ? { explanation: section.explanation } : {}),
         gloss: glosses.join('; '),
       });
     }
@@ -548,7 +544,7 @@ export class VocabService implements OnModuleInit {
     const kanjiDetails = await getKanjiDetailsForWord(this.dbClient, entryTerm);
 
     const overallPosLabels = getPosLabels(entryPos);
-    const allMeanings = meaningRows.map((m) => m.meaning);
+    const allMeanings = localizedMeanings(meaningRows, 'vi').map((m) => m.meaning);
 
     // Query occurrences from corpusTerms (H04) if table is populated
     let occurrencesList: Array<{ level: string; count: number }> = [];
@@ -575,6 +571,7 @@ export class VocabService implements OnModuleInit {
       term: entryTerm,
       readings: readingsList,
       meanings: allMeanings,
+      meaningSections: structuredSections,
       senses,
       posLabels: overallPosLabels,
       partOfSpeech: entryPos ?? undefined,
@@ -624,10 +621,7 @@ export class VocabService implements OnModuleInit {
    * Lấy danh sách tags đã gắn cho một câu hỏi.
    */
   async getQuestionTags(questionId: string): Promise<QuestionTagResultDto[]> {
-    const rows = await this.dbClient.db
-      .select()
-      .from(questionTags)
-      .where(eq(questionTags.questionId, questionId));
+    const rows = await this.dbClient.db.select().from(questionTags).where(eq(questionTags.questionId, questionId));
     return rows.map((r: { tag: string; category: string | null }) => ({
       tag: r.tag,
       category: r.category ?? 'general',
@@ -659,7 +653,12 @@ export class VocabService implements OnModuleInit {
     const where = conditions.length > 0 ? and(...conditions) : undefined;
 
     const [{ value: total }] = await this.dbClient.db.select({ value: count() }).from(lexicalEntries).where(where);
-    const rows: Array<{ id: string; term: string; partOfSpeech: string | null; provider: string | null }> = await this.dbClient.db
+    const rows: Array<{
+      id: string;
+      term: string;
+      partOfSpeech: string | null;
+      provider: string | null;
+    }> = await this.dbClient.db
       .select({
         id: lexicalEntries.id,
         term: lexicalEntries.term,
@@ -677,8 +676,12 @@ export class VocabService implements OnModuleInit {
     const readings: Array<{ entryId: string; reading: string }> = ids.length
       ? await this.dbClient.db.select().from(entryReadings).where(inArray(entryReadings.entryId, ids))
       : [];
-    const meanings: Array<{ entryId: string; meaning: string }> = ids.length
-      ? await this.dbClient.db.select().from(entryMeanings).where(inArray(entryMeanings.entryId, ids))
+    const meanings: Array<MeaningRow & { entryId: string }> = ids.length
+      ? await this.dbClient.db
+          .select()
+          .from(entryMeanings)
+          .where(inArray(entryMeanings.entryId, ids))
+          .orderBy(entryMeanings.senseIndex, entryMeanings.glossOrder, entryMeanings.id)
       : [];
 
     return {
@@ -689,7 +692,12 @@ export class VocabService implements OnModuleInit {
         id: r.id,
         term: r.term,
         readings: readings.filter((x) => x.entryId === r.id).map((x) => x.reading),
-        meanings: meanings.filter((x) => x.entryId === r.id).slice(0, 3).map((x) => x.meaning),
+        meanings: meanings.filter((x) => x.entryId === r.id && x.locale === 'en').map((x) => x.meaning),
+        meaningsVi: meanings.filter((x) => x.entryId === r.id && x.locale === 'vi' && x.contentType !== 'explanation').map((x) => x.meaning),
+        meaningSenses: groupMeaningSenses(
+          meanings.filter((x) => x.entryId === r.id),
+          r.partOfSpeech,
+        ),
         partOfSpeech: r.partOfSpeech ?? '',
         hanViet: getHanVietForWord(r.term) || '',
         provider: r.provider ?? '',

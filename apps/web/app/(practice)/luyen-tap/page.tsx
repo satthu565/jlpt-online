@@ -23,6 +23,8 @@ import { Spinner } from '@jlpt/ui/components/spinner';
 import { Badge } from '@jlpt/ui/components/badge';
 import Link from 'next/link';
 import { useI18n } from '../../../lib/i18n';
+import { ResumeConfirmation } from '../../../features/exam/utils/resume-confirmation';
+import { ResumeConfirmationCard } from '../../../features/exam/components/resume-confirmation';
 
 interface InProgressPracticeItem {
   id: string;
@@ -50,6 +52,8 @@ export default function PracticeAndMixPage(): React.JSX.Element {
   const [activeLease, setActiveLease] = useState<string | undefined>(undefined);
   const [initialAnswers, setInitialAnswers] = useState<number[] | undefined>(undefined);
   const [activeSeq, setActiveSeq] = useState<number>(0);
+  const [pendingResumeId, setPendingResumeId] = useState<string | null>(null);
+  const [resumeConfirmation] = useState(() => new ResumeConfirmation(setPendingResumeId));
 
   // In-progress practice sessions
   const [inProgressSessions, setInProgressSessions] = useState<InProgressPracticeItem[]>([]);
@@ -432,6 +436,10 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
     }
   };
 
+  if (pendingResumeId) {
+    return <ResumeConfirmationCard onConfirm={() => { void resumeConfirmation.confirm(handleResumePractice); }} onCancel={() => resumeConfirmation.cancel()} />;
+  }
+
   return (
     <div className="max-w-5xl mx-auto py-8 px-4 w-full" data-testid="practice-page-container">
       <div className="mb-8">
@@ -596,7 +604,7 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
                           variant="primary"
                           size="sm"
                           loading={isGenerating}
-                          onClick={() => handleResumePractice(session.id)}
+                          onClick={() => resumeConfirmation.request(session.id)}
                           data-testid={`resume-practice-btn-${session.id}`}
                         >
                           {t('practice.inProgress.resume')}

@@ -23,6 +23,7 @@ import { SpeakerTestModal } from './modals/speaker-test-modal';
 import { ShortcutsHelpModal } from './modals/shortcuts-help-modal';
 import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts';
 import { Button, Chip } from '@jlpt/ui/components/exam-controls';
+import { useI18n } from '../../../lib/i18n';
 import { useFurigana } from '@jlpt/ui/components/furigana-toggle';
 import { evaluatePacing } from '../pacing';
 import { useSelectLookup, useSelectLookupSetting, SelectionLookupPopover } from '../../corpus';
@@ -72,6 +73,7 @@ export function ExamRoom({
   onExit,
   className = '',
 }: ExamRoomProps): React.JSX.Element {
+  const { t } = useI18n();
   const totalQuestions = snapshot.totalQuestions;
   const roomRef = useRef<HTMLDivElement>(null);
   const sessionHeaderRef = useRef<HTMLElement>(null);
@@ -247,6 +249,10 @@ export function ExamRoom({
       maxWaitMs: 10000,
       onSyncStateChange: (state) => {
         setSyncState(state);
+        if (state === 'closed') {
+          setIsSubmitModalOpen(false);
+          setIsTransitionModalOpen(false);
+        }
       },
       onLeaseConflict: () => {
         setIsConflictModalOpen(true);
@@ -267,7 +273,7 @@ export function ExamRoom({
   // Options click handler
   const handleSelectOption = async (optionValue: number, index = currentQuestionIndex) => {
     const question = flatQuestions[index];
-    if (!question || question.isLocked || question.sectionIndex !== currentSectionIndex || isSubmitting || isTransitioning || isConflictModalOpen) return;
+    if (!question || question.isLocked || question.sectionIndex !== currentSectionIndex || isSubmitting || isTransitioning || isConflictModalOpen || syncState === 'closed') return;
 
     if (mode === 'real' && deadlines[currentSectionIndex] && Date.now() + serverOffsetMs >= Date.parse(deadlines[currentSectionIndex]!)) return;
     const newAnswers = [...answersRef.current];
@@ -285,7 +291,7 @@ export function ExamRoom({
   // Flag toggle handler
   const handleToggleFlag = async (index = currentQuestionIndex) => {
     const question = flatQuestions[index];
-    if (!question || question.isLocked || question.sectionIndex !== currentSectionIndex || isSubmitting || isTransitioning || isConflictModalOpen) return;
+    if (!question || question.isLocked || question.sectionIndex !== currentSectionIndex || isSubmitting || isTransitioning || isConflictModalOpen || syncState === 'closed') return;
 
     if (mode === 'real' && deadlines[currentSectionIndex] && Date.now() + serverOffsetMs >= Date.parse(deadlines[currentSectionIndex]!)) return;
     const newFlags = [...flagsRef.current];
@@ -337,7 +343,7 @@ export function ExamRoom({
 
   // Section transition handler (EXAM-06, EXAM-22)
   const handleConfirmSectionTransition = async () => {
-    if (isTransitioning) return;
+    if (isTransitioning || syncState === 'closed') return;
     setIsTransitioning(true);
 
     try {
@@ -374,7 +380,7 @@ export function ExamRoom({
 
   // Final submission handler (EXAM-19)
   const handleConfirmSubmit = async () => {
-    if (isSubmitting) return;
+    if (isSubmitting || syncState === 'closed') return;
     setIsSubmitting(true);
 
     try {
@@ -414,7 +420,7 @@ export function ExamRoom({
 
   // Countdown timer expiration handler (EXAM-08)
   const handleTimerExpire = () => {
-    if (mode !== 'real') return;
+    if (mode !== 'real' || syncState === 'closed') return;
     const isLastSec = currentSectionIndex >= snapshot.sections.length - 1;
     if (isLastSec) {
       handleConfirmSubmit();
@@ -455,7 +461,7 @@ export function ExamRoom({
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            {mode === 'real' && pacingEvaluation?.currentMilestone && (
+            {syncState !== 'closed' && mode === 'real' && pacingEvaluation?.currentMilestone && (
               <Chip size="sm" variant="soft"
                 data-testid="discreet-pacing-milestone"
                 title="Mốc tiến độ chuẩn JLPT"
@@ -472,11 +478,11 @@ export function ExamRoom({
               onRetry={() => { void engineRef.current?.retry(); }}
             />
 
-            <ExamClock
+            {syncState !== 'closed' && <ExamClock
               deadline={currentDeadline}
               serverNow={serverNow}
               onExpire={handleTimerExpire}
-            />
+            />}
 
             <Button
               type="button"
@@ -485,6 +491,7 @@ export function ExamRoom({
               onClick={() => setIsSubmitModalOpen(true)}
               aria-label="Nộp bài thi"
               data-testid="submit-exam-btn"
+              disabled={syncState === 'closed'}
 
             >
               Nộp bài
@@ -492,6 +499,10 @@ export function ExamRoom({
           </div>
         </div>
       </header>
+      {syncState === 'closed' && <div role="alert" className="max-w-7xl w-full mx-auto p-4 flex flex-wrap items-center gap-3">
+        <p>{t('paperExam.attemptClosedNotice')}</p>
+        <Button variant="outline" onClick={() => window.location.assign(`/ket-qua/${encodeURIComponent(attemptId)}`)}>{t('paperExam.viewSavedResult')}</Button>
+      </div>}
 
       {/* Section tabs header (hidden in Zen mode if compact) */}
       {!isZenMode && (
@@ -535,7 +546,7 @@ export function ExamRoom({
             serverOffsetMs={serverOffsetMs}
             mode={mode}
             activeGroupId={currentQ?.groupId || null}
-            isLocked={lockedSections.includes(currentSectionIndex)}
+            isLocked={syncState === 'closed' || lockedSections.includes(currentSectionIndex)}
             onItemChange={(itemIdx, grpId) => {
               // Automatically navigate to group if appropriate
               if (grpId) {
@@ -556,7 +567,7 @@ export function ExamRoom({
         questions={flatQuestions.filter((question) => question.sectionIndex === currentSectionIndex)}
         answers={answers} flags={flags} currentIndex={currentQuestionIndex}
         fontSize={fontSize} showFurigana={showFurigana} lookupEnabled={selectLookupEnabled}
-        disabled={isSubmitting || isTransitioning || isConflictModalOpen || lockedSections.includes(currentSectionIndex)}
+        disabled={syncState === 'closed' || isSubmitting || isTransitioning || isConflictModalOpen || lockedSections.includes(currentSectionIndex)}
         isLastSection={isLastSection} onActivate={setCurrentQuestionIndex}
         onAnswer={(index, value) => { void handleSelectOption(value, index); }}
         onFlag={(index) => { void handleToggleFlag(index); }}

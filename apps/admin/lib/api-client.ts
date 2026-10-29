@@ -1,14 +1,9 @@
 import type { PublicExamSnapshot, Role } from '@jlpt/schema';
+import type { LexiconMeaningSense } from '../features/lexicon/types';
 import type { StaffUser } from './auth-context';
 import { isStaffRole } from './navigation';
 
-export type GuardErrorCode =
-  | 'UNAUTHENTICATED'
-  | 'TWO_FACTOR_REQUIRED'
-  | 'INVALID_RECOVERY_CODE'
-  | 'FORBIDDEN'
-  | 'VALIDATION_ERROR'
-  | 'NETWORK_ERROR';
+export type GuardErrorCode = 'UNAUTHENTICATED' | 'TWO_FACTOR_REQUIRED' | 'INVALID_RECOVERY_CODE' | 'FORBIDDEN' | 'VALIDATION_ERROR' | 'NETWORK_ERROR';
 
 export class AdminClientGuardError extends Error {
   public readonly code: GuardErrorCode;
@@ -172,12 +167,10 @@ export class AdminApiClient {
 
     if (requiredRoles && requiredRoles.length > 0) {
       if (user.role !== 'admin' && !requiredRoles.includes(user.role)) {
-        throw new AdminClientGuardError(
-          'FORBIDDEN',
-          `Vai trò ${user.role} không có thẩm quyền truy cập tài nguyên này.`,
-          403,
-          { requiredRoles, userRole: user.role },
-        );
+        throw new AdminClientGuardError('FORBIDDEN', `Vai trò ${user.role} không có thẩm quyền truy cập tài nguyên này.`, 403, {
+          requiredRoles,
+          userRole: user.role,
+        });
       }
     }
   }
@@ -207,13 +200,7 @@ export class AdminApiClient {
     const url = `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
     const isMutation = ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase());
     const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
-    const bodyToSend = isFormData
-      ? (options.body as FormData)
-      : options.body !== undefined
-        ? options.body
-        : isMutation
-          ? {}
-          : undefined;
+    const bodyToSend = isFormData ? (options.body as FormData) : options.body !== undefined ? options.body : isMutation ? {} : undefined;
     const hasBody = bodyToSend !== undefined;
     const headers: Record<string, string> = {
       ...(hasBody && !isFormData ? { 'Content-Type': 'application/json' } : {}),
@@ -241,11 +228,7 @@ export class AdminApiClient {
         method,
         headers,
         credentials: 'include',
-        body: isFormData
-          ? (bodyToSend as FormData)
-          : bodyToSend !== undefined
-            ? JSON.stringify(bodyToSend)
-            : undefined,
+        body: isFormData ? (bodyToSend as FormData) : bodyToSend !== undefined ? JSON.stringify(bodyToSend) : undefined,
       });
     } catch (err: unknown) {
       throw new AdminClientGuardError('NETWORK_ERROR', (err as Error).message || 'Lỗi kết nối tới máy chủ.', 500);
@@ -283,19 +266,13 @@ export class AdminApiClient {
         this.onUnauthorizedCallback?.();
       }
 
-      const nestedError = typeof errorData.error === 'object' && errorData.error !== null
-        ? (errorData.error as Record<string, unknown>)
-        : undefined;
+      const nestedError = typeof errorData.error === 'object' && errorData.error !== null ? (errorData.error as Record<string, unknown>) : undefined;
 
-      const code =
-        (nestedError?.code as GuardErrorCode) ||
-        (res.status === 401 ? 'UNAUTHENTICATED' : res.status === 403 ? 'FORBIDDEN' : 'VALIDATION_ERROR');
+      const code = (nestedError?.code as GuardErrorCode) || (res.status === 401 ? 'UNAUTHENTICATED' : res.status === 403 ? 'FORBIDDEN' : 'VALIDATION_ERROR');
 
       let message = '';
       if (typeof errorData.error === 'string') {
-        message = typeof errorData.message === 'string'
-          ? `${errorData.error}: ${errorData.message}`
-          : errorData.error;
+        message = typeof errorData.message === 'string' ? `${errorData.error}: ${errorData.message}` : errorData.error;
       } else if (nestedError && typeof nestedError.message === 'string') {
         message = nestedError.message;
       } else if (typeof errorData.message === 'string') {
@@ -343,7 +320,11 @@ export class AdminApiClient {
     email: string,
     role: Role = 'editor',
     twoFactorEnabled = false,
-  ): Promise<{ user: StaffUser; token: string; nextStep: 'dashboard' | 'setup_2fa' | 'verify_2fa' }> {
+  ): Promise<{
+    user: StaffUser;
+    token: string;
+    nextStep: 'dashboard' | 'setup_2fa' | 'verify_2fa';
+  }> {
     if (!isStaffRole(role)) {
       throw new AdminClientGuardError('FORBIDDEN', 'Chỉ tài khoản nhân sự mới được phép đăng nhập.', 403);
     }
@@ -371,7 +352,11 @@ export class AdminApiClient {
   public async loginWithPassword(
     email: string,
     password: string,
-  ): Promise<{ user: StaffUser; token: string; nextStep: 'dashboard' | 'setup_2fa' | 'verify_2fa' }> {
+  ): Promise<{
+    user: StaffUser;
+    token: string;
+    nextStep: 'dashboard' | 'setup_2fa' | 'verify_2fa';
+  }> {
     const url = `${this.baseUrl}/api/v1/auth/sign-in/email`;
     const res = await (this.fetchFn ?? fetch)(url, {
       method: 'POST',
@@ -381,7 +366,10 @@ export class AdminApiClient {
     });
 
     if (!res.ok) {
-      let errJson: { error?: { code?: string; message?: string }; message?: string } = {};
+      let errJson: {
+        error?: { code?: string; message?: string };
+        message?: string;
+      } = {};
       try {
         errJson = (await res.json()) as typeof errJson;
       } catch {
@@ -395,7 +383,14 @@ export class AdminApiClient {
     }
 
     const data = (await res.json()) as {
-      user: { id: string; email: string; name?: string | null; role: Role; emailVerified: boolean; twoFactorEnabled?: boolean };
+      user: {
+        id: string;
+        email: string;
+        name?: string | null;
+        role: Role;
+        emailVerified: boolean;
+        twoFactorEnabled?: boolean;
+      };
       session: { id: string; token: string; twoFactorVerified?: boolean };
     };
 
@@ -496,11 +491,7 @@ export class AdminApiClient {
     });
   }
 
-  public async submitTargetForReview(
-    targetType: string,
-    targetId: string,
-    targetVersion = 1,
-  ): Promise<{ status: string }> {
+  public async submitTargetForReview(targetType: string, targetId: string, targetVersion = 1): Promise<{ status: string }> {
     return this.request<{ status: string }>('POST', '/api/v1/admin/reviews/submit', {
       requiredRoles: ['editor', 'admin', 'reviewer'],
       body: { targetType, targetId, targetVersion },
@@ -600,14 +591,15 @@ export class AdminApiClient {
   }
 
   /** Admin only: approve every pending question group of the exam, then publish it (audit-logged by the API). */
-  public async approveAndPublishExam(
-    id: string,
-  ): Promise<{ approvedGroups: number; version?: number; [key: string]: unknown }> {
-    return this.request<{ approvedGroups: number; version?: number }>(
-      'POST',
-      `/api/v1/admin/exams/${encodeURIComponent(id)}/approve-and-publish`,
-      { requiredRoles: ['admin'], body: {} },
-    );
+  public async approveAndPublishExam(id: string): Promise<{
+    approvedGroups: number;
+    version?: number;
+    [key: string]: unknown;
+  }> {
+    return this.request<{ approvedGroups: number; version?: number }>('POST', `/api/v1/admin/exams/${encodeURIComponent(id)}/approve-and-publish`, {
+      requiredRoles: ['admin'],
+      body: {},
+    });
   }
 
   /** Snapshot without answers of the exam as it stands now (draft included), for staff review. */
@@ -713,24 +705,16 @@ export class AdminApiClient {
   }
 
   public async approveRefund(refundId: string): Promise<{ approved: boolean; status: string }> {
-    return this.request<{ approved: boolean; status: string }>(
-      'POST',
-      `/api/v1/admin/refunds/${encodeURIComponent(refundId)}/approve`,
-      {
-        requiredRoles: ['billing_admin', 'admin'],
-      },
-    );
+    return this.request<{ approved: boolean; status: string }>('POST', `/api/v1/admin/refunds/${encodeURIComponent(refundId)}/approve`, {
+      requiredRoles: ['billing_admin', 'admin'],
+    });
   }
 
   public async rejectRefund(refundId: string, reason?: string): Promise<{ rejected: boolean; status: string }> {
-    return this.request<{ rejected: boolean; status: string }>(
-      'POST',
-      `/api/v1/admin/refunds/${encodeURIComponent(refundId)}/reject`,
-      {
-        requiredRoles: ['billing_admin', 'admin'],
-        body: { reason },
-      },
-    );
+    return this.request<{ rejected: boolean; status: string }>('POST', `/api/v1/admin/refunds/${encodeURIComponent(refundId)}/reject`, {
+      requiredRoles: ['billing_admin', 'admin'],
+      body: { reason },
+    });
   }
 
   public async getRevenueReport(query?: { from?: string; to?: string; currency?: string }): Promise<{
@@ -738,62 +722,44 @@ export class AdminApiClient {
     refundMinor: number;
     netMinor: number;
     currency: string;
-    breakdownByCurrency?: Record<string, {
-      grossMinor: number;
-      refundMinor: number;
-      netMinor: number;
-      orderCount: number;
-      refundCount: number;
-    }>;
+    breakdownByCurrency?: Record<
+      string,
+      {
+        grossMinor: number;
+        refundMinor: number;
+        netMinor: number;
+        orderCount: number;
+        refundCount: number;
+      }
+    >;
   }> {
     const params = new URLSearchParams();
     if (query?.from) params.set('from', query.from);
     if (query?.to) params.set('to', query.to);
     if (query?.currency) params.set('currency', query.currency);
     const qs = params.toString() ? `?${params.toString()}` : '';
-    return this.request(
-      'GET',
-      `/api/v1/admin/reports/revenue${qs}`,
-      {
-        requiredRoles: ['billing_admin', 'admin'],
-      },
-    );
+    return this.request('GET', `/api/v1/admin/reports/revenue${qs}`, {
+      requiredRoles: ['billing_admin', 'admin'],
+    });
   }
 
   public async listReconciliationRuns(limit = 20): Promise<unknown[]> {
-    return this.request<unknown[]>(
-      'GET',
-      `/api/v1/admin/reconciliation/runs?limit=${limit}`,
-      {
-        requiredRoles: ['billing_admin', 'admin'],
-      },
-    );
+    return this.request<unknown[]>('GET', `/api/v1/admin/reconciliation/runs?limit=${limit}`, {
+      requiredRoles: ['billing_admin', 'admin'],
+    });
   }
 
-  public async runReconciliation(data?: {
-    provider?: string;
-    fromDate?: string;
-    toDate?: string;
-    externalStatements?: unknown[];
-  }): Promise<unknown> {
-    return this.request(
-      'POST',
-      '/api/v1/admin/reconciliation/run',
-      {
-        requiredRoles: ['billing_admin', 'admin'],
-        body: data || {},
-      },
-    );
+  public async runReconciliation(data?: { provider?: string; fromDate?: string; toDate?: string; externalStatements?: unknown[] }): Promise<unknown> {
+    return this.request('POST', '/api/v1/admin/reconciliation/run', {
+      requiredRoles: ['billing_admin', 'admin'],
+      body: data || {},
+    });
   }
 
   public async getPaymentReadiness(provider = 'payos'): Promise<{ ready: boolean; provider: string; checks: unknown[] }> {
-    return this.request(
-      'GET',
-      `/api/v1/admin/payment/readiness?provider=${encodeURIComponent(provider)}`,
-      {
-        requiredRoles: ['billing_admin', 'admin'],
-      },
-    );
+    return this.request('GET', `/api/v1/admin/payment/readiness?provider=${encodeURIComponent(provider)}`, {
+      requiredRoles: ['billing_admin', 'admin'],
+    });
   }
 
   public async getReport(kind: string, query?: { from?: string; to?: string }): Promise<unknown> {
@@ -843,7 +809,6 @@ export class AdminApiClient {
     });
   }
 
-
   public async getDashboard(): Promise<{
     metrics: {
       totalUsers: number;
@@ -853,7 +818,12 @@ export class AdminApiClient {
       grossRevenueVnd: number;
       activeDau: number;
     };
-    activities: Array<{ id: string; title: string; time: string; type: string }>;
+    activities: Array<{
+      id: string;
+      title: string;
+      time: string;
+      type: string;
+    }>;
   }> {
     return this.request('GET', '/api/v1/admin/dashboard');
   }
@@ -873,10 +843,7 @@ export class AdminApiClient {
     return this.request('GET', '/api/v1/admin/settings/notifications');
   }
 
-  public async updateNotificationTemplate(
-    id: string,
-    data: Record<string, unknown>,
-  ): Promise<{ success: boolean; item: unknown }> {
+  public async updateNotificationTemplate(id: string, data: Record<string, unknown>): Promise<{ success: boolean; item: unknown }> {
     return this.request('PATCH', `/api/v1/admin/settings/notifications/${encodeURIComponent(id)}`, {
       requiredRoles: ['admin'],
       body: data,
@@ -917,10 +884,7 @@ export class AdminApiClient {
     });
   }
 
-  public async triggerBackupJob(
-    jobType: string,
-    configSnapshot?: Record<string, string>,
-  ): Promise<{ success: boolean; job: unknown }> {
+  public async triggerBackupJob(jobType: string, configSnapshot?: Record<string, string>): Promise<{ success: boolean; job: unknown }> {
     return this.request('POST', '/api/v1/admin/settings/backup/jobs', {
       requiredRoles: ['admin'],
       body: {
@@ -940,7 +904,12 @@ export class AdminApiClient {
   public async deleteExam(
     id: string,
     confirmSlug: string,
-  ): Promise<{ status: 'deleted'; examId: string; slug: string; deletedAttempts: number }> {
+  ): Promise<{
+    status: 'deleted';
+    examId: string;
+    slug: string;
+    deletedAttempts: number;
+  }> {
     return this.request('POST', `/api/v1/admin/exams/${encodeURIComponent(id)}/delete`, {
       requiredRoles: ['admin'],
       body: { confirmSlug },
@@ -953,11 +922,7 @@ export class AdminApiClient {
     });
   }
 
-  public async uploadImportPackage(
-    fileOrBase64: File | string,
-    fileName?: string,
-    options?: { mode?: 'draft' | 'ready' },
-  ): Promise<unknown> {
+  public async uploadImportPackage(fileOrBase64: File | string, fileName?: string, options?: { mode?: 'draft' | 'ready' }): Promise<unknown> {
     const mode = options?.mode ?? 'ready';
     if (typeof FormData !== 'undefined' && typeof fileOrBase64 !== 'string') {
       const formData = new FormData();
@@ -1022,19 +987,11 @@ export class AdminApiClient {
     });
   }
 
-  public async reviewExplanation(
-    id: string,
-    decision: 'approved' | 'rejected',
-    comments?: string,
-  ): Promise<{ success: boolean }> {
-    return this.request<{ success: boolean }>(
-      'POST',
-      `/api/v1/admin/explanations/${encodeURIComponent(id)}/reviews`,
-      {
-        requiredRoles: ['reviewer', 'admin'],
-        body: { decision, comments },
-      },
-    );
+  public async reviewExplanation(id: string, decision: 'approved' | 'rejected', comments?: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>('POST', `/api/v1/admin/explanations/${encodeURIComponent(id)}/reviews`, {
+      requiredRoles: ['reviewer', 'admin'],
+      body: { decision, comments },
+    });
   }
 
   public async listMedia(): Promise<{ items: unknown[] }> {
@@ -1078,7 +1035,17 @@ export class AdminApiClient {
     total: number;
     page: number;
     pageSize: number;
-    items: Array<{ id: string; term: string; readings: string[]; meanings: string[]; partOfSpeech: string; hanViet: string; provider: string }>;
+    items: Array<{
+      id: string;
+      term: string;
+      readings: string[];
+      meanings: string[];
+      meaningsVi: string[];
+      meaningSenses: LexiconMeaningSense[];
+      partOfSpeech: string;
+      hanViet: string;
+      provider: string;
+    }>;
   }> {
     const qs = new URLSearchParams();
     if (params.q) qs.set('q', params.q);
@@ -1090,7 +1057,33 @@ export class AdminApiClient {
     });
   }
 
-  public async listKanjiEntries(params: { q?: string; level?: string; page?: number; pageSize?: number } = {}): Promise<{
+  public async updateVietnameseMeanings(
+    id: string,
+    senses: Array<{
+      senseIndex: number;
+      meanings: string[];
+      summary?: string;
+      explanation?: string;
+    }>,
+  ): Promise<{
+    id: string;
+    meaningsVi: string[];
+    meaningSenses: LexiconMeaningSense[];
+  }> {
+    return this.request('PATCH', `/api/v1/admin/lexicon/entries/${encodeURIComponent(id)}/meanings-vi`, {
+      body: { senses },
+      requiredRoles: ['admin', 'editor'],
+    });
+  }
+
+  public async listKanjiEntries(
+    params: {
+      q?: string;
+      level?: string;
+      page?: number;
+      pageSize?: number;
+    } = {},
+  ): Promise<{
     total: number;
     page: number;
     pageSize: number;
@@ -1122,27 +1115,37 @@ export class AdminApiClient {
   public async updateKanjiHanViet(
     kanji: string,
     body: { hanViet: string; hanVietByOnyomi?: Record<string, string> },
-  ): Promise<{ kanji: string; hanViet: string; hanVietByOnyomi: Array<{ onyomi: string; hanViet: string }>; edited: boolean }> {
+  ): Promise<{
+    kanji: string;
+    hanViet: string;
+    hanVietByOnyomi: Array<{ onyomi: string; hanViet: string }>;
+    edited: boolean;
+  }> {
     return this.request('PATCH', `/api/v1/admin/lexicon/kanji/${encodeURIComponent(kanji)}/hanviet`, {
       requiredRoles: ['admin', 'editor'],
       body,
     });
   }
 
-  public async resetKanjiHanViet(
-    kanji: string,
-  ): Promise<{ kanji: string; hanViet: string; hanVietByOnyomi: Array<{ onyomi: string; hanViet: string }>; edited: boolean }> {
+  public async resetKanjiHanViet(kanji: string): Promise<{
+    kanji: string;
+    hanViet: string;
+    hanVietByOnyomi: Array<{ onyomi: string; hanViet: string }>;
+    edited: boolean;
+  }> {
     return this.request('POST', `/api/v1/admin/lexicon/kanji/${encodeURIComponent(kanji)}/hanviet/reset`, {
       requiredRoles: ['admin', 'editor'],
     });
   }
 
-  public async listHanVietReview(params: {
-    confidence?: string;
-    q?: string;
-    page?: number;
-    pageSize?: number;
-  } = {}): Promise<HanVietReviewList> {
+  public async listHanVietReview(
+    params: {
+      confidence?: string;
+      q?: string;
+      page?: number;
+      pageSize?: number;
+    } = {},
+  ): Promise<HanVietReviewList> {
     const qs = new URLSearchParams();
     if (params.confidence) qs.set('confidence', params.confidence);
     if (params.q) qs.set('q', params.q);
@@ -1156,21 +1159,26 @@ export class AdminApiClient {
   public async updateHanVietEntry(
     id: string,
     hanViet: string,
-  ): Promise<{ id: string; term: string; hanViet: string; confidence: 'high'; source: 'manual' }> {
-    return this.request<{ id: string; term: string; hanViet: string; confidence: 'high'; source: 'manual' }>(
-      'PATCH',
-      `/api/v1/admin/lexicon/${encodeURIComponent(id)}/hanviet`,
-      {
-        requiredRoles: ['admin', 'editor', 'reviewer'],
-        body: { hanViet },
-      },
-    );
+  ): Promise<{
+    id: string;
+    term: string;
+    hanViet: string;
+    confidence: 'high';
+    source: 'manual';
+  }> {
+    return this.request<{
+      id: string;
+      term: string;
+      hanViet: string;
+      confidence: 'high';
+      source: 'manual';
+    }>('PATCH', `/api/v1/admin/lexicon/${encodeURIComponent(id)}/hanviet`, {
+      requiredRoles: ['admin', 'editor', 'reviewer'],
+      body: { hanViet },
+    });
   }
 
-  public async listVocab(
-    datasetId = 'jlpt-official',
-    query?: Record<string, string>,
-  ): Promise<{ items: unknown[] } | unknown[]> {
+  public async listVocab(datasetId = 'jlpt-official', query?: Record<string, string>): Promise<{ items: unknown[] } | unknown[]> {
     const searchParams = new URLSearchParams(query);
     const qs = searchParams.toString();
     const path = `/api/v1/datasets/${encodeURIComponent(datasetId)}/vocabulary${qs ? `?${qs}` : ''}`;
@@ -1210,18 +1218,11 @@ export class AdminApiClient {
     });
   }
 
-  public async updateContentReport(
-    id: string,
-    data: { status: 'in_review' | 'resolved' | 'dismissed'; notes?: string },
-  ): Promise<{ success: boolean }> {
-    return this.request<{ success: boolean }>(
-      'PATCH',
-      `/api/v1/admin/content-reports/${encodeURIComponent(id)}`,
-      {
-        requiredRoles: ['reviewer', 'editor', 'admin'],
-        body: data,
-      },
-    );
+  public async updateContentReport(id: string, data: { status: 'in_review' | 'resolved' | 'dismissed'; notes?: string }): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>('PATCH', `/api/v1/admin/content-reports/${encodeURIComponent(id)}`, {
+      requiredRoles: ['reviewer', 'editor', 'admin'],
+      body: data,
+    });
   }
 
   public async getContentReport(kind = 'content'): Promise<unknown> {
@@ -1230,19 +1231,11 @@ export class AdminApiClient {
     });
   }
 
-  public async reviewAiContent(
-    id: string,
-    approvalStatus: 'approved' | 'rejected',
-    reviewNotes?: string,
-  ): Promise<{ success: boolean }> {
-    return this.request<{ success: boolean }>(
-      'POST',
-      `/api/v1/admin/ai-content/${encodeURIComponent(id)}/reviews`,
-      {
-        requiredRoles: ['reviewer', 'admin'],
-        body: { approvalStatus, reviewNotes },
-      },
-    );
+  public async reviewAiContent(id: string, approvalStatus: 'approved' | 'rejected', reviewNotes?: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>('POST', `/api/v1/admin/ai-content/${encodeURIComponent(id)}/reviews`, {
+      requiredRoles: ['reviewer', 'admin'],
+      body: { approvalStatus, reviewNotes },
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -1251,75 +1244,39 @@ export class AdminApiClient {
 
   public async listJlptSchedules(status?: string): Promise<{ items: unknown[] }> {
     const qs = status ? `?status=${encodeURIComponent(status)}` : '';
-    return this.request<{ items: unknown[] }>(
-      'GET',
-      `/api/v1/admin/jlpt-schedules${qs}`,
-      { requiredRoles: ['editor', 'admin'] },
-    );
+    return this.request<{ items: unknown[] }>('GET', `/api/v1/admin/jlpt-schedules${qs}`, { requiredRoles: ['editor', 'admin'] });
   }
 
   public async getJlptSchedule(id: string): Promise<unknown> {
-    return this.request(
-      'GET',
-      `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}`,
-      { requiredRoles: ['editor', 'admin'] },
-    );
+    return this.request('GET', `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}`, { requiredRoles: ['editor', 'admin'] });
   }
 
   public async createJlptSchedule(data: unknown): Promise<{ id: string }> {
-    return this.request<{ id: string }>(
-      'POST',
-      '/api/v1/admin/jlpt-schedules',
-      { requiredRoles: ['admin'], body: data },
-    );
+    return this.request<{ id: string }>('POST', '/api/v1/admin/jlpt-schedules', { requiredRoles: ['admin'], body: data });
   }
 
   public async updateJlptSchedule(id: string, data: unknown): Promise<{ updated: boolean }> {
-    return this.request<{ updated: boolean }>(
-      'PATCH',
-      `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}`,
-      { requiredRoles: ['admin'], body: data },
-    );
+    return this.request<{ updated: boolean }>('PATCH', `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}`, { requiredRoles: ['admin'], body: data });
   }
 
   public async publishJlptSchedule(id: string): Promise<{ status: string }> {
-    return this.request<{ status: string }>(
-      'POST',
-      `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}/publish`,
-      { requiredRoles: ['admin'] },
-    );
+    return this.request<{ status: string }>('POST', `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}/publish`, { requiredRoles: ['admin'] });
   }
 
   public async unpublishJlptSchedule(id: string): Promise<{ status: string }> {
-    return this.request<{ status: string }>(
-      'POST',
-      `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}/unpublish`,
-      { requiredRoles: ['admin'] },
-    );
+    return this.request<{ status: string }>('POST', `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}/unpublish`, { requiredRoles: ['admin'] });
   }
 
   public async deleteJlptSchedule(id: string): Promise<{ deleted: boolean }> {
-    return this.request<{ deleted: boolean }>(
-      'DELETE',
-      `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}`,
-      { requiredRoles: ['admin'] },
-    );
+    return this.request<{ deleted: boolean }>('DELETE', `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}`, { requiredRoles: ['admin'] });
   }
 
   public async remindJlptRegistration(id: string): Promise<unknown> {
-    return this.request(
-      'POST',
-      `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}/remind-registration`,
-      { requiredRoles: ['admin'] },
-    );
+    return this.request('POST', `/api/v1/admin/jlpt-schedules/${encodeURIComponent(id)}/remind-registration`, { requiredRoles: ['admin'] });
   }
 
   public async triggerJlptReminders(): Promise<unknown> {
-    return this.request(
-      'POST',
-      '/api/v1/admin/jlpt-schedules/trigger-reminders',
-      { requiredRoles: ['admin'] },
-    );
+    return this.request('POST', '/api/v1/admin/jlpt-schedules/trigger-reminders', { requiredRoles: ['admin'] });
   }
 
   private handleMockRequest<T>(_method: string, path: string, _body?: unknown): T {
@@ -1340,22 +1297,34 @@ export class AdminApiClient {
       return { items: [] } as T;
     }
     if (path.includes('/groups') || path.includes('/questions')) {
-      return { items: [{ id: 'grp_01', title: 'Mondai 1 Kanji Reading', status: 'draft' }] } as T;
+      return {
+        items: [{ id: 'grp_01', title: 'Mondai 1 Kanji Reading', status: 'draft' }],
+      } as T;
     }
     if (path.includes('/reviews')) {
-      return { items: [{ id: 'rev_01', groupId: 'grp_01', status: 'pending' }] } as T;
+      return {
+        items: [{ id: 'rev_01', groupId: 'grp_01', status: 'pending' }],
+      } as T;
     }
     if (path.includes('/exams')) {
-      return { items: [{ id: 'ex_01', title: 'JLPT N1 Full Test 2026', published: false }] } as T;
+      return {
+        items: [{ id: 'ex_01', title: 'JLPT N1 Full Test 2026', published: false }],
+      } as T;
     }
     if (path.includes('/audit-logs')) {
-      return { items: [{ id: 'aud_01', action: 'update_role', user: 'admin@jlpt.local' }] } as T;
+      return {
+        items: [{ id: 'aud_01', action: 'update_role', user: 'admin@jlpt.local' }],
+      } as T;
     }
     if (path.includes('/blueprints')) {
-      return { items: [{ id: 'bp_N1', level: 'N1', version: 1, status: 'active' }] } as T;
+      return {
+        items: [{ id: 'bp_N1', level: 'N1', version: 1, status: 'active' }],
+      } as T;
     }
     if (path.includes('/users')) {
-      return { items: [{ id: 'usr_01', email: 'user@jlpt.local', role: 'student' }] } as T;
+      return {
+        items: [{ id: 'usr_01', email: 'user@jlpt.local', role: 'student' }],
+      } as T;
     }
     if (path.includes('/validate')) {
       return { valid: true, violations: [] } as T;

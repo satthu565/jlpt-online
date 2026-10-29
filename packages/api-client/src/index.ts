@@ -383,6 +383,13 @@ export class ApiClient {
   }
 
   /**
+   * Danh sách từ điển với nghĩa tiếng Anh và tiếng Việt theo nhóm nghĩa
+   */
+  public async adminListLexiconEntries<T = unknown>(query?: Record<string, string | number | boolean | undefined>): Promise<T> {
+    return this.request<T>('GET', '/api/v1/admin/lexicon/entries', { query });
+  }
+
+  /**
    * Quản trị giấy phép bản quyền nguồn
    */
   public async adminListLicenses<T = unknown>(): Promise<T> {
@@ -576,6 +583,13 @@ export class ApiClient {
    */
   public async adminUpdateUser<T = unknown>(id: string, body: unknown): Promise<T> {
     return this.request<T>('PATCH', `/api/v1/admin/users/${encodeURIComponent(id)}`, { body });
+  }
+
+  /**
+   * Admin/editor thay thế nghĩa tiếng Việt, giữ nguyên nghĩa tiếng Anh và ghi nhật ký
+   */
+  public async adminUpdateVietnameseMeanings<T = unknown>(id: string, body: unknown): Promise<T> {
+    return this.request<T>('PATCH', `/api/v1/admin/lexicon/entries/${encodeURIComponent(id)}/meanings-vi`, { body });
   }
 
   /**

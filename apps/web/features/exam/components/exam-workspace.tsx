@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { BookOpen, Flag } from 'lucide-react';
 import { Button } from '@jlpt/ui/components/exam-controls';
 import { Modal } from '@jlpt/ui/components/exam-controls';
 import { useI18n } from '../../../lib/i18n';
 import type { FlatQuestionItem } from '../types';
 import { usePaperWorkspace } from '../hooks/use-paper-workspace';
-import { answeredIn, groupBookletQuestions, nextReviewQuestion, richTextContent } from '../utils/booklet';
+import { answeredIn, nextReviewQuestion } from '../utils/booklet';
+import { getSectionLabelKey } from '../utils/section-label';
 import type { JapaneseFontSize } from './exam-toolbar';
 import { PaperBooklet } from './paper-booklet';
 import { PaperAnswerSheet } from './paper-answer-sheet';
@@ -43,7 +44,8 @@ export function ExamWorkspace(props: ExamWorkspaceProps): React.JSX.Element {
   const [passage, setPassage] = useState<FlatQuestionItem | null>(null);
   const [notice, setNotice] = useState('');
   const restored = useRef(false);
-  const groups = useMemo(() => groupBookletQuestions(props.questions), [props.questions]);
+  const sectionLabelKey = getSectionLabelKey(props.title);
+  const sectionLabel = sectionLabelKey ? t(sectionLabelKey) : props.title;
   const answered = answeredIn(props.questions, props.answers);
   const activate = (index: number) => {
     props.onActivate(index);
@@ -83,9 +85,8 @@ export function ExamWorkspace(props: ExamWorkspaceProps): React.JSX.Element {
     <div className="paper-main">
       {props.children}
       {(notice || workspace.saveFailed) && <p role={workspace.saveFailed ? 'alert' : 'status'}>{workspace.saveFailed ? t('paperExam.notesSaveError') : notice}</p>}
-      <nav className="paper-group-nav" aria-label={t('paperExam.groupNavigation')}>{groups.map((group, index) => <Button key={group.id} size="sm" variant="ghost" onClick={() => jump(group.questions[0]!.globalIndex)}>{richTextContent(group.instructions).match(/問題\s*[0-9０-９一二三四五六七八九十]+/)?.[0] ?? t('paperExam.group', { number: index + 1 })}</Button>)}</nav>
       <PaperBooklet questions={props.questions} title={props.title} answers={props.answers} flags={props.flags} currentIndex={props.currentIndex} workspace={workspace.workspace} showFurigana={props.showFurigana} lookupEnabled={props.lookupEnabled} disabled={props.disabled} onActivate={activate} onAnswer={props.onAnswer} onFlag={props.onFlag} onNote={workspace.setNote} onMark={workspace.mark} onClearMarks={workspace.clearMarks} onOpenPassage={setPassage} />
-      <div className="paper-bottom-nav"><Button variant="outline" onClick={() => review('blank')}>{t('paperExam.nextBlank')}</Button><Button variant="primary" data-testid="finish-section-btn" disabled={props.disabled} onClick={props.onFinishSection}>{t(props.isLastSection ? 'paperExam.submit' : 'paperExam.submitSection')}</Button></div>
+      <div className="paper-bottom-nav"><Button variant="outline" onClick={() => review('blank')}>{t('paperExam.nextBlank')}</Button><Button variant="primary" data-testid="finish-section-btn" disabled={props.disabled} onClick={props.onFinishSection}>{props.isLastSection ? t('paperExam.submit') : t('paperExam.submitSection', { section: sectionLabel })}</Button></div>
     </div>
     <div className="paper-sticky-sheet"><PaperAnswerSheet {...sheetProps} /></div>
     <div className="paper-mobile-bar"><span>{t('paperExam.answeredCount', { done: answered, total: props.questions.length })}</span><Button size="sm" variant="outline" aria-label={t('paperExam.reviewFlags')} onClick={() => review('flagged')}><Flag className="size-4" aria-hidden="true" />{props.questions.filter((item) => props.flags[item.globalIndex]).length}</Button><Button size="sm" onClick={() => setSheetOpen(true)}><BookOpen className="size-4" aria-hidden="true" />{t('paperExam.sheet')}</Button></div>

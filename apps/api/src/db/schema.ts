@@ -16,7 +16,6 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 
-
 // ---------------------------------------------------------------------------
 // 1. Identity & Auth (W2)
 // ---------------------------------------------------------------------------
@@ -39,7 +38,9 @@ export const users = pgTable('users', {
 });
 
 export const userProfiles = pgTable('user_profiles', {
-  userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
   bio: text('bio'),
   metadata: jsonb('metadata').default('{}').notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
@@ -47,7 +48,9 @@ export const userProfiles = pgTable('user_profiles', {
 
 export const sessions = pgTable('sessions', {
   id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   token: text('token').notNull().unique(),
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   ipAddress: text('ip_address'),
@@ -58,14 +61,20 @@ export const sessions = pgTable('sessions', {
 
 export const accounts = pgTable('accounts', {
   id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   accountId: text('account_id').notNull(),
   providerId: text('provider_id').notNull(),
   accessToken: text('access_token'),
   refreshToken: text('refresh_token'),
   idToken: text('id_token'),
-  accessTokenExpiresAt: timestamp('access_token_expires_at', { withTimezone: true }),
-  refreshTokenExpiresAt: timestamp('refresh_token_expires_at', { withTimezone: true }),
+  accessTokenExpiresAt: timestamp('access_token_expires_at', {
+    withTimezone: true,
+  }),
+  refreshTokenExpiresAt: timestamp('refresh_token_expires_at', {
+    withTimezone: true,
+  }),
   scope: text('scope'),
   password: text('password'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -89,46 +98,46 @@ export const consents = pgTable(
   'consents',
   {
     id: uuid('id').primaryKey(),
-    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     purpose: text('purpose').notNull(),
     policyVersion: text('policy_version').notNull(),
     grantedAt: timestamp('granted_at', { withTimezone: true }).defaultNow().notNull(),
     withdrawnAt: timestamp('withdrawn_at', { withTimezone: true }),
   },
-  (t) => [
-    uniqueIndex('consents_user_purpose_version_idx').on(t.userId, t.purpose, t.policyVersion),
-  ],
+  (t) => [uniqueIndex('consents_user_purpose_version_idx').on(t.userId, t.purpose, t.policyVersion)],
 );
 
 export const dataExportJobs = pgTable(
   'data_export_jobs',
   {
     id: uuid('id').primaryKey(),
-    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     status: text('status').notNull().default('pending'),
     downloadUrl: text('download_url'),
     expiresAt: timestamp('expires_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     completedAt: timestamp('completed_at', { withTimezone: true }),
   },
-  (t) => [
-    index('data_export_jobs_user_status_idx').on(t.userId, t.status),
-  ],
+  (t) => [index('data_export_jobs_user_status_idx').on(t.userId, t.status)],
 );
 
 export const deletionRequests = pgTable(
   'deletion_requests',
   {
     id: uuid('id').primaryKey(),
-    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     status: text('status').notNull().default('requested'),
     requestedAt: timestamp('requested_at', { withTimezone: true }).defaultNow().notNull(),
     processedAt: timestamp('processed_at', { withTimezone: true }),
     metadata: jsonb('metadata').default('{}').notNull(),
   },
-  (t) => [
-    index('deletion_requests_user_status_idx').on(t.userId, t.status),
-  ],
+  (t) => [index('deletion_requests_user_status_idx').on(t.userId, t.status)],
 );
 
 export const retentionPolicies = pgTable(
@@ -141,9 +150,7 @@ export const retentionPolicies = pgTable(
     approvedBy: uuid('approved_by').references(() => users.id),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [
-    uniqueIndex('retention_policies_domain_idx').on(t.domain),
-  ],
+  (t) => [uniqueIndex('retention_policies_domain_idx').on(t.domain)],
 );
 
 // ---------------------------------------------------------------------------
@@ -161,7 +168,9 @@ export const examSources = pgTable('exam_sources', {
 
 export const contentLicenses = pgTable('content_licenses', {
   id: uuid('id').primaryKey(),
-  sourceId: uuid('source_id').notNull().references(() => examSources.id),
+  sourceId: uuid('source_id')
+    .notNull()
+    .references(() => examSources.id),
   licenseType: text('license_type').notNull(),
   effectiveFrom: timestamp('effective_from', { withTimezone: true }).notNull(),
   expiresAt: timestamp('expires_at', { withTimezone: true }),
@@ -184,7 +193,9 @@ export const questionGroups = pgTable('question_groups', {
 export const questionGroupVersions = pgTable(
   'question_group_versions',
   {
-    groupId: uuid('group_id').notNull().references(() => questionGroups.id),
+    groupId: uuid('group_id')
+      .notNull()
+      .references(() => questionGroups.id),
     version: integer('version').notNull(),
     passage: jsonb('passage').notNull(),
     audioSha256: text('audio_sha256'),
@@ -208,7 +219,9 @@ export const questions = pgTable('questions', {
 export const questionVersions = pgTable(
   'question_versions',
   {
-    questionId: uuid('question_id').notNull().references(() => questions.id),
+    questionId: uuid('question_id')
+      .notNull()
+      .references(() => questions.id),
     version: integer('version').notNull(),
     stem: jsonb('stem').notNull(),
     explanation: jsonb('explanation'),
@@ -221,7 +234,9 @@ export const questionVersions = pgTable(
 export const answerOptions = pgTable(
   'answer_options',
   {
-    questionId: uuid('question_id').notNull().references(() => questions.id),
+    questionId: uuid('question_id')
+      .notNull()
+      .references(() => questions.id),
     questionVersion: integer('question_version').notNull(),
     orderIndex: smallint('order_index').notNull(),
     content: jsonb('content').notNull(),
@@ -232,7 +247,9 @@ export const answerOptions = pgTable(
 export const correctAnswers = pgTable(
   'correct_answers',
   {
-    questionId: uuid('question_id').notNull().references(() => questions.id),
+    questionId: uuid('question_id')
+      .notNull()
+      .references(() => questions.id),
     questionVersion: integer('question_version').notNull(),
     correctOption: smallint('correct_option').notNull(),
     explanationNotes: text('explanation_notes'),
@@ -257,7 +274,9 @@ export const mediaAssets = pgTable('media_assets', {
 
 export const importJobs = pgTable('import_jobs', {
   id: uuid('id').primaryKey(),
-  uploadedBy: uuid('uploaded_by').notNull().references(() => users.id),
+  uploadedBy: uuid('uploaded_by')
+    .notNull()
+    .references(() => users.id),
   status: text('status').notNull().default('pending'),
   packageSha256: text('package_sha256').notNull(),
   fileName: text('file_name').notNull(),
@@ -269,7 +288,9 @@ export const importJobs = pgTable('import_jobs', {
 
 export const importJobAttempts = pgTable('import_job_attempts', {
   id: uuid('id').primaryKey(),
-  jobId: uuid('job_id').notNull().references(() => importJobs.id),
+  jobId: uuid('job_id')
+    .notNull()
+    .references(() => importJobs.id),
   attemptNumber: integer('attempt_number').notNull(),
   status: text('status').notNull(),
   logs: jsonb('logs').default('[]').notNull(),
@@ -279,7 +300,9 @@ export const importJobAttempts = pgTable('import_job_attempts', {
 
 export const importArtifacts = pgTable('import_artifacts', {
   id: uuid('id').primaryKey(),
-  jobId: uuid('job_id').notNull().references(() => importJobs.id),
+  jobId: uuid('job_id')
+    .notNull()
+    .references(() => importJobs.id),
   artifactType: text('artifact_type').notNull(),
   storageKey: text('storage_key').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -287,8 +310,12 @@ export const importArtifacts = pgTable('import_artifacts', {
 
 export const questionSourceRefs = pgTable('question_source_refs', {
   id: uuid('id').primaryKey(),
-  questionId: uuid('question_id').notNull().references(() => questions.id),
-  sourceId: uuid('source_id').notNull().references(() => examSources.id),
+  questionId: uuid('question_id')
+    .notNull()
+    .references(() => questions.id),
+  sourceId: uuid('source_id')
+    .notNull()
+    .references(() => examSources.id),
   sourcePage: integer('source_page'),
   note: text('note'),
 });
@@ -302,8 +329,12 @@ export const contentReviews = pgTable('content_reviews', {
   targetType: text('target_type').notNull(), // 'question_version' | 'group_version' | 'exam_version'
   targetId: uuid('target_id').notNull(),
   targetVersion: integer('target_version').notNull(),
-  reviewerId: uuid('reviewer_id').notNull().references(() => users.id),
-  lastEditorId: uuid('last_editor_id').notNull().references(() => users.id),
+  reviewerId: uuid('reviewer_id')
+    .notNull()
+    .references(() => users.id),
+  lastEditorId: uuid('last_editor_id')
+    .notNull()
+    .references(() => users.id),
   status: text('status').notNull(),
   comments: text('comments'),
   reviewedAt: timestamp('reviewed_at', { withTimezone: true }).defaultNow().notNull(),
@@ -313,36 +344,39 @@ export const explanationVersions = pgTable(
   'explanation_versions',
   {
     id: uuid('id').primaryKey(),
-    questionId: uuid('question_id').notNull().references(() => questions.id),
+    questionId: uuid('question_id')
+      .notNull()
+      .references(() => questions.id),
     version: integer('version').notNull(),
     content: jsonb('content').notNull(),
     locale: text('locale').notNull().default('vi'),
-    authorId: uuid('author_id').notNull().references(() => users.id),
+    authorId: uuid('author_id')
+      .notNull()
+      .references(() => users.id),
     aiGenerated: boolean('ai_generated').default(false).notNull(),
     status: text('status').notNull().default('draft'),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [
-    uniqueIndex('explanation_versions_question_version_locale_idx').on(
-      t.questionId,
-      t.version,
-      t.locale,
-    ),
-  ],
+  (t) => [uniqueIndex('explanation_versions_question_version_locale_idx').on(t.questionId, t.version, t.locale)],
 );
-
 
 export const questionTags = pgTable('question_tags', {
   id: uuid('id').primaryKey(),
-  questionId: uuid('question_id').notNull().references(() => questions.id),
+  questionId: uuid('question_id')
+    .notNull()
+    .references(() => questions.id),
   tag: text('tag').notNull(),
   category: text('category'),
 });
 
 export const questionReports = pgTable('question_reports', {
   id: uuid('id').primaryKey(),
-  questionId: uuid('question_id').notNull().references(() => questions.id),
-  reportedBy: uuid('reported_by').notNull().references(() => users.id),
+  questionId: uuid('question_id')
+    .notNull()
+    .references(() => questions.id),
+  reportedBy: uuid('reported_by')
+    .notNull()
+    .references(() => users.id),
   issueType: text('issue_type').notNull(),
   description: text('description').notNull(),
   status: text('status').notNull().default('open'),
@@ -351,8 +385,12 @@ export const questionReports = pgTable('question_reports', {
 
 export const nearDuplicateCandidates = pgTable('near_duplicate_candidates', {
   id: uuid('id').primaryKey(),
-  questionIdA: uuid('question_id_a').notNull().references(() => questions.id),
-  questionIdB: uuid('question_id_b').notNull().references(() => questions.id),
+  questionIdA: uuid('question_id_a')
+    .notNull()
+    .references(() => questions.id),
+  questionIdB: uuid('question_id_b')
+    .notNull()
+    .references(() => questions.id),
   similarityScore: integer('similarity_score').notNull(),
   status: text('status').notNull().default('pending'),
 });
@@ -384,11 +422,15 @@ export const blueprints = pgTable('blueprints', {
 export const blueprintVersions = pgTable(
   'blueprint_versions',
   {
-    blueprintId: uuid('blueprint_id').notNull().references(() => blueprints.id),
+    blueprintId: uuid('blueprint_id')
+      .notNull()
+      .references(() => blueprints.id),
     version: integer('version').notNull(),
     sections: jsonb('sections').notNull(),
     scoring: jsonb('scoring').notNull(),
-    changedBy: uuid('changed_by').notNull().references(() => users.id),
+    changedBy: uuid('changed_by')
+      .notNull()
+      .references(() => users.id),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [primaryKey({ columns: [t.blueprintId, t.version] })],
@@ -412,7 +454,9 @@ export const exams = pgTable('exams', {
 
 export const examSections = pgTable('exam_sections', {
   id: uuid('id').primaryKey(),
-  examId: uuid('exam_id').notNull().references(() => exams.id),
+  examId: uuid('exam_id')
+    .notNull()
+    .references(() => exams.id),
   code: text('code').notNull(),
   title: text('title').notNull(),
   durationSec: integer('duration_sec').notNull(),
@@ -423,25 +467,37 @@ export const examSections = pgTable('exam_sections', {
 
 export const examItems = pgTable('exam_items', {
   id: uuid('id').primaryKey(),
-  examId: uuid('exam_id').notNull().references(() => exams.id),
-  sectionId: uuid('section_id').notNull().references(() => examSections.id),
-  questionId: uuid('question_id').notNull().references(() => questions.id),
+  examId: uuid('exam_id')
+    .notNull()
+    .references(() => exams.id),
+  sectionId: uuid('section_id')
+    .notNull()
+    .references(() => examSections.id),
+  questionId: uuid('question_id')
+    .notNull()
+    .references(() => questions.id),
   orderIndex: smallint('order_index').notNull(),
 });
 
 export const examVersions = pgTable(
   'exam_versions',
   {
-    examId: uuid('exam_id').notNull().references(() => exams.id),
+    examId: uuid('exam_id')
+      .notNull()
+      .references(() => exams.id),
     version: integer('version').notNull(),
     snapshotKey: text('snapshot_key').notNull(),
     manifestKey: text('manifest_key').notNull(),
-    blueprintId: uuid('blueprint_id').notNull().references(() => blueprints.id),
+    blueprintId: uuid('blueprint_id')
+      .notNull()
+      .references(() => blueprints.id),
     blueprintVersion: integer('blueprint_version').notNull(),
     scoring: jsonb('scoring').notNull(),
     totalQuestions: integer('total_questions').notNull(),
     publishedAt: timestamp('published_at', { withTimezone: true }).notNull(),
-    publishedBy: uuid('published_by').notNull().references(() => users.id),
+    publishedBy: uuid('published_by')
+      .notNull()
+      .references(() => users.id),
   },
   (t) => [primaryKey({ columns: [t.examId, t.version] })],
 );
@@ -475,7 +531,9 @@ export const examAttempts = pgTable(
     id: uuid('id').primaryKey(),
     userId: uuid('user_id').references(() => users.id),
     guestId: uuid('guest_id'),
-    examId: uuid('exam_id').notNull().references(() => exams.id),
+    examId: uuid('exam_id')
+      .notNull()
+      .references(() => exams.id),
     examVersion: integer('exam_version').notNull(),
     mode: text('mode').notNull(),
     status: text('status').notNull(),
@@ -501,10 +559,7 @@ export const examAttempts = pgTable(
     check('exam_attempts_user_or_guest_check', sql`user_id IS NOT NULL OR guest_id IS NOT NULL`),
     check('exam_attempts_mode_check', sql`mode IN ('real', 'practice')`),
     check('exam_attempts_status_check', sql`status IN ('in_progress', 'submitted')`),
-    check(
-      'exam_attempts_submitted_by_check',
-      sql`submitted_by IS NULL OR submitted_by IN ('user', 'auto_client', 'system')`,
-    ),
+    check('exam_attempts_submitted_by_check', sql`submitted_by IS NULL OR submitted_by IN ('user', 'auto_client', 'system')`),
     foreignKey({
       columns: [t.examId, t.examVersion],
       foreignColumns: [examVersions.examId, examVersions.version],
@@ -513,7 +568,9 @@ export const examAttempts = pgTable(
 );
 
 export const attemptAnswerSheets = pgTable('attempt_answer_sheets', {
-  attemptId: uuid('attempt_id').primaryKey().references(() => examAttempts.id),
+  attemptId: uuid('attempt_id')
+    .primaryKey()
+    .references(() => examAttempts.id),
   answers: smallint('answers').array().notNull(),
   flags: smallint('flags').array().default([]).notNull(),
   timeSpentMs: integer('time_spent_ms').array(),
@@ -526,25 +583,27 @@ export const attemptEvents = pgTable(
   {
     id: uuid('id').notNull(),
     attemptMonth: date('attempt_month').notNull(),
-    attemptId: uuid('attempt_id').notNull().references(() => examAttempts.id),
+    attemptId: uuid('attempt_id')
+      .notNull()
+      .references(() => examAttempts.id),
     seq: integer('seq'),
     type: text('type').notNull(),
     payload: jsonb('payload').default('{}').notNull(),
     at: timestamp('at', { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [
-    primaryKey({ columns: [t.attemptMonth, t.id] }),
-    uniqueIndex('attempt_events_month_attempt_seq_unique').on(t.attemptMonth, t.attemptId, t.seq),
-  ],
+  (t) => [primaryKey({ columns: [t.attemptMonth, t.id] }), uniqueIndex('attempt_events_month_attempt_seq_unique').on(t.attemptMonth, t.attemptId, t.seq)],
 );
-
 
 export const userAnswers = pgTable(
   'user_answers',
   {
-    attemptId: uuid('attempt_id').notNull().references(() => examAttempts.id),
+    attemptId: uuid('attempt_id')
+      .notNull()
+      .references(() => examAttempts.id),
     questionIndex: smallint('question_index').notNull(),
-    questionId: uuid('question_id').notNull().references(() => questions.id),
+    questionId: uuid('question_id')
+      .notNull()
+      .references(() => questions.id),
     optionValue: smallint('option_value').notNull(),
     isCorrect: boolean('is_correct').notNull(),
     flagged: boolean('flagged').notNull(),
@@ -558,7 +617,9 @@ export const userAnswers = pgTable(
 
 export const generatedExams = pgTable('generated_exams', {
   id: uuid('id').primaryKey(),
-  ownerId: uuid('owner_id').notNull().references(() => users.id),
+  ownerId: uuid('owner_id')
+    .notNull()
+    .references(() => users.id),
   configJson: jsonb('config_json').notNull(),
   seed: text('seed').notNull(),
   engineVersion: text('engine_version').notNull(),
@@ -569,8 +630,12 @@ export const generatedExams = pgTable('generated_exams', {
 export const generatedExamItems = pgTable(
   'generated_exam_items',
   {
-    generatedExamId: uuid('generated_exam_id').notNull().references(() => generatedExams.id),
-    questionId: uuid('question_id').notNull().references(() => questions.id),
+    generatedExamId: uuid('generated_exam_id')
+      .notNull()
+      .references(() => generatedExams.id),
+    questionId: uuid('question_id')
+      .notNull()
+      .references(() => questions.id),
     orderIndex: smallint('order_index').notNull(),
   },
   (t) => [primaryKey({ columns: [t.generatedExamId, t.orderIndex] })],
@@ -579,8 +644,12 @@ export const generatedExamItems = pgTable(
 export const questionExposures = pgTable(
   'question_exposures',
   {
-    userId: uuid('user_id').notNull().references(() => users.id),
-    questionId: uuid('question_id').notNull().references(() => questions.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    questionId: uuid('question_id')
+      .notNull()
+      .references(() => questions.id),
     exposureCount: integer('exposure_count').default(1).notNull(),
     lastExposedAt: timestamp('last_exposed_at', { withTimezone: true }).defaultNow().notNull(),
   },
@@ -590,8 +659,12 @@ export const questionExposures = pgTable(
 export const questionMarks = pgTable(
   'question_marks',
   {
-    userId: uuid('user_id').notNull().references(() => users.id),
-    questionId: uuid('question_id').notNull().references(() => questions.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    questionId: uuid('question_id')
+      .notNull()
+      .references(() => questions.id),
     markType: text('mark_type').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
@@ -601,8 +674,12 @@ export const questionMarks = pgTable(
 export const examFavorites = pgTable(
   'exam_favorites',
   {
-    userId: uuid('user_id').notNull().references(() => users.id),
-    examId: uuid('exam_id').notNull().references(() => exams.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    examId: uuid('exam_id')
+      .notNull()
+      .references(() => exams.id),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.examId] })],
@@ -610,7 +687,9 @@ export const examFavorites = pgTable(
 
 export const examShares = pgTable('exam_shares', {
   id: uuid('id').primaryKey(),
-  ownerId: uuid('owner_id').notNull().references(() => users.id),
+  ownerId: uuid('owner_id')
+    .notNull()
+    .references(() => users.id),
   resourceType: text('resource_type').notNull(),
   resourceId: uuid('resource_id').notNull(),
   tokenHash: text('token_hash').notNull().unique(),
@@ -670,7 +749,9 @@ export const lexiconHanvietReports = pgTable(
   'lexicon_hanviet_reports',
   {
     id: uuid('id').primaryKey(),
-    entryId: uuid('entry_id').references(() => lexicalEntries.id, { onDelete: 'set null' }),
+    entryId: uuid('entry_id').references(() => lexicalEntries.id, {
+      onDelete: 'set null',
+    }),
     term: text('term').notNull(),
     reading: text('reading'),
     suggestion: text('suggestion'),
@@ -684,19 +765,33 @@ export const lexiconHanvietReports = pgTable(
 
 export const entryReadings = pgTable('entry_readings', {
   id: uuid('id').primaryKey(),
-  entryId: uuid('entry_id').notNull().references(() => lexicalEntries.id),
+  entryId: uuid('entry_id')
+    .notNull()
+    .references(() => lexicalEntries.id),
   reading: text('reading').notNull(),
   isPrimary: boolean('is_primary').default(true).notNull(),
 });
 
-export const entryMeanings = pgTable('entry_meanings', {
-  id: uuid('id').primaryKey(),
-  entryId: uuid('entry_id').notNull().references(() => lexicalEntries.id),
-  locale: text('locale').notNull().default('vi'),
-  meaning: text('meaning').notNull(),
-  senseIndex: integer('sense_index').default(0).notNull(),
-  pos: text('pos'),
-});
+export const entryMeanings = pgTable(
+  'entry_meanings',
+  {
+    id: uuid('id').primaryKey(),
+    entryId: uuid('entry_id')
+      .notNull()
+      .references(() => lexicalEntries.id),
+    locale: text('locale').notNull().default('vi'),
+    meaning: text('meaning').notNull(),
+    senseIndex: integer('sense_index').default(0).notNull(),
+    glossOrder: integer('gloss_order').default(0).notNull(),
+    contentType: text('content_type', {
+      enum: ['summary', 'gloss', 'explanation'],
+    })
+      .default('gloss')
+      .notNull(),
+    pos: text('pos'),
+  },
+  (table) => [index('entry_meanings_entry_locale_sense_order_idx').on(table.entryId, table.locale, table.senseIndex, table.glossOrder)],
+);
 
 export const kanjiEntries = pgTable('kanji_entries', {
   id: uuid('id').primaryKey(),
@@ -719,8 +814,12 @@ export const grammarPoints = pgTable('grammar_points', {
 
 export const pronunciationAssets = pgTable('pronunciation_assets', {
   id: uuid('id').primaryKey(),
-  entryId: uuid('entry_id').notNull().references(() => lexicalEntries.id),
-  mediaAssetId: uuid('media_asset_id').notNull().references(() => mediaAssets.id),
+  entryId: uuid('entry_id')
+    .notNull()
+    .references(() => lexicalEntries.id),
+  mediaAssetId: uuid('media_asset_id')
+    .notNull()
+    .references(() => mediaAssets.id),
   accent: text('accent'),
 });
 
@@ -739,7 +838,9 @@ export const datasets = pgTable('datasets', {
 
 export const datasetDocuments = pgTable('dataset_documents', {
   id: uuid('id').primaryKey(),
-  datasetId: uuid('dataset_id').notNull().references(() => datasets.id),
+  datasetId: uuid('dataset_id')
+    .notNull()
+    .references(() => datasets.id),
   documentHash: text('document_hash').notNull(),
   content: text('content'),
   metadata: jsonb('metadata').default('{}').notNull(),
@@ -747,22 +848,34 @@ export const datasetDocuments = pgTable('dataset_documents', {
 
 export const vocabOccurrences = pgTable('vocab_occurrences', {
   id: uuid('id').primaryKey(),
-  datasetId: uuid('dataset_id').notNull().references(() => datasets.id),
-  entryId: uuid('entry_id').notNull().references(() => lexicalEntries.id),
+  datasetId: uuid('dataset_id')
+    .notNull()
+    .references(() => datasets.id),
+  entryId: uuid('entry_id')
+    .notNull()
+    .references(() => lexicalEntries.id),
   count: integer('count').default(1).notNull(),
 });
 
 export const grammarOccurrences = pgTable('grammar_occurrences', {
   id: uuid('id').primaryKey(),
-  datasetId: uuid('dataset_id').notNull().references(() => datasets.id),
-  grammarId: uuid('grammar_id').notNull().references(() => grammarPoints.id),
+  datasetId: uuid('dataset_id')
+    .notNull()
+    .references(() => datasets.id),
+  grammarId: uuid('grammar_id')
+    .notNull()
+    .references(() => grammarPoints.id),
   count: integer('count').default(1).notNull(),
 });
 
 export const kanjiOccurrences = pgTable('kanji_occurrences', {
   id: uuid('id').primaryKey(),
-  datasetId: uuid('dataset_id').notNull().references(() => datasets.id),
-  kanjiId: uuid('kanji_id').notNull().references(() => kanjiEntries.id),
+  datasetId: uuid('dataset_id')
+    .notNull()
+    .references(() => datasets.id),
+  kanjiId: uuid('kanji_id')
+    .notNull()
+    .references(() => kanjiEntries.id),
   count: integer('count').default(1).notNull(),
 });
 
@@ -787,7 +900,9 @@ export const corpusTerms = pgTable(
     examId: uuid('exam_id')
       .notNull()
       .references(() => exams.id, { onDelete: 'cascade' }),
-    questionId: uuid('question_id').references(() => questions.id, { onDelete: 'cascade' }),
+    questionId: uuid('question_id').references(() => questions.id, {
+      onDelete: 'cascade',
+    }),
     section: text('section'),
     skill: text('skill'),
     count: integer('count').default(1).notNull(),
@@ -808,7 +923,9 @@ export const corpusTerms = pgTable(
 
 export const notebookItems = pgTable('notebook_items', {
   id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   kind: text('kind').notNull(), // 'vocab' | 'grammar' | 'kanji'
   entryId: uuid('entry_id').notNull(),
   mastered: boolean('mastered').default(false).notNull(),
@@ -820,8 +937,12 @@ export const notebookItems = pgTable('notebook_items', {
 
 export const cards = pgTable('cards', {
   id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  notebookItemId: uuid('notebook_item_id').notNull().references(() => notebookItems.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  notebookItemId: uuid('notebook_item_id')
+    .notNull()
+    .references(() => notebookItems.id, { onDelete: 'cascade' }),
   front: jsonb('front').notNull(),
   back: jsonb('back').notNull(),
   status: text('status').notNull().default('active'),
@@ -829,7 +950,9 @@ export const cards = pgTable('cards', {
 });
 
 export const cardSchedules = pgTable('card_schedules', {
-  cardId: uuid('card_id').primaryKey().references(() => cards.id, { onDelete: 'cascade' }),
+  cardId: uuid('card_id')
+    .primaryKey()
+    .references(() => cards.id, { onDelete: 'cascade' }),
   dueAt: timestamp('due_at', { withTimezone: true }).notNull(),
   intervalDays: integer('interval_days').default(1).notNull(),
   easeFactor: integer('ease_factor').default(250).notNull(),
@@ -839,8 +962,12 @@ export const cardSchedules = pgTable('card_schedules', {
 
 export const cardReviews = pgTable('card_reviews', {
   id: uuid('id').primaryKey(),
-  cardId: uuid('card_id').notNull().references(() => cards.id, { onDelete: 'cascade' }),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  cardId: uuid('card_id')
+    .notNull()
+    .references(() => cards.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   clientReviewId: uuid('client_review_id').notNull(),
   rating: smallint('rating').notNull(),
   reviewedAt: timestamp('reviewed_at', { withTimezone: true }).defaultNow().notNull(),
@@ -852,7 +979,9 @@ export const cardReviews = pgTable('card_reviews', {
 
 export const studyPlans = pgTable('study_plans', {
   id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   targetLevel: text('target_level').notNull(),
   targetDate: date('target_date').notNull(),
   status: text('status').notNull().default('active'),
@@ -862,7 +991,9 @@ export const studyPlans = pgTable('study_plans', {
 export const studyPlanVersions = pgTable(
   'study_plan_versions',
   {
-    planId: uuid('plan_id').notNull().references(() => studyPlans.id, { onDelete: 'cascade' }),
+    planId: uuid('plan_id')
+      .notNull()
+      .references(() => studyPlans.id, { onDelete: 'cascade' }),
     version: integer('version').notNull(),
     weeklySchedule: jsonb('weekly_schedule').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -872,8 +1003,12 @@ export const studyPlanVersions = pgTable(
 
 export const studySessions = pgTable('study_sessions', {
   id: uuid('id').primaryKey(),
-  planId: uuid('plan_id').notNull().references(() => studyPlans.id, { onDelete: 'cascade' }),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  planId: uuid('plan_id')
+    .notNull()
+    .references(() => studyPlans.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   scheduledDate: date('scheduled_date').notNull(),
   durationMinutes: integer('duration_minutes').notNull(),
   status: text('status').notNull().default('pending'),
@@ -881,7 +1016,9 @@ export const studySessions = pgTable('study_sessions', {
 
 export const studySessionCompletions = pgTable('study_session_completions', {
   id: uuid('id').primaryKey(),
-  sessionId: uuid('session_id').notNull().references(() => studySessions.id, { onDelete: 'cascade' }),
+  sessionId: uuid('session_id')
+    .notNull()
+    .references(() => studySessions.id, { onDelete: 'cascade' }),
   clientEventId: uuid('client_event_id').notNull(),
   completedAt: timestamp('completed_at', { withTimezone: true }).defaultNow().notNull(),
   timeSpentSeconds: integer('time_spent_seconds').notNull(),
@@ -894,7 +1031,9 @@ export const studySessionCompletions = pgTable('study_session_completions', {
 export const userSkillAggregates = pgTable(
   'user_skill_aggregates',
   {
-    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     skill: text('skill').notNull(),
     accuracyRate: integer('accuracy_rate').notNull(),
     sampleSize: integer('sample_size').notNull(),
@@ -906,7 +1045,9 @@ export const userSkillAggregates = pgTable(
 export const userMondaiAggregates = pgTable(
   'user_mondai_aggregates',
   {
-    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     mondaiType: text('mondai_type').notNull(),
     accuracyRate: integer('accuracy_rate').notNull(),
     sampleSize: integer('sample_size').notNull(),
@@ -916,7 +1057,9 @@ export const userMondaiAggregates = pgTable(
 );
 
 export const questionDifficultyStats = pgTable('question_difficulty_stats', {
-  questionId: uuid('question_id').primaryKey().references(() => questions.id),
+  questionId: uuid('question_id')
+    .primaryKey()
+    .references(() => questions.id),
   totalAttempts: integer('total_attempts').default(0).notNull(),
   correctAttempts: integer('correct_attempts').default(0).notNull(),
   difficultyIndex: integer('difficulty_index').default(50).notNull(),
@@ -925,15 +1068,21 @@ export const questionDifficultyStats = pgTable('question_difficulty_stats', {
 
 export const userQuestionHistory = pgTable('user_question_history', {
   id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  questionId: uuid('question_id').notNull().references(() => questions.id),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  questionId: uuid('question_id')
+    .notNull()
+    .references(() => questions.id),
   isCorrect: boolean('is_correct').notNull(),
   answeredAt: timestamp('answered_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
 export const answerChangeAggregates = pgTable('answer_change_aggregates', {
   id: uuid('id').primaryKey(),
-  questionId: uuid('question_id').notNull().references(() => questions.id),
+  questionId: uuid('question_id')
+    .notNull()
+    .references(() => questions.id),
   changedFrom: smallint('changed_from').notNull(),
   changedTo: smallint('changed_to').notNull(),
   count: integer('count').default(1).notNull(),
@@ -945,7 +1094,9 @@ export const answerChangeAggregates = pgTable('answer_change_aggregates', {
 
 export const teacherApplications = pgTable('teacher_applications', {
   id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
   status: text('status').notNull().default('pending'),
   resumeUrl: text('resume_url'),
   qualifications: jsonb('qualifications'),
@@ -964,48 +1115,56 @@ export const orgMemberships = pgTable(
   'org_memberships',
   {
     id: uuid('id').primaryKey(),
-    orgId: uuid('org_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
-    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    orgId: uuid('org_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     role: text('role').notNull(), // 'owner' | 'admin' | 'teacher' | 'member'
     joinedAt: timestamp('joined_at', { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [
-    uniqueIndex('org_memberships_org_user_idx').on(t.orgId, t.userId),
-  ],
+  (t) => [uniqueIndex('org_memberships_org_user_idx').on(t.orgId, t.userId)],
 );
 
 export const classes = pgTable(
   'classes',
   {
     id: uuid('id').primaryKey(),
-    orgId: uuid('org_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
-    teacherId: uuid('teacher_id').notNull().references(() => users.id),
+    orgId: uuid('org_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    teacherId: uuid('teacher_id')
+      .notNull()
+      .references(() => users.id),
     name: text('name').notNull(),
     level: text('level').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [
-    uniqueIndex('classes_org_name_idx').on(t.orgId, t.name),
-  ],
+  (t) => [uniqueIndex('classes_org_name_idx').on(t.orgId, t.name)],
 );
 
 export const classMemberships = pgTable(
   'class_memberships',
   {
     id: uuid('id').primaryKey(),
-    classId: uuid('class_id').notNull().references(() => classes.id, { onDelete: 'cascade' }),
-    studentId: uuid('student_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    classId: uuid('class_id')
+      .notNull()
+      .references(() => classes.id, { onDelete: 'cascade' }),
+    studentId: uuid('student_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     status: text('status').notNull().default('active'),
     joinedAt: timestamp('joined_at', { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [
-    uniqueIndex('class_memberships_class_student_idx').on(t.classId, t.studentId),
-  ],
+  (t) => [uniqueIndex('class_memberships_class_student_idx').on(t.classId, t.studentId)],
 );
 
 export const classInvitations = pgTable('class_invitations', {
   id: uuid('id').primaryKey(),
-  classId: uuid('class_id').notNull().references(() => classes.id, { onDelete: 'cascade' }),
+  classId: uuid('class_id')
+    .notNull()
+    .references(() => classes.id, { onDelete: 'cascade' }),
   inviteHash: text('invite_hash').notNull().unique(),
   maxUses: integer('max_uses').default(1).notNull(),
   usedCount: integer('used_count').default(0).notNull(),
@@ -1021,43 +1180,49 @@ export const assignments = pgTable(
   'assignments',
   {
     id: uuid('id').primaryKey(),
-    classId: uuid('class_id').notNull().references(() => classes.id, { onDelete: 'cascade' }),
+    classId: uuid('class_id')
+      .notNull()
+      .references(() => classes.id, { onDelete: 'cascade' }),
     examId: uuid('exam_id').references(() => exams.id),
     title: text('title').notNull(),
     opensAt: timestamp('opens_at', { withTimezone: true }).notNull(),
     dueAt: timestamp('due_at', { withTimezone: true }).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [
-    index('assignments_class_window_idx').on(t.classId, t.opensAt, t.dueAt),
-  ],
+  (t) => [index('assignments_class_window_idx').on(t.classId, t.opensAt, t.dueAt)],
 );
 
 export const assignmentLearners = pgTable(
   'assignment_learners',
   {
     id: uuid('id').primaryKey(),
-    assignmentId: uuid('assignment_id').notNull().references(() => assignments.id, { onDelete: 'cascade' }),
-    learnerId: uuid('learner_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    assignmentId: uuid('assignment_id')
+      .notNull()
+      .references(() => assignments.id, { onDelete: 'cascade' }),
+    learnerId: uuid('learner_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     status: text('status').notNull().default('assigned'),
   },
-  (t) => [
-    uniqueIndex('assignment_learners_assignment_learner_idx').on(t.assignmentId, t.learnerId),
-  ],
+  (t) => [uniqueIndex('assignment_learners_assignment_learner_idx').on(t.assignmentId, t.learnerId)],
 );
 
 export const assignmentAttempts = pgTable(
   'assignment_attempts',
   {
     id: uuid('id').primaryKey(),
-    assignmentId: uuid('assignment_id').notNull().references(() => assignments.id, { onDelete: 'cascade' }),
-    learnerId: uuid('learner_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-    attemptId: uuid('attempt_id').notNull().references(() => examAttempts.id),
+    assignmentId: uuid('assignment_id')
+      .notNull()
+      .references(() => assignments.id, { onDelete: 'cascade' }),
+    learnerId: uuid('learner_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    attemptId: uuid('attempt_id')
+      .notNull()
+      .references(() => examAttempts.id),
     submittedAt: timestamp('submitted_at', { withTimezone: true }),
   },
-  (t) => [
-    uniqueIndex('assignment_attempts_assignment_attempt_idx').on(t.assignmentId, t.attemptId),
-  ],
+  (t) => [uniqueIndex('assignment_attempts_assignment_attempt_idx').on(t.assignmentId, t.attemptId)],
 );
 
 // ---------------------------------------------------------------------------
@@ -1071,7 +1236,9 @@ export const examEvents = pgTable('exam_events', {
   opensAt: timestamp('opens_at', { withTimezone: true }).notNull(),
   startsAt: timestamp('starts_at', { withTimezone: true }).notNull(),
   endsAt: timestamp('ends_at', { withTimezone: true }).notNull(),
-  resultReleaseAt: timestamp('result_release_at', { withTimezone: true }).notNull(),
+  resultReleaseAt: timestamp('result_release_at', {
+    withTimezone: true,
+  }).notNull(),
   capacity: integer('capacity').notNull(),
   registeredCount: integer('registered_count').default(0).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -1081,40 +1248,47 @@ export const eventRegistrations = pgTable(
   'event_registrations',
   {
     id: uuid('id').primaryKey(),
-    eventId: uuid('event_id').notNull().references(() => examEvents.id, { onDelete: 'cascade' }),
-    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    eventId: uuid('event_id')
+      .notNull()
+      .references(() => examEvents.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     registeredAt: timestamp('registered_at', { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [
-    uniqueIndex('event_registrations_event_user_idx').on(t.eventId, t.userId),
-  ],
+  (t) => [uniqueIndex('event_registrations_event_user_idx').on(t.eventId, t.userId)],
 );
 
 export const eventAttempts = pgTable(
   'event_attempts',
   {
     id: uuid('id').primaryKey(),
-    eventId: uuid('event_id').notNull().references(() => examEvents.id, { onDelete: 'cascade' }),
-    attemptId: uuid('attempt_id').notNull().references(() => examAttempts.id),
-    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    eventId: uuid('event_id')
+      .notNull()
+      .references(() => examEvents.id, { onDelete: 'cascade' }),
+    attemptId: uuid('attempt_id')
+      .notNull()
+      .references(() => examAttempts.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
   },
-  (t) => [
-    uniqueIndex('event_attempts_event_user_idx').on(t.eventId, t.userId),
-    uniqueIndex('event_attempts_event_attempt_idx').on(t.eventId, t.attemptId),
-  ],
+  (t) => [uniqueIndex('event_attempts_event_user_idx').on(t.eventId, t.userId), uniqueIndex('event_attempts_event_attempt_idx').on(t.eventId, t.attemptId)],
 );
 
 export const eventResultPublications = pgTable(
   'event_result_publications',
   {
     id: uuid('id').primaryKey(),
-    eventId: uuid('event_id').notNull().references(() => examEvents.id, { onDelete: 'cascade' }),
+    eventId: uuid('event_id')
+      .notNull()
+      .references(() => examEvents.id, { onDelete: 'cascade' }),
     releasedAt: timestamp('released_at', { withTimezone: true }).notNull(),
-    releasedBy: uuid('released_by').notNull().references(() => users.id),
+    releasedBy: uuid('released_by')
+      .notNull()
+      .references(() => users.id),
   },
-  (t) => [
-    uniqueIndex('event_result_publications_event_idx').on(t.eventId),
-  ],
+  (t) => [uniqueIndex('event_result_publications_event_idx').on(t.eventId)],
 );
 
 // ---------------------------------------------------------------------------
@@ -1125,7 +1299,9 @@ export const discussionThreads = pgTable('discussion_threads', {
   id: uuid('id').primaryKey(),
   targetType: text('target_type').notNull(), // 'question' | 'exam' | 'general'
   targetId: uuid('target_id').notNull(),
-  authorId: uuid('author_id').notNull().references(() => users.id),
+  authorId: uuid('author_id')
+    .notNull()
+    .references(() => users.id),
   title: text('title').notNull(),
   content: text('content').notNull(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
@@ -1134,8 +1310,12 @@ export const discussionThreads = pgTable('discussion_threads', {
 
 export const comments = pgTable('comments', {
   id: uuid('id').primaryKey(),
-  threadId: uuid('thread_id').notNull().references(() => discussionThreads.id, { onDelete: 'cascade' }),
-  authorId: uuid('author_id').notNull().references(() => users.id),
+  threadId: uuid('thread_id')
+    .notNull()
+    .references(() => discussionThreads.id, { onDelete: 'cascade' }),
+  authorId: uuid('author_id')
+    .notNull()
+    .references(() => users.id),
   content: text('content').notNull(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -1145,23 +1325,26 @@ export const commentReports = pgTable(
   'comment_reports',
   {
     id: uuid('id').primaryKey(),
-    commentId: uuid('comment_id').notNull().references(() => comments.id, { onDelete: 'cascade' }),
-    reportedBy: uuid('reported_by').notNull().references(() => users.id),
+    commentId: uuid('comment_id')
+      .notNull()
+      .references(() => comments.id, { onDelete: 'cascade' }),
+    reportedBy: uuid('reported_by')
+      .notNull()
+      .references(() => users.id),
     reason: text('reason').notNull(),
     status: text('status').notNull().default('open'),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [
-    uniqueIndex('comment_reports_comment_reporter_idx').on(t.commentId, t.reportedBy),
-  ],
+  (t) => [uniqueIndex('comment_reports_comment_reporter_idx').on(t.commentId, t.reportedBy)],
 );
-
 
 export const moderationActions = pgTable('moderation_actions', {
   id: uuid('id').primaryKey(),
   targetType: text('target_type').notNull(),
   targetId: uuid('target_id').notNull(),
-  moderatorId: uuid('moderator_id').notNull().references(() => users.id),
+  moderatorId: uuid('moderator_id')
+    .notNull()
+    .references(() => users.id),
   action: text('action').notNull(), // 'delete' | 'warn' | 'ban'
   reason: text('reason'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -1169,7 +1352,9 @@ export const moderationActions = pgTable('moderation_actions', {
 
 export const achievementShares = pgTable('achievement_shares', {
   id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   shareToken: text('share_token').notNull().unique(),
   payload: jsonb('payload').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -1182,7 +1367,9 @@ export const achievementShares = pgTable('achievement_shares', {
 export const streakDays = pgTable(
   'streak_days',
   {
-    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     localDate: date('local_date').notNull(),
     activityCount: integer('activity_count').default(1).notNull(),
   },
@@ -1200,8 +1387,12 @@ export const achievementDefinitions = pgTable('achievement_definitions', {
 export const userAchievements = pgTable(
   'user_achievements',
   {
-    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-    achievementId: text('achievement_id').notNull().references(() => achievementDefinitions.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    achievementId: text('achievement_id')
+      .notNull()
+      .references(() => achievementDefinitions.id),
     unlockedAt: timestamp('unlocked_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.achievementId] })],
@@ -1220,8 +1411,12 @@ export const challenges = pgTable('challenges', {
 export const challengeEnrollments = pgTable(
   'challenge_enrollments',
   {
-    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-    challengeId: uuid('challenge_id').notNull().references(() => challenges.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    challengeId: uuid('challenge_id')
+      .notNull()
+      .references(() => challenges.id, { onDelete: 'cascade' }),
     progress: integer('progress').default(0).notNull(),
     completedAt: timestamp('completed_at', { withTimezone: true }),
   },
@@ -1232,7 +1427,9 @@ export const leaderboardEntries = pgTable('leaderboard_entries', {
   id: uuid('id').primaryKey(),
   period: text('period').notNull(), // 'daily' | 'weekly' | 'monthly' | 'all_time'
   level: text('level').notNull(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   score: integer('score').notNull(),
   rank: integer('rank').notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
@@ -1256,11 +1453,15 @@ export const plans = pgTable('plans', {
 export const planVersions = pgTable(
   'plan_versions',
   {
-    planId: text('plan_id').notNull().references(() => plans.id),
+    planId: text('plan_id')
+      .notNull()
+      .references(() => plans.id),
     version: integer('version').notNull(),
     price: integer('price').notNull(),
     entitlements: jsonb('entitlements').notNull(),
-    effectiveFrom: timestamp('effective_from', { withTimezone: true }).notNull(),
+    effectiveFrom: timestamp('effective_from', {
+      withTimezone: true,
+    }).notNull(),
   },
   (t) => [primaryKey({ columns: [t.planId, t.version] })],
 );
@@ -1273,8 +1474,12 @@ export const entitlementDefinitions = pgTable('entitlement_definitions', {
 
 export const entitlementGrants = pgTable('entitlement_grants', {
   id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  entitlementCode: text('entitlement_code').notNull().references(() => entitlementDefinitions.code),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  entitlementCode: text('entitlement_code')
+    .notNull()
+    .references(() => entitlementDefinitions.code),
   grantedAt: timestamp('granted_at', { withTimezone: true }).defaultNow().notNull(),
   expiresAt: timestamp('expires_at', { withTimezone: true }),
   sourceRef: text('source_ref'),
@@ -1282,7 +1487,9 @@ export const entitlementGrants = pgTable('entitlement_grants', {
 
 export const orders = pgTable('orders', {
   id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
   totalAmount: integer('total_amount').notNull(),
   currency: text('currency').notNull().default('VND'),
   status: text('status').notNull().default('created'),
@@ -1291,14 +1498,18 @@ export const orders = pgTable('orders', {
 
 export const orderLines = pgTable('order_lines', {
   id: uuid('id').primaryKey(),
-  orderId: uuid('order_id').notNull().references(() => orders.id, { onDelete: 'cascade' }),
+  orderId: uuid('order_id')
+    .notNull()
+    .references(() => orders.id, { onDelete: 'cascade' }),
   planId: text('plan_id').references(() => plans.id),
   amount: integer('amount').notNull(),
 });
 
 export const paymentAttempts = pgTable('payment_attempts', {
   id: uuid('id').primaryKey(),
-  orderId: uuid('order_id').notNull().references(() => orders.id, { onDelete: 'cascade' }),
+  orderId: uuid('order_id')
+    .notNull()
+    .references(() => orders.id, { onDelete: 'cascade' }),
   provider: text('provider').notNull(),
   providerPaymentRef: text('provider_payment_ref'),
   status: text('status').notNull().default('initiated'),
@@ -1309,17 +1520,27 @@ export const paymentAttempts = pgTable('payment_attempts', {
 
 export const subscriptions = pgTable('subscriptions', {
   id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  planId: text('plan_id').notNull().references(() => plans.id),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  planId: text('plan_id')
+    .notNull()
+    .references(() => plans.id),
   status: text('status').notNull().default('active'),
-  currentPeriodStart: timestamp('current_period_start', { withTimezone: true }).notNull(),
-  currentPeriodEnd: timestamp('current_period_end', { withTimezone: true }).notNull(),
+  currentPeriodStart: timestamp('current_period_start', {
+    withTimezone: true,
+  }).notNull(),
+  currentPeriodEnd: timestamp('current_period_end', {
+    withTimezone: true,
+  }).notNull(),
   cancelAtPeriodEnd: boolean('cancel_at_period_end').default(false).notNull(),
 });
 
 export const subscriptionChanges = pgTable('subscription_changes', {
   id: uuid('id').primaryKey(),
-  subscriptionId: uuid('subscription_id').notNull().references(() => subscriptions.id, { onDelete: 'cascade' }),
+  subscriptionId: uuid('subscription_id')
+    .notNull()
+    .references(() => subscriptions.id, { onDelete: 'cascade' }),
   changeType: text('change_type').notNull(),
   oldPlanId: text('old_plan_id'),
   newPlanId: text('new_plan_id'),
@@ -1338,7 +1559,6 @@ export const tenantPlans = pgTable('tenant_plans', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
-
 // ---------------------------------------------------------------------------
 // 20. Billing Events (W4)
 // ---------------------------------------------------------------------------
@@ -1355,7 +1575,9 @@ export const paymentWebhookEvents = pgTable('payment_webhook_events', {
 
 export const refundRequests = pgTable('refund_requests', {
   id: uuid('id').primaryKey(),
-  orderId: uuid('order_id').notNull().references(() => orders.id),
+  orderId: uuid('order_id')
+    .notNull()
+    .references(() => orders.id),
   amount: integer('amount').notNull(),
   reason: text('reason'),
   status: text('status').notNull().default('requested'),
@@ -1364,7 +1586,9 @@ export const refundRequests = pgTable('refund_requests', {
 
 export const refundAttempts = pgTable('refund_attempts', {
   id: uuid('id').primaryKey(),
-  refundRequestId: uuid('refund_request_id').notNull().references(() => refundRequests.id),
+  refundRequestId: uuid('refund_request_id')
+    .notNull()
+    .references(() => refundRequests.id),
   providerRefundRef: text('provider_refund_ref'),
   status: text('status').notNull(),
   processedAt: timestamp('processed_at', { withTimezone: true }),
@@ -1381,17 +1605,27 @@ export const coupons = pgTable('coupons', {
 
 export const couponReservations = pgTable('coupon_reservations', {
   id: uuid('id').primaryKey(),
-  couponCode: text('coupon_code').notNull().references(() => coupons.code),
-  userId: uuid('user_id').notNull().references(() => users.id),
+  couponCode: text('coupon_code')
+    .notNull()
+    .references(() => coupons.code),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
   reservedAt: timestamp('reserved_at', { withTimezone: true }).defaultNow().notNull(),
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
 });
 
 export const couponRedemptions = pgTable('coupon_redemptions', {
   id: uuid('id').primaryKey(),
-  couponCode: text('coupon_code').notNull().references(() => coupons.code),
-  orderId: uuid('order_id').notNull().references(() => orders.id),
-  userId: uuid('user_id').notNull().references(() => users.id),
+  couponCode: text('coupon_code')
+    .notNull()
+    .references(() => coupons.code),
+  orderId: uuid('order_id')
+    .notNull()
+    .references(() => orders.id),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
   redeemedAt: timestamp('redeemed_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -1418,8 +1652,12 @@ export const providerAccounts = pgTable('provider_accounts', {
 
 export const aiRequests = pgTable('ai_requests', {
   id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id),
-  providerId: text('provider_id').notNull().references(() => providerAccounts.id),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
+  providerId: text('provider_id')
+    .notNull()
+    .references(() => providerAccounts.id),
   taskType: text('task_type').notNull(),
   promptTokens: integer('prompt_tokens'),
   completionTokens: integer('completion_tokens'),
@@ -1429,7 +1667,9 @@ export const aiRequests = pgTable('ai_requests', {
 
 export const usageReservations = pgTable('usage_reservations', {
   id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
   estimatedTokens: integer('estimated_tokens').notNull(),
   reservedAt: timestamp('reserved_at', { withTimezone: true }).defaultNow().notNull(),
   settledAt: timestamp('settled_at', { withTimezone: true }),
@@ -1437,7 +1677,9 @@ export const usageReservations = pgTable('usage_reservations', {
 
 export const usageLedger = pgTable('usage_ledger', {
   id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
   aiRequestId: uuid('ai_request_id').references(() => aiRequests.id),
   tokensUsed: integer('tokens_used').notNull(),
   costMicroUsd: integer('cost_micro_usd').notNull(),
@@ -1469,7 +1711,9 @@ export const moderationReviews = pgTable('moderation_reviews', {
 export const notificationPreferences = pgTable(
   'notification_preferences',
   {
-    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     channel: text('channel').notNull(), // 'email' | 'push' | 'in_app'
     notificationType: text('notification_type').notNull(),
     enabled: boolean('enabled').default(true).notNull(),
@@ -1479,7 +1723,9 @@ export const notificationPreferences = pgTable(
 
 export const notificationJobs = pgTable('notification_jobs', {
   id: uuid('id').primaryKey(),
-  recipientId: uuid('recipient_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  recipientId: uuid('recipient_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   type: text('type').notNull(),
   channel: text('channel').notNull(),
   payload: jsonb('payload').notNull(),
@@ -1489,7 +1735,9 @@ export const notificationJobs = pgTable('notification_jobs', {
 
 export const notificationDeliveries = pgTable('notification_deliveries', {
   id: uuid('id').primaryKey(),
-  jobId: uuid('job_id').notNull().references(() => notificationJobs.id, { onDelete: 'cascade' }),
+  jobId: uuid('job_id')
+    .notNull()
+    .references(() => notificationJobs.id, { onDelete: 'cascade' }),
   status: text('status').notNull(), // 'delivered' | 'failed' | 'bounced'
   providerResponse: text('provider_response'),
   attemptedAt: timestamp('attempted_at', { withTimezone: true }).defaultNow().notNull(),
@@ -1497,7 +1745,9 @@ export const notificationDeliveries = pgTable('notification_deliveries', {
 
 export const pushSubscriptions = pgTable('push_subscriptions', {
   id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   endpoint: text('endpoint').notNull(),
   keys: jsonb('keys').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -1530,11 +1780,15 @@ export const articles = pgTable('articles', {
 export const articleVersions = pgTable(
   'article_versions',
   {
-    articleId: uuid('article_id').notNull().references(() => articles.id, { onDelete: 'cascade' }),
+    articleId: uuid('article_id')
+      .notNull()
+      .references(() => articles.id, { onDelete: 'cascade' }),
     version: integer('version').notNull(),
     title: text('title').notNull(),
     content: jsonb('content').notNull(),
-    authorId: uuid('author_id').notNull().references(() => users.id),
+    authorId: uuid('author_id')
+      .notNull()
+      .references(() => users.id),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [primaryKey({ columns: [t.articleId, t.version] })],
@@ -1582,7 +1836,9 @@ export const analyticsEvents = pgTable('analytics_events', {
 
 export const analyticsConsents = pgTable('analytics_consents', {
   id: uuid('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   trackingAllowed: boolean('tracking_allowed').default(false).notNull(),
   consentedAt: timestamp('consented_at', { withTimezone: true }).defaultNow().notNull(),
 });
@@ -1596,9 +1852,7 @@ export const reportSnapshots = pgTable(
     data: jsonb('data').notNull(),
     generatedAt: timestamp('generated_at', { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [
-    index('report_snapshots_name_period_idx').on(t.reportName, t.period),
-  ],
+  (t) => [index('report_snapshots_name_period_idx').on(t.reportName, t.period)],
 );
 
 export const experimentDefinitions = pgTable('experiment_definitions', {
@@ -1613,7 +1867,9 @@ export const experimentDefinitions = pgTable('experiment_definitions', {
 export const experimentAssignments = pgTable(
   'experiment_assignments',
   {
-    experimentId: text('experiment_id').notNull().references(() => experimentDefinitions.id),
+    experimentId: text('experiment_id')
+      .notNull()
+      .references(() => experimentDefinitions.id),
     subjectId: text('subject_id').notNull(),
     variant: text('variant').notNull(),
     assignedAt: timestamp('assigned_at', { withTimezone: true }).defaultNow().notNull(),
@@ -1623,7 +1879,9 @@ export const experimentAssignments = pgTable(
 
 export const experimentExposures = pgTable('experiment_exposures', {
   id: uuid('id').primaryKey(),
-  experimentId: text('experiment_id').notNull().references(() => experimentDefinitions.id),
+  experimentId: text('experiment_id')
+    .notNull()
+    .references(() => experimentDefinitions.id),
   subjectId: text('subject_id').notNull(),
   exposedAt: timestamp('exposed_at', { withTimezone: true }).defaultNow().notNull(),
 });
@@ -1676,13 +1934,13 @@ export const exportJobs = pgTable(
     jobType: text('job_type').notNull(),
     status: text('status').notNull(),
     storagePath: text('storage_path'),
-    requestedBy: uuid('requested_by').notNull().references(() => users.id),
+    requestedBy: uuid('requested_by')
+      .notNull()
+      .references(() => users.id),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     completedAt: timestamp('completed_at', { withTimezone: true }),
   },
-  (t) => [
-    index('export_jobs_requested_by_status_idx').on(t.requestedBy, t.status),
-  ],
+  (t) => [index('export_jobs_requested_by_status_idx').on(t.requestedBy, t.status)],
 );
 
 export const backupJobs = pgTable('backup_jobs', {
@@ -1696,7 +1954,9 @@ export const backupJobs = pgTable('backup_jobs', {
 
 export const operatorActions = pgTable('operator_actions', {
   id: uuid('id').primaryKey(),
-  operatorId: uuid('operator_id').notNull().references(() => users.id),
+  operatorId: uuid('operator_id')
+    .notNull()
+    .references(() => users.id),
   action: text('action').notNull(),
   targetResource: text('target_resource').notNull(),
   details: jsonb('details').default('{}').notNull(),

@@ -58,7 +58,10 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
 
   describe('Acceptance 4: Dictionary license và attribution đầy đủ', () => {
     it('returns dictionary entry with readings, meanings, examples, and full attribution', async () => {
-      const res = await vocabController.lookupDictionary({ text: '学校', locale: 'vi' });
+      const res = await vocabController.lookupDictionary({
+        text: '学校',
+        locale: 'vi',
+      });
 
       expect(res.entry).toBe('学校');
       expect(res.readings).toContain('がっこう');
@@ -71,7 +74,9 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
 
     it('lemmatizes inflected query term before looking up', async () => {
       // Query inflected form: '登りました' -> base form '登る'
-      const res = await vocabController.lookupDictionary({ text: '登りました' });
+      const res = await vocabController.lookupDictionary({
+        text: '登りました',
+      });
 
       expect(res.entry).toBe('登る');
       expect(res.readings).toContain('のぼる');
@@ -79,9 +84,7 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
     });
 
     it('throws 404 NotFoundException for words not in dictionary', async () => {
-      await expect(
-        vocabController.lookupDictionary({ text: 'xyzunknownterm' }),
-      ).rejects.toThrow();
+      await expect(vocabController.lookupDictionary({ text: 'xyzunknownterm' })).rejects.toThrow();
     });
 
     it('finds an imported JMdict entry by its headword and by its kana reading, with the EDRDG licence', async () => {
@@ -93,8 +96,18 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
         license: 'CC-BY-SA-4.0',
       });
       await dbClient.db.insert(lexicalEntries).values({ id: entryId, licenseId, term: '予約', partOfSpeech: 'n,vs' });
-      await dbClient.db.insert(entryReadings).values({ id: generateUuidV7(), entryId, reading: 'よやく', isPrimary: true });
-      await dbClient.db.insert(entryMeanings).values({ id: generateUuidV7(), entryId, locale: 'en', meaning: 'reservation; booking' });
+      await dbClient.db.insert(entryReadings).values({
+        id: generateUuidV7(),
+        entryId,
+        reading: 'よやく',
+        isPrimary: true,
+      });
+      await dbClient.db.insert(entryMeanings).values({
+        id: generateUuidV7(),
+        entryId,
+        locale: 'en',
+        meaning: 'reservation; booking',
+      });
 
       for (const text of ['予約', 'よやく']) {
         const res = await vocabController.lookupDictionary({ text });
@@ -270,9 +283,7 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       const allVocab = await vocabController.getDatasetVocabulary(datasetId);
       expect(allVocab.rankings.length).toBeGreaterThan(0);
       expect(allVocab.rankings[0]!.rank).toBe(1);
-      expect(allVocab.rankings[0]!.frequency).toBeGreaterThanOrEqual(
-        allVocab.rankings[1]?.frequency ?? 0,
-      );
+      expect(allVocab.rankings[0]!.frequency).toBeGreaterThanOrEqual(allVocab.rankings[1]?.frequency ?? 0);
     });
   });
 
@@ -331,7 +342,14 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       expect(grammarStats.totalCount).toBeGreaterThan(0);
 
       // DATA-19 & DATA-20: Pattern occurrence count
-      const pattern = (grammarStats.items as Array<{ patternId: string; count: number; distinctExamsCount: number; examIds: string[] }>).find((i) => i.patternId === 'n5-te-wa-ikemasen');
+      const pattern = (
+        grammarStats.items as Array<{
+          patternId: string;
+          count: number;
+          distinctExamsCount: number;
+          examIds: string[];
+        }>
+      ).find((i) => i.patternId === 'n5-te-wa-ikemasen');
       expect(pattern).toBeDefined();
       expect(pattern?.count).toBe(2);
       expect(pattern?.distinctExamsCount).toBe(2);
@@ -379,7 +397,14 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       expect(kanjiStats.byKnowledgeGroup['education']).toBeGreaterThan(0); // 学, 校
       expect(kanjiStats.byKnowledgeGroup['action']).toBeGreaterThan(0); // 行
 
-      const getsu = (kanjiStats.items as Array<{ kanji: string; count: number; knowledgeGroup: string; level: string }>).find((k) => k.kanji === '月');
+      const getsu = (
+        kanjiStats.items as Array<{
+          kanji: string;
+          count: number;
+          knowledgeGroup: string;
+          level: string;
+        }>
+      ).find((k) => k.kanji === '月');
       expect(getsu).toBeDefined();
       expect(getsu?.count).toBe(1);
       expect(getsu?.knowledgeGroup).toBe('time');
@@ -533,10 +558,18 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
                   id: 'q-i14-1',
                   skill: 'vocabulary',
                   stem: [
-                    { t: 'underline', children: [{ t: 'text', text: '図書館' }] },
+                    {
+                      t: 'underline',
+                      children: [{ t: 'text', text: '図書館' }],
+                    },
                     { t: 'text', text: 'で本を読みます。' },
                   ],
-                  options: [{ id: 'opt-1', content: [{ t: 'text', text: 'としょかん' }] }],
+                  options: [
+                    {
+                      id: 'opt-1',
+                      content: [{ t: 'text', text: 'としょかん' }],
+                    },
+                  ],
                 },
               ],
             },
@@ -606,7 +639,9 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
         name: 'Test Learner',
         role: 'user',
       });
-      const res = await corpusService.addWordsToNotebook(userId, datasetId, { words: ['経済'] });
+      const res = await corpusService.addWordsToNotebook(userId, datasetId, {
+        words: ['経済'],
+      });
       expect(res.addedCount).toBe(1);
       expect(res.items[0]?.term).toBe('経済');
       expect(res.items[0]?.hanViet).toBe('KINH TẾ');
@@ -617,7 +652,12 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
     async function seed(term: string, reading: string, meaning: string, pos: string) {
       const id = generateUuidV7();
       await dbClient.db.insert(lexicalEntries).values({ id, term, partOfSpeech: pos });
-      await dbClient.db.insert(entryReadings).values({ id: generateUuidV7(), entryId: id, reading, isPrimary: true });
+      await dbClient.db.insert(entryReadings).values({
+        id: generateUuidV7(),
+        entryId: id,
+        reading,
+        isPrimary: true,
+      });
       await dbClient.db.insert(entryMeanings).values({ id: generateUuidV7(), entryId: id, locale: 'en', meaning });
     }
 
@@ -650,11 +690,191 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
     });
   });
 
+  describe('Vietnamese dictionary meanings', () => {
+    async function seedMeaningEntry() {
+      const id = generateUuidV7();
+      const userId = generateUuidV7();
+      await dbClient.db.insert(users).values({ id: userId, email: `${userId}@example.com`, role: 'editor' });
+      await dbClient.db.insert(lexicalEntries).values({ id, term: '仕事', partOfSpeech: 'n,vs' });
+      await dbClient.db.insert(entryReadings).values({
+        id: generateUuidV7(),
+        entryId: id,
+        reading: 'しごと',
+        isPrimary: true,
+      });
+      await dbClient.db.insert(entryMeanings).values([
+        {
+          id: generateUuidV7(),
+          entryId: id,
+          locale: 'en',
+          meaning: 'work',
+          senseIndex: 0,
+          glossOrder: 0,
+          pos: 'n',
+        },
+        {
+          id: generateUuidV7(),
+          entryId: id,
+          locale: 'en',
+          meaning: 'job',
+          senseIndex: 0,
+          glossOrder: 1,
+          pos: 'n',
+        },
+        {
+          id: generateUuidV7(),
+          entryId: id,
+          locale: 'en',
+          meaning: 'task',
+          senseIndex: 1,
+          glossOrder: 0,
+          pos: 'n',
+        },
+        {
+          id: generateUuidV7(),
+          entryId: id,
+          locale: 'en',
+          meaning: 'occupation',
+          senseIndex: 2,
+          glossOrder: 0,
+          pos: 'n',
+        },
+      ]);
+      return { id, userId, actor: { userId } as AuthUserContext };
+    }
+
+    it('keeps every English sense, saves multiple Vietnamese glosses, supports Vietnamese search and locale fallback', async () => {
+      const { id, userId, actor } = await seedMeaningEntry();
+      const englishBefore = await dbClient.db
+        .select()
+        .from(entryMeanings)
+        .where(eq(entryMeanings.entryId, id))
+        .orderBy(entryMeanings.senseIndex, entryMeanings.glossOrder, entryMeanings.id);
+      const result = await vocabController.adminUpdateVietnameseMeanings(
+        id,
+        {
+          senses: [{ senseIndex: 0, meanings: ['công việc', 'việc làm', 'công việc'] }],
+        },
+        actor,
+      );
+      expect(result.meaningsVi).toEqual(['công việc', 'việc làm']);
+      const listed = await vocabController.adminListLexicon('công việc');
+      expect(listed.items).toHaveLength(1);
+      expect(listed.items[0]!.meanings).toHaveLength(4);
+      expect(listed.items[0]!.meaningsVi).toEqual(['công việc', 'việc làm']);
+      expect(listed.items[0]!.meanings).not.toContain('công việc');
+      expect(listed.items[0]!.meaningSenses.map((s) => s.senseIndex)).toEqual([0, 1, 2]);
+      const rows = await dbClient.db
+        .select()
+        .from(entryMeanings)
+        .where(eq(entryMeanings.entryId, id))
+        .orderBy(entryMeanings.senseIndex, entryMeanings.glossOrder, entryMeanings.id);
+      expect(rows.filter((r: { locale: string }) => r.locale === 'en')).toEqual(englishBefore);
+      expect((await vocabController.lookupDictionary({ text: '仕事', locale: 'vi' })).meanings).toEqual(['công việc', 'việc làm', 'task', 'occupation']);
+      expect((await vocabController.lookupDictionary({ text: '仕事', locale: 'en' })).meanings).toEqual(['work', 'job', 'task', 'occupation']);
+      expect((await vocabController.getEntryDetails('仕事')).meanings).toEqual(['công việc', 'việc làm', 'task', 'occupation']);
+      const actions = await dbClient.db.select().from(operatorActions).where(eq(operatorActions.operatorId, userId));
+      expect(actions).toHaveLength(1);
+      expect(actions[0].action).toBe('lexicon.vietnamese.update');
+      await vocabController.adminUpdateVietnameseMeanings(id, { senses: [] }, actor);
+      expect((await vocabController.adminListLexicon('仕事')).items[0]!.meaningsVi).toEqual([]);
+      expect((await vocabController.lookupDictionary({ text: '仕事', locale: 'vi' })).meanings).toEqual(['work', 'job', 'task', 'occupation']);
+    });
+
+    it('stores the common meaning and explanation separately without exposing explanation as a synonym', async () => {
+      const { id, actor } = await seedMeaningEntry();
+      const summary = 'Thời gian rỗi; lúc rỗi rãi; lúc rảnh rỗi';
+      const explanation = 'Khoảng thời gian còn dư có thể tự do sử dụng khi không làm việc.';
+      const result = await vocabController.adminUpdateVietnameseMeanings(
+        id,
+        {
+          senses: [{ senseIndex: 0, summary, meanings: [], explanation }],
+        },
+        actor,
+      );
+
+      expect(result.meaningsVi).toEqual([summary]);
+      expect(result.meaningSenses[0]).toMatchObject({
+        summary,
+        explanation,
+        vietnamese: [],
+      });
+
+      const rows = await dbClient.db.select().from(entryMeanings).where(eq(entryMeanings.entryId, id)).orderBy(entryMeanings.glossOrder, entryMeanings.id);
+      expect(
+        rows
+          .filter((row: { locale: string }) => row.locale === 'vi')
+          .map((row: { contentType: string; meaning: string }) => ({
+            contentType: row.contentType,
+            meaning: row.meaning,
+          })),
+      ).toEqual([
+        { contentType: 'summary', meaning: summary },
+        { contentType: 'explanation', meaning: explanation },
+      ]);
+
+      const lookup = await vocabController.lookupDictionary({
+        text: '仕事',
+        locale: 'vi',
+      });
+      expect(lookup.meanings).toEqual([summary, 'task', 'occupation']);
+      expect(lookup.meaningSections?.[0]).toEqual({
+        senseIndex: 0,
+        summary,
+        meanings: [],
+        explanation,
+      });
+      expect(lookup.meanings).not.toContain(explanation);
+    });
+
+    it('rejects missing, blank, duplicate or unknown senses without deleting saved Vietnamese meanings', async () => {
+      const { id, actor } = await seedMeaningEntry();
+      await vocabController.adminUpdateVietnameseMeanings(id, { senses: [{ senseIndex: 0, meanings: ['công việc'] }] }, actor);
+      for (const body of [
+        {},
+        { senses: [{ senseIndex: 0, meanings: ['  '] }] },
+        { senses: [{ senseIndex: 99, meanings: ['sai'] }] },
+        {
+          senses: [
+            { senseIndex: 0, meanings: [] },
+            { senseIndex: 0, meanings: [] },
+          ],
+        },
+      ]) {
+        await expect(vocabController.adminUpdateVietnameseMeanings(id, body, actor)).rejects.toBeInstanceOf(BadRequestException);
+      }
+      expect((await vocabController.adminListLexicon('仕事')).items[0]!.meaningsVi).toEqual(['công việc']);
+      await expect(vocabController.adminUpdateVietnameseMeanings('invalid', { senses: [] }, actor)).rejects.toBeInstanceOf(BadRequestException);
+      await expect(vocabController.adminUpdateVietnameseMeanings(generateUuidV7(), { senses: [] }, actor)).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('rolls back dictionary changes when the audit cannot be recorded', async () => {
+      const { id, actor } = await seedMeaningEntry();
+      await vocabController.adminUpdateVietnameseMeanings(id, { senses: [{ senseIndex: 0, meanings: ['công việc'] }] }, actor);
+      await expect(
+        vocabController.adminUpdateVietnameseMeanings(id, { senses: [] }, {
+          userId: generateUuidV7(),
+        } as AuthUserContext),
+      ).rejects.toThrow();
+      expect((await vocabController.adminListLexicon('仕事')).items[0]!.meaningsVi).toEqual(['công việc']);
+    });
+
+    it('allows admin/editor to update while reviewers can only read', () => {
+      expect(Reflect.getMetadata(ROLES_KEY, VocabController.prototype.adminUpdateVietnameseMeanings)).toEqual(['admin', 'editor']);
+      expect(Reflect.getMetadata(ROLES_KEY, VocabController.prototype.adminListLexicon)).toEqual(['admin', 'editor', 'reviewer']);
+    });
+  });
+
   describe('H01: Hán Việt lưu cho từng mục từ điển, duyệt và báo sai', () => {
     async function seed(term: string, reading: string, meaning: string, pos = 'n') {
       const id = generateUuidV7();
       await dbClient.db.insert(lexicalEntries).values({ id, term, partOfSpeech: pos });
-      await dbClient.db.insert(entryReadings).values({ id: generateUuidV7(), entryId: id, reading, isPrimary: true });
+      await dbClient.db.insert(entryReadings).values({
+        id: generateUuidV7(),
+        entryId: id,
+        reading,
+        isPrimary: true,
+      });
       await dbClient.db.insert(entryMeanings).values({ id: generateUuidV7(), entryId: id, locale: 'en', meaning });
       return id;
     }
@@ -676,7 +896,11 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       ]);
       await vocabService.backfillHanViet();
       const after = await vocabController.lookupDictionary({ text: '要約' });
-      expect(after).toMatchObject({ hanViet: 'YẾU ƯỚC', hanVietConfidence: 'high', hanVietSource: 'override' });
+      expect(after).toMatchObject({
+        hanViet: 'YẾU ƯỚC',
+        hanVietConfidence: 'high',
+        hanVietSource: 'override',
+      });
     });
 
     it('backfill tính cho mọi mục, thống kê high/review/kun, giữ dòng manual, chạy lại không đổi', async () => {
@@ -691,19 +915,37 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       expect(first.updated).toBe(5);
       expect(first.noKanji).toBe(1);
       expect(first.stats).toEqual({ high: 2, review: 1, kun: 1 });
-      expect(await row(sports)).toMatchObject({ hanViet: '', hanVietConfidence: null });
+      expect(await row(sports)).toMatchObject({
+        hanViet: '',
+        hanVietConfidence: null,
+      });
       expect((await vocabController.lookupDictionary({ text: 'スポーツ' })).hanVietConfidence).toBeUndefined();
-      expect(await row(yoyaku)).toMatchObject({ hanViet: 'DỰ ƯỚC', hanVietConfidence: 'high' });
-      expect(await row(yama)).toMatchObject({ hanViet: 'SƠN', hanVietConfidence: 'kun' });
-      expect(await row(choshin)).toMatchObject({ hanViet: 'TRƯỜNG THÂN', hanVietConfidence: 'review' });
+      expect(await row(yoyaku)).toMatchObject({
+        hanViet: 'DỰ ƯỚC',
+        hanVietConfidence: 'high',
+      });
+      expect(await row(yama)).toMatchObject({
+        hanViet: 'SƠN',
+        hanVietConfidence: 'kun',
+      });
+      expect(await row(choshin)).toMatchObject({
+        hanViet: 'TRƯỜNG THÂN',
+        hanVietConfidence: 'review',
+      });
       // Without a reading, notebook/quiz callers now get the stored per-entry value (音楽 = ÂM NHẠC, not ÂM LẠC).
       expect(getHanVietForWord('音楽')).toBe('ÂM NHẠC');
 
-      await vocabController.adminUpdateHanViet(choshin, { hanViet: 'trường thân' });
+      await vocabController.adminUpdateHanViet(choshin, {
+        hanViet: 'trường thân',
+      });
       const second = await vocabService.backfillHanViet();
       expect(second.updated).toBe(0);
       expect(second.keptManual).toBe(1);
-      expect(await row(choshin)).toMatchObject({ hanViet: 'TRƯỜNG THÂN', hanVietConfidence: 'high', hanVietSource: 'manual' });
+      expect(await row(choshin)).toMatchObject({
+        hanViet: 'TRƯỜNG THÂN',
+        hanVietConfidence: 'high',
+        hanVietSource: 'manual',
+      });
       expect((await row(ongaku)).hanViet).toBe('ÂM NHẠC');
     });
 
@@ -711,15 +953,30 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       const id = await seed('重複', 'ちょうふく', 'duplication');
       await vocabService.backfillHanViet();
       const userId = generateUuidV7();
-      await dbClient.db.insert(users).values({ id: userId, email: 'editor-h01@example.com', role: 'editor' });
+      await dbClient.db.insert(users).values({
+        id: userId,
+        email: 'editor-h01@example.com',
+        role: 'editor',
+      });
 
       const res = await vocabController.adminUpdateHanViet(id, { hanViet: 'Trùng  phức' }, { userId } as AuthUserContext);
-      expect(res).toMatchObject({ hanViet: 'TRÙNG PHỨC', confidence: 'high', source: 'manual' });
+      expect(res).toMatchObject({
+        hanViet: 'TRÙNG PHỨC',
+        confidence: 'high',
+        source: 'manual',
+      });
       const lookup = await vocabController.lookupDictionary({ text: '重複' });
-      expect(lookup).toMatchObject({ hanViet: 'TRÙNG PHỨC', hanVietConfidence: 'high', hanVietSource: 'manual' });
+      expect(lookup).toMatchObject({
+        hanViet: 'TRÙNG PHỨC',
+        hanVietConfidence: 'high',
+        hanVietSource: 'manual',
+      });
       const audit = await dbClient.db.select().from(operatorActions).where(eq(operatorActions.operatorId, userId));
       expect(audit).toHaveLength(1);
-      expect(audit[0]).toMatchObject({ action: 'lexicon.hanviet.update', targetResource: `lexical_entries:${id}` });
+      expect(audit[0]).toMatchObject({
+        action: 'lexicon.hanviet.update',
+        targetResource: `lexical_entries:${id}`,
+      });
 
       await expect(vocabController.adminUpdateHanViet(id, { hanViet: '' })).rejects.toBeInstanceOf(BadRequestException);
       await expect(vocabController.adminUpdateHanViet(generateUuidV7(), { hanViet: 'X' })).rejects.toBeInstanceOf(NotFoundException);
@@ -731,13 +988,28 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       expect((await row(id)).hanVietConfidence).toBe('high');
 
       const userId = generateUuidV7();
-      const report = await vocabController.reportHanViet({ entry: '番号', reading: 'ばんごう', suggestion: 'phiên hiệu', note: 'thử' }, { userId } as AuthUserContext);
+      const report = await vocabController.reportHanViet(
+        {
+          entry: '番号',
+          reading: 'ばんごう',
+          suggestion: 'phiên hiệu',
+          note: 'thử',
+        },
+        { userId } as AuthUserContext,
+      );
       expect(report).toMatchObject({ entryId: id, status: 'open' });
       expect((await row(id)).hanVietConfidence).toBe('review');
 
       const list = await vocabController.adminListHanViet('review');
       expect(list.total).toBe(1);
-      expect(list.items[0]).toMatchObject({ term: '番号', reading: 'ばんごう', meaning: 'number', hanViet: 'PHIÊN HIỆU', confidence: 'review', reportCount: 1 });
+      expect(list.items[0]).toMatchObject({
+        term: '番号',
+        reading: 'ばんごう',
+        meaning: 'number',
+        hanViet: 'PHIÊN HIỆU',
+        confidence: 'review',
+        reportCount: 1,
+      });
       expect(list.items[0]!.perKanji.map((p) => p.hanViet)).toEqual(['PHIÊN', 'HIỆU']);
 
       const again = await vocabService.backfillHanViet();
@@ -756,7 +1028,10 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
     it('báo sai cần đăng nhập và có giới hạn tần suất; route duyệt chỉ cho editor, reviewer, admin', () => {
       const report = VocabController.prototype.reportHanViet;
       expect(Reflect.getMetadata(IS_PUBLIC_KEY, report)).toBeUndefined();
-      expect(Reflect.getMetadata(RATE_LIMIT_KEY, report)).toMatchObject({ limit: 10, windowSec: 3600 });
+      expect(Reflect.getMetadata(RATE_LIMIT_KEY, report)).toMatchObject({
+        limit: 10,
+        windowSec: 3600,
+      });
       for (const fn of [VocabController.prototype.adminListHanViet, VocabController.prototype.adminUpdateHanViet]) {
         expect(Reflect.getMetadata(ROLES_KEY, fn)).toEqual(['admin', 'editor', 'reviewer']);
       }
@@ -987,7 +1262,9 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       });
 
       // Before publish: N2 term '発展' not in corpus
-      let vocab = await vocabController.getDatasetVocabulary('jlpt-official', { level: 'N2' });
+      let vocab = await vocabController.getDatasetVocabulary('jlpt-official', {
+        level: 'N2',
+      });
       const termsBefore = vocab.items.map((i) => i.term);
       expect(termsBefore).not.toContain('発展');
 
@@ -996,7 +1273,9 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       expect(indexResult.indexedTerms).toBeGreaterThan(0);
 
       // After publish: term '発展' is in list
-      vocab = await vocabController.getDatasetVocabulary('jlpt-official', { level: 'N2' });
+      vocab = await vocabController.getDatasetVocabulary('jlpt-official', {
+        level: 'N2',
+      });
       const termsAfter = vocab.items.map((i) => i.term);
       expect(termsAfter).toContain('発展');
       expect(termsAfter).toContain('経済');
@@ -1004,14 +1283,13 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       // Unpublish: calls removeExamFromCorpus
       await removeExamFromCorpus(dbClient, newExamId);
 
-      const rowsRemaining = await dbClient.db
-        .select()
-        .from(corpusTerms)
-        .where(eq(corpusTerms.examId, newExamId));
+      const rowsRemaining = await dbClient.db.select().from(corpusTerms).where(eq(corpusTerms.examId, newExamId));
       expect(rowsRemaining.length).toBe(0);
 
       // After unpublish: terms are gone
-      vocab = await vocabController.getDatasetVocabulary('jlpt-official', { level: 'N2' });
+      vocab = await vocabController.getDatasetVocabulary('jlpt-official', {
+        level: 'N2',
+      });
       const termsAfterUnpublish = vocab.items.map((i) => i.term);
       expect(termsAfterUnpublish).not.toContain('発展');
     });
@@ -1083,7 +1361,9 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
 
     it('Acceptance 2: lookup 高かった trả 高い, posLabels có Tính từ đuôi い; lookup 静か trả posLabels có Tính từ đuôi な; lookup 予約 trả Danh từ và Danh động từ', async () => {
       // 1. 高かった -> 高い, Tính từ đuôi い
-      const takai = await vocabController.lookupDictionary({ text: '高かった' });
+      const takai = await vocabController.lookupDictionary({
+        text: '高かった',
+      });
       expect(takai.entry).toBe('高い');
       expect(takai.lemma).toBe('高い');
       expect(takai.posLabels).toContain('Tính từ đuôi い');
@@ -1180,44 +1460,30 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       expect(kanjiYaku!.meanings.length).toBeGreaterThan(0);
 
       // 404 for unknown word
-      await expect(
-        vocabController.getEntryDetails('存在しない単語xyz'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(vocabController.getEntryDetails('存在しない単語xyz')).rejects.toThrow(NotFoundException);
     });
 
     it('Acceptance 5: Chuỗi dài hơn 20 ký tự hoặc không có chữ Nhật trả 400, không bao giờ 500', async () => {
       // Dài hơn 20 ký tự
       await expect(
-        vocabController.lookupDictionary({ text: 'これはにじゅうもじをこえるながいテキストです' }), // 22 chars
+        vocabController.lookupDictionary({
+          text: 'これはにじゅうもじをこえるながいテキストです',
+        }), // 22 chars
       ).rejects.toThrow(BadRequestException);
 
       // Không có chữ Nhật
-      await expect(
-        vocabController.lookupDictionary({ text: 'englishonlyword' }),
-      ).rejects.toThrow(BadRequestException);
-      await expect(
-        vocabController.lookupDictionary({ text: '123456789' }),
-      ).rejects.toThrow(BadRequestException);
-      await expect(
-        vocabController.lookupDictionary({ text: '   ' }),
-      ).rejects.toThrow(BadRequestException);
+      await expect(vocabController.lookupDictionary({ text: 'englishonlyword' })).rejects.toThrow(BadRequestException);
+      await expect(vocabController.lookupDictionary({ text: '123456789' })).rejects.toThrow(BadRequestException);
+      await expect(vocabController.lookupDictionary({ text: '   ' })).rejects.toThrow(BadRequestException);
 
       // getEntryDetails checks
-      await expect(
-        vocabController.getEntryDetails('toolongwordovertwentycharactershere'),
-      ).rejects.toThrow(BadRequestException);
-      await expect(
-        vocabController.getEntryDetails('englishword'),
-      ).rejects.toThrow(BadRequestException);
+      await expect(vocabController.getEntryDetails('toolongwordovertwentycharactershere')).rejects.toThrow(BadRequestException);
+      await expect(vocabController.getEntryDetails('englishword')).rejects.toThrow(BadRequestException);
 
       // Romaji valid syllables (e.g. 'nihon') are accepted and transliterated to Japanese;
       // if not found, they return 404 (NotFoundException), NOT 400 (BadRequestException)
-      await expect(
-        vocabController.lookupDictionary({ text: 'nihon' }),
-      ).rejects.toThrow(NotFoundException);
-      await expect(
-        vocabController.getEntryDetails('nihon'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(vocabController.lookupDictionary({ text: 'nihon' })).rejects.toThrow(NotFoundException);
+      await expect(vocabController.getEntryDetails('nihon')).rejects.toThrow(NotFoundException);
 
       // Verify DictionaryLookupValidationFilter formats 400/404 response with 'No dictionary entry found'
       const filter = new DictionaryLookupValidationFilter();
@@ -1258,19 +1524,35 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       expect(isPublicLookup).toBe(true);
 
       const rateLimitLookup = Reflect.getMetadata(RATE_LIMIT_KEY, VocabController.prototype.lookupDictionary);
-      expect(rateLimitLookup).toMatchObject({ keyPrefix: 'dictionary-lookup', limit: 120, windowSec: 60 });
+      expect(rateLimitLookup).toMatchObject({
+        keyPrefix: 'dictionary-lookup',
+        limit: 120,
+        windowSec: 60,
+      });
 
       const isPublicEntries = Reflect.getMetadata(IS_PUBLIC_KEY, VocabController.prototype.getEntryDetails);
       expect(isPublicEntries).toBe(true);
 
       const rateLimitEntries = Reflect.getMetadata(RATE_LIMIT_KEY, VocabController.prototype.getEntryDetails);
-      expect(rateLimitEntries).toMatchObject({ keyPrefix: 'dictionary-entries', limit: 120, windowSec: 60 });
+      expect(rateLimitEntries).toMatchObject({
+        keyPrefix: 'dictionary-entries',
+        limit: 120,
+        windowSec: 60,
+      });
     });
   });
 
   describe('Admin Kanji: danh sách chữ kanji kèm Hán Việt', () => {
     async function seedKanji(kanji: string, level: string | null, strokeCount: number, onyomi: string[], kunyomi: string[], meanings: string[]) {
-      await dbClient.db.insert(kanjiEntries).values({ id: generateUuidV7(), kanji, level, strokeCount, onyomi, kunyomi, meanings: JSON.stringify(meanings) });
+      await dbClient.db.insert(kanjiEntries).values({
+        id: generateUuidV7(),
+        kanji,
+        level,
+        strokeCount,
+        onyomi,
+        kunyomi,
+        meanings: JSON.stringify(meanings),
+      });
     }
 
     it('liệt kê, tìm theo chữ, âm đọc, Hán Việt, nghĩa; lọc cấp độ; phân trang', async () => {
@@ -1282,7 +1564,12 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       expect(all.total).toBe(3);
       expect(all.items.map((i) => i.kanji)).toEqual(['山', '楽', '亜']);
       const gaku = all.items.find((i) => i.kanji === '楽')!;
-      expect(gaku).toMatchObject({ strokeCount: 13, level: 'N4', meanings: ['music', 'comfort'], onyomi: ['ガク', 'ラク'] });
+      expect(gaku).toMatchObject({
+        strokeCount: 13,
+        level: 'N4',
+        meanings: ['music', 'comfort'],
+        onyomi: ['ガク', 'ラク'],
+      });
       expect(gaku.hanVietByOnyomi).toEqual([
         { onyomi: 'ガク', hanViet: 'NHẠC' },
         { onyomi: 'ラク', hanViet: 'LẠC' },
@@ -1302,7 +1589,10 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
     });
 
     it('chưa nạp KANJIDIC2 thì trả danh sách rỗng; route chỉ cho editor, reviewer, admin', async () => {
-      expect(await vocabController.adminListKanji()).toMatchObject({ total: 0, items: [] });
+      expect(await vocabController.adminListKanji()).toMatchObject({
+        total: 0,
+        items: [],
+      });
       expect(Reflect.getMetadata(ROLES_KEY, VocabController.prototype.adminListKanji)).toEqual(['admin', 'editor', 'reviewer']);
     });
   });
@@ -1310,16 +1600,41 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
   describe('Bộ dữ liệu kanji chuẩn: /kanji đọc bảng kanji_dataset khi đã nạp', () => {
     it('trả nghĩa tiếng Việt, Hán Việt, cấp mới; tìm theo nghĩa Việt, âm đọc, Hán Việt; lọc cấp', async () => {
       const rec = (han_tu: string, hv: string, nghia: string, cap: string, on: string[], kun: string[], en: string[], freq: number) => ({
-        han_tu, han_viet: { chinh: hv, theo_am_on: { [on[0]!]: hv } }, nghia, nghia_en: en, so_net: 4,
-        am_on: on.map((am) => ({ am })), am_kun: kun.map((am) => ({ am })), cap_do: { chinh: cap, tat_ca: [cap] }, tan_suat: freq,
+        han_tu,
+        han_viet: { chinh: hv, theo_am_on: { [on[0]!]: hv } },
+        nghia,
+        nghia_en: en,
+        so_net: 4,
+        am_on: on.map((am) => ({ am })),
+        am_kun: kun.map((am) => ({ am })),
+        cap_do: { chinh: cap, tat_ca: [cap] },
+        tan_suat: freq,
       });
-      const rows = [rec('日', 'NHẬT', 'Ngày, mặt trời', 'N5', ['ニチ', 'ジツ'], ['ひ'], ['day', 'sun'], 1), rec('楽', 'LẠC', 'Vui vẻ, âm nhạc', 'N4', ['ガク', 'ラク'], ['たの.しい'], ['music', 'comfort'], 373)];
+      const rows = [
+        rec('日', 'NHẬT', 'Ngày, mặt trời', 'N5', ['ニチ', 'ジツ'], ['ひ'], ['day', 'sun'], 1),
+        rec('楽', 'LẠC', 'Vui vẻ, âm nhạc', 'N4', ['ガク', 'ラク'], ['たの.しい'], ['music', 'comfort'], 373),
+      ];
       for (const r of rows) {
-        await dbClient.db.insert(kanjiDataset).values({ kanji: r.han_tu, data: r, jlptLevel: r.cap_do.chinh, strokeCount: 4, hanViet: r.han_viet.chinh, meaningVi: r.nghia, datasetVersion: '1.0.0' });
+        await dbClient.db.insert(kanjiDataset).values({
+          kanji: r.han_tu,
+          data: r,
+          jlptLevel: r.cap_do.chinh,
+          strokeCount: 4,
+          hanViet: r.han_viet.chinh,
+          meaningVi: r.nghia,
+          datasetVersion: '1.0.0',
+        });
       }
       const all = await vocabController.adminListKanji();
       expect(all.total).toBe(2);
-      expect(all.items[0]).toMatchObject({ kanji: '日', hanViet: 'NHẬT', meaningVi: 'Ngày, mặt trời', level: 'N5', levels: ['N5'], onyomi: ['ニチ', 'ジツ'] });
+      expect(all.items[0]).toMatchObject({
+        kanji: '日',
+        hanViet: 'NHẬT',
+        meaningVi: 'Ngày, mặt trời',
+        level: 'N5',
+        levels: ['N5'],
+        onyomi: ['ニチ', 'ジツ'],
+      });
       expect((await vocabController.adminListKanji('mặt trời')).items.map((i) => i.kanji)).toEqual(['日']);
       expect((await vocabController.adminListKanji('lạc')).items.map((i) => i.kanji)).toEqual(['楽']);
       expect((await vocabController.adminListKanji('たのしい')).items.map((i) => i.kanji)).toEqual(['楽']);
@@ -1330,18 +1645,45 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
 
     it('mức 2: biên tập viên sửa Hán Việt một chữ; nạp lại không ghi đè; khôi phục được; có nhật ký', async () => {
       const data = {
-        han_tu: '楽', han_viet: { chinh: 'LẠC', khac: [], theo_am_on: { ガク: 'LẠC', ラク: 'LẠC' } }, nghia: 'Vui vẻ',
-        nghia_en: ['music'], so_net: 13, am_on: [{ am: 'ガク' }, { am: 'ラク' }], am_kun: [], cap_do: { chinh: 'N4', tat_ca: ['N4'] },
+        han_tu: '楽',
+        han_viet: {
+          chinh: 'LẠC',
+          khac: [],
+          theo_am_on: { ガク: 'LẠC', ラク: 'LẠC' },
+        },
+        nghia: 'Vui vẻ',
+        nghia_en: ['music'],
+        so_net: 13,
+        am_on: [{ am: 'ガク' }, { am: 'ラク' }],
+        am_kun: [],
+        cap_do: { chinh: 'N4', tat_ca: ['N4'] },
       };
-      await dbClient.db.insert(kanjiDataset).values({ kanji: '楽', data, jlptLevel: 'N4', strokeCount: 13, hanViet: 'LẠC', meaningVi: 'Vui vẻ', datasetVersion: '1.0.0' });
+      await dbClient.db.insert(kanjiDataset).values({
+        kanji: '楽',
+        data,
+        jlptLevel: 'N4',
+        strokeCount: 13,
+        hanViet: 'LẠC',
+        meaningVi: 'Vui vẻ',
+        datasetVersion: '1.0.0',
+      });
       const userId = generateUuidV7();
-      await dbClient.db.insert(users).values({ id: userId, email: 'editor-kanji2@example.com', role: 'editor' });
+      await dbClient.db.insert(users).values({
+        id: userId,
+        email: 'editor-kanji2@example.com',
+        role: 'editor',
+      });
       const user = { userId } as AuthUserContext;
 
       const res = await vocabController.adminUpdateKanjiHanViet('楽', { hanViet: ' nhạc ', hanVietByOnyomi: { ガク: 'nhạc' } }, user);
       expect(res).toEqual({
-        kanji: '楽', hanViet: 'NHẠC', edited: true,
-        hanVietByOnyomi: [{ onyomi: 'ガク', hanViet: 'NHẠC' }, { onyomi: 'ラク', hanViet: 'LẠC' }],
+        kanji: '楽',
+        hanViet: 'NHẠC',
+        edited: true,
+        hanVietByOnyomi: [
+          { onyomi: 'ガク', hanViet: 'NHẠC' },
+          { onyomi: 'ラク', hanViet: 'LẠC' },
+        ],
       });
       const listed = await vocabController.adminListKanji('楽');
       expect(listed.items[0]).toMatchObject({ hanViet: 'NHẠC', edited: true });
@@ -1350,7 +1692,9 @@ describe('N05: Vocab & Corpus Data Services (Acceptance 1, 2, 3, 4 & Features DA
       const [row] = await dbClient.db.select().from(kanjiDataset).where(eq(kanjiDataset.kanji, '楽'));
       expect(row).toMatchObject({ hanViet: 'NHẠC', source: 'manual' });
 
-      await expect(vocabController.adminUpdateKanjiHanViet('楽', { hanViet: 'NHẠC', hanVietByOnyomi: { ニチ: 'NHẬT' } }, user)).rejects.toThrow(BadRequestException);
+      await expect(vocabController.adminUpdateKanjiHanViet('楽', { hanViet: 'NHẠC', hanVietByOnyomi: { ニチ: 'NHẬT' } }, user)).rejects.toThrow(
+        BadRequestException,
+      );
       await expect(vocabController.adminUpdateKanjiHanViet('楽', { hanViet: 5 }, user)).rejects.toThrow(BadRequestException);
       await expect(vocabController.adminUpdateKanjiHanViet('無', { hanViet: 'VÔ' }, user)).rejects.toThrow(NotFoundException);
 

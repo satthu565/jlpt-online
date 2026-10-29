@@ -456,4 +456,3 @@ describe('Exam UI & Interaction Suite (C03)', () => {
     expect(htmlPalette).toContain('Phần thi đã khóa');
   });
 });
-
