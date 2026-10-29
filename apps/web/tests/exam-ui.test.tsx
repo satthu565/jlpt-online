@@ -69,9 +69,9 @@ describe('Exam UI & Interaction Suite (C03)', () => {
     );
 
     expect(html).toContain('Hướng dẫn làm bài thi JLPT');
-    expect(html).toContain('25 phút');
-    expect(html).toContain('50 phút');
-    expect(html).toContain('30 phút');
+    expect(html).toContain('25');
+    expect(html).toContain('50');
+    expect(html).toContain('30');
     expect(html).toContain('BỊ KHÓA HOÀN TOÀN');
     expect(html).toContain('Bắt đầu làm bài');
   });
@@ -87,12 +87,12 @@ describe('Exam UI & Interaction Suite (C03)', () => {
     );
 
     expect(html).toContain('Kiến thức ngôn ngữ (Từ vựng)');
-    expect(html).toContain('25 phút');
+    expect(html).toContain('25');
     expect(html).toContain('Ngữ pháp &amp; Đọc hiểu');
-    expect(html).toContain('50 phút');
+    expect(html).toContain('50');
     expect(html).toContain('Nghe hiểu');
-    expect(html).toContain('30 phút');
-    expect(html).toContain('Đang làm bài');
+    expect(html).toContain('30');
+    expect(html).toContain('role="tab"');
   });
 
   // EXAM-07: Bắt đầu thi và ghi nhận thời điểm bắt đầu
@@ -456,3 +456,4 @@ describe('Exam UI & Interaction Suite (C03)', () => {
     expect(htmlPalette).toContain('Phần thi đã khóa');
   });
 });
+

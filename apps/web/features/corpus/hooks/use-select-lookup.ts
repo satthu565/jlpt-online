@@ -159,6 +159,7 @@ export function useSelectLookup({
 
   const lastLookupRef = useRef<string>('');
   const activeLookupAbortRef = useRef<(() => void) | null>(null);
+  const cancelPendingSelectionRef = useRef<(() => void) | null>(null);
   const enabledRef = useRef<boolean>(enabled);
 
   useEffect(() => {
@@ -173,13 +174,14 @@ export function useSelectLookup({
   }, [enabled]);
 
   const close = useCallback(() => {
+    cancelPendingSelectionRef.current?.();
     setIsOpen(false);
   }, []);
 
   // Close when switching question in exam or practice
   useEffect(() => {
-    setIsOpen(false);
-  }, [questionIndex]);
+    close();
+  }, [questionIndex, close]);
 
   const performLookup = useCallback(async (textToLookup: string, rect: DOMRect) => {
     if (!enabledRef.current) return;
@@ -229,6 +231,11 @@ export function useSelectLookup({
 
     let mouseTimeout: ReturnType<typeof setTimeout> | null = null;
     let touchTimeout: ReturnType<typeof setTimeout> | null = null;
+    const cancelPending = () => {
+      if (mouseTimeout) clearTimeout(mouseTimeout);
+      if (touchTimeout) clearTimeout(touchTimeout);
+    };
+    cancelPendingSelectionRef.current = cancelPending;
 
     // Mouse selection handler
     const handleMouseUp = () => {
@@ -271,7 +278,7 @@ export function useSelectLookup({
     // Escape key closes popover
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setIsOpen(false);
+        close();
       }
     };
 
@@ -280,13 +287,13 @@ export function useSelectLookup({
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      if (mouseTimeout) clearTimeout(mouseTimeout);
-      if (touchTimeout) clearTimeout(touchTimeout);
+      cancelPending();
+      cancelPendingSelectionRef.current = null;
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('selectionchange', handleSelectionChange);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [enabled, performLookup]);
+  }, [enabled, performLookup, close]);
 
   return {
     isOpen,

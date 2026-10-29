@@ -27,7 +27,7 @@ Giao diện có ba ngôn ngữ vi/ja/en. Tiếng Việt là ngôn ngữ chính.
 |---|---|
 | Ngôn ngữ | TypeScript strict. Python chỉ dùng cho công cụ dữ liệu (`tools/`). |
 | Monorepo | pnpm 12.11, Turborepo 2.11 |
-| Web học viên và admin | Next.js 16.4, React 19.3, Tailwind 4.1, HeroUI styles 3.2 (chỉ CSS, **không** dùng `@heroui/react`) |
+| Web học viên và admin | Next.js 16.4, React 19.3, Tailwind 4.1, HeroUI styles 3.2; phòng thi dùng HeroUI React 3.2.6 theo yêu cầu chủ dự án ngày 24/10/2026, các trang khác giữ bộ UI hiện tại |
 | API | NestJS 12 trên Fastify 5, Drizzle ORM 0.45, PostgreSQL 17, Redis 7 |
 | Test | Vitest 5 (API dùng PGlite, một Postgres chạy trong bộ nhớ), Playwright 1.64 (E2E trên staging) |
 

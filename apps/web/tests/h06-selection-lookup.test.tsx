@@ -8,6 +8,8 @@ import {
   SELECT_LOOKUP_STORAGE_KEY,
 } from '../features/corpus/hooks/use-select-lookup';
 import { SelectionLookupPopover } from '../features/corpus/components/selection-lookup-popover';
+import { SelectionKanjiPanel } from '../features/corpus/components/selection-kanji-panel';
+import { selectedKanji } from '../features/corpus/utils/selected-kanji';
 import { VocabDetailView } from '../features/corpus/components/vocab-detail-view';
 import type { DictionaryEntryDetailDto } from '../features/corpus/types';
 import { I18nProvider } from '../lib/i18n';
@@ -221,6 +223,26 @@ describe('H06: Selection Lookup & Dictionary Detail', () => {
   });
 
   describe('SelectionLookupPopover component', () => {
+    it('extracts unique kanji from the whole selection in order, including supplementary characters', () => {
+      expect(selectedKanji('学生と学生、駅へ。')).toEqual(['学', '生', '駅']);
+      expect(selectedKanji('𠮷野・時々・〇')).toEqual(['𠮷', '野', '時', '〇']);
+      expect(selectedKanji('えき ABC 123')).toEqual([]);
+    });
+
+    it('lists selected characters independently of a matched vocabulary entry', () => {
+      const html = renderClean(<SelectionKanjiPanel text="学生と駅" breakdown={[{ kanji: '学', hanViet: 'HỌC' }, { kanji: '校', hanViet: 'HIỆU' }]} />);
+      expect(html.match(/data-testid="lookup-kanji-item"/g)).toHaveLength(3);
+      expect(html).toContain('HỌC');
+      expect(html).not.toContain('HIỆU');
+      expect(html).toContain('駅');
+    });
+
+    it('shows an empty state for a kana-only selection', () => {
+      const html = renderClean(<SelectionKanjiPanel text="えき" />);
+      expect(html).toContain('Đoạn được bôi đen không có kanji.');
+      expect(html).not.toContain('data-testid="lookup-kanji-item"');
+    });
+
     it('returns null when closed and idle', () => {
       const html = renderClean(
         <SelectionLookupPopover

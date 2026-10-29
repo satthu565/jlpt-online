@@ -446,7 +446,7 @@ describe('Web Real Device & Mobile Testing Suite (R03 / SYS-01 / SYS-10 / WCAG 2
   // 5. Responsive Breakpoint Layouts & Compact Viewport Rendering
   // =========================================================================
   describe('5. Responsive Breakpoints & Viewport Rendering', () => {
-    it('renders ExamRoom in Zen mode without right column distractions', () => {
+    it('renders the booklet and persistent answer sheet in Zen mode', () => {
       const storage = new MemoryExamStorage();
       const apiClient = new ExamApiClient();
 
@@ -463,9 +463,9 @@ describe('Web Real Device & Mobile Testing Suite (R03 / SYS-01 / SYS-10 / WCAG 2
         />,
       );
 
-      // In Zen mode, main col spans full width and palette is hidden
-      expect(html).toContain('lg:col-span-12');
-      expect(html).not.toContain('Phiếu trả lời');
+      // The booklet and answer sheet remain usable in Zen mode.
+      expect(html).toContain('paper-booklet');
+      expect(html).toContain('paper-answer-sheet');
     });
 
     it('ensures zero answer key leakage across all sample exams in real device view', () => {

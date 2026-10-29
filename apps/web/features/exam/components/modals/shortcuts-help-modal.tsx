@@ -1,6 +1,6 @@
 import React from 'react';
-import { Modal } from '@jlpt/ui/components/modal';
-import { Button } from '@jlpt/ui/components/button';
+import { Modal } from '@jlpt/ui/components/exam-controls';
+import { Button } from '@jlpt/ui/components/exam-controls';
 
 export interface ShortcutsHelpModalProps {
   isOpen: boolean;

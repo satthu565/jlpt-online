@@ -11,10 +11,7 @@ import type { SyncState, FlatQuestionItem } from '../types';
 
 import { ExamClock } from './exam-clock';
 import { SectionHeader } from './section-header';
-import { QuestionView } from './question-view';
-import { QuestionNavigation } from './question-navigation';
-import { QuestionPalette } from './question-palette';
-import { ExamProgressBar } from './exam-progress-bar';
+import { ExamWorkspace } from './exam-workspace';
 import { SyncStatusIndicator } from './sync-status-indicator';
 import { AudioPlayer } from './audio-player';
 import { ExamToolbar, type JapaneseFontSize } from './exam-toolbar';
@@ -25,7 +22,7 @@ import { LeaseConflictModal } from './modals/lease-conflict-modal';
 import { SpeakerTestModal } from './modals/speaker-test-modal';
 import { ShortcutsHelpModal } from './modals/shortcuts-help-modal';
 import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts';
-import { Button } from '@jlpt/ui/components/button';
+import { Button, Chip } from '@jlpt/ui/components/exam-controls';
 import { useFurigana } from '@jlpt/ui/components/furigana-toggle';
 import { evaluatePacing } from '../pacing';
 import { useSelectLookup, useSelectLookupSetting, SelectionLookupPopover } from '../../corpus';
@@ -39,6 +36,8 @@ export interface ExamRoomProps {
   initialSectionIndex?: number;
   initialAnswers?: number[];
   initialFlags?: number[];
+  initialSeq?: number;
+  initialLastAckedSeq?: number;
   initialDeadlines?: Record<number, string>;
   sectionStartedAt?: string;
   serverOffsetMs?: number;
@@ -60,6 +59,8 @@ export function ExamRoom({
   initialSectionIndex = 0,
   initialAnswers,
   initialFlags,
+  initialSeq = 0,
+  initialLastAckedSeq = 0,
   initialDeadlines,
   sectionStartedAt: initialSectionStartedAt,
   serverOffsetMs = 0,
@@ -72,6 +73,26 @@ export function ExamRoom({
   className = '',
 }: ExamRoomProps): React.JSX.Element {
   const totalQuestions = snapshot.totalQuestions;
+  const roomRef = useRef<HTMLDivElement>(null);
+  const sessionHeaderRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const room = roomRef.current;
+    const sessionHeader = sessionHeaderRef.current;
+    const siteHeader = document.querySelector<HTMLElement>('.jlpt-header');
+    if (!room || !sessionHeader) return;
+    const measure = () => {
+      const siteHeight = siteHeader?.getBoundingClientRect().height ?? 0;
+      room.style.setProperty('--exam-site-header-height', `${siteHeight}px`);
+      room.style.setProperty('--exam-sticky-top', `${siteHeight + sessionHeader.getBoundingClientRect().height + 16}px`);
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(sessionHeader);
+    if (siteHeader) observer.observe(siteHeader);
+    return () => observer.disconnect();
+  }, []);
 
   // Answers & Flags state
   const [answers, setAnswers] = useState<number[]>(() => {
@@ -80,6 +101,8 @@ export function ExamRoom({
   const [flags, setFlags] = useState<number[]>(() => {
     return initialFlags ? [...initialFlags] : new Array(totalQuestions).fill(0);
   });
+  const answersRef = useRef(answers);
+  const flagsRef = useRef(flags);
 
   // Current section and current question
   const [currentSectionIndex, setCurrentSectionIndex] = useState<number>(initialSectionIndex);
@@ -205,6 +228,8 @@ export function ExamRoom({
 
   // Sync Engine Ref
   const engineRef = useRef<ExamSyncEngine | null>(null);
+  const syncContext = useRef({ mode, currentSection: currentSectionIndex, sectionDeadlines: deadlines });
+  syncContext.current = { mode, currentSection: currentSectionIndex, sectionDeadlines: deadlines };
 
   useEffect(() => {
     const engine = new ExamSyncEngine({
@@ -213,6 +238,9 @@ export function ExamRoom({
       lease,
       initialAnswers: answers,
       initialFlags: flags,
+      initialSeq,
+      initialLastAckedSeq,
+      getContext: () => syncContext.current,
       storage,
       apiClient,
       debounceMs: 3000,
@@ -226,51 +254,62 @@ export function ExamRoom({
     });
 
     engineRef.current = engine;
+    const retry = () => { void engine.retry().catch(() => {}); };
+    window.addEventListener('online', retry);
+    if (initialSeq > initialLastAckedSeq) retry();
 
     return () => {
+      window.removeEventListener('online', retry);
       engine.stop();
     };
   }, [attemptId, lease, snapshot.examId, storage, apiClient]);
 
   // Options click handler
-  const handleSelectOption = async (optionValue: number) => {
-    const question = flatQuestions[currentQuestionIndex];
-    if (!question || question.isLocked) return;
+  const handleSelectOption = async (optionValue: number, index = currentQuestionIndex) => {
+    const question = flatQuestions[index];
+    if (!question || question.isLocked || question.sectionIndex !== currentSectionIndex || isSubmitting || isTransitioning || isConflictModalOpen) return;
 
-    const newAnswers = [...answers];
-    newAnswers[currentQuestionIndex] = optionValue;
+    if (mode === 'real' && deadlines[currentSectionIndex] && Date.now() + serverOffsetMs >= Date.parse(deadlines[currentSectionIndex]!)) return;
+    const newAnswers = [...answersRef.current];
+    if (optionValue < 0 || optionValue > question.options.length) return;
+    newAnswers[index] = optionValue;
+    answersRef.current = newAnswers;
+    setCurrentQuestionIndex(index);
     setAnswers(newAnswers);
 
     if (engineRef.current) {
-      await engineRef.current.recordAnswerChange(currentQuestionIndex, optionValue);
+      await engineRef.current.recordAnswerChange(index, optionValue).catch(() => setSyncState('local_error'));
     }
   };
 
   // Flag toggle handler
-  const handleToggleFlag = async () => {
-    const question = flatQuestions[currentQuestionIndex];
-    if (!question || question.isLocked) return;
+  const handleToggleFlag = async (index = currentQuestionIndex) => {
+    const question = flatQuestions[index];
+    if (!question || question.isLocked || question.sectionIndex !== currentSectionIndex || isSubmitting || isTransitioning || isConflictModalOpen) return;
 
-    const newFlags = [...flags];
-    const newFlagged = !flags[currentQuestionIndex];
-    newFlags[currentQuestionIndex] = newFlagged ? 1 : 0;
+    if (mode === 'real' && deadlines[currentSectionIndex] && Date.now() + serverOffsetMs >= Date.parse(deadlines[currentSectionIndex]!)) return;
+    const newFlags = [...flagsRef.current];
+    const newFlagged = !flagsRef.current[index];
+    newFlags[index] = newFlagged ? 1 : 0;
+    flagsRef.current = newFlags;
+    setCurrentQuestionIndex(index);
     setFlags(newFlags);
 
     if (engineRef.current) {
-      await engineRef.current.recordFlagChange(currentQuestionIndex, newFlagged);
+      await engineRef.current.recordFlagChange(index, newFlagged).catch(() => setSyncState('local_error'));
     }
   };
 
   // Question navigation handlers
   const handlePrevQuestion = () => {
     if (currentQuestionIndex > firstQuestionOfSection) {
-      setCurrentQuestionIndex((prev) => prev - 1);
+      handleJumpToQuestion(currentQuestionIndex - 1);
     }
   };
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < lastQuestionOfSection) {
-      setCurrentQuestionIndex((prev) => prev + 1);
+      handleJumpToQuestion(currentQuestionIndex + 1);
     }
   };
 
@@ -278,6 +317,7 @@ export function ExamRoom({
     const targetQ = flatQuestions[globalIdx];
     if (targetQ && !targetQ.isLocked) {
       setCurrentQuestionIndex(globalIdx);
+      requestAnimationFrame(() => document.getElementById(`paper-question-${targetQ.questionId}`)?.scrollIntoView({ block: 'start' }));
       if (targetQ.sectionIndex !== currentSectionIndex) {
         setCurrentSectionIndex(targetQ.sectionIndex);
       }
@@ -302,7 +342,7 @@ export function ExamRoom({
 
     try {
       if (engineRef.current) {
-        await engineRef.current.flush();
+        await engineRef.current.drain();
       }
 
       const res = await apiClient.nextSection(attemptId, { lease });
@@ -339,7 +379,7 @@ export function ExamRoom({
 
     try {
       if (engineRef.current) {
-        await engineRef.current.flush();
+        await engineRef.current.drain();
       }
 
       // Flush current active question time
@@ -388,8 +428,6 @@ export function ExamRoom({
   const flaggedCount = flags.filter((f) => f === 1).length;
 
   const currentQ = flatQuestions[currentQuestionIndex];
-  const isFirstInSection = currentQuestionIndex <= firstQuestionOfSection;
-  const isLastInSection = currentQuestionIndex >= lastQuestionOfSection;
   const isLastSection = currentSectionIndex >= snapshot.sections.length - 1;
 
   const currentDeadline = deadlines[currentSectionIndex] || null;
@@ -398,13 +436,14 @@ export function ExamRoom({
 
   return (
     <div
+      ref={roomRef}
       data-testid="exam-room"
       className={`jlpt-exam-room min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col ${
         isZenMode ? 'jlpt-zen-mode' : ''
       } ${className}`}
     >
       {/* Top sticky bar: Exam title, Clock, Sync status, Submit button */}
-      <header className="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-2.5">
+      <header ref={sessionHeaderRef} className="exam-session-header sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-2.5">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <h1 className="text-base font-bold text-slate-900 dark:text-slate-100 truncate max-w-xs sm:max-w-md">
@@ -415,20 +454,22 @@ export function ExamRoom({
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {mode === 'real' && pacingEvaluation?.currentMilestone && (
-              <div
+              <Chip size="sm" variant="soft"
                 data-testid="discreet-pacing-milestone"
-                className="surface surface--secondary rounded-2xl flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-mono px-2.5 py-1"
                 title="Mốc tiến độ chuẩn JLPT"
+                aria-label={`Mốc ${pacingEvaluation.currentMilestone.label || `Câu ${firstQuestionOfSection + pacingEvaluation.currentMilestone.targetQuestionIndex}`} (${Math.round(pacingEvaluation.currentMilestone.targetElapsedSec / 60)}p)`}
               >
-                <span className="inline-flex items-center gap-1"><Target className="size-4" aria-hidden="true" /> Mốc  {pacingEvaluation.currentMilestone.label || `Câu ${firstQuestionOfSection + pacingEvaluation.currentMilestone.targetQuestionIndex}`} ({Math.round(pacingEvaluation.currentMilestone.targetElapsedSec / 60)}p)</span>
-              </div>
+                <Target className="size-4" aria-hidden="true" />
+                <span className="sm:hidden">{Math.floor(pacingEvaluation.currentMilestone.targetElapsedSec / 60)}:{String(pacingEvaluation.currentMilestone.targetElapsedSec % 60).padStart(2, '0')}</span>
+                <span className="hidden sm:inline">Mốc {pacingEvaluation.currentMilestone.label || `Câu ${firstQuestionOfSection + pacingEvaluation.currentMilestone.targetQuestionIndex}`} ({Math.round(pacingEvaluation.currentMilestone.targetElapsedSec / 60)}p)</span>
+              </Chip>
             )}
 
             <SyncStatusIndicator
               syncState={syncState}
-              onRetry={() => engineRef.current?.flush()}
+              onRetry={() => { void engineRef.current?.retry(); }}
             />
 
             <ExamClock
@@ -444,7 +485,7 @@ export function ExamRoom({
               onClick={() => setIsSubmitModalOpen(true)}
               aria-label="Nộp bài thi"
               data-testid="submit-exam-btn"
-              className="px-4 py-1.5 text-xs font-bold"
+
             >
               Nộp bài
             </Button>
@@ -508,12 +549,19 @@ export function ExamRoom({
         </div>
       )}
 
-      {/* Main exam content area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left column: Question view + Navigation */}
-        <div className={`${isZenMode ? 'lg:col-span-12' : 'lg:col-span-8'} flex flex-col justify-between`}>
-          <div>
-            {/* Pacing Warning in Practice Mode (P04) */}
+      {/* Only the red-box workspace changes; the original surrounding shell stays intact. */}
+      <ExamWorkspace
+        attemptId={attemptId} examId={snapshot.examId} version={snapshot.version}
+        title={currentSection?.title ?? snapshot.title}
+        questions={flatQuestions.filter((question) => question.sectionIndex === currentSectionIndex)}
+        answers={answers} flags={flags} currentIndex={currentQuestionIndex}
+        fontSize={fontSize} showFurigana={showFurigana} lookupEnabled={selectLookupEnabled}
+        disabled={isSubmitting || isTransitioning || isConflictModalOpen || lockedSections.includes(currentSectionIndex)}
+        isLastSection={isLastSection} onActivate={setCurrentQuestionIndex}
+        onAnswer={(index, value) => { void handleSelectOption(value, index); }}
+        onFlag={(index) => { void handleToggleFlag(index); }}
+        onFinishSection={() => isLastSection ? setIsSubmitModalOpen(true) : setIsTransitionModalOpen(true)}
+      >
             {mode === 'practice' && pacingEvaluation && (pacingEvaluation.paceStatus === 'BEHIND' || pacingEvaluation.paceStatus === 'CRITICAL') && (
               <div
                 data-testid="pacing-warning"
@@ -524,56 +572,7 @@ export function ExamRoom({
                 <span className="flex-1">{pacingEvaluation.message}</span>
               </div>
             )}
-
-            {currentQ ? (
-              <QuestionView
-                question={currentQ}
-                selectedOption={answers[currentQuestionIndex] || 0}
-                isFlagged={Boolean(flags[currentQuestionIndex])}
-                onSelectOption={handleSelectOption}
-                onToggleFlag={handleToggleFlag}
-                fontSize={fontSize}
-                showKeyboardHints={true}
-                showFurigana={showFurigana}
-              />
-            ) : (
-              <div className="p-8 text-center text-slate-500">Đang tải câu hỏi...</div>
-            )}
-          </div>
-
-          <QuestionNavigation
-            currentIndex={currentQuestionIndex}
-            totalQuestions={totalQuestions}
-            isFirstInSection={isFirstInSection}
-            isLastInSection={isLastInSection}
-            isLastSection={isLastSection}
-            onPrev={handlePrevQuestion}
-            onNext={handleNextQuestion}
-            onRequestNextSection={() => setIsTransitionModalOpen(true)}
-            onRequestSubmit={() => setIsSubmitModalOpen(true)}
-          />
-        </div>
-
-        {/* Right column: Progress bar & Answer sheet palette (Hidden in Zen Mode to prevent distraction) */}
-        {!isZenMode && (
-          <div className="lg:col-span-4 space-y-4">
-            <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-4">
-              <ExamProgressBar
-                answeredCount={answeredCount}
-                totalQuestions={totalQuestions}
-              />
-            </div>
-
-            <QuestionPalette
-              questions={flatQuestions}
-              currentIndex={currentQuestionIndex}
-              answers={answers}
-              flags={flags}
-              onSelectQuestion={handleJumpToQuestion}
-            />
-          </div>
-        )}
-      </main>
+      </ExamWorkspace>
 
       {/* Modals */}
       <EarlySubmitModal
@@ -593,6 +592,7 @@ export function ExamRoom({
         onConfirm={handleConfirmSectionTransition}
         currentSectionTitle={currentSection?.title || 'Phần thi hiện tại'}
         nextSectionTitle={snapshot.sections[currentSectionIndex + 1]?.title || 'Phần thi tiếp theo'}
+        unansweredInSection={flatQuestions.filter((question) => question.sectionIndex === currentSectionIndex && !answers[question.globalIndex]).length}
         isLoading={isTransitioning}
       />
 

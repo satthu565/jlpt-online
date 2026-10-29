@@ -1,6 +1,6 @@
 # Tính năng theo trạng thái
 
-Cập nhật lần cuối: 22/10/2026. **Agent xong một tính năng thì sửa file này trong cùng PR.**
+Cập nhật lần cuối: 24/10/2026. **Agent xong một tính năng thì sửa file này trong cùng PR.**
 
 Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xong, chờ dịch vụ ngoài · 🚧 đang làm · 📋 dự kiến.
 
@@ -17,7 +17,7 @@ Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xon
 | Nghe có audio và hình | trong phòng thi | `features/exam`, module `media` |
 | Furigana bật/tắt, Hán Việt theo từng từ | toàn site | `packages/content-tools/src/nlp` |
 | Cảnh báo nhịp làm bài | phòng thi | `packages/exam-engine/src/pacing.ts` |
-| Bôi đen chữ trong đề để tra từ (H06) | phòng thi, luyện tập | `features/corpus/hooks/use-select-lookup.ts` |
+| Bôi đen chữ trong đề để tra từ (H06), tab Kanji liệt kê chữ trong toàn bộ phần bôi đen, bỏ trùng theo thứ tự | phòng thi, luyện tập | `features/corpus/hooks/use-select-lookup.ts`, `components/selection-kanji-panel.tsx` |
 | Tra từ, chi tiết từ vựng | `/tu-vung`, `/tu-vung/[term]` | `features/corpus`, module `vocab` |
 | Bộ dữ liệu kanji chuẩn: 3.186 chữ, cách dùng và ví dụ (#127) | admin `/kanji` | `data/kanji/kanji_chuan_v1.json`, bảng `kanji_dataset`, `apps/api/scripts/lexicon/import-kanji-dataset.mjs` |
 | Ngữ pháp, thống kê từ vựng trong đề | `/ngu-phap`, `/thong-ke-tu-vung` | `features/corpus` |
@@ -68,6 +68,7 @@ Chủ dự án cung cấp tài khoản hoặc dịch vụ thì mới nghiệm th
 
 | Việc | Trạng thái |
 |---|---|
+| Cuốn đề HTML và HeroUI React | Theo phương án được duyệt ngày 24/10: giữ khung website, dùng HeroUI gốc trong phòng thi: Tabs, Popover, RadioGroup, Card, ProgressBar, Modal, TextArea. Gộp phiếu và tiến độ; lọc câu trống/có cờ; đáp án dài xếp dọc; mobile mở phiếu cố định. CSS riêng chỉ bố cục và nội dung Nhật. Xem `docs/decisions/paper-exam-room.md`. |
 | Sổ tay `docs/agent-guides/`, `pnpm docs:map`, bài kiểm tra đầu vào | PR #129 chờ merge |
 | Trích xuất đề N2 từ PDF thành gói nhập (ngoài repo, chạy trên máy ảo) | 3/31 đề xong |
 

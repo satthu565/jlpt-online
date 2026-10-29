@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { test, expect, type Page } from '@playwright/test';
+import { registerExamContentTests } from './exam-content-journey.js';
 import { MailpitClient } from './fixtures/mailpit.fixture.js';
 import {
   SEEDED_STAFF_ACCOUNTS,
@@ -17,6 +18,8 @@ import {
  * Resolves a unique client IP per test and project to ensure rate limiting
  * isolation in staging environments (RateLimitGuard default: 120 req/min).
  */
+registerExamContentTests();
+
 function getProjectClientIp(testInfo: { project?: { name?: string } }, offset = 0): string {
   const projectBaseMap: Record<string, number> = {
     chromium: 100,
@@ -401,7 +404,7 @@ test.describe('Real Staging User Journey & Exam Flow (I05)', () => {
 
     // 7. Exam room rendered - answer at least one question
     await expect(page.locator('[role="radiogroup"], [data-testid="exam-room"], main').first()).toBeVisible({ timeout: 15000 });
-    const firstOption = page.locator('[role="radio"]').first();
+    const firstOption = page.locator('.paper-booklet .radio__content').first();
     await expect(firstOption).toBeVisible({ timeout: 15000 });
     // The answer must reach the server: a new attempt starts its first section, so the sheet save is accepted
     // (it used to be rejected with 409 SECTION_NOT_STARTED while the UI kept going).
@@ -2713,7 +2716,7 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
 
     // Step 2: In exam room, answer option 1 on question 1
     await expect(page.locator('[data-testid="exam-room"]')).toBeVisible({ timeout: 20000 });
-    const firstOption = page.locator('[data-testid="exam-room"] [role="radio"]').first();
+    const firstOption = page.locator('[data-testid="exam-room"] .paper-booklet .radio__content').first();
     await expect(firstOption).toBeVisible({ timeout: 10000 });
     await firstOption.click();
 
@@ -4668,6 +4671,8 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
   test.afterEach(async ({ page }) => {
     const examRoom = page.locator('[data-testid="exam-room"]');
     if (!(await examRoom.isVisible().catch(() => false))) return;
+    const speaker = page.getByRole('dialog', { name: 'Kiểm tra tai nghe / loa' });
+    if (await speaker.isVisible()) await speaker.getByRole('button', { name: 'Quay lại làm bài', exact: true }).click();
     const submitBtn = page.locator('[data-testid="submit-exam-btn"], button:has-text("Nộp bài")').first();
     if (!(await submitBtn.isVisible({ timeout: 5000 }).catch(() => false))) return;
     await submitBtn.click();
@@ -4678,6 +4683,35 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await confirmBtn.click();
     await expect(page.locator('a[href*="/ket-qua/"]').first()).toBeVisible({ timeout: 15000 });
   });
+
+  async function jumpToBookletQuestion24(page: Page) {
+    const speaker = page.getByRole('dialog', { name: 'Kiểm tra tai nghe / loa' });
+    const completeSpeakerCheck = async () => {
+      await speaker.getByRole('button', { name: 'Phát âm thanh thử nghiệm', exact: true }).click();
+      const confirm = speaker.getByRole('button', { name: 'Tôi nghe rõ · Bắt đầu phần nghe', exact: true });
+      await expect(confirm).toBeEnabled();
+      await confirm.click();
+      await expect(speaker).not.toBeVisible();
+    };
+    if (await speaker.isVisible()) await completeSpeakerCheck();
+    for (let step = 0; step < 3 && await page.getByTestId('paper-question-23').count() === 0; step++) {
+      const active = page.locator('.jlpt-section-header [role="tab"][aria-selected="true"]');
+      const title = await active.innerText();
+      const sectionIndex = await page.locator('.jlpt-section-header [role="tab"]').evaluateAll((tabs) => tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true'));
+      await page.getByTestId('finish-section-btn').click();
+      await page.getByRole('button', { name: 'Xác nhận chuyển phần', exact: true }).click();
+      await expect(active).not.toHaveText(title);
+      if (sectionIndex === 1) {
+        await expect(speaker).toBeVisible();
+        await completeSpeakerCheck();
+      }
+    }
+    const question = page.getByTestId('paper-question-23');
+    await expect(question).toBeAttached();
+    if (await speaker.isVisible()) await completeSpeakerCheck();
+    await question.scrollIntoViewIfNeeded();
+    await question.getByRole('radio').first().focus();
+  }
 
   async function triggerSelectText(page: Page, textToSelect: string) {
     return page.evaluate((targetText) => {
@@ -4730,19 +4764,15 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await loginAsStudentH06(page, webOrigin);
     await openExamRoom(page, 'real');
 
-    // Jump to Question 24 (which contains "学生は あした 何時に 学校に 来ますか。")
-    const q24Btn = page.locator('[data-testid="question-palette"] button, .jlpt-question-palette button').filter({ hasText: /^24$/ }).first();
-    await expect(q24Btn).toBeVisible({ timeout: 15000 });
-    await q24Btn.scrollIntoViewIfNeeded();
-    await q24Btn.click();
+    // Advance sections through the real exam flow; future questions are not in this booklet.
+    await jumpToBookletQuestion24(page);
     await expect(page.locator('[data-select-lookup-area="true"]')).toContainText('学生', { timeout: 10000 });
     await page.waitForTimeout(300);
 
     // Select Option 1
-    const firstOption = page.locator('[data-testid="exam-room"] [role="radio"]').first();
-    await expect(firstOption).toBeVisible({ timeout: 10000 });
-    await firstOption.click();
-    await expect(firstOption).toHaveAttribute('aria-checked', 'true');
+    const firstOption = page.getByTestId('paper-question-23').getByRole('radio').first();
+    await page.getByTestId('paper-question-23').locator('.radio__content').first().click();
+    await expect(firstOption).toBeChecked();
 
     // Select text "学生"
     const selected = await triggerSelectText(page, '学生');
@@ -4761,7 +4791,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await expect(page.locator('[data-testid="lookup-details-btn"]')).toBeVisible();
 
     // Verify option selected has NOT changed
-    await expect(firstOption).toHaveAttribute('aria-checked', 'true');
+    await expect(firstOption).toBeChecked();
   });
 
   test('H06-AC2: Tắt công tắc "Tra từ khi bôi đen" thì bôi đen không hiện khung; tải lại trang vẫn giữ trạng thái tắt; bật lại thì hoạt động', async ({
@@ -4775,13 +4805,15 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await openExamRoom(page, 'real');
 
     // Switch is initially checked
-    const switchEl = page.locator('[data-testid="select-lookup-switch"]');
-    await expect(switchEl).toBeVisible({ timeout: 10000 });
-    await expect(switchEl).toHaveAttribute('data-state', 'checked');
+    const display = page.getByRole('button', { name: 'Hiển thị', exact: true });
+    await display.click();
+    const switchEl = page.getByTestId('select-lookup-switch');
+    await expect(switchEl.getByRole('switch')).toBeChecked();
 
     // Turn switch OFF
-    await switchEl.click();
-    await expect(switchEl).toHaveAttribute('data-state', 'unchecked');
+    await switchEl.locator('.switch__control').click();
+    await expect(switchEl.getByRole('switch')).not.toBeChecked();
+    await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
 
     // Select text -> popover does not appear
@@ -4796,8 +4828,10 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
       await modalBtn.click();
     }
     await expect(page.locator('[data-testid="exam-room"]')).toBeVisible({ timeout: 20000 });
-    const switchAfterReload = page.locator('[data-testid="select-lookup-switch"]');
-    await expect(switchAfterReload).toHaveAttribute('data-state', 'unchecked');
+    await display.click();
+    const switchAfterReload = page.getByTestId('select-lookup-switch');
+    await expect(switchAfterReload.getByRole('switch')).not.toBeChecked();
+    await page.keyboard.press('Escape');
 
     // Select text -> still does not appear
     await triggerSelectText(page, '山');
@@ -4805,8 +4839,10 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await expect(page.locator('[data-testid="selection-lookup-popover"]')).not.toBeVisible();
 
     // Turn switch back ON
-    await switchAfterReload.click();
-    await expect(switchAfterReload).toHaveAttribute('data-state', 'checked');
+    await display.click();
+    await switchAfterReload.locator('.switch__control').click();
+    await expect(switchAfterReload.getByRole('switch')).toBeChecked();
+    await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
 
     // Select text -> popover appears
@@ -4824,11 +4860,7 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
     await loginAsStudentH06(page, webOrigin);
     await openExamRoom(page, 'real');
 
-    // Jump to Question 24
-    const q24Btn = page.locator('[data-testid="question-palette"] button, .jlpt-question-palette button').filter({ hasText: /^24$/ }).first();
-    await expect(q24Btn).toBeVisible({ timeout: 15000 });
-    await q24Btn.scrollIntoViewIfNeeded();
-    await q24Btn.click();
+    await jumpToBookletQuestion24(page);
     await expect(page.locator('[data-select-lookup-area="true"]')).toContainText('学生', { timeout: 10000 });
     await page.waitForTimeout(300);
 

@@ -88,6 +88,16 @@ export class ExamApiClient {
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
+    if (!token && typeof document !== 'undefined' && !/(?:^|;\s*)(?:guest_id|__Host-guest)=/.test(document.cookie)) {
+      // The API uses this identity to own guest attempts. Without a stable cookie,
+      // every request gets a new guest and the attempt cannot be resumed or saved.
+      const bytes = crypto.getRandomValues(new Uint8Array(16));
+      bytes[6] = (bytes[6]! & 15) | 64;
+      bytes[8] = (bytes[8]! & 63) | 128;
+      const hex = Array.from(bytes, (value) => value.toString(16).padStart(2, '0')).join('');
+      const guestId = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+      document.cookie = `guest_id=${guestId}; Path=/; SameSite=Lax; Max-Age=86400${location.protocol === 'https:' ? '; Secure' : ''}`;
+    }
 
     const response = await this.fetcher(url, {
       method,

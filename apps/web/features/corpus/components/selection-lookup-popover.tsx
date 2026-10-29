@@ -7,8 +7,11 @@ import { Button } from '@jlpt/ui/components/button';
 import { Badge } from '@jlpt/ui/components/badge';
 import { Skeleton } from '@jlpt/ui/components/skeleton';
 import { Alert } from '@jlpt/ui/components/alert';
+import { Tabs } from '@jlpt/ui/components/exam-controls';
 import type { SelectionLookupState } from '../hooks/use-select-lookup';
 import { useI18n } from '../../../lib/i18n';
+import { SelectionKanjiPanel } from './selection-kanji-panel';
+import { selectedKanji } from '../utils/selected-kanji';
 
 export interface SelectionLookupPopoverProps {
   state: SelectionLookupState;
@@ -68,6 +71,12 @@ export function SelectionLookupPopover({
         data-testid="selection-lookup-popover"
         data-select-lookup-popover="true"
       >
+        <Tabs key={queryText} defaultSelectedKey="vocabulary">
+          <Tabs.ListContainer><Tabs.List aria-label={t('dictionary.lookupTabs')}>
+            <Tabs.Tab id="vocabulary">{t('dictionary.vocabularyTab')}<Tabs.Indicator /></Tabs.Tab>
+            <Tabs.Tab id="kanji">{t('dictionary.kanjiTab')} ({selectedKanji(queryText).length})<Tabs.Indicator /></Tabs.Tab>
+          </Tabs.List></Tabs.ListContainer>
+          <Tabs.Panel id="vocabulary" className="max-h-[60dvh] overflow-y-auto">
         {/* Loading State: Skeleton */}
         {status === 'loading' && (
           <div data-testid="lookup-loading-skeleton" className="space-y-3">
@@ -247,6 +256,11 @@ export function SelectionLookupPopover({
             </div>
           </div>
         )}
+          </Tabs.Panel>
+          <Tabs.Panel id="kanji" className="max-h-[60dvh] overflow-y-auto">
+            <SelectionKanjiPanel text={queryText} breakdown={status === 'success' ? result?.hanVietPerKanji : undefined} />
+          </Tabs.Panel>
+        </Tabs>
       </PopoverContent>
     </Popover>
   );
