@@ -786,8 +786,9 @@ export default function HomePage(): React.JSX.Element {
                         <div className="flex items-center gap-6">
                           {/* Năm thi */}
                           <div>
-                            <span className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-0.5">
-                              Năm thi
+                            <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                              <Calendar className="size-3.5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                              <span>Năm thi</span>
                             </span>
                             <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none">
                               {session.year}
@@ -799,8 +800,9 @@ export default function HomePage(): React.JSX.Element {
 
                           {/* Kỳ thi */}
                           <div>
-                            <span className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-0.5">
-                              Kỳ thi
+                            <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                              <Clock className="size-3.5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                              <span>Kỳ thi</span>
                             </span>
                             <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none">
                               Tháng {session.session}
