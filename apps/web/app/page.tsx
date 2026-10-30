@@ -833,14 +833,14 @@ export default function HomePage(): React.JSX.Element {
                               variant="ghost"
                               onClick={() => isAvailable && handleSelectCardLevel(groupKey, lvl)}
                               aria-pressed={isSelected}
-                              className={`px-3 py-1 text-xs font-bold h-8 min-h-0 rounded-lg transition-all border-0 shadow-none cursor-pointer ${
+                              className={`w-11 h-10 min-h-0 p-0 text-xs font-bold rounded-xl transition-all border-2 flex items-center justify-center shrink-0 ${
                                 isAvailable
-                                  ? `badge-level-${lvl.toLowerCase()} ${
+                                  ? `badge-level-${lvl.toLowerCase()} cursor-pointer ${
                                       isSelected
-                                        ? 'ring-2 ring-current ring-offset-1 dark:ring-offset-slate-900 font-black shadow-xs scale-105'
-                                        : 'opacity-90 hover:opacity-100'
+                                        ? 'border-current font-black shadow-xs'
+                                        : 'border-transparent opacity-85 hover:opacity-100'
                                     }`
-                                  : 'opacity-25 cursor-not-allowed bg-slate-100 dark:bg-slate-800 text-slate-400'
+                                  : 'border-transparent bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-50'
                               }`}
                             >
                               {lvl}
