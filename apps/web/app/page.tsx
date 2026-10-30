@@ -768,6 +768,8 @@ export default function HomePage(): React.JSX.Element {
 
                 const targetExam = session.examsByLevel[activeLevel] || Object.values(session.examsByLevel)[0];
                 const examUrl = targetExam ? `/phong-thi?examId=${targetExam.id}` : `/de-thi`;
+                const isFavorite = Boolean(targetExam && favorites.ids.has(targetExam.id));
+                const isFavPending = Boolean(targetExam && favorites.pendingIds.has(targetExam.id));
 
                 return (
                   <Card
@@ -809,54 +811,76 @@ export default function HomePage(): React.JSX.Element {
                       {/* Horizontal Divider */}
                       <div className="my-4 border-b border-slate-100 dark:border-slate-800" />
 
-                      {/* Label: Chọn cấp độ */}
-                      <span className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2.5">
-                        Chọn cấp độ
-                      </span>
+                      {/* Chọn cấp độ */}
+                      <div>
+                        <span className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2.5">
+                          Chọn cấp độ
+                        </span>
+                        <div className="flex items-center gap-2" role="group" aria-label={`Cấp độ đề thi năm ${session.year}`}>
+                          {(['N1', 'N2', 'N3', 'N4', 'N5'] as Level[]).map((lvl) => {
+                            const examForLevel = session.examsByLevel[lvl];
+                            const isAvailable = Boolean(examForLevel);
+                            const isSelected = activeLevel === lvl;
+
+                            return (
+                              <Button
+                                key={lvl}
+                                type="button"
+                                size="sm"
+                                disabled={!isAvailable}
+                                variant="ghost"
+                                onClick={() => isAvailable && handleSelectCardLevel(groupKey, lvl)}
+                                aria-pressed={isSelected}
+                                className={`flex-1 h-10 min-h-0 p-0 text-xs font-bold rounded-xl transition-all border-2 flex items-center justify-center ${
+                                  isAvailable
+                                    ? `badge-level-${lvl.toLowerCase()} cursor-pointer ${
+                                        isSelected
+                                          ? 'border-current font-black shadow-xs'
+                                          : 'border-transparent opacity-85 hover:opacity-100'
+                                      }`
+                                    : 'border-transparent bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-50'
+                                }`}
+                              >
+                                {lvl}
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Bottom Row: 5 Level Badges on Left, 'Làm bài ngay →' Button on Right */}
-                    <div className="flex items-center justify-between gap-3">
-                      {/* Level Badges */}
-                      <div className="flex items-center gap-1.5" role="group" aria-label={`Cấp độ đề thi năm ${session.year}`}>
-                        {(['N1', 'N2', 'N3', 'N4', 'N5'] as Level[]).map((lvl) => {
-                          const examForLevel = session.examsByLevel[lvl];
-                          const isAvailable = Boolean(examForLevel);
-                          const isSelected = activeLevel === lvl;
+                    {/* Bottom Action Row: Favorite Button + "Làm bài ngay →" */}
+                    <div className="flex items-center gap-2.5 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+                      {/* Favorite Button */}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        disabled={!targetExam || isFavPending}
+                        onClick={() => targetExam && favorites.toggleFavorite(targetExam.id)}
+                        aria-pressed={isFavorite}
+                        aria-label={isFavorite ? 'Bỏ lưu đề yêu thích' : 'Lưu vào đề yêu thích'}
+                        title={isFavorite ? 'Bỏ lưu đề yêu thích' : 'Lưu vào đề yêu thích'}
+                        className={`size-10 min-h-0 p-0 rounded-xl flex items-center justify-center shrink-0 border transition-all ${
+                          isFavorite
+                            ? 'border-amber-300 bg-amber-50 dark:bg-amber-950/40 text-amber-500 hover:bg-amber-100'
+                            : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 hover:text-amber-500 hover:border-amber-300 dark:hover:border-amber-600'
+                        }`}
+                      >
+                        <Star
+                          className={`size-4 ${isFavorite ? 'fill-amber-400 text-amber-500' : ''}`}
+                          aria-hidden="true"
+                        />
+                      </Button>
 
-                          return (
-                            <Button
-                              key={lvl}
-                              type="button"
-                              size="sm"
-                              disabled={!isAvailable}
-                              variant="ghost"
-                              onClick={() => isAvailable && handleSelectCardLevel(groupKey, lvl)}
-                              aria-pressed={isSelected}
-                              className={`w-11 h-10 min-h-0 p-0 text-xs font-bold rounded-xl transition-all border-2 flex items-center justify-center shrink-0 ${
-                                isAvailable
-                                  ? `badge-level-${lvl.toLowerCase()} cursor-pointer ${
-                                      isSelected
-                                        ? 'border-current font-black shadow-xs'
-                                        : 'border-transparent opacity-85 hover:opacity-100'
-                                    }`
-                                  : 'border-transparent bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-50'
-                              }`}
-                            >
-                              {lvl}
-                            </Button>
-                          );
-                        })}
-                      </div>
-
-                      {/* Action Button */}
+                      {/* Take Exam Now Action Button */}
                       <Button
                         asChild
                         variant="primary"
                         size="sm"
-                        className="h-10 px-4 rounded-xl flex items-center justify-center gap-1.5 text-xs font-bold shrink-0 bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                        className="flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
                       >
-                        <a href={examUrl} className="no-underline flex items-center justify-center gap-1.5">
+                        <a href={examUrl} className="no-underline flex items-center justify-center gap-2">
                           <span>{t('home.takeExamNow')}</span>
                           <ArrowRight className="size-3.5" aria-hidden="true" />
                         </a>
