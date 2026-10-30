@@ -178,3 +178,50 @@ html[data-consent='set'] .jlpt-cookie-consent {
   background-color: #0f172a;
   color: #f8fafc;
 }
+
+
+/* JLPT Exam Level Pill Badges */
+.badge-level-n1 {
+  background-color: #ede9fe !important;
+  color: #6d28d9 !important;
+}
+.dark .badge-level-n1 {
+  background-color: rgba(109, 40, 217, 0.28) !important;
+  color: #d8b4fe !important;
+}
+
+.badge-level-n2 {
+  background-color: #ffe4e6 !important;
+  color: #be123c !important;
+}
+.dark .badge-level-n2 {
+  background-color: rgba(190, 18, 60, 0.28) !important;
+  color: #fda4af !important;
+}
+
+.badge-level-n3 {
+  background-color: #fef3c7 !important;
+  color: #b45309 !important;
+}
+.dark .badge-level-n3 {
+  background-color: rgba(180, 83, 9, 0.28) !important;
+  color: #fde68a !important;
+}
+
+.badge-level-n4 {
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+}
+.dark .badge-level-n4 {
+  background-color: rgba(3, 105, 161, 0.28) !important;
+  color: #7dd3fc !important;
+}
+
+.badge-level-n5 {
+  background-color: #dcfce7 !important;
+  color: #15803d !important;
+}
+.dark .badge-level-n5 {
+  background-color: rgba(21, 128, 61, 0.28) !important;
+  color: #86efac !important;
+}

@@ -551,7 +551,7 @@ export default function HomePage(): React.JSX.Element {
                     {/* Bottom Row: Level Badges on Left, 'Làm bài ngay →' Button on Right */}
                     <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
                       {/* Level Badges */}
-                      <div className="flex flex-wrap gap-1" role="group" aria-label={`Cấp độ đề thi năm ${session.year}`}>
+                      <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label={`Cấp độ đề thi năm ${session.year}`}>
                         {(['N1', 'N2', 'N3', 'N4', 'N5'] as Level[]).map((lvl) => {
                           const examForLevel = session.examsByLevel[lvl];
                           const isAvailable = Boolean(examForLevel);
@@ -563,15 +563,17 @@ export default function HomePage(): React.JSX.Element {
                               type="button"
                               size="sm"
                               disabled={!isAvailable}
-                              variant={isSelected ? 'primary' : 'secondary'}
+                              variant="ghost"
                               onClick={() => isAvailable && handleSelectCardLevel(groupKey, lvl)}
                               aria-pressed={isSelected}
-                              className={`px-1.5 py-0.5 text-[11px] font-bold h-6 min-h-0 rounded-md transition-colors ${
-                                isSelected
-                                  ? 'bg-blue-600 text-white'
-                                  : isAvailable
-                                  ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                                  : 'opacity-30 cursor-not-allowed bg-slate-50 dark:bg-slate-900 text-slate-400'
+                              className={`px-2 py-0.5 text-[11px] font-bold h-6 min-h-0 rounded-lg transition-all border-0 shadow-none cursor-pointer ${
+                                isAvailable
+                                  ? `badge-level-${lvl.toLowerCase()} ${
+                                      isSelected
+                                        ? 'ring-2 ring-current ring-offset-1 dark:ring-offset-slate-900 font-black shadow-xs scale-105'
+                                        : 'opacity-90 hover:opacity-100'
+                                    }`
+                                  : 'opacity-25 cursor-not-allowed bg-slate-100 dark:bg-slate-800 text-slate-400'
                               }`}
                             >
                               {lvl}
