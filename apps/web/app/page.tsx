@@ -326,7 +326,7 @@ export default function HomePage(): React.JSX.Element {
           </div>
 
           {/* SEARCH CARD CONTAINER (PHƯƠNG ÁN 1: 3 TẦNG ĐẦY ĐỦ TIÊU CHÍ) */}
-          <Card className="rounded-2xl p-4 sm:p-6 shadow-sm bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 space-y-5">
+          <Card className="rounded-2xl p-4 sm:p-5 shadow-sm bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 space-y-3">
             {/* TẦNG 1: TÌM KIẾM TỪ KHÓA & NÚT TÌM KIẾM */}
             <div>
               <label
@@ -406,7 +406,7 @@ export default function HomePage(): React.JSX.Element {
             </div>
 
             {/* TẦNG 3: 4 TIÊU CHÍ (NĂM THI, KỲ THI, THỂ LOẠI ĐỀ, TRẠNG THÁI CỦA BẠN) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {/* Dropdown 1: Năm thi */}
               <div>
                 <label
@@ -499,7 +499,7 @@ export default function HomePage(): React.JSX.Element {
             </div>
 
             {/* TẦNG 4 (CHÂN KHUNG): CHECKBOX YÊU THÍCH & NÚT ĐẶT LẠI BỘ LỌC */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2.5 border-t border-slate-100 dark:border-slate-800">
               <label
                 htmlFor="homepage-filter-favorites"
                 className="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300 select-none"
