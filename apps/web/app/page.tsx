@@ -13,8 +13,11 @@ import {
   Star,
   Sparkles,
   CheckCircle2,
+  BookOpen,
+  Play,
 } from 'lucide-react';
 import { Card } from '@jlpt/ui/components/card';
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@jlpt/ui/components/tooltip';
 import { Button } from '@jlpt/ui/components/button';
 import { Select } from '@jlpt/ui/components/select';
 import { Input } from '@jlpt/ui/components/input';
@@ -864,19 +867,39 @@ export default function HomePage(): React.JSX.Element {
               </div>
 
               <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 sm:flex-initial h-10 px-4 rounded-xl text-xs font-bold"
-                >
-                  <a
-                    href={`/phong-thi?examId=${recommendedExam.id}&mode=practice`}
-                    className="no-underline flex items-center justify-center gap-1.5"
-                  >
-                    <span>Luyện tự do</span>
-                  </a>
-                </Button>
+                <TooltipProvider delayDuration={150}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 sm:flex-initial h-10 px-4 rounded-xl text-xs font-bold border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      >
+                        <a
+                          href={`/phong-thi?examId=${recommendedExam.id}&mode=practice`}
+                          className="no-underline flex items-center justify-center gap-1.5"
+                        >
+                          <BookOpen className="size-3.5" aria-hidden="true" />
+                          <span>Luyện tự do</span>
+                        </a>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="top"
+                      className="max-w-xs p-3 text-xs rounded-xl shadow-lg bg-slate-900 text-slate-100 dark:bg-slate-800 dark:text-slate-100 border border-slate-700 leading-relaxed"
+                    >
+                      <p className="font-bold text-blue-400 mb-1 flex items-center gap-1.5">
+                        <BookOpen className="size-3.5" aria-hidden="true" />
+                        <span>Chế độ Luyện tự do</span>
+                      </p>
+                      <p className="text-slate-300 dark:text-slate-300">
+                        Làm bài không bị áp lực thời gian. Bạn có thể xem ngay đáp án, tra cứu giải thích chi tiết sau mỗi câu và tạm dừng bất cứ lúc nào.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
                 <Button
                   asChild
                   variant="primary"
@@ -887,6 +910,7 @@ export default function HomePage(): React.JSX.Element {
                     href={`/phong-thi?examId=${recommendedExam.id}`}
                     className="no-underline flex items-center justify-center gap-1.5"
                   >
+                    <Play className="size-3.5 fill-current" aria-hidden="true" />
                     <span>Vào thi ngay</span>
                     <ArrowRight className="size-3.5" aria-hidden="true" />
                   </a>
