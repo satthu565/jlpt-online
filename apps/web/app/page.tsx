@@ -43,7 +43,7 @@ const LEVEL_CONFIGS: Array<{
     borderClass: 'border-emerald-200/80 dark:border-emerald-900/40',
     textClass: 'text-emerald-700 dark:text-emerald-400',
     pillBgClass: 'bg-emerald-100/80 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300',
-    desc: 'B?t ??u l?m quen v?i ti?ng Nh?t',
+    desc: 'Bắt đầu làm quen với tiếng Nhật',
   },
   {
     level: 'N4',
@@ -51,7 +51,7 @@ const LEVEL_CONFIGS: Array<{
     borderClass: 'border-sky-200/80 dark:border-sky-900/40',
     textClass: 'text-sky-700 dark:text-sky-400',
     pillBgClass: 'bg-sky-100/80 dark:bg-sky-900/50 text-sky-800 dark:text-sky-300',
-    desc: 'N?n t?ng giao ti?p c? b?n',
+    desc: 'Nền tảng giao tiếp cơ bản',
   },
   {
     level: 'N3',
@@ -59,7 +59,7 @@ const LEVEL_CONFIGS: Array<{
     borderClass: 'border-amber-200/80 dark:border-amber-900/40',
     textClass: 'text-amber-700 dark:text-amber-400',
     pillBgClass: 'bg-amber-100/80 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300',
-    desc: 'S? d?ng ti?ng Nh?t trong ??i s?ng',
+    desc: 'Sử dụng tiếng Nhật trong đời sống',
   },
   {
     level: 'N2',
@@ -67,7 +67,7 @@ const LEVEL_CONFIGS: Array<{
     borderClass: 'border-rose-200/80 dark:border-rose-900/40',
     textClass: 'text-rose-700 dark:text-rose-400',
     pillBgClass: 'bg-rose-100/80 dark:bg-rose-900/50 text-rose-800 dark:text-rose-300',
-    desc: 'Giao ti?p v? l?m vi?c ? m?c ?? cao h?n',
+    desc: 'Giao tiếp và làm việc ở mức độ cao hơn',
   },
   {
     level: 'N1',
@@ -75,7 +75,7 @@ const LEVEL_CONFIGS: Array<{
     borderClass: 'border-indigo-200/80 dark:border-indigo-900/40',
     textClass: 'text-indigo-700 dark:text-indigo-400',
     pillBgClass: 'bg-indigo-100/80 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-300',
-    desc: 'Th?nh th?o ti?ng Nh?t trong m?i t?nh hu?ng',
+    desc: 'Thành thạo tiếng Nhật trong mọi tình huống',
   },
 ];
 
@@ -84,7 +84,7 @@ const WEBSITE_STRUCTURED_DATA = {
   '@type': 'WebSite',
   name: 'JLPT Online',
   url: 'https://jlpt.vn',
-  description: 'N?n t?ng thi v? luy?n thi ti?ng Nh?t tr?c tuy?n chu?n qu?c t? t? N5 ??n N1.',
+  description: 'Nền tảng thi và luyện thi tiếng Nhật trực tuyến chuẩn quốc tế từ N5 đến N1.',
 };
 
 export default function HomePage(): React.JSX.Element {
@@ -131,7 +131,7 @@ export default function HomePage(): React.JSX.Element {
       const msg =
         err instanceof ExamApiError
           ? err.message
-          : 'Kh?ng th? k?t n?i ??n m?y ch? ?? t?i danh s?ch ?? thi. Vui l?ng ki?m tra k?t n?i m?ng v? th? l?i.';
+          : 'Không thể kết nối đến máy chủ để tải danh sách đề thi. Vui lòng kiểm tra kết nối mạng và thử lại.';
       setError(msg);
     } finally {
       setLoading(false);
@@ -233,17 +233,17 @@ export default function HomePage(): React.JSX.Element {
             {/* Left Column: Heading, Subtitle & Search Box */}
             <div className="lg:col-span-7 xl:col-span-8">
               <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-black text-slate-900 dark:text-slate-100 tracking-tight leading-[1.18]">
-                Luy?n ?? JLPT<br />
-                <span className="text-blue-600 dark:text-blue-400">Chinh ph?c ti?ng Nh?t</span>
+                Luyện đề JLPT<br />
+                <span className="text-blue-600 dark:text-blue-400">Chinh phục tiếng Nhật</span>
               </h1>
               <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-xl leading-relaxed">
-                Kho ?? thi JLPT c?c n?m ???c t?ng h?p ??y ??, gi?p b?n l?m quen v?i c?u tr?c ?? th?t v? n?ng cao k? n?ng ti?ng Nh?t.
+                Kho đề thi JLPT các năm được tổng hợp đầy đủ, giúp bạn làm quen với cấu trúc đề thật và nâng cao kỹ năng tiếng Nhật.
               </p>
 
               {/* Search Card Container */}
               <Card className="mt-7 rounded-2xl p-2.5 sm:p-3 shadow-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
-                  {/* Select: C?p ?? */}
+                  {/* Select: Cấp độ */}
                   <div className="lg:col-span-3 flex items-center gap-2.5 px-3 py-1.5 border-b sm:border-b-0 sm:border-r border-slate-200 dark:border-slate-800">
                     <Layers className="size-5 text-slate-400 shrink-0" aria-hidden="true" />
                     <div className="flex-1 min-w-0">
@@ -266,7 +266,7 @@ export default function HomePage(): React.JSX.Element {
                     </div>
                   </div>
 
-                  {/* Select: N?m thi */}
+                  {/* Select: Năm thi */}
                   <div className="lg:col-span-3 flex items-center gap-2.5 px-3 py-1.5 border-b sm:border-b-0 lg:border-r border-slate-200 dark:border-slate-800">
                     <Calendar className="size-5 text-slate-400 shrink-0" aria-hidden="true" />
                     <div className="flex-1 min-w-0">
@@ -281,13 +281,13 @@ export default function HomePage(): React.JSX.Element {
                       >
                         <option value="ALL">{t('home.chooseYearPlaceholder')}</option>
                         {availableYears.map((yr) => (
-                          <option key={yr} value={yr}>N?m {yr}</option>
+                          <option key={yr} value={yr}>Năm {yr}</option>
                         ))}
                       </Select>
                     </div>
                   </div>
 
-                  {/* Select: K? thi */}
+                  {/* Select: Kỳ thi */}
                   <div className="lg:col-span-3 flex items-center gap-2.5 px-3 py-1.5 border-b sm:border-b-0 sm:border-r lg:border-r-0 border-slate-200 dark:border-slate-800">
                     <Clock className="size-5 text-slate-400 shrink-0" aria-hidden="true" />
                     <div className="flex-1 min-w-0">
@@ -301,13 +301,13 @@ export default function HomePage(): React.JSX.Element {
                         className="w-full text-xs font-semibold border-0 p-0 focus:ring-0 bg-transparent text-slate-900 dark:text-slate-100 cursor-pointer"
                       >
                         <option value="ALL">{t('home.chooseSessionPlaceholder')}</option>
-                        <option value="7">K? th?ng 7</option>
-                        <option value="12">K? th?ng 12</option>
+                        <option value="7">Kỳ tháng 7</option>
+                        <option value="12">Kỳ tháng 12</option>
                       </Select>
                     </div>
                   </div>
 
-                  {/* Button: T?m ?? thi */}
+                  {/* Button: Tìm đề thi */}
                   <div className="lg:col-span-3">
                     <Button
                       type="button"
@@ -353,7 +353,7 @@ export default function HomePage(): React.JSX.Element {
         </div>
       </section>
 
-      {/* SECTION 2: CH?N NHANH THEO C?P ?? */}
+      {/* SECTION 2: CHỌN NHANH THEO CẤP ĐỘ */}
       <section className="py-10 px-4 sm:px-6">
         <div className="container mx-auto max-w-7xl">
           <div className="flex items-center gap-2 mb-4">
@@ -398,7 +398,7 @@ export default function HomePage(): React.JSX.Element {
         </div>
       </section>
 
-      {/* SECTION 3: ?? THI THEO N?M */}
+      {/* SECTION 3: ĐỀ THI THEO NĂM */}
       <section id="de-thi-theo-nam" className="pb-16 px-4 sm:px-6">
         <div className="container mx-auto max-w-7xl">
           {/* Header Row */}
@@ -410,12 +410,12 @@ export default function HomePage(): React.JSX.Element {
               </h2>
               {filterLevel !== 'ALL' && (
                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 font-semibold dark:bg-blue-950 dark:text-blue-300 ml-1.5">
-                  L?c: {filterLevel}
+                  Lọc: {filterLevel}
                 </span>
               )}
               {filterYear !== 'ALL' && (
                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 font-semibold dark:bg-slate-800 dark:text-slate-300 ml-1">
-                  N?m {filterYear}
+                  Năm {filterYear}
                 </span>
               )}
             </div>
@@ -435,7 +435,7 @@ export default function HomePage(): React.JSX.Element {
               <Alert variant="warning" className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-2xl">
                 <div>
                   <span className="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 block mb-0.5">
-                    B?i thi ?ang l?m d?
+                    Bài thi đang làm dở
                   </span>
                   <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 m-0">
                     {t('home.resumeExamNotice', { title: inProgressExam.title })}
@@ -465,23 +465,23 @@ export default function HomePage(): React.JSX.Element {
             </div>
           ) : error ? (
             <Card className="p-8 text-center border border-slate-200 dark:border-slate-800 rounded-2xl">
-              <AlertTriangle className="mx-auto mb-3 size-10 text-[var(--color-danger)]" role="img" aria-label="L?i t?i ?? thi" />
+              <AlertTriangle className="mx-auto mb-3 size-10 text-[var(--color-danger)]" role="img" aria-label="Lỗi tải đề thi" />
               <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-2">
-                Kh?ng th? t?i danh s?ch ?? thi
+                Không thể tải danh sách đề thi
               </h3>
               <p className="text-xs text-slate-500 mb-4">{error}</p>
               <Button variant="primary" size="sm" onClick={loadExams} className="rounded-xl">
-                Th? l?i
+                Thử lại
               </Button>
             </Card>
           ) : filteredSessions.length === 0 ? (
             <Card className="p-10 text-center border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900">
               <FileText className="mx-auto mb-3 size-10 text-slate-400" aria-hidden="true" />
               <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">
-                Kh?ng t?m th?y k? thi ph? h?p
+                Không tìm thấy kỳ thi phù hợp
               </h3>
               <p className="text-xs text-slate-500 mb-4 max-w-sm mx-auto">
-                Kh?ng c? ?? thi n?o kh?p v?i b? l?c b?n ?? ch?n. H?y th? ??t l?i b? l?c ?? xem to?n b? danh s?ch.
+                Không có đề thi nào khớp với bộ lọc bạn đã chọn. Hãy thử đặt lại bộ lọc để xem toàn bộ danh sách.
               </p>
               <Button
                 type="button"
@@ -494,7 +494,7 @@ export default function HomePage(): React.JSX.Element {
                 }}
                 className="rounded-xl text-xs font-semibold"
               >
-                ??t l?i b? l?c
+                Đặt lại bộ lọc
               </Button>
             </Card>
           ) : (
@@ -527,13 +527,13 @@ export default function HomePage(): React.JSX.Element {
                         <FileText className="size-4 text-slate-400" aria-hidden="true" />
                       </div>
 
-                      {/* Subtitle: JLPT (Th?ng X) */}
+                      {/* Subtitle: JLPT (Tháng X) */}
                       <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-3.5">
-                        JLPT (Th?ng {session.session})
+                        JLPT (Tháng {session.session})
                       </p>
 
                       {/* Level Badges */}
-                      <div className="flex flex-wrap gap-1.5 mb-4" role="group" aria-label={`C?p ?? ?? thi n?m ${session.year}`}>
+                      <div className="flex flex-wrap gap-1.5 mb-4" role="group" aria-label={`Cấp độ đề thi năm ${session.year}`}>
                         {(['N1', 'N2', 'N3', 'N4', 'N5'] as Level[]).map((lvl) => {
                           const examForLevel = session.examsByLevel[lvl];
                           const isAvailable = Boolean(examForLevel);
