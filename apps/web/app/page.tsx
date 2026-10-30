@@ -284,9 +284,22 @@ export default function HomePage(): React.JSX.Element {
       <span className="sr-only">{t('home.sessionSelectLabel')}</span>
 
       {/* SECTION 1: HERO WITH INTEGRATED 3-TIER SEARCH FRAME */}
-      <section className="bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 pt-10 pb-12 px-4 sm:px-6">
-        <div className="container mx-auto max-w-7xl">
-          {/* Top Row: Title & Subtitle on Left, Graphic on Right */}
+      <section className="relative overflow-hidden bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 pt-10 pb-12 px-4 sm:px-6">
+        {/* Aesthetic Japanese Study Background Scene */}
+        <div className="absolute top-0 right-0 bottom-0 w-full sm:w-2/3 lg:w-1/2 pointer-events-none select-none z-0 overflow-hidden">
+          <img
+            src="/images/hero-jlpt-bg.webp"
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover object-right opacity-90 dark:opacity-30"
+          />
+          {/* Subtle gradient overlays to seamlessly blend into page background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-slate-900 dark:via-slate-900/80" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent dark:from-slate-900" />
+        </div>
+
+        <div className="container mx-auto max-w-7xl relative z-10">
+          {/* Top Row: Title & Subtitle on Left */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-8">
             <div className="max-w-2xl">
               <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-black text-slate-900 dark:text-slate-100 tracking-tight leading-[1.18]">
@@ -297,36 +310,10 @@ export default function HomePage(): React.JSX.Element {
                 Kho đề thi JLPT các năm được tổng hợp đầy đủ, giúp bạn làm quen với cấu trúc đề thật và nâng cao kỹ năng tiếng Nhật.
               </p>
             </div>
-
-            {/* Right: Graphic emblem badge */}
-            <div className="hidden lg:flex items-center justify-end">
-              <div className="relative size-44 xl:size-52 rounded-full bg-gradient-to-br from-blue-50/90 via-indigo-50/60 to-slate-100 dark:from-slate-800 dark:to-slate-900 flex items-center justify-center border border-blue-100/60 dark:border-slate-700 shadow-inner overflow-hidden">
-                <svg viewBox="0 0 200 200" className="size-full p-2" aria-hidden="true">
-                  <defs>
-                    <linearGradient id="fujiGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#93c5fd" />
-                      <stop offset="100%" stopColor="#2563eb" />
-                    </linearGradient>
-                    <linearGradient id="sunGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#fecdd3" stopOpacity="0.8" />
-                      <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.3" />
-                    </linearGradient>
-                  </defs>
-                  {/* Sun in background */}
-                  <circle cx="100" cy="72" r="32" fill="url(#sunGrad)" />
-                  {/* Fuji Mountain */}
-                  <path d="M44 156 L88 88 Q100 80 112 88 L156 156 Z" fill="url(#fujiGrad)" />
-                  {/* Snow Cap on Mount Fuji */}
-                  <path d="M88 88 Q100 80 112 88 L122 104 Q112 110 100 106 Q88 110 78 104 Z" fill="#ffffff" />
-                  {/* Gentle base cloud line */}
-                  <path d="M25 158 Q60 148 100 156 T175 154 L175 178 L25 178 Z" fill="#3b82f6" opacity="0.18" />
-                </svg>
-              </div>
-            </div>
           </div>
 
           {/* SEARCH CARD CONTAINER (PHƯƠNG ÁN 1: 3 TẦNG ĐẦY ĐỦ TIÊU CHÍ) */}
-          <Card className="rounded-2xl p-4 sm:p-5 shadow-sm bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 space-y-3">
+          <Card className="rounded-2xl p-4 sm:p-5 shadow-sm bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border border-slate-200/90 dark:border-slate-800 space-y-3">
             {/* TẦNG 1: TÌM KIẾM TỪ KHÓA & NÚT TÌM KIẾM */}
             <div>
               <label
