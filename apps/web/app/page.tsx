@@ -90,6 +90,51 @@ const WEBSITE_STRUCTURED_DATA = {
   description: 'Nền tảng thi và luyện thi tiếng Nhật trực tuyến chuẩn quốc tế từ N5 đến N1.',
 };
 
+function AnimatedCountdownUnit({
+  value,
+  label,
+  isAccent = false,
+}: {
+  value: number;
+  label: string;
+  isAccent?: boolean;
+}): React.JSX.Element {
+  const digits = String(value).padStart(2, '0').split('');
+  const textClass = isAccent
+    ? 'text-blue-600 dark:text-blue-400'
+    : 'text-slate-900 dark:text-slate-100';
+
+  return (
+    <div
+      className={`p-2 sm:p-2.5 rounded-xl border shadow-2xs overflow-hidden transition-colors ${
+        isAccent
+          ? 'bg-blue-50/70 dark:bg-blue-950/40 border-blue-200/80 dark:border-blue-900/60'
+          : 'bg-slate-50 dark:bg-slate-800/80 border-slate-200/80 dark:border-slate-700/80'
+      }`}
+    >
+      <div className="relative h-8 sm:h-9 overflow-hidden flex items-center justify-center">
+        <div className="flex items-center justify-center font-mono text-2xl sm:text-3xl font-black tracking-tight leading-none">
+          {digits.map((digit, idx) => (
+            <span
+              key={`${idx}-${digit}`}
+              className={`inline-block animate-digit-flip ${textClass}`}
+            >
+              {digit}
+            </span>
+          ))}
+        </div>
+      </div>
+      <span
+        className={`block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider mt-1.5 ${
+          isAccent ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'
+        }`}
+      >
+        {label}
+      </span>
+    </div>
+  );
+}
+
 export default function HomePage(): React.JSX.Element {
   const { t } = useI18n();
   const { user } = useAuth();
@@ -470,47 +515,12 @@ export default function HomePage(): React.JSX.Element {
                   </a>
                 </div>
 
-                {/* 4 Digital Timer Blocks */}
+                {/* 4 Digital Timer Blocks with Animated Digit Transitions */}
                 <div className="grid grid-cols-4 gap-2 sm:gap-2.5 text-center">
-                  {/* Ngày */}
-                  <div className="p-2 sm:p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 shadow-2xs">
-                    <span className="block text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 font-mono tracking-tight leading-none">
-                      {String(countdownTime.days).padStart(2, '0')}
-                    </span>
-                    <span className="block text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1.5">
-                      Ngày
-                    </span>
-                  </div>
-
-                  {/* Giờ */}
-                  <div className="p-2 sm:p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 shadow-2xs">
-                    <span className="block text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 font-mono tracking-tight leading-none">
-                      {String(countdownTime.hours).padStart(2, '0')}
-                    </span>
-                    <span className="block text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1.5">
-                      Giờ
-                    </span>
-                  </div>
-
-                  {/* Phút */}
-                  <div className="p-2 sm:p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 shadow-2xs">
-                    <span className="block text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 font-mono tracking-tight leading-none">
-                      {String(countdownTime.minutes).padStart(2, '0')}
-                    </span>
-                    <span className="block text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1.5">
-                      Phút
-                    </span>
-                  </div>
-
-                  {/* Giây */}
-                  <div className="p-2 sm:p-2.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900/60 shadow-2xs">
-                    <span className="block text-2xl sm:text-3xl font-black text-blue-600 dark:text-blue-400 font-mono tracking-tight leading-none">
-                      {String(countdownTime.seconds).padStart(2, '0')}
-                    </span>
-                    <span className="block text-[10px] sm:text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mt-1.5">
-                      Giây
-                    </span>
-                  </div>
+                  <AnimatedCountdownUnit value={countdownTime.days} label="Ngày" />
+                  <AnimatedCountdownUnit value={countdownTime.hours} label="Giờ" />
+                  <AnimatedCountdownUnit value={countdownTime.minutes} label="Phút" />
+                  <AnimatedCountdownUnit value={countdownTime.seconds} label="Giây" isAccent />
                 </div>
 
                 {/* Motivating footer */}
