@@ -530,7 +530,8 @@ export default function HomePage(): React.JSX.Element {
       </section>
 
       {/* SECTION 2: CHỌN NHANH THEO CẤP ĐỘ */}
-      <section className="py-10 px-4 sm:px-6">
+      {!hasActiveFilters && (
+        <section className="py-10 px-4 sm:px-6">
         <div className="container mx-auto max-w-7xl">
           <div className="flex items-center gap-2 mb-5">
             <Layers className="size-5 text-slate-700 dark:text-slate-300" aria-hidden="true" />
@@ -541,7 +542,7 @@ export default function HomePage(): React.JSX.Element {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {LEVEL_CONFIGS.map(({ level, bgClass, borderClass, textClass, desc }) => {
-              const isActive = filterLevel === level;
+              const isActive = (filterLevel as string) === level;
               return (
                 <Card
                   key={level}
@@ -569,17 +570,28 @@ export default function HomePage(): React.JSX.Element {
             })}
           </div>
         </div>
-      </section>
+        </section>
+      )}
 
       {/* SECTION 3: ĐỀ THI THEO NĂM & KẾT QUẢ TÌM KIẾM */}
-      <section id="de-thi-theo-nam" className="pb-16 px-4 sm:px-6">
+      <section id="de-thi-theo-nam" className={`pb-16 px-4 sm:px-6 ${hasActiveFilters ? "pt-8" : ""}`}>
+
         <div className="container mx-auto max-w-7xl">
           {/* Header */}
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
               <FileText className="size-5 text-slate-700 dark:text-slate-300" aria-hidden="true" />
               <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-                {t('home.examsByYear')}
+                {hasActiveFilters ? (
+                  <>
+                    <span>Kết quả tìm kiếm</span>
+                    <span className="text-sm font-normal text-slate-500 dark:text-slate-400 ml-2">
+                      ({sessionGroups.length} kỳ thi phù hợp)
+                    </span>
+                  </>
+                ) : (
+                  t('home.examsByYear')
+                )}
               </h2>
             </div>
             <a
