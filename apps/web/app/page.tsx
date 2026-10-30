@@ -10,17 +10,21 @@ import {
   ArrowRight,
   ChevronRight,
   AlertTriangle,
+  Star,
 } from 'lucide-react';
 import { Card } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
 import { Select } from '@jlpt/ui/components/select';
+import { Input } from '@jlpt/ui/components/input';
+import { Checkbox } from '@jlpt/ui/components/checkbox';
 import { Alert } from '@jlpt/ui/components/alert';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
 import { useI18n } from '../lib/i18n';
 import { useAuth } from '../lib/auth-context';
 import { ExamApiClient, ExamApiError } from '../features/exam/api/exam-api';
-import type { ExamWithUserStatus } from '../features/library/types';
-import type { Level } from '@jlpt/schema';
+import { useExamFavorites } from '../features/library/hooks/use-exam-favorites';
+import type { ExamWithUserStatus, UserExamStatus } from '../features/library/types';
+import type { Level, ExamKind } from '@jlpt/schema';
 
 interface ExamSessionGroup {
   key: string;
@@ -84,14 +88,20 @@ const WEBSITE_STRUCTURED_DATA = {
 export default function HomePage(): React.JSX.Element {
   const { t } = useI18n();
   const { user } = useAuth();
+  const favorites = useExamFavorites();
+
   const [exams, setExams] = useState<ExamWithUserStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Filter States
+  // Filter States (Matching Option 1 & Mockup)
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterLevel, setFilterLevel] = useState<string>('ALL');
   const [filterYear, setFilterYear] = useState<string>('ALL');
   const [filterSession, setFilterSession] = useState<string>('ALL');
+  const [filterKind, setFilterKind] = useState<string>('ALL');
+  const [filterStatus, setFilterStatus] = useState<string>('ALL');
+  const [onlyFavorites, setOnlyFavorites] = useState<boolean>(false);
 
   // Selected level per session card (key -> level)
   const [cardSelectedLevel, setCardSelectedLevel] = useState<Record<string, Level>>({});
@@ -148,12 +158,63 @@ export default function HomePage(): React.JSX.Element {
     return yrs.length > 0 ? yrs : [2024, 2023, 2022, 2021, 2020];
   }, [exams]);
 
-  // Group exams by (year, session)
+  // Filter exams according to all active criteria
+  const filteredExams = useMemo(() => {
+    return exams.filter((exam) => {
+      if ((exam.totalQuestions ?? 0) === 0) return false;
+
+      // 1. Level filter
+      if (filterLevel !== 'ALL' && exam.level !== filterLevel) {
+        return false;
+      }
+
+      // 2. Year filter
+      if (filterYear !== 'ALL' && exam.year !== Number.parseInt(filterYear, 10)) {
+        return false;
+      }
+
+      // 3. Session filter
+      if (filterSession !== 'ALL' && exam.session !== filterSession) {
+        return false;
+      }
+
+      // 4. Kind filter (Exam Category)
+      if (filterKind !== 'ALL' && exam.kind !== filterKind) {
+        return false;
+      }
+
+      // 5. User Status filter
+      if (filterStatus !== 'ALL' && exam.userStatus !== filterStatus) {
+        return false;
+      }
+
+      // 6. Favorites filter
+      if (onlyFavorites && !favorites.ids.has(exam.id)) {
+        return false;
+      }
+
+      // 7. Keyword Search (title, level, year, session)
+      if (searchQuery.trim()) {
+        const q = searchQuery.trim().toLowerCase();
+        const matchTitle = (exam.title || '').toLowerCase().includes(q);
+        const matchLevel = (exam.level || '').toLowerCase().includes(q);
+        const matchYear = exam.year ? exam.year.toString().includes(q) : false;
+        const matchSession = exam.session ? `tháng ${exam.session}`.includes(q) : false;
+        if (!matchTitle && !matchLevel && !matchYear && !matchSession) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [exams, filterLevel, filterYear, filterSession, filterKind, filterStatus, onlyFavorites, searchQuery, favorites.ids]);
+
+  // Group filtered exams by (year, session)
   const sessionGroups = useMemo(() => {
     const map = new Map<string, ExamSessionGroup>();
 
-    for (const exam of exams) {
-      if (!exam.year || !exam.session || (exam.totalQuestions ?? 0) === 0) continue;
+    for (const exam of filteredExams) {
+      if (!exam.year || !exam.session) continue;
       const key = `${exam.year}-${exam.session}`;
       if (!map.has(key)) {
         map.set(key, {
@@ -168,33 +229,17 @@ export default function HomePage(): React.JSX.Element {
     }
 
     const list = Array.from(map.values());
-    // Sort descending by year, then session ('12' before '7')
     list.sort((a, b) => {
       if (b.year !== a.year) return b.year - a.year;
       return Number.parseInt(b.session, 10) - Number.parseInt(a.session, 10);
     });
 
     return list;
-  }, [exams]);
-
-  // Filter session groups
-  const filteredSessions = useMemo(() => {
-    return sessionGroups.filter((g) => {
-      if (filterYear !== 'ALL' && g.year !== Number.parseInt(filterYear, 10)) {
-        return false;
-      }
-      if (filterSession !== 'ALL' && g.session !== filterSession) {
-        return false;
-      }
-      if (filterLevel !== 'ALL' && !g.examsByLevel[filterLevel as Level]) {
-        return false;
-      }
-      return true;
-    });
-  }, [sessionGroups, filterYear, filterSession, filterLevel]);
+  }, [filteredExams]);
 
   const handleLevelCardClick = (level: Level) => {
     setFilterLevel((prev) => (prev === level ? 'ALL' : level));
+    handleSearchScroll();
   };
 
   const handleSelectCardLevel = (groupKey: string, lvl: Level) => {
@@ -208,6 +253,25 @@ export default function HomePage(): React.JSX.Element {
     }
   };
 
+  const handleResetAllFilters = () => {
+    setSearchQuery('');
+    setFilterLevel('ALL');
+    setFilterYear('ALL');
+    setFilterSession('ALL');
+    setFilterKind('ALL');
+    setFilterStatus('ALL');
+    setOnlyFavorites(false);
+  };
+
+  const hasActiveFilters =
+    Boolean(searchQuery.trim()) ||
+    filterLevel !== 'ALL' ||
+    filterYear !== 'ALL' ||
+    filterSession !== 'ALL' ||
+    filterKind !== 'ALL' ||
+    filterStatus !== 'ALL' ||
+    onlyFavorites;
+
   return (
     <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60">
       <JsonLd id="homepage-website-schema" data={WEBSITE_STRUCTURED_DATA} />
@@ -215,8 +279,11 @@ export default function HomePage(): React.JSX.Element {
       {/* Screen-reader compatibility strings for tests */}
       <span className="sr-only">{t('home.heroTitle')}</span>
       <span className="sr-only">{t('home.startFreeTrial')}</span>
+      <span className="sr-only">{t('home.levelSelectLabel')}</span>
+      <span className="sr-only">{t('home.yearSelectLabel')}</span>
+      <span className="sr-only">{t('home.sessionSelectLabel')}</span>
 
-      {/* SECTION 1: HERO WITH SEARCH BAR */}
+      {/* SECTION 1: HERO WITH INTEGRATED 3-TIER SEARCH FRAME */}
       <section className="bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 pt-10 pb-12 px-4 sm:px-6">
         <div className="container mx-auto max-w-7xl">
           {/* Top Row: Title & Subtitle on Left, Graphic on Right */}
@@ -258,85 +325,205 @@ export default function HomePage(): React.JSX.Element {
             </div>
           </div>
 
-          {/* Search Card Container: Spanning full width across the hero */}
-          <Card className="rounded-2xl p-3 sm:p-4 shadow-sm bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-center">
-              {/* Field 1: Cấp độ */}
-              <div className="flex items-center gap-3 border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2 bg-white dark:bg-slate-850 h-[56px] focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all hover:border-slate-300 dark:hover:border-slate-600">
-                <Layers className="size-5 text-slate-400 shrink-0" aria-hidden="true" />
-                <div className="flex-1 min-w-0 flex flex-col justify-center">
-                  <label htmlFor="hero-select-level" className="block text-[11px] font-medium text-slate-500 dark:text-slate-400 leading-none mb-1 cursor-pointer">
-                    {t('home.levelSelectLabel')}
-                  </label>
-                  <Select
-                    id="hero-select-level"
-                    value={filterLevel}
-                    onChange={(e) => setFilterLevel(e.target.value)}
-                    className="hero-search-select !border-0 !border-none !bg-transparent !shadow-none !p-0 !min-h-0 !h-5.5 text-sm font-semibold text-slate-800 dark:text-slate-100 cursor-pointer focus:!ring-0 focus:!outline-none w-full"
-                  >
-                    <option value="ALL">{t('home.chooseLevelPlaceholder')}</option>
-                    <option value="N1">JLPT N1</option>
-                    <option value="N2">JLPT N2</option>
-                    <option value="N3">JLPT N3</option>
-                    <option value="N4">JLPT N4</option>
-                    <option value="N5">JLPT N5</option>
-                  </Select>
+          {/* SEARCH CARD CONTAINER (PHƯƠNG ÁN 1: 3 TẦNG ĐẦY ĐỦ TIÊU CHÍ) */}
+          <Card className="rounded-2xl p-4 sm:p-6 shadow-sm bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 space-y-5">
+            {/* TẦNG 1: TÌM KIẾM TỪ KHÓA & NÚT TÌM KIẾM */}
+            <div>
+              <label
+                htmlFor="homepage-search-input"
+                className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2"
+              >
+                Tìm kiếm đề thi
+              </label>
+              <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
+                <div className="relative flex-1">
+                  <Input
+                    id="homepage-search-input"
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSearchScroll();
+                    }}
+                    placeholder="Nhập tên đề thi, từ khóa hoặc cấp độ..."
+                    className="w-full h-11 pl-10 pr-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/60 focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 transition-colors"
+                  />
+                  <Search className="pointer-events-none absolute left-3.5 top-3.5 size-4 text-slate-400" aria-hidden="true" />
                 </div>
-              </div>
-
-              {/* Field 2: Năm thi */}
-              <div className="flex items-center gap-3 border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2 bg-white dark:bg-slate-850 h-[56px] focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all hover:border-slate-300 dark:hover:border-slate-600">
-                <Calendar className="size-5 text-slate-400 shrink-0" aria-hidden="true" />
-                <div className="flex-1 min-w-0 flex flex-col justify-center">
-                  <label htmlFor="hero-select-year" className="block text-[11px] font-medium text-slate-500 dark:text-slate-400 leading-none mb-1 cursor-pointer">
-                    {t('home.yearSelectLabel')}
-                  </label>
-                  <Select
-                    id="hero-select-year"
-                    value={filterYear}
-                    onChange={(e) => setFilterYear(e.target.value)}
-                    className="hero-search-select !border-0 !border-none !bg-transparent !shadow-none !p-0 !min-h-0 !h-5.5 text-sm font-semibold text-slate-800 dark:text-slate-100 cursor-pointer focus:!ring-0 focus:!outline-none w-full"
-                  >
-                    <option value="ALL">{t('home.chooseYearPlaceholder')}</option>
-                    {availableYears.map((yr) => (
-                      <option key={yr} value={yr.toString()}>{yr}</option>
-                    ))}
-                  </Select>
-                </div>
-              </div>
-
-              {/* Field 3: Kỳ thi */}
-              <div className="flex items-center gap-3 border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2 bg-white dark:bg-slate-850 h-[56px] focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all hover:border-slate-300 dark:hover:border-slate-600">
-                <Clock className="size-5 text-slate-400 shrink-0" aria-hidden="true" />
-                <div className="flex-1 min-w-0 flex flex-col justify-center">
-                  <label htmlFor="hero-select-session" className="block text-[11px] font-medium text-slate-500 dark:text-slate-400 leading-none mb-1 cursor-pointer">
-                    {t('home.sessionSelectLabel')}
-                  </label>
-                  <Select
-                    id="hero-select-session"
-                    value={filterSession}
-                    onChange={(e) => setFilterSession(e.target.value)}
-                    className="hero-search-select !border-0 !border-none !bg-transparent !shadow-none !p-0 !min-h-0 !h-5.5 text-sm font-semibold text-slate-800 dark:text-slate-100 cursor-pointer focus:!ring-0 focus:!outline-none w-full"
-                  >
-                    <option value="ALL">{t('home.chooseSessionPlaceholder')}</option>
-                    <option value="7">Tháng 7</option>
-                    <option value="12">Tháng 12</option>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Field 4: Button Tìm đề thi */}
-              <div>
                 <Button
                   type="button"
                   variant="primary"
                   onClick={handleSearchScroll}
-                  className="w-full h-[56px] rounded-xl flex items-center justify-center gap-2 font-bold text-sm shadow-sm bg-blue-600 hover:bg-blue-700 text-white transition-all cursor-pointer"
+                  className="h-11 px-6 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-700 text-white shrink-0 flex items-center justify-center gap-2 shadow-sm"
                 >
                   <Search className="size-4 shrink-0" aria-hidden="true" />
                   <span>{t('home.searchExamsButton')}</span>
                 </Button>
               </div>
+            </div>
+
+            {/* TẦNG 2: CẤP ĐỘ JLPT (DẢI PILLS MÀU CHUẨN THIẾT KẾ) */}
+            <div>
+              <span className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                Cấp độ JLPT
+              </span>
+              <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Lọc theo cấp độ">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={filterLevel === 'ALL' ? 'primary' : 'ghost'}
+                  onClick={() => setFilterLevel('ALL')}
+                  aria-pressed={filterLevel === 'ALL'}
+                  className={`px-4 py-1 text-xs font-bold h-7.5 min-h-0 rounded-full transition-all ${
+                    filterLevel === 'ALL'
+                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  Tất cả cấp độ
+                </Button>
+                {(['N1', 'N2', 'N3', 'N4', 'N5'] as Level[]).map((lvl) => {
+                  const isSelected = filterLevel === lvl;
+                  return (
+                    <Button
+                      key={lvl}
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setFilterLevel(isSelected ? 'ALL' : lvl)}
+                      aria-pressed={isSelected}
+                      className={`px-3.5 py-1 text-xs font-bold h-7.5 min-h-0 rounded-full transition-all border-0 shadow-none cursor-pointer badge-level-${lvl.toLowerCase()} ${
+                        isSelected
+                          ? 'ring-2 ring-current ring-offset-1 dark:ring-offset-slate-900 font-black shadow-xs scale-105'
+                          : 'opacity-85 hover:opacity-100'
+                      }`}
+                    >
+                      {lvl}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* TẦNG 3: 4 TIÊU CHÍ (NĂM THI, KỲ THI, THỂ LOẠI ĐỀ, TRẠNG THÁI CỦA BẠN) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-4 border-t border-slate-100 dark:border-slate-800">
+              {/* Dropdown 1: Năm thi */}
+              <div>
+                <label
+                  htmlFor="filter-year-select"
+                  className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5"
+                >
+                  <Calendar className="size-3.5 text-slate-400" aria-hidden="true" />
+                  <span>Năm thi</span>
+                </label>
+                <Select
+                  id="filter-year-select"
+                  value={filterYear}
+                  onChange={(e) => setFilterYear(e.target.value)}
+                  className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer"
+                >
+                  <option value="ALL">Tất cả các năm</option>
+                  {availableYears.map((yr) => (
+                    <option key={yr} value={yr.toString()}>
+                      Năm {yr}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+
+              {/* Dropdown 2: Kỳ thi */}
+              <div>
+                <label
+                  htmlFor="filter-session-select"
+                  className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5"
+                >
+                  <Clock className="size-3.5 text-slate-400" aria-hidden="true" />
+                  <span>Kỳ thi</span>
+                </label>
+                <Select
+                  id="filter-session-select"
+                  value={filterSession}
+                  onChange={(e) => setFilterSession(e.target.value)}
+                  className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer"
+                >
+                  <option value="ALL">Tất cả các kỳ</option>
+                  <option value="7">Kỳ tháng 7</option>
+                  <option value="12">Kỳ tháng 12</option>
+                </Select>
+              </div>
+
+              {/* Dropdown 3: Thể loại đề */}
+              <div>
+                <label
+                  htmlFor="filter-kind-select"
+                  className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5"
+                >
+                  <FileText className="size-3.5 text-slate-400" aria-hidden="true" />
+                  <span>Thể loại đề</span>
+                </label>
+                <Select
+                  id="filter-kind-select"
+                  value={filterKind}
+                  onChange={(e) => setFilterKind(e.target.value as ExamKind | 'ALL')}
+                  className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer"
+                >
+                  <option value="ALL">Tất cả thể loại</option>
+                  <option value="original">Đề thi thật (Original)</option>
+                  <option value="practice">Đề luyện tự biên soạn</option>
+                  <option value="mixed">Đề trộn ngân hàng</option>
+                </Select>
+              </div>
+
+              {/* Dropdown 4: Trạng thái của bạn */}
+              <div>
+                <label
+                  htmlFor="filter-status-select"
+                  className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5"
+                >
+                  <Layers className="size-3.5 text-slate-400" aria-hidden="true" />
+                  <span>Trạng thái của bạn</span>
+                </label>
+                <Select
+                  id="filter-status-select"
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value as UserExamStatus | 'ALL')}
+                  className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer"
+                >
+                  <option value="ALL">Mọi trạng thái</option>
+                  <option value="not_started">Chưa từng làm</option>
+                  <option value="in_progress">Đang làm dở</option>
+                  <option value="completed">Đã hoàn thành</option>
+                  <option value="below_target">Chưa đạt mục tiêu</option>
+                </Select>
+              </div>
+            </div>
+
+            {/* TẦNG 4 (CHÂN KHUNG): CHECKBOX YÊU THÍCH & NÚT ĐẶT LẠI BỘ LỌC */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <label
+                htmlFor="homepage-filter-favorites"
+                className="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300 select-none"
+              >
+                <Checkbox
+                  id="homepage-filter-favorites"
+                  checked={onlyFavorites}
+                  onCheckedChange={(checked) => setOnlyFavorites(Boolean(checked))}
+                />
+                <span className="inline-flex items-center gap-1.5">
+                  <Star className="size-3.5 text-amber-500 fill-amber-500" aria-hidden="true" />
+                  Chỉ hiện các đề đã yêu thích
+                </span>
+              </label>
+
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                onClick={handleResetAllFilters}
+                className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold p-0 h-auto min-h-0"
+              >
+                Đặt lại bộ lọc
+              </Button>
             </div>
           </Card>
         </div>
@@ -384,7 +571,7 @@ export default function HomePage(): React.JSX.Element {
         </div>
       </section>
 
-      {/* SECTION 3: ĐỀ THI THEO NĂM */}
+      {/* SECTION 3: ĐỀ THI THEO NĂM & KẾT QUẢ TÌM KIẾM */}
       <section id="de-thi-theo-nam" className="pb-16 px-4 sm:px-6">
         <div className="container mx-auto max-w-7xl">
           {/* Header */}
@@ -405,9 +592,20 @@ export default function HomePage(): React.JSX.Element {
           </div>
 
           {/* Active Filter Indicators */}
-          {(filterLevel !== 'ALL' || filterYear !== 'ALL' || filterSession !== 'ALL') && (
+          {hasActiveFilters && (
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <span className="text-xs text-slate-500 font-medium">Đang lọc:</span>
+              {Boolean(searchQuery.trim()) && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setSearchQuery('')}
+                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100"
+                >
+                  Từ khóa: &quot;{searchQuery}&quot; ✕
+                </Button>
+              )}
               {filterLevel !== 'ALL' && (
                 <Button
                   type="button"
@@ -441,15 +639,44 @@ export default function HomePage(): React.JSX.Element {
                   Kỳ thi: Tháng {filterSession} ✕
                 </Button>
               )}
+              {filterKind !== 'ALL' && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setFilterKind('ALL')}
+                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100"
+                >
+                  Thể loại: {filterKind === 'original' ? 'Đề thật' : filterKind === 'practice' ? 'Tự luyện' : 'Đề trộn'} ✕
+                </Button>
+              )}
+              {filterStatus !== 'ALL' && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setFilterStatus('ALL')}
+                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100"
+                >
+                  Trạng thái: {filterStatus === 'not_started' ? 'Chưa làm' : filterStatus === 'in_progress' ? 'Đang làm' : 'Hoàn thành'} ✕
+                </Button>
+              )}
+              {onlyFavorites && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setOnlyFavorites(false)}
+                  className="rounded-full text-xs h-7 px-2.5 bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100"
+                >
+                  ⭐ Đã yêu thích ✕
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={() => {
-                  setFilterLevel('ALL');
-                  setFilterYear('ALL');
-                  setFilterSession('ALL');
-                }}
+                onClick={handleResetAllFilters}
                 className="text-xs text-slate-500 hover:text-slate-800"
               >
                 Xóa tất cả
@@ -494,7 +721,7 @@ export default function HomePage(): React.JSX.Element {
                 </Card>
               ))}
             </div>
-          ) : filteredSessions.length === 0 ? (
+          ) : sessionGroups.length === 0 ? (
             <Card className="p-8 text-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
               <p className="text-slate-500 text-sm mb-3">
                 Không tìm thấy đề thi phù hợp với bộ lọc hiện tại.
@@ -503,11 +730,7 @@ export default function HomePage(): React.JSX.Element {
                 type="button"
                 variant="secondary"
                 size="sm"
-                onClick={() => {
-                  setFilterLevel('ALL');
-                  setFilterYear('ALL');
-                  setFilterSession('ALL');
-                }}
+                onClick={handleResetAllFilters}
                 className="rounded-xl text-xs font-semibold"
               >
                 Đặt lại bộ lọc
@@ -515,7 +738,7 @@ export default function HomePage(): React.JSX.Element {
             </Card>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {filteredSessions.map((session) => {
+              {sessionGroups.map((session) => {
                 const groupKey = session.key;
                 const candidateLevel = cardSelectedLevel[groupKey] || (filterLevel !== 'ALL' ? (filterLevel as Level) : null);
                 const allAvailableLevels: Level[] = (['N1', 'N2', 'N3', 'N4', 'N5'] as Level[]).filter(
