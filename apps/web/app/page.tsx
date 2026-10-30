@@ -11,6 +11,8 @@ import {
   ChevronRight,
   AlertTriangle,
   Star,
+  Sparkles,
+  CheckCircle2,
 } from 'lucide-react';
 import { Card } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
@@ -93,6 +95,62 @@ export default function HomePage(): React.JSX.Element {
   const [exams, setExams] = useState<ExamWithUserStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // In-progress exam for logged-in user
+  const inProgressExam = useMemo(() => {
+    return exams.find((e) => e.userStatus === 'in_progress') || null;
+  }, [exams]);
+
+  // User study progress metrics
+  const userStats = useMemo(() => {
+    const completed = exams.filter((e) => e.userStatus === 'completed').length;
+    const inProgress = exams.filter((e) => e.userStatus === 'in_progress').length;
+    return { completed, inProgress };
+  }, [exams]);
+
+  // Recommended Spotlight Exam (most relevant / recent official exam)
+  const recommendedExam = useMemo(() => {
+    if (exams.length === 0) return null;
+    return (
+      exams.find((e) => e.kind === 'original' && e.year === 2024 && e.level === 'N3') ||
+      exams.find((e) => e.kind === 'original' && e.year === 2024) ||
+      exams.find((e) => e.kind === 'original') ||
+      exams[0]
+    );
+  }, [exams]);
+
+  // Dynamic official JLPT exam countdown
+  const jlptCountdown = useMemo(() => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
+    const getFirstSunday = (year: number, monthIndex: number) => {
+      const d = new Date(year, monthIndex, 1);
+      const day = d.getDay();
+      const offset = (7 - day) % 7;
+      d.setDate(1 + offset);
+      d.setHours(9, 0, 0, 0);
+      return d;
+    };
+
+    let targetDate = getFirstSunday(currentYear, 6);
+    let label = `Tháng 7/${currentYear}`;
+
+    if (now.getTime() > targetDate.getTime()) {
+      targetDate = getFirstSunday(currentYear, 11);
+      label = `Tháng 12/${currentYear}`;
+    }
+
+    if (now.getTime() > targetDate.getTime()) {
+      targetDate = getFirstSunday(currentYear + 1, 6);
+      label = `Tháng 7/${currentYear + 1}`;
+    }
+
+    const diffMs = targetDate.getTime() - now.getTime();
+    const daysLeft = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+
+    return { daysLeft, label };
+  }, []);
 
   // Filter States (Matching Option 1 & Mockup)
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -299,16 +357,97 @@ export default function HomePage(): React.JSX.Element {
         </div>
 
         <div className="container mx-auto max-w-7xl relative z-10">
-          {/* Top Row: Title & Subtitle on Left */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-8">
+          {/* 1. RESUME EXAM BANNER (Nếu có bài đang làm dở) */}
+          {inProgressExam && (
+            <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <Clock className="size-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-amber-900 dark:text-amber-300 uppercase tracking-wide flex items-center gap-1.5">
+                    <span>⚡ Tiếp tục bài thi đang làm dở</span>
+                    <span className="text-slate-400 font-normal">•</span>
+                    <span className="text-amber-700 dark:text-amber-400 font-mono font-bold">{inProgressExam.level}</span>
+                  </div>
+                  <div className="text-sm font-bold text-slate-900 dark:text-slate-100 line-clamp-1">
+                    {inProgressExam.title}
+                  </div>
+                </div>
+              </div>
+              <Button
+                asChild
+                variant="primary"
+                size="sm"
+                className="h-9 px-4 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-xs shrink-0 flex items-center gap-1.5"
+              >
+                <a href={`/phong-thi?examId=${inProgressExam.id}`} className="no-underline flex items-center gap-1.5">
+                  <span>Tiếp tục làm ngay</span>
+                  <ArrowRight className="size-3.5" aria-hidden="true" />
+                </a>
+              </Button>
+            </div>
+          )}
+
+          {/* Top Row: Title, Subtitle, Countdown & Progress Mini-strip */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-7">
             <div className="max-w-2xl">
+              {/* 2. JLPT OFFICIAL COUNTDOWN BADGE */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50/90 dark:bg-blue-950/70 border border-blue-200/90 dark:border-blue-800 text-xs font-medium text-slate-700 dark:text-slate-300 mb-3.5 backdrop-blur-xs shadow-2xs">
+                <span className="flex size-2 rounded-full bg-blue-600 animate-pulse" aria-hidden="true" />
+                <span className="font-semibold text-blue-700 dark:text-blue-300">
+                  Kỳ thi JLPT {jlptCountdown.label}:
+                </span>
+                <span>
+                  Còn <strong className="text-blue-700 dark:text-blue-400 font-bold">{jlptCountdown.daysLeft} ngày</strong>
+                </span>
+                <span className="text-slate-300 dark:text-slate-600">|</span>
+                <a
+                  href="/lich-thi"
+                  className="text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-0.5"
+                >
+                  <span>Lịch chi tiết</span>
+                  <ChevronRight className="size-3" aria-hidden="true" />
+                </a>
+              </div>
+
               <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-black text-slate-900 dark:text-slate-100 tracking-tight leading-[1.18]">
                 Luyện đề JLPT<br />
                 <span className="text-blue-600 dark:text-blue-400">Chinh phục tiếng Nhật</span>
               </h1>
-              <p className="mt-3.5 text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
+              <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
                 Kho đề thi JLPT các năm được tổng hợp đầy đủ, giúp bạn làm quen với cấu trúc đề thật và nâng cao kỹ năng tiếng Nhật.
               </p>
+
+              {/* 3. USER PROGRESS MINI-STRIP */}
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
+                {user ? (
+                  <>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-medium">
+                      <CheckCircle2 className="size-3.5 text-emerald-600" aria-hidden="true" />
+                      <span>Đã hoàn thành: <strong>{userStats.completed} đề</strong></span>
+                    </span>
+                    {userStats.inProgress > 0 && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-medium">
+                        <Clock className="size-3.5 text-amber-600" aria-hidden="true" />
+                        <span>Đang làm: <strong>{userStats.inProgress} đề</strong></span>
+                      </span>
+                    )}
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-medium">
+                      <Star className="size-3.5 text-amber-500 fill-amber-500" aria-hidden="true" />
+                      <span>Đã lưu: <strong>{favorites.ids.size} đề</strong></span>
+                    </span>
+                  </>
+                ) : (
+                  <a
+                    href="/dang-nhap"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100/90 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-medium transition-colors"
+                  >
+                    <span>💡 Đăng nhập để lưu tiến độ, điểm thi và đồng bộ đề yêu thích</span>
+                    <ChevronRight className="size-3" aria-hidden="true" />
+                  </a>
+                )}
+              </div>
             </div>
           </div>
 
@@ -702,6 +841,60 @@ export default function HomePage(): React.JSX.Element {
             </Alert>
           )}
 
+          {/* 4. RECOMMENDED EXAM SPOTLIGHT (Hiển thị khi không lọc) */}
+          {!hasActiveFilters && recommendedExam && (
+            <div className="mb-8 p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-blue-50/80 via-indigo-50/40 to-white dark:from-slate-800/80 dark:via-slate-800/40 dark:to-slate-900 border border-blue-200/80 dark:border-slate-700 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">
+                    <Sparkles className="size-3 text-amber-600" aria-hidden="true" />
+                    Đề thi gợi ý hôm nay
+                  </span>
+                  <span className={`text-xs px-2 py-0.5 rounded-md font-bold badge-level-${recommendedExam.level.toLowerCase()}`}>
+                    {recommendedExam.level}
+                  </span>
+                  <span className="text-xs text-slate-500 font-medium">Đề thi thật chính thức</span>
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">
+                  {recommendedExam.title}
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {recommendedExam.totalQuestions} câu hỏi • {Math.round(recommendedExam.sections.reduce((a, s) => a + s.durationSec, 0) / 60)} phút • Đầy đủ âm thanh &amp; đáp án chi tiết
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 sm:flex-initial h-10 px-4 rounded-xl text-xs font-bold"
+                >
+                  <a
+                    href={`/phong-thi?examId=${recommendedExam.id}&mode=practice`}
+                    className="no-underline flex items-center justify-center gap-1.5"
+                  >
+                    <span>Luyện tự do</span>
+                  </a>
+                </Button>
+                <Button
+                  asChild
+                  variant="primary"
+                  size="sm"
+                  className="flex-1 sm:flex-initial h-10 px-5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                >
+                  <a
+                    href={`/phong-thi?examId=${recommendedExam.id}`}
+                    className="no-underline flex items-center justify-center gap-1.5"
+                  >
+                    <span>Vào thi ngay</span>
+                    <ArrowRight className="size-3.5" aria-hidden="true" />
+                  </a>
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Cards Grid (3 Columns) */}
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -878,6 +1071,25 @@ export default function HomePage(): React.JSX.Element {
                           <ArrowRight className="size-3.5" aria-hidden="true" />
                         </a>
                       </Button>
+                    </div>
+
+                    {/* 5. QUICK SUB-ACTIONS: Luyện tự do & Luyện kỹ năng */}
+                    <div className="flex items-center justify-between text-[11px] pt-2.5 mt-2.5 border-t border-dashed border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400">
+                      <a
+                        href={targetExam ? `/phong-thi?examId=${targetExam.id}&mode=practice` : '/luyen-tap'}
+                        className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline flex items-center gap-1 font-medium"
+                        title="Luyện tập tự do không tính giờ nghiêm ngặt"
+                      >
+                        <span>🎯 Luyện tự do</span>
+                      </a>
+                      <span className="text-slate-300 dark:text-slate-700">•</span>
+                      <a
+                        href="/luyen-tap"
+                        className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline flex items-center gap-1 font-medium"
+                        title="Luyện đề trộn hoặc từng kỹ năng Từ vựng, Nghe, Đọc"
+                      >
+                        <span>⚡ Đề trộn &amp; Kỹ năng</span>
+                      </a>
                     </div>
                   </Card>
                 );
