@@ -76,3 +76,17 @@ Mỗi bẫy ghi theo dạng triệu chứng → nguyên nhân → cách đúng. 
 ## Cấu hình API cho bản xem thử LAN
 
 Triệu chứng: tạo lượt làm bằng request không có Origin được, nhưng trình duyệt qua IP LAN bị CSRF từ chối. Nguyên nhân: bản build đang chạy có rewrite API về 127.0.0.1:4000; một lệnh build khác trong cùng checkout có thể ghi lại routes-manifest với cấu hình mặc định. Cách đúng: hoàn tất các lệnh kiểm tra có build trước, sau đó build bản preview với API_INTERNAL_URL phù hợp; truyền cấu hình tương ứng khi khởi động và kiểm tra cả request ghi từ Origin LAN. Không bỏ OriginGuard để xử lý lỗi proxy.
+
+## Quy trình sửa và triển khai trên jlpt-vm
+
+| Triệu chứng | Nguyên nhân | Cách đúng |
+|---|---|---|
+| Code đang chạy ở :3000 không có trong git, lệch `main` hơn 150 file | Sửa trong thư mục copy (`meaning-sections-…`, `paper-…`) rồi cho service trỏ vào đó | Chỉ sửa trong worktree git, xem thử bằng :3210, deploy từ `main`. Xem [DEV_WORKFLOW.md](DEV_WORKFLOW.md). |
+| PR tự merge dù chủ dự án chưa xem | `auto-merge.yml` bật lại auto-merge sau mỗi lần push | `gh pr merge <số> --disable-auto` sau mỗi lần push, rồi kiểm tra `autoMergeRequest` là null. |
+| `git push` bị từ chối "refusing to allow an OAuth App to create or update workflow … without `workflow` scope" | Token `gh` trên VM không có scope `workflow` | Không tự xin thêm quyền. Báo chủ dự án, hoặc làm cách khác (ví dụ in log chẩn đoán trong test thay vì sửa workflow). |
+| Playwright treo đến hết timeout của test, chỉ thấy lỗi ở bước cuối (`finally`) | Click và `expect` không có timeout riêng; bước chờ một phần tử đã đổi tên hoặc bị bỏ cứ chờ mãi | Đặt `test.use({ actionTimeout: 20000 })`. Chạy thử test ngay trên VM (`pnpm exec playwright test integration.spec.ts -g "<tên>" --project=chromium`, trỏ `PLAYWRIGHT_BASE_URL` vào :3210) thay vì đợi vòng CI 30 phút. |
+| `locator.isVisible({ timeout })` trả false ngay dù phần tử hiện sau đó | `isVisible` bỏ qua timeout | Dùng `locator.waitFor({ state: visible, timeout })`. |
+| Mở `/phong-thi?attemptId=…` hoặc tải lại trang thì kịch bản không thấy câu hỏi | Trang hỏi "Tiếp tục bài làm tại cửa sổ này?" trước khi vào phòng thi | Bấm `confirm-resume-attempt` (helper `confirmResumeIfShown` trong `tests/playwright/exam-content-journey.ts`), kể cả sau `page.reload()`. |
+| Thao tác ghi (tạo lượt thi, nộp bài) trên một cổng xem thử bị 403 "Origin không khớp host" | Cổng đó chạy Next trực tiếp, API nhận Host `127.0.0.1:4000` | Đặt nginx phía trước và giữ `proxy_set_header Host $http_host` cho `/api/` (như :3000 và :3210). |
+| `pkill -f "<mẫu>"` trong lệnh `ssh jlpt-vm …` làm đứt phiên | Mẫu khớp cả dòng lệnh của chính phiên ssh | Dừng theo PID (`ss -ltnp "sport = :<cổng>"` để tìm PID) hoặc `systemctl stop`. |
+| `jlpt-preview-update` ghi "API BUILD FAILED", `claude-stage-check` lỗi ở `pnpm install` | Build image API trong Docker lỗi ở `pnpm install --frozen-lockfile`; cùng lệnh chạy được ngoài Docker; chưa rõ nguyên nhân | Chưa sửa. Phần web và admin của timer vẫn cập nhật bình thường; API là image build tay. Ghi vào đây khi tìm ra nguyên nhân. |

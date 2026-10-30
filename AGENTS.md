@@ -19,7 +19,8 @@ Giao diện có ba ngôn ngữ vi/ja/en. Tiếng Việt là ngôn ngữ chính.
 2. **Khi xong:** cập nhật `FEATURES.md`. Gặp bẫy mới thì ghi vào [docs/agents/PITFALLS.md](docs/agents/PITFALLS.md) theo dạng triệu chứng → nguyên nhân → cách đúng.
 3. **Tuân thủ** [docs/agents/SECURITY_RULES.md](docs/agents/SECURITY_RULES.md). Nhất là: không merge trực tiếp hoặc bỏ qua cổng CI, không force-push, không đọc hay in secret. PR nội bộ được workflow tự bật auto-merge và chỉ gộp khi các kiểm tra bắt buộc đạt.
 4. **Chạy các cổng kiểm tra** ở mục dưới trước khi nộp. Thiếu lệnh hoặc lệnh lỗi nghĩa là chưa đạt, không bỏ qua.
-5. **Ưu tiên khi có mâu thuẫn:** chỉ thị chủ dự án > phiếu việc > tài liệu này > thói quen của agent.
+5. **Quy trình sửa tính năng:** làm đúng [docs/agents/DEV_WORKFLOW.md](docs/agents/DEV_WORKFLOW.md): sửa trên nhánh git từ `origin/main`, xem thử bằng `tools/ops/preview-branch.sh` (cổng :3210) và báo chủ dự án, mở PR để CI chạy song song. Không sửa trong thư mục copy hay thư mục service.
+6. **Ưu tiên khi có mâu thuẫn:** chỉ thị chủ dự án > phiếu việc > tài liệu này > thói quen của agent.
 
 ## Công nghệ
 
@@ -109,6 +110,7 @@ Có giao diện, E2E hoặc API mà staging dùng thì chạy thêm E2E trên st
 | Định dạng gói nhập đề | [docs/import-format/README.md](docs/import-format/README.md) |
 | Docker, staging, E2E | [infra/AGENTS.md](infra/AGENTS.md), [docs/agents/OPERATIONS.md](docs/agents/OPERATIONS.md) |
 | Vì sao code lại làm thế này | [docs/agents/DECISIONS.md](docs/agents/DECISIONS.md), `docs/decisions/<mã task>-*.md` |
+| Sửa tính năng, xem thử cho chủ dự án, deploy | [docs/agents/DEV_WORKFLOW.md](docs/agents/DEV_WORKFLOW.md) |
 | Viết phiếu giao việc | [docs/agents/TASK_TEMPLATE.md](docs/agents/TASK_TEMPLATE.md) |
 | Làm việc qua coordinator (worker W1–W6) | [docs/agents/WORKFLOW-6-WORKER.md](docs/agents/WORKFLOW-6-WORKER.md) |
 
@@ -122,6 +124,7 @@ Có giao diện, E2E hoặc API mà staging dùng thì chạy thêm E2E trên st
 | `FEATURES.md` | Tính năng theo trạng thái |
 | `DECISIONS.md` | Quyết định và ý muốn của chủ dự án |
 | `PITFALLS.md` | Các bẫy đã gặp |
+| `DEV_WORKFLOW.md` | Quy trình sửa tính năng, xem thử :3210, PR, deploy sau merge |
 | `OPERATIONS.md` | Máy ảo, preview, staging, quy trình PR |
 | `SECURITY_RULES.md` | Những việc cấm |
 | `TASK_TEMPLATE.md` | Mẫu phiếu giao việc |

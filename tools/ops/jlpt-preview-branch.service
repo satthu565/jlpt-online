@@ -1,0 +1,16 @@
+# Cài: sudo cp tools/ops/jlpt-preview-branch.service /etc/systemd/system/ && sudo systemctl daemon-reload && sudo systemctl enable jlpt-preview-branch
+# Bản xem thử một nhánh: Next chạy ở 127.0.0.1:13210, nginx mở cổng 3210 ra ngoài (nginx-jlpt-preview-branch.conf). Thư mục được tools/ops/preview-branch.sh build sẵn.
+[Unit]
+Description=JLPT preview of a branch on port 3210
+After=network-online.target
+
+[Service]
+User=jlpt
+WorkingDirectory=/home/jlpt/preview-3210/apps/web
+Environment=NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 API_INTERNAL_URL=http://127.0.0.1:4000
+ExecStart=/usr/bin/pnpm exec next start -p 13210 -H 127.0.0.1
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
