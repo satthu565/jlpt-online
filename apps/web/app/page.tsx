@@ -728,13 +728,17 @@ export default function HomePage(): React.JSX.Element {
                     <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded w-24" />
                   </div>
                   <div className="h-px bg-slate-100 dark:bg-slate-800 my-2" />
-                  <div className="flex justify-between items-center pt-2">
-                    <div className="flex gap-1.5">
+                  <div className="space-y-2">
+                    <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+                    <div className="flex gap-2">
                       {Array.from({ length: 5 }).map((_, j) => (
-                        <div key={j} className="h-8 w-8 bg-slate-100 dark:bg-slate-800 rounded-lg" />
+                        <div key={j} className="flex-1 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl" />
                       ))}
                     </div>
-                    <div className="h-10 w-28 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+                  </div>
+                  <div className="flex items-center gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <div className="size-10 bg-slate-100 dark:bg-slate-800 rounded-xl shrink-0" />
+                    <div className="flex-1 h-10 bg-slate-200 dark:bg-slate-800 rounded-xl" />
                   </div>
                 </Card>
               ))}
