@@ -147,3 +147,34 @@ main#main-content > * {
 html[data-consent='set'] .jlpt-cookie-consent {
   display: none;
 }
+
+
+/* Hero Search Bar Select Component overrides */
+.hero-search-select {
+  border: 0 !important;
+  border-width: 0 !important;
+  border-color: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  padding-right: 1.25rem !important;
+  min-height: 0 !important;
+  height: 24px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  line-height: 1.25rem !important;
+  color: var(--text-primary) !important;
+  cursor: pointer !important;
+  outline: none !important;
+}
+
+.hero-search-select:focus,
+.hero-search-select:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.dark .hero-search-select option {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
