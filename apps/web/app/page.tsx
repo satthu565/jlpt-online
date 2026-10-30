@@ -285,17 +285,17 @@ export default function HomePage(): React.JSX.Element {
 
       {/* SECTION 1: HERO WITH INTEGRATED 3-TIER SEARCH FRAME */}
       <section className="relative overflow-hidden bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 pt-10 pb-12 px-4 sm:px-6">
-        {/* Aesthetic Japanese Study Background Scene */}
-        <div className="absolute top-0 right-0 bottom-0 w-full sm:w-2/3 lg:w-1/2 pointer-events-none select-none z-0 overflow-hidden">
+        {/* Aesthetic Japanese Study Background Scene (Balanced Left & Right) */}
+        <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
           <img
             src="/images/hero-jlpt-bg.webp"
             alt=""
             aria-hidden="true"
-            className="w-full h-full object-cover object-right opacity-90 dark:opacity-30"
+            className="w-full h-full object-cover object-center opacity-90 dark:opacity-25"
           />
-          {/* Subtle gradient overlays to seamlessly blend into page background */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-slate-900 dark:via-slate-900/80" />
-          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent dark:from-slate-900" />
+          {/* Soft tint overlay so text and card remain crisp and readable */}
+          <div className="absolute inset-0 bg-white/40 dark:bg-slate-900/40" />
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white dark:from-slate-900 to-transparent" />
         </div>
 
         <div className="container mx-auto max-w-7xl relative z-10">
