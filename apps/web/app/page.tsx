@@ -715,20 +715,26 @@ export default function HomePage(): React.JSX.Element {
             </Alert>
           )}
 
-          {/* Cards Grid */}
+          {/* Cards Grid (3 Columns) */}
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {Array.from({ length: 8 }).map((_, i) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {Array.from({ length: 6 }).map((_, i) => (
                 <Card
                   key={`skeleton-${i}`}
-                  className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 animate-pulse space-y-4"
+                  className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 animate-pulse space-y-4"
                 >
-                  <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded w-1/3" />
-                  <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-1/2" />
-                  <div className="flex gap-2 pt-2">
-                    {Array.from({ length: 5 }).map((_, j) => (
-                      <div key={j} className="h-6 w-8 bg-slate-100 dark:bg-slate-800 rounded" />
-                    ))}
+                  <div className="flex gap-6">
+                    <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded w-20" />
+                    <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded w-24" />
+                  </div>
+                  <div className="h-px bg-slate-100 dark:bg-slate-800 my-2" />
+                  <div className="flex justify-between items-center pt-2">
+                    <div className="flex gap-1.5">
+                      {Array.from({ length: 5 }).map((_, j) => (
+                        <div key={j} className="h-8 w-8 bg-slate-100 dark:bg-slate-800 rounded-lg" />
+                      ))}
+                    </div>
+                    <div className="h-10 w-28 bg-slate-200 dark:bg-slate-800 rounded-xl" />
                   </div>
                 </Card>
               ))}
@@ -749,7 +755,7 @@ export default function HomePage(): React.JSX.Element {
               </Button>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {sessionGroups.map((session) => {
                 const groupKey = session.key;
                 const candidateLevel = cardSelectedLevel[groupKey] || (filterLevel !== 'ALL' ? (filterLevel as Level) : null);
@@ -766,27 +772,53 @@ export default function HomePage(): React.JSX.Element {
                 return (
                   <Card
                     key={groupKey}
-                    className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
+                    className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
                   >
                     <div>
-                      {/* Top Row: Year and Document Icon */}
-                      <div className="flex items-center justify-between mb-0.5">
-                        <span className="text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
-                          {session.year}
-                        </span>
-                        <FileText className="size-4 text-slate-400" aria-hidden="true" />
+                      {/* Top Row: Năm thi | Kỳ thi & Document Icon */}
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-6">
+                          {/* Năm thi */}
+                          <div>
+                            <span className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-0.5">
+                              Năm thi
+                            </span>
+                            <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none">
+                              {session.year}
+                            </span>
+                          </div>
+
+                          {/* Vertical Divider */}
+                          <div className="h-10 w-px bg-slate-200 dark:bg-slate-700" aria-hidden="true" />
+
+                          {/* Kỳ thi */}
+                          <div>
+                            <span className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-0.5">
+                              Kỳ thi
+                            </span>
+                            <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none">
+                              Tháng {session.session}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Document Icon */}
+                        <FileText className="size-5 text-slate-400 shrink-0 mt-1" aria-hidden="true" />
                       </div>
 
-                      {/* Subtitle: JLPT (Tháng X) */}
-                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-3.5">
-                        JLPT (Tháng {session.session})
-                      </p>
+                      {/* Horizontal Divider */}
+                      <div className="my-4 border-b border-slate-100 dark:border-slate-800" />
+
+                      {/* Label: Chọn cấp độ */}
+                      <span className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2.5">
+                        Chọn cấp độ
+                      </span>
                     </div>
 
-                    {/* Bottom Row: Level Badges on Left, 'Làm bài ngay →' Button on Right */}
-                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                    {/* Bottom Row: 5 Level Badges on Left, 'Làm bài ngay →' Button on Right */}
+                    <div className="flex items-center justify-between gap-3">
                       {/* Level Badges */}
-                      <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label={`Cấp độ đề thi năm ${session.year}`}>
+                      <div className="flex items-center gap-1.5" role="group" aria-label={`Cấp độ đề thi năm ${session.year}`}>
                         {(['N1', 'N2', 'N3', 'N4', 'N5'] as Level[]).map((lvl) => {
                           const examForLevel = session.examsByLevel[lvl];
                           const isAvailable = Boolean(examForLevel);
@@ -801,7 +833,7 @@ export default function HomePage(): React.JSX.Element {
                               variant="ghost"
                               onClick={() => isAvailable && handleSelectCardLevel(groupKey, lvl)}
                               aria-pressed={isSelected}
-                              className={`px-2 py-0.5 text-[11px] font-bold h-6 min-h-0 rounded-lg transition-all border-0 shadow-none cursor-pointer ${
+                              className={`px-3 py-1 text-xs font-bold h-8 min-h-0 rounded-lg transition-all border-0 shadow-none cursor-pointer ${
                                 isAvailable
                                   ? `badge-level-${lvl.toLowerCase()} ${
                                       isSelected
@@ -822,11 +854,11 @@ export default function HomePage(): React.JSX.Element {
                         asChild
                         variant="primary"
                         size="sm"
-                        className="rounded-xl flex items-center justify-center gap-1 text-xs font-bold px-3 py-1.5 h-8 shrink-0 bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                        className="h-10 px-4 rounded-xl flex items-center justify-center gap-1.5 text-xs font-bold shrink-0 bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
                       >
-                        <a href={examUrl} className="no-underline flex items-center justify-center gap-1">
+                        <a href={examUrl} className="no-underline flex items-center justify-center gap-1.5">
                           <span>{t('home.takeExamNow')}</span>
-                          <ArrowRight className="size-3" aria-hidden="true" />
+                          <ArrowRight className="size-3.5" aria-hidden="true" />
                         </a>
                       </Button>
                     </div>
