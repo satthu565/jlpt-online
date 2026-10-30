@@ -301,7 +301,18 @@
     "nextExamCountdown": "次回JLPT試験",
     "daysRemaining": "あと約{days}日",
     "resumeExamNotice": "中断中の試験があります: {title}。再開して解答を完了しましょう。",
-    "resumeExamAction": "今すぐ再開"
+    "resumeExamAction": "今すぐ再開",
+    "quickLevelSelect": "レベルから素早く選ぶ",
+    "examsByYear": "実施年別 試験問題",
+    "viewAllExams": "すべて見る",
+    "takeExamNow": "今すぐ受験",
+    "searchExamsButton": "問題を検索",
+    "levelSelectLabel": "レベル",
+    "yearSelectLabel": "実施年",
+    "sessionSelectLabel": "試験回",
+    "chooseLevelPlaceholder": "レベルを選択",
+    "chooseYearPlaceholder": "年を選択",
+    "chooseSessionPlaceholder": "回を選択"
   },
   "notebook": {
     "page": {

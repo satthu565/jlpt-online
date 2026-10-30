@@ -301,7 +301,18 @@
     "nextExamCountdown": "Kỳ thi JLPT kế tiếp",
     "daysRemaining": "còn ~{days} ngày",
     "resumeExamNotice": "Bạn đang có bài thi làm dở: {title}. Tiếp tục làm bài để hoàn thành kết quả.",
-    "resumeExamAction": "Tiếp tục thi ngay"
+    "resumeExamAction": "Tiếp tục thi ngay",
+    "quickLevelSelect": "Chọn nhanh theo cấp độ",
+    "examsByYear": "Đề thi theo năm",
+    "viewAllExams": "Xem tất cả",
+    "takeExamNow": "Làm bài ngay",
+    "searchExamsButton": "Tìm đề thi",
+    "levelSelectLabel": "Cấp độ",
+    "yearSelectLabel": "Năm thi",
+    "sessionSelectLabel": "Kỳ thi",
+    "chooseLevelPlaceholder": "Chọn cấp độ",
+    "chooseYearPlaceholder": "Chọn năm",
+    "chooseSessionPlaceholder": "Chọn kỳ thi"
   },
   "notebook": {
     "page": {
