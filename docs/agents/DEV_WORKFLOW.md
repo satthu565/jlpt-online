@@ -16,6 +16,8 @@ Máy chủ dự án (Windows, `192.168.114.206`) chuyển tiếp các cổng 300
 
 ## Các bước
 
+(Bản tóm tắt nằm trong [AGENTS.md](../../AGENTS.md), mục "Quy trình sửa tính năng". Nếu hai nơi khác nhau thì sửa cả hai cho khớp.)
+
 1. **Chuẩn bị nhánh (worktree riêng).** Không sửa trong thư mục copy, không sửa trong thư mục mà service đang chạy.
    ```bash
    cd /home/jlpt/paper-exam-20261024
@@ -25,7 +27,7 @@ Máy chủ dự án (Windows, `192.168.114.206`) chuyển tiếp các cổng 300
    pnpm install --frozen-lockfile --prefer-offline
    pnpm --filter @jlpt/schema --filter @jlpt/exam-engine --filter @jlpt/ui build   # cần cho typecheck và test web
    ```
-2. **Sửa và kiểm tra tại chỗ.** Chạy các cổng trong [AGENTS.md](../../AGENTS.md) cho phần mình sửa (ít nhất `typecheck` và `test` của gói liên quan). Sửa chuỗi giao diện thì sửa đủ vi, ja, en.
+2. **Sửa và kiểm tra tại chỗ.** Chạy các cổng trong [AGENTS.md](../../AGENTS.md) cho phần mình sửa (ít nhất `typecheck` và `test` của gói liên quan). Chuỗi giao diện **mới** phải có đủ vi, ja, en. Sửa chuỗi **có sẵn** thì chỉ sửa ngôn ngữ được yêu cầu (nếu ja/en cũng cần đồng bộ, hỏi chủ dự án). Đổi tên một nút thì tìm cả chỗ khác nhắc tới tên đó (aria-label, hướng dẫn, test).
 3. **Commit và push nhánh.** `git push -u origin <nhánh>`. Không push thẳng vào `main`.
 4. **Xem thử.** `ssh jlpt-vm 'cd /home/jlpt/wt-<tên> && tools/ops/preview-branch.sh <nhánh>'`. Mất khoảng 0,5–3 phút, in ra link `http://192.168.114.206:3210`. **Báo chủ dự án link này và chờ phản hồi.** Chưa cần chờ CI.
 5. **Mở PR vào `main`** (`gh pr create`). Mô tả PR ghi: làm gì, vì sao, đã kiểm tra những gì, **và những gì chưa kiểm tra**. CI chạy song song với lúc chủ dự án xem.
@@ -41,6 +43,8 @@ Máy chủ dự án (Windows, `192.168.114.206`) chuyển tiếp các cổng 300
 | Có sửa API hoặc admin | Chỉ phần web | Bản xem thử vẫn gọi API của `main`. Endpoint mới sẽ không chạy. Nói rõ với chủ dự án phần nào xem được. |
 | **Migration database, sửa hoặc xóa dữ liệu** | **Không.** Script từ chối nhánh có migration. | Database dùng chung nên migration đã chạy thì khó quay lại. Cần sao lưu và chủ dự án đồng ý, rồi đợi CI xanh. |
 | Đăng nhập, phân quyền, thanh toán | Không đẩy lên trước CI | Lỗi ở đây có thể ảnh hưởng dữ liệu thật |
+
+Chỉ có **một** bản xem thử tại một thời điểm: chạy `preview-branch.sh` lần nữa sẽ thay bản trước. Nếu nghi ngờ agent khác đang dùng (xem `/home/jlpt/preview-3210/.preview-info`), hỏi chủ dự án trước khi ghi đè. Tắt bản xem thử: `sudo -n systemctl stop jlpt-preview-branch`.
 
 Bản xem thử dùng chung database với `:3000`. Thao tác ghi khi thử (nộp bài, lưu nghĩa, sửa đề) là thật.
 

@@ -19,8 +19,21 @@ Giao diện có ba ngôn ngữ vi/ja/en. Tiếng Việt là ngôn ngữ chính.
 2. **Khi xong:** cập nhật `FEATURES.md`. Gặp bẫy mới thì ghi vào [docs/agents/PITFALLS.md](docs/agents/PITFALLS.md) theo dạng triệu chứng → nguyên nhân → cách đúng.
 3. **Tuân thủ** [docs/agents/SECURITY_RULES.md](docs/agents/SECURITY_RULES.md). Nhất là: không merge trực tiếp hoặc bỏ qua cổng CI, không force-push, không đọc hay in secret. PR nội bộ được workflow tự bật auto-merge và chỉ gộp khi các kiểm tra bắt buộc đạt.
 4. **Chạy các cổng kiểm tra** ở mục dưới trước khi nộp. Thiếu lệnh hoặc lệnh lỗi nghĩa là chưa đạt, không bỏ qua.
-5. **Quy trình sửa tính năng:** làm đúng [docs/agents/DEV_WORKFLOW.md](docs/agents/DEV_WORKFLOW.md): sửa trên nhánh git từ `origin/main`, xem thử bằng `tools/ops/preview-branch.sh` (cổng :3210) và báo chủ dự án, mở PR để CI chạy song song. Không sửa trong thư mục copy hay thư mục service.
+5. **Quy trình sửa tính năng:** làm đúng mục "Quy trình sửa tính năng" ngay bên dưới. Chi tiết và các trường hợp đặc biệt ở [docs/agents/DEV_WORKFLOW.md](docs/agents/DEV_WORKFLOW.md); đọc file đó trước khi sửa.
 6. **Ưu tiên khi có mâu thuẫn:** chỉ thị chủ dự án > phiếu việc > tài liệu này > thói quen của agent.
+
+## Quy trình sửa tính năng
+
+Áp dụng cho mọi thay đổi (kể cả sửa một dòng chữ). Chi tiết: [docs/agents/DEV_WORKFLOW.md](docs/agents/DEV_WORKFLOW.md).
+
+1. **Làm trong git, trên nhánh riêng từ `origin/main`.** Không sửa trong thư mục copy cũ ở `/home/jlpt`, và không sửa trong thư mục mà service đang chạy (`/srv/jlpt-preview/repo`, `/home/jlpt/preview-3210`). Tạo worktree: `git -C /home/jlpt/paper-exam-20261024 fetch origin main`, rồi `git -C /home/jlpt/paper-exam-20261024 worktree add /home/jlpt/wt-<tên> -b <loai>/<ten-ngan> origin/main` (ví dụ `fix/footer-tagline`, `feat/...`), rồi `pnpm install --frozen-lockfile --prefer-offline`. Được giao đúng một worktree có sẵn thì làm trong đó và không đụng vào thay đổi của người khác.
+2. **Sửa rồi chạy kiểm tra tại chỗ.** Chỉ đổi chữ: `pnpm typecheck` và `pnpm --filter @jlpt/web test`. Đổi code: thêm các cổng trong mục "Cổng kiểm tra trước khi nộp" (CI chạy lại tất cả). Chuỗi **mới** phải có đủ `vi.json`, `ja.json`, `en.json`. Sửa chuỗi **có sẵn** thì sửa đúng ngôn ngữ được yêu cầu; nếu bản ja/en cũng cần đồng bộ, hỏi chủ dự án. Chuỗi giao diện nằm trong `apps/web/messages/{vi,ja,en}.json` (`vi-shell.json` hiện không được import ở đâu).
+3. **Commit, push nhánh** (`git push -u origin <nhánh>`). Không push thẳng vào `main`.
+4. **Xem thử cho chủ dự án:** `ssh jlpt-vm 'cd <worktree> && tools/ops/preview-branch.sh <nhánh>'` rồi **báo chủ dự án link `http://192.168.114.206:3210`**. Không cần chờ CI. Chỉ có **một** bản xem thử; chạy lại sẽ thay bản trước. Chụp ảnh khi cần: `node /opt/shot/shot.mjs <url> <ảnh.png> [bề rộng]`. Script từ chối nhánh có migration database. Sửa API hoặc dữ liệu thì không xem thử được trên :3210, nói rõ với chủ dự án.
+5. **Mở PR vào `main`** để CI chạy song song (~30 phút). Ghi trong mô tả cái đã kiểm tra và **cái chưa kiểm tra**. Workflow bật auto-merge sau **mỗi** lần push. **Mặc định với thay đổi giao diện: tắt auto-merge** (`gh pr merge <số> --disable-auto`, sau mỗi lần push, rồi kiểm tra `gh pr view <số> --json autoMergeRequest` ra `null`) và để chủ dự án merge sau khi đã xem :3210 và CI xanh; chủ dự án dặn khác thì làm theo.
+6. **Sau khi merge,** `:3000` và `:3001` tự build lại từ `main` trong khoảng 5–10 phút. Mở trang thật kiểm tra rồi mới báo xong.
+
+Không bỏ qua CI, không force-push, không chạy migration hay sửa dữ liệu trên database dùng chung khi chưa có sao lưu và đồng ý của chủ dự án.
 
 ## Công nghệ
 
