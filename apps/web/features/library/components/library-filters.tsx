@@ -94,15 +94,69 @@ export function LibraryFilters({
         </div>
       </div>
 
+      {/* Quick Year Filter Buttons (1-touch selection) */}
+      <div>
+        <span className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+          Năm thi
+        </span>
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Lọc nhanh theo năm thi">
+          <Button
+            type="button"
+            size="sm"
+            variant={filters.year === 'ALL' ? 'primary' : 'secondary'}
+            onClick={() => onFilterChange({ ...filters, year: 'ALL' })}
+            aria-pressed={filters.year === 'ALL'}
+            className="text-xs font-semibold px-2.5 py-1 h-auto min-h-0"
+          >
+            Tất cả các năm
+          </Button>
+          {availableYears.map((yr) => (
+            <Button
+              key={yr}
+              type="button"
+              size="sm"
+              variant={filters.year === yr ? 'primary' : 'secondary'}
+              onClick={() => onFilterChange({ ...filters, year: yr })}
+              aria-pressed={filters.year === yr}
+              className="text-xs font-semibold px-2.5 py-1 h-auto min-h-0"
+            >
+              {yr}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* Quick Session Filter Buttons */}
+      <div>
+        <span className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+          Kỳ thi
+        </span>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Lọc nhanh theo kỳ thi">
+          {sessions.map((sess) => (
+            <Button
+              key={sess.id}
+              type="button"
+              size="sm"
+              variant={filters.session === sess.id ? 'primary' : 'secondary'}
+              onClick={() => onFilterChange({ ...filters, session: sess.id })}
+              aria-pressed={filters.session === sess.id}
+              className="text-xs font-semibold px-2.5 py-1 h-auto min-h-0"
+            >
+              {sess.label}
+            </Button>
+          ))}
+        </div>
+      </div>
+
       {/* Dropdown Filters Row: Year, Session, Kind, User Status */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-        {/* Year Filter */}
+        {/* Year Filter Select */}
         <div>
           <label
             htmlFor="filter-year-select"
             className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1"
           >
-            Năm thi
+            Năm thi (danh sách)
           </label>
           <Select
             id="filter-year-select"
@@ -124,13 +178,13 @@ export function LibraryFilters({
           </Select>
         </div>
 
-        {/* Session Filter */}
+        {/* Session Filter Select */}
         <div>
           <label
             htmlFor="filter-session-select"
             className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1"
           >
-            Kỳ thi
+            Kỳ thi (danh sách)
           </label>
           <Select
             id="filter-session-select"

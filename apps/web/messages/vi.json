@@ -295,7 +295,13 @@
       "smartSRS": "Hệ thống lặp lại ngắt quãng (SRS) củng cố từ vựng và hán tự.",
       "analyticsTitle": "Phân tích & Báo cáo",
       "analytics": "Báo cáo tiến độ trực quan, chỉ rõ điểm mạnh và phần kiến thức cần bổ sung."
-    }
+    },
+    "examCatalogTitle": "Kho đề thi thử JLPT N1–N5",
+    "examCatalogSubtitle": "Lọc theo cấp độ, năm thi hoặc tìm kiếm đề để vào thi trực tuyến ngay với phòng thi đồng hồ chuẩn.",
+    "nextExamCountdown": "Kỳ thi JLPT kế tiếp",
+    "daysRemaining": "còn ~{days} ngày",
+    "resumeExamNotice": "Bạn đang có bài thi làm dở: {title}. Tiếp tục làm bài để hoàn thành kết quả.",
+    "resumeExamAction": "Tiếp tục thi ngay"
   },
   "notebook": {
     "page": {

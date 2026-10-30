@@ -295,7 +295,13 @@
       "smartSRS": "忘却曲線に基づいた間隔反復学習（SRS）で語彙と漢字を定着。",
       "analyticsTitle": "分析とレポート",
       "analytics": "苦手分野を可視化し、合格に必要な最短ルートを示す成績分析。"
-    }
+    },
+    "examCatalogTitle": "JLPT N1〜N5 模擬・過去問題集",
+    "examCatalogSubtitle": "レベルや実施年で素早く絞り込み、タイマー付きの本番形式で即座に模擬試験を開始できます。",
+    "nextExamCountdown": "次回JLPT試験",
+    "daysRemaining": "あと約{days}日",
+    "resumeExamNotice": "中断中の試験があります: {title}。再開して解答を完了しましょう。",
+    "resumeExamAction": "今すぐ再開"
   },
   "notebook": {
     "page": {

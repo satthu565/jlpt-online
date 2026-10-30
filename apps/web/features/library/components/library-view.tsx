@@ -31,6 +31,17 @@ export function LibraryView({
     level: (initialLevel as LibraryFilterState['level']) || 'ALL',
   }));
 
+  const availableYears = useMemo(() => {
+    const yrs = Array.from(
+      new Set(
+        allExams
+          .map((e) => e.year)
+          .filter((y): y is number => typeof y === 'number' && !Number.isNaN(y)),
+      ),
+    ).sort((a, b) => b - a);
+    return yrs.length > 0 ? yrs : [2026, 2025, 2024, 2023, 2022, 2021, 2020];
+  }, [allExams]);
+
   // Filter exams according to criteria (LIB-01..06, LIB-08)
   const filteredExams = useMemo(() => {
     return exams.filter((exam) => {
@@ -156,6 +167,7 @@ export function LibraryView({
         filters={filters}
         onFilterChange={setFilters}
         onResetFilters={() => setFilters(INITIAL_LIBRARY_FILTERS)}
+        availableYears={availableYears}
       />
 
       {/* Results header: Total matching exams */}
