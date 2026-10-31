@@ -14,7 +14,7 @@ export const buttonVariants = cva('jlpt-button button', {
       ghost: 'button--ghost',
       danger: 'button--danger',
       destructive: 'button--danger',
-      link: 'button--ghost underline-offset-4 hover:underline text-[var(--accent)]',
+      link: 'button--ghost underline-offset-4 hover:underline text-[var(--link)]',
     },
     size: {
       sm: 'button--sm',
