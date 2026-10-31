@@ -52,7 +52,7 @@ function mobileLinkClass(active: boolean | undefined, nested: boolean): string {
 export function Header({
   brandName = 'JLPT Online',
   brandHref = '/',
-  logoSrc = '/images/brand/mascot-96.png',
+  logoSrc = '/images/brand/logo-v2-header.webp',
   logoAlt,
   navItems = [],
   rightControls,
@@ -62,7 +62,7 @@ export function Header({
   className = '',
 }: HeaderProps): React.JSX.Element {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const effectiveLogoAlt = logoAlt ?? brandName;
+  const effectiveLogoAlt = logoAlt ?? (logoSrc ? 'Gokakuya.com - Trang chủ' : brandName);
 
   return (
     <header
@@ -75,24 +75,27 @@ export function Header({
         <div className="header-brand-nav flex items-center gap-5">
           <a
             href={brandHref}
+            aria-label={effectiveLogoAlt}
             className={cn('header-brand-logo flex shrink-0 items-center gap-2 text-xl font-extrabold tracking-tight no-underline', PRIMARY)}
           >
             {logoSrc ? (
               <img
                 src={logoSrc}
                 alt={effectiveLogoAlt}
-                width={32}
-                height={32}
+                width={285}
+                height={96}
                 loading="eager"
                 decoding="async"
-                className="size-8 rounded-full object-cover shrink-0"
+                className="h-11 w-auto object-contain shrink-0 dark:bg-white dark:rounded-lg dark:px-2 dark:py-1"
               />
             ) : (
-              <span className="inline-flex size-8 items-center justify-center rounded-lg bg-[var(--color-primary,#16a34a)] text-base font-bold text-[var(--text-inverse,#ffffff)]">
-                J
-              </span>
+              <>
+                <span className="inline-flex size-8 items-center justify-center rounded-lg bg-[var(--color-primary,#16a34a)] text-base font-bold text-[var(--text-inverse,#ffffff)]">
+                  J
+                </span>
+                {brandName && <span>{brandName}</span>}
+              </>
             )}
-            <span>{brandName}</span>
           </a>
 
           <nav aria-label="Main Navigation" className="desktop-nav">

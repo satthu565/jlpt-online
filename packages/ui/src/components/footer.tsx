@@ -21,7 +21,7 @@ export interface FooterProps {
 export function Footer({
   brandName = 'JLPT Online',
   tagline = 'Nền tảng thi và luyện thi tiếng Nhật trực tuyến chuẩn JLPT N1–N5',
-  logoSrc = '/images/brand/logo-gokakuya.webp',
+  logoSrc = '/images/brand/logo-v2-footer.webp',
   logoAlt = 'Gokakuya.com',
   links = [],
   copyright,
@@ -42,22 +42,23 @@ export function Footer({
           className="footer-grid flex flex-col justify-between gap-6 md:flex-row md:items-start">
           {/* Brand & Tagline */}
           <div className="max-w-[400px]">
-            {logoSrc && (
+            {logoSrc ? (
               <div className="mb-3">
                 <img
                   src={logoSrc}
                   alt={logoAlt}
-                  width={180}
-                  height={120}
+                  width={520}
+                  height={175}
                   loading="lazy"
                   decoding="async"
-                  className="w-44 max-w-full h-auto rounded-xl border border-[var(--border-subtle,#e2e8f0)] shadow-sm object-cover"
+                  className="w-56 max-w-full h-auto object-contain"
                 />
               </div>
-            )}
-            <div className="font-bold text-lg text-[var(--text-primary,#0f172a)] mb-2">
-              {brandName}
-            </div>
+            ) : brandName ? (
+              <div className="font-bold text-lg text-[var(--text-primary,#0f172a)] mb-2">
+                {brandName}
+              </div>
+            ) : null}
             <p className="m-0 text-[var(--text-muted,#64748b)] leading-normal">
               {tagline}
             </p>

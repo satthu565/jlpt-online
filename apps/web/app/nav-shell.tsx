@@ -196,8 +196,8 @@ export function NavigationHeader(): React.JSX.Element {
   return (
     <Header
       brandName={t('common.brand')}
-      logoSrc="/images/brand/mascot-96.png"
-      logoAlt={t('common.brand')}
+      logoSrc="/images/brand/logo-v2-header.webp"
+      logoAlt="Gokakuya.com - Trang chủ"
       navItems={navItems}
       userMenu={userMenu}
       mobileMenuOpenLabel={t('a11y.openMenu')}

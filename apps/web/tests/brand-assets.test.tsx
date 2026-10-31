@@ -27,6 +27,8 @@ describe('Brand Logo & Mascot Assets (Gokakuya.com & JLPT Online)', () => {
       'mascot-96.png',
       'mascot-32.png',
       'logo-gokakuya.webp',
+      'logo-v2-header.webp',
+      'logo-v2-footer.webp',
     ];
     for (const file of requiredFiles) {
       const fullPath = path.join(brandDir, file);
@@ -39,29 +41,30 @@ describe('Brand Logo & Mascot Assets (Gokakuya.com & JLPT Online)', () => {
     expect(fs.existsSync(faviconPath), 'Missing public/favicon.ico').toBe(true);
   });
 
-  it('renders NavigationHeader with circular mascot-96.png, alt, fixed dimensions, and brand text', () => {
+  it('renders NavigationHeader with horizontal logo-v2-header.webp, alt, fixed dimensions, and NO visible brand text', () => {
     const html = renderWithI18n(<NavigationHeader />);
-    // Brand name text is preserved
-    expect(html).toContain('JLPT Online');
-    // Mascot image replaced old "J" square
-    expect(html).toContain('src="/images/brand/mascot-96.png"');
-    expect(html).toContain('alt="JLPT Online"');
-    expect(html).toContain('width="32"');
-    expect(html).toContain('height="32"');
-    expect(html).toContain('rounded-full');
+    expect(html).toContain('src="/images/brand/logo-v2-header.webp"');
+    expect(html).toContain('alt="Gokakuya.com - Trang chủ"');
+    expect(html).toContain('width="285"');
+    expect(html).toContain('height="96"');
+    expect(html).toContain('h-11');
     expect(html).toContain('loading="eager"');
+    expect(html).toContain('dark:bg-white');
+    expect(html).not.toContain('JLPT Online');
     expect(html).not.toContain('>J<');
+    expect(html).not.toContain('mascot-96.png');
   });
 
-  it('renders NavigationFooter with Gokakuya logo, fixed dimensions, rounded-xl, and alt', () => {
+  it('renders NavigationFooter with logo-v2-footer.webp, fixed dimensions, transparent background, and alt', () => {
     const html = renderWithI18n(<NavigationFooter />);
-    expect(html).toContain('src="/images/brand/logo-gokakuya.webp"');
+    expect(html).toContain('src="/images/brand/logo-v2-footer.webp"');
     expect(html).toContain('alt="Gokakuya.com"');
-    expect(html).toContain('rounded-xl');
-    expect(html).toContain('width="180"');
-    expect(html).toContain('height="120"');
+    expect(html).toContain('width="520"');
+    expect(html).toContain('height="175"');
+    expect(html).toContain('w-56');
+    expect(html).not.toContain('rounded-xl');
     expect(html).toContain('loading="lazy"');
-    expect(html).toContain('JLPT Online');
+    expect(html).toContain('Bản quyền thuộc về JLPT Online');
   });
 
   it('declares mascot icons and Open Graph Gokakuya image in root metadata', () => {
