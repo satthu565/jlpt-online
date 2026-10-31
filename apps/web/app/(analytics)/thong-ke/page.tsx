@@ -115,7 +115,7 @@ export default function AnalyticsPage(): React.JSX.Element {
 
   if (!user) {
     return (
-      <div className="max-w-4xl mx-auto py-12 px-4 w-full">
+      <div className="container py-12 w-full">
         <Alert variant="warning" className="mb-6" data-testid="analytics-auth-required">
           {t('analytics.auth.required')}
         </Alert>
