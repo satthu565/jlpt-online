@@ -20,6 +20,8 @@ export interface NavItem {
 export interface HeaderProps {
   brandName?: string;
   brandHref?: string;
+  logoSrc?: string;
+  logoAlt?: string;
   navItems?: NavItem[];
   rightControls?: React.ReactNode;
   userMenu?: React.ReactNode;
@@ -50,6 +52,8 @@ function mobileLinkClass(active: boolean | undefined, nested: boolean): string {
 export function Header({
   brandName = 'JLPT Online',
   brandHref = '/',
+  logoSrc = '/images/brand/logo-v3-header.webp',
+  logoAlt,
   navItems = [],
   rightControls,
   userMenu,
@@ -58,6 +62,7 @@ export function Header({
   className = '',
 }: HeaderProps): React.JSX.Element {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const effectiveLogoAlt = logoAlt ?? (logoSrc ? 'Gokakuya.com - Trang chủ' : brandName);
 
   return (
     <header
@@ -66,16 +71,31 @@ export function Header({
         className,
       )}
     >
-      <div className="container box-border flex h-16 w-full max-w-full items-center justify-between">
+      <div className="container box-border flex min-h-16 w-full max-w-full items-center justify-between">
         <div className="header-brand-nav flex items-center gap-5">
           <a
             href={brandHref}
+            aria-label={effectiveLogoAlt}
             className={cn('header-brand-logo flex shrink-0 items-center gap-2 text-xl font-extrabold tracking-tight no-underline', PRIMARY)}
           >
-            <span className="inline-flex size-8 items-center justify-center rounded-lg bg-[var(--color-primary,#16a34a)] text-base font-bold text-[var(--text-inverse,#ffffff)]">
-              J
-            </span>
-            <span>{brandName}</span>
+            {logoSrc ? (
+              <img
+                src={logoSrc}
+                alt={effectiveLogoAlt}
+                width={501}
+                height={96}
+                loading="eager"
+                decoding="async"
+                className="h-9 sm:h-12 w-auto object-contain shrink-0 dark:bg-white dark:rounded-lg dark:px-2 dark:py-1"
+              />
+            ) : (
+              <>
+                <span className="inline-flex size-8 items-center justify-center rounded-lg bg-[var(--color-primary,#16a34a)] text-base font-bold text-[var(--text-inverse,#ffffff)]">
+                  J
+                </span>
+                {brandName && <span>{brandName}</span>}
+              </>
+            )}
           </a>
 
           <nav aria-label="Main Navigation" className="desktop-nav">
