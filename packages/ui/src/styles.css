@@ -255,7 +255,7 @@
 }
 
 /* Accessibility & Component Overrides */
-:where(a) {
+:where(a:not([class*='button'], [class*='btn'], [role='button'])) {
   color: var(--link);
 }
 
