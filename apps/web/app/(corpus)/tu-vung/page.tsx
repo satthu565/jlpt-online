@@ -48,7 +48,7 @@ export default function VocabCorpusPage(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 space-y-6" data-testid="vocab-corpus-page">
+    <div className="container py-8 space-y-6" data-testid="vocab-corpus-page">
       <JsonLd id="vocab-schema" data={structuredData} />
       <JsonLd id="vocab-breadcrumbs" data={breadcrumbs} />
 

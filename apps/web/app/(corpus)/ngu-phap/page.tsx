@@ -48,7 +48,7 @@ export default function GrammarCorpusPage(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 space-y-6" data-testid="grammar-corpus-page">
+    <div className="container py-8 space-y-6" data-testid="grammar-corpus-page">
       <JsonLd id="grammar-schema" data={structuredData} />
       <JsonLd id="grammar-breadcrumbs" data={breadcrumbs} />
 

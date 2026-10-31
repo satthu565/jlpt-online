@@ -214,7 +214,7 @@ export default function ClassroomPage(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4 w-full">
+    <div className="container py-8 w-full">
       <PageHeader
         title={t('classroom.page.title')}
         description={t('classroom.page.subtitle')}

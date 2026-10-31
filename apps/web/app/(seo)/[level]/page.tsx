@@ -212,7 +212,7 @@ export default async function LevelIntroductionPage({ params }: LevelPageProps):
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl py-8 px-4 space-y-8" data-testid="level-intro-page">
+    <div className="container py-8 space-y-8" data-testid="level-intro-page">
       {/* Structured data JSON-LD */}
       <JsonLd id={`course-schema-${normalized}`} data={courseStructuredData} />
       <JsonLd id={`breadcrumb-schema-${normalized}`} data={breadcrumbStructuredData} />

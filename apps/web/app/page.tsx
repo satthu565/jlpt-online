@@ -431,7 +431,7 @@ export default function HomePage(): React.JSX.Element {
           <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white dark:from-slate-900 to-transparent" />
         </div>
 
-        <div className="container mx-auto max-w-7xl relative z-10">
+        <div className="container relative z-10">
           {/* 1. RESUME EXAM BANNER (Nếu có bài đang làm dở) */}
           {inProgressExam && (
             <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
@@ -753,7 +753,7 @@ export default function HomePage(): React.JSX.Element {
       {/* SECTION 2: CHỌN NHANH THEO CẤP ĐỘ */}
       {!hasActiveFilters && (
         <section className="py-10 px-4 sm:px-6">
-        <div className="container mx-auto max-w-7xl">
+        <div className="container">
           <div className="flex items-center gap-2 mb-5">
             <Layers className="size-5 text-slate-700 dark:text-slate-300" aria-hidden="true" />
             <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">
@@ -797,7 +797,7 @@ export default function HomePage(): React.JSX.Element {
       {/* SECTION 3: ĐỀ THI THEO NĂM & KẾT QUẢ TÌM KIẾM */}
       <section id="de-thi-theo-nam" className={`pb-16 px-4 sm:px-6 ${hasActiveFilters ? "pt-8" : ""}`}>
 
-        <div className="container mx-auto max-w-7xl">
+        <div className="container">
           {/* Header */}
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">

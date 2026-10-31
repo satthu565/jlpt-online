@@ -97,7 +97,7 @@ export default async function LevelExamsPage({ params }: LevelExamsPageProps): P
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl py-8 px-4 space-y-6" data-testid="level-exams-page">
+    <div className="container py-8 space-y-6" data-testid="level-exams-page">
       <JsonLd id={`breadcrumb-schema-${normalized}-exams`} data={breadcrumbStructuredData} />
 
       {/* Breadcrumbs */}

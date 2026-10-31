@@ -145,7 +145,7 @@ export default function ExamSchedulePage(): React.JSX.Element {
   return (
     <div
       data-testid="schedule-page-container"
-      className="max-w-6xl mx-auto px-4 py-8 md:py-12 space-y-8"
+      className="container py-8 md:py-12 space-y-8"
     >
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">

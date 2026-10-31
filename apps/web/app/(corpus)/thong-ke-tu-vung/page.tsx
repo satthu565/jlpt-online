@@ -39,7 +39,7 @@ export default function VocabFrequencyStatsPage(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 space-y-6" data-testid="vocab-stats-page">
+    <div className="container py-8 space-y-6" data-testid="vocab-stats-page">
       <JsonLd id="vocab-stats-breadcrumbs" data={breadcrumbs} />
 
       {/* Breadcrumbs */}
