@@ -101,7 +101,7 @@ describe('Synchronization of /de-thi with HomePage Hero and Filters', () => {
     // Hero background
     expect(html).toContain('/images/hero-jlpt-bg.webp');
     expect(html).toContain('Thư viện đề thi JLPT');
-    expect(html).toContain('ĐẾM NGƯỢC KỲ THI JLPT');
+    expect(html).not.toContain('ĐẾM NGƯỢC KỲ THI JLPT');
 
     // Integrated search filter
     expect(html).toContain('Tìm kiếm đề thi');
@@ -142,6 +142,6 @@ describe('Synchronization of /de-thi with HomePage Hero and Filters', () => {
     expect(html).toContain('data-testid="exam-library-page"');
     expect(html).toContain('/images/hero-jlpt-bg.webp');
     expect(html).toContain('Thư viện đề thi JLPT');
-    expect(html).toContain('ĐẾM NGƯỢC KỲ THI JLPT');
+    expect(html).not.toContain('ĐẾM NGƯỢC KỲ THI JLPT');
   });
 });

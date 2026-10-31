@@ -82,12 +82,8 @@ export default function ExamLibraryPage(): React.JSX.Element {
       {loading ? (
         <>
           <ExamHero
-            title={
-              <>
-                Thư viện đề thi JLPT<br />
-                <span className="text-blue-600 dark:text-blue-400">Chinh phục tiếng Nhật</span>
-              </>
-            }
+            title="Thư viện đề thi JLPT N1–N5"
+            minimal
             subtitle="Tổng hợp đề thi thật chính thức và đề thi thử nghiệm chuẩn cấu trúc đề thi năng lực tiếng Nhật quốc tế từ N1 đến N5."
           >
             <LibraryFilters
@@ -104,12 +100,8 @@ export default function ExamLibraryPage(): React.JSX.Element {
       ) : error ? (
         <>
           <ExamHero
-            title={
-              <>
-                Thư viện đề thi JLPT<br />
-                <span className="text-blue-600 dark:text-blue-400">Chinh phục tiếng Nhật</span>
-              </>
-            }
+            title="Thư viện đề thi JLPT N1–N5"
+            minimal
             subtitle="Tổng hợp đề thi thật chính thức và đề thi thử nghiệm chuẩn cấu trúc đề thi năng lực tiếng Nhật quốc tế từ N1 đến N5."
           />
           <div className="container py-8">

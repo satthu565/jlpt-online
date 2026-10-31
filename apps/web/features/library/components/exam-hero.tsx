@@ -74,6 +74,8 @@ export interface ExamHeroProps {
     inProgress: number;
   };
   favoritesCount?: number;
+  /** Chỉ hiện tiêu đề, mô tả và khối tìm kiếm trên nền hero (bỏ badge, tiến độ, đếm ngược). */
+  minimal?: boolean;
   children?: React.ReactNode;
   className?: string;
 }
@@ -85,6 +87,7 @@ export function ExamHero({
   inProgressExam,
   userStats,
   favoritesCount = 0,
+  minimal = false,
   children,
   className = '',
 }: ExamHeroProps): React.JSX.Element {
@@ -162,7 +165,7 @@ export function ExamHero({
 
       <div className="container relative z-10">
         {/* 1. RESUME EXAM BANNER (Nếu có bài đang làm dở) */}
-        {inProgressExam && (
+        {!minimal && inProgressExam && (
           <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
             <div className="flex items-center gap-3">
               <div className="size-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -198,11 +201,15 @@ export function ExamHero({
         {/* Top Row: Title, Subtitle, User Progress on Left + Big Live Countdown Card on Right */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-7">
           <div className="max-w-2xl">
+{!minimal && (
+<>
             {/* Badge: Official exam repository */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50/90 dark:bg-blue-950/70 border border-blue-200/90 dark:border-blue-800 text-xs font-semibold text-blue-700 dark:text-blue-300 mb-3.5 backdrop-blur-xs shadow-2xs">
               <span className="flex size-2 rounded-full bg-blue-600 animate-pulse" aria-hidden="true" />
               <span>{badgeText}</span>
             </div>
+</>
+)}
 
             <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-black text-slate-900 dark:text-slate-100 tracking-tight leading-[1.18]">
               {title || (
@@ -217,6 +224,8 @@ export function ExamHero({
                 'Kho đề thi JLPT các năm được tổng hợp đầy đủ, giúp bạn làm quen với cấu trúc đề thật và nâng cao kỹ năng tiếng Nhật.'}
             </p>
 
+{!minimal && (
+<>
             {/* USER PROGRESS MINI-STRIP */}
             <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
               {user ? (
@@ -252,8 +261,13 @@ export function ExamHero({
                 </a>
               )}
             </div>
+</>
+)}
+
           </div>
 
+{!minimal && (
+<>
           {/* Right: Big Digital Live Countdown Highlight Card */}
           <div className="w-full lg:w-auto shrink-0 flex justify-center lg:justify-end">
             <Card className="w-full sm:w-auto min-w-[320px] sm:min-w-[380px] p-4 sm:p-5 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-blue-200/80 dark:border-slate-800 shadow-md">
@@ -286,6 +300,9 @@ export function ExamHero({
               </p>
             </Card>
           </div>
+</>
+)}
+
         </div>
 
         {/* Integrated Search Filter Card Slot */}
