@@ -466,15 +466,27 @@ describe('Acceptance 3: Answer key không xuất hiện trước nộp (SYS-03, 
   });
 
   it('9. Khách làm thử (guest trial): Tuyệt đối không lộ đáp án trong suốt quá trình làm bài', async () => {
-    const guestCookie = '__Host-guest=0192f000-0000-7000-8000-000000000088';
-
-    // 1. Create guest attempt
-    const createRes = await app.inject({
+    // 1. Chặn khách gọi POST /attempts cũ
+    const blockedOldAttempt = await app.inject({
       method: 'POST',
       url: '/api/v1/attempts',
       headers: {
         'content-type': 'application/json',
-        cookie: guestCookie,
+      },
+      payload: {
+        examId: practiceExamId,
+        mode: 'practice',
+      },
+    });
+    expect(blockedOldAttempt.statusCode).toBe(403);
+    expect(JSON.parse(blockedOldAttempt.payload).error.code).toBe('GUEST_ATTEMPT_DEPRECATED');
+
+    // 2. Khách khởi tạo bài thi qua POST /guest/attempts (hoàn toàn không ghi DB)
+    const createRes = await app.inject({
+      method: 'POST',
+      url: '/api/v1/guest/attempts',
+      headers: {
+        'content-type': 'application/json',
       },
       payload: {
         examId: practiceExamId,
@@ -484,46 +496,31 @@ describe('Acceptance 3: Answer key không xuất hiện trước nộp (SYS-03, 
 
     expect(createRes.statusCode).toBe(201);
     const createBody = JSON.parse(createRes.payload);
-    const attemptId = createBody.attemptId;
-    const lease = createBody.lease;
+    expect(createBody.snapshotUrl).toBeDefined();
+    expect(createBody.mediaToken).toBeDefined();
 
     // Check payload has no answer key
     expect(createRes.payload).not.toContain('"keys"');
     expect(createRes.payload).not.toContain('"correct"');
 
-    // 2. Review before submit is rejected
-    const reviewBeforeRes = await app.inject({
-      method: 'GET',
-      url: `/api/v1/attempts/${attemptId}/review`,
-      headers: { cookie: guestCookie },
-    });
-    expect(reviewBeforeRes.statusCode).toBe(409);
-
-    // 3. Submit guest attempt
+    // 3. Khách nộp bài qua POST /guest/attempts/submit
     const submitRes = await app.inject({
       method: 'POST',
-      url: `/api/v1/attempts/${attemptId}/submit`,
+      url: '/api/v1/guest/attempts/submit',
       headers: {
         'content-type': 'application/json',
-        cookie: guestCookie,
       },
       payload: {
-        lease,
-        seq: 1,
+        examId: practiceExamId,
         answers: [1, 2, 3, 4],
         flags: [0, 0, 0, 0],
       },
     });
     expect(submitRes.statusCode).toBe(200);
+    const submitBody = JSON.parse(submitRes.payload);
 
-    // 4. Review after submit succeeds
-    const reviewAfterRes = await app.inject({
-      method: 'GET',
-      url: `/api/v1/attempts/${attemptId}/review`,
-      headers: { cookie: guestCookie },
-    });
-    expect(reviewAfterRes.statusCode).toBe(200);
-    const reviewBody = JSON.parse(reviewAfterRes.payload);
-    expect(reviewBody.correct).toEqual(answerKeyValues);
+    // Đáp án đúng chỉ trả về sau khi đã nộp bài
+    expect(submitBody.correct).toEqual(answerKeyValues);
+    expect(submitBody.result).toBeDefined();
   });
 });

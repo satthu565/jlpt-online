@@ -120,7 +120,7 @@ Mục menu và vai trò lấy từ `apps/admin/lib/navigation.ts`.
 | `/verify-2fa` |  |  | `apps/admin/app/verify-2fa/page.tsx` |
 | `/vocab` | Từ vựng & Ngữ pháp | admin, editor | `apps/admin/app/vocab/page.tsx` |
 
-## API (302 route, 26 module có controller)
+## API (304 route, 26 module có controller)
 
 Quyền: `công khai` = `@Public()`; `đăng nhập` = chỉ cần đăng nhập; còn lại là vai trò trong `@Roles`.
 
@@ -180,6 +180,8 @@ Quyền: `công khai` = `@Public()`; `đăng nhập` = chỉ cần đăng nhập
 | PUT | `/api/v1/attempts/:id/sheet` | đăng nhập | khách | `updateSheet` |
 | POST | `/api/v1/attempts/:id/submit` | đăng nhập | khách | `submitAttempt` |
 | POST | `/api/v1/auth/attach-guest` | đăng nhập |  | `attachGuest` |
+| POST | `/api/v1/guest/attempts` | công khai | giới hạn tần suất | `initGuestAttempt` |
+| POST | `/api/v1/guest/attempts/submit` | công khai | giới hạn tần suất | `submitGuestAttempt` |
 | GET | `/api/v1/me/attempts` | đăng nhập |  | `listMyAttempts` |
 
 ### auth

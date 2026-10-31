@@ -5,7 +5,7 @@ import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { NestFactory } from '@nestjs/core';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { Module } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { AuthGuard } from '../../common/guards/auth.guard.js';
 import { TenantGuard } from '../../common/guards/tenant.guard.js';
@@ -320,7 +320,7 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
       expect(body.error.message).toContain('guest_trial');
     });
 
-    it('Khách làm đề có cờ guest_trial được phép bắt đầu lượt thi (201 Created)', async () => {
+    it('Khách gọi POST /attempts cũ bị từ chối 403 GUEST_ATTEMPT_DEPRECATED để chặn ghi DB', async () => {
       const guestId = '0192f000-0000-7000-8000-000000000088';
       const res = await app.inject({
         method: 'POST',
@@ -328,6 +328,25 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
         headers: {
           'content-type': 'application/json',
           cookie: `__Host-guest=${guestId}`,
+        },
+        payload: {
+          examId: guestTrialExamId,
+          mode: 'practice',
+          turnstileToken: 'test_valid_token',
+        },
+      });
+
+      expect(res.statusCode).toBe(403);
+      const body = JSON.parse(res.payload);
+      expect(body.error.code).toBe('GUEST_ATTEMPT_DEPRECATED');
+    });
+
+    it('Khách làm đề có cờ guest_trial qua POST /guest/attempts được phép bắt đầu (201 Created)', async () => {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/v1/guest/attempts',
+        headers: {
+          'content-type': 'application/json',
         },
         payload: {
           examId: guestTrialExamId,
@@ -345,25 +364,71 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
       expect(body.mediaToken).toBeDefined();
     });
 
-    it('Khách làm đề có cờ guest_trial với Turnstile không hợp lệ bị từ chối 400 TURNSTILE_FAILED', async () => {
-      const guestId = '0192f000-0000-7000-8000-000000000077';
+    it('Bật Turnstile: Thiếu token Turnstile qua POST /guest/attempts bị từ chối 400 TURNSTILE_FAILED', async () => {
+      process.env.TURNSTILE_SECRET_KEY = 'test_configured_secret_key';
+      try {
+        const res = await app.inject({
+          method: 'POST',
+          url: '/api/v1/guest/attempts',
+          headers: {
+            'content-type': 'application/json',
+          },
+          payload: {
+            examId: guestTrialExamId,
+            mode: 'practice',
+          },
+        });
+
+        expect(res.statusCode).toBe(400);
+        const body = JSON.parse(res.payload);
+        expect(body.error.code).toBe('TURNSTILE_FAILED');
+      } finally {
+        delete process.env.TURNSTILE_SECRET_KEY;
+      }
+    });
+
+    it('Bật Turnstile: Token Turnstile không hợp lệ qua POST /guest/attempts bị từ chối 400 TURNSTILE_FAILED', async () => {
+      process.env.TURNSTILE_SECRET_KEY = 'test_configured_secret_key';
+      try {
+        const res = await app.inject({
+          method: 'POST',
+          url: '/api/v1/guest/attempts',
+          headers: {
+            'content-type': 'application/json',
+          },
+          payload: {
+            examId: guestTrialExamId,
+            mode: 'practice',
+            turnstileToken: 'test_invalid_token',
+          },
+        });
+
+        expect(res.statusCode).toBe(400);
+        const body = JSON.parse(res.payload);
+        expect(body.error.code).toBe('TURNSTILE_FAILED');
+      } finally {
+        delete process.env.TURNSTILE_SECRET_KEY;
+      }
+    });
+
+    it('Tắt Turnstile (không cấu hình secret): Không gửi token Turnstile vẫn được phép bắt đầu (201 Created)', async () => {
+      delete process.env.TURNSTILE_SECRET_KEY;
       const res = await app.inject({
         method: 'POST',
-        url: '/api/v1/attempts',
+        url: '/api/v1/guest/attempts',
         headers: {
           'content-type': 'application/json',
-          cookie: `__Host-guest=${guestId}`,
         },
         payload: {
           examId: guestTrialExamId,
           mode: 'practice',
-          turnstileToken: 'test_invalid_token',
         },
       });
 
-      expect(res.statusCode).toBe(400);
+      expect(res.statusCode).toBe(201);
       const body = JSON.parse(res.payload);
-      expect(body.error.code).toBe('TURNSTILE_FAILED');
+      expect(body.attemptId).toBeDefined();
+      expect(body.status).toBe('in_progress');
     });
 
     it('Tài khoản chưa xác minh email (emailVerified = false) bị từ chối 403 EMAIL_NOT_VERIFIED', async () => {
@@ -890,6 +955,141 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
         },
       });
       expect(newLeaseRes.statusCode).toBe(200);
+    });
+  });
+
+  describe('Yêu cầu 5: Khách không ghi DB, người dùng đăng nhập giữ nguyên hành vi', () => {
+    it('Khách nộp bài qua /guest/attempts/submit được chấm đúng, số dòng trong DB KHÔNG tăng; người dùng đăng nhập vẫn như cũ', async () => {
+      const client = await getOrCreateDbClient();
+
+      // 1. Đếm số dòng ban đầu trong các bảng
+      const [initialAttempts] = await client.db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(schema.examAttempts);
+      const [initialSheets] = await client.db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(schema.attemptAnswerSheets);
+      const [initialEvents] = await client.db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(schema.attemptEvents);
+
+      // 2. Khách khởi tạo bài thi qua POST /guest/attempts
+      const guestInitRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/guest/attempts',
+        headers: { 'content-type': 'application/json' },
+        payload: {
+          examId: guestTrialExamId,
+          mode: 'real',
+        },
+      });
+
+      expect(guestInitRes.statusCode).toBe(201);
+      const guestInitBody = JSON.parse(guestInitRes.payload);
+      expect(guestInitBody.snapshotUrl).toBeDefined();
+      expect(guestInitBody.mediaToken).toBeDefined();
+
+      // Kiểm tra sau khi khách init: số dòng trong DB KHÔNG đổi
+      const [afterInitAttempts] = await client.db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(schema.examAttempts);
+      expect(afterInitAttempts?.count).toBe(initialAttempts?.count);
+
+      // 3. Khách nộp bài thi qua POST /guest/attempts/submit
+      const guestSubmitRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/guest/attempts/submit',
+        headers: { 'content-type': 'application/json' },
+        payload: {
+          examId: guestTrialExamId,
+          answers: [1, 2, 3, 4], // 4 đáp án đúng của guestTrialExamId
+          flags: [0, 1, 0, 0],
+          timeSpentMs: [1000, 2000, 1500, 1200],
+        },
+      });
+
+      expect(guestSubmitRes.statusCode).toBe(200);
+      const guestSubmitBody = JSON.parse(guestSubmitRes.payload);
+      expect(guestSubmitBody.result).toBeDefined();
+      expect(guestSubmitBody.result.scoring.total).toBeGreaterThan(0);
+      expect(typeof guestSubmitBody.result.scoring.passEstimate).toBe('boolean');
+      expect(guestSubmitBody.correct).toEqual([1, 2, 3, 4]);
+      expect(guestSubmitBody.snapshotUrl).toBeDefined();
+      expect(guestSubmitBody.mediaToken).toBeDefined();
+
+      // 4. KIỂM TRA QUYẾT ĐỊNH: Số dòng trong cả 3 bảng hoàn toàn KHÔNG tăng dù chỉ 1 dòng!
+      const [afterSubmitAttempts] = await client.db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(schema.examAttempts);
+      const [afterSubmitSheets] = await client.db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(schema.attemptAnswerSheets);
+      const [afterSubmitEvents] = await client.db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(schema.attemptEvents);
+
+      expect(afterSubmitAttempts?.count).toBe(initialAttempts?.count);
+      expect(afterSubmitSheets?.count).toBe(initialSheets?.count);
+      expect(afterSubmitEvents?.count).toBe(initialEvents?.count);
+
+      // 5. Khách gọi endpoint cũ (POST /attempts, PUT /sheet) bị từ chối 401/403
+      const blockedPost = await app.inject({
+        method: 'POST',
+        url: '/api/v1/attempts',
+        headers: { 'content-type': 'application/json' },
+        payload: { examId: guestTrialExamId, mode: 'real' },
+      });
+      expect(blockedPost.statusCode).toBe(403);
+
+      const blockedSheet = await app.inject({
+        method: 'PUT',
+        url: '/api/v1/attempts/0192f000-0000-7000-8000-000000000001/sheet',
+        headers: { 'content-type': 'application/json' },
+        payload: { lease: '0192f000-0000-7000-8000-000000000002', seq: 1, answers: [], flags: [], changes: [] },
+      });
+      expect(blockedSheet.statusCode).toBe(401);
+
+      // 6. Người dùng đã đăng nhập: luồng cũ hoạt động nguyên vẹn, số dòng trong DB tăng bình thường
+      const userCreateRes = await app.inject({
+        method: 'POST',
+        url: '/api/v1/attempts',
+        headers: {
+          authorization: `Bearer ${verifiedUserToken}`,
+          'content-type': 'application/json',
+        },
+        payload: {
+          examId: guestTrialExamId,
+          mode: 'real',
+        },
+      });
+
+      expect(userCreateRes.statusCode).toBe(201);
+      const userCreateBody = JSON.parse(userCreateRes.payload);
+      const userAttemptId = userCreateBody.attemptId;
+      const userLease = userCreateBody.lease;
+
+      // Người dùng nộp bài
+      const userSubmitRes = await app.inject({
+        method: 'POST',
+        url: `/api/v1/attempts/${userAttemptId}/submit`,
+        headers: {
+          authorization: `Bearer ${verifiedUserToken}`,
+          'content-type': 'application/json',
+        },
+        payload: {
+          lease: userLease,
+          seq: 1,
+          answers: [1, 2, 3, 4],
+          flags: [0, 0, 0, 0],
+        },
+      });
+      expect(userSubmitRes.statusCode).toBe(200);
+
+      // Số dòng trong DB của người dùng tăng lên
+      const [finalAttempts] = await client.db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(schema.examAttempts);
+      expect((finalAttempts?.count ?? 0)).toBe((initialAttempts?.count ?? 0) + 1);
     });
   });
 });

@@ -75,12 +75,29 @@ export function registerExamContentTests(): void {
           exam = list.items.find(item => item.slug === 'demo-n5-1');
           return Boolean(exam);
         }, { timeout: 60000, intervals: [500, 1000, 2000] }).toBe(true);
-        const created = await context.request.post(`${origin}/api/v1/attempts`, { data: { examId: exam!.id, mode } });
+        const created = await context.request.post(`${origin}/api/v1/guest/attempts`, { data: { examId: exam!.id, mode } });
         expect(created.status()).toBe(201);
         const attempt = await created.json() as { attemptId: string; snapshotUrl: string };
         const sourceUrl = new URL(attempt.snapshotUrl, origin);
         const published = await (await context.request.get(`${origin}${sourceUrl.pathname}${sourceUrl.search}`)).json() as PublicExamSnapshot;
         const passageIndex = published.sections.flatMap(section => section.groups.flatMap(group => group.questions.map(() => Boolean(group.passage?.length)))).indexOf(true);
+        const guestSession = {
+          attemptId: attempt.attemptId,
+          examId: exam!.id,
+          mode,
+          snapshot: published,
+          currentSection: 0,
+          answers: new Array(published.totalQuestions).fill(0),
+          flags: new Array(published.totalQuestions).fill(0),
+          sectionDeadlines: { 0: new Date(Date.now() + (published.sections[0]?.durationSec ?? 3600) * 1000).toISOString() },
+          startedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        await context.addInitScript((session) => {
+          if (!localStorage.getItem('jlpt_guest_active_attempt')) {
+            localStorage.setItem('jlpt_guest_active_attempt', JSON.stringify(session));
+          }
+        }, guestSession);
         try {
           await page.goto(`${origin}/phong-thi?attemptId=${attempt.attemptId}&mode=${mode}`);
           await confirmResumeIfShown(page);
