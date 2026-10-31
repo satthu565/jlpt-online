@@ -69,7 +69,7 @@ export function LibraryFilters({
             type="button"
             variant="primary"
             onClick={onSearchSubmit}
-            className="h-11 px-6 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-700 text-white shrink-0 flex items-center justify-center gap-2 shadow-sm"
+            className="h-11 px-6 rounded-xl font-bold text-sm shrink-0 flex items-center justify-center gap-2 shadow-sm"
           >
             <Search className="size-4 shrink-0" aria-hidden="true" />
             <span>{searchButtonText || t('home.searchExamsButton')}</span>
