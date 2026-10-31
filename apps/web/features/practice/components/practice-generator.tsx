@@ -98,7 +98,7 @@ export function PracticeGenerator({
           <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
             Nguồn trích xuất câu hỏi (Practice Pool)
           </label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 items-stretch">
             {pools.map((p) => {
               const isSelected = config.pool === p.id;
               return (
@@ -108,17 +108,17 @@ export function PracticeGenerator({
                   variant="outline"
                   data-testid={`practice-pool-${p.id}`}
                   onClick={() => setConfig({ ...config, pool: p.id })}
-                  className={`p-3.5 h-auto min-h-[64px] rounded-xl border text-left flex-col items-start justify-start whitespace-normal transition-all ${
+                  className={`w-full h-full p-3.5 min-h-[64px] rounded-xl border text-left flex flex-col items-start justify-start whitespace-normal transition-all ${
                     isSelected
                       ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-950 dark:text-blue-100 ring-2 ring-blue-500/20 shadow-xs'
                       : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 w-full text-left">
                     <p.icon className="size-4 shrink-0" aria-hidden="true" />
                     <strong className="text-xs font-bold">{p.label}</strong>
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight w-full text-left">
                     {p.desc}
                   </p>
                 </Button>
