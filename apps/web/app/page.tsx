@@ -585,7 +585,7 @@ export default function HomePage(): React.JSX.Element {
                   asChild
                   variant="primary"
                   size="sm"
-                  className="flex-1 sm:flex-initial h-10 px-5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                  className="flex-1 sm:flex-initial h-10 px-5 rounded-xl text-xs font-bold shadow-sm"
                 >
                   <a
                     href={`/phong-thi?examId=${recommendedExam.id}`}
@@ -792,7 +792,7 @@ export default function HomePage(): React.JSX.Element {
                         asChild
                         variant="primary"
                         size="sm"
-                        className="flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                        className="flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-xs font-bold shadow-sm"
                       >
                         <a
                           href={examUrl}

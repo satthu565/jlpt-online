@@ -37,18 +37,18 @@ function renderNavItemIcon(icon?: NavItem['icon']) {
   if (!icon) return null;
   if (React.isValidElement(icon)) {
     return (
-      <span className="inline-flex size-5 shrink-0 items-center justify-center text-current" aria-hidden="true">
+      <span className="inline-flex size-4 xl:size-4.5 shrink-0 items-center justify-center text-current" aria-hidden="true">
         {icon}
       </span>
     );
   }
   const IconComp = icon as React.ComponentType<{ className?: string; 'aria-hidden'?: boolean | 'true' | 'false' }>;
-  return <IconComp className="size-5 shrink-0 text-current" aria-hidden="true" />;
+  return <IconComp className="size-4 xl:size-4.5 shrink-0 text-current" aria-hidden="true" />;
 }
 
 function desktopLinkClass(active: boolean | undefined): string {
   return cn(
-    'inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-xl px-2.5 py-2 text-sm no-underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--nav-active-fg,#D6000F)] focus-visible:ring-offset-2 xl:px-3.5',
+    'inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-xl px-2 py-1.5 text-xs no-underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--nav-active-fg,#D6000F)] focus-visible:ring-offset-2 lg:px-2 lg:text-xs xl:gap-2 xl:px-2.5 xl:text-sm 2xl:px-3.5',
     active
       ? 'header-nav-link--active bg-[var(--nav-active-bg,#FDE8EA)] font-semibold text-[var(--nav-active-fg,#D6000F)]'
       : 'font-medium text-[var(--nav-inactive-fg,#334155)] hover:bg-[var(--nav-inactive-hover-bg,#f8fafc)] hover:text-[var(--text-primary,#0f172a)] dark:text-[var(--nav-inactive-fg,#e2e8f0)] dark:hover:bg-[var(--nav-inactive-hover-bg,rgba(255,255,255,0.06))]',
@@ -87,8 +87,8 @@ export function Header({
         className,
       )}
     >
-      <div className="container box-border flex min-h-16 w-full max-w-full items-center justify-between gap-2 xl:gap-4">
-        <div className="header-brand-nav flex items-center gap-2 xl:gap-4">
+      <div className="container box-border flex min-h-16 w-full max-w-full items-center justify-between gap-4">
+        <div className="header-brand-nav flex shrink min-w-0 items-center gap-2 lg:gap-2.5 xl:gap-3 2xl:gap-4">
           <a
             href={brandHref}
             aria-label={effectiveLogoAlt}
@@ -102,7 +102,7 @@ export function Header({
                 height={96}
                 loading="eager"
                 decoding="async"
-                className="h-9 sm:h-12 w-auto object-contain shrink-0 dark:bg-white dark:rounded-lg dark:px-2 dark:py-1"
+                className="h-8 sm:h-12 lg:h-8.5 xl:h-9 2xl:h-10 w-auto object-contain shrink-0 dark:bg-white dark:rounded-lg dark:px-2 dark:py-1"
               />
             ) : (
               <>
@@ -114,7 +114,7 @@ export function Header({
             )}
           </a>
 
-          <nav aria-label="Main Navigation" className="desktop-nav flex items-center gap-1 xl:gap-1.5">
+          <nav aria-label="Main Navigation" className="desktop-nav flex items-center gap-0.5 xl:gap-1 2xl:gap-1.5">
             {navItems.map((item) => {
               if (item.children && item.children.length > 0) {
                 const isChildActive = Boolean(item.active || item.children.some((c) => c.active));
