@@ -5,31 +5,29 @@ import {
   Layers,
   Calendar,
   Clock,
-  Search,
   FileText,
   ArrowRight,
   ChevronRight,
   AlertTriangle,
   Star,
   Sparkles,
-  CheckCircle2,
   BookOpen,
   Play,
 } from 'lucide-react';
 import { Card } from '@jlpt/ui/components/card';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@jlpt/ui/components/tooltip';
 import { Button } from '@jlpt/ui/components/button';
-import { Select } from '@jlpt/ui/components/select';
-import { Input } from '@jlpt/ui/components/input';
-import { Checkbox } from '@jlpt/ui/components/checkbox';
 import { Alert } from '@jlpt/ui/components/alert';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
 import { useI18n } from '../lib/i18n';
 import { useAuth } from '../lib/auth-context';
 import { ExamApiClient, ExamApiError } from '../features/exam/api/exam-api';
 import { useExamFavorites } from '../features/library/hooks/use-exam-favorites';
-import type { ExamWithUserStatus, UserExamStatus } from '../features/library/types';
-import type { Level, ExamKind } from '@jlpt/schema';
+import { ExamHero } from '../features/library/components/exam-hero';
+import { LibraryFilters } from '../features/library/components/library-filters';
+import type { ExamWithUserStatus, LibraryFilterState } from '../features/library/types';
+import { INITIAL_LIBRARY_FILTERS } from '../features/library/types';
+import type { Level } from '@jlpt/schema';
 
 interface ExamSessionGroup {
   key: string;
@@ -90,57 +88,6 @@ const WEBSITE_STRUCTURED_DATA = {
   description: 'Nền tảng thi và luyện thi tiếng Nhật trực tuyến chuẩn quốc tế từ N5 đến N1.',
 };
 
-function AnimatedCountdownUnit({
-  value,
-  label,
-  isAccent = false,
-  mounted = true,
-}: {
-  value: number;
-  label: string;
-  isAccent?: boolean;
-  mounted?: boolean;
-}): React.JSX.Element {
-  const digits = String(value).padStart(2, '0').split('');
-  const textClass = isAccent
-    ? 'text-blue-600 dark:text-blue-400'
-    : 'text-slate-900 dark:text-slate-100';
-
-  return (
-    <div
-      className={`p-2 sm:p-2.5 rounded-xl border shadow-2xs overflow-hidden transition-colors ${
-        isAccent
-          ? 'bg-blue-50/70 dark:bg-blue-950/40 border-blue-200/80 dark:border-blue-900/60'
-          : 'bg-slate-50 dark:bg-slate-800/80 border-slate-200/80 dark:border-slate-700/80'
-      }`}
-    >
-      <div className="relative h-8 sm:h-9 overflow-hidden flex items-center justify-center">
-        <div
-          suppressHydrationWarning
-          className="flex items-center justify-center font-mono text-2xl sm:text-3xl font-black tracking-tight leading-none"
-        >
-          {digits.map((digit, idx) => (
-            <span
-              key={mounted ? `${idx}-${digit}` : `${idx}-initial`}
-              suppressHydrationWarning
-              className={`inline-block ${mounted ? 'animate-digit-flip' : ''} ${textClass}`}
-            >
-              {digit}
-            </span>
-          ))}
-        </div>
-      </div>
-      <span
-        className={`block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider mt-1.5 ${
-          isAccent ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'
-        }`}
-      >
-        {label}
-      </span>
-    </div>
-  );
-}
-
 export default function HomePage(): React.JSX.Element {
   const { t } = useI18n();
   const { user } = useAuth();
@@ -173,68 +120,8 @@ export default function HomePage(): React.JSX.Element {
     );
   }, [exams]);
 
-  // Helper to compute next JLPT exam date and remaining time (days, hours, minutes, seconds)
-  const getNextJlptTime = useCallback(() => {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-
-    const getFirstSunday = (year: number, monthIndex: number) => {
-      const d = new Date(year, monthIndex, 1);
-      const day = d.getDay();
-      const offset = (7 - day) % 7;
-      d.setDate(1 + offset);
-      d.setHours(9, 0, 0, 0); // 9:00 AM exam start
-      return d;
-    };
-
-    let targetDate = getFirstSunday(currentYear, 6); // July
-    let label = `Tháng 7/${currentYear}`;
-
-    if (now.getTime() > targetDate.getTime()) {
-      targetDate = getFirstSunday(currentYear, 11); // December
-      label = `Tháng 12/${currentYear}`;
-    }
-
-    if (now.getTime() > targetDate.getTime()) {
-      targetDate = getFirstSunday(currentYear + 1, 6); // Next July
-      label = `Tháng 7/${currentYear + 1}`;
-    }
-
-    const diffMs = Math.max(0, targetDate.getTime() - now.getTime());
-    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
-    const seconds = Math.floor((diffMs / 1000) % 60);
-
-    return { days, hours, minutes, seconds, label };
-  }, []);
-
-  const [mounted, setMounted] = useState(false);
-  const [countdownTime, setCountdownTime] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-    label: '',
-  });
-
-  useEffect(() => {
-    setMounted(true);
-    setCountdownTime(getNextJlptTime());
-    const timer = setInterval(() => {
-      setCountdownTime(getNextJlptTime());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [getNextJlptTime]);
-
-  // Filter States (Matching Option 1 & Mockup)
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [filterLevel, setFilterLevel] = useState<string>('ALL');
-  const [filterYear, setFilterYear] = useState<string>('ALL');
-  const [filterSession, setFilterSession] = useState<string>('ALL');
-  const [filterKind, setFilterKind] = useState<string>('ALL');
-  const [filterStatus, setFilterStatus] = useState<string>('ALL');
-  const [onlyFavorites, setOnlyFavorites] = useState<boolean>(false);
+  // Filter States
+  const [filters, setFilters] = useState<LibraryFilterState>(INITIAL_LIBRARY_FILTERS);
 
   // Selected level per session card (key -> level)
   const [cardSelectedLevel, setCardSelectedLevel] = useState<Record<string, Level>>({});
@@ -297,38 +184,38 @@ export default function HomePage(): React.JSX.Element {
       if ((exam.totalQuestions ?? 0) === 0) return false;
 
       // 1. Level filter
-      if (filterLevel !== 'ALL' && exam.level !== filterLevel) {
+      if (filters.level !== 'ALL' && exam.level !== filters.level) {
         return false;
       }
 
       // 2. Year filter
-      if (filterYear !== 'ALL' && exam.year !== Number.parseInt(filterYear, 10)) {
+      if (filters.year !== 'ALL' && exam.year !== filters.year) {
         return false;
       }
 
       // 3. Session filter
-      if (filterSession !== 'ALL' && exam.session !== filterSession) {
+      if (filters.session !== 'ALL' && exam.session !== filters.session) {
         return false;
       }
 
       // 4. Kind filter (Exam Category)
-      if (filterKind !== 'ALL' && exam.kind !== filterKind) {
+      if (filters.kind !== 'ALL' && exam.kind !== filters.kind) {
         return false;
       }
 
       // 5. User Status filter
-      if (filterStatus !== 'ALL' && exam.userStatus !== filterStatus) {
+      if (filters.userStatus !== 'ALL' && exam.userStatus !== filters.userStatus) {
         return false;
       }
 
       // 6. Favorites filter
-      if (onlyFavorites && !favorites.ids.has(exam.id)) {
+      if (filters.onlyFavorites && !favorites.ids.has(exam.id)) {
         return false;
       }
 
       // 7. Keyword Search (title, level, year, session)
-      if (searchQuery.trim()) {
-        const q = searchQuery.trim().toLowerCase();
+      if (filters.searchQuery.trim()) {
+        const q = filters.searchQuery.trim().toLowerCase();
         const matchTitle = (exam.title || '').toLowerCase().includes(q);
         const matchLevel = (exam.level || '').toLowerCase().includes(q);
         const matchYear = exam.year ? exam.year.toString().includes(q) : false;
@@ -340,7 +227,7 @@ export default function HomePage(): React.JSX.Element {
 
       return true;
     });
-  }, [exams, filterLevel, filterYear, filterSession, filterKind, filterStatus, onlyFavorites, searchQuery, favorites.ids]);
+  }, [exams, filters, favorites.ids]);
 
   // Group filtered exams by (year, session)
   const sessionGroups = useMemo(() => {
@@ -371,7 +258,7 @@ export default function HomePage(): React.JSX.Element {
   }, [filteredExams]);
 
   const handleLevelCardClick = (level: Level) => {
-    setFilterLevel((prev) => (prev === level ? 'ALL' : level));
+    setFilters((prev) => ({ ...prev, level: prev.level === level ? 'ALL' : level }));
     handleSearchScroll();
   };
 
@@ -387,23 +274,17 @@ export default function HomePage(): React.JSX.Element {
   };
 
   const handleResetAllFilters = () => {
-    setSearchQuery('');
-    setFilterLevel('ALL');
-    setFilterYear('ALL');
-    setFilterSession('ALL');
-    setFilterKind('ALL');
-    setFilterStatus('ALL');
-    setOnlyFavorites(false);
+    setFilters(INITIAL_LIBRARY_FILTERS);
   };
 
   const hasActiveFilters =
-    Boolean(searchQuery.trim()) ||
-    filterLevel !== 'ALL' ||
-    filterYear !== 'ALL' ||
-    filterSession !== 'ALL' ||
-    filterKind !== 'ALL' ||
-    filterStatus !== 'ALL' ||
-    onlyFavorites;
+    Boolean(filters.searchQuery.trim()) ||
+    filters.level !== 'ALL' ||
+    filters.year !== 'ALL' ||
+    filters.session !== 'ALL' ||
+    filters.kind !== 'ALL' ||
+    filters.userStatus !== 'ALL' ||
+    Boolean(filters.onlyFavorites);
 
   return (
     <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60">
@@ -417,386 +298,72 @@ export default function HomePage(): React.JSX.Element {
       <span className="sr-only">{t('home.sessionSelectLabel')}</span>
 
       {/* SECTION 1: HERO WITH INTEGRATED 3-TIER SEARCH FRAME */}
-      <section className="relative overflow-hidden bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 pt-10 pb-12 px-4 sm:px-6">
-        {/* Aesthetic Japanese Study Background Scene (Balanced Left & Right) */}
-        <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
-          <img
-            src="/images/hero-jlpt-bg.webp"
-            alt=""
-            aria-hidden="true"
-            className="w-full h-full object-cover object-center opacity-90 dark:opacity-25"
-          />
-          {/* Soft tint overlay so text and card remain crisp and readable */}
-          <div className="absolute inset-0 bg-white/40 dark:bg-slate-900/40" />
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white dark:from-slate-900 to-transparent" />
-        </div>
-
-        <div className="container relative z-10">
-          {/* 1. RESUME EXAM BANNER (Nếu có bài đang làm dở) */}
-          {inProgressExam && (
-            <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
-              <div className="flex items-center gap-3">
-                <div className="size-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
-                  <Clock className="size-5" aria-hidden="true" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-amber-900 dark:text-amber-300 uppercase tracking-wide flex items-center gap-1.5">
-                    <span>⚡ Tiếp tục bài thi đang làm dở</span>
-                    <span className="text-slate-400 font-normal">•</span>
-                    <span className="text-amber-700 dark:text-amber-400 font-mono font-bold">{inProgressExam.level}</span>
-                  </div>
-                  <div className="text-sm font-bold text-slate-900 dark:text-slate-100 line-clamp-1">
-                    {inProgressExam.title}
-                  </div>
-                </div>
-              </div>
-              <Button
-                asChild
-                variant="primary"
-                size="sm"
-                className="h-9 px-4 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-xs shrink-0 flex items-center gap-1.5"
-              >
-                <a href={`/phong-thi?examId=${inProgressExam.id}`} className="no-underline flex items-center gap-1.5">
-                  <span>Tiếp tục làm ngay</span>
-                  <ArrowRight className="size-3.5" aria-hidden="true" />
-                </a>
-              </Button>
-            </div>
-          )}
-
-          {/* Top Row: Title, Subtitle, User Progress on Left + Big Live Countdown Card on Right */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-7">
-            <div className="max-w-2xl">
-              {/* Badge: Official exam repository */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50/90 dark:bg-blue-950/70 border border-blue-200/90 dark:border-blue-800 text-xs font-semibold text-blue-700 dark:text-blue-300 mb-3.5 backdrop-blur-xs shadow-2xs">
-                <span className="flex size-2 rounded-full bg-blue-600 animate-pulse" aria-hidden="true" />
-                <span>Kho đề thi JLPT chính thức 2010 – 2026</span>
-              </div>
-
-              <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-black text-slate-900 dark:text-slate-100 tracking-tight leading-[1.18]">
-                Luyện đề JLPT<br />
-                <span className="text-blue-600 dark:text-blue-400">Chinh phục tiếng Nhật</span>
-              </h1>
-              <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
-                Kho đề thi JLPT các năm được tổng hợp đầy đủ, giúp bạn làm quen với cấu trúc đề thật và nâng cao kỹ năng tiếng Nhật.
-              </p>
-
-              {/* USER PROGRESS MINI-STRIP */}
-              <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-                {user ? (
-                  <>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-medium">
-                      <CheckCircle2 className="size-3.5 text-emerald-600" aria-hidden="true" />
-                      <span>Đã hoàn thành: <strong>{userStats.completed} đề</strong></span>
-                    </span>
-                    {userStats.inProgress > 0 && (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-medium">
-                        <Clock className="size-3.5 text-amber-600" aria-hidden="true" />
-                        <span>Đang làm: <strong>{userStats.inProgress} đề</strong></span>
-                      </span>
-                    )}
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-medium">
-                      <Star className="size-3.5 text-amber-500 fill-amber-500" aria-hidden="true" />
-                      <span>Đã lưu: <strong>{favorites.ids.size} đề</strong></span>
-                    </span>
-                  </>
-                ) : (
-                  <a
-                    href="/dang-nhap"
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100/90 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-medium transition-colors"
-                  >
-                    <span>💡 Đăng nhập để lưu tiến độ, điểm thi và đồng bộ đề yêu thích</span>
-                    <ChevronRight className="size-3" aria-hidden="true" />
-                  </a>
-                )}
-              </div>
-            </div>
-
-            {/* Right: Big Digital Live Countdown Highlight Card (Phương án 1) */}
-            <div className="w-full lg:w-auto shrink-0 flex justify-center lg:justify-end">
-              <Card className="w-full sm:w-auto min-w-[320px] sm:min-w-[380px] p-4 sm:p-5 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-blue-200/80 dark:border-slate-800 shadow-md">
-                {/* Header */}
-                <div className="flex items-center justify-between gap-3 mb-3.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wide">
-                    <span className="flex size-2 rounded-full bg-blue-600 animate-pulse" aria-hidden="true" />
-                    ĐẾM NGƯỢC KỲ THI JLPT {mounted && countdownTime.label ? countdownTime.label : ''}
-                  </span>
-                  <a
-                    href="/lich-thi"
-                    className="text-[11px] font-semibold text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-0.5"
-                  >
-                    <span>Lịch thi</span>
-                    <ChevronRight className="size-3" aria-hidden="true" />
-                  </a>
-                </div>
-
-                {/* 4 Digital Timer Blocks with Animated Digit Transitions */}
-                <div className="grid grid-cols-4 gap-2 sm:gap-2.5 text-center">
-                  <AnimatedCountdownUnit value={countdownTime.days} label="Ngày" mounted={mounted} />
-                  <AnimatedCountdownUnit value={countdownTime.hours} label="Giờ" mounted={mounted} />
-                  <AnimatedCountdownUnit value={countdownTime.minutes} label="Phút" mounted={mounted} />
-                  <AnimatedCountdownUnit value={countdownTime.seconds} label="Giây" isAccent mounted={mounted} />
-                </div>
-
-                {/* Motivating footer */}
-                <p className="mt-3 text-[11px] text-center text-slate-500 dark:text-slate-400 font-medium">
-                  💡 Thời gian không chờ đợi, luyện đề ngay hôm nay để bứt phá điểm số!
-                </p>
-              </Card>
-            </div>
-          </div>
-
-          {/* SEARCH CARD CONTAINER (PHƯƠNG ÁN 1: 3 TẦNG ĐẦY ĐỦ TIÊU CHÍ) */}
-          <Card className="rounded-2xl p-4 sm:p-5 shadow-sm bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border border-slate-200/90 dark:border-slate-800 space-y-3">
-            {/* TẦNG 1: TÌM KIẾM TỪ KHÓA & NÚT TÌM KIẾM */}
-            <div>
-              <label
-                htmlFor="homepage-search-input"
-                className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2"
-              >
-                Tìm kiếm đề thi
-              </label>
-              <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
-                <div className="relative flex-1">
-                  <Input
-                    id="homepage-search-input"
-                    type="search"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleSearchScroll();
-                    }}
-                    placeholder="Nhập tên đề thi, từ khóa hoặc cấp độ..."
-                    className="w-full h-11 pl-10 pr-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/60 focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 transition-colors"
-                  />
-                  <Search className="pointer-events-none absolute left-3.5 top-3.5 size-4 text-slate-400" aria-hidden="true" />
-                </div>
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={handleSearchScroll}
-                  className="h-11 px-6 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-700 text-white shrink-0 flex items-center justify-center gap-2 shadow-sm"
-                >
-                  <Search className="size-4 shrink-0" aria-hidden="true" />
-                  <span>{t('home.searchExamsButton')}</span>
-                </Button>
-              </div>
-            </div>
-
-            {/* TẦNG 2: CẤP ĐỘ JLPT (DẢI PILLS MÀU CHUẨN THIẾT KẾ) */}
-            <div>
-              <span className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                Cấp độ JLPT
-              </span>
-              <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Lọc theo cấp độ">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={filterLevel === 'ALL' ? 'primary' : 'ghost'}
-                  onClick={() => setFilterLevel('ALL')}
-                  aria-pressed={filterLevel === 'ALL'}
-                  className={`px-4 py-1 text-xs font-bold h-7.5 min-h-0 rounded-full transition-all ${
-                    filterLevel === 'ALL'
-                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                  }`}
-                >
-                  Tất cả cấp độ
-                </Button>
-                {(['N1', 'N2', 'N3', 'N4', 'N5'] as Level[]).map((lvl) => {
-                  const isSelected = filterLevel === lvl;
-                  return (
-                    <Button
-                      key={lvl}
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setFilterLevel(isSelected ? 'ALL' : lvl)}
-                      aria-pressed={isSelected}
-                      className={`px-3.5 py-1 text-xs font-bold h-7.5 min-h-0 rounded-full transition-all border-0 shadow-none cursor-pointer badge-level-${lvl.toLowerCase()} ${
-                        isSelected
-                          ? 'ring-2 ring-current ring-offset-1 dark:ring-offset-slate-900 font-black shadow-xs scale-105'
-                          : 'opacity-85 hover:opacity-100'
-                      }`}
-                    >
-                      {lvl}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* TẦNG 3: 4 TIÊU CHÍ (NĂM THI, KỲ THI, THỂ LOẠI ĐỀ, TRẠNG THÁI CỦA BẠN) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {/* Dropdown 1: Năm thi */}
-              <div>
-                <label
-                  htmlFor="filter-year-select"
-                  className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5"
-                >
-                  <Calendar className="size-3.5 text-slate-400" aria-hidden="true" />
-                  <span>Năm thi</span>
-                </label>
-                <Select
-                  id="filter-year-select"
-                  value={filterYear}
-                  onChange={(e) => setFilterYear(e.target.value)}
-                  className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer"
-                >
-                  <option value="ALL">Tất cả các năm</option>
-                  {availableYears.map((yr) => (
-                    <option key={yr} value={yr.toString()}>
-                      Năm {yr}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-
-              {/* Dropdown 2: Kỳ thi */}
-              <div>
-                <label
-                  htmlFor="filter-session-select"
-                  className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5"
-                >
-                  <Clock className="size-3.5 text-slate-400" aria-hidden="true" />
-                  <span>Kỳ thi</span>
-                </label>
-                <Select
-                  id="filter-session-select"
-                  value={filterSession}
-                  onChange={(e) => setFilterSession(e.target.value)}
-                  className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer"
-                >
-                  <option value="ALL">Tất cả các kỳ</option>
-                  <option value="7">Kỳ tháng 7</option>
-                  <option value="12">Kỳ tháng 12</option>
-                </Select>
-              </div>
-
-              {/* Dropdown 3: Thể loại đề */}
-              <div>
-                <label
-                  htmlFor="filter-kind-select"
-                  className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5"
-                >
-                  <FileText className="size-3.5 text-slate-400" aria-hidden="true" />
-                  <span>Thể loại đề</span>
-                </label>
-                <Select
-                  id="filter-kind-select"
-                  value={filterKind}
-                  onChange={(e) => setFilterKind(e.target.value as ExamKind | 'ALL')}
-                  className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer"
-                >
-                  <option value="ALL">Tất cả thể loại</option>
-                  <option value="original">Đề thi thật (Original)</option>
-                  <option value="practice">Đề luyện tự biên soạn</option>
-                  <option value="mixed">Đề trộn ngân hàng</option>
-                </Select>
-              </div>
-
-              {/* Dropdown 4: Trạng thái của bạn */}
-              <div>
-                <label
-                  htmlFor="filter-status-select"
-                  className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5"
-                >
-                  <Layers className="size-3.5 text-slate-400" aria-hidden="true" />
-                  <span>Trạng thái của bạn</span>
-                </label>
-                <Select
-                  id="filter-status-select"
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value as UserExamStatus | 'ALL')}
-                  className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer"
-                >
-                  <option value="ALL">Mọi trạng thái</option>
-                  <option value="not_started">Chưa từng làm</option>
-                  <option value="in_progress">Đang làm dở</option>
-                  <option value="completed">Đã hoàn thành</option>
-                  <option value="below_target">Chưa đạt mục tiêu</option>
-                </Select>
-              </div>
-            </div>
-
-            {/* TẦNG 4 (CHÂN KHUNG): CHECKBOX YÊU THÍCH & NÚT ĐẶT LẠI BỘ LỌC */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-2.5 border-t border-slate-100 dark:border-slate-800">
-              <label
-                htmlFor="homepage-filter-favorites"
-                className="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300 select-none"
-              >
-                <Checkbox
-                  id="homepage-filter-favorites"
-                  checked={onlyFavorites}
-                  onCheckedChange={(checked) => setOnlyFavorites(Boolean(checked))}
-                />
-                <span className="inline-flex items-center gap-1.5">
-                  <Star className="size-3.5 text-amber-500 fill-amber-500" aria-hidden="true" />
-                  Chỉ hiện các đề đã yêu thích
-                </span>
-              </label>
-
-              <Button
-                type="button"
-                variant="link"
-                size="sm"
-                onClick={handleResetAllFilters}
-                className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold p-0 h-auto min-h-0"
-              >
-                Đặt lại bộ lọc
-              </Button>
-            </div>
-          </Card>
-        </div>
-      </section>
+      <ExamHero
+        inProgressExam={inProgressExam}
+        userStats={userStats}
+        favoritesCount={favorites.ids.size}
+      >
+        <LibraryFilters
+          filters={filters}
+          onFilterChange={setFilters}
+          onResetFilters={handleResetAllFilters}
+          availableYears={availableYears}
+          onSearchSubmit={handleSearchScroll}
+          idPrefix="homepage"
+        />
+      </ExamHero>
 
       {/* SECTION 2: CHỌN NHANH THEO CẤP ĐỘ */}
       {!hasActiveFilters && (
         <section className="py-10 px-4 sm:px-6">
-        <div className="container">
-          <div className="flex items-center gap-2 mb-5">
-            <Layers className="size-5 text-slate-700 dark:text-slate-300" aria-hidden="true" />
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-              {t('home.quickLevelSelect')}
-            </h2>
-          </div>
+          <div className="container">
+            <div className="flex items-center gap-2 mb-5">
+              <Layers className="size-5 text-slate-700 dark:text-slate-300" aria-hidden="true" />
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                {t('home.quickLevelSelect')}
+              </h2>
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {LEVEL_CONFIGS.map(({ level, bgClass, borderClass, textClass, desc }) => {
-              const isActive = (filterLevel as string) === level;
-              return (
-                <Card
-                  key={level}
-                  onClick={() => handleLevelCardClick(level)}
-                  className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${bgClass} ${borderClass} ${
-                    isActive ? 'ring-2 ring-blue-500 shadow-md' : 'hover:shadow-sm hover:-translate-y-0.5'
-                  }`}
-                >
-                  <div>
-                    <h3 className={`text-2xl font-black ${textClass} mb-1 tracking-tight`}>
-                      {level}
-                    </h3>
-                  </div>
-
-                  <div className="flex items-end justify-between mt-3">
-                    <p className="text-xs text-slate-600 dark:text-slate-400 font-medium leading-relaxed pr-2">
-                      {desc}
-                    </p>
-                    <div className="size-6 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 shrink-0">
-                      <ChevronRight className="size-3.5" aria-hidden="true" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {LEVEL_CONFIGS.map(({ level, bgClass, borderClass, textClass, desc }) => {
+                const isActive = filters.level === level;
+                return (
+                  <Card
+                    key={level}
+                    onClick={() => handleLevelCardClick(level)}
+                    className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${bgClass} ${borderClass} ${
+                      isActive
+                        ? 'ring-2 ring-blue-500 shadow-md'
+                        : 'hover:shadow-sm hover:-translate-y-0.5'
+                    }`}
+                  >
+                    <div>
+                      <h3 className={`text-2xl font-black ${textClass} mb-1 tracking-tight`}>
+                        {level}
+                      </h3>
                     </div>
-                  </div>
-                </Card>
-              );
-            })}
+
+                    <div className="flex items-end justify-between mt-3">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 font-medium leading-relaxed pr-2">
+                        {desc}
+                      </p>
+                      <div className="size-6 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 shrink-0">
+                        <ChevronRight className="size-3.5" aria-hidden="true" />
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
-        </div>
         </section>
       )}
 
       {/* SECTION 3: ĐỀ THI THEO NĂM & KẾT QUẢ TÌM KIẾM */}
-      <section id="de-thi-theo-nam" className={`pb-16 px-4 sm:px-6 ${hasActiveFilters ? "pt-8" : ""}`}>
-
+      <section
+        id="de-thi-theo-nam"
+        className={`pb-16 px-4 sm:px-6 ${hasActiveFilters ? 'pt-8' : ''}`}
+      >
         <div className="container">
           {/* Header */}
           <div className="flex items-center justify-between mb-5">
@@ -828,79 +395,93 @@ export default function HomePage(): React.JSX.Element {
           {hasActiveFilters && (
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <span className="text-xs text-slate-500 font-medium">Đang lọc:</span>
-              {Boolean(searchQuery.trim()) && (
+              {Boolean(filters.searchQuery.trim()) && (
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
-                  onClick={() => setSearchQuery('')}
-                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100"
+                  onClick={() => setFilters((prev) => ({ ...prev, searchQuery: '' }))}
+                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900"
                 >
-                  Từ khóa: &quot;{searchQuery}&quot; ✕
+                  Từ khóa: &quot;{filters.searchQuery}&quot; ✕
                 </Button>
               )}
-              {filterLevel !== 'ALL' && (
+              {filters.level !== 'ALL' && (
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
-                  onClick={() => setFilterLevel('ALL')}
-                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100"
+                  onClick={() => setFilters((prev) => ({ ...prev, level: 'ALL' }))}
+                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900"
                 >
-                  Cấp độ: {filterLevel} ✕
+                  Cấp độ: {filters.level} ✕
                 </Button>
               )}
-              {filterYear !== 'ALL' && (
+              {filters.year !== 'ALL' && (
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
-                  onClick={() => setFilterYear('ALL')}
-                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100"
+                  onClick={() => setFilters((prev) => ({ ...prev, year: 'ALL' }))}
+                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900"
                 >
-                  Năm: {filterYear} ✕
+                  Năm: {filters.year} ✕
                 </Button>
               )}
-              {filterSession !== 'ALL' && (
+              {filters.session !== 'ALL' && (
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
-                  onClick={() => setFilterSession('ALL')}
-                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100"
+                  onClick={() => setFilters((prev) => ({ ...prev, session: 'ALL' }))}
+                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900"
                 >
-                  Kỳ thi: Tháng {filterSession} ✕
+                  Kỳ thi: Tháng {filters.session} ✕
                 </Button>
               )}
-              {filterKind !== 'ALL' && (
+              {filters.kind !== 'ALL' && (
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
-                  onClick={() => setFilterKind('ALL')}
-                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100"
+                  onClick={() => setFilters((prev) => ({ ...prev, kind: 'ALL' }))}
+                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900"
                 >
-                  Thể loại: {filterKind === 'original' ? 'Đề thật' : filterKind === 'practice' ? 'Tự luyện' : 'Đề trộn'} ✕
+                  Thể loại:{' '}
+                  {filters.kind === 'original'
+                    ? 'Đề thật'
+                    : filters.kind === 'practice'
+                      ? 'Tự luyện'
+                      : 'Đề trộn'}{' '}
+                  ✕
                 </Button>
               )}
-              {filterStatus !== 'ALL' && (
+              {filters.userStatus !== 'ALL' && (
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
-                  onClick={() => setFilterStatus('ALL')}
-                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100"
+                  onClick={() => setFilters((prev) => ({ ...prev, userStatus: 'ALL' }))}
+                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900"
                 >
-                  Trạng thái: {filterStatus === 'not_started' ? 'Chưa làm' : filterStatus === 'in_progress' ? 'Đang làm' : 'Hoàn thành'} ✕
+                  Trạng thái:{' '}
+                  {filters.userStatus === 'not_started'
+                    ? 'Chưa làm'
+                    : filters.userStatus === 'in_progress'
+                      ? 'Đang làm'
+                      : filters.userStatus === 'completed'
+                        ? 'Hoàn thành'
+                        : 'Chưa đạt mục tiêu'}{' '}
+                  ✕
                 </Button>
               )}
-              {onlyFavorites && (
+              {filters.onlyFavorites && (
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
-                  onClick={() => setOnlyFavorites(false)}
-                  className="rounded-full text-xs h-7 px-2.5 bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100"
+                  onClick={() => setFilters((prev) => ({ ...prev, onlyFavorites: false }))}
+                  className="rounded-full text-xs h-7 px-2.5 bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900"
                 >
                   ⭐ Đã yêu thích ✕
                 </Button>
@@ -910,7 +491,7 @@ export default function HomePage(): React.JSX.Element {
                 variant="ghost"
                 size="sm"
                 onClick={handleResetAllFilters}
-                className="text-xs text-slate-500 hover:text-slate-800"
+                className="text-xs text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
               >
                 Xóa tất cả
               </Button>
@@ -945,7 +526,9 @@ export default function HomePage(): React.JSX.Element {
                     <Sparkles className="size-3 text-amber-600" aria-hidden="true" />
                     Đề thi gợi ý hôm nay
                   </span>
-                  <span className={`text-xs px-2 py-0.5 rounded-md font-bold badge-level-${recommendedExam.level.toLowerCase()}`}>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-md font-bold badge-level-${recommendedExam.level.toLowerCase()}`}
+                  >
                     {recommendedExam.level}
                   </span>
                   <span className="text-xs text-slate-500 font-medium">Đề thi thật chính thức</span>
@@ -954,7 +537,11 @@ export default function HomePage(): React.JSX.Element {
                   {recommendedExam.title}
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {recommendedExam.totalQuestions} câu hỏi • {Math.round(recommendedExam.sections.reduce((a, s) => a + s.durationSec, 0) / 60)} phút • Đầy đủ âm thanh &amp; đáp án chi tiết
+                  {recommendedExam.totalQuestions} câu hỏi •{' '}
+                  {Math.round(
+                    recommendedExam.sections.reduce((a, s) => a + s.durationSec, 0) / 60,
+                  )}{' '}
+                  phút • Đầy đủ âm thanh &amp; đáp án chi tiết
                 </p>
               </div>
 
@@ -986,7 +573,8 @@ export default function HomePage(): React.JSX.Element {
                         <span>Chế độ Luyện tự do</span>
                       </p>
                       <p className="text-slate-300 dark:text-slate-300">
-                        Làm bài không bị áp lực thời gian. Bạn có thể xem ngay đáp án, tra cứu giải thích chi tiết sau mỗi câu và tạm dừng bất cứ lúc nào.
+                        Làm bài không bị áp lực thời gian. Bạn có thể xem ngay đáp án, tra cứu giải
+                        thích chi tiết sau mỗi câu và tạm dừng bất cứ lúc nào.
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -1028,7 +616,10 @@ export default function HomePage(): React.JSX.Element {
                     <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
                     <div className="flex gap-2">
                       {Array.from({ length: 5 }).map((_, j) => (
-                        <div key={j} className="flex-1 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl" />
+                        <div
+                          key={j}
+                          className="flex-1 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl"
+                        />
                       ))}
                     </div>
                   </div>
@@ -1058,15 +649,19 @@ export default function HomePage(): React.JSX.Element {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {sessionGroups.map((session) => {
                 const groupKey = session.key;
-                const candidateLevel = cardSelectedLevel[groupKey] || (filterLevel !== 'ALL' ? (filterLevel as Level) : null);
+                const candidateLevel =
+                  cardSelectedLevel[groupKey] ||
+                  (filters.level !== 'ALL' ? (filters.level as Level) : null);
                 const allAvailableLevels: Level[] = (['N1', 'N2', 'N3', 'N4', 'N5'] as Level[]).filter(
                   (lvl) => Boolean(session.examsByLevel[lvl]),
                 );
-                const activeLevel = candidateLevel && session.examsByLevel[candidateLevel]
-                  ? candidateLevel
-                  : allAvailableLevels[0] || 'N2';
+                const activeLevel =
+                  candidateLevel && session.examsByLevel[candidateLevel]
+                    ? candidateLevel
+                    : allAvailableLevels[0] || 'N2';
 
-                const targetExam = session.examsByLevel[activeLevel] || Object.values(session.examsByLevel)[0];
+                const targetExam =
+                  session.examsByLevel[activeLevel] || Object.values(session.examsByLevel)[0];
                 const examUrl = targetExam ? `/phong-thi?examId=${targetExam.id}` : `/de-thi`;
                 const isFavorite = Boolean(targetExam && favorites.ids.has(targetExam.id));
                 const isFavPending = Boolean(targetExam && favorites.pendingIds.has(targetExam.id));
@@ -1083,31 +678,43 @@ export default function HomePage(): React.JSX.Element {
                           {/* Năm thi */}
                           <div>
                             <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
-                              <Calendar className="size-3.5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                              <Calendar
+                                className="size-3.5 text-slate-400 dark:text-slate-500"
+                                aria-hidden="true"
+                              />
                               <span>Năm thi</span>
                             </span>
-                            <span className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight leading-none">
+                            <span className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-none">
                               {session.year}
                             </span>
                           </div>
 
                           {/* Vertical Divider */}
-                          <div className="h-10 w-px bg-slate-200 dark:bg-slate-700" aria-hidden="true" />
+                          <div
+                            className="h-10 w-px bg-slate-200 dark:bg-slate-700"
+                            aria-hidden="true"
+                          />
 
                           {/* Kỳ thi */}
                           <div>
                             <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
-                              <Clock className="size-3.5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                              <Clock
+                                className="size-3.5 text-slate-400 dark:text-slate-500"
+                                aria-hidden="true"
+                              />
                               <span>Kỳ thi</span>
                             </span>
-                            <span className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight leading-none">
+                            <span className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-none">
                               Tháng {session.session}
                             </span>
                           </div>
                         </div>
 
                         {/* Document Icon */}
-                        <FileText className="size-5 text-slate-400 shrink-0 mt-1" aria-hidden="true" />
+                        <FileText
+                          className="size-5 text-slate-400 shrink-0 mt-1"
+                          aria-hidden="true"
+                        />
                       </div>
 
                       {/* Horizontal Divider */}
@@ -1118,7 +725,11 @@ export default function HomePage(): React.JSX.Element {
                         <span className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2.5">
                           Chọn cấp độ
                         </span>
-                        <div className="flex items-center gap-2" role="group" aria-label={`Cấp độ đề thi năm ${session.year}`}>
+                        <div
+                          className="flex items-center gap-2"
+                          role="group"
+                          aria-label={`Cấp độ đề thi năm ${session.year}`}
+                        >
                           {(['N1', 'N2', 'N3', 'N4', 'N5'] as Level[]).map((lvl) => {
                             const examForLevel = session.examsByLevel[lvl];
                             const isAvailable = Boolean(examForLevel);
@@ -1182,7 +793,10 @@ export default function HomePage(): React.JSX.Element {
                         size="sm"
                         className="flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
                       >
-                        <a href={examUrl} className="no-underline flex items-center justify-center gap-2">
+                        <a
+                          href={examUrl}
+                          className="no-underline flex items-center justify-center gap-2"
+                        >
                           <span>{t('home.takeExamNow')}</span>
                           <ArrowRight className="size-3.5" aria-hidden="true" />
                         </a>
@@ -1192,7 +806,11 @@ export default function HomePage(): React.JSX.Element {
                     {/* 5. QUICK SUB-ACTIONS: Luyện tự do & Luyện kỹ năng */}
                     <div className="flex items-center justify-between text-[11px] pt-2.5 mt-2.5 border-t border-dashed border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400">
                       <a
-                        href={targetExam ? `/phong-thi?examId=${targetExam.id}&mode=practice` : '/luyen-tap'}
+                        href={
+                          targetExam
+                            ? `/phong-thi?examId=${targetExam.id}&mode=practice`
+                            : '/luyen-tap'
+                        }
                         className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline flex items-center gap-1 font-medium"
                         title="Luyện tập tự do không tính giờ nghiêm ngặt"
                       >

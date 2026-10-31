@@ -1,12 +1,15 @@
 'use client';
 
-import { Search, Star } from 'lucide-react';
 import React from 'react';
+import { Search, Calendar, Clock, FileText, Layers, Star } from 'lucide-react';
 import type { Level, ExamKind, Session } from '@jlpt/schema';
 import type { LibraryFilterState, UserExamStatus } from '../types';
+import { Card } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
 import { Input } from '@jlpt/ui/components/input';
 import { Select } from '@jlpt/ui/components/select';
+import { Checkbox } from '@jlpt/ui/components/checkbox';
+import { useI18n } from '../../../lib/i18n';
 
 export interface LibraryFiltersProps {
   filters: LibraryFilterState;
@@ -15,6 +18,9 @@ export interface LibraryFiltersProps {
   availableYears?: number[];
   showStatusFilter?: boolean;
   className?: string;
+  onSearchSubmit?: () => void;
+  searchButtonText?: string;
+  idPrefix?: string;
 }
 
 export function LibraryFilters({
@@ -24,170 +30,138 @@ export function LibraryFilters({
   availableYears = [2024, 2023, 2022, 2021, 2020],
   showStatusFilter = true,
   className = '',
+  onSearchSubmit,
+  searchButtonText,
+  idPrefix = 'library',
 }: LibraryFiltersProps): React.JSX.Element {
-  const levels: Array<Level | 'ALL'> = ['ALL', 'N1', 'N2', 'N3', 'N4', 'N5'];
-  const sessions: Array<{ id: Session | 'ALL'; label: string }> = [
-    { id: 'ALL', label: 'Tất cả các kỳ' },
-    { id: '7', label: 'Kỳ tháng 7' },
-    { id: '12', label: 'Kỳ tháng 12' },
-  ];
-  const kinds: Array<{ id: ExamKind | 'ALL'; label: string }> = [
-    { id: 'ALL', label: 'Tất cả thể loại' },
-    { id: 'original', label: 'Đề thi thật (Original)' },
-    { id: 'practice', label: 'Đề luyện tự biên soạn' },
-    { id: 'mixed', label: 'Đề trộn ngân hàng' },
-  ];
-  const statuses: Array<{ id: UserExamStatus | 'ALL'; label: string }> = [
-    { id: 'ALL', label: 'Mọi trạng thái' },
-    { id: 'not_started', label: 'Chưa từng làm' },
-    { id: 'in_progress', label: 'Đang làm dở' },
-    { id: 'completed', label: 'Đã hoàn thành' },
-    { id: 'below_target', label: 'Chưa đạt mục tiêu' },
-  ];
+  const { t } = useI18n();
 
   return (
-    <div
-      className={`jlpt-library-filters bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4 ${className}`}
+    <Card
+      className={`rounded-2xl p-4 sm:p-5 shadow-sm bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border border-slate-200/90 dark:border-slate-800 space-y-3 ${className}`}
       role="search"
       aria-label="Bộ lọc thư viện đề thi"
     >
-      {/* Search Input */}
+      {/* TẦNG 1: TÌM KIẾM TỪ KHÓA & NÚT TÌM KIẾM */}
       <div>
         <label
-          htmlFor="library-search-input"
-          className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5"
+          htmlFor={`${idPrefix}-search-input`}
+          className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2"
         >
           Tìm kiếm đề thi
         </label>
-        <div className="relative">
-          <Input
-            id="library-search-input"
-            type="search"
-            value={filters.searchQuery}
-            onChange={(e) => onFilterChange({ ...filters, searchQuery: e.target.value })}
-            placeholder="Nhập tên đề thi, từ khóa hoặc cấp độ..."
-            className="w-full px-4 py-2.5 pl-10 text-sm"
-          />
-          <Search className="pointer-events-none absolute left-3.5 top-3 size-4 text-slate-400" aria-hidden="true" />
+        <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
+          <div className="relative flex-1">
+            <Input
+              id={`${idPrefix}-search-input`}
+              type="search"
+              value={filters.searchQuery}
+              onChange={(e) => onFilterChange({ ...filters, searchQuery: e.target.value })}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') onSearchSubmit?.();
+              }}
+              placeholder="Nhập tên đề thi, từ khóa hoặc cấp độ..."
+              className="w-full h-11 pl-10 pr-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/60 focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 transition-colors"
+            />
+            <Search className="pointer-events-none absolute left-3.5 top-3.5 size-4 text-slate-400" aria-hidden="true" />
+          </div>
+          <Button
+            type="button"
+            variant="primary"
+            onClick={onSearchSubmit}
+            className="h-11 px-6 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-700 text-white shrink-0 flex items-center justify-center gap-2 shadow-sm"
+          >
+            <Search className="size-4 shrink-0" aria-hidden="true" />
+            <span>{searchButtonText || t('home.searchExamsButton')}</span>
+          </Button>
         </div>
       </div>
 
-      {/* Level Buttons Filter */}
+      {/* TẦNG 2: CẤP ĐỘ JLPT (DẢI PILLS MÀU CHUẨN THIẾT KẾ) */}
       <div>
         <span className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
           Cấp độ JLPT
         </span>
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Lọc theo cấp độ">
-          {levels.map((lvl) => (
-            <Button
-              key={lvl}
-              type="button"
-              size="sm"
-              variant={filters.level === lvl ? 'primary' : 'secondary'}
-              onClick={() => onFilterChange({ ...filters, level: lvl })}
-              aria-pressed={filters.level === lvl}
-              className="text-xs font-bold"
-            >
-              {lvl === 'ALL' ? 'Tất cả cấp độ' : lvl}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {/* Quick Year Filter Buttons (1-touch selection) */}
-      <div>
-        <span className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-          Năm thi
-        </span>
-        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Lọc nhanh theo năm thi">
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Lọc theo cấp độ">
           <Button
             type="button"
             size="sm"
-            variant={filters.year === 'ALL' ? 'primary' : 'secondary'}
-            onClick={() => onFilterChange({ ...filters, year: 'ALL' })}
-            aria-pressed={filters.year === 'ALL'}
-            className="text-xs font-semibold px-2.5 py-1 h-auto min-h-0"
+            variant={filters.level === 'ALL' ? 'primary' : 'ghost'}
+            onClick={() => onFilterChange({ ...filters, level: 'ALL' })}
+            aria-pressed={filters.level === 'ALL'}
+            className={`px-4 py-1 text-xs font-bold h-7.5 min-h-0 rounded-full transition-all ${
+              filters.level === 'ALL'
+                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+            }`}
           >
-            Tất cả các năm
+            Tất cả cấp độ
           </Button>
-          {availableYears.map((yr) => (
-            <Button
-              key={yr}
-              type="button"
-              size="sm"
-              variant={filters.year === yr ? 'primary' : 'secondary'}
-              onClick={() => onFilterChange({ ...filters, year: yr })}
-              aria-pressed={filters.year === yr}
-              className="text-xs font-semibold px-2.5 py-1 h-auto min-h-0"
-            >
-              {yr}
-            </Button>
-          ))}
+          {(['N1', 'N2', 'N3', 'N4', 'N5'] as Level[]).map((lvl) => {
+            const isSelected = filters.level === lvl;
+            return (
+              <Button
+                key={lvl}
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => onFilterChange({ ...filters, level: isSelected ? 'ALL' : lvl })}
+                aria-pressed={isSelected}
+                className={`px-3.5 py-1 text-xs font-bold h-7.5 min-h-0 rounded-full transition-all border-0 shadow-none cursor-pointer badge-level-${lvl.toLowerCase()} ${
+                  isSelected
+                    ? 'ring-2 ring-current ring-offset-1 dark:ring-offset-slate-900 font-black shadow-xs scale-105'
+                    : 'opacity-85 hover:opacity-100'
+                }`}
+              >
+                {lvl}
+              </Button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Quick Session Filter Buttons */}
-      <div>
-        <span className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-          Kỳ thi
-        </span>
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Lọc nhanh theo kỳ thi">
-          {sessions.map((sess) => (
-            <Button
-              key={sess.id}
-              type="button"
-              size="sm"
-              variant={filters.session === sess.id ? 'primary' : 'secondary'}
-              onClick={() => onFilterChange({ ...filters, session: sess.id })}
-              aria-pressed={filters.session === sess.id}
-              className="text-xs font-semibold px-2.5 py-1 h-auto min-h-0"
-            >
-              {sess.label}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {/* Dropdown Filters Row: Year, Session, Kind, User Status */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-        {/* Year Filter Select */}
+      {/* TẦNG 3: 4 TIÊU CHÍ (NĂM THI, KỲ THI, THỂ LOẠI ĐỀ, TRẠNG THÁI CỦA BẠN) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {/* Dropdown 1: Năm thi */}
         <div>
           <label
-            htmlFor="filter-year-select"
-            className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1"
+            htmlFor={`${idPrefix}-filter-year-select`}
+            className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5"
           >
-            Năm thi (danh sách)
+            <Calendar className="size-3.5 text-slate-400" aria-hidden="true" />
+            <span>Năm thi</span>
           </label>
           <Select
-            id="filter-year-select"
-            value={filters.year}
+            id={`${idPrefix}-filter-year-select`}
+            value={filters.year.toString()}
             onChange={(e) =>
               onFilterChange({
                 ...filters,
                 year: e.target.value === 'ALL' ? 'ALL' : Number.parseInt(e.target.value, 10),
               })
             }
-            className="w-full text-xs"
+            className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer"
           >
             <option value="ALL">Tất cả các năm</option>
             {availableYears.map((yr) => (
-              <option key={yr} value={yr}>
+              <option key={yr} value={yr.toString()}>
                 Năm {yr}
               </option>
             ))}
           </Select>
         </div>
 
-        {/* Session Filter Select */}
+        {/* Dropdown 2: Kỳ thi */}
         <div>
           <label
-            htmlFor="filter-session-select"
-            className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1"
+            htmlFor={`${idPrefix}-filter-session-select`}
+            className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5"
           >
-            Kỳ thi (danh sách)
+            <Clock className="size-3.5 text-slate-400" aria-hidden="true" />
+            <span>Kỳ thi</span>
           </label>
           <Select
-            id="filter-session-select"
+            id={`${idPrefix}-filter-session-select`}
             value={filters.session}
             onChange={(e) =>
               onFilterChange({
@@ -195,26 +169,25 @@ export function LibraryFilters({
                 session: e.target.value as Session | 'ALL',
               })
             }
-            className="w-full text-xs"
+            className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer"
           >
-            {sessions.map((sess) => (
-              <option key={sess.id} value={sess.id}>
-                {sess.label}
-              </option>
-            ))}
+            <option value="ALL">Tất cả các kỳ</option>
+            <option value="7">Kỳ tháng 7</option>
+            <option value="12">Kỳ tháng 12</option>
           </Select>
         </div>
 
-        {/* Kind Filter */}
+        {/* Dropdown 3: Thể loại đề */}
         <div>
           <label
-            htmlFor="filter-kind-select"
-            className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1"
+            htmlFor={`${idPrefix}-filter-kind-select`}
+            className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5"
           >
-            Thể loại đề
+            <FileText className="size-3.5 text-slate-400" aria-hidden="true" />
+            <span>Thể loại đề</span>
           </label>
           <Select
-            id="filter-kind-select"
+            id={`${idPrefix}-filter-kind-select`}
             value={filters.kind}
             onChange={(e) =>
               onFilterChange({
@@ -222,27 +195,27 @@ export function LibraryFilters({
                 kind: e.target.value as ExamKind | 'ALL',
               })
             }
-            className="w-full text-xs"
+            className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer"
           >
-            {kinds.map((k) => (
-              <option key={k.id} value={k.id}>
-                {k.label}
-              </option>
-            ))}
+            <option value="ALL">Tất cả thể loại</option>
+            <option value="original">Đề thi thật (Original)</option>
+            <option value="practice">Đề luyện tự biên soạn</option>
+            <option value="mixed">Đề trộn ngân hàng</option>
           </Select>
         </div>
 
-        {/* User Status Filter */}
+        {/* Dropdown 4: Trạng thái của bạn */}
         {showStatusFilter && (
           <div>
             <label
-              htmlFor="filter-status-select"
-              className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1"
+              htmlFor={`${idPrefix}-filter-status-select`}
+              className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5"
             >
-              Trạng thái của bạn
+              <Layers className="size-3.5 text-slate-400" aria-hidden="true" />
+              <span>Trạng thái của bạn</span>
             </label>
             <Select
-              id="filter-status-select"
+              id={`${idPrefix}-filter-status-select`}
               value={filters.userStatus}
               onChange={(e) =>
                 onFilterChange({
@@ -250,34 +223,39 @@ export function LibraryFilters({
                   userStatus: e.target.value as UserExamStatus | 'ALL',
                 })
               }
-              className="w-full text-xs"
+              className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer"
             >
-              {statuses.map((st) => (
-                <option key={st.id} value={st.id}>
-                  {st.label}
-                </option>
-              ))}
+              <option value="ALL">Mọi trạng thái</option>
+              <option value="not_started">Chưa từng làm</option>
+              <option value="in_progress">Đang làm dở</option>
+              <option value="completed">Đã hoàn thành</option>
+              <option value="below_target">Chưa đạt mục tiêu</option>
             </Select>
           </div>
         )}
       </div>
 
-      {/* Favorite filter toggle & Reset filters button */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-slate-100 dark:border-slate-800">
-        <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
-          <Input
-            type="checkbox"
+      {/* TẦNG 4: CHECKBOX YÊU THÍCH & NÚT ĐẶT LẠI BỘ LỌC */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-2.5 border-t border-slate-100 dark:border-slate-800">
+        <label
+          htmlFor={`${idPrefix}-filter-favorites`}
+          className="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300 select-none"
+        >
+          <Checkbox
+            id={`${idPrefix}-filter-favorites`}
+            data-testid="filter-only-favorites"
             checked={Boolean(filters.onlyFavorites)}
-            onChange={(e) =>
+            onCheckedChange={(checked) =>
               onFilterChange({
                 ...filters,
-                onlyFavorites: e.target.checked,
+                onlyFavorites: Boolean(checked),
               })
             }
-            data-testid="filter-only-favorites"
-            className="h-4 w-4 min-h-0 cursor-pointer rounded text-blue-600 focus:ring-blue-500"
           />
-          <span className="inline-flex items-center gap-1"><Star className="size-3.5" aria-hidden="true" /> Chỉ hiện các đề đã yêu thích</span>
+          <span className="inline-flex items-center gap-1.5">
+            <Star className="size-3.5 text-amber-500 fill-amber-500" aria-hidden="true" />
+            Chỉ hiện các đề đã yêu thích
+          </span>
         </label>
 
         <Button
@@ -285,11 +263,11 @@ export function LibraryFilters({
           variant="link"
           size="sm"
           onClick={onResetFilters}
-          className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium p-0 h-auto min-h-0"
+          className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold p-0 h-auto min-h-0"
         >
           Đặt lại bộ lọc
         </Button>
       </div>
-    </div>
+    </Card>
   );
 }
