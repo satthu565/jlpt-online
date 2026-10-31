@@ -27,8 +27,8 @@ describe('Brand Logo & Mascot Assets (Gokakuya.com & JLPT Online)', () => {
       'mascot-96.png',
       'mascot-32.png',
       'logo-gokakuya.webp',
-      'logo-v2-header.webp',
-      'logo-v2-footer.webp',
+      'logo-v3-header.webp',
+      'logo-v3-footer.webp',
     ];
     for (const file of requiredFiles) {
       const fullPath = path.join(brandDir, file);
@@ -41,13 +41,13 @@ describe('Brand Logo & Mascot Assets (Gokakuya.com & JLPT Online)', () => {
     expect(fs.existsSync(faviconPath), 'Missing public/favicon.ico').toBe(true);
   });
 
-  it('renders NavigationHeader with horizontal logo-v2-header.webp, alt, fixed dimensions, and NO visible brand text', () => {
+  it('renders NavigationHeader with horizontal logo-v3-header.webp, alt, fixed dimensions, and NO visible brand text', () => {
     const html = renderWithI18n(<NavigationHeader />);
-    expect(html).toContain('src="/images/brand/logo-v2-header.webp"');
+    expect(html).toContain('src="/images/brand/logo-v3-header.webp"');
     expect(html).toContain('alt="Gokakuya.com - Trang chủ"');
-    expect(html).toContain('width="571"');
-    expect(html).toContain('height="192"');
-    expect(html).toContain('sm:h-[88px]');
+    expect(html).toContain('width="501"');
+    expect(html).toContain('height="96"');
+    expect(html).toContain('sm:h-12');
     expect(html).toContain('loading="eager"');
     expect(html).toContain('dark:bg-white');
     expect(html).not.toContain('JLPT Online');
@@ -55,12 +55,12 @@ describe('Brand Logo & Mascot Assets (Gokakuya.com & JLPT Online)', () => {
     expect(html).not.toContain('mascot-96.png');
   });
 
-  it('renders NavigationFooter with logo-v2-footer.webp, fixed dimensions, transparent background, and alt', () => {
+  it('renders NavigationFooter with logo-v3-footer.webp, fixed dimensions, transparent background, and alt', () => {
     const html = renderWithI18n(<NavigationFooter />);
-    expect(html).toContain('src="/images/brand/logo-v2-footer.webp"');
+    expect(html).toContain('src="/images/brand/logo-v3-footer.webp"');
     expect(html).toContain('alt="Gokakuya.com"');
     expect(html).toContain('width="520"');
-    expect(html).toContain('height="175"');
+    expect(html).toContain('height="100"');
     expect(html).toContain('w-56');
     expect(html).not.toContain('rounded-xl');
     expect(html).toContain('loading="lazy"');

@@ -176,11 +176,11 @@ describe('@jlpt/ui component suite', () => {
     expect(html).toContain('Đề thi');
     expect(html).toContain('aria-label="Mở menu điều hướng"');
     expect(html).toContain('aria-controls="mobile-navigation-drawer"');
-    expect(html).toContain('src="/images/brand/logo-v2-header.webp"');
+    expect(html).toContain('src="/images/brand/logo-v3-header.webp"');
     expect(html).toContain('alt="Gokakuya.com - Trang chủ"');
-    expect(html).toContain('width="571"');
-    expect(html).toContain('height="192"');
-    expect(html).toContain('sm:h-[88px]');
+    expect(html).toContain('width="501"');
+    expect(html).toContain('height="96"');
+    expect(html).toContain('sm:h-12');
     expect(html).toContain('loading="eager"');
     expect(html).toContain('dark:bg-white');
   });
@@ -189,7 +189,7 @@ describe('@jlpt/ui component suite', () => {
     const html = renderToString(<Header brandName="JLPT Online" logoSrc="" />);
     expect(html).toContain('JLPT Online');
     expect(html).toContain('>J<');
-    expect(html).not.toContain('src="/images/brand/logo-v2-header.webp"');
+    expect(html).not.toContain('src="/images/brand/logo-v3-header.webp"');
   });
 
   it('renders Footer with links, copyright, and brand logo', () => {
@@ -202,12 +202,12 @@ describe('@jlpt/ui component suite', () => {
     expect(html).toContain('Chính sách');
     expect(html).toContain('JLPT Online');
     expect(html).toContain('WCAG 2.1 AA');
-    expect(html).toContain('src="/images/brand/logo-v2-footer.webp"');
+    expect(html).toContain('src="/images/brand/logo-v3-footer.webp"');
     expect(html).toContain('alt="Gokakuya.com"');
     expect(html).toContain('w-56');
     expect(html).not.toContain('rounded-xl');
     expect(html).toContain('width="520"');
-    expect(html).toContain('height="175"');
+    expect(html).toContain('height="100"');
     expect(html).toContain('loading="lazy"');
   });
 

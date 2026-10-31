@@ -52,7 +52,7 @@ function mobileLinkClass(active: boolean | undefined, nested: boolean): string {
 export function Header({
   brandName = 'JLPT Online',
   brandHref = '/',
-  logoSrc = '/images/brand/logo-v2-header.webp',
+  logoSrc = '/images/brand/logo-v3-header.webp',
   logoAlt,
   navItems = [],
   rightControls,
@@ -82,11 +82,11 @@ export function Header({
               <img
                 src={logoSrc}
                 alt={effectiveLogoAlt}
-                width={571}
-                height={192}
+                width={501}
+                height={96}
                 loading="eager"
                 decoding="async"
-                className="h-14 sm:h-[88px] w-auto object-contain shrink-0 dark:bg-white dark:rounded-lg dark:px-2 dark:py-1"
+                className="h-9 sm:h-12 w-auto object-contain shrink-0 dark:bg-white dark:rounded-lg dark:px-2 dark:py-1"
               />
             ) : (
               <>
