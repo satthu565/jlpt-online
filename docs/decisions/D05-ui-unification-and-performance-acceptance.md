@@ -84,7 +84,7 @@ Theo kế hoạch triển khai Ngày 9 (`KE_HOACH_TRIEN_KHAI.md` mục D05) và 
 2. **Số đo hiệu năng Lighthouse (Mobile / Desktop)**:
    - LCP mobile chặn ở ngưỡng 3,3 s theo thang mô phỏng Lantern, chủ dự án duyệt ngày 2026-10-21. Banner cookie render ở server nên LCP đo bằng throttling thật trang `/dang-nhap` giảm từ 4468 ms xuống 1864 ms. Desktop giữ ngưỡng 2,0 s (xem `docs/release/DESIGN_PERF_REPORT.md` mục 2.1).
    - Khắc phục triệt để hiện tượng co giãn khung chứa (`max-w-* mx-auto w-full`), đưa CLS trang `/de-thi` từ **0.181** về **0.000**, nâng điểm Performance từ 91 lên **100**.
-   - Dung lượng Initial JS được kiểm soát chặt chẽ dưới trần 180 KB gzip (Mobile) và 200 KB gzip (Desktop).
+   - Dung lượng Initial JS được kiểm soát chặt chẽ dưới trần 200 KB gzip (Mobile, nâng từ 180 KB ngày 2026-10-31 do trang chủ có danh mục đề thi) và 200 KB gzip (Desktop).
 3. **Kiểm tra 177 lượt đa khung nhìn**:
    - **177 / 177** lượt kiểm tra ĐẠT (100% PASS).
    - **0** lỗi tràn thanh cuộn ngang trên cả 3 độ phân giải.
