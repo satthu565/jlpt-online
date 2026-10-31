@@ -133,7 +133,7 @@ export default function AccountPage(): React.JSX.Element {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 w-full">
+    <div className="container py-8 w-full">
       {!user && (
         <Alert variant="warning" className="mb-6">
           <div className="flex justify-between items-center flex-wrap gap-2">

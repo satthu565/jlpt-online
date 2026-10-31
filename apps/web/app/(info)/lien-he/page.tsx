@@ -72,7 +72,7 @@ export default function ContactPage(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-3xl mx-auto py-8 px-4 space-y-6" data-testid="contact-page">
+    <div className="container py-8 space-y-6" data-testid="contact-page">
       <JsonLd id="contact-breadcrumbs" data={breadcrumbs} />
 
       {/* Breadcrumbs */}

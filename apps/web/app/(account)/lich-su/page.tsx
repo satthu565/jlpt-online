@@ -64,7 +64,7 @@ export default function ExamHistoryPage(): React.JSX.Element {
   }, [loadHistory]);
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4" data-testid="exam-history-page">
+    <div className="container py-8" data-testid="exam-history-page">
       <PageHeader
         title="Lịch sử làm bài thi"
         description="Theo dõi tiến độ, điểm số và xem lại chi tiết bài làm của các kỳ thi bạn đã tham gia."

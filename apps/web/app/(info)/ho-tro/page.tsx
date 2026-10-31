@@ -53,7 +53,7 @@ export default function SupportCenterPage(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 space-y-6" data-testid="support-page">
+    <div className="container py-8 space-y-6" data-testid="support-page">
       <JsonLd id="support-breadcrumbs" data={breadcrumbs} />
 
       {/* Breadcrumbs */}

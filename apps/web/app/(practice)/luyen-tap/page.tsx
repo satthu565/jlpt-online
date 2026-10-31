@@ -441,7 +441,7 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4 w-full" data-testid="practice-page-container">
+    <div className="container py-8 w-full" data-testid="practice-page-container">
       <div className="mb-8">
         <h1 className="text-[2rem] font-extrabold text-[var(--text-primary)] mt-0 mx-0 mb-2">
           {t('practice.page.title')}

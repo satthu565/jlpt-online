@@ -174,7 +174,7 @@ export default function FaqPage(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4 space-y-6" data-testid="faq-page">
+    <div className="container py-8 space-y-6" data-testid="faq-page">
       <JsonLd id="faq-page-schema" data={faqStructuredData} />
       <JsonLd id="faq-breadcrumbs-schema" data={breadcrumbStructuredData} />
 

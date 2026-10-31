@@ -132,7 +132,7 @@ export default function AnalyticsPage(): React.JSX.Element {
   }
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4 w-full space-y-6" data-testid="analytics-page-container">
+    <div className="container py-8 w-full space-y-6" data-testid="analytics-page-container">
       <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
           {t('analytics.page.title')}

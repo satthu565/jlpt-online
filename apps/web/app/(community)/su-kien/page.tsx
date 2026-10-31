@@ -114,7 +114,7 @@ export default function ExamEventPage(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4 w-full">
+    <div className="container py-8 w-full">
       <PageHeader
         title={t('community.events.pageTitle')}
         description={t('community.events.pageSubtitle')}

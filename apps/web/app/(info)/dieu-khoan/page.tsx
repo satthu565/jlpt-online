@@ -31,7 +31,7 @@ export default function TermsOfServicePage(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 space-y-6" data-testid="terms-page">
+    <div className="container py-8 space-y-6" data-testid="terms-page">
       <JsonLd id="terms-breadcrumbs" data={breadcrumbs} />
 
       {/* Breadcrumbs */}

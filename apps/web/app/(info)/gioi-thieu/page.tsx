@@ -29,7 +29,7 @@ export default function AboutPage(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 space-y-6" data-testid="about-page">
+    <div className="container py-8 space-y-6" data-testid="about-page">
       <JsonLd id="about-breadcrumbs" data={breadcrumbs} />
 
       {/* Breadcrumbs */}

@@ -129,7 +129,7 @@ export default function MembershipPage(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4 w-full flex flex-col gap-8">
+    <div className="container py-8 w-full flex flex-col gap-8">
       <div className="text-center max-w-2xl mx-auto">
         <PageHeader
           title={t('billing.page.title')}

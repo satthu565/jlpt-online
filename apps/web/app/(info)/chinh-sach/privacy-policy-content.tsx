@@ -13,7 +13,7 @@ export function PrivacyPolicyContent(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 space-y-6" data-testid="privacy-page">
+    <div className="container py-8 space-y-6" data-testid="privacy-page">
       <JsonLd id="privacy-breadcrumbs" data={breadcrumbs} />
 
       {/* Breadcrumbs */}
