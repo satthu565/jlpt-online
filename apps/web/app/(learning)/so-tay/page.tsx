@@ -14,6 +14,7 @@ import {
   type CreateNotebookItemInput,
   type NotebookItemKind,
 } from '../../../features/learning';
+import { ExamHero } from '../../../features/library';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import { Alert } from '@jlpt/ui/components/alert';
@@ -134,18 +135,17 @@ export default function NotebookPage(): React.JSX.Element {
   };
 
   return (
-    <div className="container py-8 w-full">
-      <div className="mb-8">
-        <h1 className="text-[2rem] font-extrabold text-[var(--text-primary)] mt-0 mx-0 mb-2">
-          {t('notebook.page.title')}
-        </h1>
-        <p className="text-[var(--text-secondary)] m-0">
-          {t('notebook.page.subtitle')}
-        </p>
-      </div>
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60">
+      <ExamHero
+        title={t('notebook.page.title')}
+        subtitle={t('notebook.page.subtitle')}
+        minimal
+        background="gradient"
+      />
 
-      {(!user || isUnauthorized) && (
-        <Alert className="mb-6" variant="warning">
+      <div className="container py-8 w-full">
+        {(!user || isUnauthorized) && (
+          <Alert className="mb-6" variant="warning">
           <div className="flex justify-between items-center flex-wrap gap-2">
             <span>Bạn cần đăng nhập để xem và lưu sổ tay học tập cá nhân.</span>
             <Link href="/dang-nhap?redirect=/so-tay">
@@ -257,15 +257,16 @@ export default function NotebookPage(): React.JSX.Element {
         </div>
       )}
 
-      {activeTab === 'quiz' && activeQuiz && (
-        <div id="panel-quiz" role="tabpanel" aria-labelledby="tab-quiz">
-          <NotebookQuizView
-            quiz={activeQuiz}
-            onRetake={handleStartQuiz}
-            onExit={() => setActiveTab('notebook')}
-          />
-        </div>
-      )}
+        {activeTab === 'quiz' && activeQuiz && (
+          <div id="panel-quiz" role="tabpanel" aria-labelledby="tab-quiz">
+            <NotebookQuizView
+              quiz={activeQuiz}
+              onRetake={handleStartQuiz}
+              onExit={() => setActiveTab('notebook')}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
