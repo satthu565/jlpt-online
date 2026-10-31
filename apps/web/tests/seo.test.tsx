@@ -219,6 +219,12 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
     it('renders frequency stats page with ranking table, level comparison, and CSV export link', () => {
       const html = renderClean(<VocabFrequencyStatsPage />);
       expect(html).toContain('Thống kê Từ thường gặp &amp; Phân tích Xu hướng đề thi JLPT');
+      expect(html).toContain('Khám phá ma trận từ vựng cốt lõi dựa trên kho ngữ liệu tổng hợp các kỳ thi năng lực tiếng Nhật từ năm 2010 đến nay.');
+      expect(html).toContain('from-sky-100');
+      expect(html).not.toContain('/images/hero-jlpt-bg.webp');
+      expect(html).not.toContain('ĐẾM NGƯỢC KỲ THI JLPT');
+      const h1Matches = html.match(/<h1\b[^>]*>/g);
+      expect(h1Matches).toHaveLength(1);
       expect(html).toContain('data-testid="frequency-table"');
       expect(html).toContain('data-testid="create-study-list-btn"');
       expect(html).toContain('data-testid="export-csv-btn"');
