@@ -173,7 +173,7 @@ export function QuestionView({
               } ${question.isLocked ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
             >
               {/* Option label indicator (1, 2, 3, 4) with keyboard hint */}
-              <div className="flex-shrink-0 flex flex-col items-center gap-1">
+              <div className="flex-shrink-0 flex flex-col items-center gap-1 self-start">
                 <span
                   className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
                     isSelected
