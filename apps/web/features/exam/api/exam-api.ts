@@ -17,6 +17,7 @@ import type {
   ExamDetailPublic,
   PublicExamSnapshot,
 } from '@jlpt/schema';
+import type { LearnerExplanation } from '../../explanations/types';
 
 export interface ExamApiOptions {
   baseUrl?: string;
@@ -107,7 +108,12 @@ export class ExamApiClient {
     });
 
     if (!response.ok) {
-      let errorBody: { error?: { code?: string; message?: string; details?: Record<string, unknown> } } = {};
+      let errorBody: {
+        error?: { code?: string; message?: string; details?: Record<string, unknown> };
+        code?: string;
+        message?: string;
+        details?: Record<string, unknown>;
+      } = {};
       try {
         errorBody = await response.json();
       } catch {
@@ -116,9 +122,12 @@ export class ExamApiClient {
 
       // A 409 can also mean a closed section/attempt or a proxy error. Only an
       // explicit LEASE_INVALID response proves that another window owns the lease.
-      const code = errorBody.error?.code || 'API_ERROR';
-      const message = errorBody.error?.message || `HTTP ${response.status} ${response.statusText}`;
-      throw new ExamApiError(message, code, response.status, errorBody.error?.details);
+      const code = errorBody.error?.code || errorBody.code || 'API_ERROR';
+      const message =
+        errorBody.error?.message ||
+        (typeof errorBody.message === 'string' ? errorBody.message : undefined) ||
+        `HTTP ${response.status} ${response.statusText}`;
+      throw new ExamApiError(message, code, response.status, errorBody.error?.details || errorBody.details);
     }
 
     return response.json() as Promise<T>;
@@ -162,6 +171,10 @@ export class ExamApiClient {
 
   async reviewAttempt(attemptId: string): Promise<ReviewAttemptResponse> {
     return this.request<ReviewAttemptResponse>(`/attempts/${attemptId}/review`, 'GET');
+  }
+
+  async getAttemptExplanation(attemptId: string, index: number): Promise<LearnerExplanation> {
+    return this.request<LearnerExplanation>(`/attempts/${encodeURIComponent(attemptId)}/explanations/${index}`, 'GET');
   }
 
   async listMyAttempts(

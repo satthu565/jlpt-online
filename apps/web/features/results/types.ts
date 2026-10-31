@@ -13,6 +13,7 @@ export interface AttemptReviewData {
   result: Result;
   previousResult?: Result | null;
   submittedAt?: string;
+  hasLicensePermission?: boolean;
 }
 
 export interface ExamHistoryItem extends AttemptSummary {
