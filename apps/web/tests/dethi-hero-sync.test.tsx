@@ -99,7 +99,8 @@ describe('Synchronization of /de-thi with HomePage Hero and Filters', () => {
     );
 
     // Hero background
-    expect(html).toContain('/images/hero-jlpt-bg.webp');
+    expect(html).not.toContain('/images/hero-jlpt-bg.webp');
+    expect(html).toContain('from-sky-100');
     expect(html).toContain('Thư viện đề thi JLPT');
     expect(html).not.toContain('ĐẾM NGƯỢC KỲ THI JLPT');
 
@@ -140,7 +141,8 @@ describe('Synchronization of /de-thi with HomePage Hero and Filters', () => {
     const html = renderWithProviders(<ExamLibraryPage />);
 
     expect(html).toContain('data-testid="exam-library-page"');
-    expect(html).toContain('/images/hero-jlpt-bg.webp');
+    expect(html).not.toContain('/images/hero-jlpt-bg.webp');
+    expect(html).toContain('from-sky-100');
     expect(html).toContain('Thư viện đề thi JLPT');
     expect(html).not.toContain('ĐẾM NGƯỢC KỲ THI JLPT');
   });

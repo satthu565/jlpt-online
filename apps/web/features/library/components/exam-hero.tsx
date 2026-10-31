@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Clock,
   ArrowRight,
   ChevronRight,
   CheckCircle2,
   Star,
-} from 'lucide-react';
-import { Card } from '@jlpt/ui/components/card';
-import { Button } from '@jlpt/ui/components/button';
-import { useAuth } from '../../../lib/auth-context';
-import type { ExamWithUserStatus } from '../types';
+} from "lucide-react";
+import { Card } from "@jlpt/ui/components/card";
+import { Button } from "@jlpt/ui/components/button";
+import { useAuth } from "../../../lib/auth-context";
+import type { ExamWithUserStatus } from "../types";
 
 function AnimatedCountdownUnit({
   value,
@@ -24,17 +24,17 @@ function AnimatedCountdownUnit({
   isAccent?: boolean;
   mounted?: boolean;
 }): React.JSX.Element {
-  const digits = String(value).padStart(2, '0').split('');
+  const digits = String(value).padStart(2, "0").split("");
   const textClass = isAccent
-    ? 'text-blue-600 dark:text-blue-400'
-    : 'text-slate-900 dark:text-slate-100';
+    ? "text-blue-600 dark:text-blue-400"
+    : "text-slate-900 dark:text-slate-100";
 
   return (
     <div
       className={`p-2 sm:p-2.5 rounded-xl border shadow-2xs overflow-hidden transition-colors ${
         isAccent
-          ? 'bg-blue-50/70 dark:bg-blue-950/40 border-blue-200/80 dark:border-blue-900/60'
-          : 'bg-slate-50 dark:bg-slate-800/80 border-slate-200/80 dark:border-slate-700/80'
+          ? "bg-blue-50/70 dark:bg-blue-950/40 border-blue-200/80 dark:border-blue-900/60"
+          : "bg-slate-50 dark:bg-slate-800/80 border-slate-200/80 dark:border-slate-700/80"
       }`}
     >
       <div className="relative h-8 sm:h-9 overflow-hidden flex items-center justify-center">
@@ -46,7 +46,7 @@ function AnimatedCountdownUnit({
             <span
               key={mounted ? `${idx}-${digit}` : `${idx}-initial`}
               suppressHydrationWarning
-              className={`inline-block ${mounted ? 'animate-digit-flip' : ''} ${textClass}`}
+              className={`inline-block ${mounted ? "animate-digit-flip" : ""} ${textClass}`}
             >
               {digit}
             </span>
@@ -55,7 +55,9 @@ function AnimatedCountdownUnit({
       </div>
       <span
         className={`block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider mt-1.5 ${
-          isAccent ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'
+          isAccent
+            ? "text-blue-600 dark:text-blue-400"
+            : "text-slate-500 dark:text-slate-400"
         }`}
       >
         {label}
@@ -76,6 +78,8 @@ export interface ExamHeroProps {
   favoritesCount?: number;
   /** Chỉ hiện tiêu đề, mô tả và khối tìm kiếm trên nền hero (bỏ badge, tiến độ, đếm ngược). */
   minimal?: boolean;
+  /** photo: ảnh nền trang chủ; gradient: nền gradient thuần CSS (dùng cho /de-thi). */
+  background?: "photo" | "gradient";
   children?: React.ReactNode;
   className?: string;
 }
@@ -83,13 +87,14 @@ export interface ExamHeroProps {
 export function ExamHero({
   title,
   subtitle,
-  badgeText = 'Kho đề thi JLPT chính thức 2010 – 2026',
+  badgeText = "Kho đề thi JLPT chính thức 2010 – 2026",
   inProgressExam,
   userStats,
   favoritesCount = 0,
   minimal = false,
+  background = "photo",
   children,
-  className = '',
+  className = "",
 }: ExamHeroProps): React.JSX.Element {
   const { user } = useAuth();
 
@@ -134,7 +139,7 @@ export function ExamHero({
     hours: 0,
     minutes: 0,
     seconds: 0,
-    label: '',
+    label: "",
   });
 
   useEffect(() => {
@@ -152,14 +157,24 @@ export function ExamHero({
     >
       {/* Aesthetic Japanese Study Background Scene (Balanced Left & Right) */}
       <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
-        <img
-          src="/images/hero-jlpt-bg.webp"
-          alt=""
-          aria-hidden="true"
-          className="w-full h-full object-cover object-center opacity-90 dark:opacity-25"
-        />
+        {background === "gradient" ? (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-br from-sky-100 via-indigo-50 to-emerald-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950" />
+            <div className="absolute -top-24 -right-24 size-96 rounded-full bg-blue-300/30 dark:bg-blue-500/10 blur-3xl" />
+            <div className="absolute -bottom-32 -left-24 size-96 rounded-full bg-emerald-300/30 dark:bg-emerald-500/10 blur-3xl" />
+          </>
+        ) : (
+          <img
+            src="/images/hero-jlpt-bg.webp"
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover object-center opacity-90 dark:opacity-25"
+          />
+        )}
         {/* Soft tint overlay so text and card remain crisp and readable */}
-        <div className="absolute inset-0 bg-white/40 dark:bg-slate-900/40" />
+        {background !== "gradient" && (
+          <div className="absolute inset-0 bg-white/40 dark:bg-slate-900/40" />
+        )}
         <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white dark:from-slate-900 to-transparent" />
       </div>
 
@@ -190,7 +205,10 @@ export function ExamHero({
               size="sm"
               className="h-9 px-4 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-xs shrink-0 flex items-center gap-1.5"
             >
-              <a href={`/phong-thi?examId=${inProgressExam.id}`} className="no-underline flex items-center gap-1.5">
+              <a
+                href={`/phong-thi?examId=${inProgressExam.id}`}
+                className="no-underline flex items-center gap-1.5"
+              >
                 <span>Tiếp tục làm ngay</span>
                 <ArrowRight className="size-3.5" aria-hidden="true" />
               </a>
@@ -201,108 +219,150 @@ export function ExamHero({
         {/* Top Row: Title, Subtitle, User Progress on Left + Big Live Countdown Card on Right */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-7">
           <div className="max-w-2xl">
-{!minimal && (
-<>
-            {/* Badge: Official exam repository */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50/90 dark:bg-blue-950/70 border border-blue-200/90 dark:border-blue-800 text-xs font-semibold text-blue-700 dark:text-blue-300 mb-3.5 backdrop-blur-xs shadow-2xs">
-              <span className="flex size-2 rounded-full bg-blue-600 animate-pulse" aria-hidden="true" />
-              <span>{badgeText}</span>
-            </div>
-</>
-)}
+            {!minimal && (
+              <>
+                {/* Badge: Official exam repository */}
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50/90 dark:bg-blue-950/70 border border-blue-200/90 dark:border-blue-800 text-xs font-semibold text-blue-700 dark:text-blue-300 mb-3.5 backdrop-blur-xs shadow-2xs">
+                  <span
+                    className="flex size-2 rounded-full bg-blue-600 animate-pulse"
+                    aria-hidden="true"
+                  />
+                  <span>{badgeText}</span>
+                </div>
+              </>
+            )}
 
             <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-black text-slate-900 dark:text-slate-100 tracking-tight leading-[1.18]">
               {title || (
                 <>
-                  Luyện đề JLPT<br />
-                  <span className="text-blue-600 dark:text-blue-400">Chinh phục tiếng Nhật</span>
+                  Luyện đề JLPT
+                  <br />
+                  <span className="text-blue-600 dark:text-blue-400">
+                    Chinh phục tiếng Nhật
+                  </span>
                 </>
               )}
             </h1>
             <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
               {subtitle ||
-                'Kho đề thi JLPT các năm được tổng hợp đầy đủ, giúp bạn làm quen với cấu trúc đề thật và nâng cao kỹ năng tiếng Nhật.'}
+                "Kho đề thi JLPT các năm được tổng hợp đầy đủ, giúp bạn làm quen với cấu trúc đề thật và nâng cao kỹ năng tiếng Nhật."}
             </p>
 
-{!minimal && (
-<>
-            {/* USER PROGRESS MINI-STRIP */}
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-              {user ? (
-                <>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-medium">
-                    <CheckCircle2 className="size-3.5 text-emerald-600" aria-hidden="true" />
-                    <span>
-                      Đã hoàn thành: <strong>{userStats?.completed ?? 0} đề</strong>
-                    </span>
-                  </span>
-                  {(userStats?.inProgress ?? 0) > 0 && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-medium">
-                      <Clock className="size-3.5 text-amber-600" aria-hidden="true" />
-                      <span>
-                        Đang làm: <strong>{userStats?.inProgress ?? 0} đề</strong>
+            {!minimal && (
+              <>
+                {/* USER PROGRESS MINI-STRIP */}
+                <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
+                  {user ? (
+                    <>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-medium">
+                        <CheckCircle2
+                          className="size-3.5 text-emerald-600"
+                          aria-hidden="true"
+                        />
+                        <span>
+                          Đã hoàn thành:{" "}
+                          <strong>{userStats?.completed ?? 0} đề</strong>
+                        </span>
                       </span>
-                    </span>
+                      {(userStats?.inProgress ?? 0) > 0 && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-medium">
+                          <Clock
+                            className="size-3.5 text-amber-600"
+                            aria-hidden="true"
+                          />
+                          <span>
+                            Đang làm:{" "}
+                            <strong>{userStats?.inProgress ?? 0} đề</strong>
+                          </span>
+                        </span>
+                      )}
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-medium">
+                        <Star
+                          className="size-3.5 text-amber-500 fill-amber-500"
+                          aria-hidden="true"
+                        />
+                        <span>
+                          Đã lưu: <strong>{favoritesCount} đề</strong>
+                        </span>
+                      </span>
+                    </>
+                  ) : (
+                    <a
+                      href="/dang-nhap"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100/90 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-medium transition-colors"
+                    >
+                      <span>
+                        💡 Đăng nhập để lưu tiến độ, điểm thi và đồng bộ đề yêu
+                        thích
+                      </span>
+                      <ChevronRight className="size-3" aria-hidden="true" />
+                    </a>
                   )}
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-medium">
-                    <Star className="size-3.5 text-amber-500 fill-amber-500" aria-hidden="true" />
-                    <span>
-                      Đã lưu: <strong>{favoritesCount} đề</strong>
+                </div>
+              </>
+            )}
+          </div>
+
+          {!minimal && (
+            <>
+              {/* Right: Big Digital Live Countdown Highlight Card */}
+              <div className="w-full lg:w-auto shrink-0 flex justify-center lg:justify-end">
+                <Card className="w-full sm:w-auto min-w-[320px] sm:min-w-[380px] p-4 sm:p-5 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-blue-200/80 dark:border-slate-800 shadow-md">
+                  {/* Header */}
+                  <div className="flex items-center justify-between gap-3 mb-3.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wide">
+                      <span
+                        className="flex size-2 rounded-full bg-blue-600 animate-pulse"
+                        aria-hidden="true"
+                      />
+                      ĐẾM NGƯỢC KỲ THI JLPT{" "}
+                      {mounted && countdownTime.label
+                        ? countdownTime.label
+                        : ""}
                     </span>
-                  </span>
-                </>
-              ) : (
-                <a
-                  href="/dang-nhap"
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100/90 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-medium transition-colors"
-                >
-                  <span>💡 Đăng nhập để lưu tiến độ, điểm thi và đồng bộ đề yêu thích</span>
-                  <ChevronRight className="size-3" aria-hidden="true" />
-                </a>
-              )}
-            </div>
-</>
-)}
+                    <a
+                      href="/lich-thi"
+                      className="text-[11px] font-semibold text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-0.5"
+                    >
+                      <span>Lịch thi</span>
+                      <ChevronRight className="size-3" aria-hidden="true" />
+                    </a>
+                  </div>
 
-          </div>
+                  {/* 4 Digital Timer Blocks with Animated Digit Transitions */}
+                  <div className="grid grid-cols-4 gap-2 sm:gap-2.5 text-center">
+                    <AnimatedCountdownUnit
+                      value={countdownTime.days}
+                      label="Ngày"
+                      mounted={mounted}
+                    />
+                    <AnimatedCountdownUnit
+                      value={countdownTime.hours}
+                      label="Giờ"
+                      mounted={mounted}
+                    />
+                    <AnimatedCountdownUnit
+                      value={countdownTime.minutes}
+                      label="Phút"
+                      mounted={mounted}
+                    />
+                    <AnimatedCountdownUnit
+                      value={countdownTime.seconds}
+                      label="Giây"
+                      isAccent
+                      mounted={mounted}
+                    />
+                  </div>
 
-{!minimal && (
-<>
-          {/* Right: Big Digital Live Countdown Highlight Card */}
-          <div className="w-full lg:w-auto shrink-0 flex justify-center lg:justify-end">
-            <Card className="w-full sm:w-auto min-w-[320px] sm:min-w-[380px] p-4 sm:p-5 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-blue-200/80 dark:border-slate-800 shadow-md">
-              {/* Header */}
-              <div className="flex items-center justify-between gap-3 mb-3.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wide">
-                  <span className="flex size-2 rounded-full bg-blue-600 animate-pulse" aria-hidden="true" />
-                  ĐẾM NGƯỢC KỲ THI JLPT {mounted && countdownTime.label ? countdownTime.label : ''}
-                </span>
-                <a
-                  href="/lich-thi"
-                  className="text-[11px] font-semibold text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-0.5"
-                >
-                  <span>Lịch thi</span>
-                  <ChevronRight className="size-3" aria-hidden="true" />
-                </a>
+                  {/* Motivating footer */}
+                  <p className="mt-3 text-[11px] text-center text-slate-500 dark:text-slate-400 font-medium">
+                    💡 Thời gian không chờ đợi, luyện đề ngay hôm nay để bứt phá
+                    điểm số!
+                  </p>
+                </Card>
               </div>
-
-              {/* 4 Digital Timer Blocks with Animated Digit Transitions */}
-              <div className="grid grid-cols-4 gap-2 sm:gap-2.5 text-center">
-                <AnimatedCountdownUnit value={countdownTime.days} label="Ngày" mounted={mounted} />
-                <AnimatedCountdownUnit value={countdownTime.hours} label="Giờ" mounted={mounted} />
-                <AnimatedCountdownUnit value={countdownTime.minutes} label="Phút" mounted={mounted} />
-                <AnimatedCountdownUnit value={countdownTime.seconds} label="Giây" isAccent mounted={mounted} />
-              </div>
-
-              {/* Motivating footer */}
-              <p className="mt-3 text-[11px] text-center text-slate-500 dark:text-slate-400 font-medium">
-                💡 Thời gian không chờ đợi, luyện đề ngay hôm nay để bứt phá điểm số!
-              </p>
-            </Card>
-          </div>
-</>
-)}
-
+            </>
+          )}
         </div>
 
         {/* Integrated Search Filter Card Slot */}
