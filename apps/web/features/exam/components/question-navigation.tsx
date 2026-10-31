@@ -116,7 +116,7 @@ export function QuestionNavigation({
         ) : (
           <Button
             type="button"
-            variant="success"
+            variant="primary"
             onClick={onRequestSubmit}
             aria-label="Hoàn tất bài làm và nộp bài"
             className="flex items-center gap-2 px-6 py-2.5 min-h-[44px] rounded-xl font-bold text-sm shadow-md"

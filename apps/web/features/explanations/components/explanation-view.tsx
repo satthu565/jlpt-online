@@ -67,7 +67,7 @@ export function ExplanationView({
       {/* Header with approved badge, bookmark and report buttons */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-subtle)] pb-3">
         <div className="flex items-center gap-2">
-          <Badge variant="primary" className="flex items-center gap-1 font-bold uppercase tracking-wider text-xs">
+          <Badge variant="success" className="flex items-center gap-1 font-bold uppercase tracking-wider text-xs">
             <Check className="size-3" />
             <span>Lời giải thích đã duyệt</span>
           </Badge>

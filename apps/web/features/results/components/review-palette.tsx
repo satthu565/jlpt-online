@@ -72,11 +72,15 @@ export function ReviewPalette({
             key={f.id}
             type="button"
             size="sm"
-            variant={activeFilter === f.id ? 'primary' : 'ghost'}
+            variant="ghost"
             role="tab"
             aria-selected={activeFilter === f.id}
             onClick={() => onFilterChange(f.id)}
-            className="px-2.5 py-1 text-xs font-semibold flex items-center gap-1 min-h-[32px] h-8"
+            className={`px-2.5 py-1 text-xs font-semibold flex items-center gap-1 min-h-[32px] h-8 ${
+              activeFilter === f.id
+                ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+            }`}
           >
             <span>{f.label}</span>
             <span className="text-[10px] opacity-75 font-mono font-bold">({f.count})</span>

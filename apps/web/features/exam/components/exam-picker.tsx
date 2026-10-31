@@ -110,10 +110,14 @@ export function ExamPicker({
                 key={lvl}
                 type="button"
                 size="sm"
-                variant={selectedLevel === lvl ? 'primary' : 'ghost'}
+                variant="ghost"
                 onClick={() => setSelectedLevel(lvl)}
                 aria-pressed={selectedLevel === lvl}
-                className="px-3 py-1 text-xs font-semibold min-h-[36px]"
+                className={`px-3 py-1 text-xs font-semibold min-h-[36px] ${
+                  selectedLevel === lvl
+                    ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                }`}
               >
                 {lvl === 'ALL' ? 'Tất cả' : lvl}
               </Button>
