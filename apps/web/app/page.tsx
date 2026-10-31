@@ -94,10 +94,12 @@ function AnimatedCountdownUnit({
   value,
   label,
   isAccent = false,
+  mounted = true,
 }: {
   value: number;
   label: string;
   isAccent?: boolean;
+  mounted?: boolean;
 }): React.JSX.Element {
   const digits = String(value).padStart(2, '0').split('');
   const textClass = isAccent
@@ -113,11 +115,15 @@ function AnimatedCountdownUnit({
       }`}
     >
       <div className="relative h-8 sm:h-9 overflow-hidden flex items-center justify-center">
-        <div className="flex items-center justify-center font-mono text-2xl sm:text-3xl font-black tracking-tight leading-none">
+        <div
+          suppressHydrationWarning
+          className="flex items-center justify-center font-mono text-2xl sm:text-3xl font-black tracking-tight leading-none"
+        >
           {digits.map((digit, idx) => (
             <span
-              key={`${idx}-${digit}`}
-              className={`inline-block animate-digit-flip ${textClass}`}
+              key={mounted ? `${idx}-${digit}` : `${idx}-initial`}
+              suppressHydrationWarning
+              className={`inline-block ${mounted ? 'animate-digit-flip' : ''} ${textClass}`}
             >
               {digit}
             </span>
@@ -203,9 +209,18 @@ export default function HomePage(): React.JSX.Element {
     return { days, hours, minutes, seconds, label };
   }, []);
 
-  const [countdownTime, setCountdownTime] = useState(getNextJlptTime);
+  const [mounted, setMounted] = useState(false);
+  const [countdownTime, setCountdownTime] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    label: '',
+  });
 
   useEffect(() => {
+    setMounted(true);
+    setCountdownTime(getNextJlptTime());
     const timer = setInterval(() => {
       setCountdownTime(getNextJlptTime());
     }, 1000);
@@ -504,7 +519,7 @@ export default function HomePage(): React.JSX.Element {
                 <div className="flex items-center justify-between gap-3 mb-3.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
                   <span className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wide">
                     <span className="flex size-2 rounded-full bg-blue-600 animate-pulse" aria-hidden="true" />
-                    ĐẾM NGƯỢC KỲ THI JLPT {countdownTime.label}
+                    ĐẾM NGƯỢC KỲ THI JLPT {mounted && countdownTime.label ? countdownTime.label : ''}
                   </span>
                   <a
                     href="/lich-thi"
@@ -517,10 +532,10 @@ export default function HomePage(): React.JSX.Element {
 
                 {/* 4 Digital Timer Blocks with Animated Digit Transitions */}
                 <div className="grid grid-cols-4 gap-2 sm:gap-2.5 text-center">
-                  <AnimatedCountdownUnit value={countdownTime.days} label="Ngày" />
-                  <AnimatedCountdownUnit value={countdownTime.hours} label="Giờ" />
-                  <AnimatedCountdownUnit value={countdownTime.minutes} label="Phút" />
-                  <AnimatedCountdownUnit value={countdownTime.seconds} label="Giây" isAccent />
+                  <AnimatedCountdownUnit value={countdownTime.days} label="Ngày" mounted={mounted} />
+                  <AnimatedCountdownUnit value={countdownTime.hours} label="Giờ" mounted={mounted} />
+                  <AnimatedCountdownUnit value={countdownTime.minutes} label="Phút" mounted={mounted} />
+                  <AnimatedCountdownUnit value={countdownTime.seconds} label="Giây" isAccent mounted={mounted} />
                 </div>
 
                 {/* Motivating footer */}
