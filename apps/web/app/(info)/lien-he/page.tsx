@@ -9,6 +9,7 @@ import { Button } from '@jlpt/ui/components/button';
 import { Alert } from '@jlpt/ui/components/alert';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
 import { Textarea } from '@jlpt/ui/components/textarea';
+import { ExamHero } from '../../../features/library';
 import { useI18n } from '../../../lib/i18n';
 
 export default function ContactPage(): React.JSX.Element {
@@ -72,25 +73,24 @@ export default function ContactPage(): React.JSX.Element {
   };
 
   return (
-    <div className="container py-8 space-y-6" data-testid="contact-page">
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60" data-testid="contact-page">
       <JsonLd id="contact-breadcrumbs" data={breadcrumbs} />
 
-      {/* Breadcrumbs */}
-      <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
-        <span className="text-slate-900 dark:text-slate-100 font-semibold">Liên hệ hỗ trợ</span>
-      </nav>
+      <ExamHero
+        title={t('seo.contact.title')}
+        subtitle={t('seo.contact.subtitle')}
+        minimal
+        background="gradient"
+      />
 
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-          {t('seo.contact.title')}
-        </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-          {t('seo.contact.subtitle')}
-        </p>
-      </div>
+      <div className="container py-8 space-y-6">
+        {/* Breadcrumbs */}
+        <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
+          <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
+          <span className="text-slate-900 dark:text-slate-100 font-semibold">Liên hệ hỗ trợ</span>
+        </nav>
 
-      <Card className="p-6 md:p-8 border border-slate-200 dark:border-slate-800 space-y-6">
+        <Card className="p-6 md:p-8 border border-slate-200 dark:border-slate-800 space-y-6">
         {success && (
           <Alert variant="success" className="text-sm" data-testid="contact-success-alert">
             <CircleCheck className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('seo.contact.successNotice')}
@@ -181,5 +181,6 @@ export default function ContactPage(): React.JSX.Element {
         </form>
       </Card>
     </div>
-  );
+  </div>
+);
 }
