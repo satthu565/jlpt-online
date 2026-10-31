@@ -220,3 +220,28 @@ export const AttemptSummarySchema = z.object({
   passed: z.boolean().nullable(),
 });
 export type AttemptSummary = z.infer<typeof AttemptSummarySchema>;
+
+export const GuestAttemptInitInputSchema = z.object({
+  examId: z.string().uuid(),
+  mode: AttemptModeSchema.default('real'),
+});
+export type GuestAttemptInitInput = z.infer<typeof GuestAttemptInitInputSchema>;
+
+export const GuestAttemptSubmitInputSchema = z.object({
+  examId: z.string().uuid(),
+  answers: z.array(z.number().int().min(0).max(4)),
+  flags: z.array(z.number().int().min(0).max(1)).optional(),
+  timeSpentMs: z.array(z.number().int().nonnegative()).optional(),
+  version: z.number().int().positive().optional(),
+});
+export type GuestAttemptSubmitInput = z.infer<typeof GuestAttemptSubmitInputSchema>;
+
+export const GuestAttemptSubmitResponseSchema = z.object({
+  result: ResultSchema,
+  correct: z.array(z.number().int().min(0).max(4)),
+  answers: z.array(z.number().int().min(0).max(4)),
+  flags: z.array(z.number().int().min(0).max(1)),
+  snapshotUrl: z.string().url(),
+  mediaToken: z.string(),
+});
+export type GuestAttemptSubmitResponse = z.infer<typeof GuestAttemptSubmitResponseSchema>;

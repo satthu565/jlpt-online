@@ -18,6 +18,7 @@ export interface ExamSyncEngineOptions {
   maxWaitMs?: number;  // Default 10000ms (10 seconds max wait)
   onSyncStateChange?: (state: SyncState, meta?: { lastAckedSeq: number; currentSeq: number; error?: string }) => void;
   onLeaseConflict?: () => void;
+  isLocalOnly?: boolean;
 }
 
 export class ExamSyncEngine {
@@ -26,6 +27,7 @@ export class ExamSyncEngine {
   private lease: string;
   private storage: ExamStorageAdapter;
   private apiClient: ExamApiClient;
+  private isLocalOnly: boolean;
 
   private answers: number[];
   private flags: number[];
@@ -61,6 +63,7 @@ export class ExamSyncEngine {
     this.storage = options.storage;
     this.apiClient = options.apiClient;
     this.getContext = options.getContext;
+    this.isLocalOnly = options.isLocalOnly ?? false;
 
     this.answers = options.initialAnswers ? [...options.initialAnswers] : [];
     this.flags = options.initialFlags ? [...options.initialFlags] : [];
@@ -316,6 +319,14 @@ export class ExamSyncEngine {
     this.inFlight = true;
     this.hasPendingChanges = false;
     this.updateSyncState('saving');
+
+    if (this.isLocalOnly) {
+      this.lastAckedSeq = syncSeq;
+      await this.storage.markOutboxAcked(this.attemptId, syncSeq);
+      this.inFlight = false;
+      this.updateSyncState('saved');
+      return;
+    }
 
     try {
       // Fetch pending outbox from IndexedDB to send changes delta

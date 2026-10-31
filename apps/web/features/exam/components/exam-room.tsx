@@ -44,6 +44,7 @@ export interface ExamRoomProps {
   serverOffsetMs?: number;
   initialZenMode?: boolean;
   initialConflictModalOpen?: boolean;
+  isGuest?: boolean;
   storage: ExamStorageAdapter;
   apiClient: ExamApiClient;
   onFinish?: (result?: unknown) => void;
@@ -67,12 +68,14 @@ export function ExamRoom({
   serverOffsetMs = 0,
   initialZenMode = false,
   initialConflictModalOpen = false,
+  isGuest: isGuestProp,
   storage,
   apiClient,
   onFinish,
   onExit,
   className = '',
 }: ExamRoomProps): React.JSX.Element {
+  const isGuest = isGuestProp ?? (attemptId.startsWith('guest-') || attemptId.includes('guest'));
   const { t } = useI18n();
   const totalQuestions = snapshot.totalQuestions;
   const roomRef = useRef<HTMLDivElement>(null);
@@ -233,6 +236,32 @@ export function ExamRoom({
   const syncContext = useRef({ mode, currentSection: currentSectionIndex, sectionDeadlines: deadlines });
   syncContext.current = { mode, currentSection: currentSectionIndex, sectionDeadlines: deadlines };
 
+  const persistGuestProgress = (
+    updatedAnswers = answersRef.current,
+    updatedFlags = flagsRef.current,
+    updatedSection = currentSectionIndex,
+    updatedDeadlines = deadlines,
+  ) => {
+    if (!isGuest || typeof window === 'undefined') return;
+    try {
+      const guestSession = {
+        attemptId,
+        examId: snapshot.examId,
+        mode,
+        snapshot,
+        currentSection: updatedSection,
+        answers: [...updatedAnswers],
+        flags: [...updatedFlags],
+        sectionDeadlines: updatedDeadlines,
+        startedAt: sectionStartTimes[0] || initialServerNow,
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('jlpt_guest_active_attempt', JSON.stringify(guestSession));
+    } catch {
+      // ignore storage error
+    }
+  };
+
   useEffect(() => {
     const engine = new ExamSyncEngine({
       attemptId,
@@ -242,6 +271,7 @@ export function ExamRoom({
       initialFlags: flags,
       initialSeq,
       initialLastAckedSeq,
+      isLocalOnly: isGuest,
       getContext: () => syncContext.current,
       storage,
       apiClient,
@@ -286,6 +316,7 @@ export function ExamRoom({
     if (engineRef.current) {
       await engineRef.current.recordAnswerChange(index, optionValue).catch(() => setSyncState('local_error'));
     }
+    persistGuestProgress(newAnswers, flagsRef.current);
   };
 
   // Flag toggle handler
@@ -304,6 +335,7 @@ export function ExamRoom({
     if (engineRef.current) {
       await engineRef.current.recordFlagChange(index, newFlagged).catch(() => setSyncState('local_error'));
     }
+    persistGuestProgress(answersRef.current, newFlags);
   };
 
   // Question navigation handlers
@@ -351,15 +383,35 @@ export function ExamRoom({
         await engineRef.current.drain();
       }
 
-      const res = await apiClient.nextSection(attemptId, { lease });
+      const nextIdx = currentSectionIndex + 1;
+      let nextDeadline: string;
+      let nextStartedAt: string;
+      let nextServerNow: string;
+
+      if (isGuest) {
+        const nextSecMeta = snapshot.sections[nextIdx];
+        const nextSecDuration = nextSecMeta?.durationSec ?? 3600;
+        nextDeadline = new Date(Date.now() + nextSecDuration * 1000).toISOString();
+        nextStartedAt = new Date().toISOString();
+        nextServerNow = new Date().toISOString();
+      } else {
+        const res = await apiClient.nextSection(attemptId, { lease });
+        nextDeadline = res.deadline;
+        nextStartedAt = res.startedAt;
+        nextServerNow = res.serverNow;
+      }
 
       setLockedSections((prev) => [...prev, currentSectionIndex]);
 
-      const nextIdx = res.sectionIndex;
       setCurrentSectionIndex(nextIdx);
-      setDeadlines((prev) => ({ ...prev, [nextIdx]: res.deadline }));
-      setSectionStartTimes((prev) => ({ ...prev, [nextIdx]: res.startedAt }));
-      setServerNow(res.serverNow);
+      const updatedDeadlines = { ...deadlines, [nextIdx]: nextDeadline };
+      setDeadlines(updatedDeadlines);
+      setSectionStartTimes((prev) => ({ ...prev, [nextIdx]: nextStartedAt }));
+      setServerNow(nextServerNow);
+
+      if (isGuest) {
+        persistGuestProgress(answersRef.current, flagsRef.current, nextIdx, updatedDeadlines);
+      }
 
       const nextSectionMeta = snapshot.sections[nextIdx];
       if (nextSectionMeta) {
@@ -397,13 +449,43 @@ export function ExamRoom({
       }
       const finalTimeSpentMs = [...questionTimesRef.current];
 
-      const res = await apiClient.submitAttempt(attemptId, {
-        lease,
-        seq: (engineRef.current?.getCurrentSeq() ?? 0) + 1,
-        answers,
-        flags,
-        timeSpentMs: finalTimeSpentMs,
-      });
+      let res;
+      if (isGuest) {
+        res = await apiClient.submitGuestAttempt({
+          examId: snapshot.examId,
+          answers,
+          flags,
+          timeSpentMs: finalTimeSpentMs,
+        });
+
+        if (typeof window !== 'undefined') {
+          try {
+            const guestReviewData = {
+              attemptId,
+              examId: snapshot.examId,
+              mode,
+              snapshot,
+              answers,
+              flags,
+              correct: res.correct,
+              result: res.result,
+              submittedAt: new Date().toISOString(),
+            };
+            localStorage.setItem(`jlpt_guest_review_${attemptId}`, JSON.stringify(guestReviewData));
+            localStorage.removeItem('jlpt_guest_active_attempt');
+          } catch {
+            // ignore storage quota error
+          }
+        }
+      } else {
+        res = await apiClient.submitAttempt(attemptId, {
+          lease,
+          seq: (engineRef.current?.getCurrentSeq() ?? 0) + 1,
+          answers,
+          flags,
+          timeSpentMs: finalTimeSpentMs,
+        });
+      }
 
       await storage.clearAttempt(attemptId);
 

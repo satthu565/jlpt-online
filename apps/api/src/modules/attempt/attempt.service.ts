@@ -9,7 +9,7 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
-import { eq, and, sql, desc, isNull, gte } from 'drizzle-orm';
+import { eq, and, sql, desc, isNull } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
@@ -45,6 +45,9 @@ import type {
   AttemptStatus,
   AttemptMode,
   Result,
+  GuestAttemptInitInput,
+  GuestAttemptSubmitInput,
+  GuestAttemptSubmitResponse,
 } from '@jlpt/schema';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
@@ -120,9 +123,9 @@ export class AttemptService {
   async createAttempt(
     input: AttemptInitInput,
     user?: AuthUserContext,
-    guestId?: string,
-    turnstileToken?: string,
-    clientIp?: string,
+    _guestId?: string,
+    _turnstileToken?: string,
+    _clientIp?: string,
   ): Promise<AttemptInitResponse> {
     const db = this.dbClient.db;
 
@@ -159,7 +162,7 @@ export class AttemptService {
 
     // 3. User verification and Guest policy check (Acceptance 5)
     let effectiveUserId: string | null = null;
-    let effectiveGuestId: string | null = null;
+    const effectiveGuestId: string | null = null;
 
     if (user) {
       // Registered user must have email verified (T1.3.2, T1.5.2)
@@ -201,37 +204,10 @@ export class AttemptService {
         });
       }
 
-      // Verify Turnstile for guest trial (T1.5.13)
-      if (turnstileToken) {
-        const turnstileRes = await this.turnstileService.verifyToken(turnstileToken, clientIp);
-        if (!turnstileRes.success) {
-          throw new BadRequestException({
-            code: 'TURNSTILE_FAILED',
-            message: 'Xác thực Turnstile không thành công.',
-          });
-        }
-      }
-
-      effectiveGuestId = guestId || crypto.randomUUID();
-
-      // Check guest daily limit: max 3 attempts per day per guestId (T1.5.13)
-      const oneDayAgo = new Date(Date.now() - 24 * 3600 * 1000);
-      const [guestCountRes] = await db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(schema.examAttempts)
-        .where(
-          and(
-            eq(schema.examAttempts.guestId, effectiveGuestId),
-            gte(schema.examAttempts.startedAt, oneDayAgo),
-          ),
-        );
-
-      if ((guestCountRes?.count ?? 0) >= 3) {
-        throw new ForbiddenException({
-          code: 'RATE_LIMITED',
-          message: 'Khách làm thử tối đa 3 lượt thi mỗi ngày. Vui lòng đăng ký tài khoản để tiếp tục.',
-        });
-      }
+      throw new ForbiddenException({
+        code: 'GUEST_ATTEMPT_DEPRECATED',
+        message: 'Khách làm bài không còn lưu trên máy chủ. Vui lòng sử dụng luồng làm bài trực tiếp của khách (/api/v1/guest/attempts).',
+      });
     }
 
     // 4. Calculate total exam duration from sections
@@ -320,6 +296,12 @@ export class AttemptService {
     user?: AuthUserContext,
     guestId?: string,
   ): Promise<NextSectionResponse> {
+    if (!user) {
+      throw new UnauthorizedException({
+        code: 'AUTH_REQUIRED',
+        message: 'Thao tác yêu cầu đăng nhập tài khoản học viên.',
+      });
+    }
     const db = this.dbClient.db;
     const attempt = await this.getAttemptAndVerifyOwnership(attemptId, user, guestId);
 
@@ -429,6 +411,12 @@ export class AttemptService {
     user?: AuthUserContext,
     guestId?: string,
   ): Promise<AnswerSheetAck> {
+    if (!user) {
+      throw new UnauthorizedException({
+        code: 'AUTH_REQUIRED',
+        message: 'Thao tác yêu cầu đăng nhập tài khoản học viên.',
+      });
+    }
     const db = this.dbClient.db;
     const attempt = await this.getAttemptAndVerifyOwnership(attemptId, user, guestId);
 
@@ -567,6 +555,12 @@ export class AttemptService {
     user?: AuthUserContext,
     guestId?: string,
   ): Promise<AttemptSubmitResponse> {
+    if (!user) {
+      throw new UnauthorizedException({
+        code: 'AUTH_REQUIRED',
+        message: 'Thao tác yêu cầu đăng nhập tài khoản học viên.',
+      });
+    }
     const db = this.dbClient.db;
     const attempt = await this.getAttemptAndVerifyOwnership(attemptId, user, guestId);
 
@@ -610,6 +604,12 @@ export class AttemptService {
     user?: AuthUserContext,
     guestId?: string,
   ): Promise<ResumeAttemptResponse> {
+    if (!user) {
+      throw new UnauthorizedException({
+        code: 'AUTH_REQUIRED',
+        message: 'Thao tác yêu cầu đăng nhập tài khoản học viên.',
+      });
+    }
     const db = this.dbClient.db;
     const attempt = await this.getAttemptAndVerifyOwnership(attemptId, user, guestId);
 
@@ -852,6 +852,12 @@ export class AttemptService {
     user?: AuthUserContext,
     guestId?: string,
   ): Promise<CheckAnswerResponse> {
+    if (!user) {
+      throw new UnauthorizedException({
+        code: 'AUTH_REQUIRED',
+        message: 'Thao tác yêu cầu đăng nhập tài khoản học viên.',
+      });
+    }
     const db = this.dbClient.db;
     const attempt = await this.getAttemptAndVerifyOwnership(attemptId, user, guestId);
 
@@ -1047,5 +1053,198 @@ export class AttemptService {
     }
 
     return attempt;
+  }
+
+  /**
+   * Initializes a guest trial attempt without persisting any data to database.
+   * Fully in-memory & stateless on the server side.
+   */
+  async initGuestAttempt(
+    input: GuestAttemptInitInput,
+    turnstileToken?: string,
+    clientIp?: string,
+  ): Promise<AttemptInitResponse> {
+    const db = this.dbClient.db;
+
+    // 1. Fetch exam
+    const [exam] = await db
+      .select()
+      .from(schema.exams)
+      .where(and(eq(schema.exams.id, input.examId), isNull(schema.exams.deletedAt)))
+      .limit(1);
+
+    if (!exam) {
+      throw new NotFoundException({
+        code: 'NOT_FOUND',
+        message: 'Đề thi không tồn tại hoặc đã bị xóa.',
+      });
+    }
+
+    // 2. Fetch latest published exam version
+    const versionNum = exam.publishedVersion ?? 1;
+    const [ev] = await db
+      .select()
+      .from(schema.examVersions)
+      .where(and(eq(schema.examVersions.examId, exam.id), eq(schema.examVersions.version, versionNum)))
+      .limit(1);
+
+    if (!ev) {
+      throw new NotFoundException({
+        code: 'NOT_FOUND',
+        message: `Phiên bản xuất bản của đề thi ${exam.id} không tồn tại.`,
+      });
+    }
+
+    const isGuestTrial = this.isExamGuestTrialEligible(exam, ev.scoring as Record<string, unknown>);
+    if (!isGuestTrial) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHENTICATED',
+        message: 'Khách chỉ được phép làm thử các đề thi có gắn cờ guest_trial. Vui lòng đăng nhập.',
+      });
+    }
+
+    // Verify Turnstile for guest trial if provided
+    if (turnstileToken) {
+      const turnstileRes = await this.turnstileService.verifyToken(turnstileToken, clientIp);
+      if (!turnstileRes.success) {
+        throw new BadRequestException({
+          code: 'TURNSTILE_FAILED',
+          message: 'Xác thực Turnstile không thành công.',
+        });
+      }
+    }
+
+    // 3. Calculate total exam duration from sections
+    const sections = await db
+      .select()
+      .from(schema.examSections)
+      .where(eq(schema.examSections.examId, exam.id))
+      .orderBy(schema.examSections.orderIndex);
+
+    const totalDurationSec =
+      sections.reduce((acc: number, s: typeof schema.examSections.$inferSelect) => acc + s.durationSec, 0) || 3600;
+
+    const attemptId = generateUuidV7();
+    const lease = crypto.randomUUID();
+    const now = new Date();
+    const nowUnixSec = Math.floor(now.getTime() / 1000);
+
+    const mediaTokenExp = generateAttemptTokenExp(totalDurationSec, nowUnixSec);
+    const mediaToken = await signMediaToken(
+      {
+        a: attemptId,
+        e: exam.id,
+        v: versionNum,
+        k: 'attempt',
+        exp: mediaTokenExp,
+      },
+      this.mediaSecret,
+    );
+
+    const snapshotUrl = buildMediaSnapshotUrl(this.getMediaBaseUrl(), exam.id, versionNum, mediaToken);
+
+    // ZERO DB WRITES - everything stays client side
+    return {
+      attemptId,
+      lease,
+      serverNow: now.toISOString(),
+      snapshotUrl,
+      mediaToken,
+      mediaTokenExp,
+      status: 'in_progress',
+      currentSection: null,
+    };
+  }
+
+  /**
+   * Evaluates guest answers once without persisting any attempt or sheet to database.
+   * Returns identical scoring result and review data (correct answers, snapshot & review media token).
+   */
+  async submitGuestAttempt(
+    input: GuestAttemptSubmitInput,
+  ): Promise<GuestAttemptSubmitResponse> {
+    const db = this.dbClient.db;
+
+    // 1. Fetch exam
+    const [exam] = await db
+      .select()
+      .from(schema.exams)
+      .where(and(eq(schema.exams.id, input.examId), isNull(schema.exams.deletedAt)))
+      .limit(1);
+
+    if (!exam) {
+      throw new NotFoundException({
+        code: 'NOT_FOUND',
+        message: 'Đề thi không tồn tại hoặc đã bị xóa.',
+      });
+    }
+
+    const versionNum = input.version || exam.publishedVersion || 1;
+    const [ev] = await db
+      .select()
+      .from(schema.examVersions)
+      .where(and(eq(schema.examVersions.examId, exam.id), eq(schema.examVersions.version, versionNum)))
+      .limit(1);
+
+    if (!ev) {
+      throw new NotFoundException({
+        code: 'NOT_FOUND',
+        message: `Phiên bản xuất bản của đề thi ${exam.id} không tồn tại.`,
+      });
+    }
+
+    const isGuestTrial = this.isExamGuestTrialEligible(exam, ev.scoring as Record<string, unknown>);
+    if (!isGuestTrial) {
+      throw new UnauthorizedException({
+        code: 'UNAUTHENTICATED',
+        message: 'Khách chỉ được phép làm thử các đề thi có gắn cờ guest_trial. Vui lòng đăng nhập.',
+      });
+    }
+
+    // 2. Reuse standard scoring service without rewriting any scoring logic
+    const scoredResult = await this.scoringService.scoreAttempt(
+      exam.id,
+      versionNum,
+      input.answers,
+    );
+
+    // 3. Fetch certified answer key for review (only returned AFTER submission)
+    const { answerKey } = await this.scoringService.getExamScoringData(exam.id, versionNum);
+
+    // 4. Generate review media token & snapshot URL
+    const nowUnixSec = Math.floor(Date.now() / 1000);
+    const mediaTokenExp = generateReviewTokenExp(nowUnixSec);
+    const mediaToken = await signMediaToken(
+      {
+        a: 'guest-review',
+        e: exam.id,
+        v: versionNum,
+        k: 'review',
+        exp: mediaTokenExp,
+      },
+      this.mediaSecret,
+    );
+
+    const snapshotUrl = buildMediaSnapshotUrl(
+      this.getMediaBaseUrl(),
+      exam.id,
+      versionNum,
+      mediaToken,
+    );
+
+    const resultWithPacing = {
+      ...scoredResult,
+      timeSpentMs: input.timeSpentMs ?? [],
+    } as unknown as Result;
+
+    // ZERO DB WRITES
+    return {
+      result: resultWithPacing,
+      correct: answerKey.keys,
+      answers: input.answers,
+      flags: input.flags ?? [],
+      snapshotUrl,
+      mediaToken,
+    };
   }
 }

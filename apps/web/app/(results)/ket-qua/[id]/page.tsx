@@ -32,6 +32,23 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
         setLoading(true);
         setErrorInfo(null);
 
+        // 0. Check local guest review data first (in-browser guest attempts)
+        if (typeof window !== 'undefined') {
+          try {
+            const raw = localStorage.getItem(`jlpt_guest_review_${attemptId}`);
+            if (raw) {
+              const guestData = JSON.parse(raw) as AttemptReviewData;
+              if (guestData && guestData.snapshot && guestData.result) {
+                setReviewData(guestData);
+                setLoading(false);
+                return;
+              }
+            }
+          } catch {
+            // ignore and fallback to API
+          }
+        }
+
         // 1. Fetch review data from API
         const reviewRes = await client.reviewAttempt(attemptId);
         if (!isMounted) return;

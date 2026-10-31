@@ -16,6 +16,9 @@ import type {
   ExamSummary,
   ExamDetailPublic,
   PublicExamSnapshot,
+  GuestAttemptInitInput,
+  GuestAttemptSubmitInput,
+  GuestAttemptSubmitResponse,
 } from '@jlpt/schema';
 
 export interface ExamApiOptions {
@@ -126,6 +129,14 @@ export class ExamApiClient {
 
   async initAttempt(input: AttemptInitInput): Promise<AttemptInitResponse> {
     return this.request<AttemptInitResponse>('/attempts', 'POST', input);
+  }
+
+  async initGuestAttempt(input: GuestAttemptInitInput): Promise<AttemptInitResponse> {
+    return this.request<AttemptInitResponse>('/guest/attempts', 'POST', input);
+  }
+
+  async submitGuestAttempt(input: GuestAttemptSubmitInput): Promise<GuestAttemptSubmitResponse> {
+    return this.request<GuestAttemptSubmitResponse>('/guest/attempts/submit', 'POST', input);
   }
 
   async resumeAttempt(attemptId: string, lease?: string): Promise<ResumeAttemptResponse> {

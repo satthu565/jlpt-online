@@ -13,6 +13,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { AllowGuest } from '../../common/decorators/allow-guest.decorator.js';
+import { Public } from '../../common/decorators/public.decorator.js';
 import { CurrentUser, CurrentGuestId } from '../../common/decorators/current-user.decorator.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
 import { AttemptService } from './attempt.service.js';
@@ -22,6 +23,8 @@ import {
   AnswerSheetUpdateInputSchema,
   AttemptSubmitInputSchema,
   CheckAnswerInputSchema,
+  GuestAttemptInitInputSchema,
+  GuestAttemptSubmitInputSchema,
 } from '@jlpt/schema';
 import { RateLimit } from '../../common/decorators/rate-limit.decorator.js';
 
@@ -176,5 +179,29 @@ export class AttemptController {
     }
     const count = await this.attemptService.attachGuestAttempts(user.userId, targetGuestId);
     return { attachedCount: count };
+  }
+
+  @Post('guest/attempts')
+  @HttpCode(HttpStatus.CREATED)
+  @Public()
+  @RateLimit({ limit: 120, windowSec: 60 })
+  async initGuestAttempt(
+    @Body() body: unknown,
+    @Headers('cf-turnstile-response') turnstileHeader?: string,
+    @Ip() clientIp?: string,
+  ) {
+    const input = GuestAttemptInitInputSchema.parse(body);
+    const turnstileToken =
+      turnstileHeader || ((body as Record<string, unknown>)?.['turnstileToken'] as string | undefined);
+    return this.attemptService.initGuestAttempt(input, turnstileToken, clientIp);
+  }
+
+  @Post('guest/attempts/submit')
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  @RateLimit({ limit: 120, windowSec: 60 })
+  async submitGuestAttempt(@Body() body: unknown) {
+    const input = GuestAttemptSubmitInputSchema.parse(body);
+    return this.attemptService.submitGuestAttempt(input);
   }
 }
