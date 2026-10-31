@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/ca
 import { Badge } from '@jlpt/ui/components/badge';
 import { Button } from '@jlpt/ui/components/button';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
+import { ExamHero } from '../../../features/library';
 
 export interface LevelPageProps {
   params: Promise<{ level: string }>;
@@ -212,34 +213,20 @@ export default async function LevelIntroductionPage({ params }: LevelPageProps):
   };
 
   return (
-    <div className="container py-8 space-y-8" data-testid="level-intro-page">
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60" data-testid="level-intro-page">
       {/* Structured data JSON-LD */}
       <JsonLd id={`course-schema-${normalized}`} data={courseStructuredData} />
       <JsonLd id={`breadcrumb-schema-${normalized}`} data={breadcrumbStructuredData} />
 
-      {/* Breadcrumbs */}
-      <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
-        <span className="text-slate-900 dark:text-slate-100 font-semibold">{detail.code}</span>
-      </nav>
-
       {/* Hero Level Banner */}
-      <div className="p-8 rounded-3xl bg-surface border border-slate-200 dark:border-slate-800 space-y-4">
-        <div className="flex items-center gap-2">
-          <Badge variant={detail.color} size="md">
-            JLPT {detail.code}
-          </Badge>
-          <span className="text-xs text-slate-400">Tiêu chuẩn quốc tế JEES & Japan Foundation</span>
-        </div>
-        <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-          {detail.title}
-        </h1>
-        <p className="text-base text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
-          {detail.description}
-        </p>
-
+      <ExamHero
+        title={detail.title}
+        subtitle={detail.description}
+        minimal
+        background="gradient"
+      >
         {/* CTA Buttons */}
-        <div className="flex flex-wrap gap-3 pt-2">
+        <div className="flex flex-wrap gap-3">
           <a className="no-underline" href={`/${normalized}/de-thi`}>
             <Button size="md" variant="primary" data-testid="level-view-exams-btn">
               <BookOpen className="size-4" aria-hidden="true" /> Xem danh sách đề thi {detail.code}
@@ -251,9 +238,16 @@ export default async function LevelIntroductionPage({ params }: LevelPageProps):
             </Button>
           </a>
         </div>
-      </div>
+      </ExamHero>
 
-      {/* Benchmarks & Key Stats */}
+      <div className="container py-8 space-y-8">
+        {/* Breadcrumbs */}
+        <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
+          <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
+          <span className="text-slate-900 dark:text-slate-100 font-semibold">{detail.code}</span>
+        </nav>
+
+        {/* Benchmarks & Key Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-testid="level-stats-grid">
         <Card className="p-5 border border-slate-200 dark:border-slate-800">
           <span className="text-xs font-bold text-slate-400 block uppercase tracking-wider">
@@ -331,6 +325,7 @@ export default async function LevelIntroductionPage({ params }: LevelPageProps):
           ))}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
