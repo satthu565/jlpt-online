@@ -55,6 +55,26 @@ describe('Brand Logo & Mascot Assets (Gokakuya.com & JLPT Online)', () => {
     expect(html).not.toContain('mascot-96.png');
   });
 
+  it('renders NavigationHeader with active pill styling and outline icons for all nav items', () => {
+    const html = renderWithI18n(<NavigationHeader />);
+
+    // Outline icons for each menu item
+    expect(html).toContain('lucide-house');
+    expect(html).toContain('lucide-file-text');
+    expect(html).toContain('lucide-book-open');
+    expect(html).toContain('lucide-chart-no-axes-column');
+    expect(html).toContain('lucide-book-text');
+    expect(html).toContain('lucide-notebook-text');
+    expect(html).toContain('lucide-ellipsis');
+    expect(html).toContain('lucide-chevron-down');
+
+    // Default route "/" marks Trang chủ as active with aria-current and brand red pill style
+    expect(html).toContain('aria-current="page"');
+    expect(html).toContain('header-nav-link--active');
+    expect(html).toContain('bg-[var(--nav-active-bg,#FDE8EA)]');
+    expect(html).toContain('text-[var(--nav-active-fg,#D6000F)]');
+  });
+
   it('renders NavigationFooter with logo-v3-footer.webp, fixed dimensions, transparent background, and alt', () => {
     const html = renderWithI18n(<NavigationFooter />);
     expect(html).toContain('src="/images/brand/logo-v3-footer.webp"');

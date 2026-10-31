@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import React from 'react';
+import fs from 'node:fs';
+import path from 'node:path';
+import { House, FileText, Ellipsis } from 'lucide-react';
 import { renderToString } from 'react-dom/server';
 import {
   tokens,
@@ -183,6 +186,53 @@ describe('@jlpt/ui component suite', () => {
     expect(html).toContain('sm:h-12');
     expect(html).toContain('loading="eager"');
     expect(html).toContain('dark:bg-white');
+  });
+
+  it('renders Header with active pill styles, CSS variables, and outline icons', () => {
+    const navItems = [
+      { label: 'Trang chủ', href: '/', active: true, icon: House },
+      { label: 'Thư viện đề', href: '/de-thi', icon: FileText },
+      {
+        label: 'Thêm',
+        icon: Ellipsis,
+        children: [
+          { label: 'Kế hoạch', href: '/ke-hoach', active: false },
+          { label: 'Lịch sử', href: '/lich-su', active: true },
+        ],
+      },
+    ];
+    const html = renderToString(<Header navItems={navItems} brandName="JLPT Online" />);
+
+    // Active item has aria-current="page", active class, and pill background
+    expect(html).toContain('aria-current="page"');
+    expect(html).toContain('header-nav-link--active');
+    expect(html).toContain('bg-[var(--nav-active-bg,#FDE8EA)]');
+    expect(html).toContain('text-[var(--nav-active-fg,#D6000F)]');
+    expect(html).toContain('rounded-xl');
+    expect(html).toContain('min-h-11');
+
+    // Inactive link has transparent background and slate color token
+    expect(html).toContain('text-[var(--nav-inactive-fg,#334155)]');
+
+    // Outline SVG icons with aria-hidden
+    expect(html).toContain('lucide-house');
+    expect(html).toContain('lucide-file-text');
+    expect(html).toContain('aria-hidden="true"');
+
+    // Dropdown trigger "Thêm" has ellipsis icon, label, chevron, and active state because child is active
+    expect(html).toContain('header-nav-dropdown-trigger');
+    expect(html).toContain('lucide-ellipsis');
+    expect(html).toContain('lucide-chevron-down');
+
+    // Stylesheet verifies CSS variables for dark/light modes
+    const cssPath = path.resolve(__dirname, '../src/styles.css');
+    const cssContent = fs.readFileSync(cssPath, 'utf-8');
+    expect(cssContent).toContain('--nav-active-fg: #D6000F');
+    expect(cssContent).toContain('--nav-active-bg: #FDE8EA');
+    expect(cssContent).toContain('--nav-active-fg: #FF6B70');
+    expect(cssContent).toContain('--nav-active-bg: rgba(255, 107, 112, 0.14)');
+    expect(cssContent).toContain('--nav-inactive-fg: #334155');
+    expect(cssContent).toContain('--nav-inactive-fg: #e2e8f0');
   });
 
   it('renders Header fallback letter badge when logoSrc is empty', () => {

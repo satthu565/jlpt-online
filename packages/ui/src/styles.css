@@ -7,31 +7,200 @@
  * Theme: HeroUI v3 (@heroui/styles). HeroUI owns the colour tokens (--background, --surface,
  * --accent, --muted, --border, …) for light and dark mode; the legacy JLPT variables used across
  * the apps (including inline styles) are derived from them so every page follows the theme.
+ * Brand palette: Option C (Balance) - Logo-aligned theme.
+ *   - CTA (Button Primary): Red (#D6000F light, #E5252D dark, white text)
+ *   - Navigation / Links / Selection / Focus / Info: Navy (#0B2A5B light, #8DB1FF dark)
+ *   - Success: Green (#16A34A light, #22C55E dark)
+ *   - Danger / Error: Dark Red (#991B1B light, #7F1D1D dark)
  */
-/* Brand accent: JLPT Online green on top of the HeroUI theme (hover/soft/focus derive from --accent).
-   Light mode uses green-700 so white button text and green links on white reach WCAG AA (about 5:1);
-   green-600 gave 3.2:1 and failed the Lighthouse accessibility budget. Muted text is zinc-600 (HeroUI's
-   default zinc-500 gave 4.2:1 on its grey surfaces). */
-:root {
-  --accent: oklch(0.527 0.154 150.069);
-  --accent-foreground: oklch(1 0 0);
-  --muted: oklch(0.442 0.017 285.786);
-  /* Secondary page text (text-slate-500 / text-gray-500) sits on HeroUI's grey background (#f5f5f5),
-     where Tailwind's 500 shades give 4.36:1; one step darker keeps AA. */
-  --color-slate-500: oklch(0.48 0.041 257.281);
-  --color-gray-500: oklch(0.48 0.027 264.364);
+:root,
+.light,
+[data-theme='light'] {
+  /* Brand Tokens (Option C - Balance) */
+  --brand-navy: #0B2A5B;
+  --brand-navy-soft: #E3EBFA;
+  --brand-red: #D6000F;
+  --link: #0B2A5B;
+  --link-hover: #082046;
+  --selected-bg: #E3EBFA;
+  --selected-fg: #0B2A5B;
+  --hero-from: #E3EBFA;
+  --hero-to: #FFF3F3;
+
+  /* Base & HeroUI theme tokens - Light */
+  --background: #F4F7FC;
+  --foreground: #0B1B3A;
+  --surface: #FFFFFF;
+  --surface-secondary: #EDF2FA;
+  --surface-tertiary: #E3EBFA;
+  --border: #D8E0EE;
+  --separator: #D8E0EE;
+  --border-secondary: #CBD5E1;
+  --muted: #51607F;
+
+  /* CTA (Primary action buttons) - Light */
+  --accent: #D6000F;
+  --accent-foreground: #FFFFFF;
+  --accent-hover: #B8000D;
+  --accent-soft: #FEE2E2;
+  --accent-soft-foreground: #991B1B;
+
+  /* Navigation, Links, Focus ring - Light */
+  --focus: #0B2A5B;
+
+  /* Success (kept green) - Light */
+  --success: #16A34A;
+  --success-foreground: #FFFFFF;
+  --success-hover: #15803D;
+  --success-soft: #DCFCE7;
+  --success-soft-foreground: #15803D;
+
+  /* Danger / Error (dark red, separate from CTA) - Light */
+  --danger: #991B1B;
+  --danger-foreground: #FFFFFF;
+  --danger-hover: #7F1D1D;
+  --danger-soft: #FEE2E2;
+  --danger-soft-foreground: #991B1B;
+
+  /* Secondary page text (text-slate-500 / text-gray-500) contrast */
+  --color-slate-500: #51607F;
+  --color-gray-500: #51607F;
+
+  /* Tailwind v4 Navy scale - Light */
+  --color-blue-50: #E3EBFA;
+  --color-blue-100: #CDDCF7;
+  --color-blue-200: #A7C2F0;
+  --color-blue-300: #7EA4E7;
+  --color-blue-400: #4B82DD;
+  --color-blue-500: #1E58B8;
+  --color-blue-600: #0B2A5B;
+  --color-blue-700: #082046;
+  --color-blue-800: #061835;
+  --color-blue-900: #051227;
+  --color-blue-950: #030A17;
+
+  /* Tailwind v4 Indigo scale mapped to navy */
+  --color-indigo-50: var(--color-blue-50);
+  --color-indigo-100: var(--color-blue-100);
+  --color-indigo-200: var(--color-blue-200);
+  --color-indigo-300: var(--color-blue-300);
+  --color-indigo-400: var(--color-blue-400);
+  --color-indigo-500: var(--color-blue-500);
+  --color-indigo-600: var(--color-blue-600);
+  --color-indigo-700: var(--color-blue-700);
+  --color-indigo-800: var(--color-blue-800);
+  --color-indigo-900: var(--color-blue-900);
+  --color-indigo-950: var(--color-blue-950);
+
+  /* Tailwind v4 Sky scale mapped to navy */
+  --color-sky-50: var(--color-blue-50);
+  --color-sky-100: var(--color-blue-100);
+  --color-sky-200: var(--color-blue-200);
+  --color-sky-300: var(--color-blue-300);
+  --color-sky-400: var(--color-blue-400);
+  --color-sky-500: var(--color-blue-500);
+  --color-sky-600: var(--color-blue-600);
+  --color-sky-700: var(--color-blue-700);
+  --color-sky-800: var(--color-blue-800);
+  --color-sky-900: var(--color-blue-900);
+  --color-sky-950: var(--color-blue-950);
 }
+
 .dark,
 [data-theme='dark'] {
-  --accent: oklch(0.723 0.219 149.579);
-  --accent-foreground: oklch(0.21 0.006 285.885);
-  /* HeroUI and Tailwind defaults: on dark backgrounds the lighter shades read better. */
-  --muted: oklch(70.5% 0.015 286.067);
-  --color-slate-500: oklch(0.554 0.046 257.417);
-  --color-gray-500: oklch(0.551 0.027 264.364);
+  /* Brand Tokens (Option C - Balance) */
+  --brand-navy: #8DB1FF;
+  --brand-navy-soft: #172544;
+  --brand-red: #E5252D;
+  --link: #8DB1FF;
+  --link-hover: #ADC8FF;
+  --selected-bg: #1B2C52;
+  --selected-fg: #8DB1FF;
+  --hero-from: #0F1D3D;
+  --hero-to: #1F1020;
+
+  /* Base & HeroUI theme tokens - Dark */
+  --background: #0A1224;
+  --foreground: #E6ECF8;
+  --surface: #121C33;
+  --surface-secondary: #192542;
+  --surface-tertiary: #1E2D4E;
+  --border: #24324F;
+  --separator: #24324F;
+  --border-secondary: #2E3E63;
+  --muted: #9AA8C7;
+
+  /* CTA (Primary action buttons) - Dark */
+  --accent: #E5252D;
+  --accent-foreground: #FFFFFF;
+  --accent-hover: #EF4444;
+  --accent-soft: #3D1216;
+  --accent-soft-foreground: #FECACA;
+
+  /* Navigation, Links, Focus ring - Dark */
+  --focus: #8DB1FF;
+
+  /* Success (kept green) - Dark */
+  --success: #22C55E;
+  --success-foreground: #0A1224;
+  --success-hover: #4ADE80;
+  --success-soft: #143520;
+  --success-soft-foreground: #86EFAC;
+
+  /* Danger / Error (dark red bg, light red text) - Dark */
+  --danger: #7F1D1D;
+  --danger-foreground: #FECACA;
+  --danger-hover: #991B1B;
+  --danger-soft: #450A0A;
+  --danger-soft-foreground: #FECACA;
+
+  /* Secondary page text contrast - Dark */
+  --color-slate-500: #9AA8C7;
+  --color-gray-500: #9AA8C7;
+
+  /* Tailwind v4 Navy scale - Dark */
+  --color-blue-50: #F0F6FF;
+  --color-blue-100: #E5EFFF;
+  --color-blue-200: #CCE0FF;
+  --color-blue-300: #ADC8FF;
+  --color-blue-400: #8DB1FF;
+  --color-blue-500: #5C93FF;
+  --color-blue-600: #3570E8;
+  --color-blue-700: #2450A8;
+  --color-blue-800: #1A3B7C;
+  --color-blue-900: #142D60;
+  --color-blue-950: #0E1E40;
+
+  /* Tailwind v4 Indigo scale mapped to navy */
+  --color-indigo-50: var(--color-blue-50);
+  --color-indigo-100: var(--color-blue-100);
+  --color-indigo-200: var(--color-blue-200);
+  --color-indigo-300: var(--color-blue-300);
+  --color-indigo-400: var(--color-blue-400);
+  --color-indigo-500: var(--color-blue-500);
+  --color-indigo-600: var(--color-blue-600);
+  --color-indigo-700: var(--color-blue-700);
+  --color-indigo-800: var(--color-blue-800);
+  --color-indigo-900: var(--color-blue-900);
+  --color-indigo-950: var(--color-blue-950);
+
+  /* Tailwind v4 Sky scale mapped to navy */
+  --color-sky-50: var(--color-blue-50);
+  --color-sky-100: var(--color-blue-100);
+  --color-sky-200: var(--color-blue-200);
+  --color-sky-300: var(--color-blue-300);
+  --color-sky-400: var(--color-blue-400);
+  --color-sky-500: var(--color-blue-500);
+  --color-sky-600: var(--color-blue-600);
+  --color-sky-700: var(--color-blue-700);
+  --color-sky-800: var(--color-blue-800);
+  --color-sky-900: var(--color-blue-900);
+  --color-sky-950: var(--color-blue-950);
 }
 
 :root,
+.light,
+[data-theme='light'],
 .dark,
 [data-theme='dark'] {
   --bg-page: var(--background);
@@ -43,7 +212,7 @@
   --bg-hover: var(--default);
 
   --text-primary: var(--foreground);
-  --text-secondary: color-mix(in oklab, var(--foreground) 72%, var(--muted));
+  --text-secondary: var(--muted);
   --text-muted: var(--muted);
   --text-inverse: var(--accent-foreground);
 
@@ -69,9 +238,9 @@
   --color-warning-light: var(--warning-soft);
   --color-warning-text: var(--warning-soft-foreground);
 
-  --color-info: var(--accent);
-  --color-info-light: var(--accent-soft);
-  --color-info-text: var(--accent-soft-foreground);
+  --color-info: var(--brand-navy);
+  --color-info-light: var(--brand-navy-soft);
+  --color-info-text: var(--brand-navy);
 
   --focus-ring-color: var(--focus);
   --focus-ring-offset: 2px;
@@ -83,6 +252,21 @@
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-japanese: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+}
+
+/* Accessibility & Component Overrides */
+:where(a:not([class*='button'], [class*='btn'], [role='button'])) {
+  color: var(--link);
+}
+
+.alert.jlpt-alert-info .alert__indicator,
+.alert.jlpt-alert-info .alert__title {
+  color: var(--color-info-text);
+}
+
+.jlpt-badge-info.chip {
+  --chip-bg: var(--color-info-light);
+  --chip-fg: var(--color-info-text);
 }
 
 /* Reset & Base Elements */
@@ -232,7 +416,7 @@ body {
   }
 }
 
-@media (max-width: 1279px) {
+@media (max-width: 1023px) {
   .header-desktop-controls {
     display: none !important;
   }
@@ -244,7 +428,7 @@ body {
   }
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1024px) {
   .header-desktop-controls {
     display: flex !important;
     gap: 0.375rem;
@@ -255,20 +439,28 @@ body {
     align-items: center;
   }
   .header-brand-nav {
-    gap: 0.75rem !important;
+    gap: 0.5rem !important;
   }
   .header-right-group {
     gap: 0.5rem !important;
-  }
-  .header-nav-link {
-    padding: 0.375rem 0.5rem !important;
-    font-size: 0.875rem !important;
   }
   .mobile-menu-button {
     display: none !important;
   }
   .mobile-drawer {
     display: none !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .desktop-nav {
+    gap: 0.375rem;
+  }
+  .header-brand-nav {
+    gap: 1rem !important;
+  }
+  .header-right-group {
+    gap: 0.75rem !important;
   }
 }
 
@@ -295,10 +487,6 @@ body {
   }
   .header-brand-nav {
     gap: 1.25rem !important;
-  }
-  .header-nav-link {
-    padding: 0.5rem 0.625rem !important;
-    font-size: 0.9375rem !important;
   }
   .header-desktop-controls {
     gap: 0.5rem;
@@ -345,4 +533,21 @@ button, input, select, textarea, a {
 .hide-furigana rt,
 .hide-furigana .jlpt-ruby rt {
   display: none !important;
+}
+
+/* Header navigation (mục đang chọn màu đỏ thương hiệu, theo thiết kế chủ dự án). */
+:root,
+.light,
+[data-theme=light] {
+  --nav-active-fg: #D6000F;
+  --nav-active-bg: #FDE8EA;
+  --nav-inactive-fg: #334155;
+  --nav-inactive-hover-bg: #f1f5f9;
+}
+.dark,
+[data-theme=dark] {
+  --nav-active-fg: #FF6B70;
+  --nav-active-bg: rgba(255, 107, 112, 0.14);
+  --nav-inactive-fg: #e2e8f0;
+  --nav-inactive-hover-bg: rgba(255, 255, 255, 0.06);
 }
