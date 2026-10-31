@@ -79,8 +79,8 @@ describe('Paper booklet and answer sheet', () => {
 
   it('does not render a stray zero when a question has no passage', () => {
     const html = renderToStaticMarkup(<PaperBooklet title="N5" questions={[{ ...first, passage: [] }]} answers={[0]} flags={[0]} currentIndex={0} workspace={{ fontSize: 'base', font: 'mincho', notes: {}, marks: {} }} showFurigana={false} disabled={false} onActivate={noop} onAnswer={noop} onFlag={noop} onNote={noop} onMark={noop} onClearMarks={noop} onOpenPassage={noop} />);
-    expect(html).not.toMatch(/<section[^>]*>\s*0\s*<div class="paper-stem"/);
-    expect(html).toContain('<div class="paper-stem"');
+    expect(html).not.toMatch(/<section[^>]*>\s*0\s*<div class="[^"]*paper-stem/);
+    expect(html).toMatch(/<div class="[^"]*paper-stem/);
   });
 
   it('renders multiple questions, one shared passage, review flags and a distinct erase action', () => {
