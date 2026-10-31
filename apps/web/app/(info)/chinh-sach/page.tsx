@@ -26,3 +26,6 @@ export default function PrivacyPolicyPage(): React.JSX.Element {
   if (!FEATURES.privacyPolicyPage) notFound();
   return <PrivacyPolicyContent />;
 }
+
+export { PrivacyPolicyContent } from './privacy-policy-content';
+
