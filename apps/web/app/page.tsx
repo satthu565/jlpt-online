@@ -18,6 +18,12 @@ import { Card } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
 import { Alert } from '@jlpt/ui/components/alert';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from '@jlpt/ui/components/tooltip';
 import { useI18n } from '../lib/i18n';
 import { useAuth } from '../lib/auth-context';
 import { ExamApiClient, ExamApiError } from '../features/exam/api/exam-api';
@@ -286,7 +292,8 @@ export default function HomePage(): React.JSX.Element {
     Boolean(filters.onlyFavorites);
 
   return (
-    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60">
+    <TooltipProvider delayDuration={200}>
+      <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60">
       <JsonLd id="homepage-website-schema" data={WEBSITE_STRUCTURED_DATA} />
 
       {/* Screen-reader compatibility strings for tests */}
@@ -565,21 +572,28 @@ export default function HomePage(): React.JSX.Element {
               </div>
 
               <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 sm:flex-initial h-10 px-4 rounded-xl text-xs font-bold border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
-                >
-                  <a
-                    href={`/phong-thi?examId=${recommendedExam.id}&mode=practice`}
-                    className="no-underline flex items-center justify-center gap-1.5"
-                    title="Chế độ Luyện tự do: Làm bài không bị áp lực thời gian. Bạn có thể xem ngay đáp án, tra cứu giải thích chi tiết sau mỗi câu và tạm dừng bất cứ lúc nào."
-                  >
-                    <BookOpen className="size-3.5" aria-hidden="true" />
-                    <span>Luyện tự do</span>
-                  </a>
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 sm:flex-initial h-10 px-4 rounded-xl text-xs font-bold border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+                    >
+                      <a
+                        href={`/phong-thi?examId=${recommendedExam.id}&mode=practice`}
+                        className="no-underline flex items-center justify-center gap-1.5"
+                        aria-label="Chế độ Luyện tự do: Làm bài không bị áp lực thời gian. Bạn có thể xem ngay đáp án, tra cứu giải thích chi tiết sau mỗi câu và tạm dừng bất cứ lúc nào."
+                      >
+                        <BookOpen className="size-3.5" aria-hidden="true" />
+                        <span>Luyện tự do</span>
+                      </a>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    Chế độ Luyện tự do: Làm bài không bị áp lực thời gian. Bạn có thể xem ngay đáp án, tra cứu giải thích chi tiết sau mỗi câu và tạm dừng bất cứ lúc nào.
+                  </TooltipContent>
+                </Tooltip>
 
                 <Button
                   asChild
@@ -766,26 +780,32 @@ export default function HomePage(): React.JSX.Element {
                     {/* Bottom Action Row: Favorite Button + "Làm bài ngay →" */}
                     <div className="flex items-center gap-2.5 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
                       {/* Favorite Button */}
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        disabled={!targetExam || isFavPending}
-                        onClick={() => targetExam && favorites.toggleFavorite(targetExam.id)}
-                        aria-pressed={isFavorite}
-                        aria-label={isFavorite ? 'Bỏ lưu đề yêu thích' : 'Lưu vào đề yêu thích'}
-                        title={isFavorite ? 'Bỏ lưu đề yêu thích' : 'Lưu vào đề yêu thích'}
-                        className={`size-10 min-h-0 p-0 rounded-xl flex items-center justify-center shrink-0 border transition-all ${
-                          isFavorite
-                            ? 'border-amber-300 bg-amber-50 dark:bg-amber-950/40 text-amber-500 hover:bg-amber-100'
-                            : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 hover:text-amber-500 hover:border-amber-300 dark:hover:border-amber-600'
-                        }`}
-                      >
-                        <Star
-                          className={`size-4 ${isFavorite ? 'fill-amber-400 text-amber-500' : ''}`}
-                          aria-hidden="true"
-                        />
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            disabled={!targetExam || isFavPending}
+                            onClick={() => targetExam && favorites.toggleFavorite(targetExam.id)}
+                            aria-pressed={isFavorite}
+                            aria-label={isFavorite ? 'Bỏ lưu đề yêu thích' : 'Lưu vào đề yêu thích'}
+                            className={`size-10 min-h-0 p-0 rounded-xl flex items-center justify-center shrink-0 border transition-all ${
+                              isFavorite
+                                ? 'border-amber-300 bg-amber-50 dark:bg-amber-950/40 text-amber-500 hover:bg-amber-100'
+                                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 hover:text-amber-500 hover:border-amber-300 dark:hover:border-amber-600'
+                            }`}
+                          >
+                            <Star
+                              className={`size-4 ${isFavorite ? 'fill-amber-400 text-amber-500' : ''}`}
+                              aria-hidden="true"
+                            />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          {isFavorite ? 'Bỏ lưu đề yêu thích' : 'Lưu vào đề yêu thích'}
+                        </TooltipContent>
+                      </Tooltip>
 
                       {/* Take Exam Now Action Button */}
                       <Button
@@ -806,25 +826,39 @@ export default function HomePage(): React.JSX.Element {
 
                     {/* 5. QUICK SUB-ACTIONS: Luyện tự do & Luyện kỹ năng */}
                     <div className="flex items-center justify-between text-[11px] pt-2.5 mt-2.5 border-t border-dashed border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400">
-                      <a
-                        href={
-                          targetExam
-                            ? `/phong-thi?examId=${targetExam.id}&mode=practice`
-                            : '/luyen-tap'
-                        }
-                        className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline flex items-center gap-1 font-medium"
-                        title="Luyện tập tự do không tính giờ nghiêm ngặt"
-                      >
-                        <span>🎯 Luyện tự do</span>
-                      </a>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <a
+                            href={
+                              targetExam
+                                ? `/phong-thi?examId=${targetExam.id}&mode=practice`
+                                : '/luyen-tap'
+                            }
+                            className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline flex items-center gap-1 font-medium"
+                            aria-label="Luyện tập tự do không tính giờ nghiêm ngặt"
+                          >
+                            <span>🎯 Luyện tự do</span>
+                          </a>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          Luyện tập tự do không tính giờ nghiêm ngặt
+                        </TooltipContent>
+                      </Tooltip>
                       <span className="text-slate-300 dark:text-slate-700">•</span>
-                      <a
-                        href="/luyen-tap"
-                        className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline flex items-center gap-1 font-medium"
-                        title="Luyện đề trộn hoặc từng kỹ năng Từ vựng, Nghe, Đọc"
-                      >
-                        <span>⚡ Đề trộn &amp; Kỹ năng</span>
-                      </a>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <a
+                            href="/luyen-tap"
+                            className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline flex items-center gap-1 font-medium"
+                            aria-label="Luyện đề trộn hoặc từng kỹ năng Từ vựng, Nghe, Đọc"
+                          >
+                            <span>⚡ Đề trộn &amp; Kỹ năng</span>
+                          </a>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          Luyện đề trộn hoặc từng kỹ năng Từ vựng, Nghe, Đọc
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
                   </Card>
                 );
@@ -834,5 +868,6 @@ export default function HomePage(): React.JSX.Element {
         </div>
       </section>
     </div>
+  </TooltipProvider>
   );
 }
