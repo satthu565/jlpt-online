@@ -8,6 +8,7 @@ import {
   type StudySession,
   type CreateStudyPlanInput,
 } from '../../../features/planner';
+import { ExamHero } from '../../../features/library';
 import { useI18n } from '../../../lib/i18n';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Button } from '@jlpt/ui/components/button';
@@ -116,15 +117,14 @@ export default function PlannerPage(): React.JSX.Element {
   };
 
   return (
-    <div className="container py-8 w-full">
-      <div className="mb-8">
-        <h1 className="text-[2rem] font-extrabold text-[var(--text-primary)] mt-0 mx-0 mb-2">
-          {t('planner.page.title')}
-        </h1>
-        <p className="text-[var(--text-secondary)] m-0">
-          {t('planner.page.subtitle')}
-        </p>
-      </div>
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60" data-testid="planner-page">
+      <ExamHero
+        title={t('planner.page.title')}
+        subtitle={t('planner.page.subtitle')}
+        minimal
+        background="gradient"
+      />
+      <div className="container py-8 w-full">
 
       {isUnauthorized && (
         <Alert className="mb-6" variant="warning">
@@ -155,14 +155,15 @@ export default function PlannerPage(): React.JSX.Element {
         </div>
       )}
 
-      <PlannerDashboard
-        plan={plan}
-        todaySession={todaySession}
-        loading={loading}
-        onCreatePlan={handleCreatePlan}
-        onCompleteSession={handleCompleteSession}
-        onReplan={handleReplan}
-      />
+        <PlannerDashboard
+          plan={plan}
+          todaySession={todaySession}
+          loading={loading}
+          onCreatePlan={handleCreatePlan}
+          onCompleteSession={handleCompleteSession}
+          onReplan={handleReplan}
+        />
+      </div>
     </div>
   );
 }
