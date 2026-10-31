@@ -15,6 +15,7 @@ import {
   type MixFormState,
   type MixShortageInfo,
 } from '../../../features/mix';
+import { ExamHero } from '../../../features/library';
 import { ExamApiClient } from '../../../features/exam';
 import type { GeneratedExam, Level, PublicExamSnapshot } from '@jlpt/schema';
 import { Button } from '@jlpt/ui/components/button';
@@ -436,43 +437,47 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
     }
   };
 
-  if (pendingResumeId) {
-    return <ResumeConfirmationCard onConfirm={() => { void resumeConfirmation.confirm(handleResumePractice); }} onCancel={() => resumeConfirmation.cancel()} />;
-  }
-
   return (
-    <div className="container py-8 w-full" data-testid="practice-page-container">
-      <div className="mb-8">
-        <h1 className="text-[2rem] font-extrabold text-[var(--text-primary)] mt-0 mx-0 mb-2">
-          {t('practice.page.title')}
-        </h1>
-        <p className="text-[var(--text-secondary)] m-0 text-[0.9375rem]">
-          {t('practice.page.subtitle')}
-        </p>
-      </div>
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60" data-testid="practice-page-container">
+      <ExamHero
+        title={t('practice.page.title')}
+        subtitle={t('practice.page.subtitle')}
+        minimal
+        background="gradient"
+      />
 
-      {isUnauthorized && (
-        <Alert className="mb-6" variant="warning">
-          <div className="flex justify-between items-center flex-wrap gap-2">
-            <span>{t('practice.auth.required')}</span>
-            <Link href="/dang-nhap?redirect=/luyen-tap">
-              <Button size="sm" variant="primary">{t('practice.auth.signInButton')}</Button>
-            </Link>
-          </div>
-        </Alert>
-      )}
+      <div className="container py-8 w-full">
+        {pendingResumeId ? (
+          <ResumeConfirmationCard
+            onConfirm={() => {
+              void resumeConfirmation.confirm(handleResumePractice);
+            }}
+            onCancel={() => resumeConfirmation.cancel()}
+          />
+        ) : (
+          <>
+            {isUnauthorized && (
+              <Alert className="mb-6" variant="warning">
+                <div className="flex justify-between items-center flex-wrap gap-2">
+                  <span>{t('practice.auth.required')}</span>
+                  <Link href="/dang-nhap?redirect=/luyen-tap">
+                    <Button size="sm" variant="primary">{t('practice.auth.signInButton')}</Button>
+                  </Link>
+                </div>
+              </Alert>
+            )}
 
-      {error && !isUnauthorized && (
-        <Alert className="mb-6" variant="error" onClose={() => setError(null)}>
-          {error}
-        </Alert>
-      )}
+            {error && !isUnauthorized && (
+              <Alert className="mb-6" variant="error" onClose={() => setError(null)}>
+                {error}
+              </Alert>
+            )}
 
-      {/* Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-[var(--border-subtle)] mb-8"
-        role="tablist"
-        aria-label={t('practice.tabs.ariaLabel')}
-      >
+            {/* Tabs */}
+            <div className="flex flex-wrap gap-2 border-b border-[var(--border-subtle)] mb-8"
+              role="tablist"
+              aria-label={t('practice.tabs.ariaLabel')}
+            >
         <Button
           type="button"
           role="tab"
@@ -703,12 +708,15 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
         </div>
       )}
 
-      {/* Tab 3: Quick Mix */}
-      {activeTab === 'quick' && (
-        <div id="quick-panel" role="tabpanel">
-          <QuickMixCard onQuickMix={handleQuickMix} isLoading={isGenerating} />
-        </div>
-      )}
+        {/* Tab 3: Quick Mix */}
+        {activeTab === 'quick' && (
+          <div id="quick-panel" role="tabpanel">
+            <QuickMixCard onQuickMix={handleQuickMix} isLoading={isGenerating} />
+          </div>
+        )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
