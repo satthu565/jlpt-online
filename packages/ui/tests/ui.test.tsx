@@ -178,9 +178,9 @@ describe('@jlpt/ui component suite', () => {
     expect(html).toContain('aria-controls="mobile-navigation-drawer"');
     expect(html).toContain('src="/images/brand/logo-v2-header.webp"');
     expect(html).toContain('alt="Gokakuya.com - Trang chủ"');
-    expect(html).toContain('width="285"');
-    expect(html).toContain('height="96"');
-    expect(html).toContain('h-11');
+    expect(html).toContain('width="571"');
+    expect(html).toContain('height="192"');
+    expect(html).toContain('sm:h-[88px]');
     expect(html).toContain('loading="eager"');
     expect(html).toContain('dark:bg-white');
   });

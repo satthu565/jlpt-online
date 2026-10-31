@@ -71,7 +71,7 @@ export function Header({
         className,
       )}
     >
-      <div className="container box-border flex h-16 w-full max-w-full items-center justify-between">
+      <div className="container box-border flex min-h-16 w-full max-w-full items-center justify-between">
         <div className="header-brand-nav flex items-center gap-5">
           <a
             href={brandHref}
@@ -82,11 +82,11 @@ export function Header({
               <img
                 src={logoSrc}
                 alt={effectiveLogoAlt}
-                width={285}
-                height={96}
+                width={571}
+                height={192}
                 loading="eager"
                 decoding="async"
-                className="h-11 w-auto object-contain shrink-0 dark:bg-white dark:rounded-lg dark:px-2 dark:py-1"
+                className="h-14 sm:h-[88px] w-auto object-contain shrink-0 dark:bg-white dark:rounded-lg dark:px-2 dark:py-1"
               />
             ) : (
               <>
