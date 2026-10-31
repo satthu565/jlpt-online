@@ -110,6 +110,11 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
       expect(html).toContain('2,000');
       expect(html).toContain('900 - 1200');
 
+      // ExamHero minimal gradient banner
+      expect(html).toContain('from-sky-100');
+      expect(html).not.toContain('/images/hero-jlpt-bg.webp');
+      expect(html).not.toContain('ĐẾM NGƯỢC KỲ THI JLPT');
+
       // Structured data Course (SEO-07)
       expect(html).toContain('application/ld+json');
       expect(html).toContain('"@type":"Course"');
@@ -164,6 +169,10 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
 
       expect(html).toContain('Danh sách đề thi JLPT N3 theo năm và kỳ');
       expect(html).toContain('Đề thi N3');
+      // ExamHero minimal gradient banner
+      expect(html).toContain('from-sky-100');
+      expect(html).not.toContain('/images/hero-jlpt-bg.webp');
+      expect(html).not.toContain('ĐẾM NGƯỢC KỲ THI JLPT');
       // Contains exam card
       expect(html).toContain('jlpt-n3-chuan-so-1');
       // Zero PII in static server HTML
