@@ -12,13 +12,13 @@ import {
   type AssignmentAnalytics,
   type GradeExportResponse,
 } from '../../../features/classroom';
+import { ExamHero } from '../../../features/library';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Button } from '@jlpt/ui/components/button';
 import { Card, CardContent } from '@jlpt/ui/components/card';
 import { Input } from '@jlpt/ui/components/input';
-import { PageHeader } from '@jlpt/ui/components/page-header';
 import { EmptyState } from '@jlpt/ui/components/empty-state';
 import { KeyRound, School } from 'lucide-react';
 import Link from 'next/link';
@@ -214,14 +214,15 @@ export default function ClassroomPage(): React.JSX.Element {
   };
 
   return (
-    <div className="container py-8 w-full">
-      <PageHeader
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60">
+      <ExamHero
         title={t('classroom.page.title')}
-        description={t('classroom.page.subtitle')}
-        className="mb-8"
+        subtitle={t('classroom.page.subtitle')}
+        minimal
+        background="gradient"
       />
-
-      {(!user || isUnauthorized) && (
+      <div className="container py-8 w-full">
+        {(!user || isUnauthorized) && (
         <Alert variant="warning" className="mb-6">
           <div className="flex justify-between items-center flex-wrap gap-2">
             <span>Bạn cần đăng nhập tài khoản học viên hoặc giáo viên để truy cập lớp học.</span>
@@ -308,6 +309,7 @@ export default function ClassroomPage(): React.JSX.Element {
           onSupplementAssignment={handleSupplementAssignment}
         />
       )}
+      </div>
     </div>
   );
 }
