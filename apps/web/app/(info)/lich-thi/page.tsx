@@ -7,6 +7,7 @@ import { Button } from '@jlpt/ui/components/button';
 import { Badge } from '@jlpt/ui/components/badge';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Spinner } from '@jlpt/ui/components/spinner';
+import { ExamHero } from '../../../features/library';
 import { useI18n } from '../../../lib/i18n';
 
 export interface JlptLocation {
@@ -145,71 +146,65 @@ export default function ExamSchedulePage(): React.JSX.Element {
   return (
     <div
       data-testid="schedule-page-container"
-      className="max-w-6xl mx-auto px-4 py-8 md:py-12 space-y-8"
+      className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60"
     >
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
-        <div>
-          <h1
-            data-testid="schedule-page-title"
-            className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100"
+      <ExamHero
+        title={<span data-testid="schedule-page-title">{t('schedules.title')}</span>}
+        subtitle={t('schedules.subtitle')}
+        minimal
+        background="gradient"
+      />
+
+      <div className="container py-8 md:py-12 space-y-8">
+        {reminderStatusMessage && (
+          <Alert
+            variant="success"
+            data-testid="schedule-reminder-status"
+            className="text-xs"
           >
-            {t('schedules.title')}
-          </h1>
-          <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-2xl">
-            {t('schedules.subtitle')}
-          </p>
+            {reminderStatusMessage}
+          </Alert>
+        )}
+
+        {/* Level Filter Bar & Reminder toggle */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          <div
+            data-testid="schedule-level-filter"
+            className="surface surface--secondary rounded-2xl flex flex-wrap items-center gap-2 p-3"
+          >
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 mr-2">
+              {t('schedules.filterLevel')}:
+            </span>
+            {LEVEL_OPTIONS.map((lvl) => (
+              <Button
+                key={lvl}
+                type="button"
+                size="sm"
+                variant={selectedLevel === lvl ? 'primary' : 'ghost'}
+                onClick={() => setSelectedLevel(lvl)}
+                data-testid={`level-filter-${lvl}`}
+                className="text-xs font-bold px-3 py-1 min-h-[32px] h-8"
+              >
+                {lvl === 'ALL' ? t('schedules.allLevels') : lvl}
+              </Button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              variant={remindersEnabled ? 'primary' : 'outline'}
+              size="sm"
+              onClick={handleToggleReminder}
+              data-testid="schedule-reminder-toggle"
+              aria-pressed={remindersEnabled}
+              className="flex items-center gap-2 text-xs font-semibold"
+            >
+              {remindersEnabled ? <Bell className="size-4" aria-hidden="true" /> : <BellOff className="size-4" aria-hidden="true" />}
+              <span>{t('schedules.reminderToggle')}</span>
+            </Button>
+          </div>
         </div>
-
-        {/* Reminder notification toggle action */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-          <Button
-            type="button"
-            variant={remindersEnabled ? 'primary' : 'outline'}
-            size="sm"
-            onClick={handleToggleReminder}
-            data-testid="schedule-reminder-toggle"
-            aria-pressed={remindersEnabled}
-            className="flex items-center gap-2 text-xs font-semibold"
-          >
-            {remindersEnabled ? <Bell className="size-4" aria-hidden="true" /> : <BellOff className="size-4" aria-hidden="true" />}
-            <span>{t('schedules.reminderToggle')}</span>
-          </Button>
-        </div>
-      </div>
-
-      {reminderStatusMessage && (
-        <Alert
-          variant="success"
-          data-testid="schedule-reminder-status"
-          className="text-xs"
-        >
-          {reminderStatusMessage}
-        </Alert>
-      )}
-
-      {/* Level Filter Bar */}
-      <div
-        data-testid="schedule-level-filter"
-        className="surface surface--secondary rounded-2xl flex flex-wrap items-center gap-2 p-3"
-      >
-        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 mr-2">
-          {t('schedules.filterLevel')}:
-        </span>
-        {LEVEL_OPTIONS.map((lvl) => (
-          <Button
-            key={lvl}
-            type="button"
-            size="sm"
-            variant={selectedLevel === lvl ? 'primary' : 'ghost'}
-            onClick={() => setSelectedLevel(lvl)}
-            data-testid={`level-filter-${lvl}`}
-            className="text-xs font-bold px-3 py-1 min-h-[32px] h-8"
-          >
-            {lvl === 'ALL' ? t('schedules.allLevels') : lvl}
-          </Button>
-        ))}
-      </div>
 
       {/* Loading state */}
       {loading && (
@@ -410,6 +405,7 @@ export default function ExamSchedulePage(): React.JSX.Element {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }

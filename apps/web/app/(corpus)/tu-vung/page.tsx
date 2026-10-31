@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import { VocabExplorer } from '../../../features/corpus';
+import { ExamHero } from '../../../features/library';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
 
 export const metadata: Metadata = {
@@ -48,31 +49,31 @@ export default function VocabCorpusPage(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 space-y-6" data-testid="vocab-corpus-page">
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60" data-testid="vocab-corpus-page">
       <JsonLd id="vocab-schema" data={structuredData} />
       <JsonLd id="vocab-breadcrumbs" data={breadcrumbs} />
 
-      {/* Breadcrumbs */}
-      <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
-        <span className="text-slate-900 dark:text-slate-100 font-semibold">Từ vựng</span>
-      </nav>
+      <ExamHero
+        title="Thư viện Từ vựng JLPT N1–N5 theo ngữ cảnh & tần suất"
+        subtitle="Tra cứu từ vựng tiếng Nhật thực tế trong đề thi JLPT qua các năm, nghe phát âm chuẩn và lưu trực tiếp vào sổ tay cá nhân."
+        minimal
+        background="gradient"
+      />
 
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-          Thư viện Từ vựng JLPT N1–N5 theo ngữ cảnh & tần suất
-        </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-3xl">
-          Tra cứu từ vựng tiếng Nhật thực tế trong đề thi JLPT qua các năm, nghe phát âm chuẩn và lưu trực tiếp vào sổ tay cá nhân.
+      <div className="container py-8 space-y-6">
+        {/* Breadcrumbs */}
+        <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
+          <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
+          <span className="text-slate-900 dark:text-slate-100 font-semibold">Từ vựng</span>
+        </nav>
+
+        <VocabExplorer />
+
+        <p className="text-xs text-slate-500">
+          Dữ liệu từ điển: JMdict và KANJIDIC2 của EDRDG, giấy phép CC BY-SA 4.0 —{' '}
+          <a href="/gioi-thieu#nguon-du-lieu">xem nguồn và giấy phép</a>.
         </p>
       </div>
-
-      <VocabExplorer />
-
-      <p className="text-xs text-slate-500">
-        Dữ liệu từ điển: JMdict và KANJIDIC2 của EDRDG, giấy phép CC BY-SA 4.0 —{' '}
-        <a href="/gioi-thieu#nguon-du-lieu">xem nguồn và giấy phép</a>.
-      </p>
     </div>
   );
 }

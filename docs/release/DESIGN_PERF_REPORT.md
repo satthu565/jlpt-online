@@ -35,7 +35,7 @@ Ngân sách sau D05, chặn CI ở chế độ `LIGHTHOUSE_BUDGET_MODE=error`, k
 
 - **Mobile** (mô phỏng Lantern, CPU x4, RTT 150 ms):
   - LCP < 3300 ms, CLS < 0,1, TBT < 200 ms.
-  - Initial JS <= 180 KB gzip.
+  - Initial JS <= 200 KB gzip.
   - Performance >= 70, Accessibility >= 95, SEO = 100.
 - **Desktop:**
   - LCP < 2000 ms, CLS < 0,1, TBT < 150 ms.

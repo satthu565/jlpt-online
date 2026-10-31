@@ -8,8 +8,8 @@ import { Select } from '@jlpt/ui/components/select';
 import { Badge } from '@jlpt/ui/components/badge';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Modal } from '@jlpt/ui/components/modal';
-import { PageHeader } from '@jlpt/ui/components/page-header';
 import { EmptyState } from '@jlpt/ui/components/empty-state';
+import { ExamHero } from '../../../features/library';
 import { Laptop, Smartphone } from 'lucide-react';
 import Link from 'next/link';
 import { useI18n } from '../../../lib/i18n';
@@ -133,33 +133,35 @@ export default function AccountPage(): React.JSX.Element {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 w-full">
-      {!user && (
-        <Alert variant="warning" className="mb-6">
-          <div className="flex justify-between items-center flex-wrap gap-2">
-            <span>{t('account.auth.required')}</span>
-            <Link href="/dang-nhap?redirect=/tai-khoan">
-              <Button size="sm" variant="primary">{t('account.auth.signIn')}</Button>
-            </Link>
-          </div>
-        </Alert>
-      )}
-
-      <PageHeader
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60">
+      <ExamHero
         title={t('account.title')}
-        description={t('account.subtitle')}
-        className="mb-8"
+        subtitle={t('account.subtitle')}
+        minimal
+        background="gradient"
       />
 
-      {feedback && (
-        <Alert
-          variant={feedback.type}
-          onClose={() => setFeedback(null)}
-          className="mb-6"
-        >
-          {feedback.message}
-        </Alert>
-      )}
+      <div className="container py-8 w-full">
+        {!user && (
+          <Alert variant="warning" className="mb-6">
+            <div className="flex justify-between items-center flex-wrap gap-2">
+              <span>{t('account.auth.required')}</span>
+              <Link href="/dang-nhap?redirect=/tai-khoan">
+                <Button size="sm" variant="primary">{t('account.auth.signIn')}</Button>
+              </Link>
+            </div>
+          </Alert>
+        )}
+
+        {feedback && (
+          <Alert
+            variant={feedback.type}
+            onClose={() => setFeedback(null)}
+            className="mb-6"
+          >
+            {feedback.message}
+          </Alert>
+        )}
 
       {/* Tabs */}
       <div
@@ -532,6 +534,7 @@ export default function AccountPage(): React.JSX.Element {
       >
         <p>{t('account.sessions.confirmRevokeBody')}</p>
       </Modal>
+      </div>
     </div>
   );
 }

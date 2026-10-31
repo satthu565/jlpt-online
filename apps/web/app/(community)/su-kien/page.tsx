@@ -8,11 +8,11 @@ import {
   type EventLobbyInfo,
   type LeaderboardRank,
 } from '../../../features/community';
+import { ExamHero } from '../../../features/library';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Button } from '@jlpt/ui/components/button';
-import { PageHeader } from '@jlpt/ui/components/page-header';
 import { EmptyState } from '@jlpt/ui/components/empty-state';
 import { Trophy } from 'lucide-react';
 import Link from 'next/link';
@@ -114,67 +114,70 @@ export default function ExamEventPage(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4 w-full">
-      <PageHeader
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60">
+      <ExamHero
         title={t('community.events.pageTitle')}
-        description={t('community.events.pageSubtitle')}
-        className="mb-8"
+        subtitle={t('community.events.pageSubtitle')}
+        minimal
+        background="gradient"
       />
 
-      {(!user || isUnauthorized) && (
-        <Alert variant="warning" className="mb-6">
-          <div className="flex justify-between items-center flex-wrap gap-2">
-            <span>Bạn cần đăng nhập để tham gia và ghi nhận kết quả thi sự kiện đồng loạt.</span>
-            <Link href="/dang-nhap?redirect=/su-kien">
-              <Button size="sm" variant="primary">Đăng nhập ngay</Button>
-            </Link>
-          </div>
-        </Alert>
-      )}
+      <div className="container py-8 w-full">
+        {(!user || isUnauthorized) && (
+          <Alert variant="warning" className="mb-6">
+            <div className="flex justify-between items-center flex-wrap gap-2">
+              <span>Bạn cần đăng nhập để tham gia và ghi nhận kết quả thi sự kiện đồng loạt.</span>
+              <Link href="/dang-nhap?redirect=/su-kien">
+                <Button size="sm" variant="primary">Đăng nhập ngay</Button>
+              </Link>
+            </div>
+          </Alert>
+        )}
 
-      {error && !isUnauthorized && (
-        <Alert variant="error" onClose={() => setError(null)} className="mb-6">
-          <div className="flex justify-between items-center flex-wrap gap-2">
-            <span>{error}</span>
-            <Button size="sm" variant="outline" onClick={loadEvent}>
-              {t('common.buttons.retry')}
-            </Button>
-          </div>
-        </Alert>
-      )}
+        {error && !isUnauthorized && (
+          <Alert variant="error" onClose={() => setError(null)} className="mb-6">
+            <div className="flex justify-between items-center flex-wrap gap-2">
+              <span>{error}</span>
+              <Button size="sm" variant="outline" onClick={loadEvent}>
+                {t('common.buttons.retry')}
+              </Button>
+            </div>
+          </Alert>
+        )}
 
-      {loading && (
-        <EmptyState
-          variant="loading"
-          title={t('common.status.loading')}
-          description="Đang tải sự kiện thi..."
-          minHeight="sm"
-        />
-      )}
+        {loading && (
+          <EmptyState
+            variant="loading"
+            title={t('common.status.loading')}
+            description="Đang tải sự kiện thi..."
+            minHeight="sm"
+          />
+        )}
 
-      {!loading && events.length === 0 && (
-        <EmptyState
-          variant="empty"
-          icon={Trophy}
-          title={t('community.events.emptyTitle')}
-          description={t('community.events.emptySubtitle')}
-          action={
-            <Link href="/de-thi">
-              <Button variant="primary">{t('community.events.practiceNow')}</Button>
-            </Link>
-          }
-          minHeight="md"
-        />
-      )}
+        {!loading && events.length === 0 && (
+          <EmptyState
+            variant="empty"
+            icon={Trophy}
+            title={t('community.events.emptyTitle')}
+            description={t('community.events.emptySubtitle')}
+            action={
+              <Link href="/de-thi">
+                <Button variant="primary">{t('community.events.practiceNow')}</Button>
+              </Link>
+            }
+            minHeight="md"
+          />
+        )}
 
-      {lobbyInfo && (
-        <ExamEventLobby
-          lobbyInfo={lobbyInfo}
-          leaderboard={leaderboard}
-          onRegister={handleRegister}
-          onStartExam={handleStartExam}
-        />
-      )}
+        {lobbyInfo && (
+          <ExamEventLobby
+            lobbyInfo={lobbyInfo}
+            leaderboard={leaderboard}
+            onRegister={handleRegister}
+            onStartExam={handleStartExam}
+          />
+        )}
+      </div>
     </div>
   );
 }

@@ -111,7 +111,7 @@ export default async function VocabDetailPage({
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 space-y-6" data-testid="vocab-detail-page">
+    <div className="container py-8 space-y-6" data-testid="vocab-detail-page">
       <JsonLd id="vocab-detail-schema" data={structuredData} />
       <JsonLd id="vocab-detail-breadcrumbs" data={breadcrumbs} />
 

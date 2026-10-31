@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { AnalyticsDashboard } from '../../../features/analytics';
 import type { AttemptRecord, QuestionAttemptRecord } from '../../../features/analytics/types';
 import type { Level, Skill, MondaiType } from '@jlpt/schema';
+import { ExamHero } from '../../../features/library';
 import { useAuth } from '../../../lib/auth-context';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Button } from '@jlpt/ui/components/button';
@@ -113,89 +114,86 @@ export default function AnalyticsPage(): React.JSX.Element {
     fetchAnalyticsData();
   }, [fetchAnalyticsData]);
 
-  if (!user) {
-    return (
-      <div className="max-w-4xl mx-auto py-12 px-4 w-full">
-        <Alert variant="warning" className="mb-6" data-testid="analytics-auth-required">
-          {t('analytics.auth.required')}
-        </Alert>
-        <div className="text-center">
-          <Link
-            href="/dang-nhap?redirect=/thong-ke"
-            className="inline-flex items-center px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
-          >
-            {t('analytics.auth.signIn')}
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4 w-full space-y-6" data-testid="analytics-page-container">
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-          {t('analytics.page.title')}
-        </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-          {t('analytics.page.subtitle')}
-        </p>
-      </div>
-
-      {isLoading && (
-        <div className="flex flex-col items-center justify-center py-16 space-y-3" data-testid="analytics-loading-spinner">
-          <Spinner size="lg" aria-label={t('analytics.status.syncing')} />
-          <p className="text-sm text-slate-500">{t('analytics.status.syncing')}</p>
-        </div>
-      )}
-
-      {error && !isLoading && (
-        <Alert variant="error" className="my-4" data-testid="analytics-error-alert">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <span>{error}</span>
-            <Button size="sm" variant="outline" onClick={fetchAnalyticsData}>
-              {t('common.buttons.retry')}
-            </Button>
-          </div>
-        </Alert>
-      )}
-
-      {!isLoading && !error && attempts.length === 0 && questionAttempts.length === 0 && (
-        <div
-          data-testid="analytics-empty-state"
-          className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-12 text-center space-y-4"
-        >
-          <BarChart3 className="mx-auto size-10" aria-hidden="true" />
-          <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">
-            {t('analytics.empty.title')}
-          </h2>
-          <p className="text-sm text-slate-500 max-w-md mx-auto">
-            {t('analytics.empty.description')}
-          </p>
-          <div className="flex flex-wrap gap-4 justify-center pt-2">
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60" data-testid="analytics-page">
+      <ExamHero
+        title={t('analytics.page.title')}
+        subtitle={t('analytics.page.subtitle')}
+        minimal
+        background="gradient"
+      />
+      {!user ? (
+        <div className="container py-12 w-full">
+          <Alert variant="warning" className="mb-6" data-testid="analytics-auth-required">
+            {t('analytics.auth.required')}
+          </Alert>
+          <div className="text-center">
             <Link
-              href="/de-thi"
-              className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition"
+              href="/dang-nhap?redirect=/thong-ke"
+              className="inline-flex items-center px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
             >
-              {t('analytics.empty.toExams')}
-            </Link>
-            <Link
-              href="/luyen-tap"
-              className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition"
-            >
-              {t('analytics.empty.toPractice')}
+              {t('analytics.auth.signIn')}
             </Link>
           </div>
         </div>
-      )}
+      ) : (
+        <div className="container py-8 w-full space-y-6" data-testid="analytics-page-container">
+          {isLoading && (
+            <div className="flex flex-col items-center justify-center py-16 space-y-3" data-testid="analytics-loading-spinner">
+              <Spinner size="lg" aria-label={t('analytics.status.syncing')} />
+              <p className="text-sm text-slate-500">{t('analytics.status.syncing')}</p>
+            </div>
+          )}
 
-      {!isLoading && !error && (attempts.length > 0 || questionAttempts.length > 0) && (
-        <AnalyticsDashboard
-          attempts={attempts}
-          questionAttempts={questionAttempts}
-          targetLevel={(user?.targetLevel as Level) || 'N3'}
-          targetScore={120}
-        />
+          {error && !isLoading && (
+            <Alert variant="error" className="my-4" data-testid="analytics-error-alert">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span>{error}</span>
+                <Button size="sm" variant="outline" onClick={fetchAnalyticsData}>
+                  {t('common.buttons.retry')}
+                </Button>
+              </div>
+            </Alert>
+          )}
+
+          {!isLoading && !error && attempts.length === 0 && questionAttempts.length === 0 && (
+            <div
+              data-testid="analytics-empty-state"
+              className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-12 text-center space-y-4"
+            >
+              <BarChart3 className="mx-auto size-10" aria-hidden="true" />
+              <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">
+                {t('analytics.empty.title')}
+              </h2>
+              <p className="text-sm text-slate-500 max-w-md mx-auto">
+                {t('analytics.empty.description')}
+              </p>
+              <div className="flex flex-wrap gap-4 justify-center pt-2">
+                <Link
+                  href="/de-thi"
+                  className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition"
+                >
+                  {t('analytics.empty.toExams')}
+                </Link>
+                <Link
+                  href="/luyen-tap"
+                  className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                >
+                  {t('analytics.empty.toPractice')}
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {!isLoading && !error && (attempts.length > 0 || questionAttempts.length > 0) && (
+            <AnalyticsDashboard
+              attempts={attempts}
+              questionAttempts={questionAttempts}
+              targetLevel={(user?.targetLevel as Level) || 'N3'}
+              targetScore={120}
+            />
+          )}
+        </div>
       )}
     </div>
   );

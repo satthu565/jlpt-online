@@ -8,13 +8,13 @@ import {
   type DiscussionComment,
   type AchievementShareData,
 } from '../../../features/community';
+import { ExamHero } from '../../../features/library';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Button } from '@jlpt/ui/components/button';
 import { Card, CardContent } from '@jlpt/ui/components/card';
 import { Input } from '@jlpt/ui/components/input';
-import { PageHeader } from '@jlpt/ui/components/page-header';
 import { EmptyState } from '@jlpt/ui/components/empty-state';
 import { Search } from 'lucide-react';
 import Link from 'next/link';
@@ -176,115 +176,118 @@ export default function DiscussionsPage(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4 w-full">
-      <PageHeader
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60">
+      <ExamHero
         title={t('community.discussions.pageTitle')}
-        description={t('community.discussions.pageSubtitle')}
-        className="mb-8"
+        subtitle={t('community.discussions.pageSubtitle')}
+        minimal
+        background="gradient"
       />
 
-      {(!user || isUnauthorized) && (
-        <Alert variant="warning" className="mb-6">
-          <div className="flex justify-between items-center flex-wrap gap-2">
-            <span>{t('community.discussions.authRequired')}</span>
-            <Link href="/dang-nhap?redirect=/thao-luan">
-              <Button size="sm" variant="primary">{t('community.discussions.signInButton')}</Button>
-            </Link>
-          </div>
-        </Alert>
-      )}
-
-      {error && !isUnauthorized && (
-        <Alert variant="error" onClose={() => setError(null)} className="mb-6">
-          <div className="flex justify-between items-center flex-wrap gap-2">
-            <span>{error}</span>
-            <Button size="sm" variant="outline" onClick={() => questionId && loadDiscussions(questionId)}>
-              {t('common.buttons.retry')}
-            </Button>
-          </div>
-        </Alert>
-      )}
-
-      {shareNotice && (
-        <Alert variant="success" onClose={() => setShareNotice(null)} className="mb-6">
-          {shareNotice}
-        </Alert>
-      )}
-
-      {/* Question Selector Card */}
-      <Card className="mb-8">
-        <CardContent className="p-5">
-          <form onSubmit={handleSelectQuestion} className="flex gap-3 items-center flex-wrap">
-            <span className="font-semibold text-sm flex items-center gap-1.5 text-[var(--text-primary)]">
-              <Search className="size-4 text-[var(--color-primary)]" />
-              Mã câu hỏi cần thảo luận:
-            </span>
-            <div className="flex-1 min-w-[180px]">
-              <Input
-                placeholder="Nhập mã câu hỏi (UUID)..."
-                value={inputQuestionId}
-                onChange={(e) => setInputQuestionId(e.target.value)}
-              />
+      <div className="container py-8 w-full">
+        {(!user || isUnauthorized) && (
+          <Alert variant="warning" className="mb-6">
+            <div className="flex justify-between items-center flex-wrap gap-2">
+              <span>{t('community.discussions.authRequired')}</span>
+              <Link href="/dang-nhap?redirect=/thao-luan">
+                <Button size="sm" variant="primary">{t('community.discussions.signInButton')}</Button>
+              </Link>
             </div>
-            <Button type="submit" variant="secondary">
-              Xem thảo luận
-            </Button>
-          </form>
+          </Alert>
+        )}
 
-          {availableQuestions.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-[var(--border-subtle)]">
-              <span className="text-sm font-semibold text-[var(--text-secondary)]">
-                Câu hỏi từ các bài thi đã làm của bạn:
+        {error && !isUnauthorized && (
+          <Alert variant="error" onClose={() => setError(null)} className="mb-6">
+            <div className="flex justify-between items-center flex-wrap gap-2">
+              <span>{error}</span>
+              <Button size="sm" variant="outline" onClick={() => questionId && loadDiscussions(questionId)}>
+                {t('common.buttons.retry')}
+              </Button>
+            </div>
+          </Alert>
+        )}
+
+        {shareNotice && (
+          <Alert variant="success" onClose={() => setShareNotice(null)} className="mb-6">
+            {shareNotice}
+          </Alert>
+        )}
+
+        {/* Question Selector Card */}
+        <Card className="mb-8">
+          <CardContent className="p-5">
+            <form onSubmit={handleSelectQuestion} className="flex gap-3 items-center flex-wrap">
+              <span className="font-semibold text-sm flex items-center gap-1.5 text-[var(--text-primary)]">
+                <Search className="size-4 text-[var(--color-primary)]" />
+                Mã câu hỏi cần thảo luận:
               </span>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {availableQuestions.map((q, idx) => (
-                  <Button
-                    key={q.id}
-                    type="button"
-                    variant={questionId === q.id ? 'primary' : 'outline'}
-                    size="sm"
-                    onClick={() => {
-                      setQuestionId(q.id);
-                      setInputQuestionId(q.id);
-                    }}
-                  >
-                    Câu {idx + 1} {q.level ? `(${q.level})` : ''}
-                  </Button>
-                ))}
+              <div className="flex-1 min-w-[180px]">
+                <Input
+                  placeholder="Nhập mã câu hỏi (UUID)..."
+                  value={inputQuestionId}
+                  onChange={(e) => setInputQuestionId(e.target.value)}
+                />
               </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              <Button type="submit" variant="secondary">
+                Xem thảo luận
+              </Button>
+            </form>
 
-      {/* Achievement Share Banner */}
-      {achievement && (
-        <div className="mb-8">
-          <AchievementShareCard
-            data={achievement}
-            onCopyLink={handleShareAchievement}
+            {availableQuestions.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-[var(--border-subtle)]">
+                <span className="text-sm font-semibold text-[var(--text-secondary)]">
+                  Câu hỏi từ các bài thi đã làm của bạn:
+                </span>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {availableQuestions.map((q, idx) => (
+                    <Button
+                      key={q.id}
+                      type="button"
+                      variant={questionId === q.id ? 'primary' : 'outline'}
+                      size="sm"
+                      onClick={() => {
+                        setQuestionId(q.id);
+                        setInputQuestionId(q.id);
+                      }}
+                    >
+                      Câu {idx + 1} {q.level ? `(${q.level})` : ''}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Achievement Share Banner */}
+        {achievement && (
+          <div className="mb-8">
+            <AchievementShareCard
+              data={achievement}
+              onCopyLink={handleShareAchievement}
+            />
+          </div>
+        )}
+
+        {loading && (
+          <EmptyState
+            variant="loading"
+            title={t('common.status.loading')}
+            description="Đang tải thảo luận..."
+            minHeight="sm"
+            className="mb-8"
           />
-        </div>
-      )}
+        )}
 
-      {loading && (
-        <EmptyState
-          variant="loading"
-          title={t('common.status.loading')}
-          description="Đang tải thảo luận..."
-          minHeight="sm"
-          className="mb-8"
+        {/* Question Discussions View */}
+        <QuestionDiscussions
+          questionId={questionId}
+          isCompleted={isCompleted}
+          comments={comments}
+          onAddComment={handlePostComment}
+          onReportComment={handleReportComment}
         />
-      )}
-
-      {/* Question Discussions View */}
-      <QuestionDiscussions
-        questionId={questionId}
-        isCompleted={isCompleted}
-        comments={comments}
-        onAddComment={handlePostComment}
-        onReportComment={handleReportComment}
-      />
+      </div>
     </div>
   );
 }

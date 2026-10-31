@@ -179,7 +179,7 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto py-8 px-4" data-testid="result-review-page">
+    <div className="container py-8" data-testid="result-review-page">
       {/* Breadcrumbs */}
       <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500 mb-6">
         <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}

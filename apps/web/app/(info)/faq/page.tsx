@@ -8,6 +8,7 @@ import { JsonLd } from '@jlpt/ui/components/json-ld';
 import { Spinner } from '@jlpt/ui/components/spinner';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Button } from '@jlpt/ui/components/button';
+import { ExamHero } from '../../../features/library';
 import { useI18n } from '../../../lib/i18n';
 
 interface FaqItem {
@@ -174,24 +175,23 @@ export default function FaqPage(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4 space-y-6" data-testid="faq-page">
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60" data-testid="faq-page">
       <JsonLd id="faq-page-schema" data={faqStructuredData} />
       <JsonLd id="faq-breadcrumbs-schema" data={breadcrumbStructuredData} />
 
-      {/* Breadcrumbs */}
-      <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
-        <span className="text-slate-900 dark:text-slate-100 font-semibold">Câu hỏi thường gặp</span>
-      </nav>
+      <ExamHero
+        title={t('seo.faq.title')}
+        subtitle={t('seo.faq.subtitle')}
+        minimal
+        background="gradient"
+      />
 
-      <div className="text-center max-w-2xl mx-auto space-y-2">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-          {t('seo.faq.title')}
-        </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          {t('seo.faq.subtitle')}
-        </p>
-      </div>
+      <div className="container py-8 space-y-6">
+        {/* Breadcrumbs */}
+        <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
+          <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
+          <span className="text-slate-900 dark:text-slate-100 font-semibold">Câu hỏi thường gặp</span>
+        </nav>
 
       {/* Search and Filters */}
       <div className="space-y-4">
@@ -279,5 +279,6 @@ export default function FaqPage(): React.JSX.Element {
         )}
       </div>
     </div>
-  );
+  </div>
+);
 }

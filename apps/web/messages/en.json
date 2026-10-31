@@ -295,7 +295,24 @@
       "smartSRS": "Spaced Repetition System (SRS) to reinforce vocabulary and kanji retention.",
       "analyticsTitle": "Analytics & Reports",
       "analytics": "Visual progress tracking highlighting your strengths and areas needing improvement."
-    }
+    },
+    "examCatalogTitle": "JLPT N1–N5 Mock Exam Library",
+    "examCatalogSubtitle": "Filter by level, year, or keyword to jump straight into a timed exam simulation.",
+    "nextExamCountdown": "Next JLPT Exam",
+    "daysRemaining": "~{days} days left",
+    "resumeExamNotice": "You have an unsubmitted exam: {title}. Resume now to finish your test.",
+    "resumeExamAction": "Resume Now",
+    "quickLevelSelect": "Quick Level Select",
+    "examsByYear": "Exams by Year",
+    "viewAllExams": "View all",
+    "takeExamNow": "Start Exam",
+    "searchExamsButton": "Search Exams",
+    "levelSelectLabel": "Level",
+    "yearSelectLabel": "Exam Year",
+    "sessionSelectLabel": "Session",
+    "chooseLevelPlaceholder": "Choose level",
+    "chooseYearPlaceholder": "Choose year",
+    "chooseSessionPlaceholder": "Choose session"
   },
   "notebook": {
     "page": {

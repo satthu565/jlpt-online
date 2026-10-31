@@ -11,7 +11,7 @@ const nextConfig = {
     minimumCacheTTL: 86400,
   },
   experimental: {
-    optimizePackageImports: ['@jlpt/ui'],
+    optimizePackageImports: ['@jlpt/ui', 'lucide-react'],
   },
   async headers() {
     return [

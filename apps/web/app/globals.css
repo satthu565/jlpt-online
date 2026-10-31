@@ -147,3 +147,112 @@ main#main-content > * {
 html[data-consent='set'] .jlpt-cookie-consent {
   display: none;
 }
+
+
+/* Hero Search Bar Select Component overrides */
+.hero-search-select {
+  border: 0 !important;
+  border-width: 0 !important;
+  border-color: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  padding-right: 1.25rem !important;
+  min-height: 0 !important;
+  height: 24px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  line-height: 1.25rem !important;
+  color: var(--text-primary) !important;
+  cursor: pointer !important;
+  outline: none !important;
+}
+
+.hero-search-select:focus,
+.hero-search-select:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.dark .hero-search-select option {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+
+/* JLPT Exam Level Pill Badges */
+.badge-level-n1 {
+  background-color: #ede9fe !important;
+  color: #6d28d9 !important;
+}
+.dark .badge-level-n1 {
+  background-color: rgba(109, 40, 217, 0.28) !important;
+  color: #d8b4fe !important;
+}
+
+.badge-level-n2 {
+  background-color: #ffe4e6 !important;
+  color: #be123c !important;
+}
+.dark .badge-level-n2 {
+  background-color: rgba(190, 18, 60, 0.28) !important;
+  color: #fda4af !important;
+}
+
+.badge-level-n3 {
+  background-color: #fef3c7 !important;
+  color: #b45309 !important;
+}
+.dark .badge-level-n3 {
+  background-color: rgba(180, 83, 9, 0.28) !important;
+  color: #fde68a !important;
+}
+
+.badge-level-n4 {
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+}
+.dark .badge-level-n4 {
+  background-color: rgba(3, 105, 161, 0.28) !important;
+  color: #7dd3fc !important;
+}
+
+.badge-level-n5 {
+  background-color: #dcfce7 !important;
+  color: #15803d !important;
+}
+.dark .badge-level-n5 {
+  background-color: rgba(21, 128, 61, 0.28) !important;
+  color: #86efac !important;
+}
+
+/* Countdown digit transition animation */
+@keyframes digitFlip {
+  0% {
+    transform: translateY(-80%);
+    opacity: 0.15;
+    filter: blur(1px);
+  }
+  65% {
+    transform: translateY(6%);
+    opacity: 0.95;
+    filter: blur(0);
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.animate-digit-flip {
+  display: inline-block;
+  animation: digitFlip 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-digit-flip {
+    animation: none !important;
+  }
+}

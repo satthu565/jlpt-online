@@ -436,7 +436,7 @@ export default function ExamRoomPage(): React.JSX.Element {
 
   // Default: Exam picker page
   return (
-    <div className="mx-auto w-full max-w-5xl py-8 px-4" data-testid="exam-room-page">
+    <div className="container py-8" data-testid="exam-room-page">
       <div className="mb-6">
         <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
           Phòng thi trực tuyến JLPT

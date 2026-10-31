@@ -7,6 +7,7 @@ import { Button } from '@jlpt/ui/components/button';
 import { Badge } from '@jlpt/ui/components/badge';
 import { Alert } from '@jlpt/ui/components/alert';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
+import { ExamHero } from '../../../features/library';
 import { useI18n } from '../../../lib/i18n';
 
 export default function SupportCenterPage(): React.JSX.Element {
@@ -53,23 +54,22 @@ export default function SupportCenterPage(): React.JSX.Element {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 space-y-6" data-testid="support-page">
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60" data-testid="support-page">
       <JsonLd id="support-breadcrumbs" data={breadcrumbs} />
 
-      {/* Breadcrumbs */}
-      <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
-        <span className="text-slate-900 dark:text-slate-100 font-semibold">Trung tâm hỗ trợ</span>
-      </nav>
+      <ExamHero
+        title={t('seo.support.title')}
+        subtitle={t('seo.support.subtitle')}
+        minimal
+        background="gradient"
+      />
 
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-          {t('seo.support.title')}
-        </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-          {t('seo.support.subtitle')}
-        </p>
-      </div>
+      <div className="container py-8 space-y-6">
+        {/* Breadcrumbs */}
+        <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
+          <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
+          <span className="text-slate-900 dark:text-slate-100 font-semibold">Trung tâm hỗ trợ</span>
+        </nav>
 
       {/* System Status Card */}
       <Card className="p-6 border border-slate-200 dark:border-slate-800 bg-emerald-50/40 dark:bg-emerald-950/20">
@@ -143,5 +143,6 @@ export default function SupportCenterPage(): React.JSX.Element {
         </div>
       </Card>
     </div>
-  );
+  </div>
+);
 }

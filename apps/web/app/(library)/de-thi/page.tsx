@@ -2,9 +2,10 @@
 
 import { AlertTriangle } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
-import dynamic from 'next/dynamic';
 import { ExamApiClient, ExamApiError } from '../../../features/exam/api/exam-api';
 import type { ExamWithUserStatus } from '../../../features/library/types';
+import { INITIAL_LIBRARY_FILTERS } from '../../../features/library/types';
+import { LibraryView, ExamHero, LibraryFilters } from '../../../features/library';
 import { useAuth } from '../../../lib/auth-context';
 import { Card } from '@jlpt/ui/components/card';
 import { Alert } from '@jlpt/ui/components/alert';
@@ -28,14 +29,6 @@ function LibrarySkeleton(): React.JSX.Element {
     </div>
   );
 }
-
-const LibraryView = dynamic(
-  () => import('../../../features/library/components/library-view').then((m) => m.LibraryView),
-  {
-    ssr: false,
-    loading: () => <LibrarySkeleton />,
-  },
-);
 
 export default function ExamLibraryPage(): React.JSX.Element {
   const { user } = useAuth();
@@ -85,44 +78,61 @@ export default function ExamLibraryPage(): React.JSX.Element {
   }, [loadExams]);
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-8" data-testid="exam-library-page">
-      {/* Page header */}
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-          Thư viện đề thi JLPT N1–N5
-        </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-2xl">
-          Tổng hợp đề thi thật chính thức và đề thi thử nghiệm chuẩn cấu trúc đề thi năng lực tiếng
-          Nhật quốc tế từ N1 đến N5.
-        </p>
-      </div>
-
-      <div className="min-h-[100svh]">
-        {loading ? (
-          <LibrarySkeleton />
-        ) : error ? (
-          <Card
-            className="p-8 text-center border border-slate-200 dark:border-slate-800"
-            data-testid="library-error"
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60" data-testid="exam-library-page">
+      {loading ? (
+        <>
+          <ExamHero
+            title="Thư viện đề thi JLPT N1–N5"
+            minimal
+            background="gradient"
+            subtitle="Tổng hợp đề thi thật chính thức và đề thi thử nghiệm chuẩn cấu trúc đề thi năng lực tiếng Nhật quốc tế từ N1 đến N5."
           >
-            <AlertTriangle className="mx-auto mb-3 size-10 text-[var(--color-danger)]" role="img" aria-label="Lỗi tải đề thi" />
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
-              Không thể tải thư viện đề thi
-            </h2>
-            <Alert variant="error" className="mb-6 text-left max-w-md mx-auto">
-              {error}
-            </Alert>
-            <div className="flex justify-center gap-3">
-              <Button variant="primary" size="md" onClick={loadExams}>
-                Thử lại
-              </Button>
-            </div>
-          </Card>
-        ) : (
-          /* Library View with full filters and search (LIB-01..08, LIB-15) */
-          <LibraryView exams={exams} />
-        )}
-      </div>
+            <LibraryFilters
+              filters={INITIAL_LIBRARY_FILTERS}
+              onFilterChange={() => {}}
+              onResetFilters={() => {}}
+              idPrefix="library-loading"
+            />
+          </ExamHero>
+          <div className="container py-8">
+            <LibrarySkeleton />
+          </div>
+        </>
+      ) : error ? (
+        <>
+          <ExamHero
+            title="Thư viện đề thi JLPT N1–N5"
+            minimal
+            background="gradient"
+            subtitle="Tổng hợp đề thi thật chính thức và đề thi thử nghiệm chuẩn cấu trúc đề thi năng lực tiếng Nhật quốc tế từ N1 đến N5."
+          />
+          <div className="container py-8">
+            <Card
+              className="p-8 text-center border border-slate-200 dark:border-slate-800"
+              data-testid="library-error"
+            >
+              <AlertTriangle
+                className="mx-auto mb-3 size-10 text-[var(--color-danger)]"
+                role="img"
+                aria-label="Lỗi tải đề thi"
+              />
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
+                Không thể tải thư viện đề thi
+              </h2>
+              <Alert variant="error" className="mb-6 text-left max-w-md mx-auto">
+                {error}
+              </Alert>
+              <div className="flex justify-center gap-3">
+                <Button variant="primary" size="md" onClick={loadExams}>
+                  Thử lại
+                </Button>
+              </div>
+            </Card>
+          </div>
+        </>
+      ) : (
+        <LibraryView exams={exams} showHero />
+      )}
     </div>
   );
 }
