@@ -194,7 +194,7 @@ export function LibraryView({
         )}
 
         {/* Next Recommendation Banner */}
-        {recommendedExam && (
+        {recommendedExam && !hasActiveFilters && (
           <section
             data-testid="next-recommendation-banner"
             aria-label="Đề xuất đề thi tiếp theo"
