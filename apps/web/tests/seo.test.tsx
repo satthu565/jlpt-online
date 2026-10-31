@@ -203,6 +203,9 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
     it('renders grammar pattern page with formation, examples, and practice link', () => {
       const html = renderClean(<GrammarCorpusPage />);
       expect(html).toContain('Thư viện Mẫu Ngữ pháp JLPT N1–N5');
+      expect(html).toContain('from-sky-100');
+      expect(html).not.toContain('/images/hero-jlpt-bg.webp');
+      expect(html).not.toContain('ĐẾM NGƯỢC KỲ THI JLPT');
       expect(html).toContain('data-testid="grammar-search-input"');
       expect(html).toContain('data-testid="grammar-level-tabs"');
       expect(html).not.toContain('jlpt-official');
