@@ -1,7 +1,27 @@
 'use client';
 
-import { BarChart3, ChevronDown, Globe, History, LogOut, UserRound } from 'lucide-react';
+import {
+  BarChart3,
+  BookOpen,
+  BookText,
+  Calendar,
+  CalendarDays,
+  ChartNoAxesColumn,
+  ChevronDown,
+  Clock,
+  CreditCard,
+  Ellipsis,
+  FileText,
+  Globe,
+  GraduationCap,
+  History,
+  House,
+  LogOut,
+  NotebookText,
+  UserRound,
+} from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { usePathname } from 'next/navigation';
 import { Header, type NavItem } from '@jlpt/ui/components/header';
 import { Button } from '@jlpt/ui/components/button';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@jlpt/ui/components/dropdown-menu';
@@ -18,36 +38,68 @@ const LocaleSwitcher = dynamic(
   { ssr: false },
 );
 
+function isRouteActive(href: string | undefined, currentPath: string): boolean {
+  if (!href) return false;
+  if (href === '/') {
+    return currentPath === '/';
+  }
+  if (href === '/de-thi') {
+    return (
+      currentPath === '/de-thi' ||
+      currentPath.startsWith('/de-thi/') ||
+      /^\/n[1-5](\/|$)/.test(currentPath) ||
+      currentPath.startsWith('/phong-thi')
+    );
+  }
+  if (href === '/tu-vung') {
+    return currentPath === '/tu-vung' || currentPath.startsWith('/tu-vung/') || currentPath.startsWith('/thong-ke-tu-vung');
+  }
+  return currentPath === href || currentPath.startsWith(`${href}/`);
+}
+
 export function NavigationHeader(): React.JSX.Element {
   const { t, locale, setLocale } = useI18n();
   const { user, signOut } = useAuth();
+  let pathname = '/';
+  try {
+    const current = usePathname();
+    if (typeof current === 'string' && current.length > 0) {
+      pathname = current;
+    }
+  } catch {
+    pathname = '/';
+  }
 
   // Core navigation items displayed directly
   const navItems: NavItem[] = [
-    { label: t('common.nav.home'), href: '/' },
-    { label: t('common.nav.exams'), href: '/de-thi' },
-    { label: t('common.nav.practice'), href: '/luyen-tap' },
-    { label: t('common.nav.vocabulary'), href: '/tu-vung' },
-    { label: t('common.nav.grammar'), href: '/ngu-phap' },
-    { label: t('common.nav.notebook'), href: '/so-tay' },
+    { label: t('common.nav.home'), href: '/', icon: House, active: isRouteActive('/', pathname) },
+    { label: t('common.nav.exams'), href: '/de-thi', icon: FileText, active: isRouteActive('/de-thi', pathname) },
+    { label: t('common.nav.practice'), href: '/luyen-tap', icon: BookOpen, active: isRouteActive('/luyen-tap', pathname) },
+    { label: t('common.nav.vocabulary'), href: '/tu-vung', icon: ChartNoAxesColumn, active: isRouteActive('/tu-vung', pathname) },
+    { label: t('common.nav.grammar'), href: '/ngu-phap', icon: BookText, active: isRouteActive('/ngu-phap', pathname) },
+    { label: t('common.nav.notebook'), href: '/so-tay', icon: NotebookText, active: isRouteActive('/so-tay', pathname) },
   ];
 
   // Secondary items grouped into "Thêm" (More) dropdown menu
   const moreItems: NavItem[] = [
-    { label: t('common.nav.planner'), href: '/ke-hoach' },
-    { label: t('common.nav.classroom'), href: '/lop-hoc' },
-    { label: t('common.nav.events'), href: '/su-kien' },
-    { label: t('common.nav.schedules'), href: '/lich-thi' },
-    { label: t('common.nav.pricing'), href: '/goi-thanh-vien' },
+    { label: t('common.nav.planner'), href: '/ke-hoach', icon: Calendar, active: isRouteActive('/ke-hoach', pathname) },
+    { label: t('common.nav.classroom'), href: '/lop-hoc', icon: GraduationCap, active: isRouteActive('/lop-hoc', pathname) },
+    { label: t('common.nav.events'), href: '/su-kien', icon: CalendarDays, active: isRouteActive('/su-kien', pathname) },
+    { label: t('common.nav.schedules'), href: '/lich-thi', icon: Clock, active: isRouteActive('/lich-thi', pathname) },
+    { label: t('common.nav.pricing'), href: '/goi-thanh-vien', icon: CreditCard, active: isRouteActive('/goi-thanh-vien', pathname) },
   ];
 
   if (user) {
-    moreItems.push({ label: t('common.nav.examHistory'), href: '/lich-su' });
-    moreItems.push({ label: t('common.nav.analytics'), href: '/thong-ke' });
+    moreItems.push({ label: t('common.nav.examHistory'), href: '/lich-su', icon: History, active: isRouteActive('/lich-su', pathname) });
+    moreItems.push({ label: t('common.nav.analytics'), href: '/thong-ke', icon: BarChart3, active: isRouteActive('/thong-ke', pathname) });
   }
+
+  const isMoreActive = moreItems.some((item) => item.active);
 
   navItems.push({
     label: t('common.nav.more') || 'Thêm',
+    icon: Ellipsis,
+    active: isMoreActive,
     children: moreItems,
   });
 
