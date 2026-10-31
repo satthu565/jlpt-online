@@ -60,7 +60,7 @@ describe('Brand Logo & Mascot Assets (Gokakuya.com & JLPT Online)', () => {
     expect(html).toContain('src="/images/brand/logo-v3-footer.webp"');
     expect(html).toContain('alt="Gokakuya.com"');
     expect(html).toContain('width="520"');
-    expect(html).toContain('height="175"');
+    expect(html).toContain('height="100"');
     expect(html).toContain('w-56');
     expect(html).not.toContain('rounded-xl');
     expect(html).toContain('loading="lazy"');

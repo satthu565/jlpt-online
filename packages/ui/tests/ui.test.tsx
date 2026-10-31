@@ -207,7 +207,7 @@ describe('@jlpt/ui component suite', () => {
     expect(html).toContain('w-56');
     expect(html).not.toContain('rounded-xl');
     expect(html).toContain('width="520"');
-    expect(html).toContain('height="175"');
+    expect(html).toContain('height="100"');
     expect(html).toContain('loading="lazy"');
   });
 
