@@ -1086,7 +1086,7 @@ export default function HomePage(): React.JSX.Element {
                               <Calendar className="size-3.5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                               <span>Năm thi</span>
                             </span>
-                            <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none">
+                            <span className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight leading-none">
                               {session.year}
                             </span>
                           </div>
@@ -1100,7 +1100,7 @@ export default function HomePage(): React.JSX.Element {
                               <Clock className="size-3.5 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                               <span>Kỳ thi</span>
                             </span>
-                            <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none">
+                            <span className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight leading-none">
                               Tháng {session.session}
                             </span>
                           </div>
