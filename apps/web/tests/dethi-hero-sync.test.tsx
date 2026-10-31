@@ -10,6 +10,8 @@ import { LibraryFilters } from '../features/library/components/library-filters';
 import { INITIAL_LIBRARY_FILTERS } from '../features/library/types';
 import HomePage from '../app/page';
 import ExamLibraryPage from '../app/(library)/de-thi/page';
+import MembershipPage from '../app/(billing)/goi-thanh-vien/page';
+import ClassroomPage from '../app/(classroom)/lop-hoc/page';
 
 const renderWithProviders = (ui: React.ReactElement): string => {
   return renderToString(<Providers messages={viMessages}>{ui}</Providers>)
@@ -145,5 +147,27 @@ describe('Synchronization of /de-thi with HomePage Hero and Filters', () => {
     expect(html).toContain('from-sky-100');
     expect(html).toContain('Thư viện đề thi JLPT');
     expect(html).not.toContain('ĐẾM NGƯỢC KỲ THI JLPT');
+  });
+
+  it('MembershipPage renders with ExamHero gradient, title, subtitle, and no countdown', () => {
+    const html = renderWithProviders(<MembershipPage />);
+
+    expect(html).not.toContain('/images/hero-jlpt-bg.webp');
+    expect(html).toContain('from-sky-100');
+    expect(html).toContain(viMessages.billing.page.title);
+    expect(html).toContain(viMessages.billing.page.subtitle);
+    expect(html).not.toContain('ĐẾM NGƯỢC KỲ THI JLPT');
+    expect(html).toContain('data-testid="pricing-table"');
+  });
+
+  it('ClassroomPage renders with ExamHero gradient, title, subtitle, and no countdown', () => {
+    const html = renderWithProviders(<ClassroomPage />);
+
+    expect(html).not.toContain('/images/hero-jlpt-bg.webp');
+    expect(html).toContain('from-sky-100');
+    expect(html).toContain(viMessages.classroom.page.title);
+    expect(html).toContain(viMessages.classroom.page.subtitle);
+    expect(html).not.toContain('ĐẾM NGƯỢC KỲ THI JLPT');
+    expect(html).toContain('data-testid="classroom-invite-input"');
   });
 });

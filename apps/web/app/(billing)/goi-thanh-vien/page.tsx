@@ -10,10 +10,10 @@ import {
   type CheckoutSession,
   type UserSubscription,
 } from '../../../features/billing';
+import { ExamHero } from '../../../features/library';
 import { useI18n } from '../../../lib/i18n';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Button } from '@jlpt/ui/components/button';
-import { PageHeader } from '@jlpt/ui/components/page-header';
 import { EmptyState } from '@jlpt/ui/components/empty-state';
 import { Gem } from 'lucide-react';
 import Link from 'next/link';
@@ -129,16 +129,15 @@ export default function MembershipPage(): React.JSX.Element {
   };
 
   return (
-    <div className="container py-8 w-full flex flex-col gap-8">
-      <div className="text-center max-w-2xl mx-auto">
-        <PageHeader
-          title={t('billing.page.title')}
-          description={t('billing.page.subtitle')}
-          className="border-none pb-0 text-center items-center justify-center"
-        />
-      </div>
-
-      {subscription && subscription.status === 'active' && (
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60">
+      <ExamHero
+        title={t('billing.page.title')}
+        subtitle={t('billing.page.subtitle')}
+        minimal
+        background="gradient"
+      />
+      <div className="container py-8 w-full flex flex-col gap-8">
+        {subscription && subscription.status === 'active' && (
         <Alert variant="info">
           <div className="flex justify-between items-center flex-wrap gap-2">
             <div>
@@ -212,6 +211,7 @@ export default function MembershipPage(): React.JSX.Element {
           )}
         </>
       )}
+      </div>
     </div>
   );
 }
