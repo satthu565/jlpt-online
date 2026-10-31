@@ -364,7 +364,55 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
       expect(body.mediaToken).toBeDefined();
     });
 
-    it('Khách làm đề có cờ guest_trial với Turnstile không hợp lệ qua POST /guest/attempts bị từ chối 400 TURNSTILE_FAILED', async () => {
+    it('Bật Turnstile: Thiếu token Turnstile qua POST /guest/attempts bị từ chối 400 TURNSTILE_FAILED', async () => {
+      process.env.TURNSTILE_SECRET_KEY = 'test_configured_secret_key';
+      try {
+        const res = await app.inject({
+          method: 'POST',
+          url: '/api/v1/guest/attempts',
+          headers: {
+            'content-type': 'application/json',
+          },
+          payload: {
+            examId: guestTrialExamId,
+            mode: 'practice',
+          },
+        });
+
+        expect(res.statusCode).toBe(400);
+        const body = JSON.parse(res.payload);
+        expect(body.error.code).toBe('TURNSTILE_FAILED');
+      } finally {
+        delete process.env.TURNSTILE_SECRET_KEY;
+      }
+    });
+
+    it('Bật Turnstile: Token Turnstile không hợp lệ qua POST /guest/attempts bị từ chối 400 TURNSTILE_FAILED', async () => {
+      process.env.TURNSTILE_SECRET_KEY = 'test_configured_secret_key';
+      try {
+        const res = await app.inject({
+          method: 'POST',
+          url: '/api/v1/guest/attempts',
+          headers: {
+            'content-type': 'application/json',
+          },
+          payload: {
+            examId: guestTrialExamId,
+            mode: 'practice',
+            turnstileToken: 'test_invalid_token',
+          },
+        });
+
+        expect(res.statusCode).toBe(400);
+        const body = JSON.parse(res.payload);
+        expect(body.error.code).toBe('TURNSTILE_FAILED');
+      } finally {
+        delete process.env.TURNSTILE_SECRET_KEY;
+      }
+    });
+
+    it('Tắt Turnstile (không cấu hình secret): Không gửi token Turnstile vẫn được phép bắt đầu (201 Created)', async () => {
+      delete process.env.TURNSTILE_SECRET_KEY;
       const res = await app.inject({
         method: 'POST',
         url: '/api/v1/guest/attempts',
@@ -374,13 +422,13 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
         payload: {
           examId: guestTrialExamId,
           mode: 'practice',
-          turnstileToken: 'test_invalid_token',
         },
       });
 
-      expect(res.statusCode).toBe(400);
+      expect(res.statusCode).toBe(201);
       const body = JSON.parse(res.payload);
-      expect(body.error.code).toBe('TURNSTILE_FAILED');
+      expect(body.attemptId).toBeDefined();
+      expect(body.status).toBe('in_progress');
     });
 
     it('Tài khoản chưa xác minh email (emailVerified = false) bị từ chối 403 EMAIL_NOT_VERIFIED', async () => {

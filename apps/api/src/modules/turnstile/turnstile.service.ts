@@ -10,7 +10,21 @@ export interface TurnstileVerificationResult {
 @Injectable()
 export class TurnstileService {
   private readonly logger = new Logger(TurnstileService.name);
-  private readonly secretKey = process.env.TURNSTILE_SECRET_KEY || '1x0000000000000000000000000000000AA';
+
+  get secretKey(): string {
+    return process.env.TURNSTILE_SECRET_KEY || '1x0000000000000000000000000000000AA';
+  }
+
+  /**
+   * Turnstile is enabled if TURNSTILE_SECRET_KEY is configured in server environment.
+   */
+  isEnabled(): boolean {
+    if (process.env.TURNSTILE_ENABLED === 'false') {
+      return false;
+    }
+    const key = process.env.TURNSTILE_SECRET_KEY;
+    return Boolean(key && key.trim() !== '');
+  }
 
   /**
    * Validates a Cloudflare Turnstile token.

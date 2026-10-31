@@ -143,13 +143,25 @@ export default function ExamRoomPage(): React.JSX.Element {
         }
 
         // Restore in-progress guest session if available
-        if (!attemptIdParam) {
+        if (!user) {
           try {
             const rawGuest = localStorage.getItem('jlpt_guest_active_attempt');
             if (rawGuest) {
               const guestSession = JSON.parse(rawGuest);
-              if (guestSession?.snapshot && guestSession?.attemptId && (!examIdParam || examIdParam === guestSession.examId)) {
-                import('../../../features/exam/storage/indexeddb').then(({ createExamStorage }) => {
+              if (
+                guestSession?.snapshot &&
+                guestSession?.attemptId &&
+                (!attemptIdParam || attemptIdParam === guestSession.attemptId) &&
+                (!examIdParam || examIdParam === guestSession.examId)
+              ) {
+                if (attemptIdParam) {
+                  resumeConfirmation.request(attemptIdParam);
+                  return;
+                }
+                Promise.all([
+                  import('../../../features/exam/storage/indexeddb').then(({ createExamStorage }) => createExamStorage()),
+                  getApiClient(),
+                ]).then(([createdStorage]) => {
                   setActiveSnapshot(guestSession.snapshot);
                   setActiveAttemptId(guestSession.attemptId);
                   setActiveLease('guest-lease');
@@ -160,7 +172,7 @@ export default function ExamRoomPage(): React.JSX.Element {
                   setInitialFlags(guestSession.flags);
                   setInitialDeadlines(guestSession.sectionDeadlines || {});
                   setSelectedMode(guestSession.mode || 'real');
-                  setStorage(createExamStorage());
+                  setStorage(createdStorage);
                   setIsExamStarted(true);
                 });
                 return;
@@ -192,6 +204,40 @@ export default function ExamRoomPage(): React.JSX.Element {
       setErrorInfo(null);
 
       const apiClient = await getApiClient();
+
+      // Check if there is a guest session stored in browser localStorage
+      if (!user) {
+        try {
+          const rawGuest = localStorage.getItem('jlpt_guest_active_attempt');
+          if (rawGuest) {
+            const guestSession = JSON.parse(rawGuest);
+            if (guestSession?.snapshot && (!attemptId || guestSession.attemptId === attemptId)) {
+              const { createExamStorage } = await import('../../../features/exam/storage/indexeddb');
+              const attemptStorage = createExamStorage();
+              setActiveSnapshot(guestSession.snapshot);
+              setActiveAttemptId(guestSession.attemptId);
+              setActiveLease('guest-lease');
+              setActiveServerNow(new Date().toISOString());
+              setActiveServerOffsetMs(0);
+              setInitialSectionIndex(guestSession.currentSection || 0);
+              setInitialAnswers(guestSession.answers);
+              setInitialFlags(guestSession.flags);
+              setInitialDeadlines(guestSession.sectionDeadlines || {});
+              setSelectedMode(guestSession.mode || 'real');
+              setStorage(attemptStorage);
+              setIsExamStarted(true);
+              if (typeof window !== 'undefined') {
+                const nextUrl = `/phong-thi?attemptId=${encodeURIComponent(guestSession.attemptId)}&mode=${guestSession.mode || 'real'}`;
+                window.history.replaceState(null, '', nextUrl);
+              }
+              return;
+            }
+          }
+        } catch {
+          // fallback to server resume attempt if local parse fails
+        }
+      }
+
       const resumeRes = await apiClient.resumeAttempt(attemptId);
       if (resumeRes.status === 'submitted') {
         window.location.replace(`/ket-qua/${encodeURIComponent(attemptId)}`);

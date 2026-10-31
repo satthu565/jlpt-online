@@ -1103,8 +1103,14 @@ export class AttemptService {
       });
     }
 
-    // Verify Turnstile for guest trial if provided
-    if (turnstileToken) {
+    // Verify Turnstile for guest trial if configured on server
+    if (this.turnstileService.isEnabled()) {
+      if (!turnstileToken) {
+        throw new BadRequestException({
+          code: 'TURNSTILE_FAILED',
+          message: 'Yêu cầu xác thực Turnstile.',
+        });
+      }
       const turnstileRes = await this.turnstileService.verifyToken(turnstileToken, clientIp);
       if (!turnstileRes.success) {
         throw new BadRequestException({
