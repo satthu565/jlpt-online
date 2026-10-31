@@ -418,9 +418,13 @@ export function AudioPlayer({
                   key={rate}
                   type="button"
                   size="sm"
-                  variant={playbackRate === rate ? 'primary' : 'secondary'}
+                  variant="secondary"
                   onClick={() => handleRateChange(rate)}
-                  className="px-2 py-0.5 text-xs font-mono font-medium min-h-[32px] h-8"
+                  className={`px-2 py-0.5 text-xs font-mono font-medium min-h-[32px] h-8 ${
+                    playbackRate === rate
+                      ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-xs'
+                      : ''
+                  }`}
                   aria-label={`Tốc độ phát ${rate}x`}
                   aria-pressed={playbackRate === rate}
                 >
