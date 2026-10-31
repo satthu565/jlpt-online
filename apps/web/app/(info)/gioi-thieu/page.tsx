@@ -5,6 +5,7 @@ import { Card } from '@jlpt/ui/components/card';
 import { Badge } from '@jlpt/ui/components/badge';
 import { Button } from '@jlpt/ui/components/button';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
+import { ExamHero } from '../../../features/library';
 
 export const metadata: Metadata = {
   title: 'Giới thiệu Nền tảng Luyện thi JLPT Online Chuẩn Quốc tế',
@@ -29,28 +30,29 @@ export default function AboutPage(): React.JSX.Element {
   };
 
   return (
-    <div className="container py-8 space-y-6" data-testid="about-page">
-      <JsonLd id="about-breadcrumbs" data={breadcrumbs} />
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60" data-testid="about-page">
+      <ExamHero
+        title="Về Nền tảng Luyện thi Tiếng Nhật Trực tuyến JLPT Online"
+        subtitle="Hệ thống luyện thi và thi thử mô phỏng chính xác phòng thi thực tế với công nghệ đo thời gian máy chủ và phân tích điểm số tự động."
+        minimal
+        background="gradient"
+      />
 
-      {/* Breadcrumbs */}
-      <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
-        <span className="text-slate-900 dark:text-slate-100 font-semibold">Giới thiệu</span>
-      </nav>
+      <div className="container py-8 space-y-6">
+        <JsonLd id="about-breadcrumbs" data={breadcrumbs} />
 
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-        <Badge variant="primary" size="md">
-          JLPT Online V1–V4
-        </Badge>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-2">
-          Về Nền tảng Luyện thi Tiếng Nhật Trực tuyến JLPT Online
-        </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-          Hệ thống luyện thi và thi thử mô phỏng chính xác phòng thi thực tế với công nghệ đo thời gian máy chủ và phân tích điểm số tự động.
-        </p>
-      </div>
+        {/* Breadcrumbs */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
+            <a href="/" className="text-slate-500 no-underline hover:underline">Trang chủ</a> &gt;{' '}
+            <span className="text-slate-900 dark:text-slate-100 font-semibold">Giới thiệu</span>
+          </nav>
+          <Badge variant="primary" size="md">
+            JLPT Online V1–V4
+          </Badge>
+        </div>
 
-      <Card className="p-6 md:p-8 border border-slate-200 dark:border-slate-800 space-y-4 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+        <Card className="p-6 md:p-8 border border-slate-200 dark:border-slate-800 space-y-4 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
         <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
           Sứ mệnh & Mục tiêu
         </h2>
@@ -90,6 +92,7 @@ export default function AboutPage(): React.JSX.Element {
           <a href="https://www.edrdg.org/edrdg/licence.html">www.edrdg.org/edrdg/licence.html</a>.
         </p>
       </Card>
+      </div>
     </div>
   );
 }
