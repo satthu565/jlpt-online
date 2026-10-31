@@ -4,8 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ExamApiClient, ExamApiError } from '../../../features/exam/api/exam-api';
 import { HistoryView } from '../../../features/results/components/history-view';
 import type { ExamHistoryItem } from '../../../features/results/types';
+import { ExamHero } from '../../../features/library';
 import { Button } from '@jlpt/ui/components/button';
-import { PageHeader } from '@jlpt/ui/components/page-header';
 import { EmptyState } from '@jlpt/ui/components/empty-state';
 import { KeyRound, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
@@ -64,48 +64,51 @@ export default function ExamHistoryPage(): React.JSX.Element {
   }, [loadHistory]);
 
   return (
-    <div className="container py-8" data-testid="exam-history-page">
-      <PageHeader
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60" data-testid="exam-history-page">
+      <ExamHero
         title="Lịch sử làm bài thi"
-        description="Theo dõi tiến độ, điểm số và xem lại chi tiết bài làm của các kỳ thi bạn đã tham gia."
-        className="mb-8"
+        subtitle="Theo dõi tiến độ, điểm số và xem lại chi tiết bài làm của các kỳ thi bạn đã tham gia."
+        minimal
+        background="gradient"
       />
 
-      {loading ? (
-        <div data-testid="history-loading">
-          <EmptyState
-            variant="loading"
-            title="Đang tải lịch sử các lần thi..."
-            description="Vui lòng chờ trong giây lát"
-            minHeight="md"
-          />
-        </div>
-      ) : error ? (
-        <div data-testid="history-error">
-          <EmptyState
-            variant="error"
-            icon={error.isAuthError ? KeyRound : AlertTriangle}
-            title={error.isAuthError ? 'Yêu cầu đăng nhập' : 'Không thể tải lịch sử'}
-            description={error.message}
-            action={
-              error.isAuthError ? (
-                <Link href="/dang-nhap?redirect=/lich-su">
-                  <Button variant="primary" size="md">
-                    Đăng nhập ngay
+      <div className="container py-8">
+        {loading ? (
+          <div data-testid="history-loading">
+            <EmptyState
+              variant="loading"
+              title="Đang tải lịch sử các lần thi..."
+              description="Vui lòng chờ trong giây lát"
+              minHeight="md"
+            />
+          </div>
+        ) : error ? (
+          <div data-testid="history-error">
+            <EmptyState
+              variant="error"
+              icon={error.isAuthError ? KeyRound : AlertTriangle}
+              title={error.isAuthError ? 'Yêu cầu đăng nhập' : 'Không thể tải lịch sử'}
+              description={error.message}
+              action={
+                error.isAuthError ? (
+                  <Link href="/dang-nhap?redirect=/lich-su">
+                    <Button variant="primary" size="md">
+                      Đăng nhập ngay
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button variant="primary" size="md" onClick={loadHistory}>
+                    Thử lại
                   </Button>
-                </Link>
-              ) : (
-                <Button variant="primary" size="md" onClick={loadHistory}>
-                  Thử lại
-                </Button>
-              )
-            }
-            minHeight="md"
-          />
-        </div>
-      ) : (
-        <HistoryView historyItems={historyItems} />
-      )}
+                )
+              }
+              minHeight="md"
+            />
+          </div>
+        ) : (
+          <HistoryView historyItems={historyItems} />
+        )}
+      </div>
     </div>
   );
 }
