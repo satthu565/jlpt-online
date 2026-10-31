@@ -6,6 +6,7 @@ import type { FlatQuestionItem } from '../../exam/types';
 import { RichTextView } from '@jlpt/ui/components/rich-text-view';
 import { PassageView } from '@jlpt/ui/components/rich-block-view';
 import { Button } from '@jlpt/ui/components/button';
+import { Spinner } from '@jlpt/ui/components/spinner';
 import { QuestionAudioPlayer } from '../../exam/components/audio-player';
 import type { LearnerExplanation } from '../../explanations/types';
 import { ExplanationView } from '../../explanations/components/explanation-view';
@@ -16,10 +17,15 @@ export interface ReviewQuestionItemProps {
   correctAnswer: number; // 1..4
   isFlagged: boolean;
   explanation?: LearnerExplanation;
+  loadExplanation?: (index: number) => Promise<LearnerExplanation>;
   hasLicensePermission?: boolean;
   className?: string;
   showFurigana?: boolean;
   timeSpentMs?: number;
+  defaultExpanded?: boolean;
+  loadingExplanation?: boolean;
+  explanationError?: string | null;
+  onRetryExplanation?: () => void;
 }
 
 export function ReviewQuestionItem({
@@ -28,12 +34,63 @@ export function ReviewQuestionItem({
   correctAnswer,
   isFlagged,
   explanation,
+  loadExplanation,
   hasLicensePermission = false,
   className = '',
   showFurigana = true,
   timeSpentMs,
+  defaultExpanded = false,
+  loadingExplanation: propLoadingExplanation,
+  explanationError: propExplanationError,
+  onRetryExplanation,
 }: ReviewQuestionItemProps): React.JSX.Element {
-  const [showExplanation, setShowExplanation] = React.useState(Boolean(explanation));
+  const [showExplanation, setShowExplanation] = React.useState(
+    Boolean(explanation) || Boolean(defaultExpanded),
+  );
+  const [loadedExplanation, setLoadedExplanation] = React.useState<LearnerExplanation | null>(null);
+  const [internalLoading, setInternalLoading] = React.useState(false);
+  const [internalError, setInternalError] = React.useState<string | null>(null);
+
+  const isLoading = propLoadingExplanation !== undefined ? propLoadingExplanation : internalLoading;
+  const currentError = propExplanationError !== undefined ? propExplanationError : internalError;
+
+  const fetchExplanation = React.useCallback(async () => {
+    if (!loadExplanation || explanation) return;
+    setInternalLoading(true);
+    setInternalError(null);
+    try {
+      const data = await loadExplanation(question.globalIndex);
+      setLoadedExplanation(data);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'Có lỗi xảy ra khi tải lời giải chi tiết.';
+      setInternalError(message);
+    } finally {
+      setInternalLoading(false);
+    }
+  }, [loadExplanation, explanation, question.globalIndex]);
+
+  React.useEffect(() => {
+    if (showExplanation && !explanation && !loadedExplanation && !isLoading && !currentError && loadExplanation) {
+      void fetchExplanation();
+    }
+  }, [showExplanation, explanation, loadedExplanation, isLoading, currentError, loadExplanation, fetchExplanation]);
+
+  const handleToggleExplanation = () => {
+    const nextOpen = !showExplanation;
+    setShowExplanation(nextOpen);
+    if (nextOpen && !explanation && !loadedExplanation && !isLoading && loadExplanation) {
+      void fetchExplanation();
+    }
+  };
+
+  const handleRetry = () => {
+    if (onRetryExplanation) {
+      onRetryExplanation();
+    } else {
+      void fetchExplanation();
+    }
+  };
   const isCorrect = userAnswer === correctAnswer;
   const isBlank = userAnswer === 0;
 
@@ -206,7 +263,7 @@ export function ReviewQuestionItem({
             type="button"
             variant="link"
             size="sm"
-            onClick={() => setShowExplanation((prev) => !prev)}
+            onClick={handleToggleExplanation}
             data-testid={`toggle-explanation-btn-${question.number}`}
             className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5 p-0 h-auto min-h-0"
           >
@@ -225,6 +282,47 @@ export function ReviewQuestionItem({
                 correctAnswer={correctAnswer}
                 hasLicensePermission={hasLicensePermission}
               />
+            ) : isLoading ? (
+              <div
+                data-testid="explanation-loading"
+                className="surface surface--secondary rounded-2xl p-4 text-xs text-slate-500 text-center flex items-center justify-center gap-2"
+              >
+                <Spinner size="sm" aria-label="Đang tải lời giải..." />
+                <span>Đang tải lời giải chi tiết...</span>
+              </div>
+            ) : currentError ? (
+              <div
+                data-testid="explanation-error"
+                className="surface surface--secondary rounded-2xl p-4 text-xs text-rose-600 dark:text-rose-400 text-center space-y-2"
+              >
+                <p className="m-0 font-medium">{currentError}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRetry}
+                  data-testid={`retry-explanation-btn-${question.number}`}
+                >
+                  Thử lại
+                </Button>
+              </div>
+            ) : loadedExplanation ? (
+              loadedExplanation.hasExplanation ? (
+                <ExplanationView
+                  explanation={loadedExplanation}
+                  questionNumber={question.number}
+                  userAnswer={userAnswer}
+                  correctAnswer={correctAnswer}
+                  hasLicensePermission={hasLicensePermission}
+                />
+              ) : (
+                <div
+                  data-testid="explanation-placeholder"
+                  className="surface surface--secondary rounded-2xl p-4 text-xs text-slate-500 text-center"
+                >
+                  Chưa có dữ liệu lời giải chi tiết cho câu hỏi này.
+                </div>
+              )
             ) : (
               <div
                 data-testid="explanation-placeholder"

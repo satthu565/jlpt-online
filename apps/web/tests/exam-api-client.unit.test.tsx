@@ -552,6 +552,36 @@ describe('ExamApiClient Unit & SDK Contract Suite', () => {
 
       await expect(client.reviewAttempt('0192f000-4000-7000-8000-000000000001')).rejects.toThrow('sau khi bài thi đã được nộp');
     });
+
+    it('getAttemptExplanation retrieves approved LearnerExplanation for attempt question', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          index: 0,
+          questionId: '0192f000-2000-7000-8000-000000000001',
+          hasExplanation: true,
+          correctReason: 'いぬ là cách đọc chính xác của 犬.',
+          wrongReasonsByOption: null,
+          translation: 'Ở đằng kia có một con chó.',
+          vocabTags: ['犬'],
+          grammarTags: [],
+          transcript: null,
+          evidenceRanges: [],
+        }),
+      });
+
+      const client = new ExamApiClient({
+        baseUrl: '/api/v1',
+        fetcher: mockFetch as unknown as typeof fetch,
+      });
+
+      const expl = await client.getAttemptExplanation('0192f000-4000-7000-8000-000000000001', 0);
+      expect(expl.hasExplanation).toBe(true);
+      expect(expl.correctReason).toContain('いぬ');
+      const [url] = mockFetch.mock.calls[0]!;
+      expect(url).toContain('/api/v1/attempts/0192f000-4000-7000-8000-000000000001/explanations/0');
+    });
   });
 
   // =========================================================================

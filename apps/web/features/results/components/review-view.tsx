@@ -16,17 +16,48 @@ import { FuriganaToggle, useFurigana } from '@jlpt/ui/components/furigana-toggle
 import { AiChatAssistant } from '../../ai/components/ai-chat-assistant';
 import { FEATURES } from '../../../lib/features';
 import { useSelectLookup, useSelectLookupSetting, SelectionLookupPopover } from '../../corpus';
+import { examApiClient } from '../../exam/api/exam-api';
+import type { LearnerExplanation } from '../../explanations/types';
 
 export interface ReviewViewProps {
   reviewData: AttemptReviewData;
   className?: string;
+  loadExplanation?: (index: number) => Promise<LearnerExplanation>;
+  hasLicensePermission?: boolean;
 }
 
 export function ReviewView({
   reviewData,
   className = '',
+  loadExplanation,
+  hasLicensePermission = false,
 }: ReviewViewProps): React.JSX.Element {
   const { snapshot, answers, flags, correct, result, previousResult, mode, submittedAt, attemptId } = reviewData;
+  const effectiveLicensePermission = hasLicensePermission || Boolean(reviewData.hasLicensePermission);
+
+  const [, setExplanationsCache] = useState<Record<number, LearnerExplanation>>({});
+  const cacheRef = React.useRef<Record<number, LearnerExplanation>>({});
+
+  const defaultLoadExplanation = React.useCallback(
+    async (index: number): Promise<LearnerExplanation> => {
+      return examApiClient.getAttemptExplanation(attemptId, index);
+    },
+    [attemptId],
+  );
+
+  const effectiveLoadExplanation = React.useCallback(
+    async (index: number): Promise<LearnerExplanation> => {
+      if (cacheRef.current[index]) {
+        return cacheRef.current[index];
+      }
+      const loader = loadExplanation ?? defaultLoadExplanation;
+      const res = await loader(index);
+      cacheRef.current[index] = res;
+      setExplanationsCache((prev) => ({ ...prev, [index]: res }));
+      return res;
+    },
+    [loadExplanation, defaultLoadExplanation],
+  );
 
   const [activeFilter, setActiveFilter] = useState<ReviewFilter>('all');
   const [shareModalOpen, setShareModalOpen] = useState(false);
@@ -150,6 +181,8 @@ export function ReviewView({
               userAnswer={answers[q.globalIndex] ?? 0}
               correctAnswer={correct[q.globalIndex] ?? 0}
               isFlagged={Boolean(flags[q.globalIndex])}
+              loadExplanation={effectiveLoadExplanation}
+              hasLicensePermission={effectiveLicensePermission}
               showFurigana={showFurigana}
               timeSpentMs={timeSpentArray?.[q.globalIndex]}
             />
