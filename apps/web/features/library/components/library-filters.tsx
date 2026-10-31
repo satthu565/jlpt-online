@@ -86,12 +86,12 @@ export function LibraryFilters({
           <Button
             type="button"
             size="sm"
-            variant={filters.level === 'ALL' ? 'primary' : 'ghost'}
+            variant="ghost"
             onClick={() => onFilterChange({ ...filters, level: 'ALL' })}
             aria-pressed={filters.level === 'ALL'}
             className={`px-4 py-1 text-xs font-bold h-7.5 min-h-0 rounded-full transition-all ${
               filters.level === 'ALL'
-                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
+                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-xs'
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
