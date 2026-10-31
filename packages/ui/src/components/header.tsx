@@ -20,6 +20,8 @@ export interface NavItem {
 export interface HeaderProps {
   brandName?: string;
   brandHref?: string;
+  logoSrc?: string;
+  logoAlt?: string;
   navItems?: NavItem[];
   rightControls?: React.ReactNode;
   userMenu?: React.ReactNode;
@@ -50,6 +52,8 @@ function mobileLinkClass(active: boolean | undefined, nested: boolean): string {
 export function Header({
   brandName = 'JLPT Online',
   brandHref = '/',
+  logoSrc = '/images/brand/mascot-96.png',
+  logoAlt,
   navItems = [],
   rightControls,
   userMenu,
@@ -58,6 +62,7 @@ export function Header({
   className = '',
 }: HeaderProps): React.JSX.Element {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const effectiveLogoAlt = logoAlt ?? brandName;
 
   return (
     <header
@@ -72,9 +77,21 @@ export function Header({
             href={brandHref}
             className={cn('header-brand-logo flex shrink-0 items-center gap-2 text-xl font-extrabold tracking-tight no-underline', PRIMARY)}
           >
-            <span className="inline-flex size-8 items-center justify-center rounded-lg bg-[var(--color-primary,#16a34a)] text-base font-bold text-[var(--text-inverse,#ffffff)]">
-              J
-            </span>
+            {logoSrc ? (
+              <img
+                src={logoSrc}
+                alt={effectiveLogoAlt}
+                width={32}
+                height={32}
+                loading="eager"
+                decoding="async"
+                className="size-8 rounded-full object-cover shrink-0"
+              />
+            ) : (
+              <span className="inline-flex size-8 items-center justify-center rounded-lg bg-[var(--color-primary,#16a34a)] text-base font-bold text-[var(--text-inverse,#ffffff)]">
+                J
+              </span>
+            )}
             <span>{brandName}</span>
           </a>
 
