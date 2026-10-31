@@ -216,9 +216,9 @@ export function ExamHero({
       <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
         {background === "gradient" ? (
           <>
-            <div className="absolute inset-0 bg-gradient-to-br from-sky-100 via-indigo-50 to-emerald-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950" />
+            <div className="absolute inset-0 bg-gradient-to-br from-sky-100 via-indigo-50 to-blue-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950" />
             <div className="absolute -top-24 -right-24 size-96 rounded-full bg-blue-300/30 dark:bg-blue-500/10 blur-3xl" />
-            <div className="absolute -bottom-32 -left-24 size-96 rounded-full bg-emerald-300/30 dark:bg-emerald-500/10 blur-3xl" />
+            <div className="absolute -bottom-32 -left-24 size-96 rounded-full bg-blue-300/30 dark:bg-blue-500/10 blur-3xl" />
           </>
         ) : (
           <picture>

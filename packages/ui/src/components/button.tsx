@@ -6,15 +6,15 @@ import { cn } from '../lib/utils.js';
 export const buttonVariants = cva('jlpt-button button', {
   variants: {
     variant: {
-      primary: 'button--primary',
-      default: 'button--primary',
-      success: 'button--primary',
+      primary: 'button--primary text-[var(--accent-foreground,#ffffff)]',
+      default: 'button--primary text-[var(--accent-foreground,#ffffff)]',
+      success: 'button--primary text-[var(--accent-foreground,#ffffff)]',
       secondary: 'button--secondary',
       outline: 'button--outline',
       ghost: 'button--ghost',
       danger: 'button--danger',
       destructive: 'button--danger',
-      link: 'button--ghost underline-offset-4 hover:underline text-[var(--accent)]',
+      link: 'button--ghost underline-offset-4 hover:underline text-[var(--link)]',
     },
     size: {
       sm: 'button--sm',

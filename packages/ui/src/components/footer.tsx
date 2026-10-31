@@ -72,7 +72,7 @@ export function Footer({
                   <li key={link.href}>
                     <a
                       href={link.href}
-                      className="text-[var(--text-secondary,#475569)] no-underline transition-colors hover:text-[var(--color-primary,#16a34a)]"
+                      className="text-[var(--text-secondary,#475569)] no-underline transition-colors hover:text-blue-600 dark:hover:text-blue-400"
                     >
                       {link.label}
                     </a>
