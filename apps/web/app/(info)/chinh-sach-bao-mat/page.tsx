@@ -1,1 +1,2 @@
-export { default, metadata } from '../chinh-sach/page';
+export { default, metadata, PrivacyPolicyContent } from '../chinh-sach/page';
+
