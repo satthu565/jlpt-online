@@ -212,5 +212,14 @@ describe('I13: Real Practice & Mix Exams Integration Suite', () => {
       expect(html).not.toMatch(/account\.profile\.\w+/);
       expect(html).toContain('id="main-content"');
     });
+
+    it('renders PracticeAndMixPage with ExamHero gradient background and without countdown badge', () => {
+      const html = renderToString(h(Providers, null, h(PracticeAndMixPage)));
+
+      expect(html).toContain('from-sky-100');
+      expect(html).not.toContain('/images/hero-jlpt-bg.webp');
+      expect(html).not.toContain('ĐẾM NGƯỢC KỲ THI JLPT');
+      expect(html).toContain('data-testid="practice-page-container"');
+    });
   });
 });
