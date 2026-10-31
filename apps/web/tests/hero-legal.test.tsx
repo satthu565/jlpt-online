@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import React from 'react';
-import { renderToString } from 'react-dom/server';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { Providers } from '../app/providers';
 import viMessages from '../messages/vi.json' with { type: 'json' };
 import TermsOfServicePage from '../app/(info)/dieu-khoan/page';
@@ -9,8 +9,7 @@ import PrivacyPolicyAliasPage from '../app/(info)/chinh-sach-bao-mat/page';
 import PrivacyPolicyPage from '../app/(info)/chinh-sach/page';
 
 const renderWithProviders = (ui: React.ReactElement): string => {
-  return renderToString(<Providers messages={viMessages}>{ui}</Providers>)
-    .replace(/<!--.*?-->/g, '')
+  return renderToStaticMarkup(<Providers messages={viMessages}>{ui}</Providers>)
     .replace(/&amp;/g, '&');
 };
 
