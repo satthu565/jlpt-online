@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Clock,
   ArrowRight,
@@ -66,6 +66,116 @@ function AnimatedCountdownUnit({
   );
 }
 
+function getNextJlptTime() {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+
+  const getFirstSunday = (year: number, monthIndex: number) => {
+    const d = new Date(year, monthIndex, 1);
+    const day = d.getDay();
+    const offset = (7 - day) % 7;
+    d.setDate(1 + offset);
+    d.setHours(9, 0, 0, 0); // 9:00 AM exam start
+    return d;
+  };
+
+  let targetDate = getFirstSunday(currentYear, 6); // July
+  let label = `Tháng 7/${currentYear}`;
+
+  if (now.getTime() > targetDate.getTime()) {
+    targetDate = getFirstSunday(currentYear, 11); // December
+    label = `Tháng 12/${currentYear}`;
+  }
+
+  if (now.getTime() > targetDate.getTime()) {
+    targetDate = getFirstSunday(currentYear + 1, 6); // Next July
+    label = `Tháng 7/${currentYear + 1}`;
+  }
+
+  const diffMs = Math.max(0, targetDate.getTime() - now.getTime());
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
+  const seconds = Math.floor((diffMs / 1000) % 60);
+
+  return { days, hours, minutes, seconds, label };
+}
+
+function HeroCountdownCard(): React.JSX.Element {
+  const [mounted, setMounted] = useState(false);
+  const [countdownTime, setCountdownTime] = useState(() => ({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    label: "",
+  }));
+
+  useEffect(() => {
+    setMounted(true);
+    setCountdownTime(getNextJlptTime());
+    const timer = setInterval(() => {
+      setCountdownTime(getNextJlptTime());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="w-full lg:w-auto shrink-0 flex justify-center lg:justify-end">
+      <Card className="w-full sm:w-auto min-w-[320px] sm:min-w-[380px] p-4 sm:p-5 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-blue-200/80 dark:border-slate-800 shadow-md">
+        {/* Header */}
+        <div className="flex items-center justify-between gap-3 mb-3.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wide">
+            <span
+              className="flex size-2 rounded-full bg-blue-600 animate-pulse"
+              aria-hidden="true"
+            />
+            ĐẾM NGƯỢC KỲ THI JLPT{" "}
+            {mounted && countdownTime.label ? countdownTime.label : ""}
+          </span>
+          <a
+            href="/lich-thi"
+            className="text-[11px] font-semibold text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-0.5"
+          >
+            <span>Lịch thi</span>
+            <ChevronRight className="size-3" aria-hidden="true" />
+          </a>
+        </div>
+
+        {/* 4 Digital Timer Blocks with Animated Digit Transitions */}
+        <div className="grid grid-cols-4 gap-2 sm:gap-2.5 text-center">
+          <AnimatedCountdownUnit
+            value={countdownTime.days}
+            label="Ngày"
+            mounted={mounted}
+          />
+          <AnimatedCountdownUnit
+            value={countdownTime.hours}
+            label="Giờ"
+            mounted={mounted}
+          />
+          <AnimatedCountdownUnit
+            value={countdownTime.minutes}
+            label="Phút"
+            mounted={mounted}
+          />
+          <AnimatedCountdownUnit
+            value={countdownTime.seconds}
+            label="Giây"
+            isAccent
+            mounted={mounted}
+          />
+        </div>
+
+        {/* Motivating footer */}
+        <p className="mt-3 text-[11px] text-center text-slate-500 dark:text-slate-400 font-medium">
+          💡 Thời gian không chờ đợi, luyện đề ngay hôm nay để bứt phá điểm số!
+        </p>
+      </Card>
+    </div>
+  );
+}
+
 export interface ExamHeroProps {
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
@@ -98,59 +208,6 @@ export function ExamHero({
 }: ExamHeroProps): React.JSX.Element {
   const { user } = useAuth();
 
-  const getNextJlptTime = useCallback(() => {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-
-    const getFirstSunday = (year: number, monthIndex: number) => {
-      const d = new Date(year, monthIndex, 1);
-      const day = d.getDay();
-      const offset = (7 - day) % 7;
-      d.setDate(1 + offset);
-      d.setHours(9, 0, 0, 0); // 9:00 AM exam start
-      return d;
-    };
-
-    let targetDate = getFirstSunday(currentYear, 6); // July
-    let label = `Tháng 7/${currentYear}`;
-
-    if (now.getTime() > targetDate.getTime()) {
-      targetDate = getFirstSunday(currentYear, 11); // December
-      label = `Tháng 12/${currentYear}`;
-    }
-
-    if (now.getTime() > targetDate.getTime()) {
-      targetDate = getFirstSunday(currentYear + 1, 6); // Next July
-      label = `Tháng 7/${currentYear + 1}`;
-    }
-
-    const diffMs = Math.max(0, targetDate.getTime() - now.getTime());
-    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
-    const seconds = Math.floor((diffMs / 1000) % 60);
-
-    return { days, hours, minutes, seconds, label };
-  }, []);
-
-  const [mounted, setMounted] = useState(false);
-  const [countdownTime, setCountdownTime] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-    label: "",
-  });
-
-  useEffect(() => {
-    setMounted(true);
-    setCountdownTime(getNextJlptTime());
-    const timer = setInterval(() => {
-      setCountdownTime(getNextJlptTime());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [getNextJlptTime]);
-
   return (
     <section
       className={`relative overflow-hidden bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 pt-10 pb-12 px-4 sm:px-6 ${className}`}
@@ -164,12 +221,24 @@ export function ExamHero({
             <div className="absolute -bottom-32 -left-24 size-96 rounded-full bg-emerald-300/30 dark:bg-emerald-500/10 blur-3xl" />
           </>
         ) : (
-          <img
-            src="/images/hero-jlpt-bg.webp"
-            alt=""
-            aria-hidden="true"
-            className="w-full h-full object-cover object-center opacity-90 dark:opacity-25"
-          />
+          <picture>
+            <source
+              media="(max-width: 768px)"
+              srcSet="/images/hero-jlpt-bg-mobile.webp"
+              type="image/webp"
+              width={800}
+              height={447}
+            />
+            <img
+              src="/images/hero-jlpt-bg.webp"
+              alt=""
+              aria-hidden="true"
+              fetchPriority="high"
+              width={1376}
+              height={768}
+              className="w-full h-full object-cover object-center opacity-90 dark:opacity-25"
+            />
+          </picture>
         )}
         {/* Soft tint overlay so text and card remain crisp and readable */}
         {background !== "gradient" && (
@@ -303,66 +372,7 @@ export function ExamHero({
             )}
           </div>
 
-          {!minimal && (
-            <>
-              {/* Right: Big Digital Live Countdown Highlight Card */}
-              <div className="w-full lg:w-auto shrink-0 flex justify-center lg:justify-end">
-                <Card className="w-full sm:w-auto min-w-[320px] sm:min-w-[380px] p-4 sm:p-5 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-blue-200/80 dark:border-slate-800 shadow-md">
-                  {/* Header */}
-                  <div className="flex items-center justify-between gap-3 mb-3.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wide">
-                      <span
-                        className="flex size-2 rounded-full bg-blue-600 animate-pulse"
-                        aria-hidden="true"
-                      />
-                      ĐẾM NGƯỢC KỲ THI JLPT{" "}
-                      {mounted && countdownTime.label
-                        ? countdownTime.label
-                        : ""}
-                    </span>
-                    <a
-                      href="/lich-thi"
-                      className="text-[11px] font-semibold text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-0.5"
-                    >
-                      <span>Lịch thi</span>
-                      <ChevronRight className="size-3" aria-hidden="true" />
-                    </a>
-                  </div>
-
-                  {/* 4 Digital Timer Blocks with Animated Digit Transitions */}
-                  <div className="grid grid-cols-4 gap-2 sm:gap-2.5 text-center">
-                    <AnimatedCountdownUnit
-                      value={countdownTime.days}
-                      label="Ngày"
-                      mounted={mounted}
-                    />
-                    <AnimatedCountdownUnit
-                      value={countdownTime.hours}
-                      label="Giờ"
-                      mounted={mounted}
-                    />
-                    <AnimatedCountdownUnit
-                      value={countdownTime.minutes}
-                      label="Phút"
-                      mounted={mounted}
-                    />
-                    <AnimatedCountdownUnit
-                      value={countdownTime.seconds}
-                      label="Giây"
-                      isAccent
-                      mounted={mounted}
-                    />
-                  </div>
-
-                  {/* Motivating footer */}
-                  <p className="mt-3 text-[11px] text-center text-slate-500 dark:text-slate-400 font-medium">
-                    💡 Thời gian không chờ đợi, luyện đề ngay hôm nay để bứt phá
-                    điểm số!
-                  </p>
-                </Card>
-              </div>
-            </>
-          )}
+          {!minimal && <HeroCountdownCard />}
         </div>
 
         {/* Integrated Search Filter Card Slot */}

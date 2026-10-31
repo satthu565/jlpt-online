@@ -15,7 +15,6 @@ import {
   Play,
 } from 'lucide-react';
 import { Card } from '@jlpt/ui/components/card';
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@jlpt/ui/components/tooltip';
 import { Button } from '@jlpt/ui/components/button';
 import { Alert } from '@jlpt/ui/components/alert';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
@@ -297,6 +296,26 @@ export default function HomePage(): React.JSX.Element {
       <span className="sr-only">{t('home.yearSelectLabel')}</span>
       <span className="sr-only">{t('home.sessionSelectLabel')}</span>
 
+      {/* Responsive preload for hero background image */}
+      <link
+        rel="preload"
+        as="image"
+        href="/images/hero-jlpt-bg-mobile.webp"
+        imageSrcSet="/images/hero-jlpt-bg-mobile.webp"
+        media="(max-width: 768px)"
+        type="image/webp"
+        fetchPriority="high"
+      />
+      <link
+        rel="preload"
+        as="image"
+        href="/images/hero-jlpt-bg.webp"
+        imageSrcSet="/images/hero-jlpt-bg.webp"
+        media="(min-width: 769px)"
+        type="image/webp"
+        fetchPriority="high"
+      />
+
       {/* SECTION 1: HERO WITH INTEGRATED 3-TIER SEARCH FRAME */}
       <ExamHero
         inProgressExam={inProgressExam}
@@ -546,39 +565,21 @@ export default function HomePage(): React.JSX.Element {
               </div>
 
               <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
-                <TooltipProvider delayDuration={150}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        asChild
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 sm:flex-initial h-10 px-4 rounded-xl text-xs font-bold border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
-                      >
-                        <a
-                          href={`/phong-thi?examId=${recommendedExam.id}&mode=practice`}
-                          className="no-underline flex items-center justify-center gap-1.5"
-                        >
-                          <BookOpen className="size-3.5" aria-hidden="true" />
-                          <span>Luyện tự do</span>
-                        </a>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent
-                      side="top"
-                      className="max-w-xs p-3 text-xs rounded-xl shadow-lg bg-slate-900 text-slate-100 dark:bg-slate-800 dark:text-slate-100 border border-slate-700 leading-relaxed"
-                    >
-                      <p className="font-bold text-blue-400 mb-1 flex items-center gap-1.5">
-                        <BookOpen className="size-3.5" aria-hidden="true" />
-                        <span>Chế độ Luyện tự do</span>
-                      </p>
-                      <p className="text-slate-300 dark:text-slate-300">
-                        Làm bài không bị áp lực thời gian. Bạn có thể xem ngay đáp án, tra cứu giải
-                        thích chi tiết sau mỗi câu và tạm dừng bất cứ lúc nào.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 sm:flex-initial h-10 px-4 rounded-xl text-xs font-bold border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+                >
+                  <a
+                    href={`/phong-thi?examId=${recommendedExam.id}&mode=practice`}
+                    className="no-underline flex items-center justify-center gap-1.5"
+                    title="Chế độ Luyện tự do: Làm bài không bị áp lực thời gian. Bạn có thể xem ngay đáp án, tra cứu giải thích chi tiết sau mỗi câu và tạm dừng bất cứ lúc nào."
+                  >
+                    <BookOpen className="size-3.5" aria-hidden="true" />
+                    <span>Luyện tự do</span>
+                  </a>
+                </Button>
 
                 <Button
                   asChild
