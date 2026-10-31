@@ -36,6 +36,8 @@ export function NavigationFooter(): React.JSX.Element {
     <Footer
       brandName={t('common.brand')}
       tagline={t('common.tagline')}
+      logoSrc="/images/brand/logo-gokakuya.webp"
+      logoAlt="Gokakuya.com"
       links={footerLinks}
       copyright={t('common.footer.copyright')}
       a11yNotice={t('common.footer.accessibilityNotice')}

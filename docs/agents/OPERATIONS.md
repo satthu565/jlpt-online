@@ -39,7 +39,7 @@ Test đạt chưa đủ để báo giao diện đã xong. Phải mở trang th�
 1. Làm trên nhánh riêng tách từ `origin/main` mới nhất. Không commit thẳng vào `main`.
 2. Trước khi đẩy: chạy các cổng kiểm tra trong [AGENTS.md](../../AGENTS.md). Với thay đổi giao diện: chạy `tools/ops/preview-branch.sh <nhánh>` và báo chủ dự án link :3210 để xem trong lúc CI chạy (xem [DEV_WORKFLOW.md](DEV_WORKFLOW.md)).
 3. Mở PR. Mô tả PR ghi: làm gì, vì sao, đã kiểm tra những gì (lệnh và kết quả).
-4. Workflow `auto-merge.yml` tự bật squash auto-merge cho PR không phải draft từ nhánh nội bộ. Agent không merge trực tiếp và không được bỏ qua ruleset; GitHub chỉ gộp sau khi mọi kiểm tra bắt buộc đạt.
+4. Workflow `auto-merge.yml` tự bật squash auto-merge cho PR không phải draft từ nhánh nội bộ. Agent không merge trực tiếp và không được bỏ qua ruleset; GitHub chỉ gộp sau khi mọi kiểm tra bắt buộc đạt. **Với thay đổi giao diện, mặc định tắt auto-merge cho đến khi chủ dự án xem xong** (xem [DEV_WORKFLOW.md](DEV_WORKFLOW.md)).
 5. CI đỏ thì đọc log, sửa, rồi chạy lại staging trên máy ảo trước khi đẩy tiếp.
 
 ## Coordinator
