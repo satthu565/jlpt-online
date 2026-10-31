@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import { GrammarExplorer } from '../../../features/corpus';
+import { ExamHero } from '../../../features/library';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
 
 export const metadata: Metadata = {
@@ -48,26 +49,26 @@ export default function GrammarCorpusPage(): React.JSX.Element {
   };
 
   return (
-    <div className="container py-8 space-y-6" data-testid="grammar-corpus-page">
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60" data-testid="grammar-corpus-page">
       <JsonLd id="grammar-schema" data={structuredData} />
       <JsonLd id="grammar-breadcrumbs" data={breadcrumbs} />
 
-      {/* Breadcrumbs */}
-      <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
-        <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
-        <span className="text-slate-900 dark:text-slate-100 font-semibold">Ngữ pháp</span>
-      </nav>
+      <ExamHero
+        title="Thư viện Mẫu Ngữ pháp JLPT N1–N5 & Bài tập vận dụng"
+        subtitle="Tra cứu cấu trúc ngữ pháp, công thức kết hợp và câu ví dụ minh họa. Mỗi mẫu ngữ pháp đều được liên kết trực tiếp với các câu hỏi luyện tập tương ứng."
+        minimal
+        background="gradient"
+      />
 
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-          Thư viện Mẫu Ngữ pháp JLPT N1–N5 & Bài tập vận dụng
-        </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-3xl">
-          Tra cứu cấu trúc ngữ pháp, công thức kết hợp và câu ví dụ minh họa. Mỗi mẫu ngữ pháp đều được liên kết trực tiếp với các câu hỏi luyện tập tương ứng.
-        </p>
+      <div className="container py-8 space-y-6">
+        {/* Breadcrumbs */}
+        <nav aria-label="Đường dẫn điều hướng" className="text-xs text-slate-500">
+          <a href="/" className="hover:underline">Trang chủ</a> &gt;{' '}
+          <span className="text-slate-900 dark:text-slate-100 font-semibold">Ngữ pháp</span>
+        </nav>
+
+        <GrammarExplorer />
       </div>
-
-      <GrammarExplorer />
     </div>
   );
 }

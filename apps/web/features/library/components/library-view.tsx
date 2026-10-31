@@ -162,6 +162,7 @@ export function LibraryView({
         <ExamHero
           title="Thư viện đề thi JLPT N1–N5"
             minimal
+            background="gradient"
           subtitle="Tổng hợp đề thi thật chính thức và đề thi thử nghiệm chuẩn cấu trúc đề thi năng lực tiếng Nhật quốc tế từ N1 đến N5."
           inProgressExam={inProgressExam}
           userStats={userStats}
@@ -194,7 +195,7 @@ export function LibraryView({
         )}
 
         {/* Next Recommendation Banner */}
-        {recommendedExam && (
+        {recommendedExam && !hasActiveFilters && (
           <section
             data-testid="next-recommendation-banner"
             aria-label="Đề xuất đề thi tiếp theo"
