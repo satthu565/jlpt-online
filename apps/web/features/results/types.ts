@@ -1,4 +1,5 @@
 import type { PublicExamSnapshot, Result, AttemptSummary } from '@jlpt/schema';
+import type { LearnerExplanation } from '../explanations/types';
 
 export type ReviewFilter = 'all' | 'correct' | 'wrong' | 'blank' | 'flagged';
 
@@ -14,6 +15,7 @@ export interface AttemptReviewData {
   previousResult?: Result | null;
   submittedAt?: string;
   hasLicensePermission?: boolean;
+  explanations?: Record<string | number, LearnerExplanation>;
 }
 
 export interface ExamHistoryItem extends AttemptSummary {

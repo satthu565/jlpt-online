@@ -264,9 +264,10 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
       publishedBy: verifiedUserId,
     });
 
+    const guestSectionId = generateUuidV7();
     await client.db.insert(schema.examSections).values([
       {
-        id: generateUuidV7(),
+        id: guestSectionId,
         examId: guestTrialExamId,
         code: 'language_vocab',
         title: 'Phần 1: Kiến thức ngôn ngữ',
@@ -274,6 +275,40 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
         orderIndex: 0,
       },
     ]);
+
+    const guestGroupId = generateUuidV7();
+    await client.db.insert(schema.questionGroups).values({
+      id: guestGroupId,
+      level: 'N3',
+      sectionCode: 'language_vocab',
+      title: 'Nhóm từ vựng làm thử',
+    });
+
+    const guestQ0Id = generateUuidV7();
+    const guestQ1Id = generateUuidV7();
+    await client.db.insert(schema.questions).values([
+      { id: guestQ0Id, groupId: guestGroupId, level: 'N3', skill: 'vocabulary', mondaiType: 'kanji_reading', origin: 'self_authored' },
+      { id: guestQ1Id, groupId: guestGroupId, level: 'N3', skill: 'vocabulary', mondaiType: 'orthography', origin: 'self_authored' },
+    ]);
+
+    await client.db.insert(schema.examItems).values([
+      { id: generateUuidV7(), examId: guestTrialExamId, sectionId: guestSectionId, questionId: guestQ0Id, orderIndex: 0, itemWeight: 1 },
+      { id: generateUuidV7(), examId: guestTrialExamId, sectionId: guestSectionId, questionId: guestQ1Id, orderIndex: 1, itemWeight: 1 },
+    ]);
+
+    await client.db.insert(schema.explanationVersions).values({
+      id: generateUuidV7(),
+      questionId: guestQ0Id,
+      version: 1,
+      status: 'approved',
+      authorId: verifiedUserId,
+      content: {
+        correctReason: 'Đáp án 1 đúng vì 犬 đọc là いぬ.',
+        translation: 'Có một con chó.',
+        vocabTags: ['犬 (いぬ)'],
+        grammarTags: [],
+      },
+    });
 
     await client.db.insert(schema.examAnswerKeys).values({
       examId: guestTrialExamId,
@@ -1016,6 +1051,17 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
       expect(guestSubmitBody.correct).toEqual([1, 2, 3, 4]);
       expect(guestSubmitBody.snapshotUrl).toBeDefined();
       expect(guestSubmitBody.mediaToken).toBeDefined();
+
+      // Explanations được trả về cho khách theo index câu hỏi sau khi nộp
+      expect(guestSubmitBody.explanations).toBeDefined();
+      expect(guestSubmitBody.explanations[0]).toBeDefined();
+      expect(guestSubmitBody.explanations[0].hasExplanation).toBe(true);
+      expect(guestSubmitBody.explanations[0].correctReason).toContain('いぬ');
+      expect(guestSubmitBody.explanations[0].translation).toBe('Có một con chó.');
+      expect(guestSubmitBody.explanations[0].vocabTags).toContain('犬 (いぬ)');
+      // Câu 1 không có approved explanation -> hasExplanation: false (không lỗi)
+      expect(guestSubmitBody.explanations[1]).toBeDefined();
+      expect(guestSubmitBody.explanations[1].hasExplanation).toBe(false);
 
       // 4. KIỂM TRA QUYẾT ĐỊNH: Số dòng trong cả 3 bảng hoàn toàn KHÔNG tăng dù chỉ 1 dòng!
       const [afterSubmitAttempts] = await client.db
