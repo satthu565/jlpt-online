@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import type { LearnerExplanation } from '../types';
 import { TranscriptView } from './transcript-view';
+import { toDisplayText } from '../rich-text';
 import { QuestionBookmarkButton } from './question-bookmark-button';
 import { QuestionReportModal } from './question-report-modal';
 import { Button } from '@jlpt/ui/components/button';
@@ -109,8 +110,8 @@ export function ExplanationView({
             <Lightbulb className="size-3.5" />
             <span>Vì sao đáp án đúng?</span>
           </h4>
-          <div className="text-xs text-[var(--text-primary)] leading-relaxed bg-emerald-50/50 dark:bg-emerald-950/20 p-3 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
-            {explanation.correctReason}
+          <div className="text-xs text-[var(--text-primary)] leading-relaxed whitespace-pre-line bg-emerald-50/50 dark:bg-emerald-950/20 p-3 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
+            {toDisplayText(explanation.correctReason)}
           </div>
         </div>
       )}
@@ -138,7 +139,7 @@ export function ExplanationView({
                     }`}
                   >
                     <span className="font-bold mr-1.5">Phương án {optKey}:</span>
-                    <span>{reason}</span>
+                    <span className="whitespace-pre-line">{toDisplayText(reason)}</span>
                     {isSelectedWrong && (
                       <span className="ml-2 text-[10px] font-bold bg-rose-200 text-rose-800 dark:bg-rose-900 dark:text-rose-200 px-1.5 py-0.5 rounded">
                         Lựa chọn của bạn
@@ -158,7 +159,7 @@ export function ExplanationView({
             Dịch nghĩa tiếng Việt:
           </h4>
           <p className="text-xs text-[var(--text-primary)] leading-relaxed bg-[var(--bg-surface)] p-3 rounded-xl border border-[var(--border-subtle)] m-0">
-            {explanation.translation}
+            {toDisplayText(explanation.translation)}
           </p>
         </div>
       )}
@@ -223,7 +224,7 @@ export function ExplanationView({
       {/* 5. Transcript and Evidence */}
       {(explanation.transcript || explanation.isLicensed) && (
         <TranscriptView
-          transcript={explanation.transcript}
+          transcript={toDisplayText(explanation.transcript) || null}
           evidenceRanges={explanation.evidenceRanges}
           isLicensed={explanation.isLicensed}
           hasLicensePermission={hasLicensePermission}
