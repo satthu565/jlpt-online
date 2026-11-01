@@ -46,6 +46,36 @@ Test đạt chưa đủ để báo giao diện đã xong. Phải mở trang th�
 
 Coordinator là service `jlpt-coordinator` trên máy ảo. Mã chạy ở `/opt/jlpt-coordinator`, cấu hình ở `/srv/jlpt-coordinator/coordinator.json`. Danh sách task sinh từ `docs/multi-worker/tools/build_docs.py`. Xem [WORKFLOW-6-WORKER.md](WORKFLOW-6-WORKER.md).
 
+## Giao việc cho worker agy ngoài coordinator
+
+Coordinator chỉ chạy task trong catalog (`tasks.json`). Việc phát sinh (sửa giao diện, sửa lỗi) giao thẳng cho worker `agy` bằng `tools/ops/vm/run-fix.sh` (chép vào `/home/jlpt/` trên VM). Mỗi việc chạy trong một clone riêng `/srv/jlpt-workers/wN/adhoc/<tên>`, nhánh `fix/<tên>`, tối đa 5 việc song song (W1 đến W5, W6 chưa đăng nhập).
+
+| Lệnh | Việc |
+|---|---|
+| `BASE=<nhánh> run-fix.sh start <tên> "<mô tả>"` | Chọn worker rảnh, clone `BASE` (mặc định `main`), chạy `agy` ở nền. Mô tả nên chỉ rõ file, phạm vi, điều không được làm. |
+| `run-fix.sh status [tên]` | Trạng thái, mã thoát (`exit 0` là xong). |
+| `run-fix.sh finish <tên>` | Đẩy nhánh và mở PR. |
+| `run-one.sh <tên> <base> <file-mô-tả>` | Xếp hàng, tự giao khi có worker rảnh. |
+
+Quy tắc đã rút ra:
+- Worker chỉ commit, không push. Đọc diff và chạy thử trên trang thật (Playwright, :3210) trước khi báo xong. Test đạt chưa đủ: nhiều lỗi (hook sai thứ tự, render object) chỉ lộ khi mở trình duyệt.
+- Các việc cùng sửa một file không giao song song. Muốn chạy đua cho nhanh thì giao cùng một yêu cầu cho hai worker và chỉ dùng bản xong trước, không gộp hai bản.
+- `BASE` là nhánh chưa ghép thì phải đẩy nhánh đó lên GitHub trước và `git fetch` mới nhất vào kho `paper-exam-20261024`; clone lấy bản cũ nếu kho cục bộ chưa cập nhật.
+- Mỗi clone `pnpm install` tốn khoảng 2 GB. Xong việc thì xóa `node_modules`, `.next`, `.turbo` trong clone.
+
+## Triển khai API thủ công
+
+Timer `jlpt-preview-update` chỉ cập nhật web (:3000) và admin (:3001) theo `main`. **API không tự cập nhật.** Ghép PR có sửa `apps/api` hoặc `packages/schema` xong thì API trên VM vẫn là bản cũ, web mới gọi đường mà API chưa có (ví dụ lỗi `Cannot POST /api/v1/guest/attempts`).
+
+1. Dựng image từ `main`: `tools/ops/vm/build-api-image.sh <tag> origin/main` (đã có `--network=host`, cần >= 4 GB trống).
+2. Thay container, có tự khôi phục: `sudo tools/ops/vm/deploy-api-image.sh <tag-mới> <tag-cũ>`. Tag cũ xem bằng `sudo docker ps --format '{{.Image}}' --filter name=jlpt-staging-api` trước khi đổi.
+3. Kiểm tra bằng đường mới thật sự (không chỉ `/health`), và đếm dòng trong bảng liên quan nếu thay đổi nói không ghi DB.
+4. Giữ image cũ vài ngày để quay lại. Chỉ xóa image không container nào dùng (`docker ps -a --filter ancestor=<id>`).
+
+Trước khi dựng, so sánh mã nguồn của image đang chạy với `main` (`git diff --stat <commit-image> origin/main -- apps/api packages/schema`) để chắc dựng từ `main` không làm mất tính năng chưa vào `main`.
+
+Đĩa `/` của VM rất dễ đầy (volume Postgres 19 GB, storage 9 GB, mỗi lần dựng API cần khoảng 3,5 GB tạm). Đầy đĩa làm worker chết giữa chừng mà không báo lỗi (file mã thoát rỗng). Kiểm tra `df -h /` trước khi giao nhiều việc hoặc dựng image.
+
 ## Trích xuất đề (ngoài repo)
 
 Đề gốc dạng PDF được trích thành gói nhập (ZIP theo `docs/import-format`) bằng một runner riêng ở `/srv/jlpt-extract` trên máy ảo, theo hướng dẫn của template `trich-xuat-de-template`. Ứng dụng không đọc PDF. Gói ZIP được tải lên qua admin `/imports`.
