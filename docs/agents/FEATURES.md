@@ -37,7 +37,7 @@ Ngân hàng câu hỏi `/questions` · blueprint `/blueprints` · media `/media`
 
 Menu và quyền của từng mục khai báo ở `apps/admin/lib/navigation.ts`.
 
-Bảo trì dữ liệu đề: script `apps/api/src/scripts/fix-confirmed-answer-keys.ts` tạo phiên bản nội dung mới, qua dấu vết editor/reviewer riêng biệt rồi xuất bản lại đề; không ghi đè khóa của phiên bản đã xuất bản.
+Bảo trì dữ liệu đề: các script `fix-confirmed-answer-keys.ts` và `fix-confirmed-content-issues.ts` trong `apps/api/src/scripts/` tạo phiên bản nội dung mới, qua dấu vết editor/reviewer riêng biệt rồi xuất bản lại đề; không ghi đè dữ liệu của phiên bản đã xuất bản.
 
 ## 🙈 Đang ẩn (bật lại bằng cờ lúc build web)
 
