@@ -2,17 +2,18 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { FEATURES } from '../../../lib/features';
+import { absoluteUrl, localizedUrl } from '../../../lib/site';
 import { PrivacyPolicyContent } from './privacy-policy-content';
 
 export const metadata: Metadata = {
-  title: 'Chính sách Quyền riêng tư & Bảo mật Dữ liệu - JLPT Online',
+  title: 'Chính sách Quyền riêng tư & Bảo mật Dữ liệu - Gokakuya.com',
   description: 'Cam kết bảo mật dữ liệu học viên, quyền riêng tư theo tiêu chuẩn quốc tế và chính sách quản lý cookie minh bạch.',
   alternates: {
-    canonical: 'https://jlpt.vn/chinh-sach',
+    canonical: absoluteUrl('/chinh-sach'),
     languages: {
-      vi: 'https://jlpt.vn/chinh-sach',
-      ja: 'https://jlpt.vn/ja/chinh-sach',
-      en: 'https://jlpt.vn/en/chinh-sach',
+      vi: localizedUrl('vi', '/chinh-sach'),
+      ja: localizedUrl('ja', '/chinh-sach'),
+      en: localizedUrl('en', '/chinh-sach'),
     },
   },
   robots: {

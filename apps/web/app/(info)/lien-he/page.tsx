@@ -11,6 +11,7 @@ import { JsonLd } from '@jlpt/ui/components/json-ld';
 import { Textarea } from '@jlpt/ui/components/textarea';
 import { ExamHero } from '../../../features/library';
 import { useI18n } from '../../../lib/i18n';
+import { absoluteUrl } from '../../../lib/site';
 
 export default function ContactPage(): React.JSX.Element {
   const { t } = useI18n();
@@ -67,8 +68,8 @@ export default function ContactPage(): React.JSX.Element {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://jlpt.vn' },
-      { '@type': 'ListItem', position: 2, name: 'Liên hệ', item: 'https://jlpt.vn/lien-he' },
+      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: absoluteUrl('/') },
+      { '@type': 'ListItem', position: 2, name: 'Liên hệ', item: absoluteUrl('/lien-he') },
     ],
   };
 

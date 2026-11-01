@@ -3,16 +3,17 @@ import type { Metadata } from 'next';
 import { Card } from '@jlpt/ui/components/card';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
 import { ExamHero } from '../../../features/library';
+import { absoluteUrl, localizedUrl } from '../../../lib/site';
 
 export const metadata: Metadata = {
-  title: 'Điều khoản Dịch vụ & Quy chế thi - JLPT Online',
+  title: 'Điều khoản Dịch vụ & Quy chế thi - Gokakuya.com',
   description: 'Quy định sử dụng dịch vụ, bản quyền nội dung đề thi năng lực tiếng Nhật JLPT và chính sách hoàn tiền minh bạch.',
   alternates: {
-    canonical: 'https://jlpt.vn/dieu-khoan',
+    canonical: absoluteUrl('/dieu-khoan'),
     languages: {
-      vi: 'https://jlpt.vn/dieu-khoan',
-      ja: 'https://jlpt.vn/ja/dieu-khoan',
-      en: 'https://jlpt.vn/en/dieu-khoan',
+      vi: localizedUrl('vi', '/dieu-khoan'),
+      ja: localizedUrl('ja', '/dieu-khoan'),
+      en: localizedUrl('en', '/dieu-khoan'),
     },
   },
   robots: {
@@ -26,8 +27,8 @@ export default function TermsOfServicePage(): React.JSX.Element {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://jlpt.vn' },
-      { '@type': 'ListItem', position: 2, name: 'Điều khoản dịch vụ', item: 'https://jlpt.vn/dieu-khoan' },
+      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: absoluteUrl('/') },
+      { '@type': 'ListItem', position: 2, name: 'Điều khoản dịch vụ', item: absoluteUrl('/dieu-khoan') },
     ],
   };
 
@@ -36,7 +37,7 @@ export default function TermsOfServicePage(): React.JSX.Element {
       <JsonLd id="terms-breadcrumbs" data={breadcrumbs} />
 
       <ExamHero
-        title="Điều khoản Dịch vụ & Quy chế Phòng thi JLPT Online"
+        title="Điều khoản Dịch vụ & Quy chế Phòng thi Gokakuya.com"
         subtitle="Quy định sử dụng dịch vụ, bản quyền nội dung đề thi năng lực tiếng Nhật JLPT và chính sách hoàn tiền minh bạch."
         minimal
         background="gradient"
@@ -59,7 +60,7 @@ export default function TermsOfServicePage(): React.JSX.Element {
               1. Chấp thuận điều khoản
             </h2>
             <p>
-              Bằng việc truy cập, tạo tài khoản và sử dụng nền tảng JLPT Online, người dùng đồng ý tuân thủ toàn bộ các quy định trong văn bản này cũng như các chính sách bảo mật liên quan.
+              Bằng việc truy cập, tạo tài khoản và sử dụng nền tảng Gokakuya.com, người dùng đồng ý tuân thủ toàn bộ các quy định trong văn bản này cũng như các chính sách bảo mật liên quan.
             </p>
           </section>
 
@@ -68,7 +69,7 @@ export default function TermsOfServicePage(): React.JSX.Element {
               2. Quyền sở hữu trí tuệ & Bản quyền nội dung
             </h2>
             <p>
-              Toàn bộ đề thi, ngân hàng câu hỏi, audio phần nghe hiểu, bài giải thích chi tiết và tài liệu học tập được số hóa trên hệ thống thuộc quyền sở hữu trí tuệ của JLPT Online hoặc được cấp phép khai thác hợp pháp theo thỏa thuận bản quyền giáo dục.
+              Toàn bộ đề thi, ngân hàng câu hỏi, audio phần nghe hiểu, bài giải thích chi tiết và tài liệu học tập được số hóa trên hệ thống thuộc quyền sở hữu trí tuệ của Gokakuya.com hoặc được cấp phép khai thác hợp pháp theo thỏa thuận bản quyền giáo dục.
             </p>
             <p>
               Nghiêm cấm mọi hành vi trích xuất hàng loạt (scraping), sao chép, thương mại hóa hoặc phát tán tài liệu thi ra bên ngoài hệ thống khi chưa có sự đồng ý bằng văn bản của ban quản trị. Các tài liệu xuất bản (như phiếu điểm PDF) được đóng dấu bản quyền chìm (watermark) để phục vụ công tác truy vết vi phạm.

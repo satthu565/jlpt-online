@@ -7,7 +7,7 @@
     "cancel": "Go back"
   },
   "common": {
-    "brand": "JLPT Online",
+    "brand": "Gokakuya.com",
     "tagline": "Official JLPT Standard Online Japanese Proficiency Exam & Practice Platform",
     "nav": {
       "home": "Home",
@@ -42,7 +42,7 @@
       "privacy": "Privacy Policy",
       "faq": "FAQ",
       "contact": "Contact Support",
-      "copyright": "Copyright © JLPT Online. All rights reserved.",
+      "copyright": "Copyright © Gokakuya.com. All rights reserved.",
       "accessibilityNotice": "Designed in compliance with WCAG 2.1 AA accessibility standards."
     },
     "buttons": {
@@ -91,7 +91,7 @@
   "auth": {
     "login": {
       "title": "Account Sign In",
-      "subtitle": "Welcome back to JLPT Online",
+      "subtitle": "Welcome back to Gokakuya.com",
       "emailLabel": "Email address",
       "emailPlaceholder": "user@example.com",
       "passwordLabel": "Password",
@@ -650,13 +650,13 @@
       "submitReport": "Submit Report",
       "authRequired": "Please sign in to join discussions and share answers with the community.",
       "signInButton": "Sign In Now",
-      "shareSuccess": "Achievement shared with JLPT Online community successfully!",
+      "shareSuccess": "Achievement shared with Gokakuya.com community successfully!",
       "shareFailed": "Failed to share achievement."
     },
     "share": {
       "cardTitle": "Achievement Certificate",
       "anonymousLearner": "Anonymous Learner",
-      "defaultLearner": "JLPT Online Learner",
+      "defaultLearner": "Gokakuya.com Learner",
       "congratulations": "Congratulations {name} on achieving your goal!",
       "scoreLabel": "Score: {score}/180",
       "streakLabel": "Streak: {days} days",
@@ -667,7 +667,7 @@
   },
   "billing": {
     "page": {
-      "title": "JLPT Online Membership Plans",
+      "title": "Gokakuya.com Membership Plans",
       "subtitle": "Unlock the complete exam bank, unlimited mix generator, and in-depth explanations."
     },
     "coupon": {
@@ -773,7 +773,7 @@
       "errorNotice": "Unable to play audio: TTS service connection error."
     },
     "watermark": {
-      "notice": "COPYRIGHT JLPT ONLINE - STRICTLY PROHIBITED FROM UNAUTHORIZED SHARING",
+      "notice": "COPYRIGHT GOKAKUYA.COM - STRICTLY PROHIBITED FROM UNAUTHORIZED SHARING",
       "downloadPdf": "Download Score Report PDF (Secured Watermark)",
       "exportingPdf": "Generating Score PDF...",
       "exportSuccess": "Score report exported successfully!",
@@ -802,7 +802,7 @@
     },
     "contact": {
       "title": "Contact & Learner Support",
-      "subtitle": "The JLPT Online support team is here to assist with any questions or feedback.",
+      "subtitle": "The Gokakuya.com support team is here to assist with any questions or feedback.",
       "nameLabel": "Full Name",
       "emailLabel": "Contact Email",
       "topicLabel": "Inquiry Topic",

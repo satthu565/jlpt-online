@@ -10,6 +10,7 @@ import { Alert } from '@jlpt/ui/components/alert';
 import { Button } from '@jlpt/ui/components/button';
 import { ExamHero } from '../../../features/library';
 import { useI18n } from '../../../lib/i18n';
+import { absoluteUrl } from '../../../lib/site';
 
 interface FaqItem {
   id: string;
@@ -24,7 +25,7 @@ const DEFAULT_FAQ_LIST: FaqItem[] = [
     id: 'faq-1',
     category: 'exams',
     categoryLabel: 'Kỳ thi & Đề thi',
-    question: 'Cấu trúc đề thi trên nền tảng JLPT Online có chuẩn như thi thật không?',
+    question: 'Cấu trúc đề thi trên nền tảng Gokakuya.com có chuẩn như thi thật không?',
     answer: 'Có. Đề thi trên hệ thống được xây dựng và chuẩn hóa chính xác theo phân bổ thời gian, số lượng câu hỏi và cơ chế tính điểm của Hiệp hội Hỗ trợ Giáo dục Quốc tế Nhật Bản (JEES) và Quỹ Giao lưu Quốc tế Nhật Bản (Japan Foundation).',
   },
   {
@@ -52,7 +53,7 @@ const DEFAULT_FAQ_LIST: FaqItem[] = [
     id: 'faq-5',
     category: 'payment',
     categoryLabel: 'Thanh toán & Gói thành viên',
-    question: 'Chính sách hoàn tiền của JLPT Online như thế nào?',
+    question: 'Chính sách hoàn tiền của Gokakuya.com như thế nào?',
     answer: 'Học viên có quyền yêu cầu hoàn tiền trong vòng 7 ngày kể từ thời điểm đăng ký gói thành viên nếu chưa làm quá 2 bài thi chính thức. Yêu cầu được xử lý trong vòng 3-5 ngày làm việc theo đúng cam kết minh bạch tài chính.',
   },
   {
@@ -169,8 +170,8 @@ export default function FaqPage(): React.JSX.Element {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://jlpt.vn' },
-      { '@type': 'ListItem', position: 2, name: 'Hỏi đáp (FAQ)', item: 'https://jlpt.vn/faq' },
+      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: absoluteUrl('/') },
+      { '@type': 'ListItem', position: 2, name: 'Hỏi đáp (FAQ)', item: absoluteUrl('/faq') },
     ],
   };
 

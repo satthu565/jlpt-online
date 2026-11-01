@@ -7,7 +7,7 @@
     "cancel": "戻る"
   },
   "common": {
-    "brand": "JLPT Online",
+    "brand": "Gokakuya.com",
     "tagline": "公式JLPT準拠 オンライン日本語能力試験・学習プラットフォーム",
     "nav": {
       "home": "ホーム",
@@ -42,7 +42,7 @@
       "privacy": "プライバシーポリシー",
       "faq": "よくある質問",
       "contact": "お問い合わせ",
-      "copyright": "Copyright © JLPT Online. All rights reserved.",
+      "copyright": "Copyright © Gokakuya.com. All rights reserved.",
       "accessibilityNotice": "WCAG 2.1 AAアクセシビリティ基準に準拠した設計です。"
     },
     "buttons": {
@@ -91,7 +91,7 @@
   "auth": {
     "login": {
       "title": "アカウントログイン",
-      "subtitle": "JLPT Online へようこそ",
+      "subtitle": "Gokakuya.com へようこそ",
       "emailLabel": "メールアドレス",
       "emailPlaceholder": "user@example.com",
       "passwordLabel": "パスワード",
@@ -650,13 +650,13 @@
       "submitReport": "通報を送信",
       "authRequired": "コミュニティでの議論や解答解説の共有にはログインが必要です。",
       "signInButton": "今すぐログイン",
-      "shareSuccess": "JLPT Onlineコミュニティに実績を共有しました！",
+      "shareSuccess": "Gokakuya.comコミュニティに実績を共有しました！",
       "shareFailed": "実績の共有に失敗しました。"
     },
     "share": {
       "cardTitle": "学習認定証・実績",
       "anonymousLearner": "匿名学習者",
-      "defaultLearner": "JLPT Online 受験者",
+      "defaultLearner": "Gokakuya.com 受験者",
       "congratulations": "{name} さん、目標達成おめでとうございます！",
       "scoreLabel": "スコア: {score}/180",
       "streakLabel": "連続記録: {days} 日",
@@ -667,7 +667,7 @@
   },
   "billing": {
     "page": {
-      "title": "JLPT Online 会員プラン",
+      "title": "Gokakuya.com 会員プラン",
       "subtitle": "本番形式の問題演習、無制限のシャッフル機能、詳細な解説をアンロック。"
     },
     "coupon": {
@@ -773,7 +773,7 @@
       "errorNotice": "音声を再生できませんでした。TTSサービスへの接続エラーです。"
     },
     "watermark": {
-      "notice": "JLPT ONLINE 著作権保護 - 無断転載・再配布を禁じます",
+      "notice": "GOKAKUYA.COM 著作権保護 - 無断転載・再配布を禁じます",
       "downloadPdf": "成績証明書PDFをダウンロード（保護透かし付き）",
       "exportingPdf": "PDFを生成中...",
       "exportSuccess": "成績証明書を出力しました！",
@@ -802,7 +802,7 @@
     },
     "contact": {
       "title": "お問い合わせとサポート",
-      "subtitle": "JLPT Online サポートチームがご質問やお困りの点にお答えします。",
+      "subtitle": "Gokakuya.com サポートチームがご質問やお困りの点にお答えします。",
       "nameLabel": "お名前",
       "emailLabel": "メールアドレス",
       "topicLabel": "お問い合わせ種別",

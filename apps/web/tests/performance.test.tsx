@@ -168,7 +168,7 @@ describe('Performance, Web Vitals, Bundle Budgets & Media Security (SYS-02, SYS-
 
       expect(html).toContain('data-testid="export-pdf-score-btn"');
       expect(html).toContain('data-testid="security-watermark"');
-      expect(html).toContain('BẢN QUYỀN THUỘC JLPT ONLINE');
+      expect(html).toContain('BẢN QUYỀN THUỘC GOKAKUYA.COM');
       expect(html).toContain('2026-10-16T10:00:00Z');
     });
 
@@ -183,7 +183,7 @@ describe('Performance, Web Vitals, Bundle Budgets & Media Security (SYS-02, SYS-
       expect(html).toContain('data-testid="security-watermark"');
       expect(html).toContain('stud...abcd');
       expect(html).toContain('2026-10-16T15:30:00Z');
-      expect(html).toContain('BẢN QUYỀN THUỘC JLPT ONLINE - NGHIÊM CẤM SAO CHÉP');
+      expect(html).toContain('BẢN QUYỀN THUỘC GOKAKUYA.COM - NGHIÊM CẤM SAO CHÉP');
     });
 
     it('zero answer key leakage in public exam summaries', () => {

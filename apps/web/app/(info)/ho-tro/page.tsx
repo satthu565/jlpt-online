@@ -9,6 +9,7 @@ import { Alert } from '@jlpt/ui/components/alert';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
 import { ExamHero } from '../../../features/library';
 import { useI18n } from '../../../lib/i18n';
+import { absoluteUrl } from '../../../lib/site';
 
 export default function SupportCenterPage(): React.JSX.Element {
   const { t } = useI18n();
@@ -48,8 +49,8 @@ export default function SupportCenterPage(): React.JSX.Element {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://jlpt.vn' },
-      { '@type': 'ListItem', position: 2, name: 'Hỗ trợ kỹ thuật', item: 'https://jlpt.vn/ho-tro' },
+      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: absoluteUrl('/') },
+      { '@type': 'ListItem', position: 2, name: 'Hỗ trợ kỹ thuật', item: absoluteUrl('/ho-tro') },
     ],
   };
 

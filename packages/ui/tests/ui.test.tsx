@@ -373,7 +373,7 @@ describe('@jlpt/ui component suite', () => {
     expect(html).toContain('data-testid="security-watermark"');
     expect(html).toContain('user...5544');
     expect(html).toContain('2026-10-16T12:00:00Z');
-    expect(html).toContain('BẢN QUYỀN THUỘC JLPT ONLINE');
+    expect(html).toContain('BẢN QUYỀN THUỘC GOKAKUYA.COM');
   });
 });
 

@@ -16,6 +16,7 @@ import type {
   LeaderboardEntryDto,
 } from '../types';
 import { useI18n } from '../../../lib/i18n';
+import { absoluteUrl } from '../../../lib/site';
 
 export interface GamificationDashboardProps {
   className?: string;
@@ -175,13 +176,13 @@ export function GamificationDashboard({
       const shareData = await client.shareAchievement(achievement.id);
       setShareDialogInfo({
         isOpen: true,
-        url: shareData.shareUrl || `https://jlpt.vn/chia-se/huy-hieu/${achievement.id}`,
+        url: shareData.shareUrl || absoluteUrl(`/chia-se/huy-hieu/${achievement.id}`),
         title: `Huy hiệu JLPT: ${achievement.title}`,
       });
     } catch {
       setShareDialogInfo({
         isOpen: true,
-        url: `https://jlpt.vn/chia-se/huy-hieu/${achievement.id}`,
+        url: absoluteUrl(`/chia-se/huy-hieu/${achievement.id}`),
         title: `Huy hiệu JLPT: ${achievement.title}`,
       });
     }

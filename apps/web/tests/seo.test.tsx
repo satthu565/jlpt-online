@@ -293,7 +293,7 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
       const html = renderClean(<FaqPage />);
       expect(html).toContain('application/ld+json');
       expect(html).toContain('"@type":"FAQPage"');
-      expect(html).toContain('"name":"Cấu trúc đề thi trên nền tảng JLPT Online có chuẩn như thi thật không?"');
+      expect(html).toContain('"name":"Cấu trúc đề thi trên nền tảng Gokakuya.com có chuẩn như thi thật không?"');
       expect(html).toContain('"acceptedAnswer"');
     });
 
@@ -352,7 +352,7 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
 
     it('renders Terms of Service with copyright and anti-scraping notice', () => {
       const html = renderClean(<TermsOfServicePage />);
-      expect(html).toContain('Điều khoản Dịch vụ &amp; Quy chế Phòng thi JLPT Online');
+      expect(html).toContain('Điều khoản Dịch vụ &amp; Quy chế Phòng thi Gokakuya.com');
       expect(html).toContain('Quyền sở hữu trí tuệ &amp; Bản quyền nội dung');
       expect(html).toContain('chống rò rỉ đáp án');
     });
@@ -366,8 +366,8 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
 
     it('renders About page with platform background', () => {
       const html = renderClean(<AboutPage />);
-      expect(html).toContain('Về Nền tảng Luyện thi Tiếng Nhật Trực tuyến JLPT Online');
-      expect(html).toContain('JLPT Online V1–V4');
+      expect(html).toContain('Về Nền tảng Luyện thi Tiếng Nhật Trực tuyến Gokakuya.com');
+      expect(html).toContain('Gokakuya.com V1–V4');
     });
   });
 

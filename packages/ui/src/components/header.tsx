@@ -66,7 +66,7 @@ function mobileLinkClass(active: boolean | undefined, nested: boolean): string {
 }
 
 export function Header({
-  brandName = 'JLPT Online',
+  brandName = 'Gokakuya.com',
   brandHref = '/',
   logoSrc = '/images/brand/logo-v3-header.webp',
   logoAlt,

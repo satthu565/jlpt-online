@@ -4,7 +4,7 @@ import { AdminProviders } from './providers';
 import { AdminNavigation } from '../lib/admin-nav';
 
 export const metadata = {
-  title: 'JLPT Online - Admin Portal',
+  title: 'Gokakuya.com - Admin Portal',
   description: 'Hệ thống Quản trị & Điều hành JLPT Toàn diện',
 };
 
