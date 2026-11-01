@@ -153,7 +153,7 @@ export default function DiscussionsPage(): React.JSX.Element {
         achievedAt: achievement.achievedAt,
         userName: achievement.userName,
       });
-      setShareNotice('Đã chia sẻ thành tích lên cộng đồng học viên JLPT Online!');
+      setShareNotice('Đã chia sẻ thành tích lên cộng đồng học viên Gokakuya.com!');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg || 'Không thể chia sẻ thành tích.');

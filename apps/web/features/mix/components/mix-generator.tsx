@@ -77,7 +77,7 @@ export function MixGenerator({
   const availableSources = [
     { id: '2023-12', label: 'Đề thi chính thức 12/2023' },
     { id: '2024-07', label: 'Đề thi chính thức 07/2024' },
-    { id: 'bank_official', label: 'Ngân hàng đề thi chuẩn JLPT Online' },
+    { id: 'bank_official', label: 'Ngân hàng đề thi chuẩn Gokakuya.com' },
   ];
 
   const handleRandomizeSeed = () => {

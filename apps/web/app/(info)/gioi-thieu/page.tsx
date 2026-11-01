@@ -6,12 +6,13 @@ import { Badge } from '@jlpt/ui/components/badge';
 import { Button } from '@jlpt/ui/components/button';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
 import { ExamHero } from '../../../features/library';
+import { absoluteUrl } from '../../../lib/site';
 
 export const metadata: Metadata = {
-  title: 'Giới thiệu Nền tảng Luyện thi JLPT Online Chuẩn Quốc tế',
+  title: 'Giới thiệu Nền tảng Luyện thi Gokakuya.com Chuẩn Quốc tế',
   description: 'Nền tảng thi và luyện thi tiếng Nhật trực tuyến chuẩn hóa cấu trúc JEES & Japan Foundation từ N5 đến N1.',
   alternates: {
-    canonical: 'https://jlpt.vn/gioi-thieu',
+    canonical: absoluteUrl('/gioi-thieu'),
   },
   robots: {
     index: true,
@@ -24,15 +25,15 @@ export default function AboutPage(): React.JSX.Element {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://jlpt.vn' },
-      { '@type': 'ListItem', position: 2, name: 'Giới thiệu', item: 'https://jlpt.vn/gioi-thieu' },
+      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: absoluteUrl('/') },
+      { '@type': 'ListItem', position: 2, name: 'Giới thiệu', item: absoluteUrl('/gioi-thieu') },
     ],
   };
 
   return (
     <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60" data-testid="about-page">
       <ExamHero
-        title="Về Nền tảng Luyện thi Tiếng Nhật Trực tuyến JLPT Online"
+        title="Về Nền tảng Luyện thi Tiếng Nhật Trực tuyến Gokakuya.com"
         subtitle="Hệ thống luyện thi và thi thử mô phỏng chính xác phòng thi thực tế với công nghệ đo thời gian máy chủ và phân tích điểm số tự động."
         minimal
         background="gradient"
@@ -48,7 +49,7 @@ export default function AboutPage(): React.JSX.Element {
             <span className="text-slate-900 dark:text-slate-100 font-semibold">Giới thiệu</span>
           </nav>
           <Badge variant="primary" size="md">
-            JLPT Online V1–V4
+            Gokakuya.com V1–V4
           </Badge>
         </div>
 
@@ -57,7 +58,7 @@ export default function AboutPage(): React.JSX.Element {
           Sứ mệnh & Mục tiêu
         </h2>
         <p>
-          JLPT Online được xây dựng nhằm mang lại trải nghiệm thi thử công bằng, minh bạch và chính xác nhất cho các bạn học viên ôn luyện kỳ thi Năng lực Tiếng Nhật (JLPT) từ cấp độ sơ cấp N5 đến cao cấp N1.
+          Gokakuya.com được xây dựng nhằm mang lại trải nghiệm thi thử công bằng, minh bạch và chính xác nhất cho các bạn học viên ôn luyện kỳ thi Năng lực Tiếng Nhật (JLPT) từ cấp độ sơ cấp N5 đến cao cấp N1.
         </p>
         <p>
           Hệ thống đảm bảo tính nghiêm ngặt với quy chế thi chống rò rỉ đáp án (Zero Answer Leak), đồng hồ máy chủ độc lập không phụ thuộc client, và hệ thống phân tích điểm số chi tiết từng chuyên đề (Từ vựng, Ngữ pháp, Đọc hiểu, Nghe hiểu).

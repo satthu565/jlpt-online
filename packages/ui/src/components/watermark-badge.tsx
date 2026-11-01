@@ -15,7 +15,7 @@ export interface WatermarkBadgeProps {
 export function WatermarkBadge({
   userId = 'GUEST',
   timestamp = new Date().toISOString(),
-  notice = 'BẢN QUYỀN THUỘC JLPT ONLINE - NGHIÊM CẤM SAO CHÉP & PHÁT TÁN TRÁI PHÉP',
+  notice = 'BẢN QUYỀN THUỘC GOKAKUYA.COM - NGHIÊM CẤM SAO CHÉP & PHÁT TÁN TRÁI PHÉP',
   className = '',
 }: WatermarkBadgeProps): React.JSX.Element {
   const maskedId =
