@@ -83,6 +83,10 @@ describe('Tooltip component behavior & HomePage tooltips', () => {
     const tooltip = document.querySelector('[role="tooltip"]');
     expect(tooltip).not.toBeNull();
     expect(tooltip?.textContent).toContain('Dạng câu hỏi tìm từ đồng nghĩa');
+    // Normal word wrapping without break-all
+    expect(tooltip?.className).toContain('break-normal');
+    expect(tooltip?.className).toContain('[word-break:normal]');
+    expect(tooltip?.className).toContain('[overflow-wrap:break-word]');
   });
 
   it('shows tooltip on mouseenter after delay and hides on mouseleave', () => {

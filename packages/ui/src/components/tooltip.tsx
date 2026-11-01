@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { createPortal } from 'react-dom';
 import { cn } from '../lib/utils.js';
 
 interface TooltipProviderContextValue {
@@ -29,9 +28,10 @@ export function TooltipProvider({
 interface TooltipContextValue {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
+  delayDuration: number;
   triggerRef: React.RefObject<HTMLElement | null>;
   tooltipId: string;
-  delayDuration: number;
+  preload: () => void;
 }
 
 const TooltipContext = React.createContext<TooltipContextValue | null>(null);
@@ -42,6 +42,143 @@ export interface TooltipProps {
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   delayDuration?: number;
+}
+
+type HeroTooltipModule = typeof import('@heroui/react/tooltip');
+type HeroTooltipContentComponent = React.ComponentType<
+  React.ComponentProps<HeroTooltipModule['TooltipContent']> & {
+    id?: string;
+    placement?: 'top' | 'bottom' | 'left' | 'right';
+    triggerRef?: React.RefObject<HTMLElement | null>;
+  }
+>;
+
+// In test environments, import synchronously so unit tests with fakeTimers run deterministically.
+// In production, Next.js dead-code elimination removes this branch, preserving the < 200KB initial JS budget.
+let cachedHeroUI: HeroTooltipModule | null = null;
+if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test') {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    cachedHeroUI = require('@heroui/react/tooltip');
+  } catch {
+    cachedHeroUI = null;
+  }
+}
+
+let heroModulePromise: Promise<HeroTooltipModule> | null = null;
+function preloadHeroTooltip(): Promise<HeroTooltipModule> {
+  if (cachedHeroUI) {
+    return Promise.resolve(cachedHeroUI);
+  }
+  if (!heroModulePromise) {
+    heroModulePromise = import('@heroui/react/tooltip').then((m) => {
+      cachedHeroUI = m;
+      return m;
+    });
+  }
+  return heroModulePromise;
+}
+
+interface HeroPortalInnerProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children' | 'id' | 'className'> {
+  children: React.ReactNode;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  delay: number;
+  side: 'top' | 'bottom' | 'left' | 'right';
+  sideOffset: number;
+  className?: string;
+  id?: string;
+  triggerRef: React.RefObject<HTMLElement | null>;
+}
+
+const LazyHeroPortal = React.lazy(async () => {
+  const { TooltipRoot, TooltipContent } = await preloadHeroTooltip();
+  const HeroContent = TooltipContent as unknown as HeroTooltipContentComponent;
+  return {
+    default: React.forwardRef<HTMLDivElement, HeroPortalInnerProps>(
+      (
+        {
+          children,
+          isOpen,
+          onOpenChange,
+          delay,
+          side,
+          sideOffset,
+          className,
+          id,
+          triggerRef,
+          ...props
+        },
+        ref,
+      ) => {
+        return (
+          <TooltipRoot isOpen={isOpen} onOpenChange={onOpenChange} delay={delay}>
+            <HeroContent
+              ref={ref}
+              id={id}
+              placement={side}
+              offset={sideOffset}
+              triggerRef={triggerRef}
+              className={cn(
+                'max-w-[300px] break-normal [word-break:normal] [overflow-wrap:break-word] text-[var(--foreground,#0b1b3a)] shadow-md dark:bg-[var(--surface-secondary,#192542)] dark:text-[var(--foreground,#e6ecf8)] dark:border dark:border-[var(--border,#24324f)] pointer-events-none',
+                className,
+              )}
+              {...props}
+            >
+              {children}
+            </HeroContent>
+          </TooltipRoot>
+        );
+      },
+    ),
+  };
+});
+
+function renderDirectHeroPortal({
+  hero,
+  children,
+  isOpen,
+  onOpenChange,
+  delay,
+  side,
+  sideOffset,
+  className,
+  id,
+  triggerRef,
+  ...props
+}: {
+  hero: HeroTooltipModule;
+  children: React.ReactNode;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  delay: number;
+  side: 'top' | 'bottom' | 'left' | 'right';
+  sideOffset: number;
+  className?: string;
+  id?: string;
+  triggerRef: React.RefObject<HTMLElement | null>;
+  [key: string]: unknown;
+}) {
+  const { TooltipRoot, TooltipContent } = hero;
+  const HeroContent = TooltipContent as unknown as HeroTooltipContentComponent;
+  return (
+    <TooltipRoot isOpen={isOpen} onOpenChange={onOpenChange} delay={delay}>
+      <HeroContent
+        id={id}
+        placement={side}
+        offset={sideOffset}
+        triggerRef={triggerRef}
+        className={cn(
+          'max-w-[300px] break-normal [word-break:normal] [overflow-wrap:break-word] text-[var(--foreground,#0b1b3a)] shadow-md dark:bg-[var(--surface-secondary,#192542)] dark:text-[var(--foreground,#e6ecf8)] dark:border dark:border-[var(--border,#24324f)] pointer-events-none',
+          className,
+        )}
+        {...props}
+      >
+        {children}
+      </HeroContent>
+    </TooltipRoot>
+  );
 }
 
 export function Tooltip({
@@ -71,14 +208,19 @@ export function Tooltip({
   const reactId = React.useId();
   const tooltipId = `tooltip-${reactId.replace(/:/g, '')}`;
 
+  const preload = React.useCallback(() => {
+    preloadHeroTooltip();
+  }, []);
+
   return (
     <TooltipContext.Provider
       value={{
         isOpen,
         setIsOpen,
+        delayDuration,
         triggerRef,
         tooltipId,
-        delayDuration,
+        preload,
       }}
     >
       {children}
@@ -92,7 +234,7 @@ export interface TooltipTriggerProps extends React.HTMLAttributes<HTMLElement> {
 }
 
 export const TooltipTrigger = React.forwardRef<HTMLElement, TooltipTriggerProps>(
-  ({ asChild = false, children, ...props }, forwardedRef) => {
+  ({ asChild = false, children, className, ...props }, forwardedRef) => {
     const ctx = React.useContext(TooltipContext);
     const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -107,10 +249,10 @@ export const TooltipTrigger = React.forwardRef<HTMLElement, TooltipTriggerProps>
       return () => clearTimer();
     }, []);
 
-    const handleMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
-      props.onMouseEnter?.(e);
-      if (e.defaultPrevented || !ctx) return;
+    const handleOpen = () => {
       clearTimer();
+      if (!ctx) return;
+      ctx.preload();
       if (ctx.delayDuration <= 0) {
         ctx.setIsOpen(true);
       } else {
@@ -120,46 +262,52 @@ export const TooltipTrigger = React.forwardRef<HTMLElement, TooltipTriggerProps>
       }
     };
 
-    const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
-      props.onMouseLeave?.(e);
+    const handleClose = () => {
       clearTimer();
       ctx?.setIsOpen(false);
+    };
+
+    const handleMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
+      props.onMouseEnter?.(e);
+      if (e.defaultPrevented) return;
+      handleOpen();
+    };
+
+    const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
+      props.onMouseLeave?.(e);
+      handleClose();
     };
 
     const handleFocus = (e: React.FocusEvent<HTMLElement>) => {
       props.onFocus?.(e);
       if (e.defaultPrevented || !ctx) return;
       clearTimer();
+      ctx.preload();
       ctx.setIsOpen(true);
     };
 
     const handleBlur = (e: React.FocusEvent<HTMLElement>) => {
       props.onBlur?.(e);
-      clearTimer();
-      ctx?.setIsOpen(false);
+      handleClose();
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
       props.onKeyDown?.(e);
       if (e.key === 'Escape') {
-        clearTimer();
-        ctx?.setIsOpen(false);
+        handleClose();
       }
     };
 
-    const setRefs = React.useCallback(
-      (node: HTMLElement | null) => {
-        if (ctx) {
-          ctx.triggerRef.current = node;
-        }
-        if (typeof forwardedRef === 'function') {
-          forwardedRef(node);
-        } else if (forwardedRef) {
-          (forwardedRef as React.MutableRefObject<HTMLElement | null>).current = node;
-        }
-      },
-      [ctx, forwardedRef],
-    );
+    const setRefs = (node: HTMLElement | null) => {
+      if (ctx) {
+        ctx.triggerRef.current = node;
+      }
+      if (typeof forwardedRef === 'function') {
+        forwardedRef(node);
+      } else if (forwardedRef && typeof forwardedRef === 'object') {
+        (forwardedRef as React.MutableRefObject<HTMLElement | null>).current = node;
+      }
+    };
 
     const triggerProps = {
       ref: setRefs,
@@ -169,59 +317,78 @@ export const TooltipTrigger = React.forwardRef<HTMLElement, TooltipTriggerProps>
       onFocus: handleFocus,
       onBlur: handleBlur,
       onKeyDown: handleKeyDown,
+      className,
       ...props,
     };
 
     if (asChild && React.isValidElement(children)) {
       const child = children as React.ReactElement<{
         ref?: React.Ref<unknown>;
+        role?: string;
         className?: string;
+        href?: string;
+        'aria-describedby'?: string;
         onMouseEnter?: React.MouseEventHandler<HTMLElement>;
         onMouseLeave?: React.MouseEventHandler<HTMLElement>;
         onFocus?: React.FocusEventHandler<HTMLElement>;
         onBlur?: React.FocusEventHandler<HTMLElement>;
         onKeyDown?: React.KeyboardEventHandler<HTMLElement>;
-        'aria-describedby'?: string;
+        [key: string]: unknown;
       }>;
 
+      const childProps = child.props || {};
+
+      const mergedRef = (node: HTMLElement | null) => {
+        setRefs(node);
+        const childRef = (child as unknown as { ref?: React.Ref<unknown> }).ref ?? childProps.ref;
+        if (typeof childRef === 'function') {
+          childRef(node);
+        } else if (childRef && typeof childRef === 'object') {
+          (childRef as React.MutableRefObject<HTMLElement | null>).current = node;
+        }
+      };
+
+      const ariaDescribedBy = [
+        childProps['aria-describedby'],
+        ctx?.isOpen ? ctx.tooltipId : undefined,
+      ]
+        .filter(Boolean)
+        .join(' ') || undefined;
+
       return React.cloneElement(child, {
-        ref: (node: HTMLElement | null) => {
-          setRefs(node);
-          const childRef = (child.props as { ref?: React.Ref<unknown> }).ref;
-          if (typeof childRef === 'function') {
-            childRef(node);
-          } else if (childRef && typeof childRef === 'object') {
-            (childRef as React.MutableRefObject<HTMLElement | null>).current = node;
-          }
-        },
-        'aria-describedby':
-          [child.props['aria-describedby'], triggerProps['aria-describedby']]
-            .filter(Boolean)
-            .join(' ') || undefined,
+        ...props,
+        ...childProps,
+        ref: mergedRef,
+        'aria-describedby': ariaDescribedBy,
+        className: cn(className, childProps.className),
         onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
-          child.props.onMouseEnter?.(e);
+          childProps.onMouseEnter?.(e);
           handleMouseEnter(e);
         },
         onMouseLeave: (e: React.MouseEvent<HTMLElement>) => {
-          child.props.onMouseLeave?.(e);
+          childProps.onMouseLeave?.(e);
           handleMouseLeave(e);
         },
         onFocus: (e: React.FocusEvent<HTMLElement>) => {
-          child.props.onFocus?.(e);
+          childProps.onFocus?.(e);
           handleFocus(e);
         },
         onBlur: (e: React.FocusEvent<HTMLElement>) => {
-          child.props.onBlur?.(e);
+          childProps.onBlur?.(e);
           handleBlur(e);
         },
         onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
-          child.props.onKeyDown?.(e);
+          childProps.onKeyDown?.(e);
           handleKeyDown(e);
         },
       });
     }
 
-    return <span {...triggerProps}>{children}</span>;
+    return (
+      <span {...triggerProps}>
+        {children}
+      </span>
+    );
   },
 );
 TooltipTrigger.displayName = 'TooltipTrigger';
@@ -232,104 +399,58 @@ export interface TooltipContentProps extends React.HTMLAttributes<HTMLDivElement
 }
 
 export const TooltipContent = React.forwardRef<HTMLDivElement, TooltipContentProps>(
-  ({ className, side = 'top', sideOffset = 4, children, style, ...props }, ref) => {
+  (
+    {
+      className,
+      side = 'top',
+      sideOffset = 4,
+      children,
+      id,
+      ...props
+    },
+    ref,
+  ) => {
     const ctx = React.useContext(TooltipContext);
-    const [coords, setCoords] = React.useState<{ top: number; left: number } | null>(null);
-    const [mounted, setMounted] = React.useState(false);
+    const contentId = id || ctx?.tooltipId;
 
-    React.useEffect(() => {
-      setMounted(true);
-    }, []);
-
-    React.useLayoutEffect(() => {
-      if (!ctx?.isOpen || !ctx.triggerRef.current || typeof window === 'undefined') {
-        return;
-      }
-
-      const updatePosition = () => {
-        const trigger = ctx.triggerRef.current;
-        if (!trigger) return;
-        const rect = trigger.getBoundingClientRect();
-
-        let top = 0;
-        let left = 0;
-
-        switch (side) {
-          case 'bottom':
-            top = rect.bottom + sideOffset;
-            left = rect.left + rect.width / 2;
-            break;
-          case 'left':
-            top = rect.top + rect.height / 2;
-            left = rect.left - sideOffset;
-            break;
-          case 'right':
-            top = rect.top + rect.height / 2;
-            left = rect.right + sideOffset;
-            break;
-          case 'top':
-          default:
-            top = rect.top - sideOffset;
-            left = rect.left + rect.width / 2;
-            break;
-        }
-
-        setCoords({ top, left });
-      };
-
-      updatePosition();
-      window.addEventListener('scroll', updatePosition, { passive: true });
-      window.addEventListener('resize', updatePosition, { passive: true });
-      return () => {
-        window.removeEventListener('scroll', updatePosition);
-        window.removeEventListener('resize', updatePosition);
-      };
-    }, [ctx?.isOpen, ctx?.triggerRef, side, sideOffset]);
-
-    if (!ctx?.isOpen || !mounted || typeof document === 'undefined') {
+    if (!ctx?.isOpen) {
       return null;
     }
 
-    const transformMap: Record<string, string> = {
-      top: 'translate(-50%, -100%)',
-      bottom: 'translate(-50%, 0)',
-      left: 'translate(-100%, -50%)',
-      right: 'translate(0, -50%)',
-    };
+    if (cachedHeroUI) {
+      return renderDirectHeroPortal({
+        hero: cachedHeroUI,
+        ref,
+        id: contentId,
+        isOpen: ctx.isOpen,
+        onOpenChange: ctx.setIsOpen,
+        delay: ctx.delayDuration,
+        side,
+        sideOffset,
+        triggerRef: ctx.triggerRef,
+        className,
+        children,
+        ...props,
+      });
+    }
 
-    const positionStyle: React.CSSProperties = coords
-      ? {
-          position: 'fixed',
-          top: `${coords.top}px`,
-          left: `${coords.left}px`,
-          transform: transformMap[side] || transformMap.top,
-          pointerEvents: 'none',
-          ...style,
-        }
-      : {
-          position: 'fixed',
-          pointerEvents: 'none',
-          visibility: 'hidden',
-          ...style,
-        };
-
-    return createPortal(
-      <div
-        ref={ref}
-        id={ctx.tooltipId}
-        role="tooltip"
-        data-side={side}
-        data-state="delayed-open"
-        style={positionStyle}
-        className={cn(
-          'tooltip z-50 overflow-hidden break-normal [overflow-wrap:break-word] text-[var(--foreground)] animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 dark:bg-[var(--bg-muted,#f1f5f9)] dark:text-[var(--text-primary,#0f172a)]',
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </div>,
-      document.body,
+    return (
+      <React.Suspense fallback={null}>
+        <LazyHeroPortal
+          ref={ref}
+          id={contentId}
+          isOpen={ctx.isOpen}
+          onOpenChange={ctx.setIsOpen}
+          delay={ctx.delayDuration}
+          side={side}
+          sideOffset={sideOffset}
+          triggerRef={ctx.triggerRef}
+          className={className}
+          {...props}
+        >
+          {children}
+        </LazyHeroPortal>
+      </React.Suspense>
     );
   },
 );

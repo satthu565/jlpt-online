@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import * as React from 'react';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent, cleanup, act } from '@testing-library/react';
 import {
   Button,
   Input,
@@ -602,6 +602,55 @@ describe('D00: @jlpt/ui Component Suite - Keyboard, Focus & ARIA Behaviors', () 
       const tooltip = screen.getByRole('tooltip');
       expect(tooltip).not.toBeNull();
       expect(tooltip.textContent).toContain('Dạng câu hỏi tìm từ đồng nghĩa');
+      // Must wrap words normally and avoid breaking words in the middle (no break-all)
+      expect(tooltip.className).toContain('break-normal');
+      expect(tooltip.className).toContain('[word-break:normal]');
+    });
+
+    it('displays tooltip on hover and keyboard focus with correct content and normal word wrap', () => {
+      vi.useFakeTimers();
+      render(
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button>Hover me</Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              Nội dung gợi ý chi tiết
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>,
+      );
+
+      const button = screen.getByRole('button', { name: 'Hover me' });
+      expect(screen.queryByRole('tooltip')).toBeNull();
+
+      // Hover
+      fireEvent.mouseEnter(button);
+      act(() => {
+        vi.advanceTimersByTime(150);
+      });
+
+      const tooltipHover = screen.getByRole('tooltip');
+      expect(tooltipHover).not.toBeNull();
+      expect(tooltipHover.textContent).toContain('Nội dung gợi ý chi tiết');
+      expect(tooltipHover.className).toContain('break-normal');
+
+      // Leave
+      fireEvent.mouseLeave(button);
+      expect(screen.queryByRole('tooltip')).toBeNull();
+
+      // Focus
+      fireEvent.focus(button);
+      const tooltipFocus = screen.getByRole('tooltip');
+      expect(tooltipFocus).not.toBeNull();
+      expect(tooltipFocus.textContent).toContain('Nội dung gợi ý chi tiết');
+
+      // Blur
+      fireEvent.blur(button);
+      expect(screen.queryByRole('tooltip')).toBeNull();
+
+      vi.useRealTimers();
     });
   });
 
