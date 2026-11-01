@@ -470,6 +470,7 @@ export function ExamRoom({
               correct: res.correct,
               result: res.result,
               submittedAt: new Date().toISOString(),
+              explanations: res.explanations,
             };
             localStorage.setItem(`jlpt_guest_review_${attemptId}`, JSON.stringify(guestReviewData));
             localStorage.removeItem('jlpt_guest_active_attempt');

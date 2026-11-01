@@ -4,6 +4,7 @@ import { AlertTriangle, Hourglass, Lock } from 'lucide-react';
 import React, { use, useState, useEffect } from 'react';
 import { ExamApiClient, ExamApiError } from '../../../../features/exam/api/exam-api';
 import { ReviewView, type AttemptReviewData } from '../../../../features/results';
+import type { LearnerExplanation } from '../../../../features/explanations/types';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Button } from '@jlpt/ui/components/button';
 import { Card } from '@jlpt/ui/components/card';
@@ -18,6 +19,7 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
 
   const [loading, setLoading] = useState(true);
   const [reviewData, setReviewData] = useState<AttemptReviewData | null>(null);
+  const [isGuest, setIsGuest] = useState(false);
   const [errorInfo, setErrorInfo] = useState<{
     code: string;
     message: string;
@@ -40,6 +42,7 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
               const guestData = JSON.parse(raw) as AttemptReviewData;
               if (guestData && guestData.snapshot && guestData.result) {
                 setReviewData(guestData);
+                setIsGuest(true);
                 setLoading(false);
                 return;
               }
@@ -130,6 +133,39 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
     };
   }, [attemptId]);
 
+  // Các hook phải được gọi trước mọi lệnh return sớm (loading / lỗi / không có dữ liệu).
+  const isGuestAttempt =
+    isGuest ||
+    (typeof window !== 'undefined' &&
+      Boolean(localStorage.getItem(`jlpt_guest_review_${attemptId}`)));
+
+  const guestLoadExplanation = React.useCallback(
+    async (index: number): Promise<LearnerExplanation> => {
+      const expMap = reviewData?.explanations as
+        | Record<string | number, LearnerExplanation>
+        | undefined;
+      const found = expMap?.[index] ?? expMap?.[String(index)];
+      if (found) {
+        return found;
+      }
+      return {
+        index,
+        questionId: '',
+        hasExplanation: false,
+        correctReason: null,
+        wrongReasonsByOption: null,
+        translation: null,
+        vocabTags: [],
+        grammarTags: [],
+        transcript: null,
+        evidenceRanges: [],
+      };
+    },
+    [reviewData],
+  );
+
+  const loadExplanation = isGuestAttempt ? guestLoadExplanation : undefined;
+
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto py-20 px-4 text-center text-slate-500" data-testid="review-loading">
@@ -207,7 +243,7 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
       </nav>
 
       {/* Review View (SCORE-07..10, AUDIO-07) */}
-      <ReviewView reviewData={reviewData} />
+      <ReviewView reviewData={reviewData} loadExplanation={loadExplanation} />
     </div>
   );
 }
