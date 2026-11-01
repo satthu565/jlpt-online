@@ -21,6 +21,15 @@ import ShareResultPage from '../app/(share)/chia-se/ket-qua/[id]/page';
 // Sitemap & Robots
 import sitemap from '../app/sitemap';
 import robots from '../app/robots';
+import { SITE_NAME, SITE_URL } from '../lib/site';
+import { metadata as rootMetadata } from '../app/layout';
+import { generateMetadata as generateLevelMetadata } from '../app/(seo)/[level]/page';
+import { generateMetadata as generateLevelExamsMetadata } from '../app/(seo)/[level]/de-thi/page';
+import { generateMetadata as generateSessionMetadata } from '../app/(seo)/[level]/de-thi/[session]/page';
+import { metadata as vocabCorpusMetadata } from '../app/(corpus)/tu-vung/page';
+import { metadata as grammarCorpusMetadata } from '../app/(corpus)/ngu-phap/page';
+import { metadata as vocabStatsMetadata } from '../app/(corpus)/thong-ke-tu-vung/page';
+import { generateMetadata as generateShareMetadata } from '../app/(share)/chia-se/ket-qua/[id]/page';
 
 // Consent & Attribution Helpers
 import { setConsentStatus, getConsentStatus, hasAnalyticsConsent } from '../lib/consent';
@@ -253,24 +262,24 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
       expect(entries.length).toBeGreaterThan(20);
 
       const urls = entries.map((e) => e.url);
-      expect(urls).toContain('https://jlpt.vn');
-      expect(urls).toContain('https://jlpt.vn/n1');
-      expect(urls).toContain('https://jlpt.vn/n3');
-      expect(urls).toContain('https://jlpt.vn/n3/de-thi');
-      expect(urls).toContain('https://jlpt.vn/tu-vung');
-      expect(urls).toContain('https://jlpt.vn/ngu-phap');
-      expect(urls).toContain('https://jlpt.vn/thong-ke-tu-vung');
-      expect(urls).toContain('https://jlpt.vn/faq');
-      expect(urls).toContain('https://jlpt.vn/lien-he');
-      expect(urls).toContain('https://jlpt.vn/dieu-khoan');
+      expect(urls).toContain(`${SITE_URL}`);
+      expect(urls).toContain(`${SITE_URL}/n1`);
+      expect(urls).toContain(`${SITE_URL}/n3`);
+      expect(urls).toContain(`${SITE_URL}/n3/de-thi`);
+      expect(urls).toContain(`${SITE_URL}/tu-vung`);
+      expect(urls).toContain(`${SITE_URL}/ngu-phap`);
+      expect(urls).toContain(`${SITE_URL}/thong-ke-tu-vung`);
+      expect(urls).toContain(`${SITE_URL}/faq`);
+      expect(urls).toContain(`${SITE_URL}/lien-he`);
+      expect(urls).toContain(`${SITE_URL}/dieu-khoan`);
       // Hidden in this release phase unless NEXT_PUBLIC_FEATURE_PRIVACY_POLICY=1.
-      expect(urls.includes('https://jlpt.vn/chinh-sach')).toBe(FEATURES.privacyPolicyPage);
+      expect(urls.includes(`${SITE_URL}/chinh-sach`)).toBe(FEATURES.privacyPolicyPage);
 
       // Verify hreflang alternates (vi, ja, en)
-      const homeEntry = entries.find((e) => e.url === 'https://jlpt.vn');
-      expect(homeEntry?.alternates?.languages?.vi).toBe('https://jlpt.vn');
-      expect(homeEntry?.alternates?.languages?.ja).toBe('https://jlpt.vn/ja');
-      expect(homeEntry?.alternates?.languages?.en).toBe('https://jlpt.vn/en');
+      const homeEntry = entries.find((e) => e.url === `${SITE_URL}`);
+      expect(homeEntry?.alternates?.languages?.vi).toBe(`${SITE_URL}`);
+      expect(homeEntry?.alternates?.languages?.ja).toBe(`${SITE_URL}/ja`);
+      expect(homeEntry?.alternates?.languages?.en).toBe(`${SITE_URL}/en`);
 
       // Verify exam slugs exist in sitemap
       expect(urls.some((u) => u.includes('/de-thi/jlpt-n1-2023-12'))).toBe(true);
@@ -278,10 +287,29 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
 
     it('generates robots.txt disallowing private routes and referencing sitemap', () => {
       const config = robots();
-      expect(config.sitemap).toBe('https://jlpt.vn/sitemap.xml');
+      expect(config.sitemap).toBe(`${SITE_URL}/sitemap.xml`);
       const rules = Array.isArray(config.rules) ? config.rules[0] : config.rules;
       expect(rules?.allow).toBe('/');
       expect(rules?.disallow).toEqual(['/phong-thi/', '/tai-khoan/', '/lich-su/', '/api/']);
+    });
+
+    it('ensures sitemap and robots do not contain "jlpt.vn" and use SITE_URL', async () => {
+      const entries = await sitemap();
+      for (const entry of entries) {
+        expect(entry.url).not.toContain('jlpt.vn');
+        expect(entry.url.startsWith(SITE_URL)).toBe(true);
+        if (entry.alternates?.languages) {
+          expect(entry.alternates.languages.vi).not.toContain('jlpt.vn');
+          expect(entry.alternates.languages.ja).not.toContain('jlpt.vn');
+          expect(entry.alternates.languages.en).not.toContain('jlpt.vn');
+          expect(entry.alternates.languages.vi?.startsWith(SITE_URL)).toBe(true);
+          expect(entry.alternates.languages.ja?.startsWith(SITE_URL)).toBe(true);
+          expect(entry.alternates.languages.en?.startsWith(SITE_URL)).toBe(true);
+        }
+      }
+      const config = robots();
+      expect(config.sitemap).not.toContain('jlpt.vn');
+      expect(config.sitemap).toBe(`${SITE_URL}/sitemap.xml`);
     });
   });
 
@@ -320,11 +348,21 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
       expect(html).toContain('att-share-999');
       expect(html).toContain('ĐỖ (PASS)');
       expect(html).toContain('data-testid="security-watermark"');
+      expect(html).toContain('XÁC THỰC KẾT QUẢ THI TRỰC TUYẾN - GOKAKUYA.COM');
+      expect(html).not.toContain('JLPT ONLINE');
       expect(html).toContain('data-testid="share-start-exam-btn"');
 
       // Zero private candidate PII
       expect(html).not.toContain('user@');
       expect(html).not.toContain('phone');
+    });
+
+    it('declares root layout metadata with siteName Gokakuya.com and proper metadataBase', () => {
+      expect(new URL(rootMetadata.metadataBase?.toString() || '').origin).toBe(new URL(SITE_URL).origin);
+      expect(rootMetadata.title).toContain(SITE_NAME);
+      expect(rootMetadata.openGraph?.siteName).toBe('Gokakuya.com');
+      expect(rootMetadata.openGraph?.title).toContain(SITE_NAME);
+      expect(rootMetadata.openGraph?.url).toBe(SITE_URL);
     });
   });
 
@@ -409,6 +447,53 @@ describe('SEO & Public Pages Suite (SEO-01, 02, 03, 04, 06, 07, 08, 10, 11)', ()
       const attr = captureTrafficAttribution();
       expect(attr).toBeNull();
       expect(getStoredAttribution()).toBeNull();
+    });
+  });
+
+  // =========================================================================
+  // 10. Brand Renaming: SEO & Metadata consistency
+  // =========================================================================
+  describe('Brand Renaming: SEO & Metadata consistency', () => {
+    it('verifies all scope metadata exports use SITE_NAME, SITE_URL, and no jlpt.vn or JLPT Online', async () => {
+      // Root layout
+      expect(rootMetadata.openGraph?.siteName).toBe(SITE_NAME);
+      expect(rootMetadata.openGraph?.title).toContain(SITE_NAME);
+      expect(new URL(rootMetadata.metadataBase?.toString() || '').origin).toBe(new URL(SITE_URL).origin);
+      expect(rootMetadata.openGraph?.url).toBe(SITE_URL);
+
+      // Corpus pages
+      expect(vocabCorpusMetadata.title).toContain(SITE_NAME);
+      expect(vocabCorpusMetadata.openGraph?.siteName).toBe(SITE_NAME);
+      expect(vocabCorpusMetadata.alternates?.canonical).toBe(`${SITE_URL}/tu-vung`);
+
+      expect(grammarCorpusMetadata.title).toContain(SITE_NAME);
+      expect(grammarCorpusMetadata.openGraph?.siteName).toBe(SITE_NAME);
+      expect(grammarCorpusMetadata.alternates?.canonical).toBe(`${SITE_URL}/ngu-phap`);
+
+      expect(vocabStatsMetadata.title).toContain(SITE_NAME);
+      expect(vocabStatsMetadata.openGraph?.siteName).toBe(SITE_NAME);
+      expect(vocabStatsMetadata.alternates?.canonical).toBe(`${SITE_URL}/thong-ke-tu-vung`);
+
+      // SEO level pages
+      const levelMeta = await generateLevelMetadata({ params: Promise.resolve({ level: 'n2' }) });
+      expect(levelMeta.openGraph?.siteName).toBe(SITE_NAME);
+      expect(levelMeta.alternates?.canonical).toBe(`${SITE_URL}/n2`);
+
+      const levelExamsMeta = await generateLevelExamsMetadata({ params: Promise.resolve({ level: 'n2' }) });
+      expect(levelExamsMeta.title).toContain(SITE_NAME);
+      expect(levelExamsMeta.openGraph?.siteName).toBe(SITE_NAME);
+      expect(levelExamsMeta.alternates?.canonical).toBe(`${SITE_URL}/n2/de-thi`);
+
+      const sessionMeta = await generateSessionMetadata({ params: Promise.resolve({ level: 'n2', session: '2023-12' }) });
+      expect(sessionMeta.title).toContain(SITE_NAME);
+      expect(sessionMeta.alternates?.canonical).toBe(`${SITE_URL}/n2/de-thi/2023-12`);
+
+      // Share page
+      const shareMeta = await generateShareMetadata({ params: Promise.resolve({ id: 'att-xyz-123' }) });
+      expect(shareMeta.title).toContain(SITE_NAME);
+      expect(shareMeta.description).toContain(SITE_NAME);
+      expect(shareMeta.openGraph?.siteName).toBe(SITE_NAME);
+      expect(shareMeta.alternates?.canonical).toBe(`${SITE_URL}/chia-se/ket-qua/att-xyz-123`);
     });
   });
 });

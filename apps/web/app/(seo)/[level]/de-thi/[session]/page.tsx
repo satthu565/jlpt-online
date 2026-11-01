@@ -5,6 +5,7 @@ import { examApiClient } from '../../../../../features/exam/api/exam-api';
 import { LibraryView } from '../../../../../features/library';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
 import type { ExamSummary } from '@jlpt/schema';
+import { SITE_NAME, absoluteUrl } from '../../../../../lib/site';
 
 export interface SessionExamsPageProps {
   params: Promise<{ level: string; session: string }>;
@@ -39,10 +40,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: SessionExamsPageProps): Promise<Metadata> {
   const { level, session } = await params;
   const upper = level.toUpperCase();
-  const canonicalUrl = `https://jlpt.vn/${level.toLowerCase()}/de-thi/${session}`;
+  const canonicalUrl = absoluteUrl(`/${level.toLowerCase()}/de-thi/${session}`);
 
   return {
-    title: `Đề thi JLPT ${upper} Kỳ ${session} - JLPT Online`,
+    title: `Đề thi JLPT ${upper} Kỳ ${session} - ${SITE_NAME}`,
     description: `Đề thi chính thức JLPT ${upper} kỳ ${session} chuẩn cấu trúc JEES & Japan Foundation, có đồng hồ tính giờ và chấm điểm tự động.`,
     alternates: {
       canonical: canonicalUrl,
@@ -88,25 +89,25 @@ export default async function SessionExamsPage({ params }: SessionExamsPageProps
         '@type': 'ListItem',
         position: 1,
         name: 'Trang chủ',
-        item: 'https://jlpt.vn',
+        item: absoluteUrl('/'),
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: upper,
-        item: `https://jlpt.vn/${level.toLowerCase()}`,
+        item: absoluteUrl(`/${level.toLowerCase()}`),
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: `Đề thi ${upper}`,
-        item: `https://jlpt.vn/${level.toLowerCase()}/de-thi`,
+        item: absoluteUrl(`/${level.toLowerCase()}/de-thi`),
       },
       {
         '@type': 'ListItem',
         position: 4,
         name: `Kỳ ${session}`,
-        item: `https://jlpt.vn/${level.toLowerCase()}/de-thi/${session}`,
+        item: absoluteUrl(`/${level.toLowerCase()}/de-thi/${session}`),
       },
     ],
   };

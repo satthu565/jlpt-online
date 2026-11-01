@@ -3,23 +3,24 @@ import type { Metadata } from 'next';
 import { GrammarExplorer } from '../../../features/corpus';
 import { ExamHero } from '../../../features/library';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
+import { SITE_NAME, absoluteUrl, localizedUrl } from '../../../lib/site';
 
 export const metadata: Metadata = {
-  title: 'Thư viện Mẫu Ngữ pháp JLPT N1–N5 - Cấu trúc & Bài luyện - JLPT Online',
+  title: `Thư viện Mẫu Ngữ pháp JLPT N1–N5 - Cấu trúc & Bài luyện - ${SITE_NAME}`,
   description: 'Tổng hợp đầy đủ cấu trúc ngữ pháp tiếng Nhật N1 đến N5 kèm công thức kết hợp, ý nghĩa, câu ví dụ có phiên âm và liên kết luyện tập tương ứng.',
   alternates: {
-    canonical: 'https://jlpt.vn/ngu-phap',
+    canonical: absoluteUrl('/ngu-phap'),
     languages: {
-      vi: 'https://jlpt.vn/ngu-phap',
-      ja: 'https://jlpt.vn/ja/ngu-phap',
-      en: 'https://jlpt.vn/en/ngu-phap',
+      vi: localizedUrl('vi', '/ngu-phap'),
+      ja: localizedUrl('ja', '/ngu-phap'),
+      en: localizedUrl('en', '/ngu-phap'),
     },
   },
   openGraph: {
-    title: 'Thư viện Mẫu Ngữ pháp JLPT N1–N5 - JLPT Online',
+    title: `Thư viện Mẫu Ngữ pháp JLPT N1–N5 - ${SITE_NAME}`,
     description: 'Kho mẫu ngữ pháp tiếng Nhật kèm câu ví dụ và bài tập ôn luyện.',
-    url: 'https://jlpt.vn/ngu-phap',
-    siteName: 'JLPT Online',
+    url: absoluteUrl('/ngu-phap'),
+    siteName: SITE_NAME,
     type: 'website',
     locale: 'vi_VN',
   },
@@ -43,8 +44,8 @@ export default function GrammarCorpusPage(): React.JSX.Element {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://jlpt.vn' },
-      { '@type': 'ListItem', position: 2, name: 'Ngữ pháp', item: 'https://jlpt.vn/ngu-phap' },
+      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: absoluteUrl('/') },
+      { '@type': 'ListItem', position: 2, name: 'Ngữ pháp', item: absoluteUrl('/ngu-phap') },
     ],
   };
 

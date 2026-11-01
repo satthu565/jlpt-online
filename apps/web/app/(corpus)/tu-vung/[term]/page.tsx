@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
 import { VocabDetailView } from '../../../../features/corpus/components/vocab-detail-view';
 import type { DictionaryEntryDetailDto } from '../../../../features/corpus/types';
+import { SITE_NAME, absoluteUrl } from '../../../../lib/site';
 
 export interface VocabDetailPageProps {
   params: Promise<{ term: string }>;
@@ -53,22 +54,23 @@ export async function generateMetadata({
   const entry = await fetchVocabEntry(rawTerm);
   if (!entry) {
     return {
-      title: 'Không tìm thấy từ vựng - JLPT Online',
+      title: `Không tìm thấy từ vựng - ${SITE_NAME}`,
     };
   }
 
   const term = entry.entry;
+  const canonicalUrl = absoluteUrl(`/tu-vung/${encodeURIComponent(term)}`);
   return {
-    title: `${term} - nghĩa, cách đọc, Hán Việt | JLPT Online`,
+    title: `${term} - nghĩa, cách đọc, Hán Việt | ${SITE_NAME}`,
     description: `Chi tiết từ vựng tiếng Nhật ${term}: cách đọc, từ loại, nghĩa tiếng Anh JMdict và phân tách âm Hán Việt chữ Hán.`,
     alternates: {
-      canonical: `https://jlpt.vn/tu-vung/${encodeURIComponent(term)}`,
+      canonical: canonicalUrl,
     },
     openGraph: {
-      title: `${term} - nghĩa, cách đọc, Hán Việt | JLPT Online`,
+      title: `${term} - nghĩa, cách đọc, Hán Việt | ${SITE_NAME}`,
       description: `Chi tiết từ vựng tiếng Nhật ${term}: cách đọc, từ loại, nghĩa tiếng Anh JMdict và phân tách âm Hán Việt chữ Hán.`,
-      url: `https://jlpt.vn/tu-vung/${encodeURIComponent(term)}`,
-      siteName: 'JLPT Online',
+      url: canonicalUrl,
+      siteName: SITE_NAME,
       type: 'article',
       locale: 'vi_VN',
     },
@@ -96,7 +98,7 @@ export default async function VocabDetailPage({
     '@type': 'DefinedTerm',
     name: term,
     description: entry.meanings?.join('; ') || '',
-    inDefinedTermSet: 'https://jlpt.vn/tu-vung',
+    inDefinedTermSet: absoluteUrl('/tu-vung'),
     termCode: term,
   };
 
@@ -104,9 +106,9 @@ export default async function VocabDetailPage({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://jlpt.vn' },
-      { '@type': 'ListItem', position: 2, name: 'Từ vựng', item: 'https://jlpt.vn/tu-vung' },
-      { '@type': 'ListItem', position: 3, name: term, item: `https://jlpt.vn/tu-vung/${encodeURIComponent(term)}` },
+      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: absoluteUrl('/') },
+      { '@type': 'ListItem', position: 2, name: 'Từ vựng', item: absoluteUrl('/tu-vung') },
+      { '@type': 'ListItem', position: 3, name: term, item: absoluteUrl(`/tu-vung/${encodeURIComponent(term)}`) },
     ],
   };
 
