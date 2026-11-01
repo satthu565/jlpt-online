@@ -204,8 +204,8 @@ export class AdminController {
         templateKey: 'tpl-1',
         version: 1,
         locale: 'vi',
-        subject: 'Chào mừng {{userName}} gia nhập nền tảng luyện thi JLPT Online!',
-        body: 'Xin chào {{userName}},\n\nCảm ơn bạn đã đăng ký tài khoản. Chúc bạn ôn tập tốt!\n\nTrân trọng,\nĐội ngũ JLPT Online',
+        subject: 'Chào mừng {{userName}} gia nhập nền tảng luyện thi Gokakuya.com!',
+        body: 'Xin chào {{userName}},\n\nCảm ơn bạn đã đăng ký tài khoản. Chúc bạn ôn tập tốt!\n\nTrân trọng,\nĐội ngũ Gokakuya.com',
       },
       {
         id: '0192f000-0000-7000-8000-000000000092',
@@ -793,8 +793,8 @@ export class AdminController {
         await this.emailService.sendEmail({
           to: body.toEmail,
           subject: 'Thông báo kiểm thử hệ thống JLPT',
-          html: '<p>Nội dung kiểm thử thông báo từ hệ thống JLPT Online.</p>',
-          text: 'Nội dung kiểm thử thông báo từ hệ thống JLPT Online.',
+          html: '<p>Nội dung kiểm thử thông báo từ hệ thống Gokakuya.com.</p>',
+          text: 'Nội dung kiểm thử thông báo từ hệ thống Gokakuya.com.',
         });
       }
     } catch {

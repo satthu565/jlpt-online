@@ -113,7 +113,7 @@ services:
       - STORAGE_LOCAL_ROOT=/app/.data/storage
       - SMTP_URL=smtp://mailpit:1025
       - EMAIL_DRIVER=smtp
-      - EMAIL_FROM=no-reply@jlpt.local
+      - EMAIL_FROM=${EMAIL_FROM:-no-reply@gokakuya.com}
       - ENFORCE_STAFF_2FA=true
       - SENTRY_DSN=
     volumes:

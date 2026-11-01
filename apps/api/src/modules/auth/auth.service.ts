@@ -792,7 +792,7 @@ export class AuthService {
       const encryptedSecret = encryptTotpSecret(secret, userId);
 
       const otpauthUri = generateOtpAuthUri({
-        issuer: 'JLPT Online',
+        issuer: 'Gokakuya.com',
         accountName: email,
         secret,
       });

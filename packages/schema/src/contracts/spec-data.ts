@@ -1,5 +1,5 @@
 /**
- * Complete OpenAPI 3.1.0 Specification Definition for JLPT Online V1-V4.
+ * Complete OpenAPI 3.1.0 Specification Definition for Gokakuya.com V1-V4.
  * Defines all components, schemas, paths, and standard error envelopes.
  */
 

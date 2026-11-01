@@ -55,7 +55,7 @@ export async function seedDatabase(
     .values({
       id: sourceId,
       slug: 'self-authored',
-      name: 'JLPT Online Self-Authored',
+      name: 'Gokakuya.com Self-Authored',
       provenance: 'self_authored',
       metadata: { label: 'synthetic' },
     })
@@ -69,7 +69,7 @@ export async function seedDatabase(
       sourceId,
       licenseType: 'internal_synthetic',
       effectiveFrom: new Date('2026-10-01T00:00:00Z'),
-      terms: 'Nội dung tự soạn độc quyền cho JLPT Online (gắn nhãn synthetic).',
+      terms: 'Nội dung tự soạn độc quyền cho Gokakuya.com (gắn nhãn synthetic).',
     })
     .onConflictDoNothing();
 

@@ -549,7 +549,7 @@ Mỗi bài thi JLPT có thang điểm tối đa là **180 điểm**, chia làm 3
     await this.upsertLandingPage({
       slug: 'pricing-plans',
       locale: 'vi',
-      title: 'Bảng giá và Gói dịch vụ JLPT Online',
+      title: 'Bảng giá và Gói dịch vụ Gokakuya.com',
       content: {
         hero: {
           title: 'Chọn Gói Học Tập Phù Hợp Cho Mục Tiêu JLPT Của Bạn',
@@ -616,7 +616,7 @@ Mỗi bài thi JLPT có thang điểm tối đa là **180 điểm**, chia làm 3
           },
         ],
         seoMeta: {
-          title: 'Bảng giá gói thành viên JLPT Online: Học thử miễn phí, nâng cấp linh hoạt',
+          title: 'Bảng giá gói thành viên Gokakuya.com: Học thử miễn phí, nâng cấp linh hoạt',
           description:
             'Xem bảng giá chi tiết các gói ôn thi JLPT N1-N5 chất lượng cao, ưu đãi giảm giá đến 40% cho học viên mới.',
           keywords: ['bảng giá jlpt', 'gói học tiếng nhật', 'luyện thi jlpt online'],

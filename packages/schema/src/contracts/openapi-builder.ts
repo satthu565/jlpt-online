@@ -6,10 +6,10 @@ export function buildOpenApiSpec(): Record<string, unknown> {
   return {
     openapi: '3.1.0',
     info: {
-      title: 'JLPT Online Product API',
+      title: 'Gokakuya.com Product API',
       version: '1.0.0',
       description:
-        'Hợp đồng API toàn bộ sản phẩm JLPT Online V1-V4 (hỗ trợ thi, luyện tập, SRS, planner, AI, thanh toán, quản trị)',
+        'Hợp đồng API toàn bộ sản phẩm Gokakuya.com V1-V4 (hỗ trợ thi, luyện tập, SRS, planner, AI, thanh toán, quản trị)',
     },
     servers: [
       {
