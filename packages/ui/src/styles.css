@@ -255,8 +255,12 @@
 }
 
 /* Accessibility & Component Overrides */
-:where(a:not(.button):not(.jlpt-button):not(.header-nav-link):not([class*="button"])) {
-  color: var(--link);
+/* Liên kết mặc định màu navy. Đặt trong @layer base để class màu chữ của Tailwind (text-white...)
+   và nút dạng thẻ a luôn thắng; CSS ngoài layer luôn thắng CSS trong layer. */
+@layer base {
+  a {
+    color: var(--link);
+  }
 }
 
 .button--primary,
