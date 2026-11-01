@@ -14,7 +14,7 @@ import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { ExplanationDraftSchema, type ExplanationDraft } from '@jlpt/schema';
-import { extractPlainTextFromBlocks, extractPlainTextFromRichText } from '../import/explanation-parser.js';
+import { extractPlainTextFromRichText } from '../import/explanation-parser.js';
 import { OutboxService, type DbTx } from '../outbox/outbox.service.js';
 import { LicenseService } from '../license/license.service.js';
 import type { ReviewDecisionDto, ReviewTargetType } from './review.types.js';
@@ -35,30 +35,6 @@ export interface BuildLearnerExplanationParams {
     expiresAt?: Date | string | null;
     terms?: string | null;
   } | null;
-}
-
-/**
- * Lời giải được lưu dạng văn bản có cấu trúc (RichText/RichBlock), nhưng hợp đồng trả về cho
- * người học là chuỗi thuần. Chuyển về chuỗi để giao diện không phải render object.
- */
-function toPlainText(value: unknown): string | null {
-  if (value === null || value === undefined) return null;
-  if (typeof value === 'string') return value;
-  if (Array.isArray(value)) {
-    const text = extractPlainTextFromRichText(value) || extractPlainTextFromBlocks(value);
-    return text || null;
-  }
-  return null;
-}
-
-function toPlainTextMap(value: unknown): Record<string, string> | null {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
-  const out: Record<string, string> = {};
-  for (const [key, v] of Object.entries(value as Record<string, unknown>)) {
-    const text = toPlainText(v);
-    if (text) out[key] = text;
-  }
-  return Object.keys(out).length > 0 ? out : null;
 }
 
 export function buildLearnerExplanation(params: BuildLearnerExplanationParams) {
@@ -117,13 +93,13 @@ export function buildLearnerExplanation(params: BuildLearnerExplanationParams) {
     index: params.index,
     questionId: params.questionId,
     hasExplanation: true,
-    correctReason: toPlainText(content['correctReason']),
-    wrongReasonsByOption: toPlainTextMap(content['wrongReasonsByOption']),
-    translation: toPlainText(content['translation']),
+    correctReason: content['correctReason'] ?? null,
+    wrongReasonsByOption: content['wrongReasonsByOption'] ?? null,
+    translation: content['translation'] ?? null,
     vocabTags: (content['vocabTags'] as string[]) ?? [],
     grammarTags: (content['grammarTags'] as string[]) ?? [],
     hanViet: content['hanViet'] ?? null,
-    transcript: toPlainText(transcript),
+    transcript,
     evidenceRanges,
     sourceLabel,
     licenseLabel,
