@@ -392,7 +392,7 @@ export class NotificationService {
           .limit(1);
 
         if (recipient) {
-          const subject = (params.payload['subject'] as string) || `[JLPT Online] Thông báo ${params.type}`;
+          const subject = (params.payload['subject'] as string) || `[Gokakuya.com] Thông báo ${params.type}`;
           const message = (params.payload['message'] as string) || '';
           await this.emailService.sendEmail({
             to: recipient.email,
