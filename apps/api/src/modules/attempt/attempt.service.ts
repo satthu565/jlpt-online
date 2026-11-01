@@ -8,6 +8,7 @@ import {
   UnprocessableEntityException,
   BadRequestException,
   Logger,
+  Optional,
 } from '@nestjs/common';
 import { eq, and, sql, desc, isNull } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
@@ -17,6 +18,7 @@ import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { ScoringService } from '../scoring/scoring.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { TurnstileService } from '../turnstile/turnstile.service.js';
+import { ReviewService } from '../review/review.service.js';
 import {
   signMediaToken,
   generateAttemptTokenExp,
@@ -84,6 +86,7 @@ export class AttemptService {
     private readonly scoringService: ScoringService,
     private readonly outboxService: OutboxService,
     private readonly turnstileService: TurnstileService,
+    @Optional() private readonly reviewService?: ReviewService,
   ) {}
 
   /**
@@ -1243,6 +1246,11 @@ export class AttemptService {
       timeSpentMs: input.timeSpentMs ?? [],
     } as unknown as Result;
 
+    // 5. Fetch certified explanations for guest review (zero DB writes)
+    const explanations = this.reviewService
+      ? await this.reviewService.getExplanationsForExam(exam.id)
+      : {};
+
     // ZERO DB WRITES
     return {
       result: resultWithPacing,
@@ -1251,6 +1259,7 @@ export class AttemptService {
       flags: input.flags ?? [],
       snapshotUrl,
       mediaToken,
+      explanations,
     };
   }
 }

@@ -196,4 +196,80 @@ describe('Khách làm bài thi lưu hoàn toàn ở trình duyệt (Guest Local 
     expect(restoredReview.result.scoring.passed).toBe(true);
     expect(restoredReview.result.scoring.total).toBe(120);
   });
+
+  it('4. Khách mở lời giải chi tiết: tải từ dữ liệu cục bộ trong localStorage, không gọi server; người dùng đăng nhập vẫn gọi API', async () => {
+    const mockAttemptId = 'guest-0192f000-0000-7000-8000-000000000099';
+    const mockExamId = '0192f000-0000-7000-8000-000000000002';
+
+    const mockExplanation = {
+      index: 0,
+      questionId: '0192f000-0000-7000-8000-000000000010',
+      hasExplanation: true,
+      correctReason: 'Vì chữ Hán đúng là 犬 (khuyển).',
+      wrongReasonsByOption: { '2': 'Sai' },
+      translation: 'Có một con chó.',
+      vocabTags: ['犬'],
+      grammarTags: [],
+      transcript: null,
+      evidenceRanges: [],
+    };
+
+    const guestReviewData = {
+      attemptId: mockAttemptId,
+      examId: mockExamId,
+      mode: 'real' as const,
+      snapshot: { examId: mockExamId, title: 'Đề thi thử N3', level: 'N3', totalQuestions: 1, sections: [] },
+      answers: [1],
+      flags: [0],
+      correct: [1],
+      result: { totals: { correct: 1, wrong: 0, blank: 0, total: 1 } },
+      explanations: {
+        '0': mockExplanation,
+      },
+    };
+
+    localStorage.setItem(`jlpt_guest_review_${mockAttemptId}`, JSON.stringify(guestReviewData));
+
+    // Giả lập logic loader của trang /ket-qua/[id]
+    const apiSpy = vi.fn();
+    const loadExplanationForTest = async (attemptId: string, index: number) => {
+      const raw = localStorage.getItem(`jlpt_guest_review_${attemptId}`);
+      if (!raw) {
+        return apiSpy(attemptId, index);
+      }
+      const parsed = JSON.parse(raw);
+      const exp = parsed.explanations?.[index] ?? parsed.explanations?.[String(index)];
+      if (exp) return exp;
+      return {
+        index,
+        questionId: '',
+        hasExplanation: false,
+        correctReason: null,
+        wrongReasonsByOption: null,
+        translation: null,
+        vocabTags: [],
+        grammarTags: [],
+        transcript: null,
+        evidenceRanges: [],
+      };
+    };
+
+    // 1. Khách xem câu 0: có lời giải trong local storage -> lấy ngay, KHÔNG gọi API server
+    const resultExp0 = await loadExplanationForTest(mockAttemptId, 0);
+    expect(resultExp0.hasExplanation).toBe(true);
+    expect(resultExp0.correctReason).toBe('Vì chữ Hán đúng là 犬 (khuyển).');
+    expect(apiSpy).not.toHaveBeenCalled();
+
+    // 2. Khách xem câu 1: không có trong local storage -> trả hasExplanation=false không lỗi, KHÔNG gọi API server
+    const resultExp1 = await loadExplanationForTest(mockAttemptId, 1);
+    expect(resultExp1.hasExplanation).toBe(false);
+    expect(apiSpy).not.toHaveBeenCalled();
+
+    // 3. Người dùng đăng nhập (không có review khách trong localStorage) -> gọi API server
+    const userAttemptId = '0192f000-user-7000-8000-000000000001';
+    apiSpy.mockResolvedValueOnce(mockExplanation);
+    const loggedInResult = await loadExplanationForTest(userAttemptId, 0);
+    expect(apiSpy).toHaveBeenCalledWith(userAttemptId, 0);
+    expect(loggedInResult.hasExplanation).toBe(true);
+  });
 });

@@ -8,7 +8,7 @@ import {
   Optional,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
@@ -24,6 +24,87 @@ export interface CreateReportInput {
   explanationId?: string;
   issueType: 'wrong_answer' | 'confusing_explanation' | 'typo' | 'audio_issue' | 'other' | string;
   description: string;
+}
+
+export interface BuildLearnerExplanationParams {
+  index: number;
+  questionId: string;
+  approvedExp?: { content: unknown } | null;
+  license?: {
+    revokedAt?: Date | string | null;
+    expiresAt?: Date | string | null;
+    terms?: string | null;
+  } | null;
+}
+
+export function buildLearnerExplanation(params: BuildLearnerExplanationParams) {
+  if (!params.approvedExp) {
+    return {
+      index: params.index,
+      questionId: params.questionId,
+      hasExplanation: false,
+      explanation: null,
+      correctReason: null,
+      wrongReasonsByOption: null,
+      translation: null,
+      vocabTags: [] as string[],
+      grammarTags: [] as string[],
+      transcript: null,
+      evidenceRanges: [] as unknown[],
+    };
+  }
+
+  const content = (params.approvedExp.content || {}) as Record<string, unknown>;
+
+  // Audio transcript license check (AUDIO-08)
+  let transcriptAllowed = true;
+  let licenseLabel: string | null = (content['licenseLabel'] as string) || null;
+  let sourceLabel: string | null = (content['sourceLabel'] as string) || null;
+
+  if (params.license) {
+    if (params.license.revokedAt !== null && params.license.revokedAt !== undefined) {
+      transcriptAllowed = false;
+    } else if (params.license.expiresAt && new Date(params.license.expiresAt) <= new Date()) {
+      transcriptAllowed = false;
+    } else if (params.license.terms) {
+      try {
+        const parsed = typeof params.license.terms === 'string'
+          ? JSON.parse(params.license.terms)
+          : params.license.terms;
+        if (parsed.rights?.transcriptAllowed === false) {
+          transcriptAllowed = false;
+        }
+        if (parsed.licenseLabel) {
+          licenseLabel = parsed.licenseLabel;
+        }
+        if (parsed.sourceLabel) {
+          sourceLabel = parsed.sourceLabel;
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  const transcript = transcriptAllowed ? content['transcript'] ?? null : null;
+  const evidenceRanges = transcriptAllowed ? content['evidenceRanges'] ?? [] : [];
+
+  return {
+    index: params.index,
+    questionId: params.questionId,
+    hasExplanation: true,
+    correctReason: content['correctReason'] ?? null,
+    wrongReasonsByOption: content['wrongReasonsByOption'] ?? null,
+    translation: content['translation'] ?? null,
+    vocabTags: (content['vocabTags'] as string[]) ?? [],
+    grammarTags: (content['grammarTags'] as string[]) ?? [],
+    hanViet: content['hanViet'] ?? null,
+    transcript,
+    evidenceRanges,
+    sourceLabel,
+    licenseLabel,
+    isLicensed: Boolean(content['isLicensed'] || params.license),
+  };
 }
 
 @Injectable()
@@ -987,57 +1068,111 @@ export class ReviewService {
       .orderBy(desc(schema.explanationVersions.version))
       .limit(1);
 
-    if (!approvedExp) {
-      return {
-        index,
-        questionId: qInfo.questionId,
-        hasExplanation: false,
-        explanation: null,
-      };
-    }
-
-    const content = approvedExp.content as Record<string, unknown>;
-
-    // 4. Audio transcript license check (AUDIO-08)
-    let transcriptAllowed = true;
+    // 4. Fetch license if exists
+    let lic: (typeof schema.contentLicenses.$inferSelect) | null = null;
     if (qInfo.licenseId) {
-      const [lic] = await db
+      const [foundLic] = await db
         .select()
         .from(schema.contentLicenses)
         .where(eq(schema.contentLicenses.id, qInfo.licenseId))
         .limit(1);
+      lic = foundLic ?? null;
+    }
 
-      if (lic) {
-        if (lic.revokedAt !== null || (lic.expiresAt && new Date(lic.expiresAt) <= new Date())) {
-          transcriptAllowed = false;
-        } else if (lic.terms) {
-          try {
-            const parsed = JSON.parse(lic.terms);
-            if (parsed.rights?.transcriptAllowed === false) {
-              transcriptAllowed = false;
-            }
-          } catch {
-            // ignore
-          }
-        }
+    return buildLearnerExplanation({
+      index,
+      questionId: qInfo.questionId,
+      approvedExp,
+      license: lic,
+    });
+  }
+
+  /**
+   * Fetches approved explanations for all items in an exam for guest review.
+   * Zero DB writes. Audio licensing is respected.
+   */
+  async getExplanationsForExam(
+    examId: string,
+  ): Promise<Record<number, ReturnType<typeof buildLearnerExplanation>>> {
+    const db = this.dbClient.db;
+
+    const examItems = await db
+      .select({
+        orderIndex: schema.examItems.orderIndex,
+        questionId: schema.examItems.questionId,
+        groupId: schema.questions.groupId,
+        licenseId: schema.questionGroups.licenseId,
+      })
+      .from(schema.examItems)
+      .innerJoin(schema.questions, eq(schema.examItems.questionId, schema.questions.id))
+      .innerJoin(schema.questionGroups, eq(schema.questions.groupId, schema.questionGroups.id))
+      .where(eq(schema.examItems.examId, examId))
+      .orderBy(asc(schema.examItems.orderIndex));
+
+    const items = examItems as Array<{
+      orderIndex: number;
+      questionId: string;
+      groupId: string;
+      licenseId: string | null;
+    }>;
+
+    if (items.length === 0) {
+      return {};
+    }
+
+    const questionIds: string[] = Array.from(new Set(items.map((item) => item.questionId)));
+
+    const approvedList = await db
+      .select()
+      .from(schema.explanationVersions)
+      .where(
+        and(
+          inArray(schema.explanationVersions.questionId, questionIds),
+          eq(schema.explanationVersions.status, 'approved'),
+        ),
+      )
+      .orderBy(desc(schema.explanationVersions.version));
+
+    const latestExplanationByQuestionId = new Map<string, (typeof approvedList)[0]>();
+    for (const exp of approvedList) {
+      if (!latestExplanationByQuestionId.has(exp.questionId)) {
+        latestExplanationByQuestionId.set(exp.questionId, exp);
       }
     }
 
-    const transcript = transcriptAllowed ? content['transcript'] ?? null : null;
-    const evidenceRanges = transcriptAllowed ? content['evidenceRanges'] ?? [] : [];
+    const licenseIds: string[] = Array.from(
+      new Set(
+        items
+          .map((i) => i.licenseId)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    );
 
-    return {
-      index,
-      questionId: qInfo.questionId,
-      hasExplanation: true,
-      correctReason: content['correctReason'] ?? null,
-      wrongReasonsByOption: content['wrongReasonsByOption'] ?? null,
-      translation: content['translation'] ?? null,
-      vocabTags: content['vocabTags'] ?? [],
-      grammarTags: content['grammarTags'] ?? [],
-      transcript,
-      evidenceRanges,
-    };
+    const licenses =
+      licenseIds.length > 0
+        ? await db
+            .select()
+            .from(schema.contentLicenses)
+            .where(inArray(schema.contentLicenses.id, licenseIds))
+        : [];
+
+    const licenseById = new Map<string, (typeof licenses)[0]>(
+      (licenses as Array<typeof schema.contentLicenses.$inferSelect>).map((lic) => [lic.id, lic]),
+    );
+
+    const result: Record<number, ReturnType<typeof buildLearnerExplanation>> = {};
+    for (const item of items) {
+      const approvedExp = latestExplanationByQuestionId.get(item.questionId);
+      const lic = item.licenseId ? licenseById.get(item.licenseId) : null;
+      result[item.orderIndex] = buildLearnerExplanation({
+        index: item.orderIndex,
+        questionId: item.questionId,
+        approvedExp,
+        license: lic,
+      });
+    }
+
+    return result;
   }
 
   // ---------------------------------------------------------------------------

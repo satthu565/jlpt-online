@@ -243,5 +243,6 @@ export const GuestAttemptSubmitResponseSchema = z.object({
   flags: z.array(z.number().int().min(0).max(1)),
   snapshotUrl: z.string().url(),
   mediaToken: z.string(),
+  explanations: z.record(z.string(), z.any()).optional(),
 });
 export type GuestAttemptSubmitResponse = z.infer<typeof GuestAttemptSubmitResponseSchema>;
