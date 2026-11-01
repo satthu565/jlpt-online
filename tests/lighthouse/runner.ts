@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * JLPT Online - Staging CI Lighthouse Performance Gate Runner
+ * Gokakuya.com - Staging CI Lighthouse Performance Gate Runner
  * Task: D01
  * Checks: pnpm test:lighthouse -- --list
  * Budgets:

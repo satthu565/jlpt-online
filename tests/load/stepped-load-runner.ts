@@ -140,7 +140,7 @@ function summarizeLatencies(metrics: OperationMetric[]): LatencySummary {
 
 export async function runSteppedLoadTest(): Promise<LoadCapacityReport> {
   console.log('========================================================================');
-  console.log(' JLPT Online - Stepped Load Capacity & Concurrency Runner (SYS-10 / V06)');
+  console.log(' Gokakuya.com - Stepped Load Capacity & Concurrency Runner (SYS-10 / V06)');
   console.log(' Scope: k6 stepped load, isolate generator, record target vs observed');
   console.log('========================================================================\n');
 

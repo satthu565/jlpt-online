@@ -1,6 +1,6 @@
 /* global __VU, __ITER */
 /**
- * JLPT Online - k6 Multi-Scenario Stepped Load Test (SYS-10 / Task V06)
+ * Gokakuya.com - k6 Multi-Scenario Stepped Load Test (SYS-10 / Task V06)
  *
  * Scenarios:
  *   1. Concurrent Exam Start & Section Initiation (bắt đầu đồng loạt)

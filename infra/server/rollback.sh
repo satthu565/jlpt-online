@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# JLPT Online - Production Rollback Helper Script
+# Gokakuya.com - Production Rollback Helper Script
 # Specification: RUNBOOK_PRODUCTION.md Section B2
 # Usage: ./rollback.sh [target-tag]
 set -euo pipefail

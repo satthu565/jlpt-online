@@ -84,7 +84,7 @@ describe('Brand Logo & Mascot Assets (Gokakuya.com & JLPT Online)', () => {
     expect(html).toContain('w-56');
     expect(html).not.toContain('rounded-xl');
     expect(html).toContain('loading="lazy"');
-    expect(html).toContain('Bản quyền thuộc về JLPT Online');
+    expect(html).toContain('Bản quyền thuộc về Gokakuya.com');
   });
 
   it('declares mascot icons and Open Graph Gokakuya image in root metadata', () => {

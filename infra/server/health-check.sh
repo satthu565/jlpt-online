@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# JLPT Online - System Health & Operational Alert Monitor (SYS-09)
+# Gokakuya.com - System Health & Operational Alert Monitor (SYS-09)
 # Specification: Task T1.8.12 & SYS-09 Requirements
 # Daily automated monitoring for disk usage, backup freshness, and service health.
 set -euo pipefail

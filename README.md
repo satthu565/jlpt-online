@@ -1,4 +1,4 @@
-# JLPT Online
+# Gokakuya.com
 
 Web luyện thi JLPT (N5–N1) cho người Việt:
 
@@ -6,6 +6,8 @@ Web luyện thi JLPT (N5–N1) cho người Việt:
 - sổ tay, flashcard SRS, kế hoạch học;
 - tra từ điển, có âm Hán Việt theo từng từ;
 - trang quản trị để nhập đề, duyệt nội dung và vận hành.
+
+Tên thương hiệu website là **Gokakuya.com** (trước đây là JLPT Online). Tên kho GitHub (`jlpt-online`) và tên các gói nội bộ (`@jlpt/...`) vẫn được giữ nguyên (việc đổi tên kỹ thuật là việc riêng).
 
 Monorepo TypeScript gồm Next.js (web học viên và admin), NestJS (API) và PostgreSQL.
 

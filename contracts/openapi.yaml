@@ -125,6 +125,62 @@ components:
         - startAt
         - endAt
       type: object
+    AdminLexiconList:
+      properties:
+        items:
+          items:
+            properties:
+              hanViet:
+                type: string
+              id:
+                format: uuid
+                type: string
+              meaningSenses:
+                items:
+                  $ref: '#/components/schemas/LexiconMeaningSense'
+                type: array
+              meanings:
+                items:
+                  type: string
+                type: array
+              meaningsVi:
+                items:
+                  type: string
+                type: array
+              partOfSpeech:
+                type: string
+              provider:
+                type: string
+              readings:
+                items:
+                  type: string
+                type: array
+              term:
+                type: string
+            required:
+              - id
+              - term
+              - readings
+              - meanings
+              - meaningsVi
+              - meaningSenses
+              - partOfSpeech
+              - hanViet
+              - provider
+            type: object
+          type: array
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+      required:
+        - total
+        - page
+        - pageSize
+        - items
+      type: object
     AdminPlanCreateInput:
       properties:
         active:
@@ -599,6 +655,23 @@ components:
       required:
         - status
         - resolution
+      type: object
+    DictionaryMeaningSection:
+      properties:
+        explanation:
+          type: string
+        meanings:
+          items:
+            type: string
+          type: array
+        senseIndex:
+          minimum: 0
+          type: integer
+        summary:
+          type: string
+      required:
+        - senseIndex
+        - meanings
       type: object
     EventCreate:
       properties:
@@ -1096,6 +1169,89 @@ components:
           type: integer
         sourceRef:
           type: string
+      type: object
+    LexiconMeaningSense:
+      properties:
+        english:
+          items:
+            type: string
+          type: array
+        explanation:
+          type:
+            - string
+            - 'null'
+        partOfSpeech:
+          type:
+            - string
+            - 'null'
+        senseIndex:
+          minimum: 0
+          type: integer
+        summary:
+          type:
+            - string
+            - 'null'
+        vietnamese:
+          items:
+            type: string
+          type: array
+      required:
+        - senseIndex
+        - english
+        - vietnamese
+        - summary
+        - explanation
+        - partOfSpeech
+      type: object
+    LexiconVietnameseInput:
+      additionalProperties: false
+      properties:
+        senses:
+          items:
+            additionalProperties: false
+            properties:
+              explanation:
+                maxLength: 5000
+                type: string
+              meanings:
+                items:
+                  maxLength: 2000
+                  minLength: 1
+                  type: string
+                maxItems: 30
+                type: array
+              senseIndex:
+                minimum: 0
+                type: integer
+              summary:
+                maxLength: 2000
+                type: string
+            required:
+              - senseIndex
+              - meanings
+            type: object
+          maxItems: 100
+          type: array
+      required:
+        - senses
+      type: object
+    LexiconVietnameseResponse:
+      properties:
+        id:
+          format: uuid
+          type: string
+        meaningSenses:
+          items:
+            $ref: '#/components/schemas/LexiconMeaningSense'
+          type: array
+        meaningsVi:
+          items:
+            type: string
+          type: array
+      required:
+        - id
+        - meaningsVi
+        - meaningSenses
       type: object
     LicenseCreateInput:
       properties:
@@ -1952,8 +2108,8 @@ components:
         - completedExams
       type: object
 info:
-  description: Hợp đồng API toàn bộ sản phẩm JLPT Online V1-V4 (hỗ trợ thi, luyện tập, SRS, planner, AI, thanh toán, quản trị)
-  title: JLPT Online Product API
+  description: Hợp đồng API toàn bộ sản phẩm Gokakuya.com V1-V4 (hỗ trợ thi, luyện tập, SRS, planner, AI, thanh toán, quản trị)
+  title: Gokakuya.com Product API
   version: 1.0.0
 openapi: 3.1.0
 paths:
@@ -6295,6 +6451,171 @@ paths:
       summary: Thử lại việc nhập gói
       tags:
         - Admin Imports
+  /api/v1/admin/lexicon/entries:
+    get:
+      operationId: adminListLexiconEntries
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: pos
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            minimum: 1
+            type: integer
+        - in: query
+          name: pageSize
+          schema:
+            maximum: 200
+            minimum: 1
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminLexiconList'
+          description: Các mục từ
+        '401':
+          content:
+            application/json:
+              examples:
+                default:
+                  summary: UNAUTHENTICATED
+                  value:
+                    error:
+                      code: UNAUTHENTICATED
+                      details: {}
+                      message: Yêu cầu đăng nhập.
+                      requestId: req_01J00000000000000000000000
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+          description: Authentication required
+        '403':
+          content:
+            application/json:
+              examples:
+                forbidden:
+                  summary: FORBIDDEN
+                  value:
+                    error:
+                      code: FORBIDDEN
+                      details: {}
+                      message: Bạn không có quyền thực hiện thao tác quản trị này.
+                      requestId: req_01J00000000000000000000000
+                twoFactorRequired:
+                  summary: TWO_FACTOR_REQUIRED
+                  value:
+                    error:
+                      code: TWO_FACTOR_REQUIRED
+                      details: {}
+                      message: Yêu cầu xác thực hai bước (2FA) trước khi truy cập quản trị.
+                      requestId: req_01J00000000000000000000000
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+          description: Insufficient permissions or two-factor authentication required
+      summary: Danh sách từ điển với nghĩa tiếng Anh và tiếng Việt theo nhóm nghĩa
+      tags:
+        - AdminLexicon
+  /api/v1/admin/lexicon/entries/{id}/meanings-vi:
+    patch:
+      operationId: adminUpdateVietnameseMeanings
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LexiconVietnameseInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LexiconVietnameseResponse'
+          description: Nghĩa tiếng Việt đã lưu
+        '400':
+          content:
+            application/json:
+              examples:
+                default:
+                  summary: VALIDATION_ERROR
+                  value:
+                    error:
+                      code: VALIDATION_ERROR
+                      details: {}
+                      message: Dữ liệu gửi lên không đúng định dạng.
+                      requestId: req_01J00000000000000000000000
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+          description: Validation error
+        '401':
+          content:
+            application/json:
+              examples:
+                default:
+                  summary: UNAUTHENTICATED
+                  value:
+                    error:
+                      code: UNAUTHENTICATED
+                      details: {}
+                      message: Yêu cầu đăng nhập.
+                      requestId: req_01J00000000000000000000000
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+          description: Authentication required
+        '403':
+          content:
+            application/json:
+              examples:
+                forbidden:
+                  summary: FORBIDDEN
+                  value:
+                    error:
+                      code: FORBIDDEN
+                      details: {}
+                      message: Bạn không có quyền thực hiện thao tác quản trị này.
+                      requestId: req_01J00000000000000000000000
+                twoFactorRequired:
+                  summary: TWO_FACTOR_REQUIRED
+                  value:
+                    error:
+                      code: TWO_FACTOR_REQUIRED
+                      details: {}
+                      message: Yêu cầu xác thực hai bước (2FA) trước khi truy cập quản trị.
+                      requestId: req_01J00000000000000000000000
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+          description: Insufficient permissions or two-factor authentication required
+        '404':
+          content:
+            application/json:
+              examples:
+                default:
+                  summary: NOT_FOUND
+                  value:
+                    error:
+                      code: NOT_FOUND
+                      details: {}
+                      message: Tài nguyên không tồn tại.
+                      requestId: req_01J00000000000000000000000
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+          description: Resource not found
+      summary: Admin/editor thay thế nghĩa tiếng Việt, giữ nguyên nghĩa tiếng Anh và ghi nhật ký
+      tags:
+        - AdminLexicon
   /api/v1/admin/licenses:
     get:
       operationId: adminListLicenses
@@ -10230,6 +10551,10 @@ paths:
                     type: array
                   license:
                     type: string
+                  meaningSections:
+                    items:
+                      $ref: '#/components/schemas/DictionaryMeaningSection'
+                    type: array
                   meanings:
                     items:
                       type: string

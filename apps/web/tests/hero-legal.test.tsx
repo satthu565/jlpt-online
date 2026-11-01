@@ -29,7 +29,7 @@ describe('Legal Pages Hero Integration (Terms of Service, Privacy Policy, Privac
       expect(html).not.toContain('Đăng nhập để lưu tiến độ');
 
       // Title & Subtitle inside hero
-      expect(html).toContain('Điều khoản Dịch vụ & Quy chế Phòng thi JLPT Online');
+      expect(html).toContain('Điều khoản Dịch vụ & Quy chế Phòng thi Gokakuya.com');
       expect(html).toContain(
         'Quy định sử dụng dịch vụ, bản quyền nội dung đề thi năng lực tiếng Nhật JLPT và chính sách hoàn tiền minh bạch.',
       );

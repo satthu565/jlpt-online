@@ -1,5 +1,5 @@
 /**
- * JLPT Online - Release Acceptance Test Suite (Task R06 / Day 7)
+ * Gokakuya.com - Release Acceptance Test Suite (Task R06 / Day 7)
  * Command: pnpm test:release
  * Acceptance Criteria:
  *   1. 363 yêu cầu ứng dụng chỉ DONE khi đủ evidence; 12 yêu cầu chuẩn bị bên ngoài báo riêng

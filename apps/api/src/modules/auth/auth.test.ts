@@ -77,7 +77,7 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
       );
       expect(smtpMessage).toBeDefined();
       expect(smtpMessage?.to).toContain(testEmail);
-      expect(smtpMessage?.subject).toBe('Xác minh tài khoản JLPT Online');
+      expect(smtpMessage?.subject).toBe('Xác minh tài khoản Gokakuya.com');
 
       // Extract verification token directly from TCP SMTP payload
       const tokenMatch = smtpMessage?.body.match(/token=([a-f0-9]+)/i);
@@ -262,7 +262,7 @@ describe('F03 Authentication, Verification, and Mailpit Integration', () => {
       );
       expect(resetSmtpMessage).toBeDefined();
       expect(resetSmtpMessage?.to).toContain(testEmail);
-      expect(resetSmtpMessage?.subject).toBe('Đặt lại mật khẩu JLPT Online');
+      expect(resetSmtpMessage?.subject).toBe('Đặt lại mật khẩu Gokakuya.com');
 
       // Extract reset token directly from TCP SMTP payload
       const tokenMatch = resetSmtpMessage?.body.match(/token=([a-f0-9]+)/i);

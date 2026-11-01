@@ -1,4 +1,4 @@
-# JLPT Online - Staging Docker Compose Definition
+# Gokakuya.com - Staging Docker Compose Definition
 # Used for temporary Staging environments and CI verification drills.
 # Uses profile 'small' parameters and ensures total data isolation from production and worker DBs.
 
@@ -111,7 +111,7 @@ services:
       - STORAGE_LOCAL_ROOT=/app/.data/storage
       - SMTP_URL=${SMTP_URL:-smtp://mailpit:1025}
       - EMAIL_DRIVER=${EMAIL_DRIVER:-smtp}
-      - EMAIL_FROM=${EMAIL_FROM:-no-reply@jlpt.local}
+      - EMAIL_FROM=${EMAIL_FROM:-no-reply@gokakuya.com}
       - ENFORCE_STAFF_2FA=true
       - SENTRY_DSN=
     volumes:

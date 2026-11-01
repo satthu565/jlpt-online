@@ -7,7 +7,7 @@
     "cancel": "Quay lại"
   },
   "common": {
-    "brand": "JLPT Online",
+    "brand": "Gokakuya.com",
     "tagline": "Nền tảng thi và luyện thi tiếng Nhật trực tuyến chuẩn JLPT",
     "nav": {
       "home": "Trang chủ",
@@ -42,7 +42,7 @@
       "privacy": "Chính sách quyền riêng tư",
       "faq": "Câu hỏi thường gặp",
       "contact": "Liên hệ hỗ trợ",
-      "copyright": "Bản quyền thuộc về JLPT Online. Mọi quyền được bảo lưu.",
+      "copyright": "Bản quyền thuộc về Gokakuya.com. Mọi quyền được bảo lưu.",
       "accessibilityNotice": "Thiết kế tuân thủ tiêu chuẩn trợ năng WCAG 2.1 AA."
     },
     "buttons": {
@@ -91,7 +91,7 @@
   "auth": {
     "login": {
       "title": "Đăng nhập tài khoản",
-      "subtitle": "Chào mừng bạn quay trở lại với JLPT Online",
+      "subtitle": "Chào mừng bạn quay trở lại với Gokakuya.com",
       "emailLabel": "Địa chỉ email",
       "emailPlaceholder": "nhan.nguyen@example.com",
       "passwordLabel": "Mật khẩu",
@@ -650,13 +650,13 @@
       "submitReport": "Gửi báo cáo",
       "authRequired": "Bạn cần đăng nhập để tham gia thảo luận và chia sẻ đáp án với cộng đồng.",
       "signInButton": "Đăng nhập ngay",
-      "shareSuccess": "Đã chia sẻ thành tích lên cộng đồng học viên JLPT Online!",
+      "shareSuccess": "Đã chia sẻ thành tích lên cộng đồng học viên Gokakuya.com!",
       "shareFailed": "Không thể chia sẻ thành tích."
     },
     "share": {
       "cardTitle": "Chứng nhận & Thành tích học tập",
       "anonymousLearner": "Học viên ẩn danh",
-      "defaultLearner": "Học viên JLPT Online",
+      "defaultLearner": "Học viên Gokakuya.com",
       "congratulations": "Chúc mừng {name} đã chinh phục mục tiêu!",
       "scoreLabel": "Điểm thi: {score}/180",
       "streakLabel": "Chuỗi liên tục: {days} ngày",
@@ -667,7 +667,7 @@
   },
   "billing": {
     "page": {
-      "title": "Các gói thành viên JLPT Online",
+      "title": "Các gói thành viên Gokakuya.com",
       "subtitle": "Mở khóa toàn bộ ngân hàng đề thi chuẩn format, luyện trộn không giới hạn và nhận giải thích chuyên sâu."
     },
     "coupon": {
@@ -773,7 +773,7 @@
       "errorNotice": "Không thể phát âm thanh: Lỗi kết nối dịch vụ TTS."
     },
     "watermark": {
-      "notice": "BẢN QUYỀN THUỘC JLPT ONLINE - NGHIÊM CẤM SAO CHÉP TRÁI PHÉP",
+      "notice": "BẢN QUYỀN THUỘC GOKAKUYA.COM - NGHIÊM CẤM SAO CHÉP TRÁI PHÉP",
       "downloadPdf": "Tải phiếu điểm PDF (Đóng dấu bảo mật)",
       "exportingPdf": "Đang tạo phiếu điểm PDF...",
       "exportSuccess": "Đã xuất phiếu điểm thành công!",
@@ -802,7 +802,7 @@
     },
     "contact": {
       "title": "Liên hệ & Hỗ trợ học viên",
-      "subtitle": "Đội ngũ hỗ trợ JLPT Online luôn sẵn sàng giải đáp thắc mắc và tiếp nhận phản hồi của bạn.",
+      "subtitle": "Đội ngũ hỗ trợ Gokakuya.com luôn sẵn sàng giải đáp thắc mắc và tiếp nhận phản hồi của bạn.",
       "nameLabel": "Họ và tên",
       "emailLabel": "Email liên hệ",
       "topicLabel": "Chủ đề cần hỗ trợ",

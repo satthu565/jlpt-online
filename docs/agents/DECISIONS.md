@@ -13,6 +13,7 @@ Tóm tắt những điều agent phải theo. Lý do chi tiết từng task nằ
 | Đỗ/trượt và điểm sàn theo quy tắc JLPT thật. Bảng quy đổi có phiên bản; kết quả cũ giữ phiên bản cũ. | P01, P03, P05 |
 | Hán Việt tính theo từng từ (4 lớp), không ghép âm từng chữ. Kokuji để trống, không đoán. | H01 |
 | AI không quyết định điểm thi. | Quy tắc gốc |
+| Tên thương hiệu website là **Gokakuya.com** (`SITE_NAME` trong `apps/web/lib/site.ts`), địa chỉ gốc cấu hình bằng `NEXT_PUBLIC_SITE_URL` (mặc định `https://gokakuya.com`), domain chưa chạy thật, tài khoản thử vẫn `@jlpt.local`. Tên repo GitHub (`jlpt-online`) và tên các gói (`@jlpt/...`) giữ nguyên. | Chỉ thị chủ dự án |
 
 ## Kỹ thuật
 

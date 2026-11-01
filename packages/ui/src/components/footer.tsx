@@ -19,7 +19,7 @@ export interface FooterProps {
 }
 
 export function Footer({
-  brandName = 'JLPT Online',
+  brandName = 'Gokakuya.com',
   tagline = 'Nền tảng thi và luyện thi tiếng Nhật trực tuyến chuẩn JLPT N1–N5',
   logoSrc = '/images/brand/logo-v3-footer.webp',
   logoAlt = 'Gokakuya.com',

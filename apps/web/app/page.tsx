@@ -26,6 +26,7 @@ import {
 } from '@jlpt/ui/components/tooltip';
 import { useI18n } from '../lib/i18n';
 import { useAuth } from '../lib/auth-context';
+import { SITE_NAME, SITE_URL } from '../lib/site';
 import { ExamApiClient, ExamApiError } from '../features/exam/api/exam-api';
 import { useExamFavorites } from '../features/library/hooks/use-exam-favorites';
 import { ExamHero } from '../features/library/components/exam-hero';
@@ -88,8 +89,8 @@ const LEVEL_CONFIGS: Array<{
 const WEBSITE_STRUCTURED_DATA = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: 'JLPT Online',
-  url: 'https://jlpt.vn',
+  name: SITE_NAME,
+  url: SITE_URL,
   description: 'Nền tảng thi và luyện thi tiếng Nhật trực tuyến chuẩn quốc tế từ N5 đến N1.',
 };
 

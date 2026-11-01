@@ -1,5 +1,5 @@
 /**
- * Design Tokens for JLPT Online Design System
+ * Design Tokens for Gokakuya.com Design System
  * Feature IDs: EXAM-26, SYS-01, SYS-14
  */
 

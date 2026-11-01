@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# JLPT Online - Production & Staging Backup Automation (SYS-08)
+# Gokakuya.com - Production & Staging Backup Automation (SYS-08)
 # Specification: RUNBOOK_PRODUCTION.md Section B3 & Task T1.8.10
 # Base backup scheduled daily at 03:00 (Vietnam time / 20:00 UTC)
 # Retains 7 full backups; WAL archived continuously every 300s.

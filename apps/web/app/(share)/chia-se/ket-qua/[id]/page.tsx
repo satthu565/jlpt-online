@@ -7,6 +7,7 @@ import { WatermarkBadge } from '@jlpt/ui/components/watermark-badge';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
 import { Award, Rocket } from 'lucide-react';
 import Link from 'next/link';
+import { SITE_NAME, absoluteUrl } from '../../../../../lib/site';
 
 export interface ShareResultPageProps {
   params: Promise<{ id: string }>;
@@ -14,11 +15,11 @@ export interface ShareResultPageProps {
 
 export async function generateMetadata({ params }: ShareResultPageProps): Promise<Metadata> {
   const { id } = await params;
-  const canonicalUrl = `https://jlpt.vn/chia-se/ket-qua/${id}`;
+  const canonicalUrl = absoluteUrl(`/chia-se/ket-qua/${id}`);
 
   return {
-    title: `Kết quả đánh giá năng lực JLPT - Lượt thi #${id.slice(0, 8)} - JLPT Online`,
-    description: `Chứng nhận kết quả thi năng lực tiếng Nhật JLPT chuẩn quốc tế được xác thực bởi nền tảng JLPT Online.`,
+    title: `Kết quả đánh giá năng lực JLPT - Lượt thi #${id.slice(0, 8)} - ${SITE_NAME}`,
+    description: `Chứng nhận kết quả thi năng lực tiếng Nhật JLPT chuẩn quốc tế được xác thực bởi nền tảng ${SITE_NAME}.`,
     alternates: {
       canonical: canonicalUrl,
     },
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: ShareResultPageProps): Promis
       title: `Chứng nhận kết quả JLPT - Lượt thi #${id.slice(0, 8)}`,
       description: `Xem chi tiết bảng điểm và đánh giá năng lực tiếng Nhật chuẩn JEES & Japan Foundation.`,
       url: canonicalUrl,
-      siteName: 'JLPT Online',
+      siteName: SITE_NAME,
       type: 'article',
       locale: 'vi_VN',
     },
@@ -49,8 +50,8 @@ export default async function ShareResultPage({ params }: ShareResultPageProps):
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://jlpt.vn' },
-      { '@type': 'ListItem', position: 2, name: 'Chia sẻ kết quả', item: `https://jlpt.vn/chia-se/ket-qua/${id}` },
+      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: absoluteUrl('/') },
+      { '@type': 'ListItem', position: 2, name: 'Chia sẻ kết quả', item: absoluteUrl(`/chia-se/ket-qua/${id}`) },
     ],
   };
 
@@ -102,7 +103,7 @@ export default async function ShareResultPage({ params }: ShareResultPageProps):
         {/* Security Watermark */}
         <WatermarkBadge
           userId={id.slice(0, 8)}
-          notice="XÁC THỰC KẾT QUẢ THI TRỰC TUYẾN - JLPT ONLINE"
+          notice="XÁC THỰC KẾT QUẢ THI TRỰC TUYẾN - GOKAKUYA.COM"
         />
 
         <div className="pt-4 flex justify-center gap-3">

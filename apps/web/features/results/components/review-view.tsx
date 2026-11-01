@@ -15,6 +15,7 @@ import { ShareDialog } from '@jlpt/ui/components/share-dialog';
 import { FuriganaToggle, useFurigana } from '@jlpt/ui/components/furigana-toggle';
 import { AiChatAssistant } from '../../ai/components/ai-chat-assistant';
 import { FEATURES } from '../../../lib/features';
+import { absoluteUrl } from '../../../lib/site';
 import { useSelectLookup, useSelectLookupSetting, SelectionLookupPopover } from '../../corpus';
 import { examApiClient } from '../../exam/api/exam-api';
 import type { LearnerExplanation } from '../../explanations/types';
@@ -221,7 +222,7 @@ export function ReviewView({
       <ShareDialog
         isOpen={shareModalOpen}
         onClose={() => setShareModalOpen(false)}
-        url={`https://jlpt.vn/chia-se/ket-qua/${attemptId}`}
+        url={absoluteUrl(`/chia-se/ket-qua/${attemptId}`)}
         title={`Kết quả bài thi JLPT: ${snapshot.title} - Điểm: ${result.scoring.total}/${result.scoring.totalMax}`}
         description="Chia sẻ bảng điểm và kết quả bài thi năng lực tiếng Nhật JLPT chuẩn quốc tế."
         labels={{

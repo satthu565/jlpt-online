@@ -19,7 +19,7 @@ Trang chỉ nên làm phần khung, phần còn lại để trong `features/`:
 import type { Metadata } from 'next';
 import { OnTapView } from '../../../features/learning';
 
-export const metadata: Metadata = { title: 'Ôn tập - JLPT Online', description: '…' };
+export const metadata: Metadata = { title: 'Ôn tập - Gokakuya.com', description: '…' };
 
 export default function Page() {
   return <OnTapView />;

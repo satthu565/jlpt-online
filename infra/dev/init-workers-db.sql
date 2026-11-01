@@ -1,5 +1,5 @@
 -- ==============================================================================
--- JLPT Online Dev Infrastructure: Isolated Databases for 6 Coding Workers
+-- Gokakuya.com Dev Infrastructure: Isolated Databases for 6 Coding Workers
 -- Task: F07 (Multi-worker isolation)
 -- ==============================================================================
 

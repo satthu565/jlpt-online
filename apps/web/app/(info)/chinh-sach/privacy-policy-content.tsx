@@ -2,14 +2,15 @@ import React from 'react';
 import { Card } from '@jlpt/ui/components/card';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
 import { ExamHero } from '../../../features/library';
+import { absoluteUrl } from '../../../lib/site';
 
 export function PrivacyPolicyContent(): React.JSX.Element {
   const breadcrumbs = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://jlpt.vn' },
-      { '@type': 'ListItem', position: 2, name: 'Chính sách quyền riêng tư', item: 'https://jlpt.vn/chinh-sach' },
+      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: absoluteUrl('/') },
+      { '@type': 'ListItem', position: 2, name: 'Chính sách quyền riêng tư', item: absoluteUrl('/chinh-sach') },
     ],
   };
 
@@ -41,7 +42,7 @@ export function PrivacyPolicyContent(): React.JSX.Element {
               1. Cam kết bảo vệ dữ liệu cá nhân
             </h2>
             <p>
-              JLPT Online tôn trọng và cam kết bảo vệ tuyệt đối quyền riêng tư của mọi học viên. Chúng tôi không chia sẻ, bán hoặc chuyển giao thông tin cá nhân của bạn cho bất kỳ bên thứ ba nào vì mục đích quảng cáo thương mại.
+              Gokakuya.com tôn trọng và cam kết bảo vệ tuyệt đối quyền riêng tư của mọi học viên. Chúng tôi không chia sẻ, bán hoặc chuyển giao thông tin cá nhân của bạn cho bất kỳ bên thứ ba nào vì mục đích quảng cáo thương mại.
             </p>
           </section>
 
