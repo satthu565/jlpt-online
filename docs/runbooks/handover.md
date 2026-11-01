@@ -1,12 +1,12 @@
-# Runbook Bàn Giao Hệ Thống và Hướng Dẫn Vận Hành JLPT Online (R06)
+# Runbook Bàn Giao Hệ Thống và Hướng Dẫn Vận Hành Gokakuya.com (R06)
 
-> **Tài liệu bàn giao toàn diện:** Dành cho Chủ dự án (Project Owner), Quản trị viên hệ thống (System Administrator) và Kỹ sư vận hành (DevOps/SRE) tiếp nhận vận hành nền tảng JLPT Online sau chu kỳ 7 ngày phát triển.
+> **Tài liệu bàn giao toàn diện:** Dành cho Chủ dự án (Project Owner), Quản trị viên hệ thống (System Administrator) và Kỹ sư vận hành (DevOps/SRE) tiếp nhận vận hành nền tảng Gokakuya.com sau chu kỳ 7 ngày phát triển.
 
 ---
 
 ## 1. Tổng quan Nền tảng và Kiến trúc Kỹ thuật
 
-Nền tảng **JLPT Online** được xây dựng theo mô hình Monorepo hiệu năng cao sử dụng công cụ quản lý gói **PNPM** và bộ phối hợp tác vụ **Turborepo**. Hệ thống được thiết kế theo các tiêu chuẩn khắt khe về độ tin cậy, không rò rỉ đáp án, tách biệt tổ chức (Multi-tenant), và hỗ trợ mở rộng linh hoạt theo hồ sơ tài nguyên (Resource Profiles).
+Nền tảng **Gokakuya.com** được xây dựng theo mô hình Monorepo hiệu năng cao sử dụng công cụ quản lý gói **PNPM** và bộ phối hợp tác vụ **Turborepo**. Hệ thống được thiết kế theo các tiêu chuẩn khắt khe về độ tin cậy, không rò rỉ đáp án, tách biệt tổ chức (Multi-tenant), và hỗ trợ mở rộng linh hoạt theo hồ sơ tài nguyên (Resource Profiles).
 
 ```
 jlpt-monorepo/

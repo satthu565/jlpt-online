@@ -1,5 +1,5 @@
 /**
- * JLPT Online - Admin Backup, Restore & Data Export Management
+ * Gokakuya.com - Admin Backup, Restore & Data Export Management
  * Feature: ADM-20 ("Sao lưu, phục hồi và xuất dữ liệu quản trị")
  */
 

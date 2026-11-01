@@ -1,5 +1,5 @@
 /**
- * JLPT Online - Full Exam Lifecycle E2E Integration Suite
+ * Gokakuya.com - Full Exam Lifecycle E2E Integration Suite
  * Path: tests/e2e/full/exam-lifecycle.test.ts
  *
  * Verifies:

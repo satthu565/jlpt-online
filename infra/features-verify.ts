@@ -1,5 +1,5 @@
 /**
- * JLPT Online - Feature Coverage & Staging Scope Verification Gate
+ * Gokakuya.com - Feature Coverage & Staging Scope Verification Gate
  * Command: pnpm features:verify
  * Tasks: A06, R06
  * Acceptance:
@@ -253,7 +253,7 @@ export function runFeaturesVerification(customRootDir?: string): VerificationSum
 
 export function printVerificationReport(summary: VerificationSummary) {
   console.log('========================================================================');
-  console.log(' JLPT Online - Feature Scope & Implementation Verification Gate');
+  console.log(' Gokakuya.com - Feature Scope & Implementation Verification Gate');
   console.log(' Timestamp: ' + summary.verifiedAt);
   console.log(` Head SHA:  ${summary.headSha}`);
   console.log(` Base SHA:  ${summary.baseSha}`);

@@ -1,5 +1,5 @@
 /**
- * JLPT Online - Design & Performance Verification Runner (D05)
+ * Gokakuya.com - Design & Performance Verification Runner (D05)
  * 
  * Verifies all 29 Web pages and 30 Admin pages across 3 viewports:
  * - 390px (Mobile standard)
@@ -198,7 +198,7 @@ async function auditPage(
 
 async function runAudit() {
   console.log('================================================================================');
-  console.log(' JLPT ONLINE - DESIGN & PERFORMANCE RESPONSIVE AUDIT (D05)');
+  console.log(' GOKAKUYA.COM - DESIGN & PERFORMANCE RESPONSIVE AUDIT (D05)');
   console.log(' Viewports: 390px (Mobile), 1366px (Desktop Standard), 1920px (Desktop Full HD)');
   console.log(' Web Origin:   ', WEB_ORIGIN);
   console.log(' Admin Origin: ', ADMIN_ORIGIN);

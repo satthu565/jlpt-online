@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * JLPT Online - Multi-Browser End-to-End Test Configuration
+ * Gokakuya.com - Multi-Browser End-to-End Test Configuration
  * Browsers: Chromium, WebKit (Safari), Firefox
  * Mobile Devices: iPhone (Mobile Safari), Android (Mobile Chrome)
  * Feature: SYS-10, SYS-14 (A11y), Device Matrix T1.9.4

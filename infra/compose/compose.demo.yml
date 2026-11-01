@@ -1,4 +1,4 @@
-# JLPT Online - Demo Environment Docker Compose Definition (I00 / SYS-15)
+# Gokakuya.com - Demo Environment Docker Compose Definition (I00 / SYS-15)
 # Project Name: jlpt-demo
 # Profile: small (Linode Shared 4GB or local testing)
 # Reverse Proxy: Caddy routing web (3200) and admin (3201) to API via same-origin /api/v1

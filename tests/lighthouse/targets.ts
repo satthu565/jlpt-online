@@ -1,5 +1,5 @@
 /**
- * Target Routes Configuration for JLPT Online Lighthouse Performance Gate
+ * Target Routes Configuration for Gokakuya.com Lighthouse Performance Gate
  * Task: D01
  * Scope:
  *  - Main pages: /, /de-thi, /phong-thi, /n5, /dang-nhap, admin /login

@@ -1,5 +1,5 @@
 /**
- * Budgets and Evaluation Logic for JLPT Online Lighthouse Performance Gate
+ * Budgets and Evaluation Logic for Gokakuya.com Lighthouse Performance Gate
  * Task: D01
  * Scope:
  *  - Mobile: LCP < 3.3s (3300ms, simulated; see DEFAULT_BUDGETS), CLS < 0.1, TBT < 200ms, initial JS <= 200KB (gzip; chủ dự án duyệt nâng từ 150KB ngày 2026-10-20, từ 180KB ngày 2026-10-31),

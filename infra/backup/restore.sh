@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# JLPT Online - Production & Staging PITR Restore Automation (SYS-08 & ADM-20)
+# Gokakuya.com - Production & Staging PITR Restore Automation (SYS-08 & ADM-20)
 # Specification: RUNBOOK_PRODUCTION.md Section B3 & Task T1.8.10
 # Usage: ./restore.sh [recovery-target-time]
 set -euo pipefail

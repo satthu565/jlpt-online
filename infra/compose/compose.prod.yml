@@ -1,4 +1,4 @@
-# JLPT Online - Production Docker Compose Definition
+# Gokakuya.com - Production Docker Compose Definition
 # Contract A12 & B2: Images built in CI, pulled by tag. Never build on production server!
 # All internal communication occurs over private bridge network jlpt-internal.
 # Only web, admin, and api bind to 127.0.0.1 for Cloudflare Tunnel ingress.
