@@ -79,7 +79,8 @@ function preloadHeroTooltip(): Promise<HeroTooltipModule> {
   return heroModulePromise;
 }
 
-interface HeroPortalInnerProps {
+interface HeroPortalInnerProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children' | 'id' | 'className'> {
   children: React.ReactNode;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -89,7 +90,6 @@ interface HeroPortalInnerProps {
   className?: string;
   id?: string;
   triggerRef: React.RefObject<HTMLElement | null>;
-  [key: string]: unknown;
 }
 
 const LazyHeroPortal = React.lazy(async () => {
