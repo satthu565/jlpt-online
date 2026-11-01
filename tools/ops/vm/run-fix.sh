@@ -1,5 +1,5 @@
 #!/bin/bash
-# Giao một việc sửa lỗi cho worker agy (Gemini) trong máy ảo.
+# Giao một việc sửa lỗi cho worker agy (Antigravity CLI) trong máy ảo.
 #   run-fix.sh start  <slug> "<mô tả>" [W1..W6]   # clone main -> nhánh fix/<slug>, chạy agy ở nền
 #   run-fix.sh status [slug]                        # trạng thái các việc
 #   run-fix.sh finish <slug>                        # push nhánh + mở PR (sau khi agy xong)
