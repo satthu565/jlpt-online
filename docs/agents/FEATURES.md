@@ -1,6 +1,6 @@
 # Tính năng theo trạng thái
 
-Cập nhật lần cuối: 24/10/2026. **Agent xong một tính năng thì sửa file này trong cùng PR.**
+Cập nhật lần cuối: 01/11/2026. **Agent xong một tính năng thì sửa file này trong cùng PR.**
 
 Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xong, chờ dịch vụ ngoài · 🚧 đang làm · 📋 dự kiến.
 
@@ -36,6 +36,8 @@ Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xon
 Ngân hàng câu hỏi `/questions` · blueprint `/blueprints` · media `/media` · nhập đề `/imports` · duyệt `/reviews`, `/reviews/explanations` · đề `/exams` (xuất bản, gỡ, xóa hẳn đề kèm lượt làm bài), `/exams/mixed` · lịch thi `/schedules` · bảng quy đổi `/scoring-tables` · người dùng `/users` · CMS `/cms` · thương mại `/commercial/*` · báo cáo `/reports/*` · thử nghiệm `/experiments` · kiểm duyệt `/moderation/*` · nhật ký `/audit-logs` · cài đặt `/settings/*` · từ điển `/lexicon` · duyệt Hán Việt `/lexicon/hanviet` · Hán Việt `/hanviet` · kanji `/kanji` (sửa âm Hán Việt từng chữ, khôi phục bản gốc) · từ vựng `/vocab`.
 
 Menu và quyền của từng mục khai báo ở `apps/admin/lib/navigation.ts`.
+
+Bảo trì dữ liệu đề: script `apps/api/src/scripts/fix-confirmed-answer-keys.ts` tạo phiên bản nội dung mới, qua dấu vết editor/reviewer riêng biệt rồi xuất bản lại đề; không ghi đè khóa của phiên bản đã xuất bản.
 
 ## 🙈 Đang ẩn (bật lại bằng cờ lúc build web)
 
