@@ -7,6 +7,7 @@ import { Badge } from '@jlpt/ui/components/badge';
 import { Button } from '@jlpt/ui/components/button';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
 import { ExamHero } from '../../../features/library';
+import { SITE_NAME, SITE_URL, absoluteUrl, localizedUrl } from '../../../lib/site';
 
 export interface LevelPageProps {
   params: Promise<{ level: string }>;
@@ -133,10 +134,10 @@ export async function generateMetadata({ params }: LevelPageProps): Promise<Meta
   const normalized = level.toLowerCase();
   const detail = LEVEL_DATA[normalized];
   if (!detail) {
-    return { title: 'Cấp độ không tồn tại - JLPT Online' };
+    return { title: `Cấp độ không tồn tại - ${SITE_NAME}` };
   }
 
-  const canonicalUrl = `https://jlpt.vn/${normalized}`;
+  const canonicalUrl = absoluteUrl(`/${normalized}`);
 
   return {
     title: `${detail.title} - Luyện thi chuẩn quốc tế`,
@@ -144,16 +145,16 @@ export async function generateMetadata({ params }: LevelPageProps): Promise<Meta
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        vi: `https://jlpt.vn/${normalized}`,
-        ja: `https://jlpt.vn/ja/${normalized}`,
-        en: `https://jlpt.vn/en/${normalized}`,
+        vi: localizedUrl('vi', `/${normalized}`),
+        ja: localizedUrl('ja', `/${normalized}`),
+        en: localizedUrl('en', `/${normalized}`),
       },
     },
     openGraph: {
-      title: `${detail.title} - JLPT Online`,
+      title: `${detail.title} - ${SITE_NAME}`,
       description: detail.description,
       url: canonicalUrl,
-      siteName: 'JLPT Online',
+      siteName: SITE_NAME,
       type: 'article',
       locale: 'vi_VN',
     },
@@ -186,8 +187,8 @@ export default async function LevelIntroductionPage({ params }: LevelPageProps):
     description: detail.description,
     provider: {
       '@type': 'Organization',
-      name: 'JLPT Online',
-      sameAs: 'https://jlpt.vn',
+      name: SITE_NAME,
+      sameAs: SITE_URL,
     },
     educationalCredentialAwarded: `JLPT ${detail.code} Certificate`,
     timeRequired: `PT${detail.studyHours.split('-')[0]?.trim()}H`,
@@ -201,13 +202,13 @@ export default async function LevelIntroductionPage({ params }: LevelPageProps):
         '@type': 'ListItem',
         position: 1,
         name: 'Trang chủ',
-        item: 'https://jlpt.vn',
+        item: absoluteUrl('/'),
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: detail.code,
-        item: `https://jlpt.vn/${normalized}`,
+        item: absoluteUrl(`/${normalized}`),
       },
     ],
   };

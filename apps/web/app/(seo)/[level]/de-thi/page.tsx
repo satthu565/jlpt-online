@@ -5,6 +5,7 @@ import { examApiClient } from '../../../../features/exam/api/exam-api';
 import { LibraryView, ExamHero } from '../../../../features/library';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
 import type { ExamSummary } from '@jlpt/schema';
+import { SITE_NAME, absoluteUrl, localizedUrl } from '../../../../lib/site';
 
 export interface LevelExamsPageProps {
   params: Promise<{ level: string }>;
@@ -21,27 +22,27 @@ export async function generateMetadata({ params }: LevelExamsPageProps): Promise
   const normalized = level.toLowerCase();
   const upper = normalized.toUpperCase();
   if (!VALID_LEVELS.includes(normalized)) {
-    return { title: 'Cấp độ không tồn tại - JLPT Online' };
+    return { title: `Cấp độ không tồn tại - ${SITE_NAME}` };
   }
 
-  const canonicalUrl = `https://jlpt.vn/${normalized}/de-thi`;
+  const canonicalUrl = absoluteUrl(`/${normalized}/de-thi`);
 
   return {
-    title: `Danh sách đề thi JLPT ${upper} theo năm và kỳ - JLPT Online`,
+    title: `Danh sách đề thi JLPT ${upper} theo năm và kỳ - ${SITE_NAME}`,
     description: `Tổng hợp đề thi chính thức JLPT ${upper} qua các năm và đề thi thử nghiệm có đồng hồ thi chuẩn quốc tế và đáp án chi tiết.`,
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        vi: `https://jlpt.vn/${normalized}/de-thi`,
-        ja: `https://jlpt.vn/ja/${normalized}/de-thi`,
-        en: `https://jlpt.vn/en/${normalized}/de-thi`,
+        vi: localizedUrl('vi', `/${normalized}/de-thi`),
+        ja: localizedUrl('ja', `/${normalized}/de-thi`),
+        en: localizedUrl('en', `/${normalized}/de-thi`),
       },
     },
     openGraph: {
-      title: `Đề thi JLPT ${upper} qua các năm - JLPT Online`,
+      title: `Đề thi JLPT ${upper} qua các năm - ${SITE_NAME}`,
       description: `Luyện thi thử JLPT ${upper} trực tuyến với ngân hàng đề phong phú.`,
       url: canonicalUrl,
-      siteName: 'JLPT Online',
+      siteName: SITE_NAME,
       type: 'website',
       locale: 'vi_VN',
     },
@@ -79,19 +80,19 @@ export default async function LevelExamsPage({ params }: LevelExamsPageProps): P
         '@type': 'ListItem',
         position: 1,
         name: 'Trang chủ',
-        item: 'https://jlpt.vn',
+        item: absoluteUrl('/'),
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: upper,
-        item: `https://jlpt.vn/${normalized}`,
+        item: absoluteUrl(`/${normalized}`),
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: `Đề thi ${upper}`,
-        item: `https://jlpt.vn/${normalized}/de-thi`,
+        item: absoluteUrl(`/${normalized}/de-thi`),
       },
     ],
   };

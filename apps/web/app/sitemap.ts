@@ -1,9 +1,10 @@
 import type { MetadataRoute } from 'next';
 import { examApiClient } from '../features/exam/api/exam-api';
 import { FEATURES } from '../lib/features';
+import { SITE_URL, localizedUrl } from '../lib/site';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://jlpt.vn';
+  const baseUrl = SITE_URL;
   const currentDate = new Date().toISOString();
 
   // 1. Static public routes (SEO-01, SEO-02, SEO-03, SEO-04, SEO-06, SEO-10)
@@ -38,9 +39,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route === '' ? 1.0 : route.startsWith('/n') ? 0.9 : 0.8,
     alternates: {
       languages: {
-        vi: `${baseUrl}${route}`,
-        ja: `${baseUrl}/ja${route}`,
-        en: `${baseUrl}/en${route}`,
+        vi: localizedUrl('vi', route),
+        ja: localizedUrl('ja', route),
+        en: localizedUrl('en', route),
       },
     },
   }));
@@ -49,16 +50,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const res = await examApiClient.getExams({ limit: 100 });
     for (const exam of res.items || []) {
+      const examPath = `/de-thi/${exam.slug}`;
       entries.push({
-        url: `${baseUrl}/de-thi/${exam.slug}`,
+        url: `${baseUrl}${examPath}`,
         lastModified: currentDate,
         changeFrequency: 'monthly',
         priority: 0.7,
         alternates: {
           languages: {
-            vi: `${baseUrl}/de-thi/${exam.slug}`,
-            ja: `${baseUrl}/ja/de-thi/${exam.slug}`,
-            en: `${baseUrl}/en/de-thi/${exam.slug}`,
+            vi: localizedUrl('vi', examPath),
+            ja: localizedUrl('ja', examPath),
+            en: localizedUrl('en', examPath),
           },
         },
       });

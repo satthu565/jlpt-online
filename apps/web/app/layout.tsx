@@ -2,12 +2,13 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from './providers';
 import { CONSENT_HEAD_SCRIPT } from '../lib/consent-keys';
+import { SITE_NAME, SITE_URL } from '../lib/site';
 // Read on the server and handed to the client provider as a prop, so it is not part of any JS chunk.
 import viMessages from '../messages/vi.json' with { type: 'json' };
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://jlpt.vn'),
-  title: 'JLPT Online - Luyện thi tiếng Nhật trực tuyến chuẩn JLPT',
+  metadataBase: new URL(SITE_URL),
+  title: `${SITE_NAME} - Luyện thi tiếng Nhật trực tuyến chuẩn JLPT`,
   description: 'Nền tảng thi và luyện thi tiếng Nhật trực tuyến chuẩn JLPT N1–N5 với đồng hồ đồng bộ và phân tích chi tiết.',
   icons: {
     icon: [
@@ -19,10 +20,10 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: 'JLPT Online - Luyện thi tiếng Nhật trực tuyến chuẩn JLPT',
+    title: `${SITE_NAME} - Luyện thi tiếng Nhật trực tuyến chuẩn JLPT`,
     description: 'Nền tảng thi và luyện thi tiếng Nhật trực tuyến chuẩn JLPT N1–N5 với đồng hồ đồng bộ và phân tích chi tiết.',
-    url: 'https://jlpt.vn',
-    siteName: 'JLPT Online',
+    url: SITE_URL,
+    siteName: SITE_NAME,
     images: [
       {
         url: '/images/brand/logo-gokakuya.webp',
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'JLPT Online - Luyện thi tiếng Nhật trực tuyến chuẩn JLPT',
+    title: `${SITE_NAME} - Luyện thi tiếng Nhật trực tuyến chuẩn JLPT`,
     description: 'Nền tảng thi và luyện thi tiếng Nhật trực tuyến chuẩn JLPT N1–N5 với đồng hồ đồng bộ và phân tích chi tiết.',
     images: ['/images/brand/logo-gokakuya.webp'],
   },

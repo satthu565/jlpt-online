@@ -3,23 +3,24 @@ import type { Metadata } from 'next';
 import { VocabExplorer } from '../../../features/corpus';
 import { ExamHero } from '../../../features/library';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
+import { SITE_NAME, absoluteUrl, localizedUrl } from '../../../lib/site';
 
 export const metadata: Metadata = {
-  title: 'Thư viện Từ vựng JLPT N1–N5 theo ngữ cảnh & cấp độ - JLPT Online',
+  title: `Thư viện Từ vựng JLPT N1–N5 theo ngữ cảnh & cấp độ - ${SITE_NAME}`,
   description: 'Tra cứu hơn 20,000 từ vựng tiếng Nhật từ N5 đến N1 kèm cách đọc Hiragana, ví dụ câu thực tế trong đề thi và phát âm audio.',
   alternates: {
-    canonical: 'https://jlpt.vn/tu-vung',
+    canonical: absoluteUrl('/tu-vung'),
     languages: {
-      vi: 'https://jlpt.vn/tu-vung',
-      ja: 'https://jlpt.vn/ja/tu-vung',
-      en: 'https://jlpt.vn/en/tu-vung',
+      vi: localizedUrl('vi', '/tu-vung'),
+      ja: localizedUrl('ja', '/tu-vung'),
+      en: localizedUrl('en', '/tu-vung'),
     },
   },
   openGraph: {
-    title: 'Thư viện Từ vựng JLPT N1–N5 - JLPT Online',
+    title: `Thư viện Từ vựng JLPT N1–N5 - ${SITE_NAME}`,
     description: 'Kho từ vựng tiếng Nhật chuẩn JLPT phân loại theo cấp độ và tần suất xuất hiện.',
-    url: 'https://jlpt.vn/tu-vung',
-    siteName: 'JLPT Online',
+    url: absoluteUrl('/tu-vung'),
+    siteName: SITE_NAME,
     type: 'website',
     locale: 'vi_VN',
   },
@@ -43,8 +44,8 @@ export default function VocabCorpusPage(): React.JSX.Element {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://jlpt.vn' },
-      { '@type': 'ListItem', position: 2, name: 'Từ vựng', item: 'https://jlpt.vn/tu-vung' },
+      { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: absoluteUrl('/') },
+      { '@type': 'ListItem', position: 2, name: 'Từ vựng', item: absoluteUrl('/tu-vung') },
     ],
   };
 
