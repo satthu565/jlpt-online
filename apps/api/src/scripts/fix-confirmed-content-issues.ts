@@ -85,6 +85,7 @@ interface ResolvedCorrection {
   groupVersion: number;
   oldCount: number;
   newCount: number;
+  state: 'pending' | 'applied';
 }
 
 const correctionId = (c: ConfirmedContentCorrection) =>
@@ -108,6 +109,17 @@ function replaceText(value: unknown, oldText: string, newText: string): unknown 
     );
   }
   return value;
+}
+
+export function getCorrectionState(
+  oldText: string,
+  newText: string,
+  oldCount: number,
+  newCount: number,
+): 'pending' | 'applied' | 'invalid' {
+  if (newCount >= 1 && (oldCount === 0 || newText.includes(oldText))) return 'applied';
+  if (oldCount === 1 && newCount === 0) return 'pending';
+  return 'invalid';
 }
 
 async function resolveCorrections(sql: DbClientInstance['rawClient']): Promise<ResolvedCorrection[]> {
@@ -152,7 +164,8 @@ async function resolveCorrections(sql: DbClientInstance['rawClient']): Promise<R
     }
     const oldCount = countText(target, oldText);
     const newCount = countText(target, newText);
-    if (!(oldCount === 1 || (oldCount === 0 && newCount >= 1))) {
+    const state = getCorrectionState(oldText, newText, oldCount, newCount);
+    if (state === 'invalid') {
       throw new Error(
         `${correctionId(correction)}: expected one old or new occurrence, found old=${oldCount}, new=${newCount}`,
       );
@@ -166,6 +179,7 @@ async function resolveCorrections(sql: DbClientInstance['rawClient']): Promise<R
       groupVersion: row.group_version,
       oldCount,
       newCount,
+      state,
     });
   }
   return resolved;
@@ -184,7 +198,7 @@ async function requireBackup(): Promise<string> {
 async function versionContent(
   sql: DbClientInstance['rawClient'],
   resolved: ResolvedCorrection[],
-): Promise<{ groupsVersioned: number; examIds: string[] }> {
+): Promise<{ groupsVersioned: number }> {
   const [editor] = await sql`select id from users where role='editor' and blocked_at is null`;
   const [reviewer] = await sql`select id from users where role='reviewer' and blocked_at is null`;
   const [admin] = await sql`select id from users where role='admin' and blocked_at is null`;
@@ -192,14 +206,13 @@ async function versionContent(
     throw new Error('Distinct active editor, reviewer, and admin users are required');
   }
 
-  const pending = resolved.filter((item) => item.oldCount === 1);
+  const pending = resolved.filter((item) => item.state === 'pending');
   const byGroup = new Map<string, ResolvedCorrection[]>();
   for (const item of pending) {
     const values = byGroup.get(item.groupId) ?? [];
     values.push(item);
     byGroup.set(item.groupId, values);
   }
-  const examIds = Array.from(new Set(pending.map((item) => item.examId)));
   let groupsVersioned = 0;
 
   await sql.begin(async (tx: DbClientInstance['rawClient']) => {
@@ -292,7 +305,28 @@ async function versionContent(
       groupsVersioned += 1;
     }
   });
-  return { groupsVersioned, examIds };
+  return { groupsVersioned };
+}
+
+async function examNeedsRepublish(
+  sql: DbClientInstance['rawClient'],
+  examId: string,
+): Promise<boolean> {
+  const [row] = await sql`
+    select exists (
+      select 1
+      from exam_items ei
+      join questions q on q.id=ei.question_id and q.deleted_at is null
+      join lateral (
+        select created_at from question_group_versions gv
+        where gv.group_id=q.group_id order by gv.version desc limit 1
+      ) latest_group on true
+      join exams e on e.id=ei.exam_id
+      join exam_versions ev on ev.exam_id=e.id and ev.version=e.published_version
+      where ei.exam_id=${examId} and latest_group.created_at > ev.published_at
+    ) as needs_republish
+  `;
+  return row?.needs_republish === true;
 }
 
 export async function runConfirmedContentCleanup(argv = process.argv.slice(2)): Promise<void> {
@@ -306,26 +340,37 @@ export async function runConfirmedContentCleanup(argv = process.argv.slice(2)): 
       mode: apply ? 'apply' : 'dry-run', corrections: resolved.length,
       affectedExams: new Set(resolved.map((x) => x.examId)).size,
       affectedGroups: new Set(resolved.map((x) => x.groupId)).size,
-      pendingCorrections: resolved.filter((x) => x.oldCount === 1).length,
+      pendingCorrections: resolved.filter((x) => x.state === 'pending').length,
+      pendingIds: resolved.filter((x) => x.state === 'pending').map((x) => correctionId(x.correction)),
     }), 'ConfirmedContentCleanup');
     if (!apply) return;
 
     const backupPath = await requireBackup();
     const result = await versionContent(dbClient.rawClient, resolved);
     resolved = await resolveCorrections(dbClient.rawClient);
-    if (resolved.some((x) => x.oldCount !== 0 || x.newCount < 1)) {
+    if (resolved.some((x) => x.state !== 'applied')) {
       throw new Error('Post-version content verification failed');
     }
     const [admin] = await dbClient.rawClient`select id from users where role='admin' and blocked_at is null`;
     if (!admin) throw new Error('Active admin user is required');
-    for (const examId of result.examIds) await examService.publishExam(examId, admin.id);
+    const affectedExamIds = Array.from(new Set(resolved.map((x) => x.examId)));
+    const examIdsToPublish: string[] = [];
+    for (const examId of affectedExamIds) {
+      if (await examNeedsRepublish(dbClient.rawClient, examId)) examIdsToPublish.push(examId);
+    }
+    for (const examId of examIdsToPublish) await examService.publishExam(examId, admin.id);
     resolved = await resolveCorrections(dbClient.rawClient);
-    if (resolved.some((x) => x.oldCount !== 0 || x.newCount < 1)) {
+    if (resolved.some((x) => x.state !== 'applied')) {
       throw new Error('Final published content verification failed');
+    }
+    for (const examId of affectedExamIds) {
+      if (await examNeedsRepublish(dbClient.rawClient, examId)) {
+        throw new Error('Exam still needs republish: ' + examId);
+      }
     }
     Logger.log(JSON.stringify({
       groupsVersioned: result.groupsVersioned,
-      examsPublished: result.examIds.length,
+      examsPublished: examIdsToPublish.length,
       correctionsVerified: resolved.length,
       backupPath,
     }), 'ConfirmedContentCleanup');
