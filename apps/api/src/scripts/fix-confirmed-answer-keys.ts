@@ -208,13 +208,13 @@ async function applyQuestionVersions(
           (id, operator_id, action, target_resource, details, timestamp)
         values (${generateUuidV7()}, ${admin.id}, 'content.correct_answer.bulk_fix',
                 ${'question_group:' + groupId},
-                ${tx.json({
+                ${JSON.stringify({
                   source: 'owner-authorized-maintenance',
                   version: nextVersion,
                   fixes: groupFixes.map((x) => ({
                     examSlug: x.fix[0], questionNumber: x.fix[1], from: x.fix[2], to: x.fix[3],
                   })),
-                })}, now())
+                })}::jsonb, now())
       `;
       changed += 1;
     }
@@ -284,7 +284,8 @@ export async function runConfirmedAnswerKeyFix(argv = process.argv.slice(2)): Pr
 const entryPoint = process.argv[1] ? pathToFileURL(process.argv[1]).href : '';
 if (entryPoint === import.meta.url) {
   runConfirmedAnswerKeyFix().catch((error: unknown) => {
-    Logger.error(error instanceof Error ? error.message : String(error), undefined, 'ConfirmedAnswerKeyFix');
+    const normalized = error instanceof Error ? error : new Error(String(error));
+    Logger.error(normalized.message, normalized.stack, 'ConfirmedAnswerKeyFix');
     process.exitCode = 1;
   });
 }
