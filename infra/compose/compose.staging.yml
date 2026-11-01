@@ -1,4 +1,4 @@
-# JLPT Online - Staging Docker Compose Definition
+# Gokakuya.com - Staging Docker Compose Definition
 # Used for temporary Staging environments and CI verification drills.
 # Uses profile 'small' parameters and ensures total data isolation from production and worker DBs.
 

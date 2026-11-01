@@ -1,5 +1,5 @@
 /**
- * JLPT Online - Dev Services & Multi-Worker Isolation Checker
+ * Gokakuya.com - Dev Services & Multi-Worker Isolation Checker
  * Command: pnpm infra:dev:check
  * Task: F07
  * Specification: DAC_TA_RUNNER.md & VAN_HANH_VPS_WORKER.md
@@ -336,7 +336,7 @@ async function main(): Promise<void> {
 
   // Print results
   console.log("=".repeat(80));
-  console.log("JLPT ONLINE DEV INFRASTRUCTURE & WORKER ISOLATION CHECK");
+  console.log("GOKAKUYA.COM DEV INFRASTRUCTURE & WORKER ISOLATION CHECK");
   console.log("=".repeat(80));
 
   let allOk = true;

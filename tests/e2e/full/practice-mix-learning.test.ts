@@ -1,5 +1,5 @@
 /**
- * JLPT Online - Practice, Mixing, Question Bank, Vocab & Planner E2E Suite
+ * Gokakuya.com - Practice, Mixing, Question Bank, Vocab & Planner E2E Suite
  * Path: tests/e2e/full/practice-mix-learning.test.ts
  *
  * Verifies:

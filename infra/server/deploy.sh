@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# JLPT Online - Production Deploy and Rollback Automation
+# Gokakuya.com - Production Deploy and Rollback Automation
 # Specification: RUNBOOK_PRODUCTION.md Section B2 & Task T1.8.11
 # Usage: ./deploy.sh <tag> [--force]
 set -euo pipefail

@@ -1,5 +1,5 @@
 /**
- * JLPT Online - Platform Services, Import v2, AI, Payments & Operations E2E Suite
+ * Gokakuya.com - Platform Services, Import v2, AI, Payments & Operations E2E Suite
  * Path: tests/e2e/full/platform-services.test.ts
  *
  * Verifies:

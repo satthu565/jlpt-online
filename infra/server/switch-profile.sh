@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# JLPT Online - Scaling Profile Switcher (small / large)
+# Gokakuya.com - Scaling Profile Switcher (small / large)
 # Specification: RUNBOOK_PRODUCTION.md Section B4 & Contract A12
 # Usage: ./switch-profile.sh <small|large>
 set -euo pipefail

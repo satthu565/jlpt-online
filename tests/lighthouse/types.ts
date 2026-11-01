@@ -1,5 +1,5 @@
 /**
- * Types and interfaces for JLPT Online Lighthouse Performance Gate
+ * Types and interfaces for Gokakuya.com Lighthouse Performance Gate
  * Task: D01
  */
 

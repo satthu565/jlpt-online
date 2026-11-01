@@ -1,5 +1,5 @@
 /**
- * JLPT Online - Backup PITR Restore Drill & RPO/RTO Measurement
+ * Gokakuya.com - Backup PITR Restore Drill & RPO/RTO Measurement
  * Features: SYS-08, ADM-20
  * Acceptance Criteria:
  *   - "Backup PITR khôi phục trên staging tạm có RPO/RTO đo trong log CI"

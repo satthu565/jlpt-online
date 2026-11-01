@@ -1,5 +1,5 @@
 /**
- * JLPT Online - Staging Routes & UI Scope E2E Integration Suite
+ * Gokakuya.com - Staging Routes & UI Scope E2E Integration Suite
  * Path: tests/e2e/full/staging-routes.test.ts
  *
  * Verifies staging routes across Web, Admin, and API, ensuring:

@@ -1,5 +1,5 @@
 /**
- * JLPT Online - Worker Environment and Services Mapping
+ * Gokakuya.com - Worker Environment and Services Mapping
  * Task: F07
  * Specification: docs/multi-worker/config/workers.example.json & VAN_HANH_VPS_WORKER.md
  */
@@ -279,7 +279,7 @@ export function formatEnvFile(workerId: string): string {
   const env = getWorkerEnv(workerId);
   return (
     `# ==============================================================================\n` +
-    `# JLPT Online Environment Configuration for ${workerId}\n` +
+    `# Gokakuya.com Environment Configuration for ${workerId}\n` +
     `# Generated for local development / testing\n` +
     `# ==============================================================================\n` +
     Object.entries(env)

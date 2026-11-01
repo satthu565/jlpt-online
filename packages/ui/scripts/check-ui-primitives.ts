@@ -125,7 +125,7 @@ export function runPrimitivesCheck(): { success: boolean; output: string } {
   const allowedTotal = baselineData.baseline.total;
 
   console.log('================================================================================');
-  console.log(' JLPT ONLINE - UI PRIMITIVES AUDIT (RATCHETED BASELINE)');
+  console.log(' GOKAKUYA.COM - UI PRIMITIVES AUDIT (RATCHETED BASELINE)');
   console.log('================================================================================');
   console.log(`Scan scope: apps/web, apps/admin (excluding tests & build outputs)\n`);
 

@@ -1,5 +1,5 @@
 /**
- * JLPT Online - Infrastructure & Staging/Production Verification Gate
+ * Gokakuya.com - Infrastructure & Staging/Production Verification Gate
  * Command: pnpm infra:check
  * Tasks: C06
  * Features: SYS-08, SYS-09, SYS-11, SYS-15, ADM-20
@@ -26,7 +26,7 @@ function record(category: string, item: string, passed: boolean, message?: strin
 
 async function main() {
   console.log('========================================================================');
-  console.log(' JLPT Online - Infrastructure Verification Gate (pnpm infra:check)');
+  console.log(' Gokakuya.com - Infrastructure Verification Gate (pnpm infra:check)');
   console.log(' Timestamp: ' + new Date().toISOString());
   console.log('========================================================================\n');
 

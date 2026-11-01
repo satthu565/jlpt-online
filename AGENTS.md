@@ -1,4 +1,4 @@
-# JLPT Online: hướng dẫn cho agent
+# Gokakuya.com: hướng dẫn cho agent
 
 File này dành cho mọi agent làm việc trong repo (Claude Code, Codex, Antigravity/Gemini, Cursor, Copilot…). Đọc file này trước. Các file sâu hơn chỉ đọc khi việc đang làm cần đến.
 

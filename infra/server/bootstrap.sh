@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# JLPT Online - Server Bootstrap Script (Idempotent)
+# Gokakuya.com - Server Bootstrap Script (Idempotent)
 # Specification: RUNBOOK_PRODUCTION.md Section B1 & Task T1.8.2
 set -euo pipefail
 

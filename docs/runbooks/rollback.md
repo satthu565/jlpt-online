@@ -1,6 +1,6 @@
 # Runbook: Khắc phục Sự cố Khẩn cấp và Rollback Production (SYS-15 / R06)
 
-> Tài liệu hướng dẫn quy trình rollback (hoàn nguyên phiên bản) hệ thống JLPT Online khi phát sinh sự cố trong hoặc sau khi triển khai bản phát hành mới.
+> Tài liệu hướng dẫn quy trình rollback (hoàn nguyên phiên bản) hệ thống Gokakuya.com khi phát sinh sự cố trong hoặc sau khi triển khai bản phát hành mới.
 
 ---
 
@@ -81,7 +81,7 @@ tail -n 10 /opt/jlpt/RELEASES
 > **Tuyệt đối KHÔNG chạy down-migration hoặc DROP COLUMN/TABLE bằng tay khi rollback.**
 
 1. **Tính tương thích ngược (Backward Compatibility):**
-   - Mọi migration trong dự án JLPT Online đều tuân theo mô hình **Expand → Contract**.
+   - Mọi migration trong dự án Gokakuya.com đều tuân theo mô hình **Expand → Contract**.
    - Khi release code mới kèm migration mới (thêm cột nullable, thêm index, thêm bảng mới), code phiên bản trước (N-1) vẫn đảm bảo truy vấn đọc/ghi bình thường trên schema mới.
    - Khi rollback container ứng dụng về phiên bản cũ, ứng dụng cũ vẫn hoạt động trơn tru với cơ sở dữ liệu đã migrate mà không cần hạ cấp (down-migrate) schema.
 2. **Không gây mất mát dữ liệu:**
