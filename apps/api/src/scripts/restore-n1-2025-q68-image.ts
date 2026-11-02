@@ -24,17 +24,9 @@ const NEW_STEM_TEXT =
   '（聴解 問題1 2番：画像の選択肢を見て、音声を聞き、1から4の中から最もよいものを一つ選んでください。）';
 const OLD_OPTIONS = ['選択肢1', '選択肢2', '選択肢3', '選択肢4'] as const;
 const NEW_OPTIONS = ['1', '2', '3', '4'] as const;
-const NEW_PASSAGE = [
-  {
-    type: 'image',
-    mediaKey: EXPECTED_MEDIA_KEY,
-    alt: '問題1 2番 6月の予約日カレンダー（選択肢1〜4）',
-    width: EXPECTED_IMAGE_WIDTH,
-    height: EXPECTED_IMAGE_HEIGHT,
-  },
-] as const;
+const NEW_PASSAGE: readonly unknown[] = [];
 
-type RestorationState = 'pending' | 'applied' | 'invalid';
+type RestorationState = 'pending' | 'duplicated' | 'applied' | 'invalid';
 
 interface TargetContent {
   examId: string;
@@ -68,9 +60,10 @@ export function getRestorationState(input: {
   passage: unknown;
   stem: unknown;
   options: unknown[];
+  hasGroupMedia: boolean;
 }): RestorationState {
   const pendingPassage = Array.isArray(input.passage) && input.passage.length === 0;
-  const appliedPassage = countText(input.passage, EXPECTED_MEDIA_KEY) === 1;
+  const duplicatedPassage = countText(input.passage, EXPECTED_MEDIA_KEY) === 1;
   const pendingStem = countText(input.stem, OLD_STEM_TEXT) === 1;
   const appliedStem = countText(input.stem, NEW_STEM_TEXT) === 1;
   const pendingOptions = OLD_OPTIONS.every(
@@ -80,8 +73,11 @@ export function getRestorationState(input: {
     (text, index) => countText(input.options[index], text) === 1,
   );
 
-  if (pendingPassage && pendingStem && pendingOptions) return 'pending';
-  if (appliedPassage && appliedStem && appliedOptions) return 'applied';
+  if (pendingPassage && pendingStem && pendingOptions && !input.hasGroupMedia) return 'pending';
+  if (duplicatedPassage && appliedStem && appliedOptions && !input.hasGroupMedia) {
+    return 'duplicated';
+  }
+  if (pendingPassage && appliedStem && appliedOptions && input.hasGroupMedia) return 'applied';
   return 'invalid';
 }
 
@@ -140,10 +136,18 @@ async function resolveTarget(sql: DbClientInstance['rawClient']): Promise<Target
     order by order_index
   `;
   if (options.length !== 4) throw new Error(`Expected four options, found ${options.length}`);
+  const [groupMedia] = await sql`
+    select exists (
+      select 1 from import_artifacts
+      where artifact_type='group_media'
+        and storage_key=${row.group_id + ':' + EXPECTED_MEDIA_KEY}
+    ) as exists
+  `;
   const state = getRestorationState({
     passage: row.passage,
     stem: row.stem,
     options: options.map((option: { content: unknown }) => option.content),
+    hasGroupMedia: groupMedia?.exists === true,
   });
   if (state === 'invalid') throw new Error('Target content is neither pending nor applied');
   if (state === 'applied') {
@@ -203,6 +207,25 @@ async function versionContent(
       from question_group_versions
       where group_id=${target.groupId} and version=${target.sourceVersion}
     `;
+
+    const [sourceArtifact] = await tx`
+      select job_id from import_artifacts
+      where artifact_type='group' and storage_key=${target.groupId}
+      order by created_at asc limit 1
+    `;
+    if (!sourceArtifact) throw new Error('Original group import artifact not found');
+    const groupMediaStorageKey = target.groupId + ':' + EXPECTED_MEDIA_KEY;
+    const [existingGroupMedia] = await tx`
+      select id from import_artifacts
+      where artifact_type='group_media' and storage_key=${groupMediaStorageKey}
+      limit 1
+    `;
+    if (!existingGroupMedia) {
+      await tx`
+        insert into import_artifacts (id,job_id,artifact_type,storage_key,created_at)
+        values (${generateUuidV7()},${sourceArtifact.job_id},'group_media',${groupMediaStorageKey},now())
+      `;
+    }
 
     const questions = await tx`
       select id from questions where group_id=${target.groupId} and deleted_at is null

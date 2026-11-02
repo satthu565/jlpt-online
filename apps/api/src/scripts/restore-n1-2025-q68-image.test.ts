@@ -25,11 +25,28 @@ describe('N1 12/2025 Q68 image restoration', () => {
           },
         ],
         options: ['選択肢1', '選択肢2', '選択肢3', '選択肢4'],
+        hasGroupMedia: false,
       }),
     ).toBe('pending');
   });
 
   it('recognizes the exact applied content shape', () => {
+    expect(
+      getRestorationState({
+        passage: [],
+        stem: [
+          {
+            t: 'text',
+            text: '（聴解 問題1 2番：画像の選択肢を見て、音声を聞き、1から4の中から最もよいものを一つ選んでください。）',
+          },
+        ],
+        options: ['1', '2', '3', '4'],
+        hasGroupMedia: true,
+      }),
+    ).toBe('applied');
+  });
+
+  it('recognizes the duplicated live shape that needs a follow-up version', () => {
     expect(
       getRestorationState({
         passage: [{ type: 'image', mediaKey: EXPECTED_MEDIA_KEY }],
@@ -40,7 +57,8 @@ describe('N1 12/2025 Q68 image restoration', () => {
           },
         ],
         options: ['1', '2', '3', '4'],
+        hasGroupMedia: false,
       }),
-    ).toBe('applied');
+    ).toBe('duplicated');
   });
 });
