@@ -11,7 +11,7 @@ import { StorageService } from '../storage/storage.service.js';
 import { LocalFsStorage } from '../storage/local-fs.storage.js';
 import { MediaService } from '../media/media.service.js';
 import { OutboxService, type DbTx } from '../outbox/outbox.service.js';
-import { BlueprintService } from '../blueprint/blueprint.service.js';
+import { BlueprintService, toDeterministicUuid } from '../blueprint/blueprint.service.js';
 import { ReviewService } from '../review/review.service.js';
 import { ExamService } from '../exam/exam.service.js';
 import { ImportService } from './import.service.js';
@@ -554,6 +554,57 @@ describe('B01 Import Module - Import Jobs, Validation & Idempotency', () => {
       // 4. Kiểm tra bản draft cũ đã được đánh dấu 'replaced'
       const oldJob = await importService.getImportJob(draftJob.id);
       expect(oldJob.status).toBe('replaced');
+
+      // A later revision may add a question to an already-published exam.
+      // Rebuild the mutable structure without overwriting the published pointer.
+      const [existingExam] = await dbClient.db.select().from(schema.exams);
+      expect(existingExam).toBeDefined();
+      await dbClient.db
+        .update(schema.exams)
+        .set({ publishedVersion: 9 })
+        .where(eq(schema.exams.id, existingExam!.id));
+
+      const revisionThree = structuredClone(draftImportJson);
+      revisionThree.revision = 3;
+      const insertedQuestion = structuredClone(revisionThree.groups[0].questions[0]);
+      insertedQuestion.id = 'inserted-question-rev3';
+      insertedQuestion.number = 'INSERTED-REV3';
+      insertedQuestion.stem = [{ t: 'text', text: 'Câu mới được chèn trong revision 3.' }];
+      revisionThree.groups[0].questions.splice(1, 0, insertedQuestion);
+      revisionThree.exam.totalQuestions += 1;
+
+      const revisionThreeZip = createZipBuffer({
+        'import.json': JSON.stringify(revisionThree),
+        'media/00d0ad3e26f73d387098dddab2d5f79b9f270d9a7be23a5ef15dec78ef9395f1.wav': wavBuf,
+        'media/f2fc1dd6c83d15d222b2bc9e60008c5e3b226b035a6ecd779f5b88c5d34a338d.png': pngBuf,
+      });
+
+      await importService.processPackageImport(
+        revisionThreeZip,
+        'ready-rev3.zip',
+        testUserId,
+        { mode: 'ready' },
+      );
+
+      const [updatedExam] = await dbClient.db
+        .select()
+        .from(schema.exams)
+        .where(eq(schema.exams.id, existingExam!.id));
+      const updatedItems = await dbClient.db
+        .select()
+        .from(schema.examItems)
+        .where(eq(schema.examItems.examId, existingExam!.id))
+        .orderBy(schema.examItems.orderIndex);
+
+      expect(updatedExam!.totalQuestions).toBe(revisionThree.exam.totalQuestions);
+      expect(updatedExam!.publishedVersion).toBe(9);
+      expect(updatedItems).toHaveLength(revisionThree.exam.totalQuestions);
+      expect(updatedItems.map((item: { orderIndex: number }) => item.orderIndex)).toEqual(
+        Array.from({ length: revisionThree.exam.totalQuestions }, (_, index) => index),
+      );
+      expect(updatedItems[1]!.questionId).toBe(
+        toDeterministicUuid(`${revisionThree.packageId}:q:${insertedQuestion.id}`),
+      );
     });
   });
 });
