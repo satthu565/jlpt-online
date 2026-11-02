@@ -2,19 +2,25 @@ import { describe, expect, it } from 'vitest';
 import { CONFIRMED_MISSING_OPTION_RESTORATIONS } from './restore-confirmed-missing-options.js';
 
 describe('confirmed missing option restorations', () => {
-  it('covers all four printed options for N2 12/2023 questions 72 through 82', () => {
+  it('covers every confirmed question with all four printed options', () => {
     const ids = CONFIRMED_MISSING_OPTION_RESTORATIONS.map(
       ([slug, questionNumber, optionIndex]) => `${slug}:Q${questionNumber}:${optionIndex}`,
     );
 
-    expect(ids).toHaveLength(44);
-    expect(new Set(ids).size).toBe(44);
-    for (let questionNumber = 72; questionNumber <= 82; questionNumber += 1) {
+    expect(ids).toHaveLength(88);
+    expect(new Set(ids).size).toBe(88);
+    const ranges = [
+      ['n1-2024-07', 52, 62],
+      ['n2-2023-12', 72, 82],
+    ] as const;
+    for (const [slug, first, last] of ranges) {
+      for (let questionNumber = first; questionNumber <= last; questionNumber += 1) {
       expect(
         CONFIRMED_MISSING_OPTION_RESTORATIONS.filter(
-          ([slug, number]) => slug === 'n2-2023-12' && number === questionNumber,
+            ([examSlug, number]) => examSlug === slug && number === questionNumber,
         ).map(([, , optionIndex]) => optionIndex),
       ).toEqual([1, 2, 3, 4]);
+      }
     }
   });
 
