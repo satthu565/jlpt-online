@@ -272,6 +272,8 @@ export class ImportService {
     const examId =
       existingExams[0]?.id ||
       toDeterministicUuid(`${pkg.packageId}:exam:${pkg.exam.slug}`);
+    const shouldReplaceExamStructure =
+      existingExams.length === 0 || validationResult.readiness !== 'DRAFT_ONLY';
 
     return await this.dbClient.db.transaction(async (tx: DbTx) => {
       // If this is a ready package replacing previous DRAFT_ONLY package(s) with lower revision
@@ -584,6 +586,22 @@ export class ImportService {
         })
         .onConflictDoNothing();
 
+      if (shouldReplaceExamStructure) {
+        await tx
+          .update(schema.exams)
+          .set({
+            title: pkg.exam.title,
+            level: pkg.source.level,
+            kind: pkg.exam.kind,
+            year: pkg.source.year ?? null,
+            session: pkg.source.session ? String(pkg.source.session) : null,
+            totalQuestions: pkg.exam.totalQuestions,
+            description: pkg.source.name || '',
+            updatedAt: now,
+          })
+          .where(eq(schema.exams.id, examId));
+      }
+
       await tx
         .insert(schema.importArtifacts)
         .values({
@@ -595,9 +613,18 @@ export class ImportService {
         });
 
       // Exam sections and items
+      // A higher package revision is a complete replacement of the current draft
+      // structure. Published snapshots remain immutable in exam_versions, while the
+      // mutable exam_items projection must be rebuilt so inserted/removed questions
+      // and their order are reflected in the next published version.
+      if (shouldReplaceExamStructure) {
+        await tx.delete(schema.examItems).where(eq(schema.examItems.examId, examId));
+      }
+
       let sIdx = 0;
       let globalQuestionIndex = 0;
       for (const section of pkg.exam.sections) {
+        if (!shouldReplaceExamStructure) break;
         const sectionId = toDeterministicUuid(`${examId}:section:${section.code}`);
         const listeningTimeline =
           section.listeningTimeline && section.listeningTimeline.length > 0
@@ -617,7 +644,15 @@ export class ImportService {
             orderIndex: sIdx++,
             listeningTimeline,
           })
-          .onConflictDoUpdate({ target: schema.examSections.id, set: { listeningTimeline } });
+          .onConflictDoUpdate({
+            target: schema.examSections.id,
+            set: {
+              title: section.title,
+              durationSec: section.durationSec || 600,
+              orderIndex: sIdx - 1,
+              listeningTimeline,
+            },
+          });
 
         for (const gid of section.groupIds) {
           const group = pkg.groups.find((g) => g.id === gid);
