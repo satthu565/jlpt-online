@@ -5,8 +5,8 @@ import {
 } from './fix-confirmed-content-issues.js';
 
 describe('confirmed content correction manifest', () => {
-  it('contains 49 unique correction operations', () => {
-    expect(CONFIRMED_CONTENT_CORRECTIONS).toHaveLength(49);
+  it('contains 51 unique correction operations', () => {
+    expect(CONFIRMED_CONTENT_CORRECTIONS).toHaveLength(51);
     const ids = CONFIRMED_CONTENT_CORRECTIONS.map(
       (c) => `${c[0]}:${c[1]}:${c[2]}:${c[3] ?? ''}:${c[4]}`,
     );
@@ -21,6 +21,27 @@ describe('confirmed content correction manifest', () => {
       expect(correction[5]).not.toBe(correction[4]);
       expect(correction[6].length).toBeGreaterThan(3);
     }
+  });
+
+  it('restores the N1 July 2013 passage and printed Q60 option', () => {
+    expect(CONFIRMED_CONTENT_CORRECTIONS).toContainEqual([
+      'n1-2013-07',
+      59,
+      'passage',
+      null,
+      '石垣そのものの them... 大規模な崩壊',
+      '石垣そのものの大規模な崩壊',
+      'Remove foreign OCR text absent from the source paper',
+    ]);
+    expect(CONFIRMED_CONTENT_CORRECTIONS).toContainEqual([
+      'n1-2013-07',
+      60,
+      'option',
+      3,
+      '[KHONG_DOC_RO]',
+      '化学薬品の有用性',
+      'Restore the printed option from the source paper',
+    ]);
   });
 
   it('recognizes replacements whose new value contains the old value', () => {

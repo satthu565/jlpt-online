@@ -25,6 +25,8 @@ export const CONFIRMED_CONTENT_CORRECTIONS: readonly ConfirmedContentCorrection[
   ['n1-2025-12', 57, 'option', null, '車要', '重要', 'OCR correction'],
   ['n1-2023-07', 57, 'passage', null, 'プログミング', 'プログラミング', 'OCR correction'],
   ['n1-2013-12', 24, 'option', 3, '当てはめて', 'に当てはめて', 'Missing particle'],
+  ['n1-2013-07', 59, 'passage', null, '石垣そのものの them... 大規模な崩壊', '石垣そのものの大規模な崩壊', 'Remove foreign OCR text absent from the source paper'],
+  ['n1-2013-07', 60, 'option', 3, '[KHONG_DOC_RO]', '化学薬品の有用性', 'Restore the printed option from the source paper'],
   ['n1-2012-07', 48, 'passage', null, '植物を実際に取り寄せで植える土地', '植物を実際に取り寄せて植える土地', 'Verb form'],
   ['n1-2012-07', 50, 'option', 3, '定年後は何もしることがない', '定年後は何もすることがない', 'Verb typo'],
   ['n1-2011-07', 20, 'option', 3, '為替レール', '為替レート', 'Loanword typo'],
