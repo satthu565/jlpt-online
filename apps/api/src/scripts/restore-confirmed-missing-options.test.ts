@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { CONFIRMED_MISSING_OPTION_RESTORATIONS } from './restore-confirmed-missing-options.js';
+import {
+  CONFIRMED_ANSWER_KEY_RESTORATIONS,
+  CONFIRMED_MISSING_OPTION_RESTORATIONS,
+} from './restore-confirmed-missing-options.js';
 
 describe('confirmed missing option restorations', () => {
   it('covers every confirmed question with all four printed options', () => {
@@ -30,5 +33,17 @@ describe('confirmed missing option restorations', () => {
       expect(newText).not.toContain('選択肢');
       expect(newText.trim()).toBe(newText);
     }
+  });
+
+  it('contains only the seven source-confirmed N1 answer-key corrections', () => {
+    expect(CONFIRMED_ANSWER_KEY_RESTORATIONS).toEqual([
+      ['n1-2024-07', 52, 1, 3],
+      ['n1-2024-07', 53, 1, 2],
+      ['n1-2024-07', 55, 1, 2],
+      ['n1-2024-07', 56, 1, 3],
+      ['n1-2024-07', 57, 1, 4],
+      ['n1-2024-07', 58, 1, 3],
+      ['n1-2024-07', 62, 1, 3],
+    ]);
   });
 });

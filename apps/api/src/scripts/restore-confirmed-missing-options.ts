@@ -16,6 +16,13 @@ export type MissingOptionRestoration = readonly [
   newText: string,
 ];
 
+export type AnswerKeyRestoration = readonly [
+  examSlug: string,
+  questionNumber: number,
+  oldOption: number,
+  newOption: number,
+];
+
 // Cross-checked against the reconstructed 2024-07 N1 paper on TryNihongo and
 // the reconstructed 2023-12 N2 paper on PassJapanese and N-NOTE. The current
 // N2 Vietnamese explanations independently contain the same option texts.
@@ -110,6 +117,16 @@ export const CONFIRMED_MISSING_OPTION_RESTORATIONS: readonly MissingOptionRestor
   ['n2-2023-12', 82, 4, '選択肢4', '対応できる段差が低い'],
 ] as const;
 
+export const CONFIRMED_ANSWER_KEY_RESTORATIONS: readonly AnswerKeyRestoration[] = [
+  ['n1-2024-07', 52, 1, 3],
+  ['n1-2024-07', 53, 1, 2],
+  ['n1-2024-07', 55, 1, 2],
+  ['n1-2024-07', 56, 1, 3],
+  ['n1-2024-07', 57, 1, 4],
+  ['n1-2024-07', 58, 1, 3],
+  ['n1-2024-07', 62, 1, 3],
+] as const;
+
 interface ResolvedRestoration {
   restoration: MissingOptionRestoration;
   examId: string;
@@ -119,8 +136,19 @@ interface ResolvedRestoration {
   state: 'pending' | 'applied';
 }
 
+interface ResolvedAnswerKeyRestoration {
+  restoration: AnswerKeyRestoration;
+  examId: string;
+  questionId: string;
+  groupId: string;
+  sourceVersion: number;
+  state: 'pending' | 'applied';
+}
+
 const restorationId = (item: MissingOptionRestoration) =>
   item[0] + ':Q' + item[1] + ':option' + item[2];
+
+const answerRestorationId = (item: AnswerKeyRestoration) => item[0] + ':Q' + item[1] + ':answer';
 
 function countText(value: unknown, needle: string): number {
   if (typeof value === 'string') return value.split(needle).length - 1;
@@ -200,6 +228,63 @@ async function resolveRestorations(
   return resolved;
 }
 
+async function resolveAnswerKeyRestorations(
+  sql: DbClientInstance['rawClient'],
+): Promise<ResolvedAnswerKeyRestoration[]> {
+  const resolved: ResolvedAnswerKeyRestoration[] = [];
+  for (const restoration of CONFIRMED_ANSWER_KEY_RESTORATIONS) {
+    const [slug, questionNumber, oldOption, newOption] = restoration;
+    const rows = await sql`
+      select e.id as exam_id, q.id as question_id, q.group_id,
+             qv.version as question_version, qv.status as question_status,
+             gv.version as group_version, gv.status as group_status,
+             ca.correct_option
+      from exams e
+      join exam_items ei on ei.exam_id=e.id and ei.order_index=${questionNumber - 1}
+      join questions q on q.id=ei.question_id and q.deleted_at is null
+      join lateral (
+        select * from question_versions v where v.question_id=q.id order by v.version desc limit 1
+      ) qv on true
+      join lateral (
+        select * from question_group_versions v where v.group_id=q.group_id order by v.version desc limit 1
+      ) gv on true
+      join correct_answers ca on ca.question_id=q.id and ca.question_version=qv.version
+      where e.slug=${slug} and e.deleted_at is null
+    `;
+    const row = rows[0];
+    if (!row) throw new Error(answerRestorationId(restoration) + ': target not found');
+    if (row.question_status !== 'approved' || row.group_status !== 'approved') {
+      throw new Error(answerRestorationId(restoration) + ': latest content is not approved');
+    }
+    if (row.question_version !== row.group_version) {
+      throw new Error(answerRestorationId(restoration) + ': question/group versions are not aligned');
+    }
+    let state: 'pending' | 'applied';
+    if (row.correct_option === oldOption) state = 'pending';
+    else if (row.correct_option === newOption) state = 'applied';
+    else {
+      throw new Error(
+        answerRestorationId(restoration) +
+          ': expected old=' +
+          oldOption +
+          ' or new=' +
+          newOption +
+          ', found=' +
+          row.correct_option,
+      );
+    }
+    resolved.push({
+      restoration,
+      examId: row.exam_id,
+      questionId: row.question_id,
+      groupId: row.group_id,
+      sourceVersion: row.question_version,
+      state,
+    });
+  }
+  return resolved;
+}
+
 async function requireBackup(): Promise<string> {
   const backupPath = process.env.MISSING_CONTENT_BACKUP;
   if (!backupPath) throw new Error('MISSING_CONTENT_BACKUP is required');
@@ -213,6 +298,7 @@ async function requireBackup(): Promise<string> {
 async function versionContent(
   sql: DbClientInstance['rawClient'],
   resolved: ResolvedRestoration[],
+  resolvedAnswers: ResolvedAnswerKeyRestoration[],
 ): Promise<number> {
   const [editor] = await sql`select id from users where role='editor' and blocked_at is null`;
   const [reviewer] = await sql`select id from users where role='reviewer' and blocked_at is null`;
@@ -226,6 +312,11 @@ async function versionContent(
     const group = byGroup.get(item.groupId) ?? [];
     group.push(item);
     byGroup.set(item.groupId, group);
+  }
+  for (const answer of resolvedAnswers.filter((candidate) => candidate.state === 'pending')) {
+    if (!byGroup.has(answer.groupId)) {
+      throw new Error(answerRestorationId(answer.restoration) + ': answer group has no option restoration');
+    }
   }
 
   await sql.begin(async (tx: DbClientInstance['rawClient']) => {
@@ -287,12 +378,24 @@ async function versionContent(
             )
           `;
         }
-        await tx`
-          insert into correct_answers
-            (question_id,question_version,correct_option,explanation_notes)
-          select question_id,${nextVersion},correct_option,explanation_notes
-          from correct_answers where question_id=${question.id} and question_version=${sourceVersion}
-        `;
+        const answerRestoration = resolvedAnswers.find(
+          (candidate) => candidate.questionId === question.id && candidate.state === 'pending',
+        );
+        if (answerRestoration) {
+          await tx`
+            insert into correct_answers
+              (question_id,question_version,correct_option,explanation_notes)
+            select question_id,${nextVersion},${answerRestoration.restoration[3]},explanation_notes
+            from correct_answers where question_id=${question.id} and question_version=${sourceVersion}
+          `;
+        } else {
+          await tx`
+            insert into correct_answers
+              (question_id,question_version,correct_option,explanation_notes)
+            select question_id,${nextVersion},correct_option,explanation_notes
+            from correct_answers where question_id=${question.id} and question_version=${sourceVersion}
+          `;
+        }
       }
 
       const details = restorations.map((item) => ({
@@ -324,6 +427,14 @@ async function versionContent(
             ],
             version: nextVersion,
             restorations: details,
+            answerKeyRestorations: resolvedAnswers
+              .filter((candidate) => candidate.groupId === groupId)
+              .map((candidate) => ({
+                examSlug: candidate.restoration[0],
+                questionNumber: candidate.restoration[1],
+                from: candidate.restoration[2],
+                to: candidate.restoration[3],
+              })),
           })}::jsonb,now()
         )
       `;
@@ -362,6 +473,7 @@ export async function runMissingOptionRestoration(argv = process.argv.slice(2)):
     const dbClient = app.get<DbClientInstance>(DB_CLIENT);
     const examService = app.get(ExamService);
     let resolved = await resolveRestorations(dbClient.rawClient);
+    let resolvedAnswers = await resolveAnswerKeyRestorations(dbClient.rawClient);
     Logger.log(
       JSON.stringify({
         mode: apply ? 'apply' : 'dry-run',
@@ -369,16 +481,22 @@ export async function runMissingOptionRestoration(argv = process.argv.slice(2)):
         affectedQuestions: new Set(resolved.map((item) => item.questionId)).size,
         affectedGroups: new Set(resolved.map((item) => item.groupId)).size,
         pending: resolved.filter((item) => item.state === 'pending').length,
+        answerKeyRestorations: resolvedAnswers.length,
+        pendingAnswerKeys: resolvedAnswers.filter((item) => item.state === 'pending').length,
       }),
       'MissingOptionRestoration',
     );
     if (!apply) return;
 
     const backupPath = await requireBackup();
-    const groupsVersioned = await versionContent(dbClient.rawClient, resolved);
+    const groupsVersioned = await versionContent(dbClient.rawClient, resolved, resolvedAnswers);
     resolved = await resolveRestorations(dbClient.rawClient);
+    resolvedAnswers = await resolveAnswerKeyRestorations(dbClient.rawClient);
     if (resolved.some((item) => item.state !== 'applied')) {
       throw new Error('Post-version restoration verification failed');
+    }
+    if (resolvedAnswers.some((item) => item.state !== 'applied')) {
+      throw new Error('Post-version answer-key verification failed');
     }
     const [admin] =
       await dbClient.rawClient`select id from users where role='admin' and blocked_at is null`;
@@ -401,6 +519,7 @@ export async function runMissingOptionRestoration(argv = process.argv.slice(2)):
         groupsVersioned,
         examsPublished,
         restorationsVerified: resolved.length,
+        answerKeysVerified: resolvedAnswers.length,
         backupPath,
       }),
       'MissingOptionRestoration',
