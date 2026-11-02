@@ -5,8 +5,8 @@ import {
 } from './fix-confirmed-content-issues.js';
 
 describe('confirmed content correction manifest', () => {
-  it('contains 54 unique correction operations', () => {
-    expect(CONFIRMED_CONTENT_CORRECTIONS).toHaveLength(54);
+  it('contains 58 unique correction operations', () => {
+    expect(CONFIRMED_CONTENT_CORRECTIONS).toHaveLength(58);
     const ids = CONFIRMED_CONTENT_CORRECTIONS.map(
       (c) => `${c[0]}:${c[1]}:${c[2]}:${c[3] ?? ''}:${c[4]}`,
     );
@@ -45,12 +45,26 @@ describe('confirmed content correction manifest', () => {
   });
 
   it('restores the N1 December 2021 placeholders from the source paper', () => {
-    const corrections = CONFIRMED_CONTENT_CORRECTIONS.filter((item) => item[0] === 'n1-2021-12');
+    const corrections = CONFIRMED_CONTENT_CORRECTIONS.filter(
+      (item) => item[0] === 'n1-2021-12' && item[4].includes('KHONG_DOC_RO'),
+    );
     expect(corrections).toHaveLength(3);
     expect(corrections.map((item) => [item[1], item[2], item[4], item[5]])).toEqual([
       [53, 'stem', 'この文章のキーワードを「水温」の他に３つあげるとしたら、以下どの３つ[KHONG_DOC_RO]るか。', 'この文章のキーワードを「水温」の他に３つあげるとしたら、以下どの３つか。'],
       [62, 'passage', '弊店の客層に合うよう[KHONG_DOC_RO]階または２階', '弊店の客層に合うよう１階または２階'],
       [62, 'passage', '直[KHONG_DOC_RO]ご相談', '直接ご相談'],
+    ]);
+  });
+
+  it('repairs the four confirmed N1 December 2021 OCR strings', () => {
+    const ids = CONFIRMED_CONTENT_CORRECTIONS
+      .filter((item) => item[0] === 'n1-2021-12' && !item[4].includes('KHONG_DOC_RO'))
+      .map((item) => [item[1], item[2], item[3], item[4], item[5]]);
+    expect(ids).toEqual([
+      [62, 'passage', null, 'ご出店お願いえれば', 'ご出店お願いできれば'],
+      [62, 'passage', null, '貴社の方針　心より', '貴社の方針に心より'],
+      [62, 'passage', null, '平屋になんじだ年配', '平屋になじんだ年配'],
+      [63, 'option', 3, '商店街にる現店舗', '商店街にある現店舗'],
     ]);
   });
 
