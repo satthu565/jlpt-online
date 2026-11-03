@@ -49,6 +49,7 @@ export const CONFIRMED_CONTENT_CORRECTIONS: readonly ConfirmedContentCorrection[
   ['n2-2024-07', 70, 'stem', null, '応募条件を満たしだれている', '応募条件を満たしている', 'OCR correction'],
   ['n2-2022-12', 57, 'passage', null, '軌き方', '動き方', 'OCR correction'],
   ['n2-2013-12', 74, 'passage', null, '（2月17日必着）', '（12月17日必着）', 'Deadline must fall within the stated application period'],
+  ['n2-2021-07', 60, 'passage', null, '小学生はまだまだ経 漠のものです。さらに興味をもたらされた 囲のものになります。', '小学生はまだまだ経験の幅が狭いものです。ですから、おのずと興味や関心を持つ対象も、非常に限られた範囲のものになります。', 'Restore the complete sentences from the original published passage'],
 
   ['n3-2023-12', 28, 'stem', null, 'すっと', 'ずっと', 'Kana typo'],
   ['n3-2023-07', 71, 'option', 2, '自分の会社の商品を良さを信じて', '自分の会社の商品の良さを信じて', 'Particle correction'],
@@ -131,9 +132,26 @@ export function getCorrectionState(
   return 'invalid';
 }
 
-async function resolveCorrections(sql: DbClientInstance['rawClient']): Promise<ResolvedCorrection[]> {
+export function selectCorrections(
+  argv: string[],
+): readonly ConfirmedContentCorrection[] {
+  const onlyArg = argv.find((arg) => arg.startsWith('--only='));
+  if (!onlyArg) return CONFIRMED_CONTENT_CORRECTIONS;
+  const requestedIds = new Set(onlyArg.slice('--only='.length).split(',').filter(Boolean));
+  if (requestedIds.size === 0) throw new Error('--only requires at least one correction id');
+  const selected = CONFIRMED_CONTENT_CORRECTIONS.filter((item) => requestedIds.has(correctionId(item)));
+  const selectedIds = new Set(selected.map(correctionId));
+  const missingIds = Array.from(requestedIds).filter((id) => !selectedIds.has(id));
+  if (missingIds.length > 0) throw new Error('Unknown correction ids: ' + missingIds.join(', '));
+  return selected;
+}
+
+async function resolveCorrections(
+  sql: DbClientInstance['rawClient'],
+  corrections: readonly ConfirmedContentCorrection[],
+): Promise<ResolvedCorrection[]> {
   const resolved: ResolvedCorrection[] = [];
-  for (const correction of CONFIRMED_CONTENT_CORRECTIONS) {
+  for (const correction of corrections) {
     const [slug, questionNumber, location, optionIndex, oldText, newText] = correction;
     const rows = await sql`
       select e.id as exam_id, q.id as question_id, q.group_id,
@@ -340,11 +358,12 @@ async function examNeedsRepublish(
 
 export async function runConfirmedContentCleanup(argv = process.argv.slice(2)): Promise<void> {
   const apply = argv.includes('--apply');
+  const corrections = selectCorrections(argv);
   const app = await NestFactory.createApplicationContext(AppModule, { logger: ['error', 'warn', 'log'] });
   try {
     const dbClient = app.get<DbClientInstance>(DB_CLIENT);
     const examService = app.get(ExamService);
-    let resolved = await resolveCorrections(dbClient.rawClient);
+    let resolved = await resolveCorrections(dbClient.rawClient, corrections);
     Logger.log(JSON.stringify({
       mode: apply ? 'apply' : 'dry-run', corrections: resolved.length,
       affectedExams: new Set(resolved.map((x) => x.examId)).size,
@@ -356,7 +375,7 @@ export async function runConfirmedContentCleanup(argv = process.argv.slice(2)): 
 
     const backupPath = await requireBackup();
     const result = await versionContent(dbClient.rawClient, resolved);
-    resolved = await resolveCorrections(dbClient.rawClient);
+    resolved = await resolveCorrections(dbClient.rawClient, corrections);
     if (resolved.some((x) => x.state !== 'applied')) {
       throw new Error('Post-version content verification failed');
     }
@@ -368,7 +387,7 @@ export async function runConfirmedContentCleanup(argv = process.argv.slice(2)): 
       if (await examNeedsRepublish(dbClient.rawClient, examId)) examIdsToPublish.push(examId);
     }
     for (const examId of examIdsToPublish) await examService.publishExam(examId, admin.id);
-    resolved = await resolveCorrections(dbClient.rawClient);
+    resolved = await resolveCorrections(dbClient.rawClient, corrections);
     if (resolved.some((x) => x.state !== 'applied')) {
       throw new Error('Final published content verification failed');
     }
