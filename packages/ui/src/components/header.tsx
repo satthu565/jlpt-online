@@ -46,9 +46,11 @@ function renderNavItemIcon(icon?: NavItem['icon']) {
   return <IconComp className="size-4 xl:size-4.5 shrink-0 text-current" aria-hidden="true" />;
 }
 
-function desktopLinkClass(active: boolean | undefined): string {
+function desktopLinkClass(active: boolean | undefined, dense = false): string {
   return cn(
     'inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-xl px-2 py-1.5 text-xs no-underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--nav-active-fg,#D6000F)] focus-visible:ring-offset-2 lg:px-2 lg:text-xs xl:gap-2 xl:px-2.5 xl:text-sm 2xl:px-3.5',
+    // Many top-level links (signed in, no "Thêm" dropdown): stay compact until 2xl so they do not run under the account menu.
+    dense && 'xl:gap-1.5 xl:px-2 xl:text-xs 2xl:gap-2 2xl:px-3 2xl:text-sm',
     active
       ? 'header-nav-link--active bg-[var(--nav-active-bg,#FDE8EA)] font-semibold text-[var(--nav-active-fg,#D6000F)]'
       : 'font-medium text-[var(--nav-inactive-fg,#334155)] hover:bg-[var(--nav-inactive-hover-bg,#f8fafc)] hover:text-[var(--text-primary,#0f172a)] dark:text-[var(--nav-inactive-fg,#e2e8f0)] dark:hover:bg-[var(--nav-inactive-hover-bg,rgba(255,255,255,0.06))]',
@@ -65,6 +67,8 @@ function mobileLinkClass(active: boolean | undefined, nested: boolean): string {
   );
 }
 
+const DENSE_NAV_THRESHOLD = 8;
+
 export function Header({
   brandName = 'Gokakuya.com',
   brandHref = '/',
@@ -78,6 +82,7 @@ export function Header({
   className = '',
 }: HeaderProps): React.JSX.Element {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const isDenseNav = navItems.length > DENSE_NAV_THRESHOLD;
   const effectiveLogoAlt = logoAlt ?? (logoSrc ? 'Gokakuya.com - Trang chủ' : brandName);
 
   return (
@@ -161,10 +166,14 @@ export function Header({
                 <a
                   key={item.href || item.label}
                   href={item.href}
-                  className={cn('header-nav-link', desktopLinkClass(item.active))}
+                  className={cn('header-nav-link', desktopLinkClass(item.active, isDenseNav))}
                   aria-current={item.active ? 'page' : undefined}
                 >
-                  {renderNavItemIcon(item.icon)}
+                  {isDenseNav ? (
+                    <span className="hidden xl:contents">{renderNavItemIcon(item.icon)}</span>
+                  ) : (
+                    renderNavItemIcon(item.icon)
+                  )}
                   <span>{item.label}</span>
                 </a>
               );
