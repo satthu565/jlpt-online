@@ -334,25 +334,47 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
     await app.close();
   });
 
-  describe('Acceptance 5: Guest chỉ làm đề guestTrial, attach history không chiếm attempt người khác', () => {
-    it('Khách (không đăng nhập) làm đề không có cờ guest_trial bị từ chối 401 UNAUTHENTICATED', async () => {
+  describe('Acceptance 5: Guest làm được mọi đề đã xuất bản, attach history không chiếm attempt người khác', () => {
+    it('Khách làm đề thường (không có cờ guest_trial) qua POST /guest/attempts được phép bắt đầu (201 Created)', async () => {
       const res = await app.inject({
         method: 'POST',
-        url: '/api/v1/attempts',
-        headers: {
-          'content-type': 'application/json',
-          cookie: '__Host-guest=0192f000-0000-7000-8000-000000000099',
-        },
+        url: '/api/v1/guest/attempts',
+        headers: { 'content-type': 'application/json' },
         payload: {
           examId: standardExamId,
           mode: 'real',
+          turnstileToken: 'test_valid_token',
         },
       });
 
-      expect(res.statusCode).toBe(401);
+      expect(res.statusCode).toBe(201);
       const body = JSON.parse(res.payload);
-      expect(body.error.code).toBe('UNAUTHENTICATED');
-      expect(body.error.message).toContain('guest_trial');
+      expect(body.attemptId).toBeDefined();
+      expect(body.status).toBe('in_progress');
+    });
+
+    it('Khách làm đề chưa xuất bản (không có publishedVersion) bị từ chối 404 NOT_FOUND', async () => {
+      const draftExamId = generateUuidV7();
+      const client = await getOrCreateDbClient();
+      await client.db.insert(schema.exams).values({
+        id: draftExamId,
+        slug: `draft-exam-${Date.now()}`,
+        level: 'N3',
+        title: 'Đề nháp chưa xuất bản',
+        kind: 'original',
+        totalQuestions: 4,
+        publishedVersion: null,
+      });
+
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/v1/guest/attempts',
+        headers: { 'content-type': 'application/json' },
+        payload: { examId: draftExamId, mode: 'real', turnstileToken: 'test_valid_token' },
+      });
+
+      expect(res.statusCode).toBe(404);
+      expect(JSON.parse(res.payload).error.code).toBe('NOT_FOUND');
     });
 
     it('Khách gọi POST /attempts cũ bị từ chối 403 GUEST_ATTEMPT_DEPRECATED để chặn ghi DB', async () => {
