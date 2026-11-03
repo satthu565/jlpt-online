@@ -5725,7 +5725,7 @@
             },
             {
               "t": "text",
-              "text": "「レベル」初級：初めて日本語勉強する人"
+              "text": "「レベル」初級：初めて日本語を勉強する人"
             },
             {
               "t": "br"
@@ -6226,7 +6226,7 @@
         }
       ],
       "answerBefore": 1,
-      "reason": "Sửa lỗi chữ đã xác nhận trong báo cáo N3; biên tập tiếng Nhật, giữ nguyên khóa đáp án; Sửa lỗi chữ đã xác nhận trong báo cáo N3; biên tập tiếng Nhật, giữ nguyên khóa đáp án"
+      "reason": "Sửa lỗi chữ đã xác nhận trong báo cáo N3; biên tập tiếng Nhật, giữ nguyên khóa đáp án; Sửa lỗi chữ đã xác nhận trong báo cáo N3; biên tập tiếng Nhật, giữ nguyên khóa đáp án; Sửa lỗi chữ đã xác nhận trong báo cáo N3; biên tập tiếng Nhật, giữ nguyên khóa đáp án"
     },
     {
       "slug": "n3-2013-12",
@@ -7154,7 +7154,7 @@
       "after": [
         {
           "t": "text",
-          "text": "わたしの娘は小さいときは体が弱かったが、小学校に入学したころからは、だんだん風を引いたり熱を出したり（"
+          "text": "わたしの娘は小さいときは体が弱かったが、小学校に入学したころからは、だんだん風邪を引いたり熱を出したり（"
         },
         {
           "t": "blank"
@@ -7165,7 +7165,7 @@
         }
       ],
       "answerBefore": 2,
-      "reason": "Sửa lỗi chữ đã xác nhận trong báo cáo N3; biên tập tiếng Nhật, giữ nguyên khóa đáp án"
+      "reason": "Sửa lỗi chữ đã xác nhận trong báo cáo N3; biên tập tiếng Nhật, giữ nguyên khóa đáp án; Sửa lỗi chữ đã xác nhận trong báo cáo N3; biên tập tiếng Nhật, giữ nguyên khóa đáp án"
     },
     {
       "slug": "n3-2010-07",
@@ -7406,6 +7406,698 @@
         }
       ],
       "answerBefore": 2,
+      "reason": "Sửa lỗi chữ đã xác nhận trong báo cáo N3; biên tập tiếng Nhật, giữ nguyên khóa đáp án"
+    },
+    {
+      "slug": "n3-2014-07",
+      "num": 9,
+      "field": "stem",
+      "before": [
+        {
+          "t": "text",
+          "text": "子どもが壁に絵を書いてしまったので、"
+        },
+        {
+          "t": "underline",
+          "children": [
+            {
+              "t": "text",
+              "text": "けして"
+            }
+          ]
+        },
+        {
+          "t": "text",
+          "text": "きれいした。"
+        }
+      ],
+      "after": [
+        {
+          "t": "text",
+          "text": "子どもが壁に絵を書いてしまったので、"
+        },
+        {
+          "t": "underline",
+          "children": [
+            {
+              "t": "text",
+              "text": "けして"
+            }
+          ]
+        },
+        {
+          "t": "text",
+          "text": "きれいにした。"
+        }
+      ],
+      "answerBefore": 3,
+      "reason": "Bổ sung trợ từ に, giữ けして và phần gạch chân của câu chọn kanji"
+    },
+    {
+      "slug": "n3-2014-07",
+      "num": 33,
+      "field": "options",
+      "before": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "高校時代の友人から久しぶりに手紙が"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "伝わった"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "った。"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "妹の風邪が"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "伝わった"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "ったみたいで、熱が出てきた。"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "事故で電車が止まったらしく、たくさんの人がバスに"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "伝わった"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "ってきた。"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "この技術は、約200年前に外国から"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "伝わった"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "ったそうです。"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "高校時代の友人から久しぶりに手紙が"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "伝わった"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "。"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "妹の風邪が"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "伝わった"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "みたいで、熱が出てきた。"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "事故で電車が止まったらしく、たくさんの人がバスに"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "伝わってきた"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "。"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "この技術は、約200年前に外国から"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "伝わった"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "そうです。"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 4,
+      "reason": "Sửa chữ bị nhân đôi ở ranh giới underline/text; giữ nguyên khóa 4 và các phần gạch chân"
+    },
+    {
+      "slug": "n3-2014-07",
+      "num": 66,
+      "field": "passage",
+      "before": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "(2)"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "以前からあった商品が、急によく売れるようになることがある。"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "その理由として、まず挙げられるのは、企業がそれまでと「売り方」を変えたことだ。例えば、「疲れたサラリーマンのための飲み物」として売っていた"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "①健康ドリンク"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "がある。このドリンクを、美しい女性の歌手を使って宣伝したら、若い女性もよく買うようになったそうだ。また、商品の名前や容器の色や形を変えたりするだけで、発売から何年もたった製品が、また売れ出すようになることもある。"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "②イメージの力は大きい"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "。"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "一方、次のような例もある。日本中どこでも売られている安いチョコレートが、ある町で急によく売れるようになった。そのチョコレート会社が調べて見ると、その町では、高校生の間に「このチョコレートを食べると、試験に合格する」といううわさが広がり、みんな試験前に買ってかばんに入れていたのだ。これは、会社が「売り方」を変えたのではなく"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "③「買い方」が変わった"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "ことで売れるようになった例だと言えるだろう。"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "(2)"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "以前からあった商品が、急によく売れるようになることがある。"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "その理由として、まず挙げられるのは、企業がそれまでと「売り方」を変えたことだ。例えば、「疲れたサラリーマンのための飲み物」として売っていた"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "①健康ドリンク"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "がある。このドリンクを、美しい女性の歌手を使って宣伝したら、若い女性もよく買うようになったそうだ。また、商品の名前や容器の色や形を変えたりするだけで、発売から何年もたった製品が、また売れ出すようになることもある。"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "②イメージの力は大きい"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "。"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "一方、次のような例もある。日本中どこでも売られている安いチョコレートが、ある町で急によく売れるようになった。そのチョコレート会社が調べてみると、その町では、高校生の間に「このチョコレートを食べると、試験に合格する」といううわさが広がり、みんな試験前に買ってかばんに入れていたのだ。これは、会社が「売り方」を変えたのではなく"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "③「買い方」が変わった"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "ことで売れるようになった例だと言えるだろう。"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 1,
+      "reason": "Sửa trợ động từ みる trong bài chocolate; báo cáo cũ ghi nhầm năm 2013, dữ liệu thật là 2014"
+    },
+    {
+      "slug": "n3-2022-12",
+      "num": 35,
+      "field": "options",
+      "before": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "A銀行とB銀行が"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "重なって"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "、新しい銀行ができました。"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "私たちの研究会に、来月から新しい仲間が"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "重なります"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "。"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "子どもの運動会が大切な会議と"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "重なった"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "、見に行けない。"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "貯金がたくさん"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "重なったら"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "、車を買おうと思っている。"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "A銀行とB銀行が"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "重なって"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "、新しい銀行ができました。"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "私たちの研究会に、来月から新しい仲間が"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "重なります"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "。"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "子どもの運動会が大切な会議と"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "重なって"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "、見に行けない。"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "貯金がたくさん"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "重なったら"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "、車を買おうと思っている。"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 3,
+      "reason": "Nối động từ 重なって、見に行けない; giữ đúng lựa chọn 3 và phần gạch chân"
+    },
+    {
+      "slug": "n3-2022-07",
+      "num": 64,
+      "field": "stem",
+      "before": [
+        {
+          "t": "underline",
+          "children": [
+            {
+              "t": "text",
+              "text": "①この問題"
+            }
+          ]
+        },
+        {
+          "t": "text",
+          "text": "とあるが、何か"
+        }
+      ],
+      "after": [
+        {
+          "t": "underline",
+          "children": [
+            {
+              "t": "text",
+              "text": "①この問題"
+            }
+          ]
+        },
+        {
+          "t": "text",
+          "text": "とあるが、何か。"
+        }
+      ],
+      "answerBefore": 4,
+      "reason": "Sửa lỗi chữ đã xác nhận trong báo cáo N3; biên tập tiếng Nhật, giữ nguyên khóa đáp án"
+    },
+    {
+      "slug": "n3-2022-07",
+      "num": 69,
+      "field": "options",
+      "before": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "前に両親にろうそくをあげたことを思い出したから。"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "結婚記念日にろうそくあげるのは変だと思ったから。"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "ろうそくの火は危険かもしれないと心配になったから。"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "ろうそくより新しいペットをあげた方が喜ばれると思ったから。"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "前に両親にろうそくをあげたことを思い出したから。"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "結婚記念日にろうそくをあげるのは変だと思ったから。"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "ろうそくの火は危険かもしれないと心配になったから。"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "ろうそくより新しいペットをあげた方が喜ばれると思ったから。"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 3,
       "reason": "Sửa lỗi chữ đã xác nhận trong báo cáo N3; biên tập tiếng Nhật, giữ nguyên khóa đáp án"
     },
     {
@@ -9258,6 +9950,61 @@
       "reason": "Cắt lại ảnh từ Đề N3 7-2013.pdf trang PDF 10; SHA256 0193ee7ba90974334cd5cb61b46f871336a15f5b3a4833b053344fd301689f38"
     },
     {
+      "slug": "n3-2011-07",
+      "num": 75,
+      "field": "passage",
+      "before": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "ア　のり"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "イ　ボールペン"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "ウ　ノート"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "エ　封筒"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "オ　コピー用紙"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "type": "image",
+          "mediaKey": "media/d2d3b457071a12473714b82698f5aa519511abfde4a2ddbee90440269f554d4d.png",
+          "width": 463,
+          "height": 366,
+          "alt": "問題の図 Q75"
+        }
+      ],
+      "answerBefore": 2,
+      "reason": "Cắt lại ảnh từ Đề N3 7-2011.pdf trang PDF 10; SHA256 d4371453b5e8666f2d4453447306d798460e3a6224c140294cf15efdd74debca"
+    },
+    {
       "slug": "n3-2011-12",
       "num": 76,
       "field": "explanation_vi",
@@ -10214,6 +10961,23 @@
         0.422,
         0.305,
         0.572
+      ]
+    },
+    {
+      "slug": "n3-2011-07",
+      "num": 75,
+      "file": "n3-2011-07-q75.png",
+      "sha256": "d2d3b457071a12473714b82698f5aa519511abfde4a2ddbee90440269f554d4d",
+      "width": 463,
+      "height": 366,
+      "source": "Đề N3 7-2011.pdf",
+      "sourceSha256": "d4371453b5e8666f2d4453447306d798460e3a6224c140294cf15efdd74debca",
+      "page": 10,
+      "bounds": [
+        0.386,
+        0.615,
+        0.612,
+        0.748
       ]
     }
   ]

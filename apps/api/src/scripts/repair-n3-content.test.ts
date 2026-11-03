@@ -9,13 +9,18 @@ describe('reviewed N3 repair manifest', () => {
     expect(patchState({ text: 'new', contentVersion: 4 }, { before: { text: 'old' }, after: { contentVersion: 1, text: 'new' } })).toBe('applied');
   });
   it('every patch has distinct old/new content and remains rerunnable', () => {
-    expect(plan.patches).toHaveLength(84);
+    expect(plan.patches).toHaveLength(91);
     for (const p of plan.patches) {
       expect(canonical(p.before)).not.toBe(canonical(p.after));
       expect(patchState(p.before, p)).toBe('pending');
       expect(patchState(p.after, p)).toBe('applied');
       expect(p.field).not.toBe('correct_option');
     }
+  });
+  it('preserves hiragana in the kanji question and removes split-node duplication', () => {
+    const p = plan.patches.find((p: { slug: string; num: number; field: string }) => p.slug === 'n3-2014-07' && p.num === 9 && p.field === 'stem');
+    expect(p.after[1].children[0].text).toBe('\u3051\u3057\u3066');
+    expect(p.after[2].text).toBe('\u304d\u308c\u3044\u306b\u3057\u305f\u3002');
   });
   it('preserves question structure and option ordering', () => {
     for (const p of plan.patches) {
@@ -36,7 +41,7 @@ describe('reviewed N3 repair manifest', () => {
     }
   });
   it('uses a single complete replacement image and keeps restaurant answer 1', () => {
-    expect(plan.images).toHaveLength(17);
+    expect(plan.images).toHaveLength(18);
     for (const image of plan.images) {
       const p = plan.patches.find((p: { slug: string; num: number; field: string }) => p.slug === image.slug && p.num === image.num && p.field === 'passage');
       expect(p.after).toHaveLength(1);

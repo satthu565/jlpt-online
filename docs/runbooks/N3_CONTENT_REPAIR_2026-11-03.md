@@ -4,7 +4,7 @@
 
 ## Phạm vi
 
-- 84 trường dữ liệu trong 66 câu / 19 đề; 17 ảnh được cắt lại từ PDF nguồn và kiểm tra trực quan.
+- 91 trường dữ liệu trong 73 câu / 21 đề; 18 ảnh được cắt lại từ PDF nguồn và kiểm tra trực quan.
 - Giữ nguyên toàn bộ khóa đáp án. Q93–95 N3 7/2021: khôi phục cả thứ tự câu và phương án theo trang PDF 17 của script nguồn, soạn lại lý do đúng/sai.
 - Q79 N3 12/2012: thay câu hỏi/lời giải về đồ đạc bị gắn sai bằng công việc ở nhà hàng theo script trang PDF 10, hình đề trang PDF 10 và bảng đáp án trang PDF 14. Đáp án vẫn là 1 (ア・ウ).
 - Q53 N3 12/2018: khôi phục `入ってた`, giữ đủ ô trống và vị trí ★.
@@ -59,9 +59,23 @@ N3_REPAIR_MEDIA_DIR=/path/media \
 ## Kiểm tra trước PR
 
 - Lint, typecheck, build, check:ui-primitives, check:no-mock-ui và docs:map đạt.
-- 5 test mới đạt: từ chối nội dung bị sửa đồng thời, chạy lại an toàn, giữ thứ tự/ô trống/★/khóa đáp án, thứ tự ba câu nghe theo nguồn và đủ metadata 17 ảnh.
+- 6 test mới đạt: từ chối nội dung bị sửa đồng thời, chạy lại an toàn, giữ thứ tự/ô trống/★/khóa đáp án, thứ tự ba câu nghe theo nguồn và đủ metadata 18 ảnh.
 - `pnpm test`: các gói liên quan đạt; gói tests gặp lỗi môi trường có sẵn `integration/dac-ta-runner.test.ts`, Scenario 10 (worker filesystem/docker permissions). Không bỏ qua CI.
 - Đã pg_dump toàn database và phục hồi thành database thử riêng `jlpt_n3_repair_check_20261103`.
 - Thử áp dụng trên bản sao: 65 nhóm tạo phiên bản mới, 19 đề xuất bản, 84 trường / 17 ảnh xác minh thành công.
 - Chạy lại trên bản sao: pending=0, groupsVersioned=0, examsPublished=0.
 - Chưa áp dụng database dùng chung; chờ CI xanh. Không có preview :3210 vì đây là sửa dữ liệu.
+
+### Bổ sung qua phần gạch chân
+
+- N3 7/2014 Q9 chỉ thêm に sau きれい, giữ nguyên けして vì đây là câu chọn kanji.
+- Q33 sửa chữ nhân đôi ở ranh giới underline/text, giữ đáp án 4.
+- Bài chocolate thực tế là N3 7/2014 Q66–68, báo cáo cũ ghi nhầm năm.
+- N3 12/2022 Q35 nối 重なって、見に行けない; giữ đáp án 3. N3 7/2022 Q64 thêm dấu kết câu, Q69 thêm を.
+- N3 7/2011 Q75 khôi phục nguyên hình bản ghi văn phòng phẩm, gồm số lượng và các vị trí ア–オ.
+
+### Kết quả thử bản đầy đủ
+
+- Database thử riêng `jlpt_n3_repair_check_v2_20261103`: 70 nhóm tạo phiên bản mới, 21 đề xuất bản, 91 trường và 18 ảnh xác minh thành công.
+- Chạy lại: pending=0, groupsVersioned=0, examsPublished=0.
+- 6 test riêng đạt; lint, typecheck, build đạt. CI của bản 84 trường trước đó đã xanh toàn bộ; bản bổ sung phải chạy CI lại.

@@ -151,9 +151,9 @@ export async function runN3ContentRepair(argv = process.argv.slice(2)): Promise<
   const planPath = process.env.N3_REPAIR_PLAN;
   if (!planPath) throw new Error('N3_REPAIR_PLAN required');
   const planBuffer = (await readFile(planPath, 'utf8')).replace(/\r\n/g, '\n');
-  if (crypto.createHash('sha256').update(planBuffer).digest('hex') !== '89e305139b0c98907f6d455aa68793c64f9c7c74b90fc345db3a5a81e7885d20') throw new Error('Manifest integrity failure');
+  if (crypto.createHash('sha256').update(planBuffer).digest('hex') !== 'fca6bb449b180fb9e9c7aae74849e04fff5f33ba46b5d3d7c0951b8b8b5d4217') throw new Error('Manifest integrity failure');
   const plan = JSON.parse(planBuffer) as Plan;
-  if (plan.auditId !== 'n3-content-repair-2026-11-03' || plan.patches.length !== 84 || plan.images.length !== 17) throw new Error('Unexpected repair manifest');
+  if (plan.auditId !== 'n3-content-repair-2026-11-03' || plan.patches.length !== 91 || plan.images.length !== 18) throw new Error('Unexpected repair manifest');
   const buffers = new Map<string, Buffer>();
   for (const img of plan.images) {
     const data = await readFile(path.join(process.env.N3_REPAIR_MEDIA_DIR ?? '', img.file));
