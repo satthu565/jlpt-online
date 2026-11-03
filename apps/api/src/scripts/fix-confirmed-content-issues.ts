@@ -49,6 +49,7 @@ export const CONFIRMED_CONTENT_CORRECTIONS: readonly ConfirmedContentCorrection[
   ['n2-2024-07', 70, 'stem', null, '応募条件を満たしだれている', '応募条件を満たしている', 'OCR correction'],
   ['n2-2022-12', 57, 'passage', null, '軌き方', '動き方', 'OCR correction'],
   ['n2-2013-12', 74, 'passage', null, '（2月17日必着）', '（12月17日必着）', 'Deadline must fall within the stated application period'],
+  ['n2-2021-07', 54, 'option', 4, 'ペットボトルの飲み物で減量する女性が昨年辺りから増えていること。（※ đề in trùng với lựa chọn 3）', 'どのような飲み物が流行するかは、人気のある雑誌の影響を受けること。', 'Restore printed option 4 from the owner-provided source image'],
   ['n2-2021-07', 60, 'passage', null, '小学生はまだまだ経 漠のものです。さらに興味をもたらされた 囲のものになります。', '小学生はまだまだ経験の幅が狭いものです。ですから、おのずと興味や関心を持つ対象も、非常に限られた範囲のものになります。', 'Restore the complete sentences from the original published passage'],
 
   ['n3-2023-12', 28, 'stem', null, 'すっと', 'ずっと', 'Kana typo'],

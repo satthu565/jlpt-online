@@ -6,8 +6,8 @@ import {
 } from './fix-confirmed-content-issues.js';
 
 describe('confirmed content correction manifest', () => {
-  it('contains 59 unique correction operations', () => {
-    expect(CONFIRMED_CONTENT_CORRECTIONS).toHaveLength(59);
+  it('contains 60 unique correction operations', () => {
+    expect(CONFIRMED_CONTENT_CORRECTIONS).toHaveLength(60);
     const ids = CONFIRMED_CONTENT_CORRECTIONS.map(
       (c) => `${c[0]}:${c[1]}:${c[2]}:${c[3] ?? ''}:${c[4]}`,
     );
@@ -81,10 +81,25 @@ describe('confirmed content correction manifest', () => {
     ]);
   });
 
+  it('restores the printed N2 July 2021 Q54 option 4', () => {
+    expect(CONFIRMED_CONTENT_CORRECTIONS).toContainEqual([
+      'n2-2021-07',
+      54,
+      'option',
+      4,
+      'ペットボトルの飲み物で減量する女性が昨年辺りから増えていること。（※ đề in trùng với lựa chọn 3）',
+      'どのような飲み物が流行するかは、人気のある雑誌の影響を受けること。',
+      'Restore printed option 4 from the owner-provided source image',
+    ]);
+  });
+
   it('can safely select only the requested correction id', () => {
     const selected = selectCorrections(['--only=n2-2021-07:Q60:passage']);
     expect(selected).toHaveLength(1);
     expect(selected[0]?.[0]).toBe('n2-2021-07');
+    expect(selectCorrections([
+      '--only=n2-2021-07:Q54:option4,n2-2021-07:Q60:passage',
+    ])).toHaveLength(2);
     expect(() => selectCorrections(['--only=missing-id'])).toThrow('Unknown correction ids');
   });
 
