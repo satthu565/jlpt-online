@@ -360,7 +360,7 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
       <HeroPopover.Trigger ref={setAnchor} aria-hidden="true" tabIndex={-1} className="pointer-events-none invisible fixed" data-testid="selection-lookup-anchor" />
       <HeroPopover.Content data-testid="selection-lookup-popover" data-select-lookup-popover="true">
         <HeroPopover.Arrow>
-          <svg width="24" height="24" viewBox="0 0 12 12" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 12 12" aria-hidden="true">
             <path d="M0 0C5.48483 8 6.5 8 12 0Z" />
           </svg>
         </HeroPopover.Arrow>
