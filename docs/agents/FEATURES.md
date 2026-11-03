@@ -37,7 +37,7 @@ Ngân hàng câu hỏi `/questions` · blueprint `/blueprints` · media `/media`
 
 Menu và quyền của từng mục khai báo ở `apps/admin/lib/navigation.ts`.
 
-Bảo trì dữ liệu đề: các script `fix-confirmed-answer-keys.ts`, `fix-confirmed-content-issues.ts`, `sync-n1-answer-explanations.ts` và `sync-n2-answer-explanations.ts` trong `apps/api/src/scripts/` tạo phiên bản nội dung mới, qua dấu vết editor/reviewer riêng biệt rồi xuất bản lại đề; không ghi đè dữ liệu của phiên bản đã xuất bản.
+Bảo trì dữ liệu đề: các script `fix-confirmed-answer-keys.ts`, `fix-confirmed-content-issues.ts`, `sync-n1-answer-explanations.ts` và `sync-n2-answer-explanations.ts` trong `apps/api/src/scripts/` tạo phiên bản nội dung mới, qua dấu vết editor/reviewer riêng biệt rồi xuất bản lại đề; không ghi đè dữ liệu của phiên bản đã xuất bản. Script sửa nội dung hỗ trợ `--only=<correction-id>` để chỉ áp dụng đúng mục tiêu đã được phê duyệt, không chạm các sửa đổi khác đang chờ.
 
 ## 🙈 Đang ẩn (bật lại bằng cờ lúc build web)
 
