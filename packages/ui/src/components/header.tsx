@@ -48,11 +48,9 @@ function renderNavItemIcon(icon?: NavItem['icon']) {
 
 function desktopLinkClass(active: boolean | undefined, dense = false): string {
   return cn(
-    'inline-flex min-h-11 items-center whitespace-nowrap rounded-xl py-1.5 text-xs no-underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--nav-active-fg,#D6000F)] focus-visible:ring-offset-2 lg:text-xs',
-    // Many top-level links (signed in, no "Thêm" dropdown): stay compact until 2xl so they do not run under the account menu.
-    dense
-      ? 'gap-1.5 px-2 lg:px-2 2xl:gap-2 2xl:px-3 2xl:text-sm'
-      : 'gap-1.5 px-2 lg:px-2 xl:gap-2 xl:px-2.5 xl:text-sm 2xl:px-3.5',
+    'inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-xl px-2 py-1.5 text-xs no-underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--nav-active-fg,#D6000F)] focus-visible:ring-offset-2 lg:px-2 lg:text-xs xl:gap-2 xl:px-2.5 xl:text-sm 2xl:px-3.5',
+    // Sizes are set per breakpoint in styles.css (!important); this marker keeps the links compact up to 1600px.
+    dense && 'header-nav-link--dense',
     active
       ? 'header-nav-link--active bg-[var(--nav-active-bg,#FDE8EA)] font-semibold text-[var(--nav-active-fg,#D6000F)]'
       : 'font-medium text-[var(--nav-inactive-fg,#334155)] hover:bg-[var(--nav-inactive-hover-bg,#f8fafc)] hover:text-[var(--text-primary,#0f172a)] dark:text-[var(--nav-inactive-fg,#e2e8f0)] dark:hover:bg-[var(--nav-inactive-hover-bg,rgba(255,255,255,0.06))]',

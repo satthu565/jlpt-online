@@ -555,6 +555,19 @@ body {
   }
 }
 
+/* Many top-level links (signed in, no "Thêm" dropdown): stay compact so they fit beside the account menu. */
+@media (min-width: 1280px) and (max-width: 1599px) {
+  .header-nav-link.header-nav-link--dense {
+    padding: 0.25rem 0.375rem !important;
+    font-size: 0.75rem !important;
+    gap: 0.25rem !important;
+  }
+  .header-nav-link.header-nav-link--dense svg {
+    width: 0.875rem !important;
+    height: 0.875rem !important;
+  }
+}
+
 /* Real device & mobile interaction enhancements (SYS-01, SYS-10, WCAG 2.1 AA) */
 html {
   -webkit-text-size-adjust: 100%;
