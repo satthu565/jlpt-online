@@ -51,6 +51,9 @@ export function hasSavedNotebookTerm(items: Array<{ term: string }>, entry: stri
   return Boolean(findSavedNotebookTerm(items, entry));
 }
 
+// The popup and its action notices (rendered in a separate overlay) count as "inside" for outside-click dismissal.
+const LOOKUP_INSIDE_SELECTOR = '[data-select-lookup-popover="true"], [data-testid="lookup-action-notice"]';
+
 type NoticeTarget = 'pronunciation' | 'save' | 'synonyms' | 'antonyms' | 'otherExamples';
 type NoticeTone = 'success' | 'info' | 'error' | 'danger';
 
@@ -177,6 +180,17 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
     },
     [virtualRect],
   );
+
+  // HeroUI would also close this popup on page scroll and on blur, which the Radix version never did. Dismissal is
+  // handled here instead: Escape, the close button and a pointer press outside the popup (like Radix); scrolling keeps it open.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!(event.target instanceof Element) || !event.target.closest(LOOKUP_INSIDE_SELECTOR)) close();
+    };
+    document.addEventListener('pointerdown', onPointerDown, true);
+    return () => document.removeEventListener('pointerdown', onPointerDown, true);
+  }, [isOpen, close]);
 
   useEffect(() => {
     setIsSaved(false);
@@ -376,7 +390,6 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
         key={`${queryText}:${virtualRect?.left}:${virtualRect?.top}`}
         triggerRef={anchorRef}
         isOpen={isOpen}
-        onOpenChange={(open) => !open && close()}
         placement="top"
         offset={12}
         containerPadding={16}
@@ -385,7 +398,7 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
         data-testid="selection-lookup-popover"
         data-select-lookup-popover="true"
       >
-        <div role="dialog" aria-label={t('dictionary.lookupTabs')} className="p-2" onKeyDown={(event) => event.stopPropagation()}>
+        <div role="dialog" aria-label={t('dictionary.lookupTabs')} className="p-2" onKeyDown={(event) => (event.key === 'Escape' ? close() : event.stopPropagation())}>
           <Tabs key={queryText} defaultSelectedKey="vocabulary">
             <div className="mb-2 flex items-start justify-between gap-1.5">
               <Tabs.ListContainer className="min-w-0 flex-1">
