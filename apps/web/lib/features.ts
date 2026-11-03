@@ -13,4 +13,14 @@ export const FEATURES = {
   tts: process.env.NEXT_PUBLIC_FEATURE_TTS === '1',
   /** AI study assistant that explains answers on the result review page. */
   aiExplanation: process.env.NEXT_PUBLIC_FEATURE_AI_EXPLANATION === '1',
+  /** Header menu entry "Luyện tập" (the /luyen-tap page itself is untouched). */
+  navPractice: process.env.NEXT_PUBLIC_FEATURE_NAV_PRACTICE === '1',
+  /** Header menu entry "Ngữ pháp" (the /ngu-phap page itself is untouched). */
+  navGrammar: process.env.NEXT_PUBLIC_FEATURE_NAV_GRAMMAR === '1',
+  /** Header menu entry "Lớp học" (the /lop-hoc page itself is untouched). */
+  navClassroom: process.env.NEXT_PUBLIC_FEATURE_NAV_CLASSROOM === '1',
+  /** Header menu entry "Gói thành viên" (the /goi-thanh-vien page itself is untouched). */
+  navPricing: process.env.NEXT_PUBLIC_FEATURE_NAV_PRICING === '1',
+  /** Header "Thêm" dropdown. Off: its items are shown as plain buttons in the main menu. */
+  navMoreDropdown: process.env.NEXT_PUBLIC_FEATURE_NAV_MORE_DROPDOWN === '1',
 } as const;
