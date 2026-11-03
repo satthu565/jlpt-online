@@ -1,11 +1,13 @@
-# Sửa khóa đáp án chắc chắn sai — 01/11/2026
+# Sửa khóa đáp án chắc chắn sai — cập nhật 03/11/2026
 
 Script: `apps/api/src/scripts/fix-confirmed-answer-keys.ts`.
 
 ## Phạm vi
 
-- 27 khóa đáp án đã được chủ dự án yêu cầu sửa.
-- 20 đề N1–N5, 27 nhóm câu hỏi.
+- 29 khóa đáp án đã được chủ dự án yêu cầu sửa.
+- 22 đề N1–N5, 29 nhóm câu hỏi.
+- Bổ sung N2 7/2025 Q82 (khóa 4 → 3) và N2 12/2023 Q51 (khóa 2 → 3) sau khi đối chiếu đề, transcript/audio và nhiều bảng đáp án độc lập.
+- N2 12/2024 Q50 giữ nguyên khóa 2 vì PDF đáp án tại dự án và các nguồn độc lập đều xác nhận `感動していた`.
 - Không gồm các câu có hai đáp án hợp lệ hoặc các mục còn cần nghe audio/đối chiếu bản gốc.
 
 ## Bảo toàn lịch sử
@@ -29,7 +31,7 @@ Chế độ mặc định chỉ kiểm tra. `--apply` từ chối chạy nếu k
 
 ## Kiểm tra bắt buộc
 
-- Dry-run phải báo 27 mục tiêu và không có khóa ngoài giá trị cũ/mới mong đợi.
+- Dry-run phải báo 29 mục tiêu và không có khóa ngoài giá trị cũ/mới mong đợi.
 - Sau khi áp dụng, script tự đọc lại cả phiên bản câu hỏi mới lẫn `exam_answer_keys` phiên bản đề mới.
 - Chạy lại ở chế độ dry-run phải báo `pendingQuestionVersions: 0` và `pendingPublishedKeys: 0`.
 - Mở trang thật của ít nhất một đề mỗi cấp N1–N5 sau khi phiên bản mới được xuất bản.

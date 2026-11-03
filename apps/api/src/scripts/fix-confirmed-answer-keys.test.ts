@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { CONFIRMED_ANSWER_KEY_FIXES } from './fix-confirmed-answer-keys.js';
 
 describe('confirmed answer-key correction manifest', () => {
-  it('contains 27 unique corrections', () => {
-    expect(CONFIRMED_ANSWER_KEY_FIXES).toHaveLength(27);
+  it('contains 29 unique corrections', () => {
+    expect(CONFIRMED_ANSWER_KEY_FIXES).toHaveLength(29);
     const ids = CONFIRMED_ANSWER_KEY_FIXES.map((fix) => fix[0] + ':Q' + fix[1]);
     expect(new Set(ids).size).toBe(ids.length);
   });
@@ -23,5 +23,6 @@ describe('confirmed answer-key correction manifest', () => {
     expect(ids.has('n3-2012-12:Q62')).toBe(false);
     expect(ids.has('n5-2017-07:Q54')).toBe(false);
     expect(ids.has('n5-2010-2011:Q54')).toBe(false);
+    expect(ids.has('n2-2024-12:Q50')).toBe(false);
   });
 });
