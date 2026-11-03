@@ -447,7 +447,7 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
 
               {status === 'error' && (
                 <div data-testid="lookup-error" className="space-y-3">
-                  <Alert status="danger">
+                  <Alert status="danger" role="alert">
                     <Alert.Indicator />
                     <Alert.Content>
                       <Alert.Description>{error || t('dictionary.networkError')}</Alert.Description>
