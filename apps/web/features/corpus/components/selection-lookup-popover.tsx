@@ -359,6 +359,7 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
     <HeroPopover isOpen={isOpen} onOpenChange={(open) => !open && close()}>
       <HeroPopover.Trigger ref={setAnchor} aria-hidden="true" tabIndex={-1} className="pointer-events-none invisible fixed" data-testid="selection-lookup-anchor" />
       <HeroPopover.Content data-testid="selection-lookup-popover" data-select-lookup-popover="true">
+        <HeroPopover.Arrow />
         <HeroPopover.Dialog aria-label={t('dictionary.lookupTabs')}>
           <div className="w-[30rem] max-w-[calc(100vw-4rem)]">
             <Tabs key={queryText} defaultSelectedKey="vocabulary">
