@@ -90,37 +90,6 @@ export class AttemptService {
   ) {}
 
   /**
-   * Helper to check if an exam allows guest trial
-   */
-  private isExamGuestTrialEligible(exam: typeof schema.exams.$inferSelect, versionScoring?: Record<string, unknown>): boolean {
-    if (exam.kind === 'practice' || exam.kind === 'custom') {
-      // Check description or slug
-    }
-    const descLower = (exam.description || '').toLowerCase();
-    const slugLower = exam.slug.toLowerCase();
-    const titleLower = exam.title.toLowerCase();
-
-    if (
-      descLower.includes('guest_trial') ||
-      descLower.includes('"guesttrial":true') ||
-      descLower.includes('"guesttrial": true') ||
-      slugLower.includes('trial') ||
-      slugLower.includes('guest') ||
-      titleLower.includes('làm thử') ||
-      titleLower.includes('thử nghiệm') ||
-      titleLower.includes('trial')
-    ) {
-      return true;
-    }
-
-    if (versionScoring && (versionScoring['guestTrial'] === true || versionScoring['guest_trial'] === true)) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /**
    * Creates a new attempt (T1.5.2, Acceptance 5).
    */
   async createAttempt(
@@ -161,8 +130,6 @@ export class AttemptService {
       });
     }
 
-    const isGuestTrial = this.isExamGuestTrialEligible(exam, ev.scoring as Record<string, unknown>);
-
     // 3. User verification and Guest policy check (Acceptance 5)
     let effectiveUserId: string | null = null;
     const effectiveGuestId: string | null = null;
@@ -199,14 +166,7 @@ export class AttemptService {
 
       effectiveUserId = user.userId;
     } else {
-      // Unauthenticated guest: strictly check guest trial eligibility
-      if (!isGuestTrial) {
-        throw new UnauthorizedException({
-          code: 'UNAUTHENTICATED',
-          message: 'Khách chỉ được phép làm thử các đề thi có gắn cờ guest_trial. Vui lòng đăng nhập.',
-        });
-      }
-
+      // Unauthenticated guest: the stateless /guest/attempts flow is the only one allowed
       throw new ForbiddenException({
         code: 'GUEST_ATTEMPT_DEPRECATED',
         message: 'Khách làm bài không còn lưu trên máy chủ. Vui lòng sử dụng luồng làm bài trực tiếp của khách (/api/v1/guest/attempts).',
@@ -1083,6 +1043,14 @@ export class AttemptService {
       });
     }
 
+    // Guests may take any published exam; a draft (no published version) stays hidden
+    if (exam.publishedVersion == null) {
+      throw new NotFoundException({
+        code: 'NOT_FOUND',
+        message: 'Đề thi chưa được xuất bản.',
+      });
+    }
+
     // 2. Fetch latest published exam version
     const versionNum = exam.publishedVersion ?? 1;
     const [ev] = await db
@@ -1095,14 +1063,6 @@ export class AttemptService {
       throw new NotFoundException({
         code: 'NOT_FOUND',
         message: `Phiên bản xuất bản của đề thi ${exam.id} không tồn tại.`,
-      });
-    }
-
-    const isGuestTrial = this.isExamGuestTrialEligible(exam, ev.scoring as Record<string, unknown>);
-    if (!isGuestTrial) {
-      throw new UnauthorizedException({
-        code: 'UNAUTHENTICATED',
-        message: 'Khách chỉ được phép làm thử các đề thi có gắn cờ guest_trial. Vui lòng đăng nhập.',
       });
     }
 
@@ -1188,6 +1148,14 @@ export class AttemptService {
       });
     }
 
+    // Guests may take any published exam; a draft (no published version) stays hidden
+    if (exam.publishedVersion == null) {
+      throw new NotFoundException({
+        code: 'NOT_FOUND',
+        message: 'Đề thi chưa được xuất bản.',
+      });
+    }
+
     const versionNum = input.version || exam.publishedVersion || 1;
     const [ev] = await db
       .select()
@@ -1199,14 +1167,6 @@ export class AttemptService {
       throw new NotFoundException({
         code: 'NOT_FOUND',
         message: `Phiên bản xuất bản của đề thi ${exam.id} không tồn tại.`,
-      });
-    }
-
-    const isGuestTrial = this.isExamGuestTrialEligible(exam, ev.scoring as Record<string, unknown>);
-    if (!isGuestTrial) {
-      throw new UnauthorizedException({
-        code: 'UNAUTHENTICATED',
-        message: 'Khách chỉ được phép làm thử các đề thi có gắn cờ guest_trial. Vui lòng đăng nhập.',
       });
     }
 
