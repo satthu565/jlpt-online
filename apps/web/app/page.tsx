@@ -283,14 +283,14 @@ export default function HomePage(): React.JSX.Element {
     setFilters(INITIAL_LIBRARY_FILTERS);
   };
 
-  const hasActiveFilters =
+  const hasNonLevelFilters =
     Boolean(filters.searchQuery.trim()) ||
-    filters.level !== 'ALL' ||
     filters.year !== 'ALL' ||
     filters.session !== 'ALL' ||
     filters.kind !== 'ALL' ||
     filters.userStatus !== 'ALL' ||
     Boolean(filters.onlyFavorites);
+  const hasActiveFilters = hasNonLevelFilters || filters.level !== 'ALL';
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -341,7 +341,7 @@ export default function HomePage(): React.JSX.Element {
       </ExamHero>
 
       {/* SECTION 2: CHỌN NHANH THEO CẤP ĐỘ */}
-      {!hasActiveFilters && (
+      {!hasNonLevelFilters && (
         <section className="py-10 px-4 sm:px-6">
           <div className="container">
             <div className="flex items-center gap-2 mb-5">
