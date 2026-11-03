@@ -79,3 +79,5 @@ Ngày 25/10/2026: thao tác của từng câu trong cuốn đề được gom xu
 ## 📋 Dự kiến
 
 - Bộ chuyển đổi để coordinator giao việc cho Codex.
+
+- Bảo trì nội dung N3 03/11/2026: script `repair-n3-content.ts` sửa 91 trường dữ liệu trong 73 câu của 21 đề, cắt lại 18 ảnh và khôi phục transcript theo nguồn; dry-run mặc định, đối chiếu giá trị trước/sau, bắt buộc backup, tạo phiên bản mới và audit log.
