@@ -103,14 +103,16 @@ export function NavigationHeader(): React.JSX.Element {
     moreItems.push({ label: t('common.nav.analytics'), href: '/thong-ke', icon: BarChart3, active: isRouteActive('/thong-ke', pathname) });
   }
 
-  const isMoreActive = moreItems.some((item) => item.active);
-
-  navItems.push({
-    label: t('common.nav.more') || 'Thêm',
-    icon: Ellipsis,
-    active: isMoreActive,
-    children: moreItems,
-  });
+  if (FEATURES.navMoreDropdown) {
+    navItems.push({
+      label: t('common.nav.more') || 'Thêm',
+      icon: Ellipsis,
+      active: moreItems.some((item) => item.active),
+      children: moreItems,
+    });
+  } else {
+    navItems.push(...moreItems);
+  }
 
   // Account menu with integrated Language & Theme switchers
   const userMenu = user ? (

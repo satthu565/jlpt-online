@@ -63,8 +63,13 @@ describe('Brand Logo & Mascot Assets (Gokakuya.com & JLPT Online)', () => {
     expect(html).toContain('lucide-file-text');
     expect(html).toContain('lucide-chart-no-axes-column');
     expect(html).toContain('lucide-notebook-text');
-    expect(html).toContain('lucide-ellipsis');
-    expect(html).toContain('lucide-chevron-down');
+    // "Thêm" dropdown is off by default: its items are plain buttons in the main menu
+    expect(html).not.toContain('lucide-ellipsis');
+    expect(html).not.toContain('lucide-chevron-down');
+    expect(html).not.toContain('header-nav-dropdown-trigger');
+    for (const href of ['/ke-hoach', '/su-kien', '/lich-thi']) {
+      expect(html).toContain(`href="${href}"`);
+    }
 
     // "Luyện tập" and "Ngữ pháp" are hidden by default (NEXT_PUBLIC_FEATURE_NAV_*)
     expect(html).not.toContain('lucide-book-open');

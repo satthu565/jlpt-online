@@ -21,4 +21,6 @@ export const FEATURES = {
   navClassroom: process.env.NEXT_PUBLIC_FEATURE_NAV_CLASSROOM === '1',
   /** Header menu entry "Gói thành viên" (the /goi-thanh-vien page itself is untouched). */
   navPricing: process.env.NEXT_PUBLIC_FEATURE_NAV_PRICING === '1',
+  /** Header "Thêm" dropdown. Off: its items are shown as plain buttons in the main menu. */
+  navMoreDropdown: process.env.NEXT_PUBLIC_FEATURE_NAV_MORE_DROPDOWN === '1',
 } as const;

@@ -13,6 +13,7 @@ Các phần dưới đây đã code xong nhưng chưa triển khai ở giai đo�
 | `navGrammar` | `NEXT_PUBLIC_FEATURE_NAV_GRAMMAR` | Mục "Ngữ pháp" trên menu, trang `/ngu-phap` giữ nguyên |
 | `navClassroom` | `NEXT_PUBLIC_FEATURE_NAV_CLASSROOM` | Mục "Lớp học" trong menu "Thêm", trang `/lop-hoc` giữ nguyên |
 | `navPricing` | `NEXT_PUBLIC_FEATURE_NAV_PRICING` | Mục "Gói thành viên" trong menu "Thêm", trang `/goi-thanh-vien` giữ nguyên |
+| `navMoreDropdown` | `NEXT_PUBLIC_FEATURE_NAV_MORE_DROPDOWN` | Menu xổ "Thêm" (tạm ẩn theo chủ dự án, 03/11/2026): khi tắt, các mục của nó hiện thành nút ngang hàng trong menu chính |
 
 API, admin (gồm trang "Kiểm duyệt AI") và dữ liệu không thay đổi; chỉ phần học viên nhìn thấy bị ẩn.
 

@@ -14,6 +14,7 @@ describe('features hidden in this release phase', () => {
       navGrammar: false,
       navClassroom: false,
       navPricing: false,
+      navMoreDropdown: false,
     });
   });
 

@@ -33,6 +33,7 @@ Sinh từ code: route web và admin, menu admin, API kèm quyền, cờ tính n�
 | `navGrammar` | `NEXT_PUBLIC_FEATURE_NAV_GRAMMAR=1` |
 | `navClassroom` | `NEXT_PUBLIC_FEATURE_NAV_CLASSROOM=1` |
 | `navPricing` | `NEXT_PUBLIC_FEATURE_NAV_PRICING=1` |
+| `navMoreDropdown` | `NEXT_PUBLIC_FEATURE_NAV_MORE_DROPDOWN=1` |
 
 ## Trang học viên (`apps/web`, 38 trang)
 
