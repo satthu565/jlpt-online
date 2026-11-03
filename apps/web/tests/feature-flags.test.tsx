@@ -6,7 +6,15 @@ import PrivacyPolicyPage from '../app/(info)/chinh-sach/page';
 // Release phase (2026-10-21): privacy policy page, TTS and AI answer explanation are hidden by default.
 describe('features hidden in this release phase', () => {
   it('are off unless their NEXT_PUBLIC_FEATURE_* variable is 1', () => {
-    expect(FEATURES).toEqual({ privacyPolicyPage: false, tts: false, aiExplanation: false });
+    expect(FEATURES).toEqual({
+      privacyPolicyPage: false,
+      tts: false,
+      aiExplanation: false,
+      navPractice: false,
+      navGrammar: false,
+      navClassroom: false,
+      navPricing: false,
+    });
   });
 
   it('removes the privacy policy page: 404 and no sitemap entry', async () => {

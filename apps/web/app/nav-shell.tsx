@@ -27,6 +27,7 @@ import { Button } from '@jlpt/ui/components/button';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@jlpt/ui/components/dropdown-menu';
 import { useI18n, type Locale } from '../lib/i18n';
 import { useAuth } from '../lib/auth-context';
+import { FEATURES } from '../lib/features';
 
 const ThemeToggle = dynamic(
   () => import('@jlpt/ui/components/theme-toggle').then((m) => m.ThemeToggle),
@@ -74,19 +75,27 @@ export function NavigationHeader(): React.JSX.Element {
   const navItems: NavItem[] = [
     { label: t('common.nav.home'), href: '/', icon: House, active: isRouteActive('/', pathname) },
     { label: t('common.nav.exams'), href: '/de-thi', icon: FileText, active: isRouteActive('/de-thi', pathname) },
-    { label: t('common.nav.practice'), href: '/luyen-tap', icon: BookOpen, active: isRouteActive('/luyen-tap', pathname) },
+    ...(FEATURES.navPractice
+      ? [{ label: t('common.nav.practice'), href: '/luyen-tap', icon: BookOpen, active: isRouteActive('/luyen-tap', pathname) }]
+      : []),
     { label: t('common.nav.vocabulary'), href: '/tu-vung', icon: ChartNoAxesColumn, active: isRouteActive('/tu-vung', pathname) },
-    { label: t('common.nav.grammar'), href: '/ngu-phap', icon: BookText, active: isRouteActive('/ngu-phap', pathname) },
+    ...(FEATURES.navGrammar
+      ? [{ label: t('common.nav.grammar'), href: '/ngu-phap', icon: BookText, active: isRouteActive('/ngu-phap', pathname) }]
+      : []),
     { label: t('common.nav.notebook'), href: '/so-tay', icon: NotebookText, active: isRouteActive('/so-tay', pathname) },
   ];
 
   // Secondary items grouped into "Thêm" (More) dropdown menu
   const moreItems: NavItem[] = [
     { label: t('common.nav.planner'), href: '/ke-hoach', icon: Calendar, active: isRouteActive('/ke-hoach', pathname) },
-    { label: t('common.nav.classroom'), href: '/lop-hoc', icon: GraduationCap, active: isRouteActive('/lop-hoc', pathname) },
+    ...(FEATURES.navClassroom
+      ? [{ label: t('common.nav.classroom'), href: '/lop-hoc', icon: GraduationCap, active: isRouteActive('/lop-hoc', pathname) }]
+      : []),
     { label: t('common.nav.events'), href: '/su-kien', icon: CalendarDays, active: isRouteActive('/su-kien', pathname) },
     { label: t('common.nav.schedules'), href: '/lich-thi', icon: Clock, active: isRouteActive('/lich-thi', pathname) },
-    { label: t('common.nav.pricing'), href: '/goi-thanh-vien', icon: CreditCard, active: isRouteActive('/goi-thanh-vien', pathname) },
+    ...(FEATURES.navPricing
+      ? [{ label: t('common.nav.pricing'), href: '/goi-thanh-vien', icon: CreditCard, active: isRouteActive('/goi-thanh-vien', pathname) }]
+      : []),
   ];
 
   if (user) {

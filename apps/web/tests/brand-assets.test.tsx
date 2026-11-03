@@ -61,12 +61,16 @@ describe('Brand Logo & Mascot Assets (Gokakuya.com & JLPT Online)', () => {
     // Outline icons for each menu item
     expect(html).toContain('lucide-house');
     expect(html).toContain('lucide-file-text');
-    expect(html).toContain('lucide-book-open');
     expect(html).toContain('lucide-chart-no-axes-column');
-    expect(html).toContain('lucide-book-text');
     expect(html).toContain('lucide-notebook-text');
     expect(html).toContain('lucide-ellipsis');
     expect(html).toContain('lucide-chevron-down');
+
+    // "Luyện tập" and "Ngữ pháp" are hidden by default (NEXT_PUBLIC_FEATURE_NAV_*)
+    expect(html).not.toContain('lucide-book-open');
+    expect(html).not.toContain('lucide-book-text');
+    expect(html).not.toContain('href="/luyen-tap"');
+    expect(html).not.toContain('href="/ngu-phap"');
 
     // Default route "/" marks Trang chủ as active with aria-current and brand red pill style
     expect(html).toContain('aria-current="page"');
