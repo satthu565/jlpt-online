@@ -188,8 +188,16 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
     const onPointerDown = (event: PointerEvent) => {
       if (!(event.target instanceof Element) || !event.target.closest(LOOKUP_INSIDE_SELECTOR)) close();
     };
+    // Capture phase: an action notice inside the popup would otherwise swallow Escape.
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') close();
+    };
     document.addEventListener('pointerdown', onPointerDown, true);
-    return () => document.removeEventListener('pointerdown', onPointerDown, true);
+    document.addEventListener('keydown', onKeyDown, true);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true);
+      document.removeEventListener('keydown', onKeyDown, true);
+    };
   }, [isOpen, close]);
 
   useEffect(() => {
@@ -398,7 +406,7 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
         data-testid="selection-lookup-popover"
         data-select-lookup-popover="true"
       >
-        <div role="dialog" aria-label={t('dictionary.lookupTabs')} className="p-2" onKeyDown={(event) => (event.key === 'Escape' ? close() : event.stopPropagation())}>
+        <div role="dialog" aria-label={t('dictionary.lookupTabs')} className="p-2" onKeyDown={(event) => event.stopPropagation()}>
           <Tabs key={queryText} defaultSelectedKey="vocabulary">
             <div className="mb-2 flex items-start justify-between gap-1.5">
               <Tabs.ListContainer className="min-w-0 flex-1">
