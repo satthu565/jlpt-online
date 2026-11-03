@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ArrowLeftRight,
   BookmarkX,
@@ -18,10 +18,7 @@ import {
   Volume2,
   X,
 } from 'lucide-react';
-import { Popover, PopoverAnchor, PopoverContent } from '@jlpt/ui/components/popover';
-import { Alert } from '@jlpt/ui/components/alert';
-import { Skeleton } from '@jlpt/ui/components/skeleton';
-import { Button, Card, Chip, Popover as HeroPopover, Tabs } from '@jlpt/ui/components/exam-controls';
+import { Alert, Button, Card, Chip, Popover as HeroPopover, Skeleton, Tabs } from '@jlpt/ui/components/exam-controls';
 import type { SelectionLookupState } from '../hooks/use-select-lookup';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
@@ -166,17 +163,20 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
   } | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const virtualAnchorRef = useRef<{ getBoundingClientRect: () => DOMRect }>({
-    getBoundingClientRect: () => virtualRect || new DOMRect(0, 0, 0, 0),
-  });
-
-  useEffect(() => {
-    if (virtualRect) {
-      virtualAnchorRef.current = {
-        getBoundingClientRect: () => virtualRect,
-      };
-    }
-  }, [virtualRect]);
+  // HeroUI (react-aria) positions against a real element, so an invisible fixed box is laid over the selection.
+  // It is placed in the ref callback (before the popover measures it) because inline style props are not allowed here.
+  const anchorRef = useRef<HTMLSpanElement | null>(null);
+  const setAnchor = useCallback(
+    (element: HTMLSpanElement | null) => {
+      anchorRef.current = element;
+      if (!element || !virtualRect) return;
+      element.style.left = `${virtualRect.left}px`;
+      element.style.top = `${virtualRect.top}px`;
+      element.style.width = `${virtualRect.width}px`;
+      element.style.height = `${virtualRect.height}px`;
+    },
+    [virtualRect],
+  );
 
   useEffect(() => {
     setIsSaved(false);
@@ -370,301 +370,310 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
   const hasStructuredMeaningSections = meaningSections.some((section) => Boolean(section.summary || section.explanation));
 
   return (
-    <Popover open={isOpen} onOpenChange={(open) => !open && close()}>
-      <PopoverAnchor virtualRef={virtualAnchorRef} />
-      <PopoverContent
-        side="top"
-        align="center"
-        sideOffset={12}
-        collisionPadding={16}
-        onOpenAutoFocus={(event) => event.preventDefault()}
-        onKeyDown={(event) => event.stopPropagation()}
-        className="z-50 w-[30rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border-2 border-[var(--color-primary)] bg-[var(--overlay)] p-2 text-[var(--text-primary)] shadow-[var(--overlay-shadow)]"
+    <>
+      <span ref={setAnchor} aria-hidden="true" className="pointer-events-none invisible fixed" data-testid="selection-lookup-anchor" />
+      <HeroPopover.Content
+        key={`${queryText}:${virtualRect?.left}:${virtualRect?.top}`}
+        triggerRef={anchorRef}
+        isOpen={isOpen}
+        onOpenChange={(open) => !open && close()}
+        placement="top"
+        offset={12}
+        containerPadding={16}
+        isNonModal
+        className="z-50 w-[30rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border-2 border-[var(--color-primary)] bg-[var(--overlay)] p-0 text-[var(--text-primary)] shadow-[var(--overlay-shadow)]"
         data-testid="selection-lookup-popover"
         data-select-lookup-popover="true"
       >
-        <Tabs key={queryText} defaultSelectedKey="vocabulary">
-          <div className="mb-2 flex items-start justify-between gap-1.5">
-            <Tabs.ListContainer className="min-w-0 flex-1">
-              <Tabs.List aria-label={t('dictionary.lookupTabs')}>
-                <Tabs.Tab id="vocabulary" className="text-sm">
-                  {t('dictionary.vocabularyTab')}
-                  <Tabs.Indicator />
-                </Tabs.Tab>
-                <Tabs.Tab id="kanji" className="text-sm">
-                  {t('dictionary.kanjiTab')} ({selectedKanji(queryText).length})
-                  <Tabs.Indicator />
-                </Tabs.Tab>
-              </Tabs.List>
-            </Tabs.ListContainer>
-            <Button isIconOnly variant="ghost" size="sm" aria-label={t('common.buttons.close')} onPress={close} data-testid="lookup-close-btn">
-              <X className="size-5" aria-hidden="true" />
-            </Button>
-          </div>
+        <div role="dialog" aria-label={t('dictionary.lookupTabs')} className="p-2" onKeyDown={(event) => event.stopPropagation()}>
+          <Tabs key={queryText} defaultSelectedKey="vocabulary">
+            <div className="mb-2 flex items-start justify-between gap-1.5">
+              <Tabs.ListContainer className="min-w-0 flex-1">
+                <Tabs.List aria-label={t('dictionary.lookupTabs')}>
+                  <Tabs.Tab id="vocabulary" className="text-sm">
+                    {t('dictionary.vocabularyTab')}
+                    <Tabs.Indicator />
+                  </Tabs.Tab>
+                  <Tabs.Tab id="kanji" className="text-sm">
+                    {t('dictionary.kanjiTab')} ({selectedKanji(queryText).length})
+                    <Tabs.Indicator />
+                  </Tabs.Tab>
+                </Tabs.List>
+              </Tabs.ListContainer>
+              <Button isIconOnly variant="ghost" size="sm" aria-label={t('common.buttons.close')} onPress={close} data-testid="lookup-close-btn">
+                <X className="size-5" aria-hidden="true" />
+              </Button>
+            </div>
 
-          <Tabs.Panel id="vocabulary" className="max-h-96 overflow-y-auto pr-1">
-            {status === 'loading' && (
-              <div data-testid="lookup-loading-skeleton" className="space-y-4">
-                <Skeleton className="h-11 w-48" />
-                <Skeleton className="h-6 w-60" />
-                <Skeleton className="h-24 w-full rounded-2xl" />
-                <Skeleton className="h-36 w-full rounded-2xl" />
-              </div>
-            )}
+            <Tabs.Panel id="vocabulary" className="max-h-96 overflow-y-auto pr-1">
+              {status === 'loading' && (
+                <div data-testid="lookup-loading-skeleton" className="space-y-4">
+                  <Skeleton className="h-11 w-48" />
+                  <Skeleton className="h-6 w-60" />
+                  <Skeleton className="h-24 w-full rounded-2xl" />
+                  <Skeleton className="h-36 w-full rounded-2xl" />
+                </div>
+              )}
 
-            {status === 'not-found' && (
-              <Card data-testid="lookup-not-found">
-                <Card.Content className="space-y-2 py-8 text-center">
-                  <p className="m-0 font-semibold">{t('dictionary.notFoundInDict')}</p>
-                  <p className="m-0 font-japanese text-sm text-[var(--text-muted)]">&quot;{queryText}&quot;</p>
-                </Card.Content>
-              </Card>
-            )}
+              {status === 'not-found' && (
+                <Card data-testid="lookup-not-found">
+                  <Card.Content className="space-y-2 py-8 text-center">
+                    <p className="m-0 font-semibold">{t('dictionary.notFoundInDict')}</p>
+                    <p className="m-0 font-japanese text-sm text-[var(--text-muted)]">&quot;{queryText}&quot;</p>
+                  </Card.Content>
+                </Card>
+              )}
 
-            {status === 'error' && (
-              <div data-testid="lookup-error" className="space-y-3">
-                <Alert variant="error">{error || t('dictionary.networkError')}</Alert>
-                <Button fullWidth variant="outline" onPress={retry} data-testid="lookup-retry-btn">
-                  {t('dictionary.retry')}
-                </Button>
-              </div>
-            )}
+              {status === 'error' && (
+                <div data-testid="lookup-error" className="space-y-3">
+                  <Alert status="danger">
+                    <Alert.Indicator />
+                    <Alert.Content>
+                      <Alert.Description>{error || t('dictionary.networkError')}</Alert.Description>
+                    </Alert.Content>
+                  </Alert>
+                  <Button fullWidth variant="outline" onPress={retry} data-testid="lookup-retry-btn">
+                    {t('dictionary.retry')}
+                  </Button>
+                </div>
+              )}
 
-            {status === 'success' && result && (
-              <div data-testid="lookup-result" className="space-y-2">
-                <div className="space-y-1">
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <h4 data-testid="lookup-entry" className="m-0 font-japanese text-2xl font-extrabold leading-none tracking-tight">
-                      {result.entry}
-                    </h4>
-                    <ButtonNotice
-                      active={actionNotice?.target === 'pronunciation'}
-                      message={actionNotice?.message ?? ''}
-                      tone={actionNotice?.tone ?? 'info'}
-                      closeLabel={t('common.buttons.close')}
-                      onClose={() => setActionNotice(null)}
-                    >
-                      <Button
-                        isIconOnly
-                        size="sm"
-                        variant="primary"
-                        aria-label={t('dictionary.playPronunciation')}
-                        onPress={() => showDevelopmentNotice('pronunciation')}
-                        data-testid="lookup-pronunciation-btn"
+              {status === 'success' && result && (
+                <div data-testid="lookup-result" className="space-y-2">
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <h4 data-testid="lookup-entry" className="m-0 font-japanese text-2xl font-extrabold leading-none tracking-tight">
+                        {result.entry}
+                      </h4>
+                      <ButtonNotice
+                        active={actionNotice?.target === 'pronunciation'}
+                        message={actionNotice?.message ?? ''}
+                        tone={actionNotice?.tone ?? 'info'}
+                        closeLabel={t('common.buttons.close')}
+                        onClose={() => setActionNotice(null)}
                       >
-                        <Volume2 className="size-4" aria-hidden="true" />
-                      </Button>
-                    </ButtonNotice>
-                    {matchedText && matchedText !== result.entry && (
-                      <span data-testid="lookup-matched-form" className="font-japanese text-sm text-[var(--text-muted)]">
-                        ({matchedText} → {result.entry})
-                      </span>
-                    )}
-                    <ButtonNotice
-                      active={actionNotice?.target === 'save'}
-                      message={actionNotice?.message ?? ''}
-                      tone={actionNotice?.tone ?? 'success'}
-                      className="ml-auto shrink-0"
-                      closeLabel={t('common.buttons.close')}
-                      onClose={() => setActionNotice(null)}
-                    >
-                      <Button
-                        size="sm"
-                        variant={isSaved ? 'secondary' : 'outline'}
-                        className={isSaved ? 'border-[var(--color-warning)] bg-[var(--color-warning-light)] text-[var(--color-warning-text)]' : undefined}
-                        onPress={() => void saveWord()}
-                        isDisabled={isSaving || isCheckingSaved}
-                        aria-pressed={isSaved}
-                        data-testid="save-to-notebook-btn"
-                        data-saved={isSaved ? 'true' : 'false'}
+                        <Button
+                          isIconOnly
+                          size="sm"
+                          variant="primary"
+                          aria-label={t('dictionary.playPronunciation')}
+                          onPress={() => showDevelopmentNotice('pronunciation')}
+                          data-testid="lookup-pronunciation-btn"
+                        >
+                          <Volume2 className="size-4" aria-hidden="true" />
+                        </Button>
+                      </ButtonNotice>
+                      {matchedText && matchedText !== result.entry && (
+                        <span data-testid="lookup-matched-form" className="font-japanese text-sm text-[var(--text-muted)]">
+                          ({matchedText} → {result.entry})
+                        </span>
+                      )}
+                      <ButtonNotice
+                        active={actionNotice?.target === 'save'}
+                        message={actionNotice?.message ?? ''}
+                        tone={actionNotice?.tone ?? 'success'}
+                        className="ml-auto shrink-0"
+                        closeLabel={t('common.buttons.close')}
+                        onClose={() => setActionNotice(null)}
                       >
-                        <Star className="size-5" fill={isSaved ? 'currentColor' : 'none'} aria-hidden="true" />
-                        {t(isSaved ? 'dictionary.savedWord' : 'dictionary.saveWord')}
-                      </Button>
-                    </ButtonNotice>
-                  </div>
-                  {result.readings && result.readings.length > 0 && (
-                    <div data-testid="lookup-readings" className="font-japanese text-base font-bold text-blue-600 dark:text-blue-400">
-                      【{result.readings.join('、')}】
+                        <Button
+                          size="sm"
+                          variant={isSaved ? 'secondary' : 'outline'}
+                          className={isSaved ? 'border-[var(--color-warning)] bg-[var(--color-warning-light)] text-[var(--color-warning-text)]' : undefined}
+                          onPress={() => void saveWord()}
+                          isDisabled={isSaving || isCheckingSaved}
+                          aria-pressed={isSaved}
+                          data-testid="save-to-notebook-btn"
+                          data-saved={isSaved ? 'true' : 'false'}
+                        >
+                          <Star className="size-5" fill={isSaved ? 'currentColor' : 'none'} aria-hidden="true" />
+                          {t(isSaved ? 'dictionary.savedWord' : 'dictionary.saveWord')}
+                        </Button>
+                      </ButtonNotice>
                     </div>
-                  )}
-                </div>
+                    {result.readings && result.readings.length > 0 && (
+                      <div data-testid="lookup-readings" className="font-japanese text-base font-bold text-blue-600 dark:text-blue-400">
+                        【{result.readings.join('、')}】
+                      </div>
+                    )}
+                  </div>
 
-                <div className="flex flex-wrap items-center gap-2">
-                  {result.hanViet && (
-                    <Chip color="warning" variant="secondary" size="sm" data-testid="lookup-hanviet">
-                      <Languages className="size-4" aria-hidden="true" />
-                      <Chip.Label className="font-bold">
-                        {result.hanVietConfidence === 'kun' ? `${t('dictionary.hanvietKun')} ${result.hanViet}` : result.hanViet}
-                      </Chip.Label>
-                    </Chip>
-                  )}
-                  {result.posLabels?.map((label) => (
-                    <Chip key={label} variant="soft" size="sm" data-testid="lookup-pos-label">
-                      {label}
-                    </Chip>
-                  ))}
-                  {!result.posLabels?.length && result.partOfSpeech && (
-                    <Chip variant="soft" size="sm" data-testid="lookup-pos-label">
-                      {result.partOfSpeech}
-                    </Chip>
-                  )}
-                  {result.level && (
-                    <Chip color="success" variant="soft" size="sm" data-testid="lookup-level">
-                      {result.level}
-                    </Chip>
-                  )}
-                  {result.hanVietConfidence === 'review' && (
-                    <Chip color="warning" variant="soft" size="sm" data-testid="lookup-hanviet-review">
-                      {t('dictionary.hanvietReview')}
-                    </Chip>
-                  )}
-                </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {result.hanViet && (
+                      <Chip color="warning" variant="secondary" size="sm" data-testid="lookup-hanviet">
+                        <Languages className="size-4" aria-hidden="true" />
+                        <Chip.Label className="font-bold">
+                          {result.hanVietConfidence === 'kun' ? `${t('dictionary.hanvietKun')} ${result.hanViet}` : result.hanViet}
+                        </Chip.Label>
+                      </Chip>
+                    )}
+                    {result.posLabels?.map((label) => (
+                      <Chip key={label} variant="soft" size="sm" data-testid="lookup-pos-label">
+                        {label}
+                      </Chip>
+                    ))}
+                    {!result.posLabels?.length && result.partOfSpeech && (
+                      <Chip variant="soft" size="sm" data-testid="lookup-pos-label">
+                        {result.partOfSpeech}
+                      </Chip>
+                    )}
+                    {result.level && (
+                      <Chip color="success" variant="soft" size="sm" data-testid="lookup-level">
+                        {result.level}
+                      </Chip>
+                    )}
+                    {result.hanVietConfidence === 'review' && (
+                      <Chip color="warning" variant="soft" size="sm" data-testid="lookup-hanviet-review">
+                        {t('dictionary.hanvietReview')}
+                      </Chip>
+                    )}
+                  </div>
 
-                {(hasStructuredMeaningSections || getVisibleLookupMeanings(result.meanings).length > 0) && (
-                  <Card className="rounded-xl border-0 bg-[var(--color-primary-light)] p-1 shadow-none" data-testid="lookup-meanings">
-                    <Card.Content className="gap-2 p-1.5">
-                      {hasStructuredMeaningSections ? (
-                        <StructuredMeaningContent sections={meaningSections} />
+                  {(hasStructuredMeaningSections || getVisibleLookupMeanings(result.meanings).length > 0) && (
+                    <Card className="rounded-xl border-0 bg-[var(--color-primary-light)] p-1 shadow-none" data-testid="lookup-meanings">
+                      <Card.Content className="gap-2 p-1.5">
+                        {hasStructuredMeaningSections ? (
+                          <StructuredMeaningContent sections={meaningSections} />
+                        ) : (
+                          <>
+                            <Card.Title className="m-0 flex items-center gap-1.5 text-sm font-bold leading-tight text-[var(--color-primary)]">
+                              <BookOpen className="size-4" aria-hidden="true" />
+                              {t('dictionary.vietnameseMeaningsTitle')}
+                            </Card.Title>
+                            {result.meanings.length === 1 ? (
+                              <p className="m-0 text-base font-extrabold leading-snug">{result.meanings[0]}</p>
+                            ) : (
+                              <ol className="m-0 list-decimal space-y-1 pl-5 text-sm font-semibold">
+                                {result.meanings.map((meaning) => (
+                                  <li key={meaning}>{meaning}</li>
+                                ))}
+                              </ol>
+                            )}
+                          </>
+                        )}
+                      </Card.Content>
+                    </Card>
+                  )}
+
+                  <Card className="rounded-xl border-0 bg-blue-50 p-1 shadow-none dark:bg-blue-950/30" data-testid="lookup-examples">
+                    <Card.Content className="gap-0.5 p-1.5">
+                      <Card.Title className="m-0 flex items-center gap-1.5 text-sm font-bold leading-tight text-blue-700 dark:text-blue-300">
+                        <MessageCircle className="size-4" aria-hidden="true" />
+                        {t('dictionary.popupExamplesTitle')}
+                      </Card.Title>
+                      {result.examples && result.examples.length > 0 ? (
+                        <ul className="m-0 list-none space-y-2 p-0">
+                          {result.examples.slice(0, 2).map((example, index) => (
+                            <li key={`${example}-${index}`} className="space-y-2">
+                              {index > 0 && <div className="h-px bg-[var(--border-subtle)]" aria-hidden="true" />}
+                              <div className="flex items-start justify-between gap-2">
+                                <p lang="ja" className="m-0 flex-1 font-japanese text-sm leading-relaxed">
+                                  {example}
+                                </p>
+                                <div className="flex shrink-0 gap-1">
+                                  <Button
+                                    isIconOnly
+                                    variant="outline"
+                                    aria-label={t('dictionary.playPronunciation')}
+                                    isDisabled={audioText !== null}
+                                    onPress={() => void playPronunciation(example)}
+                                  >
+                                    <Volume2 className="size-5" aria-hidden="true" />
+                                  </Button>
+                                  <Button isIconOnly variant="outline" aria-label={t('dictionary.copyExample')} onPress={() => void copyExample(example)}>
+                                    <Copy className="size-5" aria-hidden="true" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
                       ) : (
-                        <>
-                          <Card.Title className="m-0 flex items-center gap-1.5 text-sm font-bold leading-tight text-[var(--color-primary)]">
-                            <BookOpen className="size-4" aria-hidden="true" />
-                            {t('dictionary.vietnameseMeaningsTitle')}
-                          </Card.Title>
-                          {result.meanings.length === 1 ? (
-                            <p className="m-0 text-base font-extrabold leading-snug">{result.meanings[0]}</p>
-                          ) : (
-                            <ol className="m-0 list-decimal space-y-1 pl-5 text-sm font-semibold">
-                              {result.meanings.map((meaning) => (
-                                <li key={meaning}>{meaning}</li>
-                              ))}
-                            </ol>
-                          )}
-                        </>
+                        <p className="m-0 text-sm text-[var(--text-muted)]">{t('dictionary.noPopupExamples')}</p>
                       )}
                     </Card.Content>
                   </Card>
-                )}
 
-                <Card className="rounded-xl border-0 bg-blue-50 p-1 shadow-none dark:bg-blue-950/30" data-testid="lookup-examples">
-                  <Card.Content className="gap-0.5 p-1.5">
-                    <Card.Title className="m-0 flex items-center gap-1.5 text-sm font-bold leading-tight text-blue-700 dark:text-blue-300">
-                      <MessageCircle className="size-4" aria-hidden="true" />
-                      {t('dictionary.popupExamplesTitle')}
-                    </Card.Title>
-                    {result.examples && result.examples.length > 0 ? (
-                      <ul className="m-0 list-none space-y-2 p-0">
-                        {result.examples.slice(0, 2).map((example, index) => (
-                          <li key={`${example}-${index}`} className="space-y-2">
-                            {index > 0 && <div className="h-px bg-[var(--border-subtle)]" aria-hidden="true" />}
-                            <div className="flex items-start justify-between gap-2">
-                              <p lang="ja" className="m-0 flex-1 font-japanese text-sm leading-relaxed">
-                                {example}
-                              </p>
-                              <div className="flex shrink-0 gap-1">
-                                <Button
-                                  isIconOnly
-                                  variant="outline"
-                                  aria-label={t('dictionary.playPronunciation')}
-                                  isDisabled={audioText !== null}
-                                  onPress={() => void playPronunciation(example)}
-                                >
-                                  <Volume2 className="size-5" aria-hidden="true" />
-                                </Button>
-                                <Button isIconOnly variant="outline" aria-label={t('dictionary.copyExample')} onPress={() => void copyExample(example)}>
-                                  <Copy className="size-5" aria-hidden="true" />
-                                </Button>
-                              </div>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="m-0 text-sm text-[var(--text-muted)]">{t('dictionary.noPopupExamples')}</p>
-                    )}
-                  </Card.Content>
-                </Card>
-
-                <div className="sticky bottom-0 z-10 grid grid-cols-4 gap-1 border-t border-[var(--border-subtle)] bg-[var(--overlay)] py-1.5">
-                  <Button
-                    fullWidth
-                    variant="primary"
-                    size="sm"
-                    className="min-w-0 px-1 text-[11px] font-semibold"
-                    onPress={openDetails}
-                    data-testid="lookup-details-btn"
-                  >
-                    <Search className="size-4 shrink-0" aria-hidden="true" />
-                    {t('dictionary.viewDetails')}
-                  </Button>
-                  <ButtonNotice
-                    active={actionNotice?.target === 'synonyms'}
-                    message={actionNotice?.message ?? ''}
-                    tone={actionNotice?.tone ?? 'info'}
-                    className="w-full"
-                    closeLabel={t('common.buttons.close')}
-                    onClose={() => setActionNotice(null)}
-                  >
+                  <div className="sticky bottom-0 z-10 grid grid-cols-4 gap-1 border-t border-[var(--border-subtle)] bg-[var(--overlay)] py-1.5">
                     <Button
                       fullWidth
-                      variant="secondary"
+                      variant="primary"
                       size="sm"
                       className="min-w-0 px-1 text-[11px] font-semibold"
-                      onPress={() => showDevelopmentNotice('synonyms')}
+                      onPress={openDetails}
+                      data-testid="lookup-details-btn"
                     >
-                      <BookCopy className="size-4 shrink-0" aria-hidden="true" />
-                      {t('dictionary.synonyms')}
+                      <Search className="size-4 shrink-0" aria-hidden="true" />
+                      {t('dictionary.viewDetails')}
                     </Button>
-                  </ButtonNotice>
-                  <ButtonNotice
-                    active={actionNotice?.target === 'antonyms'}
-                    message={actionNotice?.message ?? ''}
-                    tone={actionNotice?.tone ?? 'info'}
-                    className="w-full"
-                    closeLabel={t('common.buttons.close')}
-                    onClose={() => setActionNotice(null)}
-                  >
-                    <Button
-                      fullWidth
-                      variant="secondary"
-                      size="sm"
-                      className="min-w-0 px-1 text-[11px] font-semibold"
-                      onPress={() => showDevelopmentNotice('antonyms')}
+                    <ButtonNotice
+                      active={actionNotice?.target === 'synonyms'}
+                      message={actionNotice?.message ?? ''}
+                      tone={actionNotice?.tone ?? 'info'}
+                      className="w-full"
+                      closeLabel={t('common.buttons.close')}
+                      onClose={() => setActionNotice(null)}
                     >
-                      <ArrowLeftRight className="size-4 shrink-0" aria-hidden="true" />
-                      {t('dictionary.antonyms')}
-                    </Button>
-                  </ButtonNotice>
-                  <ButtonNotice
-                    active={actionNotice?.target === 'otherExamples'}
-                    message={actionNotice?.message ?? ''}
-                    tone={actionNotice?.tone ?? 'info'}
-                    className="w-full"
-                    closeLabel={t('common.buttons.close')}
-                    onClose={() => setActionNotice(null)}
-                  >
-                    <Button
-                      fullWidth
-                      variant="secondary"
-                      size="sm"
-                      className="min-w-0 px-1 text-[11px] font-semibold"
-                      onPress={() => showDevelopmentNotice('otherExamples')}
+                      <Button
+                        fullWidth
+                        variant="secondary"
+                        size="sm"
+                        className="min-w-0 px-1 text-[11px] font-semibold"
+                        onPress={() => showDevelopmentNotice('synonyms')}
+                      >
+                        <BookCopy className="size-4 shrink-0" aria-hidden="true" />
+                        {t('dictionary.synonyms')}
+                      </Button>
+                    </ButtonNotice>
+                    <ButtonNotice
+                      active={actionNotice?.target === 'antonyms'}
+                      message={actionNotice?.message ?? ''}
+                      tone={actionNotice?.tone ?? 'info'}
+                      className="w-full"
+                      closeLabel={t('common.buttons.close')}
+                      onClose={() => setActionNotice(null)}
                     >
-                      <NotebookTabs className="size-4 shrink-0" aria-hidden="true" />
-                      {t('dictionary.otherExamples')}
-                    </Button>
-                  </ButtonNotice>
+                      <Button
+                        fullWidth
+                        variant="secondary"
+                        size="sm"
+                        className="min-w-0 px-1 text-[11px] font-semibold"
+                        onPress={() => showDevelopmentNotice('antonyms')}
+                      >
+                        <ArrowLeftRight className="size-4 shrink-0" aria-hidden="true" />
+                        {t('dictionary.antonyms')}
+                      </Button>
+                    </ButtonNotice>
+                    <ButtonNotice
+                      active={actionNotice?.target === 'otherExamples'}
+                      message={actionNotice?.message ?? ''}
+                      tone={actionNotice?.tone ?? 'info'}
+                      className="w-full"
+                      closeLabel={t('common.buttons.close')}
+                      onClose={() => setActionNotice(null)}
+                    >
+                      <Button
+                        fullWidth
+                        variant="secondary"
+                        size="sm"
+                        className="min-w-0 px-1 text-[11px] font-semibold"
+                        onPress={() => showDevelopmentNotice('otherExamples')}
+                      >
+                        <NotebookTabs className="size-4 shrink-0" aria-hidden="true" />
+                        {t('dictionary.otherExamples')}
+                      </Button>
+                    </ButtonNotice>
+                  </div>
                 </div>
-              </div>
-            )}
-          </Tabs.Panel>
+              )}
+            </Tabs.Panel>
 
-          <Tabs.Panel id="kanji" className="max-h-96 overflow-y-auto pr-1">
-            <SelectionKanjiPanel text={queryText} breakdown={status === 'success' ? result?.hanVietPerKanji : undefined} />
-          </Tabs.Panel>
-        </Tabs>
-      </PopoverContent>
-    </Popover>
+            <Tabs.Panel id="kanji" className="max-h-96 overflow-y-auto pr-1">
+              <SelectionKanjiPanel text={queryText} breakdown={status === 'success' ? result?.hanVietPerKanji : undefined} />
+            </Tabs.Panel>
+          </Tabs>
+        </div>
+      </HeroPopover.Content>
+    </>
   );
 }
