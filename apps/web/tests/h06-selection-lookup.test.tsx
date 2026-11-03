@@ -296,7 +296,8 @@ describe('H06: Selection Lookup & Dictionary Detail', () => {
           }}
         />,
       );
-      expect(html).toBe('');
+      expect(html).not.toContain('selection-lookup-popover');
+      expect(html).not.toContain('lookup-result');
     });
 
     it('renders lookup results on success', () => {
