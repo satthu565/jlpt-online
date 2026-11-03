@@ -39,13 +39,13 @@ export function PaperAnswerSheet(props: PaperAnswerSheetProps): React.JSX.Elemen
         <div><Card.Title className="text-base font-bold sm:text-lg">{t('paperExam.questionList')}</Card.Title><Card.Description className="text-xs sm:text-sm">{t('paperExam.paletteHint')}</Card.Description></div>
       </div>
       <div className="paper-palette-summary">
-        <ProgressCircle value={answered} maxValue={Math.max(1, total)} aria-label={progressLabel} className="paper-palette-circle" data-testid="palette-progress-circle">
+        <ProgressCircle color="success" value={answered} maxValue={Math.max(1, total)} aria-label={progressLabel} className="paper-palette-circle" data-testid="palette-progress-circle">
           <ProgressCircle.Track className="paper-palette-circle-track"><ProgressCircle.TrackCircle /><ProgressCircle.FillCircle /></ProgressCircle.Track>
           <strong className="paper-palette-percent" aria-hidden="true">{percent}%</strong>
         </ProgressCircle>
         <span className="paper-palette-count">{t('paperExam.paletteCount', { done: answered, total })}</span>
       </div>
-      <ProgressBar value={answered} maxValue={Math.max(1, total)} aria-label={progressLabel} aria-hidden="true" className="paper-palette-bar"><ProgressBar.Track><ProgressBar.Fill /></ProgressBar.Track></ProgressBar>
+      <ProgressBar color="success" value={answered} maxValue={Math.max(1, total)} aria-label={progressLabel} aria-hidden="true" className="paper-palette-bar"><ProgressBar.Track><ProgressBar.Fill /></ProgressBar.Track></ProgressBar>
     </Card.Header>
     <Card.Content className="paper-palette-content">
       <Tabs selectedKey={filter} onSelectionChange={key => { if (key === 'all' || key === 'answered' || key === 'blank') setFilter(key); }}>
