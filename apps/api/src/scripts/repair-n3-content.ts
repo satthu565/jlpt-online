@@ -45,7 +45,7 @@ function imageKeys(v: Json): string[] {
   }
   return [];
 }
-async function resolve(sql: DbClientInstance['rawClient'], plan: Plan): Promise<Target[]> {
+export async function resolve(sql: DbClientInstance['rawClient'], plan: Plan): Promise<Target[]> {
   const targets: Target[] = [];
   const groups = new Map<string, Patch[]>();
   for (const patch of plan.patches) {
@@ -78,7 +78,7 @@ async function resolve(sql: DbClientInstance['rawClient'], plan: Plan): Promise<
   }
   return targets;
 }
-async function needsPublish(sql: DbClientInstance['rawClient'], examId: string): Promise<boolean> {
+export async function needsPublish(sql: DbClientInstance['rawClient'], examId: string): Promise<boolean> {
   const [row] = await sql`
     select exists (select 1 from exam_items ei join questions q on q.id=ei.question_id
       join lateral (select created_at from question_group_versions gv where gv.group_id=q.group_id order by version desc limit 1) gv on true
@@ -87,7 +87,7 @@ async function needsPublish(sql: DbClientInstance['rawClient'], examId: string):
   `;
   return row.needed;
 }
-async function version(sql: DbClientInstance['rawClient'], targets: Target[], auditId: string): Promise<number> {
+export async function version(sql: DbClientInstance['rawClient'], targets: Target[], auditId: string): Promise<number> {
   const [editor] = await sql`select id from users where role='editor' and blocked_at is null`;
   const [reviewer] = await sql`select id from users where role='reviewer' and blocked_at is null`;
   const [admin] = await sql`select id from users where role='admin' and blocked_at is null`;
