@@ -223,10 +223,6 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
     [],
   );
 
-  if (!isOpen) {
-    return null;
-  }
-
   const playPronunciation = async (text: string) => {
     setAudioText(text);
     try {
