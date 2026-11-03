@@ -98,7 +98,8 @@ export function NavigationHeader(): React.JSX.Element {
       : []),
   ];
 
-  if (user) {
+  // Flat mode would overflow the header with these two; the account menu already links to both.
+  if (user && FEATURES.navMoreDropdown) {
     moreItems.push({ label: t('common.nav.examHistory'), href: '/lich-su', icon: History, active: isRouteActive('/lich-su', pathname) });
     moreItems.push({ label: t('common.nav.analytics'), href: '/thong-ke', icon: BarChart3, active: isRouteActive('/thong-ke', pathname) });
   }
