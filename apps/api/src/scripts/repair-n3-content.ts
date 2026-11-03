@@ -150,8 +150,8 @@ async function version(sql: DbClientInstance['rawClient'], targets: Target[], au
 export async function runN3ContentRepair(argv = process.argv.slice(2)): Promise<void> {
   const planPath = process.env.N3_REPAIR_PLAN;
   if (!planPath) throw new Error('N3_REPAIR_PLAN required');
-  const planBuffer = await readFile(planPath);
-  if (crypto.createHash('sha256').update(planBuffer).digest('hex') !== '19a6190a484d45bfb3da525024f2c15f079024f36d56a66146dc841abf840486') throw new Error('Manifest integrity failure');
+  const planBuffer = (await readFile(planPath, 'utf8')).replace(/\r\n/g, '\n');
+  if (crypto.createHash('sha256').update(planBuffer).digest('hex') !== '89e305139b0c98907f6d455aa68793c64f9c7c74b90fc345db3a5a81e7885d20') throw new Error('Manifest integrity failure');
   const plan = JSON.parse(planBuffer.toString('utf8')) as Plan;
   if (plan.auditId !== 'n3-content-repair-2026-11-03' || plan.patches.length !== 84 || plan.images.length !== 17) throw new Error('Unexpected repair manifest');
   const buffers = new Map<string, Buffer>();
