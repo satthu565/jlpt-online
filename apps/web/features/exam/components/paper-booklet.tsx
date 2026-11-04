@@ -99,13 +99,23 @@ export function PaperBooklet(props: PaperBookletProps): React.JSX.Element {
                     <span className="paper-option-number" aria-hidden="true">{option.label}</span>
                     <span
                       className="paper-option-text"
+                      onPointerDown={(event) => {
+                        event.stopPropagation();
+                      }}
+                      onMouseDown={(event) => {
+                        event.stopPropagation();
+                      }}
                       onClick={(event: React.MouseEvent<HTMLSpanElement>) => {
                         if (typeof window !== 'undefined') {
                           const selection = window.getSelection();
                           if (selection && !selection.isCollapsed && (selection.toString() || '').trim().length > 0) {
                             event.preventDefault();
                             event.stopPropagation();
+                            return;
                           }
+                        }
+                        if (!isDisabled) {
+                          props.onAnswer(qIndex, optionIndex + 1);
                         }
                       }}
                     >
