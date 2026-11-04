@@ -73,8 +73,48 @@ export function PaperBooklet(props: PaperBookletProps): React.JSX.Element {
               <Button size="sm" variant="ghost" onClick={() => props.onOpenPassage(passageOwner)}><BookOpen className="size-4" aria-hidden="true" />{t('paperExam.readPassage')}</Button>
             </div>}
             <div className="paper-stem items-start" lang="ja"><span className="paper-number self-start">{number}</span><MarkedText id={question.questionId} segments={question.stem} marks={props.workspace.marks[question.questionId] ?? []} onMark={props.onMark} onClear={props.onClearMarks} showFurigana={props.showFurigana} disabled={isDisabled} /></div>
-            <RadioGroup variant="secondary" className="paper-options" aria-label={t('paperExam.options', { number })} value={String(props.answers[qIndex] || '')} isDisabled={isDisabled} onChange={(value) => props.onAnswer(qIndex, Number(value))}>
-              {question.options.map((option, optionIndex) => <Radio key={optionIndex} value={String(optionIndex + 1)}><Radio.Content className="paper-option-card" aria-label={t('paperExam.selectAnswer', { number, option: option.label })}><Radio.Control className="paper-option-native-control"><Radio.Indicator /></Radio.Control><span className="paper-option-number" aria-hidden="true">{option.label}</span><span className="paper-option-text"><ExamText segments={option.content} showFurigana={props.showFurigana} /></span><Check className="paper-option-check" aria-hidden="true" /></Radio.Content></Radio>)}
+            <RadioGroup
+              variant="secondary"
+              className="paper-options"
+              aria-label={t('paperExam.options', { number })}
+              value={String(props.answers[qIndex] || '')}
+              isDisabled={isDisabled}
+              onChange={(value) => {
+                if (typeof window !== 'undefined') {
+                  const selection = window.getSelection();
+                  if (selection && !selection.isCollapsed && (selection.toString() || '').trim().length > 0) {
+                    return;
+                  }
+                }
+                props.onAnswer(qIndex, Number(value));
+              }}
+            >
+              {question.options.map((option, optionIndex) => (
+                <Radio key={optionIndex} value={String(optionIndex + 1)}>
+                  <Radio.Content
+                    className="paper-option-card"
+                    aria-label={t('paperExam.selectAnswer', { number, option: option.label })}
+                  >
+                    <Radio.Control className="paper-option-native-control"><Radio.Indicator /></Radio.Control>
+                    <span className="paper-option-number" aria-hidden="true">{option.label}</span>
+                    <span
+                      className="paper-option-text"
+                      onClick={(event: React.MouseEvent<HTMLSpanElement>) => {
+                        if (typeof window !== 'undefined') {
+                          const selection = window.getSelection();
+                          if (selection && !selection.isCollapsed && (selection.toString() || '').trim().length > 0) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                          }
+                        }
+                      }}
+                    >
+                      <ExamText segments={option.content} showFurigana={props.showFurigana} />
+                    </span>
+                    <Check className="paper-option-check" aria-hidden="true" />
+                  </Radio.Content>
+                </Radio>
+              ))}
             </RadioGroup>
             <div className="paper-question-footer">
               <Button size="sm" variant="secondary" className="paper-question-action paper-question-clear" disabled={isDisabled || !props.answers[qIndex]} onClick={() => props.onAnswer(qIndex, 0)} aria-label={t('paperExam.eraseQuestion', { number })}><Eraser className="size-5" aria-hidden="true" />{t('paperExam.erase')}</Button>
