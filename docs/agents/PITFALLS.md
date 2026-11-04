@@ -106,3 +106,12 @@ Triệu chứng: tạo lượt làm bằng request không có Origin được, n
 | Worker `agy` chết sau chưa đầy 2 phút, file `.exit` rỗng, `.log` trống | Đĩa `/` của VM đầy | `df -h /` trước khi giao việc; dọn `node_modules` của clone cũ và `docker builder prune -af`. |
 | Lệnh bash bị hỏi quyền dù đã cho phép `ssh jlpt-vm *` | Cài đặt người dùng có quy tắc `ask` cho `*rm -rf*`, `*schtasks*`, `*DROP TABLE*`; `ask` thắng `allow` | Giữ quy tắc. Xóa từng đường dẫn cụ thể thay vì `rm -rf` trên thư mục chung (đã từng lỡ xóa `~/.cache` làm mất trình duyệt Playwright). |
 | Script postgres.js lỗi `The "string" argument must be of type string... Received an Object` khi ghi JSONB | Truyền object helper lồng trực tiếp vào template của transaction trong môi trường runtime hiện tại | Dùng `JSON.stringify(value)` rồi ép `::jsonb`; chạy dry-run, backup và transaction trước khi xuất bản phiên bản đề mới. |
+
+## Sửa nội dung hàng loạt qua API
+
+| Triệu chứng | Nguyên nhân | Cách đúng |
+|---|---|---|
+| Script đọc hàng trăm nhóm bị `429 RATE_LIMITED` | Guard mặc định giới hạn 120 request/phút theo IP | Giãn tối thiểu khoảng 650 ms/request và đọc `details.retryAfterSec` để chờ đúng cửa sổ; không tắt guard. |
+| API bắt đầu trả `403` TOTP hết hạn giữa một batch dài | Script tái sử dụng mã TOTP sáu số quá 30 giây | Giữ secret trong env bảo vệ và tạo mã TOTP mới cho từng request; không ghi secret/token vào log hoặc dòng lệnh. |
+| Hậu kiểm báo chuỗi cũ vẫn còn dù sửa thành công | Chuỗi cũ là tiền tố của chuỗi mới, ví dụ `いつの間に` trong `いつの間にか` | Xác minh chuỗi đích trong đúng trường dữ liệu và precondition/hash trước khi sửa; không tìm chuỗi cũ trên toàn response. |
+| Export hàng loạt qua pipeline chỉ xử lý slug đầu tiên | `docker exec -i` trong script con đọc luôn stdin của vòng `while` | Dùng process substitution cho danh sách và chuyển stdin của script con từ `/dev/null`. |
