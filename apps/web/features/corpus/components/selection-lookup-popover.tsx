@@ -356,7 +356,7 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
   const hasStructuredMeaningSections = meaningSections.some((section) => Boolean(section.summary || section.explanation));
 
   return (
-    <HeroPopover isOpen={isOpen} onOpenChange={(open) => !open && close()}>
+    <HeroPopover isOpen={isOpen} isNonModal onOpenChange={(open) => !open && close()}>
       <HeroPopover.Trigger ref={setAnchor} aria-hidden="true" tabIndex={-1} className="pointer-events-none invisible fixed" data-testid="selection-lookup-anchor" />
       <HeroPopover.Content data-testid="selection-lookup-popover" data-select-lookup-popover="true">
         <HeroPopover.Arrow>
