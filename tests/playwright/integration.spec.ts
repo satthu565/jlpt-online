@@ -765,8 +765,22 @@ test.describe('Student Web Pages Real Integration & Responsive Suite (I06)', () 
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': nbIp, 'cf-connecting-ip': nbIp });
 
     // Ensure no page.route or client-side fetch mocking is registered
+    // Khách chỉ thấy trạng thái trống, không có thanh điều khiển/nút thêm
     await page.goto('/so-tay', { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(600);
+    await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="add-item-button"]')).toHaveCount(0);
+
+    // Đăng nhập học viên để dùng sổ tay cá nhân
+    const studentUser = SEEDED_STAFF_ACCOUNTS.student;
+    await page.goto('/dang-nhap', { waitUntil: 'domcontentloaded' });
+    await page.locator('#login-email, input[type="email"]').fill(studentUser.email);
+    await page.locator('#login-password, input[type="password"]').fill(studentUser.password);
+    await Promise.all([
+      page.waitForResponse((res) => res.url().includes('/auth/sign-in/email') && res.status() === 200),
+      page.locator('button[type="submit"]').click(),
+    ]);
+    await page.waitForURL(/\/tai-khoan/, { timeout: 15000, waitUntil: 'commit' });
+    await page.goto('/so-tay', { waitUntil: 'domcontentloaded' });
 
     // Open add item modal
     const addBtn = page.locator('[data-testid="add-item-button"]').first();
