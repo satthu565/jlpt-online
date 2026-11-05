@@ -10,6 +10,7 @@ import {
 } from '../../../features/planner';
 import { ExamHero } from '../../../features/library';
 import { useI18n } from '../../../lib/i18n';
+import { useAuth } from '../../../lib/auth-context';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Button } from '@jlpt/ui/components/button';
 import { Spinner } from '@jlpt/ui/components/spinner';
@@ -17,6 +18,7 @@ import Link from 'next/link';
 
 export default function PlannerPage(): React.JSX.Element {
   const { t } = useI18n();
+  const { user } = useAuth();
 
   const [plan, setPlan] = useState<StudyPlan | null>(null);
   const [todaySession, setTodaySession] = useState<StudySession | null>(null);
@@ -60,11 +62,30 @@ export default function PlannerPage(): React.JSX.Element {
 
   const handleCreatePlan = async (input: CreateStudyPlanInput) => {
     setError(null);
+    if (!user) {
+      if (typeof window !== 'undefined') {
+        window.location.assign('/dang-nhap?redirect=/ke-hoach');
+      }
+      return;
+    }
     try {
       const created = await defaultPlannerClient.createStudyPlan(input);
       setPlan(created);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
+      if (
+        msg.includes('401') ||
+        msg.includes('403') ||
+        msg.includes('UNAUTHENTICATED') ||
+        msg.includes('Yêu cầu đăng nhập') ||
+        msg.includes('Authentication required')
+      ) {
+        setIsUnauthorized(true);
+        if (typeof window !== 'undefined') {
+          window.location.assign('/dang-nhap?redirect=/ke-hoach');
+        }
+        return;
+      }
       setError(msg || 'Không thể tạo kế hoạch học tập.');
       throw err;
     }
