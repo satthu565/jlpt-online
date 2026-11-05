@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, CheckCircle2, Download, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
+import { Check, CheckCircle2, ChevronDown, ChevronUp, Download, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
@@ -19,6 +19,38 @@ import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import { FEATURES } from '../../../lib/features';
 import { cleanStemText } from '../../corpus';
+
+function escapeRegExp(string: string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export function HighlightText({ text, highlight }: { text?: string; highlight?: string }): React.JSX.Element {
+  if (!text) return <></>;
+  if (!highlight || highlight.trim().length === 0) return <>{text}</>;
+  const cleanTerm = highlight.trim().replace(/^[〜~]/, '').replace(/[〜~]$/, '').trim();
+  if (cleanTerm.length === 0) return <>{text}</>;
+
+  const escaped = escapeRegExp(cleanTerm);
+  const regex = new RegExp(`(${escaped})`, 'gi');
+  const parts = text.split(regex);
+
+  return (
+    <>
+      {parts.map((part, idx) =>
+        part.toLowerCase() === cleanTerm.toLowerCase() ? (
+          <mark
+            key={idx}
+            className="bg-amber-200 text-amber-950 dark:bg-amber-400 dark:text-amber-950 px-1 py-0.5 rounded font-bold shadow-sm inline-block leading-tight"
+          >
+            {part}
+          </mark>
+        ) : (
+          <React.Fragment key={idx}>{part}</React.Fragment>
+        )
+      )}
+    </>
+  );
+}
 
 export function getUserVisibleTags(tags?: string[]): string[] {
   if (!tags || !Array.isArray(tags)) return [];
@@ -89,6 +121,13 @@ export function NotebookView({
   const [activeItemForExamples, setActiveItemForExamples] = useState<NotebookItem | null>(null);
   const [examplesList, setExamplesList] = useState<QuestionExample[]>([]);
   const [examplesLoading, setExamplesLoading] = useState(false);
+  const [expandedQuestions, setExpandedQuestions] = useState<Record<string, boolean>>({});
+  const toggleExpandQuestion = (key: string) => {
+    setExpandedQuestions((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
   // Filter items
   const filteredItems = items.filter((item) => {
@@ -571,12 +610,104 @@ export function NotebookView({
                       </div>
                       {eg.passage && (
                         <p className="text-sm text-[var(--text-muted)] mb-2">
-                          {eg.passage}
+                          <HighlightText text={eg.passage} highlight={activeItemForExamples.term} />
                         </p>
                       )}
                       <p className="m-0 text-base font-japanese text-[var(--text-primary)] leading-relaxed font-medium">
-                        {cleanStemText(eg.stem)}
+                        <HighlightText text={cleanStemText(eg.stem)} highlight={activeItemForExamples.term} />
                       </p>
+
+                      {((eg.options && eg.options.length > 0) || Boolean(eg.explanationText) || Boolean(eg.correctOptionIndex)) && (() => {
+                        const qKey = eg.questionId || String(idx);
+                        const isExpanded = Boolean(expandedQuestions[qKey]);
+                        return (
+                          <div className="mt-3 pt-3 border-t border-[var(--border-subtle)] flex flex-col gap-2.5">
+                            <div className="flex items-center justify-between">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => toggleExpandQuestion(qKey)}
+                                className="text-xs font-medium flex items-center gap-1.5 py-1 px-2.5 rounded-md hover:bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                                aria-expanded={isExpanded}
+                              >
+                                {isExpanded ? (
+                                  <>
+                                    <ChevronUp className="size-3.5 text-[var(--text-muted)]" aria-hidden="true" />
+                                    <span>Thu gọn đáp án & giải thích</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <ChevronDown className="size-3.5 text-[var(--text-muted)]" aria-hidden="true" />
+                                    <span>Xem đáp án & giải thích</span>
+                                  </>
+                                )}
+                              </Button>
+
+                              {isExpanded && eg.correctOptionIndex && (
+                                <Badge variant="success">
+                                  Đáp án đúng: Câu {eg.correctOptionIndex}
+                                </Badge>
+                              )}
+                            </div>
+
+                            {isExpanded && (
+                              <div className="flex flex-col gap-3 mt-1 pt-1 animate-in fade-in duration-200">
+                                {/* Options grid */}
+                                {eg.options && eg.options.length > 0 && (
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    {eg.options.map((opt) => {
+                                      const isCorrect = opt.orderIndex === eg.correctOptionIndex;
+                                      return (
+                                        <div
+                                          key={opt.orderIndex}
+                                          className={`flex items-center gap-2.5 p-2.5 rounded-lg border text-sm transition-all ${
+                                            isCorrect
+                                              ? 'bg-emerald-50 text-emerald-950 border-emerald-300 font-medium dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-700'
+                                              : 'bg-[var(--bg-subtle)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
+                                          }`}
+                                        >
+                                          <span
+                                            className={`size-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                                              isCorrect
+                                                ? 'bg-emerald-600 text-white'
+                                                : 'bg-[var(--bg-muted)] text-[var(--text-muted)]'
+                                            }`}
+                                          >
+                                            {opt.orderIndex}
+                                          </span>
+                                          <span className="font-japanese text-base leading-snug">
+                                            <HighlightText text={opt.text} highlight={activeItemForExamples.term} />
+                                          </span>
+                                          {isCorrect && (
+                                            <span className="ml-auto text-xs font-semibold text-emerald-700 dark:text-emerald-300 flex items-center gap-0.5 shrink-0">
+                                              <Check className="size-3.5" aria-hidden="true" />
+                                              Đúng
+                                            </span>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+
+                                {/* Explanation block */}
+                                {eg.explanationText && (
+                                  <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] space-y-1.5 leading-relaxed">
+                                    <div className="font-semibold text-[var(--text-primary)] flex items-center gap-1.5 mb-1 text-xs">
+                                      <Lightbulb className="size-3.5 text-amber-500 shrink-0" aria-hidden="true" />
+                                      Giải thích chi tiết:
+                                    </div>
+                                    <div className="whitespace-pre-line text-xs font-normal text-[var(--text-primary)]">
+                                      <HighlightText text={eg.explanationText} highlight={activeItemForExamples.term} />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   );
                 })}
@@ -584,7 +715,7 @@ export function NotebookView({
             )}
 
             <div className="flex justify-end mt-6">
-              <Button variant="outline" onClick={() => setActiveItemForExamples(null)}>
+              <Button variant="outline" onClick={() => { setActiveItemForExamples(null); setExpandedQuestions({}); }}>
                 {t('common.buttons.close')}
               </Button>
             </div>

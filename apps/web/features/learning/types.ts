@@ -54,6 +54,11 @@ export interface UpdateNotebookItemInput {
   expectedVersion?: number;
 }
 
+export interface QuestionOptionDto {
+  orderIndex: number;
+  text: string;
+}
+
 export interface QuestionExample {
   questionId: string;
   level: string;
@@ -65,6 +70,9 @@ export interface QuestionExample {
   examTitle?: string;
   questionNumber?: number | string;
   examId?: string;
+  options?: QuestionOptionDto[];
+  correctOptionIndex?: number;
+  explanationText?: string;
 }
 
 export interface DueFlashcard {

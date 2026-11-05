@@ -168,6 +168,11 @@ export interface TTSResponseDto {
   };
 }
 
+export interface QuestionOptionDto {
+  orderIndex: number;
+  text: string;
+}
+
 export interface QuestionExampleDto {
   questionId: string;
   level: string;
@@ -179,4 +184,7 @@ export interface QuestionExampleDto {
   examTitle?: string;
   questionNumber?: number | string;
   examId?: string;
+  options?: QuestionOptionDto[];
+  correctOptionIndex?: number;
+  explanationText?: string;
 }

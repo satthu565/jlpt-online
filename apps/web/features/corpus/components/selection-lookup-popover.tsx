@@ -37,6 +37,9 @@ export interface SelectionLookupContext {
   examTitle?: string;
   questionNumber?: number | string;
   sentence?: string;
+  options?: { orderIndex: number; text: string }[];
+  correctOptionIndex?: number;
+  explanationText?: string;
 }
 
 export interface SelectionLookupPopoverProps {
@@ -325,6 +328,17 @@ export function SelectionLookupPopover({ state, openInNewTab = true, context }: 
         tagsToAdd.push(`source_sentence:${context.sentence}`);
         const refSuffix = context.examTitle ? ` (Đề thi ${context.examTitle}${context.questionNumber ? ` - Câu ${context.questionNumber}` : ''})` : '';
         examplesToAdd.push(`${context.sentence}${refSuffix}`);
+      }
+      if (context?.options && context.options.length > 0) {
+        context.options.forEach((opt) => {
+          tagsToAdd.push(`source_opt_${opt.orderIndex}:${opt.text}`);
+        });
+      }
+      if (context?.correctOptionIndex) {
+        tagsToAdd.push(`source_answer:${context.correctOptionIndex}`);
+      }
+      if (context?.explanationText) {
+        tagsToAdd.push(`source_expl:${context.explanationText}`);
       }
 
       await defaultLearningClient.createNotebookItem({

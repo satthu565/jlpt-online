@@ -719,6 +719,10 @@ export function ExamRoom({
           examTitle: snapshot.title,
           questionNumber: currentQ?.number || currentQuestionIndex + 1,
           sentence: currentQ?.stem ? richTextToPlainText(currentQ.stem) : undefined,
+          options: currentQ?.options?.map((opt, idx) => ({
+            orderIndex: idx + 1,
+            text: richTextToPlainText(opt.content),
+          })),
         }}
       />
     </div>

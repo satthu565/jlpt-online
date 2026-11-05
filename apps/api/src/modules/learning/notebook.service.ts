@@ -8,17 +8,18 @@ import {
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
-import { exams, examItems, notebookItems, questions, questionVersions } from '../../db/schema.js';
+import { answerOptions, exams, examItems, notebookItems, questions, questionVersions } from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import type {
   CreateNotebookItemDto,
   NotebookItemDto,
   NotebookQueryDto,
   QuestionExampleDto,
+  QuestionOptionDto,
   UpdateNotebookItemDto,
 } from './learning.types.js';
 import { getHanVietForWord } from '../vocab/hanviet-store.js';
-import { extractPlainTextFromRichText } from '../import/explanation-parser.js';
+import { extractPlainTextFromBlocks, extractPlainTextFromRichText } from '../import/explanation-parser.js';
 
 @Injectable()
 export class NotebookService {
@@ -296,6 +297,7 @@ export class NotebookService {
             level: questions.level,
             skill: questions.skill,
             stem: questionVersions.stem,
+            explanation: questionVersions.explanation,
             examTitle: exams.title,
             orderIndex: examItems.orderIndex,
           })
@@ -316,6 +318,41 @@ export class NotebookService {
                 item.sourceSentence ||
                 JSON.stringify(q.stem);
 
+          // Fetch options
+          const optRows = await this.dbClient.db
+            .select({
+              orderIndex: answerOptions.orderIndex,
+              content: answerOptions.content,
+            })
+            .from(answerOptions)
+            .where(eq(answerOptions.questionId, q.id))
+            .orderBy(answerOptions.orderIndex);
+
+          const options: QuestionOptionDto[] = optRows.map((o: (typeof optRows)[number]) => ({
+            orderIndex: o.orderIndex,
+            text: extractPlainTextFromRichText(o.content) || (typeof o.content === 'string' ? o.content : JSON.stringify(o.content)),
+          }));
+
+          // Parse explanation text & correct answer
+          let explanationText: string | undefined;
+          let correctOptionIndex: number | undefined;
+
+          if (q.explanation && typeof q.explanation === 'object') {
+            const explObj = q.explanation as { blocks?: unknown[] };
+            if (Array.isArray(explObj.blocks)) {
+              explanationText = extractPlainTextFromBlocks(explObj.blocks);
+            } else {
+              explanationText = extractPlainTextFromRichText(q.explanation);
+            }
+          }
+
+          if (explanationText) {
+            const match = explanationText.match(/Đáp án đúng:\s*\[?([1-4])\]?/i);
+            if (match && match[1]) {
+              correctOptionIndex = parseInt(match[1], 10);
+            }
+          }
+
           results.push({
             questionId: q.id,
             level: q.level,
@@ -325,6 +362,9 @@ export class NotebookService {
             isSavedSource: true,
             examTitle: q.examTitle || item.sourceExam,
             questionNumber: q.orderIndex != null ? q.orderIndex : item.sourceQnum,
+            options: options.length > 0 ? options : undefined,
+            correctOptionIndex,
+            explanationText,
           });
           return results;
         }

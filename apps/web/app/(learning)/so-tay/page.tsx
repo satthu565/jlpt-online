@@ -290,18 +290,47 @@ export default function NotebookPage(): React.JSX.Element {
                 currentItem?.tags?.find((t) => t.startsWith('source_sentence:'))?.replace('source_sentence:', '') ||
                 currentItem?.examples?.[0];
 
+              // Extract options from tags if present
+              const tagOptions = [];
+              for (let i = 1; i <= 4; i++) {
+                const optTag = currentItem?.tags?.find((t) => t.startsWith(`source_opt_${i}:`));
+                if (optTag) {
+                  tagOptions.push({
+                    orderIndex: i,
+                    text: cleanStemText(optTag.replace(`source_opt_${i}:`, '')),
+                  });
+                }
+              }
+
+              const answerTag = currentItem?.tags?.find((t) => t.startsWith('source_answer:'));
+              const tagCorrectIndex = answerTag ? parseInt(answerTag.replace('source_answer:', ''), 10) : undefined;
+
+              const explTag = currentItem?.tags?.find((t) => t.startsWith('source_expl:'));
+              const tagExpl = explTag ? explTag.replace('source_expl:', '').replace(/\\n/g, '\n') : undefined;
+
               // If this item has a saved source exam question, ALWAYS display it directly
               if (sourceExam || sourceSentence) {
+                let apiEg;
+                try {
+                  const res = await defaultLearningClient.getQuestionExamples(itemId);
+                  apiEg = res.examples?.find((e) => e.isSavedSource || (sourceQid && e.questionId === sourceQid));
+                } catch {
+                  // Ignore
+                }
+
                 return [
                   {
                     questionId: sourceQid || 'saved-source',
-                    level: 'JLPT',
-                    skill: 'vocabulary',
-                    stem: cleanStemText(sourceSentence),
+                    level: apiEg?.level || 'JLPT',
+                    skill: apiEg?.skill || 'vocabulary',
+                    stem: cleanStemText(apiEg?.stem || sourceSentence),
                     matchedTerm: currentItem?.term || '',
                     isSavedSource: true,
                     examTitle: sourceExam,
                     questionNumber: sourceQnum,
+                    options: (apiEg?.options && apiEg.options.length > 0) ? apiEg.options.map((o) => ({ ...o, text: cleanStemText(o.text) })) : (tagOptions.length > 0 ? tagOptions : undefined),
+                    correctOptionIndex: apiEg?.correctOptionIndex ?? tagCorrectIndex,
+                    explanationText: apiEg?.explanationText ?? tagExpl,
                   },
                 ];
               }
@@ -313,6 +342,7 @@ export default function NotebookPage(): React.JSX.Element {
                 return list.map((eg) => ({
                   ...eg,
                   stem: cleanStemText(eg.stem),
+                  options: eg.options?.map((o) => ({ ...o, text: cleanStemText(o.text) })),
                 }));
               } catch {
                 return [];

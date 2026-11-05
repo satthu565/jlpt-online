@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { NotFoundException } from '@nestjs/common';
 import { createDbClient, type DbClientInstance } from '../../db/client.js';
 import { runMigrations } from '../../db/migrate.js';
-import { questions, questionVersions, users } from '../../db/schema.js';
+import { answerOptions, questions, questionVersions, users } from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
 import { CsvExportService, sanitizeCsvField } from './csv-export.service.js';
@@ -501,6 +501,13 @@ describe('L05: Learning & Notebook Module Tests (VOC-01..18, Acceptance 1 & 4)',
         ],
       });
 
+      await dbClient.db.insert(answerOptions).values([
+        { questionId: qId, questionVersion: 1, orderIndex: 1, content: [{ t: 'text', text: 'ながい' }] },
+        { questionId: qId, questionVersion: 1, orderIndex: 2, content: [{ t: 'text', text: 'おそい' }] },
+        { questionId: qId, questionVersion: 1, orderIndex: 3, content: [{ t: 'text', text: 'はやい' }] },
+        { questionId: qId, questionVersion: 1, orderIndex: 4, content: [{ t: 'text', text: 'みじかい' }] },
+      ]);
+
       const item = await notebookService.createItem(testUserId, {
         kind: 'vocab',
         term: '早い',
@@ -521,6 +528,8 @@ describe('L05: Learning & Notebook Module Tests (VOC-01..18, Acceptance 1 & 4)',
       expect(examples[0]!.examTitle).toBe('JLPT N4 7/2024');
       expect(String(examples[0]!.questionNumber)).toBe('2');
       expect(examples[0]!.stem).toContain('早い');
+      expect(examples[0]!.options?.length).toBe(4);
+      expect(examples[0]!.options?.[2]?.text).toBe('はやい');
     });
 
     it('queries dictionary with readings, meanings, POS, examples (VOC-01..05)', async () => {
