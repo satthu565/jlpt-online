@@ -94,5 +94,5 @@ Ngày 25/10/2026: thao tác của từng câu trong cuốn đề được gom xu
 
 ### N1 July 2012 reviewed content repair (2026-11-05)
 
-- Prepared `tools/content/n1-2012-07/`: restore Q33 distractor and reasoning, correct Q51/Q75/Q84/Q90/Q104 and synchronize stale Q80/Q83/Q105 quotations via versioned admin APIs.
-- Plan validates six group revisions and five explanation revisions; preserve all 106 answer keys and old published snapshots. Apply only after successful CI and a verified backup. Ambiguous listening phrases Q72/Q73/Q85 and Q104 car name remain pending direct audio verification.
+- Prepared `tools/content/n1-2012-07/`: restore Q33 distractor and reasoning, correct Q51/Q72/Q73/Q75/Q84/Q85/Q90/Q104 and synchronize stale Q80/Q83/Q105 quotations via versioned admin APIs.
+- Plan validates seven group revisions and eight explanation revisions; preserve all 106 answer keys and old published snapshots. Apply only after successful CI and a verified backup. Larger-model ASR plus context supports the listening corrections; direct human listening remains unverified.

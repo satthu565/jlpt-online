@@ -40,6 +40,38 @@
       "explanationHash": "8cb83ad83ff6051fa65fa21c63021e912abc9187f9b851a681f279ace3efac1b"
     },
     {
+      "number": 72,
+      "replacements": [
+        {
+          "before": "僕も何回やってみたい",
+          "after": "僕も何かやってみたい"
+        }
+      ],
+      "questionId": "f8a7122e-cfea-4954-a5a6-6c3b06bb532a",
+      "groupId": "c5e5a6c0-5180-4a74-ab4a-b19f9cfc9a4d",
+      "correctOption": 3,
+      "baselineHash": "e4add700487d761406f8b0123bb33384996fa7e7e3ec9c73ae593b37f5d9a014",
+      "explanationHash": "e866c4e148227eb172746de83a2648f697e426a76cc5102bceb73e2af716d46b"
+    },
+    {
+      "number": 73,
+      "replacements": [
+        {
+          "before": "政府の景気の箇所",
+          "after": "政府の景気対策の箇所"
+        },
+        {
+          "before": "Vấn đề là ở chỗ tình hình kinh tế chính phủ.",
+          "after": "Vấn đề là ở phần các biện pháp kích thích kinh tế của chính phủ."
+        }
+      ],
+      "questionId": "c4d07302-4876-442d-a6fd-7928be5fa567",
+      "groupId": "93f28010-e34e-4c8c-a82f-8879a6215a37",
+      "correctOption": 3,
+      "baselineHash": "71ab8983e3a7d9d463de0751477d7df16f26e82ecc7f1199cb4984afb8d5e33d",
+      "explanationHash": "5e5d87445a1db9358306eec3b0ce274efbb6a03f9c4919b60439ea16150b7da6"
+    },
+    {
       "number": 75,
       "replacements": [
         {
@@ -96,6 +128,20 @@
       "explanationHash": null
     },
     {
+      "number": 85,
+      "replacements": [
+        {
+          "before": "これ以上バイトいれないないよね",
+          "after": "これ以上バイト入れらんないんだよね"
+        }
+      ],
+      "questionId": "3178fa7e-b670-4876-a1cb-57697882792c",
+      "groupId": "25fc681b-ffa8-49a1-afe6-9d3242c8d31d",
+      "correctOption": 4,
+      "baselineHash": "589e0d2a09ef77a39f168a95eb52340eee074d594c9d9f4917af73dbc47d6dd9",
+      "explanationHash": "ca475ef09a211b7e45c372d05de25f718388a9db30102e022ebc0fbe4184fb40"
+    },
+    {
       "number": 90,
       "replacements": [
         {
@@ -115,6 +161,10 @@
         {
           "before": "少しでも安いほうがじゃない",
           "after": "少しでも安いほうがいいじゃない"
+        },
+        {
+          "before": "スターテイア",
+          "after": "スターティア"
         }
       ],
       "questionId": "33c86595-6de1-4e07-afe7-2b12e0a97e4b",

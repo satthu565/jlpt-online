@@ -6,17 +6,20 @@ Correct confirmed content defects from the 2026-11-05 source review:
 |---|---|---|
 | 33 | Restore option 1 `引き出したとするとして`; rewrite its Vietnamese rejection and explain the correct allegation construction | Exam PDF page 4, enlarged source image; the shortened option was also grammatical |
 | 51 | `何かしょうとすると` → `何かしようとすると` | Exam PDF page 7 |
+| 72 | `僕も何回やってみたい` → `僕も何かやってみたい` | New medium-model transcription at 104–116 seconds and the context of wanting to do something as a volunteer |
+| 73 | `政府の景気の箇所` → `政府の景気対策の箇所`; synchronize its Vietnamese gloss | Small and medium ASR both recover the omitted `対策` at 211–216 seconds |
 | 75 | `人数分コピーするじゃ` → `人数分コピーするんじゃ` | Necessary grammatical repair; existing Whisper segment 398.07–404.07 also has `するんじゃ` |
 | 80 | `今一面白みに` → `今一つ面白みに` in the legacy explanation | Match the already corrected approved transcript |
 | 83 | `最大な見所` → `最大の見所` in the legacy explanation | Match the already corrected approved transcript |
 | 84 | `掃除機の買う人` → `掃除機を買う人` in option 4 and quoted explanations | Correct the source script's particle typo; match the approved transcript |
+| 85 | `これ以上バイトいれないないよね` → `これ以上バイト入れらんないんだよね` | Medium ASR at 1428–1430 seconds recovers colloquial `入れらんない` (standard `入れられない`); preserve the spoken form |
 | 90 | `存知あげません` → `存じあげません` in transcript and correct reason | Standard spelling; the published option already has the correct form |
-| 104 | `少しでも安いほうがじゃない` → `少しでも安いほうがいいじゃない` | Repair omitted predicate; existing Whisper segment 2409.36–2412.36 contains `安い方がいいじゃない` |
+| 104 | Restore `ほうがいいじゃない`; `スターテイア` → `スターティア` | Small and medium ASR agree on the omitted predicate and the name, at 2380–2391 and 2409–2412 seconds |
 | 105 | `近所二坂` → `近所に坂` in the legacy explanation | Match the already corrected approved transcript |
 
-The plan contains six group revisions and five explanation revisions. All 106 answer keys, passages, question order, audio and timeline must be preserved. Shared Q50–Q52 and Q105–Q106 groups remain intact. This repair does not claim direct listening verification.
+The plan contains seven group revisions and eight explanation revisions. All 106 answer keys, passages, question order, audio and timeline must be preserved. Shared Q50–Q52 and Q105–Q106 groups remain intact. This repair does not claim direct listening verification. New ASR evidence and WAV clips are saved in the owner's planning workspace under `report/n1-2012-07-review-20261105/`; model output is supporting evidence, never imported wholesale.
 
-Leave Q52 intact. Do not add `前` after `1400年` in Q83. Q72 (`何回`), Q73 (possible missing `対策`), Q85 (two competing readings), and the Q104 car name remain pending direct audio verification. Do not substitute a guess for these phrases.
+Leave Q52 intact. Do not add `前` after `1400年` in Q83. The earlier review's pending phrases in Q72/Q73/Q85/Q104 were reassessed with a larger cached model and grammatical context; the Q85 correction retains the recovered colloquial form. Exact audio verification by a person remains a limitation of this repair.
 
 ## Operation
 
