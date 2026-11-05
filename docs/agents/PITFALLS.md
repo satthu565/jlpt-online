@@ -115,3 +115,14 @@ Triệu chứng: tạo lượt làm bằng request không có Origin được, n
 | API bắt đầu trả `403` TOTP hết hạn giữa một batch dài | Script tái sử dụng mã TOTP sáu số quá 30 giây | Giữ secret trong env bảo vệ và tạo mã TOTP mới cho từng request; không ghi secret/token vào log hoặc dòng lệnh. |
 | Hậu kiểm báo chuỗi cũ vẫn còn dù sửa thành công | Chuỗi cũ là tiền tố của chuỗi mới, ví dụ `いつの間に` trong `いつの間にか` | Xác minh chuỗi đích trong đúng trường dữ liệu và precondition/hash trước khi sửa; không tìm chuỗi cũ trên toàn response. |
 | Export hàng loạt qua pipeline chỉ xử lý slug đầu tiên | `docker exec -i` trong script con đọc luôn stdin của vòng `while` | Dùng process substitution cho danh sách và chuyển stdin của script con từ `/dev/null`. |
+| Popup tra từ khi bôi đen (`Popover` HeroUI) mặc định là modal: lớp nền chặn bấm, phần còn lại của trang bị `aria-hidden`, không bấm được đáp án hay "Nộp bài" khi popup mở; E2E H06 hỏng (`getByRole`/`click` hết giờ, `afterEach` không nộp được bài) | Hành vi mặc định của react-aria khi không có `isNonModal` | Đặt `isNonModal` trên `Popover.Content` (không đổi giao diện hay animation). Đã kiểm tra: bấm Nộp bài được, Escape, bấm ra ngoài và nút X vẫn đóng. Không đặt `if (!isOpen) return null` trước `Popover`: sẽ mất animation đóng. |
+| `Popover.Content` / `Popover.Dialog` của HeroUI hiện trong suốt, không nền, không bóng, không bo góc | Hai component này lấy lớp kiểu từ `Popover` (root) qua context; dùng riêng lẻ thì `slots` rỗng | Luôn bọc trong `<HeroPopover isOpen={...}>` (root không cần trigger). Có `triggerRef` riêng thì truyền vào `Content`. |
+| Bản xem thử :3210 vẫn chạy mã cũ dù đã push và build "thành công" | Build lúc đĩa `/` đầy làm hỏng cache turbo; `.next` còn chunk cũ lẫn chunk mới | `df -h /` trước khi dựng; xóa `/home/jlpt/preview-3210/apps/web/.next` rồi chạy `TURBO_FORCE=true tools/ops/preview-branch.sh <nhánh>`; kiểm tra bằng cách đọc lớp CSS thật trên trang. |
+
+## Sự kiện bôi đen và popup không modal
+
+| Triệu chứng | Nguyên nhân | Cách đúng |
+|---|---|---|
+| Đổi tab làm popup biến mất hoặc bấm ngoài không đóng popup HeroUI `isNonModal` | Hook coi vùng chọn thu gọn là yêu cầu đóng; `mouseup` trong popup tiếp tục xử lý vùng chọn cũ, còn popup không modal không bảo đảm đóng khi bấm vùng không nhận focus | Bỏ đóng chỉ vì selection thu gọn; bỏ qua `mouseup` trong popup/thông báo con và hủy debounce; xử lý `pointerdown` ngoài bằng `close()` mà không chặn cú bấm phòng thi. |
+
+| Popup HeroUI không modal đóng khi đổi tab; stack kết thúc ở `useCloseOnScroll`, trang tự nhảy xuống | Portal tuyệt đối trong body cho phép trình duyệt cuộn trang khi focus tab/nội dung popup thay đổi | Đặt riêng popup vào portal phủ viewport có `position: fixed`, lớp cha `pointer-events-none`, nội dung `pointer-events-auto`; giữ animation HeroUI và đóng khi người dùng cuộn trang thật. |
