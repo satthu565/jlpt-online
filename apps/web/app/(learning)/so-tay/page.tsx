@@ -67,11 +67,30 @@ export default function NotebookPage(): React.JSX.Element {
 
   const handleAddItem = async (input: CreateNotebookItemInput) => {
     setError(null);
+    if (!user) {
+      if (typeof window !== 'undefined') {
+        window.location.assign('/dang-nhap?redirect=/so-tay');
+      }
+      return;
+    }
     try {
       const created = await defaultLearningClient.createNotebookItem(input);
       setItems((prev) => [created, ...prev]);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
+      if (
+        msg.includes('401') ||
+        msg.includes('403') ||
+        msg.includes('UNAUTHENTICATED') ||
+        msg.includes('Yêu cầu đăng nhập') ||
+        msg.includes('Authentication required')
+      ) {
+        setIsUnauthorized(true);
+        if (typeof window !== 'undefined') {
+          window.location.assign('/dang-nhap?redirect=/so-tay');
+        }
+        return;
+      }
       setError(msg || 'Không thể tạo mục sổ tay.');
       throw err;
     }
@@ -120,6 +139,12 @@ export default function NotebookPage(): React.JSX.Element {
   };
 
   const handleStartQuiz = async () => {
+    if (!user) {
+      if (typeof window !== 'undefined') {
+        window.location.assign('/dang-nhap?redirect=/so-tay');
+      }
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -128,6 +153,19 @@ export default function NotebookPage(): React.JSX.Element {
       setActiveTab('quiz');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
+      if (
+        msg.includes('401') ||
+        msg.includes('403') ||
+        msg.includes('UNAUTHENTICATED') ||
+        msg.includes('Yêu cầu đăng nhập') ||
+        msg.includes('Authentication required')
+      ) {
+        setIsUnauthorized(true);
+        if (typeof window !== 'undefined') {
+          window.location.assign('/dang-nhap?redirect=/so-tay');
+        }
+        return;
+      }
       setError(msg || 'Không thể tạo quiz từ sổ tay. Vui lòng thêm từ vựng/ngữ pháp trước.');
     } finally {
       setLoading(false);

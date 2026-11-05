@@ -135,7 +135,7 @@ export function SrsReviewRunner({
         />
       ) : (
         <Card data-testid="srs-finished-card">
-          <CardContent className="p-12 text-center">
+          <CardContent className="flex flex-col items-center justify-center p-12 text-center">
             <PartyPopper className="mx-auto mb-4 size-12" aria-hidden="true" />
             <h2 className="text-[1.75rem] font-extrabold mt-0 mx-0 mb-2 text-[var(--text-primary)]">
               {t('srs.finished.title')}
@@ -158,7 +158,7 @@ export function SrsReviewRunner({
             ) : null}
 
             {onFinish && (
-              <Button className="min-w-[160px]" variant="primary" onClick={onFinish}>
+              <Button className="min-w-[160px] self-center" variant="primary" onClick={onFinish}>
                 {t('srs.finished.backToNotebook')}
               </Button>
             )}

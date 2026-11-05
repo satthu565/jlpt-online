@@ -16,6 +16,7 @@ import type {
   QuestionExample,
 } from '../types';
 import { useI18n } from '../../../lib/i18n';
+import { useAuth } from '../../../lib/auth-context';
 import { FEATURES } from '../../../lib/features';
 
 export interface NotebookViewProps {
@@ -42,6 +43,7 @@ export function NotebookView({
   onPlayTts,
 }: NotebookViewProps): React.JSX.Element {
   const { t } = useI18n();
+  const { user } = useAuth();
 
   // Filters
   const [filterKind, setFilterKind] = useState<string>('all');
@@ -82,6 +84,13 @@ export function NotebookView({
 
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      if (typeof window !== 'undefined') {
+        window.location.assign('/dang-nhap?redirect=/so-tay');
+      }
+      return;
+    }
+
     if (!newTerm.trim() || !newMeaning.trim()) {
       setFormError(t('notebook.form.requiredFields'));
       return;
@@ -108,6 +117,19 @@ export function NotebookView({
       setNewNotes('');
       setNewTags('');
     } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (
+        msg.includes('401') ||
+        msg.includes('403') ||
+        msg.includes('UNAUTHENTICATED') ||
+        msg.includes('Yêu cầu đăng nhập') ||
+        msg.includes('Authentication required')
+      ) {
+        if (typeof window !== 'undefined') {
+          window.location.assign('/dang-nhap?redirect=/so-tay');
+        }
+        return;
+      }
       setFormError(err instanceof Error ? err.message : t('notebook.form.createError'));
     } finally {
       setSubmitting(false);
@@ -220,7 +242,7 @@ export function NotebookView({
       {/* Empty State */}
       {!loading && filteredItems.length === 0 && (
         <Card>
-          <CardContent className="p-12 text-center">
+          <CardContent className="flex flex-col items-center justify-center p-12 text-center">
             <NotebookPen className="mx-auto mb-4 size-10" aria-hidden="true" />
             <h3 className="mt-0 mx-0 mb-2 text-[var(--text-primary)]">
               {t('notebook.empty.title')}
@@ -228,7 +250,11 @@ export function NotebookView({
             <p className="text-[var(--text-secondary)] mt-0 mx-0 mb-6">
               {t('notebook.empty.description')}
             </p>
-            <Button variant="primary" onClick={() => setIsAddModalOpen(true)}>
+            <Button
+              variant="primary"
+              onClick={() => setIsAddModalOpen(true)}
+              className="self-center"
+            >
               + {t('notebook.actions.addItem')}
             </Button>
           </CardContent>
