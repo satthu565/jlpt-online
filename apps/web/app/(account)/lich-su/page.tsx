@@ -12,13 +12,22 @@ import { EmptyState } from '@jlpt/ui/components/empty-state';
 import Link from 'next/link';
 
 export default function ExamHistoryPage(): React.JSX.Element {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [historyItems, setHistoryItems] = useState<ExamHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUnauthorized, setIsUnauthorized] = useState(false);
 
   const loadHistory = useCallback(async () => {
+    if (authLoading) return;
+
+    if (!user) {
+      setLoading(false);
+      setIsUnauthorized(true);
+      setHistoryItems([]);
+      return;
+    }
+
     const client = new ExamApiClient();
     try {
       setLoading(true);
@@ -67,7 +76,7 @@ export default function ExamHistoryPage(): React.JSX.Element {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [authLoading, user]);
 
   useEffect(() => {
     loadHistory();
