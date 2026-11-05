@@ -10,6 +10,8 @@ import {
   hasSavedNotebookTerm,
 } from '../features/corpus/components/selection-lookup-popover';
 import { SelectionKanjiPanel } from '../features/corpus/components/selection-kanji-panel';
+import { SelectionGrammarPanel } from '../features/corpus/components/selection-grammar-panel';
+import { findMatchingGrammarPatterns, isPrimaryGrammarPattern } from '../features/corpus/data/grammar-dictionary';
 import { selectedKanji } from '../features/corpus/utils/selected-kanji';
 import { VocabDetailView } from '../features/corpus/components/vocab-detail-view';
 import { CorpusClient } from '../features/corpus/services/corpus-client';
@@ -354,6 +356,74 @@ describe('H06: Selection Lookup & Dictionary Detail', () => {
       expect(hasSavedNotebookTerm([{ term: '体育館' }, { term: '仕事' }], '体育館')).toBe(true);
       expect(hasSavedNotebookTerm([{ term: '体育館履き' }], '体育館')).toBe(false);
       expect(findSavedNotebookTerms([{ term: '体育館' }, { term: '体育館' }, { term: '体育館履き' }], '体育館')).toHaveLength(2);
+    });
+  });
+
+  describe('Grammar Pattern Matching & SelectionGrammarPanel', () => {
+    it('matches ambiguous patterns like によると', () => {
+      const matches = findMatchingGrammarPatterns('によると');
+      expect(matches.length).toBeGreaterThan(0);
+      expect(matches[0]?.cleanPattern).toBe('によると');
+      expect(matches[0]?.level).toBe('N4');
+      expect(matches[0]?.meaning).toContain('Theo');
+    });
+
+    it('matches grammar when highlighted inside a sentence clause', () => {
+      const matches = findMatchingGrammarPatterns('天気予報によると');
+      expect(matches.some((m) => m.cleanPattern === 'によると')).toBe(true);
+    });
+
+    it('matches primary grammar patterns like わけにはいかない and てはいけない', () => {
+      expect(isPrimaryGrammarPattern('わけにはいかない')).toBe(true);
+      expect(isPrimaryGrammarPattern('てはいけない')).toBe(true);
+      expect(isPrimaryGrammarPattern('早い')).toBe(false);
+    });
+
+    it('renders SelectionGrammarPanel with pattern card and level chip', () => {
+      const matches = findMatchingGrammarPatterns('によると');
+      const html = renderClean(<SelectionGrammarPanel queryText="によると" patterns={matches} />);
+
+      expect(html).toContain('data-testid="selection-grammar-panel"');
+      expect(html).toContain('N4');
+      expect(html).toContain('によると');
+      expect(html).toContain('Ý nghĩa');
+      expect(html).toContain('Cấu trúc');
+      expect(html).toContain('Ví dụ');
+      expect(html).toContain('Lưu ngữ pháp');
+    });
+
+    it('renders empty state when no grammar patterns match', () => {
+      const html = renderClean(<SelectionGrammarPanel queryText="ランダム" patterns={[]} />);
+      expect(html).toContain('data-testid="grammar-empty-state"');
+      expect(html).toContain('Không tìm thấy mẫu ngữ pháp');
+    });
+
+    it('renders SelectionLookupPopover with state open without throwing', () => {
+      const html = renderClean(
+        <SelectionLookupPopover
+          openInNewTab={true}
+          state={{
+            isOpen: true,
+            queryText: 'によると',
+            matchedText: 'に依ると',
+            virtualRect: mockDomRect,
+            status: 'success',
+            result: {
+              entry: 'に依ると',
+              readings: ['によると'],
+              meanings: ['Theo (ai đó)'],
+              status: 'READY',
+              license: 'CC BY-SA 4.0',
+              attribution: 'EDRDG',
+            },
+            error: null,
+            close: vi.fn(),
+            retry: vi.fn(),
+          }}
+        />,
+      );
+
+      expect(typeof html).toBe('string');
     });
   });
 

@@ -27,6 +27,8 @@ import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import { defaultLearningClient } from '../../learning';
 import { SelectionKanjiPanel } from './selection-kanji-panel';
+import { SelectionGrammarPanel } from './selection-grammar-panel';
+import { findMatchingGrammarPatterns, isPrimaryGrammarPattern } from '../data/grammar-dictionary';
 import { selectedKanji } from '../utils/selected-kanji';
 import { CorpusClient } from '../services/corpus-client';
 import type { DictionaryMeaningSectionDto } from '../types';
@@ -181,6 +183,22 @@ export function SelectionLookupPopover({ state, openInNewTab = true, context }: 
   const virtualAnchorRef = useRef<{ getBoundingClientRect: () => DOMRect }>({
     getBoundingClientRect: () => virtualRect || new DOMRect(0, 0, 0, 0),
   });
+
+  const grammarPatterns = React.useMemo(() => findMatchingGrammarPatterns(queryText), [queryText]);
+  const kanjiList = React.useMemo(() => selectedKanji(queryText), [queryText]);
+
+  const defaultTab = React.useMemo(() => {
+    if (grammarPatterns.length > 0 && (isPrimaryGrammarPattern(queryText) || status === 'not-found')) {
+      return 'grammar';
+    }
+    return 'vocabulary';
+  }, [grammarPatterns.length, queryText, status]);
+
+  const [activeTab, setActiveTab] = useState<string>('vocabulary');
+
+  useEffect(() => {
+    setActiveTab(defaultTab);
+  }, [defaultTab, queryText]);
 
   useEffect(() => {
     if (virtualRect) {
@@ -419,7 +437,11 @@ export function SelectionLookupPopover({ state, openInNewTab = true, context }: 
         data-testid="selection-lookup-popover"
         data-select-lookup-popover="true"
       >
-        <Tabs key={queryText} defaultSelectedKey="vocabulary">
+        <Tabs
+          key={`${queryText}-${defaultTab}`}
+          selectedKey={activeTab}
+          onSelectionChange={(key) => setActiveTab(String(key))}
+        >
           <div className="mb-2 flex items-start justify-between gap-1.5">
             <Tabs.ListContainer className="min-w-0 flex-1">
               <Tabs.List aria-label={t('dictionary.lookupTabs')}>
@@ -427,8 +449,12 @@ export function SelectionLookupPopover({ state, openInNewTab = true, context }: 
                   {t('dictionary.vocabularyTab')}
                   <Tabs.Indicator />
                 </Tabs.Tab>
+                <Tabs.Tab id="grammar" className="text-sm" data-testid="lookup-grammar-tab">
+                  {t('dictionary.grammarTab')} ({grammarPatterns.length})
+                  <Tabs.Indicator />
+                </Tabs.Tab>
                 <Tabs.Tab id="kanji" className="text-sm">
-                  {t('dictionary.kanjiTab')} ({selectedKanji(queryText).length})
+                  {t('dictionary.kanjiTab')} ({kanjiList.length})
                   <Tabs.Indicator />
                 </Tabs.Tab>
               </Tabs.List>
@@ -450,9 +476,22 @@ export function SelectionLookupPopover({ state, openInNewTab = true, context }: 
 
             {status === 'not-found' && (
               <Card data-testid="lookup-not-found">
-                <Card.Content className="space-y-2 py-8 text-center">
+                <Card.Content className="space-y-3 py-6 text-center">
                   <p className="m-0 font-semibold">{t('dictionary.notFoundInDict')}</p>
                   <p className="m-0 font-japanese text-sm text-[var(--text-muted)]">&quot;{queryText}&quot;</p>
+                  {grammarPatterns.length > 0 && (
+                    <div className="pt-1">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onPress={() => setActiveTab('grammar')}
+                        className="text-xs font-semibold"
+                      >
+                        <BookOpen className="size-4 mr-1.5" />
+                        Xem mẫu ngữ pháp tương ứng ({grammarPatterns.length})
+                      </Button>
+                    </div>
+                  )}
                 </Card.Content>
               </Card>
             )}
@@ -694,6 +733,14 @@ export function SelectionLookupPopover({ state, openInNewTab = true, context }: 
                 </div>
               </div>
             )}
+          </Tabs.Panel>
+
+          <Tabs.Panel id="grammar" className="max-h-96 overflow-y-auto pr-1">
+            <SelectionGrammarPanel
+              queryText={queryText}
+              patterns={grammarPatterns}
+              context={context}
+            />
           </Tabs.Panel>
 
           <Tabs.Panel id="kanji" className="max-h-96 overflow-y-auto pr-1">
