@@ -4717,9 +4717,12 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
       const active = page.locator('.jlpt-section-header [role="tab"][aria-selected="true"]');
       const title = await active.innerText();
       const sectionIndex = await page.locator('.jlpt-section-header [role="tab"]').evaluateAll((tabs) => tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true'));
+      if (await speaker.isVisible()) await completeSpeakerCheck();
+      await expect(page.locator('.modal__backdrop')).toHaveCount(0);
       await page.getByTestId('finish-section-btn').click();
       await page.getByRole('button', { name: 'Xác nhận chuyển phần', exact: true }).click();
       await expect(active).not.toHaveText(title);
+      if (sectionIndex !== 1 && await speaker.isVisible()) await completeSpeakerCheck();
       if (sectionIndex === 1) {
         await expect(speaker).toBeVisible();
         await completeSpeakerCheck();
