@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
+import { ExplanationDraftSchema } from '../../../packages/schema/dist/index.js';
 
 const API = 'http://127.0.0.1:4000';
 const mode = process.argv[2] ?? 'plan';
@@ -122,7 +123,7 @@ if (mode === 'plan') {
     if (fix.explanationHash) {
       const ex = await getExplanation(fix.questionId);
       assert.equal(hash(ex.content), fix.explanationHash, `Q${fix.number} explanation changed since review`);
-      const updated = applyFix(ex.content);
+      const updated = ExplanationDraftSchema.parse(applyFix(ex.content));
       assert.notEqual(hash(updated), hash(ex.content));
       explanations.push({ questionId: fix.questionId, sourceId: ex.id, sourceVersion: ex.version, beforeHash: hash(ex.content), after: updated, number: fix.number });
     }
@@ -170,9 +171,7 @@ if (mode === 'plan') {
       await raw('POST', `/api/v1/admin/explanations/${created.id}/reviews`, { decision: 'approved', comments: 'Đồng bộ sửa chữ N1 7/2012, không thay đáp án' }, reviewer);
       const checked = await getExplanation(item.questionId);
       assert.equal(checked.id, created.id);
-      // The API stamps contentVersion when it creates the immutable explanation.
-      const expected = { ...item.after, contentVersion: checked.content.contentVersion };
-      assert.equal(hash(checked.content), hash(expected));
+      assert.equal(hash(checked.content), hash(item.after));
       journal.explanations[item.questionId] = { id: created.id, version: checked.version }; save(journalPath, journal);
       console.log(`Q${item.number}: explanation v${checked.version} approved`);
     }
@@ -191,7 +190,7 @@ if (mode === 'plan') {
   for (const item of plan.explanations) {
     const current = await getExplanation(item.questionId);
     assert.equal(current.status, 'approved');
-    assert.equal(hash(current.content), hash({ ...item.after, contentVersion: current.content.contentVersion }));
+    assert.equal(hash(current.content), hash(item.after));
   }
   assert(journal.publishedVersion, 'Publication required');
   const snapshot = await raw('GET', `/api/v1/exams/${plan.examId}/v${journal.publishedVersion}/snapshot.json`, undefined, editor);

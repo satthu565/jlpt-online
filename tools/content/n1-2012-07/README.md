@@ -19,6 +19,8 @@ Correct confirmed content defects from the 2026-11-05 source review:
 
 The plan contains seven group revisions and eight explanation revisions. All 106 answer keys, passages, question order, audio and timeline must be preserved. Shared Q50–Q52 and Q105–Q106 groups remain intact. This repair does not claim direct listening verification. New ASR evidence and WAV clips are saved in the owner's planning workspace under `report/n1-2012-07-review-20261105/`; model output is supporting evidence, never imported wholesale.
 
+Explanation plans use `ExplanationDraftSchema`, the same parser as the API. New versions retain canonical reasons, translations and transcripts; unsupported legacy copies (`blocks`, `translationVi`, `explanationMarkdown`) are omitted exactly as the API requires. Old explanation versions and the question's legacy explanation remain preserved. Verification compares the complete parsed payload without masking metadata differences.
+
 Leave Q52 intact. Do not add `前` after `1400年` in Q83. The earlier review's pending phrases in Q72/Q73/Q85/Q104 were reassessed with a larger cached model and grammatical context; the Q85 correction retains the recovered colloquial form. Exact audio verification by a person remains a limitation of this repair.
 
 ## Operation
@@ -28,6 +30,7 @@ Run only from an isolated worktree on `jlpt-vm`. Use a task-specific directory a
 ```bash
 export N1_REPAIR_DIR=/tmp/n1-2012-07-repair-20261105
 export N1_REPAIR_AUTH="$N1_REPAIR_DIR/auth.env"
+pnpm --filter @jlpt/schema build
 node tools/content/n1-2012-07/repair.mjs plan
 ```
 

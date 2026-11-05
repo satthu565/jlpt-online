@@ -129,3 +129,5 @@ Triệu chứng: tạo lượt làm bằng request không có Origin được, n
 
 | Áp dụng transcript N1 báo replaceIn is not defined | Hàm thay thế chỉ được khai báo ở dry-run, chưa có trong apply | Khai báo phép thay thế đệ quy trong apply; kiểm tra bản transcript và các bản sao nội dung sau duyệt. |
 | Kết luận câu nghe bị thiếu vì chỉ có nhãn 選択肢 | Một số phần nghe chủ ý không in nội dung lựa chọn trên đề giấy | Đọc hướng dẫn của phần trong PDF và script/audio; kiểm tra đúng 3 lựa chọn cho 即時応答, 4 cho các phần còn lại trước khi kết luận mất dữ liệu. |
+
+- Content repair verifies a newly saved explanation and reports a hash mismatch although its canonical content is correct → `ExplanationDraftSchema` strips imported legacy fields such as `blocks`, `translationVi` and `explanationMarkdown` → parse the planned explanation with the same schema before saving, then compare the full canonical result. Preserve old versions instead of writing around the API.
