@@ -109,8 +109,8 @@ function questionInput(question) {
 const env = loadEnv(AUTH_ENV);
 const editor = await login(env.EDITOR_EMAIL, env.EDITOR_PASSWORD, env.EDITOR_TOTP_SECRET);
 const accepted = JSON.parse(fs.readFileSync(BUNDLE, 'utf8')).accepted;
-const contentFixes = accepted.filter((fix) => fix.target_field !== 'transcript');
-const transcriptFixes = accepted.filter((fix) => fix.target_field === 'transcript');
+const contentFixes = accepted.filter((fix) => !['transcript', 'explanation'].includes(fix.target_field));
+const transcriptFixes = accepted.filter((fix) => ['transcript', 'explanation'].includes(fix.target_field));
 const errors = [];
 const groupPlans = [];
 const explanationPlans = [];
@@ -176,8 +176,8 @@ for (const [questionId, fixes] of byQuestion) {
   }
   const content = structuredClone(latest.content);
   for (const fix of fixes) {
-    const transcriptOccurrences = countIn(content.transcript, fix.current);
-    if (transcriptOccurrences !== 1) {
+    const transcriptOccurrences = countIn(fix.target_field === 'explanation' ? content : content.transcript, fix.current);
+    if (fix.target_field === 'explanation' ? transcriptOccurrences < 1 : transcriptOccurrences !== 1) {
       errors.push({ ...fix, error: `api_transcript_occurrences_${transcriptOccurrences}` });
       continue;
     }
@@ -213,7 +213,8 @@ console.log(JSON.stringify({
   sourceAcceptedFixes: accepted.length,
   plannedGroupFixes: groupPlans.reduce((sum, item) => sum + item.fixes.length, 0),
   plannedGroups: groupPlans.length,
-  plannedTranscriptFixes: explanationPlans.reduce((sum, item) => sum + item.fixes.length, 0),
+  plannedTranscriptFixes: explanationPlans.reduce((sum, item) => sum + item.fixes.filter((fix) => fix.target_field === 'transcript').length, 0),
+  plannedExplanationFixes: explanationPlans.reduce((sum, item) => sum + item.fixes.length, 0),
   plannedExplanations: explanationPlans.length,
   errors: errors.length,
   errorTypes: Object.groupBy(errors, (item) => item.error),

@@ -179,9 +179,10 @@ if (!skipExplanations && groupsAppliedThisRun < maxGroups) {
       if (!current) throw new Error('approved explanation missing');
       let draft = structuredClone(current.content);
       for (const fix of item.fixes) {
-        const currentCount = countIn(draft.transcript, fix.current);
-        const expectedCount = countIn(draft.transcript, fix.expected);
-        if (currentCount === 1) {
+        const target = fix.target_field === 'explanation' ? draft : draft.transcript;
+        const currentCount = countIn(target, fix.current);
+        const expectedCount = countIn(target, fix.expected);
+        if (fix.target_field === 'explanation' ? currentCount >= 1 : currentCount === 1) {
           draft = replaceIn(draft, fix.current, fix.expected);
         } else if (expectedCount >= 1) {
           continue;
