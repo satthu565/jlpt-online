@@ -111,11 +111,13 @@ export function registerExamContentTests(): void {
           await selectBookletText(page, '先週');
           const lookupPopover = page.getByTestId('selection-lookup-popover');
           await expect(lookupPopover).toBeVisible();
+          const lookupScrollY = await page.evaluate(() => window.scrollY);
           await lookupPopover.getByRole('tab', { name: 'Kanji (2)', exact: true }).click();
           await expect(lookupPopover.getByTestId('lookup-kanji-character')).toHaveText(['先', '週']);
           expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
           await page.screenshot({ path: info.outputPath('lookup-kanji-tab.png') });
           await lookupPopover.getByRole('tab', { name: 'Từ vựng', exact: true }).click();
+          expect(await page.evaluate(() => window.scrollY)).toBeCloseTo(lookupScrollY, 0);
           // Staging has no dictionary entry for this text, so the vocab tab shows either a result or the not-found state.
           await expect(lookupPopover.locator('[data-testid="lookup-entry"], [data-testid="lookup-not-found"]').first()).toBeVisible();
           await lookupPopover.getByRole('tab', { name: 'Kanji (2)', exact: true }).click();

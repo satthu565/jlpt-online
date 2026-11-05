@@ -158,6 +158,8 @@ export function useSelectLookup({
   }
 
   const lastLookupRef = useRef<string>('');
+  const openRef = useRef(false);
+  const virtualRectRef = useRef<DOMRect | null>(null);
   const activeLookupAbortRef = useRef<(() => void) | null>(null);
   const cancelPendingSelectionRef = useRef<(() => void) | null>(null);
   const enabledRef = useRef<boolean>(enabled);
@@ -165,6 +167,7 @@ export function useSelectLookup({
   useEffect(() => {
     enabledRef.current = enabled;
     if (!enabled) {
+      openRef.current = false;
       setIsOpen(false);
       setStatus('idle');
       if (activeLookupAbortRef.current) {
@@ -175,6 +178,9 @@ export function useSelectLookup({
 
   const close = useCallback(() => {
     cancelPendingSelectionRef.current?.();
+    openRef.current = false;
+    const selection = window.getSelection();
+    if (selection && getEligibleSelection(selection)) selection.removeAllRanges();
     setIsOpen(false);
   }, []);
 
@@ -183,9 +189,14 @@ export function useSelectLookup({
     close();
   }, [questionIndex, close]);
 
-  const performLookup = useCallback(async (textToLookup: string, rect: DOMRect) => {
+  const performLookup = useCallback(async (textToLookup: string, rect: DOMRect, force = false) => {
     if (!enabledRef.current) return;
 
+    // Mouseup and the touch debounce can describe the same selection. Avoid
+    // a second loading/layout cycle while the user is clicking popup tabs.
+    if (!force && openRef.current && lastLookupRef.current === textToLookup && virtualRectRef.current?.left === rect.left && virtualRectRef.current?.top === rect.top) return;
+    openRef.current = true;
+    virtualRectRef.current = rect;
     setQueryText(textToLookup);
     setVirtualRect(rect);
     setIsOpen(true);
@@ -222,12 +233,15 @@ export function useSelectLookup({
 
   const retry = useCallback(() => {
     if (queryText && virtualRect && enabledRef.current) {
-      performLookup(queryText, virtualRect);
+      performLookup(queryText, virtualRect, true);
     }
   }, [queryText, virtualRect, performLookup]);
 
   useEffect(() => {
     if (!enabled || typeof window === 'undefined') return;
+
+    const isInPopover = (target: EventTarget | null) =>
+      target instanceof Element && Boolean(target.closest('[data-select-lookup-popover="true"], [data-testid="lookup-action-notice"]'));
 
     let mouseTimeout: ReturnType<typeof setTimeout> | null = null;
     let touchTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -238,8 +252,12 @@ export function useSelectLookup({
     cancelPendingSelectionRef.current = cancelPending;
 
     // Mouse selection handler
-    const handleMouseUp = () => {
+    const handleMouseUp = (event: MouseEvent) => {
       if (!enabledRef.current) return;
+      if (isInPopover(event.target)) {
+        cancelPending();
+        return;
+      }
       if (mouseTimeout) clearTimeout(mouseTimeout);
       // Delay slightly so selection object has fully updated in browser
       mouseTimeout = setTimeout(() => {
@@ -261,18 +279,20 @@ export function useSelectLookup({
         if (!enabledRef.current) return;
         const selection = window.getSelection();
         if (!selection) return;
-        // Bỏ chọn văn bản thì đóng khung, trừ khi người dùng đang bấm nút trong khung
-        if (selection.isCollapsed) {
-          if (!document.activeElement?.closest('[data-select-lookup-popover="true"]')) {
-            setIsOpen(false);
-          }
-          return;
-        }
+        // Focusing a tab or button can collapse the browser selection. The
+        // popup owns its dismissal; a selection change must not dismiss it.
+        if (selection.isCollapsed) return;
         const eligible = getEligibleSelection(selection);
         if (eligible) {
           performLookup(eligible.text, eligible.rect);
         }
       }, 300);
+    };
+
+    // Non-modal HeroUI popovers leave the page interactive. Dismiss on a
+    // pointer outside without consuming the click intended for an exam control.
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!isInPopover(event.target)) close();
     };
 
     // Escape key closes popover
@@ -282,6 +302,7 @@ export function useSelectLookup({
       }
     };
 
+    document.addEventListener('pointerdown', handlePointerDown, true);
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('selectionchange', handleSelectionChange);
     document.addEventListener('keydown', handleKeyDown);
@@ -289,6 +310,7 @@ export function useSelectLookup({
     return () => {
       cancelPending();
       cancelPendingSelectionRef.current = null;
+      document.removeEventListener('pointerdown', handlePointerDown, true);
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('selectionchange', handleSelectionChange);
       document.removeEventListener('keydown', handleKeyDown);

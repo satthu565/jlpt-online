@@ -154,6 +154,7 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
     tone: NoticeTone;
   } | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(null);
 
   // The popup opens from the selected text, so the (invisible) Popover.Trigger is laid over the selection rect.
   // Placed in the ref callback because inline style props are not allowed here.
@@ -357,8 +358,11 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
 
   return (
     <HeroPopover isOpen={isOpen} onOpenChange={(open) => !open && close()}>
+      {/* Keep tab focus inside a fixed layer so it cannot scroll the document
+          and trigger React Aria's close-on-scroll for this non-modal popover. */}
+      <div ref={setPortalContainer} className="pointer-events-none fixed inset-0 z-50" />
       <HeroPopover.Trigger ref={setAnchor} aria-hidden="true" tabIndex={-1} className="pointer-events-none invisible fixed" data-testid="selection-lookup-anchor" />
-      <HeroPopover.Content isNonModal data-testid="selection-lookup-popover" data-select-lookup-popover="true">
+      <HeroPopover.Content isNonModal UNSTABLE_portalContainer={portalContainer ?? undefined} className="pointer-events-auto" data-testid="selection-lookup-popover" data-select-lookup-popover="true">
         <HeroPopover.Arrow>
           <svg width="18" height="18" viewBox="0 0 12 12" aria-hidden="true">
             <path d="M0 0C5.48483 8 6.5 8 12 0Z" />
