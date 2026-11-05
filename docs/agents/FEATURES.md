@@ -4,6 +4,10 @@ Cập nhật lần cuối: 01/11/2026. **Agent xong một tính năng thì sửa
 
 Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xong, chờ dịch vụ ngoài · 🚧 đang làm · 📋 dự kiến.
 
+## Hiệu đính nội dung đề
+
+- N1 7/2011: bộ sửa có kiểm tra dữ liệu gốc cho Q34, Q47, Q73, Q76, Q80 và Q89; đồng bộ trích dẫn/lời giải, giữ khóa đáp án và lịch sử phiên bản. Công cụ: `tools/content/n1-2011-07/`.
+
 ## ✅ Đang chạy
 
 ### Học viên (`apps/web`)

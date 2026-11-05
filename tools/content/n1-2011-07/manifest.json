@@ -1,0 +1,67 @@
+{
+  "slug": "n1-2011-07",
+  "examId": "40208963-a844-44f7-a5b9-805b245ef87b",
+  "publishedVersion": 5,
+  "fixes": [
+    {
+      "number": 34,
+      "before": "あと3日",
+      "after": "あと３日",
+      "questionId": "3ee2f1e2-6de5-40c6-adbc-210d977a0cb9",
+      "groupId": "090a063d-4e86-4e97-aaca-cd5a4e202768",
+      "correctOption": 4,
+      "baselineHash": "71903a0b1af2a06183bbc85a30e8f217ea1b1cfc5fa81b2e4f41228c4e037c6f",
+      "explanationHash": null
+    },
+    {
+      "number": 47,
+      "before": "一新的",
+      "after": "一時的",
+      "questionId": "ea9f5dd5-2b43-4de2-af2d-33d01fe229c6",
+      "groupId": "faa70243-3e57-45f6-a9c1-6e7459c5d4e5",
+      "correctOption": 4,
+      "baselineHash": "cfd29070d73b07c07e97efa169c68514cd095a4c5422bfe16162af9ca68f549b",
+      "explanationHash": "8ce451588bd274534abddf4e4e07721906c2e70767f319edbbd7b0777bc678a6"
+    },
+    {
+      "number": 73,
+      "before": "シュミレーション",
+      "after": "シミュレーション",
+      "questionId": "14cd306a-046e-4d62-a9ba-ce2a016c1d39",
+      "groupId": "dd5473e7-47c9-44db-ad89-2231a3ea1d0d",
+      "correctOption": 4,
+      "baselineHash": "9cee483167f2e171a461304925b36b797c0ed57f5e74bf5950b65fe497ad70e8",
+      "explanationHash": "28e80561f24f22258867d61e73460bfbcd951e6cf19888011d37dbf02170130c"
+    },
+    {
+      "number": 76,
+      "before": "保障期間",
+      "after": "保証期間",
+      "questionId": "8cf35ed4-a832-4d00-a427-e7aab38a0d6f",
+      "groupId": "5510f4b0-1f53-4b6a-a5eb-b99f5276bb7c",
+      "correctOption": 3,
+      "baselineHash": "8bf02df09afac0ac2460664aeb74e87ed5c0de03dd5517e6c05e02dc04f52cef",
+      "explanationHash": "2f5bdaaa7f88eb36e72843d132b8a7a6d7ff596fb1c01ebd80a2fd44db5dc484"
+    },
+    {
+      "number": 80,
+      "before": "配送量の無料化",
+      "after": "配送料の無料化",
+      "questionId": "24bf6864-a5d9-4224-ae95-97714017c2fa",
+      "groupId": "f1751a6a-7a0c-44e5-a4b0-c3f1f7686cc0",
+      "correctOption": 3,
+      "baselineHash": "47c683241039a1cae30f20e9e68ab648d50166a969dcd9a808747b390e4ce68b",
+      "explanationHash": "d5528183da6455079b9bd0903b9c2555612b2a875dab3d94ad95b97a08c59fa6"
+    },
+    {
+      "number": 89,
+      "before": "店舗の新設にも値上げには賛成",
+      "after": "店舗の新設にも値上げにも賛成",
+      "questionId": "3f485f75-3189-4a55-a086-30f4593e1751",
+      "groupId": "67b3335c-9a26-4a7c-a712-953f46855e6a",
+      "correctOption": 3,
+      "baselineHash": "a5a035ba4e211f84577a4985116ad800bd2e72d41cb0caadfd02d2771e33414b",
+      "explanationHash": "e795fef0337bb9cc7528b40047f86f660470f815bd9fd56dc52ca8d63d0da65b"
+    }
+  ]
+}
