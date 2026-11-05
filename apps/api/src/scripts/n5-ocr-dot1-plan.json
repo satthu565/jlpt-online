@@ -1,0 +1,6309 @@
+{
+  "auditId": "n5-ocr-dot1-2026-11-05",
+  "patches": [
+    {
+      "slug": "n5-2025-07",
+      "num": 31,
+      "field": "stem",
+      "before": [
+        {
+          "t": "text",
+          "text": "そふの　いえの　にわ　"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "　"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "　"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "　"
+        },
+        {
+          "t": "star"
+        },
+        {
+          "t": "text",
+          "text": "　あります。"
+        }
+      ],
+      "after": [
+        {
+          "t": "text",
+          "text": "そふの　"
+        },
+        {
+          "t": "ruby",
+          "text": "家",
+          "rt": "いえ"
+        },
+        {
+          "t": "text",
+          "text": "の　にわ　"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "　"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "　"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "　"
+        },
+        {
+          "t": "star"
+        },
+        {
+          "t": "text",
+          "text": "　あります。"
+        }
+      ],
+      "answerBefore": 3,
+      "questionId": "1765c5c5-3a11-42b0-ab91-05ad86f12f8a",
+      "groupId": "14b10685-f891-49de-ac1d-24c96bc320a1",
+      "reason": "Chữ kanji 家 bị chuyển nhầm thành hiragana いえ theo furigana.",
+      "evidence": [
+        {
+          "id": "F001",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            13
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 39,
+      "field": "passage",
+      "before": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "(1)"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "じてんしゃは　いりませんか。"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "新しい　じてんしゃを　買いましたから、前　使って　いた　じてんしゃを　あげます。赤くて、小さいです。まだ　きれいです。ほしい　人は　今週中に　メールを　ください。"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "ヤン・タイゲン"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "Eメール：yang@abc.def"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "(1)"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "（日本語学校で）"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "学生が この 紙を 見ました。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "― じてんしゃは いりませんか ―"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "じてんしゃを あげます。2年前に 買った じてんしゃです。私の 家は 学校の 近くですから、とりに 来て ください。ほしい 人は 電話を して ください。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "ヤン・タイゲン (031-849-4321)"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 4,
+      "questionId": "c4a82047-8a28-4dc0-aa54-7d88d6fd433f",
+      "groupId": "b69af7b4-e3ec-476c-a2b3-8f141b9e3f59",
+      "reason": "Toàn văn passage bài đọc bị sai khác hoàn toàn so với đề gốc (bản snapshot dùng văn bản email thay vì thông báo số điện thoại trong đề thi in).",
+      "evidence": [
+        {
+          "id": "F002",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            18
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 40,
+      "field": "passage",
+      "before": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "(2)"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "わたしの　町の　駅の　近くに、魚屋が　二つ　あります。駅から　歩いて　3分の　ところに　魚安が、5分の　ところに　魚政が　あります。魚安は　魚が　安いです。魚政は　あまり　安くありませんが、魚が　新しくて　おいしいです。魚政の　となりに　本屋が　あります。わたしは　本を　買った　あとで、いつも　その　となりの　魚屋へ　行きます。"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "(2)"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "私の 町には 魚屋が 二つ あります。本屋の となりの 店は おいしい 魚が 多いですが、高いです。駅の 前の 店は 安いですが、あまり おいしくありません。今日は おいしい 魚が 買いたいですから、( )。"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 1,
+      "questionId": "42620d22-f50a-4375-a164-86e1d5e4a051",
+      "groupId": "551d992c-8211-4752-aead-51581497000f",
+      "reason": "Passage trong snapshot bị thay thế hoàn toàn bằng một bài đọc khác có tên cửa hàng 魚安/魚政.",
+      "evidence": [
+        {
+          "id": "F005",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            19
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 41,
+      "field": "passage",
+      "before": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "レストラン「花」の　みなさんへ"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "わたしは　去年の　4月から　1年間、この　店で　仕事を　しました。料理の　作り方や、日本の　言葉や　マナーを　たくさん　教えて　もらいました。"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "仕事が　おもしろくなくて、やめたいと　思った　日も　ありました。でも、店長や　みなさんが　いつも　親切に　して　くれたので、楽しく　仕事を　続ける　ことが　できました。"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "来週、国へ　帰ります。国の　大学を　卒業した　あとで、また　日本へ　来ます。5月から　東京の　パークホテルで　仕事を　します。"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "いろいろ　ありがとうございました。お元気で。"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "3月28日"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "カルロス・ロペス"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "マルタさんは 先月まで レストラン「花」で はたらいて いました。これは、マルタさんが レストラン「花」の みなさんに 書いた 手紙です。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "「花」のみなさんへ"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "こんにちは。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "日本では さくらが さいて いますか。わたしが 国に 帰ってから もう 2週間です。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "みなさん、2年間 ありがとうございました。わたしは 日本で とても 楽しかったです。みなさんと いっしょに はたらいて、いろいろな ことを べんきょうしました。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "来月からは 国の パークホテルの レストランで はたらきます。そして、9月に けっこんします。けっこんパーティーは パークホテルで します。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "それでは また 手紙を 書きますね。少し 遠いですが、わたしの 国へも あそびに 来て ください。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "みなさん、ほんとうに ありがとうございました。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "4月15日"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "マルタ"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 3,
+      "questionId": "3eeee36a-75a5-42d4-abf3-03bfe860c63d",
+      "groupId": "a39ce4c6-c76c-4886-aa78-315476b254c1",
+      "reason": "Đoạn văn chung bài trung văn Mondai 5 bị thay thế hoàn toàn nhân vật (Marta thành Carlos Lopez), ngày tháng (4月15日 thành 3月28日) và các chi tiết sự kiện.",
+      "evidence": [
+        {
+          "id": "F008",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            20
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 39,
+      "field": "stem",
+      "before": [
+        {
+          "t": "text",
+          "text": "ヤンさんは　だれに　メールを　して　ほしいですか。"
+        }
+      ],
+      "after": [
+        {
+          "t": "text",
+          "text": "ヤンさんは、どんな 人に 「電話を して ください。」と 言って いますか。"
+        }
+      ],
+      "answerBefore": 4,
+      "questionId": "c4a82047-8a28-4dc0-aa54-7d88d6fd433f",
+      "groupId": "b69af7b4-e3ec-476c-a2b3-8f141b9e3f59",
+      "reason": "Câu hỏi stem trong snapshot bị thay đổi nội dung hoàn toàn (hỏi về gửi email thay vì gọi điện thoại).",
+      "evidence": [
+        {
+          "id": "F003",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            18
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 40,
+      "field": "stem",
+      "before": [
+        {
+          "t": "text",
+          "text": "「わたし」は　どの　店へ　行きますか。"
+        }
+      ],
+      "after": [
+        {
+          "t": "text",
+          "text": "( )の 中に 入る 文は どれですか。"
+        }
+      ],
+      "answerBefore": 1,
+      "questionId": "42620d22-f50a-4375-a164-86e1d5e4a051",
+      "groupId": "551d992c-8211-4752-aead-51581497000f",
+      "reason": "Đề gốc là điền câu vào chỗ trống ( ) cuối đoạn văn, snapshot bị sửa thành câu hỏi 'tôi đi đến cửa hàng nào'.",
+      "evidence": [
+        {
+          "id": "F006",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            19
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 43,
+      "field": "stem",
+      "before": [
+        {
+          "t": "text",
+          "text": "アンさんは　木曜日の　午後に　料理を　習いたいです。お金は　1,300円　持っています。アンさんは　何日に　行きますか。"
+        }
+      ],
+      "after": [
+        {
+          "t": "text",
+          "text": "ジスさんは、木曜日の 午後に りょうりを 習いたいです。やさいを 使った りょうりが いいです。どの クラスの 何日に 行きますか。"
+        }
+      ],
+      "answerBefore": 4,
+      "questionId": "bedc138f-0a7d-4308-ad4f-57f7845b83a0",
+      "groupId": "2dfec995-fd7b-42c0-af6c-3b22b86a811a",
+      "reason": "Tên nhân vật trong stem bị đổi từ ジスさん thành アンさん, điều kiện chọn lớp bị đổi từ 'yêu thích món ăn dùng rau' thành 'có 1300 yên'.",
+      "evidence": [
+        {
+          "id": "F011",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            22
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 39,
+      "field": "options",
+      "before": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "ヤンさんに　新しい　じてんしゃを　あげたい　人"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "ヤンさんに　じてんしゃを　買いたい　人"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "ヤンさんから　新しい　じてんしゃを　もらいたい　人"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "ヤンさんから　じてんしゃを　もらいたい　人"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "だれかに じてんしゃを あげたい 人"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "2年前に じてんしゃを 買った 人"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "学校の 近くに 住みたい 人"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "ヤンさんに じてんしゃを もらいたい 人"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 4,
+      "questionId": "c4a82047-8a28-4dc0-aa54-7d88d6fd433f",
+      "groupId": "b69af7b4-e3ec-476c-a2b3-8f141b9e3f59",
+      "reason": "Cả 4 lựa chọn trong snapshot bị sai lệch nội dung so với đề gốc.",
+      "evidence": [
+        {
+          "id": "F004",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            18
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 40,
+      "field": "options",
+      "before": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "本屋の　となりの　店"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "魚安の　となりの　店"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "駅から　歩いて　3分の　店"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "魚が　安い　店"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "本屋の となりの 店に 行きます"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "駅の 前の 店に 行きます"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "二つの 店に 行きます"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "魚屋に 行きません"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 1,
+      "questionId": "42620d22-f50a-4375-a164-86e1d5e4a051",
+      "groupId": "551d992c-8211-4752-aead-51581497000f",
+      "reason": "Bốn phương án trong snapshot bị sửa theo đoạn văn giả lập.",
+      "evidence": [
+        {
+          "id": "F007",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            19
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 41,
+      "field": "stem",
+      "before": [
+        {
+          "t": "text",
+          "text": "カルロスさんは　国へ　帰った　あとで、どう　しますか。"
+        }
+      ],
+      "after": [
+        {
+          "t": "text",
+          "text": "手紙を 書いた後、マルタさんは どうしますか。"
+        }
+      ],
+      "answerBefore": 3,
+      "questionId": "3eeee36a-75a5-42d4-abf3-03bfe860c63d",
+      "groupId": "a39ce4c6-c76c-4886-aa78-315476b254c1",
+      "reason": "Stem và 4 options của câu Q41 bị thay đổi toàn bộ tên nhân vật và nội dung.",
+      "evidence": [
+        {
+          "id": "F009",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            21
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 41,
+      "field": "options",
+      "before": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "日本の　大学へ　行きます。"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "レストラン「花」で　仕事を　します。"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "5月から　パークホテルで　仕事を　します。"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "国の　パークホテルで　仕事を　します。"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "2週間後に 国へ 帰ります。"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "2年間 レストラン「花」で はたらきます。"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "5月から パークホテルで しごとを します。"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "9月に 日本で けっこんパーティーを します。"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 3,
+      "questionId": "3eeee36a-75a5-42d4-abf3-03bfe860c63d",
+      "groupId": "a39ce4c6-c76c-4886-aa78-315476b254c1",
+      "reason": "Stem và 4 options của câu Q41 bị thay đổi toàn bộ tên nhân vật và nội dung.",
+      "evidence": [
+        {
+          "id": "F009",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            21
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 42,
+      "field": "stem",
+      "before": [
+        {
+          "t": "text",
+          "text": "カルロスさんが　この　手紙で　いちばん　言いたい　ことは　何ですか。"
+        }
+      ],
+      "after": [
+        {
+          "t": "text",
+          "text": "この手紙で マルタさんは 何が いちばん 言いたいですか。"
+        }
+      ],
+      "answerBefore": 2,
+      "questionId": "f63ebc59-8a59-447a-aad4-93714b04392f",
+      "groupId": "a39ce4c6-c76c-4886-aa78-315476b254c1",
+      "reason": "Stem và các options của câu Q42 bị thay đổi so với bản gốc đề thi.",
+      "evidence": [
+        {
+          "id": "F010",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            21
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 42,
+      "field": "options",
+      "before": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "仕事は　おもしろくなかったです。"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "いろいろ　ありがとうございました。"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "店長や　みなさんは　親切でした。"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "1年間　仕事を　しました。"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "みなさん お帰りなさい。"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "いろいろ ありがとうございました。"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "けっこん おめでとうございます。"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "パーティーに 来て ください。"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 2,
+      "questionId": "f63ebc59-8a59-447a-aad4-93714b04392f",
+      "groupId": "a39ce4c6-c76c-4886-aa78-315476b254c1",
+      "reason": "Stem và các options của câu Q42 bị thay đổi so với bản gốc đề thi.",
+      "evidence": [
+        {
+          "id": "F010",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            21
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 39,
+      "field": "explanation",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "emphasis",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "Dịch nghĩa đoạn văn:"
+                  }
+                ]
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "\"Bạn có cần xe đạp không?"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Vì tôi đã mua xe đạp mới nên tôi sẽ tặng lại chiếc xe đạp đã dùng trước đây. Xe màu đỏ và nhỏ. Vẫn còn rất đẹp. Ai muốn nhận thì hãy gửi email cho tôi trong tuần này."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Yang Taigen - Email: yang@abc.def\""
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "emphasis",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "Phân tích câu hỏi và các lựa chọn:"
+                  }
+                ]
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Câu hỏi: 「ヤンさんは　だれに　メールを　して　ほしいですか。」 (Yang muốn ai gửi email cho mình?)"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Trong bài, Yang viết: 「前　使って　いた　じてんしゃを　あげます。... ほしい　人は　今週中に　メールを　ください。」 (Tôi tặng lại xe đạp đã dùng trước đây. Ai muốn nhận hãy gửi email). Do đó, đối tượng Yang muốn nhận email là người muốn nhận xe đạp từ Yang."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 1: 「ヤンさんに　新しい　じてんしゃを　あげたい　人」 (Người muốn tặng xe đạp mới cho Yang) → Sai vì Yang là người cho, không phải người nhận xe."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 2: 「ヤンさんに　じてんしゃを　買いたい　人」 (Người muốn mua xe đạp cho Yang) → Sai."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 3: 「ヤンさんから　新しい　じてんしゃを　もらいたい　人」 (Người muốn nhận xe đạp MỚI từ Yang) → Sai vì xe đem tặng là xe cũ đã dùng (前使っていたじてんしゃ), không phải xe mới mua."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 4: 「ヤンさんから　じてんしゃを　もらいたい　人」 (Người muốn nhận xe đạp từ Yang) → Đúng hoàn toàn với nội dung bài viết."
+              }
+            ]
+          }
+        ],
+        "locale": "vi"
+      },
+      "after": {
+        "locale": "vi",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Yang muốn những người như thế nào gọi điện cho mình?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[4] ヤンさんに じてんしゃを もらいたい 人. Thông báo cho chiếc xe đạp đã mua hai năm trước; ai muốn nhận xe thì gọi điện và đến lấy vì nhà Yang gần trường."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[1] Người muốn cho xe đạp là Yang, không phải người cần gọi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[2] Hai năm trước là thời điểm Yang mua xe, không phải điều kiện dành cho người gọi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[3] Gần trường là vị trí nhà Yang, không phải yêu cầu người nhận muốn chuyển đến."
+              }
+            ]
+          }
+        ]
+      },
+      "answerBefore": 4,
+      "questionId": "c4a82047-8a28-4dc0-aa54-7d88d6fd433f",
+      "groupId": "b69af7b4-e3ec-476c-a2b3-8f141b9e3f59",
+      "reason": "Toàn văn passage bài đọc bị sai khác hoàn toàn so với đề gốc (bản snapshot dùng văn bản email thay vì thông báo số điện thoại trong đề thi in).; Câu hỏi stem trong snapshot bị thay đổi nội dung hoàn toàn (hỏi về gửi email thay vì gọi điện thoại).; Cả 4 lựa chọn trong snapshot bị sai lệch nội dung so với đề gốc.",
+      "evidence": [
+        {
+          "id": "F002",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            18
+          ]
+        },
+        {
+          "id": "F003",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            18
+          ]
+        },
+        {
+          "id": "F004",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            18
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 39,
+      "field": "explanation_vi",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "emphasis",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "Dịch nghĩa đoạn văn:"
+                  }
+                ]
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "\"Bạn có cần xe đạp không?"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Vì tôi đã mua xe đạp mới nên tôi sẽ tặng lại chiếc xe đạp đã dùng trước đây. Xe màu đỏ và nhỏ. Vẫn còn rất đẹp. Ai muốn nhận thì hãy gửi email cho tôi trong tuần này."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Yang Taigen - Email: yang@abc.def\""
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "emphasis",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "Phân tích câu hỏi và các lựa chọn:"
+                  }
+                ]
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Câu hỏi: 「ヤンさんは　だれに　メールを　して　ほしいですか。」 (Yang muốn ai gửi email cho mình?)"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Trong bài, Yang viết: 「前　使って　いた　じてんしゃを　あげます。... ほしい　人は　今週中に　メールを　ください。」 (Tôi tặng lại xe đạp đã dùng trước đây. Ai muốn nhận hãy gửi email). Do đó, đối tượng Yang muốn nhận email là người muốn nhận xe đạp từ Yang."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 1: 「ヤンさんに　新しい　じてんしゃを　あげたい　人」 (Người muốn tặng xe đạp mới cho Yang) → Sai vì Yang là người cho, không phải người nhận xe."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 2: 「ヤンさんに　じてんしゃを　買いたい　人」 (Người muốn mua xe đạp cho Yang) → Sai."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 3: 「ヤンさんから　新しい　じてんしゃを　もらいたい　人」 (Người muốn nhận xe đạp MỚI từ Yang) → Sai vì xe đem tặng là xe cũ đã dùng (前使っていたじてんしゃ), không phải xe mới mua."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 4: 「ヤンさんから　じてんしゃを　もらいたい　人」 (Người muốn nhận xe đạp từ Yang) → Đúng hoàn toàn với nội dung bài viết."
+              }
+            ]
+          }
+        ],
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "c4a82047-8a28-4dc0-aa54-7d88d6fd433f",
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "Dịch nghĩa đoạn văn:\n\"Bạn có cần xe đạp không?\nVì tôi đã mua xe đạp mới nên tôi sẽ tặng lại chiếc xe đạp đã dùng trước đây. Xe màu đỏ và nhỏ. Vẫn còn rất đẹp. Ai muốn nhận thì hãy gửi email cho tôi trong tuần này.\nYang Taigen - Email: yang@abc.def\"\n\nPhân tích câu hỏi và các lựa chọn:\nCâu hỏi: 「ヤンさんは　だれに　メールを　して　ほしいですか。」 (Yang muốn ai gửi email cho mình?)\nTrong bài, Yang viết: 「前　使って　いた　じてんしゃを　あげます。... ほしい　人は　今週中に　メールを　ください。」 (Tôi tặng lại xe đạp đã dùng trước đây. Ai muốn nhận hãy gửi email). Do đó, đối tượng Yang muốn nhận email là người muốn nhận xe đạp từ Yang.\n• Lựa chọn 1: 「ヤンさんに　新しい　じてんしゃを　あげたい　人」 (Người muốn tặng xe đạp mới cho Yang) → Sai vì Yang là người cho, không phải người nhận xe.\n• Lựa chọn 2: 「ヤンさんに　じてんしゃを　買いたい　人」 (Người muốn mua xe đạp cho Yang) → Sai.\n• Lựa chọn 3: 「ヤンさんから　新しい　じてんしゃを　もらいたい　人」 (Người muốn nhận xe đạp MỚI từ Yang) → Sai vì xe đem tặng là xe cũ đã dùng (前使っていたじてんしゃ), không phải xe mới mua.\n• Lựa chọn 4: 「ヤンさんから　じてんしゃを　もらいたい　人」 (Người muốn nhận xe đạp từ Yang) → Đúng hoàn toàn với nội dung bài viết."
+          }
+        ],
+        "humanReviewed": false,
+        "translationVi": "",
+        "contentVersion": 1,
+        "explanationMarkdown": "**Lý do đúng**:\nDịch nghĩa đoạn văn:\n\"Bạn có cần xe đạp không?\nVì tôi đã mua xe đạp mới nên tôi sẽ tặng lại chiếc xe đạp đã dùng trước đây. Xe màu đỏ và nhỏ. Vẫn còn rất đẹp. Ai muốn nhận thì hãy gửi email cho tôi trong tuần này.\nYang Taigen - Email: yang@abc.def\"\n\nPhân tích câu hỏi và các lựa chọn:\nCâu hỏi: 「ヤンさんは　だれに　メールを　して　ほしいですか。」 (Yang muốn ai gửi email cho mình?)\nTrong bài, Yang viết: 「前　使って　いた　じてんしゃを　あげます。... ほしい　人は　今週中に　メールを　ください。」 (Tôi tặng lại xe đạp đã dùng trước đây. Ai muốn nhận hãy gửi email). Do đó, đối tượng Yang muốn nhận email là người muốn nhận xe đạp từ Yang.\n• Lựa chọn 1: 「ヤンさんに　新しい　じてんしゃを　あげたい　人」 (Người muốn tặng xe đạp mới cho Yang) → Sai vì Yang là người cho, không phải người nhận xe.\n• Lựa chọn 2: 「ヤンさんに　じてんしゃを　買いたい　人」 (Người muốn mua xe đạp cho Yang) → Sai.\n• Lựa chọn 3: 「ヤンさんから　新しい　じてんしゃを　もらいたい　人」 (Người muốn nhận xe đạp MỚI từ Yang) → Sai vì xe đem tặng là xe cũ đã dùng (前使っていたじてんしゃ), không phải xe mới mua.\n• Lựa chọn 4: 「ヤンさんから　じてんしゃを　もらいたい　人」 (Người muốn nhận xe đạp từ Yang) → Đúng hoàn toàn với nội dung bài viết."
+      },
+      "after": {
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "c4a82047-8a28-4dc0-aa54-7d88d6fd433f",
+        "contentVersion": 1,
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Yang muốn những người như thế nào gọi điện cho mình?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[4] ヤンさんに じてんしゃを もらいたい 人. Thông báo cho chiếc xe đạp đã mua hai năm trước; ai muốn nhận xe thì gọi điện và đến lấy vì nhà Yang gần trường."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[1] Người muốn cho xe đạp là Yang, không phải người cần gọi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[2] Hai năm trước là thời điểm Yang mua xe, không phải điều kiện dành cho người gọi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[3] Gần trường là vị trí nhà Yang, không phải yêu cầu người nhận muốn chuyển đến."
+              }
+            ]
+          }
+        ],
+        "translation": [
+          {
+            "t": "text",
+            "text": "Yang muốn những người như thế nào gọi điện cho mình?"
+          }
+        ],
+        "translationVi": "Yang muốn những người như thế nào gọi điện cho mình?",
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "[4] ヤンさんに じてんしゃを もらいたい 人. Thông báo cho chiếc xe đạp đã mua hai năm trước; ai muốn nhận xe thì gọi điện và đến lấy vì nhà Yang gần trường."
+          }
+        ],
+        "wrongReasonsByOption": {
+          "1": [
+            {
+              "t": "text",
+              "text": "Người muốn cho xe đạp là Yang, không phải người cần gọi."
+            }
+          ],
+          "2": [
+            {
+              "t": "text",
+              "text": "Hai năm trước là thời điểm Yang mua xe, không phải điều kiện dành cho người gọi."
+            }
+          ],
+          "3": [
+            {
+              "t": "text",
+              "text": "Gần trường là vị trí nhà Yang, không phải yêu cầu người nhận muốn chuyển đến."
+            }
+          ]
+        },
+        "humanReviewed": true,
+        "explanationMarkdown": "Yang muốn những người như thế nào gọi điện cho mình?\n\n[4] ヤンさんに じてんしゃを もらいたい 人. Thông báo cho chiếc xe đạp đã mua hai năm trước; ai muốn nhận xe thì gọi điện và đến lấy vì nhà Yang gần trường.\n\n[1] Người muốn cho xe đạp là Yang, không phải người cần gọi.\n\n[2] Hai năm trước là thời điểm Yang mua xe, không phải điều kiện dành cho người gọi.\n\n[3] Gần trường là vị trí nhà Yang, không phải yêu cầu người nhận muốn chuyển đến."
+      },
+      "answerBefore": 4,
+      "questionId": "c4a82047-8a28-4dc0-aa54-7d88d6fd433f",
+      "groupId": "b69af7b4-e3ec-476c-a2b3-8f141b9e3f59",
+      "reason": "Toàn văn passage bài đọc bị sai khác hoàn toàn so với đề gốc (bản snapshot dùng văn bản email thay vì thông báo số điện thoại trong đề thi in).; Câu hỏi stem trong snapshot bị thay đổi nội dung hoàn toàn (hỏi về gửi email thay vì gọi điện thoại).; Cả 4 lựa chọn trong snapshot bị sai lệch nội dung so với đề gốc.",
+      "evidence": [
+        {
+          "id": "F002",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            18
+          ]
+        },
+        {
+          "id": "F003",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            18
+          ]
+        },
+        {
+          "id": "F004",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            18
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 40,
+      "field": "explanation",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "emphasis",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "Dịch nghĩa đoạn văn:"
+                  }
+                ]
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "\"Ở gần nhà ga trong thị trấn của tôi có hai cửa hàng cá. Đi bộ 3 phút từ ga có quán Uoyasu, đi bộ 5 phút có quán Uomasa. Uoyasu thì cá rẻ. Uomasa thì không rẻ lắm nhưng cá tươi ngon. Cạnh quán Uomasa có một hiệu sách. Sau khi mua sách, tôi luôn ghé vào tiệm cá bên cạnh đó.\""
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "emphasis",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "Phân tích câu hỏi và các lựa chọn:"
+                  }
+                ]
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Câu hỏi: 「「わたし」は　どの　店へ　行きますか。」 (Tác giả đi đến cửa hàng nào?)"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Bài viết nêu rõ: 「魚政の　となりに　本屋が　あります。わたしは　本を　買った　あとで、いつも　その　となりの　魚屋へ　行きます。」 (Cạnh Uomasa có hiệu sách. Sau khi mua sách, tôi luôn ghé tiệm cá bên cạnh hiệu sách đó). Cửa hàng cá mà tác giả ghé đến chính là quán Uomasa, nằm ở bên cạnh hiệu sách (本屋のとなりの店)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 1: 「本屋の　となりの　店」 (Cửa hàng bên cạnh hiệu sách) → Đúng chính xác."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 2: 「魚安の　となりの　店」 (Cửa hàng bên cạnh Uoyasu) → Sai."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 3: 「駅から　歩いて　3分の　店」 (Cửa hàng đi bộ 3 phút từ ga) → Sai vì đó là Uoyasu."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 4: 「魚が　安い　店」 (Cửa hàng cá rẻ) → Sai vì Uoyasu mới rẻ, còn quán tác giả đến là Uomasa."
+              }
+            ]
+          }
+        ],
+        "locale": "vi"
+      },
+      "after": {
+        "locale": "vi",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Câu nào thích hợp điền vào cuối đoạn văn?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[1] 本屋の となりの 店に 行きます. Hôm nay người viết muốn mua cá ngon, nên chọn tiệm cạnh hiệu sách: cá ngon dù giá cao."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[2] Tiệm trước ga rẻ nhưng cá không ngon lắm."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[3] Người viết chọn tiệm đáp ứng nhu cầu mua cá ngon, không nói đi cả hai tiệm."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[4] Người viết muốn mua cá nên vẫn đi tiệm cá."
+              }
+            ]
+          }
+        ]
+      },
+      "answerBefore": 1,
+      "questionId": "42620d22-f50a-4375-a164-86e1d5e4a051",
+      "groupId": "551d992c-8211-4752-aead-51581497000f",
+      "reason": "Passage trong snapshot bị thay thế hoàn toàn bằng một bài đọc khác có tên cửa hàng 魚安/魚政.; Đề gốc là điền câu vào chỗ trống ( ) cuối đoạn văn, snapshot bị sửa thành câu hỏi 'tôi đi đến cửa hàng nào'.; Bốn phương án trong snapshot bị sửa theo đoạn văn giả lập.",
+      "evidence": [
+        {
+          "id": "F005",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            19
+          ]
+        },
+        {
+          "id": "F006",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            19
+          ]
+        },
+        {
+          "id": "F007",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            19
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 40,
+      "field": "explanation_vi",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "emphasis",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "Dịch nghĩa đoạn văn:"
+                  }
+                ]
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "\"Ở gần nhà ga trong thị trấn của tôi có hai cửa hàng cá. Đi bộ 3 phút từ ga có quán Uoyasu, đi bộ 5 phút có quán Uomasa. Uoyasu thì cá rẻ. Uomasa thì không rẻ lắm nhưng cá tươi ngon. Cạnh quán Uomasa có một hiệu sách. Sau khi mua sách, tôi luôn ghé vào tiệm cá bên cạnh đó.\""
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "emphasis",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "Phân tích câu hỏi và các lựa chọn:"
+                  }
+                ]
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Câu hỏi: 「「わたし」は　どの　店へ　行きますか。」 (Tác giả đi đến cửa hàng nào?)"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Bài viết nêu rõ: 「魚政の　となりに　本屋が　あります。わたしは　本を　買った　あとで、いつも　その　となりの　魚屋へ　行きます。」 (Cạnh Uomasa có hiệu sách. Sau khi mua sách, tôi luôn ghé tiệm cá bên cạnh hiệu sách đó). Cửa hàng cá mà tác giả ghé đến chính là quán Uomasa, nằm ở bên cạnh hiệu sách (本屋のとなりの店)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 1: 「本屋の　となりの　店」 (Cửa hàng bên cạnh hiệu sách) → Đúng chính xác."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 2: 「魚安の　となりの　店」 (Cửa hàng bên cạnh Uoyasu) → Sai."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 3: 「駅から　歩いて　3分の　店」 (Cửa hàng đi bộ 3 phút từ ga) → Sai vì đó là Uoyasu."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 4: 「魚が　安い　店」 (Cửa hàng cá rẻ) → Sai vì Uoyasu mới rẻ, còn quán tác giả đến là Uomasa."
+              }
+            ]
+          }
+        ],
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "42620d22-f50a-4375-a164-86e1d5e4a051",
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "Dịch nghĩa đoạn văn:\n\"Ở gần nhà ga trong thị trấn của tôi có hai cửa hàng cá. Đi bộ 3 phút từ ga có quán Uoyasu, đi bộ 5 phút có quán Uomasa. Uoyasu thì cá rẻ. Uomasa thì không rẻ lắm nhưng cá tươi ngon. Cạnh quán Uomasa có một hiệu sách. Sau khi mua sách, tôi luôn ghé vào tiệm cá bên cạnh đó.\"\n\nPhân tích câu hỏi và các lựa chọn:\nCâu hỏi: 「「わたし」は　どの　店へ　行きますか。」 (Tác giả đi đến cửa hàng nào?)\nBài viết nêu rõ: 「魚政の　となりに　本屋が　あります。わたしは　本を　買った　あとで、いつも　その　となりの　魚屋へ　行きます。」 (Cạnh Uomasa có hiệu sách. Sau khi mua sách, tôi luôn ghé tiệm cá bên cạnh hiệu sách đó). Cửa hàng cá mà tác giả ghé đến chính là quán Uomasa, nằm ở bên cạnh hiệu sách (本屋のとなりの店).\n• Lựa chọn 1: 「本屋の　となりの　店」 (Cửa hàng bên cạnh hiệu sách) → Đúng chính xác.\n• Lựa chọn 2: 「魚安の　となりの　店」 (Cửa hàng bên cạnh Uoyasu) → Sai.\n• Lựa chọn 3: 「駅から　歩いて　3分の　店」 (Cửa hàng đi bộ 3 phút từ ga) → Sai vì đó là Uoyasu.\n• Lựa chọn 4: 「魚が　安い　店」 (Cửa hàng cá rẻ) → Sai vì Uoyasu mới rẻ, còn quán tác giả đến là Uomasa."
+          }
+        ],
+        "humanReviewed": false,
+        "translationVi": "",
+        "contentVersion": 1,
+        "explanationMarkdown": "**Lý do đúng**:\nDịch nghĩa đoạn văn:\n\"Ở gần nhà ga trong thị trấn của tôi có hai cửa hàng cá. Đi bộ 3 phút từ ga có quán Uoyasu, đi bộ 5 phút có quán Uomasa. Uoyasu thì cá rẻ. Uomasa thì không rẻ lắm nhưng cá tươi ngon. Cạnh quán Uomasa có một hiệu sách. Sau khi mua sách, tôi luôn ghé vào tiệm cá bên cạnh đó.\"\n\nPhân tích câu hỏi và các lựa chọn:\nCâu hỏi: 「「わたし」は　どの　店へ　行きますか。」 (Tác giả đi đến cửa hàng nào?)\nBài viết nêu rõ: 「魚政の　となりに　本屋が　あります。わたしは　本を　買った　あとで、いつも　その　となりの　魚屋へ　行きます。」 (Cạnh Uomasa có hiệu sách. Sau khi mua sách, tôi luôn ghé tiệm cá bên cạnh hiệu sách đó). Cửa hàng cá mà tác giả ghé đến chính là quán Uomasa, nằm ở bên cạnh hiệu sách (本屋のとなりの店).\n• Lựa chọn 1: 「本屋の　となりの　店」 (Cửa hàng bên cạnh hiệu sách) → Đúng chính xác.\n• Lựa chọn 2: 「魚安の　となりの　店」 (Cửa hàng bên cạnh Uoyasu) → Sai.\n• Lựa chọn 3: 「駅から　歩いて　3分の　店」 (Cửa hàng đi bộ 3 phút từ ga) → Sai vì đó là Uoyasu.\n• Lựa chọn 4: 「魚が　安い　店」 (Cửa hàng cá rẻ) → Sai vì Uoyasu mới rẻ, còn quán tác giả đến là Uomasa."
+      },
+      "after": {
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "42620d22-f50a-4375-a164-86e1d5e4a051",
+        "contentVersion": 1,
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Câu nào thích hợp điền vào cuối đoạn văn?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[1] 本屋の となりの 店に 行きます. Hôm nay người viết muốn mua cá ngon, nên chọn tiệm cạnh hiệu sách: cá ngon dù giá cao."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[2] Tiệm trước ga rẻ nhưng cá không ngon lắm."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[3] Người viết chọn tiệm đáp ứng nhu cầu mua cá ngon, không nói đi cả hai tiệm."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[4] Người viết muốn mua cá nên vẫn đi tiệm cá."
+              }
+            ]
+          }
+        ],
+        "translation": [
+          {
+            "t": "text",
+            "text": "Câu nào thích hợp điền vào cuối đoạn văn?"
+          }
+        ],
+        "translationVi": "Câu nào thích hợp điền vào cuối đoạn văn?",
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "[1] 本屋の となりの 店に 行きます. Hôm nay người viết muốn mua cá ngon, nên chọn tiệm cạnh hiệu sách: cá ngon dù giá cao."
+          }
+        ],
+        "wrongReasonsByOption": {
+          "2": [
+            {
+              "t": "text",
+              "text": "Tiệm trước ga rẻ nhưng cá không ngon lắm."
+            }
+          ],
+          "3": [
+            {
+              "t": "text",
+              "text": "Người viết chọn tiệm đáp ứng nhu cầu mua cá ngon, không nói đi cả hai tiệm."
+            }
+          ],
+          "4": [
+            {
+              "t": "text",
+              "text": "Người viết muốn mua cá nên vẫn đi tiệm cá."
+            }
+          ]
+        },
+        "humanReviewed": true,
+        "explanationMarkdown": "Câu nào thích hợp điền vào cuối đoạn văn?\n\n[1] 本屋の となりの 店に 行きます. Hôm nay người viết muốn mua cá ngon, nên chọn tiệm cạnh hiệu sách: cá ngon dù giá cao.\n\n[2] Tiệm trước ga rẻ nhưng cá không ngon lắm.\n\n[3] Người viết chọn tiệm đáp ứng nhu cầu mua cá ngon, không nói đi cả hai tiệm.\n\n[4] Người viết muốn mua cá nên vẫn đi tiệm cá."
+      },
+      "answerBefore": 1,
+      "questionId": "42620d22-f50a-4375-a164-86e1d5e4a051",
+      "groupId": "551d992c-8211-4752-aead-51581497000f",
+      "reason": "Passage trong snapshot bị thay thế hoàn toàn bằng một bài đọc khác có tên cửa hàng 魚安/魚政.; Đề gốc là điền câu vào chỗ trống ( ) cuối đoạn văn, snapshot bị sửa thành câu hỏi 'tôi đi đến cửa hàng nào'.; Bốn phương án trong snapshot bị sửa theo đoạn văn giả lập.",
+      "evidence": [
+        {
+          "id": "F005",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            19
+          ]
+        },
+        {
+          "id": "F006",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            19
+          ]
+        },
+        {
+          "id": "F007",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            19
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 41,
+      "field": "explanation",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "emphasis",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "Phân tích câu hỏi và đoạn văn:"
+                  }
+                ]
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Câu hỏi: 「カルロスさんは　国へ　帰った　あとで、どう　しますか。」 (Sau khi về nước, Carlos sẽ làm gì?)"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Đoạn văn nêu rõ: 「国の　大学を　卒業した　あとで、また　日本へ　来ます。5月から　東京の　パークホテルで　仕事を　します。」 (Sau khi tốt nghiệp đại học ở trong nước, tôi sẽ lại sang Nhật. Từ tháng 5 tôi sẽ làm việc ở khách sạn Park Hotel tại Tokyo)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 1: Đến học đại học ở Nhật → Sai vì Carlos tốt nghiệp đại học ở nước mình (国の大学)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 2: Làm việc ở nhà hàng \"Hana\" → Sai vì Carlos chuyển sang làm việc ở khách sạn."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 3: Từ tháng 5 làm việc ở Park Hotel → Đúng với câu văn trong bài."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 4: Làm việc ở Park Hotel ở nước mình → Sai vì khách sạn nằm ở Tokyo (東京のパークホテル)."
+              }
+            ]
+          }
+        ],
+        "locale": "vi"
+      },
+      "after": {
+        "locale": "vi",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Sau khi viết thư, Marta sẽ làm gì?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[3] 5月から パークホテルで しごとを します. Thư đề ngày 15/4, ghi 来月からは 国の パークホテルの レストランで はたらきます: bắt đầu làm tại nhà hàng khách sạn Park ở quê nhà từ tháng 5."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[1] Marta đã về nước được hai tuần khi viết thư."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[2] Hai năm làm việc tại nhà hàng Hoa là chuyện đã qua."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[4] Tiệc cưới tháng 9 diễn ra tại khách sạn Park ở quê nhà, không phải tại Nhật."
+              }
+            ]
+          }
+        ]
+      },
+      "answerBefore": 3,
+      "questionId": "3eeee36a-75a5-42d4-abf3-03bfe860c63d",
+      "groupId": "a39ce4c6-c76c-4886-aa78-315476b254c1",
+      "reason": "Đoạn văn chung bài trung văn Mondai 5 bị thay thế hoàn toàn nhân vật (Marta thành Carlos Lopez), ngày tháng (4月15日 thành 3月28日) và các chi tiết sự kiện.; Stem và 4 options của câu Q41 bị thay đổi toàn bộ tên nhân vật và nội dung.",
+      "evidence": [
+        {
+          "id": "F008",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            20
+          ]
+        },
+        {
+          "id": "F009",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            21
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 41,
+      "field": "explanation_vi",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "emphasis",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "Phân tích câu hỏi và đoạn văn:"
+                  }
+                ]
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Câu hỏi: 「カルロスさんは　国へ　帰った　あとで、どう　しますか。」 (Sau khi về nước, Carlos sẽ làm gì?)"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Đoạn văn nêu rõ: 「国の　大学を　卒業した　あとで、また　日本へ　来ます。5月から　東京の　パークホテルで　仕事を　します。」 (Sau khi tốt nghiệp đại học ở trong nước, tôi sẽ lại sang Nhật. Từ tháng 5 tôi sẽ làm việc ở khách sạn Park Hotel tại Tokyo)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 1: Đến học đại học ở Nhật → Sai vì Carlos tốt nghiệp đại học ở nước mình (国の大学)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 2: Làm việc ở nhà hàng \"Hana\" → Sai vì Carlos chuyển sang làm việc ở khách sạn."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 3: Từ tháng 5 làm việc ở Park Hotel → Đúng với câu văn trong bài."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 4: Làm việc ở Park Hotel ở nước mình → Sai vì khách sạn nằm ở Tokyo (東京のパークホテル)."
+              }
+            ]
+          }
+        ],
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "3eeee36a-75a5-42d4-abf3-03bfe860c63d",
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "Phân tích câu hỏi và đoạn văn:\nCâu hỏi: 「カルロスさんは　国へ　帰った　あとで、どう　しますか。」 (Sau khi về nước, Carlos sẽ làm gì?)\nĐoạn văn nêu rõ: 「国の　大学を　卒業した　あとで、また　日本へ　来ます。5月から　東京の　パークホテルで　仕事を　します。」 (Sau khi tốt nghiệp đại học ở trong nước, tôi sẽ lại sang Nhật. Từ tháng 5 tôi sẽ làm việc ở khách sạn Park Hotel tại Tokyo).\n• Lựa chọn 1: Đến học đại học ở Nhật → Sai vì Carlos tốt nghiệp đại học ở nước mình (国の大学).\n• Lựa chọn 2: Làm việc ở nhà hàng \"Hana\" → Sai vì Carlos chuyển sang làm việc ở khách sạn.\n• Lựa chọn 3: Từ tháng 5 làm việc ở Park Hotel → Đúng với câu văn trong bài.\n• Lựa chọn 4: Làm việc ở Park Hotel ở nước mình → Sai vì khách sạn nằm ở Tokyo (東京のパークホテル)."
+          }
+        ],
+        "humanReviewed": false,
+        "translationVi": "",
+        "contentVersion": 1,
+        "explanationMarkdown": "**Lý do đúng**:\nPhân tích câu hỏi và đoạn văn:\nCâu hỏi: 「カルロスさんは　国へ　帰った　あとで、どう　しますか。」 (Sau khi về nước, Carlos sẽ làm gì?)\nĐoạn văn nêu rõ: 「国の　大学を　卒業した　あとで、また　日本へ　来ます。5月から　東京の　パークホテルで　仕事を　します。」 (Sau khi tốt nghiệp đại học ở trong nước, tôi sẽ lại sang Nhật. Từ tháng 5 tôi sẽ làm việc ở khách sạn Park Hotel tại Tokyo).\n• Lựa chọn 1: Đến học đại học ở Nhật → Sai vì Carlos tốt nghiệp đại học ở nước mình (国の大学).\n• Lựa chọn 2: Làm việc ở nhà hàng \"Hana\" → Sai vì Carlos chuyển sang làm việc ở khách sạn.\n• Lựa chọn 3: Từ tháng 5 làm việc ở Park Hotel → Đúng với câu văn trong bài.\n• Lựa chọn 4: Làm việc ở Park Hotel ở nước mình → Sai vì khách sạn nằm ở Tokyo (東京のパークホテル)."
+      },
+      "after": {
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "3eeee36a-75a5-42d4-abf3-03bfe860c63d",
+        "contentVersion": 1,
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Sau khi viết thư, Marta sẽ làm gì?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[3] 5月から パークホテルで しごとを します. Thư đề ngày 15/4, ghi 来月からは 国の パークホテルの レストランで はたらきます: bắt đầu làm tại nhà hàng khách sạn Park ở quê nhà từ tháng 5."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[1] Marta đã về nước được hai tuần khi viết thư."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[2] Hai năm làm việc tại nhà hàng Hoa là chuyện đã qua."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[4] Tiệc cưới tháng 9 diễn ra tại khách sạn Park ở quê nhà, không phải tại Nhật."
+              }
+            ]
+          }
+        ],
+        "translation": [
+          {
+            "t": "text",
+            "text": "Sau khi viết thư, Marta sẽ làm gì?"
+          }
+        ],
+        "translationVi": "Sau khi viết thư, Marta sẽ làm gì?",
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "[3] 5月から パークホテルで しごとを します. Thư đề ngày 15/4, ghi 来月からは 国の パークホテルの レストランで はたらきます: bắt đầu làm tại nhà hàng khách sạn Park ở quê nhà từ tháng 5."
+          }
+        ],
+        "wrongReasonsByOption": {
+          "1": [
+            {
+              "t": "text",
+              "text": "Marta đã về nước được hai tuần khi viết thư."
+            }
+          ],
+          "2": [
+            {
+              "t": "text",
+              "text": "Hai năm làm việc tại nhà hàng Hoa là chuyện đã qua."
+            }
+          ],
+          "4": [
+            {
+              "t": "text",
+              "text": "Tiệc cưới tháng 9 diễn ra tại khách sạn Park ở quê nhà, không phải tại Nhật."
+            }
+          ]
+        },
+        "humanReviewed": true,
+        "explanationMarkdown": "Sau khi viết thư, Marta sẽ làm gì?\n\n[3] 5月から パークホテルで しごとを します. Thư đề ngày 15/4, ghi 来月からは 国の パークホテルの レストランで はたらきます: bắt đầu làm tại nhà hàng khách sạn Park ở quê nhà từ tháng 5.\n\n[1] Marta đã về nước được hai tuần khi viết thư.\n\n[2] Hai năm làm việc tại nhà hàng Hoa là chuyện đã qua.\n\n[4] Tiệc cưới tháng 9 diễn ra tại khách sạn Park ở quê nhà, không phải tại Nhật."
+      },
+      "answerBefore": 3,
+      "questionId": "3eeee36a-75a5-42d4-abf3-03bfe860c63d",
+      "groupId": "a39ce4c6-c76c-4886-aa78-315476b254c1",
+      "reason": "Đoạn văn chung bài trung văn Mondai 5 bị thay thế hoàn toàn nhân vật (Marta thành Carlos Lopez), ngày tháng (4月15日 thành 3月28日) và các chi tiết sự kiện.; Stem và 4 options của câu Q41 bị thay đổi toàn bộ tên nhân vật và nội dung.",
+      "evidence": [
+        {
+          "id": "F008",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            20
+          ]
+        },
+        {
+          "id": "F009",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            21
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 42,
+      "field": "explanation",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "emphasis",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "Phân tích mục đích của bức thư:"
+                  }
+                ]
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Câu hỏi: 「カルロスさんが　この　手紙で　いちばん　言いたい　ことは　何ですか。」 (Điều Carlos muốn nói nhất qua bức thư này là gì?)"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Bức thư được Carlos viết gửi toàn thể nhà hàng \"Hana\" trước khi về nước để bày tỏ lòng biết ơn sau 1 năm làm việc được mọi người giúp đỡ, chỉ bảo tận tình: 「いろいろ　ありがとうございました。お元気で。」 (Xin cảm ơn mọi người rất nhiều vì tất cả. Chúc mọi người luôn mạnh khỏe)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 1: Công việc không thú vị → Sai vì đây chỉ là cảm nghĩ lúc mới đầu."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 2: Cảm ơn mọi người vì tất cả → Đúng, đây là thông điệp chính và ý nghĩa chủ đạo của lá thư cảm ơn."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 3: Quản lý và mọi người rất tốt bụng → Sai, đây chỉ là một chi tiết giải thích cho lý do Carlos biết ơn."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 4: Đã làm việc 1 năm → Sai, đây chỉ là câu mở đầu nêu mốc thời gian."
+              }
+            ]
+          }
+        ],
+        "locale": "vi"
+      },
+      "after": {
+        "locale": "vi",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Điều Marta muốn nói nhất trong thư là gì?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[2] いろいろ ありがとうございました. Marta nhiều lần cảm ơn mọi người về hai năm làm việc và học hỏi tại Nhật; thông tin công việc và đám cưới là lời báo tin thêm."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[1] お帰りなさい là lời chào người trở về, không phải ý chính bức thư."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[3] Marta báo tin mình sắp kết hôn, không chúc mừng đám cưới người khác."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[4] Có lời mời đến quê nhà nhưng thư nhấn mạnh lòng biết ơn."
+              }
+            ]
+          }
+        ]
+      },
+      "answerBefore": 2,
+      "questionId": "f63ebc59-8a59-447a-aad4-93714b04392f",
+      "groupId": "a39ce4c6-c76c-4886-aa78-315476b254c1",
+      "reason": "Đoạn văn chung bài trung văn Mondai 5 bị thay thế hoàn toàn nhân vật (Marta thành Carlos Lopez), ngày tháng (4月15日 thành 3月28日) và các chi tiết sự kiện.; Stem và các options của câu Q42 bị thay đổi so với bản gốc đề thi.",
+      "evidence": [
+        {
+          "id": "F008",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            20
+          ]
+        },
+        {
+          "id": "F010",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            21
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 42,
+      "field": "explanation_vi",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "emphasis",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "Phân tích mục đích của bức thư:"
+                  }
+                ]
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Câu hỏi: 「カルロスさんが　この　手紙で　いちばん　言いたい　ことは　何ですか。」 (Điều Carlos muốn nói nhất qua bức thư này là gì?)"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Bức thư được Carlos viết gửi toàn thể nhà hàng \"Hana\" trước khi về nước để bày tỏ lòng biết ơn sau 1 năm làm việc được mọi người giúp đỡ, chỉ bảo tận tình: 「いろいろ　ありがとうございました。お元気で。」 (Xin cảm ơn mọi người rất nhiều vì tất cả. Chúc mọi người luôn mạnh khỏe)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 1: Công việc không thú vị → Sai vì đây chỉ là cảm nghĩ lúc mới đầu."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 2: Cảm ơn mọi người vì tất cả → Đúng, đây là thông điệp chính và ý nghĩa chủ đạo của lá thư cảm ơn."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 3: Quản lý và mọi người rất tốt bụng → Sai, đây chỉ là một chi tiết giải thích cho lý do Carlos biết ơn."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Lựa chọn 4: Đã làm việc 1 năm → Sai, đây chỉ là câu mở đầu nêu mốc thời gian."
+              }
+            ]
+          }
+        ],
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "f63ebc59-8a59-447a-aad4-93714b04392f",
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "Phân tích mục đích của bức thư:\nCâu hỏi: 「カルロスさんが　この　手紙で　いちばん　言いたい　ことは　何ですか。」 (Điều Carlos muốn nói nhất qua bức thư này là gì?)\nBức thư được Carlos viết gửi toàn thể nhà hàng \"Hana\" trước khi về nước để bày tỏ lòng biết ơn sau 1 năm làm việc được mọi người giúp đỡ, chỉ bảo tận tình: 「いろいろ　ありがとうございました。お元気で。」 (Xin cảm ơn mọi người rất nhiều vì tất cả. Chúc mọi người luôn mạnh khỏe).\n• Lựa chọn 1: Công việc không thú vị → Sai vì đây chỉ là cảm nghĩ lúc mới đầu.\n• Lựa chọn 2: Cảm ơn mọi người vì tất cả → Đúng, đây là thông điệp chính và ý nghĩa chủ đạo của lá thư cảm ơn.\n• Lựa chọn 3: Quản lý và mọi người rất tốt bụng → Sai, đây chỉ là một chi tiết giải thích cho lý do Carlos biết ơn.\n• Lựa chọn 4: Đã làm việc 1 năm → Sai, đây chỉ là câu mở đầu nêu mốc thời gian."
+          }
+        ],
+        "humanReviewed": false,
+        "translationVi": "",
+        "contentVersion": 1,
+        "explanationMarkdown": "**Lý do đúng**:\nPhân tích mục đích của bức thư:\nCâu hỏi: 「カルロスさんが　この　手紙で　いちばん　言いたい　ことは　何ですか。」 (Điều Carlos muốn nói nhất qua bức thư này là gì?)\nBức thư được Carlos viết gửi toàn thể nhà hàng \"Hana\" trước khi về nước để bày tỏ lòng biết ơn sau 1 năm làm việc được mọi người giúp đỡ, chỉ bảo tận tình: 「いろいろ　ありがとうございました。お元気で。」 (Xin cảm ơn mọi người rất nhiều vì tất cả. Chúc mọi người luôn mạnh khỏe).\n• Lựa chọn 1: Công việc không thú vị → Sai vì đây chỉ là cảm nghĩ lúc mới đầu.\n• Lựa chọn 2: Cảm ơn mọi người vì tất cả → Đúng, đây là thông điệp chính và ý nghĩa chủ đạo của lá thư cảm ơn.\n• Lựa chọn 3: Quản lý và mọi người rất tốt bụng → Sai, đây chỉ là một chi tiết giải thích cho lý do Carlos biết ơn.\n• Lựa chọn 4: Đã làm việc 1 năm → Sai, đây chỉ là câu mở đầu nêu mốc thời gian."
+      },
+      "after": {
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "f63ebc59-8a59-447a-aad4-93714b04392f",
+        "contentVersion": 1,
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Điều Marta muốn nói nhất trong thư là gì?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[2] いろいろ ありがとうございました. Marta nhiều lần cảm ơn mọi người về hai năm làm việc và học hỏi tại Nhật; thông tin công việc và đám cưới là lời báo tin thêm."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[1] お帰りなさい là lời chào người trở về, không phải ý chính bức thư."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[3] Marta báo tin mình sắp kết hôn, không chúc mừng đám cưới người khác."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[4] Có lời mời đến quê nhà nhưng thư nhấn mạnh lòng biết ơn."
+              }
+            ]
+          }
+        ],
+        "translation": [
+          {
+            "t": "text",
+            "text": "Điều Marta muốn nói nhất trong thư là gì?"
+          }
+        ],
+        "translationVi": "Điều Marta muốn nói nhất trong thư là gì?",
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "[2] いろいろ ありがとうございました. Marta nhiều lần cảm ơn mọi người về hai năm làm việc và học hỏi tại Nhật; thông tin công việc và đám cưới là lời báo tin thêm."
+          }
+        ],
+        "wrongReasonsByOption": {
+          "1": [
+            {
+              "t": "text",
+              "text": "お帰りなさい là lời chào người trở về, không phải ý chính bức thư."
+            }
+          ],
+          "3": [
+            {
+              "t": "text",
+              "text": "Marta báo tin mình sắp kết hôn, không chúc mừng đám cưới người khác."
+            }
+          ],
+          "4": [
+            {
+              "t": "text",
+              "text": "Có lời mời đến quê nhà nhưng thư nhấn mạnh lòng biết ơn."
+            }
+          ]
+        },
+        "humanReviewed": true,
+        "explanationMarkdown": "Điều Marta muốn nói nhất trong thư là gì?\n\n[2] いろいろ ありがとうございました. Marta nhiều lần cảm ơn mọi người về hai năm làm việc và học hỏi tại Nhật; thông tin công việc và đám cưới là lời báo tin thêm.\n\n[1] お帰りなさい là lời chào người trở về, không phải ý chính bức thư.\n\n[3] Marta báo tin mình sắp kết hôn, không chúc mừng đám cưới người khác.\n\n[4] Có lời mời đến quê nhà nhưng thư nhấn mạnh lòng biết ơn."
+      },
+      "answerBefore": 2,
+      "questionId": "f63ebc59-8a59-447a-aad4-93714b04392f",
+      "groupId": "a39ce4c6-c76c-4886-aa78-315476b254c1",
+      "reason": "Đoạn văn chung bài trung văn Mondai 5 bị thay thế hoàn toàn nhân vật (Marta thành Carlos Lopez), ngày tháng (4月15日 thành 3月28日) và các chi tiết sự kiện.; Stem và các options của câu Q42 bị thay đổi so với bản gốc đề thi.",
+      "evidence": [
+        {
+          "id": "F008",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            20
+          ]
+        },
+        {
+          "id": "F010",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            21
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 43,
+      "field": "explanation",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "emphasis",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "Phân tích các điều kiện của Anne:"
+                  }
+                ]
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "1. Thứ trong tuần: Thứ Năm (木曜日)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "2. Khung giờ: Buổi chiều (午後, từ 12h trở đi, cụ thể là 14時〜16時)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "3. Nội dung học: Nấu ăn (料理を習いたい, không phải làm đồ ngọt/bánh おかし)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "4. Chi phí: Có 1.300 yên (học phí phải ≤ 1.300 yên)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "emphasis",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "Đối chiếu từng lớp học:"
+                  }
+                ]
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• ① Cà ri: có ngày 12 (Thứ Năm), nhưng học lúc 10h-12h (buổi sáng) và học phí 1.500 yên (> 1.300 yên) → Loại."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• ② Mì Ý: có ngày 5 (Thứ Năm), học phí 1.200 yên, nhưng học lúc 10h-12h (buổi sáng) → Loại."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• ③ Bánh quy và kem: có ngày 19 (Thứ Năm), học lúc 14h-16h (buổi chiều), nhưng là lớp làm đồ ngọt (おかし) và học phí 1.500 yên (> 1.300 yên) → Loại."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• ④ Mì Udon rau củ mùa thu: là món ăn (料理), có ngày 26 (Thứ Năm), học lúc 14h-16h (buổi chiều 午後), học phí 1.200 yên (≤ 1.300 yên) → Thỏa mãn tất cả mọi điều kiện."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Do đó, Anne sẽ tham gia lớp ④ vào ngày 26 (④の 26日). Đáp án đúng là 4."
+              }
+            ]
+          }
+        ],
+        "locale": "vi"
+      },
+      "after": {
+        "locale": "vi",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Jisu muốn học nấu món dùng rau vào chiều thứ Năm; nên chọn lớp và ngày nào?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[4] ④の26日. Lớp ④ làm udon dùng rau mùa thu, ngày 26 thứ Năm từ 14 đến 16 giờ, đáp ứng cả món rau và buổi chiều."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[1] Lớp ① ngày 12 học buổi sáng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[2] Lớp ② ngày 5 cũng học buổi sáng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[3] Lớp ③ ngày 19 học buổi chiều nhưng làm bánh quy và kem, không phải món rau."
+              }
+            ]
+          }
+        ]
+      },
+      "answerBefore": 4,
+      "questionId": "bedc138f-0a7d-4308-ad4f-57f7845b83a0",
+      "groupId": "2dfec995-fd7b-42c0-af6c-3b22b86a811a",
+      "reason": "Tên nhân vật trong stem bị đổi từ ジスさん thành アンさん, điều kiện chọn lớp bị đổi từ 'yêu thích món ăn dùng rau' thành 'có 1300 yên'.",
+      "evidence": [
+        {
+          "id": "F011",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            22
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2025-07",
+      "num": 43,
+      "field": "explanation_vi",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "emphasis",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "Phân tích các điều kiện của Anne:"
+                  }
+                ]
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "1. Thứ trong tuần: Thứ Năm (木曜日)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "2. Khung giờ: Buổi chiều (午後, từ 12h trở đi, cụ thể là 14時〜16時)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "3. Nội dung học: Nấu ăn (料理を習いたい, không phải làm đồ ngọt/bánh おかし)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "4. Chi phí: Có 1.300 yên (học phí phải ≤ 1.300 yên)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "emphasis",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "Đối chiếu từng lớp học:"
+                  }
+                ]
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• ① Cà ri: có ngày 12 (Thứ Năm), nhưng học lúc 10h-12h (buổi sáng) và học phí 1.500 yên (> 1.300 yên) → Loại."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• ② Mì Ý: có ngày 5 (Thứ Năm), học phí 1.200 yên, nhưng học lúc 10h-12h (buổi sáng) → Loại."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• ③ Bánh quy và kem: có ngày 19 (Thứ Năm), học lúc 14h-16h (buổi chiều), nhưng là lớp làm đồ ngọt (おかし) và học phí 1.500 yên (> 1.300 yên) → Loại."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• ④ Mì Udon rau củ mùa thu: là món ăn (料理), có ngày 26 (Thứ Năm), học lúc 14h-16h (buổi chiều 午後), học phí 1.200 yên (≤ 1.300 yên) → Thỏa mãn tất cả mọi điều kiện."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Do đó, Anne sẽ tham gia lớp ④ vào ngày 26 (④の 26日). Đáp án đúng là 4."
+              }
+            ]
+          }
+        ],
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "bedc138f-0a7d-4308-ad4f-57f7845b83a0",
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "Phân tích các điều kiện của Anne:\n1. Thứ trong tuần: Thứ Năm (木曜日).\n2. Khung giờ: Buổi chiều (午後, từ 12h trở đi, cụ thể là 14時〜16時).\n3. Nội dung học: Nấu ăn (料理を習いたい, không phải làm đồ ngọt/bánh おかし).\n4. Chi phí: Có 1.300 yên (học phí phải ≤ 1.300 yên).\nĐối chiếu từng lớp học:\n• ① Cà ri: có ngày 12 (Thứ Năm), nhưng học lúc 10h-12h (buổi sáng) và học phí 1.500 yên (> 1.300 yên) → Loại.\n• ② Mì Ý: có ngày 5 (Thứ Năm), học phí 1.200 yên, nhưng học lúc 10h-12h (buổi sáng) → Loại.\n• ③ Bánh quy và kem: có ngày 19 (Thứ Năm), học lúc 14h-16h (buổi chiều), nhưng là lớp làm đồ ngọt (おかし) và học phí 1.500 yên (> 1.300 yên) → Loại.\n• ④ Mì Udon rau củ mùa thu: là món ăn (料理), có ngày 26 (Thứ Năm), học lúc 14h-16h (buổi chiều 午後), học phí 1.200 yên (≤ 1.300 yên) → Thỏa mãn tất cả mọi điều kiện.\nDo đó, Anne sẽ tham gia lớp ④ vào ngày 26 (④の 26日). Đáp án đúng là 4."
+          }
+        ],
+        "humanReviewed": false,
+        "translationVi": "",
+        "contentVersion": 1,
+        "explanationMarkdown": "**Lý do đúng**:\nPhân tích các điều kiện của Anne:\n1. Thứ trong tuần: Thứ Năm (木曜日).\n2. Khung giờ: Buổi chiều (午後, từ 12h trở đi, cụ thể là 14時〜16時).\n3. Nội dung học: Nấu ăn (料理を習いたい, không phải làm đồ ngọt/bánh おかし).\n4. Chi phí: Có 1.300 yên (học phí phải ≤ 1.300 yên).\nĐối chiếu từng lớp học:\n• ① Cà ri: có ngày 12 (Thứ Năm), nhưng học lúc 10h-12h (buổi sáng) và học phí 1.500 yên (> 1.300 yên) → Loại.\n• ② Mì Ý: có ngày 5 (Thứ Năm), học phí 1.200 yên, nhưng học lúc 10h-12h (buổi sáng) → Loại.\n• ③ Bánh quy và kem: có ngày 19 (Thứ Năm), học lúc 14h-16h (buổi chiều), nhưng là lớp làm đồ ngọt (おかし) và học phí 1.500 yên (> 1.300 yên) → Loại.\n• ④ Mì Udon rau củ mùa thu: là món ăn (料理), có ngày 26 (Thứ Năm), học lúc 14h-16h (buổi chiều 午後), học phí 1.200 yên (≤ 1.300 yên) → Thỏa mãn tất cả mọi điều kiện.\nDo đó, Anne sẽ tham gia lớp ④ vào ngày 26 (④の 26日). Đáp án đúng là 4."
+      },
+      "after": {
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "bedc138f-0a7d-4308-ad4f-57f7845b83a0",
+        "contentVersion": 1,
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Jisu muốn học nấu món dùng rau vào chiều thứ Năm; nên chọn lớp và ngày nào?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[4] ④の26日. Lớp ④ làm udon dùng rau mùa thu, ngày 26 thứ Năm từ 14 đến 16 giờ, đáp ứng cả món rau và buổi chiều."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[1] Lớp ① ngày 12 học buổi sáng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[2] Lớp ② ngày 5 cũng học buổi sáng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "[3] Lớp ③ ngày 19 học buổi chiều nhưng làm bánh quy và kem, không phải món rau."
+              }
+            ]
+          }
+        ],
+        "translation": [
+          {
+            "t": "text",
+            "text": "Jisu muốn học nấu món dùng rau vào chiều thứ Năm; nên chọn lớp và ngày nào?"
+          }
+        ],
+        "translationVi": "Jisu muốn học nấu món dùng rau vào chiều thứ Năm; nên chọn lớp và ngày nào?",
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "[4] ④の26日. Lớp ④ làm udon dùng rau mùa thu, ngày 26 thứ Năm từ 14 đến 16 giờ, đáp ứng cả món rau và buổi chiều."
+          }
+        ],
+        "wrongReasonsByOption": {
+          "1": [
+            {
+              "t": "text",
+              "text": "Lớp ① ngày 12 học buổi sáng."
+            }
+          ],
+          "2": [
+            {
+              "t": "text",
+              "text": "Lớp ② ngày 5 cũng học buổi sáng."
+            }
+          ],
+          "3": [
+            {
+              "t": "text",
+              "text": "Lớp ③ ngày 19 học buổi chiều nhưng làm bánh quy và kem, không phải món rau."
+            }
+          ]
+        },
+        "humanReviewed": true,
+        "explanationMarkdown": "Jisu muốn học nấu món dùng rau vào chiều thứ Năm; nên chọn lớp và ngày nào?\n\n[4] ④の26日. Lớp ④ làm udon dùng rau mùa thu, ngày 26 thứ Năm từ 14 đến 16 giờ, đáp ứng cả món rau và buổi chiều.\n\n[1] Lớp ① ngày 12 học buổi sáng.\n\n[2] Lớp ② ngày 5 cũng học buổi sáng.\n\n[3] Lớp ③ ngày 19 học buổi chiều nhưng làm bánh quy và kem, không phải món rau."
+      },
+      "answerBefore": 4,
+      "questionId": "bedc138f-0a7d-4308-ad4f-57f7845b83a0",
+      "groupId": "2dfec995-fd7b-42c0-af6c-3b22b86a811a",
+      "reason": "Tên nhân vật trong stem bị đổi từ ジスさん thành アンさん, điều kiện chọn lớp bị đổi từ 'yêu thích món ăn dùng rau' thành 'có 1300 yên'.",
+      "evidence": [
+        {
+          "id": "F011",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2025/Đề N5 07.2025 [Full] - Mark.pdf",
+          "source_sha256": "de616de7059e372f582d1182e7261b27848e6b15ff03f390e3ccd5cb99ae0f09",
+          "source_pages": [
+            22
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2018-12",
+      "num": 52,
+      "field": "stem",
+      "before": [
+        {
+          "t": "text",
+          "text": "A「すみません、つぎの　"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": " "
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": " "
+        },
+        {
+          "t": "star"
+        },
+        {
+          "t": "text",
+          "text": " "
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "　まがってください。」"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "B「はい。」"
+        }
+      ],
+      "after": [
+        {
+          "t": "text",
+          "text": "A「すみません、つぎの　"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": " "
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": " "
+        },
+        {
+          "t": "star"
+        },
+        {
+          "t": "text",
+          "text": " "
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "　まがってください。」"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "B「はい、わかりました。」"
+        }
+      ],
+      "answerBefore": 2,
+      "questionId": "5b16b7fd-7866-4897-a98b-90118a881ee8",
+      "groupId": "118d4e1a-487d-4acc-ab9f-a635ae4ba254",
+      "reason": "Lời thoại của nhân vật B trong snapshot bị thiếu cụm từ '、わかりました' so với đề gốc in ở trang 6 (số trang in 4, câu 17).",
+      "evidence": [
+        {
+          "id": "F001",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 2018/N5-2018年.pdf",
+          "source_sha256": "00b6118e1e9faf7ddecfa878455ebc843daa0606e8270ef684af072db74642bb",
+          "source_pages": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2018-12",
+      "num": 53,
+      "field": "stem",
+      "before": [
+        {
+          "t": "text",
+          "text": "兄　"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": " "
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": " "
+        },
+        {
+          "t": "star"
+        },
+        {
+          "t": "text",
+          "text": " "
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "　でかけました。"
+        }
+      ],
+      "after": [
+        {
+          "t": "text",
+          "text": "私は 日曜日に 兄　"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": " "
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": " "
+        },
+        {
+          "t": "star"
+        },
+        {
+          "t": "text",
+          "text": " "
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "　で出かけました。"
+        }
+      ],
+      "answerBefore": 1,
+      "questionId": "1e3c632d-c0cc-4627-a582-3f014ca82a99",
+      "groupId": "a9b16113-e84f-4ba1-a1e9-78d717914def",
+      "reason": "Snapshot bỏ sót phần đầu câu '私は 日曜日に ' và viết 'でかけました。' thay vì 'で出かけました。' theo đúng đề in ở trang 6 (số trang in 4, câu 18).",
+      "evidence": [
+        {
+          "id": "F002",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 2018/N5-2018年.pdf",
+          "source_sha256": "00b6118e1e9faf7ddecfa878455ebc843daa0606e8270ef684af072db74642bb",
+          "source_pages": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2018-12",
+      "num": 53,
+      "field": "explanation",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Dịch nghĩa: Tôi đã đi ra ngoài cùng với con của anh trai tôi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Thứ tự đúng: 3 (の) → 4 (子ども) → 1 (と) → 2 (いっしょに). Câu hoàn chỉnh: 「兄の子どもといっしょにでかけました。」."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Đáp án đúng: [1] と (vị trí ngôi sao ★ là vị trí thứ 3)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Phân tích các phương án còn lại:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "- [2] いっしょに: Kết hợp với と tạo thành mẫu câu 「～といっしょに」 (cùng với ai đó)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "- [3] の: Nối quan hệ sở hữu giữa 兄 và 子ども (con của anh trai)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "- [4] 子ども: Danh từ đứng sau 兄の và đứng trước といっしょに."
+              }
+            ]
+          }
+        ],
+        "locale": "vi"
+      },
+      "after": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Dịch nghĩa: Tôi đã đi ra ngoài cùng với con của anh trai tôi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Thứ tự đúng: 3 (の) → 4 (子ども) → 1 (と) → 2 (いっしょに). Câu hoàn chỉnh: 「兄の子どもといっしょにで出かけました。」."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Đáp án đúng: [1] と (vị trí ngôi sao ★ là vị trí thứ 3)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Phân tích các phương án còn lại:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "- [2] いっしょに: Kết hợp với と tạo thành mẫu câu 「～といっしょに」 (cùng với ai đó)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "- [3] の: Nối quan hệ sở hữu giữa 兄 và 子ども (con của anh trai)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "- [4] 子ども: Danh từ đứng sau 兄の và đứng trước といっしょに."
+              }
+            ]
+          }
+        ],
+        "locale": "vi"
+      },
+      "answerBefore": 1,
+      "questionId": "1e3c632d-c0cc-4627-a582-3f014ca82a99",
+      "groupId": "a9b16113-e84f-4ba1-a1e9-78d717914def",
+      "reason": "Snapshot bỏ sót phần đầu câu '私は 日曜日に ' và viết 'でかけました。' thay vì 'で出かけました。' theo đúng đề in ở trang 6 (số trang in 4, câu 18).",
+      "evidence": [
+        {
+          "id": "F002",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 2018/N5-2018年.pdf",
+          "source_sha256": "00b6118e1e9faf7ddecfa878455ebc843daa0606e8270ef684af072db74642bb",
+          "source_pages": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2018-12",
+      "num": 53,
+      "field": "explanation_vi",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Dịch nghĩa: Tôi đã đi ra ngoài cùng với con của anh trai tôi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Thứ tự đúng: 3 (の) → 4 (子ども) → 1 (と) → 2 (いっしょに). Câu hoàn chỉnh: 「兄の子どもといっしょにでかけました。」."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Đáp án đúng: [1] と (vị trí ngôi sao ★ là vị trí thứ 3)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Phân tích các phương án còn lại:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "- [2] いっしょに: Kết hợp với と tạo thành mẫu câu 「～といっしょに」 (cùng với ai đó)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "- [3] の: Nối quan hệ sở hữu giữa 兄 và 子ども (con của anh trai)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "- [4] 子ども: Danh từ đứng sau 兄の và đứng trước といっしょに."
+              }
+            ]
+          }
+        ],
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "1e3c632d-c0cc-4627-a582-3f014ca82a99",
+        "translation": [
+          {
+            "t": "text",
+            "text": "Tôi đã đi ra ngoài cùng với con của anh trai tôi.\n• Thứ tự đúng: 3 (の) → 4 (子ども) → 1 (と) → 2 (いっしょに). Câu hoàn chỉnh: 「兄の子どもといっしょにでかけました。」."
+          }
+        ],
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "Đáp án đúng: [1] と (vị trí ngôi sao ★ là vị trí thứ 3)."
+          }
+        ],
+        "humanReviewed": false,
+        "translationVi": "Tôi đã đi ra ngoài cùng với con của anh trai tôi.\n• Thứ tự đúng: 3 (の) → 4 (子ども) → 1 (と) → 2 (いっしょに). Câu hoàn chỉnh: 「兄の子どもといっしょにでかけました。」.",
+        "contentVersion": 1,
+        "explanationMarkdown": "**Lý do đúng**:\nĐáp án đúng: [1] と (vị trí ngôi sao ★ là vị trí thứ 3).\n\n**Phân tích các phương án còn lại**:\n- [2] Phương án 2: いっしょに: Kết hợp với と tạo thành mẫu câu 「～といっしょに」 (cùng với ai đó).\n- [3] Phương án 3: の: Nối quan hệ sở hữu giữa 兄 và 子ども (con của anh trai).\n- [4] Phương án 4: 子ども: Danh từ đứng sau 兄の và đứng trước といっしょに.",
+        "wrongReasonsByOption": {
+          "2": [
+            {
+              "t": "text",
+              "text": "いっしょに: Kết hợp với と tạo thành mẫu câu 「～といっしょに」 (cùng với ai đó)."
+            }
+          ],
+          "3": [
+            {
+              "t": "text",
+              "text": "の: Nối quan hệ sở hữu giữa 兄 và 子ども (con của anh trai)."
+            }
+          ],
+          "4": [
+            {
+              "t": "text",
+              "text": "子ども: Danh từ đứng sau 兄の và đứng trước といっしょに."
+            }
+          ]
+        }
+      },
+      "after": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Dịch nghĩa: Tôi đã đi ra ngoài cùng với con của anh trai tôi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Thứ tự đúng: 3 (の) → 4 (子ども) → 1 (と) → 2 (いっしょに). Câu hoàn chỉnh: 「兄の子どもといっしょにで出かけました。」."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Đáp án đúng: [1] と (vị trí ngôi sao ★ là vị trí thứ 3)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Phân tích các phương án còn lại:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "- [2] いっしょに: Kết hợp với と tạo thành mẫu câu 「～といっしょに」 (cùng với ai đó)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "- [3] の: Nối quan hệ sở hữu giữa 兄 và 子ども (con của anh trai)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "- [4] 子ども: Danh từ đứng sau 兄の và đứng trước といっしょに."
+              }
+            ]
+          }
+        ],
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "1e3c632d-c0cc-4627-a582-3f014ca82a99",
+        "translation": [
+          {
+            "t": "text",
+            "text": "Tôi đã đi ra ngoài cùng với con của anh trai tôi.\n• Thứ tự đúng: 3 (の) → 4 (子ども) → 1 (と) → 2 (いっしょに). Câu hoàn chỉnh: 「兄の子どもといっしょにで出かけました。」."
+          }
+        ],
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "Đáp án đúng: [1] と (vị trí ngôi sao ★ là vị trí thứ 3)."
+          }
+        ],
+        "humanReviewed": false,
+        "translationVi": "Tôi đã đi ra ngoài cùng với con của anh trai tôi.\n• Thứ tự đúng: 3 (の) → 4 (子ども) → 1 (と) → 2 (いっしょに). Câu hoàn chỉnh: 「兄の子どもといっしょにで出かけました。」.",
+        "contentVersion": 1,
+        "explanationMarkdown": "**Lý do đúng**:\nĐáp án đúng: [1] と (vị trí ngôi sao ★ là vị trí thứ 3).\n\n**Phân tích các phương án còn lại**:\n- [2] Phương án 2: いっしょに: Kết hợp với と tạo thành mẫu câu 「～といっしょに」 (cùng với ai đó).\n- [3] Phương án 3: の: Nối quan hệ sở hữu giữa 兄 và 子ども (con của anh trai).\n- [4] Phương án 4: 子ども: Danh từ đứng sau 兄の và đứng trước といっしょに.",
+        "wrongReasonsByOption": {
+          "2": [
+            {
+              "t": "text",
+              "text": "いっしょに: Kết hợp với と tạo thành mẫu câu 「～といっしょに」 (cùng với ai đó)."
+            }
+          ],
+          "3": [
+            {
+              "t": "text",
+              "text": "の: Nối quan hệ sở hữu giữa 兄 và 子ども (con của anh trai)."
+            }
+          ],
+          "4": [
+            {
+              "t": "text",
+              "text": "子ども: Danh từ đứng sau 兄の và đứng trước といっしょに."
+            }
+          ]
+        }
+      },
+      "answerBefore": 1,
+      "questionId": "1e3c632d-c0cc-4627-a582-3f014ca82a99",
+      "groupId": "a9b16113-e84f-4ba1-a1e9-78d717914def",
+      "reason": "Snapshot bỏ sót phần đầu câu '私は 日曜日に ' và viết 'でかけました。' thay vì 'で出かけました。' theo đúng đề in ở trang 6 (số trang in 4, câu 18).",
+      "evidence": [
+        {
+          "id": "F002",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 2018/N5-2018年.pdf",
+          "source_sha256": "00b6118e1e9faf7ddecfa878455ebc843daa0606e8270ef684af072db74642bb",
+          "source_pages": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2012-12",
+      "num": 41,
+      "field": "correct_option",
+      "before": 1,
+      "after": 2,
+      "answerBefore": 1,
+      "questionId": "e3982434-53f0-443f-a9a6-7b38f215f957",
+      "groupId": "f57d4f6e-527d-4e9f-aaf4-181ff44f01d0",
+      "reason": "Bảng đáp án tham khảo (trang 1) và phần giải thích chi tiết (trang 4) đều ghi nhận đáp án câu (6) là 2 (には). Giải thích trong database-supplement.json cũng khẳng định đáp án đúng theo bảng gốc là [2] には. Tuy nhiên key trong exam.json đang đặt là 1 (では).",
+      "evidence": [
+        {
+          "id": "F003",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 12-2012/Đáp án+Scrip N5 12-2012.pdf",
+          "source_sha256": "39faaec7ee7d78b66cfa3b60977ce2863254440ba35cb6680a3b64a7eca0bb0d",
+          "source_pages": [
+            1,
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2012-12",
+      "num": 49,
+      "field": "stem",
+      "before": [
+        {
+          "t": "text",
+          "text": "Ａ「来月の 旅行は 電車で 行きません。バスで 行きます。」"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "Ｂ「"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "。」"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "Ａ「バスの ほうか 安いからです。」"
+        }
+      ],
+      "after": [
+        {
+          "t": "text",
+          "text": "Ａ「来月の 旅行は 電車で 行きません。バスで 行きます。」"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "Ｂ「"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "。」"
+        },
+        {
+          "t": "br"
+        },
+        {
+          "t": "text",
+          "text": "Ａ「バスの ほうが 安いからです。」"
+        }
+      ],
+      "answerBefore": 2,
+      "questionId": "bb19687a-5b4d-4ff0-ab70-7c3644644e58",
+      "groupId": "66d59a91-e750-4ccd-a71d-3c760f5274cf",
+      "reason": "Lỗi OCR mất dấu dakuten: 'ほうが' bị nhận dạng sai thành 'ほうか'.",
+      "evidence": [
+        {
+          "id": "F004",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 12-2012/N5-2012年12月.pdf",
+          "source_sha256": "97f9233c606f4f7b9f907ae97ec33b78700185149e21aa774f2df5b57619ac65",
+          "source_pages": [
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2012-12",
+      "num": 61,
+      "field": "stem",
+      "before": [
+        {
+          "t": "text",
+          "text": "アンさんは、「はじめましてパーティー」に 行きます。アンさんは Ｃクラスです。何を 持って行きますか。"
+        }
+      ],
+      "after": [
+        {
+          "t": "text",
+          "text": "アンさんは、「はじめましてパーティー」に 行きます。アンさんは Ｃクラスです。何を 持っていきますか。"
+        }
+      ],
+      "answerBefore": 3,
+      "questionId": "9f61339a-13c3-404e-a813-c745c91712d4",
+      "groupId": "9c6dadcb-bd55-4524-ac27-b62b42951323",
+      "reason": "Sai khác kanji/hiragana: Đề gốc viết hiragana '持っていきますか。', snapshot chuyển thành kanji '持って行きますか。'.",
+      "evidence": [
+        {
+          "id": "F005",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 12-2012/N5-2012年12月.pdf",
+          "source_sha256": "97f9233c606f4f7b9f907ae97ec33b78700185149e21aa774f2df5b57619ac65",
+          "source_pages": [
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2012-12",
+      "num": 64,
+      "field": "options",
+      "before": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "テレビ"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "エアコン"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "エアコンと　でんき"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "テレビと　でんき"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "テレビと エアコン"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "テレビと でんき"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "エアコンと でんき"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "テレビと エアコンと でんき"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 3,
+      "questionId": "93806847-b1da-45ba-aa0c-2695a7f0d63c",
+      "groupId": "41895a80-b74b-403c-a38d-94d3cadf095b",
+      "reason": "Các lựa chọn 1, 2, 4 trong snapshot bị sai lệch nghiêm trọng so với đề in gốc trang 9. Đề gốc: 1. テレビと エアコン, 2. テレビと でんき, 3. エアコンと でんき, 4. テレビと エアコンと でんき. Snapshot lại là: 1. テレビ, 2. エアコン, 3. エアコンと でんき, 4. テレビと でんき.",
+      "evidence": [
+        {
+          "id": "F006",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 12-2012/N5-2012年12月.pdf",
+          "source_sha256": "97f9233c606f4f7b9f907ae97ec33b78700185149e21aa774f2df5b57619ac65",
+          "source_pages": [
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2012-12",
+      "num": 66,
+      "field": "options",
+      "before": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "らいしゅうの　げつようびの　３じ"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "らいしゅうの　げつようびの　３じはん"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "らいしゅうの　かようびの　３じ"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "らいしゅうの　かようびの　３じはん"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "げつようびの 3じ"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "げつようびの 3じはん"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "かようびの 3じ"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "かようびの 3じはん"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 4,
+      "questionId": "b94be61f-fc2d-4a2c-adc3-ce3f14635508",
+      "groupId": "4c6eefb9-ca7e-42d6-a77b-24a904dddfea",
+      "reason": "Đề in gốc không có chữ 'らいしゅうの', snapshot tự thêm 'らいしゅうの　' vào cả 4 lựa chọn.",
+      "evidence": [
+        {
+          "id": "F007",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 12-2012/N5-2012年12月.pdf",
+          "source_sha256": "97f9233c606f4f7b9f907ae97ec33b78700185149e21aa774f2df5b57619ac65",
+          "source_pages": [
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2012-12",
+      "num": 64,
+      "field": "explanation",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Dịch nghĩa:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Ở công ty, người phụ nữ và người đàn ông đang nói chuyện. Người đàn ông sẽ tắt cái gì?"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nữ: Công việc hôm nay xong rồi. Chúng ta về thôi."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nam: Vâng."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nữ: Ừm, tivi thì tôi đã tắt rồi, nên anh tắt điều hòa giúp nhé."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nam: Vâng."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nữ: Cả đèn điện nữa nhờ anh nhé."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nam: Vâng."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Người đàn ông sẽ tắt cái gì?"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Đáp án đúng: [3]"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Người đàn ông sẽ tắt điều hòa (エアコン) và đèn điện (でんき). Tivi thì người phụ nữ đã tắt trước đó rồi (テレビはもう消しました)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Phân tích các phương án còn lại:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [1] Tivi do người phụ nữ đã tắt rồi."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [2] Chỉ tắt điều hòa là chưa đủ vì người phụ nữ còn nhờ tắt cả đèn điện (電気もお願いします)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [4] Tivi không phải do người đàn ông tắt."
+              }
+            ]
+          }
+        ],
+        "locale": "vi"
+      },
+      "after": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Dịch nghĩa:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Ở công ty, người phụ nữ và người đàn ông đang nói chuyện. Người đàn ông sẽ tắt cái gì?"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nữ: Công việc hôm nay xong rồi. Chúng ta về thôi."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nam: Vâng."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nữ: Ừm, tivi thì tôi đã tắt rồi, nên anh tắt điều hòa giúp nhé."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nam: Vâng."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nữ: Cả đèn điện nữa nhờ anh nhé."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nam: Vâng."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Người đàn ông sẽ tắt cái gì?"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Đáp án đúng: [3]"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Người đàn ông sẽ tắt điều hòa (エアコン) và đèn điện (でんき). Tivi thì người phụ nữ đã tắt trước đó rồi (テレビはもう消しました)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Phân tích các phương án còn lại:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [1] Tivi do người phụ nữ đã tắt rồi."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [2] Lựa chọn 2 gồm tivi và đèn điện; tivi đã được người phụ nữ tắt, và lựa chọn này thiếu điều hòa mà người đàn ông được nhờ tắt."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [4] Tivi không phải do người đàn ông tắt."
+              }
+            ]
+          }
+        ],
+        "locale": "vi"
+      },
+      "answerBefore": 3,
+      "questionId": "93806847-b1da-45ba-aa0c-2695a7f0d63c",
+      "groupId": "41895a80-b74b-403c-a38d-94d3cadf095b",
+      "reason": "Các lựa chọn 1, 2, 4 trong snapshot bị sai lệch nghiêm trọng so với đề in gốc trang 9. Đề gốc: 1. テレビと エアコン, 2. テレビと でんき, 3. エアコンと でんき, 4. テレビと エアコンと でんき. Snapshot lại là: 1. テレビ, 2. エアコン, 3. エアコンと でんき, 4. テレビと でんき.",
+      "evidence": [
+        {
+          "id": "F006",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 12-2012/N5-2012年12月.pdf",
+          "source_sha256": "97f9233c606f4f7b9f907ae97ec33b78700185149e21aa774f2df5b57619ac65",
+          "source_pages": [
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2012-12",
+      "num": 64,
+      "field": "explanation_vi",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Dịch nghĩa:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Ở công ty, người phụ nữ và người đàn ông đang nói chuyện. Người đàn ông sẽ tắt cái gì?"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nữ: Công việc hôm nay xong rồi. Chúng ta về thôi."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nam: Vâng."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nữ: Ừm, tivi thì tôi đã tắt rồi, nên anh tắt điều hòa giúp nhé."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nam: Vâng."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nữ: Cả đèn điện nữa nhờ anh nhé."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nam: Vâng."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Người đàn ông sẽ tắt cái gì?"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Đáp án đúng: [3]"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Người đàn ông sẽ tắt điều hòa (エアコン) và đèn điện (でんき). Tivi thì người phụ nữ đã tắt trước đó rồi (テレビはもう消しました)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Phân tích các phương án còn lại:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [1] Tivi do người phụ nữ đã tắt rồi."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [2] Chỉ tắt điều hòa là chưa đủ vì người phụ nữ còn nhờ tắt cả đèn điện (電気もお願いします)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [4] Tivi không phải do người đàn ông tắt."
+              }
+            ]
+          }
+        ],
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "93806847-b1da-45ba-aa0c-2695a7f0d63c",
+        "transcript": [
+          {
+            "t": "text",
+            "text": "会社で女の人と男の人が話しています。男の人は何を消しますか。"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "女：今日の仕事は終わりです。帰りましょう。"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "男：はい。"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "女：ええ、テレビはもう消しましたから、エアコンを消してください。"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "男：はい。"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "女：電気もお願いします。"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "男：はい。"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "男の人は何を消しますか。"
+          }
+        ],
+        "translation": [
+          {
+            "t": "text",
+            "text": "Ở công ty, người phụ nữ và người đàn ông đang nói chuyện. Người đàn ông sẽ tắt cái gì?\nNữ: Công việc hôm nay xong rồi. Chúng ta về thôi.\nNam: Vâng.\nNữ: Ừm, tivi thì tôi đã tắt rồi, nên anh tắt điều hòa giúp nhé.\nNam: Vâng.\nNữ: Cả đèn điện nữa nhờ anh nhé.\nNam: Vâng.\nNgười đàn ông sẽ tắt cái gì?"
+          }
+        ],
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "Đáp án đúng: [3]\nNgười đàn ông sẽ tắt điều hòa (エアコン) và đèn điện (でんき). Tivi thì người phụ nữ đã tắt trước đó rồi (テレビはもう消しました)."
+          }
+        ],
+        "humanReviewed": false,
+        "translationVi": "Ở công ty, người phụ nữ và người đàn ông đang nói chuyện. Người đàn ông sẽ tắt cái gì?\nNữ: Công việc hôm nay xong rồi. Chúng ta về thôi.\nNam: Vâng.\nNữ: Ừm, tivi thì tôi đã tắt rồi, nên anh tắt điều hòa giúp nhé.\nNam: Vâng.\nNữ: Cả đèn điện nữa nhờ anh nhé.\nNam: Vâng.\nNgười đàn ông sẽ tắt cái gì?",
+        "contentVersion": 1,
+        "explanationMarkdown": "**Lý do đúng**:\nĐáp án đúng: [3]\nNgười đàn ông sẽ tắt điều hòa (エアコン) và đèn điện (でんき). Tivi thì người phụ nữ đã tắt trước đó rồi (テレビはもう消しました).\n\n**Phân tích các phương án còn lại**:\n- [1] Phương án 1: Tivi do người phụ nữ đã tắt rồi.\n- [2] Phương án 2: Chỉ tắt điều hòa là chưa đủ vì người phụ nữ còn nhờ tắt cả đèn điện (電気もお願いします).\n- [4] Phương án 4: Tivi không phải do người đàn ông tắt.\n\n**Script bài nghe**:\n会社で女の人と男の人が話しています。男の人は何を消しますか。\n女：今日の仕事は終わりです。帰りましょう。\n男：はい。\n女：ええ、テレビはもう消しましたから、エアコンを消してください。\n男：はい。\n女：電気もお願いします。\n男：はい。\n男の人は何を消しますか。",
+        "wrongReasonsByOption": {
+          "1": [
+            {
+              "t": "text",
+              "text": "Tivi do người phụ nữ đã tắt rồi."
+            }
+          ],
+          "2": [
+            {
+              "t": "text",
+              "text": "Chỉ tắt điều hòa là chưa đủ vì người phụ nữ còn nhờ tắt cả đèn điện (電気もお願いします)."
+            }
+          ],
+          "4": [
+            {
+              "t": "text",
+              "text": "Tivi không phải do người đàn ông tắt."
+            }
+          ]
+        }
+      },
+      "after": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Dịch nghĩa:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Ở công ty, người phụ nữ và người đàn ông đang nói chuyện. Người đàn ông sẽ tắt cái gì?"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nữ: Công việc hôm nay xong rồi. Chúng ta về thôi."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nam: Vâng."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nữ: Ừm, tivi thì tôi đã tắt rồi, nên anh tắt điều hòa giúp nhé."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nam: Vâng."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nữ: Cả đèn điện nữa nhờ anh nhé."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Nam: Vâng."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Người đàn ông sẽ tắt cái gì?"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Đáp án đúng: [3]"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Người đàn ông sẽ tắt điều hòa (エアコン) và đèn điện (でんき). Tivi thì người phụ nữ đã tắt trước đó rồi (テレビはもう消しました)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "• Phân tích các phương án còn lại:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [1] Tivi do người phụ nữ đã tắt rồi."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [2] Lựa chọn 2 gồm tivi và đèn điện; tivi đã được người phụ nữ tắt, và lựa chọn này thiếu điều hòa mà người đàn ông được nhờ tắt."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [4] Tivi không phải do người đàn ông tắt."
+              }
+            ]
+          }
+        ],
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "93806847-b1da-45ba-aa0c-2695a7f0d63c",
+        "transcript": [
+          {
+            "t": "text",
+            "text": "会社で女の人と男の人が話しています。男の人は何を消しますか。"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "女：今日の仕事は終わりです。帰りましょう。"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "男：はい。"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "女：ええ、テレビはもう消しましたから、エアコンを消してください。"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "男：はい。"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "女：電気もお願いします。"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "男：はい。"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "男の人は何を消しますか。"
+          }
+        ],
+        "translation": [
+          {
+            "t": "text",
+            "text": "Ở công ty, người phụ nữ và người đàn ông đang nói chuyện. Người đàn ông sẽ tắt cái gì?\nNữ: Công việc hôm nay xong rồi. Chúng ta về thôi.\nNam: Vâng.\nNữ: Ừm, tivi thì tôi đã tắt rồi, nên anh tắt điều hòa giúp nhé.\nNam: Vâng.\nNữ: Cả đèn điện nữa nhờ anh nhé.\nNam: Vâng.\nNgười đàn ông sẽ tắt cái gì?"
+          }
+        ],
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "Đáp án đúng: [3]\nNgười đàn ông sẽ tắt điều hòa (エアコン) và đèn điện (でんき). Tivi thì người phụ nữ đã tắt trước đó rồi (テレビはもう消しました)."
+          }
+        ],
+        "humanReviewed": false,
+        "translationVi": "Ở công ty, người phụ nữ và người đàn ông đang nói chuyện. Người đàn ông sẽ tắt cái gì?\nNữ: Công việc hôm nay xong rồi. Chúng ta về thôi.\nNam: Vâng.\nNữ: Ừm, tivi thì tôi đã tắt rồi, nên anh tắt điều hòa giúp nhé.\nNam: Vâng.\nNữ: Cả đèn điện nữa nhờ anh nhé.\nNam: Vâng.\nNgười đàn ông sẽ tắt cái gì?",
+        "contentVersion": 1,
+        "explanationMarkdown": "**Lý do đúng**:\nĐáp án đúng: [3]\nNgười đàn ông sẽ tắt điều hòa (エアコン) và đèn điện (でんき). Tivi thì người phụ nữ đã tắt trước đó rồi (テレビはもう消しました).\n\n**Phân tích các phương án còn lại**:\n- [1] Phương án 1: Tivi do người phụ nữ đã tắt rồi.\n- [2] Phương án 2: Lựa chọn 2 gồm tivi và đèn điện; tivi đã được người phụ nữ tắt, và lựa chọn này thiếu điều hòa mà người đàn ông được nhờ tắt.\n- [4] Phương án 4: Tivi không phải do người đàn ông tắt.\n\n**Script bài nghe**:\n会社で女の人と男の人が話しています。男の人は何を消しますか。\n女：今日の仕事は終わりです。帰りましょう。\n男：はい。\n女：ええ、テレビはもう消しましたから、エアコンを消してください。\n男：はい。\n女：電気もお願いします。\n男：はい。\n男の人は何を消しますか。",
+        "wrongReasonsByOption": {
+          "1": [
+            {
+              "t": "text",
+              "text": "Tivi do người phụ nữ đã tắt rồi."
+            }
+          ],
+          "2": [
+            {
+              "t": "text",
+              "text": "Lựa chọn 2 gồm tivi và đèn điện; tivi đã được người phụ nữ tắt, và lựa chọn này thiếu điều hòa mà người đàn ông được nhờ tắt."
+            }
+          ],
+          "4": [
+            {
+              "t": "text",
+              "text": "Tivi không phải do người đàn ông tắt."
+            }
+          ]
+        }
+      },
+      "answerBefore": 3,
+      "questionId": "93806847-b1da-45ba-aa0c-2695a7f0d63c",
+      "groupId": "41895a80-b74b-403c-a38d-94d3cadf095b",
+      "reason": "Các lựa chọn 1, 2, 4 trong snapshot bị sai lệch nghiêm trọng so với đề in gốc trang 9. Đề gốc: 1. テレビと エアコン, 2. テレビと でんき, 3. エアコンと でんき, 4. テレビと エアコンと でんき. Snapshot lại là: 1. テレビ, 2. エアコン, 3. エアコンと でんき, 4. テレビと でんき.",
+      "evidence": [
+        {
+          "id": "F006",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 12-2012/N5-2012年12月.pdf",
+          "source_sha256": "97f9233c606f4f7b9f907ae97ec33b78700185149e21aa774f2df5b57619ac65",
+          "source_pages": [
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2010-2011",
+      "num": 11,
+      "field": "options",
+      "before": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "シャワー"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "シヤワー"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "ンャワー"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "ソャワー"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "シャワー"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "シヤワー"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "ツァワー"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "ツアワー"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 1,
+      "questionId": "27391ead-9408-43a9-a32e-1550df5cea7a",
+      "groupId": "faa0c7bd-2bea-489b-a950-b09c617270e7",
+      "reason": "Option 3 trong bản in gốc là chữ ツァワー (katakana ツ và chữ ァ nhỏ), snapshot bị nhận diện nhầm thành chữ ンャワー (chữ ン và ャ).; Option 4 trong bản in gốc là chữ ツアワー (katakana ツ và chữ ア lớn), snapshot bị nhận diện nhầm thành chữ ソャワー (chữ ソ và ャ).",
+      "evidence": [
+        {
+          "id": "F001",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 2010-2011/N5-2010-2011年.pdf",
+          "source_sha256": "bbcaf83bfbf5580bcbc5d741249e5f4c0efbbbaeb04377410c96b7aa6cae0262",
+          "source_pages": [
+            2
+          ]
+        },
+        {
+          "id": "F002",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 2010-2011/N5-2010-2011年.pdf",
+          "source_sha256": "bbcaf83bfbf5580bcbc5d741249e5f4c0efbbbaeb04377410c96b7aa6cae0262",
+          "source_pages": [
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2010-2011",
+      "num": 18,
+      "field": "options",
+      "before": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "同じ"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "回じ"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "囘じ"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "固じ"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "同じ"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "回じ"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "冋じ"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "固じ"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 1,
+      "questionId": "a87a5fee-f495-4de4-a511-95d9d1537ae3",
+      "groupId": "ac8001f3-2457-406f-a656-6be1c685d1c7",
+      "reason": "Option 3 trong bản in gốc là chữ 冋 (U+518F, bộ 冂 bao chữ 口), snapshot ghi nhầm thành 囘 (U+56D8, dạng cổ chữ Hồi chứa chữ Tỵ/bộ Vi).",
+      "evidence": [
+        {
+          "id": "F003",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 2010-2011/N5-2010-2011年.pdf",
+          "source_sha256": "bbcaf83bfbf5580bcbc5d741249e5f4c0efbbbaeb04377410c96b7aa6cae0262",
+          "source_pages": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2010-2011",
+      "num": 11,
+      "field": "explanation",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Dịch nghĩa: Sáng nay tôi đã tắm vòi sen."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Đáp án đúng: 1. シャワー"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "「しゃわー」trong chữ Katakana được viết là「シャワー」. Chữ「シ」(shi) có các nét vuốt từ dưới lên, chữ「ヤ」(ya) nhỏ「ャ」tạo thành âm ghép「シャ」(sha), kết hợp trường âm「ー」."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Phân tích các phương án còn lại:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 2「シヤワー」sai vì chữ「ヤ」viết cỡ lớn bình thường thay vì âm ghép「ャ」cỡ nhỏ."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 3「ンャワー」sai vì dùng chữ「ン」(n) thay vì chữ「シ」(shi)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 4「ソャワー」sai vì dùng chữ「ソ」(so) thay vì chữ「シ」(shi)."
+              }
+            ]
+          }
+        ],
+        "locale": "vi"
+      },
+      "after": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Dịch nghĩa: Sáng nay tôi đã tắm vòi sen."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Đáp án đúng: 1. シャワー"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "「しゃわー」trong chữ Katakana được viết là「シャワー」. Chữ「シ」(shi) có các nét vuốt từ dưới lên, chữ「ヤ」(ya) nhỏ「ャ」tạo thành âm ghép「シャ」(sha), kết hợp trường âm「ー」."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Phân tích các phương án còn lại:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 2「シヤワー」sai vì chữ「ヤ」viết cỡ lớn bình thường thay vì âm ghép「ャ」cỡ nhỏ."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 3「ツァワー」sai vì dùng chữ「ン」(n) thay vì chữ「シ」(shi)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 4「ツアワー」sai vì dùng chữ「ソ」(so) thay vì chữ「シ」(shi)."
+              }
+            ]
+          }
+        ],
+        "locale": "vi"
+      },
+      "answerBefore": 1,
+      "questionId": "27391ead-9408-43a9-a32e-1550df5cea7a",
+      "groupId": "faa0c7bd-2bea-489b-a950-b09c617270e7",
+      "reason": "Option 3 trong bản in gốc là chữ ツァワー (katakana ツ và chữ ァ nhỏ), snapshot bị nhận diện nhầm thành chữ ンャワー (chữ ン và ャ).; Option 4 trong bản in gốc là chữ ツアワー (katakana ツ và chữ ア lớn), snapshot bị nhận diện nhầm thành chữ ソャワー (chữ ソ và ャ).",
+      "evidence": [
+        {
+          "id": "F001",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 2010-2011/N5-2010-2011年.pdf",
+          "source_sha256": "bbcaf83bfbf5580bcbc5d741249e5f4c0efbbbaeb04377410c96b7aa6cae0262",
+          "source_pages": [
+            2
+          ]
+        },
+        {
+          "id": "F002",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 2010-2011/N5-2010-2011年.pdf",
+          "source_sha256": "bbcaf83bfbf5580bcbc5d741249e5f4c0efbbbaeb04377410c96b7aa6cae0262",
+          "source_pages": [
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2010-2011",
+      "num": 11,
+      "field": "explanation_vi",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Dịch nghĩa: Sáng nay tôi đã tắm vòi sen."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Đáp án đúng: 1. シャワー"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "「しゃわー」trong chữ Katakana được viết là「シャワー」. Chữ「シ」(shi) có các nét vuốt từ dưới lên, chữ「ヤ」(ya) nhỏ「ャ」tạo thành âm ghép「シャ」(sha), kết hợp trường âm「ー」."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Phân tích các phương án còn lại:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 2「シヤワー」sai vì chữ「ヤ」viết cỡ lớn bình thường thay vì âm ghép「ャ」cỡ nhỏ."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 3「ンャワー」sai vì dùng chữ「ン」(n) thay vì chữ「シ」(shi)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 4「ソャワー」sai vì dùng chữ「ソ」(so) thay vì chữ「シ」(shi)."
+              }
+            ]
+          }
+        ],
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "27391ead-9408-43a9-a32e-1550df5cea7a",
+        "translation": [
+          {
+            "t": "text",
+            "text": "Sáng nay tôi đã tắm vòi sen."
+          }
+        ],
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "Đáp án đúng: 1. シャワー\n「しゃわー」trong chữ Katakana được viết là「シャワー」. Chữ「シ」(shi) có các nét vuốt từ dưới lên, chữ「ヤ」(ya) nhỏ「ャ」tạo thành âm ghép「シャ」(sha), kết hợp trường âm「ー」."
+          }
+        ],
+        "humanReviewed": false,
+        "translationVi": "Sáng nay tôi đã tắm vòi sen.",
+        "contentVersion": 1,
+        "explanationMarkdown": "**Lý do đúng**:\nĐáp án đúng: 1. シャワー\n「しゃわー」trong chữ Katakana được viết là「シャワー」. Chữ「シ」(shi) có các nét vuốt từ dưới lên, chữ「ヤ」(ya) nhỏ「ャ」tạo thành âm ghép「シャ」(sha), kết hợp trường âm「ー」."
+      },
+      "after": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Dịch nghĩa: Sáng nay tôi đã tắm vòi sen."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Đáp án đúng: 1. シャワー"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "「しゃわー」trong chữ Katakana được viết là「シャワー」. Chữ「シ」(shi) có các nét vuốt từ dưới lên, chữ「ヤ」(ya) nhỏ「ャ」tạo thành âm ghép「シャ」(sha), kết hợp trường âm「ー」."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Phân tích các phương án còn lại:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 2「シヤワー」sai vì chữ「ヤ」viết cỡ lớn bình thường thay vì âm ghép「ャ」cỡ nhỏ."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 3「ツァワー」sai vì dùng chữ「ン」(n) thay vì chữ「シ」(shi)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 4「ツアワー」sai vì dùng chữ「ソ」(so) thay vì chữ「シ」(shi)."
+              }
+            ]
+          }
+        ],
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "27391ead-9408-43a9-a32e-1550df5cea7a",
+        "translation": [
+          {
+            "t": "text",
+            "text": "Sáng nay tôi đã tắm vòi sen."
+          }
+        ],
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "Đáp án đúng: 1. シャワー\n「しゃわー」trong chữ Katakana được viết là「シャワー」. Chữ「シ」(shi) có các nét vuốt từ dưới lên, chữ「ヤ」(ya) nhỏ「ャ」tạo thành âm ghép「シャ」(sha), kết hợp trường âm「ー」."
+          }
+        ],
+        "humanReviewed": false,
+        "translationVi": "Sáng nay tôi đã tắm vòi sen.",
+        "contentVersion": 1,
+        "explanationMarkdown": "**Lý do đúng**:\nĐáp án đúng: 1. シャワー\n「しゃわー」trong chữ Katakana được viết là「シャワー」. Chữ「シ」(shi) có các nét vuốt từ dưới lên, chữ「ヤ」(ya) nhỏ「ャ」tạo thành âm ghép「シャ」(sha), kết hợp trường âm「ー」."
+      },
+      "answerBefore": 1,
+      "questionId": "27391ead-9408-43a9-a32e-1550df5cea7a",
+      "groupId": "faa0c7bd-2bea-489b-a950-b09c617270e7",
+      "reason": "Option 3 trong bản in gốc là chữ ツァワー (katakana ツ và chữ ァ nhỏ), snapshot bị nhận diện nhầm thành chữ ンャワー (chữ ン và ャ).; Option 4 trong bản in gốc là chữ ツアワー (katakana ツ và chữ ア lớn), snapshot bị nhận diện nhầm thành chữ ソャワー (chữ ソ và ャ).",
+      "evidence": [
+        {
+          "id": "F001",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 2010-2011/N5-2010-2011年.pdf",
+          "source_sha256": "bbcaf83bfbf5580bcbc5d741249e5f4c0efbbbaeb04377410c96b7aa6cae0262",
+          "source_pages": [
+            2
+          ]
+        },
+        {
+          "id": "F002",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 2010-2011/N5-2010-2011年.pdf",
+          "source_sha256": "bbcaf83bfbf5580bcbc5d741249e5f4c0efbbbaeb04377410c96b7aa6cae0262",
+          "source_pages": [
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2010-2011",
+      "num": 18,
+      "field": "explanation",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Dịch nghĩa: Tôi đã mua bộ quần áo giống như của em gái tôi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Đáp án đúng: 1. 同じ"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Tính từ「おなじ」(giống nhau) có chữ Hán là「同」(Đồng), viết kèm okurigana là「同じ」."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Phân tích các phương án còn lại:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 2「回じ」sai vì chữ「回」(Hồi - quay vòng, lần) không mang nghĩa「おなじ」."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 3「囘じ」sai vì chữ「囘」(dạng cổ của chữ Hồi) không đúng."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 4「固じ」sai vì chữ「固」(Cố - cứng/かたい) không phải chữ Hán của「おなじ」."
+              }
+            ]
+          }
+        ],
+        "locale": "vi"
+      },
+      "after": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Dịch nghĩa: Tôi đã mua bộ quần áo giống như của em gái tôi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Đáp án đúng: 1. 同じ"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Tính từ「おなじ」(giống nhau) có chữ Hán là「同」(Đồng), viết kèm okurigana là「同じ」."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Phân tích các phương án còn lại:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 2「回じ」sai vì chữ「回」(Hồi - quay vòng, lần) không mang nghĩa「おなじ」."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 3「冋じ」sai vì chữ「囘」(dạng cổ của chữ Hồi) không đúng."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 4「固じ」sai vì chữ「固」(Cố - cứng/かたい) không phải chữ Hán của「おなじ」."
+              }
+            ]
+          }
+        ],
+        "locale": "vi"
+      },
+      "answerBefore": 1,
+      "questionId": "a87a5fee-f495-4de4-a511-95d9d1537ae3",
+      "groupId": "ac8001f3-2457-406f-a656-6be1c685d1c7",
+      "reason": "Option 3 trong bản in gốc là chữ 冋 (U+518F, bộ 冂 bao chữ 口), snapshot ghi nhầm thành 囘 (U+56D8, dạng cổ chữ Hồi chứa chữ Tỵ/bộ Vi).",
+      "evidence": [
+        {
+          "id": "F003",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 2010-2011/N5-2010-2011年.pdf",
+          "source_sha256": "bbcaf83bfbf5580bcbc5d741249e5f4c0efbbbaeb04377410c96b7aa6cae0262",
+          "source_pages": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2010-2011",
+      "num": 18,
+      "field": "explanation_vi",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Dịch nghĩa: Tôi đã mua bộ quần áo giống như của em gái tôi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Đáp án đúng: 1. 同じ"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Tính từ「おなじ」(giống nhau) có chữ Hán là「同」(Đồng), viết kèm okurigana là「同じ」."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Phân tích các phương án còn lại:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 2「回じ」sai vì chữ「回」(Hồi - quay vòng, lần) không mang nghĩa「おなじ」."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 3「囘じ」sai vì chữ「囘」(dạng cổ của chữ Hồi) không đúng."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 4「固じ」sai vì chữ「固」(Cố - cứng/かたい) không phải chữ Hán của「おなじ」."
+              }
+            ]
+          }
+        ],
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "a87a5fee-f495-4de4-a511-95d9d1537ae3",
+        "translation": [
+          {
+            "t": "text",
+            "text": "Tôi đã mua bộ quần áo giống như của em gái tôi."
+          }
+        ],
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "Đáp án đúng: 1. 同じ\nTính từ「おなじ」(giống nhau) có chữ Hán là「同」(Đồng), viết kèm okurigana là「同じ」."
+          }
+        ],
+        "humanReviewed": false,
+        "translationVi": "Tôi đã mua bộ quần áo giống như của em gái tôi.",
+        "contentVersion": 1,
+        "explanationMarkdown": "**Lý do đúng**:\nĐáp án đúng: 1. 同じ\nTính từ「おなじ」(giống nhau) có chữ Hán là「同」(Đồng), viết kèm okurigana là「同じ」."
+      },
+      "after": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Dịch nghĩa: Tôi đã mua bộ quần áo giống như của em gái tôi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Đáp án đúng: 1. 同じ"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Tính từ「おなじ」(giống nhau) có chữ Hán là「同」(Đồng), viết kèm okurigana là「同じ」."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "Phân tích các phương án còn lại:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 2「回じ」sai vì chữ「回」(Hồi - quay vòng, lần) không mang nghĩa「おなじ」."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 3「冋じ」sai vì chữ「囘」(dạng cổ của chữ Hồi) không đúng."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- Lựa chọn 4「固じ」sai vì chữ「固」(Cố - cứng/かたい) không phải chữ Hán của「おなじ」."
+              }
+            ]
+          }
+        ],
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "a87a5fee-f495-4de4-a511-95d9d1537ae3",
+        "translation": [
+          {
+            "t": "text",
+            "text": "Tôi đã mua bộ quần áo giống như của em gái tôi."
+          }
+        ],
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "Đáp án đúng: 1. 同じ\nTính từ「おなじ」(giống nhau) có chữ Hán là「同」(Đồng), viết kèm okurigana là「同じ」."
+          }
+        ],
+        "humanReviewed": false,
+        "translationVi": "Tôi đã mua bộ quần áo giống như của em gái tôi.",
+        "contentVersion": 1,
+        "explanationMarkdown": "**Lý do đúng**:\nĐáp án đúng: 1. 同じ\nTính từ「おなじ」(giống nhau) có chữ Hán là「同」(Đồng), viết kèm okurigana là「同じ」."
+      },
+      "answerBefore": 1,
+      "questionId": "a87a5fee-f495-4de4-a511-95d9d1537ae3",
+      "groupId": "ac8001f3-2457-406f-a656-6be1c685d1c7",
+      "reason": "Option 3 trong bản in gốc là chữ 冋 (U+518F, bộ 冂 bao chữ 口), snapshot ghi nhầm thành 囘 (U+56D8, dạng cổ chữ Hồi chứa chữ Tỵ/bộ Vi).",
+      "evidence": [
+        {
+          "id": "F003",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 2010-2011/N5-2010-2011年.pdf",
+          "source_sha256": "bbcaf83bfbf5580bcbc5d741249e5f4c0efbbbaeb04377410c96b7aa6cae0262",
+          "source_pages": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2021-12",
+      "num": 23,
+      "field": "stem",
+      "before": [
+        {
+          "t": "text",
+          "text": "わたしのアパートから 学校まで 30分"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "かかります。"
+        }
+      ],
+      "after": [
+        {
+          "t": "text",
+          "text": "わたしの アパートから 学校まで 30分"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "かかります。"
+        }
+      ],
+      "answerBefore": 4,
+      "questionId": "9737b14b-a5ff-4f47-ad57-c04aad503bdc",
+      "groupId": "02346a90-b9ac-4c3a-a19d-b5d8ed13569d",
+      "reason": "Thiếu khoảng trắng giữa từ 'わたしの' và 'アパートから' so với bản in đề gốc.",
+      "evidence": [
+        {
+          "id": "F001",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 12-2021/Đề N5 T12-2021 Mark.pdf",
+          "source_sha256": "284c73e4cf4b55f6bd1f6b2d1fb7579beb5cf1002fe36d28ed1e242d48669a67",
+          "source_pages": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2023-07",
+      "num": 34,
+      "field": "stem",
+      "before": [
+        {
+          "t": "text",
+          "text": "きょうは　にわの　"
+        },
+        {
+          "t": "ruby",
+          "rt": "はな",
+          "text": "花"
+        },
+        {
+          "t": "text",
+          "text": "に　"
+        },
+        {
+          "t": "ruby",
+          "rt": "みず",
+          "text": "水"
+        },
+        {
+          "t": "text",
+          "text": "を　やったリ、へやの　"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "　"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "　"
+        },
+        {
+          "t": "star"
+        },
+        {
+          "t": "text",
+          "text": "　"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "、"
+        },
+        {
+          "t": "ruby",
+          "rt": "か",
+          "text": "買"
+        },
+        {
+          "t": "ruby",
+          "rt": "もの",
+          "text": "物"
+        },
+        {
+          "t": "text",
+          "text": "に　"
+        },
+        {
+          "t": "ruby",
+          "rt": "い",
+          "text": "行"
+        },
+        {
+          "t": "text",
+          "text": "きました。」"
+        }
+      ],
+      "after": [
+        {
+          "t": "text",
+          "text": "きょうは　にわの　"
+        },
+        {
+          "t": "ruby",
+          "rt": "はな",
+          "text": "花"
+        },
+        {
+          "t": "text",
+          "text": "に　"
+        },
+        {
+          "t": "ruby",
+          "rt": "みず",
+          "text": "水"
+        },
+        {
+          "t": "text",
+          "text": "を　やったり、へやの　"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "　"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "　"
+        },
+        {
+          "t": "star"
+        },
+        {
+          "t": "text",
+          "text": "　"
+        },
+        {
+          "t": "blank"
+        },
+        {
+          "t": "text",
+          "text": "、"
+        },
+        {
+          "t": "ruby",
+          "rt": "か",
+          "text": "買"
+        },
+        {
+          "t": "ruby",
+          "rt": "もの",
+          "text": "物"
+        },
+        {
+          "t": "text",
+          "text": "に　"
+        },
+        {
+          "t": "ruby",
+          "rt": "い",
+          "text": "行"
+        },
+        {
+          "t": "text",
+          "text": "きました。」"
+        }
+      ],
+      "answerBefore": 1,
+      "questionId": "02c4ddd3-df2e-4fd4-ae6f-365b76943ae9",
+      "groupId": "10a2cfb5-9096-4f9f-a3ca-4980c004ad73",
+      "reason": "Chữ hiragana り bị nhận dạng/nhập nhầm thành katakana リ (U+30EA), và chữ nguồn in là やたっり (hoặc やったり với hiragana り).; Lời giải trong database-supplement lặp lại lỗi OCR katakana リ trong cụm \"やったリ\".",
+      "evidence": [
+        {
+          "id": "F001",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 7-2023/Dap-an-va-de-thi-jlpt-N5-thang-7-nam-2023.pdf",
+          "source_sha256": "58741e9e6fd48871105a30e29fe2c93c02f370e7d776508b19835475915f160a",
+          "source_pages": [
+            7
+          ]
+        },
+        {
+          "id": "F002",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 7-2023/Dap-an-va-de-thi-jlpt-N5-thang-7-nam-2023.pdf",
+          "source_sha256": "58741e9e6fd48871105a30e29fe2c93c02f370e7d776508b19835475915f160a",
+          "source_pages": [
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2023-07",
+      "num": 34,
+      "field": "explanation",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Dịch nghĩa: Hôm nay sau khi làm những việc như tưới nước cho hoa ngoài vườn và dọn dẹp phòng, tôi đã đi mua sắm."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Đáp án đúng: [1] した"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Thứ tự sắp xếp đúng là: きょうは にわの 花に 水を やったリ、へやの [そうじを] [したり] [★した] [あとで]、買い物に 行きました (2 - 4 - 1 - 3). Vị trí ngôi sao ★ ở vị trí số 3 tương ứng với phương án [1] した. Mẫu câu liệt kê các hành động tiêu biểu rồi làm việc tiếp theo: 〜たり〜たりしたあとで (sau khi làm những việc như...)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Phân tích các phương án còn lại:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [2] そうじを: Nằm ở vị trí trống thứ 1, kết hợp với へやの thành へやのそうじを."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [3] あとで: Nằm ở vị trí trống thứ 4, kết hợp với した thành したあとで (sau khi làm)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [4] したり: Nằm ở vị trí trống thứ 2, động từ dạng たり thứ 2 tương ứng với やったリ ở vế trước."
+              }
+            ]
+          }
+        ],
+        "locale": "vi"
+      },
+      "after": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Dịch nghĩa: Hôm nay sau khi làm những việc như tưới nước cho hoa ngoài vườn và dọn dẹp phòng, tôi đã đi mua sắm."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Đáp án đúng: [1] した"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Thứ tự sắp xếp đúng là: きょうは にわの 花に 水を やったり、へやの [そうじを] [したり] [★した] [あとで]、買い物に 行きました (2 - 4 - 1 - 3). Vị trí ngôi sao ★ ở vị trí số 3 tương ứng với phương án [1] した. Mẫu câu liệt kê các hành động tiêu biểu rồi làm việc tiếp theo: 〜たり〜たりしたあとで (sau khi làm những việc như...)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Phân tích các phương án còn lại:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [2] そうじを: Nằm ở vị trí trống thứ 1, kết hợp với へやの thành へやのそうじを."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [3] あとで: Nằm ở vị trí trống thứ 4, kết hợp với した thành したあとで (sau khi làm)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [4] したり: Nằm ở vị trí trống thứ 2, động từ dạng たり thứ 2 tương ứng với やったり ở vế trước."
+              }
+            ]
+          }
+        ],
+        "locale": "vi"
+      },
+      "answerBefore": 1,
+      "questionId": "02c4ddd3-df2e-4fd4-ae6f-365b76943ae9",
+      "groupId": "10a2cfb5-9096-4f9f-a3ca-4980c004ad73",
+      "reason": "Chữ hiragana り bị nhận dạng/nhập nhầm thành katakana リ (U+30EA), và chữ nguồn in là やたっり (hoặc やったり với hiragana り).; Lời giải trong database-supplement lặp lại lỗi OCR katakana リ trong cụm \"やったリ\".",
+      "evidence": [
+        {
+          "id": "F001",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 7-2023/Dap-an-va-de-thi-jlpt-N5-thang-7-nam-2023.pdf",
+          "source_sha256": "58741e9e6fd48871105a30e29fe2c93c02f370e7d776508b19835475915f160a",
+          "source_pages": [
+            7
+          ]
+        },
+        {
+          "id": "F002",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 7-2023/Dap-an-va-de-thi-jlpt-N5-thang-7-nam-2023.pdf",
+          "source_sha256": "58741e9e6fd48871105a30e29fe2c93c02f370e7d776508b19835475915f160a",
+          "source_pages": [
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2023-07",
+      "num": 34,
+      "field": "explanation_vi",
+      "before": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Dịch nghĩa: Hôm nay sau khi làm những việc như tưới nước cho hoa ngoài vườn và dọn dẹp phòng, tôi đã đi mua sắm."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Đáp án đúng: [1] した"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Thứ tự sắp xếp đúng là: きょうは にわの 花に 水を やったリ、へやの [そうじを] [したり] [★した] [あとで]、買い物に 行きました (2 - 4 - 1 - 3). Vị trí ngôi sao ★ ở vị trí số 3 tương ứng với phương án [1] した. Mẫu câu liệt kê các hành động tiêu biểu rồi làm việc tiếp theo: 〜たり〜たりしたあとで (sau khi làm những việc như...)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Phân tích các phương án còn lại:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [2] そうじを: Nằm ở vị trí trống thứ 1, kết hợp với へやの thành へやのそうじを."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [3] あとで: Nằm ở vị trí trống thứ 4, kết hợp với した thành したあとで (sau khi làm)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [4] したり: Nằm ở vị trí trống thứ 2, động từ dạng たり thứ 2 tương ứng với やったリ ở vế trước."
+              }
+            ]
+          }
+        ],
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "02c4ddd3-df2e-4fd4-ae6f-365b76943ae9",
+        "translation": [
+          {
+            "t": "text",
+            "text": "Hôm nay sau khi làm những việc như tưới nước cho hoa ngoài vườn và dọn dẹp phòng, tôi đã đi mua sắm."
+          }
+        ],
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "Đáp án đúng: [1] した\nThứ tự sắp xếp đúng là: きょうは にわの 花に 水を やったリ、へやの [そうじを] [したり] [★した] [あとで]、買い物に 行きました (2 - 4 - 1 - 3). Vị trí ngôi sao ★ ở vị trí số 3 tương ứng với phương án [1] した. Mẫu câu liệt kê các hành động tiêu biểu rồi làm việc tiếp theo: 〜たり〜たりしたあとで (sau khi làm những việc như...)."
+          }
+        ],
+        "humanReviewed": false,
+        "translationVi": "Hôm nay sau khi làm những việc như tưới nước cho hoa ngoài vườn và dọn dẹp phòng, tôi đã đi mua sắm.",
+        "contentVersion": 1,
+        "explanationMarkdown": "**Lý do đúng**:\nĐáp án đúng: [1] した\nThứ tự sắp xếp đúng là: きょうは にわの 花に 水を やったリ、へやの [そうじを] [したり] [★した] [あとで]、買い物に 行きました (2 - 4 - 1 - 3). Vị trí ngôi sao ★ ở vị trí số 3 tương ứng với phương án [1] した. Mẫu câu liệt kê các hành động tiêu biểu rồi làm việc tiếp theo: 〜たり〜たりしたあとで (sau khi làm những việc như...).\n\n**Phân tích các phương án còn lại**:\n- [2] Phương án 2: そうじを: Nằm ở vị trí trống thứ 1, kết hợp với へやの thành へやのそうじを.\n- [3] Phương án 3: あとで: Nằm ở vị trí trống thứ 4, kết hợp với した thành したあとで (sau khi làm).\n- [4] Phương án 4: したり: Nằm ở vị trí trống thứ 2, động từ dạng たり thứ 2 tương ứng với やったリ ở vế trước.",
+        "wrongReasonsByOption": {
+          "2": [
+            {
+              "t": "text",
+              "text": "そうじを: Nằm ở vị trí trống thứ 1, kết hợp với へやの thành へやのそうじを."
+            }
+          ],
+          "3": [
+            {
+              "t": "text",
+              "text": "あとで: Nằm ở vị trí trống thứ 4, kết hợp với した thành したあとで (sau khi làm)."
+            }
+          ],
+          "4": [
+            {
+              "t": "text",
+              "text": "したり: Nằm ở vị trí trống thứ 2, động từ dạng たり thứ 2 tương ứng với やったリ ở vế trước."
+            }
+          ]
+        }
+      },
+      "after": {
+        "blocks": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Dịch nghĩa: Hôm nay sau khi làm những việc như tưới nước cho hoa ngoài vườn và dọn dẹp phòng, tôi đã đi mua sắm."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Đáp án đúng: [1] した"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "Thứ tự sắp xếp đúng là: きょうは にわの 花に 水を やったり、へやの [そうじを] [したり] [★した] [あとで]、買い物に 行きました (2 - 4 - 1 - 3). Vị trí ngôi sao ★ ở vị trí số 3 tương ứng với phương án [1] した. Mẫu câu liệt kê các hành động tiêu biểu rồi làm việc tiếp theo: 〜たり〜たりしたあとで (sau khi làm những việc như...)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "t": "text",
+                "text": "• Phân tích các phương án còn lại:"
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [2] そうじを: Nằm ở vị trí trống thứ 1, kết hợp với へやの thành へやのそうじを."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [3] あとで: Nằm ở vị trí trống thứ 4, kết hợp với した thành したあとで (sau khi làm)."
+              },
+              {
+                "t": "br"
+              },
+              {
+                "t": "text",
+                "text": "- [4] したり: Nằm ở vị trí trống thứ 2, động từ dạng たり thứ 2 tương ứng với やったり ở vế trước."
+              }
+            ]
+          }
+        ],
+        "origin": "official_past_exam",
+        "language": "vi",
+        "questionId": "02c4ddd3-df2e-4fd4-ae6f-365b76943ae9",
+        "translation": [
+          {
+            "t": "text",
+            "text": "Hôm nay sau khi làm những việc như tưới nước cho hoa ngoài vườn và dọn dẹp phòng, tôi đã đi mua sắm."
+          }
+        ],
+        "correctReason": [
+          {
+            "t": "text",
+            "text": "Đáp án đúng: [1] した\nThứ tự sắp xếp đúng là: きょうは にわの 花に 水を やったり、へやの [そうじを] [したり] [★した] [あとで]、買い物に 行きました (2 - 4 - 1 - 3). Vị trí ngôi sao ★ ở vị trí số 3 tương ứng với phương án [1] した. Mẫu câu liệt kê các hành động tiêu biểu rồi làm việc tiếp theo: 〜たり〜たりしたあとで (sau khi làm những việc như...)."
+          }
+        ],
+        "humanReviewed": false,
+        "translationVi": "Hôm nay sau khi làm những việc như tưới nước cho hoa ngoài vườn và dọn dẹp phòng, tôi đã đi mua sắm.",
+        "contentVersion": 1,
+        "explanationMarkdown": "**Lý do đúng**:\nĐáp án đúng: [1] した\nThứ tự sắp xếp đúng là: きょうは にわの 花に 水を やったり、へやの [そうじを] [したり] [★した] [あとで]、買い物に 行きました (2 - 4 - 1 - 3). Vị trí ngôi sao ★ ở vị trí số 3 tương ứng với phương án [1] した. Mẫu câu liệt kê các hành động tiêu biểu rồi làm việc tiếp theo: 〜たり〜たりしたあとで (sau khi làm những việc như...).\n\n**Phân tích các phương án còn lại**:\n- [2] Phương án 2: そうじを: Nằm ở vị trí trống thứ 1, kết hợp với へやの thành へやのそうじを.\n- [3] Phương án 3: あとで: Nằm ở vị trí trống thứ 4, kết hợp với した thành したあとで (sau khi làm).\n- [4] Phương án 4: したり: Nằm ở vị trí trống thứ 2, động từ dạng たり thứ 2 tương ứng với やったり ở vế trước.",
+        "wrongReasonsByOption": {
+          "2": [
+            {
+              "t": "text",
+              "text": "そうじを: Nằm ở vị trí trống thứ 1, kết hợp với へやの thành へやのそうじを."
+            }
+          ],
+          "3": [
+            {
+              "t": "text",
+              "text": "あとで: Nằm ở vị trí trống thứ 4, kết hợp với した thành したあとで (sau khi làm)."
+            }
+          ],
+          "4": [
+            {
+              "t": "text",
+              "text": "したり: Nằm ở vị trí trống thứ 2, động từ dạng たり thứ 2 tương ứng với やったり ở vế trước."
+            }
+          ]
+        }
+      },
+      "answerBefore": 1,
+      "questionId": "02c4ddd3-df2e-4fd4-ae6f-365b76943ae9",
+      "groupId": "10a2cfb5-9096-4f9f-a3ca-4980c004ad73",
+      "reason": "Chữ hiragana り bị nhận dạng/nhập nhầm thành katakana リ (U+30EA), và chữ nguồn in là やたっり (hoặc やったり với hiragana り).; Lời giải trong database-supplement lặp lại lỗi OCR katakana リ trong cụm \"やったリ\".",
+      "evidence": [
+        {
+          "id": "F001",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 7-2023/Dap-an-va-de-thi-jlpt-N5-thang-7-nam-2023.pdf",
+          "source_sha256": "58741e9e6fd48871105a30e29fe2c93c02f370e7d776508b19835475915f160a",
+          "source_pages": [
+            7
+          ]
+        },
+        {
+          "id": "F002",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 7-2023/Dap-an-va-de-thi-jlpt-N5-thang-7-nam-2023.pdf",
+          "source_sha256": "58741e9e6fd48871105a30e29fe2c93c02f370e7d776508b19835475915f160a",
+          "source_pages": [
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2024-07",
+      "num": 35,
+      "field": "passage",
+      "before": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "りゅうがくせいの ブラウンさんと レーさんは さくぶんを 書いて、クラスの みんなの 前で 読みました。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "(1) ブラウンさんのさくぶん"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "先週の 日曜日に 私は はじめて 日本の えいが館で えいがを 見ました。駅の 近く"
+            },
+            {
+              "t": "blank",
+              "label": "14"
+            },
+            {
+              "t": "text",
+              "text": "新しい えいが館で 見ました。えいが館は 広くて、とても きれいでした。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "また"
+            },
+            {
+              "t": "blank",
+              "label": "15"
+            },
+            {
+              "t": "text",
+              "text": "。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "(2) レーさんのさくぶん"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "私は 先週の 土曜日に うちで ともだちと りょうりを しました。私たちは 二つの りょうりを 作りました。はじめは、おにぎりを 作りました。"
+            },
+            {
+              "t": "blank",
+              "label": "16"
+            },
+            {
+              "t": "text",
+              "text": "、やさいの みそしるを 作りました。おにぎりは 少し むずかしかったです。でも、みそしるは"
+            },
+            {
+              "t": "blank",
+              "label": "17"
+            },
+            {
+              "t": "text",
+              "text": "。ともだちと 作った おにぎりと みそしるは おいしかったです。"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "りゅうがくせいの ブラウンさんと レーさんは さくぶんを 書いて、クラスの みんなの 前で 読みました。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "(1) ブラウンさんのさくぶん"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "先週の 日曜日に 私は はじめて 日本の えいがかんで えいがを 見ました。駅の 近く"
+            },
+            {
+              "t": "blank",
+              "label": "14"
+            },
+            {
+              "t": "text",
+              "text": "新しい えいがかんで 見ました。えいがかんは 広くて、とても きれいでした。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "また"
+            },
+            {
+              "t": "blank",
+              "label": "15"
+            },
+            {
+              "t": "text",
+              "text": "。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "(2) レーさんのさくぶん"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "私は 先週の 土曜日に うちで ともだちと りょうりを しました。私たちは 二つの りょうりを 作りました。はじめは、おにぎりを 作りました。"
+            },
+            {
+              "t": "blank",
+              "label": "16"
+            },
+            {
+              "t": "text",
+              "text": "、やさいの みそしるを 作りました。おにぎりは 少し むずかしかったです。でも、みそしるは"
+            },
+            {
+              "t": "blank",
+              "label": "17"
+            },
+            {
+              "t": "text",
+              "text": "。ともだちと 作った おにぎりと みそしるは おいしかったです。"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 3,
+      "questionId": "c34bf1d5-11b0-48c1-a20e-511b33381165",
+      "groupId": "8e6ee79f-846f-4d86-a525-6b0bde4b099f",
+      "reason": "Bản in nguồn trang 6 dùng chữ hiragana 'えいがかん' ở cả 3 vị trí; dữ liệu snapshot dùng kanji 'えいが館'.",
+      "evidence": [
+        {
+          "id": "F001",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2024/Đề N5 T7-2024 Ver 2.0 [Mark].pdf",
+          "source_sha256": "58d357a3c5e898d339b5011cea4f3b07781bcf34697b629c4823647ec14f43b5",
+          "source_pages": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2024-07",
+      "num": 30,
+      "field": "options",
+      "before": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "持っていませんか"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "持たないでください"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "もちましたね"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "持ちましょうか"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "持っていませんか"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "持たないでください"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "もちましたね"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "持ちましょうか。"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 4,
+      "questionId": "8e986e0f-ea75-4c42-a09f-051df5bc902d",
+      "groupId": "fe3ece4b-e4f3-4106-a45a-7b92f7b2e088",
+      "reason": "Lựa chọn 4 ở bản in nguồn trang 5 có dấu chấm tròn '。' ở cuối; snapshot bị thiếu.",
+      "evidence": [
+        {
+          "id": "F002",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2024/Đề N5 T7-2024 Ver 2.0 [Mark].pdf",
+          "source_sha256": "58d357a3c5e898d339b5011cea4f3b07781bcf34697b629c4823647ec14f43b5",
+          "source_pages": [
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2024-07",
+      "num": 56,
+      "field": "options",
+      "before": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "だい4か"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "だい5か"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "だい6か"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "だい7か"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "だい4かい"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "だい5かい"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "だい6かい"
+            }
+          ]
+        },
+        {
+          "order_index": 4,
+          "content": [
+            {
+              "t": "text",
+              "text": "だい7かい"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 4,
+      "questionId": "9915ad2b-0963-40dd-a787-89a11c6cf371",
+      "groupId": "55ad36e3-2ec1-4a3f-ada7-aefee710d5b1",
+      "reason": "Đề gốc trang 21 in rõ ràng chữ 'い' ở cuối mỗi lựa chọn ('だい4かい', 'だい5かい', 'だい6かい', 'だい7かい'); snapshot bị rụng mất chữ 'い' thành 'だい4か', 'だい5か', 'だい6か', 'だい7か'.",
+      "evidence": [
+        {
+          "id": "F005",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2024/Đề N5 T7-2024 Ver 2.0 [Mark].pdf",
+          "source_sha256": "58d357a3c5e898d339b5011cea4f3b07781bcf34697b629c4823647ec14f43b5",
+          "source_pages": [
+            21
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2024-12",
+      "num": 59,
+      "field": "options",
+      "before": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "いつもバスに乗っていますか。"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "バスで何時間ですか。"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "次のバスは何時何分ですか。"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "order_index": 1,
+          "content": [
+            {
+              "t": "text",
+              "text": "いつもバスに乗っていますか。"
+            }
+          ]
+        },
+        {
+          "order_index": 2,
+          "content": [
+            {
+              "t": "text",
+              "text": "バスで何時間ですか。"
+            }
+          ]
+        },
+        {
+          "order_index": 3,
+          "content": [
+            {
+              "t": "text",
+              "text": "次のバスは何分ですか。"
+            }
+          ]
+        }
+      ],
+      "answerBefore": 3,
+      "questionId": "a2246304-d365-469c-a065-5e1edfdae8a9",
+      "groupId": "1c9a82ec-9fa8-4e4d-aca3-157600590d0c",
+      "reason": "Lựa chọn thoại số 3 trong snapshot ghi '何時何分' trong khi script nguồn ghi rõ '何分'.",
+      "evidence": [
+        {
+          "id": "F007",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 12-2024/Script Nghe đề N5 T12-2024 YuukiBùi.pdf",
+          "source_sha256": "6a50d00efabcffd47c39a3183d0f14310a73250869d5bd57b8e429501ad34162",
+          "source_pages": [
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "n5-2024-07",
+      "num": 51,
+      "field": "passage",
+      "before": [
+        {
+          "alt": "女の学生はどのスポーツが一番好きですか。",
+          "type": "image",
+          "width": 1411,
+          "height": 921,
+          "mediaKey": "media/95f088258626073e0b9bf57f6c79107a20a32f938fb599d186cfec9a38fbebb8.png"
+        }
+      ],
+      "after": [
+        {
+          "alt": "女の学生はどのスポーツが一番好きですか。",
+          "type": "image",
+          "width": 1049,
+          "height": 852,
+          "mediaKey": "media/8c7ed8ba6875b1811280ac5cbfa53be20d3cde9de48be8c9f85db4358af0dcb5.png"
+        }
+      ],
+      "answerBefore": 1,
+      "questionId": "bcd226fb-e38e-4ec4-af7b-5198171824e6",
+      "groupId": "53168aaa-07ae-4d05-a0bf-3836422db40a",
+      "reason": "Ảnh phát hành 95f08825...png bị cắt xén phần đỉnh: ô 1 mất hoàn toàn đầu và vợt tennis (chỉ còn thân dưới), ô 2 mất đầu bạn nữ.",
+      "evidence": [
+        {
+          "id": "F004",
+          "source_file": "/srv/jlpt-extract/de-goc/N5/N5 T7-2024/Đề N5 T7-2024 Ver 2.0 [Mark].pdf",
+          "source_sha256": "58d357a3c5e898d339b5011cea4f3b07781bcf34697b629c4823647ec14f43b5",
+          "source_pages": [
+            18
+          ]
+        }
+      ]
+    }
+  ],
+  "images": [
+    {
+      "slug": "n5-2024-07",
+      "num": 51,
+      "file": "8c7ed8ba6875b1811280ac5cbfa53be20d3cde9de48be8c9f85db4358af0dcb5.png",
+      "sha256": "8c7ed8ba6875b1811280ac5cbfa53be20d3cde9de48be8c9f85db4358af0dcb5",
+      "width": 1049,
+      "height": 852,
+      "source": "/srv/jlpt-extract/de-goc/N5/N5 T7-2024/Đề N5 T7-2024 Ver 2.0 [Mark].pdf",
+      "sourceSha256": "58d357a3c5e898d339b5011cea4f3b07781bcf34697b629c4823647ec14f43b5",
+      "page": 18,
+      "clip": [
+        58.13998840332032,
+        356.3999450683594,
+        477.3599047851563,
+        696.959892578125
+      ]
+    }
+  ]
+}
