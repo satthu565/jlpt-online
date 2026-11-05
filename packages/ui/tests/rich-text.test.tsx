@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
@@ -66,7 +67,7 @@ describe('RichText Rendering & XSS Protection (Acceptance 1 & EXAM-10)', () => {
       { t: 'text', text: ') end' },
     ];
     const html = renderToString(<RichTextView segments={segments} blankAriaLabel="Blank" />);
-    const text = html.replace(/<[^>]*>/g, '');
+    const text = new DOMParser().parseFromString(html, 'text/html').body.textContent;
     expect(text).toBe('Before（41）after (42) end');
     expect(html).toContain('aria-label="Blank 41"');
     expect(html).toContain('aria-label="Blank 42"');
@@ -74,7 +75,7 @@ describe('RichText Rendering & XSS Protection (Acceptance 1 & EXAM-10)', () => {
 
   it('renders standalone blank labels as text and escapes markup', () => {
     const html = renderToString(<RichTextView segments={[{ t: 'blank', label: '45' }, { t: 'blank', label: '<img>' }]} />);
-    expect(html.replace(/<[^>]*>/g, '')).toBe('45&lt;img&gt;');
+    expect(new DOMParser().parseFromString(html, 'text/html').body.textContent).toBe('45<img>');
     expect(html).toContain('&lt;img&gt;');
     expect(html).not.toContain('<img>');
   });
