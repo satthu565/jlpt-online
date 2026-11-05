@@ -74,8 +74,8 @@ describe('RichText Rendering & XSS Protection (Acceptance 1 & EXAM-10)', () => {
 
   it('renders standalone blank labels as text and escapes markup', () => {
     const html = renderToString(<RichTextView segments={[{ t: 'blank', label: '45' }, { t: 'blank', label: '<img>' }]} />);
-    expect(html).toContain('(45)');
-    expect(html).toContain('(&lt;img&gt;)');
+    expect(html.replace(/<[^>]*>/g, '')).toBe('45&lt;img&gt;');
+    expect(html).toContain('&lt;img&gt;');
     expect(html).not.toContain('<img>');
   });
 

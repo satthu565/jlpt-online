@@ -153,11 +153,6 @@ export function RichTextView({
 
           case 'blank': {
             const label = 'label' in seg ? seg.label?.trim() : undefined;
-            const previous = segments[idx - 1];
-            const next = segments[idx + 1];
-            const hasSurroundingParentheses =
-              previous?.t === 'text' && /[（(]\s*$/.test(previous.text) &&
-              next?.t === 'text' && /^\s*[）)]/.test(next.text);
             return (
               <span
                 key={idx}
@@ -173,7 +168,7 @@ export function RichTextView({
                   padding: '0 0.25rem',
                 }}
               >
-                {label ? (hasSurroundingParentheses ? label : `(${label})`) : <>( &nbsp; )</>}
+                {label || <>( &nbsp; )</>}
               </span>
             );
           }
