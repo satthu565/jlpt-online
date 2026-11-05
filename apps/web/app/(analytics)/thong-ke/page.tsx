@@ -14,23 +14,30 @@ import { Spinner } from '@jlpt/ui/components/spinner';
 import { useI18n } from '../../../lib/i18n';
 
 export default function AnalyticsPage(): React.JSX.Element {
-  const { user, session } = useAuth();
+  const { user, session, isLoading: authLoading } = useAuth();
   const token = session?.token;
   const { t } = useI18n();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isUnauthorized, setIsUnauthorized] = useState<boolean>(false);
   const [attempts, setAttempts] = useState<AttemptRecord[]>([]);
   const [questionAttempts, setQuestionAttempts] = useState<QuestionAttemptRecord[]>([]);
 
   const fetchAnalyticsData = useCallback(async () => {
+    if (authLoading) return;
+
     if (!user) {
       setIsLoading(false);
+      setIsUnauthorized(true);
+      setAttempts([]);
+      setQuestionAttempts([]);
       return;
     }
 
     setIsLoading(true);
     setError(null);
+    setIsUnauthorized(false);
 
     const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '');
     const headers: Record<string, string> = {
@@ -53,7 +60,7 @@ export default function AnalyticsPage(): React.JSX.Element {
       ]);
 
       if (attemptsRes.status === 401 || attemptsRes.status === 403 || analyticsRes.status === 401 || analyticsRes.status === 403) {
-        setError(t('auth.sessionExpired') || 'Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.');
+        setIsUnauthorized(true);
         setIsLoading(false);
         return;
       }
@@ -108,11 +115,13 @@ export default function AnalyticsPage(): React.JSX.Element {
     } finally {
       setIsLoading(false);
     }
-  }, [user, token, t]);
+  }, [authLoading, user, token]);
 
   useEffect(() => {
     fetchAnalyticsData();
   }, [fetchAnalyticsData]);
+
+  const isGuest = !user || isUnauthorized;
 
   return (
     <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60" data-testid="analytics-page">
@@ -122,79 +131,102 @@ export default function AnalyticsPage(): React.JSX.Element {
         minimal
         background="gradient"
       />
-      {!user ? (
-        <div className="container py-12 w-full">
+
+      <div className="container py-8 w-full space-y-6" data-testid="analytics-page-container">
+        {isGuest && (
           <Alert variant="warning" className="mb-6" data-testid="analytics-auth-required">
-            {t('analytics.auth.required')}
-          </Alert>
-          <div className="text-center">
-            <Link
-              href="/dang-nhap?redirect=/thong-ke"
-              className="inline-flex items-center px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
-            >
-              {t('analytics.auth.signIn')}
-            </Link>
-          </div>
-        </div>
-      ) : (
-        <div className="container py-8 w-full space-y-6" data-testid="analytics-page-container">
-          {isLoading && (
-            <div className="flex flex-col items-center justify-center py-16 space-y-3" data-testid="analytics-loading-spinner">
-              <Spinner size="lg" aria-label={t('analytics.status.syncing')} />
-              <p className="text-sm text-slate-500">{t('analytics.status.syncing')}</p>
-            </div>
-          )}
-
-          {error && !isLoading && (
-            <Alert variant="error" className="my-4" data-testid="analytics-error-alert">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <span>{error}</span>
-                <Button size="sm" variant="outline" onClick={fetchAnalyticsData}>
-                  {t('common.buttons.retry')}
+            <div className="flex justify-between items-center flex-wrap gap-2">
+              <span>{t('analytics.auth.required')}</span>
+              <Link href="/dang-nhap?redirect=/thong-ke">
+                <Button size="sm" variant="primary">
+                  {t('analytics.auth.signIn')}
                 </Button>
-              </div>
-            </Alert>
-          )}
-
-          {!isLoading && !error && attempts.length === 0 && questionAttempts.length === 0 && (
-            <div
-              data-testid="analytics-empty-state"
-              className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-12 text-center space-y-4"
-            >
-              <BarChart3 className="mx-auto size-10" aria-hidden="true" />
-              <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">
-                {t('analytics.empty.title')}
-              </h2>
-              <p className="text-sm text-slate-500 max-w-md mx-auto">
-                {t('analytics.empty.description')}
-              </p>
-              <div className="flex flex-wrap gap-4 justify-center pt-2">
-                <Link
-                  href="/de-thi"
-                  className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition"
-                >
-                  {t('analytics.empty.toExams')}
-                </Link>
-                <Link
-                  href="/luyen-tap"
-                  className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition"
-                >
-                  {t('analytics.empty.toPractice')}
-                </Link>
-              </div>
+              </Link>
             </div>
-          )}
+          </Alert>
+        )}
 
-          {!isLoading && !error && (attempts.length > 0 || questionAttempts.length > 0) && (
-            <AnalyticsDashboard
-              attempts={attempts}
-              questionAttempts={questionAttempts}
-              targetLevel={(user?.targetLevel as Level) || 'N3'}
-              targetScore={120}
-            />
-          )}
-        </div>
-      )}
+        {error && !isGuest && (
+          <Alert variant="error" className="my-4" data-testid="analytics-error-alert">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span>{error}</span>
+              <Button size="sm" variant="outline" onClick={fetchAnalyticsData}>
+                {t('common.buttons.retry')}
+              </Button>
+            </div>
+          </Alert>
+        )}
+
+        {isLoading && (
+          <div className="flex flex-col items-center justify-center py-16 space-y-3" data-testid="analytics-loading-spinner">
+            <Spinner size="lg" aria-label={t('analytics.status.syncing')} />
+            <p className="text-sm text-slate-500">{t('analytics.status.syncing')}</p>
+          </div>
+        )}
+
+        {!isLoading && isGuest && (
+          <div
+            data-testid="analytics-empty-state"
+            className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-12 text-center flex flex-col items-center justify-center space-y-4 border border-slate-200 dark:border-slate-800"
+          >
+            <BarChart3 className="mx-auto size-10 text-slate-400" aria-hidden="true" />
+            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">
+              Đăng nhập để xem thống kê học tập
+            </h2>
+            <p className="text-sm text-slate-500 max-w-md mx-auto">
+              Đăng nhập hoặc đăng ký tài khoản để theo dõi biểu đồ tiến độ ôn luyện, phân tích điểm số các kỹ năng JLPT và nhận đề xuất học tập cá nhân hóa.
+            </p>
+            <div className="flex flex-wrap gap-3 justify-center pt-2">
+              <Link href="/dang-nhap?redirect=/thong-ke" className="self-center">
+                <Button variant="primary" size="md">
+                  Đăng nhập hoặc Đăng ký
+                </Button>
+              </Link>
+              <Link href="/de-thi" className="self-center">
+                <Button variant="outline" size="md">
+                  Khám phá thư viện đề thi
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {!isLoading && !isGuest && !error && attempts.length === 0 && questionAttempts.length === 0 && (
+          <div
+            data-testid="analytics-empty-state"
+            className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-12 text-center flex flex-col items-center justify-center space-y-4 border border-slate-200 dark:border-slate-800"
+          >
+            <BarChart3 className="mx-auto size-10 text-slate-400" aria-hidden="true" />
+            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">
+              {t('analytics.empty.title')}
+            </h2>
+            <p className="text-sm text-slate-500 max-w-md mx-auto">
+              {t('analytics.empty.description')}
+            </p>
+            <div className="flex flex-wrap gap-3 justify-center pt-2">
+              <Link href="/de-thi" className="self-center">
+                <Button variant="primary" size="md">
+                  {t('analytics.empty.toExams')}
+                </Button>
+              </Link>
+              <Link href="/luyen-tap" className="self-center">
+                <Button variant="outline" size="md">
+                  {t('analytics.empty.toPractice')}
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {!isLoading && !isGuest && !error && (attempts.length > 0 || questionAttempts.length > 0) && (
+          <AnalyticsDashboard
+            attempts={attempts}
+            questionAttempts={questionAttempts}
+            targetLevel={(user?.targetLevel as Level) || 'N3'}
+            targetScore={120}
+          />
+        )}
+      </div>
     </div>
   );
 }

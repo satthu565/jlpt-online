@@ -1040,7 +1040,8 @@
     "kanjiTab": "漢字",
     "selectedText": "選択したテキスト",
     "selectedKanji": "選択したテキストの漢字",
-    "noSelectedKanji": "選択したテキストに漢字はありません。"
+    "noSelectedKanji": "選択したテキストに漢字はありません。",
+    "grammarTab": "文法"
   },
   "library": {
     "favoriteLoadError": "お気に入りの試験を読み込めませんでした。もう一度お試しください。",

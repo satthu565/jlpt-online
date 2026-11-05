@@ -1040,7 +1040,8 @@
     "kanjiTab": "Kanji",
     "selectedText": "Đoạn được bôi đen",
     "selectedKanji": "Kanji trong đoạn được bôi đen",
-    "noSelectedKanji": "Đoạn được bôi đen không có kanji."
+    "noSelectedKanji": "Đoạn được bôi đen không có kanji.",
+    "grammarTab": "Ngữ pháp"
   },
   "library": {
     "favoriteLoadError": "Không tải được danh sách đề yêu thích. Vui lòng thử lại.",

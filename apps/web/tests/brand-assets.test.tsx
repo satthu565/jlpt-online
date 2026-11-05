@@ -67,12 +67,9 @@ describe('Brand Logo & Mascot Assets (Gokakuya.com & JLPT Online)', () => {
     expect(html).not.toContain('lucide-ellipsis');
     expect(html).not.toContain('lucide-chevron-down');
     expect(html).not.toContain('header-nav-dropdown-trigger');
-    for (const href of ['/ke-hoach', '/su-kien', '/lich-thi']) {
+    for (const href of ['/ke-hoach', '/su-kien', '/lich-thi', '/lich-su', '/thong-ke']) {
       expect(html).toContain(`href="${href}"`);
     }
-    // "Lịch sử thi" and "Thống kê" are always shown; a guest is sent to the login page
-    expect(html).toContain('href="/dang-nhap?redirect=%2Flich-su"');
-    expect(html).toContain('href="/dang-nhap?redirect=%2Fthong-ke"');
 
     // "Luyện tập" and "Ngữ pháp" are hidden by default (NEXT_PUBLIC_FEATURE_NAV_*)
     expect(html).not.toContain('lucide-book-open');

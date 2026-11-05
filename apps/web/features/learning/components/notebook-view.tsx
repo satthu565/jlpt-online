@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Download, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
+import { Check, CheckCircle2, ChevronDown, ChevronUp, Download, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
@@ -16,12 +16,100 @@ import type {
   QuestionExample,
 } from '../types';
 import { useI18n } from '../../../lib/i18n';
+import { useAuth } from '../../../lib/auth-context';
 import { FEATURES } from '../../../lib/features';
+import { cleanStemText } from '../../corpus';
+
+function escapeRegExp(string: string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export function HighlightText({
+  text,
+  highlight,
+  alternateHighlights = [],
+}: {
+  text?: string;
+  highlight?: string;
+  alternateHighlights?: string[];
+}): React.JSX.Element {
+  if (!text) return <></>;
+
+  const rawTerms = [highlight, ...alternateHighlights].filter(Boolean) as string[];
+  if (rawTerms.length === 0) return <>{text}</>;
+
+  const keywords = new Set<string>();
+  for (const raw of rawTerms) {
+    const splitted = raw.split(/[/;,（）()]/);
+    for (const chunk of splitted) {
+      const clean = chunk.replace(/[〜~]/g, '').trim();
+      if (clean.length >= 2 || (clean.length === 1 && /[\u4e00-\u9faf]/.test(clean))) {
+        keywords.add(clean);
+      }
+    }
+    const fullClean = raw.replace(/[〜~]/g, '').trim();
+    if (fullClean.length >= 2) {
+      keywords.add(fullClean);
+    }
+  }
+
+  const keywordList = Array.from(keywords).sort((a, b) => b.length - a.length);
+  if (keywordList.length === 0) return <>{text}</>;
+
+  const pattern = keywordList.map(escapeRegExp).join('|');
+  const regex = new RegExp(`(${pattern})`, 'gi');
+  const parts = text.split(regex);
+
+  const isMatched = (part: string) =>
+    keywordList.some((kw) => kw.toLowerCase() === part.toLowerCase());
+
+  return (
+    <>
+      {parts.map((part, idx) =>
+        isMatched(part) ? (
+          <mark
+            key={idx}
+            className="bg-amber-200 text-amber-950 dark:bg-amber-400 dark:text-amber-950 px-1 py-0.5 rounded font-bold shadow-sm inline-block leading-tight"
+          >
+            {part}
+          </mark>
+        ) : (
+          <React.Fragment key={idx}>{part}</React.Fragment>
+        )
+      )}
+    </>
+  );
+}
+
+export function getUserVisibleTags(tags?: string[]): string[] {
+  if (!tags || !Array.isArray(tags)) return [];
+  return tags.filter((t) => {
+    if (typeof t !== 'string') return false;
+    const clean = t.replace(/^#+/, '').trim();
+    if (!clean) return false;
+    return (
+      !clean.startsWith('source_') &&
+      !clean.startsWith('term:') &&
+      !clean.startsWith('reading:') &&
+      !clean.startsWith('meaning:') &&
+      !clean.startsWith('pos:') &&
+      !clean.startsWith('stroke:') &&
+      !clean.startsWith('hanviet:') &&
+      !clean.startsWith('example:') &&
+      !clean.startsWith('explanation:') &&
+      !clean.startsWith('level:') &&
+      clean !== 'grammar' &&
+      clean !== 'vocab' &&
+      clean !== 'kanji'
+    );
+  });
+}
 
 export interface NotebookViewProps {
   items: NotebookItem[];
   totalCount: number;
   loading?: boolean;
+  isGuest?: boolean;
   onAddItem: (item: CreateNotebookItemInput) => Promise<void>;
   onUpdateItem: (id: string, updates: Partial<NotebookItem>) => Promise<void>;
   onDeleteItem: (id: string) => Promise<void>;
@@ -34,6 +122,7 @@ export function NotebookView({
   items,
   totalCount,
   loading = false,
+  isGuest = false,
   onAddItem,
   onUpdateItem,
   onDeleteItem,
@@ -42,6 +131,7 @@ export function NotebookView({
   onPlayTts,
 }: NotebookViewProps): React.JSX.Element {
   const { t } = useI18n();
+  const { user } = useAuth();
 
   // Filters
   const [filterKind, setFilterKind] = useState<string>('all');
@@ -50,6 +140,10 @@ export function NotebookView({
 
   // Add Item Modal
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const handleCloseAddModal = React.useCallback(() => {
+    setIsAddModalOpen(false);
+    setFormError(null);
+  }, []);
   const [newKind, setNewKind] = useState<NotebookItemKind>('vocab');
   const [newTerm, setNewTerm] = useState('');
   const [newReading, setNewReading] = useState('');
@@ -63,6 +157,13 @@ export function NotebookView({
   const [activeItemForExamples, setActiveItemForExamples] = useState<NotebookItem | null>(null);
   const [examplesList, setExamplesList] = useState<QuestionExample[]>([]);
   const [examplesLoading, setExamplesLoading] = useState(false);
+  const [expandedQuestions, setExpandedQuestions] = useState<Record<string, boolean>>({});
+  const toggleExpandQuestion = (key: string) => {
+    setExpandedQuestions((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
   // Filter items
   const filteredItems = items.filter((item) => {
@@ -74,7 +175,7 @@ export function NotebookView({
       const matchTerm = item.term.toLowerCase().includes(q);
       const matchReading = item.reading?.toLowerCase().includes(q);
       const matchMeaning = item.meaning.toLowerCase().includes(q);
-      const matchTags = item.tags.some((t) => t.toLowerCase().includes(q));
+      const matchTags = getUserVisibleTags(item.tags).some((t) => t.toLowerCase().includes(q));
       if (!matchTerm && !matchReading && !matchMeaning && !matchTags) return false;
     }
     return true;
@@ -82,6 +183,13 @@ export function NotebookView({
 
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      if (typeof window !== 'undefined') {
+        window.location.assign('/dang-nhap?redirect=/so-tay');
+      }
+      return;
+    }
+
     if (!newTerm.trim() || !newMeaning.trim()) {
       setFormError(t('notebook.form.requiredFields'));
       return;
@@ -108,6 +216,19 @@ export function NotebookView({
       setNewNotes('');
       setNewTags('');
     } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (
+        msg.includes('401') ||
+        msg.includes('403') ||
+        msg.includes('UNAUTHENTICATED') ||
+        msg.includes('Yêu cầu đăng nhập') ||
+        msg.includes('Authentication required')
+      ) {
+        if (typeof window !== 'undefined') {
+          window.location.assign('/dang-nhap?redirect=/so-tay');
+        }
+        return;
+      }
       setFormError(err instanceof Error ? err.message : t('notebook.form.createError'));
     } finally {
       setSubmitting(false);
@@ -146,8 +267,10 @@ export function NotebookView({
 
   return (
     <div className="notebook-container flex flex-col gap-6">
-      {/* Controls & Filter Bar */}
-      <div className="flex flex-wrap gap-4 items-center justify-between p-5 bg-[var(--bg-card)] rounded-[8px] border border-[var(--border-subtle)]">
+      {/* Controls & Filter Bar - only for signed in users */}
+      {!isGuest && (
+        <>
+          <div className="flex flex-wrap gap-4 items-center justify-between p-5 bg-[var(--bg-card)] rounded-[8px] border border-[var(--border-subtle)]">
         <div className="flex flex-wrap gap-3 items-center flex-1">
           <div className="min-w-[220px] flex-[1_1_200px]">
             <Input
@@ -211,16 +334,18 @@ export function NotebookView({
       </div>
 
       {/* Items Count Header */}
-      <div className="flex justify-between items-center">
-        <p className="m-0 text-[var(--text-secondary)] text-[0.9375rem]">
-          {t('notebook.countSummary', { count: String(filteredItems.length), total: String(totalCount) })}
-        </p>
-      </div>
+          <div className="flex justify-between items-center">
+            <p className="m-0 text-[var(--text-secondary)] text-[0.9375rem]">
+              {t('notebook.countSummary', { count: String(filteredItems.length), total: String(totalCount) })}
+            </p>
+          </div>
+        </>
+      )}
 
       {/* Empty State */}
-      {!loading && filteredItems.length === 0 && (
+      {(!loading || isGuest) && filteredItems.length === 0 && (
         <Card>
-          <CardContent className="p-12 text-center">
+          <CardContent className="flex flex-col items-center justify-center p-12 text-center">
             <NotebookPen className="mx-auto mb-4 size-10" aria-hidden="true" />
             <h3 className="mt-0 mx-0 mb-2 text-[var(--text-primary)]">
               {t('notebook.empty.title')}
@@ -228,7 +353,11 @@ export function NotebookView({
             <p className="text-[var(--text-secondary)] mt-0 mx-0 mb-6">
               {t('notebook.empty.description')}
             </p>
-            <Button variant="primary" onClick={() => setIsAddModalOpen(true)}>
+            <Button
+              variant="primary"
+              onClick={() => setIsAddModalOpen(true)}
+              className="self-center"
+            >
               + {t('notebook.actions.addItem')}
             </Button>
           </CardContent>
@@ -292,17 +421,22 @@ export function NotebookView({
                 </p>
               )}
 
-              {item.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {item.tags.map((tag) => (
-                    <span className="text-xs py-[2px] px-[6px] rounded-[4px] bg-[var(--bg-muted)] text-[var(--text-secondary)]"
-                      key={tag}
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {(() => {
+                const visibleTags = getUserVisibleTags(item.tags);
+                if (visibleTags.length === 0) return null;
+                return (
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {visibleTags.map((tag) => (
+                      <span
+                        className="text-xs py-[2px] px-[6px] rounded-[4px] bg-[var(--bg-muted)] text-[var(--text-secondary)]"
+                        key={tag}
+                      >
+                        #{tag.replace(/^#+/, '')}
+                      </span>
+                    ))}
+                  </div>
+                );
+              })()}
 
               <div className="flex justify-between items-center pt-3 border-t border-[var(--border-subtle)]">
                 <div className="flex gap-2">
@@ -343,7 +477,7 @@ export function NotebookView({
       {isAddModalOpen && (
         <Modal
           isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
+          onClose={handleCloseAddModal}
           title={t('notebook.modal.addTitle')}
         >
           <form className="flex flex-col gap-4" onSubmit={handleCreateSubmit}>
@@ -448,11 +582,23 @@ export function NotebookView({
         <Modal
           isOpen={Boolean(activeItemForExamples)}
           onClose={() => setActiveItemForExamples(null)}
-          title={t('notebook.examples.title', { term: activeItemForExamples.term })}
+          title={
+            examplesList.some((e) => e.isSavedSource)
+              ? `Câu hỏi đã lưu chứa 「${activeItemForExamples.term}」`
+              : t('notebook.examples.title', { term: activeItemForExamples.term })
+          }
         >
           <div>
-            <p className="text-[var(--text-secondary)] mb-5">
-              {t('notebook.examples.subtitle', { term: activeItemForExamples.term })}
+            <p className="text-[var(--text-secondary)] mb-4">
+              {examplesList.some((e) => e.isSavedSource)
+                ? `Câu hỏi trong đề thi bạn đã gặp và lưu ${
+                    activeItemForExamples.kind === 'grammar'
+                      ? 'mẫu ngữ pháp'
+                      : activeItemForExamples.kind === 'kanji'
+                        ? 'chữ Hán'
+                        : 'từ vựng'
+                  } này vào sổ tay:`
+                : t('notebook.examples.subtitle', { term: activeItemForExamples.term })}
             </p>
 
             {examplesLoading && (
@@ -469,29 +615,165 @@ export function NotebookView({
 
             {!examplesLoading && examplesList.length > 0 && (
               <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto">
-                {examplesList.map((eg, idx) => (
-                  <div className="p-4 rounded-[6px] bg-[var(--bg-muted)] border border-[var(--border-subtle)]"
-                    key={eg.questionId || idx}
-                  >
-                    <div className="flex gap-2 mb-2">
-                      <Badge variant="primary">{eg.level}</Badge>
-                      <Badge variant="secondary">{eg.skill}</Badge>
-                    </div>
-                    {eg.passage && (
-                      <p className="text-sm text-[var(--text-muted)] mb-2">
-                        {eg.passage}
+                {examplesList.map((eg, idx) => {
+                  const isSaved = eg.isSavedSource;
+                  return (
+                    <div
+                      className={`p-4 rounded-[8px] border transition-all ${
+                        isSaved
+                          ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800'
+                          : 'bg-[var(--bg-muted)] border-[var(--border-subtle)]'
+                      }`}
+                      key={eg.questionId || idx}
+                    >
+                      <div className="flex flex-wrap items-center gap-2 mb-2.5">
+                        {isSaved && (
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
+                            <CheckCircle2 className="size-3.5" aria-hidden="true" />
+                            Đã lưu từ câu hỏi này
+                          </span>
+                        )}
+                        {eg.examTitle && (
+                          <Badge variant="primary">
+                            {eg.examTitle}
+                          </Badge>
+                        )}
+                        {eg.questionNumber && (
+                          <Badge variant="secondary">
+                            Câu {eg.questionNumber}
+                          </Badge>
+                        )}
+                        {eg.level && !eg.examTitle && (
+                          <Badge variant="primary">{eg.level}</Badge>
+                        )}
+                        {eg.skill && !eg.examTitle && (
+                          <Badge variant="secondary">{eg.skill}</Badge>
+                        )}
+                      </div>
+                      {eg.passage && (
+                        <p className="text-sm text-[var(--text-muted)] mb-2">
+                          <HighlightText
+                            text={eg.passage}
+                            highlight={activeItemForExamples.term}
+                            alternateHighlights={[activeItemForExamples.reading, eg.matchedTerm].filter(Boolean) as string[]}
+                          />
+                        </p>
+                      )}
+                      <p className="m-0 text-base font-japanese text-[var(--text-primary)] leading-relaxed font-medium">
+                        <HighlightText
+                          text={cleanStemText(eg.stem)}
+                          highlight={activeItemForExamples.term}
+                          alternateHighlights={[activeItemForExamples.reading, eg.matchedTerm].filter(Boolean) as string[]}
+                        />
                       </p>
-                    )}
-                    <p className="m-0 font-medium">
-                      {eg.stem}
-                    </p>
-                  </div>
-                ))}
+
+                      {((eg.options && eg.options.length > 0) || Boolean(eg.explanationText) || Boolean(eg.correctOptionIndex)) && (() => {
+                        const qKey = eg.questionId || String(idx);
+                        const isExpanded = Boolean(expandedQuestions[qKey]);
+                        return (
+                          <div className="mt-3 pt-3 border-t border-[var(--border-subtle)] flex flex-col gap-2.5">
+                            <div className="flex items-center justify-between">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => toggleExpandQuestion(qKey)}
+                                className="text-xs font-medium flex items-center gap-1.5 py-1 px-2.5 rounded-md hover:bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                                aria-expanded={isExpanded}
+                              >
+                                {isExpanded ? (
+                                  <>
+                                    <ChevronUp className="size-3.5 text-[var(--text-muted)]" aria-hidden="true" />
+                                    <span>Thu gọn đáp án & giải thích</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <ChevronDown className="size-3.5 text-[var(--text-muted)]" aria-hidden="true" />
+                                    <span>Xem đáp án & giải thích</span>
+                                  </>
+                                )}
+                              </Button>
+
+                              {isExpanded && eg.correctOptionIndex && (
+                                <Badge variant="success">
+                                  Đáp án đúng: Câu {eg.correctOptionIndex}
+                                </Badge>
+                              )}
+                            </div>
+
+                            {isExpanded && (
+                              <div className="flex flex-col gap-3 mt-1 pt-1 animate-in fade-in duration-200">
+                                {/* Options grid */}
+                                {eg.options && eg.options.length > 0 && (
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    {eg.options.map((opt) => {
+                                      const isCorrect = opt.orderIndex === eg.correctOptionIndex;
+                                      return (
+                                        <div
+                                          key={opt.orderIndex}
+                                          className={`flex items-center gap-2.5 p-2.5 rounded-lg border text-sm transition-all ${
+                                            isCorrect
+                                              ? 'bg-emerald-50 text-emerald-950 border-emerald-300 font-medium dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-700'
+                                              : 'bg-[var(--bg-subtle)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
+                                          }`}
+                                        >
+                                          <span
+                                            className={`size-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                                              isCorrect
+                                                ? 'bg-emerald-600 text-white'
+                                                : 'bg-[var(--bg-muted)] text-[var(--text-muted)]'
+                                            }`}
+                                          >
+                                            {opt.orderIndex}
+                                          </span>
+                                          <span className="font-japanese text-base leading-snug">
+                                            <HighlightText
+                                              text={opt.text}
+                                              highlight={activeItemForExamples.term}
+                                              alternateHighlights={[activeItemForExamples.reading, eg.matchedTerm].filter(Boolean) as string[]}
+                                            />
+                                          </span>
+                                          {isCorrect && (
+                                            <span className="ml-auto text-xs font-semibold text-emerald-700 dark:text-emerald-300 flex items-center gap-0.5 shrink-0">
+                                              <Check className="size-3.5" aria-hidden="true" />
+                                              Đúng
+                                            </span>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+
+                                {/* Explanation block */}
+                                {eg.explanationText && (
+                                  <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] space-y-1.5 leading-relaxed">
+                                    <div className="font-semibold text-[var(--text-primary)] flex items-center gap-1.5 mb-1 text-xs">
+                                      <Lightbulb className="size-3.5 text-amber-500 shrink-0" aria-hidden="true" />
+                                      Giải thích chi tiết:
+                                    </div>
+                                    <div className="whitespace-pre-line text-xs font-normal text-[var(--text-primary)]">
+                                      <HighlightText
+                                        text={eg.explanationText}
+                                        highlight={activeItemForExamples.term}
+                                        alternateHighlights={[activeItemForExamples.reading, eg.matchedTerm].filter(Boolean) as string[]}
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  );
+                })}
               </div>
             )}
 
             <div className="flex justify-end mt-6">
-              <Button variant="outline" onClick={() => setActiveItemForExamples(null)}>
+              <Button variant="outline" onClick={() => { setActiveItemForExamples(null); setExpandedQuestions({}); }}>
                 {t('common.buttons.close')}
               </Button>
             </div>

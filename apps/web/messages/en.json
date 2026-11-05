@@ -1040,7 +1040,8 @@
     "kanjiTab": "Kanji",
     "selectedText": "Selected text",
     "selectedKanji": "Kanji in the selected text",
-    "noSelectedKanji": "The selected text contains no kanji."
+    "noSelectedKanji": "The selected text contains no kanji.",
+    "grammarTab": "Grammar"
   },
   "library": {
     "favoriteLoadError": "Could not load your favorite exams. Please try again.",

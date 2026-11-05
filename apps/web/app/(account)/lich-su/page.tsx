@@ -5,21 +5,34 @@ import { ExamApiClient, ExamApiError } from '../../../features/exam/api/exam-api
 import { HistoryView } from '../../../features/results/components/history-view';
 import type { ExamHistoryItem } from '../../../features/results/types';
 import { ExamHero } from '../../../features/library';
+import { useAuth } from '../../../lib/auth-context';
+import { Alert } from '@jlpt/ui/components/alert';
 import { Button } from '@jlpt/ui/components/button';
 import { EmptyState } from '@jlpt/ui/components/empty-state';
-import { KeyRound, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ExamHistoryPage(): React.JSX.Element {
+  const { user, isLoading: authLoading } = useAuth();
   const [historyItems, setHistoryItems] = useState<ExamHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<{ isAuthError: boolean; message: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isUnauthorized, setIsUnauthorized] = useState(false);
 
   const loadHistory = useCallback(async () => {
+    if (authLoading) return;
+
+    if (!user) {
+      setLoading(false);
+      setIsUnauthorized(true);
+      setHistoryItems([]);
+      return;
+    }
+
     const client = new ExamApiClient();
     try {
       setLoading(true);
       setError(null);
+      setIsUnauthorized(false);
 
       const [attemptsRes, examsRes] = await Promise.all([
         client.listMyAttempts(),
@@ -44,20 +57,26 @@ export default function ExamHistoryPage(): React.JSX.Element {
         err instanceof ExamApiError &&
         (err.status === 401 || err.status === 403 || err.code === 'UNAUTHORIZED' || err.code === 'FORBIDDEN')
       ) {
-        setError({
-          isAuthError: true,
-          message: 'Vui lòng đăng nhập để xem lịch sử làm bài thi của bạn.',
-        });
+        setIsUnauthorized(true);
       } else {
-        setError({
-          isAuthError: false,
-          message: 'Không thể tải lịch sử làm bài thi. Vui lòng thử lại sau.',
-        });
+        const msg = err instanceof Error ? err.message : String(err);
+        if (
+          msg.includes('401') ||
+          msg.includes('403') ||
+          msg.includes('UNAUTHENTICATED') ||
+          msg.includes('Yêu cầu đăng nhập') ||
+          msg.includes('Authentication required')
+        ) {
+          setIsUnauthorized(true);
+        } else {
+          setError('Không thể tải lịch sử làm bài thi. Vui lòng thử lại sau.');
+        }
       }
+      setHistoryItems([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [authLoading, user]);
 
   useEffect(() => {
     loadHistory();
@@ -73,6 +92,30 @@ export default function ExamHistoryPage(): React.JSX.Element {
       />
 
       <div className="container py-8">
+        {(!user || isUnauthorized) && (
+          <Alert className="mb-6" variant="warning">
+            <div className="flex justify-between items-center flex-wrap gap-2">
+              <span>Bạn cần đăng nhập để xem và lưu lịch sử làm bài thi cá nhân.</span>
+              <Link href="/dang-nhap?redirect=/lich-su">
+                <Button size="sm" variant="primary">
+                  Đăng nhập ngay
+                </Button>
+              </Link>
+            </div>
+          </Alert>
+        )}
+
+        {error && !isUnauthorized && (
+          <Alert className="mb-6" variant="error" onClose={() => setError(null)}>
+            <div className="flex justify-between items-center flex-wrap gap-2">
+              <span>{error}</span>
+              <Button size="sm" variant="outline" onClick={loadHistory}>
+                Thử lại
+              </Button>
+            </div>
+          </Alert>
+        )}
+
         {loading ? (
           <div data-testid="history-loading">
             <EmptyState
@@ -82,31 +125,8 @@ export default function ExamHistoryPage(): React.JSX.Element {
               minHeight="md"
             />
           </div>
-        ) : error ? (
-          <div data-testid="history-error">
-            <EmptyState
-              variant="error"
-              icon={error.isAuthError ? KeyRound : AlertTriangle}
-              title={error.isAuthError ? 'Yêu cầu đăng nhập' : 'Không thể tải lịch sử'}
-              description={error.message}
-              action={
-                error.isAuthError ? (
-                  <Link href="/dang-nhap?redirect=/lich-su">
-                    <Button variant="primary" size="md">
-                      Đăng nhập ngay
-                    </Button>
-                  </Link>
-                ) : (
-                  <Button variant="primary" size="md" onClick={loadHistory}>
-                    Thử lại
-                  </Button>
-                )
-              }
-              minHeight="md"
-            />
-          </div>
         ) : (
-          <HistoryView historyItems={historyItems} />
+          <HistoryView historyItems={historyItems} isGuest={!user || isUnauthorized} />
         )}
       </div>
     </div>

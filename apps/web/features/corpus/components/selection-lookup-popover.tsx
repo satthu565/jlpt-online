@@ -24,13 +24,27 @@ import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import { defaultLearningClient } from '../../learning';
 import { SelectionKanjiPanel } from './selection-kanji-panel';
+import { SelectionGrammarPanel } from './selection-grammar-panel';
+import { findMatchingGrammarPatterns, isPrimaryGrammarPattern } from '../data/grammar-dictionary';
 import { selectedKanji } from '../utils/selected-kanji';
 import { CorpusClient } from '../services/corpus-client';
 import type { DictionaryMeaningSectionDto } from '../types';
 
+export interface SelectionLookupContext {
+  questionId?: string;
+  examId?: string;
+  examTitle?: string;
+  questionNumber?: number | string;
+  sentence?: string;
+  options?: { orderIndex: number; text: string }[];
+  correctOptionIndex?: number;
+  explanationText?: string;
+}
+
 export interface SelectionLookupPopoverProps {
   state: SelectionLookupState;
   openInNewTab?: boolean;
+  context?: SelectionLookupContext;
 }
 
 export function getVisibleLookupMeanings(meanings: string[] | undefined): string[] {
@@ -138,7 +152,7 @@ export function StructuredMeaningContent({ sections }: { sections: DictionaryMea
   );
 }
 
-export function SelectionLookupPopover({ state, openInNewTab = true }: SelectionLookupPopoverProps): React.JSX.Element | null {
+export function SelectionLookupPopover({ state, openInNewTab = true, context }: SelectionLookupPopoverProps): React.JSX.Element | null {
   const { t } = useI18n();
   const { user } = useAuth();
   const { isOpen, queryText, matchedText, virtualRect, status, result, error, close, retry } = state;
@@ -155,6 +169,22 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
   } | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(null);
+
+  const grammarPatterns = React.useMemo(() => findMatchingGrammarPatterns(queryText), [queryText]);
+  const kanjiList = React.useMemo(() => selectedKanji(queryText), [queryText]);
+
+  const defaultTab = React.useMemo(() => {
+    if (grammarPatterns.length > 0 && (isPrimaryGrammarPattern(queryText) || status === 'not-found')) {
+      return 'grammar';
+    }
+    return 'vocabulary';
+  }, [grammarPatterns.length, queryText, status]);
+
+  const [activeTab, setActiveTab] = useState<string>('vocabulary');
+
+  useEffect(() => {
+    setActiveTab(defaultTab);
+  }, [defaultTab, queryText]);
 
   // The popup opens from the selected text, so the (invisible) Popover.Trigger is laid over the selection rect.
   // Placed in the ref callback because inline style props are not allowed here.
@@ -294,6 +324,28 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
         });
         return;
       }
+      const tagsToAdd: string[] = [];
+      const examplesToAdd: string[] = [];
+      if (context?.examTitle) tagsToAdd.push(`source_exam:${context.examTitle}`);
+      if (context?.questionNumber) tagsToAdd.push(`source_qnum:${context.questionNumber}`);
+      if (context?.questionId) tagsToAdd.push(`source_qid:${context.questionId}`);
+      if (context?.sentence) {
+        tagsToAdd.push(`source_sentence:${context.sentence}`);
+        const refSuffix = context.examTitle ? ` (Đề thi ${context.examTitle}${context.questionNumber ? ` - Câu ${context.questionNumber}` : ''})` : '';
+        examplesToAdd.push(`${context.sentence}${refSuffix}`);
+      }
+      if (context?.options && context.options.length > 0) {
+        context.options.forEach((opt) => {
+          tagsToAdd.push(`source_opt_${opt.orderIndex}:${opt.text}`);
+        });
+      }
+      if (context?.correctOptionIndex) {
+        tagsToAdd.push(`source_answer:${context.correctOptionIndex}`);
+      }
+      if (context?.explanationText) {
+        tagsToAdd.push(`source_expl:${context.explanationText}`);
+      }
+
       await defaultLearningClient.createNotebookItem({
         kind: 'vocab',
         term: result.entry,
@@ -301,6 +353,8 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
         meaning: result.meanings?.[0] || '',
         hanViet: result.hanViet || undefined,
         partOfSpeech: result.partOfSpeech,
+        tags: tagsToAdd.length > 0 ? tagsToAdd : undefined,
+        examples: examplesToAdd.length > 0 ? examplesToAdd : undefined,
       });
       const refreshed = await defaultLearningClient.getNotebookItems({
         kind: 'vocab',
@@ -370,7 +424,7 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
         </HeroPopover.Arrow>
         <HeroPopover.Dialog aria-label={t('dictionary.lookupTabs')}>
           <div className="w-[30rem] max-w-[calc(100vw-4rem)]">
-            <Tabs key={queryText} defaultSelectedKey="vocabulary">
+            <Tabs key={`${queryText}-${defaultTab}`} selectedKey={activeTab} onSelectionChange={(key) => setActiveTab(String(key))}>
               <div className="mb-2 flex items-start justify-between gap-1.5">
                 <Tabs.ListContainer className="min-w-0 flex-1">
                   <Tabs.List aria-label={t('dictionary.lookupTabs')}>
@@ -378,8 +432,12 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
                       {t('dictionary.vocabularyTab')}
                       <Tabs.Indicator />
                     </Tabs.Tab>
+                    <Tabs.Tab id="grammar" className="text-sm" data-testid="lookup-grammar-tab">
+                      {t('dictionary.grammarTab')} ({grammarPatterns.length})
+                      <Tabs.Indicator />
+                    </Tabs.Tab>
                     <Tabs.Tab id="kanji" className="text-sm">
-                      {t('dictionary.kanjiTab')} ({selectedKanji(queryText).length})
+                      {t('dictionary.kanjiTab')} ({kanjiList.length})
                       <Tabs.Indicator />
                     </Tabs.Tab>
                   </Tabs.List>
@@ -649,6 +707,14 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
                     </div>
                   </div>
                 )}
+              </Tabs.Panel>
+
+              <Tabs.Panel id="grammar" className="max-h-96 overflow-y-auto pr-1">
+                <SelectionGrammarPanel
+                  queryText={queryText}
+                  patterns={grammarPatterns}
+                  context={context}
+                />
               </Tabs.Panel>
 
               <Tabs.Panel id="kanji" className="max-h-96 overflow-y-auto pr-1">

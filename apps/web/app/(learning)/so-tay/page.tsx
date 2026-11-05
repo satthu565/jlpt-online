@@ -15,6 +15,7 @@ import {
   type NotebookItemKind,
 } from '../../../features/learning';
 import { ExamHero } from '../../../features/library';
+import { cleanStemText } from '../../../features/corpus';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import { Alert } from '@jlpt/ui/components/alert';
@@ -67,11 +68,30 @@ export default function NotebookPage(): React.JSX.Element {
 
   const handleAddItem = async (input: CreateNotebookItemInput) => {
     setError(null);
+    if (!user) {
+      if (typeof window !== 'undefined') {
+        window.location.assign('/dang-nhap?redirect=/so-tay');
+      }
+      return;
+    }
     try {
       const created = await defaultLearningClient.createNotebookItem(input);
       setItems((prev) => [created, ...prev]);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
+      if (
+        msg.includes('401') ||
+        msg.includes('403') ||
+        msg.includes('UNAUTHENTICATED') ||
+        msg.includes('Yêu cầu đăng nhập') ||
+        msg.includes('Authentication required')
+      ) {
+        setIsUnauthorized(true);
+        if (typeof window !== 'undefined') {
+          window.location.assign('/dang-nhap?redirect=/so-tay');
+        }
+        return;
+      }
       setError(msg || 'Không thể tạo mục sổ tay.');
       throw err;
     }
@@ -120,6 +140,12 @@ export default function NotebookPage(): React.JSX.Element {
   };
 
   const handleStartQuiz = async () => {
+    if (!user) {
+      if (typeof window !== 'undefined') {
+        window.location.assign('/dang-nhap?redirect=/so-tay');
+      }
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -128,6 +154,19 @@ export default function NotebookPage(): React.JSX.Element {
       setActiveTab('quiz');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
+      if (
+        msg.includes('401') ||
+        msg.includes('403') ||
+        msg.includes('UNAUTHENTICATED') ||
+        msg.includes('Yêu cầu đăng nhập') ||
+        msg.includes('Authentication required')
+      ) {
+        setIsUnauthorized(true);
+        if (typeof window !== 'undefined') {
+          window.location.assign('/dang-nhap?redirect=/so-tay');
+        }
+        return;
+      }
       setError(msg || 'Không thể tạo quiz từ sổ tay. Vui lòng thêm từ vựng/ngữ pháp trước.');
     } finally {
       setLoading(false);
@@ -166,11 +205,12 @@ export default function NotebookPage(): React.JSX.Element {
         </Alert>
       )}
 
-      {/* Navigation Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-[var(--border-subtle)] mb-8"
-        role="tablist"
-        aria-label={t('notebook.page.tabsAria')}
-      >
+      {/* Navigation Tabs - only for signed in users */}
+      {!(!user || isUnauthorized) && (
+        <div className="flex flex-wrap gap-2 border-b border-[var(--border-subtle)] mb-8"
+          role="tablist"
+          aria-label={t('notebook.page.tabsAria')}
+        >
         <Button
           type="button"
           role="tab"
@@ -213,8 +253,9 @@ export default function NotebookPage(): React.JSX.Element {
           <PencilLine className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.tabs.quiz')}
         </Button>
       </div>
+      )}
 
-      {loading && items.length === 0 && (
+      {!(!user || isUnauthorized) && loading && items.length === 0 && (
         <div className="flex justify-center py-12 px-0 items-center gap-3">
           <Spinner size="md" />
           <span className="text-[var(--text-secondary)]">{t('common.status.loading')}</span>
@@ -222,20 +263,87 @@ export default function NotebookPage(): React.JSX.Element {
       )}
 
       {/* Tab Panels */}
-      {activeTab === 'notebook' && (
+      {((!user || isUnauthorized) || activeTab === 'notebook') && (
         <div id="panel-notebook" role="tabpanel" aria-labelledby="tab-notebook">
           <NotebookView
             items={items}
             totalCount={items.length}
             loading={loading}
+            isGuest={!user || isUnauthorized}
             onAddItem={handleAddItem}
             onUpdateItem={handleUpdateItem}
             onDeleteItem={handleDeleteItem}
             onExportCsv={handleExportCsv}
             onLoadExamples={async (itemId) => {
+              const currentItem = items.find((it) => it.id === itemId);
+              const cleanTag = (prefix: string) =>
+                currentItem?.tags
+                  ?.find((t) => t.replace(/^#+/, '').startsWith(prefix))
+                  ?.replace(/^#+/, '')
+                  ?.replace(prefix, '');
+
+              const sourceExam = currentItem?.sourceExam || cleanTag('source_exam:');
+              const sourceQnum = currentItem?.sourceQnum || cleanTag('source_qnum:');
+              const sourceQid = currentItem?.sourceQid || cleanTag('source_qid:');
+              const sourceSentence =
+                currentItem?.sourceSentence ||
+                cleanTag('source_sentence:') ||
+                currentItem?.examples?.[0];
+
+              // Extract options from tags if present
+              const tagOptions = [];
+              for (let i = 1; i <= 4; i++) {
+                const optText = cleanTag(`source_opt_${i}:`);
+                if (optText) {
+                  tagOptions.push({
+                    orderIndex: i,
+                    text: cleanStemText(optText),
+                  });
+                }
+              }
+
+              const answerVal = cleanTag('source_answer:');
+              const tagCorrectIndex = answerVal ? parseInt(answerVal, 10) : undefined;
+
+              const explVal = cleanTag('source_expl:');
+              const tagExpl = explVal ? explVal.replace(/\\n/g, '\n') : undefined;
+
+              // If this item has a saved source exam question, ALWAYS display it directly
+              if (sourceExam || sourceSentence) {
+                let apiEg;
+                try {
+                  const res = await defaultLearningClient.getQuestionExamples(itemId);
+                  apiEg = res.examples?.find((e) => e.isSavedSource || (sourceQid && e.questionId === sourceQid));
+                } catch {
+                  // Ignore
+                }
+
+                return [
+                  {
+                    questionId: sourceQid || 'saved-source',
+                    level: apiEg?.level || 'JLPT',
+                    skill: apiEg?.skill || 'vocabulary',
+                    stem: cleanStemText(apiEg?.stem || sourceSentence),
+                    matchedTerm: currentItem?.term || '',
+                    isSavedSource: true,
+                    examTitle: sourceExam,
+                    questionNumber: sourceQnum,
+                    options: (apiEg?.options && apiEg.options.length > 0) ? apiEg.options.map((o) => ({ ...o, text: cleanStemText(o.text) })) : (tagOptions.length > 0 ? tagOptions : undefined),
+                    correctOptionIndex: apiEg?.correctOptionIndex ?? tagCorrectIndex,
+                    explanationText: apiEg?.explanationText ?? tagExpl,
+                  },
+                ];
+              }
+
+              // Otherwise (item created manually without exam), fetch example questions from API
               try {
                 const res = await defaultLearningClient.getQuestionExamples(itemId);
-                return res.examples || [];
+                const list = res.examples || [];
+                return list.map((eg) => ({
+                  ...eg,
+                  stem: cleanStemText(eg.stem),
+                  options: eg.options?.map((o) => ({ ...o, text: cleanStemText(o.text) })),
+                }));
               } catch {
                 return [];
               }

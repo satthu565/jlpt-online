@@ -8,6 +8,7 @@ import { Select } from '@jlpt/ui/components/select';
 import { Alert } from '@jlpt/ui/components/alert';
 import type { JLPTLevel, JLPTSkill, CreateStudyPlanInput } from '../types';
 import { useI18n } from '../../../lib/i18n';
+import { useAuth } from '../../../lib/auth-context';
 
 export interface CreatePlanModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export function CreatePlanModal({
   onSubmit,
 }: CreatePlanModalProps): React.JSX.Element {
   const { t } = useI18n();
+  const { user } = useAuth();
 
   const [targetLevel, setTargetLevel] = useState<JLPTLevel>('N3');
   const [targetDate, setTargetDate] = useState(() => {
@@ -51,6 +53,13 @@ export function CreatePlanModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      if (typeof window !== 'undefined') {
+        window.location.assign('/dang-nhap?redirect=/ke-hoach');
+      }
+      return;
+    }
+
     if (!targetDate) {
       setError(t('planner.create.missingDate'));
       return;
@@ -69,6 +78,19 @@ export function CreatePlanModal({
       });
       onClose();
     } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (
+        msg.includes('401') ||
+        msg.includes('403') ||
+        msg.includes('UNAUTHENTICATED') ||
+        msg.includes('Yêu cầu đăng nhập') ||
+        msg.includes('Authentication required')
+      ) {
+        if (typeof window !== 'undefined') {
+          window.location.assign('/dang-nhap?redirect=/ke-hoach');
+        }
+        return;
+      }
       setError(err instanceof Error ? err.message : t('planner.create.error'));
     } finally {
       setSubmitting(false);

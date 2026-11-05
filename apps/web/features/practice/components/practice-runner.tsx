@@ -13,7 +13,7 @@ import { Switch } from '@jlpt/ui/components/switch';
 import { ExplanationView } from '../../explanations/components/explanation-view';
 import type { LearnerExplanation } from '../../explanations/types';
 import type { ExamApiClient } from '../../exam';
-import { useSelectLookup, useSelectLookupSetting, SelectionLookupPopover } from '../../corpus';
+import { useSelectLookup, useSelectLookupSetting, SelectionLookupPopover, richTextToPlainText } from '../../corpus';
 import { useI18n } from '../../../lib/i18n';
 
 export interface PracticeRunnerProps {
@@ -461,7 +461,21 @@ export function PracticeRunner({
       )}
 
       {/* H06: Khung tra từ nổi khi bôi đen trong luyện tập */}
-      <SelectionLookupPopover state={selectLookupState} openInNewTab={true} />
+      <SelectionLookupPopover
+        state={selectLookupState}
+        openInNewTab={true}
+        context={{
+          questionId: currentQ?.questionId,
+          examId: snapshot.examId,
+          examTitle: snapshot.title,
+          questionNumber: currentQ?.number || currentIndex + 1,
+          sentence: currentQ?.stem ? richTextToPlainText(currentQ.stem) : undefined,
+          options: currentQ?.options?.map((opt, idx) => ({
+            orderIndex: idx + 1,
+            text: richTextToPlainText(opt.content),
+          })),
+        }}
+      />
     </div>
   );
 }

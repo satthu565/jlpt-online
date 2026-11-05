@@ -6,3 +6,5 @@ export * from './components/frequency-stats-view';
 export * from './components/selection-lookup-popover';
 export * from './components/vocab-detail-view';
 export * from './hooks/use-select-lookup';
+
+export * from './utils/rich-text-helpers';

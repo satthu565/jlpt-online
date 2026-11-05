@@ -236,7 +236,14 @@ export function ReviewView({
       />
 
       {/* H06: Khung tra từ nổi khi bôi đen trong trang xem lại kết quả (mở cùng tab) */}
-      <SelectionLookupPopover state={selectLookupState} openInNewTab={false} />
+      <SelectionLookupPopover
+        state={selectLookupState}
+        openInNewTab={false}
+        context={{
+          examId: snapshot.examId,
+          examTitle: snapshot.title,
+        }}
+      />
     </div>
   );
 }

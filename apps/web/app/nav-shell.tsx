@@ -98,10 +98,8 @@ export function NavigationHeader(): React.JSX.Element {
       : []),
   ];
 
-  // Always shown; a guest who clicks them is sent to the login page.
-  const accountHref = (href: string): string => (user ? href : `/dang-nhap?redirect=${encodeURIComponent(href)}`);
-  moreItems.push({ label: t('common.nav.examHistory'), href: accountHref('/lich-su'), icon: History, active: isRouteActive('/lich-su', pathname) });
-  moreItems.push({ label: t('common.nav.analytics'), href: accountHref('/thong-ke'), icon: BarChart3, active: isRouteActive('/thong-ke', pathname) });
+  moreItems.push({ label: t('common.nav.examHistory'), href: '/lich-su', icon: History, active: isRouteActive('/lich-su', pathname) });
+  moreItems.push({ label: t('common.nav.analytics'), href: '/thong-ke', icon: BarChart3, active: isRouteActive('/thong-ke', pathname) });
 
   if (FEATURES.navMoreDropdown) {
     navItems.push({

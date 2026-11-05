@@ -26,7 +26,7 @@ import { Button, Chip } from '@jlpt/ui/components/exam-controls';
 import { useI18n } from '../../../lib/i18n';
 import { useFurigana } from '@jlpt/ui/components/furigana-toggle';
 import { evaluatePacing } from '../pacing';
-import { useSelectLookup, useSelectLookupSetting, SelectionLookupPopover } from '../../corpus';
+import { useSelectLookup, useSelectLookupSetting, SelectionLookupPopover, richTextToPlainText } from '../../corpus';
 
 export interface ExamRoomProps {
   snapshot: PublicExamSnapshot;
@@ -710,7 +710,21 @@ export function ExamRoom({
       />
 
       {/* H06: Khung tra từ nổi khi bôi đen trong phòng thi (mở tab mới tới /tu-vung/:term) */}
-      <SelectionLookupPopover state={selectLookupState} openInNewTab={true} />
+      <SelectionLookupPopover
+        state={selectLookupState}
+        openInNewTab={true}
+        context={{
+          questionId: currentQ?.questionId,
+          examId: snapshot.examId,
+          examTitle: snapshot.title,
+          questionNumber: currentQ?.number || currentQuestionIndex + 1,
+          sentence: currentQ?.stem ? richTextToPlainText(currentQ.stem) : undefined,
+          options: currentQ?.options?.map((opt, idx) => ({
+            orderIndex: idx + 1,
+            text: richTextToPlainText(opt.content),
+          })),
+        }}
+      />
     </div>
   );
 }
