@@ -125,9 +125,10 @@ export interface ResolvedDisputedFix {
 
 export async function resolveDisputedFixes(
   sql: DbClientInstance['rawClient'],
+  fixes: readonly DisputedQuestionFix[] = N1_3_DISPUTED_FIXES,
 ): Promise<ResolvedDisputedFix[]> {
   const resolved: ResolvedDisputedFix[] = [];
-  for (const fix of N1_3_DISPUTED_FIXES) {
+  for (const fix of fixes) {
     const rows = await sql`
       select e.id as exam_id, e.published_version, q.id as question_id, q.group_id,
              qv.version as question_version, qv.status as question_status,
@@ -438,7 +439,10 @@ export async function applyDisputedFixes(
   return groupsVersioned;
 }
 
-export async function runDisputedFix(argv = process.argv.slice(2)): Promise<void> {
+export async function runDisputedFix(
+  argv = process.argv.slice(2),
+  fixes: readonly DisputedQuestionFix[] = N1_3_DISPUTED_FIXES,
+): Promise<void> {
   const apply = argv.includes('--apply');
   const app = await NestFactory.createApplicationContext(AppModule, {
     logger: ['error', 'warn', 'log'],
@@ -446,7 +450,7 @@ export async function runDisputedFix(argv = process.argv.slice(2)): Promise<void
   try {
     const dbClient = app.get<DbClientInstance>(DB_CLIENT);
     const examService = app.get(ExamService);
-    let resolved = await resolveDisputedFixes(dbClient.rawClient);
+    let resolved = await resolveDisputedFixes(dbClient.rawClient, fixes);
 
     Logger.log(
       JSON.stringify({
@@ -475,7 +479,7 @@ export async function runDisputedFix(argv = process.argv.slice(2)): Promise<void
     }
 
     // Verify after apply
-    resolved = await resolveDisputedFixes(dbClient.rawClient);
+    resolved = await resolveDisputedFixes(dbClient.rawClient, fixes);
     for (const item of resolved) {
       if (item.currentKey !== item.fix.newKey || item.publishedKey !== item.fix.newKey) {
         throw new Error(`${fixId(item.fix)}: verification failed after publish`);
