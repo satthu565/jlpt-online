@@ -26,6 +26,8 @@ export function Modal({
   const titleId = React.useId();
   const modalRef = React.useRef<HTMLDivElement>(null);
   const previousActiveElement = React.useRef<HTMLElement | null>(null);
+  const onCloseRef = React.useRef(onClose);
+  onCloseRef.current = onClose;
 
   React.useEffect(() => {
     if (!isOpen) return;
@@ -37,7 +39,7 @@ export function Modal({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -70,8 +72,11 @@ export function Modal({
 
     window.addEventListener('keydown', handleKeyDown);
 
-    // Focus first focusable element or modal container
+    // Focus first focusable element or modal container if focus is not already inside modal
     const timer = setTimeout(() => {
+      if (modalRef.current && typeof document !== 'undefined' && modalRef.current.contains(document.activeElement)) {
+        return;
+      }
       const focusable = modalRef.current?.querySelectorAll<HTMLElement>(
         'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
       );
@@ -90,7 +95,7 @@ export function Modal({
         previousActiveElement.current.focus();
       }
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

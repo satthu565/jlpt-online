@@ -52,6 +52,10 @@ export function NotebookView({
 
   // Add Item Modal
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const handleCloseAddModal = React.useCallback(() => {
+    setIsAddModalOpen(false);
+    setFormError(null);
+  }, []);
   const [newKind, setNewKind] = useState<NotebookItemKind>('vocab');
   const [newTerm, setNewTerm] = useState('');
   const [newReading, setNewReading] = useState('');
@@ -369,7 +373,7 @@ export function NotebookView({
       {isAddModalOpen && (
         <Modal
           isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
+          onClose={handleCloseAddModal}
           title={t('notebook.modal.addTitle')}
         >
           <form className="flex flex-col gap-4" onSubmit={handleCreateSubmit}>
