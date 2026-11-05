@@ -23,6 +23,7 @@ export interface NotebookViewProps {
   items: NotebookItem[];
   totalCount: number;
   loading?: boolean;
+  isGuest?: boolean;
   onAddItem: (item: CreateNotebookItemInput) => Promise<void>;
   onUpdateItem: (id: string, updates: Partial<NotebookItem>) => Promise<void>;
   onDeleteItem: (id: string) => Promise<void>;
@@ -35,6 +36,7 @@ export function NotebookView({
   items,
   totalCount,
   loading = false,
+  isGuest = false,
   onAddItem,
   onUpdateItem,
   onDeleteItem,
@@ -172,8 +174,10 @@ export function NotebookView({
 
   return (
     <div className="notebook-container flex flex-col gap-6">
-      {/* Controls & Filter Bar */}
-      <div className="flex flex-wrap gap-4 items-center justify-between p-5 bg-[var(--bg-card)] rounded-[8px] border border-[var(--border-subtle)]">
+      {/* Controls & Filter Bar - only for signed in users */}
+      {!isGuest && (
+        <>
+          <div className="flex flex-wrap gap-4 items-center justify-between p-5 bg-[var(--bg-card)] rounded-[8px] border border-[var(--border-subtle)]">
         <div className="flex flex-wrap gap-3 items-center flex-1">
           <div className="min-w-[220px] flex-[1_1_200px]">
             <Input
@@ -237,14 +241,16 @@ export function NotebookView({
       </div>
 
       {/* Items Count Header */}
-      <div className="flex justify-between items-center">
-        <p className="m-0 text-[var(--text-secondary)] text-[0.9375rem]">
-          {t('notebook.countSummary', { count: String(filteredItems.length), total: String(totalCount) })}
-        </p>
-      </div>
+          <div className="flex justify-between items-center">
+            <p className="m-0 text-[var(--text-secondary)] text-[0.9375rem]">
+              {t('notebook.countSummary', { count: String(filteredItems.length), total: String(totalCount) })}
+            </p>
+          </div>
+        </>
+      )}
 
       {/* Empty State */}
-      {!loading && filteredItems.length === 0 && (
+      {(!loading || isGuest) && filteredItems.length === 0 && (
         <Card>
           <CardContent className="flex flex-col items-center justify-center p-12 text-center">
             <NotebookPen className="mx-auto mb-4 size-10" aria-hidden="true" />

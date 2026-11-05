@@ -9,6 +9,7 @@ import ForgotPasswordPage from '../app/(auth)/quen-mat-khau/page';
 import ResetPasswordPage from '../app/(auth)/dat-lai-mat-khau/page';
 import AccountPage from '../app/(account)/tai-khoan/page';
 import NotebookPage from '../app/(learning)/so-tay/page';
+import { NotebookView } from '../features/learning';
 import PlannerPage from '../app/(planner)/ke-hoach/page';
 import ClassroomPage from '../app/(classroom)/lop-hoc/page';
 import ExamEventPage from '../app/(community)/su-kien/page';
@@ -125,14 +126,29 @@ describe('Web Application Accessibility (SYS-14 & WCAG 2.1 AA)', () => {
     expect(html).toContain('id="target-level-select"');
   });
 
-  it('NotebookPage includes accessible headings, search input, filters and ARIA tablist', () => {
+  it('NotebookPage includes accessible headings and auth notice when unauthenticated', () => {
     const html = renderToString(
       h(Providers, null, h(NotebookPage)),
     );
 
     expect(html).toContain('<h1');
-    expect(html).toContain('role="tablist"');
-    expect(html).toContain('role="tab"');
+    expect(html).toContain('Bạn cần đăng nhập để xem và lưu sổ tay học tập cá nhân.');
+    expect(html).toContain('Sổ tay của bạn đang trống');
+  });
+
+  it('NotebookView includes accessible search input, filters and action buttons when authenticated', () => {
+    const html = renderToString(
+      h(Providers, null, h(NotebookView, {
+        items: [],
+        totalCount: 0,
+        isGuest: false,
+        onAddItem: async () => {},
+        onUpdateItem: async () => {},
+        onDeleteItem: async () => {},
+        onExportCsv: async () => {},
+      })),
+    );
+
     expect(html).toContain('id="notebook-search"');
     expect(html).toContain('data-testid="export-csv-button"');
     expect(html).toContain('data-testid="add-item-button"');

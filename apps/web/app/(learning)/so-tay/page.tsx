@@ -204,11 +204,12 @@ export default function NotebookPage(): React.JSX.Element {
         </Alert>
       )}
 
-      {/* Navigation Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-[var(--border-subtle)] mb-8"
-        role="tablist"
-        aria-label={t('notebook.page.tabsAria')}
-      >
+      {/* Navigation Tabs - only for signed in users */}
+      {!(!user || isUnauthorized) && (
+        <div className="flex flex-wrap gap-2 border-b border-[var(--border-subtle)] mb-8"
+          role="tablist"
+          aria-label={t('notebook.page.tabsAria')}
+        >
         <Button
           type="button"
           role="tab"
@@ -251,8 +252,9 @@ export default function NotebookPage(): React.JSX.Element {
           <PencilLine className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.tabs.quiz')}
         </Button>
       </div>
+      )}
 
-      {loading && items.length === 0 && (
+      {!(!user || isUnauthorized) && loading && items.length === 0 && (
         <div className="flex justify-center py-12 px-0 items-center gap-3">
           <Spinner size="md" />
           <span className="text-[var(--text-secondary)]">{t('common.status.loading')}</span>
@@ -260,12 +262,13 @@ export default function NotebookPage(): React.JSX.Element {
       )}
 
       {/* Tab Panels */}
-      {activeTab === 'notebook' && (
+      {((!user || isUnauthorized) || activeTab === 'notebook') && (
         <div id="panel-notebook" role="tabpanel" aria-labelledby="tab-notebook">
           <NotebookView
             items={items}
             totalCount={items.length}
             loading={loading}
+            isGuest={!user || isUnauthorized}
             onAddItem={handleAddItem}
             onUpdateItem={handleUpdateItem}
             onDeleteItem={handleDeleteItem}

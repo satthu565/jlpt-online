@@ -26,10 +26,10 @@ describe('NotebookPage Hero styling and synchronization', () => {
     expect(html).not.toContain('ĐẾM NGƯỢC KỲ THI JLPT');
     expect(html).not.toContain('Kho đề thi JLPT chính thức 2010 – 2026');
 
-    // Page contents render right below hero
-    expect(html).toContain('role="tablist"');
-    expect(html).toContain('id="tab-notebook"');
-    expect(html).toContain('id="tab-srs"');
-    expect(html).toContain('id="tab-quiz"');
+    // Unauthenticated guest alert and empty notebook card render right below hero
+    expect(html).toContain('Bạn cần đăng nhập để xem và lưu sổ tay học tập cá nhân.');
+    expect(html).toContain('Sổ tay của bạn đang trống');
+    // Tablist is hidden for unauthenticated guests
+    expect(html).not.toContain('role="tablist"');
   });
 });
