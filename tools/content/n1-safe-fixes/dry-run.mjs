@@ -2,9 +2,10 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 
 const API = 'http://127.0.0.1:4000';
-const AUTH_ENV = '/tmp/n1-safe-fix-auth.env';
-const BUNDLE = '/tmp/n1-safe-fix-bundle.json';
-const PLAN = '/tmp/n1-safe-fix-api-plan.json';
+const workDir = process.env.N1_FIX_WORK_DIR || '/tmp';
+const AUTH_ENV = `${workDir}/n1-safe-fix-auth.env`;
+const BUNDLE = `${workDir}/n1-safe-fix-bundle.json`;
+const PLAN = `${workDir}/n1-safe-fix-api-plan.json`;
 
 function loadEnv(path) {
   return Object.fromEntries(

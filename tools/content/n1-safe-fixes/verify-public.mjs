@@ -2,9 +2,10 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 
 const API = 'http://127.0.0.1:4000';
-const plan = JSON.parse(fs.readFileSync('/tmp/n1-safe-fix-api-plan.json', 'utf8'));
-const journal = JSON.parse(fs.readFileSync('/tmp/n1-safe-fix-apply-journal.json', 'utf8'));
-const env = Object.fromEntries(fs.readFileSync('/tmp/n1-safe-fix-auth.env', 'utf8').split(/\r?\n/).filter(Boolean).map((line) => {
+const workDir = process.env.N1_FIX_WORK_DIR || '/tmp';
+const plan = JSON.parse(fs.readFileSync(`${workDir}/n1-safe-fix-api-plan.json`, 'utf8'));
+const journal = JSON.parse(fs.readFileSync(`${workDir}/n1-safe-fix-apply-journal.json`, 'utf8'));
+const env = Object.fromEntries(fs.readFileSync(`${workDir}/n1-safe-fix-auth.env`, 'utf8').split(/\r?\n/).filter(Boolean).map((line) => {
   const index = line.indexOf('='); return [line.slice(0, index), line.slice(index + 1)];
 }));
 
@@ -76,7 +77,7 @@ const result = {
   versions,
   failures,
 };
-fs.writeFileSync('/tmp/n1-safe-fix-public-verification.json', JSON.stringify(result, null, 2), { mode: 0o600 });
+fs.writeFileSync(`${workDir}/n1-safe-fix-public-verification.json`, JSON.stringify(result, null, 2), { mode: 0o600 });
 console.log(JSON.stringify({
   checkedExams: result.checkedExams,
   checkedFixes: result.checkedFixes,

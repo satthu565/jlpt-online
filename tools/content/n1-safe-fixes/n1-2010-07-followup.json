@@ -1,0 +1,55 @@
+{
+  "audit": "n1-2010-07-followup-20261105",
+  "accepted": [
+    {
+      "exam_slug": "n1-2010-07",
+      "question_number": 57,
+      "question_id": "9e509f0b-55c9-4b24-aa72-8cb5770ed3db",
+      "group_id": "bfc2af71-c2c3-47c1-aa41-f1d46b0e5750",
+      "target_field": "stem",
+      "current": "どのよう役割",
+      "expected": "どのような役割",
+      "option_index": null
+    },
+    {
+      "exam_slug": "n1-2010-07",
+      "question_number": 107,
+      "question_id": "2ce85680-6d3f-413c-a429-0666ac923ea0",
+      "group_id": "17ab833b-2bf6-46df-a461-b951a40e3ed1",
+      "target_field": "option",
+      "current": "夕暮れの川",
+      "expected": "ゆうぐれの川",
+      "option_index": 1
+    },
+    {
+      "exam_slug": "n1-2010-07",
+      "question_number": 85,
+      "question_id": "7835b98c-76b2-4574-a81b-65ef1e257ece",
+      "group_id": "3edfbbae-225f-4db7-a124-563e07bdb4c4",
+      "target_field": "transcript",
+      "current": "一緒大阪に",
+      "expected": "一緒に大阪に",
+      "option_index": null
+    },
+    {
+      "exam_slug": "n1-2010-07",
+      "question_number": 107,
+      "question_id": "2ce85680-6d3f-413c-a429-0666ac923ea0",
+      "group_id": "17ab833b-2bf6-46df-a461-b951a40e3ed1",
+      "target_field": "transcript",
+      "current": "注目集めています",
+      "expected": "注目を集めています",
+      "option_index": null
+    },
+    {
+      "exam_slug": "n1-2010-07",
+      "question_number": 108,
+      "question_id": "003eb91a-4968-4c3c-aa63-edb4c7b92c6a",
+      "group_id": "17ab833b-2bf6-46df-a461-b951a40e3ed1",
+      "target_field": "transcript",
+      "current": "注目集めています",
+      "expected": "注目を集めています",
+      "option_index": null
+    }
+  ]
+}

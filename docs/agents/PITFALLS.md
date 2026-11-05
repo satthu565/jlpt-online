@@ -126,3 +126,6 @@ Triệu chứng: tạo lượt làm bằng request không có Origin được, n
 | Đổi tab làm popup biến mất hoặc bấm ngoài không đóng popup HeroUI `isNonModal` | Hook coi vùng chọn thu gọn là yêu cầu đóng; `mouseup` trong popup tiếp tục xử lý vùng chọn cũ, còn popup không modal không bảo đảm đóng khi bấm vùng không nhận focus | Bỏ đóng chỉ vì selection thu gọn; bỏ qua `mouseup` trong popup/thông báo con và hủy debounce; xử lý `pointerdown` ngoài bằng `close()` mà không chặn cú bấm phòng thi. |
 
 | Popup HeroUI không modal đóng khi đổi tab; stack kết thúc ở `useCloseOnScroll`, trang tự nhảy xuống | Portal tuyệt đối trong body cho phép trình duyệt cuộn trang khi focus tab/nội dung popup thay đổi | Đặt riêng popup vào portal phủ viewport có `position: fixed`, lớp cha `pointer-events-none`, nội dung `pointer-events-auto`; giữ animation HeroUI và đóng khi người dùng cuộn trang thật. |
+
+| Áp dụng transcript N1 báo replaceIn is not defined | Hàm thay thế chỉ được khai báo ở dry-run, chưa có trong apply | Khai báo phép thay thế đệ quy trong apply; kiểm tra bản transcript và các bản sao nội dung sau duyệt. |
+| Kết luận câu nghe bị thiếu vì chỉ có nhãn 選択肢 | Một số phần nghe chủ ý không in nội dung lựa chọn trên đề giấy | Đọc hướng dẫn của phần trong PDF và script/audio; kiểm tra đúng 3 lựa chọn cho 即時応答, 4 cho các phần còn lại trước khi kết luận mất dữ liệu. |
