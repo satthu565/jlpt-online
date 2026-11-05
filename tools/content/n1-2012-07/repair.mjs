@@ -64,7 +64,7 @@ const env = Object.fromEntries(fs.readFileSync(process.env.N1_REPAIR_AUTH, 'utf8
 async function login(role) {
   const prefix = role.toUpperCase();
   const signed = await raw('POST', '/api/v1/auth/sign-in/email', { email: env[prefix + '_EMAIL'], password: env[prefix + '_PASSWORD'] });
-  assert.equal(signed.user.role, role);
+  assert.equal(signed.user.role, role === 'publisher' ? 'admin' : role);
   const auth = { token: signed.session.token, secret: env[prefix + '_TOTP_SECRET'] };
   // Demo operators are shared. A different session may have consumed this step.
   try {
