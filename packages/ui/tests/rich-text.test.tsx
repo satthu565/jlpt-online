@@ -57,6 +57,28 @@ describe('RichText Rendering & XSS Protection (Acceptance 1 & EXAM-10)', () => {
     expect(htmlNested).toContain('</u>');
   });
 
+  it('keeps numbered passage blanks identifiable without duplicated parentheses', () => {
+    const segments: RichText = [
+      { t: 'text', text: 'Before（' },
+      { t: 'blank', label: '41' },
+      { t: 'text', text: '）after (' },
+      { t: 'blank', label: '42' },
+      { t: 'text', text: ') end' },
+    ];
+    const html = renderToString(<RichTextView segments={segments} blankAriaLabel="Blank" />);
+    const text = html.replace(/<[^>]*>/g, '');
+    expect(text).toBe('Before（41）after (42) end');
+    expect(html).toContain('aria-label="Blank 41"');
+    expect(html).toContain('aria-label="Blank 42"');
+  });
+
+  it('renders standalone blank labels as text and escapes markup', () => {
+    const html = renderToString(<RichTextView segments={[{ t: 'blank', label: '45' }, { t: 'blank', label: '<img>' }]} />);
+    expect(html).toContain('(45)');
+    expect(html).toContain('(&lt;img&gt;)');
+    expect(html).not.toContain('<img>');
+  });
+
   it('renders star symbol with accessible role and label', () => {
     const starSegments: RichText = [
       { t: 'text', text: 'わたしは ' },

@@ -151,12 +151,18 @@ export function RichTextView({
             );
           }
 
-          case 'blank':
+          case 'blank': {
+            const label = 'label' in seg ? seg.label?.trim() : undefined;
+            const previous = segments[idx - 1];
+            const next = segments[idx + 1];
+            const hasSurroundingParentheses =
+              previous?.t === 'text' && /[（(]\s*$/.test(previous.text) &&
+              next?.t === 'text' && /^\s*[）)]/.test(next.text);
             return (
               <span
                 key={idx}
                 role="textbox"
-                aria-label={blankAriaLabel}
+                aria-label={label ? `${blankAriaLabel} ${label}` : blankAriaLabel}
                 className="jlpt-blank"
                 style={{
                   display: 'inline-block',
@@ -167,9 +173,10 @@ export function RichTextView({
                   padding: '0 0.25rem',
                 }}
               >
-                ( &nbsp; )
+                {label ? (hasSurroundingParentheses ? label : `(${label})`) : <>( &nbsp; )</>}
               </span>
             );
+          }
 
           case 'star':
             return (
