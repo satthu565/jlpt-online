@@ -24,20 +24,49 @@ function escapeRegExp(string: string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export function HighlightText({ text, highlight }: { text?: string; highlight?: string }): React.JSX.Element {
+export function HighlightText({
+  text,
+  highlight,
+  alternateHighlights = [],
+}: {
+  text?: string;
+  highlight?: string;
+  alternateHighlights?: string[];
+}): React.JSX.Element {
   if (!text) return <></>;
-  if (!highlight || highlight.trim().length === 0) return <>{text}</>;
-  const cleanTerm = highlight.trim().replace(/^[〜~]/, '').replace(/[〜~]$/, '').trim();
-  if (cleanTerm.length === 0) return <>{text}</>;
 
-  const escaped = escapeRegExp(cleanTerm);
-  const regex = new RegExp(`(${escaped})`, 'gi');
+  const rawTerms = [highlight, ...alternateHighlights].filter(Boolean) as string[];
+  if (rawTerms.length === 0) return <>{text}</>;
+
+  const keywords = new Set<string>();
+  for (const raw of rawTerms) {
+    const splitted = raw.split(/[/;,（）()]/);
+    for (const chunk of splitted) {
+      const clean = chunk.replace(/[〜~]/g, '').trim();
+      if (clean.length >= 2 || (clean.length === 1 && /[\u4e00-\u9faf]/.test(clean))) {
+        keywords.add(clean);
+      }
+    }
+    const fullClean = raw.replace(/[〜~]/g, '').trim();
+    if (fullClean.length >= 2) {
+      keywords.add(fullClean);
+    }
+  }
+
+  const keywordList = Array.from(keywords).sort((a, b) => b.length - a.length);
+  if (keywordList.length === 0) return <>{text}</>;
+
+  const pattern = keywordList.map(escapeRegExp).join('|');
+  const regex = new RegExp(`(${pattern})`, 'gi');
   const parts = text.split(regex);
+
+  const isMatched = (part: string) =>
+    keywordList.some((kw) => kw.toLowerCase() === part.toLowerCase());
 
   return (
     <>
       {parts.map((part, idx) =>
-        part.toLowerCase() === cleanTerm.toLowerCase() ? (
+        isMatched(part) ? (
           <mark
             key={idx}
             className="bg-amber-200 text-amber-950 dark:bg-amber-400 dark:text-amber-950 px-1 py-0.5 rounded font-bold shadow-sm inline-block leading-tight"
@@ -562,7 +591,13 @@ export function NotebookView({
           <div>
             <p className="text-[var(--text-secondary)] mb-4">
               {examplesList.some((e) => e.isSavedSource)
-                ? 'Câu hỏi trong đề thi bạn đã gặp và lưu từ vựng này vào sổ tay:'
+                ? `Câu hỏi trong đề thi bạn đã gặp và lưu ${
+                    activeItemForExamples.kind === 'grammar'
+                      ? 'mẫu ngữ pháp'
+                      : activeItemForExamples.kind === 'kanji'
+                        ? 'chữ Hán'
+                        : 'từ vựng'
+                  } này vào sổ tay:`
                 : t('notebook.examples.subtitle', { term: activeItemForExamples.term })}
             </p>
 
@@ -617,11 +652,19 @@ export function NotebookView({
                       </div>
                       {eg.passage && (
                         <p className="text-sm text-[var(--text-muted)] mb-2">
-                          <HighlightText text={eg.passage} highlight={activeItemForExamples.term} />
+                          <HighlightText
+                            text={eg.passage}
+                            highlight={activeItemForExamples.term}
+                            alternateHighlights={[activeItemForExamples.reading, eg.matchedTerm].filter(Boolean) as string[]}
+                          />
                         </p>
                       )}
                       <p className="m-0 text-base font-japanese text-[var(--text-primary)] leading-relaxed font-medium">
-                        <HighlightText text={cleanStemText(eg.stem)} highlight={activeItemForExamples.term} />
+                        <HighlightText
+                          text={cleanStemText(eg.stem)}
+                          highlight={activeItemForExamples.term}
+                          alternateHighlights={[activeItemForExamples.reading, eg.matchedTerm].filter(Boolean) as string[]}
+                        />
                       </p>
 
                       {((eg.options && eg.options.length > 0) || Boolean(eg.explanationText) || Boolean(eg.correctOptionIndex)) && (() => {
@@ -684,7 +727,11 @@ export function NotebookView({
                                             {opt.orderIndex}
                                           </span>
                                           <span className="font-japanese text-base leading-snug">
-                                            <HighlightText text={opt.text} highlight={activeItemForExamples.term} />
+                                            <HighlightText
+                                              text={opt.text}
+                                              highlight={activeItemForExamples.term}
+                                              alternateHighlights={[activeItemForExamples.reading, eg.matchedTerm].filter(Boolean) as string[]}
+                                            />
                                           </span>
                                           {isCorrect && (
                                             <span className="ml-auto text-xs font-semibold text-emerald-700 dark:text-emerald-300 flex items-center gap-0.5 shrink-0">
@@ -706,7 +753,11 @@ export function NotebookView({
                                       Giải thích chi tiết:
                                     </div>
                                     <div className="whitespace-pre-line text-xs font-normal text-[var(--text-primary)]">
-                                      <HighlightText text={eg.explanationText} highlight={activeItemForExamples.term} />
+                                      <HighlightText
+                                        text={eg.explanationText}
+                                        highlight={activeItemForExamples.term}
+                                        alternateHighlights={[activeItemForExamples.reading, eg.matchedTerm].filter(Boolean) as string[]}
+                                      />
                                     </div>
                                   </div>
                                 )}
