@@ -31,9 +31,18 @@ import { selectedKanji } from '../utils/selected-kanji';
 import { CorpusClient } from '../services/corpus-client';
 import type { DictionaryMeaningSectionDto } from '../types';
 
+export interface SelectionLookupContext {
+  questionId?: string;
+  examId?: string;
+  examTitle?: string;
+  questionNumber?: number | string;
+  sentence?: string;
+}
+
 export interface SelectionLookupPopoverProps {
   state: SelectionLookupState;
   openInNewTab?: boolean;
+  context?: SelectionLookupContext;
 }
 
 export function getVisibleLookupMeanings(meanings: string[] | undefined): string[] {
@@ -149,7 +158,7 @@ export function StructuredMeaningContent({ sections }: { sections: DictionaryMea
   );
 }
 
-export function SelectionLookupPopover({ state, openInNewTab = true }: SelectionLookupPopoverProps): React.JSX.Element | null {
+export function SelectionLookupPopover({ state, openInNewTab = true, context }: SelectionLookupPopoverProps): React.JSX.Element | null {
   const { t } = useI18n();
   const { user } = useAuth();
   const { isOpen, queryText, matchedText, virtualRect, status, result, error, close, retry } = state;
@@ -307,6 +316,17 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
         });
         return;
       }
+      const tagsToAdd: string[] = [];
+      const examplesToAdd: string[] = [];
+      if (context?.examTitle) tagsToAdd.push(`source_exam:${context.examTitle}`);
+      if (context?.questionNumber) tagsToAdd.push(`source_qnum:${context.questionNumber}`);
+      if (context?.questionId) tagsToAdd.push(`source_qid:${context.questionId}`);
+      if (context?.sentence) {
+        tagsToAdd.push(`source_sentence:${context.sentence}`);
+        const refSuffix = context.examTitle ? ` (Đề thi ${context.examTitle}${context.questionNumber ? ` - Câu ${context.questionNumber}` : ''})` : '';
+        examplesToAdd.push(`${context.sentence}${refSuffix}`);
+      }
+
       await defaultLearningClient.createNotebookItem({
         kind: 'vocab',
         term: result.entry,
@@ -314,6 +334,8 @@ export function SelectionLookupPopover({ state, openInNewTab = true }: Selection
         meaning: result.meanings?.[0] || '',
         hanViet: result.hanViet || undefined,
         partOfSpeech: result.partOfSpeech,
+        tags: tagsToAdd.length > 0 ? tagsToAdd : undefined,
+        examples: examplesToAdd.length > 0 ? examplesToAdd : undefined,
       });
       const refreshed = await defaultLearningClient.getNotebookItems({
         kind: 'vocab',

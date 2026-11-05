@@ -14,6 +14,10 @@ export interface NotebookItemDto {
   strokeCount?: number;
   mastered: boolean;
   tags: string[];
+  sourceExam?: string;
+  sourceQnum?: number | string;
+  sourceQid?: string;
+  sourceSentence?: string;
   version: number;
   createdAt: string;
   updatedAt: string;
@@ -171,4 +175,8 @@ export interface QuestionExampleDto {
   stem: string;
   passage?: string;
   matchedTerm: string;
+  isSavedSource?: boolean;
+  examTitle?: string;
+  questionNumber?: number | string;
+  examId?: string;
 }

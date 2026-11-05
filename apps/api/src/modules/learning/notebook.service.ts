@@ -5,10 +5,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
-import { notebookItems, questions, questionVersions } from '../../db/schema.js';
+import { exams, examItems, notebookItems, questions, questionVersions } from '../../db/schema.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import type {
   CreateNotebookItemDto,
@@ -18,6 +18,7 @@ import type {
   UpdateNotebookItemDto,
 } from './learning.types.js';
 import { getHanVietForWord } from '../vocab/hanviet-store.js';
+import { extractPlainTextFromRichText } from '../import/explanation-parser.js';
 
 @Injectable()
 export class NotebookService {
@@ -40,6 +41,11 @@ export class NotebookService {
       .filter((t: string) => t.startsWith('example:'))
       .map((t: string) => t.replace('example:', ''));
 
+    const sourceExam = tags.find((t: string) => t.startsWith('source_exam:'))?.replace('source_exam:', '');
+    const sourceQnum = tags.find((t: string) => t.startsWith('source_qnum:'))?.replace('source_qnum:', '');
+    const sourceQid = tags.find((t: string) => t.startsWith('source_qid:'))?.replace('source_qid:', '');
+    const sourceSentence = tags.find((t: string) => t.startsWith('source_sentence:'))?.replace('source_sentence:', '');
+
     // Filter out internal metadata tags when presenting user tags
     const userTags = tags.filter(
       (t: string) =>
@@ -50,6 +56,7 @@ export class NotebookService {
         !t.startsWith('stroke:') &&
         !t.startsWith('hanviet:') &&
         !t.startsWith('example:') &&
+        !t.startsWith('source_') &&
         !t.startsWith('explanation:'),
     );
 
@@ -67,6 +74,10 @@ export class NotebookService {
       strokeCount,
       mastered: r.mastered,
       tags: userTags,
+      sourceExam,
+      sourceQnum,
+      sourceQid,
+      sourceSentence,
       version: r.version,
       createdAt: r.createdAt.toISOString(),
       updatedAt: r.updatedAt.toISOString(),
@@ -274,35 +285,108 @@ export class NotebookService {
     }
 
     const trimmed = searchTerm.trim();
-    const rows = await this.dbClient.db
-      .select({
-        id: questions.id,
-        level: questions.level,
-        skill: questions.skill,
-        stem: questionVersions.stem,
-      })
-      .from(questions)
-      .innerJoin(questionVersions, eq(questions.id, questionVersions.questionId))
-      .limit(20);
+    const results: QuestionExampleDto[] = [];
 
-    const matched = rows.filter((r: (typeof rows)[number]) => {
-      const stemStr = typeof r.stem === 'string' ? r.stem : JSON.stringify(r.stem);
-      return stemStr.includes(trimmed);
-    });
+    // 1. If this item was saved from a specific question in an exam, return that exact question!
+    if (item.sourceQid) {
+      try {
+        const rows = await this.dbClient.db
+          .select({
+            id: questions.id,
+            level: questions.level,
+            skill: questions.skill,
+            stem: questionVersions.stem,
+            examTitle: exams.title,
+            orderIndex: examItems.orderIndex,
+          })
+          .from(questions)
+          .innerJoin(questionVersions, eq(questions.id, questionVersions.questionId))
+          .leftJoin(examItems, eq(questions.id, examItems.questionId))
+          .leftJoin(exams, eq(examItems.examId, exams.id))
+          .where(eq(questions.id, item.sourceQid))
+          .limit(1);
 
-    return matched.slice(0, 5).map((q: (typeof matched)[number]) => {
-      const stemText =
-        typeof q.stem === 'string'
-          ? q.stem
-          : (q.stem as { text?: string })?.text ?? JSON.stringify(q.stem);
-      return {
-        questionId: q.id,
-        level: q.level,
-        skill: q.skill,
-        stem: stemText,
+        if (rows.length > 0) {
+          const q = rows[0]!;
+          const plainStem =
+            typeof q.stem === 'string'
+              ? q.stem
+              : extractPlainTextFromRichText(q.stem) ||
+                (q.stem as { text?: string })?.text ||
+                item.sourceSentence ||
+                JSON.stringify(q.stem);
+
+          results.push({
+            questionId: q.id,
+            level: q.level,
+            skill: q.skill,
+            stem: plainStem,
+            matchedTerm: trimmed,
+            isSavedSource: true,
+            examTitle: q.examTitle || item.sourceExam,
+            questionNumber: q.orderIndex != null ? q.orderIndex : item.sourceQnum,
+          });
+          return results;
+        }
+      } catch {
+        // Fallback to item metadata below
+      }
+    }
+
+    if (item.sourceSentence || item.sourceExam) {
+      results.push({
+        questionId: item.sourceQid || 'saved-source',
+        level: 'JLPT',
+        skill: 'vocabulary',
+        stem: item.sourceSentence || (item.examples && item.examples[0]) || '',
         matchedTerm: trimmed,
-      };
-    });
+        isSavedSource: true,
+        examTitle: item.sourceExam,
+        questionNumber: item.sourceQnum,
+      });
+      return results;
+    }
+
+    // 2. Otherwise (user added manually without exam reference), search question bank
+    try {
+      const rows = await this.dbClient.db
+        .select({
+          id: questions.id,
+          level: questions.level,
+          skill: questions.skill,
+          stem: questionVersions.stem,
+          examTitle: exams.title,
+          orderIndex: examItems.orderIndex,
+        })
+        .from(questions)
+        .innerJoin(questionVersions, eq(questions.id, questionVersions.questionId))
+        .leftJoin(examItems, eq(questions.id, examItems.questionId))
+        .leftJoin(exams, eq(examItems.examId, exams.id))
+        .where(sql`cast(${questionVersions.stem} as text) ILIKE ${'%' + trimmed + '%'}`)
+        .limit(5);
+
+      return rows.map((q: (typeof rows)[number]) => {
+        const plainStem =
+          typeof q.stem === 'string'
+            ? q.stem
+            : extractPlainTextFromRichText(q.stem) ||
+              (q.stem as { text?: string })?.text ||
+              JSON.stringify(q.stem);
+
+        return {
+          questionId: q.id,
+          level: q.level,
+          skill: q.skill,
+          stem: plainStem,
+          matchedTerm: trimmed,
+          isSavedSource: false,
+          examTitle: q.examTitle || undefined,
+          questionNumber: q.orderIndex != null ? q.orderIndex : undefined,
+        };
+      });
+    } catch {
+      return [];
+    }
   }
 
   /**

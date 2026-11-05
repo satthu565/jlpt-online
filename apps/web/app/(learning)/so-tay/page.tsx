@@ -274,10 +274,72 @@ export default function NotebookPage(): React.JSX.Element {
             onDeleteItem={handleDeleteItem}
             onExportCsv={handleExportCsv}
             onLoadExamples={async (itemId) => {
+              const currentItem = items.find((it) => it.id === itemId);
               try {
                 const res = await defaultLearningClient.getQuestionExamples(itemId);
-                return res.examples || [];
+                let list = res.examples || [];
+                if (list.length === 0 && currentItem) {
+                  const sourceExam =
+                    currentItem.sourceExam ||
+                    currentItem.tags.find((t) => t.startsWith('source_exam:'))?.replace('source_exam:', '');
+                  const sourceQnum =
+                    currentItem.sourceQnum ||
+                    currentItem.tags.find((t) => t.startsWith('source_qnum:'))?.replace('source_qnum:', '');
+                  const sourceQid =
+                    currentItem.sourceQid ||
+                    currentItem.tags.find((t) => t.startsWith('source_qid:'))?.replace('source_qid:', '');
+                  const sourceSentence =
+                    currentItem.sourceSentence ||
+                    currentItem.tags.find((t) => t.startsWith('source_sentence:'))?.replace('source_sentence:', '') ||
+                    currentItem.examples?.[0];
+
+                  if (sourceExam || sourceSentence) {
+                    list = [
+                      {
+                        questionId: sourceQid || 'saved-source',
+                        level: 'JLPT',
+                        skill: 'vocabulary',
+                        stem: sourceSentence || '',
+                        matchedTerm: currentItem.term,
+                        isSavedSource: true,
+                        examTitle: sourceExam,
+                        questionNumber: sourceQnum,
+                      },
+                    ];
+                  }
+                }
+                return list;
               } catch {
+                if (currentItem) {
+                  const sourceExam =
+                    currentItem.sourceExam ||
+                    currentItem.tags.find((t) => t.startsWith('source_exam:'))?.replace('source_exam:', '');
+                  const sourceQnum =
+                    currentItem.sourceQnum ||
+                    currentItem.tags.find((t) => t.startsWith('source_qnum:'))?.replace('source_qnum:', '');
+                  const sourceQid =
+                    currentItem.sourceQid ||
+                    currentItem.tags.find((t) => t.startsWith('source_qid:'))?.replace('source_qid:', '');
+                  const sourceSentence =
+                    currentItem.sourceSentence ||
+                    currentItem.tags.find((t) => t.startsWith('source_sentence:'))?.replace('source_sentence:', '') ||
+                    currentItem.examples?.[0];
+
+                  if (sourceExam || sourceSentence) {
+                    return [
+                      {
+                        questionId: sourceQid || 'saved-source',
+                        level: 'JLPT',
+                        skill: 'vocabulary',
+                        stem: sourceSentence || '',
+                        matchedTerm: currentItem.term,
+                        isSavedSource: true,
+                        examTitle: sourceExam,
+                        questionNumber: sourceQnum,
+                      },
+                    ];
+                  }
+                }
                 return [];
               }
             }}

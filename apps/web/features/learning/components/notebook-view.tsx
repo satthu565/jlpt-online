@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Download, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
+import { Check, CheckCircle2, Download, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
@@ -484,11 +484,17 @@ export function NotebookView({
         <Modal
           isOpen={Boolean(activeItemForExamples)}
           onClose={() => setActiveItemForExamples(null)}
-          title={t('notebook.examples.title', { term: activeItemForExamples.term })}
+          title={
+            examplesList.some((e) => e.isSavedSource)
+              ? `Câu hỏi đã lưu chứa 「${activeItemForExamples.term}」`
+              : t('notebook.examples.title', { term: activeItemForExamples.term })
+          }
         >
           <div>
-            <p className="text-[var(--text-secondary)] mb-5">
-              {t('notebook.examples.subtitle', { term: activeItemForExamples.term })}
+            <p className="text-[var(--text-secondary)] mb-4">
+              {examplesList.some((e) => e.isSavedSource)
+                ? 'Câu hỏi trong đề thi bạn đã gặp và lưu từ vựng này vào sổ tay:'
+                : t('notebook.examples.subtitle', { term: activeItemForExamples.term })}
             </p>
 
             {examplesLoading && (
@@ -505,24 +511,52 @@ export function NotebookView({
 
             {!examplesLoading && examplesList.length > 0 && (
               <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto">
-                {examplesList.map((eg, idx) => (
-                  <div className="p-4 rounded-[6px] bg-[var(--bg-muted)] border border-[var(--border-subtle)]"
-                    key={eg.questionId || idx}
-                  >
-                    <div className="flex gap-2 mb-2">
-                      <Badge variant="primary">{eg.level}</Badge>
-                      <Badge variant="secondary">{eg.skill}</Badge>
-                    </div>
-                    {eg.passage && (
-                      <p className="text-sm text-[var(--text-muted)] mb-2">
-                        {eg.passage}
+                {examplesList.map((eg, idx) => {
+                  const isSaved = eg.isSavedSource;
+                  return (
+                    <div
+                      className={`p-4 rounded-[8px] border transition-all ${
+                        isSaved
+                          ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800'
+                          : 'bg-[var(--bg-muted)] border-[var(--border-subtle)]'
+                      }`}
+                      key={eg.questionId || idx}
+                    >
+                      <div className="flex flex-wrap items-center gap-2 mb-2.5">
+                        {isSaved && (
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
+                            <CheckCircle2 className="size-3.5" aria-hidden="true" />
+                            Đã lưu từ câu hỏi này
+                          </span>
+                        )}
+                        {eg.examTitle && (
+                          <Badge variant="primary">
+                            {eg.examTitle}
+                          </Badge>
+                        )}
+                        {eg.questionNumber && (
+                          <Badge variant="secondary">
+                            Câu {eg.questionNumber}
+                          </Badge>
+                        )}
+                        {eg.level && !eg.examTitle && (
+                          <Badge variant="primary">{eg.level}</Badge>
+                        )}
+                        {eg.skill && !eg.examTitle && (
+                          <Badge variant="secondary">{eg.skill}</Badge>
+                        )}
+                      </div>
+                      {eg.passage && (
+                        <p className="text-sm text-[var(--text-muted)] mb-2">
+                          {eg.passage}
+                        </p>
+                      )}
+                      <p className="m-0 text-base font-japanese text-[var(--text-primary)] leading-relaxed font-medium">
+                        {eg.stem}
                       </p>
-                    )}
-                    <p className="m-0 font-medium">
-                      {eg.stem}
-                    </p>
-                  </div>
-                ))}
+                    </div>
+                  );
+                })}
               </div>
             )}
 

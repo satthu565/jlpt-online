@@ -481,6 +481,48 @@ describe('L05: Learning & Notebook Module Tests (VOC-01..18, Acceptance 1 & 4)',
       expect(examples[0]!.matchedTerm).toBe('勉強');
     });
 
+    it('retrieves exact saved source question with exam title and question number', async () => {
+      const qId = generateUuidV7();
+      await dbClient.db.insert(questions).values({
+        id: qId,
+        level: 'N4',
+        skill: 'vocabulary',
+        mondaiType: 'mondai_1',
+        origin: 'JLPT N4 7/2024',
+      });
+
+      await dbClient.db.insert(questionVersions).values({
+        questionId: qId,
+        version: 1,
+        stem: [
+          { t: 'text', text: 'もう少し' },
+          { t: 'underline', children: [{ t: 'text', text: '早い' }] },
+          { t: 'text', text: 'ほうがいいです。' },
+        ],
+      });
+
+      const item = await notebookService.createItem(testUserId, {
+        kind: 'vocab',
+        term: '早い',
+        reading: 'はやい',
+        meaning: 'nhanh',
+        tags: [
+          'source_exam:JLPT N4 7/2024',
+          'source_qnum:2',
+          `source_qid:${qId}`,
+          'source_sentence:もう少し早いほうがいいです。',
+        ],
+      });
+
+      const examples = await notebookService.findQuestionExamples(testUserId, item.id);
+      expect(examples.length).toBe(1);
+      expect(examples[0]!.isSavedSource).toBe(true);
+      expect(examples[0]!.questionId).toBe(qId);
+      expect(examples[0]!.examTitle).toBe('JLPT N4 7/2024');
+      expect(String(examples[0]!.questionNumber)).toBe('2');
+      expect(examples[0]!.stem).toContain('早い');
+    });
+
     it('queries dictionary with readings, meanings, POS, examples (VOC-01..05)', async () => {
       const res = await vocabService.lookupDictionary({ text: '学校', locale: 'vi' });
       expect(res.entry).toBe('学校'); // VOC-01

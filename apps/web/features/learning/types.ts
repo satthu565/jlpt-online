@@ -15,6 +15,10 @@ export interface NotebookItem {
   strokeCount?: number;
   mastered: boolean;
   tags: string[];
+  sourceExam?: string;
+  sourceQnum?: number | string;
+  sourceQid?: string;
+  sourceSentence?: string;
   version: number;
   createdAt: string;
   updatedAt: string;
@@ -31,6 +35,10 @@ export interface CreateNotebookItemInput {
   notes?: string;
   strokeCount?: number;
   tags?: string[];
+  sourceExam?: string;
+  sourceQnum?: number | string;
+  sourceQid?: string;
+  sourceSentence?: string;
 }
 
 export interface UpdateNotebookItemInput {
@@ -53,6 +61,10 @@ export interface QuestionExample {
   stem: string;
   passage?: string;
   matchedTerm: string;
+  isSavedSource?: boolean;
+  examTitle?: string;
+  questionNumber?: number | string;
+  examId?: string;
 }
 
 export interface DueFlashcard {
