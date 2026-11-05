@@ -85,3 +85,5 @@ Ngày 25/10/2026: thao tác của từng câu trong cuốn đề được gom xu
 - N3: `deduplicate-n3-images.ts` chuyển 18 hình đã duyệt sang group_media để mỗi câu chỉ hiển thị một ảnh, có kiểm tra passage chỉ chứa ảnh, backup, versioning, audit và khả năng chạy lại.
 
 - Bảo trì OCR N5 đợt 1 (05/11/2026): `repair-n5-ocr-dot1.ts` áp dụng manifest 49 trường/22 câu thuộc 8 đề, tạo phiên bản mới, khôi phục bài đọc và lời giải 7/2025, ảnh đủ bốn ô 7/2024; kiểm tra ID/hash/giá trị trước-sau, bắt buộc backup và giữ nguyên lịch sử. Các mục thiếu nguồn hoặc lỗi bản in được ghi riêng trong báo cáo quyết định.
+
+- Bảo trì N1 7/2010 (05/11/2026): manifest 5 sửa tại Q57, Q85, Q107–Q108; dùng quy trình editor → reviewer → publisher, giữ nguyên khóa đáp án. Bộ công cụ N1 hỗ trợ thư mục phiên chạy riêng qua N1_FIX_WORK_DIR, tránh dùng chung plan/journal giữa các đợt.

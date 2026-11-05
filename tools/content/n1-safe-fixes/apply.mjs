@@ -2,9 +2,10 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 
 const API = 'http://127.0.0.1:4000';
-const AUTH_ENV = '/tmp/n1-safe-fix-auth.env';
-const PLAN = '/tmp/n1-safe-fix-api-plan.json';
-const JOURNAL = '/tmp/n1-safe-fix-apply-journal.json';
+const workDir = process.env.N1_FIX_WORK_DIR || '/tmp';
+const AUTH_ENV = `${workDir}/n1-safe-fix-auth.env`;
+const PLAN = `${workDir}/n1-safe-fix-api-plan.json`;
+const JOURNAL = `${workDir}/n1-safe-fix-apply-journal.json`;
 const args = new Set(process.argv.slice(2));
 const maxGroupsArg = process.argv.find((arg) => arg.startsWith('--max-groups='));
 const maxGroups = maxGroupsArg ? Number(maxGroupsArg.split('=')[1]) : Number.POSITIVE_INFINITY;
@@ -87,6 +88,15 @@ function countIn(value, needle) {
   if (Array.isArray(value)) return value.reduce((sum, item) => sum + countIn(item, needle), 0);
   if (value && typeof value === 'object') return Object.values(value).reduce((sum, item) => sum + countIn(item, needle), 0);
   return 0;
+}
+
+function replaceIn(value, needle, replacement) {
+  if (typeof value === 'string') return value.split(needle).join(replacement);
+  if (Array.isArray(value)) return value.map((item) => replaceIn(item, needle, replacement));
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, replaceIn(item, needle, replacement)]));
+  }
+  return value;
 }
 
 function hash(value) {
