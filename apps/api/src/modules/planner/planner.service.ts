@@ -430,6 +430,8 @@ export class PlannerService {
         todayDate: todayLocal,
         timezone,
         sessions: [],
+        session: null,
+        plan: null,
         totalMinutes: 0,
         message: 'Bạn chưa có kế hoạch học tập đang kích hoạt. Hãy tạo kế hoạch 30/60/90 ngày!',
       };
@@ -447,6 +449,16 @@ export class PlannerService {
       );
 
     const daysRemaining = calculateDaysRemaining(plan.targetDate, timezone, todayLocal);
+    const sessionList = sessions.map((s: typeof studySessions.$inferSelect) => ({
+      id: s.id,
+      planId: s.planId,
+      userId: s.userId,
+      scheduledDate: s.scheduledDate,
+      durationMinutes: s.durationMinutes,
+      status: s.status as StudySessionDto['status'],
+    }));
+
+    const fullPlan = await this.getStudyPlan(userId, plan.id);
 
     return {
       todayDate: todayLocal,
@@ -454,13 +466,9 @@ export class PlannerService {
       targetLevel: plan.targetLevel,
       daysRemaining,
       isFinalSprint: daysRemaining <= 7,
-      sessions: sessions.map((s: typeof studySessions.$inferSelect) => ({
-        id: s.id,
-        planId: s.planId,
-        scheduledDate: s.scheduledDate,
-        durationMinutes: s.durationMinutes,
-        status: s.status,
-      })),
+      sessions: sessionList,
+      session: sessionList.length > 0 ? sessionList[0]! : null,
+      plan: fullPlan,
       totalMinutes: sessions.reduce((acc: number, s: typeof studySessions.$inferSelect) => acc + s.durationMinutes, 0),
     };
   }

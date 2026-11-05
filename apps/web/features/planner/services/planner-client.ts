@@ -7,6 +7,7 @@ import type {
   CompleteSessionInput,
   CompleteSessionResult,
   ReminderInfo,
+  TodaySessionResponse,
 } from '../types';
 
 export class PlannerClient {
@@ -79,9 +80,9 @@ export class PlannerClient {
     return this.request<ReplanResult>('POST', `/me/study-plans/${encodeURIComponent(planId)}/replan`, input);
   }
 
-  public async getTodaySession(timezone?: string): Promise<{ session: StudySession | null; plan: StudyPlan | null }> {
+  public async getTodaySession(timezone?: string): Promise<TodaySessionResponse> {
     const tz = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ho_Chi_Minh';
-    return this.request<{ session: StudySession | null; plan: StudyPlan | null }>(
+    return this.request<TodaySessionResponse>(
       'GET',
       `/me/study-sessions/today?timezone=${encodeURIComponent(tz)}`,
     );
