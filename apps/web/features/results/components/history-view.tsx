@@ -36,7 +36,7 @@ export function HistoryView({
       </div>
 
       {historyItems.length === 0 ? (
-        <Card className="text-center py-16 p-8 border border-slate-200 dark:border-slate-800">
+        <Card className="flex flex-col items-center justify-center text-center py-16 p-8 border border-slate-200 dark:border-slate-800">
           <ScrollText className="mx-auto mb-3 size-10" role="img" aria-label="Biểu tượng lịch sử" />
           <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">
             Chưa có lịch sử làm bài thi
@@ -44,7 +44,7 @@ export function HistoryView({
           <p className="text-xs text-slate-500 mb-6 max-w-sm mx-auto">
             Bạn chưa hoàn thành bài thi nào. Hãy vào Thư viện đề thi và bắt đầu thử sức ngay!
           </p>
-          <a href="/de-thi">
+          <a href="/de-thi" className="self-center">
             <Button variant="primary" size="md">
               Khám phá thư viện đề thi
             </Button>
