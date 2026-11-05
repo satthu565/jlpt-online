@@ -125,6 +125,14 @@ for (const [groupId, fixes] of byGroup) {
       errors.push({ ...fix, error: 'question_not_in_group' });
       continue;
     }
+    if (fix.target_field === 'stem_richtext') {
+      if (!Array.isArray(fix.current) || !Array.isArray(fix.expected) || hash(question.version.stem) !== hash(fix.current)) {
+        errors.push({ ...fix, error: 'api_current_stem_richtext_mismatch' });
+        continue;
+      }
+      question.version.stem = structuredClone(fix.expected);
+      continue;
+    }
     let target;
     if (fix.target_field === 'passage') target = group.version.passage;
     if (fix.target_field === 'stem') target = question.version.stem;

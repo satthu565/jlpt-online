@@ -63,7 +63,11 @@ for (const [slug, fixes] of fixesBySlug) {
   const body = JSON.parse(text);
   versions[slug] = publication.version;
   for (const fix of fixes) {
-    if (countIn(body, fix.expected) < 1) {
+    const question = body.sections.flatMap((section) => section.groups).flatMap((group) => group.questions).find((item) => item.questionId === fix.question_id);
+    const matches = fix.target_field === 'stem_richtext'
+      ? JSON.stringify(question?.stem) === JSON.stringify(fix.expected)
+      : countIn(body, fix.expected) >= 1;
+    if (!matches) {
       failures.push({ slug, question: fix.question_number, field: fix.target_field, error: 'expected_not_in_public_snapshot' });
     }
   }

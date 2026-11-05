@@ -1,0 +1,67 @@
+{
+  "audit": "n1-2010-07-v5-20261105",
+  "accepted": [
+    {
+      "exam_slug": "n1-2010-07",
+      "question_number": 2,
+      "question_id": "0670693f-7ba0-4a08-a925-99d767548fbb",
+      "group_id": "5df49949-f220-4d2a-aa51-c053d0a53864",
+      "target_field": "stem_richtext",
+      "current": [
+        {
+          "t": "text",
+          "text": "契約の内容については、こちらの書類を"
+        },
+        {
+          "t": "underline",
+          "children": [
+            {
+              "t": "text",
+              "text": "ご覧"
+            }
+          ]
+        },
+        {
+          "t": "text",
+          "text": "ください。"
+        }
+      ],
+      "expected": [
+        {
+          "t": "underline",
+          "children": [
+            {
+              "t": "text",
+              "text": "契約"
+            }
+          ]
+        },
+        {
+          "t": "text",
+          "text": "の内容については、こちらの書類をご覧ください。"
+        }
+      ],
+      "option_index": null
+    },
+    {
+      "exam_slug": "n1-2010-07",
+      "question_number": 55,
+      "question_id": "ba853601-f843-4acd-aab1-9e3782d9a028",
+      "group_id": "3e0ef78b-0b29-4838-a033-1d1bfa298538",
+      "target_field": "option",
+      "current": "日本の日照時間にくるところがでてきたために、ツバメが早く渡ってくるようになった。",
+      "expected": "日本の日照時間にくるいがでたために、ツバメが早く渡ってくるようになった。",
+      "option_index": 4
+    },
+    {
+      "exam_slug": "n1-2010-07",
+      "question_number": 85,
+      "question_id": "7835b98c-76b2-4574-a81b-65ef1e257ece",
+      "group_id": "3edfbbae-225f-4db7-a124-563e07bdb4c4",
+      "target_field": "option",
+      "current": "一緒大阪に行きたい",
+      "expected": "一緒に大阪に行きたい",
+      "option_index": 3
+    }
+  ]
+}

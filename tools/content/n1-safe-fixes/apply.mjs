@@ -106,13 +106,14 @@ function hash(value) {
 function groupFixTarget(group, fix) {
   const question = group.questions.find((item) => item.id === fix.question_id);
   if (fix.target_field === 'passage') return group.version.passage;
-  if (fix.target_field === 'stem') return question?.version?.stem;
+  if (fix.target_field === 'stem' || fix.target_field === 'stem_richtext') return question?.version?.stem;
   if (fix.target_field === 'option') return question?.options?.find((option) => option.orderIndex === fix.option_index)?.content;
   return undefined;
 }
 
 function groupFixApplied(group, fix) {
   const target = groupFixTarget(group, fix);
+  if (fix.target_field === 'stem_richtext') return target !== undefined && hash(target) === hash(fix.expected);
   return target !== undefined && countIn(target, fix.expected) >= 1;
 }
 
