@@ -117,7 +117,7 @@ export default function ExamHistoryPage(): React.JSX.Element {
             />
           </div>
         ) : (
-          <HistoryView historyItems={historyItems} />
+          <HistoryView historyItems={historyItems} isGuest={!user || isUnauthorized} />
         )}
       </div>
     </div>

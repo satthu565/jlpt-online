@@ -643,6 +643,14 @@ describe('ExamApiClient Unit & SDK Contract Suite', () => {
       expect(html).toContain('Chưa có lịch sử làm bài thi');
       expect(html).toContain('Khám phá thư viện đề thi');
     });
+
+    it('renders HistoryView with guest empty state encouraging login or registration', () => {
+      const html = renderClean(<HistoryView historyItems={[]} isGuest={true} />);
+      expect(html).toContain('Đăng nhập để xem lịch sử làm bài thi');
+      expect(html).toContain('Đăng nhập hoặc Đăng ký');
+      expect(html).toContain('/dang-nhap?redirect=/lich-su');
+      expect(html).toContain('Khám phá thư viện đề thi');
+    });
   });
 
   // =========================================================================
