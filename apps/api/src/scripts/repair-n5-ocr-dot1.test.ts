@@ -7,6 +7,7 @@ const plan = parsePlan(raw);
 describe('N5 OCR source corrections', () => {
   it('rejects modified manifests and stale target content', () => {
     expect(() => parsePlan(raw + ' ')).toThrow('integrity');
+    expect(parsePlan(raw.replace(/\r?\n/g, '\r\n'))).toEqual(plan);
     expect(() => patchState({ text: 'another edit' }, { before: 'old', after: 'new' })).toThrow();
     for (const p of plan.patches) {
       expect(canonical(p.before)).not.toBe(canonical(p.after));

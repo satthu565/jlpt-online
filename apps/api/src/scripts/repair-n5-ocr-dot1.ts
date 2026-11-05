@@ -14,8 +14,9 @@ import { canonical, needsPublish, patchState, resolve, version } from './repair-
 type Plan = Parameters<typeof resolve>[1] & {
   patches: (Parameters<typeof resolve>[1]['patches'][number] & { questionId: string; groupId: string })[];
 };
-const MANIFEST_SHA256 = 'e2d4b3d8e71548ab5b4acdd130a2785afea0ad5800c6053695836c617010b105';
-export function parsePlan(buffer: string): Plan {
+const MANIFEST_SHA256 = '9f8f4bed3529826fe268fadcf17758c046b9bc50c8ed743444e042e90c2cfa6b';
+export function parsePlan(raw: string): Plan {
+  const buffer = raw.replace(/\r\n/g, '\n');
   if (crypto.createHash('sha256').update(buffer).digest('hex') !== MANIFEST_SHA256) throw new Error('Manifest integrity failure');
   const plan = JSON.parse(buffer) as Plan;
   if (plan.auditId !== 'n5-ocr-dot1-2026-11-05' || plan.patches.length !== 49 || plan.images.length !== 1) throw new Error('Unexpected manifest');
