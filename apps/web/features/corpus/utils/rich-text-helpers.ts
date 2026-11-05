@@ -38,3 +38,20 @@ export function richTextToPlainText(segments?: RichTextSegment[] | unknown): str
   }
   return res.replace(/\s+/g, ' ').trim();
 }
+
+export function cleanStemText(stem?: string | unknown): string {
+  if (!stem) return '';
+  if (typeof stem !== 'string') {
+    return richTextToPlainText(stem);
+  }
+  const trimmed = stem.trim();
+  if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      return richTextToPlainText(parsed);
+    } catch {
+      return stem;
+    }
+  }
+  return stem;
+}

@@ -18,6 +18,24 @@ import type {
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import { FEATURES } from '../../../lib/features';
+import { cleanStemText } from '../../corpus';
+
+export function getUserVisibleTags(tags?: string[]): string[] {
+  if (!tags || !Array.isArray(tags)) return [];
+  return tags.filter(
+    (t) =>
+      typeof t === 'string' &&
+      !t.startsWith('source_') &&
+      !t.startsWith('term:') &&
+      !t.startsWith('reading:') &&
+      !t.startsWith('meaning:') &&
+      !t.startsWith('pos:') &&
+      !t.startsWith('stroke:') &&
+      !t.startsWith('hanviet:') &&
+      !t.startsWith('example:') &&
+      !t.startsWith('explanation:'),
+  );
+}
 
 export interface NotebookViewProps {
   items: NotebookItem[];
@@ -82,7 +100,7 @@ export function NotebookView({
       const matchTerm = item.term.toLowerCase().includes(q);
       const matchReading = item.reading?.toLowerCase().includes(q);
       const matchMeaning = item.meaning.toLowerCase().includes(q);
-      const matchTags = item.tags.some((t) => t.toLowerCase().includes(q));
+      const matchTags = getUserVisibleTags(item.tags).some((t) => t.toLowerCase().includes(q));
       if (!matchTerm && !matchReading && !matchMeaning && !matchTags) return false;
     }
     return true;
@@ -328,17 +346,22 @@ export function NotebookView({
                 </p>
               )}
 
-              {item.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {item.tags.map((tag) => (
-                    <span className="text-xs py-[2px] px-[6px] rounded-[4px] bg-[var(--bg-muted)] text-[var(--text-secondary)]"
-                      key={tag}
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {(() => {
+                const visibleTags = getUserVisibleTags(item.tags);
+                if (visibleTags.length === 0) return null;
+                return (
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {visibleTags.map((tag) => (
+                      <span
+                        className="text-xs py-[2px] px-[6px] rounded-[4px] bg-[var(--bg-muted)] text-[var(--text-secondary)]"
+                        key={tag}
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                );
+              })()}
 
               <div className="flex justify-between items-center pt-3 border-t border-[var(--border-subtle)]">
                 <div className="flex gap-2">
@@ -552,7 +575,7 @@ export function NotebookView({
                         </p>
                       )}
                       <p className="m-0 text-base font-japanese text-[var(--text-primary)] leading-relaxed font-medium">
-                        {eg.stem}
+                        {cleanStemText(eg.stem)}
                       </p>
                     </div>
                   );
