@@ -87,7 +87,7 @@ export async function needsPublish(sql: DbClientInstance['rawClient'], examId: s
   `;
   return row.needed;
 }
-export async function version(sql: DbClientInstance['rawClient'], targets: Target[], auditId: string): Promise<number> {
+export async function version(sql: DbClientInstance['rawClient'], targets: Target[], auditId: string, auditAction = 'content.n3.repair'): Promise<number> {
   const [editor] = await sql`select id from users where role='editor' and blocked_at is null`;
   const [reviewer] = await sql`select id from users where role='reviewer' and blocked_at is null`;
   const [admin] = await sql`select id from users where role='admin' and blocked_at is null`;
@@ -141,7 +141,7 @@ export async function version(sql: DbClientInstance['rawClient'], targets: Targe
       await tx`insert into content_reviews (id,target_type,target_id,target_version,reviewer_id,last_editor_id,status,comments,reviewed_at)
         values (${generateUuidV7()},'group_version',${groupId},${next},${reviewer.id},${editor.id},'approved',${'Owner-authorized source review: ' + auditId},now())`;
       await tx`insert into operator_actions (id,operator_id,action,target_resource,details,timestamp) values
-        (${generateUuidV7()},${admin.id},'content.n3.repair',${'question_group:' + groupId},${JSON.stringify({ auditId, version: next, patches: pending })}::jsonb,now())`;
+        (${generateUuidV7()},${admin.id},${auditAction},${'question_group:' + groupId},${JSON.stringify({ auditId, version: next, patches: pending })}::jsonb,now())`;
       changed++;
     }
   });
