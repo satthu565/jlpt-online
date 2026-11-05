@@ -116,11 +116,26 @@ export function SelectionGrammarPanel({
       } else {
         // Create in notebook
         try {
-          const tags: string[] = ['grammar', `level:${pattern.level.toLowerCase()}`];
-          if (context?.examTitle) tags.push(`#source_exam:${context.examTitle}`);
-          if (context?.questionNumber !== undefined) tags.push(`#source_qnum:${context.questionNumber}`);
-          if (context?.questionId) tags.push(`#source_qid:${context.questionId}`);
-          if (context?.sentence) tags.push(`#source_sentence:${context.sentence}`);
+          const tags: string[] = [];
+          if (context?.examTitle) tags.push(`source_exam:${context.examTitle}`);
+          if (context?.questionNumber !== undefined) tags.push(`source_qnum:${context.questionNumber}`);
+          if (context?.questionId) tags.push(`source_qid:${context.questionId}`);
+          if (context?.sentence) tags.push(`source_sentence:${context.sentence}`);
+          if (context?.options && context.options.length > 0) {
+            context.options.forEach((opt) => {
+              tags.push(`source_opt_${opt.orderIndex}:${opt.text}`);
+            });
+          }
+          if (context?.correctOptionIndex !== undefined) {
+            tags.push(`source_answer:${context.correctOptionIndex}`);
+          }
+          if (context?.explanationText) {
+            tags.push(`source_expl:${context.explanationText}`);
+          }
+
+          const examplesToSave = context?.sentence
+            ? [context.sentence, ...pattern.examples]
+            : pattern.examples;
 
           const created = await defaultLearningClient.createNotebookItem({
             kind: 'grammar',
@@ -128,8 +143,8 @@ export function SelectionGrammarPanel({
             reading: pattern.cleanPattern,
             meaning: pattern.meaning,
             notes: pattern.formation,
-            examples: pattern.examples,
-            tags,
+            examples: examplesToSave,
+            tags: tags.length > 0 ? tags : undefined,
             sourceExam: context?.examTitle,
             sourceQnum: context?.questionNumber,
             sourceQid: context?.questionId,

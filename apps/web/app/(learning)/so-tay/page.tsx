@@ -276,37 +276,37 @@ export default function NotebookPage(): React.JSX.Element {
             onExportCsv={handleExportCsv}
             onLoadExamples={async (itemId) => {
               const currentItem = items.find((it) => it.id === itemId);
-              const sourceExam =
-                currentItem?.sourceExam ||
-                currentItem?.tags?.find((t) => t.startsWith('source_exam:'))?.replace('source_exam:', '');
-              const sourceQnum =
-                currentItem?.sourceQnum ||
-                currentItem?.tags?.find((t) => t.startsWith('source_qnum:'))?.replace('source_qnum:', '');
-              const sourceQid =
-                currentItem?.sourceQid ||
-                currentItem?.tags?.find((t) => t.startsWith('source_qid:'))?.replace('source_qid:', '');
+              const cleanTag = (prefix: string) =>
+                currentItem?.tags
+                  ?.find((t) => t.replace(/^#+/, '').startsWith(prefix))
+                  ?.replace(/^#+/, '')
+                  ?.replace(prefix, '');
+
+              const sourceExam = currentItem?.sourceExam || cleanTag('source_exam:');
+              const sourceQnum = currentItem?.sourceQnum || cleanTag('source_qnum:');
+              const sourceQid = currentItem?.sourceQid || cleanTag('source_qid:');
               const sourceSentence =
                 currentItem?.sourceSentence ||
-                currentItem?.tags?.find((t) => t.startsWith('source_sentence:'))?.replace('source_sentence:', '') ||
+                cleanTag('source_sentence:') ||
                 currentItem?.examples?.[0];
 
               // Extract options from tags if present
               const tagOptions = [];
               for (let i = 1; i <= 4; i++) {
-                const optTag = currentItem?.tags?.find((t) => t.startsWith(`source_opt_${i}:`));
-                if (optTag) {
+                const optText = cleanTag(`source_opt_${i}:`);
+                if (optText) {
                   tagOptions.push({
                     orderIndex: i,
-                    text: cleanStemText(optTag.replace(`source_opt_${i}:`, '')),
+                    text: cleanStemText(optText),
                   });
                 }
               }
 
-              const answerTag = currentItem?.tags?.find((t) => t.startsWith('source_answer:'));
-              const tagCorrectIndex = answerTag ? parseInt(answerTag.replace('source_answer:', ''), 10) : undefined;
+              const answerVal = cleanTag('source_answer:');
+              const tagCorrectIndex = answerVal ? parseInt(answerVal, 10) : undefined;
 
-              const explTag = currentItem?.tags?.find((t) => t.startsWith('source_expl:'));
-              const tagExpl = explTag ? explTag.replace('source_expl:', '').replace(/\\n/g, '\n') : undefined;
+              const explVal = cleanTag('source_expl:');
+              const tagExpl = explVal ? explVal.replace(/\\n/g, '\n') : undefined;
 
               // If this item has a saved source exam question, ALWAYS display it directly
               if (sourceExam || sourceSentence) {

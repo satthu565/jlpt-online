@@ -54,19 +54,26 @@ export function HighlightText({ text, highlight }: { text?: string; highlight?: 
 
 export function getUserVisibleTags(tags?: string[]): string[] {
   if (!tags || !Array.isArray(tags)) return [];
-  return tags.filter(
-    (t) =>
-      typeof t === 'string' &&
-      !t.startsWith('source_') &&
-      !t.startsWith('term:') &&
-      !t.startsWith('reading:') &&
-      !t.startsWith('meaning:') &&
-      !t.startsWith('pos:') &&
-      !t.startsWith('stroke:') &&
-      !t.startsWith('hanviet:') &&
-      !t.startsWith('example:') &&
-      !t.startsWith('explanation:'),
-  );
+  return tags.filter((t) => {
+    if (typeof t !== 'string') return false;
+    const clean = t.replace(/^#+/, '').trim();
+    if (!clean) return false;
+    return (
+      !clean.startsWith('source_') &&
+      !clean.startsWith('term:') &&
+      !clean.startsWith('reading:') &&
+      !clean.startsWith('meaning:') &&
+      !clean.startsWith('pos:') &&
+      !clean.startsWith('stroke:') &&
+      !clean.startsWith('hanviet:') &&
+      !clean.startsWith('example:') &&
+      !clean.startsWith('explanation:') &&
+      !clean.startsWith('level:') &&
+      clean !== 'grammar' &&
+      clean !== 'vocab' &&
+      clean !== 'kanji'
+    );
+  });
 }
 
 export interface NotebookViewProps {
@@ -395,7 +402,7 @@ export function NotebookView({
                         className="text-xs py-[2px] px-[6px] rounded-[4px] bg-[var(--bg-muted)] text-[var(--text-secondary)]"
                         key={tag}
                       >
-                        #{tag}
+                        #{tag.replace(/^#+/, '')}
                       </span>
                     ))}
                   </div>
