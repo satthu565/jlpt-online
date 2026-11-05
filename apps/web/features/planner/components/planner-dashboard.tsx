@@ -1,11 +1,12 @@
 'use client';
 
-import { CalendarDays, Flame, Scale } from 'lucide-react';
+import { CalendarDays, Flame, RotateCcw, Scale } from 'lucide-react';
 import React, { useState } from 'react';
 import { Card, CardHeader, CardContent } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
 import { Badge } from '@jlpt/ui/components/badge';
 import { Alert } from '@jlpt/ui/components/alert';
+import { Modal } from '@jlpt/ui/components/modal';
 import type { StudyPlan, StudySession, CreateStudyPlanInput } from '../types';
 import { TodaySessionRunner } from './today-session-runner';
 import { ReplanModal } from './replan-modal';
@@ -20,6 +21,7 @@ export interface PlannerDashboardProps {
   onCreatePlan: (input: CreateStudyPlanInput) => Promise<void>;
   onCompleteSession: (sessionId: string, clientEventId: string, timeSpentSeconds: number) => Promise<void>;
   onReplan: (planId: string, reason?: string) => Promise<void>;
+  onResetPlan?: (planId: string) => Promise<void>;
 }
 
 export function PlannerDashboard({
@@ -29,11 +31,14 @@ export function PlannerDashboard({
   onCreatePlan,
   onCompleteSession,
   onReplan,
+  onResetPlan,
 }: PlannerDashboardProps): React.JSX.Element {
   const { t } = useI18n();
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isReplanModalOpen, setIsReplanModalOpen] = useState(false);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'info'; message: string } | null>(null);
 
   if (loading) {
@@ -176,17 +181,31 @@ export function PlannerDashboard({
             </span>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
               <Badge variant="secondary">v{plan.currentVersion}</Badge>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsReplanModalOpen(true)}
-                aria-label={t('planner.actions.replan')}
-                data-testid="replan-button"
-              >
-                <Scale className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('planner.actions.replan')}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsReplanModalOpen(true)}
+                  aria-label={t('planner.actions.replan')}
+                  data-testid="replan-button"
+                >
+                  <Scale className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('planner.actions.replan')}
+                </Button>
+                {onResetPlan && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsResetModalOpen(true)}
+                    aria-label={t('planner.actions.resetPlan')}
+                    data-testid="reset-plan-button"
+                    className="text-[var(--color-danger,#dc2626)] hover:bg-red-50 dark:hover:bg-red-950/30"
+                  >
+                    <RotateCcw className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('planner.actions.resetPlan')}
+                  </Button>
+                )}
+              </div>
             </div>
             <p className="mt-2 mx-0 mb-0 text-[0.8125rem] text-[var(--text-muted)]">
               {t('planner.overview.replanHint')}
@@ -214,6 +233,47 @@ export function PlannerDashboard({
           <ReminderSettingsCard plan={plan} />
         </div>
       </div>
+
+      {/* Reset Plan Modal */}
+      {isResetModalOpen && onResetPlan && (
+        <Modal
+          isOpen={isResetModalOpen}
+          onClose={() => setIsResetModalOpen(false)}
+          title={t('planner.reset.title')}
+        >
+          <div className="flex flex-col gap-5">
+            <p className="m-0 text-[var(--text-secondary)] text-[0.9375rem]">
+              {t('planner.reset.description')}
+            </p>
+            <div className="flex justify-end gap-3 mt-4">
+              <Button type="button" variant="outline" onClick={() => setIsResetModalOpen(false)}>
+                {t('common.buttons.cancel')}
+              </Button>
+              <Button
+                type="button"
+                variant="danger"
+                loading={resetting}
+                onClick={async () => {
+                  setResetting(true);
+                  try {
+                    await onResetPlan(plan.id);
+                    setIsResetModalOpen(false);
+                    setFeedback({
+                      type: 'info',
+                      message: t('planner.reset.success'),
+                    });
+                  } finally {
+                    setResetting(false);
+                  }
+                }}
+                data-testid="confirm-reset-plan-button"
+              >
+                {t('planner.reset.confirmButton')}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* Replan Modal */}
       {isReplanModalOpen && (

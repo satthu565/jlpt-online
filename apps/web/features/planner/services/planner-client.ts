@@ -3,10 +3,10 @@ import type {
   CreateStudyPlanInput,
   ReplanRequest,
   ReplanResult,
-  StudySession,
   CompleteSessionInput,
   CompleteSessionResult,
   ReminderInfo,
+  TodaySessionResponse,
 } from '../types';
 
 export class PlannerClient {
@@ -79,9 +79,9 @@ export class PlannerClient {
     return this.request<ReplanResult>('POST', `/me/study-plans/${encodeURIComponent(planId)}/replan`, input);
   }
 
-  public async getTodaySession(timezone?: string): Promise<{ session: StudySession | null; plan: StudyPlan | null }> {
+  public async getTodaySession(timezone?: string): Promise<TodaySessionResponse> {
     const tz = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ho_Chi_Minh';
-    return this.request<{ session: StudySession | null; plan: StudyPlan | null }>(
+    return this.request<TodaySessionResponse>(
       'GET',
       `/me/study-sessions/today?timezone=${encodeURIComponent(tz)}`,
     );
@@ -93,6 +93,10 @@ export class PlannerClient {
       `/me/study-sessions/${encodeURIComponent(sessionId)}/completion`,
       input,
     );
+  }
+
+  public async archiveStudyPlan(planId: string): Promise<{ archived: boolean }> {
+    return this.request<{ archived: boolean }>('DELETE', `/me/study-plans/${encodeURIComponent(planId)}`);
   }
 
   public async getReminders(planId: string): Promise<ReminderInfo> {

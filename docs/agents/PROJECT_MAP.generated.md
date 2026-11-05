@@ -125,7 +125,7 @@ Mục menu và vai trò lấy từ `apps/admin/lib/navigation.ts`.
 | `/verify-2fa` |  |  | `apps/admin/app/verify-2fa/page.tsx` |
 | `/vocab` | Từ vựng & Ngữ pháp | admin, editor | `apps/admin/app/vocab/page.tsx` |
 
-## API (304 route, 26 module có controller)
+## API (306 route, 26 module có controller)
 
 Quyền: `công khai` = `@Public()`; `đăng nhập` = chỉ cần đăng nhập; còn lại là vai trò trong `@Roles`.
 
@@ -452,7 +452,9 @@ Quyền: `công khai` = `@Public()`; `đăng nhập` = chỉ cần đăng nhập
 | Method | Đường dẫn | Quyền | Ghi chú | Hàm |
 |---|---|---|---|---|
 | POST | `/api/v1/me/study-plans` | đăng nhập |  | `createStudyPlan` |
+| DELETE | `/api/v1/me/study-plans/:id` | đăng nhập |  | `archiveStudyPlan` |
 | GET | `/api/v1/me/study-plans/:id` | đăng nhập |  | `getStudyPlan` |
+| POST | `/api/v1/me/study-plans/:id/archive` | đăng nhập |  | `archiveStudyPlanPost` |
 | GET | `/api/v1/me/study-plans/:id/reminders` | đăng nhập |  | `getPlanReminders` |
 | POST | `/api/v1/me/study-plans/:id/replan` | đăng nhập |  | `replanStudyPlan` |
 | PUT | `/api/v1/me/study-sessions/:id/completion` | đăng nhập |  | `completeStudySession` |

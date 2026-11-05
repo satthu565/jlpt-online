@@ -7,6 +7,7 @@ import {
   type StudyPlan,
   type StudySession,
   type CreateStudyPlanInput,
+  type TodaySessionResponse,
 } from '../../../features/planner';
 import { ExamHero } from '../../../features/library';
 import { useI18n } from '../../../lib/i18n';
@@ -14,6 +15,8 @@ import { Alert } from '@jlpt/ui/components/alert';
 import { Button } from '@jlpt/ui/components/button';
 import { Spinner } from '@jlpt/ui/components/spinner';
 import Link from 'next/link';
+
+const ACTIVE_PLAN_STORAGE_KEY = 'jlpt_active_plan_id';
 
 export default function PlannerPage(): React.JSX.Element {
   const { t } = useI18n();
@@ -29,20 +32,70 @@ export default function PlannerPage(): React.JSX.Element {
     setError(null);
     setIsUnauthorized(false);
     try {
-      const res = await defaultPlannerClient.getTodaySession();
-      if (res && res.plan) {
-        setPlan(res.plan);
+      const res: TodaySessionResponse = await defaultPlannerClient.getTodaySession();
+
+      let activePlan: StudyPlan | null = null;
+      if (res?.plan) {
+        activePlan = res.plan;
+      } else {
+        const foundPlanId =
+          res?.sessions?.[0]?.planId ||
+          (typeof window !== 'undefined' ? localStorage.getItem(ACTIVE_PLAN_STORAGE_KEY) : null);
+        if (foundPlanId) {
+          try {
+            activePlan = await defaultPlannerClient.getStudyPlan(foundPlanId);
+          } catch {
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem(ACTIVE_PLAN_STORAGE_KEY);
+            }
+          }
+        }
+      }
+
+      if (activePlan) {
+        setPlan(activePlan);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(ACTIVE_PLAN_STORAGE_KEY, activePlan.id);
+        }
       } else {
         setPlan(null);
       }
-      if (res && res.session) {
-        setTodaySession(res.session);
+
+      let sess: StudySession | null = null;
+      if (res?.session) {
+        sess = res.session;
+      } else if (res?.sessions && res.sessions.length > 0) {
+        sess = res.sessions[0]!;
+      } else if (activePlan?.sessions && activePlan.sessions.length > 0) {
+        const todayStr = new Date().toISOString().slice(0, 10);
+        sess = activePlan.sessions.find((s) => s.scheduledDate === todayStr) || activePlan.sessions[0]!;
+      }
+
+      if (sess) {
+        const skill = sess.skill || activePlan?.config?.focusSkills?.[0] || 'vocabulary';
+        const sessionType = sess.sessionType || (activePlan?.isFinalSprint ? 'final_sprint' : 'lesson');
+        const topic =
+          sess.topic ||
+          (activePlan?.isFinalSprint
+            ? 'Tổng ôn nước rút: Đề thi thử & xem lại kiến thức trọng tâm'
+            : `Buổi học theo lộ trình: Kỹ năng ${t(`planner.skills.${skill}`)}`);
+        setTodaySession({
+          ...sess,
+          skill,
+          sessionType,
+          topic,
+        });
       } else {
         setTodaySession(null);
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes('401') || msg.includes('403') || msg.includes('UNAUTHENTICATED') || msg.includes('Yêu cầu đăng nhập')) {
+      if (
+        msg.includes('401') ||
+        msg.includes('403') ||
+        msg.includes('UNAUTHENTICATED') ||
+        msg.includes('Yêu cầu đăng nhập')
+      ) {
         setIsUnauthorized(true);
         setPlan(null);
         setTodaySession(null);
@@ -62,7 +115,22 @@ export default function PlannerPage(): React.JSX.Element {
     setError(null);
     try {
       const created = await defaultPlannerClient.createStudyPlan(input);
+      if (created?.id && typeof window !== 'undefined') {
+        localStorage.setItem(ACTIVE_PLAN_STORAGE_KEY, created.id);
+      }
       setPlan(created);
+      if (created?.sessions && created.sessions.length > 0) {
+        const first = created.sessions[0]!;
+        const skill = first.skill || created.config?.focusSkills?.[0] || 'vocabulary';
+        setTodaySession({
+          ...first,
+          skill,
+          sessionType: first.sessionType || 'lesson',
+          topic: first.topic || `Buổi học ngày 1: Kỹ năng ${t(`planner.skills.${skill}`)}`,
+        });
+      } else {
+        await loadPlannerData();
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg || 'Không thể tạo kế hoạch học tập.');
@@ -98,6 +166,20 @@ export default function PlannerPage(): React.JSX.Element {
     }
   };
 
+  const handleResetPlan = async (planId: string) => {
+    setError(null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(ACTIVE_PLAN_STORAGE_KEY);
+    }
+    try {
+      await defaultPlannerClient.archiveStudyPlan(planId);
+    } catch (archiveErr) {
+      console.warn('Archive study plan returned:', archiveErr);
+    }
+    setPlan(null);
+    setTodaySession(null);
+  };
+
   const handleReplan = async (planId: string, reason?: string) => {
     setError(null);
     try {
@@ -110,6 +192,7 @@ export default function PlannerPage(): React.JSX.Element {
             }
           : null,
       );
+      await loadPlannerData();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg || 'Không thể điều chỉnh kế hoạch học tập.');
@@ -162,6 +245,7 @@ export default function PlannerPage(): React.JSX.Element {
           onCreatePlan={handleCreatePlan}
           onCompleteSession={handleCompleteSession}
           onReplan={handleReplan}
+          onResetPlan={handleResetPlan}
         />
       </div>
     </div>

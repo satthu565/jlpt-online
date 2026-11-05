@@ -120,6 +120,12 @@ export class PlannerService {
     const planId = generateUuidV7();
     const now = new Date();
 
+    // 0. Auto-archive any previously active plan for this user
+    await this.dbClient.db
+      .update(studyPlans)
+      .set({ status: 'archived' })
+      .where(and(eq(studyPlans.userId, userId), eq(studyPlans.status, 'active')));
+
     // 1. Insert study plan
     await this.dbClient.db.insert(studyPlans).values({
       id: planId,
@@ -232,6 +238,28 @@ export class PlannerService {
   /**
    * Retrieves a study plan with countdown, completion rate, and current streak (PLAN-02, PLAN-08).
    */
+  /**
+   * Archives a study plan so user can start a new one (PLAN-12).
+   */
+  async archiveStudyPlan(userId: string, planId: string): Promise<{ archived: boolean }> {
+    const planRows = await this.dbClient.db
+      .select()
+      .from(studyPlans)
+      .where(and(eq(studyPlans.id, planId), eq(studyPlans.userId, userId)))
+      .limit(1);
+
+    if (planRows.length === 0) {
+      throw new NotFoundException(`Study plan '${planId}' not found`);
+    }
+
+    await this.dbClient.db
+      .update(studyPlans)
+      .set({ status: 'archived' })
+      .where(eq(studyPlans.id, planId));
+
+    return { archived: true };
+  }
+
   async getStudyPlan(userId: string, planId: string): Promise<StudyPlanDto> {
     const planRows = await this.dbClient.db
       .select()
@@ -430,6 +458,8 @@ export class PlannerService {
         todayDate: todayLocal,
         timezone,
         sessions: [],
+        session: null,
+        plan: null,
         totalMinutes: 0,
         message: 'Bạn chưa có kế hoạch học tập đang kích hoạt. Hãy tạo kế hoạch 30/60/90 ngày!',
       };
@@ -447,6 +477,16 @@ export class PlannerService {
       );
 
     const daysRemaining = calculateDaysRemaining(plan.targetDate, timezone, todayLocal);
+    const sessionList = sessions.map((s: typeof studySessions.$inferSelect) => ({
+      id: s.id,
+      planId: s.planId,
+      userId: s.userId,
+      scheduledDate: s.scheduledDate,
+      durationMinutes: s.durationMinutes,
+      status: s.status as StudySessionDto['status'],
+    }));
+
+    const fullPlan = await this.getStudyPlan(userId, plan.id);
 
     return {
       todayDate: todayLocal,
@@ -454,13 +494,9 @@ export class PlannerService {
       targetLevel: plan.targetLevel,
       daysRemaining,
       isFinalSprint: daysRemaining <= 7,
-      sessions: sessions.map((s: typeof studySessions.$inferSelect) => ({
-        id: s.id,
-        planId: s.planId,
-        scheduledDate: s.scheduledDate,
-        durationMinutes: s.durationMinutes,
-        status: s.status,
-      })),
+      sessions: sessionList,
+      session: sessionList.length > 0 ? sessionList[0]! : null,
+      plan: fullPlan,
       totalMinutes: sessions.reduce((acc: number, s: typeof studySessions.$inferSelect) => acc + s.durationMinutes, 0),
     };
   }

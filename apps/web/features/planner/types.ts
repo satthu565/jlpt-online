@@ -104,3 +104,16 @@ export interface ReminderInfo {
     hasMockExam: boolean;
   };
 }
+
+export interface TodaySessionResponse {
+  todayDate?: string;
+  timezone?: string;
+  targetLevel?: JLPTLevel;
+  daysRemaining?: number;
+  isFinalSprint?: boolean;
+  sessions?: StudySession[];
+  session?: StudySession | null;
+  plan?: StudyPlan | null;
+  totalMinutes?: number;
+  message?: string;
+}

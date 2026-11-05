@@ -442,7 +442,8 @@
     },
     "actions": {
       "createPlan": "Tạo kế hoạch học tập",
-      "replan": "Tái cân bằng lộ trình"
+      "replan": "Tái cân bằng lộ trình",
+      "resetPlan": "Đặt lại kế hoạch"
     },
     "finalSprint": {
       "title": "Giai đoạn nước rút",
@@ -513,6 +514,12 @@
       "mockInterval": "Tần suất thi thử",
       "everyXDays": "Cứ {days} ngày làm 1 đề thi thử",
       "customizeInSettings": "Tùy chỉnh trong Cài đặt thông báo"
+    },
+    "reset": {
+      "title": "Hủy và đặt lại kế hoạch học tập",
+      "description": "Bạn có chắc chắn muốn hủy kế hoạch hiện tại để thiết lập lộ trình mới? Dữ liệu tiến độ cũ sẽ được lưu trữ và bạn có thể tạo mục tiêu mới ngay lập tức.",
+      "confirmButton": "Xác nhận đặt lại",
+      "success": "Đã hủy kế hoạch cũ thành công. Bạn hãy thiết lập kế hoạch học tập mới!"
     }
   },
   "classroom": {
