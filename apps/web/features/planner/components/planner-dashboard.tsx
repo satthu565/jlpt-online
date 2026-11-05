@@ -47,7 +47,7 @@ export function PlannerDashboard({
   if (!plan) {
     return (
       <Card data-testid="planner-no-plan-card">
-        <CardContent className="py-14 px-8 text-center">
+        <CardContent className="flex flex-col items-center justify-center py-14 px-8 text-center">
           <CalendarDays className="mx-auto mb-4 size-12" aria-hidden="true" />
           <h2 className="text-[1.75rem] font-extrabold mt-0 mx-0 mb-2 text-[var(--text-primary)]">
             {t('planner.empty.title')}
@@ -59,6 +59,7 @@ export function PlannerDashboard({
             variant="primary"
             onClick={() => setIsCreateModalOpen(true)}
             data-testid="create-plan-button"
+            className="self-center"
           >
             + {t('planner.actions.createPlan')}
           </Button>
