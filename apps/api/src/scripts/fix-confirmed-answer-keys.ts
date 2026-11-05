@@ -33,6 +33,8 @@ export const CONFIRMED_ANSWER_KEY_FIXES: readonly ConfirmedAnswerKeyFix[] = [
   ['n1-2019-07', 20, 3, 1, '簡素なゲーム is valid usage; 簡素な味 is not'],
   ['n1-2016-07', 57, 4, 1, 'Ordinary people can serve as witnesses to their era'],
   ['n1-2015-12', 51, 3, 1, 'A work may be recognized later'],
+  ['n2-2025-07', 82, 4, 3, 'The transcript says the question-mark-shaped tail completely captivated her'],
+  ['n2-2023-12', 51, 2, 3, 'Option 3 forms the valid general warning that getting tired would be a waste'],
   ['n1-2011-07', 62, 4, 2, '教養 is learning cultivated in each person disposition'],
   ['n2-2021-12', 37, 3, 1, '社会人にもなって is the valid reproach construction'],
   ['n2-2013-07', 32, 4, 2, 'A river can 隔てる two cities; the keyed sentence is malformed'],

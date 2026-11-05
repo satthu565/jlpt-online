@@ -37,7 +37,7 @@ Ngân hàng câu hỏi `/questions` · blueprint `/blueprints` · media `/media`
 
 Menu và quyền của từng mục khai báo ở `apps/admin/lib/navigation.ts`.
 
-Bảo trì dữ liệu đề: các script `fix-confirmed-answer-keys.ts`, `fix-confirmed-content-issues.ts` và `fix-disputed-n1-answers.ts` trong `apps/api/src/scripts/` tạo phiên bản nội dung mới, qua dấu vết editor/reviewer riêng biệt rồi xuất bản lại đề; không ghi đè dữ liệu của phiên bản đã xuất bản.
+Bảo trì dữ liệu đề: các script `fix-confirmed-answer-keys.ts`, `fix-confirmed-content-issues.ts`, `fix-disputed-n1-answers.ts`, `sync-n1-answer-explanations.ts` và `sync-n2-answer-explanations.ts` trong `apps/api/src/scripts/` tạo phiên bản nội dung mới, qua dấu vết editor/reviewer riêng biệt rồi xuất bản lại đề; không ghi đè dữ liệu của phiên bản đã xuất bản. Script sửa nội dung hỗ trợ `--only=<correction-id>` để chỉ áp dụng đúng mục tiêu đã được phê duyệt, không chạm các sửa đổi khác đang chờ.
 
 ## 🙈 Đang ẩn (bật lại bằng cờ lúc build web)
 
@@ -79,3 +79,7 @@ Ngày 25/10/2026: thao tác của từng câu trong cuốn đề được gom xu
 ## 📋 Dự kiến
 
 - Bộ chuyển đổi để coordinator giao việc cho Codex.
+
+- Bảo trì nội dung N3 03/11/2026: script `repair-n3-content.ts` sửa 91 trường dữ liệu trong 73 câu của 21 đề, cắt lại 18 ảnh và khôi phục transcript theo nguồn; dry-run mặc định, đối chiếu giá trị trước/sau, bắt buộc backup, tạo phiên bản mới và audit log.
+
+- N3: `deduplicate-n3-images.ts` chuyển 18 hình đã duyệt sang group_media để mỗi câu chỉ hiển thị một ảnh, có kiểm tra passage chỉ chứa ảnh, backup, versioning, audit và khả năng chạy lại.

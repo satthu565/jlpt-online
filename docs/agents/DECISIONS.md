@@ -9,6 +9,7 @@ Tóm tắt những điều agent phải theo. Lý do chi tiết từng task nằ
 | Ứng dụng **không** có OCR hay bộ đọc PDF. Đề được chuẩn bị bên ngoài thành gói nhập (import v2), rồi tải lên qua admin. | `docs/multi-worker/CHUAN_DU_LIEU_NHAP.md`, `docs/import-format/` |
 | Chủ dự án có toàn quyền với nội dung đề JLPT trong dự án. Không thêm ghi chú bản quyền. | Chỉ thị chủ dự án |
 | Ba tính năng ẩn ở giai đoạn đầu: trang chính sách, TTS, AI giải thích. Code vẫn giữ, bật lại bằng cờ. | `docs/decisions/feature-flags-phase-1.md` |
+| Khách (chưa đăng nhập) làm được **mọi đề đã xuất bản** qua luồng `/api/v1/guest/attempts` (không ghi database, xem lời giải sau khi nộp). Không còn yêu cầu cờ `guest_trial`; đề chưa xuất bản vẫn bị chặn (404). Trước đó (tới 03/11/2026) khách chỉ làm được đề có cờ. | Chỉ thị chủ dự án 03/11/2026 |
 | Tiếng Việt là ngôn ngữ chính; giao diện có đủ vi/ja/en. Route web viết tiếng Việt không dấu. | F04 |
 | Đỗ/trượt và điểm sàn theo quy tắc JLPT thật. Bảng quy đổi có phiên bản; kết quả cũ giữ phiên bản cũ. | P01, P03, P05 |
 | Hán Việt tính theo từng từ (4 lớp), không ghép âm từng chữ. Kokuji để trống, không đoán. | H01 |

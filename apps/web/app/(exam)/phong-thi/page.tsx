@@ -357,7 +357,7 @@ export default function ExamRoomPage(): React.JSX.Element {
           if (apiErr && typeof apiErr === 'object' && (apiErr.status === 401 || apiErr.code === 'AUTH_REQUIRED' || apiErr.code === 'UNAUTHENTICATED')) {
             setErrorInfo({
               code: 'AUTH_REQUIRED',
-              message: 'Đề thi này yêu cầu đăng nhập tài khoản học viên. Khách chỉ được làm thử đề demo guest_trial.',
+              message: 'Vui lòng đăng nhập tài khoản học viên để làm đề thi này.',
               requiresAuth: true,
               redirectUrl: `/dang-nhap?redirect=${encodeURIComponent(`/phong-thi?examId=${targetExamId}&mode=${selectedMode}`)}`,
             });
@@ -427,7 +427,7 @@ export default function ExamRoomPage(): React.JSX.Element {
           if (apiErr.status === 401 || apiErr.code === 'AUTH_REQUIRED') {
             setErrorInfo({
               code: 'AUTH_REQUIRED',
-              message: 'Đề thi này yêu cầu đăng nhập tài khoản học viên. Khách chỉ được làm thử đề demo guest_trial.',
+              message: 'Vui lòng đăng nhập tài khoản học viên để làm đề thi này.',
               requiresAuth: true,
               redirectUrl: `/dang-nhap?redirect=${encodeURIComponent(`/phong-thi?examId=${targetExamId}&mode=${selectedMode}`)}`,
             });

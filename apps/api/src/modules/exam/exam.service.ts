@@ -145,31 +145,6 @@ export class ExamService {
     return { ...published, approvedGroups };
   }
 
-  private isExamGuestTrialEligible(exam: typeof schema.exams.$inferSelect, scoring?: Record<string, unknown>): boolean {
-    const descLower = (exam.description || '').toLowerCase();
-    const slugLower = exam.slug.toLowerCase();
-    const titleLower = exam.title.toLowerCase();
-
-    if (
-      descLower.includes('guest_trial') ||
-      descLower.includes('"guesttrial":true') ||
-      descLower.includes('"guesttrial": true') ||
-      slugLower.includes('trial') ||
-      slugLower.includes('guest') ||
-      titleLower.includes('làm thử') ||
-      titleLower.includes('thử nghiệm') ||
-      titleLower.includes('trial')
-    ) {
-      return true;
-    }
-
-    if (scoring && (scoring['guestTrial'] === true || scoring['guest_trial'] === true)) {
-      return true;
-    }
-
-    return false;
-  }
-
   /**
    * Public list of exams with filters and guestTrial indicator (A8).
    */
@@ -226,8 +201,6 @@ export class ExamService {
         .where(eq(schema.examSections.examId, e.id))
         .orderBy(schema.examSections.orderIndex);
 
-      const guestTrial = this.isExamGuestTrialEligible(e, ev?.scoring as Record<string, unknown>);
-
       summaries.push({
         id: e.id,
         slug: e.slug,
@@ -240,7 +213,7 @@ export class ExamService {
         sections,
         sourceLabel: null,
         licenseLabel: null,
-        guestTrial,
+        guestTrial: true, // guests may take any published exam
         publishedVersion: versionNum,
       });
     }
@@ -298,7 +271,6 @@ export class ExamService {
       .where(eq(schema.examSections.examId, e.id))
       .orderBy(schema.examSections.orderIndex);
 
-    const guestTrial = this.isExamGuestTrialEligible(e, ev?.scoring as Record<string, unknown>);
 
     return {
       id: e.id,
@@ -312,7 +284,7 @@ export class ExamService {
       sections,
       sourceLabel: null,
       licenseLabel: null,
-      guestTrial,
+      guestTrial: true, // guests may take any published exam
       publishedVersion: versionNum,
       description: e.description || '',
     };

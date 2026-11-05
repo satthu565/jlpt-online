@@ -29,6 +29,11 @@ Sinh từ code: route web và admin, menu admin, API kèm quyền, cờ tính n�
 | `privacyPolicyPage` | `NEXT_PUBLIC_FEATURE_PRIVACY_POLICY=1` |
 | `tts` | `NEXT_PUBLIC_FEATURE_TTS=1` |
 | `aiExplanation` | `NEXT_PUBLIC_FEATURE_AI_EXPLANATION=1` |
+| `navPractice` | `NEXT_PUBLIC_FEATURE_NAV_PRACTICE=1` |
+| `navGrammar` | `NEXT_PUBLIC_FEATURE_NAV_GRAMMAR=1` |
+| `navClassroom` | `NEXT_PUBLIC_FEATURE_NAV_CLASSROOM=1` |
+| `navPricing` | `NEXT_PUBLIC_FEATURE_NAV_PRICING=1` |
+| `navMoreDropdown` | `NEXT_PUBLIC_FEATURE_NAV_MORE_DROPDOWN=1` |
 
 ## Trang học viên (`apps/web`, 38 trang)
 
