@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { BookOpen, Check, Copy, Sparkles, Star } from 'lucide-react';
-import { Button, Card, Chip } from '@jlpt/ui/components/exam-controls';
+import { BookOpen, Check, Copy, Star } from 'lucide-react';
+import { Button, Card, Chip, Separator } from '@jlpt/ui/components/exam-controls';
+import { Alert } from '@jlpt/ui/components/alert';
 import { defaultLearningClient } from '../../learning';
 import type { GrammarItem, JlptLevel } from '../data/grammar-dictionary';
 import type { SelectionLookupContext } from './selection-lookup-popover';
@@ -170,17 +171,17 @@ export function SelectionGrammarPanel({
 
   if (patterns.length === 0) {
     return (
-      <div className="space-y-3 py-6 text-center text-[var(--text-muted)]" data-testid="grammar-empty-state">
-        <BookOpen className="mx-auto size-9 opacity-40" aria-hidden="true" />
-        <div>
-          <p className="text-sm font-semibold text-[var(--text-primary)]">
+      <Card data-testid="grammar-empty-state" className="border-dashed py-6 text-center">
+        <Card.Content className="space-y-2">
+          <BookOpen className="mx-auto size-9 opacity-40 text-[var(--text-muted)]" aria-hidden="true" />
+          <Card.Title className="text-sm font-semibold text-[var(--text-primary)]">
             Không tìm thấy mẫu ngữ pháp
-          </p>
-          <p className="mt-1 text-xs">
+          </Card.Title>
+          <Card.Description className="text-xs text-[var(--text-muted)]">
             Đoạn bôi đen &ldquo;{queryText}&rdquo; chưa khớp với mẫu ngữ pháp JLPT nào trong kho dữ liệu.
-          </p>
-        </div>
-      </div>
+          </Card.Description>
+        </Card.Content>
+      </Card>
     );
   }
 
@@ -194,25 +195,23 @@ export function SelectionGrammarPanel({
         return (
           <Card
             key={item.id}
-            className="rounded-xl border border-[var(--color-primary-light)] bg-[var(--surface)] p-3 shadow-xs"
+            className="rounded-2xl border border-[var(--color-primary-light)] bg-[var(--surface)] p-3.5 shadow-xs"
             data-testid={`grammar-pattern-card-${item.id}`}
           >
-            {/* Header: Level Chip + Pattern Title + Save Button */}
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <Chip
-                    color={LEVEL_COLOR_MAP[item.level] ?? 'primary'}
-                    variant="secondary"
-                    size="sm"
-                    className="font-bold text-xs"
-                  >
-                    {item.level}
-                  </Chip>
-                  <h4 className="font-japanese text-base font-bold text-[var(--text-primary)]">
-                    {item.pattern}
-                  </h4>
-                </div>
+            {/* Header: Chip Level + Title + Save Button */}
+            <Card.Header className="flex flex-row items-center justify-between gap-2 p-0 pb-2.5">
+              <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
+                <Chip
+                  color={LEVEL_COLOR_MAP[item.level] ?? 'default'}
+                  variant="secondary"
+                  size="sm"
+                  className="font-bold"
+                >
+                  <Chip.Label>{item.level}</Chip.Label>
+                </Chip>
+                <Card.Title className="m-0 font-japanese text-base font-bold text-[var(--text-primary)] leading-tight">
+                  {item.pattern}
+                </Card.Title>
               </div>
 
               {/* Save to Notebook Button */}
@@ -221,8 +220,8 @@ export function SelectionGrammarPanel({
                 variant={isSaved ? 'secondary' : 'outline'}
                 className={
                   isSaved
-                    ? 'border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300 shrink-0 text-xs'
-                    : 'shrink-0 text-xs'
+                    ? 'border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300 shrink-0 text-xs font-semibold'
+                    : 'shrink-0 text-xs font-semibold'
                 }
                 isDisabled={isSaving}
                 onPress={() => void handleToggleSave(item)}
@@ -236,67 +235,71 @@ export function SelectionGrammarPanel({
                 />
                 {isSaved ? 'Đã lưu' : 'Lưu ngữ pháp'}
               </Button>
-            </div>
+            </Card.Header>
 
             {/* Notification alert */}
             {notice && (
-              <div
-                className={`mt-2 rounded-lg px-2.5 py-1.5 text-xs font-medium ${
-                  notice.tone === 'success'
-                    ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
-                    : 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300'
-                }`}
-                role="status"
-              >
-                {notice.message}
+              <div className="mb-2">
+                <Alert variant={notice.tone === 'success' ? 'success' : 'error'}>
+                  {notice.message}
+                </Alert>
               </div>
             )}
 
-            {/* Meaning Section */}
-            <div className="mt-2.5 rounded-lg bg-[var(--color-primary-light)]/40 p-2 text-xs leading-relaxed text-[var(--text-primary)]">
-              <span className="font-semibold text-[var(--color-primary)]">Ý nghĩa: </span>
-              {item.meaning}
-            </div>
-
-            {/* Formation Section */}
-            <div className="mt-2 text-xs leading-relaxed">
-              <span className="font-semibold text-[var(--text-muted)]">Cấu trúc: </span>
-              <code className="rounded bg-black/5 dark:bg-white/10 px-1.5 py-0.5 font-mono text-[11px] text-[var(--text-primary)]">
-                {item.formation}
-              </code>
-            </div>
-
-            {/* Examples Section */}
-            {item.examples.length > 0 && (
-              <div className="mt-2.5 space-y-1.5 border-t border-[var(--border)] pt-2 text-xs">
-                <span className="font-semibold text-[var(--text-muted)]">Ví dụ minh họa:</span>
-                <ul className="space-y-1 pl-1">
-                  {item.examples.map((ex, i) => (
-                    <li
-                      key={i}
-                      className="group flex items-start justify-between gap-1 rounded px-1.5 py-0.5 hover:bg-black/5 dark:hover:bg-white/5"
-                    >
-                      <span className="font-japanese text-xs leading-relaxed text-[var(--text-primary)]">
-                        • {ex}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => void copyText(ex)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                        title="Sao chép ví dụ"
-                        aria-label="Sao chép ví dụ"
-                      >
-                        {copiedExample === ex ? (
-                          <Check className="size-3 text-emerald-600" aria-hidden="true" />
-                        ) : (
-                          <Copy className="size-3" aria-hidden="true" />
-                        )}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+            {/* Card Content: Meaning, Formation, Examples */}
+            <Card.Content className="space-y-2.5 p-0">
+              {/* Meaning Section */}
+              <div className="rounded-xl border border-[var(--color-primary-light)]/60 bg-[var(--color-primary-light)]/20 p-2.5 text-xs leading-relaxed text-[var(--text-primary)]">
+                <div className="mb-0.5 font-semibold text-[var(--color-primary)]">Ý nghĩa:</div>
+                <p className="m-0 font-medium">{item.meaning}</p>
               </div>
-            )}
+
+              {/* Formation Section */}
+              <div className="rounded-xl border border-[var(--border)] bg-black/5 dark:bg-white/5 p-2.5 text-xs leading-relaxed">
+                <div className="mb-0.5 font-semibold text-[var(--text-muted)]">Cấu trúc kết hợp:</div>
+                <code className="font-mono text-xs font-medium text-[var(--text-primary)]">
+                  {item.formation}
+                </code>
+              </div>
+
+              {/* Separator before examples */}
+              {item.examples.length > 0 && (
+                <>
+                  <Separator className="my-1.5" />
+
+                  {/* Examples Section */}
+                  <div className="space-y-1.5 pt-0.5 text-xs">
+                    <div className="font-semibold text-[var(--text-muted)]">Ví dụ minh họa:</div>
+                    <ul className="space-y-1 pl-0 list-none m-0">
+                      {item.examples.map((ex, i) => (
+                        <li
+                          key={i}
+                          className="group flex items-start justify-between gap-1.5 rounded-lg px-2 py-1 transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                        >
+                          <span className="font-japanese text-xs leading-relaxed text-[var(--text-primary)]">
+                            • {ex}
+                          </span>
+                          <Button
+                            isIconOnly
+                            size="sm"
+                            variant="ghost"
+                            className="size-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-0"
+                            onPress={() => void copyText(ex)}
+                            aria-label="Sao chép ví dụ"
+                          >
+                            {copiedExample === ex ? (
+                              <Check className="size-3.5 text-emerald-600" aria-hidden="true" />
+                            ) : (
+                              <Copy className="size-3.5 text-[var(--text-muted)]" aria-hidden="true" />
+                            )}
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              )}
+            </Card.Content>
           </Card>
         );
       })}
