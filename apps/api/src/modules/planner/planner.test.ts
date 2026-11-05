@@ -269,5 +269,44 @@ describe('L05: Planner Module Tests (PLAN-01..11, Acceptance 2)', () => {
       expect(reminder.body.length).toBeGreaterThan(0);
       expect(reminder.recommendedToday).toBeDefined();
     });
+
+    it('archives a study plan and auto-archives previous active plan upon new plan creation (PLAN-12)', async () => {
+      const plan1 = await plannerService.createStudyPlan(testUserId, {
+        targetLevel: 'N4',
+        targetDate: '2026-12-06',
+        dailyMinutes: 30,
+        durationDays: 30,
+      });
+
+      expect(plan1.status).toBe('active');
+
+      // Archive plan1 explicitly via controller
+      const res = await plannerController.archiveStudyPlan(mockUser(testUserId), plan1.id);
+      expect(res.archived).toBe(true);
+
+      const archivedPlan = await plannerService.getStudyPlan(testUserId, plan1.id);
+      expect(archivedPlan.status).toBe('archived');
+
+      // Create new plan2, should succeed and be active
+      const plan2 = await plannerService.createStudyPlan(testUserId, {
+        targetLevel: 'N2',
+        targetDate: '2027-01-01',
+        dailyMinutes: 45,
+        durationDays: 60,
+      });
+      expect(plan2.status).toBe('active');
+
+      // Create plan3 without archiving plan2; plan2 should be automatically archived
+      const plan3 = await plannerService.createStudyPlan(testUserId, {
+        targetLevel: 'N1',
+        targetDate: '2027-02-01',
+        dailyMinutes: 60,
+        durationDays: 90,
+      });
+      expect(plan3.status).toBe('active');
+
+      const recheckedPlan2 = await plannerService.getStudyPlan(testUserId, plan2.id);
+      expect(recheckedPlan2.status).toBe('archived');
+    });
   });
 });

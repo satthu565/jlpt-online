@@ -442,7 +442,8 @@
     },
     "actions": {
       "createPlan": "プランを作成",
-      "replan": "スケジュール再配分"
+      "replan": "スケジュール再配分",
+      "resetPlan": "計画をリセット"
     },
     "finalSprint": {
       "title": "直前追い込み期間",
@@ -513,6 +514,12 @@
       "mockInterval": "模擬試験の頻度",
       "everyXDays": "{days} 日ごとに1回模擬試験",
       "customizeInSettings": "通知設定でカスタマイズ"
+    },
+    "reset": {
+      "title": "学習計画のリセット",
+      "description": "現在の学習計画をキャンセルして新しい目標を設定しますか？これまでの進捗データはアーカイブされ、すぐに新しい計画を作成できます。",
+      "confirmButton": "リセットを確定",
+      "success": "以前の計画を正常にアーカイブしました。新しい学習計画を設定してください。"
     }
   },
   "classroom": {

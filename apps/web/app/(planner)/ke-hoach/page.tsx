@@ -166,6 +166,20 @@ export default function PlannerPage(): React.JSX.Element {
     }
   };
 
+  const handleResetPlan = async (planId: string) => {
+    setError(null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(ACTIVE_PLAN_STORAGE_KEY);
+    }
+    try {
+      await defaultPlannerClient.archiveStudyPlan(planId);
+    } catch (archiveErr) {
+      console.warn('Archive study plan returned:', archiveErr);
+    }
+    setPlan(null);
+    setTodaySession(null);
+  };
+
   const handleReplan = async (planId: string, reason?: string) => {
     setError(null);
     try {
@@ -231,6 +245,7 @@ export default function PlannerPage(): React.JSX.Element {
           onCreatePlan={handleCreatePlan}
           onCompleteSession={handleCompleteSession}
           onReplan={handleReplan}
+          onResetPlan={handleResetPlan}
         />
       </div>
     </div>

@@ -442,7 +442,8 @@
     },
     "actions": {
       "createPlan": "Create Study Plan",
-      "replan": "Replan Schedule"
+      "replan": "Replan Schedule",
+      "resetPlan": "Reset Study Plan"
     },
     "finalSprint": {
       "title": "Final Sprint Period",
@@ -513,6 +514,12 @@
       "mockInterval": "Mock Exam Interval",
       "everyXDays": "Every {days} days",
       "customizeInSettings": "Customize in Notification Settings"
+    },
+    "reset": {
+      "title": "Reset Study Plan",
+      "description": "Are you sure you want to cancel the current plan and set up a new one? Previous progress will be archived and you can create a new plan immediately.",
+      "confirmButton": "Confirm Reset",
+      "success": "Previous plan archived successfully. You can now set up a new study plan!"
     }
   },
   "classroom": {

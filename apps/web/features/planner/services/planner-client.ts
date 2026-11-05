@@ -3,7 +3,6 @@ import type {
   CreateStudyPlanInput,
   ReplanRequest,
   ReplanResult,
-  StudySession,
   CompleteSessionInput,
   CompleteSessionResult,
   ReminderInfo,
@@ -94,6 +93,10 @@ export class PlannerClient {
       `/me/study-sessions/${encodeURIComponent(sessionId)}/completion`,
       input,
     );
+  }
+
+  public async archiveStudyPlan(planId: string): Promise<{ archived: boolean }> {
+    return this.request<{ archived: boolean }>('DELETE', `/me/study-plans/${encodeURIComponent(planId)}`);
   }
 
   public async getReminders(planId: string): Promise<ReminderInfo> {

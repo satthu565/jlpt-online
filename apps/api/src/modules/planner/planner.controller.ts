@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -30,6 +31,24 @@ export class PlannerController {
   ) {
     const userId = user?.userId ?? 'default-user-id';
     return this.plannerService.createStudyPlan(userId, dto);
+  }
+
+  @Delete(['me/study-plans/:id', 'api/v1/me/study-plans/:id'])
+  async archiveStudyPlan(
+    @CurrentUser() user: AuthUserContext,
+    @Param('id') id: string,
+  ) {
+    const userId = user?.userId ?? 'default-user-id';
+    return this.plannerService.archiveStudyPlan(userId, id);
+  }
+
+  @Post(['me/study-plans/:id/archive', 'api/v1/me/study-plans/:id/archive'])
+  async archiveStudyPlanPost(
+    @CurrentUser() user: AuthUserContext,
+    @Param('id') id: string,
+  ) {
+    const userId = user?.userId ?? 'default-user-id';
+    return this.plannerService.archiveStudyPlan(userId, id);
   }
 
   @Get(['me/study-plans/:id', 'api/v1/me/study-plans/:id'])
