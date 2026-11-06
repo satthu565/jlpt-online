@@ -93,7 +93,7 @@ async function login(role) {
   try {
     await raw('POST', '/api/v1/auth/totp/challenge', { code: totp(secret) }, auth);
   } catch (err) {
-    if (!/\(m[a-z0-9_ -]+c[u\u0169]\)/iu.test(err.message)) throw err;
+    if (!err.message.includes('mã cũ') && !err.message.includes('mã mới')) throw err;
     await new Promise((resolve) => setTimeout(resolve, 31000 - (Date.now() % 30000)));
     await raw('POST', '/api/v1/auth/totp/challenge', { code: totp(secret) }, auth);
   }
