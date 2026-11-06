@@ -1,0 +1,81 @@
+{
+  "slug": "n1-2017-07",
+  "examId": "6ca1b465-6a51-47d8-a40b-60b6a7ae3e80",
+  "publishedVersion": 2,
+  "fixes": [
+    {
+      "number": 33,
+      "replacements": [
+        {
+          "before": "歓迎会に失敗だった",
+          "after": "歓迎会は失敗だった"
+        }
+      ],
+      "questionId": "ee20a051-9c67-4e24-a6a2-e6874125bbe6",
+      "groupId": "adbd738b-5782-41d7-aa74-6d0cd92af1a0",
+      "correctOption": 2,
+      "baselineHash": "39aeca63a68d2f4d58cd9a31295f7a89adf1db39b410b59f967414026ce64ced"
+    },
+    {
+      "number": 75,
+      "replacements": [
+        {
+          "before": "他社のかと並べて",
+          "after": "他社のと並べて"
+        }
+      ],
+      "questionId": "3c015a68-86c3-4b6b-a2b4-c50b2e218339",
+      "groupId": "4246dfe7-ffe2-45e4-ad4e-67363c1f514d",
+      "correctOption": 1,
+      "baselineHash": "22f0f423eb177db582f7aead22baa714bb6ea0008a85191be34f5dc4170c25e4",
+      "explanationHash": "6784fe09df4c24944b4bee2a731e38d77c2bf0e0817c1527e75812563890599a"
+    },
+    {
+      "number": 79,
+      "replacements": [
+        {
+          "before": "大人とお子供",
+          "after": "大人と子供"
+        },
+        {
+          "before": "何もしないでぼんやり",
+          "after": "何もせずにぼんやり"
+        }
+      ],
+      "questionId": "a10e7a2b-4319-4a16-ac62-1db7643874b9",
+      "groupId": "486788a0-5ebf-4671-a44b-ff928d465d11",
+      "correctOption": 1,
+      "baselineHash": "e048a92dd8b13d5c9fa6ada4b5a7a560f73ca88d6c63e6794a353ecf1e171e2e",
+      "explanationHash": "5b4d567b57c7348eaf6d9167f75c3fced3f43f38e72cfdc29390a876116f3fb9"
+    },
+    {
+      "number": 104,
+      "replacements": [
+        {
+          "before": "消費者に魅せる",
+          "after": "消費者に見せる"
+        }
+      ],
+      "questionId": "d6c05936-d341-4beb-aeb7-4990ff8e9246",
+      "groupId": "c2b017cd-d354-46ee-af9a-313a327cc06c",
+      "correctOption": 2,
+      "baselineHash": "270d3df7eea1d0b35a3ec400fe35350696e5912b3e131177a70d7defc368b031",
+      "explanationHash": "34bc19d630b0058522158519de33143279d5603e0d92da1faae96828bc720f16"
+    },
+    {
+      "number": 105,
+      "replacements": [
+        {
+          "before": "消費者に魅せる",
+          "after": "消費者に見せる"
+        }
+      ],
+      "questionId": "b765a30c-9736-427a-a073-5d0cd153ecfc",
+      "groupId": "c2b017cd-d354-46ee-af9a-313a327cc06c",
+      "correctOption": 3,
+      "baselineHash": "b3ccdbdb9a2d3c9ba5f97b8fa51f811ec0617f2adef6f8a908ad2e0c53c7e46f",
+      "explanationHash": "13f04f360d19168966d56181974bd466e35991ccec5ffaf9f213012fc019d3ba",
+      "explanationOnly": true
+    }
+  ]
+}
