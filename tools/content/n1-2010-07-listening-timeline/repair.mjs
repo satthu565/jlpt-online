@@ -100,11 +100,6 @@ async function login(role) {
   return auth;
 }
 
-function queryDb(sql) {
-  const cmd = `sudo -n docker exec -i jlpt-staging-postgres psql -U jlpt -d jlpt_staging -t -A -c "${sql.replace(/"/g, '\\"')}"`;
-  return execSync(cmd, { encoding: 'utf8' }).trim();
-}
-
 function executeDb(sql) {
   const cmd = `sudo -n docker exec -i jlpt-staging-postgres psql -U jlpt -d jlpt_staging -v ON_ERROR_STOP=1`;
   execSync(cmd, { input: sql, encoding: 'utf8' });
