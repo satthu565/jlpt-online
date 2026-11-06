@@ -1,6 +1,6 @@
 # N2 kanji and vocabulary audit and versioned correction
 
-Review date: 2026-11-06. Owner requested autonomous review, correction and a second reading of all N2 kanji/vocabulary questions. Scope: **31 exams, 964 questions**. The manifest corrects **274 questions in 30 exams**, including **188 blank representation fixes**, **34 underline boundary fixes**, transcription repairs and **48 explanation updates**. No answer index changes.
+Review date: 2026-11-06. Owner requested autonomous review, correction and a second reading of all N2 kanji/vocabulary questions. Scope: **31 exams, 964 questions**. The manifest corrects **277 questions in 31 exams**, including **188 blank representation fixes**, **34 underline boundary fixes**, transcription repairs and **52 explanation updates**. No answer index changes.
 
 December 2018 has **28 explanations belonging to unrelated questions**. Each is replaced with a translation of the actual question, its correct rationale, and three reasons addressing the actual distractors. The two explanations that already match their questions are retained.
 
@@ -10,6 +10,8 @@ Dictionary references used during review:
 
 - https://www.kanjipedia.jp/kotoba/0004221300 (相互 / ソウゴ)
 - https://www.kanjipedia.jp/kanji/0006192900 (平 / ヘイ・ビョウ)
+- https://www.kanjipedia.jp/kotoba/0004133500 (全般 / ゼンパン)
+- https://www.kanjipedia.jp/kanji/0003557300 (織: 糸 + 戠)
 
 The manifest pins question IDs, exact versions, content and publication versions. All mutations go through editor/reviewer/publisher APIs, creating new approved question/group/explanation versions and new exam snapshots. Do not update old published rows or snapshots. API plan detects concurrent edits; rebuild publication pins only after confirming question content is unchanged, and capture a fresh immutable baseline immediately before applying.
 

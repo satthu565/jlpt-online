@@ -8,7 +8,9 @@
   "keyChanges": [],
   "references": [
     "https://www.kanjipedia.jp/kotoba/0004221300",
-    "https://www.kanjipedia.jp/kanji/0006192900"
+    "https://www.kanjipedia.jp/kanji/0006192900",
+    "https://www.kanjipedia.jp/kotoba/0004133500",
+    "https://www.kanjipedia.jp/kanji/0003557300"
   ],
   "fixes": [
     {
@@ -17328,6 +17330,502 @@
       ]
     },
     {
+      "slug": "n2-2011-12",
+      "number": 10,
+      "examId": "5e6c7af1-1e9c-4ce3-a21c-75953ce48d74",
+      "publishedVersion": 3,
+      "groupId": "1405afec-ccfa-4899-a44c-1267fc704c43",
+      "questionId": "2054e2a8-0a9d-44f8-af01-68f7b9b2da06",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この二つの会社は、同じ企業グループに"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "ぞくして"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "いる。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "続して"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "属して"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "族して"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "束して"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Hai công ty này trực thuộc cùng một tập đoàn doanh nghiệp."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] 属して"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「属する」（thuộc về, trực thuộc）viết bằng chữ Hán「属」(THUỘC). Dạng te là「属している」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 続して: Sai chữ Hán; chữ「続」(TỤC - liên tục, tiếp tục) trong「続く/続ける」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 族して: Sai chữ Hán; chữ「族」(TỘC - gia tộc, thị tộc) như trong「家族」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 束して: Sai chữ Hán; chữ「束」(THÚC - bó lại, ràng buộc) như trong「約束」hay「花束」."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この二つの会社は、同じ企業グループに"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "ぞくして"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "いる。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "続して"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "属して"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "族して"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "束して"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Hai công ty này trực thuộc cùng một tập đoàn doanh nghiệp."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] 属して"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「属する」（thuộc về, trực thuộc）viết bằng chữ Hán「属」(THUỘC). Dạng て là「属して」; ghép với いる thành「属している」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 続して: Sai chữ Hán; chữ「続」(TỤC - liên tục, tiếp tục) trong「続く/続ける」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 族して: Sai chữ Hán; chữ「族」(TỘC - gia tộc, thị tộc) như trong「家族」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 束して: Sai chữ Hán; chữ「束」(THÚC - bó lại, ràng buộc) như trong「約束」hay「花束」."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Correct linguistic error in explanation"
+      ]
+    },
+    {
+      "slug": "n2-2012-12",
+      "number": 9,
+      "examId": "decb3df6-f370-46b3-a0ee-8f2b8b50b914",
+      "publishedVersion": 2,
+      "groupId": "aec396bc-c8cd-4f5b-a140-d22dab57e160",
+      "questionId": "3867afa6-0c85-46dd-a14e-f77ab6194883",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "そしき"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "が大きくなると、運営も大変になる。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "祖識"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "組識"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "組織"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "祖織"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Khi tổ chức trở nên lớn mạnh/quy mô to lớn thì việc điều hành cũng trở nên vất vả hơn."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 組織"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「そしき」(tổ chức, cơ cấu) viết bằng chữ Hán là「組織」(Tổ chức: chữ Tổ có bộ mịch 糸, chữ Chức có bộ mịch 糸 và âm 職)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 祖識: Viết sai cả chữ Tổ (bộ thị 礻 là tổ tiên) và chữ Thức (bộ ngôn 言 là tri thức)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 組識: Chữ thứ nhất dùng chữ「組」(tổ trong tổ hợp), chữ thứ hai dùng chữ「識」(thức)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 祖織: Chữ thứ nhất sai chữ「祖」(bộ thị 礻 thay vì bộ mịch 糸 trong 組/組む)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "そしき"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "が大きくなると、運営も大変になる。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "祖識"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "組識"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "組織"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "祖織"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Khi tổ chức trở nên lớn mạnh/quy mô to lớn thì việc điều hành cũng trở nên vất vả hơn."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 組織"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「そしき」(tổ chức, cơ cấu) viết bằng chữ Hán là「組織」(Tổ chức: chữ Tổ có bộ mịch 糸, chữ Chức gồm bộ mịch 糸 và thành phần biểu âm 戠)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 祖識: Viết sai cả chữ Tổ (bộ thị 礻 là tổ tiên) và chữ Thức (bộ ngôn 言 là tri thức)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 組識: Chữ thứ nhất dùng chữ「組」(tổ trong tổ hợp), chữ thứ hai dùng chữ「識」(thức)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 祖織: Chữ thứ nhất sai chữ「祖」(bộ thị 礻 thay vì bộ mịch 糸 trong 組/組む)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Correct linguistic error in explanation"
+      ]
+    },
+    {
       "slug": "n2-2013-07",
       "number": 16,
       "examId": "536394c1-bb25-4972-a096-69130206d626",
@@ -17896,6 +18394,247 @@
       },
       "reasons": [
         "Correct linguistic error in explanation"
+      ]
+    },
+    {
+      "slug": "n2-2013-12",
+      "number": 13,
+      "examId": "c92d168e-a764-470f-ae9b-828103b2f63d",
+      "publishedVersion": 3,
+      "groupId": "b8249f11-cfd0-4e3e-ae89-fdf233af9cb5",
+      "questionId": "4c33ca9f-ac87-488c-a2de-1d61a4128042",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "歌謡曲からクラシックまで、音楽（"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "）に興味があります。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "共同"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "全面"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "共通"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "全般"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Từ nhạc thịnh hành cho đến cổ điển, tôi có hứng thú với âm nhạc nói chung (toàn bộ các thể loại âm nhạc)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 全般"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Hậu tố 「全般」（TOÀN BAN - ぜんばん）đứng sau danh từ chỉ một lĩnh vực, mang nghĩa 'nói chung, toàn bộ': 「音楽全般」（âm nhạc nói chung, mọi thể loại âm nhạc)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 共同: 「共同」（CỘNG ĐỒNG - きょうどう）nghĩa là cùng nhau, dùng trong 共同生活, 共同研究."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 全面: 「全面」（TOÀN DIỆN - ぜんめん）nghĩa là toàn diện, tất cả các mặt, dùng như 全面的に."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 共通: 「共通」（CỘNG THÔNG - きょうつう）nghĩa là điểm chung, chung, dùng trong 共通点."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "歌謡曲からクラシックまで、音楽"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "に興味があります。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "共同"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "全面"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "共通"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "全般"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Từ nhạc thịnh hành cho đến cổ điển, tôi có hứng thú với âm nhạc nói chung (toàn bộ các thể loại âm nhạc)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 全般"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Hậu tố 「全般」（TOÀN BAN - ぜんぱん）đứng sau danh từ chỉ một lĩnh vực, mang nghĩa 'nói chung, toàn bộ': 「音楽全般」（âm nhạc nói chung, mọi thể loại âm nhạc)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 共同: 「共同」（CỘNG ĐỒNG - きょうどう）nghĩa là cùng nhau, dùng trong 共同生活, 共同研究."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 全面: 「全面」（TOÀN DIỆN - ぜんめん）nghĩa là toàn diện, tất cả các mặt, dùng như 全面的に."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 共通: 「共通」（CỘNG THÔNG - きょうつう）nghĩa là điểm chung, chung, dùng trong 共通点."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Correct linguistic error in explanation",
+        "Normalize blank node; avoid literal or duplicate parentheses"
       ]
     },
     {
@@ -18863,6 +19602,258 @@
                 {
                   "t": "text",
                   "text": "- [4] へいどう: Sai âm đọc của chữ「平」(đọc thông thường là へい nhưng trong 平等 bắt buộc phải là びょう)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Correct linguistic error in explanation"
+      ]
+    },
+    {
+      "slug": "n2-2025-12",
+      "number": 3,
+      "examId": "45a7e1c4-b3db-4a7e-a92f-069a07a05672",
+      "publishedVersion": 4,
+      "groupId": "b2cecdad-a76a-4255-a786-a99796c60303",
+      "questionId": "dc1ee651-f4eb-4c30-aa52-9376b23fe50b",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "家具の色は白で"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "統一"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "した。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "とういつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "とういち"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "どういつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "どういち"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Màu sắc của đồ nội thất được thống nhất là màu trắng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] とういつ"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「統一」(thống nhất) đọc là「とういつ」. Chữ「統」đọc là とう, chữ「一」ở đây đọc biến âm là いつ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] とういち: Sai âm của chữ「一」(trong 統一 đọc là いつ, không đọc là いち)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] どういつ: 「どういつ」là cách đọc của「同一」(đồng nhất, cùng một loại)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] どういち: Sai âm của cả chữ 統 (biến thành どう) lẫn chữ 一 (いち)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "家具の色は白で"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "統一"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "した。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "とういつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "とういち"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "どういつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "どういち"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Màu sắc của đồ nội thất được thống nhất là màu trắng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] とういつ"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「統一」(thống nhất) đọc là「とういつ」. Chữ「統」đọc là とう, chữ「一」ở đây có âm On là いつ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] とういち: Sai âm của chữ「一」(trong 統一 đọc là いつ, không đọc là いち)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] どういつ: 「どういつ」là cách đọc của「同一」(đồng nhất, cùng một loại)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] どういち: Sai âm của cả chữ 統 (biến thành どう) lẫn chữ 一 (いち)."
                 }
               ]
             }
@@ -30494,246 +31485,6 @@
                 {
                   "t": "text",
                   "text": "- [4] 離: 「離」（LY）dùng trong 隔離, 分離, không dùng làm hậu tố chỉ điểm khởi hành của tàu."
-                }
-              ]
-            }
-          ],
-          "locale": "vi"
-        }
-      },
-      "reasons": [
-        "Normalize blank node; avoid literal or duplicate parentheses"
-      ]
-    },
-    {
-      "slug": "n2-2013-12",
-      "number": 13,
-      "examId": "c92d168e-a764-470f-ae9b-828103b2f63d",
-      "publishedVersion": 3,
-      "groupId": "b8249f11-cfd0-4e3e-ae89-fdf233af9cb5",
-      "questionId": "4c33ca9f-ac87-488c-a2de-1d61a4128042",
-      "questionVersion": 1,
-      "before": {
-        "stem": [
-          {
-            "t": "text",
-            "text": "歌謡曲からクラシックまで、音楽（"
-          },
-          {
-            "t": "blank"
-          },
-          {
-            "t": "text",
-            "text": "）に興味があります。"
-          }
-        ],
-        "options": [
-          {
-            "orderIndex": 1,
-            "content": [
-              {
-                "t": "text",
-                "text": "共同"
-              }
-            ]
-          },
-          {
-            "orderIndex": 2,
-            "content": [
-              {
-                "t": "text",
-                "text": "全面"
-              }
-            ]
-          },
-          {
-            "orderIndex": 3,
-            "content": [
-              {
-                "t": "text",
-                "text": "共通"
-              }
-            ]
-          },
-          {
-            "orderIndex": 4,
-            "content": [
-              {
-                "t": "text",
-                "text": "全般"
-              }
-            ]
-          }
-        ],
-        "correctOption": 4,
-        "explanation": {
-          "blocks": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Dịch nghĩa: Từ nhạc thịnh hành cho đến cổ điển, tôi có hứng thú với âm nhạc nói chung (toàn bộ các thể loại âm nhạc)."
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Đáp án đúng: [4] 全般"
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "Hậu tố 「全般」（TOÀN BAN - ぜんばん）đứng sau danh từ chỉ một lĩnh vực, mang nghĩa 'nói chung, toàn bộ': 「音楽全般」（âm nhạc nói chung, mọi thể loại âm nhạc)."
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Phân tích các phương án còn lại:"
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [1] 共同: 「共同」（CỘNG ĐỒNG - きょうどう）nghĩa là cùng nhau, dùng trong 共同生活, 共同研究."
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [2] 全面: 「全面」（TOÀN DIỆN - ぜんめん）nghĩa là toàn diện, tất cả các mặt, dùng như 全面的に."
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [3] 共通: 「共通」（CỘNG THÔNG - きょうつう）nghĩa là điểm chung, chung, dùng trong 共通点."
-                }
-              ]
-            }
-          ],
-          "locale": "vi"
-        }
-      },
-      "after": {
-        "stem": [
-          {
-            "t": "text",
-            "text": "歌謡曲からクラシックまで、音楽"
-          },
-          {
-            "t": "blank"
-          },
-          {
-            "t": "text",
-            "text": "に興味があります。"
-          }
-        ],
-        "options": [
-          {
-            "orderIndex": 1,
-            "content": [
-              {
-                "t": "text",
-                "text": "共同"
-              }
-            ]
-          },
-          {
-            "orderIndex": 2,
-            "content": [
-              {
-                "t": "text",
-                "text": "全面"
-              }
-            ]
-          },
-          {
-            "orderIndex": 3,
-            "content": [
-              {
-                "t": "text",
-                "text": "共通"
-              }
-            ]
-          },
-          {
-            "orderIndex": 4,
-            "content": [
-              {
-                "t": "text",
-                "text": "全般"
-              }
-            ]
-          }
-        ],
-        "correctOption": 4,
-        "explanation": {
-          "blocks": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Dịch nghĩa: Từ nhạc thịnh hành cho đến cổ điển, tôi có hứng thú với âm nhạc nói chung (toàn bộ các thể loại âm nhạc)."
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Đáp án đúng: [4] 全般"
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "Hậu tố 「全般」（TOÀN BAN - ぜんばん）đứng sau danh từ chỉ một lĩnh vực, mang nghĩa 'nói chung, toàn bộ': 「音楽全般」（âm nhạc nói chung, mọi thể loại âm nhạc)."
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Phân tích các phương án còn lại:"
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [1] 共同: 「共同」（CỘNG ĐỒNG - きょうどう）nghĩa là cùng nhau, dùng trong 共同生活, 共同研究."
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [2] 全面: 「全面」（TOÀN DIỆN - ぜんめん）nghĩa là toàn diện, tất cả các mặt, dùng như 全面的に."
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [3] 共通: 「共通」（CỘNG THÔNG - きょうつう）nghĩa là điểm chung, chung, dùng trong 共通点."
                 }
               ]
             }
