@@ -151,12 +151,13 @@ export function RichTextView({
             );
           }
 
-          case 'blank':
+          case 'blank': {
+            const label = 'label' in seg ? seg.label?.trim() : undefined;
             return (
               <span
                 key={idx}
                 role="textbox"
-                aria-label={blankAriaLabel}
+                aria-label={label ? `${blankAriaLabel} ${label}` : blankAriaLabel}
                 className="jlpt-blank"
                 style={{
                   display: 'inline-block',
@@ -167,9 +168,10 @@ export function RichTextView({
                   padding: '0 0.25rem',
                 }}
               >
-                ( &nbsp; )
+                {label || <>( &nbsp; )</>}
               </span>
             );
+          }
 
           case 'star':
             return (

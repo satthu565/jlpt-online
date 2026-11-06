@@ -132,3 +132,5 @@ Triệu chứng: tạo lượt làm bằng request không có Origin được, n
 
 - Content repair verifies a newly saved explanation and reports a hash mismatch although its canonical content is correct → `ExplanationDraftSchema` strips imported legacy fields such as `blocks`, `translationVi` and `explanationMarkdown` → parse the planned explanation with the same schema before saving, then compare the full canonical result. Preserve old versions instead of writing around the API.
 - Công cụ hiệu đính N1 dừng trước khi ghi với `admin !== publisher` → publisher là tên tác vụ/tài khoản, API xuất bản yêu cầu vai trò `admin` → kiểm tra tài khoản publisher có role admin; giữ editor/reviewer và TOTP riêng.
+
+- Numbered grammar blanks appear indistinguishable → RichTextView ignored blank.label → render the escaped label, reuse surrounding parentheses, and include the label in the accessible name.
