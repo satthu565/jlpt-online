@@ -112,3 +112,5 @@ Công cụ `tools/content/n1-2018-07/` sửa cách ghi cách đọc ở bài chu
 ### Hiệu đính N1 7/2019 (06/11/2026)
 
 Công cụ `tools/content/n1-2019-07/` sửa `想像カ` (Q46), `狐独` (Q64–Q67), `ベき` (Q61, Q63), transcript Q83/Q104 và thêm gạch chân cụm được hỏi ở Q50, Q54, Q57 qua phiên bản mới, duyệt và xuất bản bằng API. Giữ 104 khóa chấm (kể cả Q20 và Q90 khác bảng nguồn có chủ đích), thứ tự, media và snapshot cũ. Áp dụng sau CI xanh và sao lưu đã kiểm tra.
+
+Bổ sung N1 7/2019 (06/11/2026): `tools/content/n1-2019-07-followup/` đổi `森田カーヅ` thành `森田カーズ` trong transcript Q83 theo lựa chọn của chủ dự án; không đổi khóa chấm.
