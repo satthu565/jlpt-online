@@ -128,8 +128,10 @@ if(mode==='plan') {
  const groups=[],explanations=[],exams=[];
  for(const slug of [...new Set(manifest.fixes.map(f=>f.slug))]){
   const fix=manifest.fixes.find(f=>f.slug===slug),exam=await examGet(slug);
-  assert.equal(exam.publishedVersion,fix.publishedVersion,'Published version changed');
-  exams.push({slug,id:fix.examId,sourceVersion:fix.publishedVersion,totalQuestions:exam.totalQuestions});
+  // Another section may have been published after the review. Exact question
+  // versions/content remain pinned below; preserve the latest public context.
+  assert(exam.publishedVersion>=fix.publishedVersion,'Published version regressed');
+  exams.push({slug,id:fix.examId,sourceVersion:exam.publishedVersion,totalQuestions:exam.totalQuestions});
  }
  const ids=[...new Set(manifest.fixes.map(f=>f.groupId))];
  for(const id of ids){

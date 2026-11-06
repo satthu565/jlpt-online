@@ -13,7 +13,7 @@ Dictionary references used during review:
 - https://www.kanjipedia.jp/kotoba/0004133500 (全般 / ゼンパン)
 - https://www.kanjipedia.jp/kanji/0003557300 (織: 糸 + 戠)
 
-The manifest pins question IDs, exact versions, content and publication versions. All mutations go through editor/reviewer/publisher APIs, creating new approved question/group/explanation versions and new exam snapshots. Do not update old published rows or snapshots. API plan detects concurrent edits; rebuild publication pins only after confirming question content is unchanged, and capture a fresh immutable baseline immediately before applying.
+The manifest pins question IDs, exact versions/content and the publication version observed during review. Planning accepts a later publication of another section while still requiring every target question pin to match; it records the current publication as its guarded source version. All mutations go through editor/reviewer/publisher APIs, creating new approved question/group/explanation versions and new exam snapshots. Do not update old published rows or snapshots. API plan detects concurrent edits; rebuild publication pins only after confirming question content is unchanged, and capture a fresh immutable baseline immediately before applying.
 
 ```bash
 pnpm --filter @jlpt/schema build
