@@ -1,0 +1,43 @@
+{
+  "slug": "n1-2018-07",
+  "examId": "8c90fef1-41df-40f4-a259-c6e014038ab3",
+  "publishedVersion": 3,
+  "fixes": [
+    {
+      "number": 41,
+      "replacements": [
+        {
+          "before": "上うわの空そら",
+          "after": "上の空（うわのそら）"
+        }
+      ],
+      "questionId": "8e752dc0-4058-473b-ade1-5c2ce6a38176",
+      "groupId": "1451dea9-52ac-45f9-aa69-cdc4587e2ec4",
+      "correctOption": 3,
+      "baselineHash": "8fc33dcfc80dd59702fc13d6db66b3b327ceeb64b7c088d1ebd0c4e3d6caa177",
+      "explanationHash": null
+    },
+    {
+      "number": 103,
+      "replacements": [
+        {
+          "before": "あとの他の方法としては",
+          "after": "あと、他の方法としては"
+        },
+        {
+          "before": "好きな絵を真似て書けるように",
+          "after": "好きな絵を真似て描けるように"
+        },
+        {
+          "before": "絵が好きってわけじゃないこの興味",
+          "after": "絵が好きってわけじゃない子の興味"
+        }
+      ],
+      "questionId": "688c6ad7-a6ba-4ebb-a770-a99ff66d3eb2",
+      "groupId": "55b4f6cc-060e-492d-aa23-eef1778acccf",
+      "correctOption": 3,
+      "baselineHash": "c45b0f31c6822759acd2936dec6809ae71d63ee1ef16d1e1a85e29cdfd8f0731",
+      "explanationHash": "825e48d1a14709140818456626db767aad2b78c8af7435d4feae2a5f5c1259af"
+    }
+  ]
+}
