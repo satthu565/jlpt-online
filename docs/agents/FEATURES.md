@@ -92,6 +92,8 @@ Ngày 25/10/2026: thao tác của từng câu trong cuốn đề được gom xu
 
 - Bảo trì N1 7/2010 (05/11/2026): manifest 5 sửa tại Q57, Q85, Q107–Q108; dùng quy trình editor → reviewer → publisher, giữ nguyên khóa đáp án. Bộ công cụ N1 hỗ trợ thư mục phiên chạy riêng qua N1_FIX_WORK_DIR, tránh dùng chung plan/journal giữa các đợt.
 
+- N1 7/2010 v5: prepared exact Q2 underline repair and Q55/Q85 option corrections with matching Q55 explanation quote; answer keys unchanged.
+
 ### N1 July 2012 reviewed content repair (2026-11-05)
 
 - Prepared `tools/content/n1-2012-07/`: restore Q33 distractor and reasoning, correct Q51/Q72/Q73/Q75/Q84/Q85/Q90/Q104 and synchronize stale Q80/Q83/Q105 quotations via versioned admin APIs.
