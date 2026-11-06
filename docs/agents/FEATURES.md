@@ -118,3 +118,8 @@ Bổ sung N1 7/2019 (06/11/2026): `tools/content/n1-2019-07-followup/` đổi `�
 ## N1 kanji/vocabulary content review (2026-11-06)
 
 `tools/content/n1-kanji-vocab-review/` prepares 75 reviewed question corrections across 18 N1 exams, including rich-text blanks, source transcription/underline errors and synchronized explanations. One adjudicated answer correction: July 2019 Q20 (簡素), 1 -> 4. Three other inconsistent reference-sheet labels retain the answer matching the actual question content. Applying requires owner authorization, exact-commit successful CI, validated backup and the existing editor/reviewer/publisher versioning workflow. No application feature flags or database schema changes.
+
+### Rà soát Chữ Hán và Từ vựng N2 (2026-11-06)
+
+- Công cụ sửa nội dung có ghim phiên bản tại `tools/content/n2-kanji-vocab-review/`: rà 31 đề/964 câu, chuẩn bị sửa 277 câu ở 31 đề; 188 câu chuẩn hóa chỗ trống, 28 lời giải đề 12/2018 bị gắn nhầm nội dung. Giữ nguyên toàn bộ số đáp án.
+- Áp dụng qua API tạo phiên bản mới sau CI và sao lưu; có kiểm chứng dữ liệu lịch sử, snapshot và đáp án trước/sau. Trạng thái áp dụng thực tế được ghi trong báo cáo vận hành riêng.
