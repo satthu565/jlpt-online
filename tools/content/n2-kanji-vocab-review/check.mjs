@@ -30,3 +30,8 @@ for(const f of m.fixes){
 }
 assert.equal(m.fixes.filter(f=>f.reasons.some(r=>r.startsWith('Replace unrelated'))).length,28);
 console.log(JSON.stringify({verified:true,questions:seen.size,exams:new Set(m.fixes.map(f=>f.slug)).size,blanks,explanations,answerChanges:0}));
+
+// Moving な out of the stem must preserve the correct explanatory example.
+const aimai=m.fixes.find(f=>f.slug==='n2-2019-07'&&f.number===16);
+assert.deepEqual(aimai.after.explanation,aimai.before.explanation);
+assert(text(aimai.after.explanation).includes('あいまいな返事'));
