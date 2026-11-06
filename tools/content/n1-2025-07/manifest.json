@@ -1,0 +1,527 @@
+{
+  "slug": "n1-2025-07",
+  "examId": "f4f25c0c-bd89-4ac0-a060-51fcfe2dc300",
+  "publishedVersion": 4,
+  "fixes": [
+    {
+      "number": 18,
+      "replacements": [
+        {
+          "before": "あきれたあような",
+          "after": "あきれたような"
+        }
+      ],
+      "questionId": "39a52b87-5f45-4dbb-a636-e239db7e6ee5",
+      "groupId": "9b3221e5-3b06-4ec9-af96-ab4a8e6a5d27",
+      "correctOption": 3,
+      "baselineHash": "2c0b39243ae9255dcec1062cbfd256a3a5d20afac2328a0c58d3761586611a12",
+      "explanationHash": "b1c070a31aaa9025f1635d36997ae40913285fd43d2c157374cb7fed08b75a82"
+    },
+    {
+      "number": 53,
+      "replacements": [
+        {
+          "before": "モチベーションへ（注2）の責任",
+          "after": "モチベーションへの責任（注2）"
+        },
+        {
+          "before": "「好きか、嫌いか」に判断する",
+          "after": "「好きか、嫌いか」で判断する"
+        }
+      ],
+      "questionId": "046ba86c-14d5-4965-a465-73e3ea0d2b0c",
+      "groupId": "74afc9b9-75c7-448b-a29a-49055150caba",
+      "correctOption": 4,
+      "baselineHash": "0e5f6fcc6d2ec27083f56571a77c75c2b25f568952a5df509dd33952dbe3ef78",
+      "explanationHash": ""
+    },
+    {
+      "number": 58,
+      "replacements": [
+        {
+          "before": "知識をのかなものにする",
+          "after": "知識を確かなものにする"
+        }
+      ],
+      "questionId": "3383709c-4f8a-4960-aeac-38e09ea0e125",
+      "groupId": "d29163cb-11a5-456a-ab53-4a49050b3afe",
+      "correctOption": 2,
+      "baselineHash": "30dc987114b59b4abb199e7d73bb71760bd81c381f00441b4d2e769db556b6d9",
+      "explanationHash": "0af730e13ace04efc76ac3dd8afc193ba5f00d3ca42a09ec073e7e30d5a2f6ee"
+    },
+    {
+      "number": 62,
+      "replacements": [
+        {
+          "before": {
+            "t": "ruby",
+            "rt": "いき",
+            "text": "粋"
+          },
+          "after": {
+            "t": "ruby",
+            "rt": "はかり",
+            "text": "秤"
+          }
+        }
+      ],
+      "questionId": "5b10ad70-d7df-4fad-a684-01d0d7a4ed64",
+      "groupId": "4474f042-b076-42fd-ac0b-f6e65406dc6a",
+      "correctOption": 1,
+      "baselineHash": "f61fead32d45b3dac99645f74ee7d9c2eeed55a5737e12f0bce027401ee802e4",
+      "explanationHash": ""
+    },
+    {
+      "number": 70,
+      "replacements": [
+        {
+          "before": "その方が売り上げを伸ばした理由がわかりやすい",
+          "after": "その方が売り上げの落ちた理由がわかりやすい"
+        },
+        {
+          "before": "最後のリスクの分析はなかなか出来なんじゃないかな",
+          "after": "最後のリスクの分析は、なかなかの出来なんじゃないかな"
+        }
+      ],
+      "questionId": "379805b7-e970-4a4e-acad-ddeb7b0145be",
+      "groupId": "28cf3fa7-6d91-44f8-a7f8-b477b574cd99",
+      "correctOption": 2,
+      "baselineHash": "ab0605b8fbcd3cb50299c92737871e2decda68ebf90369bfdcab633465c61630",
+      "explanationHash": "3eb248358e56962b957a4ac81fba212ec32f031febda7fd051891c81356d23d9"
+    },
+    {
+      "number": 71,
+      "replacements": [
+        {
+          "before": "スタンプは前イベントで使った",
+          "after": "スタンプは前のイベントで使った"
+        },
+        {
+          "before": "使ったのあるから",
+          "after": "使ったのがあるから"
+        }
+      ],
+      "questionId": "1e0dfa34-09be-4cd0-a40c-fe180708b01f",
+      "groupId": "aa794f38-bf8b-4db8-ab1d-b75f0c1823d8",
+      "correctOption": 3,
+      "baselineHash": "c8cf179864c0e631069919a0c6406ad4bdb75a1d85f118882b3c81e39a164fb7",
+      "explanationHash": "e0439c9849e5a1acac91261409275b401cc69721dfb6d95461afdc4bf3b7bb0f"
+    },
+    {
+      "number": 74,
+      "replacements": [
+        {
+          "before": "僕も3年生の時もやったよ",
+          "after": "僕も3年生の時にやったよ"
+        },
+        {
+          "before": "記録会があって、盛り上がるよね",
+          "after": "記録会があって、盛り上がるんだよね"
+        }
+      ],
+      "questionId": "a6c0c90f-3073-4775-a3cd-716b6a330b7e",
+      "groupId": "c0dbf9ce-75aa-4a47-a5c1-b2aeda40eb93",
+      "correctOption": 3,
+      "baselineHash": "2f2958ada4a5a4e808ab00cb0e8f859d913c085f426382d9a84a001ca1b4ebcd",
+      "explanationHash": "156e23e0a9e69c5d0fa0671aab6c528d0e9e9c6a85242f5e0e7ff99ee371ced9"
+    },
+    {
+      "number": 78,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "野鳥の観察の楽しみ方"
+        },
+        {
+          "before": "選択肢2",
+          "after": "自然公園で育つ植物"
+        },
+        {
+          "before": "選択肢3",
+          "after": "自然公園を歩く時の注意点"
+        },
+        {
+          "before": "選択肢4",
+          "after": "野鳥の保護の必要性"
+        }
+      ],
+      "questionId": "fdfc85a9-bfc6-46d9-a6e8-4f5754eade46",
+      "groupId": "de3fb6d3-2e2b-4bc9-aaee-a13c379fe337",
+      "correctOption": 1,
+      "baselineHash": "64be365aef74134d962a0ef38535bebfcbd06d5833fe65d9b1453626954c06ff",
+      "explanationHash": "7b90b51398abfcea27f9065d80419638b011b7990033dfa1b7ba24828d831a87"
+    },
+    {
+      "number": 79,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "デザインの特徴"
+        },
+        {
+          "before": "選択肢2",
+          "after": "技術開発の難しさ"
+        },
+        {
+          "before": "選択肢3",
+          "after": "重大な事故の危険性"
+        },
+        {
+          "before": "選択肢4",
+          "after": "地方での活用への期待"
+        }
+      ],
+      "questionId": "130b94e0-0d5b-4808-a923-91663926b176",
+      "groupId": "c5f020d4-bafe-4361-a273-37e1f31aaa2e",
+      "correctOption": 4,
+      "baselineHash": "7be1edf787a462bc4f1556d1816f083dd8a37a934210c674b64439afd512e981",
+      "explanationHash": "8bb8af2d9e67f5791c662e0adb198ee76b038e1fc875032d3d832b7e77210e53"
+    },
+    {
+      "number": 80,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "醤油の作り方"
+        },
+        {
+          "before": "選択肢2",
+          "after": "醤油の製造に適した地方"
+        },
+        {
+          "before": "選択肢3",
+          "after": "地方によって異なる醤油の味"
+        },
+        {
+          "before": "選択肢4",
+          "after": "醤油の上手な選び方"
+        }
+      ],
+      "questionId": "826ca759-09f6-4f8e-afbd-07b90429f20e",
+      "groupId": "d2dc4362-0712-45b9-adde-bdc4487d0179",
+      "correctOption": 3,
+      "baselineHash": "d8bacd5763e25ff46074eb50b587a23133a86ba7369f4c77b8357995c33b6ddd",
+      "explanationHash": "7629210b42c75fb35ed9e41fe278e0163c1a4b82fb6d53279a98f7c602300141"
+    },
+    {
+      "number": 81,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "家具職人としてのこだわり"
+        },
+        {
+          "before": "選択肢2",
+          "after": "家具に使用される木の種類"
+        },
+        {
+          "before": "選択肢3",
+          "after": "木の家具の手入れの仕方"
+        },
+        {
+          "before": "選択肢4",
+          "after": "家具職人の大変さ"
+        }
+      ],
+      "questionId": "59108a33-4266-451d-a567-f85737d3d602",
+      "groupId": "68641a7a-24b5-430b-a139-6403cca1d558",
+      "correctOption": 1,
+      "baselineHash": "6111eb7e3bc2373e76bbee38877bd426c4cf490ab99b0d7db155b5a2855300c9",
+      "explanationHash": "e5b929350207e0f1fb6ba0f6c8f2e63222dd34eca7acb40dced67069a0c211be"
+    },
+    {
+      "number": 82,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "今後の公衆電話に必要な機能"
+        },
+        {
+          "before": "選択肢2",
+          "after": "災害時の公衆電話のかけ方"
+        },
+        {
+          "before": "選択肢3",
+          "after": "公衆電話を利用する時の注意点"
+        },
+        {
+          "before": "選択肢4",
+          "after": "公衆電話が完全に無くならない理由"
+        }
+      ],
+      "questionId": "1d1f6ad7-1ce1-41f0-a322-10d14d8d0715",
+      "groupId": "81978c76-218a-42af-a464-48deabccb180",
+      "correctOption": 4,
+      "baselineHash": "0bdf0ccf396bd1e83487728ee3a25141039c2d659ff188b97ac1aa2c1a961e0b",
+      "explanationHash": "f31cfa258c81e55f5d86d5ac0103565a82e768341a483c2d6c1ed243e4c629bc"
+    },
+    {
+      "number": 83,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "コミュニケーションがうまく取れてるんですね"
+        },
+        {
+          "before": "選択肢2",
+          "after": "二人気が合ってていいね"
+        },
+        {
+          "before": "選択肢3",
+          "after": "会議で言い合いになってたってよ"
+        }
+      ],
+      "questionId": "8af44944-eabf-4e77-a298-8ae9ef1822c1",
+      "groupId": "a057b984-9946-4921-aef1-c498744a5885",
+      "correctOption": 3,
+      "baselineHash": "8139b9216a3131f31c5632ea24d101230bfd37238a903914c8e41a0717b37857",
+      "explanationHash": "237ac54aed7f4ccf717aefe7cc871029c971709086828453adeb479f6a07ebb3"
+    },
+    {
+      "number": 84,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "人は足りてるから大丈夫だよ"
+        },
+        {
+          "before": "選択肢2",
+          "after": "じゃ、日曜日待ってるね"
+        },
+        {
+          "before": "選択肢3",
+          "after": "日曜日に手伝ってくれるの？"
+        }
+      ],
+      "questionId": "1cd7abef-8506-4bf9-aa18-68f809f9f85d",
+      "groupId": "4c15c6a1-6189-4205-a9e3-0f03342f3b46",
+      "correctOption": 1,
+      "baselineHash": "a3cffcb361dd1f8cf8bf6639a48faf4f47769e60f70e90f94e3564c02ed07caf",
+      "explanationHash": "e7570b88d9a4c0e381ccf3a23ea472854c16a0f48051cb6fa0c52a59bf3789d0"
+    },
+    {
+      "number": 85,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "お茶足りて良かったですね"
+        },
+        {
+          "before": "選択肢2",
+          "after": "古いものは捨てておきます"
+        },
+        {
+          "before": "選択肢3",
+          "after": "あ、全然ありませんか？すぐ注文します"
+        }
+      ],
+      "questionId": "d14a85b8-5bd8-4edf-a7b9-89973736842c",
+      "groupId": "0203ef1b-a433-40cb-a470-04c1db12f5e4",
+      "correctOption": 3,
+      "baselineHash": "e526f1e583771c4e92484a3f8e8903c2007d4d64a4ba257eef6dfe55700104d3",
+      "explanationHash": "620aac6c783721498c2c82bccdf2a6abff6720baa11cd7e1e9f4e80ed8a77803"
+    },
+    {
+      "number": 86,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "そのうち慣れますよ"
+        },
+        {
+          "before": "選択肢2",
+          "after": "慣れるの早いですね"
+        },
+        {
+          "before": "選択肢3",
+          "after": "少し慣れてきたんですね"
+        }
+      ],
+      "questionId": "40ff6dfc-2cea-4489-ab2f-ca82986ccda9",
+      "groupId": "f3000700-507b-42dd-a81d-0c91fb98dd2f",
+      "correctOption": 1,
+      "baselineHash": "77ee091d9174fa9482e07c4de51b6cdef5302b9fcaca4132940b78268fb40d31",
+      "explanationHash": "3d1c64e6156395ead240c02ba2035650b2448b497fddb60ad6d8435976113732"
+    },
+    {
+      "number": 87,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "すぐに？どうしたんだろうね"
+        },
+        {
+          "before": "選択肢2",
+          "after": "しばらくは体育館にいたんだね"
+        },
+        {
+          "before": "選択肢3",
+          "after": "体育館に入って来なかったの？"
+        }
+      ],
+      "questionId": "ed42954d-fa8d-4b57-a208-4808d8d70f71",
+      "groupId": "dffcf91f-d48d-493a-a67a-5a946f9a8bc4",
+      "correctOption": 1,
+      "baselineHash": "9f57e31c349c865a264a3495a628a6a2681cf227eac7f9a4b40e5cb7be844a9d",
+      "explanationHash": "44f81094ac8cb1b41ddd1fb74a6fd85b38d1cedb8099ca93bc27d1430ef7eb34"
+    },
+    {
+      "number": 88,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "困りましたね。すぐに対策を考えないとね"
+        },
+        {
+          "before": "選択肢2",
+          "after": "全く問題ないんですね。それは安心しました"
+        },
+        {
+          "before": "選択肢3",
+          "after": "スケジュールにちょっと遅れが出ているんですね"
+        }
+      ],
+      "questionId": "c34adc90-39d7-4132-a0e8-0c364b5d2d1d",
+      "groupId": "879df614-1257-41f7-a48b-4eb04b8a39fd",
+      "correctOption": 2,
+      "baselineHash": "c2aaf5d3c72c3c807ba94fe099493d6cf98cf6585e4ff8478e484c756e57b31a",
+      "explanationHash": ""
+    },
+    {
+      "number": 89,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "残念だけど、仕方ないですね"
+        },
+        {
+          "before": "選択肢2",
+          "after": "山田さんがいてくれたらよかったですね"
+        },
+        {
+          "before": "選択肢3",
+          "after": "本当、山田さんのおかげですね"
+        }
+      ],
+      "questionId": "687b57b7-561a-4699-a1a4-5213f3f13470",
+      "groupId": "9b9e3b8b-afb3-420f-a4be-39bcc252fca7",
+      "correctOption": 3,
+      "baselineHash": "07c57f30920660a33350d4b75d7baddd83c98b167e558321b94a29a5a48cf441",
+      "explanationHash": "d360d3dd2c981b6255165a41e27b41d022e016c8583ca570a1538c0f2be43092"
+    },
+    {
+      "number": 90,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "やっぱりまくらを変えたくらいじゃ変わらないんだ"
+        },
+        {
+          "before": "選択肢2",
+          "after": "いびきが小さくなったの？"
+        },
+        {
+          "before": "選択肢3",
+          "after": "まくらでそんなに違うんだ"
+        }
+      ],
+      "questionId": "c5e0fdea-abc9-49e4-ae18-86f10fc0ac0e",
+      "groupId": "a9271e2c-5c07-4b0a-a872-302eea766727",
+      "correctOption": 3,
+      "baselineHash": "b6c1a88c0dfebd160b70480734140c4680c50e6caa07aa72d7b71976ea1b8ad5",
+      "explanationHash": "58f10094721e84421800843751f79a9273b4c0d57a01661cac0729eafcfc0918"
+    },
+    {
+      "number": 91,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "仕事で役に立つものがいいね"
+        },
+        {
+          "before": "選択肢2",
+          "after": "資格なら何でもいいって話？"
+        },
+        {
+          "before": "選択肢3",
+          "after": "仕事で使えなくてもいいんだ"
+        }
+      ],
+      "questionId": "baf1449a-f68a-4086-ae8a-72336844b9e8",
+      "groupId": "43060ccb-4ac4-4cca-a142-5b2d912cbdf9",
+      "correctOption": 1,
+      "baselineHash": "1287095070da8edaeeab6eeb209d8bdf510bb952379834eb3724602db5d746b1",
+      "explanationHash": "960ce3dc58618e52ac32a53741f51bee9ced5d997e70ddeaf90bf76b63d71d38"
+    },
+    {
+      "number": 92,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "昔とは違う方法で作ってるんだね"
+        },
+        {
+          "before": "選択肢2",
+          "after": "へー、昔からずっと変わらないんだ"
+        },
+        {
+          "before": "選択肢3",
+          "after": "最新の技術を導入してるなんてすごいね"
+        }
+      ],
+      "questionId": "b7f9605a-50c9-47d4-a08d-2fbbf1fbdea0",
+      "groupId": "48a923fb-5678-4ef4-ad9d-5c9bb4a880c2",
+      "correctOption": 2,
+      "baselineHash": "bdb0af5f377a1bee4d3abdfb9d9faf26ab0f0be5bc9b97a7ea64c6097c0a415d",
+      "explanationHash": "61cf03df91a653a41cdd325952879dab784567e9258d977b852b64380e160760"
+    },
+    {
+      "number": 93,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "何もサポートの必要がないんですね"
+        },
+        {
+          "before": "選択肢2",
+          "after": "つい手伝いたくなっちゃいますよね"
+        },
+        {
+          "before": "選択肢3",
+          "after": "もう1人でできるようになったんですね"
+        }
+      ],
+      "questionId": "e485fb96-0cb9-4c53-a81a-a46d4e6e80c5",
+      "groupId": "4c0317c4-43e7-429e-a4f5-8b2ebe6b811a",
+      "correctOption": 2,
+      "baselineHash": "9d572b0bdfd98321ffda6e9b42ca94701de465fee1bb80eace1b9177c20dfb1b",
+      "explanationHash": "12bd543d431819948e78dc4bb44721b70042f77544a6300b8f22a4171712b300"
+    },
+    {
+      "number": 94,
+      "replacements": [
+        {
+          "before": "選択肢1",
+          "after": "1番コース"
+        },
+        {
+          "before": "選択肢2",
+          "after": "2番コース"
+        },
+        {
+          "before": "選択肢3",
+          "after": "3番コース"
+        },
+        {
+          "before": "選択肢4",
+          "after": "4番コース"
+        }
+      ],
+      "questionId": "60b35656-372b-4802-afe2-93bcffaf846c",
+      "groupId": "4a59ec43-8062-4409-ad6c-4f5d1f0e866a",
+      "correctOption": 2,
+      "baselineHash": "7e06ebe4c01bcb6d3af430f4aab92fa6a85608b02780ad534db9dd978c150933",
+      "explanationHash": "9f9f67941acbe5d3e68cbbfa208352328195d61f161f18e54450271797391e47"
+    }
+  ]
+}
