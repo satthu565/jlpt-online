@@ -43,6 +43,8 @@ Menu và quyền của từng mục khai báo ở `apps/admin/lib/navigation.ts`
 
 Bảo trì dữ liệu đề: các script `fix-confirmed-answer-keys.ts`, `fix-confirmed-content-issues.ts`, `fix-disputed-n1-answers.ts`, `sync-n1-answer-explanations.ts` và `sync-n2-answer-explanations.ts` trong `apps/api/src/scripts/` tạo phiên bản nội dung mới, qua dấu vết editor/reviewer riêng biệt rồi xuất bản lại đề; không ghi đè dữ liệu của phiên bản đã xuất bản. Script sửa nội dung hỗ trợ `--only=<correction-id>` để chỉ áp dụng đúng mục tiêu đã được phê duyệt, không chạm các sửa đổi khác đang chờ.
 
+- Exam rich text displays numbered blank labels in passages and standalone questions without duplicated surrounding parentheses.
+
 ## 🙈 Đang ẩn (bật lại bằng cờ lúc build web)
 
 | Tính năng | Biến | Ghi chú |
@@ -92,4 +94,9 @@ Ngày 25/10/2026: thao tác của từng câu trong cuốn đề được gom xu
 
 - Bảo trì N1 7/2010 (05/11/2026): manifest 5 sửa tại Q57, Q85, Q107–Q108; dùng quy trình editor → reviewer → publisher, giữ nguyên khóa đáp án. Bộ công cụ N1 hỗ trợ thư mục phiên chạy riêng qua N1_FIX_WORK_DIR, tránh dùng chung plan/journal giữa các đợt.
 
-- Exam rich text displays numbered blank labels in passages and standalone questions without duplicated surrounding parentheses.
+### N1 July 2012 reviewed content repair (2026-11-05)
+
+- Prepared `tools/content/n1-2012-07/`: restore Q33 distractor and reasoning, correct Q51/Q72/Q73/Q75/Q84/Q85/Q90/Q104 and synchronize stale Q80/Q83/Q105 quotations via versioned admin APIs.
+- Plan validates seven group revisions and eight explanation revisions; preserve all 106 answer keys and old published snapshots. Apply only after successful CI and a verified backup. Larger-model ASR plus context supports the listening corrections; direct human listening remains unverified.
+
+- N1 July 2012 explanation repair plans are normalized with the API schema before creation and verified exactly; historical explanation versions remain available.

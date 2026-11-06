@@ -1,0 +1,191 @@
+{
+  "slug": "n1-2012-07",
+  "examId": "04edee0b-06a9-4db4-a91d-49bc3dd7d295",
+  "publishedVersion": 2,
+  "fixes": [
+    {
+      "number": 33,
+      "replacements": [
+        {
+          "before": "引き出したとして: Mang nghĩa 'đã rút tiền xong', trong khi trường hợp phạm tội chưa thành thì dùng toan rút「引き出そうとした」.",
+          "after": "引き出したとするとして: Chuỗi「とするとして」không phù hợp để nối trực tiếp hành vi bị cáo buộc với「逮捕された」trong câu này. Phương án đúng「引き出そうとしたとして」nêu cáo buộc đã toan rút tiền trái phép."
+        },
+        {
+          "before": "Mẫu ngữ pháp「〜（よ）うとしたとして」(với cáo buộc toan làm hành vi gì đó). Thể ý chí + とする biểu thị mưu toan/toan thực hiện hành động nhưng chưa thành, kết hợp「〜として」(với tư cách / cáo buộc là).",
+          "after": "「引き出そうとした」diễn tả việc đã toan rút tiền;「〜として」nêu lý do/cáo buộc dẫn tới việc bị bắt. Cả cụm mang nghĩa “với cáo buộc đã toan rút tiền”."
+        },
+        {
+          "before": "引き出したとして",
+          "after": "引き出したとするとして"
+        }
+      ],
+      "questionId": "a92d8354-701a-45de-a5e9-9b069b797119",
+      "groupId": "ca5e66e5-7e72-4b6c-ac8a-5aef24ab2fb0",
+      "correctOption": 3,
+      "baselineHash": "f5c0952a1228fc7fb6ee6720a4c70a376b84bc0f0cb6f018e4e080ff111943c2",
+      "explanationHash": "e33191a7afefa55c855ebc5c612722c0f679d9221cbd81aa01fda4e909d2c6dd"
+    },
+    {
+      "number": 51,
+      "replacements": [
+        {
+          "before": "何かしょうとすると",
+          "after": "何かしようとすると"
+        }
+      ],
+      "questionId": "7f921ac8-3665-41d9-a06f-b6d7c7839830",
+      "groupId": "b43c7b96-5dc4-4796-a9ee-044684f40faa",
+      "correctOption": 1,
+      "baselineHash": "72097ef640451cbacfeeaf104f9e93c9efd28527c37411cb3aeaed3cb6d46cba",
+      "explanationHash": "8cb83ad83ff6051fa65fa21c63021e912abc9187f9b851a681f279ace3efac1b"
+    },
+    {
+      "number": 72,
+      "replacements": [
+        {
+          "before": "僕も何回やってみたい",
+          "after": "僕も何かやってみたい"
+        }
+      ],
+      "questionId": "f8a7122e-cfea-4954-a5a6-6c3b06bb532a",
+      "groupId": "c5e5a6c0-5180-4a74-ab4a-b19f9cfc9a4d",
+      "correctOption": 3,
+      "baselineHash": "e4add700487d761406f8b0123bb33384996fa7e7e3ec9c73ae593b37f5d9a014",
+      "explanationHash": "e866c4e148227eb172746de83a2648f697e426a76cc5102bceb73e2af716d46b"
+    },
+    {
+      "number": 73,
+      "replacements": [
+        {
+          "before": "政府の景気の箇所",
+          "after": "政府の景気対策の箇所"
+        },
+        {
+          "before": "Vấn đề là ở chỗ tình hình kinh tế chính phủ.",
+          "after": "Vấn đề là ở phần các biện pháp kích thích kinh tế của chính phủ."
+        }
+      ],
+      "questionId": "c4d07302-4876-442d-a6fd-7928be5fa567",
+      "groupId": "93f28010-e34e-4c8c-a82f-8879a6215a37",
+      "correctOption": 3,
+      "baselineHash": "71ab8983e3a7d9d463de0751477d7df16f26e82ecc7f1199cb4984afb8d5e33d",
+      "explanationHash": "5e5d87445a1db9358306eec3b0ce274efbb6a03f9c4919b60439ea16150b7da6"
+    },
+    {
+      "number": 75,
+      "replacements": [
+        {
+          "before": "人数分コピーするじゃ",
+          "after": "人数分コピーするんじゃ"
+        }
+      ],
+      "questionId": "cb32a151-afb4-4f62-ab05-1ae5ad578f3e",
+      "groupId": "a45d9e54-0f93-4c11-a8e8-58995eb18b83",
+      "correctOption": 2,
+      "baselineHash": "222233bb89c8b4f09f770cc0d79bd744f89c39c7b084eeb95353bccaf77e12f6",
+      "explanationHash": "f54138e56bb9b8662d2dfa90dd2654ce6935f695f3ee6062b4e4411c5070cb84"
+    },
+    {
+      "number": 80,
+      "replacements": [
+        {
+          "before": "今一面白みに",
+          "after": "今一つ面白みに"
+        }
+      ],
+      "questionId": "0b1ce78d-aad8-4967-ae61-ba8f389def13",
+      "groupId": "64ee547c-a3f4-43f9-a901-755f889122f8",
+      "correctOption": 1,
+      "baselineHash": "3d60c3b4856a514a9b61222811a384305865450e5b0deb5929218b6fe3487586",
+      "explanationHash": null
+    },
+    {
+      "number": 83,
+      "replacements": [
+        {
+          "before": "最大な見所",
+          "after": "最大の見所"
+        }
+      ],
+      "questionId": "a6cef80f-0ee2-47df-aede-c03d2c954481",
+      "groupId": "65fdb2ef-e492-4ced-a594-0f4d33de4a16",
+      "correctOption": 3,
+      "baselineHash": "a03a40c9826dc3f90381e9f30422beac4f9686a346c4ccb1a8f30efddc1b4d63",
+      "explanationHash": null
+    },
+    {
+      "number": 84,
+      "replacements": [
+        {
+          "before": "掃除機の買う人",
+          "after": "掃除機を買う人"
+        }
+      ],
+      "questionId": "9de7c960-da4b-4ec7-a368-7765bcacae69",
+      "groupId": "7e24df80-ee39-4274-ab8d-885b8d5e784a",
+      "correctOption": 1,
+      "baselineHash": "d1ad2c99eaa1cd386f8c204bcca671a512850472160f5e00f6e00196b3d6448b",
+      "explanationHash": null
+    },
+    {
+      "number": 85,
+      "replacements": [
+        {
+          "before": "これ以上バイトいれないないよね",
+          "after": "これ以上バイト入れらんないんだよね"
+        }
+      ],
+      "questionId": "3178fa7e-b670-4876-a1cb-57697882792c",
+      "groupId": "25fc681b-ffa8-49a1-afe6-9d3242c8d31d",
+      "correctOption": 4,
+      "baselineHash": "589e0d2a09ef77a39f168a95eb52340eee074d594c9d9f4917af73dbc47d6dd9",
+      "explanationHash": "ca475ef09a211b7e45c372d05de25f718388a9db30102e022ebc0fbe4184fb40"
+    },
+    {
+      "number": 90,
+      "replacements": [
+        {
+          "before": "存知あげません",
+          "after": "存じあげません"
+        }
+      ],
+      "questionId": "94249381-e072-482c-aa1e-a5dcbf975b17",
+      "groupId": "9f2acf4d-01e5-4d4e-ac63-051783601f0b",
+      "correctOption": 1,
+      "baselineHash": "1d3ddf0da160138c14ad0cc18671b40db27c0be2a2ea4c61d4233ff66b8cf4bd",
+      "explanationHash": "738886117dffe3c4735ffb4342f069704f014a48f9d97f9ff92903d9bcf5a584"
+    },
+    {
+      "number": 104,
+      "replacements": [
+        {
+          "before": "少しでも安いほうがじゃない",
+          "after": "少しでも安いほうがいいじゃない"
+        },
+        {
+          "before": "スターテイア",
+          "after": "スターティア"
+        }
+      ],
+      "questionId": "33c86595-6de1-4e07-afe7-2b12e0a97e4b",
+      "groupId": "0b1bb4a7-404e-40b0-a383-99253528fef5",
+      "correctOption": 3,
+      "baselineHash": "162004912eda38663aeeb02d60dceab412c363f5519bb10a806be13fc6df7f8f",
+      "explanationHash": "bb27640c012ef3cd1386dd26511b2548bf8edb94325d3baa3227b31613294ae4"
+    },
+    {
+      "number": 105,
+      "replacements": [
+        {
+          "before": "近所二坂",
+          "after": "近所に坂"
+        }
+      ],
+      "questionId": "e0088849-be09-4c9c-a110-577375c48e42",
+      "groupId": "1014c07b-9d5d-4687-a534-b65bed241890",
+      "correctOption": 3,
+      "baselineHash": "ae6435816f1e3a90a83156031b664f1ab94f1275e49c9a8658ea8c4a2479b1bd",
+      "explanationHash": null
+    }
+  ]
+}
