@@ -104,3 +104,7 @@ Ngày 25/10/2026: thao tác của từng câu trong cuốn đề được gom xu
 - Plan validates seven group revisions and eight explanation revisions; preserve all 106 answer keys and old published snapshots. Apply only after successful CI and a verified backup. Larger-model ASR plus context supports the listening corrections; direct human listening remains unverified.
 
 - N1 July 2012 explanation repair plans are normalized with the API schema before creation and verified exactly; historical explanation versions remain available.
+
+### Hiệu đính N1 7/2018 (06/11/2026)
+
+Công cụ `tools/content/n1-2018-07/` sửa cách ghi cách đọc ở bài chung Q41–Q45 và ba cụm transcript Q103 qua phiên bản mới, duyệt và xuất bản bằng API. Giữ 105 khóa chấm, thứ tự, lựa chọn, media, timeline và các snapshot cũ. Áp dụng sau CI xanh, sao lưu và xác nhận của chủ dự án; không đổi thuật ngữ Q76 khi chưa có bằng chứng audio.
