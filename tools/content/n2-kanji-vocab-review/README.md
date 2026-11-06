@@ -1,6 +1,6 @@
 # N2 kanji and vocabulary audit and versioned correction
 
-Review date: 2026-11-06. Owner requested autonomous review, correction and a second reading of all N2 kanji/vocabulary questions. Scope: **31 exams, 964 questions**. The manifest corrects **274 questions in 30 exams**, including **188 blank representation fixes**, **33 underline boundary fixes**, transcription repairs and **48 explanation updates**. No answer index changes.
+Review date: 2026-11-06. Owner requested autonomous review, correction and a second reading of all N2 kanji/vocabulary questions. Scope: **31 exams, 964 questions**. The manifest corrects **274 questions in 30 exams**, including **188 blank representation fixes**, **34 underline boundary fixes**, transcription repairs and **48 explanation updates**. No answer index changes.
 
 December 2018 has **28 explanations belonging to unrelated questions**. Each is replaced with a translation of the actual question, its correct rationale, and three reasons addressing the actual distractors. The two explanations that already match their questions are retained.
 
