@@ -1,0 +1,53 @@
+{
+  "slug": "n1-2025-12",
+  "examId": "b13c523b-1f85-4138-aed2-1516ab6750ef",
+  "publishedVersion": 6,
+  "fixes": [
+    {
+      "number": 22,
+      "replacements": [
+        {
+          "before": "かすれいた",
+          "after": "かすれていた"
+        }
+      ],
+      "questionId": "dcfcd045-100d-4007-aa5c-673021e77479",
+      "groupId": "b90a3452-d874-4b51-ac3c-0a181112d10f",
+      "correctOption": 4,
+      "baselineHash": "b50510e000cf68a4496a6864424df26ed296ec00a0f81f2123e4cf0a5440f6a8",
+      "explanationHash": "2ff1ea1ec0797b37887056ca9f52c6eeef02befa44321f365371ccbc267488ec"
+    },
+    {
+      "number": 54,
+      "replacements": [
+        {
+          "before": "クリーナーシュリソプ",
+          "after": "クリーナーシュリンプ"
+        },
+        {
+          "before": "休表",
+          "after": "体表"
+        }
+      ],
+      "questionId": "657704cb-d0e1-4e51-aae5-8b729a8f39b2",
+      "groupId": "aebd0c4d-89f4-47c1-a1ba-7ed7986c0052",
+      "correctOption": 4,
+      "baselineHash": "152bd497ff727cb6422d6b0bd81fd6bb0b30d63410ca6a5143a7b8164239850a",
+      "explanationHash": "1d8628f512d44207c6d85e2593bd30e50b2f1e80a946f7f1732af0decec98df7"
+    },
+    {
+      "number": 70,
+      "replacements": [
+        {
+          "before": "山川アパート",
+          "after": "山川デパート"
+        }
+      ],
+      "questionId": "95a22a80-f475-4586-ad6a-8558aa1fd3f0",
+      "groupId": "0af67209-3877-4f28-ac1a-c97a8ca07d23",
+      "correctOption": 2,
+      "baselineHash": "b3abb9699e6213d09cf6a1dbc52ebdc6308259dff03115f603dc31a7dfca14ce",
+      "explanationHash": "392829324bd9c0bc999087294b6fc03c650d9ef73e465f95aa3df021b7c99829"
+    }
+  ]
+}
