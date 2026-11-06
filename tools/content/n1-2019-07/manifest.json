@@ -1,0 +1,118 @@
+{
+  "slug": "n1-2019-07",
+  "examId": "c5164458-fc31-4f2f-a244-8bd490247f63",
+  "publishedVersion": 6,
+  "fixes": [
+    {
+      "number": 46,
+      "questionId": "4d87d065-dfeb-4783-aedf-bc59e22cd051",
+      "groupId": "d2b51034-aa3b-41d0-a26b-465cbd47d4bb",
+      "replacements": [
+        {
+          "before": "想像カ",
+          "after": "想像力"
+        }
+      ],
+      "correctOption": 3,
+      "baselineHash": "a92d495d0c1569e66090c289e81799f07641e54800ce9ffacbbe5b9038b9de67",
+      "explanationHash": null
+    },
+    {
+      "number": 50,
+      "questionId": "6bbbcef1-9bbd-4636-a12e-30e8c6fd22b9",
+      "groupId": "bf7a30ea-461e-48c0-a0f6-c416918c0f04",
+      "underline": "無理があるように思う",
+      "correctOption": 3,
+      "baselineHash": "21e92190f43a782288be8a4440348546604a557a5b72f115e767f869ec75163c",
+      "explanationHash": null
+    },
+    {
+      "number": 54,
+      "questionId": "0fe8588a-eea3-4d62-a258-dde6c7f8d1d8",
+      "groupId": "65eba1b0-bd55-4a0b-acce-5b676b2023c1",
+      "underline": "そうした手続きを踏む",
+      "correctOption": 4,
+      "baselineHash": "35a641adcc9a57e1d300acaa505499322cd2a5e3248146cff5b191ee8e1b8344",
+      "explanationHash": null
+    },
+    {
+      "number": 57,
+      "questionId": "d9c93dc8-13f4-44e1-ad4f-95383eab5c16",
+      "groupId": "91ee6d86-49f5-4a10-abce-0a4c23712ae6",
+      "underline": "自分が「やりたい」ことをみずからに問わざるをえない",
+      "correctOption": 3,
+      "baselineHash": "5c7230f290ee86857c988bc6749ab0c37e155a754e615aff148c4489a5790fa2",
+      "explanationHash": null
+    },
+    {
+      "number": 61,
+      "questionId": "d531d3fa-dbe2-4afa-ad26-0d1bb7c79438",
+      "groupId": "560d0ca0-44ac-4d2a-a566-a784da8c0b94",
+      "replacements": [
+        {
+          "before": "考えるベきである",
+          "after": "考えるべきである"
+        }
+      ],
+      "correctOption": 1,
+      "baselineHash": "27ea4283ea872a86d990e16c5e7ae2c84deabf477eadb069e190a5235c694229",
+      "explanationHash": "ec807aa40195529b8561c8f3eb4cf108274b6d48fe59498ab92a0dcae19aa506"
+    },
+    {
+      "number": 63,
+      "questionId": "6ff0bd4b-81f4-44df-ac77-b3b7b83213b5",
+      "groupId": "fc0d23fb-c4fa-4055-a287-69e72f359816",
+      "replacements": [
+        {
+          "before": "持つベきだ",
+          "after": "持つべきだ"
+        }
+      ],
+      "correctOption": 2,
+      "baselineHash": "c1a0a7f724a8c3a4200b8cd14efdc1ffd15f2ddc70e335b4a072b53a2c8d7415",
+      "explanationHash": "4c549340fd7b76d590d9b70054d7d480685fed1b73121229ae9b16f2114adcd4"
+    },
+    {
+      "number": 64,
+      "questionId": "15f57d7c-cd3f-46dc-a909-a709f6aed11a",
+      "groupId": "50847ab3-240d-4548-ad65-399600dbf0a8",
+      "replacements": [
+        {
+          "before": "狐独",
+          "after": "孤独"
+        }
+      ],
+      "correctOption": 4,
+      "baselineHash": "536574c23cc04378a891e87932f486ad146f9c3107b63376257c13e93e9f2226",
+      "explanationHash": null
+    },
+    {
+      "number": 83,
+      "questionId": "b8f64034-b760-407b-a825-1098d1a461ad",
+      "groupId": "3736a010-3c10-4b2e-aef4-894692abd1e0",
+      "replacements": [
+        {
+          "before": "取り寄せしております",
+          "after": "取り寄せております"
+        }
+      ],
+      "correctOption": 3,
+      "baselineHash": "0d2020981695cadd194111fcc4730bddbec83f29f511648e517e591e41e2393c",
+      "explanationHash": "c5a2d652fef077f74db7408ab663eae9efd10829cf6eeffd9e8d336cfe8346a3"
+    },
+    {
+      "number": 104,
+      "questionId": "2377736a-3b0c-4717-a693-74499ba90f01",
+      "groupId": "2561ff08-6d83-4ceb-ae82-0f618a17014a",
+      "replacements": [
+        {
+          "before": "息詰まったとき",
+          "after": "行き詰まったとき"
+        }
+      ],
+      "correctOption": 4,
+      "baselineHash": "debf0e4e5e060d761696bd7f46cf91bc7c95e06329034433d392a0d0e411e17d",
+      "explanationHash": "6fd956e322146d88406588c6189b002c694b6346552f97ce4c8870793f3453a0"
+    }
+  ]
+}
