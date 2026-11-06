@@ -6,6 +6,8 @@ Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xon
 
 ## Hiệu đính nội dung đề
 
+- N1 7/2011, đợt bổ sung 06/11: hiệu đính Q104 `検収` → `研修` trong lựa chọn, transcript và lời giải; đồng bộ nghĩa “đào tạo tài xế”, giữ khóa đáp án. Công cụ: `tools/content/n1-2011-07-followup/`.
+
 - N1 7/2011: bộ sửa có kiểm tra dữ liệu gốc cho Q34, Q47, Q73, Q76, Q80 và Q89; đồng bộ trích dẫn/lời giải, giữ khóa đáp án và lịch sử phiên bản. Công cụ: `tools/content/n1-2011-07/`.
 
 ## ✅ Đang chạy

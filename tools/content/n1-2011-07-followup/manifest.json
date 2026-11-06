@@ -1,0 +1,25 @@
+{
+  "slug": "n1-2011-07",
+  "examId": "40208963-a844-44f7-a5b9-805b245ef87b",
+  "publishedVersion": 7,
+  "fixes": [
+    {
+      "number": 104,
+      "questionId": "a68e74c8-e623-4feb-a833-36c1a9a72346",
+      "groupId": "79956fb7-44cf-4c26-a562-b02e58187f8c",
+      "correctOption": 2,
+      "baselineHash": "61c929508739805fb7a981d1f697a53da4ba865018a675d80e9f90c06d207920",
+      "explanationHash": "eb2172456276e7d7dc2817e7f927a6ceebbfef390fd310a4672d88ad37efac8c",
+      "replacements": [
+        {
+          "before": "検収",
+          "after": "研修"
+        },
+        {
+          "before": "phương pháp kiểm tra tài xế chỉ là dịp để người lái xe phản ánh việc tắc đường chứ không phải việc cần xem xét lại.",
+          "after": "buổi đào tạo an toàn chỉ là dịp tài xế phản ánh tình trạng tắc đường; phương pháp đào tạo tài xế không phải nội dung được quyết định xem xét lại."
+        }
+      ]
+    }
+  ]
+}
