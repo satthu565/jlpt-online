@@ -1,0 +1,485 @@
+{
+  "slug": "n1-2018-12",
+  "examId": "d084faef-250f-49e7-a16e-1bb97983af36",
+  "publishedVersion": 3,
+  "totalQuestions": 105,
+  "changes": [
+    {
+      "questionNumber": 89,
+      "groupId": "8e357c54-5bb8-4407-a90f-bec770812d5f",
+      "timelineIndex": 18,
+      "before": {
+        "startMs": 2156600,
+        "endMs": 2186240
+      },
+      "after": {
+        "startMs": 2156600,
+        "endMs": 2194700
+      }
+    },
+    {
+      "questionNumber": 90,
+      "groupId": "21944f36-b299-4713-a9ff-255054d17cb6",
+      "timelineIndex": 19,
+      "before": {
+        "startMs": 2186240,
+        "endMs": 2229840
+      },
+      "after": {
+        "startMs": 2194700,
+        "endMs": 2228000
+      }
+    },
+    {
+      "questionNumber": 91,
+      "groupId": "06936c15-ef76-4502-adf0-0299b7cd3c24",
+      "timelineIndex": 20,
+      "before": {
+        "startMs": 2229840,
+        "endMs": 2260480
+      },
+      "after": {
+        "startMs": 2228000,
+        "endMs": 2258500
+      }
+    },
+    {
+      "questionNumber": 92,
+      "groupId": "fbe91c18-dc78-48ae-af1b-a2135298e6b2",
+      "timelineIndex": 21,
+      "before": {
+        "startMs": 2260480,
+        "endMs": 2284160
+      },
+      "after": {
+        "startMs": 2258500,
+        "endMs": 2293500
+      }
+    },
+    {
+      "questionNumber": 93,
+      "groupId": "269d3394-fe62-4b3b-adff-f299cf6ebd06",
+      "timelineIndex": 22,
+      "before": {
+        "startMs": 2284160,
+        "endMs": 2318860
+      },
+      "after": {
+        "startMs": 2293500,
+        "endMs": 2328500
+      }
+    },
+    {
+      "questionNumber": 94,
+      "groupId": "d852b867-002d-4a3e-a138-fba8ab890337",
+      "timelineIndex": 23,
+      "before": {
+        "startMs": 2318860,
+        "endMs": 2353520
+      },
+      "after": {
+        "startMs": 2328500,
+        "endMs": 2363500
+      }
+    },
+    {
+      "questionNumber": 95,
+      "groupId": "08f4bca4-2a51-4584-a6d0-b535bfca9832",
+      "timelineIndex": 24,
+      "before": {
+        "startMs": 2353520,
+        "endMs": 2388500
+      },
+      "after": {
+        "startMs": 2363500,
+        "endMs": 2398000
+      }
+    },
+    {
+      "questionNumber": 96,
+      "groupId": "3b6b7c96-37e2-473c-a9db-688ca6b0efde",
+      "timelineIndex": 25,
+      "before": {
+        "startMs": 2388500,
+        "endMs": 2420390
+      },
+      "after": {
+        "startMs": 2398000,
+        "endMs": 2430500
+      }
+    },
+    {
+      "questionNumber": 97,
+      "groupId": "8e613dcd-db87-4409-af64-657bfe2247da",
+      "timelineIndex": 26,
+      "before": {
+        "startMs": 2420390,
+        "endMs": 2451050
+      },
+      "after": {
+        "startMs": 2430500,
+        "endMs": 2461000
+      }
+    },
+    {
+      "questionNumber": 98,
+      "groupId": "a37737fb-a02b-4894-a52a-0e1730995dc8",
+      "timelineIndex": 27,
+      "before": {
+        "startMs": 2451050,
+        "endMs": 2494160
+      },
+      "after": {
+        "startMs": 2461000,
+        "endMs": 2493000
+      }
+    },
+    {
+      "questionNumber": 99,
+      "groupId": "12784156-1c57-40c4-a41a-7284d551d171",
+      "timelineIndex": 28,
+      "before": {
+        "startMs": 2494160,
+        "endMs": 2520070
+      },
+      "after": {
+        "startMs": 2493000,
+        "endMs": 2530500
+      }
+    },
+    {
+      "questionNumber": 100,
+      "groupId": "f0cbf7f3-bdfc-4c57-ae27-98f342cc774e",
+      "timelineIndex": 29,
+      "before": {
+        "startMs": 2520070,
+        "endMs": 2568120
+      },
+      "after": {
+        "startMs": 2530500,
+        "endMs": 2566500
+      }
+    },
+    {
+      "questionNumber": 101,
+      "groupId": "fca18fc2-b0f3-4998-a6b4-4c47cbf7b408",
+      "timelineIndex": 30,
+      "before": {
+        "startMs": 2568120,
+        "endMs": 2651020
+      },
+      "after": {
+        "startMs": 2566500,
+        "endMs": 2600000
+      }
+    }
+  ],
+  "fullTimeline": [
+    {
+      "endMs": 179680,
+      "groupId": "d9ce5385-a1c9-4a34-a585-a7f2625edf73",
+      "startMs": 0,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 179680,
+      "gapAfterMs": 0,
+      "audioStartMs": 0
+    },
+    {
+      "endMs": 253920,
+      "groupId": "5df1125c-7e7b-47ea-a220-f5c1ec9dadda",
+      "startMs": 179680,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 253920,
+      "gapAfterMs": 0,
+      "audioStartMs": 179680
+    },
+    {
+      "endMs": 352580,
+      "groupId": "da33df73-da40-4093-a787-fd89e7bb5d7c",
+      "startMs": 253920,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 352580,
+      "gapAfterMs": 0,
+      "audioStartMs": 253920
+    },
+    {
+      "endMs": 441180,
+      "groupId": "48305831-c771-4034-a292-cac9667fe5bd",
+      "startMs": 352580,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 441180,
+      "gapAfterMs": 0,
+      "audioStartMs": 352580
+    },
+    {
+      "endMs": 558520,
+      "groupId": "49095a7c-d769-462a-a4a6-3b17849d705a",
+      "startMs": 441180,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 558520,
+      "gapAfterMs": 0,
+      "audioStartMs": 441180
+    },
+    {
+      "endMs": 712580,
+      "groupId": "81e5a260-f6a9-4931-a980-68b9d1616414",
+      "startMs": 558520,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 712580,
+      "gapAfterMs": 0,
+      "audioStartMs": 558520
+    },
+    {
+      "endMs": 830550,
+      "groupId": "911d1dda-62a5-4809-ae0b-ff049546ce0d",
+      "startMs": 712580,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 830550,
+      "gapAfterMs": 0,
+      "audioStartMs": 712580
+    },
+    {
+      "endMs": 960400,
+      "groupId": "809c3c52-9013-41e5-ad46-1abfad6f2712",
+      "startMs": 830550,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 960400,
+      "gapAfterMs": 0,
+      "audioStartMs": 830550
+    },
+    {
+      "endMs": 1080850,
+      "groupId": "0942a58a-6b27-4c2b-a04d-ecf66d3b41da",
+      "startMs": 960400,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 1080850,
+      "gapAfterMs": 0,
+      "audioStartMs": 960400
+    },
+    {
+      "endMs": 1180890,
+      "groupId": "edb4362f-2745-4728-a54d-c6ee50e366b5",
+      "startMs": 1080850,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 1180890,
+      "gapAfterMs": 0,
+      "audioStartMs": 1080850
+    },
+    {
+      "endMs": 1313040,
+      "groupId": "6d744ba1-11e6-437c-a080-3e2d1df0b8f8",
+      "startMs": 1180890,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 1313040,
+      "gapAfterMs": 0,
+      "audioStartMs": 1180890
+    },
+    {
+      "endMs": 1527320,
+      "groupId": "b4222049-0fed-4808-ab91-aaee449943c1",
+      "startMs": 1313040,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 1527320,
+      "gapAfterMs": 0,
+      "audioStartMs": 1313040
+    },
+    {
+      "endMs": 1617880,
+      "groupId": "517189bd-5cee-4573-abb3-8b3dbf635285",
+      "startMs": 1527320,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 1617880,
+      "gapAfterMs": 0,
+      "audioStartMs": 1527320
+    },
+    {
+      "endMs": 1736600,
+      "groupId": "b8fef9f7-374b-4bc6-ae08-7101570f9470",
+      "startMs": 1617880,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 1736600,
+      "gapAfterMs": 0,
+      "audioStartMs": 1617880
+    },
+    {
+      "endMs": 1827780,
+      "groupId": "a388dab9-d378-4398-a359-083a03aafcb2",
+      "startMs": 1736600,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 1827780,
+      "gapAfterMs": 0,
+      "audioStartMs": 1736600
+    },
+    {
+      "endMs": 1920700,
+      "groupId": "de61c506-14ed-4376-a34d-f845d605ccde",
+      "startMs": 1827780,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 1920700,
+      "gapAfterMs": 0,
+      "audioStartMs": 1827780
+    },
+    {
+      "endMs": 2030310,
+      "groupId": "3b851d55-fd6d-4f40-af67-41aebcbe4569",
+      "startMs": 1920700,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 2030310,
+      "gapAfterMs": 0,
+      "audioStartMs": 1920700
+    },
+    {
+      "endMs": 2156600,
+      "groupId": "59572128-bdb1-490b-af2f-3cedff77a1cb",
+      "startMs": 2030310,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 2156600,
+      "gapAfterMs": 0,
+      "audioStartMs": 2030310
+    },
+    {
+      "endMs": 2194700,
+      "groupId": "8e357c54-5bb8-4407-a90f-bec770812d5f",
+      "startMs": 2156600,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 2186240,
+      "gapAfterMs": 0,
+      "audioStartMs": 2156600
+    },
+    {
+      "endMs": 2228000,
+      "groupId": "21944f36-b299-4713-a9ff-255054d17cb6",
+      "startMs": 2194700,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 2229840,
+      "gapAfterMs": 0,
+      "audioStartMs": 2186240
+    },
+    {
+      "endMs": 2258500,
+      "groupId": "06936c15-ef76-4502-adf0-0299b7cd3c24",
+      "startMs": 2228000,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 2260480,
+      "gapAfterMs": 0,
+      "audioStartMs": 2229840
+    },
+    {
+      "endMs": 2293500,
+      "groupId": "fbe91c18-dc78-48ae-af1b-a2135298e6b2",
+      "startMs": 2258500,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 2284160,
+      "gapAfterMs": 0,
+      "audioStartMs": 2260480
+    },
+    {
+      "endMs": 2328500,
+      "groupId": "269d3394-fe62-4b3b-adff-f299cf6ebd06",
+      "startMs": 2293500,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 2318860,
+      "gapAfterMs": 0,
+      "audioStartMs": 2284160
+    },
+    {
+      "endMs": 2363500,
+      "groupId": "d852b867-002d-4a3e-a138-fba8ab890337",
+      "startMs": 2328500,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 2353520,
+      "gapAfterMs": 0,
+      "audioStartMs": 2318860
+    },
+    {
+      "endMs": 2398000,
+      "groupId": "08f4bca4-2a51-4584-a6d0-b535bfca9832",
+      "startMs": 2363500,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 2388500,
+      "gapAfterMs": 0,
+      "audioStartMs": 2353520
+    },
+    {
+      "endMs": 2430500,
+      "groupId": "3b6b7c96-37e2-473c-a9db-688ca6b0efde",
+      "startMs": 2398000,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 2420390,
+      "gapAfterMs": 0,
+      "audioStartMs": 2388500
+    },
+    {
+      "endMs": 2461000,
+      "groupId": "8e613dcd-db87-4409-af64-657bfe2247da",
+      "startMs": 2430500,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 2451050,
+      "gapAfterMs": 0,
+      "audioStartMs": 2420390
+    },
+    {
+      "endMs": 2493000,
+      "groupId": "a37737fb-a02b-4894-a52a-0e1730995dc8",
+      "startMs": 2461000,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 2494160,
+      "gapAfterMs": 0,
+      "audioStartMs": 2451050
+    },
+    {
+      "endMs": 2530500,
+      "groupId": "12784156-1c57-40c4-a41a-7284d551d171",
+      "startMs": 2493000,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 2520070,
+      "gapAfterMs": 0,
+      "audioStartMs": 2494160
+    },
+    {
+      "endMs": 2566500,
+      "groupId": "f0cbf7f3-bdfc-4c57-ae27-98f342cc774e",
+      "startMs": 2530500,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 2568120,
+      "gapAfterMs": 0,
+      "audioStartMs": 2520070
+    },
+    {
+      "endMs": 2600000,
+      "groupId": "fca18fc2-b0f3-4998-a6b4-4c47cbf7b408",
+      "startMs": 2566500,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 2651020,
+      "gapAfterMs": 0,
+      "audioStartMs": 2568120
+    },
+    {
+      "endMs": 2811560,
+      "groupId": "04069690-359f-4e48-a3c3-e94e010cb5ac",
+      "startMs": 2600000,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 2811560,
+      "gapAfterMs": 0,
+      "audioStartMs": 2651020
+    },
+    {
+      "endMs": 3001490,
+      "groupId": "16639580-d0d4-47c2-a40d-5b5839adbcfe",
+      "startMs": 2811560,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 3001490,
+      "gapAfterMs": 0,
+      "audioStartMs": 2811560
+    },
+    {
+      "endMs": 3174034,
+      "groupId": "b4dda929-2c7f-4e31-a5ce-f57c7f1d3dfe",
+      "startMs": 3001490,
+      "mediaKey": "media/0ce7be1fec7022a9e1075d5cf25a321e6c7c4ec4bead4740f1451d6a320a9550.mp3",
+      "audioEndMs": 3174034,
+      "gapAfterMs": 0,
+      "audioStartMs": 3001490
+    }
+  ]
+}
