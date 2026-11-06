@@ -1,0 +1,21 @@
+{
+  "slug": "n1-2019-07",
+  "examId": "c5164458-fc31-4f2f-a244-8bd490247f63",
+  "publishedVersion": 7,
+  "fixes": [
+    {
+      "number": 83,
+      "questionId": "b8f64034-b760-407b-a825-1098d1a461ad",
+      "groupId": "3736a010-3c10-4b2e-aef4-894692abd1e0",
+      "replacements": [
+        {
+          "before": "森田カーヅ",
+          "after": "森田カーズ"
+        }
+      ],
+      "correctOption": 3,
+      "baselineHash": "0d2020981695cadd194111fcc4730bddbec83f29f511648e517e591e41e2393c",
+      "explanationHash": "eebcd3c14e05d937edde0fdca0c61dcebfd7a9b663ee678af4070a7e9f480be6"
+    }
+  ]
+}
