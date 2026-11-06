@@ -1,0 +1,41 @@
+{
+  "slug": "n1-2022-07",
+  "examId": "46c3b0df-20f2-4588-a9fd-d7001c10a11a",
+  "publishedVersion": 4,
+  "fixes": [
+    {
+      "number": 41,
+      "replacements": [
+        {
+          "before": "以下では、作家が書いた文章です",
+          "after": "以下は、作家が書いた文章です"
+        }
+      ],
+      "questionId": "05a45d4d-6401-4955-ad32-b4da33e5f2ce",
+      "groupId": "b83c39b6-cc37-457e-a159-af5c81d05758",
+      "correctOption": 3,
+      "baselineHash": "350b998675a15f7ee972fd5ff4d748f9d728c7a33297a1285e2d1861df3e94f7"
+    },
+    {
+      "number": 74,
+      "replacements": [
+        {
+          "before": [
+            {
+              "alt": "問題1 6番の選択肢イラスト",
+              "type": "image",
+              "width": 867,
+              "height": 1307,
+              "mediaKey": "media/8335359803ec7fda90d3a039afef4f5fd86ce57c2916eb7b71ffb92cdfe8b7c9.png"
+            }
+          ],
+          "after": []
+        }
+      ],
+      "questionId": "b11fdf06-fd6d-45b0-a16c-3e9afed2c4e5",
+      "groupId": "0f485ed8-de99-4c53-ab36-bc3e759c9108",
+      "correctOption": 2,
+      "baselineHash": "891b4e46af8069ebb2256233837ec41ec4cfb0836a1d20abad52d8bf9db32361"
+    }
+  ]
+}
