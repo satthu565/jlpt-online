@@ -6,7 +6,7 @@ import { useFurigana } from '@jlpt/ui/components/furigana-toggle';
 import { useSelectLookupSetting } from '../../corpus';
 import { useI18n } from '../../../lib/i18n';
 
-export type JapaneseFontSize = 'sm' | 'base' | 'lg' | 'xl';
+export type JapaneseFontSize = 'sm' | 'base' | 'lg' | 'xl' | `${number}%` | (string & {});
 
 export interface ExamToolbarProps {
   fontSize: JapaneseFontSize;
@@ -21,35 +21,37 @@ export interface ExamToolbarProps {
   className?: string;
 }
 
-const FONT_SIZES: readonly JapaneseFontSize[] = ['sm', 'base', 'lg', 'xl'];
-const FONT_SIZE_LABELS: Record<JapaneseFontSize, string> = {
-  sm: '90%',
-  base: '100%',
-  lg: '110%',
-  xl: '125%',
-};
+export function parseFontSizePercent(size: JapaneseFontSize | undefined): number {
+  if (!size) return 100;
+  if (size === 'base') return 100;
+  if (size === 'sm') return 90;
+  if (size === 'lg') return 110;
+  if (size === 'xl') return 120;
+  const match = String(size).match(/(\d+)/);
+  if (match && match[1]) {
+    const val = parseInt(match[1], 10);
+    if (val > 0) return val;
+  }
+  return 100;
+}
 
 export function ExamToolbar(props: ExamToolbarProps): React.JSX.Element {
   const { t } = useI18n();
   const [furigana, setFurigana] = useFurigana();
   const [lookup, setLookup] = useSelectLookupSetting();
 
-  const currentIndex = Math.max(0, FONT_SIZES.indexOf(props.fontSize));
-  const currentSize = FONT_SIZES[currentIndex] ?? 'base';
-  const percentage = FONT_SIZE_LABELS[currentSize] ?? '100%';
+  const currentPercent = parseFontSizePercent(props.fontSize);
 
   const handleDecrease = () => {
-    if (currentIndex > 0) {
-      const prev = FONT_SIZES[currentIndex - 1];
-      if (prev) props.onFontSizeChange(prev);
-    }
+    // Zoom out by 10% steps with safe floor of 20%
+    const nextPercent = Math.max(20, currentPercent - 10);
+    props.onFontSizeChange(nextPercent === 100 ? 'base' : `${nextPercent}%`);
   };
 
   const handleIncrease = () => {
-    if (currentIndex < FONT_SIZES.length - 1) {
-      const next = FONT_SIZES[currentIndex + 1];
-      if (next) props.onFontSizeChange(next);
-    }
+    // Zoom in by 10% steps with safe ceiling of 500%
+    const nextPercent = Math.min(500, currentPercent + 10);
+    props.onFontSizeChange(nextPercent === 100 ? 'base' : `${nextPercent}%`);
   };
 
   const handleReset = () => {
@@ -78,7 +80,7 @@ export function ExamToolbar(props: ExamToolbarProps): React.JSX.Element {
               <Button
                 variant="ghost"
                 size="sm"
-                disabled={currentIndex <= 0}
+                disabled={currentPercent <= 20}
                 aria-label={t('paperExam.decreaseFontSize')}
                 onClick={handleDecrease}
                 className="font-bold text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white px-2.5 min-w-0 h-8 rounded-full"
@@ -89,12 +91,12 @@ export function ExamToolbar(props: ExamToolbarProps): React.JSX.Element {
                 className="font-bold text-sm text-slate-900 dark:text-slate-100 px-2 min-w-[3.5rem] text-center"
                 aria-live="polite"
               >
-                {percentage}
+                {currentPercent}%
               </span>
               <Button
                 variant="ghost"
                 size="sm"
-                disabled={currentIndex >= FONT_SIZES.length - 1}
+                disabled={currentPercent >= 500}
                 aria-label={t('paperExam.increaseFontSize')}
                 onClick={handleIncrease}
                 className="font-bold text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white px-2.5 min-w-0 h-8 rounded-full"

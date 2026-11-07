@@ -68,12 +68,12 @@ describe('ExamToolbar Font Size Control', () => {
     await act(async () => {
       decreaseBtn.click();
     });
-    expect(onFontSizeChange).toHaveBeenCalledWith('sm');
+    expect(onFontSizeChange).toHaveBeenCalledWith('90%');
 
     await act(async () => {
       increaseBtn.click();
     });
-    expect(onFontSizeChange).toHaveBeenCalledWith('lg');
+    expect(onFontSizeChange).toHaveBeenCalledWith('110%');
 
     await act(async () => {
       resetBtn.click();
@@ -81,12 +81,13 @@ describe('ExamToolbar Font Size Control', () => {
     expect(onFontSizeChange).toHaveBeenCalledWith('base');
   });
 
-  it('disables decrease button and displays 90% when fontSize is sm', async () => {
+  it('does NOT disable decrease button at 90% or increase button at 120% (no zoom limit)', async () => {
+    const onFontSizeChange = vi.fn();
     act(() => {
       root.render(
         <ExamToolbar
-          fontSize="sm"
-          onFontSizeChange={() => {}}
+          fontSize="90%"
+          onFontSizeChange={onFontSizeChange}
           isZenMode={false}
           onToggleZenMode={() => {}}
           onOpenShortcutsHelp={() => {}}
@@ -106,16 +107,23 @@ describe('ExamToolbar Font Size Control', () => {
     const decreaseBtn = fontGroup?.querySelector('button[aria-label="Giảm cỡ chữ"]') as HTMLButtonElement;
     const increaseBtn = fontGroup?.querySelector('button[aria-label="Tăng cỡ chữ"]') as HTMLButtonElement;
 
-    expect(decreaseBtn.disabled).toBe(true);
+    // Both should still be enabled beyond the old 90% boundary
+    expect(decreaseBtn.disabled).toBe(false);
     expect(increaseBtn.disabled).toBe(false);
+
+    await act(async () => {
+      decreaseBtn.click();
+    });
+    expect(onFontSizeChange).toHaveBeenCalledWith('80%');
   });
 
-  it('disables increase button and displays 125% when fontSize is xl', async () => {
+  it('allows scaling up beyond 120% without disabling increase button', async () => {
+    const onFontSizeChange = vi.fn();
     act(() => {
       root.render(
         <ExamToolbar
-          fontSize="xl"
-          onFontSizeChange={() => {}}
+          fontSize="120%"
+          onFontSizeChange={onFontSizeChange}
           isZenMode={false}
           onToggleZenMode={() => {}}
           onOpenShortcutsHelp={() => {}}
@@ -130,12 +138,17 @@ describe('ExamToolbar Font Size Control', () => {
     });
 
     const fontGroup = document.body.querySelector('div[role="group"][aria-label="Cỡ chữ tiếng Nhật"]');
-    expect(fontGroup?.textContent).toContain('125%');
+    expect(fontGroup?.textContent).toContain('120%');
 
     const decreaseBtn = fontGroup?.querySelector('button[aria-label="Giảm cỡ chữ"]') as HTMLButtonElement;
     const increaseBtn = fontGroup?.querySelector('button[aria-label="Tăng cỡ chữ"]') as HTMLButtonElement;
 
     expect(decreaseBtn.disabled).toBe(false);
-    expect(increaseBtn.disabled).toBe(true);
+    expect(increaseBtn.disabled).toBe(false);
+
+    await act(async () => {
+      increaseBtn.click();
+    });
+    expect(onFontSizeChange).toHaveBeenCalledWith('130%');
   });
 });
