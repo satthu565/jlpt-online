@@ -20,7 +20,8 @@ Giao diện có ba ngôn ngữ vi/ja/en. Tiếng Việt là ngôn ngữ chính.
 3. **Tuân thủ** [docs/agents/SECURITY_RULES.md](docs/agents/SECURITY_RULES.md). Nhất là: không merge trực tiếp hoặc bỏ qua cổng CI, không force-push, không đọc hay in secret. PR nội bộ được workflow tự bật auto-merge và chỉ gộp khi các kiểm tra bắt buộc đạt.
 4. **Chạy các cổng kiểm tra** ở mục dưới trước khi nộp. Thiếu lệnh hoặc lệnh lỗi nghĩa là chưa đạt, không bỏ qua.
 5. **Quy trình sửa tính năng:** làm đúng mục "Quy trình sửa tính năng" ngay bên dưới. Chi tiết và các trường hợp đặc biệt ở [docs/agents/DEV_WORKFLOW.md](docs/agents/DEV_WORKFLOW.md); đọc file đó trước khi sửa.
-6. **Ưu tiên khi có mâu thuẫn:** chỉ thị chủ dự án > phiếu việc > tài liệu này > thói quen của agent.
+6. **Giao diện dùng component HeroUI (chỉ thị chủ dự án, 07/11/2026):** khi làm giao diện phải dùng component HeroUI. Không tự dựng component mà HeroUI đã có sẵn (nút, input, modal, popover, tabs, card, dropdown, tooltip...). Nếu thật sự cần thêm component riêng thì **phải báo chủ dự án trước** khi làm, nêu rõ lý do HeroUI không đáp ứng được. Quy tắc áp dụng cho mọi agent, kể cả agent chạy trên máy ảo jlpt-vm. Kiểu dáng giữ mặc định của HeroUI, xem thêm [docs/agents/PITFALLS.md](docs/agents/PITFALLS.md) mục HeroUI React.
+7. **Ưu tiên khi có mâu thuẫn:** chỉ thị chủ dự án > phiếu việc > tài liệu này > thói quen của agent.
 
 ## Quy trình sửa tính năng
 
