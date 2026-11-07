@@ -410,6 +410,34 @@ describe('E2E Advanced Suite: SRS Sync, Notifications, Classroom & Community (A0
       expect(html).toContain('id="replan-note-input"');
       expect(html).toContain('data-testid="confirm-replan-button"');
     });
+
+    it('renders reset-plan-button in CardFooter when onResetPlan is provided', () => {
+      const htmlWithReset = renderClean(
+        <PlannerDashboard
+          plan={mockPlan}
+          todaySession={mockSession}
+          onCreatePlan={async () => {}}
+          onCompleteSession={async () => {}}
+          onReplan={async () => {}}
+          onResetPlan={async () => {}}
+        />,
+      );
+
+      expect(htmlWithReset).toContain('data-testid="reset-plan-button"');
+      expect(htmlWithReset).toContain('jlpt-card-footer');
+
+      const htmlWithoutReset = renderClean(
+        <PlannerDashboard
+          plan={mockPlan}
+          todaySession={mockSession}
+          onCreatePlan={async () => {}}
+          onCompleteSession={async () => {}}
+          onReplan={async () => {}}
+        />,
+      );
+
+      expect(htmlWithoutReset).not.toContain('data-testid="reset-plan-button"');
+    });
   });
 
   // =========================================================================
