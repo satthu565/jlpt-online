@@ -57,11 +57,6 @@ export function ExamDetailView({
           {exam.title}
         </h1>
 
-        {exam.description && exam.description.trim().toLowerCase() !== exam.title.trim().toLowerCase() && (
-          <p className="text-sm text-slate-600 dark:text-slate-400 -mt-3 mb-6 leading-relaxed">
-            {exam.description}
-          </p>
-        )}
 
         {/* Key Metrics */}
         <div className="surface surface--secondary rounded-2xl grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 mb-6">
