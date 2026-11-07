@@ -2,7 +2,7 @@
 
 Reviewed 2026-11-07, at the owner's request to inspect, correct and reread every N4 kanji/vocabulary question on the VM. Inventory: **15 imported exams, 448 questions**. The 2019 sample has 10 questions; December 2021 has 27, matching its available booklet (the booklet skips question 12). December 2016 exists as source files but is not an imported exam in the live inventory.
 
-The manifest prepares **48 revisions in 10 exams**, with **23 revised explanations** and **zero answer-index changes**. All 448 stems, options, stored keys and correct-answer rationales were read. Suspect transcription cases were compared visually with rendered local booklets under `/srv/jlpt-extract/de-goc/N4/`. The schema checker covers every inventoried question, unique choices, NFC, blanks, exact before-content pins and synchronized rationale keys.
+The manifest prepares **20 revisions in 9 exams**, with **12 revised explanations** and **zero answer-index changes**. All 448 stems, options, stored keys and correct-answer rationales were read. Suspect transcription cases were compared visually with rendered local booklets under `/srv/jlpt-extract/de-goc/N4/`. The schema checker covers every inventoried question, unique choices, NFC, blanks, exact before-content pins and synchronized rationale keys.
 
 ## Findings and second reading
 
@@ -18,13 +18,9 @@ The manifest prepares **48 revisions in 10 exams**, with **23 revised explanatio
 
 The original import report at `/srv/jlpt-extract/xuat/N4 12-2022/BAO_CAO.md` explicitly records `source-missing-original-exam-booklet` and `DRAFT_ONLY`. The only local PDF is a four-page answer recollection, not an exam booklet. Existing stems and distractors were reconstructed before this review. **Do not claim that this review restored the original December 2022 exam.**
 
-All 28 questions receive a visible Vietnamese source notice before the exercise: “Câu luyện tập biên tập từ bản gợi nhớ; chưa xác minh nguyên văn đề gốc.” This notice carries no answer information. Twelve standalone kanji terms receive an underline.
+The owner explicitly requested **keeping all 28 December 2022 questions unchanged and waiting for the original booklet**. This supersedes the earlier editorial-practice proposal. No source notices, underline changes, stems, options, keys or explanations for this exam are included in the repair manifest. Its existing ambiguity and provenance limitations remain unresolved pending the source.
 
-For Q13/Q14, add explicit position/capacity context. Remove plausible alternatives from reconstructed Q15/Q16/Q18/Q19 (such as `紹介`, `見て`, `知って`, `自転車で走って` and `狭い`), and from Q26. Q27 uses the already source-reviewed July 2014 Q32 practice choices rather than unsupported birthday/morning gratitude assumptions. Q28 teaches the unambiguous `水を足す`, clearly describing it as an editorial practice sentence rather than the recollected `力をたしたい`. Q3 corrects `ならって` versus `ならんで`; Q7 removes a visible drafting instruction. Eleven explanations are rewritten for these actual options and contexts.
-
-Dictionary verification: [NINJAL 足す](https://mmsrv.ninjal.ac.jp/kamus/data/item3451.html) and [Kanji Kentei Foundation 足す](https://www.kanjipedia.jp/kotoba/0004339300).
-
-Second reading checked each changed complete sentence with its correct choice inserted, each revised distractor against the rationale, the three unchanged full-sentence underline moves, and preservation of all 448 keys. Source authenticity for December 2022 remains unverified until an original booklet is available; the visible notices preserve that distinction.
+Second reading covers the 20 retained corrections in the other nine exams. The full inventory checker also asserts that none of the 28 deferred questions is patched and that every stored answer index is preserved.
 
 ## Guarded operation
 
@@ -46,4 +42,4 @@ Writes exclusively use editor → reviewer → publisher APIs to create approved
 
 Data corrections cannot be previewed independently on :3210, which shares the live database. Open the actual site after publication. The private operational report records CI, backup, application and real-site verification; preparing this manifest alone is not a completed live repair.
 
-Local validation: the full inventory/schema/rationale check passes (448 reviewed, 48 revisions, 23 explanations); lint, typecheck, build, UI primitives, no-mock and docs map pass. Full `pnpm test` fails in the existing external coordinator runtime Scenario 10 at `tests/integration/dac-ta-runner.test.ts:777` (`check.ok` false); web tests pass (402). Do not bypass or change that unrelated check. Successful required GitHub CI is a prerequisite for applying the live corrections.
+Local validation: the full inventory/schema/rationale check passes (448 reviewed, 20 revisions, 12 explanations); lint, typecheck, build, UI primitives, no-mock and docs map pass. Full `pnpm test` fails in the existing external coordinator runtime Scenario 10 at `tests/integration/dac-ta-runner.test.ts:777` (`check.ok` false); web tests pass (402). Do not bypass or change that unrelated check. Successful required GitHub CI is a prerequisite for applying the live corrections.

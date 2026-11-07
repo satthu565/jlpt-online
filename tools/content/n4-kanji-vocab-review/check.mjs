@@ -16,7 +16,7 @@ assert.equal(inventory.length, 15);
 let questions = 0;
 let explanations = 0;
 let matched = 0;
-const reconstructed = [];
+const deferredQuestions = [];
 for (const exam of inventory) {
   for (const q of exam.items.filter(q => q.section_code === 'language_vocab')) {
     questions++;
@@ -58,19 +58,22 @@ for (const exam of inventory) {
     assert.equal(JSON.stringify(final).normalize('NFC'), JSON.stringify(final));
     if (q.mondai_type === 'contextual') assert.equal(final.stem.filter(n => n.t === 'blank').length, 1);
     if (exam.exam.slug === 'n4-2022-12') {
-      assert(text(final.stem).includes('chưa xác minh nguyên văn đề gốc'));
-      reconstructed.push(q.question_id);
+      assert(!fix, 'Owner deferred all December 2022 changes');
+      same(final, original);
+      deferredQuestions.push(q.question_id);
     }
   }
 }
 assert.equal(questions, 448);
 assert.equal(matched, fixes.size);
-assert.equal(reconstructed.length, 28);
+assert.equal(deferredQuestions.length, 28);
 const find = (slug, n) => manifest.fixes.find(f => f.slug === slug && f.number === n).after;
 assert(text(find('n4-2021-07', 18).stem).includes('を　聞きました'));
 assert(text(find('n4-2021-12', 16).stem).includes('わたしがかりている'));
 assert(!text(find('n4-2012-12', 12).explanation).includes('correctOption'));
 assert(text(find('n4-2024-07', 27).options[2].content).includes('水'));
-assert(text(find('n4-2022-12', 28).options[0].content).includes('水を少したしました'));
-assert.equal(find('n4-2022-12', 14).options[3].orderIndex, 4);
-console.log(JSON.stringify({ verified: true, exams: 15, questions, revisions: matched, explanations, reconstructed: reconstructed.length, answerChanges: 0 }));
+assert.equal(manifest.fixes.length, 20);
+assert.equal(explanations, 12);
+assert.equal(new Set(manifest.fixes.map(f => f.slug)).size, 9);
+assert.equal(manifest.deferred[0].slug, 'n4-2022-12');
+console.log(JSON.stringify({ verified: true, exams: 15, questions, revisions: matched, explanations, deferredQuestions: deferredQuestions.length, answerChanges: 0 }));
