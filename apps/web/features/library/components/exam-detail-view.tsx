@@ -1,10 +1,12 @@
 'use client';
 
 import React from 'react';
+import { BookOpen, Check, GraduationCap, Library, Play, Timer } from 'lucide-react';
 import type { ExamSummary } from '@jlpt/schema';
 import { Card } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
 import { Alert } from '@jlpt/ui/components/alert';
+import { Badge } from '@jlpt/ui/components/badge';
 
 export interface ExamDetailViewProps {
   exam: ExamSummary & { description?: string };
@@ -138,34 +140,62 @@ export function ExamDetailView({
             </ul>
           </Alert>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="surface surface--secondary rounded-2xl p-4 flex flex-col gap-3">
-              <div className="text-sm font-bold text-slate-900 dark:text-slate-100">Thi thật (chuẩn JLPT)</div>
-              <ul className="list-disc pl-5 space-y-1 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                <li>Bấm giờ nghiêm ngặt từng phần</li>
-                <li>Hết giờ tự động nộp bài</li>
-                <li>Không xem đáp án hay giải thích khi đang thi</li>
-                <li>Kết quả tính vào thống kê</li>
+            <Card className="relative overflow-hidden p-5 flex flex-col gap-4 border border-red-200 bg-red-50/70 dark:border-red-900/60 dark:bg-red-950/20">
+              <Timer className="hidden sm:block absolute right-5 top-16 size-24 text-red-300/60 dark:text-red-800/40" aria-hidden="true" />
+              <div className="flex items-center gap-3">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-red-600 text-white">
+                  <GraduationCap className="size-6" aria-hidden="true" />
+                </span>
+                <div className="flex flex-col items-start gap-1">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 leading-tight">Thi thật (chuẩn JLPT)</h3>
+                  <Badge variant="danger" size="sm">Mô phỏng đề thi thật JLPT</Badge>
+                </div>
+              </div>
+              <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-300 sm:pr-24">
+                {['Bấm giờ nghiêm ngặt từng phần', 'Hết giờ tự động nộp bài', 'Không xem đáp án hay giải thích khi đang thi', 'Kết quả tính vào thống kê'].map((t) => (
+                  <li key={t} className="flex items-center gap-2.5">
+                    <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/50 dark:text-red-300">
+                      <Check className="size-3.5" aria-hidden="true" />
+                    </span>
+                    {t}
+                  </li>
+                ))}
               </ul>
               <a href={`/phong-thi?examId=${exam.id}&mode=real&start=1`} className="text-decoration-none mt-auto">
-                <Button variant="primary" size="md" className="w-full">
+                <Button variant="primary" size="md" className="w-full gap-2">
+                  <Play className="size-4 fill-current" aria-hidden="true" />
                   Bắt đầu thi thật
                 </Button>
               </a>
-            </div>
-            <div className="surface surface--secondary rounded-2xl p-4 flex flex-col gap-3">
-              <div className="text-sm font-bold text-slate-900 dark:text-slate-100">Luyện tập tự do</div>
-              <ul className="list-disc pl-5 space-y-1 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                <li>Thời gian linh hoạt, làm từng phần được</li>
-                <li>Phần nghe có thể nghe lại và đổi tốc độ</li>
-                <li>Không ảnh hưởng chỉ số xếp hạng chính thức</li>
-                <li>Không bị tính vào thống kê thi thật</li>
+            </Card>
+            <Card className="relative overflow-hidden p-5 flex flex-col gap-4 border border-blue-200 bg-blue-50/70 dark:border-blue-900/60 dark:bg-blue-950/20">
+              <Library className="hidden sm:block absolute right-5 top-16 size-24 text-blue-300/60 dark:text-blue-800/40" aria-hidden="true" />
+              <div className="flex items-center gap-3">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white">
+                  <BookOpen className="size-6" aria-hidden="true" />
+                </span>
+                <div className="flex flex-col items-start gap-1">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 leading-tight">Luyện tập tự do</h3>
+                  <Badge variant="info" size="sm">Ôn luyện linh hoạt, không áp lực</Badge>
+                </div>
+              </div>
+              <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-300 sm:pr-24">
+                {['Thời gian linh hoạt, làm từng phần được', 'Phần nghe có thể nghe lại và đổi tốc độ', 'Không ảnh hưởng chỉ số xếp hạng chính thức', 'Không bị tính vào thống kê thi thật'].map((t) => (
+                  <li key={t} className="flex items-center gap-2.5">
+                    <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300">
+                      <Check className="size-3.5" aria-hidden="true" />
+                    </span>
+                    {t}
+                  </li>
+                ))}
               </ul>
               <a href={`/phong-thi?examId=${exam.id}&mode=practice&start=1`} className="text-decoration-none mt-auto">
-                <Button variant="outline" size="md" className="w-full">
+                <Button variant="outline" size="md" className="w-full gap-2 border-blue-500 text-blue-700 dark:text-blue-300">
+                  <Play className="size-4 fill-current" aria-hidden="true" />
                   Luyện tập tự do
                 </Button>
               </a>
-            </div>
+            </Card>
           </div>
         </div>
       </Card>
