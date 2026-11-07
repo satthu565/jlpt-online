@@ -53,13 +53,15 @@ export function ExamDetailView({
           )}
         </div>
 
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mb-3 tracking-tight">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mb-6 tracking-tight">
           {exam.title}
         </h1>
 
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
-          {exam.description || 'Đề thi được số hóa đầy đủ định dạng rich text, furigana ruby, bài đọc đối chiếu và âm thanh chuẩn theo khung năng lực tiếng Nhật quốc tế JLPT.'}
-        </p>
+        {exam.description && exam.description.trim().toLowerCase() !== exam.title.trim().toLowerCase() && (
+          <p className="text-sm text-slate-600 dark:text-slate-400 -mt-3 mb-6 leading-relaxed">
+            {exam.description}
+          </p>
+        )}
 
         {/* Key Metrics */}
         <div className="surface surface--secondary rounded-2xl grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 mb-6">
