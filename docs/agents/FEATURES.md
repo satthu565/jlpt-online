@@ -128,3 +128,7 @@ Bổ sung N1 7/2019 (06/11/2026): `tools/content/n1-2019-07-followup/` đổi `�
 
 - `tools/content/n3-kanji-vocab-review/`: rà 30 đề/1.049 câu, chuẩn bị 207 phiên bản câu hỏi ở 26 đề; gồm 174 câu chuẩn hóa ô trống, 12 câu chỉnh ranh giới gạch chân và 23 lời giải hiệu đính. Giữ nguyên toàn bộ số đáp án.
 - Áp dụng qua API editor → reviewer → publisher sau CI và sao lưu đã xác minh. Kiểm chứng toàn bộ snapshot, khóa chấm và lịch sử; trạng thái áp dụng thực tế ghi trong báo cáo vận hành riêng.
+
+## N4 content audit (2026-11-07)
+
+Prepared versioned 文字・語彙 corrections for 20 questions in 9 of 15 imported N4 exams (448 questions reviewed), including 12 explanation revisions. No answer-index changes. The owner deferred all changes to December 2022 until an original booklet is available; its 28 existing questions remain unchanged. See [audit and guarded operation](../../tools/content/n4-kanji-vocab-review/README.md). Actual application status is recorded separately after CI and backup.
