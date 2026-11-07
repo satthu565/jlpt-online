@@ -108,12 +108,14 @@ export function ExamDetailView({
         </div>
 
         {/* Source attribution and License details */}
-        <div className="p-4 rounded-xl bg-slate-100/70 dark:bg-slate-800/60 text-xs text-slate-600 dark:text-slate-400 space-y-1 mb-6">
-          {exam.sourceLabel && (
-            <div>
-              <strong className="text-slate-700 dark:text-slate-300">Nguồn trích dẫn:</strong>{' '}
-              {exam.sourceLabel}
-            </div>
+        {(exam.sourceLabel || exam.licenseLabel) && (
+          <div className="p-4 rounded-xl bg-slate-100/70 dark:bg-slate-800/60 text-xs text-slate-600 dark:text-slate-400 space-y-1 mb-6">
+            {exam.sourceLabel && (
+              <div>
+                <strong className="text-slate-700 dark:text-slate-300">Nguồn trích dẫn:</strong>{' '}
+                {exam.sourceLabel}
+              </div>
+        )}
           )}
           {exam.licenseLabel && (
             <div>
@@ -121,9 +123,6 @@ export function ExamDetailView({
               {exam.licenseLabel}
             </div>
           )}
-          <div>
-            <strong className="text-slate-700 dark:text-slate-300">Chính sách:</strong> Dữ liệu đề thi công khai không chứa đáp án chuẩn trước khi hoàn thành bài thi.
-          </div>
         </div>
 
         {/* Chọn chế độ làm bài */}
