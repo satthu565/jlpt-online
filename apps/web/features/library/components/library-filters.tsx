@@ -301,7 +301,7 @@ export function LibraryFilters({
         <Checkbox
           id={`${idPrefix}-filter-favorites`}
           data-testid="filter-only-favorites"
-          className="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300 select-none"
+          className="text-xs font-semibold text-slate-700 dark:text-slate-300"
           isSelected={Boolean(filters.onlyFavorites)}
           onChange={(checked) =>
             onFilterChange({
