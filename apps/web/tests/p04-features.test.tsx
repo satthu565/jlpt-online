@@ -197,6 +197,34 @@ describe('P04 Features Test Suite', () => {
       expect(html).toContain('HỘI XÃ');
     });
 
+    it('aligns notebook card footer actions to the bottom with mt-auto', () => {
+      const mockItem: NotebookItem = {
+        id: 'nb-align-1',
+        userId: 'u-1',
+        kind: 'vocab',
+        term: '時計',
+        reading: 'とけい',
+        meaning: 'Đồng hồ',
+        mastered: false,
+        tags: [],
+        version: 1,
+        createdAt: '2026-01-01',
+        updatedAt: '2026-01-01',
+      };
+
+      const html = renderToString(
+        <NotebookView
+          items={[mockItem]}
+          totalCount={1}
+          onAddItem={async () => {}}
+          onUpdateItem={async () => {}}
+          onDeleteItem={async () => {}}
+          onExportCsv={async () => {}}
+        />
+      );
+      expect(html).toContain('mt-auto flex justify-between items-center');
+    });
+
     it('displays flashcard-hanviet on flashcard back when hanViet is provided', () => {
       const mockCard: DueFlashcard = {
         cardId: 'c-1',

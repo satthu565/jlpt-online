@@ -367,7 +367,7 @@ export function NotebookView({
       {/* Items List */}
       <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
         {filteredItems.map((item) => (
-          <Card key={item.id} data-testid={`notebook-item-${item.id}`}>
+          <Card key={item.id} data-testid={`notebook-item-${item.id}`} className="flex flex-col h-full">
             <CardHeader className="flex justify-between items-start">
               <div>
                 <div className="flex gap-2 items-center mb-1">
@@ -410,7 +410,7 @@ export function NotebookView({
               )}
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="flex flex-1 flex-col">
               <p className="mt-0 mx-0 mb-3 font-medium text-[var(--text-primary)]">
                 {item.meaning}
               </p>
@@ -438,7 +438,7 @@ export function NotebookView({
                 );
               })()}
 
-              <div className="flex justify-between items-center pt-3 border-t border-[var(--border-subtle)]">
+              <div className="mt-auto flex justify-between items-center pt-3 border-t border-[var(--border-subtle)]">
                 <div className="flex gap-2">
                   <Button
                     variant="ghost"
