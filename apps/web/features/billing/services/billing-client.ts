@@ -45,9 +45,11 @@ export class BillingClient {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
     const reqHeaders: Record<string, string> = {
-      'Content-Type': 'application/json',
       ...headers,
     };
+    if (body !== undefined) {
+      reqHeaders['Content-Type'] = 'application/json';
+    }
 
     if (this.authToken && !reqHeaders['Authorization']) {
       reqHeaders['Authorization'] = `Bearer ${this.authToken}`;

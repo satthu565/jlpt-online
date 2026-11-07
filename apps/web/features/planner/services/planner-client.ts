@@ -46,9 +46,11 @@ export class PlannerClient {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
     const reqHeaders: Record<string, string> = {
-      'Content-Type': 'application/json',
       ...headers,
     };
+    if (body !== undefined) {
+      reqHeaders['Content-Type'] = 'application/json';
+    }
 
     let token = this.authToken;
     if (!token && typeof window !== 'undefined') {
@@ -119,7 +121,11 @@ export class PlannerClient {
   }
 
   public async archiveStudyPlan(planId: string): Promise<{ archived: boolean }> {
-    return this.request<{ archived: boolean }>('DELETE', `/me/study-plans/${encodeURIComponent(planId)}`);
+    try {
+      return await this.request<{ archived: boolean }>('DELETE', `/me/study-plans/${encodeURIComponent(planId)}`);
+    } catch {
+      return await this.request<{ archived: boolean }>('POST', `/me/study-plans/${encodeURIComponent(planId)}/archive`, {});
+    }
   }
 
   public async getReminders(planId: string): Promise<ReminderInfo> {
