@@ -182,6 +182,7 @@ export interface QuestionExampleDto {
   matchedTerm: string;
   isSavedSource?: boolean;
   examTitle?: string;
+  examSlug?: string;
   questionNumber?: number | string;
   examId?: string;
   options?: QuestionOptionDto[];
