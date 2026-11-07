@@ -115,15 +115,15 @@ export function ExamDetailView({
                 <strong className="text-slate-700 dark:text-slate-300">Nguồn trích dẫn:</strong>{' '}
                 {exam.sourceLabel}
               </div>
+            )}
+            {exam.licenseLabel && (
+              <div>
+                <strong className="text-slate-700 dark:text-slate-300">Giấy phép &amp; Bản quyền:</strong>{' '}
+                {exam.licenseLabel}
+              </div>
+            )}
+          </div>
         )}
-          )}
-          {exam.licenseLabel && (
-            <div>
-              <strong className="text-slate-700 dark:text-slate-300">Giấy phép &amp; Bản quyền:</strong>{' '}
-              {exam.licenseLabel}
-            </div>
-          )}
-        </div>
 
         {/* Chọn chế độ làm bài */}
         <div className="space-y-3">
