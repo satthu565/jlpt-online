@@ -299,6 +299,7 @@ export class NotebookService {
             stem: questionVersions.stem,
             explanation: questionVersions.explanation,
             examTitle: exams.title,
+            examSlug: exams.slug,
             orderIndex: examItems.orderIndex,
           })
           .from(questions)
@@ -361,6 +362,7 @@ export class NotebookService {
             matchedTerm: trimmed,
             isSavedSource: true,
             examTitle: q.examTitle || item.sourceExam,
+            examSlug: q.examSlug || undefined,
             questionNumber: q.orderIndex != null ? q.orderIndex : item.sourceQnum,
             options: options.length > 0 ? options : undefined,
             correctOptionIndex,
@@ -396,6 +398,7 @@ export class NotebookService {
           skill: questions.skill,
           stem: questionVersions.stem,
           examTitle: exams.title,
+          examSlug: exams.slug,
           orderIndex: examItems.orderIndex,
         })
         .from(questions)
@@ -421,6 +424,7 @@ export class NotebookService {
           matchedTerm: trimmed,
           isSavedSource: false,
           examTitle: q.examTitle || undefined,
+          examSlug: q.examSlug || undefined,
           questionNumber: q.orderIndex != null ? q.orderIndex : undefined,
         };
       });
