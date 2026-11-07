@@ -129,20 +129,23 @@ export function ExamDetailView({
           <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
             Chọn hình thức làm bài
           </h2>
-          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-            Cách làm bài: nhấp vào phương án 1, 2, 3 hoặc 4 để chọn; nhấp lại vào phương án đã chọn để bỏ chọn. Thời gian từng phần xem ở bảng cấu trúc phía trên.
-          </p>
+          <Alert variant="warning" title="Trước khi vào thi" className="mb-0">
+            <ul className="list-disc pl-5 space-y-0.5 text-xs">
+              <li>Nhấp vào phương án 1, 2, 3 hoặc 4 để chọn; nhấp lại vào phương án đã chọn để bỏ chọn.</li>
+              <li>
+                Khi hoàn thành hoặc chuyển sang phần thi tiếp theo, phần thi trước đó <strong>bị khóa hoàn toàn</strong>: bạn không thể xem lại hay sửa đáp án.
+              </li>
+            </ul>
+          </Alert>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="surface surface--secondary rounded-2xl p-4 flex flex-col gap-3">
-              <div>
-                <div className="text-sm font-bold text-slate-900 dark:text-slate-100">Thi thật (chuẩn JLPT)</div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
-                  Bấm giờ nghiêm ngặt từng phần, tự nộp bài khi hết giờ, không xem đáp án hay giải thích khi đang thi. Kết quả tính vào thống kê.
-                </p>
-              </div>
-              <Alert variant="warning" title="Lưu ý khi chuyển phần" className="mb-0 text-left">
-                Khi hoàn thành hoặc chuyển sang phần thi tiếp theo, phần thi trước đó <strong>bị khóa hoàn toàn</strong>: bạn không thể xem lại hay sửa đáp án.
-              </Alert>
+              <div className="text-sm font-bold text-slate-900 dark:text-slate-100">Thi thật (chuẩn JLPT)</div>
+              <ul className="list-disc pl-5 space-y-1 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <li>Bấm giờ nghiêm ngặt từng phần</li>
+                <li>Hết giờ tự động nộp bài</li>
+                <li>Không xem đáp án hay giải thích khi đang thi</li>
+                <li>Kết quả tính vào thống kê</li>
+              </ul>
               <a href={`/phong-thi?examId=${exam.id}&mode=real&start=1`} className="text-decoration-none mt-auto">
                 <Button variant="primary" size="md" className="w-full">
                   Bắt đầu thi thật
@@ -150,12 +153,13 @@ export function ExamDetailView({
               </a>
             </div>
             <div className="surface surface--secondary rounded-2xl p-4 flex flex-col gap-3">
-              <div>
-                <div className="text-sm font-bold text-slate-900 dark:text-slate-100">Luyện tập tự do</div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
-                  Thời gian linh hoạt, phù hợp làm từng phần. Không ảnh hưởng chỉ số xếp hạng chính thức.
-                </p>
-              </div>
+              <div className="text-sm font-bold text-slate-900 dark:text-slate-100">Luyện tập tự do</div>
+              <ul className="list-disc pl-5 space-y-1 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <li>Thời gian linh hoạt, làm từng phần được</li>
+                <li>Phần nghe có thể nghe lại và đổi tốc độ</li>
+                <li>Không ảnh hưởng chỉ số xếp hạng chính thức</li>
+                <li>Không bị tính vào thống kê thi thật</li>
+              </ul>
               <a href={`/phong-thi?examId=${exam.id}&mode=practice&start=1`} className="text-decoration-none mt-auto">
                 <Button variant="outline" size="md" className="w-full">
                   Luyện tập tự do
