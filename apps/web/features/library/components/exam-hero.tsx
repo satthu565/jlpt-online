@@ -133,13 +133,12 @@ function HeroCountdownCard(): React.JSX.Element {
             ĐẾM NGƯỢC KỲ THI JLPT{" "}
             {mounted && countdownTime.label ? countdownTime.label : ""}
           </span>
-          <a
-            href="/lich-thi"
-            className="text-[11px] font-semibold text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-0.5"
-          >
-            <span>Lịch thi</span>
-            <ChevronRight className="size-3" aria-hidden="true" />
-          </a>
+          <Button asChild variant="link" size="sm">
+            <a href="/lich-thi">
+              <span>Lịch thi</span>
+              <ChevronRight className="size-3" aria-hidden="true" />
+            </a>
+          </Button>
         </div>
 
         {/* 4 Digital Timer Blocks with Animated Digit Transitions */}
@@ -272,7 +271,7 @@ export function ExamHero({
               asChild
               variant="primary"
               size="sm"
-              className="h-9 px-4 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-xs shrink-0 flex items-center gap-1.5"
+              className="shrink-0"
             >
               <a
                 href={`/phong-thi?examId=${inProgressExam.id}`}
@@ -356,16 +355,15 @@ export function ExamHero({
                       </span>
                     </>
                   ) : (
-                    <a
-                      href="/dang-nhap"
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100/90 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-medium transition-colors"
-                    >
-                      <span>
-                        💡 Đăng nhập để lưu tiến độ, điểm thi và đồng bộ đề yêu
-                        thích
-                      </span>
-                      <ChevronRight className="size-3" aria-hidden="true" />
-                    </a>
+                    <Button asChild variant="link" size="sm">
+                      <a href="/dang-nhap">
+                        <span>
+                          💡 Đăng nhập để lưu tiến độ, điểm thi và đồng bộ đề yêu
+                          thích
+                        </span>
+                        <ChevronRight className="size-3" aria-hidden="true" />
+                      </a>
+                    </Button>
                   )}
                 </div>
               </>

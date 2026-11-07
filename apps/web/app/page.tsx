@@ -14,6 +14,7 @@ import {
 import { Card } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
 import { Alert } from '@jlpt/ui/components/alert';
+import { Badge } from '@jlpt/ui/components/badge';
 import { JsonLd } from '@jlpt/ui/components/json-ld';
 import {
   TooltipProvider,
@@ -412,13 +413,12 @@ export default function HomePage(): React.JSX.Element {
                 )}
               </h2>
             </div>
-            <a
-              href="/de-thi"
-              className="text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors"
-            >
-              <span>{t('home.viewAllExams')}</span>
-              <ArrowRight className="size-3.5" aria-hidden="true" />
-            </a>
+            <Button asChild variant="link" size="sm">
+              <a href="/de-thi">
+                <span>{t('home.viewAllExams')}</span>
+                <ArrowRight className="size-3.5" aria-hidden="true" />
+              </a>
+            </Button>
           </div>
 
           {/* Active Filter Indicators */}
@@ -431,7 +431,6 @@ export default function HomePage(): React.JSX.Element {
                   variant="secondary"
                   size="sm"
                   onClick={() => setFilters((prev) => ({ ...prev, searchQuery: '' }))}
-                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900"
                 >
                   Từ khóa: &quot;{filters.searchQuery}&quot; ✕
                 </Button>
@@ -442,7 +441,6 @@ export default function HomePage(): React.JSX.Element {
                   variant="secondary"
                   size="sm"
                   onClick={() => setFilters((prev) => ({ ...prev, level: 'ALL' }))}
-                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900"
                 >
                   Cấp độ: {filters.level} ✕
                 </Button>
@@ -453,7 +451,6 @@ export default function HomePage(): React.JSX.Element {
                   variant="secondary"
                   size="sm"
                   onClick={() => setFilters((prev) => ({ ...prev, year: 'ALL' }))}
-                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900"
                 >
                   Năm: {filters.year} ✕
                 </Button>
@@ -464,7 +461,6 @@ export default function HomePage(): React.JSX.Element {
                   variant="secondary"
                   size="sm"
                   onClick={() => setFilters((prev) => ({ ...prev, session: 'ALL' }))}
-                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900"
                 >
                   Kỳ thi: Tháng {filters.session} ✕
                 </Button>
@@ -475,7 +471,6 @@ export default function HomePage(): React.JSX.Element {
                   variant="secondary"
                   size="sm"
                   onClick={() => setFilters((prev) => ({ ...prev, kind: 'ALL' }))}
-                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900"
                 >
                   Thể loại:{' '}
                   {filters.kind === 'original'
@@ -492,7 +487,6 @@ export default function HomePage(): React.JSX.Element {
                   variant="secondary"
                   size="sm"
                   onClick={() => setFilters((prev) => ({ ...prev, userStatus: 'ALL' }))}
-                  className="rounded-full text-xs h-7 px-2.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900"
                 >
                   Trạng thái:{' '}
                   {filters.userStatus === 'not_started'
@@ -511,7 +505,6 @@ export default function HomePage(): React.JSX.Element {
                   variant="secondary"
                   size="sm"
                   onClick={() => setFilters((prev) => ({ ...prev, onlyFavorites: false }))}
-                  className="rounded-full text-xs h-7 px-2.5 bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900"
                 >
                   ⭐ Đã yêu thích ✕
                 </Button>
@@ -521,7 +514,6 @@ export default function HomePage(): React.JSX.Element {
                 variant="ghost"
                 size="sm"
                 onClick={handleResetAllFilters}
-                className="text-xs text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
               >
                 Xóa tất cả
               </Button>
@@ -552,15 +544,13 @@ export default function HomePage(): React.JSX.Element {
             <div className="mb-8 p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-blue-50/80 via-indigo-50/40 to-white dark:from-slate-800/80 dark:via-slate-800/40 dark:to-slate-900 border border-blue-200/80 dark:border-slate-700 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">
-                    <Sparkles className="size-3 text-amber-600" aria-hidden="true" />
+                  <Badge variant="warning" size="sm">
+                    <Sparkles className="size-3" aria-hidden="true" />
                     Đề thi gợi ý hôm nay
-                  </span>
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-md font-bold badge-level-${recommendedExam.level.toLowerCase()}`}
-                  >
+                  </Badge>
+                  <Badge variant="neutral" size="sm">
                     {recommendedExam.level}
-                  </span>
+                  </Badge>
                   <span className="text-xs text-slate-500 font-medium">Đề thi thật chính thức</span>
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">
@@ -582,7 +572,7 @@ export default function HomePage(): React.JSX.Element {
                       asChild
                       variant="outline"
                       size="sm"
-                      className="flex-1 sm:flex-initial h-10 px-4 rounded-xl text-xs font-bold border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      className="flex-1 sm:flex-initial"
                     >
                       <a
                         href={`/phong-thi?examId=${recommendedExam.id}&mode=practice`}
@@ -603,7 +593,7 @@ export default function HomePage(): React.JSX.Element {
                   asChild
                   variant="primary"
                   size="sm"
-                  className="flex-1 sm:flex-initial h-10 px-5 rounded-xl text-xs font-bold shadow-sm"
+                  className="flex-1 sm:flex-initial"
                 >
                   <a
                     href={`/phong-thi?examId=${recommendedExam.id}`}
