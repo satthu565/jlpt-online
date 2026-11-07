@@ -305,6 +305,8 @@
     "quickLevelSelect": "Quick Level Select",
     "examsByYear": "Exams by Year",
     "viewAllExams": "View all",
+    "showMoreSessions": "Show {count} more sessions",
+    "showMoreExams": "Show {count} more exams",
     "takeExamNow": "Start Exam",
     "searchExamsButton": "Search Exams",
     "levelSelectLabel": "Level",

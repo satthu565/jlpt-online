@@ -19,6 +19,10 @@ export interface LibraryViewProps {
   showHero?: boolean;
 }
 
+// Rendering every exam at once cost several hundred ms of main-thread time on mobile; the rest is revealed on request.
+const INITIAL_VISIBLE_EXAMS = 12;
+const VISIBLE_EXAMS_STEP = 24;
+
 export function LibraryView({
   exams: allExams,
   initialLevel,
@@ -27,6 +31,7 @@ export function LibraryView({
 }: LibraryViewProps): React.JSX.Element {
   const favorites = useExamFavorites();
   const { t } = useI18n();
+  const [visibleExamCount, setVisibleExamCount] = useState(INITIAL_VISIBLE_EXAMS);
 
   // In-progress exam for logged-in user
   const inProgressExam = useMemo(() => {
@@ -395,7 +400,7 @@ export function LibraryView({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredExams.map((exam) => (
+            {filteredExams.slice(0, visibleExamCount).map((exam) => (
               <ExamCard
                 key={exam.id}
                 exam={exam}
@@ -404,6 +409,20 @@ export function LibraryView({
                 favoriteDisabled={favorites.isLoading}
               />
             ))}
+          </div>
+        )}
+
+        {filteredExams.length > visibleExamCount && (
+          <div className="mt-6 flex justify-center">
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              onClick={() => setVisibleExamCount((count) => count + VISIBLE_EXAMS_STEP)}
+              className="rounded-xl text-xs font-semibold"
+            >
+              {t('home.showMoreExams', { count: filteredExams.length - visibleExamCount })}
+            </Button>
           </div>
         )}
       </div>
