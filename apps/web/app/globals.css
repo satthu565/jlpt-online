@@ -36,6 +36,9 @@
 @import "@heroui/styles/components/description.css" layer(components);
 @import "@heroui/styles/components/textfield.css" layer(components);
 @import "@heroui/styles/components/button-group.css" layer(components);
+@import "@heroui/styles/components/select.css" layer(components);
+@import "@heroui/styles/components/list-box.css" layer(components);
+@import "@heroui/styles/components/list-box-item.css" layer(components);
 @import '@jlpt/ui/styles.css';
 
 @source "../../../packages/ui/src";

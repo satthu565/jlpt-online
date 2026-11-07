@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
 import { Input } from '@jlpt/ui/components/input';
-import { Select } from '@jlpt/ui/components/select';
+import { HeroSelect } from '@jlpt/ui/components/hero-select';
 import { Badge } from '@jlpt/ui/components/badge';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Modal } from '@jlpt/ui/components/modal';
@@ -279,15 +279,16 @@ export function NotebookView({
               placeholder={t('notebook.filters.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-10 md:h-9"
             />
           </div>
 
           <div className="w-[140px]">
-            <Select
+            <HeroSelect
               id="notebook-kind-filter"
               aria-label={t('notebook.filters.kindLabel')}
               value={filterKind}
-              onChange={(e) => setFilterKind(e.target.value)}
+              onChange={(val) => setFilterKind(val)}
               options={[
                 { value: 'all', label: t('notebook.filters.allKinds') },
                 { value: 'vocab', label: t('notebook.kinds.vocab') },
@@ -298,11 +299,11 @@ export function NotebookView({
           </div>
 
           <div className="w-[160px]">
-            <Select
+            <HeroSelect
               id="notebook-mastered-filter"
               aria-label={t('notebook.filters.statusLabel')}
               value={filterMastered}
-              onChange={(e) => setFilterMastered(e.target.value)}
+              onChange={(val) => setFilterMastered(val)}
               options={[
                 { value: 'all', label: t('notebook.filters.allStatus') },
                 { value: 'learning', label: t('notebook.status.learning') },
@@ -488,13 +489,11 @@ export function NotebookView({
             )}
 
             <div>
-              <label className="block mb-1 font-semibold" htmlFor="modal-kind-select">
-                {t('notebook.form.kind')}
-              </label>
-              <Select
+              <HeroSelect
                 id="modal-kind-select"
+                label={t('notebook.form.kind')}
                 value={newKind}
-                onChange={(e) => setNewKind(e.target.value as NotebookItemKind)}
+                onChange={(val) => setNewKind(val as NotebookItemKind)}
                 options={[
                   { value: 'vocab', label: t('notebook.kinds.vocab') },
                   { value: 'grammar', label: t('notebook.kinds.grammar') },
