@@ -326,7 +326,7 @@ export function LibraryFilters({
           variant="ghost"
           size="sm"
           onPress={onResetFilters}
-          className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold p-0 h-auto min-h-0"
+          className="text-xs text-blue-600 dark:text-blue-400 font-semibold"
         >
           Đặt lại bộ lọc
         </Button>
