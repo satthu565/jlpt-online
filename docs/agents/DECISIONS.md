@@ -20,7 +20,7 @@ Tóm tắt những điều agent phải theo. Lý do chi tiết từng task nằ
 
 | Quyết định | Nguồn |
 |---|---|
-| Giao diện dùng Radix + HeroUI styles (CSS) qua `@jlpt/ui`. Không dùng `@heroui/react`. Không dùng thẻ thô. | PR #111, #113 (thay shadcn của D00–D10) |
+| Giao diện dùng component chính thức của HeroUI (`@heroui/react` và `@heroui/styles`) qua `@jlpt/ui` cho toàn bộ hệ thống để đồng bộ. Không dùng thẻ thô, không tự dựng component khi HeroUI đã có. | Chỉ thị chủ dự án, 07/11/2026 (mở rộng từ PR #111, #113 và quyết định phòng thi) |
 | Giao diện chỉ dùng API thật, không dữ liệu giả (có cổng `check:no-mock-ui`). | I07, `docs/multi-worker/AGENTS.md` |
 | Thi thật: deadline phía server, lease, `seq`, ACK theo transaction. | C01, C03 |
 | Ảnh chụp đề, đáp án và phiên bản nội dung là bất biến. | C02 |
