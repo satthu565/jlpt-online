@@ -134,3 +134,5 @@ Triệu chứng: tạo lượt làm bằng request không có Origin được, n
 - Công cụ hiệu đính N1 dừng trước khi ghi với `admin !== publisher` → publisher là tên tác vụ/tài khoản, API xuất bản yêu cầu vai trò `admin` → kiểm tra tài khoản publisher có role admin; giữ editor/reviewer và TOTP riêng.
 
 - Numbered grammar blanks appear indistinguishable → RichTextView ignored blank.label → render the escaped label, reuse surrounding parentheses, and include the label in the accessible name.
+
+- Lời giải hiện chuỗi `[{'t': 'text', ...}]` → công cụ nhập đã chuyển rich text thành chuỗi Python thay vì lấy văn bản → đọc nội dung các node và lưu câu tiếng Nhật đúng trong lời giải phiên bản mới; đồng bộ cả explanation được duyệt, giữ lịch sử.
