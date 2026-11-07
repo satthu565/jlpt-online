@@ -140,3 +140,7 @@ Triệu chứng: tạo lượt làm bằng request không có Origin được, n
 ## Recollected answer sheets can be published as if they were full exam booklets
 
 Symptom: N4 December 2022 has standalone terms, abbreviated context, several plausible choices, and a drafting instruction visible in an explanation. Cause: its original import report says `DRAFT_ONLY` and `source-missing-original-exam-booklet`, but the reconstructed package was subsequently published. Correct approach: check the importer report and source inventory, never claim invented distractors are restored official wording, and respect the owner’s instruction to leave this exam unchanged pending the original booklet. Preserve published history through new versions. See `tools/content/n4-kanji-vocab-review/README.md`.
+
+## A passage-only legacy version can leave the editor group API with null question versions
+
+Symptom: an approved group v2 returns null for every question.version even though the exam still has published questions. Cause observed in N4 July 2023: the group has v2 but its three questions only have v1; getGroup loads questions at the exact group version. Correct approach: detect the mismatch before planning a group PATCH, preserve all existing question identities and history, and do not silently drop null questions or rebuild them from an incomplete source. This audit leaves that source-incomplete group unchanged and records it for a separate recovery.

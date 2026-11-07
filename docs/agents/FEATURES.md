@@ -132,3 +132,7 @@ Bổ sung N1 7/2019 (06/11/2026): `tools/content/n1-2019-07-followup/` đổi `�
 ## N4 content audit (2026-11-07)
 
 Prepared versioned 文字・語彙 corrections for 20 questions in 9 of 15 imported N4 exams (448 questions reviewed), including 12 explanation revisions. No answer-index changes. The owner deferred all changes to December 2022 until an original booklet is available; its 28 existing questions remain unchanged. See [audit and guarded operation](../../tools/content/n4-kanji-vocab-review/README.md). Actual application status is recorded separately after CI and backup.
+
+## N4 grammar/reading content audit (2026-11-07)
+
+Prepared 22 question and 5 passage revisions in 12 N4 exams, including 16 synchronized explanations and no answer-index changes. Reviewed 435 questions; all 29 December 2022 questions stay unchanged per owner instruction. July 2023's missing fourth option and incomplete source reading group remain deferred. All 61 reviewed star-composition orders are recorded. See [audit and guarded operation](../../tools/content/n4-grammar-reading-review/README.md). Application status is recorded separately after CI and backup.

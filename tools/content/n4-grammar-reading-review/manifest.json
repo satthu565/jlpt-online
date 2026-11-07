@@ -1,0 +1,5994 @@
+{
+  "reviewDate": "2026-11-07",
+  "scope": {
+    "exams": 15,
+    "questions": 464,
+    "reviewedQuestions": 435
+  },
+  "keyChanges": [],
+  "deferred": [
+    {
+      "slug": "n4-2022-12",
+      "questions": 29,
+      "reason": "Owner requested keeping this exam unchanged pending its original booklet."
+    },
+    {
+      "slug": "n4-2023-07",
+      "number": 51,
+      "reason": "Available source p3 also contains only three choices; do not invent fourth choice."
+    },
+    {
+      "slug": "n4-2023-07",
+      "number": 53,
+      "reason": "Original first half of reading passage is absent; preserve existing group and flag incomplete provenance. Admin group v2 also has no matching question v2 rows."
+    }
+  ],
+  "fixes": [
+    {
+      "slug": "n4-2010-2011",
+      "number": 65,
+      "examId": "6b148634-a6db-4c4a-a5a0-c4bc0658402f",
+      "publishedVersion": 3,
+      "questionId": "69686e13-e3f3-4870-a73e-3840cec5f4be",
+      "groupId": "84a11de0-8099-4312-acae-d8e24d6beec7",
+      "questionVersion": 2,
+      "before": {
+        "stem": [
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "①一日がとても短いと思いました"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "とありますが、どうしてですか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "夏休みに一週間アルバイトをしたから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "お客様を接待のは大変だったから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "まだ仕事に慣れなかったから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "一日中、ずっと本や雑誌を並べていたから"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Có câu \"① Tôi thấy một ngày rất ngắn ngủi\", tại sao lại như vậy?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 一日中、ずっと本や雑誌を並べていたから"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Trong đoạn 1: 「初めのころは本の場所を覚えたり、並べ方を教えてもらったり、することがたくさんあって大変でしたから、一日がとても短いと思いました」(Lúc đầu vì phải nhớ vị trí sách, học cách xếp sách, có rất nhiều việc phải làm vất vả nên thấy một ngày trôi qua rất nhanh). Phương án 4 chỉ việc bận rộn cả ngày xếp sách giải thích cho cảm giác một ngày trôi qua rất nhanh theo đáp án chính thức."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 夏休みに一週間アルバイトをしたから: Tác giả làm việc một tuần 3 ngày (一週間に三日), chứ không phải làm 1 tuần."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] お客様を接待のは大変だったから: Từ dùng và ngữ pháp sai trong câu tiếng Nhật, không phải lý do được nêu ở đoạn 1."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] まだ仕事に慣れなかったから: Nội dung chưa nêu bật được hành động cụ thể khiến thời gian trôi nhanh như phương án 4."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "①一日がとても短いと思いました"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "とありますが、どうしてですか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "夏休みに一週間アルバイトをしたから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "お客様を接待するのは大変だったから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "まだ仕事に慣れなかったから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "一日中、ずっと本や雑誌を並べていたから"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Vì sao tác giả thấy một ngày trôi qua rất nhanh khi mới làm thêm?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] まだ仕事に慣れなかったから — Đầu bài nói lúc đầu tác giả phải nhớ vị trí sách, học cách sắp sách và còn nhiều việc khác nên rất vất vả. Điều đó phù hợp với việc chưa quen công việc ở lựa chọn 3. Giữ số đáp án hiện có là 3; lời giải cũ chỉ lựa chọn 4 là không khớp nội dung."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] 夏休みに一週間アルバイトをしたから: 一週間に三日 nghĩa là ba ngày mỗi tuần, không phải chỉ làm thêm đúng một tuần."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] お客様を接待するのは大変だったから: Bài không quy nguyên nhân cho việc tiếp khách; đoạn này nói nhiều việc mới phải học."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] 一日中、ずっと本や雑誌を並べていたから: Bài nêu nhiều việc khác nhau, không nói cả ngày chỉ xếp sách và tạp chí."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Editorially restore missing する in distractor 2 without changing its semantic role",
+        "Synchronize stale rationale key 4 to stored key 3 and actual reading evidence"
+      ]
+    },
+    {
+      "slug": "n4-2012-12",
+      "number": 37,
+      "examId": "ab85b454-0841-437c-a94b-a3d33a3259da",
+      "publishedVersion": 3,
+      "questionId": "86cc15ac-c7e4-4bc1-a31a-1f4b44138c5d",
+      "groupId": "d6b58852-1f15-4aae-aabf-8214d1bffbc1",
+      "questionVersion": 2,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "男の子の　顔は　父親より　母親"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "に似るという　話を聞いた。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "に"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "へ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "も"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "を"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Dịch câu: Tôi nghe nói gương mặt của bé trai thường giống mẹ hơn là giống bố."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Ngữ pháp: Động từ「似る」(にる - giống) đi với đối tượng tương đồng dùng trợ từ「に」:「～に似る」(giống ai/cái gì). Do đó đáp án đúng là 1."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Các trợ từ khác không đi với động từ 似る."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "男の子の　顔は　父親より　母親"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "似るという　話を聞いた。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "に"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "へ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "も"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "を"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Dịch câu: Tôi nghe nói gương mặt của bé trai thường giống mẹ hơn là giống bố."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Ngữ pháp: Động từ「似る」(にる - giống) đi với đối tượng tương đồng dùng trợ từ「に」:「～に似る」(giống ai/cái gì). Do đó đáp án đúng là 1."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Các trợ từ khác không đi với động từ 似る."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Remove duplicated に after the answer blank; source booklet p5 Q3 has 母親（ ）にる"
+      ]
+    },
+    {
+      "slug": "n4-2013-12",
+      "number": 39,
+      "examId": "c7b1ffec-233f-4460-a5d4-7ec2705940d8",
+      "publishedVersion": 1,
+      "questionId": "e6ddc6f2-f0d1-46fd-a017-f0e1d0372869",
+      "groupId": "96f69d0e-54c2-4d39-aa57-5c75bc320e86",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "A「今から サッカーを しませんか。」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "B「すみません、ともだち"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "待たせて いるので、また 今度 さそって ください。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "を"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "の"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "へ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "で"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: A: \"Bây giờ cùng đi đá bóng không?\" - B: \"Xin lỗi, vì tôi đang để bạn đợi nên lần sau hãy rủ tôi nhé.\"."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] を. Trong thể sai khiến với nội động từ 「待つ」 -> 「待たせる」, người bị tác động (người phải đợi) đi với trợ từ 「を」 (「ともだちを待たせる」)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] の: Trợ từ chỉ sở hữu."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] へ: Trợ từ chỉ phương hướng."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] で: Trợ từ chỉ phương tiện, phương thức."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "A「今から サッカーを しませんか。」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "B「すみません、ともだち"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "待たせて いるので、また 今度 さそって ください。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "を"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "の"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "へ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "で"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Xin lỗi, tôi đang để bạn đợi nên lần sau hãy rủ tôi nhé."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] を — 友だちを待たせている nghĩa là đang để/bắt bạn chờ. Người bị để chờ đi với を trong cụm này. Không cần gọi 待つ là nội động từ: 待つ cũng dùng với tân ngữ, như 友だちを待つ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] の: の không đánh dấu người bị để chờ trong cấu trúc này."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] へ: へ chỉ hướng; không dùng để chỉ người bị để chờ ở đây."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] で: で không đánh dấu người bị để chờ ở đây."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Correct inaccurate classification of 待つ while explaining を待たせる"
+      ]
+    },
+    {
+      "slug": "n4-2013-12",
+      "number": 54,
+      "examId": "c7b1ffec-233f-4460-a5d4-7ec2705940d8",
+      "publishedVersion": 1,
+      "questionId": "8c850afd-1bad-453b-a0ac-15357dd5821a",
+      "groupId": "766ca294-7da4-411d-afdb-034dff6dd213",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この 道は、雨の 日は すべり "
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": " "
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": " "
+          },
+          {
+            "t": "star"
+          },
+          {
+            "t": "text",
+            "text": " "
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": " ください。yy"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "通って"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "やすくて"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "気を つけて"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "あぶないから"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Con đường này vào ngày mưa dễ trơn trượt rất nguy hiểm, nên xin hãy chú ý cẩn thận khi đi qua."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 気を つけて. Thứ tự đúng là: この 道は、雨の 日は すべり [2. やすくて] [4. あぶないから] [★3. 気を つけて] [1. 通って] ください。yy. Vị trí ngôi sao ★ là [3] 気を つけて. Mẫu ngữ pháp 「V-bỏます + やすい」 (dễ bị trơn trượt) nối với nguyên nhân 「から」 và cụm 「気をつけて通ってください」 (hãy cẩn thận đi qua). (Lưu ý: \"yy\" ở cuối câu là ký tự in thừa trong bản in gốc, được giữ nguyên văn)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 通って: Nằm ở vị trí số 4 trước ください (通ってください)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] やすくて: Nằm ở vị trí số 1 sau すべり (すべりやすくて)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] あぶないから: Nằm ở vị trí số 2 sau やすくて (あぶないから)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この 道は、雨の 日は すべり "
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": " "
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": " "
+          },
+          {
+            "t": "star"
+          },
+          {
+            "t": "text",
+            "text": " "
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": " ください。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "通って"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "やすくて"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "気を つけて"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "あぶないから"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Đường này dễ trơn vào ngày mưa nên hãy chú ý khi đi qua."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 気を つけて — Thứ tự 2–4–3–1: この道は、雨の日はすべりやすくてあぶないから、気をつけて通ってください。★ ở vị trí thứ ba là lựa chọn 3. やすい nối với thân động từ すべり; から nêu lý do."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] 通って: 通って đứng thứ tư, ngay trước ください."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] やすくて: やすくて đứng đầu sau すべり."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] あぶないから: あぶないから đứng thứ hai để nêu lý do trước lời nhắc."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Remove stray yy printed in the source; editorial cleanup, not a change to the answer",
+        "Remove obsolete rationale claiming yy must remain in displayed sentence"
+      ]
+    },
+    {
+      "slug": "n4-2014-07",
+      "number": 47,
+      "examId": "055f71d1-8a42-4ffa-ab8b-ff536aa3d840",
+      "publishedVersion": 1,
+      "questionId": "33dd5fd2-c445-49fa-ac01-60195dd6b3d6",
+      "groupId": "6fa553f5-ed36-45e1-a1c4-aa078ccf4965",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "(駅で)"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "客「あのう、この さいふが 落ちて"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "。」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "駅員「ありがとうございます。どこに ありましたか。」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "客「トイレの 前です。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "いました"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "しました"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "みました"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "おきました"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: (Tại nhà ga) Khách: 'Xin lỗi, chiếc ví này đã bị rơi ở đằng kia.' - Nhân viên: 'Cảm ơn quý khách. Nó ở đâu vậy ạ?' - Khách: 'Ở trước nhà vệ sinh.'"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] いました. Tự động từ 「落ちる」 kết hợp với 「〜ている」 tạo thành 「落ちている」 biểu thị trạng thái kết quả của sự vật đang rơi ở đó."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] しました: 落ちてしました không có ngữ pháp này."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] みました: V-てみる (thử làm gì), không phù hợp."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] おきました: V-ておく (làm sẵn cái gì), đi với tha động từ, 落ちる là tự động từ."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "(駅で)"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "客「あのう、この さいふが 落ちて"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "。」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "駅員「ありがとうございます。どこに ありましたか。」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "客「トイレの 前です。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "いました"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "しました"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "みました"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "おきました"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Thưa anh/chị, tôi thấy chiếc ví này đã rơi và còn nằm ở đó."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] いました — 落ちる là rơi; 落ちていました ở đây chỉ trạng thái chiếc ví nằm lại sau khi rơi, không phải ví đang rơi giữa không trung. 駅員 hỏi どこにありましたか cũng xác nhận ý vị trí đồ vật."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] しました: 落ちてしました không tạo thành cấu trúc đúng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] みました: 落ちてみました mang nghĩa thử rơi, không hợp việc báo nhặt được ví."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] おきました: 落ちておきました không diễn tả trạng thái ví bị đánh rơi; cũng không phải hành động có chủ ý chuẩn bị."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Clarify resulting state in 落ちていました instead of ongoing falling"
+      ]
+    },
+    {
+      "slug": "n4-2019",
+      "number": 22,
+      "examId": "bb32b602-63aa-434b-affb-2241508fffeb",
+      "publishedVersion": 1,
+      "questionId": "85e15e08-4249-466f-a6c5-5ad6846a04db",
+      "groupId": "2a71254c-8f72-4225-a9d1-7600694775ad",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "どうして「"
+          },
+          {
+            "t": "ruby",
+            "rt": "ひ",
+            "text": "引"
+          },
+          {
+            "t": "text",
+            "text": "っ"
+          },
+          {
+            "t": "ruby",
+            "rt": "こ",
+            "text": "越"
+          },
+          {
+            "t": "text",
+            "text": "しのあいさつ」をしますか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "アパートなどに住むときは、ほとんどの人がしているから。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "ruby",
+                "rt": "ひ",
+                "text": "引"
+              },
+              {
+                "t": "text",
+                "text": "っ"
+              },
+              {
+                "t": "ruby",
+                "rt": "こ",
+                "text": "越"
+              },
+              {
+                "t": "text",
+                "text": "しをしたら、"
+              },
+              {
+                "t": "ruby",
+                "rt": "かなら",
+                "text": "必"
+              },
+              {
+                "t": "text",
+                "text": "ずしなければならないら。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "「これからここに住みます」と知らせないと、"
+              },
+              {
+                "t": "ruby",
+                "rt": "しつれい",
+                "text": "失礼"
+              },
+              {
+                "t": "text",
+                "text": "だから。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "「よろしくお"
+              },
+              {
+                "t": "ruby",
+                "rt": "ねが",
+                "text": "願"
+              },
+              {
+                "t": "text",
+                "text": "いします」という気持ちを"
+              },
+              {
+                "t": "ruby",
+                "rt": "つた",
+                "text": "伝"
+              },
+              {
+                "t": "text",
+                "text": "えたいから。"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Tại sao người ta lại thực hiện việc 「chào hỏi khi chuyển nhà」?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 「よろしくお願いします」という気持ちを伝えたいから。"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Đoạn 1 nêu rõ ý nghĩa của việc chào hỏi: 「『これからいろいろお世話になります。どうぞよろしくお願いします。』という意味です」 (mang ý nghĩa gửi gắm tấm lòng: mong được mọi người giúp đỡ, chiếu cố từ nay về sau)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] Vì hầu như ai sống ở chung cư cũng làm: Bài viết nêu gần đây có nhiều người không chào hỏi, đặc biệt là người sống một mình."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] Vì hễ chuyển nhà là bắt buộc phải làm: Đây là phong tục tập quán truyền thống chứ không phải điều bắt buộc cưỡng chế."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] Vì nếu không thông báo \"từ nay tôi sẽ sống ở đây\" thì thất lễ: Không đúng trọng tâm ý nghĩa của tập quán."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "どうして「"
+          },
+          {
+            "t": "ruby",
+            "rt": "ひ",
+            "text": "引"
+          },
+          {
+            "t": "text",
+            "text": "っ"
+          },
+          {
+            "t": "ruby",
+            "rt": "こ",
+            "text": "越"
+          },
+          {
+            "t": "text",
+            "text": "しのあいさつ」をしますか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "アパートなどに住むときは、ほとんどの人がしているから。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "ruby",
+                "rt": "ひ",
+                "text": "引"
+              },
+              {
+                "t": "text",
+                "text": "っ"
+              },
+              {
+                "t": "ruby",
+                "rt": "こ",
+                "text": "越"
+              },
+              {
+                "t": "text",
+                "text": "しをしたら、"
+              },
+              {
+                "t": "ruby",
+                "rt": "かなら",
+                "text": "必"
+              },
+              {
+                "t": "text",
+                "text": "ずしなければならないから。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "「これからここに住みます」と知らせないと、"
+              },
+              {
+                "t": "ruby",
+                "rt": "しつれい",
+                "text": "失礼"
+              },
+              {
+                "t": "text",
+                "text": "だから。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "「よろしくお"
+              },
+              {
+                "t": "ruby",
+                "rt": "ねが",
+                "text": "願"
+              },
+              {
+                "t": "text",
+                "text": "いします」という気持ちを"
+              },
+              {
+                "t": "ruby",
+                "rt": "つた",
+                "text": "伝"
+              },
+              {
+                "t": "text",
+                "text": "えたいから。"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Tại sao người ta lại thực hiện việc 「chào hỏi khi chuyển nhà」?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 「よろしくお願いします」という気持ちを伝えたいから。"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Đoạn 1 nêu rõ ý nghĩa của việc chào hỏi: 「『これからいろいろお世話になります。どうぞよろしくお願いします。』という意味です」 (mang ý nghĩa gửi gắm tấm lòng: mong được mọi người giúp đỡ, chiếu cố từ nay về sau)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] Vì hầu như ai sống ở chung cư cũng làm: Bài viết nêu gần đây có nhiều người không chào hỏi, đặc biệt là người sống một mình."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] Vì hễ chuyển nhà là bắt buộc phải làm: Đây là phong tục tập quán truyền thống chứ không phải điều bắt buộc cưỡng chế."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] Vì nếu không thông báo \"từ nay tôi sẽ sống ở đây\" thì thất lễ: Không đúng trọng tâm ý nghĩa của tập quán."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Restore missing か in distractor 2 causal ending",
+        "Synchronize repaired distractor spelling in rationale"
+      ]
+    },
+    {
+      "slug": "n4-2021-07",
+      "number": 32,
+      "examId": "21f6d7dc-d0b2-4765-a31b-3eafb5606595",
+      "publishedVersion": 2,
+      "questionId": "d0f6116e-8c3b-47ae-ad7d-632af6bff039",
+      "groupId": "c2edcc17-9e08-4174-aebc-29fc90de320d",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "（かばん屋で）"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "客「すみません、この　スーツケース"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "同じくらいの　大きさで、"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "　もっと　軽いのは　ありますか。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "が"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "に"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "を"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "と"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Đáp án đúng là 4 (と): Cấu trúc so sánh tương đương 「A と同じ（くらい）」(bằng/cỡ như A). Cụm 「このスーツケースと同じくらいの大きさで」 có nghĩa là: 'kích cỡ tương đương với chiếc va li này'."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Lý do các lựa chọn khác sai:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- 1 (gi): Sai vì các trợ từ này không đi kèm với tính từ 「同じ」 để chỉ đối tượng được đem ra làm mốc so sánh tương đương."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "（かばん屋で）"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "客「すみません、この　スーツケース"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "同じくらいの　大きさで、"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "　もっと　軽いのは　ありますか。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "が"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "に"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "を"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "と"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Có va li cùng cỡ với chiếc này nhưng nhẹ hơn không?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] と — Aと同じくらいの大きさ nghĩa là kích thước tương đương A. Dùng と để đánh dấu vật được so sánh."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] が: が không nối このスーツケース với 同じくらい trong cấu trúc này."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] に: に không nối mốc so sánh với 同じくらい ở đây."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] を: を không đánh dấu mốc so sánh của 同じくらい."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Replace corrupted gi distractor note and supply reasons for all actual choices"
+      ]
+    },
+    {
+      "slug": "n4-2021-07",
+      "number": 37,
+      "examId": "21f6d7dc-d0b2-4765-a31b-3eafb5606595",
+      "publishedVersion": 2,
+      "questionId": "ec2dcb15-ed72-476f-a063-086594f8cc1b",
+      "groupId": "f12f1f5e-e3b3-4fba-abc8-43dd80fb343e",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "わたしは　いい　仕事を　見つけて　両親を"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "ことができました。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "安心する"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "安心させる"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "安心して　いる"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "安心させて　いる"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Đáp án đúng là 2 (安心させる): Trợ từ 「を」 kết hợp với động từ ở thể sai khiến 「安心させる」(khiến/làm cho ai an tâm). Mẫu câu khả năng 「V thể từ điển + ことができる」: 「両親を安心させることができました」(Tôi đã tìm được công việc tốt và có thể khiến cho bố mẹ yên tâm)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Lý do các lựa chọn khác sai:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- 1 (安心する): Sai vì tự động từ 「安心する」 đi với trợ từ 「が」(両親が安心する), không kết hợp với 「両親を」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- 3 (安心して　いる), 4 (安心させて　いる): Sai vì trước 「ことができる」 bắt buộc phải là động từ thể từ điển, không dùng dạng thể ている."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "わたしは　いい　仕事を　見つけて　両親を"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "ことができました。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "安心する"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "安心させる"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "安心して　いる"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "安心させて　いる"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Tôi tìm được công việc tốt và đã làm bố mẹ yên tâm."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] 安心させる — 両親を安心させる nghĩa là làm bố mẹ yên tâm. Thêm ことができました diễn tả đã làm được việc ấy. Lựa chọn 2 thể hiện sự thay đổi trạng thái phù hợp với việc tìm được công việc."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] 安心する: 安心する là bản thân yên tâm, không đi với 両親を để nói làm bố mẹ yên tâm."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] 安心して　いる: 安心している là trạng thái chủ thể đang yên tâm; không phù hợp với 両親を."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] 安心させて　いる: 安心させている nhấn mạnh duy trì tác động đang diễn ra; ngữ cảnh ở đây nói kết quả đã làm bố mẹ yên tâm. Không nên suy rộng rằng mọi Vていることができる đều sai ngữ pháp."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Remove false blanket ban on Vていることができる"
+      ]
+    },
+    {
+      "slug": "n4-2021-07",
+      "number": 42,
+      "examId": "21f6d7dc-d0b2-4765-a31b-3eafb5606595",
+      "publishedVersion": 2,
+      "questionId": "bc0cdcd4-5431-4ee5-a0d9-3518e5056728",
+      "groupId": "77cee294-f4d6-4c88-a770-7b230b873d71",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "弟は　映画が　好きで、ビデオ　"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "star"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "持って　います"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "も"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "を"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "２００本"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Thứ tự sắp xếp câu đúng: 3 (を) → 4 (200本) → 2 (も) → 1 (持っています)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Câu hoàn chỉnh: 「弟は　映画が　好きで、ビデオを　200本も　持っています。」"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Em trai tôi rất thích xem phim, có tới hơn 200 cuốn băng video."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Vị trí ngôi sao ★ tương ứng với phương án: 2 (も)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích ngữ pháp: Trợ từ 「も」 đi sau từ chỉ số lượng để nhấn mạnh số lượng nhiều bất ngờ (\"đến tận, tới mức\"). Danh từ tân ngữ 「ビデオ」 đi với trợ từ 「を」 kết hợp với số lượng từ 「200本」 và vị ngữ 「持っています」."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "弟は　映画が　好きで、ビデオ　"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "star"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "持って　います"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "も"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "を"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "２００本"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Em trai tôi thích phim và có tới 200 cuốn băng video."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] も — Thứ tự 3–4–2–1: ビデオを200本も持っています。も nhấn mạnh 200 cuốn là nhiều, không có nghĩa là hơn 200. ★ đứng thứ ba, là も (lựa chọn 2)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] 持って　います: 持っています là vị ngữ, đứng thứ tư."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] を: を đứng đầu sau ビデオ để đánh dấu tân ngữ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] ２００本: ２００本 đứng thứ hai, trước も."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Correct translation: emphatic 200本も does not mean more than 200"
+      ]
+    },
+    {
+      "slug": "n4-2021-07",
+      "number": 44,
+      "examId": "21f6d7dc-d0b2-4765-a31b-3eafb5606595",
+      "publishedVersion": 2,
+      "questionId": "ea230264-dc51-435f-a41e-a651f3ed0da6",
+      "groupId": "c2a88804-07e1-4f9a-a079-d14bc0067117",
+      "questionVersion": 2,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "A「新しい　アパートは　どう？」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "B「ちょっと　駅から　"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "star"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "ところだよ。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "静かで"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "遠い"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "けど"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "いい"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Thứ tự sắp xếp câu đúng: 2 (遠い) → 3 (けど) → 1 (静かに) → 4 (いい)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Câu hoàn chỉnh: 「ちょっと　駅から　遠いけど　静かに　いい　ところだよ。」"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Hơi xa ga một chút nhưng yên tĩnh và là một nơi tốt."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Vị trí ngôi sao ★ tương ứng với phương án: 1 (静かに)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích ngữ pháp: 「〜けど」 dùng nối hai vế mang ý tương phản (hơi xa ga nhưng tốt). Lưu ý: Trong bản in đề thi in là 「静かに」(dạng liên dụng của tính từ đuôi na, tương tự 「静かで」), vị trí ngôi sao ★ nằm tại lựa chọn 1."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "A「新しい　アパートは　どう？」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "B「ちょっと　駅から　"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "star"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "ところだよ。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "静かで"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "遠い"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "けど"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "いい"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Hơi xa ga nhưng yên tĩnh và là một nơi tốt."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] 静かで — Thứ tự 2–3–1–4: 駅から遠いけど静かでいいところだよ。静か là tính từ な; dạng nối hai nhận xét là 静かで, đúng với lựa chọn hiện có. ★ đứng thứ ba, lựa chọn 1."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] 遠い: 遠い đứng đầu sau 駅から."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] けど: けど đứng thứ hai để nối ý tương phản."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] いい: いい đứng thứ tư trước ところ."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Synchronize rationale 静かに with actual choice 静かで"
+      ]
+    },
+    {
+      "slug": "n4-2021-12",
+      "number": 29,
+      "examId": "1ca4424b-b3f6-49e6-a53d-081b4f3b57d7",
+      "publishedVersion": 3,
+      "questionId": "6c6e0493-085f-4e24-a231-4cfe01c7bb7a",
+      "groupId": "94bfe8b9-18d9-4c64-aad0-87c0f0c46cc5",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "山田「ジョンさんは日本にどのくらいる予定ですか。」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "ジョン「ざんねんですが、一週間"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "いられません。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "だけ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "しか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "くらい"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "でも"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Yamada: 'John dự định ở lại Nhật Bản khoảng bao lâu?'"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "John: 'Tiếc là tôi chỉ có thể ở lại một tuần thôi.'"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] しか"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Cấu trúc 「Số từ + しか + Động từ phủ định (Vない)」 mang ý nghĩa 'chỉ... (thể hiện sự ít ỏi, tiếc nuối)'. Ở vế sau động từ ở dạng phủ định khả năng 「いられません」 nên bắt buộc dùng 「しか」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] だけ: Mang nghĩa 'chỉ' nhưng luôn đi với động từ ở thể khẳng định (一週間だけいられます), không đi với phủ định."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] くらい: Khoảng chừng, đi với khẳng định hoặc phủ định mang nghĩa áng chừng, nhưng đi với 「ざんねんですが」 để nhấn mạnh sự ít ỏi thì cấu trúc chuẩn là 「しか～ない」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] でも: Dù là / ngay cả, không phù hợp với ý diễn đạt sự tiếc nuối khi chỉ ở được một tuần."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "山田「ジョンさんは日本にどのくらいいる予定ですか。」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "ジョン「ざんねんですが、一週間"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "いられません。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "だけ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "しか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "くらい"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "でも"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Yamada: 'John dự định ở lại Nhật Bản khoảng bao lâu?'"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "John: 'Tiếc là tôi chỉ có thể ở lại một tuần thôi.'"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] しか"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Cấu trúc 「Số từ + しか + Động từ phủ định (Vない)」 mang ý nghĩa 'chỉ... (thể hiện sự ít ỏi, tiếc nuối)'. Ở vế sau động từ ở dạng phủ định khả năng 「いられません」 nên bắt buộc dùng 「しか」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] だけ: Mang nghĩa 'chỉ' nhưng luôn đi với động từ ở thể khẳng định (一週間だけいられます), không đi với phủ định."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] くらい: Khoảng chừng, đi với khẳng định hoặc phủ định mang nghĩa áng chừng, nhưng đi với 「ざんねんですが」 để nhấn mạnh sự ít ỏi thì cấu trúc chuẩn là 「しか～ない」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] でも: Dù là / ngay cả, không phù hợp với ý diễn đạt sự tiếc nuối khi chỉ ở được một tuần."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Restore い between どのくらい and いる"
+      ]
+    },
+    {
+      "slug": "n4-2021-12",
+      "number": 44,
+      "examId": "1ca4424b-b3f6-49e6-a53d-081b4f3b57d7",
+      "publishedVersion": 3,
+      "questionId": "4c76beff-ba4e-4d3d-ad3f-a989fa557fe9",
+      "groupId": "39498017-e581-483d-a911-04e9d4db0f87",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "私はいつもコーヒーは　"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "star"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "　コーヒーも飲みたくなる。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "ときどき"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "さとうを入れないで"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "あまい"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "飲むが"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Tôi thì bình thường uống cà phê không cho đường, nhưng thỉnh thoảng cũng muốn uống cà phê ngọt."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Câu hoàn chỉnh: 「私はいつもコーヒーは さとうを入れないで飲むがときどきあまい コーヒーも飲みたくなる。」"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] ときどき"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Thứ tự sắp xếp đúng: [2] さとうを入れないで -> [4] 飲むが -> [1] ときどき -> [3] あまい"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Cấu trúc tương phản 「Vないで + 飲む + が」 (không cho đường mà uống nhưng...) nối hai vế đối lập. Vế sau là phó từ 「ときどき」 bổ nghĩa cho 「あまいコーヒー」. Thứ tự ghép: 「さとうを入れないで(2) 飲むが(4) ときどき(1) あまい(3)」. Vị trí ngôi sao ★ là 「ときどき」 (lựa chọn 1)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] さとうを入れないで: Đứng ở vị trí thứ 1 (nêu trạng thái uống cà phê)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] あまい: Đứng ở vị trí thứ 4 (tính từ bổ nghĩa cho danh từ コーヒー ở vế sau)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 飲むが: Đứng ở vị trí thứ 2 (liên từ nối tương phản 'nhưng')."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "私はいつもコーヒーは　"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "star"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "　コーヒーも飲みたくなる。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "ときどき"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "さとうを入れないで"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "あまい"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "飲むが"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Tôi thường uống cà phê không cho đường nhưng thỉnh thoảng cũng muốn uống cà phê ngọt."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] ときどき — Thứ tự 2–4–1–3: さとうを入れないで飲むが、ときどきあまいコーヒーも飲みたくなる。ときどき bổ nghĩa cho việc đôi lúc muốn uống (飲みたくなる), không bổ nghĩa trực tiếp cho tính từ あまい. ★ đứng thứ ba, lựa chọn 1."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] さとうを入れないで: さとうを入れないで đứng đầu để diễn tả uống mà không thêm đường."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] あまい: あまい đứng thứ tư để bổ nghĩa コーヒー."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] 飲むが: 飲むが đứng thứ hai, kết thúc vế đầu và nối ý tương phản."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Correct scope of frequency adverb ときどき"
+      ]
+    },
+    {
+      "slug": "n4-2023-07",
+      "number": 52,
+      "examId": "32ed76c0-1655-435d-a1e3-c213720fec9a",
+      "publishedVersion": 2,
+      "questionId": "a8a40179-f02f-4760-a02d-43af0fd4a488",
+      "groupId": "578e4a11-14e3-4354-a3f0-8a6541d592ff",
+      "questionVersion": 2,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "卒業式の挨拶について、中西先生がリムさんに聞きたいことは何ですか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "前川先生と高木先生にも文章を送ったかどうか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "前川先生と高木先生の前で練習をしているかどうか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "前川先生と高木先生に練習を見てもらいたいかどうか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "前川先生と高木先生に「練習を見てください。」と頼んだかどうか"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": null
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "卒業式の挨拶について、中西先生がリムさんに聞きたいことは何ですか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "前川先生と高木先生にも文章を送ったかどうか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "前川先生と高木先生の前で練習をしているかどうか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "前川先生と高木先生に練習を見てもらいたいかどうか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "前川先生と高木先生に「練習を見てください。」と頼んだかどうか"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Thầy Nakanishi muốn hỏi Rim có muốn được hai thầy xem phần tập phát biểu tốt nghiệp không."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 前川先生と高木先生に練習を見てもらいたいかどうか — Email nói 前川先生と高木先生も「練習を見ましょうか。」と言っていたので、頼んでみましょうか。Người viết đề nghị nhờ hai thầy xem buổi tập, tức hỏi Rim có muốn được hai thầy xem giúp không (lựa chọn 3)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] 前川先生と高木先生にも文章を送ったかどうか: Bài không hỏi đã gửi văn bản cho hai thầy hay chưa."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] 前川先生と高木先生の前で練習をしているかどうか: Không hỏi Rim có đang tập trước mặt hai thầy hay không."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] 前川先生と高木先生に「練習を見てください。」と頼んだかどうか: 頼んでみましょうか là đề nghị sẽ nhờ, không phải hỏi Rim đã nhờ rồi hay chưa."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Supply missing explanation from actual email and current correct option"
+      ]
+    },
+    {
+      "slug": "n4-2024-07",
+      "number": 34,
+      "examId": "87d646f0-a0bf-4ba8-af38-29f552d263a2",
+      "publishedVersion": 2,
+      "questionId": "2c98e185-7228-4438-a1a9-037eea9655ef",
+      "groupId": "e87a5913-6707-4263-afb4-3b5d6d948f81",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "青木「石川さん、きのう"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "パーティーこなかったんですか。」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "石川「ようじがあったんです。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "どの"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "どうして"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "どのぐらい"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "どうやって"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Aoki: 'Anh Ishikawa, hôm qua tại sao anh không đến bữa tiệc vậy?' - Ishikawa: 'Vì tôi có chút việc bận.'"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] どうして"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Từ để hỏi lý do「どうして」(tại sao), câu trả lời dùng thể「〜んです」để giải thích nguyên nhân."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] どの: từ nghi vấn「どの」(nào - phải đứng trước danh từ)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] どのぐらい: hỏi về khoảng lượng/thời gian bao lâu."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] どうやって: hỏi cách thức làm một việc (bằng cách nào)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "青木「石川さん、きのう"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "パーティーにこなかったんですか。」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "石川「ようじがあったんです。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "どの"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "どうして"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "どのぐらい"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "どうやって"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Aoki: 'Anh Ishikawa, hôm qua tại sao anh không đến bữa tiệc vậy?' - Ishikawa: 'Vì tôi có chút việc bận.'"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] どうして"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Từ để hỏi lý do「どうして」(tại sao), câu trả lời dùng thể「〜んです」để giải thích nguyên nhân."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] どの: từ nghi vấn「どの」(nào - phải đứng trước danh từ)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] どのぐらい: hỏi về khoảng lượng/thời gian bao lâu."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] どうやって: hỏi cách thức làm một việc (bằng cách nào)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Editorially add destination particle に omitted in source p5 Q6"
+      ]
+    },
+    {
+      "slug": "n4-2024-07",
+      "number": 40,
+      "examId": "87d646f0-a0bf-4ba8-af38-29f552d263a2",
+      "publishedVersion": 2,
+      "questionId": "dfbebbe2-ecc5-4ba3-a23c-8453bd7c9ef3",
+      "groupId": "73cb496d-715c-4675-a788-a977189abdc5",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "西川「林さん、遅れなってすみません。」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "中田「いいえ、私も今"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "来たところです"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "来るところです"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "来ていました"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "来ています"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Nishikawa: 'Anh Hayashi, xin lỗi vì tôi đến muộn.' - Nakada: 'Không sao, tôi cũng vừa mới tới thôi.'"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] 来たところです"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Cấu trúc「V-たところです」dùng để diễn tả một hành động vừa mới xảy ra, vừa mới hoàn tất xong tức thì.「私も今来たところです」(Tôi cũng vừa mới đến nơi thôi)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 来るところです: cấu trúc「V-るところです」(sắp sửa chuẩn bị làm gì)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 来ていました: thì quá khứ tiếp diễn."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 来ています: đang ở đây (không diễn tả sắc thái vừa mới tới nơi)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "西川「林さん、遅れてすみません。」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "中田「いいえ、私も今"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "来たところです"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "来るところです"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "来ていました"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "来ています"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Nishikawa: 'Anh Hayashi, xin lỗi vì tôi đến muộn.' - Nakada: 'Không sao, tôi cũng vừa mới tới thôi.'"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] 来たところです"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Cấu trúc「V-たところです」dùng để diễn tả một hành động vừa mới xảy ra, vừa mới hoàn tất xong tức thì.「私も今来たところです」(Tôi cũng vừa mới đến nơi thôi)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 来るところです: cấu trúc「V-るところです」(sắp sửa chuẩn bị làm gì)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 来ていました: thì quá khứ tiếp diễn."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 来ています: đang ở đây (không diễn tả sắc thái vừa mới tới nơi)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Editorially correct malformed apology 遅れなって in source p6 Q12"
+      ]
+    },
+    {
+      "slug": "n4-2024-07",
+      "number": 54,
+      "examId": "87d646f0-a0bf-4ba8-af38-29f552d263a2",
+      "publishedVersion": 2,
+      "questionId": "0275913a-3c24-4dff-a638-6da70498c35b",
+      "groupId": "e39a5d60-cab4-446f-aae5-23137ca8e419",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "「私」は、いつもどんな「バス旅行」をしていますか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "バスに乗っている人たちと会話を楽しむ旅行。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "バスに乗って、降りたくなって所で降りて、散歩を楽しむ旅行。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "バスに乗っている時間や、最後のバス停の近くの散歩を楽しむ旅行。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "行きたい場所を調べてバスで行って、バスを降りて散歩を楽しむ旅行。"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: 'Tôi' thường thực hiện chuyến 'du lịch bằng xe buýt' như thế nào?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] バスに乗っている時間や、最後のバス停の近くの散歩を楽しむ旅行。"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Đoạn 2 miêu tả: trên xe thì ngắm cảnh và nghe người ta nói chuyện (窓から外の景色を見たり、乗っている人の会話を聞いたりしています), đến trạm cuối cùng thì đi dạo thong thả xung quanh (最後のバス停に着いたら、近くをゆっくり散歩します). Do đó chuyến đi gồm thời gian ngồi trên xe và đi dạo gần trạm cuối cùng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] バスに乗っている人たちと会話を楽しむ旅行。: tác giả chỉ lắng nghe người khác nói chuyện chứ không trực tiếp trò chuyện với họ."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] バスに乗って、降りたくなって所で降りて、散歩を楽しむ旅行。: tác giả đi xe đến tận trạm cuối cùng (最後のバス停まで) chứ không xuống tùy tiện."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 行きたい場所を調べてバスで行って、バスを降りて散歩を楽しむ旅行。: tác giả không hề tra cứu địa điểm muốn đến trước (特に行く場所を考えていない)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "「私」は、いつもどんな「バス旅行」をしていますか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "バスに乗っている人たちと会話を楽しむ旅行。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "バスに乗って、降りたくなった所で降りて、散歩を楽しむ旅行。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "バスに乗っている時間や、最後のバス停の近くの散歩を楽しむ旅行。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "行きたい場所を調べてバスで行って、バスを降りて散歩を楽しむ旅行。"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: 'Tôi' thường thực hiện chuyến 'du lịch bằng xe buýt' như thế nào?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] バスに乗っている時間や、最後のバス停の近くの散歩を楽しむ旅行。"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Đoạn 2 miêu tả: trên xe thì ngắm cảnh và nghe người ta nói chuyện (窓から外の景色を見たり、乗っている人の会話を聞いたりしています), đến trạm cuối cùng thì đi dạo thong thả xung quanh (最後のバス停に着いたら、近くをゆっくり散歩します). Do đó chuyến đi gồm thời gian ngồi trên xe và đi dạo gần trạm cuối cùng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] バスに乗っている人たちと会話を楽しむ旅行。: tác giả chỉ lắng nghe người khác nói chuyện chứ không trực tiếp trò chuyện với họ."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] バスに乗って、降りたくなった所で降りて、散歩を楽しむ旅行。: tác giả đi xe đến tận trạm cuối cùng (最後のバス停まで) chứ không xuống tùy tiện."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 行きたい場所を調べてバスで行って、バスを降りて散歩を楽しむ旅行。: tác giả không hề tra cứu địa điểm muốn đến trước (特に行く場所を考えていない)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Correct malformed relative clause in distractor 2",
+        "Synchronize verbatim corrected wording in explanation"
+      ]
+    },
+    {
+      "slug": "n4-2024-12",
+      "number": 36,
+      "examId": "07c2e67a-6110-4487-a530-cb1c59430f44",
+      "publishedVersion": 1,
+      "questionId": "211033b2-c015-458e-ac06-6cd85206d744",
+      "groupId": "61b5c990-0957-4bcd-a076-dd9f06cd7bf1",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "姉は　赤ちゃんが　昼寝を"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "あいだに、料理を　します。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "して　いく"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "して　きた"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "して　いる"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "して　いた"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Cấu trúc V-ている間に biểu thị một hành động khoảnh khắc diễn ra trong khoảng thời gian một hành động đang tiếp diễn: 昼寝をしている間に (trong khi em bé đang ngủ trưa). Vế sau dùng thì hiện tại/tương lai します nên vế trước dùng している. Đáp án đúng là 3 (して　いる)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "姉は　赤ちゃんが　昼寝を"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "あいだに、料理を　します。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "して　いく"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "して　きた"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "して　いる"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "して　いた"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Trong lúc em bé ngủ trưa, chị tôi nấu ăn."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] して　いる — 昼寝をしている間に chỉ khoảng thời gian em bé đang ngủ để người chị tranh thủ nấu ăn. 間に không bắt buộc hành động sau phải diễn ra trong một khoảnh khắc. Câu kể thói quen dùng 料理をします, tương ứng với している."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] して　いく: していく nhấn mạnh tiếp diễn hoặc thay đổi hướng về tương lai, không phù hợp ý đang ngủ trưa."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] して　きた: してきた nói quá trình đến trước thời điểm hiện tại, không phù hợp khoảng ngủ trưa đang diễn ra."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] して　いた: していた đặt việc ngủ trong quá khứ, không phù hợp cách kể thói quen 料理をします ở đây."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Remove false instantaneous-action requirement for 間に料理をする"
+      ]
+    },
+    {
+      "slug": "n4-2024-12",
+      "number": 51,
+      "examId": "07c2e67a-6110-4487-a530-cb1c59430f44",
+      "publishedVersion": 1,
+      "questionId": "79e69def-131b-4c26-ac01-047e5ca3b66a",
+      "groupId": "d1f73f3b-9517-4098-abb9-9ecaf886908e",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "驚きました"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "とありますが、どうして驚きましたか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "息子がアルバイトで、たくさんお金をもらってきたから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "息子が自分でギターを買うためにアルバイトを始めたから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "ギターを買いたいと言っていた息子が、花を買ってきてくれたから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ほしいと言っていたのに、息子がギターをもう買わないことにしたから"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Tác giả kể con trai đi làm thêm với mục đích mua đàn ghi-ta, nhưng khi nhận tháng lương đầu tiên thì lại dùng tiền đó mua hoa tặng bố mẹ. Do đó người bố/mẹ bất ngờ vì đứa con vốn bảo muốn mua ghi-ta lại đem hoa về tặng mình: ギターを買いたいと言っていた息子が、花を買ってきてくれたから. Đáp án đúng là 3."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "驚きました"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "とありますが、どうして驚きましたか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "息子がアルバイトで、たくさんお金をもらってきたから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "息子が自分でギターを買うためにアルバイトを始めたから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "ギターを買いたいと言っていた息子が、花を買ってきてくれたから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ほしいと言っていたのに、息子がギターをもう買わないことにしたから"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Tác giả ngạc nhiên vì con vốn muốn mua ghi ta lại mua hoa tặng bố mẹ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] ギターを買いたいと言っていた息子が、花を買ってきてくれたから — Con bắt đầu làm thêm để mua ghi ta, nhưng với khoản tiền công đầu tiên lại muốn mua quà cho bố mẹ và đã mua hoa. Bài không nói đó nhất thiết là tiền lương của một tháng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] 息子がアルバイトで、たくさんお金をもらってきたから: Bài không nói tiền công nhiều là điều khiến tác giả ngạc nhiên."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] 息子が自分でギターを買うためにアルバイトを始めたから: Việc muốn mua ghi ta là mục đích đã biết, không phải điều bất ngờ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] ほしいと言っていたのに、息子がギターをもう買わないことにしたから: Bài không nói con đã quyết định không mua ghi ta nữa."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Avoid inventing a first-month pay period not present in the passage"
+      ]
+    },
+    {
+      "slug": "n4-2024-12",
+      "number": 53,
+      "examId": "07c2e67a-6110-4487-a530-cb1c59430f44",
+      "publishedVersion": 1,
+      "questionId": "baf49acf-9897-405a-ae77-3b840376b34b",
+      "groupId": "e4dbaacf-3ab1-44d7-a48c-434164ce3954",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "小林さんに"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "①行かないと言われた"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "あと、「私」はどう思いましたか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "一人でも秋の京都に行きたい。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "やはり小林さんと秋の京都に行きたい。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "京都でなくてもいいから、小林さんと旅行に行きたい。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ほかの季節に京都に行きたい。"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Khi bạn Kobayashi từ chối rủ đi cùng vì mùa thu Kyoto rất đông người, tác giả nói 私の気持ちは変わりませんでした (tâm trạng tôi không hề thay đổi), và câu mở đầu bài viết là 先週、一人で京都に旅行に行ってきました (Tuần trước tôi đã đi du lịch Kyoto một mình). Điều này chứng minh tác giả vẫn muốn đi du lịch Kyoto vào mùa thu kể cả khi chỉ đi một mình: 一人でも秋の京都に行きたい. Đáp án đúng là 1."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "小林さんに"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "①行かない"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "と言われた"
+          },
+          {
+            "t": "text",
+            "text": "あと、「私」はどう思いましたか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "一人でも秋の京都に行きたい。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "やはり小林さんと秋の京都に行きたい。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "京都でなくてもいいから、小林さんと旅行に行きたい。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ほかの季節に京都に行きたい。"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Khi bạn Kobayashi từ chối rủ đi cùng vì mùa thu Kyoto rất đông người, tác giả nói 私の気持ちは変わりませんでした (tâm trạng tôi không hề thay đổi), và câu mở đầu bài viết là 先週、一人で京都に旅行に行ってきました (Tuần trước tôi đã đi du lịch Kyoto một mình). Điều này chứng minh tác giả vẫn muốn đi du lịch Kyoto vào mùa thu kể cả khi chỉ đi một mình: 一人でも秋の京都に行きたい. Đáp án đúng là 1."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Align question underline boundary with source ①行かない while preserving full sentence"
+      ]
+    },
+    {
+      "slug": "n4-2024-12",
+      "number": 56,
+      "examId": "07c2e67a-6110-4487-a530-cb1c59430f44",
+      "publishedVersion": 1,
+      "questionId": "48514a7d-2940-44a7-a800-47676c47e9f7",
+      "groupId": "353428f5-bfd4-48b3-afa4-492e23b1b68e",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ミンさんは、留学生クラブの人30人と一緒に行ける工場見学を探しています。曜日は水、木、土ならいつでもいいですが、1時間以内で見学できるところがいいです。ミンさんたちが選べる工場見学はどれですか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "AとBとC"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "BとC"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "BとCとD"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "Dだけ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Yêu cầu của Min: đoàn 30 người, thứ Tư/Năm/Bảy (水、木、土), thời gian tham quan trong vòng 1 giờ (1時間以内). Đối chiếu 4 nhà máy:\\n- A: số lượng tối đa chỉ 25 người (2人〜25人) -> Không đủ chỗ cho đoàn 30 người (Loại A).\\n- B: mở các ngày Thứ 2 đến Thứ 7 (có Thứ 4, 5, 7), không giới hạn số người (何人でも), thời gian tham quan 30 phút (<= 1 giờ) -> Thỏa mãn B.\\n- C: mở Thứ 2 đến Thứ 6 và Chủ nhật (có Thứ 4, 5), số người cấp 2 trở lên tối đa 80 người (đủ cho 30 người), thời gian 1 giờ (<= 1 giờ) -> Thỏa mãn C.\\n- D: thời gian tham quan khoảng 1 giờ rưỡi (約1時間半 > 1 giờ) -> Quá thời gian yêu cầu (Loại D).\\nVậy Min có thể chọn B và C. Đáp án đúng là 2 (BとC)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ミンさんは、留学生クラブの人30人と一緒に行ける工場見学を探しています。曜日は水、木、土ならいつでもいいですが、1時間以内で見学できるところがいいです。ミンさんたちが選べる工場見学はどれですか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "AとBとC"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "BとC"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "BとCとD"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "Dだけ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Đoàn 30 người muốn tham quan trong vòng một giờ, vào thứ Tư, Năm hoặc Bảy."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] BとC — B đáp ứng: thứ Hai đến Bảy, không giới hạn người, 30 phút. C đáp ứng: có thứ Tư/Năm, đủ sức chứa 30 người và thời lượng một giờ. A tối đa 25 người; D mất khoảng một giờ rưỡi. Vì vậy chỉ BとC."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] AとBとC: A chỉ nhận tối đa 25 người, không đủ đoàn 30 người."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] BとCとD: D có thời lượng khoảng một giờ rưỡi, vượt giới hạn một giờ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] Dだけ: D vượt thời lượng và bỏ sót hai lựa chọn phù hợp B, C."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Replace literal backslash-n formatting with structured rationale for actual image table"
+      ]
+    },
+    {
+      "slug": "n4-2024-12",
+      "number": 57,
+      "examId": "07c2e67a-6110-4487-a530-cb1c59430f44",
+      "publishedVersion": 1,
+      "questionId": "2a5e79f6-7a9b-40fc-a670-24816ca7d970",
+      "groupId": "353428f5-bfd4-48b3-afa4-492e23b1b68e",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ボブさんは、あさって（日曜日）の午後に工場見学に行きたいと思って、どこがいいか探しています。ボブさんが今から選べる工場見学はどれですか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "AとCとD"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "Bだけ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "BとD"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "Dだけ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Yêu cầu của Bob: tham quan vào chiều Chủ nhật ngày kia (あさって・日曜日・午後), đăng ký từ bây giờ. Đối chiếu:\\n- A: chỉ mở từ 10h〜11h sáng (không có ca chiều) -> Loại A.\\n- B: chỉ mở từ Thứ 2 đến Thứ 7 (Chủ nhật nghỉ) -> Loại B.\\n- C: có mở chiều Chủ nhật nhưng yêu cầu đặt trước 1 tuần (1週間前までに電話), Bob đi ngày kia nên không kịp đăng ký -> Loại C.\\n- D: mở Chủ nhật, thời gian từ 9h〜16h (có ca chiều), yêu cầu đặt trước ngày tham quan (前の日までに電話) nên từ bây giờ vẫn kịp đăng ký -> Thỏa mãn D.\\nVậy Bob chỉ có thể chọn D. Đáp án đúng là 4 (Dだけ)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ボブさんは、あさって（日曜日）の午後に工場見学に行きたいと思って、どこがいいか探しています。ボブさんが今から選べる工場見学はどれですか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "AとCとD"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "Bだけ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "BとD"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "Dだけ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Bob muốn tham quan chiều Chủ nhật ngày kia và tìm nơi có thể đăng ký từ bây giờ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] Dだけ — D mở Chủ nhật từ 9 đến 16 giờ và chỉ yêu cầu gọi trước ngày tham quan, nên còn kịp đăng ký. A chỉ có buổi sáng, B nghỉ Chủ nhật; C yêu cầu đặt trước một tuần. Chỉ D phù hợp."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] AとCとD: A không có ca chiều; C yêu cầu đặt trước một tuần, không kịp đi ngày kia."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] Bだけ: B mở từ thứ Hai đến thứ Bảy, không mở Chủ nhật."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] BとD: B không mở Chủ nhật; chỉ D trong hai lựa chọn này phù hợp."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Replace literal backslash-n formatting and verify reservation lead time"
+      ]
+    },
+    {
+      "slug": "n4-2025-07",
+      "number": 47,
+      "examId": "a95cab75-eff3-4563-a8a1-c3345ada99aa",
+      "publishedVersion": 1,
+      "questionId": "c1ca7843-f369-4071-a410-dbd59790c12e",
+      "groupId": "7629c29a-6781-4991-a16b-ab6a801d858a",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "blank",
+            "label": "19"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "は"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "を"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "だけ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "しか"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Đi với dạng phủ định ở cuối「持っていませんでした」để diễn đạt ý «chỉ có duy nhất đĩa tròn màu trắng, ngoài ra không có loại nào khác» thì phải dùng trợ từ「しか」(白くて丸いお皿しか持っていませんでした). Cấu trúc「〜しか〜ない」. Các phương án khác: 1 は, 2 を không mang nghĩa nhấn mạnh giới hạn này; 3 だけ nếu dùng thì động từ phải ở dạng khẳng định (持っていました)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "blank",
+            "label": "19"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "は"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "を"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "だけ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "しか"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Trước khi được tặng đĩa, tôi chỉ có đĩa tròn màu trắng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] しか — しか đi với 持っていませんでした để nói ngoài loại đĩa ấy thì không có loại khác. だけ có thể dùng trong câu phủ định, nhưng ở đây だけ持っていませんでした sẽ mang ý chỉ riêng loại đĩa đó là không có, trái ngữ cảnh."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] は: は chỉ đưa loại đĩa ấy làm chủ đề, không diễn tả việc chỉ có loại đó."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] を: を chỉ tân ngữ, không tạo nghĩa giới hạn chỉ có loại đó."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] だけ: だけ với câu phủ định ở đây cho nghĩa phủ định riêng loại đĩa này, không phải chỉ sở hữu loại này. Không phải だけ tuyệt đối không đi với phủ định."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Correct false claim that だけ requires affirmative verbs"
+      ]
+    }
+  ],
+  "groupFixes": [
+    {
+      "slug": "n4-2018-12",
+      "examId": "136831df-0f80-4574-a7d8-8cfee251f157",
+      "publishedVersion": 2,
+      "groupId": "607c47bf-6b7d-45a5-a36c-d549e3355870",
+      "groupVersion": 1,
+      "before": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "下の文章は、留学生の作文です。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "水泳"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "チン メイキ"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "私の しゅみは 水泳です。毎週 プールで 泳いで います。"
+            },
+            {
+              "t": "blank",
+              "label": "21"
+            },
+            {
+              "t": "text",
+              "text": "、半年前までは 泳ぐことが できませんでした。日本に 来る 前に 住んでいた 所には 海も プールも なかったのです。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "半年前、夏休みに 日本人の ともだちと 海に 行きました。ともだちは 遠くまで 泳いで いきました。けれども。私 "
+            },
+            {
+              "t": "blank",
+              "label": "22"
+            },
+            {
+              "t": "text",
+              "text": " 泳げませんでした。ともだちが かっこよかったので、私も 泳いで みたいと 思いました。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "次の 週から 町の プールで 泳ぐ 練習を 始めました。水泳の 上手な ともだちに 泳ぎ方を "
+            },
+            {
+              "t": "blank",
+              "label": "23"
+            },
+            {
+              "t": "text",
+              "text": "。難しかったですが、毎週 ともだちと 練習しました。それで 少しずつ "
+            },
+            {
+              "t": "blank",
+              "label": "24"
+            },
+            {
+              "t": "text",
+              "text": "。今は 一人で 練習して います。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "泳ぐのは とても 楽しいです。次に 海に 行くまでに たくさん "
+            },
+            {
+              "t": "blank",
+              "label": "25"
+            },
+            {
+              "t": "text",
+              "text": "。"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "下の文章は、留学生の作文です。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "水泳"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "チン メイキ"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "私の しゅみは 水泳です。毎週 プールで 泳いで います。"
+            },
+            {
+              "t": "blank",
+              "label": "21"
+            },
+            {
+              "t": "text",
+              "text": "、半年前までは 泳ぐことが できませんでした。日本に 来る 前に 住んでいた 所には 海も プールも なかったのです。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "半年前、夏休みに 日本人の ともだちと 海に 行きました。ともだちは 遠くまで 泳いで いきました。けれども、私 "
+            },
+            {
+              "t": "blank",
+              "label": "22"
+            },
+            {
+              "t": "text",
+              "text": " 泳げませんでした。ともだちが かっこよかったので、私も 泳いで みたいと 思いました。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "次の 週から 町の プールで 泳ぐ 練習を 始めました。水泳の 上手な ともだちに 泳ぎ方を "
+            },
+            {
+              "t": "blank",
+              "label": "23"
+            },
+            {
+              "t": "text",
+              "text": "。難しかったですが、毎週 ともだちと 練習しました。それで 少しずつ "
+            },
+            {
+              "t": "blank",
+              "label": "24"
+            },
+            {
+              "t": "text",
+              "text": "。今は 一人で 練習して います。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "泳ぐのは とても 楽しいです。次に 海に 行くまでに たくさん "
+            },
+            {
+              "t": "blank",
+              "label": "25"
+            },
+            {
+              "t": "text",
+              "text": "。"
+            }
+          ]
+        }
+      ],
+      "questionIds": [
+        "ad0d6879-0823-48f1-aacc-415fe35be461",
+        "2baf4310-b1cb-4532-ada2-0b5f3949869d",
+        "00e9f519-24d0-4177-a245-5abab9961f01",
+        "9477f3f4-a4fd-4455-a4ec-0de9b7cf8fee",
+        "065df4fa-7fd5-46eb-a090-fe7eb84298bc"
+      ],
+      "reasons": [
+        "Correct full stop splitting connector from its following clause"
+      ]
+    },
+    {
+      "slug": "n4-2021-07",
+      "examId": "21f6d7dc-d0b2-4765-a31b-3eafb5606595",
+      "publishedVersion": 2,
+      "groupId": "fc6edd17-cdc6-4ab5-a75c-38885756d55e",
+      "groupVersion": 1,
+      "before": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "(1)"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "　嫌なことがあったら、私の友達は日記に書くそうです，嫌な気持ちを外に出せるから忘れられると言っています。でも、私はカラオケに行って、好きな歌を歌います。書いているときに嫌なことを思い出してしまうので。日記には書きません。"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "(1)"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "　嫌なことがあったら、私の友達は日記に書くそうです。嫌な気持ちを外に出せるから忘れられると言っています。でも、私はカラオケに行って、好きな歌を歌います。書いているときに嫌なことを思い出してしまうので、日記には書きません。"
+            }
+          ]
+        }
+      ],
+      "questionIds": [
+        "05328940-0ce7-4906-a9ac-2614f96fae9b"
+      ],
+      "reasons": [
+        "Separate complete reported statement before next explanation",
+        "Join causal ので to following 日記には書きません"
+      ]
+    },
+    {
+      "slug": "n4-2021-12",
+      "examId": "1ca4424b-b3f6-49e6-a53d-081b4f3b57d7",
+      "publishedVersion": 3,
+      "groupId": "81fb5c85-b038-42cf-ad18-c2fe7042cf8b",
+      "groupVersion": 1,
+      "before": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "留学生のイワンさんは作文を書いて、クラスのみんなの前で読みました。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "町の図書館"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "スミルノフ　イワン"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "みなさんはこの町にある森図書館を知っていますか。私は先月初めて知りました。日本人の"
+            },
+            {
+              "t": "blank",
+              "label": "18"
+            },
+            {
+              "t": "text",
+              "text": "のです。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "森図書館には大学の図書館にはないものがあります。"
+            },
+            {
+              "t": "blank",
+              "label": "19"
+            },
+            {
+              "t": "text",
+              "text": "、ようふくのざっしや映画のざっしです。私が好きな旅行のざっしもあります。ざっしの日本語は難しいです。でも、写真を見て、日本のことを知ることができるので、楽しいです。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "いろいろなＣＤやＤＶＤもあります。先週借りたＤＶＤは京都をしょうかいするＤＶＤです。古いお寺や大きい橋がきれいでいた。私はまだ京都に行ったことがありません。ＤＶＤを見たあと、京都を"
+            },
+            {
+              "t": "blank",
+              "label": "20"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "森図書館には楽しめるものがたくさんあります。一度"
+            },
+            {
+              "t": "blank",
+              "label": "21"
+            },
+            {
+              "t": "text",
+              "text": "。"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "留学生のイワンさんは作文を書いて、クラスのみんなの前で読みました。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "町の図書館"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "スミルノフ　イワン"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "みなさんはこの町にある森図書館を知っていますか。私は先月初めて知りました。日本人の"
+            },
+            {
+              "t": "blank",
+              "label": "18"
+            },
+            {
+              "t": "text",
+              "text": "のです。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "森図書館には大学の図書館にはないものがあります。"
+            },
+            {
+              "t": "blank",
+              "label": "19"
+            },
+            {
+              "t": "text",
+              "text": "、ようふくのざっしや映画のざっしです。私が好きな旅行のざっしもあります。ざっしの日本語は難しいです。でも、写真を見て、日本のことを知ることができるので、楽しいです。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "いろいろなＣＤやＤＶＤもあります。先週借りたＤＶＤは京都をしょうかいするＤＶＤです。古いお寺や大きい橋がきれいでした。私はまだ京都に行ったことがありません。ＤＶＤを見たあと、京都を"
+            },
+            {
+              "t": "blank",
+              "label": "20"
+            },
+            {
+              "t": "text",
+              "text": "。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "森図書館には楽しめるものがたくさんあります。一度"
+            },
+            {
+              "t": "blank",
+              "label": "21"
+            },
+            {
+              "t": "text",
+              "text": "。"
+            }
+          ]
+        }
+      ],
+      "questionIds": [
+        "c47554d4-52d1-4a70-a5be-068dff7a2472",
+        "cf7e93f0-928c-43d1-a46c-42deb52a4468",
+        "5491de8d-78b2-49a6-a143-588178e206d5",
+        "9c6a9e00-4701-4db7-a9bb-58b48ee5ce0b"
+      ],
+      "reasons": [
+        "Editorially correct missing し in source p7 descriptive past tense",
+        "Editorially add missing sentence stop after Kyoto travel blank in source p7"
+      ]
+    },
+    {
+      "slug": "n4-2024-07",
+      "examId": "87d646f0-a0bf-4ba8-af38-29f552d263a2",
+      "publishedVersion": 2,
+      "groupId": "e39a5d60-cab4-446f-aae5-23137ca8e419",
+      "groupVersion": 1,
+      "before": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "日本の大学に入学して半年が過ぎました。日本に来たら、たくさん旅行をしたかったのですが、"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "①なかなか行けません"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "。日本の電車や飛行機は便利ですが、料金が高いのです。だから、普通の旅行には行けませんが、最近、いいやり方を見つけました。私だけの小さな「バス旅行」です。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "私の「バス旅行」は、町を走る普通のバスに乗って、最後のバス停まで行ってみる旅行です。東京の町の中を走る普通のバスは、最後まで乗っても２１０円です、片道は長くても１時間ぐらいです。私はいつも、窓から外の景色を見たり、乗っている人の会話を聞いたりしています。最後のバス停に着いたら、近くをゆっくり散歩します。そして、またバスに乗って戻ってきます。変な旅行ですが、日本のことがいろいろわかって、楽しいです。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "先週の「バス旅行」では、バスの中で寝てしまいました。最後のバス停に着いたとき、運転手が起こしてくれたので、急いでバスを降りました。降りるとき、運転手が心配して「大丈夫ですか。これからどこへ行くんですか。」と聞いてくれました。特に行く場所を考えていない私は、質問にうまく答えられませんでした。"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "②困ってしまって"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "、自分でちょっと笑ってしまいました。"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "日本の大学に入学して半年が過ぎました。日本に来たら、たくさん旅行をしたかったのですが、"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "①なかなか行けません"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "。日本の電車や飛行機は便利ですが、料金が高いのです。だから、普通の旅行には行けませんが、最近、いいやり方を見つけました。私だけの小さな「バス旅行」です。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "私の「バス旅行」は、町を走る普通のバスに乗って、最後のバス停まで行ってみる旅行です。東京の町の中を走る普通のバスは、最後まで乗っても２１０円です。片道は長くても１時間ぐらいです。私はいつも、窓から外の景色を見たり、乗っている人の会話を聞いたりしています。最後のバス停に着いたら、近くをゆっくり散歩します。そして、またバスに乗って戻ってきます。変な旅行ですが、日本のことがいろいろわかって、楽しいです。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "先週の「バス旅行」では、バスの中で寝てしまいました。最後のバス停に着いたとき、運転手が起こしてくれたので、急いでバスを降りました。降りるとき、運転手が心配して「大丈夫ですか。これからどこへ行くんですか。」と聞いてくれました。特に行く場所を考えていない私は、質問にうまく答えられませんでした。"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "②困ってしまって"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "、自分でちょっと笑ってしまいました。"
+            }
+          ]
+        }
+      ],
+      "questionIds": [
+        "8060a6fc-e71d-4e56-a17d-904149a9f4d9",
+        "0275913a-3c24-4dff-a638-6da70498c35b",
+        "12be5739-2789-4821-a6b8-51a3d904abe1"
+      ],
+      "reasons": [
+        "Separate two independent statements about fare and travel time"
+      ]
+    },
+    {
+      "slug": "n4-2024-12",
+      "examId": "07c2e67a-6110-4487-a530-cb1c59430f44",
+      "publishedVersion": 1,
+      "groupId": "e4dbaacf-3ab1-44d7-a48c-434164ce3954",
+      "groupVersion": 1,
+      "before": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "これはカタリーナさんが書いた作文です。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "京都旅行"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "カタリーナ・ゴメス"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "先週、一人で京都に旅行に行ってきました。私は日本に来る前に、テレビで庭中の木の葉が赤くなっているお寺を見て、秋に京都に行ってみたいと思っていたのです。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "旅行に行く前に、友達の小林さんを誘ってみましたが、秋の京都は人気があって人が多いから行かないと言われました。ちょっと残念でしたが、"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "①私の気持ちは変わりませんでした"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "昼ごろ京都駅に着いて、すぐにテレビで見たお寺に行きました。しかし、人が多すぎて、お寺の庭はゆっくり見られませんでした。とても残念でした。ほかのお寺や神社にも行ってみましたが同じでした。小林さんの話は本当でした。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "でも、夜、旅館で"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "②いいこと"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "を知りました。私は旅館の人に、ずっと行きたかったお寺に行ったのに、こんでいてよく見られなかったと話しました。すると、「そのお寺には朝6時から入れますよ。」と教えてくれました。朝はあまり人がいないのだそうです。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "次の朝、私は6時にお寺に行きました。今度は人が少なくて、すばらしい庭を楽しめました。ずっと見たいと思っていた景色がゆっくり見られて、うれしかったです。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "秋の京都は人が多かったですが、"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "③いい旅行になりました"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "。"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "これはカタリーナさんが書いた作文です。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "京都旅行"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "カタリーナ・ゴメス"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "先週、一人で京都に旅行に行ってきました。私は日本に来る前に、テレビで庭中の木の葉が赤くなっているお寺を見て、秋に京都に行ってみたいと思っていたのです。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "旅行に行く前に、友達の小林さんを誘ってみましたが、秋の京都は人気があって人が多いから"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "①行かない"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "と言われました。ちょっと残念でしたが、"
+            },
+            {
+              "t": "text",
+              "text": "私の気持ちは変わりませんでした"
+            },
+            {
+              "t": "text",
+              "text": "。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "昼ごろ京都駅に着いて、すぐにテレビで見たお寺に行きました。しかし、人が多すぎて、お寺の庭はゆっくり見られませんでした。とても残念でした。ほかのお寺や神社にも行ってみましたが同じでした。小林さんの話は本当でした。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "でも、夜、旅館で"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "②いいこと"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "を知りました。私は旅館の人に、ずっと行きたかったお寺に行ったのに、こんでいてよく見られなかったと話しました。すると、「そのお寺には朝6時から入れますよ。」と教えてくれました。朝はあまり人がいないのだそうです。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "次の朝、私は6時にお寺に行きました。今度は人が少なくて、すばらしい庭を楽しめました。ずっと見たいと思っていた景色がゆっくり見られて、うれしかったです。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "秋の京都は人が多かったですが、"
+            },
+            {
+              "t": "underline",
+              "children": [
+                {
+                  "t": "text",
+                  "text": "③いい旅行になりました"
+                }
+              ]
+            },
+            {
+              "t": "text",
+              "text": "。"
+            }
+          ]
+        }
+      ],
+      "questionIds": [
+        "baf49acf-9897-405a-ae77-3b840376b34b",
+        "1b31846c-1af6-44b4-aeab-30f03fb728b6",
+        "4a0fc218-3e1e-4667-ae46-60032e4fdf3b"
+      ],
+      "reasons": [
+        "Restore source p24 marker ① on 行かない; remove misplaced marker on 私の気持ちは変わりませんでした"
+      ]
+    }
+  ]
+}
