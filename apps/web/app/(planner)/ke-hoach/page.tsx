@@ -38,7 +38,7 @@ export default function PlannerPage(): React.JSX.Element {
       const res: TodaySessionResponse = await defaultPlannerClient.getTodaySession();
 
       let activePlan: StudyPlan | null = null;
-      if (res?.plan && res.plan.status === 'active') {
+      if (res?.plan && res.plan.status !== 'archived') {
         activePlan = res.plan;
       } else if (!res?.plan) {
         const foundPlanId =
@@ -47,7 +47,7 @@ export default function PlannerPage(): React.JSX.Element {
         if (foundPlanId) {
           try {
             const fetched = await defaultPlannerClient.getStudyPlan(foundPlanId);
-            if (fetched && fetched.status === 'active') {
+            if (fetched && fetched.status !== 'archived') {
               activePlan = fetched;
             } else {
               if (typeof window !== 'undefined') {
