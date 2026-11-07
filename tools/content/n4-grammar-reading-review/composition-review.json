@@ -1,0 +1,856 @@
+[
+  {
+    "slug": "n4-2010-2011",
+    "number": 51,
+    "questionId": "13ee7e7c-155a-450a-a0ee-d9b494e331dd",
+    "order": [
+      3,
+      1,
+      4,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "この　パーティーは　チケット　を　買った人　しか　入れません。"
+  },
+  {
+    "slug": "n4-2010-2011",
+    "number": 52,
+    "questionId": "14d4fdc3-8d9c-4348-a2a9-853d8aa17726",
+    "order": [
+      2,
+      4,
+      1,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "あしたは　会議が　あるので　いつも　より　早く　会社に　行きます。"
+  },
+  {
+    "slug": "n4-2010-2011",
+    "number": 53,
+    "questionId": "b3eb0e2e-ec74-489a-a719-dcea148ba367",
+    "order": [
+      1,
+      4,
+      2,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "A「すみません。日曜日は　図書館は　何時まで　開いて　いるか　教えて　くださいませんか。」B「日曜日は　5時までです。」"
+  },
+  {
+    "slug": "n4-2010-2011",
+    "number": 54,
+    "questionId": "59817076-93d7-443a-acf7-954e4a95db76",
+    "order": [
+      4,
+      1,
+      3,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "(ろうかで)学生「さようなら。」先生「さようなら。教室には、もう　だれ　も　いません　か。」学生「いいえ。田中さんが　べんきょうして　います。」"
+  },
+  {
+    "slug": "n4-2010-2011",
+    "number": 55,
+    "questionId": "29a970e4-33be-45e2-a19c-1e571fc93b5b",
+    "order": [
+      2,
+      3,
+      4,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "わたしは　この　音楽　を　聞く　と　かならず　ねむく　なります。"
+  },
+  {
+    "slug": "n4-2012-12",
+    "number": 50,
+    "questionId": "bfabe99a-5ee9-42bb-ac1f-b2cd0289b9bf",
+    "order": [
+      1,
+      4,
+      3,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "Ａ「コンサートには　もう　間に合わないですね。」Ｂ「今すぐ　タクシーに　乗れば　間に合うかもしれないから　タクシーで　行こう。」"
+  },
+  {
+    "slug": "n4-2012-12",
+    "number": 51,
+    "questionId": "88f7e253-5e14-4f88-a5b7-818f1cf3a2c0",
+    "order": [
+      4,
+      3,
+      2,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "山田「田中さん、これから　食事でも　どうですか。」田中「すみません。ちょうど　今　食べた　ところ　なん　です。」"
+  },
+  {
+    "slug": "n4-2012-12",
+    "number": 52,
+    "questionId": "8c5dd052-8ea0-4a1b-ab47-dca719f476c7",
+    "order": [
+      3,
+      1,
+      4,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "Ａ「あしたは　大事な　おきゃくさまに　会うから、そんな　くつ　で　は　いけませんよ。」Ｂ「わかりました。あしたは　新しい　くつを　はいて　来ます。」"
+  },
+  {
+    "slug": "n4-2012-12",
+    "number": 53,
+    "questionId": "3b3fd43b-d975-448a-a1a1-33387b91f097",
+    "order": [
+      4,
+      1,
+      3,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "今日は、風が　強い　し　寒そう　だから　出かけたくない。"
+  },
+  {
+    "slug": "n4-2012-12",
+    "number": 54,
+    "questionId": "942d3157-4a7f-407c-a4d7-7fadbc3b0d3a",
+    "order": [
+      1,
+      4,
+      3,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "田中「山田さん。東京の　大学に　行く　ことを、もう　ご両親に　話しましたか。」山田「いいえ。でも、もし　両親に　反対　されても　東京で　勉強　する　つもりです。」"
+  },
+  {
+    "slug": "n4-2013-07",
+    "number": 51,
+    "questionId": "c16a93eb-5559-441a-a7be-370e17bd5e30",
+    "order": [
+      2,
+      3,
+      1,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "れいぞうこに 父が 買って きた ケーキが 残って いた ので、食べました。"
+  },
+  {
+    "slug": "n4-2013-07",
+    "number": 52,
+    "questionId": "7a403843-013a-4a1d-a8c4-01c3ff51a4f5",
+    "order": [
+      3,
+      2,
+      4,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "大事な 話の とちゅう で 電話 が かかって きた。"
+  },
+  {
+    "slug": "n4-2013-07",
+    "number": 53,
+    "questionId": "48bb88d4-8d0c-43ca-a9d7-f277e00f7c2b",
+    "order": [
+      3,
+      4,
+      1,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "（学校で）先生「ろうかが ぬれて います。歩く ときは すべらない ように 注意 して ください。」"
+  },
+  {
+    "slug": "n4-2013-07",
+    "number": 54,
+    "questionId": "c549dd28-f513-410f-ab50-cd769787e6f8",
+    "order": [
+      1,
+      4,
+      2,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "来週、会社の 近くに ひっこしを する ことに しました。"
+  },
+  {
+    "slug": "n4-2013-07",
+    "number": 55,
+    "questionId": "8931c445-329b-4631-ab7b-697e875ed0c3",
+    "order": [
+      4,
+      2,
+      1,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "北町に ある 「さくら」と いう 和食の お店は 有名だ そうです。"
+  },
+  {
+    "slug": "n4-2013-12",
+    "number": 51,
+    "questionId": "56645352-faa0-4a0c-a392-08563107c681",
+    "order": [
+      1,
+      4,
+      2,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "ABC 大学の 図書館と 食堂は どなた でも 利用 できます。"
+  },
+  {
+    "slug": "n4-2013-12",
+    "number": 52,
+    "questionId": "8e6f9e78-bd66-4027-a1e7-e2bd567a8446",
+    "order": [
+      4,
+      3,
+      1,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "田中「ケンさん、日本に 来て 1か月ですね。」ケン「はい。やっと 日本の 生活 に なれた ところ です。」"
+  },
+  {
+    "slug": "n4-2013-12",
+    "number": 53,
+    "questionId": "e615d0d1-73cb-4eec-a7df-78a951c7055c",
+    "order": [
+      4,
+      1,
+      3,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "（学校で）A「あ、しゅくだいが ない。」B「え、忘れたんですか。」A「はい。がんばって しゅくだいを やった のに 家に 忘れて きて しまいました。」"
+  },
+  {
+    "slug": "n4-2013-12",
+    "number": 54,
+    "questionId": "8c850afd-1bad-453b-a0ac-15357dd5821a",
+    "order": [
+      2,
+      4,
+      3,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "この 道は、雨の 日は すべり やすくて あぶないから 気を つけて 通って ください。"
+  },
+  {
+    "slug": "n4-2013-12",
+    "number": 55,
+    "questionId": "0345d20d-e411-4d72-ac06-e00dfc691939",
+    "order": [
+      3,
+      2,
+      4,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "今日は、一年で 夜 が 最も 長い 日 です。"
+  },
+  {
+    "slug": "n4-2014-07",
+    "number": 51,
+    "questionId": "23fc11aa-357f-45a3-ac69-ddcd9bd9e196",
+    "order": [
+      3,
+      1,
+      2,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "中川「山下さん、駅から ホテルまで 行き方が わかりますか。」山下「いいえ、わかりません。駅 で だれ か に 聞きましょう。」"
+  },
+  {
+    "slug": "n4-2014-07",
+    "number": 52,
+    "questionId": "76c05eed-f067-4202-a754-216178851fdb",
+    "order": [
+      1,
+      4,
+      3,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "最近、仕事が いそがしくて、帰る のが 遅く なる 日が 多い。"
+  },
+  {
+    "slug": "n4-2014-07",
+    "number": 53,
+    "questionId": "bd7f6bd0-f80b-4d71-ad2e-706bf8e7131b",
+    "order": [
+      3,
+      2,
+      4,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "両親と いっしょに 住める 家を 建てる ために 貯金しています。"
+  },
+  {
+    "slug": "n4-2014-07",
+    "number": 54,
+    "questionId": "bac374d4-2fd9-4063-af44-6574fbb2a29c",
+    "order": [
+      2,
+      4,
+      1,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "明日は 朝早く 出かけない と いけないのです が 早起きできる かどうか 心配です。"
+  },
+  {
+    "slug": "n4-2014-07",
+    "number": 55,
+    "questionId": "3f08ae49-3e5a-4795-a515-ee7739a81784",
+    "order": [
+      4,
+      2,
+      3,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "きのう パーティーで 丸い 形 の 赤くて あまい くだものを 食べました。"
+  },
+  {
+    "slug": "n4-2017-07",
+    "number": 50,
+    "questionId": "87290a8c-b3ef-4ae0-ac4a-a37ee4ee2740",
+    "order": [
+      1,
+      4,
+      3,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "Ａ「コンサートには　もう　間に合わないですね。」Ｂ「今すぐ　タクシーに　乗れば　間に合うかもしれないから　タクシーで　行こう。」"
+  },
+  {
+    "slug": "n4-2017-07",
+    "number": 51,
+    "questionId": "a111b358-4487-47a4-adbb-3ddbc7d374dc",
+    "order": [
+      4,
+      3,
+      2,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "山田「田中さん、これから　食事でも　どうですか。」田中「すみません。ちょうど　今　食べた　ところ　なん　です。」"
+  },
+  {
+    "slug": "n4-2017-07",
+    "number": 52,
+    "questionId": "f6f2a34b-ff6c-440c-a8fa-209e826f0daa",
+    "order": [
+      3,
+      1,
+      4,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "Ａ「あしたは　大事な　おきゃくさまに　会うから、そんな　くつ　で　は　いけませんよ。」Ｂ「わかりました。あしたは　新しい　くつを　はいて　来ます。」"
+  },
+  {
+    "slug": "n4-2017-07",
+    "number": 53,
+    "questionId": "ad3b5464-a981-4123-a35a-9c430124368c",
+    "order": [
+      4,
+      1,
+      3,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "今日は、風が　強い　し　寒そう　だから　出かけたくない。"
+  },
+  {
+    "slug": "n4-2017-07",
+    "number": 54,
+    "questionId": "5658a741-1964-46cf-afe2-3c4f811e10e4",
+    "order": [
+      1,
+      4,
+      3,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "田中「山田さん。東京の　大学に　行く　ことを、もう　ご両親に　話しましたか。」山田「いいえ。でも、もし　両親に　反対　されても　東京で　勉強　する　つもりです。」"
+  },
+  {
+    "slug": "n4-2018-12",
+    "number": 51,
+    "questionId": "68b1528e-1c28-43a9-ab4d-964732c0f250",
+    "order": [
+      4,
+      1,
+      3,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "先月まで 花屋が あった 場所に できた きっさてんは りんごの ケーキが、おいしいです。"
+  },
+  {
+    "slug": "n4-2018-12",
+    "number": 52,
+    "questionId": "a48680ba-0bc3-4a4b-a739-649f8901ffd9",
+    "order": [
+      1,
+      3,
+      2,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "きのうの 夜 家に 帰ってから、かぎを どこ に 置いた か 覚えて いません。"
+  },
+  {
+    "slug": "n4-2018-12",
+    "number": 53,
+    "questionId": "dc498635-c17a-4a70-a638-176894e28070",
+    "order": [
+      1,
+      4,
+      3,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "私は ピアノを ひくのが 好きですが 最近 いそがしくて ひく 時間が ありません。"
+  },
+  {
+    "slug": "n4-2018-12",
+    "number": 54,
+    "questionId": "c22e51ca-05e0-4aba-aa10-eac03a733e3a",
+    "order": [
+      2,
+      4,
+      1,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "私は 20さいの たんじょうびに そふが くれた カメラを 大切に 使って います。"
+  },
+  {
+    "slug": "n4-2018-12",
+    "number": 55,
+    "questionId": "14bb12f5-7699-499a-a5a5-417d30502bb0",
+    "order": [
+      3,
+      2,
+      4,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "林「来週、野球の 試合を 見に 行こうと 思って いるんですが、リーさんも いっしょに どうですか。」リー「えっ、野球の 試合ですか。いいですね。見に 行った ことが ない ので ぜひ 行きたい です。」"
+  },
+  {
+    "slug": "n4-2019",
+    "number": 13,
+    "questionId": "a8d7b9ff-d8f4-4481-a1b1-91a3c78def53",
+    "order": [
+      2,
+      1,
+      4,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "大川「山下さん、おれいの　手紙は　もう　出しましたか。」山下「いいえ、　今　書いて　いる　ところ　です。」"
+  },
+  {
+    "slug": "n4-2019",
+    "number": 14,
+    "questionId": "16363fc6-c823-4901-a4b1-1e96e9a21afb",
+    "order": [
+      2,
+      3,
+      4,
+      1
+    ],
+    "starPosition": 2,
+    "correctOption": 3,
+    "sentence": "山田さんは　ギターも　ひけるし　歌も　上手　です。"
+  },
+  {
+    "slug": "n4-2021-07",
+    "number": 42,
+    "questionId": "bc0cdcd4-5431-4ee5-a0d9-3518e5056728",
+    "order": [
+      3,
+      4,
+      2,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "弟は　映画が　好きで、ビデオ　を２００本も持って　います。"
+  },
+  {
+    "slug": "n4-2021-07",
+    "number": 43,
+    "questionId": "4599b3fe-8d87-4bd9-aa01-f2ca59929e1f",
+    "order": [
+      1,
+      2,
+      4,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "わたしは　日本の　料理を、はしを　使って食べたくて使い方の練習をしました。"
+  },
+  {
+    "slug": "n4-2021-07",
+    "number": 44,
+    "questionId": "ea230264-dc51-435f-a41e-a651f3ed0da6",
+    "order": [
+      2,
+      3,
+      1,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "A「新しい　アパートは　どう？」B「ちょっと　駅から　遠いけど静かでいいところだよ。」"
+  },
+  {
+    "slug": "n4-2021-07",
+    "number": 45,
+    "questionId": "dbea5f5f-0d7f-4f72-a9b6-ce6cb0d9a363",
+    "order": [
+      3,
+      1,
+      4,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "外国に　住んで　いる　ともだちがけっこんすると聞いたのでプレゼントを　送ろうと思う。"
+  },
+  {
+    "slug": "n4-2021-12",
+    "number": 41,
+    "questionId": "c8f7fabf-123f-4b49-a792-fe1387ef91bb",
+    "order": [
+      4,
+      2,
+      3,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "Ａ「すみません。山下さんが今　どこにいるか　わかりますか。」Ｂ「となりのへやにいますよ。」"
+  },
+  {
+    "slug": "n4-2021-12",
+    "number": 42,
+    "questionId": "37dfd52b-44fb-4de0-a7d0-504f54c2c835",
+    "order": [
+      1,
+      3,
+      2,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "来週、友だちがうちに　とまりに来ること　になりました。"
+  },
+  {
+    "slug": "n4-2021-12",
+    "number": 43,
+    "questionId": "62264b88-7c4c-48e6-a63b-3d631cd5d9b8",
+    "order": [
+      1,
+      4,
+      3,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "先生「日本語Ａのじゅぎょうの日は、じしょを　持ってくるのを忘れない　ようにしてください。」"
+  },
+  {
+    "slug": "n4-2021-12",
+    "number": 44,
+    "questionId": "4c76beff-ba4e-4d3d-ad3f-a989fa557fe9",
+    "order": [
+      2,
+      4,
+      1,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "私はいつもコーヒーは　さとうを入れないで飲むがときどきあまい　コーヒーも飲みたくなる。"
+  },
+  {
+    "slug": "n4-2023-07",
+    "number": 42,
+    "questionId": "08687883-96e9-4b55-af37-14415eadd2d0",
+    "order": [
+      3,
+      2,
+      4,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "今日は、一年で夜が最も長い日です。"
+  },
+  {
+    "slug": "n4-2023-07",
+    "number": 43,
+    "questionId": "a5e4cfef-0f4d-4ff6-af95-b4ab2fa85c8e",
+    "order": [
+      4,
+      3,
+      1,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "私は、日本にいる間にいろいろな町へ行って写真をたくさんとりたいです。"
+  },
+  {
+    "slug": "n4-2023-07",
+    "number": 44,
+    "questionId": "03f9bc06-07f9-4846-a327-367ae298dc10",
+    "order": [
+      3,
+      4,
+      2,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "母の話によると、私は小さいとき、この絵本が大好きだったそうだ。"
+  },
+  {
+    "slug": "n4-2023-07",
+    "number": 45,
+    "questionId": "e2a451f6-c5b7-45ac-adbe-81320e48fcfa",
+    "order": [
+      4,
+      2,
+      3,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "今日、学校に木村さんは明るい青色のシャツを着て来た。私も木村さんが着ていたあんな色のシャツがほしい。"
+  },
+  {
+    "slug": "n4-2024-07",
+    "number": 42,
+    "questionId": "8adad315-3214-4630-adc6-6278da848b0a",
+    "order": [
+      3,
+      1,
+      4,
+      2
+    ],
+    "starPosition": 2,
+    "correctOption": 1,
+    "sentence": "（電話で）A「はい、さくら旅館です。」B「すみません、今日は 3 人でとまれる へや を 予約したいのです が 。」A「はい、空いています。」"
+  },
+  {
+    "slug": "n4-2024-07",
+    "number": 43,
+    "questionId": "bf59bb5d-a721-46c6-afcf-1005a9b42c5a",
+    "order": [
+      1,
+      4,
+      3,
+      2
+    ],
+    "starPosition": 2,
+    "correctOption": 4,
+    "sentence": "ともだちに 借りた 本を 返そう と思っていた のに、家に忘れてきてしまった。"
+  },
+  {
+    "slug": "n4-2024-07",
+    "number": 44,
+    "questionId": "a8fecd8f-3264-4b3e-a453-cc89a2f327f9",
+    "order": [
+      1,
+      4,
+      2,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "電車が遅れて、コンサートが始まる までに 会場に着く かどうか 心配した が、間に合った。"
+  },
+  {
+    "slug": "n4-2024-07",
+    "number": 45,
+    "questionId": "474655d2-5a0d-4d34-a5fc-fc70f5b595cd",
+    "order": [
+      4,
+      2,
+      3,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "最近、弟は、私が 見ている アニメに きょうみをもつ ように なりました。"
+  },
+  {
+    "slug": "n4-2024-12",
+    "number": 42,
+    "questionId": "44d658bc-adfd-4890-add6-da599da75fd8",
+    "order": [
+      1,
+      3,
+      2,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "（田中さんの　家で）山下「ねえ、田中さんが　名前を　聞く　のも　いやだと　言う　黒い　虫が　台所に　いましたよ。」田中「えっ！」"
+  },
+  {
+    "slug": "n4-2024-12",
+    "number": 43,
+    "questionId": "00d22647-c10e-4514-a7ff-fc3a0ee56d82",
+    "order": [
+      4,
+      2,
+      3,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "今日中　に　返さないと　いけない　本　が　あるので、図書館へ　行って　きます。"
+  },
+  {
+    "slug": "n4-2024-12",
+    "number": 44,
+    "questionId": "51446ee8-e08e-4f60-aaee-235cda812da9",
+    "order": [
+      3,
+      2,
+      1,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "妹「ねえ、週末に　お花見に　行かない？」姉「いいね。私は　土曜日でも　日曜日でも　どっちでも　いいけど　どっちが　いい？」妹「じゃあ、土曜日に　行こうか。」"
+  },
+  {
+    "slug": "n4-2024-12",
+    "number": 45,
+    "questionId": "8c9f2595-8029-448c-acf3-69c1069818b3",
+    "order": [
+      2,
+      1,
+      4,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "（教室で）先生「来週の　じゅぎょうまでに、23ページと　24ページを　読んで、わからない　言葉が　あったら　意味を　調べて　おいて　ください。」"
+  },
+  {
+    "slug": "n4-2025-07",
+    "number": 42,
+    "questionId": "2d1cd81c-d0d5-477d-a183-979632c1c0ec",
+    "order": [
+      1,
+      4,
+      3,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "母の　料理は　とても　おいしいです。私も　母　みたいに　料理　が　上手に　なりたいです。"
+  },
+  {
+    "slug": "n4-2025-07",
+    "number": 43,
+    "questionId": "3c841dc1-35cd-4627-aaf0-3cef59b0ded1",
+    "order": [
+      2,
+      1,
+      4,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "この　くつは、私が　持って　いる　くつの　中で　いちばん　歩きやすいです。"
+  },
+  {
+    "slug": "n4-2025-07",
+    "number": 44,
+    "questionId": "9dcd0652-3c4d-4f20-a619-897357fc90de",
+    "order": [
+      3,
+      4,
+      1,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "私は　山に　のぼるのが　好きで、ふじ山には　ずっと　のぼりたかった　から　のぼる　ことが　できて　うれしかった。"
+  },
+  {
+    "slug": "n4-2025-07",
+    "number": 45,
+    "questionId": "eeb4abbf-7f36-4905-ae08-32ca2df659b8",
+    "order": [
+      2,
+      3,
+      1,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "（家で）姉「旅行の　じゅんびは　終わった？」弟「うん、終わったよ。」姉「え、その　かばん？　小さすぎるよ。帰りは　荷物が　増える　かもしれないし　もっと　大きい　かばんが　いいと　思うよ。」"
+  }
+]
