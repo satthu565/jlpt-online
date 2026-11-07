@@ -332,6 +332,8 @@
       "searchPlaceholder": "単語、文法、タグを検索...",
       "kindLabel": "知識タイプ",
       "allKinds": "すべてのタイプ",
+      "levelLabel": "試験レベル",
+      "allLevels": "すべてのレベル",
       "statusLabel": "ステータス",
       "allStatus": "すべてのステータス"
     },

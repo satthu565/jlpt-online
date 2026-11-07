@@ -133,6 +133,14 @@ export function resolveExamSlug(title?: string, slug?: string): string | undefin
   return undefined;
 }
 
+export function getNotebookExamLevel(item: Pick<NotebookItem, 'sourceExam' | 'tags'>): string | undefined {
+  const sourceExam = item.sourceExam || item.tags
+    .map((tag) => tag.replace(/^#+/, '').trim())
+    .find((tag) => tag.startsWith('source_exam:'))
+    ?.slice('source_exam:'.length);
+  return sourceExam?.match(/(?:^|[^a-z0-9])(N[1-5])(?=$|[^a-z0-9])/i)?.[1]?.toUpperCase();
+}
+
 export interface NotebookViewProps {
   items: NotebookItem[];
   totalCount: number;
@@ -165,6 +173,7 @@ export function NotebookView({
 
   // Filters
   const [filterKind, setFilterKind] = useState<string>('all');
+  const [filterLevel, setFilterLevel] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterMastered, setFilterMastered] = useState<string>('all');
 
@@ -201,6 +210,7 @@ export function NotebookView({
   // Filter items
   const filteredItems = items.filter((item) => {
     if (filterKind !== 'all' && item.kind !== filterKind) return false;
+    if (filterLevel !== 'all' && getNotebookExamLevel(item) !== filterLevel) return false;
     if (filterMastered === 'mastered' && !item.mastered) return false;
     if (filterMastered === 'learning' && item.mastered) return false;
     if (searchQuery.trim()) {
@@ -361,6 +371,19 @@ export function NotebookView({
                 { value: 'vocab', label: t('notebook.kinds.vocab') },
                 { value: 'grammar', label: t('notebook.kinds.grammar') },
                 { value: 'kanji', label: t('notebook.kinds.kanji') },
+              ]}
+            />
+          </div>
+
+          <div className="w-[180px]">
+            <HeroSelect
+              id="notebook-level-filter"
+              aria-label={t('notebook.filters.levelLabel')}
+              value={filterLevel}
+              onChange={setFilterLevel}
+              options={[
+                { value: 'all', label: t('notebook.filters.allLevels') },
+                ...['N5', 'N4', 'N3', 'N2', 'N1'].map((level) => ({ value: level, label: level })),
               ]}
             />
           </div>

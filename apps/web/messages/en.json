@@ -332,6 +332,8 @@
       "searchPlaceholder": "Search vocab, grammar, tags...",
       "kindLabel": "Content Type",
       "allKinds": "All Types",
+      "levelLabel": "Exam level",
+      "allLevels": "All levels",
       "statusLabel": "Status",
       "allStatus": "All Statuses"
     },

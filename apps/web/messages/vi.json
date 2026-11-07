@@ -332,6 +332,8 @@
       "searchPlaceholder": "Tìm kiếm từ vựng, ngữ pháp, tag...",
       "kindLabel": "Loại kiến thức",
       "allKinds": "Tất cả loại",
+      "levelLabel": "Cấp độ đề thi",
+      "allLevels": "Tất cả cấp độ",
       "statusLabel": "Trạng thái",
       "allStatus": "Tất cả trạng thái"
     },
