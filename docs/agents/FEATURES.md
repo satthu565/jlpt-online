@@ -22,7 +22,7 @@ Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xon
 
 | Tính năng | Trang | Code chính |
 |---|---|---|
-| Thư viện đề, chi tiết đề | `/de-thi`, `/de-thi/[slug]`, `/[level]/de-thi` | `features/library`, module API `exam` |
+| Thư viện đề, chi tiết đề (chọn thi thật hoặc luyện tập ngay trên trang đề, bấm bắt đầu là vào thi; lịch sử của người dùng với đề, tiếp tục bài dở, điều kiện đỗ, nhắc khách đăng nhập) | `/de-thi`, `/de-thi/[slug]`, `/[level]/de-thi` | `features/library` (`exam-detail-view.tsx`, `exam-detail-learner.tsx`), module API `exam` |
 | Phòng thi có giờ (thi thật và luyện tập), đồng bộ khi mất mạng | `/phong-thi` | `features/exam`, module `attempt` |
 | Kết quả, đỗ/trượt theo JLPT, điểm sàn từng phần, phân tích thời gian | `/ket-qua/[id]` | `features/results`, `packages/exam-engine` |
 | Luyện tập trộn câu | `/luyen-tap` | `features/practice`, `features/mix` |

@@ -7,6 +7,13 @@ import { Card } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Badge } from '@jlpt/ui/components/badge';
+import {
+  ExamHistorySummary,
+  ExamResumeBanner,
+  GuestSaveNote,
+  PassCriteria,
+  useExamAttempts,
+} from './exam-detail-learner';
 
 export interface ExamDetailViewProps {
   exam: ExamSummary & { description?: string };
@@ -17,6 +24,8 @@ export function ExamDetailView({
   exam,
   className = '',
 }: ExamDetailViewProps): React.JSX.Element {
+  const attempts = useExamAttempts(exam.id);
+  const hasListening = exam.sections.some((sec) => sec.title.includes('聴解') || /listen/i.test(sec.title));
   const totalDurationSec = exam.sections.reduce((acc, s) => acc + s.durationSec, 0);
   const totalMinutes = Math.round(totalDurationSec / 60);
 
@@ -59,6 +68,8 @@ export function ExamDetailView({
           {exam.title}
         </h1>
 
+
+        <ExamResumeBanner attempts={attempts} />
 
         {/* Key Metrics */}
         <div className="surface surface--secondary rounded-2xl grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 mb-6">
@@ -107,6 +118,14 @@ export function ExamDetailView({
           </div>
         </div>
 
+        <div className="mb-6">
+          <PassCriteria level={exam.level} />
+        </div>
+
+        <div className="mb-6 empty:hidden">
+          <ExamHistorySummary attempts={attempts} />
+        </div>
+
         {/* Source attribution and License details */}
         {(exam.sourceLabel || exam.licenseLabel) && (
           <div className="p-4 rounded-xl bg-slate-100/70 dark:bg-slate-800/60 text-xs text-slate-600 dark:text-slate-400 space-y-1 mb-6">
@@ -136,8 +155,12 @@ export function ExamDetailView({
               <li>
                 Khi hoàn thành hoặc chuyển sang phần thi tiếp theo, phần thi trước đó <strong>bị khóa hoàn toàn</strong>: bạn không thể xem lại hay sửa đáp án.
               </li>
+              {hasListening && (
+                <li>Đề có phần nghe: chuẩn bị tai nghe hoặc loa, hệ thống sẽ cho bạn thử loa trước khi vào thi.</li>
+              )}
             </ul>
           </Alert>
+          <GuestSaveNote slug={exam.slug} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="relative overflow-hidden p-5 flex flex-col gap-4 border border-red-200 bg-red-50/70 dark:border-red-900/60 dark:bg-red-950/20">
               <div className="flex items-center gap-3">
