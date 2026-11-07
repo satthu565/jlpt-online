@@ -10,6 +10,8 @@ Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xon
 
 ## Hiệu đính nội dung đề
 
+- N3 文法・読解, rà soát 07/11/2026: bộ hiệu đính có kế hoạch chạy thử cho 32 mục / 18 đề; phục hồi ô trống/phương án, sửa chữ và lời giải, ba khóa đáp án có căn cứ ghép câu. Công cụ `tools/content/n3-language-reading-review/`; tạo phiên bản mới, bảo toàn lịch sử, chỉ áp dụng sau CI xanh và sao lưu.
+
 - N1 7/2011, đợt bổ sung 06/11: hiệu đính Q104 `検収` → `研修` trong lựa chọn, transcript và lời giải; đồng bộ nghĩa “đào tạo tài xế”, giữ khóa đáp án. Công cụ: `tools/content/n1-2011-07-followup/`.
 
 - N1 7/2011: bộ sửa có kiểm tra dữ liệu gốc cho Q34, Q47, Q73, Q76, Q80 và Q89; đồng bộ trích dẫn/lời giải, giữ khóa đáp án và lịch sử phiên bản. Công cụ: `tools/content/n1-2011-07/`.
