@@ -1,5 +1,9 @@
 # Các bẫy đã gặp
 
+## Option image assets are also included in group media dependencies
+
+Symptom: four source-glyph choices appear above a question and again inside its four options. Cause: publication correctly lists option-image assets in group.media for delivery, while the booklet also treats every group image as a standalone illustration. Correct approach: collect image references already rendered in passages, stems and options across the whole group and filter only those from the display illustration list. Preserve all rich content, independent illustrations, audio and the underlying snapshot/manifest.
+
 Mỗi bẫy ghi theo dạng triệu chứng → nguyên nhân → cách đúng. **Gặp bẫy mới thì thêm một dòng vào đây trong cùng PR.**
 
 ## Code và test

@@ -1,5 +1,9 @@
 # Tính năng theo trạng thái
 
+## Exam images inside choices (2026-11-07)
+
+The question flattener keeps images already embedded in passages, stems or answer choices out of the separate group-illustration list, so each image renders once in its intended position. Standalone illustrations, audio references, option order and published content remain intact. Regression coverage includes nested image segments, relative API paths and later questions in a shared group.
+
 Cập nhật lần cuối: 01/11/2026. **Agent xong một tính năng thì sửa file này trong cùng PR.**
 
 Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xong, chờ dịch vụ ngoài · 🚧 đang làm · 📋 dự kiến.
