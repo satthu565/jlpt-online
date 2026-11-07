@@ -6,7 +6,7 @@ The reviewed export was compared against all 1,160 currently published question 
 
 ## Corrections
 
-The manifest has **32 correction entries in 18 exams / 32 groups**, including six shared-passage changes and 14 revised explanations. It restores the missing second `19-b` gap and shared words in December 2010, restores the actual July 2018 grammar distractors instead of rejecting a second valid polite request, repairs missing particles/characters, removes duplicated lead-in words and commas between reorder slots, and replaces two incorrect reorder explanations. July 2024 Q59's unrelated fourth option is restored from the independently rendered Kosei copy on the owner's site, with a URL/page/SHA256 in the manifest.
+The manifest has **30 correction entries in 17 exams / 30 groups**, including six shared-passage changes and 13 revised explanations. It restores the missing second `19-b` gap and shared words in December 2010, restores the actual July 2018 grammar distractors instead of rejecting a second valid polite request, repairs missing particles/characters, removes duplicated lead-in words and commas between reorder slots, and clarifies reorder explanations. July 2024 Q59's unrelated fourth option is restored from the independently rendered Kosei copy on the owner's site, with a URL/page/SHA256 in the manifest.
 
 Three answer indexes require new corrected versions:
 
@@ -18,7 +18,7 @@ Three answer indexes require new corrected versions:
 
 These are **editorial corrections**, independently reconstructed from the actual question. Do not describe the old answer tables as proof of the corrected keys. No star position is moved. The explanations show the complete order and explicitly disclose each key correction. July 2021 Q51 retains its correct key [3]; its old explanation incorrectly put `今` between the verb and `ところ`.
 
-Several PDFs themselves contain errors. The manifest distinguishes restoration from editorial changes, including July 2011 `やらせてしたい` → `やらせてあげたい`; December 2012 `ご覧になる` → connecting `ご覧になって`; December 2014 object particle `資料の` → `資料を` and `グラム` → `グラフ`; July 2015 removal of the unrelated copied ending; and the caller label in July 2022. These are not claims that the corrected wording was printed in the supplied PDF. Do not silently replace source documents.
+Several PDFs themselves contain errors. The manifest distinguishes restoration from editorial changes, including December 2012 `ご覧になる` → connecting `ご覧になって`; December 2014 `グラム` → `グラフ`; July 2015 removal of the unrelated copied ending; and the caller label in July 2022. These are not claims that the corrected wording was printed in the supplied PDF. Do not silently replace source documents.
 
 Source root: `/srv/jlpt-extract/de-goc/N3/`. Exact filenames/pages and linguistic reasons are recorded per entry. The second reading reconstructs the repaired sentences, checks the actual star position against the selected option, verifies three distractor reasons for each revised explanation, and validates the rich-text schema and Unicode NFC.
 
@@ -56,8 +56,17 @@ N3_REPAIR_DIR=<same-directory> N3_REPAIR_AUTH=<same-env> \
 
 ## Validation before PR
 
-- Content schema, unique options, NFC, 14 structured explanations, six passage edits, seven independent reorder reconstructions and three explicitly allowed key changes: pass.
+- Content schema, unique options, NFC, 13 structured explanations, six passage edits, eight independent reorder reconstructions and three explicitly allowed key changes: pass.
 - `lint`, `typecheck`, `build`, `check:ui-primitives`, `check:no-mock-ui`, `docs:map`: pass locally.
 - `pnpm test`: stops at the pre-existing coordinator integration Scenario 10 (`check.ok` false), also documented by preceding content repairs on this VM. Do not disable the check or alter coordinator permissions. Required CI must still pass before any live content write.
-- API planning is read-only; 31-entry draft plan completed, and the final 32-entry plan must be regenerated after the extra source restoration. One earlier planning run met an API restart and wrote no content; a retry succeeded after the deployment finished.
+- API planning is read-only. Earlier 31/32-entry plans are superseded by this 30-entry manifest. Regenerate in a new operation directory; never apply an old plan. One earlier planning run met an API restart and wrote no content.
 - No live apply, migration, or :3210 deployment at PR creation.
+
+## Second review on session continuation
+
+- July 2011 Q53: the original options form `子どもがしたいと思うことはやらせてやりたい` in order 1-4-3-2. Preserve all four options and key [3]; clarify only the explanation. The earlier proposal to replace したい with あげたい was a false positive.
+- December 2014 Q50: `今日中に作らなくてはいけない会議の資料のことをすっかり忘れていた` is grammatical, order 3-4-2-1 and key [2]. The relative clause modifies 会議の資料, followed by のことを. Remove this entry entirely; replacing の with を would damage the retained order.
+- December 2022 Q36: `書き方がよくわからないところなんですが` can introduce the part being asked about. Do not insert がある solely as a stylistic preference; remove this entry.
+- July 2019 Q50: rewrite the explanation as one complete sentence ending `なかなかないだろう`, removing the old duplicated `[な]ない` and stale reference to いだろう.
+- December 2020 Q52: synchronize the remaining distractor explanation with `好きだからだと思う`.
+- The standalone API test run completed: 72 files / 754 tests passed. Required GitHub CI remains pending; no live content apply has occurred.

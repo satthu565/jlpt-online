@@ -155,3 +155,5 @@ Symptom: N5 2010–2011 Q15 options 2 and 4 look identical despite different str
 
 - Câu sắp xếp có lời giải trông hợp lý nhưng khóa sai → mặc định ngôi sao luôn ở ô thứ ba hoặc chép thứ tự từ bản có lựa chọn khác → giải lại bằng đúng bốn lựa chọn hiện tại, đọc vị trí `star` thực tế và ảnh nguồn; giữ vị trí sao, công khai hiệu đính khóa ở phiên bản mới khi cần.
 - Câu ngữ pháp dạng a/b thiếu một nửa câu → gộp hai ô của cùng một câu hỏi thành một blank rồi bỏ luôn chữ dùng chung → giữ nhãn riêng như `19-a`, `19-b` cùng phần chữ ở giữa; đối chiếu cả đoạn văn và các phương án.
+
+- N3 reorder false positives: sentence fragments must be rearranged before judging them. July 2011 Q53 forms 1-4-3-2 with original options; December 2014 Q50 uses a relative clause followed by N no koto wo. Replacing an option without reconstructing the full sentence can introduce an error. Preserve valid source wording and correct only an inaccurate explanation.

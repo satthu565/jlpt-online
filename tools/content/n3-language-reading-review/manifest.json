@@ -974,7 +974,7 @@
             "content": [
               {
                 "t": "text",
-                "text": "あげたい"
+                "text": "したい"
               }
             ]
           },
@@ -1031,7 +1031,7 @@
                 },
                 {
                   "t": "text",
-                  "text": "Thứ tự: 2 - 4 - 3 - 1. 「子どもがやりたいと思うことはやらせてあげたいと思っている。」 「Vさせてあげる」 nghĩa là cho phép ai làm việc họ muốn. Ô ★ thứ ba là やらせて."
+                  "text": "Thứ tự: 1 - 4 - 3 - 2. 「子どもがしたいと思うことはやらせてやりたいと思っている。」 「やらせてやりたい」 là dạng mong muốn của 「やらせてやる」: muốn cho con làm. Ô ★ thứ ba là やらせて, tức [3]."
                 }
               ]
             },
@@ -1047,14 +1047,14 @@
                 },
                 {
                   "t": "text",
-                  "text": "- [1] あげたい đứng cuối, sau やらせて để tạo やらせてあげたい."
+                  "text": "- [1] したい đứng đầu, trong mệnh đề 子どもがしたいと思う."
                 },
                 {
                   "t": "br"
                 },
                 {
                   "t": "text",
-                  "text": "- [2] やりたい đứng đầu, trong mệnh đề 子どもがやりたいと思う."
+                  "text": "- [2] やりたい đứng cuối, sau やらせて để tạo やらせてやりたい."
                 },
                 {
                   "t": "br"
@@ -1064,24 +1064,15 @@
                   "text": "- [4] と思うことは đứng thứ hai, kết thúc cụm nói về điều con muốn làm."
                 }
               ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Ghi chú hiệu đính: Bản PDF ghi したい, tạo thành やらせてしたい không đúng ngữ pháp. Hiệu đính thành あげたい; giữ nguyên vị trí ★ và đáp án [3]."
-                }
-              ]
             }
           ]
         }
       },
       "reasons": [
-        "Repair source conjugation error so all four pieces form a grammatical sentence."
+        "Clarify the valid original order without changing any option or key."
       ],
       "evidence": [
-        "Đề N3 7-2011.pdf p5 has したい; editorial correction to あげたい, retaining the tested やらせて and key [3]."
+        "Đề N3 7-2011.pdf p5: original order 1-4-3-2 forms 子どもがしたいと思うことはやらせてやりたい; source options are grammatical."
       ]
     },
     {
@@ -1628,282 +1619,6 @@
       ],
       "evidence": [
         "Đề N3 12-2012.pdf p4 prints dictionary forms before a comma. Editorial inflection: 雑誌をご覧になって、…とおっしゃっていました."
-      ]
-    },
-    {
-      "slug": "n3-2014-12",
-      "number": 50,
-      "examId": "e8345e84-a476-443d-aa64-2d4e653442ec",
-      "publishedVersion": 2,
-      "questionId": "3ce36f69-1b2e-4617-ad1f-e52b55f9d784",
-      "groupId": "3e990629-25c6-44d8-a6ed-52a0c757d229",
-      "questionVersion": 1,
-      "groupVersion": 1,
-      "before": {
-        "stem": [
-          {
-            "t": "text",
-            "text": "必ず"
-          },
-          {
-            "t": "blank"
-          },
-          {
-            "t": "blank"
-          },
-          {
-            "t": "star"
-          },
-          {
-            "t": "blank"
-          },
-          {
-            "t": "text",
-            "text": "すっかり忘れていた。"
-          }
-        ],
-        "options": [
-          {
-            "orderIndex": 1,
-            "content": [
-              {
-                "t": "text",
-                "text": "ことを"
-              }
-            ]
-          },
-          {
-            "orderIndex": 2,
-            "content": [
-              {
-                "t": "text",
-                "text": "会議の資料の"
-              }
-            ]
-          },
-          {
-            "orderIndex": 3,
-            "content": [
-              {
-                "t": "text",
-                "text": "今日中に"
-              }
-            ]
-          },
-          {
-            "orderIndex": 4,
-            "content": [
-              {
-                "t": "text",
-                "text": "作らなくてはいけない"
-              }
-            ]
-          }
-        ],
-        "correctOption": 2,
-        "explanation": {
-          "blocks": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Dịch nghĩa: Tôi đã hoàn toàn quên khuấy mất việc về tài liệu cuộc họp mà nhất định phải làm trong ngày hôm nay."
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Đáp án đúng: [2] 会議の資料の"
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "Thứ tự sắp xếp câu hoàn chỉnh: 必ず【今日中に】(3) 【作らなくてはいけない】(4) 【会議の資料の】(2 ★) 【ことを】(1) すっかり忘れていた。"
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "Mệnh đề「今日中に作らなくてはいけない」bổ nghĩa cho danh từ「会議の資料のこと」. Vị trí ngôi sao ★ ở ô thứ 3 là đáp án [2]「会議の資料の」."
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Phân tích các phương án còn lại:"
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [1] ことを: Đứng ở vị trí thứ 4 trước「すっかり忘れていた」."
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [3] 今日中に: Đứng ở vị trí thứ 1 sau「必ず」."
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [4] 作らなくてはいけない: Đứng ở vị trí thứ 2 bổ nghĩa cho tài liệu."
-                }
-              ]
-            }
-          ],
-          "locale": "vi"
-        }
-      },
-      "after": {
-        "stem": [
-          {
-            "t": "text",
-            "text": "必ず"
-          },
-          {
-            "t": "blank"
-          },
-          {
-            "t": "blank"
-          },
-          {
-            "t": "star"
-          },
-          {
-            "t": "blank"
-          },
-          {
-            "t": "text",
-            "text": "すっかり忘れていた。"
-          }
-        ],
-        "options": [
-          {
-            "orderIndex": 1,
-            "content": [
-              {
-                "t": "text",
-                "text": "ことを"
-              }
-            ]
-          },
-          {
-            "orderIndex": 2,
-            "content": [
-              {
-                "t": "text",
-                "text": "会議の資料を"
-              }
-            ]
-          },
-          {
-            "orderIndex": 3,
-            "content": [
-              {
-                "t": "text",
-                "text": "今日中に"
-              }
-            ]
-          },
-          {
-            "orderIndex": 4,
-            "content": [
-              {
-                "t": "text",
-                "text": "作らなくてはいけない"
-              }
-            ]
-          }
-        ],
-        "correctOption": 2,
-        "explanation": {
-          "blocks": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Dịch nghĩa: Tôi đã hoàn toàn quên khuấy mất việc về tài liệu cuộc họp mà nhất định phải làm trong ngày hôm nay."
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Đáp án đúng: [2] 会議の資料を"
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "Thứ tự sắp xếp câu hoàn chỉnh: 必ず【今日中に】(3) 【作らなくてはいけない】(4) 【会議の資料を】(2 ★) 【ことを】(1) すっかり忘れていた。"
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "Mệnh đề「今日中に作らなくてはいけない」bổ nghĩa cho danh từ「会議の資料をこと」. Vị trí ngôi sao ★ ở ô thứ 3 là đáp án [2]「会議の資料を」."
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Phân tích các phương án còn lại:"
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [1] ことを: Đứng ở vị trí thứ 4 trước「すっかり忘れていた」."
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [3] 今日中に: Đứng ở vị trí thứ 1 sau「必ず」."
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [4] 作らなくてはいけない: Đứng ở vị trí thứ 2 bổ nghĩa cho tài liệu."
-                }
-              ]
-            }
-          ],
-          "locale": "vi"
-        }
-      },
-      "reasons": [
-        "Repair object particle in source so 作る has a valid object."
-      ],
-      "evidence": [
-        "N3 12-2014.pdf p5 prints 会議の資料の; editorial の→を: 今日中に会議の資料を作らなくてはいけないことを…"
       ]
     },
     {
@@ -4896,13 +4611,14 @@
         ],
         "correctOption": 3,
         "explanation": {
+          "locale": "vi",
           "blocks": [
             {
               "type": "paragraph",
               "content": [
                 {
                   "t": "text",
-                  "text": "• Dịch nghĩa: Ở vườn thú Sakura mà tôi đã đến hôm qua có hơn 500 loài động vật. Một sở thú mà có thể ngắm nhìn nhiều loài động vật như thế thì hiếm có nơi nào khác có được."
+                  "text": "• Dịch nghĩa: Vườn thú Sakura có hơn 500 loài động vật. Hiếm có vườn thú nào xem được nhiều loài động vật như vậy."
                 }
               ]
             },
@@ -4918,28 +4634,7 @@
                 },
                 {
                   "t": "text",
-                  "text": "Thứ tự ghép đúng: あんなにいろいろな [動物が (1)] [見られる (4)] [動物園は (3)] [なかなか (2)] [な]ないだろう。"
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- Mệnh đề bổ nghĩa: 「あんなにいろいろな動物が見られる動物園は」 (sở thú mà có thể chiêm ngưỡng nhiều loài động vật như thế)."
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- Cụm phó từ: 「なかなか〜ない」 mang nghĩa 'hiếm khi / khó mà có được'."
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "Vị trí ngôi sao ★ ở vị trí thứ 3 là phương án [3] 動物園は."
+                  "text": "Thứ tự: 1 - 4 - 3 - 2. 「あんなにいろいろな動物が見られる動物園はなかなかないだろう。」 「なかなか〜ない」 diễn đạt sự hiếm có. Ô ★ thứ ba là 動物園は, tức [3]."
                 }
               ]
             },
@@ -4955,26 +4650,25 @@
                 },
                 {
                   "t": "text",
-                  "text": "- [1] 動物が: Nằm ở vị trí thứ nhất (いろいろな動物が)."
+                  "text": "- [1] 動物が đứng đầu, nối sau いろいろな và làm chủ ngữ của 見られる."
                 },
                 {
                   "t": "br"
                 },
                 {
                   "t": "text",
-                  "text": "- [2] なかなか: Nằm ở vị trí thứ tư trước いだろう (なかなかないだろう)."
+                  "text": "- [2] なかなか đứng cuối bốn mảnh, trước phần cố định ないだろう."
                 },
                 {
                   "t": "br"
                 },
                 {
                   "t": "text",
-                  "text": "- [4] 見られる: Nằm ở vị trí thứ hai bổ nghĩa cho 動物園 (見られる動物園)."
+                  "text": "- [4] 見られる đứng thứ hai, bổ nghĩa cho 動物園."
                 }
               ]
             }
-          ],
-          "locale": "vi"
+          ]
         }
       },
       "reasons": [
@@ -5248,7 +4942,7 @@
                 },
                 {
                   "t": "text",
-                  "text": "- [2] やっぱりサッカーが: Đứng ở vị trí thứ 4 (trước 好きだからと思う)."
+                  "text": "- [2] やっぱりサッカーが: Đứng ở vị trí thứ 4 (trước 好きだからだと思う)."
                 },
                 {
                   "t": "br"
@@ -6703,264 +6397,6 @@
       ],
       "evidence": [
         "N3 T7-2022 Final Version.pdf p9: source typo; passage has 飲み物の温度."
-      ]
-    },
-    {
-      "slug": "n3-2022-12",
-      "number": 36,
-      "examId": "a9cc230a-5d17-4279-a3ee-d277c3a51362",
-      "publishedVersion": 3,
-      "questionId": "298b6aa5-5fcf-471c-a646-13f420ba263c",
-      "groupId": "dbe0aaf7-50a2-44e2-aa5f-9c859f818c94",
-      "questionVersion": 3,
-      "groupVersion": 3,
-      "before": {
-        "stem": [
-          {
-            "t": "text",
-            "text": "（教室で）"
-          },
-          {
-            "t": "br"
-          },
-          {
-            "t": "text",
-            "text": "アン「先生、スピーチ大会の申込書を書いてきました。書き方がよくわからないところなんですが、ここの書き方はこれ（ "
-          },
-          {
-            "t": "blank"
-          },
-          {
-            "t": "text",
-            "text": " ）大丈夫でしょうか。」"
-          }
-        ],
-        "options": [
-          {
-            "orderIndex": 1,
-            "content": [
-              {
-                "t": "text",
-                "text": "に"
-              }
-            ]
-          },
-          {
-            "orderIndex": 2,
-            "content": [
-              {
-                "t": "text",
-                "text": "で"
-              }
-            ]
-          },
-          {
-            "orderIndex": 3,
-            "content": [
-              {
-                "t": "text",
-                "text": "と"
-              }
-            ]
-          },
-          {
-            "orderIndex": 4,
-            "content": [
-              {
-                "t": "text",
-                "text": "が"
-              }
-            ]
-          }
-        ],
-        "correctOption": 2,
-        "explanation": {
-          "blocks": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Dịch nghĩa: (Trong lớp học) An: 'Thưa thầy, em đã viết phiếu đăng ký cuộc thi hùng biện rồi ạ. Có chỗ em chưa rõ cách viết lắm, chỗ này viết như thế này đã ổn/được chưa ạ?'"
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Đáp án đúng: [2] で"
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "Trợ từ 'で' dùng để chỉ trạng thái / tiêu chuẩn: 'これで大丈夫' nghĩa là 'như thế này là được rồi / như thế này đã ổn chưa'."
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Phân tích các phương án còn lại:"
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [1] に: Trợ từ に chỉ địa điểm, mục đích, thời gian, không phù hợp với 大丈夫."
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [3] と: Trợ từ と dùng liệt kê hoặc trích dẫn."
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [4] が: Trợ từ が chỉ chủ ngữ, không đi với これ trong cấu trúc hỏi này."
-                }
-              ]
-            }
-          ],
-          "locale": "vi"
-        }
-      },
-      "after": {
-        "stem": [
-          {
-            "t": "text",
-            "text": "（教室で）"
-          },
-          {
-            "t": "br"
-          },
-          {
-            "t": "text",
-            "text": "アン「先生、スピーチ大会の申込書を書いてきました。書き方がよくわからないところがあるんですが、ここの書き方はこれ（ "
-          },
-          {
-            "t": "blank"
-          },
-          {
-            "t": "text",
-            "text": " ）大丈夫でしょうか。」"
-          }
-        ],
-        "options": [
-          {
-            "orderIndex": 1,
-            "content": [
-              {
-                "t": "text",
-                "text": "に"
-              }
-            ]
-          },
-          {
-            "orderIndex": 2,
-            "content": [
-              {
-                "t": "text",
-                "text": "で"
-              }
-            ]
-          },
-          {
-            "orderIndex": 3,
-            "content": [
-              {
-                "t": "text",
-                "text": "と"
-              }
-            ]
-          },
-          {
-            "orderIndex": 4,
-            "content": [
-              {
-                "t": "text",
-                "text": "が"
-              }
-            ]
-          }
-        ],
-        "correctOption": 2,
-        "explanation": {
-          "blocks": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Dịch nghĩa: (Trong lớp học) An: 'Thưa thầy, em đã viết phiếu đăng ký cuộc thi hùng biện rồi ạ. Có chỗ em chưa rõ cách viết lắm, chỗ này viết như thế này đã ổn/được chưa ạ?'"
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Đáp án đúng: [2] で"
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "Trợ từ 'で' dùng để chỉ trạng thái / tiêu chuẩn: 'これで大丈夫' nghĩa là 'như thế này là được rồi / như thế này đã ổn chưa'."
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "t": "text",
-                  "text": "• Phân tích các phương án còn lại:"
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [1] に: Trợ từ に chỉ địa điểm, mục đích, thời gian, không phù hợp với 大丈夫."
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [3] と: Trợ từ と dùng liệt kê hoặc trích dẫn."
-                },
-                {
-                  "t": "br"
-                },
-                {
-                  "t": "text",
-                  "text": "- [4] が: Trợ từ が chỉ chủ ngữ, không đi với これ trong cấu trúc hỏi này."
-                }
-              ]
-            }
-          ],
-          "locale": "vi"
-        }
-      },
-      "reasons": [
-        "Repair incomplete request introduction."
-      ],
-      "evidence": [
-        "Đề N3 T12-2022 Final Version.pdf p6 has missing がある; editorial completion, leaving tested これで unchanged."
       ]
     },
     {

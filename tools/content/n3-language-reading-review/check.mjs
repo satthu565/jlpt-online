@@ -40,10 +40,11 @@ for (const f of m.fixes) {
 const get = (slug, n) => m.fixes.find(f => f.slug === slug && f.number === n);
 const orders = [
   ['n3-2010-07', 53, [2, 4, 1, 3], 'というような意味だったと思う'],
-  ['n3-2011-07', 53, [2, 4, 3, 1], 'やりたいと思うことはやらせてあげたい'],
+  ['n3-2011-07', 53, [1, 4, 3, 2], 'したいと思うことはやらせてやりたい'],
   ['n3-2015-07', 53, [4, 2, 1, 3], '雨の降らない日が続いている'],
   ['n3-2015-12', 49, [4, 2, 1, 3], '使っている古いものでいつ壊れてもおかしくないのに'],
   ['n3-2015-12', 50, [3, 4, 2, 1], 'あと半年で終わる予定だった駅ビルの建設工事が'],
+  ['n3-2019-07', 50, [1, 4, 3, 2], '動物が見られる動物園はなかなか'],
   ['n3-2021-07', 51, [2, 1, 3, 4], '写真を今選んでいるところだから'],
   ['n3-2022-07', 48, [3, 2, 4, 1], 'あの先生ほどわかりやすく教えてくれる先生は'],
 ];
@@ -53,6 +54,9 @@ for (const [slug, n, order, sentence] of orders) {
   assert.equal(order.map(i => text(f.after.options[i - 1].content)).join(''), sentence);
 }
 const paired = get('n3-2010-12', 54).passageAfter[2].content;
+assert.deepEqual(get('n3-2011-07', 53).after.options, get('n3-2011-07', 53).before.options);
+assert(!get('n3-2014-12', 50), 'Retain valid 会議の資料のことを construction');
+assert(!get('n3-2022-12', 36), 'Retain valid ところなんですが introduction');
 assert.deepEqual(paired.filter(s => s.t === 'blank').map(s => s.label), ['19-a', '19-b']);
 assert(text(paired).includes('、何でも100円で'));
 assert.equal(get('n3-2012-07', 41).after.stem.filter(s => s.t === 'blank').length, 2);
