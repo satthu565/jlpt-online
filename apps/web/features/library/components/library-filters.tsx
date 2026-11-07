@@ -313,10 +313,12 @@ export function LibraryFilters({
           <Checkbox.Control>
             <Checkbox.Indicator />
           </Checkbox.Control>
-          <span className="inline-flex items-center gap-1.5">
-            <Star className="size-3.5 text-amber-500 fill-amber-500" aria-hidden="true" />
-            Chỉ hiện các đề đã yêu thích
-          </span>
+          <Checkbox.Content>
+            <span className="inline-flex items-center gap-1.5">
+              <Star className="size-3.5 text-amber-500 fill-amber-500" aria-hidden="true" />
+              Chỉ hiện các đề đã yêu thích
+            </span>
+          </Checkbox.Content>
         </Checkbox>
 
         <Button
