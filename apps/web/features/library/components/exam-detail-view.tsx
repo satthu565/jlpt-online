@@ -4,6 +4,7 @@ import React from 'react';
 import type { ExamSummary } from '@jlpt/schema';
 import { Card } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
+import { Alert } from '@jlpt/ui/components/alert';
 
 export interface ExamDetailViewProps {
   exam: ExamSummary & { description?: string };
@@ -131,6 +132,9 @@ export function ExamDetailView({
           <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
             Chọn hình thức làm bài
           </h2>
+          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            Cách làm bài: nhấp vào phương án 1, 2, 3 hoặc 4 để chọn; nhấp lại vào phương án đã chọn để bỏ chọn. Thời gian từng phần xem ở bảng cấu trúc phía trên.
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="surface surface--secondary rounded-2xl p-4 flex flex-col gap-3">
               <div>
@@ -139,7 +143,10 @@ export function ExamDetailView({
                   Bấm giờ nghiêm ngặt từng phần, tự nộp bài khi hết giờ, không xem đáp án hay giải thích khi đang thi. Kết quả tính vào thống kê.
                 </p>
               </div>
-              <a href={`/phong-thi?examId=${exam.id}&mode=real`} className="text-decoration-none mt-auto">
+              <Alert variant="warning" title="Lưu ý khi chuyển phần" className="mb-0 text-left">
+                Khi hoàn thành hoặc chuyển sang phần thi tiếp theo, phần thi trước đó <strong>bị khóa hoàn toàn</strong>: bạn không thể xem lại hay sửa đáp án.
+              </Alert>
+              <a href={`/phong-thi?examId=${exam.id}&mode=real&start=1`} className="text-decoration-none mt-auto">
                 <Button variant="primary" size="md" className="w-full">
                   Bắt đầu thi thật
                 </Button>
@@ -152,7 +159,7 @@ export function ExamDetailView({
                   Thời gian linh hoạt, phù hợp làm từng phần. Không ảnh hưởng chỉ số xếp hạng chính thức.
                 </p>
               </div>
-              <a href={`/phong-thi?examId=${exam.id}&mode=practice`} className="text-decoration-none mt-auto">
+              <a href={`/phong-thi?examId=${exam.id}&mode=practice&start=1`} className="text-decoration-none mt-auto">
                 <Button variant="outline" size="md" className="w-full">
                   Luyện tập tự do
                 </Button>

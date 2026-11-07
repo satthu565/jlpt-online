@@ -70,6 +70,8 @@ export default function ExamRoomPage(): React.JSX.Element {
   const [selectedExam, setSelectedExam] = useState<ExamPickerExam | null>(null);
   const [selectedMode, setSelectedMode] = useState<AttemptMode>('real');
   const [isInstructionsOpen, setIsInstructionsOpen] = useState(false);
+  const [autoStart, setAutoStart] = useState(false);
+  const [pendingStart, setPendingStart] = useState(false);
   const [isExamStarted, setIsExamStarted] = useState(false);
   const [examResult, setExamResult] = useState<unknown | null>(null);
 
@@ -131,7 +133,10 @@ export default function ExamRoomPage(): React.JSX.Element {
   useEffect(() => {
     if (bootstrapStarted.current) return;
     bootstrapStarted.current = true;
+    const initialParams = new URLSearchParams(window.location.search);
+    if (initialParams.get('start') === '1' && initialParams.get('examId') && initialParams.get('mode')) setPendingStart(true);
     loadAvailableExams().then((exams) => {
+      setPendingStart(false);
       if (typeof window !== 'undefined') {
         const searchParams = new URLSearchParams(window.location.search);
         const examIdParam = searchParams.get('examId');
@@ -194,12 +199,23 @@ export default function ExamRoomPage(): React.JSX.Element {
               return;
             }
             setSelectedExam(found);
-            setIsInstructionsOpen(true);
+            // Đã chọn hình thức và đã đọc hướng dẫn ở trang đề: vào thi luôn, không hiện lại hộp hướng dẫn.
+            if (modeParam && searchParams.get('start') === '1') {
+              setAutoStart(true);
+            } else {
+              setIsInstructionsOpen(true);
+            }
           }
         }
       }
     });
   }, []);
+
+  useEffect(() => {
+    if (!autoStart || !selectedExam) return;
+    setAutoStart(false);
+    void handleConfirmStart();
+  }, [autoStart, selectedExam]);
 
   // Handle resume attempt if attemptId is provided
   const handleResumeAttempt = async (attemptId: string) => {
@@ -364,7 +380,7 @@ export default function ExamRoomPage(): React.JSX.Element {
               code: 'AUTH_REQUIRED',
               message: 'Vui lòng đăng nhập tài khoản học viên để làm đề thi này.',
               requiresAuth: true,
-              redirectUrl: `/dang-nhap?redirect=${encodeURIComponent(`/phong-thi?examId=${targetExamId}&mode=${selectedMode}`)}`,
+              redirectUrl: `/dang-nhap?redirect=${encodeURIComponent(`/phong-thi?examId=${targetExamId}&mode=${selectedMode}&start=1`)}`,
             });
             return;
           }
@@ -434,7 +450,7 @@ export default function ExamRoomPage(): React.JSX.Element {
               code: 'AUTH_REQUIRED',
               message: 'Vui lòng đăng nhập tài khoản học viên để làm đề thi này.',
               requiresAuth: true,
-              redirectUrl: `/dang-nhap?redirect=${encodeURIComponent(`/phong-thi?examId=${targetExamId}&mode=${selectedMode}`)}`,
+              redirectUrl: `/dang-nhap?redirect=${encodeURIComponent(`/phong-thi?examId=${targetExamId}&mode=${selectedMode}&start=1`)}`,
             });
             return;
           }
@@ -584,6 +600,15 @@ export default function ExamRoomPage(): React.JSX.Element {
         onFinish={handleFinish}
         onExit={handleExit}
       />
+    );
+  }
+
+  if (autoStart || pendingStart) {
+    return (
+      <div className="mx-auto w-full max-w-2xl py-20 px-4 text-center">
+        <Loader2 className="mx-auto mb-4 size-10 animate-spin" aria-hidden="true" />
+        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">{loadingMessage}</h2>
+      </div>
     );
   }
 
