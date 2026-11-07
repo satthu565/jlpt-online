@@ -11,6 +11,7 @@ describe('features hidden in this release phase', () => {
       tts: false,
       aiExplanation: false,
       navPractice: false,
+      navVocabulary: false,
       navGrammar: false,
       navClassroom: false,
       navPricing: false,

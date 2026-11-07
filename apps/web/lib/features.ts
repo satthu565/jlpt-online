@@ -15,6 +15,8 @@ export const FEATURES = {
   aiExplanation: process.env.NEXT_PUBLIC_FEATURE_AI_EXPLANATION === '1',
   /** Header menu entry "Luyện tập" (the /luyen-tap page itself is untouched). */
   navPractice: process.env.NEXT_PUBLIC_FEATURE_NAV_PRACTICE === '1',
+  /** Header menu entry "Từ vựng" (the /tu-vung page itself is untouched). */
+  navVocabulary: process.env.NEXT_PUBLIC_FEATURE_NAV_VOCABULARY === '1',
   /** Header menu entry "Ngữ pháp" (the /ngu-phap page itself is untouched). */
   navGrammar: process.env.NEXT_PUBLIC_FEATURE_NAV_GRAMMAR === '1',
   /** Header menu entry "Lớp học" (the /lop-hoc page itself is untouched). */
