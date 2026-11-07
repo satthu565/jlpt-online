@@ -1,0 +1,3730 @@
+{
+  "reviewDate": "2026-11-07",
+  "scope": {
+    "exams": 11,
+    "questions": 297
+  },
+  "keyChanges": [],
+  "fixes": [
+    {
+      "slug": "n5-2010-2011",
+      "number": 2,
+      "examId": "e9949e3e-5e2d-4ba2-a233-e4f35684bc2c",
+      "publishedVersion": 3,
+      "questionId": "2666eaa1-a8a1-460a-a1c1-a71af37abf61",
+      "groupId": "b9ed57d8-c487-4d62-aeeb-948c23c710c7",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ごはんの "
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "後で"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "、さんぽ します。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "つぎ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "うしろ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "まえ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "あと"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Sau bữa ăn, tôi đi dạo bộ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] あと"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Mẫu ngữ pháp thời gian 「〜の後で」 biểu thị 'sau khi...', chữ Hán 「後」 trong cấu trúc này được đọc là 「あと」 (あとで)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] つぎ: Nghĩa là 'tiếp theo' (次), không phải cách đọc của chữ 「後」 trong ngữ cảnh này."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] うしろ: Chữ 「後」 đọc là 「うしろ」 khi chỉ phương hướng, vị trí không gian 'phía sau' (ví dụ: いすのうしろ), không dùng chỉ mốc thời gian 「〜のうしろで」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] まえ: Nghĩa là 'trước' (前), trái ngược nghĩa với 「後」."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ごはんの "
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "後"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "で"
+          },
+          {
+            "t": "text",
+            "text": "、さんぽ します。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "つぎ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "うしろ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "まえ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "あと"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Sau bữa ăn, tôi đi dạo bộ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] あと"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Mẫu ngữ pháp thời gian 「〜の後で」 biểu thị 'sau khi...', chữ Hán 「後」 trong cấu trúc này được đọc là 「あと」 (あとで)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] つぎ: Nghĩa là 'tiếp theo' (次), không phải cách đọc của chữ 「後」 trong ngữ cảnh này."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] うしろ: Chữ 「後」 đọc là 「うしろ」 khi chỉ phương hướng, vị trí không gian 'phía sau' (ví dụ: いすのうしろ), không dùng chỉ mốc thời gian 「〜のうしろで」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] まえ: Nghĩa là 'trước' (前), trái ngược nghĩa với 「後」."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Align underline with all four replacement choices; preserve the complete sentence"
+      ]
+    },
+    {
+      "slug": "n5-2010-2011",
+      "number": 11,
+      "examId": "e9949e3e-5e2d-4ba2-a233-e4f35684bc2c",
+      "publishedVersion": 3,
+      "questionId": "27391ead-9408-43a9-a32e-1550df5cea7a",
+      "groupId": "faa0c7bd-2bea-489b-a950-b09c617270e7",
+      "questionVersion": 2,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "けさ　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "しゃわー"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "を　あびました。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "シャワー"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "シヤワー"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "ツァワー"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ツアワー"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Dịch nghĩa: Sáng nay tôi đã tắm vòi sen."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Đáp án đúng: 1. シャワー"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「しゃわー」trong chữ Katakana được viết là「シャワー」. Chữ「シ」(shi) có các nét vuốt từ dưới lên, chữ「ヤ」(ya) nhỏ「ャ」tạo thành âm ghép「シャ」(sha), kết hợp trường âm「ー」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- Lựa chọn 2「シヤワー」sai vì chữ「ヤ」viết cỡ lớn bình thường thay vì âm ghép「ャ」cỡ nhỏ."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- Lựa chọn 3「ツァワー」sai vì dùng chữ「ン」(n) thay vì chữ「シ」(shi)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- Lựa chọn 4「ツアワー」sai vì dùng chữ「ソ」(so) thay vì chữ「シ」(shi)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "けさ　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "しゃわー"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "を　あびました。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "シャワー"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "シヤワー"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "ツァワー"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ツアワー"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Sáng nay tôi đã tắm vòi sen."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] シャワー — しゃわー viết katakana là シャワー. シ kết hợp ャ nhỏ thành シャ; ワー thể hiện âm wa kéo dài."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] シヤワー: シヤ dùng ヤ lớn, không phải âm ghép シャ với ャ nhỏ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] ツァワー: ツァ bắt đầu bằng ツ, không phải シ; ァ cũng không phải ャ. Không được gọi ký tự ツ này là ン."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] ツアワー: ツア dùng ツ và ア lớn, không viết đúng シャ. Không được gọi ツ là ソ."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Explain the actual ツァワー and ツアワー distractors rather than nonexistent ン/ソ"
+      ]
+    },
+    {
+      "slug": "n5-2010-2011",
+      "number": 15,
+      "examId": "e9949e3e-5e2d-4ba2-a233-e4f35684bc2c",
+      "publishedVersion": 3,
+      "questionId": "331561b2-edf1-4f50-ae2e-4b8218997cb8",
+      "groupId": "c4277625-a7fa-47f8-a9e9-d37be2929bc6",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "しゅくだいが　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "はんぶん"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "　おわりました。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "羊分"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "半︀分"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "⺷分"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "半分"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Dịch nghĩa: Bài tập về nhà đã hoàn thành một nửa."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Đáp án đúng: 4. 半分"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Từ「はんぶん」(một nửa) có chữ Hán chuẩn là「半分」(Bán Phân). Chữ「半」có nét ngang trên ngắn hơn nét ngang dưới, và nét sổ thẳng đứng xuyên suốt từ trên xuống qua hai nét ngang."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- Lựa chọn 1「羊分」sai vì dùng chữ「羊」(Dương - con cừu) có ba nét ngang."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- Lựa chọn 2「半︀分」sai vì nét ngang trên bị kéo dài hơn nét ngang dưới."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- Lựa chọn 3「⺷分」sai vì dùng dạng biến thể nét sổ không kéo dài xuống dưới nét ngang đáy."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "しゅくだいが　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "はんぶん"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "　おわりました。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "image",
+                "mediaKey": "media/8abc3cb19ceea2bb1d2aea821bfce1e7a4df033745a872d9a0362f2411eef0d4.png",
+                "alt": "Phương án 1 (ảnh nguồn)",
+                "width": 112,
+                "height": 67
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "image",
+                "mediaKey": "media/7337073288731d73517b17e7bbb46844506fc90cc28527b376e0d1ee8d88b132.png",
+                "alt": "Phương án 2 (ảnh nguồn)",
+                "width": 111,
+                "height": 67
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "image",
+                "mediaKey": "media/3b231f9e0a3e85c2d0546bd1ad5daeeeeb16a71e0579227acc1ad540646d9ff1.png",
+                "alt": "Phương án 3 (ảnh nguồn)",
+                "width": 112,
+                "height": 67
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "image",
+                "mediaKey": "media/2cacbc8876dcbe3031f1e555b254ddb79a82243fefb1ac78772e895057476661.png",
+                "alt": "Phương án 4 (ảnh nguồn)",
+                "width": 112,
+                "height": 67
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Bài tập về nhà đã làm xong một nửa."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] Phương án 4 (ảnh nguồn) — はんぶん viết chuẩn là 半分, tương ứng hình 4. Quan sát đúng các nét trong ảnh nguồn: 半 có hai nét ngắn phía trên, hai nét ngang và nét sổ giữa đi qua cả hai nét ngang. Các hình được giữ từ PDF, không dùng ký tự biến thể để mô phỏng sai khác."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] Phương án 1 (ảnh nguồn): Hình đầu có thêm nét ngang, không phải cấu tạo chữ 半 chuẩn."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] Phương án 2 (ảnh nguồn): Hình thứ hai kéo dài nét ngang trên; không giống chữ 半 chuẩn trong hình 4."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] Phương án 3 (ảnh nguồn): Nét sổ trong hình thứ ba không đi xuyên xuống qua nét ngang dưới như 半 chuẩn."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Replace unfaithful Unicode approximations with exact four source glyph crops; remove visual duplicate ambiguity",
+        "Synchronize visual-shape explanation with source crops; correct option remains 4"
+      ]
+    },
+    {
+      "slug": "n5-2010-2011",
+      "number": 18,
+      "examId": "e9949e3e-5e2d-4ba2-a233-e4f35684bc2c",
+      "publishedVersion": 3,
+      "questionId": "a87a5fee-f495-4de4-a511-95d9d1537ae3",
+      "groupId": "ac8001f3-2457-406f-a656-6be1c685d1c7",
+      "questionVersion": 2,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "いもうとと　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "おなじ"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "　ふくを　かいました。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "同じ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "回じ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "冋じ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "固じ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Dịch nghĩa: Tôi đã mua bộ quần áo giống như của em gái tôi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Đáp án đúng: 1. 同じ"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Tính từ「おなじ」(giống nhau) có chữ Hán là「同」(Đồng), viết kèm okurigana là「同じ」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- Lựa chọn 2「回じ」sai vì chữ「回」(Hồi - quay vòng, lần) không mang nghĩa「おなじ」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- Lựa chọn 3「冋じ」sai vì chữ「囘」(dạng cổ của chữ Hồi) không đúng."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- Lựa chọn 4「固じ」sai vì chữ「固」(Cố - cứng/かたい) không phải chữ Hán của「おなじ」."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "いもうとと　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "おなじ"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "　ふくを　かいました。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "同じ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "回じ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "冋じ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "固じ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Tôi đã mua quần áo giống với quần áo của em gái."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] 同じ — おなじ viết là 同じ: chữ 同 có khung 冂, bên trong là một nét ngang và 口. Các lựa chọn hiện tại có đáp án chuẩn ở vị trí 1."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] 回じ: 回 là một chữ khác, không dùng để viết おなじ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] 冋じ: 冋 thiếu nét ngang phía trên 口 so với 同; ký tự đang hiển thị là 冋, không phải 囘 như lời giải cũ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] 固じ: 固 là một chữ khác, không dùng để viết おなじ."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Correct explanation that misidentifies actual distractor 冋 as 囘"
+      ]
+    },
+    {
+      "slug": "n5-2013-07",
+      "number": 5,
+      "examId": "fefa9c80-da7a-4c33-a5ea-b5178ac4f70d",
+      "publishedVersion": 2,
+      "questionId": "66aacde8-d667-41fc-a5fb-272779e05d6a",
+      "groupId": "15369da1-f282-4774-a7d9-bb551fb4d961",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "きのう　たなかさんに　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "話し"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "ました。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "はなしました"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "かしました"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "かえしました"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "わたしました"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Hôm qua tôi đã nói chuyện với anh Tanaka."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] はなしました"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Chữ Hán 「話」 (Thoại) trong động từ 「話す」 có cách đọc thể lịch sự quá khứ là 「はなしました」, nghĩa là đã nói chuyện."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] かしました: 「かしました」 xuất phát từ động từ 「貸す」 (Thải - cho vay, cho mượn)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] かえしました: 「かえしました」 xuất phát từ động từ 「返す」 (Phản - trả lại)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] わたしました: 「わたしました」 xuất phát từ động từ 「渡す」 (Độ - trao, chuyển giao)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "きのう　たなかさんに　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "話しました"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "はなしました"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "かしました"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "かえしました"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "わたしました"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Hôm qua tôi đã nói chuyện với anh Tanaka."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] はなしました"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Chữ Hán 「話」 (Thoại) trong động từ 「話す」 có cách đọc thể lịch sự quá khứ là 「はなしました」, nghĩa là đã nói chuyện."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] かしました: 「かしました」 xuất phát từ động từ 「貸す」 (Thải - cho vay, cho mượn)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] かえしました: 「かえしました」 xuất phát từ động từ 「返す」 (Phản - trả lại)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] わたしました: 「わたしました」 xuất phát từ động từ 「渡す」 (Độ - trao, chuyển giao)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Align underline with all four replacement choices; preserve the complete sentence"
+      ]
+    },
+    {
+      "slug": "n5-2013-07",
+      "number": 7,
+      "examId": "fefa9c80-da7a-4c33-a5ea-b5178ac4f70d",
+      "publishedVersion": 2,
+      "questionId": "6036faf5-5f3f-42e9-a4c8-c85557b3d0c3",
+      "groupId": "cb621b2d-0265-49a9-ac39-61a1a0b4953d",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "そとに　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "出"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "て　ください。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "だて"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "でて"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "でして"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "だして"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Xin hãy đi ra ngoài."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] でて"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Chữ Hán 「出」 (Xuất) trong tự động từ 「出る」 (đi ra ngoài) thể て có cách đọc là 「でて」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] だて: Sai dạng chia động từ."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] でして: Sai dạng chia động từ."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] だして: 「だして」 là thể て của tha động từ 「出す」 (lấy ra, nộp), không phù hợp với cấu trúc 「そとに出る」 (ra ngoài)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "そとに　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "出て"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "　ください。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "だて"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "でて"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "でして"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "だして"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Xin hãy đi ra ngoài."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] でて"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Chữ Hán 「出」 (Xuất) trong tự động từ 「出る」 (đi ra ngoài) thể て có cách đọc là 「でて」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] だて: Sai dạng chia động từ."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] でして: Sai dạng chia động từ."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] だして: 「だして」 là thể て của tha động từ 「出す」 (lấy ra, nộp), không phù hợp với cấu trúc 「そとに出る」 (ra ngoài)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Align underline with all four replacement choices; preserve the complete sentence"
+      ]
+    },
+    {
+      "slug": "n5-2013-07",
+      "number": 8,
+      "examId": "fefa9c80-da7a-4c33-a5ea-b5178ac4f70d",
+      "publishedVersion": 2,
+      "questionId": "92500428-4400-43fa-ade0-cae12ff114e9",
+      "groupId": "467479c3-cfd6-4eaa-abcd-7342f88d3859",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "あの　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "女の子"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "は　５さいです。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "おんなのこう"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "おんなのこ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "おなのこ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "おなのこう"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Bé gái kia 5 tuổi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] おんなのこ"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Chữ Hán 「女の子」 (Nữ Tử) có cách đọc chuẩn là 「おんなのこ」 (có âm ngắt ん), nghĩa là bé gái."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] おんなのこう: Thừa âm trường âm 「う」 ở cuối."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] おなのこ: Thiếu âm ngắt 「ん」 của chữ 「女」 (おんな)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] おなのこう: Vừa thiếu âm ngắt 「ん」 vừa thừa trường âm 「う」."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "あの　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "女の子"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "は　５さいです。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "おんなのこう"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "おんなのこ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "おなのこ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "おなのこう"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Bé gái kia năm tuổi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] おんなのこ — 女の子 đọc là おんなのこ. ん là âm mũi (撥音), không phải âm ngắt っ (促音); こ cuối từ không có trường âm う."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] おんなのこう: おんなのこう thừa う ở cuối."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] おなのこ: おなのこ thiếu âm mũi ん sau お."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] おなのこう: おなのこう vừa thiếu ん vừa thừa う cuối."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Distinguish moraic nasal ん from sokuon っ"
+      ]
+    },
+    {
+      "slug": "n5-2017-07",
+      "number": 2,
+      "examId": "de450ea4-a4f8-43d9-a105-3eb6a2963dfd",
+      "publishedVersion": 2,
+      "questionId": "9d0cf36e-8f6e-468f-ab14-b81513fc0aad",
+      "groupId": "54b65c2f-0668-4361-a3f5-8b293827cb72",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ごはんの　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "後で"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "　さんぽします。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "つぎ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "うしろ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "まえ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "あと"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Sau bữa ăn tôi sẽ đi dạo bộ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] あと"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Trong cấu trúc 「Danh từ + の + 後で」 biểu thị trình tự thời gian, chữ 「後」 đọc là 「あと」, mang nghĩa là sau khi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] つぎ: Chữ Hán là 「次」 (Thứ), nghĩa là tiếp theo / lần sau."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] うしろ: Chữ Hán là 「後ろ」, chỉ vị trí phía sau về mặt không gian, không dùng cho mốc thời gian sau bữa ăn."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] まえ: Chữ Hán là 「前」, nghĩa là trước khi (trái nghĩa với 後で)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ごはんの　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "後"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "で"
+          },
+          {
+            "t": "text",
+            "text": "　さんぽします。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "つぎ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "うしろ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "まえ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "あと"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Sau bữa ăn tôi sẽ đi dạo bộ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] あと"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Trong cấu trúc 「Danh từ + の + 後で」 biểu thị trình tự thời gian, chữ 「後」 đọc là 「あと」, mang nghĩa là sau khi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] つぎ: Chữ Hán là 「次」 (Thứ), nghĩa là tiếp theo / lần sau."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] うしろ: Chữ Hán là 「後ろ」, chỉ vị trí phía sau về mặt không gian, không dùng cho mốc thời gian sau bữa ăn."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] まえ: Chữ Hán là 「前」, nghĩa là trước khi (trái nghĩa với 後で)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Align underline with all four replacement choices; preserve the complete sentence"
+      ]
+    },
+    {
+      "slug": "n5-2017-07",
+      "number": 15,
+      "examId": "de450ea4-a4f8-43d9-a105-3eb6a2963dfd",
+      "publishedVersion": 2,
+      "questionId": "7d1631d8-3e7e-42f7-aa94-81c70543e8fe",
+      "groupId": "76b2dd68-6f6b-4946-a870-60ef211c9f85",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "しゅくだいが　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "はんぶん"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "　おわりました。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "羊分"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "𢆉分"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "𦍌分"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "半分"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Bài tập về nhà đã hoàn thành được một nửa."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 半分"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Từ 「はんぶん」 (một nửa) viết bằng chữ Hán là 「半分」 (Bán Phân). Chữ 「半」 chuẩn gồm 2 nét chấm trên, nét ngang trên ngắn hơn nét ngang dưới, và nét sổ giữa."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 羊分: Sai vì chữ 「羊」 (Dương - con cừu) có 3 nét ngang, không phải chữ 「半」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 𢆉分: Sai vì nét ngang trên dài hơn nét ngang dưới, không đúng dạng chuẩn chữ 「半」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 𦍌分: Sai vì chữ có 3 nét ngang và hai nét chấm trên đảo chiều, không phải chữ 「半」."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "しゅくだいが　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "はんぶん"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "　おわりました。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "image",
+                "mediaKey": "media/8c7f1f2ca0dda3f807eededbd7aa38740ab7df52080e65741d7692d952d0cb9d.png",
+                "alt": "Phương án 1 (ảnh nguồn)",
+                "width": 92,
+                "height": 64
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "image",
+                "mediaKey": "media/ba2679a9b7b79507021073261f176b09450732b772ce546c87607c14fadb1457.png",
+                "alt": "Phương án 2 (ảnh nguồn)",
+                "width": 93,
+                "height": 64
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "image",
+                "mediaKey": "media/056350447925c7c0b39d43a9e9d889be04fa961498a4234ed35b33999d68b9c4.png",
+                "alt": "Phương án 3 (ảnh nguồn)",
+                "width": 92,
+                "height": 64
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "image",
+                "mediaKey": "media/a36b2f1c9ba56479c589b4a9863306bfaf1748e735cc82c46d16bae9b62ba184.png",
+                "alt": "Phương án 4 (ảnh nguồn)",
+                "width": 93,
+                "height": 64
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Bài tập về nhà đã làm xong một nửa."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] Phương án 4 (ảnh nguồn) — はんぶん viết chuẩn là 半分, tương ứng hình 4. Quan sát đúng các nét trong ảnh nguồn: 半 có hai nét ngắn phía trên, hai nét ngang và nét sổ giữa đi qua cả hai nét ngang. Các hình được giữ từ PDF, không dùng ký tự biến thể để mô phỏng sai khác."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] Phương án 1 (ảnh nguồn): Hình đầu có thêm nét ngang, không phải cấu tạo chữ 半 chuẩn."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] Phương án 2 (ảnh nguồn): Hình thứ hai kéo dài nét ngang trên; không giống chữ 半 chuẩn trong hình 4."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] Phương án 3 (ảnh nguồn): Nét sổ trong hình thứ ba không đi xuyên xuống qua nét ngang dưới như 半 chuẩn."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Replace unfaithful Unicode approximations with exact four source glyph crops; remove visual duplicate ambiguity",
+        "Synchronize visual-shape explanation with source crops; correct option remains 4"
+      ]
+    },
+    {
+      "slug": "n5-2018-12",
+      "number": 3,
+      "examId": "549561c8-d46f-4043-af17-1f6a834fbca5",
+      "publishedVersion": 2,
+      "questionId": "7570deff-0efa-49e5-a81c-e0bb2ee318d3",
+      "groupId": "db6e3bd2-3e40-4335-a1d9-12a7baece3e9",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "しゃしんは はこの "
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "中に"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": " あります。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "よこ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "なか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "そと"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "そば"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Bức ảnh ở trong cái hộp."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] なか"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「中」có cách đọc là「なか」, chỉ vị trí bên trong."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] よこ: âm đọc của chữ Hán「横」(bên cạnh/chiều ngang)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] そと: âm đọc của chữ Hán「外」(bên ngoài)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] そば: âm đọc của「側/傍」(ở gần/bên cạnh)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "しゃしんは はこの "
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "中"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "に"
+          },
+          {
+            "t": "text",
+            "text": " あります。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "よこ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "なか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "そと"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "そば"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Bức ảnh ở trong cái hộp."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] なか"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「中」có cách đọc là「なか」, chỉ vị trí bên trong."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] よこ: âm đọc của chữ Hán「横」(bên cạnh/chiều ngang)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] そと: âm đọc của chữ Hán「外」(bên ngoài)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] そば: âm đọc của「側/傍」(ở gần/bên cạnh)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Align underline with all four replacement choices; preserve the complete sentence"
+      ]
+    },
+    {
+      "slug": "n5-2018-12",
+      "number": 10,
+      "examId": "549561c8-d46f-4043-af17-1f6a834fbca5",
+      "publishedVersion": 2,
+      "questionId": "eac390ba-4b21-4a0e-adfc-ffafc6d6f8eb",
+      "groupId": "82607310-19da-48c5-aaa1-f86a258b1947",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ぎんこうと スーパーの "
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "間に"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": " ほそい みちが あります。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "あいた"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "あいだ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "どなり"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "となり"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Ở giữa ngân hàng và siêu thị có một con đường nhỏ hẹp."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] あいだ"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「間」trong ngữ cảnh chỉ khoảng cách, vị trí ở giữa có cách đọc là「あいだ」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] あいた: thiếu âm đục (phải đọc là あいだ)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] どなり: từ không có nghĩa trong tiếng Nhật."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] となり: cách đọc của chữ「隣」(bên cạnh), không phải chữ「間」."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ぎんこうと スーパーの "
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "間"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "に"
+          },
+          {
+            "t": "text",
+            "text": " ほそい みちが あります。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "あいた"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "あいだ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "どなり"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "となり"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Ở giữa ngân hàng và siêu thị có một con đường nhỏ hẹp."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] あいだ"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「間」trong ngữ cảnh chỉ khoảng cách, vị trí ở giữa có cách đọc là「あいだ」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] あいた: thiếu âm đục (phải đọc là あいだ)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] どなり: từ không có nghĩa trong tiếng Nhật."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] となり: cách đọc của chữ「隣」(bên cạnh), không phải chữ「間」."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Align underline with all four replacement choices; preserve the complete sentence"
+      ]
+    },
+    {
+      "slug": "n5-2021-12",
+      "number": 13,
+      "examId": "ed7f479b-196e-4d4e-a549-da61cc5cbebe",
+      "publishedVersion": 3,
+      "questionId": "d12f8b74-3223-423f-a5b1-0088a4139d48",
+      "groupId": "773d8db2-1883-4eb5-ad51-8e89117713c8",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "さとうさん：「すきな"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "は なんですか。」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "たなかさん：「おすしです。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "かいもの"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "たべもの"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "のみもの"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "くだもの"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Anh Sato: \"Món ăn yêu thích của bạn là gì?\" - Anh Tanaka: \"Là sushi.\""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] たべもの"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「たべもの」(thực vật/đồ ăn). Do câu trả lời là 「おすし」(sushi) là một món ăn, nên câu hỏi phải hỏi về món ăn yêu thích."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] かいもの: Nghĩa là việc mua sắm (買い物), sushi không phải việc mua sắm."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] のみもの: Nghĩa là đồ uống (飲み物), sushi không phải đồ uống."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] くだもの: Nghĩa là hoa quả/trái cây (果物), sushi không phải hoa quả."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "さとうさん：「すきな"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "は なんですか。」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "たなかさん：「おすしです。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "かいもの"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "たべもの"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "のみもの"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "くだもの"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Sato hỏi món ăn yêu thích và Tanaka trả lời là sushi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] たべもの — たべもの（食べ物）là đồ ăn, thực phẩm. Không dịch thành thực vật (植物 là cây cối). おすし là món ăn nên câu hỏi hỏi すきなたべもの."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] かいもの: かいもの là việc mua sắm, không phải món ăn."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] のみもの: のみもの là đồ uống; sushi không phải đồ uống."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] くだもの: くだもの là trái cây; sushi không phải trái cây."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Remove misleading Vietnamese translation thực vật for 食べ物"
+      ]
+    },
+    {
+      "slug": "n5-2022-12",
+      "number": 2,
+      "examId": "1d4383d5-aec4-4bf5-a801-380530c574f0",
+      "publishedVersion": 1,
+      "questionId": "40776c62-057f-4915-a841-b951039b29f8",
+      "groupId": "94d6677c-b1c2-4c31-aad2-52d3269f9efe",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "たなかさんも"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "入って"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "ください。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "いって"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "きって"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "のって"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "はいって"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Động từ 「入る」 (Nhập: vào) đọc là 「はいる」, dạng liên từ thể Te là 「はいって」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- Đáp án 4 đúng: たなかさんも入ってください (Bạn Tanaka cũng mời vào nhé)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- Lựa chọn 1 (いって - 行って/言って), lựa chọn 2 (きって - 切って/着て), lựa chọn 3 (のって - 乗って) đều sai cách đọc chữ Hán 入."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "たなかさんも"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "入って"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "ください。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "いって"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "きって"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "のって"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "はいって"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Mời anh Tanaka cũng vào."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] はいって — 入る（はいる）là động từ nhóm 1, thể て là 入って（はいって）. Lời giải này đối chiếu kiến thức ngôn ngữ với các lựa chọn đang lưu, không khẳng định đã xác minh nguyên văn đề gốc vốn còn thiếu."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] いって: いって có thể là 行って hoặc 言って, không phải cách đọc 入って."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] きって: きって là 切って. Thể て của 着る là きて, không phải きって như lời giải cũ nhầm."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] のって: のって là 乗って, không phải 入って."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Correct source-independent linguistic error: 着る -> きて, not きって; no reconstructed question edits"
+      ]
+    },
+    {
+      "slug": "n5-2023-07",
+      "number": 7,
+      "examId": "c734a9a8-67bc-4509-ad17-b7951526a4fa",
+      "publishedVersion": 2,
+      "questionId": "c17d0016-4ced-4860-a936-8caecad9a5c0",
+      "groupId": "e38d4e80-89ff-4edc-a07f-2fbd13a9954e",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "たなかさんは　ここで　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "何か月"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "　はたらいて　います。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "なんかげつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "なにかげつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "なんかがつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "なにかがつ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Anh Tanaka làm việc ở đây được mấy tháng rồi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] なんかげつ"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Cụm từ 何か月 (mấy tháng, bao nhiêu tháng) đọc là なんかげつ (何 đọc là なん khi đứng trước phụ âm k)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] なにかげつ: Sai cách phát âm của 何 trước trợ từ đếm かげつ (phải đọc là なん)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] なんかがつ: がつ là đuôi gọi tên tháng trong năm (1月 là いちがつ), không dùng để đếm khoảng thời gian số tháng."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] なにかがつ: Vừa sai cách đọc なに vừa sai đơn vị đếm khoảng thời gian số tháng."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "たなかさんは　ここで　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "何か月"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "　はたらいて　いますか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "なんかげつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "なにかげつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "なんかがつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "なにかがつ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Anh Tanaka đã làm việc ở đây bao nhiêu tháng?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] なんかげつ — 何か月 là từ hỏi số tháng, đọc なんかげつ. Đây là cách đọc của tổ hợp cụ thể; không suy rộng rằng cứ trước phụ âm k thì 何 đều đọc なん, vì 何か đọc なにか. Câu hỏi đã được hiệu đính thêm か ở cuối."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] なにかげつ: なにかげつ không phải cách đọc số tháng trong 何か月."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] なんかがつ: なんかがつ dùng がつ (tháng trong lịch) thay vì かげつ (khoảng thời gian tính bằng tháng)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] なにかがつ: なにかがつ sai cả cách đọc 何 trong tổ hợp này và hậu tố đếm tháng."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Editorially complete the question with final か; the recollection source itself ends います。",
+        "Correct false blanket phonetic rule before k; keep なんかげつ"
+      ]
+    }
+  ],
+  "media": [
+    {
+      "filename": "media/n5-2010-q15-option1.png",
+      "sha256": "8abc3cb19ceea2bb1d2aea821bfce1e7a4df033745a872d9a0362f2411eef0d4",
+      "mediaKey": "media/8abc3cb19ceea2bb1d2aea821bfce1e7a4df033745a872d9a0362f2411eef0d4.png",
+      "width": 112,
+      "height": 67,
+      "sourcePdf": "/srv/jlpt-extract/de-goc/N5/N5 2010-2011/N5-2010-2011年.pdf",
+      "sourceSha256": "bbcaf83bfbf5580bcbc5d741249e5f4c0efbbbaeb04377410c96b7aa6cae0262",
+      "sourcePage": 3,
+      "clip": [
+        111.94272045898438,
+        108.62315716552735,
+        148.86000061035156,
+        130.51619659423827
+      ],
+      "slug": "n5-2010-2011",
+      "number": 15,
+      "option": 1
+    },
+    {
+      "filename": "media/n5-2010-q15-option2.png",
+      "sha256": "7337073288731d73517b17e7bbb46844506fc90cc28527b376e0d1ee8d88b132",
+      "mediaKey": "media/7337073288731d73517b17e7bbb46844506fc90cc28527b376e0d1ee8d88b132.png",
+      "width": 111,
+      "height": 67,
+      "sourcePdf": "/srv/jlpt-extract/de-goc/N5/N5 2010-2011/N5-2010-2011年.pdf",
+      "sourceSha256": "bbcaf83bfbf5580bcbc5d741249e5f4c0efbbbaeb04377410c96b7aa6cae0262",
+      "sourcePage": 3,
+      "clip": [
+        228.0535209350586,
+        108.62315716552735,
+        264.9708010864258,
+        130.51619659423827
+      ],
+      "slug": "n5-2010-2011",
+      "number": 15,
+      "option": 2
+    },
+    {
+      "filename": "media/n5-2010-q15-option3.png",
+      "sha256": "3b231f9e0a3e85c2d0546bd1ad5daeeeeb16a71e0579227acc1ad540646d9ff1",
+      "mediaKey": "media/3b231f9e0a3e85c2d0546bd1ad5daeeeeb16a71e0579227acc1ad540646d9ff1.png",
+      "width": 112,
+      "height": 67,
+      "sourcePdf": "/srv/jlpt-extract/de-goc/N5/N5 2010-2011/N5-2010-2011年.pdf",
+      "sourceSha256": "bbcaf83bfbf5580bcbc5d741249e5f4c0efbbbaeb04377410c96b7aa6cae0262",
+      "sourcePage": 3,
+      "clip": [
+        344.1643214111328,
+        108.62315716552735,
+        381.0816015625,
+        130.51619659423827
+      ],
+      "slug": "n5-2010-2011",
+      "number": 15,
+      "option": 3
+    },
+    {
+      "filename": "media/n5-2010-q15-option4.png",
+      "sha256": "2cacbc8876dcbe3031f1e555b254ddb79a82243fefb1ac78772e895057476661",
+      "mediaKey": "media/2cacbc8876dcbe3031f1e555b254ddb79a82243fefb1ac78772e895057476661.png",
+      "width": 112,
+      "height": 67,
+      "sourcePdf": "/srv/jlpt-extract/de-goc/N5/N5 2010-2011/N5-2010-2011年.pdf",
+      "sourceSha256": "bbcaf83bfbf5580bcbc5d741249e5f4c0efbbbaeb04377410c96b7aa6cae0262",
+      "sourcePage": 3,
+      "clip": [
+        469.2067219238281,
+        108.62315716552735,
+        506.1240020751953,
+        130.51619659423827
+      ],
+      "slug": "n5-2010-2011",
+      "number": 15,
+      "option": 4
+    },
+    {
+      "filename": "media/n5-2017-q15-option1.png",
+      "sha256": "8c7f1f2ca0dda3f807eededbd7aa38740ab7df52080e65741d7692d952d0cb9d",
+      "mediaKey": "media/8c7f1f2ca0dda3f807eededbd7aa38740ab7df52080e65741d7692d952d0cb9d.png",
+      "width": 92,
+      "height": 64,
+      "sourcePdf": "/srv/jlpt-extract/de-goc/N5/N5 7-2017/N5-2017年-7月.pdf",
+      "sourceSha256": "7d06c168e05ce0eded66171b601ac98c2de171f827f1747759e5daec920899ba",
+      "sourcePage": 4,
+      "clip": [
+        90.79945703125,
+        515.7808520507813,
+        121.23791137695312,
+        536.9074688720704
+      ],
+      "slug": "n5-2017-07",
+      "number": 15,
+      "option": 1
+    },
+    {
+      "filename": "media/n5-2017-q15-option2.png",
+      "sha256": "ba2679a9b7b79507021073261f176b09450732b772ce546c87607c14fadb1457",
+      "mediaKey": "media/ba2679a9b7b79507021073261f176b09450732b772ce546c87607c14fadb1457.png",
+      "width": 93,
+      "height": 64,
+      "sourcePdf": "/srv/jlpt-extract/de-goc/N5/N5 7-2017/N5-2017年-7月.pdf",
+      "sourceSha256": "7d06c168e05ce0eded66171b601ac98c2de171f827f1747759e5daec920899ba",
+      "sourcePage": 4,
+      "clip": [
+        180.56710205078124,
+        515.7808520507813,
+        211.00555639648437,
+        536.9074688720704
+      ],
+      "slug": "n5-2017-07",
+      "number": 15,
+      "option": 2
+    },
+    {
+      "filename": "media/n5-2017-q15-option3.png",
+      "sha256": "056350447925c7c0b39d43a9e9d889be04fa961498a4234ed35b33999d68b9c4",
+      "mediaKey": "media/056350447925c7c0b39d43a9e9d889be04fa961498a4234ed35b33999d68b9c4.png",
+      "width": 92,
+      "height": 64,
+      "sourcePdf": "/srv/jlpt-extract/de-goc/N5/N5 7-2017/N5-2017年-7月.pdf",
+      "sourceSha256": "7d06c168e05ce0eded66171b601ac98c2de171f827f1747759e5daec920899ba",
+      "sourcePage": 4,
+      "clip": [
+        270.3347470703125,
+        515.7808520507813,
+        300.7732014160156,
+        536.9074688720704
+      ],
+      "slug": "n5-2017-07",
+      "number": 15,
+      "option": 3
+    },
+    {
+      "filename": "media/n5-2017-q15-option4.png",
+      "sha256": "a36b2f1c9ba56479c589b4a9863306bfaf1748e735cc82c46d16bae9b62ba184",
+      "mediaKey": "media/a36b2f1c9ba56479c589b4a9863306bfaf1748e735cc82c46d16bae9b62ba184.png",
+      "width": 93,
+      "height": 64,
+      "sourcePdf": "/srv/jlpt-extract/de-goc/N5/N5 7-2017/N5-2017年-7月.pdf",
+      "sourceSha256": "7d06c168e05ce0eded66171b601ac98c2de171f827f1747759e5daec920899ba",
+      "sourcePage": 4,
+      "clip": [
+        360.6182980957031,
+        515.7808520507813,
+        391.0567524414063,
+        536.9074688720704
+      ],
+      "slug": "n5-2017-07",
+      "number": 15,
+      "option": 4
+    }
+  ],
+  "sourceLimitations": [
+    {
+      "slug": "n5-2022-12",
+      "questions": 21,
+      "reason": "Original booklet missing; current reconstructed stems/options preserved. Q2 explanation only fixes certain linguistic error."
+    },
+    {
+      "slug": "n5-2024-12",
+      "questions": 21,
+      "reason": "Original booklet missing; no edits to this exam."
+    }
+  ],
+  "deferred": [
+    {
+      "slug": "n5-2022-12",
+      "number": 14,
+      "reason": "Both たくさん食べられません and なにも食べられません fit truncated context. Await original options/context."
+    },
+    {
+      "slug": "n5-2024-12",
+      "number": 15,
+      "reason": "Both シャワーをあびる and おゆをあびる can fit. Missing original booklet; do not invent distractors."
+    },
+    {
+      "slug": "n5-2024-12",
+      "number": 21,
+      "reason": "祖父 includes both maternal and paternal grandfather, so current choices 3 and 4 both fit. Await original wording/options."
+    }
+  ]
+}

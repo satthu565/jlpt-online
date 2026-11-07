@@ -144,3 +144,7 @@ Symptom: N4 December 2022 has standalone terms, abbreviated context, several pla
 ## A passage-only legacy version can leave the editor group API with null question versions
 
 Symptom: an approved group v2 returns null for every question.version even though the exam still has published questions. Cause observed in N4 July 2023: the group has v2 but its three questions only have v1; getGroup loads questions at the exact group version. Correct approach: detect the mismatch before planning a group PATCH, preserve all existing question identities and history, and do not silently drop null questions or rebuild them from an incomplete source. This audit leaves that source-incomplete group unchanged and records it for a separate recovery.
+
+## Unicode variants can erase the visual distinction in a kanji-shape question
+
+Symptom: N5 2010–2011 Q15 options 2 and 4 look identical despite different strings (半 plus a variation selector versus 半). Cause: a scan-only malformed glyph was approximated with Unicode, whose variation selector may be ignored by the font; rare CJK characters can also differ from the intended handwritten stroke error. Correct approach: crop each original option from its own source PDF, preserve order and key, validate hashes and view all final crops. Do not invent a new kanji distractor or count string inequality as proof of visible inequality. The N5 kanji/vocabulary audit uses eight exact crops for the two affected questions.
