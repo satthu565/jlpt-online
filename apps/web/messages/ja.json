@@ -305,6 +305,8 @@
     "quickLevelSelect": "レベルから素早く選ぶ",
     "examsByYear": "実施年別 試験問題",
     "viewAllExams": "すべて見る",
+    "showMoreSessions": "さらに{count}回分を表示",
+    "showMoreExams": "さらに{count}件を表示",
     "takeExamNow": "今すぐ受験",
     "searchExamsButton": "問題を検索",
     "levelSelectLabel": "レベル",
