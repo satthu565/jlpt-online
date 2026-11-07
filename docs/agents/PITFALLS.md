@@ -136,3 +136,7 @@ Triệu chứng: tạo lượt làm bằng request không có Origin được, n
 - Numbered grammar blanks appear indistinguishable → RichTextView ignored blank.label → render the escaped label, reuse surrounding parentheses, and include the label in the accessible name.
 
 - Lời giải hiện chuỗi `[{'t': 'text', ...}]` → công cụ nhập đã chuyển rich text thành chuỗi Python thay vì lấy văn bản → đọc nội dung các node và lưu câu tiếng Nhật đúng trong lời giải phiên bản mới; đồng bộ cả explanation được duyệt, giữ lịch sử.
+
+## Recollected answer sheets can be published as if they were full exam booklets
+
+Symptom: N4 December 2022 has standalone terms, abbreviated context, several plausible choices, and a drafting instruction visible in an explanation. Cause: its original import report says `DRAFT_ONLY` and `source-missing-original-exam-booklet`, but the reconstructed package was subsequently published. Correct approach: check the importer report and source inventory, visibly distinguish edited practice from verified original questions, remove ambiguity with an explicit audit trail, and never claim invented distractors are restored official wording. Preserve published history through new versions. See `tools/content/n4-kanji-vocab-review/README.md`.
