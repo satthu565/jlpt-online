@@ -4,11 +4,7 @@ import React from 'react';
 import { Search, Calendar, Clock, FileText, Layers, Star } from 'lucide-react';
 import type { Level, ExamKind, Session } from '@jlpt/schema';
 import type { LibraryFilterState, UserExamStatus } from '../types';
-import { Card } from '@jlpt/ui/components/card';
-import { Button } from '@jlpt/ui/components/button';
-import { Input } from '@jlpt/ui/components/input';
-import { Select } from '@jlpt/ui/components/select';
-import { Checkbox } from '@jlpt/ui/components/checkbox';
+import { Button, Card, Checkbox, Input, ListBox, Select } from '@jlpt/ui/components/exam-controls';
 import { useI18n } from '../../../lib/i18n';
 
 export interface LibraryFiltersProps {
@@ -55,6 +51,7 @@ export function LibraryFilters({
             <Input
               id={`${idPrefix}-search-input`}
               type="search"
+              fullWidth
               value={filters.searchQuery}
               onChange={(e) => onFilterChange({ ...filters, searchQuery: e.target.value })}
               onKeyDown={(e) => {
@@ -68,7 +65,7 @@ export function LibraryFilters({
           <Button
             type="button"
             variant="primary"
-            onClick={onSearchSubmit}
+            onPress={onSearchSubmit}
             className="h-11 px-6 rounded-xl font-bold text-sm shrink-0 flex items-center justify-center gap-2 shadow-sm"
           >
             <Search className="size-4 shrink-0" aria-hidden="true" />
@@ -87,7 +84,7 @@ export function LibraryFilters({
             type="button"
             size="sm"
             variant="ghost"
-            onClick={() => onFilterChange({ ...filters, level: 'ALL' })}
+            onPress={() => onFilterChange({ ...filters, level: 'ALL' })}
             aria-pressed={filters.level === 'ALL'}
             className={`px-4 py-1 text-xs font-bold h-7.5 min-h-0 rounded-full transition-all ${
               filters.level === 'ALL'
@@ -105,7 +102,7 @@ export function LibraryFilters({
                 type="button"
                 size="sm"
                 variant="ghost"
-                onClick={() => onFilterChange({ ...filters, level: isSelected ? 'ALL' : lvl })}
+                onPress={() => onFilterChange({ ...filters, level: isSelected ? 'ALL' : lvl })}
                 aria-pressed={isSelected}
                 className={`px-3.5 py-1 text-xs font-bold h-7.5 min-h-0 rounded-full transition-all border-0 shadow-none cursor-pointer badge-level-${lvl.toLowerCase()} ${
                   isSelected
@@ -124,112 +121,176 @@ export function LibraryFilters({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Dropdown 1: Năm thi */}
         <div>
-          <label
-            htmlFor={`${idPrefix}-filter-year-select`}
+          <span
             className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5"
           >
             <Calendar className="size-3.5 text-slate-400" aria-hidden="true" />
             <span>Năm thi</span>
-          </label>
+          </span>
           <Select
             id={`${idPrefix}-filter-year-select`}
-            value={filters.year.toString()}
-            onChange={(e) =>
-              onFilterChange({
-                ...filters,
-                year: e.target.value === 'ALL' ? 'ALL' : Number.parseInt(e.target.value, 10),
-              })
-            }
-            className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer"
+            fullWidth
+            aria-label="Năm thi"
+            selectedKey={filters.year.toString()}
+            onSelectionChange={(key) => {
+              const v = String(key);
+              onFilterChange({ ...filters, year: v === 'ALL' ? 'ALL' : Number.parseInt(v, 10) });
+            }}
           >
-            <option value="ALL">Tất cả các năm</option>
-            {availableYears.map((yr) => (
-              <option key={yr} value={yr.toString()}>
-                Năm {yr}
-              </option>
-            ))}
+            <Select.Trigger className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer">
+              <Select.Value />
+              <Select.Indicator />
+            </Select.Trigger>
+            <Select.Popover>
+              <ListBox>
+                <ListBox.Item id="ALL" textValue="Tất cả các năm">
+                  Tất cả các năm
+                  <ListBox.ItemIndicator />
+                </ListBox.Item>
+                {availableYears.map((yr) => (
+                  <ListBox.Item key={yr} id={yr.toString()} textValue={`Năm ${yr}`}>
+                    Năm {yr}
+                    <ListBox.ItemIndicator />
+                  </ListBox.Item>
+                ))}
+              </ListBox>
+            </Select.Popover>
           </Select>
         </div>
 
         {/* Dropdown 2: Kỳ thi */}
         <div>
-          <label
-            htmlFor={`${idPrefix}-filter-session-select`}
+          <span
             className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5"
           >
             <Clock className="size-3.5 text-slate-400" aria-hidden="true" />
             <span>Kỳ thi</span>
-          </label>
+          </span>
           <Select
             id={`${idPrefix}-filter-session-select`}
-            value={filters.session}
-            onChange={(e) =>
-              onFilterChange({
-                ...filters,
-                session: e.target.value as Session | 'ALL',
-              })
-            }
-            className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer"
+            fullWidth
+            aria-label="Kỳ thi"
+            selectedKey={filters.session}
+            onSelectionChange={(key) => {
+              const v = String(key);
+              onFilterChange({ ...filters, session: v as Session | 'ALL' });
+            }}
           >
-            <option value="ALL">Tất cả các kỳ</option>
-            <option value="7">Kỳ tháng 7</option>
-            <option value="12">Kỳ tháng 12</option>
+            <Select.Trigger className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer">
+              <Select.Value />
+              <Select.Indicator />
+            </Select.Trigger>
+            <Select.Popover>
+              <ListBox>
+                <ListBox.Item id="ALL" textValue="Tất cả các kỳ">
+                  Tất cả các kỳ
+                  <ListBox.ItemIndicator />
+                </ListBox.Item>
+                <ListBox.Item id="7" textValue="Kỳ tháng 7">
+                  Kỳ tháng 7
+                  <ListBox.ItemIndicator />
+                </ListBox.Item>
+                <ListBox.Item id="12" textValue="Kỳ tháng 12">
+                  Kỳ tháng 12
+                  <ListBox.ItemIndicator />
+                </ListBox.Item>
+              </ListBox>
+            </Select.Popover>
           </Select>
         </div>
 
         {/* Dropdown 3: Thể loại đề */}
         <div>
-          <label
-            htmlFor={`${idPrefix}-filter-kind-select`}
+          <span
             className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5"
           >
             <FileText className="size-3.5 text-slate-400" aria-hidden="true" />
             <span>Thể loại đề</span>
-          </label>
+          </span>
           <Select
             id={`${idPrefix}-filter-kind-select`}
-            value={filters.kind}
-            onChange={(e) =>
-              onFilterChange({
-                ...filters,
-                kind: e.target.value as ExamKind | 'ALL',
-              })
-            }
-            className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer"
+            fullWidth
+            aria-label="Thể loại đề"
+            selectedKey={filters.kind}
+            onSelectionChange={(key) => {
+              const v = String(key);
+              onFilterChange({ ...filters, kind: v as ExamKind | 'ALL' });
+            }}
           >
-            <option value="ALL">Tất cả thể loại</option>
-            <option value="original">Đề thi thật (Original)</option>
-            <option value="practice">Đề luyện tự biên soạn</option>
-            <option value="mixed">Đề trộn ngân hàng</option>
+            <Select.Trigger className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer">
+              <Select.Value />
+              <Select.Indicator />
+            </Select.Trigger>
+            <Select.Popover>
+              <ListBox>
+                <ListBox.Item id="ALL" textValue="Tất cả thể loại">
+                  Tất cả thể loại
+                  <ListBox.ItemIndicator />
+                </ListBox.Item>
+                <ListBox.Item id="original" textValue="Đề thi thật (Original)">
+                  Đề thi thật (Original)
+                  <ListBox.ItemIndicator />
+                </ListBox.Item>
+                <ListBox.Item id="practice" textValue="Đề luyện tự biên soạn">
+                  Đề luyện tự biên soạn
+                  <ListBox.ItemIndicator />
+                </ListBox.Item>
+                <ListBox.Item id="mixed" textValue="Đề trộn ngân hàng">
+                  Đề trộn ngân hàng
+                  <ListBox.ItemIndicator />
+                </ListBox.Item>
+              </ListBox>
+            </Select.Popover>
           </Select>
         </div>
 
         {/* Dropdown 4: Trạng thái của bạn */}
         {showStatusFilter && (
           <div>
-            <label
-              htmlFor={`${idPrefix}-filter-status-select`}
+            <span
               className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5"
             >
               <Layers className="size-3.5 text-slate-400" aria-hidden="true" />
               <span>Trạng thái của bạn</span>
-            </label>
+            </span>
             <Select
               id={`${idPrefix}-filter-status-select`}
-              value={filters.userStatus}
-              onChange={(e) =>
-                onFilterChange({
-                  ...filters,
-                  userStatus: e.target.value as UserExamStatus | 'ALL',
-                })
-              }
-              className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer"
+              fullWidth
+              aria-label="Trạng thái của bạn"
+              selectedKey={filters.userStatus}
+              onSelectionChange={(key) => {
+                const v = String(key);
+                onFilterChange({ ...filters, userStatus: v as UserExamStatus | 'ALL' });
+              }}
             >
-              <option value="ALL">Mọi trạng thái</option>
-              <option value="not_started">Chưa từng làm</option>
-              <option value="in_progress">Đang làm dở</option>
-              <option value="completed">Đã hoàn thành</option>
-              <option value="below_target">Chưa đạt mục tiêu</option>
+              <Select.Trigger className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer">
+                <Select.Value />
+                <Select.Indicator />
+              </Select.Trigger>
+              <Select.Popover>
+                <ListBox>
+                  <ListBox.Item id="ALL" textValue="Mọi trạng thái">
+                    Mọi trạng thái
+                    <ListBox.ItemIndicator />
+                  </ListBox.Item>
+                  <ListBox.Item id="not_started" textValue="Chưa từng làm">
+                    Chưa từng làm
+                    <ListBox.ItemIndicator />
+                  </ListBox.Item>
+                  <ListBox.Item id="in_progress" textValue="Đang làm dở">
+                    Đang làm dở
+                    <ListBox.ItemIndicator />
+                  </ListBox.Item>
+                  <ListBox.Item id="completed" textValue="Đã hoàn thành">
+                    Đã hoàn thành
+                    <ListBox.ItemIndicator />
+                  </ListBox.Item>
+                  <ListBox.Item id="below_target" textValue="Chưa đạt mục tiêu">
+                    Chưa đạt mục tiêu
+                    <ListBox.ItemIndicator />
+                  </ListBox.Item>
+                </ListBox>
+              </Select.Popover>
             </Select>
           </div>
         )}
@@ -237,32 +298,32 @@ export function LibraryFilters({
 
       {/* TẦNG 4: CHECKBOX YÊU THÍCH & NÚT ĐẶT LẠI BỘ LỌC */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-2.5 border-t border-slate-100 dark:border-slate-800">
-        <label
-          htmlFor={`${idPrefix}-filter-favorites`}
+        <Checkbox
+          id={`${idPrefix}-filter-favorites`}
+          data-testid="filter-only-favorites"
           className="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300 select-none"
+          isSelected={Boolean(filters.onlyFavorites)}
+          onChange={(checked) =>
+            onFilterChange({
+              ...filters,
+              onlyFavorites: checked,
+            })
+          }
         >
-          <Checkbox
-            id={`${idPrefix}-filter-favorites`}
-            data-testid="filter-only-favorites"
-            checked={Boolean(filters.onlyFavorites)}
-            onCheckedChange={(checked) =>
-              onFilterChange({
-                ...filters,
-                onlyFavorites: Boolean(checked),
-              })
-            }
-          />
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
           <span className="inline-flex items-center gap-1.5">
             <Star className="size-3.5 text-amber-500 fill-amber-500" aria-hidden="true" />
             Chỉ hiện các đề đã yêu thích
           </span>
-        </label>
+        </Checkbox>
 
         <Button
           type="button"
-          variant="link"
+          variant="ghost"
           size="sm"
-          onClick={onResetFilters}
+          onPress={onResetFilters}
           className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold p-0 h-auto min-h-0"
         >
           Đặt lại bộ lọc
