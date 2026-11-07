@@ -15,7 +15,21 @@ export class PlannerClient {
   private authToken?: string;
 
   constructor(options: { baseUrl?: string; fetchFn?: typeof fetch; authToken?: string } = {}) {
-    this.baseUrl = (options.baseUrl || process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '');
+    const isBrowser = typeof window !== 'undefined';
+    let defaultUrl = options.baseUrl;
+    if (!defaultUrl) {
+      if (isBrowser) {
+        defaultUrl = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
+      } else {
+        const publicUrl = process.env.NEXT_PUBLIC_API_URL;
+        if (publicUrl && (publicUrl.startsWith('http://') || publicUrl.startsWith('https://'))) {
+          defaultUrl = publicUrl;
+        } else {
+          defaultUrl = process.env.API_INTERNAL_URL || process.env.STAGING_API_URL || 'http://127.0.0.1:4000/api/v1';
+        }
+      }
+    }
+    this.baseUrl = defaultUrl.replace(/\/$/, '');
     this.fetchFn = options.fetchFn || (typeof window !== 'undefined' ? window.fetch.bind(window) : fetch);
     this.authToken = options.authToken;
   }
@@ -32,12 +46,23 @@ export class PlannerClient {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
     const reqHeaders: Record<string, string> = {
-      'Content-Type': 'application/json',
       ...headers,
     };
+    if (body !== undefined) {
+      reqHeaders['Content-Type'] = 'application/json';
+    }
 
-    if (this.authToken && !reqHeaders['Authorization']) {
-      reqHeaders['Authorization'] = `Bearer ${this.authToken}`;
+    let token = this.authToken;
+    if (!token && typeof window !== 'undefined') {
+      try {
+        token = localStorage.getItem('jlpt_auth_token') || sessionStorage.getItem('jlpt_auth_token') || undefined;
+      } catch {
+        // Ignore storage access error
+      }
+    }
+
+    if (token && !reqHeaders['Authorization']) {
+      reqHeaders['Authorization'] = `Bearer ${token}`;
     }
 
     const response = await this.fetchFn(url, {
@@ -96,7 +121,11 @@ export class PlannerClient {
   }
 
   public async archiveStudyPlan(planId: string): Promise<{ archived: boolean }> {
-    return this.request<{ archived: boolean }>('DELETE', `/me/study-plans/${encodeURIComponent(planId)}`);
+    try {
+      return await this.request<{ archived: boolean }>('DELETE', `/me/study-plans/${encodeURIComponent(planId)}`);
+    } catch {
+      return await this.request<{ archived: boolean }>('POST', `/me/study-plans/${encodeURIComponent(planId)}/archive`, {});
+    }
   }
 
   public async getReminders(planId: string): Promise<ReminderInfo> {

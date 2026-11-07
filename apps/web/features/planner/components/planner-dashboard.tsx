@@ -2,7 +2,7 @@
 
 import { CalendarDays, Flame, RotateCcw, Scale } from 'lucide-react';
 import React, { useState } from 'react';
-import { Card, CardHeader, CardContent } from '@jlpt/ui/components/card';
+import { Card, CardHeader, CardContent, CardFooter } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
 import { Badge } from '@jlpt/ui/components/badge';
 import { Alert } from '@jlpt/ui/components/alert';
@@ -175,43 +175,53 @@ export function PlannerDashboard({
         </Card>
 
         {/* Plan Version & Replan Trigger */}
-        <Card>
-          <CardHeader className="pb-2">
-            <span className="text-sm text-[var(--text-muted)]">
-              {t('planner.overview.version')}
-            </span>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-              <Badge variant="secondary">v{plan.currentVersion}</Badge>
-              <div className="flex items-center gap-2">
+        <Card className="flex flex-col justify-between">
+          <div>
+            <CardHeader className="pb-2">
+              <span className="text-sm text-[var(--text-muted)]">
+                {t('planner.overview.version')}
+              </span>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between gap-2">
+                <Badge variant="secondary" className="font-semibold text-sm">
+                  v{plan.currentVersion}
+                </Badge>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setIsReplanModalOpen(true)}
                   aria-label={t('planner.actions.replan')}
                   data-testid="replan-button"
+                  className="shrink-0"
                 >
                   <Scale className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('planner.actions.replan')}
                 </Button>
-                {onResetPlan && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsResetModalOpen(true)}
-                    aria-label={t('planner.actions.resetPlan')}
-                    data-testid="reset-plan-button"
-                    className="text-[var(--color-danger,#dc2626)] hover:bg-red-50 dark:hover:bg-red-950/30"
-                  >
-                    <RotateCcw className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('planner.actions.resetPlan')}
-                  </Button>
-                )}
               </div>
-            </div>
-            <p className="mt-2 mx-0 mb-0 text-[0.8125rem] text-[var(--text-muted)]">
-              {t('planner.overview.replanHint')}
-            </p>
-          </CardContent>
+              <p className="mt-2 mx-0 mb-0 text-[0.8125rem] text-[var(--text-muted)]">
+                {t('planner.overview.replanHint')}
+              </p>
+            </CardContent>
+          </div>
+          {onResetPlan && (
+            <CardFooter className="pt-2 pb-3 px-4 border-t border-[var(--border-subtle)] flex items-center justify-end">
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsResetModalOpen(true);
+                }}
+                aria-label={t('planner.actions.resetPlan')}
+                data-testid="reset-plan-button"
+                className="text-[var(--color-danger,#dc2626)] hover:bg-red-50 dark:hover:bg-red-950/30 text-xs h-8 px-2.5"
+              >
+                <RotateCcw className="inline size-3.5 align-[-2px]" aria-hidden="true" /> {t('planner.actions.resetPlan')}
+              </Button>
+            </CardFooter>
+          )}
         </Card>
       </div>
 
@@ -257,12 +267,8 @@ export function PlannerDashboard({
                 onClick={async () => {
                   setResetting(true);
                   try {
-                    await onResetPlan(plan.id);
                     setIsResetModalOpen(false);
-                    setFeedback({
-                      type: 'info',
-                      message: t('planner.reset.success'),
-                    });
+                    await onResetPlan(plan.id);
                   } finally {
                     setResetting(false);
                   }
