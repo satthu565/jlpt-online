@@ -185,7 +185,7 @@ export const HomeSessionCard = memo(function HomeSessionCard({
           <div className="flex items-center justify-between text-[11px] pt-2.5 mt-2.5 border-t border-dashed border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button asChild variant="link" size="sm">
+                <Button asChild variant="ghost" size="sm">
                   <a
                     href={
                       targetExam
@@ -205,7 +205,7 @@ export const HomeSessionCard = memo(function HomeSessionCard({
             <span className="text-slate-300 dark:text-slate-700">•</span>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button asChild variant="link" size="sm">
+                <Button asChild variant="ghost" size="sm">
                   <a
                     href="/luyen-tap"
                     aria-label="Luyện đề trộn hoặc từng kỹ năng Từ vựng, Nghe, Đọc"

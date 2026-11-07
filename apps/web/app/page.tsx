@@ -413,7 +413,7 @@ export default function HomePage(): React.JSX.Element {
                 )}
               </h2>
             </div>
-            <Button asChild variant="link" size="sm">
+            <Button asChild variant="ghost" size="sm">
               <a href="/de-thi">
                 <span>{t('home.viewAllExams')}</span>
                 <ArrowRight className="size-3.5" aria-hidden="true" />

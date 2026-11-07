@@ -133,7 +133,7 @@ function HeroCountdownCard(): React.JSX.Element {
             ĐẾM NGƯỢC KỲ THI JLPT{" "}
             {mounted && countdownTime.label ? countdownTime.label : ""}
           </span>
-          <Button asChild variant="link" size="sm">
+          <Button asChild variant="ghost" size="sm">
             <a href="/lich-thi">
               <span>Lịch thi</span>
               <ChevronRight className="size-3" aria-hidden="true" />
@@ -355,7 +355,7 @@ export function ExamHero({
                       </span>
                     </>
                   ) : (
-                    <Button asChild variant="link" size="sm">
+                    <Button asChild variant="ghost" size="sm">
                       <a href="/dang-nhap">
                         <span>
                           💡 Đăng nhập để lưu tiến độ, điểm thi và đồng bộ đề yêu
