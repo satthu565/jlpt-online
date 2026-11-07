@@ -135,6 +135,8 @@ Triệu chứng: tạo lượt làm bằng request không có Origin được, n
 
 - Numbered grammar blanks appear indistinguishable → RichTextView ignored blank.label → render the escaped label, reuse surrounding parentheses, and include the label in the accessible name.
 
+- Lời giải hiện chuỗi `[{'t': 'text', ...}]` → công cụ nhập đã chuyển rich text thành chuỗi Python thay vì lấy văn bản → đọc nội dung các node và lưu câu tiếng Nhật đúng trong lời giải phiên bản mới; đồng bộ cả explanation được duyệt, giữ lịch sử.
+
 ## Option image assets are also included in group media dependencies
 
 Symptom: four source-glyph choices appear above a question and again inside its four options. Cause: publication correctly lists option-image assets in group.media for delivery, while the booklet also treats every group image as a standalone illustration. Correct approach: collect image references already rendered in passages, stems and options across the whole group and filter only those from the display illustration list. Preserve all rich content, independent illustrations, audio and the underlying snapshot/manifest.

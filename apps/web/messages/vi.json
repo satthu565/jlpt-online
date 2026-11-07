@@ -305,6 +305,8 @@
     "quickLevelSelect": "Chọn nhanh theo cấp độ",
     "examsByYear": "Đề thi theo năm",
     "viewAllExams": "Xem tất cả",
+    "showMoreSessions": "Xem thêm {count} kỳ thi",
+    "showMoreExams": "Xem thêm {count} đề thi",
     "takeExamNow": "Làm bài ngay",
     "searchExamsButton": "Tìm đề thi",
     "levelSelectLabel": "Cấp độ",
