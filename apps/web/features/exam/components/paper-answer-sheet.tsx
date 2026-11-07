@@ -71,7 +71,7 @@ export function PaperAnswerSheet(props: PaperAnswerSheetProps): React.JSX.Elemen
       </nav>
     </Card.Content>
     <Card.Footer className="paper-palette-actions">
-      <Button variant="ghost" size="sm" className="paper-palette-action text-xs" onClick={() => props.onReview('flagged')} aria-label={t('paperExam.reviewFlags')}><span className="paper-palette-action-icon"><Flag aria-hidden="true" /></span><span>{t('paperExam.flagCount', { count: flagCount })}</span><ChevronRight aria-hidden="true" /></Button>
+      <Button variant="ghost" size="sm" className="paper-palette-action paper-palette-action-flag text-xs" onClick={() => props.onReview('flagged')} aria-label={t('paperExam.reviewFlags')}><span className="paper-palette-action-icon"><Flag aria-hidden="true" /></span><span>{t('paperExam.flagCount', { count: flagCount })}</span><ChevronRight aria-hidden="true" /></Button>
       <Separator orientation="vertical" className="h-8" />
       <Button variant="ghost" size="sm" className="paper-palette-action text-xs" onClick={() => props.onReview('blank')}><span className="paper-palette-action-icon"><ArrowDownToLine aria-hidden="true" /></span><span>{t('paperExam.nextBlank')}</span><ChevronRight aria-hidden="true" /></Button>
     </Card.Footer>
