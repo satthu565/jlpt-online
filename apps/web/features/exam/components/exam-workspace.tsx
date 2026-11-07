@@ -9,7 +9,7 @@ import type { FlatQuestionItem } from '../types';
 import { usePaperWorkspace } from '../hooks/use-paper-workspace';
 import { answeredIn, nextReviewQuestion } from '../utils/booklet';
 import { getSectionLabelKey } from '../utils/section-label';
-import type { JapaneseFontSize } from './exam-toolbar';
+import { parseFontSizePercent, type JapaneseFontSize } from './exam-toolbar';
 import { PaperBooklet } from './paper-booklet';
 import { PaperAnswerSheet } from './paper-answer-sheet';
 import { PaperPassage } from './paper-content';
@@ -44,9 +44,24 @@ export function ExamWorkspace(props: ExamWorkspaceProps): React.JSX.Element {
   const [passage, setPassage] = useState<FlatQuestionItem | null>(null);
   const [notice, setNotice] = useState('');
   const restored = useRef(false);
+  const workspaceMainRef = useRef<HTMLElement | null>(null);
   const sectionLabelKey = getSectionLabelKey(props.title);
   const sectionLabel = sectionLabelKey ? t(sectionLabelKey) : props.title;
   const answered = answeredIn(props.questions, props.answers);
+
+  useEffect(() => {
+    const percent = parseFontSizePercent(props.fontSize);
+    const px = Math.round((18 * percent) / 100);
+    const val = `${px}px`;
+    if (workspaceMainRef.current) {
+      workspaceMainRef.current.style.setProperty('--paper-font-size', val);
+    }
+    document.documentElement.style.setProperty('--paper-font-size', val);
+    return () => {
+      document.documentElement.style.removeProperty('--paper-font-size');
+    };
+  }, [props.fontSize]);
+
   const activate = (index: number) => {
     props.onActivate(index);
     const question = props.questions.find((item) => item.globalIndex === index);
@@ -81,7 +96,8 @@ export function ExamWorkspace(props: ExamWorkspaceProps): React.JSX.Element {
     onAnswer: (index: number, value: number) => { activate(index); props.onAnswer(index, value); },
     onFlag: (index: number) => { activate(index); props.onFlag(index); }, onReview: review,
   };
-  return <main className={`exam-workspace paper-font-mincho paper-size-${props.fontSize} flex-1 max-w-7xl w-full mx-auto p-4 md:p-6`} data-testid="exam-workspace">
+  const isPresetSize = ['sm', 'base', 'lg', 'xl'].includes(String(props.fontSize));
+  return <main ref={workspaceMainRef} className={`exam-workspace paper-font-mincho ${isPresetSize ? `paper-size-${props.fontSize}` : ''} flex-1 max-w-7xl w-full mx-auto p-4 md:p-6`} data-testid="exam-workspace">
     <div className="paper-main">
       {props.children}
       {(notice || workspace.saveFailed) && <p role={workspace.saveFailed ? 'alert' : 'status'}>{workspace.saveFailed ? t('paperExam.notesSaveError') : notice}</p>}
@@ -91,6 +107,6 @@ export function ExamWorkspace(props: ExamWorkspaceProps): React.JSX.Element {
     <div className="paper-sticky-sheet"><PaperAnswerSheet {...sheetProps} /></div>
     <div className="paper-mobile-bar"><span>{t('paperExam.answeredCount', { done: answered, total: props.questions.length })}</span><Button size="sm" variant="outline" aria-label={t('paperExam.reviewFlags')} onClick={() => review('flagged')}><Flag className="size-4" aria-hidden="true" />{props.questions.filter((item) => props.flags[item.globalIndex]).length}</Button><Button size="sm" onClick={() => setSheetOpen(true)}><BookOpen className="size-4" aria-hidden="true" />{t('paperExam.sheet')}</Button></div>
     <Modal isOpen={sheetOpen} onClose={() => setSheetOpen(false)} title={t('paperExam.sheet')} closeLabel={t('paperExam.close')} className="paper-bottom-sheet"><div className="exam-workspace-modal"><PaperAnswerSheet {...sheetProps} /></div></Modal>
-    <Modal isOpen={Boolean(passage)} onClose={() => setPassage(null)} title={t('paperExam.readPassage')} closeLabel={t('paperExam.close')} className="paper-reading-sheet"><div className={`exam-workspace-modal paper-font-mincho paper-size-${props.fontSize}`}>{passage?.passage && <PaperPassage id={passage.groupId} blocks={passage.passage} marks={workspace.workspace.marks} onMark={workspace.mark} onClear={workspace.clearMarks} showFurigana={props.showFurigana} disabled={props.disabled} />}</div></Modal>
+    <Modal isOpen={Boolean(passage)} onClose={() => setPassage(null)} title={t('paperExam.readPassage')} closeLabel={t('paperExam.close')} className="paper-reading-sheet"><div className={`exam-workspace-modal paper-font-mincho ${isPresetSize ? `paper-size-${props.fontSize}` : ''}`}>{passage?.passage && <PaperPassage id={passage.groupId} blocks={passage.passage} marks={workspace.workspace.marks} onMark={workspace.mark} onClear={workspace.clearMarks} showFurigana={props.showFurigana} disabled={props.disabled} />}</div></Modal>
   </main>;
 }

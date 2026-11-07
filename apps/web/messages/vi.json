@@ -1183,6 +1183,9 @@
     "filterAnswered": "Đã làm",
     "noAnswered": "Chưa có câu nào đã làm trong phần này.",
     "filterBlank": "Chưa làm",
-    "filterFlagged": "Đánh dấu"
+    "filterFlagged": "Đánh dấu",
+    "decreaseFontSize": "Giảm cỡ chữ",
+    "increaseFontSize": "Tăng cỡ chữ",
+    "resetFontSize": "Đặt lại cỡ chữ mặc định"
   }
 }

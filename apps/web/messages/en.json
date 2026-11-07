@@ -1183,6 +1183,9 @@
     "filterAnswered": "Answered",
     "noAnswered": "No answered questions in this section yet.",
     "filterBlank": "Unanswered",
-    "filterFlagged": "Flagged"
+    "filterFlagged": "Flagged",
+    "decreaseFontSize": "Decrease text size",
+    "increaseFontSize": "Increase text size",
+    "resetFontSize": "Reset text size"
   }
 }

@@ -1183,6 +1183,9 @@
     "filterAnswered": "回答済み",
     "noAnswered": "この科目にはまだ回答済みの設問がありません。",
     "filterBlank": "未回答",
-    "filterFlagged": "見直し"
+    "filterFlagged": "見直し",
+    "decreaseFontSize": "文字サイズを縮小",
+    "increaseFontSize": "文字サイズを拡大",
+    "resetFontSize": "文字サイズをリセット"
   }
 }
