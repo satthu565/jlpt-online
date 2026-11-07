@@ -16,6 +16,7 @@ import type {
   CreateNotebookItemInput,
   QuestionExample,
 } from '../types';
+import { LearningClientError } from '../services/learning-client';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import { FEATURES } from '../../../lib/features';
@@ -199,6 +200,7 @@ export function NotebookView({
   const [loadingMore, setLoadingMore] = useState(false);
   const [moreLoaded, setMoreLoaded] = useState(false);
   const [moreMessage, setMoreMessage] = useState<string | null>(null);
+  const [moreError, setMoreError] = useState<string | null>(null);
   const [expandedQuestions, setExpandedQuestions] = useState<Record<string, boolean>>({});
   const toggleExpandQuestion = (key: string) => {
     setExpandedQuestions((prev) => ({
@@ -282,6 +284,7 @@ export function NotebookView({
     if (!activeItemForExamples || !onLoadMoreExamples || loadingMore) return;
     setLoadingMore(true);
     setMoreMessage(null);
+    setMoreError(null);
     try {
       const more = await onLoadMoreExamples(activeItemForExamples);
       const existingIds = new Set(examplesList.map((e) => e.questionId));
@@ -299,11 +302,16 @@ export function NotebookView({
         );
       }
       setMoreLoaded(true);
-    } catch {
-      setMoreMessage(
-        t('notebook.examples.noMoreExamples') ||
-          'Không tìm thấy thêm câu hỏi nào khác trong ngân hàng đề.',
-      );
+    } catch (error) {
+      const key = error instanceof LearningClientError
+        ? error.status === 403 && error.message.includes('active real exam session')
+          ? 'activeExamBlocked'
+          : error.status === 403 ? 'accessDenied'
+          : error.status === 401 ? 'signInRequired'
+          : error.status === 429 ? 'rateLimited'
+          : 'loadMoreError'
+        : 'loadMoreError';
+      setMoreError(t(`notebook.examples.${key}`));
     } finally {
       setLoadingMore(false);
     }
@@ -315,6 +323,7 @@ export function NotebookView({
     setLoadingMore(false);
     setMoreLoaded(false);
     setMoreMessage(null);
+    setMoreError(null);
     try {
       if (onLoadExamples) {
         const data = await onLoadExamples(item.id);
@@ -899,6 +908,11 @@ export function NotebookView({
                           </>
                         )}
                       </Button>
+                    )}
+                    {moreError && (
+                      <Alert variant="warning" className="mt-2" role="alert">
+                        {moreError}
+                      </Alert>
                     )}
                     {moreMessage && (
                       <p className="text-xs text-[var(--text-muted)] mt-1.5 text-center">

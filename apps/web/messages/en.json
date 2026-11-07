@@ -386,6 +386,11 @@
       "loadMore": "See more examples in other exams",
       "loadingMore": "Searching other exams...",
       "noMoreExamples": "No additional questions found in the exam bank.",
+      "activeExamBlocked": "You have an unfinished real exam attempt. Complete or end it, then try again.",
+      "accessDenied": "You do not have access to more questions. Try again when access is available.",
+      "signInRequired": "Your session has expired. Sign in again to find more examples.",
+      "rateLimited": "Too many searches. Wait a moment, then try again.",
+      "loadMoreError": "Could not load examples. Please try again.",
       "moreLoadedCount": "Loaded {count} more questions from other exams.",
       "openExamHint": "Open exam {title} (new tab)"
     },

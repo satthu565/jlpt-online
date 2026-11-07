@@ -13,8 +13,8 @@ import {
   type NotebookQuiz,
   type CreateNotebookItemInput,
   type NotebookItemKind,
-  type QuestionExample,
 } from '../../../features/learning';
+import { loadMoreNotebookExamples } from '../../../features/learning/services/notebook-examples';
 import { ExamHero } from '../../../features/library';
 import { cleanStemText } from '../../../features/corpus';
 import { useI18n } from '../../../lib/i18n';
@@ -349,71 +349,7 @@ export default function NotebookPage(): React.JSX.Element {
                 return [];
               }
             }}
-            onLoadMoreExamples={async (item) => {
-              const cleanTag = (prefix: string) =>
-                item?.tags
-                  ?.find((t) => t.replace(/^#+/, '').startsWith(prefix))
-                  ?.replace(/^#+/, '')
-                  ?.replace(prefix, '');
-              const sourceQid = item?.sourceQid || cleanTag('source_qid:');
-              const results: QuestionExample[] = [];
-
-              if (item?.term) {
-                const rawTerm = item.term.trim();
-                const variants = rawTerm
-                  .split(/[/|]/)
-                  .map((t) => t.replace(/^[〜~.\s]+|[〜~.\s]+$/g, '').trim())
-                  .filter(Boolean);
-                const searchList = variants.length > 0 ? variants : [rawTerm];
-
-                for (const st of searchList) {
-                  try {
-                    const resp = await fetch(`/api/v1/datasets/jlpt-official/vocabulary/${encodeURIComponent(st)}/questions`);
-                    if (resp.ok) {
-                      const data = await resp.json();
-                      if (Array.isArray(data) && data.length > 0) {
-                        for (const q of data) {
-                          if (q.id === sourceQid) continue;
-                          if (results.some((r) => r.questionId === q.id)) continue;
-                          results.push({
-                            questionId: q.id,
-                            level: q.level || 'JLPT',
-                            skill: q.skill || 'vocabulary',
-                            stem: cleanStemText(q.stemText || (typeof q.stem === 'string' ? q.stem : '')),
-                            matchedTerm: st,
-                            isSavedSource: false,
-                            examTitle: q.examTitle,
-                            options: Array.isArray(q.options)
-                              ? q.options.map((opt: { content?: Array<{ text?: string }>; text?: string } | string, i: number) => ({
-                                  orderIndex: i + 1,
-                                  text: typeof opt === 'string' ? opt : (opt?.content?.[0]?.text || opt?.text || ''),
-                                }))
-                              : undefined,
-                          });
-                        }
-                      }
-                    }
-                  } catch {
-                    // ignore
-                  }
-                  if (results.length >= 5) break;
-                }
-              }
-
-              if (results.length === 0) {
-                try {
-                  const res = await defaultLearningClient.getQuestionExamples(item.id);
-                  const extra = (res.examples || []).filter(
-                    (e) => !e.isSavedSource && e.questionId !== (sourceQid || 'saved-source'),
-                  );
-                  results.push(...extra);
-                } catch {
-                  // ignore
-                }
-              }
-
-              return results;
-            }}
+            onLoadMoreExamples={loadMoreNotebookExamples}
           />
         </div>
       )}

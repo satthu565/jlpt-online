@@ -162,3 +162,4 @@ Symptom: N5 2010–2011 Q15 options 2 and 4 look identical despite different str
 - N3 reorder false positives: sentence fragments must be rearranged before judging them. July 2011 Q53 forms 1-4-3-2 with original options; December 2014 Q50 uses a relative clause followed by N no koto wo. Replacing an option without reconstructing the full sentence can introduce an error. Preserve valid source wording and correct only an inaccurate explanation.
 
 - React 19 cảnh báo `__button_group_child` khi đặt thẻ `<span>` hay `<div>` trong HeroUI `ButtonGroup` → HeroUI clone và truyền thuộc tính này xuống mọi con trực tiếp → dùng container bọc ngoài với `role="group"` hoặc chỉ chứa `Button` trực tiếp trong `ButtonGroup`.
+- Sổ tay luôn báo không có ví dụ → request corpus trả 403 khi tài khoản còn lượt thi thật và giao diện nuốt lỗi → giữ quy tắc chặn, đọc error envelope của API, hiện lý do và cho thử lại; chỉ hiện không có kết quả sau request thành công.
