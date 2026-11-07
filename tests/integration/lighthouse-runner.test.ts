@@ -81,12 +81,12 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
       path: '/',
     };
 
-    it('validates mobile budgets according to specification (LCP < 2.5s, CLS < 0.1, TBT < 200ms, JS <= 200KB)', () => {
+    it('validates mobile budgets according to specification (LCP < 4.0s, CLS < 0.1, TBT < 350ms, JS <= 300KB)', () => {
       const b = DEFAULT_BUDGETS.mobile;
-      expect(b.lcpMs).toBe(3300);
+      expect(b.lcpMs).toBe(4000);
       expect(b.cls).toBe(0.1);
-      expect(b.tbtMs).toBe(200);
-      expect(b.initialJsKb).toBe(200);
+      expect(b.tbtMs).toBe(350);
+      expect(b.initialJsKb).toBe(300);
       expect(b.minPerformance).toBe(70);
       expect(b.minAccessibility).toBe(95);
       expect(b.minSeo).toBe(100);
@@ -119,14 +119,14 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
       expect(violations).toHaveLength(0);
     });
 
-    it('detects LCP violation when LCP > 3300ms on mobile', () => {
+    it('detects LCP violation when LCP > 4000ms on mobile', () => {
       const metrics: PageMetrics = {
         url: 'http://127.0.0.1:3000/',
         formFactor: 'mobile',
         performance: 85,
         accessibility: 98,
         seo: 100,
-        lcpMs: 3450, // Exceeds 3300ms
+        lcpMs: 4150, // Exceeds 4000ms
         cls: 0.05,
         tbtMs: 120,
       };
@@ -135,9 +135,9 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
       expect(violations.length).toBeGreaterThan(0);
       const lcpViolation = violations.find((v) => v.metric === 'LCP');
       expect(lcpViolation).toBeDefined();
-      expect(lcpViolation?.actual).toBe(3450);
-      expect(lcpViolation?.expected).toBe(3300);
-      expect(lcpViolation?.message).toContain('exceeded budget 3300 ms');
+      expect(lcpViolation?.actual).toBe(4150);
+      expect(lcpViolation?.expected).toBe(4000);
+      expect(lcpViolation?.message).toContain('exceeded budget 4000 ms');
     });
 
     it('detects CLS violation when CLS > 0.1', () => {
@@ -158,7 +158,7 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
       expect(clsViolation?.actual).toBe(0.15);
     });
 
-    it('detects TBT violation when TBT > 200ms on mobile', () => {
+    it('detects TBT violation when TBT > 350ms on mobile', () => {
       const metrics: PageMetrics = {
         url: 'http://127.0.0.1:3000/',
         formFactor: 'mobile',
@@ -167,16 +167,16 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
         seo: 100,
         lcpMs: 2000,
         cls: 0.02,
-        tbtMs: 340, // Exceeds 200ms
+        tbtMs: 400, // Exceeds 350ms
       };
 
       const violations = evaluateMetrics(metrics, DEFAULT_BUDGETS.mobile, dummyTarget);
       const tbtViolation = violations.find((v) => v.metric === 'TBT');
       expect(tbtViolation).toBeDefined();
-      expect(tbtViolation?.actual).toBe(340);
+      expect(tbtViolation?.actual).toBe(400);
     });
 
-    it('detects Initial JS size ceiling violation when initial JS > 200KB on mobile', () => {
+    it('detects Initial JS size ceiling violation when initial JS > 300KB on mobile', () => {
       const metrics: PageMetrics = {
         url: 'http://127.0.0.1:3000/',
         formFactor: 'mobile',
@@ -186,13 +186,13 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
         lcpMs: 2000,
         cls: 0.02,
         tbtMs: 100,
-        initialJsKb: 205.4, // Exceeds 200 KB
+        initialJsKb: 305.4, // Exceeds 300 KB
       };
 
       const violations = evaluateMetrics(metrics, DEFAULT_BUDGETS.mobile, dummyTarget);
       const jsViolation = violations.find((v) => v.metric === 'InitialJS');
       expect(jsViolation).toBeDefined();
-      expect(jsViolation?.actual).toBe(205.4);
+      expect(jsViolation?.actual).toBe(305.4);
     });
 
     it('enforces LCP as blocking metric and verifies WARN_ONLY_METRICS is empty (D05)', () => {
@@ -202,7 +202,7 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
         performance: 85,
         accessibility: 98,
         seo: 100,
-        lcpMs: 3450,
+        lcpMs: 4150,
         cls: 0.02,
         tbtMs: 100,
         initialJsKb: 170,
@@ -250,10 +250,10 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
       expect(output).toContain('Trang cấp độ N5 (SEO Landing)');
       expect(output).toContain('Đăng nhập học viên (Student Login)');
       expect(output).toContain('Đăng nhập nhân sự (Staff Admin Login)');
-      expect(output).toContain('LCP (Largest Contentful Paint): < 3300 ms');
+      expect(output).toContain('LCP (Largest Contentful Paint): < 4000 ms');
       expect(output).toContain('CLS (Cumulative Layout Shift):  < 0.1');
-      expect(output).toContain('TBT (Total Blocking Time):      < 200 ms');
-      expect(output).toContain('Initial JS size (per page):     <= 200 KB');
+      expect(output).toContain('TBT (Total Blocking Time):      < 350 ms');
+      expect(output).toContain('Initial JS size (per page):     <= 300 KB');
       expect(output).toContain('Preset Desktop:');
       expect(output).toContain('Performance score:              >= 98');
     });
@@ -475,10 +475,10 @@ describe('D01: Lighthouse Performance Gate on Staging CI', () => {
         performance: 65, // Below 70
         accessibility: 90, // Below 95
         seo: 90, // Below 100
-        lcpMs: 3400, // Exceeds 3300ms
+        lcpMs: 4100, // Exceeds 4000ms
         cls: 0.18, // Exceeds 0.1
-        tbtMs: 450, // Exceeds 200ms
-        initialJsKb: 215, // Exceeds 200KB
+        tbtMs: 450, // Exceeds 350ms
+        initialJsKb: 315, // Exceeds 300KB
       };
 
       const violations = evaluateMetrics(failingMetrics, DEFAULT_BUDGETS.mobile, customTarget);

@@ -34,12 +34,13 @@ Task **D05** là cửa ngõ nghiệm thu độc lập cuối cùng của Ngày 9
 Ngân sách sau D05, chặn CI ở chế độ `LIGHTHOUSE_BUDGET_MODE=error`, không còn chỉ số nào chỉ cảnh báo:
 
 - **Mobile** (mô phỏng Lantern, CPU x4, RTT 150 ms):
-  - LCP < 3300 ms, CLS < 0,1, TBT < 200 ms.
-  - Initial JS <= 200 KB gzip.
+  - LCP < 4000 ms, CLS < 0,1, TBT < 350 ms.
+  - Initial JS <= 300 KB gzip.
+  - Ngày 07/11/2026 chủ dự án duyệt nâng từ 3300 ms, 200 ms, 200 KB để bộ lọc đề thi dùng Select, ListBox, Checkbox, Input của HeroUI (react-aria thêm khoảng 87 KB gzip ở `/`, `/de-thi`, `/n5`).
   - Performance >= 70, Accessibility >= 95, SEO = 100.
 - **Desktop:**
   - LCP < 2000 ms, CLS < 0,1, TBT < 150 ms.
-  - Initial JS <= 200 KB.
+  - Initial JS <= 300 KB.
   - Performance >= 98, Accessibility >= 95, SEO = 100.
 
 Số đo dưới đây đều lấy từ CI staging trên GitHub, không lấy từ máy ảo:
