@@ -15,6 +15,245 @@
   "fixes": [
     {
       "slug": "n5-2010-2011",
+      "number": 40,
+      "examId": "e9949e3e-5e2d-4ba2-a233-e4f35684bc2c",
+      "publishedVersion": 4,
+      "questionId": "1e3f7e19-81c8-45cc-ad0f-33d67318550c",
+      "groupId": "5bb92852-d7f0-43d9-aaee-73ba14f2e340",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "田中「この　ぼうしは　山田さん（　）ですか。」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "山田「はい。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "や"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "は"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "の"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "か"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Dịch nghĩa: Tanaka: \"Chiếc mũ này là của anh Yamada phải không?\" - Yamada: \"Vâng, đúng vậy.\""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Đáp án đúng: 3. の"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Trợ từ「の」biểu thị sở hữu thay thế cho danh từ bị lược bỏ phía sau:「山田さんの（ぼうし）ですか」(Có phải [chiếc mũ] của anh Yamada không?)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- Lựa chọn 1「や」liệt kê không đầy đủ, không dùng hỏi sở hữu."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- Lựa chọn 2「は」nếu ghép thành「山田さんですか」sẽ có nghĩa \"đây có phải là anh Yamada không?\", vô lý vì chủ ngữ là「この　ぼうし」(chiếc mũ này)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- Lựa chọn 4「か」tạo thành hai trợ từ nghi vấn liên tiếp「ですか」, sai ngữ pháp."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "田中「この　ぼうしは　山田さん（　）ですか。」"
+          },
+          {
+            "t": "br"
+          },
+          {
+            "t": "text",
+            "text": "山田「はい。」"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "や"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "は"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "の"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "か"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Chiếc mũ này là của anh Yamada phải không? — Vâng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] の — の thay cho cụm danh từ sở hữu 山田さんのぼうし: このぼうしは山田さんのですか。Chọn phương án 3."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] や: や liệt kê các danh từ, không tạo nghĩa sở hữu trong câu này."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] は: Điền は tạo 山田さんはですか, không tạo vị ngữ sở hữu 山田さんのですか. Không được bỏ は khi phân tích phương án này."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] か: Điền か tạo 山田さんかですか, không phải cấu trúc hỏi chiếc mũ thuộc về ai."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Correct distractor explanations that silently omit は and misdescribe nonadjacent question particles"
+      ]
+    },
+    {
+      "slug": "n5-2010-2011",
       "number": 54,
       "examId": "e9949e3e-5e2d-4ba2-a233-e4f35684bc2c",
       "publishedVersion": 4,
@@ -1320,6 +1559,231 @@
       ]
     },
     {
+      "slug": "n5-2017-07",
+      "number": 56,
+      "examId": "de450ea4-a4f8-43d9-a105-3eb6a2963dfd",
+      "publishedVersion": 3,
+      "questionId": "fc851bcf-18d5-4137-af21-596e866c0592",
+      "groupId": "f070a556-76ed-40cc-a30a-7a6b3ae931ec",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "blank",
+            "label": "23"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "行きましたか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "行きませんか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "行って　いましたか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "行って　いませんか"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Những ai thích món sushi thì cùng đi ăn nhé!"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] 行きませんか"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Mẫu câu rủ rê, mời mọc cùng thực hiện hành động: 「いっしょに Vませんか」 (Cùng làm... không?)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 行きましたか: Đã đi chưa? (câu hỏi quá khứ, không phù hợp rủ rê)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 行って　いましたか: Đang đi phải không? (thì quá khứ tiếp diễn)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 行って　いませんか: Đang không đi phải không?"
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "blank",
+            "label": "23"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "行きましたか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "行きませんか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "行って　いましたか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "行って　いませんか"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Những ai thích sushi thì cùng đi ăn nhé!"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] 行きませんか — いっしょに行きませんか là lời mời cùng đi, phù hợp lời giới thiệu quán sushi rẻ và ngon. Chọn phương án 2."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] 行きましたか: 行きましたか hỏi việc đã đi trong quá khứ, không phải lời mời cho lần đi sắp tới."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] 行って　いましたか: 行っていましたか hỏi một việc hoặc trạng thái đang diễn ra trong quá khứ; không phải đang đi ở hiện tại và không phải lời rủ đi ăn."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] 行って　いませんか: 行っていませんか hỏi về tình trạng đi hay chưa/việc đang đi với sắc thái phủ định, không phải lời mời thông thường Vませんか ở đây."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Correct present-tense translation of past progressive distractor 行っていましたか"
+      ]
+    },
+    {
       "slug": "n5-2018-12",
       "number": 53,
       "examId": "549561c8-d46f-4043-af17-1f6a834fbca5",
@@ -1607,6 +2071,230 @@
       "reasons": [
         "Editorially remove extra で after four composition slots; source p6 also has this transcription defect",
         "Synchronize completed composition with editorial removal of extra で"
+      ]
+    },
+    {
+      "slug": "n5-2018-12",
+      "number": 61,
+      "examId": "549561c8-d46f-4043-af17-1f6a834fbca5",
+      "publishedVersion": 3,
+      "questionId": "db9260a2-5d74-41d9-a7d2-86a715928d00",
+      "groupId": "5069bddf-258e-4481-a836-ecaee197875c",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "blank",
+            "label": "26"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "飲んで 来ます"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "飲んで 行きます"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "飲みに 来ます"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "飲みに 行きます"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: 「Tuần sau tôi cũng sẽ đi đến quán “Hana” để uống cà phê.」"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 飲みに 行きます (đi uống). Cấu trúc biểu thị mục đích di chuyển: V(bỏ ます) + に行く (『はな』にコーヒーを飲みにいきます: đi đến Hana để uống cà phê)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] 飲んで来ます: Uống rồi sẽ về / uống rồi quay lại đây (không dùng với đích đến 『はな』に)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] 飲んで行きます: Uống rồi mới đi (không đúng mẫu chỉ mục đích di chuyển đến quán)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] 飲みに来ます: Đến để uống (chỉ dùng khi người nói đang ở sẵn quán Hana)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "blank",
+            "label": "26"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "飲んで 来ます"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "飲んで 行きます"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "飲みに 来ます"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "飲みに 行きます"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Tuần sau tôi cũng sẽ đến quán Hana để uống cà phê."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 飲みに 行きます — Tác giả kể dự định đi tới quán để uống cà phê: はなにコーヒーを飲みに行きます。Thân 飲み kết hợp に行く để chỉ mục đích di chuyển, nên chọn phương án 4."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] 飲んで 来ます: 飲んで来ます là uống rồi đến/trở lại, không diễn tả đi tới quán với mục đích uống trong câu này."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] 飲んで 行きます: 飲んで行きます là uống rồi đi tiếp; khác với đi để uống."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] 飲みに 来ます: 飲みに来ます dùng 来る khi hướng tới nơi được lấy làm mốc trong giao tiếp. Bài đang kể dự định đi tới quán nên dùng 行く; không suy rộng rằng 来る chỉ dùng khi người nói đã đứng sẵn ở quán."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Remove false blanket restriction that 来る requires speaker physically already at destination"
       ]
     },
     {

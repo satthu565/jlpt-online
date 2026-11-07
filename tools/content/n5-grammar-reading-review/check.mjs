@@ -11,7 +11,7 @@ const countBlanks=v=>Array.isArray(v)?v.reduce((n,x)=>n+countBlanks(x),0):v&&typ
 const fixes=new Map(m.fixes.map(f=>[f.questionId,f]));
 const passageFixes=new Map(m.groupFixes.map(f=>[f.groupId,f]));
 assert.deepEqual(m.scope,{exams:11,questions:281});
-assert.equal(fixes.size,13);assert.equal(passageFixes.size,1);
+assert.equal(fixes.size,16);assert.equal(passageFixes.size,1);
 let total=0,explanations=0,compositionCount=0,textGrammar=0;const changes=[],seen=new Set();
 for(const e of inventory)for(const q of e.items.filter(q=>q.section_code==='language_grammar_reading')){
  total++;const f=fixes.get(q.question_id);
@@ -54,7 +54,7 @@ for(const e of inventory)for(const q of e.items.filter(q=>q.section_code==='lang
   }
  }
 }
-assert.equal(total,281);assert.equal(explanations,10);assert.equal(compositionCount,49);assert.equal(compositions.length,49);assert.equal(textGrammar,46);
+assert.equal(total,281);assert.equal(explanations,13);assert.equal(compositionCount,49);assert.equal(compositions.length,49);assert.equal(textGrammar,46);
 assert.deepEqual(changes,m.keyChanges);
 const corrected=m.fixes.find(f=>f.slug==='n5-2018-12'&&f.number===53);assert(!text(corrected.after.stem).includes('で出かけました'));
 assert(text(m.groupFixes[0].after).includes('行っていました。'));
