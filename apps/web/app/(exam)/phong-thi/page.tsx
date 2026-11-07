@@ -188,6 +188,11 @@ export default function ExamRoomPage(): React.JSX.Element {
         } else if (examIdParam && exams.length > 0) {
           const found = exams.find((e: ExamPickerExam) => e.id === examIdParam || (e as { examId?: string }).examId === examIdParam || e.slug === examIdParam);
           if (found) {
+            // Chưa chọn hình thức thi: chuyển sang trang đề để chọn thi thật hay luyện tập.
+            if (!modeParam && found.slug && !examIdParam.startsWith('mixed-')) {
+              window.location.replace(`/de-thi/${encodeURIComponent(found.slug)}`);
+              return;
+            }
             setSelectedExam(found);
             setIsInstructionsOpen(true);
           }

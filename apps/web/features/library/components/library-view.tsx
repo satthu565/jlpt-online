@@ -226,7 +226,7 @@ export function LibraryView({
 
               <div className="flex items-center gap-3">
                 <a
-                  href={`/phong-thi?examId=${recommendedExam.id}`}
+                  href={`/de-thi/${recommendedExam.slug}`}
                   className="px-5 py-2.5 rounded-xl text-xs font-bold bg-white text-blue-900 hover:bg-blue-50 transition-colors shadow-sm"
                 >
                   Bắt đầu làm ngay

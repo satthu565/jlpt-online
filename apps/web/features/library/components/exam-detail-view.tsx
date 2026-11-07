@@ -126,18 +126,39 @@ export function ExamDetailView({
           </div>
         </div>
 
-        {/* CTAs */}
-        <div className="flex flex-wrap items-center gap-3">
-          <a href={`/phong-thi?examId=${exam.id}&mode=real`} className="text-decoration-none">
-            <Button variant="primary" size="md">
-              Bắt đầu thi thật (Bấm giờ nghiêm ngặt)
-            </Button>
-          </a>
-          <a href={`/phong-thi?examId=${exam.id}&mode=practice`} className="text-decoration-none">
-            <Button variant="outline" size="md">
-              Luyện tập tự do (Tùy chọn thời gian)
-            </Button>
-          </a>
+        {/* Chọn chế độ làm bài */}
+        <div className="space-y-3">
+          <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+            Chọn hình thức làm bài
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="surface surface--secondary rounded-2xl p-4 flex flex-col gap-3">
+              <div>
+                <div className="text-sm font-bold text-slate-900 dark:text-slate-100">Thi thật (chuẩn JLPT)</div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                  Bấm giờ nghiêm ngặt từng phần, tự nộp bài khi hết giờ, không xem đáp án hay giải thích khi đang thi. Kết quả tính vào thống kê.
+                </p>
+              </div>
+              <a href={`/phong-thi?examId=${exam.id}&mode=real`} className="text-decoration-none mt-auto">
+                <Button variant="primary" size="md" className="w-full">
+                  Bắt đầu thi thật
+                </Button>
+              </a>
+            </div>
+            <div className="surface surface--secondary rounded-2xl p-4 flex flex-col gap-3">
+              <div>
+                <div className="text-sm font-bold text-slate-900 dark:text-slate-100">Luyện tập tự do</div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                  Thời gian linh hoạt, phù hợp làm từng phần. Không ảnh hưởng chỉ số xếp hạng chính thức.
+                </p>
+              </div>
+              <a href={`/phong-thi?examId=${exam.id}&mode=practice`} className="text-decoration-none mt-auto">
+                <Button variant="outline" size="md" className="w-full">
+                  Luyện tập tự do
+                </Button>
+              </a>
+            </div>
+          </div>
         </div>
       </Card>
     </div>
