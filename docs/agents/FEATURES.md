@@ -10,6 +10,8 @@ Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xon
 
 ## Hiệu đính nội dung đề
 
+- N3 文法・読解, rà soát 07/11/2026: bộ hiệu đính có kế hoạch chạy thử cho 30 mục / 17 đề; phục hồi ô trống/phương án, sửa chữ và lời giải, ba khóa đáp án có căn cứ ghép câu. Công cụ `tools/content/n3-language-reading-review/`; tạo phiên bản mới, bảo toàn lịch sử, chỉ áp dụng sau CI xanh và sao lưu.
+
 - N1 7/2011, đợt bổ sung 06/11: hiệu đính Q104 `検収` → `研修` trong lựa chọn, transcript và lời giải; đồng bộ nghĩa “đào tạo tài xế”, giữ khóa đáp án. Công cụ: `tools/content/n1-2011-07-followup/`.
 
 - N1 7/2011: bộ sửa có kiểm tra dữ liệu gốc cho Q34, Q47, Q73, Q76, Q80 và Q89; đồng bộ trích dẫn/lời giải, giữ khóa đáp án và lịch sử phiên bản. Công cụ: `tools/content/n1-2011-07/`.
@@ -141,6 +143,9 @@ Prepared versioned 文字・語彙 corrections for 20 questions in 9 of 15 impor
 
 Prepared 22 question and 5 passage revisions in 12 N4 exams, including 16 synchronized explanations and no answer-index changes. Reviewed 435 questions; all 29 December 2022 questions stay unchanged per owner instruction. July 2023's missing fourth option and incomplete source reading group remain deferred. All 61 reviewed star-composition orders are recorded. See [audit and guarded operation](../../tools/content/n4-grammar-reading-review/README.md). Application status is recorded separately after CI and backup.
 
+## N5 grammar/reading content review (2026-11-07)
+
+Versioned repair tooling covers 281 imported questions across 11 N5 exams, preparing 16 question corrections, one passage correction and 13 rationales. Exactly one new-version answer index changes: December 2012 grammar Q6 (overall Q41), には to では. Forty-eight of 49 star questions form complete four-piece sentences; December 2024 Q11 remains source-blocked. Missing six December 2012 and five July 2023 questions are recorded without fabrication. Apply only after exact-commit CI and validated backup, through reviewed/published new versions; preserve old exam keys and history. See tools/content/n5-grammar-reading-review/README.md for source limitations and live-operation status.
 ## N5 kanji/vocabulary content audit (2026-11-07)
 
 Reviewed 297 文字・語彙 questions across all 11 imported N5 exams. Prepared 14 question revisions in 7 exams, including 8 explanations, 6 underline corrections and exact source-glyph image options for two questions. No key changes. Three ambiguous questions in source-incomplete December 2022/2024 exams remain deferred; their reconstructed stems/options/keys are preserved. See [audit and guarded operation](../../tools/content/n5-kanji-vocab-review/README.md). Live application status is recorded separately after CI and backup.

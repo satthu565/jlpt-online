@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { Providers } from '../app/providers';
 import viMessages from '../messages/vi.json' with { type: 'json' };
 import NotebookPage from '../app/(learning)/so-tay/page';
+import { NotebookView } from '../features/learning/components/notebook-view';
 
 const renderWithProviders = (ui: React.ReactElement): string => {
   return renderToStaticMarkup(<Providers messages={viMessages}>{ui}</Providers>)
@@ -31,5 +32,23 @@ describe('NotebookPage Hero styling and synchronization', () => {
     expect(html).toContain('Sổ tay của bạn đang trống');
     // Tablist is hidden for unauthenticated guests
     expect(html).not.toContain('role="tablist"');
+  });
+
+  it('renders HeroUI Select dropdowns for notebook filters', () => {
+    const html = renderWithProviders(
+      <NotebookView
+        items={[]}
+        totalCount={0}
+        onAddItem={async () => {}}
+        onUpdateItem={async () => {}}
+        onDeleteItem={async () => {}}
+        onExportCsv={async () => {}}
+      />
+    );
+
+    // HeroUI Select renders data-slot="select"
+    expect(html).toContain('data-slot="select"');
+    expect(html).toContain('notebook-kind-filter');
+    expect(html).toContain('notebook-mastered-filter');
   });
 });

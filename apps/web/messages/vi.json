@@ -380,7 +380,12 @@
     "examples": {
       "title": "Ví dụ câu hỏi đề thi chứa 「{term}」",
       "subtitle": "Các câu hỏi thi thật hoặc bài tập luyện có chứa từ/mẫu ngữ pháp 「{term}」:",
-      "noExamplesFound": "Chưa có câu hỏi đề thi nào được gắn thẻ cho từ này."
+      "noExamplesFound": "Chưa có câu hỏi đề thi nào được gắn thẻ cho từ này.",
+      "loadMore": "Xem thêm ví dụ trong các đề khác",
+      "loadingMore": "Đang tìm trong các đề khác...",
+      "noMoreExamples": "Không tìm thấy thêm câu hỏi nào khác trong ngân hàng đề.",
+      "moreLoadedCount": "Đã tải thêm {count} câu hỏi từ các đề thi khác.",
+      "openExamHint": "Mở đề thi {title} (tab mới)"
     },
     "quiz": {
       "questionProgress": "Câu {current} / {total}",
@@ -1178,6 +1183,9 @@
     "filterAnswered": "Đã làm",
     "noAnswered": "Chưa có câu nào đã làm trong phần này.",
     "filterBlank": "Chưa làm",
-    "filterFlagged": "Đánh dấu"
+    "filterFlagged": "Đánh dấu",
+    "decreaseFontSize": "Giảm cỡ chữ",
+    "increaseFontSize": "Tăng cỡ chữ",
+    "resetFontSize": "Đặt lại cỡ chữ mặc định"
   }
 }

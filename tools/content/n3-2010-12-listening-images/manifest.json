@@ -1,0 +1,108 @@
+{
+  "slug": "n3-2010-12",
+  "examId": "404e0822-4458-4040-a254-3194301a950d",
+  "publishedVersion": 2,
+  "totalQuestions": 102,
+  "changes": [
+    {
+      "questionNumber": 79,
+      "orderIndex": 78,
+      "mondaiType": "task_based",
+      "groupId": "4e2d0994-bab5-423e-acd0-5d70eea3c5b4",
+      "passage": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "image",
+              "alt": "小学校に持っていくもの",
+              "width": 600,
+              "height": 288,
+              "mediaKey": "media/d36a9554ff2986e666885440cf0fc9301d611e0b861032d8a8cf1734fd7123dd.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "questionNumber": 90,
+      "orderIndex": 89,
+      "mondaiType": "utterance",
+      "groupId": "e5459802-bbf9-414f-ae8d-0fa981d64b02",
+      "passage": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "image",
+              "alt": "国へ帰る",
+              "width": 500,
+              "height": 240,
+              "mediaKey": "media/4158429a1fadb5c7b2e6e9ad23b6988a6baba53964520a4e290fa2e11313e7f8.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "questionNumber": 91,
+      "orderIndex": 90,
+      "mondaiType": "utterance",
+      "groupId": "245b59ed-8ddc-4df6-a10f-ec16aaa269a4",
+      "passage": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "image",
+              "alt": "空港でパスポートを見せてもらう",
+              "width": 500,
+              "height": 239,
+              "mediaKey": "media/d05b6d39ec90a6d5a935405ffb29cf48ae7dd0fb32465d5fe2680dd5d7aec594.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "questionNumber": 92,
+      "orderIndex": 91,
+      "mondaiType": "utterance",
+      "groupId": "3f82940f-9c90-454b-acd2-175bfcf7da39",
+      "passage": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "image",
+              "alt": "留学生センターの場所を聞く",
+              "width": 500,
+              "height": 238,
+              "mediaKey": "media/61cf535b2ab507a37d31c86032eb38764a7ebc0acb6c0740e0dac20aa8a2717e.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "questionNumber": 93,
+      "orderIndex": 92,
+      "mondaiType": "utterance",
+      "groupId": "f24a2a59-deb7-4c0c-abd0-b964cb3e7b56",
+      "passage": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "image",
+              "alt": "事務所でコピーを頼む",
+              "width": 500,
+              "height": 240,
+              "mediaKey": "media/d307cf0179a5e543978aa4595aa9599a1c39e738613cb68a7472fe104aa48675.png"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -29,7 +29,7 @@ export function usePaperWorkspace(attemptId: string, examId: string, version: nu
       if (saved && typeof saved === 'object') {
         const value = saved as Partial<PaperWorkspace>;
         setWorkspace({
-          fontSize: ['sm', 'base', 'lg', 'xl'].includes(value.fontSize ?? '') ? value.fontSize! : 'base',
+          fontSize: (typeof value.fontSize === 'string' && value.fontSize) || typeof value.fontSize === 'number' ? (value.fontSize as JapaneseFontSize) : 'base',
           font: value.font === 'gothic' ? 'gothic' : 'mincho',
           notes: Object.fromEntries(Object.entries(value.notes ?? {}).filter(([, text]) => typeof text === 'string')),
           marks: Object.fromEntries(Object.entries(value.marks ?? {}).filter(([, marks]) => Array.isArray(marks)).map(([id, marks]) => [id, marks.filter((mark) => Number.isInteger(mark?.start) && Number.isInteger(mark?.end) && mark.start >= 0 && mark.end > mark.start)])),

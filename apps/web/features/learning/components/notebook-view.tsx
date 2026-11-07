@@ -1,14 +1,15 @@
 'use client';
 
-import { Check, CheckCircle2, ChevronDown, ChevronUp, Download, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Download, ExternalLink, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
 import { Input } from '@jlpt/ui/components/input';
-import { Select } from '@jlpt/ui/components/select';
+import { HeroSelect } from '@jlpt/ui/components/hero-select';
 import { Badge } from '@jlpt/ui/components/badge';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Modal } from '@jlpt/ui/components/modal';
+import { Spinner } from '@jlpt/ui/components/spinner';
 import type {
   NotebookItem,
   NotebookItemKind,
@@ -105,6 +106,33 @@ export function getUserVisibleTags(tags?: string[]): string[] {
   });
 }
 
+export function resolveExamSlug(title?: string, slug?: string): string | undefined {
+  if (slug) return slug;
+  if (!title) return undefined;
+  const trimmed = title.trim();
+  const m1 = trimmed.match(/N([1-5])\s+(\d{1,2})[/-](\d{4})/i);
+  if (m1 && m1[1] && m1[2] && m1[3]) {
+    return `n${m1[1]}-${m1[3]}-${m1[2].padStart(2, '0')}`;
+  }
+  const m2 = trimmed.match(/N([1-5])\s+(\d{4})[/-](\d{1,2})/i);
+  if (m2 && m2[1] && m2[2] && m2[3]) {
+    return `n${m2[1]}-${m2[2]}-${m2[3].padStart(2, '0')}`;
+  }
+  const m3 = trimmed.match(/(\d{4})年(\d{1,2})月.*N([1-5])/i);
+  if (m3 && m3[1] && m3[2] && m3[3]) {
+    return `n${m3[3]}-${m3[1]}-${m3[2].padStart(2, '0')}`;
+  }
+  const m4 = trimmed.match(/N([1-5]).*(\d{4})年(\d{1,2})月/i);
+  if (m4 && m4[1] && m4[2] && m4[3]) {
+    return `n${m4[1]}-${m4[2]}-${m4[3].padStart(2, '0')}`;
+  }
+  const m5 = trimmed.match(/N([1-5])\s+(\d{4}-\d{4})/i);
+  if (m5 && m5[1] && m5[2]) {
+    return `n${m5[1]}-${m5[2]}`;
+  }
+  return undefined;
+}
+
 export interface NotebookViewProps {
   items: NotebookItem[];
   totalCount: number;
@@ -115,6 +143,7 @@ export interface NotebookViewProps {
   onDeleteItem: (id: string) => Promise<void>;
   onExportCsv: (kind?: NotebookItemKind) => Promise<void>;
   onLoadExamples?: (itemId: string) => Promise<QuestionExample[]>;
+  onLoadMoreExamples?: (item: NotebookItem) => Promise<QuestionExample[]>;
   onPlayTts?: (text: string) => Promise<void>;
 }
 
@@ -128,6 +157,7 @@ export function NotebookView({
   onDeleteItem,
   onExportCsv,
   onLoadExamples,
+  onLoadMoreExamples,
   onPlayTts,
 }: NotebookViewProps): React.JSX.Element {
   const { t } = useI18n();
@@ -157,6 +187,9 @@ export function NotebookView({
   const [activeItemForExamples, setActiveItemForExamples] = useState<NotebookItem | null>(null);
   const [examplesList, setExamplesList] = useState<QuestionExample[]>([]);
   const [examplesLoading, setExamplesLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [moreLoaded, setMoreLoaded] = useState(false);
+  const [moreMessage, setMoreMessage] = useState<string | null>(null);
   const [expandedQuestions, setExpandedQuestions] = useState<Record<string, boolean>>({});
   const toggleExpandQuestion = (key: string) => {
     setExpandedQuestions((prev) => ({
@@ -235,9 +268,43 @@ export function NotebookView({
     }
   };
 
+  const handleLoadMore = async () => {
+    if (!activeItemForExamples || !onLoadMoreExamples || loadingMore) return;
+    setLoadingMore(true);
+    setMoreMessage(null);
+    try {
+      const more = await onLoadMoreExamples(activeItemForExamples);
+      const existingIds = new Set(examplesList.map((e) => e.questionId));
+      const fresh = more.filter((e) => !existingIds.has(e.questionId));
+      if (fresh.length > 0) {
+        setExamplesList((prev) => [...prev, ...fresh]);
+        setMoreMessage(
+          t('notebook.examples.moreLoadedCount', { count: fresh.length }) ||
+            `Đã tải thêm ${fresh.length} câu hỏi từ các đề thi khác.`,
+        );
+      } else {
+        setMoreMessage(
+          t('notebook.examples.noMoreExamples') ||
+            'Không tìm thấy thêm câu hỏi nào khác trong ngân hàng đề.',
+        );
+      }
+      setMoreLoaded(true);
+    } catch {
+      setMoreMessage(
+        t('notebook.examples.noMoreExamples') ||
+          'Không tìm thấy thêm câu hỏi nào khác trong ngân hàng đề.',
+      );
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
   const handleOpenExamples = async (item: NotebookItem) => {
     setActiveItemForExamples(item);
     setExamplesLoading(true);
+    setLoadingMore(false);
+    setMoreLoaded(false);
+    setMoreMessage(null);
     try {
       if (onLoadExamples) {
         const data = await onLoadExamples(item.id);
@@ -279,15 +346,16 @@ export function NotebookView({
               placeholder={t('notebook.filters.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-10 md:h-9"
             />
           </div>
 
           <div className="w-[140px]">
-            <Select
+            <HeroSelect
               id="notebook-kind-filter"
               aria-label={t('notebook.filters.kindLabel')}
               value={filterKind}
-              onChange={(e) => setFilterKind(e.target.value)}
+              onChange={(val) => setFilterKind(val)}
               options={[
                 { value: 'all', label: t('notebook.filters.allKinds') },
                 { value: 'vocab', label: t('notebook.kinds.vocab') },
@@ -298,11 +366,11 @@ export function NotebookView({
           </div>
 
           <div className="w-[160px]">
-            <Select
+            <HeroSelect
               id="notebook-mastered-filter"
               aria-label={t('notebook.filters.statusLabel')}
               value={filterMastered}
-              onChange={(e) => setFilterMastered(e.target.value)}
+              onChange={(val) => setFilterMastered(val)}
               options={[
                 { value: 'all', label: t('notebook.filters.allStatus') },
                 { value: 'learning', label: t('notebook.status.learning') },
@@ -367,7 +435,7 @@ export function NotebookView({
       {/* Items List */}
       <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
         {filteredItems.map((item) => (
-          <Card key={item.id} data-testid={`notebook-item-${item.id}`}>
+          <Card key={item.id} data-testid={`notebook-item-${item.id}`} className="flex flex-col h-full">
             <CardHeader className="flex justify-between items-start">
               <div>
                 <div className="flex gap-2 items-center mb-1">
@@ -410,7 +478,7 @@ export function NotebookView({
               )}
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="flex flex-1 flex-col">
               <p className="mt-0 mx-0 mb-3 font-medium text-[var(--text-primary)]">
                 {item.meaning}
               </p>
@@ -438,7 +506,7 @@ export function NotebookView({
                 );
               })()}
 
-              <div className="flex justify-between items-center pt-3 border-t border-[var(--border-subtle)]">
+              <div className="mt-auto flex justify-between items-center pt-3 border-t border-[var(--border-subtle)]">
                 <div className="flex gap-2">
                   <Button
                     variant="ghost"
@@ -488,13 +556,11 @@ export function NotebookView({
             )}
 
             <div>
-              <label className="block mb-1 font-semibold" htmlFor="modal-kind-select">
-                {t('notebook.form.kind')}
-              </label>
-              <Select
+              <HeroSelect
                 id="modal-kind-select"
+                label={t('notebook.form.kind')}
                 value={newKind}
-                onChange={(e) => setNewKind(e.target.value as NotebookItemKind)}
+                onChange={(val) => setNewKind(val as NotebookItemKind)}
                 options={[
                   { value: 'vocab', label: t('notebook.kinds.vocab') },
                   { value: 'grammar', label: t('notebook.kinds.grammar') },
@@ -627,17 +693,33 @@ export function NotebookView({
                       key={eg.questionId || idx}
                     >
                       <div className="flex flex-wrap items-center gap-2 mb-2.5">
-                        {isSaved && (
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
-                            <CheckCircle2 className="size-3.5" aria-hidden="true" />
-                            Đã lưu từ câu hỏi này
-                          </span>
-                        )}
-                        {eg.examTitle && (
-                          <Badge variant="primary">
-                            {eg.examTitle}
-                          </Badge>
-                        )}
+                        {eg.examTitle && (() => {
+                          const examSlug = eg.examSlug || resolveExamSlug(eg.examTitle);
+                          if (examSlug) {
+                            return (
+                              <a
+                                href={`/de-thi/${examSlug}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center no-underline text-inherit group focus:outline-none"
+                                title={t('notebook.examples.openExamHint', { title: eg.examTitle }) || `Mở đề thi ${eg.examTitle} trong tab mới`}
+                              >
+                                <Badge
+                                  variant="primary"
+                                  className="inline-flex items-center gap-1 cursor-pointer group-hover:opacity-85 transition-opacity"
+                                >
+                                  <span>{eg.examTitle}</span>
+                                  <ExternalLink className="size-3 opacity-75 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
+                                </Badge>
+                              </a>
+                            );
+                          }
+                          return (
+                            <Badge variant="primary">
+                              {eg.examTitle}
+                            </Badge>
+                          );
+                        })()}
                         {eg.questionNumber && (
                           <Badge variant="secondary">
                             Câu {eg.questionNumber}
@@ -769,11 +851,44 @@ export function NotebookView({
                     </div>
                   );
                 })}
+
+                {/* Nút xem thêm ví dụ trong các đề khác */}
+                {onLoadMoreExamples && (
+                  <div className="pt-2 pb-1 flex flex-col items-center">
+                    {!moreLoaded && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleLoadMore}
+                        disabled={loadingMore}
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-xs font-semibold py-2 px-4 rounded-lg border-dashed border-[var(--border-subtle)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] text-[var(--text-secondary)]"
+                      >
+                        {loadingMore ? (
+                          <>
+                            <Spinner size="sm" />
+                            <span>{t('notebook.examples.loadingMore') || 'Đang tìm trong các đề khác...'}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Search className="size-3.5" aria-hidden="true" />
+                            <span>{t('notebook.examples.loadMore') || 'Xem thêm ví dụ trong các đề khác'}</span>
+                          </>
+                        )}
+                      </Button>
+                    )}
+                    {moreMessage && (
+                      <p className="text-xs text-[var(--text-muted)] mt-1.5 text-center">
+                        {moreMessage}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
             <div className="flex justify-end mt-6">
-              <Button variant="outline" onClick={() => { setActiveItemForExamples(null); setExpandedQuestions({}); }}>
+              <Button variant="outline" onClick={() => { setActiveItemForExamples(null); setExpandedQuestions({}); setLoadingMore(false); setMoreLoaded(false); setMoreMessage(null); }}>
                 {t('common.buttons.close')}
               </Button>
             </div>

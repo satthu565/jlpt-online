@@ -380,7 +380,12 @@
     "examples": {
       "title": "「{term}」を含む試験の出題例",
       "subtitle": "「{term}」が含まれる過去問および練習問題:",
-      "noExamplesFound": "この項目に関連する出題例はまだありません。"
+      "noExamplesFound": "この項目に関連する出題例はまだありません。",
+      "loadMore": "他の試験での出題例を見る",
+      "loadingMore": "他の試験を検索中...",
+      "noMoreExamples": "他の問題は見つかりませんでした。",
+      "moreLoadedCount": "他の試験から{count}問を追加しました。",
+      "openExamHint": "試験「{title}」を開く（新しいタブ）"
     },
     "quiz": {
       "questionProgress": "第 {current} 問 / 全 {total} 問",
@@ -1178,6 +1183,9 @@
     "filterAnswered": "回答済み",
     "noAnswered": "この科目にはまだ回答済みの設問がありません。",
     "filterBlank": "未回答",
-    "filterFlagged": "見直し"
+    "filterFlagged": "見直し",
+    "decreaseFontSize": "文字サイズを縮小",
+    "increaseFontSize": "文字サイズを拡大",
+    "resetFontSize": "文字サイズをリセット"
   }
 }

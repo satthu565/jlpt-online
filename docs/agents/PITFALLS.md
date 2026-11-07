@@ -149,6 +149,16 @@ Symptom: N4 December 2022 has standalone terms, abbreviated context, several pla
 
 Symptom: an approved group v2 returns null for every question.version even though the exam still has published questions. Cause observed in N4 July 2023: the group has v2 but its three questions only have v1; getGroup loads questions at the exact group version. Correct approach: detect the mismatch before planning a group PATCH, preserve all existing question identities and history, and do not silently drop null questions or rebuild them from an incomplete source. This audit leaves that source-incomplete group unchanged and records it for a separate recovery.
 
+## Source answer lists and incomplete N5 scans (2026-11-07)
+
+A printed answer index can disagree with both the scanned question and Japanese grammar (December 2012 きょうしつでは、ぼうしをぬいでください), and an explanation can retain an obsolete index after the key was fixed (July 2024 カメラがほしい). Check actual choices, grammar and published key together; a justified key correction requires a new exam version with historical keys preserved. Scan files can omit an entire page: December 2012 shows five text-grammar blanks but only two choices, while July 2023 ends before reading. Record the exact missing ranges; never fill them or a broken four-piece star task from answer recollection alone.
 ## Unicode variants can erase the visual distinction in a kanji-shape question
 
 Symptom: N5 2010–2011 Q15 options 2 and 4 look identical despite different strings (半 plus a variation selector versus 半). Cause: a scan-only malformed glyph was approximated with Unicode, whose variation selector may be ignored by the font; rare CJK characters can also differ from the intended handwritten stroke error. Correct approach: crop each original option from its own source PDF, preserve order and key, validate hashes and view all final crops. Do not invent a new kanji distractor or count string inequality as proof of visible inequality. The N5 kanji/vocabulary audit uses eight exact crops for the two affected questions.
+
+- Câu sắp xếp có lời giải trông hợp lý nhưng khóa sai → mặc định ngôi sao luôn ở ô thứ ba hoặc chép thứ tự từ bản có lựa chọn khác → giải lại bằng đúng bốn lựa chọn hiện tại, đọc vị trí `star` thực tế và ảnh nguồn; giữ vị trí sao, công khai hiệu đính khóa ở phiên bản mới khi cần.
+- Câu ngữ pháp dạng a/b thiếu một nửa câu → gộp hai ô của cùng một câu hỏi thành một blank rồi bỏ luôn chữ dùng chung → giữ nhãn riêng như `19-a`, `19-b` cùng phần chữ ở giữa; đối chiếu cả đoạn văn và các phương án.
+
+- N3 reorder false positives: sentence fragments must be rearranged before judging them. July 2011 Q53 forms 1-4-3-2 with original options; December 2014 Q50 uses a relative clause followed by N no koto wo. Replacing an option without reconstructing the full sentence can introduce an error. Preserve valid source wording and correct only an inaccurate explanation.
+
+- React 19 cảnh báo `__button_group_child` khi đặt thẻ `<span>` hay `<div>` trong HeroUI `ButtonGroup` → HeroUI clone và truyền thuộc tính này xuống mọi con trực tiếp → dùng container bọc ngoài với `role="group"` hoặc chỉ chứa `Button` trực tiếp trong `ButtonGroup`.

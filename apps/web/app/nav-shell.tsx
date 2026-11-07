@@ -78,7 +78,9 @@ export function NavigationHeader(): React.JSX.Element {
     ...(FEATURES.navPractice
       ? [{ label: t('common.nav.practice'), href: '/luyen-tap', icon: BookOpen, active: isRouteActive('/luyen-tap', pathname) }]
       : []),
-    { label: t('common.nav.vocabulary'), href: '/tu-vung', icon: ChartNoAxesColumn, active: isRouteActive('/tu-vung', pathname) },
+    ...(FEATURES.navVocabulary
+      ? [{ label: t('common.nav.vocabulary'), href: '/tu-vung', icon: ChartNoAxesColumn, active: isRouteActive('/tu-vung', pathname) }]
+      : []),
     ...(FEATURES.navGrammar
       ? [{ label: t('common.nav.grammar'), href: '/ngu-phap', icon: BookText, active: isRouteActive('/ngu-phap', pathname) }]
       : []),

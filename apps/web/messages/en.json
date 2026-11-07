@@ -380,7 +380,12 @@
     "examples": {
       "title": "Exam Question Examples Containing '{term}'",
       "subtitle": "Past exam questions and practice items featuring '{term}':",
-      "noExamplesFound": "No exam question examples found for this item yet."
+      "noExamplesFound": "No exam question examples found for this item yet.",
+      "loadMore": "See more examples in other exams",
+      "loadingMore": "Searching other exams...",
+      "noMoreExamples": "No additional questions found in the exam bank.",
+      "moreLoadedCount": "Loaded {count} more questions from other exams.",
+      "openExamHint": "Open exam {title} (new tab)"
     },
     "quiz": {
       "questionProgress": "Question {current} of {total}",
@@ -1178,6 +1183,9 @@
     "filterAnswered": "Answered",
     "noAnswered": "No answered questions in this section yet.",
     "filterBlank": "Unanswered",
-    "filterFlagged": "Flagged"
+    "filterFlagged": "Flagged",
+    "decreaseFontSize": "Decrease text size",
+    "increaseFontSize": "Increase text size",
+    "resetFontSize": "Reset text size"
   }
 }
