@@ -12,7 +12,21 @@ export class CommunityClient {
   private authToken?: string;
 
   constructor(options: { baseUrl?: string; fetchFn?: typeof fetch; authToken?: string } = {}) {
-    this.baseUrl = (options.baseUrl || process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '');
+    const isBrowser = typeof window !== 'undefined';
+    let defaultUrl = options.baseUrl;
+    if (!defaultUrl) {
+      if (isBrowser) {
+        defaultUrl = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
+      } else {
+        const publicUrl = process.env.NEXT_PUBLIC_API_URL;
+        if (publicUrl && (publicUrl.startsWith('http://') || publicUrl.startsWith('https://'))) {
+          defaultUrl = publicUrl;
+        } else {
+          defaultUrl = process.env.API_INTERNAL_URL || process.env.STAGING_API_URL || 'http://127.0.0.1:4000/api/v1';
+        }
+      }
+    }
+    this.baseUrl = defaultUrl.replace(/\/$/, '');
     this.fetchFn = options.fetchFn || (typeof window !== 'undefined' ? window.fetch.bind(window) : fetch);
     this.authToken = options.authToken;
   }

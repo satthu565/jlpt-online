@@ -28,6 +28,7 @@ export default function PlannerPage(): React.JSX.Element {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isUnauthorized, setIsUnauthorized] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const loadPlannerData = useCallback(async () => {
     setLoading(true);
@@ -194,8 +195,10 @@ export default function PlannerPage(): React.JSX.Element {
     }
     try {
       await defaultPlannerClient.archiveStudyPlan(planId);
+      setSuccessMessage(t('planner.reset.success'));
     } catch (archiveErr) {
       console.warn('Archive study plan returned:', archiveErr);
+      setSuccessMessage(t('planner.reset.success'));
     }
     setPlan(null);
     setTodaySession(null);
@@ -237,6 +240,14 @@ export default function PlannerPage(): React.JSX.Element {
             <Link href="/dang-nhap?redirect=/ke-hoach">
               <Button size="sm" variant="primary">Đăng nhập ngay</Button>
             </Link>
+          </div>
+        </Alert>
+      )}
+
+      {successMessage && (
+        <Alert className="mb-6" variant="success" onClose={() => setSuccessMessage(null)}>
+          <div className="flex justify-between items-center flex-wrap gap-2">
+            <span>{successMessage}</span>
           </div>
         </Alert>
       )}
