@@ -279,6 +279,7 @@ export function NotebookView({
               placeholder={t('notebook.filters.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-10 md:h-9"
             />
           </div>
 

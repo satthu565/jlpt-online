@@ -26,6 +26,8 @@ export interface HeroSelectProps {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  triggerClassName?: string;
+  size?: 'sm' | 'md' | 'lg';
   variant?: 'primary' | 'secondary';
   required?: boolean;
 }
@@ -42,11 +44,19 @@ export function HeroSelect({
   placeholder,
   disabled = false,
   className,
+  triggerClassName,
+  size = 'md',
   variant: _variant = 'primary',
   required = false,
 }: HeroSelectProps): React.JSX.Element {
   const generatedId = React.useId();
   const selectId = id || generatedId;
+
+  const sizeClasses = {
+    sm: 'h-9 md:h-8 text-xs',
+    md: 'h-10 md:h-9 text-sm',
+    lg: 'h-11 md:h-10 text-base',
+  }[size] || 'h-10 md:h-9 text-sm';
 
   return (
     <div className={cn('jlpt-hero-select flex flex-col gap-1 w-full', className)}>
@@ -79,7 +89,13 @@ export function HeroSelect({
         isRequired={required}
         className="w-full"
       >
-        <HeroSelectBase.Trigger className="w-full min-h-[44px] flex items-center justify-between">
+        <HeroSelectBase.Trigger
+          className={cn(
+            'w-full flex items-center justify-between',
+            sizeClasses,
+            triggerClassName,
+          )}
+        >
           <HeroSelectBase.Value />
           <HeroSelectBase.Indicator />
         </HeroSelectBase.Trigger>
