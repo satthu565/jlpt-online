@@ -134,3 +134,7 @@ Triệu chứng: tạo lượt làm bằng request không có Origin được, n
 - Công cụ hiệu đính N1 dừng trước khi ghi với `admin !== publisher` → publisher là tên tác vụ/tài khoản, API xuất bản yêu cầu vai trò `admin` → kiểm tra tài khoản publisher có role admin; giữ editor/reviewer và TOTP riêng.
 
 - Numbered grammar blanks appear indistinguishable → RichTextView ignored blank.label → render the escaped label, reuse surrounding parentheses, and include the label in the accessible name.
+
+## Option image assets are also included in group media dependencies
+
+Symptom: four source-glyph choices appear above a question and again inside its four options. Cause: publication correctly lists option-image assets in group.media for delivery, while the booklet also treats every group image as a standalone illustration. Correct approach: collect image references already rendered in passages, stems and options across the whole group and filter only those from the display illustration list. Preserve all rich content, independent illustrations, audio and the underlying snapshot/manifest.

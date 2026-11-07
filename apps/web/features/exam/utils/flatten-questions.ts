@@ -1,5 +1,17 @@
-import type { PublicExamSnapshot } from '@jlpt/schema';
+import type { PublicExamSnapshot, RichText } from '@jlpt/schema';
 import type { FlatQuestionItem } from '../types';
+import { mediaUrl } from './exam-media';
+
+function collectInlineImages(segments: RichText, images: Set<string>): void {
+  for (const segment of segments) {
+    if (segment.t === 'image') {
+      if (segment.mediaKey) images.add(mediaUrl(segment.mediaKey));
+      if (segment.url) images.add(mediaUrl(segment.url));
+    } else if ('children' in segment && segment.children) {
+      collectInlineImages(segment.children, images);
+    }
+  }
+}
 
 export function flattenExamQuestions(
   snapshot: PublicExamSnapshot,
@@ -17,6 +29,22 @@ export function flattenExamQuestions(
     for (let gIdx = 0; gIdx < section.groups.length; gIdx++) {
       const group = section.groups[gIdx];
       if (!group) continue;
+
+      const inlineImages = new Set<string>();
+      for (const block of group.passage || []) {
+        if (block.type === 'image') inlineImages.add(mediaUrl(block.mediaKey));
+        else if (block.type === 'paragraph') collectInlineImages(block.content, inlineImages);
+        else if (block.type === 'table') {
+          for (const row of block.rows) {
+            for (const cell of row) collectInlineImages(cell, inlineImages);
+          }
+        }
+      }
+      for (const question of group.questions) {
+        collectInlineImages(question.stem, inlineImages);
+        for (const option of question.options) collectInlineImages(option.content, inlineImages);
+      }
+      const illustrations = (group.media || []).filter(src => !inlineImages.has(mediaUrl(src)));
 
       for (let qIdx = 0; qIdx < group.questions.length; qIdx++) {
         const question = group.questions[qIdx];
@@ -36,7 +64,7 @@ export function flattenExamQuestions(
           number: question.number,
           stem: question.stem,
           options: question.options,
-          media: group.media || [],
+          media: illustrations,
           isLocked: isSectionLocked,
         });
 
