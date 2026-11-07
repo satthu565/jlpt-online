@@ -140,3 +140,7 @@ Prepared versioned 文字・語彙 corrections for 20 questions in 9 of 15 impor
 ## N4 grammar/reading content audit (2026-11-07)
 
 Prepared 22 question and 5 passage revisions in 12 N4 exams, including 16 synchronized explanations and no answer-index changes. Reviewed 435 questions; all 29 December 2022 questions stay unchanged per owner instruction. July 2023's missing fourth option and incomplete source reading group remain deferred. All 61 reviewed star-composition orders are recorded. See [audit and guarded operation](../../tools/content/n4-grammar-reading-review/README.md). Application status is recorded separately after CI and backup.
+
+## N5 grammar/reading content review (2026-11-07)
+
+Versioned repair tooling covers 281 imported questions across 11 N5 exams, preparing 13 question corrections, one passage correction and 10 rationales. Exactly one new-version answer index changes: December 2012 grammar Q6 (overall Q41), には to では. Forty-eight of 49 star questions form complete four-piece sentences; December 2024 Q11 remains source-blocked. Missing six December 2012 and five July 2023 questions are recorded without fabrication. Apply only after exact-commit CI and validated backup, through reviewed/published new versions; preserve old exam keys and history. See tools/content/n5-grammar-reading-review/README.md for source limitations and live-operation status.

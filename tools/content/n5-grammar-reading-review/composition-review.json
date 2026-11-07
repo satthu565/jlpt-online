@@ -1,0 +1,681 @@
+[
+  {
+    "slug": "n5-2010-2011",
+    "number": 50,
+    "questionId": "4b4baf31-d534-43ae-a795-c2c811e9c71e",
+    "order": [
+      3,
+      1,
+      4,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "（店で）田中「すみません。くだもの　は　どこ　に　あります　か」店の人「こちらです。」"
+  },
+  {
+    "slug": "n5-2010-2011",
+    "number": 51,
+    "questionId": "aeba636a-4404-43a3-ac46-53a685b7f761",
+    "order": [
+      3,
+      2,
+      1,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "A「山下さんは？」B「となりの　へやで　ギター　の　れんしゅう　を　しています。」"
+  },
+  {
+    "slug": "n5-2010-2011",
+    "number": 52,
+    "questionId": "a32360e6-66d1-41c4-afa2-ff984c01c300",
+    "order": [
+      3,
+      2,
+      4,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "A「会社　へ　は　何　で　行って　いますか。」B「わたしは　あるいて　行って　います。」"
+  },
+  {
+    "slug": "n5-2010-2011",
+    "number": 53,
+    "questionId": "4a530214-b6bb-4847-a5f2-37ea495418e3",
+    "order": [
+      4,
+      1,
+      2,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "山田「ジョンさん、しゅくだいは　ぜんぶ　おわりましたか。」ジョン「いいえ、まだです。ここ　まで　は　かんたんでした　が　、さいごの　もんだいが　むずかしいです。」"
+  },
+  {
+    "slug": "n5-2010-2011",
+    "number": 54,
+    "questionId": "86bdeeca-e4da-4e87-a872-44e1a62d9f67",
+    "order": [
+      4,
+      3,
+      2,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "（本屋で）ヤン「わたしは　この　本を　買います。アンナさんは　どんな　本が　いいですか。」アンナ「わたしは　もう　少し　日本語　が　かんたんな　本　が　いいです。」"
+  },
+  {
+    "slug": "n5-2012-12",
+    "number": 52,
+    "questionId": "a53c7d81-f861-4abd-a9f1-8bea8152ef46",
+    "order": [
+      4,
+      2,
+      1,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "毎日 私は 朝ごはん の 前 に はを みがきます。"
+  },
+  {
+    "slug": "n5-2012-12",
+    "number": 53,
+    "questionId": "1d962979-e73e-4f29-a272-58c414116f14",
+    "order": [
+      2,
+      4,
+      3,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "Ａ「今日は いい 天気ですね。」Ｂ「きのうは 雨 でしたが 今日は 晴れ ましたね。」"
+  },
+  {
+    "slug": "n5-2012-12",
+    "number": 54,
+    "questionId": "d8da6ba5-9f30-4f15-ad7e-0a39a4258d32",
+    "order": [
+      1,
+      3,
+      2,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "海に 近くて 大きい 家に 住みたい です。"
+  },
+  {
+    "slug": "n5-2012-12",
+    "number": 55,
+    "questionId": "9f25bc0c-a2d8-4f70-a30c-3b148e361e7a",
+    "order": [
+      3,
+      2,
+      1,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "きのう 私が 読んだ 本 は おもしろかった です。"
+  },
+  {
+    "slug": "n5-2012-12",
+    "number": 56,
+    "questionId": "8f604e75-454f-442d-aadc-f4882a439763",
+    "order": [
+      3,
+      2,
+      4,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "南「中山さん、ダンスを 教えて ください。」中山「いいですよ。毎週 水曜日と 土曜日は ここで れんしゅうして います から 来て ください。」"
+  },
+  {
+    "slug": "n5-2013-07",
+    "number": 52,
+    "questionId": "c3ccec3d-9095-468c-a959-424a8c2c950b",
+    "order": [
+      2,
+      3,
+      1,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "こうえん　に　は　鳥　が　たくさん　います。"
+  },
+  {
+    "slug": "n5-2013-07",
+    "number": 53,
+    "questionId": "e7e26d99-9811-4189-ad2c-2fb435b3c9ff",
+    "order": [
+      4,
+      1,
+      3,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "きょねんの　たんじょうびに　兄に　もらった　ぼうしを　毎日　かぶって　います。"
+  },
+  {
+    "slug": "n5-2013-07",
+    "number": 54,
+    "questionId": "562a74d6-9c0a-4398-a2d7-d32529a0edbf",
+    "order": [
+      1,
+      3,
+      2,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "スパゲティが　ゆうめいな　銀行の　近くの　レストランで　ばんごはんを　食べました。"
+  },
+  {
+    "slug": "n5-2013-07",
+    "number": 55,
+    "questionId": "b7304802-8dc2-4396-a7ef-c29bb7be886e",
+    "order": [
+      3,
+      2,
+      4,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "（デパートで）A「こちらの　かばんは　いかがですか。」B「もっと　小さくて　色が　明るい　のは　ありませんか。」"
+  },
+  {
+    "slug": "n5-2013-07",
+    "number": 56,
+    "questionId": "a11b757c-87ba-4440-a505-3e81156134f2",
+    "order": [
+      1,
+      3,
+      4,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "今日は　りんごが　安かったです。いつもは　一つ　100円の　りんごが　三つで　200円　でした。"
+  },
+  {
+    "slug": "n5-2017-07",
+    "number": 50,
+    "questionId": "b295e061-015f-4304-ab7b-dd1a1bcdc9c5",
+    "order": [
+      3,
+      1,
+      4,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "（店で）田中「すみません。くだものはどこにありますか。」店の人「こちらです。」"
+  },
+  {
+    "slug": "n5-2017-07",
+    "number": 51,
+    "questionId": "439bcf8c-5cfb-47bc-a1b8-72de6af805f3",
+    "order": [
+      3,
+      2,
+      1,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "A「山下さんは？」B「となりの　へやでギターのれんしゅうをして　います。」"
+  },
+  {
+    "slug": "n5-2017-07",
+    "number": 52,
+    "questionId": "070c8bb2-bb39-4b88-a0aa-7676ec4991f3",
+    "order": [
+      3,
+      2,
+      4,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "A「会社へは何で行って　いますか。」B「わたしは　あるいて　行って　います。」"
+  },
+  {
+    "slug": "n5-2017-07",
+    "number": 53,
+    "questionId": "970037a6-5fc7-42c0-acd1-a3cba74ce5c4",
+    "order": [
+      4,
+      1,
+      2,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "山田「ジョンさん、しゅくだいは　ぜんぶ　おわりましたか。」ジョン「いいえ、まだです。ここまではかんたんでしたが、さいごの　もんだいが　むずかしいです。」"
+  },
+  {
+    "slug": "n5-2017-07",
+    "number": 54,
+    "questionId": "4c82f289-b55d-4501-a8da-0bca07d3e47b",
+    "order": [
+      4,
+      3,
+      2,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "（本屋で）ヤン「わたしは　この　本を　買います。アンナさんは　どんな　本が　いいですか。」アンナ「わたしは　もう　少し日本語がかんたんな本が　いいです。」"
+  },
+  {
+    "slug": "n5-2018-12",
+    "number": 52,
+    "questionId": "5b16b7fd-7866-4897-a98b-90118a881ee8",
+    "order": [
+      4,
+      1,
+      2,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "A「すみません、つぎの　しんごう を 右 に　まがってください。」B「はい、わかりました。」"
+  },
+  {
+    "slug": "n5-2018-12",
+    "number": 53,
+    "questionId": "1e3c632d-c0cc-4627-a582-3f014ca82a99",
+    "order": [
+      3,
+      4,
+      1,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "私は 日曜日に 兄　の 子ども と いっしょに　出かけました。"
+  },
+  {
+    "slug": "n5-2018-12",
+    "number": 54,
+    "questionId": "2be005a0-3578-474e-a5c7-a2d7bfaf1070",
+    "order": [
+      4,
+      1,
+      2,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "きのう　買った　おかしは　まるくて 色 が きれい　でした。"
+  },
+  {
+    "slug": "n5-2018-12",
+    "number": 55,
+    "questionId": "b8f94bd4-f9d6-49cd-a5e5-db9bc0b8c186",
+    "order": [
+      1,
+      3,
+      4,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "駅の　近く に ある 本屋　で　ざっしを　買いました。"
+  },
+  {
+    "slug": "n5-2018-12",
+    "number": 56,
+    "questionId": "3852b727-7a49-4e27-a0aa-9f97d7bd50c4",
+    "order": [
+      4,
+      2,
+      3,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "先週　ともだち に もらった 外国　の　こうちゃは　とてもおいしかったです。"
+  },
+  {
+    "slug": "n5-2021-12",
+    "number": 31,
+    "questionId": "feb6f0dd-ea23-43ad-a752-edecc553f49b",
+    "order": [
+      3,
+      4,
+      2,
+      1
+    ],
+    "starPosition": 2,
+    "correctOption": 4,
+    "sentence": "この かばんは かるくて じょうぶだから りょこうの とき べんりです。"
+  },
+  {
+    "slug": "n5-2021-12",
+    "number": 32,
+    "questionId": "13b7bac2-3ccd-43dc-a66a-51ec8c0952ce",
+    "order": [
+      2,
+      1,
+      3,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "れいぞうこの 中 に ぎゅうにゅう が 3本あります。"
+  },
+  {
+    "slug": "n5-2021-12",
+    "number": 33,
+    "questionId": "d47fb536-52c5-43ec-ad73-6e2f193b6b10",
+    "order": [
+      2,
+      4,
+      3,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "たんじょうびには どんな プレゼント が ほしい ですか。"
+  },
+  {
+    "slug": "n5-2021-12",
+    "number": 34,
+    "questionId": "10bf9352-097a-4a41-a1b9-c2950151de32",
+    "order": [
+      4,
+      2,
+      1,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "きのう 山下さん と いっしょに もりさん の いえに 行きました。"
+  },
+  {
+    "slug": "n5-2022-12",
+    "number": 31,
+    "questionId": "633ac049-38e3-44fa-a8f8-b47ddd0390c1",
+    "order": [
+      4,
+      3,
+      2,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "私のしゅみはダンスです。自分のへやでもれんしゅうをしています。"
+  },
+  {
+    "slug": "n5-2022-12",
+    "number": 32,
+    "questionId": "a172b994-b261-4353-a840-bccb93d8d4af",
+    "order": [
+      2,
+      4,
+      3,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "ともだちにもらったふじ山のしゃしんはきれいでした。"
+  },
+  {
+    "slug": "n5-2022-12",
+    "number": 33,
+    "questionId": "9b7afc82-6f63-4f4e-ab91-3f9fce1e855e",
+    "order": [
+      1,
+      4,
+      2,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "毎朝私は朝ごはんのまえにシャワーをあびます。"
+  },
+  {
+    "slug": "n5-2022-12",
+    "number": 34,
+    "questionId": "10dd93ff-9056-45bf-a52b-b67c0c20a41f",
+    "order": [
+      3,
+      4,
+      1,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "Ｋレストランのりょうりは安くておいしいからよく食べに行きます。"
+  },
+  {
+    "slug": "n5-2023-07",
+    "number": 31,
+    "questionId": "39145ee1-bda5-41cb-afd3-4766daad6544",
+    "order": [
+      4,
+      1,
+      3,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "私は　いつも　おんがくを　聞き　ながら　さんぽして　います。"
+  },
+  {
+    "slug": "n5-2023-07",
+    "number": 32,
+    "questionId": "faaaf69b-37d6-4566-ae91-98d93ff8c2fd",
+    "order": [
+      1,
+      4,
+      3,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "石川「今日は　林さんの　たんじょうびですね。」木山「いいえ、林さんの　たんじょうびは　今日　では　なくて　来月　ですよ。」"
+  },
+  {
+    "slug": "n5-2023-07",
+    "number": 33,
+    "questionId": "11507ea5-8ba2-4f92-a49f-59db68f78ec1",
+    "order": [
+      3,
+      4,
+      2,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "私は　子どもの　ころ　青い　じてんしゃ　が　ほしかったです。"
+  },
+  {
+    "slug": "n5-2023-07",
+    "number": 34,
+    "questionId": "02c4ddd3-df2e-4fd4-ae6f-365b76943ae9",
+    "order": [
+      2,
+      4,
+      1,
+      3
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "きょうは　にわの　花に　水を　やったり、へやの　そうじを　したり　した　あとで、買物に　行きました。"
+  },
+  {
+    "slug": "n5-2024-07",
+    "number": 31,
+    "questionId": "2ea1bf47-9308-4720-a632-44aabd166964",
+    "order": [
+      4,
+      1,
+      3,
+      2
+    ],
+    "starPosition": 2,
+    "correctOption": 1,
+    "sentence": "私は　たんじょうびに　そふが　くれた　カメラを　毎日　使って　います。"
+  },
+  {
+    "slug": "n5-2024-07",
+    "number": 32,
+    "questionId": "9199d410-32e3-49e3-a093-e5c0ea27c266",
+    "order": [
+      2,
+      3,
+      1,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "こうえん　に　は　鳥　が　たくさんいます。"
+  },
+  {
+    "slug": "n5-2024-07",
+    "number": 33,
+    "questionId": "cabef82c-f900-4c35-a812-1c7b777c9b73",
+    "order": [
+      3,
+      1,
+      2,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "今年の夏　は　海　では　なくて　山に行きます。"
+  },
+  {
+    "slug": "n5-2024-07",
+    "number": 34,
+    "questionId": "159ce242-8831-4126-aa0f-138ece111514",
+    "order": [
+      4,
+      2,
+      3,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 3,
+    "sentence": "私は　毎朝　へやを　そうじして　から　家　を　出ます。"
+  },
+  {
+    "slug": "n5-2024-12",
+    "number": 31,
+    "questionId": "94704ff4-2170-40c4-a7e2-66d7349c26b8",
+    "order": [
+      2,
+      3,
+      1,
+      4
+    ],
+    "starPosition": 2,
+    "correctOption": 3,
+    "sentence": "きのう見たえいがはとてもおもしろかったです。"
+  },
+  {
+    "slug": "n5-2024-12",
+    "number": 32,
+    "questionId": "f7ee9f93-074e-4fe9-a845-f3f1aecbf07b",
+    "deferred": true,
+    "reason": "No valid four-piece composition; missing original source"
+  },
+  {
+    "slug": "n5-2024-12",
+    "number": 33,
+    "questionId": "081ef5d4-704b-43bf-a79d-f0cddaa5f007",
+    "order": [
+      1,
+      4,
+      2,
+      3
+    ],
+    "starPosition": 2,
+    "correctOption": 4,
+    "sentence": "ペンを １本とノートを２さつと消しゴムを１こ 買いました。"
+  },
+  {
+    "slug": "n5-2024-12",
+    "number": 34,
+    "questionId": "d7a24502-c249-4282-a4f5-ae477cc2f4fb",
+    "order": [
+      1,
+      3,
+      4,
+      2
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "私は 朝 起きて、こうえんをさんぽします。それから、家で 朝ごはんを 作って食べたあとで学校へ行きます。"
+  },
+  {
+    "slug": "n5-2025-07",
+    "number": 31,
+    "questionId": "1765c5c5-3a11-42b0-ab91-05ad86f12f8a",
+    "order": [
+      4,
+      2,
+      1,
+      3
+    ],
+    "starPosition": 4,
+    "correctOption": 3,
+    "sentence": "そふの　家の　にわ　に　大きい　さくらの　木　が　あります。"
+  },
+  {
+    "slug": "n5-2025-07",
+    "number": 32,
+    "questionId": "054dc081-f9d3-4623-a7b2-4ba43acb5300",
+    "order": [
+      3,
+      2,
+      4,
+      1
+    ],
+    "starPosition": 3,
+    "correctOption": 4,
+    "sentence": "私は　まいばん　りょうりを　します。　きのう　の　夜は　カレーを　作りました。"
+  },
+  {
+    "slug": "n5-2025-07",
+    "number": 33,
+    "questionId": "9460096f-8c27-47fd-a15c-fcba28e2d460",
+    "order": [
+      2,
+      3,
+      1,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 1,
+    "sentence": "弟は、私　が　あげた　ぼうし　を　いつも　かぶっています。"
+  },
+  {
+    "slug": "n5-2025-07",
+    "number": 34,
+    "questionId": "c218d4a0-e940-447c-ae08-e42a53d014e0",
+    "order": [
+      1,
+      3,
+      2,
+      4
+    ],
+    "starPosition": 3,
+    "correctOption": 2,
+    "sentence": "としょかんに　かさを　わすれた　から　じゅぎょうの　あとで　とりに　行きます。"
+  }
+]

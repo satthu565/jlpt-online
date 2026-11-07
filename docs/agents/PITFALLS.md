@@ -148,3 +148,7 @@ Symptom: N4 December 2022 has standalone terms, abbreviated context, several pla
 ## A passage-only legacy version can leave the editor group API with null question versions
 
 Symptom: an approved group v2 returns null for every question.version even though the exam still has published questions. Cause observed in N4 July 2023: the group has v2 but its three questions only have v1; getGroup loads questions at the exact group version. Correct approach: detect the mismatch before planning a group PATCH, preserve all existing question identities and history, and do not silently drop null questions or rebuild them from an incomplete source. This audit leaves that source-incomplete group unchanged and records it for a separate recovery.
+
+## Source answer lists and incomplete N5 scans (2026-11-07)
+
+A printed answer index can disagree with both the scanned question and Japanese grammar (December 2012 きょうしつでは、ぼうしをぬいでください), and an explanation can retain an obsolete index after the key was fixed (July 2024 カメラがほしい). Check actual choices, grammar and published key together; a justified key correction requires a new exam version with historical keys preserved. Scan files can omit an entire page: December 2012 shows five text-grammar blanks but only two choices, while July 2023 ends before reading. Record the exact missing ranges; never fill them or a broken four-piece star task from answer recollection alone.
