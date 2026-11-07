@@ -169,7 +169,7 @@ export const HomeSessionCard = memo(function HomeSessionCard({
               asChild
               variant="primary"
               size="sm"
-              className="flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-xs font-bold shadow-sm"
+              className="flex-1"
             >
               <a
                 href={examUrl}
@@ -185,17 +185,18 @@ export const HomeSessionCard = memo(function HomeSessionCard({
           <div className="flex items-center justify-between text-[11px] pt-2.5 mt-2.5 border-t border-dashed border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400">
             <Tooltip>
               <TooltipTrigger asChild>
-                <a
-                  href={
-                    targetExam
-                      ? `/phong-thi?examId=${targetExam.id}&mode=practice`
-                      : '/luyen-tap'
-                  }
-                  className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline flex items-center gap-1 font-medium"
-                  aria-label="Luyện tập tự do không tính giờ nghiêm ngặt"
-                >
-                  <span>🎯 Luyện tự do</span>
-                </a>
+                <Button asChild variant="ghost" size="sm">
+                  <a
+                    href={
+                      targetExam
+                        ? `/phong-thi?examId=${targetExam.id}&mode=practice`
+                        : '/luyen-tap'
+                    }
+                    aria-label="Luyện tập tự do không tính giờ nghiêm ngặt"
+                  >
+                    <span>🎯 Luyện tự do</span>
+                  </a>
+                </Button>
               </TooltipTrigger>
               <TooltipContent side="top">
                 Luyện tập tự do không tính giờ nghiêm ngặt
@@ -204,13 +205,14 @@ export const HomeSessionCard = memo(function HomeSessionCard({
             <span className="text-slate-300 dark:text-slate-700">•</span>
             <Tooltip>
               <TooltipTrigger asChild>
-                <a
-                  href="/luyen-tap"
-                  className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline flex items-center gap-1 font-medium"
-                  aria-label="Luyện đề trộn hoặc từng kỹ năng Từ vựng, Nghe, Đọc"
-                >
-                  <span>⚡ Đề trộn &amp; Kỹ năng</span>
-                </a>
+                <Button asChild variant="ghost" size="sm">
+                  <a
+                    href="/luyen-tap"
+                    aria-label="Luyện đề trộn hoặc từng kỹ năng Từ vựng, Nghe, Đọc"
+                  >
+                    <span>⚡ Đề trộn &amp; Kỹ năng</span>
+                  </a>
+                </Button>
               </TooltipTrigger>
               <TooltipContent side="top">
                 Luyện đề trộn hoặc từng kỹ năng Từ vựng, Nghe, Đọc

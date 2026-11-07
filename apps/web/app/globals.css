@@ -39,6 +39,7 @@
 @import "@heroui/styles/components/select.css" layer(components);
 @import "@heroui/styles/components/list-box.css" layer(components);
 @import "@heroui/styles/components/list-box-item.css" layer(components);
+@import "@heroui/styles/components/checkbox.css" layer(components);
 @import '@jlpt/ui/styles.css';
 
 @source "../../../packages/ui/src";

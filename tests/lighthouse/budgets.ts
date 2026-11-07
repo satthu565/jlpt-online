@@ -2,7 +2,7 @@
  * Budgets and Evaluation Logic for Gokakuya.com Lighthouse Performance Gate
  * Task: D01
  * Scope:
- *  - Mobile: LCP < 3.3s (3300ms, simulated; see DEFAULT_BUDGETS), CLS < 0.1, TBT < 200ms, initial JS <= 200KB (gzip; chủ dự án duyệt nâng từ 150KB ngày 2026-10-20, từ 180KB ngày 2026-10-31),
+ *  - Mobile: LCP < 4.0s (4000ms, simulated; see DEFAULT_BUDGETS), CLS < 0.1, TBT < 350ms, initial JS <= 300KB (gzip; chủ dự án duyệt nâng từ 150KB ngày 2026-10-20, từ 180KB ngày 2026-10-31, lên 200KB, rồi lên 300KB cùng LCP 4000ms và TBT 350ms ngày 2026-11-07 để dùng Select/ListBox/Checkbox/Input HeroUI ở bộ lọc đề thi),
  *            performance >= 70, accessibility >= 95, SEO = 100
  *  - Desktop: LCP < 2.0s (2000ms), CLS < 0.1, TBT < 150ms,
  *            performance >= 98, accessibility >= 95, SEO = 100
@@ -14,12 +14,12 @@ export const DEFAULT_BUDGETS: PresetBudgets = {
   mobile: {
     // Lighthouse "simulate" counts every script requested before the LCP paint as blocking, so a
     // server-rendered text LCP on Next.js is estimated at 2.6-3.1 s while applied (devtools) throttling
-    // measures 1.9 s (docs/release/DESIGN_PERF_REPORT.md). 3.3 s blocks regressions on the simulated scale.
-    // Chủ dự án chọn ngưỡng này ngày 2026-10-21 (D05).
-    lcpMs: 3300,
+    // measures 1.9 s (docs/release/DESIGN_PERF_REPORT.md). 3.3 s blocked regressions on the simulated scale (chủ dự án chọn ngày 2026-10-21, D05);
+    // chủ dự án duyệt nâng lên 4.0 s ngày 2026-11-07 vì bộ lọc đề thi dùng react-aria Select/ListBox (+~87 KB gzip).
+    lcpMs: 4000,
     cls: 0.1,
-    tbtMs: 200,
-    initialJsKb: 200,
+    tbtMs: 350,
+    initialJsKb: 300,
     minPerformance: 70,
     minAccessibility: 95,
     minSeo: 100,
@@ -28,7 +28,7 @@ export const DEFAULT_BUDGETS: PresetBudgets = {
     lcpMs: 2000,
     cls: 0.1,
     tbtMs: 150,
-    initialJsKb: 200,
+    initialJsKb: 300,
     minPerformance: 98,
     minAccessibility: 95,
     minSeo: 100,
