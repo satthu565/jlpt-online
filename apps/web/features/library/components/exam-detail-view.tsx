@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { BookOpen, Check, GraduationCap, Library, Play, Timer } from 'lucide-react';
+import { BookOpen, Check, GraduationCap, Play } from 'lucide-react';
 import type { ExamSummary } from '@jlpt/schema';
 import { Card } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
@@ -141,7 +141,6 @@ export function ExamDetailView({
           </Alert>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="relative overflow-hidden p-5 flex flex-col gap-4 border border-red-200 bg-red-50/70 dark:border-red-900/60 dark:bg-red-950/20">
-              <Timer className="hidden sm:block absolute right-5 top-16 size-24 text-red-300/60 dark:text-red-800/40" aria-hidden="true" />
               <div className="flex items-center gap-3">
                 <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-red-600 text-white">
                   <GraduationCap className="size-6" aria-hidden="true" />
@@ -151,7 +150,7 @@ export function ExamDetailView({
                   <Badge variant="danger" size="sm">Mô phỏng đề thi thật JLPT</Badge>
                 </div>
               </div>
-              <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-300 sm:pr-24">
+              <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
                 {['Bấm giờ nghiêm ngặt từng phần', 'Hết giờ tự động nộp bài', 'Không xem đáp án hay giải thích khi đang thi', 'Kết quả tính vào thống kê'].map((t) => (
                   <li key={t} className="flex items-center gap-2.5">
                     <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/50 dark:text-red-300">
@@ -168,10 +167,9 @@ export function ExamDetailView({
                 </Button>
               </a>
             </Card>
-            <Card className="relative overflow-hidden p-5 flex flex-col gap-4 border border-blue-200 bg-blue-50/70 dark:border-blue-900/60 dark:bg-blue-950/20">
-              <Library className="hidden sm:block absolute right-5 top-16 size-24 text-blue-300/60 dark:text-blue-800/40" aria-hidden="true" />
+            <Card className="relative overflow-hidden p-5 flex flex-col gap-4 border border-sky-200 bg-sky-50/70 dark:border-sky-900/60 dark:bg-sky-950/20">
               <div className="flex items-center gap-3">
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-sky-600 text-white">
                   <BookOpen className="size-6" aria-hidden="true" />
                 </span>
                 <div className="flex flex-col items-start gap-1">
@@ -179,10 +177,10 @@ export function ExamDetailView({
                   <Badge variant="info" size="sm">Ôn luyện linh hoạt, không áp lực</Badge>
                 </div>
               </div>
-              <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-300 sm:pr-24">
+              <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
                 {['Thời gian linh hoạt, làm từng phần được', 'Phần nghe có thể nghe lại và đổi tốc độ', 'Không ảnh hưởng chỉ số xếp hạng chính thức', 'Không bị tính vào thống kê thi thật'].map((t) => (
                   <li key={t} className="flex items-center gap-2.5">
-                    <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300">
+                    <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sky-600 dark:bg-sky-900/50 dark:text-sky-300">
                       <Check className="size-3.5" aria-hidden="true" />
                     </span>
                     {t}
@@ -190,7 +188,7 @@ export function ExamDetailView({
                 ))}
               </ul>
               <a href={`/phong-thi?examId=${exam.id}&mode=practice&start=1`} className="text-decoration-none mt-auto">
-                <Button variant="outline" size="md" className="w-full gap-2 border-blue-500 text-blue-700 dark:text-blue-300">
+                <Button variant="outline" size="md" className="w-full gap-2 border-sky-500 text-sky-700 dark:text-sky-300">
                   <Play className="size-4 fill-current" aria-hidden="true" />
                   Luyện tập tự do
                 </Button>
