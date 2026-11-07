@@ -129,7 +129,7 @@ export function ExamDetailView({
           <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
             Chọn hình thức làm bài
           </h2>
-          <Alert variant="warning" title="Trước khi vào thi" className="mb-0">
+          <Alert variant="warning" title="Trước khi vào thi">
             <ul className="list-disc pl-5 space-y-0.5 text-xs">
               <li>Nhấp vào phương án 1, 2, 3 hoặc 4 để chọn; nhấp lại vào phương án đã chọn để bỏ chọn.</li>
               <li>
