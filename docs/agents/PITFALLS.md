@@ -1,5 +1,9 @@
 # Các bẫy đã gặp
 
+## Option image assets are also included in group media dependencies
+
+Symptom: four source-glyph choices appear above a question and again inside its four options. Cause: publication correctly lists option-image assets in group.media for delivery, while the booklet also treats every group image as a standalone illustration. Correct approach: collect image references already rendered in passages, stems and options across the whole group and filter only those from the display illustration list. Preserve all rich content, independent illustrations, audio and the underlying snapshot/manifest.
+
 Mỗi bẫy ghi theo dạng triệu chứng → nguyên nhân → cách đúng. **Gặp bẫy mới thì thêm một dòng vào đây trong cùng PR.**
 
 ## Code và test
@@ -137,6 +141,6 @@ Triệu chứng: tạo lượt làm bằng request không có Origin được, n
 
 - Lời giải hiện chuỗi `[{'t': 'text', ...}]` → công cụ nhập đã chuyển rich text thành chuỗi Python thay vì lấy văn bản → đọc nội dung các node và lưu câu tiếng Nhật đúng trong lời giải phiên bản mới; đồng bộ cả explanation được duyệt, giữ lịch sử.
 
-## Option image assets are also included in group media dependencies
+## Recollected answer sheets can be published as if they were full exam booklets
 
-Symptom: four source-glyph choices appear above a question and again inside its four options. Cause: publication correctly lists option-image assets in group.media for delivery, while the booklet also treats every group image as a standalone illustration. Correct approach: collect image references already rendered in passages, stems and options across the whole group and filter only those from the display illustration list. Preserve all rich content, independent illustrations, audio and the underlying snapshot/manifest.
+Symptom: N4 December 2022 has standalone terms, abbreviated context, several plausible choices, and a drafting instruction visible in an explanation. Cause: its original import report says `DRAFT_ONLY` and `source-missing-original-exam-booklet`, but the reconstructed package was subsequently published. Correct approach: check the importer report and source inventory, never claim invented distractors are restored official wording, and respect the owner’s instruction to leave this exam unchanged pending the original booklet. Preserve published history through new versions. See `tools/content/n4-kanji-vocab-review/README.md`.

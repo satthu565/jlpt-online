@@ -1,0 +1,5019 @@
+{
+  "reviewDate": "2026-11-07",
+  "scope": {
+    "exams": 15,
+    "questions": 448
+  },
+  "keyChanges": [],
+  "fixes": [
+    {
+      "slug": "n4-2010-2011",
+      "number": 10,
+      "examId": "6b148634-a6db-4c4a-a5a0-c4bc0658402f",
+      "publishedVersion": 3,
+      "questionId": "26899e20-eb18-4461-acb1-80d71b6f94de",
+      "groupId": "720fa631-d16d-4188-a58d-52db29a9170f",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この　カメラの　つかいかたを　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "せつめいして"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "　ください。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "訳明"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "設明"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "説明"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "記明"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Xin vui lòng giải thích cách sử dụng chiếc máy ảnh này."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 説明"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Từ 「せつめい」 (thuyết minh/giải thích) có chữ Hán chính xác là 「説明」 gồm chữ 「説」 (thuyết) và 「明」 (minh)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 訳明: Chữ 訳 mang nghĩa thông dịch/dịch thuật, không ghép thành từ này."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 設明: Chữ 設 mang nghĩa thiết lập/thiết kế, không phải chữ せつ trong せつめい."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 記明: Chữ 記 mang nghĩa ghi chép, không đúng chữ Hán của せつめい."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この　カメラの　つかいかたを　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "せつめい"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "して"
+          },
+          {
+            "t": "text",
+            "text": "　ください。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "訳明"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "設明"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "説明"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "記明"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Xin vui lòng giải thích cách sử dụng chiếc máy ảnh này."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 説明"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Từ 「せつめい」 (thuyết minh/giải thích) có chữ Hán chính xác là 「説明」 gồm chữ 「説」 (thuyết) và 「明」 (minh)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 訳明: Chữ 訳 mang nghĩa thông dịch/dịch thuật, không ghép thành từ này."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 設明: Chữ 設 mang nghĩa thiết lập/thiết kế, không phải chữ せつ trong せつめい."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 記明: Chữ 記 mang nghĩa ghi chép, không đúng chữ Hán của せつめい."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Align underline boundaries with the four choices; preserve complete sentence"
+      ]
+    },
+    {
+      "slug": "n4-2010-2011",
+      "number": 15,
+      "examId": "6b148634-a6db-4c4a-a5a0-c4bc0658402f",
+      "publishedVersion": 3,
+      "questionId": "5281c537-20e4-4db3-a6da-d4ebb64a1d63",
+      "groupId": "c8f379a8-dae7-4177-ad60-617821934426",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この　店は　9時から　6時まで　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "えいぎょうして"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "　います。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "宮業"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "営業"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "宮事"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "営事"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Cửa hàng này kinh doanh mở cửa từ 9 giờ đến 6 giờ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] 営業"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Từ 「えいぎょう」 (doanh nghiệp/kinh doanh) có chữ Hán chính xác là 「営業」 gồm 「営」 (doanh - えい) và 「業」 (nghiệp - ぎょう)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 宮業: Chữ 宮 (Cung) đọc là きゅう/ぐう, viết nhầm nét với chữ 営."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 宮事: Sai cả hai chữ Hán của えいぎょう."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 営事: Chữ 事 đọc là じ/こと, không phải chữ 業 (ぎょう)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この　店は　9時から　6時まで　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "えいぎょう"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "して"
+          },
+          {
+            "t": "text",
+            "text": "　います。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "宮業"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "営業"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "宮事"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "営事"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Cửa hàng này kinh doanh mở cửa từ 9 giờ đến 6 giờ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] 営業"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Từ 「えいぎょう」 (doanh nghiệp/kinh doanh) có chữ Hán chính xác là 「営業」 gồm 「営」 (doanh - えい) và 「業」 (nghiệp - ぎょう)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 宮業: Chữ 宮 (Cung) đọc là きゅう/ぐう, viết nhầm nét với chữ 営."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 宮事: Sai cả hai chữ Hán của えいぎょう."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 営事: Chữ 事 đọc là じ/こと, không phải chữ 業 (ぎょう)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Align underline boundaries with the four choices; preserve complete sentence"
+      ]
+    },
+    {
+      "slug": "n4-2010-2011",
+      "number": 29,
+      "examId": "6b148634-a6db-4c4a-a5a0-c4bc0658402f",
+      "publishedVersion": 3,
+      "questionId": "e841ad68-0534-4371-acac-df7b27191284",
+      "groupId": "e3403052-afd7-4a3a-a238-4d8600ed25ed",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "やまもとさんの　じは　こまかいです。"
+              }
+            ]
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "やまもとさんの　じは　れいです。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "やまもとさんの　じは　きたないです。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "やまもとさんの　じは　ちいさいです。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "やまもとさんの　じは　おおきいです。"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Chữ của anh Yamamoto rất nhỏ/li ti."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] やまもとさんの　じは　ちいさいです。"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Khi nói về chữ viết, tính từ 「細かい（こまかい）」 có nghĩa là nét chữ nhỏ, li ti, đồng nghĩa với 「小さい（ちいさい）」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] やまもとさんの　じは　れいです。: Bản in bị mờ chữ き (きれいです) mang nghĩa đẹp đẽ, không đồng nghĩa với こまかい."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] やまもとさんの　じは　きたないです。: 「汚い」 nghĩa là bẩn thỉu, xấu xí."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] やまもとさんの　じは　おおきいです。: 「大きい」 nghĩa là to, lớn, trái nghĩa với こまかい/ちいさい."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "やまもとさんの　じは　こまかいです。"
+              }
+            ]
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "やまもとさんの　じは　きれいです。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "やまもとさんの　じは　きたないです。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "やまもとさんの　じは　ちいさいです。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "やまもとさんの　じは　おおきいです。"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Chữ của anh Yamamoto nhỏ, li ti."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] やまもとさんの　じは　ちいさいです。 — 細かい chỉ kích thước nhỏ của chữ viết; gần nghĩa nhất là 小さい."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] やまもとさんの　じは　きれいです。: きれい là đẹp, ngay ngắn; không có nghĩa chữ nhỏ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] やまもとさんの　じは　きたないです。: きたない là xấu, bẩn; không có nghĩa chữ nhỏ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] やまもとさんの　じは　おおきいです。: おおきい là to, trái nghĩa với chữ nhỏ."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Restore missing き in distractor 1 from source booklet p4",
+        "Remove obsolete missing-character explanation after restoring きれい"
+      ]
+    },
+    {
+      "slug": "n4-2012-12",
+      "number": 11,
+      "examId": "ab85b454-0841-437c-a94b-a3d33a3259da",
+      "publishedVersion": 3,
+      "questionId": "90edecaf-2fbb-43de-a782-f3cf1cedc57e",
+      "groupId": "0a77f727-6a58-41ab-a2c7-0717f6401100",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "かいぎの　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "ばしょ"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "を　おしえて　ください。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "揚折"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "場折"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "揚所"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "場所"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Dịch câu: Xin hãy cho tôi biết địa điểm họp."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Chữ Hán:「ばしょ」(địa điểm, nơi chốn) viết là「場所」(TRÀNG SỞ). Chữ「場」gồm bộ Thổ (土), chữ「所」gồm bộ Hộ (戶) và chữ Cân (斤). Bảng đáp án chính thức s01 và lời giải s02 đều chọn 4 (場所). Do đó đáp án đúng là 4."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Lưu ý bản in nguồn: Trang p03 của đề scan N4-2012年12月.pdf in trùng hai lựa chọn (1: 揚所, 2: 場所, 3: 揚所, 4: 場所). Đối chiếu đề thi chính thức JLPT N4 12/2012, các phương án nhiễu 1 và 2 được khôi phục thành 揚折 và 場折 để loại bỏ trùng lặp lựa chọn theo đúng cấu trúc đề, giữ nguyên đáp án đúng 4 (場所) theo bảng đáp án s01."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "かいぎの　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "ばしょ"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "を　おしえて　ください。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "揚折"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "場折"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "揚所"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "場所"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Xin hãy cho tôi biết địa điểm họp."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 場所 — ばしょ viết là 場所. 場 có bộ 土, 所 có phần 斤. Bộ lựa chọn hiện tại đã được biên tập để tránh trùng ở bản scan; không khẳng định đây là toàn bộ phương án nguyên văn đề in gốc."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] 揚折: 揚折 không phải chữ Hán của ばしょ; sai cả hai chữ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] 場折: 場折 sai chữ thứ hai: phải là 所."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] 揚所: 揚所 sai chữ đầu: phải là 場."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Remove unsupported claims of exact official distractor restoration; retain editorially distinct choices",
+        "Explain current editorial distractors accurately"
+      ]
+    },
+    {
+      "slug": "n4-2012-12",
+      "number": 12,
+      "examId": "ab85b454-0841-437c-a94b-a3d33a3259da",
+      "publishedVersion": 3,
+      "questionId": "1d86dade-78b0-4efa-a7b5-2cc51e244de0",
+      "groupId": "97a48b2f-f5c2-4d6d-a4cc-468bd274cd2d",
+      "questionVersion": 2,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "わたしの　いえは　えきから　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "あるいて"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": " 5分です。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "走て"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "走いて"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "歩て"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "歩いて"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Dịch câu: Nhà tôi đi bộ từ nhà ga mất 5 phút."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Chữ Hán: Động từ「あるく」(đi bộ) viết là「歩く」(BỘ). Theo chuẩn ngữ pháp tiếng Nhật dạng te là「歩いて」(lựa chọn 4)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Lưu ý về đáp án: Bảng đáp án chính thức s01 ghi nhận đáp án là 3 (và lời giải s02 ghi 3. 歩く(あるく)). Để tuyệt đối tuân thủ bảng đáp án in nguồn, hệ thống giữ correctOption là 3 và ghi chú cảnh báo đối chiếu với lựa chọn 4."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "わたしの　いえは　えきから　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "あるいて"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": " 5分です。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "走て"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "走いて"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "歩て"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "歩いて"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Từ ga đi bộ đến nhà tôi mất 5 phút."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 歩いて — あるく viết là 歩く; thể て là 歩いて. Lựa chọn 4 trong bộ phương án hiện tại là đáp án đúng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] 走て: 走る (はしる) có thể て là 走って; 走て viết sai."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] 走いて: 走いて không phải thể て của 走る."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] 歩て: 歩く phải đổi く thành いて; 歩て thiếu い."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Remove stale claim that correctOption is 3; current correct answer is 4 歩いて"
+      ]
+    },
+    {
+      "slug": "n4-2012-12",
+      "number": 13,
+      "examId": "ab85b454-0841-437c-a94b-a3d33a3259da",
+      "publishedVersion": 3,
+      "questionId": "313099d5-063d-4e42-a195-5da3ae102bf1",
+      "groupId": "63f8f283-e0a4-462e-a27c-d97eccb9d769",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ちかてつが　できて　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "べんりに"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "　なりました。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "便宜"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "便理"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "便立"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "便利"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Dịch câu: Có tàu điện ngầm nên đã trở nên tiện lợi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Chữ Hán:「べんり」(tiện lợi) viết là「便利」(TIỆN LỢI). Chữ「便」và chữ「利」. Do đó đáp án đúng là 4."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Các phương án 1, 2, 3 dùng sai chữ Hán thứ hai (宜, 理, 立)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ちかてつが　できて　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "べんり"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "に"
+          },
+          {
+            "t": "text",
+            "text": "　なりました。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "便宜"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "便理"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "便立"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "便利"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Dịch câu: Có tàu điện ngầm nên đã trở nên tiện lợi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Chữ Hán:「べんり」(tiện lợi) viết là「便利」(TIỆN LỢI). Chữ「便」và chữ「利」. Do đó đáp án đúng là 4."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "Các phương án 1, 2, 3 dùng sai chữ Hán thứ hai (宜, 理, 立)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Align underline boundaries with the four choices; preserve complete sentence"
+      ]
+    },
+    {
+      "slug": "n4-2014-07",
+      "number": 9,
+      "examId": "055f71d1-8a42-4ffa-ab8b-ff536aa3d840",
+      "publishedVersion": 1,
+      "questionId": "6257a7c2-dd60-44d6-ac6f-6efac1659be5",
+      "groupId": "02d890d3-ae93-45dd-a5a5-e15346c0af78",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "もうすぐ "
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "特急"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "電車が 来ます。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "とつきゅ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "ときゅう"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "とっきゅう"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ときゅ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Tàu tốc hành sắp đến rồi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] とっきゅう. Chữ Hán 「特急」 (Đặc Cấp - tàu tốc hành) có cách đọc là 「とっきゅう」 (có âm ngắt っ và trường âm ゅう)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] とつきゅ: Thiếu trường âm ở chữ 急."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] ときゅう: Thiếu âm ngắt っ."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] ときゅ: Thiếu cả âm ngắt lẫn trường âm."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "もうすぐ "
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "特急"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "電車が 来ます。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "とつきゅ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "ときゅう"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "とっきゅう"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ときゅ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Tàu tốc hành đặc biệt sắp đến."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] とっきゅう — 特急 đọc là とっきゅう: cần âm ngắt っ và trường âm きゅう."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] とつきゅ: とつきゅ dùng つ lớn thay cho っ và thiếu trường âm う cuối."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] ときゅう: ときゅう thiếu âm ngắt っ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] ときゅ: ときゅ thiếu cả âm ngắt っ lẫn trường âm う cuối."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Explain both defects in とつきゅ (large つ and missing long vowel)"
+      ]
+    },
+    {
+      "slug": "n4-2017-07",
+      "number": 12,
+      "examId": "877e044f-ee4c-4454-aeb3-b67523ce7582",
+      "publishedVersion": 2,
+      "questionId": "425a6844-e3e1-4f65-a7c1-5abfab6f5939",
+      "groupId": "4e098fd8-625d-4ac0-ab16-0f807b03517d",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "わたしの　いえは　えきから　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "あるいて"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "　５分です。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "走て"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "走いて"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "歩いて"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "歩て"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Nhà tôi đi bộ từ nhà ga mất 5 phút."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 歩いて. Động từ「あるく」(đi bộ) viết chữ Hán là「歩く」(BỘ). Khi chia sang thể -te, động từ nhóm 1 đuôi「く」biến đổi thành「〜いて」:「あるく」->「歩いて」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] 走て: Động từ「走る」(はしる: chạy) thuộc nhóm 1 đuôi る, thể -te là「走って」, viết「走て」là sai."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] 走いて: Sai cách chia thể -te của động từ 走る."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] 歩て: Sai quy tắc biến âm thể -te của động từ nhóm 1 đuôi く (phải là 歩いて chứ không phải 歩て)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Ghi chú: Bản in scan N4-2017年-7月.pdf trang 4 in trùng lặp phương án 1-2 thành 走いて và phương án 3-4 thành 歩いて do lỗi chế bản của nhà xuất bản. Đối chiếu đề thi gốc tương ứng tại de-goc/N4/N4 12-2012/N4-2012年12月.pdf trang 3 câu (12), các phương án nguyên gốc là 1: 走て, 2: 走いて, 3: 歩て, 4: 歩いて. Bảng đáp án chính thức trang 43 của đề N4 7-2017 ghi rõ đáp án đúng là 3 (ứng với 歩いて in ở lựa chọn 3), lựa chọn 4 là phương án nhiễu 歩て để loại trừ trùng lặp nội dung theo đúng cấu trúc đề."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "わたしの　いえは　えきから　"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "あるいて"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "　５分です。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "走て"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "走いて"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "歩いて"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "歩て"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Từ ga đi bộ đến nhà tôi mất 5 phút."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 歩いて — あるく viết là 歩く; thể て là 歩いて. Trong bộ lựa chọn hiện tại, đáp án này ở vị trí 3. Các lựa chọn đã được biên tập để loại trùng ở bản scan, không khẳng định nguyên văn đầy đủ các phương án gốc."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] 走て: 走る có thể て là 走って; 走て thiếu っ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] 走いて: 走いて không phải thể て của 走る."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] 歩て: 歩て thiếu い; thể đúng là 歩いて."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Remove unsupported claims of exact official distractor restoration; retain editorially distinct choices",
+        "Explain current editorial distractors accurately"
+      ]
+    },
+    {
+      "slug": "n4-2018-12",
+      "number": 19,
+      "examId": "136831df-0f80-4574-a7d8-8cfee251f157",
+      "publishedVersion": 2,
+      "questionId": "9e2792e0-ad0f-49f5-a795-8ba52e3a7497",
+      "groupId": "161f1590-2bf7-4a59-a0e4-d5392efbba38",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "これから きかいの つかいかたを "
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "しますから、よく 聞いて ください。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "じゅんび"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "りよう"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "せつめい"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "せいさん"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "せつめいする nghĩa là \"giải thích, hướng dẫn\". Sau đây tôi sẽ giải thích cách sử dụng máy móc nên hãy lắng nghe kỹ. Lựa chọn 1: じゅんび (chuẩn bị); lựa chọn 2: りよう (sử dụng); lựa chọn 4: せいさん (sản xuất / thanh toán)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "これから きかいの つかいかたを "
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "しますから、よく 聞いて ください。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "じゅんび"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "りよう"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "せつめい"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "せいさん"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Sau đây tôi sẽ giải thích cách dùng máy, vì vậy hãy nghe kỹ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] せつめい — 説明する（せつめいする）là giải thích, phù hợp với きかいのつかいかたを説明する."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] じゅんび: 準備する là chuẩn bị."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] りよう: 利用する là sử dụng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] せいさん: せいさん có thể là 生産 (sản xuất) hoặc 清算・精算 (thanh toán/quyết toán), tùy chữ Hán; không diễn tả việc giải thích cách dùng."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Distinguish homophones 生産 and 清算/精算 instead of conflating their meanings"
+      ]
+    },
+    {
+      "slug": "n4-2021-07",
+      "number": 16,
+      "examId": "21f6d7dc-d0b2-4765-a31b-3eafb5606595",
+      "publishedVersion": 2,
+      "questionId": "259505eb-685a-4990-aea5-d6b1d4acb77f",
+      "groupId": "21a6f141-8aa4-4b2d-acb5-00753246b714",
+      "questionVersion": 2,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "えきまえの　ほんやは　あさ　８時から"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "して　います。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "えいぎょう"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "せいさん"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "ぼうえき"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ゆしゅつ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Hiệu sách trước ga mở cửa kinh doanh từ 8 giờ sáng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] えいきょう"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Đáp án đúng là 営業 (kinh doanh, mở cửa hàng; bản in gõ là えいきょう thay vì えいぎょう). Kết hợp「営業しています」nghĩa là đang mở cửa hoạt động."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] せいさん: 生産 (sản xuất), không dùng cho cửa hàng sách bán lẻ."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] ぼうえき: 貿易 (mậu dịch, thương mại quốc tế), không phù hợp ngữ cảnh hiệu sách trước ga."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] ゆしゅつ: 輸出 (xuất khẩu), không phù hợp ngữ cảnh cửa hàng mở cửa hàng ngày."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "えきまえの　ほんやは　あさ　８時から"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "して　います。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "えいぎょう"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "せいさん"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "ぼうえき"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ゆしゅつ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Hiệu sách trước ga mở cửa kinh doanh từ 8 giờ sáng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] えいぎょう — 営業（えいぎょう）する là mở cửa kinh doanh. Câu hoàn chỉnh: えきまえのほんやはあさ８時からえいぎょうしています."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] せいさん: 生産 là sản xuất hàng hóa."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] ぼうえき: 貿易 là thương mại giữa các nước."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] ゆしゅつ: 輸出 là xuất khẩu; không diễn tả giờ mở cửa hiệu sách."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Synchronize rationale with already-corrected えいぎょう; remove obsolete えいきょう note"
+      ]
+    },
+    {
+      "slug": "n4-2021-07",
+      "number": 18,
+      "examId": "21f6d7dc-d0b2-4765-a31b-3eafb5606595",
+      "publishedVersion": 2,
+      "questionId": "eeff068a-951a-4027-aff7-6062e588292e",
+      "groupId": "d0099f0e-b09c-4aa8-ab96-4afeacb06154",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "どちらの　けいかくが　いいと　おもうか、みんなの"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "聞きました。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "やくそく"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "いけん"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "あいさつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ひみつ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Tôi đã hỏi ý kiến mọi người xem kế hoạch nào tốt hơn."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] いけん"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「いけん」(意見 - ý kiến), cụm「意見を聞く」nghĩa là lắng nghe/hỏi ý kiến của mọi người."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] やくそく: 約束 (lời hứa, hẹn ước)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] あいさつ: 挨拶 (lời chào hỏi)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] ひみつ: 秘密 (bí mật)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "どちらの　けいかくが　いいと　おもうか、みんなの"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "を　聞きました。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "やくそく"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "いけん"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "あいさつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ひみつ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Tôi đã hỏi ý kiến mọi người xem kế hoạch nào tốt hơn."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] いけん"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「いけん」(意見 - ý kiến), cụm「意見を聞く」nghĩa là lắng nghe/hỏi ý kiến của mọi người."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] やくそく: 約束 (lời hứa, hẹn ước)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] あいさつ: 挨拶 (lời chào hỏi)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] ひみつ: 秘密 (bí mật)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Editorially restore object particle を after blank (source also omits it)"
+      ]
+    },
+    {
+      "slug": "n4-2021-12",
+      "number": 1,
+      "examId": "1ca4424b-b3f6-49e6-a53d-081b4f3b57d7",
+      "publishedVersion": 3,
+      "questionId": "962c271c-9ea2-4aa2-a170-0dc14a6199b7",
+      "groupId": "3b065518-5fdf-4aba-a12f-85a5d40d2c75",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "バスが８時に"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "出発"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "します。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "しゅっはつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "しゅうはつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "しゅっぱつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "しゅうぱつ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Xe buýt sẽ xuất phát vào lúc 8 giờ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] しゅっぱつ"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「出発」 (xuất phát, khởi hành) là từ ghép gồm chữ 「出」 (xuất) và 「発」 (phát). Khi ghép lại, chữ 「発」 bị biến âm thành âm ngắt kèm bán đục (handakuten): 「しゅっぱつ」 (shuppatsu)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] しゅっはつ: Sai vì chữ 「発」 khi đi sau âm ngắt 「っ」 phải biến âm thành 「ぱつ」 chứ không giữ nguyên 「はつ」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] しゅうはつ: Sai vì chữ 「出」 ở đây đọc là âm ngắt 「しゅっ」, không phải trường âm 「しゅう」, và chữ 「発」 chưa biến âm."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] しゅうぱつ: Sai vì chữ 「出」 không có cách đọc trường âm 「しゅう」 trong từ này."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "バスが８時に"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "出発"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "します。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "しゅっはつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "しゅうはつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "しゅっぱつ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "しゅうぱつ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Xe buýt khởi hành lúc 8 giờ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] しゅっぱつ — 出発 đọc là しゅっぱつ: 出（しゅつ）đổi thành しゅっ, còn 発（はつ）đổi thành ぱつ trong từ ghép này. Âm ngắt っ thuộc phần 出, không phải 発."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] しゅっはつ: Có âm ngắt nhưng 発 phải là ぱつ trong từ này."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] しゅうはつ: Nhầm âm ngắt っ thành trường âm う và không đổi は thành ぱ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] しゅうぱつ: Nhầm âm ngắt っ thành trường âm う."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Correct attribution of sokuon to 出 and handakuon to 発"
+      ]
+    },
+    {
+      "slug": "n4-2021-12",
+      "number": 16,
+      "examId": "1ca4424b-b3f6-49e6-a53d-081b4f3b57d7",
+      "publishedVersion": 3,
+      "questionId": "568c36cc-c60a-4d2e-adcd-7596a17806c3",
+      "groupId": "5f7eb759-106d-4084-aa30-62311eadb165",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "わたしばかりているアパートの"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "は１か月７万円です。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "ふりこみ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "ちょきん"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "おつり"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "やちん"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Tiền thuê nhà của căn hộ mà tôi đang thuê là 70.000 yên một tháng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] やちん"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「やちん」 (家賃 - tiền thuê nhà). Đi với ngữ cảnh căn hộ đang thuê 「かりているアパート」 và chi phí hàng tháng 「１か月７万円」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] ふりこみ: Chuyển khoản (ngân hàng)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] ちょきん: Tiền tiết kiệm."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] おつり: Tiền thối lại, tiền thừa khi mua sắm."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "わたしがかりているアパートの"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "は１か月７万円です。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "ふりこみ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "ちょきん"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "おつり"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "やちん"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Tiền thuê nhà của căn hộ mà tôi đang thuê là 70.000 yên một tháng."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] やちん"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「やちん」 (家賃 - tiền thuê nhà). Đi với ngữ cảnh căn hộ đang thuê 「かりているアパート」 và chi phí hàng tháng 「１か月７万円」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] ふりこみ: Chuyển khoản (ngân hàng)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] ちょきん: Tiền tiết kiệm."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] おつり: Tiền thối lại, tiền thừa khi mua sắm."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Restore が in relative clause from source booklet p2 Q17"
+      ]
+    },
+    {
+      "slug": "n4-2021-12",
+      "number": 20,
+      "examId": "1ca4424b-b3f6-49e6-a53d-081b4f3b57d7",
+      "publishedVersion": 3,
+      "questionId": "6270e04b-458d-4f2a-a6da-287dbec80502",
+      "groupId": "8af6d172-bf66-4776-a0bb-96d334cd6fcd",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この話は"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "ひみつ"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "です。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "この話をみんなにはなしてください。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "この話はだれにも言わないでください。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "この話をみんなにも聞きましよう。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "この話はだれもしりたくないです。"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Chuyện này là bí mật."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] この話はだれにも言わないでください。"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「ひみつ」 (秘密 - bí mật). Chuyện bí mật đồng nghĩa với việc yêu cầu không được nói cho bất kỳ ai: 「この話はだれにも言わないでください」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] この話をみんなにはなしてください: Hãy kể cho mọi người, trái ngược hoàn toàn với bí mật."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] この話をみんなにも聞きましよう: Hãy cùng hỏi mọi người chuyện này, không hợp nghĩa."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] この話はだれもしりたくないです: Chuyện này không ai muốn biết cả, sai nghĩa."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この話は"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "ひみつ"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "です。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "この話をみんなにはなしてください。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "この話はだれにも言わないでください。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "この話をみんなにも聞きましょう。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "この話はだれもしりたくないです。"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Chuyện này là bí mật."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] この話はだれにも言わないでください。"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「ひみつ」 (秘密 - bí mật). Chuyện bí mật đồng nghĩa với việc yêu cầu không được nói cho bất kỳ ai: 「この話はだれにも言わないでください」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] この話をみんなにはなしてください: Hãy kể cho mọi người, trái ngược hoàn toàn với bí mật."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] この話をみんなにも聞きましょう: Hãy cùng hỏi mọi người chuyện này, không hợp nghĩa."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] この話はだれもしりたくないです: Chuyện này không ai muốn biết cả, sai nghĩa."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Restore small ょ in volitional form from source booklet p3 Q21",
+        "Synchronize corrected distractor spelling"
+      ]
+    },
+    {
+      "slug": "n4-2024-07",
+      "number": 9,
+      "examId": "87d646f0-a0bf-4ba8-af38-29f552d263a2",
+      "publishedVersion": 2,
+      "questionId": "29503679-bef7-4295-acc8-bfccdfb501f0",
+      "groupId": "a73fd84f-eeba-4bfa-a34d-44bec525db65",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ロボットがこわれて"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "うごかなく"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "なった。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "動かなく"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "働かなく"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "助かなく"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "勤かなく"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Con robot bị hỏng nên không cử động/hoạt động được nữa."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] 動かなく"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「うごかなく」là dạng phủ định thể て của động từ「動く」(động: cử động, chuyển động, chạy/hoạt động máy móc). Chữ Hán đúng là「動かなく」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 働かなく: động từ「働く」(động: làm việc, lao động)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 助かなく: động từ「助かる」(trợ: được cứu, có ích)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 勤かなく: chữ Hán「勤」(cần), trong động từ「勤める」(làm việc tại công ty)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ロボットがこわれて"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "うごかなく"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "なった。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "動かなく"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "働かなく"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "助かなく"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "勤かなく"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Robot bị hỏng nên không hoạt động nữa."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] 動かなく — 動く（うごく）nghĩa là chuyển động, hoạt động. Trong mẫu 〜なくなる, 動かない đổi ない thành なく rồi nối với なる; 動かなく không phải thể て (thể て phủ định là 動かなくて)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] 働かなく: 働く đọc là はたらく, không phải うごく."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [3] 助かなく: 助かなく không viết đúng động từ うごく; 助かる đọc là たすかる."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] 勤かなく: 勤 không dùng để viết うごく; 勤める đọc là つとめる."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Correct grammatical analysis of 動かなく and malformed distractor 助かなく"
+      ]
+    },
+    {
+      "slug": "n4-2024-07",
+      "number": 12,
+      "examId": "87d646f0-a0bf-4ba8-af38-29f552d263a2",
+      "publishedVersion": 2,
+      "questionId": "4677e26f-44a7-48fd-ab16-3aea8c7d96c4",
+      "groupId": "f1d9189f-5b74-496a-aa6a-d695c3026e51",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "このまちは"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "こうつう"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "がふべんです。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "交道"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "公通"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "交通"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "公道"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Thành phố/khu phố này giao thông bất tiện."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 交通"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Từ「こうつう」(giao thông) được viết bằng chữ Hán「交通」(giao thông). (Lưu ý: trên bản in scan lựa chọn 4 bị in trùng lặp thành「公通」như lựa chọn 2; theo đề gốc chuẩn lựa chọn 4 là「公道」)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 交道: ghép sai chữ Hán."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 公通: ghép sai chữ Hán."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 公道: chữ Hán là「公道」(công đạo: đường công cộng, đường cái)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "このまちは"
+          },
+          {
+            "t": "underline",
+            "children": [
+              {
+                "t": "text",
+                "text": "こうつう"
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "text": "がふべんです。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "交道"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "公通"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "交通"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "公道"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Giao thông ở khu phố này bất tiện."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 交通 — こうつう viết là 交通, gồm 交 và 通. Bộ lựa chọn hiện tại đã được biên tập để tránh trùng ở bản scan; chưa có căn cứ khẳng định phương án 4 là nguyên văn đề in gốc."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] 交道: 交道 sai chữ thứ hai: phải là 通."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] 公通: 公通 sai chữ đầu: phải là 交."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] 公道: 公道 đọc là こうどう, nghĩa là đường công cộng; không viết từ こうつう."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Remove unsupported claims of exact official distractor restoration; retain editorially distinct choices",
+        "Explain current editorial distractors accurately"
+      ]
+    },
+    {
+      "slug": "n4-2024-07",
+      "number": 25,
+      "examId": "87d646f0-a0bf-4ba8-af38-29f552d263a2",
+      "publishedVersion": 2,
+      "questionId": "86debc7b-151b-4b88-aa44-526f6b58376b",
+      "groupId": "f4c7a889-1a1d-46af-aecb-824b8406ce89",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "じんこう"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "日よう日のどうぶつえんは"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "じんこう"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "がとても多いです。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "わたしの会社大きくて、"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "じんこう"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "がとても多いです。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "このまちは、マンションがたくさんあって、"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "じんこう"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "が多いです。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "わたしのかぞくは"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "じんこう"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "が多くて、いつもにぎやかです。"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: じんこう (人口): dân số."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] このまちは、マンションがたくさんあって、じんこうが多いです。"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「人口」(dân số) dùng để chỉ số lượng người sinh sống ở một quốc gia, thành phố, khu phố.「このまちは、マンションがたくさんあって、じんこうが多いです」(Khu phố này có nhiều chung cư nên dân số đông) là cách dùng hoàn toàn chính xác."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 日よう日のどうぶつえんはじんこうがとても多いです。: Sở thú đông người thì dùng「人」(hito) hoặc「客」(khách tham quan), không dùng「人口」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] わたしの会社大きくて、じんこうがとても多いです。: Công ty nhiều người thì dùng「社員」(nhân viên) hoặc「人」, không dùng「人口」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] わたしのかぞくはじんこうが多くて、いつもにぎやかです。: Gia đình đông người thì dùng「家族が多い」hoặc「人数が多い」, không dùng「人口」."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "じんこう"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "日よう日のどうぶつえんは"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "じんこう"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "がとても多いです。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "わたしの会社は大きくて、"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "じんこう"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "がとても多いです。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "このまちは、マンションがたくさんあって、"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "じんこう"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "が多いです。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "わたしのかぞくは"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "じんこう"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "が多くて、いつもにぎやかです。"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: じんこう (人口): dân số."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] このまちは、マンションがたくさんあって、じんこうが多いです。"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「人口」(dân số) dùng để chỉ số lượng người sinh sống ở một quốc gia, thành phố, khu phố.「このまちは、マンションがたくさんあって、じんこうが多いです」(Khu phố này có nhiều chung cư nên dân số đông) là cách dùng hoàn toàn chính xác."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 日よう日のどうぶつえんはじんこうがとても多いです。: Sở thú đông người thì dùng「人」(hito) hoặc「客」(khách tham quan), không dùng「人口」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] わたしの会社大きくて、じんこうがとても多いです。: Công ty nhiều người thì dùng「社員」(nhân viên) hoặc「人」, không dùng「人口」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] わたしのかぞくはじんこうが多くて、いつもにぎやかです。: Gia đình đông người thì dùng「家族が多い」hoặc「人数が多い」, không dùng「人口」."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Editorially restore は in distractor 2 (source also omits it)"
+      ]
+    },
+    {
+      "slug": "n4-2024-07",
+      "number": 27,
+      "examId": "87d646f0-a0bf-4ba8-af38-29f552d263a2",
+      "publishedVersion": 2,
+      "questionId": "65a05113-685d-49a0-a1ab-3a94f019cf2f",
+      "groupId": "c0d4173e-16ca-4f7e-a631-ed38052b3ba7",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "にげる"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "かぜがふいて、ぼうしが"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "にげて"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "しまいました。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "けいさつが来ましたが、どろぼうは"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "にげて"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "しまいました。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "コップがたおれて、なかの木が"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "にげて"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "しまいました。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "バスていについたとき、バスは"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "にげて"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "しまいました。"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: にげる (逃げる): chạy trốn, tẩu thoát."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] けいさつが来ましたが、どろぼうはにげてしまいました。"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Động từ「逃げる」(chạy trốn, đào tẩu) dùng cho người hoặc động vật trốn khỏi sự truy đuổi, nguy hiểm.「けいさつが来ましたが、どろぼうはにげてしまいました」(Cảnh sát đã đến nhưng tên trộm đã bỏ chạy mất)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] かぜがふいて、ぼうしがにげてしまいました。: Mũ bị gió thổi bay thì dùng「飛ぶ」(tobu) hoặc「飛ばされる」(tobasareru)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] コップがたおれて、なかの木がにげてしまいました。: Cốc đổ nước chảy ra thì dùng「こぼれる」(koboreru) /「流れる」(nagareru) (trên bản scan in nhầm chữ 水 thành chữ 木)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] バスていについたとき、バスはにげてしまいました。: Xe buýt chạy mất/vừa rời đi thì dùng「行ってしまった」(itte shimatta) hoặc「出発してしまった」(shuppatsu shite shimatta)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "にげる"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "かぜがふいて、ぼうしが"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "にげて"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "しまいました。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "けいさつが来ましたが、どろぼうは"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "にげて"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "しまいました。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "コップがたおれて、なかの水が"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "にげて"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "しまいました。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "バスていについたとき、バスは"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "にげて"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "しまいました。"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: にげる (逃げる): chạy trốn, tẩu thoát."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] けいさつが来ましたが、どろぼうはにげてしまいました。"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Động từ「逃げる」(chạy trốn, đào tẩu) dùng cho người hoặc động vật trốn khỏi sự truy đuổi, nguy hiểm.「けいさつが来ましたが、どろぼうはにげてしまいました」(Cảnh sát đã đến nhưng tên trộm đã bỏ chạy mất)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] かぜがふいて、ぼうしがにげてしまいました。: Mũ bị gió thổi bay thì dùng「飛ぶ」(tobu) hoặc「飛ばされる」(tobasareru)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] コップがたおれて、なかの木がにげてしまいました。: Cốc đổ nước chảy ra thì dùng「こぼれる」(koboreru) /「流れる」(nagareru) (trên bản scan in nhầm chữ 水 thành chữ 木)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] バスていについたとき、バスはにげてしまいました。: Xe buýt chạy mất/vừa rời đi thì dùng「行ってしまった」(itte shimatta) hoặc「出発してしまった」(shuppatsu shite shimatta)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Restore 水 in spilled-cup distractor from source booklet p4"
+      ]
+    },
+    {
+      "slug": "n4-2024-07",
+      "number": 28,
+      "examId": "87d646f0-a0bf-4ba8-af38-29f552d263a2",
+      "publishedVersion": 2,
+      "questionId": "ae435f63-e530-40a5-a2d9-9559e30bdd20",
+      "groupId": "480eed6a-1cbb-4f0b-a6f4-a70449db90c0",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ふべん"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "このスポーツはルールが"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "ふべんで"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "、おぼえられません。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "しゅくだいがたくさんありましたから、"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "ふべんです"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "先生の話せんもんのことばが多くて、"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "ふべんで"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "、わかりにくいです。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ぎんこうはいえからとおいので、いくのは"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "ふべんです"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "。"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: ふべん (不便): bất tiện."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] ぎんこうはいえからとおいので、いくのはふべんです。"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Tính từ đuôi な「不便」(bất tiện) dùng khi việc sinh hoạt, đi lại không thuận tiện.「ぎんこうはいえからとおいので、いくのはふべんです」(Ngân hàng ở xa nhà nên việc đi lại rất bất tiện)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] このスポーツはルールがふべんで、おぼえられません。: Luật chơi phức tạp khó nhớ thì dùng「複雑」(fukuzatsu) hoặc「難しい」(muzukashii)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] しゅくだいがたくさんありましたから、ふべんです。: Nhiều bài tập nên vất vả thì dùng「大変」(taihen)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 先生の話せんもんのことばが多くて、ふべんで、わかりにくいです。: Nhiều từ chuyên ngành khó hiểu thì dùng「難解」(nankai) hoặc「難しい」(muzukashii)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ふべん"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "このスポーツはルールが"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "ふべんで"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "、おぼえられません。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "しゅくだいがたくさんありましたから、"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "ふべんです"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "先生の話はせんもんのことばが多くて、"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "ふべんで"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "、わかりにくいです。"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ぎんこうはいえからとおいので、いくのは"
+              },
+              {
+                "t": "underline",
+                "children": [
+                  {
+                    "t": "text",
+                    "text": "ふべんです"
+                  }
+                ]
+              },
+              {
+                "t": "text",
+                "text": "。"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: ふべん (不便): bất tiện."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] ぎんこうはいえからとおいので、いくのはふべんです。"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Tính từ đuôi な「不便」(bất tiện) dùng khi việc sinh hoạt, đi lại không thuận tiện.「ぎんこうはいえからとおいので、いくのはふべんです」(Ngân hàng ở xa nhà nên việc đi lại rất bất tiện)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] このスポーツはルールがふべんで、おぼえられません。: Luật chơi phức tạp khó nhớ thì dùng「複雑」(fukuzatsu) hoặc「難しい」(muzukashii)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] しゅくだいがたくさんありましたから、ふべんです。: Nhiều bài tập nên vất vả thì dùng「大変」(taihen)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 先生の話せんもんのことばが多くて、ふべんで、わかりにくいです。: Nhiều từ chuyên ngành khó hiểu thì dùng「難解」(nankai) hoặc「難しい」(muzukashii)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Editorially restore は in distractor 3 (source also omits it)"
+      ]
+    },
+    {
+      "slug": "n4-2025-07",
+      "number": 16,
+      "examId": "a95cab75-eff3-4563-a8a1-c3345ada99aa",
+      "publishedVersion": 1,
+      "questionId": "e5448c1d-52e2-42be-a551-4cc76c03ea81",
+      "groupId": "7c19dd3a-54f7-4929-a4a0-dd26fae14f20",
+      "questionVersion": 1,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ちかくに　スーパーが　ないので、かいものを　するのに　"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "　です。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "ざんねん"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "きけん"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "ふべん"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "むり"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "ふべん（不便）nghĩa là bất tiện. Nghĩa câu: \"Vì gần đây không có siêu thị nên việc đi mua sắm rất bất tiện.\" Các phương án khác: 1 ざんねん (đáng tiếc), 2 きけん (nguy hiểm), 4 むり (vô lý, quá sức)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ちかくに　スーパーが　ないので、かいものを　するのに　"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "　です。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "ざんねん"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "きけん"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "ふべん"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "むり"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "locale": "vi",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Vì gần nhà không có siêu thị nên đi mua sắm bất tiện."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] ふべん — 不便（ふべん）là bất tiện, không thuận tiện. ちかくに nói về vị trí gần đó, không phải thời gian gần đây."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [1] ざんねん: 残念 là đáng tiếc; không diễn tả sự bất tiện của việc mua sắm."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [2] きけん: 危険 là nguy hiểm; câu không nói đến nguy cơ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "- [4] むり: 無理 là không thể hoặc quá sức; thiếu siêu thị gần nhà làm việc mua sắm bất tiện, chưa có nghĩa là không thể."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "reasons": [
+        "Translate spatial ちかく correctly; avoid temporal gần đây",
+        "Clarify spatial meaning and natural best answer"
+      ]
+    }
+  ],
+  "deferred": [
+    {
+      "slug": "n4-2022-12",
+      "questions": 28,
+      "reason": "Owner requested preserving all existing content until the original booklet is available."
+    }
+  ]
+}
