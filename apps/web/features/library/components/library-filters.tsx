@@ -137,7 +137,7 @@ export function LibraryFilters({
               onFilterChange({ ...filters, year: v === 'ALL' ? 'ALL' : Number.parseInt(v, 10) });
             }}
           >
-            <Select.Trigger className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer">
+            <Select.Trigger>
               <Select.Value />
               <Select.Indicator />
             </Select.Trigger>
@@ -176,7 +176,7 @@ export function LibraryFilters({
               onFilterChange({ ...filters, session: v as Session | 'ALL' });
             }}
           >
-            <Select.Trigger className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer">
+            <Select.Trigger>
               <Select.Value />
               <Select.Indicator />
             </Select.Trigger>
@@ -217,7 +217,7 @@ export function LibraryFilters({
               onFilterChange({ ...filters, kind: v as ExamKind | 'ALL' });
             }}
           >
-            <Select.Trigger className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer">
+            <Select.Trigger>
               <Select.Value />
               <Select.Indicator />
             </Select.Trigger>
@@ -263,7 +263,7 @@ export function LibraryFilters({
                 onFilterChange({ ...filters, userStatus: v as UserExamStatus | 'ALL' });
               }}
             >
-              <Select.Trigger className="w-full h-10 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 cursor-pointer">
+              <Select.Trigger>
                 <Select.Value />
                 <Select.Indicator />
               </Select.Trigger>
@@ -310,10 +310,10 @@ export function LibraryFilters({
             })
           }
         >
-          <Checkbox.Control>
-            <Checkbox.Indicator />
-          </Checkbox.Control>
-          <Checkbox.Content>
+          <Checkbox.Content className="flex flex-row items-center gap-2">
+            <Checkbox.Control>
+              <Checkbox.Indicator />
+            </Checkbox.Control>
             <span className="inline-flex items-center gap-1.5">
               <Star className="size-3.5 text-amber-500 fill-amber-500" aria-hidden="true" />
               Chỉ hiện các đề đã yêu thích
