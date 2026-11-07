@@ -1,0 +1,88 @@
+{
+  "slug": "n3-2018-12",
+  "examId": "3a024772-ce42-4406-a7d8-9995566bb2ef",
+  "publishedVersion": 3,
+  "totalQuestions": 102,
+  "changes": [
+    {
+      "questionNumber": 90,
+      "orderIndex": 89,
+      "mondaiType": "utterance",
+      "groupId": "d10094f1-79ed-4223-ad7b-55b599865095",
+      "passage": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "image",
+              "alt": "駐車場から出る",
+              "width": 230,
+              "height": 179,
+              "mediaKey": "media/b73b4eacbbd996e15bff75cc47a67aaa2189ce7f2ca5f213e102c2cf2b92b69a.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "questionNumber": 91,
+      "orderIndex": 90,
+      "mondaiType": "utterance",
+      "groupId": "682813f9-573a-4f88-a706-fb71177682c4",
+      "passage": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "image",
+              "alt": "ラジオを取ってもらう",
+              "width": 230,
+              "height": 179,
+              "mediaKey": "media/d196c122d8fefe4747991428c217160af90287d9065c36c63173cdfb581f00b3.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "questionNumber": 92,
+      "orderIndex": 91,
+      "mondaiType": "utterance",
+      "groupId": "820d6a9b-f6f6-4cfa-a7aa-9ef5f3c94415",
+      "passage": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "image",
+              "alt": "ATMの使い方を聞く",
+              "width": 234,
+              "height": 181,
+              "mediaKey": "media/8d4ac05f5edb8d59cd7bc6598dd40bf70ebe564cac40a6dec1a6580facacd718.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "questionNumber": 93,
+      "orderIndex": 92,
+      "mondaiType": "utterance",
+      "groupId": "35196ffe-4e28-4829-aead-9972a4c6915f",
+      "passage": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "image",
+              "alt": "先生に質問する",
+              "width": 234,
+              "height": 181,
+              "mediaKey": "media/34776f33e7d8958538a9562d1a68c7d322431cba478e64aac3f0c0bacb2b85eb.png"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

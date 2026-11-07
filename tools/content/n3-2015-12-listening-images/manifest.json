@@ -1,0 +1,28 @@
+{
+  "slug": "n3-2015-12",
+  "examId": "0463c008-b583-4a5d-aef3-b433364a9d91",
+  "publishedVersion": 2,
+  "totalQuestions": 102,
+  "changes": [
+    {
+      "questionNumber": 91,
+      "orderIndex": 90,
+      "mondaiType": "utterance",
+      "groupId": "b93d2192-bc96-4a60-ad45-d32242f8c8a1",
+      "passage": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "image",
+              "alt": "2番",
+              "width": 406,
+              "height": 316,
+              "mediaKey": "media/45cc38566238a2a24ec1664b748f190d60a63496ac5e4de5504ec5268ab97623.png"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

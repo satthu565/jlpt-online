@@ -1,0 +1,88 @@
+{
+  "slug": "n3-2017-12",
+  "examId": "ef11d396-ff04-43a8-aef0-2d8785f3c015",
+  "publishedVersion": 3,
+  "totalQuestions": 102,
+  "changes": [
+    {
+      "questionNumber": 90,
+      "orderIndex": 89,
+      "mondaiType": "utterance",
+      "groupId": "d45bd0a5-df8e-4844-a4f4-aa7aefa9c01d",
+      "passage": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "image",
+              "alt": "写真を撮ってもらう",
+              "width": 288,
+              "height": 218,
+              "mediaKey": "media/66d1f893d967a63254d96a25cc0297f337fe36b2891447bbdd4d17330d11326d.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "questionNumber": 91,
+      "orderIndex": 90,
+      "mondaiType": "utterance",
+      "groupId": "10242e81-7e6f-4e21-a4df-ca2657df48c5",
+      "passage": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "image",
+              "alt": "傘の忘れ物を知らせる",
+              "width": 287,
+              "height": 218,
+              "mediaKey": "media/373bea3da3fe8eb454e0e56274c511f53fda0ffcba3e0bac338aa60efb05138c.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "questionNumber": 92,
+      "orderIndex": 91,
+      "mondaiType": "utterance",
+      "groupId": "9b61fefe-1243-486d-a5fa-3339a8318571",
+      "passage": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "image",
+              "alt": "店のドアが開く",
+              "width": 287,
+              "height": 218,
+              "mediaKey": "media/4ec89d3b806f0e75b3e245eb3dc25ad08fd52427b60741b94d5688beefe56291.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "questionNumber": 93,
+      "orderIndex": 92,
+      "mondaiType": "utterance",
+      "groupId": "af78c22a-b90d-4ec8-a514-2f480addb4e5",
+      "passage": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "image",
+              "alt": "パソコンの準備を手伝う",
+              "width": 288,
+              "height": 218,
+              "mediaKey": "media/be6a20ca288911d8c94ef23b6499d4d27fbcc0a9e9f53e35e195e53ddd878bf3.png"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
