@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, CheckCircle2, ChevronDown, ChevronUp, Download, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Download, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
@@ -627,12 +627,6 @@ export function NotebookView({
                       key={eg.questionId || idx}
                     >
                       <div className="flex flex-wrap items-center gap-2 mb-2.5">
-                        {isSaved && (
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
-                            <CheckCircle2 className="size-3.5" aria-hidden="true" />
-                            Đã lưu từ câu hỏi này
-                          </span>
-                        )}
                         {eg.examTitle && (
                           <Badge variant="primary">
                             {eg.examTitle}
