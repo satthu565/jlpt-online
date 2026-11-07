@@ -28,6 +28,7 @@ export default function PlannerPage(): React.JSX.Element {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isUnauthorized, setIsUnauthorized] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const loadPlannerData = useCallback(async () => {
     setLoading(true);
@@ -37,15 +38,22 @@ export default function PlannerPage(): React.JSX.Element {
       const res: TodaySessionResponse = await defaultPlannerClient.getTodaySession();
 
       let activePlan: StudyPlan | null = null;
-      if (res?.plan) {
+      if (res?.plan && res.plan.status !== 'archived') {
         activePlan = res.plan;
-      } else {
+      } else if (!res?.plan) {
         const foundPlanId =
           res?.sessions?.[0]?.planId ||
           (typeof window !== 'undefined' ? localStorage.getItem(ACTIVE_PLAN_STORAGE_KEY) : null);
         if (foundPlanId) {
           try {
-            activePlan = await defaultPlannerClient.getStudyPlan(foundPlanId);
+            const fetched = await defaultPlannerClient.getStudyPlan(foundPlanId);
+            if (fetched && fetched.status !== 'archived') {
+              activePlan = fetched;
+            } else {
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem(ACTIVE_PLAN_STORAGE_KEY);
+              }
+            }
           } catch {
             if (typeof window !== 'undefined') {
               localStorage.removeItem(ACTIVE_PLAN_STORAGE_KEY);
@@ -61,19 +69,24 @@ export default function PlannerPage(): React.JSX.Element {
         }
       } else {
         setPlan(null);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(ACTIVE_PLAN_STORAGE_KEY);
+        }
       }
 
       let sess: StudySession | null = null;
-      if (res?.session) {
-        sess = res.session;
-      } else if (res?.sessions && res.sessions.length > 0) {
-        sess = res.sessions[0]!;
-      } else if (activePlan?.sessions && activePlan.sessions.length > 0) {
-        const todayStr = new Date().toISOString().slice(0, 10);
-        sess = activePlan.sessions.find((s) => s.scheduledDate === todayStr) || activePlan.sessions[0]!;
+      if (activePlan) {
+        if (res?.session) {
+          sess = res.session;
+        } else if (res?.sessions && res.sessions.length > 0) {
+          sess = res.sessions[0]!;
+        } else if (activePlan.sessions && activePlan.sessions.length > 0) {
+          const todayStr = new Date().toISOString().slice(0, 10);
+          sess = activePlan.sessions.find((s) => s.scheduledDate === todayStr) || activePlan.sessions[0]!;
+        }
       }
 
-      if (sess) {
+      if (sess && activePlan) {
         const skill = sess.skill || activePlan?.config?.focusSkills?.[0] || 'vocabulary';
         const sessionType = sess.sessionType || (activePlan?.isFinalSprint ? 'final_sprint' : 'lesson');
         const topic =
@@ -189,16 +202,18 @@ export default function PlannerPage(): React.JSX.Element {
 
   const handleResetPlan = async (planId: string) => {
     setError(null);
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(ACTIVE_PLAN_STORAGE_KEY);
-    }
     try {
       await defaultPlannerClient.archiveStudyPlan(planId);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(ACTIVE_PLAN_STORAGE_KEY);
+      }
+      setPlan(null);
+      setTodaySession(null);
+      setSuccessMessage(t('planner.reset.success'));
     } catch (archiveErr) {
-      console.warn('Archive study plan returned:', archiveErr);
+      const msg = archiveErr instanceof Error ? archiveErr.message : String(archiveErr);
+      setError(msg || 'Không thể đặt lại kế hoạch học tập.');
     }
-    setPlan(null);
-    setTodaySession(null);
   };
 
   const handleReplan = async (planId: string, reason?: string) => {
@@ -237,6 +252,14 @@ export default function PlannerPage(): React.JSX.Element {
             <Link href="/dang-nhap?redirect=/ke-hoach">
               <Button size="sm" variant="primary">Đăng nhập ngay</Button>
             </Link>
+          </div>
+        </Alert>
+      )}
+
+      {successMessage && (
+        <Alert className="mb-6" variant="success" onClose={() => setSuccessMessage(null)}>
+          <div className="flex justify-between items-center flex-wrap gap-2">
+            <span>{successMessage}</span>
           </div>
         </Alert>
       )}
