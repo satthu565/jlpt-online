@@ -61,7 +61,6 @@ describe('Brand Logo & Mascot Assets (Gokakuya.com & JLPT Online)', () => {
     // Outline icons for each menu item
     expect(html).toContain('lucide-house');
     expect(html).toContain('lucide-file-text');
-    expect(html).toContain('lucide-chart-no-axes-column');
     expect(html).toContain('lucide-notebook-text');
     // "Thêm" dropdown is off by default: its items are plain buttons in the main menu
     expect(html).not.toContain('lucide-ellipsis');
@@ -71,7 +70,9 @@ describe('Brand Logo & Mascot Assets (Gokakuya.com & JLPT Online)', () => {
       expect(html).toContain(`href="${href}"`);
     }
 
-    // "Luyện tập" and "Ngữ pháp" are hidden by default (NEXT_PUBLIC_FEATURE_NAV_*)
+    // "Luyện tập", "Từ vựng" and "Ngữ pháp" are hidden by default (NEXT_PUBLIC_FEATURE_NAV_*)
+    expect(html).not.toContain('lucide-chart-no-axes-column');
+    expect(html).not.toContain('href="/tu-vung"');
     expect(html).not.toContain('lucide-book-open');
     expect(html).not.toContain('lucide-book-text');
     expect(html).not.toContain('href="/luyen-tap"');
