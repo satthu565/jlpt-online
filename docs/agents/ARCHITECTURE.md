@@ -8,7 +8,7 @@
 | Monorepo | pnpm 12.11 workspace, Turborepo 2.11 | `turbo run build/lint/typecheck`; `pnpm test` dùng runner riêng (`apps/api/src/common/utils/monorepo-test-runner.ts`) chạy tuần tự để đỡ tốn RAM |
 | Web học viên (`apps/web`) | Next.js 16.4 (App Router), React 19.3, Tailwind 4.1 | Route tiếng Việt, gom theo nhóm `(exam)`, `(library)`, `(corpus)`… |
 | Admin (`apps/admin`) | Next.js 16.4, cùng bộ giao diện | Chỉ nhân sự đăng nhập được, có 2FA |
-| Giao diện chung (`packages/ui`) | Radix UI + HeroUI styles 3.2 (CSS) + class-variance-authority, icon lucide | Không dùng `@heroui/react` |
+| Giao diện chung (`packages/ui`) | HeroUI React 3.2.6 + HeroUI styles 3.2 (CSS) + Tailwind 4.1, icon lucide | Tất cả đều dùng component HeroUI cho đồng bộ (chỉ thị chủ dự án, 07/11/2026) |
 | API (`apps/api`) | NestJS 12 trên Fastify 5 | Tiền tố `/api/v1`, cổng 4000 |
 | ORM | Drizzle 0.45 | Schema ở `apps/api/src/db/schema.ts`, migration SQL viết tay |
 | Database | PostgreSQL 17 | Ảnh docker riêng `jlpt-postgres` |
