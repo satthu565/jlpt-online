@@ -198,7 +198,7 @@ describe('E2E Exam & Audio Listening Suite (N03)', () => {
     const flat = flattenExamQuestions(SAMPLE_N5_EXAM_SNAPSHOT);
     const question = flat[0]!;
 
-    it('[EXAM-23] ExamToolbar renders font size zoom options (A-, A, A+, A++)', () => {
+    it('[EXAM-23] ExamToolbar renders font size zoom options (A-, 100%, A+, Reset)', () => {
       const html = renderClean(
         <ExamToolbar
           fontSize="base"

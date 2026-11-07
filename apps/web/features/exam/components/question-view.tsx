@@ -47,19 +47,20 @@ export function QuestionView({
   };
 
   // Font size mapping for Japanese text scaling (EXAM-23)
+  const fontSizeKey = (fontSize && ['sm', 'base', 'lg', 'xl'].includes(fontSize) ? fontSize : 'base') as 'sm' | 'base' | 'lg' | 'xl';
   const stemFontSizeClass = {
     sm: 'text-base',
     base: 'text-lg',
     lg: 'text-xl',
     xl: 'text-2xl',
-  }[fontSize];
+  }[fontSizeKey];
 
   const optionFontSizeClass = {
     sm: 'text-sm',
     base: 'text-base',
     lg: 'text-lg',
     xl: 'text-xl',
-  }[fontSize];
+  }[fontSizeKey];
 
   // Illustration images in group media (AUDIO-03)
   const imageMedia = (question.media || []).filter((m: string) =>
