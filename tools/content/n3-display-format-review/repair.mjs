@@ -148,81 +148,101 @@ if (mode === 'plan') {
 
     for (const fix of fixes) {
       const idx = group.questions.findIndex(q => q.id === fix.questionId);
-      assert(idx >= 0, `Missing question ${fix.number} in group ${id}`);
-      assert.equal(group.questions[idx].version.version, fix.questionVersion, `Stale question version ${fix.number}`);
-      assert.equal(hash(content(group.questions[idx])), hash(fix.before), `Stale content for question ${fix.number}`);
-      after.questions[idx].stem = structuredClone(fix.after.stem);
-      after.questions[idx].options = structuredClone(fix.after.options);
-      after.questions[idx].correctOption = fix.after.correctOption;
-      after.questions[idx].explanation = structuredClone(fix.after.explanation);
+      assert(idx >= 0, `Question not found in group: ${fix.questionId}`);
+      const q = group.questions[idx];
+      assert.equal(q.version.version, fix.questionVersion);
+      assert.equal(hash(content(q)), hash(fix.before), `Stale Q${fix.number} ${fix.slug}`);
+      Object.assign(after.questions[idx], fix.after);
     }
 
     groups.push({
-      groupId: id,
-      sourceGroupVersion: group.version.version,
+      id,
+      sourceVersion: group.version.version,
       beforeHash: hash(before),
-      afterHash: hash(after),
-      payload: after
+      after,
+      questions: group.questions.map(q => q.id)
     });
   }
 
-  save(planPath, {
-    plannedAt: new Date().toISOString(),
-    manifestSha256: hash(manifest),
-    exams,
-    groups
-  });
-  console.log(`Plan saved to ${planPath}: ${exams.length} exams, ${groups.length} groups.`);
-}
-
-if (mode === 'apply') {
-  assert(fs.existsSync(planPath), 'Plan required');
-  assert(!fs.existsSync(journalPath), 'Journal already exists');
+  const plan = { manifestHash: hash(manifest), groups, exams };
+  save(planPath, plan);
+  console.log(JSON.stringify({ mode, groups: groups.length, exams: exams.length, planHash: hash(plan) }));
+} else {
   const plan = JSON.parse(fs.readFileSync(planPath, 'utf8'));
-  assert.equal(plan.manifestSha256, hash(manifest), 'Manifest tampered');
+  assert.equal(plan.manifestHash, hash(manifest));
+  const journal = fs.existsSync(journalPath) ? JSON.parse(fs.readFileSync(journalPath, 'utf8')) : { planHash: hash(plan), groups: {}, exams: {} };
+  assert.equal(journal.planHash, hash(plan));
 
-  const reviewer = await login('reviewer');
-  const publisher = await login('publisher');
+  if (mode === 'apply') {
+    assert(process.env.N3_FMT_REPAIR_CI_COMMIT, 'CI commit required');
+    assert.equal(process.env.N3_FMT_REPAIR_CI_COMMIT, process.env.N3_FMT_REPAIR_EXPECTED_COMMIT);
+    const backup = process.env.N3_FMT_REPAIR_BACKUP;
+    assert(backup && fs.statSync(backup).size > 1048576, 'Valid backup dump required');
+    assert.equal(crypto.createHash('sha256').update(fs.readFileSync(backup)).digest('hex'), process.env.N3_FMT_REPAIR_BACKUP_SHA256);
 
-  const journal = { appliedAt: new Date().toISOString(), groups: {}, exams: {} };
+    for (const item of plan.groups) {
+      if (!journal.groups[item.id]) {
+        const g = await groupGet(item.id);
+        assert.equal(g.version.version, item.sourceVersion);
+        assert.equal(hash(dto(g)), item.beforeHash);
+      }
+    }
 
-  for (const item of plan.groups) {
-    console.log(`Updating group ${item.groupId}...`);
-    const created = await raw('POST', `/api/v1/admin/groups/${item.groupId}/versions`, item.payload, editor);
-    assert(created.version > item.sourceGroupVersion);
+    const reviewer = await login('reviewer');
+    const publisher = await login('publisher');
 
-    console.log(`Submitting group version ${created.version}...`);
-    await raw('POST', `/api/v1/admin/groups/${item.groupId}/versions/${created.version}/submit`, {}, editor);
+    for (const item of plan.groups) {
+      if (journal.groups[item.id]) continue;
+      const current = await groupGet(item.id);
+      assert.equal(current.version.version, item.sourceVersion);
+      assert.equal(hash(dto(current)), item.beforeHash);
 
-    console.log(`Approving group version ${created.version}...`);
-    await raw('POST', `/api/v1/admin/groups/${item.groupId}/versions/${created.version}/review`, { decision: 'approved', notes: 'N3 display format fix' }, reviewer);
+      const result = await raw('PATCH', `/api/v1/admin/groups/${item.id}`, item.after, editor);
+      const version = result.version?.version ?? result.version;
+      assert.equal(version, item.sourceVersion + 1);
 
-    journal.groups[item.groupId] = created.version;
+      await raw('POST', `/api/v1/admin/groups/${item.id}/submit-review`, { expectedVersion: version }, editor);
+      await raw('POST', `/api/v1/admin/groups/${item.id}/reviews`, {
+        decision: 'approved',
+        expectedVersion: version,
+        comment: 'Owner-authorized N3 display and format repair; self-reviewed 2026-11-08.'
+      }, reviewer);
+
+      const checked = await groupGet(item.id);
+      assert.equal(checked.version.status, 'approved');
+      assert.equal(hash(dto(checked)), hash(item.after));
+
+      journal.groups[item.id] = version;
+      save(journalPath, journal);
+      console.log(`Approved group ${Object.keys(journal.groups).length}/${plan.groups.length}`);
+    }
+
+    for (const exam of plan.exams) {
+      if (journal.exams[exam.id]) continue;
+      const current = await examGet(exam.slug);
+      assert.equal(current.publishedVersion, exam.sourceVersion);
+
+      const result = await raw('POST', `/api/v1/admin/exams/${exam.id}/publish`, {}, publisher);
+      assert.equal(result.version, exam.sourceVersion + 1);
+      assert.equal(result.totalQuestions, exam.totalQuestions);
+
+      journal.exams[exam.id] = result.version;
+      save(journalPath, journal);
+      console.log(`${exam.slug} published v${result.version}`);
+    }
+  } else {
+    // mode === 'verify'
+    for (const item of plan.groups) {
+      const g = await groupGet(item.id);
+      assert.equal(g.version.version, item.sourceVersion + 1);
+      assert.equal(g.version.status, 'approved');
+      assert.equal(hash(dto(g)), hash(item.after));
+    }
+    for (const exam of plan.exams) {
+      const e = await examGet(exam.slug);
+      assert.equal(e.publishedVersion, journal.exams[exam.id]);
+      assert.equal(e.totalQuestions, exam.totalQuestions);
+    }
+    console.log(JSON.stringify({ mode, verified: true, groups: plan.groups.length, exams: plan.exams.length }));
   }
-
-  for (const ex of plan.exams) {
-    console.log(`Publishing exam ${ex.slug}...`);
-    const pub = await raw('POST', `/api/v1/admin/exams/${ex.id}/publish`, { changeSummary: 'N3 display format and spacing fix' }, publisher);
-    assert(pub.publishedVersion > ex.sourceVersion);
-    journal.exams[ex.id] = pub.publishedVersion;
-    console.log(`Exam ${ex.slug} published at v${pub.publishedVersion}`);
-  }
-
-  save(journalPath, journal);
-  console.log(`Apply completed and journal saved to ${journalPath}`);
-}
-
-if (mode === 'verify') {
-  assert(fs.existsSync(journalPath), 'Journal required');
-  const journal = JSON.parse(fs.readFileSync(journalPath, 'utf8'));
-  for (const [id, ver] of Object.entries(journal.groups)) {
-    const g = await groupGet(id);
-    assert.equal(g.version.version, ver);
-    assert.equal(g.version.status, 'approved');
-  }
-  for (const [id, ver] of Object.entries(journal.exams)) {
-    const exam = await raw('GET', `/api/v1/admin/exams/${id}`, undefined, editor);
-    assert.equal(exam.publishedVersion, ver);
-  }
-  console.log('All API entities verified approved and published.');
 }
