@@ -304,9 +304,7 @@ export function NotebookView({
       setMoreLoaded(true);
     } catch (error) {
       const key = error instanceof LearningClientError
-        ? error.status === 403 && error.message.includes('active real exam session')
-          ? 'activeExamBlocked'
-          : error.status === 403 ? 'accessDenied'
+        ? error.status === 403 ? 'accessDenied'
           : error.status === 401 ? 'signInRequired'
           : error.status === 429 ? 'rateLimited'
           : 'loadMoreError'

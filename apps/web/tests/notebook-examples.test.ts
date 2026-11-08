@@ -11,11 +11,11 @@ const item: NotebookItem = {
 describe('additional notebook examples', () => {
   it('uses authentication and preserves nested API errors without falling back', async () => {
     const fetchFn = vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify({ error: {
-      code: 'FORBIDDEN', message: 'Question viewing is strictly blocked during an active real exam session.',
+      code: 'FORBIDDEN', message: 'Access denied.',
     } }), { status: 403 }));
     const client = new LearningClient({ baseUrl: 'https://example.test/api/v1', fetchFn, authToken: 'test-token' });
     await expect(loadMoreNotebookExamples(item, client)).rejects.toMatchObject({
-      status: 403, code: 'FORBIDDEN', message: expect.stringContaining('active real exam session'),
+      status: 403, code: 'FORBIDDEN', message: 'Access denied.',
     });
     expect(fetchFn).toHaveBeenCalledTimes(1);
     expect(fetchFn).toHaveBeenCalledWith(expect.stringContaining(encodeURIComponent('早い')), expect.objectContaining({

@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.use({ actionTimeout: 10000, reducedMotion: 'reduce' });
 
 for (const width of [390, 1366]) {
-  test(`additional examples explain active-exam blocking and allow retry at ${width}px`, async ({ page }, testInfo) => {
+  test(`additional examples report access errors and allow retry at ${width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 900 });
     const item = {
       id: 'saved', userId: 'user', kind: 'vocab', term: '早い', meaning: 'sớm',
@@ -17,7 +17,7 @@ for (const width of [390, 1366]) {
       if (path.includes('/vocabulary/')) {
         calls++;
         if (blocked) {
-          await route.fulfill({ status: 403, json: { error: { code: 'FORBIDDEN', message: 'Question viewing is strictly blocked during an active real exam session.' } } });
+          await route.fulfill({ status: 403, json: { error: { code: 'FORBIDDEN', message: 'Access denied.' } } });
         } else {
           await route.fulfill({ json: [{ id: 'other', examTitle: 'JLPT N5 7/2025', level: 'N5', skill: 'vocabulary', stemText: '朝が早い。' }] });
         }
@@ -34,7 +34,7 @@ for (const width of [390, 1366]) {
     await page.getByTestId('notebook-item-saved').getByRole('button', { name: 'Ví dụ trong đề' }).click();
     const moreButton = page.getByRole('button', { name: 'Xem thêm ví dụ trong các đề khác' });
     await moreButton.click();
-    await expect(page.getByText('Bạn đang có lượt thi thật chưa kết thúc.', { exact: false })).toBeVisible();
+    await expect(page.getByText('Bạn chưa được phép xem thêm câu hỏi.', { exact: false })).toBeVisible();
     await expect(page.getByText('Không tìm thấy thêm câu hỏi', { exact: false })).toHaveCount(0);
     await expect(moreButton).toBeEnabled();
     expect(calls).toBe(1);
@@ -43,7 +43,7 @@ for (const width of [390, 1366]) {
     await moreButton.click();
     await expect(page.getByText('朝が早い。', { exact: true })).toBeVisible();
     await expect(page.getByText('Đã tải thêm 1 câu hỏi', { exact: false })).toBeVisible();
-    await expect(page.getByText('Bạn đang có lượt thi thật chưa kết thúc.', { exact: false })).toHaveCount(0);
+    await expect(page.getByText('Bạn chưa được phép xem thêm câu hỏi.', { exact: false })).toHaveCount(0);
     expect(calls).toBe(2);
     await page.screenshot({ path: testInfo.outputPath('loaded.png'), fullPage: true });
   });
