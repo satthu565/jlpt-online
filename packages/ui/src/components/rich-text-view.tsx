@@ -12,6 +12,90 @@ export interface RichTextViewProps {
 }
 
 /**
+ * Normalizes rich text segments for clean rendering:
+ * - Collapses excessive fullwidth space chains (>= 3) in reading passages.
+ * - Normalizes pure whitespace between blanks and stars (Mondai 7) so standard component margins govern spacing.
+ * - Normalizes trailing/leading whitespace adjacent to blanks and stars.
+ * - Cleans up whitespace immediately preceding Japanese punctuation (。、！？).
+ * - Detects and cleans up surrounding parentheses around blanks to prevent double-parentheses like `（ (   ) ）`.
+ */
+export function preprocessSegments(segments: RichTextSegment[]): {
+  normalized: RichTextSegment[];
+  blanksWithOuterParens: Set<number>;
+} {
+  const blanksWithOuterParens = new Set<number>();
+  if (!Array.isArray(segments) || segments.length === 0) {
+    return { normalized: [], blanksWithOuterParens };
+  }
+
+  // Pass 1: Clone segments, collapse excessive fullwidth space chains (>= 3),
+  // and remove spaces right before Japanese punctuation (。、！？)
+  const segs: RichTextSegment[] = segments.map((s) => {
+    if (s.t === 'text') {
+      let txt = s.text.replace(/\u3000{3,}/g, '\u3000\u3000');
+      txt = txt.replace(/[ \t\u3000]+([。、！？])/g, '$1');
+      return { ...s, text: txt };
+    }
+    return { ...s };
+  });
+
+  // Pass 2: Clean up pure whitespace or edge whitespace around blanks & stars (Mondai 7 spacing)
+  // Use non-backtracking character classes [ \t\u3000] to satisfy CodeQL ReDoS checks
+  for (let i = 0; i < segs.length; i++) {
+    const s = segs[i]!;
+    if (s.t === 'text') {
+      const prev = i > 0 ? segs[i - 1]!.t : null;
+      const next = i < segs.length - 1 ? segs[i + 1]!.t : null;
+
+      // Pure whitespace between blank/star (e.g. Mondai 7) -> collapse so margins govern spacing
+      if (/^[ \t\u3000]+$/.test(s.text)) {
+        if ((prev === 'blank' || prev === 'star') && (next === 'blank' || next === 'star')) {
+          s.text = '';
+        }
+      }
+
+      // Trailing whitespace right before blank or star
+      if (next === 'blank' || next === 'star') {
+        s.text = s.text.replace(/[ \t\u3000]+$/, '');
+      }
+
+      // Leading whitespace right after blank or star
+      if (prev === 'blank' || prev === 'star') {
+        s.text = s.text.replace(/^[ \t\u3000]+/, '');
+      }
+    }
+  }
+
+  // Pass 3: Detect and normalize outer parentheses around blanks
+  for (let i = 0; i < segs.length; i++) {
+    const s = segs[i]!;
+    if (s.t === 'blank') {
+      const prev = i > 0 ? segs[i - 1] : null;
+      const next = i < segs.length - 1 ? segs[i + 1] : null;
+
+      const prevTxt = prev && prev.t === 'text' ? prev.text : '';
+      const nextTxt = next && next.t === 'text' ? next.text : '';
+
+      const hasPrevParen = /[（(][ \t\u3000]*$/.test(prevTxt);
+      const hasNextParen = /^[ \t\u3000]*[）)]/.test(nextTxt);
+
+      if (hasPrevParen && hasNextParen) {
+        blanksWithOuterParens.add(i);
+        (s as { hasOuterParens?: boolean }).hasOuterParens = true;
+        if (prev && prev.t === 'text') {
+          prev.text = prev.text.replace(/([（(])[ \t\u3000]+$/, '$1');
+        }
+        if (next && next.t === 'text') {
+          next.text = next.text.replace(/^[ \t\u3000]+([）)])/, '$1');
+        }
+      }
+    }
+  }
+
+  return { normalized: segs, blanksWithOuterParens };
+}
+
+/**
  * Sanitizes URLs to prevent XSS attacks (e.g. javascript:, vbscript:, data:text/html)
  */
 export function sanitizeUrl(url?: string): string {
@@ -71,6 +155,8 @@ export function RichTextView({
     return <span className={className} style={style} />;
   }
 
+  const { normalized, blanksWithOuterParens } = preprocessSegments(segments);
+
   return (
     <span
       className={`jlpt-rich-text font-japanese ${className}`}
@@ -81,8 +167,7 @@ export function RichTextView({
         ...style,
       }}
     >
-      {segments.map((seg, idx) => {
-        // Handle both 't' (schema) and 'type' (legacy fixtures)
+      {normalized.map((seg, idx) => {
         const type = seg.t || (seg as { type?: string }).type;
 
         switch (type) {
@@ -153,6 +238,17 @@ export function RichTextView({
 
           case 'blank': {
             const label = 'label' in seg ? seg.label?.trim() : undefined;
+            const hasOuterParens = Boolean(
+              (seg as { hasOuterParens?: boolean }).hasOuterParens || blanksWithOuterParens.has(idx),
+            );
+
+            let blankContent: React.ReactNode;
+            if (hasOuterParens) {
+              blankContent = label || <>&nbsp;&nbsp;&nbsp;</>;
+            } else {
+              blankContent = label || <>( &nbsp; )</>;
+            }
+
             return (
               <span
                 key={idx}
@@ -162,13 +258,13 @@ export function RichTextView({
                 style={{
                   display: 'inline-block',
                   borderBottom: '2px solid currentColor',
-                  minWidth: '2.5rem',
+                  minWidth: label ? '2rem' : '2.5rem',
                   textAlign: 'center',
                   margin: '0 0.25rem',
                   padding: '0 0.25rem',
                 }}
               >
-                {label || <>( &nbsp; )</>}
+                {blankContent}
               </span>
             );
           }

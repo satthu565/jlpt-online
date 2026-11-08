@@ -4,7 +4,7 @@ import React, { useRef, useState } from 'react';
 import type { RichBlock, RichText } from '@jlpt/schema';
 import { Button } from '@jlpt/ui/components/exam-controls';
 import { Modal } from '@jlpt/ui/components/exam-controls';
-import { sanitizeUrl } from '@jlpt/ui/components/rich-text-view';
+import { sanitizeUrl, preprocessSegments } from '@jlpt/ui/components/rich-text-view';
 import { RichTableView } from '@jlpt/ui/components/rich-block-view';
 import { useI18n } from '../../../lib/i18n';
 import type { TextMark } from '../hooks/use-paper-workspace';
@@ -73,6 +73,7 @@ export function MarkedText({ id, segments, marks, onMark, onClear, showFurigana,
   const { t, locale } = useI18n();
   const ref = useRef<HTMLDivElement>(null);
   const [selection, setSelection] = useState<TextMark | null>(null);
+  const { normalized } = preprocessSegments(segments);
   const capture = () => {
     const selected = window.getSelection();
     const container = ref.current;
@@ -85,7 +86,7 @@ export function MarkedText({ id, segments, marks, onMark, onClear, showFurigana,
   };
   return <div className="paper-markable">
     <div ref={ref} data-paper-text={id} className={showFurigana ? '' : 'paper-no-ruby'} onPointerUp={capture} onKeyUp={capture}>
-      {markedSegments(segments, marks)}
+      {markedSegments(normalized, marks)}
     </div>
     {!disabled && (selection || marks.length > 0) && <div className="paper-mark-tools" lang={locale}>
       {selection && <Button size="sm" variant="outline" onPointerDown={(event) => event.preventDefault()} onClick={() => { onMark(id, selection); setSelection(null); window.getSelection()?.removeAllRanges(); }}>{t('paperExam.highlight')}</Button>}
