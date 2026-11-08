@@ -62,6 +62,34 @@ describe('Attempt Module - Secure Exam API & Race Handling (N02)', () => {
   let guestTrialExamId: string;
   let resumeUserToken: string;
 
+  it('paginates attempt history without repeats, including equal timestamps', async () => {
+    const client = await getOrCreateDbClient();
+    const ownerId = generateUuidV7();
+    const token = `history-pagination-${ownerId}`;
+    await client.db.insert(schema.users).values({ id: ownerId, email: `${ownerId}@example.test`, role: 'student', emailVerified: true });
+    await client.db.insert(schema.sessions).values({ id: generateUuidV7(), userId: ownerId, token, expiresAt: new Date(Date.now() + 86400000) });
+    const ids = Array.from({ length: 5 }, () => generateUuidV7());
+    const startedAt = new Date();
+    await client.db.insert(schema.examAttempts).values(ids.map((id) => ({
+      id, userId: ownerId, examId: standardExamId, examVersion: 1, mode: 'practice' as const,
+      status: 'submitted' as const, currentSection: 0, leaseId: generateUuidV7(), attemptMonth: '2026-10-01', startedAt,
+    })));
+    const seen: string[] = [];
+    let cursor: string | null = null;
+    for (let page = 0; page < 3; page++) {
+      const response = await app.inject({ method: 'GET', url: `/api/v1/me/attempts?limit=2${cursor ? `&cursor=${cursor}` : ''}`, headers: { authorization: `Bearer ${token}` } });
+      expect(response.statusCode).toBe(200);
+      const data: { items: Array<{ id: string }>; nextCursor: string | null } = response.json();
+      seen.push(...data.items.map((item) => item.id));
+      cursor = data.nextCursor;
+    }
+    expect(cursor).toBeNull();
+    expect(seen).toHaveLength(5);
+    expect(new Set(seen)).toEqual(new Set(ids));
+    const otherOwnerCursor = await app.inject({ method: 'GET', url: `/api/v1/me/attempts?cursor=${ids[0]}`, headers: { authorization: `Bearer ${otherUserToken}` } });
+    expect(otherOwnerCursor.statusCode).toBe(400);
+  });
+
   beforeAll(async () => {
     const client = await getOrCreateDbClient();
 

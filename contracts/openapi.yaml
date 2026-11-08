@@ -11806,11 +11806,14 @@ paths:
         - in: query
           name: cursor
           schema:
+            format: uuid
             type: string
         - in: query
           name: limit
           schema:
             default: 20
+            maximum: 100
+            minimum: 1
             type: integer
       responses:
         '200':
@@ -11858,6 +11861,21 @@ paths:
                   - items
                 type: object
           description: Danh sách bài thi
+        '400':
+          content:
+            application/json:
+              examples:
+                default:
+                  summary: VALIDATION_ERROR
+                  value:
+                    error:
+                      code: VALIDATION_ERROR
+                      details: {}
+                      message: Dữ liệu gửi lên không đúng định dạng.
+                      requestId: req_01J00000000000000000000000
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+          description: Validation error
         '401':
           content:
             application/json:

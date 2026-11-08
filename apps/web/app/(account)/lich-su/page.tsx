@@ -34,8 +34,10 @@ export default function ExamHistoryPage(): React.JSX.Element {
       setError(null);
       setIsUnauthorized(false);
 
+      const sourceQuery = new URLSearchParams(window.location.search);
+      const fromNotebook = ['sourceAttemptId', 'sourceExamId', 'sourceExam'].some((key) => sourceQuery.has(key));
       const [attemptsRes, examsRes] = await Promise.all([
-        client.listMyAttempts(),
+        client.listMyAttempts(undefined, fromNotebook ? 100 : 20),
         client.getExams().catch(() => ({ items: [] })),
       ]);
 
@@ -45,8 +47,11 @@ export default function ExamHistoryPage(): React.JSX.Element {
         let cursor = attemptsRes.nextCursor;
         while (cursor && !seen.has(cursor) && (!params.get('sourceAttemptId') || !attemptsRes.items.some((attempt) => attempt.id === params.get('sourceAttemptId')))) {
           seen.add(cursor);
-          const page = await client.listMyAttempts(cursor);
-          attemptsRes.items.push(...page.items);
+          const page = await client.listMyAttempts(cursor, 100);
+          const ids = new Set(attemptsRes.items.map((attempt) => attempt.id));
+          const freshItems = page.items.filter((attempt) => !ids.has(attempt.id));
+          if (freshItems.length === 0) break;
+          attemptsRes.items.push(...freshItems);
           cursor = page.nextCursor;
         }
       }

@@ -3,6 +3,7 @@
 import { AlertTriangle, Hourglass, Lock } from 'lucide-react';
 import React, { use, useState, useEffect } from 'react';
 import { ExamApiClient, ExamApiError } from '../../../../features/exam/api/exam-api';
+import { getSourceAttemptDestination } from '../../../../features/learning/services/notebook-source-link';
 import { ReviewView, type AttemptReviewData } from '../../../../features/results';
 import type { LearnerExplanation } from '../../../../features/explanations/types';
 import { Alert } from '@jlpt/ui/components/alert';
@@ -90,6 +91,13 @@ export default function ResultReviewPage({ params }: ResultReviewPageProps): Rea
         if (err instanceof ExamApiError) {
           // Acceptance 4 & Contract A9: Handle ATTEMPT_NOT_SUBMITTED (409) & LEASE_INVALID
           if (err.code === 'ATTEMPT_NOT_SUBMITTED') {
+            const sourceParams = new URLSearchParams(window.location.search);
+            if (sourceParams.has('questionId') || sourceParams.has('questionNumber')) {
+              const destination = getSourceAttemptDestination({ id: attemptId, status: 'in_progress' }, sourceParams);
+              if (destination) window.location.replace(destination);
+              return;
+            }
+
             setErrorInfo({
               code: 'ATTEMPT_NOT_SUBMITTED',
               message:

@@ -583,11 +583,11 @@ export const endpointsData: OpenApiPaths = {
       summary: 'Lịch sử lượt thi của học viên',
       tags: ['User'],
       parameters: [
-        { name: 'cursor', in: 'query', schema: { type: 'string' } },
+        { name: 'cursor', in: 'query', schema: { type: 'string', format: 'uuid' } },
         {
           name: 'limit',
           in: 'query',
-          schema: { type: 'integer', default: 20 },
+          schema: { type: 'integer', default: 20, minimum: 1, maximum: 100 },
         },
       ],
       responses: {
@@ -614,6 +614,7 @@ export const endpointsData: OpenApiPaths = {
             nextCursor: { type: ['string', 'null'] },
           },
         }),
+        '400': standardErrors.badRequest,
         '401': standardErrors.unauthorized,
       },
     },

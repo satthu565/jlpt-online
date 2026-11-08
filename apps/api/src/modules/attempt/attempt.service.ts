@@ -10,10 +10,11 @@ import {
   Logger,
   Optional,
 } from '@nestjs/common';
-import { eq, and, sql, desc, isNull } from 'drizzle-orm';
+import { eq, and, sql, desc, isNull, lt, or } from 'drizzle-orm';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
 import * as schema from '../../db/schema.js';
+import { isUuid } from '../../common/pipes/uuid-param.pipe.js';
 import { generateUuidV7 } from '../../common/utils/uuid.js';
 import { ScoringService } from '../scoring/scoring.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
@@ -913,12 +914,28 @@ export class AttemptService {
    * Lists attempts for current authenticated user.
    */
   async listUserAttempts(userId: string, cursor?: string, limit = 20) {
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+      throw new BadRequestException('History limit must be between 1 and 100.');
+    }
     const db = this.dbClient.db;
+    const conditions = [eq(schema.examAttempts.userId, userId)];
+    if (cursor) {
+      if (!isUuid(cursor)) throw new BadRequestException('Invalid history cursor.');
+      const [anchor] = await db.select({ id: schema.examAttempts.id, startedAt: schema.examAttempts.startedAt })
+        .from(schema.examAttempts)
+        .where(and(eq(schema.examAttempts.id, cursor), eq(schema.examAttempts.userId, userId)))
+        .limit(1);
+      if (!anchor) throw new BadRequestException('Invalid history cursor.');
+      conditions.push(or(
+        lt(schema.examAttempts.startedAt, anchor.startedAt),
+        and(eq(schema.examAttempts.startedAt, anchor.startedAt), lt(schema.examAttempts.id, anchor.id)),
+      )!);
+    }
     const items = await db
       .select()
       .from(schema.examAttempts)
-      .where(eq(schema.examAttempts.userId, userId))
-      .orderBy(desc(schema.examAttempts.startedAt))
+      .where(and(...conditions))
+      .orderBy(desc(schema.examAttempts.startedAt), desc(schema.examAttempts.id))
       .limit(limit + 1);
 
     const hasNext = items.length > limit;

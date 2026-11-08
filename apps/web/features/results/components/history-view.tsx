@@ -2,6 +2,7 @@
 
 import { ScrollText } from 'lucide-react';
 import React from 'react';
+import { getSourceAttemptDestination, resolveNotebookAttempt } from '../../learning/services/notebook-source-link';
 import type { ExamHistoryItem } from '../types';
 import { Card } from '@jlpt/ui/components/card';
 import { Badge } from '@jlpt/ui/components/badge';
@@ -34,15 +35,11 @@ export function HistoryView({
   }
 
   React.useEffect(() => {
-    const attempt = sourceAttemptId ? historyItems.find((item) => item.id === sourceAttemptId)
-      : (examId || examTitle) && shownItems.length === 1 ? shownItems[0] : undefined;
-    if (attempt?.status !== 'submitted') return;
-    const target = new URLSearchParams();
-    for (const key of ['questionId', 'questionNumber']) {
-      const value = sourceParams?.get(key);
-      if (value) target.set(key, value);
-    }
-    window.location.replace(`/ket-qua/${encodeURIComponent(attempt.id)}${target.size ? `?${target}` : ''}`);
+    const attempt = sourceAttemptId || examId || examTitle
+      ? resolveNotebookAttempt(shownItems, sourceAttemptId, sourceParams?.get('sourceSavedAt')) : undefined;
+    if (!attempt || !sourceParams) return;
+    const destination = getSourceAttemptDestination(attempt, sourceParams);
+    if (destination) window.location.replace(destination);
   }, [historyItems, sourceAttemptId, sourceParams, examId, examTitle, shownItems]);
 
   return (
