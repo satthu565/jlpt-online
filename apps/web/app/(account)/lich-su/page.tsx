@@ -39,6 +39,18 @@ export default function ExamHistoryPage(): React.JSX.Element {
         client.getExams().catch(() => ({ items: [] })),
       ]);
 
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('sourceAttemptId') || params.has('sourceExamId') || params.has('sourceExam')) {
+        const seen = new Set<string>();
+        let cursor = attemptsRes.nextCursor;
+        while (cursor && !seen.has(cursor) && (!params.get('sourceAttemptId') || !attemptsRes.items.some((attempt) => attempt.id === params.get('sourceAttemptId')))) {
+          seen.add(cursor);
+          const page = await client.listMyAttempts(cursor);
+          attemptsRes.items.push(...page.items);
+          cursor = page.nextCursor;
+        }
+      }
+
       const examsMap = new Map(examsRes.items.map((e) => [e.id, e]));
 
       const mapped: ExamHistoryItem[] = attemptsRes.items.map((item) => {

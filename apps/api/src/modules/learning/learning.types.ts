@@ -15,6 +15,8 @@ export interface NotebookItemDto {
   mastered: boolean;
   tags: string[];
   sourceExam?: string;
+  sourceAttemptId?: string;
+  sourceExamId?: string;
   sourceQnum?: number | string;
   sourceQid?: string;
   sourceSentence?: string;

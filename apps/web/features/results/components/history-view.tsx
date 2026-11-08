@@ -7,6 +7,8 @@ import { Card } from '@jlpt/ui/components/card';
 import { Badge } from '@jlpt/ui/components/badge';
 import { Button } from '@jlpt/ui/components/button';
 
+const normalizedTitle = (value: string) => value.trim().toLowerCase().replace(/^jlpt\s*/, '');
+
 export interface HistoryViewProps {
   historyItems: ExamHistoryItem[];
   className?: string;
@@ -18,6 +20,31 @@ export function HistoryView({
   className = '',
   isGuest = false,
 }: HistoryViewProps): React.JSX.Element {
+  const [sourceParams, setSourceParams] = React.useState<URLSearchParams | null>(null);
+  React.useEffect(() => { setSourceParams(new URLSearchParams(window.location.search)); }, []);
+  const sourceAttemptId = sourceParams?.get('sourceAttemptId');
+  const examId = sourceParams?.get('sourceExamId');
+  const examTitle = sourceParams?.get('sourceExam');
+  const shownItems = React.useMemo(() => historyItems.filter((item) => sourceAttemptId ? item.id === sourceAttemptId : examId ? item.examId === examId
+    : examTitle ? normalizedTitle(item.examTitle ?? '') === normalizedTitle(examTitle) : true), [historyItems, sourceAttemptId, examId, examTitle]);
+  const questionParams = new URLSearchParams();
+  for (const key of ['questionId', 'questionNumber']) {
+    const value = sourceParams?.get(key);
+    if (value) questionParams.set(key, value);
+  }
+
+  React.useEffect(() => {
+    const attempt = sourceAttemptId ? historyItems.find((item) => item.id === sourceAttemptId)
+      : (examId || examTitle) && shownItems.length === 1 ? shownItems[0] : undefined;
+    if (attempt?.status !== 'submitted') return;
+    const target = new URLSearchParams();
+    for (const key of ['questionId', 'questionNumber']) {
+      const value = sourceParams?.get(key);
+      if (value) target.set(key, value);
+    }
+    window.location.replace(`/ket-qua/${encodeURIComponent(attempt.id)}${target.size ? `?${target}` : ''}`);
+  }, [historyItems, sourceAttemptId, sourceParams, examId, examTitle, shownItems]);
+
   return (
     <div className={`jlpt-history-view space-y-6 ${className}`}>
       <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
@@ -37,7 +64,7 @@ export function HistoryView({
         </a>
       </div>
 
-      {historyItems.length === 0 ? (
+      {shownItems.length === 0 ? (
         <Card className="flex flex-col items-center justify-center text-center py-16 p-8 border border-slate-200 dark:border-slate-800">
           <ScrollText className="mx-auto mb-3 size-10" role="img" aria-label="Biểu tượng lịch sử" />
           {isGuest ? (
@@ -79,7 +106,7 @@ export function HistoryView({
         </Card>
       ) : (
         <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
-          {historyItems.map((item) => {
+          {shownItems.map((item) => {
             const isSubmitted = item.status === 'submitted';
             const isPassed = item.passed;
             const formattedDate = item.submittedAt
@@ -160,13 +187,13 @@ export function HistoryView({
                   </div>
 
                   {isSubmitted ? (
-                    <a href={`/ket-qua/${item.id}`} className="text-decoration-none">
+                    <a href={`/ket-qua/${encodeURIComponent(item.id)}${questionParams.size ? `?${questionParams}` : ''}`} className="text-decoration-none">
                       <Button variant="outline" size="sm">
                         Xem lại bài làm
                       </Button>
                     </a>
                   ) : (
-                    <a href={`/phong-thi?attemptId=${item.id}`} className="text-decoration-none">
+                    <a href={`/phong-thi?attemptId=${encodeURIComponent(item.id)}${questionParams.size ? `&${questionParams}` : ''}`} className="text-decoration-none">
                       <Button variant="primary" size="sm">
                         Tiếp tục làm bài
                       </Button>

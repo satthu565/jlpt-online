@@ -31,6 +31,7 @@ import { CorpusClient } from '../services/corpus-client';
 import type { DictionaryMeaningSectionDto } from '../types';
 
 export interface SelectionLookupContext {
+  attemptId?: string;
   questionId?: string;
   examId?: string;
   examTitle?: string;
@@ -325,6 +326,8 @@ export function SelectionLookupPopover({ state, openInNewTab = true, context }: 
         return;
       }
       const tagsToAdd: string[] = [];
+      if (context?.attemptId) tagsToAdd.push(`source_attempt_id:${context.attemptId}`);
+      if (context?.examId) tagsToAdd.push(`source_exam_id:${context.examId}`);
       const examplesToAdd: string[] = [];
       if (context?.examTitle) tagsToAdd.push(`source_exam:${context.examTitle}`);
       if (context?.questionNumber) tagsToAdd.push(`source_qnum:${context.questionNumber}`);

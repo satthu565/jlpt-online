@@ -117,6 +117,8 @@ export function SelectionGrammarPanel({
         // Create in notebook
         try {
           const tags: string[] = [];
+          if (context?.attemptId) tags.push(`source_attempt_id:${context.attemptId}`);
+          if (context?.examId) tags.push(`source_exam_id:${context.examId}`);
           if (context?.examTitle) tags.push(`source_exam:${context.examTitle}`);
           if (context?.questionNumber !== undefined) tags.push(`source_qnum:${context.questionNumber}`);
           if (context?.questionId) tags.push(`source_qid:${context.questionId}`);

@@ -2,6 +2,8 @@
 
 import { BookOpen, Check, ChevronDown, ChevronUp, Download, ExternalLink, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
 import React, { useState } from 'react';
+import Link from 'next/link';
+import { getNotebookSourceHref } from '../services/notebook-source-link';
 import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
 import { Input } from '@jlpt/ui/components/input';
@@ -481,10 +483,12 @@ export function NotebookView({
                 return (
                   <div className="flex flex-wrap items-center gap-2 border-b border-[var(--border-subtle)] pb-3" data-testid="notebook-source">
                     {source.exam && (
+                      <Link href={getNotebookSourceHref(item)} aria-label={t('notebook.openSource', { exam: source.exam })} className="inline-flex max-w-full rounded-full focus-visible:outline-2 focus-visible:outline-offset-2">
                       <Chip size="lg" color="accent" variant="soft" className="max-w-full">
                         <BookOpen className="size-4 shrink-0" aria-hidden="true" />
                         <Chip.Label className="whitespace-normal break-words">{source.exam}</Chip.Label>
                       </Chip>
+                      </Link>
                     )}
                     {hasQuestion && (
                       <Chip size="lg" color="default" variant="secondary">

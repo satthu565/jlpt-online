@@ -107,6 +107,8 @@ export function ReviewQuestionItem({
   return (
     <article
       id={`review-question-${question.globalIndex}`}
+      data-question-index={question.globalIndex}
+      tabIndex={-1}
       aria-label={`Chi tiết xem lại câu số ${question.number}`}
       data-select-lookup-area="true"
       className={`jlpt-review-question-card bg-white dark:bg-slate-900 rounded-2xl border p-6 shadow-sm transition-all ${

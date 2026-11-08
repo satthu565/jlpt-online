@@ -76,6 +76,8 @@ export class NotebookService {
       mastered: r.mastered,
       tags: userTags,
       sourceExam,
+      sourceAttemptId: tags.find((tag) => tag.startsWith('source_attempt_id:'))?.slice('source_attempt_id:'.length),
+      sourceExamId: tags.find((tag) => tag.startsWith('source_exam_id:'))?.slice('source_exam_id:'.length),
       sourceQnum,
       sourceQid,
       sourceSentence,

@@ -514,6 +514,8 @@ describe('L05: Learning & Notebook Module Tests (VOC-01..18, Acceptance 1 & 4)',
         reading: 'はやい',
         meaning: 'nhanh',
         tags: [
+          'source_attempt_id:original-attempt',
+          'source_exam_id:original-exam',
           'source_exam:JLPT N4 7/2024',
           'source_qnum:2',
           `source_qid:${qId}`,
@@ -522,6 +524,10 @@ describe('L05: Learning & Notebook Module Tests (VOC-01..18, Acceptance 1 & 4)',
       });
 
       const examples = await notebookService.findQuestionExamples(testUserId, item.id);
+      const reloaded = await notebookService.getItem(testUserId, item.id);
+      expect(reloaded.sourceAttemptId).toBe('original-attempt');
+      expect(reloaded.sourceExamId).toBe('original-exam');
+      expect(reloaded.tags.some((tag) => tag.startsWith('source_'))).toBe(false);
       expect(examples.length).toBe(1);
       expect(examples[0]!.isSavedSource).toBe(true);
       expect(examples[0]!.questionId).toBe(qId);

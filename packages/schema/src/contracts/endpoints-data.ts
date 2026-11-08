@@ -1400,6 +1400,8 @@ export const endpointsData: OpenApiPaths = {
                   kind: { type: 'string' },
                   term: { type: 'string' },
                   version: { type: 'integer' },
+                  sourceAttemptId: { type: 'string' },
+                  sourceExamId: { type: 'string' },
                 },
               },
             },
