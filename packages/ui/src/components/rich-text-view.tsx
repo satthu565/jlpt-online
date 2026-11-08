@@ -11,6 +11,76 @@ export interface RichTextViewProps {
   showFurigana?: boolean;
 }
 
+function trimSpacesStart(str: string): string {
+  let start = 0;
+  while (start < str.length && (str[start] === ' ' || str[start] === '\t' || str[start] === '\u3000')) {
+    start++;
+  }
+  return str.slice(start);
+}
+
+function trimSpacesEnd(str: string): string {
+  let end = str.length;
+  while (end > 0 && (str[end - 1] === ' ' || str[end - 1] === '\t' || str[end - 1] === '\u3000')) {
+    end--;
+  }
+  return str.slice(0, end);
+}
+
+function isOnlySpaces(str: string): boolean {
+  if (str.length === 0) return false;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    if (ch !== ' ' && ch !== '\t' && ch !== '\u3000') return false;
+  }
+  return true;
+}
+
+function collapseFullwidthSpaces(str: string): string {
+  let result = '';
+  let count = 0;
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === '\u3000') {
+      count++;
+    } else {
+      if (count >= 3) {
+        result += '\u3000\u3000';
+      } else if (count > 0) {
+        result += '\u3000'.repeat(count);
+      }
+      count = 0;
+      result += str[i];
+    }
+  }
+  if (count >= 3) {
+    result += '\u3000\u3000';
+  } else if (count > 0) {
+    result += '\u3000'.repeat(count);
+  }
+  return result;
+}
+
+function trimSpaceBeforePunctuation(str: string): string {
+  const puncts = new Set(['。', '、', '！', '？']);
+  const chars = Array.from(str);
+  const result: string[] = [];
+  for (let i = 0; i < chars.length; i++) {
+    const ch = chars[i]!;
+    if (puncts.has(ch)) {
+      while (
+        result.length > 0 &&
+        (result[result.length - 1] === ' ' ||
+         result[result.length - 1] === '\t' ||
+         result[result.length - 1] === '\u3000')
+      ) {
+        result.pop();
+      }
+    }
+    result.push(ch);
+  }
+  return result.join('');
+}
+
 /**
  * Normalizes rich text segments for clean rendering:
  * - Collapses excessive fullwidth space chains (>= 3) in reading passages.
@@ -29,18 +99,17 @@ export function preprocessSegments(segments: RichTextSegment[]): {
   }
 
   // Pass 1: Clone segments, collapse excessive fullwidth space chains (>= 3),
-  // and remove spaces right before Japanese punctuation (。、！？)
+  // and remove spaces right before Japanese punctuation (。、！？) using pure O(N) linear scanning.
   const segs: RichTextSegment[] = segments.map((s) => {
     if (s.t === 'text') {
-      let txt = s.text.replace(/\u3000{3,}/g, '\u3000\u3000');
-      txt = txt.replace(/[ \t\u3000]+([。、！？])/g, '$1');
+      let txt = collapseFullwidthSpaces(s.text);
+      txt = trimSpaceBeforePunctuation(txt);
       return { ...s, text: txt };
     }
     return { ...s };
   });
 
   // Pass 2: Clean up pure whitespace or edge whitespace around blanks & stars (Mondai 7 spacing)
-  // Use non-backtracking character classes [ \t\u3000] to satisfy CodeQL ReDoS checks
   for (let i = 0; i < segs.length; i++) {
     const s = segs[i]!;
     if (s.t === 'text') {
@@ -48,7 +117,7 @@ export function preprocessSegments(segments: RichTextSegment[]): {
       const next = i < segs.length - 1 ? segs[i + 1]!.t : null;
 
       // Pure whitespace between blank/star (e.g. Mondai 7) -> collapse so margins govern spacing
-      if (/^[ \t\u3000]+$/.test(s.text)) {
+      if (isOnlySpaces(s.text)) {
         if ((prev === 'blank' || prev === 'star') && (next === 'blank' || next === 'star')) {
           s.text = '';
         }
@@ -56,12 +125,12 @@ export function preprocessSegments(segments: RichTextSegment[]): {
 
       // Trailing whitespace right before blank or star
       if (next === 'blank' || next === 'star') {
-        s.text = s.text.replace(/[ \t\u3000]+$/, '');
+        s.text = trimSpacesEnd(s.text);
       }
 
       // Leading whitespace right after blank or star
       if (prev === 'blank' || prev === 'star') {
-        s.text = s.text.replace(/^[ \t\u3000]+/, '');
+        s.text = trimSpacesStart(s.text);
       }
     }
   }
@@ -76,17 +145,34 @@ export function preprocessSegments(segments: RichTextSegment[]): {
       const prevTxt = prev && prev.t === 'text' ? prev.text : '';
       const nextTxt = next && next.t === 'text' ? next.text : '';
 
-      const hasPrevParen = /[（(][ \t\u3000]*$/.test(prevTxt);
-      const hasNextParen = /^[ \t\u3000]*[）)]/.test(nextTxt);
+      const trimmedPrev = trimSpacesEnd(prevTxt);
+      const hasPrevParen = trimmedPrev.endsWith('（') || trimmedPrev.endsWith('(');
+
+      const trimmedNext = trimSpacesStart(nextTxt);
+      const hasNextParen = trimmedNext.startsWith('）') || trimmedNext.startsWith(')');
 
       if (hasPrevParen && hasNextParen) {
         blanksWithOuterParens.add(i);
         (s as { hasOuterParens?: boolean }).hasOuterParens = true;
         if (prev && prev.t === 'text') {
-          prev.text = prev.text.replace(/([（(])[ \t\u3000]+$/, '$1');
+          // Remove spaces after the opening parenthesis
+          const lastOpenIdx = Math.max(prev.text.lastIndexOf('（'), prev.text.lastIndexOf('('));
+          if (lastOpenIdx !== -1) {
+            prev.text = prev.text.slice(0, lastOpenIdx + 1);
+          }
         }
         if (next && next.t === 'text') {
-          next.text = next.text.replace(/^[ \t\u3000]+([）)])/, '$1');
+          // Remove spaces before the closing parenthesis
+          let firstCloseIdx = -1;
+          for (let j = 0; j < next.text.length; j++) {
+            if (next.text[j] === '）' || next.text[j] === ')') {
+              firstCloseIdx = j;
+              break;
+            }
+          }
+          if (firstCloseIdx !== -1) {
+            next.text = next.text.slice(firstCloseIdx);
+          }
         }
       }
     }
