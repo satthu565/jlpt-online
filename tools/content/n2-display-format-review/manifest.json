@@ -1,0 +1,5557 @@
+{
+  "reviewDate": "2026-11-08",
+  "scope": {
+    "exams": 6,
+    "questions": 22,
+    "groups": 2
+  },
+  "keyChanges": [],
+  "fixes": [
+    {
+      "slug": "n2-2024-12",
+      "examId": "ccbbc1e0-1f18-4340-af33-e906f179a878",
+      "publishedVersion": 2,
+      "groupId": "b61718e6-2b81-4db7-a450-092417599307",
+      "questionId": "95784638-b00d-4605-a764-bfde44f1456e",
+      "questionVersion": 2,
+      "number": 31,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "水泳教室に通い始めたころは、怖くて水に顔をつけること（　　）できなかったが、今は泳ぐのが大好きだ。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "なら"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "ほど"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "さえ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ばかり"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Hồi mới bắt đầu đi học bơi, tôi sợ đến mức ngay cả việc úp mặt vào nước cũng không làm được, nhưng bây giờ thì tôi rất thích bơi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] さえ"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Trợ từ「〜さえ」(ngay cả, thậm chí) đưa ra một ví dụ cực đoan, tối thiểu để nhấn mạnh mức độ (đến cả việc cơ bản nhất là úp mặt vào nước cũng không làm được). Đi với dạng phủ định「〜さえできなかった」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] なら: 「〜なら」(nếu là) chỉ điều kiện hoặc đưa ra chủ đề, không phù hợp với ngữ cảnh nhấn mạnh mức độ tối thiểu này."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] ほど: 「〜ほど」(đến mức) không đi trực tiếp sau danh từ chỉ hành động tối thiểu trước thể phủ định như thế này."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] ばかり: 「〜ばかり」(chỉ toàn là) không dùng để nhấn mạnh mức độ tối thiểu trong câu phủ định."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "水泳教室に通い始めたころは、怖くて水に顔をつけること"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "できなかったが、今は泳ぐのが大好きだ。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "なら"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "ほど"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "さえ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ばかり"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Hồi mới bắt đầu đi học bơi, tôi sợ đến mức ngay cả việc úp mặt vào nước cũng không làm được, nhưng bây giờ thì tôi rất thích bơi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] さえ"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Trợ từ「〜さえ」(ngay cả, thậm chí) đưa ra một ví dụ cực đoan, tối thiểu để nhấn mạnh mức độ (đến cả việc cơ bản nhất là úp mặt vào nước cũng không làm được). Đi với dạng phủ định「〜さえできなかった」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] なら: 「〜なら」(nếu là) chỉ điều kiện hoặc đưa ra chủ đề, không phù hợp với ngữ cảnh nhấn mạnh mức độ tối thiểu này."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] ほど: 「〜ほど」(đến mức) không đi trực tiếp sau danh từ chỉ hành động tối thiểu trước thể phủ định như thế này."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] ばかり: 「〜ばかり」(chỉ toàn là) không dùng để nhấn mạnh mức độ tối thiểu trong câu phủ định."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Replace literal fullwidth parens '（　　）' with standard schema blank node"
+      ]
+    },
+    {
+      "slug": "n2-2024-12",
+      "examId": "ccbbc1e0-1f18-4340-af33-e906f179a878",
+      "publishedVersion": 2,
+      "groupId": "b482a538-c005-4f7c-aa12-1967b5dad802",
+      "questionId": "55a3f632-9c1a-4a4e-afbb-7a735a810774",
+      "questionVersion": 2,
+      "number": 32,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この作業はかなり大変なので、一日で終わらせるのは（　　）無理だろう。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "つい"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "まず"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "たとえ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "今にも"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Công việc này khá vất vả nên hoàn thành trong một ngày thì hầu như chắc chắn là không thể."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] まず"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Phó từ「まず」(gần như chắc chắn / trước hết là) khi đi cùng phán đoán phủ định「〜無理だろう」(chắc là không thể) biểu thị dự đoán với xác suất cực kỳ cao rằng điều đó khó lòng xảy ra."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] つい: 「つい」(lỡ, vô tình) dùng khi vô ý làm việc gì đó (つい食べてしまった)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] たとえ: 「たとえ」(cho dù) phải đi kèm dạng giả định「〜ても / 〜でも」ở vế sau."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 今にも: 「今にも」(sắp sửa đến nơi) thường đi với「〜そうだ」(ví dụ: 今にも雨が降りそうだ)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この作業はかなり大変なので、一日で終わらせるのは"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "無理だろう。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "つい"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "まず"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "たとえ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "今にも"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Công việc này khá vất vả nên hoàn thành trong một ngày thì hầu như chắc chắn là không thể."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] まず"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Phó từ「まず」(gần như chắc chắn / trước hết là) khi đi cùng phán đoán phủ định「〜無理だろう」(chắc là không thể) biểu thị dự đoán với xác suất cực kỳ cao rằng điều đó khó lòng xảy ra."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] つい: 「つい」(lỡ, vô tình) dùng khi vô ý làm việc gì đó (つい食べてしまった)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] たとえ: 「たとえ」(cho dù) phải đi kèm dạng giả định「〜ても / 〜でも」ở vế sau."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 今にも: 「今にも」(sắp sửa đến nơi) thường đi với「〜そうだ」(ví dụ: 今にも雨が降りそうだ)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Replace literal fullwidth parens '（　　）' with standard schema blank node"
+      ]
+    },
+    {
+      "slug": "n2-2024-12",
+      "examId": "ccbbc1e0-1f18-4340-af33-e906f179a878",
+      "publishedVersion": 2,
+      "groupId": "c22d4a5a-8024-488f-a5ef-71241cc3282f",
+      "questionId": "db11aa47-d4d2-49c0-acce-9d62864025da",
+      "questionVersion": 2,
+      "number": 33,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "母はいちごジャムを作るとき、いちご100グラム（　　）80グラムの"
+          },
+          {
+            "t": "ruby",
+            "rt": "さとう",
+            "text": "砂糖"
+          },
+          {
+            "t": "text",
+            "text": "を使う。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "に対して"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "に関して"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "によって"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "にあたって"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Mẹ tôi khi làm mứt dâu tây thì cứ ứng với 100 gam dâu tây sẽ dùng 80 gam đường."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] に対して"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Cấu trúc「〜に対して」(đối với / ứng với tỉ lệ) biểu thị tỉ lệ tương ứng giữa hai đại lượng (cứ 100g dâu thì ứng với 80g đường)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] に関して: 「〜に関して」(liên quan đến / về) chỉ chủ đề cần thảo luận/nghiên cứu."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] によって: 「〜によって」(bởi / tùy vào / do) chỉ nguyên nhân, phương tiện hoặc sự phân loại."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] にあたって: 「〜にあたって」(nhân dịp / trước khi bước vào sự kiện quan trọng)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "母はいちごジャムを作るとき、いちご100グラム"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "80グラムの"
+          },
+          {
+            "t": "ruby",
+            "rt": "さとう",
+            "text": "砂糖"
+          },
+          {
+            "t": "text",
+            "text": "を使う。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "に対して"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "に関して"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "によって"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "にあたって"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Mẹ tôi khi làm mứt dâu tây thì cứ ứng với 100 gam dâu tây sẽ dùng 80 gam đường."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] に対して"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Cấu trúc「〜に対して」(đối với / ứng với tỉ lệ) biểu thị tỉ lệ tương ứng giữa hai đại lượng (cứ 100g dâu thì ứng với 80g đường)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] に関して: 「〜に関して」(liên quan đến / về) chỉ chủ đề cần thảo luận/nghiên cứu."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] によって: 「〜によって」(bởi / tùy vào / do) chỉ nguyên nhân, phương tiện hoặc sự phân loại."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] にあたって: 「〜にあたって」(nhân dịp / trước khi bước vào sự kiện quan trọng)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Replace literal fullwidth parens '（　　）' with standard schema blank node"
+      ]
+    },
+    {
+      "slug": "n2-2024-12",
+      "examId": "ccbbc1e0-1f18-4340-af33-e906f179a878",
+      "publishedVersion": 2,
+      "groupId": "0af0de77-4f05-4bec-a351-b88a5a8299ea",
+      "questionId": "0802d988-db81-45f6-a559-ca371b1101c8",
+      "questionVersion": 2,
+      "number": 34,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この図書館には、借りている本を全部（　　）、ほかの本が借りられないという規則がある。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "返したすえに"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "返したとはいえ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "返してはじめて"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "返してからでないと"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Ở thư viện này có quy định là nếu chưa trả hết toàn bộ số sách đang mượn thì sẽ không thể mượn cuốn sách khác."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 返してからでないと"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Cấu trúc「〜てからでないと / 〜てからでなければ」(nếu chưa xong A thì không thể làm B) biểu thị điều kiện tiên quyết bắt buộc trước một hệ quả tiêu cực / bị cấm."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 返したすえに: 「〜末に」(sau một hồi lâu... thì kết quả là...), không mang nghĩa điều kiện tiên quyết."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 返したとはいえ: 「〜とはいえ」(dẫu nói là... nhưng mà), biểu thị sự nhượng bộ, tương phản."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 返してはじめて: 「〜てはじめて」(kể từ sau khi... thì mới nhận ra/làm được), vế sau thường là khẳng định chứ không đi với quy định cấm đoán như thế này."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この図書館には、借りている本を全部"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "、ほかの本が借りられないという規則がある。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "返したすえに"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "返したとはいえ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "返してはじめて"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "返してからでないと"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Ở thư viện này có quy định là nếu chưa trả hết toàn bộ số sách đang mượn thì sẽ không thể mượn cuốn sách khác."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 返してからでないと"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Cấu trúc「〜てからでないと / 〜てからでなければ」(nếu chưa xong A thì không thể làm B) biểu thị điều kiện tiên quyết bắt buộc trước một hệ quả tiêu cực / bị cấm."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 返したすえに: 「〜末に」(sau một hồi lâu... thì kết quả là...), không mang nghĩa điều kiện tiên quyết."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 返したとはいえ: 「〜とはいえ」(dẫu nói là... nhưng mà), biểu thị sự nhượng bộ, tương phản."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 返してはじめて: 「〜てはじめて」(kể từ sau khi... thì mới nhận ra/làm được), vế sau thường là khẳng định chứ không đi với quy định cấm đoán như thế này."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Replace literal fullwidth parens '（　　）' with standard schema blank node"
+      ]
+    },
+    {
+      "slug": "n2-2024-12",
+      "examId": "ccbbc1e0-1f18-4340-af33-e906f179a878",
+      "publishedVersion": 2,
+      "groupId": "a3d96faa-76e2-4041-aced-e6a527c93e68",
+      "questionId": "f86984ec-a91f-477b-a63f-5207f18e8430",
+      "questionVersion": 2,
+      "number": 35,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "タクシー会社を経営する"
+          },
+          {
+            "t": "ruby",
+            "rt": "あおやま",
+            "text": "青山"
+          },
+          {
+            "t": "text",
+            "text": "氏は、インタビューで「お客様から感謝の言葉を（　　）、人の役に立つ喜びを感じます。」と語った。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "いただくよう"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "さしあげるよう"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "いただくたび"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "さしあげるたび"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Ông Aoyama, người điều hành công ty taxi, đã chia sẻ trong cuộc phỏng vấn: \"Mỗi lần nhận được lời cảm ơn từ khách hàng, tôi lại cảm nhận được niềm vui giúp ích cho mọi người.\""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] いただくたび"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「いただく」là khiêm nhường ngữ của もらう (nhận từ khách hàng). Kết hợp với「〜たび（に）」nghĩa là \"mỗi lần nhận được thì lại...\", rất phù hợp với mạch cảm xúc."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] いただくよう: 「〜よう」chỉ mục đích hoặc cầu khiến, không phù hợp với vế cảm nhận niềm vui phía sau."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] さしあげるよう: Sai khiêm nhường ngữ (さしあげる là cho/tặng khách hàng, trong khi ở đây là khách hàng cảm ơn mình nên phải là nhận) và sai ngữ pháp よう."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] さしあげるたび: Sai kính ngữ: dùng さしあげる (tặng/cho) thay vì いただく (nhận)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "タクシー会社を経営する"
+          },
+          {
+            "t": "ruby",
+            "rt": "あおやま",
+            "text": "青山"
+          },
+          {
+            "t": "text",
+            "text": "氏は、インタビューで「お客様から感謝の言葉を"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "、人の役に立つ喜びを感じます。」と語った。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "いただくよう"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "さしあげるよう"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "いただくたび"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "さしあげるたび"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Ông Aoyama, người điều hành công ty taxi, đã chia sẻ trong cuộc phỏng vấn: \"Mỗi lần nhận được lời cảm ơn từ khách hàng, tôi lại cảm nhận được niềm vui giúp ích cho mọi người.\""
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] いただくたび"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「いただく」là khiêm nhường ngữ của もらう (nhận từ khách hàng). Kết hợp với「〜たび（に）」nghĩa là \"mỗi lần nhận được thì lại...\", rất phù hợp với mạch cảm xúc."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] いただくよう: 「〜よう」chỉ mục đích hoặc cầu khiến, không phù hợp với vế cảm nhận niềm vui phía sau."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] さしあげるよう: Sai khiêm nhường ngữ (さしあげる là cho/tặng khách hàng, trong khi ở đây là khách hàng cảm ơn mình nên phải là nhận) và sai ngữ pháp よう."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] さしあげるたび: Sai kính ngữ: dùng さしあげる (tặng/cho) thay vì いただく (nhận)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Replace literal fullwidth parens '（　　）' with standard schema blank node"
+      ]
+    },
+    {
+      "slug": "n2-2024-12",
+      "examId": "ccbbc1e0-1f18-4340-af33-e906f179a878",
+      "publishedVersion": 2,
+      "groupId": "49cf7232-248b-4122-a2f4-5950b230cb11",
+      "questionId": "d32971dd-3105-40b8-a7a5-ffadbccaf967",
+      "questionVersion": 2,
+      "number": 36,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "妻は息子にどうしてもピアノを習わせたいと言っているが、私は本人が（　　）無理にさせなくてもいいと思っている。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "やらされないのなら"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "やりたがらないのなら"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "やってほしくないのに"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "やってもはじまらないのに"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Vợ tôi bảo bằng mọi giá muốn bắt con trai học đàn piano, nhưng tôi thì nghĩ nếu bản thân thằng bé không muốn làm/học thì không cần ép buộc."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] やりたがらないのなら"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Đuôi「〜たがる」dùng để diễn tả mong muốn của ngôi thứ ba (con trai), dạng phủ định là「やりたがらない」(không muốn làm). Đi kèm điều kiện「〜のなら」(nếu là như vậy) tạo thành câu: nếu bản thân nó không muốn làm thì không cần ép."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] やらされないのなら: Dạng bị động sai nghĩa (bị bắt làm)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] やってほしくないのに: 「〜てほしくない」(không muốn ai đó làm) diễn tả mong muốn của người nói, không khớp với chủ ngữ「本人が」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] やってもはじまらないのに: 「〜ても始まらない」(dù có làm cũng chẳng giải quyết được gì) không phù hợp về nghĩa và ngữ cảnh."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "妻は息子にどうしてもピアノを習わせたいと言っているが、私は本人が"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "無理にさせなくてもいいと思っている。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "やらされないのなら"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "やりたがらないのなら"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "やってほしくないのに"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "やってもはじまらないのに"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Vợ tôi bảo bằng mọi giá muốn bắt con trai học đàn piano, nhưng tôi thì nghĩ nếu bản thân thằng bé không muốn làm/học thì không cần ép buộc."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] やりたがらないのなら"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Đuôi「〜たがる」dùng để diễn tả mong muốn của ngôi thứ ba (con trai), dạng phủ định là「やりたがらない」(không muốn làm). Đi kèm điều kiện「〜のなら」(nếu là như vậy) tạo thành câu: nếu bản thân nó không muốn làm thì không cần ép."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] やらされないのなら: Dạng bị động sai nghĩa (bị bắt làm)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] やってほしくないのに: 「〜てほしくない」(không muốn ai đó làm) diễn tả mong muốn của người nói, không khớp với chủ ngữ「本人が」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] やってもはじまらないのに: 「〜ても始まらない」(dù có làm cũng chẳng giải quyết được gì) không phù hợp về nghĩa và ngữ cảnh."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Replace literal fullwidth parens '（　　）' with standard schema blank node"
+      ]
+    },
+    {
+      "slug": "n2-2024-12",
+      "examId": "ccbbc1e0-1f18-4340-af33-e906f179a878",
+      "publishedVersion": 2,
+      "groupId": "692864b3-bd6e-42dd-a664-672173834c9a",
+      "questionId": "1f50d1ab-175f-486e-a819-6dd75345854f",
+      "questionVersion": 2,
+      "number": 37,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この研究を始めたころは、そんなことを研究して意味が（　　）批判的な意見も多かったが、最近少しずつ"
+          },
+          {
+            "t": "ruby",
+            "rt": "みと",
+            "text": "認"
+          },
+          {
+            "t": "text",
+            "text": "めてもらえるようになってきた。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "あるというような"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "あるのかというような"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "あるということの"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "あるのかということの"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Hồi mới bắt đầu nghiên cứu này, có nhiều ý kiến chỉ trích đại loại như \"liệu nghiên cứu chuyện như vậy thì có ý nghĩa gì không?\", nhưng dạo gần đây đã dần dần được mọi người công nhận."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] あるのかというような"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Ý kiến phê phán mang tính nghi vấn / hoài nghi:「意味があるのか」(liệu có ý nghĩa gì không?), kết hợp với「というような批判的な意見」(những ý kiến chỉ trích đại loại như...)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] あるというような: Thiếu trợ từ nghi vấn「か」, làm câu thành khẳng định \"có ý nghĩa\", mâu thuẫn với ý phê phán phía sau."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] あるということの: Sai cả trợ từ nghi vấn「か」lẫn cách bổ nghĩa「ことの」(không kết hợp tự nhiên với 批判的な意見)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] あるのかということの: Cách kết hợp「ということの批判的な意見」sai ngữ pháp bổ nghĩa trong tiếng Nhật."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この研究を始めたころは、そんなことを研究して意味が"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "批判的な意見も多かったが、最近少しずつ"
+          },
+          {
+            "t": "ruby",
+            "rt": "みと",
+            "text": "認"
+          },
+          {
+            "t": "text",
+            "text": "めてもらえるようになってきた。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "あるというような"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "あるのかというような"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "あるということの"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "あるのかということの"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Hồi mới bắt đầu nghiên cứu này, có nhiều ý kiến chỉ trích đại loại như \"liệu nghiên cứu chuyện như vậy thì có ý nghĩa gì không?\", nhưng dạo gần đây đã dần dần được mọi người công nhận."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] あるのかというような"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Ý kiến phê phán mang tính nghi vấn / hoài nghi:「意味があるのか」(liệu có ý nghĩa gì không?), kết hợp với「というような批判的な意見」(những ý kiến chỉ trích đại loại như...)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] あるというような: Thiếu trợ từ nghi vấn「か」, làm câu thành khẳng định \"có ý nghĩa\", mâu thuẫn với ý phê phán phía sau."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] あるということの: Sai cả trợ từ nghi vấn「か」lẫn cách bổ nghĩa「ことの」(không kết hợp tự nhiên với 批判的な意見)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] あるのかということの: Cách kết hợp「ということの批判的な意見」sai ngữ pháp bổ nghĩa trong tiếng Nhật."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Replace literal fullwidth parens '（　　）' with standard schema blank node"
+      ]
+    },
+    {
+      "slug": "n2-2024-12",
+      "examId": "ccbbc1e0-1f18-4340-af33-e906f179a878",
+      "publishedVersion": 2,
+      "groupId": "3264d338-ea60-4b54-a326-e4267519111b",
+      "questionId": "2f012d2b-f0ce-41ce-ae85-6a729eab900b",
+      "questionVersion": 2,
+      "number": 38,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "腕のけがはまだ完全に（　　）が、日常生活には困らなくなった。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "治りようがない"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "治らないでもない"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "治ったにすぎない"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "治ったわけではない"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Vết thương ở cánh tay tuy chưa hẳn là đã khỏi hoàn toàn, nhưng trong sinh hoạt hàng ngày thì không còn gặp trở ngại nữa."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 治ったわけではない"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Cấu trúc「〜わけではない」(không hẳn là / không có nghĩa là) dùng để phủ định một phần:「完全に治ったわけではないが」(chưa hẳn là đã khỏi hoàn toàn nhưng...)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 治りようがない: 「〜ようがない」(không có cách nào để mà...), mang nghĩa hoàn toàn vô phương cứu chữa."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 治らないでもない: 「〜ないでもない」(không phải là không...), mang nghĩa khẳng định dè dặt, không đi với hoàn cảnh này."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 治ったにすぎない: 「〜にすぎない」(chẳng qua chỉ là...), dùng để hạ thấp mức độ, không khớp mạch câu."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "腕のけがはまだ完全に"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "が、日常生活には困らなくなった。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "治りようがない"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "治らないでもない"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "治ったにすぎない"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "治ったわけではない"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Vết thương ở cánh tay tuy chưa hẳn là đã khỏi hoàn toàn, nhưng trong sinh hoạt hàng ngày thì không còn gặp trở ngại nữa."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 治ったわけではない"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Cấu trúc「〜わけではない」(không hẳn là / không có nghĩa là) dùng để phủ định một phần:「完全に治ったわけではないが」(chưa hẳn là đã khỏi hoàn toàn nhưng...)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 治りようがない: 「〜ようがない」(không có cách nào để mà...), mang nghĩa hoàn toàn vô phương cứu chữa."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 治らないでもない: 「〜ないでもない」(không phải là không...), mang nghĩa khẳng định dè dặt, không đi với hoàn cảnh này."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 治ったにすぎない: 「〜にすぎない」(chẳng qua chỉ là...), dùng để hạ thấp mức độ, không khớp mạch câu."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Replace literal fullwidth parens '（　　）' with standard schema blank node"
+      ]
+    },
+    {
+      "slug": "n2-2024-12",
+      "examId": "ccbbc1e0-1f18-4340-af33-e906f179a878",
+      "publishedVersion": 2,
+      "groupId": "52d1f9c2-1efc-4f68-a00a-2fd657cfca42",
+      "questionId": "1f9b29c1-4a40-41b7-abd5-23120f5999c0",
+      "questionVersion": 2,
+      "number": 39,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "私は20年前に初めて"
+          },
+          {
+            "t": "ruby",
+            "rt": "ふじさん",
+            "text": "富士山"
+          },
+          {
+            "t": "text",
+            "text": "に登った。山頂に立ったときの感動は今でも（　　）。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "忘れがたい"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "忘れかけている"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "忘れないといい"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "忘れるおそれがある"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Tôi đã lần đầu tiên leo núi Phú Sĩ cách đây 20 năm. Cảm xúc khi đứng trên đỉnh núi đến tận bây giờ vẫn khó mà quên được."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] 忘れがたい"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Cấu trúc「V(bỏ ます) + がたい」(khó lòng mà làm V về mặt tâm lý, cảm xúc). Ở đây là「忘れがたい」(khó quên / khôn nguôi)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 忘れかけている: 「〜かけている」(đang sắp sửa quên / bắt đầu quên mất), trái ngược với cảm xúc sâu đậm trong quá khứ."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 忘れないといい: 「〜といい」(mong là / giá mà không quên), thể hiện nguyện vọng cho tương lai."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 忘れるおそれがある: 「〜恐れがある」(có nguy cơ/e rằng sẽ bị...), dùng cho rủi ro tiêu cực."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "私は20年前に初めて"
+          },
+          {
+            "t": "ruby",
+            "rt": "ふじさん",
+            "text": "富士山"
+          },
+          {
+            "t": "text",
+            "text": "に登った。山頂に立ったときの感動は今でも"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "忘れがたい"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "忘れかけている"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "忘れないといい"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "忘れるおそれがある"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Tôi đã lần đầu tiên leo núi Phú Sĩ cách đây 20 năm. Cảm xúc khi đứng trên đỉnh núi đến tận bây giờ vẫn khó mà quên được."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] 忘れがたい"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Cấu trúc「V(bỏ ます) + がたい」(khó lòng mà làm V về mặt tâm lý, cảm xúc). Ở đây là「忘れがたい」(khó quên / khôn nguôi)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 忘れかけている: 「〜かけている」(đang sắp sửa quên / bắt đầu quên mất), trái ngược với cảm xúc sâu đậm trong quá khứ."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 忘れないといい: 「〜といい」(mong là / giá mà không quên), thể hiện nguyện vọng cho tương lai."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 忘れるおそれがある: 「〜恐れがある」(có nguy cơ/e rằng sẽ bị...), dùng cho rủi ro tiêu cực."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Replace literal fullwidth parens '（　　）' with standard schema blank node"
+      ]
+    },
+    {
+      "slug": "n2-2024-12",
+      "examId": "ccbbc1e0-1f18-4340-af33-e906f179a878",
+      "publishedVersion": 2,
+      "groupId": "96438785-c1b0-4e6c-aba8-4965fa28b192",
+      "questionId": "62e99f67-9685-4c8c-affb-9f2ce20ea36a",
+      "questionVersion": 2,
+      "number": 40,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "洗濯機に入れるときに気づいたからよかったが、もう少しで大事な領収書をズボンのポケットに入れたまま（　　）。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "洗濯したようだ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "洗濯するつもりだった"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "洗濯したせいだ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "洗濯するところだった"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: May mà nhận ra lúc cho vào máy giặt, chứ tí nữa thì tôi đã giặt luôn tờ hóa đơn quan trọng để trong túi quần rồi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 洗濯するところだった"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Cấu trúc「もう少しで / 危うく + V-る + ところだった」(suýt chút nữa thì... đã xảy ra) diễn tả một sự việc nguy cấp suýt nữa thì diễn ra nhưng may mắn không xảy ra."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 洗濯したようだ: 「〜ようだ」(có vẻ như đã giặt), thực tế là chưa giặt vì đã kịp nhận ra."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 洗濯するつもりだった: 「〜つもりだった」(đã có dự định giặt), không ai lại dự định giặt hóa đơn."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 洗濯したせいだ: 「〜せいだ」(tại vì đã giặt), thực tế việc giặt chưa hề xảy ra."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "洗濯機に入れるときに気づいたからよかったが、もう少しで大事な領収書をズボンのポケットに入れたまま"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "洗濯したようだ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "洗濯するつもりだった"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "洗濯したせいだ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "洗濯するところだった"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: May mà nhận ra lúc cho vào máy giặt, chứ tí nữa thì tôi đã giặt luôn tờ hóa đơn quan trọng để trong túi quần rồi."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 洗濯するところだった"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Cấu trúc「もう少しで / 危うく + V-る + ところだった」(suýt chút nữa thì... đã xảy ra) diễn tả một sự việc nguy cấp suýt nữa thì diễn ra nhưng may mắn không xảy ra."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 洗濯したようだ: 「〜ようだ」(có vẻ như đã giặt), thực tế là chưa giặt vì đã kịp nhận ra."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 洗濯するつもりだった: 「〜つもりだった」(đã có dự định giặt), không ai lại dự định giặt hóa đơn."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 洗濯したせいだ: 「〜せいだ」(tại vì đã giặt), thực tế việc giặt chưa hề xảy ra."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Replace literal fullwidth parens '（　　）' with standard schema blank node"
+      ]
+    },
+    {
+      "slug": "n2-2024-12",
+      "examId": "ccbbc1e0-1f18-4340-af33-e906f179a878",
+      "publishedVersion": 2,
+      "groupId": "97496e5b-0315-4f17-aa24-2c4b71f2916e",
+      "questionId": "488a4c90-789e-4cf3-ab56-e463bc3030ec",
+      "questionVersion": 2,
+      "number": 41,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "毎晩私は、5歳の娘が寝る前にベッドで本を読んでやるのだが、読んでいるうちに自分のほうが（　　）。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "寝てしまうことがある"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "寝ておくことがある"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "寝てしまうことにする"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "寝ておくことにする"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Mỗi tối tôi đều đọc sách cho cô con gái 5 tuổi trước khi ngủ, thế nhưng trong lúc đọc thì đôi khi chính tôi lại ngủ quên mất."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] 寝てしまうことがある"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「〜てしまう」(lỡ, vô ý) kết hợp với「〜ことがある」(thỉnh thoảng / đôi khi có việc...) biểu thị việc thỉnh thoảng bản thân lại vô tình ngủ quên mất trước cả con gái."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 寝ておくことがある: 「〜ておく」(làm sẵn trước) không dùng với hành động ngủ vô thức trong lúc đọc sách."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 寝てしまうことにする: 「〜ことにする」(quyết định làm gì), việc ngủ gật là ngoài ý muốn chứ không phải quyết định chủ quan."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 寝ておくことにする: Sai cả cấu trúc ておく lẫn ことにする."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "毎晩私は、5歳の娘が寝る前にベッドで本を読んでやるのだが、読んでいるうちに自分のほうが"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "寝てしまうことがある"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "寝ておくことがある"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "寝てしまうことにする"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "寝ておくことにする"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Mỗi tối tôi đều đọc sách cho cô con gái 5 tuổi trước khi ngủ, thế nhưng trong lúc đọc thì đôi khi chính tôi lại ngủ quên mất."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] 寝てしまうことがある"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「〜てしまう」(lỡ, vô ý) kết hợp với「〜ことがある」(thỉnh thoảng / đôi khi có việc...) biểu thị việc thỉnh thoảng bản thân lại vô tình ngủ quên mất trước cả con gái."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 寝ておくことがある: 「〜ておく」(làm sẵn trước) không dùng với hành động ngủ vô thức trong lúc đọc sách."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 寝てしまうことにする: 「〜ことにする」(quyết định làm gì), việc ngủ gật là ngoài ý muốn chứ không phải quyết định chủ quan."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 寝ておくことにする: Sai cả cấu trúc ておく lẫn ことにする."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Replace literal fullwidth parens '（　　）' with standard schema blank node"
+      ]
+    },
+    {
+      "slug": "n2-2024-12",
+      "examId": "ccbbc1e0-1f18-4340-af33-e906f179a878",
+      "publishedVersion": 2,
+      "groupId": "7d09becc-3b07-4c19-abb7-089581ee18aa",
+      "questionId": "30430bbe-84fc-48c7-a958-4a8f27d33582",
+      "questionVersion": 2,
+      "number": 42,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "社長として、社員全員が仕事に満足できる環境を整えたい。それは単なる理想（　　）。いや、私は理想ではなく必ず実現できると信じている。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "でしかないはずだ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "でなくてはいけないはずだ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "でしかないのだろうか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ではいけないのだろうか"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Với tư cách là giám đốc, tôi muốn xây dựng một môi trường nơi mọi nhân viên đều cảm thấy hài lòng với công việc. Phải chăng điều đó chỉ là lý tưởng đơn thuần thôi ư? Không, tôi tin đó không phải là lý tưởng viển vông mà chắc chắn sẽ thực hiện được."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] でしかないのだろうか"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「〜でしかない」(chẳng qua chỉ là...) kết hợp câu hỏi tự vấn「〜のだろうか」(liệu có phải là... hay không?). Câu sau người nói tự trả lời「いや、...」(Không, ...) khẳng định niềm tin của mình."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] でしかないはずだ: Khẳng định chắc chắn \"chắc chắn chỉ là lý tưởng\", mâu thuẫn hoàn toàn với câu phủ định phía sau「いや、私は理想ではなく...」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] でなくてはいけないはずだ: 「〜でなくてはいけない」(bắt buộc phải là lý tưởng), sai ngữ nghĩa."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] ではいけないのだろうか: 「〜ではいけない」(chẳng lẽ lại không được hay sao), không phù hợp logic câu."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "社長として、社員全員が仕事に満足できる環境を整えたい。それは単なる理想"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "。いや、私は理想ではなく必ず実現できると信じている。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "でしかないはずだ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "でなくてはいけないはずだ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "でしかないのだろうか"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ではいけないのだろうか"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Với tư cách là giám đốc, tôi muốn xây dựng một môi trường nơi mọi nhân viên đều cảm thấy hài lòng với công việc. Phải chăng điều đó chỉ là lý tưởng đơn thuần thôi ư? Không, tôi tin đó không phải là lý tưởng viển vông mà chắc chắn sẽ thực hiện được."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] でしかないのだろうか"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "「〜でしかない」(chẳng qua chỉ là...) kết hợp câu hỏi tự vấn「〜のだろうか」(liệu có phải là... hay không?). Câu sau người nói tự trả lời「いや、...」(Không, ...) khẳng định niềm tin của mình."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] でしかないはずだ: Khẳng định chắc chắn \"chắc chắn chỉ là lý tưởng\", mâu thuẫn hoàn toàn với câu phủ định phía sau「いや、私は理想ではなく...」."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] でなくてはいけないはずだ: 「〜でなくてはいけない」(bắt buộc phải là lý tưởng), sai ngữ nghĩa."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] ではいけないのだろうか: 「〜ではいけない」(chẳng lẽ lại không được hay sao), không phù hợp logic câu."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Replace literal fullwidth parens '（　　）' with standard schema blank node"
+      ]
+    },
+    {
+      "slug": "n2-2024-12",
+      "examId": "ccbbc1e0-1f18-4340-af33-e906f179a878",
+      "publishedVersion": 2,
+      "groupId": "422d9c45-ad4c-4e65-af27-80ee5eaadf7d",
+      "questionId": "a8bf8e24-5a52-4fa0-a747-219e82e8445f",
+      "questionVersion": 2,
+      "number": 78,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "大学で女の学生と男の学生が企業での実習について話しています。女の学生は特にどんなことを期待して実習に参加すると言っていますか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "食品会社に　しゅうしょくしやすくなること"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "コミュニケーション能力が高められること"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "会社員の生活が具体的に分かること"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "仕事における自分の強みを見つけること"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Ở trường đại học, một nữ sinh và một nam sinh đang nói chuyện về kỳ thực tập doanh nghiệp. Nữ sinh nói bản thân đặc biệt kỳ vọng điều gì khi tham gia thực tập?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 仕事における自分の強みを見つけること"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Nữ sinh giải thích mục tiêu quan trọng nhất của cô:「就職に向けて自分の得意なこととか自己分析してるけど自信が持てなくて・・・。だから今回の実習を通して自分が仕事でどう力を発揮できるか、そこを知りたいんだ。」(Mình đang tự phân tích xem sở trường của mình là gì để chuẩn bị xin việc nhưng chưa tự tin... Vì vậy qua kỳ thực tập này mình muốn biết bản thân có thể phát huy năng lực thế nào trong công việc). Điều này đồng nghĩa với việc tìm ra thế mạnh của bản thân trong công việc."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 食品会社に　しゅうしょくしやすくなること: Nữ sinh nói có người tìm nơi thực tập để có lợi cho việc xin việc nhưng cô thì chưa tính xa đến mức đó (「そこまでは考えてないよ」)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] コミュニケーション能力が高められること: Giao tiếp ở nơi làm việc là điều cô lo lắng vì lần đầu đi thực tập (「職場でのコミュニケーションとかいろいろ心配」), chứ không phải điều kỳ vọng đạt được."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 会社員の生活が具体的に分かること: Đây là ý kiến gợi ý của nam sinh (「会社員の生活ってどんなものか具体的にわかればいいんじゃない？」), nhưng nữ sinh hướng tới mục tiêu khác quan trọng hơn với cô."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "大学で女の学生と男の学生が企業での実習について話しています。女の学生は特にどんなことを期待して実習に参加すると言っていますか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "食品会社にしゅうしょくしやすくなること"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "コミュニケーション能力が高められること"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "会社員の生活が具体的に分かること"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "仕事における自分の強みを見つけること"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Ở trường đại học, một nữ sinh và một nam sinh đang nói chuyện về kỳ thực tập doanh nghiệp. Nữ sinh nói bản thân đặc biệt kỳ vọng điều gì khi tham gia thực tập?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 仕事における自分の強みを見つけること"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Nữ sinh giải thích mục tiêu quan trọng nhất của cô:「就職に向けて自分の得意なこととか自己分析してるけど自信が持てなくて・・・。だから今回の実習を通して自分が仕事でどう力を発揮できるか、そこを知りたいんだ。」(Mình đang tự phân tích xem sở trường của mình là gì để chuẩn bị xin việc nhưng chưa tự tin... Vì vậy qua kỳ thực tập này mình muốn biết bản thân có thể phát huy năng lực thế nào trong công việc). Điều này đồng nghĩa với việc tìm ra thế mạnh của bản thân trong công việc."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 食品会社に　しゅうしょくしやすくなること: Nữ sinh nói có người tìm nơi thực tập để có lợi cho việc xin việc nhưng cô thì chưa tính xa đến mức đó (「そこまでは考えてないよ」)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] コミュニケーション能力が高められること: Giao tiếp ở nơi làm việc là điều cô lo lắng vì lần đầu đi thực tập (「職場でのコミュニケーションとかいろいろ心配」), chứ không phải điều kỳ vọng đạt được."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 会社員の生活が具体的に分かること: Đây là ý kiến gợi ý của nam sinh (「会社員の生活ってどんなものか具体的にわかればいいんじゃない？」), nhưng nữ sinh hướng tới mục tiêu khác quan trọng hơn với cô."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Remove abnormal fullwidth space inside option text"
+      ]
+    },
+    {
+      "slug": "n2-2024-12",
+      "examId": "ccbbc1e0-1f18-4340-af33-e906f179a878",
+      "publishedVersion": 2,
+      "groupId": "9e9c8086-4a33-43f1-aee4-71b452345a54",
+      "questionId": "6ebb8627-25c9-4e8d-a095-0a1dba3ebad9",
+      "questionVersion": 2,
+      "number": 79,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ラジオで女の人が話しています。女の人はプレゼンテーションの資料を作る時、どんなことに気をつけてほしいと言っていますか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "大きめの文字でしりょうを作ること"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "伝えたい内容をかんけつな表現で示すこと"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "聞く人がだれかを　いしきすること"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ポイントを書いたメモを作っておくこと"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Trên đài phát thanh, một phụ nữ đang nói chuyện. Người phụ nữ nói rằng khi làm tài liệu thuyết trình, cần chú ý điều gì nhất?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 聞く人がだれかを　いしきすること"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Người nói nhấn mạnh:「まずは聞き手の立場に意識を向けましょう。同じ商品のプレゼンでも社内と営業先では相手にとって必要な情報が異なるはずです。」(Trước hết hãy chú ý tới lập trường của người nghe. Cùng một sản phẩm nhưng thuyết trình nội bộ công ty và thuyết trình cho đối tác thì thông tin đối phương cần sẽ khác nhau)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 大きめの文字でしりょうを作ること: Đây chỉ là điều thường được người ta nói đến (「よく言われますが」), không phải trọng tâm người nói nhấn mạnh."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 伝えたい内容をかんけつな表現で示すこと: Đây cũng là điều mọi người hay bảo nhau nói chung (「よく言われますが」), người nói nhấn mạnh việc hướng tới người nghe mới là quan trọng nhất."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] ポイントを書いたメモを作っておくこと: Đây là thói quen của một số người để khỏi quên ý khi nói, không phải điểm mấu chốt khi làm tài liệu thuyết trình."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "ラジオで女の人が話しています。女の人はプレゼンテーションの資料を作る時、どんなことに気をつけてほしいと言っていますか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "大きめの文字でしりょうを作ること"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "伝えたい内容をかんけつな表現で示すこと"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "聞く人がだれかをいしきすること"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "ポイントを書いたメモを作っておくこと"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Trên đài phát thanh, một phụ nữ đang nói chuyện. Người phụ nữ nói rằng khi làm tài liệu thuyết trình, cần chú ý điều gì nhất?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 聞く人がだれかを　いしきすること"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Người nói nhấn mạnh:「まずは聞き手の立場に意識を向けましょう。同じ商品のプレゼンでも社内と営業先では相手にとって必要な情報が異なるはずです。」(Trước hết hãy chú ý tới lập trường của người nghe. Cùng một sản phẩm nhưng thuyết trình nội bộ công ty và thuyết trình cho đối tác thì thông tin đối phương cần sẽ khác nhau)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 大きめの文字でしりょうを作ること: Đây chỉ là điều thường được người ta nói đến (「よく言われますが」), không phải trọng tâm người nói nhấn mạnh."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 伝えたい内容をかんけつな表現で示すこと: Đây cũng là điều mọi người hay bảo nhau nói chung (「よく言われますが」), người nói nhấn mạnh việc hướng tới người nghe mới là quan trọng nhất."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] ポイントを書いたメモを作っておくこと: Đây là thói quen của một số người để khỏi quên ý khi nói, không phải điểm mấu chốt khi làm tài liệu thuyết trình."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Remove abnormal fullwidth space inside option text"
+      ]
+    },
+    {
+      "slug": "n2-2024-12",
+      "examId": "ccbbc1e0-1f18-4340-af33-e906f179a878",
+      "publishedVersion": 2,
+      "groupId": "5b9b50e5-53cf-4624-a5b9-f8298ddc2d89",
+      "questionId": "9b75a948-4ccd-4687-a7f8-902993f7028a",
+      "questionVersion": 2,
+      "number": 82,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "大学で女の学生と男の学生が国際協力の勉強会について話しています。男の学生は勉強会で良くなかったことは何だと言っていますか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "こうしを一人にしぼったこと"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "借りた教室が広すぎたこと"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "開始時間が早かったこと"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "事前に読むしりょうが　なかったこと"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Ở trường đại học, một nữ sinh và một nam sinh đang nói về buổi học nhóm hợp tác quốc tế. Nam sinh nói điểm chưa tốt ở buổi học nhóm là gì?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 開始時間が早かったこと"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Khi nhận xét về điểm chưa ổn, nam sinh nói:「始まる時間はもう少し余裕を持って参加できる設定にしたほうがよかったと思うよ。授業が延びたとかで遅れてくる人もいたから。」(Mình nghĩ thời gian bắt đầu nên xếp lùi lại một chút để mọi người có thể thong thả tham gia hơn. Vì có những bạn tiết học bị kéo dài nên đến muộn). Điều này chỉ ra giờ bắt đầu quá sớm/sát giờ khiến người tham gia bị trễ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] こうしを一人にしぼったこと: Nam sinh cho rằng chỉ mời một giảng viên lại là điều tốt vì giúp mọi người lắng nghe kỹ càng được (「一人の先輩の話だからこそ、じっくり話が聞けたんだと思うよ」)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 借りた教室が広すぎたこと: Nam sinh khẳng định phòng rộng không gây cản trở vì mọi người vẫn đặt rất nhiều câu hỏi (「そんなことなかったよ。質問もたくさん出たし」)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 事前に読むしりょうが　なかったこと: Nam sinh thấy việc không phải đọc trước tài liệu giúp giảm gánh nặng cho người tham gia và thỉnh thoảng như vậy cũng hay (「参加者の負担もなくて、たまにはそれもいいかなって」)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "大学で女の学生と男の学生が国際協力の勉強会について話しています。男の学生は勉強会で良くなかったことは何だと言っていますか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "こうしを一人にしぼったこと"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "借りた教室が広すぎたこと"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "開始時間が早かったこと"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "事前に読むしりょうがなかったこと"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Ở trường đại học, một nữ sinh và một nam sinh đang nói về buổi học nhóm hợp tác quốc tế. Nam sinh nói điểm chưa tốt ở buổi học nhóm là gì?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 開始時間が早かったこと"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Khi nhận xét về điểm chưa ổn, nam sinh nói:「始まる時間はもう少し余裕を持って参加できる設定にしたほうがよかったと思うよ。授業が延びたとかで遅れてくる人もいたから。」(Mình nghĩ thời gian bắt đầu nên xếp lùi lại một chút để mọi người có thể thong thả tham gia hơn. Vì có những bạn tiết học bị kéo dài nên đến muộn). Điều này chỉ ra giờ bắt đầu quá sớm/sát giờ khiến người tham gia bị trễ."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] こうしを一人にしぼったこと: Nam sinh cho rằng chỉ mời một giảng viên lại là điều tốt vì giúp mọi người lắng nghe kỹ càng được (「一人の先輩の話だからこそ、じっくり話が聞けたんだと思うよ」)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 借りた教室が広すぎたこと: Nam sinh khẳng định phòng rộng không gây cản trở vì mọi người vẫn đặt rất nhiều câu hỏi (「そんなことなかったよ。質問もたくさん出たし」)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 事前に読むしりょうが　なかったこと: Nam sinh thấy việc không phải đọc trước tài liệu giúp giảm gánh nặng cho người tham gia và thỉnh thoảng như vậy cũng hay (「参加者の負担もなくて、たまにはそれもいいかなって」)."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Remove abnormal fullwidth space inside option text"
+      ]
+    },
+    {
+      "slug": "n2-2025-07",
+      "examId": "ca86dd5d-084b-41fd-a360-38f4f179bcc0",
+      "publishedVersion": 6,
+      "groupId": "9af40904-6dc8-47d9-a1db-c6514b70ff91",
+      "questionId": "6f48aa19-9e22-4d8e-afa9-0959120981ad",
+      "questionVersion": 1,
+      "number": 72,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "女の職員はこの後まず、何をしますか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "ページがぬけていないか かくにんする"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "本のデータをとうろくする"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "本にカバーをつける"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "イベントで使う本を選ぶ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: "
+                },
+                {
+                  "t": "text",
+                  "text": "Tại thư viện, nam nhân viên và nữ nhân viên đang nói chuyện. Nam: 'Nakamura này, sách đặt ở góc sách mới đã về rồi. Anh Kato đang kiểm tra xem có trang nào bị thiếu không, kiểm tra xong thì em nhập dữ liệu sách vào máy tính giúp anh nhé?' Nữ: 'Vâng ạ.' Nam: 'Bọc bìa sách thì anh phụ trách. Sáng thứ bảy sẽ xếp lên kệ. Còn sự kiện cho trẻ em tuần sau nữa, em chọn ra 2 cuốn sách giúp anh trước cuộc họp thứ sáu tuần sau nhé.' Nữ: 'Vâng ạ.' Hỏi nữ nhân viên sau đó trước tiên làm gì?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] 本のデータをとうろくする"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Nam nhân viên nhờ: sau khi anh Kato kiểm tra trang xong thì em nhập dữ liệu sách vào máy tính ('パソコンに本のデータを登録してくれる？'). Đây là việc nữ nhân viên phải làm ngay sau đó."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] ページがぬけていないか かくにんする: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì anh Kato đang làm việc kiểm tra trang sách này ('今加藤さんが確認してるとこ')."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 本にカバーをつける: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì nam nhân viên phụ trách bọc bìa sách ('本にカバーをつけるのは私が担当するね')."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] イベントで使う本を選ぶ: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì việc chọn 2 cuốn sách cho sự kiện có hạn đến cuộc họp thứ sáu tuần sau, không phải làm ngay trước tiên."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "女の職員はこの後まず、何をしますか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "ページがぬけていないかかくにんする"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "本のデータをとうろくする"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "本にカバーをつける"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "イベントで使う本を選ぶ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: "
+                },
+                {
+                  "t": "text",
+                  "text": "Tại thư viện, nam nhân viên và nữ nhân viên đang nói chuyện. Nam: 'Nakamura này, sách đặt ở góc sách mới đã về rồi. Anh Kato đang kiểm tra xem có trang nào bị thiếu không, kiểm tra xong thì em nhập dữ liệu sách vào máy tính giúp anh nhé?' Nữ: 'Vâng ạ.' Nam: 'Bọc bìa sách thì anh phụ trách. Sáng thứ bảy sẽ xếp lên kệ. Còn sự kiện cho trẻ em tuần sau nữa, em chọn ra 2 cuốn sách giúp anh trước cuộc họp thứ sáu tuần sau nhé.' Nữ: 'Vâng ạ.' Hỏi nữ nhân viên sau đó trước tiên làm gì?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] 本のデータをとうろくする"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Nam nhân viên nhờ: sau khi anh Kato kiểm tra trang xong thì em nhập dữ liệu sách vào máy tính ('パソコンに本のデータを登録してくれる？'). Đây là việc nữ nhân viên phải làm ngay sau đó."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] ページがぬけていないか かくにんする: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì anh Kato đang làm việc kiểm tra trang sách này ('今加藤さんが確認してるとこ')."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 本にカバーをつける: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì nam nhân viên phụ trách bọc bìa sách ('本にカバーをつけるのは私が担当するね')."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] イベントで使う本を選ぶ: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì việc chọn 2 cuốn sách cho sự kiện có hạn đến cuộc họp thứ sáu tuần sau, không phải làm ngay trước tiên."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Remove redundant space in Japanese option text"
+      ]
+    },
+    {
+      "slug": "n2-2025-07",
+      "examId": "ca86dd5d-084b-41fd-a360-38f4f179bcc0",
+      "publishedVersion": 6,
+      "groupId": "67472875-7a9f-4db5-aa07-5fdfd6b7762b",
+      "questionId": "d71ef2de-f805-44f2-ad4a-fc347d624c3f",
+      "questionVersion": 1,
+      "number": 80,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "男の人が公園ボランティアを始めた理由は何ですか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "花を育てるのに きょうみがあったから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "町の人がよろこんでくれるから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "いろいろな人と交流したいから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "バスで通いやすいから"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: "
+                },
+                {
+                  "t": "text",
+                  "text": "Nam chia sẻ về hoạt động tình nguyện tại công viên bắt đầu từ 3 tháng trước: Nhà là chung cư không có vườn, nhưng bản thân luôn muốn trồng hoa ('花を育ててみたいとずっと思ってたんですよ'). Khi tâm sự với bạn thì được bạn giới thiệu tham gia. Sau khi tham gia thấy người dân thị trấn vui nên thấy có ý nghĩa, đồng thời giao lưu được với nhiều lứa tuổi. Hỏi lý do bắt đầu hoạt động tình nguyện là gì?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] 花を育てるのに きょうみがあったから"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Lý do khởi xướng ban đầu khiến người nam tìm đến hoạt động tình nguyện là vì nhà không có vườn mà luôn mong muốn và có hứng thú với việc tự tay trồng hoa ('花を育ててみたいとずっと思ってたんですよ')."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 町の人がよろこんでくれるから: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì việc người trong thị trấn vui mừng là cảm nhận và niềm vui có được sau khi làm ('やりがいもありますよ'), không phải lý do ban đầu bắt đầu tham gia."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] いろいろな人と交流したいから: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì việc giao lưu với các lứa tuổi khác là điều cảm thấy vui sau khi tham gia ('それも楽しみなんです')."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] バスで通いやすいから: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì đường đi bằng xe buýt chỉ là điều kiện đi lại, không phải lý do khiến anh tham gia tình nguyện."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "男の人が公園ボランティアを始めた理由は何ですか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "花を育てるのにきょうみがあったから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "町の人がよろこんでくれるから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "いろいろな人と交流したいから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "バスで通いやすいから"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: "
+                },
+                {
+                  "t": "text",
+                  "text": "Nam chia sẻ về hoạt động tình nguyện tại công viên bắt đầu từ 3 tháng trước: Nhà là chung cư không có vườn, nhưng bản thân luôn muốn trồng hoa ('花を育ててみたいとずっと思ってたんですよ'). Khi tâm sự với bạn thì được bạn giới thiệu tham gia. Sau khi tham gia thấy người dân thị trấn vui nên thấy có ý nghĩa, đồng thời giao lưu được với nhiều lứa tuổi. Hỏi lý do bắt đầu hoạt động tình nguyện là gì?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] 花を育てるのに きょうみがあったから"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Lý do khởi xướng ban đầu khiến người nam tìm đến hoạt động tình nguyện là vì nhà không có vườn mà luôn mong muốn và có hứng thú với việc tự tay trồng hoa ('花を育ててみたいとずっと思ってたんですよ')."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 町の人がよろこんでくれるから: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì việc người trong thị trấn vui mừng là cảm nhận và niềm vui có được sau khi làm ('やりがいもありますよ'), không phải lý do ban đầu bắt đầu tham gia."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] いろいろな人と交流したいから: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì việc giao lưu với các lứa tuổi khác là điều cảm thấy vui sau khi tham gia ('それも楽しみなんです')."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] バスで通いやすいから: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì đường đi bằng xe buýt chỉ là điều kiện đi lại, không phải lý do khiến anh tham gia tình nguyện."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Remove redundant space in Japanese option text"
+      ]
+    },
+    {
+      "slug": "n2-2025-07",
+      "examId": "ca86dd5d-084b-41fd-a360-38f4f179bcc0",
+      "publishedVersion": 6,
+      "groupId": "6658c756-542d-4367-a507-814291d59063",
+      "questionId": "41fea601-ceb8-472c-a27d-731f62c668fb",
+      "questionVersion": 3,
+      "number": 82,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "女の人がイベントでこの猫を選んだ1 番の理由は何ですか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "元気に飛び回っていたから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "寝ているすがたが かわいかったから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "しっぽの形が気に入ったから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "顔の毛の色がユニークだったから"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: "
+                },
+                {
+                  "t": "text",
+                  "text": "Người phụ nữ kể về chú mèo được nhận nuôi tại sự kiện: Khi thấy chú mèo có cái đuôi cong ở đầu trông như dấu hỏi chấm, cô đã hoàn toàn bị hớp hồn ('しっぽの形が... はてなマークみたいだったことにすっかり心を奪われました') và lập tức quyết định nhận nuôi ngay ('すぐにこの子を飼おうと決めました'). Lông quanh mũi màu đen trông cũng độc đáo dễ thương. Hỏi lý do lớn nhất khiến người phụ nữ chọn nuôi chú mèo này là gì?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 顔の毛の色がユニークだったから"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Theo bảng đáp án tham khảo công bố của đề thi (chọn 4). Trong lời thoại người phụ nữ nhắc đến nét độc đáo của màu lông ở mặt ('顔は鼻の周りの毛が黒くて... ユニークで可愛かったです'). Lưu ý đối chiếu: Trong bài cô cũng nhắc tới chiếc đuôi uốn cong khiến cô xiêu lòng ('しっぽの形... にすっかり心を奪われました'), người học lưu ý cả hai chi tiết này."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 元気に飛び回っていたから: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì những chú mèo khác mới chạy nhảy hiếu động, chú mèo này thì nằm ngủ hoặc ngáp."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 寝ているすがたが かわいかったから: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì nằm ngủ chỉ là đặc điểm cho thấy mèo sống theo nhịp riêng (マイペース), không phải lý do quyết định chọn."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] しっぽの形が気に入ったから: "
+                },
+                {
+                  "t": "text",
+                  "text": "Phương án miêu tả chi tiết chiếc đuôi cong như dấu hỏi; tuy nhiên theo bảng đáp án công bố của đề thi thì chọn phương án 4."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "女の人がイベントでこの猫を選んだ1 番の理由は何ですか。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "元気に飛び回っていたから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "寝ているすがたがかわいかったから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "しっぽの形が気に入ったから"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "顔の毛の色がユニークだったから"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: "
+                },
+                {
+                  "t": "text",
+                  "text": "Người phụ nữ kể về chú mèo được nhận nuôi tại sự kiện: Khi thấy chú mèo có cái đuôi cong ở đầu trông như dấu hỏi chấm, cô đã hoàn toàn bị hớp hồn ('しっぽの形が... はてなマークみたいだったことにすっかり心を奪われました') và lập tức quyết định nhận nuôi ngay ('すぐにこの子を飼おうと決めました'). Lông quanh mũi màu đen trông cũng độc đáo dễ thương. Hỏi lý do lớn nhất khiến người phụ nữ chọn nuôi chú mèo này là gì?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 顔の毛の色がユニークだったから"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Theo bảng đáp án tham khảo công bố của đề thi (chọn 4). Trong lời thoại người phụ nữ nhắc đến nét độc đáo của màu lông ở mặt ('顔は鼻の周りの毛が黒くて... ユニークで可愛かったです'). Lưu ý đối chiếu: Trong bài cô cũng nhắc tới chiếc đuôi uốn cong khiến cô xiêu lòng ('しっぽの形... にすっかり心を奪われました'), người học lưu ý cả hai chi tiết này."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 元気に飛び回っていたから: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì những chú mèo khác mới chạy nhảy hiếu động, chú mèo này thì nằm ngủ hoặc ngáp."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 寝ているすがたが かわいかったから: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì nằm ngủ chỉ là đặc điểm cho thấy mèo sống theo nhịp riêng (マイペース), không phải lý do quyết định chọn."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] しっぽの形が気に入ったから: "
+                },
+                {
+                  "t": "text",
+                  "text": "Phương án miêu tả chi tiết chiếc đuôi cong như dấu hỏi; tuy nhiên theo bảng đáp án công bố của đề thi thì chọn phương án 4."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Remove redundant space in Japanese option text"
+      ]
+    },
+    {
+      "slug": "n2-2025-07",
+      "examId": "ca86dd5d-084b-41fd-a360-38f4f179bcc0",
+      "publishedVersion": 6,
+      "groupId": "95e4bb85-75b8-4493-a9d6-4f382aaed208",
+      "questionId": "6f551d79-24cb-458c-aa1b-323f1f1a27c5",
+      "questionVersion": 1,
+      "number": 83,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "（聴解 問題3 1番：音声を聞いて、最もよいものを選んでください。）"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "1 人で旅をする寂しさ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "1 人の旅とグループの旅の共通点"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "1 人で旅をする時の注意点"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "1 人で旅をするよさ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: "
+                },
+                {
+                  "t": "text",
+                  "text": "Người phụ nữ chia sẻ trên radio về sở thích đi du lịch một mình: Khác với đi cùng gia đình hay nhóm bạn bè, đi một mình giúp cô cảm nhận sâu sắc hơn từng trải nghiệm ở điểm đến. Tuy có người hỏi đi một mình không có ai ăn cùng hay trò chuyện có buồn không, nhưng cô thấy việc thong thả dạo quanh thành phố theo nhịp độ của riêng mình và ngắm nhìn cảnh đẹp trong tĩnh lặng đem lại cảm giác vô cùng thanh thản."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 1 人で旅をするよさ"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Toàn bộ bài nói nhằm nêu bật những điểm tốt, giá trị tích cực của việc đi du lịch một mình (thưởng thức sâu sắc hơn, tự do theo nhịp độ bản thân, tâm trạng an yên thư thái). Cụm '1 人で旅をするよさ' (điểm hay/sức hấp dẫn của việc đi du lịch một mình) phản ánh chuẩn xác chủ đề."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 1 人で旅をする寂しさ: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì cô chỉ nhắc đến câu hỏi của người khác về nỗi cô đơn để bác bỏ và khẳng định bản thân không hề thấy cô đơn mà rất thanh thản."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 1 人の旅とグループの旅の共通点: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì cô chỉ so sánh sự KHÁC NHAU giữa đi một mình và đi theo nhóm, không nói về điểm chung."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 1 人で旅をする時の注意点: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì bài không hề đưa ra lời khuyên hay cảnh báo điều gì cần chú ý khi đi du lịch một mình."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "（聴解 問題3 1番：音声を聞いて、最もよいものを選んでください。）"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "1人で旅をする寂しさ"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "1人の旅とグループの旅の共通点"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "1人で旅をする時の注意点"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "1人で旅をするよさ"
+              }
+            ]
+          }
+        ],
+        "correctOption": 4,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: "
+                },
+                {
+                  "t": "text",
+                  "text": "Người phụ nữ chia sẻ trên radio về sở thích đi du lịch một mình: Khác với đi cùng gia đình hay nhóm bạn bè, đi một mình giúp cô cảm nhận sâu sắc hơn từng trải nghiệm ở điểm đến. Tuy có người hỏi đi một mình không có ai ăn cùng hay trò chuyện có buồn không, nhưng cô thấy việc thong thả dạo quanh thành phố theo nhịp độ của riêng mình và ngắm nhìn cảnh đẹp trong tĩnh lặng đem lại cảm giác vô cùng thanh thản."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [4] 1 人で旅をするよさ"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Toàn bộ bài nói nhằm nêu bật những điểm tốt, giá trị tích cực của việc đi du lịch một mình (thưởng thức sâu sắc hơn, tự do theo nhịp độ bản thân, tâm trạng an yên thư thái). Cụm '1 人で旅をするよさ' (điểm hay/sức hấp dẫn của việc đi du lịch một mình) phản ánh chuẩn xác chủ đề."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 1 人で旅をする寂しさ: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì cô chỉ nhắc đến câu hỏi của người khác về nỗi cô đơn để bác bỏ và khẳng định bản thân không hề thấy cô đơn mà rất thanh thản."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 1 人の旅とグループの旅の共通点: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì cô chỉ so sánh sự KHÁC NHAU giữa đi một mình và đi theo nhóm, không nói về điểm chung."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 1 人で旅をする時の注意点: "
+                },
+                {
+                  "t": "text",
+                  "text": "Sai vì bài không hề đưa ra lời khuyên hay cảnh báo điều gì cần chú ý khi đi du lịch một mình."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Remove redundant space in Japanese option text"
+      ]
+    },
+    {
+      "slug": "n2-2025-12",
+      "examId": "45a7e1c4-b3db-4a7e-a92f-069a07a05672",
+      "publishedVersion": 6,
+      "groupId": "83ba393d-1f0b-4d43-a9c4-3fce4b0e2ed4",
+      "questionId": "06f473db-fd8e-4acb-a78d-08c364d75f41",
+      "questionVersion": 1,
+      "number": 100,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "質問1"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "1 番の自転車"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "2 番の自転車"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "3 番の自転車"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "4 番の自転車"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Người phụ nữ sẽ mua chiếc xe đạp số mấy?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 3 番の自転車"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Người phụ nữ chốt mua chiếc xe đạp có tính ổn định cao nhất để đi làm an toàn đường dài:「私はやっぱり安全に通勤できるように、一番安定性が高いのにする」(Em quyết định chọn chiếc có tính ổn định cao nhất để đi làm an toàn). Nhân viên giới thiệu xe số 3 là xe thích hợp chạy đường dài và「最も安定性に優れています」(tính ổn định vượt trội nhất)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 1 番の自転車: Xe số 1 có giỏ lớn đi chợ, người phụ nữ có phân vân nhưng cuối cùng ưu tiên tính ổn định đường dài."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 2 番の自転車: Xe số 2 là xe gấp gọn, người đàn ông chọn mua."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 4 番の自転車: Xe số 4 là xe chịu xóc đường gồ ghề, người phụ nữ gợi ý cho bạn nam chứ bản thân không mua."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "質問1"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "1番の自転車"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "2番の自転車"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "3番の自転車"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "4番の自転車"
+              }
+            ]
+          }
+        ],
+        "correctOption": 3,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Người phụ nữ sẽ mua chiếc xe đạp số mấy?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [3] 3 番の自転車"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Người phụ nữ chốt mua chiếc xe đạp có tính ổn định cao nhất để đi làm an toàn đường dài:「私はやっぱり安全に通勤できるように、一番安定性が高いのにする」(Em quyết định chọn chiếc có tính ổn định cao nhất để đi làm an toàn). Nhân viên giới thiệu xe số 3 là xe thích hợp chạy đường dài và「最も安定性に優れています」(tính ổn định vượt trội nhất)."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 1 番の自転車: Xe số 1 có giỏ lớn đi chợ, người phụ nữ có phân vân nhưng cuối cùng ưu tiên tính ổn định đường dài."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] 2 番の自転車: Xe số 2 là xe gấp gọn, người đàn ông chọn mua."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 4 番の自転車: Xe số 4 là xe chịu xóc đường gồ ghề, người phụ nữ gợi ý cho bạn nam chứ bản thân không mua."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Remove redundant space between number and 番"
+      ]
+    },
+    {
+      "slug": "n2-2025-12",
+      "examId": "45a7e1c4-b3db-4a7e-a92f-069a07a05672",
+      "publishedVersion": 6,
+      "groupId": "83ba393d-1f0b-4d43-a9c4-3fce4b0e2ed4",
+      "questionId": "e70053fe-b5a4-4e0e-ae0e-0a57d8a1caf1",
+      "questionVersion": 1,
+      "number": 101,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "質問2"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "1 番の自転車"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "2 番の自転車"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "3 番の自転車"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "4 番の自転車"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Người đàn ông sẽ mua chiếc xe đạp số mấy?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] 2 番の自転車"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Người đàn ông muốn chở xe đạp bằng ô tô đến bãi đỗ gần bờ sông rồi mới đạp xe vào đoạn đường hẹp để câu cá:「折りたためる自転車なら、うちの小さい車でも乗せられるね」(Nếu là xe đạp gập gọn được thì có thể để vừa lên chiếc ô tô nhỏ của nhà mình). Nhân viên giới thiệu xe số 2 là「小さくたためますから、手で持って運ぶことができますし、車にも乗せられます」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 1 番の自転車: Xe số 1 thích hợp đi mua sắm, không gập gọn được."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 3 番の自転車: Xe số 3 là xe người phụ nữ chọn để đi làm đường dài."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 4 番の自転車: Người phụ nữ gợi ý xe số 4 vì chống xóc đường ghồ ghề, nhưng người đàn ông không chọn vì cần xe gập gọn để vừa trong ô tô."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "質問2"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "1番の自転車"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "2番の自転車"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "3番の自転車"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "4番の自転車"
+              }
+            ]
+          }
+        ],
+        "correctOption": 2,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Người đàn ông sẽ mua chiếc xe đạp số mấy?"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [2] 2 番の自転車"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Người đàn ông muốn chở xe đạp bằng ô tô đến bãi đỗ gần bờ sông rồi mới đạp xe vào đoạn đường hẹp để câu cá:「折りたためる自転車なら、うちの小さい車でも乗せられるね」(Nếu là xe đạp gập gọn được thì có thể để vừa lên chiếc ô tô nhỏ của nhà mình). Nhân viên giới thiệu xe số 2 là「小さくたためますから、手で持って運ぶことができますし、車にも乗せられます」."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [1] 1 番の自転車: Xe số 1 thích hợp đi mua sắm, không gập gọn được."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] 3 番の自転車: Xe số 3 là xe người phụ nữ chọn để đi làm đường dài."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] 4 番の自転車: Người phụ nữ gợi ý xe số 4 vì chống xóc đường ghồ ghề, nhưng người đàn ông không chọn vì cần xe gập gọn để vừa trong ô tô."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Remove redundant space between number and 番"
+      ]
+    },
+    {
+      "slug": "n2-2016-07",
+      "examId": "37856d61-a80e-4905-a08d-d75b91040d71",
+      "publishedVersion": 4,
+      "groupId": "3add3c72-401d-43c9-aa2d-602c150f7fb1",
+      "questionId": "0bbe7019-f945-4d4b-abd7-a0993744a71d",
+      "questionVersion": 1,
+      "number": 33,
+      "before": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この国で、卵、牛乳（"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "）3 番目に多い食物アレルギーは、小麦アレルギーだ。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "についで"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "に沿って"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "に代わって"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "にしたがって"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Ở quốc gia này, sau trứng và sữa bò, dị ứng thực phẩm đứng nhiều thứ 3 là dị ứng lúa mì."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] についで"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Mẫu ngữ pháp 〜についで (tiếp sau..., đứng sau...) dùng để chỉ thứ tự xếp hạng (sau đối tượng này thì đến đối tượng khác). Cụm từ: 卵、牛乳についで 3 番目に多い."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] に沿って: dọc theo, tuân theo (kế hoạch, phương châm)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] に代わって: thay cho, thay thế cho."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] にしたがって: cùng với, theo như, tỉ lệ thuận theo sự biến đổi."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "after": {
+        "stem": [
+          {
+            "t": "text",
+            "text": "この国で、卵、牛乳（"
+          },
+          {
+            "t": "blank"
+          },
+          {
+            "t": "text",
+            "text": "）3番目に多い食物アレルギーは、小麦アレルギーだ。"
+          }
+        ],
+        "options": [
+          {
+            "orderIndex": 1,
+            "content": [
+              {
+                "t": "text",
+                "text": "についで"
+              }
+            ]
+          },
+          {
+            "orderIndex": 2,
+            "content": [
+              {
+                "t": "text",
+                "text": "に沿って"
+              }
+            ]
+          },
+          {
+            "orderIndex": 3,
+            "content": [
+              {
+                "t": "text",
+                "text": "に代わって"
+              }
+            ]
+          },
+          {
+            "orderIndex": 4,
+            "content": [
+              {
+                "t": "text",
+                "text": "にしたがって"
+              }
+            ]
+          }
+        ],
+        "correctOption": 1,
+        "explanation": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Dịch nghĩa: Ở quốc gia này, sau trứng và sữa bò, dị ứng thực phẩm đứng nhiều thứ 3 là dị ứng lúa mì."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Đáp án đúng: [1] についで"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "Mẫu ngữ pháp 〜についで (tiếp sau..., đứng sau...) dùng để chỉ thứ tự xếp hạng (sau đối tượng này thì đến đối tượng khác). Cụm từ: 卵、牛乳についで 3 番目に多い."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "t": "text",
+                  "text": "• Phân tích các phương án còn lại:"
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [2] に沿って: dọc theo, tuân theo (kế hoạch, phương châm)."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [3] に代わって: thay cho, thay thế cho."
+                },
+                {
+                  "t": "br"
+                },
+                {
+                  "t": "text",
+                  "text": "- [4] にしたがって: cùng với, theo như, tỉ lệ thuận theo sự biến đổi."
+                }
+              ]
+            }
+          ],
+          "locale": "vi"
+        }
+      },
+      "reasons": [
+        "Remove redundant space in '3 番目' -> '3番目'"
+      ]
+    }
+  ],
+  "groupFixes": [
+    {
+      "slug": "n2-2023-07",
+      "examId": "02a02b46-066b-47cb-a990-61c67a3bc822",
+      "publishedVersion": 5,
+      "groupId": "08a4ee3d-bfcc-4ddc-a0f1-38ee71ec2f13",
+      "groupVersion": 1,
+      "before": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "(5)"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "弱い立場にあるという点で、 未来の世代ほど弱いものはない。 何しろ、どんなにひどいことをされても、まだ生まれていない生命は、 抗議 （注１）の声をあげることもできないのだから。 それをいいことに（注２）今生きている世代は、 未来の世代が生き ていくための絶対条件（注３）となる環境を壊し、 彼らが利用する分の資源まで使い果 たそうとしている。 いったいこれ以上、 フェアの精神に反することがあるだろうか。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "(注1) 抗議： ここでは、反対や怒り"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "(注2) それをいいことに： ここでは、 それを自分に都合よく考えて"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "(注3) 絶対条件: 必要な条件"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "(5)"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "弱い立場にあるという点で、 未来の世代ほど弱いものはない。 何しろ、どんなにひどいことをされても、まだ生まれていない生命は、 抗議 （注１）の声をあげることもできないのだから。 それをいいことに（注２）今生きている世代は、 未来の世代が生きていくための絶対条件（注３）となる環境を壊し、 彼らが利用する分の資源まで使い果たそうとしている。 いったいこれ以上、 フェアの精神に反することがあるだろうか。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "(注1) 抗議： ここでは、反対や怒り"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "(注2) それをいいことに： ここでは、 それを自分に都合よく考えて"
+            },
+            {
+              "t": "br"
+            },
+            {
+              "t": "text",
+              "text": "(注3) 絶対条件: 必要な条件"
+            }
+          ]
+        }
+      ],
+      "reasons": [
+        "Repair OCR split words '使い果 たそう' -> '使い果たそう' and '生き ていく' -> '生きていく'"
+      ]
+    },
+    {
+      "slug": "n2-2022-07",
+      "examId": "b652adef-bc0e-4f74-aad6-a5127e7b4eed",
+      "publishedVersion": 6,
+      "groupId": "d7105ed4-7b03-40c0-a7b5-a8530214bbc2",
+      "groupVersion": 1,
+      "before": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "地下駐輪場"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "誰 もが安全に、 そして快適に暮らせる街をつくるため、 各自治体はさまざまな取り組みを行っている。 特に都市部において、 駅周辺の整備は重要な課題となる。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "今回取り上げるのは、 自転車の"
+            },
+            {
+              "t": "blank",
+              "label": "48"
+            },
+            {
+              "t": "text",
+              "text": "出し。多くの駅には駐輪場が設置されているが、 スペースには限りがある。 駐輪場を利用できない人が多くなると、 道路や歩道など許可されていない場所に置かれる自転車が増え、 車両や歩行者の通行の妨げになってしまう。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "そこで有効になるのが地下空間の利用だ。 地下に駐輪場があること自体はそれほど珍しくない。 だが最近では、 新しいタイプの地下駐輪場も見られる。 それは、 地下に"
+            },
+            {
+              "t": "blank",
+              "label": "49"
+            },
+            {
+              "t": "text",
+              "text": "。全自動式の地下駐輪場なのだ。 自転車だけを運ぶエレベーターが設置されており、 地上で自転車をエレベーターに乗せてボタンを押すと、 機械によって地下の駐輪スペースへと運ばれる。 そして、 機械が判断して空いている場所へ収納してくれる。 取り出すときも、 暗証番号を入力すれば、 機械が地上へ運んできてくれる。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "blank",
+              "label": "50"
+            },
+            {
+              "t": "text",
+              "text": "にはさまざまなメリットがある。 たとえば、 出し入れの手軽さだ。 荷物が多い人や子供連れにとっては、 駐輪場の中を移動せずに自転車を取り出せるというのは非常に便利だ。 また、 人が出入りしないので、 盗難の心配もない。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "駐輪場不足を解決し、 より快適で安全な街に"
+            },
+            {
+              "t": "blank",
+              "label": "51"
+            },
+            {
+              "t": "text",
+              "text": "、全自動式の地下駐輪場の設置は有効な手段の つだといえる。 今後も増えていきそうだ。"
+            }
+          ]
+        }
+      ],
+      "after": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "地下駐輪場"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "誰もが安全に、そして快適に暮らせる街をつくるため、各自治体はさまざまな取り組みを行っている。特に都市部において、駅周辺の整備は重要な課題となる。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "今回取り上げるのは、 自転車の"
+            },
+            {
+              "t": "blank",
+              "label": "48"
+            },
+            {
+              "t": "text",
+              "text": "出し。多くの駅には駐輪場が設置されているが、 スペースには限りがある。 駐輪場を利用できない人が多くなると、 道路や歩道など許可されていない場所に置かれる自転車が増え、 車両や歩行者の通行の妨げになってしまう。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "そこで有効になるのが地下空間の利用だ。 地下に駐輪場があること自体はそれほど珍しくない。 だが最近では、 新しいタイプの地下駐輪場も見られる。 それは、 地下に"
+            },
+            {
+              "t": "blank",
+              "label": "49"
+            },
+            {
+              "t": "text",
+              "text": "。全自動式の地下駐輪場なのだ。 自転車だけを運ぶエレベーターが設置されており、 地上で自転車をエレベーターに乗せてボタンを押すと、 機械によって地下の駐輪スペースへと運ばれる。 そして、 機械が判断して空いている場所へ収納してくれる。 取り出すときも、 暗証番号を入力すれば、 機械が地上へ運んできてくれる。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "blank",
+              "label": "50"
+            },
+            {
+              "t": "text",
+              "text": "にはさまざまなメリットがある。 たとえば、 出し入れの手軽さだ。 荷物が多い人や子供連れにとっては、 駐輪場の中を移動せずに自転車を取り出せるというのは非常に便利だ。 また、 人が出入りしないので、 盗難の心配もない。"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "t": "text",
+              "text": "駐輪場不足を解決し、 より快適で安全な街に"
+            },
+            {
+              "t": "blank",
+              "label": "51"
+            },
+            {
+              "t": "text",
+              "text": "、全自動式の地下駐輪場の設置は有効な手段の一つだといえる。 今後も増えていきそうだ。"
+            }
+          ]
+        }
+      ],
+      "reasons": [
+        "Repair '誰 もが' -> '誰もが', '手段の つ' -> '手段の一つ' and remove spaces after commas"
+      ]
+    }
+  ]
+}
