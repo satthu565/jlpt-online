@@ -10,6 +10,7 @@ export default defineConfig({
     alias: {
       '@jlpt/schema': path.resolve(rootDir, 'packages/schema/src/index.ts'),
       '@jlpt/content-tools': path.resolve(rootDir, 'packages/content-tools/src/index.ts'),
+      '@jlpt/exam-engine/score-estimation': path.resolve(rootDir, 'packages/exam-engine/src/score-estimation.ts'),
       '@jlpt/exam-engine': path.resolve(rootDir, 'packages/exam-engine/src/index.ts'),
       '@jlpt/media-token': path.resolve(rootDir, 'packages/media-token/src/index.ts'),
       '@jlpt/srs': path.resolve(rootDir, 'packages/srs/src/index.ts'),

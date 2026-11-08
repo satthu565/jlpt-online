@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Play } from 'lucide-react';
 import type { AttemptSummary, Level } from '@jlpt/schema';
-import { getLevelScoringConfig } from '@jlpt/exam-engine';
+import { getLevelScoringConfig } from '@jlpt/exam-engine/score-estimation';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Badge } from '@jlpt/ui/components/badge';
 import { Button } from '@jlpt/ui/components/button';

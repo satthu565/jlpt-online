@@ -15,6 +15,7 @@ export default defineConfig({
       { find: /^@jlpt\/ui\/utils$/, replacement: path.resolve(__dirname, '../../packages/ui/src/lib/utils.ts') },
       { find: /^@jlpt\/ui\/rich-text$/, replacement: path.resolve(__dirname, '../../packages/ui/src/rich-text/index.ts') },
       { find: /^@jlpt\/ui$/, replacement: path.resolve(__dirname, '../../packages/ui/src/index.tsx') },
+      { find: /^@jlpt\/exam-engine\/score-estimation$/, replacement: path.resolve(__dirname, '../../packages/exam-engine/src/score-estimation.ts') },
       { find: '@jlpt/exam-engine', replacement: path.resolve(__dirname, '../../packages/exam-engine/src/index.ts') },
     ],
   },
