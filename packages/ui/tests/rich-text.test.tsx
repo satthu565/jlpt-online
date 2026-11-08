@@ -222,4 +222,62 @@ describe('RichText Rendering & XSS Protection (Acceptance 1 & EXAM-10)', () => {
     expect(html).toContain('&lt;script&gt;alert');
     expect(html).toContain('&lt;img src=');
   });
+
+  it('prevents double parentheses and trims whitespace around unlabeled blanks', () => {
+    // Case 1: Japanese parentheses with inner fullwidth space
+    const segmentsWithSpace: RichText = [
+      { t: 'text', text: '好きなことを我慢して（\u3000' },
+      { t: 'blank' },
+      { t: 'text', text: '）する節約' },
+    ];
+    const htmlWithSpace = renderToString(<RichTextView segments={segmentsWithSpace} />);
+    const textWithSpace = new DOMParser().parseFromString(htmlWithSpace, 'text/html').body.textContent;
+    // Should NOT have nested parentheses like （( )）
+    expect(textWithSpace).not.toContain('（(');
+    expect(textWithSpace).not.toContain(')）');
+    // Inner whitespace should be trimmed, blank rendered cleanly
+    expect(textWithSpace).toContain('好きなことを我慢して（');
+    expect(textWithSpace).toContain('）する節約');
+
+    // Case 2: Unlabeled blank without surrounding parentheses retains standard blank
+    const standaloneBlank: RichText = [
+      { t: 'text', text: '竹山鉄道が、' },
+      { t: 'blank' },
+      { t: 'text', text: '廃止された。' },
+    ];
+    const htmlStandalone = renderToString(<RichTextView segments={standaloneBlank} />);
+    const textStandalone = new DOMParser().parseFromString(htmlStandalone, 'text/html').body.textContent;
+    expect(textStandalone).toContain('(');
+    expect(textStandalone).toContain(')');
+  });
+
+  it('normalizes whitespace around Mondai 7 star and blank questions', () => {
+    const mondai7Segments: RichText = [
+      { t: 'text', text: '宝くじに\u3000' },
+      { t: 'blank' },
+      { t: 'text', text: '\u3000' },
+      { t: 'star' },
+      { t: 'text', text: '\u3000' },
+      { t: 'blank' },
+      { t: 'text', text: '\u3000' },
+      { t: 'blank' },
+      { t: 'text', text: '\u3000、一生買えそうにない。' },
+    ];
+    const html = renderToString(<RichTextView segments={mondai7Segments} />);
+    const text = new DOMParser().parseFromString(html, 'text/html').body.textContent;
+    // Edge whitespace before and after should be trimmed
+    expect(text).toContain('宝くじに');
+    expect(text).toContain('★');
+    expect(text).toContain('、一生買えそうにない。');
+  });
+
+  it('collapses excessive fullwidth space chains in reading passages', () => {
+    const letterEnding: RichText = [
+      { t: 'text', text: '\u3000'.repeat(51) + '草々' },
+    ];
+    const html = renderToString(<RichTextView segments={letterEnding} />);
+    const text = new DOMParser().parseFromString(html, 'text/html').body.textContent;
+    expect(text).toBe('\u3000\u3000草々');
+    expect(text).not.toContain('\u3000'.repeat(3));
+  });
 });

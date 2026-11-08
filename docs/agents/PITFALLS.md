@@ -137,6 +137,8 @@ Triệu chứng: tạo lượt làm bằng request không có Origin được, n
 - Content repair verifies a newly saved explanation and reports a hash mismatch although its canonical content is correct → `ExplanationDraftSchema` strips imported legacy fields such as `blocks`, `translationVi` and `explanationMarkdown` → parse the planned explanation with the same schema before saving, then compare the full canonical result. Preserve old versions instead of writing around the API.
 - Công cụ hiệu đính N1 dừng trước khi ghi với `admin !== publisher` → publisher là tên tác vụ/tài khoản, API xuất bản yêu cầu vai trò `admin` → kiểm tra tài khoản publisher có role admin; giữ editor/reviewer và TOTP riêng.
 
+- ? tr?ng ng? ph?p b? l?ng 2 c?p ngo?c (? ( ) ?) ho?c kho?ng c?ch Mondai 7 b? gi?n r?ng ? RichTextView t? in ( ) cho ? tr?ng kh?ng nh?n v? kh?ng chu?n h?a kho?ng tr?ng quanh k? t? ??c bi?t ? Ti?n x? l? c?c ?o?n text: nh?n di?n c?p ngo?c ngo?i ?? kh?ng in tr?ng ngo?c b?n trong, d?n s?ch kho?ng tr?ng to?n gi?c (\u3000) th?a gi?a ? tr?ng v? d?u sao.
+
 - Numbered grammar blanks appear indistinguishable → RichTextView ignored blank.label → render the escaped label, reuse surrounding parentheses, and include the label in the accessible name.
 
 - Lời giải hiện chuỗi `[{'t': 'text', ...}]` → công cụ nhập đã chuyển rich text thành chuỗi Python thay vì lấy văn bản → đọc nội dung các node và lưu câu tiếng Nhật đúng trong lời giải phiên bản mới; đồng bộ cả explanation được duyệt, giữ lịch sử.
