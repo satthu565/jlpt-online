@@ -37,6 +37,7 @@ for (const width of [390, 1366]) {
     await expect(page.getByTestId('notebook-item-n3-grammar').getByTestId('notebook-source')).toContainText('Câu 12');
     await expect(page.getByTestId('notebook-item-manual').getByTestId('notebook-source')).toHaveCount(0);
     const vocabCard = page.getByTestId('notebook-item-n3-vocab');
+    await expect(vocabCard.getByTestId('notebook-source').locator('[data-slot="chip"]')).toHaveCount(2);
     const sourceBox = await vocabCard.getByTestId('notebook-source').boundingBox();
     const titleBox = await vocabCard.getByRole('heading', { name: '勉強' }).boundingBox();
     const readingBox = await vocabCard.getByTestId('notebook-reading').boundingBox();

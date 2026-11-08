@@ -1,12 +1,13 @@
 'use client';
 
-import { Check, ChevronDown, ChevronUp, Download, ExternalLink, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
+import { BookOpen, Check, ChevronDown, ChevronUp, Download, ExternalLink, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
 import { Input } from '@jlpt/ui/components/input';
 import { HeroSelect } from '@jlpt/ui/components/hero-select';
 import { Badge } from '@jlpt/ui/components/badge';
+import { Chip } from '@jlpt/ui/components/exam-controls';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Modal } from '@jlpt/ui/components/modal';
 import { Spinner } from '@jlpt/ui/components/spinner';
@@ -478,12 +479,17 @@ export function NotebookView({
                 const hasQuestion = source.question !== undefined && String(source.question).trim() !== '';
                 if (!source.exam && !hasQuestion) return null;
                 return (
-                  <div className="flex items-start justify-between gap-3 border-b border-[var(--border-subtle)] pb-3 text-xs text-[var(--text-muted)]" data-testid="notebook-source">
-                    <span className="min-w-0 flex-1 break-words">{source.exam}</span>
+                  <div className="flex flex-wrap items-center gap-2 border-b border-[var(--border-subtle)] pb-3" data-testid="notebook-source">
+                    {source.exam && (
+                      <Chip size="lg" color="accent" variant="soft" className="max-w-full">
+                        <BookOpen className="size-4 shrink-0" aria-hidden="true" />
+                        <Chip.Label className="whitespace-normal break-words">{source.exam}</Chip.Label>
+                      </Chip>
+                    )}
                     {hasQuestion && (
-                      <span className="shrink-0">
-                        {t('notebook.sourceQuestion', { number: String(source.question) })}
-                      </span>
+                      <Chip size="lg" color="default" variant="secondary">
+                        <Chip.Label>{t('notebook.sourceQuestion', { number: String(source.question) })}</Chip.Label>
+                      </Chip>
                     )}
                   </div>
                 );
