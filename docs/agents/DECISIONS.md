@@ -39,3 +39,7 @@ Tóm tắt những điều agent phải theo. Lý do chi tiết từng task nằ
 | Báo giao diện xong chỉ khi đã mở trang thật và chụp màn hình. Test đạt chưa đủ. | |
 | Không chờ "hết ngày" theo kế hoạch: phần phụ thuộc gộp xong thì làm việc tiếp theo ngay. | |
 | Báo cáo cho chủ dự án viết tiếng Việt, ngắn, nói rõ cần chủ dự án làm gì. | |
+
+## Tra cứu trong khi thi (08/11/2026)
+
+Chủ dự án yêu cầu cho phép tra cứu bất cứ lúc nào, kể cả khi tài khoản còn lượt thi thật đang mở. Không chặn API câu hỏi chứa từ vì trạng thái lượt thi. Không yêu cầu hoàn thành/kết thúc lượt thi để xem thêm ví dụ ở sổ tay.

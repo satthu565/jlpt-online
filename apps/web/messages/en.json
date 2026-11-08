@@ -332,6 +332,8 @@
       "searchPlaceholder": "Search vocab, grammar, tags...",
       "kindLabel": "Content Type",
       "allKinds": "All Types",
+      "levelLabel": "Exam level",
+      "allLevels": "All levels",
       "statusLabel": "Status",
       "allStatus": "All Statuses"
     },
@@ -384,6 +386,10 @@
       "loadMore": "See more examples in other exams",
       "loadingMore": "Searching other exams...",
       "noMoreExamples": "No additional questions found in the exam bank.",
+      "accessDenied": "You do not have access to more questions. Try again when access is available.",
+      "signInRequired": "Your session has expired. Sign in again to find more examples.",
+      "rateLimited": "Too many searches. Wait a moment, then try again.",
+      "loadMoreError": "Could not load examples. Please try again.",
       "moreLoadedCount": "Loaded {count} more questions from other exams.",
       "openExamHint": "Open exam {title} (new tab)"
     },

@@ -16,6 +16,7 @@ import type {
   CreateNotebookItemInput,
   QuestionExample,
 } from '../types';
+import { LearningClientError } from '../services/learning-client';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import { FEATURES } from '../../../lib/features';
@@ -133,6 +134,14 @@ export function resolveExamSlug(title?: string, slug?: string): string | undefin
   return undefined;
 }
 
+export function getNotebookExamLevel(item: Pick<NotebookItem, 'sourceExam' | 'tags'>): string | undefined {
+  const sourceExam = item.sourceExam || item.tags
+    .map((tag) => tag.replace(/^#+/, '').trim())
+    .find((tag) => tag.startsWith('source_exam:'))
+    ?.slice('source_exam:'.length);
+  return sourceExam?.match(/(?:^|[^a-z0-9])(N[1-5])(?=$|[^a-z0-9])/i)?.[1]?.toUpperCase();
+}
+
 export interface NotebookViewProps {
   items: NotebookItem[];
   totalCount: number;
@@ -165,6 +174,7 @@ export function NotebookView({
 
   // Filters
   const [filterKind, setFilterKind] = useState<string>('all');
+  const [filterLevel, setFilterLevel] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterMastered, setFilterMastered] = useState<string>('all');
 
@@ -190,6 +200,7 @@ export function NotebookView({
   const [loadingMore, setLoadingMore] = useState(false);
   const [moreLoaded, setMoreLoaded] = useState(false);
   const [moreMessage, setMoreMessage] = useState<string | null>(null);
+  const [moreError, setMoreError] = useState<string | null>(null);
   const [expandedQuestions, setExpandedQuestions] = useState<Record<string, boolean>>({});
   const toggleExpandQuestion = (key: string) => {
     setExpandedQuestions((prev) => ({
@@ -201,6 +212,7 @@ export function NotebookView({
   // Filter items
   const filteredItems = items.filter((item) => {
     if (filterKind !== 'all' && item.kind !== filterKind) return false;
+    if (filterLevel !== 'all' && getNotebookExamLevel(item) !== filterLevel) return false;
     if (filterMastered === 'mastered' && !item.mastered) return false;
     if (filterMastered === 'learning' && item.mastered) return false;
     if (searchQuery.trim()) {
@@ -272,6 +284,7 @@ export function NotebookView({
     if (!activeItemForExamples || !onLoadMoreExamples || loadingMore) return;
     setLoadingMore(true);
     setMoreMessage(null);
+    setMoreError(null);
     try {
       const more = await onLoadMoreExamples(activeItemForExamples);
       const existingIds = new Set(examplesList.map((e) => e.questionId));
@@ -289,11 +302,14 @@ export function NotebookView({
         );
       }
       setMoreLoaded(true);
-    } catch {
-      setMoreMessage(
-        t('notebook.examples.noMoreExamples') ||
-          'Không tìm thấy thêm câu hỏi nào khác trong ngân hàng đề.',
-      );
+    } catch (error) {
+      const key = error instanceof LearningClientError
+        ? error.status === 403 ? 'accessDenied'
+          : error.status === 401 ? 'signInRequired'
+          : error.status === 429 ? 'rateLimited'
+          : 'loadMoreError'
+        : 'loadMoreError';
+      setMoreError(t(`notebook.examples.${key}`));
     } finally {
       setLoadingMore(false);
     }
@@ -305,6 +321,7 @@ export function NotebookView({
     setLoadingMore(false);
     setMoreLoaded(false);
     setMoreMessage(null);
+    setMoreError(null);
     try {
       if (onLoadExamples) {
         const data = await onLoadExamples(item.id);
@@ -361,6 +378,19 @@ export function NotebookView({
                 { value: 'vocab', label: t('notebook.kinds.vocab') },
                 { value: 'grammar', label: t('notebook.kinds.grammar') },
                 { value: 'kanji', label: t('notebook.kinds.kanji') },
+              ]}
+            />
+          </div>
+
+          <div className="w-[180px]">
+            <HeroSelect
+              id="notebook-level-filter"
+              aria-label={t('notebook.filters.levelLabel')}
+              value={filterLevel}
+              onChange={setFilterLevel}
+              options={[
+                { value: 'all', label: t('notebook.filters.allLevels') },
+                ...['N5', 'N4', 'N3', 'N2', 'N1'].map((level) => ({ value: level, label: level })),
               ]}
             />
           </div>
@@ -876,6 +906,11 @@ export function NotebookView({
                           </>
                         )}
                       </Button>
+                    )}
+                    {moreError && (
+                      <Alert variant="warning" className="mt-2" role="alert">
+                        {moreError}
+                      </Alert>
                     )}
                     {moreMessage && (
                       <p className="text-xs text-[var(--text-muted)] mt-1.5 text-center">

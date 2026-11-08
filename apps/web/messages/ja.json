@@ -332,6 +332,8 @@
       "searchPlaceholder": "単語、文法、タグを検索...",
       "kindLabel": "知識タイプ",
       "allKinds": "すべてのタイプ",
+      "levelLabel": "試験レベル",
+      "allLevels": "すべてのレベル",
       "statusLabel": "ステータス",
       "allStatus": "すべてのステータス"
     },
@@ -384,6 +386,10 @@
       "loadMore": "他の試験での出題例を見る",
       "loadingMore": "他の試験を検索中...",
       "noMoreExamples": "他の問題は見つかりませんでした。",
+      "accessDenied": "追加の問題を表示する権限がありません。アクセスが許可されてから、もう一度お試しください。",
+      "signInRequired": "ログインの有効期限が切れました。再度ログインして例文を検索してください。",
+      "rateLimited": "検索回数が多すぎます。しばらく待ってから、もう一度お試しください。",
+      "loadMoreError": "例文を読み込めませんでした。もう一度お試しください。",
       "moreLoadedCount": "他の試験から{count}問を追加しました。",
       "openExamHint": "試験「{title}」を開く（新しいタブ）"
     },

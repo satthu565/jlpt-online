@@ -33,7 +33,7 @@ Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xon
 | Tra từ, chi tiết từ vựng | `/tu-vung`, `/tu-vung/[term]` | `features/corpus`, module `vocab` |
 | Bộ dữ liệu kanji chuẩn: 3.186 chữ, cách dùng và ví dụ (#127) | admin `/kanji` | `data/kanji/kanji_chuan_v1.json`, bảng `kanji_dataset`, `apps/api/scripts/lexicon/import-kanji-dataset.mjs` |
 | Ngữ pháp, thống kê từ vựng trong đề | `/ngu-phap`, `/thong-ke-tu-vung` | `features/corpus` |
-| Sổ tay, flashcard SRS | `/so-tay` | `features/learning`, `packages/srs` |
+| Sổ tay, flashcard SRS; lọc mục theo cấp độ đề nguồn N5–N1 kết hợp loại, trạng thái và tìm kiếm | `/so-tay` | `features/learning`, `packages/srs` |
 | Kế hoạch học | `/ke-hoach` | `features/planner` |
 | Thống kê cá nhân | `/thong-ke` | `features/analytics` |
 | Lịch thi JLPT tại Việt Nam, nhắc hạn đăng ký | `/lich-thi` | `apps/api/src/modules/exam/jlpt-schedule.controller.ts` |
@@ -149,3 +149,5 @@ Versioned repair tooling covers 281 imported questions across 11 N5 exams, prepa
 ## N5 kanji/vocabulary content audit (2026-11-07)
 
 Reviewed 297 文字・語彙 questions across all 11 imported N5 exams. Prepared 14 question revisions in 7 exams, including 8 explanations, 6 underline corrections and exact source-glyph image options for two questions. No key changes. Three ambiguous questions in source-incomplete December 2022/2024 exams remain deferred; their reconstructed stems/options/keys are preserved. See [audit and guarded operation](../../tools/content/n5-kanji-vocab-review/README.md). Live application status is recorded separately after CI and backup.
+
+- Sổ tay: tải thêm ví dụ qua client có xác thực; tra cứu cả khi lượt thi thật đang mở (chỉ thị chủ dự án 08/11/2026); báo rõ khi hết phiên, thiếu quyền, giới hạn tần suất hoặc lỗi tải; cho thử lại, không báo nhầm là không có kết quả.

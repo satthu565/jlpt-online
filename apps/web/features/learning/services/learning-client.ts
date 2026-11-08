@@ -10,6 +10,23 @@ import type {
   TTSResponse,
 } from '../types';
 
+export class LearningClientError extends Error {
+  constructor(message: string, public readonly status: number, public readonly code?: string) {
+    super(message);
+    this.name = 'LearningClientError';
+  }
+}
+
+export interface NotebookCorpusQuestion {
+  id: string;
+  level: string;
+  skill: string;
+  stem?: unknown;
+  stemText?: string;
+  examTitle?: string;
+  options?: Array<{ content?: unknown; text?: string } | string>;
+}
+
 export class LearningClient {
   private readonly baseUrl: string;
   private readonly fetchFn: typeof fetch;
@@ -83,8 +100,9 @@ export class LearningClient {
     }
 
     if (!response.ok) {
-      const err = (data as { message?: string; code?: string }) || {};
-      throw new Error(err.message || `Request failed with status ${response.status}`);
+      const body = data as { error?: { message?: string; code?: string }; message?: string; code?: string };
+      const err = body?.error || body || {};
+      throw new LearningClientError(err.message || `Request failed with status ${response.status}`, response.status, err.code);
     }
 
     return data as T;
@@ -128,6 +146,13 @@ export class LearningClient {
     return this.request<{ examples: QuestionExample[] }>(
       'GET',
       `/me/notebook-items/${encodeURIComponent(notebookItemId)}/question-examples`,
+    );
+  }
+
+  public async getWordQuestionExamples(term: string): Promise<NotebookCorpusQuestion[]> {
+    return this.request<NotebookCorpusQuestion[]>(
+      'GET',
+      `/datasets/jlpt-official/vocabulary/${encodeURIComponent(term)}/questions`,
     );
   }
 

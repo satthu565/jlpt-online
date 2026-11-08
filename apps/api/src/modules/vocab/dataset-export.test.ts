@@ -189,7 +189,7 @@ describe('DATA-11..18, DATA-24..26 & Acceptance 6: Dataset Services & Export Con
       }
     });
 
-    it('blocks question retrieval if learner is in active real exam session', async () => {
+    it('allows question retrieval during an active real exam without exposing answers', async () => {
       // Create active exam record
       const examId = generateUuidV7();
       await dbClient.db.insert(exams).values({
@@ -225,9 +225,17 @@ describe('DATA-11..18, DATA-24..26 & Acceptance 6: Dataset Services & Export Con
         startedAt: new Date(),
       });
 
-      await expect(
-        vocabController.getQuestionsForWord(datasetId, '難しい', 'N3', undefined, testUser),
-      ).rejects.toThrow('Question viewing is strictly blocked during an active real exam session.');
+      const results = await vocabController.getQuestionsForWord(datasetId, '難しい', 'N3', undefined, testUser);
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0]?.stemText).toContain('難しい');
+      for (const question of results) {
+        expect(question).not.toHaveProperty('answerKey');
+        expect(question).not.toHaveProperty('correctOptionIndex');
+        for (const option of question.options ?? []) {
+          expect(option).not.toHaveProperty('correct');
+          expect(option).not.toHaveProperty('isCorrect');
+        }
+      }
     });
 
     it('filters out questions from exam events currently under embargo', async () => {

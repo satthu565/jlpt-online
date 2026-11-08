@@ -1,7 +1,6 @@
 import crypto from 'node:crypto';
 import {
   BadRequestException,
-  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
@@ -26,7 +25,6 @@ import {
   datasets,
   entryMeanings,
   entryReadings,
-  examAttempts,
   examEvents,
   exams,
   lexicalEntries,
@@ -715,7 +713,7 @@ export class CorpusService {
 
   /**
    * DATA-11: Xem các câu hỏi chứa từ đó nếu được phép.
-   * Chặn trong active real exam và event embargo; không lộ đáp án.
+   * Cho phép tra cứu cả khi đang thi thật; giữ event embargo và không lộ đáp án.
    */
   async getQuestionsForWord(
     datasetId: string,
@@ -723,27 +721,6 @@ export class CorpusService {
     options?: { level?: JlptLevel; limit?: number; userId?: string },
   ): Promise<CorpusQuestionDto[]> {
     const detail = await this.getDataset(datasetId);
-
-    // Negative Security Check: Block if user has active real exam attempt (Acceptance 2)
-    if (options?.userId) {
-      const activeAttempts = await this.dbClient.db
-        .select({ id: examAttempts.id })
-        .from(examAttempts)
-        .where(
-          and(
-            eq(examAttempts.userId, options.userId),
-            eq(examAttempts.mode, 'real'),
-            eq(examAttempts.status, 'in_progress'),
-          ),
-        )
-        .limit(1);
-
-      if (activeAttempts.length > 0) {
-        throw new ForbiddenException(
-          'Question viewing is strictly blocked during an active real exam session.',
-        );
-      }
-    }
 
     try {
       const matchingTerms = await this.dbClient.db

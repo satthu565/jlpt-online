@@ -332,6 +332,8 @@
       "searchPlaceholder": "Tìm kiếm từ vựng, ngữ pháp, tag...",
       "kindLabel": "Loại kiến thức",
       "allKinds": "Tất cả loại",
+      "levelLabel": "Cấp độ đề thi",
+      "allLevels": "Tất cả cấp độ",
       "statusLabel": "Trạng thái",
       "allStatus": "Tất cả trạng thái"
     },
@@ -384,6 +386,10 @@
       "loadMore": "Xem thêm ví dụ trong các đề khác",
       "loadingMore": "Đang tìm trong các đề khác...",
       "noMoreExamples": "Không tìm thấy thêm câu hỏi nào khác trong ngân hàng đề.",
+      "accessDenied": "Bạn chưa được phép xem thêm câu hỏi. Vui lòng thử lại khi có quyền truy cập.",
+      "signInRequired": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại để tìm thêm ví dụ.",
+      "rateLimited": "Bạn đang tìm quá nhanh. Vui lòng đợi một lát rồi thử lại.",
+      "loadMoreError": "Chưa tải được ví dụ. Vui lòng thử lại.",
       "moreLoadedCount": "Đã tải thêm {count} câu hỏi từ các đề thi khác.",
       "openExamHint": "Mở đề thi {title} (tab mới)"
     },

@@ -50,5 +50,7 @@ describe('NotebookPage Hero styling and synchronization', () => {
     expect(html).toContain('data-slot="select"');
     expect(html).toContain('notebook-kind-filter');
     expect(html).toContain('notebook-mastered-filter');
+    expect(html).toContain('notebook-level-filter');
+    expect(html).toContain('Tất cả cấp độ');
   });
 });
