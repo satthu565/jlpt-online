@@ -134,12 +134,18 @@ export function resolveExamSlug(title?: string, slug?: string): string | undefin
   return undefined;
 }
 
-export function getNotebookExamLevel(item: Pick<NotebookItem, 'sourceExam' | 'tags'>): string | undefined {
-  const sourceExam = item.sourceExam || item.tags
+export function getNotebookSource(item: Pick<NotebookItem, 'sourceExam' | 'sourceQnum' | 'tags'>) {
+  const sourceTag = (prefix: string) => item.tags
     .map((tag) => tag.replace(/^#+/, '').trim())
-    .find((tag) => tag.startsWith('source_exam:'))
-    ?.slice('source_exam:'.length);
-  return sourceExam?.match(/(?:^|[^a-z0-9])(N[1-5])(?=$|[^a-z0-9])/i)?.[1]?.toUpperCase();
+    .find((tag) => tag.startsWith(prefix))?.slice(prefix.length).trim();
+  return {
+    exam: item.sourceExam?.trim() || sourceTag('source_exam:'),
+    question: item.sourceQnum ?? sourceTag('source_qnum:'),
+  };
+}
+
+export function getNotebookExamLevel(item: Pick<NotebookItem, 'sourceExam' | 'tags'>): string | undefined {
+  return getNotebookSource(item).exam?.match(/(?:^|[^a-z0-9])(N[1-5])(?=$|[^a-z0-9])/i)?.[1]?.toUpperCase();
 }
 
 export interface NotebookViewProps {
@@ -512,6 +518,26 @@ export function NotebookView({
               <p className="mt-0 mx-0 mb-3 font-medium text-[var(--text-primary)]">
                 {item.meaning}
               </p>
+
+              {(() => {
+                const source = getNotebookSource(item);
+                const hasQuestion = source.question !== undefined && String(source.question).trim() !== '';
+                if (!source.exam && !hasQuestion) return null;
+                return (
+                  <div className="flex flex-wrap gap-2 mb-3" data-testid="notebook-source">
+                    {source.exam && (
+                      <Badge variant="secondary" className="max-w-full whitespace-normal break-words text-left">
+                        {source.exam}
+                      </Badge>
+                    )}
+                    {hasQuestion && (
+                      <Badge variant="default">
+                        {t('notebook.sourceQuestion', { number: String(source.question) })}
+                      </Badge>
+                    )}
+                  </div>
+                );
+              })()}
 
               {item.notes && (
                 <p className="text-sm text-[var(--text-secondary)] mt-0 mx-0 mb-3 italic">

@@ -10,8 +10,8 @@ for (const width of [390, 1366]) {
       tags: [], version: 1, createdAt: '2026-11-07T00:00:00Z', updatedAt: '2026-11-07T00:00:00Z',
     };
     const items = [
-      { ...baseItem, id: 'n3-vocab', term: '勉強', sourceExam: 'N3 7/2025' },
-      { ...baseItem, id: 'n3-grammar', term: 'ために', kind: 'grammar', mastered: true, tags: ['source_exam:N3 12/2024'] },
+      { ...baseItem, id: 'n3-vocab', term: '勉強', sourceExam: 'N3 7/2025', sourceQnum: 2 },
+      { ...baseItem, id: 'n3-grammar', term: 'ために', kind: 'grammar', mastered: true, tags: ['source_exam:N3 12/2024', 'source_qnum:12'] },
       { ...baseItem, id: 'n5-vocab', term: '学校', sourceExam: 'N5 7/2025' },
       { ...baseItem, id: 'manual', term: '手動', tags: ['level:N3'] },
     ];
@@ -32,6 +32,10 @@ for (const width of [390, 1366]) {
     await page.goto('/so-tay');
     const cards = page.locator('[data-testid^="notebook-item-"]');
     await expect(cards).toHaveCount(4);
+    await expect(page.getByTestId('notebook-item-n3-vocab').getByTestId('notebook-source')).toContainText('N3 7/2025');
+    await expect(page.getByTestId('notebook-item-n3-vocab').getByTestId('notebook-source')).toContainText('Câu 2');
+    await expect(page.getByTestId('notebook-item-n3-grammar').getByTestId('notebook-source')).toContainText('Câu 12');
+    await expect(page.getByTestId('notebook-item-manual').getByTestId('notebook-source')).toHaveCount(0);
     const choose = async (label: string, option: string) => {
       await page.getByRole('button', { name: new RegExp(label + '$') }).click();
       await page.getByRole('option', { name: option, exact: true }).click();

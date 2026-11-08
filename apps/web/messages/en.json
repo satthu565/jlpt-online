@@ -355,6 +355,7 @@
       "viewExamples": "Exam Examples",
       "deleteItem": "Delete item {term}"
     },
+    "sourceQuestion": "Question {number}",
     "countSummary": "Showing {count} of {total} items",
     "empty": {
       "title": "Your notebook is empty",

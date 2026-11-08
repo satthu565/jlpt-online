@@ -355,6 +355,7 @@
       "viewExamples": "試験の例文",
       "deleteItem": "項目を削除: {term}"
     },
+    "sourceQuestion": "問{number}",
     "countSummary": "{total} 項目中 {count} 項目を表示",
     "empty": {
       "title": "ノートに項目がありません",
