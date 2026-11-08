@@ -205,14 +205,9 @@ export function ExamCard({
 
       {/* Action buttons */}
       <div className="flex items-center gap-2 pt-2">
-        <a href={`/phong-thi?examId=${exam.id}`} className="flex-1 text-decoration-none">
+        <a href={`/de-thi/${exam.slug}`} className="flex-1 text-decoration-none">
           <Button variant="primary" size="sm" className="w-full">
-            Vào thi ngay
-          </Button>
-        </a>
-        <a href={`/de-thi/${exam.slug}`} className="text-decoration-none">
-          <Button variant="outline" size="sm">
-            Chi tiết
+            Chọn chế độ &amp; vào thi
           </Button>
         </a>
       </div>

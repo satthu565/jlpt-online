@@ -390,7 +390,7 @@ test.describe('Real Staging User Journey & Exam Flow (I05)', () => {
     await expect(page.locator('[data-testid="exam-library-page"]')).toBeVisible({ timeout: 15000 });
 
     // 6. Navigate to /phong-thi?examId=demo-n5-1
-    await page.goto(`${webOrigin}/phong-thi?examId=demo-n5-1`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${webOrigin}/phong-thi?examId=demo-n5-1&mode=real`, { waitUntil: 'domcontentloaded' });
     const modalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
     try {
       await modalBtn.waitFor({ state: 'visible', timeout: 10000 });
@@ -2716,7 +2716,7 @@ test.describe('Real Web Learner Experience & JLPT Schedules Integration Suite (P
     // briefly removes it from /exams; reload until the start dialog shows.
     const modalBtn = page.locator('[data-testid="modal-start-exam-btn"]');
     for (let i = 0; i < 4; i++) {
-      await page.goto(`${webOrigin}/phong-thi?examId=demo-n5-1`, { waitUntil: 'domcontentloaded' });
+      await page.goto(`${webOrigin}/phong-thi?examId=demo-n5-1&mode=real`, { waitUntil: 'domcontentloaded' });
       if (await modalBtn.isVisible({ timeout: 8000 }).catch(() => false)) break;
       await page.waitForTimeout(3000);
     }
@@ -3822,7 +3822,7 @@ test.describe('Platform Full Scope Integration & Zero Mock Gate Suite (I07)', ()
       await studentPage.goto(`${webOrigin}/de-thi`, { waitUntil: 'domcontentloaded' });
       await expect(studentPage.locator('[data-testid="exam-library-page"], .jlpt-library-view, h1').first()).toBeVisible({ timeout: 15000 });
 
-      await studentPage.goto(`${webOrigin}/phong-thi?examId=demo-n5-1`, { waitUntil: 'domcontentloaded' });
+      await studentPage.goto(`${webOrigin}/phong-thi?examId=demo-n5-1&mode=real`, { waitUntil: 'domcontentloaded' });
       const modalBtn = studentPage.locator('[data-testid="modal-start-exam-btn"]');
       try {
         await modalBtn.waitFor({ state: 'visible', timeout: 5000 });
