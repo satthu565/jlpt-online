@@ -355,6 +355,8 @@
       "viewExamples": "Ví dụ trong đề",
       "deleteItem": "Xóa mục {term}"
     },
+    "openSource": "Xem lại bài làm: {exam}",
+    "sourceQuestion": "Câu {number}",
     "countSummary": "Hiển thị {count} trên tổng số {total} mục",
     "empty": {
       "title": "Sổ tay của bạn đang trống",

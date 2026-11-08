@@ -64,7 +64,7 @@ export function PaperBooklet(props: PaperBookletProps): React.JSX.Element {
         const qIndex = question.globalIndex;
         const number = displayQuestionNumber(question.number);
         return <React.Fragment key={question.questionId}>
-          {showPassage && <PaperPassage id={passageOwner.groupId} blocks={question.passage!} marks={props.workspace.marks} onMark={props.onMark} onClear={props.onClearMarks} showFurigana={props.showFurigana} disabled={isDisabled} />}
+          {showPassage && <div data-question-index={qIndex}><PaperPassage id={passageOwner.groupId} blocks={question.passage!} marks={props.workspace.marks} onMark={props.onMark} onClear={props.onClearMarks} showFurigana={props.showFurigana} disabled={isDisabled} /></div>}
           {!sameMedia && (question.media ?? []).filter((src) => /\.(png|jpe?g|webp|svg|gif)(?:\?|$)/i.test(src)).map((src) => <PaperImage key={src} src={src} alt={t('paperExam.questionImage', { number })} />)}
           {/* Activate pointer interactions after the control receives its click. Changing the
               pacing banner on pointerdown can move the control before pointerup on Safari. */}

@@ -69,6 +69,7 @@ export interface SelectionLookupState {
   isOpen: boolean;
   queryText: string;
   matchedText?: string;
+  sourceQuestionIndex?: number;
   virtualRect: DOMRect | null;
   status: 'idle' | 'loading' | 'success' | 'not-found' | 'error';
   result: DictionaryLookupResultDto | null;
@@ -147,6 +148,7 @@ export function useSelectLookup({
 }: UseSelectLookupOptions = {}): SelectionLookupState {
   const [isOpen, setIsOpen] = useState(false);
   const [queryText, setQueryText] = useState('');
+  const [sourceQuestionIndex, setSourceQuestionIndex] = useState<number | undefined>();
   const [virtualRect, setVirtualRect] = useState<DOMRect | null>(null);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'not-found' | 'error'>('idle');
   const [result, setResult] = useState<DictionaryLookupResultDto | null>(null);
@@ -195,6 +197,13 @@ export function useSelectLookup({
     // Mouseup and the touch debounce can describe the same selection. Avoid
     // a second loading/layout cycle while the user is clicking popup tabs.
     if (!force && openRef.current && lastLookupRef.current === textToLookup && virtualRectRef.current?.left === rect.left && virtualRectRef.current?.top === rect.top) return;
+    if (!force) {
+      const selection = window.getSelection();
+      const node = selection?.anchorNode;
+      const element = node instanceof Element ? node : node?.parentElement;
+      const rawIndex = element?.closest('[data-question-index]')?.getAttribute('data-question-index');
+      setSourceQuestionIndex(rawIndex !== null && rawIndex !== undefined && /^\d+$/.test(rawIndex) ? Number(rawIndex) : undefined);
+    }
     openRef.current = true;
     virtualRectRef.current = rect;
     setQueryText(textToLookup);
@@ -321,6 +330,7 @@ export function useSelectLookup({
     isOpen,
     queryText,
     matchedText: result?.matchedText,
+    sourceQuestionIndex,
     virtualRect,
     status,
     result,

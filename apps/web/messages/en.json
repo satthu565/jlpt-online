@@ -355,6 +355,8 @@
       "viewExamples": "Exam Examples",
       "deleteItem": "Delete item {term}"
     },
+    "openSource": "Review saved attempt: {exam}",
+    "sourceQuestion": "Question {number}",
     "countSummary": "Showing {count} of {total} items",
     "empty": {
       "title": "Your notebook is empty",

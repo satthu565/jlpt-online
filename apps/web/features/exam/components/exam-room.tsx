@@ -517,6 +517,23 @@ export function ExamRoom({
   const flaggedCount = flags.filter((f) => f === 1).length;
 
   const currentQ = flatQuestions[currentQuestionIndex];
+  const lookupQ = flatQuestions[selectLookupState.sourceQuestionIndex ?? currentQuestionIndex];
+  const notebookTargetHandled = useRef(false);
+  useEffect(() => {
+    if (notebookTargetHandled.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('questionId');
+    const number = params.get('questionNumber');
+    if (!id && !number) return;
+    const target = id ? flatQuestions.find((question) => question.questionId === id)
+      : flatQuestions.find((question) => String(question.number) === number);
+    notebookTargetHandled.current = true;
+    if (!target || target.isLocked || target.globalIndex < firstQuestionOfSection || target.globalIndex > lastQuestionOfSection) return;
+    setCurrentQuestionIndex(target.globalIndex);
+    const frame = requestAnimationFrame(() => document.getElementById(`paper-question-${target.questionId}`)?.scrollIntoView({ block: 'center' }));
+    return () => cancelAnimationFrame(frame);
+  }, [flatQuestions, firstQuestionOfSection, lastQuestionOfSection]);
+
   const isLastSection = currentSectionIndex >= snapshot.sections.length - 1;
 
   const currentDeadline = deadlines[currentSectionIndex] || null;
@@ -714,12 +731,13 @@ export function ExamRoom({
         state={selectLookupState}
         openInNewTab={true}
         context={{
-          questionId: currentQ?.questionId,
+          attemptId,
+          questionId: lookupQ?.questionId,
           examId: snapshot.examId,
           examTitle: snapshot.title,
-          questionNumber: currentQ?.number || currentQuestionIndex + 1,
-          sentence: currentQ?.stem ? richTextToPlainText(currentQ.stem) : undefined,
-          options: currentQ?.options?.map((opt, idx) => ({
+          questionNumber: lookupQ?.number ?? (selectLookupState.sourceQuestionIndex ?? currentQuestionIndex) + 1,
+          sentence: lookupQ?.stem ? richTextToPlainText(lookupQ.stem) : undefined,
+          options: lookupQ?.options?.map((opt, idx) => ({
             orderIndex: idx + 1,
             text: richTextToPlainText(opt.content),
           })),

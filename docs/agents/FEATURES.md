@@ -151,3 +151,7 @@ Versioned repair tooling covers 281 imported questions across 11 N5 exams, prepa
 Reviewed 297 文字・語彙 questions across all 11 imported N5 exams. Prepared 14 question revisions in 7 exams, including 8 explanations, 6 underline corrections and exact source-glyph image options for two questions. No key changes. Three ambiguous questions in source-incomplete December 2022/2024 exams remain deferred; their reconstructed stems/options/keys are preserved. See [audit and guarded operation](../../tools/content/n5-kanji-vocab-review/README.md). Live application status is recorded separately after CI and backup.
 
 - Sổ tay: tải thêm ví dụ qua client có xác thực; tra cứu cả khi lượt thi thật đang mở (chỉ thị chủ dự án 08/11/2026); báo rõ khi hết phiên, thiếu quyền, giới hạn tần suất hoặc lỗi tải; cho thử lại, không báo nhầm là không có kết quả.
+
+- Sổ tay: mỗi thẻ đặt tên đề nguồn và số câu ở hàng đầu bằng Chip HeroUI cỡ lớn, có nền và biểu tượng đề thi; từ/mẫu ngữ pháp nổi bật, cách đọc ở dòng riêng bên dưới; hỗ trợ metadata cũ trong tag, không thêm nguồn giả cho mục nhập tay.
+
+- Sổ tay: bấm tên đề mở đúng lượt làm đã lưu từ/ngữ pháp và cuộn tới câu nguồn theo ID; lưu attempt/exam trong metadata. Mục cũ chưa có mã lượt làm: tự mở nếu lịch sử chỉ có một lượt đúng đề, nhiều lượt thì lọc theo đề để chọn, giữ câu đích.

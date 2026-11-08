@@ -163,3 +163,5 @@ Symptom: N5 2010–2011 Q15 options 2 and 4 look identical despite different str
 
 - React 19 cảnh báo `__button_group_child` khi đặt thẻ `<span>` hay `<div>` trong HeroUI `ButtonGroup` → HeroUI clone và truyền thuộc tính này xuống mọi con trực tiếp → dùng container bọc ngoài với `role="group"` hoặc chỉ chứa `Button` trực tiếp trong `ButtonGroup`.
 - Sổ tay luôn báo không có ví dụ → request corpus trả 403 khi tài khoản còn lượt thi thật và giao diện nuốt lỗi → đọc error envelope của API, hiện lý do và cho thử lại; chỉ hiện không có kết quả sau request thành công. Chủ dự án yêu cầu bỏ chặn tra cứu trong lượt thi thật ngày 08/11/2026; không khôi phục quy tắc này.
+
+- Bấm nguồn sổ tay bị dừng ở lịch sử dù chỉ có một lượt đúng đề → API lịch sử bỏ qua cursor, giao diện gộp trùng cùng ID thành nhiều lượt → phân trang theo startedAt/id, kiểm tra cursor thuộc người dùng và loại trùng theo ID ở client; kiểm tra bằng phản hồi lặp lại trang đầu.

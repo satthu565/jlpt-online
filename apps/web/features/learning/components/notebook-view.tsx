@@ -1,12 +1,15 @@
 'use client';
 
-import { Check, ChevronDown, ChevronUp, Download, ExternalLink, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
+import { BookOpen, Check, ChevronDown, ChevronUp, Download, ExternalLink, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
 import React, { useState } from 'react';
+import Link from 'next/link';
+import { getNotebookSourceHref } from '../services/notebook-source-link';
 import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
 import { Input } from '@jlpt/ui/components/input';
 import { HeroSelect } from '@jlpt/ui/components/hero-select';
 import { Badge } from '@jlpt/ui/components/badge';
+import { Chip } from '@jlpt/ui/components/exam-controls';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Modal } from '@jlpt/ui/components/modal';
 import { Spinner } from '@jlpt/ui/components/spinner';
@@ -134,12 +137,18 @@ export function resolveExamSlug(title?: string, slug?: string): string | undefin
   return undefined;
 }
 
-export function getNotebookExamLevel(item: Pick<NotebookItem, 'sourceExam' | 'tags'>): string | undefined {
-  const sourceExam = item.sourceExam || item.tags
+export function getNotebookSource(item: Pick<NotebookItem, 'sourceExam' | 'sourceQnum' | 'tags'>) {
+  const sourceTag = (prefix: string) => item.tags
     .map((tag) => tag.replace(/^#+/, '').trim())
-    .find((tag) => tag.startsWith('source_exam:'))
-    ?.slice('source_exam:'.length);
-  return sourceExam?.match(/(?:^|[^a-z0-9])(N[1-5])(?=$|[^a-z0-9])/i)?.[1]?.toUpperCase();
+    .find((tag) => tag.startsWith(prefix))?.slice(prefix.length).trim();
+  return {
+    exam: item.sourceExam?.trim() || sourceTag('source_exam:'),
+    question: item.sourceQnum ?? sourceTag('source_qnum:'),
+  };
+}
+
+export function getNotebookExamLevel(item: Pick<NotebookItem, 'sourceExam' | 'tags'>): string | undefined {
+  return getNotebookSource(item).exam?.match(/(?:^|[^a-z0-9])(N[1-5])(?=$|[^a-z0-9])/i)?.[1]?.toUpperCase();
 }
 
 export interface NotebookViewProps {
@@ -466,46 +475,70 @@ export function NotebookView({
       <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
         {filteredItems.map((item) => (
           <Card key={item.id} data-testid={`notebook-item-${item.id}`} className="flex flex-col h-full">
-            <CardHeader className="flex justify-between items-start">
-              <div>
-                <div className="flex gap-2 items-center mb-1">
-                  <Badge variant={kindBadgeVariant(item.kind)}>
-                    {t(`notebook.kinds.${item.kind}`)}
-                  </Badge>
-                  {item.mastered && (
-                    <Badge variant="success"><Check className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.status.mastered')}</Badge>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <CardTitle className="text-xl mt-1 mx-0 mb-0">
-                    {item.term}
-                  </CardTitle>
-                  {item.hanViet && (
-                    <span className="text-xs font-semibold py-[2px] px-[6px] rounded-[4px] bg-[rgba(245,158,11,0.15)] text-[#b45309] inline-block"
-                      data-testid="notebook-item-hanviet"
-                    >
-                      {item.hanViet}
-                    </span>
-                  )}
+            <CardHeader className="flex flex-col gap-3">
+              {(() => {
+                const source = getNotebookSource(item);
+                const hasQuestion = source.question !== undefined && String(source.question).trim() !== '';
+                if (!source.exam && !hasQuestion) return null;
+                return (
+                  <div className="flex flex-wrap items-center gap-2 border-b border-[var(--border-subtle)] pb-3" data-testid="notebook-source">
+                    {source.exam && (
+                      <Link href={getNotebookSourceHref(item)} aria-label={t('notebook.openSource', { exam: source.exam })} className="inline-flex max-w-full rounded-full focus-visible:outline-2 focus-visible:outline-offset-2">
+                      <Chip size="lg" color="accent" variant="soft" className="max-w-full">
+                        <BookOpen className="size-4 shrink-0" aria-hidden="true" />
+                        <Chip.Label className="whitespace-normal break-words">{source.exam}</Chip.Label>
+                      </Chip>
+                      </Link>
+                    )}
+                    {hasQuestion && (
+                      <Chip size="lg" color="default" variant="secondary">
+                        <Chip.Label>{t('notebook.sourceQuestion', { number: String(source.question) })}</Chip.Label>
+                      </Chip>
+                    )}
+                  </div>
+                );
+              })()}
+              <div className="flex justify-between items-start gap-3">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap gap-2 items-center mb-2">
+                    <Badge variant={kindBadgeVariant(item.kind)}>
+                      {t(`notebook.kinds.${item.kind}`)}
+                    </Badge>
+                    {item.mastered && (
+                      <Badge variant="success"><Check className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.status.mastered')}</Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <CardTitle className="text-xl m-0 break-words">
+                      {item.term}
+                    </CardTitle>
+                    {item.hanViet && (
+                      <span className="text-xs font-semibold py-[2px] px-[6px] rounded-[4px] bg-[rgba(245,158,11,0.15)] text-[#b45309] inline-block"
+                        data-testid="notebook-item-hanviet"
+                      >
+                        {item.hanViet}
+                      </span>
+                    )}
+                  </div>
                   {item.reading && (
-                    <span className="text-sm text-[var(--text-muted)]">
+                    <p className="mt-1 mb-0 text-sm text-[var(--text-muted)]" data-testid="notebook-reading">
                       [{item.reading}]
-                    </span>
+                    </p>
                   )}
                 </div>
-              </div>
 
-              {FEATURES.tts && onPlayTts && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onPlayTts(item.term)}
-                  aria-label={t('notebook.actions.playAudio', { term: item.term })}
-                  title={t('notebook.actions.playAudio', { term: item.term })}
-                >
-                  <Volume2 className="size-4" aria-hidden="true" />
-                </Button>
-              )}
+                {FEATURES.tts && onPlayTts && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onPlayTts(item.term)}
+                    aria-label={t('notebook.actions.playAudio', { term: item.term })}
+                    title={t('notebook.actions.playAudio', { term: item.term })}
+                  >
+                    <Volume2 className="size-4" aria-hidden="true" />
+                  </Button>
+                )}
+              </div>
             </CardHeader>
 
             <CardContent className="flex flex-1 flex-col">

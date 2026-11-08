@@ -18,6 +18,7 @@ import { FEATURES } from '../../../lib/features';
 import { absoluteUrl } from '../../../lib/site';
 import { useSelectLookup, useSelectLookupSetting, SelectionLookupPopover } from '../../corpus';
 import { examApiClient } from '../../exam/api/exam-api';
+import { richTextToPlainText } from '../../corpus/utils/rich-text-helpers';
 import type { LearnerExplanation } from '../../explanations/types';
 
 export interface ReviewViewProps {
@@ -74,6 +75,24 @@ export function ReviewView({
   const flatQuestions = useMemo(() => {
     return flattenExamQuestions(snapshot);
   }, [snapshot]);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const questionId = params.get('questionId');
+    const number = params.get('questionNumber');
+    const target = questionId
+      ? flatQuestions.find((question) => question.questionId === questionId)
+      : number ? flatQuestions.find((question) => String(question.number) === number) : undefined;
+    if (!target) return;
+    const frame = requestAnimationFrame(() => {
+      const element = document.getElementById(`review-question-${target.globalIndex}`);
+      element?.focus({ preventScroll: true });
+      element?.scrollIntoView({ block: 'center', behavior: 'instant' });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [flatQuestions]);
+  const lookupQuestion = selectLookupState.sourceQuestionIndex === undefined
+    ? undefined : flatQuestions[selectLookupState.sourceQuestionIndex];
 
   // Filter questions for display (SCORE-09)
   const displayedQuestions = useMemo(() => {
@@ -240,8 +259,12 @@ export function ReviewView({
         state={selectLookupState}
         openInNewTab={false}
         context={{
+          attemptId,
           examId: snapshot.examId,
           examTitle: snapshot.title,
+          questionId: lookupQuestion?.questionId,
+          questionNumber: lookupQuestion?.number,
+          sentence: lookupQuestion ? richTextToPlainText(lookupQuestion.stem) : undefined,
         }}
       />
     </div>

@@ -34,10 +34,27 @@ export default function ExamHistoryPage(): React.JSX.Element {
       setError(null);
       setIsUnauthorized(false);
 
+      const sourceQuery = new URLSearchParams(window.location.search);
+      const fromNotebook = ['sourceAttemptId', 'sourceExamId', 'sourceExam'].some((key) => sourceQuery.has(key));
       const [attemptsRes, examsRes] = await Promise.all([
-        client.listMyAttempts(),
+        client.listMyAttempts(undefined, fromNotebook ? 100 : 20),
         client.getExams().catch(() => ({ items: [] })),
       ]);
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('sourceAttemptId') || params.has('sourceExamId') || params.has('sourceExam')) {
+        const seen = new Set<string>();
+        let cursor = attemptsRes.nextCursor;
+        while (cursor && !seen.has(cursor) && (!params.get('sourceAttemptId') || !attemptsRes.items.some((attempt) => attempt.id === params.get('sourceAttemptId')))) {
+          seen.add(cursor);
+          const page = await client.listMyAttempts(cursor, 100);
+          const ids = new Set(attemptsRes.items.map((attempt) => attempt.id));
+          const freshItems = page.items.filter((attempt) => !ids.has(attempt.id));
+          if (freshItems.length === 0) break;
+          attemptsRes.items.push(...freshItems);
+          cursor = page.nextCursor;
+        }
+      }
 
       const examsMap = new Map(examsRes.items.map((e) => [e.id, e]));
 
