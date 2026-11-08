@@ -152,4 +152,4 @@ Reviewed 297 文字・語彙 questions across all 11 imported N5 exams. Prepared
 
 - Sổ tay: tải thêm ví dụ qua client có xác thực; tra cứu cả khi lượt thi thật đang mở (chỉ thị chủ dự án 08/11/2026); báo rõ khi hết phiên, thiếu quyền, giới hạn tần suất hoặc lỗi tải; cho thử lại, không báo nhầm là không có kết quả.
 
-- Sổ tay: mỗi thẻ hiển thị tên đề nguồn và số câu đã lưu; hỗ trợ metadata cũ trong tag, không thêm nguồn giả cho mục nhập tay.
+- Sổ tay: mỗi thẻ đặt tên đề nguồn và số câu ở hàng đầu, chữ nhỏ màu xám; từ/mẫu ngữ pháp nổi bật, cách đọc ở dòng riêng bên dưới; hỗ trợ metadata cũ trong tag, không thêm nguồn giả cho mục nhập tay.

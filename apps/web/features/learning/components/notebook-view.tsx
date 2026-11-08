@@ -472,72 +472,69 @@ export function NotebookView({
       <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
         {filteredItems.map((item) => (
           <Card key={item.id} data-testid={`notebook-item-${item.id}`} className="flex flex-col h-full">
-            <CardHeader className="flex justify-between items-start">
-              <div>
-                <div className="flex gap-2 items-center mb-1">
-                  <Badge variant={kindBadgeVariant(item.kind)}>
-                    {t(`notebook.kinds.${item.kind}`)}
-                  </Badge>
-                  {item.mastered && (
-                    <Badge variant="success"><Check className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.status.mastered')}</Badge>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <CardTitle className="text-xl mt-1 mx-0 mb-0">
-                    {item.term}
-                  </CardTitle>
-                  {item.hanViet && (
-                    <span className="text-xs font-semibold py-[2px] px-[6px] rounded-[4px] bg-[rgba(245,158,11,0.15)] text-[#b45309] inline-block"
-                      data-testid="notebook-item-hanviet"
-                    >
-                      {item.hanViet}
-                    </span>
-                  )}
+            <CardHeader className="flex flex-col gap-3">
+              {(() => {
+                const source = getNotebookSource(item);
+                const hasQuestion = source.question !== undefined && String(source.question).trim() !== '';
+                if (!source.exam && !hasQuestion) return null;
+                return (
+                  <div className="flex items-start justify-between gap-3 border-b border-[var(--border-subtle)] pb-3 text-xs text-[var(--text-muted)]" data-testid="notebook-source">
+                    <span className="min-w-0 flex-1 break-words">{source.exam}</span>
+                    {hasQuestion && (
+                      <span className="shrink-0">
+                        {t('notebook.sourceQuestion', { number: String(source.question) })}
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
+              <div className="flex justify-between items-start gap-3">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap gap-2 items-center mb-2">
+                    <Badge variant={kindBadgeVariant(item.kind)}>
+                      {t(`notebook.kinds.${item.kind}`)}
+                    </Badge>
+                    {item.mastered && (
+                      <Badge variant="success"><Check className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.status.mastered')}</Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <CardTitle className="text-xl m-0 break-words">
+                      {item.term}
+                    </CardTitle>
+                    {item.hanViet && (
+                      <span className="text-xs font-semibold py-[2px] px-[6px] rounded-[4px] bg-[rgba(245,158,11,0.15)] text-[#b45309] inline-block"
+                        data-testid="notebook-item-hanviet"
+                      >
+                        {item.hanViet}
+                      </span>
+                    )}
+                  </div>
                   {item.reading && (
-                    <span className="text-sm text-[var(--text-muted)]">
+                    <p className="mt-1 mb-0 text-sm text-[var(--text-muted)]" data-testid="notebook-reading">
                       [{item.reading}]
-                    </span>
+                    </p>
                   )}
                 </div>
-              </div>
 
-              {FEATURES.tts && onPlayTts && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onPlayTts(item.term)}
-                  aria-label={t('notebook.actions.playAudio', { term: item.term })}
-                  title={t('notebook.actions.playAudio', { term: item.term })}
-                >
-                  <Volume2 className="size-4" aria-hidden="true" />
-                </Button>
-              )}
+                {FEATURES.tts && onPlayTts && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onPlayTts(item.term)}
+                    aria-label={t('notebook.actions.playAudio', { term: item.term })}
+                    title={t('notebook.actions.playAudio', { term: item.term })}
+                  >
+                    <Volume2 className="size-4" aria-hidden="true" />
+                  </Button>
+                )}
+              </div>
             </CardHeader>
 
             <CardContent className="flex flex-1 flex-col">
               <p className="mt-0 mx-0 mb-3 font-medium text-[var(--text-primary)]">
                 {item.meaning}
               </p>
-
-              {(() => {
-                const source = getNotebookSource(item);
-                const hasQuestion = source.question !== undefined && String(source.question).trim() !== '';
-                if (!source.exam && !hasQuestion) return null;
-                return (
-                  <div className="flex flex-wrap gap-2 mb-3" data-testid="notebook-source">
-                    {source.exam && (
-                      <Badge variant="secondary" className="max-w-full whitespace-normal break-words text-left">
-                        {source.exam}
-                      </Badge>
-                    )}
-                    {hasQuestion && (
-                      <Badge variant="default">
-                        {t('notebook.sourceQuestion', { number: String(source.question) })}
-                      </Badge>
-                    )}
-                  </div>
-                );
-              })()}
 
               {item.notes && (
                 <p className="text-sm text-[var(--text-secondary)] mt-0 mx-0 mb-3 italic">
