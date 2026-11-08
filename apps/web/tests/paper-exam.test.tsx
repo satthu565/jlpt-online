@@ -146,4 +146,27 @@ describe('Paper booklet and answer sheet', () => {
     expect(html).toContain('Chọn câu để xem hoặc làm bài');
   });
 
+  it('normalizes outer parentheses and whitespace around blanks in MarkedText', () => {
+    const segmentsWithOuterParens = [
+      { t: 'text' as const, text: '好きなことを我慢して（　' },
+      { t: 'blank' as const },
+      { t: 'text' as const, text: '　）する節約' },
+    ];
+    const html = renderToStaticMarkup(
+      <MarkedText
+        id="test-q26"
+        segments={segmentsWithOuterParens}
+        marks={[]}
+        onMark={noop}
+        onClear={noop}
+        showFurigana={false}
+      />
+    );
+    expect(html).not.toContain('（(');
+    expect(html).not.toContain('（ (');
+    expect(html).not.toContain(')）');
+    expect(html).not.toContain(') ）');
+    expect(html).toContain('jlpt-blank');
+  });
+
 });

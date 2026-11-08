@@ -17,7 +17,7 @@ export interface RichTextViewProps {
  * - Normalizes pure whitespace between blanks and stars (Mondai 7) so standard component margins govern spacing.
  * - Detects and cleans up surrounding parentheses around blanks to prevent double-parentheses like `（ (   ) ）`.
  */
-function preprocessSegments(segments: RichTextSegment[]): {
+export function preprocessSegments(segments: RichTextSegment[]): {
   normalized: RichTextSegment[];
   blanksWithOuterParens: Set<number>;
 } {
@@ -75,6 +75,7 @@ function preprocessSegments(segments: RichTextSegment[]): {
 
       if (hasPrevParen && hasNextParen) {
         blanksWithOuterParens.add(i);
+        (s as { hasOuterParens?: boolean }).hasOuterParens = true;
         if (prev && prev.t === 'text') {
           prev.text = prev.text.replace(/([（(])[\s\u3000]+$/, '$1');
         }
@@ -221,7 +222,7 @@ export function RichTextView({
 
           case 'blank': {
             const label = seg.label?.trim();
-            const hasOuterParens = blanksWithOuterParens.has(idx);
+            const hasOuterParens = Boolean((seg as { hasOuterParens?: boolean }).hasOuterParens || blanksWithOuterParens.has(idx));
 
             let blankContent: React.ReactNode;
             if (hasOuterParens) {
