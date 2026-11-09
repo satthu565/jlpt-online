@@ -103,7 +103,7 @@ export default function AnalyticsPage(): React.JSX.Element {
   const [isUnauthorized, setIsUnauthorized] = useState<boolean>(false);
   const [attempts, setAttempts] = useState<AttemptRecord[]>([]);
   const [questionAttempts, setQuestionAttempts] = useState<QuestionAttemptRecord[]>([]);
-  const [isDemoMode, setIsDemoMode] = useState<boolean>(false);
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
 
   const fetchAnalyticsData = useCallback(async () => {
     if (authLoading) return;
@@ -190,6 +190,9 @@ export default function AnalyticsPage(): React.JSX.Element {
 
       setAttempts(loadedAttempts);
       setQuestionAttempts(loadedQuestionAttempts);
+      if (loadedAttempts.length > 0) {
+        setIsDemoMode(false);
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Không thể kết nối máy chủ phân tích';
       setError(msg);
