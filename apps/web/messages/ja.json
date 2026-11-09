@@ -436,6 +436,16 @@
   },
   "srs": {
     "study": {
+      "repeat": "学習したカードをもう一度復習",
+      "practiceMode": "追加練習・予定は変更しません",
+      "practiceHint": "記憶を定着させる追加練習です。SRSの予定は変更せず、今日の進捗に同じカードを重複計上しません。",
+      "practiceAgain": "最後にもう一度",
+      "practiceNext": "追加練習を続ける",
+      "practiceFinished": "追加練習が完了しました",
+      "practiceCount": "{count}枚のカードをもう一度復習しました。",
+      "repeatAvailable": "学習済みカード{count}枚をもう一度練習できます。",
+      "practiceExit": "追加練習を終了",
+      "syncRetryHint": "結果は端末に保持されています。サーバーと同期できません。「再試行」で送信し直してください。",
       "ratings": {"again": "忘れた", "hard": "難しい", "good": "覚えた", "easy": "簡単"},
       "prompt": "意味を思い出せますか？",
       "answer": "答え",

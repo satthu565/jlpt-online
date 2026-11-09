@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Clock3, Save, Settings2, Undo2 } from 'lucide-react';
+import { Check, Clock3, RotateCcw, Save, Settings2, Undo2 } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Card, Chip, ProgressBar } from '@jlpt/ui/components/exam-controls';
 import { HeroSelect } from '@jlpt/ui/components/hero-select';
@@ -8,6 +8,8 @@ import { Alert } from '@jlpt/ui/components/alert';
 import type { DueFlashcard, ReviewRating } from '../types';
 import { FlashcardView } from './flashcard-view';
 import { SrsSyncManager, type SrsSyncSnapshot } from '../services/srs-sync-manager';
+import { newReviewId } from '../services/srs-review-id';
+import { practiceQueue, ratePractice, reviewedCards, undoPractice, type PracticeSession } from '../services/srs-practice';
 import { defaultLearningClient } from '../services/learning-client';
 import {
   createStudyState, dailyProgress, markStudySaved, rateStudyCard, restoreStudyState,
@@ -32,6 +34,7 @@ export function SrsReviewRunner({
   const stateRef = useRef(state);
   const [now, setNow] = useState(() => Date.now());
   const [ready, setReady] = useState(false);
+  const [practice, setPractice] = useState<PracticeSession | null>(null);
   const [transitioning, setTransitioning] = useState(false);
   const [saving, setSaving] = useState(false);
   const saveLock = useRef(false);
@@ -50,6 +53,17 @@ export function SrsReviewRunner({
         const raw = localStorage.getItem(storageKey);
         if (raw) restored = restoreStudyState(raw, availableCards);
       } catch { setLocalError(t('srs.study.restoreError')); }
+    }
+    // Recover the last deck from the old completed/pending screen before auto-sync
+    // can remove those cards from the due endpoint.
+    if (!restored.lastReviewedCards?.length) {
+      const known = new Set([...dailyProgress(restored).reviewed, ...manager.getQueue().map(item => item.cardId)]);
+      const lastReviewedCards = cards.filter(card => known.has(card.cardId));
+      if (lastReviewedCards.length) {
+        restored = { ...restored, lastReviewedCards };
+        try { if (storageKey) localStorage.setItem(storageKey, JSON.stringify(restored)); }
+        catch { setLocalError(t('srs.study.storageError')); }
+      }
     }
     // Recover a save interrupted between durable queueing and writing the study checkpoint.
     const queued = new Set(manager.getQueue().map(item => item.id));
@@ -79,25 +93,45 @@ export function SrsReviewRunner({
     }
   };
   const queue = selectStudyQueue(state, now);
-  const active = queue.entries.find(entry => entry.availableAt <= now);
-  const waiting = queue.entries.filter(entry => entry.availableAt > now);
+  const scheduledActive = queue.entries.find(entry => entry.availableAt <= now);
+  const extraQueue = practice ? practiceQueue(practice) : [];
+  const active = practice ? (extraQueue[0] ? { card: extraQueue[0], availableAt: now } : undefined) : scheduledActive;
+  const waiting = practice ? [] : queue.entries.filter(entry => entry.availableAt > now);
   const nextAt = waiting.length ? Math.min(...waiting.map(entry => entry.availableAt)) : null;
   const remainingSeconds = nextAt ? Math.max(0, Math.ceil((nextAt - now) / 1000)) : 0;
   const countdown = `${Math.floor(remainingSeconds / 60)}:${String(remainingSeconds % 60).padStart(2, '0')}`;
   const progress = dailyProgress(state, now);
   const draftCount = state.session.events.length - state.session.savedCount;
-  const canUndo = draftCount > 0;
+  const canUndo = practice ? practice.ratings.length > 0 : draftCount > 0;
   const reviewedThisSession = new Set(state.session.events.map(event => event.cardId)).size;
-  const ended = queue.entries.length === 0;
+  const ended = practice ? extraQueue.length === 0 : queue.entries.length === 0;
+  const currentReviewed = reviewedCards(state);
+  const knownReviewed = new Set([...progress.reviewed, ...manager.getQueue().map(item => item.cardId)]);
+  const repeatCards = currentReviewed.length ? currentReviewed : state.lastReviewedCards?.length
+    ? state.lastReviewedCards : cards.filter(card => knownReviewed.has(card.cardId));
+  const startPractice = () => {
+    const deck = practice?.cards ?? repeatCards;
+    if (!deck.length || saving || transitioning) return;
+    if (!persist({ ...stateRef.current, lastReviewedCards: deck })) return;
+    setPractice({ cards: deck, ratings: [] });
+    setViewRevision(value => value + 1);
+  };
   const handleRate = (rating: ReviewRating) => {
     setTransitioning(false);
     if (!active || saveLock.current || !ready) return;
+    if (practice) {
+      setPractice(current => current ? ratePractice(current, active.card.cardId, rating) : current);
+      return;
+    }
     const timestamp = Date.now();
-    const next = rateStudyCard(stateRef.current, active.card.cardId, rating, timestamp, `rev-${timestamp}-${crypto.getRandomValues(new Uint32Array(4)).join('-')}`);
+    const next = rateStudyCard(stateRef.current, active.card.cardId, rating, timestamp, newReviewId());
     persist(next); setNow(timestamp);
   };
   const handleUndo = () => {
     if (saveLock.current) return;
+    if (practice) {
+      setPractice(undoPractice(practice)); setViewRevision(value => value + 1); return;
+    }
     const next = undoStudyRating(stateRef.current);
     if (persist(next)) { setViewRevision(value => value + 1); setNow(Date.now()); }
   };
@@ -148,6 +182,7 @@ export function SrsReviewRunner({
         <div className="flex flex-wrap gap-2">
           <Chip size="sm" variant="tertiary">{t('srs.study.reviewCount', { count: counts.reviews })}</Chip>
           <Chip size="sm" variant="tertiary">{t('srs.study.newCount', { count: counts.fresh })}</Chip>
+          {practice && <Chip size="sm" variant="tertiary">{t('srs.study.practiceMode')}</Chip>}
           {waiting.length > 0 && <Chip size="sm" variant="tertiary">{t('srs.study.waitingCount', { count: counts.waiting })}</Chip>}
         </div>
         {progress.reviewed.length >= state.settings.dailyGoal && <p role="status" className="text-sm">{t('srs.study.goalReached')}</p>}
@@ -164,20 +199,33 @@ export function SrsReviewRunner({
     </Card>
 
     {localError && <Alert variant="error">{localError}</Alert>}
-    {syncSnapshot.state === 'error' && <Alert variant="warning">{t('srs.sync.error')}</Alert>}
+    {syncSnapshot.state === 'error' && <Alert variant="warning">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span>{t('srs.study.syncRetryHint')}</span>
+        <Button size="sm" variant="secondary" disabled={saving || transitioning} onPress={() => { void handleSave(); }}>{t('common.buttons.retry')}</Button>
+      </div>
+    </Alert>}
 
-    {active ? <FlashcardView key={`${active.card.cardId}:${state.session.events.length}:${viewRevision}`}
-      card={active.card} onRate={handleRate} onPlayTts={onPlayTts} onTransitionStart={() => setTransitioning(true)} disabled={!ready || saving}
-      cardIndex={reviewedThisSession + 1} totalCards={Math.max(reviewedThisSession + 1, reviewedThisSession + queue.entries.length)} />
+    {active ? <FlashcardView key={`${practice ? 'practice' : 'scheduled'}:${active.card.cardId}:${practice?.ratings.length ?? state.session.events.length}:${viewRevision}`}
+      card={active.card} practice={Boolean(practice)} onRate={handleRate} onPlayTts={onPlayTts} onTransitionStart={() => setTransitioning(true)} disabled={!ready || saving}
+      cardIndex={practice ? practice.cards.length - extraQueue.length + 1 : reviewedThisSession + 1} totalCards={practice ? practice.cards.length : Math.max(reviewedThisSession + 1, reviewedThisSession + queue.entries.length)} />
       : <Card data-testid={ended ? 'srs-finished-card' : 'srs-waiting-card'}>
         <Card.Content className="flex flex-col items-center gap-4 px-5 py-10 text-center">
           {ended ? <Check size={40} aria-hidden="true" /> : <Clock3 size={40} aria-hidden="true" />}
-          <h2 className="text-xl font-semibold">{t(ended ? 'srs.study.roundFinished' : 'srs.study.waitingTitle')}</h2>
+          <h2 className="text-xl font-semibold">{t(practice ? 'srs.study.practiceFinished' : ended ? 'srs.study.roundFinished' : 'srs.study.waitingTitle')}</h2>
           <p className="text-sm text-[var(--text-secondary)]">{ended
-            ? t('srs.study.sessionCount', { count: reviewedThisSession })
+            ? practice ? t('srs.study.practiceCount', { count: practice.cards.length })
+              : reviewedThisSession ? t('srs.study.sessionCount', { count: reviewedThisSession })
+              : t('srs.study.repeatAvailable', { count: repeatCards.length })
             : t('srs.study.waitingDescription', { count: waiting.length })}</p>
+          {ended && (practice ? practice.cards.length > 0 : repeatCards.length > 0) && <>
+            <Button onPress={startPractice} disabled={saving || !ready || transitioning} data-testid="srs-practice-start">
+              <RotateCcw size={16} aria-hidden="true" />{t('srs.study.repeat')}
+            </Button>
+            <p className="text-xs text-[var(--text-muted)]">{t('srs.study.practiceHint')}</p>
+          </>}
           {!ended && <p className="text-3xl font-semibold tabular-nums" aria-label={t('srs.study.timeRemaining')} data-testid="srs-countdown">{countdown}</p>}
-          {queue.deferredNew > 0 && <p className="text-sm">{t('srs.study.deferred', { count: queue.deferredNew })}</p>}
+          {!practice && queue.deferredNew > 0 && <p className="text-sm">{t('srs.study.deferred', { count: queue.deferredNew })}</p>}
         </Card.Content>
       </Card>}
 
@@ -190,6 +238,8 @@ export function SrsReviewRunner({
           loading={saving} disabled={!ready || transitioning} data-testid="srs-save">
           <Save size={16} aria-hidden="true" />{t('srs.study.save')}
         </Button>}
+        {practice && <Button variant="secondary" onPress={() => { setPractice(null); setViewRevision(value => value + 1); }}
+          disabled={transitioning} data-testid="srs-practice-exit">{t('srs.study.practiceExit')}</Button>}
         {onFinish && <Button variant="ghost" onPress={() => { void handleSave(true); }} disabled={saving || !ready || transitioning}>
           {t('srs.study.saveAndExit')}
         </Button>}
@@ -197,7 +247,7 @@ export function SrsReviewRunner({
     </div>
     <div className="flex flex-col gap-2 text-xs text-[var(--text-muted)]">
       <span data-testid="sync-status-badge" role="status">{syncLabel}</span>
-      <p>{t('srs.study.undoHint')}</p>
+      <p>{t(practice ? 'srs.study.practiceHint' : 'srs.study.undoHint')}</p>
     </div>
   </section>;
 }

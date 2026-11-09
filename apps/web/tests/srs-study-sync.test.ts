@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { LearningClient } from '../features/learning/services/learning-client';
+import { isReviewUuid } from '../features/learning/services/srs-review-id';
 import { SrsSyncManager } from '../features/learning/services/srs-sync-manager';
 import type { ReviewSubmission } from '../features/learning/types';
 
@@ -21,20 +22,25 @@ describe('SRS durable study save', () => {
   });
   it('does not submit a later review of a card before an earlier failed review', async () => {
     let fail = true;
+    const firstIds: string[] = [];
     const submitted: string[] = [];
     const submitReview = vi.fn(async (input: ReviewSubmission) => {
-      submitted.push(input.clientReviewId);
-      if (fail && input.clientReviewId === 'r1') throw new Error('offline');
+      expect(isReviewUuid(input.clientReviewId)).toBe(true);
+      submitted.push(input.cardId);
+      if (input.cardId === 'one') firstIds.push(input.clientReviewId);
+      if (fail && input.cardId === 'one') throw new Error('offline');
       return { reviewedAt: input.reviewedAt };
     });
     const manager = new SrsSyncManager({ submitReview } as unknown as LearningClient);
     manager.queueSubmissions([review('r1'), review('r2'), review('r3', 'two')]);
     await manager.processQueue();
-    expect(submitted).toEqual(['r1', 'r3']);
+    expect(submitted).toEqual(['one', 'two']);
     expect(manager.getSnapshot().pendingCount).toBe(2);
     fail = false;
     await manager.processQueue();
-    expect(submitted).toEqual(['r1', 'r3', 'r1', 'r2']);
+    expect(submitted).toEqual(['one', 'two', 'one', 'one']);
+    expect(firstIds[0]).toBe(firstIds[1]);
+    expect(firstIds[2]).not.toBe(firstIds[0]);
     expect(manager.getSnapshot().pendingCount).toBe(0);
   });
 });

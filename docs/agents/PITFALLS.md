@@ -179,3 +179,5 @@ Triệu chứng: tab SRS có 0 thẻ hoặc hiện hoàn thành ngay → lưu no
 - Hoàn tác sau khi đã gửi review sẽ không khôi phục được schedule chỉ bằng cách xóa UI → giữ đánh giá nháp trước khi người học bấm Lưu; ID review không đổi khi retry, chốt trước khi gửi và khôi phục checkpoint từ hàng đợi nếu bị ngắt. Không gửi rating ngược để giả hoàn tác.
 - Quên có lượt ôn lại trong 10 phút là hàng đợi luyện trong buổi, khác lịch nhiều ngày trên API; không báo hoàn tất nếu còn thẻ chờ. Thời gian nút đánh giá là dự kiến vì API cũ không trả easeFactor.
 - crypto.randomUUID không có trên HTTP IP LAN → dùng crypto.getRandomValues cho ID đánh giá. Các bản nháp và hàng đợi mới phải tách theo userId.
+
+- SRS POST review lỗi 500 ở SELECT card_reviews → client_review_id là UUID nhưng client cũ tạo rev-* → tạo UUID v4 bằng getRandomValues; với queue cũ giữ ID local để đối chiếu checkpoint, lưu serverReviewId UUID bền vững trước khi gửi. Không xóa lượt chưa đồng bộ hay đổi UUID sau mỗi retry.

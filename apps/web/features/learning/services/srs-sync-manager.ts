@@ -1,4 +1,5 @@
 import type { ReviewRating, SyncQueueItem, ReviewResult, ReviewSubmission } from '../types';
+import { isReviewUuid, newReviewId } from './srs-review-id';
 import { LearningClient, defaultLearningClient } from './learning-client';
 
 export type SyncState = 'idle' | 'syncing' | 'synced' | 'pending_sync' | 'offline' | 'error';
@@ -110,7 +111,7 @@ export class SrsSyncManager {
    * Queue a review for synchronization (works offline & mobile)
    */
   public async queueReview(cardId: string, rating: ReviewRating): Promise<string> {
-    const clientReviewId = `rev-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    const clientReviewId = newReviewId();
     this.queueSubmission({
       cardId, rating, clientReviewId, reviewedAt: new Date().toISOString(),
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ho_Chi_Minh',
@@ -150,6 +151,21 @@ export class SrsSyncManager {
       return { synced: 0, failed: 0 };
     }
 
+    // Old rev-* IDs never passed PostgreSQL's UUID lookup. Keep their local IDs for
+    // study checkpoint recovery, but persist a stable UUID before the first retry.
+    const normalized = this.queue.map(item => !isReviewUuid(item.id) && !item.serverReviewId
+      ? { ...item, serverReviewId: newReviewId() } : item);
+    if (normalized.some((item, index) => item !== this.queue[index])) {
+      try {
+        if (typeof window !== 'undefined') localStorage.setItem(this.storageKey, JSON.stringify(normalized));
+        this.queue = normalized;
+      } catch {
+        this.state = 'error';
+        this.notify();
+        return { synced: 0, failed: this.getSnapshot().pendingCount };
+      }
+    }
+
     const pending = this.queue.filter((q) => q.status === 'pending' || q.status === 'failed');
     if (pending.length === 0) {
       this.state = this.queue.length > 0 ? 'synced' : 'idle';
@@ -181,7 +197,7 @@ export class SrsSyncManager {
       try {
         const result: ReviewResult = await this.client.submitReview({
           cardId: item.cardId,
-          clientReviewId: item.id,
+          clientReviewId: item.serverReviewId ?? item.id,
           rating: item.rating,
           reviewedAt: item.reviewedAt,
           timezone: item.timezone,

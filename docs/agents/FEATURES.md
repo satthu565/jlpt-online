@@ -162,3 +162,5 @@ Reviewed 297 文字・語彙 questions across all 11 imported N5 exams. Prepared
 - Chọn Quên tạo hàng chờ 10 phút trong buổi; tiếp tục sau reload, hiển thị đếm ngược thay vì báo hoàn thành khi còn thẻ chờ.
 - Hoàn tác đánh giá cuối chưa chốt; đánh giá lưu nháp bền vững trên thiết bị, bấm Lưu kết quả hoặc Lưu và về sổ tay để đưa vào hàng đợi API có idempotency. Không hoàn tác lượt đã gửi máy chủ.
 - Mục tiêu/ngày, giới hạn thẻ mới/ngày, tiến độ riêng theo tài khoản trên trình duyệt này; ưu tiên thẻ đến hạn, mục tiêu không chặn thẻ đến hạn; giữ lịch khi mất mạng và thứ tự review của cùng thẻ. Không migration hay backfill.
+
+- SRS: sau khi hoàn tất, có nút Ôn lại lượt vừa học; ôn thêm độc lập, thẻ Quên quay lại cuối lượt, hoàn tác được, không ghi review API/đổi lịch hay cộng trùng tiến độ. Giữ bộ thẻ vừa học sau khi lưu/reload; các mã review mới dùng UUID đúng schema, hàng đợi legacy giữ nguyên local ID và lưu UUID gửi máy chủ trước khi retry.

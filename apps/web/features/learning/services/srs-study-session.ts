@@ -10,6 +10,7 @@ export interface StudyState {
   settings: StudySettings;
   days: Record<string, DailyRecord>;
   session: StudySession;
+  lastReviewedCards?: DueFlashcard[];
 }
 export interface StudyEntry { card: DueFlashcard; availableAt: number }
 
@@ -103,7 +104,9 @@ export function markStudySaved(state: StudyState): StudyState {
     };
   }
   const recent = Object.fromEntries(Object.entries(days).sort(([a], [b]) => b.localeCompare(a)).slice(0, 35));
-  return { ...state, days: recent, session: { ...state.session, savedCount: state.session.events.length } };
+  const seen = new Set(state.session.events.map(event => event.cardId));
+  const lastReviewedCards = seen.size ? state.session.cards.filter(card => seen.has(card.cardId)) : state.lastReviewedCards;
+  return { ...state, lastReviewedCards, days: recent, session: { ...state.session, savedCount: state.session.events.length } };
 }
 export function studyStorageKey(userId: string): string { return `jlpt_srs_study_v1:${userId}`; }
 
@@ -116,7 +119,8 @@ export function restoreStudyState(raw: string, cards: DueFlashcard[], now = Date
     ![5, 10, 20, 30, 50].includes(stored.settings?.dailyGoal) ||
     ![0, 5, 10, 20, 30, 50].includes(stored.settings?.newPerDay) ||
     !stored.days || typeof stored.days !== 'object') throw new Error('Invalid SRS study state');
-  for (const card of stored.session.cards) {
+  if (stored.lastReviewedCards !== undefined && !Array.isArray(stored.lastReviewedCards)) throw new Error('Invalid SRS archive');
+  for (const card of [...stored.session.cards, ...(stored.lastReviewedCards ?? [])]) {
     if (!card || typeof card.cardId !== 'string' || !card.front || !card.back ||
       !Number.isFinite(card.intervalDays) || !Number.isFinite(card.repetitions)) throw new Error('Invalid SRS card');
   }
@@ -130,7 +134,9 @@ export function restoreStudyState(raw: string, cards: DueFlashcard[], now = Date
   }
   // Finished, saved sessions are refreshed from the API. Waiting relearning cards survive reloads.
   if (stored.session.events.length === 0 || (stored.session.savedCount === stored.session.events.length && studyQueue(stored.session).length === 0)) {
-    return { ...stored, session: createStudyState(cards, now).session };
+    const seen = new Set(stored.session.events.map(event => event.cardId));
+    const lastReviewedCards = seen.size ? stored.session.cards.filter(card => seen.has(card.cardId)) : stored.lastReviewedCards;
+    return { ...stored, lastReviewedCards, session: createStudyState(cards, now).session };
   }
   return stored;
 }

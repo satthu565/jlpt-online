@@ -131,6 +131,7 @@ export interface SyncQueueItem {
   timezone: string;
   status: 'pending' | 'syncing' | 'synced' | 'failed';
   attempts: number;
+  serverReviewId?: string; // Stable UUID for legacy reviews whose local IDs were not UUIDs.
   error?: string;
 }
 

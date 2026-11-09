@@ -17,9 +17,10 @@ export interface FlashcardViewProps {
   totalCards?: number;
   disabled?: boolean;
   onTransitionStart?: () => void;
+  practice?: boolean;
 }
 export function FlashcardView({
-  card, onRate, onPlayTts, cardIndex = 1, totalCards = 1, disabled = false, onTransitionStart,
+  card, onRate, onPlayTts, cardIndex = 1, totalCards = 1, disabled = false, onTransitionStart, practice = false,
 }: FlashcardViewProps): React.JSX.Element {
   const { t } = useI18n();
   const [isFlipped, setIsFlipped] = useState(false);
@@ -115,13 +116,13 @@ export function FlashcardView({
           data-testid={`rating-${names[rating - 1]}-button`}>
           <span className="flex flex-col items-center gap-1">
             <span>{t(`srs.study.ratings.${names[rating - 1]}`)}</span>
-            <span className="text-xs font-normal">{rating === 1 ? t('srs.study.inSessionMinutes', { minutes: 10 }) : t('srs.study.inDays', { days: projectCard(card, rating).intervalDays })}</span>
+            <span className="text-xs font-normal">{practice ? t(rating === 1 ? 'srs.study.practiceAgain' : 'srs.study.practiceNext') : rating === 1 ? t('srs.study.inSessionMinutes', { minutes: 10 }) : t('srs.study.inDays', { days: projectCard(card, rating).intervalDays })}</span>
           </span>
         </Button>)}
       </div> : <Button className="w-full min-h-12" variant="primary" onPress={flip} disabled={disabled || Boolean(leaving)}
         aria-label={t('flashcards.showAnswer')}>{t('flashcards.showAnswer')}</Button>}
       <p className="mt-3 text-center text-xs text-[var(--text-muted)]">
-        {isFlipped ? t('srs.study.intervalHint') : t('srs.study.keyboardHint')}
+        {practice && isFlipped ? t('srs.study.practiceHint') : isFlipped ? t('srs.study.intervalHint') : t('srs.study.keyboardHint')}
       </p>
     </div>
   </div>;

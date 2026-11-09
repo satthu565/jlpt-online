@@ -436,6 +436,16 @@
   },
   "srs": {
     "study": {
+      "repeat": "Ôn lại lượt vừa học",
+      "practiceMode": "Ôn thêm · không đổi lịch",
+      "practiceHint": "Ôn thêm để nhớ chắc hơn. Lượt này không đổi lịch SRS và không cộng trùng tiến độ hôm nay.",
+      "practiceAgain": "Xem lại cuối lượt",
+      "practiceNext": "Tiếp tục lượt ôn thêm",
+      "practiceFinished": "Đã hoàn tất lượt ôn thêm",
+      "practiceCount": "Bạn đã ôn lại {count} thẻ.",
+      "repeatAvailable": "Có {count} thẻ đã học để ôn lại.",
+      "practiceExit": "Kết thúc ôn thêm",
+      "syncRetryHint": "Kết quả vẫn được giữ trên thiết bị. Chưa đồng bộ được với máy chủ; bấm Thử lại để gửi tiếp.",
       "ratings": {"again": "Quên", "hard": "Khó nhớ", "good": "Nhớ", "easy": "Dễ nhớ"},
       "prompt": "Bạn có nhớ nghĩa của từ này?",
       "answer": "Đáp án",

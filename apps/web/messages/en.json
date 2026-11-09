@@ -436,6 +436,16 @@
   },
   "srs": {
     "study": {
+      "repeat": "Review these cards again",
+      "practiceMode": "Extra practice · schedule unchanged",
+      "practiceHint": "Practice for stronger recall. This round does not change your SRS schedule or count the same cards twice in today’s progress.",
+      "practiceAgain": "Repeat at end of round",
+      "practiceNext": "Continue extra practice",
+      "practiceFinished": "Extra practice complete",
+      "practiceCount": "You practiced {count} cards again.",
+      "repeatAvailable": "{count} previously studied cards are available to practice again.",
+      "practiceExit": "Finish extra practice",
+      "syncRetryHint": "Your results are retained on this device. Unable to sync with the server; select Retry to send them again.",
       "ratings": {"again": "Again", "hard": "Hard", "good": "Good", "easy": "Easy"},
       "prompt": "Can you recall the meaning?",
       "answer": "Answer",
