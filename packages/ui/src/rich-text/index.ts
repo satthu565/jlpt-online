@@ -1,6 +1,7 @@
 export {
   RichTextView,
   sanitizeUrl,
+  preprocessSegments,
   type RichTextViewProps,
 } from '../components/rich-text-view.js';
 

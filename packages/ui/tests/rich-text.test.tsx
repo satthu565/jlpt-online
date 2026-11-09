@@ -9,6 +9,7 @@ import {
   RichTableView,
   PassageView,
   sanitizeUrl,
+
 } from '../src/rich-text/index.js';
 
 describe('RichText Rendering & XSS Protection (Acceptance 1 & EXAM-10)', () => {
@@ -221,5 +222,75 @@ describe('RichText Rendering & XSS Protection (Acceptance 1 & EXAM-10)', () => {
     expect(html).not.toContain('<script>alert');
     expect(html).toContain('&lt;script&gt;alert');
     expect(html).toContain('&lt;img src=');
+  });
+
+  it('prevents double parentheses and trims whitespace around unlabeled blanks', () => {
+    // Case 1: Japanese parentheses with inner fullwidth space
+    const segmentsWithSpace: RichText = [
+      { t: 'text', text: '好きなことを我慢して（\u3000' },
+      { t: 'blank' },
+      { t: 'text', text: '）する節約' },
+    ];
+    const htmlWithSpace = renderToString(<RichTextView segments={segmentsWithSpace} />);
+    const textWithSpace = new DOMParser().parseFromString(htmlWithSpace, 'text/html').body.textContent;
+    expect(textWithSpace).not.toContain('（(');
+    expect(textWithSpace).not.toContain(')）');
+    expect(textWithSpace).toContain('好きなことを我慢して（');
+    expect(textWithSpace).toContain('）する節約');
+
+    // Case 2: Unlabeled blank without surrounding parentheses retains standard blank
+    const standaloneBlank: RichText = [
+      { t: 'text', text: '竹山鉄道が、' },
+      { t: 'blank' },
+      { t: 'text', text: '廃止された。' },
+    ];
+    const htmlStandalone = renderToString(<RichTextView segments={standaloneBlank} />);
+    const textStandalone = new DOMParser().parseFromString(htmlStandalone, 'text/html').body.textContent;
+    expect(textStandalone).toContain('(');
+    expect(textStandalone).toContain(')');
+  });
+
+  it('normalizes whitespace around Mondai 7 star and blank questions', () => {
+    const mondai7Segments: RichText = [
+      { t: 'text', text: '母\u3000' },
+      { t: 'blank' },
+      { t: 'text', text: '\u3000' },
+      { t: 'blank' },
+      { t: 'text', text: '\u3000' },
+      { t: 'star' },
+      { t: 'text', text: '\u3000' },
+      { t: 'blank' },
+      { t: 'text', text: '\u3000なりたいです。' },
+    ];
+    const html = renderToString(<RichTextView segments={mondai7Segments} />);
+    const text = new DOMParser().parseFromString(html, 'text/html').body.textContent;
+    expect(text).toContain('母');
+    expect(text).toContain('★');
+    expect(text).toContain('なりたいです。');
+  });
+
+  it('collapses excessive fullwidth space chains in reading passages', () => {
+    const letterEnding: RichText = [
+      { t: 'text', text: '\u3000'.repeat(20) + '田中' },
+    ];
+    const html = renderToString(<RichTextView segments={letterEnding} />);
+    const text = new DOMParser().parseFromString(html, 'text/html').body.textContent;
+    expect(text).toBe('\u3000\u3000田中');
+    expect(text).not.toContain('\u3000'.repeat(3));
+  });
+
+  it('removes unintended whitespace immediately before Japanese punctuation', () => {
+    const punctSegments: RichText = [
+      { t: 'text', text: '今日は 3 人でとまれる ' },
+      { t: 'blank' },
+      { t: 'star' },
+      { t: 'blank' },
+      { t: 'blank' },
+      { t: 'text', text: ' 。」' },
+    ];
+    const html = renderToString(<RichTextView segments={punctSegments} />);
+    const text = new DOMParser().parseFromString(html, 'text/html').body.textContent;
+    expect(text).toContain('。');
+    expect(text).not.toContain(' 。');
   });
 });
