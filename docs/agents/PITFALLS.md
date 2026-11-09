@@ -169,3 +169,7 @@ Symptom: N5 2010–2011 Q15 options 2 and 4 look identical despite different str
 ### Download release trong image PostgreSQL
 
 Triệu chứng: CI staging dừng ở `gzip: stdin: not in gzip format`, file WAL-G chỉ 92 byte; CodeQL cùng thời điểm lỗi tải HTTP 504. Nguyên nhân: `curl -L` vẫn trả thành công khi máy chủ trả lỗi HTTP, khiến trang lỗi bị chuyển sang tar. Cách đúng: tải release bằng `curl --fail --retry --retry-all-errors` kèm thời hạn kết nối/tải; giữ nguyên phiên bản đã ghim và không bỏ qua cổng staging.
+
+## SRS báo đã ôn xong dù sổ tay có mục
+
+Triệu chứng: tab SRS có 0 thẻ hoặc hiện hoàn thành ngay → lưu notebook item không tạo card/schedule; UI từng không gọi endpoint tạo thẻ, đồng thời nuốt lỗi tải due cards → cho người dùng chủ động tạo thẻ qua POST notebook-items/:id/cards (idempotent, giữ lịch thẻ cũ), phân trang danh sách và hiển thị lỗi tải riêng. Flashcard cũ có thể dùng front.kanji hoặc front.pattern, không chỉ front.term.

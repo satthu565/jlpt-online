@@ -157,6 +157,23 @@ export class LearningClient {
   }
 
   // 2. SRS & Flashcards
+  /** Explicitly enroll notebook items using the API's idempotent card endpoint. */
+  public async prepareNotebookCards(): Promise<void> {
+    const limit = 100;
+    let offset = 0;
+    while (true) {
+      const page = await this.getNotebookItems({ limit, offset });
+      for (const item of page.items) {
+        if (item.mastered) continue;
+        await this.request('POST', `/me/notebook-items/${encodeURIComponent(item.id)}/cards`, {
+          template: 'term_to_meaning',
+        });
+      }
+      if (page.items.length < limit) break;
+      offset += page.items.length;
+    }
+  }
+
   public async getDueCards(timezone = 'Asia/Ho_Chi_Minh', limit = 50): Promise<{
     items: DueFlashcard[];
     totalCount: number;
