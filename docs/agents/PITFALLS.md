@@ -165,3 +165,7 @@ Symptom: N5 2010–2011 Q15 options 2 and 4 look identical despite different str
 - Sổ tay luôn báo không có ví dụ → request corpus trả 403 khi tài khoản còn lượt thi thật và giao diện nuốt lỗi → đọc error envelope của API, hiện lý do và cho thử lại; chỉ hiện không có kết quả sau request thành công. Chủ dự án yêu cầu bỏ chặn tra cứu trong lượt thi thật ngày 08/11/2026; không khôi phục quy tắc này.
 
 - Bấm nguồn sổ tay bị dừng ở lịch sử dù chỉ có một lượt đúng đề → API lịch sử bỏ qua cursor, giao diện gộp trùng cùng ID thành nhiều lượt → phân trang theo startedAt/id, kiểm tra cursor thuộc người dùng và loại trùng theo ID ở client; kiểm tra bằng phản hồi lặp lại trang đầu.
+
+### Download release trong image PostgreSQL
+
+Triệu chứng: CI staging dừng ở `gzip: stdin: not in gzip format`, file WAL-G chỉ 92 byte; CodeQL cùng thời điểm lỗi tải HTTP 504. Nguyên nhân: `curl -L` vẫn trả thành công khi máy chủ trả lỗi HTTP, khiến trang lỗi bị chuyển sang tar. Cách đúng: tải release bằng `curl --fail --retry --retry-all-errors` kèm thời hạn kết nối/tải; giữ nguyên phiên bản đã ghim và không bỏ qua cổng staging.

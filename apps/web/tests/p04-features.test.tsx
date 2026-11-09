@@ -197,7 +197,7 @@ describe('P04 Features Test Suite', () => {
       expect(html).toContain('HỘI XÃ');
     });
 
-    it('aligns notebook card footer actions to the bottom with mt-auto', () => {
+    it('keeps notebook actions in a footer after the expanding content', () => {
       const mockItem: NotebookItem = {
         id: 'nb-align-1',
         userId: 'u-1',
@@ -222,7 +222,7 @@ describe('P04 Features Test Suite', () => {
           onExportCsv={async () => {}}
         />
       );
-      expect(html).toContain('mt-auto flex justify-between items-center');
+      expect(html).toMatch(/notebook-card-content flex flex-1 flex-col[\s\S]*card__footer[\s\S]*notebook-card-footer/);
     });
 
     it('displays flashcard-hanviet on flashcard back when hanViet is provided', () => {

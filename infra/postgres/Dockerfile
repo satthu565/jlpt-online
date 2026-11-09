@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
 # Build pg_bigm extension from official release (ghim phiên bản)
-RUN curl -L -o pg_bigm.tar.gz https://github.com/pgbigm/pg_bigm/archive/refs/tags/v1.2-20240606.tar.gz \
+RUN curl --fail --show-error --location --retry 5 --retry-all-errors --retry-delay 3 --connect-timeout 20 --max-time 180 -o pg_bigm.tar.gz https://github.com/pgbigm/pg_bigm/archive/refs/tags/v1.2-20240606.tar.gz \
   && mkdir pg_bigm \
   && tar -xzf pg_bigm.tar.gz -C pg_bigm --strip-components=1 \
   && cd pg_bigm \
@@ -22,7 +22,7 @@ RUN curl -L -o pg_bigm.tar.gz https://github.com/pgbigm/pg_bigm/archive/refs/tag
 # Install WAL-G for PostgreSQL PITR backup per T1.8.6 & B3 (pinned version)
 ARG WALG_VERSION=v3.0.3
 ARG WALG_ARCH=ubuntu-20.04-amd64
-RUN curl -L -o wal-g.tar.gz "https://github.com/wal-g/wal-g/releases/download/${WALG_VERSION}/wal-g-pg-${WALG_ARCH}.tar.gz" \
+RUN curl --fail --show-error --location --retry 5 --retry-all-errors --retry-delay 3 --connect-timeout 20 --max-time 180 -o wal-g.tar.gz "https://github.com/wal-g/wal-g/releases/download/${WALG_VERSION}/wal-g-pg-${WALG_ARCH}.tar.gz" \
   && tar -xzf wal-g.tar.gz \
   && mv wal-g-pg-* /usr/local/bin/wal-g \
   && chmod +x /usr/local/bin/wal-g \
