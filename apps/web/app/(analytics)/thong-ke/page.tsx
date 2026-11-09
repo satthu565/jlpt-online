@@ -1,6 +1,6 @@
 'use client';
 
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, Sparkles } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { AnalyticsDashboard } from '../../../features/analytics';
@@ -13,6 +13,86 @@ import { Button } from '@jlpt/ui/components/button';
 import { Spinner } from '@jlpt/ui/components/spinner';
 import { useI18n } from '../../../lib/i18n';
 
+// Sample realistic demo data for visitors exploring the analytics dashboard
+const DEMO_ATTEMPTS: AttemptRecord[] = [
+  {
+    id: 'demo-att-1',
+    examId: 'jlpt-n3-2021-07',
+    examTitle: 'Đề thi JLPT N3 chính thức (07/2021)',
+    level: 'N3',
+    mode: 'real',
+    totalScore: 92,
+    maxScore: 180,
+    accuracy: 51.1,
+    passed: false,
+    durationSec: 5400,
+    submittedAt: '2026-07-15T09:30:00Z',
+  },
+  {
+    id: 'demo-att-2',
+    examId: 'jlpt-n3-2022-12',
+    examTitle: 'Đề thi JLPT N3 chính thức (12/2022)',
+    level: 'N3',
+    mode: 'real',
+    totalScore: 108,
+    maxScore: 180,
+    accuracy: 60.0,
+    passed: true,
+    durationSec: 5200,
+    submittedAt: '2026-08-20T10:00:00Z',
+  },
+  {
+    id: 'demo-att-3',
+    examId: 'jlpt-n3-2023-07',
+    examTitle: 'Đề thi JLPT N3 chính thức (07/2023)',
+    level: 'N3',
+    mode: 'real',
+    totalScore: 122,
+    maxScore: 180,
+    accuracy: 67.8,
+    passed: true,
+    durationSec: 4900,
+    submittedAt: '2026-09-25T14:15:00Z',
+  },
+  {
+    id: 'demo-att-4',
+    examId: 'jlpt-n3-2024-12',
+    examTitle: 'Đề thi JLPT N3 chính thức (12/2024)',
+    level: 'N3',
+    mode: 'practice',
+    totalScore: 136,
+    maxScore: 180,
+    accuracy: 75.6,
+    passed: true,
+    durationSec: 4650,
+    submittedAt: '2026-10-30T16:00:00Z',
+  },
+];
+
+const DEMO_QUESTIONS: QuestionAttemptRecord[] = [
+  // 12 Unseen questions
+  { questionId: 'demo-q1', questionNumber: '1', stemPreview: '彼女の意見には賛成しかねる。', level: 'N3', skill: 'grammar', isCorrect: true, timeSpentMs: 45000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-q2', questionNumber: '2', stemPreview: '会議の書類をあらかじめ印刷しておいた。', level: 'N3', skill: 'vocabulary', isCorrect: true, timeSpentMs: 35000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-q3', questionNumber: '3', stemPreview: 'この製品は環境に配慮して作られている。', level: 'N3', skill: 'kanji', isCorrect: true, timeSpentMs: 25000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-q4', questionNumber: '4', stemPreview: '試験の結果を気に病むことはない。', level: 'N3', skill: 'vocabulary', isCorrect: true, timeSpentMs: 40000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-q5', questionNumber: '5', stemPreview: '筆者が最も主張したいことは何か。', level: 'N3', skill: 'reading', isCorrect: true, timeSpentMs: 110000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-q6', questionNumber: '6', stemPreview: 'このグラフから読み取れる傾向はどれか。', level: 'N3', skill: 'reading', isCorrect: false, timeSpentMs: 130000, exposureCount: 0, errorCategory: 'time_pressure', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-q7', questionNumber: '7', stemPreview: '男の人はこれからまず何をしますか。', level: 'N3', skill: 'listening', isCorrect: false, timeSpentMs: 60000, exposureCount: 0, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-q8', questionNumber: '8', stemPreview: '女の人が一番困っている理由は何ですか。', level: 'N3', skill: 'listening', isCorrect: false, timeSpentMs: 60000, exposureCount: 0, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-q9', questionNumber: '9', stemPreview: '天候のせいで旅行が中止になりかねない。', level: 'N3', skill: 'grammar', isCorrect: true, timeSpentMs: 38000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-q10', questionNumber: '10', stemPreview: '計画を慎重に進める必要がある。', level: 'N3', skill: 'kanji', isCorrect: true, timeSpentMs: 30000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-q11', questionNumber: '11', stemPreview: '午後からの会議について相談があるのですが。', level: 'N3', skill: 'listening', isCorrect: true, timeSpentMs: 50000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-q12', questionNumber: '12', stemPreview: '本文の内容と一致しているものはどれか。', level: 'N3', skill: 'reading', isCorrect: true, timeSpentMs: 95000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+
+  // 6 Familiar repeat questions (demonstrating genuine retention)
+  { questionId: 'demo-f1', questionNumber: '13', stemPreview: '男の人は明日何時に集合しますか。', level: 'N3', skill: 'listening', isCorrect: true, timeSpentMs: 48000, exposureCount: 2, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-f2', questionNumber: '14', stemPreview: '彼の話は信じるに足らない。', level: 'N3', skill: 'grammar', isCorrect: true, timeSpentMs: 32000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-f3', questionNumber: '15', stemPreview: '約束の時間を勘違いしていた。', level: 'N3', skill: 'vocabulary', isCorrect: true, timeSpentMs: 28000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-f4', questionNumber: '16', stemPreview: '男の人はなぜ遅刻したと言っていますか。', level: 'N3', skill: 'listening', isCorrect: false, timeSpentMs: 55000, exposureCount: 2, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-f5', questionNumber: '17', stemPreview: '筆者が考える幸福の条件とは何か。', level: 'N3', skill: 'reading', isCorrect: true, timeSpentMs: 85000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-f6', questionNumber: '18', stemPreview: '経済状況の悪化に伴って求人が減った。', level: 'N3', skill: 'grammar', isCorrect: true, timeSpentMs: 30000, exposureCount: 2, submittedAt: '2026-10-30T16:00:00Z' },
+];
+
 export default function AnalyticsPage(): React.JSX.Element {
   const { user, session, isLoading: authLoading } = useAuth();
   const token = session?.token;
@@ -23,6 +103,7 @@ export default function AnalyticsPage(): React.JSX.Element {
   const [isUnauthorized, setIsUnauthorized] = useState<boolean>(false);
   const [attempts, setAttempts] = useState<AttemptRecord[]>([]);
   const [questionAttempts, setQuestionAttempts] = useState<QuestionAttemptRecord[]>([]);
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(false);
 
   const fetchAnalyticsData = useCallback(async () => {
     if (authLoading) return;
@@ -122,6 +203,10 @@ export default function AnalyticsPage(): React.JSX.Element {
   }, [fetchAnalyticsData]);
 
   const isGuest = !user || isUnauthorized;
+  const showDemo = isDemoMode;
+  const currentAttempts = showDemo ? DEMO_ATTEMPTS : attempts;
+  const currentQuestionAttempts = showDemo ? DEMO_QUESTIONS : questionAttempts;
+  const hasData = currentAttempts.length > 0 || currentQuestionAttempts.length > 0;
 
   return (
     <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60" data-testid="analytics-page">
@@ -137,11 +222,39 @@ export default function AnalyticsPage(): React.JSX.Element {
           <Alert variant="warning" className="mb-6" data-testid="analytics-auth-required">
             <div className="flex justify-between items-center flex-wrap gap-2">
               <span>{t('analytics.auth.required')}</span>
-              <Link href="/dang-nhap?redirect=/thong-ke">
-                <Button size="sm" variant="primary">
-                  {t('analytics.auth.signIn')}
+              <div className="flex items-center gap-2">
+                {!showDemo && (
+                  <Button size="sm" variant="outline" onClick={() => setIsDemoMode(true)}>
+                    <Sparkles className="size-3.5 inline mr-1" aria-hidden="true" />
+                    Xem demo mẫu
+                  </Button>
+                )}
+                <Link href="/dang-nhap?redirect=/thong-ke">
+                  <Button size="sm" variant="primary">
+                    {t('analytics.auth.signIn')}
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </Alert>
+        )}
+
+        {showDemo && (
+          <Alert variant="info" className="mb-6">
+            <div className="flex justify-between items-center flex-wrap gap-3">
+              <span className="text-xs">
+                ✨ <strong>Chế độ xem trước dữ liệu mẫu (Demo):</strong> Bạn đang trải nghiệm đầy đủ các biểu đồ và phân tích của một học viên ôn thi JLPT N3 thực tế.
+              </span>
+              <div className="flex items-center gap-2">
+                <Button size="sm" variant="outline" onClick={() => setIsDemoMode(false)}>
+                  Thoát chế độ demo
                 </Button>
-              </Link>
+                <Link href="/dang-nhap?redirect=/thong-ke">
+                  <Button size="sm" variant="primary">
+                    Đăng nhập tài khoản thật
+                  </Button>
+                </Link>
+              </div>
             </div>
           </Alert>
         )}
@@ -164,7 +277,7 @@ export default function AnalyticsPage(): React.JSX.Element {
           </div>
         )}
 
-        {!isLoading && isGuest && (
+        {!isLoading && isGuest && !showDemo && (
           <div
             data-testid="analytics-empty-state"
             className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-12 text-center flex flex-col items-center justify-center space-y-4 border border-slate-200 dark:border-slate-800"
@@ -177,13 +290,17 @@ export default function AnalyticsPage(): React.JSX.Element {
               Đăng nhập hoặc đăng ký tài khoản để theo dõi biểu đồ tiến độ ôn luyện, phân tích điểm số các kỹ năng JLPT và nhận đề xuất học tập cá nhân hóa.
             </p>
             <div className="flex flex-wrap gap-3 justify-center pt-2">
+              <Button variant="primary" size="md" onClick={() => setIsDemoMode(true)}>
+                <Sparkles className="size-4 inline mr-1.5" aria-hidden="true" />
+                Xem trước dữ liệu mẫu (Demo)
+              </Button>
               <Link href="/dang-nhap?redirect=/thong-ke" className="self-center">
-                <Button variant="primary" size="md">
+                <Button variant="outline" size="md">
                   Đăng nhập hoặc Đăng ký
                 </Button>
               </Link>
               <Link href="/de-thi" className="self-center">
-                <Button variant="outline" size="md">
+                <Button variant="ghost" size="md">
                   Khám phá thư viện đề thi
                 </Button>
               </Link>
@@ -191,7 +308,7 @@ export default function AnalyticsPage(): React.JSX.Element {
           </div>
         )}
 
-        {!isLoading && !isGuest && !error && attempts.length === 0 && questionAttempts.length === 0 && (
+        {!isLoading && !isGuest && !error && !hasData && !showDemo && (
           <div
             data-testid="analytics-empty-state"
             className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-12 text-center flex flex-col items-center justify-center space-y-4 border border-slate-200 dark:border-slate-800"
@@ -204,13 +321,17 @@ export default function AnalyticsPage(): React.JSX.Element {
               {t('analytics.empty.description')}
             </p>
             <div className="flex flex-wrap gap-3 justify-center pt-2">
+              <Button variant="outline" size="md" onClick={() => setIsDemoMode(true)}>
+                <Sparkles className="size-4 inline mr-1.5" aria-hidden="true" />
+                Xem trước dữ liệu mẫu (Demo)
+              </Button>
               <Link href="/de-thi" className="self-center">
                 <Button variant="primary" size="md">
                   {t('analytics.empty.toExams')}
                 </Button>
               </Link>
               <Link href="/luyen-tap" className="self-center">
-                <Button variant="outline" size="md">
+                <Button variant="ghost" size="md">
                   {t('analytics.empty.toPractice')}
                 </Button>
               </Link>
@@ -218,10 +339,10 @@ export default function AnalyticsPage(): React.JSX.Element {
           </div>
         )}
 
-        {!isLoading && !isGuest && !error && (attempts.length > 0 || questionAttempts.length > 0) && (
+        {(!isLoading && hasData) && (
           <AnalyticsDashboard
-            attempts={attempts}
-            questionAttempts={questionAttempts}
+            attempts={currentAttempts}
+            questionAttempts={currentQuestionAttempts}
             targetLevel={(user?.targetLevel as Level) || 'N3'}
             targetScore={120}
           />
