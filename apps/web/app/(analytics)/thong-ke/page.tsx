@@ -98,7 +98,7 @@ export default function AnalyticsPage(): React.JSX.Element {
   const token = session?.token;
   const { t } = useI18n();
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isUnauthorized, setIsUnauthorized] = useState<boolean>(false);
   const [attempts, setAttempts] = useState<AttemptRecord[]>([]);
