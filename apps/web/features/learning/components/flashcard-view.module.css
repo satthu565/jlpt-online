@@ -1,0 +1,34 @@
+.studyCard { width: 100%; max-width: 640px; margin-inline: auto; display: flex; flex-direction: column; gap: 16px; }
+.scene { position: relative; perspective: 1400px; padding-block: 12px 24px; isolation: isolate; }
+.stackBack, .stackFront { position: absolute; inset: 24px 18px 12px; border-radius: var(--radius-3xl, 24px); background: var(--surface-secondary); border: 1px solid var(--border); transform: rotate(-3deg); z-index: -1; }
+.stackFront { inset: 24px 10px 17px; transform: rotate(2deg); background: var(--surface); }
+.flipper { position: relative; height: 390px; transform-style: preserve-3d; transition: transform 480ms cubic-bezier(.22,.8,.22,1); cursor: pointer; outline-offset: 5px; border-radius: var(--radius-3xl,24px); }
+.flipped { transform: rotateY(180deg); }
+.face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: auto; overscroll-behavior: contain; }
+.back { transform: rotateY(180deg); }
+.faceContent { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 100%; padding: 32px 24px; }
+.faceLabel { font-size: .6875rem; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); margin-bottom: 20px; }
+.term { font-size: clamp(2rem, 8vw, 4.5rem); line-height: 1.5; font-weight: 700; overflow-wrap: anywhere; }
+.backTerm { font-size: 1.75rem; font-weight: 650; line-height: 1.6; overflow-wrap: anywhere; }
+.reading { color: var(--muted); font-size: .9375rem; margin-bottom: 8px; }
+.meaning { font-size: 1.375rem; font-weight: 650; line-height: 1.6; margin-top: 12px; overflow-wrap: anywhere; }
+.flipHint { display: flex; align-items: center; gap: 8px; font-size: .75rem; color: var(--muted); margin-top: 28px; }
+.examples { width: 100%; text-align: left; border-top: 1px solid var(--border); margin-top: 20px; padding-top: 16px; overflow-wrap: anywhere; }
+.controls { min-height: 110px; }
+.ratings { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; animation: controlsIn 160ms ease-out both; }
+.enter { animation: cardIn 260ms cubic-bezier(.16,1,.3,1) both; }
+.leaveLeft { animation: cardLeft 220ms ease-in both; }
+.leaveRight { animation: cardRight 220ms ease-in both; }
+@keyframes cardIn { from { transform: translateY(16px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes cardLeft { to { transform: translateX(-36px) rotate(-4deg); opacity: 0; } }
+@keyframes cardRight { to { transform: translateX(36px) rotate(4deg); opacity: 0; } }
+@keyframes controlsIn { from { transform: translateY(5px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (max-width: 520px) { .flipper { height: 360px; } .ratings { grid-template-columns: repeat(2,minmax(0,1fr)); } .faceContent { padding: 24px 20px; } }
+@media (prefers-reduced-motion: reduce) {
+  .flipper { transition: none; }
+  .flipped { transform: none; }
+  .back { transform: none; visibility: hidden; }
+  .flipped .front { visibility: hidden; }
+  .flipped .back { visibility: visible; }
+  .enter, .leaveLeft, .leaveRight, .ratings { animation: none; }
+}

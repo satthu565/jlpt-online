@@ -173,3 +173,9 @@ Triệu chứng: CI staging dừng ở `gzip: stdin: not in gzip format`, file W
 ## SRS báo đã ôn xong dù sổ tay có mục
 
 Triệu chứng: tab SRS có 0 thẻ hoặc hiện hoàn thành ngay → lưu notebook item không tạo card/schedule; UI từng không gọi endpoint tạo thẻ, đồng thời nuốt lỗi tải due cards → cho người dùng chủ động tạo thẻ qua POST notebook-items/:id/cards (idempotent, giữ lịch thẻ cũ), phân trang danh sách và hiển thị lỗi tải riêng. Flashcard cũ có thể dùng front.kanji hoặc front.pattern, không chỉ front.term.
+
+## SRS: hoàn tác và ôn lại trong buổi
+
+- Hoàn tác sau khi đã gửi review sẽ không khôi phục được schedule chỉ bằng cách xóa UI → giữ đánh giá nháp trước khi người học bấm Lưu; ID review không đổi khi retry, chốt trước khi gửi và khôi phục checkpoint từ hàng đợi nếu bị ngắt. Không gửi rating ngược để giả hoàn tác.
+- Quên có lượt ôn lại trong 10 phút là hàng đợi luyện trong buổi, khác lịch nhiều ngày trên API; không báo hoàn tất nếu còn thẻ chờ. Thời gian nút đánh giá là dự kiến vì API cũ không trả easeFactor.
+- crypto.randomUUID không có trên HTTP IP LAN → dùng crypto.getRandomValues cho ID đánh giá. Các bản nháp và hàng đợi mới phải tách theo userId.

@@ -7,7 +7,6 @@ import {
   SrsReviewRunner,
   NotebookQuizView,
   defaultLearningClient,
-  defaultSrsSyncManager,
   type NotebookItem,
   type DueFlashcard,
   type NotebookQuiz,
@@ -59,7 +58,7 @@ export default function NotebookPage(): React.JSX.Element {
     setSrsLoading(true);
     setSrsError(null);
     try {
-      const dueRes = await defaultLearningClient.getDueCards();
+      const dueRes = await defaultLearningClient.getDueCards(Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ho_Chi_Minh', 1000);
       setDueCards(dueRes.items || []);
     } catch (err: unknown) {
       setSrsError(err instanceof Error ? err.message : t('common.status.error'));
@@ -196,14 +195,14 @@ export default function NotebookPage(): React.JSX.Element {
 
   return (
     <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60">
-      <ExamHero
+      {activeTab === 'srs' && user ? <h1 className="sr-only">{t('srs.title')}</h1> : <ExamHero
         title={t('notebook.page.title')}
         subtitle={t('notebook.page.subtitle')}
         minimal
         background="gradient"
-      />
+      />}
 
-      <div className="container py-8 w-full">
+      <div className={`container w-full ${activeTab === 'srs' ? 'py-4' : 'py-8'}`}>
         {(!user || isUnauthorized) && (
           <Alert className="mb-6" variant="warning">
           <div className="flex justify-between items-center flex-wrap gap-2">
@@ -228,7 +227,7 @@ export default function NotebookPage(): React.JSX.Element {
 
       {/* Navigation Tabs - only for signed in users */}
       {!(!user || isUnauthorized) && (
-        <div className="flex flex-wrap gap-2 border-b border-[var(--border-subtle)] mb-8"
+        <div className={`flex flex-wrap gap-2 border-b border-[var(--border-subtle)] ${activeTab === 'srs' ? 'mb-4' : 'mb-8'}`}
           role="tablist"
           aria-label={t('notebook.page.tabsAria')}
         >
@@ -376,12 +375,6 @@ export default function NotebookPage(): React.JSX.Element {
 
       {user && !isUnauthorized && activeTab === 'srs' && (
         <div id="panel-srs" role="tabpanel" aria-labelledby="tab-srs">
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-            <p className="text-sm text-[var(--text-secondary)]">{t('srs.prepare.description')}</p>
-            <Button onClick={handlePrepareCards} loading={preparingCards} disabled={loading || srsLoading}>
-              {t('srs.prepare.button')}
-            </Button>
-          </div>
           {srsError ? (
             <Alert variant="error">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -394,16 +387,21 @@ export default function NotebookPage(): React.JSX.Element {
               <Spinner size="md" />
               <span>{t('common.status.loading')}</span>
             </div>
-          ) : dueCards.length === 0 ? (
-            <Alert variant="info">{t('srs.empty')}</Alert>
           ) : <SrsReviewRunner
             cards={dueCards}
-            syncManager={defaultSrsSyncManager}
+            userId={user.id}
+            key={user.id}
             onFinish={() => {
               loadNotebookData();
               setActiveTab('notebook');
             }}
           />}
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
+            <p className="text-sm text-[var(--text-secondary)]">{t('srs.prepare.description')}</p>
+            <Button variant="secondary" size="sm" onClick={handlePrepareCards} loading={preparingCards} disabled={loading || srsLoading}>
+              {t('srs.prepare.button')}
+            </Button>
+          </div>
         </div>
       )}
 

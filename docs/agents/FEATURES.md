@@ -155,3 +155,10 @@ Reviewed 297 文字・語彙 questions across all 11 imported N5 exams. Prepared
 - Sổ tay: mỗi thẻ có Chip HeroUI nhỏ đồng bộ cho loại mục (ngữ pháp tím), link tên đề xanh và số câu vàng; hai Separator tách header/nội dung/footer; nút ghi nhớ hiển thị trạng thái hiện tại: Chưa thuộc (Circle, xám xanh) / Đã thuộc (CircleCheck, xanh lá), tooltip mô tả thao tác chuyển trạng thái; ví dụ trong đề cam và xóa đỏ nhạt; từ/mẫu ngữ pháp nổi bật, ẩn cách đọc trùng với mẫu; hỗ trợ metadata cũ trong tag, không thêm nguồn giả cho mục nhập tay.
 
 - Sổ tay: bấm tên đề mở đúng lượt làm đã lưu từ/ngữ pháp và cuộn tới câu nguồn theo ID; lưu attempt/exam trong metadata. Mục cũ chưa có mã lượt làm: tự mở nếu lịch sử chỉ có một lượt đúng đề, nhiều lượt thì lọc theo đề để chọn, giữ câu đích.
+
+## SRS study session (2026-11-09)
+
+- Flashcard HeroUI hai mặt, lật 3D và chuyển thẻ, hỗ trợ giảm chuyển động, phím Space/Enter/1–4; 4 nút ghi rõ mốc ôn dự kiến theo lịch sử (lịch API hiện tại là nguồn chính thức).
+- Chọn Quên tạo hàng chờ 10 phút trong buổi; tiếp tục sau reload, hiển thị đếm ngược thay vì báo hoàn thành khi còn thẻ chờ.
+- Hoàn tác đánh giá cuối chưa chốt; đánh giá lưu nháp bền vững trên thiết bị, bấm Lưu kết quả hoặc Lưu và về sổ tay để đưa vào hàng đợi API có idempotency. Không hoàn tác lượt đã gửi máy chủ.
+- Mục tiêu/ngày, giới hạn thẻ mới/ngày, tiến độ riêng theo tài khoản trên trình duyệt này; ưu tiên thẻ đến hạn, mục tiêu không chặn thẻ đến hạn; giữ lịch khi mất mạng và thứ tự review của cùng thẻ. Không migration hay backfill.

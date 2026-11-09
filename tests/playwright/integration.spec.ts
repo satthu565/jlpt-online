@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { registerSrsStudyTests } from './srs-study-journey.js';
 import path from 'node:path';
 import { test, expect, type Page } from '@playwright/test';
 import { confirmResumeIfShown, dumpPageOnFailure, registerExamContentTests, watchPageErrors } from './exam-content-journey.js';
@@ -19,6 +20,7 @@ import {
  * isolation in staging environments (RateLimitGuard default: 120 req/min).
  */
 registerExamContentTests();
+registerSrsStudyTests();
 
 function getProjectClientIp(testInfo: { project?: { name?: string } }, offset = 0): string {
   const projectBaseMap: Record<string, number> = {
