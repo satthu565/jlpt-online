@@ -429,6 +429,8 @@
     }
   },
   "srs": {
+    "prepare": {"description": "Tạo thẻ ôn tập cho các mục chưa thuộc trong sổ tay. Thẻ đã có sẽ giữ nguyên lịch ôn.", "button": "Tạo thẻ từ sổ tay"},
+    "empty": "Chưa có thẻ đến hạn ôn. Nếu chưa tạo thẻ, hãy bấm “Tạo thẻ từ sổ tay”.",
     "title": "Luyện tập ngắt quãng SRS",
     "completedCount": "Đã ôn tập: {count} thẻ",
     "sync": {

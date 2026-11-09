@@ -429,6 +429,8 @@
     }
   },
   "srs": {
+    "prepare": {"description": "Create review cards for notebook items you have not mastered. Existing cards keep their review schedule.", "button": "Create cards from notebook"},
+    "empty": "No cards are due. If you have not created cards yet, select “Create cards from notebook”.",
     "title": "SRS Spaced Repetition",
     "completedCount": "Reviewed: {count} cards",
     "sync": {

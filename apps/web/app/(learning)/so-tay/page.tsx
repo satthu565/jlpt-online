@@ -31,6 +31,9 @@ export default function NotebookPage(): React.JSX.Element {
   const [activeTab, setActiveTab] = useState<'notebook' | 'srs' | 'quiz'>('notebook');
   const [items, setItems] = useState<NotebookItem[]>([]);
   const [dueCards, setDueCards] = useState<DueFlashcard[]>([]);
+  const [srsError, setSrsError] = useState<string | null>(null);
+  const [srsLoading, setSrsLoading] = useState(true);
+  const [preparingCards, setPreparingCards] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState<NotebookQuiz | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,12 +56,16 @@ export default function NotebookPage(): React.JSX.Element {
       setItems([]);
     }
 
+    setSrsLoading(true);
+    setSrsError(null);
     try {
       const dueRes = await defaultLearningClient.getDueCards();
       setDueCards(dueRes.items || []);
-    } catch {
+    } catch (err: unknown) {
+      setSrsError(err instanceof Error ? err.message : t('common.status.error'));
       setDueCards([]);
     } finally {
+      setSrsLoading(false);
       setLoading(false);
     }
   }, [t]);
@@ -66,6 +73,19 @@ export default function NotebookPage(): React.JSX.Element {
   useEffect(() => {
     loadNotebookData();
   }, [loadNotebookData]);
+
+  const handlePrepareCards = async () => {
+    setPreparingCards(true);
+    setSrsError(null);
+    try {
+      await defaultLearningClient.prepareNotebookCards();
+      await loadNotebookData();
+    } catch (err: unknown) {
+      setSrsError(err instanceof Error ? err.message : t('common.status.error'));
+    } finally {
+      setPreparingCards(false);
+    }
+  };
 
   const handleAddItem = async (input: CreateNotebookItemInput) => {
     setError(null);
@@ -354,16 +374,36 @@ export default function NotebookPage(): React.JSX.Element {
         </div>
       )}
 
-      {activeTab === 'srs' && (
+      {user && !isUnauthorized && activeTab === 'srs' && (
         <div id="panel-srs" role="tabpanel" aria-labelledby="tab-srs">
-          <SrsReviewRunner
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+            <p className="text-sm text-[var(--text-secondary)]">{t('srs.prepare.description')}</p>
+            <Button onClick={handlePrepareCards} loading={preparingCards} disabled={loading || srsLoading}>
+              {t('srs.prepare.button')}
+            </Button>
+          </div>
+          {srsError ? (
+            <Alert variant="error">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span>{srsError}</span>
+                <Button variant="outline" onClick={loadNotebookData}>{t('common.buttons.retry')}</Button>
+              </div>
+            </Alert>
+          ) : srsLoading || preparingCards ? (
+            <div role="status" className="flex items-center justify-center gap-3 py-12">
+              <Spinner size="md" />
+              <span>{t('common.status.loading')}</span>
+            </div>
+          ) : dueCards.length === 0 ? (
+            <Alert variant="info">{t('srs.empty')}</Alert>
+          ) : <SrsReviewRunner
             cards={dueCards}
             syncManager={defaultSrsSyncManager}
             onFinish={() => {
               loadNotebookData();
               setActiveTab('notebook');
             }}
-          />
+          />}
         </div>
       )}
 

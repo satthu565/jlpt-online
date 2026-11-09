@@ -53,9 +53,9 @@ export function FlashcardView({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isFlipped, onRate]);
 
-  const frontTerm = (card.front.term as string) || (card.front.prompt as string) || '';
-  const frontReading = (card.front.reading as string) || '';
-  const backMeaning = (card.back.meaning as string) || '';
+  const frontTerm = (card.front.term as string) || (card.front.kanji as string) || (card.front.pattern as string) || (card.front.meaning as string) || (card.front.prompt as string) || '';
+  const frontReading = (card.front.reading as string) || (card.back.reading as string) || '';
+  const backMeaning = (card.back.meaning as string) || (card.back.term as string) || '';
   const backHanViet = (card.back.hanViet as string) || '';
   const backExamples = Array.isArray(card.back.examples) ? (card.back.examples as string[]) : [];
 
