@@ -1,4 +1,5 @@
-import type { ReviewRating, SyncQueueItem, ReviewResult } from '../types';
+import type { ReviewRating, SyncQueueItem, ReviewResult, ReviewSubmission } from '../types';
+import { isReviewUuid, newReviewId } from './srs-review-id';
 import { LearningClient, defaultLearningClient } from './learning-client';
 
 export type SyncState = 'idle' | 'syncing' | 'synced' | 'pending_sync' | 'offline' | 'error';
@@ -24,15 +25,22 @@ export class SrsSyncManager {
   private isProcessing = false;
   private client: LearningClient;
 
-  constructor(client: LearningClient = defaultLearningClient) {
+  private readonly storageKey: string;
+  private readonly handleOnline = () => { void this.processQueue(); };
+
+  constructor(client: LearningClient = defaultLearningClient, options: { storageKey?: string } = {}) {
+    this.storageKey = options.storageKey ?? STORAGE_KEY;
     this.client = client;
     this.loadFromStorage();
 
     if (typeof window !== 'undefined') {
-      window.addEventListener('online', () => {
-        this.processQueue();
-      });
+      window.addEventListener('online', this.handleOnline);
     }
+  }
+
+  public dispose(): void {
+    if (typeof window !== 'undefined') window.removeEventListener('online', this.handleOnline);
+    this.listeners.clear();
   }
 
   public setClient(client: LearningClient) {
@@ -40,6 +48,7 @@ export class SrsSyncManager {
   }
 
   public subscribe(listener: SyncListener): () => void {
+    if (typeof window !== 'undefined') window.addEventListener('online', this.handleOnline);
     this.listeners.add(listener);
     listener(this.getSnapshot());
     return () => {
@@ -75,10 +84,11 @@ export class SrsSyncManager {
   private loadFromStorage() {
     if (typeof window === 'undefined') return;
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(this.storageKey);
       if (raw) {
         this.queue = JSON.parse(raw);
-        const hasPending = this.queue.some((q) => q.status === 'pending');
+        this.queue = this.queue.map(item => item.status === 'syncing' ? { ...item, status: 'pending' } : item);
+        const hasPending = this.queue.some((q) => q.status === 'pending' || q.status === 'failed');
         if (hasPending) {
           this.state = 'pending_sync';
         }
@@ -91,7 +101,7 @@ export class SrsSyncManager {
   private saveToStorage() {
     if (typeof window === 'undefined') return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.queue));
+      localStorage.setItem(this.storageKey, JSON.stringify(this.queue));
     } catch {
       // Storage full or quota exceeded
     }
@@ -101,23 +111,36 @@ export class SrsSyncManager {
    * Queue a review for synchronization (works offline & mobile)
    */
   public async queueReview(cardId: string, rating: ReviewRating): Promise<string> {
-    const clientReviewId = `rev-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-    const item: SyncQueueItem = {
-      id: clientReviewId,
-      cardId,
-      rating,
-      reviewedAt: new Date().toISOString(),
+    const clientReviewId = newReviewId();
+    this.queueSubmission({
+      cardId, rating, clientReviewId, reviewedAt: new Date().toISOString(),
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ho_Chi_Minh',
-      status: 'pending',
-      attempts: 0,
-    };
-
-    this.queue.push(item);
-    this.state = 'pending_sync';
-    this.saveToStorage();
-    this.notify();
-
+    });
     return clientReviewId;
+  }
+
+  /** Retains the study event ID when saving/retrying, so a crash cannot duplicate a review. */
+  public queueSubmission(review: ReviewSubmission): void {
+    this.queueSubmissions([review]);
+  }
+
+  public queueSubmissions(reviews: ReviewSubmission[]): void {
+    const known = new Set(this.queue.map(item => item.id));
+    const added: SyncQueueItem[] = [];
+    for (const review of reviews) {
+      if (known.has(review.clientReviewId)) continue;
+      known.add(review.clientReviewId);
+      added.push({
+        id: review.clientReviewId, cardId: review.cardId, rating: review.rating,
+        reviewedAt: review.reviewedAt, timezone: review.timezone, status: 'pending', attempts: 0,
+      });
+    }
+    if (!added.length) return;
+    const next = [...this.queue, ...added];
+    if (typeof window !== 'undefined') localStorage.setItem(this.storageKey, JSON.stringify(next));
+    this.queue = next;
+    this.state = 'pending_sync';
+    this.notify();
   }
 
   /**
@@ -126,6 +149,21 @@ export class SrsSyncManager {
   public async processQueue(): Promise<{ synced: number; failed: number }> {
     if (this.isProcessing) {
       return { synced: 0, failed: 0 };
+    }
+
+    // Old rev-* IDs never passed PostgreSQL's UUID lookup. Keep their local IDs for
+    // study checkpoint recovery, but persist a stable UUID before the first retry.
+    const normalized = this.queue.map(item => !isReviewUuid(item.id) && !item.serverReviewId
+      ? { ...item, serverReviewId: newReviewId() } : item);
+    if (normalized.some((item, index) => item !== this.queue[index])) {
+      try {
+        if (typeof window !== 'undefined') localStorage.setItem(this.storageKey, JSON.stringify(normalized));
+        this.queue = normalized;
+      } catch {
+        this.state = 'error';
+        this.notify();
+        return { synced: 0, failed: this.getSnapshot().pendingCount };
+      }
     }
 
     const pending = this.queue.filter((q) => q.status === 'pending' || q.status === 'failed');
@@ -149,7 +187,9 @@ export class SrsSyncManager {
     let synced = 0;
     let failed = 0;
 
+    const blockedCards = new Set<string>();
     for (const item of pending) {
+      if (blockedCards.has(item.cardId)) continue;
       item.status = 'syncing';
       item.attempts += 1;
       this.notify();
@@ -157,7 +197,7 @@ export class SrsSyncManager {
       try {
         const result: ReviewResult = await this.client.submitReview({
           cardId: item.cardId,
-          clientReviewId: item.id,
+          clientReviewId: item.serverReviewId ?? item.id,
           rating: item.rating,
           reviewedAt: item.reviewedAt,
           timezone: item.timezone,
@@ -169,6 +209,7 @@ export class SrsSyncManager {
       } catch (err: unknown) {
         failed += 1;
         item.status = 'failed';
+        blockedCards.add(item.cardId);
         item.error = err instanceof Error ? err.message : 'Lỗi đồng bộ';
       }
     }

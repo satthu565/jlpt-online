@@ -40,7 +40,7 @@ export class FlashcardService {
     const existingCards = await this.dbClient.db
       .select()
       .from(cards)
-      .where(and(eq(cards.notebookItemId, notebookItemId), eq(cards.userId, userId)))
+      .where(and(eq(cards.notebookItemId, notebookItemId), eq(cards.userId, userId), eq(cards.status, 'active')))
       .limit(1);
 
     if (existingCards.length > 0) {

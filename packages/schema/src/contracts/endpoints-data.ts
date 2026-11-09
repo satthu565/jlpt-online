@@ -1579,6 +1579,51 @@ export const endpointsData: OpenApiPaths = {
     },
   },
 
+  '/api/v1/me/srs/reset-candidates': {
+    get: {
+      operationId: 'getSrsResetCandidates',
+      summary: 'List the signed-in learner’s active remembered cards eligible for reset',
+      tags: ['SRS'],
+      responses: {
+        '200': jsonResp('Reset candidates', {
+          type: 'object', required: ['cardIds', 'count'],
+          properties: {
+            cardIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
+            count: { type: 'integer', minimum: 0 },
+          },
+        }),
+        '401': standardErrors.unauthorized,
+      },
+    },
+  },
+  '/api/v1/me/srs/reset': {
+    post: {
+      operationId: 'resetSrsRememberedCards',
+      summary: 'Reset the explicitly confirmed remembered card selection while preserving history',
+      tags: ['SRS'],
+      requestBody: {
+        required: true,
+        content: { 'application/json': { schema: {
+          type: 'object', additionalProperties: false, required: ['cardIds', 'confirmed'],
+          properties: {
+            cardIds: { type: 'array', minItems: 1, maxItems: 10000, uniqueItems: true, items: { type: 'string', format: 'uuid' } },
+            confirmed: { type: 'boolean', const: true },
+          },
+        } } },
+      },
+      responses: {
+        '200': jsonResp('Schedules restarted, or the same selection was already reset', {
+          type: 'object', required: ['resetCount', 'alreadyReset'],
+          properties: { resetCount: { type: 'integer', minimum: 0 }, alreadyReset: { type: 'boolean' } },
+        }),
+        '400': standardErrors.badRequest,
+        '401': standardErrors.unauthorized,
+        '404': createErrorResponse('Card not found', 'NOT_FOUND', 'Some cards are no longer available.'),
+        '409': createErrorResponse('Selection changed', 'VERSION_CONFLICT', 'The reset selection has changed. Please reload.'),
+      },
+    },
+  },
+
   '/api/v1/me/srs/reviews': {
     post: {
       operationId: 'submitCardReview',

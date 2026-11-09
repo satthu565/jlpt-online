@@ -33,7 +33,7 @@ Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xon
 | Tra từ, chi tiết từ vựng | `/tu-vung`, `/tu-vung/[term]` | `features/corpus`, module `vocab` |
 | Bộ dữ liệu kanji chuẩn: 3.186 chữ, cách dùng và ví dụ (#127) | admin `/kanji` | `data/kanji/kanji_chuan_v1.json`, bảng `kanji_dataset`, `apps/api/scripts/lexicon/import-kanji-dataset.mjs` |
 | Ngữ pháp, thống kê từ vựng trong đề | `/ngu-phap`, `/thong-ke-tu-vung` | `features/corpus` |
-| Sổ tay, flashcard SRS; lọc mục theo cấp độ đề nguồn N5–N1 kết hợp loại, trạng thái và tìm kiếm | `/so-tay` | `features/learning`, `packages/srs` |
+| Sổ tay, flashcard SRS (tạo thẻ từ các mục chưa thuộc bằng nút trong tab ôn tập; lỗi tải được hiển thị); lọc mục theo cấp độ đề nguồn N5–N1 kết hợp loại, trạng thái và tìm kiếm | `/so-tay` | `features/learning`, `packages/srs` |
 | Kế hoạch học | `/ke-hoach` | `features/planner` |
 | Thống kê cá nhân | `/thong-ke` | `features/analytics` |
 | Lịch thi JLPT tại Việt Nam, nhắc hạn đăng ký | `/lich-thi` | `apps/api/src/modules/exam/jlpt-schedule.controller.ts` |
@@ -155,3 +155,14 @@ Reviewed 297 文字・語彙 questions across all 11 imported N5 exams. Prepared
 - Sổ tay: mỗi thẻ có Chip HeroUI nhỏ đồng bộ cho loại mục (ngữ pháp tím), link tên đề xanh và số câu vàng; hai Separator tách header/nội dung/footer; nút ghi nhớ hiển thị trạng thái hiện tại: Chưa thuộc (Circle, xám xanh) / Đã thuộc (CircleCheck, xanh lá), tooltip mô tả thao tác chuyển trạng thái; ví dụ trong đề cam và xóa đỏ nhạt; từ/mẫu ngữ pháp nổi bật, ẩn cách đọc trùng với mẫu; hỗ trợ metadata cũ trong tag, không thêm nguồn giả cho mục nhập tay.
 
 - Sổ tay: bấm tên đề mở đúng lượt làm đã lưu từ/ngữ pháp và cuộn tới câu nguồn theo ID; lưu attempt/exam trong metadata. Mục cũ chưa có mã lượt làm: tự mở nếu lịch sử chỉ có một lượt đúng đề, nhiều lượt thì lọc theo đề để chọn, giữ câu đích.
+
+## SRS study session (2026-11-09)
+
+- Flashcard HeroUI hai mặt, lật 3D và chuyển thẻ, hỗ trợ giảm chuyển động, phím Space/Enter/1–4; 4 nút ghi rõ mốc ôn dự kiến theo lịch sử (lịch API hiện tại là nguồn chính thức).
+- Chọn Quên tạo hàng chờ 10 phút trong buổi; tiếp tục sau reload, hiển thị đếm ngược thay vì báo hoàn thành khi còn thẻ chờ.
+- Hoàn tác đánh giá cuối chưa chốt; đánh giá lưu nháp bền vững trên thiết bị, bấm Lưu kết quả hoặc Lưu và về sổ tay để đưa vào hàng đợi API có idempotency. Không hoàn tác lượt đã gửi máy chủ.
+- Mục tiêu/ngày, giới hạn thẻ mới/ngày, tiến độ riêng theo tài khoản trên trình duyệt này; ưu tiên thẻ đến hạn, mục tiêu không chặn thẻ đến hạn; giữ lịch khi mất mạng và thứ tự review của cùng thẻ. Không migration hay backfill.
+
+- SRS: sau khi hoàn tất, có nút Ôn lại lượt vừa học; ôn thêm độc lập, thẻ Quên quay lại cuối lượt, hoàn tác được, không ghi review API/đổi lịch hay cộng trùng tiến độ. Giữ bộ thẻ vừa học sau khi lưu/reload; các mã review mới dùng UUID đúng schema, hàng đợi legacy giữ nguyên local ID và lưu UUID gửi máy chủ trước khi retry.
+
+- SRS reset: nút Reset thẻ đã nhớ tải số lượng thật và yêu cầu xác nhận trước khi đặt lại các thẻ active ở nhóm review/repetitions > 0 thành thẻ mới. API retire ID thẻ cũ và tạo lịch mới trong một transaction, giữ notebook/mastery và review history; chặn review offline cũ tác động lịch mới, retry cùng lựa chọn không reset hai lần. Phải đồng bộ nháp/hàng đợi trước khi reset. Cần triển khai API mới; :3210 chỉ cập nhật web, nếu API chưa có endpoint thì báo rõ và không thực hiện reset.

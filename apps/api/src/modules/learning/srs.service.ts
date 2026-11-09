@@ -1,5 +1,5 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, eq } from 'drizzle-orm';
+import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { and, eq, gt, inArray } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { DB_CLIENT } from '../../common/database/database.module.js';
 import type { DbClientInstance } from '../../db/client.js';
@@ -10,6 +10,7 @@ import { generateUuidV7 } from '../../common/utils/uuid.js';
 type DbTx = Parameters<Parameters<PostgresJsDatabase<typeof schema>['transaction']>[0]>[0];
 import type {
   CardScheduleDto,
+  DueCardsResponseDto,
   ReviewResultDto,
   SubmitReviewDto,
 } from './learning.types.js';
@@ -133,7 +134,7 @@ export class SrsService {
     const userCards = await this.dbClient.db
       .select()
       .from(cards)
-      .where(and(eq(cards.id, dto.cardId), eq(cards.userId, userId)))
+      .where(and(eq(cards.id, dto.cardId), eq(cards.userId, userId), eq(cards.status, 'active')))
       .limit(1);
 
     if (userCards.length === 0) {
@@ -270,10 +271,50 @@ export class SrsService {
     };
   }
 
+  async getResetCandidates(userId: string): Promise<{ cardIds: string[]; count: number }> {
+    const rows: Array<{ cardId: string }> = await this.dbClient.db.select({ cardId: cards.id })
+      .from(cards).innerJoin(cardSchedules, eq(cards.id, cardSchedules.cardId))
+      .where(and(eq(cards.userId, userId), eq(cards.status, 'active'),
+        eq(cardSchedules.state, 'review'), gt(cardSchedules.repetitions, 0)));
+    return { cardIds: rows.map(row => row.cardId), count: rows.length };
+  }
+
+  /** Retire the old card IDs to preserve history and prevent stale offline reviews
+   * from changing the new schedules. No notebook content or mastery flags are changed. */
+  async resetRememberedCards(userId: string, cardIds: string[]): Promise<{ resetCount: number; alreadyReset: boolean }> {
+    const ids = [...new Set(cardIds)];
+    return this.dbClient.db.transaction(async (tx: DbTx) => {
+      const selected = await tx.select().from(cards)
+        .where(and(eq(cards.userId, userId), inArray(cards.id, ids))).orderBy(cards.id).for('update');
+      if (selected.length !== ids.length) throw new NotFoundException('Some cards are no longer available.');
+      if (selected.every(card => card.status === 'reset')) return { resetCount: 0, alreadyReset: true };
+      if (selected.some(card => card.status !== 'active')) throw new ConflictException('The reset selection has changed. Please reload.');
+      const schedules = await tx.select().from(cardSchedules)
+        .where(inArray(cardSchedules.cardId, ids)).orderBy(cardSchedules.cardId).for('update');
+      if (schedules.length !== ids.length || schedules.some(schedule => schedule.state !== 'review' || schedule.repetitions <= 0)) {
+        throw new ConflictException('The reset selection has changed. Please reload.');
+      }
+      const now = new Date();
+      const freshCards = selected.map(card => ({
+        id: generateUuidV7(), userId, notebookItemId: card.notebookItemId,
+        front: card.front, back: card.back, status: 'active', createdAt: now,
+      }));
+      await tx.update(cards).set({ status: 'reset' }).where(inArray(cards.id, ids));
+      for (let index = 0; index < freshCards.length; index += 200) {
+        const batch = freshCards.slice(index, index + 200);
+        await tx.insert(cards).values(batch);
+        await tx.insert(cardSchedules).values(batch.map(card => ({
+          cardId: card.id, dueAt: now, intervalDays: 1, easeFactor: 250, repetitions: 0, state: 'new',
+        })));
+      }
+      return { resetCount: ids.length, alreadyReset: false };
+    });
+  }
+
   /**
    * Retrieves all cards due for review for the user, taking into account timezone midnight boundaries.
    */
-  async getDueCards(userId: string, timezone = 'Asia/Ho_Chi_Minh', limit = 50) {
+  async getDueCards(userId: string, timezone = 'Asia/Ho_Chi_Minh', limit = 50): Promise<DueCardsResponseDto> {
     const now = new Date();
     // Fetch user cards that have schedules
     const dueRows = await this.dbClient.db
