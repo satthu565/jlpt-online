@@ -1,15 +1,15 @@
 'use client';
 
-import { BookOpen, Check, ChevronDown, ChevronUp, Download, ExternalLink, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
+import { BookOpen, Check, ArrowUpRight, ChevronDown, ChevronUp, Download, ExternalLink, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { getNotebookSourceHref } from '../services/notebook-source-link';
-import { Card, CardHeader, CardTitle, CardContent } from '@jlpt/ui/components/card';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
 import { Input } from '@jlpt/ui/components/input';
 import { HeroSelect } from '@jlpt/ui/components/hero-select';
 import { Badge } from '@jlpt/ui/components/badge';
-import { Chip } from '@jlpt/ui/components/exam-controls';
+import { Chip, Separator } from '@jlpt/ui/components/exam-controls';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Modal } from '@jlpt/ui/components/modal';
 import { Spinner } from '@jlpt/ui/components/spinner';
@@ -345,18 +345,6 @@ export function NotebookView({
     }
   };
 
-  const kindBadgeVariant = (kind: NotebookItemKind) => {
-    switch (kind) {
-      case 'vocab':
-        return 'primary';
-      case 'grammar':
-        return 'secondary';
-      case 'kanji':
-        return 'success';
-      default:
-        return 'default';
-    }
-  };
 
   return (
     <div className="notebook-container flex flex-col gap-6">
@@ -472,134 +460,88 @@ export function NotebookView({
       )}
 
       {/* Items List */}
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,320px),1fr))] gap-4">
         {filteredItems.map((item) => (
-          <Card key={item.id} data-testid={`notebook-item-${item.id}`} className="flex flex-col h-full">
-            <CardHeader className="flex flex-col gap-3">
+          <Card key={item.id} data-testid={`notebook-item-${item.id}`} className="notebook-card flex flex-col h-full min-w-0">
+            <CardHeader className="notebook-card-header">
+              <Chip size="sm" variant="soft" className={`notebook-kind notebook-kind-${item.kind}`}>
+                <Chip.Label>{t(`notebook.kinds.${item.kind}`)}</Chip.Label>
+              </Chip>
               {(() => {
                 const source = getNotebookSource(item);
                 const hasQuestion = source.question !== undefined && String(source.question).trim() !== '';
                 if (!source.exam && !hasQuestion) return null;
                 return (
-                  <div className="flex flex-wrap items-center gap-2 border-b border-[var(--border-subtle)] pb-3" data-testid="notebook-source">
+                  <div className="notebook-source flex flex-wrap items-center gap-1.5 min-w-0" data-testid="notebook-source">
                     {source.exam && (
-                      <Link href={getNotebookSourceHref(item)} aria-label={t('notebook.openSource', { exam: source.exam })} className="inline-flex max-w-full rounded-full focus-visible:outline-2 focus-visible:outline-offset-2">
-                      <Chip size="lg" color="accent" variant="soft" className="max-w-full">
-                        <BookOpen className="size-4 shrink-0" aria-hidden="true" />
-                        <Chip.Label className="whitespace-normal break-words">{source.exam}</Chip.Label>
-                      </Chip>
+                      <Link href={getNotebookSourceHref(item)} aria-label={t('notebook.openSource', { exam: source.exam })} className="notebook-source-link inline-flex min-w-0 max-w-full rounded-full focus-visible:outline-2 focus-visible:outline-offset-2">
+                        <Chip size="sm" variant="soft" className="notebook-exam max-w-full">
+                          <BookOpen className="size-3 shrink-0" aria-hidden="true" />
+                          <Chip.Label className="whitespace-normal break-words">{source.exam}</Chip.Label>
+                          <ArrowUpRight className="size-3 shrink-0" aria-hidden="true" />
+                        </Chip>
                       </Link>
                     )}
                     {hasQuestion && (
-                      <Chip size="lg" color="default" variant="secondary">
+                      <Chip size="sm" variant="soft" className="notebook-question shrink-0">
                         <Chip.Label>{t('notebook.sourceQuestion', { number: String(source.question) })}</Chip.Label>
                       </Chip>
                     )}
                   </div>
                 );
               })()}
-              <div className="flex justify-between items-start gap-3">
+            </CardHeader>
+            <Separator className="notebook-divider" />
+            <CardContent className="notebook-card-content flex flex-1 flex-col">
+              <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="min-w-0">
-                  <div className="flex flex-wrap gap-2 items-center mb-2">
-                    <Badge variant={kindBadgeVariant(item.kind)}>
-                      {t(`notebook.kinds.${item.kind}`)}
-                    </Badge>
-                    {item.mastered && (
-                      <Badge variant="success"><Check className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.status.mastered')}</Badge>
-                    )}
-                  </div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <CardTitle className="text-xl m-0 break-words">
-                      {item.term}
-                    </CardTitle>
+                    <CardTitle className="text-2xl leading-relaxed m-0 break-words">{item.term}</CardTitle>
                     {item.hanViet && (
-                      <span className="text-xs font-semibold py-[2px] px-[6px] rounded-[4px] bg-[rgba(245,158,11,0.15)] text-[#b45309] inline-block"
-                        data-testid="notebook-item-hanviet"
-                      >
-                        {item.hanViet}
-                      </span>
+                      <Badge variant="warning" size="sm" data-testid="notebook-item-hanviet">{item.hanViet}</Badge>
                     )}
                   </div>
-                  {item.reading && (
-                    <p className="mt-1 mb-0 text-sm text-[var(--text-muted)]" data-testid="notebook-reading">
-                      [{item.reading}]
-                    </p>
+                  {item.reading && !item.term.split(/[/／]/).some((term) => term.replace(/[〜～~\s]/g, '') === item.reading?.replace(/[〜～~\s]/g, '')) && (
+                    <p className="mt-1 mb-0 text-sm text-[var(--text-muted)]" data-testid="notebook-reading">[{item.reading}]</p>
                   )}
                 </div>
-
                 {FEATURES.tts && onPlayTts && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onPlayTts(item.term)}
-                    aria-label={t('notebook.actions.playAudio', { term: item.term })}
-                    title={t('notebook.actions.playAudio', { term: item.term })}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => onPlayTts(item.term)} aria-label={t('notebook.actions.playAudio', { term: item.term })} title={t('notebook.actions.playAudio', { term: item.term })}>
                     <Volume2 className="size-4" aria-hidden="true" />
                   </Button>
                 )}
               </div>
-            </CardHeader>
-
-            <CardContent className="flex flex-1 flex-col">
-              <p className="mt-0 mx-0 mb-3 font-medium text-[var(--text-primary)]">
-                {item.meaning}
-              </p>
-
+              <p className="mt-0 mx-0 mb-3 text-base font-medium text-[var(--text-primary)]">{item.meaning}</p>
               {item.notes && (
-                <p className="text-sm text-[var(--text-secondary)] mt-0 mx-0 mb-3 italic">
+                <p className="text-sm text-[var(--text-secondary)] mt-0 mx-0 mb-3">
                   <Lightbulb className="inline size-4 align-[-2px]" aria-hidden="true" /> {item.notes}
                 </p>
               )}
-
               {(() => {
                 const visibleTags = getUserVisibleTags(item.tags);
                 if (visibleTags.length === 0) return null;
                 return (
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {visibleTags.map((tag) => (
-                      <span
-                        className="text-xs py-[2px] px-[6px] rounded-[4px] bg-[var(--bg-muted)] text-[var(--text-secondary)]"
-                        key={tag}
-                      >
-                        #{tag.replace(/^#+/, '')}
-                      </span>
-                    ))}
+                  <div className="flex flex-wrap gap-1">
+                    {visibleTags.map((tag) => <Badge variant="neutral" size="sm" key={tag}>#{tag.replace(/^#+/, '')}</Badge>)}
                   </div>
                 );
               })()}
-
-              <div className="mt-auto flex justify-between items-center pt-3 border-t border-[var(--border-subtle)]">
-                <div className="flex gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onUpdateItem(item.id, { mastered: !item.mastered })}
-                    aria-label={item.mastered ? t('notebook.actions.markUnmastered') : t('notebook.actions.markMastered')}
-                  >
-                    {item.mastered ? t('notebook.actions.markUnmastered') : t('notebook.actions.markMastered')}
-                  </Button>
-
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleOpenExamples(item)}
-                    aria-label={t('notebook.actions.viewExamples')}
-                  >
-                    <Search className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.actions.viewExamples')}
-                  </Button>
-                </div>
-
-                <Button className="text-[var(--color-error)]"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onDeleteItem(item.id)}
-                  aria-label={t('notebook.actions.deleteItem', { term: item.term })}
-                >
+            </CardContent>
+            <Separator className="notebook-divider" />
+            <CardFooter className="notebook-card-footer">
+              <Button variant="secondary" size="sm" className="notebook-mastery" onClick={() => onUpdateItem(item.id, { mastered: !item.mastered })} aria-pressed={item.mastered} aria-label={item.mastered ? t('notebook.actions.markUnmastered') : t('notebook.actions.markMastered')}>
+                {item.mastered && <Check className="size-3.5" aria-hidden="true" />}
+                {t('notebook.actions.markMastered')}
+              </Button>
+              <div className="notebook-card-actions flex items-center gap-2">
+                <Button variant="secondary" size="sm" className="notebook-examples" onClick={() => handleOpenExamples(item)} aria-label={t('notebook.actions.viewExamples')}>
+                  <Search className="size-3.5" aria-hidden="true" /> {t('notebook.actions.viewExamples')}
+                </Button>
+                <Button className="notebook-delete" variant="ghost" size="sm" onClick={() => onDeleteItem(item.id)} aria-label={t('notebook.actions.deleteItem', { term: item.term })} title={t('notebook.actions.deleteItem', { term: item.term })}>
                   <Trash2 className="size-4" aria-hidden="true" />
                 </Button>
               </div>
-            </CardContent>
+            </CardFooter>
           </Card>
         ))}
       </div>
