@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertTriangle, Check, Target } from 'lucide-react';
+import { AlertTriangle, Check, Target, HelpCircle } from 'lucide-react';
 import React from 'react';
 import type { TrueProgressComparison } from '@jlpt/schema';
 import { Card } from '@jlpt/ui/components/card';
@@ -48,7 +48,7 @@ export function TrueProgressWidget({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Target className="size-5" aria-hidden="true" />
+            <Target className="size-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
             <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
               Đối sánh tiến độ thực chất (Không trộn câu quen với câu mới)
             </h3>
@@ -76,7 +76,7 @@ export function TrueProgressWidget({
         {/* 1. Fresh Unseen Questions (Câu hỏi mới chưa từng làm) */}
         <div
           data-testid="unseen-stats-card"
-          className="p-4 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/50 dark:bg-blue-950/20 space-y-2"
+          className="p-4 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/50 dark:bg-blue-950/20 space-y-2.5"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-blue-900 dark:text-blue-300 uppercase tracking-wider">
@@ -99,6 +99,15 @@ export function TrueProgressWidget({
             </span>
           </div>
 
+          {/* Progress bar visual */}
+          <div className="w-full bg-blue-200 dark:bg-blue-900/50 rounded-full h-2 overflow-hidden">
+            <div
+              className="bg-blue-600 h-2 rounded-full transition-all"
+              // ui-allow-style: chiều rộng theo số liệu, tính lúc chạy
+              style={{ width: `${Math.min(100, unseenAccuracy)}%` }}
+            />
+          </div>
+
           <p className="text-[11px] text-blue-800/80 dark:text-blue-300/80 leading-relaxed">
             Phản ánh chính xác khả năng ứng biến với đề thi thực tế khi bạn không biết trước câu hỏi.
           </p>
@@ -107,7 +116,7 @@ export function TrueProgressWidget({
         {/* 2. Familiar Repeated Questions (Câu quen thuộc đã từng làm) */}
         <div
           data-testid="familiar-stats-card"
-          className="surface surface--secondary rounded-2xl p-4 space-y-2"
+          className="surface surface--secondary rounded-2xl p-4 space-y-2.5"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
@@ -128,6 +137,15 @@ export function TrueProgressWidget({
             <span className="text-xs text-slate-500 dark:text-slate-400">
               chính xác trên <strong data-testid="familiar-count-value">{familiarCount}</strong> câu làm lại
             </span>
+          </div>
+
+          {/* Progress bar visual */}
+          <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+            <div
+              className="bg-slate-600 dark:bg-slate-400 h-2 rounded-full transition-all"
+              // ui-allow-style: chiều rộng theo số liệu, tính lúc chạy
+              style={{ width: `${Math.min(100, familiarAccuracy)}%` }}
+            />
           </div>
 
           <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -166,6 +184,14 @@ export function TrueProgressWidget({
           >
             {modeLabels[recommendedMode] || recommendedMode}
           </strong>
+        </div>
+      </div>
+
+      {/* Pedagogical Explanation Callout */}
+      <div className="p-3 rounded-xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 text-xs text-amber-900 dark:text-amber-200/90 leading-relaxed flex items-start gap-2">
+        <HelpCircle className="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" aria-hidden="true" />
+        <div>
+          <span className="font-bold">Lưu ý sư phạm dành cho bạn:</span> Điểm số khi làm đề các năm cũ có thể cao hơn thực tế nếu bạn đã vô tình nhớ đáp án. Khi vào phòng thi thật, 100% câu hỏi là câu mới. Do đó, hãy lấy tỷ lệ câu mới ({unseenAccuracy}%) làm thước đo chính để quyết định mức độ sẵn sàng!
         </div>
       </div>
 
