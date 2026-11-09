@@ -342,6 +342,12 @@
       "grammar": "Grammar",
       "kanji": "Kanji"
     },
+    "mastery": {
+      "notMastered": "Not mastered",
+      "mastered": "Mastered",
+      "markMastered": "Mark as mastered",
+      "markUnmastered": "Mark as not mastered"
+    },
     "status": {
       "learning": "Learning",
       "mastered": "Mastered"

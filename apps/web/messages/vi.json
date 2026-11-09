@@ -342,6 +342,12 @@
       "grammar": "Ngữ pháp",
       "kanji": "Hán tự"
     },
+    "mastery": {
+      "notMastered": "Chưa thuộc",
+      "mastered": "Đã thuộc",
+      "markMastered": "Đánh dấu đã thuộc",
+      "markUnmastered": "Chuyển về chưa thuộc"
+    },
     "status": {
       "learning": "Đang học",
       "mastered": "Đã thành thạo"
