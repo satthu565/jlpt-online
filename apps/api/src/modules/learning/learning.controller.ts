@@ -10,6 +10,10 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { z } from 'zod';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import { RateLimit } from '../../common/decorators/rate-limit.decorator.js';
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import type { AuthUserContext } from '../../common/types/auth.types.js';
 import { CsvExportService } from './csv-export.service.js';
@@ -29,6 +33,11 @@ import { NotebookService } from './notebook.service.js';
 import { QuizService } from './quiz.service.js';
 import { SrsService } from './srs.service.js';
 import { TTSService } from './tts.service.js';
+
+export const ResetSrsCardsSchema = z.object({
+  cardIds: z.array(z.string().uuid()).min(1).max(10000).refine(ids => new Set(ids).size === ids.length),
+  confirmed: z.literal(true),
+}).strict();
 
 @Controller()
 export class LearningController {
@@ -132,6 +141,24 @@ export class LearningController {
   ) {
     const userId = user?.userId ?? 'default-user-id';
     return this.srsService.getDueCards(userId, query.timezone, query.limit);
+  }
+
+  @Get(['me/srs/reset-candidates', 'api/v1/me/srs/reset-candidates'])
+  @Roles('student', 'admin', 'editor', 'reviewer', 'moderator', 'billing_admin')
+  @RateLimit({ limit: 20, windowSec: 60, keyPrefix: 'srs-reset-candidates' })
+  async getResetCandidates(@CurrentUser() user: AuthUserContext) {
+    return this.srsService.getResetCandidates(user.userId);
+  }
+
+  @Post(['me/srs/reset', 'api/v1/me/srs/reset'])
+  @HttpCode(HttpStatus.OK)
+  @Roles('student', 'admin', 'editor', 'reviewer', 'moderator', 'billing_admin')
+  @RateLimit({ limit: 5, windowSec: 60, keyPrefix: 'srs-reset' })
+  async resetRememberedCards(
+    @CurrentUser() user: AuthUserContext,
+    @Body(new ZodValidationPipe(ResetSrsCardsSchema)) dto: z.infer<typeof ResetSrsCardsSchema>,
+  ) {
+    return this.srsService.resetRememberedCards(user.userId, dto.cardIds);
   }
 
   @Post(['me/srs/reviews', 'api/v1/me/srs/reviews'])

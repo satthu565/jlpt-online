@@ -2,6 +2,75 @@ import { test, expect, type Page } from '@playwright/test';
 
 export function registerSrsStudyTests(): void {
   test.describe('Notebook SRS study session', () => {
+    test('reset requires confirmation, supports retry, reloads new cards and blocks unsaved drafts', async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 900 });
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      const ids = ['0192f000-0000-7000-8000-000000000001', '0192f000-0000-7000-8000-000000000002'];
+      let due: unknown[] = [];
+      let loads = 0;
+      const resets: unknown[] = [];
+      await page.route('**/api/v1/**', async route => {
+        const path = new URL(route.request().url()).pathname;
+        let json: unknown = { items: [] };
+        if (path.endsWith('/auth/session')) json = { user: { id: 'reset-learner', name: 'Reset', role: 'student' }, session: {} };
+        if (path.endsWith('/me/srs/due')) json = { items: due };
+        if (path.endsWith('/me/srs/reset-candidates')) { loads++; json = { cardIds: ids, count: 2 }; }
+        if (path.endsWith('/me/srs/reset')) {
+          resets.push(route.request().postDataJSON());
+          if (resets.length === 1) { await route.fulfill({ status: 503, json: { message: 'retry' } }); return; }
+          due = ids.map((_, index) => ({ cardId: 'fresh-' + index, notebookItemId: 'item-' + index,
+            front: { term: index ? '学校' : '学生' }, back: { meaning: 'Học sinh' },
+            state: 'new', repetitions: 0, intervalDays: 1, dueAt: new Date().toISOString() }));
+          json = { resetCount: 2, alreadyReset: false };
+        }
+        await route.fulfill({ json });
+      });
+      await page.goto('/so-tay', { waitUntil: 'networkidle' });
+      const cookie = page.getByRole('button', { name: 'Từ chối cookie phân tích', exact: true });
+      if (await cookie.isVisible()) await cookie.click();
+      await page.locator('#tab-srs').click();
+      await page.getByTestId('srs-reset-open').click();
+      await expect(page.getByRole('dialog')).toContainText('Sẽ đặt lại 2 thẻ đã nhớ trong SRS.');
+      expect(resets).toHaveLength(0);
+      await page.getByRole('dialog').getByRole('button', { name: 'Hủy', exact: true }).last().click();
+      expect(resets).toHaveLength(0);
+      await page.getByTestId('srs-reset-open').click();
+      await page.getByTestId('srs-reset-confirm').click();
+      await expect(page.getByRole('dialog')).toContainText('Chưa hoàn tất reset.');
+      await expect(page.getByTestId('srs-reset-confirm')).toBeEnabled();
+      await page.getByTestId('srs-reset-confirm').click();
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      await expect(page.locator('.srs-runner')).toContainText('Thẻ mới: 2');
+      await expect(page.getByTestId('flashcard-view')).toBeVisible();
+      expect(resets).toEqual([{ cardIds: ids, confirmed: true }, { cardIds: ids, confirmed: true }]);
+      await flip(page);
+      await page.getByTestId('rating-good-button').click();
+      await expect(page.locator('.srs-runner')).toContainText('Đang giữ 1 đánh giá');
+      await page.getByTestId('srs-reset-open').click();
+      await expect(page.locator('.srs-runner')).toContainText('Hãy kết thúc ôn thêm và lưu, đồng bộ hết kết quả đang chờ trước khi reset.');
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      expect(loads).toBe(2);
+    });
+
+    test('does not pretend to reset when the deployed API is not ready', async ({ page }) => {
+      let resets = 0;
+      await page.route('**/api/v1/**', async route => {
+        const path = new URL(route.request().url()).pathname;
+        if (path.endsWith('/me/srs/reset-candidates')) { await route.fulfill({ status: 404, json: { message: 'Not found' } }); return; }
+        if (path.endsWith('/me/srs/reset')) resets++;
+        const json = path.endsWith('/auth/session') ? { user: { id: 'old-api-learner', name: 'Old API', role: 'student' }, session: {} } : { items: [] };
+        await route.fulfill({ json });
+      });
+      await page.goto('/so-tay', { waitUntil: 'networkidle' });
+      const cookie = page.getByRole('button', { name: 'Từ chối cookie phân tích', exact: true });
+      if (await cookie.isVisible()) await cookie.click();
+      await page.locator('#tab-srs').click();
+      await page.getByTestId('srs-reset-open').click();
+      await expect(page.getByRole('dialog')).toContainText('Máy chủ chưa có chức năng reset SRS.');
+      await expect(page.getByTestId('srs-reset-confirm')).toBeDisabled();
+      expect(resets).toBe(0);
+    });
+
     test('recovers a legacy failed review and keeps its cards available for extra practice', async ({ page }) => {
       await page.emulateMedia({ reducedMotion: 'reduce' });
       const card = { cardId: 'legacy-card', notebookItemId: 'legacy-item', front: { term: '学生' }, back: { meaning: 'Học sinh' }, state: 'review', repetitions: 2, intervalDays: 6, dueAt: new Date().toISOString() };

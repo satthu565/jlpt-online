@@ -436,6 +436,17 @@
   },
   "srs": {
     "study": {
+      "resetButton": "Reset remembered cards",
+      "resetTitle": "Restart remembered card progress?",
+      "resetCount": "Reset {count} remembered SRS cards.",
+      "resetExplanation": "These cards become new cards and restart their review schedules. Notebook content, notebook mastery flags and past review history are preserved. The daily new-card limit still applies.",
+      "resetConfirm": "Reset to the beginning",
+      "resetEmpty": "No remembered cards need resetting.",
+      "resetNeedsSync": "Finish extra practice and save and sync all pending results before resetting.",
+      "resetUnavailable": "The server does not support SRS reset yet. The API must be updated before using this action.",
+      "resetLoadError": "Unable to load reset candidates. Close this dialog and try again.",
+      "resetFailed": "Unable to complete the reset. You may retry; the same selection will not be reset twice.",
+      "resetChanged": "The selection has changed. Close and reopen this dialog to confirm the updated selection.",
       "repeat": "Review these cards again",
       "practiceMode": "Extra practice · schedule unchanged",
       "practiceHint": "Practice for stronger recall. This round does not change your SRS schedule or count the same cards twice in today’s progress.",

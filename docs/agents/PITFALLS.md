@@ -181,3 +181,5 @@ Triệu chứng: tab SRS có 0 thẻ hoặc hiện hoàn thành ngay → lưu no
 - crypto.randomUUID không có trên HTTP IP LAN → dùng crypto.getRandomValues cho ID đánh giá. Các bản nháp và hàng đợi mới phải tách theo userId.
 
 - SRS POST review lỗi 500 ở SELECT card_reviews → client_review_id là UUID nhưng client cũ tạo rev-* → tạo UUID v4 bằng getRandomValues; với queue cũ giữ ID local để đối chiếu checkpoint, lưu serverReviewId UUID bền vững trước khi gửi. Không xóa lượt chưa đồng bộ hay đổi UUID sau mỗi retry.
+
+- Reset SRS bằng cách ghi đè schedule trên cùng card ID → review offline cũ có thể ghi đè lịch vừa reset → retire card cũ (status reset), tạo card/schedule mới, giữ lịch sử cũ và lọc active khi generate/review. Reset bắt buộc chọn ID đã xác nhận, xác thực ownership, row lock và transaction; retry danh sách đã retire trả alreadyReset. Không thử reset trên database chung khi chưa có sao lưu/đồng ý.

@@ -389,6 +389,7 @@ export default function NotebookPage(): React.JSX.Element {
             </div>
           ) : <SrsReviewRunner
             cards={dueCards}
+            onReset={loadNotebookData}
             userId={user.id}
             key={user.id}
             onFinish={() => {

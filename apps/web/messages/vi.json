@@ -436,6 +436,17 @@
   },
   "srs": {
     "study": {
+      "resetButton": "Reset thẻ đã nhớ",
+      "resetTitle": "Đặt lại tiến độ thẻ đã nhớ?",
+      "resetCount": "Sẽ đặt lại {count} thẻ đã nhớ trong SRS.",
+      "resetExplanation": "Các thẻ này trở về thẻ mới và bắt đầu lại lịch ôn. Nội dung, trạng thái thuộc của sổ tay và lịch sử ôn cũ được giữ lại. Thẻ mới vẫn tuân theo giới hạn thẻ mới mỗi ngày.",
+      "resetConfirm": "Đặt lại từ đầu",
+      "resetEmpty": "Không có thẻ đã nhớ cần đặt lại.",
+      "resetNeedsSync": "Hãy kết thúc ôn thêm và lưu, đồng bộ hết kết quả đang chờ trước khi reset.",
+      "resetUnavailable": "Máy chủ chưa có chức năng reset SRS. Cần cập nhật API trước khi sử dụng nút này.",
+      "resetLoadError": "Chưa tải được danh sách thẻ cần reset. Đóng hộp thoại và thử lại.",
+      "resetFailed": "Chưa hoàn tất reset. Bạn có thể thử lại; cùng danh sách thẻ sẽ không bị reset hai lần.",
+      "resetChanged": "Danh sách thẻ đã thay đổi. Đóng hộp thoại và mở lại để xác nhận danh sách mới.",
       "repeat": "Ôn lại lượt vừa học",
       "practiceMode": "Ôn thêm · không đổi lịch",
       "practiceHint": "Ôn thêm để nhớ chắc hơn. Lượt này không đổi lịch SRS và không cộng trùng tiến độ hôm nay.",

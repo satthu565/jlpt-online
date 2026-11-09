@@ -1,8 +1,8 @@
 'use client';
 
-import { Check, Clock3, RotateCcw, Save, Settings2, Undo2 } from 'lucide-react';
+import { Check, Clock3, RotateCcw, RotateCcwSquare, Save, Settings2, Undo2 } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, Chip, ProgressBar } from '@jlpt/ui/components/exam-controls';
+import { Button, Card, Chip, Modal, ProgressBar } from '@jlpt/ui/components/exam-controls';
 import { HeroSelect } from '@jlpt/ui/components/hero-select';
 import { Alert } from '@jlpt/ui/components/alert';
 import type { DueFlashcard, ReviewRating } from '../types';
@@ -10,7 +10,7 @@ import { FlashcardView } from './flashcard-view';
 import { SrsSyncManager, type SrsSyncSnapshot } from '../services/srs-sync-manager';
 import { newReviewId } from '../services/srs-review-id';
 import { practiceQueue, ratePractice, reviewedCards, undoPractice, type PracticeSession } from '../services/srs-practice';
-import { defaultLearningClient } from '../services/learning-client';
+import { defaultLearningClient, LearningClientError } from '../services/learning-client';
 import {
   createStudyState, dailyProgress, markStudySaved, rateStudyCard, restoreStudyState,
   selectStudyQueue, studyStorageKey, undoStudyRating, isNewCard, type StudyState,
@@ -23,9 +23,10 @@ export interface SrsReviewRunnerProps {
   userId?: string;
   onPlayTts?: (text: string) => Promise<void>;
   onFinish?: () => void;
+  onReset?: () => Promise<void>;
 }
 export function SrsReviewRunner({
-  cards, syncManager, userId, onPlayTts, onFinish,
+  cards, syncManager, userId, onPlayTts, onFinish, onReset,
 }: SrsReviewRunnerProps): React.JSX.Element {
   const { t } = useI18n();
   const manager = useMemo(() => syncManager ?? new SrsSyncManager(defaultLearningClient,
@@ -39,6 +40,12 @@ export function SrsReviewRunner({
   const [saving, setSaving] = useState(false);
   const saveLock = useRef(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetCandidates, setResetCandidates] = useState<string[]>([]);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const resetLock = useRef(false);
+  const [resetError, setResetError] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [viewRevision, setViewRevision] = useState(0);
   const [syncSnapshot, setSyncSnapshot] = useState<SrsSyncSnapshot>(() => manager.getSnapshot());
@@ -151,6 +158,41 @@ export function SrsReviewRunner({
     } catch { setLocalError(t('srs.study.saveError')); }
     finally { saveLock.current = false; setSaving(false); }
   };
+  const openReset = async () => {
+    setResetError(null);
+    if (draftCount > 0 || manager.getSnapshot().pendingCount > 0 || practice) {
+      setResetError(t('srs.study.resetNeedsSync'));
+      return;
+    }
+    setResetCandidates([]); setResetOpen(true); setResetLoading(true);
+    try {
+      const result = await defaultLearningClient.getResetCandidates();
+      setResetCandidates(result.cardIds);
+    } catch (error) {
+      setResetError(error instanceof LearningClientError && error.status === 404
+        ? t('srs.study.resetUnavailable') : t('srs.study.resetLoadError'));
+    } finally { setResetLoading(false); }
+  };
+  const confirmReset = async () => {
+    if (resetLock.current || !resetCandidates.length || resetLoading) return;
+    if (stateRef.current.session.events.length > stateRef.current.session.savedCount ||
+      manager.getSnapshot().pendingCount > 0) {
+      setResetError(t('srs.study.resetNeedsSync')); return;
+    }
+    resetLock.current = true; setResetting(true); setResetError(null);
+    try {
+      await defaultLearningClient.resetRememberedCards(resetCandidates);
+      const next = { ...stateRef.current, session: createStudyState([]).session, lastReviewedCards: [] };
+      if (!persist(next)) return;
+      setPractice(null); setResetOpen(false); setViewRevision(value => value + 1);
+      await onReset?.();
+    } catch (error) {
+      if (error instanceof LearningClientError && error.status === 409) setResetCandidates([]);
+      setResetError(error instanceof LearningClientError && error.status === 409
+        ? t('srs.study.resetChanged') : t('srs.study.resetFailed'));
+    } finally { resetLock.current = false; setResetting(false); }
+  };
+
   const changeSetting = (key: 'dailyGoal' | 'newPerDay', value: string) => {
     if (!saving) persist({ ...stateRef.current, settings: { ...stateRef.current.settings, [key]: Number(value) } });
   };
@@ -170,10 +212,16 @@ export function SrsReviewRunner({
           <div><h2 className="font-semibold">{t('srs.study.today')}</h2>
             <p className="mt-1 text-sm text-[var(--text-secondary)]">{t('srs.study.dailyProgress', { done: progress.reviewed.length, goal: state.settings.dailyGoal })}</p>
           </div>
-          <Button size="sm" variant="ghost" disabled={transitioning || saving} onPress={() => setShowSettings(value => !value)}
-            aria-expanded={showSettings} aria-controls="srs-study-settings">
-            <Settings2 size={16} aria-hidden="true" />{t('srs.study.settings')}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="ghost" disabled={transitioning || saving || resetting} onPress={() => setShowSettings(value => !value)}
+              aria-expanded={showSettings} aria-controls="srs-study-settings">
+              <Settings2 size={16} aria-hidden="true" />{t('srs.study.settings')}
+            </Button>
+            {onReset && <Button size="sm" variant="secondary" disabled={!ready || transitioning || saving || resetting}
+              onPress={() => { void openReset(); }} data-testid="srs-reset-open">
+              <RotateCcwSquare size={16} aria-hidden="true" />{t('srs.study.resetButton')}
+            </Button>}
+          </div>
         </div>
         <ProgressBar value={Math.min(progress.reviewed.length, state.settings.dailyGoal)} maxValue={state.settings.dailyGoal}
           aria-label={t('srs.study.dailyProgress', { done: progress.reviewed.length, goal: state.settings.dailyGoal })}>
@@ -198,6 +246,7 @@ export function SrsReviewRunner({
       </Card.Content>
     </Card>
 
+    {resetError && !resetOpen && <Alert variant="warning">{resetError}</Alert>}
     {localError && <Alert variant="error">{localError}</Alert>}
     {syncSnapshot.state === 'error' && <Alert variant="warning">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -207,7 +256,7 @@ export function SrsReviewRunner({
     </Alert>}
 
     {active ? <FlashcardView key={`${practice ? 'practice' : 'scheduled'}:${active.card.cardId}:${practice?.ratings.length ?? state.session.events.length}:${viewRevision}`}
-      card={active.card} practice={Boolean(practice)} onRate={handleRate} onPlayTts={onPlayTts} onTransitionStart={() => setTransitioning(true)} disabled={!ready || saving}
+      card={active.card} practice={Boolean(practice)} onRate={handleRate} onPlayTts={onPlayTts} onTransitionStart={() => setTransitioning(true)} disabled={!ready || saving || resetOpen}
       cardIndex={practice ? practice.cards.length - extraQueue.length + 1 : reviewedThisSession + 1} totalCards={practice ? practice.cards.length : Math.max(reviewedThisSession + 1, reviewedThisSession + queue.entries.length)} />
       : <Card data-testid={ended ? 'srs-finished-card' : 'srs-waiting-card'}>
         <Card.Content className="flex flex-col items-center gap-4 px-5 py-10 text-center">
@@ -245,6 +294,23 @@ export function SrsReviewRunner({
         </Button>}
       </div>
     </div>
+    <Modal isOpen={resetOpen} onClose={() => { if (!resetting) setResetOpen(false); }}
+      title={t('srs.study.resetTitle')} closeLabel={t('common.buttons.cancel')}
+      footer={<div className="flex flex-wrap justify-end gap-2">
+        <Button variant="secondary" disabled={resetting} onPress={() => setResetOpen(false)}>{t('common.buttons.cancel')}</Button>
+        <Button variant="danger" loading={resetting} disabled={resetLoading || !resetCandidates.length}
+          onPress={() => { void confirmReset(); }} data-testid="srs-reset-confirm">{t('srs.study.resetConfirm')}</Button>
+      </div>}>
+      <div className="flex flex-col gap-4">
+        {resetLoading ? <p role="status">{t('common.status.loading')}</p> : !resetError || resetCandidates.length > 0 ? <>
+          <p>{t('srs.study.resetCount', { count: resetCandidates.length })}</p>
+          <p className="text-sm text-[var(--text-secondary)]">{t('srs.study.resetExplanation')}</p>
+          {!resetCandidates.length && !resetError && <p>{t('srs.study.resetEmpty')}</p>}
+        </> : null}
+        {resetError && <Alert variant="error">{resetError}</Alert>}
+      </div>
+    </Modal>
+
     <div className="flex flex-col gap-2 text-xs text-[var(--text-muted)]">
       <span data-testid="sync-status-badge" role="status">{syncLabel}</span>
       <p>{t(practice ? 'srs.study.practiceHint' : 'srs.study.undoHint')}</p>

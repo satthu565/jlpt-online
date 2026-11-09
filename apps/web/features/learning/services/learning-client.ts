@@ -188,6 +188,14 @@ export class LearningClient {
     }>('GET', `/me/srs/due?timezone=${encodeURIComponent(timezone)}&limit=${limit}`);
   }
 
+  public async getResetCandidates(): Promise<{ cardIds: string[]; count: number }> {
+    return this.request('GET', '/me/srs/reset-candidates');
+  }
+
+  public async resetRememberedCards(cardIds: string[]): Promise<{ resetCount: number; alreadyReset: boolean }> {
+    return this.request('POST', '/me/srs/reset', { cardIds, confirmed: true });
+  }
+
   public async submitReview(input: {
     cardId: string;
     clientReviewId: string;

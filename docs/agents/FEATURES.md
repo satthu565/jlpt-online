@@ -164,3 +164,5 @@ Reviewed 297 文字・語彙 questions across all 11 imported N5 exams. Prepared
 - Mục tiêu/ngày, giới hạn thẻ mới/ngày, tiến độ riêng theo tài khoản trên trình duyệt này; ưu tiên thẻ đến hạn, mục tiêu không chặn thẻ đến hạn; giữ lịch khi mất mạng và thứ tự review của cùng thẻ. Không migration hay backfill.
 
 - SRS: sau khi hoàn tất, có nút Ôn lại lượt vừa học; ôn thêm độc lập, thẻ Quên quay lại cuối lượt, hoàn tác được, không ghi review API/đổi lịch hay cộng trùng tiến độ. Giữ bộ thẻ vừa học sau khi lưu/reload; các mã review mới dùng UUID đúng schema, hàng đợi legacy giữ nguyên local ID và lưu UUID gửi máy chủ trước khi retry.
+
+- SRS reset: nút Reset thẻ đã nhớ tải số lượng thật và yêu cầu xác nhận trước khi đặt lại các thẻ active ở nhóm review/repetitions > 0 thành thẻ mới. API retire ID thẻ cũ và tạo lịch mới trong một transaction, giữ notebook/mastery và review history; chặn review offline cũ tác động lịch mới, retry cùng lựa chọn không reset hai lần. Phải đồng bộ nháp/hàng đợi trước khi reset. Cần triển khai API mới; :3210 chỉ cập nhật web, nếu API chưa có endpoint thì báo rõ và không thực hiện reset.
