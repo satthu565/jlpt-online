@@ -342,6 +342,12 @@
       "grammar": "文法",
       "kanji": "漢字"
     },
+    "mastery": {
+      "notMastered": "未習得",
+      "mastered": "習得済み",
+      "markMastered": "習得済みにする",
+      "markUnmastered": "未習得に戻す"
+    },
     "status": {
       "learning": "学習中",
       "mastered": "習得済み"
