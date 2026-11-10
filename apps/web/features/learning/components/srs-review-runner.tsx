@@ -237,8 +237,8 @@ export function SrsReviewRunner({
       </div>
       <Tabs.ListContainer className={styles.modeTabs}>
         <Tabs.List aria-label={t('srs.study.viewLabel')}>
-          <Tabs.Tab id="review"><GraduationCap size={20} aria-hidden="true" />{t('srs.study.reviewTab')}<Tabs.Indicator /></Tabs.Tab>
-          <Tabs.Tab id="deck"><Layers size={19} aria-hidden="true" />{t('srs.study.deckTab', { count: deck.length })}<Tabs.Indicator /></Tabs.Tab>
+          <Tabs.Tab id="review" isDisabled={transitioning || saving || resetOpen}><GraduationCap size={20} aria-hidden="true" />{t('srs.study.reviewTab')}<Tabs.Indicator /></Tabs.Tab>
+          <Tabs.Tab id="deck" isDisabled={transitioning || saving || resetOpen}><Layers size={19} aria-hidden="true" />{t('srs.study.deckTab', { count: deck.length })}<Tabs.Indicator /></Tabs.Tab>
         </Tabs.List>
       </Tabs.ListContainer>
       <div className={styles.toolbarActions}>

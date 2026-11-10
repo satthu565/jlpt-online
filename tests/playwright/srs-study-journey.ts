@@ -44,7 +44,15 @@ export function registerSrsStudyTests(): void {
         expect(before.session.events).toEqual([]);
         expect(before.starredCardIds).toEqual(['workspace-1']);
         await page.getByTestId('flashcard-flip-front').click();
+        await page.emulateMedia({ reducedMotion: 'no-preference' });
+        // Keep the exit animation pending long enough to verify that changing modes
+        // cannot unmount the card and cancel its rating callback.
+        await page.evaluate(() => {
+          const setTimer = window.setTimeout.bind(window);
+          window.setTimeout = ((handler: TimerHandler, delay?: number, ...args: unknown[]) => setTimer(handler, delay === 220 ? 1200 : delay, ...args)) as typeof window.setTimeout;
+        });
         await page.getByTestId('rating-good-button').click();
+        await expect(page.getByRole('tab', { name: 'Th? h?c (2)', exact: true })).toBeDisabled();
         await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('jlpt_srs_study_v1:workspace-user')!).session.events.map((event: { cardId: string }) => event.cardId))).toEqual(['workspace-1']);
         await page.getByTestId('srs-undo').click();
         await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('jlpt_srs_study_v1:workspace-user')!).session.events.length)).toBe(0);
