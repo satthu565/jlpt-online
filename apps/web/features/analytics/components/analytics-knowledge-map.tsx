@@ -204,7 +204,7 @@ export function AnalyticsKnowledgeMap({
       >
         <div>
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
-            EXAM INTELLIGENCE · PHÂN TÍCH KHO ĐỀ THI
+            PHÂN TÍCH KHO ĐỀ THI
           </span>
           <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 mt-1 mb-1.5">
             JLPT kiểm tra gì qua các năm?

@@ -14,6 +14,8 @@ export interface ErrorItem {
   total: number;
   reason: string;
   mondaiType?: string;
+  /** Of the incorrect answers, how many were left blank. */
+  blank?: number;
 }
 
 export const MONDAI_LABELS: Record<string, string> = {
@@ -89,7 +91,7 @@ export interface AnalyticsErrorAnalysisProps {
   level?: Level;
   scopeFirstOnly?: boolean;
   /** Real answered / wrong counts per mondai type of the signed-in user (current level). */
-  mondaiStats?: Record<string, { wrong: number; total: number }>;
+  mondaiStats?: Record<string, { wrong: number; total: number; blank?: number }>;
   onOpenStudyModal: (mode: string, param?: string) => void;
 }
 
@@ -175,6 +177,7 @@ export function AnalyticsErrorAnalysis({
           name: MONDAI_LABELS[key] || key,
           total: v.total,
           incorrect: v.wrong,
+          blank: v.blank ?? 0,
           reason: MONDAI_DIAGNOSTIC_REASONS[key] || 'Cần củng cố phương pháp giải dạng bài này',
           mondaiType: key,
         }))
@@ -290,6 +293,11 @@ export function AnalyticsErrorAnalysis({
                         style={{ width: `${pct}%` }} /* ui-allow-style: dynamic error rate progress bar */
                       />
                     </div>
+                    {e.blank !== undefined && (
+                      <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                        Chọn sai {e.incorrect - e.blank} · bỏ trống {e.blank}
+                      </p>
+                    )}
                     <p className="text-[10px] text-slate-400 dark:text-slate-500">{e.reason}</p>
                     <Button
                       variant="ghost"

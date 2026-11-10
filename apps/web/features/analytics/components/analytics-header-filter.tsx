@@ -42,7 +42,7 @@ export function AnalyticsHeaderFilter({
     <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
       <div>
         <div className="text-[11px] font-extrabold tracking-wider text-indigo-600 dark:text-indigo-400 uppercase mb-1">
-          MY LEARNING ANALYTICS
+          THỐNG KÊ CÁ NHÂN
         </div>
         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
           Hành trình chinh phục JLPT 👋

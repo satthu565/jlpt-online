@@ -60,7 +60,7 @@ export interface AnalyticsDashboardProps {
   isDemoMode?: boolean;
   mistakes?: Record<string, MistakeRecord[]>;
   totalWrongCount?: number;
-  realStatsBySkillByLevel?: Record<string, Record<string, { wrong: number; total: number }>>;
+  realStatsBySkillByLevel?: Record<string, Record<string, { wrong: number; total: number; blank?: number }>>;
   realCoverageByLevel?: Record<string, IntelligenceItem[]>;
   realPairsByLevel?: Record<string, ConfusedPair[]>;
   realMasteryByLevel?: Record<string, MasterySummary>;
@@ -102,7 +102,7 @@ export function AnalyticsDashboard({
 }: AnalyticsDashboardProps): React.JSX.Element {
   // Filter States
   const [currentLevel, setCurrentLevel] = useState<Level>(targetLevel);
-  const [period, setPeriod] = useState<string>('30');
+  const [period, setPeriod] = useState<string>(isDemoMode ? 'all' : '30');
   const [scopeFirstOnly, setScopeFirstOnly] = useState<boolean>(true);
   const [activeSection, setActiveSection] = useState<string>('overview');
 
@@ -136,10 +136,8 @@ export function AnalyticsDashboard({
 
   // Filter attempts based on level, period, and scope
   const filteredAttempts = useMemo(() => {
+    const isDone = (a: AttemptRecord) => a.status !== 'in_progress';
     let list = attempts.filter((a) => a.level === currentLevel);
-    if (list.length === 0 && attempts.length > 0) {
-      list = attempts; // Fallback to all attempts if no attempt matches specific level yet
-    }
 
     if (period !== 'all') {
       const days = Number.parseInt(period, 10) || 30;
@@ -148,10 +146,18 @@ export function AnalyticsDashboard({
     }
 
     if (scopeFirstOnly) {
-      list = list.filter((a) => a.mode === 'real');
+      // "Lượt đầu" = the first submitted attempt of each exam (over the whole history)
+      const firstOfExam = new Map<string, string>();
+      attempts
+        .filter(isDone)
+        .sort((x, y) => new Date(x.submittedAt).getTime() - new Date(y.submittedAt).getTime())
+        .forEach((a) => {
+          if (!firstOfExam.has(a.examId)) firstOfExam.set(a.examId, a.id);
+        });
+      list = list.filter((a) => !isDone(a) || firstOfExam.get(a.examId) === a.id);
     }
 
-    return list.length > 0 ? list : attempts;
+    return list;
   }, [attempts, currentLevel, period, scopeFirstOnly]);
 
   // Real KPI calculations: distinguish submitted vs in-progress attempts
@@ -160,6 +166,25 @@ export function AnalyticsDashboard({
       (a) => a.status === 'submitted' || (a.status === undefined && a.totalScore > 0),
     );
   }, [filteredAttempts]);
+
+  // Real answered / correct / blank counts at the current level
+  const answerStats = useMemo(() => {
+    const real = realStatsBySkillByLevel?.[currentLevel];
+    if (real) {
+      const vals = Object.values(real);
+      const total = vals.reduce((acc, v) => acc + v.total, 0);
+      if (total > 0) {
+        const wrong = vals.reduce((acc, v) => acc + v.wrong, 0);
+        const blank = vals.reduce((acc, v) => acc + (v.blank ?? 0), 0);
+        return { total, correct: total - wrong, blank };
+      }
+    }
+    const own = questionAttempts.filter((q) => q.level === currentLevel);
+    if (own.length > 0) {
+      return { total: own.length, correct: own.filter((q) => q.isCorrect).length, blank: 0 };
+    }
+    return null;
+  }, [realStatsBySkillByLevel, questionAttempts, currentLevel]);
 
   const totalCompleted = submittedAttempts.length;
   const inProgressCount = filteredAttempts.filter((a) => a.status === 'in_progress').length;
@@ -443,51 +468,58 @@ export function AnalyticsDashboard({
     const realMondai = realMondaiStatsByLevel?.[currentLevel];
     const hasLocal = questionAttempts.length > 0;
 
-    const getSkillAccuracy = (sks: Skill[]): number | null => {
+    type Cell = { accuracy: number | null; total: number; blank: number };
+    const empty: Cell = { accuracy: null, total: 0, blank: 0 };
+
+    const getSkillCell = (sks: Skill[]): Cell => {
       if (hasLocal) {
         const matched = skillStats.filter((x) => sks.includes(x.skill));
         const total = matched.reduce((acc, x) => acc + x.total, 0);
         const correct = matched.reduce((acc, x) => acc + x.correct, 0);
-        return total > 0 ? Math.round((correct / total) * 100) : null;
+        return total > 0 ? { accuracy: Math.round((correct / total) * 100), total, blank: 0 } : empty;
       }
       if (realSkill) {
         const total = sks.reduce((acc, k) => acc + (realSkill[k]?.total ?? 0), 0);
         const wrong = sks.reduce((acc, k) => acc + (realSkill[k]?.wrong ?? 0), 0);
-        return total > 0 ? Math.round(((total - wrong) / total) * 100) : null;
+        const blank = sks.reduce((acc, k) => acc + (realSkill[k]?.blank ?? 0), 0);
+        return total > 0 ? { accuracy: Math.round(((total - wrong) / total) * 100), total, blank } : empty;
       }
-      return null;
+      return empty;
     };
 
-    const getMondaiData = (types: string[]): { accuracy: number | null; totalQuestions: number } => {
+    const getMondaiData = (types: string[]): { accuracy: number | null; totalQuestions: number; blank: number } => {
       if (hasLocal) {
         const matched = mondaiStats.filter((m) => types.includes(m.mondaiType));
         const total = matched.reduce((acc, m) => acc + m.total, 0);
         const correct = matched.reduce((acc, m) => acc + m.correct, 0);
         return total > 0
-          ? { accuracy: Math.round((correct / total) * 100), totalQuestions: total }
-          : { accuracy: null, totalQuestions: 0 };
+          ? { accuracy: Math.round((correct / total) * 100), totalQuestions: total, blank: 0 }
+          : { accuracy: null, totalQuestions: 0, blank: 0 };
       }
       const r = mondaiAccuracy(realMondai, types);
-      return r ? { accuracy: r.accuracy, totalQuestions: r.total } : { accuracy: null, totalQuestions: 0 };
+      return r
+        ? { accuracy: r.accuracy, totalQuestions: r.total, blank: r.blank }
+        : { accuracy: null, totalQuestions: 0, blank: 0 };
     };
 
     return [
       {
         key: 'vocab',
         name: 'Từ vựng & Kanji',
-        accuracy: getSkillAccuracy(['vocabulary', 'kanji']),
+        ...(() => { const c = getSkillCell(['vocabulary', 'kanji']); return { accuracy: c.accuracy, total: c.total, blank: c.blank }; })(),
         color: 'bg-emerald-500',
         types: [
           { label: 'Cách đọc Kanji', ...getMondaiData(['kanji_reading']) },
           { label: 'Từ vựng theo ngữ cảnh', ...getMondaiData(['contextual']) },
           { label: 'Từ gần nghĩa', ...getMondaiData(['paraphrase']) },
-          { label: 'Cách sử dụng từ', ...getMondaiData(['usage', 'orthography', 'word_formation']) },
+          { label: 'Cách viết chữ Hán', ...getMondaiData(['orthography']) },
+          { label: 'Cách sử dụng từ', ...getMondaiData(['usage', 'word_formation']) },
         ],
       },
       {
         key: 'grammar',
         name: 'Ngữ pháp',
-        accuracy: getSkillAccuracy(['grammar']),
+        ...(() => { const c = getSkillCell(['grammar']); return { accuracy: c.accuracy, total: c.total, blank: c.blank }; })(),
         color: 'bg-indigo-500',
         types: [
           { label: 'Chọn mẫu ngữ pháp', ...getMondaiData(['grammar_form']) },
@@ -498,7 +530,7 @@ export function AnalyticsDashboard({
       {
         key: 'reading',
         name: 'Đọc hiểu',
-        accuracy: getSkillAccuracy(['reading']),
+        ...(() => { const c = getSkillCell(['reading']); return { accuracy: c.accuracy, total: c.total, blank: c.blank }; })(),
         color: 'bg-amber-500',
         types: [
           { label: 'Đọc hiểu đoạn ngắn', ...getMondaiData(['comprehension_short']) },
@@ -510,7 +542,7 @@ export function AnalyticsDashboard({
       {
         key: 'listening',
         name: 'Nghe hiểu',
-        accuracy: getSkillAccuracy(['listening']),
+        ...(() => { const c = getSkillCell(['listening']); return { accuracy: c.accuracy, total: c.total, blank: c.blank }; })(),
         color: 'bg-blue-500',
         types: [
           { label: 'Hiểu nhiệm vụ', ...getMondaiData(['task_based']) },
@@ -591,6 +623,14 @@ export function AnalyticsDashboard({
             onToggleScope={() => setScopeFirstOnly((v) => !v)}
           />
 
+          {filteredAttempts.length === 0 && attempts.length > 0 && (
+            <p className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/50 text-xs text-amber-800 dark:text-amber-300">
+              Không có bài nào khớp bộ lọc hiện tại ({currentLevel}
+              {period !== 'all' ? `, ${period} ngày gần nhất` : ''}
+              {scopeFirstOnly ? ', chỉ lượt đầu' : ''}). Hãy đổi cấp độ, mở rộng khoảng thời gian hoặc chọn "Bao gồm làm lại".
+            </p>
+          )}
+
           {/* Section 1: Overview KPIs */}
           <AnalyticsKpiCards
             avgScore={avgScore}
@@ -601,6 +641,7 @@ export function AnalyticsDashboard({
             streakDays={streakDays}
             scoreChange={scoreDelta}
             accuracyChange={accuracyDelta}
+            answerStats={answerStats}
           />
 
           {/* Section 2: Assessment & Personal Plan */}
@@ -612,6 +653,8 @@ export function AnalyticsDashboard({
             weakestSectionName={weakestInfo.name}
             weakestAccuracy={weakestInfo.accuracy}
             wrongQuestionsCount={weakestInfo.wrongCount}
+            blankRate={answerStats && answerStats.total > 0 ? Math.round((answerStats.blank / answerStats.total) * 100) : null}
+            hasSubmitted={totalCompleted > 0}
             onOpenInfoModal={() => setInfoModalOpen(true)}
             onOpenStudyModal={handleOpenStudyModal}
           />

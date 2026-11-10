@@ -334,7 +334,8 @@ export async function GET(request: NextRequest) {
         q.level,
         q.skill,
         count(*)::int as total,
-        count(*) FILTER (WHERE ua.is_correct = false)::int as wrong
+        count(*) FILTER (WHERE ua.is_correct = false)::int as wrong,
+        count(*) FILTER (WHERE ua.is_correct = false AND ua.option_value = 0)::int as blank
       FROM user_answers ua
       JOIN exam_attempts ea ON ea.id = ua.attempt_id
       JOIN questions q ON q.id = ua.question_id
@@ -342,13 +343,13 @@ export async function GET(request: NextRequest) {
       GROUP BY q.level, q.skill
     `;
 
-    const statsBySkillByLevel: Record<string, Record<string, { wrong: number; total: number }>> = {
+    const statsBySkillByLevel: Record<string, Record<string, { wrong: number; total: number; blank: number }>> = {
       all: {
-        grammar: { wrong: 0, total: 0 },
-        reading: { wrong: 0, total: 0 },
-        vocabulary: { wrong: 0, total: 0 },
-        kanji: { wrong: 0, total: 0 },
-        listening: { wrong: 0, total: 0 },
+        grammar: { wrong: 0, total: 0, blank: 0 },
+        reading: { wrong: 0, total: 0, blank: 0 },
+        vocabulary: { wrong: 0, total: 0, blank: 0 },
+        kanji: { wrong: 0, total: 0, blank: 0 },
+        listening: { wrong: 0, total: 0, blank: 0 },
       },
     };
 
@@ -357,17 +358,18 @@ export async function GET(request: NextRequest) {
       const sk = sr.skill || 'other';
       if (!statsBySkillByLevel[lvl]) {
         statsBySkillByLevel[lvl] = {
-          grammar: { wrong: 0, total: 0 },
-          reading: { wrong: 0, total: 0 },
-          vocabulary: { wrong: 0, total: 0 },
-          kanji: { wrong: 0, total: 0 },
-          listening: { wrong: 0, total: 0 },
+          grammar: { wrong: 0, total: 0, blank: 0 },
+          reading: { wrong: 0, total: 0, blank: 0 },
+          vocabulary: { wrong: 0, total: 0, blank: 0 },
+          kanji: { wrong: 0, total: 0, blank: 0 },
+          listening: { wrong: 0, total: 0, blank: 0 },
         };
       }
-      statsBySkillByLevel[lvl][sk] = { wrong: sr.wrong, total: sr.total };
+      statsBySkillByLevel[lvl][sk] = { wrong: sr.wrong, total: sr.total, blank: sr.blank };
       const allStats = statsBySkillByLevel['all'];
       if (allStats && allStats[sk]) {
         allStats[sk].wrong += sr.wrong;
+        allStats[sk].blank += sr.blank;
         allStats[sk].total += sr.total;
       }
     }
@@ -438,7 +440,8 @@ export async function GET(request: NextRequest) {
         q.level,
         q.mondai_type,
         count(*)::int as total,
-        count(*) FILTER (WHERE ua.is_correct = false)::int as wrong
+        count(*) FILTER (WHERE ua.is_correct = false)::int as wrong,
+        count(*) FILTER (WHERE ua.is_correct = false AND ua.option_value = 0)::int as blank
       FROM user_answers ua
       JOIN exam_attempts ea ON ea.id = ua.attempt_id
       JOIN questions q ON q.id = ua.question_id
@@ -446,15 +449,15 @@ export async function GET(request: NextRequest) {
       GROUP BY q.level, q.mondai_type
     `;
 
-    const mondaiStatsByLevel: Record<string, Record<string, { wrong: number; total: number }>> = { all: {} };
+    const mondaiStatsByLevel: Record<string, Record<string, { wrong: number; total: number; blank: number }>> = { all: {} };
     for (const mr of mondaiRows) {
       const lvl = mr.level || 'N3';
       const key = mr.mondai_type || 'other';
       const lvlMap = (mondaiStatsByLevel[lvl] ||= {});
-      lvlMap[key] = { wrong: mr.wrong, total: mr.total };
+      lvlMap[key] = { wrong: mr.wrong, total: mr.total, blank: mr.blank };
       const allMap = mondaiStatsByLevel['all']!;
-      const prev = allMap[key] || { wrong: 0, total: 0 };
-      allMap[key] = { wrong: prev.wrong + mr.wrong, total: prev.total + mr.total };
+      const prev = allMap[key] || { wrong: 0, total: 0, blank: 0 };
+      allMap[key] = { wrong: prev.wrong + mr.wrong, total: prev.total + mr.total, blank: prev.blank + mr.blank };
     }
 
     // 5. Confused pairs by level: (correct answer <-> option the learner actually chose)

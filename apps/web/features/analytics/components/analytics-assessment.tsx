@@ -31,6 +31,10 @@ export interface AnalyticsAssessmentProps {
   weakestSectionName?: string;
   weakestAccuracy?: number | null;
   wrongQuestionsCount?: number;
+  /** Share (0-100) of answered questions left blank; drives the first priority when high. */
+  blankRate?: number | null;
+  /** Whether at least one exam was submitted, so the section scores are meaningful. */
+  hasSubmitted?: boolean;
   onOpenInfoModal: () => void;
   onOpenStudyModal: (mode: string) => void;
 }
@@ -43,6 +47,8 @@ export function AnalyticsAssessment({
   weakestSectionName,
   weakestAccuracy = null,
   wrongQuestionsCount = 0,
+  blankRate = null,
+  hasSubmitted = false,
   onOpenInfoModal,
   onOpenStudyModal,
 }: AnalyticsAssessmentProps): React.JSX.Element {
@@ -65,6 +71,43 @@ export function AnalyticsAssessment({
     minCutoff: 19,
   };
   const marginToMin = riskiest.score - riskiest.minCutoff;
+
+  const plan = (() => {
+    if (blankRate !== null && blankRate >= 20) {
+      return {
+        title: `Giảm câu bỏ trống (${blankRate}% số câu)`,
+        body: 'JLPT không trừ điểm câu sai, nên bỏ trống luôn thiệt hơn đoán. Hãy luyện làm kịp giờ và luôn chọn một đáp án cho mỗi câu.',
+        action: 'Luyện làm đúng giờ',
+        href: '/luyen-tap',
+      };
+    }
+    if (hasSubmitted) {
+      const gap = Math.abs(marginToMin);
+      return {
+        title: `Chinh phục ${riskiest.name}`,
+        body:
+          marginToMin >= 0
+            ? `Phần này đang cao hơn điểm liệt ${gap} điểm (${riskiest.score}/${riskiest.minCutoff} tối thiểu), là phần sát ngưỡng nhất. Duy trì và tăng thêm điểm dự phòng.`
+            : `Phần này đang thấp hơn điểm liệt ${gap} điểm (${riskiest.score} so với tối thiểu ${riskiest.minCutoff}). Bạn sẽ trượt nếu không nâng phần này, dù tổng điểm đủ.`,
+        action: 'Bắt đầu luyện ngay',
+        href: '/luyen-tap',
+      };
+    }
+    if (weakestAccuracy !== null && weakestAccuracy !== undefined && weakestSectionName) {
+      return {
+        title: `Chinh phục ${weakestSectionName}`,
+        body: `Bạn đạt ${weakestAccuracy}% ở kỹ năng này. Luyện tập chuyên sâu để củng cố kỹ năng và tăng điểm số.`,
+        action: 'Bắt đầu luyện ngay',
+        href: '/luyen-tap',
+      };
+    }
+    return {
+      title: 'Thử sức với đề thi thử JLPT',
+      body: 'Làm một bài thi hoàn chỉnh để hệ thống tự động phát hiện lỗ hổng kiến thức và cá nhân hóa lộ trình ôn tập.',
+      action: 'Khám phá kho đề thi',
+      href: '/de-thi',
+    };
+  })();
 
   const totalProgressPercent = Math.min(100, Math.round((totalScore / 180) * 100));
 
@@ -253,26 +296,16 @@ export function AnalyticsAssessment({
             </Badge>
           </div>
 
-          {/* Highlight Plan 1 */}
+          {/* Highlight Plan 1: one criterion, shared with the left card */}
           <div className="p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/50 bg-gradient-to-br from-indigo-50/80 to-white dark:from-indigo-950/40 dark:to-slate-900 mb-4">
             <span className="inline-block px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 mb-2">
               🔥 ƯU TIÊN SỐ 1
             </span>
-            <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-              {weakestAccuracy !== null && weakestAccuracy !== undefined && weakestSectionName
-                ? `Chinh phục ${weakestSectionName}`
-                : 'Thử sức với đề thi thử JLPT'}
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mt-1 mb-3">
-              {weakestAccuracy !== null && weakestAccuracy !== undefined && weakestSectionName
-                ? `Bạn đạt ${weakestAccuracy}% ở kỹ năng này. Luyện tập chuyên sâu để củng cố kỹ năng và tăng điểm số.`
-                : 'Làm một bài thi hoàn chỉnh để hệ thống tự động phát hiện lỗ hổng kiến thức và cá nhân hóa lộ trình ôn tập.'}
-            </p>
-            <Link href={weakestAccuracy !== null && weakestAccuracy !== undefined ? '/luyen-tap' : '/de-thi'}>
+            <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">{plan.title}</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mt-1 mb-3">{plan.body}</p>
+            <Link href={plan.href}>
               <Button size="sm" variant="primary" className="w-full justify-center">
-                {weakestAccuracy !== null && weakestAccuracy !== undefined
-                  ? 'Bắt đầu luyện ngay'
-                  : 'Khám phá kho đề thi'}
+                {plan.action}
                 <ArrowRight className="size-3.5 inline ml-1.5" aria-hidden="true" />
               </Button>
             </Link>
@@ -288,7 +321,7 @@ export function AnalyticsAssessment({
                 <div>
                   <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
                     {wrongQuestionsCount > 0
-                      ? `Ôn lại ${wrongQuestionsCount} câu trả lời sai`
+                      ? `Ôn lại ${wrongQuestionsCount} câu sai hoặc bỏ trống`
                       : 'Chưa có câu sai cần ôn lại'}
                   </p>
                   <p className="text-[10px] text-slate-400 dark:text-slate-500">

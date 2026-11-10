@@ -109,8 +109,7 @@ export function AnalyticsSidebarNav({
           <span className="flex size-7 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-sm shadow-indigo-600/30">
             <BrainCircuit className="size-4" aria-hidden="true" />
           </span>
-          <span>jlpt</span>
-          <span className="text-indigo-600 dark:text-indigo-400">.compass</span>
+          <span>Thống kê học tập</span>
         </div>
         <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500 mt-4 mb-2">
           TRÊN TRANG NÀY

@@ -16,6 +16,7 @@ export interface PriorityItem {
   mastery: number; // 0..100
   sample: number;
   miss: number;
+  blank?: number;
   why: string;
   plan: string;
 }
@@ -50,10 +51,21 @@ export interface AnalyticsPriorityMatrixProps {
   questionAttempts?: QuestionAttemptRecord[];
   level?: Level;
   /** Real answered / wrong counts per mondai type of the signed-in user (current level). */
-  mondaiStats?: Record<string, { wrong: number; total: number }>;
+  mondaiStats?: Record<string, { wrong: number; total: number; blank?: number }>;
   /** Number of bank questions per mondai type at this level, used as the frequency axis. */
   bankMondai?: Array<{ type: string; count: number }>;
   onOpenStudyModal: (mode: string, param?: string) => void;
+}
+
+/** Dot position in percent; nudged out of the quadrant label areas so the labels stay readable. */
+function dotPos(p: { mastery: number; frequency: number }): { x: number; y: number } {
+  const x = Math.min(92, Math.max(8, p.mastery));
+  let y = Math.min(92, Math.max(8, 100 - p.frequency));
+  const inTopLabel = x < 34 || (x >= 50 && x < 84);
+  const inBottomLabel = x < 34 || x > 66;
+  if (y < 24 && inTopLabel) y = 24;
+  if (y > 76 && inBottomLabel) y = 76;
+  return { x, y };
 }
 
 export function AnalyticsPriorityMatrix({
@@ -70,19 +82,19 @@ export function AnalyticsPriorityMatrix({
   const priorities = useMemo<PriorityItem[]>(() => {
     if (propPriorities && propPriorities.length > 0) return propPriorities;
 
-    const rows = new Map<string, { total: number; wrong: number; skill: string }>();
+    const rows = new Map<string, { total: number; wrong: number; blank: number; skill: string }>();
     if (questionAttempts && questionAttempts.length > 0) {
       questionAttempts.forEach((q) => {
         const key = q.mondaiType || q.skill;
         if (!key) return;
-        const entry = rows.get(key) || { total: 0, wrong: 0, skill: q.skill };
+        const entry = rows.get(key) || { total: 0, wrong: 0, blank: 0, skill: q.skill };
         entry.total += 1;
         if (!q.isCorrect) entry.wrong += 1;
         rows.set(key, entry);
       });
     } else if (mondaiStats) {
       Object.entries(mondaiStats).forEach(([key, v]) => {
-        rows.set(key, { total: v.total, wrong: v.wrong, skill: SKILL_OF_MONDAI[key] || 'vocabulary' });
+        rows.set(key, { total: v.total, wrong: v.wrong, blank: v.blank ?? 0, skill: SKILL_OF_MONDAI[key] || 'vocabulary' });
       });
     }
 
@@ -104,7 +116,8 @@ export function AnalyticsPriorityMatrix({
           mastery,
           sample: entry.total,
           miss: entry.wrong,
-          why: `Bạn đã làm ${entry.total} câu dạng này và sai ${entry.wrong} câu (độ thành thạo ${mastery}%). Dạng này chiếm ${frequency}% so với dạng xuất hiện nhiều nhất trong kho đề ${level}.`,
+          blank: entry.blank,
+          why: `Bạn đã làm ${entry.total} câu dạng này và sai ${entry.wrong} câu${entry.blank > 0 ? ` (trong đó bỏ trống ${entry.blank})` : ''}, độ thành thạo ${mastery}%. Dạng này chiếm ${frequency}% so với dạng xuất hiện nhiều nhất trong kho đề ${level}.`,
           plan: `Luyện tập chuyên sâu 15 câu dạng "${name}" và phân tích kỹ lời giải chi tiết.`,
         };
       })
@@ -116,7 +129,7 @@ export function AnalyticsPriorityMatrix({
     return (
       <Card id="priority-matrix" className="scroll-mt-20 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm mb-6">
         <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100">
-          05 · Tôi nên ưu tiên học gì để tăng điểm?
+          13 · Tôi nên ưu tiên học gì để tăng điểm?
         </h2>
         <p className="mt-3 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
           Chưa đủ dữ liệu: cần nộp ít nhất một bài thi {level} để xếp hạng dạng câu nên ưu tiên.
@@ -132,7 +145,7 @@ export function AnalyticsPriorityMatrix({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
         <div>
           <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100">
-            05 · Tôi nên ưu tiên học gì để tăng điểm?
+            13 · Tôi nên ưu tiên học gì để tăng điểm?
           </h2>
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
             Kết hợp tần suất xuất hiện trong kho đề + mức yếu cá nhân + số câu đã làm
@@ -204,8 +217,8 @@ export function AnalyticsPriorityMatrix({
                   }`}
                   // ui-allow-style: dynamic scatter dot coordinates and background color
                   style={{
-                    left: `${Math.min(92, Math.max(8, p.mastery))}%`,
-                    top: `${Math.min(92, Math.max(8, 100 - p.frequency))}%`,
+                    left: `${dotPos(p).x}%`,
+                    top: `${dotPos(p).y}%`,
                     backgroundColor: dotBg,
                   }}
                 >
@@ -302,7 +315,7 @@ export function AnalyticsPriorityMatrix({
                 Thành thạo: {selectedPriority.mastery}%
               </span>
               <span className="px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 text-[10px] font-bold">
-                Sai: {selectedPriority.miss}/{selectedPriority.sample}
+                Sai: {selectedPriority.miss}/{selectedPriority.sample}{selectedPriority.blank ? ` (bỏ trống ${selectedPriority.blank})` : ''}
               </span>
             </div>
           </div>

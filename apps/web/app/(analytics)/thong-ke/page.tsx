@@ -162,7 +162,7 @@ export default function AnalyticsPage(): React.JSX.Element {
   const [skillAggregates, setSkillAggregates] = useState<Array<{ skill: string; accuracyRate: number; sampleSize: number }>>([]);
   const [realMistakes, setRealMistakes] = useState<Record<string, MistakeRecord[]> | undefined>();
   const [realTotalWrongCount, setRealTotalWrongCount] = useState<number | undefined>();
-  const [realStatsBySkillByLevel, setRealStatsBySkillByLevel] = useState<Record<string, Record<string, { wrong: number; total: number }>> | undefined>();
+  const [realStatsBySkillByLevel, setRealStatsBySkillByLevel] = useState<Record<string, Record<string, { wrong: number; total: number; blank?: number }>> | undefined>();
   const [realCoverageByLevel, setRealCoverageByLevel] = useState<Record<string, IntelligenceItem[]> | undefined>();
   const [realPairsByLevel, setRealPairsByLevel] = useState<Record<string, ConfusedPair[]> | undefined>();
   const [realMasteryByLevel, setRealMasteryByLevel] = useState<Record<string, MasterySummary> | undefined>();

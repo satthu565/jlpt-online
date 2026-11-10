@@ -348,7 +348,7 @@ export interface AnalyticsMistakeIntelligenceProps {
   attempts?: AttemptRecord[];
   questionAttempts?: QuestionAttemptRecord[];
   level?: Level;
-  realSkillStatsByLevel?: Record<string, Record<string, { wrong: number; total: number }>>;
+  realSkillStatsByLevel?: Record<string, Record<string, { wrong: number; total: number; blank?: number }>>;
   realCoverageByLevel?: Record<string, IntelligenceItem[]>;
   realTrapsByLevel?: Record<string, IntelligenceItem[]>;
   realPairsByLevel?: Record<string, ConfusedPair[]>;
@@ -638,7 +638,7 @@ export function AnalyticsMistakeIntelligence({
       <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-900 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
         <div>
           <div className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-300">
-            MISTAKE INTELLIGENCE · 06 GÓC NHÌN MỚI
+            PHÂN TÍCH LỖI SAI · SÁU GÓC NHÌN
           </div>
           <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight mt-1 mb-1.5">
             Hiểu sâu lỗi sai để cải thiện điểm JLPT

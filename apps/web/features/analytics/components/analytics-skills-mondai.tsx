@@ -9,12 +9,15 @@ export interface MondaiTypeItem {
   label: string;
   accuracy: number | null;
   totalQuestions: number;
+  blank?: number;
 }
 
 export interface SkillCategoryItem {
   key: string;
   name: string;
   accuracy: number | null;
+  total?: number;
+  blank?: number;
   color: string;
   types: MondaiTypeItem[];
 }
@@ -28,9 +31,13 @@ export function AnalyticsSkillsMondai({
   skills = [],
   onOpenStudyModal,
 }: AnalyticsSkillsMondaiProps): React.JSX.Element {
-  const weakestSkill = skills
+  const ranked = skills
     .filter((sk): sk is SkillCategoryItem & { accuracy: number } => sk.accuracy !== null)
-    .sort((x, y) => x.accuracy - y.accuracy)[0];
+    .sort((x, y) => x.accuracy - y.accuracy);
+  // No claim when several skills are tied for the lowest accuracy
+  const weakestSkill = ranked.length > 0 && ranked[1]?.accuracy !== ranked[0]!.accuracy ? ranked[0] : undefined;
+  const weakestBlankShare =
+    weakestSkill && weakestSkill.total ? Math.round(((weakestSkill.blank ?? 0) / weakestSkill.total) * 100) : 0;
 
   const scrollToSkill = (skillKey: string) => {
     const el = document.getElementById(`skill-mondai-${skillKey}`);
@@ -84,6 +91,11 @@ export function AnalyticsSkillsMondai({
                   {s.accuracy === null ? '—' : `${s.accuracy}%`}
                 </strong>
               </div>
+              {s.total ? (
+                <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                  Đã gặp {s.total} câu · bỏ trống {s.blank ?? 0}
+                </p>
+              ) : null}
               <div className="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                 {/* ui-allow-style: dynamic skill accuracy percentage */}
                 <div
@@ -99,7 +111,8 @@ export function AnalyticsSkillsMondai({
           <div className="mt-4 p-3 rounded-xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/50 flex items-center gap-2.5 text-xs text-amber-800 dark:text-amber-300">
             <Lightbulb className="size-4 shrink-0 text-amber-600" aria-hidden="true" />
             <span>
-              {weakestSkill.name} là kỹ năng có tỷ lệ đúng thấp nhất ({weakestSkill.accuracy}%).
+              {weakestSkill.name} là kỹ năng có tỷ lệ đúng thấp nhất ({weakestSkill.accuracy}%)
+              {weakestBlankShare >= 20 ? `, trong đó ${weakestBlankShare}% số câu bị bỏ trống.` : '.'}
             </span>
           </div>
         )}
@@ -154,9 +167,16 @@ export function AnalyticsSkillsMondai({
                       key={idx}
                       className="grid grid-cols-12 gap-3 items-center py-2 border-b border-slate-50 dark:border-slate-800/40 text-xs"
                     >
-                      <strong className="col-span-5 sm:col-span-5 font-bold text-slate-800 dark:text-slate-200 truncate">
-                        {type.label}
-                      </strong>
+                      <div className="col-span-5 sm:col-span-5 min-w-0">
+                        <strong className="block font-bold text-slate-800 dark:text-slate-200 truncate">
+                          {type.label}
+                        </strong>
+                        {type.totalQuestions > 0 && (
+                          <span className="block text-[10px] text-slate-400 dark:text-slate-500">
+                            {type.totalQuestions} câu · bỏ trống {type.blank ?? 0}
+                          </span>
+                        )}
+                      </div>
                       <div className="col-span-4 sm:col-span-5 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                         {/* ui-allow-style: dynamic mondai accuracy bar */}
                         <div

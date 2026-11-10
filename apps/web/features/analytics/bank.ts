@@ -13,22 +13,24 @@ export interface BankLevelStats {
 export type BankStats = Partial<Record<Level, BankLevelStats>>;
 
 /** Per-mondai answered / wrong counts of the signed-in user, keyed by level then mondai type. */
-export type MondaiStatsByLevel = Record<string, Record<string, { wrong: number; total: number }>>;
+export type MondaiStatsByLevel = Record<string, Record<string, { wrong: number; total: number; blank?: number }>>;
 
 /** Accuracy (0-100) of a set of mondai types, or null when the user has not answered any. */
 export function mondaiAccuracy(
-  stats: Record<string, { wrong: number; total: number }> | undefined,
+  stats: Record<string, { wrong: number; total: number; blank?: number }> | undefined,
   types: string[],
-): { accuracy: number; total: number } | null {
+): { accuracy: number; total: number; blank: number } | null {
   if (!stats) return null;
   let total = 0;
   let wrong = 0;
+  let blank = 0;
   for (const t of types) {
     const s = stats[t];
     if (!s) continue;
     total += s.total;
     wrong += s.wrong;
+    blank += s.blank ?? 0;
   }
   if (total === 0) return null;
-  return { accuracy: Math.round(((total - wrong) / total) * 100), total };
+  return { accuracy: Math.round(((total - wrong) / total) * 100), total, blank };
 }
