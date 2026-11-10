@@ -233,7 +233,7 @@ export function AnalyticsErrorAnalysis({
               </p>
             </div>
             <Badge variant="secondary" className="text-[10px] font-bold">
-              {scopeFirstOnly ? 'Lần làm đầu' : 'Tất cả lần làm'}
+              {scopeFirstOnly && hasQuestionAttempts ? 'Lần làm đầu' : 'Tất cả lần làm'}
             </Badge>
           </div>
 

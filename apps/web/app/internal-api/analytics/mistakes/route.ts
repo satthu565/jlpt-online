@@ -370,7 +370,7 @@ export async function GET(request: NextRequest) {
             ex: extractText(r.stem).slice(0, 120),
             selected: chosenText,
             correct: correctText,
-            diff: explanation.slice(0, 160) || 'Chưa có giải thích cho câu này.',
+            diff: extractMeaningSummary(explanation) || explanation.replace(/[•\n]+/g, ' ').slice(0, 160) || 'Chưa có giải thích cho câu này.',
             tip: 'Xem lại lời giải của câu hỏi để phân biệt hai lựa chọn.',
           });
         }

@@ -63,14 +63,16 @@ export function AnalyticsProgressionCharts({
   const diffScore = lastScore - firstScore;
 
   // Mini-chart 1: Accuracy
-  const minAcc = 30;
-  const maxAcc = 85;
+  const minAcc = 0;
+  const maxAcc = 100;
   const getAccY = (acc: number) => 15 + (1 - (acc - minAcc) / (maxAcc - minAcc)) * 65;
   const accCoords = currentPoints.map((p, i) => `${(20 + i * (260 / (count - 1))).toFixed(1)},${getAccY(p.accuracy).toFixed(1)}`).join(' ');
 
   // Mini-chart 2: Time
-  const minTime = 130;
-  const maxTime = 175;
+  const hasDurations = currentPoints.every((p) => p.durationMin > 0);
+  const durations = currentPoints.map((p) => p.durationMin).filter((m) => m > 0);
+  const minTime = durations.length > 0 ? Math.max(0, Math.min(...durations) - 5) : 0;
+  const maxTime = Math.max(...durations, minTime + 10) + 5;
   const getTimeY = (time: number) => 15 + (1 - (time - minTime) / (maxTime - minTime)) * 65;
   const timeCoords = currentPoints.map((p, i) => `${(20 + i * (260 / (count - 1))).toFixed(1)},${getTimeY(p.durationMin).toFixed(1)}`).join(' ');
 
@@ -210,8 +212,8 @@ export function AnalyticsProgressionCharts({
       {/* Main Footer Insight */}
       <div className="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 mb-4">
         <span>{diffScore > 0 ? 'Điểm đang tăng so với bài đầu tiên' : diffScore < 0 ? 'Điểm đang giảm so với bài đầu tiên' : 'Điểm chưa thay đổi so với bài đầu tiên'}</span>
-        <strong className="text-emerald-600 dark:text-emerald-400 font-bold">
-          ↗ {diffScore >= 0 ? `+${diffScore}` : diffScore} điểm qua {count} đề
+        <strong className={diffScore < 0 ? 'text-rose-600 dark:text-rose-400 font-bold' : 'text-emerald-600 dark:text-emerald-400 font-bold'}>
+          {diffScore > 0 ? '↗' : diffScore < 0 ? '↘' : '→'} {diffScore >= 0 ? `+${diffScore}` : diffScore} điểm qua {count} đề
         </strong>
       </div>
 
@@ -253,9 +255,14 @@ export function AnalyticsProgressionCharts({
           <div className="flex justify-between items-center text-xs mb-2">
             <strong className="text-slate-800 dark:text-slate-200">Thời gian hoàn thành</strong>
             <span className="font-bold text-amber-600 dark:text-amber-400 text-[11px]">
-              {currentPoints[0]!.durationMin} → {currentPoints[currentPoints.length - 1]!.durationMin} phút
+              {hasDurations ? `${currentPoints[0]!.durationMin} → ${currentPoints[currentPoints.length - 1]!.durationMin} phút` : '—'}
             </span>
           </div>
+          {!hasDurations ? (
+            <p className="py-6 text-center text-[11px] text-slate-400 dark:text-slate-500">
+              Chưa đủ dữ liệu thời gian làm bài.
+            </p>
+          ) : (
           <svg viewBox="0 0 300 95" className="w-full h-20 overflow-visible" role="img" aria-label="Biểu đồ thời gian làm bài">
             <polyline
               points={timeCoords}
@@ -277,6 +284,7 @@ export function AnalyticsProgressionCharts({
             <text x="20" y="90" className="text-[9px] fill-slate-400">Đề 1</text>
             <text x="280" y="90" textAnchor="end" className="text-[9px] fill-slate-400">Đề {count}</text>
           </svg>
+          )}
         </div>
       </div>
     </Card>

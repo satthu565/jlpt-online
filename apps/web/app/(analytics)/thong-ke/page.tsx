@@ -278,7 +278,8 @@ export default function AnalyticsPage(): React.JSX.Element {
           if (!durationSec && isSubmitted && att['startedAt'] && att['submittedAt']) {
             const start = new Date(att['startedAt'] as string).getTime();
             const end = new Date(att['submittedAt'] as string).getTime();
-            if (end > start) {
+            const MAX_EXAM_SEC = 3 * 3600; // longer gaps mean the session was left open, not that the exam took that long
+            if (end > start && end - start <= MAX_EXAM_SEC * 1000) {
               durationSec = Math.round((end - start) / 1000);
             }
           }

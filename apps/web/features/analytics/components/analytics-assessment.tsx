@@ -293,7 +293,7 @@ export function AnalyticsAssessment({
                   </p>
                   <p className="text-[10px] text-slate-400 dark:text-slate-500">
                     {wrongQuestionsCount > 0
-                      ? `${Math.max(5, Math.round(wrongQuestionsCount * 1.5))} phút · Từ các đề gần nhất`
+                      ? 'Từ các bài đã nộp'
                       : 'Các câu sai sẽ tự động lưu vào đây sau khi nộp bài'}
                   </p>
                 </div>
