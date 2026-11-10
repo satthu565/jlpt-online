@@ -684,6 +684,81 @@ export function AnalyticsMistakeIntelligence({
     );
   };
 
+  const topKnowledgePriority = useMemo(() => {
+    const topPair = currentPairs && currentPairs.length > 0 ? currentPairs[0] : null;
+    if (topPair) {
+      const kindLabel = topPair.kind === 'grammar' ? 'Ngữ pháp' : topPair.kind === 'kanji' ? 'Kanji' : 'Từ vựng';
+      return {
+        title: `Ưu tiên 1 · Phân biệt ${topPair.a} ↔ ${topPair.b}`,
+        description: `${topPair.n} lượt nhầm lẫn · Nhóm ${kindLabel} cấp độ ${level} · ${topPair.diff || topPair.tip}`,
+        onClick: () => handleOpenPair(topPair),
+      };
+    }
+    const topMastery = currentMastery.items && currentMastery.items.length > 0 ? currentMastery.items[0] : null;
+    if (topMastery) {
+      return {
+        title: `Ưu tiên 1 · Củng cố ${topMastery.name}`,
+        description: `Đã làm ${topMastery.seen} lần trong các đề thi ${level} · ${topMastery.why} · ${topMastery.tip}`,
+        onClick: () => {
+          onOpenDetailModal(
+            topMastery.name,
+            <div className="space-y-3 text-xs leading-relaxed">
+              <p>
+                Đã làm trong đề thi: <strong>{topMastery.seen} lần</strong>. Trạng thái: <strong>{topMastery.status}</strong>.
+              </p>
+              <div>
+                <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-1">Nội dung / Dịch nghĩa:</h4>
+                <p className="text-slate-600 dark:text-slate-400">{topMastery.why}</p>
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-1">Chiến thuật làm bài:</h4>
+                <p className="text-slate-600 dark:text-slate-400">{topMastery.tip}</p>
+              </div>
+            </div>,
+          );
+        },
+      };
+    }
+    return {
+      title: 'Ưu tiên 1 · Củng cố kiến thức ngữ pháp & từ vựng',
+      description: `Rà soát các mẫu câu hay nhầm lẫn trong các đề thi ${level}.`,
+      onClick: () => {},
+    };
+  }, [currentPairs, currentMastery, level]);
+
+  const topTimedPriority = useMemo(() => {
+    const topTimed = currentTimedWeakness.items && currentTimedWeakness.items.length > 0 ? currentTimedWeakness.items[0] : null;
+    if (topTimed) {
+      return {
+        title: `Ưu tiên 2 · ${topTimed.name} và chiến thuật thời gian`,
+        description: `${topTimed.min} phút dành cho ${topTimed.wrong} câu sai ở cấp độ ${level} · ${topTimed.tip}`,
+        onClick: () => {
+          onOpenDetailModal(
+            `${topTimed.name} · Chiến thuật thời gian`,
+            <div className="space-y-3 text-xs leading-relaxed">
+              <p>
+                Tổng thời gian tiêu tốn: <strong>{topTimed.min} phút</strong> cho <strong>{topTimed.wrong} câu trả lời sai</strong> ở cấp độ {level}.
+              </p>
+              <div>
+                <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-1">Nguyên nhân mất thời gian:</h4>
+                <p className="text-slate-600 dark:text-slate-400">{topTimed.why}</p>
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-1">Chiến thuật tối ưu thời gian:</h4>
+                <p className="text-slate-600 dark:text-slate-400">{topTimed.tip}</p>
+              </div>
+            </div>,
+          );
+        },
+      };
+    }
+    return {
+      title: 'Ưu tiên 2 · Quản lý thời gian làm bài',
+      description: `Kiểm soát nhịp độ làm bài thi ${level} theo từng dạng bài.`,
+      onClick: () => {},
+    };
+  }, [currentTimedWeakness, level, onOpenDetailModal]);
+
   return (
     <div id="mistake-intelligence" className="scroll-mt-20 space-y-6 mb-6">
       {/* Intro Header */}
@@ -1123,7 +1198,7 @@ export function AnalyticsMistakeIntelligence({
             12 · ĐỀ XUẤT CÁ NHÂN HÓA TỔNG HỢP
           </span>
           <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100 mt-0.5">
-            Kết hợp 6 góc nhìn thành kế hoạch hành động
+            Kết hợp 6 góc nhìn thành kế hoạch hành động ({level})
           </h3>
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
             Phát hiện điểm yếu có nhiều câu liên quan, sai do nhầm kiến thức và tiêu tốn nhiều thời gian
@@ -1134,16 +1209,16 @@ export function AnalyticsMistakeIntelligence({
           <div className="p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/50 bg-gradient-to-br from-indigo-50/60 to-white dark:from-indigo-950/30 dark:to-slate-900 flex flex-col justify-between">
             <div>
               <strong className="text-sm font-bold text-slate-900 dark:text-slate-100 block">
-                Ưu tiên 1 · Phân biệt ～ようにする ↔ ～ことにする
+                {topKnowledgePriority.title}
               </strong>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
-                12 lượt nhầm · cùng nhóm ngữ pháp có độ phủ cao · nên học sự khác biệt về thói quen và quyết định rồi luyện câu mới chưa gặp.
+                {topKnowledgePriority.description}
               </p>
             </div>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleOpenPair(PAIRS[0]!)}
+              onClick={topKnowledgePriority.onClick}
               className="mt-3 self-start text-xs font-bold"
             >
               Xem kế hoạch →
@@ -1153,25 +1228,16 @@ export function AnalyticsMistakeIntelligence({
           <div className="p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/50 bg-gradient-to-br from-indigo-50/60 to-white dark:from-indigo-950/30 dark:to-slate-900 flex flex-col justify-between">
             <div>
               <strong className="text-sm font-bold text-slate-900 dark:text-slate-100 block">
-                Ưu tiên 2 · Đọc hiểu đoạn dài và từ nối chuyển ý
+                {topTimedPriority.title}
               </strong>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
-                94 phút dành cho các câu trả lời sai · luyện xác định luận điểm, từ nối しかし và kết luận trong văn bản.
+                {topTimedPriority.description}
               </p>
             </div>
             <Button
               variant="outline"
               size="sm"
-              onClick={() =>
-                handleOpenItem({
-                  id: 'p2',
-                  name: 'Đọc hiểu đoạn dài',
-                  value: 94,
-                  unit: 'phút',
-                  why: 'Đọc chậm và hay bỏ sót luận điểm chính trong các đoạn văn dài có từ chuyển ý.',
-                  hint: 'Tập đọc câu hỏi trước, xác định từ nối tương phản và kết luận.',
-                })
-              }
+              onClick={topTimedPriority.onClick}
               className="mt-3 self-start text-xs font-bold"
             >
               Xem kế hoạch →
