@@ -14,9 +14,9 @@ export interface AnalyticsFrequencyRankingProps {
 
 const KIND_OPTIONS = [
   { value: 'question', label: 'Dạng câu hỏi (Mondai)' },
-  { value: 'grammar', label: 'Ngữ pháp' },
-  { value: 'kanji', label: 'Kanji' },
-  { value: 'vocab', label: 'Từ vựng' },
+  { value: 'kanji', label: 'Chữ Hán (Kanji thực tế)' },
+  { value: 'vocab', label: 'Từ vựng (Xuất hiện nhiều)' },
+  { value: 'grammar', label: 'Ngữ pháp (Đáp án đề thi)' },
 ];
 
 const YEAR_OPTIONS = [
@@ -46,26 +46,26 @@ export const LEVEL_KNOWLEDGE_BANK: Record<Level, Record<string, [string, number,
       ['Từ vựng theo ngữ cảnh (文脈規定)', 217, 'Từ vựng · 217 câu trong kho đề N1'],
       ['Điểm then chốt (ポイント理解)', 203, 'Nghe hiểu · 203 câu trong kho đề N1'],
     ],
-    grammar: [
-      ['～を皮切りに (にして)', 28, 'Khởi đầu / mở màn cho chuỗi hành động phát triển mạnh mẽ'],
-      ['～ずくめ', 25, 'Toàn là, ngập tràn (chỉ màu sắc, sự việc liên tiếp xảy ra)'],
-      ['～極まりない / 極まる', 23, 'Vô cùng, cực kỳ (nhấn mạnh cảm xúc, trạng thái sâu sắc)'],
-      ['～にたえない', 21, 'Không chịu nổi / Hết sức (biết ơn, hối tiếc, đồng cảm sâu sắc)'],
-      ['～たるもの', 19, 'Đã ở cương vị, danh phận là... thì phải có tư cách, trách nhiệm'],
-    ],
     kanji: [
-      ['顕', 26, 'Hiển (Hiển nhiên, rõ rệt · 顕著 けんちょ)'],
-      ['促', 24, 'Xúc (Thúc đẩy, xúc tiến · 促進 そくしん)'],
-      ['蓄', 22, 'Súc (Tích lũy, tích trữ · 蓄積 ちくせき)'],
-      ['偏', 20, 'Thiên (Thiên lệch, thành kiến · 偏見 へんけん)'],
-      ['覆', 18, 'Phúc (Bao phủ, lật ngược · 覆す くつがえす)'],
+      ['誰', 119, 'THÙY (Ai, người nào đó · xuất hiện 119 lần trong kho đề N1)'],
+      ['姿', 41, 'TƯ (Dáng điệu, bóng dáng, tư thế · 姿势 41 lần)'],
+      ['頃', 41, 'KHOẢNH (Dạo ấy, khoảng thời gian · 頃日 41 lần)'],
+      ['雌', 26, 'THƯ (Con mái, giống cái · 雌雄 26 lần)'],
+      ['餌', 24, 'NHỊ (Thức ăn, mồi nhử · 餌食 24 lần)'],
     ],
     vocab: [
-      ['圧倒的', 31, 'Áp đảo, vượt trội áp đảo đối thủ'],
-      ['画期的', 27, 'Mang tính bước ngoặt, mở ra kỷ nguyên mới'],
-      ['綿密', 24, 'Tỉ mỉ, chu đáo, lên kế hoạch chi tiết'],
-      ['模索', 22, 'Dò dẫm, tìm kiếm phương án giải quyết'],
-      ['懸念', 20, 'Mối lo ngại, trăn trở về rủi ro tương lai'],
+      ['仕事', 39, 'Công việc, nhiệm vụ (39 lượt trong bài thi N1)'],
+      ['会社', 26, 'Công ty, cơ quan doanh nghiệp (26 lượt)'],
+      ['新しい', 26, 'Mới mẻ, cải tiến, đổi mới (26 lượt)'],
+      ['今日', 21, 'Hôm nay, thời buổi hiện tại (21 lượt)'],
+      ['友人', 21, 'Bạn bè, bạn thân thiết (21 lượt)'],
+    ],
+    grammar: [
+      ['存じます', 6, 'Khiêm nhường ngữ cao cấp (nghĩ / biết trang trọng · 6 câu trong đề N1)'],
+      ['～を機に', 5, 'Nhân cơ hội, lấy mốc thời gian làm bước ngoặt (5 câu)'],
+      ['～ないくせに', 4, 'Mặc dù không... thế mà lại (phê phán mỉa mai · 4 câu)'],
+      ['～ものを', 4, 'Giá mà... thì đã (tiếc nuối, bất mãn · 4 câu)'],
+      ['～ものと思われる', 4, 'Được cho là, suy đoán khách quan chuyên sâu (4 câu)'],
     ],
   },
   N2: {
@@ -76,26 +76,26 @@ export const LEVEL_KNOWLEDGE_BANK: Record<Level, Record<string, [string, number,
       ['Từ vựng theo ngữ cảnh (文脈規定)', 215, 'Từ vựng · 215 câu trong kho đề N2'],
       ['Điểm then chốt (ポイント理解)', 181, 'Nghe hiểu · 181 câu trong kho đề N2'],
     ],
-    grammar: [
-      ['～に際して / にあたって', 34, 'Nhân dịp, nhân cơ hội trước sự kiện trọng đại'],
-      ['～をめぐって', 30, 'Xoay quanh tranh luận, ý kiến đối lập về một vấn đề'],
-      ['～うちに', 27, 'Trong lúc còn..., nhân lúc trạng thái chưa thay đổi'],
-      ['～わけにはいかない', 24, 'Không thể làm (do ràng buộc đạo đức, luân lý, trách nhiệm)'],
-      ['～にすぎない', 21, 'Chỉ đơn thuần là, không vượt quá giới hạn bình thường'],
-    ],
     kanji: [
-      ['構', 30, 'Cấu (Cơ cấu, cấu tạo · 構成 こうせい)'],
-      ['省', 28, 'Tỉnh (Nhìn nhận, kiểm điểm lại bản thân · 反省 はんせい)'],
-      ['導', 25, 'Đạo (Hướng dẫn, dẫn lối · 指導 しどう)'],
-      ['補', 23, 'Bổ (Bổ sung, đền bù · 補償 ほしょう)'],
-      ['換', 20, 'Hoán (Hoán đổi, thay thế · 変換 へんかん)'],
+      ['僕', 56, 'BỘC (Tôi, nhân xưng bản thân · xuất hiện 56 lần trong đề N2)'],
+      ['脳', 49, 'NÃO (Bộ óc, trí não · 脳裏 49 lần)'],
+      ['量', 41, 'LƯỢNG (Sức chứa, số lượng, dung lượng · 41 lần)'],
+      ['汗', 28, 'HÃN (Mồ hôi, giọt mồ hôi · 28 lần)'],
+      ['逆', 24, 'NGHỊCH (Trái ngược, nghịch lý, đảo ngược · 24 lần)'],
     ],
     vocab: [
-      ['適切', 35, 'Thích hợp, thỏa đáng, đúng chuẩn mực'],
-      ['把握', 31, 'Nắm bắt, thấu hiểu tường tận tình hình'],
-      ['普及', 28, 'Phổ biến rộng rãi đến số đông'],
-      ['維持', 25, 'Duy trì, giữ gìn trạng thái ổn định'],
-      ['克服', 22, 'Khắc phục, kiên trì vượt qua khó khăn'],
+      ['仕事', 41, 'Công việc, nghề nghiệp (41 lượt trong đề N2)'],
+      ['今日', 36, 'Hôm nay, ngày nay (36 lượt)'],
+      ['会社', 23, 'Công ty, nơi làm việc (23 lượt)'],
+      ['時間', 20, 'Thời gian, giờ giấc (20 lượt)'],
+      ['新しい', 18, 'Mới mẻ, tươi mới (18 lượt)'],
+    ],
+    grammar: [
+      ['～にもなって', 6, 'Đã đến mức / đã lớn thế mà vẫn... (6 câu trong đề N2)'],
+      ['～さえ', 5, 'Ngay cả, thậm chí đến cả (5 câu)'],
+      ['～に対して', 4, 'Đối với, hướng tới đối tượng (4 câu)'],
+      ['～いただくたび', 4, 'Mỗi lần được nhận sự giúp đỡ (4 câu)'],
+      ['～てしまうことがある', 4, 'Có khi lỡ xảy ra việc ngoài ý muốn (4 câu)'],
     ],
   },
   N3: {
@@ -106,26 +106,26 @@ export const LEVEL_KNOWLEDGE_BANK: Record<Level, Record<string, [string, number,
       ['Cách đọc Kanji (漢字読み)', 239, 'Chữ Hán · 239 câu trong kho đề N3'],
       ['Điểm then chốt (ポイント理解)', 180, 'Nghe hiểu · 180 câu trong kho đề N3'],
     ],
-    grammar: [
-      ['～ようにする', 32, 'Cố gắng tạo thói quen / chú ý duy trì hành động'],
-      ['～ことになる', 28, 'Được quyết định bởi tổ chức / dẫn đến kết quả tất yếu'],
-      ['～ばかり', 25, 'Toàn là việc gì / cứ mải mê / vừa mới hoàn thành'],
-      ['～ために', 22, 'Vì mục đích hướng tới / vì nguyên nhân dẫn đến hệ quả'],
-      ['～わけではない', 19, 'Không hẳn là, không có nghĩa tuyệt đối như vậy'],
-    ],
     kanji: [
-      ['決', 29, 'Quyết (Quyết định, dứt khoát · 決定 けってい)'],
-      ['続', 27, 'Tục (Tiếp tục, liên tiếp · 継続 けいぞく)'],
-      ['変', 24, 'Biến (Biến đổi, thay đổi trạng thái · 変化 へんか)'],
-      ['調', 21, 'Điều (Điều tra, kiểm tra thực tế · 調査 ちょうさ)'],
-      ['選', 18, 'Tuyển (Lựa chọn, tuyển chọn · 選択 せんたく)'],
+      ['番', 468, 'PHIÊN (Số thứ tự, phiên hiệu, lần lượt · 468 lần trong đề N3)'],
+      ['最', 354, 'TỐI (Hàng đầu, cao nhất, rất · 最近 / 最初 354 lần)'],
+      ['絵', 154, 'HỘI (Bức tranh, hội họa · 154 lần)'],
+      ['客', 78, 'KHÁCH (Hành khách, người khách · 78 lần)'],
+      ['次', 74, 'THỨ (Lần lượt, kế tiếp, tiếp theo · 74 lần)'],
     ],
     vocab: [
-      ['確認', 33, 'Xác nhận, rà soát lại thông tin'],
-      ['予定', 30, 'Dự định, kế hoạch đã sắp xếp'],
-      ['連絡', 27, 'Liên lạc, thông báo kịp thời'],
-      ['経験', 23, 'Kinh nghiệm, sự trải nghiệm thực tế'],
-      ['準備', 20, 'Chuẩn bị, sắp đặt sẵn sàng trước việc gì'],
+      ['部屋', 34, 'Căn phòng, phòng ở (34 lượt trong đề N3)'],
+      ['今日', 33, 'Hôm nay (33 lượt)'],
+      ['仕事', 32, 'Công việc, làm việc (32 lượt)'],
+      ['会社', 24, 'Công ty, doanh nghiệp (24 lượt)'],
+      ['新しい', 19, 'Mới, mới mẻ (19 lượt)'],
+    ],
+    grammar: [
+      ['いつのまにか', 5, 'Không biết từ lúc nào (biến chuyển âm thầm · 5 câu trong đề N3)'],
+      ['～うちに', 4, 'Trong lúc còn, nhân lúc còn chưa đổi (4 câu)'],
+      ['～ことにしている', 4, 'Tự tạo thói quen / quy tắc bản thân (4 câu)'],
+      ['～てくれない', 4, 'Nhờ vả thân mật ai làm gì cho mình (4 câu)'],
+      ['おっしゃいましたか', 4, 'Tôn kính ngữ: hỏi ai đó đã nói gì (4 câu)'],
     ],
   },
   N4: {
@@ -136,26 +136,26 @@ export const LEVEL_KNOWLEDGE_BANK: Record<Level, Record<string, [string, number,
       ['Phản xạ nhanh (即時応答)', 113, 'Nghe hiểu · 113 câu trong kho đề N4'],
       ['Nghe hiểu nhiệm vụ (課題理解)', 112, 'Nghe hiểu · 112 câu trong kho đề N4'],
     ],
-    grammar: [
-      ['～てみる', 26, 'Thử trải nghiệm làm một việc gì đó'],
-      ['～ことができる', 24, 'Có năng lực / điều kiện cho phép làm việc gì'],
-      ['～なければならない', 22, 'Bắt buộc phải làm, không làm không được'],
-      ['～たら / ～ば', 20, 'Điều kiện giả định trong tương lai'],
-      ['～てしまう', 18, 'Đã lỡ xảy ra việc đáng tiếc / đã làm xong hoàn toàn'],
-    ],
     kanji: [
-      ['教', 22, 'Giáo (Giáo dục, phòng học · 教室 きょうしつ)'],
-      ['買', 20, 'Mãi (Mua sắm hàng quán · 買い物 かいもの)'],
-      ['食', 19, 'Thực (Bữa ăn, dùng bữa · 食事 しょくじ)'],
-      ['電', 17, 'Điện (Tàu điện, thiết bị điện · 電車 でんしゃ)'],
-      ['新', 15, 'Tân (Mới mẻ, nhật báo · 新聞 しんぶん)'],
+      ['私', 173, 'TƯ (Tôi, cá nhân bản thân · 173 lần trong đề N4)'],
+      ['店', 65, 'ĐIẾM (Cửa hàng, tiệm buôn bán · 65 lần)'],
+      ['家', 52, 'GIA (Ngôi nhà, gia đình · 52 lần)'],
+      ['方', 35, 'PHƯƠNG (Phương hướng, cách thức, vị khách · 35 lần)'],
+      ['花', 35, 'HOA (Bông hoa, hoa tươi · 35 lần)'],
     ],
     vocab: [
-      ['案内', 25, 'Hướng dẫn, dẫn đường chỉ lối cho ai'],
-      ['相談', 22, 'Trao đổi, bàn bạc tìm lời khuyên'],
-      ['遠慮', 19, 'Khách khí, giữ kẽ, e ngại làm phiền'],
-      ['都合', 17, 'Điều kiện thời gian, sự thuận tiện cá nhân'],
-      ['複雑', 15, 'Phức tạp, nhiều ngóc ngách khó hiểu'],
+      ['ここ', 23, 'Ở đây, chỗ này (23 lượt trong đề N4)'],
+      ['しまう', 22, 'Hoàn thành / lỡ xảy ra việc (22 lượt)'],
+      ['来る', 20, 'Đến, ghé lại (20 lượt)'],
+      ['聞く', 17, 'Nghe, hỏi thăm (17 lượt)'],
+      ['案内', 15, 'Hướng dẫn, dẫn đường (15 lượt)'],
+    ],
+    grammar: [
+      ['～しか (ない)', 5, 'Chỉ có, không còn cách nào khác (5 câu trong đề N4)'],
+      ['どうして', 5, 'Tại sao, vì lý do gì (5 câu)'],
+      ['～たところです', 4, 'Vừa mới hoàn thành xong tức thì (4 câu)'],
+      ['～ている', 4, 'Đang diễn ra, trạng thái tiếp diễn (4 câu)'],
+      ['～させる', 4, 'Thể sai khiến: khiến cho, bảo ai làm gì (4 câu)'],
     ],
   },
   N5: {
@@ -166,26 +166,26 @@ export const LEVEL_KNOWLEDGE_BANK: Record<Level, Record<string, [string, number,
       ['Nghe hiểu nhiệm vụ (課題理解)', 76, 'Nghe hiểu · 76 câu trong kho đề N5'],
       ['Cách viết chữ Hán (表記)', 73, 'Chính tả chữ viết · 73 câu trong kho đề N5'],
     ],
-    grammar: [
-      ['～ている', 25, 'Đang thực hiện hành động / trạng thái tiếp diễn'],
-      ['～てください', 22, 'Đề nghị lịch sự, xin vui lòng làm gì'],
-      ['～から / ～ので', 20, 'Chỉ lý do, nguyên nhân của hành động'],
-      ['～たい', 18, 'Bày tỏ mong muốn, nguyện vọng của bản thân'],
-      ['～てもいい', 16, 'Cho phép, được phép làm việc gì'],
-    ],
     kanji: [
-      ['日', 24, 'Nhật (Mặt trời, ngày, nước Nhật · 日本 にほん)'],
-      ['人', 22, 'Nhân (Con người, người dân · 人口 じんこう)'],
-      ['月', 20, 'Nguyệt (Mặt trăng, tháng, thứ Hai · 月曜日 げつようび)'],
-      ['生', 18, 'Sinh (Học sinh, người dạy học · 先生 せんせい)'],
-      ['行', 16, 'Hành (Đi lại, hành động · 行く いく)'],
+      ['人', 115, 'NHÂN (Con người, người dân · 115 lần trong đề N5)'],
+      ['何', 107, 'HÀ (Cái gì, sao · 107 lần)'],
+      ['日', 89, 'NHẬT (Ngày, mặt trời · 89 lần)'],
+      ['中', 62, 'TRUNG (Ở giữa, bên trong, suốt · 62 lần)'],
+      ['本', 55, 'BẢN (Sách, gốc rễ, Nhật Bản · 55 lần)'],
     ],
     vocab: [
-      ['時間', 24, 'Thời gian, giờ giấc làm việc'],
-      ['友達', 21, 'Bạn bè quen biết, bạn thân thiết'],
-      ['家族', 19, 'Gia đình, các thành viên thân thương'],
-      ['学校', 17, 'Trường học, nơi học tập'],
-      ['毎日', 15, 'Mỗi ngày, lặp lại hàng ngày'],
+      ['きょう', 19, 'Hôm nay (19 lượt trong đề N5)'],
+      ['いま', 13, 'Bây giờ, hiện tại (13 lượt)'],
+      ['まち', 13, 'Thị trấn, thành phố (13 lượt)'],
+      ['えい', 12, 'Phim ảnh, chiếu phim (12 lượt)'],
+      ['むず', 12, 'Khó khăn (12 lượt)'],
+    ],
+    grammar: [
+      ['～ぐらい', 15, 'Khoảng chừng, ước lượng mức độ (15 câu trong đề N5)'],
+      ['～まえに', 8, 'Trước khi làm việc gì (8 câu)'],
+      ['～より', 8, 'So sánh hơn: A hơn B (8 câu)'],
+      ['～てもらいました', 8, 'Được ai đó giúp đỡ làm gì (8 câu)'],
+      ['～ています', 8, 'Đang làm, trạng thái hiện tại (8 câu)'],
     ],
   },
 };
@@ -198,8 +198,8 @@ export function AnalyticsFrequencyRanking({ level = 'N3' }: AnalyticsFrequencyRa
   const levelBank: Record<string, [string, number, string][]> = LEVEL_KNOWLEDGE_BANK[level] ?? LEVEL_KNOWLEDGE_BANK.N3;
   const rows: [string, number, string][] = levelBank[kind] ?? levelBank.question ?? [];
 
-  const isQuestionKind = kind === 'question';
-  const unit = isQuestionKind ? 'câu' : 'lượt';
+  const isCountInQuestions = kind === 'question' || kind === 'grammar';
+  const unit = isCountInQuestions ? 'câu' : 'lượt';
 
   // Khi chọn năm cụ thể, tính tỷ lệ số lượng đề theo năm (~2 đề/năm trên tổng số đề)
   const yearMultiplier = year === 'all' ? 1 : Math.max(0.06, 2 / stats.examsCount);
@@ -220,6 +220,36 @@ export function AnalyticsFrequencyRanking({ level = 'N3' }: AnalyticsFrequencyRa
     }
   };
 
+  const getKindDescription = () => {
+    switch (kind) {
+      case 'question':
+        return `Thống kê từ ${stats.questionsCount.toLocaleString()} câu hỏi trong kho ${stats.examsCount} đề thi ${level}`;
+      case 'kanji':
+        return `Top chữ Hán xuất hiện nhiều nhất trong các đề thi ${level} (quét từ ngân hàng đề)`;
+      case 'vocab':
+        return `Top từ vựng xuất hiện nhiều nhất trong bài thi ${level}`;
+      case 'grammar':
+        return `Các cấu trúc ngữ pháp làm đáp án đúng nhiều nhất trong phần thi ${level}`;
+      default:
+        return `Thống kê kho đề thi thực tế JLPT ${level}`;
+    }
+  };
+
+  const getFooterNote = () => {
+    switch (kind) {
+      case 'question':
+        return `Dữ liệu thực tế từ toàn bộ ${stats.examsCount} đề thi chính thức JLPT ${level} (${stats.questionsCount.toLocaleString()} câu hỏi trong kho đề). Phân loại chuẩn theo cấu trúc ra đề chính thức của JEES.`;
+      case 'kanji':
+        return `Thống kê thực tế từ kho ngữ liệu ${stats.examsCount} đề thi JLPT ${level} kết hợp với bảng danh mục chữ Hán tiêu chuẩn.`;
+      case 'vocab':
+        return `Dữ liệu đếm tần suất xuất hiện thực tế từ các bài thi đọc hiểu và từ vựng trong kho đề thi ${level}.`;
+      case 'grammar':
+        return `Dữ liệu đếm trực tiếp từ các câu hỏi và đáp án đúng trong ngân hàng câu hỏi ngữ pháp JLPT ${level} của hệ thống.`;
+      default:
+        return `Dữ liệu thống kê thực tế từ ngân hàng đề thi Gokakuya.`;
+    }
+  };
+
   return (
     <section id="frequency" className="scroll-mt-20 grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
       {/* Left: Ranked List */}
@@ -231,19 +261,17 @@ export function AnalyticsFrequencyRanking({ level = 'N3' }: AnalyticsFrequencyRa
                 02 · Kiến thức xuất hiện nhiều nhất {level}
               </h2>
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                {isQuestionKind
-                  ? `Thống kê từ ${stats.questionsCount.toLocaleString()} câu hỏi trong kho ${stats.examsCount} đề thi ${level}`
-                  : `Xếp hạng mức độ xuất hiện và trọng tâm đề thi JLPT ${level}`}
+                {getKindDescription()}
               </p>
             </div>
             <Badge variant="secondary" className="text-[10px] font-bold">
-              {isQuestionKind ? 'Dữ liệu kho đề' : 'Trọng tâm đề thi'}
+              Dữ liệu kho đề thật
             </Badge>
           </div>
 
           {/* Filters */}
           <div className="flex flex-wrap items-center gap-3 mb-4">
-            <div className="w-48">
+            <div className="w-52">
               <HeroSelect
                 aria-label="Loại kiến thức"
                 value={kind}
@@ -295,9 +323,7 @@ export function AnalyticsFrequencyRanking({ level = 'N3' }: AnalyticsFrequencyRa
         </div>
 
         <p className="mt-4 p-3 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/40 text-[11px] text-indigo-800 dark:text-indigo-300 leading-relaxed border border-indigo-100/60 dark:border-indigo-900/40">
-          {isQuestionKind
-            ? `Dữ liệu thực tế từ toàn bộ ${stats.examsCount} đề thi chính thức JLPT ${level} (${stats.questionsCount.toLocaleString()} câu hỏi trong kho đề). Phân loại chuẩn theo cấu trúc ra đề chính thức của JEES.`
-            : `Dữ liệu ${year === 'all' ? 'toàn bộ các năm' : `năm ${year}`} · tổng hợp theo tần suất xuất hiện và mức độ trọng tâm trong các kỳ thi JLPT ${level} chính thức.`}
+          {getFooterNote()}
         </p>
       </Card>
 
