@@ -4,7 +4,7 @@
 .titleGroup { display: flex; align-items: center; gap: 10px; flex: 1; }
 .titleGroup h2 { font-size: 1.25rem; font-weight: 700; white-space: nowrap; }
 .modeTabs { margin-inline: auto; }
-.modeTabs [role=tab] { display: flex; gap: 10px; padding-inline: 24px; }
+.modeTabs [role=tab] { white-space: nowrap; flex-shrink: 0; display: flex; gap: 10px; padding-inline: 24px; }
 .toolbarActions { display: flex; align-items: center; gap: 10px; }
 .resetButton { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 25%, var(--border)); }
 .progressCard { background: color-mix(in srgb, var(--surface) 65%, transparent); border: 1px solid var(--border); padding: 16px 24px; }

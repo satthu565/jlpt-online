@@ -166,7 +166,7 @@ export default function NotebookPage(): React.JSX.Element {
         background="gradient"
       />}
 
-      <div className={`container w-full ${activeTab !== 'notebook' ? 'py-4' : 'py-8'}`}>
+      <div className={`${activeTab === 'srs' && user ? 'w-full px-4 sm:px-8 xl:px-12' : 'container w-full'} ${activeTab !== 'notebook' ? 'py-4' : 'py-8'}`}>
         {(!user || isUnauthorized) && (
           <Alert className="mb-6" variant="warning">
           <div className="flex justify-between items-center flex-wrap gap-2">
