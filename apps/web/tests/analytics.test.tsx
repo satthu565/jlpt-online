@@ -27,6 +27,7 @@ import { TargetProgressTracker } from '../features/analytics/components/target-p
 import { NextPriorityWidget } from '../features/analytics/components/next-priority-widget';
 import { AnalyticsDashboard } from '../features/analytics/components/analytics-dashboard';
 import { AnalyticsErrorAnalysis } from '../features/analytics/components/analytics-error-analysis';
+import { AnalyticsMistakeLibrary } from '../features/analytics/components/analytics-mistake-library';
 import type { AttemptRecord, QuestionAttemptRecord } from '../features/analytics/types';
 
 const renderClean = (element: React.JSX.Element): string =>
@@ -568,5 +569,79 @@ describe('Analytics, True Progress & Dashboard Hand-Calculation Suite (L03)', ()
     expect(html).toContain('Cách đọc Hán tự');
     expect(html).toContain('1/2 câu');
     expect(html).toContain('50% sai');
+  });
+
+  it('MISTAKE-01: verifies AnalyticsMistakeLibrary renders empty state when user has 0 attempts and not demo', () => {
+    const html = renderClean(
+      <AnalyticsMistakeLibrary
+        attempts={[]}
+        questionAttempts={[]}
+        isDemoMode={false}
+        onOpenQuestionDetail={() => {}}
+        onReviewAll={() => {}}
+      />
+    );
+    expect(html).toContain('Chưa ghi nhận lỗi sai nào để tổng hợp');
+    expect(html).toContain('Làm đề thi thử ngay');
+    // Static mock data MUST NOT be rendered
+    expect(html).not.toContain('119');
+    expect(html).not.toContain('～ようにする');
+  });
+
+  it('MISTAKE-02: verifies AnalyticsMistakeLibrary computes real mistakes from user exam attempts', () => {
+    const sampleAttempts: AttemptRecord[] = [
+      {
+        id: 'att-1',
+        examId: 'ex-1',
+        examTitle: 'Đề thi JLPT N3 12/2024',
+        level: 'N3',
+        mode: 'real',
+        status: 'submitted',
+        totalScore: 75,
+        maxScore: 180,
+        accuracy: 41.7,
+        passed: false,
+        durationSec: 6200,
+        submittedAt: '2026-11-08T10:00:00Z',
+        sections: [
+          { code: 'language', name: 'Kiến thức ngôn ngữ', score: 25, maxScore: 60, minCutoff: 19, passed: true },
+          { code: 'reading', name: 'Đọc hiểu', score: 20, maxScore: 60, minCutoff: 19, passed: true },
+          { code: 'listening', name: 'Nghe hiểu', score: 30, maxScore: 60, minCutoff: 19, passed: true },
+        ],
+      },
+      {
+        id: 'att-2',
+        examId: 'ex-2',
+        examTitle: 'Đề thi JLPT N3 07/2024',
+        level: 'N3',
+        mode: 'real',
+        status: 'submitted',
+        totalScore: 80,
+        maxScore: 180,
+        accuracy: 44.4,
+        passed: false,
+        durationSec: 6100,
+        submittedAt: '2026-11-05T10:00:00Z',
+        sections: [
+          { code: 'language', name: 'Kiến thức ngôn ngữ', score: 28, maxScore: 60, minCutoff: 19, passed: true },
+          { code: 'reading', name: 'Đọc hiểu', score: 22, maxScore: 60, minCutoff: 19, passed: true },
+          { code: 'listening', name: 'Nghe hiểu', score: 30, maxScore: 60, minCutoff: 19, passed: true },
+        ],
+      },
+    ];
+
+    const html = renderClean(
+      <AnalyticsMistakeLibrary
+        attempts={sampleAttempts}
+        level="N3"
+        onOpenQuestionDetail={() => {}}
+        onReviewAll={() => {}}
+      />
+    );
+
+    expect(html).toContain('05 · BỘ SƯU TẬP LỖI SAI CÁ NHÂN');
+    expect(html).toContain('Kiến thức cần ôn');
+    expect(html).toContain('～ようにする');
+    expect(html).toContain('08/11/2026');
   });
 });

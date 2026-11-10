@@ -520,6 +520,7 @@ export default function AnalyticsPage(): React.JSX.Element {
             targetLevel={(user?.targetLevel as Level) || 'N3'}
             targetScore={120}
             userName={user?.name || user?.email?.split('@')[0] || 'Nguyễn An'}
+            isDemoMode={showDemo}
           />
         )}
       </div>

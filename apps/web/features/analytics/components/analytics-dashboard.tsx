@@ -55,6 +55,7 @@ export interface AnalyticsDashboardProps {
   className?: string;
   userName?: string;
   skillAggregates?: Array<{ skill: string; accuracyRate: number; sampleSize: number }>;
+  isDemoMode?: boolean;
 }
 
 const LEVEL_THRESHOLDS: Record<Level, { total: number; minSections: number[] }> = {
@@ -73,6 +74,7 @@ export function AnalyticsDashboard({
   className = '',
   userName = 'Nguyễn An',
   skillAggregates = [],
+  isDemoMode = false,
 }: AnalyticsDashboardProps): React.JSX.Element {
   // Filter States
   const [currentLevel, setCurrentLevel] = useState<Level>(targetLevel);
@@ -556,6 +558,10 @@ export function AnalyticsDashboard({
 
           {/* Section 7: Mistake Library */}
           <AnalyticsMistakeLibrary
+            attempts={attempts}
+            questionAttempts={questionAttempts}
+            level={currentLevel}
+            isDemoMode={isDemoMode}
             onOpenQuestionDetail={(rec) => setQuestionModalRecord(rec)}
             onReviewAll={(count) => handleOpenStudyModal('review', `${count} mục`)}
           />
