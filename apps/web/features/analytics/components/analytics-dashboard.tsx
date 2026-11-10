@@ -540,7 +540,7 @@ export function AnalyticsDashboard({
           <AnalyticsKnowledgeMap level={currentLevel} />
 
           {/* Section 4: Frequency Ranking */}
-          <AnalyticsFrequencyRanking />
+          <AnalyticsFrequencyRanking level={currentLevel} />
 
           {/* Section 5: Year Trends Heatmap */}
           <AnalyticsYearTrends />
