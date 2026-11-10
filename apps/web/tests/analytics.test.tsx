@@ -26,6 +26,7 @@ import { StudyTimeWidget } from '../features/analytics/components/study-time-wid
 import { TargetProgressTracker } from '../features/analytics/components/target-progress-tracker';
 import { NextPriorityWidget } from '../features/analytics/components/next-priority-widget';
 import { AnalyticsDashboard } from '../features/analytics/components/analytics-dashboard';
+import { AnalyticsErrorAnalysis } from '../features/analytics/components/analytics-error-analysis';
 import type { AttemptRecord, QuestionAttemptRecord } from '../features/analytics/types';
 
 const renderClean = (element: React.JSX.Element): string =>
@@ -536,5 +537,36 @@ describe('Analytics, True Progress & Dashboard Hand-Calculation Suite (L03)', ()
     expect(html).toContain('data-testid="common-errors-widget"');
     expect(html).toContain('data-testid="monthly-comparison-widget"');
     expect(html).toContain('data-testid="study-time-widget"');
+  });
+
+  it('ERROR-01: verifies AnalyticsErrorAnalysis renders honest empty states when no question attempts exist', () => {
+    const html = renderClean(
+      <AnalyticsErrorAnalysis
+        questionAttempts={[]}
+        onOpenStudyModal={() => {}}
+      />
+    );
+
+    // Mock numbers MUST NOT exist
+    expect(html).not.toContain('25/40 câu');
+    expect(html).not.toContain('17/25 câu');
+
+    // Honest empty states must be shown
+    expect(html).toContain('Chưa có dữ liệu câu sai để phân tích');
+    expect(html).toContain('Chưa ghi nhận nguyên nhân câu sai');
+  });
+
+  it('ERROR-02: verifies AnalyticsErrorAnalysis computes dynamic errors from real question attempts', () => {
+    const html = renderClean(
+      <AnalyticsErrorAnalysis
+        questionAttempts={TEST_QUESTION_ATTEMPTS}
+        onOpenStudyModal={() => {}}
+      />
+    );
+
+    // TEST_QUESTION_ATTEMPTS has kanji_reading error: 1 incorrect out of 2 items
+    expect(html).toContain('Cách đọc Hán tự');
+    expect(html).toContain('1/2 câu');
+    expect(html).toContain('50% sai');
   });
 });

@@ -70,27 +70,58 @@ const DEMO_ATTEMPTS: AttemptRecord[] = [
 ];
 
 const DEMO_QUESTIONS: QuestionAttemptRecord[] = [
-  // 12 Unseen questions
-  { questionId: 'demo-q1', questionNumber: '1', stemPreview: '彼女の意見には賛成しかねる。', level: 'N3', skill: 'grammar', isCorrect: true, timeSpentMs: 45000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q2', questionNumber: '2', stemPreview: '会議の書類をあらかじめ印刷しておいた。', level: 'N3', skill: 'vocabulary', isCorrect: true, timeSpentMs: 35000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q3', questionNumber: '3', stemPreview: 'この製品は環境に配慮して作られている。', level: 'N3', skill: 'kanji', isCorrect: true, timeSpentMs: 25000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q4', questionNumber: '4', stemPreview: '試験の結果を気に病むことはない。', level: 'N3', skill: 'vocabulary', isCorrect: true, timeSpentMs: 40000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q5', questionNumber: '5', stemPreview: '筆者が最も主張したいことは何か。', level: 'N3', skill: 'reading', isCorrect: true, timeSpentMs: 110000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q6', questionNumber: '6', stemPreview: 'このグラフから読み取れる傾向はどれか。', level: 'N3', skill: 'reading', isCorrect: false, timeSpentMs: 130000, exposureCount: 0, errorCategory: 'time_pressure', submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q7', questionNumber: '7', stemPreview: '男の人はこれからまず何をしますか。', level: 'N3', skill: 'listening', isCorrect: false, timeSpentMs: 60000, exposureCount: 0, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q8', questionNumber: '8', stemPreview: '女の人が一番困っている理由は何ですか。', level: 'N3', skill: 'listening', isCorrect: false, timeSpentMs: 60000, exposureCount: 0, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q9', questionNumber: '9', stemPreview: '天候のせいで旅行が中止になりかねない。', level: 'N3', skill: 'grammar', isCorrect: true, timeSpentMs: 38000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q10', questionNumber: '10', stemPreview: '計画を慎重に進める必要がある。', level: 'N3', skill: 'kanji', isCorrect: true, timeSpentMs: 30000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q11', questionNumber: '11', stemPreview: '午後からの会議について相談があるのですが。', level: 'N3', skill: 'listening', isCorrect: true, timeSpentMs: 50000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q12', questionNumber: '12', stemPreview: '本文の内容と一致しているものはどれか。', level: 'N3', skill: 'reading', isCorrect: true, timeSpentMs: 95000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  // 1. Reading: Comprehension Long (4 items, 2 incorrect)
+  { questionId: 'demo-rl1', questionNumber: '1', stemPreview: '筆者が考える「本当の豊かさ」とは何か。', level: 'N3', skill: 'reading', mondaiType: 'comprehension_long', isCorrect: false, timeSpentMs: 125000, exposureCount: 0, errorCategory: 'time_pressure', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-rl2', questionNumber: '2', stemPreview: '本文で「この現象」とあるが、具体的に何を指しているか。', level: 'N3', skill: 'reading', mondaiType: 'comprehension_long', isCorrect: false, timeSpentMs: 118000, exposureCount: 0, errorCategory: 'vocab_nuance', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-rl3', questionNumber: '3', stemPreview: '段落の論理展開と合致する記述はどれか。', level: 'N3', skill: 'reading', mondaiType: 'comprehension_long', isCorrect: true, timeSpentMs: 95000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-rl4', questionNumber: '4', stemPreview: '筆者の結論として最も適切なものはどれか。', level: 'N3', skill: 'reading', mondaiType: 'comprehension_long', isCorrect: true, timeSpentMs: 105000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
 
-  // 6 Familiar repeat questions (demonstrating genuine retention)
-  { questionId: 'demo-f1', questionNumber: '13', stemPreview: '男の人は明日何時に集合しますか。', level: 'N3', skill: 'listening', isCorrect: true, timeSpentMs: 48000, exposureCount: 2, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-f2', questionNumber: '14', stemPreview: '彼の話は信じるに足らない。', level: 'N3', skill: 'grammar', isCorrect: true, timeSpentMs: 32000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-f3', questionNumber: '15', stemPreview: '約束の時間を勘違いしていた。', level: 'N3', skill: 'vocabulary', isCorrect: true, timeSpentMs: 28000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-f4', questionNumber: '16', stemPreview: '男の人はなぜ遅刻したと言っていますか。', level: 'N3', skill: 'listening', isCorrect: false, timeSpentMs: 55000, exposureCount: 2, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-f5', questionNumber: '17', stemPreview: '筆者が考える幸福の条件とは何か。', level: 'N3', skill: 'reading', isCorrect: true, timeSpentMs: 85000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-f6', questionNumber: '18', stemPreview: '経済状況の悪化に伴って求人が減った。', level: 'N3', skill: 'grammar', isCorrect: true, timeSpentMs: 30000, exposureCount: 2, submittedAt: '2026-10-30T16:00:00Z' },
+  // 2. Reading: Information Retrieval (3 items, 2 incorrect)
+  { questionId: 'demo-ir1', questionNumber: '5', stemPreview: '図書館の休館日と開館時間の組み合わせで正しいもの。', level: 'N3', skill: 'reading', mondaiType: 'info_retrieval', isCorrect: false, timeSpentMs: 95000, exposureCount: 0, errorCategory: 'time_pressure', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-ir2', questionNumber: '6', stemPreview: '割引キャンペーンの適用条件を満たす人物は誰か。', level: 'N3', skill: 'reading', mondaiType: 'info_retrieval', isCorrect: false, timeSpentMs: 110000, exposureCount: 0, errorCategory: 'time_pressure', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-ir3', questionNumber: '7', stemPreview: '案内チラシの連絡先と申込期限について。', level: 'N3', skill: 'reading', mondaiType: 'info_retrieval', isCorrect: true, timeSpentMs: 70000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+
+  // 3. Grammar: Sentence Composition (4 items, 2 incorrect)
+  { questionId: 'demo-sc1', questionNumber: '8', stemPreview: 'どんなに忙しくても、健康のために ★ ようにしている。', level: 'N3', skill: 'grammar', mondaiType: 'sentence_composition', isCorrect: false, timeSpentMs: 55000, exposureCount: 0, errorCategory: 'grammar_trap', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-sc2', questionNumber: '9', stemPreview: '彼が約束を破る ★ 信じられない。', level: 'N3', skill: 'grammar', mondaiType: 'sentence_composition', isCorrect: false, timeSpentMs: 62000, exposureCount: 0, errorCategory: 'grammar_trap', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-sc3', questionNumber: '10', stemPreview: '経済の悪化に伴って ★ 減少した。', level: 'N3', skill: 'grammar', mondaiType: 'sentence_composition', isCorrect: true, timeSpentMs: 45000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-sc4', questionNumber: '11', stemPreview: '雨が降らない ★ 傘を持っていこう。', level: 'N3', skill: 'grammar', mondaiType: 'sentence_composition', isCorrect: true, timeSpentMs: 38000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+
+  // 4. Listening: Summary Understanding (4 items, 2 incorrect)
+  { questionId: 'demo-su1', questionNumber: '12', stemPreview: 'スピーチの全体を通して、話者が最も伝えたいこと。', level: 'N3', skill: 'listening', mondaiType: 'summary', isCorrect: false, timeSpentMs: 60000, exposureCount: 0, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-su2', questionNumber: '13', stemPreview: '会議で提案された新方針の要点は何か。', level: 'N3', skill: 'listening', mondaiType: 'summary', isCorrect: false, timeSpentMs: 60000, exposureCount: 0, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-su3', questionNumber: '14', stemPreview: 'ラジオ放送で紹介された町の取り組みの概要。', level: 'N3', skill: 'listening', mondaiType: 'summary', isCorrect: true, timeSpentMs: 55000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-su4', questionNumber: '15', stemPreview: '大学の講義で教授が述べている研究の主旨。', level: 'N3', skill: 'listening', mondaiType: 'summary', isCorrect: true, timeSpentMs: 50000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+
+  // 5. Vocabulary: Contextual Usage (5 items, 2 incorrect)
+  { questionId: 'demo-cx1', questionNumber: '16', stemPreview: '約束の時間を勘違いして、友人を待たせてしまった。', level: 'N3', skill: 'vocabulary', mondaiType: 'contextual', isCorrect: false, timeSpentMs: 38000, exposureCount: 0, errorCategory: 'vocab_nuance', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-cx2', questionNumber: '17', stemPreview: '会議の資料をあらかじめ印刷して配付した。', level: 'N3', skill: 'vocabulary', mondaiType: 'contextual', isCorrect: false, timeSpentMs: 42000, exposureCount: 0, errorCategory: 'vocab_nuance', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-cx3', questionNumber: '18', stemPreview: 'この地域は観光業が盛んで、多くの人が訪れる。', level: 'N3', skill: 'vocabulary', mondaiType: 'contextual', isCorrect: true, timeSpentMs: 28000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-cx4', questionNumber: '19', stemPreview: 'プロジェクトのスケジュールを慎重に管理する。', level: 'N3', skill: 'vocabulary', mondaiType: 'contextual', isCorrect: true, timeSpentMs: 25000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-cx5', questionNumber: '20', stemPreview: '試験の結果を気に病むことはない。', level: 'N3', skill: 'vocabulary', mondaiType: 'contextual', isCorrect: true, timeSpentMs: 30000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+
+  // 6. Grammar: Grammar Form (5 items, 2 incorrect)
+  { questionId: 'demo-gf1', questionNumber: '21', stemPreview: '彼女の意見には賛成しかねる。', level: 'N3', skill: 'grammar', mondaiType: 'grammar_form', isCorrect: false, timeSpentMs: 40000, exposureCount: 0, errorCategory: 'grammar_trap', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-gf2', questionNumber: '22', stemPreview: '天候のせいで旅行が中止になりかねない。', level: 'N3', skill: 'grammar', mondaiType: 'grammar_form', isCorrect: false, timeSpentMs: 46000, exposureCount: 0, errorCategory: 'grammar_trap', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-gf3', questionNumber: '23', stemPreview: '彼の話は信じるに足らない。', level: 'N3', skill: 'grammar', mondaiType: 'grammar_form', isCorrect: true, timeSpentMs: 32000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-gf4', questionNumber: '24', stemPreview: 'これだけ練習したのだから、合格するに違いない。', level: 'N3', skill: 'grammar', mondaiType: 'grammar_form', isCorrect: true, timeSpentMs: 28000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-gf5', questionNumber: '25', stemPreview: 'この製品は環境に配慮して作られている。', level: 'N3', skill: 'grammar', mondaiType: 'grammar_form', isCorrect: true, timeSpentMs: 35000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+
+  // 7. Listening: Task Based & Quick Response (6 items, 2 incorrect)
+  { questionId: 'demo-tb1', questionNumber: '26', stemPreview: '男の人はこれからまず何をしますか。', level: 'N3', skill: 'listening', mondaiType: 'task_based', isCorrect: false, timeSpentMs: 58000, exposureCount: 0, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-qr1', questionNumber: '27', stemPreview: '「昨日の映画、どうだった？」「それが、★」', level: 'N3', skill: 'listening', mondaiType: 'quick_response', isCorrect: false, timeSpentMs: 40000, exposureCount: 0, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-tb2', questionNumber: '28', stemPreview: '女の人は明日何を持参しなければなりませんか。', level: 'N3', skill: 'listening', mondaiType: 'task_based', isCorrect: true, timeSpentMs: 50000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-qr2', questionNumber: '29', stemPreview: '「この書類、確認してもらえませんか。」「★」', level: 'N3', skill: 'listening', mondaiType: 'quick_response', isCorrect: true, timeSpentMs: 30000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-tb3', questionNumber: '30', stemPreview: '集合時間と場所について確認する。', level: 'N3', skill: 'listening', mondaiType: 'task_based', isCorrect: true, timeSpentMs: 48000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-qr3', questionNumber: '31', stemPreview: '「お待たせして申し訳ありませんでした。」「★」', level: 'N3', skill: 'listening', mondaiType: 'quick_response', isCorrect: true, timeSpentMs: 32000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+
+  // 8. Kanji: Kanji Reading & Orthography (6 items, 2 incorrect)
+  { questionId: 'demo-kr1', questionNumber: '32', stemPreview: 'この計画を「慎重」に進める必要がある。', level: 'N3', skill: 'kanji', mondaiType: 'kanji_reading', isCorrect: false, timeSpentMs: 32000, exposureCount: 0, errorCategory: 'kanji_confusion', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-ot1', questionNumber: '33', stemPreview: '書類を「はいふ」してください。', level: 'N3', skill: 'kanji', mondaiType: 'orthography', isCorrect: false, timeSpentMs: 36000, exposureCount: 0, errorCategory: 'kanji_confusion', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-kr2', questionNumber: '34', stemPreview: '環境に「配慮」する。', level: 'N3', skill: 'kanji', mondaiType: 'kanji_reading', isCorrect: true, timeSpentMs: 24000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-ot2', questionNumber: '35', stemPreview: '結果を「きろく」に残す。', level: 'N3', skill: 'kanji', mondaiType: 'orthography', isCorrect: true, timeSpentMs: 25000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-kr3', questionNumber: '36', stemPreview: '「盛ん」な産業。', level: 'N3', skill: 'kanji', mondaiType: 'kanji_reading', isCorrect: true, timeSpentMs: 22000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-ot3', questionNumber: '37', stemPreview: '会場を「せつえい」する。', level: 'N3', skill: 'kanji', mondaiType: 'orthography', isCorrect: true, timeSpentMs: 26000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
 ];
 
 export default function AnalyticsPage(): React.JSX.Element {

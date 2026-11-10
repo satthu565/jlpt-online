@@ -546,7 +546,12 @@ export function AnalyticsDashboard({
           <AnalyticsYearTrends level={currentLevel} />
 
           {/* Section 6: Error Analysis */}
-          <AnalyticsErrorAnalysis onOpenStudyModal={handleOpenStudyModal} />
+          <AnalyticsErrorAnalysis
+            questionAttempts={questionAttempts}
+            level={currentLevel}
+            scopeFirstOnly={scopeFirstOnly}
+            onOpenStudyModal={handleOpenStudyModal}
+          />
 
           {/* Section 7: Mistake Library */}
           <AnalyticsMistakeLibrary
