@@ -986,7 +986,8 @@ export async function GET(request: NextRequest) {
 
         list.push({
           term,
-          stem: rawStem,
+          // a passage question whose stem is only numbered blanks has no sentence worth showing
+          stem: /[\u3040-\u30ff\u4e00-\u9fff]/.test(rawStem) ? rawStem : '',
           level: r.level,
           skill: r.skill,
           mondaiType: r.mondai_type,

@@ -69,6 +69,18 @@ export function AnalyticsExamPlan({
         .sort((x, y) => x.examDate.localeCompare(y.examDate))[0],
     [schedules, level, now],
   );
+  const nextOpenSchedule = useMemo(
+    () =>
+      schedules
+        .filter(
+          (s) =>
+            s.levels.includes(level) &&
+            daysUntil(s.examDate, now) >= 0 &&
+            (!s.registrationDeadline || Date.parse(s.registrationDeadline) >= now),
+        )
+        .sort((x, y) => x.examDate.localeCompare(y.examDate))[0],
+    [schedules, level, now],
+  );
   const daysLeft = nextSchedule ? daysUntil(nextSchedule.examDate, now) : null;
   const weeksLeft = daysLeft !== null ? Math.max(1, Math.ceil(daysLeft / 7)) : null;
   const gap = latestScore !== null ? Math.max(0, thresholdScore - latestScore) : null;
@@ -112,7 +124,9 @@ export function AnalyticsExamPlan({
                   }`}
                 >
                   {registrationClosed
-                    ? `Đã hết hạn đăng ký (${formatDate(nextSchedule.registrationDeadline)}). Hãy xem kỳ thi tiếp theo.`
+                    ? nextOpenSchedule && nextOpenSchedule.id !== nextSchedule.id
+                      ? `Đã hết hạn đăng ký (${formatDate(nextSchedule.registrationDeadline)}). Kỳ thi còn đăng ký: ${nextOpenSchedule.title}, thi ngày ${formatDate(nextOpenSchedule.examDate)}, hạn đăng ký ${nextOpenSchedule.registrationDeadline ? formatDate(nextOpenSchedule.registrationDeadline) : 'chưa công bố'}.`
+                      : `Đã hết hạn đăng ký (${formatDate(nextSchedule.registrationDeadline)}). Chưa có kỳ thi ${level} nào khác còn đăng ký trong lịch.`
                     : `Hạn đăng ký: ${formatDate(nextSchedule.registrationDeadline)}`}
                 </p>
               )}
