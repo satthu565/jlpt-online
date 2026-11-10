@@ -189,3 +189,5 @@ Triệu chứng: tab SRS có 0 thẻ hoặc hiện hoàn thành ngay → lưu no
 - Triệu chứng: bấm Làm lại vẫn hiện kết quả cũ → component nhận quiz mới nhưng giữ state theo index/score → tạo session ID mới và thay toàn bộ trạng thái lượt, giữ riêng điểm lượt đầu khi luyện lại lỗi sai.
 - Triệu chứng: chỉ luyện được các mục đầu hoặc đáp án nhiễu không liên quan → list mặc định phân trang 100 mục, API quiz cũ có fallback và trộn loại → tải đủ notebook, lọc phạm vi câu được hỏi, lấy phương án thật cùng loại; chặn vòng lặp nếu trang không tiến triển, báo thiếu dữ liệu thay vì bịa phương án.
 - HeroSelect v3 có accessible name ghép giá trị hiện tại với label ở button trigger; Playwright nên tìm button theo label không exact hoặc dùng combobox khi có, rồi chọn option theo tên chính xác.
+
+- Xem thử cổng mới: GET chạy nhưng đăng nhập POST trả CSRF 403 → chuyển thẳng vào Next rewrite làm mất Host gốc ở API → dùng proxy nginx giữ Host cho /api/v1, không tắt OriginGuard. Cấu hình xem thử Luyện tập ở tools/ops/vm/notebook-practice-preview.conf (loopback 13222 → web 13221/API 4000; Windows 3211 → 13222 theo yêu cầu chủ dự án).
