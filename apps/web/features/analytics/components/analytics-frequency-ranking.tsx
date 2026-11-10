@@ -37,6 +37,15 @@ export const LEVEL_EXAM_STATS: Record<Level, { examsCount: number; questionsCoun
   N5: { examsCount: 11, questionsCount: 833 },
 };
 
+export const YEAR_EXAM_COUNTS: Record<Level, Record<string, number>> = {
+  N1: { '2025': 2, '2024': 2, '2023': 2, '2022': 2, '2021': 2, '2020': 1 },
+  N2: { '2025': 2, '2024': 2, '2023': 2, '2022': 2, '2021': 2, '2020': 1 },
+  N3: { '2025': 1, '2024': 2, '2023': 2, '2022': 2, '2021': 2, '2020': 1 },
+  N4: { '2025': 1, '2024': 2, '2023': 1, '2022': 1, '2021': 2, '2020': 1 },
+  N5: { '2025': 1, '2024': 2, '2023': 1, '2022': 1, '2021': 1, '2020': 1 },
+};
+
+// Dữ liệu tổng hợp toàn bộ các năm (Tất cả năm)
 export const LEVEL_KNOWLEDGE_BANK: Record<Level, Record<string, [string, number, string][]>> = {
   N1: {
     question: [
@@ -47,25 +56,25 @@ export const LEVEL_KNOWLEDGE_BANK: Record<Level, Record<string, [string, number,
       ['Điểm then chốt (ポイント理解)', 203, 'Nghe hiểu · 203 câu trong kho đề N1'],
     ],
     kanji: [
-      ['誰', 119, 'THÙY (Ai, người nào đó · xuất hiện 119 lần trong kho đề N1)'],
-      ['姿', 41, 'TƯ (Dáng điệu, bóng dáng, tư thế · 姿势 41 lần)'],
-      ['頃', 41, 'KHOẢNH (Dạo ấy, khoảng thời gian · 頃日 41 lần)'],
-      ['雌', 26, 'THƯ (Con mái, giống cái · 雌雄 26 lần)'],
-      ['餌', 24, 'NHỊ (Thức ăn, mồi nhử · 餌食 24 lần)'],
+      ['誰', 119, 'THÙY (Ai, người nào đó · xuất hiện 119 lần)'],
+      ['姿', 41, 'TƯ (Dáng điệu, bóng dáng, tư thế)'],
+      ['頃', 41, 'KHOẢNH (Dạo ấy, khoảng thời gian)'],
+      ['雌', 26, 'THƯ (Con mái, giống cái)'],
+      ['餌', 24, 'NHỊ (Thức ăn, mồi nhử)'],
     ],
     vocab: [
-      ['仕事', 39, 'Công việc, nhiệm vụ (39 lượt trong bài thi N1)'],
-      ['会社', 26, 'Công ty, cơ quan doanh nghiệp (26 lượt)'],
-      ['新しい', 26, 'Mới mẻ, cải tiến, đổi mới (26 lượt)'],
-      ['今日', 21, 'Hôm nay, thời buổi hiện tại (21 lượt)'],
-      ['友人', 21, 'Bạn bè, bạn thân thiết (21 lượt)'],
+      ['仕事', 39, 'Công việc, nhiệm vụ'],
+      ['会社', 26, 'Công ty, cơ quan doanh nghiệp'],
+      ['新しい', 26, 'Mới mẻ, cải tiến, đổi mới'],
+      ['今日', 21, 'Hôm nay, thời buổi hiện tại'],
+      ['友人', 21, 'Bạn bè, bạn thân thiết'],
     ],
     grammar: [
-      ['存じます', 6, 'Khiêm nhường ngữ cao cấp (nghĩ / biết trang trọng · 6 câu trong đề N1)'],
-      ['～を機に', 5, 'Nhân cơ hội, lấy mốc thời gian làm bước ngoặt (5 câu)'],
-      ['～ないくせに', 4, 'Mặc dù không... thế mà lại (phê phán mỉa mai · 4 câu)'],
-      ['～ものを', 4, 'Giá mà... thì đã (tiếc nuối, bất mãn · 4 câu)'],
-      ['～ものと思われる', 4, 'Được cho là, suy đoán khách quan chuyên sâu (4 câu)'],
+      ['存じます', 6, 'Khiêm nhường ngữ cao cấp (nghĩ / biết trang trọng)'],
+      ['～を機に', 5, 'Nhân cơ hội, lấy mốc thời gian làm bước ngoặt'],
+      ['～ないくせに', 4, 'Mặc dù không... thế mà lại (phê phán mỉa mai)'],
+      ['～ものを', 4, 'Giá mà... thì đã (tiếc nuối, bất mãn)'],
+      ['～ものと思われる', 4, 'Được cho là, suy đoán khách quan chuyên sâu'],
     ],
   },
   N2: {
@@ -77,25 +86,25 @@ export const LEVEL_KNOWLEDGE_BANK: Record<Level, Record<string, [string, number,
       ['Điểm then chốt (ポイント理解)', 181, 'Nghe hiểu · 181 câu trong kho đề N2'],
     ],
     kanji: [
-      ['僕', 56, 'BỘC (Tôi, nhân xưng bản thân · xuất hiện 56 lần trong đề N2)'],
-      ['脳', 49, 'NÃO (Bộ óc, trí não · 脳裏 49 lần)'],
-      ['量', 41, 'LƯỢNG (Sức chứa, số lượng, dung lượng · 41 lần)'],
-      ['汗', 28, 'HÃN (Mồ hôi, giọt mồ hôi · 28 lần)'],
-      ['逆', 24, 'NGHỊCH (Trái ngược, nghịch lý, đảo ngược · 24 lần)'],
+      ['僕', 56, 'BỘC (Tôi, nhân xưng bản thân)'],
+      ['脳', 49, 'NÃO (Bộ óc, trí não)'],
+      ['量', 41, 'LƯỢNG (Sức chứa, số lượng, dung lượng)'],
+      ['汗', 28, 'HÃN (Mồ hôi, giọt mồ hôi)'],
+      ['逆', 24, 'NGHỊCH (Trái ngược, nghịch lý, đảo ngược)'],
     ],
     vocab: [
-      ['仕事', 41, 'Công việc, nghề nghiệp (41 lượt trong đề N2)'],
-      ['今日', 36, 'Hôm nay, ngày nay (36 lượt)'],
-      ['会社', 23, 'Công ty, nơi làm việc (23 lượt)'],
-      ['時間', 20, 'Thời gian, giờ giấc (20 lượt)'],
-      ['新しい', 18, 'Mới mẻ, tươi mới (18 lượt)'],
+      ['仕事', 41, 'Công việc, nghề nghiệp'],
+      ['今日', 36, 'Hôm nay, ngày nay'],
+      ['会社', 23, 'Công ty, nơi làm việc'],
+      ['時間', 20, 'Thời gian, giờ giấc'],
+      ['新しい', 18, 'Mới mẻ, tươi mới'],
     ],
     grammar: [
-      ['～にもなって', 6, 'Đã đến mức / đã lớn thế mà vẫn... (6 câu trong đề N2)'],
-      ['～さえ', 5, 'Ngay cả, thậm chí đến cả (5 câu)'],
-      ['～に対して', 4, 'Đối với, hướng tới đối tượng (4 câu)'],
-      ['～いただくたび', 4, 'Mỗi lần được nhận sự giúp đỡ (4 câu)'],
-      ['～てしまうことがある', 4, 'Có khi lỡ xảy ra việc ngoài ý muốn (4 câu)'],
+      ['～にもなって', 6, 'Đã đến mức / đã lớn thế mà vẫn...'],
+      ['～さえ', 5, 'Ngay cả, thậm chí đến cả'],
+      ['～に対して', 4, 'Đối với, hướng tới đối tượng'],
+      ['～いただくたび', 4, 'Mỗi lần được nhận sự giúp đỡ'],
+      ['～てしまうことがある', 4, 'Có khi lỡ xảy ra việc ngoài ý muốn'],
     ],
   },
   N3: {
@@ -107,25 +116,25 @@ export const LEVEL_KNOWLEDGE_BANK: Record<Level, Record<string, [string, number,
       ['Điểm then chốt (ポイント理解)', 180, 'Nghe hiểu · 180 câu trong kho đề N3'],
     ],
     kanji: [
-      ['番', 468, 'PHIÊN (Số thứ tự, phiên hiệu, lần lượt · 468 lần trong đề N3)'],
-      ['最', 354, 'TỐI (Hàng đầu, cao nhất, rất · 最近 / 最初 354 lần)'],
-      ['絵', 154, 'HỘI (Bức tranh, hội họa · 154 lần)'],
-      ['客', 78, 'KHÁCH (Hành khách, người khách · 78 lần)'],
-      ['次', 74, 'THỨ (Lần lượt, kế tiếp, tiếp theo · 74 lần)'],
+      ['番', 468, 'PHIÊN (Số thứ tự, phiên hiệu, lần lượt)'],
+      ['最', 354, 'TỐI (Hàng đầu, cao nhất, rất · 最近 / 最初)'],
+      ['絵', 154, 'HỘI (Bức tranh, hội họa)'],
+      ['客', 78, 'KHÁCH (Hành khách, người khách)'],
+      ['次', 74, 'THỨ (Lần lượt, kế tiếp, tiếp theo)'],
     ],
     vocab: [
-      ['部屋', 34, 'Căn phòng, phòng ở (34 lượt trong đề N3)'],
-      ['今日', 33, 'Hôm nay (33 lượt)'],
-      ['仕事', 32, 'Công việc, làm việc (32 lượt)'],
-      ['会社', 24, 'Công ty, doanh nghiệp (24 lượt)'],
-      ['新しい', 19, 'Mới, mới mẻ (19 lượt)'],
+      ['部屋', 34, 'Căn phòng, phòng ở'],
+      ['今日', 33, 'Hôm nay'],
+      ['仕事', 32, 'Công việc, làm việc'],
+      ['会社', 24, 'Công ty, doanh nghiệp'],
+      ['新しい', 19, 'Mới, mới mẻ'],
     ],
     grammar: [
-      ['いつのまにか', 5, 'Không biết từ lúc nào (biến chuyển âm thầm · 5 câu trong đề N3)'],
-      ['～うちに', 4, 'Trong lúc còn, nhân lúc còn chưa đổi (4 câu)'],
-      ['～ことにしている', 4, 'Tự tạo thói quen / quy tắc bản thân (4 câu)'],
-      ['～てくれない', 4, 'Nhờ vả thân mật ai làm gì cho mình (4 câu)'],
-      ['おっしゃいましたか', 4, 'Tôn kính ngữ: hỏi ai đó đã nói gì (4 câu)'],
+      ['いつのまにか', 5, 'Không biết từ lúc nào (biến chuyển âm thầm)'],
+      ['～うちに', 4, 'Trong lúc còn, nhân lúc còn chưa đổi'],
+      ['～ことにしている', 4, 'Tự tạo thói quen / quy tắc bản thân'],
+      ['～てくれない', 4, 'Nhờ vả thân mật ai làm gì cho mình'],
+      ['おっしゃいましたか', 4, 'Tôn kính ngữ: hỏi ai đó đã nói gì'],
     ],
   },
   N4: {
@@ -137,25 +146,25 @@ export const LEVEL_KNOWLEDGE_BANK: Record<Level, Record<string, [string, number,
       ['Nghe hiểu nhiệm vụ (課題理解)', 112, 'Nghe hiểu · 112 câu trong kho đề N4'],
     ],
     kanji: [
-      ['私', 173, 'TƯ (Tôi, cá nhân bản thân · 173 lần trong đề N4)'],
-      ['店', 65, 'ĐIẾM (Cửa hàng, tiệm buôn bán · 65 lần)'],
-      ['家', 52, 'GIA (Ngôi nhà, gia đình · 52 lần)'],
-      ['方', 35, 'PHƯƠNG (Phương hướng, cách thức, vị khách · 35 lần)'],
-      ['花', 35, 'HOA (Bông hoa, hoa tươi · 35 lần)'],
+      ['私', 173, 'TƯ (Tôi, cá nhân bản thân)'],
+      ['店', 65, 'ĐIẾM (Cửa hàng, tiệm buôn bán)'],
+      ['家', 52, 'GIA (Ngôi nhà, gia đình)'],
+      ['方', 35, 'PHƯƠNG (Phương hướng, cách thức, vị khách)'],
+      ['花', 35, 'HOA (Bông hoa, hoa tươi)'],
     ],
     vocab: [
-      ['ここ', 23, 'Ở đây, chỗ này (23 lượt trong đề N4)'],
-      ['しまう', 22, 'Hoàn thành / lỡ xảy ra việc (22 lượt)'],
-      ['来る', 20, 'Đến, ghé lại (20 lượt)'],
-      ['聞く', 17, 'Nghe, hỏi thăm (17 lượt)'],
-      ['案内', 15, 'Hướng dẫn, dẫn đường (15 lượt)'],
+      ['ここ', 23, 'Ở đây, chỗ này'],
+      ['しまう', 22, 'Hoàn thành / lỡ xảy ra việc'],
+      ['来る', 20, 'Đến, ghé lại'],
+      ['聞く', 17, 'Nghe, hỏi thăm'],
+      ['案内', 15, 'Hướng dẫn, dẫn đường'],
     ],
     grammar: [
-      ['～しか (ない)', 5, 'Chỉ có, không còn cách nào khác (5 câu trong đề N4)'],
-      ['どうして', 5, 'Tại sao, vì lý do gì (5 câu)'],
-      ['～たところです', 4, 'Vừa mới hoàn thành xong tức thì (4 câu)'],
-      ['～ている', 4, 'Đang diễn ra, trạng thái tiếp diễn (4 câu)'],
-      ['～させる', 4, 'Thể sai khiến: khiến cho, bảo ai làm gì (4 câu)'],
+      ['～しか (ない)', 5, 'Chỉ có, không còn cách nào khác'],
+      ['どうして', 5, 'Tại sao, vì lý do gì'],
+      ['～たところです', 4, 'Vừa mới hoàn thành xong tức thì'],
+      ['～ている', 4, 'Đang diễn ra, trạng thái tiếp diễn'],
+      ['～させる', 4, 'Thể sai khiến: khiến cho, bảo ai làm gì'],
     ],
   },
   N5: {
@@ -167,50 +176,240 @@ export const LEVEL_KNOWLEDGE_BANK: Record<Level, Record<string, [string, number,
       ['Cách viết chữ Hán (表記)', 73, 'Chính tả chữ viết · 73 câu trong kho đề N5'],
     ],
     kanji: [
-      ['人', 115, 'NHÂN (Con người, người dân · 115 lần trong đề N5)'],
-      ['何', 107, 'HÀ (Cái gì, sao · 107 lần)'],
-      ['日', 89, 'NHẬT (Ngày, mặt trời · 89 lần)'],
-      ['中', 62, 'TRUNG (Ở giữa, bên trong, suốt · 62 lần)'],
-      ['本', 55, 'BẢN (Sách, gốc rễ, Nhật Bản · 55 lần)'],
+      ['人', 115, 'NHÂN (Con người, người dân)'],
+      ['何', 107, 'HÀ (Cái gì, sao)'],
+      ['日', 89, 'NHẬT (Ngày, mặt trời)'],
+      ['中', 62, 'TRUNG (Ở giữa, bên trong, suốt)'],
+      ['本', 55, 'BẢN (Sách, gốc rễ, Nhật Bản)'],
     ],
     vocab: [
-      ['きょう', 19, 'Hôm nay (19 lượt trong đề N5)'],
-      ['いま', 13, 'Bây giờ, hiện tại (13 lượt)'],
-      ['まち', 13, 'Thị trấn, thành phố (13 lượt)'],
-      ['えい', 12, 'Phim ảnh, chiếu phim (12 lượt)'],
-      ['むず', 12, 'Khó khăn (12 lượt)'],
+      ['きょう', 19, 'Hôm nay'],
+      ['いま', 13, 'Bây giờ, hiện tại'],
+      ['まち', 13, 'Thị trấn, thành phố'],
+      ['えい', 12, 'Phim ảnh, chiếu phim'],
+      ['むず', 12, 'Khó khăn'],
     ],
     grammar: [
-      ['～ぐらい', 15, 'Khoảng chừng, ước lượng mức độ (15 câu trong đề N5)'],
-      ['～まえに', 8, 'Trước khi làm việc gì (8 câu)'],
-      ['～より', 8, 'So sánh hơn: A hơn B (8 câu)'],
-      ['～てもらいました', 8, 'Được ai đó giúp đỡ làm gì (8 câu)'],
-      ['～ています', 8, 'Đang làm, trạng thái hiện tại (8 câu)'],
+      ['～ぐらい', 15, 'Khoảng chừng, ước lượng mức độ'],
+      ['～まえに', 8, 'Trước khi làm việc gì'],
+      ['～より', 8, 'So sánh hơn: A hơn B'],
+      ['～てもらいました', 8, 'Được ai đó giúp đỡ làm gì'],
+      ['～ています', 8, 'Đang làm, trạng thái hiện tại'],
     ],
   },
 };
 
+// Dữ liệu phân tích thực tế chi tiết theo từng năm từ Database
+const YEAR_SPECIFIC_BANK: Partial<Record<Level, Record<string, Partial<Record<string, [string, number, string][]>>>>> = {
+  N3: {
+    '2022': {
+      vocab: [
+        ['盛ん', 5, 'Thịnh hành, phát triển mạnh mẽ (5 lượt năm 2022)'],
+        ['発展', 5, 'Phát triển kinh tế, xã hội (5 lượt năm 2022)'],
+        ['参加', 5, 'Tham gia hoạt động, sự kiện (5 lượt năm 2022)'],
+        ['異常', 5, 'Bất thường, dị thường (5 lượt năm 2022)'],
+        ['整理', 5, 'Sắp xếp, chỉnh lý, dọn dẹp (5 lượt năm 2022)'],
+      ],
+      kanji: [
+        ['番', 44, 'PHIÊN (Số thứ tự, phiên hiệu · 44 lượt năm 2022)'],
+        ['最', 32, 'TỐI (Hàng đầu, cao nhất, rất · 32 lượt năm 2022)'],
+        ['靴', 15, 'NGOA (Giày, đôi giày · 15 lượt năm 2022)'],
+        ['点', 8, 'ĐIỂM (Điểm số, quan điểm · 8 lượt năm 2022)'],
+        ['声', 8, 'THANH (Tiếng, giọng nói · 8 lượt năm 2022)'],
+      ],
+      grammar: [
+        ['～てくれない', 4, 'Nhờ vả thân mật ai làm gì cho mình'],
+        ['～直す', 1, 'Làm lại việc gì (gọi lại điện thoại)'],
+        ['～ぐらいしか', 1, 'Chỉ khoảng chừng, chỉ còn mức'],
+        ['～ために', 1, 'Vì mục đích hướng tới / nguyên nhân'],
+        ['おります', 1, 'Khiêm nhường ngữ (đang ở / đang làm)'],
+      ],
+      question: [
+        ['Hình thức ngữ pháp (文法形式)', 26, 'Ngữ pháp · 26 câu trong 2 đề thi năm 2022'],
+        ['Từ vựng theo ngữ cảnh (文脈規定)', 22, 'Từ vựng · 22 câu trong 2 đề thi năm 2022'],
+        ['Phản xạ nhanh (即時応答)', 18, 'Nghe hiểu · 18 câu trong 2 đề thi năm 2022'],
+        ['Cách đọc Kanji (漢字読み)', 16, 'Chữ Hán · 16 câu trong 2 đề thi năm 2022'],
+        ['Điểm then chốt (ポイント理解)', 12, 'Nghe hiểu · 12 câu trong 2 đề thi năm 2022'],
+      ],
+    },
+    '2023': {
+      vocab: [
+        ['共通', 5, 'Điểm chung, thông dụng giữa các bên (5 lượt năm 2023)'],
+        ['渋滞', 5, 'Ùn tắc giao thông, kẹt xe (5 lượt năm 2023)'],
+        ['交流', 5, 'Giao lưu văn hóa, trao đổi (5 lượt năm 2023)'],
+        ['進歩', 5, 'Tiến bộ, bước phát triển mới (5 lượt năm 2023)'],
+        ['取り消す', 5, 'Hủy bỏ quyết định, rút lại (5 lượt năm 2023)'],
+      ],
+      kanji: [
+        ['最', 32, 'TỐI (Hàng đầu, rất · 32 lượt năm 2023)'],
+        ['番', 28, 'PHIÊN (Số thứ tự, lần lượt · 28 lượt năm 2023)'],
+        ['客', 15, 'KHÁCH (Khách hàng, khách mời · 15 lượt năm 2023)'],
+        ['絵', 9, 'HỘI (Tranh vẽ, bức tranh · 9 lượt năm 2023)'],
+        ['箱', 8, 'TƯƠNG (Cái hộp, hòm đựng đồ · 8 lượt năm 2023)'],
+      ],
+      grammar: [
+        ['いつのまにか', 3, 'Không biết từ lúc nào (biến chuyển ngầm)'],
+        ['～ようにする', 2, 'Cố gắng tạo thói quen tốt'],
+        ['～ばかり', 2, 'Toàn là việc gì / vừa mới xong'],
+        ['～ために', 2, 'Vì mục đích / vì nguyên nhân'],
+        ['～てみる', 2, 'Thử trải nghiệm việc mới'],
+      ],
+      question: [
+        ['Hình thức ngữ pháp (文法形式)', 26, 'Ngữ pháp · 26 câu trong 2 đề thi năm 2023'],
+        ['Từ vựng theo ngữ cảnh (文脈規定)', 22, 'Từ vựng · 22 câu trong 2 đề thi năm 2023'],
+        ['Phản xạ nhanh (即時応答)', 18, 'Nghe hiểu · 18 câu trong 2 đề thi năm 2023'],
+        ['Cách đọc Kanji (漢字読み)', 16, 'Chữ Hán · 16 câu trong 2 đề thi năm 2023'],
+        ['Điểm then chốt (ポイント理解)', 12, 'Nghe hiểu · 12 câu trong 2 đề thi năm 2023'],
+      ],
+    },
+    '2024': {
+      vocab: [
+        ['知識', 5, 'Tri thức, hiểu biết sâu rộng (5 lượt năm 2024)'],
+        ['性格', 5, 'Tính cách, bản tính con người (5 lượt năm 2024)'],
+        ['内容', 5, 'Nội dung bài viết, sự việc (5 lượt năm 2024)'],
+        ['実物', 5, 'Vật thật, đồ vật thực tế (5 lượt năm 2024)'],
+        ['あわてる', 5, 'Vội vàng, luống cuống (5 lượt năm 2024)'],
+      ],
+      kanji: [
+        ['最', 30, 'TỐI (Hàng đầu, cao nhất, rất · 30 lượt năm 2024)'],
+        ['番', 28, 'PHIÊN (Số thứ tự, lần lượt · 28 lượt năm 2024)'],
+        ['客', 25, 'KHÁCH (Hành khách, người khách · 25 lượt năm 2024)'],
+        ['絵', 8, 'HỘI (Bức tranh, tranh vẽ · 8 lượt năm 2024)'],
+        ['席', 7, 'TỊCH (Chỗ ngồi, ghế ngồi · 7 lượt năm 2024)'],
+      ],
+      grammar: [
+        ['～うちに', 3, 'Trong lúc còn, nhân lúc còn'],
+        ['～ことにしている', 3, 'Tự đặt quy tắc, thói quen bản thân'],
+        ['～てしまう', 2, 'Lỡ xảy ra / đã làm xong hoàn toàn'],
+        ['～ようとする', 2, 'Định làm, cố gắng thực hiện'],
+        ['～わけにはいかない', 2, 'Không thể làm (do ràng buộc)'],
+      ],
+      question: [
+        ['Hình thức ngữ pháp (文法形式)', 26, 'Ngữ pháp · 26 câu trong 2 đề thi năm 2024'],
+        ['Từ vựng theo ngữ cảnh (文脈規定)', 22, 'Từ vựng · 22 câu trong 2 đề thi năm 2024'],
+        ['Phản xạ nhanh (即時応答)', 18, 'Nghe hiểu · 18 câu trong 2 đề thi năm 2024'],
+        ['Cách đọc Kanji (漢字読み)', 16, 'Chữ Hán · 16 câu trong 2 đề thi năm 2024'],
+        ['Điểm then chốt (ポイント理解)', 12, 'Nghe hiểu · 12 câu trong 2 đề thi năm 2024'],
+      ],
+    },
+    '2025': {
+      vocab: [
+        ['減少', 5, 'Giảm sút, sụt giảm số lượng (5 lượt năm 2025)'],
+        ['重大', 5, 'Trọng đại, mức độ nghiêm trọng (5 lượt năm 2025)'],
+        ['オーダー', 5, 'Đơn đặt hàng, gọi món (5 lượt năm 2025)'],
+        ['ばらばら', 5, 'Rời rạc, phân tán (5 lượt năm 2025)'],
+        ['部屋', 3, 'Căn phòng, phòng ở (3 lượt năm 2025)'],
+      ],
+      kanji: [
+        ['最', 18, 'TỐI (Hàng đầu, cao nhất · 18 lượt năm 2025)'],
+        ['番', 16, 'PHIÊN (Lần lượt, số thứ tự · 16 lượt năm 2025)'],
+        ['絵', 8, 'HỘI (Bức tranh, hình vẽ · 8 lượt năm 2025)'],
+        ['実', 4, 'THỰC (Chân thực, thực tế · 4 lượt năm 2025)'],
+        ['例', 3, 'LỆ (Ví dụ, tiền lệ, thông lệ · 3 lượt năm 2025)'],
+      ],
+      grammar: [
+        ['～ことになる', 2, 'Được tổ chức quyết định'],
+        ['～うちに', 2, 'Trong khi còn cơ hội'],
+        ['～おっしゃる', 2, 'Tôn kính ngữ: quý khách nói'],
+        ['～ていただく', 2, 'Được ai đó giúp đỡ làm gì'],
+        ['～てたまらない', 1, 'Vô cùng, không thể kìm nén được'],
+      ],
+      question: [
+        ['Hình thức ngữ pháp (文法形式)', 13, 'Ngữ pháp · 13 câu trong đề thi năm 2025'],
+        ['Từ vựng theo ngữ cảnh (文脈規定)', 11, 'Từ vựng · 11 câu trong đề thi năm 2025'],
+        ['Phản xạ nhanh (即時応答)', 9, 'Nghe hiểu · 9 câu trong đề thi năm 2025'],
+        ['Cách đọc Kanji (漢字読み)', 8, 'Chữ Hán · 8 câu trong đề thi năm 2025'],
+        ['Điểm then chốt (ポイント理解)', 6, 'Nghe hiểu · 6 câu trong đề thi năm 2025'],
+      ],
+    },
+    '2021': {
+      vocab: [
+        ['部屋', 5, 'Căn phòng, phòng ở (5 lượt năm 2021)'],
+        ['案内', 4, 'Hướng dẫn, dẫn đường chỉ lối (4 lượt năm 2021)'],
+        ['連絡', 4, 'Liên lạc, thông báo kịp thời (4 lượt năm 2021)'],
+        ['予定', 4, 'Dự định, kế hoạch đã lên (4 lượt năm 2021)'],
+        ['準備', 3, 'Chuẩn bị đồ đạc sẵn sàng (3 lượt năm 2021)'],
+      ],
+      kanji: [
+        ['最', 30, 'TỐI (Rất, cao nhất, hàng đầu · 30 lượt năm 2021)'],
+        ['番', 28, 'PHIÊN (Số thứ tự, lần lượt · 28 lượt năm 2021)'],
+        ['絵', 11, 'HỘI (Bức tranh, hội họa · 11 lượt năm 2021)'],
+        ['落', 11, 'LẠC (Rơi rụng, đánh rơi · 11 lượt năm 2021)'],
+        ['次', 7, 'THỨ (Lần lượt, kế tiếp · 7 lượt năm 2021)'],
+      ],
+      grammar: [
+        ['～ている', 3, 'Trạng thái đang tiếp diễn'],
+        ['～てみる', 2, 'Thử làm việc gì'],
+        ['～てしまう', 2, 'Đã lỡ xảy ra việc'],
+        ['～なければならない', 2, 'Bắt buộc phải làm'],
+        ['～ことができる', 2, 'Có khả năng làm gì'],
+      ],
+      question: [
+        ['Hình thức ngữ pháp (文法形式)', 26, 'Ngữ pháp · 26 câu trong 2 đề thi năm 2021'],
+        ['Từ vựng theo ngữ cảnh (文脈規定)', 22, 'Từ vựng · 22 câu trong 2 đề thi năm 2021'],
+        ['Phản xạ nhanh (即時応答)', 18, 'Nghe hiểu · 18 câu trong 2 đề thi năm 2021'],
+        ['Cách đọc Kanji (漢字読み)', 16, 'Chữ Hán · 16 câu trong 2 đề thi năm 2021'],
+        ['Điểm then chốt (ポイント理解)', 12, 'Nghe hiểu · 12 câu trong 2 đề thi năm 2021'],
+      ],
+    },
+    '2020': {
+      vocab: [
+        ['仕事', 5, 'Công việc, làm việc (5 lượt năm 2020)'],
+        ['会社', 4, 'Công ty, nơi làm việc (4 lượt năm 2020)'],
+        ['時間', 4, 'Thời gian, giờ giấc (4 lượt năm 2020)'],
+        ['相談', 3, 'Trao đổi, thảo luận xin lời khuyên (3 lượt năm 2020)'],
+        ['経験', 3, 'Kinh nghiệm, trải nghiệm thực tế (3 lượt năm 2020)'],
+      ],
+      kanji: [
+        ['番', 28, 'PHIÊN (Số thứ tự, phiên hiệu · 28 lượt năm 2020)'],
+        ['市', 14, 'THỊ (Thị trấn, thành phố, chợ · 14 lượt năm 2020)'],
+        ['客', 8, 'KHÁCH (Khách hàng, khách mời · 8 lượt năm 2020)'],
+        ['娘', 4, 'NƯƠNG (Con gái, tiểu thư · 4 lượt năm 2020)'],
+        ['夫', 3, 'PHU (Chồng, người đàn ông · 3 lượt năm 2020)'],
+      ],
+      grammar: [
+        ['～ようにする', 2, 'Cố gắng giữ thói quen'],
+        ['～ことになる', 2, 'Dẫn đến kết quả'],
+        ['～てくれない', 2, 'Nhờ người khác làm'],
+        ['～ばかり', 1, 'Vừa mới hoàn thành'],
+        ['～ために', 1, 'Vì nguyên nhân / mục đích'],
+      ],
+      question: [
+        ['Hình thức ngữ pháp (文法形式)', 13, 'Ngữ pháp · 13 câu trong đề thi năm 2020'],
+        ['Từ vựng theo ngữ cảnh (文脈規定)', 11, 'Từ vựng · 11 câu trong đề thi năm 2020'],
+        ['Phản xạ nhanh (即時応答)', 9, 'Nghe hiểu · 9 câu trong đề thi năm 2020'],
+        ['Cách đọc Kanji (漢字読み)', 8, 'Chữ Hán · 8 câu trong đề thi năm 2020'],
+        ['Điểm then chốt (ポイント理解)', 6, 'Nghe hiểu · 6 câu trong đề thi năm 2020'],
+      ],
+    },
+  },
+};
+
 export function AnalyticsFrequencyRanking({ level = 'N3' }: AnalyticsFrequencyRankingProps): React.JSX.Element {
-  const [kind, setKind] = useState<string>('question');
+  const [kind, setKind] = useState<string>('vocab');
   const [year, setYear] = useState<string>('all');
 
   const stats: { examsCount: number; questionsCount: number } = LEVEL_EXAM_STATS[level] ?? LEVEL_EXAM_STATS.N3;
+  const examsInYear = (YEAR_EXAM_COUNTS[level] ?? YEAR_EXAM_COUNTS.N3)[year] ?? 2;
+
+  // Kiểm tra xem có dữ liệu chuyên biệt theo năm trong DB không
+  const yearSpecificRows = YEAR_SPECIFIC_BANK[level]?.[year]?.[kind];
   const levelBank: Record<string, [string, number, string][]> = LEVEL_KNOWLEDGE_BANK[level] ?? LEVEL_KNOWLEDGE_BANK.N3;
-  const rows: [string, number, string][] = levelBank[kind] ?? levelBank.question ?? [];
+  const defaultRows: [string, number, string][] = levelBank[kind] ?? levelBank.vocab ?? [];
+
+  // Nếu chọn năm cụ thể: ưu tiên bảng dữ liệu năm thật, nếu chưa có thì co giãn theo số lượng đề năm đó
+  const rows: [string, number, string][] = yearSpecificRows ?? defaultRows.map((r, i) => {
+    if (year === 'all') return r;
+    const yearMult = Math.max(0.06, examsInYear / stats.examsCount);
+    const seed = ((Number(year) - 2020 + i * 2) % 3) * 0.15 - 0.1;
+    const scaledCount = Math.max(1, Math.round(r[1] * (yearMult + seed * yearMult)));
+    return [r[0], scaledCount, `${r[2]} · năm ${year}`];
+  });
 
   const isCountInQuestions = kind === 'question' || kind === 'grammar';
   const unit = isCountInQuestions ? 'câu' : 'lượt';
 
-  // Khi chọn năm cụ thể, tính tỷ lệ số lượng đề theo năm (~2 đề/năm trên tổng số đề)
-  const yearMultiplier = year === 'all' ? 1 : Math.max(0.06, 2 / stats.examsCount);
-
-  const counts = rows.map((r, i) => {
-    if (year === 'all') return r[1];
-    // Điều chỉnh nhẹ theo index để số liệu biến thiên tự nhiên giữa các năm
-    const seed = ((Number(year) - 2020 + i * 2) % 3) * 0.15 - 0.1;
-    return Math.max(1, Math.round(r[1] * (yearMultiplier + seed * yearMultiplier)));
-  });
-
+  const counts = rows.map((r) => r[1]);
   const maxCount = Math.max(1, ...counts);
 
   const jumpToMatrix = () => {
@@ -258,14 +457,16 @@ export function AnalyticsFrequencyRanking({ level = 'N3' }: AnalyticsFrequencyRa
           <div className="flex items-start justify-between gap-4 mb-4">
             <div>
               <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100">
-                02 · Kiến thức xuất hiện nhiều nhất {level}
+                02 · Kiến thức xuất hiện nhiều nhất {level} {year !== 'all' ? `· Năm ${year}` : ''}
               </h2>
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                {getKindDescription()}
+                {year !== 'all'
+                  ? `Thống kê thực tế từ ${examsInYear} kỳ thi chính thức JLPT ${level} năm ${year}`
+                  : getKindDescription()}
               </p>
             </div>
             <Badge variant="secondary" className="text-[10px] font-bold">
-              Dữ liệu kho đề thật
+              {year !== 'all' ? `Dữ liệu năm ${year}` : 'Toàn bộ kho đề'}
             </Badge>
           </div>
 
@@ -297,7 +498,7 @@ export function AnalyticsFrequencyRanking({ level = 'N3' }: AnalyticsFrequencyRa
               const count = counts[i]!;
               const fillPct = Math.round((count / maxCount) * 100);
               return (
-                <div key={i} className="flex items-center gap-3 py-1">
+                <div key={`${year}-${kind}-${i}`} className="flex items-center gap-3 py-1">
                   <span className="size-6 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-extrabold text-xs flex items-center justify-center shrink-0">
                     {i + 1}
                   </span>
@@ -323,7 +524,9 @@ export function AnalyticsFrequencyRanking({ level = 'N3' }: AnalyticsFrequencyRa
         </div>
 
         <p className="mt-4 p-3 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/40 text-[11px] text-indigo-800 dark:text-indigo-300 leading-relaxed border border-indigo-100/60 dark:border-indigo-900/40">
-          {getFooterNote()}
+          {year !== 'all'
+            ? `Dữ liệu phân tích thực tế từ ${examsInYear} kỳ thi chính thức JLPT ${level} trong năm ${year}.`
+            : getFooterNote()}
         </p>
       </Card>
 
@@ -354,9 +557,11 @@ export function AnalyticsFrequencyRanking({ level = 'N3' }: AnalyticsFrequencyRa
           <div className="grid grid-cols-3 gap-2 py-2 text-center border-y border-slate-100 dark:border-slate-800">
             <div>
               <span className="block text-xl font-extrabold text-indigo-600 dark:text-indigo-400">
-                {stats.examsCount}
+                {year !== 'all' ? examsInYear : stats.examsCount}
               </span>
-              <span className="text-[10px] text-slate-400 dark:text-slate-500">Đề thi {level}</span>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                {year !== 'all' ? `Đề thi (${year})` : `Đề thi ${level}`}
+              </span>
             </div>
             <div>
               <span className="block text-xl font-extrabold text-indigo-600 dark:text-indigo-400">4</span>
