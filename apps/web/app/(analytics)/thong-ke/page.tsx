@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { AnalyticsDashboard } from '../../../features/analytics';
 import type { AttemptRecord, QuestionAttemptRecord } from '../../../features/analytics/types';
 import type { MistakeRecord } from '../../../features/analytics/components/analytics-mistake-library';
-import type { IntelligenceItem, ConfusedPair, MasterySummary } from '../../../features/analytics/components/analytics-mistake-intelligence';
+import type { IntelligenceItem, ConfusedPair, MasterySummary, TimedSummary } from '../../../features/analytics/components/analytics-mistake-intelligence';
 import type { BankStats, MondaiStatsByLevel } from '../../../features/analytics/bank';
 import type { Level, Skill, MondaiType } from '@jlpt/schema';
 import { ExamHero } from '../../../features/library';
@@ -166,6 +166,9 @@ export default function AnalyticsPage(): React.JSX.Element {
   const [realCoverageByLevel, setRealCoverageByLevel] = useState<Record<string, IntelligenceItem[]> | undefined>();
   const [realPairsByLevel, setRealPairsByLevel] = useState<Record<string, ConfusedPair[]> | undefined>();
   const [realMasteryByLevel, setRealMasteryByLevel] = useState<Record<string, MasterySummary> | undefined>();
+  const [realReasonsByLevel, setRealReasonsByLevel] = useState<Record<string, IntelligenceItem[]> | undefined>();
+  const [realTrapsByLevel, setRealTrapsByLevel] = useState<Record<string, IntelligenceItem[]> | undefined>();
+  const [realTimedWeaknessByLevel, setRealTimedWeaknessByLevel] = useState<Record<string, TimedSummary> | undefined>();
   const [realMondaiStatsByLevel, setRealMondaiStatsByLevel] = useState<MondaiStatsByLevel | undefined>();
   const [bank, setBank] = useState<BankStats | undefined>();
   const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
@@ -251,6 +254,15 @@ export default function AnalyticsPage(): React.JSX.Element {
           }
           if (mistakesData.masteryByLevel) {
             setRealMasteryByLevel(mistakesData.masteryByLevel);
+          }
+          if (mistakesData.reasonsByLevel) {
+            setRealReasonsByLevel(mistakesData.reasonsByLevel);
+          }
+          if (mistakesData.trapsByLevel) {
+            setRealTrapsByLevel(mistakesData.trapsByLevel);
+          }
+          if (mistakesData.timedWeaknessByLevel) {
+            setRealTimedWeaknessByLevel(mistakesData.timedWeaknessByLevel);
           }
           if (mistakesData.mondaiStatsByLevel) {
             setRealMondaiStatsByLevel(mistakesData.mondaiStatsByLevel);
@@ -537,6 +549,9 @@ export default function AnalyticsPage(): React.JSX.Element {
             realCoverageByLevel={showDemo ? undefined : realCoverageByLevel}
             realPairsByLevel={showDemo ? undefined : realPairsByLevel}
             realMasteryByLevel={showDemo ? undefined : realMasteryByLevel}
+            realReasonsByLevel={showDemo ? undefined : realReasonsByLevel}
+            realTrapsByLevel={showDemo ? undefined : realTrapsByLevel}
+            realTimedWeaknessByLevel={showDemo ? undefined : realTimedWeaknessByLevel}
             realMondaiStatsByLevel={showDemo ? undefined : realMondaiStatsByLevel}
             bank={bank}
           />

@@ -138,6 +138,166 @@ const PATTERNS_BY_LEVEL: Record<string, Array<{ pattern: string; regex: RegExp; 
   ],
 };
 
+const NEGATION = /ない|ません|ぬ|ず(?:に)?|ではない|わけがない|とは限らない|ありません/;
+const CONJUNCTION = /しかし|だが|ところが|けれども|ただし|一方|それでも|にもかかわらず/;
+
+function bigrams(text: string): Set<string> {
+  const out = new Set<string>();
+  for (let i = 0; i < text.length - 1; i++) out.add(text.slice(i, i + 2));
+  return out;
+}
+
+function overlapRatio(a: string, b: string): number {
+  const x = bigrams(a);
+  const y = bigrams(b);
+  if (x.size === 0 || y.size === 0) return 0;
+  let n = 0;
+  x.forEach((v) => {
+    if (y.has(v)) n += 1;
+  });
+  return n / Math.min(x.size, y.size);
+}
+
+type TrapId = 'near' | 'neg' | 'distract' | 'partial' | 'order' | 'kanji' | 'grammar';
+
+/** Rule-based trap type of an answered-but-wrong question, from the real option texts. */
+function classifyTrap(
+  skill: string,
+  mondai: string,
+  stem: string,
+  chosen: string,
+  correct: string,
+): TrapId | null {
+  if (skill === 'kanji') return 'kanji';
+  if (skill === 'listening') return 'distract';
+  const reading = skill === 'reading' || mondai === 'text_grammar' || mondai === 'sentence_composition';
+  if (reading && CONJUNCTION.test(stem)) return 'order';
+  if (chosen && correct && NEGATION.test(chosen) !== NEGATION.test(correct)) return 'neg';
+  if (skill === 'reading' && chosen && correct && overlapRatio(chosen, correct) >= 0.3) return 'partial';
+  if (skill === 'vocabulary') return 'near';
+  if (skill === 'grammar') return 'grammar';
+  if (skill === 'reading') return 'partial';
+  return null;
+}
+
+const TRAP_INFO: Record<TrapId, { name: string; why: string; hint: string }> = {
+  near: {
+    name: 'Đáp án gần nghĩa',
+    why: 'Hai lựa chọn gần nghĩa nhưng khác cấu trúc kết hợp hoặc sắc thái biểu đạt.',
+    hint: 'Đọc kỹ từ đi kèm ngữ cảnh thay vì chỉ dịch nghĩa thô sang tiếng Việt.',
+  },
+  neg: {
+    name: 'Phủ định kép / một phần',
+    why: 'Đáp án đúng và đáp án bạn chọn khác nhau ở chỗ có / không có phủ định.',
+    hint: 'Gạch chân từ phủ định và xác định phạm vi mà nó bao trùm trước khi chọn.',
+  },
+  distract: {
+    name: 'Thông tin gây nhiễu',
+    why: 'Bị phân tâm bởi thông tin nhiễu trước đáp án hoặc quyết định bị đổi ở cuối.',
+    hint: 'Ghi chú quyết định cuối cùng, đặc biệt sau các từ nối chuyển hướng.',
+  },
+  partial: {
+    name: 'Đáp án đúng một phần',
+    why: 'Phương án đã chọn có nhiều chi tiết trùng với đáp án đúng nhưng thiếu hoặc sai ý chính.',
+    hint: 'Tìm câu kết luận của tác giả thay vì chọn ngay chi tiết xuất hiện ở đoạn đầu.',
+  },
+  order: {
+    name: 'Từ nối chuyển ý / đảo thứ tự',
+    why: 'Đề có từ nối chuyển ý (しかし, ところが...) làm đổi chiều ý, dễ chọn theo vế đầu.',
+    hint: 'Khoanh các từ nối chuyển ý và đọc kỹ vế phía sau chúng.',
+  },
+  kanji: {
+    name: 'Chữ Hán / âm đọc tương tự',
+    why: 'Nhầm âm On/Kun hoặc mặt chữ có cấu tạo bộ thủ tương tự.',
+    hint: 'Ôn ngắt quãng theo từ ghép thường gặp, không chỉ nhớ chữ đứng đơn lẻ.',
+  },
+  grammar: {
+    name: 'Mẫu ngữ pháp tương tự',
+    why: 'Chọn mẫu câu có hình thức hoặc nghĩa gần với đáp án đúng.',
+    hint: 'Học các cặp dễ nhầm theo ví dụ đối chiếu và dấu hiệu nhận biết.',
+  },
+};
+
+const REASON_BY_SKILL: Record<string, { name: string; why: string; hint: string }> = {
+  grammar: {
+    name: 'Nhầm mẫu câu & cấu trúc ngữ pháp',
+    why: 'Chọn mẫu câu có hình thức gần giống hoặc sai quy tắc kết hợp.',
+    hint: 'Ôn các cặp mẫu câu dễ nhầm theo ví dụ đối chiếu.',
+  },
+  reading: {
+    name: 'Thiếu thời gian & áp lực đọc hiểu',
+    why: 'Câu đọc hiểu trả lời sai: thường do đọc không kịp hoặc bỏ sót từ khóa then chốt.',
+    hint: 'Đọc câu hỏi trước, xác định từ khóa và giới hạn thời gian cho mỗi bài.',
+  },
+  vocabulary: {
+    name: 'Hiểu sai ngữ cảnh từ vựng',
+    why: 'Nhầm các từ có nghĩa gần nhau hoặc sai sắc thái trong ngữ cảnh.',
+    hint: 'Ôn từ vựng kèm câu ví dụ thay vì chỉ nhớ nghĩa tiếng Việt đơn lẻ.',
+  },
+  kanji: {
+    name: 'Chưa nhớ âm đọc & chữ Hán',
+    why: 'Nhầm âm On/Kun hoặc mặt chữ có cấu tạo bộ thủ tương tự.',
+    hint: 'Ôn ngắt quãng theo từ ghép thường gặp, không chỉ nhớ chữ đứng đơn lẻ.',
+  },
+  listening: {
+    name: 'Bẫy thông tin nghe hiểu',
+    why: 'Bị phân tâm bởi thông tin nhiễu hoặc quyết định bị đổi ở cuối đoạn hội thoại.',
+    hint: 'Ghi chú quyết định cuối cùng, đặc biệt sau các từ nối chuyển hướng.',
+  },
+};
+
+const TIMED_GROUPS: Array<{ key: string; name: string; types: string[]; skills?: string[]; why: string; tip: string }> = [
+  {
+    key: 'reading_long',
+    name: 'Đọc hiểu đoạn dài',
+    types: ['comprehension_long', 'comprehension_mid', 'thematic', 'integrated_reading'],
+    why: 'Đọc đi đọc lại nhiều lần nhưng vẫn bỏ sót luận điểm và ý chuyển đoạn.',
+    tip: 'Đọc câu hỏi trước, xác định từ khóa và giới hạn tối đa 6-8 phút cho mỗi bài.',
+  },
+  {
+    key: 'reading_short',
+    name: 'Đọc hiểu ngắn & tìm thông tin',
+    types: ['comprehension_short', 'info_retrieval'],
+    why: 'Mất thời gian dò lại bảng, thông báo để tìm điều kiện phù hợp.',
+    tip: 'Gạch điều kiện trong câu hỏi trước rồi mới đối chiếu với bảng.',
+  },
+  {
+    key: 'order',
+    name: 'Sắp xếp câu',
+    types: ['sentence_composition'],
+    why: 'Tốn nhiều thời gian thử ghép nhiều tổ hợp ngữ pháp sai trật tự.',
+    tip: 'Ghép các cặp từ liên kết cố định và mệnh đề bổ nghĩa trước khi điền dấu sao.',
+  },
+  {
+    key: 'grammar',
+    name: 'Ngữ pháp ngữ cảnh',
+    types: ['text_grammar', 'grammar_form'],
+    why: 'Mất thời gian phân vân giữa các mẫu câu có nghĩa gần tương đương.',
+    tip: 'Học các cặp dễ nhầm theo ví dụ đối chiếu và phản xạ dấu hiệu nhận biết.',
+  },
+  {
+    key: 'vocab',
+    name: 'Từ vựng',
+    types: ['contextual', 'usage', 'paraphrase', 'word_formation'],
+    why: 'Chưa nhớ chính xác sắc thái kết hợp từ (collocation) trong ngữ cảnh.',
+    tip: 'Ôn tập từ vựng kèm câu văn ví dụ cụ thể thay vì chỉ nhớ nghĩa tiếng Việt đơn lẻ.',
+  },
+  {
+    key: 'kanji',
+    name: 'Kanji',
+    types: ['kanji_reading', 'orthography'],
+    why: 'Chần chừ khi quyết định âm On/Kun và các từ có âm đọc đặc biệt.',
+    tip: 'Ôn theo từ ghép hai chữ Hán thường gặp để ghi nhớ phản xạ phát âm.',
+  },
+  {
+    key: 'listening',
+    name: 'Nghe hiểu',
+    types: ['task_based', 'point', 'summary', 'utterance', 'quick_response', 'integrated_listening'],
+    why: 'Dành nhiều thời gian cho câu nghe nhưng vẫn bỏ sót thông tin chốt ở cuối.',
+    tip: 'Ghi nhanh từ khóa và quyết định cuối cùng trong lúc nghe.',
+  },
+];
+
 function leadingWrongStreak(recentCorrect: boolean[]): number {
   let n = 0;
   for (const ok of recentCorrect) {
@@ -379,6 +539,170 @@ export async function GET(request: NextRequest) {
     const pairsByLevel: Record<string, PairAgg[]> = {};
     for (const [lvl, map] of Object.entries(pairAgg)) {
       pairsByLevel[lvl] = Array.from(map.values()).sort((x, y) => y.n - x.n).slice(0, 8);
+    }
+
+    // 5b. Reasons, trap types and time lost: all from the learner's real wrong answers
+    const wrongRows = await sql`
+      SELECT
+        q.level,
+        q.skill,
+        q.mondai_type,
+        ua.question_id,
+        ua.option_value,
+        ca.correct_option,
+        qv.stem,
+        s.time_spent_ms[ua.question_index + 1] AS ms
+      FROM user_answers ua
+      JOIN exam_attempts ea ON ea.id = ua.attempt_id
+      JOIN questions q ON q.id = ua.question_id
+      LEFT JOIN attempt_answer_sheets s ON s.attempt_id = ea.id
+      LEFT JOIN LATERAL (
+        SELECT correct_option FROM correct_answers
+        WHERE question_id = q.id ORDER BY question_version DESC LIMIT 1
+      ) ca ON true
+      LEFT JOIN LATERAL (
+        SELECT stem FROM question_versions
+        WHERE question_id = q.id ORDER BY version DESC LIMIT 1
+      ) qv ON true
+      WHERE ea.user_id = ${userId} AND ua.is_correct = false
+      ORDER BY coalesce(ea.submitted_at, ea.started_at) DESC
+    `;
+    const wrongIds = Array.from(new Set(wrongRows.map((r) => r.question_id as string)));
+    const wrongOptions = wrongIds.length > 0
+      ? await sql`
+          SELECT ao.question_id, ao.order_index, ao.content
+          FROM answer_options ao
+          WHERE ao.question_id IN ${sql(wrongIds)}
+            AND ao.question_version = (
+              SELECT COALESCE(max(question_version), 1) FROM answer_options WHERE question_id = ao.question_id
+            )
+        `
+      : [];
+    const wrongOptText = new Map<string, string>();
+    for (const o of wrongOptions) wrongOptText.set(`${o.question_id}:${o.order_index}`, extractText(o.content));
+
+    type IntelItem = {
+      id: string;
+      name: string;
+      value: number;
+      unit: string;
+      why: string;
+      example?: string;
+      chosen?: string;
+      correct?: string;
+      hint?: string;
+    };
+    const reasonAgg: Record<string, Map<string, IntelItem>> = {};
+    const trapAgg: Record<string, Map<string, IntelItem>> = {};
+    const timedAgg: Record<string, Map<string, { ms: number; wrong: number }>> = {};
+    const longReading: Record<string, { ms: number; n: number }> = {};
+
+    const bump = (store: Record<string, Map<string, IntelItem>>, lvl: string, id: string, make: () => IntelItem) => {
+      const map = (store[lvl] ||= new Map());
+      const cur = map.get(id);
+      if (cur) cur.value += 1;
+      else map.set(id, make());
+    };
+
+    for (const r of wrongRows) {
+      const skill = (r.skill as string) || 'other';
+      const mondai = (r.mondai_type as string) || '';
+      const stem = extractText(r.stem);
+      const chosenText = r.option_value > 0 ? wrongOptText.get(`${r.question_id}:${r.option_value}`) : undefined;
+      const correctText = wrongOptText.get(`${r.question_id}:${r.correct_option}`);
+      const example = stem.slice(0, 90) || undefined;
+
+      for (const lvl of [(r.level as string) || 'N3', 'all']) {
+        if (r.option_value === 0) {
+          bump(reasonAgg, lvl, 'r-blank', () => ({
+            id: 'r-blank',
+            name: 'Bỏ trống / chưa kịp trả lời',
+            value: 1,
+            unit: 'lượt',
+            why: 'Câu bị bỏ trống hoặc hết giờ trước khi chọn đáp án.',
+            example,
+            chosen: 'Chưa chọn đáp án',
+            correct: correctText,
+            hint: 'Ưu tiên chọn đáp án có khả năng cao nhất rồi quay lại sau, thay vì để trống.',
+          }));
+        } else {
+          const info = REASON_BY_SKILL[skill];
+          if (info) {
+            bump(reasonAgg, lvl, `r-${skill}`, () => ({
+              id: `r-${skill}`,
+              name: info.name,
+              value: 1,
+              unit: 'lượt',
+              why: info.why,
+              example,
+              chosen: chosenText,
+              correct: correctText,
+              hint: info.hint,
+            }));
+          }
+          const trap = classifyTrap(skill, mondai, stem, chosenText ?? '', correctText ?? '');
+          if (trap) {
+            const t = TRAP_INFO[trap];
+            bump(trapAgg, lvl, `t-${trap}`, () => ({
+              id: `t-${trap}`,
+              name: t.name,
+              value: 1,
+              unit: 'lượt',
+              why: t.why,
+              example,
+              chosen: chosenText,
+              correct: correctText,
+              hint: t.hint,
+            }));
+          }
+        }
+
+        const ms = typeof r.ms === 'number' ? r.ms : 0;
+        if (ms > 0) {
+          const group = TIMED_GROUPS.find((g) => g.types.includes(mondai));
+          if (group) {
+            const map = (timedAgg[lvl] ||= new Map());
+            const cur = map.get(group.key) || { ms: 0, wrong: 0 };
+            cur.ms += ms;
+            cur.wrong += 1;
+            map.set(group.key, cur);
+          }
+          if (mondai === 'comprehension_long') {
+            const lr = (longReading[lvl] ||= { ms: 0, n: 0 });
+            lr.ms += ms;
+            lr.n += 1;
+          }
+        }
+      }
+    }
+
+    const sortItems = (m: Map<string, IntelItem> | undefined): IntelItem[] =>
+      m ? Array.from(m.values()).sort((x, y) => y.value - x.value) : [];
+    const reasonsByLevel: Record<string, IntelItem[]> = {};
+    const trapsByLevel: Record<string, IntelItem[]> = {};
+    for (const lvl of Object.keys(reasonAgg)) reasonsByLevel[lvl] = sortItems(reasonAgg[lvl]);
+    for (const lvl of Object.keys(trapAgg)) trapsByLevel[lvl] = sortItems(trapAgg[lvl]);
+
+    const timedWeaknessByLevel: Record<string, {
+      totalLostMinutes: number;
+      totalTimedWrongs: number;
+      avgMinutesPerLongReading: number;
+      items: Array<{ name: string; min: number; wrong: number; why: string; tip: string }>;
+    }> = {};
+    for (const [lvl, map] of Object.entries(timedAgg)) {
+      const items = TIMED_GROUPS.filter((g) => map.has(g.key))
+        .map((g) => {
+          const v = map.get(g.key)!;
+          return { name: g.name, min: Math.round(v.ms / 6000) / 10, wrong: v.wrong, why: g.why, tip: g.tip };
+        })
+        .sort((x, y) => y.min - x.min);
+      const lr = longReading[lvl];
+      timedWeaknessByLevel[lvl] = {
+        totalLostMinutes: Math.round(items.reduce((sum, x) => sum + x.min, 0) * 10) / 10,
+        totalTimedWrongs: items.reduce((sum, x) => sum + x.wrong, 0),
+        avgMinutesPerLongReading: lr && lr.n > 0 ? Math.round((lr.ms / lr.n / 60000) * 10) / 10 : 0,
+        items,
+      };
     }
 
     // 6. Mastery by level
@@ -675,6 +999,9 @@ export async function GET(request: NextRequest) {
       statsBySkillByLevel,
       coverageByLevel,
       mondaiStatsByLevel,
+      reasonsByLevel,
+      trapsByLevel,
+      timedWeaknessByLevel,
       pairsByLevel,
       masteryByLevel,
     });
