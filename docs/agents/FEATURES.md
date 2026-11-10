@@ -158,6 +158,8 @@ Reviewed 297 文字・語彙 questions across all 11 imported N5 exams. Prepared
 
 ## SRS study session (2026-11-09)
 
+- Workspace ôn tập: toolbar HeroUI với tab Ôn tập/Thẻ học (số thẻ thật), mục tiêu/reset/menu lưu và hoàn tác; tiến độ một hàng. Mũi tên duyệt thẻ đang sẵn sàng mà không chấm điểm; đánh giá thẻ đang chọn vẫn giữ thời gian chờ. Dấu sao lưu riêng theo tài khoản trên trình duyệt. Bốn mức có icon và dòng Ôn lại sau; âm thanh vẫn theo cờ tính năng hiện có.
+
 - Mặt sau flashcard rộng, có ProgressBar HeroUI theo vị trí thẻ, Chip Đáp án/Hán Việt, từ và cách đọc nổi bật; Separator và nhãn Nghĩa/Ví dụ tách nội dung thật. Bấm toàn bộ hai mặt bằng nút HeroUI trong suốt cả khi hover/nhấn, hỗ trợ Enter/Space; âm thanh chỉ xuất hiện khi tính năng và callback phát có sẵn; không lồng nút trong nút.
 
 - Đánh giá dưới flashcard theo mẫu: câu hỏi mức độ nhớ, bốn nút Quên/Khó nhớ/Nhớ/Dễ nhớ màu hồng/cam/đỏ/xanh với mốc ôn ngắn; màn hình nhỏ chia hai cột. Kết quả vẫn tự lưu nháp trên thiết bị, gửi máy chủ khi bấm Lưu kết quả.

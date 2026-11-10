@@ -3,6 +3,61 @@ import { test, expect, type Page } from '@playwright/test';
 export function registerSrsStudyTests(): void {
   test.describe('Notebook SRS study session', () => {
     for (const width of [390, 1366]) {
+      test(`workspace navigation, deck and local stars do not rate cards at ${width}px`, async ({ page }, testInfo) => {
+        await page.setViewportSize({ width, height: 1100 });
+        await page.emulateMedia({ reducedMotion: 'reduce' });
+        const writes: string[] = [];
+        const cards = ['時計', '早い'].map((term, index) => ({ cardId: `workspace-${index}`, notebookItemId: `item-${index}`,
+          front: { term, reading: index ? 'はやい' : 'とけい' }, back: { meaning: index ? 'Nhanh; mau lẹ.' : 'Đồng hồ', hanViet: index ? 'TẢO' : 'THỜI KẾ', examples: ['もう少し早いほうがいいです。'] },
+          state: 'new', repetitions: 0, intervalDays: 0, dueAt: new Date().toISOString() }));
+        await page.route('**/api/v1/**', async route => {
+          const path = new URL(route.request().url()).pathname;
+          if (route.request().method() !== 'GET') writes.push(path);
+          const json = path.endsWith('/auth/session') ? { user: { id: 'workspace-user', name: 'Learner', role: 'student' }, session: {} }
+            : path.endsWith('/me/srs/due') ? { items: cards, totalCount: 2 } : { items: [] };
+          await route.fulfill({ json });
+        });
+        await page.goto('/so-tay', { waitUntil: 'networkidle' });
+        const cookie = page.getByRole('button', { name: 'Từ chối cookie phân tích', exact: true });
+        if (await cookie.isVisible()) await cookie.click();
+        await page.locator('#tab-srs').click();
+        await expect(page.getByTestId('srs-previous-card')).toBeDisabled();
+        await page.getByTestId('srs-next-card').click();
+        await expect(page.getByTestId('flashcard-view')).toContainText('Thẻ 2 / 2');
+        await expect(page.getByTestId('srs-next-card')).toBeDisabled();
+        await page.getByTestId('flashcard-flip-front').click();
+        await page.getByTestId('srs-star-card').click();
+        await expect(page.getByTestId('srs-star-card')).toHaveAttribute('aria-pressed', 'true');
+        await expect(page.getByTestId('flashcard-back')).toBeVisible();
+        await page.locator('.srs-runner').screenshot({ path: testInfo.outputPath('workspace-answer.png') });
+        await page.getByRole('tab', { name: 'Thẻ học (2)', exact: true }).click();
+        await expect(page.getByRole('button', { name: 'Ôn thẻ này', exact: true })).toHaveCount(2);
+        await page.getByRole('tab', { name: 'Ôn tập', exact: true }).click();
+        await page.getByRole('button', { name: 'Mục tiêu', exact: true }).click();
+        await expect(page.locator('#srs-study-settings')).toBeVisible();
+        await page.getByRole('button', { name: 'Mục tiêu', exact: true }).click();
+        await page.getByTestId('srs-more-actions').click();
+        await expect(page.getByRole('menu')).toBeVisible();
+        await page.keyboard.press('Escape');
+        expect(writes).toEqual([]);
+        const before = await page.evaluate(() => JSON.parse(localStorage.getItem('jlpt_srs_study_v1:workspace-user')!));
+        expect(before.session.events).toEqual([]);
+        expect(before.starredCardIds).toEqual(['workspace-1']);
+        await page.getByTestId('flashcard-flip-front').click();
+        await page.getByTestId('rating-good-button').click();
+        await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('jlpt_srs_study_v1:workspace-user')!).session.events.map((event: { cardId: string }) => event.cardId))).toEqual(['workspace-1']);
+        await page.getByTestId('srs-undo').click();
+        await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('jlpt_srs_study_v1:workspace-user')!).session.events.length)).toBe(0);
+        await page.reload({ waitUntil: 'networkidle' });
+        await page.locator('#tab-srs').click();
+        await page.getByRole('tab', { name: 'Thẻ học (2)', exact: true }).click();
+        await expect(page.getByRole('button', { name: 'Bỏ đánh dấu thẻ trên thiết bị', exact: true })).toHaveCount(1);
+        expect(writes).toEqual([]);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      });
+    }
+
+    for (const width of [390, 1366]) {
       test(`full-card hover stays transparent and both faces flip at ${width}px`, async ({ page }) => {
         await page.setViewportSize({ width, height: 1000 });
         await page.emulateMedia({ reducedMotion: 'no-preference' });

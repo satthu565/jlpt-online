@@ -13,6 +13,15 @@ const card = (id: string): DueFlashcard => ({
 });
 afterEach(() => vi.unstubAllGlobals());
 describe('SRS extra practice', () => {
+  it('rates a card selected by navigation without removing other practice cards', () => {
+    const initial = { cards: [card('one'), card('two'), card('three')], ratings: [] };
+    const selected = ratePractice(initial, 'two', 3);
+    expect(practiceQueue(selected).map(card => card.cardId)).toEqual(['one', 'three']);
+    const forgotten = ratePractice(selected, 'three', 1);
+    expect(practiceQueue(forgotten).map(card => card.cardId)).toEqual(['one', 'three']);
+    expect(undoPractice(forgotten)).toEqual(selected);
+  });
+
   it('reviews only learned cards without changing daily progress or the original study session', () => {
     let study = createStudyState([card('one'), card('two'), { ...card('new'), state: 'new', repetitions: 0 }], now);
     study.settings.newPerDay = 0;

@@ -12,14 +12,15 @@ export function reviewedCards(state: StudyState): DueFlashcard[] {
 export function practiceQueue(session: PracticeSession): DueFlashcard[] {
   const queue = [...session.cards];
   for (const event of session.ratings) {
-    if (queue[0]?.cardId !== event.cardId) continue;
-    const card = queue.shift()!;
-    if (event.rating === 1) queue.push(card);
+    const index = queue.findIndex(card => card.cardId === event.cardId);
+    if (index < 0) continue;
+    const [card] = queue.splice(index, 1);
+    if (event.rating === 1) queue.push(card!);
   }
   return queue;
 }
 export function ratePractice(session: PracticeSession, cardId: string, rating: ReviewRating): PracticeSession {
-  if (practiceQueue(session)[0]?.cardId !== cardId) return session;
+  if (!practiceQueue(session).some(card => card.cardId === cardId)) return session;
   return { ...session, ratings: [...session.ratings, { cardId, rating }] };
 }
 export function undoPractice(session: PracticeSession): PracticeSession {

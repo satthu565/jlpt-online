@@ -1,8 +1,8 @@
 'use client';
 
-import { Check, Clock3, RotateCcw, RotateCcwSquare, Save, Settings2, Undo2 } from 'lucide-react';
+import { ArrowLeft, Check, Clock3, GraduationCap, Layers, MoreHorizontal, RotateCcw, RotateCcwSquare, Save, Star, Target, Undo2 } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, Chip, Modal, ProgressBar } from '@jlpt/ui/components/exam-controls';
+import { Button, Card, Chip, Dropdown, Modal, ProgressBar, Tabs } from '@jlpt/ui/components/exam-controls';
 import { HeroSelect } from '@jlpt/ui/components/hero-select';
 import { Alert } from '@jlpt/ui/components/alert';
 import type { DueFlashcard, ReviewRating } from '../types';
@@ -16,6 +16,7 @@ import {
   selectStudyQueue, studyStorageKey, undoStudyRating, isNewCard, type StudyState,
 } from '../services/srs-study-session';
 import { useI18n } from '../../../lib/i18n';
+import styles from './srs-review-runner.module.css';
 
 export interface SrsReviewRunnerProps {
   cards: DueFlashcard[];
@@ -47,6 +48,8 @@ export function SrsReviewRunner({
   const resetLock = useRef(false);
   const [resetError, setResetError] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [studyView, setStudyView] = useState('review');
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [viewRevision, setViewRevision] = useState(0);
   const [syncSnapshot, setSyncSnapshot] = useState<SrsSyncSnapshot>(() => manager.getSnapshot());
   const storageKey = userId ? studyStorageKey(userId) : null;
@@ -101,9 +104,27 @@ export function SrsReviewRunner({
     }
   };
   const queue = selectStudyQueue(state, now);
-  const scheduledActive = queue.entries.find(entry => entry.availableAt <= now);
   const extraQueue = practice ? practiceQueue(practice) : [];
-  const active = practice ? (extraQueue[0] ? { card: extraQueue[0], availableAt: now } : undefined) : scheduledActive;
+  const availableEntries = practice ? extraQueue.map(card => ({ card, availableAt: now }))
+    : queue.entries.filter(entry => entry.availableAt <= now);
+  const active = availableEntries.find(entry => entry.card.cardId === selectedCardId) ?? availableEntries[0];
+  const activeIndex = availableEntries.findIndex(entry => entry.card.cardId === active?.card.cardId);
+  const deck = practice?.cards ?? state.session.cards;
+  const moveCard = (direction: number) => {
+    if (saving || transitioning || resetOpen) return;
+    const entry = availableEntries[activeIndex + direction];
+    if (entry) setSelectedCardId(entry.card.cardId);
+  };
+  const toggleStar = (cardId: string) => {
+    if (saving || transitioning || !ready) return;
+    const starred = new Set(stateRef.current.starredCardIds ?? []);
+    if (starred.has(cardId)) starred.delete(cardId); else starred.add(cardId);
+    persist({ ...stateRef.current, starredCardIds: [...starred] });
+  };
+  const cardText = (card: DueFlashcard): string => {
+    const value = card.front.term ?? card.front.kanji ?? card.front.pattern ?? card.front.meaning ?? card.front.prompt;
+    return typeof value === 'string' ? value : '';
+  };
   const waiting = practice ? [] : queue.entries.filter(entry => entry.availableAt > now);
   const nextAt = waiting.length ? Math.min(...waiting.map(entry => entry.availableAt)) : null;
   const remainingSeconds = nextAt ? Math.max(0, Math.ceil((nextAt - now) / 1000)) : 0;
@@ -125,7 +146,7 @@ export function SrsReviewRunner({
     setViewRevision(value => value + 1);
   };
   const handleRate = (rating: ReviewRating) => {
-    setTransitioning(false);
+    setTransitioning(false); setSelectedCardId(null);
     if (!active || saveLock.current || !ready) return;
     if (practice) {
       setPractice(current => current ? ratePractice(current, active.card.cardId, rating) : current);
@@ -206,35 +227,51 @@ export function SrsReviewRunner({
     waiting: waiting.length,
   };
 
-  return <section className="srs-runner mx-auto flex w-full max-w-6xl flex-col gap-5" aria-label={t('srs.title')}>
-    <Card>
-      <Card.Content className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div><h2 className="font-semibold">{t('srs.study.today')}</h2>
-            <p className="mt-1 text-sm text-[var(--text-secondary)]">{t('srs.study.dailyProgress', { done: progress.reviewed.length, goal: state.settings.dailyGoal })}</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button size="sm" variant="ghost" disabled={transitioning || saving || resetting} onPress={() => setShowSettings(value => !value)}
-              aria-expanded={showSettings} aria-controls="srs-study-settings">
-              <Settings2 size={16} aria-hidden="true" />{t('srs.study.settings')}
-            </Button>
-            {onReset && <Button size="sm" variant="secondary" disabled={!ready || transitioning || saving || resetting}
-              onPress={() => { void openReset(); }} data-testid="srs-reset-open">
-              <RotateCcwSquare size={16} aria-hidden="true" />{t('srs.study.resetButton')}
-            </Button>}
-          </div>
-        </div>
+  return <section className={`srs-runner ${styles.runner}`} aria-label={t('srs.title')}>
+    <Tabs selectedKey={studyView} onSelectionChange={key => setStudyView(String(key))} className={styles.workspace}>
+    <div className={styles.toolbar}>
+      <div className={styles.titleGroup}>
+        {onFinish && <Button variant="ghost" size="icon" disabled={saving || !ready || transitioning}
+          aria-label={t('srs.study.saveAndExit')} onPress={() => { void handleSave(true); }}><ArrowLeft size={22} aria-hidden="true" /></Button>}
+        <h2>{t('srs.study.today')}</h2>
+      </div>
+      <Tabs.ListContainer className={styles.modeTabs}>
+        <Tabs.List aria-label={t('srs.study.viewLabel')}>
+          <Tabs.Tab id="review"><GraduationCap size={20} aria-hidden="true" />{t('srs.study.reviewTab')}<Tabs.Indicator /></Tabs.Tab>
+          <Tabs.Tab id="deck"><Layers size={19} aria-hidden="true" />{t('srs.study.deckTab', { count: deck.length })}<Tabs.Indicator /></Tabs.Tab>
+        </Tabs.List>
+      </Tabs.ListContainer>
+      <div className={styles.toolbarActions}>
+        <Button variant="outline" disabled={transitioning || saving || resetting} onPress={() => setShowSettings(value => !value)}
+          aria-expanded={showSettings} aria-controls="srs-study-settings"><Target size={18} aria-hidden="true" />{t('srs.study.settings')}</Button>
+        {onReset && <Button variant="outline" className={styles.resetButton} disabled={!ready || transitioning || saving || resetting}
+          onPress={() => { void openReset(); }} data-testid="srs-reset-open"><RotateCcwSquare size={18} aria-hidden="true" />{t('srs.study.resetButton')}</Button>}
+        <Dropdown>
+          <Dropdown.Trigger className="button button--outline button--icon-only" aria-label={t('srs.study.moreActions')} data-testid="srs-more-actions"><MoreHorizontal size={21} aria-hidden="true" /></Dropdown.Trigger>
+          <Dropdown.Popover><Dropdown.Menu aria-label={t('srs.study.moreActions')}>
+            <Dropdown.Item id="undo" isDisabled={!canUndo || saving || !ready || transitioning} onAction={handleUndo}>{t('srs.study.undo')}</Dropdown.Item>
+            <Dropdown.Item id="save" isDisabled={!ready || saving || transitioning || (!draftCount && !syncSnapshot.pendingCount)} onAction={() => { void handleSave(); }}>{t('srs.study.save')}</Dropdown.Item>
+            {onFinish && <Dropdown.Item id="exit" isDisabled={!ready || saving || transitioning} onAction={() => { void handleSave(true); }}>{t('srs.study.saveAndExit')}</Dropdown.Item>}
+          </Dropdown.Menu></Dropdown.Popover>
+        </Dropdown>
+      </div>
+    </div>
+    <Card className={styles.progressCard}>
+      <Card.Content className={styles.progressContent}>
+        <span className={styles.progressLabel}>{t('srs.study.dailyProgress', { done: progress.reviewed.length, goal: state.settings.dailyGoal })}</span>
         <ProgressBar value={Math.min(progress.reviewed.length, state.settings.dailyGoal)} maxValue={state.settings.dailyGoal}
-          aria-label={t('srs.study.dailyProgress', { done: progress.reviewed.length, goal: state.settings.dailyGoal })}>
-          <ProgressBar.Track><ProgressBar.Fill /></ProgressBar.Track>
+          className={styles.dailyProgress} aria-label={t('srs.study.dailyProgress', { done: progress.reviewed.length, goal: state.settings.dailyGoal })}>
+          <ProgressBar.Track className={styles.progressTrack}><ProgressBar.Fill className={styles.progressFill} /></ProgressBar.Track>
         </ProgressBar>
-        <div className="flex flex-wrap gap-2">
-          <Chip size="sm" variant="tertiary">{t('srs.study.reviewCount', { count: counts.reviews })}</Chip>
-          <Chip size="sm" variant="tertiary">{t('srs.study.newCount', { count: counts.fresh })}</Chip>
-          {practice && <Chip size="sm" variant="tertiary">{t('srs.study.practiceMode')}</Chip>}
-          {waiting.length > 0 && <Chip size="sm" variant="tertiary">{t('srs.study.waitingCount', { count: counts.waiting })}</Chip>}
+        <div className={styles.counts}>
+          <span>{t('srs.study.reviewCount', { count: counts.reviews })}</span><span aria-hidden="true">·</span>
+          <span>{t('srs.study.newCount', { count: counts.fresh })}</span>
+          {waiting.length > 0 && <Chip size="sm" variant="soft">{t('srs.study.waitingCount', { count: counts.waiting })}</Chip>}
         </div>
-        {progress.reviewed.length >= state.settings.dailyGoal && <p role="status" className="text-sm">{t('srs.study.goalReached')}</p>}
+      </Card.Content>
+    </Card>
+    {practice && <Chip variant="soft">{t('srs.study.practiceMode')}</Chip>}
+    {progress.reviewed.length >= state.settings.dailyGoal && <p role="status">{t('srs.study.goalReached')}</p>}
         {showSettings && <div id="srs-study-settings" className="grid gap-4 sm:grid-cols-2">
           <HeroSelect label={t('srs.study.goalLabel')} value={String(state.settings.dailyGoal)}
             options={[5, 10, 20, 30, 50].map(value => ({ value: String(value), label: t('srs.study.cardsPerDay', { count: value }) }))}
@@ -244,8 +281,6 @@ export function SrsReviewRunner({
             onChange={value => changeSetting('newPerDay', value)} disabled={saving} />
           <p className="text-xs text-[var(--text-muted)] sm:col-span-2">{t('srs.study.localSettingsHint')}</p>
         </div>}
-      </Card.Content>
-    </Card>
 
     {resetError && !resetOpen && <Alert variant="warning">{resetError}</Alert>}
     {localError && <Alert variant="error">{localError}</Alert>}
@@ -256,9 +291,12 @@ export function SrsReviewRunner({
       </div>
     </Alert>}
 
+    <Tabs.Panel id="review" className={styles.reviewPanel}>
     {active ? <FlashcardView key={`${practice ? 'practice' : 'scheduled'}:${active.card.cardId}:${practice?.ratings.length ?? state.session.events.length}:${viewRevision}`}
       card={active.card} practice={Boolean(practice)} onRate={handleRate} onPlayTts={onPlayTts} onTransitionStart={() => setTransitioning(true)} disabled={!ready || saving || resetOpen}
-      cardIndex={practice ? practice.cards.length - extraQueue.length + 1 : reviewedThisSession + 1} totalCards={practice ? practice.cards.length : Math.max(reviewedThisSession + 1, reviewedThisSession + queue.entries.length)} />
+      onPrevious={() => moveCard(-1)} onNext={() => moveCard(1)} previousDisabled={activeIndex <= 0} nextDisabled={activeIndex >= availableEntries.length - 1}
+      starred={state.starredCardIds?.includes(active.card.cardId)} onToggleStar={() => toggleStar(active.card.cardId)}
+      cardIndex={Math.max(1, deck.findIndex(card => card.cardId === active.card.cardId) + 1)} totalCards={deck.length} />
       : <Card data-testid={ended ? 'srs-finished-card' : 'srs-waiting-card'}>
         <Card.Content className="flex flex-col items-center gap-4 px-5 py-10 text-center">
           {ended ? <Check size={40} aria-hidden="true" /> : <Clock3 size={40} aria-hidden="true" />}
@@ -279,7 +317,7 @@ export function SrsReviewRunner({
         </Card.Content>
       </Card>}
 
-    <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className={styles.footerActions}>
       <Button variant="secondary" onPress={handleUndo} disabled={!canUndo || saving || !ready || transitioning} data-testid="srs-undo">
         <Undo2 size={16} aria-hidden="true" />{t('srs.study.undo')}
       </Button>
@@ -295,6 +333,23 @@ export function SrsReviewRunner({
         </Button>}
       </div>
     </div>
+    </Tabs.Panel>
+    <Tabs.Panel id="deck" className={styles.deckPanel}>
+      {deck.length ? deck.map(card => <Card key={card.cardId}>
+        <Card.Content className={styles.deckCard}>
+          <div><h3 lang="ja">{cardText(card)}</h3>
+            {typeof card.back.meaning === 'string' && <p>{card.back.meaning}</p>}</div>
+          <div className={styles.deckActions}>
+            <Button variant="ghost" size="icon" disabled={!ready || saving || transitioning} aria-pressed={state.starredCardIds?.includes(card.cardId) ?? false}
+              aria-label={t(state.starredCardIds?.includes(card.cardId) ? 'srs.study.unstarCard' : 'srs.study.starCard')} onPress={() => toggleStar(card.cardId)}>
+              <Star size={20} fill={state.starredCardIds?.includes(card.cardId) ? 'currentColor' : 'none'} aria-hidden="true" />
+            </Button>
+            <Button variant="outline" disabled={!availableEntries.some(entry => entry.card.cardId === card.cardId)}
+              onPress={() => { setSelectedCardId(card.cardId); setStudyView('review'); }}>{t('srs.study.studyThisCard')}</Button>
+          </div>
+        </Card.Content>
+      </Card>) : <Card><Card.Content>{t('srs.study.deckEmpty')}</Card.Content></Card>}
+    </Tabs.Panel>
     <Modal isOpen={resetOpen} onClose={() => { if (!resetting) setResetOpen(false); }}
       title={t('srs.study.resetTitle')} closeLabel={t('common.buttons.cancel')}
       footer={<div className="flex flex-wrap justify-end gap-2">
@@ -316,5 +371,6 @@ export function SrsReviewRunner({
       <span data-testid="sync-status-badge" role="status">{syncLabel}</span>
       <p>{t(practice ? 'srs.study.practiceHint' : 'srs.study.undoHint')}</p>
     </div>
+    </Tabs>
   </section>;
 }
