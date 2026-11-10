@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
+import type { BankStats, MondaiStatsByLevel } from '../bank';
+import { mondaiAccuracy } from '../bank';
 import type { Level, Skill, MondaiType } from '@jlpt/schema';
 import type { AttemptRecord, QuestionAttemptRecord } from '../types';
 import {
@@ -27,7 +29,7 @@ import { AnalyticsFrequencyRanking } from './analytics-frequency-ranking';
 import { AnalyticsYearTrends } from './analytics-year-trends';
 import { AnalyticsErrorAnalysis } from './analytics-error-analysis';
 import { AnalyticsMistakeLibrary, type MistakeRecord } from './analytics-mistake-library';
-import { AnalyticsMistakeIntelligence, type IntelligenceItem, type ConfusedPair, type MasterySummary, type TimedSummary } from './analytics-mistake-intelligence';
+import { AnalyticsMistakeIntelligence, type IntelligenceItem, type ConfusedPair, type MasterySummary } from './analytics-mistake-intelligence';
 import { AnalyticsPriorityMatrix } from './analytics-priority-matrix';
 import { AnalyticsProgressionCharts } from './analytics-progression-charts';
 import { AnalyticsSkillsMondai, type SkillCategoryItem } from './analytics-skills-mondai';
@@ -60,10 +62,10 @@ export interface AnalyticsDashboardProps {
   totalWrongCount?: number;
   realStatsBySkillByLevel?: Record<string, Record<string, { wrong: number; total: number }>>;
   realCoverageByLevel?: Record<string, IntelligenceItem[]>;
-  realTrapsByLevel?: Record<string, IntelligenceItem[]>;
   realPairsByLevel?: Record<string, ConfusedPair[]>;
   realMasteryByLevel?: Record<string, MasterySummary>;
-  realTimedWeaknessByLevel?: Record<string, TimedSummary>;
+  realMondaiStatsByLevel?: MondaiStatsByLevel;
+  bank?: BankStats;
 }
 
 const LEVEL_THRESHOLDS: Record<Level, { total: number; minSections: number[] }> = {
@@ -87,10 +89,10 @@ export function AnalyticsDashboard({
   totalWrongCount,
   realStatsBySkillByLevel,
   realCoverageByLevel,
-  realTrapsByLevel,
   realPairsByLevel,
   realMasteryByLevel,
-  realTimedWeaknessByLevel,
+  realMondaiStatsByLevel,
+  bank,
 }: AnalyticsDashboardProps): React.JSX.Element {
   // Filter States
   const [currentLevel, setCurrentLevel] = useState<Level>(targetLevel);
@@ -169,9 +171,13 @@ export function AnalyticsDashboard({
   }, [submittedAttempts]);
 
   const totalStudyHours = useMemo(() => {
-    const totalSec = filteredAttempts.reduce((acc, a) => acc + (a.durationSec || 0), 0);
+    const MAX_ATTEMPT_SEC = 3 * 3600; // start-to-submit gaps of abandoned sessions are not study time
+    const totalSec = submittedAttempts.reduce(
+      (acc, a) => acc + Math.min(a.durationSec || 0, MAX_ATTEMPT_SEC),
+      0,
+    );
     return totalSec / 3600;
-  }, [filteredAttempts]);
+  }, [submittedAttempts]);
 
   // Streak days calculation
   const streakDays = useMemo(() => {
@@ -231,11 +237,11 @@ export function AnalyticsDashboard({
     // 1. From real question attempts if available
     if (questionAttempts.length > 0) {
       const statsBySkill: Record<string, { total: number; wrong: number; name: string }> = {
-        vocabulary: { total: 0, wrong: 0, name: 'T盻ｫ v盻ｱng & Ch盻ｯ Hﾃ｡n' },
-        kanji: { total: 0, wrong: 0, name: 'Ch盻ｯ Hﾃ｡n' },
-        grammar: { total: 0, wrong: 0, name: 'Ng盻ｯ phﾃ｡p' },
-        reading: { total: 0, wrong: 0, name: 'ﾄ雪ｻ皇 hi盻ブ' },
-        listening: { total: 0, wrong: 0, name: 'Nghe hi盻ブ' },
+        vocabulary: { total: 0, wrong: 0, name: 'Từ vựng & Chữ Hán' },
+        kanji: { total: 0, wrong: 0, name: 'Chữ Hán' },
+        grammar: { total: 0, wrong: 0, name: 'Ngữ pháp' },
+        reading: { total: 0, wrong: 0, name: 'Đọc hiểu' },
+        listening: { total: 0, wrong: 0, name: 'Nghe hiểu' },
       };
       questionAttempts.forEach((q) => {
         const entry = statsBySkill[q.skill];
@@ -254,6 +260,28 @@ export function AnalyticsDashboard({
           name: worst.name,
           accuracy: acc,
           wrongCount: totalWrong,
+        };
+      }
+    }
+
+    // 1b. From the learner's real answered/wrong counts per skill (current level)
+    const realSkill = realStatsBySkillByLevel?.[currentLevel];
+    if (realSkill) {
+      const names: Record<string, string> = {
+        vocabulary: 'Từ vựng',
+        kanji: 'Chữ Hán',
+        grammar: 'Ngữ pháp',
+        reading: 'Đọc hiểu',
+        listening: 'Nghe hiểu',
+      };
+      const cands = Object.entries(realSkill).filter(([k, v]) => names[k] && v.total > 0);
+      if (cands.length > 0) {
+        cands.sort((x, y) => y[1].wrong / y[1].total - x[1].wrong / x[1].total);
+        const [key, worst] = cands[0]!;
+        return {
+          name: names[key]!,
+          accuracy: Math.round(((worst.total - worst.wrong) / worst.total) * 100),
+          wrongCount: cands.reduce((sum, [, v]) => sum + v.wrong, 0),
         };
       }
     }
@@ -290,7 +318,7 @@ export function AnalyticsDashboard({
       accuracy: null as number | null,
       wrongCount: 0,
     };
-  }, [questionAttempts, skillAggregates]);
+  }, [questionAttempts, skillAggregates, realStatsBySkillByLevel, currentLevel]);
 
   // Section Score Breakdown: average real section scores from submitted attempts
   const sectionScores = useMemo(() => {
@@ -371,20 +399,21 @@ export function AnalyticsDashboard({
 
   // Real Progression Data Points for Chart
   const progressionPoints = useMemo(() => {
-    if (attempts.length >= 2) {
-      const sorted = [...attempts].sort(
-        (a, b) => new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime(),
-      );
-      return sorted.slice(-10).map((a, idx) => ({
-        attemptNumber: idx + 1,
-        score: a.totalScore,
-        accuracy: Math.round(a.accuracy),
-        durationMin: Math.round(a.durationSec / 60) || 140,
-        label: a.examTitle,
-      }));
-    }
-    return undefined; // uses default realistic points in component
-  }, [attempts]);
+    const done = filteredAttempts.filter(
+      (a) => a.status === 'submitted' || (a.status === undefined && a.totalScore > 0),
+    );
+    if (done.length < 2) return undefined;
+    const sorted = [...done].sort(
+      (a, b) => new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime(),
+    );
+    return sorted.slice(-10).map((a, idx) => ({
+      attemptNumber: idx + 1,
+      score: a.totalScore,
+      accuracy: Math.round(a.accuracy),
+      durationMin: Math.round(a.durationSec / 60),
+      label: a.examTitle,
+    }));
+  }, [filteredAttempts]);
 
   // Hand-Calculators for Legacy Test Suites
   const trueProgress = useMemo(() => calculateTrueProgress(questionAttempts), [questionAttempts]);
@@ -404,76 +433,88 @@ export function AnalyticsDashboard({
 
   // Skill category mapping for Section 11 & 12
   const skillCategories: SkillCategoryItem[] = useMemo(() => {
-    const getSkillAccuracy = (sk: Skill) => {
-      const match = skillStats.find((s) => s.skill === sk);
-      return match ? match.accuracy : undefined;
+    const realSkill = realStatsBySkillByLevel?.[currentLevel];
+    const realMondai = realMondaiStatsByLevel?.[currentLevel];
+    const hasLocal = questionAttempts.length > 0;
+
+    const getSkillAccuracy = (sks: Skill[]): number | null => {
+      if (hasLocal) {
+        const matched = skillStats.filter((x) => sks.includes(x.skill));
+        const total = matched.reduce((acc, x) => acc + x.total, 0);
+        const correct = matched.reduce((acc, x) => acc + x.correct, 0);
+        return total > 0 ? Math.round((correct / total) * 100) : null;
+      }
+      if (realSkill) {
+        const total = sks.reduce((acc, k) => acc + (realSkill[k]?.total ?? 0), 0);
+        const wrong = sks.reduce((acc, k) => acc + (realSkill[k]?.wrong ?? 0), 0);
+        return total > 0 ? Math.round(((total - wrong) / total) * 100) : null;
+      }
+      return null;
     };
 
-    const getMondaiData = (types: string[], defaultAcc: number, defaultTotal: number) => {
-      const matched = mondaiStats.filter((m) => types.includes(m.mondaiType));
-      if (matched.length > 0) {
+    const getMondaiData = (types: string[]): { accuracy: number | null; totalQuestions: number } => {
+      if (hasLocal) {
+        const matched = mondaiStats.filter((m) => types.includes(m.mondaiType));
         const total = matched.reduce((acc, m) => acc + m.total, 0);
         const correct = matched.reduce((acc, m) => acc + m.correct, 0);
-        if (total > 0) {
-          return {
-            accuracy: Math.round((correct / total) * 100),
-            totalQuestions: total,
-          };
-        }
+        return total > 0
+          ? { accuracy: Math.round((correct / total) * 100), totalQuestions: total }
+          : { accuracy: null, totalQuestions: 0 };
       }
-      return { accuracy: defaultAcc, totalQuestions: defaultTotal };
+      const r = mondaiAccuracy(realMondai, types);
+      return r ? { accuracy: r.accuracy, totalQuestions: r.total } : { accuracy: null, totalQuestions: 0 };
     };
 
     return [
       {
         key: 'vocab',
         name: 'Từ vựng & Kanji',
-        accuracy: getSkillAccuracy('vocabulary') ?? 82,
+        accuracy: getSkillAccuracy(['vocabulary', 'kanji']),
         color: 'bg-emerald-500',
         types: [
-          { label: 'Cách đọc Kanji', ...getMondaiData(['kanji_reading'], 88, 50) },
-          { label: 'Từ vựng theo ngữ cảnh', ...getMondaiData(['contextual'], 76, 55) },
-          { label: 'Từ gần nghĩa', ...getMondaiData(['paraphrase'], 78, 40) },
-          { label: 'Cách sử dụng từ', ...getMondaiData(['usage', 'orthography', 'word_formation'], 84, 55) },
+          { label: 'Cách đọc Kanji', ...getMondaiData(['kanji_reading']) },
+          { label: 'Từ vựng theo ngữ cảnh', ...getMondaiData(['contextual']) },
+          { label: 'Từ gần nghĩa', ...getMondaiData(['paraphrase']) },
+          { label: 'Cách sử dụng từ', ...getMondaiData(['usage', 'orthography', 'word_formation']) },
         ],
       },
       {
         key: 'grammar',
         name: 'Ngữ pháp',
-        accuracy: getSkillAccuracy('grammar') ?? 73,
+        accuracy: getSkillAccuracy(['grammar']),
         color: 'bg-indigo-500',
         types: [
-          { label: 'Chọn mẫu ngữ pháp', ...getMondaiData(['grammar_form'], 83, 50) },
-          { label: 'Sắp xếp câu', ...getMondaiData(['sentence_composition'], 51, 45) },
-          { label: 'Ngữ pháp trong đoạn', ...getMondaiData(['text_grammar'], 80, 55) },
+          { label: 'Chọn mẫu ngữ pháp', ...getMondaiData(['grammar_form']) },
+          { label: 'Sắp xếp câu', ...getMondaiData(['sentence_composition']) },
+          { label: 'Ngữ pháp trong đoạn', ...getMondaiData(['text_grammar']) },
         ],
       },
       {
         key: 'reading',
         name: 'Đọc hiểu',
-        accuracy: getSkillAccuracy('reading') ?? 48,
+        accuracy: getSkillAccuracy(['reading']),
         color: 'bg-amber-500',
         types: [
-          { label: 'Đọc hiểu đoạn ngắn', ...getMondaiData(['comprehension_short'], 69, 45) },
-          { label: 'Đọc hiểu đoạn trung bình', ...getMondaiData(['comprehension_mid'], 57, 40) },
-          { label: 'Đọc hiểu đoạn dài', ...getMondaiData(['comprehension_long', 'thematic'], 38, 40) },
-          { label: 'Tìm kiếm thông tin', ...getMondaiData(['info_retrieval', 'integrated_reading'], 31, 25) },
+          { label: 'Đọc hiểu đoạn ngắn', ...getMondaiData(['comprehension_short']) },
+          { label: 'Đọc hiểu đoạn trung bình', ...getMondaiData(['comprehension_mid']) },
+          { label: 'Đọc hiểu đoạn dài', ...getMondaiData(['comprehension_long', 'thematic']) },
+          { label: 'Tìm kiếm thông tin', ...getMondaiData(['info_retrieval', 'integrated_reading']) },
         ],
       },
       {
         key: 'listening',
         name: 'Nghe hiểu',
-        accuracy: getSkillAccuracy('listening') ?? 65,
+        accuracy: getSkillAccuracy(['listening']),
         color: 'bg-blue-500',
         types: [
-          { label: 'Hiểu nhiệm vụ', ...getMondaiData(['task_based'], 72, 45) },
-          { label: 'Hiểu điểm chính', ...getMondaiData(['point'], 68, 40) },
-          { label: 'Hiểu khái quát', ...getMondaiData(['summary', 'integrated_listening'], 57, 50) },
-          { label: 'Phản hồi nhanh', ...getMondaiData(['quick_response', 'utterance'], 65, 65) },
+          { label: 'Hiểu nhiệm vụ', ...getMondaiData(['task_based']) },
+          { label: 'Hiểu điểm chính', ...getMondaiData(['point']) },
+          { label: 'Hiểu khái quát', ...getMondaiData(['summary', 'integrated_listening']) },
+          { label: 'Phản hồi nhanh', ...getMondaiData(['quick_response', 'utterance']) },
         ],
       },
     ];
-  }, [skillStats, mondaiStats]);
+  }, [skillStats, mondaiStats, questionAttempts, realStatsBySkillByLevel, realMondaiStatsByLevel, currentLevel]);
 
   // Handlers for Modals
   const handleOpenStudyModal = useCallback((mode: string, param?: string) => {
@@ -484,7 +525,7 @@ export function AnalyticsDashboard({
 
     if (mode === 'review') {
       title = 'Ôn lại các câu trả lời sai';
-      message = 'Ôn tập 20 câu hỏi bạn đã từng làm sai trong các đề thi gần nhất để củng cố phản xạ.';
+      message = 'Ôn tập các câu hỏi bạn đã từng làm sai trong các đề thi gần nhất để củng cố phản xạ.';
     } else if (mode === 'type') {
       title = `Luyện dạng: ${param || 'Đọc hiểu đoạn dài'}`;
       message = `Tập trung 15 câu dạng "${param || 'Đọc hiểu'}" với phân tích chi tiết và canh thời gian chuẩn.`;
@@ -498,7 +539,7 @@ export function AnalyticsDashboard({
       actionHref = undefined;
     } else if (mode === 'roadmap') {
       title = 'Lộ trình học cá nhân hóa';
-      message = 'Lộ trình đề xuất: 15 câu Đọc hiểu đoạn dài → 20 câu từng sai → 1 đề thi mới để đo lại năng lực.';
+      message = 'Lộ trình đề xuất: luyện dạng câu bạn sai nhiều nhất → ôn lại các câu từng sai → làm một đề thi mới để đo lại năng lực.';
       actionText = 'Xem chi tiết';
       actionHref = '/luyen-tap';
     }
@@ -562,21 +603,21 @@ export function AnalyticsDashboard({
             totalScore={avgScore ?? 0}
             thresholdScore={thresholdInfo.total}
             sections={sectionScores}
-            weakestSectionName="Đọc hiểu đoạn dài"
-            weakestAccuracy={38}
-            wrongQuestionsCount={20}
+            weakestSectionName={weakestInfo.name}
+            weakestAccuracy={weakestInfo.accuracy}
+            wrongQuestionsCount={weakestInfo.wrongCount}
             onOpenInfoModal={() => setInfoModalOpen(true)}
             onOpenStudyModal={handleOpenStudyModal}
           />
 
           {/* Section 3: Knowledge Map */}
-          <AnalyticsKnowledgeMap level={currentLevel} />
+          <AnalyticsKnowledgeMap level={currentLevel} bank={bank?.[currentLevel]} />
 
           {/* Section 4: Frequency Ranking */}
-          <AnalyticsFrequencyRanking level={currentLevel} />
+          <AnalyticsFrequencyRanking level={currentLevel} bank={bank?.[currentLevel]} />
 
           {/* Section 5: Year Trends Heatmap */}
-          <AnalyticsYearTrends level={currentLevel} />
+          <AnalyticsYearTrends level={currentLevel} bank={bank?.[currentLevel]} />
 
           {/* Section 6: Error Analysis */}
           <AnalyticsErrorAnalysis
@@ -584,6 +625,7 @@ export function AnalyticsDashboard({
             questionAttempts={questionAttempts}
             level={currentLevel}
             scopeFirstOnly={scopeFirstOnly}
+            mondaiStats={realMondaiStatsByLevel?.[currentLevel]}
             onOpenStudyModal={handleOpenStudyModal}
           />
 
@@ -606,10 +648,9 @@ export function AnalyticsDashboard({
             level={currentLevel}
             realSkillStatsByLevel={realStatsBySkillByLevel}
             realCoverageByLevel={realCoverageByLevel}
-            realTrapsByLevel={realTrapsByLevel}
-            realPairsByLevel={realPairsByLevel}
+                        realPairsByLevel={realPairsByLevel}
             realMasteryByLevel={realMasteryByLevel}
-            realTimedWeaknessByLevel={realTimedWeaknessByLevel}
+            realMondaiStatsByLevel={realMondaiStatsByLevel}
             onOpenDetailModal={(title, content) =>
               setDetailModalState({ open: true, title, content })
             }
@@ -620,6 +661,8 @@ export function AnalyticsDashboard({
             attempts={attempts}
             questionAttempts={questionAttempts}
             level={currentLevel}
+            mondaiStats={realMondaiStatsByLevel?.[currentLevel]}
+            bankMondai={bank?.[currentLevel]?.mondai.map((m) => ({ type: m.type, count: m.count }))}
             onOpenStudyModal={handleOpenStudyModal}
           />
 
@@ -647,7 +690,7 @@ export function AnalyticsDashboard({
           <AnalyticsActivityHeatmap
             attempts={filteredAttempts}
             currentStreakDays={streakDays}
-            maxStreakDays={Math.max(streakDays, 1)}
+            weakestSkill={weakestInfo.accuracy !== null ? { name: weakestInfo.name, accuracy: weakestInfo.accuracy } : null}
           />
         </div>
       </div>

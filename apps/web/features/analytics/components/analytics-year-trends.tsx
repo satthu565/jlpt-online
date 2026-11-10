@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { MONDAI_LABELS } from './analytics-error-analysis';
+import type { BankLevelStats } from '../bank';
 import { Card } from '@jlpt/ui/components/card';
 import { Badge } from '@jlpt/ui/components/badge';
 import { HeroSelect } from '@jlpt/ui/components/hero-select';
@@ -8,6 +10,7 @@ import type { Level } from '@jlpt/schema';
 
 export interface AnalyticsYearTrendsProps {
   level?: Level;
+  bank?: BankLevelStats;
 }
 
 const KIND_OPTIONS = [
@@ -356,11 +359,21 @@ export const LEVEL_YEAR_TRENDS: Record<
 const YEARS = [2020, 2021, 2022, 2023, 2024, 2025];
 const HEAT_COLORS = ['#edf2fa', '#d0e2f8', '#91bfed', '#5b91df', '#3055b5'];
 
-export function AnalyticsYearTrends({ level = 'N3' }: AnalyticsYearTrendsProps): React.JSX.Element {
+export function AnalyticsYearTrends({ level = 'N3', bank }: AnalyticsYearTrendsProps): React.JSX.Element {
   const [kind, setKind] = useState<string>('question');
 
   const levelTrends = LEVEL_YEAR_TRENDS[level] ?? LEVEL_YEAR_TRENDS.N3;
-  const currentCategory = levelTrends[kind] ?? levelTrends.question ?? { rows: [], data: [] };
+  const staticCategory = levelTrends[kind] ?? levelTrends.question ?? { rows: [], data: [] };
+  const isLive = kind === 'question' && Boolean(bank && bank.questionsCount > 0);
+  const currentCategory = isLive
+    ? (() => {
+        const top = bank!.mondai.slice(0, 5);
+        return {
+          rows: top.map((m) => MONDAI_LABELS[m.type] || m.type),
+          data: top.map((m) => YEARS.map((y) => bank!.mondaiByYear[m.type]?.[String(y)] ?? 0)),
+        };
+      })()
+    : staticCategory;
 
   const rows = currentCategory.rows;
   const data = currentCategory.data;
@@ -388,7 +401,7 @@ export function AnalyticsYearTrends({ level = 'N3' }: AnalyticsYearTrendsProps):
           </p>
         </div>
         <Badge variant="secondary" className="text-[10px] font-bold shrink-0">
-          2020–2025 · dữ liệu kho đề thật
+          {isLive ? '2020–2025 · đếm trực tiếp từ DB' : '2020–2025 · dữ liệu tổng hợp sẵn (chưa tính từ DB)'}
         </Badge>
       </div>
 

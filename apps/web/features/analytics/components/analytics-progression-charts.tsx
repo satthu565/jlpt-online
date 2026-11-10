@@ -12,29 +12,28 @@ export interface ProgressionDataPoint {
   label?: string;
 }
 
-const DEFAULT_POINTS: ProgressionDataPoint[] = [
-  { attemptNumber: 1, score: 82, accuracy: 49, durationMin: 165 },
-  { attemptNumber: 2, score: 91, accuracy: 54, durationMin: 161 },
-  { attemptNumber: 3, score: 87, accuracy: 51, durationMin: 163 },
-  { attemptNumber: 4, score: 100, accuracy: 59, durationMin: 158 },
-  { attemptNumber: 5, score: 96, accuracy: 57, durationMin: 153 },
-  { attemptNumber: 6, score: 107, accuracy: 63, durationMin: 152 },
-  { attemptNumber: 7, score: 103, accuracy: 61, durationMin: 148 },
-  { attemptNumber: 8, score: 115, accuracy: 68, durationMin: 151 },
-  { attemptNumber: 9, score: 112, accuracy: 66, durationMin: 145 },
-  { attemptNumber: 10, score: 126, accuracy: 73, durationMin: 142 },
-];
-
 export interface AnalyticsProgressionChartsProps {
   points?: ProgressionDataPoint[];
   thresholdScore?: number;
 }
 
 export function AnalyticsProgressionCharts({
-  points = DEFAULT_POINTS,
+  points = [],
   thresholdScore = 95,
 }: AnalyticsProgressionChartsProps): React.JSX.Element {
-  const currentPoints = points.length >= 2 ? points : DEFAULT_POINTS;
+  if (points.length < 2) {
+    return (
+      <Card id="progress" className="scroll-mt-20 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm mb-6">
+        <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100">
+          Biểu đồ tiến bộ
+        </h2>
+        <p className="mt-3 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+          Cần ít nhất 2 bài thi đã nộp để vẽ biểu đồ tiến bộ.
+        </p>
+      </Card>
+    );
+  }
+  const currentPoints = points;
 
   // Chart SVG bounds
   const width = 620;
@@ -199,7 +198,7 @@ export function AnalyticsProgressionCharts({
           </div>
           <div className="flex items-center gap-2">
             <span className="size-2.5 rounded-full bg-emerald-500" />
-            <span>Xu hướng tăng</span>
+            <span>Đường xu hướng</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-4 h-0.5 border-t border-dashed border-amber-500" />
@@ -210,7 +209,7 @@ export function AnalyticsProgressionCharts({
 
       {/* Main Footer Insight */}
       <div className="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 mb-4">
-        <span>Điểm trung bình đang cải thiện ổn định</span>
+        <span>{diffScore > 0 ? 'Điểm đang tăng so với bài đầu tiên' : diffScore < 0 ? 'Điểm đang giảm so với bài đầu tiên' : 'Điểm chưa thay đổi so với bài đầu tiên'}</span>
         <strong className="text-emerald-600 dark:text-emerald-400 font-bold">
           ↗ {diffScore >= 0 ? `+${diffScore}` : diffScore} điểm qua {count} đề
         </strong>

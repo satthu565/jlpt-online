@@ -7,67 +7,17 @@ import { Button } from '@jlpt/ui/components/button';
 
 export interface MondaiTypeItem {
   label: string;
-  accuracy: number;
+  accuracy: number | null;
   totalQuestions: number;
 }
 
 export interface SkillCategoryItem {
   key: string;
   name: string;
-  accuracy: number;
+  accuracy: number | null;
   color: string;
   types: MondaiTypeItem[];
 }
-
-const DEFAULT_SKILLS: SkillCategoryItem[] = [
-  {
-    key: 'vocab',
-    name: 'Từ vựng & Kanji',
-    accuracy: 82,
-    color: 'bg-emerald-500',
-    types: [
-      { label: 'Cách đọc Kanji', accuracy: 88, totalQuestions: 50 },
-      { label: 'Từ vựng theo ngữ cảnh', accuracy: 76, totalQuestions: 55 },
-      { label: 'Từ gần nghĩa', accuracy: 78, totalQuestions: 40 },
-      { label: 'Cách sử dụng từ', accuracy: 84, totalQuestions: 55 },
-    ],
-  },
-  {
-    key: 'grammar',
-    name: 'Ngữ pháp',
-    accuracy: 73,
-    color: 'bg-indigo-500',
-    types: [
-      { label: 'Chọn mẫu ngữ pháp', accuracy: 83, totalQuestions: 50 },
-      { label: 'Sắp xếp câu', accuracy: 51, totalQuestions: 45 },
-      { label: 'Ngữ pháp trong đoạn', accuracy: 80, totalQuestions: 55 },
-    ],
-  },
-  {
-    key: 'reading',
-    name: 'Đọc hiểu',
-    accuracy: 48,
-    color: 'bg-amber-500',
-    types: [
-      { label: 'Đọc hiểu đoạn ngắn', accuracy: 69, totalQuestions: 45 },
-      { label: 'Đọc hiểu đoạn trung bình', accuracy: 57, totalQuestions: 40 },
-      { label: 'Đọc hiểu đoạn dài', accuracy: 38, totalQuestions: 40 },
-      { label: 'Tìm kiếm thông tin', accuracy: 31, totalQuestions: 25 },
-    ],
-  },
-  {
-    key: 'listening',
-    name: 'Nghe hiểu',
-    accuracy: 65,
-    color: 'bg-blue-500',
-    types: [
-      { label: 'Hiểu nhiệm vụ', accuracy: 72, totalQuestions: 45 },
-      { label: 'Hiểu điểm chính', accuracy: 68, totalQuestions: 40 },
-      { label: 'Hiểu khái quát', accuracy: 57, totalQuestions: 50 },
-      { label: 'Phản hồi nhanh', accuracy: 65, totalQuestions: 65 },
-    ],
-  },
-];
 
 export interface AnalyticsSkillsMondaiProps {
   skills?: SkillCategoryItem[];
@@ -75,9 +25,13 @@ export interface AnalyticsSkillsMondaiProps {
 }
 
 export function AnalyticsSkillsMondai({
-  skills = DEFAULT_SKILLS,
+  skills = [],
   onOpenStudyModal,
 }: AnalyticsSkillsMondaiProps): React.JSX.Element {
+  const weakestSkill = skills
+    .filter((sk): sk is SkillCategoryItem & { accuracy: number } => sk.accuracy !== null)
+    .sort((x, y) => x.accuracy - y.accuracy)[0];
+
   const scrollToSkill = (skillKey: string) => {
     const el = document.getElementById(`skill-mondai-${skillKey}`);
     if (el) {
@@ -127,26 +81,28 @@ export function AnalyticsSkillsMondai({
               <div className="flex justify-between items-center text-xs">
                 <span className="font-bold text-slate-800 dark:text-slate-200">{s.name}</span>
                 <strong className="text-sm font-extrabold text-slate-900 dark:text-slate-100">
-                  {s.accuracy}%
+                  {s.accuracy === null ? '—' : `${s.accuracy}%`}
                 </strong>
               </div>
               <div className="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                 {/* ui-allow-style: dynamic skill accuracy percentage */}
                 <div
                   className={`h-full ${s.color} rounded-full`}
-                  style={{ width: `${s.accuracy}%` }} /* ui-allow-style: dynamic skill accuracy percentage */
+                  style={{ width: `${s.accuracy ?? 0}%` }} /* ui-allow-style: dynamic skill accuracy percentage */
                 />
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-4 p-3 rounded-xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/50 flex items-center gap-2.5 text-xs text-amber-800 dark:text-amber-300">
-          <Lightbulb className="size-4 shrink-0 text-amber-600" aria-hidden="true" />
-          <span>
-            Đọc hiểu là kỹ năng có tỷ lệ đúng thấp nhất (48%). Hãy luyện tập các dạng câu dài trước kỳ thi.
-          </span>
-        </div>
+        {weakestSkill && (
+          <div className="mt-4 p-3 rounded-xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/50 flex items-center gap-2.5 text-xs text-amber-800 dark:text-amber-300">
+            <Lightbulb className="size-4 shrink-0 text-amber-600" aria-hidden="true" />
+            <span>
+              {weakestSkill.name} là kỹ năng có tỷ lệ đúng thấp nhất ({weakestSkill.accuracy}%).
+            </span>
+          </div>
+        )}
       </Card>
 
       {/* Section 12: Phân tích dạng câu hỏi (Tất cả hiển thị trên 1 trang) */}
@@ -179,14 +135,14 @@ export function AnalyticsSkillsMondai({
                   {skill.name}
                 </span>
                 <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
-                  {skill.accuracy}% đúng trung bình
+                  {skill.accuracy === null ? 'Chưa có dữ liệu' : `${skill.accuracy}% đúng trung bình`}
                 </span>
               </div>
 
               <div className="space-y-2">
                 {skill.types.map((type, idx) => {
-                  const isLow = type.accuracy < 55;
-                  const isHigh = type.accuracy > 80;
+                  const isLow = type.accuracy !== null && type.accuracy < 55;
+                  const isHigh = type.accuracy !== null && type.accuracy > 80;
                   const barColor = isLow
                     ? 'bg-amber-500'
                     : isHigh
@@ -205,11 +161,11 @@ export function AnalyticsSkillsMondai({
                         {/* ui-allow-style: dynamic mondai accuracy bar */}
                         <div
                           className={`h-full ${barColor} rounded-full`}
-                          style={{ width: `${type.accuracy}%` }} /* ui-allow-style: dynamic mondai accuracy bar */
+                          style={{ width: `${type.accuracy ?? 0}%` }} /* ui-allow-style: dynamic mondai accuracy bar */
                         />
                       </div>
                       <span className="col-span-1 text-right font-extrabold text-slate-700 dark:text-slate-300 text-xs">
-                        {type.accuracy}%
+                        {type.accuracy === null ? '—' : `${type.accuracy}%`}
                       </span>
                       <div className="col-span-2 text-right">
                         <Button

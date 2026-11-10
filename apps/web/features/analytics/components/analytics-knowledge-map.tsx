@@ -5,6 +5,7 @@ import { BrainCircuit, Layers, Info } from 'lucide-react';
 import type { Level } from '@jlpt/schema';
 import { Card } from '@jlpt/ui/components/card';
 import { Badge } from '@jlpt/ui/components/badge';
+import type { BankLevelStats } from '../bank';
 
 export interface KnowledgeGroup {
   key: string;
@@ -156,13 +157,21 @@ export const LEVEL_KNOWLEDGE_MAP: Record<Level, KnowledgeGroup[]> = {
 export interface AnalyticsKnowledgeMapProps {
   level: Level;
   groups?: KnowledgeGroup[];
+  /** Live counts of the exam bank; when absent the built-in snapshot is shown. */
+  bank?: BankLevelStats;
 }
 
 export function AnalyticsKnowledgeMap({
   level,
   groups,
+  bank,
 }: AnalyticsKnowledgeMapProps): React.JSX.Element {
-  const activeGroups = groups || LEVEL_KNOWLEDGE_MAP[level] || LEVEL_KNOWLEDGE_MAP.N3;
+  const snapshot = LEVEL_KNOWLEDGE_MAP[level] || LEVEL_KNOWLEDGE_MAP.N3;
+  const activeGroups =
+    groups ||
+    (bank && bank.questionsCount > 0
+      ? snapshot.map((g) => ({ ...g, count: bank.bySkill[g.key as keyof BankLevelStats['bySkill']] ?? 0 }))
+      : snapshot);
   const [selectedKey, setSelectedKey] = useState<string>(activeGroups[0]?.key || 'vocab');
 
   const totalQuestions = activeGroups.reduce((acc, g) => acc + g.count, 0);
@@ -318,7 +327,9 @@ export function AnalyticsKnowledgeMap({
           <div className="mt-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-start gap-2 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
             <Info className="size-3.5 shrink-0 text-indigo-500 mt-0.5" aria-hidden="true" />
             <span>
-              Thống kê tổng hợp từ toàn bộ các đề thi JLPT {level} chính thức có trong ngân hàng đề thi của hệ thống.
+              {bank && bank.questionsCount > 0
+                ? `Đếm trực tiếp từ ${bank.examsCount} đề thi JLPT ${level} đã xuất bản trong ngân hàng đề của hệ thống.`
+                : 'Chưa tải được số liệu trực tiếp; đang hiển thị số liệu tổng hợp sẵn.'}
             </span>
           </div>
         </Card>

@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { AnalyticsDashboard } from '../../../features/analytics';
 import type { AttemptRecord, QuestionAttemptRecord } from '../../../features/analytics/types';
 import type { MistakeRecord } from '../../../features/analytics/components/analytics-mistake-library';
-import type { IntelligenceItem, ConfusedPair, MasterySummary, TimedSummary } from '../../../features/analytics/components/analytics-mistake-intelligence';
+import type { IntelligenceItem, ConfusedPair, MasterySummary } from '../../../features/analytics/components/analytics-mistake-intelligence';
+import type { BankStats, MondaiStatsByLevel } from '../../../features/analytics/bank';
 import type { Level, Skill, MondaiType } from '@jlpt/schema';
 import { ExamHero } from '../../../features/library';
 import { useAuth } from '../../../lib/auth-context';
@@ -126,6 +127,28 @@ const DEMO_QUESTIONS: QuestionAttemptRecord[] = [
   { questionId: 'demo-ot3', questionNumber: '37', stemPreview: '会場を「せつえい」する。', level: 'N3', skill: 'kanji', mondaiType: 'orthography', isCorrect: true, timeSpentMs: 26000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
 ];
 
+const MAX_ATTEMPT_PAGES = 20;
+
+async function fetchAllAttempts(
+  baseUrl: string,
+  headers: Record<string, string>,
+): Promise<{ ok: boolean; status: number; items: Record<string, unknown>[] }> {
+  const items: Record<string, unknown>[] = [];
+  let cursor: string | null = null;
+  for (let page = 0; page < MAX_ATTEMPT_PAGES; page++) {
+    const qs: string = cursor ? `?cursor=${encodeURIComponent(cursor)}` : '';
+    const res: Response = await fetch(`${baseUrl}/me/attempts${qs}`, { headers, credentials: 'include' });
+    if (!res.ok) return { ok: false, status: res.status, items };
+    const data = (await res.json()) as
+      | Record<string, unknown>[]
+      | { items?: Record<string, unknown>[]; nextCursor?: string | null };
+    items.push(...(Array.isArray(data) ? data : data.items || []));
+    cursor = Array.isArray(data) ? null : data.nextCursor || null;
+    if (!cursor) break;
+  }
+  return { ok: true, status: 200, items };
+}
+
 export default function AnalyticsPage(): React.JSX.Element {
   const { user, session, isLoading: authLoading } = useAuth();
   const token = session?.token;
@@ -141,10 +164,10 @@ export default function AnalyticsPage(): React.JSX.Element {
   const [realTotalWrongCount, setRealTotalWrongCount] = useState<number | undefined>();
   const [realStatsBySkillByLevel, setRealStatsBySkillByLevel] = useState<Record<string, Record<string, { wrong: number; total: number }>> | undefined>();
   const [realCoverageByLevel, setRealCoverageByLevel] = useState<Record<string, IntelligenceItem[]> | undefined>();
-  const [realTrapsByLevel, setRealTrapsByLevel] = useState<Record<string, IntelligenceItem[]> | undefined>();
   const [realPairsByLevel, setRealPairsByLevel] = useState<Record<string, ConfusedPair[]> | undefined>();
   const [realMasteryByLevel, setRealMasteryByLevel] = useState<Record<string, MasterySummary> | undefined>();
-  const [realTimedWeaknessByLevel, setRealTimedWeaknessByLevel] = useState<Record<string, TimedSummary> | undefined>();
+  const [realMondaiStatsByLevel, setRealMondaiStatsByLevel] = useState<MondaiStatsByLevel | undefined>();
+  const [bank, setBank] = useState<BankStats | undefined>();
   const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
 
   const fetchAnalyticsData = useCallback(async () => {
@@ -172,10 +195,7 @@ export default function AnalyticsPage(): React.JSX.Element {
 
     try {
       const [attemptsRes, analyticsRes, examsRes, mistakesRes] = await Promise.all([
-        fetch(`${baseUrl}/me/attempts`, {
-          headers,
-          credentials: 'include',
-        }),
+        fetchAllAttempts(baseUrl, headers),
         fetch(`${baseUrl}/me/analytics?targetLevel=${encodeURIComponent(user.targetLevel || 'N3')}`, {
           headers,
           credentials: 'include',
@@ -184,7 +204,7 @@ export default function AnalyticsPage(): React.JSX.Element {
           headers,
           credentials: 'include',
         }),
-        fetch(`/internal-api/analytics/mistakes?userId=${encodeURIComponent(user.id)}`).catch(() => null),
+        fetch('/internal-api/analytics/mistakes', { headers, credentials: 'include' }).catch(() => null),
       ]);
 
       if (attemptsRes.status === 401 || attemptsRes.status === 403 || analyticsRes.status === 401 || analyticsRes.status === 403) {
@@ -226,17 +246,14 @@ export default function AnalyticsPage(): React.JSX.Element {
           if (mistakesData.coverageByLevel) {
             setRealCoverageByLevel(mistakesData.coverageByLevel);
           }
-          if (mistakesData.trapsByLevel) {
-            setRealTrapsByLevel(mistakesData.trapsByLevel);
-          }
           if (mistakesData.pairsByLevel) {
             setRealPairsByLevel(mistakesData.pairsByLevel);
           }
           if (mistakesData.masteryByLevel) {
             setRealMasteryByLevel(mistakesData.masteryByLevel);
           }
-          if (mistakesData.timedWeaknessByLevel) {
-            setRealTimedWeaknessByLevel(mistakesData.timedWeaknessByLevel);
+          if (mistakesData.mondaiStatsByLevel) {
+            setRealMondaiStatsByLevel(mistakesData.mondaiStatsByLevel);
           }
         } catch {
           // Ignore mistakes parse error
@@ -245,8 +262,7 @@ export default function AnalyticsPage(): React.JSX.Element {
 
       let loadedAttempts: AttemptRecord[] = [];
       if (attemptsRes.ok) {
-        const attemptsData = await attemptsRes.json();
-        const rawItems = Array.isArray(attemptsData) ? attemptsData : (attemptsData.items || []);
+        const rawItems = attemptsRes.items;
         loadedAttempts = rawItems.map((att: Record<string, unknown>) => {
           const examId = String(att['examId'] || '');
           const examMeta = examsMap.get(examId);
@@ -256,10 +272,10 @@ export default function AnalyticsPage(): React.JSX.Element {
 
           const score = typeof att['score'] === 'number' ? att['score'] : 0;
           const level = (examMeta?.level || att['level'] || user.targetLevel || 'N3') as Level;
-          const examTitle = examMeta?.title || String(att['examTitle'] || `ﾄ雪ｻ・thi JLPT ${level} (${String(att['id']).slice(0, 8)})`);
+          const examTitle = examMeta?.title || String(att['examTitle'] || `Đề thi JLPT ${level} (${String(att['id']).slice(0, 8)})`);
 
           let durationSec = typeof att['durationSec'] === 'number' ? att['durationSec'] : 0;
-          if (!durationSec && att['startedAt'] && att['submittedAt']) {
+          if (!durationSec && isSubmitted && att['startedAt'] && att['submittedAt']) {
             const start = new Date(att['startedAt'] as string).getTime();
             const end = new Date(att['submittedAt'] as string).getTime();
             if (end > start) {
@@ -337,81 +353,6 @@ export default function AnalyticsPage(): React.JSX.Element {
         }
       }
 
-      // If backend did not return granular question history, synthesize from submitted attempts
-      if (loadedQuestionAttempts.length === 0 && loadedAttempts.length > 0) {
-        const submittedExams = loadedAttempts.filter((a) => a.status === 'submitted' || Boolean(a.submittedAt));
-        const synthesized: QuestionAttemptRecord[] = [];
-
-        const N3_MONDAI_BLUEPRINT: Array<{
-          mondaiType: MondaiType;
-          skill: Skill;
-          countPerExam: number;
-          sectionCode: 'language' | 'reading' | 'listening';
-          errorCategory: QuestionAttemptRecord['errorCategory'];
-        }> = [
-          { mondaiType: 'comprehension_long', skill: 'reading', countPerExam: 4, sectionCode: 'reading', errorCategory: 'time_pressure' },
-          { mondaiType: 'info_retrieval', skill: 'reading', countPerExam: 2, sectionCode: 'reading', errorCategory: 'time_pressure' },
-          { mondaiType: 'comprehension_mid', skill: 'reading', countPerExam: 6, sectionCode: 'reading', errorCategory: 'vocab_nuance' },
-          { mondaiType: 'comprehension_short', skill: 'reading', countPerExam: 4, sectionCode: 'reading', errorCategory: 'vocab_nuance' },
-          { mondaiType: 'sentence_composition', skill: 'grammar', countPerExam: 5, sectionCode: 'language', errorCategory: 'grammar_trap' },
-          { mondaiType: 'grammar_form', skill: 'grammar', countPerExam: 13, sectionCode: 'language', errorCategory: 'grammar_trap' },
-          { mondaiType: 'text_grammar', skill: 'grammar', countPerExam: 4, sectionCode: 'language', errorCategory: 'grammar_trap' },
-          { mondaiType: 'contextual', skill: 'vocabulary', countPerExam: 11, sectionCode: 'language', errorCategory: 'vocab_nuance' },
-          { mondaiType: 'kanji_reading', skill: 'kanji', countPerExam: 6, sectionCode: 'language', errorCategory: 'kanji_confusion' },
-          { mondaiType: 'orthography', skill: 'kanji', countPerExam: 6, sectionCode: 'language', errorCategory: 'kanji_confusion' },
-          { mondaiType: 'paraphrase', skill: 'vocabulary', countPerExam: 5, sectionCode: 'language', errorCategory: 'vocab_nuance' },
-          { mondaiType: 'usage', skill: 'vocabulary', countPerExam: 5, sectionCode: 'language', errorCategory: 'vocab_nuance' },
-          { mondaiType: 'summary', skill: 'listening', countPerExam: 3, sectionCode: 'listening', errorCategory: 'listening_distractor' },
-          { mondaiType: 'quick_response', skill: 'listening', countPerExam: 9, sectionCode: 'listening', errorCategory: 'listening_distractor' },
-          { mondaiType: 'task_based', skill: 'listening', countPerExam: 6, sectionCode: 'listening', errorCategory: 'listening_distractor' },
-          { mondaiType: 'point', skill: 'listening', countPerExam: 6, sectionCode: 'listening', errorCategory: 'listening_distractor' },
-        ];
-
-        submittedExams.forEach((att, attIdx) => {
-          const examLevel = att.level || user.targetLevel || 'N3';
-          const submittedAt = att.submittedAt || new Date().toISOString();
-          const exposureCount = attIdx === 0 ? 0 : 1;
-
-          const secMap: Record<string, number> = {};
-          (att.sections || []).forEach((s) => {
-            const ratio = s.maxScore > 0 ? s.score / s.maxScore : 0;
-            if (s.code.includes('lang') || s.code === 'language_knowledge') {
-              secMap['language'] = ratio;
-            } else if (s.code.includes('read')) {
-              secMap['reading'] = ratio;
-            } else if (s.code.includes('list')) {
-              secMap['listening'] = ratio;
-            }
-          });
-
-          let qNum = 1;
-          N3_MONDAI_BLUEPRINT.forEach((m) => {
-            const acc = secMap[m.sectionCode] ?? (att.accuracy > 0 ? att.accuracy / 100 : 0.05);
-            const correctCount = Math.round(m.countPerExam * acc);
-
-            for (let i = 0; i < m.countPerExam; i++) {
-              const isCorrect = i < correctCount;
-              synthesized.push({
-                questionId: `att-${att.id}-${m.mondaiType}-${i}`,
-                questionNumber: String(qNum++),
-                level: examLevel,
-                skill: m.skill,
-                mondaiType: m.mondaiType,
-                isCorrect,
-                timeSpentMs: 45000,
-                exposureCount,
-                errorCategory: isCorrect ? undefined : m.errorCategory,
-                submittedAt,
-              });
-            }
-          });
-        });
-
-        if (synthesized.length > 0) {
-          loadedQuestionAttempts = synthesized;
-        }
-      }
-
       setSkillAggregates(loadedSkills);
       setAttempts(loadedAttempts);
       setQuestionAttempts(loadedQuestionAttempts);
@@ -425,6 +366,19 @@ export default function AnalyticsPage(): React.JSX.Element {
       setIsLoading(false);
     }
   }, [authLoading, user, token]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/internal-api/analytics/bank')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.levels) setBank(data.levels as BankStats);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     fetchAnalyticsData();
@@ -580,10 +534,10 @@ export default function AnalyticsPage(): React.JSX.Element {
             totalWrongCount={showDemo ? undefined : realTotalWrongCount}
             realStatsBySkillByLevel={showDemo ? undefined : realStatsBySkillByLevel}
             realCoverageByLevel={showDemo ? undefined : realCoverageByLevel}
-            realTrapsByLevel={showDemo ? undefined : realTrapsByLevel}
             realPairsByLevel={showDemo ? undefined : realPairsByLevel}
             realMasteryByLevel={showDemo ? undefined : realMasteryByLevel}
-            realTimedWeaknessByLevel={showDemo ? undefined : realTimedWeaknessByLevel}
+            realMondaiStatsByLevel={showDemo ? undefined : realMondaiStatsByLevel}
+            bank={bank}
           />
         )}
       </div>

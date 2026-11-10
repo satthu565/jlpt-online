@@ -24,49 +24,6 @@ export interface AnalyticsExamHistoryProps {
   onOpenAllHistoryModal: () => void;
 }
 
-const DEFAULT_HISTORY_ITEMS: HistoryItemDisplay[] = [
-  {
-    id: 'h1',
-    title: 'JLPT N3 – 12/2024',
-    date: '08/11/2026',
-    score: 126,
-    maxScore: 180,
-    duration: '142 phút',
-    passed: true,
-    threshold: 95,
-  },
-  {
-    id: 'h2',
-    title: 'JLPT N3 – 07/2024',
-    date: '05/11/2026',
-    score: 112,
-    maxScore: 180,
-    duration: '151 phút',
-    passed: true,
-    threshold: 95,
-  },
-  {
-    id: 'h3',
-    title: 'JLPT N3 – 12/2023',
-    date: '02/11/2026',
-    score: 115,
-    maxScore: 180,
-    duration: '145 phút',
-    passed: true,
-    threshold: 95,
-  },
-  {
-    id: 'h4',
-    title: 'JLPT N3 – 07/2022',
-    date: '30/10/2026',
-    score: 88,
-    maxScore: 180,
-    duration: '160 phút',
-    passed: false,
-    threshold: 95,
-  },
-];
-
 export function AnalyticsExamHistory({
   attempts,
   targetThreshold = 95,
@@ -93,7 +50,7 @@ export function AnalyticsExamHistory({
             threshold: targetThreshold,
           };
         })
-      : DEFAULT_HISTORY_ITEMS;
+      : [];
 
   return (
     <Card id="history" className="scroll-mt-20 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm mb-6">
@@ -117,11 +74,16 @@ export function AnalyticsExamHistory({
         </Button>
       </div>
 
+      {displayItems.length === 0 && (
+        <p className="py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+          Chưa có bài thi nào. Hãy làm một đề để thấy lịch sử tại đây.
+        </p>
+      )}
       <div className="space-y-3">
         {displayItems.map((item, idx) => {
           const rawAttempt = attempts.find((a) => a.id === item.id) || {
             id: item.id,
-            examId: 'demo-exam',
+            examId: '',
             examTitle: item.title,
             level: 'N3' as const,
             mode: 'real' as const,
@@ -157,9 +119,10 @@ export function AnalyticsExamHistory({
                   {rawAttempt.status === 'in_progress' ? (
                     <>
                       <strong className="text-xs font-bold text-amber-600 dark:text-amber-400 block">
-                        ﾄ紳ng lﾃm d盻・                      </strong>
+                        Đang làm dở
+                      </strong>
                       <span className="text-[10px] text-slate-400 dark:text-slate-500 block">
-                        Chﾆｰa n盻冪 bﾃi
+                        Chưa nộp bài
                       </span>
                     </>
                   ) : (
@@ -177,7 +140,7 @@ export function AnalyticsExamHistory({
                             : 'text-amber-600 dark:text-amber-400'
                         }`}
                       >
-                        {item.passed ? '竊・Trﾃｪn ngﾆｰ盻｡ng t盻貧g' : '竊・Dﾆｰ盻嬖 ngﾆｰ盻｡ng t盻貧g'}
+                        {item.passed ? '↑ Trên ngưỡng tổng' : '↓ Dưới ngưỡng tổng'}
                       </span>
                     </>
                   )}

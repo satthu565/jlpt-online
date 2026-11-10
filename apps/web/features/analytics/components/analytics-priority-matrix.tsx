@@ -20,64 +20,39 @@ export interface PriorityItem {
   plan: string;
 }
 
-const DEFAULT_PRIORITIES: PriorityItem[] = [
-  {
-    name: 'Đọc hiểu đoạn dài',
-    kind: 'Dạng câu',
-    frequency: 88,
-    mastery: 38,
-    sample: 40,
-    miss: 25,
-    why: 'Xuất hiện tương đối thường xuyên trong kho đề, nhưng bạn còn yếu ở khả năng tìm ý chính và nắm mối liên hệ giữa các đoạn.',
-    plan: 'Luyện 15 câu đọc dài, gạch chân từ nối và tự tóm tắt câu chủ đề sau mỗi đoạn.',
-  },
-  {
-    name: '～ようにする',
-    kind: 'Ngữ pháp',
-    frequency: 82,
-    mastery: 42,
-    sample: 24,
-    miss: 14,
-    why: 'Mẫu ngữ pháp được gắn nhãn nhiều trong đề và bạn hay nhầm cách sử dụng với ～ようになる.',
-    plan: 'Đối chiếu hai cấu trúc, học 5 câu ví dụ và luyện 10 câu phân biệt.',
-  },
-  {
-    name: 'Sắp xếp câu',
-    kind: 'Dạng câu',
-    frequency: 74,
-    mastery: 51,
-    sample: 45,
-    miss: 22,
-    why: 'Tỷ lệ sai gần một nửa ở một tập câu tương đối lớn.',
-    plan: 'Ôn trợ từ, cụm bổ nghĩa danh từ và luyện 15 câu sắp xếp.',
-  },
-  {
-    name: 'Kanji cơ bản',
-    kind: 'Kanji',
-    frequency: 87,
-    mastery: 85,
-    sample: 80,
-    miss: 12,
-    why: 'Gặp nhiều nhưng hiện đã làm tốt; phù hợp để duy trì hơn là dồn quá nhiều thời gian.',
-    plan: 'Ôn lại từ đã sai bằng flashcards trong 10 phút.',
-  },
-  {
-    name: '～わけではない',
-    kind: 'Ngữ pháp',
-    frequency: 35,
-    mastery: 39,
-    sample: 18,
-    miss: 11,
-    why: 'Độ thành thạo thấp nhưng ít xuất hiện hơn trong kho đề; mẫu vẫn cần kiểm chứng thêm.',
-    plan: 'Học phủ định một phần và luyện 8 câu trong ngữ cảnh.',
-  },
-];
+const SKILL_OF_MONDAI: Record<string, string> = {
+  grammar_form: 'grammar',
+  sentence_composition: 'grammar',
+  text_grammar: 'grammar',
+  contextual: 'vocabulary',
+  paraphrase: 'vocabulary',
+  usage: 'vocabulary',
+  word_formation: 'vocabulary',
+  kanji_reading: 'kanji',
+  orthography: 'kanji',
+  comprehension_short: 'reading',
+  comprehension_mid: 'reading',
+  comprehension_long: 'reading',
+  thematic: 'reading',
+  integrated_reading: 'reading',
+  info_retrieval: 'reading',
+  task_based: 'listening',
+  point: 'listening',
+  summary: 'listening',
+  utterance: 'listening',
+  quick_response: 'listening',
+  integrated_listening: 'listening',
+};
 
 export interface AnalyticsPriorityMatrixProps {
   priorities?: PriorityItem[];
   attempts?: AttemptRecord[];
   questionAttempts?: QuestionAttemptRecord[];
   level?: Level;
+  /** Real answered / wrong counts per mondai type of the signed-in user (current level). */
+  mondaiStats?: Record<string, { wrong: number; total: number }>;
+  /** Number of bank questions per mondai type at this level, used as the frequency axis. */
+  bankMondai?: Array<{ type: string; count: number }>;
   onOpenStudyModal: (mode: string, param?: string) => void;
 }
 
@@ -86,6 +61,8 @@ export function AnalyticsPriorityMatrix({
   attempts: _attempts = [],
   questionAttempts = [],
   level = 'N3',
+  mondaiStats,
+  bankMondai,
   onOpenStudyModal,
 }: AnalyticsPriorityMatrixProps): React.JSX.Element {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
@@ -93,51 +70,60 @@ export function AnalyticsPriorityMatrix({
   const priorities = useMemo<PriorityItem[]>(() => {
     if (propPriorities && propPriorities.length > 0) return propPriorities;
 
+    const rows = new Map<string, { total: number; wrong: number; skill: string }>();
     if (questionAttempts && questionAttempts.length > 0) {
-      const map = new Map<string, { total: number; wrong: number; mondaiType: string; skill: string }>();
       questionAttempts.forEach((q) => {
         const key = q.mondaiType || q.skill;
         if (!key) return;
-        const entry = map.get(key) || { total: 0, wrong: 0, mondaiType: q.mondaiType || key, skill: q.skill };
+        const entry = rows.get(key) || { total: 0, wrong: 0, skill: q.skill };
         entry.total += 1;
         if (!q.isCorrect) entry.wrong += 1;
-        map.set(key, entry);
+        rows.set(key, entry);
       });
-
-      const items = Array.from(map.values())
-        .filter((entry) => entry.total >= 2)
-        .sort((a, b) => {
-          const accA = a.total > 0 ? (a.total - a.wrong) / a.total : 0;
-          const accB = b.total > 0 ? (b.total - b.wrong) / b.total : 0;
-          if (accA !== accB) return accA - accB;
-          return b.wrong - a.wrong;
-        })
-        .slice(0, 5);
-
-      if (items.length > 0) {
-        return items.map((it) => {
-          const mastery = it.total > 0 ? Math.round(((it.total - it.wrong) / it.total) * 100) : 0;
-          const name = MONDAI_LABELS[it.mondaiType] || (it.skill === 'grammar' ? 'Ngữ pháp' : it.skill === 'reading' ? 'Đọc hiểu' : it.skill === 'listening' ? 'Nghe hiểu' : 'Từ vựng & Kanji');
-          const isHighFreq = ['comprehension_long', 'grammar_form', 'quick_response', 'contextual', 'kanji_reading'].includes(it.mondaiType);
-          const frequency = isHighFreq ? 88 : 72;
-          const kind = it.skill === 'reading' || it.skill === 'listening' ? 'Dạng câu' : it.skill === 'grammar' ? 'Ngữ pháp' : 'Từ vựng';
-
-          return {
-            name,
-            kind,
-            frequency,
-            mastery,
-            sample: it.total,
-            miss: it.wrong,
-            why: `Bạn đã làm ${it.total} câu dạng này và sai ${it.wrong} câu (độ thành thạo ${mastery}%). Cần chú trọng cải thiện trước kỳ thi JLPT ${level}.`,
-            plan: `Luyện tập chuyên sâu 15 câu dạng "${name}" và phân tích kỹ lời giải chi tiết.`,
-          };
-        });
-      }
+    } else if (mondaiStats) {
+      Object.entries(mondaiStats).forEach(([key, v]) => {
+        rows.set(key, { total: v.total, wrong: v.wrong, skill: SKILL_OF_MONDAI[key] || 'vocabulary' });
+      });
     }
 
-    return DEFAULT_PRIORITIES;
-  }, [propPriorities, questionAttempts, level]);
+    const bankMax = Math.max(1, ...(bankMondai ?? []).map((m) => m.count));
+    const bankCount = new Map((bankMondai ?? []).map((m) => [m.type, m.count]));
+
+    return Array.from(rows.entries())
+      .filter(([, entry]) => entry.total >= 2)
+      .map(([type, entry]) => {
+        const mastery = Math.round(((entry.total - entry.wrong) / entry.total) * 100);
+        const name = MONDAI_LABELS[type] || type;
+        const skill = entry.skill;
+        const kind = skill === 'reading' || skill === 'listening' ? 'Dạng câu' : skill === 'grammar' ? 'Ngữ pháp' : 'Từ vựng';
+        const frequency = bankMondai ? Math.round(((bankCount.get(type) ?? 0) / bankMax) * 100) : 50;
+        return {
+          name,
+          kind,
+          frequency,
+          mastery,
+          sample: entry.total,
+          miss: entry.wrong,
+          why: `Bạn đã làm ${entry.total} câu dạng này và sai ${entry.wrong} câu (độ thành thạo ${mastery}%). Dạng này chiếm ${frequency}% so với dạng xuất hiện nhiều nhất trong kho đề ${level}.`,
+          plan: `Luyện tập chuyên sâu 15 câu dạng "${name}" và phân tích kỹ lời giải chi tiết.`,
+        };
+      })
+      .sort((x, y) => x.mastery - y.mastery || y.miss - x.miss)
+      .slice(0, 5);
+  }, [propPriorities, questionAttempts, mondaiStats, bankMondai, level]);
+
+  if (priorities.length === 0) {
+    return (
+      <Card id="priority-matrix" className="scroll-mt-20 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm mb-6">
+        <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100">
+          05 · Tôi nên ưu tiên học gì để tăng điểm?
+        </h2>
+        <p className="mt-3 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+          Chưa đủ dữ liệu: cần nộp ít nhất một bài thi {level} để xếp hạng dạng câu nên ưu tiên.
+        </p>
+      </Card>
+    );
+  }
 
   const selectedPriority = priorities[selectedIndex] || priorities[0]!;
 

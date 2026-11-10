@@ -88,6 +88,8 @@ export interface AnalyticsErrorAnalysisProps {
   errorReasons?: [string, number][];
   level?: Level;
   scopeFirstOnly?: boolean;
+  /** Real answered / wrong counts per mondai type of the signed-in user (current level). */
+  mondaiStats?: Record<string, { wrong: number; total: number }>;
   onOpenStudyModal: (mode: string, param?: string) => void;
 }
 
@@ -98,16 +100,18 @@ export function AnalyticsErrorAnalysis({
   errorReasons,
   level: _level = 'N3',
   scopeFirstOnly = true,
+  mondaiStats,
   onOpenStudyModal,
 }: AnalyticsErrorAnalysisProps): React.JSX.Element {
   // Check if user has submitted attempts
   const submittedAttempts = useMemo(() => {
-    return (attempts || []).filter((a) => a.status === 'submitted' || Boolean(a.submittedAt));
+    return (attempts || []).filter((a) => a.status === 'submitted' || (a.status === undefined && Boolean(a.submittedAt)));
   }, [attempts]);
 
   const hasSubmittedAttempts = submittedAttempts.length > 0;
   const hasQuestionAttempts = questionAttempts && questionAttempts.length > 0;
-  const hasNoData = !hasQuestionAttempts && !hasSubmittedAttempts;
+  const hasMondaiStats = Boolean(mondaiStats && Object.values(mondaiStats).some((v) => v.total > 0));
+  const hasNoData = !hasQuestionAttempts && !hasSubmittedAttempts && !hasMondaiStats;
 
   // Filter attempts based on scope (first attempt encounter vs all)
   const relevantAttempts = useMemo(() => {
@@ -163,81 +167,24 @@ export function AnalyticsErrorAnalysis({
       if (list.length > 0) return list;
     }
 
-    // 2. Fallback to computing from submitted exam attempts
-    if (hasSubmittedAttempts) {
-      const examCount = submittedAttempts.length;
-
-      let langTotal = 0, langScore = 0;
-      let readTotal = 0, readScore = 0;
-      let listTotal = 0, listScore = 0;
-
-      submittedAttempts.forEach((att) => {
-        (att.sections || []).forEach((sec) => {
-          if (sec.code === 'language' || sec.code === 'language_knowledge') {
-            langTotal += sec.maxScore || 60;
-            langScore += sec.score || 0;
-          } else if (sec.code === 'reading') {
-            readTotal += sec.maxScore || 60;
-            readScore += sec.score || 0;
-          } else if (sec.code === 'listening') {
-            listTotal += sec.maxScore || 60;
-            listScore += sec.score || 0;
-          }
-        });
-      });
-
-      const langAcc = langTotal > 0 ? Math.min(1, Math.max(0, langScore / langTotal)) : 0.05;
-      const readAcc = readTotal > 0 ? Math.min(1, Math.max(0, readScore / readTotal)) : 0.05;
-      const listAcc = listTotal > 0 ? Math.min(1, Math.max(0, listScore / listTotal)) : 0.05;
-
-      const items: ErrorItem[] = [
-        {
-          name: MONDAI_LABELS.comprehension_long || 'Đọc hiểu đoạn dài',
-          total: examCount * 4,
-          incorrect: Math.max(1, Math.round(examCount * 4 * (1 - readAcc))),
-          reason: MONDAI_DIAGNOSTIC_REASONS.comprehension_long || 'Đọc chậm, bỏ qua từ nối và câu kết luận',
-          mondaiType: 'comprehension_long',
-        },
-        {
-          name: MONDAI_LABELS.sentence_composition || 'Sắp xếp câu sao',
-          total: examCount * 5,
-          incorrect: Math.max(1, Math.round(examCount * 5 * (1 - langAcc))),
-          reason: MONDAI_DIAGNOSTIC_REASONS.sentence_composition || 'Nhầm quan hệ bổ nghĩa và vị trí trợ từ',
-          mondaiType: 'sentence_composition',
-        },
-        {
-          name: MONDAI_LABELS.info_retrieval || 'Tìm kiếm thông tin',
-          total: examCount * 2,
-          incorrect: Math.max(1, Math.round(examCount * 2 * (1 - readAcc))),
-          reason: MONDAI_DIAGNOSTIC_REASONS.info_retrieval || 'Không xác định đúng điều kiện trong bảng / thông báo',
-          mondaiType: 'info_retrieval',
-        },
-        {
-          name: MONDAI_LABELS.summary || 'Nghe hiểu khái quát',
-          total: examCount * 3,
-          incorrect: Math.max(1, Math.round(examCount * 3 * (1 - listAcc))),
-          reason: MONDAI_DIAGNOSTIC_REASONS.summary || 'Bỏ lỡ ý chính hoặc ý trái chiều',
-          mondaiType: 'summary',
-        },
-        {
-          name: MONDAI_LABELS.contextual || 'Từ vựng theo ngữ cảnh',
-          total: examCount * 11,
-          incorrect: Math.max(1, Math.round(examCount * 11 * (1 - langAcc))),
-          reason: MONDAI_DIAGNOSTIC_REASONS.contextual || 'Nhầm các từ có nghĩa gần nhau',
-          mondaiType: 'contextual',
-        },
-      ];
-
-      return items.sort((a, b) => {
-        const rateB = b.incorrect / b.total;
-        const rateA = a.incorrect / a.total;
-        if (rateB !== rateA) return rateB - rateA;
-        return b.incorrect - a.incorrect;
-      });
+    // 2. Real per-mondai counts from the learner's submitted answers
+    if (mondaiStats) {
+      const items: ErrorItem[] = Object.entries(mondaiStats)
+        .filter(([, v]) => v.wrong > 0)
+        .map(([key, v]) => ({
+          name: MONDAI_LABELS[key] || key,
+          total: v.total,
+          incorrect: v.wrong,
+          reason: MONDAI_DIAGNOSTIC_REASONS[key] || 'Cần củng cố phương pháp giải dạng bài này',
+          mondaiType: key,
+        }))
+        .sort((x, y) => y.incorrect - x.incorrect || y.incorrect / y.total - x.incorrect / x.total)
+        .slice(0, 5);
+      if (items.length > 0) return items;
     }
 
     return [];
-  }, [hasQuestionAttempts, relevantAttempts, hasSubmittedAttempts, submittedAttempts, errorTypes]);
+  }, [hasQuestionAttempts, relevantAttempts, mondaiStats, errorTypes]);
 
   // Compute real error reasons from question attempts or submitted attempts
   const computedReasons = useMemo<[string, number][]>(() => {
@@ -263,19 +210,8 @@ export function AnalyticsErrorAnalysis({
       }
     }
 
-    // 2. Fallback to submitted attempts
-    if (hasSubmittedAttempts) {
-      return [
-        ['Thiếu kiến thức từ / mẫu câu', 32],
-        ['Hiểu sai ngữ cảnh, phủ định', 26],
-        ['Không kịp thời gian', 22],
-        ['Bẫy thông tin nghe hiểu', 14],
-        ['Nhầm lựa chọn gần nghĩa', 6],
-      ];
-    }
-
     return [];
-  }, [hasQuestionAttempts, relevantAttempts, hasSubmittedAttempts, errorReasons]);
+  }, [hasQuestionAttempts, relevantAttempts, errorReasons]);
 
   const maxReasonPct = useMemo(() => {
     if (computedReasons.length === 0) return 100;

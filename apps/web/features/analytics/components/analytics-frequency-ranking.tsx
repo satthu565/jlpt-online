@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { MONDAI_LABELS } from './analytics-error-analysis';
+import type { BankLevelStats } from '../bank';
 import { Target, ArrowDownRight } from 'lucide-react';
 import { Card } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
@@ -10,6 +12,7 @@ import type { Level } from '@jlpt/schema';
 
 export interface AnalyticsFrequencyRankingProps {
   level?: Level;
+  bank?: BankLevelStats;
 }
 
 const KIND_OPTIONS = [
@@ -507,26 +510,48 @@ const YEAR_SPECIFIC_BANK: Partial<Record<Level, Record<string, Partial<Record<st
   },
 };
 
-export function AnalyticsFrequencyRanking({ level = 'N3' }: AnalyticsFrequencyRankingProps): React.JSX.Element {
+export function AnalyticsFrequencyRanking({ level = 'N3', bank }: AnalyticsFrequencyRankingProps): React.JSX.Element {
   const [kind, setKind] = useState<string>('vocab');
   const [year, setYear] = useState<string>('all');
 
-  const stats: { examsCount: number; questionsCount: number } = LEVEL_EXAM_STATS[level] ?? LEVEL_EXAM_STATS.N3;
-  const examsInYear = (YEAR_EXAM_COUNTS[level] ?? YEAR_EXAM_COUNTS.N3)[year] ?? 2;
+  const hasBank = Boolean(bank && bank.questionsCount > 0);
+  const stats: { examsCount: number; questionsCount: number } = hasBank
+    ? { examsCount: bank!.examsCount, questionsCount: bank!.questionsCount }
+    : (LEVEL_EXAM_STATS[level] ?? LEVEL_EXAM_STATS.N3);
+  const examsInYear = hasBank
+    ? (bank!.examsByYear[year] ?? 0)
+    : ((YEAR_EXAM_COUNTS[level] ?? YEAR_EXAM_COUNTS.N3)[year] ?? 0);
 
-  // Kiểm tra xem có dữ liệu chuyên biệt theo năm trong DB không
+  // Dạng câu hỏi: đếm trực tiếp từ DB. Các loại còn lại là danh sách tổng hợp sẵn.
+  const skillNames: Record<string, string> = {
+    grammar: 'Ngữ pháp',
+    vocabulary: 'Từ vựng',
+    kanji: 'Chữ Hán',
+    reading: 'Đọc hiểu',
+    listening: 'Nghe hiểu',
+  };
+  const liveQuestionRows: [string, number, string][] | null =
+    kind === 'question' && hasBank
+      ? bank!.mondai
+          .map((m) => [m.type, year === 'all' ? m.count : (bank!.mondaiByYear[m.type]?.[year] ?? 0), m.skill] as const)
+          .filter(([, count]) => count > 0)
+          .sort((x, y) => y[1] - x[1])
+          .slice(0, 5)
+          .map(([type, count, skill]): [string, number, string] => [
+            MONDAI_LABELS[type] || type,
+            count,
+            `${skillNames[skill] || skill} · ${count} câu ${year === 'all' ? `trong kho đề ${level}` : `trong đề thi năm ${year}`}`,
+          ])
+      : null;
+
   const yearSpecificRows = YEAR_SPECIFIC_BANK[level]?.[year]?.[kind];
   const levelBank: Record<string, [string, number, string][]> = LEVEL_KNOWLEDGE_BANK[level] ?? LEVEL_KNOWLEDGE_BANK.N3;
   const defaultRows: [string, number, string][] = levelBank[kind] ?? levelBank.vocab ?? [];
 
-  // Nếu chọn năm cụ thể: ưu tiên bảng dữ liệu năm thật, nếu chưa có thì co giãn theo số lượng đề năm đó
-  const rows: [string, number, string][] = yearSpecificRows ?? defaultRows.map((r, i) => {
-    if (year === 'all') return r;
-    const yearMult = Math.max(0.06, examsInYear / stats.examsCount);
-    const seed = ((Number(year) - 2020 + i * 2) % 3) * 0.15 - 0.1;
-    const scaledCount = Math.max(1, Math.round(r[1] * (yearMult + seed * yearMult)));
-    return [r[0], scaledCount, `${r[2]} · năm ${year}`];
-  });
+  // Không còn co giãn số liệu theo năm: nếu chưa có dữ liệu năm thật thì để trống.
+  const rows: [string, number, string][] =
+    liveQuestionRows ?? (year === 'all' ? defaultRows : (yearSpecificRows ?? []));
+  const isSnapshot = liveQuestionRows === null;
 
   const isCountInQuestions = kind === 'question' || kind === 'grammar';
   const unit = isCountInQuestions ? 'câu' : 'lượt';
@@ -588,7 +613,7 @@ export function AnalyticsFrequencyRanking({ level = 'N3' }: AnalyticsFrequencyRa
               </p>
             </div>
             <Badge variant="secondary" className="text-[10px] font-bold">
-              {year !== 'all' ? `Dữ liệu năm ${year}` : 'Toàn bộ kho đề'}
+              {isSnapshot ? 'Dữ liệu tổng hợp sẵn' : year !== 'all' ? `Dữ liệu năm ${year}` : 'Toàn bộ kho đề'}
             </Badge>
           </div>
 
@@ -613,6 +638,12 @@ export function AnalyticsFrequencyRanking({ level = 'N3' }: AnalyticsFrequencyRa
               />
             </div>
           </div>
+
+          {rows.length === 0 && (
+            <p className="py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+              Chưa có thống kê theo năm cho loại kiến thức này.
+            </p>
+          )}
 
           {/* List */}
           <div className="space-y-3">
@@ -646,9 +677,11 @@ export function AnalyticsFrequencyRanking({ level = 'N3' }: AnalyticsFrequencyRa
         </div>
 
         <p className="mt-4 p-3 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/40 text-[11px] text-indigo-800 dark:text-indigo-300 leading-relaxed border border-indigo-100/60 dark:border-indigo-900/40">
-          {year !== 'all'
-            ? `Dữ liệu phân tích thực tế từ ${examsInYear} kỳ thi chính thức JLPT ${level} trong năm ${year}.`
-            : getFooterNote()}
+          {isSnapshot
+            ? `Danh sách tổng hợp sẵn từ kho ngữ liệu, chưa được tính trực tiếp từ cơ sở dữ liệu. Số đề và số câu của kho đề (${stats.examsCount} đề, ${stats.questionsCount.toLocaleString()} câu) được đếm trực tiếp.`
+            : year !== 'all'
+              ? `Đếm trực tiếp từ ${examsInYear} đề thi JLPT ${level} năm ${year} trong cơ sở dữ liệu.`
+              : getFooterNote()}
         </p>
       </Card>
 
