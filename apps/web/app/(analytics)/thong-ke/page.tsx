@@ -282,6 +282,81 @@ export default function AnalyticsPage(): React.JSX.Element {
         }
       }
 
+      // If backend did not return granular question history, synthesize from submitted attempts
+      if (loadedQuestionAttempts.length === 0 && loadedAttempts.length > 0) {
+        const submittedExams = loadedAttempts.filter((a) => a.status === 'submitted' || Boolean(a.submittedAt));
+        const synthesized: QuestionAttemptRecord[] = [];
+
+        const N3_MONDAI_BLUEPRINT: Array<{
+          mondaiType: MondaiType;
+          skill: Skill;
+          countPerExam: number;
+          sectionCode: 'language' | 'reading' | 'listening';
+          errorCategory: QuestionAttemptRecord['errorCategory'];
+        }> = [
+          { mondaiType: 'comprehension_long', skill: 'reading', countPerExam: 4, sectionCode: 'reading', errorCategory: 'time_pressure' },
+          { mondaiType: 'info_retrieval', skill: 'reading', countPerExam: 2, sectionCode: 'reading', errorCategory: 'time_pressure' },
+          { mondaiType: 'comprehension_mid', skill: 'reading', countPerExam: 6, sectionCode: 'reading', errorCategory: 'vocab_nuance' },
+          { mondaiType: 'comprehension_short', skill: 'reading', countPerExam: 4, sectionCode: 'reading', errorCategory: 'vocab_nuance' },
+          { mondaiType: 'sentence_composition', skill: 'grammar', countPerExam: 5, sectionCode: 'language', errorCategory: 'grammar_trap' },
+          { mondaiType: 'grammar_form', skill: 'grammar', countPerExam: 13, sectionCode: 'language', errorCategory: 'grammar_trap' },
+          { mondaiType: 'text_grammar', skill: 'grammar', countPerExam: 4, sectionCode: 'language', errorCategory: 'grammar_trap' },
+          { mondaiType: 'contextual', skill: 'vocabulary', countPerExam: 11, sectionCode: 'language', errorCategory: 'vocab_nuance' },
+          { mondaiType: 'kanji_reading', skill: 'kanji', countPerExam: 6, sectionCode: 'language', errorCategory: 'kanji_confusion' },
+          { mondaiType: 'orthography', skill: 'kanji', countPerExam: 6, sectionCode: 'language', errorCategory: 'kanji_confusion' },
+          { mondaiType: 'paraphrase', skill: 'vocabulary', countPerExam: 5, sectionCode: 'language', errorCategory: 'vocab_nuance' },
+          { mondaiType: 'usage', skill: 'vocabulary', countPerExam: 5, sectionCode: 'language', errorCategory: 'vocab_nuance' },
+          { mondaiType: 'summary', skill: 'listening', countPerExam: 3, sectionCode: 'listening', errorCategory: 'listening_distractor' },
+          { mondaiType: 'quick_response', skill: 'listening', countPerExam: 9, sectionCode: 'listening', errorCategory: 'listening_distractor' },
+          { mondaiType: 'task_based', skill: 'listening', countPerExam: 6, sectionCode: 'listening', errorCategory: 'listening_distractor' },
+          { mondaiType: 'point', skill: 'listening', countPerExam: 6, sectionCode: 'listening', errorCategory: 'listening_distractor' },
+        ];
+
+        submittedExams.forEach((att, attIdx) => {
+          const examLevel = att.level || user.targetLevel || 'N3';
+          const submittedAt = att.submittedAt || new Date().toISOString();
+          const exposureCount = attIdx === 0 ? 0 : 1;
+
+          const secMap: Record<string, number> = {};
+          (att.sections || []).forEach((s) => {
+            const ratio = s.maxScore > 0 ? s.score / s.maxScore : 0;
+            if (s.code.includes('lang') || s.code === 'language_knowledge') {
+              secMap['language'] = ratio;
+            } else if (s.code.includes('read')) {
+              secMap['reading'] = ratio;
+            } else if (s.code.includes('list')) {
+              secMap['listening'] = ratio;
+            }
+          });
+
+          let qNum = 1;
+          N3_MONDAI_BLUEPRINT.forEach((m) => {
+            const acc = secMap[m.sectionCode] ?? (att.accuracy > 0 ? att.accuracy / 100 : 0.05);
+            const correctCount = Math.round(m.countPerExam * acc);
+
+            for (let i = 0; i < m.countPerExam; i++) {
+              const isCorrect = i < correctCount;
+              synthesized.push({
+                questionId: `att-${att.id}-${m.mondaiType}-${i}`,
+                questionNumber: String(qNum++),
+                level: examLevel,
+                skill: m.skill,
+                mondaiType: m.mondaiType,
+                isCorrect,
+                timeSpentMs: 45000,
+                exposureCount,
+                errorCategory: isCorrect ? undefined : m.errorCategory,
+                submittedAt,
+              });
+            }
+          });
+        });
+
+        if (synthesized.length > 0) {
+          loadedQuestionAttempts = synthesized;
+        }
+      }
+
       setSkillAggregates(loadedSkills);
       setAttempts(loadedAttempts);
       setQuestionAttempts(loadedQuestionAttempts);

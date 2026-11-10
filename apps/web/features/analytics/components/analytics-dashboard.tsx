@@ -547,6 +547,7 @@ export function AnalyticsDashboard({
 
           {/* Section 6: Error Analysis */}
           <AnalyticsErrorAnalysis
+            attempts={attempts}
             questionAttempts={questionAttempts}
             level={currentLevel}
             scopeFirstOnly={scopeFirstOnly}
