@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import postgres from 'postgres';
 
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 function extractText(stem: unknown): string {
@@ -99,7 +100,7 @@ export async function GET(request: NextRequest) {
     process.env.DATABASE_URL ||
     'postgres://jlpt:311168c62385bd1fac12286debed8054@172.18.0.3:5432/jlpt_staging';
 
-  const sql = postgres(dbUrl, { max: 5 });
+  const sql = postgres(dbUrl, { max: 3, idle_timeout: 10 });
 
   try {
     // 1. Total wrong count
