@@ -3,8 +3,8 @@
 .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
 .titleGroup { display: flex; align-items: center; gap: 10px; flex: 1; }
 .titleGroup h2 { font-size: 1.25rem; font-weight: 700; white-space: nowrap; }
-.modeTabs { margin-inline: auto; }
-.modeTabs [role=tab] { white-space: nowrap; flex-shrink: 0; display: flex; gap: 10px; padding-inline: 24px; }
+.modeTabs { flex: 0 0 320px; width: 320px; max-width: 100%; margin-inline: auto; }
+.modeTabs [role=tab] { width: auto; white-space: nowrap; flex: 1 1 auto; display: flex; gap: 10px; padding-inline: 24px; }
 .toolbarActions { display: flex; align-items: center; gap: 10px; }
 .resetButton { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 25%, var(--border)); }
 .progressCard { background: color-mix(in srgb, var(--surface) 65%, transparent); border: 1px solid var(--border); padding: 16px 24px; }
@@ -22,7 +22,7 @@
 .deckCard p { color: var(--text-secondary); overflow-wrap: anywhere; }
 .deckActions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 @media (max-width: 900px) {
-  .modeTabs { order: 3; width: 100%; }
+  .modeTabs { order: 3; flex-basis: 100%; width: 100%; }
   .modeTabs [role=tab] { flex: 1; }
   .progressContent { gap: 16px; flex-wrap: wrap; }
   .counts { border-left: 0; padding-left: 0; }

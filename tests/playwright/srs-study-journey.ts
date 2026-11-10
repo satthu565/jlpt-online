@@ -21,6 +21,12 @@ export function registerSrsStudyTests(): void {
         const cookie = page.getByRole('button', { name: 'Từ chối cookie phân tích', exact: true });
         if (await cookie.isVisible()) await cookie.click();
         await page.locator('#tab-srs').click();
+        if (width > 900) {
+          const deckBounds = await page.getByRole('tab', { name: 'Thẻ học (2)', exact: true }).boundingBox();
+          const goalBounds = await page.getByRole('button', { name: 'Mục tiêu', exact: true }).boundingBox();
+          expect(deckBounds).not.toBeNull(); expect(goalBounds).not.toBeNull();
+          expect(deckBounds!.x + deckBounds!.width).toBeLessThanOrEqual(goalBounds!.x);
+        }
         await expect(page.getByTestId('srs-previous-card')).toBeDisabled();
         await page.getByTestId('srs-next-card').click();
         await expect(page.getByTestId('flashcard-view')).toContainText('Thẻ 2 / 2');
