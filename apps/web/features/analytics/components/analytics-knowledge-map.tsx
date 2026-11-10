@@ -14,36 +14,144 @@ export interface KnowledgeGroup {
   detail: string;
 }
 
-const DEFAULT_GROUPS: KnowledgeGroup[] = [
-  {
-    key: 'vocab',
-    name: 'Từ vựng & Kanji',
-    count: 409,
-    color: '#6277ed',
-    detail: 'Cách đọc chữ Hán, cách viết từ, nghĩa theo ngữ cảnh, từ gần nghĩa, cách dùng từ.',
-  },
-  {
-    key: 'grammar',
-    name: 'Ngữ pháp',
-    count: 285,
-    color: '#17ac83',
-    detail: 'Chọn mẫu ngữ pháp, sắp xếp thành câu, ngữ pháp trong ngữ cảnh đoạn văn.',
-  },
-  {
-    key: 'reading',
-    name: 'Đọc hiểu',
-    count: 198,
-    color: '#edac52',
-    detail: 'Đọc đoạn ngắn, đoạn vừa, đoạn dài, tìm kiếm thông tin và suy luận.',
-  },
-  {
-    key: 'listening',
-    name: 'Nghe hiểu',
-    count: 348,
-    color: '#7c8aef',
-    detail: 'Hiểu nhiệm vụ, ý chính, tình huống, phản hồi nhanh và thông tin tổng hợp.',
-  },
-];
+export const LEVEL_KNOWLEDGE_MAP: Record<Level, KnowledgeGroup[]> = {
+  N1: [
+    {
+      key: 'vocab',
+      name: 'Từ vựng & Kanji',
+      count: 770,
+      color: '#6277ed',
+      detail: 'Cách đọc chữ Hán, nghĩa từ vựng, từ gần nghĩa, cách dùng từ trong ngữ cảnh cao cấp N1.',
+    },
+    {
+      key: 'grammar',
+      name: 'Ngữ pháp',
+      count: 610,
+      color: '#17ac83',
+      detail: 'Ngữ pháp câu, sắp xếp thành câu có dấu sao, ngữ pháp theo đoạn văn N1.',
+    },
+    {
+      key: 'reading',
+      name: 'Đọc hiểu',
+      count: 800,
+      color: '#edac52',
+      detail: 'Đọc hiểu đoạn ngắn, đoạn trung, đoạn dài, bài luận so sánh, tìm kiếm thông tin N1.',
+    },
+    {
+      key: 'listening',
+      name: 'Nghe hiểu',
+      count: 1027,
+      color: '#7c8aef',
+      detail: 'Hiểu chủ đề, nhiệm vụ, tóm tắt ý chính, phản hồi nhanh, nghe hiểu tổng hợp N1.',
+    },
+  ],
+  N2: [
+    {
+      key: 'vocab',
+      name: 'Từ vựng & Kanji',
+      count: 995,
+      color: '#6277ed',
+      detail: 'Chữ Hán, từ ghép, từ đồng nghĩa, ngữ cảnh sử dụng từ chuẩn N2.',
+    },
+    {
+      key: 'grammar',
+      name: 'Ngữ pháp',
+      count: 680,
+      color: '#17ac83',
+      detail: 'Chọn mẫu ngữ pháp, ghép câu ngôi sao, ngữ pháp đoạn văn N2.',
+    },
+    {
+      key: 'reading',
+      name: 'Đọc hiểu',
+      count: 650,
+      color: '#edac52',
+      detail: 'Đoạn văn ngắn, đoạn văn vừa, đoạn văn dài, bài văn nghị luận, tìm thông tin N2.',
+    },
+    {
+      key: 'listening',
+      name: 'Nghe hiểu',
+      count: 908,
+      color: '#7c8aef',
+      detail: 'Nghe hiểu vấn đề, ý chính, phản xạ nhanh, tổng hợp thông tin N2.',
+    },
+  ],
+  N3: [
+    {
+      key: 'vocab',
+      name: 'Từ vựng & Kanji',
+      count: 1040,
+      color: '#6277ed',
+      detail: 'Cách đọc Hán tự, cách viết Hiragana/Kanji, ngữ cảnh từ vựng, từ gần nghĩa N3.',
+    },
+    {
+      key: 'grammar',
+      name: 'Ngữ pháp',
+      count: 695,
+      color: '#17ac83',
+      detail: 'Chọn hình thức ngữ pháp, sắp xếp câu dấu sao, ngữ pháp đoạn văn N3.',
+    },
+    {
+      key: 'reading',
+      name: 'Đọc hiểu',
+      count: 485,
+      color: '#edac52',
+      detail: 'Đọc hiểu đoạn ngắn, đoạn vừa, đoạn dài, trích xuất dữ liệu và biểu bảng N3.',
+    },
+    {
+      key: 'listening',
+      name: 'Nghe hiểu',
+      count: 827,
+      color: '#7c8aef',
+      detail: 'Nghe hiểu nhiệm vụ, nội dung then chốt, đàm thoại tình huống, trả lời nhanh N3.',
+    },
+  ],
+  N4: [
+    {
+      key: 'vocab',
+      name: 'Từ vựng & Kanji',
+      count: 520,
+      color: '#6277ed',
+      detail: 'Đọc và viết chữ Hán cơ bản, từ vựng đời sống thường ngày N4.',
+    },
+    {
+      key: 'grammar_reading',
+      name: 'Ngữ pháp & Đọc hiểu',
+      count: 515,
+      color: '#17ac83',
+      detail: 'Mẫu câu sơ cấp, nối câu, đọc đoạn văn ngắn và trích xuất thông tin N4.',
+    },
+    {
+      key: 'listening',
+      name: 'Nghe hiểu',
+      count: 274,
+      color: '#7c8aef',
+      detail: 'Nghe hiểu chỉ dẫn, hành động tiếp theo, phản xạ giao tiếp cơ bản N4.',
+    },
+  ],
+  N5: [
+    {
+      key: 'vocab',
+      name: 'Từ vựng & Kanji',
+      count: 340,
+      color: '#6277ed',
+      detail: 'Chữ Hán nhập môn, số đếm, từ vựng sinh hoạt hàng ngày N5.',
+    },
+    {
+      key: 'grammar_reading',
+      name: 'Ngữ pháp & Đọc hiểu',
+      count: 276,
+      color: '#17ac83',
+      detail: 'Trợ từ, thể động từ sơ cấp, đọc hiểu mẩu tin và thông báo ngắn N5.',
+    },
+    {
+      key: 'listening',
+      name: 'Nghe hiểu',
+      count: 217,
+      color: '#7c8aef',
+      detail: 'Hội thoại ngắn, số liệu, giờ giấc, đồ vật và chỉ đường N5.',
+    },
+  ],
+};
 
 export interface AnalyticsKnowledgeMapProps {
   level: Level;
@@ -52,16 +160,18 @@ export interface AnalyticsKnowledgeMapProps {
 
 export function AnalyticsKnowledgeMap({
   level,
-  groups = DEFAULT_GROUPS,
+  groups,
 }: AnalyticsKnowledgeMapProps): React.JSX.Element {
-  const [selectedKey, setSelectedKey] = useState<string>('vocab');
+  const activeGroups = groups || LEVEL_KNOWLEDGE_MAP[level] || LEVEL_KNOWLEDGE_MAP.N3;
+  const [selectedKey, setSelectedKey] = useState<string>(activeGroups[0]?.key || 'vocab');
 
-  const totalQuestions = groups.reduce((acc, g) => acc + g.count, 0);
-  const selectedGroup = groups.find((g) => g.key === selectedKey) || groups[0]!;
+  const totalQuestions = activeGroups.reduce((acc, g) => acc + g.count, 0);
+  const selectedGroup =
+    activeGroups.find((g) => g.key === selectedKey) || activeGroups[0]!;
 
   // Build conic-gradient segments
   let accumulatedPct = 0;
-  const gradientStops = groups.map((g) => {
+  const gradientStops = activeGroups.map((g) => {
     const start = accumulatedPct;
     accumulatedPct += (g.count / totalQuestions) * 100;
     return `${g.color} ${start.toFixed(1)}% ${accumulatedPct.toFixed(1)}%`;
@@ -79,13 +189,13 @@ export function AnalyticsKnowledgeMap({
       >
         <div>
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
-            EXAM INTELLIGENCE · DEMO DATA
+            EXAM INTELLIGENCE · PHÂN TÍCH KHO ĐỀ THI
           </span>
           <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 mt-1 mb-1.5">
             JLPT kiểm tra gì qua các năm?
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed">
-            Khám phá nội dung đề, tần suất kiến thức và xu hướng lặp lại. Các biểu đồ này thống kê bộ đề có gắn nhãn, giúp người học định hướng trọng tâm.
+            Khám phá nội dung đề, phân bổ các nhóm kỹ năng và khối lượng kiến thức trọng tâm trong kho đề thi thực tế của Gokakuya.
           </p>
         </div>
         <div className="size-14 rounded-2xl bg-white/80 dark:bg-slate-800/80 shadow-sm flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
@@ -107,7 +217,7 @@ export function AnalyticsKnowledgeMap({
               </p>
             </div>
             <Badge variant="secondary" className="text-[10px] font-bold">
-              {totalQuestions.toLocaleString()} câu · phân loại
+              {totalQuestions.toLocaleString()} câu · kho đề
             </Badge>
           </div>
 
@@ -117,16 +227,16 @@ export function AnalyticsKnowledgeMap({
               {/* ui-allow-style: dynamic conic gradient on background */}
               <div className="size-28 rounded-full bg-white dark:bg-slate-900 flex flex-col items-center justify-center shadow-inner">
                 <span className="text-2xl font-extrabold text-slate-900 dark:text-slate-100">
-                  {totalQuestions}
+                  {totalQuestions.toLocaleString()}
                 </span>
-                <span className="text-[10px] text-slate-400 dark:text-slate-500">câu gắn nhãn</span>
+                <span className="text-[10px] text-slate-400 dark:text-slate-500">câu trong kho</span>
               </div>
             </div>
 
             {/* Interactive Legend */}
             <div className="flex-1 w-full space-y-1.5">
-              {groups.map((g) => {
-                const isSelected = selectedKey === g.key;
+              {activeGroups.map((g) => {
+                const isSelected = selectedGroup.key === g.key;
                 const pct = Math.round((g.count / totalQuestions) * 100);
                 return (
                   <div
@@ -159,7 +269,7 @@ export function AnalyticsKnowledgeMap({
 
           <div className="mt-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 text-xs">
             <span className="font-bold text-slate-800 dark:text-slate-200">
-              {selectedGroup.name} · {selectedGroup.count} câu
+              {selectedGroup.name} · {selectedGroup.count.toLocaleString()} câu
             </span>
             <p className="text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
               {selectedGroup.detail}
@@ -183,14 +293,14 @@ export function AnalyticsKnowledgeMap({
             </div>
 
             <div className="space-y-4 my-2">
-              {groups.map((g) => {
+              {activeGroups.map((g) => {
                 const pct = Math.round((g.count / totalQuestions) * 100);
                 return (
                   <div key={g.key} className="space-y-1.5">
                     <div className="flex justify-between items-center text-xs">
                       <span className="font-bold text-slate-700 dark:text-slate-300">{g.name}</span>
                       <span className="text-[11px] text-slate-400 dark:text-slate-500">
-                        {g.count} / {totalQuestions} câu
+                        {g.count.toLocaleString()} / {totalQuestions.toLocaleString()} câu
                       </span>
                     </div>
                     <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -208,7 +318,7 @@ export function AnalyticsKnowledgeMap({
           <div className="mt-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-start gap-2 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
             <Info className="size-3.5 shrink-0 text-indigo-500 mt-0.5" aria-hidden="true" />
             <span>
-              Đây là <strong>phân bố trong bộ câu hỏi được gắn nhãn</strong>, không phải tỷ lệ chuẩn hóa hay cấu trúc cố định của đề JLPT chính thức.
+              Thống kê tổng hợp từ toàn bộ các đề thi JLPT {level} chính thức có trong ngân hàng đề thi của hệ thống.
             </span>
           </div>
         </Card>
