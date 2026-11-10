@@ -75,7 +75,10 @@ export function AnalyticsYearTrends({ level = 'N3', bank, content, difficulty }:
     };
     note = 'Mỗi ô là số câu của dạng đó trong MỘT đề (đã chia theo số đề của năm), nên các năm so sánh được với nhau.';
   } else if ((kind === 'grammar' || kind === 'vocab' || kind === 'kanji') && content) {
-    const items = content[kind].filter((it) => it.firstLevel === level).slice(0, MAX_ROWS);
+    // keep only knowledge actually tested in the chosen years, so no row is all zeros
+    const items = content[kind]
+      .filter((it) => it.firstLevel === level && years.some((y) => (it.years[String(y)] ?? 0) > 0))
+      .slice(0, MAX_ROWS);
     grid = {
       rows: items.map((it) => it.term),
       data: items.map((it) => years.map((y) => (examsOf(y) > 0 ? (it.years[String(y)] ?? 0) : null))),

@@ -48,13 +48,18 @@ export function plainText(node: Node): string {
   return '';
 }
 
+/** Stem text with the blank shown as （　）, without doubling parentheses already in the text. */
 function stemWithBlank(node: Node): string {
+  return stemWithBlankRaw(node).replace(/（\s*（　）\s*）/g, '（　）');
+}
+
+function stemWithBlankRaw(node: Node): string {
   if (!node) return '';
-  if (Array.isArray(node)) return node.map(stemWithBlank).join('');
+  if (Array.isArray(node)) return node.map(stemWithBlankRaw).join('');
   const n = node as { t?: string; text?: string; children?: Node };
   if (n.t === 'blank') return '（　）';
   if (n.text) return n.text;
-  if (n.children) return stemWithBlank(n.children);
+  if (n.children) return stemWithBlankRaw(n.children);
   return '';
 }
 
@@ -98,7 +103,7 @@ export function extractGrammarPattern(explanation: string): string | null {
 /** Same grammar point written differently ("V-る + たびに", "～たびに") counts once. */
 export function normalizePattern(pattern: string): string {
   return pattern
-    .replace(/^[VNAaいな][-\w]*\s*[+＋]\s*/, '')
+    .replace(/^[VNAaいな][^\s+＋]*\s*[+＋]\s*/, '')
     .replace(/^[VN]\s+/, '')
     .replace(/^[～〜~]+/, '')
     .replace(/\s+/g, '')
@@ -109,8 +114,8 @@ export function normalizePattern(pattern: string): string {
 function patternWhy(explanation: string): string | undefined {
   const afterAnswer = (explanation.split('Phân tích')[0] ?? explanation).split('Đáp án đúng:')[1];
   if (!afterAnswer) return undefined;
-  const m = afterAnswer.match(/」[^\n]*/);
-  const sentence = (m ? m[0] : afterAnswer).replace(/^」\s*/, '').trim();
+  const m = afterAnswer.match(/」([^•]*)/);
+  const sentence = (m ? (m[1] ?? '') : (afterAnswer.split('•')[0] ?? '')).replace(/^[）)\s]+/, '').trim();
   return sentence ? sentence.slice(0, 170) : undefined;
 }
 
