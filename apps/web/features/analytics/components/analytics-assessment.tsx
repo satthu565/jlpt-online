@@ -29,7 +29,7 @@ export interface AnalyticsAssessmentProps {
   thresholdScore: number;
   sections: SectionScoreItem[];
   weakestSectionName?: string;
-  weakestAccuracy?: number;
+  weakestAccuracy?: number | null;
   wrongQuestionsCount?: number;
   onOpenInfoModal: () => void;
   onOpenStudyModal: (mode: string) => void;
@@ -40,14 +40,16 @@ export function AnalyticsAssessment({
   totalScore,
   thresholdScore,
   sections,
-  weakestSectionName = 'Đọc hiểu đoạn dài',
-  weakestAccuracy = 38,
-  wrongQuestionsCount = 20,
+  weakestSectionName,
+  weakestAccuracy = null,
+  wrongQuestionsCount = 0,
   onOpenInfoModal,
   onOpenStudyModal,
 }: AnalyticsAssessmentProps): React.JSX.Element {
   const isPassing =
-    totalScore >= thresholdScore && sections.every((s) => s.score >= s.minCutoff);
+    totalScore > 0 &&
+    totalScore >= thresholdScore &&
+    sections.every((s) => s.score >= s.minCutoff);
 
   // Calculate donut dash
   const circumference = 2 * Math.PI * 74; // ~465
@@ -58,8 +60,8 @@ export function AnalyticsAssessment({
     (a, b) => a.score - a.minCutoff - (b.score - b.minCutoff),
   );
   const riskiest = sortedByMargin[0] || {
-    name: 'Đọc hiểu',
-    score: 29,
+    name: 'Kiến thức ngôn ngữ',
+    score: 0,
     minCutoff: 19,
   };
   const marginToMin = riskiest.score - riskiest.minCutoff;
@@ -111,7 +113,7 @@ export function AnalyticsAssessment({
                   r="74"
                   fill="none"
                   stroke="currentColor"
-                  className={isPassing ? 'text-indigo-600' : 'text-amber-500'}
+                  className={totalScore === 0 ? 'text-slate-300 dark:text-slate-700' : isPassing ? 'text-indigo-600' : 'text-amber-500'}
                   strokeWidth="13"
                   strokeLinecap="round"
                   strokeDasharray={`${strokeDash.toFixed(1)} ${circumference.toFixed(1)}`}
@@ -119,7 +121,7 @@ export function AnalyticsAssessment({
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <span className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
-                  {totalScore}
+                  {totalScore > 0 ? totalScore : '--'}
                 </span>
                 <span className="text-[11px] text-slate-400 dark:text-slate-500">/ 180 điểm</span>
               </div>
@@ -129,30 +131,43 @@ export function AnalyticsAssessment({
             <div className="flex-1 min-w-0 space-y-2">
               <span
                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold ${
-                  isPassing
+                  totalScore === 0
+                    ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                    : isPassing
                     ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400'
                     : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400'
                 }`}
               >
-                {isPassing ? (
+                {totalScore === 0 ? (
+                  <>
+                    <Info className="size-3.5" aria-hidden="true" />
+                    Chưa có kết quả nộp bài
+                  </>
+                ) : isPassing ? (
                   <>
                     <CheckCircle2 className="size-3.5" aria-hidden="true" />
-                    <span>✓ Trên ngưỡng tham khảo</span>
+                    Đạt mục tiêu JLPT {level}
                   </>
                 ) : (
                   <>
                     <AlertTriangle className="size-3.5" aria-hidden="true" />
-                    <span>! Cần cải thiện</span>
+                    Cần cải thiện thêm
                   </>
                 )}
               </span>
 
               <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
-                {isPassing ? 'Đang tiến gần mục tiêu!' : 'Cần củng cố thêm kiến thức'}
+                {totalScore === 0
+                  ? 'Chưa có kết quả làm đề'
+                  : isPassing
+                  ? 'Đang tiến gần mục tiêu đỗ!'
+                  : 'Cần củng cố thêm kiến thức'}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                {isPassing
-                  ? 'Điểm trung bình vượt ngưỡng tổng. Hãy tập trung vào Đọc hiểu để tăng độ an toàn.'
+                {totalScore === 0
+                  ? 'Hãy hoàn thành và nộp một bài thi thử để hệ thống đánh giá mức độ sẵn sàng thi của bạn.'
+                  : isPassing
+                  ? 'Điểm thi thử vượt ngưỡng tổng và an toàn ở các phần thi. Tiếp tục duy trì phong độ.'
                   : 'Điểm tham khảo chưa đạt một hoặc nhiều điều kiện. Hãy ưu tiên phần yếu nhất.'}
               </p>
 
@@ -175,12 +190,12 @@ export function AnalyticsAssessment({
           <div className="border-t border-slate-100 dark:border-slate-800 pt-3.5 mt-3 space-y-2.5">
             <div className="flex justify-between items-center text-xs">
               <span className="font-bold text-slate-700 dark:text-slate-300">Điểm theo phần thi</span>
-              <span className="text-[11px] text-slate-400 dark:text-slate-500">Điểm ước tính / giới hạn</span>
+              <span className="text-[11px] text-slate-400 dark:text-slate-500">Điểm thực tế / Tối đa</span>
             </div>
 
             {sections.map((sec, idx) => {
               const secPct = Math.min(100, Math.round((sec.score / sec.maxScore) * 100));
-              const isCloseToCutoff = sec.score - sec.minCutoff < 12;
+              const isCloseToCutoff = totalScore > 0 && sec.score - sec.minCutoff < 12;
               return (
                 <div key={idx} className="grid grid-cols-12 gap-2.5 items-center text-xs">
                   <span className="col-span-5 text-slate-600 dark:text-slate-400 truncate">
@@ -190,13 +205,13 @@ export function AnalyticsAssessment({
                     {/* ui-allow-style: dynamic section score percentage */}
                     <div
                       className={`h-full rounded-full ${
-                        isCloseToCutoff ? 'bg-amber-500' : 'bg-indigo-600'
+                        totalScore === 0 ? 'bg-slate-200 dark:bg-slate-700' : isCloseToCutoff ? 'bg-amber-500' : 'bg-indigo-600'
                       }`}
                       style={{ width: `${secPct}%` }} /* ui-allow-style: dynamic section score percentage */
                     />
                   </div>
                   <span className="col-span-2 text-right font-bold text-slate-800 dark:text-slate-200">
-                    {sec.score}/{sec.maxScore}
+                    {totalScore > 0 ? sec.score : '--'}/{sec.maxScore}
                   </span>
                 </div>
               );
@@ -208,7 +223,15 @@ export function AnalyticsAssessment({
         <div className="mt-4 p-3 rounded-xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/50 flex items-start gap-2.5 text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
           <Lightbulb className="size-4 shrink-0 text-amber-600 mt-0.5" aria-hidden="true" />
           <span>
-            <strong>{riskiest.name}</strong> là phần cần ưu tiên: điểm dự phòng so với ngưỡng tối thiểu thấp nhất ({marginToMin} điểm). Nên ưu tiên luyện thêm.
+            {totalScore === 0 ? (
+              <span>
+                <strong>Gợi ý:</strong> Hãy hoàn thành và nộp 1 đề thi thử đầy đủ để hệ thống ghi nhận điểm số từng phần thi và kiểm tra ngưỡng an toàn chống điểm liệt.
+              </span>
+            ) : (
+              <span>
+                <strong>{riskiest.name}</strong> là phần cần ưu tiên: điểm dự phòng so với ngưỡng tối thiểu ({marginToMin >= 0 ? `+${marginToMin}` : marginToMin} điểm). Nên ưu tiên luyện thêm.
+              </span>
+            )}
           </span>
         </div>
       </Card>
@@ -236,14 +259,20 @@ export function AnalyticsAssessment({
               🔥 ƯU TIÊN SỐ 1
             </span>
             <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-              Chinh phục {weakestSectionName}
+              {weakestAccuracy !== null && weakestAccuracy !== undefined && weakestSectionName
+                ? `Chinh phục ${weakestSectionName}`
+                : 'Thử sức với đề thi thử JLPT'}
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mt-1 mb-3">
-              Bạn chỉ trả lời đúng {weakestAccuracy}% ở dạng này. Luyện 15 câu chuyên sâu để củng cố kỹ năng.
+              {weakestAccuracy !== null && weakestAccuracy !== undefined && weakestSectionName
+                ? `Bạn đạt ${weakestAccuracy}% ở kỹ năng này. Luyện tập chuyên sâu để củng cố kỹ năng và tăng điểm số.`
+                : 'Làm một bài thi hoàn chỉnh để hệ thống tự động phát hiện lỗ hổng kiến thức và cá nhân hóa lộ trình ôn tập.'}
             </p>
-            <Link href="/luyen-tap">
+            <Link href={weakestAccuracy !== null && weakestAccuracy !== undefined ? '/luyen-tap' : '/de-thi'}>
               <Button size="sm" variant="primary" className="w-full justify-center">
-                Bắt đầu luyện ngay
+                {weakestAccuracy !== null && weakestAccuracy !== undefined
+                  ? 'Bắt đầu luyện ngay'
+                  : 'Khám phá kho đề thi'}
                 <ArrowRight className="size-3.5 inline ml-1.5" aria-hidden="true" />
               </Button>
             </Link>
@@ -258,16 +287,23 @@ export function AnalyticsAssessment({
                 </span>
                 <div>
                   <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                    Ôn lại {wrongQuestionsCount} câu trả lời sai
+                    {wrongQuestionsCount > 0
+                      ? `Ôn lại ${wrongQuestionsCount} câu trả lời sai`
+                      : 'Chưa có câu sai cần ôn lại'}
                   </p>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-500">20 phút · Từ các đề gần nhất</p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                    {wrongQuestionsCount > 0
+                      ? `${Math.max(5, Math.round(wrongQuestionsCount * 1.5))} phút · Từ các đề gần nhất`
+                      : 'Các câu sai sẽ tự động lưu vào đây sau khi nộp bài'}
+                  </p>
                 </div>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => onOpenStudyModal('review')}
-                className="size-8 p-0 text-slate-400 hover:text-slate-600"
+                disabled={wrongQuestionsCount === 0}
+                className="size-8 p-0 text-slate-400 hover:text-slate-600 disabled:opacity-40"
                 aria-label="Ôn lại câu sai"
               >
                 <ArrowRight className="size-4" aria-hidden="true" />

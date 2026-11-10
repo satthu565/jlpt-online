@@ -54,6 +54,7 @@ export interface AnalyticsDashboardProps {
   targetScore?: number;
   className?: string;
   userName?: string;
+  skillAggregates?: Array<{ skill: string; accuracyRate: number; sampleSize: number }>;
 }
 
 const LEVEL_THRESHOLDS: Record<Level, { total: number; minSections: number[] }> = {
@@ -71,6 +72,7 @@ export function AnalyticsDashboard({
   targetScore = 120,
   className = '',
   userName = 'Nguyễn An',
+  skillAggregates = [],
 }: AnalyticsDashboardProps): React.JSX.Element {
   // Filter States
   const [currentLevel, setCurrentLevel] = useState<Level>(targetLevel);
@@ -206,8 +208,9 @@ export function AnalyticsDashboard({
     };
   }, [submittedAttempts]);
 
-  // Dynamic weakest section discovery
+  // Dynamic weakest section discovery based on real question attempts or skill aggregates
   const weakestInfo = useMemo(() => {
+    // 1. From real question attempts if available
     if (questionAttempts.length > 0) {
       const statsBySkill: Record<string, { total: number; wrong: number; name: string }> = {
         vocabulary: { total: 0, wrong: 0, name: 'T盻ｫ v盻ｱng & Ch盻ｯ Hﾃ｡n' },
@@ -228,68 +231,125 @@ export function AnalyticsDashboard({
         candidates.sort((a, b) => b.wrong / b.total - a.wrong / a.total);
         const worst = candidates[0]!;
         const acc = Math.round(((worst.total - worst.wrong) / worst.total) * 100);
+        const totalWrong = candidates.reduce((sum, c) => sum + c.wrong, 0);
         return {
           name: worst.name,
           accuracy: acc,
-          wrongCount: worst.wrong,
+          wrongCount: totalWrong,
         };
       }
     }
-    return {
-      name: 'ﾄ雪ｻ皇 hi盻ブ ﾄ双蘯｡n dﾃi',
-      accuracy: 38,
-      wrongCount: 20,
-    };
-  }, [questionAttempts]);
 
-  // Section Score Breakdown
+    // 2. From real skill aggregates if available
+    if (skillAggregates && skillAggregates.length > 0) {
+      const activeSkills = skillAggregates.filter((s) => s.sampleSize > 0);
+      if (activeSkills.length > 0) {
+        activeSkills.sort((a, b) => a.accuracyRate - b.accuracyRate);
+        const worst = activeSkills[0]!;
+        const skillNameMap: Record<string, string> = {
+          vocabulary: 'Từ vựng',
+          kanji: 'Chữ Hán',
+          grammar: 'Ngữ pháp',
+          reading: 'Đọc hiểu',
+          listening: 'Nghe hiểu',
+          language_knowledge: 'Kiến thức ngôn ngữ',
+        };
+        const totalWrong = activeSkills.reduce(
+          (sum, s) => sum + Math.round(s.sampleSize * (1 - s.accuracyRate / 100)),
+          0,
+        );
+        return {
+          name: skillNameMap[worst.skill] || worst.skill,
+          accuracy: Math.round(worst.accuracyRate),
+          wrongCount: totalWrong,
+        };
+      }
+    }
+
+    // 3. If user has not completed any questions/exams yet
+    return {
+      name: '',
+      accuracy: null as number | null,
+      wrongCount: 0,
+    };
+  }, [questionAttempts, skillAggregates]);
+
+  // Section Score Breakdown: average real section scores from submitted attempts
   const sectionScores = useMemo(() => {
-    const effectiveScore = avgScore ?? 0;
+    const attemptsWithSections = submittedAttempts.filter(
+      (a) => a.sections && a.sections.length > 0,
+    );
+
+    if (attemptsWithSections.length > 0) {
+      const sectionTotals: Record<
+        string,
+        { name: string; scoreSum: number; count: number; maxScore: number; minCutoff: number }
+      > = {};
+
+      attemptsWithSections.forEach((a) => {
+        a.sections?.forEach((s) => {
+          const key = s.code || s.name;
+          if (!sectionTotals[key]) {
+            sectionTotals[key] = {
+              name: s.name,
+              scoreSum: 0,
+              count: 0,
+              maxScore: s.maxScore || 60,
+              minCutoff: s.minCutoff || 19,
+            };
+          }
+          sectionTotals[key]!.scoreSum += s.score;
+          sectionTotals[key]!.count += 1;
+        });
+      });
+
+      return Object.values(sectionTotals).map((item) => ({
+        name: item.name,
+        score: Math.round(item.scoreSum / item.count),
+        maxScore: item.maxScore,
+        minCutoff: item.minCutoff,
+      }));
+    }
+
+    // Default structure for level when no submitted sections exist
     const isN4N5 = currentLevel === 'N4' || currentLevel === 'N5';
     if (isN4N5) {
-      const part1 = Math.round(effectiveScore * (120 / 180));
-      const part2 = Math.round(effectiveScore * (60 / 180));
       return [
         {
           name: 'Kiến thức ngôn ngữ + Đọc hiểu',
-          score: part1,
+          score: 0,
           maxScore: 120,
           minCutoff: thresholdInfo.minSections[0] || 38,
         },
         {
           name: 'Nghe hiểu',
-          score: part2,
+          score: 0,
           maxScore: 60,
           minCutoff: thresholdInfo.minSections[1] || 19,
         },
       ];
     }
-
-    // N1 - N3
-    const part1 = Math.round(effectiveScore * (60 / 180) * 1.15);
-    const part2 = Math.round(effectiveScore * (60 / 180) * 0.74);
-    const part3 = effectiveScore - part1 - part2;
     return [
       {
         name: 'Kiến thức ngôn ngữ',
-        score: Math.min(60, Math.max(0, part1)),
+        score: 0,
         maxScore: 60,
         minCutoff: 19,
       },
       {
         name: 'Đọc hiểu',
-        score: Math.min(60, Math.max(0, part2)),
+        score: 0,
         maxScore: 60,
         minCutoff: 19,
       },
       {
         name: 'Nghe hiểu',
-        score: Math.min(60, Math.max(0, part3)),
+        score: 0,
         maxScore: 60,
         minCutoff: 19,
       },
     ];
-  }, [avgScore, currentLevel, thresholdInfo]);
+  }, [submittedAttempts, currentLevel, thresholdInfo]);
 
   // Real Progression Data Points for Chart
   const progressionPoints = useMemo(() => {

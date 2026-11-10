@@ -103,6 +103,7 @@ export default function AnalyticsPage(): React.JSX.Element {
   const [isUnauthorized, setIsUnauthorized] = useState<boolean>(false);
   const [attempts, setAttempts] = useState<AttemptRecord[]>([]);
   const [questionAttempts, setQuestionAttempts] = useState<QuestionAttemptRecord[]>([]);
+  const [skillAggregates, setSkillAggregates] = useState<Array<{ skill: string; accuracyRate: number; sampleSize: number }>>([]);
   const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
 
   const fetchAnalyticsData = useCallback(async () => {
@@ -192,6 +193,16 @@ export default function AnalyticsPage(): React.JSX.Element {
             }
           }
 
+          const rawSections = Array.isArray(att['sections']) ? (att['sections'] as Record<string, unknown>[]) : [];
+          const parsedSections = rawSections.map((s) => ({
+            code: String(s['code'] || ''),
+            name: String(s['label'] || s['name'] || s['code'] || ''),
+            score: typeof s['scaled'] === 'number' ? s['scaled'] : (typeof s['score'] === 'number' ? s['score'] : 0),
+            maxScore: typeof s['maxScaled'] === 'number' ? s['maxScaled'] : (typeof s['maxScore'] === 'number' ? s['maxScore'] : 60),
+            minCutoff: typeof s['minPass'] === 'number' ? s['minPass'] : (typeof s['minCutoff'] === 'number' ? s['minCutoff'] : 19),
+            passed: Boolean(s['passed']),
+          }));
+
           const accuracy = isSubmitted && score > 0 ? Math.round((score / 180) * 1000) / 10 : 0;
 
           return {
@@ -207,13 +218,22 @@ export default function AnalyticsPage(): React.JSX.Element {
             passed: Boolean(att['passed']),
             durationSec,
             submittedAt: String(att['submittedAt'] || att['startedAt'] || new Date().toISOString()),
+            sections: parsedSections,
           };
         });
       }
 
       let loadedQuestionAttempts: QuestionAttemptRecord[] = [];
+      let loadedSkills: Array<{ skill: string; accuracyRate: number; sampleSize: number }> = [];
       if (analyticsRes.ok) {
         const analyticsData = await analyticsRes.json();
+        if (Array.isArray(analyticsData.skills)) {
+          loadedSkills = analyticsData.skills.map((s: Record<string, unknown>) => ({
+            skill: String(s['skill'] || ''),
+            accuracyRate: typeof s['accuracyRate'] === 'number' ? s['accuracyRate'] : 0,
+            sampleSize: typeof s['sampleSize'] === 'number' ? s['sampleSize'] : 0,
+          }));
+        }
         if (Array.isArray(analyticsData.questionHistory)) {
           loadedQuestionAttempts = analyticsData.questionHistory.map((q: Record<string, unknown>, idx: number) => ({
             questionId: String(q['questionId'] || `q-${idx}`),
@@ -231,6 +251,7 @@ export default function AnalyticsPage(): React.JSX.Element {
         }
       }
 
+      setSkillAggregates(loadedSkills);
       setAttempts(loadedAttempts);
       setQuestionAttempts(loadedQuestionAttempts);
       if (loadedAttempts.length > 0) {
@@ -389,6 +410,7 @@ export default function AnalyticsPage(): React.JSX.Element {
           <AnalyticsDashboard
             attempts={currentAttempts}
             questionAttempts={currentQuestionAttempts}
+            skillAggregates={skillAggregates}
             targetLevel={(user?.targetLevel as Level) || 'N3'}
             targetScore={120}
             userName={user?.name || user?.email?.split('@')[0] || 'Nguyễn An'}
