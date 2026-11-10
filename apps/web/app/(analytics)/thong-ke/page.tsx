@@ -164,7 +164,7 @@ export default function AnalyticsPage(): React.JSX.Element {
     }
 
     try {
-      const [attemptsRes, analyticsRes, examsRes] = await Promise.all([
+      const [attemptsRes, analyticsRes, examsRes, mistakesRes] = await Promise.all([
         fetch(`${baseUrl}/me/attempts`, {
           headers,
           credentials: 'include',
@@ -177,6 +177,7 @@ export default function AnalyticsPage(): React.JSX.Element {
           headers,
           credentials: 'include',
         }),
+        fetch(`/internal-api/analytics/mistakes?userId=${encodeURIComponent(user.id)}`).catch(() => null),
       ]);
 
       if (attemptsRes.status === 401 || attemptsRes.status === 403 || analyticsRes.status === 401 || analyticsRes.status === 403) {
@@ -200,6 +201,20 @@ export default function AnalyticsPage(): React.JSX.Element {
           });
         } catch {
           // Ignore exams parse error
+        }
+      }
+
+      if (mistakesRes && mistakesRes.ok) {
+        try {
+          const mistakesData = await mistakesRes.json();
+          if (mistakesData.mistakes) {
+            setRealMistakes(mistakesData.mistakes);
+          }
+          if (typeof mistakesData.totalWrongCount === 'number') {
+            setRealTotalWrongCount(mistakesData.totalWrongCount);
+          }
+        } catch {
+          // Ignore mistakes parse error
         }
       }
 

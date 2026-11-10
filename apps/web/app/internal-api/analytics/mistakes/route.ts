@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
         WHERE ea.user_id = ${userId} AND ua.is_correct = false AND q.skill IN ${sql(cat.skills)}
         GROUP BY ua.question_id, q.skill, q.mondai_type, q.level, qv.stem, qv.explanation, ua.option_value, e.title
         ORDER BY wrong_count DESC
-        LIMIT 6
+        LIMIT 8
       `;
 
       const list = results[cat.key] || [];
@@ -167,9 +167,19 @@ export async function GET(request: NextRequest) {
 
         const userChoiceIndex = Number(r.user_choice);
         const userChoiceObj = opts.find((o) => o.order_index === userChoiceIndex);
-        const userChoiceText = userChoiceObj ? extractText(userChoiceObj.content) : `Lựa chọn ${r.user_choice}`;
+        const userChoiceText = userChoiceObj
+          ? extractText(userChoiceObj.content)
+          : (userChoiceIndex === 0 ? 'Chưa chọn / Hết giờ (Phương án 0)' : `Lựa chọn ${r.user_choice}`);
 
         const term = extractTargetTerm(rawStem, underline, r.skill, fullExp, correctText);
+
+        let promptText = rawStem;
+        if (opts.length > 0) {
+          const formattedOpts = opts
+            .map((o) => `[${o.order_index}] ${extractText(o.content)}`)
+            .join('    ');
+          promptText = rawStem ? `${rawStem}\n\nCác lựa chọn:\n${formattedOpts}` : formattedOpts;
+        }
 
         list.push({
           term,
@@ -184,7 +194,7 @@ export async function GET(request: NextRequest) {
           }),
           source: `${r.level} · ${r.exam_title ? r.exam_title.slice(0, 22) : 'Đề thi JLPT'}`,
           reason: `Thường nhầm dạng bài: ${r.mondai_type || r.skill}`,
-          prompt: rawStem,
+          prompt: promptText,
           selected: userChoiceText,
           correct: correctText,
           explain: fullExp || 'Xem lại bài giảng và phương pháp làm bài chi tiết.',
