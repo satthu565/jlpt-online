@@ -68,6 +68,25 @@ function dotPos(p: { mastery: number; frequency: number }): { x: number; y: numb
   return { x, y };
 }
 
+/** Positions for all dots; dots that would overlap are spread sideways (then downwards). */
+function layoutDots(items: Array<{ mastery: number; frequency: number }>): Array<{ x: number; y: number }> {
+  const placed: Array<{ x: number; y: number }> = [];
+  for (const item of items) {
+    const pos = dotPos(item);
+    let guard = 0;
+    while (placed.some((q) => Math.abs(q.x - pos.x) < 9 && Math.abs(q.y - pos.y) < 12) && guard < 20) {
+      pos.x += 9;
+      if (pos.x > 92) {
+        pos.x = 8;
+        pos.y = Math.min(92, pos.y + 12);
+      }
+      guard += 1;
+    }
+    placed.push(pos);
+  }
+  return placed;
+}
+
 export function AnalyticsPriorityMatrix({
   priorities: propPriorities,
   attempts: _attempts = [],
@@ -139,6 +158,7 @@ export function AnalyticsPriorityMatrix({
   }
 
   const selectedPriority = priorities[selectedIndex] || priorities[0]!;
+  const dots = layoutDots(priorities);
 
   return (
     <Card id="priority-matrix" className="scroll-mt-20 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm mb-6">
@@ -217,8 +237,8 @@ export function AnalyticsPriorityMatrix({
                   }`}
                   // ui-allow-style: dynamic scatter dot coordinates and background color
                   style={{
-                    left: `${dotPos(p).x}%`,
-                    top: `${dotPos(p).y}%`,
+                    left: `${dots[i]!.x}%`,
+                    top: `${dots[i]!.y}%`,
                     backgroundColor: dotBg,
                   }}
                 >

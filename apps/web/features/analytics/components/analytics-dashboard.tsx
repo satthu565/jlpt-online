@@ -169,6 +169,8 @@ export function AnalyticsDashboard({
 
   // Real answered / correct / blank counts at the current level
   const answerStats = useMemo(() => {
+    // answer counts are per level over all submitted exams; hide them when the filters leave no submitted exam
+    if (submittedAttempts.length === 0) return null;
     const real = realStatsBySkillByLevel?.[currentLevel];
     if (real) {
       const vals = Object.values(real);
@@ -184,7 +186,7 @@ export function AnalyticsDashboard({
       return { total: own.length, correct: own.filter((q) => q.isCorrect).length, blank: 0 };
     }
     return null;
-  }, [realStatsBySkillByLevel, questionAttempts, currentLevel]);
+  }, [realStatsBySkillByLevel, questionAttempts, currentLevel, submittedAttempts.length]);
 
   const totalCompleted = submittedAttempts.length;
   const inProgressCount = filteredAttempts.filter((a) => a.status === 'in_progress').length;
@@ -623,7 +625,7 @@ export function AnalyticsDashboard({
             onToggleScope={() => setScopeFirstOnly((v) => !v)}
           />
 
-          {filteredAttempts.length === 0 && attempts.length > 0 && (
+          {submittedAttempts.length === 0 && attempts.some((a) => a.status !== 'in_progress') && (
             <p className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/50 text-xs text-amber-800 dark:text-amber-300">
               Không có bài nào khớp bộ lọc hiện tại ({currentLevel}
               {period !== 'all' ? `, ${period} ngày gần nhất` : ''}
@@ -643,6 +645,11 @@ export function AnalyticsDashboard({
             accuracyChange={accuracyDelta}
             answerStats={answerStats}
           />
+          {answerStats && !isDemoMode && (
+            <p className="-mt-3 mb-6 text-[11px] text-slate-400 dark:text-slate-500">
+              Tỷ lệ câu đúng và bỏ trống tính trên mọi bài đã nộp ở {currentLevel}, không phụ thuộc khoảng thời gian.
+            </p>
+          )}
 
           {/* Section 2: Assessment & Personal Plan */}
           <AnalyticsAssessment
