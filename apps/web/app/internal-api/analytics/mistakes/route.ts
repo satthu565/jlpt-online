@@ -64,6 +64,17 @@ function extractMeaningSummary(explanationText: string): string {
   return (firstSentence || explanationText).slice(0, 120).trim();
 }
 
+/** Grammar point named by the explanation ("Mẫu câu 「N にとって」", "Trợ từ 「で」", ...). */
+function extractGrammarPattern(explanationText: string): string | null {
+  const beforeAnalysis = explanationText.split('Phân tích')[0] ?? explanationText;
+  const afterAnswer = beforeAnalysis.split('Đáp án đúng:')[1] ?? beforeAnalysis;
+  const m = afterAnswer.match(/(Mẫu câu|Cấu trúc|Kính ngữ|Trợ từ)?\s*「([^」]{1,24})」/);
+  if (!m || !m[2]) return null;
+  const quoted = m[2].trim();
+  if (m[1] === 'Trợ từ') return `Trợ từ 「${quoted}」`;
+  return quoted;
+}
+
 function extractTargetTerm(
   rawStem: string,
   underline: string | null,
@@ -962,7 +973,8 @@ export async function GET(request: NextRequest) {
           ? extractText(userChoiceObj.content)
           : (userChoiceIndex === 0 ? 'Chưa chọn / Hết giờ (Phương án 0)' : `Lựa chọn ${r.user_choice}`);
 
-        const term = extractTargetTerm(rawStem, underline, r.skill, fullExp, correctText);
+        const grammarPattern = cat.key === 'grammar' ? extractGrammarPattern(fullExp) : null;
+        const term = grammarPattern ?? extractTargetTerm(rawStem, underline, r.skill, fullExp, correctText);
 
         let promptText = rawStem;
         if (opts.length > 0) {
@@ -974,6 +986,10 @@ export async function GET(request: NextRequest) {
 
         list.push({
           term,
+          stem: rawStem,
+          level: r.level,
+          skill: r.skill,
+          mondaiType: r.mondai_type,
           meaning: meaning || 'Cần ôn tập kỹ dạng câu hỏi và phân tích đáp án chi tiết',
           wrong: r.wrong_count,
           total: r.total_count,

@@ -1,5 +1,6 @@
 'use client';
 
+import type { ActivityData } from '../bank';
 import React, { useMemo } from 'react';
 import { TrendingUp, BookOpen, Clock, Sparkles } from 'lucide-react';
 import { Card } from '@jlpt/ui/components/card';
@@ -9,6 +10,8 @@ import type { AttemptRecord } from '../types';
 export interface AnalyticsActivityHeatmapProps {
   attempts: AttemptRecord[];
   weakestSkill?: { name: string; accuracy: number } | null;
+  /** Learning activity from every source; falls back to submitted exams when absent. */
+  activity?: ActivityData | null;
   currentStreakDays?: number;
   maxStreakDays?: number;
 }
@@ -25,48 +28,68 @@ export function AnalyticsActivityHeatmap({
   attempts,
   currentStreakDays = 0,
   weakestSkill,
+  activity,
 }: AnalyticsActivityHeatmapProps): React.JSX.Element {
   // Generate 14 weeks x 7 days grid
   const { grid, activeDaysCount } = useMemo(() => {
-    // Map dates from attempts
+    // Count per day: all recorded activity when available, else submitted exams only
     const dateCounts = new Map<string, number>();
-    attempts.forEach((a) => {
-      if (a.submittedAt && a.status !== 'in_progress') {
-        const d = a.submittedAt.slice(0, 10);
-        dateCounts.set(d, (dateCounts.get(d) || 0) + 1);
-      }
-    });
+    const dateDetail = new Map<string, string>();
+    if (activity) {
+      Object.entries(activity.days).forEach(([d, c]) => {
+        const total = c.exam + c.review + c.notebook + c.plan;
+        if (total === 0) return;
+        dateCounts.set(d, total);
+        const parts = [
+          c.exam ? `${c.exam} lượt làm đề` : '',
+          c.review ? `${c.review} thẻ ôn` : '',
+          c.notebook ? `${c.notebook} mục sổ tay` : '',
+          c.plan ? `${c.plan} buổi kế hoạch` : '',
+        ].filter(Boolean);
+        dateDetail.set(d, parts.join(', '));
+      });
+    } else {
+      attempts.forEach((a) => {
+        if (a.submittedAt && a.status !== 'in_progress') {
+          const d = a.submittedAt.slice(0, 10);
+          dateCounts.set(d, (dateCounts.get(d) || 0) + 1);
+          dateDetail.set(d, `${dateCounts.get(d)} bài đã nộp`);
+        }
+      });
+    }
+    const toLevel = (n: number): number => (n <= 1 ? 1 : n <= 3 ? 2 : n <= 9 ? 3 : 4);
+    const vnDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
 
     const now = new Date();
     const cols = 14;
     const rows = 7;
-    const weeks: { dateStr: string; level: number }[][] = [];
+    const weeks: { dateStr: string; level: number; detail: string }[][] = [];
     let count = 0;
 
     // Start 14*7 days ago
     for (let c = 0; c < cols; c++) {
-      const week: { dateStr: string; level: number }[] = [];
+      const week: { dateStr: string; level: number; detail: string }[] = [];
       for (let r = 0; r < rows; r++) {
         const daysAgo = (cols - 1 - c) * 7 + (rows - 1 - r);
         const day = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
-        const dStr = day.toISOString().slice(0, 10);
+        const dStr = vnDate.format(day);
         const realCount = dateCounts.get(dStr);
 
         let lvl = 0;
         if (realCount !== undefined) {
-          lvl = Math.min(4, Math.max(1, realCount));
+          lvl = toLevel(realCount);
           count++;
         }
 
-        week.push({ dateStr: dStr, level: lvl });
+        week.push({ dateStr: dStr, level: lvl, detail: dateDetail.get(dStr) ?? '' });
       }
       weeks.push(week);
     }
 
     return { grid: weeks, activeDaysCount: count };
-  }, [attempts]);
+  }, [attempts, activity]);
 
-  const { maxStreakDays, insights } = useMemo(() => {
+  const { maxStreakDays: attemptsMaxStreak, insights } = useMemo(() => {
     const submitted = attempts
       .filter((a) => a.status !== 'in_progress')
       .sort((x, y) => new Date(x.submittedAt).getTime() - new Date(y.submittedAt).getTime());
@@ -119,6 +142,8 @@ export function AnalyticsActivityHeatmap({
     return { maxStreakDays: longest, insights: { progress, skill, speed } };
   }, [attempts, weakestSkill]);
 
+  const maxStreakDays = activity ? activity.longestStreak : attemptsMaxStreak;
+
   const monthRange = (() => {
     const first = grid[0]?.[0]?.dateStr;
     const lastWeek = grid[grid.length - 1];
@@ -147,7 +172,7 @@ export function AnalyticsActivityHeatmap({
           </div>
 
           <div className="flex justify-between items-center text-[10px] text-slate-400 dark:text-slate-500 mb-2">
-            <span>14 tuần gần nhất</span>
+            <span>14 tuần gần nhất{activity ? ' · tính cả làm đề, ôn thẻ, sổ tay và kế hoạch học' : ''}</span>
             <span suppressHydrationWarning>{monthRange}</span>
           </div>
 
@@ -159,7 +184,7 @@ export function AnalyticsActivityHeatmap({
                   <span
                     key={dIdx}
                     suppressHydrationWarning
-                    title={`${cell.dateStr}: ${cell.level} hoạt động`}
+                    title={cell.level > 0 ? `${cell.dateStr}: ${cell.detail}` : `${cell.dateStr}: không có hoạt động`}
                     className={`aspect-square rounded-[3px] transition-transform hover:scale-125 ${
                       HEAT_LEVEL_CLASSES[cell.level]
                     }`}

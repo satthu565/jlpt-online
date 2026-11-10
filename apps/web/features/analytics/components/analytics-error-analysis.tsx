@@ -1,5 +1,6 @@
 'use client';
 
+import { buildPracticeHref } from '../practice-link';
 import React, { useMemo } from 'react';
 import { AlertCircle, ArrowRight, BookOpen, Sparkles } from 'lucide-react';
 import { Card } from '@jlpt/ui/components/card';
@@ -92,7 +93,7 @@ export interface AnalyticsErrorAnalysisProps {
   scopeFirstOnly?: boolean;
   /** Real answered / wrong counts per mondai type of the signed-in user (current level). */
   mondaiStats?: Record<string, { wrong: number; total: number; blank?: number }>;
-  onOpenStudyModal: (mode: string, param?: string) => void;
+  onOpenStudyModal: (mode: string, param?: string, href?: string) => void;
 }
 
 export function AnalyticsErrorAnalysis({
@@ -100,7 +101,7 @@ export function AnalyticsErrorAnalysis({
   questionAttempts = [],
   errorTypes,
   errorReasons,
-  level: _level = 'N3',
+  level = 'N3',
   scopeFirstOnly = true,
   mondaiStats,
   onOpenStudyModal,
@@ -282,7 +283,7 @@ export function AnalyticsErrorAnalysis({
                     <div className="flex justify-between items-center text-xs">
                       <strong className="font-bold text-slate-800 dark:text-slate-200">{e.name}</strong>
                       <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
-                        {pct}% sai · {e.incorrect}/{e.total} câu
+                        {pct}% sai · {e.incorrect}/{e.total} câu{e.total < 10 ? ' · mẫu nhỏ' : ''}
                       </span>
                     </div>
                     <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -302,7 +303,21 @@ export function AnalyticsErrorAnalysis({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => onOpenStudyModal('error', e.name)}
+                      onClick={() =>
+                        onOpenStudyModal(
+                          'error',
+                          e.name,
+                          e.mondaiType
+                            ? buildPracticeHref({
+                                level,
+                                pool: 'wrong',
+                                mondaiTypes: [e.mondaiType],
+                                count: Math.min(15, Math.max(5, e.incorrect)),
+                                label: e.name,
+                              })
+                            : undefined,
+                        )
+                      }
                       className="h-auto p-0 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700"
                     >
                       Xem nguyên nhân và luyện tập →

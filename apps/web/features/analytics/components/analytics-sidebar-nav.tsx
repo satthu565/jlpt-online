@@ -32,6 +32,7 @@ export interface AnalyticsSidebarNavProps {
 const NAV_ITEMS = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'assessment', label: 'Khả năng đỗ', icon: ShieldCheck },
+  { id: 'exam-plan', label: 'Đếm ngược & kho đề', icon: BookOpenCheck },
   { id: 'knowledge-map', label: 'Bản đồ kiến thức', icon: BookOpenCheck },
   { id: 'frequency', label: 'Kiến thức hay gặp', icon: BarChart3 },
   { id: 'year-trends', label: 'Xu hướng qua năm', icon: CalendarRange },
@@ -142,11 +143,11 @@ export function AnalyticsSidebarNav({
       {/* Monthly Target Box */}
       <div className="hidden lg:block bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100/80 dark:border-indigo-900/40 rounded-xl p-3.5 text-xs">
         <div className="flex justify-between items-center mb-1">
-          <h4 className="font-bold text-slate-800 dark:text-slate-200 text-xs">🎯 Mục tiêu tháng này</h4>
+          <h4 className="font-bold text-slate-800 dark:text-slate-200 text-xs">🎯 Tiến độ kho đề</h4>
           <span className="font-bold text-indigo-600 dark:text-indigo-400 text-[11px]">{progressPercent}%</span>
         </div>
         <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed mb-2.5">
-          Hoàn thành {monthlyTargetCount} đề thi thử trước kỳ thi tiếp theo.
+          Làm hết kho đề {targetLevel} ({monthlyTargetCount} đề).
         </p>
         <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
           {/* ui-allow-style: dynamic monthly progress percentage */}

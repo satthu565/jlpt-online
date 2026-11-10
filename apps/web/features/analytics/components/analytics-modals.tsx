@@ -1,5 +1,6 @@
 'use client';
 
+import { buildPracticeHref } from '../practice-link';
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, Check } from 'lucide-react';
@@ -76,9 +77,18 @@ export function AnalyticsModals({
               <Button variant="outline" size="sm" onClick={onCloseQuestionModal}>
                 Đóng
               </Button>
-              <Link href="/luyen-tap">
+              <Link
+                href={buildPracticeHref({
+                  level: (questionModalRecord.level as 'N1' | 'N2' | 'N3' | 'N4' | 'N5') ?? 'N3',
+                  pool: 'wrong',
+                  skills: questionModalRecord.skill ? [questionModalRecord.skill] : undefined,
+                  mondaiTypes: questionModalRecord.mondaiType ? [questionModalRecord.mondaiType] : undefined,
+                  count: 10,
+                  label: questionModalRecord.term,
+                })}
+              >
                 <Button variant="primary" size="sm" onClick={onCloseQuestionModal}>
-                  Luyện lại kiến thức này
+                  Luyện lại dạng câu này
                   <ArrowRight className="size-3.5 inline ml-1.5" aria-hidden="true" />
                 </Button>
               </Link>

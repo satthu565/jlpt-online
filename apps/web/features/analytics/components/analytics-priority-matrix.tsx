@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import type { AttemptRecord, QuestionAttemptRecord } from '../types';
 import type { Level } from '@jlpt/schema';
+import { buildPracticeHref } from '../practice-link';
 import { MONDAI_LABELS } from './analytics-error-analysis';
 import { ArrowRight, ShieldCheck } from 'lucide-react';
 import { Card } from '@jlpt/ui/components/card';
@@ -17,6 +18,7 @@ export interface PriorityItem {
   sample: number;
   miss: number;
   blank?: number;
+  mondaiType?: string;
   why: string;
   plan: string;
 }
@@ -54,7 +56,7 @@ export interface AnalyticsPriorityMatrixProps {
   mondaiStats?: Record<string, { wrong: number; total: number; blank?: number }>;
   /** Number of bank questions per mondai type at this level, used as the frequency axis. */
   bankMondai?: Array<{ type: string; count: number }>;
-  onOpenStudyModal: (mode: string, param?: string) => void;
+  onOpenStudyModal: (mode: string, param?: string, href?: string) => void;
 }
 
 /** Dot position in percent; nudged out of the quadrant label areas so the labels stay readable. */
@@ -121,7 +123,7 @@ export function AnalyticsPriorityMatrix({
     const bankCount = new Map((bankMondai ?? []).map((m) => [m.type, m.count]));
 
     return Array.from(rows.entries())
-      .filter(([, entry]) => entry.total >= 2)
+      .filter(([, entry]) => entry.total >= 5)
       .map(([type, entry]) => {
         const mastery = Math.round(((entry.total - entry.wrong) / entry.total) * 100);
         const name = MONDAI_LABELS[type] || type;
@@ -136,6 +138,7 @@ export function AnalyticsPriorityMatrix({
           sample: entry.total,
           miss: entry.wrong,
           blank: entry.blank,
+          mondaiType: type,
           why: `Bạn đã làm ${entry.total} câu dạng này và sai ${entry.wrong} câu${entry.blank > 0 ? ` (trong đó bỏ trống ${entry.blank})` : ''}, độ thành thạo ${mastery}%. Dạng này chiếm ${frequency}% so với dạng xuất hiện nhiều nhất trong kho đề ${level}.`,
           plan: `Luyện tập chuyên sâu 15 câu dạng "${name}" và phân tích kỹ lời giải chi tiết.`,
         };
@@ -151,7 +154,7 @@ export function AnalyticsPriorityMatrix({
           13 · Tôi nên ưu tiên học gì để tăng điểm?
         </h2>
         <p className="mt-3 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
-          Chưa đủ dữ liệu: cần nộp ít nhất một bài thi {level} để xếp hạng dạng câu nên ưu tiên.
+          Chưa đủ dữ liệu: cần ít nhất 5 câu đã làm ở mỗi dạng ({level}) để xếp hạng dạng câu nên ưu tiên.
         </p>
       </Card>
     );
@@ -343,7 +346,21 @@ export function AnalyticsPriorityMatrix({
           <Button
             variant="primary"
             size="md"
-            onClick={() => onOpenStudyModal('priority', selectedPriority.name)}
+            onClick={() =>
+              onOpenStudyModal(
+                'priority',
+                selectedPriority.name,
+                selectedPriority.mondaiType
+                  ? buildPracticeHref({
+                      level,
+                      pool: 'wrong',
+                      mondaiTypes: [selectedPriority.mondaiType],
+                      count: Math.min(15, Math.max(5, selectedPriority.miss)),
+                      label: selectedPriority.name,
+                    })
+                  : undefined,
+              )
+            }
             className="w-full justify-center"
           >
             Luyện nội dung ưu tiên

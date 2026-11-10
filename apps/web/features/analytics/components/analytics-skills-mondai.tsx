@@ -10,6 +10,8 @@ export interface MondaiTypeItem {
   accuracy: number | null;
   totalQuestions: number;
   blank?: number;
+  /** Pre-filled /luyen-tap link for this question type. */
+  href?: string;
 }
 
 export interface SkillCategoryItem {
@@ -24,7 +26,7 @@ export interface SkillCategoryItem {
 
 export interface AnalyticsSkillsMondaiProps {
   skills?: SkillCategoryItem[];
-  onOpenStudyModal: (mode: string, param?: string) => void;
+  onOpenStudyModal: (mode: string, param?: string, href?: string) => void;
 }
 
 export function AnalyticsSkillsMondai({
@@ -93,7 +95,7 @@ export function AnalyticsSkillsMondai({
               </div>
               {s.total ? (
                 <p className="text-[10px] text-slate-400 dark:text-slate-500">
-                  Đã gặp {s.total} câu · bỏ trống {s.blank ?? 0}
+                  Đã gặp {s.total} câu · bỏ trống {s.blank ?? 0}{s.total < 20 ? ' · mẫu nhỏ' : ''}
                 </p>
               ) : null}
               <div className="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
@@ -173,7 +175,7 @@ export function AnalyticsSkillsMondai({
                         </strong>
                         {type.totalQuestions > 0 && (
                           <span className="block text-[10px] text-slate-400 dark:text-slate-500">
-                            {type.totalQuestions} câu · bỏ trống {type.blank ?? 0}
+                            {type.totalQuestions} câu · bỏ trống {type.blank ?? 0}{type.totalQuestions < 10 ? ' · mẫu nhỏ' : ''}
                           </span>
                         )}
                       </div>
@@ -191,7 +193,7 @@ export function AnalyticsSkillsMondai({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => onOpenStudyModal('type', type.label)}
+                          onClick={() => onOpenStudyModal('type', type.label, type.href)}
                           className="h-7 px-2.5 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/60"
                         >
                           Luyện

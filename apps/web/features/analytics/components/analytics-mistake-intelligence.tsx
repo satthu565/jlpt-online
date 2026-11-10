@@ -435,10 +435,13 @@ export function AnalyticsMistakeIntelligence({
     return Math.max(...currentCoverage.map((c) => c.value), 1);
   }, [currentCoverage]);
 
+  // A pair confused only once is noise: real pairs need at least 2 occurrences
+  const MIN_PAIR_COUNT = 2;
+  const singlePairs = (realPairsByLevel?.[level || 'N3'] ?? []).filter((p) => p.n < MIN_PAIR_COUNT).length;
   const currentPairs = useMemo<ConfusedPair[]>(() => {
     const targetLvl = level || 'N3';
     if (realPairsByLevel && realPairsByLevel[targetLvl] && realPairsByLevel[targetLvl].length > 0) {
-      return realPairsByLevel[targetLvl];
+      return realPairsByLevel[targetLvl].filter((p) => p.n >= MIN_PAIR_COUNT);
     }
     return isDemoMode ? PAIRS : [];
   }, [realPairsByLevel, level, isDemoMode]);
@@ -667,7 +670,7 @@ export function AnalyticsMistakeIntelligence({
                 </p>
               </div>
               <Badge variant="secondary" className="text-[10px] font-bold">
-                NGUYÊN NHÂN
+                NGUYÊN NHÂN{!isDemoMode && totalLevelWrong < 20 ? ' · SƠ BỘ' : ''}
               </Badge>
             </div>
 
@@ -789,7 +792,7 @@ export function AnalyticsMistakeIntelligence({
                 </p>
               </div>
               <Badge variant="secondary" className="text-[10px] font-bold">
-                DỄ NHẦM
+                DỄ NHẦM{!isDemoMode && filteredPairs.length < 3 ? ' · SƠ BỘ' : ''}
               </Badge>
             </div>
 
@@ -808,7 +811,12 @@ export function AnalyticsMistakeIntelligence({
               />
             </div>
 
-            {filteredPairs.length === 0 && (
+            {filteredPairs.length === 0 && singlePairs > 0 && (
+              <p className="py-6 text-center text-xs text-slate-400 dark:text-slate-500">
+                Có {singlePairs} cặp mới nhầm 1 lần: chưa đủ để kết luận (cần từ 2 lần trở lên).
+              </p>
+            )}
+            {filteredPairs.length === 0 && singlePairs === 0 && (
               <p className="py-6 text-center text-xs text-slate-400 dark:text-slate-500">Chưa có dữ liệu từ các bài đã nộp ở cấp độ {level}.</p>
             )}
             <div className="space-y-2">
@@ -863,7 +871,7 @@ export function AnalyticsMistakeIntelligence({
                 </p>
               </div>
               <Badge variant="secondary" className="text-[10px] font-bold">
-                BẪY ĐỀ THI
+                BẪY ĐỀ THI{!isDemoMode && currentTraps.reduce((a, t) => a + t.value, 0) < 20 ? ' · SƠ BỘ' : ''}
               </Badge>
             </div>
 
@@ -1027,7 +1035,7 @@ export function AnalyticsMistakeIntelligence({
                 </p>
               </div>
               <Badge variant="secondary" className="text-[10px] font-bold">
-                HIỆU SUẤT
+                HIỆU SUẤT{!isDemoMode && currentTimedWeakness.totalTimedWrongs < 20 ? ' · SƠ BỘ' : ''}
               </Badge>
             </div>
 

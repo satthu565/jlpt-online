@@ -1,5 +1,6 @@
 'use client';
 
+import { buildPracticeHref, SECTION_SKILLS } from '../practice-link';
 import React from 'react';
 import Link from 'next/link';
 import {
@@ -18,6 +19,7 @@ import { Badge } from '@jlpt/ui/components/badge';
 
 export interface SectionScoreItem {
   name: string;
+  code?: string;
   score: number;
   maxScore: number;
   minCutoff: number;
@@ -65,9 +67,11 @@ export function AnalyticsAssessment({
   const sortedByMargin = [...sections].sort(
     (a, b) => a.score - a.minCutoff - (b.score - b.minCutoff),
   );
-  const riskiest = sortedByMargin[0] || {
+  const riskiest: SectionScoreItem = sortedByMargin[0] || {
     name: 'Kiến thức ngôn ngữ',
+    code: 'language',
     score: 0,
+    maxScore: 60,
     minCutoff: 19,
   };
   const marginToMin = riskiest.score - riskiest.minCutoff;
@@ -78,7 +82,7 @@ export function AnalyticsAssessment({
         title: `Giảm câu bỏ trống (${blankRate}% số câu)`,
         body: 'JLPT không trừ điểm câu sai, nên bỏ trống luôn thiệt hơn đoán. Hãy luyện làm kịp giờ và luôn chọn một đáp án cho mỗi câu.',
         action: 'Luyện làm đúng giờ',
-        href: '/luyen-tap',
+        href: buildPracticeHref({ level, pool: 'unseen', count: 20, label: 'Luyện làm đúng giờ, không bỏ trống' }),
       };
     }
     if (hasSubmitted) {
@@ -90,7 +94,13 @@ export function AnalyticsAssessment({
             ? `Phần này đang cao hơn điểm liệt ${gap} điểm (${riskiest.score}/${riskiest.minCutoff} tối thiểu), là phần sát ngưỡng nhất. Duy trì và tăng thêm điểm dự phòng.`
             : `Phần này đang thấp hơn điểm liệt ${gap} điểm (${riskiest.score} so với tối thiểu ${riskiest.minCutoff}). Bạn sẽ trượt nếu không nâng phần này, dù tổng điểm đủ.`,
         action: 'Bắt đầu luyện ngay',
-        href: '/luyen-tap',
+        href: buildPracticeHref({
+          level,
+          pool: 'wrong',
+          skills: riskiest.code ? SECTION_SKILLS[riskiest.code] : undefined,
+          count: 15,
+          label: riskiest.name,
+        }),
       };
     }
     if (weakestAccuracy !== null && weakestAccuracy !== undefined && weakestSectionName) {

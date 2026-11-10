@@ -11,6 +11,8 @@ import { Input } from '@jlpt/ui/components/input';
 import { Select } from '@jlpt/ui/components/select';
 
 export interface PracticeGeneratorProps {
+  /** Pre-filled settings, e.g. from a link on the statistics page. */
+  initialConfig?: Partial<PracticeFilterState>;
   onGenerate: (config: PracticeFilterState) => Promise<void> | void;
   isGenerating?: boolean;
   shortage?: PracticeShortageInfo | null;
@@ -19,13 +21,14 @@ export interface PracticeGeneratorProps {
 }
 
 export function PracticeGenerator({
+  initialConfig,
   onGenerate,
   isGenerating = false,
   shortage = null,
   onProceedWithShortage,
   className = '',
 }: PracticeGeneratorProps): React.JSX.Element {
-  const [config, setConfig] = useState<PracticeFilterState>(INITIAL_PRACTICE_CONFIG);
+  const [config, setConfig] = useState<PracticeFilterState>({ ...INITIAL_PRACTICE_CONFIG, ...initialConfig });
 
   const levels: Level[] = ['N1', 'N2', 'N3', 'N4', 'N5'];
 
@@ -55,6 +58,7 @@ export function PracticeGenerator({
       return {
         ...prev,
         skills: nextSkills.length > 0 ? nextSkills : [skill], // Keep at least one
+        mondaiTypes: undefined, // a manual skill change replaces the preset question types
       };
     });
   };

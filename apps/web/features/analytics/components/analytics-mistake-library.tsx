@@ -1,5 +1,6 @@
 'use client';
 
+import { buildPracticeHref } from '../practice-link';
 import React, { useState, useMemo } from 'react';
 import {
   AlertCircle,
@@ -20,6 +21,11 @@ import { MONDAI_LABELS, MONDAI_DIAGNOSTIC_REASONS } from './analytics-error-anal
 
 export interface MistakeRecord {
   term: string;
+  /** Japanese question text with the blank marked. */
+  stem?: string;
+  level?: string;
+  skill?: string;
+  mondaiType?: string;
   meaning: string;
   wrong: number;
   total: number;
@@ -1065,6 +1071,13 @@ const SORT_OPTIONS = [
   { value: 'recent', label: 'Sai gần đây' },
 ];
 
+const TAB_SKILLS: Record<string, string[]> = {
+  grammar: ['grammar'],
+  vocab: ['vocabulary'],
+  kanji: ['kanji'],
+  question: ['reading', 'listening'],
+};
+
 export interface AnalyticsMistakeLibraryProps {
   attempts?: AttemptRecord[];
   questionAttempts?: QuestionAttemptRecord[];
@@ -1089,6 +1102,45 @@ export function AnalyticsMistakeLibrary({
   const [activeTab, setActiveTab] = useState<string>('grammar');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('errors');
+  const [notebookState, setNotebookState] = useState<Record<string, 'saving' | 'done' | 'error'>>({});
+
+  const notebookKey = (m: MistakeRecord): string => `${m.level ?? level}:${m.term}`;
+
+  const addToNotebook = async (m: MistakeRecord): Promise<void> => {
+    const key = notebookKey(m);
+    setNotebookState((prev) => ({ ...prev, [key]: 'saving' }));
+    const baseUrl = (process.env.NEXT_PUBLIC_API_URL || '/api/v1').replace(/\/+$/, '');
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('jlpt_auth_token') || sessionStorage.getItem('jlpt_auth_token')
+        : null;
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    try {
+      const existing = await fetch(`${baseUrl}/me/notebook-items?limit=200`, { headers, credentials: 'include' });
+      if (existing.ok) {
+        const data = (await existing.json()) as { items?: Array<{ term?: string }> };
+        if ((data.items ?? []).some((it) => it.term === m.term)) {
+          setNotebookState((prev) => ({ ...prev, [key]: 'done' }));
+          return;
+        }
+      }
+      const res = await fetch(`${baseUrl}/me/notebook-items`, {
+        method: 'POST',
+        headers,
+        credentials: 'include',
+        body: JSON.stringify({
+          kind: activeTab,
+          term: m.term,
+          meaning: m.meaning,
+          examples: m.stem ? [m.stem] : undefined,
+        }),
+      });
+      setNotebookState((prev) => ({ ...prev, [key]: res.ok ? 'done' : 'error' }));
+    } catch {
+      setNotebookState((prev) => ({ ...prev, [key]: 'error' }));
+    }
+  };
 
   const submittedAttempts = useMemo(() => {
     return (attempts || []).filter((a) => a.status === 'submitted' || Boolean(a.submittedAt));
@@ -1444,7 +1496,12 @@ export function AnalyticsMistakeLibrary({
                       <div className="font-extrabold text-base text-slate-900 dark:text-slate-100 break-words" lang="ja">
                         {m.term}
                       </div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                      {m.stem && (
+                        <p className="text-sm text-slate-800 dark:text-slate-200 mt-1 leading-relaxed break-words" lang="ja">
+                          {m.stem}
+                        </p>
+                      )}
+                      <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 leading-relaxed">
                         {m.meaning}
                       </p>
                     </div>
@@ -1467,7 +1524,7 @@ export function AnalyticsMistakeLibrary({
 
                   <div className="flex justify-between items-center text-[10px] text-slate-400 dark:text-slate-500">
                     <span>
-                      Sai <strong className="text-slate-700 dark:text-slate-300">{m.wrong}/{m.total}</strong> lượt
+                      Sai <strong className="text-slate-700 dark:text-slate-300">{m.wrong}/{m.total}</strong> lượt{m.total < 3 ? ' · mẫu nhỏ' : ''}
                     </span>
                     <span>
                       Gần nhất: <strong className="text-slate-700 dark:text-slate-300">{m.last}</strong>
@@ -1486,6 +1543,22 @@ export function AnalyticsMistakeLibrary({
                     {m.streak > 0 ? `↻ Sai liên tiếp ${m.streak} lần` : '✓ Đã có lượt làm đúng'}
                   </span>
 
+                  <div className="flex items-center gap-1.5">
+                    {activeTab !== 'question' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => addToNotebook(m)}
+                        disabled={notebookState[notebookKey(m)] === 'saving' || notebookState[notebookKey(m)] === 'done'}
+                        className="text-xs font-bold"
+                      >
+                        {notebookState[notebookKey(m)] === 'done'
+                          ? '✓ Đã vào sổ tay'
+                          : notebookState[notebookKey(m)] === 'error'
+                            ? 'Thử lại sổ tay'
+                            : '+ Sổ tay'}
+                      </Button>
+                    )}
                   <Button
                     variant="outline"
                     size="sm"
@@ -1495,6 +1568,7 @@ export function AnalyticsMistakeLibrary({
                     Xem câu sai
                     <ArrowRight className="size-3.5 inline ml-1" aria-hidden="true" />
                   </Button>
+                  </div>
                 </div>
               </div>
             );
@@ -1515,16 +1589,27 @@ export function AnalyticsMistakeLibrary({
           </span>
         </div>
 
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={() => onReviewAll(filteredRecords.length)}
-          disabled={filteredRecords.length === 0}
-          className="whitespace-nowrap font-bold"
-        >
-          <RefreshCw className="size-3.5 inline mr-1.5" aria-hidden="true" />
-          Luyện lại các mục đang lọc
-        </Button>
+        {filteredRecords.length === 0 ? (
+          <Button variant="primary" size="sm" disabled className="whitespace-nowrap font-bold">
+            <RefreshCw className="size-3.5 inline mr-1.5" aria-hidden="true" />
+            Luyện lại các mục đang lọc
+          </Button>
+        ) : (
+          <Link
+            href={buildPracticeHref({
+              level: level as 'N1' | 'N2' | 'N3' | 'N4' | 'N5',
+              pool: 'wrong',
+              skills: TAB_SKILLS[activeTab],
+              count: Math.min(20, filteredRecords.length * 2),
+              label: `Câu đã làm sai · ${(tabContextLabels[activeTab] ?? '').split(':')[0]}`,
+            })}
+          >
+            <Button variant="primary" size="sm" className="whitespace-nowrap font-bold">
+              <RefreshCw className="size-3.5 inline mr-1.5" aria-hidden="true" />
+              Luyện lại các câu sai của tab này
+            </Button>
+          </Link>
+        )}
       </div>
     </Card>
   );

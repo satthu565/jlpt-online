@@ -3,6 +3,9 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import type { BankStats, MondaiStatsByLevel } from '../bank';
 import { mondaiAccuracy } from '../bank';
+import type { ActivityData, ExamMeta, ScheduleItem } from '../bank';
+import { buildPracticeHref } from '../practice-link';
+import { AnalyticsExamPlan } from './analytics-exam-plan';
 import type { Level, Skill, MondaiType } from '@jlpt/schema';
 import type { AttemptRecord, QuestionAttemptRecord } from '../types';
 import {
@@ -69,6 +72,9 @@ export interface AnalyticsDashboardProps {
   realTimedWeaknessByLevel?: Record<string, TimedSummary>;
   realMondaiStatsByLevel?: MondaiStatsByLevel;
   bank?: BankStats;
+  activity?: ActivityData | null;
+  exams?: ExamMeta[];
+  schedules?: ScheduleItem[];
 }
 
 const LEVEL_THRESHOLDS: Record<Level, { total: number; minSections: number[] }> = {
@@ -99,6 +105,9 @@ export function AnalyticsDashboard({
   realTimedWeaknessByLevel,
   realMondaiStatsByLevel,
   bank,
+  activity,
+  exams,
+  schedules,
 }: AnalyticsDashboardProps): React.JSX.Element {
   // Filter States
   const [currentLevel, setCurrentLevel] = useState<Level>(targetLevel);
@@ -188,6 +197,19 @@ export function AnalyticsDashboard({
     return null;
   }, [realStatsBySkillByLevel, questionAttempts, currentLevel, submittedAttempts.length]);
 
+  const levelExams = useMemo(() => (exams ?? []).filter((e) => e.level === currentLevel), [exams, currentLevel]);
+  const levelAttempts = useMemo(() => attempts.filter((a) => a.level === currentLevel), [attempts, currentLevel]);
+  const doneExamCount = useMemo(
+    () => new Set(levelAttempts.filter((a) => a.status !== 'in_progress').map((a) => a.examId)).size,
+    [levelAttempts],
+  );
+  const latestScore = useMemo(() => {
+    const done = levelAttempts
+      .filter((a) => a.status !== 'in_progress')
+      .sort((x, y) => new Date(y.submittedAt).getTime() - new Date(x.submittedAt).getTime());
+    return done[0] ? done[0].totalScore : null;
+  }, [levelAttempts]);
+
   const totalCompleted = submittedAttempts.length;
   const inProgressCount = filteredAttempts.filter((a) => a.status === 'in_progress').length;
 
@@ -213,7 +235,7 @@ export function AnalyticsDashboard({
   }, [submittedAttempts]);
 
   // Streak days calculation
-  const streakDays = useMemo(() => {
+  const attemptStreakDays = useMemo(() => {
     if (attempts.length === 0) return 0;
     const activeDates = new Set<string>();
     attempts.forEach((a) => {
@@ -248,6 +270,7 @@ export function AnalyticsDashboard({
     }
     return streak;
   }, [attempts]);
+  const streakDays = activity ? activity.currentStreak : attemptStreakDays;
 
   // Dynamic Delta compared to previous attempt
   const { scoreDelta, accuracyDelta } = useMemo(() => {
@@ -362,7 +385,7 @@ export function AnalyticsDashboard({
     if (attemptsWithSections.length > 0) {
       const sectionTotals: Record<
         string,
-        { name: string; scoreSum: number; count: number; maxScore: number; minCutoff: number }
+        { name: string; code?: string; scoreSum: number; count: number; maxScore: number; minCutoff: number }
       > = {};
 
       attemptsWithSections.forEach((a) => {
@@ -371,6 +394,7 @@ export function AnalyticsDashboard({
           if (!sectionTotals[key]) {
             sectionTotals[key] = {
               name: s.name,
+              code: s.code,
               scoreSum: 0,
               count: 0,
               maxScore: s.maxScore || 60,
@@ -384,6 +408,7 @@ export function AnalyticsDashboard({
 
       return Object.values(sectionTotals).map((item) => ({
         name: item.name,
+        code: item.code,
         score: Math.round(item.scoreSum / item.count),
         maxScore: item.maxScore,
         minCutoff: item.minCutoff,
@@ -489,19 +514,36 @@ export function AnalyticsDashboard({
       return empty;
     };
 
-    const getMondaiData = (types: string[]): { accuracy: number | null; totalQuestions: number; blank: number } => {
+    const getMondaiData = (types: string[]): { accuracy: number | null; totalQuestions: number; blank: number; wrong: number } => {
       if (hasLocal) {
         const matched = mondaiStats.filter((m) => types.includes(m.mondaiType));
         const total = matched.reduce((acc, m) => acc + m.total, 0);
         const correct = matched.reduce((acc, m) => acc + m.correct, 0);
         return total > 0
-          ? { accuracy: Math.round((correct / total) * 100), totalQuestions: total, blank: 0 }
-          : { accuracy: null, totalQuestions: 0, blank: 0 };
+          ? { accuracy: Math.round((correct / total) * 100), totalQuestions: total, blank: 0, wrong: total - correct }
+          : { accuracy: null, totalQuestions: 0, blank: 0, wrong: 0 };
       }
       const r = mondaiAccuracy(realMondai, types);
       return r
-        ? { accuracy: r.accuracy, totalQuestions: r.total, blank: r.blank }
-        : { accuracy: null, totalQuestions: 0, blank: 0 };
+        ? { accuracy: r.accuracy, totalQuestions: r.total, blank: r.blank, wrong: r.wrong }
+        : { accuracy: null, totalQuestions: 0, blank: 0, wrong: 0 };
+    };
+
+    const typeItem = (label: string, types: string[]) => {
+      const d = getMondaiData(types);
+      return {
+        label,
+        accuracy: d.accuracy,
+        totalQuestions: d.totalQuestions,
+        blank: d.blank,
+        href: buildPracticeHref({
+          level: currentLevel,
+          pool: d.wrong > 0 ? 'wrong' : 'unseen',
+          mondaiTypes: types,
+          count: d.wrong > 0 ? Math.min(15, Math.max(5, d.wrong)) : 15,
+          label,
+        }),
+      };
     };
 
     return [
@@ -511,11 +553,11 @@ export function AnalyticsDashboard({
         ...(() => { const c = getSkillCell(['vocabulary', 'kanji']); return { accuracy: c.accuracy, total: c.total, blank: c.blank }; })(),
         color: 'bg-emerald-500',
         types: [
-          { label: 'Cách đọc Kanji', ...getMondaiData(['kanji_reading']) },
-          { label: 'Từ vựng theo ngữ cảnh', ...getMondaiData(['contextual']) },
-          { label: 'Từ gần nghĩa', ...getMondaiData(['paraphrase']) },
-          { label: 'Cách viết chữ Hán', ...getMondaiData(['orthography']) },
-          { label: 'Cách sử dụng từ', ...getMondaiData(['usage', 'word_formation']) },
+          typeItem('Cách đọc Kanji', ['kanji_reading']),
+          typeItem('Từ vựng theo ngữ cảnh', ['contextual']),
+          typeItem('Từ gần nghĩa', ['paraphrase']),
+          typeItem('Cách viết chữ Hán', ['orthography']),
+          typeItem('Cách sử dụng từ', ['usage', 'word_formation']),
         ],
       },
       {
@@ -524,9 +566,9 @@ export function AnalyticsDashboard({
         ...(() => { const c = getSkillCell(['grammar']); return { accuracy: c.accuracy, total: c.total, blank: c.blank }; })(),
         color: 'bg-indigo-500',
         types: [
-          { label: 'Chọn mẫu ngữ pháp', ...getMondaiData(['grammar_form']) },
-          { label: 'Sắp xếp câu', ...getMondaiData(['sentence_composition']) },
-          { label: 'Ngữ pháp trong đoạn', ...getMondaiData(['text_grammar']) },
+          typeItem('Chọn mẫu ngữ pháp', ['grammar_form']),
+          typeItem('Sắp xếp câu', ['sentence_composition']),
+          typeItem('Ngữ pháp trong đoạn', ['text_grammar']),
         ],
       },
       {
@@ -535,10 +577,10 @@ export function AnalyticsDashboard({
         ...(() => { const c = getSkillCell(['reading']); return { accuracy: c.accuracy, total: c.total, blank: c.blank }; })(),
         color: 'bg-amber-500',
         types: [
-          { label: 'Đọc hiểu đoạn ngắn', ...getMondaiData(['comprehension_short']) },
-          { label: 'Đọc hiểu đoạn trung bình', ...getMondaiData(['comprehension_mid']) },
-          { label: 'Đọc hiểu đoạn dài', ...getMondaiData(['comprehension_long', 'thematic']) },
-          { label: 'Tìm kiếm thông tin', ...getMondaiData(['info_retrieval', 'integrated_reading']) },
+          typeItem('Đọc hiểu đoạn ngắn', ['comprehension_short']),
+          typeItem('Đọc hiểu đoạn trung bình', ['comprehension_mid']),
+          typeItem('Đọc hiểu đoạn dài', ['comprehension_long', 'thematic']),
+          typeItem('Tìm kiếm thông tin', ['info_retrieval', 'integrated_reading']),
         ],
       },
       {
@@ -547,21 +589,22 @@ export function AnalyticsDashboard({
         ...(() => { const c = getSkillCell(['listening']); return { accuracy: c.accuracy, total: c.total, blank: c.blank }; })(),
         color: 'bg-blue-500',
         types: [
-          { label: 'Hiểu nhiệm vụ', ...getMondaiData(['task_based']) },
-          { label: 'Hiểu điểm chính', ...getMondaiData(['point']) },
-          { label: 'Hiểu khái quát', ...getMondaiData(['summary', 'integrated_listening']) },
-          { label: 'Phản hồi nhanh', ...getMondaiData(['quick_response', 'utterance']) },
+          typeItem('Hiểu nhiệm vụ', ['task_based']),
+          typeItem('Hiểu điểm chính', ['point']),
+          typeItem('Hiểu khái quát', ['summary', 'integrated_listening']),
+          typeItem('Phản hồi nhanh', ['quick_response', 'utterance']),
         ],
       },
     ];
   }, [skillStats, mondaiStats, questionAttempts, realStatsBySkillByLevel, realMondaiStatsByLevel, currentLevel]);
 
   // Handlers for Modals
-  const handleOpenStudyModal = useCallback((mode: string, param?: string) => {
+  const handleOpenStudyModal = useCallback((mode: string, param?: string, href?: string) => {
     let title = 'Luyện tập trọng tâm';
     let message = 'Hệ thống đã chuẩn bị phiên luyện tập theo đúng kỹ năng và cấp độ của bạn.';
     let actionText = 'Bắt đầu luyện ngay';
-    let actionHref: string | undefined = '/luyen-tap';
+    let actionHref: string | undefined =
+      href ?? buildPracticeHref({ level: currentLevel, pool: 'wrong', count: 15 });
 
     if (mode === 'review') {
       title = 'Ôn lại các câu trả lời sai';
@@ -581,7 +624,6 @@ export function AnalyticsDashboard({
       title = 'Lộ trình học cá nhân hóa';
       message = 'Lộ trình đề xuất: luyện dạng câu bạn sai nhiều nhất → ôn lại các câu từng sai → làm một đề thi mới để đo lại năng lực.';
       actionText = 'Xem chi tiết';
-      actionHref = '/luyen-tap';
     }
 
     setStudyModalState({
@@ -591,7 +633,7 @@ export function AnalyticsDashboard({
       actionText,
       actionHref,
     });
-  }, []);
+  }, [currentLevel]);
 
   const handleOpenExamDetail = useCallback((attempt: AttemptRecord) => {
     handleOpenStudyModal('review', attempt.examTitle);
@@ -609,7 +651,8 @@ export function AnalyticsDashboard({
           activeSection={activeSection}
           onNavigate={setActiveSection}
           targetLevel={currentLevel}
-          completedExamsCount={totalCompleted}
+          completedExamsCount={doneExamCount}
+          monthlyTargetCount={levelExams.length || bank?.[currentLevel]?.examsCount || 16}
           userName={userName}
         />
 
@@ -664,6 +707,16 @@ export function AnalyticsDashboard({
             hasSubmitted={totalCompleted > 0}
             onOpenInfoModal={() => setInfoModalOpen(true)}
             onOpenStudyModal={handleOpenStudyModal}
+          />
+
+          {/* Countdown to the next sitting and progress through the exam bank */}
+          <AnalyticsExamPlan
+            level={currentLevel}
+            exams={levelExams}
+            attempts={levelAttempts}
+            schedules={schedules ?? []}
+            thresholdScore={thresholdInfo.total}
+            latestScore={latestScore}
           />
 
           {/* Section 3: Knowledge Map */}
@@ -749,6 +802,7 @@ export function AnalyticsDashboard({
           <AnalyticsActivityHeatmap
             attempts={filteredAttempts}
             currentStreakDays={streakDays}
+            activity={activity}
             weakestSkill={weakestInfo.accuracy !== null ? { name: weakestInfo.name, accuracy: weakestInfo.accuracy } : null}
           />
         </div>

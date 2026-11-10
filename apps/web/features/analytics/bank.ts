@@ -19,7 +19,7 @@ export type MondaiStatsByLevel = Record<string, Record<string, { wrong: number; 
 export function mondaiAccuracy(
   stats: Record<string, { wrong: number; total: number; blank?: number }> | undefined,
   types: string[],
-): { accuracy: number; total: number; blank: number } | null {
+): { accuracy: number; total: number; blank: number; wrong: number } | null {
   if (!stats) return null;
   let total = 0;
   let wrong = 0;
@@ -32,5 +32,32 @@ export function mondaiAccuracy(
     blank += s.blank ?? 0;
   }
   if (total === 0) return null;
-  return { accuracy: Math.round(((total - wrong) / total) * 100), total, blank };
+  return { accuracy: Math.round(((total - wrong) / total) * 100), total, blank, wrong };
+}
+
+/** Published exam as listed by /exams. */
+export interface ExamMeta {
+  id: string;
+  slug: string;
+  title: string;
+  level: string;
+  year: number;
+  session: string;
+}
+
+/** Official JLPT sitting from /jlpt-schedules. */
+export interface ScheduleItem {
+  id: string;
+  title: string;
+  examDate: string;
+  registrationDeadline: string | null;
+  levels: string[];
+}
+
+/** Learning activity per day (Asia/Ho_Chi_Minh) from every place the product records it. */
+export interface ActivityData {
+  days: Record<string, { exam: number; review: number; notebook: number; plan: number }>;
+  currentStreak: number;
+  longestStreak: number;
+  today: string;
 }

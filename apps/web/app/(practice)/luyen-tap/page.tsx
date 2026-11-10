@@ -38,6 +38,28 @@ interface InProgressPracticeItem {
   lastSeq: number;
 }
 
+const PRESET_LEVELS = ['N1', 'N2', 'N3', 'N4', 'N5'];
+const PRESET_POOLS = ['wrong', 'unseen', 'random'];
+const PRESET_SKILLS = ['kanji', 'vocabulary', 'grammar', 'reading', 'listening'];
+
+/** Reads a pre-filled generator setup from the URL (links on the statistics page). */
+function readPreset(search: string): { config: Partial<PracticeFilterState>; label: string | null } | null {
+  const q = new URLSearchParams(search);
+  const level = q.get('level');
+  if (!level || !PRESET_LEVELS.includes(level)) return null;
+  const pool = q.get('pool');
+  const skills = (q.get('skills') ?? '').split(',').filter((x) => PRESET_SKILLS.includes(x));
+  const mondai = (q.get('mondai') ?? '').split(',').filter((x) => /^[a-z_]+$/.test(x));
+  const count = Number.parseInt(q.get('count') ?? '', 10);
+  const label = (q.get('label') ?? '').slice(0, 80) || null;
+  const config: Partial<PracticeFilterState> = { level: level as PracticeFilterState['level'] };
+  if (pool && PRESET_POOLS.includes(pool)) config.pool = pool as PracticeFilterState['pool'];
+  if (skills.length > 0) config.skills = skills as PracticeFilterState['skills'];
+  if (mondai.length > 0) config.mondaiTypes = mondai as PracticeFilterState['mondaiTypes'];
+  if (Number.isFinite(count)) config.questionCount = Math.max(5, Math.min(30, count));
+  return { config, label };
+}
+
 export default function PracticeAndMixPage(): React.JSX.Element {
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<'practice' | 'mix' | 'quick'>('practice');
@@ -45,6 +67,11 @@ export default function PracticeAndMixPage(): React.JSX.Element {
   const [practiceShortage, setPracticeShortage] = useState<PracticeShortageInfo | null>(null);
   const [mixShortage, setMixShortage] = useState<MixShortageInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [preset, setPreset] = useState<{ config: Partial<PracticeFilterState>; label: string | null } | null>(null);
+
+  useEffect(() => {
+    setPreset(readPreset(window.location.search));
+  }, []);
   const [isUnauthorized, setIsUnauthorized] = useState(false);
 
   // Active practice runner session
@@ -620,7 +647,20 @@ const SKILL_MONDAI_TYPES: Record<string, string[]> = {
                 </div>
               )}
 
+              {preset && (
+                <Alert className="mb-4" variant="info">
+                  Đã chọn sẵn từ trang Thống kê: {preset.label ?? 'bộ câu gợi ý'} · {preset.config.level}
+                  {preset.config.pool === 'wrong'
+                    ? ' · câu đã làm sai hoặc bỏ trống'
+                    : preset.config.pool === 'unseen'
+                      ? ' · câu chưa làm'
+                      : ''}
+                  {preset.config.questionCount ? ` · ${preset.config.questionCount} câu` : ''}. Bấm bắt đầu để làm bài.
+                </Alert>
+              )}
               <PracticeGenerator
+                key={preset ? JSON.stringify(preset.config) : 'default'}
+                initialConfig={preset?.config}
                 onGenerate={handleGeneratePractice}
                 isGenerating={isGenerating}
                 shortage={practiceShortage}

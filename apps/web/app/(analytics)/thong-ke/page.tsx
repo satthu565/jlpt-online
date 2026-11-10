@@ -7,7 +7,7 @@ import { AnalyticsDashboard } from '../../../features/analytics';
 import type { AttemptRecord, QuestionAttemptRecord } from '../../../features/analytics/types';
 import type { MistakeRecord } from '../../../features/analytics/components/analytics-mistake-library';
 import type { IntelligenceItem, ConfusedPair, MasterySummary, TimedSummary } from '../../../features/analytics/components/analytics-mistake-intelligence';
-import type { BankStats, MondaiStatsByLevel } from '../../../features/analytics/bank';
+import type { ActivityData, BankStats, ExamMeta, MondaiStatsByLevel, ScheduleItem } from '../../../features/analytics/bank';
 import type { Level, Skill, MondaiType } from '@jlpt/schema';
 import { ExamHero } from '../../../features/library';
 import { useAuth } from '../../../lib/auth-context';
@@ -171,6 +171,9 @@ export default function AnalyticsPage(): React.JSX.Element {
   const [realTimedWeaknessByLevel, setRealTimedWeaknessByLevel] = useState<Record<string, TimedSummary> | undefined>();
   const [realMondaiStatsByLevel, setRealMondaiStatsByLevel] = useState<MondaiStatsByLevel | undefined>();
   const [bank, setBank] = useState<BankStats | undefined>();
+  const [activity, setActivity] = useState<ActivityData | undefined>();
+  const [examMetas, setExamMetas] = useState<ExamMeta[]>([]);
+  const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
   const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
 
   const fetchAnalyticsData = useCallback(async () => {
@@ -197,7 +200,7 @@ export default function AnalyticsPage(): React.JSX.Element {
     }
 
     try {
-      const [attemptsRes, analyticsRes, examsRes, mistakesRes] = await Promise.all([
+      const [attemptsRes, analyticsRes, examsRes, mistakesRes, activityRes] = await Promise.all([
         fetchAllAttempts(baseUrl, headers),
         fetch(`${baseUrl}/me/analytics?targetLevel=${encodeURIComponent(user.targetLevel || 'N3')}`, {
           headers,
@@ -208,6 +211,7 @@ export default function AnalyticsPage(): React.JSX.Element {
           credentials: 'include',
         }),
         fetch('/internal-api/analytics/mistakes', { headers, credentials: 'include' }).catch(() => null),
+        fetch('/internal-api/analytics/activity', { headers, credentials: 'include' }).catch(() => null),
       ]);
 
       if (attemptsRes.status === 401 || attemptsRes.status === 403 || analyticsRes.status === 401 || analyticsRes.status === 403) {
@@ -221,7 +225,18 @@ export default function AnalyticsPage(): React.JSX.Element {
         try {
           const examsData = await examsRes.json();
           const examItems = Array.isArray(examsData) ? examsData : (examsData.items || []);
+          const metas: ExamMeta[] = [];
           examItems.forEach((ex: Record<string, unknown>) => {
+            if (ex['id'] && ex['slug']) {
+              metas.push({
+                id: String(ex['id']),
+                slug: String(ex['slug']),
+                title: String(ex['title'] || ''),
+                level: String(ex['level'] || ''),
+                year: Number(ex['year']) || 0,
+                session: String(ex['session'] ?? ''),
+              });
+            }
             if (ex['id']) {
               examsMap.set(String(ex['id']), {
                 title: String(ex['title'] || ''),
@@ -229,6 +244,7 @@ export default function AnalyticsPage(): React.JSX.Element {
               });
             }
           });
+          setExamMetas(metas);
         } catch {
           // Ignore exams parse error
         }
@@ -269,6 +285,14 @@ export default function AnalyticsPage(): React.JSX.Element {
           }
         } catch {
           // Ignore mistakes parse error
+        }
+      }
+
+      if (activityRes && activityRes.ok) {
+        try {
+          setActivity((await activityRes.json()) as ActivityData);
+        } catch {
+          // Ignore activity parse error
         }
       }
 
@@ -386,6 +410,22 @@ export default function AnalyticsPage(): React.JSX.Element {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!cancelled && data?.levels) setBank(data.levels as BankStats);
+      })
+      .catch(() => undefined);
+    const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '');
+    fetch(`${apiBase}/jlpt-schedules`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !Array.isArray(data?.items)) return;
+        setSchedules(
+          data.items.map((it: Record<string, unknown>) => ({
+            id: String(it['id']),
+            title: String(it['title'] || ''),
+            examDate: String(it['examDate'] || ''),
+            registrationDeadline: it['registrationDeadline'] ? String(it['registrationDeadline']) : null,
+            levels: Array.isArray(it['levels']) ? (it['levels'] as unknown[]).map(String) : [],
+          })),
+        );
       })
       .catch(() => undefined);
     return () => {
@@ -554,6 +594,9 @@ export default function AnalyticsPage(): React.JSX.Element {
             realTimedWeaknessByLevel={showDemo ? undefined : realTimedWeaknessByLevel}
             realMondaiStatsByLevel={showDemo ? undefined : realMondaiStatsByLevel}
             bank={bank}
+            activity={showDemo ? undefined : activity}
+            exams={examMetas}
+            schedules={schedules}
           />
         )}
       </div>
