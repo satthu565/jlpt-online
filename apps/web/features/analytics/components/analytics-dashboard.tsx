@@ -543,7 +543,7 @@ export function AnalyticsDashboard({
           <AnalyticsFrequencyRanking level={currentLevel} />
 
           {/* Section 5: Year Trends Heatmap */}
-          <AnalyticsYearTrends />
+          <AnalyticsYearTrends level={currentLevel} />
 
           {/* Section 6: Error Analysis */}
           <AnalyticsErrorAnalysis onOpenStudyModal={handleOpenStudyModal} />
