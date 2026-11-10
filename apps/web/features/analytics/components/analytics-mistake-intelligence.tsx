@@ -970,10 +970,10 @@ export function AnalyticsMistakeIntelligence({
 
             <div className="grid grid-cols-4 gap-2 mb-3 text-center">
               {[
-                [String(currentMastery.unlearned), 'Chưa học'],
-                [String(currentMastery.encountered), 'Đã gặp'],
-                [String(currentMastery.unstable), 'Chưa ổn định'],
-                [String(currentMastery.mastered), 'Thành thạo'],
+                [Number(currentMastery.unlearned).toLocaleString('vi-VN'), 'Chưa học'],
+                [Number(currentMastery.encountered).toLocaleString('vi-VN'), 'Đã gặp'],
+                [Number(currentMastery.unstable).toLocaleString('vi-VN'), 'Chưa ổn định'],
+                [Number(currentMastery.mastered).toLocaleString('vi-VN'), 'Thành thạo'],
               ].map(([count, label], i) => (
                 <div key={i} className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
                   <strong className="block text-base font-extrabold text-slate-800 dark:text-slate-200">{count}</strong>
@@ -986,15 +986,56 @@ export function AnalyticsMistakeIntelligence({
               {currentMastery.items.map((m, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40 text-xs transition-colors"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => {
+                    onOpenDetailModal(
+                      m.name,
+                      <div className="space-y-3 text-xs leading-relaxed">
+                        <p>
+                          Đã làm trong đề thi: <strong>{m.seen} lần</strong> (Đúng: <strong>{m.right}/{m.seen}</strong>). Trạng thái: <strong>{m.status}</strong>.
+                        </p>
+                        <div>
+                          <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-1">Nội dung / Dịch nghĩa:</h4>
+                          <p className="text-slate-600 dark:text-slate-400">{m.why}</p>
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-1">Chiến thuật làm bài & ghi nhớ:</h4>
+                          <p className="text-slate-600 dark:text-slate-400">{m.tip}</p>
+                        </div>
+                      </div>
+                    );
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onOpenDetailModal(
+                        m.name,
+                        <div className="space-y-3 text-xs leading-relaxed">
+                          <p>
+                            Đã làm trong đề thi: <strong>{m.seen} lần</strong> (Đúng: <strong>{m.right}/{m.seen}</strong>). Trạng thái: <strong>{m.status}</strong>.
+                          </p>
+                          <div>
+                            <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-1">Nội dung / Dịch nghĩa:</h4>
+                            <p className="text-slate-600 dark:text-slate-400">{m.why}</p>
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-1">Chiến thuật làm bài & ghi nhớ:</h4>
+                            <p className="text-slate-600 dark:text-slate-400">{m.tip}</p>
+                          </div>
+                        </div>
+                      );
+                    }
+                  }}
+                  className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-800 hover:bg-slate-50 dark:hover:bg-slate-800/40 text-xs transition-colors cursor-pointer"
                 >
-                  <div>
-                    <strong className="block text-slate-900 dark:text-slate-100" lang="ja">{m.name}</strong>
+                  <div className="min-w-0 pr-2">
+                    <strong className="block text-slate-900 dark:text-slate-100 truncate" lang="ja">{m.name}</strong>
                     <span className="text-[10px] text-slate-400 dark:text-slate-500">
                       Đã gặp {m.seen} lần · Đúng {m.right}/{m.seen} lần
                     </span>
                   </div>
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
                     m.status === 'Thành thạo'
                       ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
                       : m.status === 'Đang hình thành'
@@ -1009,7 +1050,7 @@ export function AnalyticsMistakeIntelligence({
           </div>
 
           <p className="mt-4 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-[10px] text-slate-400 dark:text-slate-500 leading-relaxed border border-slate-100 dark:border-slate-800">
-            "Chưa ổn định" là kiến thức có tỷ lệ sai cao hoặc chưa đạt 70% trong các đề {level} đã làm.
+            Dữ liệu bóc tách từ các câu hỏi thực tế trong các đề thi {level} bạn đã làm ({Number(currentMastery.encountered).toLocaleString('vi-VN')} câu đã gặp).
           </p>
         </Card>
 

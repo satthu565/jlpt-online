@@ -996,6 +996,37 @@ export async function GET(request: NextRequest) {
     }
 
     // 6. Mastery by level
+    const bankCountsByLevel = await sql`
+      SELECT level, count(distinct id)::int as count FROM questions GROUP BY level
+    `;
+    const bankCountMap: Record<string, number> = {};
+    for (const b of bankCountsByLevel) {
+      if (b.level) bankCountMap[b.level] = b.count;
+    }
+
+    const userQuestionCounts = await sql`
+      SELECT 
+        q.level,
+        count(distinct q.id)::int as encountered,
+        count(distinct q.id) FILTER (WHERE ua.is_correct = false)::int as unstable,
+        count(distinct q.id) FILTER (WHERE ua.is_correct = true)::int as mastered
+      FROM user_answers ua
+      JOIN exam_attempts ea ON ea.id = ua.attempt_id
+      JOIN questions q ON q.id = ua.question_id
+      WHERE ea.user_id = ${userId}
+      GROUP BY q.level
+    `;
+    const userCountsMap: Record<string, { encountered: number; unstable: number; mastered: number }> = {};
+    for (const u of userQuestionCounts) {
+      if (u.level) {
+        userCountsMap[u.level] = {
+          encountered: u.encountered,
+          unstable: u.unstable,
+          mastered: u.mastered,
+        };
+      }
+    }
+
     const masteryByLevel: Record<string, {
       unlearned: number;
       encountered: number;
@@ -1013,45 +1044,124 @@ export async function GET(request: NextRequest) {
     }> = {};
 
     for (const lvl of ['N1', 'N2', 'N3', 'N4', 'N5', 'all']) {
-      const tpl = LEVEL_MASTERY_TEMPLATES[lvl] || LEVEL_MASTERY_TEMPLATES.N3!;
-      const lvlStats = statsBySkillByLevel[lvl];
-      const hasData = Boolean(lvlStats);
+      const uStats = userCountsMap[lvl];
+      const hasUserData = Boolean(uStats && uStats.encountered > 0);
+      const bankTotal = bankCountMap[lvl] || 1500;
 
-      const items = tpl.items.map((item) => {
-        let seen = item.baseSeen;
-        let right = item.baseRight;
-        let newRight = item.baseNewRight;
+      let unlearned = 45;
+      let encountered = 80;
+      let unstable = 65;
+      let mastered = 110;
+      const items: Array<{
+        name: string;
+        status: string;
+        seen: number;
+        right: number;
+        newRight: number;
+        why: string;
+        tip: string;
+      }> = [];
 
-        if (hasData && lvlStats) {
-          const sk = item.skill === 'grammar' ? 'grammar' : item.skill === 'kanji' ? 'kanji' : 'vocabulary';
-          const skWrong = lvlStats[sk]?.wrong || 0;
-          const mult = Math.max(0.7, Math.min(2.0, skWrong / 70));
-          seen = Math.max(4, Math.round(item.baseSeen * mult));
-          right = Math.max(1, Math.round(item.baseRight * mult));
-          newRight = Math.max(0, Math.min(right, item.baseNewRight));
+      if (hasUserData && uStats) {
+        encountered = uStats.encountered;
+        unstable = uStats.unstable;
+        mastered = uStats.mastered;
+        unlearned = Math.max(0, bankTotal - encountered);
+
+        const realQuestions = await sql`
+          SELECT 
+            ua.question_id,
+            q.skill,
+            q.mondai_type,
+            qv.stem,
+            qv.explanation,
+            count(*)::int as times_seen,
+            count(*) FILTER (WHERE ua.is_correct = true)::int as times_right,
+            count(*) FILTER (WHERE ua.is_correct = false)::int as times_wrong
+          FROM user_answers ua
+          JOIN exam_attempts ea ON ea.id = ua.attempt_id
+          JOIN questions q ON q.id = ua.question_id
+          JOIN question_versions qv ON qv.question_id = q.id
+          WHERE ea.user_id = ${userId} 
+            AND q.level = ${lvl} 
+            AND q.skill IN ('grammar', 'vocabulary', 'kanji')
+            AND q.mondai_type NOT IN ('text_grammar', 'comprehension_short', 'comprehension_mid', 'comprehension_long', 'info_retrieval')
+          GROUP BY ua.question_id, q.skill, q.mondai_type, qv.stem, qv.explanation
+          ORDER BY times_seen DESC, times_wrong DESC
+          LIMIT 6
+        `;
+
+        for (const r of realQuestions) {
+          const underline = extractUnderline(r.stem);
+          const rawStem = extractText(r.stem);
+          const fullExp = extractExplanation(r.explanation);
+
+          const [ca] = await sql`
+            SELECT correct_option FROM correct_answers WHERE question_id = ${r.question_id} LIMIT 1
+          `;
+          let correctText = '';
+          if (ca) {
+            const [opt] = await sql`
+              SELECT content FROM answer_options WHERE question_id = ${r.question_id} AND order_index = ${ca.correct_option} LIMIT 1
+            `;
+            if (opt) correctText = extractText(opt.content);
+          }
+
+          let name = underline;
+          if (!name) {
+            const patternMatch = fullExp.match(/Mẫu câu\s*「([^」]+)」/i) || fullExp.match(/Cấu trúc\s*「([^」]+)」/i);
+            if (patternMatch && patternMatch[1]) {
+              name = patternMatch[1];
+            } else if (correctText && correctText.length <= 15) {
+              name = correctText;
+            } else {
+              name = rawStem.slice(0, 18);
+            }
+          }
+
+          let why = '';
+          const meaningMatch = fullExp.match(/Dịch nghĩa:\s*([^.•\n]+)/i);
+          if (meaningMatch && meaningMatch[1]) {
+            why = meaningMatch[1].trim();
+          } else {
+            why = fullExp.slice(0, 80).trim() || `Kiến thức ${r.mondai_type || r.skill} cần củng cố`;
+          }
+
+          const tip = fullExp.includes('•')
+            ? fullExp.split('•').slice(1).join('; ').slice(0, 120).trim()
+            : 'Xem lại bài giảng và phương pháp làm bài chi tiết.';
+
+          const acc = r.times_right / r.times_seen;
+          const status = acc >= 0.7 ? 'Thành thạo' : acc >= 0.4 ? 'Đang hình thành' : 'Chưa ổn định';
+
+          items.push({
+            name,
+            status,
+            seen: r.times_seen,
+            right: r.times_right,
+            newRight: Math.min(r.times_right, 1),
+            why,
+            tip,
+          });
         }
+      }
 
-        const acc = right / seen;
-        const status = acc >= 0.6 ? 'Thành thạo' : acc >= 0.35 ? 'Đang hình thành' : 'Chưa ổn định';
-
-        return {
-          name: item.name,
-          status,
-          seen,
-          right,
-          newRight,
-          why: item.why,
-          tip: item.tip,
-        };
-      });
-
-      const totalWrongLvl = lvlStats
-        ? (lvlStats['grammar']?.wrong || 0) + (lvlStats['vocabulary']?.wrong || 0) + (lvlStats['kanji']?.wrong || 0) + (lvlStats['reading']?.wrong || 0) + (lvlStats['listening']?.wrong || 0)
-        : 0;
-      const encountered = hasData ? Math.min(180, Math.round(60 + totalWrongLvl * 0.15)) : tpl.baseMastered - 30;
-      const unstable = hasData ? Math.min(encountered - 15, Math.max(15, Math.round(totalWrongLvl * 0.18))) : 65;
-      const mastered = hasData ? Math.max(40, encountered - unstable + 20) : tpl.baseMastered;
-      const unlearned = Math.max(15, tpl.baseUnlearned);
+      if (items.length === 0) {
+        const tpl = LEVEL_MASTERY_TEMPLATES[lvl] || LEVEL_MASTERY_TEMPLATES.N3!;
+        unlearned = tpl.baseUnlearned;
+        mastered = tpl.baseMastered;
+        for (const i of tpl.items) {
+          items.push({
+            name: i.name,
+            status: 'Chưa ổn định',
+            seen: i.baseSeen,
+            right: i.baseRight,
+            newRight: i.baseNewRight,
+            why: i.why,
+            tip: i.tip,
+          });
+        }
+      }
 
       masteryByLevel[lvl] = {
         unlearned,
