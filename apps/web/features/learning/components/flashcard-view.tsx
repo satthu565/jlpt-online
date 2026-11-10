@@ -67,7 +67,7 @@ export function FlashcardView({
   const names = ['again', 'hard', 'good', 'easy'];
 
   return <div className={styles.studyCard} data-testid="flashcard-view">
-    <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+    <div className={`${styles.cardHeader} flex flex-wrap items-center justify-between gap-2 text-sm`}>
       <span className="text-[var(--text-secondary)]">{t('flashcards.progress', { current: cardIndex, total: totalCards })}</span>
       <Chip size="sm" variant="tertiary">{t(`flashcards.state.${card.state}`)}</Chip>
     </div>
@@ -108,21 +108,22 @@ export function FlashcardView({
       <Volume2 size={16} aria-hidden="true" />{t('flashcards.playAudio')}
     </Button>}
     <div className={styles.controls}>
+      {isFlipped && <p className={styles.ratingPrompt}>{t('srs.study.ratingPrompt')}</p>}
       {isFlipped ? <div className={styles.ratings} data-testid="flashcard-rating-buttons">
         {ratings.map(rating => <Button key={rating} variant={rating === 3 ? 'primary' : 'secondary'}
-          className="min-h-16 h-auto whitespace-normal py-3"
+          className={`${styles.ratingButton} ${styles[names[rating - 1]!]}`}
           disabled={disabled || Boolean(leaving)} onPress={() => rate(rating)}
           aria-label={t(`srs.study.ratings.${names[rating - 1]}`)}
           data-testid={`rating-${names[rating - 1]}-button`}>
-          <span className="flex flex-col items-center gap-1">
+          <span className={styles.ratingContent}>
             <span>{t(`srs.study.ratings.${names[rating - 1]}`)}</span>
-            <span className="text-xs font-normal">{practice ? t(rating === 1 ? 'srs.study.practiceAgain' : 'srs.study.practiceNext') : rating === 1 ? t('srs.study.inSessionMinutes', { minutes: 10 }) : t('srs.study.inDays', { days: projectCard(card, rating).intervalDays })}</span>
+            <span className={styles.ratingInterval}>{practice ? t(rating === 1 ? 'srs.study.practiceAgain' : 'srs.study.practiceNext') : rating === 1 ? t('srs.study.shortMinutes', { minutes: 10 }) : t('srs.study.shortDays', { days: projectCard(card, rating).intervalDays })}</span>
           </span>
         </Button>)}
       </div> : <Button className="w-full min-h-12" variant="primary" onPress={flip} disabled={disabled || Boolean(leaving)}
         aria-label={t('flashcards.showAnswer')}>{t('flashcards.showAnswer')}</Button>}
-      <p className="mt-3 text-center text-xs text-[var(--text-muted)]">
-        {practice && isFlipped ? t('srs.study.practiceHint') : isFlipped ? t('srs.study.intervalHint') : t('srs.study.keyboardHint')}
+      <p className={styles.ratingHint}>
+        {practice && isFlipped ? t('srs.study.practiceHint') : isFlipped ? t('srs.study.ratingHint') : t('srs.study.keyboardHint')}
       </p>
     </div>
   </div>;
