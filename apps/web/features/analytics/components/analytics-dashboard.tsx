@@ -27,7 +27,7 @@ import { AnalyticsFrequencyRanking } from './analytics-frequency-ranking';
 import { AnalyticsYearTrends } from './analytics-year-trends';
 import { AnalyticsErrorAnalysis } from './analytics-error-analysis';
 import { AnalyticsMistakeLibrary, type MistakeRecord } from './analytics-mistake-library';
-import { AnalyticsMistakeIntelligence, type IntelligenceItem } from './analytics-mistake-intelligence';
+import { AnalyticsMistakeIntelligence, type IntelligenceItem, type ConfusedPair } from './analytics-mistake-intelligence';
 import { AnalyticsPriorityMatrix } from './analytics-priority-matrix';
 import { AnalyticsProgressionCharts } from './analytics-progression-charts';
 import { AnalyticsSkillsMondai, type SkillCategoryItem } from './analytics-skills-mondai';
@@ -60,6 +60,8 @@ export interface AnalyticsDashboardProps {
   totalWrongCount?: number;
   realStatsBySkillByLevel?: Record<string, Record<string, { wrong: number; total: number }>>;
   realCoverageByLevel?: Record<string, IntelligenceItem[]>;
+  realTrapsByLevel?: Record<string, IntelligenceItem[]>;
+  realPairsByLevel?: Record<string, ConfusedPair[]>;
 }
 
 const LEVEL_THRESHOLDS: Record<Level, { total: number; minSections: number[] }> = {
@@ -83,6 +85,8 @@ export function AnalyticsDashboard({
   totalWrongCount,
   realStatsBySkillByLevel,
   realCoverageByLevel,
+  realTrapsByLevel,
+  realPairsByLevel,
 }: AnalyticsDashboardProps): React.JSX.Element {
   // Filter States
   const [currentLevel, setCurrentLevel] = useState<Level>(targetLevel);
@@ -598,6 +602,8 @@ export function AnalyticsDashboard({
             level={currentLevel}
             realSkillStatsByLevel={realStatsBySkillByLevel}
             realCoverageByLevel={realCoverageByLevel}
+            realTrapsByLevel={realTrapsByLevel}
+            realPairsByLevel={realPairsByLevel}
             onOpenDetailModal={(title, content) =>
               setDetailModalState({ open: true, title, content })
             }

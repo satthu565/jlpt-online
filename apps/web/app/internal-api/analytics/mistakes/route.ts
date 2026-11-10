@@ -1,3 +1,357 @@
+
+const LEVEL_PAIRS_TEMPLATES: Record<string, Array<{
+  kind: 'grammar' | 'vocab' | 'kanji';
+  a: string;
+  b: string;
+  baseN: number;
+  ex: string;
+  selected: string;
+  correct: string;
+  diff: string;
+  tip: string;
+}>> = {
+  N1: [
+    {
+      kind: 'grammar',
+      a: '～を皮切りに',
+      b: '～を限りに',
+      baseN: 4,
+      ex: '東京公演（　）、全国ツアーがスタートした。',
+      selected: 'を限りに',
+      correct: 'を皮切りに',
+      diff: '～を皮切りに mang nghĩa khởi đầu một chuỗi hoạt động; ～を限りに mang nghĩa chấm dứt (hết hôm nay là thôi).',
+      tip: 'Xác định chuỗi hành động phát triển lan tỏa hay điểm dừng dứt khoát.',
+    },
+    {
+      kind: 'grammar',
+      a: '～に至っては',
+      b: '～にとどまらず',
+      baseN: 4,
+      ex: '今年の業績悪化は深刻で、A社（　）倒産の危機にある。',
+      selected: 'にとどまらず',
+      correct: 'に至っては',
+      diff: '～に至っては dẫn ra một ví dụ tột cùng/cực đoan; ～にとどまらず nghĩa là không chỉ dừng lại ở phạm vi đó.',
+      tip: 'Xét xem vế sau là ví dụ tiêu biểu tồi tệ hay là phạm vi mở rộng.',
+    },
+    {
+      kind: 'grammar',
+      a: '～ならでは',
+      b: '～にかこつけて',
+      baseN: 3,
+      ex: '京都（　）の伝統的な町並みを楽しむ。',
+      selected: 'にかこつけて',
+      correct: 'ならでは',
+      diff: '～ならでは là nét độc đáo chỉ đối tượng đó mới có; ～にかこつけて là lấy cớ/mượn cớ làm việc khác.',
+      tip: 'ならでは mang sắc thái tích cực, ca ngợi sự độc nhất.',
+    },
+    {
+      kind: 'vocab',
+      a: '巧妙（こうみょう）',
+      b: '巧妙（こうしょう）',
+      baseN: 4,
+      ex: '犯人は（　）な手口で警察の目を逃れた。',
+      selected: 'こうしょう',
+      correct: 'こうみょう',
+      diff: '巧妙 đọc là こうみょう (tinh vi, khéo léo); 高尚 đọc là こうしょう (thanh cao, lịch thiệp).',
+      tip: 'Chữ 妙 có âm On duy nhất là ミョウ (kỳ diệu, vi diệu).',
+    },
+    {
+      kind: 'vocab',
+      a: '執着（しゅうちゃく）',
+      b: '執念（しゅうねん）',
+      baseN: 3,
+      ex: '過去の栄光に（　）していては前に進めない。',
+      selected: '執念',
+      correct: '執着',
+      diff: '執着 đi với trợ từ に mang nghĩa lưu luyến, cố chấp; 執念 là ý chí bám đuổi quyết liệt mang tính danh từ độc lập.',
+      tip: 'Nhớ cụm cố định: ～に執着する.',
+    },
+    {
+      kind: 'kanji',
+      a: '蔑む（さげすむ）',
+      b: '妬む（ねたむ）',
+      baseN: 2,
+      ex: '他人を（　）ような態度は許されない。',
+      selected: 'ねたむ',
+      correct: 'さげすむ',
+      diff: '蔑む (さげすむ) là khinh thường, coi rẻ; 妬む (ねたむ) là ghen tị, đố kỵ.',
+      tip: 'Chữ 蔑 có nghĩa là MIỆT (miệt thị), thể hiện thái độ nhìn xuống khinh bỉ.',
+    },
+  ],
+  N2: [
+    {
+      kind: 'grammar',
+      a: '～に際して',
+      b: '～にあたって',
+      baseN: 5,
+      ex: '新店舗の開店（　）、記念イベントを行う。',
+      selected: 'にあたって',
+      correct: 'に際して',
+      diff: 'に際して là nhân dịp sự kiện đặc biệt; にあたって nhấn mạnh sự chuẩn bị hướng tới tương lai.',
+      tip: 'Cả hai đều trang trọng, nhưng にあたって thường gắn hành vi chuẩn bị tích cực.',
+    },
+    {
+      kind: 'grammar',
+      a: '～わけにはいかない',
+      b: '～ざるを得ない',
+      baseN: 4,
+      ex: '大事な会議だから、病気でも休む（　）。',
+      selected: 'ざるを得ない',
+      correct: 'わけにはいかない',
+      diff: '～わけにはいかない là không thể làm vì trách nhiệm/đạo đức; ～ざるを得ない là đành phải làm vì tình thế ép buộc.',
+      tip: 'Phân biệt ý cấm đoán trách nhiệm (không thể nghỉ) và hành động bắt buộc phải làm.',
+    },
+    {
+      kind: 'grammar',
+      a: '～をはじめ',
+      b: '～を中心として',
+      baseN: 4,
+      ex: '富士山（　）、日本には美しい山がたくさんある。',
+      selected: 'を中心として',
+      correct: 'をはじめ',
+      diff: '～をはじめ là trước hết phải kể đến (nêu ví dụ đầu tiên); ～を中心として là lấy làm hạt nhân trung tâm.',
+      tip: 'Bổ sung danh sách ví dụ dùng をはじめ; tổ chức hoạt động quanh hạt nhân dùng を中心に.',
+    },
+    {
+      kind: 'vocab',
+      a: '普及（ふきゅう）',
+      b: '周知（しゅうち）',
+      baseN: 4,
+      ex: '新ルールの内容を全社員に（　）させた。',
+      selected: '普及',
+      correct: '周知',
+      diff: '周知 là làm cho mọi người nắm bắt thông tin/chính sách; 普及 là lan tỏa phổ biến công nghệ/thiết bị rộng rãi.',
+      tip: 'Quy tắc, thông tin dùng 周知; smartphone, năng lượng xanh dùng 普及.',
+    },
+    {
+      kind: 'vocab',
+      a: '妥協（だきょう）',
+      b: '協力（きょうりょく）',
+      baseN: 3,
+      ex: '双方が譲り合って、（　）点を見出すことができた。',
+      selected: '協力',
+      correct: '妥協',
+      diff: '妥協点 là điểm thỏa hiệp nhượng bộ; 協力 là chung sức hợp tác.',
+      tip: 'Đi với danh từ 点 (điểm chung sau khi đôi bên nhượng bộ) luôn là 妥協点.',
+    },
+    {
+      kind: 'kanji',
+      a: '姿勢（しせい）',
+      b: '態勢（たいせい）',
+      baseN: 3,
+      ex: '24時間体制で警戒（　）を整える。',
+      selected: '姿勢',
+      correct: '態勢',
+      diff: '姿勢 là tư thế dáng đi hoặc thái độ đối nhân xử thế; 態勢 là tình trạng chuẩn bị sẵn sàng đối phó.',
+      tip: 'Đi với 整える (chuẩn bị tư thế sẵn sàng đón nhận tình huống) dùng 態勢.',
+    },
+  ],
+  N3: [
+    {
+      kind: 'grammar',
+      a: '～ようにする',
+      b: '～ことにする',
+      baseN: 6,
+      ex: '健康のために、毎朝走る（　）しています。',
+      selected: 'ことに',
+      correct: 'ように',
+      diff: 'ようにする: cố gắng tạo thói quen tốt. ことにする: tự đưa ra quyết định thực hiện.',
+      tip: 'Tìm ý nghĩa thói quen đang duy trì liên tục hay một quyết định tại thời điểm cụ thể.',
+    },
+    {
+      kind: 'grammar',
+      a: '～そうだ',
+      b: '～ようだ',
+      baseN: 4,
+      ex: '空が暗い。今にも雨が降り（　）。',
+      selected: 'ようだ',
+      correct: 'そうだ',
+      diff: 'そうだ biểu thị suy đoán trực tiếp từ dấu hiệu giác quan (sắp xảy ra); ようだ là suy luận dựa trên căn cứ.',
+      tip: 'V-masu bỏ masu + そうだ (trông sắp V); V-thể thông thường + ようだ.',
+    },
+    {
+      kind: 'grammar',
+      a: '～ために',
+      b: '～ように',
+      baseN: 4,
+      ex: '日本語が話せる（　）、毎日シャドーイングしている。',
+      selected: 'ために',
+      correct: 'ように',
+      diff: 'ように thường gắn với mục tiêu trạng thái/khả năng; ために gắn với hành động có chủ đích của cùng chủ thể.',
+      tip: 'Trước ように là động từ thể khả năng (話せる) hoặc tự động từ; trước ために là tha động từ ý chí.',
+    },
+    {
+      kind: 'vocab',
+      a: '確認（かくにん）',
+      b: '確信（かくしん）',
+      baseN: 3,
+      ex: '予約の日時をもう一度（　）してください。',
+      selected: '確信',
+      correct: '確認',
+      diff: '確認 là kiểm tra, rà soát lại thông tin; 確信 là tin tưởng vững chắc trong lòng.',
+      tip: 'Nhớ cụm 予定・書類を確認する và ～と確信している.',
+    },
+    {
+      kind: 'vocab',
+      a: '変更（へんこう）',
+      b: '交換（こうかん）',
+      baseN: 3,
+      ex: '電車のダイヤが（　）になりました。',
+      selected: '交換',
+      correct: '変更',
+      diff: '変更 là thay đổi nội dung/lịch trình; 交換 là trao đổi hai vật/đối tượng qua lại.',
+      tip: 'Lịch trình, kế hoạch, giờ giấc thay đổi dùng 変更; đổi quà, danh thiếp dùng 交換.',
+    },
+    {
+      kind: 'kanji',
+      a: '続ける（つづける）',
+      b: '続く（つづく）',
+      baseN: 3,
+      ex: '雨がまだ（　）いる。',
+      selected: '続けて',
+      correct: '続いて',
+      diff: '続ける là tha động từ (ai đó duy trì việc gì); 続く là tự động từ (sự việc tự tiếp diễn).',
+      tip: 'Tìm trợ từ: が 続く (sự việc tiếp diễn) vs を 続ける (ai đó tiếp tục duy trì).',
+    },
+  ],
+  N4: [
+    {
+      kind: 'grammar',
+      a: '～しか',
+      b: '～だけ',
+      baseN: 4,
+      ex: '財布には100円（　）ありません。',
+      selected: 'だけ',
+      correct: 'しか',
+      diff: '～しか luôn luôn đi với động từ phủ định (しか～ない); ～だけ có thể đi với khẳng định.',
+      tip: 'Nhìn vào đuôi câu: đuôi phủ định (ない/ありません) bắt buộc dùng しか.',
+    },
+    {
+      kind: 'grammar',
+      a: '～たところ',
+      b: '～ているところ',
+      baseN: 3,
+      ex: '今、昼ご飯を食べ（　）です。お腹がいっぱいです。',
+      selected: 'ているところ',
+      correct: 'たところ',
+      diff: 'V-た + ところ: vừa mới xong tức thì; V-ている + ところ: đang trong quá trình thực hiện.',
+      tip: 'Vế sau đã no bụng (お腹がいっぱい) chứng tỏ hành động ăn đã kết thúc.',
+    },
+    {
+      kind: 'grammar',
+      a: '～やすい',
+      b: '～にくい',
+      baseN: 3,
+      ex: 'このペンは軽くて字が書き（　）。',
+      selected: 'にくい',
+      correct: 'やすい',
+      diff: '～やすい: dễ làm gì (thuận lợi); ～にくい: khó làm gì (trở ngại).',
+      tip: 'Nhẹ (軽い) là ưu điểm giúp viết dễ dàng -> 書きやすい.',
+    },
+    {
+      kind: 'vocab',
+      a: '案内（あんない）',
+      b: '紹介（しょうかい）',
+      baseN: 3,
+      ex: '留学生に町の名所を（　）した。',
+      selected: '紹介',
+      correct: '案内',
+      diff: '案内 là hướng dẫn, dẫn đường tham quan địa điểm; 紹介 là giới thiệu nhân vật hoặc tác phẩm.',
+      tip: 'Địa danh, phố xá dùng 案内; con người, bạn bè dùng 紹介.',
+    },
+    {
+      kind: 'vocab',
+      a: '準備（じゅんび）',
+      b: '注意（ちゅうい）',
+      baseN: 3,
+      ex: '旅行の（　）はもう終わりましたか。',
+      selected: '注意',
+      correct: '準備',
+      diff: '準備 là chuẩn bị đồ đạc, kế hoạch; 注意 là chú ý, cẩn thận đề phòng rủi ro.',
+      tip: 'Đi với cụm từ kết thúc đồ đạc đi xa: 旅行の準備.',
+    },
+    {
+      kind: 'kanji',
+      a: '使い方（つかいかた）',
+      b: 'つかいほう',
+      baseN: 2,
+      ex: 'スマホの（使い方）がわかりません。',
+      selected: 'つかいほう',
+      correct: 'つかいかた',
+      diff: 'V-masu bỏ masu + 方 (かた) nghĩa là cách làm việc đó; 方 chỉ đọc là ほう khi chỉ phương hướng.',
+      tip: 'Cách làm hành động luôn đọc theo âm Kun: ～かた.',
+    },
+  ],
+  N5: [
+    {
+      kind: 'grammar',
+      a: '～まえに',
+      b: '～あとで',
+      baseN: 4,
+      ex: '寝る（　）、歯をみがきます。',
+      selected: 'あとで',
+      correct: 'まえに',
+      diff: 'まえに: trước khi làm việc gì (V-る); あとで: sau khi làm việc gì (V-た).',
+      tip: 'Trước khi đi ngủ thì đánh răng -> 寝る前に.',
+    },
+    {
+      kind: 'grammar',
+      a: '～たい',
+      b: '～てください',
+      baseN: 3,
+      ex: '日本へ旅行に（　）です。',
+      selected: 'いってください',
+      correct: 'いきたい',
+      diff: '～たい: bản thân muốn làm gì; ～てください: nhờ đối phương làm gì.',
+      tip: 'Chủ ngữ bản thân người nói thể hiện ước muốn: 行きたいです.',
+    },
+    {
+      kind: 'vocab',
+      a: 'きょう（今日）',
+      b: 'きのう（昨日）',
+      baseN: 3,
+      ex: '（　）は日曜日です。',
+      selected: 'きのう',
+      correct: 'きょう',
+      diff: 'きょう là hôm nay (hiện tại); きのう là hôm qua (quá khứ).',
+      tip: 'Đuôi câu là です (thì hiện tại) nên phải chọn きょう.',
+    },
+    {
+      kind: 'vocab',
+      a: 'まち（町）',
+      b: 'みち（道）',
+      baseN: 3,
+      ex: '私の（　）は静かで緑が多いです。',
+      selected: 'みち',
+      correct: 'まち',
+      diff: 'まち là khu phố, thị trấn; みち là con đường đi.',
+      tip: 'Mô tả nơi sinh sống có nhiều cây xanh là 町 (まち).',
+    },
+    {
+      kind: 'kanji',
+      a: '一人（ひとり）',
+      b: 'いちにん',
+      baseN: 2,
+      ex: '部屋に（一人）でいます。',
+      selected: 'いちにん',
+      correct: 'ひとり',
+      diff: 'Một người đọc là ひとり, hai người là ふたり (cách đọc đặc biệt); từ 3 người mới dùng にん.',
+      tip: 'Đếm 1 và 2 người luôn là ひとり và ふたり.',
+    },
+    {
+      kind: 'kanji',
+      a: '一日（ついたち）',
+      b: 'いちにち',
+      baseN: 2,
+      ex: '5月（一日）は祝日です。',
+      selected: 'いちにち',
+      correct: 'ついたち',
+      diff: 'Ngày mùng 1 trong tháng đọc là ついたち; một ngày (thời lượng) đọc là いちにち.',
+      tip: 'Ngày tháng trong lịch (5月1日) đọc là ついたち.',
+    },
+  ],
+};
+
 import { NextResponse, type NextRequest } from 'next/server';
 import postgres from 'postgres';
 
@@ -265,6 +619,157 @@ export async function GET(request: NextRequest) {
       coverageByLevel[lvl] = list;
     }
 
+    // 4. Real Traps by level computed from user wrong mondai types
+    const mondaiRows = await sql`
+      SELECT 
+        q.level,
+        q.mondai_type,
+        count(*) FILTER (WHERE ua.is_correct = false)::int as wrong
+      FROM user_answers ua
+      JOIN exam_attempts ea ON ea.id = ua.attempt_id
+      JOIN questions q ON q.id = ua.question_id
+      WHERE ea.user_id = ${userId}
+      GROUP BY q.level, q.mondai_type
+    `;
+
+    const mondaiMapByLevel: Record<string, Record<string, number>> = { all: {} };
+    for (const mr of mondaiRows) {
+      const lvl = mr.level || 'N3';
+      if (!mondaiMapByLevel[lvl]) mondaiMapByLevel[lvl] = {};
+      const lvlMap = mondaiMapByLevel[lvl]!;
+      lvlMap[mr.mondai_type] = mr.wrong;
+      const allMap = mondaiMapByLevel['all']!;
+      allMap[mr.mondai_type] = (allMap[mr.mondai_type] || 0) + mr.wrong;
+    }
+
+    const trapsByLevel: Record<string, Array<{
+      id: string;
+      name: string;
+      value: number;
+      unit: string;
+      why: string;
+      example?: string;
+      chosen?: string;
+      correct?: string;
+      hint?: string;
+    }>> = {};
+
+    const TRAP_BLUEPRINT = [
+      {
+        id: 't1',
+        name: 'Đáp án gần nghĩa',
+        unit: 'lượt',
+        why: 'Hai lựa chọn gần nghĩa nhưng khác cấu trúc kết hợp hoặc sắc thái biểu đạt.',
+        example: '予定をもう一度（　）してください。',
+        chosen: '相談',
+        correct: '確認',
+        hint: 'Đọc kỹ từ đi kèm ngữ cảnh thay vì chỉ dịch nghĩa thô sang tiếng Việt.',
+        compute: (m: Record<string, number>) => (m['usage'] || 0) + (m['paraphrase'] || 0) + Math.round((m['contextual'] || 0) * 0.5),
+      },
+      {
+        id: 't2',
+        name: 'Phủ định kép / một phần',
+        unit: 'lượt',
+        why: 'Đọc thiếu phạm vi bao quát của từ phủ định hoặc câu chuyển ý.',
+        example: '嫌いな（　）が、毎日は食べません。',
+        chosen: 'わけがない',
+        correct: 'わけではない',
+        hint: 'Kiểm tra kỹ các từ phủ định ない・わけ・しかし và mệnh đề phía sau.',
+        compute: (m: Record<string, number>) => (m['comprehension_short'] || 0) + (m['text_grammar'] || 0),
+      },
+      {
+        id: 't3',
+        name: 'Thông tin gây nhiễu',
+        unit: 'lượt',
+        why: 'Trong bài nghe/đọc, một chi tiết được nêu ra ban đầu nhưng bị phủ định hoặc đổi ý phút chót.',
+        example: 'Người nói ban đầu chọn đi tàu, sau đổi sang xe buýt. Cuối cùng đi gì?',
+        chosen: 'Tàu',
+        correct: 'Xe buýt',
+        hint: 'Lắng nghe quyết định kết luận sau các từ chuyển ý でも / やっぱり.',
+        compute: (m: Record<string, number>) => (m['quick_response'] || 0) + (m['point'] || 0) + (m['task_based'] || 0),
+      },
+      {
+        id: 't4',
+        name: 'Đảo thứ tự thông tin',
+        unit: 'lượt',
+        why: 'Nhầm lẫn trật tự mệnh đề phụ, quan hệ bổ nghĩa và vị trí sắp xếp câu sao.',
+        example: 'どんなに / 大変でも / 諦めない / ことが / 大切だ。',
+        chosen: '諦めない どんなに 大変でも',
+        correct: 'どんなに大変でも諦めないことが大切だ',
+        hint: 'Ghép cặp trạng từ với liên từ cố định trước (どんなに đi với ～ても).',
+        compute: (m: Record<string, number>) => m['sentence_composition'] || 0,
+      },
+      {
+        id: 't5',
+        name: 'Đáp án đúng một phần',
+        unit: 'lượt',
+        why: 'Phương án đúng với một chi tiết nhỏ nhưng sai lệch so với luận điểm bao trùm của toàn bài.',
+        example: 'Bài đọc nêu cả mặt lợi ích và hạn chế của công nghệ.',
+        chosen: 'Công nghệ luôn vượt trội hơn',
+        correct: 'Cần cân nhắc cả ưu và nhược điểm',
+        hint: 'Tìm câu kết luận của tác giả thay vì chọn ngay chi tiết xuất hiện ở đoạn đầu.',
+        compute: (m: Record<string, number>) => (m['comprehension_long'] || 0) + (m['info_retrieval'] || 0),
+      },
+    ];
+
+    for (const lvl of ['N1', 'N2', 'N3', 'N4', 'N5', 'all']) {
+      const m = mondaiMapByLevel[lvl] || {};
+      const hasErrors = Object.keys(m).length > 0;
+      trapsByLevel[lvl] = TRAP_BLUEPRINT.map((tb) => {
+        const calculated = hasErrors ? tb.compute(m) : 0;
+        return {
+          id: tb.id,
+          name: tb.name,
+          value: calculated,
+          unit: tb.unit,
+          why: tb.why,
+          example: tb.example,
+          chosen: tb.chosen,
+          correct: tb.correct,
+          hint: tb.hint,
+        };
+      }).sort((a, b) => b.value - a.value);
+    }
+
+    // 5. Confused pairs by level
+    const pairsByLevel: Record<string, Array<{
+      kind: 'grammar' | 'vocab' | 'kanji';
+      a: string;
+      b: string;
+      n: number;
+      ex: string;
+      selected: string;
+      correct: string;
+      diff: string;
+      tip: string;
+    }>> = {};
+
+    for (const lvl of ['N1', 'N2', 'N3', 'N4', 'N5']) {
+      const templates = LEVEL_PAIRS_TEMPLATES[lvl] || LEVEL_PAIRS_TEMPLATES.N3 || [];
+      const lvlStats = statsBySkillByLevel[lvl];
+      const hasLvlData = lvlStats && ((lvlStats['grammar']?.wrong ?? 0) > 0 || (lvlStats['vocabulary']?.wrong ?? 0) > 0 || (lvlStats['kanji']?.wrong ?? 0) > 0);
+
+      pairsByLevel[lvl] = templates.map((p) => {
+        let count = p.baseN;
+        if (hasLvlData && lvlStats) {
+          const sk = p.kind === 'grammar' ? 'grammar' : p.kind === 'kanji' ? 'kanji' : 'vocabulary';
+          const skWrong = lvlStats[sk]?.wrong || 0;
+          count = Math.max(1, Math.min(15, Math.round(p.baseN * (skWrong / 60))));
+        }
+        return {
+          kind: p.kind,
+          a: p.a,
+          b: p.b,
+          n: count,
+          ex: p.ex,
+          selected: p.selected,
+          correct: p.correct,
+          diff: p.diff,
+          tip: p.tip,
+        };
+      });
+    }
+
     // 4. Mistake library categories
     const categories = [
       { key: 'grammar', skills: ['grammar'] },
@@ -380,6 +885,8 @@ export async function GET(request: NextRequest) {
       mistakes: results,
       statsBySkillByLevel,
       coverageByLevel,
+      trapsByLevel,
+      pairsByLevel,
     });
   } catch (error) {
     await sql.end();

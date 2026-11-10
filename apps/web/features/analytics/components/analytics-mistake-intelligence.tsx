@@ -350,6 +350,8 @@ export interface AnalyticsMistakeIntelligenceProps {
   level?: Level;
   realSkillStatsByLevel?: Record<string, Record<string, { wrong: number; total: number }>>;
   realCoverageByLevel?: Record<string, IntelligenceItem[]>;
+  realTrapsByLevel?: Record<string, IntelligenceItem[]>;
+  realPairsByLevel?: Record<string, ConfusedPair[]>;
   onOpenDetailModal: (title: string, content: React.ReactNode) => void;
 }
 
@@ -359,6 +361,8 @@ export function AnalyticsMistakeIntelligence({
   level = 'N3',
   realSkillStatsByLevel,
   realCoverageByLevel,
+  realTrapsByLevel,
+  realPairsByLevel,
   onOpenDetailModal,
 }: AnalyticsMistakeIntelligenceProps): React.JSX.Element {
   const [pairFilter, setPairFilter] = useState<string>('all');
@@ -521,9 +525,30 @@ export function AnalyticsMistakeIntelligence({
     return Math.max(...currentCoverage.map((c) => c.value), 1);
   }, [currentCoverage]);
 
-  const filteredPairs = PAIRS.filter(
-    (p) => pairFilter === 'all' || p.kind === pairFilter,
-  );
+  const currentPairs = useMemo<ConfusedPair[]>(() => {
+    const targetLvl = level || 'N3';
+    if (realPairsByLevel && realPairsByLevel[targetLvl] && realPairsByLevel[targetLvl].length > 0) {
+      return realPairsByLevel[targetLvl];
+    }
+    return PAIRS;
+  }, [realPairsByLevel, level]);
+
+  const filteredPairs = useMemo(() => {
+    if (pairFilter === 'all') return currentPairs;
+    return currentPairs.filter((p) => p.kind === pairFilter);
+  }, [currentPairs, pairFilter]);
+
+  const currentTraps = useMemo<IntelligenceItem[]>(() => {
+    const targetLvl = level || 'N3';
+    if (realTrapsByLevel && realTrapsByLevel[targetLvl] && realTrapsByLevel[targetLvl].length > 0) {
+      return realTrapsByLevel[targetLvl];
+    }
+    return TRAPS;
+  }, [realTrapsByLevel, level]);
+
+  const maxTrapValue = useMemo(() => {
+    return Math.max(...currentTraps.map((t) => t.value), 1);
+  }, [currentTraps]);
 
   const totalLostMinutes = TIMED_ITEMS.reduce((sum, x) => sum + x.min, 0);
   const totalTimedWrongs = TIMED_ITEMS.reduce((sum, x) => sum + x.wrong, 0);
@@ -797,7 +822,7 @@ export function AnalyticsMistakeIntelligence({
           </div>
 
           <p className="mt-4 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-[10px] text-slate-400 dark:text-slate-500 leading-relaxed border border-slate-100 dark:border-slate-800">
-            Dữ liệu đối chiếu các cặp có lựa chọn nhầm lẫn thực tế trong bài thi.
+            Dữ liệu đối chiếu các cặp có lựa chọn nhầm lẫn thực tế trong bài thi cấp độ {level}.
           </p>
         </Card>
 
@@ -819,8 +844,8 @@ export function AnalyticsMistakeIntelligence({
             </div>
 
             <div className="space-y-2">
-              {TRAPS.map((t) => {
-                const pct = Math.min(100, Math.round((t.value / 28) * 100));
+              {currentTraps.map((t) => {
+                const pct = Math.min(100, Math.round((t.value / maxTrapValue) * 100));
                 return (
                   <div
                     key={t.id}
@@ -855,7 +880,7 @@ export function AnalyticsMistakeIntelligence({
           </div>
 
           <p className="mt-4 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-[10px] text-slate-400 dark:text-slate-500 leading-relaxed border border-slate-100 dark:border-slate-800">
-            Mở từng dạng bẫy để xem một câu minh họa, cách nhận diện và chiến thuật tránh mắc lại.
+            Phân tích từ dạng bài gây mất điểm cấp độ {level}. Mở từng dạng bẫy để xem câu minh họa và chiến thuật tránh mắc lại.
           </p>
         </Card>
 

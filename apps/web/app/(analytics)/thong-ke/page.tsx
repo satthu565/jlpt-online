@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { AnalyticsDashboard } from '../../../features/analytics';
 import type { AttemptRecord, QuestionAttemptRecord } from '../../../features/analytics/types';
 import type { MistakeRecord } from '../../../features/analytics/components/analytics-mistake-library';
-import type { IntelligenceItem } from '../../../features/analytics/components/analytics-mistake-intelligence';
+import type { IntelligenceItem, ConfusedPair } from '../../../features/analytics/components/analytics-mistake-intelligence';
 import type { Level, Skill, MondaiType } from '@jlpt/schema';
 import { ExamHero } from '../../../features/library';
 import { useAuth } from '../../../lib/auth-context';
@@ -141,6 +141,8 @@ export default function AnalyticsPage(): React.JSX.Element {
   const [realTotalWrongCount, setRealTotalWrongCount] = useState<number | undefined>();
   const [realStatsBySkillByLevel, setRealStatsBySkillByLevel] = useState<Record<string, Record<string, { wrong: number; total: number }>> | undefined>();
   const [realCoverageByLevel, setRealCoverageByLevel] = useState<Record<string, IntelligenceItem[]> | undefined>();
+  const [realTrapsByLevel, setRealTrapsByLevel] = useState<Record<string, IntelligenceItem[]> | undefined>();
+  const [realPairsByLevel, setRealPairsByLevel] = useState<Record<string, ConfusedPair[]> | undefined>();
   const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
 
   const fetchAnalyticsData = useCallback(async () => {
@@ -221,6 +223,12 @@ export default function AnalyticsPage(): React.JSX.Element {
           }
           if (mistakesData.coverageByLevel) {
             setRealCoverageByLevel(mistakesData.coverageByLevel);
+          }
+          if (mistakesData.trapsByLevel) {
+            setRealTrapsByLevel(mistakesData.trapsByLevel);
+          }
+          if (mistakesData.pairsByLevel) {
+            setRealPairsByLevel(mistakesData.pairsByLevel);
           }
         } catch {
           // Ignore mistakes parse error
@@ -564,6 +572,8 @@ export default function AnalyticsPage(): React.JSX.Element {
             totalWrongCount={showDemo ? undefined : realTotalWrongCount}
             realStatsBySkillByLevel={showDemo ? undefined : realStatsBySkillByLevel}
             realCoverageByLevel={showDemo ? undefined : realCoverageByLevel}
+            realTrapsByLevel={showDemo ? undefined : realTrapsByLevel}
+            realPairsByLevel={showDemo ? undefined : realPairsByLevel}
           />
         )}
       </div>
