@@ -24,10 +24,12 @@ export function AdminNavigation(): React.JSX.Element | null {
   return (
     <>
       {/* Mobile Top Navigation Bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-gray-900 border-b border-gray-800 z-30 px-4 flex items-center justify-between">
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 z-30 px-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Landmark className="size-5 text-teal-400" aria-hidden="true" />
-          <span className="text-sm font-bold text-white">{t('app.portalName', locale)}</span>
+          <div className="p-1 rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400">
+            <Landmark className="size-4" aria-hidden="true" />
+          </div>
+          <span className="text-sm font-bold text-gray-900 dark:text-white">{t('app.portalName', locale)}</span>
         </div>
         <Button
           type="button"
@@ -36,7 +38,7 @@ export function AdminNavigation(): React.JSX.Element | null {
           aria-label="Open Navigation"
           variant="ghost"
           size="sm"
-          className="p-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg min-h-0"
+          className="p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg min-h-0"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -53,26 +55,26 @@ export function AdminNavigation(): React.JSX.Element | null {
         />
       )}
 
-      {/* Sidebar Navigation */}
+      {/* Sidebar Navigation - Light theme by default, dark mode supported */}
       <nav
         role="navigation"
         aria-label="Admin Navigation"
         data-testid="admin-navigation"
-        className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-gray-900 text-gray-100 flex flex-col border-r border-gray-800 transform transition-transform duration-200 ease-in-out ${
+        className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 flex flex-col border-r border-gray-200/80 dark:border-gray-800 transform transition-transform duration-200 ease-in-out ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
         {/* Brand Header */}
-        <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+        <div className="p-4 border-b border-gray-200/80 dark:border-gray-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-400">
+            <div className="p-1.5 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400">
               <Landmark className="size-5" aria-hidden="true" />
             </div>
             <div>
-              <span className="text-sm font-bold text-white m-0 block tracking-tight">
+              <span className="text-sm font-bold text-gray-900 dark:text-white m-0 block tracking-tight">
                 {t('app.portalName', locale)}
               </span>
-              <span className="text-[11px] text-teal-400/80 font-mono font-medium">HeroUI v3 · Teal</span>
+              <span className="text-[11px] text-teal-600 dark:text-teal-400 font-mono font-medium">HeroUI v3 · Teal</span>
             </div>
           </div>
           <Button
@@ -82,7 +84,7 @@ export function AdminNavigation(): React.JSX.Element | null {
             aria-label="Close Navigation"
             variant="ghost"
             size="sm"
-            className="md:hidden p-1.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg min-h-0"
+            className="md:hidden p-1.5 text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg min-h-0"
           >
             <X className="size-4" aria-hidden="true" />
           </Button>
@@ -91,12 +93,12 @@ export function AdminNavigation(): React.JSX.Element | null {
         {/* User Badge */}
         <div
           data-testid="staff-profile-badge"
-          className="p-3.5 bg-gray-800/80 border-b border-gray-700/80"
+          className="p-3.5 bg-gray-50/80 dark:bg-gray-800/80 border-b border-gray-200/80 dark:border-gray-700/80"
         >
-          <div className="text-sm font-semibold text-gray-50">
+          <div className="text-sm font-semibold text-gray-900 dark:text-gray-50">
             {user.name || user.email}
           </div>
-          <div className="text-xs text-gray-400 mb-1">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
             {user.email}
           </div>
           <div className="flex items-center gap-2">
@@ -117,7 +119,7 @@ export function AdminNavigation(): React.JSX.Element | null {
             </span>
             <span
               title="2FA Verified"
-              className="text-[11px] text-teal-400 font-semibold inline-flex items-center gap-1"
+              className="text-[11px] text-teal-600 dark:text-teal-400 font-semibold inline-flex items-center gap-1"
             >
               <Check className="inline size-4 align-[-2px]" aria-hidden="true" /> 2FA
             </span>
@@ -128,11 +130,11 @@ export function AdminNavigation(): React.JSX.Element | null {
         <div className="flex-1 overflow-y-auto p-4 space-y-5">
           {sections.map((section) => (
             <div key={section.id}>
-              <div className="text-[11px] font-bold text-gray-400 uppercase px-3 pb-2 tracking-wider">
+              <div className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase px-3 pb-2 tracking-wider">
                 {t(section.titleKey, locale)}
               </div>
 
-              <ul className="list-none m-0 p-0 space-y-0.5">
+              <ul className="list-none m-0 p-0 space-y-1">
                 {section.items.map((item) => {
                   const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
                   return (
@@ -143,15 +145,20 @@ export function AdminNavigation(): React.JSX.Element | null {
                         aria-current={isActive ? 'page' : undefined}
                         data-testid={`nav-item-${item.id}`}
                         className={cn(
-                          'flex items-center justify-between px-3 py-2 rounded-md text-sm no-underline transition-colors',
+                          'flex items-center justify-between px-3 py-2 rounded-xl text-sm no-underline transition-all',
                           isActive
-                            ? 'bg-teal-600 text-white font-semibold shadow-xs'
-                            : 'text-gray-400 hover:text-white hover:bg-gray-800/60 font-normal',
+                            ? 'bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 font-bold border border-teal-200/80 dark:border-teal-800/60 shadow-xs'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-gray-800/60 font-medium',
                         )}
                       >
                         <span>{t(item.labelKey, locale)}</span>
                         {item.badge && (
-                          <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-gray-700 text-gray-200">
+                          <span className={cn(
+                            'text-[11px] px-1.5 py-0.5 rounded-full font-semibold',
+                            isActive
+                              ? 'bg-teal-600 text-white'
+                              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200',
+                          )}>
                             {item.badge}
                           </span>
                         )}
@@ -165,14 +172,14 @@ export function AdminNavigation(): React.JSX.Element | null {
         </div>
 
         {/* Bottom Footer: Theme Toggle, Language Switcher and Sign Out */}
-        <div className="p-4 border-t border-gray-800 flex flex-col gap-3 bg-gray-900/90">
+        <div className="p-4 border-t border-gray-200/80 dark:border-gray-800 flex flex-col gap-3 bg-white dark:bg-gray-900/90">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-400">Giao diện / テーマ</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Giao diện / テーマ</span>
             <ThemeToggle compact />
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-400">Ngôn ngữ / 言語</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Ngôn ngữ / 言語</span>
             <div className="flex gap-1">
               {SUPPORTED_LOCALES.map((loc) => (
                 <Button
@@ -184,10 +191,10 @@ export function AdminNavigation(): React.JSX.Element | null {
                   size="sm"
                   variant={locale === loc ? 'primary' : 'outline'}
                   className={cn(
-                    'px-2 py-0.5 text-[11px] uppercase rounded border min-h-0 h-auto font-medium',
+                    'px-2 py-0.5 text-[11px] uppercase rounded-lg border min-h-0 h-auto font-medium transition-colors',
                     locale === loc
-                      ? 'bg-teal-600 text-white border-teal-600 font-bold'
-                      : 'bg-gray-800 text-gray-400 border-gray-700 hover:text-white hover:bg-gray-700',
+                      ? 'bg-teal-600 text-white border-teal-600 font-bold shadow-xs'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700',
                   )}
                 >
                   {loc}
@@ -201,7 +208,7 @@ export function AdminNavigation(): React.JSX.Element | null {
             onClick={() => void logout()}
             data-testid="logout-button"
             variant="secondary"
-            className="w-full justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-100 border border-gray-700 text-sm font-medium min-h-[38px]"
+            className="w-full justify-center gap-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-100 border border-gray-200 dark:border-gray-700 text-sm font-medium rounded-xl min-h-[38px] transition-colors"
           >
             <LogOut className="size-4" aria-hidden="true" />
             <span>{t('auth.signOutButton', locale)}</span>
