@@ -543,6 +543,8 @@
       "hanViet": "Hán Việt: {value}",
       "inSessionMinutes": "Sau {minutes} phút trong buổi",
       "inDays": "Dự kiến sau {days} ngày",
+      "meaningLabel": "Nghĩa",
+      "examplesLabel": "Ví dụ",
       "ratingPrompt": "Bạn nhớ từ này ở mức độ nào?",
       "shortMinutes": "{minutes} phút",
       "shortDays": "{days} ngày",

@@ -158,6 +158,8 @@ Reviewed 297 文字・語彙 questions across all 11 imported N5 exams. Prepared
 
 ## SRS study session (2026-11-09)
 
+- Mặt sau flashcard rộng, có ProgressBar HeroUI theo vị trí thẻ, Chip Đáp án/Hán Việt, từ và cách đọc nổi bật; Separator và nhãn Nghĩa/Ví dụ tách nội dung thật. Nút HeroUI lật mặt riêng, âm thanh chỉ xuất hiện khi tính năng và callback phát có sẵn; không lồng nút trong nút.
+
 - Đánh giá dưới flashcard theo mẫu: câu hỏi mức độ nhớ, bốn nút Quên/Khó nhớ/Nhớ/Dễ nhớ màu hồng/cam/đỏ/xanh với mốc ôn ngắn; màn hình nhỏ chia hai cột. Kết quả vẫn tự lưu nháp trên thiết bị, gửi máy chủ khi bấm Lưu kết quả.
 
 - Th? t? API ??n h?n m? ngay khi v?o tab, kh?ng hi?n nh?m m?n h?nh ch? 0:01 gi?a hai nh?p ??ng h?; th?i gian ch? th? Qu?n v?n ???c gi? khi t?i l?i.

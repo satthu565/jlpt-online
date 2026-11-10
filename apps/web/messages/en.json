@@ -543,6 +543,8 @@
       "hanViet": "Sino-Vietnamese: {value}",
       "inSessionMinutes": "Review in this session in {minutes} min",
       "inDays": "Estimated: {days} days",
+      "meaningLabel": "Meaning",
+      "examplesLabel": "Examples",
       "ratingPrompt": "How well do you remember this word?",
       "shortMinutes": "{minutes} min",
       "shortDays": "{days} days",

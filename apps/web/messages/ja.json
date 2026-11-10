@@ -543,6 +543,8 @@
       "hanViet": "漢越音：{value}",
       "inSessionMinutes": "このセッションで{minutes}分後に復習",
       "inDays": "目安：{days}日後",
+      "meaningLabel": "意味",
+      "examplesLabel": "例文",
       "ratingPrompt": "この単語をどのくらい覚えていますか？",
       "shortMinutes": "{minutes}分",
       "shortDays": "{days}日",

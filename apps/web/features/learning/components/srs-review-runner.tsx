@@ -206,7 +206,7 @@ export function SrsReviewRunner({
     waiting: waiting.length,
   };
 
-  return <section className="srs-runner mx-auto flex w-full max-w-4xl flex-col gap-5" aria-label={t('srs.title')}>
+  return <section className="srs-runner mx-auto flex w-full max-w-6xl flex-col gap-5" aria-label={t('srs.title')}>
     <Card>
       <Card.Content className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
