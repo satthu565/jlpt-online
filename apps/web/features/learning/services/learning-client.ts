@@ -130,6 +130,20 @@ export class LearningClient {
     return this.request<{ items: NotebookItem[]; totalCount: number }>('GET', endpoint);
   }
 
+  /** Load every page before choosing practice questions; never silently use only the first 100. */
+  public async getAllNotebookItems(): Promise<NotebookItem[]> {
+    const items = new Map<string, NotebookItem>();
+    let offset = 0;
+    while (true) {
+      const page = await this.getNotebookItems({ limit: 100, offset });
+      const before = items.size;
+      for (const item of page.items) items.set(item.id, item);
+      if (page.items.length < 100) return [...items.values()];
+      if (items.size === before) throw new LearningClientError('Notebook pagination did not advance', 502);
+      offset += page.items.length;
+    }
+  }
+
   public async createNotebookItem(input: CreateNotebookItemInput): Promise<NotebookItem> {
     return this.request<NotebookItem>('POST', '/me/notebook-items', input);
   }

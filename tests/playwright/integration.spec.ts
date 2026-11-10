@@ -1,3 +1,4 @@
+import { registerNotebookPracticeTests } from './notebook-practice-journey';
 import fs from 'node:fs';
 import { registerSrsStudyTests } from './srs-study-journey.js';
 import path from 'node:path';
@@ -5048,3 +5049,5 @@ test.describe('Real Select Lookup & Vocab Detail Suite (H06)', () => {
   });
 });
 
+
+registerNotebookPracticeTests();

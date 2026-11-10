@@ -9,7 +9,6 @@ import {
   defaultLearningClient,
   type NotebookItem,
   type DueFlashcard,
-  type NotebookQuiz,
   type CreateNotebookItemInput,
   type NotebookItemKind,
 } from '../../../features/learning';
@@ -33,7 +32,6 @@ export default function NotebookPage(): React.JSX.Element {
   const [srsError, setSrsError] = useState<string | null>(null);
   const [srsLoading, setSrsLoading] = useState(true);
   const [preparingCards, setPreparingCards] = useState(false);
-  const [activeQuiz, setActiveQuiz] = useState<NotebookQuiz | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUnauthorized, setIsUnauthorized] = useState(false);
@@ -159,50 +157,16 @@ export default function NotebookPage(): React.JSX.Element {
     }
   };
 
-  const handleStartQuiz = async () => {
-    if (!user) {
-      if (typeof window !== 'undefined') {
-        window.location.assign('/dang-nhap?redirect=/so-tay');
-      }
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const quiz = await defaultLearningClient.createNotebookQuiz({ count: 5 });
-      setActiveQuiz(quiz);
-      setActiveTab('quiz');
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (
-        msg.includes('401') ||
-        msg.includes('403') ||
-        msg.includes('UNAUTHENTICATED') ||
-        msg.includes('Yêu cầu đăng nhập') ||
-        msg.includes('Authentication required')
-      ) {
-        setIsUnauthorized(true);
-        if (typeof window !== 'undefined') {
-          window.location.assign('/dang-nhap?redirect=/so-tay');
-        }
-        return;
-      }
-      setError(msg || 'Không thể tạo quiz từ sổ tay. Vui lòng thêm từ vựng/ngữ pháp trước.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60">
-      {activeTab === 'srs' && user ? <h1 className="sr-only">{t('srs.title')}</h1> : <ExamHero
+      {activeTab !== 'notebook' && user ? <h1 className="sr-only">{t(activeTab === 'quiz' ? 'notebook.practice.title' : 'srs.title')}</h1> : <ExamHero
         title={t('notebook.page.title')}
         subtitle={t('notebook.page.subtitle')}
         minimal
         background="gradient"
       />}
 
-      <div className={`container w-full ${activeTab === 'srs' ? 'py-4' : 'py-8'}`}>
+      <div className={`container w-full ${activeTab !== 'notebook' ? 'py-4' : 'py-8'}`}>
         {(!user || isUnauthorized) && (
           <Alert className="mb-6" variant="warning">
           <div className="flex justify-between items-center flex-wrap gap-2">
@@ -227,7 +191,7 @@ export default function NotebookPage(): React.JSX.Element {
 
       {/* Navigation Tabs - only for signed in users */}
       {!(!user || isUnauthorized) && (
-        <div className={`flex flex-wrap gap-2 border-b border-[var(--border-subtle)] ${activeTab === 'srs' ? 'mb-4' : 'mb-8'}`}
+        <div className={`flex flex-wrap gap-2 border-b border-[var(--border-subtle)] ${activeTab !== 'notebook' ? 'mb-4' : 'mb-8'}`}
           role="tablist"
           aria-label={t('notebook.page.tabsAria')}
         >
@@ -264,10 +228,7 @@ export default function NotebookPage(): React.JSX.Element {
           aria-selected={activeTab === 'quiz'}
           aria-controls="panel-quiz"
           id="tab-quiz"
-          onClick={() => {
-            if (!activeQuiz) handleStartQuiz();
-            else setActiveTab('quiz');
-          }}
+          onClick={() => setActiveTab('quiz')}
           className={`-mb-px min-h-11 cursor-pointer rounded-none border-0 border-b-2 bg-transparent px-5 py-3 text-[0.9375rem] font-semibold ${activeTab === 'quiz' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--text-muted)]'}`}
         >
           <PencilLine className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.tabs.quiz')}
@@ -406,11 +367,11 @@ export default function NotebookPage(): React.JSX.Element {
         </div>
       )}
 
-        {activeTab === 'quiz' && activeQuiz && (
+        {user && !isUnauthorized && activeTab === 'quiz' && (
           <div id="panel-quiz" role="tabpanel" aria-labelledby="tab-quiz">
             <NotebookQuizView
-              quiz={activeQuiz}
-              onRetake={handleStartQuiz}
+              userId={user.id}
+              key={user.id}
               onExit={() => setActiveTab('notebook')}
             />
           </div>

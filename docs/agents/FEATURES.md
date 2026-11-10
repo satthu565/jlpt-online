@@ -166,3 +166,11 @@ Reviewed 297 文字・語彙 questions across all 11 imported N5 exams. Prepared
 - SRS: sau khi hoàn tất, có nút Ôn lại lượt vừa học; ôn thêm độc lập, thẻ Quên quay lại cuối lượt, hoàn tác được, không ghi review API/đổi lịch hay cộng trùng tiến độ. Giữ bộ thẻ vừa học sau khi lưu/reload; các mã review mới dùng UUID đúng schema, hàng đợi legacy giữ nguyên local ID và lưu UUID gửi máy chủ trước khi retry.
 
 - SRS reset: nút Reset thẻ đã nhớ tải số lượng thật và yêu cầu xác nhận trước khi đặt lại các thẻ active ở nhóm review/repetitions > 0 thành thẻ mới. API retire ID thẻ cũ và tạo lịch mới trong một transaction, giữ notebook/mastery và review history; chặn review offline cũ tác động lịch mới, retry cùng lựa chọn không reset hai lần. Phải đồng bộ nháp/hàng đợi trước khi reset. Cần triển khai API mới; :3210 chỉ cập nhật web, nếu API chưa có endpoint thì báo rõ và không thực hiện reset.
+
+## Notebook practice (2026-11-10)
+
+- Tab Luyện tập ở /so-tay mở phần chọn bài, không tự tạo quiz khi chuyển tab. Nút luyện nhanh 10 câu dùng thiết lập đã lưu; có loại, chọn nghĩa/cách đọc, 5/10/20 câu và bộ lọc mở rộng theo cấp độ đề nguồn, nhãn, trạng thái thuộc.
+- Đọc đủ các trang notebook qua API thật rồi tạo câu hỏi trên trình duyệt. Câu hỏi/đáp án nhiễu cùng loại, bỏ nghĩa hoặc cách đọc trùng/đè lên nhau theo các biến thể phân cách bằng dấu; không dùng FALLBACK_DISTRACTORS của quiz API cũ. Không có đủ dữ liệu thì báo rõ, chỉ dùng 2–4 lựa chọn thật. Cấp độ là cấp độ đề nguồn, không suy diễn cấp độ từ.
+- Chọn đáp án chưa chấm; phải bấm Kiểm tra hoặc chọn Tôi chưa nhớ. Phản hồi có đáp án, cách đọc, nghĩa, ví dụ/ghi chú đã lưu và đối chiếu mục tương ứng với lựa chọn sai, không tự bịa lời giải hay ví dụ.
+- Kết quả có chi tiết câu sai/chưa nhớ, xem tất cả và luyện lại riêng các câu sai. Điểm lượt đầu giữ riêng qua mọi lần luyện lại; bắt đầu bài mới có trạng thái sạch. Bài dở được giữ khi đổi tab/tải lại, có xác nhận trước khi thay bằng bài mới.
+- Tiến độ và thiết lập lưu riêng theo tài khoản trên trình duyệt; kiểm tra cấu trúc bản lưu, báo lỗi quota/storage và lỗi tải với nút thử lại. Phím 1–4, Enter, focus và cuộn câu hỏi/phản hồi; HeroUI, bố cục 390/1366 px. Luyện tập không ghi SRS review hay thay mastery. Dạng điền câu/ngữ pháp theo ngữ cảnh là phần mở rộng sau, cần nguồn câu đủ rõ ràng.

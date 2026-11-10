@@ -183,3 +183,9 @@ Triệu chứng: tab SRS có 0 thẻ hoặc hiện hoàn thành ngay → lưu no
 - SRS POST review lỗi 500 ở SELECT card_reviews → client_review_id là UUID nhưng client cũ tạo rev-* → tạo UUID v4 bằng getRandomValues; với queue cũ giữ ID local để đối chiếu checkpoint, lưu serverReviewId UUID bền vững trước khi gửi. Không xóa lượt chưa đồng bộ hay đổi UUID sau mỗi retry.
 
 - Reset SRS bằng cách ghi đè schedule trên cùng card ID → review offline cũ có thể ghi đè lịch vừa reset → retire card cũ (status reset), tạo card/schedule mới, giữ lịch sử cũ và lọc active khi generate/review. Reset bắt buộc chọn ID đã xác nhận, xác thực ownership, row lock và transaction; retry danh sách đã retire trả alreadyReset. Không thử reset trên database chung khi chưa có sao lưu/đồng ý.
+
+### Notebook practice: stale rounds and misleading distractors
+
+- Triệu chứng: bấm Làm lại vẫn hiện kết quả cũ → component nhận quiz mới nhưng giữ state theo index/score → tạo session ID mới và thay toàn bộ trạng thái lượt, giữ riêng điểm lượt đầu khi luyện lại lỗi sai.
+- Triệu chứng: chỉ luyện được các mục đầu hoặc đáp án nhiễu không liên quan → list mặc định phân trang 100 mục, API quiz cũ có fallback và trộn loại → tải đủ notebook, lọc phạm vi câu được hỏi, lấy phương án thật cùng loại; chặn vòng lặp nếu trang không tiến triển, báo thiếu dữ liệu thay vì bịa phương án.
+- HeroSelect v3 có accessible name ghép giá trị hiện tại với label ở button trigger; Playwright nên tìm button theo label không exact hoặc dùng combobox khi có, rồi chọn option theo tên chính xác.
