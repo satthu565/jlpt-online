@@ -16,6 +16,7 @@ import { Input } from '@jlpt/ui/components/input';
 import { HeroSelect } from '@jlpt/ui/components/hero-select';
 import type { AttemptRecord, QuestionAttemptRecord } from '../types';
 import type { Level } from '@jlpt/schema';
+import { MONDAI_LABELS, MONDAI_DIAGNOSTIC_REASONS } from './analytics-error-analysis';
 
 export interface MistakeRecord {
   term: string;
@@ -1205,8 +1206,51 @@ export function AnalyticsMistakeLibrary({
       });
     });
 
+    // If user has real granular question attempts, build Question tab from actual wrong mondai types
+    if (questionAttempts && questionAttempts.length > 0) {
+      const mondaiMap = new Map<string, { total: number; wrong: number; lastDate: string; skill: string }>();
+      questionAttempts.forEach((q) => {
+        const key = q.mondaiType || q.skill;
+        if (!key) return;
+        const cur = mondaiMap.get(key) || { total: 0, wrong: 0, lastDate: q.submittedAt || '', skill: q.skill };
+        cur.total += 1;
+        if (!q.isCorrect) cur.wrong += 1;
+        if (q.submittedAt && q.submittedAt > cur.lastDate) cur.lastDate = q.submittedAt;
+        mondaiMap.set(key, cur);
+      });
+
+      const realQuestionItems: MistakeRecord[] = Array.from(mondaiMap.entries())
+        .filter(([, v]) => v.wrong > 0)
+        .sort((a, b) => b[1].wrong - a[1].wrong)
+        .slice(0, 6)
+        .map(([mType, stat], idx) => {
+          const name = MONDAI_LABELS[mType] || mType;
+          const reason = MONDAI_DIAGNOSTIC_REASONS[mType] || 'Cần chú trọng phương pháp giải dạng bài này';
+          const errorRate = stat.total > 0 ? stat.wrong / stat.total : 0.5;
+          const streak = errorRate > 0.6 ? 3 : (errorRate > 0.4 ? 2 : 1);
+          return {
+            term: name,
+            meaning: `Dạng bài thi ${targetLvl} · Tỷ lệ sai ${Math.round(errorRate * 100)}%`,
+            wrong: stat.wrong,
+            total: stat.total,
+            streak,
+            last: formatDate(stat.lastDate, idx * 2),
+            source: `${targetLvl} · Lịch sử bài làm thực tế`,
+            reason,
+            prompt: `Dạng bài: ${name} (${stat.wrong}/${stat.total} câu sai)`,
+            selected: 'Phương án chưa chính xác',
+            correct: 'Đáp án chuẩn JEES',
+            explain: `Bạn đã làm sai ${stat.wrong} trên tổng số ${stat.total} câu dạng ${name}. ${reason}.`,
+          };
+        });
+
+      if (realQuestionItems.length > 0) {
+        result['question'] = realQuestionItems;
+      }
+    }
+
     return result;
-  }, [mistakes, hasNoData, level, isDemoMode, hasSubmittedAttempts, submittedAttempts]);
+  }, [mistakes, hasNoData, level, isDemoMode, hasSubmittedAttempts, submittedAttempts, questionAttempts]);
 
   const allRecords = useMemo(() => Object.values(computedMistakes).flat(), [computedMistakes]);
   const totalErrors = allRecords.reduce((acc, r) => acc + r.wrong, 0);

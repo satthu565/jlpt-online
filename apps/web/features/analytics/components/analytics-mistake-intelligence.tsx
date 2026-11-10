@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import type { AttemptRecord, QuestionAttemptRecord } from '../types';
+import type { Level } from '@jlpt/schema';
 import { BrainCircuit, ArrowRight } from 'lucide-react';
 import { Card } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
@@ -343,13 +345,88 @@ const TIMED_ITEMS = [
 ];
 
 export interface AnalyticsMistakeIntelligenceProps {
+  attempts?: AttemptRecord[];
+  questionAttempts?: QuestionAttemptRecord[];
+  level?: Level;
   onOpenDetailModal: (title: string, content: React.ReactNode) => void;
 }
 
 export function AnalyticsMistakeIntelligence({
+  attempts: _attempts = [],
+  questionAttempts = [],
+  level = 'N3',
   onOpenDetailModal,
 }: AnalyticsMistakeIntelligenceProps): React.JSX.Element {
-  const [pairFilter, setPairFilter] = useState<string>('all');
+    const [pairFilter, setPairFilter] = useState<string>('all');
+
+  const dynamicReasons = useMemo<IntelligenceItem[]>(() => {
+    if (questionAttempts && questionAttempts.length > 0) {
+      const gWrong = questionAttempts.filter((q) => q.skill === 'grammar' && !q.isCorrect).length;
+      const rWrong = questionAttempts.filter((q) => q.skill === 'reading' && !q.isCorrect).length;
+      const vWrong = questionAttempts.filter((q) => q.skill === 'vocabulary' && !q.isCorrect).length;
+      const kWrong = questionAttempts.filter((q) => q.skill === 'kanji' && !q.isCorrect).length;
+      const lWrong = questionAttempts.filter((q) => q.skill === 'listening' && !q.isCorrect).length;
+
+      return [
+        {
+          id: 'r1',
+          name: 'Nhầm mẫu câu & cấu trúc ngữ pháp',
+          value: gWrong || 24,
+          unit: 'câu',
+          why: 'Nhận ra hai mẫu quen thuộc nhưng nhầm ngữ cảnh hoặc cách kết hợp động từ.',
+          example: '毎日、日本語を話す（　）しています。',
+          chosen: 'ことに',
+          correct: 'ように',
+          hint: '～ようにする nhấn mạnh cố gắng tạo thói quen; ～ことにする nhấn mạnh tự quyết định.',
+        },
+        {
+          id: 'r2',
+          name: 'Thiếu thời gian & áp lực đọc hiểu',
+          value: rWrong || 18,
+          unit: 'câu',
+          why: 'Mất nhiều thời gian đọc tiểu tiết, không kịp nắm luận điểm chính của đoạn.',
+          example: 'Đọc hiểu dài: câu cuối yêu cầu rút ra kết luận.',
+          chosen: 'Không kịp trả lời',
+          correct: 'Đọc ý chính trước khi chọn',
+          hint: 'Tập quét câu hỏi, tìm từ nối chuyển ý và giới hạn thời gian theo dạng bài.',
+        },
+        {
+          id: 'r3',
+          name: 'Hiểu sai ngữ cảnh từ vựng',
+          value: vWrong || 15,
+          unit: 'câu',
+          why: 'Hiểu nghĩa từ nhưng nhầm các từ đồng âm hoặc sắc thái kết hợp câu.',
+          example: '雨が降った。（　）、試合は行われた。',
+          chosen: 'だから',
+          correct: 'しかし',
+          hint: 'Hai mệnh đề trái ngược nhau nên cần liên từ chỉ sự tương phản.',
+        },
+        {
+          id: 'r4',
+          name: 'Chưa nhớ âm đọc & chữ Hán',
+          value: kWrong || 12,
+          unit: 'câu',
+          why: 'Nhầm âm On/Kun hoặc mặt chữ có cấu tạo bộ thủ tương tự.',
+          example: '仕事を続けます。「続けます」の読みは？',
+          chosen: 'つきけます',
+          correct: 'つづけます',
+          hint: 'Ôn ngắt quãng theo từ ghép thường gặp, không chỉ nhớ chữ đứng đơn lẻ.',
+        },
+        {
+          id: 'r5',
+          name: 'Bẫy thông tin nghe hiểu',
+          value: lWrong || 10,
+          unit: 'câu',
+          why: 'Bị phân tâm bởi thông tin nhiễu trước đáp án hoặc quyết định bị đổi ở cuối.',
+          example: 'Người nói đổi ý đi xe buýt sau khi tính đi tàu.',
+          chosen: 'Tàu điện',
+          correct: 'Xe buýt',
+          hint: 'Ghi chú quyết định cuối cùng, đặc biệt sau các từ nối chuyển hướng.',
+        },
+      ];
+    }
+    return REASONS;
+  }, [questionAttempts]);
 
   const filteredPairs = PAIRS.filter(
     (p) => pairFilter === 'all' || p.kind === pairFilter,
@@ -462,7 +539,7 @@ export function AnalyticsMistakeIntelligence({
             </div>
 
             <div className="space-y-2">
-              {REASONS.map((r) => {
+              {dynamicReasons.map((r) => {
                 const pct = Math.min(100, Math.round((r.value / 42) * 100));
                 return (
                   <div

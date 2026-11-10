@@ -1,6 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import type { AttemptRecord, QuestionAttemptRecord } from '../types';
+import type { Level } from '@jlpt/schema';
+import { MONDAI_LABELS } from './analytics-error-analysis';
 import { ArrowRight, ShieldCheck } from 'lucide-react';
 import { Card } from '@jlpt/ui/components/card';
 import { Button } from '@jlpt/ui/components/button';
@@ -72,14 +75,69 @@ const DEFAULT_PRIORITIES: PriorityItem[] = [
 
 export interface AnalyticsPriorityMatrixProps {
   priorities?: PriorityItem[];
+  attempts?: AttemptRecord[];
+  questionAttempts?: QuestionAttemptRecord[];
+  level?: Level;
   onOpenStudyModal: (mode: string, param?: string) => void;
 }
 
 export function AnalyticsPriorityMatrix({
-  priorities = DEFAULT_PRIORITIES,
+  priorities: propPriorities,
+  attempts: _attempts = [],
+  questionAttempts = [],
+  level = 'N3',
   onOpenStudyModal,
 }: AnalyticsPriorityMatrixProps): React.JSX.Element {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
+
+  const priorities = useMemo<PriorityItem[]>(() => {
+    if (propPriorities && propPriorities.length > 0) return propPriorities;
+
+    if (questionAttempts && questionAttempts.length > 0) {
+      const map = new Map<string, { total: number; wrong: number; mondaiType: string; skill: string }>();
+      questionAttempts.forEach((q) => {
+        const key = q.mondaiType || q.skill;
+        if (!key) return;
+        const entry = map.get(key) || { total: 0, wrong: 0, mondaiType: q.mondaiType || key, skill: q.skill };
+        entry.total += 1;
+        if (!q.isCorrect) entry.wrong += 1;
+        map.set(key, entry);
+      });
+
+      const items = Array.from(map.values())
+        .filter((entry) => entry.total >= 2)
+        .sort((a, b) => {
+          const accA = a.total > 0 ? (a.total - a.wrong) / a.total : 0;
+          const accB = b.total > 0 ? (b.total - b.wrong) / b.total : 0;
+          if (accA !== accB) return accA - accB;
+          return b.wrong - a.wrong;
+        })
+        .slice(0, 5);
+
+      if (items.length > 0) {
+        return items.map((it) => {
+          const mastery = it.total > 0 ? Math.round(((it.total - it.wrong) / it.total) * 100) : 0;
+          const name = MONDAI_LABELS[it.mondaiType] || (it.skill === 'grammar' ? 'Ngữ pháp' : it.skill === 'reading' ? 'Đọc hiểu' : it.skill === 'listening' ? 'Nghe hiểu' : 'Từ vựng & Kanji');
+          const isHighFreq = ['comprehension_long', 'grammar_form', 'quick_response', 'contextual', 'kanji_reading'].includes(it.mondaiType);
+          const frequency = isHighFreq ? 88 : 72;
+          const kind = it.skill === 'reading' || it.skill === 'listening' ? 'Dạng câu' : it.skill === 'grammar' ? 'Ngữ pháp' : 'Từ vựng';
+
+          return {
+            name,
+            kind,
+            frequency,
+            mastery,
+            sample: it.total,
+            miss: it.wrong,
+            why: `Bạn đã làm ${it.total} câu dạng này và sai ${it.wrong} câu (độ thành thạo ${mastery}%). Cần chú trọng cải thiện trước kỳ thi JLPT ${level}.`,
+            plan: `Luyện tập chuyên sâu 15 câu dạng "${name}" và phân tích kỹ lời giải chi tiết.`,
+          };
+        });
+      }
+    }
+
+    return DEFAULT_PRIORITIES;
+  }, [propPriorities, questionAttempts, level]);
 
   const selectedPriority = priorities[selectedIndex] || priorities[0]!;
 

@@ -393,6 +393,21 @@ export function AnalyticsDashboard({
       return match ? match.accuracy : undefined;
     };
 
+    const getMondaiData = (types: string[], defaultAcc: number, defaultTotal: number) => {
+      const matched = mondaiStats.filter((m) => types.includes(m.mondaiType));
+      if (matched.length > 0) {
+        const total = matched.reduce((acc, m) => acc + m.total, 0);
+        const correct = matched.reduce((acc, m) => acc + m.correct, 0);
+        if (total > 0) {
+          return {
+            accuracy: Math.round((correct / total) * 100),
+            totalQuestions: total,
+          };
+        }
+      }
+      return { accuracy: defaultAcc, totalQuestions: defaultTotal };
+    };
+
     return [
       {
         key: 'vocab',
@@ -400,10 +415,10 @@ export function AnalyticsDashboard({
         accuracy: getSkillAccuracy('vocabulary') ?? 82,
         color: 'bg-emerald-500',
         types: [
-          { label: 'Cách đọc Kanji', accuracy: 88, totalQuestions: 50 },
-          { label: 'Từ vựng theo ngữ cảnh', accuracy: 76, totalQuestions: 55 },
-          { label: 'Từ gần nghĩa', accuracy: 78, totalQuestions: 40 },
-          { label: 'Cách sử dụng từ', accuracy: 84, totalQuestions: 55 },
+          { label: 'Cách đọc Kanji', ...getMondaiData(['kanji_reading'], 88, 50) },
+          { label: 'Từ vựng theo ngữ cảnh', ...getMondaiData(['contextual'], 76, 55) },
+          { label: 'Từ gần nghĩa', ...getMondaiData(['paraphrase'], 78, 40) },
+          { label: 'Cách sử dụng từ', ...getMondaiData(['usage', 'orthography', 'word_formation'], 84, 55) },
         ],
       },
       {
@@ -412,9 +427,9 @@ export function AnalyticsDashboard({
         accuracy: getSkillAccuracy('grammar') ?? 73,
         color: 'bg-indigo-500',
         types: [
-          { label: 'Chọn mẫu ngữ pháp', accuracy: 83, totalQuestions: 50 },
-          { label: 'Sắp xếp câu', accuracy: 51, totalQuestions: 45 },
-          { label: 'Ngữ pháp trong đoạn', accuracy: 80, totalQuestions: 55 },
+          { label: 'Chọn mẫu ngữ pháp', ...getMondaiData(['grammar_form'], 83, 50) },
+          { label: 'Sắp xếp câu', ...getMondaiData(['sentence_composition'], 51, 45) },
+          { label: 'Ngữ pháp trong đoạn', ...getMondaiData(['text_grammar'], 80, 55) },
         ],
       },
       {
@@ -423,10 +438,10 @@ export function AnalyticsDashboard({
         accuracy: getSkillAccuracy('reading') ?? 48,
         color: 'bg-amber-500',
         types: [
-          { label: 'Đọc hiểu đoạn ngắn', accuracy: 69, totalQuestions: 45 },
-          { label: 'Đọc hiểu đoạn trung bình', accuracy: 57, totalQuestions: 40 },
-          { label: 'Đọc hiểu đoạn dài', accuracy: 38, totalQuestions: 40 },
-          { label: 'Tìm kiếm thông tin', accuracy: 31, totalQuestions: 25 },
+          { label: 'Đọc hiểu đoạn ngắn', ...getMondaiData(['comprehension_short'], 69, 45) },
+          { label: 'Đọc hiểu đoạn trung bình', ...getMondaiData(['comprehension_mid'], 57, 40) },
+          { label: 'Đọc hiểu đoạn dài', ...getMondaiData(['comprehension_long', 'thematic'], 38, 40) },
+          { label: 'Tìm kiếm thông tin', ...getMondaiData(['info_retrieval', 'integrated_reading'], 31, 25) },
         ],
       },
       {
@@ -435,14 +450,14 @@ export function AnalyticsDashboard({
         accuracy: getSkillAccuracy('listening') ?? 65,
         color: 'bg-blue-500',
         types: [
-          { label: 'Hiểu nhiệm vụ', accuracy: 72, totalQuestions: 45 },
-          { label: 'Hiểu điểm chính', accuracy: 68, totalQuestions: 40 },
-          { label: 'Hiểu khái quát', accuracy: 57, totalQuestions: 50 },
-          { label: 'Phản hồi nhanh', accuracy: 65, totalQuestions: 65 },
+          { label: 'Hiểu nhiệm vụ', ...getMondaiData(['task_based'], 72, 45) },
+          { label: 'Hiểu điểm chính', ...getMondaiData(['point'], 68, 40) },
+          { label: 'Hiểu khái quát', ...getMondaiData(['summary', 'integrated_listening'], 57, 50) },
+          { label: 'Phản hồi nhanh', ...getMondaiData(['quick_response', 'utterance'], 65, 65) },
         ],
       },
     ];
-  }, [skillStats]);
+  }, [skillStats, mondaiStats]);
 
   // Handlers for Modals
   const handleOpenStudyModal = useCallback((mode: string, param?: string) => {
@@ -568,13 +583,21 @@ export function AnalyticsDashboard({
 
           {/* Section 8: Mistake Intelligence (06 angles) */}
           <AnalyticsMistakeIntelligence
+            attempts={attempts}
+            questionAttempts={questionAttempts}
+            level={currentLevel}
             onOpenDetailModal={(title, content) =>
               setDetailModalState({ open: true, title, content })
             }
           />
 
           {/* Section 9: Priority Matrix */}
-          <AnalyticsPriorityMatrix onOpenStudyModal={handleOpenStudyModal} />
+          <AnalyticsPriorityMatrix
+            attempts={attempts}
+            questionAttempts={questionAttempts}
+            level={currentLevel}
+            onOpenStudyModal={handleOpenStudyModal}
+          />
 
           {/* Section 10: Progression Line Chart & Mini Charts */}
           <AnalyticsProgressionCharts

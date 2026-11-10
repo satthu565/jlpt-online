@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, isNotNull, sql } from 'drizzle-orm';
 import type {
   AnswerChangeAnalysis,
   Level,
@@ -24,6 +24,8 @@ import {
   examAttempts,
   exams,
   questionDifficultyStats,
+  questions,
+  userAnswers,
   userMondaiAggregates,
   userQuestionHistory,
   userSkillAggregates,
@@ -98,31 +100,73 @@ export class StatsService {
     userId: string,
     targetLevel: Level = 'N3',
   ): Promise<AnalyticsReportDto> {
-    // 1. Fetch user skill aggregates
+    // 1. Fetch user skill aggregates (table or live fallback to user_answers)
     const skillRows = await this.dbClient.db
       .select()
       .from(userSkillAggregates)
       .where(eq(userSkillAggregates.userId, userId));
 
-    const skills: UserSkillStatsDto[] = skillRows.map((r: (typeof skillRows)[number]) => ({
+    let skills: UserSkillStatsDto[] = skillRows.map((r: (typeof skillRows)[number]) => ({
       skill: r.skill,
       accuracyRate: r.accuracyRate,
       sampleSize: r.sampleSize,
       updatedAt: r.updatedAt.toISOString(),
     }));
 
-    // 2. Fetch user mondai aggregates
+    if (skills.length === 0) {
+      const liveSkills = await this.dbClient.db
+        .select({
+          skill: questions.skill,
+          sampleSize: sql<number>`count(*)::int`,
+          correctCount: sql<number>`count(case when ${userAnswers.isCorrect} then 1 end)::int`,
+        })
+        .from(userAnswers)
+        .innerJoin(examAttempts, eq(examAttempts.id, userAnswers.attemptId))
+        .innerJoin(questions, eq(questions.id, userAnswers.questionId))
+        .where(eq(examAttempts.userId, userId))
+        .groupBy(questions.skill);
+
+      skills = liveSkills.map((r: { skill: string; sampleSize: number; correctCount: number }) => ({
+        skill: r.skill,
+        sampleSize: r.sampleSize,
+        accuracyRate: r.sampleSize > 0 ? Math.round((r.correctCount / r.sampleSize) * 100) : 0,
+        updatedAt: new Date().toISOString(),
+      }));
+    }
+
+    // 2. Fetch user mondai aggregates (table or live fallback to user_answers)
     const mondaiRows = await this.dbClient.db
       .select()
       .from(userMondaiAggregates)
       .where(eq(userMondaiAggregates.userId, userId));
 
-    const mondai: UserMondaiStatsDto[] = mondaiRows.map((r: (typeof mondaiRows)[number]) => ({
+    let mondai: UserMondaiStatsDto[] = mondaiRows.map((r: (typeof mondaiRows)[number]) => ({
       mondaiType: r.mondaiType,
       accuracyRate: r.accuracyRate,
       sampleSize: r.sampleSize,
       updatedAt: r.updatedAt.toISOString(),
     }));
+
+    if (mondai.length === 0) {
+      const liveMondai = await this.dbClient.db
+        .select({
+          mondaiType: questions.mondaiType,
+          sampleSize: sql<number>`count(*)::int`,
+          correctCount: sql<number>`count(case when ${userAnswers.isCorrect} then 1 end)::int`,
+        })
+        .from(userAnswers)
+        .innerJoin(examAttempts, eq(examAttempts.id, userAnswers.attemptId))
+        .innerJoin(questions, eq(questions.id, userAnswers.questionId))
+        .where(eq(examAttempts.userId, userId))
+        .groupBy(questions.mondaiType);
+
+      mondai = liveMondai.map((r: { mondaiType: string; sampleSize: number; correctCount: number }) => ({
+        mondaiType: r.mondaiType,
+        sampleSize: r.sampleSize,
+        accuracyRate: r.sampleSize > 0 ? Math.round((r.correctCount / r.sampleSize) * 100) : 0,
+        updatedAt: new Date().toISOString(),
+      }));
+    }
 
     // 3. Readiness evaluation (Acceptance 3)
     const readiness = await this.evaluateReadiness(userId, targetLevel);
@@ -135,18 +179,62 @@ export class StatsService {
       .orderBy(desc(userQuestionHistory.answeredAt))
       .limit(200);
 
-    const totalAnswered = historyRows.length;
-
     let speedAccuracy: SpeedAccuracyReport | undefined = undefined;
     let unseenProgress: UnseenProgressReport | undefined = undefined;
     let trueProgress: TrueProgressComparison | undefined = undefined;
     let answerChanges: AnswerChangeAnalysis | undefined = undefined;
 
-    if (totalAnswered > 0) {
-      speedAccuracy = analyzeSpeedAndAccuracy(
-        historyRows.map((h: (typeof historyRows)[number]) => ({
+    let questionHistory: Array<{
+      questionId: string;
+      isCorrect: boolean;
+      skill: string;
+      mondaiType?: string;
+      level: string;
+      answeredAt: string;
+    }> = [];
+
+    if (historyRows.length > 0) {
+      questionHistory = historyRows.map((h: (typeof historyRows)[number]) => ({
+        questionId: h.questionId,
+        isCorrect: h.isCorrect,
+        skill: 'vocabulary',
+        level: targetLevel,
+        answeredAt: h.answeredAt.toISOString(),
+      }));
+    } else {
+      const liveHistory = await this.dbClient.db
+        .select({
+          questionId: userAnswers.questionId,
+          isCorrect: userAnswers.isCorrect,
+          answeredAt: examAttempts.submittedAt,
+          skill: questions.skill,
+          mondaiType: questions.mondaiType,
+          level: questions.level,
+        })
+        .from(userAnswers)
+        .innerJoin(examAttempts, eq(examAttempts.id, userAnswers.attemptId))
+        .innerJoin(questions, eq(questions.id, userAnswers.questionId))
+        .where(and(eq(examAttempts.userId, userId), isNotNull(examAttempts.submittedAt)))
+        .orderBy(desc(examAttempts.submittedAt))
+        .limit(200);
+
+      if (liveHistory.length > 0) {
+        questionHistory = liveHistory.map((h: { questionId: string; isCorrect: boolean; skill: string; mondaiType: string; level: string; answeredAt: Date | null }) => ({
           questionId: h.questionId,
-          skill: 'vocabulary' as Skill,
+          isCorrect: h.isCorrect,
+          skill: h.skill,
+          mondaiType: h.mondaiType,
+          level: h.level,
+          answeredAt: (h.answeredAt || new Date()).toISOString(),
+        }));
+      }
+    }
+
+    if (questionHistory.length > 0) {
+      speedAccuracy = analyzeSpeedAndAccuracy(
+        questionHistory.map((h) => ({
+          questionId: h.questionId,
+          skill: (h.skill || 'vocabulary') as Skill,
           timeSpentMs: 60000,
           isCorrect: h.isCorrect,
         })),
@@ -157,7 +245,7 @@ export class StatsService {
       unseenProgress = analyzeUnseenProgress([
         {
           period: 'current',
-          questions: historyRows.map((h: (typeof historyRows)[number]) => ({
+          questions: questionHistory.map((h) => ({
             questionId: h.questionId,
             isCorrect: h.isCorrect,
             exposureCount: 0,
@@ -166,7 +254,7 @@ export class StatsService {
       ]);
 
       trueProgress = compareTrueProgress(
-        historyRows.map((h: (typeof historyRows)[number], idx: number) => ({
+        questionHistory.map((h, idx) => ({
           questionId: h.questionId,
           isCorrect: h.isCorrect,
           exposureCount: idx < 10 ? 0 : 2,
@@ -183,6 +271,7 @@ export class StatsService {
       answerChanges,
       unseenProgress,
       trueProgress,
+      questionHistory,
       generatedAt: new Date().toISOString(),
     };
   }

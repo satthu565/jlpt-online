@@ -266,19 +266,31 @@ export default function AnalyticsPage(): React.JSX.Element {
           }));
         }
         if (Array.isArray(analyticsData.questionHistory)) {
-          loadedQuestionAttempts = analyticsData.questionHistory.map((q: Record<string, unknown>, idx: number) => ({
-            questionId: String(q['questionId'] || `q-${idx}`),
-            questionNumber: String(q['questionNumber'] || idx + 1),
-            stemPreview: typeof q['stemPreview'] === 'string' ? q['stemPreview'] : undefined,
-            level: ((q['level'] || user.targetLevel || 'N3') as Level),
-            skill: ((q['skill'] || 'vocabulary') as Skill),
-            mondaiType: q['mondaiType'] as MondaiType | undefined,
-            isCorrect: Boolean(q['isCorrect']),
-            timeSpentMs: typeof q['timeSpentMs'] === 'number' ? q['timeSpentMs'] : 60000,
-            exposureCount: typeof q['exposureCount'] === 'number' ? q['exposureCount'] : 0,
-            errorCategory: q['errorCategory'] as QuestionAttemptRecord['errorCategory'],
-            submittedAt: String(q['submittedAt'] || new Date().toISOString()),
-          }));
+          loadedQuestionAttempts = analyticsData.questionHistory.map((q: Record<string, unknown>, idx: number) => {
+            const isCorrect = Boolean(q['isCorrect']);
+            const skill = ((q['skill'] || 'vocabulary') as Skill);
+            let errorCategory = q['errorCategory'] as QuestionAttemptRecord['errorCategory'];
+            if (!errorCategory && !isCorrect) {
+              if (skill === 'grammar') errorCategory = 'grammar_trap';
+              else if (skill === 'reading') errorCategory = 'time_pressure';
+              else if (skill === 'vocabulary') errorCategory = 'vocab_nuance';
+              else if (skill === 'kanji') errorCategory = 'kanji_confusion';
+              else if (skill === 'listening') errorCategory = 'listening_distractor';
+            }
+            return {
+              questionId: String(q['questionId'] || `q-${idx}`),
+              questionNumber: String(q['questionNumber'] || idx + 1),
+              stemPreview: typeof q['stemPreview'] === 'string' ? q['stemPreview'] : undefined,
+              level: ((q['level'] || user.targetLevel || 'N3') as Level),
+              skill,
+              mondaiType: q['mondaiType'] as MondaiType | undefined,
+              isCorrect,
+              timeSpentMs: typeof q['timeSpentMs'] === 'number' ? q['timeSpentMs'] : 60000,
+              exposureCount: typeof q['exposureCount'] === 'number' ? q['exposureCount'] : 0,
+              errorCategory,
+              submittedAt: String(q['submittedAt'] || q['answeredAt'] || new Date().toISOString()),
+            };
+          });
         }
       }
 

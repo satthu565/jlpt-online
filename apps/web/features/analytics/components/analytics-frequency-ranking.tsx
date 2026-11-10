@@ -201,6 +201,128 @@ export const LEVEL_KNOWLEDGE_BANK: Record<Level, Record<string, [string, number,
 
 // Dữ liệu phân tích thực tế chi tiết theo từng năm từ Database
 const YEAR_SPECIFIC_BANK: Partial<Record<Level, Record<string, Partial<Record<string, [string, number, string][]>>>>> = {
+  N1: {
+    '2022': {
+      vocab: [
+        ['底力', 5, 'Tiềm lực, sức mạnh tiềm tàng (5 lượt năm 2022)'],
+        ['手痛い', 5, 'Nặng nề, đau đớn / tổn thất (5 lượt năm 2022)'],
+        ['出荷', 5, 'Xuất hàng, giao hàng thực tế (5 lượt năm 2022)'],
+        ['断じる', 5, 'Quyết đoán, phán định dứt khoát (5 lượt năm 2022)'],
+        ['仕事', 5, 'Công việc, nhiệm vụ (5 lượt năm 2022)'],
+      ],
+      kanji: [
+        ['姿', 11, 'TƯ (Dáng điệu, bóng dáng · 11 lượt năm 2022)'],
+        ['誰', 11, 'THÙY (Ai, người nào đó · 11 lượt năm 2022)'],
+        ['頃', 2, 'KHOẢNH (Khoảng thời gian · 2 lượt năm 2022)'],
+        ['餌', 4, 'NHỊ (Thức ăn, mồi nhử · 4 lượt năm 2022)'],
+        ['逆', 5, 'NGHỊCH (Trái ngược, đảo ngược · 5 lượt năm 2022)'],
+      ],
+      grammar: [
+        ['存じます', 2, 'Khiêm nhường ngữ cao cấp (2 lượt năm 2022)'],
+        ['～を機に', 1, 'Nhân cơ hội, mốc thời gian bước ngoặt'],
+        ['～ないくせに', 1, 'Mặc dù không... thế mà lại'],
+        ['～ものを', 1, 'Giá mà... thì đã'],
+        ['～ものと思われる', 1, 'Được cho là, suy đoán khách quan'],
+      ],
+      question: [
+        ['Phản xạ nhanh (即時応答)', 24, 'Nghe hiểu · 24 câu trong 2 đề thi năm 2022'],
+        ['Hình thức ngữ pháp (文法形式)', 20, 'Ngữ pháp · 20 câu trong 2 đề thi năm 2022'],
+        ['Đọc hiểu đoạn trung (中文読解)', 17, 'Đọc hiểu · 17 câu trong 2 đề thi năm 2022'],
+        ['Từ vựng theo ngữ cảnh (文脈規定)', 14, 'Từ vựng · 14 câu trong 2 đề thi năm 2022'],
+        ['Điểm then chốt (ポイント理解)', 13, 'Nghe hiểu · 13 câu trong 2 đề thi năm 2022'],
+      ],
+    },
+    '2024': {
+      vocab: [
+        ['ずばり', 5, 'Trúng phóc, đúng trọng tâm (5 lượt năm 2024)'],
+        ['ありきたり', 5, 'Thông thường, phổ biến (5 lượt năm 2024)'],
+        ['コンスタント', 5, 'Đều đặn, ổn định (5 lượt năm 2024)'],
+        ['加工', 5, 'Gia công, chế biến (5 lượt năm 2024)'],
+        ['仕事', 26, 'Công việc, nhiệm vụ (26 lượt năm 2024)'],
+      ],
+      kanji: [
+        ['誰', 12, 'THÙY (Ai, người nào đó · 12 lượt năm 2024)'],
+        ['姿', 2, 'TƯ (Dáng điệu, bóng dáng · 2 lượt năm 2024)'],
+        ['頃', 3, 'KHOẢNH (Khoảng thời gian · 3 lượt năm 2024)'],
+        ['雌', 7, 'THƯ (Con mái, giống cái · 7 lượt năm 2024)'],
+        ['餌', 1, 'NHỊ (Thức ăn, mồi nhử · 1 lượt năm 2024)'],
+      ],
+      grammar: [
+        ['存じます', 1, 'Khiêm nhường ngữ cao cấp'],
+        ['～を機に', 1, 'Nhân cơ hội'],
+        ['～ないくせに', 1, 'Mặc dù không'],
+        ['～ものを', 1, 'Giá mà thì đã'],
+        ['～ものと思われる', 1, 'Được cho là'],
+      ],
+      question: [
+        ['Phản xạ nhanh (即時応答)', 22, 'Nghe hiểu · 22 câu trong 2 đề thi năm 2024'],
+        ['Hình thức ngữ pháp (文法形式)', 20, 'Ngữ pháp · 20 câu trong 2 đề thi năm 2024'],
+        ['Đọc hiểu đoạn trung (中文読解)', 16, 'Đọc hiểu · 16 câu trong 2 đề thi năm 2024'],
+        ['Từ vựng theo ngữ cảnh (文脈規定)', 14, 'Từ vựng · 14 câu trong 2 đề thi năm 2024'],
+        ['Điểm then chốt (ポイント理解)', 12, 'Nghe hiểu · 12 câu trong 2 đề thi năm 2024'],
+      ],
+    },
+    '2023': {
+      vocab: [
+        ['デマ', 5, 'Tin đồn thất thiệt (5 lượt năm 2023)'],
+        ['兆し', 5, 'Dấu hiệu, điềm báo (5 lượt năm 2023)'],
+        ['収容', 5, 'Sức chứa, dung nạp (5 lượt năm 2023)'],
+        ['さえる', 5, 'Sáng suốt, minh mẫn (5 lượt năm 2023)'],
+        ['仕事', 24, 'Công việc, nhiệm vụ (24 lượt năm 2023)'],
+      ],
+      kanji: [
+        ['誰', 12, 'THÙY (Ai, người nào đó · 12 lượt năm 2023)'],
+        ['姿', 1, 'TƯ (Dáng điệu · 1 lượt năm 2023)'],
+        ['頃', 2, 'KHOẢNH (Khoảng thời gian · 2 lượt năm 2023)'],
+        ['餌', 4, 'NHỊ (Mồi nhử · 4 lượt năm 2023)'],
+        ['逆', 5, 'NGHỊCH (Trái ngược · 5 lượt năm 2023)'],
+      ],
+      grammar: [
+        ['存じます', 1, 'Khiêm nhường ngữ'],
+        ['～を機に', 1, 'Nhân cơ hội'],
+        ['～ものと思われる', 1, 'Được cho là'],
+        ['～ないくせに', 1, 'Mặc dù không'],
+        ['～ものを', 1, 'Giá mà'],
+      ],
+      question: [
+        ['Phản xạ nhanh (即時応答)', 22, 'Nghe hiểu · 22 câu trong đề năm 2023'],
+        ['Hình thức ngữ pháp (文法形式)', 20, 'Ngữ pháp · 20 câu trong đề năm 2023'],
+        ['Đọc hiểu đoạn trung (中文読解)', 16, 'Đọc hiểu · 16 câu trong đề năm 2023'],
+        ['Từ vựng theo ngữ cảnh (文脈規定)', 14, 'Từ vựng · 14 câu trong đề năm 2023'],
+        ['Điểm then chốt (ポイント理解)', 12, 'Nghe hiểu · 12 câu trong đề năm 2023'],
+      ],
+    },
+    '2025': {
+      vocab: [
+        ['緩和', 5, 'Nới lỏng, giảm nhẹ (5 lượt năm 2025)'],
+        ['使いこなす', 5, 'Sử dụng thành thạo (5 lượt năm 2025)'],
+        ['抜き', 5, 'Không kèm theo, bỏ qua (5 lượt năm 2025)'],
+        ['仕事', 23, 'Công việc, nhiệm vụ (23 lượt năm 2025)'],
+        ['会社', 8, 'Công ty, cơ quan (8 lượt năm 2025)'],
+      ],
+      kanji: [
+        ['誰', 11, 'THÙY (Ai · 11 lượt năm 2025)'],
+        ['姿', 5, 'TƯ (Dáng điệu · 5 lượt năm 2025)'],
+        ['頃', 7, 'KHOẢNH (Khoảng thời gian · 7 lượt năm 2025)'],
+        ['逆', 3, 'NGHỊCH (Trái ngược · 3 lượt năm 2025)'],
+        ['量', 4, 'LƯỢNG (Dung lượng · 4 lượt năm 2025)'],
+      ],
+      grammar: [
+        ['～ないくせに', 1, 'Mặc dù không'],
+        ['～ものを', 1, 'Giá mà thì đã'],
+        ['～ものと思われる', 1, 'Được cho là'],
+        ['～いただくたび', 1, 'Mỗi lần được nhận giúp đỡ'],
+        ['～さえ', 1, 'Ngay cả, thậm chí'],
+      ],
+      question: [
+        ['Phản xạ nhanh (即時応答)', 22, 'Nghe hiểu · 22 câu trong đề năm 2025'],
+        ['Hình thức ngữ pháp (文法形式)', 20, 'Ngữ pháp · 20 câu trong đề năm 2025'],
+        ['Đọc hiểu đoạn trung (中文読解)', 16, 'Đọc hiểu · 16 câu trong đề năm 2025'],
+        ['Từ vựng theo ngữ cảnh (文脈規定)', 14, 'Từ vựng · 14 câu trong đề năm 2025'],
+        ['Điểm then chốt (ポイント理解)', 12, 'Nghe hiểu · 12 câu trong đề năm 2025'],
+      ],
+    },
+  },
   N3: {
     '2022': {
       vocab: [
