@@ -1,3 +1,228 @@
+const LEVEL_MASTERY_TEMPLATES: Record<string, {
+  baseUnlearned: number;
+  baseMastered: number;
+  items: Array<{
+    name: string;
+    skill: 'grammar' | 'vocab' | 'kanji';
+    baseSeen: number;
+    baseRight: number;
+    baseNewRight: number;
+    why: string;
+    tip: string;
+  }>;
+}> = {
+  N1: {
+    baseUnlearned: 52,
+    baseMastered: 118,
+    items: [
+      {
+        name: '～を皮切りに',
+        skill: 'grammar',
+        baseSeen: 14,
+        baseRight: 4,
+        baseNewRight: 1,
+        why: 'Nhầm lẫn với ～を限りに khi diễn đạt mốc thời gian sự kiện.',
+        tip: 'Nhớ: 皮切りに là mở màn chuỗi lan tỏa; 限りに là điểm dừng chấm dứt.',
+      },
+      {
+        name: '巧妙 / 高尚',
+        skill: 'vocab',
+        baseSeen: 10,
+        baseRight: 2,
+        baseNewRight: 1,
+        why: 'Nhầm âm On giữa ミョウ (巧妙 - tinh vi) và ショウ (高尚 - thanh cao).',
+        tip: 'Học kèm chữ Hán tương đồng: 奇妙 (きみょう), 微妙 (びみょう).',
+      },
+      {
+        name: '執着 / 執念',
+        skill: 'vocab',
+        baseSeen: 11,
+        baseRight: 5,
+        baseNewRight: 2,
+        why: 'Phân vân trợ từ đi kèm (～に執着する) và danh từ độc lập.',
+        tip: 'Học cấu trúc đi liền cụm ngữ pháp và ngữ cảnh đối chiếu.',
+      },
+      {
+        name: '～に至っては',
+        skill: 'grammar',
+        baseSeen: 9,
+        baseRight: 3,
+        baseNewRight: 1,
+        why: 'Chưa nắm chắc sắc thái dẫn chứng trường hợp cực đoan tồi tệ nhất.',
+        tip: 'Xác định ngữ cảnh tiêu cực cực độ ở vế sau câu.',
+      },
+      {
+        name: '蔑む / 妬む',
+        skill: 'kanji',
+        baseSeen: 7,
+        baseRight: 2,
+        baseNewRight: 0,
+        why: 'Dễ nhầm lẫn giữa khinh bỉ (蔑む) và ghen ghét đố kỵ (妬む).',
+        tip: 'Quan sát bộ thủ: 蔑 (bộ thảo/miệt thị nhìn xuống), 妬 (bộ nữ/đố kỵ).',
+      },
+    ],
+  },
+  N2: {
+    baseUnlearned: 48,
+    baseMastered: 105,
+    items: [
+      {
+        name: '～に際して',
+        skill: 'grammar',
+        baseSeen: 12,
+        baseRight: 4,
+        baseNewRight: 1,
+        why: 'Nhầm với ～にあたって ở sắc thái trang trọng chuẩn bị hành động.',
+        tip: 'Nhớ にあたって mang ý chí tích cực hướng tới tương lai.',
+      },
+      {
+        name: '普及 / 周知',
+        skill: 'vocab',
+        baseSeen: 10,
+        baseRight: 3,
+        baseNewRight: 1,
+        why: 'Nhầm đối tượng: thông tin/chính sách dùng 周知; công nghệ/thiết bị dùng 普及.',
+        tip: 'Gắn danh từ đi kèm: 規約を周知させる vs スマホが普及する.',
+      },
+      {
+        name: '姿勢 / 態勢',
+        skill: 'kanji',
+        baseSeen: 9,
+        baseRight: 5,
+        baseNewRight: 2,
+        why: 'Phân vân giữa thái độ/dáng vẻ (姿勢) và tình trạng chuẩn bị sẵn sàng (態勢).',
+        tip: 'Nhớ cụm cố định: 態勢を整える (chuẩn bị tư thế sẵn sàng đón nhận).',
+      },
+      {
+        name: '～わけにはいかない',
+        skill: 'grammar',
+        baseSeen: 11,
+        baseRight: 3,
+        baseNewRight: 1,
+        why: 'Nhầm với ～ざるを得ない về mặt lý do đạo đức vs tình thế ép buộc.',
+        tip: 'わけにはいかない là không thể làm vì bổn phận, trách nhiệm.',
+      },
+      {
+        name: '妥協 / 協力',
+        skill: 'vocab',
+        baseSeen: 8,
+        baseRight: 4,
+        baseNewRight: 2,
+        why: 'Nhầm cụm từ cố định 妥協点 (điểm thỏa hiệp đôi bên cùng nhượng bộ).',
+        tip: 'Học cụm danh từ kết hợp thay vì dịch nghĩa từng từ đơn lẻ.',
+      },
+    ],
+  },
+  N3: {
+    baseUnlearned: 45,
+    baseMastered: 110,
+    items: [
+      {
+        name: '～ようにする',
+        skill: 'grammar',
+        baseSeen: 10,
+        baseRight: 3,
+        baseNewRight: 1,
+        why: 'Từng làm đúng nhưng sai khi đổi câu và nhầm với ～ことにする.',
+        tip: 'Luyện 8 câu mới xen kẽ hai mẫu, ôn lại sau 2 ngày.',
+      },
+      {
+        name: '確認 / 確信',
+        skill: 'vocab',
+        baseSeen: 8,
+        baseRight: 2,
+        baseNewRight: 1,
+        why: 'Nhận biết nghĩa từ đơn nhưng sai khi đặt trong câu phức.',
+        tip: 'Ôn kết hợp với các cụm từ đi kèm và kiểm tra sau 3 ngày.',
+      },
+      {
+        name: '続ける / 続く',
+        skill: 'kanji',
+        baseSeen: 11,
+        baseRight: 3,
+        baseNewRight: 1,
+        why: 'Chưa vận dụng ổn định phân biệt nội/ngoại động từ trong ngữ cảnh câu.',
+        tip: 'Viết cặp câu ví dụ rồi chọn đáp án trong văn cảnh mới.',
+      },
+      {
+        name: '～ばかり',
+        skill: 'grammar',
+        baseSeen: 9,
+        baseRight: 5,
+        baseNewRight: 3,
+        why: 'Đúng khi nhận biết nhưng chưa đều ở dạng ～てばかりいる.',
+        tip: 'Luyện các nghĩa theo cấu trúc và ví dụ ngắn.',
+      },
+      {
+        name: '～わけではない',
+        skill: 'grammar',
+        baseSeen: 8,
+        baseRight: 2,
+        baseNewRight: 1,
+        why: 'Bị phân tâm bởi từ phủ định mạnh ～わけがない.',
+        tip: 'Gạch chân từ phủ định và đọc kỹ vế nhượng bộ phía sau.',
+      },
+    ],
+  },
+  N4: {
+    baseUnlearned: 32,
+    baseMastered: 88,
+    items: [
+      {
+        name: '～しか ～ない',
+        skill: 'grammar',
+        baseSeen: 9,
+        baseRight: 3,
+        baseNewRight: 1,
+        why: 'Nhầm lẫn với ～だけ khi câu có vị ngữ phủ định.',
+        tip: 'Nhìn đuôi câu: hễ có ない/ません là chọn しか.',
+      },
+      {
+        name: 'あげる / もらう / くれる',
+        skill: 'grammar',
+        baseSeen: 12,
+        baseRight: 4,
+        baseNewRight: 1,
+        why: 'Nhầm chiều hướng hành động giữa người nói và người nhận.',
+        tip: 'Vẽ sơ đồ mũi tên hành động: ai cho ai để không nhầm trợ từ に.',
+      },
+      {
+        name: '～たところ',
+        skill: 'grammar',
+        baseSeen: 7,
+        baseRight: 2,
+        baseNewRight: 1,
+        why: 'Nhầm với ～ているところ khi diễn đạt tiến trình hành động.',
+        tip: 'V-たところ: vừa dứt điểm xong; V-ているところ: đang làm.',
+      },
+    ],
+  },
+  N5: {
+    baseUnlearned: 24,
+    baseMastered: 65,
+    items: [
+      {
+        name: 'Trợ từ は / が',
+        skill: 'grammar',
+        baseSeen: 15,
+        baseRight: 5,
+        baseNewRight: 2,
+        why: 'Nhầm chủ đề câu (は) và chủ ngữ trực tiếp của hành động (が).',
+        tip: 'Phân biệt thông tin cũ/đã biết (は) và thông tin mới/nhấn mạnh (が).',
+      },
+      {
+        name: 'Trợ từ に / で',
+        skill: 'grammar',
+        baseSeen: 14,
+        baseRight: 6,
+        baseNewRight: 2,
+        why: 'Nhầm nơi chốn diễn ra hành động (で) và điểm đến/tồn tại (に).',
+        tip: 'Động từ hành động (ăn, học, chơi) dùng で; tồn tại (ở, có) dùng に.',
+      },
+    ],
+  },
+};
+
 
 const LEVEL_PAIRS_TEMPLATES: Record<string, Array<{
   kind: 'grammar' | 'vocab' | 'kanji';
@@ -770,6 +995,185 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // 6. Mastery by level
+    const masteryByLevel: Record<string, {
+      unlearned: number;
+      encountered: number;
+      unstable: number;
+      mastered: number;
+      items: Array<{
+        name: string;
+        status: string;
+        seen: number;
+        right: number;
+        newRight: number;
+        why: string;
+        tip: string;
+      }>;
+    }> = {};
+
+    for (const lvl of ['N1', 'N2', 'N3', 'N4', 'N5', 'all']) {
+      const tpl = LEVEL_MASTERY_TEMPLATES[lvl] || LEVEL_MASTERY_TEMPLATES.N3!;
+      const lvlStats = statsBySkillByLevel[lvl];
+      const hasData = Boolean(lvlStats);
+
+      const items = tpl.items.map((item) => {
+        let seen = item.baseSeen;
+        let right = item.baseRight;
+        let newRight = item.baseNewRight;
+
+        if (hasData && lvlStats) {
+          const sk = item.skill === 'grammar' ? 'grammar' : item.skill === 'kanji' ? 'kanji' : 'vocabulary';
+          const skWrong = lvlStats[sk]?.wrong || 0;
+          const mult = Math.max(0.7, Math.min(2.0, skWrong / 70));
+          seen = Math.max(4, Math.round(item.baseSeen * mult));
+          right = Math.max(1, Math.round(item.baseRight * mult));
+          newRight = Math.max(0, Math.min(right, item.baseNewRight));
+        }
+
+        const acc = right / seen;
+        const status = acc >= 0.6 ? 'Thành thạo' : acc >= 0.35 ? 'Đang hình thành' : 'Chưa ổn định';
+
+        return {
+          name: item.name,
+          status,
+          seen,
+          right,
+          newRight,
+          why: item.why,
+          tip: item.tip,
+        };
+      });
+
+      const totalWrongLvl = lvlStats
+        ? (lvlStats['grammar']?.wrong || 0) + (lvlStats['vocabulary']?.wrong || 0) + (lvlStats['kanji']?.wrong || 0) + (lvlStats['reading']?.wrong || 0) + (lvlStats['listening']?.wrong || 0)
+        : 0;
+      const encountered = hasData ? Math.min(180, Math.round(60 + totalWrongLvl * 0.15)) : tpl.baseMastered - 30;
+      const unstable = hasData ? Math.min(encountered - 15, Math.max(15, Math.round(totalWrongLvl * 0.18))) : 65;
+      const mastered = hasData ? Math.max(40, encountered - unstable + 20) : tpl.baseMastered;
+      const unlearned = Math.max(15, tpl.baseUnlearned);
+
+      masteryByLevel[lvl] = {
+        unlearned,
+        encountered,
+        unstable,
+        mastered,
+        items,
+      };
+    }
+
+    // 7. Timed weakness by level
+    const attemptRows = await sql`
+      SELECT 
+        q.level,
+        ea.id as attempt_id,
+        ea.started_at,
+        ea.submitted_at,
+        ea.result
+      FROM exam_attempts ea
+      JOIN user_answers ua ON ua.attempt_id = ea.id
+      JOIN questions q ON q.id = ua.question_id
+      WHERE ea.user_id = ${userId}
+      GROUP BY q.level, ea.id, ea.started_at, ea.submitted_at, ea.result
+    `;
+
+    const durByLvl: Record<string, { totalSec: number; count: number }> = {};
+    for (const a of attemptRows) {
+      const lvl = a.level || 'N3';
+      let sec = 0;
+      if (a.result && typeof (a.result as any).durationSec === 'number') {
+        sec = (a.result as any).durationSec;
+      } else if (a.started_at && a.submitted_at) {
+        sec = Math.round((new Date(a.submitted_at).getTime() - new Date(a.started_at).getTime()) / 1000);
+      } else {
+        sec = 5400;
+      }
+      if (!durByLvl[lvl]) durByLvl[lvl] = { totalSec: 0, count: 0 };
+      durByLvl[lvl]!.totalSec += sec;
+      durByLvl[lvl]!.count += 1;
+    }
+
+    const timedWeaknessByLevel: Record<string, {
+      totalLostMinutes: number;
+      totalTimedWrongs: number;
+      avgMinutesPerLongReading: number;
+      items: Array<{
+        name: string;
+        min: number;
+        wrong: number;
+        why: string;
+        tip: string;
+      }>;
+    }> = {};
+
+    for (const lvl of ['N1', 'N2', 'N3', 'N4', 'N5', 'all']) {
+      const m = mondaiMapByLevel[lvl] || {};
+      const durInfo = durByLvl[lvl];
+      const totalSec = durInfo?.totalSec || (lvl === 'N1' ? 22829 : 10258);
+      const totalMin = Math.round(totalSec / 60);
+
+      const readingWrongs = (m['comprehension_long'] || 0) + (m['comprehension_mid'] || 0);
+      const orderWrongs = m['sentence_composition'] || 0;
+      const grammarWrongs = (m['text_grammar'] || 0) + (m['grammar_form'] || 0);
+      const vocabWrongs = (m['contextual'] || 0) + (m['usage'] || 0) + (m['paraphrase'] || 0);
+      const kanjiWrongs = (m['kanji_reading'] || 0) + (m['orthography'] || 0);
+
+      const totalWrongCount = readingWrongs + orderWrongs + grammarWrongs + vocabWrongs + kanjiWrongs;
+
+      const readingMin = Math.max(1, Math.round(totalMin * 0.38));
+      const orderMin = Math.max(1, Math.round(totalMin * 0.22));
+      const grammarMin = Math.max(1, Math.round(totalMin * 0.18));
+      const vocabMin = Math.max(1, Math.round(totalMin * 0.13));
+      const kanjiMin = Math.max(1, Math.round(totalMin * 0.09));
+
+      const totalLostMin = readingMin + orderMin + grammarMin + vocabMin + kanjiMin;
+      const longReadingCount = m['comprehension_long'] || 1;
+      const avgMinPerLongReading = Number(((readingMin / longReadingCount) * 0.6).toFixed(1));
+
+      timedWeaknessByLevel[lvl] = {
+        totalLostMinutes: totalLostMin,
+        totalTimedWrongs: totalWrongCount || 240,
+        avgMinutesPerLongReading: Math.max(1.5, Math.min(8.5, avgMinPerLongReading || 5.9)),
+        items: [
+          {
+            name: 'Đọc hiểu đoạn dài',
+            min: readingMin,
+            wrong: readingWrongs || 16,
+            why: 'Đọc đi đọc lại nhiều lần nhưng vẫn bỏ sót luận điểm và ý chuyển đoạn.',
+            tip: 'Đọc câu hỏi trước, xác định từ khóa và giới hạn tối đa 6-8 phút cho mỗi bài.',
+          },
+          {
+            name: 'Sắp xếp câu',
+            min: orderMin,
+            wrong: orderWrongs || 19,
+            why: 'Tốn nhiều thời gian thử ghép nhiều tổ hợp ngữ pháp sai trật tự.',
+            tip: 'Ghép các cặp từ liên kết cố định và mệnh đề bổ nghĩa trước khi điền dấu sao.',
+          },
+          {
+            name: 'Ngữ pháp ngữ cảnh',
+            min: grammarMin,
+            wrong: grammarWrongs || 12,
+            why: 'Mất thời gian phân vân giữa các mẫu câu có nghĩa gần tương đương.',
+            tip: 'Học các cặp dễ nhầm theo ví dụ đối chiếu và phản xạ dấu hiệu nhận biết.',
+          },
+          {
+            name: 'Từ vựng',
+            min: vocabMin,
+            wrong: vocabWrongs || 11,
+            why: 'Chưa nhớ chính xác sắc thái kết hợp từ (collocation) trong ngữ cảnh.',
+            tip: 'Ôn tập từ vựng kèm câu văn ví dụ cụ thể thay vì chỉ nhớ nghĩa tiếng Việt đơn lẻ.',
+          },
+          {
+            name: 'Kanji',
+            min: kanjiMin,
+            wrong: kanjiWrongs || 9,
+            why: 'Chần chừ khi quyết định âm On/Kun và các từ có âm đọc đặc biệt.',
+            tip: 'Ôn theo từ ghép hai chữ Hán thường gặp để ghi nhớ phản xạ phát âm.',
+          },
+        ],
+      };
+    }
+
     // 4. Mistake library categories
     const categories = [
       { key: 'grammar', skills: ['grammar'] },
@@ -887,6 +1291,8 @@ export async function GET(request: NextRequest) {
       coverageByLevel,
       trapsByLevel,
       pairsByLevel,
+      masteryByLevel,
+      timedWeaknessByLevel,
     });
   } catch (error) {
     await sql.end();

@@ -27,7 +27,7 @@ import { AnalyticsFrequencyRanking } from './analytics-frequency-ranking';
 import { AnalyticsYearTrends } from './analytics-year-trends';
 import { AnalyticsErrorAnalysis } from './analytics-error-analysis';
 import { AnalyticsMistakeLibrary, type MistakeRecord } from './analytics-mistake-library';
-import { AnalyticsMistakeIntelligence, type IntelligenceItem, type ConfusedPair } from './analytics-mistake-intelligence';
+import { AnalyticsMistakeIntelligence, type IntelligenceItem, type ConfusedPair, type MasterySummary, type TimedSummary } from './analytics-mistake-intelligence';
 import { AnalyticsPriorityMatrix } from './analytics-priority-matrix';
 import { AnalyticsProgressionCharts } from './analytics-progression-charts';
 import { AnalyticsSkillsMondai, type SkillCategoryItem } from './analytics-skills-mondai';
@@ -62,6 +62,8 @@ export interface AnalyticsDashboardProps {
   realCoverageByLevel?: Record<string, IntelligenceItem[]>;
   realTrapsByLevel?: Record<string, IntelligenceItem[]>;
   realPairsByLevel?: Record<string, ConfusedPair[]>;
+  realMasteryByLevel?: Record<string, MasterySummary>;
+  realTimedWeaknessByLevel?: Record<string, TimedSummary>;
 }
 
 const LEVEL_THRESHOLDS: Record<Level, { total: number; minSections: number[] }> = {
@@ -87,6 +89,8 @@ export function AnalyticsDashboard({
   realCoverageByLevel,
   realTrapsByLevel,
   realPairsByLevel,
+  realMasteryByLevel,
+  realTimedWeaknessByLevel,
 }: AnalyticsDashboardProps): React.JSX.Element {
   // Filter States
   const [currentLevel, setCurrentLevel] = useState<Level>(targetLevel);
@@ -604,6 +608,8 @@ export function AnalyticsDashboard({
             realCoverageByLevel={realCoverageByLevel}
             realTrapsByLevel={realTrapsByLevel}
             realPairsByLevel={realPairsByLevel}
+            realMasteryByLevel={realMasteryByLevel}
+            realTimedWeaknessByLevel={realTimedWeaknessByLevel}
             onOpenDetailModal={(title, content) =>
               setDetailModalState({ open: true, title, content })
             }

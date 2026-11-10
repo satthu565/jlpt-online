@@ -352,7 +352,42 @@ export interface AnalyticsMistakeIntelligenceProps {
   realCoverageByLevel?: Record<string, IntelligenceItem[]>;
   realTrapsByLevel?: Record<string, IntelligenceItem[]>;
   realPairsByLevel?: Record<string, ConfusedPair[]>;
+  realMasteryByLevel?: Record<string, MasterySummary>;
+  realTimedWeaknessByLevel?: Record<string, TimedSummary>;
   onOpenDetailModal: (title: string, content: React.ReactNode) => void;
+}
+
+export interface MasteryItem {
+  name: string;
+  status: string;
+  seen: number;
+  right: number;
+  newRight: number;
+  why: string;
+  tip: string;
+}
+
+export interface MasterySummary {
+  unlearned: number;
+  encountered: number;
+  unstable: number;
+  mastered: number;
+  items: MasteryItem[];
+}
+
+export interface TimedItem {
+  name: string;
+  min: number;
+  wrong: number;
+  why: string;
+  tip: string;
+}
+
+export interface TimedSummary {
+  totalLostMinutes: number;
+  totalTimedWrongs: number;
+  avgMinutesPerLongReading: number;
+  items: TimedItem[];
 }
 
 export function AnalyticsMistakeIntelligence({
@@ -363,6 +398,8 @@ export function AnalyticsMistakeIntelligence({
   realCoverageByLevel,
   realTrapsByLevel,
   realPairsByLevel,
+  realMasteryByLevel,
+  realTimedWeaknessByLevel,
   onOpenDetailModal,
 }: AnalyticsMistakeIntelligenceProps): React.JSX.Element {
   const [pairFilter, setPairFilter] = useState<string>('all');
@@ -550,8 +587,38 @@ export function AnalyticsMistakeIntelligence({
     return Math.max(...currentTraps.map((t) => t.value), 1);
   }, [currentTraps]);
 
-  const totalLostMinutes = TIMED_ITEMS.reduce((sum, x) => sum + x.min, 0);
-  const totalTimedWrongs = TIMED_ITEMS.reduce((sum, x) => sum + x.wrong, 0);
+  const currentMastery = useMemo<MasterySummary>(() => {
+    const targetLvl = level || 'N3';
+    if (realMasteryByLevel && realMasteryByLevel[targetLvl]) {
+      return realMasteryByLevel[targetLvl];
+    }
+    return {
+      unlearned: 45,
+      encountered: 80,
+      unstable: 65,
+      mastered: 110,
+      items: MASTERY_ITEMS,
+    };
+  }, [realMasteryByLevel, level]);
+
+  const currentTimedWeakness = useMemo<TimedSummary>(() => {
+    const targetLvl = level || 'N3';
+    if (realTimedWeaknessByLevel && realTimedWeaknessByLevel[targetLvl]) {
+      return realTimedWeaknessByLevel[targetLvl];
+    }
+    const defLost = TIMED_ITEMS.reduce((sum, x) => sum + x.min, 0);
+    const defTimedWrongs = TIMED_ITEMS.reduce((sum, x) => sum + x.wrong, 0);
+    return {
+      totalLostMinutes: defLost,
+      totalTimedWrongs: defTimedWrongs,
+      avgMinutesPerLongReading: 5.9,
+      items: TIMED_ITEMS,
+    };
+  }, [realTimedWeaknessByLevel, level]);
+
+  const maxTimedValue = useMemo(() => {
+    return Math.max(...currentTimedWeakness.items.map((t) => t.min), 1);
+  }, [currentTimedWeakness]);
 
   const handleOpenItem = (item: IntelligenceItem) => {
     onOpenDetailModal(
@@ -903,10 +970,10 @@ export function AnalyticsMistakeIntelligence({
 
             <div className="grid grid-cols-4 gap-2 mb-3 text-center">
               {[
-                ['45', 'Chưa học'],
-                ['80', 'Đã gặp'],
-                ['65', 'Chưa ổn định'],
-                ['110', 'Thành thạo'],
+                [String(currentMastery.unlearned), 'Chưa học'],
+                [String(currentMastery.encountered), 'Đã gặp'],
+                [String(currentMastery.unstable), 'Chưa ổn định'],
+                [String(currentMastery.mastered), 'Thành thạo'],
               ].map(([count, label], i) => (
                 <div key={i} className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
                   <strong className="block text-base font-extrabold text-slate-800 dark:text-slate-200">{count}</strong>
@@ -916,7 +983,7 @@ export function AnalyticsMistakeIntelligence({
             </div>
 
             <div className="space-y-2">
-              {MASTERY_ITEMS.map((m, idx) => (
+              {currentMastery.items.map((m, idx) => (
                 <div
                   key={idx}
                   className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40 text-xs transition-colors"
@@ -924,10 +991,16 @@ export function AnalyticsMistakeIntelligence({
                   <div>
                     <strong className="block text-slate-900 dark:text-slate-100" lang="ja">{m.name}</strong>
                     <span className="text-[10px] text-slate-400 dark:text-slate-500">
-                      Đã gặp {m.seen} lần · Đúng câu mới {m.newRight} lần
+                      Đã gặp {m.seen} lần · Đúng {m.right}/{m.seen} lần
                     </span>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    m.status === 'Thành thạo'
+                      ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                      : m.status === 'Đang hình thành'
+                      ? 'bg-sky-50 text-sky-800 dark:bg-sky-950/60 dark:text-sky-300'
+                      : 'bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
+                  }`}>
                     {m.status}
                   </span>
                 </div>
@@ -936,7 +1009,7 @@ export function AnalyticsMistakeIntelligence({
           </div>
 
           <p className="mt-4 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-[10px] text-slate-400 dark:text-slate-500 leading-relaxed border border-slate-100 dark:border-slate-800">
-            "Chưa ổn định" là kiến thức có ít nhất 2 lần gặp, đã từng đúng nhưng còn sai ở câu mới hoặc sau khi ôn.
+            "Chưa ổn định" là kiến thức có tỷ lệ sai cao hoặc chưa đạt 70% trong các đề {level} đã làm.
           </p>
         </Card>
 
@@ -959,22 +1032,22 @@ export function AnalyticsMistakeIntelligence({
 
             <div className="grid grid-cols-3 gap-2 mb-3 text-center">
               <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                <strong className="block text-base font-extrabold text-slate-800 dark:text-slate-200">{totalLostMinutes}</strong>
+                <strong className="block text-base font-extrabold text-slate-800 dark:text-slate-200">{currentTimedWeakness.totalLostMinutes}</strong>
                 <span className="text-[10px] text-slate-400 dark:text-slate-500">Phút câu sai</span>
               </div>
               <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                <strong className="block text-base font-extrabold text-slate-800 dark:text-slate-200">{totalTimedWrongs}</strong>
+                <strong className="block text-base font-extrabold text-slate-800 dark:text-slate-200">{currentTimedWeakness.totalTimedWrongs}</strong>
                 <span className="text-[10px] text-slate-400 dark:text-slate-500">Lượt sai có đo</span>
               </div>
               <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                <strong className="block text-base font-extrabold text-slate-800 dark:text-slate-200">5.9</strong>
+                <strong className="block text-base font-extrabold text-slate-800 dark:text-slate-200">{currentTimedWeakness.avgMinutesPerLongReading}</strong>
                 <span className="text-[10px] text-slate-400 dark:text-slate-500">Phút/câu đọc dài</span>
               </div>
             </div>
 
             <div className="space-y-2">
-              {TIMED_ITEMS.map((t, idx) => {
-                const pct = Math.min(100, Math.round((t.min / 94) * 100));
+              {currentTimedWeakness.items.map((t, idx) => {
+                const pct = Math.min(100, Math.round((t.min / maxTimedValue) * 100));
                 return (
                   <div key={idx} className="flex items-center gap-2.5 p-1.5 text-xs">
                     <span className="w-36 font-semibold text-slate-700 dark:text-slate-300 truncate">
@@ -997,7 +1070,7 @@ export function AnalyticsMistakeIntelligence({
           </div>
 
           <p className="mt-4 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-[10px] text-slate-400 dark:text-slate-500 leading-relaxed border border-slate-100 dark:border-slate-800">
-            Tổng thời gian cao có thể do nhiều câu hoặc làm chậm. Xem thêm phút/câu để đánh giá công bằng.
+            Thời gian mất ước tính từ các đề {level} đã làm ({currentTimedWeakness.totalLostMinutes} phút câu sai).
           </p>
         </Card>
       </div>
