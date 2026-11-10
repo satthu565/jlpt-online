@@ -158,8 +158,24 @@ export async function GET(request: NextRequest) {
         const fullExp = extractExplanation(r.explanation);
         const meaning = extractMeaningSummary(fullExp);
 
-        const [ca] = await sql`SELECT correct_option FROM correct_answers WHERE question_id = ${r.question_id}`;
-        const opts = await sql`SELECT order_index, content FROM answer_options WHERE question_id = ${r.question_id} ORDER BY order_index`;
+        const [ca] = await sql`
+          SELECT correct_option 
+          FROM correct_answers 
+          WHERE question_id = ${r.question_id} 
+          ORDER BY question_version DESC 
+          LIMIT 1
+        `;
+        const opts = await sql`
+          SELECT order_index, content 
+          FROM answer_options 
+          WHERE question_id = ${r.question_id} 
+            AND question_version = (
+              SELECT COALESCE(max(question_version), 1) 
+              FROM answer_options 
+              WHERE question_id = ${r.question_id}
+            )
+          ORDER BY order_index
+        `;
 
         const correctOptIndex = ca?.correct_option;
         const correctOptObj = opts.find((o) => o.order_index === correctOptIndex);
