@@ -29,7 +29,7 @@ export function registerSrsStudyTests(): void {
         await page.getByTestId('srs-star-card').click();
         await expect(page.getByTestId('srs-star-card')).toHaveAttribute('aria-pressed', 'true');
         await expect(page.getByTestId('flashcard-back')).toBeVisible();
-        await page.locator('.srs-runner').screenshot({ path: testInfo.outputPath('workspace-answer.png') });
+        await page.screenshot({ path: testInfo.outputPath('workspace-answer.png'), fullPage: true });
         await page.getByRole('tab', { name: 'Thẻ học (2)', exact: true }).click();
         await expect(page.getByRole('button', { name: 'Ôn thẻ này', exact: true })).toHaveCount(2);
         await page.getByRole('tab', { name: 'Ôn tập', exact: true }).click();
@@ -269,7 +269,7 @@ export function registerSrsStudyTests(): void {
         await expect(session).toContainText('Thẻ mới: 0');
         await session.getByRole('button', { name: 'Mục tiêu', exact: true }).click();
         await flip(page);
-        await expect(page.getByTestId('rating-good-button')).toContainText('Dự kiến sau 15 ngày');
+        await expect(page.getByTestId('rating-good-button')).toContainText('Ôn lại sau 15 ngày');
         await page.getByTestId('rating-again-button').click();
         await expect(page.getByTestId('srs-waiting-card')).toBeVisible();
         await expect(page.getByTestId('srs-finished-card')).toHaveCount(0);

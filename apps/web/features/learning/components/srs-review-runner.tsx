@@ -350,6 +350,7 @@ export function SrsReviewRunner({
         </Card.Content>
       </Card>) : <Card><Card.Content>{t('srs.study.deckEmpty')}</Card.Content></Card>}
     </Tabs.Panel>
+    </Tabs>
     <Modal isOpen={resetOpen} onClose={() => { if (!resetting) setResetOpen(false); }}
       title={t('srs.study.resetTitle')} closeLabel={t('common.buttons.cancel')}
       footer={<div className="flex flex-wrap justify-end gap-2">
@@ -371,6 +372,5 @@ export function SrsReviewRunner({
       <span data-testid="sync-status-badge" role="status">{syncLabel}</span>
       <p>{t(practice ? 'srs.study.practiceHint' : 'srs.study.undoHint')}</p>
     </div>
-    </Tabs>
   </section>;
 }
