@@ -94,7 +94,7 @@ export function FlashcardView({
           <Card className={`${styles.face} ${styles.back}`} aria-hidden={!isFlipped} inert={!isFlipped}>
             <Card.Content className={styles.answerContent} data-testid={isFlipped ? 'flashcard-back' : undefined}>
               <div className={styles.answerHeading}>
-                <Chip variant="soft" className={styles.answerBadge}>{t('srs.study.answer')}</Chip>
+                <Chip size="lg" variant="soft" className={styles.answerBadge}>{t('srs.study.answer')}</Chip>
                 <Button variant="ghost" size="icon" onPress={flip} disabled={disabled || Boolean(leaving)}
                   aria-label={t('flashcards.flipToFront')} className={styles.flipBack}>
                   <RotateCcw size={18} aria-hidden="true" />
@@ -109,17 +109,17 @@ export function FlashcardView({
                   <Volume2 size={24} aria-hidden="true" />
                 </Button>}
               </div>
-              {hanViet && <Chip variant="soft" className={styles.hanViet} data-testid="flashcard-hanviet">{t('srs.study.hanViet', { value: hanViet })}</Chip>}
+              {hanViet && <Chip size="lg" variant="soft" className={styles.hanViet} data-testid="flashcard-hanviet">{t('srs.study.hanViet', { value: hanViet })}</Chip>}
               <div className={styles.answerDetails}>
                 <Separator />
                 <div className={styles.detailRow}>
-                  <Chip variant="soft" className={styles.detailLabel}><Tag size={18} aria-hidden="true" />{t('srs.study.meaningLabel')}</Chip>
+                  <Chip size="lg" variant="soft" className={styles.detailLabel}><Tag size={18} aria-hidden="true" />{t('srs.study.meaningLabel')}</Chip>
                   <h3 className={styles.meaning}>{meaning}</h3>
                 </div>
                 {examples.length > 0 && <>
                   <Separator />
                   <div className={styles.detailRow}>
-                    <Chip variant="soft" className={styles.detailLabel}><BookOpen size={18} aria-hidden="true" />{t('srs.study.examplesLabel')}</Chip>
+                    <Chip size="lg" variant="soft" className={styles.detailLabel}><BookOpen size={18} aria-hidden="true" />{t('srs.study.examplesLabel')}</Chip>
                     <div className={styles.examples}>
                       {examples.map((example, index) => <p key={index} lang="ja">{example}</p>)}
                     </div>

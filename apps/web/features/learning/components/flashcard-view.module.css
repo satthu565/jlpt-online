@@ -5,8 +5,8 @@
 .progressTrack { height: 8px; background: var(--color-blue-100); }
 .progressFill { background: var(--color-blue-500); }
 .scene { width: 100%; margin-inline: auto; position: relative; perspective: 1400px; padding-block: 12px 24px; isolation: isolate; }
-.stackBack, .answerScene .stackBack, .answerScene .stackFront { display: none; }
-.stackFront { position: absolute; inset: 24px 18px 12px; border-radius: var(--radius-3xl, 24px); background: var(--surface-secondary); border: 1px solid var(--border); transform: rotate(-3deg); z-index: -1; }
+.stackBack, .stackFront { position: absolute; inset: 24px 18px 12px; border-radius: var(--radius-3xl, 24px); background: var(--surface-secondary); border: 1px solid var(--border); transform: rotate(-3deg); z-index: -1; }
+.answerScene .stackBack, .answerScene .stackFront { display: none; }
 .stackFront { inset: 24px 10px 17px; transform: rotate(2deg); background: var(--surface); }
 .flipper { position: relative; display: grid; min-height: 390px; transform-style: preserve-3d; transition: transform 480ms cubic-bezier(.22,.8,.22,1); cursor: pointer; outline-offset: 5px; border-radius: var(--radius-3xl,24px); }
 .flipped { transform: rotateY(180deg); }
@@ -53,11 +53,11 @@
 .answerContent { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 28px 40px 32px; }
 .answerHeading { position: relative; display: flex; justify-content: center; width: 100%; }
 .answerBadge, .hanViet, .detailLabel { background: var(--color-blue-50); color: var(--color-blue-600); }
-.answerBadge { padding-inline: 24px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.answerBadge { font-size: 1rem; padding-inline: 24px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
 .flipBack { position: absolute; right: 0; top: 0; color: var(--text-muted); }
 .answerTermRow { display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; }
 .audioButton { flex-shrink: 0; border-radius: 50%; background: var(--color-blue-50); color: var(--color-blue-500); }
-.hanViet { max-width: 100%; height: auto; min-height: 32px; padding: 5px 20px; white-space: normal; text-align: center; }
+.hanViet { font-size: 1rem; max-width: 100%; height: auto; min-height: 32px; padding: 5px 20px; white-space: normal; text-align: center; }
 .answerDetails { width: 100%; margin-top: 10px; }
 .detailRow { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: start; gap: 24px; padding-block: 18px; }
 .detailLabel { justify-content: center; gap: 8px; font-size: 1rem; }
@@ -65,7 +65,7 @@
   .answerContent { padding: 22px 20px 24px; }
   .detailRow { grid-template-columns: minmax(0, 1fr); gap: 12px; padding-block: 16px; }
   .detailLabel { justify-self: start; }
-  .answerBadge { padding-inline: 18px; }
+  .answerBadge { font-size: 1rem; padding-inline: 18px; }
   .answerTermRow { gap: 12px; }
   .reading { font-size: 1.125rem; }
 }
