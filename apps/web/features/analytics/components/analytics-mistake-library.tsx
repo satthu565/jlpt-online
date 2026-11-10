@@ -1,6 +1,7 @@
 'use client';
 
 import { buildPracticeHref } from '../practice-link';
+import { selfReasonLabel } from '../reasons';
 import React, { useState, useMemo } from 'react';
 import {
   AlertCircle,
@@ -21,6 +22,9 @@ import { MONDAI_LABELS, MONDAI_DIAGNOSTIC_REASONS } from './analytics-error-anal
 
 export interface MistakeRecord {
   term: string;
+  questionId?: string;
+  /** Reason the learner chose for this wrong answer. */
+  selfReason?: string;
   /** Japanese question text with the blank marked. */
   stem?: string;
   level?: string;
@@ -1504,6 +1508,11 @@ export function AnalyticsMistakeLibrary({
                       <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 leading-relaxed">
                         {m.meaning}
                       </p>
+                      {m.selfReason && (
+                        <p className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 mt-1">
+                          ✎ Lý do bạn chọn: {selfReasonLabel(m.selfReason)}
+                        </p>
+                      )}
                     </div>
                     <div className="text-right shrink-0">
                       <span className="text-xl font-extrabold text-rose-600 dark:text-rose-400">

@@ -7,7 +7,7 @@ import { AnalyticsDashboard } from '../../../features/analytics';
 import type { AttemptRecord, QuestionAttemptRecord } from '../../../features/analytics/types';
 import type { MistakeRecord } from '../../../features/analytics/components/analytics-mistake-library';
 import type { IntelligenceItem, ConfusedPair, MasterySummary, TimedSummary } from '../../../features/analytics/components/analytics-mistake-intelligence';
-import type { ActivityData, BankStats, ExamMeta, MondaiStatsByLevel, ScheduleItem } from '../../../features/analytics/bank';
+import type { ActivityData, BankStats, DifficultyData, LevelContent, ExamMeta, MondaiStatsByLevel, ScheduleItem } from '../../../features/analytics/bank';
 import type { Level, Skill, MondaiType } from '@jlpt/schema';
 import { ExamHero } from '../../../features/library';
 import { useAuth } from '../../../lib/auth-context';
@@ -174,7 +174,76 @@ export default function AnalyticsPage(): React.JSX.Element {
   const [activity, setActivity] = useState<ActivityData | undefined>();
   const [examMetas, setExamMetas] = useState<ExamMeta[]>([]);
   const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
+  const [content, setContent] = useState<Record<string, LevelContent> | undefined>();
+  const [difficulty, setDifficulty] = useState<DifficultyData | undefined>();
   const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const applyMistakes = useCallback((mistakesData: any) => {
+    if (mistakesData.mistakes) {
+      setRealMistakes(mistakesData.mistakes);
+    }
+    if (typeof mistakesData.totalWrongCount === 'number') {
+      setRealTotalWrongCount(mistakesData.totalWrongCount);
+    }
+    if (mistakesData.statsBySkillByLevel) {
+      setRealStatsBySkillByLevel(mistakesData.statsBySkillByLevel);
+    }
+    if (mistakesData.coverageByLevel) {
+      setRealCoverageByLevel(mistakesData.coverageByLevel);
+    }
+    if (mistakesData.pairsByLevel) {
+      setRealPairsByLevel(mistakesData.pairsByLevel);
+    }
+    if (mistakesData.masteryByLevel) {
+      setRealMasteryByLevel(mistakesData.masteryByLevel);
+    }
+    {
+      // reasons the learner chose themselves come first, then the system's inference
+      const self = mistakesData.selfReasonsByLevel ?? {};
+      const inferred = mistakesData.reasonsByLevel ?? {};
+      const merged: Record<string, IntelligenceItem[]> = {};
+      for (const lvl of new Set([...Object.keys(self), ...Object.keys(inferred)])) {
+        merged[lvl] = [...(self[lvl] ?? []), ...(inferred[lvl] ?? [])];
+      }
+      setRealReasonsByLevel(merged);
+    }
+    if (mistakesData.trapsByLevel) {
+      setRealTrapsByLevel(mistakesData.trapsByLevel);
+    }
+    if (mistakesData.timedWeaknessByLevel) {
+      setRealTimedWeaknessByLevel(mistakesData.timedWeaknessByLevel);
+    }
+    if (mistakesData.mondaiStatsByLevel) {
+      setRealMondaiStatsByLevel(mistakesData.mondaiStatsByLevel);
+    }
+  }, []);
+
+  const reloadMistakes = useCallback(async () => {
+    try {
+      const res = await fetch('/internal-api/analytics/mistakes', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        credentials: 'include',
+      });
+      if (res.ok) applyMistakes(await res.json());
+    } catch {
+      // keep the data already shown
+    }
+  }, [applyMistakes, token]);
+
+  const saveReason = useCallback(
+    async (questionId: string, reason: string | null) => {
+      const res = await fetch('/internal-api/analytics/reasons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        credentials: 'include',
+        body: JSON.stringify({ questionId, reason }),
+      });
+      if (!res.ok) throw new Error('save reason failed');
+      await reloadMistakes();
+    },
+    [token, reloadMistakes],
+  );
 
   const fetchAnalyticsData = useCallback(async () => {
     if (authLoading) return;
@@ -253,36 +322,7 @@ export default function AnalyticsPage(): React.JSX.Element {
       if (mistakesRes && mistakesRes.ok) {
         try {
           const mistakesData = await mistakesRes.json();
-          if (mistakesData.mistakes) {
-            setRealMistakes(mistakesData.mistakes);
-          }
-          if (typeof mistakesData.totalWrongCount === 'number') {
-            setRealTotalWrongCount(mistakesData.totalWrongCount);
-          }
-          if (mistakesData.statsBySkillByLevel) {
-            setRealStatsBySkillByLevel(mistakesData.statsBySkillByLevel);
-          }
-          if (mistakesData.coverageByLevel) {
-            setRealCoverageByLevel(mistakesData.coverageByLevel);
-          }
-          if (mistakesData.pairsByLevel) {
-            setRealPairsByLevel(mistakesData.pairsByLevel);
-          }
-          if (mistakesData.masteryByLevel) {
-            setRealMasteryByLevel(mistakesData.masteryByLevel);
-          }
-          if (mistakesData.reasonsByLevel) {
-            setRealReasonsByLevel(mistakesData.reasonsByLevel);
-          }
-          if (mistakesData.trapsByLevel) {
-            setRealTrapsByLevel(mistakesData.trapsByLevel);
-          }
-          if (mistakesData.timedWeaknessByLevel) {
-            setRealTimedWeaknessByLevel(mistakesData.timedWeaknessByLevel);
-          }
-          if (mistakesData.mondaiStatsByLevel) {
-            setRealMondaiStatsByLevel(mistakesData.mondaiStatsByLevel);
-          }
+          applyMistakes(mistakesData);
         } catch {
           // Ignore mistakes parse error
         }
@@ -410,6 +450,18 @@ export default function AnalyticsPage(): React.JSX.Element {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!cancelled && data?.levels) setBank(data.levels as BankStats);
+      })
+      .catch(() => undefined);
+    fetch('/internal-api/analytics/content')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.levels) setContent(data.levels as Record<string, LevelContent>);
+      })
+      .catch(() => undefined);
+    fetch('/internal-api/analytics/difficulty')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.levels) setDifficulty(data as DifficultyData);
       })
       .catch(() => undefined);
     const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '');
@@ -597,6 +649,9 @@ export default function AnalyticsPage(): React.JSX.Element {
             activity={showDemo ? undefined : activity}
             exams={examMetas}
             schedules={schedules}
+            content={content}
+            difficulty={difficulty}
+            onSaveReason={showDemo ? undefined : saveReason}
           />
         )}
       </div>

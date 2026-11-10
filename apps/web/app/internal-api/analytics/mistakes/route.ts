@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import postgres from 'postgres';
 import { getAnalyticsDbUrl, resolveSessionUserId } from '../_db';
+import { explanationText, extractGrammarPattern, loadBankContent, normalizePattern } from '../_content';
+import { SELF_REASONS } from '../../../../features/analytics/reasons';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -64,17 +66,6 @@ function extractMeaningSummary(explanationText: string): string {
   return (firstSentence || explanationText).slice(0, 120).trim();
 }
 
-/** Grammar point named by the explanation ("Mẫu câu 「N にとって」", "Trợ từ 「で」", ...). */
-function extractGrammarPattern(explanationText: string): string | null {
-  const beforeAnalysis = explanationText.split('Phân tích')[0] ?? explanationText;
-  const afterAnswer = beforeAnalysis.split('Đáp án đúng:')[1] ?? beforeAnalysis;
-  const m = afterAnswer.match(/(Mẫu câu|Cấu trúc|Kính ngữ|Trợ từ)?\s*「([^」]{1,24})」/);
-  if (!m || !m[2]) return null;
-  const quoted = m[2].trim();
-  if (m[1] === 'Trợ từ') return `Trợ từ 「${quoted}」`;
-  return quoted;
-}
-
 function extractTargetTerm(
   rawStem: string,
   underline: string | null,
@@ -99,55 +90,6 @@ function extractTargetTerm(
   }
   return trimmed.slice(0, 35) + (trimmed.length > 35 ? '...' : '');
 }
-
-const PATTERNS_BY_LEVEL: Record<string, Array<{ pattern: string; regex: RegExp; why: string; hint: string }>> = {
-  N1: [
-    { pattern: '～ずにはいられない', regex: /ずにはいられない|ないではいられない/i, why: 'Không thể kìm nén được cảm xúc, hành động bột phát.', hint: 'Hành động mang tính tâm lý bản năng.' },
-    { pattern: '～を皮切りに', regex: /皮切り/i, why: 'Khởi đầu, mở màn cho chuỗi sự kiện lan tỏa tiếp theo.', hint: 'Vế sau là các hành động cùng chiều phát triển với quy mô lớn hơn.' },
-    { pattern: '～に至っては', regex: /至って/i, why: 'Đến cả trường hợp cực đoan như thế này thì.', hint: 'Dẫn ra ví dụ tột cùng làm tiêu biểu.' },
-    { pattern: '～ならでは', regex: /ならでは/i, why: 'Chỉ có ở, đặc trưng độc đáo duy nhất của.', hint: 'Đánh giá cao nét độc đáo chỉ đối tượng đó mới có.' },
-    { pattern: '～といえども', regex: /といえども/i, why: 'Dù là... đi chăng nữa thì cũng không ngoại lệ.', hint: 'Vế sau là nghĩa vụ hoặc sự thật khách quan.' },
-    { pattern: '～を余儀なくされる', regex: /余儀なく/i, why: 'Đành phải / bị ép buộc rơi vào tình thế bất khả kháng.', hint: 'Chịu tác động từ hoàn cảnh khách quan.' },
-    { pattern: '～極まりない', regex: /極まりない|極まる/i, why: 'Vô cùng, hết sức (mức độ tột đỉnh).', hint: 'Đi với tính từ biểu thị thái độ cảm xúc mạnh.' },
-  ],
-  N2: [
-    { pattern: '～に際して', regex: /に際して|にあたって/i, why: 'Nhân dịp, khi chuẩn bị bước vào sự kiện đặc biệt.', hint: 'Dùng trong các văn cảnh trang trọng.' },
-    { pattern: '～をはじめ', regex: /をはじめ/i, why: 'Trước hết phải kể đến ~, dẫn đầu là ~.', hint: 'Đưa ra ví dụ tiêu biểu hàng đầu trong một nhóm.' },
-    { pattern: '～に基づいて', regex: /に基づいて/i, why: 'Dựa trên cơ sở, dữ liệu hoặc nguyên tắc chuẩn.', hint: 'Căn cứ vào dữ liệu nghiên cứu, pháp luật.' },
-    { pattern: '～をめぐって', regex: /をめぐって/i, why: 'Xoay quanh tranh luận, ý kiến đối lập về chủ đề.', hint: 'Chủ thể là số đông có quan điểm khác nhau.' },
-    { pattern: '～わけにはいかない', regex: /わけにはいかない/i, why: 'Không thể làm vì lương tâm, đạo đức, quy tắc.', hint: 'Phân biệt với khả năng thể chất.' },
-    { pattern: '～ざるを得ない', regex: /ざるを得ない/i, why: 'Đành phải làm, không còn cách nào khác.', hint: 'Dù không muốn nhưng tình thế bắt buộc.' },
-    { pattern: '～にほかならない', regex: /にほかならない/i, why: 'Chính là, không gì khác ngoài (nhấn mạnh lý do).', hint: 'Khẳng định mạnh mẽ nguyên nhân cốt lõi.' },
-    { pattern: '～にもかかわらず', regex: /にもかかわらず/i, why: 'Mặc dù thực tế như vậy nhưng vế sau trái ngược.', hint: 'Biểu thị sự ngạc nhiên, trái với dự đoán.' },
-  ],
-  N3: [
-    { pattern: 'Thể sai khiến / Bị động', regex: /せる|させる|られる|される/i, why: 'Hành vi tác động (bắt/cho phép) hoặc bị tác động.', hint: 'Xác định trợ từ に và を tương ứng với vai trò nhân vật.' },
-    { pattern: 'Kính ngữ giao tiếp', regex: /お目にかかる|いただく|くださる|なさる|参る|申す/i, why: 'Kính ngữ trong giao tiếp công sở, khách hàng.', hint: 'Xác định chủ ngữ: mình (khiêm nhường) hay đối tác (tôn kính).' },
-    { pattern: '～ようにする', regex: /ようにする|ようにして/i, why: 'Cố gắng thực hiện / tạo thói quen tốt.', hint: 'Phân biệt với ～ことになる và ～ようになる.' },
-    { pattern: '～ないといけない', regex: /ないといけない|なければならない/i, why: 'Nghĩa vụ, việc bắt buộc phải thực hiện.', hint: 'Thể hiện tính cấp thiết hoặc quy tắc bắt buộc.' },
-    { pattern: '～うちに', regex: /うちに/i, why: 'Trong khi / nhân lúc (trước khi trạng thái thay đổi).', hint: 'Nhân lúc còn nóng, trước khi trời mưa.' },
-    { pattern: '～はずだ', regex: /はずだ|はずがない/i, why: 'Chắc chắn là / không thể nào (phán đoán có căn cứ).', hint: 'Khẳng định phán đoán dựa trên lý lẽ chắc chắn.' },
-    { pattern: '～ために', regex: /ために|ための/i, why: 'Mục đích hành động hoặc nguyên nhân khách quan.', hint: 'Đi với thể từ điển V-る (mục đích) hoặc thể quá khứ (nguyên nhân).' },
-    { pattern: '～ばかり', regex: /ばかり/i, why: 'Chỉ toàn / vừa mới làm xong (tùy cấu trúc đi kèm).', hint: '～てばかりいる (chỉ toàn làm) vs ～たばかり (vừa mới làm xong).' },
-    { pattern: '～ことになる', regex: /ことになる|ことになった/i, why: 'Kết quả được quyết định / sắp đặt khách quan.', hint: 'Phân biệt với ～ことにする (tự quyết định).' },
-    { pattern: '～わけではない', regex: /わけではない|わけじゃない/i, why: 'Phủ định một phần (không hẳn là...).', hint: 'Phân biệt với ～わけがない (không thể nào).' },
-  ],
-  N4: [
-    { pattern: '～たところ', regex: /たところ/i, why: 'Vừa mới hoàn thành xong tức thì.', hint: 'V-た + ところ thể hiện việc vừa dứt điểm.' },
-    { pattern: 'Cho nhận (あげる / もらう / くれる)', regex: /あげる|もらう|くれる/i, why: 'Quan hệ cho và nhận hành động giúp đỡ.', hint: 'Xác định người thực hiện và người thụ hưởng.' },
-    { pattern: '～やすい / ～にくい', regex: /やすい|にくい/i, why: 'Dễ làm gì / khó làm gì.', hint: 'V-masu bỏ masu + やすい / にくい.' },
-    { pattern: '～しか（ない）', regex: /しか/i, why: 'Chỉ có, không còn lựa chọn nào khác.', hint: 'Luôn đi kèm với đuôi phủ định ない.' },
-    { pattern: '～てしまう', regex: /てしまう|ちゃった|じゃった/i, why: 'Lỡ làm việc ngoài ý muốn hoặc hoàn tất triệt để.', hint: 'Biểu thị sự tiếc nuối hoặc xong xuôi.' },
-    { pattern: '～すぎます', regex: /すぎ/i, why: 'Quá mức độ bình thường.', hint: 'Tính từ bỏ い/な hoặc V-masu + すぎる.' },
-  ],
-  N5: [
-    { pattern: '～たい', regex: /たい/i, why: 'Mong muốn làm gì của bản thân người nói.', hint: 'V-masu bỏ masu + たい.' },
-    { pattern: '～てください', regex: /てください/i, why: 'Nhờ vả, đề nghị lịch sự.', hint: 'Động từ chia thể て + ください.' },
-    { pattern: '～てから', regex: /てから/i, why: 'Sau khi làm xong A thì làm B.', hint: 'Nhấn mạnh trật tự thời gian trước sau.' },
-    { pattern: '～あとで', regex: /あとで/i, why: 'Sau khi làm việc gì.', hint: 'Đi với động từ thể quá khứ V-た hoặc Danh từ + の.' },
-    { pattern: '～まえに', regex: /まえに/i, why: 'Trước khi làm việc gì.', hint: 'Đi với động từ nguyên mẫu thể từ điển V-る.' },
-  ],
-};
 
 const NEGATION = /ない|ません|ぬ|ず(?:に)?|ではない|わけがない|とは限らない|ありません/;
 const CONJUNCTION = /しかし|だが|ところが|けれども|ただし|一方|それでも|にもかかわらず/;
@@ -385,66 +327,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 3. Real knowledge coverage by level from user exams
-    const userExamQuestions = await sql`
-      SELECT DISTINCT q.level, q.id, qv.explanation
-      FROM exam_attempts ea
-      JOIN exam_items ei ON ei.exam_id = ea.exam_id
-      JOIN questions q ON q.id = ei.question_id
-      LEFT JOIN question_versions qv ON qv.question_id = q.id
-      WHERE ea.user_id = ${userId}
-    `;
-
-    const bankQuestions = await sql`
-      SELECT DISTINCT q.level, q.id, qv.explanation
-      FROM questions q
-      LEFT JOIN question_versions qv ON qv.question_id = q.id
-      WHERE q.level IN ('N2', 'N4', 'N5') AND q.skill = 'grammar'
-      LIMIT 300
-    `;
-
-    const coverageByLevel: Record<string, Array<{
-      id: string;
-      name: string;
-      value: number;
-      unit: string;
-      why: string;
-      hint: string;
-      isUserExams: boolean;
-    }>> = {};
-
-    for (const lvl of ['N1', 'N2', 'N3', 'N4', 'N5']) {
-      const userQuestionsForLvl = userExamQuestions.filter((q) => q.level === lvl);
-      const isUserExams = userQuestionsForLvl.length > 0;
-      const targetQuestions = isUserExams ? userQuestionsForLvl : bankQuestions.filter((q) => q.level === lvl);
-      const patterns = PATTERNS_BY_LEVEL[lvl] || [];
-      const list = [];
-
-      for (const p of patterns) {
-        let count = 0;
-        for (const q of targetQuestions) {
-          const exp = extractExplanation(q.explanation);
-          if (p.regex.test(exp)) {
-            count += 1;
-          }
-        }
-        if (count > 0) {
-          list.push({
-            id: `cov-${lvl}-${p.pattern}`,
-            name: p.pattern,
-            value: count,
-            unit: 'câu',
-            why: p.why,
-            hint: p.hint,
-            isUserExams,
-          });
-        }
-      }
-
-      list.sort((a, b) => b.value - a.value);
-      coverageByLevel[lvl] = list;
-    }
-
     // 4. Real per-mondai stats (answered / wrong) by level
     const mondaiRows = await sql`
       SELECT
@@ -565,6 +447,7 @@ export async function GET(request: NextRequest) {
         ua.option_value,
         ca.correct_option,
         qv.stem,
+        qv.explanation,
         s.time_spent_ms[ua.question_index + 1] AS ms
       FROM user_answers ua
       JOIN exam_attempts ea ON ea.id = ua.attempt_id
@@ -575,7 +458,7 @@ export async function GET(request: NextRequest) {
         WHERE question_id = q.id ORDER BY question_version DESC LIMIT 1
       ) ca ON true
       LEFT JOIN LATERAL (
-        SELECT stem FROM question_versions
+        SELECT stem, explanation FROM question_versions
         WHERE question_id = q.id ORDER BY version DESC LIMIT 1
       ) qv ON true
       WHERE ea.user_id = ${userId} AND ua.is_correct = false
@@ -605,7 +488,18 @@ export async function GET(request: NextRequest) {
       chosen?: string;
       correct?: string;
       hint?: string;
+      userWrong?: number;
     };
+    // Reasons the learner chose themselves (table is created on the first save)
+    const selfByQuestion = new Map<string, string>();
+    try {
+      const selfRows = await sql`SELECT question_id, reason FROM user_wrong_reasons WHERE user_id = ${userId}`;
+      for (const sr of selfRows) selfByQuestion.set(sr.question_id as string, sr.reason as string);
+    } catch {
+      // no table yet: nobody has tagged a question
+    }
+    const selfAgg: Record<string, Map<string, number>> = {};
+    const userWrongPattern: Record<string, Map<string, number>> = {};
     const reasonAgg: Record<string, Map<string, IntelItem>> = {};
     const trapAgg: Record<string, Map<string, IntelItem>> = {};
     const timedAgg: Record<string, Map<string, { ms: number; wrong: number }>> = {};
@@ -625,8 +519,19 @@ export async function GET(request: NextRequest) {
       const chosenText = r.option_value > 0 ? wrongOptText.get(`${r.question_id}:${r.option_value}`) : undefined;
       const correctText = wrongOptText.get(`${r.question_id}:${r.correct_option}`);
       const example = stem.slice(0, 90) || undefined;
+      const wrongPattern =
+        skill === 'grammar' ? normalizePattern(extractGrammarPattern(explanationText(r.explanation)) ?? '') : '';
+      const selfCode = selfByQuestion.get(r.question_id as string);
 
       for (const lvl of [(r.level as string) || 'N3', 'all']) {
+        if (wrongPattern) {
+          const m = (userWrongPattern[lvl] ||= new Map());
+          m.set(wrongPattern, (m.get(wrongPattern) ?? 0) + 1);
+        }
+        if (selfCode) {
+          const m = (selfAgg[lvl] ||= new Map());
+          m.set(selfCode, (m.get(selfCode) ?? 0) + 1);
+        }
         if (r.option_value === 0) {
           bump(reasonAgg, lvl, 'r-blank', () => ({
             id: 'r-blank',
@@ -688,6 +593,45 @@ export async function GET(request: NextRequest) {
           }
         }
       }
+    }
+
+    // Coverage: grammar points the level's exams test most, with how often the learner got them wrong
+    const content = await loadBankContent().catch(() => null);
+    const coverageByLevel: Record<string, IntelItem[]> = {};
+    if (content) {
+      for (const [lvl, lc] of Object.entries(content.levels)) {
+        coverageByLevel[lvl] = lc.grammar.slice(0, 10).map((g) => {
+          const userWrong = userWrongPattern[lvl]?.get(g.term) ?? 0;
+          return {
+            id: `cov-${lvl}-${g.term}`,
+            name: g.term,
+            value: g.count,
+            unit: 'câu',
+            why: g.why ?? 'Mẫu ngữ pháp / từ chức năng được kiểm tra trong đề.',
+            example: g.example?.stem,
+            correct: g.example?.correct,
+            hint: userWrong > 0 ? `Bạn đã sai ${userWrong} câu dùng kiến thức này.` : 'Bạn chưa sai câu nào dùng kiến thức này.',
+            userWrong,
+          };
+        });
+      }
+    }
+
+    const selfReasonsByLevel: Record<string, IntelItem[]> = {};
+    for (const [lvl, m] of Object.entries(selfAgg)) {
+      selfReasonsByLevel[lvl] = Array.from(m.entries())
+        .map(([code, value]) => {
+          const info = SELF_REASONS.find((x) => x.code === code);
+          return {
+            id: `self-${code}`,
+            name: info?.label ?? code,
+            value,
+            unit: 'lượt',
+            why: info?.why ?? '',
+            hint: info?.hint,
+          };
+        })
+        .sort((x, y) => y.value - x.value);
     }
 
     const sortItems = (m: Map<string, IntelItem> | undefined): IntelItem[] =>
@@ -986,6 +930,8 @@ export async function GET(request: NextRequest) {
 
         list.push({
           term,
+          questionId: r.question_id,
+          selfReason: selfByQuestion.get(r.question_id as string),
           // a passage question whose stem is only numbered blanks has no sentence worth showing
           stem: /[\u3040-\u30ff\u4e00-\u9fff]/.test(rawStem) ? rawStem : '',
           level: r.level,
@@ -1020,6 +966,7 @@ export async function GET(request: NextRequest) {
       coverageByLevel,
       mondaiStatsByLevel,
       reasonsByLevel,
+      selfReasonsByLevel,
       trapsByLevel,
       timedWeaknessByLevel,
       pairsByLevel,

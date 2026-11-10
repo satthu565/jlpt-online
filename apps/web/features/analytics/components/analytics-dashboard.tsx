@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import type { BankStats, MondaiStatsByLevel } from '../bank';
 import { mondaiAccuracy } from '../bank';
-import type { ActivityData, ExamMeta, ScheduleItem } from '../bank';
+import type { ActivityData, DifficultyData, ExamMeta, LevelContent, ScheduleItem } from '../bank';
 import { buildPracticeHref } from '../practice-link';
 import { AnalyticsExamPlan } from './analytics-exam-plan';
 import type { Level, Skill, MondaiType } from '@jlpt/schema';
@@ -75,6 +75,9 @@ export interface AnalyticsDashboardProps {
   activity?: ActivityData | null;
   exams?: ExamMeta[];
   schedules?: ScheduleItem[];
+  content?: Record<string, LevelContent>;
+  difficulty?: DifficultyData;
+  onSaveReason?: (questionId: string, reason: string | null) => Promise<void>;
 }
 
 const LEVEL_THRESHOLDS: Record<Level, { total: number; minSections: number[] }> = {
@@ -108,6 +111,9 @@ export function AnalyticsDashboard({
   activity,
   exams,
   schedules,
+  content,
+  difficulty,
+  onSaveReason,
 }: AnalyticsDashboardProps): React.JSX.Element {
   // Filter States
   const [currentLevel, setCurrentLevel] = useState<Level>(targetLevel);
@@ -723,10 +729,10 @@ export function AnalyticsDashboard({
           <AnalyticsKnowledgeMap level={currentLevel} bank={bank?.[currentLevel]} />
 
           {/* Section 4: Frequency Ranking */}
-          <AnalyticsFrequencyRanking level={currentLevel} bank={bank?.[currentLevel]} />
+          <AnalyticsFrequencyRanking level={currentLevel} bank={bank?.[currentLevel]} content={content?.[currentLevel]} />
 
           {/* Section 5: Year Trends Heatmap */}
-          <AnalyticsYearTrends level={currentLevel} bank={bank?.[currentLevel]} />
+          <AnalyticsYearTrends level={currentLevel} bank={bank?.[currentLevel]} content={content?.[currentLevel]} difficulty={difficulty} />
 
           {/* Section 6: Error Analysis */}
           <AnalyticsErrorAnalysis
@@ -810,6 +816,7 @@ export function AnalyticsDashboard({
 
       {/* HeroUI Modals */}
       <AnalyticsModals
+        onSaveReason={onSaveReason}
         infoModalOpen={infoModalOpen}
         onCloseInfoModal={() => setInfoModalOpen(false)}
         questionModalRecord={questionModalRecord}

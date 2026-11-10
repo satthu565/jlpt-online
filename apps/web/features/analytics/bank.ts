@@ -61,3 +61,31 @@ export interface ActivityData {
   longestStreak: number;
   today: string;
 }
+
+/** One thing the exams test (word, kanji or grammar point), counted from the exam content. */
+export interface ContentItem {
+  term: string;
+  count: number;
+  exams: number;
+  years: Record<string, number>;
+  firstLevel: string;
+  meaning?: string;
+  hanViet?: string;
+  example?: { stem: string; correct?: string };
+  why?: string;
+}
+
+export interface LevelContent {
+  examsByYear: Record<string, number>;
+  vocab: ContentItem[];
+  kanji: ContentItem[];
+  grammar: ContentItem[];
+}
+
+/** Community accuracy per exam year and skill; only cells backed by enough learners are present. */
+export interface DifficultyData {
+  levels: Record<string, Record<string, Partial<Record<'vocab' | 'grammar' | 'reading' | 'listening', { n: number; correct: number }>>>>;
+  users: number;
+  minUsers: number;
+  minAnswers: number;
+}

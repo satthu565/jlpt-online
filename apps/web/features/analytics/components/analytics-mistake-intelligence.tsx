@@ -20,6 +20,8 @@ export interface IntelligenceItem {
   chosen?: string;
   correct?: string;
   hint?: string;
+  /** Questions of this knowledge the learner got wrong. */
+  userWrong?: number;
 }
 
 export interface ConfusedPair {
@@ -695,7 +697,7 @@ export function AnalyticsMistakeIntelligence({
                     className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/40 text-xs cursor-pointer transition-colors"
                   >
                     <span className="w-40 font-semibold text-slate-700 dark:text-slate-300 truncate">
-                      {r.name}
+                      {r.id.startsWith('self-') ? '✎ ' : ''}{r.name}
                     </span>
                     <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                       {/* ui-allow-style: dynamic reason bar width */}
@@ -714,7 +716,7 @@ export function AnalyticsMistakeIntelligence({
           </div>
 
           <p className="mt-4 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-[10px] text-slate-400 dark:text-slate-500 leading-relaxed border border-slate-100 dark:border-slate-800">
-            {isDemoMode ? 'Số liệu mẫu.' : `Phân loại tự động từ ${totalLevelWrong} lượt sai thật ở cấp độ ${level}: câu bỏ trống tính riêng, câu đã chọn được gán nguyên nhân theo kỹ năng (chưa có lý do do người học tự chọn).`}
+            {isDemoMode ? 'Số liệu mẫu.' : `Cấp độ ${level}: ✎ là lý do bạn tự đánh dấu khi xem câu sai (mở "Xem câu sai" ở mục 05 để đánh dấu); các dòng còn lại do hệ thống suy luận từ kết quả: câu bỏ trống tính riêng, câu đã chọn gán theo kỹ năng.`}
           </p>
         </Card>
 
@@ -767,6 +769,7 @@ export function AnalyticsMistakeIntelligence({
                     </div>
                     <span className="w-14 text-right font-bold text-slate-600 dark:text-slate-400 text-[11px] shrink-0">
                       {c.value} câu
+                      {c.userWrong ? <span className="block text-[9px] font-normal text-rose-600 dark:text-rose-400">bạn sai {c.userWrong}</span> : null}
                     </span>
                   </div>
                 );
@@ -775,7 +778,7 @@ export function AnalyticsMistakeIntelligence({
           </div>
 
           <p className="mt-4 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-[10px] text-slate-400 dark:text-slate-500 leading-relaxed border border-slate-100 dark:border-slate-800">
-            {currentCoverage[0]?.why ? `Bóc tách từ các đề thi ${level} trong lịch sử luyện thi.` : `Một câu hỏi có thể cần nhiều kiến thức.`} Số câu liên quan thể hiện độ phủ trọng tâm ôn luyện.
+            Mẫu ngữ pháp được hỏi nhiều nhất trong kho đề {level} (đếm từ lời giải của từng câu), kèm số câu bạn đã sai. Số câu liên quan thể hiện độ phủ trọng tâm ôn luyện.
           </p>
         </Card>
 

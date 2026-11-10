@@ -1,6 +1,7 @@
 'use client';
 
 import { buildPracticeHref } from '../practice-link';
+import { SELF_REASONS } from '../reasons';
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, Check } from 'lucide-react';
@@ -8,7 +9,61 @@ import { Modal } from '@jlpt/ui/components/modal';
 import { Button } from '@jlpt/ui/components/button';
 import type { MistakeRecord } from './analytics-mistake-library';
 
+/** Lets the learner say why they got a question wrong; the choice is saved and feeds section 06. */
+function ReasonPicker({
+  questionId,
+  initial,
+  onSave,
+}: {
+  questionId: string;
+  initial?: string;
+  onSave: (questionId: string, reason: string | null) => Promise<void>;
+}): React.JSX.Element {
+  const [selected, setSelected] = React.useState<string | undefined>(initial);
+  const [status, setStatus] = React.useState<'idle' | 'saving' | 'error'>('idle');
+
+  const choose = async (code: string): Promise<void> => {
+    const next = selected === code ? null : code;
+    setStatus('saving');
+    try {
+      await onSave(questionId, next);
+      setSelected(next ?? undefined);
+      setStatus('idle');
+    } catch {
+      setStatus('error');
+    }
+  };
+
+  return (
+    <div>
+      <strong className="block text-slate-700 dark:text-slate-300 mb-1.5">Vì sao bạn sai câu này?</strong>
+      <div className="flex flex-wrap gap-1.5">
+        {SELF_REASONS.map((r) => (
+          <Button
+            key={r.code}
+            variant={selected === r.code ? 'primary' : 'outline'}
+            size="sm"
+            disabled={status === 'saving'}
+            onClick={() => choose(r.code)}
+            className="text-[11px] font-semibold"
+          >
+            {r.label}
+          </Button>
+        ))}
+      </div>
+      <p className="mt-1.5 text-[10px] text-slate-400 dark:text-slate-500">
+        {status === 'error'
+          ? 'Chưa lưu được, hãy thử lại.'
+          : selected
+            ? 'Đã lưu. Bấm lại lựa chọn để bỏ đánh dấu.'
+            : 'Lý do bạn chọn được dùng ở mục 06 thay cho suy luận của hệ thống.'}
+      </p>
+    </div>
+  );
+}
+
 export interface AnalyticsModalsProps {
+  onSaveReason?: (questionId: string, reason: string | null) => Promise<void>;
   infoModalOpen: boolean;
   onCloseInfoModal: () => void;
   questionModalRecord: MistakeRecord | null;
@@ -20,6 +75,7 @@ export interface AnalyticsModalsProps {
 }
 
 export function AnalyticsModals({
+  onSaveReason,
   infoModalOpen,
   onCloseInfoModal,
   questionModalRecord,
@@ -104,6 +160,15 @@ export function AnalyticsModals({
                 Sai {questionModalRecord.wrong}/{questionModalRecord.total} lượt · Sai liên tiếp {questionModalRecord.streak} lần
               </span>
             </div>
+
+            {onSaveReason && questionModalRecord.questionId && (
+              <ReasonPicker
+                key={questionModalRecord.questionId}
+                questionId={questionModalRecord.questionId}
+                initial={questionModalRecord.selfReason}
+                onSave={onSaveReason}
+              />
+            )}
 
             <div>
               <strong className="block text-slate-700 dark:text-slate-300 mb-1">
