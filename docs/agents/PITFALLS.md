@@ -191,3 +191,7 @@ Triệu chứng: tab SRS có 0 thẻ hoặc hiện hoàn thành ngay → lưu no
 - HeroSelect v3 có accessible name ghép giá trị hiện tại với label ở button trigger; Playwright nên tìm button theo label không exact hoặc dùng combobox khi có, rồi chọn option theo tên chính xác.
 
 - Xem thử cổng mới: GET chạy nhưng đăng nhập POST trả CSRF 403 → chuyển thẳng vào Next rewrite làm mất Host gốc ở API → dùng proxy nginx giữ Host cho /api/v1, không tắt OriginGuard. Cấu hình xem thử Luyện tập ở tools/ops/vm/notebook-practice-preview.conf (loopback 13222 → web 13221/API 4000; Windows 3211 → 13222 theo yêu cầu chủ dự án).
+
+## SRS hi?n ch? 0:01 khi v?a v?o tab
+
+Tri?u ch?ng: th? ??n h?n b? hi?n th?nh th? v?a qu?n ?ang ch?, r?i t? chuy?n sau m?t gi?y. Nguy?n nh?n: queue d?ng session.startedAt l?m availableAt cho to?n b? th?, nh?ng effect t?o/kh?i ph?c session sau m?c now c?a runner v?i mili gi?y. C?ch ??ng: th? API ??n h?n lu?n s?n s?ng; ch? event Qu?n ??t availableAt t??ng lai, v? c?p nh?t now c?ng l?c kh?i ph?c session.

@@ -39,7 +39,10 @@ export function projectCard(card: DueFlashcard, rating: ReviewRating): DueFlashc
 }
 
 export function studyQueue(session: StudySession): StudyEntry[] {
-  const queue = session.cards.map(card => ({ card, availableAt: session.startedAt }))
+  // The due endpoint already selected these cards for immediate study. Only
+  // explicit relearning events should delay a card; startedAt can be newer than
+  // the runner's last clock tick when a session is created or restored.
+  const queue = session.cards.map(card => ({ card, availableAt: 0 }))
     .sort((a, b) => Number(isNewCard(a.card)) - Number(isNewCard(b.card)));
   for (const event of session.events) {
     const index = queue.findIndex(entry => entry.card.cardId === event.cardId);

@@ -158,6 +158,8 @@ Reviewed 297 文字・語彙 questions across all 11 imported N5 exams. Prepared
 
 ## SRS study session (2026-11-09)
 
+- Th? t? API ??n h?n m? ngay khi v?o tab, kh?ng hi?n nh?m m?n h?nh ch? 0:01 gi?a hai nh?p ??ng h?; th?i gian ch? th? Qu?n v?n ???c gi? khi t?i l?i.
+
 - Flashcard HeroUI hai mặt, lật 3D và chuyển thẻ, hỗ trợ giảm chuyển động, phím Space/Enter/1–4; 4 nút ghi rõ mốc ôn dự kiến theo lịch sử (lịch API hiện tại là nguồn chính thức).
 - Chọn Quên tạo hàng chờ 10 phút trong buổi; tiếp tục sau reload, hiển thị đếm ngược thay vì báo hoàn thành khi còn thẻ chờ.
 - Hoàn tác đánh giá cuối chưa chốt; đánh giá lưu nháp bền vững trên thiết bị, bấm Lưu kết quả hoặc Lưu và về sổ tay để đưa vào hàng đợi API có idempotency. Không hoàn tác lượt đã gửi máy chủ.

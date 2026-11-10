@@ -54,11 +54,12 @@ export function SrsReviewRunner({
   useEffect(() => {
     const pendingCards = new Set(manager.getQueue().filter(item => item.status !== 'synced').map(item => item.cardId));
     const availableCards = cards.filter(card => !pendingCards.has(card.cardId));
-    let restored = createStudyState(availableCards);
+    const timestamp = Date.now();
+    let restored = createStudyState(availableCards, timestamp);
     if (storageKey) {
       try {
         const raw = localStorage.getItem(storageKey);
-        if (raw) restored = restoreStudyState(raw, availableCards);
+        if (raw) restored = restoreStudyState(raw, availableCards, timestamp);
       } catch { setLocalError(t('srs.study.restoreError')); }
     }
     // Recover the last deck from the old completed/pending screen before auto-sync
@@ -84,7 +85,7 @@ export function SrsReviewRunner({
       restored = markStudySaved(prefix);
       restored = { ...restored, session: { ...restored.session, events: original } };
     }
-    stateRef.current = restored; setState(restored); setReady(true);
+    stateRef.current = restored; setState(restored); setNow(timestamp); setReady(true);
     const unsubscribe = manager.subscribe(setSyncSnapshot);
     void manager.processQueue();
     const timer = setInterval(() => setNow(Date.now()), 1000);
