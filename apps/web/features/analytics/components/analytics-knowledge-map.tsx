@@ -170,7 +170,13 @@ export function AnalyticsKnowledgeMap({
   const activeGroups =
     groups ||
     (bank && bank.questionsCount > 0
-      ? snapshot.map((g) => ({ ...g, count: bank.bySkill[g.key as keyof BankLevelStats['bySkill']] ?? 0 }))
+      ? snapshot.map((g) => ({
+          ...g,
+          count:
+            g.key === 'grammar_reading'
+              ? bank.bySkill.grammar + bank.bySkill.reading
+              : (bank.bySkill[g.key as keyof BankLevelStats['bySkill']] ?? 0),
+        }))
       : snapshot);
   const [selectedKey, setSelectedKey] = useState<string>(activeGroups[0]?.key || 'vocab');
 
