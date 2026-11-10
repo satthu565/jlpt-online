@@ -1071,6 +1071,7 @@ export interface AnalyticsMistakeLibraryProps {
   level?: Level;
   isDemoMode?: boolean;
   mistakes?: Record<string, MistakeRecord[]>;
+  totalErrors?: number;
   onOpenQuestionDetail: (record: MistakeRecord) => void;
   onReviewAll: (count: number) => void;
 }
@@ -1081,6 +1082,7 @@ export function AnalyticsMistakeLibrary({
   level = 'N3',
   isDemoMode = false,
   mistakes,
+  totalErrors: propTotalErrors,
   onOpenQuestionDetail,
   onReviewAll,
 }: AnalyticsMistakeLibraryProps): React.JSX.Element {
@@ -1253,7 +1255,7 @@ export function AnalyticsMistakeLibrary({
   }, [mistakes, hasNoData, level, isDemoMode, hasSubmittedAttempts, submittedAttempts, questionAttempts]);
 
   const allRecords = useMemo(() => Object.values(computedMistakes).flat(), [computedMistakes]);
-  const totalErrors = allRecords.reduce((acc, r) => acc + r.wrong, 0);
+  const totalErrors = propTotalErrors ?? allRecords.reduce((acc, r) => acc + r.wrong, 0);
   const streakCount = allRecords.filter((r) => r.streak >= 2).length;
 
   const currentRecords = computedMistakes[activeTab] || [];

@@ -5,6 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { AnalyticsDashboard } from '../../../features/analytics';
 import type { AttemptRecord, QuestionAttemptRecord } from '../../../features/analytics/types';
+import type { MistakeRecord } from '../../../features/analytics/components/analytics-mistake-library';
 import type { Level, Skill, MondaiType } from '@jlpt/schema';
 import { ExamHero } from '../../../features/library';
 import { useAuth } from '../../../lib/auth-context';
@@ -135,6 +136,8 @@ export default function AnalyticsPage(): React.JSX.Element {
   const [attempts, setAttempts] = useState<AttemptRecord[]>([]);
   const [questionAttempts, setQuestionAttempts] = useState<QuestionAttemptRecord[]>([]);
   const [skillAggregates, setSkillAggregates] = useState<Array<{ skill: string; accuracyRate: number; sampleSize: number }>>([]);
+  const [realMistakes, setRealMistakes] = useState<Record<string, MistakeRecord[]> | undefined>();
+  const [realTotalWrongCount, setRealTotalWrongCount] = useState<number | undefined>();
   const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
 
   const fetchAnalyticsData = useCallback(async () => {
@@ -533,6 +536,8 @@ export default function AnalyticsPage(): React.JSX.Element {
             targetScore={120}
             userName={user?.name || user?.email?.split('@')[0] || 'Nguyễn An'}
             isDemoMode={showDemo}
+            mistakes={showDemo ? undefined : realMistakes}
+            totalWrongCount={showDemo ? undefined : realTotalWrongCount}
           />
         )}
       </div>
