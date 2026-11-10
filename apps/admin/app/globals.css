@@ -3,21 +3,25 @@
 @import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css" layer(utilities);
 @import "tw-animate-css";
-/* HeroUI v3 (@heroui/styles): theme tokens, base, helpers and only the component styles @jlpt/ui uses.
-   Importing the whole package pulled every HeroUI component in (CSS 18 -> 55 KB gzip, render-blocking). */
+
+/* HeroUI v3 (@heroui/styles): theme tokens, base, helpers and component styles */
 @import "@heroui/styles/themes/default";
 @import "@heroui/styles/base" layer(base);
 @import "@heroui/styles/utilities";
 @import "@heroui/styles/variants";
 @import "@heroui/styles/components/alert.css" layer(components);
+@import "@heroui/styles/components/avatar.css" layer(components);
 @import "@heroui/styles/components/badge.css" layer(components);
 @import "@heroui/styles/components/button.css" layer(components);
 @import "@heroui/styles/components/card.css" layer(components);
 @import "@heroui/styles/components/chip.css" layer(components);
+@import "@heroui/styles/components/dropdown.css" layer(components);
 @import "@heroui/styles/components/input.css" layer(components);
 @import "@heroui/styles/components/label.css" layer(components);
+@import "@heroui/styles/components/progress-bar.css" layer(components);
 @import "@heroui/styles/components/skeleton.css" layer(components);
 @import "@heroui/styles/components/spinner.css" layer(components);
+@import "@heroui/styles/components/tabs.css" layer(components);
 @import "@heroui/styles/components/textarea.css" layer(components);
 @import "@heroui/styles/components/menu.css" layer(components);
 @import "@heroui/styles/components/menu-item.css" layer(components);
@@ -30,3 +34,26 @@
 @source "../../../packages/ui/src";
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* HeroUI Teal Theme (Hue 172.64) matching heroui.com/themes?hue=172.64048413194666&template=dashboard */
+:root,
+:host {
+  --accent: oklch(0.65 0.165 172.64);
+  --accent-foreground: #ffffff;
+  --primary: var(--accent);
+  --primary-foreground: #ffffff;
+  --brand-teal: oklch(0.65 0.165 172.64);
+  --focus-ring: oklch(0.65 0.165 172.64);
+  --surface-shadow: 0 4px 20px -2px rgba(13, 148, 136, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+}
+
+.dark,
+[data-theme="dark"],
+:host(.dark) {
+  --accent: oklch(0.72 0.155 172.64);
+  --accent-foreground: oklch(0.18 0.03 172.64);
+  --primary: var(--accent);
+  --primary-foreground: oklch(0.18 0.03 172.64);
+  --brand-teal: oklch(0.72 0.155 172.64);
+  --focus-ring: oklch(0.72 0.155 172.64);
+  --surface-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+}
