@@ -348,6 +348,8 @@ export interface AnalyticsMistakeIntelligenceProps {
   attempts?: AttemptRecord[];
   questionAttempts?: QuestionAttemptRecord[];
   level?: Level;
+  realSkillStatsByLevel?: Record<string, Record<string, { wrong: number; total: number }>>;
+  realCoverageByLevel?: Record<string, IntelligenceItem[]>;
   onOpenDetailModal: (title: string, content: React.ReactNode) => void;
 }
 
@@ -355,11 +357,82 @@ export function AnalyticsMistakeIntelligence({
   attempts: _attempts = [],
   questionAttempts = [],
   level = 'N3',
+  realSkillStatsByLevel,
+  realCoverageByLevel,
   onOpenDetailModal,
 }: AnalyticsMistakeIntelligenceProps): React.JSX.Element {
-    const [pairFilter, setPairFilter] = useState<string>('all');
+  const [pairFilter, setPairFilter] = useState<string>('all');
 
   const dynamicReasons = useMemo<IntelligenceItem[]>(() => {
+    const targetLvl = level || 'N3';
+    const lvlStats = realSkillStatsByLevel?.[targetLvl] || realSkillStatsByLevel?.['all'];
+
+    if (lvlStats) {
+      const gWrong = lvlStats.grammar?.wrong ?? 0;
+      const rWrong = lvlStats.reading?.wrong ?? 0;
+      const vWrong = lvlStats.vocabulary?.wrong ?? 0;
+      const kWrong = lvlStats.kanji?.wrong ?? 0;
+      const lWrong = lvlStats.listening?.wrong ?? 0;
+
+      return [
+        {
+          id: 'r1',
+          name: 'Nhầm mẫu câu & cấu trúc ngữ pháp',
+          value: gWrong,
+          unit: 'lượt',
+          why: 'Nhận ra hai mẫu quen thuộc nhưng nhầm ngữ cảnh hoặc cách kết hợp động từ.',
+          example: '毎日、日本語を話す（　）しています。',
+          chosen: 'ことに',
+          correct: 'ように',
+          hint: '～ようにする nhấn mạnh cố gắng tạo thói quen; ～ことにする nhấn mạnh tự quyết định.',
+        },
+        {
+          id: 'r2',
+          name: 'Thiếu thời gian & áp lực đọc hiểu',
+          value: rWrong,
+          unit: 'lượt',
+          why: 'Mất nhiều thời gian đọc tiểu tiết, không kịp nắm luận điểm chính của đoạn.',
+          example: 'Đọc hiểu dài: câu cuối yêu cầu rút ra kết luận.',
+          chosen: 'Không kịp trả lời',
+          correct: 'Đọc ý chính trước khi chọn',
+          hint: 'Tập quét câu hỏi, tìm từ nối chuyển ý và giới hạn thời gian theo dạng bài.',
+        },
+        {
+          id: 'r3',
+          name: 'Hiểu sai ngữ cảnh từ vựng',
+          value: vWrong,
+          unit: 'lượt',
+          why: 'Hiểu nghĩa từ nhưng nhầm các từ đồng âm hoặc sắc thái kết hợp câu.',
+          example: '雨が降った。（　）、試合は行われた。',
+          chosen: 'だから',
+          correct: 'しかし',
+          hint: 'Hai mệnh đề trái ngược nhau nên cần liên từ chỉ sự tương phản.',
+        },
+        {
+          id: 'r4',
+          name: 'Chưa nhớ âm đọc & chữ Hán',
+          value: kWrong,
+          unit: 'lượt',
+          why: 'Nhầm âm On/Kun hoặc mặt chữ có cấu tạo bộ thủ tương tự.',
+          example: '仕事を続けます。「続けます」の読みは？',
+          chosen: 'つきけます',
+          correct: 'つづけます',
+          hint: 'Ôn ngắt quãng theo từ ghép thường gặp, không chỉ nhớ chữ đứng đơn lẻ.',
+        },
+        {
+          id: 'r5',
+          name: 'Bẫy thông tin nghe hiểu',
+          value: lWrong,
+          unit: 'lượt',
+          why: 'Bị phân tâm bởi thông tin nhiễu trước đáp án hoặc quyết định bị đổi ở cuối.',
+          example: 'Người nói đổi ý đi xe buýt sau khi tính đi tàu.',
+          chosen: 'Tàu điện',
+          correct: 'Xe buýt',
+          hint: 'Ghi chú quyết định cuối cùng, đặc biệt sau các từ nối chuyển hướng.',
+        },
+      ];
+    }
+
     if (questionAttempts && questionAttempts.length > 0) {
       const gWrong = questionAttempts.filter((q) => q.skill === 'grammar' && !q.isCorrect).length;
       const rWrong = questionAttempts.filter((q) => q.skill === 'reading' && !q.isCorrect).length;
@@ -371,8 +444,8 @@ export function AnalyticsMistakeIntelligence({
         {
           id: 'r1',
           name: 'Nhầm mẫu câu & cấu trúc ngữ pháp',
-          value: gWrong || 24,
-          unit: 'câu',
+          value: gWrong,
+          unit: 'lượt',
           why: 'Nhận ra hai mẫu quen thuộc nhưng nhầm ngữ cảnh hoặc cách kết hợp động từ.',
           example: '毎日、日本語を話す（　）しています。',
           chosen: 'ことに',
@@ -382,8 +455,8 @@ export function AnalyticsMistakeIntelligence({
         {
           id: 'r2',
           name: 'Thiếu thời gian & áp lực đọc hiểu',
-          value: rWrong || 18,
-          unit: 'câu',
+          value: rWrong,
+          unit: 'lượt',
           why: 'Mất nhiều thời gian đọc tiểu tiết, không kịp nắm luận điểm chính của đoạn.',
           example: 'Đọc hiểu dài: câu cuối yêu cầu rút ra kết luận.',
           chosen: 'Không kịp trả lời',
@@ -393,8 +466,8 @@ export function AnalyticsMistakeIntelligence({
         {
           id: 'r3',
           name: 'Hiểu sai ngữ cảnh từ vựng',
-          value: vWrong || 15,
-          unit: 'câu',
+          value: vWrong,
+          unit: 'lượt',
           why: 'Hiểu nghĩa từ nhưng nhầm các từ đồng âm hoặc sắc thái kết hợp câu.',
           example: '雨が降った。（　）、試合は行われた。',
           chosen: 'だから',
@@ -404,8 +477,8 @@ export function AnalyticsMistakeIntelligence({
         {
           id: 'r4',
           name: 'Chưa nhớ âm đọc & chữ Hán',
-          value: kWrong || 12,
-          unit: 'câu',
+          value: kWrong,
+          unit: 'lượt',
           why: 'Nhầm âm On/Kun hoặc mặt chữ có cấu tạo bộ thủ tương tự.',
           example: '仕事を続けます。「続けます」の読みは？',
           chosen: 'つきけます',
@@ -415,8 +488,8 @@ export function AnalyticsMistakeIntelligence({
         {
           id: 'r5',
           name: 'Bẫy thông tin nghe hiểu',
-          value: lWrong || 10,
-          unit: 'câu',
+          value: lWrong,
+          unit: 'lượt',
           why: 'Bị phân tâm bởi thông tin nhiễu trước đáp án hoặc quyết định bị đổi ở cuối.',
           example: 'Người nói đổi ý đi xe buýt sau khi tính đi tàu.',
           chosen: 'Tàu điện',
@@ -426,7 +499,27 @@ export function AnalyticsMistakeIntelligence({
       ];
     }
     return REASONS;
-  }, [questionAttempts]);
+  }, [realSkillStatsByLevel, level, questionAttempts]);
+
+  const maxReasonValue = useMemo(() => {
+    return Math.max(...dynamicReasons.map((r) => r.value), 1);
+  }, [dynamicReasons]);
+
+  const totalLevelWrong = useMemo(() => {
+    return dynamicReasons.reduce((acc, r) => acc + r.value, 0);
+  }, [dynamicReasons]);
+
+  const currentCoverage = useMemo<IntelligenceItem[]>(() => {
+    const targetLvl = level || 'N3';
+    if (realCoverageByLevel && realCoverageByLevel[targetLvl] && realCoverageByLevel[targetLvl].length > 0) {
+      return realCoverageByLevel[targetLvl];
+    }
+    return COVERAGE;
+  }, [realCoverageByLevel, level]);
+
+  const maxCoverageValue = useMemo(() => {
+    return Math.max(...currentCoverage.map((c) => c.value), 1);
+  }, [currentCoverage]);
 
   const filteredPairs = PAIRS.filter(
     (p) => pairFilter === 'all' || p.kind === pairFilter,
@@ -540,7 +633,7 @@ export function AnalyticsMistakeIntelligence({
 
             <div className="space-y-2">
               {dynamicReasons.map((r) => {
-                const pct = Math.min(100, Math.round((r.value / 42) * 100));
+                const pct = Math.min(100, Math.round((r.value / maxReasonValue) * 100));
                 return (
                   <div
                     key={r.id}
@@ -575,7 +668,7 @@ export function AnalyticsMistakeIntelligence({
           </div>
 
           <p className="mt-4 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-[10px] text-slate-400 dark:text-slate-500 leading-relaxed border border-slate-100 dark:border-slate-800">
-            Nguyên nhân phân loại từ lịch sử làm bài; phân biệt giữa người học tự xác nhận với suy luận của hệ thống.
+            Nguyên nhân phân loại từ cơ sở dữ liệu làm bài cấp độ {level} ({totalLevelWrong} câu sai thực tế).
           </p>
         </Card>
 
@@ -597,8 +690,8 @@ export function AnalyticsMistakeIntelligence({
             </div>
 
             <div className="space-y-2">
-              {COVERAGE.map((c) => {
-                const pct = Math.min(100, Math.round((c.value / 38) * 100));
+              {currentCoverage.map((c) => {
+                const pct = Math.min(100, Math.round((c.value / maxCoverageValue) * 100));
                 return (
                   <div
                     key={c.id}
@@ -633,7 +726,7 @@ export function AnalyticsMistakeIntelligence({
           </div>
 
           <p className="mt-4 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-[10px] text-slate-400 dark:text-slate-500 leading-relaxed border border-slate-100 dark:border-slate-800">
-            Một câu hỏi có thể cần nhiều kiến thức. Số câu liên quan thể hiện độ phủ trọng tâm ôn luyện.
+            {currentCoverage[0]?.why ? `Bóc tách từ các đề thi ${level} trong lịch sử luyện thi.` : `Một câu hỏi có thể cần nhiều kiến thức.`} Số câu liên quan thể hiện độ phủ trọng tâm ôn luyện.
           </p>
         </Card>
 

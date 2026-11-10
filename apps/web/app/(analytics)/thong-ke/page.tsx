@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { AnalyticsDashboard } from '../../../features/analytics';
 import type { AttemptRecord, QuestionAttemptRecord } from '../../../features/analytics/types';
 import type { MistakeRecord } from '../../../features/analytics/components/analytics-mistake-library';
+import type { IntelligenceItem } from '../../../features/analytics/components/analytics-mistake-intelligence';
 import type { Level, Skill, MondaiType } from '@jlpt/schema';
 import { ExamHero } from '../../../features/library';
 import { useAuth } from '../../../lib/auth-context';
@@ -138,6 +139,8 @@ export default function AnalyticsPage(): React.JSX.Element {
   const [skillAggregates, setSkillAggregates] = useState<Array<{ skill: string; accuracyRate: number; sampleSize: number }>>([]);
   const [realMistakes, setRealMistakes] = useState<Record<string, MistakeRecord[]> | undefined>();
   const [realTotalWrongCount, setRealTotalWrongCount] = useState<number | undefined>();
+  const [realStatsBySkillByLevel, setRealStatsBySkillByLevel] = useState<Record<string, Record<string, { wrong: number; total: number }>> | undefined>();
+  const [realCoverageByLevel, setRealCoverageByLevel] = useState<Record<string, IntelligenceItem[]> | undefined>();
   const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
 
   const fetchAnalyticsData = useCallback(async () => {
@@ -212,6 +215,12 @@ export default function AnalyticsPage(): React.JSX.Element {
           }
           if (typeof mistakesData.totalWrongCount === 'number') {
             setRealTotalWrongCount(mistakesData.totalWrongCount);
+          }
+          if (mistakesData.statsBySkillByLevel) {
+            setRealStatsBySkillByLevel(mistakesData.statsBySkillByLevel);
+          }
+          if (mistakesData.coverageByLevel) {
+            setRealCoverageByLevel(mistakesData.coverageByLevel);
           }
         } catch {
           // Ignore mistakes parse error
@@ -553,6 +562,8 @@ export default function AnalyticsPage(): React.JSX.Element {
             isDemoMode={showDemo}
             mistakes={showDemo ? undefined : realMistakes}
             totalWrongCount={showDemo ? undefined : realTotalWrongCount}
+            realStatsBySkillByLevel={showDemo ? undefined : realStatsBySkillByLevel}
+            realCoverageByLevel={showDemo ? undefined : realCoverageByLevel}
           />
         )}
       </div>
