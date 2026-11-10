@@ -88,7 +88,7 @@ export function AnalyticsSkillsMondai({
   return (
     <div className="space-y-6 mb-6">
       {/* Section 11: Hiệu suất theo kỹ năng */}
-      <Card id="skills" className="p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <Card id="skills" className="scroll-mt-20 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
             <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100">
@@ -150,7 +150,7 @@ export function AnalyticsSkillsMondai({
       </Card>
 
       {/* Section 12: Phân tích dạng câu hỏi (Tất cả hiển thị trên 1 trang) */}
-      <Card id="question-types" className="p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <Card id="question-types" className="scroll-mt-20 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
           <div>
             <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100">

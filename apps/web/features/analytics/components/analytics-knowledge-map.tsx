@@ -94,7 +94,7 @@ export function AnalyticsKnowledgeMap({
       </div>
 
       {/* 01 · Bản đồ kiến thức JLPT */}
-      <section id="knowledge-map" className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <section id="knowledge-map" className="scroll-mt-20 grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: Donut + Legend */}
         <Card className="lg:col-span-7 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
           <div className="flex items-start justify-between gap-4 mb-4">

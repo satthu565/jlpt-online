@@ -323,7 +323,7 @@ export function AnalyticsMistakeLibrary({
   };
 
   return (
-    <Card id="mistake-library" className="p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm mb-6">
+    <Card id="mistake-library" className="scroll-mt-20 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm mb-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
         <div>

@@ -105,7 +105,7 @@ export function AnalyticsFrequencyRanking(): React.JSX.Element {
   };
 
   return (
-    <section id="frequency" className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+    <section id="frequency" className="scroll-mt-20 grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
       {/* Left: Ranked List */}
       <Card className="lg:col-span-7 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
         <div>

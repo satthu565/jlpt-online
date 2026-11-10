@@ -67,7 +67,7 @@ export function AnalyticsAssessment({
   const totalProgressPercent = Math.min(100, Math.round((totalScore / 180) * 100));
 
   return (
-    <section id="assessment" className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+    <section id="assessment" className="scroll-mt-20 grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
       {/* Left Card: Đánh giá mức độ sẵn sàng thi */}
       <Card className="lg:col-span-7 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
         <div>

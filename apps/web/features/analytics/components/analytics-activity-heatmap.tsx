@@ -71,7 +71,7 @@ export function AnalyticsActivityHeatmap({
   }, [attempts]);
 
   return (
-    <section id="activity" className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+    <section id="activity" className="scroll-mt-20 grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
       {/* Left: Nhịp độ học tập (Heatmap) */}
       <Card className="lg:col-span-7 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
         <div>
@@ -101,6 +101,7 @@ export function AnalyticsActivityHeatmap({
                 {week.map((cell, dIdx) => (
                   <span
                     key={dIdx}
+                    suppressHydrationWarning
                     title={`${cell.dateStr}: ${cell.level} hoạt động`}
                     className={`aspect-square rounded-[3px] transition-transform hover:scale-125 ${
                       HEAT_LEVEL_CLASSES[cell.level]

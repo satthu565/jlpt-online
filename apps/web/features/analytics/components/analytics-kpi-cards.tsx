@@ -26,7 +26,7 @@ export function AnalyticsKpiCards({
   accuracyChange = 7,
 }: AnalyticsKpiCardsProps): React.JSX.Element {
   return (
-    <section id="overview" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <section id="overview" className="scroll-mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       {/* 1. Điểm thi thử trung bình */}
       <Card className="p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
         <div className="flex justify-between items-center text-xs font-semibold text-slate-500 dark:text-slate-400">

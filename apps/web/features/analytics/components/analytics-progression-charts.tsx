@@ -76,7 +76,7 @@ export function AnalyticsProgressionCharts({
   const timeCoords = currentPoints.map((p, i) => `${(20 + i * (260 / (count - 1))).toFixed(1)},${getTimeY(p.durationMin).toFixed(1)}`).join(' ');
 
   return (
-    <Card id="progress" className="p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm mb-6">
+    <Card id="progress" className="scroll-mt-20 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm mb-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
         <div>
           <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100">

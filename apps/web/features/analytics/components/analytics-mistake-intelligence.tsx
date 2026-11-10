@@ -423,7 +423,7 @@ export function AnalyticsMistakeIntelligence({
   };
 
   return (
-    <div id="mistake-intelligence" className="space-y-6 mb-6">
+    <div id="mistake-intelligence" className="scroll-mt-20 space-y-6 mb-6">
       {/* Intro Header */}
       <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-900 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
         <div>

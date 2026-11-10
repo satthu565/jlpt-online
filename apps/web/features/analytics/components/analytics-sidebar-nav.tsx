@@ -60,6 +60,26 @@ export function AnalyticsSidebarNav({
     setCurrentSection(activeSection);
   }, [activeSection]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntry = entries.find((e) => e.isIntersecting);
+        if (visibleEntry) {
+          setCurrentSection(visibleEntry.target.id);
+        }
+      },
+      { rootMargin: '-20% 0px -70% 0px' }
+    );
+
+    NAV_ITEMS.forEach((item) => {
+      const el = document.getElementById(item.id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const progressPercent = Math.min(100, Math.round((completedExamsCount / monthlyTargetCount) * 100));
   const initials = userName
     .split(' ')
