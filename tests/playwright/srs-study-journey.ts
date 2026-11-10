@@ -52,7 +52,7 @@ export function registerSrsStudyTests(): void {
           window.setTimeout = ((handler: TimerHandler, delay?: number, ...args: unknown[]) => setTimer(handler, delay === 220 ? 1200 : delay, ...args)) as typeof window.setTimeout;
         });
         await page.getByTestId('rating-good-button').click();
-        await expect(page.getByRole('tab', { name: 'Th? h?c (2)', exact: true })).toBeDisabled();
+        await expect(page.getByRole('tab', { name: 'Thẻ học (2)', exact: true })).toBeDisabled();
         await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('jlpt_srs_study_v1:workspace-user')!).session.events.map((event: { cardId: string }) => event.cardId))).toEqual(['workspace-1']);
         await page.getByTestId('srs-undo').click();
         await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('jlpt_srs_study_v1:workspace-user')!).session.events.length)).toBe(0);
