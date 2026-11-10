@@ -26,7 +26,7 @@ export function AdminNavigation(): React.JSX.Element | null {
       {/* Mobile Top Navigation Bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-gray-900 border-b border-gray-800 z-30 px-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Landmark className="size-5" aria-hidden="true" />
+          <Landmark className="size-5 text-teal-400" aria-hidden="true" />
           <span className="text-sm font-bold text-white">{t('app.portalName', locale)}</span>
         </div>
         <Button
@@ -64,13 +64,15 @@ export function AdminNavigation(): React.JSX.Element | null {
       >
         {/* Brand Header */}
         <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Landmark className="size-6" aria-hidden="true" />
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-400">
+              <Landmark className="size-5" aria-hidden="true" />
+            </div>
             <div>
-              <span className="text-sm font-bold text-white m-0 block">
+              <span className="text-sm font-bold text-white m-0 block tracking-tight">
                 {t('app.portalName', locale)}
               </span>
-              <span className="text-xs text-gray-400">v1.0.0</span>
+              <span className="text-[11px] text-teal-400/80 font-mono font-medium">HeroUI v3 · Teal</span>
             </div>
           </div>
           <Button
@@ -105,7 +107,7 @@ export function AdminNavigation(): React.JSX.Element | null {
                 user.role === 'admin'
                   ? 'bg-purple-600'
                   : user.role === 'editor'
-                    ? 'bg-sky-600'
+                    ? 'bg-teal-600'
                     : user.role === 'reviewer'
                       ? 'bg-emerald-600'
                       : 'bg-amber-600',
@@ -115,7 +117,7 @@ export function AdminNavigation(): React.JSX.Element | null {
             </span>
             <span
               title="2FA Verified"
-              className="text-[11px] text-emerald-400 font-semibold inline-flex items-center gap-1"
+              className="text-[11px] text-teal-400 font-semibold inline-flex items-center gap-1"
             >
               <Check className="inline size-4 align-[-2px]" aria-hidden="true" /> 2FA
             </span>
@@ -143,7 +145,7 @@ export function AdminNavigation(): React.JSX.Element | null {
                         className={cn(
                           'flex items-center justify-between px-3 py-2 rounded-md text-sm no-underline transition-colors',
                           isActive
-                            ? 'bg-blue-600 text-white font-semibold shadow-xs'
+                            ? 'bg-teal-600 text-white font-semibold shadow-xs'
                             : 'text-gray-400 hover:text-white hover:bg-gray-800/60 font-normal',
                         )}
                       >
@@ -184,7 +186,7 @@ export function AdminNavigation(): React.JSX.Element | null {
                   className={cn(
                     'px-2 py-0.5 text-[11px] uppercase rounded border min-h-0 h-auto font-medium',
                     locale === loc
-                      ? 'bg-blue-600 text-white border-blue-600 font-bold'
+                      ? 'bg-teal-600 text-white border-teal-600 font-bold'
                       : 'bg-gray-800 text-gray-400 border-gray-700 hover:text-white hover:bg-gray-700',
                   )}
                 >
@@ -209,4 +211,3 @@ export function AdminNavigation(): React.JSX.Element | null {
     </>
   );
 }
-
