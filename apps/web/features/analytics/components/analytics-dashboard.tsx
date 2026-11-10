@@ -126,32 +126,129 @@ export function AnalyticsDashboard({
     return list.length > 0 ? list : attempts;
   }, [attempts, currentLevel, period, scopeFirstOnly]);
 
-  // Real KPI calculations
-  const totalCompleted = filteredAttempts.length;
+  // Real KPI calculations: distinguish submitted vs in-progress attempts
+  const submittedAttempts = useMemo(() => {
+    return filteredAttempts.filter(
+      (a) => a.status === 'submitted' || (a.status === undefined && a.totalScore > 0),
+    );
+  }, [filteredAttempts]);
+
+  const totalCompleted = submittedAttempts.length;
+  const inProgressCount = filteredAttempts.filter((a) => a.status === 'in_progress').length;
+
   const avgScore = useMemo(() => {
-    if (totalCompleted === 0) return 118;
-    const sum = filteredAttempts.reduce((acc, a) => acc + a.totalScore, 0);
-    return Math.round(sum / totalCompleted);
-  }, [filteredAttempts, totalCompleted]);
+    if (submittedAttempts.length === 0) return null;
+    const sum = submittedAttempts.reduce((acc, a) => acc + a.totalScore, 0);
+    return Math.round(sum / submittedAttempts.length);
+  }, [submittedAttempts]);
 
   const avgAccuracy = useMemo(() => {
-    if (totalCompleted === 0) return 68;
-    const sum = filteredAttempts.reduce((acc, a) => acc + (a.accuracy || 0), 0);
-    return Math.round(sum / totalCompleted);
-  }, [filteredAttempts, totalCompleted]);
+    if (submittedAttempts.length === 0) return null;
+    const sum = submittedAttempts.reduce((acc, a) => acc + (a.accuracy || 0), 0);
+    return Math.round(sum / submittedAttempts.length);
+  }, [submittedAttempts]);
 
   const totalStudyHours = useMemo(() => {
     const totalSec = filteredAttempts.reduce((acc, a) => acc + (a.durationSec || 0), 0);
-    const hours = totalSec / 3600;
-    return hours > 0 ? hours : 24.5;
+    return totalSec / 3600;
   }, [filteredAttempts]);
+
+  // Streak days calculation
+  const streakDays = useMemo(() => {
+    if (attempts.length === 0) return 0;
+    const activeDates = new Set<string>();
+    attempts.forEach((a) => {
+      if (a.submittedAt) {
+        activeDates.add(a.submittedAt.slice(0, 10));
+      }
+    });
+    if (activeDates.size === 0) return 0;
+
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000);
+    const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
+    let checkDate: Date | null = activeDates.has(todayStr)
+      ? today
+      : activeDates.has(yesterdayStr)
+      ? yesterday
+      : null;
+
+    if (!checkDate) return 0;
+
+    let streak = 0;
+    while (true) {
+      const dStr = checkDate.toISOString().slice(0, 10);
+      if (activeDates.has(dStr)) {
+        streak++;
+        checkDate = new Date(checkDate.getTime() - 86400000);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }, [attempts]);
+
+  // Dynamic Delta compared to previous attempt
+  const { scoreDelta, accuracyDelta } = useMemo(() => {
+    if (submittedAttempts.length < 2) {
+      return { scoreDelta: null, accuracyDelta: null };
+    }
+    const sorted = [...submittedAttempts].sort(
+      (a, b) => new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime(),
+    );
+    const latest = sorted[sorted.length - 1]!;
+    const prev = sorted[sorted.length - 2]!;
+    return {
+      scoreDelta: latest.totalScore - prev.totalScore,
+      accuracyDelta: Math.round((latest.accuracy - prev.accuracy) * 10) / 10,
+    };
+  }, [submittedAttempts]);
+
+  // Dynamic weakest section discovery
+  const weakestInfo = useMemo(() => {
+    if (questionAttempts.length > 0) {
+      const statsBySkill: Record<string, { total: number; wrong: number; name: string }> = {
+        vocabulary: { total: 0, wrong: 0, name: 'T盻ｫ v盻ｱng & Ch盻ｯ Hﾃ｡n' },
+        kanji: { total: 0, wrong: 0, name: 'Ch盻ｯ Hﾃ｡n' },
+        grammar: { total: 0, wrong: 0, name: 'Ng盻ｯ phﾃ｡p' },
+        reading: { total: 0, wrong: 0, name: 'ﾄ雪ｻ皇 hi盻ブ' },
+        listening: { total: 0, wrong: 0, name: 'Nghe hi盻ブ' },
+      };
+      questionAttempts.forEach((q) => {
+        const entry = statsBySkill[q.skill];
+        if (entry) {
+          entry.total++;
+          if (!q.isCorrect) entry.wrong++;
+        }
+      });
+      const candidates = Object.values(statsBySkill).filter((s) => s.total > 0);
+      if (candidates.length > 0) {
+        candidates.sort((a, b) => b.wrong / b.total - a.wrong / a.total);
+        const worst = candidates[0]!;
+        const acc = Math.round(((worst.total - worst.wrong) / worst.total) * 100);
+        return {
+          name: worst.name,
+          accuracy: acc,
+          wrongCount: worst.wrong,
+        };
+      }
+    }
+    return {
+      name: 'ﾄ雪ｻ皇 hi盻ブ ﾄ双蘯｡n dﾃi',
+      accuracy: 38,
+      wrongCount: 20,
+    };
+  }, [questionAttempts]);
 
   // Section Score Breakdown
   const sectionScores = useMemo(() => {
+    const effectiveScore = avgScore ?? 0;
     const isN4N5 = currentLevel === 'N4' || currentLevel === 'N5';
     if (isN4N5) {
-      const part1 = Math.round(avgScore * (120 / 180));
-      const part2 = Math.round(avgScore * (60 / 180));
+      const part1 = Math.round(effectiveScore * (120 / 180));
+      const part2 = Math.round(effectiveScore * (60 / 180));
       return [
         {
           name: 'Kiến thức ngôn ngữ + Đọc hiểu',
@@ -169,9 +266,9 @@ export function AnalyticsDashboard({
     }
 
     // N1 - N3
-    const part1 = Math.round(avgScore * (60 / 180) * 1.15);
-    const part2 = Math.round(avgScore * (60 / 180) * 0.74);
-    const part3 = avgScore - part1 - part2;
+    const part1 = Math.round(effectiveScore * (60 / 180) * 1.15);
+    const part2 = Math.round(effectiveScore * (60 / 180) * 0.74);
+    const part3 = effectiveScore - part1 - part2;
     return [
       {
         name: 'Kiến thức ngôn ngữ',
@@ -358,14 +455,18 @@ export function AnalyticsDashboard({
           <AnalyticsKpiCards
             avgScore={avgScore}
             completedExams={totalCompleted}
+            inProgressExams={inProgressCount}
             accuracyRate={avgAccuracy}
             totalStudyHours={totalStudyHours}
+            streakDays={streakDays}
+            scoreChange={scoreDelta}
+            accuracyChange={accuracyDelta}
           />
 
           {/* Section 2: Assessment & Personal Plan */}
           <AnalyticsAssessment
             level={currentLevel}
-            totalScore={avgScore}
+            totalScore={avgScore ?? 0}
             thresholdScore={thresholdInfo.total}
             sections={sectionScores}
             weakestSectionName="Đọc hiểu đoạn dài"
@@ -424,7 +525,11 @@ export function AnalyticsDashboard({
           />
 
           {/* Section 14: Activity Heatmap & Insights */}
-          <AnalyticsActivityHeatmap attempts={filteredAttempts} />
+          <AnalyticsActivityHeatmap
+            attempts={filteredAttempts}
+            currentStreakDays={streakDays}
+            maxStreakDays={Math.max(streakDays, 1)}
+          />
         </div>
       </div>
 

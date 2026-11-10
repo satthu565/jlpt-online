@@ -129,12 +129,16 @@ export default function AnalyticsPage(): React.JSX.Element {
     }
 
     try {
-      const [attemptsRes, analyticsRes] = await Promise.all([
+      const [attemptsRes, analyticsRes, examsRes] = await Promise.all([
         fetch(`${baseUrl}/me/attempts`, {
           headers,
           credentials: 'include',
         }),
         fetch(`${baseUrl}/me/analytics?targetLevel=${encodeURIComponent(user.targetLevel || 'N3')}`, {
+          headers,
+          credentials: 'include',
+        }),
+        fetch(`${baseUrl}/exams?limit=100`, {
           headers,
           credentials: 'include',
         }),
@@ -146,23 +150,62 @@ export default function AnalyticsPage(): React.JSX.Element {
         return;
       }
 
+      const examsMap = new Map<string, { title: string; level: Level }>();
+      if (examsRes && examsRes.ok) {
+        try {
+          const examsData = await examsRes.json();
+          const examItems = Array.isArray(examsData) ? examsData : (examsData.items || []);
+          examItems.forEach((ex: Record<string, unknown>) => {
+            if (ex['id']) {
+              examsMap.set(String(ex['id']), {
+                title: String(ex['title'] || ''),
+                level: (ex['level'] as Level) || 'N3',
+              });
+            }
+          });
+        } catch {
+          // Ignore exams parse error
+        }
+      }
+
       let loadedAttempts: AttemptRecord[] = [];
       if (attemptsRes.ok) {
         const attemptsData = await attemptsRes.json();
         const rawItems = Array.isArray(attemptsData) ? attemptsData : (attemptsData.items || []);
         loadedAttempts = rawItems.map((att: Record<string, unknown>) => {
+          const examId = String(att['examId'] || '');
+          const examMeta = examsMap.get(examId);
+
+          const status = String(att['status'] || (att['submittedAt'] ? 'submitted' : 'in_progress')) as 'submitted' | 'in_progress';
+          const isSubmitted = status === 'submitted' || Boolean(att['submittedAt']);
+
           const score = typeof att['score'] === 'number' ? att['score'] : 0;
+          const level = (examMeta?.level || att['level'] || user.targetLevel || 'N3') as Level;
+          const examTitle = examMeta?.title || String(att['examTitle'] || `ﾄ雪ｻ・thi JLPT ${level} (${String(att['id']).slice(0, 8)})`);
+
+          let durationSec = typeof att['durationSec'] === 'number' ? att['durationSec'] : 0;
+          if (!durationSec && att['startedAt'] && att['submittedAt']) {
+            const start = new Date(att['startedAt'] as string).getTime();
+            const end = new Date(att['submittedAt'] as string).getTime();
+            if (end > start) {
+              durationSec = Math.round((end - start) / 1000);
+            }
+          }
+
+          const accuracy = isSubmitted && score > 0 ? Math.round((score / 180) * 1000) / 10 : 0;
+
           return {
             id: String(att['id']),
-            examId: String(att['examId'] || ''),
-            examTitle: String(att['examTitle'] || `Đề thi JLPT ${att['mode'] === 'real' ? 'chính thức' : 'luyện tập'} (${String(att['id']).slice(0, 8)})`),
-            level: ((att['level'] || user.targetLevel || 'N3') as Level),
+            examId,
+            examTitle,
+            level,
             mode: att['mode'] === 'real' ? 'real' : 'practice',
+            status,
             totalScore: score,
             maxScore: 180,
-            accuracy: Math.round((score / 180) * 1000) / 10,
+            accuracy,
             passed: Boolean(att['passed']),
-            durationSec: typeof att['durationSec'] === 'number' ? att['durationSec'] : 0,
+            durationSec,
             submittedAt: String(att['submittedAt'] || att['startedAt'] || new Date().toISOString()),
           };
         });

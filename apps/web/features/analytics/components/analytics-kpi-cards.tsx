@@ -5,25 +5,27 @@ import { GraduationCap, Files, Target, Clock3 } from 'lucide-react';
 import { Card } from '@jlpt/ui/components/card';
 
 export interface AnalyticsKpiCardsProps {
-  avgScore: number;
+  avgScore: number | null;
   completedExams: number;
-  accuracyRate: number;
+  inProgressExams?: number;
+  accuracyRate: number | null;
   totalStudyHours: number;
   streakDays?: number;
-  scoreChange?: number;
-  examChange?: number;
-  accuracyChange?: number;
+  scoreChange?: number | null;
+  examChange?: number | null;
+  accuracyChange?: number | null;
 }
 
 export function AnalyticsKpiCards({
   avgScore,
   completedExams,
+  inProgressExams = 0,
   accuracyRate,
   totalStudyHours,
-  streakDays = 8,
-  scoreChange = 12,
-  examChange = 4,
-  accuracyChange = 7,
+  streakDays = 0,
+  scoreChange,
+  examChange,
+  accuracyChange,
 }: AnalyticsKpiCardsProps): React.JSX.Element {
   return (
     <section id="overview" className="scroll-mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -36,14 +38,29 @@ export function AnalyticsKpiCards({
           </span>
         </div>
         <div className="my-3 text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-          {avgScore}
-          <small className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">/ 180</small>
+          {avgScore !== null ? (
+            <>
+              {avgScore}
+              <small className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">/ 180</small>
+            </>
+          ) : (
+            <>
+              <span className="text-slate-300 dark:text-slate-600">--</span>
+              <small className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">/ 180</small>
+            </>
+          )}
         </div>
         <div className="flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500">
-          <span className="font-bold text-emerald-600 dark:text-emerald-400">
-            ↗ {scoreChange >= 0 ? `+${scoreChange}` : scoreChange} điểm
-          </span>
-          <span>so với kỳ trước</span>
+          {scoreChange !== undefined && scoreChange !== null ? (
+            <>
+              <span className={`font-bold ${scoreChange >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                {scoreChange >= 0 ? `↗ +${scoreChange}` : `↘ ${scoreChange}`} điểm
+              </span>
+              <span>so với đề trước</span>
+            </>
+          ) : (
+            <span>{completedExams === 0 ? 'Chưa nộp bài thi nào' : 'Lượt thi đầu tiên'}</span>
+          )}
         </div>
       </Card>
 
@@ -60,10 +77,17 @@ export function AnalyticsKpiCards({
           <small className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">đề</small>
         </div>
         <div className="flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500">
-          <span className="font-bold text-emerald-600 dark:text-emerald-400">
-            ↗ {examChange >= 0 ? `+${examChange}` : examChange} đề
-          </span>
-          <span>trong kỳ</span>
+          {inProgressExams > 0 ? (
+            <span className="font-semibold text-amber-600 dark:text-amber-400">
+              ⚡ {inProgressExams} đề đang làm dở
+            </span>
+          ) : completedExams > 0 ? (
+            <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+              ✓ Đã hoàn thành {completedExams} đề
+            </span>
+          ) : (
+            <span>Chưa có đề nộp</span>
+          )}
         </div>
       </Card>
 
@@ -76,14 +100,29 @@ export function AnalyticsKpiCards({
           </span>
         </div>
         <div className="my-3 text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-          {accuracyRate}
-          <small className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">%</small>
+          {accuracyRate !== null ? (
+            <>
+              {accuracyRate}
+              <small className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">%</small>
+            </>
+          ) : (
+            <>
+              <span className="text-slate-300 dark:text-slate-600">--</span>
+              <small className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">%</small>
+            </>
+          )}
         </div>
         <div className="flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500">
-          <span className="font-bold text-emerald-600 dark:text-emerald-400">
-            ↗ {accuracyChange >= 0 ? `+${accuracyChange}` : accuracyChange}%
-          </span>
-          <span>so với kỳ trước</span>
+          {accuracyChange !== undefined && accuracyChange !== null ? (
+            <>
+              <span className={`font-bold ${accuracyChange >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                {accuracyChange >= 0 ? `↗ +${accuracyChange}` : `↘ ${accuracyChange}`}%
+              </span>
+              <span>so với đề trước</span>
+            </>
+          ) : (
+            <span>{completedExams === 0 ? 'Cần nộp đề để chấm' : 'Tính trên các đề đã nộp'}</span>
+          )}
         </div>
       </Card>
 
@@ -100,7 +139,9 @@ export function AnalyticsKpiCards({
           <small className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">giờ</small>
         </div>
         <div className="flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500">
-          <span className="font-medium text-slate-500 dark:text-slate-400">◷ {streakDays} ngày</span>
+          <span className={`font-medium ${streakDays > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
+            {streakDays > 0 ? `🔥 ${streakDays} ngày` : '0 ngày'}
+          </span>
           <span>chuỗi học liên tiếp</span>
         </div>
       </Card>

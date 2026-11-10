@@ -154,21 +154,33 @@ export function AnalyticsExamHistory({
 
               <div className="flex items-center gap-3 shrink-0">
                 <div className="text-right">
-                  <strong className="text-sm font-extrabold text-slate-900 dark:text-slate-100 block">
-                    {item.score}
-                    <span className="text-[10px] font-normal text-slate-400 dark:text-slate-500">
-                      /{item.maxScore}
-                    </span>
-                  </strong>
-                  <span
-                    className={`text-[10px] font-bold block ${
-                      item.passed
-                        ? 'text-emerald-600 dark:text-emerald-400'
-                        : 'text-amber-600 dark:text-amber-400'
-                    }`}
-                  >
-                    {item.passed ? '↑ Trên ngưỡng tổng' : '↓ Dưới ngưỡng tổng'}
-                  </span>
+                  {rawAttempt.status === 'in_progress' ? (
+                    <>
+                      <strong className="text-xs font-bold text-amber-600 dark:text-amber-400 block">
+                        ﾄ紳ng lﾃm d盻・                      </strong>
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 block">
+                        Chﾆｰa n盻冪 bﾃi
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <strong className="text-sm font-extrabold text-slate-900 dark:text-slate-100 block">
+                        {item.score}
+                        <span className="text-[10px] font-normal text-slate-400 dark:text-slate-500">
+                          /{item.maxScore}
+                        </span>
+                      </strong>
+                      <span
+                        className={`text-[10px] font-bold block ${
+                          item.passed
+                            ? 'text-emerald-600 dark:text-emerald-400'
+                            : 'text-amber-600 dark:text-amber-400'
+                        }`}
+                      >
+                        {item.passed ? '竊・Trﾃｪn ngﾆｰ盻｡ng t盻貧g' : '竊・Dﾆｰ盻嬖 ngﾆｰ盻｡ng t盻貧g'}
+                      </span>
+                    </>
+                  )}
                 </div>
 
                 <Button

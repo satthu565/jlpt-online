@@ -12,6 +12,7 @@ export interface AttemptRecord {
   passed: boolean;
   durationSec: number;
   submittedAt: string; // ISO date
+  status?: 'submitted' | 'in_progress' | 'timed_out';
 }
 
 export interface QuestionAttemptRecord {
