@@ -195,3 +195,7 @@ Triệu chứng: tab SRS có 0 thẻ hoặc hiện hoàn thành ngay → lưu no
 ## SRS hi?n ch? 0:01 khi v?a v?o tab
 
 Tri?u ch?ng: th? ??n h?n b? hi?n th?nh th? v?a qu?n ?ang ch?, r?i t? chuy?n sau m?t gi?y. Nguy?n nh?n: queue d?ng session.startedAt l?m availableAt cho to?n b? th?, nh?ng effect t?o/kh?i ph?c session sau m?c now c?a runner v?i mili gi?y. C?ch ??ng: th? API ??n h?n lu?n s?n s?ng; ch? event Qu?n ??t availableAt t??ng lai, v? c?p nh?t now c?ng l?c kh?i ph?c session.
+
+## Hover flashcard bị lớp xám che chữ
+
+Triệu chứng: rê chuột lên thẻ làm nội dung bị phủ xám. Nguyên nhân: nút HeroUI ghost trong suốt phủ toàn mặt vẫn có nền hover/pressed mặc định. Cách đúng: trigger phủ mặt đặt --button-bg, --button-bg-hover và --button-bg-pressed thành transparent, giữ focus bàn phím; dùng trigger riêng trên cả hai mặt để bấm đáp án cũng lật lại. Nút âm thanh là phần tử cùng cấp, có z-index cao hơn để không kích hoạt lật thẻ.

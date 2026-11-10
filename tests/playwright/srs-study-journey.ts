@@ -2,6 +2,48 @@ import { test, expect, type Page } from '@playwright/test';
 
 export function registerSrsStudyTests(): void {
   test.describe('Notebook SRS study session', () => {
+    for (const width of [390, 1366]) {
+      test(`full-card hover stays transparent and both faces flip at ${width}px`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 1000 });
+        await page.emulateMedia({ reducedMotion: 'no-preference' });
+        const writes: string[] = [];
+        const card = { cardId: 'flip-card', notebookItemId: 'flip-item', front: { term: '時計', reading: 'とけい' },
+          back: { meaning: 'Đồng hồ', examples: ['時計を見ます。'] }, state: 'new', repetitions: 0,
+          intervalDays: 0, dueAt: new Date().toISOString() };
+        await page.route('**/api/v1/**', async route => {
+          const path = new URL(route.request().url()).pathname;
+          if (route.request().method() !== 'GET') writes.push(path);
+          const json = path.endsWith('/auth/session') ? { user: { id: 'flip-learner', name: 'Learner', role: 'student' }, session: {} }
+            : path.endsWith('/me/srs/due') ? { items: [card], totalCount: 1 } : { items: [] };
+          await route.fulfill({ json });
+        });
+        await page.goto('/so-tay', { waitUntil: 'networkidle' });
+        const cookie = page.getByRole('button', { name: 'Từ chối cookie phân tích', exact: true });
+        if (await cookie.isVisible()) await cookie.click();
+        await page.locator('#tab-srs').click();
+        const front = page.getByTestId('flashcard-flip-front');
+        const back = page.getByTestId('flashcard-flip-back');
+        for (let round = 0; round < 3; round++) {
+          await front.hover();
+          await expect(front).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+          await front.click();
+          await expect(page.getByTestId('flashcard-back')).toBeVisible();
+          await back.hover();
+          await expect(back).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+          await page.getByTestId('flashcard-card').click();
+          await expect(page.getByTestId('flashcard-back')).toHaveCount(0);
+        }
+        await front.focus();
+        await page.keyboard.press('Enter');
+        await expect(page.getByTestId('flashcard-back')).toBeVisible();
+        await back.focus();
+        await page.keyboard.press('Space');
+        await expect(page.getByTestId('flashcard-back')).toHaveCount(0);
+        expect(writes).toEqual([]);
+        await expect(page.getByTestId('flashcard-view').locator('button button')).toHaveCount(0);
+      });
+    }
+
     test('reset requires confirmation, supports retry, reloads new cards and blocks unsaved drafts', async ({ page }) => {
       await page.setViewportSize({ width: 390, height: 900 });
       await page.emulateMedia({ reducedMotion: 'reduce' });

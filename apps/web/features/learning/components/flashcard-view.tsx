@@ -86,19 +86,18 @@ export function FlashcardView({
               <span className={styles.faceLabel}>{t('srs.study.prompt')}</span>
               <h2 lang="ja" className={styles.term}>{frontTerm}</h2>
               <span className={styles.flipHint}><RotateCcw size={14} aria-hidden="true" />{t('flashcards.clickOrSpaceToFlip')}</span>
-              <Button variant="ghost" className={styles.frontTrigger} onPress={flip}
+              <Button variant="ghost" className={styles.flipSurface} onPress={flip}
                 disabled={disabled || Boolean(leaving)} aria-label={t('flashcards.flipToBack')}
                 data-testid="flashcard-flip-front"><span className="sr-only">{t('flashcards.showAnswer')}</span></Button>
             </Card.Content>
           </Card>
           <Card className={`${styles.face} ${styles.back}`} aria-hidden={!isFlipped} inert={!isFlipped}>
             <Card.Content className={styles.answerContent} data-testid={isFlipped ? 'flashcard-back' : undefined}>
+              <Button variant="ghost" className={styles.flipSurface} onPress={flip}
+                disabled={disabled || Boolean(leaving)} aria-label={t('flashcards.flipToFront')}
+                data-testid="flashcard-flip-back"><span className="sr-only">{t('flashcards.flipToFront')}</span></Button>
               <div className={styles.answerHeading}>
                 <Chip size="lg" variant="soft" className={styles.answerBadge}>{t('srs.study.answer')}</Chip>
-                <Button variant="ghost" size="icon" onPress={flip} disabled={disabled || Boolean(leaving)}
-                  aria-label={t('flashcards.flipToFront')} className={styles.flipBack}>
-                  <RotateCcw size={18} aria-hidden="true" />
-                </Button>
               </div>
               {reading && <p lang="ja" className={styles.reading}>{reading}</p>}
               <div className={styles.answerTermRow}>

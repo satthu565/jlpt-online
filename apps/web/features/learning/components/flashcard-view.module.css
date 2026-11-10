@@ -12,7 +12,7 @@
 .flipped { transform: rotateY(180deg); }
 .face { position: relative; grid-area: 1 / 1; border: 1px solid var(--border); backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; }
 .back { transform: rotateY(180deg); }
-.faceContent { position: relative; min-height: 390px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 32px 24px; }
+.faceContent { min-height: 390px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 32px 24px; }
 .faceLabel { font-size: .6875rem; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); margin-bottom: 20px; }
 .term { font-size: clamp(2rem, 8vw, 4.5rem); line-height: 1.5; font-weight: 700; overflow-wrap: anywhere; }
 .backTerm { min-width: 0; font-size: clamp(2rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
@@ -49,14 +49,15 @@
 .ratings .easy { background: color-mix(in srgb, var(--success-soft) 45%, var(--surface)); color: var(--success-soft-foreground); }
 .ratingHint { margin-top: 18px; text-align: center; font-size: .875rem; line-height: 1.5; color: var(--text-muted); }
 
-.frontTrigger { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: inherit; }
+/* Full-face HeroUI triggers must remain transparent in every pointer state. */
+.flipSurface { --button-bg: transparent; --button-bg-hover: transparent; --button-bg-pressed: transparent; position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; border-radius: inherit; transform: none; }
+.flipSurface[data-pressed="true"] { transform: none; }
 .answerContent { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 28px 40px 32px; }
 .answerHeading { position: relative; display: flex; justify-content: center; width: 100%; }
 .answerBadge, .hanViet, .detailLabel { background: var(--color-blue-50); color: var(--color-blue-600); }
 .answerBadge { font-size: 1rem; padding-inline: 24px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
-.flipBack { position: absolute; right: 0; top: 0; color: var(--text-muted); }
 .answerTermRow { display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; }
-.audioButton { flex-shrink: 0; border-radius: 50%; background: var(--color-blue-50); color: var(--color-blue-500); }
+.audioButton { position: relative; z-index: 2; flex-shrink: 0; border-radius: 50%; background: var(--color-blue-50); color: var(--color-blue-500); }
 .hanViet { font-size: 1rem; max-width: 100%; height: auto; min-height: 32px; padding: 5px 20px; white-space: normal; text-align: center; }
 .answerDetails { width: 100%; margin-top: 10px; }
 .detailRow { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: start; gap: 24px; padding-block: 18px; }
