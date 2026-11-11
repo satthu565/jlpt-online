@@ -111,7 +111,7 @@ export function normalizePattern(pattern: string): string {
 }
 
 /** Sentence that explains the grammar point, taken from the explanation after the quoted pattern. */
-function patternWhy(explanation: string): string | undefined {
+export function patternWhy(explanation: string): string | undefined {
   const afterAnswer = (explanation.split('Phân tích')[0] ?? explanation).split('Đáp án đúng:')[1];
   if (!afterAnswer) return undefined;
   const m = afterAnswer.match(/」([^•]*)/);

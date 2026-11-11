@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import postgres from 'postgres';
 import { getAnalyticsDbUrl, resolveSessionUserId } from '../_db';
-import { explanationText, extractGrammarPattern, loadBankContent, normalizePattern } from '../_content';
+import { explanationText, extractGrammarPattern, loadBankContent, normalizePattern, patternWhy } from '../_content';
 import { SELF_REASONS } from '../../../../features/analytics/reasons';
 
 export const runtime = 'nodejs';
@@ -1061,6 +1061,7 @@ export async function GET(request: NextRequest) {
         list.push({
           term,
           questionId: r.question_id,
+          termMeaning: grammarPattern ? patternWhy(fullExp) : undefined,
           selfReason: selfByQuestion.get(r.question_id as string),
           // a passage question whose stem is only numbered blanks has no sentence worth showing
           stem: /[\u3040-\u30ff\u4e00-\u9fff]/.test(rawStem) ? rawStem : '',

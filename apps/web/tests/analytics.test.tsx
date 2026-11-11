@@ -641,6 +641,19 @@ describe('Analytics, True Progress & Dashboard Hand-Calculation Suite (L03)', ()
     expect(html).not.toContain('～ようにする');
   });
 
+  it('MISTAKE-03: sample (demo) records offer no notebook button, so they can never be saved for real', () => {
+    const html = renderClean(
+      <AnalyticsMistakeLibrary
+        level="N3"
+        isDemoMode
+        onOpenQuestionDetail={() => {}}
+        onReviewAll={() => {}}
+      />,
+    );
+    expect(html).toContain('Xem câu sai');
+    expect(html).not.toContain('+ Sổ tay');
+  });
+
   it('MISTAKE-02: shows only real mistakes of the selected level', () => {
     const record = (term: string, level: string) => ({
       term,

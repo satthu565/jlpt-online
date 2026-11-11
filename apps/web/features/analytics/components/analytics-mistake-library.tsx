@@ -31,6 +31,8 @@ export interface MistakeRecord {
   skill?: string;
   mondaiType?: string;
   meaning: string;
+  /** What the grammar point itself means (from the explanation), when known. */
+  termMeaning?: string;
   wrong: number;
   total: number;
   streak: number;
@@ -1136,8 +1138,8 @@ export function AnalyticsMistakeLibrary({
         body: JSON.stringify({
           kind: activeTab,
           term: m.term,
-          meaning: m.meaning,
-          examples: m.stem ? [m.stem] : undefined,
+          meaning: m.termMeaning || m.meaning,
+          examples: m.termMeaning ? [m.stem, m.meaning].filter((x): x is string => Boolean(x)) : m.stem ? [m.stem] : undefined,
         }),
       });
       setNotebookState((prev) => ({ ...prev, [key]: res.ok ? 'done' : 'error' }));
@@ -1559,7 +1561,7 @@ export function AnalyticsMistakeLibrary({
                   </span>
 
                   <div className="flex items-center gap-1.5">
-                    {activeTab !== 'question' && (
+                    {activeTab !== 'question' && !isDemoMode && (
                       <Button
                         variant="ghost"
                         size="sm"
