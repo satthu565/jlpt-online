@@ -1,8 +1,8 @@
 'use client';
 
-import { ArrowLeft, Check, Clock3, GraduationCap, Layers, MoreHorizontal, RotateCcw, RotateCcwSquare, Save, Star, Target, Undo2 } from 'lucide-react';
+import { ArrowLeft, Check, Clock3, GraduationCap, Info, Layers, MoreHorizontal, RotateCcw, RotateCcwSquare, Save, Star, Target, Undo2 } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, Chip, Dropdown, Modal, ProgressBar, Tabs } from '@jlpt/ui/components/exam-controls';
+import { Button, Card, Chip, Dropdown, Modal, ProgressBar, Separator, Tabs, Tooltip } from '@jlpt/ui/components/exam-controls';
 import { HeroSelect } from '@jlpt/ui/components/hero-select';
 import { Alert } from '@jlpt/ui/components/alert';
 import type { DueFlashcard, ReviewRating } from '../types';
@@ -48,6 +48,7 @@ export function SrsReviewRunner({
   const resetLock = useRef(false);
   const [resetError, setResetError] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [settingsInfoOpen, setSettingsInfoOpen] = useState(false);
   const [studyView, setStudyView] = useState('review');
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [viewRevision, setViewRevision] = useState(0);
@@ -242,7 +243,7 @@ export function SrsReviewRunner({
         </Tabs.List>
       </Tabs.ListContainer>
       <div className={styles.toolbarActions}>
-        <Button variant="outline" disabled={transitioning || saving || resetting} onPress={() => setShowSettings(value => !value)}
+        <Button variant="outline" disabled={transitioning || saving || resetting} onPress={() => { setShowSettings(value => !value); setSettingsInfoOpen(false); }}
           aria-expanded={showSettings} aria-controls="srs-study-settings"><Target size={18} aria-hidden="true" />{t('srs.study.settings')}</Button>
         {onReset && <Button variant="outline" className={styles.resetButton} disabled={!ready || transitioning || saving || resetting}
           onPress={() => { void openReset(); }} data-testid="srs-reset-open"><RotateCcwSquare size={18} aria-hidden="true" />{t('srs.study.resetButton')}</Button>}
@@ -256,7 +257,8 @@ export function SrsReviewRunner({
       </div>
     </div>
     <Card className={styles.progressCard}>
-      <Card.Content className={styles.progressContent}>
+      <Card.Content className={styles.progressBody}>
+        <div className={styles.progressContent}>
         <span className={styles.progressLabel}>{t('srs.study.dailyProgress', { done: progress.reviewed.length, goal: state.settings.dailyGoal })}</span>
         <ProgressBar value={Math.min(progress.reviewed.length, state.settings.dailyGoal)} maxValue={state.settings.dailyGoal}
           className={styles.dailyProgress} aria-label={t('srs.study.dailyProgress', { done: progress.reviewed.length, goal: state.settings.dailyGoal })}>
@@ -267,19 +269,36 @@ export function SrsReviewRunner({
           <span>{t('srs.study.newCount', { count: counts.fresh })}</span>
           {waiting.length > 0 && <Chip size="sm" variant="soft">{t('srs.study.waitingCount', { count: counts.waiting })}</Chip>}
         </div>
+        </div>
+        {showSettings && <>
+          <Separator className={styles.settingsDivider} />
+          <div id="srs-study-settings" className={styles.settingsContent}>
+            <h3 className={styles.settingsTitle}>{t('srs.study.settingsTitle')}</h3>
+            <div className={styles.settingsFields}>
+              <HeroSelect label={t('srs.study.goalLabel')} value={String(state.settings.dailyGoal)}
+                options={[5, 10, 20, 30, 50].map(value => ({ value: String(value), label: t('srs.study.cardsPerDay', { count: value }) }))}
+                onChange={value => changeSetting('dailyGoal', value)} disabled={saving} />
+              <HeroSelect label={t('srs.study.newLimitLabel')} value={String(state.settings.newPerDay)}
+                options={[0, 5, 10, 20, 30, 50].map(value => ({ value: String(value), label: t('srs.study.cardsPerDay', { count: value }) }))}
+                onChange={value => changeSetting('newPerDay', value)} disabled={saving} />
+            </div>
+            <div className={styles.settingsHint}>
+              <p>{t('srs.study.settingsSavedHint')}</p>
+              <Tooltip delay={150} isOpen={settingsInfoOpen} onOpenChange={setSettingsInfoOpen}>
+                <Button variant="ghost" size="icon" className={styles.settingsInfo}
+                  aria-label={t('srs.study.settingsInfo')} onPress={() => setSettingsInfoOpen(value => !value)}>
+                  <Info size={16} aria-hidden="true" />
+                </Button>
+                <Tooltip.Content placement="top" className={styles.settingsTooltip}>{t('srs.study.localSettingsHint')}</Tooltip.Content>
+              </Tooltip>
+            </div>
+          </div>
+        </>}
       </Card.Content>
     </Card>
     {practice && <Chip variant="soft">{t('srs.study.practiceMode')}</Chip>}
     {progress.reviewed.length >= state.settings.dailyGoal && <p role="status">{t('srs.study.goalReached')}</p>}
-        {showSettings && <div id="srs-study-settings" className="grid gap-4 sm:grid-cols-2">
-          <HeroSelect label={t('srs.study.goalLabel')} value={String(state.settings.dailyGoal)}
-            options={[5, 10, 20, 30, 50].map(value => ({ value: String(value), label: t('srs.study.cardsPerDay', { count: value }) }))}
-            onChange={value => changeSetting('dailyGoal', value)} disabled={saving} />
-          <HeroSelect label={t('srs.study.newLimitLabel')} value={String(state.settings.newPerDay)}
-            options={[0, 5, 10, 20, 30, 50].map(value => ({ value: String(value), label: t('srs.study.cardsPerDay', { count: value }) }))}
-            onChange={value => changeSetting('newPerDay', value)} disabled={saving} />
-          <p className="text-xs text-[var(--text-muted)] sm:col-span-2">{t('srs.study.localSettingsHint')}</p>
-        </div>}
+
 
     {resetError && !resetOpen && <Alert variant="warning">{resetError}</Alert>}
     {localError && <Alert variant="error">{localError}</Alert>}
