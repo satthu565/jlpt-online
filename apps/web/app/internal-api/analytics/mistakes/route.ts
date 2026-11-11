@@ -111,7 +111,29 @@ function overlapRatio(a: string, b: string): number {
   return n / Math.min(x.size, y.size);
 }
 
-type TrapId = 'near' | 'neg' | 'distract' | 'partial' | 'order' | 'kanji' | 'grammar';
+type TrapId =
+  | 'swap'
+  | 'kanji'
+  | 'vocabUsage'
+  | 'vocabNuance'
+  | 'particle'
+  | 'grammar'
+  | 'distract'
+  | 'reply'
+  | 'partial'
+  | 'order'
+  | 'neg';
+
+const PARTICLES = new Set(['は', 'が', 'を', 'に', 'で', 'と', 'も', 'の', 'へ', 'や', 'か', 'から', 'まで', 'より', 'ね', 'よ', 'ので', 'のに', 'けど']);
+
+/** Same characters in a different order: the learner swapped pieces of information (time, room, person...). */
+function sameCharsDifferentOrder(a: string, b: string): boolean {
+  const norm = (t: string): string => t.replace(/[\s、。,.　]/g, '');
+  const x = norm(a);
+  const y = norm(b);
+  if (x.length < 4 || x === y) return false;
+  return [...x].sort().join('') === [...y].sort().join('');
+}
 
 /** Rule-based trap type of an answered-but-wrong question, from the real option texts. */
 function classifyTrap(
@@ -121,53 +143,77 @@ function classifyTrap(
   chosen: string,
   correct: string,
 ): TrapId | null {
+  const c = chosen.trim();
+  const k = correct.trim();
+  if (c && k && sameCharsDifferentOrder(c, k)) return 'swap';
   if (skill === 'kanji') return 'kanji';
-  if (skill === 'listening') return 'distract';
+  if (skill === 'listening') return mondai === 'quick_response' || mondai === 'utterance' ? 'reply' : 'distract';
   const reading = skill === 'reading' || mondai === 'text_grammar' || mondai === 'sentence_composition';
   if (reading && CONJUNCTION.test(stem)) return 'order';
-  if (chosen && correct && NEGATION.test(chosen) !== NEGATION.test(correct)) return 'neg';
-  if (skill === 'reading' && chosen && correct && overlapRatio(chosen, correct) >= 0.3) return 'partial';
-  if (skill === 'vocabulary') return 'near';
-  if (skill === 'grammar') return 'grammar';
+  // negation only counts when the two options are otherwise close, i.e. negation is what tells them apart
+  if (c && k && NEGATION.test(c) !== NEGATION.test(k) && overlapRatio(c, k) >= 0.5) return 'neg';
+  if (skill === 'reading' && c && k && overlapRatio(c, k) >= 0.3) return 'partial';
+  if (skill === 'vocabulary') return mondai === 'usage' ? 'vocabUsage' : 'vocabNuance';
+  if (skill === 'grammar') return PARTICLES.has(c) && PARTICLES.has(k) ? 'particle' : 'grammar';
   if (skill === 'reading') return 'partial';
   return null;
 }
 
 const TRAP_INFO: Record<TrapId, { name: string; why: string; hint: string }> = {
-  near: {
-    name: 'Đáp án gần nghĩa',
-    why: 'Hai lựa chọn gần nghĩa nhưng khác cấu trúc kết hợp hoặc sắc thái biểu đạt.',
-    hint: 'Đọc kỹ từ đi kèm ngữ cảnh thay vì chỉ dịch nghĩa thô sang tiếng Việt.',
+  swap: {
+    name: 'Đảo thứ tự / đổi vị trí thông tin',
+    why: 'Hai phương án có cùng các thành phần nhưng sắp xếp khác thứ tự (giờ, phòng, người...).',
+    hint: 'Ghi từng cặp thông tin (ai – ở đâu – lúc nào) rồi đối chiếu từng cặp với phương án.',
   },
-  neg: {
-    name: 'Phủ định kép / một phần',
-    why: 'Đáp án đúng và đáp án bạn chọn khác nhau ở chỗ có / không có phủ định.',
-    hint: 'Gạch chân từ phủ định và xác định phạm vi mà nó bao trùm trước khi chọn.',
+  kanji: {
+    name: 'Nhầm chữ Hán / âm đọc',
+    why: 'Chọn phương án có chữ hoặc âm đọc gần với đáp án đúng, hoặc nhầm từ cùng nhóm nghĩa.',
+    hint: 'Ôn theo từ ghép thường gặp và theo nhóm từ dễ nhầm (今年 / 来年), không chỉ nhớ chữ đứng đơn lẻ.',
+  },
+  vocabUsage: {
+    name: 'Sai cách dùng từ',
+    why: 'Hiểu nghĩa từ nhưng chọn câu dùng sai ngữ cảnh hoặc sai từ đi kèm.',
+    hint: 'Học từ kèm câu ví dụ và các từ hay đi cùng (collocation), không chỉ nhớ nghĩa tiếng Việt.',
+  },
+  vocabNuance: {
+    name: 'Nhầm từ gần nghĩa / sắc thái',
+    why: 'Chọn từ có nghĩa gần nhưng không hợp ngữ cảnh của câu.',
+    hint: 'Đọc kỹ từ đi kèm trong câu thay vì chỉ dịch nghĩa thô sang tiếng Việt.',
+  },
+  particle: {
+    name: 'Nhầm trợ từ',
+    why: 'Chọn trợ từ sai vai trò trong câu (chủ thể, đối tượng, địa điểm, phương tiện...).',
+    hint: 'Xác định động từ đòi trợ từ nào và vai trò của danh từ đứng trước chỗ trống.',
+  },
+  grammar: {
+    name: 'Nhầm mẫu câu / hình thức ngữ pháp',
+    why: 'Chọn mẫu câu có hình thức hoặc nghĩa gần với đáp án đúng (đang làm so với từng làm...).',
+    hint: 'Học các cặp mẫu câu dễ nhầm theo ví dụ đối chiếu và dấu hiệu nhận biết.',
   },
   distract: {
-    name: 'Thông tin gây nhiễu',
+    name: 'Thông tin gây nhiễu (nghe)',
     why: 'Bị phân tâm bởi thông tin nhiễu trước đáp án hoặc quyết định bị đổi ở cuối.',
     hint: 'Ghi chú quyết định cuối cùng, đặc biệt sau các từ nối chuyển hướng.',
   },
+  reply: {
+    name: 'Nhầm câu đáp lại (nghe)',
+    why: 'Chọn câu đáp không hợp tình huống, vai người nói hoặc mức lịch sự.',
+    hint: 'Xác định người nói và mục đích câu nói (mời, nhờ, xin lỗi...) trước khi chọn câu đáp.',
+  },
   partial: {
-    name: 'Đáp án đúng một phần',
+    name: 'Đáp án đúng một phần (đọc hiểu)',
     why: 'Phương án đã chọn có nhiều chi tiết trùng với đáp án đúng nhưng thiếu hoặc sai ý chính.',
     hint: 'Tìm câu kết luận của tác giả thay vì chọn ngay chi tiết xuất hiện ở đoạn đầu.',
   },
   order: {
-    name: 'Từ nối chuyển ý / đảo thứ tự',
-    why: 'Đề có từ nối chuyển ý (しかし, ところが...) làm đổi chiều ý, dễ chọn theo vế đầu.',
+    name: 'Từ nối chuyển ý (しかし, ところが...)',
+    why: 'Đề có từ nối chuyển ý làm đổi chiều ý, dễ chọn theo vế đầu.',
     hint: 'Khoanh các từ nối chuyển ý và đọc kỹ vế phía sau chúng.',
   },
-  kanji: {
-    name: 'Chữ Hán / âm đọc tương tự',
-    why: 'Nhầm âm On/Kun hoặc mặt chữ có cấu tạo bộ thủ tương tự.',
-    hint: 'Ôn ngắt quãng theo từ ghép thường gặp, không chỉ nhớ chữ đứng đơn lẻ.',
-  },
-  grammar: {
-    name: 'Mẫu ngữ pháp tương tự',
-    why: 'Chọn mẫu câu có hình thức hoặc nghĩa gần với đáp án đúng.',
-    hint: 'Học các cặp dễ nhầm theo ví dụ đối chiếu và dấu hiệu nhận biết.',
+  neg: {
+    name: 'Phủ định / không phủ định',
+    why: 'Đáp án đúng và phương án bạn chọn gần giống nhau, chỉ khác ở chỗ có hoặc không có phủ định.',
+    hint: 'Gạch chân từ phủ định và xác định phạm vi mà nó bao trùm trước khi chọn.',
   },
 };
 
