@@ -222,12 +222,12 @@ export function AnalyticsProgressionCharts({
         {/* Mini 1: Accuracy */}
         <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
           <div className="flex justify-between items-center text-xs mb-2">
-            <strong className="text-slate-800 dark:text-slate-200">Tỷ lệ trả lời đúng</strong>
+            <strong className="text-slate-800 dark:text-slate-200">Điểm đạt (% của 180)</strong>
             <span className="font-bold text-emerald-600 dark:text-emerald-400 text-[11px]">
               {currentPoints[0]!.accuracy}% → {currentPoints[currentPoints.length - 1]!.accuracy}%
             </span>
           </div>
-          <svg viewBox="0 0 300 95" className="w-full h-20 overflow-visible" role="img" aria-label="Biểu đồ tỷ lệ đúng">
+          <svg viewBox="0 0 300 95" className="w-full h-20 overflow-visible" role="img" aria-label="Biểu đồ điểm đạt theo phần trăm của 180">
             <polyline
               points={accCoords}
               fill="none"

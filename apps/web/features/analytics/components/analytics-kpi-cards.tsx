@@ -170,8 +170,14 @@ export function AnalyticsKpiCards({
           </span>
         </div>
         <div className="my-3 text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-          {totalStudyHours.toFixed(1)}
-          <small className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">giờ</small>
+          {totalStudyHours > 0 ? (
+            <>
+              {totalStudyHours.toFixed(1)}
+              <small className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">giờ</small>
+            </>
+          ) : (
+            <span className="text-slate-300 dark:text-slate-600">--</span>
+          )}
         </div>
         <div className="flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500">
           <span className={`font-medium ${streakDays > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
