@@ -91,8 +91,11 @@ function extractTargetTerm(
   return trimmed.slice(0, 35) + (trimmed.length > 35 ? '...' : '');
 }
 
-const NEGATION = /ない|ません|ぬ|ず(?:に)?|ではない|わけがない|とは限らない|ありません/;
-const CONJUNCTION = /しかし|だが|ところが|けれども|ただし|一方|それでも|にもかかわらず/;
+// Negation words; adjectives that merely end in ない (少ない, きたない...) are not negation.
+const NEGATION = /なかった|ませんでした|ません|ではない|じゃない|ずに|わけがない|とは限らない|(?<![少危汚]|きた|つまら|くだら)ない/;
+const HONORIFIC = /いらっしゃ|おっしゃ|なさ[いるっ]|くださ|ご覧|召し上が|いただ(?:き|く|け(?!あ)|こ)|申し|申す|参り|参る|伺|拝見|致し|存じ|[お御ご][一-龥]{1,3}(?:になり|になる|ください|します|する|いたし)/;
+const PLACEHOLDER = /^(?:選択肢|絵)\s*[0-9０-９]+$|^[1-4１-４]$/;
+const PARTICLES = new Set(['は', 'が', 'を', 'に', 'で', 'と', 'も', 'の', 'へ', 'や', 'か', 'から', 'まで', 'より', 'ね', 'よ', 'ので', 'のに', 'けど']);
 
 function bigrams(text: string): Set<string> {
   const out = new Set<string>();
@@ -111,20 +114,19 @@ function overlapRatio(a: string, b: string): number {
   return n / Math.min(x.size, y.size);
 }
 
-type TrapId =
-  | 'swap'
-  | 'kanji'
-  | 'vocabUsage'
-  | 'vocabNuance'
-  | 'particle'
-  | 'grammar'
-  | 'distract'
-  | 'reply'
-  | 'partial'
-  | 'order'
-  | 'neg';
-
-const PARTICLES = new Set(['は', 'が', 'を', 'に', 'で', 'と', 'も', 'の', 'へ', 'や', 'か', 'から', 'まで', 'より', 'ね', 'よ', 'ので', 'のに', 'けど']);
+/** Edit distance between two strings, counted in characters. */
+function editDistance(a: string, b: string): number {
+  const x = [...a];
+  const y = [...b];
+  const d: number[][] = Array.from({ length: x.length + 1 }, (_, i) => [i, ...Array<number>(y.length).fill(0)]);
+  for (let j = 1; j <= y.length; j++) d[0]![j] = j;
+  for (let i = 1; i <= x.length; i++) {
+    for (let j = 1; j <= y.length; j++) {
+      d[i]![j] = Math.min(d[i - 1]![j]! + 1, d[i]![j - 1]! + 1, d[i - 1]![j - 1]! + (x[i - 1] === y[j - 1] ? 0 : 1));
+    }
+  }
+  return d[x.length]![y.length]!;
+}
 
 /** Same characters in a different order: the learner swapped pieces of information (time, room, person...). */
 function sameCharsDifferentOrder(a: string, b: string): boolean {
@@ -135,84 +137,158 @@ function sameCharsDifferentOrder(a: string, b: string): boolean {
   return [...x].sort().join('') === [...y].sort().join('');
 }
 
-/** Rule-based trap type of an answered-but-wrong question, from the real option texts. */
+const stripNegation = (t: string): string => t.replace(/なかった|ませんでした|ません|ない|ず|ぬ/g, '');
+
+type TrapId =
+  | 'kanjiSound'
+  | 'kanjiLook'
+  | 'kanji'
+  | 'vocabContext'
+  | 'vocabMeaning'
+  | 'vocabUsage'
+  | 'wordFormation'
+  | 'particle'
+  | 'keigo'
+  | 'grammar'
+  | 'compose'
+  | 'readingClose'
+  | 'reading'
+  | 'reply'
+  | 'listenContent'
+  | 'swap'
+  | 'neg';
+
+/**
+ * Rule-based trap type of an answered-but-wrong question, from the real option texts.
+ * Rules were checked offline against every wrong option of every published question (33k cases).
+ * Returns null when the options carry no text to compare (listening placeholders such as 選択肢3).
+ */
 function classifyTrap(
   skill: string,
   mondai: string,
-  stem: string,
+  _stem: string,
   chosen: string,
   correct: string,
 ): TrapId | null {
   const c = chosen.trim();
   const k = correct.trim();
-  if (c && k && sameCharsDifferentOrder(c, k)) return 'swap';
-  if (skill === 'kanji') return 'kanji';
-  if (skill === 'listening') return mondai === 'quick_response' || mondai === 'utterance' ? 'reply' : 'distract';
-  const reading = skill === 'reading' || mondai === 'text_grammar' || mondai === 'sentence_composition';
-  if (reading && CONJUNCTION.test(stem)) return 'order';
-  // negation only counts when the two options are otherwise close, i.e. negation is what tells them apart
-  if (c && k && NEGATION.test(c) !== NEGATION.test(k) && overlapRatio(c, k) >= 0.5) return 'neg';
-  if (skill === 'reading' && c && k && overlapRatio(c, k) >= 0.3) return 'partial';
-  if (skill === 'vocabulary') return mondai === 'usage' ? 'vocabUsage' : 'vocabNuance';
-  if (skill === 'grammar') return PARTICLES.has(c) && PARTICLES.has(k) ? 'particle' : 'grammar';
-  if (skill === 'reading') return 'partial';
+  if (!c || !k || PLACEHOLDER.test(c) || PLACEHOLDER.test(k)) return null;
+
+  if (skill === 'kanji') {
+    const dist = editDistance(c, k);
+    if (mondai === 'orthography') return dist <= 1 ? 'kanjiLook' : 'kanji';
+    return dist <= 1 && Math.min([...c].length, [...k].length) >= 3 ? 'kanjiSound' : 'kanji';
+  }
+  if (sameCharsDifferentOrder(c, k)) return 'swap';
+  if (skill === 'listening') return mondai === 'quick_response' || mondai === 'utterance' ? 'reply' : 'listenContent';
+  // negation only counts for long options that are otherwise the same sentence
+  if (
+    (skill === 'reading' || skill === 'grammar') &&
+    [...c].length >= 8 &&
+    [...k].length >= 8 &&
+    NEGATION.test(c) !== NEGATION.test(k) &&
+    overlapRatio(stripNegation(c), stripNegation(k)) >= 0.85
+  ) {
+    return 'neg';
+  }
+  if (skill === 'vocabulary') {
+    if (mondai === 'usage') return 'vocabUsage';
+    if (mondai === 'word_formation') return 'wordFormation';
+    return mondai === 'paraphrase' ? 'vocabMeaning' : 'vocabContext';
+  }
+  if (skill === 'grammar') {
+    if (PARTICLES.has(c) && PARTICLES.has(k)) return 'particle';
+    if (HONORIFIC.test(c) || HONORIFIC.test(k)) return 'keigo';
+    return mondai === 'sentence_composition' ? 'compose' : 'grammar';
+  }
+  if (skill === 'reading') return overlapRatio(c, k) >= 0.4 ? 'readingClose' : 'reading';
   return null;
 }
 
 const TRAP_INFO: Record<TrapId, { name: string; why: string; hint: string }> = {
-  swap: {
-    name: 'Đảo thứ tự / đổi vị trí thông tin',
-    why: 'Hai phương án có cùng các thành phần nhưng sắp xếp khác thứ tự (giờ, phòng, người...).',
-    hint: 'Ghi từng cặp thông tin (ai – ở đâu – lúc nào) rồi đối chiếu từng cặp với phương án.',
+  kanjiSound: {
+    name: 'Nhầm âm đọc (lệch một âm)',
+    why: 'Cách đọc bạn chọn chỉ lệch một âm so với đáp án đúng (âm đục, trường âm, âm ngắt...).',
+    hint: 'Đọc to từ đó và chú ý trường âm, âm ngắt, âm đục; ôn theo các cặp âm hay lẫn (おう / お, つ / づ, ち / じ).',
+  },
+  kanjiLook: {
+    name: 'Nhầm một chữ Hán trong từ',
+    why: 'Từ bạn chọn chỉ khác đáp án đúng một chữ Hán (giống mặt chữ hoặc cùng âm đọc).',
+    hint: 'Ôn bộ thủ của các chữ hay lẫn và viết lại cả từ ghép thay vì từng chữ đơn lẻ.',
   },
   kanji: {
-    name: 'Nhầm chữ Hán / âm đọc',
-    why: 'Chọn phương án có chữ hoặc âm đọc gần với đáp án đúng, hoặc nhầm từ cùng nhóm nghĩa.',
-    hint: 'Ôn theo từ ghép thường gặp và theo nhóm từ dễ nhầm (今年 / 来年), không chỉ nhớ chữ đứng đơn lẻ.',
+    name: 'Chọn cách đọc / từ khác hẳn (chữ Hán)',
+    why: 'Phương án bạn chọn khác hẳn đáp án đúng, thường do chưa nhớ từ hoặc nhớ nhầm sang từ khác.',
+    hint: 'Ôn từ trong câu ví dụ; với số đếm và từ đọc đặc biệt (ここのつ, 今年...) học thuộc riêng.',
+  },
+  vocabContext: {
+    name: 'Chọn từ không hợp ngữ cảnh',
+    why: 'Từ bạn chọn cùng loại với đáp án đúng nhưng không hợp với ý của câu.',
+    hint: 'Đọc cả vế trước và vế sau chỗ trống để xác định từ cần mang nghĩa gì, rồi loại các từ không khớp.',
+  },
+  vocabMeaning: {
+    name: 'Hiểu sai nghĩa / từ đồng nghĩa',
+    why: 'Bạn chọn cách nói có nghĩa khác với từ được gạch chân.',
+    hint: 'Học từ kèm nghĩa tiếng Nhật đơn giản và ví dụ, so các từ gần nghĩa theo cặp.',
   },
   vocabUsage: {
     name: 'Sai cách dùng từ',
     why: 'Hiểu nghĩa từ nhưng chọn câu dùng sai ngữ cảnh hoặc sai từ đi kèm.',
     hint: 'Học từ kèm câu ví dụ và các từ hay đi cùng (collocation), không chỉ nhớ nghĩa tiếng Việt.',
   },
-  vocabNuance: {
-    name: 'Nhầm từ gần nghĩa / sắc thái',
-    why: 'Chọn từ có nghĩa gần nhưng không hợp ngữ cảnh của câu.',
-    hint: 'Đọc kỹ từ đi kèm trong câu thay vì chỉ dịch nghĩa thô sang tiếng Việt.',
+  wordFormation: {
+    name: 'Nhầm tiền tố / hậu tố (cấu tạo từ)',
+    why: 'Chọn chữ ghép thêm vào từ (諸, 再, 未, 前...) không đúng với nghĩa cần có.',
+    hint: 'Học các tiền tố, hậu tố hay gặp theo nhóm nghĩa (số nhiều, lại, chưa, trước đây...).',
   },
   particle: {
     name: 'Nhầm trợ từ',
     why: 'Chọn trợ từ sai vai trò trong câu (chủ thể, đối tượng, địa điểm, phương tiện...).',
     hint: 'Xác định động từ đòi trợ từ nào và vai trò của danh từ đứng trước chỗ trống.',
   },
+  keigo: {
+    name: 'Nhầm kính ngữ / cách nói lịch sự',
+    why: 'Chọn dạng tôn kính, khiêm nhường hoặc cách nhờ vả không đúng với người nói và người nghe.',
+    hint: 'Xác định hành động của ai (mình hay đối phương) trước khi chọn tôn kính ngữ hay khiêm nhường ngữ.',
+  },
   grammar: {
     name: 'Nhầm mẫu câu / hình thức ngữ pháp',
     why: 'Chọn mẫu câu có hình thức hoặc nghĩa gần với đáp án đúng (đang làm so với từng làm...).',
     hint: 'Học các cặp mẫu câu dễ nhầm theo ví dụ đối chiếu và dấu hiệu nhận biết.',
   },
-  distract: {
-    name: 'Thông tin gây nhiễu (nghe)',
-    why: 'Bị phân tâm bởi thông tin nhiễu trước đáp án hoặc quyết định bị đổi ở cuối.',
-    hint: 'Ghi chú quyết định cuối cùng, đặc biệt sau các từ nối chuyển hướng.',
+  compose: {
+    name: 'Sắp xếp câu sai (★)',
+    why: 'Cụm bạn chọn không khớp vị trí trong câu cần sắp xếp.',
+    hint: 'Tìm cụm đứng đầu và cuối câu trước, rồi nối các cụm có liên kết ngữ pháp cố định.',
+  },
+  readingClose: {
+    name: 'Phương án gần giống đáp án (đọc hiểu)',
+    why: 'Phương án bạn chọn gần giống đáp án đúng, chỉ khác ở một chi tiết (số, ngày, đối tượng).',
+    hint: 'Đối chiếu từng chi tiết (số, ngày, ai / cái gì) với văn bản trước khi chọn.',
+  },
+  reading: {
+    name: 'Chọn nhầm ý (đọc hiểu)',
+    why: 'Phương án bạn chọn nghe hợp lý nhưng không đúng với điều câu hỏi hỏi (thường là chi tiết khác, hoặc nói ngược lại).',
+    hint: 'Gạch dưới từ khóa của câu hỏi và tìm đúng đoạn trả lời trước khi đọc các phương án.',
   },
   reply: {
-    name: 'Nhầm câu đáp lại (nghe)',
-    why: 'Chọn câu đáp không hợp tình huống, vai người nói hoặc mức lịch sự.',
-    hint: 'Xác định người nói và mục đích câu nói (mời, nhờ, xin lỗi...) trước khi chọn câu đáp.',
+    name: 'Nhầm câu đáp / câu nói theo tình huống (nghe)',
+    why: 'Chọn câu đáp hoặc câu nói không hợp tình huống, vai người nói hoặc mức lịch sự.',
+    hint: 'Xác định người nói và mục đích câu nói (mời, nhờ, xin lỗi, cảm ơn...) trước khi chọn.',
   },
-  partial: {
-    name: 'Đáp án đúng một phần (đọc hiểu)',
-    why: 'Phương án đã chọn có nhiều chi tiết trùng với đáp án đúng nhưng thiếu hoặc sai ý chính.',
-    hint: 'Tìm câu kết luận của tác giả thay vì chọn ngay chi tiết xuất hiện ở đoạn đầu.',
+  listenContent: {
+    name: 'Chọn nhầm nội dung (nghe)',
+    why: 'Phương án bạn chọn không phải điều câu hỏi yêu cầu (việc làm trước, ý phụ, hoặc thông tin của người khác).',
+    hint: 'Ghi nhanh từ khóa và quyết định cuối cùng của từng người, nhất là sau các từ nối chuyển hướng.',
   },
-  order: {
-    name: 'Từ nối chuyển ý (しかし, ところが...)',
-    why: 'Đề có từ nối chuyển ý làm đổi chiều ý, dễ chọn theo vế đầu.',
-    hint: 'Khoanh các từ nối chuyển ý và đọc kỹ vế phía sau chúng.',
+  swap: {
+    name: 'Đảo vị trí / đảo vai',
+    why: 'Hai phương án có cùng thành phần nhưng đảo thứ tự hoặc đảo vai (trước / sau, trái / phải, người này / người kia).',
+    hint: 'Ghi từng cặp thông tin (ai – ở đâu – lúc nào) rồi đối chiếu từng cặp với phương án.',
   },
   neg: {
     name: 'Phủ định / không phủ định',
-    why: 'Đáp án đúng và phương án bạn chọn gần giống nhau, chỉ khác ở chỗ có hoặc không có phủ định.',
+    why: 'Đáp án đúng và phương án bạn chọn là cùng một câu, chỉ khác ở chỗ có hoặc không có phủ định.',
     hint: 'Gạch chân từ phủ định và xác định phạm vi mà nó bao trùm trước khi chọn.',
   },
 };
