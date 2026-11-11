@@ -917,9 +917,10 @@ export async function GET(request: NextRequest) {
             why = fullExp.slice(0, 80).trim() || `Kiến thức ${r.mondai_type || r.skill} cần củng cố`;
           }
 
-          const tip = fullExp.includes('•')
-            ? fullExp.split('•').slice(1).join('; ').slice(0, 120).trim()
-            : 'Xem lại bài giảng và phương pháp làm bài chi tiết.';
+          // short note about the correct answer, not the whole explanation
+          const answerPart = (fullExp.split('Đáp án đúng:')[1] ?? '').split('•')[0] ?? '';
+          const tip =
+            answerPart.replace(/^\s*\[\d\]\s*/, '').trim().slice(0, 140) || 'Xem lại lời giải của câu này rồi làm lại.';
 
           const acc = r.times_right / r.times_seen;
           const status = acc >= 0.7 ? 'Thành thạo' : acc >= 0.4 ? 'Đang hình thành' : 'Chưa ổn định';
