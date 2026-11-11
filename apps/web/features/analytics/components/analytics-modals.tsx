@@ -63,6 +63,7 @@ function ReasonPicker({
 }
 
 export interface AnalyticsModalsProps {
+  level?: string;
   onSaveReason?: (questionId: string, reason: string | null) => Promise<void>;
   infoModalOpen: boolean;
   onCloseInfoModal: () => void;
@@ -75,6 +76,7 @@ export interface AnalyticsModalsProps {
 }
 
 export function AnalyticsModals({
+  level,
   onSaveReason,
   infoModalOpen,
   onCloseInfoModal,
@@ -133,21 +135,17 @@ export function AnalyticsModals({
               <Button variant="outline" size="sm" onClick={onCloseQuestionModal}>
                 Đóng
               </Button>
-              <Link
-                href={buildPracticeHref({
+              <Button asChild variant="primary" size="sm" onClick={onCloseQuestionModal}><Link href={buildPracticeHref({
                   level: (questionModalRecord.level as 'N1' | 'N2' | 'N3' | 'N4' | 'N5') ?? 'N3',
                   pool: 'wrong',
                   skills: questionModalRecord.skill ? [questionModalRecord.skill] : undefined,
                   mondaiTypes: questionModalRecord.mondaiType ? [questionModalRecord.mondaiType] : undefined,
                   count: 10,
                   label: questionModalRecord.term,
-                })}
-              >
-                <Button variant="primary" size="sm" onClick={onCloseQuestionModal}>
+                })}>
                   Luyện lại dạng câu này
                   <ArrowRight className="size-3.5 inline ml-1.5" aria-hidden="true" />
-                </Button>
-              </Link>
+                </Link></Button>
             </div>
           }
         >
@@ -224,12 +222,10 @@ export function AnalyticsModals({
               Đóng
             </Button>
             {studyModalState.actionHref ? (
-              <Link href={studyModalState.actionHref}>
-                <Button variant="primary" size="sm" onClick={onCloseStudyModal}>
+              <Button asChild variant="primary" size="sm" onClick={onCloseStudyModal}><Link href={studyModalState.actionHref}>
                   {studyModalState.actionText}
                   <ArrowRight className="size-3.5 inline ml-1.5" aria-hidden="true" />
-                </Button>
-              </Link>
+                </Link></Button>
             ) : (
               <Button variant="primary" size="sm" onClick={onCloseStudyModal}>
                 {studyModalState.actionText}
@@ -271,12 +267,10 @@ export function AnalyticsModals({
             <Button variant="outline" size="sm" onClick={onCloseDetailModal}>
               Đóng
             </Button>
-            <Link href="/luyen-tap">
-              <Button variant="primary" size="sm" onClick={onCloseDetailModal}>
+            <Button asChild variant="primary" size="sm" onClick={onCloseDetailModal}><Link href={buildPracticeHref({ level: (level ?? 'N3') as 'N1' | 'N2' | 'N3' | 'N4' | 'N5', pool: 'wrong', count: 15 })}>
                 Luyện nội dung này
                 <ArrowRight className="size-3.5 inline ml-1.5" aria-hidden="true" />
-              </Button>
-            </Link>
+              </Link></Button>
           </div>
         }
       >

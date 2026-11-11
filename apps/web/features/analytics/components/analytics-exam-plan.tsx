@@ -149,12 +149,10 @@ export function AnalyticsExamPlan({
             </p>
           )}
         </div>
-        <Link href="/lich-thi" className="mt-4">
-          <Button variant="outline" size="sm" className="w-full justify-center text-xs font-bold">
+        <Button asChild variant="outline" size="sm" className="mt-4 w-full justify-center text-xs font-bold"><Link href="/lich-thi">
             Xem lịch thi JLPT
             <ArrowRight className="size-3.5 inline ml-1.5" aria-hidden="true" />
-          </Button>
-        </Link>
+          </Link></Button>
       </Card>
 
       <Card className="lg:col-span-7 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
@@ -209,12 +207,10 @@ export function AnalyticsExamPlan({
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-[11px] text-slate-400 dark:text-slate-500">✓ đã nộp · … đang làm dở · còn lại chưa làm</p>
           {nextExam && (
-            <Link href={`/de-thi/${encodeURIComponent(nextExam.slug)}`}>
-              <Button variant="primary" size="sm" className="text-xs font-bold">
+            <Button asChild variant="primary" size="sm" className="text-xs font-bold"><Link href={`/de-thi/${encodeURIComponent(nextExam.slug)}`}>
                 Làm đề tiếp theo: {nextExam.session}/{nextExam.year}
                 <ArrowRight className="size-3.5 inline ml-1.5" aria-hidden="true" />
-              </Button>
-            </Link>
+              </Link></Button>
           )}
         </div>
       </Card>

@@ -1373,11 +1373,9 @@ export function AnalyticsMistakeLibrary({
               Hệ thống sẽ tự động bóc tách các mẫu ngữ pháp, từ vựng, chữ Hán và dạng câu bạn thường mắc lỗi ngay khi bạn hoàn thành bài thi đầu tiên.
             </p>
           </div>
-          <Link href="/de-thi">
-            <Button variant="primary" size="sm" className="font-bold">
+          <Button asChild variant="primary" size="sm" className="font-bold"><Link href="/de-thi">
               Làm đề thi thử ngay
-            </Button>
-          </Link>
+            </Link></Button>
         </div>
       </Card>
     );
@@ -1612,20 +1610,16 @@ export function AnalyticsMistakeLibrary({
             Luyện lại các mục đang lọc
           </Button>
         ) : (
-          <Link
-            href={buildPracticeHref({
+          <Button asChild variant="primary" size="sm" className="whitespace-nowrap font-bold"><Link href={buildPracticeHref({
               level: level as 'N1' | 'N2' | 'N3' | 'N4' | 'N5',
               pool: 'wrong',
               skills: TAB_SKILLS[activeTab],
               count: Math.min(20, filteredRecords.length * 2),
               label: `Câu đã làm sai · ${(tabContextLabels[activeTab] ?? '').split(':')[0]}`,
-            })}
-          >
-            <Button variant="primary" size="sm" className="whitespace-nowrap font-bold">
+            })}>
               <RefreshCw className="size-3.5 inline mr-1.5" aria-hidden="true" />
               Luyện lại các câu sai của tab này
-            </Button>
-          </Link>
+            </Link></Button>
         )}
       </div>
     </Card>

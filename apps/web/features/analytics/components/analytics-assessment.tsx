@@ -313,12 +313,10 @@ export function AnalyticsAssessment({
             </span>
             <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">{plan.title}</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mt-1 mb-3">{plan.body}</p>
-            <Link href={plan.href}>
-              <Button size="sm" variant="primary" className="w-full justify-center">
+            <Button asChild size="sm" variant="primary" className="w-full justify-center"><Link href={plan.href}>
                 {plan.action}
                 <ArrowRight className="size-3.5 inline ml-1.5" aria-hidden="true" />
-              </Button>
-            </Link>
+              </Link></Button>
           </div>
 
           {/* Action List Items */}
@@ -365,16 +363,13 @@ export function AnalyticsAssessment({
                   <p className="text-[10px] text-slate-400 dark:text-slate-500">JLPT {level} · Kỳ thi chính thức</p>
                 </div>
               </div>
-              <Link href="/de-thi">
-                <Button
+              <Button asChild
                   variant="ghost"
                   size="sm"
                   className="size-8 p-0 text-slate-400 hover:text-slate-600"
-                  aria-label="Thử sức với đề thi mới"
-                >
+                  aria-label="Thử sức với đề thi mới"><Link href="/de-thi">
                   <ArrowRight className="size-4" aria-hidden="true" />
-                </Button>
-              </Link>
+                </Link></Button>
             </div>
           </div>
         </div>

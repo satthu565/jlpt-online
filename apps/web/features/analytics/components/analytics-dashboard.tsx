@@ -786,6 +786,7 @@ export function AnalyticsDashboard({
 
       {/* HeroUI Modals */}
       <AnalyticsModals
+        level={currentLevel}
         onSaveReason={onSaveReason}
         infoModalOpen={infoModalOpen}
         onCloseInfoModal={() => setInfoModalOpen(false)}

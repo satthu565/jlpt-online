@@ -45,12 +45,10 @@ export function AnalyticsExamHistory({
             Bài đã nộp (kèm điểm từng phần) và bài đang làm dở để tiếp tục
           </p>
         </div>
-        <Link href="/lich-su">
-          <Button variant="outline" size="sm" className="text-xs font-bold shrink-0">
+        <Button asChild variant="outline" size="sm" className="text-xs font-bold shrink-0"><Link href="/lich-su">
             Xem tất cả
             <ArrowRight className="size-3.5 inline ml-1.5" aria-hidden="true" />
-          </Button>
-        </Link>
+          </Link></Button>
       </div>
 
       {inProgress.length === 0 && done.length === 0 && (
@@ -75,12 +73,10 @@ export function AnalyticsExamHistory({
                   Bắt đầu {formatDate(att.submittedAt)} · {att.mode === 'real' ? 'Thi thử' : 'Luyện tập'}
                 </span>
               </div>
-              <Link href={`/phong-thi?attemptId=${encodeURIComponent(att.id)}`}>
-                <Button variant="primary" size="sm" className="shrink-0 text-xs font-bold">
+              <Button asChild variant="primary" size="sm" className="shrink-0 text-xs font-bold"><Link href={`/phong-thi?attemptId=${encodeURIComponent(att.id)}`}>
                   <Play className="size-3.5 inline mr-1" aria-hidden="true" />
                   Tiếp tục
-                </Button>
-              </Link>
+                </Link></Button>
             </div>
           ))}
         </div>
@@ -127,11 +123,9 @@ export function AnalyticsExamHistory({
                         {att.totalScore >= targetThreshold ? '↑ Đủ điểm tổng' : '↓ Dưới ngưỡng tổng'}
                       </span>
                     </div>
-                    <Link href={`/ket-qua/${encodeURIComponent(att.id)}`} aria-label="Xem kết quả chi tiết">
-                      <Button variant="ghost" size="sm" className="size-8 p-0 text-slate-400 hover:text-slate-600">
+                    <Button asChild variant="ghost" size="sm" className="size-8 p-0 text-slate-400 hover:text-slate-600" aria-label="Xem kết quả chi tiết"><Link href={`/ket-qua/${encodeURIComponent(att.id)}`}>
                         <ChevronRight className="size-4" aria-hidden="true" />
-                      </Button>
-                    </Link>
+                      </Link></Button>
                   </div>
                 </div>
 
