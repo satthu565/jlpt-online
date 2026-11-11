@@ -1,12 +1,12 @@
 import type { NextRequest } from 'next/server';
 
-// TODO(security): the fallback below is a staging credential kept only so the preview
-// keeps working; set DATABASE_URL in the service environment and delete it.
-const STAGING_FALLBACK_URL =
-  'postgres://jlpt:311168c62385bd1fac12286debed8054@172.18.0.3:5432/jlpt_staging';
-
+/** Connection string of the application database; it must come from the service environment, never from code. */
 export function getAnalyticsDbUrl(): string {
-  return process.env.DATABASE_URL || STAGING_FALLBACK_URL;
+  const url = process.env.DATABASE_URL;
+  if (!url) {
+    throw new Error('DATABASE_URL is not set for the web service (see /etc/jlpt/web-db.env on the VM)');
+  }
+  return url;
 }
 
 /** Resolve the signed-in user from the caller's own session (never from a query param). */

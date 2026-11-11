@@ -38,17 +38,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Question was not answered by this user' }, { status: 403 });
     }
 
-    // Additive table kept out of the main migrations on purpose; see docs before moving it there.
-    await sql`
-      CREATE TABLE IF NOT EXISTS user_wrong_reasons (
-        user_id uuid NOT NULL,
-        question_id uuid NOT NULL,
-        reason text NOT NULL,
-        created_at timestamptz NOT NULL DEFAULT now(),
-        updated_at timestamptz NOT NULL DEFAULT now(),
-        PRIMARY KEY (user_id, question_id)
-      )`;
-
     if (reason === null) {
       await sql`DELETE FROM user_wrong_reasons WHERE user_id = ${userId} AND question_id = ${questionId}`;
     } else {
@@ -59,6 +48,7 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ ok: true, reason });
   } catch (error) {
+    // Table comes from migration 0013_user_wrong_reasons; a missing table means it was not applied yet.
     console.error('Error saving wrong-answer reason:', error);
     return NextResponse.json({ error: 'Failed to save reason' }, { status: 500 });
   } finally {

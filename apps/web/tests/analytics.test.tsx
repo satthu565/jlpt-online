@@ -517,7 +517,7 @@ describe('Analytics, True Progress & Dashboard Hand-Calculation Suite (L03)', ()
   // 3. Composite Dashboard Integration
   // =========================================================================
 
-  it('renders the complete AnalyticsDashboard embedding all widgets without errors', () => {
+  it('renders the complete AnalyticsDashboard with every visible section and no hidden legacy widgets', () => {
     const html = renderClean(
       <AnalyticsDashboard
         attempts={TEST_ATTEMPTS}
@@ -528,16 +528,12 @@ describe('Analytics, True Progress & Dashboard Hand-Calculation Suite (L03)', ()
     );
 
     expect(html).toContain('data-testid="analytics-dashboard"');
-    expect(html).toContain('data-testid="true-progress-widget"');
-    expect(html).toContain('data-testid="target-progress-tracker"');
-    expect(html).toContain('data-testid="next-priority-widget"');
-    expect(html).toContain('data-testid="score-progression-chart"');
-    expect(html).toContain('data-testid="skill-accuracy-widget"');
-    expect(html).toContain('data-testid="speed-accuracy-widget"');
-    expect(html).toContain('data-testid="repeated-mistakes-widget"');
-    expect(html).toContain('data-testid="common-errors-widget"');
-    expect(html).toContain('data-testid="monthly-comparison-widget"');
-    expect(html).toContain('data-testid="study-time-widget"');
+    for (const id of ['overview', 'assessment', 'exam-plan', 'priority-matrix', 'progress', 'skills', 'history', 'activity']) {
+      expect(html).toContain(`id="${id}"`);
+    }
+    // the old screen-reader-only block with hard-coded text is gone
+    expect(html).not.toContain('sr-only');
+    expect(html).not.toContain('data-testid="true-progress-widget"');
   });
 
   it('ERROR-01: verifies AnalyticsErrorAnalysis renders honest empty states when no question attempts exist', () => {

@@ -6,21 +6,9 @@ import { mondaiAccuracy } from '../bank';
 import type { ActivityData, DifficultyData, ExamMeta, LevelContent, ScheduleItem } from '../bank';
 import { buildPracticeHref } from '../practice-link';
 import { AnalyticsExamPlan } from './analytics-exam-plan';
-import type { Level, Skill, MondaiType } from '@jlpt/schema';
+import type { Level, Skill } from '@jlpt/schema';
 import type { AttemptRecord, QuestionAttemptRecord } from '../types';
-import {
-  calculateTrueProgress,
-  calculateScoreProgression,
-  calculateSkillAccuracy,
-  calculateMondaiAccuracy,
-  calculateRepeatedMistakes,
-  calculateCommonErrors,
-  calculateMonthlyComparison,
-  calculateStudyTime,
-  calculateTargetProgress,
-  calculateNextPriority,
-  calculateSpeedAccuracy,
-} from '../utils/calculator';
+import { calculateSkillAccuracy, calculateMondaiAccuracy } from '../utils/calculator';
 
 // New V4 Design Components
 import { AnalyticsSidebarNav } from './analytics-sidebar-nav';
@@ -41,16 +29,6 @@ import { AnalyticsActivityHeatmap } from './analytics-activity-heatmap';
 import { AnalyticsModals } from './analytics-modals';
 
 // Legacy Unit Test Widgets (maintained for testid compatibility)
-import { TrueProgressWidget } from './true-progress-widget';
-import { TargetProgressTracker } from './target-progress-tracker';
-import { NextPriorityWidget } from './next-priority-widget';
-import { ScoreProgressionChart } from './score-progression-chart';
-import { SkillAccuracyWidget } from './skill-accuracy-widget';
-import { SpeedAccuracyWidget } from './speed-accuracy-widget';
-import { RepeatedMistakesWidget } from './repeated-mistakes-widget';
-import { CommonErrorsWidget } from './common-errors-widget';
-import { MonthlyComparisonWidget } from './monthly-comparison-widget';
-import { StudyTimeWidget } from './study-time-widget';
 
 export interface AnalyticsDashboardProps {
   attempts: AttemptRecord[];
@@ -479,21 +457,8 @@ export function AnalyticsDashboard({
     }));
   }, [filteredAttempts]);
 
-  // Hand-Calculators for Legacy Test Suites
-  const trueProgress = useMemo(() => calculateTrueProgress(questionAttempts), [questionAttempts]);
-  const progression = useMemo(() => calculateScoreProgression(attempts), [attempts]);
   const skillStats = useMemo(() => calculateSkillAccuracy(questionAttempts), [questionAttempts]);
   const mondaiStats = useMemo(() => calculateMondaiAccuracy(questionAttempts), [questionAttempts]);
-  const repeatedMistakes = useMemo(() => calculateRepeatedMistakes(questionAttempts), [questionAttempts]);
-  const commonErrors = useMemo(() => calculateCommonErrors(questionAttempts), [questionAttempts]);
-  const monthlyStats = useMemo(() => calculateMonthlyComparison(attempts), [attempts]);
-  const studyTime = useMemo(() => calculateStudyTime(attempts, questionAttempts), [attempts, questionAttempts]);
-  const targetProgress = useMemo(
-    () => calculateTargetProgress(attempts, currentLevel, targetScore),
-    [attempts, currentLevel, targetScore],
-  );
-  const nextPriority = useMemo(() => calculateNextPriority(skillStats), [skillStats]);
-  const speedAccuracy = useMemo(() => calculateSpeedAccuracy(questionAttempts), [questionAttempts]);
 
   // Skill category mapping for Section 11 & 12
   const skillCategories: SkillCategoryItem[] = useMemo(() => {
@@ -826,20 +791,6 @@ export function AnalyticsDashboard({
         detailModalState={detailModalState}
         onCloseDetailModal={() => setDetailModalState((prev) => ({ ...prev, open: false }))}
       />
-
-      {/* Hidden / Accordion Container for Unit Test Widgets Compatibility */}
-      <div className="sr-only" aria-hidden="true">
-        <TrueProgressWidget progress={trueProgress} />
-        <TargetProgressTracker summary={targetProgress} />
-        <NextPriorityWidget recommendation={nextPriority} />
-        <ScoreProgressionChart attempts={progression} />
-        <SkillAccuracyWidget skills={skillStats} mondais={mondaiStats} />
-        <SpeedAccuracyWidget summary={speedAccuracy} />
-        <RepeatedMistakesWidget mistakes={repeatedMistakes} />
-        <CommonErrorsWidget errors={commonErrors} />
-        <MonthlyComparisonWidget monthlyStats={monthlyStats} />
-        <StudyTimeWidget summary={studyTime} />
-      </div>
     </div>
   );
 }
