@@ -662,6 +662,22 @@ describe('Analytics, True Progress & Dashboard Hand-Calculation Suite (L03)', ()
       <AnalyticsMistakeLibrary
         level="N3"
         isDemoMode={false}
+        attempts={[
+          {
+            id: 'a1',
+            examId: 'e1',
+            examTitle: 'Đề thi JLPT N3',
+            level: 'N3',
+            mode: 'real',
+            status: 'submitted',
+            totalScore: 50,
+            maxScore: 180,
+            accuracy: 27,
+            passed: false,
+            durationSec: 5000,
+            submittedAt: '2026-11-08T10:00:00Z',
+          },
+        ]}
         mistakes={{
           grammar: [record('ところが', 'N3'), record('ならでは', 'N1')],
           vocab: [],
