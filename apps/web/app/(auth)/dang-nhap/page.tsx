@@ -9,6 +9,7 @@ import { Alert } from '@jlpt/ui/components/alert';
 import { useI18n } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth-context';
 import { AuthClientError } from '../../../lib/auth-client';
+import { getSafeRedirect } from '../../../lib/safe-redirect';
 
 export default function LoginPage(): React.JSX.Element {
   const { t } = useI18n();
@@ -46,8 +47,8 @@ export default function LoginPage(): React.JSX.Element {
         }
       }
       setSuccessMessage(t('auth.login.success'));
-      // Immediate redirect to user profile on successful login
-      window.location.href = '/tai-khoan';
+      // Go back to the page that asked for sign-in (?redirect=/thong-ke); same-site paths only
+      window.location.href = getSafeRedirect(new URLSearchParams(window.location.search).get('redirect'));
     } catch (err: unknown) {
       if (err instanceof AuthClientError) {
         if (err.code === 'INVALID_CREDENTIALS' || err.code === 'UNAUTHENTICATED') {
