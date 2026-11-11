@@ -251,7 +251,6 @@ export function SrsReviewRunner({
           <Dropdown.Popover><Dropdown.Menu aria-label={t('srs.study.moreActions')}>
             <Dropdown.Item id="undo" isDisabled={!canUndo || saving || !ready || transitioning} onAction={handleUndo}>{t('srs.study.undo')}</Dropdown.Item>
             <Dropdown.Item id="save" isDisabled={!ready || saving || transitioning || (!draftCount && !syncSnapshot.pendingCount)} onAction={() => { void handleSave(); }}>{t('srs.study.save')}</Dropdown.Item>
-            {onFinish && <Dropdown.Item id="exit" isDisabled={!ready || saving || transitioning} onAction={() => { void handleSave(true); }}>{t('srs.study.saveAndExit')}</Dropdown.Item>}
           </Dropdown.Menu></Dropdown.Popover>
         </Dropdown>
       </div>
@@ -328,9 +327,6 @@ export function SrsReviewRunner({
         </Button>}
         {practice && <Button variant="secondary" onPress={() => { setPractice(null); setViewRevision(value => value + 1); }}
           disabled={transitioning} data-testid="srs-practice-exit">{t('srs.study.practiceExit')}</Button>}
-        {onFinish && <Button variant="ghost" onPress={() => { void handleSave(true); }} disabled={saving || !ready || transitioning}>
-          {t('srs.study.saveAndExit')}
-        </Button>}
       </div>
     </div>
     </Tabs.Panel>
