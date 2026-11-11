@@ -2,7 +2,7 @@
 
 import { ArrowLeft, Check, Clock3, GraduationCap, Info, Layers, MoreHorizontal, RotateCcw, RotateCcwSquare, Save, Star, Target, Undo2 } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, Chip, Dropdown, Modal, ProgressBar, Separator, Tabs, Tooltip } from '@jlpt/ui/components/exam-controls';
+import { Button, Card, Chip, Dropdown, Modal, Popover, ProgressBar, Separator, Tabs, Tooltip } from '@jlpt/ui/components/exam-controls';
 import { HeroSelect } from '@jlpt/ui/components/hero-select';
 import { Alert } from '@jlpt/ui/components/alert';
 import type { DueFlashcard, ReviewRating } from '../types';
@@ -48,7 +48,6 @@ export function SrsReviewRunner({
   const resetLock = useRef(false);
   const [resetError, setResetError] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [settingsInfoOpen, setSettingsInfoOpen] = useState(false);
   const [studyView, setStudyView] = useState('review');
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [viewRevision, setViewRevision] = useState(0);
@@ -243,7 +242,7 @@ export function SrsReviewRunner({
         </Tabs.List>
       </Tabs.ListContainer>
       <div className={styles.toolbarActions}>
-        <Button variant="outline" disabled={transitioning || saving || resetting} onPress={() => { setShowSettings(value => !value); setSettingsInfoOpen(false); }}
+        <Button variant="outline" disabled={transitioning || saving || resetting} onPress={() => setShowSettings(value => !value)}
           aria-expanded={showSettings} aria-controls="srs-study-settings"><Target size={18} aria-hidden="true" />{t('srs.study.settings')}</Button>
         {onReset && <Button variant="outline" className={styles.resetButton} disabled={!ready || transitioning || saving || resetting}
           onPress={() => { void openReset(); }} data-testid="srs-reset-open"><RotateCcwSquare size={18} aria-hidden="true" />{t('srs.study.resetButton')}</Button>}
@@ -284,11 +283,15 @@ export function SrsReviewRunner({
             </div>
             <div className={styles.settingsHint}>
               <p>{t('srs.study.settingsSavedHint')}</p>
-              <Tooltip delay={150} isOpen={settingsInfoOpen} onOpenChange={setSettingsInfoOpen}>
-                <Button variant="ghost" size="icon" className={styles.settingsInfo}
-                  aria-label={t('srs.study.settingsInfo')} onPress={() => setSettingsInfoOpen(value => !value)}>
-                  <Info size={16} aria-hidden="true" />
-                </Button>
+              <Tooltip delay={150}>
+                <Popover>
+                  <Button variant="ghost" size="icon" className={styles.settingsInfo} aria-label={t('srs.study.settingsInfo')}>
+                    <Info size={16} aria-hidden="true" />
+                  </Button>
+                  <Popover.Content placement="top" className={styles.settingsTooltip}>
+                    <Popover.Dialog aria-label={t('srs.study.settingsInfo')}>{t('srs.study.localSettingsHint')}</Popover.Dialog>
+                  </Popover.Content>
+                </Popover>
                 <Tooltip.Content placement="top" className={styles.settingsTooltip}>{t('srs.study.localSettingsHint')}</Tooltip.Content>
               </Tooltip>
             </div>
