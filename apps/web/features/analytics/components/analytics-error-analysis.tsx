@@ -299,7 +299,7 @@ export function AnalyticsErrorAnalysis({
                         Chọn sai {e.incorrect - e.blank} · bỏ trống {e.blank}
                       </p>
                     )}
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500">{e.reason}</p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500">Gợi ý chung cho dạng này: {e.reason}</p>
                     <Button
                       variant="ghost"
                       size="sm"

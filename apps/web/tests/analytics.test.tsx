@@ -637,7 +637,43 @@ describe('Analytics, True Progress & Dashboard Hand-Calculation Suite (L03)', ()
 
     expect(html).toContain('05 · BỘ SƯU TẬP LỖI SAI CÁ NHÂN');
     expect(html).toContain('Kiến thức cần ôn');
-    expect(html).toContain('～ようにする');
-    expect(html).toContain('08/11/2026');
+    // no fabricated template records: without real mistake data the list stays empty
+    expect(html).not.toContain('～ようにする');
+  });
+
+  it('MISTAKE-02: shows only real mistakes of the selected level', () => {
+    const record = (term: string, level: string) => ({
+      term,
+      stem: `${term} の問題`,
+      level,
+      meaning: 'nghĩa',
+      wrong: 2,
+      total: 3,
+      streak: 1,
+      last: '08/11/2026',
+      source: `${level} · Đề thi`,
+      reason: 'r',
+      prompt: 'p',
+      selected: 's',
+      correct: 'c',
+      explain: 'e',
+    });
+    const html = renderClean(
+      <AnalyticsMistakeLibrary
+        level="N3"
+        isDemoMode={false}
+        mistakes={{
+          grammar: [record('ところが', 'N3'), record('ならでは', 'N1')],
+          vocab: [],
+          kanji: [],
+          question: [],
+        }}
+        totalErrors={2}
+        onOpenQuestionDetail={() => {}}
+        onReviewAll={() => {}}
+      />,
+    );
+    expect(html).toContain('ところが');
+    expect(html).not.toContain('ならでは');
   });
 });

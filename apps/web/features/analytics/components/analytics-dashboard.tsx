@@ -194,6 +194,11 @@ export function AnalyticsDashboard({
     return done[0] ? done[0].totalScore : null;
   }, [levelAttempts]);
 
+  const levelWrongTotal = useMemo(() => {
+    const real = realStatsBySkillByLevel?.[currentLevel];
+    return real ? Object.values(real).reduce((acc, v) => acc + v.wrong, 0) : undefined;
+  }, [realStatsBySkillByLevel, currentLevel]);
+
   const totalCompleted = submittedAttempts.length;
   const inProgressCount = filteredAttempts.filter((a) => a.status === 'in_progress').length;
 
@@ -585,7 +590,7 @@ export function AnalyticsDashboard({
       message = `Tập trung 15 câu dạng "${param || 'Đọc hiểu'}" với phân tích chi tiết và canh thời gian chuẩn.`;
     } else if (mode === 'priority') {
       title = `Nội dung ưu tiên: ${param || 'Đọc hiểu đoạn dài'}`;
-      message = 'Gợi ý: luyện 15 câu chuyên sâu, gạch chân từ nối và tóm tắt luận điểm sau mỗi đoạn.';
+      message = 'Gợi ý: luyện câu đúng dạng này, đọc kỹ lời giải của các câu sai rồi làm lại để kiểm tra bạn đã sửa được chưa.';
     } else if (mode === 'skills') {
       title = 'Phân tích kỹ năng chuyên sâu';
       message = 'Xem chi tiết mức độ thành thạo và phân bố dạng câu hỏi cho toàn bộ 4 kỹ năng JLPT.';
@@ -716,7 +721,7 @@ export function AnalyticsDashboard({
             level={currentLevel}
             isDemoMode={isDemoMode}
             mistakes={mistakes}
-            totalErrors={totalWrongCount}
+            totalErrors={levelWrongTotal ?? totalWrongCount}
             onOpenQuestionDetail={(rec) => setQuestionModalRecord(rec)}
             onReviewAll={(count) => handleOpenStudyModal('review', `${count} mục`)}
           />

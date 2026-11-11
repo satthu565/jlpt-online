@@ -973,6 +973,7 @@ export async function GET(request: NextRequest) {
 
     for (const cat of categories) {
       const rows = await sql`
+        SELECT * FROM (
         SELECT
           ua.question_id,
           q.skill,
@@ -986,7 +987,12 @@ export async function GET(request: NextRequest) {
           (array_agg(ua.option_value ORDER BY coalesce(ea.submitted_at, ea.started_at) DESC)
             FILTER (WHERE ua.is_correct = false))[1] as user_choice,
           array_agg(ua.is_correct ORDER BY coalesce(ea.submitted_at, ea.started_at) DESC) as recent_correct,
-          (array_agg(e.title ORDER BY coalesce(ea.submitted_at, ea.started_at) DESC))[1] as exam_title
+          (array_agg(e.title ORDER BY coalesce(ea.submitted_at, ea.started_at) DESC))[1] as exam_title,
+          row_number() OVER (
+            PARTITION BY q.level
+            ORDER BY count(*) FILTER (WHERE ua.is_correct = false) DESC,
+                     max(coalesce(ea.submitted_at, ea.started_at)) FILTER (WHERE ua.is_correct = false) DESC NULLS LAST
+          ) AS rn
         FROM user_answers ua
         JOIN exam_attempts ea ON ea.id = ua.attempt_id
         JOIN exams e ON e.id = ea.exam_id
@@ -998,8 +1004,9 @@ export async function GET(request: NextRequest) {
         WHERE ea.user_id = ${userId} AND q.skill IN ${sql(cat.skills)}
         GROUP BY ua.question_id, q.skill, q.mondai_type, q.level, qv.stem, qv.explanation
         HAVING count(*) FILTER (WHERE ua.is_correct = false) > 0
+        ) ranked
+        WHERE rn <= 8
         ORDER BY wrong_count DESC, last_date DESC
-        LIMIT 8
       `;
 
       const list = results[cat.key] || [];

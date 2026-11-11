@@ -433,9 +433,8 @@ export default function AnalyticsPage(): React.JSX.Element {
       setSkillAggregates(loadedSkills);
       setAttempts(loadedAttempts);
       setQuestionAttempts(loadedQuestionAttempts);
-      if (loadedAttempts.length > 0) {
-        setIsDemoMode(false);
-      }
+      // signed-in learners always see their own (possibly empty) data; sample data is opt-in
+      setIsDemoMode(false);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Không thể kết nối máy chủ phân tích';
       setError(msg);
@@ -633,7 +632,7 @@ export default function AnalyticsPage(): React.JSX.Element {
             skillAggregates={skillAggregates}
             targetLevel={(user?.targetLevel as Level) || 'N3'}
             targetScore={120}
-            userName={user?.name || user?.email?.split('@')[0] || 'Nguyễn An'}
+            userName={user?.name || user?.email?.split('@')[0] || 'Học viên'}
             isDemoMode={showDemo}
             mistakes={showDemo ? undefined : realMistakes}
             totalWrongCount={showDemo ? undefined : realTotalWrongCount}

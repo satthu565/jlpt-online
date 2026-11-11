@@ -20,28 +20,28 @@ export const LEVEL_KNOWLEDGE_MAP: Record<Level, KnowledgeGroup[]> = {
     {
       key: 'vocab',
       name: 'Từ vựng & Kanji',
-      count: 770,
+      count: 0,
       color: '#6277ed',
       detail: 'Cách đọc chữ Hán, nghĩa từ vựng, từ gần nghĩa, cách dùng từ trong ngữ cảnh cao cấp N1.',
     },
     {
       key: 'grammar',
       name: 'Ngữ pháp',
-      count: 610,
+      count: 0,
       color: '#17ac83',
       detail: 'Ngữ pháp câu, sắp xếp thành câu có dấu sao, ngữ pháp theo đoạn văn N1.',
     },
     {
       key: 'reading',
       name: 'Đọc hiểu',
-      count: 800,
+      count: 0,
       color: '#edac52',
       detail: 'Đọc hiểu đoạn ngắn, đoạn trung, đoạn dài, bài luận so sánh, tìm kiếm thông tin N1.',
     },
     {
       key: 'listening',
       name: 'Nghe hiểu',
-      count: 1027,
+      count: 0,
       color: '#7c8aef',
       detail: 'Hiểu chủ đề, nhiệm vụ, tóm tắt ý chính, phản hồi nhanh, nghe hiểu tổng hợp N1.',
     },
@@ -50,28 +50,28 @@ export const LEVEL_KNOWLEDGE_MAP: Record<Level, KnowledgeGroup[]> = {
     {
       key: 'vocab',
       name: 'Từ vựng & Kanji',
-      count: 995,
+      count: 0,
       color: '#6277ed',
       detail: 'Chữ Hán, từ ghép, từ đồng nghĩa, ngữ cảnh sử dụng từ chuẩn N2.',
     },
     {
       key: 'grammar',
       name: 'Ngữ pháp',
-      count: 680,
+      count: 0,
       color: '#17ac83',
       detail: 'Chọn mẫu ngữ pháp, ghép câu ngôi sao, ngữ pháp đoạn văn N2.',
     },
     {
       key: 'reading',
       name: 'Đọc hiểu',
-      count: 650,
+      count: 0,
       color: '#edac52',
       detail: 'Đoạn văn ngắn, đoạn văn vừa, đoạn văn dài, bài văn nghị luận, tìm thông tin N2.',
     },
     {
       key: 'listening',
       name: 'Nghe hiểu',
-      count: 908,
+      count: 0,
       color: '#7c8aef',
       detail: 'Nghe hiểu vấn đề, ý chính, phản xạ nhanh, tổng hợp thông tin N2.',
     },
@@ -80,28 +80,28 @@ export const LEVEL_KNOWLEDGE_MAP: Record<Level, KnowledgeGroup[]> = {
     {
       key: 'vocab',
       name: 'Từ vựng & Kanji',
-      count: 1040,
+      count: 0,
       color: '#6277ed',
       detail: 'Cách đọc Hán tự, cách viết Hiragana/Kanji, ngữ cảnh từ vựng, từ gần nghĩa N3.',
     },
     {
       key: 'grammar',
       name: 'Ngữ pháp',
-      count: 695,
+      count: 0,
       color: '#17ac83',
       detail: 'Chọn hình thức ngữ pháp, sắp xếp câu dấu sao, ngữ pháp đoạn văn N3.',
     },
     {
       key: 'reading',
       name: 'Đọc hiểu',
-      count: 485,
+      count: 0,
       color: '#edac52',
       detail: 'Đọc hiểu đoạn ngắn, đoạn vừa, đoạn dài, trích xuất dữ liệu và biểu bảng N3.',
     },
     {
       key: 'listening',
       name: 'Nghe hiểu',
-      count: 827,
+      count: 0,
       color: '#7c8aef',
       detail: 'Nghe hiểu nhiệm vụ, nội dung then chốt, đàm thoại tình huống, trả lời nhanh N3.',
     },
@@ -110,21 +110,21 @@ export const LEVEL_KNOWLEDGE_MAP: Record<Level, KnowledgeGroup[]> = {
     {
       key: 'vocab',
       name: 'Từ vựng & Kanji',
-      count: 520,
+      count: 0,
       color: '#6277ed',
       detail: 'Đọc và viết chữ Hán cơ bản, từ vựng đời sống thường ngày N4.',
     },
     {
       key: 'grammar_reading',
       name: 'Ngữ pháp & Đọc hiểu',
-      count: 515,
+      count: 0,
       color: '#17ac83',
       detail: 'Mẫu câu sơ cấp, nối câu, đọc đoạn văn ngắn và trích xuất thông tin N4.',
     },
     {
       key: 'listening',
       name: 'Nghe hiểu',
-      count: 274,
+      count: 0,
       color: '#7c8aef',
       detail: 'Nghe hiểu chỉ dẫn, hành động tiếp theo, phản xạ giao tiếp cơ bản N4.',
     },
@@ -133,21 +133,21 @@ export const LEVEL_KNOWLEDGE_MAP: Record<Level, KnowledgeGroup[]> = {
     {
       key: 'vocab',
       name: 'Từ vựng & Kanji',
-      count: 340,
+      count: 0,
       color: '#6277ed',
       detail: 'Chữ Hán nhập môn, số đếm, từ vựng sinh hoạt hàng ngày N5.',
     },
     {
       key: 'grammar_reading',
       name: 'Ngữ pháp & Đọc hiểu',
-      count: 276,
+      count: 0,
       color: '#17ac83',
       detail: 'Trợ từ, thể động từ sơ cấp, đọc hiểu mẩu tin và thông báo ngắn N5.',
     },
     {
       key: 'listening',
       name: 'Nghe hiểu',
-      count: 217,
+      count: 0,
       color: '#7c8aef',
       detail: 'Hội thoại ngắn, số liệu, giờ giấc, đồ vật và chỉ đường N5.',
     },
@@ -188,7 +188,7 @@ export function AnalyticsKnowledgeMap({
   let accumulatedPct = 0;
   const gradientStops = activeGroups.map((g) => {
     const start = accumulatedPct;
-    accumulatedPct += (g.count / totalQuestions) * 100;
+    accumulatedPct += (g.count / (totalQuestions || 1)) * 100;
     return `${g.color} ${start.toFixed(1)}% ${accumulatedPct.toFixed(1)}%`;
   });
   const conicStyle = {
@@ -252,7 +252,7 @@ export function AnalyticsKnowledgeMap({
             <div className="flex-1 w-full space-y-1.5">
               {activeGroups.map((g) => {
                 const isSelected = selectedGroup.key === g.key;
-                const pct = Math.round((g.count / totalQuestions) * 100);
+                const pct = Math.round((g.count / (totalQuestions || 1)) * 100);
                 return (
                   <div
                     key={g.key}
@@ -309,7 +309,7 @@ export function AnalyticsKnowledgeMap({
 
             <div className="space-y-4 my-2">
               {activeGroups.map((g) => {
-                const pct = Math.round((g.count / totalQuestions) * 100);
+                const pct = Math.round((g.count / (totalQuestions || 1)) * 100);
                 return (
                   <div key={g.key} className="space-y-1.5">
                     <div className="flex justify-between items-center text-xs">
@@ -335,7 +335,7 @@ export function AnalyticsKnowledgeMap({
             <span>
               {bank && bank.questionsCount > 0
                 ? `Đếm trực tiếp từ ${bank.examsCount} đề thi JLPT ${level} đã xuất bản trong ngân hàng đề của hệ thống.`
-                : 'Chưa tải được số liệu trực tiếp; đang hiển thị số liệu tổng hợp sẵn.'}
+                : 'Đang tải số liệu kho đề…'}
             </span>
           </div>
         </Card>

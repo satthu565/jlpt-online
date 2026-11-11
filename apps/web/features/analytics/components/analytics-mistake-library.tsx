@@ -1156,8 +1156,16 @@ export function AnalyticsMistakeLibrary({
 
   // Real computation from attempts
   const computedMistakes = useMemo<Record<string, MistakeRecord[]>>(() => {
-    if (mistakes) return mistakes;
-    if (hasNoData) return { grammar: [], vocab: [], kanji: [], question: [] };
+    if (mistakes) {
+      const targetLevel = level || 'N3';
+      const byLevel: Record<string, MistakeRecord[]> = {};
+      for (const [tab, list] of Object.entries(mistakes)) {
+        byLevel[tab] = list.filter((m) => !m.level || m.level === targetLevel);
+      }
+      return byLevel;
+    }
+    // template records are sample data: only guests in demo mode may see them
+    if (hasNoData || !isDemoMode) return { grammar: [], vocab: [], kanji: [], question: [] };
 
     const targetLvl = level || 'N3';
     const templates = LEVEL_MISTAKE_TEMPLATES[targetLvl] || LEVEL_MISTAKE_TEMPLATES.N3;

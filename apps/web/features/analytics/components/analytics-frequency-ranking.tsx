@@ -212,7 +212,7 @@ export function AnalyticsFrequencyRanking({ level = 'N3', bank, content }: Analy
             </div>
             <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Ôn đúng phần có khả năng giúp tăng điểm</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mt-1">
-              Kiến thức có tần suất cao nhưng bạn đã làm đúng 95% có thể ít cấp thiết hơn dạng câu xuất hiện đều và bạn thường xuyên mắc lỗi.
+              Kiến thức có tần suất cao nhưng bạn đã làm đúng gần hết có thể ít cấp thiết hơn dạng câu xuất hiện đều mà bạn thường xuyên mắc lỗi.
             </p>
           </div>
 
