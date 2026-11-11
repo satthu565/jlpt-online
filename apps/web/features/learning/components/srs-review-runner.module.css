@@ -1,4 +1,4 @@
-.runner { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 88px; width: 100%; max-width: 1440px; margin-inline: auto; }
+.runner { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 88px; width: 100%; min-width: 0; margin-inline: auto; }
 .workspace { --accent: var(--color-blue-500); --accent-hover: var(--color-blue-600); --accent-soft: var(--color-blue-50); --accent-soft-foreground: var(--color-blue-600); display: flex; flex-direction: column; gap: 20px; padding: 16px 0; border-radius: 24px; background: radial-gradient(ellipse at 50% 40%, color-mix(in srgb, var(--color-blue-50) 48%, transparent), transparent 75%); }
 .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
 .titleGroup { display: flex; align-items: center; gap: 10px; flex: 1; }
